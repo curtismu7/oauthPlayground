@@ -765,14 +765,38 @@ export class UIManager {
      * @param {string} populationId - Population ID
      */
     updateImportProgress(current, total, message, counts = {}, populationName = '', populationId = '') {
+        // Ensures progress indicator and message are readable and aligned during import operations
         const percent = total > 0 ? Math.min(100, Math.round((current / total) * 100)) : 0;
         const spinnerContainer = document.getElementById('import-progress-spinner');
         if (spinnerContainer) {
             spinnerContainer.innerHTML = '';
-            spinnerContainer.appendChild(createCircularProgress({
+            // Create a flex column container for spinner and text
+            const flexContainer = document.createElement('div');
+            flexContainer.className = 'import-progress-flex';
+            flexContainer.style.display = 'flex';
+            flexContainer.style.flexDirection = 'column';
+            flexContainer.style.alignItems = 'center';
+            flexContainer.style.justifyContent = 'center';
+            flexContainer.style.gap = '0.75rem';
+            flexContainer.style.width = '100%';
+            flexContainer.style.margin = '0 auto';
+
+            // Spinner
+            const spinner = createCircularProgress({
                 value: percent,
-                label: message || 'Importing Users'
-            }));
+                label: '' // Only show percent in spinner, not message
+            });
+            flexContainer.appendChild(spinner);
+
+            // Text block for percent and message
+            const textBlock = document.createElement('div');
+            textBlock.className = 'import-progress-text-block';
+            textBlock.style.textAlign = 'center';
+            textBlock.style.marginTop = '0.25rem';
+            textBlock.innerHTML = `<div class="import-progress-percent" style="font-size: 1.3em; font-weight: 600; color: #7c3aed;">${percent}%</div><div class="import-progress-message" style="font-size: 1.05em; color: #333; margin-top: 0.2em;">${message || ''}</div>`;
+            flexContainer.appendChild(textBlock);
+
+            spinnerContainer.appendChild(flexContainer);
         }
         // Update counts
         if (typeof successCount !== 'undefined' && successCount) successCount.textContent = counts.succeeded || counts.success || 0;

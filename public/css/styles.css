@@ -4292,3 +4292,40 @@ label {
     max-width: 48px;
     max-height: 48px;
 }
+
+/* === Import Progress Spinner Alignment Fix === */
+.import-progress-flex {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  margin: 0 auto;
+}
+.import-progress-percent {
+  font-size: 1.3em;
+  font-weight: 600;
+  color: #7c3aed;
+  margin-bottom: 0.1em;
+}
+.import-progress-message {
+  font-size: 1.05em;
+  color: #333;
+  margin-top: 0.2em;
+  word-break: break-word;
+  max-width: 90vw;
+}
+@media (max-width: 600px) {
+  .import-progress-flex {
+    gap: 0.5rem;
+  }
+  .import-progress-percent {
+    font-size: 1.1em;
+  }
+  .import-progress-message {
+    font-size: 0.98em;
+    max-width: 98vw;
+  }
+}
+/* Ensures progress indicator and message are readable and aligned during import operations */
