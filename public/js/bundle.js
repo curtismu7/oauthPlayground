@@ -1116,6 +1116,10 @@ class App {
       return;
     }
 
+    // Enhanced logging for import start
+    console.log('🚀 [IMPORT] Starting import process');
+    this.logger.info('Starting import process');
+
     // Fetch selected population name and ID from dropdown
     const popSelect = document.getElementById('import-population-select');
     let populationId = popSelect && popSelect.value ? popSelect.value : '';
@@ -1617,9 +1621,16 @@ class App {
       // Validate import options (file, population, etc.)
       const importOptions = this.getImportOptions();
       if (!importOptions) {
+        console.log('❌ [IMPORT] Import options validation failed');
         this.isImporting = false;
         return;
       }
+      console.log('✅ [IMPORT] Import options validated:', {
+        totalUsers: importOptions.totalUsers,
+        populationId: importOptions.selectedPopulationId,
+        populationName: importOptions.selectedPopulationName,
+        fileName: importOptions.file?.name
+      });
 
       // Fixes binding issues and ensures the progress panel reflects live import state correctly
       // Immediately updates population, population ID, and user count in the progress panel before SSE events arrive
@@ -1650,28 +1661,39 @@ class App {
 
       // Send CSV data and population info to backend for processing
       // The server will start the import process and return a session ID
+      console.log('📤 [IMPORT] Sending request to backend...');
       const response = await fetch('/api/import', {
         method: 'POST',
         body: formData,
         signal: this.importAbortController.signal
       });
+      console.log('📥 [IMPORT] Backend response received:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
+      });
       const result = await response.json();
+      console.log('📋 [IMPORT] Backend response data:', result);
       const sessionId = result.sessionId;
 
       // Validate session ID is present (required for SSE connection)
       if (!sessionId) {
+        console.error('❌ [IMPORT] Session ID is missing from backend response');
         this.uiManager.debugLog("Import", "Session ID is undefined. Import cannot proceed.");
         this.uiManager.showError('Import failed', 'Session ID is undefined. Import cannot proceed.');
         this.isImporting = false;
         return;
       }
+      console.log('✅ [IMPORT] Session ID received:', sessionId);
 
       // Log session ID and establish SSE connection for progress updates
       this.uiManager.debugLog("Import", "Session ID received", {
         sessionId
       });
+      console.log('🔌 [IMPORT] Establishing SSE connection with sessionId:', sessionId);
       connectSSE(sessionId);
     } catch (error) {
+      console.error('❌ [IMPORT] Error during import process:', error);
       this.uiManager.debugLog("Import", "Error starting import", error);
       this.uiManager.showError('Import failed', error.message || error);
       this.isImporting = false;
