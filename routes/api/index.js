@@ -1489,10 +1489,16 @@ async function runImportProcess(req, sessionId, options) {
     const { createIfNotExists, defaultPopulationId, defaultEnabled, generatePasswords } = options;
     
     try {
-        // Log import start with estimated user count from CSV lines
-        debugLog("Import", "Starting background import process", { 
+        // Enhanced logging for import start with detailed information
+        debugLog("Import", "🚀 Starting background import process", { 
             sessionId, 
-            userCount: req.file?.buffer?.toString().split('\n').length - 1 
+            userCount: req.file?.buffer?.toString().split('\n').length - 1,
+            options: {
+                createIfNotExists,
+                defaultPopulationId,
+                defaultEnabled,
+                generatePasswords
+            }
         });
         
         // Send initial progress event to establish SSE connection
@@ -1503,17 +1509,23 @@ async function runImportProcess(req, sessionId, options) {
         // Convert buffer to string and split into lines, filtering out empty lines
         const csvContent = req.file.buffer.toString('utf8');
         const lines = csvContent.split('\n').filter(line => line.trim());
-        debugLog("CSV", `Parsing CSV file`, { totalLines: lines.length, headerRow: lines[0] });
+        debugLog("CSV", `📄 Parsing CSV file`, { 
+            totalLines: lines.length, 
+            headerRow: lines[0],
+            firstDataRow: lines[1] || 'No data rows'
+        });
         
         // Validate CSV structure: must have header row and at least one data row
         if (lines.length < 2) {
-            debugLog("CSV", "Invalid CSV file - insufficient data");
+            debugLog("CSV", "❌ Invalid CSV file - insufficient data");
             sendErrorEvent(sessionId, 'Invalid CSV file', 'CSV file must have at least a header row and one data row');
             return;
         }
         
         // Parse CSV headers and data rows into user objects
         const headers = lines[0].split(',').map(h => h.trim());
+        debugLog("CSV", `📋 CSV Headers parsed:`, headers);
+        
         const users = [];
         for (let i = 1; i < lines.length; i++) {
             const values = lines[i].split(',').map(v => v.trim());
@@ -1532,28 +1544,46 @@ async function runImportProcess(req, sessionId, options) {
             // Only include users that have either username or email (required for lookup)
             if (user.username || user.email) {
                 users.push(user);
+                debugLog("CSV", `✅ Valid user parsed:`, { 
+                    username: user.username, 
+                    email: user.email,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    populationId: user.populationId
+                });
+            } else {
+                debugLog("CSV", `⚠️ Skipping invalid user (no username or email):`, user);
             }
         }
         
-        debugLog("CSV", `Parsed users from CSV`, { totalUsers: users.length, headers });
+        debugLog("CSV", `📊 Parsed users from CSV`, { 
+            totalUsers: users.length, 
+            headers,
+            sampleUser: users[0] || 'No users'
+        });
         
         // Validate that we have at least one valid user to process
         if (users.length === 0) {
-            debugLog("CSV", "No valid users found in CSV");
+            debugLog("CSV", "❌ No valid users found in CSV");
             sendErrorEvent(sessionId, 'No valid users found', 'CSV file must contain at least one user with username or email');
             return;
         }
         
         // Get settings for environment ID
+        debugLog("Settings", "🔧 Retrieving settings for environment ID");
         const settingsResponse = await fetch('http://localhost:4000/api/settings');
         const settingsData = await settingsResponse.json();
         const settings = settingsData.success && settingsData.data ? settingsData.data : settingsData;
         const environmentId = settings.environmentId;
         
-        debugLog("Settings", "Retrieved settings", { environmentId, hasSettings: !!settings });
+        debugLog("Settings", "✅ Retrieved settings", { 
+            environmentId, 
+            hasSettings: !!settings,
+            settingsKeys: Object.keys(settings || {})
+        });
         
         if (!environmentId) {
-            debugLog("Settings", "Missing environment ID in settings");
+            debugLog("Settings", "❌ Missing environment ID in settings");
             sendErrorEvent(sessionId, 'Missing environment ID', 'Please configure your PingOne environment ID in settings');
             return;
         }
@@ -1565,16 +1595,29 @@ async function runImportProcess(req, sessionId, options) {
         let populationName = '';
         let populationId = defaultPopulationId;
         
+        debugLog("Population", "🏢 Population configuration", {
+            defaultPopulationId,
+            populationId,
+            environmentId
+        });
+        
         // Try to get population name if we have a population ID
         if (populationId) {
             try {
+                debugLog("Population", `🔍 Fetching population details for ID: ${populationId}`);
                 const populationResponse = await fetch(`http://127.0.0.1:4000/api/pingone/environments/${environmentId}/populations/${populationId}`);
                 if (populationResponse.ok) {
                     const populationData = await populationResponse.json();
                     populationName = populationData.name || 'Unknown Population';
+                    debugLog("Population", `✅ Population found:`, {
+                        id: populationId,
+                        name: populationName
+                    });
+                } else {
+                    debugLog("Population", `❌ Failed to fetch population ${populationId}:`, populationResponse.status);
                 }
             } catch (e) {
-                debugLog("Population", "Could not fetch population name", e);
+                debugLog("Population", "❌ Error fetching population name", e);
                 populationName = 'Unknown Population';
             }
         }
@@ -1585,12 +1628,19 @@ async function runImportProcess(req, sessionId, options) {
             id: populationId
         };
         
+        debugLog("Population", "📋 Population info for import", populationInfo);
+        
         // Detect population conflicts between CSV data and UI selection
         // A conflict occurs when both CSV contains population data AND UI has selected a population
         const hasCsvPopulationData = users.some(user => user.populationId && user.populationId.trim() !== '');
         const hasUiSelectedPopulation = defaultPopulationId && defaultPopulationId.trim() !== '';
         
-        debugLog("Population", "Population conflict check", { hasCsvPopulationData, hasUiSelectedPopulation, defaultPopulationId });
+        debugLog("Population", "🔍 Population conflict check", { 
+            hasCsvPopulationData, 
+            hasUiSelectedPopulation, 
+            defaultPopulationId,
+            csvPopulationCount: users.filter(u => u.populationId && u.populationId.trim() !== '').length
+        });
         
         let populationConflict = false;
         let populationConflictMessage = '';
@@ -1609,10 +1659,10 @@ This conflict needs to be resolved before import can proceed.`;
             if (conflictResolution) {
                 // Apply the user's resolution choice
                 if (conflictResolution.useCsvPopulation) {
-                    debugLog("Population", "Using CSV population data as resolved by user");
+                    debugLog("Population", "✅ Using CSV population data as resolved by user");
                     // Continue with CSV population data (no change needed)
                 } else if (conflictResolution.useUiPopulation) {
-                    debugLog("Population", "Using UI selected population as resolved by user");
+                    debugLog("Population", "✅ Using UI selected population as resolved by user");
                     // Override all users to use the UI selected population
                     users.forEach(user => {
                         user.populationId = defaultPopulationId;
@@ -1622,6 +1672,7 @@ This conflict needs to be resolved before import can proceed.`;
                 global.populationConflictResolutions.delete(sessionId);
             } else {
                 // Send conflict event to frontend for user resolution
+                debugLog("Population", "⚠️ Population conflict detected - sending to frontend for resolution");
                 sendSSEEvent(sessionId, 'population_conflict', { 
                     error: 'Population conflict detected',
                     message: populationConflictMessage,
@@ -1640,41 +1691,54 @@ This conflict needs to be resolved before import can proceed.`;
         const uniquePopulationIds = [...new Set(users.filter(u => u.populationId && u.populationId.trim() !== '').map(u => u.populationId))];
         const invalidPopulations = [];
         
+        debugLog("Population", "🔍 Validating population IDs", {
+            uniquePopulationIds,
+            totalUsers: users.length,
+            usersWithPopulation: users.filter(u => u.populationId && u.populationId.trim() !== '').length
+        });
+        
         // Initialize availablePopulationIds at function scope for validation
         let availablePopulationIds = [];
         
         // Fetch available populations from PingOne for validation
         // This ensures we only assign users to populations that actually exist
         try {
-            debugLog("Populations", "Fetching available populations for validation");
+            debugLog("Populations", "🔍 Fetching available populations for validation");
             const populationsResponse = await fetch(`http://127.0.0.1:4000/api/pingone/environments/${environmentId}/populations`);
             if (populationsResponse.ok) {
                 const populationsData = await populationsResponse.json();
                 availablePopulationIds = populationsData._embedded?.populations?.map(p => p.id) || [];
-                debugLog("Populations", `Fetched ${availablePopulationIds.length} available population IDs`);
+                debugLog("Populations", `✅ Fetched ${availablePopulationIds.length} available population IDs:`, availablePopulationIds);
             } else {
-                debugLog("Populations", "Could not fetch available populations for validation");
+                debugLog("Populations", "❌ Could not fetch available populations for validation");
             }
         } catch (e) {
-            debugLog("Populations", "Error fetching available populations", e);
+            debugLog("Populations", "❌ Error fetching available populations", e);
         }
         
         // Handle case where population list is unavailable
         if (!Array.isArray(availablePopulationIds) || availablePopulationIds.length === 0) {
-            debugLog("Populations", "Population list is unavailable. Cannot validate population.");
+            debugLog("Populations", "⚠️ Population list is unavailable. Cannot validate population.");
         }
         
         if (uniquePopulationIds.length > 0) {
-            debugLog("Populations", `Validating ${uniquePopulationIds.length} unique population IDs from CSV`);
+            debugLog("Populations", `🔍 Validating ${uniquePopulationIds.length} unique population IDs from CSV`);
             
             // Assign default population ID to users with missing or invalid population IDs
             // This ensures all users have a valid population assignment
             users.forEach(user => {
                 if (!user.populationId || !isValidUUID(user.populationId) || !availablePopulationIds.includes(user.populationId)) {
+                    const oldPopulationId = user.populationId;
                     user.populationId = defaultPopulationId;
+                    debugLog("Population", `🔄 Updated user population:`, {
+                        username: user.username,
+                        email: user.email,
+                        oldPopulationId,
+                        newPopulationId: defaultPopulationId
+                    });
                 }
             });
-            debugLog("Populations", `Found ${invalidPopulations.length} invalid populations:`, invalidPopulations);
+            debugLog("Populations", `📊 Found ${invalidPopulations.length} invalid populations:`, invalidPopulations);
         }
         
         // Handle invalid populations
@@ -1684,19 +1748,19 @@ This conflict needs to be resolved before import can proceed.`;
             // Check if invalid population has been resolved
             const invalidPopulationResolution = global.invalidPopulationResolutions?.get(sessionId);
             if (invalidPopulationResolution) {
-                debugLog("Populations", `Using resolved population for invalid populations: ${invalidPopulationResolution.selectedPopulationId}`);
-                // Override all users with invalid populations to use the selected population
+                debugLog("Populations", `✅ Using resolved population for invalid populations: ${invalidPopulationResolution.selectedPopulationId}`);
                 users.forEach(user => {
                     if (invalidPopulations.includes(user.populationId)) {
                         user.populationId = invalidPopulationResolution.selectedPopulationId;
                     }
                 });
-                // Clear the resolution
+                // Clear the resolution to prevent reuse
                 global.invalidPopulationResolutions.delete(sessionId);
             } else {
-                // Send invalid population event to frontend
-                sendSSEEvent(sessionId, 'invalid_population', { 
-                    error: 'Invalid populations detected',
+                // Send invalid population event to frontend for user resolution
+                debugLog("Populations", "⚠️ Invalid populations detected - sending to frontend for resolution");
+                sendSSEEvent(sessionId, 'invalid_population', {
+                    error: 'Invalid population detected',
                     message: invalidPopulationMessage,
                     invalidPopulations,
                     affectedUserCount: users.filter(u => invalidPopulations.includes(u.populationId)).length,
@@ -1708,19 +1772,22 @@ This conflict needs to be resolved before import can proceed.`;
         
         // After checking defaultPopulationId validity, before fetching PingOne default:
         if (users.every(u => !u.populationId || !isValidUUID(u.populationId) || !availablePopulationIds.includes(u.populationId)) && (!defaultPopulationId || !isValidUUID(defaultPopulationId) || !availablePopulationIds.includes(defaultPopulationId))) {
+            debugLog("Population", "🔍 No valid population found, trying fallbacks");
+            
             // Try to use default from settings.json
             const settingsPopId = await getDefaultPopulationIdFromSettings();
             if (settingsPopId && isValidUUID(settingsPopId) && availablePopulationIds.includes(settingsPopId)) {
                 users.forEach(u => u.populationId = settingsPopId);
-                debugLog("Populations", "Assigned settings.json default population to all users");
+                debugLog("Population", "✅ Assigned settings.json default population to all users");
             } else {
                 // Try to fetch default from PingOne
                 const fallbackPopId = await fetchDefaultPopulationId(environmentId);
                 if (fallbackPopId && availablePopulationIds.includes(fallbackPopId)) {
                     users.forEach(u => u.populationId = fallbackPopId);
-                    debugLog("Populations", "Assigned PingOne default population to all users");
+                    debugLog("Population", "✅ Assigned PingOne default population to all users");
                 } else {
                     // No valid fallback, prompt user as before
+                    debugLog("Population", "❌ No valid fallback population found - prompting user");
                     sendSSEEvent(sessionId, 'pick_population_required', {
                         error: 'No valid population found',
                         message: 'No valid populationId found in CSV, UI, settings.json, or PingOne default. Please pick a population.',
@@ -1740,7 +1807,13 @@ This conflict needs to be resolved before import can proceed.`;
             details: []
         };
         
-        debugLog("Import", "Starting user processing loop", { totalUsers: users.length, batchSize: 5 });
+        debugLog("Import", "🚀 Starting user processing loop", { 
+            totalUsers: users.length, 
+            batchSize: 5,
+            environmentId,
+            populationId: populationInfo.id,
+            populationName: populationInfo.name
+        });
         
         // Configure batch processing to avoid overwhelming the PingOne API
         const batchSize = 5;
@@ -1750,7 +1823,11 @@ This conflict needs to be resolved before import can proceed.`;
         // Process users in batches with delays to prevent API rate limiting
         for (let i = 0; i < users.length; i += batchSize) {
             const batch = users.slice(i, i + batchSize);
-            debugLog("Import", `Processing batch ${Math.floor(i/batchSize) + 1}`, { batchSize: batch.length, startIndex: i });
+            debugLog("Import", `📦 Processing batch ${Math.floor(i/batchSize) + 1}`, { 
+                batchSize: batch.length, 
+                startIndex: i,
+                batchUsers: batch.map(u => ({ username: u.username, email: u.email }))
+            });
             
             for (const user of batch) {
                 let status = 'unknown';
@@ -1763,40 +1840,56 @@ This conflict needs to be resolved before import can proceed.`;
                     const username = user.username;
                     const email = user.email;
                     
-                    debugLog("User", `Processing user ${username || email}`, { populationId, username, email });
+                    debugLog("User", `👤 Processing user ${username || email}`, { 
+                        populationId, 
+                        username, 
+                        email,
+                        firstName: user.firstName,
+                        lastName: user.lastName
+                    });
 
                     // Enhanced user existence checking with multiple lookup methods
                     // First attempt: Look up user by username in the selected population
                     if (username) {
                         try {
+                            debugLog("User", `🔍 Checking username existence: ${username} in population ${populationId}`);
                             const lookupResponse = await fetch(`http://127.0.0.1:4000/api/pingone/environments/${environmentId}/users?filter=username eq \"${encodeURIComponent(username)}\" and population.id eq \"${encodeURIComponent(populationId)}\"`);
                             if (lookupResponse.ok) {
                                 const lookupData = await lookupResponse.json();
                                 if (lookupData._embedded?.users?.length > 0) {
                                     existingUser = lookupData._embedded.users[0];
                                     skipReason = `User with username '${username}' already exists in population`;
-                                    debugLog("User", `Found existing user by username: ${username}`, { userId: existingUser.id });
+                                    debugLog("User", `✅ Found existing user by username: ${username}`, { userId: existingUser.id });
+                                } else {
+                                    debugLog("User", `✅ Username ${username} not found in population ${populationId}`);
                                 }
+                            } else {
+                                debugLog("User", `❌ Error checking username existence: ${lookupResponse.status}`);
                             }
                         } catch (error) {
-                            debugLog("User", `Error checking username existence for ${username}:`, error.message);
+                            debugLog("User", `❌ Error checking username existence for ${username}:`, error.message);
                         }
                     }
 
                     // Second attempt: Look up user by email in the selected population
                     if (!existingUser && email) {
                         try {
+                            debugLog("User", `🔍 Checking email existence: ${email} in population ${populationId}`);
                             const lookupResponse = await fetch(`http://127.0.0.1:4000/api/pingone/environments/${environmentId}/users?filter=email eq \"${encodeURIComponent(email)}\" and population.id eq \"${encodeURIComponent(populationId)}\"`);
                             if (lookupResponse.ok) {
                                 const lookupData = await lookupResponse.json();
                                 if (lookupData._embedded?.users?.length > 0) {
                                     existingUser = lookupData._embedded.users[0];
                                     skipReason = `User with email '${email}' already exists in population`;
-                                    debugLog("User", `Found existing user by email: ${email}`, { userId: existingUser.id });
+                                    debugLog("User", `✅ Found existing user by email: ${email}`, { userId: existingUser.id });
+                                } else {
+                                    debugLog("User", `✅ Email ${email} not found in population ${populationId}`);
                                 }
+                            } else {
+                                debugLog("User", `❌ Error checking email existence: ${lookupResponse.status}`);
                             }
                         } catch (error) {
-                            debugLog("User", `Error checking email existence for ${email}:`, error.message);
+                            debugLog("User", `❌ Error checking email existence for ${email}:`, error.message);
                         }
                     }
 
@@ -1814,6 +1907,7 @@ This conflict needs to be resolved before import can proceed.`;
                             }
                             
                             if (filterQuery) {
+                                debugLog("User", `🔍 Checking global user existence: ${filterQuery}`);
                                 const lookupResponse = await fetch(`http://127.0.0.1:4000/api/pingone/environments/${environmentId}/users?filter=${filterQuery}`);
                                 if (lookupResponse.ok) {
                                     const lookupData = await lookupResponse.json();
@@ -1821,26 +1915,30 @@ This conflict needs to be resolved before import can proceed.`;
                                         const foundUser = lookupData._embedded.users[0];
                                         existingUser = foundUser;
                                         skipReason = `User already exists in environment (${foundUser.population?.name || 'different population'})`;
-                                        debugLog("User", `Found existing user in different population:`, { 
+                                        debugLog("User", `✅ Found existing user in different population:`, { 
                                             userId: foundUser.id, 
                                             userPopulation: foundUser.population?.name || 'unknown',
                                             targetPopulation: populationInfo.name 
                                         });
+                                    } else {
+                                        debugLog("User", `✅ User not found globally`);
                                     }
+                                } else {
+                                    debugLog("User", `❌ Error checking global user existence: ${lookupResponse.status}`);
                                 }
                             }
                         } catch (error) {
-                            debugLog("User", `Error checking global user existence:`, error.message);
+                            debugLog("User", `❌ Error checking global user existence:`, error.message);
                         }
                     }
 
                     // Check if user exists in the selected population
                     const existsInPopulation = existingUser !== null;
-                    debugLog("User", `Import check: ${username || email} exists = ${existsInPopulation}, status = ${status}`);
+                    debugLog("User", `📊 Import check: ${username || email} exists = ${existsInPopulation}, status = ${status}`);
 
                     // If user exists in selected population, skip (import mode doesn't modify existing users)
                     if (existingUser) {
-                        debugLog("User", `User ${username || email} exists, skipping: ${skipReason}`);
+                        debugLog("User", `⏭️ User ${username || email} exists, skipping: ${skipReason}`);
                         results.skipped++;
                         status = 'skipped';
                         results.details.push({ 
@@ -1863,7 +1961,7 @@ This conflict needs to be resolved before import can proceed.`;
                         // This prevents creation attempts with invalid population assignments
                         let finalPopulationId = user.populationId;
                         if (!isValidUUID(finalPopulationId) || !availablePopulationIds.includes(finalPopulationId)) {
-                            debugLog("User", `Skipping user ${user.username || user.email}: invalid populationId '${finalPopulationId}'`);
+                            debugLog("User", `❌ Skipping user ${user.username || user.email}: invalid populationId '${finalPopulationId}'`);
                             results.failed++;
                             status = 'failed';
                             results.details.push({ user, status, error: `Invalid populationId: ${finalPopulationId}` });
@@ -1893,7 +1991,12 @@ This conflict needs to be resolved before import can proceed.`;
                             };
                         }
                         
-                        debugLog("User", `Creating user: ${user.username || user.email} in population ${finalPopulationId}`);
+                        debugLog("User", `🚀 Creating user: ${user.username || user.email} in population ${finalPopulationId}`, {
+                            userData: {
+                                ...userData,
+                                password: userData.password ? '[HIDDEN]' : undefined
+                            }
+                        });
                         
                         // Create user via PingOne API
                         const createResponse = await fetch(`http://127.0.0.1:4000/api/pingone/environments/${environmentId}/users`, {
@@ -1902,19 +2005,30 @@ This conflict needs to be resolved before import can proceed.`;
                             body: JSON.stringify(userData)
                         });
                         
-                        debugLog("User", `Create response status: ${createResponse.status}`);
+                        debugLog("User", `📡 Create response status: ${createResponse.status}`);
                         
                         if (createResponse.ok) {
                             // User created successfully
                             const createdUser = await createResponse.json();
-                            debugLog("User", `User created successfully: ${createdUser.id}`);
+                            debugLog("User", `✅ User created successfully: ${createdUser.id}`, {
+                                userId: createdUser.id,
+                                username: createdUser.username,
+                                email: createdUser.email,
+                                population: createdUser.population?.name || 'unknown'
+                            });
                             results.created++;
                             status = 'created';
                             results.details.push({ user, status, pingOneId: createdUser.id });
                         } else {
                             // User creation failed
                             const errorData = await createResponse.json().catch(() => ({}));
-                            debugLog("User", `Failed to create user: ${createResponse.status}`, errorData);
+                            debugLog("User", `❌ Failed to create user: ${createResponse.status}`, {
+                                errorData,
+                                userData: {
+                                    ...userData,
+                                    password: userData.password ? '[HIDDEN]' : undefined
+                                }
+                            });
                             results.failed++;
                             status = 'failed';
                             results.details.push({ user, status, error: errorData.message || 'Failed to create user', statusCode: createResponse.status });
@@ -1922,7 +2036,10 @@ This conflict needs to be resolved before import can proceed.`;
                     }
                     
                 } catch (error) {
-                    debugLog("User", `Error processing user ${user.username || user.email}`, error);
+                    debugLog("User", `❌ Error processing user ${user.username || user.email}`, {
+                        error: error.message,
+                        stack: error.stack
+                    });
                     results.failed++;
                     status = 'failed';
                     results.details.push({ user, status, error: error.message });
@@ -1977,20 +2094,29 @@ This conflict needs to be resolved before import can proceed.`;
                 );
                 
                 if (!progressResult) {
-                    debugLog("SSE", `Failed to send progress event for user ${processed}/${users.length}`);
+                    debugLog("SSE", `❌ Failed to send progress event for user ${processed}/${users.length}`);
                 } else {
-                    debugLog("SSE", `Progress event sent successfully for user ${processed}/${users.length}`);
+                    debugLog("SSE", `✅ Progress event sent successfully for user ${processed}/${users.length}`);
                 }
             }
             
             // Add delay between batches to prevent API rate limiting
             // This ensures we don't overwhelm the PingOne API with too many requests
             if (i + batchSize < users.length && delayBetweenBatches > 0) {
+                debugLog("Import", `⏱️ Adding delay between batches: ${delayBetweenBatches}ms`);
                 await new Promise(resolve => setTimeout(resolve, delayBetweenBatches));
             }
         }
         
-        debugLog("Import", "Import process completed", results);
+        debugLog("Import", "🏁 Import process completed", {
+            results,
+            summary: {
+                total: results.total,
+                created: results.created,
+                failed: results.failed,
+                skipped: results.skipped
+            }
+        });
         
         // Send final completion event to frontend using proper function
         // This signals that the import process has finished and provides final results
@@ -2012,13 +2138,16 @@ This conflict needs to be resolved before import can proceed.`;
         );
         
         if (completionResult) {
-            debugLog("SSE", "Completion event sent successfully");
+            debugLog("SSE", "✅ Completion event sent successfully");
         } else {
-            debugLog("SSE", "Failed to send completion event");
+            debugLog("SSE", "❌ Failed to send completion event");
         }
     } catch (error) {
         // Handle any unexpected errors during the import process
-        debugLog("Import", "Error in background import process", error);
+        debugLog("Import", "❌ Error in background import process", {
+            error: error.message,
+            stack: error.stack
+        });
         
         // Send error event to frontend via SSE using proper function
         // This ensures the user is notified of any failures
@@ -2030,9 +2159,9 @@ This conflict needs to be resolved before import can proceed.`;
         );
         
         if (errorResult) {
-            debugLog("SSE", "Error event sent successfully");
+            debugLog("SSE", "✅ Error event sent successfully");
         } else {
-            debugLog("SSE", "Failed to send error event");
+            debugLog("SSE", "❌ Failed to send error event");
         }
     }
 }
