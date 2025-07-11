@@ -760,6 +760,31 @@ export class UIManager {
         this.isImporting = true;
         this.updateLastRunStatus('import', 'User Import', 'In Progress', `Importing ${totalUsers} users`, { total: totalUsers, success: 0, failed: 0, skipped: 0 });
         this.updateImportProgress(0, totalUsers, 'Starting import...', {}, populationName, populationId);
+        // Update population info fields immediately
+        const popNameEl = document.getElementById('import-population-name');
+        const popIdEl = document.getElementById('import-population-id');
+        if (popNameEl) popNameEl.textContent = populationName || 'Not selected';
+        if (popIdEl) popIdEl.textContent = populationId || 'Not set';
+    }
+
+    /**
+     * Hides the import status section and resets progress
+     */
+    hideImportStatus() {
+        const importStatus = document.getElementById('import-status');
+        if (importStatus) {
+            importStatus.style.display = 'none';
+            this.logger.debug('UI', 'Import status section hidden');
+        }
+        
+        // Reset import state
+        this.isImporting = false;
+        
+        // Clear any auto-close timers
+        if (this.importAutoCloseTimer) {
+            clearTimeout(this.importAutoCloseTimer);
+            this.importAutoCloseTimer = null;
+        }
     }
 
     /**
@@ -818,6 +843,20 @@ export class UIManager {
         
         // Update last run status with current progress
         this.updateLastRunStatus('import', 'User Import', 'In Progress', message, counts);
+        
+        // Auto-close progress window 10 seconds after completion
+        if (current === total && total > 0) {
+            this.logger.debug('UI', 'Import completed, scheduling auto-close');
+            setTimeout(() => {
+                this.hideImportStatus();
+                this.logger.debug('UI', 'Import progress window auto-closed');
+            }, 10000); // 10 seconds
+        }
+        // Update population info fields in real time
+        const popNameEl = document.getElementById('import-population-name');
+        const popIdEl = document.getElementById('import-population-id');
+        if (popNameEl && populationName) popNameEl.textContent = populationName;
+        if (popIdEl && populationId) popIdEl.textContent = populationId;
     }
 
     /**
@@ -1971,6 +2010,49 @@ export class UIManager {
         el.textContent = '';
         el.style.display = 'none';
     }
+
+    /**
+     * Show a status message with the specified type
+     * 
+     * Provides a consistent interface for displaying status messages
+     * to prevent method binding errors during SSE connections.
+     * 
+     * @param {string} type - The type of status message ('success', 'error', 'warning', 'info')
+     * @param {string} message - The main message to display
+     * @param {string} details - Optional details to display
+     */
+    showStatusMessage(type, message, details = '') {
+        // Ensure this method exists to prevent binding errors during SSE connections
+        // This provides a fallback interface for status messages
+        switch (type) {
+            case 'success':
+                this.showSuccess(message, details);
+                break;
+            case 'error':
+                this.showError(message, details);
+                break;
+            case 'warning':
+                this.showWarning(message, details);
+                break;
+            case 'info':
+                this.showInfo(message, details);
+                break;
+            default:
+                // Default to info if type is not recognized
+                this.showInfo(message, details);
+                break;
+        }
+    }
+
+    /**
+     * Show a success notification
+     * 
+     * Displays a success message to the user with appropriate styling
+     * and automatic dismissal after a timeout period.
+     * 
+     * @param {string} message - The success message to display
+     * @param {string} details - Optional additional details
+     */
 
     /**
      * Centralized debug logger for UI and import flow
