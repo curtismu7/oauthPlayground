@@ -870,7 +870,40 @@ export class PingOneClient {
                                 
                                 successCount++;
                                 results.push({ success: true, user: currentUser, id: userId, enabled: userEnabledStatus });
-                                console.log(`[IMPORT] Successfully created user with ID: ${userId} (enabled: ${userEnabledStatus})`);
+                                
+                                // Enhanced user creation logging with population information
+                                try {
+                                    // Get population details for enhanced logging
+                                    const availablePopulations = await this.getPopulations();
+                                    const populationInfo = availablePopulations.find(pop => pop.id === userPopulationId);
+                                    
+                                    if (populationInfo) {
+                                        // Create visually prominent success message with population details
+                                        const successMessage = `
+✅ USER CREATED IN PINGONE
+👤 Username: ${currentUser.username || currentUser.email}
+🆔 PingOne ID: ${userId}
+📍 POPULATION:
+➤ Name: ${populationInfo.name}
+➤ ID: ${populationInfo.id}
+`;
+                                        console.log(successMessage);
+                                        this.logger.info(successMessage);
+                                        
+                                        // Also log to UI if available
+                                        if (window.app && window.app.uiManager) {
+                                            window.app.uiManager.logMessage('success', `User created: ${currentUser.username || currentUser.email} in population "${populationInfo.name}"`);
+                                        }
+                                    } else {
+                                        // Fallback if population info not found
+                                        console.log(`[IMPORT] Successfully created user with ID: ${userId} (enabled: ${userEnabledStatus}) in population: ${userPopulationId}`);
+                                        this.logger.info(`[IMPORT] Successfully created user with ID: ${userId} (enabled: ${userEnabledStatus}) in population: ${userPopulationId}`);
+                                    }
+                                } catch (populationError) {
+                                    // Fallback if population lookup fails
+                                    console.log(`[IMPORT] Successfully created user with ID: ${userId} (enabled: ${userEnabledStatus}) in population: ${userPopulationId}`);
+                                    this.logger.info(`[IMPORT] Successfully created user with ID: ${userId} (enabled: ${userEnabledStatus}) in population: ${userPopulationId}`);
+                                }
                                 break;
                             } else {
                                 console.log(`[IMPORT] Invalid response structure - no ID found:`, result);
@@ -1455,7 +1488,39 @@ export class PingOneClient {
                                 reason: 'User created because createIfNotExists was enabled'
                             });
                             
-                            this.logger.info(`[MODIFY] Successfully created user: ${createdUser.username || createdUser.email} (ID: ${createdUser.id})`);
+                            // Enhanced user creation logging with population information for modify function
+                            try {
+                                // Get population details for enhanced logging
+                                const availablePopulations = await this.getPopulations();
+                                const populationInfo = availablePopulations.find(pop => pop.id === userData.population.id);
+                                
+                                if (populationInfo) {
+                                    // Create visually prominent success message with population details
+                                    const successMessage = `
+✅ USER CREATED IN PINGONE (MODIFY)
+👤 Username: ${createdUser.username || createdUser.email}
+🆔 PingOne ID: ${createdUser.id}
+📍 POPULATION:
+➤ Name: ${populationInfo.name}
+➤ ID: ${populationInfo.id}
+`;
+                                    console.log(successMessage);
+                                    this.logger.info(successMessage);
+                                    
+                                    // Also log to UI if available
+                                    if (window.app && window.app.uiManager) {
+                                        window.app.uiManager.logMessage('success', `User created via modify: ${createdUser.username || createdUser.email} in population "${populationInfo.name}"`);
+                                    }
+                                } else {
+                                    // Fallback if population info not found
+                                    console.log(`[MODIFY] Successfully created user: ${createdUser.username || createdUser.email} (ID: ${createdUser.id}) in population: ${userData.population.id}`);
+                                    this.logger.info(`[MODIFY] Successfully created user: ${createdUser.username || createdUser.email} (ID: ${createdUser.id}) in population: ${userData.population.id}`);
+                                }
+                            } catch (populationError) {
+                                // Fallback if population lookup fails
+                                console.log(`[MODIFY] Successfully created user: ${createdUser.username || createdUser.email} (ID: ${createdUser.id}) in population: ${userData.population.id}`);
+                                this.logger.info(`[MODIFY] Successfully created user: ${createdUser.username || createdUser.email} (ID: ${createdUser.id}) in population: ${userData.population.id}`);
+                            }
                             
                             // Update progress
                             if (onProgress) {
@@ -1819,7 +1884,39 @@ export class PingOneClient {
                                 pingOneId: createdUser.id,
                                 reason: 'User created because createIfNotExists was enabled'
                             });
-                            this.logger.info(`[MODIFY] Successfully created user: ${createdUser.username || createdUser.email} (ID: ${createdUser.id})`);
+                            // Enhanced user creation logging with population information for modify function (second occurrence)
+                            try {
+                                // Get population details for enhanced logging
+                                const availablePopulations = await this.getPopulations();
+                                const populationInfo = availablePopulations.find(pop => pop.id === userData.population.id);
+                                
+                                if (populationInfo) {
+                                    // Create visually prominent success message with population details
+                                    const successMessage = `
+✅ USER CREATED IN PINGONE (MODIFY)
+👤 Username: ${createdUser.username || createdUser.email}
+🆔 PingOne ID: ${createdUser.id}
+📍 POPULATION:
+➤ Name: ${populationInfo.name}
+➤ ID: ${populationInfo.id}
+`;
+                                    console.log(successMessage);
+                                    this.logger.info(successMessage);
+                                    
+                                    // Also log to UI if available
+                                    if (window.app && window.app.uiManager) {
+                                        window.app.uiManager.logMessage('success', `User created via modify: ${createdUser.username || createdUser.email} in population "${populationInfo.name}"`);
+                                    }
+                                } else {
+                                    // Fallback if population info not found
+                                    console.log(`[MODIFY] Successfully created user: ${createdUser.username || createdUser.email} (ID: ${createdUser.id}) in population: ${userData.population.id}`);
+                                    this.logger.info(`[MODIFY] Successfully created user: ${createdUser.username || createdUser.email} (ID: ${createdUser.id}) in population: ${userData.population.id}`);
+                                }
+                            } catch (populationError) {
+                                // Fallback if population lookup fails
+                                console.log(`[MODIFY] Successfully created user: ${createdUser.username || createdUser.email} (ID: ${createdUser.id}) in population: ${userData.population.id}`);
+                                this.logger.info(`[MODIFY] Successfully created user: ${createdUser.username || createdUser.email} (ID: ${createdUser.id}) in population: ${userData.population.id}`);
+                            }
 
                             // Update progress
                             if (onProgress) {
