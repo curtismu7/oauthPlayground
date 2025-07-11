@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Population Selection Verification Test</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .test-button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .test-results {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
+        .test-log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px 0;
+        }
+        .log-entry.info { color: #0c5460; }
+        .log-entry.success { color: #155724; }
+        .log-entry.warning { color: #856404; }
+        .log-entry.error { color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔍 Population Selection Verification Test</h1>
+        <p>This test verifies that the population used to store users matches what's selected in the UI dropdown.</p>
+
+        <div class="test-section">
+            <h2>Test Setup</h2>
+            <p>1. Select a population from the dropdown below</p>
+            <p>2. Upload the test CSV file: <code>test-population-verification.csv</code></p>
+            <p>3. Click "Run Population Verification Test" to execute the test</p>
+            
+            <div style="margin: 20px 0;">
+                <label for="import-population-select">Select Population:</label>
+                <select id="import-population-select" class="form-control" style="width: 100%; margin: 10px 0;">
+                    <option value="">Loading populations...</option>
+                </select>
+            </div>
+            
+            <div style="margin: 20px 0;">
+                <label for="csv-file">Upload Test CSV:</label>
+                <input type="file" id="csv-file" accept=".csv" class="form-control" style="margin: 10px 0;" />
+            </div>
+            
+            <button id="run-test-btn" class="test-button">Run Population Verification Test</button>
+            <button id="clear-test-btn" class="test-button">Clear Results</button>
+        </div>
+
+        <div class="test-section">
+            <h2>Test Results</h2>
+            <div id="test-results" class="test-results" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Test Logs</h2>
+            <div id="test-logs" class="test-log"></div>
+        </div>
+    </div>
+
+    <!-- Include the main app bundle -->
+    <script src="js/bundle.js"></script>
+    
+    <!-- Include the population verification test script -->
+    <script src="../test-population-verification.js"></script>
+    
+    <script>
+        // Override console.log to capture logs for display
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        const originalConsoleWarn = console.warn;
+        
+        const testLogs = [];
+        
+        function captureLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            testLogs.push({ timestamp, message, type });
+            updateLogDisplay();
+        }
+        
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            captureLog(args.join(' '), 'info');
+        };
+        
+        console.error = function(...args) {
+            originalConsoleError.apply(console, args);
+            captureLog(args.join(' '), 'error');
+        };
+        
+        console.warn = function(...args) {
+            originalConsoleWarn.apply(console, args);
+            captureLog(args.join(' '), 'warning');
+        };
+        
+        function updateLogDisplay() {
+            const logsContainer = document.getElementById('test-logs');
+            logsContainer.innerHTML = testLogs.map(log => 
+                `<div class="log-entry ${log.type}">
+                    <strong>[${log.timestamp}]</strong> ${log.message}
+                </div>`
+            ).join('');
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+        }
+        
+        function updateTestResults(results) {
+            const container = document.getElementById('test-results');
+            container.style.display = 'block';
+            
+            let html = '<h3>Test Summary</h3>';
+            html += `<p><strong>Result:</strong> ${results.passed}/${results.total} tests passed</p>`;
+            
+            html += '<h4>Test Results:</h4>';
+            results.results.forEach(result => {
+                const icon = result.type === 'success' ? '✅' : result.type === 'warning' ? '⚠️' : '❌';
+                const color = result.type === 'success' ? 'green' : result.type === 'warning' ? 'orange' : 'red';
+                html += `<p style="color: ${color};">${icon} <strong>${result.testName}:</strong> ${result.message}</p>`;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // Setup event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load populations
+            loadPopulations();
+            
+            // Setup test button
+            document.getElementById('run-test-btn').addEventListener('click', async function() {
+                this.disabled = true;
+                this.textContent = 'Running Test...';
+                
+                try {
+                    const results = await window.runPopulationVerificationTest();
+                    updateTestResults(results);
+                } catch (error) {
+                    console.error('Test failed:', error);
+                    captureLog(`Test failed: ${error.message}`, 'error');
+                } finally {
+                    this.disabled = false;
+                    this.textContent = 'Run Population Verification Test';
+                }
+            });
+            
+            // Setup clear button
+            document.getElementById('clear-test-btn').addEventListener('click', function() {
+                testLogs.length = 0;
+                updateLogDisplay();
+                document.getElementById('test-results').style.display = 'none';
+            });
+        });
+        
+        async function loadPopulations() {
+            try {
+                const response = await fetch('/api/populations');
+                if (response.ok) {
+                    const populations = await response.json();
+                    populateDropdown(populations);
+                } else {
+                    // Fallback to test populations
+                    populateDropdown([
+                        { id: 'test-pop-1', name: 'Test Population 1' },
+                        { id: 'test-pop-2', name: 'Test Population 2' },
+                        { id: 'test-pop-3', name: 'Test Population 3' }
+                    ]);
+                }
+            } catch (error) {
+                console.error('Failed to load populations:', error);
+                // Fallback to test populations
+                populateDropdown([
+                    { id: 'test-pop-1', name: 'Test Population 1' },
+                    { id: 'test-pop-2', name: 'Test Population 2' },
+                    { id: 'test-pop-3', name: 'Test Population 3' }
+                ]);
+            }
+        }
+        
+        function populateDropdown(populations) {
+            const select = document.getElementById('import-population-select');
+            select.innerHTML = '<option value="">Select a population...</option>';
+            
+            populations.forEach(pop => {
+                const option = document.createElement('option');
+                option.value = pop.id;
+                option.textContent = pop.name;
+                select.appendChild(option);
+            });
+            
+            console.log(`Loaded ${populations.length} populations for testing`);
+        }
+    </script>
+</body>
+</html> 
