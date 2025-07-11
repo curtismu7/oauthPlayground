@@ -2643,6 +2643,19 @@ class App {
         localStorage.setItem('disclaimerAccepted', 'true');
         localStorage.setItem('disclaimerAcceptedDate', new Date().toISOString());
       }
+
+      // Scroll to top of page smoothly after disclaimer acceptance
+      // Ensures users are redirected to the top of the page immediately after accepting the disclaimer
+      // Helps surface important UI elements like token status, navigation icons, or action buttons
+      setTimeout(() => {
+        window.scrollTo({
+          top: 0,
+          left: 0,
+          behavior: 'smooth'
+        });
+        console.log('[Disclaimer] ✅ Scrolled to top of page smoothly');
+      }, 100); // Small delay to ensure UI updates are complete
+
       console.log('[Disclaimer] ✅ Tool enabled successfully after disclaimer acceptance');
     } catch (error) {
       console.error('[Disclaimer] Error enabling tool after disclaimer:', error);
