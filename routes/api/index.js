@@ -962,11 +962,14 @@ router.get('/import/progress/:sessionId', (req, res) => {
     res.on('error', (error) => {
         console.error("SSE: ❌ Response error", { 
             sessionId, 
-            error: error.message 
+            error: error.message,
+            errorCode: error.code,
+            errorStack: error.stack
         });
         debugLog("SSE", "❌ Response error", { 
             sessionId, 
-            error: error.message 
+            error: error.message,
+            errorCode: error.code
         });
         
         clearInterval(heartbeat);
