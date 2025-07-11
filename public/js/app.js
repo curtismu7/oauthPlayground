@@ -1026,7 +1026,7 @@ class App {
                     h => h.toLowerCase() === 'populationid' || h.toLowerCase() === 'population_id'
                 ) && users.some(u => u.populationId && u.populationId.trim() !== '');
             }
-            // If both UI and CSV have population, show conflict modal
+            // If both UI and CSV have population, show conflict modal and require explicit user choice
             if (uiPopulationId && hasCsvPopulation) {
                 const modal = document.getElementById('population-conflict-modal');
                 if (modal) {
@@ -1046,18 +1046,23 @@ class App {
                         modal.style.display = 'none';
                         // Use CSV populationId as-is
                         this.populationChoice = 'csv';
-                        this.uiManager.logMessage('info', 'Population conflict resolved: using CSV file');
+                        this.uiManager.logMessage('warning', 'Population conflict resolved: using CSV file (not recommended)');
                     };
                     cancelBtn.onclick = () => {
                         modal.style.display = 'none';
                         this.populationChoice = null;
-                        this.uiManager.logMessage('warning', 'Population conflict prompt cancelled.');
+                        this.uiManager.logMessage('warning', 'Population conflict prompt cancelled. Defaulting to UI population.');
+                        // Default to UI population for safety
+                        users.forEach(u => u.populationId = uiPopulationId);
+                        this.populationChoice = 'ui';
                     };
                 }
+                // Prevent further processing until user makes a choice
                 return;
             }
-            // If only UI or only CSV, no prompt needed
-            if (uiPopulationId && !hasCsvPopulation) {
+            // If only UI or only CSV, or after conflict resolved, always use UI population unless user explicitly chose CSV
+            // Prevents cross-population import errors due to incorrect or missing population ID propagation
+            if (uiPopulationId && (!hasCsvPopulation || this.populationChoice !== 'csv')) {
                 users.forEach(u => u.populationId = uiPopulationId);
                 this.populationChoice = 'ui';
             } else if (!uiPopulationId && hasCsvPopulation) {
