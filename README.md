@@ -226,6 +226,6 @@ For support and questions:
 
 ---
 
-**Version**: 1.1.2  
+**Version**: 4.9  
 **Last Updated**: January 2025  
 **Maintainer**: Curtis Muir
