@@ -6601,6 +6601,7 @@ class PingOneClient {
     let successCount = 0;
     let failedCount = 0;
     let skippedCount = 0;
+    let errorCount = 0; // Track missing population errors separately
     let retryCount = 0;
     console.log('[IMPORT] Initial setup completed');
     this.logger.debug('[IMPORT] Starting import of users', {
@@ -6752,6 +6753,8 @@ class PingOneClient {
               success: successCount,
               failed: failedCount,
               skipped: skippedCount,
+              errors: errorCount,
+              // Include error count for missing populations
               retries: retryCount
             });
           }
@@ -6813,13 +6816,27 @@ class PingOneClient {
                 if (fallbackPopulationId && fallbackPopulationId !== 'csv-population-ids') {
                   userPopulationId = fallbackPopulationId;
                 } else {
-                  this.logger.warn(`No valid population ID available for user ${currentUser.email || currentUser.username}. Skipping user.`);
-                  failedCount++;
+                  // Missing population - this is an ERROR, not a skip
+                  const errorMessage = `Missing Population for user ${currentUser.email || currentUser.username} – not added or counted.`;
+                  this.logger.error(`❌ ${errorMessage}`, {
+                    user: currentUser.email || currentUser.username,
+                    lineNumber: currentIndex + 2,
+                    csvPopulationId: currentUser.populationId,
+                    fallbackPopulationId
+                  });
+
+                  // Log to import-status.log with line number and clear message
+                  console.error(`[IMPORT-ERROR] Line ${currentIndex + 2}: Missing population – user not processed. Username: ${currentUser.email || currentUser.username}`);
+
+                  // Increment error count for missing population
+                  errorCount++;
                   results.push({
                     success: false,
                     user: currentUser,
-                    error: `CSV population ID ${currentUser.populationId} does not exist in PingOne environment. No fallback population available.`,
-                    skipped: true
+                    error: errorMessage,
+                    errorType: 'MISSING_POPULATION',
+                    lineNumber: currentIndex + 2,
+                    skipped: false
                   });
                   continue;
                 }
@@ -6830,13 +6847,27 @@ class PingOneClient {
               if (fallbackPopulationId && fallbackPopulationId !== 'csv-population-ids') {
                 userPopulationId = fallbackPopulationId;
               } else {
-                this.logger.warn(`No valid population ID available for user ${currentUser.email || currentUser.username}. Skipping user.`);
-                failedCount++;
+                // Missing population - this is an ERROR, not a skip
+                const errorMessage = `Missing Population for user ${currentUser.email || currentUser.username} – not added or counted.`;
+                this.logger.error(`❌ ${errorMessage}`, {
+                  user: currentUser.email || currentUser.username,
+                  lineNumber: currentIndex + 2,
+                  invalidPopulationId: currentUser.populationId,
+                  fallbackPopulationId
+                });
+
+                // Log to import-status.log with line number and clear message
+                console.error(`[IMPORT-ERROR] Line ${currentIndex + 2}: Missing population – user not processed. Username: ${currentUser.email || currentUser.username}`);
+
+                // Increment error count for missing population
+                errorCount++;
                 results.push({
                   success: false,
                   user: currentUser,
-                  error: `Invalid CSV population ID format: ${currentUser.populationId}. No fallback population available.`,
-                  skipped: true
+                  error: errorMessage,
+                  errorType: 'MISSING_POPULATION',
+                  lineNumber: currentIndex + 2,
+                  skipped: false
                 });
                 continue;
               }
@@ -6880,13 +6911,29 @@ class PingOneClient {
               continue;
             }
           } else {
-            this.logger.warn(`No population ID available for user ${currentUser.email || currentUser.username}. Skipping user.`);
-            failedCount++;
+            // Missing population - this is an ERROR, not a skip
+            const errorMessage = `Missing Population for user ${currentUser.email || currentUser.username} – not added or counted.`;
+            this.logger.error(`❌ ${errorMessage}`, {
+              user: currentUser.email || currentUser.username,
+              lineNumber: currentIndex + 2,
+              // +2 because of header row and 0-based index
+              populationId: userPopulationId,
+              fallbackPopulationId,
+              selectedPopulationId
+            });
+
+            // Log to import-status.log with line number and clear message
+            console.error(`[IMPORT-ERROR] Line ${currentIndex + 2}: Missing population – user not processed. Username: ${currentUser.email || currentUser.username}`);
+
+            // Increment error count for missing population
+            errorCount++;
             results.push({
               success: false,
               user: currentUser,
-              error: 'No population ID available for user',
-              skipped: true
+              error: errorMessage,
+              errorType: 'MISSING_POPULATION',
+              lineNumber: currentIndex + 2,
+              skipped: false // This is an error, not a skip
             });
             continue;
           }
@@ -7156,6 +7203,8 @@ class PingOneClient {
       success: successCount,
       failed: failedCount,
       skipped: skippedCount,
+      errors: errorCount,
+      // Include error count for missing populations
       results
     };
   }
@@ -10433,6 +10482,17 @@ class UIManager {
       }
     }
 
+    // Handle missing population errors (not counted in skipped)
+    if (counts.errors && counts.errors > 0) {
+      const errorCount = document.getElementById('import-error-count');
+      if (errorCount) {
+        errorCount.textContent = counts.errors;
+        errorCount.style.color = '#dc3545';
+        errorCount.style.fontWeight = 'bold';
+        errorCount.innerHTML = `❌ ${counts.errors}`;
+      }
+    }
+
     // Update population information if provided
     if (populationName) {
       const popNameEl = document.getElementById('import-population-name');
@@ -10619,6 +10679,10 @@ class UIManager {
     if (successCount) successCount.textContent = '0';
     if (failedCount) failedCount.textContent = '0';
     if (skippedCount) skippedCount.textContent = '0';
+
+    // Reset error count
+    const errorCount = document.getElementById('import-error-count');
+    if (errorCount) errorCount.textContent = '0';
 
     // Population name
     if (populationNameElement) {
