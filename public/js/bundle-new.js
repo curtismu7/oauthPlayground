@@ -1483,11 +1483,10 @@ class App {
         return;
       }
 
-      // Log import start with user count for debugging
-      this.uiManager.debugLog("Import", "Import process started", {
-        userCount: importOptions.totalUsers
-      });
+      // Fixes binding issues and ensures the progress panel reflects live import state correctly
+      // Immediately updates population, population ID, and user count in the progress panel before SSE events arrive
       this.uiManager.showImportStatus(importOptions.totalUsers, importOptions.selectedPopulationName, importOptions.selectedPopulationId);
+      this.uiManager.updateImportProgress(0, importOptions.totalUsers, 'Preparing import...', {}, importOptions.selectedPopulationName, importOptions.selectedPopulationId);
 
       // Prepare FormData for file upload to server
       // Includes file, population selection, and metadata
