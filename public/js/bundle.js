@@ -1113,7 +1113,7 @@ class App {
       return;
     }
 
-    // Always fetch the current population selection at import time
+    // Fetch selected population name and ID from dropdown
     const popSelect = document.getElementById('import-population-select');
     let populationId = popSelect && popSelect.value ? popSelect.value : '';
     let populationName = '';
@@ -1121,17 +1121,44 @@ class App {
       const selectedOption = popSelect.options[popSelect.selectedIndex];
       populationName = selectedOption ? selectedOption.text : '';
     }
+
+    // Debug logging for population selection
+    console.log('🔍 [Population Debug] Dropdown state:', {
+      element: popSelect,
+      selectedIndex: popSelect ? popSelect.selectedIndex : 'N/A',
+      value: populationId,
+      text: populationName,
+      optionsCount: popSelect ? popSelect.options.length : 0
+    });
+
     // Store for use in progress updates
     this.selectedPopulationId = populationId;
     this.selectedPopulationName = populationName;
 
-    // Debug log for validation
-    console.log('[Import Trigger] Using population:', {
+    // Debug logging for stored values
+    console.log('🔍 [Population Debug] Stored values:', {
+      selectedPopulationId: this.selectedPopulationId,
+      selectedPopulationName: this.selectedPopulationName
+    });
+
+    // Log at import trigger to confirm the correct value is being used
+    console.log('🚀 [Import Trigger] Using population:', {
       id: populationId,
       name: populationName
     });
+
+    // Debug warning if population name is "Test"
     if (populationName === 'Test') {
-      console.warn('[Import Trigger] WARNING: Population name is "Test". Dropdown state:', popSelect);
+      console.warn('⚠️ [Population Debug] WARNING: Population name is "Test" - this might be a default value');
+      console.log('⚠️ [Population Debug] Dropdown state when "Test" selected:', {
+        selectedIndex: popSelect ? popSelect.selectedIndex : 'N/A',
+        allOptions: popSelect ? Array.from(popSelect.options).map((opt, idx) => ({
+          index: idx,
+          value: opt.value,
+          text: opt.text,
+          selected: opt.selected
+        })) : []
+      });
     }
 
     // SSE connection management variables
@@ -1292,6 +1319,34 @@ class App {
           if (data.user) {
             const userName = data.user.username || data.user.email || 'unknown';
             this.uiManager.logMessage('info', `Processing: ${userName}`);
+          }
+
+          // Handle skipped users with detailed information
+          if (data.status === 'skipped' && data.statusDetails) {
+            const skipReason = data.statusDetails.reason || 'User already exists';
+            const existingUser = data.statusDetails.existingUser;
+
+            // Log detailed skip information
+            console.log("SSE: ⚠️ User skipped:", {
+              user: data.user,
+              reason: skipReason,
+              existingUser: existingUser
+            });
+
+            // Show warning message with skip details
+            let skipMessage = `⚠️ Skipped: ${data.user.username || data.user.email || 'unknown user'}`;
+            if (existingUser) {
+              skipMessage += ` (exists as ${existingUser.username || existingUser.email} in ${existingUser.population})`;
+            } else {
+              skipMessage += ` (${skipReason})`;
+            }
+            this.uiManager.logMessage('warning', skipMessage);
+
+            // Update UI with skip information
+            if (data.counts && data.counts.skipped !== undefined) {
+              console.log(`SSE: 📊 Skipped count updated: ${data.counts.skipped}`);
+              this.uiManager.debugLog("SSE", `📊 Skipped count updated: ${data.counts.skipped}`);
+            }
           }
         });
 
@@ -1565,6 +1620,13 @@ class App {
 
       // Fixes binding issues and ensures the progress panel reflects live import state correctly
       // Immediately updates population, population ID, and user count in the progress panel before SSE events arrive
+
+      // Debug logging for progress window population display
+      console.log('🔍 [Progress Window Debug] Population info passed to UI:', {
+        totalUsers: importOptions.totalUsers,
+        populationName: importOptions.selectedPopulationName,
+        populationId: importOptions.selectedPopulationId
+      });
       this.uiManager.showImportStatus(importOptions.totalUsers, importOptions.selectedPopulationName, importOptions.selectedPopulationId);
       this.uiManager.updateImportProgress(0, importOptions.totalUsers, 'Preparing import...', {}, importOptions.selectedPopulationName, importOptions.selectedPopulationId);
 
@@ -1575,6 +1637,13 @@ class App {
       formData.append('selectedPopulationId', importOptions.selectedPopulationId);
       formData.append('selectedPopulationName', importOptions.selectedPopulationName);
       formData.append('totalUsers', importOptions.totalUsers);
+
+      // Debug logging for backend request
+      console.log('🔍 [Backend Request Debug] Population info being sent:', {
+        populationId: importOptions.selectedPopulationId,
+        populationName: importOptions.selectedPopulationName,
+        totalUsers: importOptions.totalUsers
+      });
 
       // Send CSV data and population info to backend for processing
       // The server will start the import process and return a session ID
@@ -10092,17 +10161,36 @@ class UIManager {
       populationId
     });
 
+    // Debug logging for population display in progress window
+    console.log('🔍 [UI Manager Debug] showImportStatus called with:', {
+      totalUsers: totalUsers,
+      populationName: populationName,
+      populationId: populationId
+    });
+
     // Ensure only one progress system is active at a time
     this.hideAllProgressIndicators();
 
-    // Show import status section (no modal overlay needed)
+    // Show import status container
     const importStatus = document.getElementById('import-status');
     if (importStatus) {
       importStatus.style.display = 'block';
       this.logger.debug('UI', 'Import status section displayed');
-    } else {
-      console.error('Import status element not found');
     }
+
+    // Update population info fields immediately
+    const popNameEl = document.getElementById('import-population-name');
+    const popIdEl = document.getElementById('import-population-id');
+    if (popNameEl) popNameEl.textContent = populationName || 'Not selected';
+    if (popIdEl) popIdEl.textContent = populationId || 'Not set';
+
+    // Debug logging for what gets displayed in the UI
+    console.log('🔍 [UI Manager Debug] Population fields updated:', {
+      populationNameElement: popNameEl,
+      populationIdElement: popIdEl,
+      displayedName: populationName || 'Not selected',
+      displayedId: populationId || 'Not set'
+    });
     this.isImporting = true;
     this.updateLastRunStatus('import', 'User Import', 'In Progress', `Importing ${totalUsers} users`, {
       total: totalUsers,
@@ -10111,11 +10199,6 @@ class UIManager {
       skipped: 0
     });
     this.updateImportProgress(0, totalUsers, 'Starting import...', {}, populationName, populationId);
-    // Update population info fields immediately
-    const popNameEl = document.getElementById('import-population-name');
-    const popIdEl = document.getElementById('import-population-id');
-    if (popNameEl) popNameEl.textContent = populationName || 'Not selected';
-    if (popIdEl) popIdEl.textContent = populationId || 'Not set';
   }
 
   /**
@@ -10184,37 +10267,71 @@ class UIManager {
       populationId
     });
 
-    // Update traditional progress bar (primary system)
-    this.updateTraditionalProgressBar(percent, message, counts, populationName, populationId);
-
-    // Update circular progress spinner (secondary system - only if traditional bar is hidden)
-    this.updateCircularProgressSpinner(percent, message);
-
-    // Update counts
-    this.updateProgressCounts(counts);
-
-    // Update population information
-    this.updatePopulationInfo(populationName, populationId);
-
-    // Add progress log entry
-    this.addProgressLogEntry(message, 'info', counts, 'import');
-
-    // Update last run status with current progress
-    this.updateLastRunStatus('import', 'User Import', 'In Progress', message, counts);
-
-    // Auto-close progress window 10 seconds after completion
-    if (current === total && total > 0) {
-      this.logger.debug('UI', 'Import completed, scheduling auto-close');
-      setTimeout(() => {
-        this.hideImportStatus();
-        this.logger.debug('UI', 'Import progress window auto-closed');
-      }, 10000); // 10 seconds
+    // Update progress bar
+    const progressBar = document.getElementById('import-progress-bar');
+    if (progressBar) {
+      progressBar.style.width = `${percent}%`;
+      progressBar.setAttribute('aria-valuenow', percent);
     }
-    // Update population info fields in real time
-    const popNameEl = document.getElementById('import-population-name');
-    const popIdEl = document.getElementById('import-population-id');
-    if (popNameEl && populationName) popNameEl.textContent = populationName;
-    if (popIdEl && populationId) popIdEl.textContent = populationId;
+
+    // Update progress text
+    const progressText = document.getElementById('import-progress-text');
+    if (progressText) {
+      progressText.textContent = `${current} of ${total} users`;
+    }
+
+    // Update counters with enhanced skipped display
+    const successCount = document.getElementById('import-success-count');
+    const failedCount = document.getElementById('import-failed-count');
+    const skippedCount = document.getElementById('import-skipped-count');
+    if (successCount) {
+      successCount.textContent = counts.succeeded || 0;
+      // Add visual feedback for successful imports
+      if (counts.succeeded > 0) {
+        successCount.style.color = '#28a745';
+        successCount.style.fontWeight = 'bold';
+      }
+    }
+    if (failedCount) {
+      failedCount.textContent = counts.failed || 0;
+      // Add visual feedback for failed imports
+      if (counts.failed > 0) {
+        failedCount.style.color = '#dc3545';
+        failedCount.style.fontWeight = 'bold';
+      }
+    }
+    if (skippedCount) {
+      skippedCount.textContent = counts.skipped || 0;
+      // Add enhanced visual feedback for skipped imports
+      if (counts.skipped > 0) {
+        skippedCount.style.color = '#ffc107';
+        skippedCount.style.fontWeight = 'bold';
+        // Add a warning icon or indicator
+        skippedCount.innerHTML = `⚠️ ${counts.skipped}`;
+      } else {
+        skippedCount.innerHTML = counts.skipped || 0;
+      }
+    }
+
+    // Update population information if provided
+    if (populationName) {
+      const popNameEl = document.getElementById('import-population-name');
+      if (popNameEl) popNameEl.textContent = populationName;
+    }
+    if (populationId) {
+      const popIdEl = document.getElementById('import-population-id');
+      if (popIdEl) popIdEl.textContent = populationId;
+    }
+
+    // Log progress message with status details
+    if (message) {
+      this.logMessage('info', message);
+    }
+
+    // Add detailed logging for skipped users
+    if (counts.skipped > 0) {
+      this.logMessage('warning', `⚠️ ${counts.skipped} user(s) skipped due to existing accounts`);
+    }
   }
 
   /**
