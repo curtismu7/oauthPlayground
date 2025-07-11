@@ -3167,8 +3167,10 @@ exports.createCircularProgress = createCircularProgress;
  * Usage: createCircularProgress({ value, label, state, id })
  * - value: 0-100 (percent)
  * - label: status message (optional)
- * - state: '', 'error', 'warning', 'complete' (optional)
+ * - state: '', 'error', 'warning', 'complete', 'ready' (optional)
  * - id: DOM id (optional)
+ * 
+ * Fixes visual duplication and rendering bugs in progress spinner during async operations
  */
 function createCircularProgress() {
   let {
@@ -3177,29 +3179,81 @@ function createCircularProgress() {
     state = '',
     id = ''
   } = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  const size = 80,
-    stroke = 8,
-    radius = (size - stroke) / 2,
-    circ = 2 * Math.PI * radius;
+  // Ensure proper sizing and rendering calculations
+  const size = 80;
+  const stroke = 8;
+  const radius = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+
+  // Clamp value between 0 and 100
   const percent = Math.max(0, Math.min(100, value));
-  const dash = percent / 100 * circ;
+
+  // Calculate stroke dash array for proper circular progress
+  const dashOffset = circumference - percent / 100 * circumference;
+
+  // Generate unique ID if not provided
+  const elementId = id || `circular-progress-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+  // Create wrapper element with proper state management
   const wrapper = document.createElement('div');
   wrapper.className = `circular-progress${state ? ' ' + state : ''}`;
-  if (id) wrapper.id = id;
+  wrapper.id = elementId;
   wrapper.setAttribute('role', 'progressbar');
   wrapper.setAttribute('aria-valuenow', percent);
   wrapper.setAttribute('aria-valuemin', 0);
   wrapper.setAttribute('aria-valuemax', 100);
   wrapper.setAttribute('aria-label', label ? `${label} ${percent}%` : `${percent}%`);
+
+  // Add data attributes for debugging and state tracking
+  wrapper.setAttribute('data-percent', percent);
+  wrapper.setAttribute('data-state', state);
+  wrapper.setAttribute('data-created', new Date().toISOString());
+
+  // Create SVG with proper viewBox and dimensions
   wrapper.innerHTML = `
-    <svg width="${size}" height="${size}">
-      <circle class="circular-bg" cx="${size / 2}" cy="${size / 2}" r="${radius}" />
-      <circle class="circular-fg" cx="${size / 2}" cy="${size / 2}" r="${radius}"
-        style="stroke-dasharray: ${dash} ${circ}; stroke-dashoffset: 0;" />
+    <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">
+      <!-- Background circle -->
+      <circle 
+        class="circular-bg" 
+        cx="${size / 2}" 
+        cy="${size / 2}" 
+        r="${radius}" 
+        fill="none"
+        stroke="#e0e0e0"
+        stroke-width="${stroke}"
+      />
+      <!-- Foreground progress circle -->
+      <circle 
+        class="circular-fg" 
+        cx="${size / 2}" 
+        cy="${size / 2}" 
+        r="${radius}" 
+        fill="none"
+        stroke="var(--brand-color, #7c3aed)"
+        stroke-width="${stroke}"
+        stroke-linecap="round"
+        stroke-dasharray="${circumference}"
+        stroke-dashoffset="${dashOffset}"
+        transform="rotate(-90 ${size / 2} ${size / 2})"
+      />
     </svg>
-    <span class="circular-label">${percent}%</span>
+    <!-- Percentage label -->
+    <span class="circular-label">${Math.round(percent)}%</span>
     ${label ? `<span class="circular-status">${label}</span>` : ''}
   `;
+
+  // Add debug logging for spinner creation
+  console.debug('Circular Progress Created:', {
+    id: elementId,
+    percent,
+    state,
+    size,
+    stroke,
+    radius,
+    circumference,
+    dashOffset,
+    label
+  });
   return wrapper;
 }
 
@@ -9980,19 +10034,29 @@ class UIManager {
   }
 
   /**
-   * Shows the import progress section and initializes progress display
+   * Shows the import status section and initializes progress tracking
    * @param {number} totalUsers - Total number of users to import
-   * @param {string} populationName - Name of the selected population
-   * @param {string} populationId - ID of the selected population
+   * @param {string} populationName - Population name
+   * @param {string} populationId - Population ID
    */
   showImportStatus(totalUsers) {
     let populationName = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
     let populationId = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
+    // Fixes visual duplication and rendering bugs in progress spinner during async operations
+    this.logger.debug('UI', 'Showing import status', {
+      totalUsers,
+      populationName,
+      populationId
+    });
+
+    // Ensure only one progress system is active at a time
+    this.hideAllProgressIndicators();
+
     // Show import status section (no modal overlay needed)
     const importStatus = document.getElementById('import-status');
     if (importStatus) {
       importStatus.style.display = 'block';
-      this.debugLog('UI', 'Import status section displayed');
+      this.logger.debug('UI', 'Import status section displayed');
     } else {
       console.error('Import status element not found');
     }
@@ -10004,6 +10068,27 @@ class UIManager {
       skipped: 0
     });
     this.updateImportProgress(0, totalUsers, 'Starting import...', {}, populationName, populationId);
+  }
+
+  /**
+   * Hides all progress indicators to prevent duplication
+   * Ensures clean state before showing new progress
+   */
+  hideAllProgressIndicators() {
+    // Hide circular spinner container
+    const spinnerContainer = document.getElementById('import-progress-spinner');
+    if (spinnerContainer) {
+      spinnerContainer.style.display = 'none';
+      spinnerContainer.innerHTML = '';
+      this.logger.debug('UI', 'Circular progress spinner hidden and cleared');
+    }
+
+    // Hide traditional progress bar container
+    const importStatus = document.getElementById('import-status');
+    if (importStatus) {
+      importStatus.style.display = 'none';
+      this.logger.debug('UI', 'Traditional progress bar hidden');
+    }
   }
 
   /**
@@ -10021,53 +10106,27 @@ class UIManager {
     let populationId = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : '';
     // Ensures progress indicator and message are readable and aligned during import operations
     const percent = total > 0 ? Math.min(100, Math.round(current / total * 100)) : 0;
-    const spinnerContainer = document.getElementById('import-progress-spinner');
-    if (spinnerContainer) {
-      spinnerContainer.innerHTML = '';
-      // Create a flex column container for spinner and text
-      const flexContainer = document.createElement('div');
-      flexContainer.className = 'import-progress-flex';
-      flexContainer.style.display = 'flex';
-      flexContainer.style.flexDirection = 'column';
-      flexContainer.style.alignItems = 'center';
-      flexContainer.style.justifyContent = 'center';
-      flexContainer.style.gap = '0.75rem';
-      flexContainer.style.width = '100%';
-      flexContainer.style.margin = '0 auto';
+    this.logger.debug('UI', 'Updating import progress', {
+      current,
+      total,
+      percent,
+      message,
+      counts,
+      populationName,
+      populationId
+    });
 
-      // Spinner
-      const spinner = (0, _circularProgress.createCircularProgress)({
-        value: percent,
-        label: '' // Only show percent in spinner, not message
-      });
-      flexContainer.appendChild(spinner);
+    // Update traditional progress bar (primary system)
+    this.updateTraditionalProgressBar(percent, message, counts, populationName, populationId);
 
-      // Text block for percent and message
-      const textBlock = document.createElement('div');
-      textBlock.className = 'import-progress-text-block';
-      textBlock.style.textAlign = 'center';
-      textBlock.style.marginTop = '0.25rem';
-      textBlock.innerHTML = `<div class="import-progress-percent" style="font-size: 1.3em; font-weight: 600; color: #7c3aed;">${percent}%</div><div class="import-progress-message" style="font-size: 1.05em; color: #333; margin-top: 0.2em;">${message || ''}</div>`;
-      flexContainer.appendChild(textBlock);
-      spinnerContainer.appendChild(flexContainer);
-    }
+    // Update circular progress spinner (secondary system - only if traditional bar is hidden)
+    this.updateCircularProgressSpinner(percent, message);
+
     // Update counts
-    if (typeof successCount !== 'undefined' && successCount) successCount.textContent = counts.succeeded || counts.success || 0;
-    if (typeof failedCount !== 'undefined' && failedCount) failedCount.textContent = counts.failed || 0;
-    if (typeof skippedCount !== 'undefined' && skippedCount) skippedCount.textContent = counts.skipped || 0;
+    this.updateProgressCounts(counts);
 
-    // Update population name (show 'Not selected' if empty)
-    if (typeof populationNameElement !== 'undefined' && populationNameElement) {
-      const displayName = populationName && populationName.trim() ? populationName : 'Not selected';
-      populationNameElement.textContent = displayName;
-      populationNameElement.setAttribute('data-content', displayName);
-    }
-    // Update population ID (show 'Not set' if empty)
-    if (typeof populationIdElement !== 'undefined' && populationIdElement) {
-      const displayId = populationId && populationId.trim() ? populationId : 'Not set';
-      populationIdElement.textContent = displayId;
-      populationIdElement.setAttribute('data-content', displayId);
-    }
+    // Update population information
+    this.updatePopulationInfo(populationName, populationId);
 
     // Add progress log entry
     this.addProgressLogEntry(message, 'info', counts, 'import');
@@ -10075,7 +10134,154 @@ class UIManager {
     // Update last run status with current progress
     this.updateLastRunStatus('import', 'User Import', 'In Progress', message, counts);
   }
+
+  /**
+   * Updates the traditional progress bar system
+   * @param {number} percent - Progress percentage (0-100)
+   * @param {string} message - Progress message
+   * @param {object} counts - Success/fail/skip counts
+   * @param {string} populationName - Population name
+   * @param {string} populationId - Population ID
+   */
+  updateTraditionalProgressBar(percent, message, counts, populationName, populationId) {
+    const progressBar = document.getElementById('import-progress-bar');
+    const progressPercent = document.getElementById('import-progress-percent');
+    const progressText = document.getElementById('import-progress-text');
+    const progressCount = document.getElementById('import-progress-count');
+    if (progressBar) {
+      progressBar.style.width = `${percent}%`;
+      progressBar.setAttribute('aria-valuenow', percent);
+      this.logger.debug('UI', 'Traditional progress bar updated', {
+        percent
+      });
+    }
+    if (progressPercent) {
+      progressPercent.textContent = `${percent}%`;
+    }
+    if (progressText) {
+      progressText.textContent = message || 'Processing...';
+    }
+    if (progressCount) {
+      const current = counts.current || 0;
+      const total = counts.total || 0;
+      progressCount.textContent = `${current} of ${total} users`;
+    }
+  }
+
+  /**
+   * Updates the circular progress spinner system
+   * @param {number} percent - Progress percentage (0-100)
+   * @param {string} message - Progress message
+   */
+  updateCircularProgressSpinner(percent, message) {
+    const spinnerContainer = document.getElementById('import-progress-spinner');
+    if (!spinnerContainer) {
+      this.logger.debug('UI', 'Circular progress spinner container not found');
+      return;
+    }
+
+    // Only show circular spinner if traditional progress bar is hidden
+    const importStatus = document.getElementById('import-status');
+    if (importStatus && importStatus.style.display !== 'none') {
+      spinnerContainer.style.display = 'none';
+      return;
+    }
+
+    // Show and update circular spinner
+    spinnerContainer.style.display = 'block';
+    spinnerContainer.innerHTML = '';
+
+    // Create a flex column container for spinner and text
+    const flexContainer = document.createElement('div');
+    flexContainer.className = 'import-progress-flex';
+    flexContainer.style.display = 'flex';
+    flexContainer.style.flexDirection = 'column';
+    flexContainer.style.alignItems = 'center';
+    flexContainer.style.justifyContent = 'center';
+    flexContainer.style.gap = '0.75rem';
+    flexContainer.style.width = '100%';
+    flexContainer.style.margin = '0 auto';
+
+    // Create circular progress spinner with proper state management
+    const spinner = (0, _circularProgress.createCircularProgress)({
+      value: percent,
+      label: '',
+      // Only show percent in spinner, not message
+      state: percent === 100 ? 'complete' : percent > 0 ? '' : 'ready'
+    });
+
+    // Add debug logging for spinner creation
+    this.logger.debug('UI', 'Circular progress spinner created', {
+      percent,
+      state: spinner.className,
+      id: spinner.id
+    });
+    flexContainer.appendChild(spinner);
+
+    // Text block for percent and message
+    const textBlock = document.createElement('div');
+    textBlock.className = 'import-progress-text-block';
+    textBlock.style.textAlign = 'center';
+    textBlock.style.marginTop = '0.25rem';
+    textBlock.innerHTML = `
+            <div class="import-progress-percent" style="font-size: 1.3em; font-weight: 600; color: #7c3aed;">${percent}%</div>
+            <div class="import-progress-message" style="font-size: 1.05em; color: #333; margin-top: 0.2em;">${message || ''}</div>
+        `;
+    flexContainer.appendChild(textBlock);
+    spinnerContainer.appendChild(flexContainer);
+    this.logger.debug('UI', 'Circular progress spinner updated', {
+      percent,
+      message,
+      containerId: spinnerContainer.id
+    });
+  }
+
+  /**
+   * Updates progress count elements
+   * @param {object} counts - Success/fail/skip counts
+   */
+  updateProgressCounts(counts) {
+    const successCount = document.getElementById('import-success-count');
+    const failedCount = document.getElementById('import-failed-count');
+    const skippedCount = document.getElementById('import-skipped-count');
+    if (successCount) {
+      successCount.textContent = counts.succeeded || counts.success || 0;
+    }
+    if (failedCount) {
+      failedCount.textContent = counts.failed || 0;
+    }
+    if (skippedCount) {
+      skippedCount.textContent = counts.skipped || 0;
+    }
+  }
+
+  /**
+   * Updates population information display
+   * @param {string} populationName - Population name
+   * @param {string} populationId - Population ID
+   */
+  updatePopulationInfo(populationName, populationId) {
+    const populationNameElement = document.getElementById('import-population-name');
+    const populationIdElement = document.getElementById('import-population-id');
+
+    // Update population name (show 'Not selected' if empty)
+    if (populationNameElement) {
+      const displayName = populationName && populationName.trim() ? populationName : 'Not selected';
+      populationNameElement.textContent = displayName;
+      populationNameElement.setAttribute('data-content', displayName);
+    }
+
+    // Update population ID (show 'Not set' if empty)
+    if (populationIdElement) {
+      const displayId = populationId && populationId.trim() ? populationId : 'Not set';
+      populationIdElement.textContent = displayId;
+      populationIdElement.setAttribute('data-content', displayId);
+    }
+  }
   resetImportProgress() {
+    this.logger.debug('UI', 'Resetting import progress');
+
+    // Reset traditional progress bar
     const progressBar = document.getElementById('import-progress-bar');
     const progressPercent = document.getElementById('import-progress-percent');
     const progressText = document.getElementById('import-progress-text');
@@ -10101,8 +10307,12 @@ class UIManager {
       populationNameElement.setAttribute('data-content', 'Not selected');
     }
 
+    // Hide all progress indicators
+    this.hideAllProgressIndicators();
+
     // Reset error status
     this.hideImportErrorStatus();
+    this.logger.debug('UI', 'Import progress reset completed');
   }
   showImportErrorStatus() {
     let errorSummary = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
