@@ -521,6 +521,18 @@ class App {
             });
         }
 
+        // Population selection change listener
+        const populationSelectEl = document.getElementById('import-population-select');
+        if (populationSelectEl) {
+            populationSelectEl.addEventListener('change', (e) => {
+                const selectedId = populationSelectEl.value;
+                const selectedName = populationSelectEl.selectedOptions[0]?.text || '';
+                this.selectedPopulationId = selectedId;
+                this.selectedPopulationName = selectedName;
+                console.log('[Population] Dropdown changed:', { id: selectedId, name: selectedName });
+            });
+        }
+
         // Import event listeners
         const startImportBtn = document.getElementById('start-import-btn');
         if (startImportBtn) {
@@ -1122,7 +1134,25 @@ class App {
             this.logger.warn('Import already in progress');
             return;
         }
-        
+
+        // Always fetch the current population selection at import time
+        const popSelect = document.getElementById('import-population-select');
+        let populationId = popSelect && popSelect.value ? popSelect.value : '';
+        let populationName = '';
+        if (popSelect) {
+            const selectedOption = popSelect.options[popSelect.selectedIndex];
+            populationName = selectedOption ? selectedOption.text : '';
+        }
+        // Store for use in progress updates
+        this.selectedPopulationId = populationId;
+        this.selectedPopulationName = populationName;
+
+        // Debug log for validation
+        console.log('[Import Trigger] Using population:', { id: populationId, name: populationName });
+        if (populationName === 'Test') {
+            console.warn('[Import Trigger] WARNING: Population name is "Test". Dropdown state:', popSelect);
+        }
+
         // SSE connection management variables
         let sseSource;
         let sseRetryCount = 0;
@@ -1197,15 +1227,17 @@ class App {
                 
                 // Handle connection opened event
                 sseSource.addEventListener('open', (event) => {
-                    connectionEstablished = true;
                     lastHeartbeat = Date.now();
-                    console.log("SSE: ✅ SSE connected");
-                    this.uiManager.debugLog("SSE", "✅ SSE connection opened successfully", { 
-                        sessionId, 
+                    console.log("SSE: ✅ SSE connection opened:", event);
+                    
+                    // Debug logging to check context binding
+                    console.log("SSE: Debug - UI Manager:", this.uiManager);
+                    console.log("SSE: Debug - Is showSuccess function:", typeof this.uiManager?.showSuccess);
+                    
+                    this.uiManager.debugLog("SSE", "✅ SSE connection opened", { 
                         readyState: sseSource.readyState,
-                        url: sseSource.url 
+                        event: event 
                     });
-                    this.uiManager.logMessage('success', 'SSE: Connection established successfully');
                     
                     // Reset retry count on successful connection
                     sseRetryCount = 0;
@@ -1213,7 +1245,7 @@ class App {
                     // Log connection details for debugging
                     this.uiManager.logMessage('info', `SSE connected for import (sessionId: ${sessionId})`);
                     
-                    // Show connection status to user
+                    // Show connection status to user using the correct method
                     this.uiManager.showStatusMessage('success', 'Real-time connection established', 
                         'Progress updates will be shown in real-time during the import process.');
                 });
@@ -1280,6 +1312,12 @@ class App {
                     // Display status message to user if provided
                     if (data.message) {
                         this.uiManager.logMessage('info', data.message);
+                    }
+                    
+                    // Log current user being processed if available
+                    if (data.user) {
+                        const userName = data.user.username || data.user.email || 'unknown';
+                        this.uiManager.logMessage('info', `Processing: ${userName}`);
                     }
                 });
 

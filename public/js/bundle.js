@@ -503,6 +503,21 @@ class App {
       });
     }
 
+    // Population selection change listener
+    const populationSelectEl = document.getElementById('import-population-select');
+    if (populationSelectEl) {
+      populationSelectEl.addEventListener('change', e => {
+        const selectedId = populationSelectEl.value;
+        const selectedName = populationSelectEl.selectedOptions[0]?.text || '';
+        this.selectedPopulationId = selectedId;
+        this.selectedPopulationName = selectedName;
+        console.log('[Population] Dropdown changed:', {
+          id: selectedId,
+          name: selectedName
+        });
+      });
+    }
+
     // Import event listeners
     const startImportBtn = document.getElementById('start-import-btn');
     if (startImportBtn) {
@@ -1098,6 +1113,27 @@ class App {
       return;
     }
 
+    // Always fetch the current population selection at import time
+    const popSelect = document.getElementById('import-population-select');
+    let populationId = popSelect && popSelect.value ? popSelect.value : '';
+    let populationName = '';
+    if (popSelect) {
+      const selectedOption = popSelect.options[popSelect.selectedIndex];
+      populationName = selectedOption ? selectedOption.text : '';
+    }
+    // Store for use in progress updates
+    this.selectedPopulationId = populationId;
+    this.selectedPopulationName = populationName;
+
+    // Debug log for validation
+    console.log('[Import Trigger] Using population:', {
+      id: populationId,
+      name: populationName
+    });
+    if (populationName === 'Test') {
+      console.warn('[Import Trigger] WARNING: Population name is "Test". Dropdown state:', popSelect);
+    }
+
     // SSE connection management variables
     let sseSource;
     let sseRetryCount = 0;
@@ -1175,15 +1211,16 @@ class App {
 
         // Handle connection opened event
         sseSource.addEventListener('open', event => {
-          connectionEstablished = true;
           lastHeartbeat = Date.now();
-          console.log("SSE: ✅ SSE connected");
-          this.uiManager.debugLog("SSE", "✅ SSE connection opened successfully", {
-            sessionId,
+          console.log("SSE: ✅ SSE connection opened:", event);
+
+          // Debug logging to check context binding
+          console.log("SSE: Debug - UI Manager:", this.uiManager);
+          console.log("SSE: Debug - Is showSuccess function:", typeof this.uiManager?.showSuccess);
+          this.uiManager.debugLog("SSE", "✅ SSE connection opened", {
             readyState: sseSource.readyState,
-            url: sseSource.url
+            event: event
           });
-          this.uiManager.logMessage('success', 'SSE: Connection established successfully');
 
           // Reset retry count on successful connection
           sseRetryCount = 0;
@@ -1191,7 +1228,7 @@ class App {
           // Log connection details for debugging
           this.uiManager.logMessage('info', `SSE connected for import (sessionId: ${sessionId})`);
 
-          // Show connection status to user
+          // Show connection status to user using the correct method
           this.uiManager.showStatusMessage('success', 'Real-time connection established', 'Progress updates will be shown in real-time during the import process.');
         });
 
@@ -1249,6 +1286,12 @@ class App {
           // Display status message to user if provided
           if (data.message) {
             this.uiManager.logMessage('info', data.message);
+          }
+
+          // Log current user being processed if available
+          if (data.user) {
+            const userName = data.user.username || data.user.email || 'unknown';
+            this.uiManager.logMessage('info', `Processing: ${userName}`);
           }
         });
 
@@ -10068,6 +10111,31 @@ class UIManager {
       skipped: 0
     });
     this.updateImportProgress(0, totalUsers, 'Starting import...', {}, populationName, populationId);
+    // Update population info fields immediately
+    const popNameEl = document.getElementById('import-population-name');
+    const popIdEl = document.getElementById('import-population-id');
+    if (popNameEl) popNameEl.textContent = populationName || 'Not selected';
+    if (popIdEl) popIdEl.textContent = populationId || 'Not set';
+  }
+
+  /**
+   * Hides the import status section and resets progress
+   */
+  hideImportStatus() {
+    const importStatus = document.getElementById('import-status');
+    if (importStatus) {
+      importStatus.style.display = 'none';
+      this.logger.debug('UI', 'Import status section hidden');
+    }
+
+    // Reset import state
+    this.isImporting = false;
+
+    // Clear any auto-close timers
+    if (this.importAutoCloseTimer) {
+      clearTimeout(this.importAutoCloseTimer);
+      this.importAutoCloseTimer = null;
+    }
   }
 
   /**
@@ -10133,6 +10201,20 @@ class UIManager {
 
     // Update last run status with current progress
     this.updateLastRunStatus('import', 'User Import', 'In Progress', message, counts);
+
+    // Auto-close progress window 10 seconds after completion
+    if (current === total && total > 0) {
+      this.logger.debug('UI', 'Import completed, scheduling auto-close');
+      setTimeout(() => {
+        this.hideImportStatus();
+        this.logger.debug('UI', 'Import progress window auto-closed');
+      }, 10000); // 10 seconds
+    }
+    // Update population info fields in real time
+    const popNameEl = document.getElementById('import-population-name');
+    const popIdEl = document.getElementById('import-population-id');
+    if (popNameEl && populationName) popNameEl.textContent = populationName;
+    if (popIdEl && populationId) popIdEl.textContent = populationId;
   }
 
   /**
@@ -11233,6 +11315,50 @@ class UIManager {
     el.textContent = '';
     el.style.display = 'none';
   }
+
+  /**
+   * Show a status message with the specified type
+   * 
+   * Provides a consistent interface for displaying status messages
+   * to prevent method binding errors during SSE connections.
+   * 
+   * @param {string} type - The type of status message ('success', 'error', 'warning', 'info')
+   * @param {string} message - The main message to display
+   * @param {string} details - Optional details to display
+   */
+  showStatusMessage(type, message) {
+    let details = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
+    // Ensure this method exists to prevent binding errors during SSE connections
+    // This provides a fallback interface for status messages
+    switch (type) {
+      case 'success':
+        this.showSuccess(message, details);
+        break;
+      case 'error':
+        this.showError(message, details);
+        break;
+      case 'warning':
+        this.showWarning(message, details);
+        break;
+      case 'info':
+        this.showInfo(message, details);
+        break;
+      default:
+        // Default to info if type is not recognized
+        this.showInfo(message, details);
+        break;
+    }
+  }
+
+  /**
+   * Show a success notification
+   * 
+   * Displays a success message to the user with appropriate styling
+   * and automatic dismissal after a timeout period.
+   * 
+   * @param {string} message - The success message to display
+   * @param {string} details - Optional additional details
+   */
 
   /**
    * Centralized debug logger for UI and import flow
