@@ -670,6 +670,23 @@ class App {
                 
                 // Update the import button state based on population selection
                 this.updateImportButtonState();
+                
+                // Scrolls user to Import button immediately after selecting a population to ensure visibility of next action
+                if (selectedPopulationId && selectedPopulationId !== '') {
+                    setTimeout(() => {
+                        const importButton = document.getElementById('start-import-btn');
+                        if (importButton) {
+                            importButton.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'center',
+                                inline: 'nearest'
+                            });
+                            console.log('[Population Select] ✅ Scrolled to Import button smoothly');
+                        } else {
+                            console.warn('[Population Select] Import button not found for scrolling');
+                        }
+                    }, 100); // Small delay to ensure UI updates are complete
+                }
             });
         } else {
             console.warn('Population select element not found in DOM');
