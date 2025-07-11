@@ -1146,7 +1146,11 @@ class App {
                 // This establishes a persistent HTTP connection for real-time updates
                 const sseUrl = `/api/import/progress/${sessionId}`;
                 console.log("SSE: 🔌 Creating EventSource for URL:", sseUrl);
-                this.uiManager.debugLog("SSE", `🔄 Creating EventSource for URL: ${sseUrl}`);
+                this.uiManager.debugLog("SSE", `🔄 Creating EventSource for URL: ${sseUrl}`, {
+                    sessionId,
+                    url: sseUrl,
+                    timestamp: new Date().toISOString()
+                });
                 sseSource = new window.EventSource(sseUrl);
                 
                 // Track if server has sent an error event to prevent false retries
@@ -1171,6 +1175,10 @@ class App {
                     
                     // Log connection details for debugging
                     this.uiManager.logMessage('info', `SSE connected for import (sessionId: ${sessionId})`);
+                    
+                    // Show connection status to user
+                    this.uiManager.showStatusMessage('success', 'Real-time connection established', 
+                        'Progress updates will be shown in real-time during the import process.');
                 });
 
                 // Handle progress updates from the server
@@ -1241,44 +1249,46 @@ class App {
                 // Handle explicit server error events
                 // These are sent by the server when import fails due to server-side issues
                 sseSource.addEventListener('error', (event) => {
-                    serverErrorReceived = true;
-                    console.error("SSE: ❌ SSE error event:", event);
-                    this.uiManager.debugLog("SSE", "❌ SSE error event received", { 
-                        readyState: sseSource.readyState,
-                        error: event,
-                        serverErrorReceived 
-                    });
-                    this.uiManager.logMessage('error', 'SSE: Error event received from server');
-
-                    let data = {};
-                    try {
-                        if (event.data) {
-                            data = JSON.parse(event.data);
-                            console.log("SSE: ✅ Error event data parsed:", data);
-                            this.uiManager.debugLog("SSE", "✅ Error event data parsed", data);
-                        }
-                    } catch (e) {
-                        console.error("SSE: ❌ Failed to parse error event data:", e.message, "Raw data:", event.data);
-                        this.uiManager.debugLog("SSE", "❌ Failed to parse error event data", { 
-                            rawData: event.data, 
-                            error: e.message 
+                    // Only handle this if it's a server-sent error event with data
+                    if (event.data) {
+                        serverErrorReceived = true;
+                        console.error("SSE: ❌ SSE server error event:", event);
+                        this.uiManager.debugLog("SSE", "❌ SSE server error event received", { 
+                            readyState: sseSource.readyState,
+                            error: event,
+                            serverErrorReceived 
                         });
-                    }
+                        this.uiManager.logMessage('error', 'SSE: Server error event received');
 
-                    // Update UI with error information
-                    const errorSummary = 'Import failed due to server error';
-                    const errorDetails = [data.error || 'SSE server error'];
-                    this.uiManager.updateImportErrorStatus(errorSummary, errorDetails);
-                    this.uiManager.showError('Import failed', data.error || 'SSE server error');
+                        let data = {};
+                        try {
+                            data = JSON.parse(event.data);
+                            console.log("SSE: ✅ Server error event data parsed:", data);
+                            this.uiManager.debugLog("SSE", "✅ Server error event data parsed", data);
+                        } catch (e) {
+                            console.error("SSE: ❌ Failed to parse server error event data:", e.message, "Raw data:", event.data);
+                            this.uiManager.debugLog("SSE", "❌ Failed to parse server error event data", { 
+                                rawData: event.data, 
+                                error: e.message 
+                            });
+                        }
 
-                    // Clean up connection and state
-                    console.log("SSE: 🧹 Cleaning up SSE connection after error");
-                    this.uiManager.debugLog("SSE", "🧹 Cleaning up SSE connection after error");
-                    sseSource.close();
-                    if (importProgressStreams && typeof importProgressStreams.delete === 'function') {
-                        importProgressStreams.delete(sessionId);
+                        // Update UI with error information
+                        const errorSummary = 'Import failed due to server error';
+                        const errorDetails = [data.error || 'SSE server error'];
+                        this.uiManager.updateImportErrorStatus(errorSummary, errorDetails);
+                        this.uiManager.showError('Import failed', data.error || 'SSE server error');
+
+                        // Clean up connection and state
+                        console.log("SSE: 🧹 Cleaning up SSE connection after server error");
+                        this.uiManager.debugLog("SSE", "🧹 Cleaning up SSE connection after server error");
+                        sseSource.close();
+                        if (importProgressStreams && typeof importProgressStreams.delete === 'function') {
+                            importProgressStreams.delete(sessionId);
+                        }
+                        this.isImporting = false;
                     }
-                    this.isImporting = false;
+                    // For connection errors without data, let the onerror handler deal with it
                 });
 
                 // Handle import completion event
@@ -1402,46 +1412,57 @@ class App {
                 });
 
                 // Handle connection errors (network, timeout, etc.)
+                // This error handler deals with network-level connection issues
                 sseSource.onerror = (event) => {
                     console.error("SSE: ❌ SSE connection error:", event);
                     this.uiManager.debugLog("SSE", "❌ SSE connection error", { 
                         readyState: sseSource.readyState,
-                        error: event 
+                        error: event,
+                        serverErrorReceived 
                     });
-                    this.uiManager.logMessage('error', 'SSE: Connection error occurred');
+                    
+                    // Only handle connection errors if we haven't received a server error
+                    if (!serverErrorReceived) {
+                        this.uiManager.logMessage('error', 'SSE: Connection error occurred');
 
-                    // Only retry if no server error was received and we haven't exceeded max retries
-                    if (!serverErrorReceived && sseRetryCount < maxSseRetries) {
-                        sseRetryCount++;
-                        console.warn(`SSE: 🔁 SSE reconnecting... Attempt #${sseRetryCount}`);
-                        this.uiManager.debugLog("SSE", `🔁 SSE reconnecting... Attempt #${sseRetryCount}`, {
+                        // Only retry if we haven't exceeded max retries
+                        if (sseRetryCount < maxSseRetries) {
+                            sseRetryCount++;
+                            console.warn(`SSE: 🔁 SSE reconnecting... Attempt #${sseRetryCount}`);
+                            this.uiManager.debugLog("SSE", `🔁 SSE reconnecting... Attempt #${sseRetryCount}`, {
+                                retryCount: sseRetryCount,
+                                maxRetries: maxSseRetries
+                            });
+                            this.uiManager.logMessage('warning', `SSE: Reconnecting... Attempt #${sseRetryCount}`);
+
+                            // Close current connection
+                            if (sseSource) {
+                                sseSource.close();
+                                sseSource = null;
+                            }
+
+                            // Retry connection with exponential backoff
+                            const retryDelay = Math.min(1000 * Math.pow(2, sseRetryCount - 1), 30000);
+                            console.log(`SSE: ⏱️ Retrying in ${retryDelay}ms`);
+                            this.uiManager.logMessage('info', `SSE: Retrying connection in ${retryDelay}ms`);
+
+                            setTimeout(() => {
+                                connectSSE(sessionId);
+                            }, retryDelay);
+                        } else {
+                                                    console.error("SSE: ❌ Max retries exceeded, stopping retries");
+                        this.uiManager.debugLog("SSE", "❌ Max retries exceeded", {
                             retryCount: sseRetryCount,
                             maxRetries: maxSseRetries
                         });
-                        this.uiManager.logMessage('warning', `SSE: Reconnecting... Attempt #${sseRetryCount}`);
-
-                        // Close current connection
-                        if (sseSource) {
-                            sseSource.close();
-                            sseSource = null;
-                        }
-
-                        // Retry connection with exponential backoff
-                        const retryDelay = Math.min(1000 * Math.pow(2, sseRetryCount - 1), 30000);
-                        console.log(`SSE: ⏱️ Retrying in ${retryDelay}ms`);
-                        this.uiManager.logMessage('info', `SSE: Retrying connection in ${retryDelay}ms`);
-
-                        setTimeout(() => {
-                            connectSSE(sessionId);
-                        }, retryDelay);
-                    } else {
-                        console.error("SSE: ❌ Max retries exceeded or server error received, stopping retries");
-                        this.uiManager.debugLog("SSE", "❌ Max retries exceeded or server error received", {
-                            retryCount: sseRetryCount,
-                            maxRetries: maxSseRetries,
-                            serverErrorReceived
-                        });
                         this.uiManager.logMessage('error', 'SSE: Max retries exceeded, stopping connection attempts');
+                        
+                        // Show user-friendly error message
+                        this.uiManager.showError('Connection Failed', 
+                            `Unable to establish stable connection to server after ${maxSseRetries} attempts. ` +
+                            'Please check your network connection and try again. ' +
+                            'If the problem persists, contact your administrator.'
+                        );
                         
                         // Clean up connection
                         if (sseSource) {
@@ -1452,21 +1473,30 @@ class App {
                             importProgressStreams.delete(sessionId);
                         }
                         this.isImporting = false;
+                        }
+                    } else {
+                        console.log("SSE: ℹ️ Ignoring connection error because server error was already received");
+                        this.uiManager.debugLog("SSE", "ℹ️ Ignoring connection error because server error was already received");
                     }
                 };
 
-                // Set up heartbeat monitoring
+                // Set up heartbeat monitoring with improved logic
+                // Only monitor heartbeat if connection is established and no server error received
                 const heartbeatInterval = setInterval(() => {
-                    const timeSinceLastHeartbeat = Date.now() - lastHeartbeat;
-                    if (timeSinceLastHeartbeat > 60000) { // 60 seconds
-                        console.warn("SSE: ⚠️ No heartbeat received for 60 seconds");
-                        this.uiManager.debugLog("SSE", "⚠️ No heartbeat received for 60 seconds", {
-                            timeSinceLastHeartbeat,
-                            lastHeartbeat: new Date(lastHeartbeat).toISOString()
-                        });
-                        this.uiManager.logMessage('warning', 'SSE: No heartbeat received for 60 seconds');
+                    if (connectionEstablished && !serverErrorReceived) {
+                        const timeSinceLastHeartbeat = Date.now() - lastHeartbeat;
+                        if (timeSinceLastHeartbeat > 90000) { // 90 seconds - more lenient
+                            console.warn("SSE: ⚠️ No heartbeat received for 90 seconds");
+                            this.uiManager.debugLog("SSE", "⚠️ No heartbeat received for 90 seconds", {
+                                timeSinceLastHeartbeat,
+                                lastHeartbeat: new Date(lastHeartbeat).toISOString(),
+                                connectionEstablished,
+                                serverErrorReceived
+                            });
+                            this.uiManager.logMessage('warning', 'SSE: No heartbeat received for 90 seconds');
+                        }
                     }
-                }, 30000); // Check every 30 seconds
+                }, 45000); // Check every 45 seconds - less frequent
 
                 // Clean up heartbeat monitoring when connection closes
                 sseSource.addEventListener('close', () => {
