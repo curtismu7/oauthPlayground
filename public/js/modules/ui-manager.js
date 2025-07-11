@@ -888,6 +888,17 @@ export class UIManager {
             }
         }
         
+        // Handle missing population errors (not counted in skipped)
+        if (counts.errors && counts.errors > 0) {
+            const errorCount = document.getElementById('import-error-count');
+            if (errorCount) {
+                errorCount.textContent = counts.errors;
+                errorCount.style.color = '#dc3545';
+                errorCount.style.fontWeight = 'bold';
+                errorCount.innerHTML = `❌ ${counts.errors}`;
+            }
+        }
+        
         // Update population information if provided
         if (populationName) {
             const popNameEl = document.getElementById('import-population-name');
@@ -1078,6 +1089,10 @@ export class UIManager {
         if (successCount) successCount.textContent = '0';
         if (failedCount) failedCount.textContent = '0';
         if (skippedCount) skippedCount.textContent = '0';
+        
+        // Reset error count
+        const errorCount = document.getElementById('import-error-count');
+        if (errorCount) errorCount.textContent = '0';
         
         // Population name
         if (populationNameElement) {
