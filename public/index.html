@@ -1297,9 +1297,12 @@
             </div>
         </footer>
         
-        <!-- Debug Log Toggle Wrapper - Centered above footer -->
+        <!-- Debug Log Toggle Wrapper - Enhanced positioning and styling -->
         <div class="debug-toggle-wrapper">
-            <button id="debug-log-toggle" class="debug-log-toggle" aria-expanded="false" aria-controls="debug-log-panel" aria-label="Show Debug Log Console" tabindex="0">Show Debug Log</button>
+            <button id="debug-log-toggle" class="debug-log-toggle" aria-expanded="false" aria-controls="debug-log-panel" aria-label="Show Debug Log Console" tabindex="0">
+                <i class="fas fa-bug"></i>
+                Show Debug Log
+            </button>
         </div>
         
         <!-- Population ID Missing Modal -->
@@ -1373,40 +1376,68 @@
         </div>
     </div>
 
-    <!-- Feature Flags Panel -->
+    <!-- Feature Flags Panel - Enhanced with add flag functionality -->
     <div id="feature-flags-panel" class="feature-flags-panel" style="display: none;">
         <div class="feature-flags-header">
             <h4><i class="fas fa-toggle-on"></i> Feature Flags</h4>
-            <button id="close-feature-flags" class="btn btn-sm btn-secondary">
+            <button id="close-feature-flags" class="btn btn-sm btn-secondary" title="Close Feature Flags">
                 <i class="fas fa-times"></i>
             </button>
         </div>
         <div class="feature-flags-content">
+            <!-- Existing Feature Flags -->
             <div class="feature-flag-item">
                 <label class="feature-flag-label">
-                    <input type="checkbox" id="flagA" class="feature-flag-checkbox">
+                    <input type="checkbox" id="flagA" class="feature-flag-checkbox" data-feature-flag="A">
                     <span class="feature-flag-text">Feature Flag A</span>
                 </label>
                 <span class="feature-flag-description">Enable experimental feature A</span>
             </div>
             <div class="feature-flag-item">
                 <label class="feature-flag-label">
-                    <input type="checkbox" id="flagB" class="feature-flag-checkbox">
+                    <input type="checkbox" id="flagB" class="feature-flag-checkbox" data-feature-flag="B">
                     <span class="feature-flag-text">Feature Flag B</span>
                 </label>
                 <span class="feature-flag-description">Enable experimental feature B</span>
             </div>
             <div class="feature-flag-item">
                 <label class="feature-flag-label">
-                    <input type="checkbox" id="flagC" class="feature-flag-checkbox">
+                    <input type="checkbox" id="flagC" class="feature-flag-checkbox" data-feature-flag="C">
                     <span class="feature-flag-text">Feature Flag C</span>
                 </label>
                 <span class="feature-flag-description">Enable experimental feature C</span>
             </div>
+            
+            <!-- Add New Flag Section -->
+            <div class="feature-flag-add-section">
+                <h5><i class="fas fa-plus-circle"></i> Add New Feature Flag</h5>
+                <div class="feature-flag-add-form">
+                    <div class="form-group">
+                        <label for="new-flag-name">Flag Name:</label>
+                        <input type="text" id="new-flag-name" class="form-control" placeholder="Enter flag name (e.g., D, E, F)" maxlength="10">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-flag-description">Description:</label>
+                        <input type="text" id="new-flag-description" class="form-control" placeholder="Describe what this flag does">
+                    </div>
+                    <div class="form-group">
+                        <label class="feature-flag-label">
+                            <input type="checkbox" id="new-flag-enabled">
+                            <span class="feature-flag-text">Enable by default</span>
+                        </label>
+                    </div>
+                    <button id="add-feature-flag" class="btn btn-sm btn-success">
+                        <i class="fas fa-plus"></i> Add Flag
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
             <div class="feature-flags-actions">
-                <button id="reset-feature-flags" class="btn btn-sm btn-warning">
+                <button id="reset-feature-flags" class="btn btn-sm btn-warning" title="Reset all flags to default values">
                     <i class="fas fa-undo"></i> Reset to Defaults
                 </button>
+                <div id="feature-flags-status" class="feature-flags-status"></div>
             </div>
         </div>
     </div>
