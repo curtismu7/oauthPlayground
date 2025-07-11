@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Population Selection Test - Simple</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .console-output {
+            background: #1e1e1e;
+            color: #f8f8f2;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+        .instructions {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔍 Population Selection Test - Simple</h1>
+        
+        <div class="test-section">
+            <h2>Instructions</h2>
+            <div class="instructions">
+                <p><strong>To test population selection:</strong></p>
+                <ol>
+                    <li>Select a population from the dropdown below</li>
+                    <li>Upload a CSV file with user data</li>
+                    <li>Click "Run Test" to execute the population verification test</li>
+                    <li>Check the console output below for detailed results</li>
+                </ol>
+                <p><strong>Test CSV format:</strong> Include columns like firstName, lastName, email, username, populationId, enabled</p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Test Setup</h2>
+            
+            <div style="margin: 20px 0;">
+                <label for="import-population-select">Select Population:</label>
+                <select id="import-population-select" class="form-control" style="width: 100%; margin: 10px 0;">
+                    <option value="">Loading populations...</option>
+                </select>
+            </div>
+            
+            <div style="margin: 20px 0;">
+                <label for="csv-file">Upload CSV File:</label>
+                <input type="file" id="csv-file" accept=".csv" class="form-control" style="margin: 10px 0;" />
+            </div>
+            
+            <button id="run-test-btn" class="test-button">Run Population Test</button>
+            <button id="clear-console-btn" class="test-button">Clear Console</button>
+        </div>
+
+        <div class="test-section">
+            <h2>Test Results</h2>
+            <div id="console-output" class="console-output">Ready to run test...</div>
+        </div>
+    </div>
+
+    <!-- Include the main app bundle -->
+    <script src="js/bundle.js"></script>
+    
+    <!-- Include the simple test script -->
+    <script src="../test-population-verification-simple.js"></script>
+    
+    <script>
+        // Capture console output
+        const consoleOutput = document.getElementById('console-output');
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        const originalConsoleWarn = console.warn;
+        
+        function appendToConsole(message, type = 'log') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#ff6b6b' : type === 'warn' ? '#ffd93d' : '#4ecdc4';
+            consoleOutput.innerHTML += `<span style="color: ${color}">[${timestamp}] ${message}</span>\n`;
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            appendToConsole(args.join(' '), 'log');
+        };
+        
+        console.error = function(...args) {
+            originalConsoleError.apply(console, args);
+            appendToConsole(args.join(' '), 'error');
+        };
+        
+        console.warn = function(...args) {
+            originalConsoleWarn.apply(console, args);
+            appendToConsole(args.join(' '), 'warn');
+        };
+        
+        // Setup event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load populations
+            loadPopulations();
+            
+            // Setup test button
+            document.getElementById('run-test-btn').addEventListener('click', function() {
+                this.disabled = true;
+                this.textContent = 'Running Test...';
+                
+                try {
+                    // Clear console
+                    consoleOutput.innerHTML = '';
+                    appendToConsole('Starting population selection test...', 'log');
+                    
+                    // Run the test
+                    if (window.testPopulationSelection) {
+                        window.testPopulationSelection();
+                    } else {
+                        appendToConsole('Test function not available. Make sure you are on the import page.', 'error');
+                    }
+                } catch (error) {
+                    appendToConsole(`Test failed: ${error.message}`, 'error');
+                } finally {
+                    this.disabled = false;
+                    this.textContent = 'Run Population Test';
+                }
+            });
+            
+            // Setup clear button
+            document.getElementById('clear-console-btn').addEventListener('click', function() {
+                consoleOutput.innerHTML = 'Console cleared...\n';
+            });
+        });
+        
+        async function loadPopulations() {
+            try {
+                const response = await fetch('/api/populations');
+                if (response.ok) {
+                    const populations = await response.json();
+                    populateDropdown(populations);
+                } else {
+                    // Fallback to test populations
+                    populateDropdown([
+                        { id: 'test-pop-1', name: 'Test Population 1' },
+                        { id: 'test-pop-2', name: 'Test Population 2' },
+                        { id: 'test-pop-3', name: 'Test Population 3' }
+                    ]);
+                }
+            } catch (error) {
+                console.error('Failed to load populations:', error);
+                // Fallback to test populations
+                populateDropdown([
+                    { id: 'test-pop-1', name: 'Test Population 1' },
+                    { id: 'test-pop-2', name: 'Test Population 2' },
+                    { id: 'test-pop-3', name: 'Test Population 3' }
+                ]);
+            }
+        }
+        
+        function populateDropdown(populations) {
+            const select = document.getElementById('import-population-select');
+            select.innerHTML = '<option value="">Select a population...</option>';
+            
+            populations.forEach(pop => {
+                const option = document.createElement('option');
+                option.value = pop.id;
+                option.textContent = pop.name;
+                select.appendChild(option);
+            });
+            
+            console.log(`Loaded ${populations.length} populations for testing`);
+        }
+    </script>
+</body>
+</html> 
