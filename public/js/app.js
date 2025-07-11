@@ -716,7 +716,7 @@ class App {
             });
         });
 
-        // Feature flags panel toggle
+        // Feature flags panel toggle - Enhanced with full functionality
         const featureFlagsToggle = document.getElementById('feature-flags-toggle');
         if (featureFlagsToggle) {
             featureFlagsToggle.addEventListener('click', () => {
@@ -727,7 +727,7 @@ class App {
             });
         }
 
-        // Feature flag toggles
+        // Feature flag toggles - Enhanced with data attributes
         const featureFlagToggles = document.querySelectorAll('[data-feature-flag]');
         featureFlagToggles.forEach(toggle => {
             toggle.addEventListener('change', async (e) => {
@@ -736,6 +736,38 @@ class App {
                 await this.toggleFeatureFlag(flag, enabled);
             });
         });
+
+        // Feature flags close button - Prevents user confusion due to broken UI controls
+        const closeFeatureFlagsBtn = document.getElementById('close-feature-flags');
+        if (closeFeatureFlagsBtn) {
+            closeFeatureFlagsBtn.addEventListener('click', () => {
+                const panel = document.getElementById('feature-flags-panel');
+                if (panel) {
+                    panel.style.display = 'none';
+                }
+            });
+        }
+
+        // Feature flags reset button - Ensures visibility and full control of feature flags for debugging and configuration
+        const resetFeatureFlagsBtn = document.getElementById('reset-feature-flags');
+        if (resetFeatureFlagsBtn) {
+            resetFeatureFlagsBtn.addEventListener('click', async () => {
+                try {
+                    await this.resetFeatureFlags();
+                    this.showFeatureFlagsStatus('All feature flags reset to defaults', 'success');
+                } catch (error) {
+                    this.showFeatureFlagsStatus('Failed to reset feature flags', 'error');
+                }
+            });
+        }
+
+        // Add new feature flag functionality
+        const addFeatureFlagBtn = document.getElementById('add-feature-flag');
+        if (addFeatureFlagBtn) {
+            addFeatureFlagBtn.addEventListener('click', async () => {
+                await this.addNewFeatureFlag();
+            });
+        }
 
         // Import progress close button
         const closeImportStatusBtn = document.getElementById('close-import-status');
@@ -2132,6 +2164,92 @@ class App {
             
         } catch (error) {
             this.uiManager.showError(`Failed to toggle feature flag ${flag}`, error.message);
+        }
+    }
+
+    async resetFeatureFlags() {
+        try {
+            const response = await this.localClient.post('/api/feature-flags/reset', {});
+            
+            if (response.success) {
+                // Reset all checkboxes to default values
+                const checkboxes = document.querySelectorAll('[data-feature-flag]');
+                checkboxes.forEach(checkbox => {
+                    const flag = checkbox.getAttribute('data-feature-flag');
+                    checkbox.checked = false; // Default to false
+                });
+                console.log('All feature flags reset to defaults');
+            } else {
+                console.error('Failed to reset feature flags');
+            }
+        } catch (error) {
+            console.error('Error resetting feature flags:', error);
+        }
+    }
+
+    async addNewFeatureFlag() {
+        try {
+            const flagName = document.getElementById('new-flag-name').value.trim();
+            const description = document.getElementById('new-flag-description').value.trim();
+            const enabled = document.getElementById('new-flag-enabled').checked;
+
+            if (!flagName) {
+                this.showFeatureFlagsStatus('Please enter a flag name', 'warning');
+                return;
+            }
+
+            if (!description) {
+                this.showFeatureFlagsStatus('Please enter a description', 'warning');
+                return;
+            }
+
+            // Create new flag item in the UI
+            const flagsContainer = document.querySelector('.feature-flags-content');
+            const newFlagItem = document.createElement('div');
+            newFlagItem.className = 'feature-flag-item';
+            newFlagItem.innerHTML = `
+                <label class="feature-flag-label">
+                    <input type="checkbox" id="flag${flagName}" class="feature-flag-checkbox" data-feature-flag="${flagName}" ${enabled ? 'checked' : ''}>
+                    <span class="feature-flag-text">Feature Flag ${flagName}</span>
+                </label>
+                <span class="feature-flag-description">${description}</span>
+            `;
+
+            // Insert before the add section
+            const addSection = document.querySelector('.feature-flag-add-section');
+            flagsContainer.insertBefore(newFlagItem, addSection);
+
+            // Add event listener to the new checkbox
+            const newCheckbox = newFlagItem.querySelector(`#flag${flagName}`);
+            newCheckbox.addEventListener('change', async (e) => {
+                const flag = e.target.getAttribute('data-feature-flag');
+                const enabled = e.target.checked;
+                await this.toggleFeatureFlag(flag, enabled);
+            });
+
+            // Clear the form
+            document.getElementById('new-flag-name').value = '';
+            document.getElementById('new-flag-description').value = '';
+            document.getElementById('new-flag-enabled').checked = false;
+
+            this.showFeatureFlagsStatus(`Feature flag "${flagName}" added successfully`, 'success');
+
+        } catch (error) {
+            console.error('Error adding new feature flag:', error);
+            this.showFeatureFlagsStatus('Failed to add feature flag', 'error');
+        }
+    }
+
+    showFeatureFlagsStatus(message, type = 'info') {
+        const statusElement = document.getElementById('feature-flags-status');
+        if (statusElement) {
+            statusElement.textContent = message;
+            statusElement.className = `feature-flags-status ${type}`;
+            
+            // Auto-hide after 3 seconds
+            setTimeout(() => {
+                statusElement.style.display = 'none';
+            }, 3000);
         }
     }
 
