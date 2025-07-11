@@ -1561,6 +1561,30 @@ async function runImportProcess(req, sessionId, options) {
         // Send progress event with total count
         sendProgressEvent(sessionId, 0, users.length, `Starting import of ${users.length} users...`, { succeeded: 0, failed: 0, skipped: 0 });
         
+        // Get population information for progress updates
+        let populationName = '';
+        let populationId = defaultPopulationId;
+        
+        // Try to get population name if we have a population ID
+        if (populationId) {
+            try {
+                const populationResponse = await fetch(`http://127.0.0.1:4000/api/pingone/environments/${environmentId}/populations/${populationId}`);
+                if (populationResponse.ok) {
+                    const populationData = await populationResponse.json();
+                    populationName = populationData.name || 'Unknown Population';
+                }
+            } catch (e) {
+                debugLog("Population", "Could not fetch population name", e);
+                populationName = 'Unknown Population';
+            }
+        }
+        
+        // Store population info for progress events
+        const populationInfo = {
+            name: populationName,
+            id: populationId
+        };
+        
         // Detect population conflicts between CSV data and UI selection
         // A conflict occurs when both CSV contains population data AND UI has selected a population
         const hasCsvPopulationData = users.some(user => user.populationId && user.populationId.trim() !== '');
@@ -1854,24 +1878,43 @@ This conflict needs to be resolved before import can proceed.`;
                 
                 // Send real-time progress event for each processed user
                 // This provides immediate feedback to the frontend during long imports
-                const progressSseRes = importProgressStreams.get(sessionId);
-                if (progressSseRes) {
-                    const progressData = { 
-                        current: processed, 
-                        total: users.length, 
-                        message: `Processing user ${processed}/${users.length}`,
-                        counts: { 
-                            succeeded: results.created, 
-                            failed: results.failed, 
-                            skipped: results.skipped 
-                        },
-                        status,
-                        user
-                    };
-                    debugLog("SSE", `Sending progress event:`, progressData);
-                    progressSseRes.write(`event: progress\ndata: ${JSON.stringify(progressData)}\n\n`);
+                // Use the proper sendProgressEvent function for consistent event formatting
+                const progressMessage = `Processing user ${processed}/${users.length}`;
+                const progressCounts = { 
+                    succeeded: results.created, 
+                    failed: results.failed, 
+                    skipped: results.skipped,
+                    current: processed,
+                    total: users.length
+                };
+                
+                // Include population information in progress data
+                const progressData = {
+                    current: processed,
+                    total: users.length,
+                    message: progressMessage,
+                    counts: progressCounts,
+                    user: user, // Include current user being processed
+                    populationName: populationInfo.name,
+                    populationId: populationInfo.id
+                };
+                
+                // Send progress event with user details and population information
+                const progressResult = sendProgressEvent(
+                    sessionId, 
+                    processed, 
+                    users.length, 
+                    progressMessage, 
+                    progressCounts, 
+                    user, // Include current user being processed
+                    populationInfo.name, // populationName
+                    populationInfo.id    // populationId
+                );
+                
+                if (!progressResult) {
+                    debugLog("SSE", `Failed to send progress event for user ${processed}/${users.length}`);
                 } else {
-                    debugLog("SSE", `No SSE stream found for session ${sessionId}`);
+                    debugLog("SSE", `Progress event sent successfully for user ${processed}/${users.length}`);
                 }
             }
             
@@ -1884,25 +1927,47 @@ This conflict needs to be resolved before import can proceed.`;
         
         debugLog("Import", "Import process completed", results);
         
-        // Send final completion event to frontend
+        // Send final completion event to frontend using proper function
         // This signals that the import process has finished and provides final results
-        const finalSseRes = importProgressStreams.get(sessionId);
-        if (finalSseRes) {
-            finalSseRes.write(`event: done\ndata: ${JSON.stringify({ success: true, ...results })}\n\n`);
-            finalSseRes.end();
-            importProgressStreams.delete(sessionId);
+        const finalMessage = `Import completed: ${results.created} created, ${results.failed} failed, ${results.skipped} skipped`;
+        const finalCounts = { 
+            succeeded: results.created, 
+            failed: results.failed, 
+            skipped: results.skipped,
+            current: users.length,
+            total: users.length
+        };
+        
+        const completionResult = sendCompletionEvent(
+            sessionId, 
+            users.length, 
+            users.length, 
+            finalMessage, 
+            finalCounts
+        );
+        
+        if (completionResult) {
+            debugLog("SSE", "Completion event sent successfully");
+        } else {
+            debugLog("SSE", "Failed to send completion event");
         }
     } catch (error) {
         // Handle any unexpected errors during the import process
         debugLog("Import", "Error in background import process", error);
         
-        // Send error event to frontend via SSE
+        // Send error event to frontend via SSE using proper function
         // This ensures the user is notified of any failures
-        const errorSseRes = importProgressStreams.get(sessionId);
-        if (errorSseRes) {
-            errorSseRes.write(`event: error\ndata: ${JSON.stringify({ error: error.message })}\n\n`);
-            errorSseRes.end();
-            importProgressStreams.delete(sessionId);
+        const errorResult = sendErrorEvent(
+            sessionId, 
+            'Import failed', 
+            error.message, 
+            { stack: error.stack }
+        );
+        
+        if (errorResult) {
+            debugLog("SSE", "Error event sent successfully");
+        } else {
+            debugLog("SSE", "Failed to send error event");
         }
     }
 }
