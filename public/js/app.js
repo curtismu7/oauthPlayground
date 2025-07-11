@@ -1135,7 +1135,7 @@ class App {
             return;
         }
 
-        // Always fetch the current population selection at import time
+        // Fetch selected population name and ID from dropdown
         const popSelect = document.getElementById('import-population-select');
         let populationId = popSelect && popSelect.value ? popSelect.value : '';
         let populationName = '';
@@ -1143,14 +1143,44 @@ class App {
             const selectedOption = popSelect.options[popSelect.selectedIndex];
             populationName = selectedOption ? selectedOption.text : '';
         }
+        
+        // Debug logging for population selection
+        console.log('🔍 [Population Debug] Dropdown state:', {
+            element: popSelect,
+            selectedIndex: popSelect ? popSelect.selectedIndex : 'N/A',
+            value: populationId,
+            text: populationName,
+            optionsCount: popSelect ? popSelect.options.length : 0
+        });
+        
         // Store for use in progress updates
         this.selectedPopulationId = populationId;
         this.selectedPopulationName = populationName;
-
-        // Debug log for validation
-        console.log('[Import Trigger] Using population:', { id: populationId, name: populationName });
+        
+        // Debug logging for stored values
+        console.log('🔍 [Population Debug] Stored values:', {
+            selectedPopulationId: this.selectedPopulationId,
+            selectedPopulationName: this.selectedPopulationName
+        });
+        
+        // Log at import trigger to confirm the correct value is being used
+        console.log('🚀 [Import Trigger] Using population:', {
+            id: populationId,
+            name: populationName
+        });
+        
+        // Debug warning if population name is "Test"
         if (populationName === 'Test') {
-            console.warn('[Import Trigger] WARNING: Population name is "Test". Dropdown state:', popSelect);
+            console.warn('⚠️ [Population Debug] WARNING: Population name is "Test" - this might be a default value');
+            console.log('⚠️ [Population Debug] Dropdown state when "Test" selected:', {
+                selectedIndex: popSelect ? popSelect.selectedIndex : 'N/A',
+                allOptions: popSelect ? Array.from(popSelect.options).map((opt, idx) => ({
+                    index: idx,
+                    value: opt.value,
+                    text: opt.text,
+                    selected: opt.selected
+                })) : []
+            });
         }
 
         // SSE connection management variables
@@ -1318,6 +1348,35 @@ class App {
                     if (data.user) {
                         const userName = data.user.username || data.user.email || 'unknown';
                         this.uiManager.logMessage('info', `Processing: ${userName}`);
+                    }
+                    
+                    // Handle skipped users with detailed information
+                    if (data.status === 'skipped' && data.statusDetails) {
+                        const skipReason = data.statusDetails.reason || 'User already exists';
+                        const existingUser = data.statusDetails.existingUser;
+                        
+                        // Log detailed skip information
+                        console.log("SSE: ⚠️ User skipped:", {
+                            user: data.user,
+                            reason: skipReason,
+                            existingUser: existingUser
+                        });
+                        
+                        // Show warning message with skip details
+                        let skipMessage = `⚠️ Skipped: ${data.user.username || data.user.email || 'unknown user'}`;
+                        if (existingUser) {
+                            skipMessage += ` (exists as ${existingUser.username || existingUser.email} in ${existingUser.population})`;
+                        } else {
+                            skipMessage += ` (${skipReason})`;
+                        }
+                        
+                        this.uiManager.logMessage('warning', skipMessage);
+                        
+                        // Update UI with skip information
+                        if (data.counts && data.counts.skipped !== undefined) {
+                            console.log(`SSE: 📊 Skipped count updated: ${data.counts.skipped}`);
+                            this.uiManager.debugLog("SSE", `📊 Skipped count updated: ${data.counts.skipped}`);
+                        }
                     }
                 });
 
@@ -1608,6 +1667,14 @@ class App {
 
             // Fixes binding issues and ensures the progress panel reflects live import state correctly
             // Immediately updates population, population ID, and user count in the progress panel before SSE events arrive
+            
+            // Debug logging for progress window population display
+            console.log('🔍 [Progress Window Debug] Population info passed to UI:', {
+                totalUsers: importOptions.totalUsers,
+                populationName: importOptions.selectedPopulationName,
+                populationId: importOptions.selectedPopulationId
+            });
+            
             this.uiManager.showImportStatus(importOptions.totalUsers, importOptions.selectedPopulationName, importOptions.selectedPopulationId);
             this.uiManager.updateImportProgress(0, importOptions.totalUsers, 'Preparing import...', {}, importOptions.selectedPopulationName, importOptions.selectedPopulationId);
 
@@ -1618,6 +1685,13 @@ class App {
             formData.append('selectedPopulationId', importOptions.selectedPopulationId);
             formData.append('selectedPopulationName', importOptions.selectedPopulationName);
             formData.append('totalUsers', importOptions.totalUsers);
+            
+            // Debug logging for backend request
+            console.log('🔍 [Backend Request Debug] Population info being sent:', {
+                populationId: importOptions.selectedPopulationId,
+                populationName: importOptions.selectedPopulationName,
+                totalUsers: importOptions.totalUsers
+            });
             
             // Send CSV data and population info to backend for processing
             // The server will start the import process and return a session ID

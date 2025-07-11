@@ -1758,31 +1758,79 @@ This conflict needs to be resolved before import can proceed.`;
                     // Check if user already exists in the selected population
                     // Import mode only creates new users, never modifies existing ones
                     let existingUser = null;
+                    let skipReason = '';
                     const populationId = user.populationId || defaultPopulationId || settings.populationId;
                     const username = user.username;
                     const email = user.email;
                     
                     debugLog("User", `Processing user ${username || email}`, { populationId, username, email });
 
+                    // Enhanced user existence checking with multiple lookup methods
                     // First attempt: Look up user by username in the selected population
                     if (username) {
-                        const lookupResponse = await fetch(`http://127.0.0.1:4000/api/pingone/environments/${environmentId}/users?filter=username eq \"${encodeURIComponent(username)}\" and population.id eq \"${encodeURIComponent(populationId)}\"`);
-                        if (lookupResponse.ok) {
-                            const lookupData = await lookupResponse.json();
-                            if (lookupData._embedded?.users?.length > 0) {
-                                existingUser = lookupData._embedded.users[0];
+                        try {
+                            const lookupResponse = await fetch(`http://127.0.0.1:4000/api/pingone/environments/${environmentId}/users?filter=username eq \"${encodeURIComponent(username)}\" and population.id eq \"${encodeURIComponent(populationId)}\"`);
+                            if (lookupResponse.ok) {
+                                const lookupData = await lookupResponse.json();
+                                if (lookupData._embedded?.users?.length > 0) {
+                                    existingUser = lookupData._embedded.users[0];
+                                    skipReason = `User with username '${username}' already exists in population`;
+                                    debugLog("User", `Found existing user by username: ${username}`, { userId: existingUser.id });
+                                }
                             }
+                        } catch (error) {
+                            debugLog("User", `Error checking username existence for ${username}:`, error.message);
                         }
                     }
 
                     // Second attempt: Look up user by email in the selected population
                     if (!existingUser && email) {
-                        const lookupResponse = await fetch(`http://127.0.0.1:4000/api/pingone/environments/${environmentId}/users?filter=email eq \"${encodeURIComponent(email)}\" and population.id eq \"${encodeURIComponent(populationId)}\"`);
-                        if (lookupResponse.ok) {
-                            const lookupData = await lookupResponse.json();
-                            if (lookupData._embedded?.users?.length > 0) {
-                                existingUser = lookupData._embedded.users[0];
+                        try {
+                            const lookupResponse = await fetch(`http://127.0.0.1:4000/api/pingone/environments/${environmentId}/users?filter=email eq \"${encodeURIComponent(email)}\" and population.id eq \"${encodeURIComponent(populationId)}\"`);
+                            if (lookupResponse.ok) {
+                                const lookupData = await lookupResponse.json();
+                                if (lookupData._embedded?.users?.length > 0) {
+                                    existingUser = lookupData._embedded.users[0];
+                                    skipReason = `User with email '${email}' already exists in population`;
+                                    debugLog("User", `Found existing user by email: ${email}`, { userId: existingUser.id });
+                                }
                             }
+                        } catch (error) {
+                            debugLog("User", `Error checking email existence for ${email}:`, error.message);
+                        }
+                    }
+
+                    // Third attempt: Check for uniqueness violations in the entire environment
+                    // This catches cases where the user exists in a different population
+                    if (!existingUser && (username || email)) {
+                        try {
+                            let filterQuery = '';
+                            if (username && email) {
+                                filterQuery = `username eq \"${encodeURIComponent(username)}\" or email eq \"${encodeURIComponent(email)}\"`;
+                            } else if (username) {
+                                filterQuery = `username eq \"${encodeURIComponent(username)}\"`;
+                            } else if (email) {
+                                filterQuery = `email eq \"${encodeURIComponent(email)}\"`;
+                            }
+                            
+                            if (filterQuery) {
+                                const lookupResponse = await fetch(`http://127.0.0.1:4000/api/pingone/environments/${environmentId}/users?filter=${filterQuery}`);
+                                if (lookupResponse.ok) {
+                                    const lookupData = await lookupResponse.json();
+                                    if (lookupData._embedded?.users?.length > 0) {
+                                        const foundUser = lookupData._embedded.users[0];
+                                        existingUser = foundUser;
+                                        skipReason = `User already exists in environment (${foundUser.population?.name || 'different population'})`;
+                                        debugLog("User", `Found existing user in different population:`, { 
+                                            userId: foundUser.id, 
+                                            userPopulation: foundUser.population?.name || 'unknown',
+                                            targetPopulation: populationInfo.name 
+                                        });
+                                    }
+                                }
+                            }
+                        } catch (error) {
+                            debugLog("User", `Error checking global user existence:`, error.message);
                         }
                     }
 
@@ -1792,14 +1840,20 @@ This conflict needs to be resolved before import can proceed.`;
 
                     // If user exists in selected population, skip (import mode doesn't modify existing users)
                     if (existingUser) {
-                        debugLog("User", `User ${username || email} exists in population ${populationId}, skipping`);
+                        debugLog("User", `User ${username || email} exists, skipping: ${skipReason}`);
                         results.skipped++;
                         status = 'skipped';
                         results.details.push({ 
                             user, 
                             status, 
-                            reason: 'User already exists in selected population',
-                            pingOneId: existingUser.id
+                            reason: skipReason,
+                            pingOneId: existingUser.id,
+                            existingUser: {
+                                id: existingUser.id,
+                                username: existingUser.username,
+                                email: existingUser.email,
+                                population: existingUser.population?.name || 'unknown'
+                            }
                         });
                     }
 
@@ -1896,7 +1950,18 @@ This conflict needs to be resolved before import can proceed.`;
                     counts: progressCounts,
                     user: user, // Include current user being processed
                     populationName: populationInfo.name,
-                    populationId: populationInfo.id
+                    populationId: populationInfo.id,
+                    // Include detailed status information for better UI feedback
+                    status: status,
+                    statusDetails: status === 'skipped' ? {
+                        reason: skipReason,
+                        existingUser: existingUser ? {
+                            id: existingUser.id,
+                            username: existingUser.username,
+                            email: existingUser.email,
+                            population: existingUser.population?.name || 'unknown'
+                        } : null
+                    } : null
                 };
                 
                 // Send progress event with user details and population information
