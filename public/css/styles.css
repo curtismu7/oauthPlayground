@@ -4210,25 +4210,41 @@ label {
   width: 80px;
   height: 80px;
   vertical-align: middle;
+  /* Ensure proper rendering and prevent incomplete display */
+  overflow: visible;
+  box-sizing: border-box;
 }
+
 .circular-progress svg {
-  transform: rotate(-90deg);
+  /* Remove transform to prevent rendering issues */
   width: 100%;
   height: 100%;
   display: block;
+  /* Ensure SVG renders properly */
+  shape-rendering: geometricPrecision;
+  text-rendering: optimizeLegibility;
 }
+
 .circular-progress .circular-bg {
   stroke: #e0e0e0;
   stroke-width: 8;
   fill: none;
+  /* Ensure background circle renders completely */
+  stroke-linecap: round;
 }
+
 .circular-progress .circular-fg {
   stroke: var(--brand-color, #7c3aed);
   stroke-width: 8;
   fill: none;
   stroke-linecap: round;
-  transition: stroke-dasharray 0.5s cubic-bezier(0.4,0,0.2,1);
+  /* Smooth transitions for progress updates */
+  transition: stroke-dashoffset 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Ensure foreground circle renders properly */
+  stroke-dasharray: 0;
+  stroke-dashoffset: 0;
 }
+
 .circular-progress .circular-label {
   position: absolute;
   top: 50%;
@@ -4240,7 +4256,11 @@ label {
   text-align: center;
   pointer-events: none;
   user-select: none;
+  /* Ensure text is always visible */
+  z-index: 10;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
 }
+
 .circular-progress .circular-status {
   position: absolute;
   left: 50%;
@@ -4251,180 +4271,36 @@ label {
   width: 100%;
   text-align: center;
   white-space: nowrap;
+  /* Ensure status text is visible */
+  z-index: 10;
 }
-.circular-progress.error .circular-fg { stroke: #e53935; }
-.circular-progress.warning .circular-fg { stroke: #fbc02d; }
-.circular-progress.complete .circular-fg { stroke: #43a047; animation: pop-complete 0.5s; }
+
+/* State-based styling for better visual feedback */
+.circular-progress.error .circular-fg { 
+  stroke: #e53935; 
+}
+
+.circular-progress.warning .circular-fg { 
+  stroke: #fbc02d; 
+}
+
+.circular-progress.complete .circular-fg { 
+  stroke: #43a047; 
+  animation: pop-complete 0.5s ease-out;
+}
+
+.circular-progress.ready .circular-fg {
+  stroke: #6c757d;
+  opacity: 0.5;
+}
+
 @keyframes pop-complete {
   0% { transform: scale(1); }
   60% { transform: scale(1.15); }
   100% { transform: scale(1); }
 }
 
-/* Legacy token status styles (for backward compatibility) */
-
-/* Legacy token status styles (for backward compatibility) */
-.token-status {
-    display: none; /* Hide legacy token status to prevent duplication */
-}
-
-#token-status {
-    display: none; /* Hide legacy token status to prevent duplication */
-}
-
-/* === DEBUG LOG PANEL STYLES === */
-.debug-log-panel {
-  background: #f5f6fa;
-  border: 1px solid #e0e3ea;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-  border-radius: 10px;
-  padding: 16px;
-  margin: 2rem auto;
-  font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace;
-  min-width: 600px;
-  max-width: 900px;
-  width: 90vw;
-  min-height: 350px;
-  max-height: 500px;
-  overflow-y: auto;
-  overflow-x: auto;
-  transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s;
-  opacity: 1;
-  position: relative;
-}
-
-.debug-log-panel.collapsed {
-  max-height: 0;
-  opacity: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  overflow: hidden;
-  pointer-events: none;
-  transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s;
-}
-
-.log-entries {
-  font-family: inherit;
-  font-size: 14px;
-  white-space: pre;
-  overflow-x: auto;
-  min-width: 100%;
-}
-
-.debug-log-label {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #444;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* Debug Toggle Wrapper - Enhanced positioning and styling */
-.debug-toggle-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 1rem 0;
-  padding: 0.75rem 0;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-top: 1px solid #dee2e6;
-  position: relative;
-  z-index: 100;
-}
-
-/* Enhanced Debug Log Toggle Button - Ensures visibility and full control of logs for debugging and configuration */
-.debug-log-toggle {
-  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 12px 24px;
-  font-size: 1rem;
-  font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
-  position: relative;
-  overflow: hidden;
-  min-width: 160px;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.debug-log-toggle:focus {
-  outline: 2px solid #007bff;
-  outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.25);
-}
-
-.debug-log-toggle:hover {
-  background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
-}
-
-.debug-log-toggle:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
-}
-
-.debug-log-toggle::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s ease;
-}
-
-.debug-log-toggle:hover::before {
-  left: 100%;
-}
-
-.debug-log-toggle i {
-  font-size: 1.1rem;
-  margin-right: 6px;
-}
-
-@media (max-width: 900px) {
-  .debug-log-panel {
-    min-width: 90vw;
-    max-width: 98vw;
-    padding: 10px;
-  }
-}
-@media (max-width: 600px) {
-  .debug-log-panel {
-    min-width: 100vw;
-    max-width: 100vw;
-    border-radius: 0;
-    padding: 6px;
-  }
-  .debug-log-label {
-    font-size: 1rem;
-  }
-  /* Responsive behavior for debug toggle wrapper */
-  .debug-toggle-wrapper {
-    margin: 0.5rem 0;
-    padding: 0.5rem 0;
-  }
-  .debug-log-toggle {
-    font-size: 0.9rem;
-    padding: 10px 20px;
-    min-width: 140px;
-  }
-}
-/* === END DEBUG LOG PANEL STYLES === */
-
-/* --- Import Progress Spinner + Status Layout Fix --- */
+/* Import Progress Spinner + Status Layout Fix */
 .import-spinner-stack {
     display: flex;
     flex-direction: column;
@@ -4433,13 +4309,18 @@ label {
     gap: 1rem;
     margin: 1.5rem 0;
     width: 100%;
+    /* Ensure proper container sizing */
+    min-height: 120px;
 }
+
 @media (max-width: 600px) {
     .import-spinner-stack {
         gap: 0.5rem;
         margin: 1rem 0;
+        min-height: 100px;
     }
 }
+
 /* Ensure spinner SVG or icon is not too large on mobile */
 .import-spinner-stack .circular-progress,
 .import-spinner-stack .spinner,
@@ -4448,7 +4329,7 @@ label {
     max-height: 48px;
 }
 
-/* === Import Progress Spinner Alignment Fix === */
+/* Import Progress Spinner Alignment Fix */
 .import-progress-flex {
   display: flex;
   flex-direction: column;
@@ -4457,23 +4338,34 @@ label {
   gap: 0.75rem;
   width: 100%;
   margin: 0 auto;
+  /* Ensure proper alignment and spacing */
+  min-height: 100px;
 }
+
 .import-progress-percent {
   font-size: 1.3em;
   font-weight: 600;
   color: #7c3aed;
   margin-bottom: 0.1em;
+  /* Ensure text is always readable */
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
 }
+
 .import-progress-message {
   font-size: 1.05em;
   color: #333;
   margin-top: 0.2em;
   word-break: break-word;
   max-width: 90vw;
+  /* Ensure message is readable */
+  text-align: center;
+  line-height: 1.4;
 }
+
 @media (max-width: 600px) {
   .import-progress-flex {
     gap: 0.5rem;
+    min-height: 80px;
   }
   .import-progress-percent {
     font-size: 1.1em;
@@ -4483,4 +4375,5 @@ label {
     max-width: 98vw;
   }
 }
+
 /* Ensures progress indicator and message are readable and aligned during import operations */
