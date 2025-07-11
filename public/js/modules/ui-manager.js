@@ -745,26 +745,40 @@ export class UIManager {
         // Fixes visual duplication and rendering bugs in progress spinner during async operations
         this.logger.debug('UI', 'Showing import status', { totalUsers, populationName, populationId });
         
+        // Debug logging for population display in progress window
+        console.log('🔍 [UI Manager Debug] showImportStatus called with:', {
+            totalUsers: totalUsers,
+            populationName: populationName,
+            populationId: populationId
+        });
+        
         // Ensure only one progress system is active at a time
         this.hideAllProgressIndicators();
         
-        // Show import status section (no modal overlay needed)
+        // Show import status container
         const importStatus = document.getElementById('import-status');
         if (importStatus) {
             importStatus.style.display = 'block';
             this.logger.debug('UI', 'Import status section displayed');
-        } else {
-            console.error('Import status element not found');
         }
         
-        this.isImporting = true;
-        this.updateLastRunStatus('import', 'User Import', 'In Progress', `Importing ${totalUsers} users`, { total: totalUsers, success: 0, failed: 0, skipped: 0 });
-        this.updateImportProgress(0, totalUsers, 'Starting import...', {}, populationName, populationId);
         // Update population info fields immediately
         const popNameEl = document.getElementById('import-population-name');
         const popIdEl = document.getElementById('import-population-id');
         if (popNameEl) popNameEl.textContent = populationName || 'Not selected';
         if (popIdEl) popIdEl.textContent = populationId || 'Not set';
+        
+        // Debug logging for what gets displayed in the UI
+        console.log('🔍 [UI Manager Debug] Population fields updated:', {
+            populationNameElement: popNameEl,
+            populationIdElement: popIdEl,
+            displayedName: populationName || 'Not selected',
+            displayedId: populationId || 'Not set'
+        });
+        
+        this.isImporting = true;
+        this.updateLastRunStatus('import', 'User Import', 'In Progress', `Importing ${totalUsers} users`, { total: totalUsers, success: 0, failed: 0, skipped: 0 });
+        this.updateImportProgress(0, totalUsers, 'Starting import...', {}, populationName, populationId);
     }
 
     /**
@@ -822,41 +836,78 @@ export class UIManager {
         const percent = total > 0 ? Math.min(100, Math.round((current / total) * 100)) : 0;
         
         this.logger.debug('UI', 'Updating import progress', { 
-            current, total, percent, message, 
-            counts, populationName, populationId 
+            current, total, percent, message, counts, populationName, populationId 
         });
         
-        // Update traditional progress bar (primary system)
-        this.updateTraditionalProgressBar(percent, message, counts, populationName, populationId);
-        
-        // Update circular progress spinner (secondary system - only if traditional bar is hidden)
-        this.updateCircularProgressSpinner(percent, message);
-        
-        // Update counts
-        this.updateProgressCounts(counts);
-        
-        // Update population information
-        this.updatePopulationInfo(populationName, populationId);
-        
-        // Add progress log entry
-        this.addProgressLogEntry(message, 'info', counts, 'import');
-        
-        // Update last run status with current progress
-        this.updateLastRunStatus('import', 'User Import', 'In Progress', message, counts);
-        
-        // Auto-close progress window 10 seconds after completion
-        if (current === total && total > 0) {
-            this.logger.debug('UI', 'Import completed, scheduling auto-close');
-            setTimeout(() => {
-                this.hideImportStatus();
-                this.logger.debug('UI', 'Import progress window auto-closed');
-            }, 10000); // 10 seconds
+        // Update progress bar
+        const progressBar = document.getElementById('import-progress-bar');
+        if (progressBar) {
+            progressBar.style.width = `${percent}%`;
+            progressBar.setAttribute('aria-valuenow', percent);
         }
-        // Update population info fields in real time
-        const popNameEl = document.getElementById('import-population-name');
-        const popIdEl = document.getElementById('import-population-id');
-        if (popNameEl && populationName) popNameEl.textContent = populationName;
-        if (popIdEl && populationId) popIdEl.textContent = populationId;
+        
+        // Update progress text
+        const progressText = document.getElementById('import-progress-text');
+        if (progressText) {
+            progressText.textContent = `${current} of ${total} users`;
+        }
+        
+        // Update counters with enhanced skipped display
+        const successCount = document.getElementById('import-success-count');
+        const failedCount = document.getElementById('import-failed-count');
+        const skippedCount = document.getElementById('import-skipped-count');
+        
+        if (successCount) {
+            successCount.textContent = counts.succeeded || 0;
+            // Add visual feedback for successful imports
+            if (counts.succeeded > 0) {
+                successCount.style.color = '#28a745';
+                successCount.style.fontWeight = 'bold';
+            }
+        }
+        
+        if (failedCount) {
+            failedCount.textContent = counts.failed || 0;
+            // Add visual feedback for failed imports
+            if (counts.failed > 0) {
+                failedCount.style.color = '#dc3545';
+                failedCount.style.fontWeight = 'bold';
+            }
+        }
+        
+        if (skippedCount) {
+            skippedCount.textContent = counts.skipped || 0;
+            // Add enhanced visual feedback for skipped imports
+            if (counts.skipped > 0) {
+                skippedCount.style.color = '#ffc107';
+                skippedCount.style.fontWeight = 'bold';
+                // Add a warning icon or indicator
+                skippedCount.innerHTML = `⚠️ ${counts.skipped}`;
+            } else {
+                skippedCount.innerHTML = counts.skipped || 0;
+            }
+        }
+        
+        // Update population information if provided
+        if (populationName) {
+            const popNameEl = document.getElementById('import-population-name');
+            if (popNameEl) popNameEl.textContent = populationName;
+        }
+        
+        if (populationId) {
+            const popIdEl = document.getElementById('import-population-id');
+            if (popIdEl) popIdEl.textContent = populationId;
+        }
+        
+        // Log progress message with status details
+        if (message) {
+            this.logMessage('info', message);
+        }
+        
+        // Add detailed logging for skipped users
+        if (counts.skipped > 0) {
+            this.logMessage('warning', `⚠️ ${counts.skipped} user(s) skipped due to existing accounts`);
+        }
     }
 
     /**
