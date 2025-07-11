@@ -451,6 +451,7 @@ export class PingOneClient {
         let successCount = 0;
         let failedCount = 0;
         let skippedCount = 0;
+        let errorCount = 0; // Track missing population errors separately
         let retryCount = 0;
         
         console.log('[IMPORT] Initial setup completed');
@@ -589,14 +590,15 @@ export class PingOneClient {
                 const currentIndex = i + batchIndex;
                 const currentUser = batch[batchIndex];
                 try {
-                    if (onProgress) {
-                        onProgress(currentIndex, totalUsers, currentUser, {
-                            success: successCount,
-                            failed: failedCount,
-                            skipped: skippedCount,
-                            retries: retryCount
-                        });
-                    }
+                              if (onProgress) {
+            onProgress(currentIndex, totalUsers, currentUser, {
+              success: successCount,
+              failed: failedCount,
+              skipped: skippedCount,
+              errors: errorCount, // Include error count for missing populations
+              retries: retryCount
+            });
+          }
                     // Validate user data before creating
                     const validationError = this.validateUserForImport(currentUser);
                     if (validationError) {
@@ -658,13 +660,27 @@ export class PingOneClient {
                                 if (fallbackPopulationId && fallbackPopulationId !== 'csv-population-ids') {
                                     userPopulationId = fallbackPopulationId;
                                 } else {
-                                    this.logger.warn(`No valid population ID available for user ${currentUser.email || currentUser.username}. Skipping user.`);
-                                    failedCount++;
+                                    // Missing population - this is an ERROR, not a skip
+                                    const errorMessage = `Missing Population for user ${currentUser.email || currentUser.username} – not added or counted.`;
+                                    this.logger.error(`❌ ${errorMessage}`, {
+                                        user: currentUser.email || currentUser.username,
+                                        lineNumber: currentIndex + 2,
+                                        csvPopulationId: currentUser.populationId,
+                                        fallbackPopulationId
+                                    });
+                                    
+                                    // Log to import-status.log with line number and clear message
+                                    console.error(`[IMPORT-ERROR] Line ${currentIndex + 2}: Missing population – user not processed. Username: ${currentUser.email || currentUser.username}`);
+                                    
+                                    // Increment error count for missing population
+                                    errorCount++;
                                     results.push({
                                         success: false,
                                         user: currentUser,
-                                        error: `CSV population ID ${currentUser.populationId} does not exist in PingOne environment. No fallback population available.`,
-                                        skipped: true
+                                        error: errorMessage,
+                                        errorType: 'MISSING_POPULATION',
+                                        lineNumber: currentIndex + 2,
+                                        skipped: false
                                     });
                                     continue;
                                 }
@@ -675,13 +691,27 @@ export class PingOneClient {
                             if (fallbackPopulationId && fallbackPopulationId !== 'csv-population-ids') {
                                 userPopulationId = fallbackPopulationId;
                             } else {
-                                this.logger.warn(`No valid population ID available for user ${currentUser.email || currentUser.username}. Skipping user.`);
-                                failedCount++;
+                                // Missing population - this is an ERROR, not a skip
+                                const errorMessage = `Missing Population for user ${currentUser.email || currentUser.username} – not added or counted.`;
+                                this.logger.error(`❌ ${errorMessage}`, {
+                                    user: currentUser.email || currentUser.username,
+                                    lineNumber: currentIndex + 2,
+                                    invalidPopulationId: currentUser.populationId,
+                                    fallbackPopulationId
+                                });
+                                
+                                // Log to import-status.log with line number and clear message
+                                console.error(`[IMPORT-ERROR] Line ${currentIndex + 2}: Missing population – user not processed. Username: ${currentUser.email || currentUser.username}`);
+                                
+                                // Increment error count for missing population
+                                errorCount++;
                                 results.push({
                                     success: false,
                                     user: currentUser,
-                                    error: `Invalid CSV population ID format: ${currentUser.populationId}. No fallback population available.`,
-                                    skipped: true
+                                    error: errorMessage,
+                                    errorType: 'MISSING_POPULATION',
+                                    lineNumber: currentIndex + 2,
+                                    skipped: false
                                 });
                                 continue;
                             }
@@ -727,13 +757,28 @@ export class PingOneClient {
                             continue;
                         }
                     } else {
-                        this.logger.warn(`No population ID available for user ${currentUser.email || currentUser.username}. Skipping user.`);
-                        failedCount++;
+                        // Missing population - this is an ERROR, not a skip
+                        const errorMessage = `Missing Population for user ${currentUser.email || currentUser.username} – not added or counted.`;
+                        this.logger.error(`❌ ${errorMessage}`, {
+                            user: currentUser.email || currentUser.username,
+                            lineNumber: currentIndex + 2, // +2 because of header row and 0-based index
+                            populationId: userPopulationId,
+                            fallbackPopulationId,
+                            selectedPopulationId
+                        });
+                        
+                        // Log to import-status.log with line number and clear message
+                        console.error(`[IMPORT-ERROR] Line ${currentIndex + 2}: Missing population – user not processed. Username: ${currentUser.email || currentUser.username}`);
+                        
+                        // Increment error count for missing population
+                        errorCount++;
                         results.push({
                             success: false,
                             user: currentUser,
-                            error: 'No population ID available for user',
-                            skipped: true
+                            error: errorMessage,
+                            errorType: 'MISSING_POPULATION',
+                            lineNumber: currentIndex + 2,
+                            skipped: false // This is an error, not a skip
                         });
                         continue;
                     }
@@ -992,6 +1037,7 @@ export class PingOneClient {
             success: successCount,
             failed: failedCount,
             skipped: skippedCount,
+            errors: errorCount, // Include error count for missing populations
             results
         };
     }
