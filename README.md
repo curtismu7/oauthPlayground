@@ -1,210 +1,38 @@
-# PingOne Import Tool v4.3.1
+# PingOne Import Tool
 
-A comprehensive web application for managing PingOne user data with bulk import, export, modification, and deletion capabilities.
+A comprehensive web-based tool for managing PingOne user imports, exports, and modifications with real-time progress tracking and detailed logging.
 
-## 🏗️ Application Architecture
+## 🚀 Features
 
-```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                           PINGONE IMPORT TOOL v4.3.1                          │
-│                              Application Structure                             │
-└─────────────────────────────────────────────────────────────────────────────────┘
+### Core Functionality
+- **User Import**: Bulk import users from CSV files with validation and error handling
+- **User Export**: Export users from specific populations with customizable options
+- **User Modification**: Update existing user attributes and data
+- **Population Management**: Create, delete, and manage user populations
+- **Real-time Progress**: Live progress tracking with detailed status updates
+- **Comprehensive Logging**: Detailed logs for debugging and audit trails
 
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                                FRONTEND (Browser)                             │
-├─────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                 │
-│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐           │
-│  │   Navigation    │    │   Main Views    │    │   File Input    │           │
-│  │                 │    │                 │    │                 │           │
-│  │ • Import        │    │ • Import View   │    │ • CSV File      │           │
-│  │ • Export        │    │ • Export View   │    │ • File Handler  │           │
-│  │ • Modify        │    │ • Modify View   │    │ • File Logger   │           │
-│  │ • Delete        │    │ • Delete View   │    │ • File Preview  │           │
-│  │ • Settings      │    │ • Settings View │    │                 │           │
-│  │ • Logs          │    │ • Logs View     │    │                 │           │
-│  └─────────────────┘    └─────────────────┘    └─────────────────┘           │
-│                                                                                 │
-│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐           │
-│  │   UI Manager    │    │   Progress UI   │    │   Notifications │           │
-│  │                 │    │                 │    │                 │           │
-│  │ • View Switching│    │ • Progress Bars │    │ • Success Msgs  │           │
-│  │ • Status Updates│    │ • Status Counts │    │ • Error Msgs    │           │
-│  │ • Connection    │    │ • Cancel Buttons│    │ • Warning Msgs  │           │
-│  │ • Loading States│    │ • Close Buttons │    │ • Info Msgs     │           │
-│  └─────────────────┘    └─────────────────┘    └─────────────────┘           │
-│                                                                                 │
-│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐           │
-│  │   API Client    │    │   Settings      │    │   Token Manager │           │
-│  │                 │    │   Manager       │    │                 │           │
-│  │ • Local API     │    │ • Load Settings │    │ • Get Token     │           │
-│  │ • PingOne API   │    │ • Save Settings │    │ • Refresh Token │           │
-│  │ • Rate Limiting │    │ • Validate      │    │ • Token Storage │           │
-│  │ • Error Handling│    │ • Form Updates  │    │ • Token Expiry  │           │
-│  └─────────────────┘    └─────────────────┘    └─────────────────┘           │
-│                                                                                 │
-└─────────────────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                                BACKEND (Node.js)                              │
-├─────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                 │
-│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐           │
-│  │   Express       │    │   API Routes    │    │   Middleware    │           │
-│  │   Server        │    │                 │    │                 │           │
-│  │                 │    │ • /api/health   │    │ • Rate Limiting │           │
-│  │ • Port 4000     │    │ • /api/logs     │    │ • CORS          │           │
-│  │ • Static Files  │    │ • /api/settings │    │ • JSON Parser   │           │
-│  │ • Error Handler │    │ • /api/pingone  │    │ • Auth Check    │           │
-│  │ • Logging       │    │ • /api/export   │    │ • File Upload   │           │
-│  └─────────────────┘    └─────────────────┘    └─────────────────┘           │
-│                                                                                 │
-│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐           │
-│  │   PingOne       │    │   Token         │    │   File          │           │
-│  │   Client        │    │   Manager       │    │   Handler       │           │
-│  │                 │    │                 │    │                 │           │
-│  │ • User Import   │    │ • Get Token     │    │ • CSV Parsing   │           │
-│  │ • User Export   │    │ • Refresh Token │    │ • File Validation│          │
-│  │ • User Modify   │    │ • Token Storage │    │ • Data Processing│          │
-│  │ • User Delete   │    │ • Token Expiry  │    │ • Error Handling│          │
-│  │ • Population    │    │ • Auth Headers  │    │ • File Logging  │           │
-│  └─────────────────┘    └─────────────────┘    └─────────────────┘           │
-│                                                                                 │
-│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐           │
-│  │   Logger        │    │   Settings      │    │   Data          │           │
-│  │   System        │    │   Manager       │    │   Storage       │           │
-│  │                 │    │                 │    │                 │           │
-│  │ • File Logging  │    │ • Load Settings │    │ • Local Storage │           │
-│  │ • Console Logs  │    │ • Save Settings │    │ • Session Data  │           │
-│  │ • Error Logs    │    │ • Validate      │    │ • Cache Data    │           │
-│  │ • Debug Logs    │    │ • Environment   │    │ • Temp Files    │           │
-│  │ • UI Logs       │    │ • Config Files  │    │ • Export Files  │           │
-│  └─────────────────┘    └─────────────────┘    └─────────────────┘           │
-│                                                                                 │
-└─────────────────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                              DATA FLOW DIAGRAM                                 │
-├─────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                 │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐   │
-│  │   User      │    │   Frontend  │    │   Backend   │    │   PingOne   │   │
-│  │   Action    │───▶│   Processing│───▶│   API       │───▶│   API       │   │
-│  └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘   │
-│         │                   │                   │                   │         │
-│         ▼                   ▼                   ▼                   ▼         │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐   │
-│  │   File      │    │   UI        │    │   Token     │    │   User      │   │
-│  │   Upload    │    │   Update    │    │   Auth      │    │   Data      │   │
-│  └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘   │
-│         │                   │                   │                   │         │
-│         ▼                   ▼                   ▼                   ▼         │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐   │
-│  │   CSV       │    │   Progress  │    │   Rate      │    │   Response  │   │
-│  │   Parsing   │    │   Display   │    │   Limiting  │    │   Processing│   │
-│  └─────────────┘    └─────────────────┘    └─────────────┘    └─────────────┘   │
-│         │                   │                   │                   │         │
-│         ▼                   ▼                   ▼                   ▼         │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐   │
-│  │   Data      │    │   Status    │    │   Logging   │    │   Result    │   │
-│  │   Validation│    │   Update    │    │   System    │    │   Display   │   │
-│  └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘   │
-│                                                                                 │
-└─────────────────────────────────────────────────────────────────────────────────┘
-```
-
-## 🚀 Key Features
-
-### 📁 File Operations
-- **CSV Import** with validation and preview
-- **CSV Export** with field selection and formatting
-- **File upload** with drag & drop support
-- **File size validation** and error handling
-- **File info display** with detailed metadata
-
-### 👥 User Management
-- **Bulk user import** with population assignment
-- **User modification** (update existing users)
-- **User deletion** (CSV-based and population-based)
-- **User export** with customizable fields
-- **Population-based operations** with safety checks
-
-### 🔐 Authentication
-- **PingOne API token management**
-- **Automatic token refresh**
-- **Secure credential storage**
-- **Connection status monitoring**
-
-### 📊 Progress Tracking
-- **Real-time progress bars**
-- **Success/failure statistics**
-- **Detailed logging and error reporting**
-- **Cancel operation support**
-- **Enhanced notification system** with success/warning/error states
-
-### ⚙️ Configuration
-- **Settings management** with validation
-- **Environment and population selection**
-- **Import/export preferences**
-- **Rate limiting configuration**
-
-### 🎨 User Interface
-- **Modern responsive design** with Bootstrap 4
-- **Enhanced notification system** with color-coded messages
-- **Improved disclaimer system** with required acceptance
-- **Consistent branding** with Ping Identity logo
-- **Better file handling** with detailed file information display
-- **Enhanced delete page** with reordered sections and improved UX
-- **Version badge** with consistent versioning across the application
-
-### 🛡️ Safety Features
-- **Comprehensive disclaimer** with required acceptance
-- **Safety warnings** and confirmation dialogs
-- **Data validation** and error handling
-- **Rate limiting** to prevent API overload
-- **Backup recommendations** before destructive operations
-
-## 🛠️ Technical Stack
-
-### 🎨 Frontend
-- **HTML5 + CSS3 + JavaScript (ES6+)**
-- **Bootstrap 4** for responsive UI
-- **Font Awesome** for icons
-- **Browserify** for module bundling
-- **Babel** for ES6+ transpilation
-
-### ⚙️ Backend
-- **Node.js** with Express.js framework
-- **PingOne API** integration
-- **File system operations**
-- **Rate limiting and error handling**
-- **Comprehensive logging system**
-
-### 📦 Build Tools
-- **npm** for package management
-- **Browserify** for JavaScript bundling
-- **Babel** for code transpilation
-- **Jest** for testing framework
-
-### 🔧 Development
-- **Hot reloading** for development
-- **Comprehensive error handling**
-- **Debug logging and monitoring**
-- **Cross-browser compatibility**
+### Advanced Features
+- **Token Management**: Automatic token refresh and validation
+- **Error Handling**: Robust error handling with detailed error messages
+- **File Validation**: CSV format validation and data integrity checks
+- **Responsive UI**: Modern, mobile-friendly interface
+- **Settings Management**: Centralized configuration management
+- **API Testing**: Built-in API connection testing tools
 
 ## 📋 Prerequisites
 
-- Node.js v18 or higher
-- npm or yarn package manager
+- Node.js (v14 or higher)
+- npm or yarn
 - PingOne environment credentials
-- Modern web browser
+- Valid PingOne API access
 
-## 🚀 Installation
+## 🛠️ Installation
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd PingONe-cursor-import
+   git clone https://github.com/cmuir_pingcorp/pingone-import.git
+   cd pingone-import
    ```
 
 2. **Install dependencies**
@@ -212,59 +40,67 @@ A comprehensive web application for managing PingOne user data with bulk import,
    npm install
    ```
 
-3. **Configure environment variables**
+3. **Set up environment variables**
    ```bash
-   cp data/settings.json.example data/settings.json
-   # Edit settings.json with your PingOne credentials
+   cp env.example .env
+   ```
+   Edit `.env` with your PingOne credentials:
+   ```
+   PINGONE_CLIENT_ID=your_client_id
+   PINGONE_CLIENT_SECRET=your_client_secret
+   PINGONE_ENVIRONMENT_ID=your_environment_id
    ```
 
-4. **Build the application**
+4. **Start the development server**
    ```bash
-   npm run build
+   npm start
    ```
 
-5. **Start the server**
-   ```bash
-   node server.js
-   ```
+5. **Access the application**
+   Open your browser and navigate to `http://localhost:3000`
 
-6. **Access the application**
-   - Open your browser to `http://localhost:4000`
-   - Accept the disclaimer to access the tool
-   - Configure your PingOne settings in the Settings tab
-   - Start importing, exporting, or modifying users
-
-## 📖 Usage
-
-### Getting Started
-1. **Accept Disclaimer**: The application requires accepting the disclaimer before use
-2. **Configure Settings**: Set up your PingOne credentials in the Settings tab
-3. **Test Connection**: Verify your API credentials are working correctly
+## 🎯 Usage
 
 ### Import Users
 1. Navigate to the **Import** tab
-2. Select a CSV file with user data
-3. Choose target population
-4. Review preview and start import
-5. Monitor progress and results
+2. Upload a CSV file with user data
+3. Review the data preview
+4. Select target population (optional)
+5. Click **Start Import** to begin the process
+6. Monitor real-time progress and logs
 
 ### Export Users
 1. Navigate to the **Export** tab
-2. Select population to export
-3. Choose fields and format
-4. Download the exported file
+2. Enter population ID or select from dropdown
+3. Configure export options
+4. Click **Export Users** to download CSV
 
 ### Modify Users
 1. Navigate to the **Modify** tab
 2. Upload CSV with user updates
-3. Configure modification options
-4. Process updates with progress tracking
+3. Review changes in preview
+4. Click **Apply Changes** to update users
 
-### Delete Users
-1. Navigate to the **Delete** tab
-2. Choose deletion method (CSV or population-based)
-3. Confirm deletion with safety checks
-4. Monitor deletion progress
+### Settings
+1. Navigate to the **Settings** tab
+2. Configure API credentials
+3. Test connection
+4. Save settings
+
+## 📁 Project Structure
+
+```
+pingone-import/
+├── public/                 # Static assets
+│   ├── css/               # Stylesheets
+│   ├── js/                # Client-side JavaScript
+│   └── index.html         # Main HTML file
+├── routes/                # API routes
+├── server/                # Server-side code
+├── test/                  # Test files
+├── data/                  # Configuration data
+└── scripts/               # Utility scripts
+```
 
 ## 🔧 Configuration
 
@@ -272,40 +108,15 @@ A comprehensive web application for managing PingOne user data with bulk import,
 - `PINGONE_CLIENT_ID`: Your PingOne client ID
 - `PINGONE_CLIENT_SECRET`: Your PingOne client secret
 - `PINGONE_ENVIRONMENT_ID`: Your PingOne environment ID
-- `PINGONE_REGION`: Your PingOne region (NorthAmerica, Europe, etc.)
+- `PORT`: Server port (default: 3000)
 
-### Settings File
-The application uses `data/settings.json` for configuration:
-```json
-{
-  "apiClientId": "your-client-id",
-  "apiSecret": "your-client-secret",
-  "environmentId": "your-environment-id",
-  "region": "NorthAmerica",
-  "populationId": "optional-default-population"
-}
-```
-
-## 📊 API Endpoints
-
-### Health & Status
-- `GET /api/health` - Server health check
-- `GET /api/logs` - Application logs
-
-### PingOne Operations
-- `GET /api/pingone/populations` - List populations
-- `POST /api/pingone/get-token` - Get authentication token
-- `POST /api/pingone/refresh-token` - Refresh authentication token
-
-### User Management
-- `POST /api/export-users` - Export users to CSV
-- `POST /api/modify` - Modify existing users
-- Various PingOne proxy endpoints for user operations
-
-### Settings
-- `GET /api/settings` - Get current settings
-- `POST /api/settings` - Save settings
-- `PUT /api/settings` - Update settings
+### CSV Format Requirements
+The tool supports standard CSV format with the following columns:
+- `username` (required)
+- `email` (required)
+- `firstName`
+- `lastName`
+- `populationId` (optional)
 
 ## 🧪 Testing
 
@@ -314,56 +125,107 @@ Run the test suite:
 npm test
 ```
 
-Run specific test files:
+Run specific test categories:
 ```bash
-npm test -- test/api/import.test.js
+npm run test:unit
+npm run test:integration
+npm run test:e2e
 ```
 
-## 📝 Logging
+## 🐛 Troubleshooting
 
-The application provides comprehensive logging:
-- **File logs**: Stored in `logs/` directory
-- **Console logs**: Real-time development logging
-- **UI logs**: User-visible log messages
-- **API logs**: Request/response logging
+### Common Issues
+
+1. **Token Expiration**
+   - Navigate to Settings
+   - Click "Test Connection"
+   - Update credentials if needed
+
+2. **CSV Import Errors**
+   - Check CSV format and required columns
+   - Verify data types and values
+   - Review error logs for specific issues
+
+3. **API Connection Issues**
+   - Verify PingOne credentials
+   - Check network connectivity
+   - Review server logs
+
+### Debug Mode
+Enable debug logging by setting `DEBUG=true` in your environment variables.
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Submit a pull request
+We welcome contributions! Please follow these steps:
+
+1. **Fork the repository**
+2. **Create a feature branch**
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+3. **Make your changes**
+4. **Add tests** for new functionality
+5. **Commit your changes**
+   ```bash
+   git commit -m "Add: description of your changes"
+   ```
+6. **Push to your fork**
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+7. **Create a Pull Request**
+
+### Development Guidelines
+- Follow the existing code style
+- Add comments for complex logic
+- Include error handling
+- Write tests for new features
+- Update documentation as needed
+
+## 📝 Issue Templates
+
+### Bug Report
+When reporting bugs, please include:
+- **Description**: Clear description of the issue
+- **Steps to reproduce**: Detailed steps to recreate the problem
+- **Expected behavior**: What should happen
+- **Actual behavior**: What actually happens
+- **Environment**: OS, browser, Node.js version
+- **Screenshots**: If applicable
+
+### Feature Request
+When requesting features, please include:
+- **Description**: Clear description of the feature
+- **Use case**: Why this feature is needed
+- **Proposed solution**: How you envision it working
+- **Alternatives**: Any alternative approaches considered
+
+## 🔒 Security
+
+- Never commit sensitive credentials
+- Use environment variables for configuration
+- Regularly update dependencies
+- Follow security best practices
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
+## 🙏 Acknowledgments
 
-For issues and questions:
-1. Check the application logs
-2. Review the documentation
-3. Create an issue in the repository
+- PingOne API documentation
+- Contributors and maintainers
+- Open source community
 
-## 🔄 Version History
+## 📞 Support
 
-- **v4.3.1**: Enhanced UI/UX with improved notifications, disclaimer system, and better file handling
-- **v4.3.0**: Added batch deletion and progress improvements
-- **v4.2.0**: Enhanced file handling and UI improvements
-- **v4.1.0**: Added modify functionality and better error handling
-- **v4.0.0**: Major rewrite with modern architecture
-
-### Recent Improvements (v4.3.1)
-- **Enhanced Notification System**: Color-coded success/warning/error messages with consistent icons
-- **Improved Disclaimer**: Required acceptance with dual checkbox system and visual feedback
-- **Better File Handling**: Detailed file information display on Import and Modify pages
-- **UI Consistency**: Consistent branding with Ping Identity logo in header and footer
-- **Delete Page Improvements**: Reordered sections with population delete first, expanded by default
-- **Version Badge**: Consistent version display across the application
-- **Footer Styling**: Fixed blue gradient background with proper text contrast
-- **Rate Limiting**: Enforced 50 API calls per second limit across all operations
+For support and questions:
+- Create an issue on GitHub
+- Check the troubleshooting section
+- Review the logs for error details
 
 ---
 
-**Built with ❤️ for PingOne user management**
+**Version**: 1.1.2  
+**Last Updated**: January 2025  
+**Maintainer**: Curtis Muir
