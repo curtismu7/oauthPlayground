@@ -13,12 +13,15 @@ A comprehensive web-based tool for managing PingOne user imports, exports, and m
 - **Comprehensive Logging**: Detailed logs for debugging and audit trails
 
 ### Advanced Features
-- **Token Management**: Automatic token refresh and validation
+- **Token Management**: Automatic token refresh and validation with status indicators
 - **Error Handling**: Robust error handling with detailed error messages
 - **File Validation**: CSV format validation and data integrity checks
-- **Responsive UI**: Modern, mobile-friendly interface
+- **Responsive UI**: Modern, mobile-friendly interface with Ping Identity styling
 - **Settings Management**: Centralized configuration management
 - **API Testing**: Built-in API connection testing tools
+- **Swagger UI Integration**: Interactive API documentation
+- **Disclaimer Banner**: Ping Identity–branded legal disclaimer
+- **Token Status Indicator**: Real-time token validity monitoring
 
 ## 📋 Prerequisites
 
@@ -57,7 +60,7 @@ A comprehensive web-based tool for managing PingOne user imports, exports, and m
    ```
 
 5. **Access the application**
-   Open your browser and navigate to `http://localhost:3000`
+   Open your browser and navigate to `http://localhost:4000`
 
 ## 🎯 Usage
 
@@ -87,6 +90,11 @@ A comprehensive web-based tool for managing PingOne user imports, exports, and m
 3. Test connection
 4. Save settings
 
+### API Documentation
+- Access Swagger UI at `/swagger/html`
+- View OpenAPI spec at `/swagger.json`
+- Test API endpoints directly from the interface
+
 ## 📁 Project Structure
 
 ```
@@ -108,7 +116,7 @@ pingone-import/
 - `PINGONE_CLIENT_ID`: Your PingOne client ID
 - `PINGONE_CLIENT_SECRET`: Your PingOne client secret
 - `PINGONE_ENVIRONMENT_ID`: Your PingOne environment ID
-- `PORT`: Server port (default: 3000)
+- `PORT`: Server port (default: 4000)
 
 ### CSV Format Requirements
 The tool supports standard CSV format with the following columns:
@@ -226,6 +234,6 @@ For support and questions:
 
 ---
 
-**Version**: 4.9  
-**Last Updated**: January 2025  
+**Version**: 5.0  
+**Last Updated**: July 2025  
 **Maintainer**: Curtis Muir

@@ -1,0 +1,456 @@
+/* Token Status Indicator Styles */
+
+.token-status-indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    background: #ffffff;
+    border: 1px solid #e1e5e9;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 12px 16px;
+    min-width: 280px;
+    max-width: 400px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.token-status-indicator:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    transform: translateY(-1px);
+}
+
+.token-status-indicator .token-status-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.token-status-indicator .token-status-icon {
+    font-size: 16px;
+    min-width: 20px;
+    text-align: center;
+}
+
+.token-status-indicator .token-status-text {
+    font-weight: 500;
+    color: #3b4151;
+    flex: 1;
+}
+
+.token-status-indicator .token-status-time {
+    font-size: 12px;
+    color: #6c757d;
+    font-weight: 400;
+}
+
+.token-status-indicator .token-status-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.token-status-indicator .btn {
+    padding: 4px 8px;
+    font-size: 12px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.token-status-indicator .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.token-status-indicator .btn:active {
+    transform: translateY(0);
+}
+
+.token-status-indicator .btn-outline-secondary {
+    background: transparent;
+    border-color: #6c757d;
+    color: #6c757d;
+}
+
+.token-status-indicator .btn-outline-secondary:hover {
+    background: #6c757d;
+    color: white;
+}
+
+.token-status-indicator .btn-success {
+    background: #28a745;
+    border-color: #28a745;
+    color: white;
+}
+
+.token-status-indicator .btn-success:hover {
+    background: #218838;
+    border-color: #1e7e34;
+}
+
+/* Status-specific styles */
+.token-status-indicator.valid {
+    border-color: #28a745;
+    background: rgba(40, 167, 69, 0.05);
+}
+
+.token-status-indicator.valid .token-status-text {
+    color: #155724;
+}
+
+.token-status-indicator.valid .token-status-time {
+    color: #28a745;
+}
+
+.token-status-indicator.expiring {
+    border-color: #ffc107;
+    background: rgba(255, 193, 7, 0.05);
+}
+
+.token-status-indicator.expiring .token-status-text {
+    color: #856404;
+}
+
+.token-status-indicator.expiring .token-status-time {
+    color: #ffc107;
+}
+
+.token-status-indicator.expired {
+    border-color: #dc3545;
+    background: rgba(220, 53, 69, 0.05);
+}
+
+.token-status-indicator.expired .token-status-text {
+    color: #721c24;
+}
+
+.token-status-indicator.expired .token-status-time {
+    color: #dc3545;
+}
+
+.token-status-indicator.missing {
+    border-color: #6c757d;
+    background: rgba(108, 117, 125, 0.05);
+}
+
+.token-status-indicator.missing .token-status-text {
+    color: #495057;
+}
+
+.token-status-indicator.missing .token-status-time {
+    color: #6c757d;
+}
+
+.token-status-indicator.error {
+    border-color: #dc3545;
+    background: rgba(220, 53, 69, 0.05);
+}
+
+.token-status-indicator.error .token-status-text {
+    color: #721c24;
+}
+
+.token-status-indicator.error .token-status-time {
+    color: #dc3545;
+}
+
+.token-status-indicator.loading {
+    border-color: #007bff;
+    background: rgba(0, 123, 255, 0.05);
+}
+
+.token-status-indicator.loading .token-status-text {
+    color: #004085;
+}
+
+.token-status-indicator.loading .token-status-time {
+    color: #007bff;
+}
+
+/* Animation for loading state */
+.token-status-indicator.loading .token-status-icon {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Pulse animation for expiring tokens */
+.token-status-indicator.expiring .token-status-icon {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .token-status-indicator {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+        max-width: none;
+        width: calc(100vw - 20px);
+    }
+    
+    .token-status-indicator .token-status-content {
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+    
+    .token-status-indicator .token-status-text {
+        font-size: 13px;
+    }
+    
+    .token-status-indicator .token-status-time {
+        font-size: 11px;
+    }
+    
+    .token-status-indicator .btn {
+        padding: 6px 10px;
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 480px) {
+    .token-status-indicator {
+        padding: 10px 12px;
+    }
+    
+    .token-status-indicator .token-status-actions {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .token-status-indicator .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .token-status-indicator {
+        border-width: 2px;
+    }
+    
+    .token-status-indicator .btn {
+        border-width: 2px;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .token-status-indicator {
+        transition: none;
+    }
+    
+    .token-status-indicator:hover {
+        transform: none;
+    }
+    
+    .token-status-indicator .btn:hover {
+        transform: none;
+    }
+    
+    .token-status-indicator.loading .token-status-icon {
+        animation: none;
+    }
+    
+    .token-status-indicator.expiring .token-status-icon {
+        animation: none;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .token-status-indicator {
+        background: rgba(33, 37, 41, 0.95);
+        border-color: #495057;
+        color: #e9ecef;
+    }
+    
+    .token-status-indicator .token-status-text {
+        color: #e9ecef;
+    }
+    
+    .token-status-indicator .token-status-time {
+        color: #adb5bd;
+    }
+    
+    .token-status-indicator.valid {
+        border-color: #28a745;
+        background: rgba(40, 167, 69, 0.1);
+    }
+    
+    .token-status-indicator.valid .token-status-text {
+        color: #75b798;
+    }
+    
+    .token-status-indicator.valid .token-status-time {
+        color: #28a745;
+    }
+    
+    .token-status-indicator.expiring {
+        border-color: #ffc107;
+        background: rgba(255, 193, 7, 0.1);
+    }
+    
+    .token-status-indicator.expiring .token-status-text {
+        color: #ffd43b;
+    }
+    
+    .token-status-indicator.expiring .token-status-time {
+        color: #ffc107;
+    }
+    
+    .token-status-indicator.expired {
+        border-color: #dc3545;
+        background: rgba(220, 53, 69, 0.1);
+    }
+    
+    .token-status-indicator.expired .token-status-text {
+        color: #ea868f;
+    }
+    
+    .token-status-indicator.expired .token-status-time {
+        color: #dc3545;
+    }
+    
+    .token-status-indicator.missing {
+        border-color: #6c757d;
+        background: rgba(108, 117, 125, 0.1);
+    }
+    
+    .token-status-indicator.missing .token-status-text {
+        color: #adb5bd;
+    }
+    
+    .token-status-indicator.missing .token-status-time {
+        color: #6c757d;
+    }
+    
+    .token-status-indicator.error {
+        border-color: #dc3545;
+        background: rgba(220, 53, 69, 0.1);
+    }
+    
+    .token-status-indicator.error .token-status-text {
+        color: #ea868f;
+    }
+    
+    .token-status-indicator.error .token-status-time {
+        color: #dc3545;
+    }
+    
+    .token-status-indicator.loading {
+        border-color: #007bff;
+        background: rgba(0, 123, 255, 0.1);
+    }
+    
+    .token-status-indicator.loading .token-status-text {
+        color: #74c0fc;
+    }
+    
+    .token-status-indicator.loading .token-status-time {
+        color: #007bff;
+    }
+    
+    .token-status-indicator .btn-outline-secondary {
+        border-color: #6c757d;
+        color: #adb5bd;
+    }
+    
+    .token-status-indicator .btn-outline-secondary:hover {
+        background: #6c757d;
+        color: #212529;
+    }
+}
+
+/* Print styles */
+@media print {
+    .token-status-indicator {
+        display: none;
+    }
+}
+
+/* Focus styles for accessibility */
+.token-status-indicator .btn:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+.token-status-indicator:focus-within {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+/* Screen reader only text */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Enhanced hover effects */
+.token-status-indicator .btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.token-status-indicator .btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s, height 0.3s;
+}
+
+.token-status-indicator .btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+/* Disable enhanced effects for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .token-status-indicator .btn::before {
+        display: none;
+    }
+} 

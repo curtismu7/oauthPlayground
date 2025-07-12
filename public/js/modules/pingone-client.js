@@ -13,6 +13,23 @@
  */
 
 import { createWinstonLogger } from './winston-logger.js';
+import { UIManager } from './ui-manager.js';
+const ui = window.app && window.app.uiManager;
+function handleClientError(error) {
+    let userMessage = 'An unexpected error occurred. Please try again.';
+    if (error && error.message) {
+        if (error.message.includes('Network')) {
+            userMessage = 'Network error – check your connection.';
+        } else if (error.message.includes('timeout')) {
+            userMessage = 'Request timed out – try again.';
+        } else if (error.message.includes('401')) {
+            userMessage = 'Session expired – please log in again.';
+        } else if (error.message.includes('404')) {
+            userMessage = 'Resource not found.';
+        }
+    }
+    if (ui) ui.showStatusBar(userMessage, 'error');
+}
 
 /**
  * PingOne Client Class
