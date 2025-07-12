@@ -43,7 +43,7 @@ class SettingsManager {
      * Initialize Winston logger
      */
     initializeLogger(logger) {
-        if (logger) {
+        if (logger && typeof logger.child === 'function') {
             this.logger = logger.child({ component: 'settings-manager' });
         } else {
             this.logger = createWinstonLogger({
@@ -236,9 +236,10 @@ class SettingsManager {
      */
     async initializeEncryption() {
         try {
-            const deviceId = await this.getDeviceId();
+            let deviceId = await this.getDeviceId();
+            if (typeof deviceId !== 'string') deviceId = String(deviceId || '');
+            if (!deviceId) deviceId = 'fallback-device-id';
             this.encryptionKey = await CryptoUtils.generateKey(deviceId);
-            
             this.logger.debug('Encryption initialized successfully');
         } catch (error) {
             this.logger.error('Failed to initialize encryption', { error: error.message });
@@ -257,31 +258,29 @@ class SettingsManager {
             // Try to get a stored device ID first
             if (this.isLocalStorageAvailable()) {
                 const storedDeviceId = localStorage.getItem('pingone-device-id');
-                if (storedDeviceId) {
+                if (storedDeviceId && typeof storedDeviceId === 'string') {
                     return storedDeviceId;
                 }
             }
-
-            // Generate a new device ID based on stable browser characteristics
+            // Generate device ID from browser info
             const navigatorInfo = {
+                userAgent: navigator.userAgent,
                 platform: navigator.platform,
                 hardwareConcurrency: navigator.hardwareConcurrency,
-                language: navigator.language,
-                userAgent: navigator.userAgent
+                deviceMemory: navigator.deviceMemory,
+                maxTouchPoints: navigator.maxTouchPoints
             };
-            
-            const deviceId = await CryptoUtils.generateKey(JSON.stringify(navigatorInfo));
-            
-            // Store the device ID for future use
-            if (this.isLocalStorageAvailable()) {
-                localStorage.setItem('pingone-device-id', deviceId);
-            }
-            
-            this.logger.debug('Device ID generated', { deviceId: deviceId.substring(0, 8) + '...' });
+            const encoder = new TextEncoder();
+            const data = encoder.encode(JSON.stringify(navigatorInfo));
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const deviceId = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            if (typeof deviceId !== 'string' || !deviceId) return 'fallback-device-id';
             return deviceId;
         } catch (error) {
-            this.logger.error('Failed to generate device ID', { error: error.message });
-            throw error;
+            this.logger.error('Failed to generate device ID:', error);
+            // Fallback to a random string if crypto API fails
+            return 'fallback-' + Math.random().toString(36).substring(2, 15);
         }
     }
     

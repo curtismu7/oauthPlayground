@@ -5,11 +5,13 @@
  * including request/response schemas, authentication, and examples.
  * 
  * @author PingOne Import Tool
- * @version 4.9
+ * @version 5.0
  */
 
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
+import express from 'express';
+import path from 'path';
 
 /**
  * Swagger configuration options
@@ -19,7 +21,7 @@ const swaggerOptions = {
     openapi: '3.0.0',
     info: {
       title: 'PingOne Import Tool API',
-      version: '4.9',
+      version: '5.0',
       description: `
         Comprehensive API for importing, exporting, and managing users in PingOne.
         
@@ -32,6 +34,7 @@ const swaggerOptions = {
         - **Token Management**: Handle PingOne API authentication
         - **Feature Flags**: Enable/disable application features
         - **Comprehensive Logging**: Detailed logging for debugging and monitoring
+        - **Settings Management**: Configure PingOne credentials and settings
         
         ## Authentication
         Most endpoints require valid PingOne API credentials configured via settings.
@@ -119,60 +122,107 @@ const swaggerOptions = {
           properties: {
             status: {
               type: 'string',
-              example: 'healthy',
+              example: 'ok',
             },
-            message: {
+            timestamp: {
               type: 'string',
-              example: 'All services are healthy',
+              format: 'date-time',
+              example: '2025-07-12T15:35:29.053Z',
             },
-            details: {
+            uptime: {
+              type: 'number',
+              example: 5.561143042,
+            },
+            server: {
               type: 'object',
               properties: {
-                server: {
-                  type: 'string',
-                  example: 'ok',
+                isInitialized: {
+                  type: 'boolean',
+                  example: true,
                 },
-                timestamp: {
-                  type: 'string',
-                  format: 'date-time',
+                isInitializing: {
+                  type: 'boolean',
+                  example: false,
                 },
-                uptime: {
-                  type: 'number',
-                  example: 1234.56,
+                pingOneInitialized: {
+                  type: 'boolean',
+                  example: true,
+                },
+                pingOne: {
+                  type: 'object',
+                  properties: {
+                    initialized: {
+                      type: 'boolean',
+                      example: true,
+                    },
+                    environmentId: {
+                      type: 'string',
+                      example: 'not configured',
+                    },
+                    region: {
+                      type: 'string',
+                      example: 'not configured',
+                    },
+                  },
+                },
+              },
+            },
+            system: {
+              type: 'object',
+              properties: {
+                node: {
+                  type: 'string',
+                  example: 'v22.16.0',
+                },
+                platform: {
+                  type: 'string',
+                  example: 'darwin',
                 },
                 memory: {
                   type: 'object',
                   properties: {
-                    used: {
+                    rss: {
                       type: 'number',
-                      example: 15,
+                      example: 105086976,
                     },
-                    total: {
+                    heapTotal: {
                       type: 'number',
-                      example: 17,
+                      example: 38617088,
+                    },
+                    heapUsed: {
+                      type: 'number',
+                      example: 22732848,
                     },
                   },
                 },
-                checks: {
-                  type: 'object',
-                  properties: {
-                    server: {
-                      type: 'string',
-                      example: 'ok',
-                    },
-                    database: {
-                      type: 'string',
-                      example: 'ok',
-                    },
-                    storage: {
-                      type: 'string',
-                      example: 'ok',
-                    },
-                    pingone: {
-                      type: 'string',
-                      example: 'ok',
-                    },
-                  },
+                memoryUsage: {
+                  type: 'string',
+                  example: '59%',
+                },
+                env: {
+                  type: 'string',
+                  example: 'development',
+                },
+                pid: {
+                  type: 'number',
+                  example: 3317,
+                },
+              },
+            },
+            checks: {
+              type: 'object',
+              properties: {
+                pingOneConfigured: {
+                  type: 'string',
+                  example: 'error',
+                },
+                pingOneConnected: {
+                  type: 'string',
+                  example: 'ok',
+                },
+                memory: {
+                  type: 'string',
+                  example: 'ok',
                 },
               },
             },
@@ -197,6 +247,11 @@ const swaggerOptions = {
               description: 'PingOne population name',
               example: 'Sample Users',
             },
+            totalUsers: {
+              type: 'number',
+              description: 'Expected number of users in CSV',
+              example: 100,
+            },
           },
           required: ['file', 'populationId', 'populationName'],
         },
@@ -214,7 +269,15 @@ const swaggerOptions = {
             },
             message: {
               type: 'string',
-              example: 'Import session created successfully',
+              example: 'Import started successfully',
+            },
+            populationName: {
+              type: 'string',
+              example: 'Sample Users',
+            },
+            populationId: {
+              type: 'string',
+              example: '3840c98d-202d-4f6a-8871-f3bc66cb3fa8',
             },
             totalUsers: {
               type: 'number',
@@ -288,7 +351,13 @@ const swaggerOptions = {
               description: 'Export format',
               example: 'json',
             },
-            includeDisabled: {
+            fields: {
+              type: 'string',
+              enum: ['all', 'basic', 'custom'],
+              description: 'Field selection for export',
+              example: 'basic',
+            },
+            ignoreDisabledUsers: {
               type: 'boolean',
               description: 'Include disabled users in export',
               example: false,
@@ -341,30 +410,145 @@ const swaggerOptions = {
             },
           },
         },
+        // Modify schemas
+        ModifyRequest: {
+          type: 'object',
+          properties: {
+            file: {
+              type: 'string',
+              format: 'binary',
+              description: 'CSV file containing user updates',
+            },
+            populationId: {
+              type: 'string',
+              description: 'PingOne population ID',
+              example: '3840c98d-202d-4f6a-8871-f3bc66cb3fa8',
+            },
+            populationName: {
+              type: 'string',
+              description: 'PingOne population name',
+              example: 'Sample Users',
+            },
+            totalUsers: {
+              type: 'number',
+              description: 'Expected number of users in CSV',
+              example: 100,
+            },
+          },
+          required: ['file', 'populationId', 'populationName'],
+        },
+        ModifyResponse: {
+          type: 'object',
+          properties: {
+            success: {
+              type: 'boolean',
+              example: true,
+            },
+            sessionId: {
+              type: 'string',
+              description: 'Unique session ID for progress tracking',
+              example: 'session-12345',
+            },
+            message: {
+              type: 'string',
+              example: 'Modify started successfully',
+            },
+            populationName: {
+              type: 'string',
+              example: 'Sample Users',
+            },
+            populationId: {
+              type: 'string',
+              example: '3840c98d-202d-4f6a-8871-f3bc66cb3fa8',
+            },
+            totalUsers: {
+              type: 'number',
+              example: 100,
+            },
+          },
+        },
         // Settings schemas
         Settings: {
           type: 'object',
           properties: {
-            clientId: {
-              type: 'string',
-              description: 'PingOne client ID',
-              example: 'client-123',
-            },
-            clientSecret: {
-              type: 'string',
-              description: 'PingOne client secret',
-              example: 'secret-456',
-            },
             environmentId: {
               type: 'string',
               description: 'PingOne environment ID',
               example: 'b9817c16-9910-4415-b67e-4ac687da74d9',
+            },
+            apiClientId: {
+              type: 'string',
+              description: 'PingOne client ID',
+              example: '26e7f07c-11a4-402a-b064-07b55aee189e',
+            },
+            apiSecret: {
+              type: 'string',
+              description: 'PingOne client secret (encrypted)',
+              example: 'enc:9p3hLItWFzw5BxKjH3.~TIGVPP~uj4os6fY93170dMvXadn1GEsWTP2lHSTAoevq',
+            },
+            populationId: {
+              type: 'string',
+              description: 'PingOne population ID',
+              example: '3840c98d-202d-4f6a-8871-f3bc66cb3fa8',
             },
             region: {
               type: 'string',
               enum: ['NorthAmerica', 'Europe', 'AsiaPacific'],
               description: 'PingOne region',
               example: 'NorthAmerica',
+            },
+            rateLimit: {
+              type: 'number',
+              description: 'API rate limit (requests per minute)',
+              example: 90,
+            },
+          },
+        },
+        SettingsResponse: {
+          type: 'object',
+          properties: {
+            success: {
+              type: 'boolean',
+              example: true,
+            },
+            data: {
+              $ref: '#/components/schemas/Settings',
+            },
+          },
+        },
+        SettingsUpdateRequest: {
+          type: 'object',
+          properties: {
+            environmentId: {
+              type: 'string',
+              description: 'PingOne environment ID',
+              example: 'b9817c16-9910-4415-b67e-4ac687da74d9',
+            },
+            apiClientId: {
+              type: 'string',
+              description: 'PingOne client ID',
+              example: '26e7f07c-11a4-402a-b064-07b55aee189e',
+            },
+            apiSecret: {
+              type: 'string',
+              description: 'PingOne client secret (will be encrypted)',
+              example: 'your-client-secret',
+            },
+            populationId: {
+              type: 'string',
+              description: 'PingOne population ID',
+              example: '3840c98d-202d-4f6a-8871-f3bc66cb3fa8',
+            },
+            region: {
+              type: 'string',
+              enum: ['NorthAmerica', 'Europe', 'AsiaPacific'],
+              description: 'PingOne region',
+              example: 'NorthAmerica',
+            },
+            rateLimit: {
+              type: 'number',
+              description: 'API rate limit (requests per minute)',
+              example: 90,
             },
           },
         },
@@ -389,10 +573,42 @@ const swaggerOptions = {
             },
           },
         },
+        FeatureFlagsResponse: {
+          type: 'object',
+          properties: {
+            success: {
+              type: 'boolean',
+              example: true,
+            },
+            flags: {
+              $ref: '#/components/schemas/FeatureFlags',
+            },
+          },
+        },
+        FeatureFlagUpdateRequest: {
+          type: 'object',
+          properties: {
+            enabled: {
+              type: 'boolean',
+              description: 'New enabled state for the flag',
+              example: true,
+            },
+          },
+          required: ['enabled'],
+        },
         // Log schemas
         LogEntry: {
           type: 'object',
           properties: {
+            id: {
+              type: 'string',
+              example: 'log-12345',
+            },
+            timestamp: {
+              type: 'string',
+              format: 'date-time',
+              example: '2025-07-12T15:35:29.053Z',
+            },
             level: {
               type: 'string',
               enum: ['info', 'warning', 'error', 'debug'],
@@ -402,16 +618,70 @@ const swaggerOptions = {
               type: 'string',
               example: 'User import completed',
             },
-            details: {
+            data: {
               type: 'object',
               description: 'Additional log details',
             },
-            timestamp: {
+            ip: {
               type: 'string',
-              format: 'date-time',
+              example: '127.0.0.1',
+            },
+            userAgent: {
+              type: 'string',
+              example: 'Mozilla/5.0...',
             },
           },
-          required: ['level', 'message'],
+          required: ['id', 'timestamp', 'level', 'message'],
+        },
+        LogRequest: {
+          type: 'object',
+          properties: {
+            message: {
+              type: 'string',
+              description: 'Log message',
+              example: 'User import completed successfully',
+            },
+            level: {
+              type: 'string',
+              enum: ['info', 'warning', 'error', 'debug'],
+              description: 'Log level',
+              example: 'info',
+            },
+            data: {
+              type: 'object',
+              description: 'Additional log data',
+              example: { userId: '123', action: 'import' },
+            },
+            source: {
+              type: 'string',
+              description: 'Source of the log',
+              example: 'frontend',
+            },
+          },
+          required: ['message'],
+        },
+        LogsResponse: {
+          type: 'object',
+          properties: {
+            success: {
+              type: 'boolean',
+              example: true,
+            },
+            count: {
+              type: 'number',
+              example: 100,
+            },
+            total: {
+              type: 'number',
+              example: 1000,
+            },
+            logs: {
+              type: 'array',
+              items: {
+                $ref: '#/components/schemas/LogEntry',
+              },
+            },
+          },
         },
         // Population schemas
         Population: {
@@ -447,6 +717,91 @@ const swaggerOptions = {
             },
           },
         },
+        PopulationsResponse: {
+          type: 'object',
+          properties: {
+            success: {
+              type: 'boolean',
+              example: true,
+            },
+            data: {
+              type: 'array',
+              items: {
+                $ref: '#/components/schemas/Population',
+              },
+            },
+            total: {
+              type: 'number',
+              example: 5,
+            },
+          },
+        },
+        // Token response schema
+        TokenResponse: {
+          type: 'object',
+          properties: {
+            success: {
+              type: 'boolean',
+              example: true,
+            },
+            data: {
+              type: 'object',
+              properties: {
+                access_token: {
+                  type: 'string',
+                  description: 'The access token for API authentication',
+                  example: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+                },
+                token_type: {
+                  type: 'string',
+                  description: 'The type of token (always Bearer)',
+                  example: 'Bearer',
+                },
+                expires_in: {
+                  type: 'number',
+                  description: 'Token expiry time in seconds',
+                  example: 3600,
+                },
+                scope: {
+                  type: 'string',
+                  description: 'Comma-separated list of granted scopes',
+                  example: 'p1:read:user p1:write:user p1:read:population p1:write:population',
+                },
+                expires_at: {
+                  type: 'string',
+                  format: 'date-time',
+                  description: 'Token expiry timestamp',
+                  example: '2025-07-12T16:45:32.115Z',
+                },
+              },
+            },
+            message: {
+              type: 'string',
+              example: 'Access token retrieved successfully',
+            },
+          },
+        },
+        TokenRequest: {
+          type: 'object',
+          properties: {
+            client_id: {
+              type: 'string',
+              description: 'PingOne client ID (optional, uses server config if not provided)',
+              example: '26e7f07c-11a4-402a-b064-07b55aee189e',
+            },
+            client_secret: {
+              type: 'string',
+              description: 'PingOne client secret (optional, uses server config if not provided)',
+              example: 'your-client-secret',
+            },
+            grant_type: {
+              type: 'string',
+              description: 'OAuth grant type (defaults to client_credentials)',
+              example: 'client_credentials',
+              default: 'client_credentials',
+            },
+          },
+        },
       },
     },
     security: [
@@ -474,7 +829,137 @@ const specs = swaggerJsdoc(swaggerOptions);
  */
 const swaggerUiOptions = {
   explorer: true,
-  customCss: '.swagger-ui .topbar { display: none }',
+  customCss: `
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    .swagger-ui {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    
+    .swagger-ui .topbar {
+      background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+      padding: 15px 0;
+      box-shadow: 0 2px 10px rgba(0, 123, 255, 0.1);
+    }
+    
+    .swagger-ui .topbar .topbar-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 20px;
+    }
+    
+    .swagger-ui .topbar .topbar-wrapper .link {
+      color: white;
+      font-size: 24px;
+      font-weight: 600;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .swagger-ui .topbar .topbar-wrapper .link::before {
+      content: '';
+      width: 32px;
+      height: 32px;
+      background: url('https://raw.githubusercontent.com/curtismu7/CDN/fd81b602d8c3635a8ca40aab169c83b86eae2dc0/Ping%20Identity_idEzgMTpXK_1.svg') no-repeat center;
+      background-size: contain;
+      filter: brightness(0) invert(1);
+    }
+    
+    .swagger-ui .wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .swagger-ui .opblock {
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e1e5e9;
+    }
+    
+    .swagger-ui .try-out__btn {
+      background: #007bff;
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .swagger-ui .try-out__btn:hover {
+      background: #0056b3;
+      transform: translateY(-1px);
+    }
+    
+    .swagger-ui .execute-wrapper .btn.execute {
+      background: #28a745;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .swagger-ui .execute-wrapper .btn.execute:hover {
+      background: #218838;
+      transform: translateY(-1px);
+    }
+    
+    .swagger-ui .auth-wrapper {
+      background: #fff3cd;
+      border: 1px solid #ffeaa7;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    
+    .swagger-ui .auth-wrapper .authorization__btn {
+      background: #007bff;
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    
+    .swagger-ui .auth-wrapper .authorization__btn:hover {
+      background: #0056b3;
+    }
+    
+    .swagger-ui input[type="text"],
+    .swagger-ui textarea,
+    .swagger-ui select {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-family: inherit;
+      font-size: 14px;
+      transition: border-color 0.2s ease;
+    }
+    
+    .swagger-ui input[type="text"]:focus,
+    .swagger-ui textarea:focus,
+    .swagger-ui select:focus {
+      border-color: #007bff;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    }
+    
+    @media (max-width: 768px) {
+      .swagger-ui .wrapper {
+        padding: 10px;
+      }
+    }
+  `,
   customSiteTitle: 'PingOne Import Tool API Documentation',
   customfavIcon: '/favicon.ico',
   swaggerOptions: {
@@ -483,6 +968,10 @@ const swaggerUiOptions = {
     showRequestHeaders: true,
     showCommonExtensions: true,
     tryItOutEnabled: true,
+    displayRequestDuration: true,
+    defaultModelsExpandDepth: 2,
+    defaultModelExpandDepth: 2,
+    supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
   },
 };
 
@@ -490,17 +979,39 @@ const swaggerUiOptions = {
  * Setup Swagger middleware
  */
 const setupSwagger = (app) => {
-  // Serve Swagger UI
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, swaggerUiOptions));
-  
-  // Serve Swagger JSON
-  app.get('/api-docs.json', (req, res) => {
+  // Serve Swagger UI HTML file at /swagger/html
+  app.get('/swagger/html', (req, res) => {
+    res.sendFile(path.join(process.cwd(), 'public/swagger/index.html'));
+  });
+
+  // Serve Swagger UI static assets at /swagger/
+  app.use('/swagger', express.static(path.join(process.cwd(), 'public/swagger')));
+
+  // Serve the OpenAPI spec at /swagger.json
+  app.get('/swagger.json', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.send(specs);
   });
-  
-  console.log('📚 Swagger documentation available at /api-docs');
-  console.log('📄 Swagger JSON available at /api-docs.json');
+
+  // Also serve the spec at /api-docs.json for backward compatibility
+  app.get('/api-docs.json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.send(specs);
+  });
+
+  // Legacy route for backward compatibility
+  app.get('/swagger.html', (req, res) => {
+    res.redirect('/swagger/html');
+  });
+
+  console.log('📚 Swagger UI available at /swagger/html');
+  console.log('📄 Swagger JSON available at /swagger.json');
 };
 
 export { setupSwagger, specs }; 

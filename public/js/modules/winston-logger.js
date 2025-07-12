@@ -150,7 +150,7 @@ class WinstonLogger {
             const logEntry = this.formatLogEntry(level, message, meta);
             
             // Send to server logging endpoint
-            await fetch('/api/logs', {
+            await fetch('/api/logs/ui', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

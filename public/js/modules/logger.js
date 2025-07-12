@@ -16,6 +16,8 @@
  */
 
 import { createWinstonLogger } from './winston-logger.js';
+import { UIManager } from './ui-manager.js';
+const ui = window.app && window.app.uiManager;
 
 /**
  * Winston-compatible logger for browser environment
@@ -219,6 +221,7 @@ class Logger {
      */
     error(message, data = {}) {
         this.log('error', message, data);
+        if (ui) ui.showStatusBar(message, 'error', { autoDismiss: false });
         this.errorCount++;
         this.updateSummary();
     }

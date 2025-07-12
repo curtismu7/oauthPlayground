@@ -1,6 +1,6 @@
 {
   "name": "pingone-import-cursor",
-  "version": "4.9",
+  "version": "5.0",
   "description": "A modern web application for importing users into PingOne using the PingOne Admin API.",
   "main": "server.js",
   "type": "module",
@@ -44,6 +44,7 @@
     "@babel/runtime": "^7.27.6",
     "@babel/runtime-corejs3": "^7.27.6",
     "@socket.io/redis-adapter": "^8.2.1",
+    "axios": "^1.6.0",
     "babelify": "^10.0.0",
     "bcryptjs": "^2.4.3",
     "browserify": "^17.0.1",
@@ -74,8 +75,7 @@
     "uuid": "^11.1.0",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^4.7.1",
-    "xss-clean": "^0.1.1",
-    "axios": "^1.6.0"
+    "xss-clean": "^0.1.1"
   },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.18.6",

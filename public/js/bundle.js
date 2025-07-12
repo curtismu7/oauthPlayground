@@ -11,6 +11,185 @@ module.exports = _interopRequireDefault, module.exports.__esModule = true, modul
 },{}],2:[function(require,module,exports){
 "use strict";
 
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+function defaultSetTimout() {
+  throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout() {
+  throw new Error('clearTimeout has not been defined');
+}
+(function () {
+  try {
+    if (typeof setTimeout === 'function') {
+      cachedSetTimeout = setTimeout;
+    } else {
+      cachedSetTimeout = defaultSetTimout;
+    }
+  } catch (e) {
+    cachedSetTimeout = defaultSetTimout;
+  }
+  try {
+    if (typeof clearTimeout === 'function') {
+      cachedClearTimeout = clearTimeout;
+    } else {
+      cachedClearTimeout = defaultClearTimeout;
+    }
+  } catch (e) {
+    cachedClearTimeout = defaultClearTimeout;
+  }
+})();
+function runTimeout(fun) {
+  if (cachedSetTimeout === setTimeout) {
+    //normal enviroments in sane situations
+    return setTimeout(fun, 0);
+  }
+  // if setTimeout wasn't available but was latter defined
+  if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+    cachedSetTimeout = setTimeout;
+    return setTimeout(fun, 0);
+  }
+  try {
+    // when when somebody has screwed with setTimeout but no I.E. maddness
+    return cachedSetTimeout(fun, 0);
+  } catch (e) {
+    try {
+      // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+      return cachedSetTimeout.call(null, fun, 0);
+    } catch (e) {
+      // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+      return cachedSetTimeout.call(this, fun, 0);
+    }
+  }
+}
+function runClearTimeout(marker) {
+  if (cachedClearTimeout === clearTimeout) {
+    //normal enviroments in sane situations
+    return clearTimeout(marker);
+  }
+  // if clearTimeout wasn't available but was latter defined
+  if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+    cachedClearTimeout = clearTimeout;
+    return clearTimeout(marker);
+  }
+  try {
+    // when when somebody has screwed with setTimeout but no I.E. maddness
+    return cachedClearTimeout(marker);
+  } catch (e) {
+    try {
+      // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+      return cachedClearTimeout.call(null, marker);
+    } catch (e) {
+      // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+      // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+      return cachedClearTimeout.call(this, marker);
+    }
+  }
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+function cleanUpNextTick() {
+  if (!draining || !currentQueue) {
+    return;
+  }
+  draining = false;
+  if (currentQueue.length) {
+    queue = currentQueue.concat(queue);
+  } else {
+    queueIndex = -1;
+  }
+  if (queue.length) {
+    drainQueue();
+  }
+}
+function drainQueue() {
+  if (draining) {
+    return;
+  }
+  var timeout = runTimeout(cleanUpNextTick);
+  draining = true;
+  var len = queue.length;
+  while (len) {
+    currentQueue = queue;
+    queue = [];
+    while (++queueIndex < len) {
+      if (currentQueue) {
+        currentQueue[queueIndex].run();
+      }
+    }
+    queueIndex = -1;
+    len = queue.length;
+  }
+  currentQueue = null;
+  draining = false;
+  runClearTimeout(timeout);
+}
+process.nextTick = function (fun) {
+  var args = new Array(arguments.length - 1);
+  if (arguments.length > 1) {
+    for (var i = 1; i < arguments.length; i++) {
+      args[i - 1] = arguments[i];
+    }
+  }
+  queue.push(new Item(fun, args));
+  if (queue.length === 1 && !draining) {
+    runTimeout(drainQueue);
+  }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+  this.fun = fun;
+  this.array = array;
+}
+Item.prototype.run = function () {
+  this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+function noop() {}
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+process.listeners = function (name) {
+  return [];
+};
+process.binding = function (name) {
+  throw new Error('process.binding is not supported');
+};
+process.cwd = function () {
+  return '/';
+};
+process.chdir = function (dir) {
+  throw new Error('process.chdir is not supported');
+};
+process.umask = function () {
+  return 0;
+};
+
+},{}],3:[function(require,module,exports){
+"use strict";
+
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
 var _logger = require("./modules/logger.js");
 var _fileLogger = require("./modules/file-logger.js");
@@ -265,38 +444,37 @@ class SecretFieldToggle {
  */
 class App {
   constructor() {
-    // Initialize core component modules
-    // Each module handles a specific aspect of the application
-    this.logger = new _logger.Logger();
-    this.fileLogger = new _fileLogger.FileLogger();
-    this.settingsManager = new _settingsManager.SettingsManager(this.logger);
-    this.uiManager = new _uiManager.UIManager(this.logger);
-    this.localClient = new _localApiClient.LocalAPIClient();
-    this.tokenManager = new _tokenManager.default(this.logger);
-    this.fileHandler = new _fileHandler.FileHandler(this.logger, this.uiManager);
-    this.versionManager = new _versionManager.VersionManager(this.logger);
+    // Initialize core dependencies with safety checks
+    try {
+      this.logger = new _logger.Logger();
+      this.fileLogger = new _fileLogger.FileLogger();
+      this.settingsManager = new _settingsManager.SettingsManager();
+      this.uiManager = new _uiManager.UIManager();
+      this.localClient = new _localApiClient.LocalAPIClient();
+      this.versionManager = new _versionManager.VersionManager();
 
-    // Initialize secret field manager for secure input handling
-    this.secretFieldToggle = new SecretFieldToggle();
+      // Initialize state variables with safe defaults
+      this.currentView = 'home';
+      this.selectedPopulationId = null;
+      this.selectedPopulationName = null;
+      this.populationChoice = null;
+      this.importErrors = [];
+      this.importSessionId = null;
 
-    // Application state tracking
-    // Tracks current view and operation states to prevent conflicts
-    this.currentView = 'import';
-    this.isImporting = false;
-    this.isExporting = false;
-    this.isDeleting = false;
-    this.isModifying = false;
-
-    // Abort controllers for canceling ongoing operations
-    this.importAbortController = null;
-    this.exportAbortController = null;
-    this.deleteAbortController = null;
-    this.modifyAbortController = null;
-    this.populationPromptShown = false;
-    this.populationChoice = null; // 'override', 'ignore', 'use-csv'
-
-    // Error tracking for import operations
-    this.importErrors = [];
+      // Initialize components that might fail
+      this.secretFieldToggle = null;
+      this.fileHandler = null;
+      this.pingOneClient = null;
+      console.log('✅ App constructor completed successfully');
+    } catch (error) {
+      console.error('❌ Error in App constructor:', error);
+      // Ensure basic functionality even if some components fail
+      this.logger = {
+        error: console.error,
+        warn: console.warn,
+        info: console.log
+      };
+    }
   }
 
   /**
@@ -312,66 +490,140 @@ class App {
     try {
       console.log('Initializing app...');
 
+      // Validate core dependencies before proceeding
+      if (!this.logger) {
+        throw new Error('Logger not initialized');
+      }
+      if (!this.settingsManager) {
+        throw new Error('SettingsManager not initialized');
+      }
+      if (!this.uiManager) {
+        throw new Error('UIManager not initialized');
+      }
+
       // Initialize API Factory first to establish API client infrastructure
       await this.initAPIFactory();
 
-      // Initialize API clients for PingOne communication
-      this.pingOneClient = _apiFactory.apiFactory.getPingOneClient(this.logger, this.settingsManager);
+      // Initialize API clients for PingOne communication with safety check
+      if (_apiFactory.apiFactory) {
+        this.pingOneClient = _apiFactory.apiFactory.getPingOneClient(this.logger, this.settingsManager);
+      } else {
+        this.logger.warn('API Factory not available, PingOne client not initialized');
+      }
 
       // Initialize UI manager for interface management
-      await this.uiManager.init();
+      if (this.uiManager && typeof this.uiManager.init === 'function') {
+        await this.uiManager.init();
+      } else {
+        this.logger.warn('UIManager not properly initialized');
+      }
 
       // Initialize settings manager for configuration handling
-      await this.settingsManager.init();
+      if (this.settingsManager && typeof this.settingsManager.init === 'function') {
+        await this.settingsManager.init();
+      } else {
+        this.logger.warn('SettingsManager not properly initialized');
+      }
 
-      // Initialize file handler for CSV processing
-      this.fileHandler = new _fileHandler.FileHandler(this.logger, this.uiManager);
+      // Initialize file handler for CSV processing with safety check
+      try {
+        this.fileHandler = new _fileHandler.FileHandler(this.logger, this.uiManager);
+      } catch (error) {
+        this.logger.error('Failed to initialize FileHandler:', error);
+        this.fileHandler = null;
+      }
 
-      // Initialize secret field toggle for secure input handling
-      this.secretFieldToggle = new SecretFieldToggle();
-      this.secretFieldToggle.init();
+      // Initialize secret field toggle for secure input handling with safety check
+      try {
+        this.secretFieldToggle = new SecretFieldToggle();
+        if (this.secretFieldToggle && typeof this.secretFieldToggle.init === 'function') {
+          this.secretFieldToggle.init();
+        }
+      } catch (error) {
+        this.logger.error('Failed to initialize SecretFieldToggle:', error);
+        this.secretFieldToggle = null;
+      }
 
-      // Load application settings from storage
-      await this.loadSettings();
+      // Load application settings from storage with safety check
+      try {
+        await this.loadSettings();
+      } catch (error) {
+        this.logger.error('Failed to load settings:', error);
+      }
 
       // Initialize universal token status after UI manager is ready
-      this.updateUniversalTokenStatus();
+      try {
+        this.updateUniversalTokenStatus();
+      } catch (error) {
+        this.logger.error('Failed to update universal token status:', error);
+      }
 
-      // Set up event listeners
-      this.setupEventListeners();
+      // Set up event listeners with safety check
+      try {
+        this.setupEventListeners();
+      } catch (error) {
+        this.logger.error('Failed to setup event listeners:', error);
+      }
 
       // Check disclaimer status and setup if needed
       // Ensures user has accepted terms before using the tool
-      const disclaimerPreviouslyAccepted = this.checkDisclaimerStatus();
-      if (!disclaimerPreviouslyAccepted) {
-        console.log('Disclaimer not previously accepted, setting up disclaimer agreement');
-        // Ensure DOM is ready before setting up disclaimer
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', () => {
+      try {
+        const disclaimerPreviouslyAccepted = this.checkDisclaimerStatus();
+        if (!disclaimerPreviouslyAccepted) {
+          console.log('Disclaimer not previously accepted, setting up disclaimer agreement');
+          // Ensure DOM is ready before setting up disclaimer
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+              this.setupDisclaimerAgreement();
+            });
+          } else {
+            // DOM is already loaded, setup immediately
             this.setupDisclaimerAgreement();
-          });
+          }
         } else {
-          // DOM is already loaded, setup immediately
-          this.setupDisclaimerAgreement();
+          console.log('Disclaimer previously accepted, tool already enabled');
         }
-      } else {
-        console.log('Disclaimer previously accepted, tool already enabled');
+      } catch (error) {
+        this.logger.error('Failed to setup disclaimer:', error);
       }
 
       // Check server connection status to ensure backend is available
-      await this.checkServerConnectionStatus();
+      try {
+        await this.checkServerConnectionStatus();
+      } catch (error) {
+        this.logger.error('Failed to check server connection status:', error);
+      }
 
       // Update import button state after initialization
       // Ensures UI reflects current application state
-      this.updateImportButtonState();
+      try {
+        this.updateImportButtonState();
+      } catch (error) {
+        this.logger.error('Failed to update import button state:', error);
+      }
 
       // Update version information in UI for user reference
-      this.versionManager.updateTitle();
+      try {
+        if (this.versionManager && typeof this.versionManager.updateTitle === 'function') {
+          this.versionManager.updateTitle();
+        }
+      } catch (error) {
+        this.logger.error('Failed to update version information:', error);
+      }
       console.log('App initialization complete');
       console.log("✅ Moved Import Progress section below Import Users button");
     } catch (error) {
       console.error('Error initializing app:', error);
       this.logger.error('App initialization failed', error);
+
+      // Show user-friendly error message
+      try {
+        if (this.uiManager && typeof this.uiManager.showError === 'function') {
+          this.uiManager.showError('Initialization Error', 'Failed to initialize the application. Please refresh the page and try again.');
+        }
+      } catch (uiError) {
+        console.error('Failed to show error message:', uiError);
+      }
     }
   }
   async initAPIFactory() {
@@ -428,6 +680,12 @@ class App {
 
     // Enable the select element
     populationSelect.disabled = false;
+
+    // Ensure event listener is attached (in case dropdown was recreated)
+    this.attachPopulationChangeListener();
+
+    // Update import button state after populations are loaded
+    this.updateImportButtonState();
   }
   showPopulationLoadError() {
     const populationSelect = document.getElementById('import-population-select');
@@ -440,11 +698,18 @@ class App {
   updateImportButtonState() {
     const populationSelect = document.getElementById('import-population-select');
     const hasFile = this.fileHandler.getCurrentFile() !== null;
-    const hasPopulation = populationSelect && populationSelect.value && populationSelect.value !== '';
+
+    // Check both the dropdown value and the stored properties
+    const dropdownValue = populationSelect ? populationSelect.value : '';
+    const storedPopulationId = this.selectedPopulationId || '';
+    const hasPopulation = dropdownValue && dropdownValue !== '' || storedPopulationId && storedPopulationId !== '';
     console.log('=== Update Import Button State ===');
     console.log('Has file:', hasFile);
     console.log('Has population:', hasPopulation);
-    console.log('Population value:', populationSelect ? populationSelect.value : 'No select element');
+    console.log('Dropdown value:', dropdownValue);
+    console.log('Stored population ID:', storedPopulationId);
+    console.log('Stored population name:', this.selectedPopulationName);
+    console.log('Population select element exists:', !!populationSelect);
     console.log('====================================');
 
     // Get both import buttons
@@ -458,6 +723,19 @@ class App {
       bottomImportBtn.disabled = !shouldEnable;
     }
     console.log('Import buttons enabled:', shouldEnable);
+
+    // Update population display in import stats if available
+    if (hasPopulation) {
+      const populationNameElement = document.getElementById('import-population-name');
+      const populationIdElement = document.getElementById('import-population-id');
+      if (populationNameElement) {
+        populationNameElement.textContent = this.selectedPopulationName || populationSelect?.selectedOptions[0]?.text || 'Selected';
+      }
+      if (populationIdElement) {
+        populationIdElement.textContent = this.selectedPopulationId || dropdownValue || 'Set';
+      }
+    }
+
     // At the end, show the population prompt if needed
     this.showPopulationChoicePrompt();
   }
@@ -507,19 +785,7 @@ class App {
     }
 
     // Population selection change listener
-    const populationSelectEl = document.getElementById('import-population-select');
-    if (populationSelectEl) {
-      populationSelectEl.addEventListener('change', e => {
-        const selectedId = populationSelectEl.value;
-        const selectedName = populationSelectEl.selectedOptions[0]?.text || '';
-        this.selectedPopulationId = selectedId;
-        this.selectedPopulationName = selectedName;
-        console.log('[Population] Dropdown changed:', {
-          id: selectedId,
-          name: selectedName
-        });
-      });
-    }
+    this.attachPopulationChangeListener();
 
     // Import event listeners
     const startImportBtn = document.getElementById('start-import-btn');
@@ -779,10 +1045,18 @@ class App {
   async checkServerConnectionStatus() {
     try {
       const response = await this.localClient.get('/api/health');
-      const {
-        pingOneInitialized,
-        lastError
-      } = response;
+
+      // Enhanced safe property extraction with comprehensive fallbacks
+      // Handle various response structures that might be returned
+      const responseData = response?.data || response || {};
+      const serverInfo = responseData?.server || {};
+      const checks = responseData?.checks || {};
+
+      // Safely extract pingOne status with multiple fallback paths
+      const pingOneInitialized = serverInfo?.pingOneInitialized || serverInfo?.pingOne?.initialized || checks?.pingOneConnected === 'ok' || false;
+
+      // Safely extract error information with multiple fallback paths
+      const lastError = serverInfo?.lastError || serverInfo?.error || checks?.pingOneConfigured === 'error' ? 'Configuration error' : null || null;
       if (pingOneInitialized) {
         this.logger.fileLogger.info('Server is connected to PingOne');
         this.uiManager.updateConnectionStatus('connected', 'Connected to PingOne');
@@ -840,9 +1114,13 @@ class App {
         return false;
       }
     } catch (error) {
-      const statusMessage = `Failed to check server status: ${error.message}`;
+      // Handle network errors, malformed responses, or server unavailability
+      const errorMessage = error?.message || 'Unknown error';
+      const statusMessage = `Failed to check server status: ${errorMessage}`;
       this.logger.fileLogger.error('Server connection check failed', {
-        error: error.message
+        error: errorMessage,
+        stack: error?.stack,
+        response: error?.response
       });
       this.uiManager.updateConnectionStatus('error', statusMessage);
 
@@ -873,9 +1151,15 @@ class App {
   showView(view) {
     if (!view) return;
 
-    // Hide all views
+    // Hide all views with safe iteration
     const views = document.querySelectorAll('.view');
-    views.forEach(v => v.style.display = 'none');
+    if (views && views.length > 0) {
+      views.forEach(v => {
+        if (v && v.style) {
+          v.style.display = 'none';
+        }
+      });
+    }
 
     // Show selected view
     const selectedView = document.getElementById(`${view}-view`);
@@ -902,16 +1186,58 @@ class App {
         this.loadPopulations();
       }
 
-      // Update navigation
-      this.uiManager.navItems.forEach(item => {
-        item.classList.remove('active');
-        if (item.getAttribute('data-view') === view) {
-          item.classList.add('active');
-        }
-      });
+      // Update navigation with safe navItems handling
+      this.updateNavigationActiveState(view);
 
       // Update universal token status when switching views
       this.updateUniversalTokenStatus();
+    }
+  }
+
+  /**
+   * Safely update navigation active state
+   * 
+   * Handles navigation item updates with proper null checks and fallbacks.
+   * Prevents crashes when navItems is undefined or DOM elements are missing.
+   * 
+   * @param {string} view - The current view being displayed
+   */
+  updateNavigationActiveState(view) {
+    try {
+      // Get navItems safely with fallback
+      let navItems = [];
+
+      // Try to get navItems from UIManager first
+      if (this.uiManager && this.uiManager.navItems) {
+        navItems = this.uiManager.navItems;
+      } else {
+        // Fallback to direct DOM query
+        navItems = document.querySelectorAll('[data-view]');
+      }
+
+      // Ensure navItems is an array-like object before iterating
+      if (navItems && navItems.length > 0) {
+        navItems.forEach(item => {
+          if (item && item.classList) {
+            item.classList.remove('active');
+            if (item.getAttribute('data-view') === view) {
+              item.classList.add('active');
+            }
+          }
+        });
+      } else {
+        // Log warning if no navigation items found
+        this.logger?.warn('No navigation items found for view update', {
+          view
+        });
+      }
+    } catch (error) {
+      // Log error but don't crash the app
+      console.error('Error updating navigation state:', error);
+      this.logger?.error('Failed to update navigation state', {
+        error: error.message,
+        view
+      });
     }
   }
 
@@ -1039,60 +1365,43 @@ class App {
       // Update import button state after file selection
       this.updateImportButtonState();
 
-      // --- Population conflict detection ---
+      // --- ALWAYS IGNORE CSV POPULATION DATA ---
+      // Get users from CSV for logging purposes only
       const users = this.fileHandler.getParsedUsers ? this.fileHandler.getParsedUsers() : [];
       // Log number of users parsed from CSV
       this.uiManager.debugLog("CSV", `Parsed ${users.length} users from CSV`);
+
+      // Get selected population from UI dropdown
       const populationSelect = document.getElementById('import-population-select');
       const uiPopulationId = populationSelect && populationSelect.value;
+
       // Log selected population
       this.uiManager.debugLog("Population", `Selected population: ${uiPopulationId}`);
-      let hasCsvPopulation = false;
-      if (users.length) {
-        hasCsvPopulation = Object.keys(users[0]).some(h => h.toLowerCase() === 'populationid' || h.toLowerCase() === 'population_id') && users.some(u => u.populationId && u.populationId.trim() !== '');
-      }
-      // If both UI and CSV have population, show conflict modal and require explicit user choice
-      if (uiPopulationId && hasCsvPopulation) {
-        const modal = document.getElementById('population-conflict-modal');
-        if (modal) {
-          modal.style.display = 'flex';
-          // Set up modal buttons for user choice
-          const useUiBtn = document.getElementById('use-ui-population');
-          const useCsvBtn = document.getElementById('use-csv-population');
-          const cancelBtn = document.getElementById('cancel-population-conflict');
-          useUiBtn.onclick = () => {
-            modal.style.display = 'none';
-            // Overwrite all user records with UI populationId
-            users.forEach(u => u.populationId = uiPopulationId);
-            this.populationChoice = 'ui';
-            this.uiManager.logMessage('info', 'Population conflict resolved: using UI dropdown');
-          };
-          useCsvBtn.onclick = () => {
-            modal.style.display = 'none';
-            // Use CSV populationId as-is
-            this.populationChoice = 'csv';
-            this.uiManager.logMessage('warning', 'Population conflict resolved: using CSV file (not recommended)');
-          };
-          cancelBtn.onclick = () => {
-            modal.style.display = 'none';
-            this.populationChoice = null;
-            this.uiManager.logMessage('warning', 'Population conflict prompt cancelled. Defaulting to UI population.');
-            // Default to UI population for safety
-            users.forEach(u => u.populationId = uiPopulationId);
-            this.populationChoice = 'ui';
-          };
-        }
-        // Prevent further processing until user makes a choice
-        return;
-      }
-      // If only UI or only CSV, or after conflict resolved, always use UI population unless user explicitly chose CSV
-      // Prevents cross-population import errors due to incorrect or missing population ID propagation
-      if (uiPopulationId && (!hasCsvPopulation || this.populationChoice !== 'csv')) {
-        users.forEach(u => u.populationId = uiPopulationId);
+
+      // ALWAYS use UI population selection and ignore any CSV population data
+      if (uiPopulationId) {
+        // Overwrite all user records with UI populationId, ignoring any CSV population data
+        users.forEach(u => {
+          // Remove any existing population data from CSV
+          delete u.populationId;
+          delete u.population_id;
+          delete u.populationName;
+          delete u.population_name;
+
+          // Set the UI-selected population
+          u.populationId = uiPopulationId;
+        });
         this.populationChoice = 'ui';
-      } else if (!uiPopulationId && hasCsvPopulation) {
-        this.populationChoice = 'csv';
+        this.uiManager.logMessage('info', 'Using UI dropdown population selection (CSV population data ignored)');
+
+        // Log the population assignment
+        this.uiManager.debugLog("Population", `Assigned UI population ${uiPopulationId} to all ${users.length} users`);
+      } else {
+        // No UI population selected - this will be handled by validation later
+        this.populationChoice = 'ui';
+        this.uiManager.logMessage('warning', 'No population selected in UI dropdown');
       }
+
       // Show population prompt if needed (legacy)
       this.showPopulationChoicePrompt();
     } catch (error) {
@@ -1168,27 +1477,23 @@ class App {
       });
     }
 
-    // SSE connection management variables
-    let sseSource;
-    let sseRetryCount = 0;
-    const maxSseRetries = 3;
-    const retryDelay = 5000;
+    // Initialize SSE status indicator and fallback polling
+    ensureSSEStatusIndicator();
+    this.robustSSE = null;
+    this.fallbackPolling = null;
 
     /**
-     * Establishes SSE connection for real-time import progress updates
+     * Establishes robust SSE connection for real-time import progress updates
      * 
-     * Opens a persistent connection to receive progress events from the server.
-     * Handles various event types: progress updates, errors, and completion.
-     * Includes retry logic for connection failures and comprehensive debugging.
+     * Uses the new RobustEventSource wrapper with exponential backoff,
+     * connection status indicators, and automatic fallback to polling.
      * 
      * @param {string} sessionId - Unique session identifier for this import
      */
-    const connectSSE = sessionId => {
-      // Full SSE lifecycle logging added for connection visibility and debugging
-
+    const connectRobustSSE = sessionId => {
       // Validate sessionId before attempting connection
       if (!sessionId || typeof sessionId !== 'string' || sessionId.trim() === '') {
-        console.error("SSE: ❌ SSE failed: sessionId is undefined or invalid", {
+        console.error("SSE: ❌ Invalid sessionId - cannot establish connection", {
           sessionId
         });
         this.uiManager.debugLog("SSE", "❌ Invalid sessionId - cannot establish connection", {
@@ -1211,72 +1516,60 @@ class App {
       }
 
       // Log SSE connection attempt for debugging
-      console.log("SSE: 🔌 SSE opening with sessionId:", sessionId);
-      this.uiManager.debugLog("SSE", `🔄 Attempting SSE connection with sessionId: ${sessionId}`, {
-        retryCount: sseRetryCount,
-        maxRetries: maxSseRetries,
-        browserSupport: !!window.EventSource
-      });
-      this.uiManager.logMessage('info', `SSE: Opening connection with sessionId: ${sessionId}`);
-      try {
-        // Close existing connection if any
-        if (sseSource) {
-          console.log("SSE: 🔄 Closing existing SSE connection before creating new one");
-          this.uiManager.debugLog("SSE", "🔄 Closing existing SSE connection before creating new one");
-          sseSource.close();
-          sseSource = null;
-        }
+      console.log("SSE: 🔌 Establishing robust SSE connection with sessionId:", sessionId);
+      this.uiManager.debugLog("SSE", `🔄 Establishing robust SSE connection with sessionId: ${sessionId}`);
+      this.uiManager.logMessage('info', `SSE: Opening robust connection with sessionId: ${sessionId}`);
 
-        // Create EventSource for Server-Sent Events connection
-        // This establishes a persistent HTTP connection for real-time updates
-        const sseUrl = `/api/import/progress/${sessionId}`;
-        console.log("SSE: 🔌 Creating EventSource for URL:", sseUrl);
-        this.uiManager.debugLog("SSE", `🔄 Creating EventSource for URL: ${sseUrl}`, {
-          sessionId,
-          url: sseUrl,
-          timestamp: new Date().toISOString()
-        });
-        sseSource = new window.EventSource(sseUrl);
+      // Create robust SSE connection with enhanced features
+      const sseUrl = `/api/import/progress/${sessionId}`;
+      this.robustSSE = new RobustEventSource(sseUrl, {
+        maxRetries: 5,
+        baseDelay: 1000,
+        maxDelay: 30000,
+        // Connection status updates
+        onStatus: (status, data) => {
+          console.log(`SSE: Status update - ${status}`, data);
+          this.uiManager.debugLog("SSE", `Status update: ${status}`, data);
+          updateSSEStatusIndicator(status, false);
 
-        // Track if server has sent an error event to prevent false retries
-        let serverErrorReceived = false;
-        let connectionEstablished = false;
-        let lastHeartbeat = Date.now();
-
-        // Handle connection opened event
-        sseSource.addEventListener('open', event => {
-          lastHeartbeat = Date.now();
-          console.log("SSE: ✅ SSE connection opened:", event);
-
-          // Debug logging to check context binding
-          console.log("SSE: Debug - UI Manager:", this.uiManager);
-          console.log("SSE: Debug - Is showSuccess function:", typeof this.uiManager?.showSuccess);
-          this.uiManager.debugLog("SSE", "✅ SSE connection opened", {
-            readyState: sseSource.readyState,
-            event: event
-          });
-
-          // Reset retry count on successful connection
-          sseRetryCount = 0;
-
-          // Log connection details for debugging
-          this.uiManager.logMessage('info', `SSE connected for import (sessionId: ${sessionId})`);
-
-          // Show connection status to user using the correct method
-          this.uiManager.showStatusMessage('success', 'Real-time connection established', 'Progress updates will be shown in real-time during the import process.');
-        });
-
-        // Handle progress updates from the server
-        // Each event contains current progress, total count, and status information
-        sseSource.addEventListener('progress', event => {
-          lastHeartbeat = Date.now();
-          console.log("SSE: 📩 SSE message received:", event.data);
-          this.uiManager.debugLog("SSE", "📊 Progress event received", {
+          // Update UI based on connection status
+          switch (status) {
+            case 'connecting':
+              this.uiManager.logMessage('info', 'SSE: Connecting to server...');
+              break;
+            case 'connected':
+              this.uiManager.logMessage('success', 'SSE: Real-time connection established');
+              // Stop fallback polling if it was active
+              if (this.fallbackPolling) {
+                stopFallbackPolling();
+                this.fallbackPolling = null;
+              }
+              break;
+            case 'reconnecting':
+              this.uiManager.logMessage('warning', `SSE: Reconnecting... Attempt ${data.attempt}/${data.maxRetries}`);
+              break;
+            case 'failed':
+              this.uiManager.logMessage('error', 'SSE: Connection failed, switching to fallback mode');
+              // Start fallback polling
+              if (!this.fallbackPolling) {
+                this.fallbackPolling = startFallbackPolling(sseUrl, progressData => {
+                  this.handleProgressUpdate(progressData);
+                });
+              }
+              break;
+            case 'disconnected':
+              this.uiManager.logMessage('warning', 'SSE: Connection lost');
+              break;
+          }
+        },
+        // Handle progress messages
+        onMessage: event => {
+          console.log("SSE: 📩 Progress message received:", event.data);
+          this.uiManager.debugLog("SSE", "📊 Progress message received", {
             data: event.data,
             lastEventId: event.lastEventId,
             origin: event.origin
           });
-          this.uiManager.logMessage('info', `SSE: Progress update received`);
           let data;
           try {
             data = JSON.parse(event.data);
@@ -1292,324 +1585,141 @@ class App {
             return;
           }
 
-          // Validate required fields in progress data
-          if (data.current === undefined || data.total === undefined) {
-            console.error("SSE: ❌ Progress event missing required fields:", data);
-            this.uiManager.debugLog("SSE", "❌ Progress event missing required fields", data);
-            this.uiManager.logMessage('error', 'SSE: Progress event missing required fields (current/total)');
-            return;
-          }
-
-          // Log which user is currently being processed
-          if (data.user) {
-            console.log("SSE: 👤 Processing user:", data.user.username || data.user.email || 'unknown');
-            this.uiManager.debugLog("SSE", `👤 Processing user: ${data.user.username || data.user.email || 'unknown'}`);
-          }
-
-          // Log progress update with current/total counts
-          if (data.current !== undefined && data.total !== undefined) {
-            const percentage = Math.round(data.current / data.total * 100);
-            console.log(`SSE: 📈 Progress update: ${data.current} of ${data.total} (${percentage}%)`);
-            this.uiManager.debugLog("SSE", `📈 Progress update: ${data.current} of ${data.total} (${percentage}%)`);
-          }
-
-          // Update UI with progress information
-          // This updates the progress bar, counts, and status messages
-          this.uiManager.updateImportProgress(data.current || 0, data.total || 0, data.message || '', data.counts || {}, data.populationName || '', data.populationId || '');
-
-          // Display status message to user if provided
-          if (data.message) {
-            this.uiManager.logMessage('info', data.message);
-          }
-
-          // Log current user being processed if available
-          if (data.user) {
-            const userName = data.user.username || data.user.email || 'unknown';
-            this.uiManager.logMessage('info', `Processing: ${userName}`);
-          }
-
-          // Handle skipped users with detailed information
-          if (data.status === 'skipped' && data.statusDetails) {
-            const skipReason = data.statusDetails.reason || 'User already exists';
-            const existingUser = data.statusDetails.existingUser;
-
-            // Log detailed skip information
-            console.log("SSE: ⚠️ User skipped:", {
-              user: data.user,
-              reason: skipReason,
-              existingUser: existingUser
-            });
-
-            // Show warning message with skip details
-            let skipMessage = `⚠️ Skipped: ${data.user.username || data.user.email || 'unknown user'}`;
-            if (existingUser) {
-              skipMessage += ` (exists as ${existingUser.username || existingUser.email} in ${existingUser.population})`;
-            } else {
-              skipMessage += ` (${skipReason})`;
-            }
-            this.uiManager.logMessage('warning', skipMessage);
-
-            // Update UI with skip information
-            if (data.counts && data.counts.skipped !== undefined) {
-              console.log(`SSE: 📊 Skipped count updated: ${data.counts.skipped}`);
-              this.uiManager.debugLog("SSE", `📊 Skipped count updated: ${data.counts.skipped}`);
-            }
-          }
-        });
-
-        // Handle explicit server error events
-        // These are sent by the server when import fails due to server-side issues
-        sseSource.addEventListener('error', event => {
-          // Only handle this if it's a server-sent error event with data
-          if (event.data) {
-            serverErrorReceived = true;
-            console.error("SSE: ❌ SSE server error event:", event);
-            this.uiManager.debugLog("SSE", "❌ SSE server error event received", {
-              readyState: sseSource.readyState,
-              error: event,
-              serverErrorReceived
-            });
-            this.uiManager.logMessage('error', 'SSE: Server error event received');
-            let data = {};
-            try {
-              data = JSON.parse(event.data);
-              console.log("SSE: ✅ Server error event data parsed:", data);
-              this.uiManager.debugLog("SSE", "✅ Server error event data parsed", data);
-            } catch (e) {
-              console.error("SSE: ❌ Failed to parse server error event data:", e.message, "Raw data:", event.data);
-              this.uiManager.debugLog("SSE", "❌ Failed to parse server error event data", {
-                rawData: event.data,
-                error: e.message
-              });
-            }
-
-            // Update UI with error information
-            const errorSummary = 'Import failed due to server error';
-            const errorDetails = [data.error || 'SSE server error'];
-            this.uiManager.updateImportErrorStatus(errorSummary, errorDetails);
-            this.uiManager.showError('Import failed', data.error || 'SSE server error');
-
-            // Clean up connection and state
-            console.log("SSE: 🧹 Cleaning up SSE connection after server error");
-            this.uiManager.debugLog("SSE", "🧹 Cleaning up SSE connection after server error");
-            sseSource.close();
-            if (importProgressStreams && typeof importProgressStreams.delete === 'function') {
-              importProgressStreams.delete(sessionId);
-            }
-            this.isImporting = false;
-          }
-          // For connection errors without data, let the onerror handler deal with it
-        });
-
-        // Handle import completion event
-        sseSource.addEventListener('complete', event => {
-          lastHeartbeat = Date.now();
-          console.log("SSE: ✅ Import completion event received:", event.data);
-          this.uiManager.debugLog("SSE", "✅ Import completion event received", {
-            data: event.data,
-            lastEventId: event.lastEventId
-          });
-          this.uiManager.logMessage('success', 'SSE: Import completion event received');
-          let data;
-          try {
-            data = JSON.parse(event.data);
-            console.log("SSE: ✅ Completion data parsed successfully:", data);
-            this.uiManager.debugLog("SSE", "✅ Completion data parsed successfully", data);
-          } catch (e) {
-            console.error("SSE: ❌ Failed to parse completion event data:", e.message, "Raw data:", event.data);
-            this.uiManager.debugLog("SSE", "❌ Failed to parse completion event data", {
-              rawData: event.data,
-              error: e.message
-            });
-            return;
-          }
-
-          // Update final progress and show completion message
-          this.uiManager.updateImportProgress(data.current || 0, data.total || 0, data.message || 'Import completed', data.counts || {}, data.populationName || '', data.populationId || '');
-          if (data.message) {
-            this.uiManager.logMessage('success', data.message);
-          }
-
-          // Clean up connection
-          console.log("SSE: 🧹 Cleaning up SSE connection after completion");
-          this.uiManager.debugLog("SSE", "🧹 Cleaning up SSE connection after completion");
-          sseSource.close();
-          if (importProgressStreams && typeof importProgressStreams.delete === 'function') {
-            importProgressStreams.delete(sessionId);
-          }
-          this.isImporting = false;
-        });
-
-        // Handle population conflict events
-        sseSource.addEventListener('population_conflict', event => {
-          lastHeartbeat = Date.now();
-          console.log("SSE: ⚠️ Population conflict event received:", event.data);
-          this.uiManager.debugLog("SSE", "⚠️ Population conflict event received", {
-            data: event.data,
-            lastEventId: event.lastEventId
-          });
-          this.uiManager.logMessage('warning', 'SSE: Population conflict detected');
-          let data;
-          try {
-            data = JSON.parse(event.data);
-            console.log("SSE: ✅ Population conflict data parsed:", data);
-            this.uiManager.debugLog("SSE", "✅ Population conflict data parsed", data);
-          } catch (e) {
-            console.error("SSE: ❌ Failed to parse population conflict data:", e.message, "Raw data:", event.data);
-            this.uiManager.debugLog("SSE", "❌ Failed to parse population conflict data", {
-              rawData: event.data,
-              error: e.message
-            });
-            return;
-          }
-
-          // Show population conflict modal
-          this.showPopulationConflictModal(data, sessionId);
-        });
-
-        // Handle invalid population events
-        sseSource.addEventListener('invalid_population', event => {
-          lastHeartbeat = Date.now();
-          console.log("SSE: ⚠️ Invalid population event received:", event.data);
-          this.uiManager.debugLog("SSE", "⚠️ Invalid population event received", {
-            data: event.data,
-            lastEventId: event.lastEventId
-          });
-          this.uiManager.logMessage('warning', 'SSE: Invalid population detected');
-          let data;
-          try {
-            data = JSON.parse(event.data);
-            console.log("SSE: ✅ Invalid population data parsed:", data);
-            this.uiManager.debugLog("SSE", "✅ Invalid population data parsed", data);
-          } catch (e) {
-            console.error("SSE: ❌ Failed to parse invalid population data:", e.message, "Raw data:", event.data);
-            this.uiManager.debugLog("SSE", "❌ Failed to parse invalid population data", {
-              rawData: event.data,
-              error: e.message
-            });
-            return;
-          }
-
-          // Show invalid population modal
-          this.showInvalidPopulationModal(data, sessionId);
-        });
-
-        // Handle connection close events
-        sseSource.addEventListener('close', event => {
-          console.warn("SSE: ⚠️ SSE connection closed");
-          this.uiManager.debugLog("SSE", "⚠️ SSE connection closed", {
-            readyState: sseSource.readyState,
+          // Handle different event types
+          this.handleProgressUpdate(data);
+        },
+        // Handle connection opened
+        onOpen: event => {
+          console.log("SSE: ✅ Robust SSE connection opened:", event);
+          this.uiManager.debugLog("SSE", "✅ Robust SSE connection opened", {
             event: event
           });
-          this.uiManager.logMessage('warning', 'SSE: Connection closed');
-
-          // Clean up connection
-          if (importProgressStreams && typeof importProgressStreams.delete === 'function') {
-            importProgressStreams.delete(sessionId);
-          }
-          this.isImporting = false;
-        });
-
-        // Handle connection errors (network, timeout, etc.)
-        // This error handler deals with network-level connection issues
-        sseSource.onerror = event => {
-          console.error("SSE: ❌ SSE connection error:", event);
-          this.uiManager.debugLog("SSE", "❌ SSE connection error", {
-            readyState: sseSource.readyState,
-            error: event,
-            serverErrorReceived
+          this.uiManager.logMessage('info', `SSE connected for import (sessionId: ${sessionId})`);
+          this.uiManager.showStatusMessage('success', 'Real-time connection established', 'Progress updates will be shown in real-time during the import process.');
+        },
+        // Handle connection errors
+        onError: event => {
+          console.error("SSE: ❌ Robust SSE connection error:", event);
+          this.uiManager.debugLog("SSE", "❌ Robust SSE connection error", {
+            error: event
           });
+          this.uiManager.logMessage('error', 'SSE: Connection error occurred');
 
-          // Only handle connection errors if we haven't received a server error
-          if (!serverErrorReceived) {
-            this.uiManager.logMessage('error', 'SSE: Connection error occurred');
-
-            // Only retry if we haven't exceeded max retries
-            if (sseRetryCount < maxSseRetries) {
-              sseRetryCount++;
-              console.warn(`SSE: 🔁 SSE reconnecting... Attempt #${sseRetryCount}`);
-              this.uiManager.debugLog("SSE", `🔁 SSE reconnecting... Attempt #${sseRetryCount}`, {
-                retryCount: sseRetryCount,
-                maxRetries: maxSseRetries
-              });
-              this.uiManager.logMessage('warning', `SSE: Reconnecting... Attempt #${sseRetryCount}`);
-
-              // Close current connection
-              if (sseSource) {
-                sseSource.close();
-                sseSource = null;
-              }
-
-              // Retry connection with exponential backoff
-              const retryDelay = Math.min(1000 * Math.pow(2, sseRetryCount - 1), 30000);
-              console.log(`SSE: ⏱️ Retrying in ${retryDelay}ms`);
-              this.uiManager.logMessage('info', `SSE: Retrying connection in ${retryDelay}ms`);
-              setTimeout(() => {
-                connectSSE(sessionId);
-              }, retryDelay);
-            } else {
-              console.error("SSE: ❌ Max retries exceeded, stopping retries");
-              this.uiManager.debugLog("SSE", "❌ Max retries exceeded", {
-                retryCount: sseRetryCount,
-                maxRetries: maxSseRetries
-              });
-              this.uiManager.logMessage('error', 'SSE: Max retries exceeded, stopping connection attempts');
-
-              // Show user-friendly error message
-              this.uiManager.showError('Connection Failed', `Unable to establish stable connection to server after ${maxSseRetries} attempts. ` + 'Please check your network connection and try again. ' + 'If the problem persists, contact your administrator.');
-
-              // Clean up connection
-              if (sseSource) {
-                sseSource.close();
-                sseSource = null;
-              }
-              if (importProgressStreams && typeof importProgressStreams.delete === 'function') {
-                importProgressStreams.delete(sessionId);
-              }
-              this.isImporting = false;
-            }
-          } else {
-            console.log("SSE: ℹ️ Ignoring connection error because server error was already received");
-            this.uiManager.debugLog("SSE", "ℹ️ Ignoring connection error because server error was already received");
+          // If robust SSE fails completely, start fallback polling
+          if (!this.fallbackPolling) {
+            console.log("SSE: 🔄 Starting fallback polling due to connection failure");
+            this.uiManager.logMessage('warning', 'SSE: Switching to fallback polling mode');
+            this.fallbackPolling = startFallbackPolling(sseUrl, progressData => {
+              this.handleProgressUpdate(progressData);
+            });
           }
-        };
-
-        // Set up heartbeat monitoring with improved logic
-        // Only monitor heartbeat if connection is established and no server error received
-        const heartbeatInterval = setInterval(() => {
-          if (connectionEstablished && !serverErrorReceived) {
-            const timeSinceLastHeartbeat = Date.now() - lastHeartbeat;
-            if (timeSinceLastHeartbeat > 90000) {
-              // 90 seconds - more lenient
-              console.warn("SSE: ⚠️ No heartbeat received for 90 seconds");
-              this.uiManager.debugLog("SSE", "⚠️ No heartbeat received for 90 seconds", {
-                timeSinceLastHeartbeat,
-                lastHeartbeat: new Date(lastHeartbeat).toISOString(),
-                connectionEstablished,
-                serverErrorReceived
-              });
-              this.uiManager.logMessage('warning', 'SSE: No heartbeat received for 90 seconds');
-            }
-          }
-        }, 45000); // Check every 45 seconds - less frequent
-
-        // Clean up heartbeat monitoring when connection closes
-        sseSource.addEventListener('close', () => {
-          clearInterval(heartbeatInterval);
-        });
-
-        // Store connection for cleanup
-        if (importProgressStreams && typeof importProgressStreams.set === 'function') {
-          importProgressStreams.set(sessionId, sseSource);
         }
-      } catch (error) {
-        console.error("SSE: ❌ Error creating SSE connection:", error.message);
-        this.uiManager.debugLog("SSE", "❌ Error creating SSE connection", {
-          error: error.message,
-          stack: error.stack
+      });
+
+      // Start the robust connection
+      robustSSE.connect();
+    };
+
+    /**
+     * Handles progress updates from SSE or fallback polling
+     * 
+     * @param {Object} data - Progress data from server
+     */
+    this.handleProgressUpdate = data => {
+      // Validate required fields in progress data
+      if (data.current === undefined || data.total === undefined) {
+        console.error("Progress: ❌ Progress event missing required fields:", data);
+        this.uiManager.debugLog("Progress", "❌ Progress event missing required fields", data);
+        this.uiManager.logMessage('error', 'Progress: Missing required fields (current/total)');
+        return;
+      }
+
+      // Log which user is currently being processed
+      if (data.user) {
+        console.log("Progress: 👤 Processing user:", data.user.username || data.user.email || 'unknown');
+        this.uiManager.debugLog("Progress", `👤 Processing user: ${data.user.username || data.user.email || 'unknown'}`);
+      }
+
+      // Log progress update with current/total counts
+      if (data.current !== undefined && data.total !== undefined) {
+        const percentage = Math.round(data.current / data.total * 100);
+        console.log(`Progress: 📈 Progress update: ${data.current} of ${data.total} (${percentage}%)`);
+        this.uiManager.debugLog("Progress", `📈 Progress update: ${data.current} of ${data.total} (${percentage}%)`);
+      }
+
+      // Update UI with progress information
+      this.uiManager.updateImportProgress(data.current || 0, data.total || 0, data.message || '', data.counts || {}, data.populationName || '', data.populationId || '');
+
+      // Display status message to user if provided
+      if (data.message) {
+        this.uiManager.logMessage('info', data.message);
+      }
+
+      // Log current user being processed if available
+      if (data.user) {
+        const userName = data.user.username || data.user.email || 'unknown';
+        this.uiManager.logMessage('info', `Processing: ${userName}`);
+      }
+
+      // Handle skipped users with detailed information
+      if (data.status === 'skipped' && data.statusDetails) {
+        const skipReason = data.statusDetails.reason || 'User already exists';
+        const existingUser = data.statusDetails.existingUser;
+
+        // Log detailed skip information
+        console.log("Progress: ⚠️ User skipped:", {
+          user: data.user,
+          reason: skipReason,
+          existingUser: existingUser
         });
-        this.uiManager.logMessage('error', `SSE: Failed to create connection - ${error.message}`);
-        this.uiManager.showError('SSE Connection Error', `Failed to establish connection: ${error.message}`);
+
+        // Show warning message with skip details
+        let skipMessage = `⚠️ Skipped: ${data.user.username || data.user.email || 'unknown user'}`;
+        if (existingUser) {
+          skipMessage += ` (exists as ${existingUser.username || existingUser.email} in ${existingUser.population})`;
+        } else {
+          skipMessage += ` (${skipReason})`;
+        }
+        this.uiManager.logMessage('warning', skipMessage);
+
+        // Update UI with skip information
+        if (data.counts && data.counts.skipped !== undefined) {
+          console.log(`Progress: 📊 Skipped count updated: ${data.counts.skipped}`);
+          this.uiManager.debugLog("Progress", `📊 Skipped count updated: ${data.counts.skipped}`);
+        }
+      }
+
+      // Handle completion
+      if (data.status === 'complete' || data.current === data.total) {
+        console.log("Progress: ✅ Import completed");
+        this.uiManager.logMessage('success', 'Import completed successfully');
+
+        // Clean up connections
+        if (this.robustSSE) {
+          this.robustSSE.close();
+          this.robustSSE = null;
+        }
+        if (this.fallbackPolling) {
+          stopFallbackPolling();
+          this.fallbackPolling = null;
+        }
+        this.isImporting = false;
+      }
+
+      // Handle errors
+      if (data.status === 'error') {
+        console.error("Progress: ❌ Import error:", data.error);
+        this.uiManager.logMessage('error', `Import error: ${data.error || 'Unknown error'}`);
+
+        // Clean up connections
+        if (this.robustSSE) {
+          this.robustSSE.close();
+          this.robustSSE = null;
+        }
+        if (this.fallbackPolling) {
+          stopFallbackPolling();
+          this.fallbackPolling = null;
+        }
         this.isImporting = false;
       }
     };
@@ -1686,12 +1796,12 @@ class App {
       }
       console.log('✅ [IMPORT] Session ID received:', sessionId);
 
-      // Log session ID and establish SSE connection for progress updates
+      // Log session ID and establish robust SSE connection for progress updates
       this.uiManager.debugLog("Import", "Session ID received", {
         sessionId
       });
-      console.log('🔌 [IMPORT] Establishing SSE connection with sessionId:', sessionId);
-      connectSSE(sessionId);
+      console.log('🔌 [IMPORT] Establishing robust SSE connection with sessionId:', sessionId);
+      connectRobustSSE(sessionId);
     } catch (error) {
       console.error('❌ [IMPORT] Error during import process:', error);
       this.uiManager.debugLog("Import", "Error starting import", error);
@@ -1755,16 +1865,26 @@ class App {
       console.error('Population select element not found');
       return null;
     }
-    const selectedPopulationId = populationSelect.value;
-    const selectedPopulationName = populationSelect.selectedOptions[0]?.text || '';
+
+    // Check both dropdown value and stored properties
+    const dropdownValue = populationSelect.value;
+    const dropdownText = populationSelect.selectedOptions[0]?.text || '';
+    const storedPopulationId = this.selectedPopulationId || '';
+    const storedPopulationName = this.selectedPopulationName || '';
+
+    // Use stored values if available, otherwise use dropdown values
+    const selectedPopulationId = storedPopulationId || dropdownValue;
+    const selectedPopulationName = storedPopulationName || dropdownText;
     console.log('=== getCurrentPopulationSelection ===');
-    console.log('Population ID:', selectedPopulationId);
-    console.log('Population Name:', selectedPopulationName);
+    console.log('Dropdown ID:', dropdownValue);
+    console.log('Dropdown Name:', dropdownText);
+    console.log('Stored ID:', storedPopulationId);
+    console.log('Stored Name:', storedPopulationName);
+    console.log('Final ID:', selectedPopulationId);
+    console.log('Final Name:', selectedPopulationName);
     console.log('Select element exists:', !!populationSelect);
-    console.log('Select element value:', populationSelect.value);
-    console.log('Selected option:', populationSelect.selectedOptions[0]);
     console.log('====================================');
-    if (!selectedPopulationId) {
+    if (!selectedPopulationId || selectedPopulationId === '') {
       return null;
     }
     return {
@@ -1794,9 +1914,36 @@ class App {
     };
   }
   cancelImport() {
+    // Abort the import request
     if (this.importAbortController) {
       this.importAbortController.abort();
     }
+
+    // Clean up robust SSE connection if it exists
+    if (this.robustSSE) {
+      console.log("Import: 🧹 Cleaning up robust SSE connection on cancel");
+      this.uiManager.debugLog("Import", "🧹 Cleaning up robust SSE connection on cancel");
+      this.robustSSE.close();
+      this.robustSSE = null;
+    }
+
+    // Stop fallback polling if it's active
+    if (this.fallbackPolling) {
+      console.log("Import: 🧹 Stopping fallback polling on cancel");
+      this.uiManager.debugLog("Import", "🧹 Stopping fallback polling on cancel");
+      stopFallbackPolling();
+      this.fallbackPolling = null;
+    }
+
+    // Update status indicator
+    updateSSEStatusIndicator('disconnected', false);
+
+    // Reset import state
+    this.isImporting = false;
+
+    // Log cancellation
+    this.uiManager.logMessage('info', 'Import cancelled by user');
+    console.log("Import: 🚫 Import cancelled by user");
   }
 
   /**
@@ -2278,8 +2425,7 @@ class App {
       this.showFeatureFlagsStatus('Failed to add feature flag', 'error');
     }
   }
-  showFeatureFlagsStatus(message) {
-    let type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'info';
+  showFeatureFlagsStatus(message, type = 'info') {
     const statusElement = document.getElementById('feature-flags-status');
     if (statusElement) {
       statusElement.textContent = message;
@@ -2956,6 +3102,44 @@ class App {
       this.uiManager.showError('Error', 'Failed to enable tool after disclaimer acceptance.');
     }
   }
+  attachPopulationChangeListener() {
+    const populationSelectEl = document.getElementById('import-population-select');
+    if (!populationSelectEl) {
+      console.error('Population select element not found for event listener');
+      return;
+    }
+
+    // Remove existing listener to prevent duplicates
+    populationSelectEl.removeEventListener('change', this.handlePopulationChange.bind(this));
+
+    // Add the change listener
+    populationSelectEl.addEventListener('change', this.handlePopulationChange.bind(this));
+    console.log('✅ Population change listener attached');
+  }
+  handlePopulationChange(e) {
+    const populationSelectEl = e.target;
+    const selectedId = populationSelectEl.value;
+    const selectedName = populationSelectEl.selectedOptions[0]?.text || '';
+    this.selectedPopulationId = selectedId;
+    this.selectedPopulationName = selectedName;
+    console.log('[Population] Dropdown changed:', {
+      id: selectedId,
+      name: selectedName
+    });
+
+    // Update import button state when population selection changes
+    this.updateImportButtonState();
+
+    // Update population display in import stats
+    const populationNameElement = document.getElementById('import-population-name');
+    const populationIdElement = document.getElementById('import-population-id');
+    if (populationNameElement) {
+      populationNameElement.textContent = selectedName || 'Not selected';
+    }
+    if (populationIdElement) {
+      populationIdElement.textContent = selectedId || 'Not set';
+    }
+  }
 }
 
 // Initialize app when DOM is loaded
@@ -3144,7 +3328,533 @@ if (typeof window.importProgressStreams === 'undefined') {
 }
 const importProgressStreams = window.importProgressStreams;
 
-},{"./modules/api-factory.js":3,"./modules/file-handler.js":6,"./modules/file-logger.js":7,"./modules/local-api-client.js":8,"./modules/logger.js":10,"./modules/pingone-client.js":11,"./modules/settings-manager.js":12,"./modules/token-manager.js":13,"./modules/ui-manager.js":14,"./modules/version-manager.js":15,"@babel/runtime/helpers/interopRequireDefault":1}],3:[function(require,module,exports){
+// ===============================
+// SSE EventSource Wrapper
+// ===============================
+
+/**
+ * Robust SSE (EventSource) wrapper with exponential backoff, connection status events, and full lifecycle logging.
+ * Usage: const sse = new RobustEventSource(url, { onMessage, onOpen, onError, onStatus });
+ */
+class RobustEventSource {
+  constructor(url, {
+    onMessage,
+    onOpen,
+    onError,
+    onStatus,
+    maxRetries = 10,
+    baseDelay = 1000,
+    maxDelay = 30000
+  } = {}) {
+    this.url = url;
+    this.onMessage = onMessage;
+    this.onOpen = onOpen;
+    this.onError = onError;
+    this.onStatus = onStatus;
+    this.maxRetries = maxRetries;
+    this.baseDelay = baseDelay;
+    this.maxDelay = maxDelay;
+    this.retryCount = 0;
+    this.eventSource = null;
+    this.closed = false;
+    this.connect();
+  }
+  connect() {
+    if (this.closed) return;
+    this.eventSource = new EventSource(this.url);
+    this._emitStatus('connecting');
+    this.eventSource.onopen = e => {
+      this.retryCount = 0;
+      this._emitStatus('connected');
+      if (this.onOpen) this.onOpen(e);
+      console.log('[SSE] Connected:', this.url);
+    };
+    this.eventSource.onmessage = e => {
+      if (this.onMessage) this.onMessage(e);
+    };
+    this.eventSource.onerror = e => {
+      this._emitStatus('error');
+      if (this.onError) this.onError(e);
+      console.error('[SSE] Error:', e);
+      this.eventSource.close();
+      if (!this.closed) this._scheduleReconnect();
+    };
+    this.eventSource.onclose = e => {
+      this._emitStatus('closed');
+      console.warn('[SSE] Closed:', e);
+    };
+  }
+  _scheduleReconnect() {
+    if (this.retryCount >= this.maxRetries) {
+      this._emitStatus('failed');
+      console.error('[SSE] Max retries reached. Giving up.');
+      return;
+    }
+    const delay = Math.min(this.baseDelay * Math.pow(2, this.retryCount), this.maxDelay);
+    this.retryCount++;
+    this._emitStatus('reconnecting', delay);
+    console.warn(`[SSE] Reconnecting in ${delay}ms (attempt ${this.retryCount})`);
+    setTimeout(() => this.connect(), delay);
+  }
+  _emitStatus(status, data) {
+    if (this.onStatus) this.onStatus(status, data);
+  }
+  close() {
+    this.closed = true;
+    if (this.eventSource) this.eventSource.close();
+    this._emitStatus('closed');
+  }
+}
+// ===============================
+
+// ===============================
+// SSE Status Indicator & Fallback Polling
+// ===============================
+
+// Add a status indicator to the DOM (if not present)
+function ensureSSEStatusIndicator() {
+  let indicator = document.getElementById('sse-status-indicator');
+  if (!indicator) {
+    indicator = document.createElement('div');
+    indicator.id = 'sse-status-indicator';
+    indicator.style.position = 'fixed';
+    indicator.style.bottom = '80px';
+    indicator.style.right = '30px';
+    indicator.style.zIndex = '2000';
+    indicator.style.padding = '10px 18px';
+    indicator.style.borderRadius = '8px';
+    indicator.style.fontWeight = 'bold';
+    indicator.style.fontSize = '15px';
+    indicator.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+    indicator.style.display = 'flex';
+    indicator.style.alignItems = 'center';
+    indicator.innerHTML = '<span class="sse-status-dot" style="width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:10px;"></span><span class="sse-status-text"></span>';
+    document.body.appendChild(indicator);
+  }
+  return indicator;
+}
+function updateSSEStatusIndicator(status, fallback) {
+  const indicator = ensureSSEStatusIndicator();
+  const dot = indicator.querySelector('.sse-status-dot');
+  const text = indicator.querySelector('.sse-status-text');
+  let color = '#6c757d',
+    msg = 'Unknown';
+  if (status === 'connected') {
+    color = '#28a745';
+    msg = 'Connected';
+  } else if (status === 'connecting') {
+    color = '#ffc107';
+    msg = 'Connecting...';
+  } else if (status === 'reconnecting') {
+    color = '#ffc107';
+    msg = 'Reconnecting...';
+  } else if (status === 'error') {
+    color = '#dc3545';
+    msg = 'Connection Error';
+  } else if (status === 'closed') {
+    color = '#dc3545';
+    msg = 'Disconnected';
+  } else if (status === 'failed') {
+    color = '#dc3545';
+    msg = 'Failed';
+  }
+  dot.style.background = color;
+  text.textContent = msg + (fallback ? ' (Fallback Mode)' : '');
+  indicator.style.background = fallback ? '#fff3cd' : '#f8f9fa';
+  indicator.style.color = fallback ? '#856404' : '#333';
+  indicator.style.border = fallback ? '2px solid #ffc107' : '1px solid #dee2e6';
+  indicator.style.boxShadow = fallback ? '0 2px 12px #ffe066' : '0 2px 8px rgba(0,0,0,0.12)';
+  indicator.title = fallback ? 'Real-time updates unavailable, using fallback polling.' : 'SSE connection status';
+}
+
+// Fallback polling logic
+let fallbackPollingInterval = null;
+function startFallbackPolling(progressUrl, onProgress) {
+  if (fallbackPollingInterval) return;
+  updateSSEStatusIndicator('failed', true);
+  fallbackPollingInterval = setInterval(() => {
+    fetch(progressUrl).then(r => r.json()).then(data => {
+      if (onProgress) onProgress({
+        data: JSON.stringify(data)
+      });
+    }).catch(err => {
+      console.error('[Fallback Polling] Error:', err);
+    });
+  }, 5000); // Poll every 5 seconds
+  console.warn('[SSE] Fallback polling started.');
+}
+function stopFallbackPolling() {
+  if (fallbackPollingInterval) {
+    clearInterval(fallbackPollingInterval);
+    fallbackPollingInterval = null;
+    console.log('[SSE] Fallback polling stopped.');
+  }
+}
+
+// Integrate with import progress logic
+function setupImportProgressSSE(sessionId, onProgress) {
+  const sseUrl = `/api/import/progress/${sessionId}`;
+  let fallbackActive = false;
+  let sse = new RobustEventSource(sseUrl, {
+    onMessage: e => {
+      if (onProgress) onProgress(e);
+    },
+    onOpen: () => {
+      updateSSEStatusIndicator('connected', false);
+      stopFallbackPolling();
+      fallbackActive = false;
+    },
+    onError: () => {
+      updateSSEStatusIndicator('error', fallbackActive);
+    },
+    onStatus: (status, data) => {
+      updateSSEStatusIndicator(status, fallbackActive);
+      if (status === 'failed') {
+        fallbackActive = true;
+        // Start fallback polling
+        startFallbackPolling(`/api/import/progress-fallback/${sessionId}`, onProgress);
+      } else if (status === 'connected') {
+        fallbackActive = false;
+        stopFallbackPolling();
+      }
+    }
+  });
+  return sse;
+}
+// ... existing code ...
+// Example usage in your import logic:
+// const sse = setupImportProgressSSE(sessionId, handleProgressEvent);
+// When done: sse.close(); stopFallbackPolling();
+
+// Centralized error handler for API/network/form errors
+function handleAppError(error, context = {}) {
+  const ui = window.app && window.app.uiManager;
+  let userMessage = 'An unexpected error occurred. Please try again.';
+  let errorType = 'error';
+
+  // Handle different error types with specific user-friendly messages
+  if (error && error.response) {
+    // HTTP error response
+    const status = error.response.status;
+    if (status === 401) {
+      userMessage = 'Session expired – please log in again.';
+      errorType = 'warning';
+    } else if (status === 403) {
+      userMessage = 'Access denied. Please check your permissions.';
+      errorType = 'error';
+    } else if (status === 404) {
+      userMessage = 'Resource not found. Please check your settings.';
+      errorType = 'warning';
+    } else if (status === 429) {
+      userMessage = 'Too many requests. Please wait a moment and try again.';
+      errorType = 'warning';
+    } else if (status >= 500) {
+      userMessage = 'Server error – please try again later.';
+      errorType = 'error';
+    } else {
+      // Try to get error message from response
+      error.response.json().then(data => {
+        userMessage = data.error || userMessage;
+        if (ui) ui.showStatusBar(userMessage, errorType, {
+          autoDismiss: false
+        });
+      }).catch(() => {
+        if (ui) ui.showStatusBar(userMessage, errorType, {
+          autoDismiss: false
+        });
+      });
+      return;
+    }
+  } else if (error && error.message) {
+    // Network or other errors
+    if (error.message.includes('Network') || error.message.includes('fetch')) {
+      userMessage = 'Network error – check your connection and try again.';
+      errorType = 'warning';
+    } else if (error.message.includes('timeout')) {
+      userMessage = 'Request timed out – please try again.';
+      errorType = 'warning';
+    } else if (error.message.includes('aborted')) {
+      userMessage = 'Request was cancelled.';
+      errorType = 'info';
+      return; // Don't show for user-initiated cancellations
+    } else if (error.message.includes('Failed to fetch')) {
+      userMessage = 'Cannot connect to server. Please check your connection.';
+      errorType = 'error';
+    }
+  }
+
+  // Show error in status bar
+  if (ui) {
+    ui.showStatusBar(userMessage, errorType, {
+      autoDismiss: errorType === 'info' || errorType === 'success',
+      duration: errorType === 'info' ? 3000 : 6000
+    });
+  }
+
+  // Log error for debugging
+  console.error('Application error:', error, context);
+}
+
+// Enhanced safe API call wrapper with better error handling
+async function safeApiCall(apiFn, ...args) {
+  try {
+    return await apiFn(...args);
+  } catch (error) {
+    // Handle AbortError separately (user cancellation)
+    if (error.name === 'AbortError') {
+      console.log('Request was cancelled by user');
+      return;
+    }
+
+    // Handle fetch errors
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      handleAppError(new Error('Network error – check your connection.'), {
+        context: 'API call failed',
+        function: apiFn.name
+      });
+    } else {
+      handleAppError(error, {
+        context: 'API call failed',
+        function: apiFn.name
+      });
+    }
+    throw error;
+  }
+}
+
+// Enhanced form validation with status bar feedback
+function validateAndSubmit(form, validateFn, submitFn) {
+  const ui = window.app && window.app.uiManager;
+
+  // Validate form
+  const validation = validateFn(form);
+  if (!validation.valid) {
+    if (ui) {
+      ui.showStatusBar(validation.message, 'warning', {
+        autoDismiss: true,
+        duration: 4000
+      });
+    }
+    return false;
+  }
+
+  // Show loading state
+  if (ui) {
+    ui.showStatusBar('Processing...', 'info', {
+      autoDismiss: false
+    });
+  }
+
+  // Submit with error handling
+  submitFn(form).catch(error => {
+    handleAppError(error, {
+      context: 'Form submission failed'
+    });
+  });
+  return true;
+}
+
+// Enhanced fallback UI for critical errors
+function showFallbackUI(type) {
+  const ui = window.app && window.app.uiManager;
+  switch (type) {
+    case '404':
+      ui && ui.showStatusBar('Page not found. Please return to Home.', 'warning', {
+        autoDismiss: false
+      });
+      break;
+    case '500':
+      ui && ui.showStatusBar('Server error – please try again later.', 'error', {
+        autoDismiss: false
+      });
+      break;
+    case 'maintenance':
+      ui && ui.showStatusBar('Service is under maintenance. Please try again later.', 'info', {
+        autoDismiss: false
+      });
+      break;
+    case 'network':
+      ui && ui.showStatusBar('Network connection lost. Please check your connection.', 'error', {
+        autoDismiss: false
+      });
+      break;
+    case 'timeout':
+      ui && ui.showStatusBar('Request timed out. Please try again.', 'warning', {
+        autoDismiss: true
+      });
+      break;
+    default:
+      ui && ui.showStatusBar('An unexpected error occurred.', 'error', {
+        autoDismiss: false
+      });
+  }
+}
+
+// Enhanced input validation with status bar feedback
+function validateInput(input, rules = {}) {
+  const ui = window.app && window.app.uiManager;
+  const value = input.value.trim();
+
+  // Required field validation
+  if (rules.required && !value) {
+    const message = rules.requiredMessage || 'This field is required.';
+    if (ui) ui.showStatusBar(message, 'warning', {
+      autoDismiss: true
+    });
+    return false;
+  }
+
+  // Email validation
+  if (rules.email && value) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+      const message = rules.emailMessage || 'Please enter a valid email address.';
+      if (ui) ui.showStatusBar(message, 'warning', {
+        autoDismiss: true
+      });
+      return false;
+    }
+  }
+
+  // URL validation
+  if (rules.url && value) {
+    try {
+      new URL(value);
+    } catch {
+      const message = rules.urlMessage || 'Please enter a valid URL.';
+      if (ui) ui.showStatusBar(message, 'warning', {
+        autoDismiss: true
+      });
+      return false;
+    }
+  }
+
+  // Min length validation
+  if (rules.minLength && value.length < rules.minLength) {
+    const message = rules.minLengthMessage || `Must be at least ${rules.minLength} characters.`;
+    if (ui) ui.showStatusBar(message, 'warning', {
+      autoDismiss: true
+    });
+    return false;
+  }
+
+  // Max length validation
+  if (rules.maxLength && value.length > rules.maxLength) {
+    const message = rules.maxLengthMessage || `Must be no more than ${rules.maxLength} characters.`;
+    if (ui) ui.showStatusBar(message, 'warning', {
+      autoDismiss: true
+    });
+    return false;
+  }
+
+  // Custom validation
+  if (rules.custom && !rules.custom(value)) {
+    const message = rules.customMessage || 'Invalid input.';
+    if (ui) ui.showStatusBar(message, 'warning', {
+      autoDismiss: true
+    });
+    return false;
+  }
+  return true;
+}
+
+// === Import Dashboard Logic ===
+function setupImportDashboard(app) {
+  const dashboardTab = document.querySelector('.nav-item[data-view="import-dashboard"]');
+  const dashboardView = document.getElementById('import-dashboard-view');
+  const dropZone = document.getElementById('import-drop-zone');
+  const fileInput = document.getElementById('dashboard-csv-file');
+  const fileFeedback = document.getElementById('dashboard-file-feedback');
+  const importOptions = document.getElementById('dashboard-import-options');
+  const importActions = document.getElementById('dashboard-import-actions');
+  if (!dashboardTab || !dashboardView || !dropZone || !fileInput) return;
+
+  // Navigation: Show dashboard view, hide others
+  dashboardTab.addEventListener('click', () => {
+    document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
+    dashboardView.style.display = 'block';
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    dashboardTab.classList.add('active');
+    // Reset dashboard state
+    fileFeedback.textContent = '';
+    dropZone.classList.remove('dragover');
+    fileInput.value = '';
+    importOptions.innerHTML = '';
+    importActions.innerHTML = '';
+    // Optionally, render import options here
+    renderDashboardImportOptions(app, importOptions, importActions);
+  });
+
+  // Drag-and-drop events
+  dropZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    dropZone.classList.add('dragover');
+  });
+  dropZone.addEventListener('dragleave', e => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+  });
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      handleDashboardFileSelect(files[0], app, fileFeedback, importOptions, importActions);
+    }
+  });
+  // Fallback file input
+  fileInput.addEventListener('change', e => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      handleDashboardFileSelect(files[0], app, fileFeedback, importOptions, importActions);
+    }
+  });
+}
+function handleDashboardFileSelect(file, app, fileFeedback, importOptions, importActions) {
+  if (!file || !file.name.match(/\.csv$|\.txt$/i)) {
+    fileFeedback.textContent = 'Please select a valid CSV or TXT file.';
+    fileFeedback.classList.add('error');
+    return;
+  }
+  fileFeedback.classList.remove('error');
+  fileFeedback.innerHTML = `<i class="fas fa-check-circle" style="color:var(--ping-success-green)"></i> ${file.name} (${file.type || 'text/csv'})`;
+  // Use shared file handler logic
+  app.fileHandler.handleFile(file).then(() => {
+    // Render import options and actions after file is loaded
+    renderDashboardImportOptions(app, importOptions, importActions);
+  }).catch(err => {
+    fileFeedback.textContent = 'File parsing failed: ' + (err.message || err);
+    fileFeedback.classList.add('error');
+  });
+}
+function renderDashboardImportOptions(app, importOptions, importActions) {
+  // Reuse the same import options UI as the classic import view
+  // For simplicity, clone or move the relevant DOM or re-render options here
+  // Example: show a submit button
+  importOptions.innerHTML = '';
+  importActions.innerHTML = '';
+  // Add import options (toggles, etc.) as needed
+  // ...
+  // Add submit button
+  const submitBtn = document.createElement('button');
+  submitBtn.className = 'btn btn-primary';
+  submitBtn.innerHTML = '<i class="fas fa-upload"></i> Start Import';
+  submitBtn.onclick = () => app.startImport();
+  importActions.appendChild(submitBtn);
+}
+
+// Initialize dashboard after app is ready
+window.addEventListener('DOMContentLoaded', () => {
+  if (window.app) {
+    setupImportDashboard(window.app);
+  } else {
+    setTimeout(() => {
+      if (window.app) setupImportDashboard(window.app);
+    }, 1000);
+  }
+});
+
+},{"./modules/api-factory.js":4,"./modules/file-handler.js":8,"./modules/file-logger.js":9,"./modules/local-api-client.js":10,"./modules/logger.js":11,"./modules/pingone-client.js":12,"./modules/settings-manager.js":13,"./modules/token-manager.js":14,"./modules/ui-manager.js":15,"./modules/version-manager.js":16,"@babel/runtime/helpers/interopRequireDefault":1}],4:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3189,8 +3899,7 @@ class APIFactory {
    * @param {string} [baseUrl=''] - Base URL for the API
    * @returns {LocalAPIClient} Local API client instance
    */
-  getLocalClient() {
-    let baseUrl = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+  getLocalClient(baseUrl = '') {
     const cacheKey = `local_${baseUrl}`;
     if (!this.clients.has(cacheKey)) {
       this.clients.set(cacheKey, new _localApiClient.LocalAPIClient(this.logger, baseUrl));
@@ -3279,8 +3988,7 @@ const apiFactory = exports.apiFactory = {
     }
     return defaultAPIFactory.getPingOneClient();
   },
-  getLocalClient: function () {
-    let baseUrl = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+  getLocalClient: (baseUrl = '') => {
     if (!defaultAPIFactory) {
       throw new Error('API Factory not initialized. Call initAPIFactory() first.');
     }
@@ -3292,7 +4000,7 @@ const apiFactory = exports.apiFactory = {
 const getAPIFactory = () => defaultAPIFactory;
 exports.getAPIFactory = getAPIFactory;
 
-},{"./local-api-client.js":8,"./pingone-client.js":11}],4:[function(require,module,exports){
+},{"./local-api-client.js":10,"./pingone-client.js":12}],5:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3309,13 +4017,12 @@ exports.createCircularProgress = createCircularProgress;
  * 
  * Fixes visual duplication and rendering bugs in progress spinner during async operations
  */
-function createCircularProgress() {
-  let {
-    value = 0,
-    label = '',
-    state = '',
-    id = ''
-  } = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+function createCircularProgress({
+  value = 0,
+  label = '',
+  state = '',
+  id = ''
+} = {}) {
   // Ensure proper sizing and rendering calculations
   const size = 80;
   const stroke = 8;
@@ -3394,7 +4101,7 @@ function createCircularProgress() {
   return wrapper;
 }
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3514,13 +4221,50 @@ class CryptoUtils {
 exports.CryptoUtils = CryptoUtils;
 const cryptoUtils = exports.cryptoUtils = new CryptoUtils();
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.ElementRegistry = void 0;
+// ElementRegistry: Centralized DOM element lookup utility
+// Provides safe, memoized access to all required UI elements with logging for missing elements
+// Usage: import { ElementRegistry } from './element-registry.js';
+
+const elementCache = {};
+function getElement(selector, description, required = true) {
+  if (elementCache[selector]) return elementCache[selector];
+  const el = document.querySelector(selector);
+  if (!el && required) {
+    console.warn(`[ElementRegistry] Missing required element: ${description} (${selector})`);
+  } else if (!el) {
+    console.info(`[ElementRegistry] Optional element not found: ${description} (${selector})`);
+  }
+  elementCache[selector] = el;
+  return el;
+}
+const ElementRegistry = exports.ElementRegistry = {
+  // Main UI elements (add more as needed)
+  importButton: () => getElement('#import-btn', 'Import Button'),
+  fileInput: () => getElement('#file-input', 'File Input'),
+  statusBar: () => getElement('#status-bar', 'Status Bar'),
+  dashboardTab: () => getElement('#dashboard-tab', 'Dashboard Tab'),
+  dragDropArea: () => getElement('#drag-drop-area', 'Drag-and-Drop Area', false)
+  // Add all other required selectors here, e.g.:
+  // userTable: () => getElement('#user-table', 'User Table'),
+  // settingsForm: () => getElement('#settings-form', 'Settings Form'),
+  // ...
+};
+
+},{}],8:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.FileHandler = void 0;
+var _elementRegistry = require("./element-registry.js");
 // File: file-handler.js
 // Description: CSV file processing and validation for PingOne user import
 // 
@@ -3565,9 +4309,9 @@ class FileHandler {
     this.currentFile = null;
 
     // Initialize UI elements for file handling
-    this.fileInput = document.getElementById('csv-file');
-    this.fileInfo = document.getElementById('file-info');
-    this.previewContainer = document.getElementById('preview-container');
+    this.fileInput = _elementRegistry.ElementRegistry.fileInput ? _elementRegistry.ElementRegistry.fileInput() : null;
+    this.fileInfo = _elementRegistry.ElementRegistry.fileInfo ? _elementRegistry.ElementRegistry.fileInfo() : null;
+    this.previewContainer = _elementRegistry.ElementRegistry.previewContainer ? _elementRegistry.ElementRegistry.previewContainer() : null;
 
     // Load last file info from localStorage for better UX
     this.lastFileInfo = this.loadLastFileInfo();
@@ -3686,8 +4430,7 @@ class FileHandler {
    * @param {File} file - The selected file
    * @param {string} operationType - The operation type ('import', 'delete', 'modify')
    */
-  saveLastFolderPath(file) {
-    let operationType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'import';
+  saveLastFolderPath(file, operationType = 'import') {
     try {
       let folderPath = null;
 
@@ -3728,8 +4471,7 @@ class FileHandler {
    * @param {string} operationType - The operation type ('import', 'delete', 'modify')
    * @returns {string|null} The last folder path or null if not available
    */
-  getLastFolderPath() {
-    let operationType = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'import';
+  getLastFolderPath(operationType = 'import') {
     try {
       // First try to get operation-specific folder path
       const operationKey = `lastFolderPath_${operationType}`;
@@ -3750,27 +4492,26 @@ class FileHandler {
    * Update the file input label to show last folder path
    * @param {string} operationType - The operation type ('import', 'delete', 'modify')
    */
-  updateFileLabel() {
-    let operationType = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'import';
+  updateFileLabel(operationType = 'import') {
     try {
       // Find the appropriate file label based on operation type
       let fileLabel = null;
       let fileInput = null;
       switch (operationType) {
         case 'import':
-          fileLabel = document.querySelector('label[for="csv-file"] span');
-          fileInput = document.getElementById('csv-file');
+          fileLabel = _elementRegistry.ElementRegistry.fileInputLabel ? _elementRegistry.ElementRegistry.fileInputLabel() : null;
+          fileInput = _elementRegistry.ElementRegistry.fileInput ? _elementRegistry.ElementRegistry.fileInput() : null;
           break;
         case 'delete':
-          fileLabel = document.querySelector('label[for="delete-csv-file"] span');
-          fileInput = document.getElementById('delete-csv-file');
+          fileLabel = _elementRegistry.ElementRegistry.deleteFileInputLabel ? _elementRegistry.ElementRegistry.deleteFileInputLabel() : null;
+          fileInput = _elementRegistry.ElementRegistry.deleteFileInput ? _elementRegistry.ElementRegistry.deleteFileInput() : null;
           break;
         case 'modify':
-          fileLabel = document.querySelector('label[for="modify-csv-file"] span');
-          fileInput = document.getElementById('modify-csv-file');
+          fileLabel = _elementRegistry.ElementRegistry.modifyFileInputLabel ? _elementRegistry.ElementRegistry.modifyFileInputLabel() : null;
+          fileInput = _elementRegistry.ElementRegistry.modifyFileInput ? _elementRegistry.ElementRegistry.modifyFileInput() : null;
           break;
         default:
-          fileLabel = document.querySelector('.file-label span');
+          fileLabel = _elementRegistry.ElementRegistry.fileInputLabel ? _elementRegistry.ElementRegistry.fileInputLabel() : null;
           break;
       }
       if (fileLabel) {
@@ -4287,8 +5028,7 @@ class FileHandler {
    * @param {string} delimiter - Delimiter character
    * @returns {Array<string>} Array of field values
    */
-  parseCSVLine(line) {
-    let delimiter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ',';
+  parseCSVLine(line, delimiter = ',') {
     const result = [];
     let current = '';
     let inQuotes = false;
@@ -4532,7 +5272,7 @@ class FileHandler {
    * @param {string} containerId - The ID of the container element to update
    */
   updateFileInfoForElement(file, containerId) {
-    const container = document.getElementById(containerId);
+    const container = _elementRegistry.ElementRegistry.getById(containerId);
     console.log('updateFileInfoForElement called:', {
       containerId,
       container: !!container,
@@ -4640,7 +5380,7 @@ class FileHandler {
     if (!rows || rows.length === 0) {
       this.previewContainer.innerHTML = '<div class="alert alert-info">No data to display</div>';
       // Disable import button if no rows
-      const importBtnBottom = document.getElementById('start-import-btn-bottom');
+      const importBtnBottom = _elementRegistry.ElementRegistry.startImportBtnBottom ? _elementRegistry.ElementRegistry.startImportBtnBottom() : null;
       if (importBtnBottom) {
         importBtnBottom.disabled = true;
       }
@@ -4674,7 +5414,7 @@ class FileHandler {
     const hasPopulationChoice = this.checkPopulationChoice();
 
     // Enable import button after showing preview (only if population choice is made)
-    const importBtnBottom = document.getElementById('start-import-btn-bottom');
+    const importBtnBottom = _elementRegistry.ElementRegistry.startImportBtnBottom ? _elementRegistry.ElementRegistry.startImportBtnBottom() : null;
     if (importBtnBottom) {
       importBtnBottom.disabled = !hasPopulationChoice;
       this.logger.log(`Import button ${hasPopulationChoice ? 'enabled' : 'disabled'}`, 'debug');
@@ -4688,9 +5428,9 @@ class FileHandler {
    * @returns {boolean} True if a population choice has been made
    */
   checkPopulationChoice() {
-    const selectedPopulationId = document.getElementById('import-population-select')?.value || '';
-    const useDefaultPopulation = document.getElementById('use-default-population')?.checked || false;
-    const useCsvPopulationId = document.getElementById('use-csv-population-id')?.checked || false;
+    const selectedPopulationId = _elementRegistry.ElementRegistry.importPopulationSelect ? _elementRegistry.ElementRegistry.importPopulationSelect().value || '' : '';
+    const useDefaultPopulation = _elementRegistry.ElementRegistry.useDefaultPopulationCheckbox ? _elementRegistry.ElementRegistry.useDefaultPopulationCheckbox().checked || false : false;
+    const useCsvPopulationId = _elementRegistry.ElementRegistry.useCsvPopulationIdCheckbox ? _elementRegistry.ElementRegistry.useCsvPopulationIdCheckbox().checked || false : false;
     const hasSelectedPopulation = selectedPopulationId && selectedPopulationId.trim() !== '';
     return hasSelectedPopulation || useDefaultPopulation || useCsvPopulationId;
   }
@@ -4773,7 +5513,7 @@ class FileHandler {
 }
 exports.FileHandler = FileHandler;
 
-},{}],7:[function(require,module,exports){
+},{"./element-registry.js":7}],9:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4788,8 +5528,7 @@ class FileLogger {
    * Create a new FileLogger instance
    * @param {string} filename - Name of the log file (default: 'client.log')
    */
-  constructor() {
-    let filename = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'client.log';
+  constructor(filename = 'client.log') {
     this.filename = filename;
     this.fileHandle = null;
     this.writableStream = null;
@@ -4982,7 +5721,7 @@ class FileLogger {
 }
 exports.FileLogger = FileLogger;
 
-},{}],8:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5000,8 +5739,7 @@ class LocalAPIClient {
    * @param {Object} logger - Logger instance
    * @param {string} [baseUrl=''] - Base URL for the API (defaults to relative path)
    */
-  constructor(logger) {
-    let baseUrl = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+  constructor(logger, baseUrl = '') {
     this.logger = logger || console;
     this.baseUrl = baseUrl;
   }
@@ -5014,9 +5752,7 @@ class LocalAPIClient {
    * @param {Object} [options] - Additional options
    * @returns {Promise<Object>} Response data
    */
-  async request(method, endpoint) {
-    let data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    let options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+  async request(method, endpoint, data = null, options = {}) {
     const url = `${this.baseUrl}${endpoint}`;
     const startTime = Date.now();
 
@@ -5293,12 +6029,10 @@ class LocalAPIClient {
   }
 
   // Convenience methods for common HTTP methods
-  get(endpoint) {
-    let options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  get(endpoint, options = {}) {
     return this.request('GET', endpoint, null, options);
   }
-  post(endpoint, data) {
-    let options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+  post(endpoint, data, options = {}) {
     return this.request('POST', endpoint, data, options);
   }
 
@@ -5309,8 +6043,7 @@ class LocalAPIClient {
    * @param {Object} options - Additional options
    * @returns {Promise<Object>} Response data
    */
-  async postFormData(endpoint, formData) {
-    let options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+  async postFormData(endpoint, formData, options = {}) {
     const url = `${this.baseUrl}${endpoint}`;
     const startTime = Date.now();
 
@@ -5417,12 +6150,10 @@ class LocalAPIClient {
     // If all retries fail, throw the last error
     throw lastError;
   }
-  put(endpoint, data) {
-    let options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+  put(endpoint, data, options = {}) {
     return this.request('PUT', endpoint, data, options);
   }
-  delete(endpoint) {
-    let options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  delete(endpoint, options = {}) {
     return this.request('DELETE', endpoint, null, options);
   }
 }
@@ -5431,194 +6162,69 @@ class LocalAPIClient {
 exports.LocalAPIClient = LocalAPIClient;
 const localAPIClient = exports.localAPIClient = new LocalAPIClient(console);
 
-},{}],9:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.localAPI = void 0;
-/**
- * Local API Client
- * Handles all API calls to the local server (localhost:4000)
- */
-
-class LocalAPI {
-  /**
-   * Create a new LocalAPI instance
-   * @param {Object} logger - Logger instance
-   */
-  constructor(logger) {
-    this.logger = logger || console;
-    this.baseUrl = ''; // Relative URL for same-origin requests
-  }
-
-  /**
-   * Make an authenticated API request to the local server
-   * @param {string} method - HTTP method (GET, POST, PUT, DELETE, etc.)
-   * @param {string} endpoint - API endpoint (without base URL)
-   * @param {Object} [data] - Request body (for POST/PUT/PATCH)
-   * @param {Object} [options] - Additional options
-   * @returns {Promise<Object>} Response data
-   */
-  async request(method, endpoint) {
-    let data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    let options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
-    const url = `${this.baseUrl}${endpoint}`;
-
-    // Prepare headers
-    const headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      ...options.headers
-    };
-
-    // Log the request
-    this.logger.debug('Local API Request:', {
-      method,
-      url,
-      headers: {
-        ...headers,
-        'Authorization': headers.Authorization ? '***REDACTED***' : 'Not set'
-      },
-      data
-    });
-    try {
-      const response = await fetch(url, {
-        method,
-        headers,
-        credentials: 'include',
-        // Include cookies for session management
-        body: data ? JSON.stringify(data) : undefined
-      });
-      const responseData = await this._handleResponse(response);
-
-      // Log successful response
-      this.logger.debug('Local API Response:', {
-        status: response.status,
-        url,
-        data: responseData
-      });
-      return responseData;
-    } catch (error) {
-      this.logger.error('Local API Error:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Handle API response
-   * @private
-   */
-  async _handleResponse(response) {
-    const contentType = response.headers.get('content-type');
-    let data;
-    if (contentType && contentType.includes('application/json')) {
-      data = await response.json();
-    } else {
-      data = await response.text();
-    }
-    if (!response.ok) {
-      const error = new Error(data.message || 'API request failed');
-      error.status = response.status;
-      error.data = data;
-      throw error;
-    }
-    return data;
-  }
-
-  // Convenience methods for common HTTP methods
-  get(endpoint) {
-    let options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    return this.request('GET', endpoint, null, options);
-  }
-  post(endpoint, data) {
-    let options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-    return this.request('POST', endpoint, data, options);
-  }
-  put(endpoint, data) {
-    let options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-    return this.request('PUT', endpoint, data, options);
-  }
-  delete(endpoint) {
-    let options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    return this.request('DELETE', endpoint, null, options);
-  }
-}
-
-// Export a singleton instance
-const localAPI = exports.localAPI = new LocalAPI(console);
-
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
+(function (process){(function (){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.Logger = void 0;
-var _fileLogger = require("./file-logger.js");
-// File: logger.js
-// Description: Centralized logging system for PingOne user import tool
-// 
-// This module provides comprehensive logging functionality including:
-// - Console logging with different levels (debug, info, warn, error)
-// - File logging with automatic rotation and cleanup
-// - UI logging with real-time updates
-// - Offline log queuing and synchronization
-// - Server-side log integration
-// 
-// Supports both browser and server environments with appropriate fallbacks.
+var _winstonLogger = require("./winston-logger.js");
+var _uiManager = require("./ui-manager.js");
+/**
+ * @fileoverview Winston-compatible logger for frontend environment
+ * 
+ * This module provides a Winston-like logging interface for the frontend
+ * that maintains consistency with server-side Winston logging while
+ * working within browser constraints.
+ * 
+ * Features:
+ * - Winston-compatible API (info, warn, error, debug)
+ * - Structured logging with metadata
+ * - Timestamp formatting
+ * - Log level filtering
+ * - Console and server transport support
+ * - Error stack trace handling
+ * - Environment-aware configuration
+ */
+
+const ui = window.app && window.app.uiManager;
 
 /**
- * Logger Class
- * 
- * Provides centralized logging functionality with support for multiple outputs:
- * console, file, UI, and server. Handles log levels, formatting, and
- * offline/online state management.
- * 
- * @param {Object|HTMLElement} optionsOrLogContainer - Options object or log container element
+ * Winston-compatible logger for browser environment
  */
 class Logger {
-  constructor() {
-    let optionsOrLogContainer = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-    // Handle both old signature (logContainer) and new signature (options object)
-    // This maintains backward compatibility while supporting new features
-    let options = {};
-    let logContainer = null;
-
-    // Determine if using new options format or old logContainer format
-    // New format has maxLogs or fileLogger properties
-    if (optionsOrLogContainer && typeof optionsOrLogContainer === 'object' && (optionsOrLogContainer.maxLogs !== undefined || optionsOrLogContainer.fileLogger !== undefined)) {
-      // New options format with configuration object
-      options = optionsOrLogContainer;
-      logContainer = options.logContainer || null;
-    } else {
-      // Old logContainer format for backward compatibility
-      logContainer = optionsOrLogContainer;
-      options = {};
-    }
+  constructor(logElement = null) {
+    this.logElement = logElement;
     this.logs = [];
-    this.maxLogs = options.maxLogs || 1000;
-    this.offlineLogs = [];
-    this.fileLogger = options.fileLogger || null;
+    this.validCount = 0;
+    this.errorCount = 0;
     this.initialized = false;
-    this.isOnline = typeof window !== 'undefined' ? window.navigator.onLine : true;
-    this.logContainer = null;
-
-    // Flag to prevent server logging feedback loops
     this.serverLoggingEnabled = true;
     this.isLoadingLogs = false;
+    this.offlineLogs = [];
 
-    // Initialize log container
-    this._initLogContainer(logContainer);
+    // Initialize Winston-compatible logger
+    this.winstonLogger = (0, _winstonLogger.createWinstonLogger)({
+      service: 'pingone-import-frontend',
+      environment: process.env.NODE_ENV || 'development',
+      enableServerLogging: true,
+      enableConsoleLogging: true
+    });
+    this.initialize();
+  }
 
-    // Create a safe file logger that won't throw errors
-    if (!this.fileLogger) {
-      this.fileLogger = this._createSafeFileLogger();
+  /**
+   * Initialize the logger
+   */
+  initialize() {
+    try {
+      this.winstonLogger.info('Logger initialized successfully');
+      this.initialized = true;
+    } catch (error) {
+      console.error('Failed to initialize logger:', error);
     }
-
-    // Mark as initialized
-    this.initialized = true;
   }
 
   /**
@@ -5626,6 +6232,8 @@ class Logger {
    */
   disableServerLogging() {
     this.serverLoggingEnabled = false;
+    this.winstonLogger.setServerLogging(false);
+    this.winstonLogger.debug('Server logging disabled');
   }
 
   /**
@@ -5633,6 +6241,8 @@ class Logger {
    */
   enableServerLogging() {
     this.serverLoggingEnabled = true;
+    this.winstonLogger.setServerLogging(true);
+    this.winstonLogger.debug('Server logging enabled');
   }
 
   /**
@@ -5640,6 +6250,7 @@ class Logger {
    */
   setLoadingLogs(isLoading) {
     this.isLoadingLogs = isLoading;
+    this.winstonLogger.debug(`Loading logs flag set to: ${isLoading}`);
   }
 
   /**
@@ -5652,3089 +6263,969 @@ class Logger {
       _logger: null,
       _queue: [],
       _initializing: false,
-      // Public logging methods that match console API
-      log: function () {
-        const [message, data, context] = this._processArgs(...arguments);
-        this._log('info', message, data, context);
-      },
-      debug: function () {
-        const [message, data, context] = this._processArgs(...arguments);
-        this._log('debug', message, data, context);
-      },
-      info: function () {
-        const [message, data, context] = this._processArgs(...arguments);
-        this._log('info', message, data, context);
-      },
-      warn: function () {
-        const [message, data, context] = this._processArgs(...arguments);
-        this._log('warn', message, data, context);
-      },
-      error: function () {
-        const [message, data, context] = this._processArgs(...arguments);
-        this._log('error', message, data, context);
-      },
-      // Helper method to process log arguments
-      _processArgs: function () {
-        let message = '';
-        let data = null;
-        let context = null;
-        if (arguments.length > 0) {
-          if (typeof (arguments.length <= 0 ? undefined : arguments[0]) === 'string') {
-            message = arguments.length <= 0 ? undefined : arguments[0];
-            if (arguments.length > 1 && typeof (arguments.length <= 1 ? undefined : arguments[1]) === 'object') {
-              data = arguments.length <= 1 ? undefined : arguments[1];
-              if (arguments.length > 2 && typeof (arguments.length <= 2 ? undefined : arguments[2]) === 'object') {
-                context = arguments.length <= 2 ? undefined : arguments[2];
-              }
-            }
-          } else if (typeof (arguments.length <= 0 ? undefined : arguments[0]) === 'object') {
-            data = arguments.length <= 0 ? undefined : arguments[0];
-            message = 'Log data';
-            if (arguments.length > 1 && typeof (arguments.length <= 1 ? undefined : arguments[1]) === 'object') {
-              context = arguments.length <= 1 ? undefined : arguments[1];
-            }
-          }
-        }
-        return [message, data, context];
-      },
-      // Internal log method that handles queuing and initialization
-      _log: async function (level, message, data, context) {
-        // Always log to console for debugging
-        const consoleLevel = level === 'log' ? 'info' : level;
-        if (console[consoleLevel]) {
-          console[consoleLevel](`[${level.toUpperCase()}]`, message, data || '', context || '');
-        } else {
-          console.log(`[${level.toUpperCase()}]`, message, data || '', context || '');
-        }
-
-        // If we're not in a browser environment, don't try to use FileLogger
-        if (typeof window === 'undefined') {
-          return;
-        }
-
-        // Use arrow function to maintain 'this' context
-        const logToFile = async () => {
-          // If not initialized, queue the message
-          if (!this._initialized) {
-            this._queue.push({
-              level,
-              message,
-              data,
-              context
-            });
-            // Start initialization if not already in progress
-            if (!this._initializing) {
-              await this._initialize();
-            }
-            return;
-          }
-
-          // If we have a logger, use it
-          if (this._logger) {
-            try {
-              await this._logger[level](message, data, context);
-            } catch (error) {
-              console.error('Error writing to log file:', error);
-            }
-          }
-        };
-
-        // Don't wait for the file logging to complete
-        logToFile().catch(console.error);
-      },
-      // Initialize the file logger
-      _initialize: async function () {
-        if (this._initializing || this._initialized) return;
+      async init() {
+        if (this._initialized || this._initializing) return;
         this._initializing = true;
         try {
-          // Only initialize in a secure context with the File System Access API
-          if (window.isSecureContext && window.showSaveFilePicker) {
-            this._logger = new _fileLogger.FileLogger('client.log');
-            await this._logger.info('Logger initialized');
-
-            // Process any queued messages
-            const queue = [...this._queue];
-            this._queue = [];
-            for (const {
-              level,
-              message,
-              data,
-              context
-            } of queue) {
-              try {
-                await this._logger[level](message, data, context);
-              } catch (err) {
-                console.error('Error processing queued log:', err);
-              }
+          // Simulate file logger initialization
+          this._logger = {
+            log: (level, message, data) => {
+              this.winstonLogger.log(level, message, data);
             }
-          }
-        } catch (error) {
-          console.error('Failed to initialize file logger:', error);
-        } finally {
+          };
           this._initialized = true;
+          this._processQueue();
+        } catch (error) {
+          this.winstonLogger.error('Failed to initialize file logger', {
+            error: error.message
+          });
+        } finally {
           this._initializing = false;
         }
       },
-      // Close the file logger
-      close: async function () {
-        try {
-          if (this._logger && typeof this._logger.close === 'function') {
-            await this._logger.close();
+      _processQueue() {
+        while (this._queue.length > 0) {
+          const {
+            level,
+            message,
+            data
+          } = this._queue.shift();
+          this._logger.log(level, message, data);
+        }
+      },
+      log(level, message, data) {
+        if (this._initialized) {
+          this._logger.log(level, message, data);
+        } else {
+          this._queue.push({
+            level,
+            message,
+            data
+          });
+          if (!this._initializing) {
+            this.init();
           }
-        } catch (error) {
-          console.error('Error closing file logger:', error);
         }
       }
     };
-
-    // Initialize on first user interaction if in browser
-    if (typeof window !== 'undefined') {
-      const initOnInteraction = () => {
-        window.removeEventListener('click', initOnInteraction);
-        window.removeEventListener('keydown', initOnInteraction);
-        logger._initialize().catch(console.error);
-      };
-      window.addEventListener('click', initOnInteraction);
-      window.addEventListener('keydown', initOnInteraction);
-    }
     return logger;
   }
 
-  // Public logging methods that match console API
-  log(message, data, context) {
-    this._addToLogs('info', message, data, context);
-    this.fileLogger.log(message, data, context);
-  }
-  debug(message, data, context) {
-    this._addToLogs('debug', message, data, context);
-    this.fileLogger.debug(message, data, context);
-  }
-  info(message, data, context) {
-    this._addToLogs('info', message, data, context);
-    this.fileLogger.info(message, data, context);
-  }
-  warn(message, data, context) {
-    this._addToLogs('warn', message, data, context);
-    this.fileLogger.warn(message, data, context);
-  }
-  error(message, data, context) {
-    this._addToLogs('error', message, data, context);
-    this.fileLogger.error(message, data, context);
-  }
-
-  // Internal method to add logs to the in-memory array and UI
-  _addToLogs(level, message, data, context) {
-    const timestamp = new Date().toISOString();
-    const logEntry = {
-      timestamp,
-      level,
-      message,
-      data,
-      context
-    };
-
-    // Add to logs array
-    this.logs.push(logEntry);
-
-    // Keep only the most recent logs
-    if (this.logs.length > this.maxLogs) {
-      this.logs.shift();
+  /**
+   * Parse log arguments into structured format
+   * @private
+   */
+  _parseLogArgs(args) {
+    let message = 'Log message';
+    let data = null;
+    let context = null;
+    if (args.length > 0) {
+      if (typeof args[0] === 'string') {
+        message = args[0];
+        if (args.length > 1 && typeof args[1] === 'object') {
+          data = args[1];
+          if (args.length > 2 && typeof args[2] === 'object') {
+            context = args[2];
+          }
+        }
+      } else if (typeof args[0] === 'object') {
+        data = args[0];
+        message = 'Log data';
+        if (args.length > 1 && typeof args[1] === 'object') {
+          context = args[1];
+        }
+      }
     }
-
-    // Update UI if log container exists
-    this._updateLogUI(logEntry);
+    return [message, data, context];
   }
 
   /**
-   * Update the UI with a new log entry
+   * Main logging method with Winston integration
+   */
+  log(level, message, data = {}) {
+    try {
+      // Parse arguments if needed
+      if (typeof level === 'string' && typeof message === 'string') {
+        // Direct call: log(level, message, data)
+        this._logToWinston(level, message, data);
+      } else {
+        // Legacy call: log(message, level)
+        const [parsedMessage, parsedData, context] = this._parseLogArgs(arguments);
+        this._logToWinston(level || 'info', parsedMessage, {
+          ...parsedData,
+          ...context
+        });
+      }
+
+      // Update UI if log element exists
+      this._updateLogUI({
+        level,
+        message,
+        data,
+        timestamp: new Date()
+      });
+    } catch (error) {
+      console.error('Error in logger.log:', error);
+    }
+  }
+
+  /**
+   * Log to Winston with proper formatting
    * @private
-   * @param {Object} logEntry - The log entry to display
+   */
+  _logToWinston(level, message, data = {}) {
+    const logData = {
+      ...data,
+      component: 'frontend-logger',
+      timestamp: new Date().toISOString()
+    };
+    this.winstonLogger.log(level, message, logData);
+  }
+
+  /**
+   * Log info level message
+   */
+  info(message, data = {}) {
+    this.log('info', message, data);
+  }
+
+  /**
+   * Log warn level message
+   */
+  warn(message, data = {}) {
+    this.log('warn', message, data);
+  }
+
+  /**
+   * Log error level message
+   */
+  error(message, data = {}) {
+    this.log('error', message, data);
+    if (ui) ui.showStatusBar(message, 'error', {
+      autoDismiss: false
+    });
+    this.errorCount++;
+    this.updateSummary();
+  }
+
+  /**
+   * Log debug level message
+   */
+  debug(message, data = {}) {
+    this.log('debug', message, data);
+  }
+
+  /**
+   * Log success level message
+   */
+  success(message, data = {}) {
+    this.log('info', message, {
+      ...data,
+      type: 'success'
+    });
+    this.validCount++;
+    this.updateSummary();
+  }
+
+  /**
+   * Log error with stack trace
+   */
+  errorWithStack(message, error, data = {}) {
+    this.winstonLogger.errorWithStack(message, error, data);
+    this.errorCount++;
+    this.updateSummary();
+  }
+
+  /**
+   * Update log UI with new entry
+   * @private
    */
   _updateLogUI(logEntry) {
-    if (!this.logContainer || !(this.logContainer instanceof HTMLElement)) {
-      return;
-    }
+    if (!this.logElement) return;
     try {
       const logElement = document.createElement('div');
-      logElement.className = `log-entry log-${logEntry.level}`;
-      const timeStr = new Date(logEntry.timestamp).toLocaleTimeString();
+      logElement.className = `log-entry ${logEntry.level}`;
 
-      // Create a more structured log entry with expand/collapse functionality
-      const timeElement = document.createElement('span');
-      timeElement.className = 'log-time';
-      timeElement.textContent = timeStr;
-      const levelElement = document.createElement('span');
-      levelElement.className = `log-level ${logEntry.level}`;
-      levelElement.textContent = logEntry.level.toUpperCase();
-      const messageElement = document.createElement('div');
-      messageElement.className = 'log-message';
-      messageElement.textContent = logEntry.message;
+      // Create timestamp
+      const timestamp = document.createElement('span');
+      timestamp.className = 'log-timestamp';
+      timestamp.textContent = new Date(logEntry.timestamp).toLocaleTimeString();
+      logElement.appendChild(timestamp);
 
-      // Create expand icon for entries with additional data
-      const hasDetails = logEntry.data || logEntry.context;
-      let expandIcon = null;
-      if (hasDetails) {
-        expandIcon = document.createElement('span');
-        expandIcon.className = 'log-expand-icon';
-        expandIcon.innerHTML = '▶'; // Right-pointing triangle for collapsed state
-        expandIcon.style.cursor = 'pointer';
-      }
+      // Create level badge
+      const levelBadge = document.createElement('span');
+      levelBadge.className = 'log-level';
+      levelBadge.textContent = logEntry.level.toUpperCase();
+      logElement.appendChild(levelBadge);
 
-      // Create a container for the log header (time, level, message, expand icon)
-      const headerElement = document.createElement('div');
-      headerElement.className = 'log-header';
-      headerElement.style.display = 'flex';
-      headerElement.style.alignItems = 'center';
-      headerElement.style.gap = '8px';
-      headerElement.appendChild(timeElement);
-      headerElement.appendChild(levelElement);
-      headerElement.appendChild(messageElement);
-      if (expandIcon) {
-        headerElement.appendChild(expandIcon);
-      }
-      logElement.appendChild(headerElement);
+      // Create message
+      const message = document.createElement('span');
+      message.className = 'log-message';
+      message.textContent = logEntry.message;
+      logElement.appendChild(message);
 
-      // Create details container for expandable content
-      if (hasDetails) {
+      // Add details if present
+      if (logEntry.data && Object.keys(logEntry.data).length > 0) {
         const detailsElement = document.createElement('div');
         detailsElement.className = 'log-details';
-        detailsElement.style.display = 'none'; // Initially hidden
-
-        // Add data if it exists
-        if (logEntry.data) {
-          const dataSection = document.createElement('div');
-          dataSection.className = 'log-detail-section';
-          const dataTitle = document.createElement('h4');
-          dataTitle.textContent = 'Data';
-          dataSection.appendChild(dataTitle);
-          const dataContent = document.createElement('pre');
-          dataContent.className = 'log-detail-json';
-          dataContent.textContent = JSON.stringify(logEntry.data, null, 2);
-          dataSection.appendChild(dataContent);
-          detailsElement.appendChild(dataSection);
-        }
-
-        // Add context if it exists
-        if (logEntry.context) {
-          const contextSection = document.createElement('div');
-          contextSection.className = 'log-detail-section';
-          const contextTitle = document.createElement('h4');
-          contextTitle.textContent = 'Context';
-          contextSection.appendChild(contextTitle);
-          const contextContent = document.createElement('pre');
-          contextContent.className = 'log-detail-json';
-          contextContent.textContent = JSON.stringify(logEntry.context, null, 2);
-          contextSection.appendChild(contextContent);
-          detailsElement.appendChild(contextSection);
-        }
-
-        // Add details if it exists (as a string)
-        if (logEntry.details) {
-          const detailsSection = document.createElement('div');
-          detailsSection.className = 'log-detail-section';
-          const detailsTitle = document.createElement('h4');
-          detailsTitle.textContent = 'Details';
-          detailsSection.appendChild(detailsTitle);
-          const detailsContent = document.createElement('pre');
-          detailsContent.className = 'log-detail-json';
-          detailsContent.textContent = logEntry.details;
-          detailsSection.appendChild(detailsContent);
-          detailsElement.appendChild(detailsSection);
-        }
+        const detailsTitle = document.createElement('h4');
+        detailsTitle.textContent = 'Details';
+        detailsElement.appendChild(detailsTitle);
+        const detailsContent = document.createElement('pre');
+        detailsContent.className = 'log-detail-json';
+        detailsContent.textContent = JSON.stringify(logEntry.data, null, 2);
+        detailsElement.appendChild(detailsContent);
         logElement.appendChild(detailsElement);
       }
 
-      // === LOG ENTRY INSERTION: NEWEST FIRST ===
-      // Logs are reversed so newest entries show first (top of the list)
-      // Makes recent events immediately visible without scrolling
-      // Maintain this ordering for all future log-related features
-      if (this.logContainer.firstChild) {
-        this.logContainer.insertBefore(logElement, this.logContainer.firstChild);
+      // Insert at top (newest first)
+      if (this.logElement.firstChild) {
+        this.logElement.insertBefore(logElement, this.logElement.firstChild);
       } else {
-        this.logContainer.appendChild(logElement);
+        this.logElement.appendChild(logElement);
       }
 
-      // Auto-scroll to top since newest entries are at the top
-      this.logContainer.scrollTop = 0;
+      // Auto-scroll to top
+      this.logElement.scrollTop = 0;
 
-      // Limit the number of log entries in the UI
+      // Limit UI logs
       const maxUILogs = 100;
-      while (this.logContainer.children.length > maxUILogs) {
-        this.logContainer.removeChild(this.logContainer.lastChild);
+      while (this.logElement.children.length > maxUILogs) {
+        this.logElement.removeChild(this.logElement.lastChild);
       }
     } catch (error) {
       console.error('Error updating log UI:', error);
     }
   }
-  _initLogContainer(logContainer) {
+
+  /**
+   * Send log to server
+   * @private
+   */
+  async _sendToServer(logEntry) {
+    if (!this.serverLoggingEnabled || this.isLoadingLogs) {
+      return;
+    }
     try {
-      if (logContainer && typeof logContainer === 'string') {
-        this.logContainer = document.querySelector(logContainer);
-      } else if (logContainer instanceof HTMLElement) {
-        this.logContainer = logContainer;
-      } else {
-        this.logContainer = document.getElementById('log-entries') || document.createElement('div');
-      }
+      await fetch('/api/logs/ui', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          level: logEntry.level,
+          message: logEntry.message,
+          data: logEntry.data
+        })
+      });
     } catch (error) {
-      console.error('Error initializing log container:', error);
+      this.winstonLogger.warn('Failed to send log to server', {
+        error: error.message
+      });
+      this.offlineLogs.push(logEntry);
     }
   }
-  handleOnline() {
-    this.isOnline = true;
-    this.log('Internet connection restored', 'info');
-    this.processOfflineLogs();
-  }
-  handleOffline() {
-    this.isOnline = false;
-    this.log('Internet connection lost, logging to memory', 'warn');
-  }
-  async processOfflineLogs() {
-    if (this.offlineLogs.length === 0) return;
-    this.log(`Processing ${this.offlineLogs.length} queued logs...`, 'info');
-    for (const logEntry of this.offlineLogs) {
-      try {
-        await this.fileLogger.log(logEntry.level, logEntry.message, logEntry.data);
-      } catch (error) {
-        console.error('Error processing queued log:', error);
-      }
-    }
-    this.offlineLogs = [];
-    this.log('Finished processing queued logs', 'info');
-  }
-  async log(level, message) {
-    let data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-    const timestamp = new Date().toISOString();
-    const logEntry = {
-      level,
-      message,
-      data,
-      timestamp
-    };
 
-    // Add to in-memory logs
-    this.logs.push(logEntry);
-
-    // Keep logs under maxLogs limit
-    if (this.logs.length > this.maxLogs) {
-      this.logs.shift();
-    }
-
-    // Log to console
-    const logFn = console[level] || console.log;
-    logFn(`[${timestamp}] [${level.toUpperCase()}] ${message}`, data);
-
-    // Save to file logger if available
-    if (this.fileLogger) {
-      try {
-        // Use the appropriate log level method on fileLogger
-        const logMethod = this.fileLogger[level] || this.fileLogger.info;
-        if (typeof logMethod === 'function') {
-          await logMethod.call(this.fileLogger, message, data);
-        } else {
-          console.warn(`Log method '${level}' not available on fileLogger`);
-        }
-      } catch (error) {
-        console.error('Error saving log to file:', error);
-      }
-    }
-
-    // Send log to server only if server logging is enabled and we're not loading logs
-    if (this.serverLoggingEnabled && !this.isLoadingLogs) {
-      try {
-        // Additional check: if we're currently fetching logs, skip server logging entirely
-        if (window.location && window.location.href && window.location.href.includes('/api/logs')) {
-          return logEntry; // Skip server logging if we're on a logs-related page
-        }
-
-        // Check if we're in a logging operation by looking at the call stack
-        const stack = new Error().stack;
-        if (stack && (stack.includes('loadAndDisplayLogs') || stack.includes('/api/logs'))) {
-          return logEntry; // Skip server logging if called from log loading functions
-        }
-        await fetch('/api/logs/ui', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            level,
-            message,
-            data
-          })
-        });
-      } catch (error) {
-        console.error('Error sending log to server:', error);
-        this.offlineLogs.push(logEntry);
-      }
-    } else {
-      // Log why we're skipping server logging
-      if (!this.serverLoggingEnabled) {
-        console.debug('Skipping server logging: disabled');
-      }
-      if (this.isLoadingLogs) {
-        console.debug('Skipping server logging: loading logs');
-      }
-    }
-
-    // Update UI if log container exists
-    this._updateLogUI(logEntry);
-    return logEntry;
-  }
-  _updateLogUI(logEntry) {
-    if (!this.logContainer) return;
-    const logElement = document.createElement('div');
-    logElement.className = `log-entry log-${logEntry.level}`;
-    const timestamp = new Date(logEntry.timestamp).toLocaleTimeString();
-    logElement.innerHTML = `
-            <span class="log-timestamp">[${timestamp}]</span>
-            <span class="log-level">${logEntry.level.toUpperCase()}</span>
-            <span class="log-message">${logEntry.message}</span>
-        `;
-    if (logEntry.data && Object.keys(logEntry.data).length > 0) {
-      const dataElement = document.createElement('pre');
-      dataElement.className = 'log-data';
-      dataElement.textContent = JSON.stringify(logEntry.data, null, 2);
-      logElement.appendChild(dataElement);
-    }
-    this.logContainer.appendChild(logElement);
-    this.logContainer.scrollTop = this.logContainer.scrollHeight;
-  }
+  /**
+   * Render all logs to UI
+   */
   renderLogs() {
-    if (!this.logContainer) return;
-
-    // Clear existing logs
-    this.logContainer.innerHTML = '';
-
-    // Add all logs to the container
+    if (!this.logElement) return;
+    this.logElement.innerHTML = '';
     this.logs.forEach(log => this._updateLogUI(log));
-
-    // Scroll to bottom
-    this.logContainer.scrollTop = this.logContainer.scrollHeight;
+    this.logElement.scrollTop = this.logElement.scrollHeight;
   }
+
+  /**
+   * Clear all logs
+   */
   clearLogs() {
     this.logs = [];
-    if (this.logContainer) {
-      this.logContainer.innerHTML = '';
+    if (this.logElement) {
+      this.logElement.innerHTML = '';
     }
+    this.winstonLogger.info('Logs cleared');
   }
+
+  /**
+   * Get all logs
+   */
   getLogs() {
     return [...this.logs];
   }
-  debug(message) {
-    let data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    return this.log('debug', message, data);
+
+  /**
+   * Update summary display
+   */
+  updateSummary() {
+    // Implementation depends on UI structure
+    this.winstonLogger.debug('Summary updated', {
+      validCount: this.validCount,
+      errorCount: this.errorCount
+    });
   }
-  info(message) {
-    let data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    return this.log('info', message, data);
-  }
-  success(message) {
-    let data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    return this.log('success', message, data);
-  }
-  warn(message) {
-    let data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    return this.log('warn', message, data);
-  }
-  error(message) {
-    let data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    return this.log('error', message, data);
+
+  /**
+   * Clear summary
+   */
+  clearSummary() {
+    this.validCount = 0;
+    this.errorCount = 0;
+    this.winstonLogger.debug('Summary cleared');
   }
 }
+
+// Export the Logger class
 exports.Logger = Logger;
 
-},{"./file-logger.js":7}],11:[function(require,module,exports){
+}).call(this)}).call(this,require('_process'))
+},{"./ui-manager.js":15,"./winston-logger.js":17,"_process":2}],12:[function(require,module,exports){
+(function (process){(function (){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.PingOneClient = void 0;
-var _localApi = require("./local-api.js");
+exports.pingOneClient = exports.PingOneClient = void 0;
+var _winstonLogger = require("./winston-logger.js");
+var _uiManager = require("./ui-manager.js");
 /**
- * PingOne API Client
- * Handles all API calls to the PingOne API through the local proxy
+ * @fileoverview PingOne Client Class
+ * 
+ * Handles authentication and API communication with PingOne services.
+ * Manages token acquisition, caching, and API requests with Winston logging.
+ * 
+ * Features:
+ * - Token management with localStorage caching
+ * - Automatic token refresh
+ * - API request handling with retry logic
+ * - User import and modification operations
+ * - Winston logging integration
  */
 
+const ui = window.app && window.app.uiManager;
+function handleClientError(error) {
+  let userMessage = 'An unexpected error occurred. Please try again.';
+  if (error && error.message) {
+    if (error.message.includes('Network')) {
+      userMessage = 'Network error – check your connection.';
+    } else if (error.message.includes('timeout')) {
+      userMessage = 'Request timed out – try again.';
+    } else if (error.message.includes('401')) {
+      userMessage = 'Session expired – please log in again.';
+    } else if (error.message.includes('404')) {
+      userMessage = 'Resource not found.';
+    }
+  }
+  if (ui) ui.showStatusBar(userMessage, 'error');
+}
+
+/**
+ * PingOne Client Class
+ * 
+ * Manages PingOne API authentication and requests with Winston logging.
+ */
 class PingOneClient {
-  /**
-   * Create a new PingOneClient instance
-   * @param {Object} logger - Logger instance
-   * @param {Object} settingsManager - Settings manager instance
-   */
-  constructor(logger, settingsManager) {
-    this.logger = logger || console;
-    this.settingsManager = settingsManager;
-    this.basePath = '/api/pingone';
-    this.localAPI = _localApi.localAPI; // Store localAPI for reuse
-    this.accessToken = null; // Initialize accessToken
+  constructor() {
+    // Initialize Winston logger
+    this.logger = (0, _winstonLogger.createWinstonLogger)({
+      service: 'pingone-import-client',
+      environment: process.env.NODE_ENV || 'development'
+    });
+    this.accessToken = null;
+    this.tokenExpiry = null;
+    this.baseUrl = '/api/pingone';
+    this.initialize();
   }
 
   /**
-   * Get current settings from settings manager
-   * @returns {Object} Current settings
+   * Initialize the client
    */
-  getSettings() {
-    return this.settingsManager.getSettings();
-  }
-
-  /**
-   * Get the remaining time for the current cached token
-   * @returns {Object|null} Object with timeRemaining (seconds) and formatted time, or null if no valid token
-   */
-  getCurrentTokenTimeRemaining() {
+  initialize() {
     try {
-      const token = this.getCachedToken();
-      if (!token) {
-        return null;
-      }
-      const expiry = localStorage.getItem('pingone_token_expiry');
-      if (!expiry) {
-        return null;
-      }
-      const expiryTime = parseInt(expiry, 10);
-      if (isNaN(expiryTime)) {
-        return null;
-      }
-      const now = Date.now();
-      const timeRemainingSeconds = Math.max(0, Math.floor((expiryTime - now) / 1000));
-
-      // Format the time remaining
-      const hours = Math.floor(timeRemainingSeconds / 3600);
-      const minutes = Math.floor(timeRemainingSeconds % 3600 / 60);
-      const seconds = timeRemainingSeconds % 60;
-      let formattedTime = '';
-      if (hours > 0) {
-        formattedTime = `${hours}h ${minutes}m ${seconds}s`;
-      } else if (minutes > 0) {
-        formattedTime = `${minutes}m ${seconds}s`;
-      } else {
-        formattedTime = `${seconds}s`;
-      }
-      return {
-        timeRemaining: timeRemainingSeconds,
-        formattedTime: formattedTime,
-        isExpired: timeRemainingSeconds <= 0
-      };
+      this.loadTokenFromStorage();
+      this.logger.info('PingOne client initialized successfully');
     } catch (error) {
-      console.error('Error getting token time remaining:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Get the worker token from localStorage if available and not expired
-   * @returns {string|null} Cached token or null if not available or expired
-   */
-  getCachedToken() {
-    try {
-      // Check if localStorage is available
-      if (typeof localStorage === 'undefined' || typeof window === 'undefined') {
-        return null;
-      }
-
-      // Check if localStorage is accessible (it might be disabled in private browsing)
-      const testKey = 'pingone_test_key';
-      try {
-        localStorage.setItem(testKey, testKey);
-        localStorage.removeItem(testKey);
-      } catch (e) {
-        console.warn('localStorage is not available:', e.message);
-        return null;
-      }
-      const token = localStorage.getItem('pingone_worker_token');
-      const expiry = localStorage.getItem('pingone_token_expiry');
-      if (!token || !expiry) {
-        return null;
-      }
-      const expiryTime = parseInt(expiry, 10);
-
-      // Check if expiryTime is a valid number
-      if (isNaN(expiryTime)) {
-        console.warn('Invalid token expiry time');
-        return null;
-      }
-      const now = Date.now();
-
-      // If token is expired or will expire in the next 5 minutes, return null
-      if (now >= expiryTime - 5 * 60 * 1000) {
-        return null;
-      }
-      return token;
-    } catch (error) {
-      console.error('Error accessing token cache:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Get an access token, using cached one if available and valid
-   * @returns {Promise<string>} Access token
-   */
-  async getAccessToken() {
-    console.log('[DEBUG] getAccessToken called');
-    // Check for cached token first
-    const cachedToken = this.getCachedToken();
-    if (cachedToken) {
-      console.log('[DEBUG] Using cached token:', cachedToken.substring(0, 8) + '...');
-      return cachedToken;
-    }
-    try {
-      console.log('[DEBUG] Fetching token from /api/pingone/get-token');
-      const response = await fetch('/api/pingone/get-token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
+      this.logger.error('Failed to initialize PingOne client', {
+        error: error.message
       });
-      console.log('[DEBUG] Fetch response:', response);
-      if (!response.ok) {
-        let errorMsg = `Failed to get access token: ${response.status}`;
-        try {
-          const errorData = await response.json();
-          errorMsg += errorData.message ? ` - ${errorData.message}` : '';
-        } catch (e) {
-          // Ignore JSON parse errors
-        }
-        console.error('[DEBUG] Fetch error:', errorMsg);
-        if (window.app && window.app.uiManager) {
-          window.app.uiManager.showNotification('❌ ' + errorMsg, 'error');
-        }
-        throw new Error(errorMsg);
-      }
-      const data = await response.json();
-      console.log('[DEBUG] Data received from server:', data);
-      if (!data.access_token) {
-        console.warn('[TOKEN] No access_token in server response:', data);
-        if (window.app && window.app.uiManager) {
-          window.app.uiManager.showNotification('⚠️ No token received from server. Please check your PingOne credentials and try again.', 'warning');
-        }
-        return null;
-      }
-      let tokenSaved = false;
-      try {
-        if (typeof localStorage !== 'undefined' && typeof window !== 'undefined') {
-          const expiryTime = Date.now() + data.expires_in * 1000;
-          try {
-            localStorage.setItem('pingone_worker_token', data.access_token);
-            localStorage.setItem('pingone_token_expiry', expiryTime.toString());
-            tokenSaved = true;
-            console.log('[DEBUG] Token saved to localStorage:', {
-              token: data.access_token ? data.access_token.substring(0, 8) + '...' : null,
-              expiry: expiryTime,
-              expires_in: data.expires_in
-            });
-            console.log('[DEBUG] localStorage now:', {
-              pingone_worker_token: localStorage.getItem('pingone_worker_token'),
-              pingone_token_expiry: localStorage.getItem('pingone_token_expiry')
-            });
-            if (this.logger && this.logger.info) {
-              this.logger.info('[TOKEN] Saved to localStorage', {
-                token: data.access_token ? data.access_token.substring(0, 8) + '...' : null,
-                expiry: expiryTime,
-                expires_in: data.expires_in
-              });
-            }
-          } catch (storageError) {
-            console.warn('Failed to store token in localStorage:', storageError);
-            if (this.logger && this.logger.error) {
-              this.logger.error('[TOKEN] Failed to store token in localStorage', storageError);
-            }
-            if (window.app && window.app.uiManager) {
-              window.app.uiManager.showNotification('❌ Failed to save token in your browser. Please check your browser settings or try another browser.', 'error');
-            }
-          }
-        }
-      } catch (error) {
-        console.warn('Error accessing localStorage:', error);
-        if (this.logger && this.logger.error) {
-          this.logger.error('[TOKEN] Error accessing localStorage', error);
-        }
-        if (window.app && window.app.uiManager) {
-          window.app.uiManager.showNotification('❌ Error accessing browser storage. Token may not be saved.', 'error');
-        }
-      }
-      this.accessToken = data.access_token; // Cache the token
-      if (tokenSaved) {
-        // Calculate time remaining with better formatting
-        let timeLeftMsg = '';
-        if (data.expires_in) {
-          const hours = Math.floor(data.expires_in / 3600);
-          const minutes = Math.floor(data.expires_in % 3600 / 60);
-          const seconds = data.expires_in % 60;
-          if (hours > 0) {
-            timeLeftMsg = ` (expires in ${hours}h ${minutes}m ${seconds}s)`;
-          } else if (minutes > 0) {
-            timeLeftMsg = ` (expires in ${minutes}m ${seconds}s)`;
-          } else {
-            timeLeftMsg = ` (expires in ${seconds}s)`;
-          }
-        }
-        const msg = `✅ New token acquired. Time left on token: ${timeLeftMsg.replace(/^ \(expires in |\)$/g, '')}`;
-        if (window.app && window.app.uiManager) {
-          window.app.uiManager.updateConnectionStatus('connected', msg);
-          window.app.uiManager.showNotification(msg, 'success');
-
-          // Also log to console if DEBUG_MODE is enabled
-          if (window.DEBUG_MODE) {
-            console.log('Token acquisition successful:', {
-              tokenLength: data.access_token ? data.access_token.length : 0,
-              expiresIn: data.expires_in,
-              timeLeft: timeLeftMsg.replace(/^ \(expires in |\)$/g, ''),
-              expiryTime: expiryTime
-            });
-          }
-        }
-      }
-      return data.access_token;
-    } catch (error) {
-      console.error('[DEBUG] Error in getAccessToken:', error);
-      this.logger.error('Error getting access token:', error);
-      throw error;
     }
   }
 
   /**
-   * Make an authenticated API request to PingOne
-   * @param {string} method - HTTP method (GET, POST, PUT, DELETE, etc.)
-   * @param {string} endpoint - API endpoint (without base URL)
-   * @param {Object} [data] - Request body (for POST/PUT/PATCH)
-   * @param {Object} [options] - Additional options
-   * @returns {Promise<Object>} Response data
+   * Load token from localStorage
    */
-  async request(method, endpoint) {
-    let data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    let options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
-    const settings = this.getSettings();
-    const url = `${this.basePath}${endpoint}`;
-    const startTime = Date.now();
-
-    // Get access token for all requests
-    if (!this.accessToken) {
-      await this.getAccessToken();
-    }
-
-    // Prepare headers
-    const headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': `Bearer ${this.accessToken}`
-    };
-
-    // Log the request with minimal details to avoid rate limiting
-    const requestLog = {
-      type: 'api_request',
-      method,
-      url,
-      timestamp: new Date().toISOString(),
-      source: 'pingone-client'
-    };
-    this.logger.debug('🔄 PingOne API Request:', requestLog);
-
-    // Abort support
-    if (options.signal && options.signal.aborted) {
-      throw new DOMException('Request aborted', 'AbortError');
-    }
-    let abortListener;
-    if (options.signal) {
-      abortListener = () => {
-        throw new DOMException('Request aborted', 'AbortError');
-      };
-      options.signal.addEventListener('abort', abortListener);
-    }
-
-    // Retry logic
-    let lastError = null;
-    for (let attempt = 1; attempt <= (options.retries || 3); attempt++) {
-      try {
-        console.log(`[REQUEST] Making API request (attempt ${attempt}): ${method} ${url}`);
-        // Pass signal to localAPI.request if supported
-        const response = await this.localAPI.request(method, url, data, {
-          ...options,
-          headers,
-          signal: options.signal
-        });
-        console.log(`[REQUEST] API request completed (attempt ${attempt}):`, response);
-
-        // Log successful response with minimal details
-        const responseLog = {
-          type: 'api_response',
-          status: 200,
-          method,
-          duration: Date.now() - startTime,
-          attempt: attempt,
-          source: 'pingone-client'
-        };
-        this.logger.debug('✅ PingOne API Response:', responseLog);
-        if (options.signal && abortListener) {
-          options.signal.removeEventListener('abort', abortListener);
-        }
-        return response;
-      } catch (error) {
-        if (options.signal && options.signal.aborted) {
-          if (abortListener) options.signal.removeEventListener('abort', abortListener);
-          throw new DOMException('Request aborted', 'AbortError');
-        }
-        lastError = error;
-        this.logger.error(`PingOne API Error (attempt ${attempt}/${options.retries || 3}):`, error);
-
-        // Get the friendly error message if available
-        const friendlyMessage = error.friendlyMessage || error.message;
-        const isRateLimit = error.status === 429 || error.message.includes('429');
-        const isBadRequest = error.status === 400;
-
-        // Calculate baseDelay and delay here, before using them
-        const baseDelay = isRateLimit ? (options.retryDelay || 1000) * 2 : options.retryDelay || 1000;
-        const delay = baseDelay * Math.pow(2, attempt - 1);
-
-        // Show appropriate UI messages based on error type
-        if (window.app && window.app.uiManager) {
-          if (isRateLimit) {
-            if (attempt < (options.retries || 3)) {
-              // Use enhanced rate limit warning with retry information
-              window.app.uiManager.showRateLimitWarning(friendlyMessage, {
-                isRetrying: true,
-                retryAttempt: attempt,
-                maxRetries: options.retries || 3,
-                retryDelay: delay
-              });
-            } else {
-              window.app.uiManager.showError(friendlyMessage);
-            }
-          } else if (isBadRequest) {
-            window.app.uiManager.showError(friendlyMessage);
-          } else if (attempt === (options.retries || 3)) {
-            window.app.uiManager.showError(friendlyMessage);
-          }
-        }
-
-        // If this is the last attempt, throw with friendly message
-        if (attempt === (options.retries || 3)) {
-          if (options.signal && abortListener) options.signal.removeEventListener('abort', abortListener);
-          throw error;
-        }
-
-        // Only retry for rate limits (429) and server errors (5xx)
-        const shouldRetry = isRateLimit || error.status >= 500 || !error.status;
-        if (!shouldRetry) {
-          // Don't retry for client errors (4xx except 429), throw immediately
-          if (options.signal && abortListener) options.signal.removeEventListener('abort', abortListener);
-          throw error;
-        }
-
-        // Use the delay calculated above
-        this.logger.info(`Retrying request in ${delay}ms... (attempt ${attempt + 1}/${options.retries || 3})`);
-        await new Promise(resolve => setTimeout(resolve, delay));
-      }
-    }
-    if (options.signal && abortListener) options.signal.removeEventListener('abort', abortListener);
-    throw lastError;
-  }
-
-  /**
-   * Get all populations from PingOne
-   * @returns {Promise<Array>} Array of population objects
-   */
-  async getPopulations() {
-    const settings = this.getSettings();
-    const response = await this.request('GET', `/environments/${settings.environmentId}/populations`);
-
-    // Handle different response formats
-    if (typeof response === 'string') {
-      try {
-        return JSON.parse(response);
-      } catch (error) {
-        this.logger.error('Failed to parse populations response:', error);
-        return [];
-      }
-    } else if (Array.isArray(response)) {
-      return response;
-    } else if (response && typeof response === 'object') {
-      // If response is an object, it might be wrapped
-      if (Array.isArray(response.data)) {
-        return response.data;
-      } else if (Array.isArray(response.populations)) {
-        return response.populations;
-      }
-    }
-    this.logger.warn('Unexpected populations response format:', response);
-    return [];
-  }
-
-  /**
-   * Test the connection to PingOne API
-   * @returns {Promise<boolean>} True if connection is successful, false otherwise
-   */
-  async testConnection() {
+  loadTokenFromStorage() {
     try {
-      const settings = this.getSettings();
-      // Try to get the populations endpoint as a way to test the connection
-      await this.request('GET', `/environments/${settings.environmentId}/populations?limit=1`);
-      return true;
+      if (typeof localStorage !== 'undefined') {
+        const storedToken = localStorage.getItem('pingone_worker_token');
+        const storedExpiry = localStorage.getItem('pingone_token_expiry');
+        if (storedToken && storedExpiry) {
+          const expiryTime = parseInt(storedExpiry, 10);
+          const now = Date.now();
+          if (expiryTime > now) {
+            this.accessToken = storedToken;
+            this.tokenExpiry = expiryTime;
+            this.logger.info('Token loaded from storage', {
+              hasToken: !!this.accessToken,
+              expiryTime: new Date(this.tokenExpiry).toISOString()
+            });
+          } else {
+            this.logger.warn('Stored token has expired');
+            this.clearToken();
+          }
+        } else {
+          this.logger.debug('No stored token found');
+        }
+      } else {
+        this.logger.warn('localStorage is not available');
+      }
     } catch (error) {
-      this.logger.error('PingOne connection test failed:', error);
+      this.logger.error('Error loading token from storage', {
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Save token to localStorage
+   */
+  saveTokenToStorage(token, expiresIn) {
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const expiryTime = Date.now() + expiresIn * 1000;
+        localStorage.setItem('pingone_worker_token', token);
+        localStorage.setItem('pingone_token_expiry', expiryTime.toString());
+        this.accessToken = token;
+        this.tokenExpiry = expiryTime;
+        this.logger.info('Token saved to storage', {
+          tokenLength: token.length,
+          expiresIn,
+          expiryTime: new Date(expiryTime).toISOString()
+        });
+        return true;
+      } else {
+        this.logger.warn('localStorage is not available, cannot save token');
+        return false;
+      }
+    } catch (error) {
+      this.logger.error('Error saving token to storage', {
+        error: error.message
+      });
       return false;
     }
   }
 
   /**
-   * Import users into PingOne
-   * @param {Array<Object>} users - Array of user objects to import
-   * @param {Object} options - Import options
-   * @returns {Promise<Object>} Import results
+   * Clear token from storage
    */
-  async importUsers(users) {
-    let options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    console.log('[IMPORT] importUsers method called');
-    const settings = this.getSettings();
-    const endpoint = `/environments/${settings.environmentId}/users`;
-    const {
-      onProgress,
-      retryAttempts = 3,
-      delayBetweenRetries = 1000,
-      importOptions = {},
-      abortController
-    } = options;
-    const results = [];
-    const totalUsers = users.length;
-    let successCount = 0;
-    let failedCount = 0;
-    let skippedCount = 0;
-    let errorCount = 0; // Track missing population errors separately
-    let retryCount = 0;
-    console.log('[IMPORT] Initial setup completed');
-    this.logger.debug('[IMPORT] Starting import of users', {
-      totalUsers
-    });
-
-    // Validate input
-    console.log('[IMPORT] Validating input...');
-    if (!users || !Array.isArray(users) || users.length === 0) {
-      throw new Error('No users provided for import');
-    }
-    if (!settings.environmentId) {
-      throw new Error('Environment ID not configured');
-    }
-    console.log('[IMPORT] Input validation completed');
-
-    // Handle population selection based on import options
-    console.log('[IMPORT] Handling population selection...');
-    const {
-      selectedPopulationId,
-      useCsvPopulationId,
-      useDefaultPopulation
-    } = importOptions;
-
-    // Determine the fallback population ID
-    let fallbackPopulationId = null;
-
-    // Priority 1: Selected population from dropdown
-    if (selectedPopulationId) {
-      fallbackPopulationId = selectedPopulationId;
-      console.log('[IMPORT] Using selected population from dropdown:', fallbackPopulationId);
-    }
-    // Priority 2: Default population from settings
-    else if (useDefaultPopulation && settings.populationId) {
-      fallbackPopulationId = settings.populationId;
-      console.log('[IMPORT] Using default population from settings:', fallbackPopulationId);
-    }
-    // Priority 3: Check if CSV has population data (only if explicitly enabled)
-    else if (useCsvPopulationId) {
-      // Check if any user has populationId data
-      const hasCsvPopulationData = users.some(user => user.populationId && user.populationId.trim() !== '');
-      if (hasCsvPopulationData) {
-        console.log('[IMPORT] CSV has population data, will use individual population IDs from CSV');
-        fallbackPopulationId = 'csv-population-ids'; // Special marker
-      } else {
-        console.log('[IMPORT] CSV population ID enabled but no population data found in CSV');
+  clearToken() {
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem('pingone_worker_token');
+        localStorage.removeItem('pingone_token_expiry');
       }
+      this.accessToken = null;
+      this.tokenExpiry = null;
+      this.logger.info('Token cleared from storage');
+    } catch (error) {
+      this.logger.error('Error clearing token from storage', {
+        error: error.message
+      });
     }
+  }
 
-    // If still no population, show modal but allow import to continue
-    if (!fallbackPopulationId) {
-      console.log('[IMPORT] No population selected, showing modal...');
-      if (window.app) {
-        // Reset import button state before showing modal
-        if (window.app.uiManager) {
-          window.app.uiManager.resetImportState();
-        }
-
-        // Show modal and wait for user action
-        const modalResult = await window.app.showPopulationWarningModal();
-        if (modalResult === 'settings') {
-          // User chose to go to settings, return early
-          return {
-            total: totalUsers,
-            success: 0,
-            failed: 0,
-            skipped: 0,
-            results: [],
-            error: 'No population selected or configured - user redirected to settings.'
-          };
-        }
-        // User clicked OK, continue with import but use default population
-        console.log('[IMPORT] User chose to continue without population selection, using default population');
-        // Get the first available population as fallback
-        try {
-          const availablePopulations = await this.getPopulations();
-          if (availablePopulations && availablePopulations.length > 0) {
-            fallbackPopulationId = availablePopulations[0].id;
-            console.log('[IMPORT] Using first available population as fallback:', fallbackPopulationId);
-          } else {
-            console.log('[IMPORT] No populations available, skipping all users');
-            return {
-              total: totalUsers,
-              success: 0,
-              failed: 0,
-              skipped: totalUsers,
-              results: users.map(user => ({
-                success: false,
-                user: user,
-                error: 'No population available in PingOne environment',
-                skipped: true
-              })),
-              error: 'No population available in PingOne environment.'
-            };
-          }
-        } catch (error) {
-          console.error('[IMPORT] Error getting populations:', error);
-          return {
-            total: totalUsers,
-            success: 0,
-            failed: 0,
-            skipped: totalUsers,
-            results: users.map(user => ({
-              success: false,
-              user: user,
-              error: 'Failed to get available populations',
-              skipped: true
-            })),
-            error: 'Failed to get available populations.'
-          };
-        }
-      } else {
+  /**
+   * Get current token time remaining
+   */
+  getCurrentTokenTimeRemaining() {
+    try {
+      if (!this.accessToken || !this.tokenExpiry) {
         return {
-          total: totalUsers,
-          success: 0,
-          failed: 0,
-          skipped: 0,
-          results: [],
-          error: 'No population selected or configured.'
+          token: null,
+          timeRemaining: null,
+          isExpired: true
         };
       }
-    }
-    console.log('[IMPORT] Population selection completed, fallbackPopulationId:', fallbackPopulationId);
-    this.logger.info('Population selection for import', {
-      useCsvPopulationId,
-      selectedPopulationId,
-      useDefaultPopulation,
-      fallbackPopulationId,
-      settingsPopulationId: settings.populationId
-    });
-
-    // Process users in batches with improved error handling
-    console.log('[IMPORT] Starting user processing loop...');
-    const batchSize = 10;
-    for (let i = 0; i < totalUsers; i += batchSize) {
-      const batch = users.slice(i, i + batchSize);
-      console.log(`[IMPORT] Processing batch ${Math.floor(i / batchSize) + 1}, users ${i + 1}-${Math.min(i + batchSize, totalUsers)}`);
-      this.logger.debug(`[IMPORT] Processing batch`, {
-        batchNumber: Math.floor(i / batchSize) + 1,
-        from: i + 1,
-        to: Math.min(i + batchSize, totalUsers)
+      const now = Date.now();
+      const timeRemaining = Math.max(0, this.tokenExpiry - now);
+      const isExpired = timeRemaining === 0;
+      const timeRemainingFormatted = this.formatDuration(Math.floor(timeRemaining / 1000));
+      this.logger.debug('Token time remaining calculated', {
+        timeRemaining: timeRemainingFormatted,
+        isExpired
       });
-      for (let batchIndex = 0; batchIndex < batch.length; batchIndex++) {
-        const currentIndex = i + batchIndex;
-        const currentUser = batch[batchIndex];
+      return {
+        token: this.accessToken,
+        timeRemaining: timeRemainingFormatted,
+        isExpired
+      };
+    } catch (error) {
+      this.logger.error('Error getting token time remaining', {
+        error: error.message
+      });
+      return {
+        token: null,
+        timeRemaining: null,
+        isExpired: true
+      };
+    }
+  }
+
+  /**
+   * Format duration in human-readable format
+   */
+  formatDuration(seconds) {
+    if (seconds <= 0) return 'Expired';
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor(seconds % 3600 / 60);
+    const remainingSeconds = seconds % 60;
+    if (hours > 0) {
+      return `${hours}h ${minutes}m ${remainingSeconds}s`;
+    } else if (minutes > 0) {
+      return `${minutes}m ${remainingSeconds}s`;
+    } else {
+      return `${remainingSeconds}s`;
+    }
+  }
+
+  /**
+   * Get access token with caching and refresh logic
+   */
+  async getAccessToken() {
+    try {
+      this.logger.debug('getAccessToken called');
+
+      // Check if we have a valid cached token
+      const tokenInfo = this.getCurrentTokenTimeRemaining();
+      if (tokenInfo.token && !tokenInfo.isExpired) {
+        this.logger.debug('Using cached token', {
+          tokenPreview: tokenInfo.token.substring(0, 8) + '...',
+          timeRemaining: tokenInfo.timeRemaining
+        });
+        return tokenInfo.token;
+      }
+      this.logger.debug('Fetching token from /api/pingone/get-token');
+
+      // Fetch new token from server
+      const response = await fetch('/api/pingone/get-token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      this.logger.debug('Fetch response', {
+        status: response.status,
+        ok: response.ok
+      });
+      if (!response.ok) {
+        const errorMsg = await response.text();
+        this.logger.error('Fetch error', {
+          status: response.status,
+          error: errorMsg
+        });
+        throw new Error(`Failed to get token: ${response.status} ${errorMsg}`);
+      }
+      const data = await response.json();
+      this.logger.debug('Data received from server', {
+        hasAccessToken: !!data.access_token,
+        expiresIn: data.expires_in
+      });
+      if (!data.access_token) {
+        this.logger.warn('No access_token in server response', {
+          data
+        });
+        throw new Error('No access token received from server');
+      }
+
+      // Save token to storage
+      const tokenSaved = this.saveTokenToStorage(data.access_token, data.expires_in);
+      if (tokenSaved) {
+        this.logger.debug('Token saved to localStorage', {
+          tokenLength: data.access_token.length,
+          expiresIn: data.expires_in
+        });
+      } else {
+        this.logger.warn('Failed to store token in localStorage');
+      }
+      return data.access_token;
+    } catch (error) {
+      this.logger.error('Error in getAccessToken', {
+        error: error.message
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Make authenticated API request with retry logic
+   */
+  async makeRequest(method, url, data = null, retryAttempts = 3) {
+    try {
+      const token = await this.getAccessToken();
+      for (let attempt = 1; attempt <= retryAttempts; attempt++) {
         try {
-          if (onProgress) {
-            onProgress(currentIndex, totalUsers, currentUser, {
-              success: successCount,
-              failed: failedCount,
-              skipped: skippedCount,
-              errors: errorCount,
-              // Include error count for missing populations
-              retries: retryCount
-            });
-          }
-          // Validate user data before creating
-          const validationError = this.validateUserForImport(currentUser);
-          if (validationError) {
-            this.logger.warn(`User validation failed for ${currentUser.email || currentUser.username}: ${validationError}`, 'warn');
-            skippedCount++;
-            results.push({
-              success: false,
-              user: currentUser,
-              error: validationError,
-              skipped: true
-            });
-            continue;
-          }
-
-          // Additional validation for required name fields
-          if (!currentUser.firstName || currentUser.firstName.trim() === '') {
-            this.logger.warn(`User ${currentUser.email || currentUser.username} missing firstName, skipping`, 'warn');
-            skippedCount++;
-            results.push({
-              success: false,
-              user: currentUser,
-              error: 'firstName is required and cannot be empty',
-              skipped: true
-            });
-            continue;
-          }
-          if (!currentUser.lastName || currentUser.lastName.trim() === '') {
-            this.logger.warn(`User ${currentUser.email || currentUser.username} missing lastName, skipping`, 'warn');
-            skippedCount++;
-            results.push({
-              success: false,
-              user: currentUser,
-              error: 'lastName is required and cannot be empty',
-              skipped: true
-            });
-            continue;
-          }
-
-          // Determine population ID for this user
-          let userPopulationId = fallbackPopulationId;
-
-          // If CSV population ID is enabled and user has a population ID
-          if (useCsvPopulationId && currentUser.populationId) {
-            // Validate the CSV population ID format (should be a valid UUID)
-            const isValidPopulationId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(currentUser.populationId);
-            if (isValidPopulationId) {
-              // Check if the population exists in the available populations
-              const availablePopulations = await this.getPopulations();
-              const populationExists = availablePopulations.some(pop => pop.id === currentUser.populationId);
-              if (populationExists) {
-                userPopulationId = currentUser.populationId;
-                this.logger.info(`Using CSV population ID for user ${currentUser.email || currentUser.username}: ${userPopulationId}`);
-              } else {
-                // CSV population ID doesn't exist, fall back to UI-selected population
-                this.logger.warn(`CSV population ID ${currentUser.populationId} does not exist in PingOne environment. Falling back to UI-selected population: ${fallbackPopulationId}`);
-                if (fallbackPopulationId && fallbackPopulationId !== 'csv-population-ids') {
-                  userPopulationId = fallbackPopulationId;
-                } else {
-                  // Missing population - this is an ERROR, not a skip
-                  const errorMessage = `Missing Population for user ${currentUser.email || currentUser.username} – not added or counted.`;
-                  this.logger.error(`❌ ${errorMessage}`, {
-                    user: currentUser.email || currentUser.username,
-                    lineNumber: currentIndex + 2,
-                    csvPopulationId: currentUser.populationId,
-                    fallbackPopulationId
-                  });
-
-                  // Log to import-status.log with line number and clear message
-                  console.error(`[IMPORT-ERROR] Line ${currentIndex + 2}: Missing population – user not processed. Username: ${currentUser.email || currentUser.username}`);
-
-                  // Increment error count for missing population
-                  errorCount++;
-                  results.push({
-                    success: false,
-                    user: currentUser,
-                    error: errorMessage,
-                    errorType: 'MISSING_POPULATION',
-                    lineNumber: currentIndex + 2,
-                    skipped: false
-                  });
-                  continue;
-                }
-              }
-            } else {
-              // CSV population ID is invalid format, fall back to UI-selected population
-              this.logger.warn(`Invalid CSV population ID format for user ${currentUser.email || currentUser.username}: ${currentUser.populationId}. Falling back to UI-selected population: ${fallbackPopulationId}`);
-              if (fallbackPopulationId && fallbackPopulationId !== 'csv-population-ids') {
-                userPopulationId = fallbackPopulationId;
-              } else {
-                // Missing population - this is an ERROR, not a skip
-                const errorMessage = `Missing Population for user ${currentUser.email || currentUser.username} – not added or counted.`;
-                this.logger.error(`❌ ${errorMessage}`, {
-                  user: currentUser.email || currentUser.username,
-                  lineNumber: currentIndex + 2,
-                  invalidPopulationId: currentUser.populationId,
-                  fallbackPopulationId
-                });
-
-                // Log to import-status.log with line number and clear message
-                console.error(`[IMPORT-ERROR] Line ${currentIndex + 2}: Missing population – user not processed. Username: ${currentUser.email || currentUser.username}`);
-
-                // Increment error count for missing population
-                errorCount++;
-                results.push({
-                  success: false,
-                  user: currentUser,
-                  error: errorMessage,
-                  errorType: 'MISSING_POPULATION',
-                  lineNumber: currentIndex + 2,
-                  skipped: false
-                });
-                continue;
-              }
-            }
-          } else if (fallbackPopulationId && fallbackPopulationId !== 'csv-population-ids') {
-            if (selectedPopulationId && fallbackPopulationId === selectedPopulationId) {
-              this.logger.info(`Using selected population ID for user ${currentUser.email || currentUser.username}: ${fallbackPopulationId}`);
-            } else {
-              this.logger.info(`Using fallback population ID for user ${currentUser.email || currentUser.username}: ${fallbackPopulationId}`);
-            }
-          } else if (fallbackPopulationId === 'csv-population-ids' && currentUser.populationId) {
-            // Validate the CSV population ID format
-            const isValidPopulationId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(currentUser.populationId);
-            if (isValidPopulationId) {
-              // Check if the population exists in the available populations
-              const availablePopulations = await this.getPopulations();
-              const populationExists = availablePopulations.some(pop => pop.id === currentUser.populationId);
-              if (populationExists) {
-                userPopulationId = currentUser.populationId;
-                this.logger.info(`Using CSV population ID for user ${currentUser.email || currentUser.username}: ${userPopulationId}`);
-              } else {
-                this.logger.warn(`CSV population ID ${currentUser.populationId} does not exist in PingOne environment. Skipping user.`);
-                failedCount++;
-                results.push({
-                  success: false,
-                  user: currentUser,
-                  error: `CSV population ID ${currentUser.populationId} does not exist in PingOne environment.`,
-                  skipped: true
-                });
-                continue;
-              }
-            } else {
-              this.logger.warn(`Invalid CSV population ID format for user ${currentUser.email || currentUser.username}: ${currentUser.populationId}. Skipping user.`);
-              failedCount++;
-              results.push({
-                success: false,
-                user: currentUser,
-                error: `Invalid CSV population ID format: ${currentUser.populationId}`,
-                skipped: true
-              });
-              continue;
-            }
-          } else {
-            // Missing population - this is an ERROR, not a skip
-            const errorMessage = `Missing Population for user ${currentUser.email || currentUser.username} – not added or counted.`;
-            this.logger.error(`❌ ${errorMessage}`, {
-              user: currentUser.email || currentUser.username,
-              lineNumber: currentIndex + 2,
-              // +2 because of header row and 0-based index
-              populationId: userPopulationId,
-              fallbackPopulationId,
-              selectedPopulationId
-            });
-
-            // Log to import-status.log with line number and clear message
-            console.error(`[IMPORT-ERROR] Line ${currentIndex + 2}: Missing population – user not processed. Username: ${currentUser.email || currentUser.username}`);
-
-            // Increment error count for missing population
-            errorCount++;
-            results.push({
-              success: false,
-              user: currentUser,
-              error: errorMessage,
-              errorType: 'MISSING_POPULATION',
-              lineNumber: currentIndex + 2,
-              skipped: false // This is an error, not a skip
-            });
-            continue;
-          }
-          // Store enabled status for later use (after user creation)
-          let userEnabledStatus = true; // default to true
-          if (currentUser.enabled !== undefined && currentUser.enabled !== null) {
-            if (typeof currentUser.enabled === 'boolean') {
-              userEnabledStatus = currentUser.enabled;
-            } else if (typeof currentUser.enabled === 'string') {
-              // Convert string values to boolean
-              const enabledStr = currentUser.enabled.toLowerCase().trim();
-              userEnabledStatus = enabledStr === 'true' || enabledStr === '1' || enabledStr === 'yes';
-            } else if (typeof currentUser.enabled === 'number') {
-              userEnabledStatus = currentUser.enabled !== 0;
-            }
-          }
-          const userData = {
-            name: {
-              given: currentUser.firstName || '',
-              family: currentUser.lastName || ''
-            },
-            email: currentUser.email,
-            username: currentUser.username || currentUser.email,
-            population: {
-              id: userPopulationId
+          this.logger.debug(`Making API request (attempt ${attempt})`, {
+            method,
+            url,
+            hasData: !!data
+          });
+          const requestOptions = {
+            method,
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
             }
           };
-          if (currentUser.password) {
-            userData.password = {
-              value: '[REDACTED]'
+          if (data) {
+            requestOptions.body = JSON.stringify(data);
+          }
+          const response = await fetch(`${this.baseUrl}${url}`, requestOptions);
+          this.logger.debug(`API request completed (attempt ${attempt})`, {
+            status: response.status,
+            ok: response.ok
+          });
+          if (response.ok) {
+            const responseData = await response.json();
+            return responseData;
+          } else {
+            const errorText = await response.text();
+            this.logger.warn(`API request failed (attempt ${attempt})`, {
+              status: response.status,
+              error: errorText
+            });
+            if (attempt === retryAttempts) {
+              throw new Error(`API request failed: ${response.status} ${errorText}`);
+            }
+          }
+        } catch (error) {
+          this.logger.error(`API request error (attempt ${attempt})`, {
+            error: error.message
+          });
+          if (attempt === retryAttempts) {
+            throw error;
+          }
+
+          // Wait before retry
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        }
+      }
+    } catch (error) {
+      this.logger.error('All API request attempts failed', {
+        error: error.message
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Import users from CSV data
+   */
+  async importUsers(csvData, options = {}) {
+    try {
+      this.logger.info('importUsers method called', {
+        userCount: csvData.length,
+        options: Object.keys(options)
+      });
+      const {
+        populationId = null,
+        batchSize = 10,
+        retryAttempts = 3,
+        enableUsers = true
+      } = options;
+      this.logger.debug('Initial setup completed', {
+        batchSize,
+        retryAttempts,
+        enableUsers
+      });
+
+      // Validate input
+      if (!csvData || !Array.isArray(csvData) || csvData.length === 0) {
+        throw new Error('Invalid CSV data: must be a non-empty array');
+      }
+      this.logger.debug('Input validation completed');
+
+      // Handle population selection
+      let fallbackPopulationId = populationId;
+      if (!fallbackPopulationId) {
+        const populationSelect = document.getElementById('import-population-select');
+        if (populationSelect && populationSelect.value) {
+          fallbackPopulationId = populationSelect.value;
+          this.logger.debug('Using selected population from dropdown', {
+            fallbackPopulationId
+          });
+        } else {
+          // Try to get from settings
+          const settings = JSON.parse(localStorage.getItem('pingone-import-settings') || '{}');
+          fallbackPopulationId = settings.populationId;
+          this.logger.debug('Using default population from settings', {
+            fallbackPopulationId
+          });
+        }
+      }
+
+      // Check if CSV has population data
+      const hasPopulationData = csvData.some(user => user.populationId);
+      if (hasPopulationData) {
+        this.logger.debug('CSV has population data, will use individual population IDs from CSV');
+      } else if (fallbackPopulationId) {
+        this.logger.debug('CSV population ID enabled but no population data found in CSV');
+      } else {
+        this.logger.debug('No population selected, showing modal...');
+
+        // Show population selection modal
+        const modal = document.getElementById('population-selection-modal');
+        if (modal) {
+          modal.style.display = 'block';
+
+          // Wait for user selection
+          return new Promise((resolve, reject) => {
+            const confirmButton = document.getElementById('confirm-population-btn');
+            const cancelButton = document.getElementById('cancel-population-btn');
+            const handleConfirm = () => {
+              const selectedPopulation = document.getElementById('population-select').value;
+              if (selectedPopulation) {
+                modal.style.display = 'none';
+                this.logger.debug('User chose to continue without population selection, using default population');
+                resolve(this.importUsers(csvData, {
+                  ...options,
+                  populationId: selectedPopulation
+                }));
+              }
             };
-          }
-          if (currentUser.additionalProperties) {
-            Object.assign(userData, currentUser.additionalProperties);
-          }
-          // Extra debug output for each user
-          this.logger.debug('[IMPORT] Preparing to import user', {
-            index: currentIndex + 1,
-            total: totalUsers,
-            user: {
-              email: currentUser.email,
-              username: currentUser.username,
-              firstName: currentUser.firstName,
-              lastName: currentUser.lastName,
-              populationId: userPopulationId
-            },
-            userData
+            const handleCancel = () => {
+              modal.style.display = 'none';
+              this.logger.debug('User cancelled population selection');
+              reject(new Error('Population selection cancelled'));
+            };
+            confirmButton.onclick = handleConfirm;
+            cancelButton.onclick = handleCancel;
           });
-          // Make the API request with retry logic
-          let result;
-          let lastError = null;
-          for (let attempt = 1; attempt <= retryAttempts; attempt++) {
-            try {
-              // Log full request details for debugging
-              this.logger.debug('[IMPORT] API Request Details', {
-                attempt,
-                endpoint,
-                userData,
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Accept': 'application/json',
-                  'Authorization': '[REDACTED]'
-                }
-              });
-              console.log(`[IMPORT] Making API request for user ${currentUser.email || currentUser.username} (attempt ${attempt}/${retryAttempts})`);
-              result = await this.request('POST', endpoint, userData, {
-                signal: abortController ? abortController.signal : undefined
-              });
-              this.logger.debug('[IMPORT] API Response', {
-                user: currentUser.email || currentUser.username,
-                result
-              });
-              console.log(`[IMPORT] API request completed for user ${currentUser.email || currentUser.username}`);
-
-              // Check for different possible response structures
-              let userId = null;
-
-              // Handle the actual PingOne API response structure
-              // PingOne API returns the user object directly with an 'id' field
-              if (result && typeof result === 'object') {
-                // Check for special "user already exists" response
-                if (result.success && result.warning && result.message && result.message.includes('already exists')) {
-                  // This is a special case where the user already exists
-                  // We should treat this as a skip rather than an error
-                  console.log(`[IMPORT] User already exists: ${currentUser.email || currentUser.username}`);
-                  skippedCount++;
-                  results.push({
-                    success: false,
-                    user: currentUser,
-                    warning: true,
-                    message: result.message,
-                    skipped: true
-                  });
-                  break; // Exit the retry loop
-                }
-
-                // Direct user object from PingOne API
-                if (result.id) {
-                  userId = result.id;
-                } else if (result._id) {
-                  userId = result._id;
-                } else if (result.userId) {
-                  userId = result.userId;
-                }
-
-                // If no ID found in direct object, check nested structures
-                if (!userId) {
-                  if (result.user && result.user.id) {
-                    userId = result.user.id;
-                  } else if (result.data && result.data.id) {
-                    userId = result.data.id;
-                  } else if (result.success && result.id) {
-                    userId = result.id;
-                  }
-                }
-              }
-
-              // If still no ID found, check if this is a wrapped response
-              if (!userId && result && typeof result === 'object') {
-                // Check if the response is wrapped in a data property
-                if (result.data && typeof result.data === 'object' && result.data.id) {
-                  userId = result.data.id;
-                }
-              }
-              if (userId) {
-                // Handle user status if needed (enable/disable)
-                if (userEnabledStatus === false) {
-                  try {
-                    console.log(`[IMPORT] Disabling user ${userId} after creation`);
-                    await this.updateUserStatus(userId, false);
-                    console.log(`[IMPORT] Successfully disabled user ${userId}`);
-                  } catch (statusError) {
-                    console.warn(`[IMPORT] Failed to disable user ${userId}:`, statusError.message);
-                    // Don't fail the import, just log the warning
-                  }
-                }
-                successCount++;
-                results.push({
-                  success: true,
-                  user: currentUser,
-                  id: userId,
-                  enabled: userEnabledStatus
-                });
-
-                // Enhanced user creation logging with population information
-                try {
-                  // Get population details for enhanced logging
-                  const availablePopulations = await this.getPopulations();
-                  const populationInfo = availablePopulations.find(pop => pop.id === userPopulationId);
-                  if (populationInfo) {
-                    // Create visually prominent success message with population details
-                    const successMessage = `
-✅ USER CREATED IN PINGONE
-👤 Username: ${currentUser.username || currentUser.email}
-🆔 PingOne ID: ${userId}
-📍 POPULATION:
-➤ Name: ${populationInfo.name}
-➤ ID: ${populationInfo.id}
-`;
-                    console.log(successMessage);
-                    this.logger.info(successMessage);
-
-                    // Also log to UI if available
-                    if (window.app && window.app.uiManager) {
-                      window.app.uiManager.logMessage('success', `User created: ${currentUser.username || currentUser.email} in population "${populationInfo.name}"`);
-                    }
-                  } else {
-                    // Fallback if population info not found
-                    console.log(`[IMPORT] Successfully created user with ID: ${userId} (enabled: ${userEnabledStatus}) in population: ${userPopulationId}`);
-                    this.logger.info(`[IMPORT] Successfully created user with ID: ${userId} (enabled: ${userEnabledStatus}) in population: ${userPopulationId}`);
-                  }
-                } catch (populationError) {
-                  // Fallback if population lookup fails
-                  console.log(`[IMPORT] Successfully created user with ID: ${userId} (enabled: ${userEnabledStatus}) in population: ${userPopulationId}`);
-                  this.logger.info(`[IMPORT] Successfully created user with ID: ${userId} (enabled: ${userEnabledStatus}) in population: ${userPopulationId}`);
-                }
-                break;
-              } else {
-                console.log(`[IMPORT] Invalid response structure - no ID found:`, result);
-                throw new Error('Unknown API response - no user ID found in response');
-              }
-            } catch (apiError) {
-              lastError = apiError;
-              // Try to extract error message and log full error details
-              let apiErrorMsg = apiError && apiError.message ? apiError.message : 'API request failed';
-              let apiErrorDetails = {};
-              if (apiError && apiError.response && typeof apiError.response.json === 'function') {
-                try {
-                  const errorBody = await apiError.response.json();
-                  apiErrorDetails.body = errorBody;
-                  if (errorBody && errorBody.detail) {
-                    apiErrorMsg = errorBody.detail;
-                  } else if (errorBody && errorBody.error_description) {
-                    apiErrorMsg = errorBody.error_description;
-                  } else if (errorBody && errorBody.message) {
-                    apiErrorMsg = errorBody.message;
-                  }
-                } catch (parseErr) {
-                  apiErrorDetails.bodyParseError = parseErr.message;
-                }
-              }
-              if (apiError && apiError.response) {
-                apiErrorDetails.status = apiError.response.status;
-                apiErrorDetails.statusText = apiError.response.statusText;
-                apiErrorDetails.headers = {};
-                if (apiError.response.headers && typeof apiError.response.headers.forEach === 'function') {
-                  apiError.response.headers.forEach((value, key) => {
-                    apiErrorDetails.headers[key] = value;
-                  });
-                }
-              }
-              this.logger.error(`[IMPORT] PingOne API Error (attempt ${attempt}/${retryAttempts}): ${apiErrorMsg}`, {
-                apiErrorMsg,
-                apiErrorDetails,
-                user: currentUser
-              });
-              if (attempt === retryAttempts) {
-                failedCount++;
-                results.push({
-                  success: false,
-                  user: currentUser,
-                  error: apiErrorMsg,
-                  apiErrorDetails
-                });
-                if (window.app && window.app.uiManager) {
-                  window.app.uiManager.showNotification(`PingOne API Error: ${apiErrorMsg}`, 'error');
-                }
-              } else {
-                await new Promise(res => setTimeout(res, delayBetweenRetries));
-              }
-            }
-          }
-        } catch (err) {
-          this.logger.error('[IMPORT] Unexpected error during import', {
-            user: currentUser.email || currentUser.username,
-            error: err.message,
-            stack: err.stack
-          });
-          console.error(`[IMPORT] Unexpected error for user ${currentUser.email || currentUser.username}:`, err);
-          failedCount++;
-          results.push({
-            success: false,
-            user: currentUser,
-            error: err.message,
-            skipped: false
-          });
-        }
-      }
-    }
-    // Batch summary
-    this.logger.info('[IMPORT] Batch import summary', {
-      total: totalUsers,
-      success: successCount,
-      failed: failedCount,
-      skipped: skippedCount,
-      retries: retryCount
-    });
-    console.log('[IMPORT] Batch import summary:', {
-      total: totalUsers,
-      success: successCount,
-      failed: failedCount,
-      skipped: skippedCount,
-      retries: retryCount
-    });
-    return {
-      total: totalUsers,
-      success: successCount,
-      failed: failedCount,
-      skipped: skippedCount,
-      errors: errorCount,
-      // Include error count for missing populations
-      results
-    };
-  }
-
-  /**
-   * Validate user data for import
-   * @param {Object} user - User object to validate
-   * @returns {string|null} Error message or null if valid
-   * @private
-   */
-  validateUserForImport(user) {
-    // Check required fields
-    if (!user.username) {
-      return 'User must have a username';
-    }
-
-    // Check required name fields
-    if (!user.firstName || user.firstName.trim() === '') {
-      return 'User must have a firstName (given name)';
-    }
-    if (!user.lastName || user.lastName.trim() === '') {
-      return 'User must have a lastName (family name)';
-    }
-
-    // Validate email format if provided
-    if (user.email && !this.isValidEmail(user.email)) {
-      return 'Invalid email format';
-    }
-
-    // Validate username format if provided
-    if (user.username && !this.isValidUsername(user.username)) {
-      return 'Invalid username format (no spaces or special characters)';
-    }
-
-    // Validate enabled field if provided
-    if (user.enabled !== undefined && typeof user.enabled !== 'boolean') {
-      return 'Enabled field must be true or false';
-    }
-    return null;
-  }
-
-  /**
-   * Check if email is valid
-   * @param {string} email - Email to validate
-   * @returns {boolean} True if valid
-   * @private
-   */
-  isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  }
-
-  /**
-   * Check if username is valid
-   * @param {string} username - Username to validate
-   * @returns {boolean} True if valid
-   * @private
-   */
-  isValidUsername(username) {
-    // Username should not contain spaces or special characters
-    const usernameRegex = /^[a-zA-Z0-9._-]+$/;
-    return usernameRegex.test(username);
-  }
-
-  /**
-   * Check if an error is retryable
-   * @param {Error} error - Error to check
-   * @returns {boolean} True if retryable
-   * @private
-   */
-  isRetryableError(error) {
-    // Retry on rate limits, network errors, and server errors
-    const retryableStatuses = [429, 500, 502, 503, 504];
-    const retryableMessages = ['rate limit', 'timeout', 'network', 'connection'];
-    if (error.response?.status && retryableStatuses.includes(error.response.status)) {
-      return true;
-    }
-    if (error.message) {
-      const lowerMessage = error.message.toLowerCase();
-      return retryableMessages.some(msg => lowerMessage.includes(msg));
-    }
-    return false;
-  }
-
-  /**
-   * Update user status (enable/disable)
-   * @param {string} userId - The user ID
-   * @param {boolean} enabled - Whether the user should be enabled
-   * @returns {Promise<Object>} The API response
-   */
-  async updateUserStatus(userId, enabled) {
-    const settings = this.getSettings();
-    const endpoint = `/environments/${settings.environmentId}/users/${userId}`;
-    const updateData = {
-      enabled: enabled
-    };
-    this.logger.info(`[STATUS] Updating user ${userId} status to enabled: ${enabled}`);
-    try {
-      const result = await this.request('PATCH', endpoint, updateData);
-      this.logger.info(`[STATUS] Successfully updated user ${userId} status to enabled: ${enabled}`);
-      return result;
-    } catch (error) {
-      this.logger.error(`[STATUS] Failed to update user ${userId} status:`, error);
-      throw error;
-    }
-  }
-
-  /**
-   * Generate a secure random password
-   * @returns {string} A random password
-   * @private
-   */
-  generateTemporaryPassword() {
-    const length = 16;
-    const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]\\:;?><,./-=';
-    let password = 'Aa1!';
-
-    // Fill the rest randomly
-    for (let i = 0; i < length - 4; i++) {
-      const randomIndex = Math.floor(Math.random() * charset.length);
-      password += charset[randomIndex];
-    }
-
-    // Shuffle the password to make it more random
-    return password.split('').sort(() => Math.random() - 0.5).join('');
-  }
-
-  /**
-   * Delete users from PingOne based on CSV input (safe duplicate of deleteUsers)
-   * @param {Array<Object>} users - Array of user objects to delete (must have username or email)
-   * @param {Object} options - Delete options
-   * @returns {Promise<Object>} Delete results
-   */
-  async deleteUsersFromCsv(users) {
-    let options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    const {
-      onProgress,
-      batchSize = 10,
-      delayBetweenBatches = 1000
-    } = options;
-    const results = {
-      total: users.length,
-      success: 0,
-      failed: 0,
-      skipped: 0,
-      details: []
-    };
-
-    // Process users in batches to avoid overwhelming the API
-    for (let i = 0; i < users.length; i += batchSize) {
-      const batch = users.slice(i, i + batchSize);
-
-      // Process users sequentially within each batch to avoid overwhelming the API
-      for (let batchIndex = 0; batchIndex < batch.length; batchIndex++) {
-        const user = batch[batchIndex];
-        const userIndex = i + batchIndex;
-        const current = userIndex + 1;
-        try {
-          // Minimal logging for user lookup
-          this.logger.info(`[DELETE] Processing user ${current}/${users.length}: ${user.username || user.email || 'Unknown'}`);
-
-          // Find user by userId, username, or email with enhanced fallback
-          let existingUser = null;
-          let lookupMethod = null;
-
-          // First, try to find user by userId if provided (direct lookup)
-          if (user.userId || user.id) {
-            const userId = user.userId || user.id;
-            try {
-              const response = await this.request('GET', `/environments/${this.getSettings().environmentId}/users/${userId}`);
-              existingUser = response;
-              lookupMethod = 'userId';
-              this.logger.info(`[DELETE] Found user by ID: "${userId}"`);
-            } catch (error) {
-              this.logger.debug(`[DELETE] User ID lookup failed for "${userId}": ${error.message}`);
-            }
-          }
-
-          // If no user found by ID, try username (if provided)
-          if (!existingUser && user.username) {
-            try {
-              const response = await this.request('GET', `/environments/${this.getSettings().environmentId}/users?filter=username eq "${encodeURIComponent(user.username)}"`);
-              if (response._embedded && response._embedded.users && response._embedded.users.length > 0) {
-                existingUser = response._embedded.users[0];
-                lookupMethod = 'username';
-                this.logger.info(`[DELETE] Found user by username: "${user.username}"`);
-              } else {
-                this.logger.debug(`[DELETE] No user found by username: "${user.username}"`);
-              }
-            } catch (error) {
-              this.logger.debug(`[DELETE] Username lookup failed for "${user.username}": ${error.message}`);
-            }
-          }
-
-          // If no user found by ID or username, try email (if provided)
-          // NOTE: If username was found, we skip email lookup to avoid conflicts
-          if (!existingUser && user.email) {
-            try {
-              const response = await this.request('GET', `/environments/${this.getSettings().environmentId}/users?filter=email eq "${encodeURIComponent(user.email)}"`);
-              if (response._embedded && response._embedded.users && response._embedded.users.length > 0) {
-                const emailUser = response._embedded.users[0];
-                existingUser = emailUser;
-                lookupMethod = 'email';
-                this.logger.info(`[DELETE] Found user by email: "${user.email}"`);
-              } else {
-                this.logger.debug(`[DELETE] No user found by email: "${user.email}"`);
-              }
-            } catch (error) {
-              this.logger.debug(`[DELETE] Email lookup failed for "${user.email}": ${error.message}`);
-            }
-          }
-          if (!existingUser) {
-            results.failed++;
-            results.details.push({
-              user,
-              status: 'failed',
-              reason: 'User not found in PingOne'
-            });
-            this.logger.warn(`[DELETE] User not found: ${user.username || user.email || 'Unknown'}`);
-            continue;
-          }
-
-          // Log the user we're about to delete
-          this.logger.info(`[DELETE] Deleting user found by ${lookupMethod}: ${existingUser.username || existingUser.email}`);
-
-          // Delete the user
-          await this.request('DELETE', `/environments/${this.getSettings().environmentId}/users/${existingUser.id}`);
-
-          // Only increment success if the DELETE request succeeds
-          results.success++;
-          results.details.push({
-            user,
-            status: 'success',
-            pingOneId: existingUser.id,
-            lookupMethod: lookupMethod
-          });
-          this.logger.info(`[DELETE] Successfully deleted user: ${existingUser.username || existingUser.email}`);
-        } catch (error) {
-          // Check if this is a 404 error (user not found)
-          if (error.status === 404 || error.message.includes('404') || error.message.includes('not found')) {
-            results.skipped++;
-            results.details.push({
-              user,
-              status: 'skipped',
-              reason: 'User not found (404)'
-            });
-            this.logger.warn(`[DELETE] User '${user.username || user.email}' not found in PingOne (404). Skipping.`);
-          } else if (error.status === 429) {
-            // Rate limit error - retry this user later
-            results.failed++;
-            results.details.push({
-              user,
-              status: 'failed',
-              error: 'Rate limited - will retry automatically'
-            });
-            this.logger.warn(`[DELETE] Rate limited while processing user '${user.username || user.email}'. Will retry.`);
-            throw error; // Re-throw to trigger retry logic
-          } else {
-            results.failed++;
-            results.details.push({
-              user,
-              status: 'failed',
-              error: error.message
-            });
-            this.logger.error(`[DELETE] Failed to delete user '${user.username || user.email}': ${error.message}`);
-          }
-        }
-
-        // Update progress for each user
-        if (onProgress) {
-          onProgress({
-            current,
-            total: users.length,
-            success: results.success,
-            failed: results.failed,
-            skipped: results.skipped
-          });
-        }
-
-        // Add small delay between individual user operations to prevent rate limiting
-        if (batchIndex < batch.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 200)); // 200ms delay between users
-        }
-      }
-
-      // Add delay between batches to avoid rate limiting
-      if (i + batchSize < users.length && delayBetweenBatches > 0) {
-        await new Promise(resolve => setTimeout(resolve, delayBetweenBatches));
-      }
-
-      // Log batch completion
-      this.logger.info(`[DELETE] Completed batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(users.length / batchSize)}`);
-    }
-    return results;
-  }
-
-  /**
-   * Delete a user by ID
-   * @param {string} userId - User ID to delete
-   * @returns {Promise<void>}
-   */
-  async deleteUser(userId) {
-    let options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    if (!userId) {
-      throw new Error('User ID is required for deletion');
-    }
-    if (options.signal && options.signal.aborted) {
-      throw new DOMException('User delete aborted', 'AbortError');
-    }
-    try {
-      const endpoint = `/environments/${this.getSettings().environmentId}/users/${userId}`;
-      this.logger.info(`[DELETE] Deleting user with ID: ${userId}`);
-      this.logger.debug(`[DELETE] Making DELETE request to: ${endpoint}`);
-      await this.request('DELETE', endpoint, null, options);
-      this.logger.info(`[DELETE] Successfully deleted user: ${userId}`);
-    } catch (error) {
-      if (options.signal && options.signal.aborted) {
-        throw new DOMException('User delete aborted', 'AbortError');
-      }
-      this.logger.error(`[DELETE] Failed to delete user ${userId}:`, {
-        error: error.message,
-        status: error.status,
-        statusText: error.statusText,
-        response: error.response?.data
-      });
-      throw error;
-    }
-  }
-  async modifyUsersFromCsv(users) {
-    let options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    const {
-      onProgress,
-      batchSize = 5,
-      delayBetweenBatches = 2000,
-      createIfNotExists = false,
-      updateUserStatus = false,
-      defaultPopulationId = '',
-      defaultEnabled = true,
-      generatePasswords = true
-    } = options;
-    const results = {
-      total: users.length,
-      modified: 0,
-      created: 0,
-      failed: 0,
-      skipped: 0,
-      noChanges: 0,
-      details: []
-    };
-
-    // Process users in batches to avoid overwhelming the API
-    for (let i = 0; i < users.length; i += batchSize) {
-      const batch = users.slice(i, i + batchSize);
-
-      // Process users sequentially within each batch to avoid overwhelming the API
-      for (let batchIndex = 0; batchIndex < batch.length; batchIndex++) {
-        const user = batch[batchIndex];
-        const userIndex = i + batchIndex;
-        const current = userIndex + 1;
-        try {
-          // Enhanced logging for user lookup
-          this.logger.info(`[MODIFY] Processing user ${current}/${users.length}:`, {
-            userId: user.userId || user.id || 'NOT_PROVIDED',
-            username: user.username || 'NOT_PROVIDED',
-            email: user.email || 'NOT_PROVIDED',
-            rawUserData: user
-          });
-
-          // Find user by userId, username, or email with enhanced fallback
-          let existingUser = null;
-          let lookupMethod = null;
-
-          // First, try to find user by userId if provided (direct lookup)
-          if (user.userId || user.id) {
-            const userId = user.userId || user.id;
-            try {
-              this.logger.debug(`[MODIFY] Looking up user by ID: "${userId}"`);
-              const response = await this.request('GET', `/environments/${this.getSettings().environmentId}/users/${userId}`);
-              existingUser = response;
-              lookupMethod = 'userId';
-              this.logger.info(`[MODIFY] Found user by ID: "${userId}" -> ID: ${existingUser.id}`);
-            } catch (error) {
-              this.logger.debug(`[MODIFY] Error looking up user by ID "${userId}":`, error.message);
-            }
-          }
-
-          // If no user found by ID, try username (if provided)
-          if (!existingUser && user.username) {
-            try {
-              this.logger.debug(`[MODIFY] Looking up user by username: "${user.username}"`);
-              const response = await this.request('GET', `/environments/${this.getSettings().environmentId}/users?filter=username eq "${encodeURIComponent(user.username)}"`);
-              if (response._embedded && response._embedded.users && response._embedded.users.length > 0) {
-                existingUser = response._embedded.users[0];
-                lookupMethod = 'username';
-                this.logger.info(`[MODIFY] Found user by username: "${user.username}" -> ID: ${existingUser.id}`);
-              } else {
-                this.logger.debug(`[MODIFY] No user found by username: "${user.username}"`);
-              }
-            } catch (error) {
-              this.logger.debug(`[MODIFY] Error looking up user by username "${user.username}":`, error.message);
-            }
-          }
-
-          // If no user found by ID or username, try email (if provided)
-          if (!existingUser && user.email) {
-            try {
-              this.logger.debug(`[MODIFY] Looking up user by email: "${user.email}"`);
-              const response = await this.request('GET', `/environments/${this.getSettings().environmentId}/users?filter=email eq "${encodeURIComponent(user.email)}"`);
-              if (response._embedded && response._embedded.users && response._embedded.users.length > 0) {
-                const emailUser = response._embedded.users[0];
-
-                // If we already found a user by username, check if it's the same user
-                if (existingUser) {
-                  if (existingUser.id === emailUser.id) {
-                    this.logger.info(`[MODIFY] Email lookup confirmed same user: "${user.email}" -> ID: ${emailUser.id}`);
-                  } else {
-                    this.logger.warn(`[MODIFY] Found different users by username and email! Username: "${user.username}" -> ID: ${existingUser.id}, Email: "${user.email}" -> ID: ${emailUser.id}`);
-                    // Use the email user as it might be more reliable
-                    existingUser = emailUser;
-                    lookupMethod = 'email';
-                  }
-                } else {
-                  existingUser = emailUser;
-                  lookupMethod = 'email';
-                  this.logger.info(`[MODIFY] Found user by email: "${user.email}" -> ID: ${existingUser.id}`);
-                }
-              } else {
-                this.logger.debug(`[MODIFY] No user found by email: "${user.email}"`);
-              }
-            } catch (error) {
-              this.logger.debug(`[MODIFY] Error looking up user by email "${user.email}":`, error.message);
-            }
-          }
-
-          // If user not found and createIfNotExists is enabled, create the user
-          if (!existingUser && createIfNotExists) {
-            try {
-              this.logger.info(`[MODIFY] User not found, creating new user: ${user.username || user.email}`);
-
-              // Prepare user data for creation (without enabled field)
-              const userData = {
-                name: {
-                  given: user.firstName || user.givenName || '',
-                  family: user.lastName || user.familyName || ''
-                },
-                email: user.email,
-                username: user.username || user.email,
-                population: {
-                  id: user.populationId || defaultPopulationId || this.getSettings().populationId
-                }
-              };
-
-              // Determine if user should be enabled (for later status update)
-              let userEnabledStatus = defaultEnabled;
-              if (user.enabled !== undefined) {
-                if (typeof user.enabled === 'string') {
-                  userEnabledStatus = user.enabled.toLowerCase() === 'true' || user.enabled === '1';
-                } else {
-                  userEnabledStatus = user.enabled;
-                }
-              }
-
-              // Add password if generatePasswords is enabled
-              if (generatePasswords) {
-                userData.password = {
-                  value: this.generateTemporaryPassword()
-                };
-              }
-
-              // Create the user
-              const createdUser = await this.request('POST', `/environments/${this.getSettings().environmentId}/users`, userData);
-
-              // After creation, update status if needed
-              if (userEnabledStatus === false) {
-                try {
-                  await this.updateUserStatus(createdUser.id, false);
-                  this.logger.info(`[MODIFY] Disabled user after creation: ${createdUser.username || createdUser.email} (ID: ${createdUser.id})`);
-                } catch (statusErr) {
-                  this.logger.warn(`[MODIFY] Failed to disable user after creation: ${createdUser.username || createdUser.email} (ID: ${createdUser.id})`, statusErr);
-                }
-              }
-              results.created++;
-              results.details.push({
-                user,
-                status: 'created',
-                pingOneId: createdUser.id,
-                reason: 'User created because createIfNotExists was enabled'
-              });
-
-              // Enhanced user creation logging with population information for modify function
-              try {
-                // Get population details for enhanced logging
-                const availablePopulations = await this.getPopulations();
-                const populationInfo = availablePopulations.find(pop => pop.id === userData.population.id);
-                if (populationInfo) {
-                  // Create visually prominent success message with population details
-                  const successMessage = `
-✅ USER CREATED IN PINGONE (MODIFY)
-👤 Username: ${createdUser.username || createdUser.email}
-🆔 PingOne ID: ${createdUser.id}
-📍 POPULATION:
-➤ Name: ${populationInfo.name}
-➤ ID: ${populationInfo.id}
-`;
-                  console.log(successMessage);
-                  this.logger.info(successMessage);
-
-                  // Also log to UI if available
-                  if (window.app && window.app.uiManager) {
-                    window.app.uiManager.logMessage('success', `User created via modify: ${createdUser.username || createdUser.email} in population "${populationInfo.name}"`);
-                  }
-                } else {
-                  // Fallback if population info not found
-                  console.log(`[MODIFY] Successfully created user: ${createdUser.username || createdUser.email} (ID: ${createdUser.id}) in population: ${userData.population.id}`);
-                  this.logger.info(`[MODIFY] Successfully created user: ${createdUser.username || createdUser.email} (ID: ${createdUser.id}) in population: ${userData.population.id}`);
-                }
-              } catch (populationError) {
-                // Fallback if population lookup fails
-                console.log(`[MODIFY] Successfully created user: ${createdUser.username || createdUser.email} (ID: ${createdUser.id}) in population: ${userData.population.id}`);
-                this.logger.info(`[MODIFY] Successfully created user: ${createdUser.username || createdUser.email} (ID: ${createdUser.id}) in population: ${userData.population.id}`);
-              }
-
-              // Update progress
-              if (onProgress) {
-                onProgress({
-                  current,
-                  total: users.length,
-                  modified: results.modified,
-                  created: results.created,
-                  failed: results.failed,
-                  skipped: results.skipped,
-                  noChanges: results.noChanges
-                });
-              }
-              return;
-            } catch (error) {
-              this.logger.error(`[MODIFY] Failed to create user ${user.username || user.email}:`, error.message);
-              results.failed++;
-              results.details.push({
-                user,
-                status: 'failed',
-                error: `Failed to create user: ${error.message}`,
-                reason: 'User creation failed'
-              });
-              return;
-            }
-          }
-
-          // If user not found and createIfNotExists is disabled, skip the user
-          if (!existingUser) {
-            results.skipped++;
-            results.details.push({
-              user,
-              status: 'skipped',
-              reason: 'User not found and createIfNotExists is disabled'
-            });
-            this.logger.warn(`[MODIFY] User not found: ${user.username || user.email}. Skipping (createIfNotExists: ${createIfNotExists})`);
-            return;
-          }
-
-          // Log the user we're about to modify
-          this.logger.info(`[MODIFY] Modifying user found by ${lookupMethod}:`, {
-            username: existingUser.username,
-            email: existingUser.email,
-            id: existingUser.id,
-            originalLookup: {
-              username: user.username,
-              email: user.email
-            }
-          });
-
-          // Compare CSV data with existing user data
-          const changes = {};
-          let hasChanges = false;
-
-          // Map CSV fields to PingOne API fields
-          const fieldMappings = {
-            firstName: 'name.given',
-            lastName: 'name.family',
-            givenName: 'name.given',
-            familyName: 'name.family',
-            email: 'email',
-            phoneNumber: 'phoneNumber',
-            title: 'title',
-            department: 'department'
-          };
-
-          // Add enabled field to mappings if updateUserStatus is enabled
-          if (updateUserStatus) {
-            fieldMappings.enabled = 'enabled';
-          }
-
-          // Check each field for changes with proper mapping
-          for (const [csvField, apiField] of Object.entries(fieldMappings)) {
-            if (user[csvField] !== undefined) {
-              // Handle nested name fields
-              if (apiField.startsWith('name.')) {
-                const nameField = apiField.split('.')[1]; // 'given' or 'family'
-                if (!changes.name) {
-                  changes.name = {
-                    ...existingUser.name
-                  };
-                }
-                if (user[csvField] !== existingUser.name?.[nameField]) {
-                  changes.name[nameField] = user[csvField];
-                  hasChanges = true;
-                  this.logger.debug(`[MODIFY] Name field "${nameField}" will be changed from "${existingUser.name?.[nameField]}" to "${user[csvField]}"`);
-                }
-              } else {
-                // Handle regular fields
-                if (user[csvField] !== existingUser[apiField]) {
-                  changes[apiField] = user[csvField];
-                  hasChanges = true;
-                  this.logger.debug(`[MODIFY] Field "${apiField}" will be changed from "${existingUser[apiField]}" to "${user[csvField]}"`);
-                }
-              }
-            }
-          }
-
-          // Check for enabled status updates if updateUserStatus is enabled
-          let enabledStatusToUpdate = null;
-          if (updateUserStatus && user.enabled !== undefined && user.enabled !== existingUser.enabled) {
-            // Convert string values to boolean if needed
-            let newEnabledValue = user.enabled;
-            if (typeof newEnabledValue === 'string') {
-              newEnabledValue = newEnabledValue.toLowerCase() === 'true' || newEnabledValue === '1';
-            }
-            if (newEnabledValue !== existingUser.enabled) {
-              enabledStatusToUpdate = newEnabledValue;
-              this.logger.debug(`[MODIFY] Enabled status will be changed from "${existingUser.enabled}" to "${newEnabledValue}"`);
-            }
-          } else if (!updateUserStatus && user.enabled !== undefined && user.enabled !== existingUser.enabled) {
-            // Show warning only if updateUserStatus is not enabled
-            this.logger.warn(`[MODIFY] Cannot modify 'enabled' status for user ${existingUser.username} - updateUserStatus option is disabled`);
-            if (window.app && window.app.uiManager) {
-              window.app.uiManager.showWarning(`Cannot modify 'enabled' status for user ${existingUser.username} - updateUserStatus option is disabled`);
-            }
-          }
-
-          // Remove enabled from changes if present
-          if (changes.enabled !== undefined) {
-            delete changes.enabled;
-          }
-
-          // For PingOne API, we need to include required fields in the update
-          // Always include username and email as they are required
-          if (hasChanges) {
-            changes.username = existingUser.username;
-            changes.email = existingUser.email;
-            this.logger.debug(`[MODIFY] Including required fields: username=${existingUser.username}, email=${existingUser.email}`);
-          }
-          if (!hasChanges && enabledStatusToUpdate === null) {
-            results.noChanges++;
-            results.details.push({
-              user,
-              status: 'no_changes',
-              pingOneId: existingUser.id,
-              lookupMethod: lookupMethod
-            });
-            this.logger.info(`[MODIFY] No changes needed for user: ${existingUser.username || existingUser.email} (ID: ${existingUser.id})`);
-            return;
-          }
-          this.logger.info(`[MODIFY] Applying changes to user:`, {
-            userId: existingUser.id,
-            changes: changes
-          });
-
-          // Update the user with changes if there are any
-          if (hasChanges) {
-            await this.request('PUT', `/environments/${this.getSettings().environmentId}/users/${existingUser.id}`, changes);
-          }
-
-          // Update enabled status if needed
-          if (enabledStatusToUpdate !== null) {
-            try {
-              await this.updateUserStatus(existingUser.id, enabledStatusToUpdate);
-              this.logger.info(`[MODIFY] Updated enabled status for user: ${existingUser.username || existingUser.email} (ID: ${existingUser.id}) to ${enabledStatusToUpdate}`);
-            } catch (statusErr) {
-              this.logger.warn(`[MODIFY] Failed to update enabled status for user: ${existingUser.username || existingUser.email} (ID: ${existingUser.id})`, statusErr);
-            }
-          }
-          results.modified++;
-          results.details.push({
-            user,
-            status: 'modified',
-            pingOneId: existingUser.id,
-            changes,
-            lookupMethod: lookupMethod
-          });
-          this.logger.info(`[MODIFY] Successfully modified user: ${existingUser.username || existingUser.email} (ID: ${existingUser.id}) with changes:`, changes);
-        } catch (error) {
-          // Get friendly error message if available
-          const friendlyMessage = error.friendlyMessage || error.message;
-
-          // Check if this is a 404 error (user not found)
-          if (error.status === 404 || error.message.includes('404') || error.message.includes('not found')) {
-            results.skipped++;
-            results.details.push({
-              user,
-              status: 'skipped',
-              reason: 'User not found (404)'
-            });
-            this.logger.warn(`[MODIFY] User '${user.username || user.email}' not found in PingOne (404). Skipping this user.`);
-          } else {
-            results.failed++;
-
-            // Provide more context for different error types
-            let errorReason = friendlyMessage;
-            if (error.status === 400) {
-              errorReason = `Data validation failed: ${friendlyMessage}`;
-            } else if (error.status === 429) {
-              errorReason = `Rate limited: ${friendlyMessage}`;
-            } else if (error.status === 403) {
-              errorReason = `Permission denied: ${friendlyMessage}`;
-            }
-            results.details.push({
-              user,
-              status: 'failed',
-              error: errorReason,
-              statusCode: error.status
-            });
-            this.logger.error(`[MODIFY] Failed to modify user '${user.username || user.email}': ${errorReason}`);
-
-            // Show user-friendly error in UI for specific error types
-            if (window.app && window.app.uiManager && (error.status === 400 || error.status === 403)) {
-              window.app.uiManager.showWarning(`User '${user.username || user.email}': ${friendlyMessage}`);
-            }
-          }
-        }
-
-        // Update progress for each user
-        if (onProgress) {
-          onProgress({
-            current,
-            total: users.length,
-            modified: results.modified,
-            failed: results.failed,
-            skipped: results.skipped,
-            noChanges: results.noChanges
-          });
-        }
-
-        // Process users sequentially within each batch to avoid overwhelming the API
-        for (let batchIndex = 0; batchIndex < batch.length; batchIndex++) {
-          const user = batch[batchIndex];
-          const userIndex = i + batchIndex;
-          const current = userIndex + 1;
+        } else {
+          // Try to get first available population as fallback
           try {
-            // Enhanced logging for user lookup
-            this.logger.info(`[MODIFY] Processing user ${current}/${users.length}:`, {
-              userId: user.userId || user.id || 'NOT_PROVIDED',
-              username: user.username || 'NOT_PROVIDED',
-              email: user.email || 'NOT_PROVIDED',
-              rawUserData: user
-            });
-
-            // Find user by userId, username, or email with enhanced fallback
-            let existingUser = null;
-            let lookupMethod = null;
-
-            // First, try to find user by userId if provided (direct lookup)
-            if (user.userId || user.id) {
-              const userId = user.userId || user.id;
-              try {
-                this.logger.debug(`[MODIFY] Looking up user by ID: "${userId}"`);
-                const response = await this.request('GET', `/environments/${this.getSettings().environmentId}/users/${userId}`);
-                existingUser = response;
-                lookupMethod = 'userId';
-                this.logger.info(`[MODIFY] Found user by ID: "${userId}" -> ID: ${existingUser.id}`);
-              } catch (error) {
-                this.logger.debug(`[MODIFY] Error looking up user by ID "${userId}":`, error.message);
-              }
-            }
-
-            // If no user found by ID, try username (if provided)
-            if (!existingUser && user.username) {
-              try {
-                this.logger.debug(`[MODIFY] Looking up user by username: "${user.username}"`);
-                const response = await this.request('GET', `/environments/${this.getSettings().environmentId}/users?filter=username eq "${encodeURIComponent(user.username)}"`);
-                if (response._embedded && response._embedded.users && response._embedded.users.length > 0) {
-                  existingUser = response._embedded.users[0];
-                  lookupMethod = 'username';
-                  this.logger.info(`[MODIFY] Found user by username: "${user.username}" -> ID: ${existingUser.id}`);
-                } else {
-                  this.logger.debug(`[MODIFY] No user found by username: "${user.username}"`);
-                }
-              } catch (error) {
-                this.logger.debug(`[MODIFY] Error looking up user by username "${user.username}":`, error.message);
-              }
-            }
-
-            // If no user found by ID or username, try email (if provided)
-            if (!existingUser && user.email) {
-              try {
-                this.logger.debug(`[MODIFY] Looking up user by email: "${user.email}"`);
-                const response = await this.request('GET', `/environments/${this.getSettings().environmentId}/users?filter=email eq "${encodeURIComponent(user.email)}"`);
-                if (response._embedded && response._embedded.users && response._embedded.users.length > 0) {
-                  const emailUser = response._embedded.users[0];
-
-                  // If we already found a user by username, check if it's the same user
-                  if (existingUser) {
-                    if (existingUser.id === emailUser.id) {
-                      this.logger.info(`[MODIFY] Email lookup confirmed same user: "${user.email}" -> ID: ${emailUser.id}`);
-                    } else {
-                      this.logger.warn(`[MODIFY] Found different users by username and email! Username: "${user.username}" -> ID: ${existingUser.id}, Email: "${user.email}" -> ID: ${emailUser.id}`);
-                      // Use the email user as it might be more reliable
-                      existingUser = emailUser;
-                      lookupMethod = 'email';
-                    }
-                  } else {
-                    existingUser = emailUser;
-                    lookupMethod = 'email';
-                    this.logger.info(`[MODIFY] Found user by email: "${user.email}" -> ID: ${existingUser.id}`);
-                  }
-                } else {
-                  this.logger.debug(`[MODIFY] No user found by email: "${user.email}"`);
-                }
-              } catch (error) {
-                this.logger.debug(`[MODIFY] Error looking up user by email "${user.email}":`, error.message);
-              }
-            }
-
-            // If user not found and createIfNotExists is enabled, create the user
-            if (!existingUser && createIfNotExists) {
-              try {
-                this.logger.info(`[MODIFY] User not found, creating new user: ${user.username || user.email}`);
-
-                // Prepare user data for creation (without enabled field)
-                const userData = {
-                  name: {
-                    given: user.firstName || user.givenName || '',
-                    family: user.lastName || user.familyName || ''
-                  },
-                  email: user.email,
-                  username: user.username || user.email,
-                  population: {
-                    id: user.populationId || defaultPopulationId || this.getSettings().populationId
-                  }
-                };
-
-                // Determine if user should be enabled (for later status update)
-                let userEnabledStatus = defaultEnabled;
-                if (user.enabled !== undefined) {
-                  if (typeof user.enabled === 'string') {
-                    userEnabledStatus = user.enabled.toLowerCase() === 'true' || user.enabled === '1';
-                  } else {
-                    userEnabledStatus = user.enabled;
-                  }
-                }
-
-                // Add password if generatePasswords is enabled
-                if (generatePasswords) {
-                  userData.password = {
-                    value: this.generateTemporaryPassword()
-                  };
-                }
-
-                // Create the user
-                const createdUser = await this.request('POST', `/environments/${this.getSettings().environmentId}/users`, userData);
-
-                // After creation, update status if needed
-                if (userEnabledStatus === false) {
-                  try {
-                    await this.updateUserStatus(createdUser.id, false);
-                    this.logger.info(`[MODIFY] Disabled user after creation: ${createdUser.username || createdUser.email} (ID: ${createdUser.id})`);
-                  } catch (statusErr) {
-                    this.logger.warn(`[MODIFY] Failed to disable user after creation: ${createdUser.username || createdUser.email} (ID: ${createdUser.id})`, statusErr);
-                  }
-                }
-                results.created++;
-                results.details.push({
-                  user,
-                  status: 'created',
-                  pingOneId: createdUser.id,
-                  reason: 'User created because createIfNotExists was enabled'
-                });
-                // Enhanced user creation logging with population information for modify function (second occurrence)
-                try {
-                  // Get population details for enhanced logging
-                  const availablePopulations = await this.getPopulations();
-                  const populationInfo = availablePopulations.find(pop => pop.id === userData.population.id);
-                  if (populationInfo) {
-                    // Create visually prominent success message with population details
-                    const successMessage = `
-✅ USER CREATED IN PINGONE (MODIFY)
-👤 Username: ${createdUser.username || createdUser.email}
-🆔 PingOne ID: ${createdUser.id}
-📍 POPULATION:
-➤ Name: ${populationInfo.name}
-➤ ID: ${populationInfo.id}
-`;
-                    console.log(successMessage);
-                    this.logger.info(successMessage);
-
-                    // Also log to UI if available
-                    if (window.app && window.app.uiManager) {
-                      window.app.uiManager.logMessage('success', `User created via modify: ${createdUser.username || createdUser.email} in population "${populationInfo.name}"`);
-                    }
-                  } else {
-                    // Fallback if population info not found
-                    console.log(`[MODIFY] Successfully created user: ${createdUser.username || createdUser.email} (ID: ${createdUser.id}) in population: ${userData.population.id}`);
-                    this.logger.info(`[MODIFY] Successfully created user: ${createdUser.username || createdUser.email} (ID: ${createdUser.id}) in population: ${userData.population.id}`);
-                  }
-                } catch (populationError) {
-                  // Fallback if population lookup fails
-                  console.log(`[MODIFY] Successfully created user: ${createdUser.username || createdUser.email} (ID: ${createdUser.id}) in population: ${userData.population.id}`);
-                  this.logger.info(`[MODIFY] Successfully created user: ${createdUser.username || createdUser.email} (ID: ${createdUser.id}) in population: ${userData.population.id}`);
-                }
-
-                // Update progress
-                if (onProgress) {
-                  onProgress({
-                    current,
-                    total: users.length,
-                    modified: results.modified,
-                    created: results.created,
-                    failed: results.failed,
-                    skipped: results.skipped,
-                    noChanges: results.noChanges
-                  });
-                }
-                continue;
-              } catch (error) {
-                this.logger.error(`[MODIFY] Failed to create user ${user.username || user.email}:`, error.message);
-                results.failed++;
-                results.details.push({
-                  user,
-                  status: 'failed',
-                  error: `Failed to create user: ${error.message}`,
-                  reason: 'User creation failed'
-                });
-                continue;
-              }
-            }
-
-            // If user not found and createIfNotExists is disabled, skip the user
-            if (!existingUser) {
-              results.skipped++;
-              results.details.push({
-                user,
-                status: 'skipped',
-                reason: 'User not found and createIfNotExists is disabled'
+            const populations = await this.makeRequest('GET', '/environments/current/populations');
+            if (populations._embedded && populations._embedded.populations.length > 0) {
+              fallbackPopulationId = populations._embedded.populations[0].id;
+              this.logger.debug('Using first available population as fallback', {
+                fallbackPopulationId
               });
-              this.logger.warn(`[MODIFY] User not found: ${user.username || user.email}. Skipping (createIfNotExists: ${createIfNotExists})`);
-              continue;
-            }
-
-            // Log the user we're about to modify
-            this.logger.info(`[MODIFY] Modifying user found by ${lookupMethod}:`, {
-              username: existingUser.username,
-              email: existingUser.email,
-              id: existingUser.id,
-              originalLookup: {
-                username: user.username,
-                email: user.email
-              }
-            });
-
-            // Compare CSV data with existing user data
-            const changes = {};
-            let hasChanges = false;
-
-            // Map CSV fields to PingOne API fields
-            const fieldMappings = {
-              firstName: 'name.given',
-              lastName: 'name.family',
-              givenName: 'name.given',
-              familyName: 'name.family',
-              email: 'email',
-              phoneNumber: 'phoneNumber',
-              title: 'title',
-              department: 'department'
-            };
-
-            // Add enabled field to mappings if updateUserStatus is enabled
-            if (updateUserStatus) {
-              fieldMappings.enabled = 'enabled';
-            }
-
-            // Check each field for changes
-            Object.keys(fieldMappings).forEach(csvField => {
-              if (user[csvField] !== undefined && user[csvField] !== null && user[csvField] !== '') {
-                const apiField = fieldMappings[csvField];
-                const currentValue = this.getNestedValue(existingUser, apiField);
-                const newValue = user[csvField];
-                if (currentValue !== newValue) {
-                  this.setNestedValue(changes, apiField, newValue);
-                  hasChanges = true;
-                  this.logger.debug(`[MODIFY] Field "${csvField}" changed: "${currentValue}" -> "${newValue}"`);
-                }
-              }
-            });
-
-            // If no changes detected, skip the user
-            if (!hasChanges) {
-              results.noChanges++;
-              results.details.push({
-                user,
-                status: 'no_changes',
-                reason: 'No changes detected'
-              });
-              this.logger.info(`[MODIFY] No changes detected for user: ${user.username || user.email}`);
-
-              // Update progress
-              if (onProgress) {
-                onProgress({
-                  current,
-                  total: users.length,
-                  modified: results.modified,
-                  created: results.created,
-                  failed: results.failed,
-                  skipped: results.skipped,
-                  noChanges: results.noChanges
-                });
-              }
-              continue;
-            }
-
-            // Update the user with changes
-            try {
-              this.logger.info(`[MODIFY] Updating user ${existingUser.id} with changes:`, changes);
-              const updatedUser = await this.request('PUT', `/environments/${this.getSettings().environmentId}/users/${existingUser.id}`, changes);
-              results.modified++;
-              results.details.push({
-                user,
-                status: 'modified',
-                pingOneId: updatedUser.id,
-                changes: changes
-              });
-              this.logger.info(`[MODIFY] Successfully modified user: ${updatedUser.username || updatedUser.email} (ID: ${updatedUser.id})`);
-            } catch (error) {
-              // Get friendly error message if available
-              const friendlyMessage = error.friendlyMessage || error.message;
-
-              // Check if this is a 404 error (user not found)
-              if (error.status === 404 || error.message.includes('404') || error.message.includes('not found')) {
-                results.skipped++;
-                results.details.push({
-                  user,
-                  status: 'skipped',
-                  reason: 'User not found (404)'
-                });
-                this.logger.warn(`[MODIFY] User '${user.username || user.email}' not found in PingOne (404). Skipping this user.`);
-              } else {
-                results.failed++;
-
-                // Provide more context for different error types
-                let errorReason = friendlyMessage;
-                if (error.status === 400) {
-                  errorReason = `Data validation failed: ${friendlyMessage}`;
-                } else if (error.status === 429) {
-                  errorReason = `Rate limited: ${friendlyMessage}`;
-                } else if (error.status === 403) {
-                  errorReason = `Permission denied: ${friendlyMessage}`;
-                }
-                results.details.push({
-                  user,
-                  status: 'failed',
-                  error: errorReason,
-                  statusCode: error.status
-                });
-                this.logger.error(`[MODIFY] Failed to modify user '${user.username || user.email}': ${errorReason}`);
-
-                // Show user-friendly error in UI for specific error types
-                if (window.app && window.app.uiManager && (error.status === 400 || error.status === 403)) {
-                  window.app.uiManager.showWarning(`User '${user.username || user.email}': ${friendlyMessage}`);
-                }
-              }
-            }
-
-            // Update progress for each user
-            if (onProgress) {
-              onProgress({
-                current,
-                total: users.length,
-                modified: results.modified,
-                failed: results.failed,
-                skipped: results.skipped,
-                noChanges: results.noChanges
-              });
-            }
-
-            // Add small delay between individual user operations to prevent rate limiting
-            if (batchIndex < batch.length - 1) {
-              await new Promise(resolve => setTimeout(resolve, 500)); // 500ms delay between users
+            } else {
+              this.logger.debug('No populations available, skipping all users');
+              return {
+                success: false,
+                message: 'No populations available'
+              };
             }
           } catch (error) {
-            this.logger.error(`[MODIFY] Unexpected error processing user ${user.username || user.email}:`, error.message);
-            results.failed++;
-            results.details.push({
-              user,
-              status: 'failed',
-              error: error.message,
-              reason: 'Unexpected error'
+            this.logger.error('Error getting populations', {
+              error: error.message
             });
+            throw error;
           }
         }
-
-        // Add delay between batches to avoid rate limiting
-        if (i + batchSize < users.length && delayBetweenBatches > 0) {
-          await new Promise(resolve => setTimeout(resolve, delayBetweenBatches));
-        }
-
-        // Log batch completion
-        this.logger.info(`[MODIFY] Completed batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(users.length / batchSize)}`);
       }
-      return results;
-    }
-
-    /**
-     * Fetch all users in a specific population (paginated)
-     * @param {string} populationId - The population ID
-     * @returns {Promise<Array>} Array of user objects
-     */
-    return results;
-  }
-
-  /**
-   * Fetch all users in a specific population (paginated)
-   * @param {string} populationId - The population ID
-   * @returns {Promise<Array>} Array of user objects
-   */
-  async getAllUsersInPopulation(populationId) {
-    const settings = this.getSettings();
-    const users = [];
-    let page = 1;
-    const pageSize = 100;
-    const maxPages = 1000;
-    let fetched = 0;
-    do {
-      if (page > maxPages) break;
-      try {
-        const resp = await this.request('GET', `/environments/${settings.environmentId}/users?limit=${pageSize}&page=${page}&filter=population.id eq "${populationId}"`);
-        if (resp && resp._embedded && resp._embedded.users && Array.isArray(resp._embedded.users)) {
-          const pageUsers = resp._embedded.users;
-          fetched = pageUsers.length;
-          if (fetched > 0) users.push(...pageUsers);
-        } else {
-          break;
-        }
-      } catch (error) {
-        break;
-      }
-      page++;
-    } while (fetched > 0 && page <= maxPages);
-    return users;
-  }
-
-  /**
-   * Fetch all users in a specific population using search-like filtering (alternative to pagination)
-   * @param {string} populationId - The population ID
-   * @returns {Promise<Array>} Array of user objects
-   */
-  async getAllUsersInPopulationUsingSearch(populationId) {
-    const settings = this.getSettings();
-    this.logger.info(`[SEARCH-FILTER] Starting filter-based fetch for population: ${populationId}`);
-    try {
-      // Use the standard users endpoint with a filter parameter instead of search endpoint
-      const response = await this.request('GET', `/environments/${settings.environmentId}/users?filter=population.id eq "${populationId}"&limit=1000`);
-      if (response && response._embedded && response._embedded.users && Array.isArray(response._embedded.users)) {
-        const users = response._embedded.users;
-        this.logger.info(`[SEARCH-FILTER] Found ${users.length} users via filter for population ${populationId}`);
-        return users;
-      } else {
-        this.logger.warn(`[SEARCH-FILTER] Invalid response structure for population ${populationId}`);
-        return [];
-      }
-    } catch (error) {
-      this.logger.error(`[SEARCH-FILTER] Error filtering users for population ${populationId}:`, error);
-      return [];
-    }
-  }
-
-  /**
-   * Fetch all users in a specific population using offset-based approach (alternative to page-based)
-   * @param {string} populationId - The population ID
-   * @returns {Promise<Array>} Array of user objects
-   */
-  async getAllUsersInPopulationUsingOffset(populationId) {
-    const settings = this.getSettings();
-    const users = [];
-    let offset = 0;
-    const limit = 100;
-    const maxUsers = 5000; // Reduced safety limit
-    let fetched = 0;
-    this.logger.info(`[OFFSET] Starting offset-based fetch for population: ${populationId}`);
-    do {
-      // Safety check to prevent infinite loops
-      if (users.length >= maxUsers) {
-        this.logger.warn(`[OFFSET] Reached maximum user limit (${maxUsers}) for population ${populationId}. Stopping fetch.`);
-        break;
-      }
-      try {
-        // Use limit and skip instead of offset (some APIs prefer skip) with proper filter format
-        const resp = await this.request('GET', `/environments/${settings.environmentId}/users?limit=${limit}&skip=${offset}&filter=population.id eq "${populationId}"`);
-        if (resp && resp._embedded && resp._embedded.users && Array.isArray(resp._embedded.users)) {
-          const offsetUsers = resp._embedded.users;
-          fetched = offsetUsers.length;
-          if (fetched > 0) {
-            users.push(...offsetUsers);
-            this.logger.debug(`[OFFSET] Skip ${offset}: fetched ${fetched} users, total so far: ${users.length}`);
-            offset += fetched; // Move offset by actual fetched count
-          } else {
-            this.logger.debug(`[OFFSET] No more users returned at offset ${offset}, stopping`);
-            break;
-          }
-        } else {
-          this.logger.warn(`[OFFSET] Invalid response structure at offset ${offset} for population ${populationId}`);
-          break;
-        }
-      } catch (error) {
-        this.logger.error(`[OFFSET] Error fetching at offset ${offset} for population ${populationId}:`, error);
-        break;
-      }
-
-      // Add small delay between requests
-      await new Promise(resolve => setTimeout(resolve, 100));
-    } while (fetched > 0);
-    this.logger.info(`[OFFSET] Finished offset-based fetch for population ${populationId}: ${users.length} users total`);
-    return users;
-  }
-
-  /**
-   * Fetch all users in a specific population using single large request (no pagination)
-   * @param {string} populationId - The population ID
-   * @returns {Promise<Array>} Array of user objects
-   */
-  async getAllUsersInPopulationSingleRequest(populationId) {
-    const settings = this.getSettings();
-    this.logger.info(`[SINGLE] Starting single request fetch for population: ${populationId}`);
-    try {
-      // Try with a more reasonable limit first (1000) with proper filter format
-      const resp = await this.request('GET', `/environments/${settings.environmentId}/users?limit=1000&filter=population.id eq "${populationId}"`);
-      if (resp && resp._embedded && resp._embedded.users && Array.isArray(resp._embedded.users)) {
-        const users = resp._embedded.users;
-        this.logger.info(`[SINGLE] Found ${users.length} users in single request for population ${populationId}`);
-
-        // Check if we might have hit the limit (indicating there could be more)
-        if (users.length === 1000) {
-          this.logger.warn(`[SINGLE] Hit limit of 1000 users - there may be more users not fetched`);
-        }
-        return users;
-      } else {
-        this.logger.warn(`[SINGLE] Invalid response structure for population ${populationId}`);
-        return [];
-      }
-    } catch (error) {
-      this.logger.error(`[SINGLE] Error in single request for population ${populationId}:`, error);
-      return [];
-    }
-  }
-
-  /**
-   * Fetch all users in a specific population using the most reliable method
-   * This tries multiple approaches in order of preference
-   * @param {string} populationId - The population ID
-   * @returns {Promise<Array>} Array of user objects
-   */
-  async getAllUsersInPopulationReliable(populationId) {
-    this.logger.info(`[RELIABLE] Starting reliable fetch for population: ${populationId}`);
-
-    // Method 1: Try the original working method first
-    try {
-      const originalUsers = await this.getUsersByPopulation(populationId);
-      if (originalUsers.length > 0) {
-        this.logger.info(`[RELIABLE] Successfully used original method: ${originalUsers.length} users`);
-        return originalUsers;
-      }
-    } catch (error) {
-      this.logger.warn(`[RELIABLE] Original method failed:`, error.message);
-    }
-
-    // Method 2: Try filter-based approach
-    try {
-      const filterUsers = await this.getAllUsersInPopulationUsingSearch(populationId);
-      if (filterUsers.length > 0) {
-        this.logger.info(`[RELIABLE] Successfully used filter method: ${filterUsers.length} users`);
-        return filterUsers;
-      }
-    } catch (error) {
-      this.logger.warn(`[RELIABLE] Filter method failed:`, error.message);
-    }
-
-    // Method 3: Try single large request with smaller limit
-    try {
-      const singleUsers = await this.getAllUsersInPopulationSingleRequest(populationId);
-      if (singleUsers.length > 0) {
-        this.logger.info(`[RELIABLE] Successfully used single request method: ${singleUsers.length} users`);
-        return singleUsers;
-      }
-    } catch (error) {
-      this.logger.warn(`[RELIABLE] Single request method failed:`, error.message);
-    }
-
-    // Method 4: Try offset-based approach
-    try {
-      const offsetUsers = await this.getAllUsersInPopulationUsingOffset(populationId);
-      if (offsetUsers.length > 0) {
-        this.logger.info(`[RELIABLE] Successfully used offset method: ${offsetUsers.length} users`);
-        return offsetUsers;
-      }
-    } catch (error) {
-      this.logger.warn(`[RELIABLE] Offset method failed:`, error.message);
-    }
-
-    // Method 5: Fall back to limited pagination as last resort
-    this.logger.warn(`[RELIABLE] All alternative methods failed, falling back to limited pagination`);
-    return await this.getAllUsersInPopulationLimited(populationId);
-  }
-
-  /**
-   * Limited pagination approach with very strict controls
-   * @param {string} populationId - The population ID
-   * @returns {Promise<Array>} Array of user objects
-   */
-  async getAllUsersInPopulationLimited(populationId) {
-    const settings = this.getSettings();
-    const users = [];
-    let page = 1;
-    const pageSize = 50; // Smaller page size
-    const maxPages = 20; // Much stricter limit
-    let fetched = 0;
-    let consecutiveEmptyPages = 0;
-    this.logger.info(`[LIMITED] Starting limited pagination for population: ${populationId}`);
-    do {
-      // Multiple safety checks
-      if (page > maxPages) {
-        this.logger.warn(`[LIMITED] Reached maximum page limit (${maxPages})`);
-        break;
-      }
-      if (consecutiveEmptyPages >= 3) {
-        this.logger.warn(`[LIMITED] Too many consecutive empty pages, stopping`);
-        break;
-      }
-      try {
-        const resp = await this.request('GET', `/environments/${settings.environmentId}/users?limit=${pageSize}&page=${page}&filter=population.id eq "${populationId}"`);
-        if (resp && resp._embedded && resp._embedded.users && Array.isArray(resp._embedded.users)) {
-          const pageUsers = resp._embedded.users;
-          fetched = pageUsers.length;
-          if (fetched > 0) {
-            users.push(...pageUsers);
-            consecutiveEmptyPages = 0;
-            this.logger.debug(`[LIMITED] Page ${page}: fetched ${fetched} users, total: ${users.length}`);
-          } else {
-            consecutiveEmptyPages++;
-            this.logger.debug(`[LIMITED] Page ${page}: no users (consecutive empty: ${consecutiveEmptyPages})`);
-          }
-        } else {
-          consecutiveEmptyPages++;
-          this.logger.warn(`[LIMITED] Invalid response at page ${page}`);
-        }
-      } catch (error) {
-        this.logger.error(`[LIMITED] Error at page ${page}:`, error);
-        break;
-      }
-      page++;
-
-      // Add small delay between requests
-      await new Promise(resolve => setTimeout(resolve, 100));
-    } while (fetched > 0 && page <= maxPages && consecutiveEmptyPages < 3);
-    this.logger.info(`[LIMITED] Finished limited pagination: ${users.length} users total (${page - 1} pages)`);
-    return users;
-  }
-
-  /**
-   * Fetch all users in a specific population using the correct API endpoint
-   * @param {string} populationId - The population ID
-   * @returns {Promise<Array>} Array of user objects
-   */
-  async getUsersByPopulation(populationId) {
-    let options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    const settings = this.getSettings();
-    const users = [];
-    let page = 1;
-    const pageSize = 100;
-    const maxPages = 1000; // Safety limit to prevent infinite loops
-    let fetched = 0;
-    this.logger.info(`[DELETE] Starting to fetch users for population: ${populationId}`);
-    do {
-      if (options.signal && options.signal.aborted) {
-        throw new DOMException('Population fetch aborted', 'AbortError');
-      }
-
-      // Safety check to prevent infinite loops
-      if (page > maxPages) {
-        this.logger.warn(`[DELETE] Reached maximum page limit (${maxPages}) for population ${populationId}. Stopping fetch.`);
-        break;
-      }
-      this.logger.debug(`[DELETE] Fetching page ${page} for population ${populationId}...`);
-      try {
-        // Use the general users endpoint with proper population filter format
-        const resp = await this.request('GET', `/environments/${settings.environmentId}/users?limit=${pageSize}&page=${page}&filter=population.id eq "${populationId}"`, null, options);
-        if (resp && resp._embedded && resp._embedded.users && Array.isArray(resp._embedded.users)) {
-          const pageUsers = resp._embedded.users;
-          fetched = pageUsers.length;
-          if (fetched > 0) {
-            users.push(...pageUsers);
-            this.logger.debug(`[DELETE] Page ${page}: fetched ${fetched} users, total so far: ${users.length}`);
-
-            // Log first few users for debugging
-            if (page === 1) {
-              this.logger.debug(`[DELETE] First page users:`, pageUsers.slice(0, 3).map(u => ({
-                id: u.id,
-                username: u.username,
-                email: u.email
-              })));
-            }
-          } else {
-            this.logger.debug(`[DELETE] Page ${page}: no users returned, stopping pagination`);
-          }
-        } else {
-          this.logger.warn(`[DELETE] Invalid response structure on page ${page} for population ${populationId}`);
-          break;
-        }
-      } catch (error) {
-        this.logger.error(`[DELETE] Error fetching page ${page} for population ${populationId}:`, error);
-        break;
-      }
-      page++;
-    } while (fetched > 0 && page <= maxPages);
-    this.logger.info(`[DELETE] Finished fetching users for population ${populationId}: ${users.length} users total (${page - 1} pages)`);
-
-    // Log summary of fetched users
-    if (users.length > 0) {
-      this.logger.debug(`[DELETE] User summary:`, {
-        totalUsers: users.length,
-        firstUser: {
-          id: users[0].id,
-          username: users[0].username,
-          email: users[0].email
-        },
-        lastUser: {
-          id: users[users.length - 1].id,
-          username: users[users.length - 1].username,
-          email: users[users.length - 1].email
-        }
+      this.logger.debug('Population selection completed', {
+        fallbackPopulationId
       });
-    } else {
-      this.logger.warn(`[DELETE] No users found in population ${populationId}`);
-    }
-    return users;
-  }
 
-  /**
-   * Fetch all users in the environment (paginated)
-   * @returns {Promise<Array>} Array of user objects
-   */
-  async getAllUsersInEnvironment() {
-    const settings = this.getSettings();
-    const users = [];
-    let page = 1;
-    const pageSize = 100;
-    let total = 0;
-    let fetched = 0;
-    do {
-      const resp = await this.request('GET', `/environments/${settings.environmentId}/users?limit=${pageSize}&page=${page}`);
-      if (resp._embedded && resp._embedded.users) {
-        users.push(...resp._embedded.users);
-        fetched = resp._embedded.users.length;
-        total = resp.page && resp.page.totalElements ? resp.page.totalElements : users.length;
-      } else {
-        break;
+      // Process users in batches
+      const totalUsers = csvData.length;
+      const results = {
+        success: true,
+        processed: 0,
+        created: 0,
+        skipped: 0,
+        failed: 0,
+        errors: []
+      };
+      this.logger.debug('Starting user processing loop...');
+      for (let i = 0; i < totalUsers; i += batchSize) {
+        const batch = csvData.slice(i, i + batchSize);
+        this.logger.debug(`Processing batch ${Math.floor(i / batchSize) + 1}`, {
+          users: `${i + 1}-${Math.min(i + batchSize, totalUsers)}`,
+          batchSize: batch.length
+        });
+        for (const user of batch) {
+          try {
+            const userPopulationId = user.populationId || fallbackPopulationId;
+            if (!userPopulationId) {
+              const error = `Missing population – user not processed. Username: ${user.email || user.username}`;
+              this.logger.error(`Line ${csvData.indexOf(user) + 2}: ${error}`);
+              results.errors.push(error);
+              results.skipped++;
+              continue;
+            }
+
+            // Create user
+            const userData = {
+              username: user.username || user.email,
+              email: user.email,
+              name: {
+                given: user.firstName || user.givenName || '',
+                family: user.lastName || user.familyName || ''
+              },
+              enabled: enableUsers,
+              population: {
+                id: userPopulationId
+              }
+            };
+
+            // Add optional fields
+            if (user.phoneNumber) userData.phoneNumber = user.phoneNumber;
+            if (user.title) userData.title = user.title;
+            if (user.company) userData.company = user.company;
+            const result = await this.createUser(userData, retryAttempts);
+            if (result.success) {
+              results.created++;
+
+              // Disable user if requested
+              if (!enableUsers && result.userId) {
+                this.logger.debug(`Disabling user ${result.userId} after creation`);
+                try {
+                  await this.makeRequest('PATCH', `/environments/current/users/${result.userId}`, {
+                    enabled: false
+                  });
+                  this.logger.debug(`Successfully disabled user ${result.userId}`);
+                } catch (statusError) {
+                  this.logger.warn(`Failed to disable user ${result.userId}`, {
+                    error: statusError.message
+                  });
+                }
+              }
+            } else {
+              results.failed++;
+              results.errors.push(result.error);
+            }
+            results.processed++;
+          } catch (error) {
+            this.logger.error(`Unexpected error for user ${user.email || user.username}`, {
+              error: error.message
+            });
+            results.failed++;
+            results.errors.push(error.message);
+          }
+        }
       }
-      page++;
-    } while (users.length < total && fetched > 0);
-    return users;
-  }
-
-  /**
-   * Helper to get a nested value from an object using dot notation (e.g., 'name.given')
-   */
-  getNestedValue(obj, path) {
-    if (!obj || !path) return undefined;
-    return path.split('.').reduce((acc, part) => acc && acc[part] !== undefined ? acc[part] : undefined, obj);
-  }
-
-  /**
-   * Helper to set a nested value in an object using dot notation (e.g., 'name.given')
-   */
-  setNestedValue(obj, path, value) {
-    if (!obj || !path) return;
-    const parts = path.split('.');
-    let current = obj;
-    for (let i = 0; i < parts.length - 1; i++) {
-      if (!current[parts[i]]) current[parts[i]] = {};
-      current = current[parts[i]];
+      this.logger.info('Batch import summary', {
+        total: totalUsers,
+        processed: results.processed,
+        created: results.created,
+        skipped: results.skipped,
+        failed: results.failed
+      });
+      return results;
+    } catch (error) {
+      this.logger.error('Import users failed', {
+        error: error.message
+      });
+      throw error;
     }
-    current[parts[parts.length - 1]] = value;
+  }
+
+  /**
+   * Create a single user
+   */
+  async createUser(userData, retryAttempts = 3) {
+    try {
+      for (let attempt = 1; attempt <= retryAttempts; attempt++) {
+        try {
+          this.logger.debug(`Making API request for user ${userData.email || userData.username} (attempt ${attempt}/${retryAttempts})`);
+          const result = await this.makeRequest('POST', '/environments/current/users', userData);
+          this.logger.debug(`API request completed for user ${userData.email || userData.username}`);
+          if (result.id) {
+            const successMessage = `Successfully created user: ${userData.username || userData.email}`;
+            this.logger.info(successMessage, {
+              userId: result.id,
+              populationId: userData.population.id
+            });
+            return {
+              success: true,
+              userId: result.id,
+              user: result
+            };
+          } else {
+            this.logger.warn('Invalid response structure - no ID found', {
+              result
+            });
+            return {
+              success: false,
+              error: 'Invalid response structure'
+            };
+          }
+        } catch (error) {
+          if (error.message.includes('already exists')) {
+            this.logger.debug(`User already exists: ${userData.email || userData.username}`);
+            return {
+              success: true,
+              userId: null,
+              user: null,
+              message: 'User already exists'
+            };
+          }
+          this.logger.error(`API request failed for user ${userData.email || userData.username} (attempt ${attempt})`, {
+            error: error.message
+          });
+          if (attempt === retryAttempts) {
+            return {
+              success: false,
+              error: error.message
+            };
+          }
+
+          // Wait before retry
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        }
+      }
+    } catch (error) {
+      this.logger.error('Create user failed', {
+        error: error.message,
+        userData
+      });
+      return {
+        success: false,
+        error: error.message
+      };
+    }
   }
 }
-exports.PingOneClient = PingOneClient;
 
-},{"./local-api.js":9}],12:[function(require,module,exports){
+// Create and export default instance
+exports.PingOneClient = PingOneClient;
+const pingOneClient = exports.pingOneClient = new PingOneClient();
+
+// Export the class and instance
+
+}).call(this)}).call(this,require('_process'))
+},{"./ui-manager.js":15,"./winston-logger.js":17,"_process":2}],13:[function(require,module,exports){
+(function (process){(function (){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.settingsManager = exports.SettingsManager = void 0;
+exports.SettingsManager = void 0;
+var _winstonLogger = require("./winston-logger.js");
 var _cryptoUtils = require("./crypto-utils.js");
-// File: settings-manager.js
-// Description: Application settings management with encryption support
-// 
-// This module handles all application configuration including:
-// - Secure storage of API credentials and settings
-// - Encryption/decryption of sensitive data
-// - Settings validation and default values
-// - Local storage management with fallbacks
-// - Device-specific encryption keys
-// 
-// Provides a secure way to store and retrieve application settings.
-
 /**
- * Settings Manager Class
+ * @fileoverview Settings Manager Class
  * 
  * Manages application settings with secure storage and encryption.
  * Handles API credentials, user preferences, and configuration data
  * with automatic encryption for sensitive information.
  * 
- * @param {Object} logger - Logger instance for debugging
+ * @param {Object} logger - Winston logger instance for debugging
  */
+
 class SettingsManager {
-  constructor(logger) {
+  constructor(logger = null) {
     // Initialize settings with default values
     this.settings = this.getDefaultSettings();
     this.storageKey = 'pingone-import-settings';
     this.crypto = new _cryptoUtils.CryptoUtils();
     this.encryptionKey = null;
 
-    // Initialize logger for debugging and error reporting
+    // Initialize Winston logger for debugging and error reporting
     this.initializeLogger(logger);
 
     // Encryption will be initialized in the init method
@@ -8750,68 +7241,220 @@ class SettingsManager {
       this.encryptionInitialized = true;
       this.logger.info('Settings manager initialized successfully');
     } catch (error) {
-      this.logger.error('Failed to initialize settings manager:', error);
-      // Continue without encryption if it fails
-      this.encryptionInitialized = false;
+      this.logger.error('Failed to initialize settings manager', {
+        error: error.message
+      });
+      throw error;
     }
   }
 
   /**
-   * Initialize the logger
-   * @param {Object} logger - Optional logger instance
+   * Initialize Winston logger
    */
   initializeLogger(logger) {
-    if (logger && typeof logger === 'object') {
-      this.logger = logger;
+    if (logger && typeof logger.child === 'function') {
+      this.logger = logger.child({
+        component: 'settings-manager'
+      });
     } else {
-      // Create a minimal safe console logger
-      const safeLog = function (level, message) {
-        const logFn = console[level] || console.log;
-        try {
-          for (var _len = arguments.length, args = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
-            args[_key - 2] = arguments[_key];
-          }
-          if (typeof message === 'string') {
-            logFn(`[${level.toUpperCase()}] ${message}`, ...args);
-          } else {
-            logFn(message, ...args);
-          }
-        } catch (e) {
-          console.error('Logger error:', e);
-        }
+      this.logger = (0, _winstonLogger.createWinstonLogger)({
+        service: 'pingone-import-settings',
+        environment: process.env.NODE_ENV || 'development'
+      });
+    }
+  }
+
+  /**
+   * Create a default console logger if none provided
+   */
+  createDefaultLogger() {
+    return {
+      log: (msg, level = 'info') => this.logger.log(level, `[Settings] ${msg}`),
+      info: msg => this.logger.info(`[Settings] ${msg}`),
+      warn: msg => this.logger.warn(`[Settings] ${msg}`),
+      error: msg => this.logger.error(`[Settings] ${msg}`),
+      debug: msg => this.logger.debug(`[Settings] ${msg}`)
+    };
+  }
+
+  /**
+   * Get default settings
+   */
+  getDefaultSettings() {
+    return {
+      environmentId: '',
+      region: 'NorthAmerica',
+      apiClientId: '',
+      populationId: '',
+      rateLimit: 50,
+      connectionStatus: 'disconnected',
+      connectionMessage: 'Not connected',
+      lastConnectionTest: null,
+      autoSave: true,
+      lastUsedDirectory: '',
+      theme: 'light',
+      pageSize: 50,
+      showNotifications: true
+    };
+  }
+
+  /**
+   * Load settings from storage
+   */
+  async loadSettings() {
+    try {
+      if (!this.encryptionInitialized) {
+        this.logger.warn('Encryption not initialized, loading settings without decryption');
+        return this.settings;
+      }
+      const storedData = localStorage.getItem(this.storageKey);
+      if (!storedData) {
+        this.logger.info('No stored settings found, using defaults');
+        return this.settings;
+      }
+      const decryptedData = await this.crypto.decrypt(storedData, this.encryptionKey);
+      const parsedSettings = JSON.parse(decryptedData);
+
+      // Merge with defaults to ensure all properties exist
+      this.settings = {
+        ...this.getDefaultSettings(),
+        ...parsedSettings
       };
-      this.logger = {
-        debug: function (msg) {
-          for (var _len2 = arguments.length, args = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
-            args[_key2 - 1] = arguments[_key2];
-          }
-          return safeLog('debug', msg, ...args);
-        },
-        log: function (msg) {
-          for (var _len3 = arguments.length, args = new Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
-            args[_key3 - 1] = arguments[_key3];
-          }
-          return safeLog('log', msg, ...args);
-        },
-        info: function (msg) {
-          for (var _len4 = arguments.length, args = new Array(_len4 > 1 ? _len4 - 1 : 0), _key4 = 1; _key4 < _len4; _key4++) {
-            args[_key4 - 1] = arguments[_key4];
-          }
-          return safeLog('info', msg, ...args);
-        },
-        warn: function (msg) {
-          for (var _len5 = arguments.length, args = new Array(_len5 > 1 ? _len5 - 1 : 0), _key5 = 1; _key5 < _len5; _key5++) {
-            args[_key5 - 1] = arguments[_key5];
-          }
-          return safeLog('warn', msg, ...args);
-        },
-        error: function (msg) {
-          for (var _len6 = arguments.length, args = new Array(_len6 > 1 ? _len6 - 1 : 0), _key6 = 1; _key6 < _len6; _key6++) {
-            args[_key6 - 1] = arguments[_key6];
-          }
-          return safeLog('error', msg, ...args);
-        }
+      this.logger.info('Settings loaded successfully', {
+        hasEnvironmentId: !!this.settings.environmentId,
+        hasApiClientId: !!this.settings.apiClientId,
+        region: this.settings.region
+      });
+      return this.settings;
+    } catch (error) {
+      this.logger.error('Failed to load settings', {
+        error: error.message
+      });
+      // Return default settings on error
+      return this.settings;
+    }
+  }
+
+  /**
+   * Save settings to storage
+   */
+  async saveSettings(settings = null) {
+    try {
+      if (settings) {
+        this.settings = {
+          ...this.settings,
+          ...settings
+        };
+      }
+      if (!this.encryptionInitialized) {
+        this.logger.warn('Encryption not initialized, saving settings without encryption');
+        localStorage.setItem(this.storageKey, JSON.stringify(this.settings));
+        return;
+      }
+      const jsonData = JSON.stringify(this.settings);
+      const encryptedData = await this.crypto.encrypt(jsonData, this.encryptionKey);
+      localStorage.setItem(this.storageKey, encryptedData);
+      this.logger.info('Settings saved successfully', {
+        hasEnvironmentId: !!this.settings.environmentId,
+        hasApiClientId: !!this.settings.apiClientId,
+        region: this.settings.region
+      });
+    } catch (error) {
+      this.logger.error('Failed to save settings', {
+        error: error.message
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Get a specific setting
+   */
+  getSetting(key) {
+    return this.settings[key];
+  }
+
+  /**
+   * Set a specific setting
+   */
+  async setSetting(key, value) {
+    try {
+      this.settings[key] = value;
+      await this.saveSettings();
+      this.logger.debug('Setting updated', {
+        key,
+        value: typeof value === 'string' ? value : '[object]'
+      });
+    } catch (error) {
+      this.logger.error('Failed to update setting', {
+        key,
+        error: error.message
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Get all settings
+   */
+  getAllSettings() {
+    return {
+      ...this.settings
+    };
+  }
+
+  /**
+   * Update multiple settings at once
+   */
+  async updateSettings(newSettings) {
+    try {
+      this.settings = {
+        ...this.settings,
+        ...newSettings
       };
+      await this.saveSettings();
+      this.logger.info('Multiple settings updated', {
+        updatedKeys: Object.keys(newSettings),
+        hasEnvironmentId: !!this.settings.environmentId,
+        hasApiClientId: !!this.settings.apiClientId
+      });
+    } catch (error) {
+      this.logger.error('Failed to update settings', {
+        error: error.message
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Reset settings to defaults
+   */
+  async resetSettings() {
+    try {
+      this.settings = this.getDefaultSettings();
+      await this.saveSettings();
+      this.logger.info('Settings reset to defaults');
+    } catch (error) {
+      this.logger.error('Failed to reset settings', {
+        error: error.message
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Clear all settings
+   */
+  async clearSettings() {
+    try {
+      localStorage.removeItem(this.storageKey);
+      this.settings = this.getDefaultSettings();
+      this.logger.info('Settings cleared');
+    } catch (error) {
+      this.logger.error('Failed to clear settings', {
+        error: error.message
+      });
+      throw error;
     }
   }
 
@@ -8820,13 +7463,18 @@ class SettingsManager {
    */
   async initializeEncryption() {
     try {
-      const deviceId = await this.getDeviceId();
-      // Use the static method from CryptoUtils
+      let deviceId = await this.getDeviceId();
+      if (typeof deviceId !== 'string') deviceId = String(deviceId || '');
+      if (!deviceId) deviceId = 'fallback-device-id';
       this.encryptionKey = await _cryptoUtils.CryptoUtils.generateKey(deviceId);
+      this.logger.debug('Encryption initialized successfully');
     } catch (error) {
-      this.logger.error('Failed to initialize encryption:', error);
+      this.logger.error('Failed to initialize encryption', {
+        error: error.message
+      });
       // Fallback to a less secure but functional approach
       this.encryptionKey = await _cryptoUtils.CryptoUtils.generateKey('fallback-encryption-key');
+      this.logger.warn('Using fallback encryption key');
     }
   }
 
@@ -8839,33 +7487,24 @@ class SettingsManager {
       // Try to get a stored device ID first
       if (this.isLocalStorageAvailable()) {
         const storedDeviceId = localStorage.getItem('pingone-device-id');
-        if (storedDeviceId) {
+        if (storedDeviceId && typeof storedDeviceId === 'string') {
           return storedDeviceId;
         }
       }
-
-      // Generate a new device ID based on stable browser characteristics
+      // Generate device ID from browser info
       const navigatorInfo = {
+        userAgent: navigator.userAgent,
         platform: navigator.platform,
         hardwareConcurrency: navigator.hardwareConcurrency,
         deviceMemory: navigator.deviceMemory,
-        maxTouchPoints: navigator.maxTouchPoints,
-        language: navigator.language,
-        languages: navigator.languages ? navigator.languages.slice(0, 3).join(',') : '',
-        userAgent: navigator.userAgent ? navigator.userAgent.substring(0, 100) : ''
+        maxTouchPoints: navigator.maxTouchPoints
       };
-
-      // Create a hash of the navigator info
       const encoder = new TextEncoder();
       const data = encoder.encode(JSON.stringify(navigatorInfo));
       const hashBuffer = await crypto.subtle.digest('SHA-256', data);
       const hashArray = Array.from(new Uint8Array(hashBuffer));
       const deviceId = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
-      // Store the device ID for future use
-      if (this.isLocalStorageAvailable()) {
-        localStorage.setItem('pingone-device-id', deviceId);
-      }
+      if (typeof deviceId !== 'string' || !deviceId) return 'fallback-device-id';
       return deviceId;
     } catch (error) {
       this.logger.error('Failed to generate device ID:', error);
@@ -8875,453 +7514,76 @@ class SettingsManager {
   }
 
   /**
-   * Get required settings fields
-   * @returns {Array<string>} Array of required setting keys
-   */
-  getRequiredSettings() {
-    return ['apiClientId', 'apiSecret', 'environmentId'];
-  }
-
-  /**
-   * Get default settings
-   * @returns {Object} Default settings object
-   */
-  getDefaultSettings() {
-    return {
-      // Connection settings
-      apiClientId: '',
-      apiSecret: '',
-      environmentId: '',
-      populationId: 'not set',
-      region: 'NorthAmerica',
-      // Rate limiting
-      rateLimit: 90,
-      // Connection status
-      connectionStatus: 'disconnected',
-      connectionMessage: 'Not connected',
-      lastConnectionTest: null,
-      // UI settings
-      autoSave: true,
-      lastUsedDirectory: '',
-      theme: 'light',
-      pageSize: 50,
-      showNotifications: true
-    };
-  }
-
-  /**
-   * Check if all required settings are filled
-   * @param {Object} [settings] - Optional settings to validate (uses current settings if not provided)
-   * @returns {{isValid: boolean, missingFields: Array<string>}} Validation result
-   */
-  validateSettings() {
-    let settings = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-    const settingsToValidate = settings || this.settings;
-    const requiredFields = this.getRequiredSettings();
-    const missingFields = [];
-    requiredFields.forEach(field => {
-      if (!settingsToValidate[field] || String(settingsToValidate[field]).trim() === '') {
-        missingFields.push(field);
-      }
-    });
-    return {
-      isValid: missingFields.length === 0,
-      missingFields
-    };
-  }
-
-  /**
    * Check if localStorage is available
-   * @returns {boolean} True if localStorage is available
    */
   isLocalStorageAvailable() {
     try {
-      const testKey = '__test__';
-      localStorage.setItem(testKey, testKey);
-      localStorage.removeItem(testKey);
+      const test = 'test';
+      localStorage.setItem(test, test);
+      localStorage.removeItem(test);
       return true;
-    } catch (e) {
-      this.logger.error('localStorage is not available', 'error');
+    } catch (error) {
+      this.logger.warn('localStorage not available', {
+        error: error.message
+      });
       return false;
     }
   }
 
   /**
-   * Load settings from server with localStorage fallback
-   * @returns {Promise<Object>} Loaded settings
+   * Export settings (for backup)
    */
-  async loadSettings() {
+  async exportSettings() {
     try {
-      // Try to load from server first
-      try {
-        const response = await fetch('/api/settings');
-        if (response.ok) {
-          let serverSettings = await response.json();
-          // Handle stringified JSON in data
-          if (typeof serverSettings === 'string') {
-            try {
-              serverSettings = JSON.parse(serverSettings);
-            } catch (e) {}
-          }
-          // Accept both {success, data} and {success, fileSettings}
-          let parsedSettings = null;
-          if (serverSettings.success && serverSettings.data) {
-            parsedSettings = serverSettings.data;
-          } else if (serverSettings.success && serverSettings.fileSettings) {
-            parsedSettings = serverSettings.fileSettings;
-          } else if (serverSettings.environmentId || serverSettings.apiClientId) {
-            parsedSettings = serverSettings;
-          }
-          if (parsedSettings) {
-            // Decrypt sensitive fields if they exist
-            if (parsedSettings.apiSecret) {
-              try {
-                parsedSettings.apiSecret = await this.decryptIfNeeded(parsedSettings.apiSecret);
-              } catch (error) {
-                this.logger.warn('Failed to decrypt API secret - device ID may have changed');
-                parsedSettings.apiSecret = '';
-              }
-            }
-            // Deep merge with defaults
-            this.settings = this.deepMerge(this.getDefaultSettings(), parsedSettings);
-            // Save to localStorage as cache
-            if (this.isLocalStorageAvailable()) {
-              localStorage.setItem(this.storageKey, JSON.stringify(this.settings));
-            }
-            this.logger.log('Settings loaded from server', 'success');
-            return this.settings;
-          }
-        }
-        // If we get here, server load failed or returned invalid data
-        throw new Error('Invalid server response');
-      } catch (serverError) {
-        this.logger.warn('Failed to load settings from server, falling back to localStorage', serverError);
-
-        // Fall back to localStorage if available
-        if (this.isLocalStorageAvailable()) {
-          const savedSettings = localStorage.getItem(this.storageKey);
-          if (savedSettings) {
-            const parsedSettings = JSON.parse(savedSettings);
-
-            // Decrypt sensitive fields
-            if (parsedSettings.apiSecret) {
-              try {
-                parsedSettings.apiSecret = await this.decryptIfNeeded(parsedSettings.apiSecret);
-              } catch (error) {
-                this.logger.warn('Failed to decrypt API secret from localStorage - device ID may have changed');
-                parsedSettings.apiSecret = '';
-              }
-            }
-
-            // Deep merge with defaults
-            this.settings = this.deepMerge(this.getDefaultSettings(), parsedSettings);
-            this.logger.log('Settings loaded from localStorage (fallback)', 'warning');
-
-            // Try to save to server for next time
-            this.saveSettings(this.settings, false).catch(e => this.logger.warn('Failed to sync settings to server', e));
-            return this.settings;
-          }
-        }
-
-        // If we get here, both server and localStorage failed or are empty
-        this.settings = this.getDefaultSettings();
-        this.logger.log('No saved settings found, using defaults', 'info');
-        return this.settings;
-      }
-    } catch (error) {
-      this.logger.error('Error loading settings:', error);
-      return this.getDefaultSettings();
-    }
-  }
-
-  /**
-   * Save settings to localStorage and server
-   * @param {Object} newSettings - Settings to save
-   * @param {boolean} [validate=true] - Whether to validate settings before saving
-   * @returns {Promise<boolean>} True if settings were saved successfully
-   */
-  async saveSettings(newSettings) {
-    let validate = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-    try {
-      // Create a deep copy of current settings
-      const updatedSettings = this.deepMerge({}, this.settings);
-
-      // Preserve connection status fields
-      const connectionFields = ['connectionStatus', 'connectionMessage', 'lastConnectionTest'];
-      const preservedConnectionFields = {};
-
-      // Extract connection fields from new settings
-      connectionFields.forEach(field => {
-        if (newSettings[field] !== undefined) {
-          preservedConnectionFields[field] = newSettings[field];
-        }
-      });
-
-      // Update with new settings
-      Object.assign(updatedSettings, newSettings);
-
-      // Restore preserved connection fields
-      Object.assign(updatedSettings, preservedConnectionFields);
-
-      // Validate settings if needed
-      if (validate) {
-        const validation = this.validateSettings(updatedSettings);
-        if (!validation.isValid) {
-          this.logger.warn(`Cannot save settings: Missing required fields - ${validation.missingFields.join(', ')}`);
-          return false;
-        }
-      }
-
-      // Create a copy of settings for saving (without connection fields)
-      const settingsToSave = {
-        ...updatedSettings
+      const exportData = {
+        settings: this.settings,
+        exportDate: new Date().toISOString(),
+        version: '1.0'
       };
-
-      // Only send apiSecret if a new value is provided (not blank or ********)
-      if (newSettings.apiSecret === '' || newSettings.apiSecret === '********') {
-        delete newSettings.apiSecret;
-      }
-
-      // Only encrypt API secret if it's not already encrypted and not empty
-      if (settingsToSave.apiSecret && !settingsToSave.apiSecret.startsWith('enc:')) {
-        try {
-          settingsToSave.apiSecret = await this.encrypt(settingsToSave.apiSecret);
-        } catch (error) {
-          this.logger.error('Failed to encrypt API secret', error);
-          throw new Error('Failed to secure API secret');
-        }
-      }
-
-      // Save to server first
-      try {
-        const response = await fetch('/api/settings', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(settingsToSave)
-        });
-        if (!response.ok) {
-          const error = await response.text();
-          throw new Error(`Server responded with status ${response.status}: ${error}`);
-        }
-
-        // Update in-memory settings
-        this.settings = updatedSettings;
-
-        // Also save to localStorage as a backup
-        if (this.isLocalStorageAvailable()) {
-          localStorage.setItem(this.storageKey, JSON.stringify(settingsToSave));
-        }
-        this.logger.log('Settings saved successfully', 'success');
-        return true;
-      } catch (error) {
-        this.logger.error('Failed to save settings to server, falling back to localStorage', error);
-
-        // Fall back to localStorage if server save fails
-        if (this.isLocalStorageAvailable()) {
-          try {
-            localStorage.setItem(this.storageKey, JSON.stringify(settingsToSave));
-            this.settings = updatedSettings;
-            this.logger.log('Settings saved to localStorage (fallback)', 'warning');
-            return true;
-          } catch (localError) {
-            this.logger.error('Failed to save settings to localStorage', localError);
-            throw new Error('Failed to save settings to any storage');
-          }
-        }
-        return false;
-      }
+      this.logger.info('Settings exported', {
+        exportDate: exportData.exportDate
+      });
+      return exportData;
     } catch (error) {
-      this.logger.error('Error in saveSettings:', error);
+      this.logger.error('Failed to export settings', {
+        error: error.message
+      });
       throw error;
     }
   }
 
   /**
-   * Encrypt a string value
-   * @param {string} value - The value to encrypt
-   * @returns {Promise<string>} Encrypted value with 'enc:' prefix
+   * Import settings (from backup)
    */
-  async encrypt(value) {
-    if (!value || typeof value !== 'string') return value;
-    if (value.startsWith('enc:')) return value; // Already encrypted
-
+  async importSettings(importData) {
     try {
-      if (!this.encryptionKey) {
-        await this.initializeEncryption();
+      if (!importData.settings) {
+        throw new Error('Invalid import data: missing settings');
       }
-      const encrypted = await _cryptoUtils.CryptoUtils.encrypt(value, this.encryptionKey);
-      return `enc:${encrypted}`;
-    } catch (error) {
-      this.logger.error('Encryption failed:', error);
-      throw new Error('Failed to encrypt sensitive data');
-    }
-  }
-
-  /**
-   * Decrypt a value if it's encrypted
-   * @param {string} value - Value to decrypt
-   * @returns {Promise<string>} Decrypted value
-   */
-  async decryptIfNeeded(value) {
-    if (!value || typeof value !== 'string') return value;
-    if (!value.startsWith('enc:')) return value; // Not encrypted
-
-    try {
-      if (!this.encryptionKey) {
-        await this.initializeEncryption();
-      }
-      const encryptedValue = value.substring(4); // Remove 'enc:' prefix
-      return await _cryptoUtils.CryptoUtils.decrypt(encryptedValue, this.encryptionKey);
-    } catch (error) {
-      // Log the error but don't show it to the user unless it's a critical failure
-      if (error.name === 'OperationError') {
-        this.logger.warn('Decryption failed due to key mismatch - this is normal when device ID changes');
-        // Clear the encrypted value from localStorage to prevent future decryption attempts
-        if (this.isLocalStorageAvailable()) {
-          const savedSettings = localStorage.getItem(this.storageKey);
-          if (savedSettings) {
-            try {
-              const parsedSettings = JSON.parse(savedSettings);
-              if (parsedSettings.apiSecret && parsedSettings.apiSecret.startsWith('enc:')) {
-                delete parsedSettings.apiSecret;
-                localStorage.setItem(this.storageKey, JSON.stringify(parsedSettings));
-                this.logger.info('Cleared encrypted API secret from localStorage');
-              }
-            } catch (e) {
-              this.logger.warn('Failed to clear encrypted data from localStorage');
-            }
-          }
-        }
-      } else {
-        this.logger.error('Decryption failed:', error);
-      }
-      // Return empty string instead of throwing error to prevent app from crashing
-      return '';
-    }
-  }
-
-  /**
-   * Deep merge objects
-   * @param {Object} target - Target object
-   * @param {Object} source - Source object
-   * @returns {Object} Merged object
-   */
-  deepMerge(target, source) {
-    const output = {
-      ...target
-    };
-    if (this.isObject(target) && this.isObject(source)) {
-      Object.keys(source).forEach(key => {
-        if (this.isObject(source[key])) {
-          if (!(key in target)) {
-            Object.assign(output, {
-              [key]: source[key]
-            });
-          } else {
-            output[key] = this.deepMerge(target[key], source[key]);
-          }
-        } else {
-          Object.assign(output, {
-            [key]: source[key]
-          });
-        }
-      });
-    }
-    return output;
-  }
-
-  /**
-   * Check if a value is an object
-   * @param {*} item - Value to check
-   * @returns {boolean} True if the value is an object
-   */
-  isObject(item) {
-    return item && typeof item === 'object' && !Array.isArray(item);
-  }
-
-  /**
-   * Update settings in memory
-   * @param {Object} newSettings - New settings to update
-   * @returns {Object} The updated settings
-   */
-  updateSettings(newSettings) {
-    try {
-      if (!newSettings || typeof newSettings !== 'object') {
-        throw new Error('Invalid settings object');
-      }
-
-      // Merge new settings with existing ones
       this.settings = {
-        ...this.settings,
-        ...newSettings
+        ...this.getDefaultSettings(),
+        ...importData.settings
       };
-      this.logger.info('Settings updated in memory');
-      return this.settings;
+      await this.saveSettings();
+      this.logger.info('Settings imported successfully', {
+        importDate: importData.exportDate,
+        hasEnvironmentId: !!this.settings.environmentId,
+        hasApiClientId: !!this.settings.apiClientId
+      });
     } catch (error) {
-      this.logger.error(`Error updating settings: ${error.message}`);
+      this.logger.error('Failed to import settings', {
+        error: error.message
+      });
       throw error;
     }
-  }
-
-  /**
-   * Clear all settings and reset to defaults
-   * @returns {Promise<boolean>} True if settings were cleared successfully
-   */
-  async clearSettings() {
-    try {
-      if (this.isLocalStorageAvailable()) {
-        localStorage.removeItem(this.storageKey);
-      }
-      this.settings = this.getDefaultSettings();
-      this.logger.log('Settings cleared successfully', 'success');
-      return true;
-    } catch (error) {
-      this.logger.error(`Error clearing settings: ${error.message}`, 'error');
-      return false;
-    }
-  }
-
-  /**
-   * Get all settings
-   * @returns {Object} Current settings object
-   */
-  getSettings() {
-    return {
-      ...this.settings
-    }; // Return a shallow copy to prevent direct modification
-  }
-
-  /**
-   * Get a setting value
-   * @param {string} key - Setting key
-   * @param {*} defaultValue - Default value if setting doesn't exist
-   * @returns {*} Setting value or default value
-   */
-  getSetting(key) {
-    let defaultValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-    return this.settings.hasOwnProperty(key) ? this.settings[key] : defaultValue;
-  }
-
-  /**
-   * Update a setting
-   * @param {string} key - Setting key
-   * @param {*} value - New value
-   * @returns {Promise<boolean>} True if setting was updated successfully
-   */
-  async updateSetting(key, value) {
-    return this.saveSettings({
-      [key]: value
-    });
   }
 }
 
-// Export the class and a singleton instance
+// Export the SettingsManager class
 exports.SettingsManager = SettingsManager;
-const settingsManager = exports.settingsManager = new SettingsManager();
 
-},{"./crypto-utils.js":5}],13:[function(require,module,exports){
+}).call(this)}).call(this,require('_process'))
+},{"./crypto-utils.js":6,"./winston-logger.js":17,"_process":2}],14:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9585,15 +7847,17 @@ class TokenManager {
 }
 var _default = exports.default = TokenManager;
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
+(function (process){(function (){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.UIManager = void 0;
-var _logger = require("./logger.js");
+exports.uiManager = exports.UIManager = void 0;
+var _winstonLogger = require("./winston-logger.js");
 var _circularProgress = require("./circular-progress.js");
+var _elementRegistry = require("./element-registry.js");
 // File: ui-manager.js
 // Description: UI management for PingOne user import tool
 // 
@@ -9613,2097 +7877,651 @@ const DEBUG_MODE = true;
 /**
  * UI Manager Class
  * 
- * Centralizes all UI-related operations and state management.
- * Provides methods for updating progress, showing notifications,
- * handling view transitions, and managing user feedback.
- * 
- * @param {Logger} logger - Logger instance for UI logging
+ * Manages all user interface interactions and updates with Winston logging.
  */
 class UIManager {
-  constructor(logger) {
-    this.logger = logger;
-
-    // Application state tracking
-    // Tracks current view and operation states to prevent conflicts
-    this.currentView = 'import';
-    this.isImporting = false;
-    this.isExporting = false;
-    this.isDeleting = false;
-    this.isModifying = false;
-    this.isPopulationDeleting = false;
-
-    // Navigation elements cache
-    this.navItems = [];
-
-    // Progress tracking for last run status
-    this.lastRunStatus = {};
+  constructor() {
+    // Initialize Winston logger
+    this.logger = (0, _winstonLogger.createWinstonLogger)({
+      service: 'pingone-import-ui',
+      environment: process.env.NODE_ENV || 'development'
+    });
+    this.notificationContainer = null;
+    this.progressContainer = null;
+    this.tokenStatusElement = null;
+    this.connectionStatusElement = null;
+    this.initialize();
   }
 
   /**
-   * Initialize the UI Manager
-   * 
-   * Sets up navigation elements and initializes progress tracking state.
-   * Called during application startup to prepare the UI for user interaction.
-   * 
-   * @returns {Promise<void>}
+   * Initialize UI manager
+   */
+  initialize() {
+    try {
+      this.setupElements();
+      this.logger.info('UI Manager initialized successfully');
+    } catch (error) {
+      this.logger.error('Failed to initialize UI Manager', {
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Initialize UI manager (alias for initialize for compatibility)
    */
   async init() {
-    try {
-      // Initialize navigation elements for view switching
-      this.navItems = document.querySelectorAll('[data-view]');
+    this.initialize();
+    return Promise.resolve();
+  }
 
-      // Initialize progress tracking for all operation types
-      // Each operation maintains its last run status for display
-      this.lastRunStatus = {
-        import: {
-          status: 'idle',
-          message: 'No import run yet'
-        },
-        export: {
-          status: 'idle',
-          message: 'No export run yet'
-        },
-        delete: {
-          status: 'idle',
-          message: 'No delete run yet'
-        },
-        modify: {
-          status: 'idle',
-          message: 'No modify run yet'
-        },
-        'population-delete': {
-          status: 'idle',
-          message: 'No population delete run yet'
-        }
-      };
+  /**
+   * Setup UI elements
+   */
+  setupElements() {
+    this.notificationContainer = _elementRegistry.ElementRegistry.notificationContainer ? _elementRegistry.ElementRegistry.notificationContainer() : null;
+    this.progressContainer = _elementRegistry.ElementRegistry.progressContainer ? _elementRegistry.ElementRegistry.progressContainer() : null;
+    this.tokenStatusElement = _elementRegistry.ElementRegistry.tokenStatus ? _elementRegistry.ElementRegistry.tokenStatus() : null;
+    this.connectionStatusElement = _elementRegistry.ElementRegistry.connectionStatus ? _elementRegistry.ElementRegistry.connectionStatus() : null;
 
-      // Initialize universal token status system
-      this.initUniversalTokenStatus();
-    } catch (error) {
-      this.logger.error('UI Manager initialization error:', error);
-      throw error;
+    // Initialize navigation items for safe access
+    this.navItems = document.querySelectorAll('[data-view]');
+    if (!this.notificationContainer) {
+      this.logger.warn('Notification container not found');
+    }
+    if (!this.progressContainer) {
+      this.logger.warn('Progress container not found');
+    }
+    this.logger.debug('UI elements setup completed', {
+      hasNotificationContainer: !!this.notificationContainer,
+      hasProgressContainer: !!this.progressContainer,
+      hasTokenStatusElement: !!this.tokenStatusElement,
+      hasConnectionStatusElement: !!this.connectionStatusElement,
+      navItemsCount: this.navItems ? this.navItems.length : 0
+    });
+  }
+
+  /**
+   * Show a persistent, animated status bar message
+   * type: info, success, warning, error
+   * message: string
+   * options: { autoDismiss: boolean, duration: ms }
+   */
+  showStatusBar(message, type = 'info', options = {}) {
+    const bar = _elementRegistry.ElementRegistry.statusBar ? _elementRegistry.ElementRegistry.statusBar() : null;
+    if (!bar) {
+      this.logger.warn('Status bar element not found');
+      return;
+    }
+
+    // Clear any existing auto-dismiss timers
+    if (this.statusBarTimer) {
+      clearTimeout(this.statusBarTimer);
+      this.statusBarTimer = null;
+    }
+
+    // Remove previous content and classes
+    bar.className = 'status-bar';
+    bar.innerHTML = '';
+
+    // Create icon element
+    const icon = document.createElement('span');
+    icon.className = 'status-icon';
+    icon.innerHTML = {
+      info: '<i class="fas fa-info-circle"></i>',
+      success: '<i class="fas fa-check-circle"></i>',
+      warning: '<i class="fas fa-exclamation-triangle"></i>',
+      error: '<i class="fas fa-times-circle"></i>'
+    }[type] || '<i class="fas fa-info-circle"></i>';
+    bar.appendChild(icon);
+
+    // Create message element
+    const msg = document.createElement('span');
+    msg.className = 'status-message';
+    msg.textContent = message;
+    bar.appendChild(msg);
+
+    // Add dismiss button for error/warning (persistent messages)
+    if (type === 'error' || type === 'warning') {
+      const dismiss = document.createElement('button');
+      dismiss.className = 'status-dismiss';
+      dismiss.innerHTML = '&times;';
+      dismiss.setAttribute('aria-label', 'Dismiss message');
+      dismiss.onclick = () => this.clearStatusBar();
+      bar.appendChild(dismiss);
+    }
+
+    // Animate in with a slight delay for smooth transition
+    setTimeout(() => {
+      bar.classList.add('visible', type);
+    }, 10);
+
+    // Auto-dismiss for success/info messages
+    const shouldAutoDismiss = options.autoDismiss !== false && (type === 'success' || type === 'info');
+    if (shouldAutoDismiss) {
+      const duration = options.duration || (type === 'success' ? 4000 : 3000);
+      this.statusBarTimer = setTimeout(() => {
+        this.clearStatusBar();
+      }, duration);
+    }
+
+    // Log the status bar message
+    this.logger.info('Status bar message shown', {
+      type,
+      message: message.substring(0, 100),
+      autoDismiss: shouldAutoDismiss,
+      duration: options.duration
+    });
+  }
+
+  /**
+   * Clear the status bar with smooth animation
+   */
+  clearStatusBar() {
+    const bar = _elementRegistry.ElementRegistry.statusBar ? _elementRegistry.ElementRegistry.statusBar() : null;
+    if (!bar) return;
+
+    // Clear any pending timers
+    if (this.statusBarTimer) {
+      clearTimeout(this.statusBarTimer);
+      this.statusBarTimer = null;
+    }
+
+    // Remove visible class to trigger fade out animation
+    bar.classList.remove('visible');
+
+    // Clear content after animation completes
+    setTimeout(() => {
+      bar.innerHTML = '';
+      bar.className = 'status-bar';
+    }, 400);
+    this.logger.debug('Status bar cleared');
+  }
+
+  /**
+   * Show a temporary success message with auto-dismiss
+   */
+  showSuccess(message, details = '') {
+    this.showStatusBar(message, 'success', {
+      autoDismiss: true,
+      duration: 4000
+    });
+    if (details) {
+      this.logger.info('Success notification with details', {
+        message,
+        details
+      });
+    } else {
+      this.logger.info('Success notification shown', {
+        message
+      });
     }
   }
 
   /**
-   * Initialize the universal token status system
-   * 
-   * Sets up the token status bar that appears on all pages,
-   * including automatic refresh timer and event handlers.
-   * This provides users with real-time visibility into their
-   * PingOne token status and expiration time.
+   * Show an error message that stays until dismissed
    */
-  initUniversalTokenStatus() {
-    try {
-      // Get token status elements
-      this.tokenStatusBar = document.getElementById('universal-token-status');
-      this.tokenStatusIcon = this.tokenStatusBar?.querySelector('.token-status-icon');
-      this.tokenStatusText = this.tokenStatusBar?.querySelector('.token-status-text');
-      this.tokenStatusTime = this.tokenStatusBar?.querySelector('.token-status-time');
-      this.refreshTokenBtn = this.tokenStatusBar?.querySelector('#refresh-token-status');
-      this.getTokenQuickBtn = this.tokenStatusBar?.querySelector('#get-token-quick');
-      if (!this.tokenStatusBar) {
-        console.warn('Universal token status bar not found');
-        return;
-      }
-
-      // Set up event listeners for token status actions
-      this.setupTokenStatusEventListeners();
-
-      // Initialize token status display
-      this.updateUniversalTokenStatus();
-
-      // Start automatic refresh timer (every 60 seconds)
-      this.startTokenStatusTimer();
-      this.logger.info('Universal token status system initialized');
-    } catch (error) {
-      this.logger.error('Error initializing universal token status:', error);
-    }
+  showError(title, message) {
+    const fullMessage = title && message ? `${title}: ${message}` : title || message;
+    this.showStatusBar(fullMessage, 'error', {
+      autoDismiss: false
+    });
+    this.logger.error('Error notification shown', {
+      title,
+      message
+    });
   }
 
   /**
-   * Set up event listeners for token status actions
-   * 
-   * Handles refresh button clicks and quick token acquisition
-   * to provide immediate user feedback and token management.
-   */
-  setupTokenStatusEventListeners() {
-    try {
-      // Refresh token status button
-      if (this.refreshTokenBtn) {
-        this.refreshTokenBtn.addEventListener('click', () => {
-          this.refreshTokenStatus();
-        });
-      }
-
-      // Quick get token button
-      if (this.getTokenQuickBtn) {
-        this.getTokenQuickBtn.addEventListener('click', () => {
-          this.quickGetToken();
-        });
-      }
-    } catch (error) {
-      this.logger.error('Error setting up token status event listeners:', error);
-    }
-  }
-
-  /**
-   * Start automatic token status refresh timer
-   * 
-   * Updates token status every 60 seconds to keep countdown accurate
-   * and provide real-time feedback on token expiration.
-   */
-  startTokenStatusTimer() {
-    try {
-      // Clear any existing timer
-      if (this.tokenStatusTimer) {
-        clearInterval(this.tokenStatusTimer);
-      }
-
-      // Set up 60-second refresh timer
-      this.tokenStatusTimer = setInterval(() => {
-        this.updateUniversalTokenStatus();
-      }, 60000); // 60 seconds
-
-      this.logger.debug('Token status auto-refresh timer started (60s interval)');
-    } catch (error) {
-      this.logger.error('Error starting token status timer:', error);
-    }
-  }
-
-  /**
-   * Stop the automatic token status refresh timer
-   * 
-   * Called during cleanup or when the application is shutting down
-   * to prevent memory leaks and unnecessary API calls.
-   */
-  stopTokenStatusTimer() {
-    try {
-      if (this.tokenStatusTimer) {
-        clearInterval(this.tokenStatusTimer);
-        this.tokenStatusTimer = null;
-        this.logger.debug('Token status auto-refresh timer stopped');
-      }
-    } catch (error) {
-      this.logger.error('Error stopping token status timer:', error);
-    }
-  }
-
-  /**
-   * Update the universal token status display
-   * 
-   * Retrieves current token information and updates the status bar
-   * with appropriate colors, icons, and time remaining. This is
-   * the main method for keeping token status current across all pages.
-   * 
-   * @param {Object} tokenInfo - Optional token info object (if already retrieved)
-   */
-  updateUniversalTokenStatus() {
-    let tokenInfo = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-    try {
-      if (!this.tokenStatusBar) {
-        return;
-      }
-
-      // Show loading state
-      this.setTokenStatusLoading();
-
-      // Get token info if not provided
-      if (!tokenInfo && window.app && window.app.pingOneClient) {
-        tokenInfo = window.app.pingOneClient.getCurrentTokenTimeRemaining();
-      }
-
-      // Update display based on token status
-      if (!tokenInfo) {
-        this.setTokenStatusNoToken();
-      } else if (tokenInfo.isExpired) {
-        this.setTokenStatusExpired();
-      } else if (tokenInfo.timeRemaining <= 300) {
-        // 5 minutes or less
-        this.setTokenStatusWarning(tokenInfo);
-      } else {
-        this.setTokenStatusValid(tokenInfo);
-      }
-
-      // Log status for debugging
-      if (window.DEBUG_MODE) {
-        console.log('Token status updated:', tokenInfo);
-      }
-    } catch (error) {
-      this.logger.error('Error updating universal token status:', error);
-      this.setTokenStatusError();
-    }
-  }
-
-  /**
-   * Set token status to loading state
-   * 
-   * Shows a loading indicator while checking token status
-   * to provide immediate feedback to users.
-   */
-  setTokenStatusLoading() {
-    try {
-      if (!this.tokenStatusBar) return;
-      this.tokenStatusBar.className = 'universal-token-status loading';
-      this.tokenStatusIcon.textContent = '⏳';
-      this.tokenStatusText.textContent = 'Checking token status...';
-      this.tokenStatusTime.textContent = '';
-      this.getTokenQuickBtn.style.display = 'none';
-    } catch (error) {
-      this.logger.error('Error setting token status loading:', error);
-    }
-  }
-
-  /**
-   * Set token status to no token state
-   * 
-   * Indicates that no valid token is available and shows
-   * the quick get token button for immediate action.
-   */
-  setTokenStatusNoToken() {
-    try {
-      if (!this.tokenStatusBar) return;
-      this.tokenStatusBar.className = 'universal-token-status no-token';
-      this.tokenStatusIcon.textContent = '❌';
-      this.tokenStatusText.textContent = 'No valid token available';
-      this.tokenStatusTime.textContent = '';
-      this.getTokenQuickBtn.style.display = 'inline-block';
-    } catch (error) {
-      this.logger.error('Error setting token status no token:', error);
-    }
-  }
-
-  /**
-   * Set token status to expired state
-   * 
-   * Indicates that the token has expired and shows
-   * the quick get token button for immediate renewal.
-   */
-  setTokenStatusExpired() {
-    try {
-      if (!this.tokenStatusBar) return;
-      this.tokenStatusBar.className = 'universal-token-status expired';
-      this.tokenStatusIcon.textContent = '⚠️';
-      this.tokenStatusText.textContent = 'Token expired';
-      this.tokenStatusTime.textContent = '';
-      this.getTokenQuickBtn.style.display = 'inline-block';
-    } catch (error) {
-      this.logger.error('Error setting token status expired:', error);
-    }
-  }
-
-  /**
-   * Set token status to warning state (near expiration)
-   * 
-   * Indicates that the token will expire soon (within 5 minutes)
-   * and shows the remaining time with a warning color.
-   * 
-   * @param {Object} tokenInfo - Token information with time remaining
-   */
-  setTokenStatusWarning(tokenInfo) {
-    try {
-      if (!this.tokenStatusBar) return;
-      this.tokenStatusBar.className = 'universal-token-status warning';
-      this.tokenStatusIcon.textContent = '⚠️';
-      this.tokenStatusText.textContent = 'Token expires soon';
-      this.tokenStatusTime.textContent = `(${tokenInfo.formattedTime} remaining)`;
-      this.getTokenQuickBtn.style.display = 'inline-block';
-    } catch (error) {
-      this.logger.error('Error setting token status warning:', error);
-    }
-  }
-
-  /**
-   * Set token status to valid state
-   * 
-   * Indicates that the token is valid and shows
-   * the remaining time until expiration.
-   * 
-   * @param {Object} tokenInfo - Token information with time remaining
-   */
-  setTokenStatusValid(tokenInfo) {
-    try {
-      if (!this.tokenStatusBar) return;
-      this.tokenStatusBar.className = 'universal-token-status valid';
-      this.tokenStatusIcon.textContent = '✅';
-      this.tokenStatusText.textContent = 'Token valid';
-      this.tokenStatusTime.textContent = `(${tokenInfo.formattedTime} remaining)`;
-      this.getTokenQuickBtn.style.display = 'none';
-    } catch (error) {
-      this.logger.error('Error setting token status valid:', error);
-    }
-  }
-
-  /**
-   * Set token status to error state
-   * 
-   * Indicates that there was an error checking token status
-   * and provides a way to retry or get a new token.
-   */
-  setTokenStatusError() {
-    try {
-      if (!this.tokenStatusBar) return;
-      this.tokenStatusBar.className = 'universal-token-status no-token';
-      this.tokenStatusIcon.textContent = '❓';
-      this.tokenStatusText.textContent = 'Error checking token status';
-      this.tokenStatusTime.textContent = '';
-      this.getTokenQuickBtn.style.display = 'inline-block';
-    } catch (error) {
-      this.logger.error('Error setting token status error:', error);
-    }
-  }
-
-  /**
-   * Refresh token status manually
-   * 
-   * Called when user clicks the refresh button to get
-   * immediate token status update.
-   */
-  refreshTokenStatus() {
-    try {
-      this.logger.info('Manual token status refresh requested');
-      this.updateUniversalTokenStatus();
-
-      // Show brief update animation
-      if (this.tokenStatusBar) {
-        this.tokenStatusBar.classList.add('updating');
-        setTimeout(() => {
-          this.tokenStatusBar.classList.remove('updating');
-        }, 500);
-      }
-    } catch (error) {
-      this.logger.error('Error refreshing token status:', error);
-    }
-  }
-
-  /**
-   * Quick token acquisition from status bar
-   * 
-   * Provides immediate token acquisition without navigating
-   * to the settings page, for user convenience.
-   */
-  async quickGetToken() {
-    try {
-      this.logger.info('Quick token acquisition requested');
-
-      // Show loading state
-      this.setTokenStatusLoading();
-
-      // Attempt to get token
-      if (window.app && window.app.getToken) {
-        await window.app.getToken();
-
-        // Update status after token acquisition
-        setTimeout(() => {
-          this.updateUniversalTokenStatus();
-        }, 1000);
-      } else {
-        this.logger.error('App getToken method not available');
-        this.setTokenStatusError();
-      }
-    } catch (error) {
-      this.logger.error('Error in quick token acquisition:', error);
-      this.setTokenStatusError();
-    }
-  }
-
-  /**
-   * Show success notification to user
-   * 
-   * @param {string} message - Success message to display
-   * @param {string} details - Optional additional details
-   */
-  showSuccess(message) {
-    let details = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
-    this.showNotification('success', message, details);
-  }
-
-  /**
-   * Show error notification to user
-   * 
-   * @param {string} message - Error message to display
-   * @param {string} details - Optional additional details
-   */
-  showError(message) {
-    let details = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
-    this.showNotification('error', message, details);
-  }
-
-  /**
-   * Show warning notification to user
-   * 
-   * @param {string} message - Warning message to display
-   * @param {string} details - Optional additional details
+   * Show a warning message that stays until dismissed
    */
   showWarning(message) {
-    let details = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
-    this.showNotification('warning', message, details);
+    this.showStatusBar(message, 'warning', {
+      autoDismiss: false
+    });
+    this.logger.warn('Warning notification shown', {
+      message
+    });
   }
 
   /**
-   * Show info notification to user
-   * 
-   * @param {string} message - Info message to display
-   * @param {string} details - Optional additional details
+   * Show an info message with auto-dismiss
    */
   showInfo(message) {
-    let details = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
-    this.showNotification('info', message, details);
+    this.showStatusBar(message, 'info', {
+      autoDismiss: true,
+      duration: 3000
+    });
+    this.logger.info('Info notification shown', {
+      message
+    });
   }
 
   /**
-   * Display a notification to the user
-   * 
-   * Creates and displays a Bootstrap alert with appropriate styling,
-   * icon, and auto-dismiss functionality. Supports different types
-   * of notifications (success, error, warning, info).
-   * 
-   * @param {string} type - Notification type ('success', 'error', 'warning', 'info')
-   * @param {string} message - Main notification message
-   * @param {string} details - Optional additional details
+   * Show a loading message that stays until cleared
    */
-  showNotification(type, message) {
-    let details = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
+  showLoading(message = 'Processing...') {
+    this.showStatusBar(message, 'info', {
+      autoDismiss: false
+    });
+    this.logger.info('Loading notification shown', {
+      message
+    });
+  }
+
+  /**
+   * Clear loading state and show completion message
+   */
+  hideLoading(successMessage = null) {
+    this.clearStatusBar();
+    if (successMessage) {
+      this.showSuccess(successMessage);
+    }
+  }
+
+  /**
+   * Update progress with Winston logging
+   */
+  updateProgress(current, total, message = '') {
     try {
-      // Get notification container and clear existing notifications
-      const container = document.getElementById('notification-area');
-      if (container) {
-        while (container.firstChild) {
-          container.removeChild(container.firstChild);
+      const percentage = total > 0 ? Math.round(current / total * 100) : 0;
+      this.logger.debug('Progress updated', {
+        current,
+        total,
+        percentage,
+        message: message.substring(0, 50)
+      });
+      if (this.progressContainer) {
+        const progressBar = this.progressContainer.querySelector('.progress-bar');
+        const progressText = this.progressContainer.querySelector('.progress-text');
+        if (progressBar) {
+          progressBar.style.width = `${percentage}%`;
+        }
+        if (progressText) {
+          progressText.textContent = message || `${current} of ${total} (${percentage}%)`;
         }
       }
-
-      // Create notification element with Bootstrap classes
-      const notification = document.createElement('div');
-      notification.className = `status-message status-${type} alert-dismissible fade show`;
-      notification.setAttribute('role', 'alert');
-      notification.setAttribute('aria-live', 'polite');
-
-      // Debug log for rendered message
-      console.log(`Message rendered: "${message}", type = ${type}, class = ${notification.className}`);
-
-      // Get icon and styling configuration based on notification type
-      const iconConfig = this.getStatusIconConfig(type);
-
-      // Build notification HTML with icon, message, and close button
-      notification.innerHTML = `
-                <div class="status-message-content">
-                    <span class="status-icon" aria-hidden="true">${iconConfig.icon}</span>
-                    <div class="status-text">
-                        <strong class="status-title">${message}</strong>
-                        ${details ? `<div class="status-details">${details}</div>` : ''}
-                    </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close notification">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-            `;
-
-      // Add notification to container and set auto-dismiss timer
-      if (container) {
-        container.appendChild(notification);
-
-        // Auto-remove notification after 5 seconds
-        setTimeout(() => {
-          if (notification.parentNode) {
-            notification.remove();
-          }
-        }, 5000);
-      }
     } catch (error) {
-      console.error('Error showing notification:', error);
-    }
-  }
-  getStatusIconConfig(type) {
-    const configs = {
-      success: {
-        icon: '✅',
-        bgColor: '#d4edda',
-        borderColor: '#c3e6cb',
-        textColor: '#155724',
-        iconColor: '#28a745'
-      },
-      warning: {
-        icon: '⚠️',
-        bgColor: '#fff3cd',
-        borderColor: '#ffeaa7',
-        textColor: '#856404',
-        iconColor: '#ffc107'
-      },
-      error: {
-        icon: '❌',
-        bgColor: '#f8d7da',
-        borderColor: '#f5c6cb',
-        textColor: '#721c24',
-        iconColor: '#dc3545'
-      },
-      info: {
-        icon: 'ℹ️',
-        bgColor: '#d1ecf1',
-        borderColor: '#bee5eb',
-        textColor: '#0c5460',
-        iconColor: '#17a2b8'
-      }
-    };
-    return configs[type] || configs.info;
-  }
-
-  /**
-   * Display current token status with time remaining
-   * 
-   * Shows the current token status on the settings page, including
-   * time remaining until expiration or if no valid token exists.
-   * 
-   * @param {Object} tokenInfo - Token information object from PingOneClient
-   */
-  showCurrentTokenStatus() {
-    let tokenInfo = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-    try {
-      const statusElement = document.getElementById('token-status');
-      if (!statusElement) {
-        console.warn('Token status element not found');
-        return;
-      }
-      if (!tokenInfo) {
-        // No valid token
-        statusElement.innerHTML = `
-                    <div class="token-status-display">
-                        <span class="status-icon">❌</span>
-                        <span class="status-text">No valid token available</span>
-                    </div>
-                `;
-        statusElement.className = 'token-status no-token';
-        return;
-      }
-      if (tokenInfo.isExpired) {
-        // Token is expired
-        statusElement.innerHTML = `
-                    <div class="token-status-display">
-                        <span class="status-icon">⚠️</span>
-                        <span class="status-text">Token expired</span>
-                    </div>
-                `;
-        statusElement.className = 'token-status expired';
-        return;
-      }
-
-      // Valid token with time remaining
-      statusElement.innerHTML = `
-                <div class="token-status-display">
-                    <span class="status-icon">✅</span>
-                    <span class="status-text">Token valid</span>
-                    <span class="time-remaining">(${tokenInfo.formattedTime} remaining)</span>
-                </div>
-            `;
-      statusElement.className = 'token-status valid';
-    } catch (error) {
-      console.error('Error showing current token status:', error);
+      this.logger.error('Error updating progress', {
+        error: error.message,
+        current,
+        total
+      });
     }
   }
 
   /**
-   * Update connection status display
-   * 
-   * Updates the connection status indicator with current state and message.
-   * Used to show real-time connection status to the user.
-   * 
-   * @param {string} status - Connection status ('connected', 'disconnected', 'connecting', 'error')
-   * @param {string} message - Status message to display
+   * Update token status with Winston logging
    */
-  updateConnectionStatus(status) {
-    let message = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+  updateTokenStatus(status, message = '') {
     try {
-      // Update main connection status indicator
-      const statusElement = document.getElementById('connection-status');
+      this.logger.info('Token status updated', {
+        status,
+        message
+      });
+      if (this.tokenStatusElement) {
+        this.tokenStatusElement.className = `token-status ${status}`;
+        this.tokenStatusElement.textContent = message || status;
+      } else {
+        this.logger.warn('Token status element not found');
+      }
+    } catch (error) {
+      this.logger.error('Error updating token status', {
+        error: error.message,
+        status,
+        message
+      });
+    }
+  }
+
+  /**
+   * Update connection status with Winston logging
+   */
+  updateConnectionStatus(status, message = '') {
+    try {
+      this.logger.info('Connection status updated', {
+        status,
+        message
+      });
+      if (this.connectionStatusElement) {
+        this.connectionStatusElement.className = `connection-status ${status}`;
+        this.connectionStatusElement.textContent = message || status;
+      } else {
+        this.logger.warn('Connection status element not found');
+      }
+    } catch (error) {
+      this.logger.error('Error updating connection status', {
+        error: error.message,
+        status,
+        message
+      });
+    }
+  }
+
+  /**
+   * Show current token status with Winston logging
+   */
+  showCurrentTokenStatus(tokenInfo) {
+    try {
+      this.logger.debug('Showing current token status', {
+        hasToken: !!tokenInfo.token,
+        timeRemaining: tokenInfo.timeRemaining,
+        isExpired: tokenInfo.isExpired
+      });
+      const statusElement = _elementRegistry.ElementRegistry.currentTokenStatus ? _elementRegistry.ElementRegistry.currentTokenStatus() : null;
       if (statusElement) {
-        const iconElement = statusElement.querySelector('.status-icon');
-        const messageElement = statusElement.querySelector('.status-message');
-
-        // Update icon based on status
-        if (iconElement) {
-          iconElement.className = `status-icon fas ${this.getStatusIcon(status)}`;
-        }
-
-        // Update message text
-        if (messageElement) {
-          messageElement.textContent = message || this.getDefaultStatusMessage(status);
-        }
-
-        // Update CSS class for styling
-        statusElement.className = `connection-status ${status}`;
-      }
-
-      // Also update settings page connection status if present
-      const settingsStatus = document.getElementById('settings-connection-status');
-      if (settingsStatus) {
-        const iconElement = settingsStatus.querySelector('.status-icon');
-        const messageElement = settingsStatus.querySelector('.status-message');
-        if (iconElement) {
-          iconElement.className = `status-icon fas ${this.getStatusIcon(status)}`;
-        }
-        if (messageElement) {
-          messageElement.textContent = message || this.getDefaultStatusMessage(status);
-        }
-        settingsStatus.className = `settings-connection-status ${status}`;
-
-        // Log for debugging
-        console.log('[UI] Settings connection status updated:', status, message);
-      }
-    } catch (error) {
-      console.error('Error updating connection status:', error);
-    }
-  }
-  updateHomeTokenStatus(show) {
-    let message = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
-    try {
-      const tokenStatusElement = document.getElementById('home-token-status');
-      if (!tokenStatusElement) return;
-      if (show) {
-        tokenStatusElement.style.display = 'block';
-        const messageElement = tokenStatusElement.querySelector('.token-status-message');
-        if (messageElement) {
-          messageElement.textContent = message;
-        }
-      } else {
-        tokenStatusElement.style.display = 'none';
-      }
-    } catch (error) {
-      console.error('Error updating home token status:', error);
-    }
-  }
-  updateSettingsSaveStatus(message) {
-    let type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'info';
-    try {
-      const statusElement = document.getElementById('settings-connection-status');
-      if (!statusElement) return;
-      const iconElement = statusElement.querySelector('.status-icon');
-      const messageElement = statusElement.querySelector('.status-message');
-      if (iconElement) {
-        iconElement.className = `status-icon fas ${this.getStatusIcon(type)}`;
-      }
-      if (messageElement) {
-        messageElement.textContent = message;
-      }
-      statusElement.className = `settings-connection-status ${type}`;
-    } catch (error) {
-      console.error('Error updating settings save status:', error);
-    }
-  }
-  getStatusIcon(status) {
-    const icons = {
-      connected: 'fa-check-circle text-success',
-      disconnected: 'fa-times-circle text-danger',
-      connecting: 'fa-spinner fa-spin text-warning',
-      error: 'fa-exclamation-triangle text-danger',
-      success: 'fa-check-circle text-success',
-      warning: 'fa-exclamation-triangle text-warning',
-      info: 'fa-info-circle text-info'
-    };
-    return icons[status] || 'fa-question-circle text-muted';
-  }
-  getDefaultStatusMessage(status) {
-    const messages = {
-      connected: 'Connected to PingOne',
-      disconnected: 'Not connected to PingOne',
-      connecting: 'Connecting to PingOne...',
-      error: 'Connection error',
-      success: 'Operation completed successfully',
-      warning: 'Warning',
-      info: 'Information'
-    };
-    return messages[status] || 'Unknown status';
-  }
-
-  /**
-   * Shows the import status section and initializes progress tracking
-   * @param {number} totalUsers - Total number of users to import
-   * @param {string} populationName - Population name
-   * @param {string} populationId - Population ID
-   */
-  showImportStatus(totalUsers) {
-    let populationName = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
-    let populationId = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
-    // Fixes visual duplication and rendering bugs in progress spinner during async operations
-    this.logger.debug('UI', 'Showing import status', {
-      totalUsers,
-      populationName,
-      populationId
-    });
-
-    // Debug logging for population display in progress window
-    console.log('🔍 [UI Manager Debug] showImportStatus called with:', {
-      totalUsers: totalUsers,
-      populationName: populationName,
-      populationId: populationId
-    });
-
-    // Ensure only one progress system is active at a time
-    this.hideAllProgressIndicators();
-
-    // Show import status container
-    const importStatus = document.getElementById('import-status');
-    if (importStatus) {
-      importStatus.style.display = 'block';
-      this.logger.debug('UI', 'Import status section displayed');
-    }
-
-    // Update population info fields immediately
-    const popNameEl = document.getElementById('import-population-name');
-    const popIdEl = document.getElementById('import-population-id');
-    if (popNameEl) popNameEl.textContent = populationName || 'Not selected';
-    if (popIdEl) popIdEl.textContent = populationId || 'Not set';
-
-    // Debug logging for what gets displayed in the UI
-    console.log('🔍 [UI Manager Debug] Population fields updated:', {
-      populationNameElement: popNameEl,
-      populationIdElement: popIdEl,
-      displayedName: populationName || 'Not selected',
-      displayedId: populationId || 'Not set'
-    });
-    this.isImporting = true;
-    this.updateLastRunStatus('import', 'User Import', 'In Progress', `Importing ${totalUsers} users`, {
-      total: totalUsers,
-      success: 0,
-      failed: 0,
-      skipped: 0
-    });
-    this.updateImportProgress(0, totalUsers, 'Starting import...', {}, populationName, populationId);
-  }
-
-  /**
-   * Hides the import status section and resets progress
-   */
-  hideImportStatus() {
-    const importStatus = document.getElementById('import-status');
-    if (importStatus) {
-      importStatus.style.display = 'none';
-      this.logger.debug('UI', 'Import status section hidden');
-    }
-
-    // Reset import state
-    this.isImporting = false;
-
-    // Clear any auto-close timers
-    if (this.importAutoCloseTimer) {
-      clearTimeout(this.importAutoCloseTimer);
-      this.importAutoCloseTimer = null;
-    }
-  }
-
-  /**
-   * Hides all progress indicators to prevent duplication
-   * Ensures clean state before showing new progress
-   */
-  hideAllProgressIndicators() {
-    // Hide circular spinner container
-    const spinnerContainer = document.getElementById('import-progress-spinner');
-    if (spinnerContainer) {
-      spinnerContainer.style.display = 'none';
-      spinnerContainer.innerHTML = '';
-      this.logger.debug('UI', 'Circular progress spinner hidden and cleared');
-    }
-
-    // Hide traditional progress bar container
-    const importStatus = document.getElementById('import-status');
-    if (importStatus) {
-      importStatus.style.display = 'none';
-      this.logger.debug('UI', 'Traditional progress bar hidden');
-    }
-  }
-
-  /**
-   * Updates the import progress bar, counters, and log
-   * @param {number} current - Current user index
-   * @param {number} total - Total users
-   * @param {string} message - Progress message
-   * @param {object} counts - Success/fail/skip counts
-   * @param {string} populationName - Population name
-   * @param {string} populationId - Population ID
-   */
-  updateImportProgress(current, total, message) {
-    let counts = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
-    let populationName = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : '';
-    let populationId = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : '';
-    // Ensures progress indicator and message are readable and aligned during import operations
-    const percent = total > 0 ? Math.min(100, Math.round(current / total * 100)) : 0;
-    this.logger.debug('UI', 'Updating import progress', {
-      current,
-      total,
-      percent,
-      message,
-      counts,
-      populationName,
-      populationId
-    });
-
-    // Update progress bar
-    const progressBar = document.getElementById('import-progress-bar');
-    if (progressBar) {
-      progressBar.style.width = `${percent}%`;
-      progressBar.setAttribute('aria-valuenow', percent);
-    }
-
-    // Update progress text
-    const progressText = document.getElementById('import-progress-text');
-    if (progressText) {
-      progressText.textContent = `${current} of ${total} users`;
-    }
-
-    // Update counters with enhanced skipped display
-    const successCount = document.getElementById('import-success-count');
-    const failedCount = document.getElementById('import-failed-count');
-    const skippedCount = document.getElementById('import-skipped-count');
-    if (successCount) {
-      successCount.textContent = counts.succeeded || 0;
-      // Add visual feedback for successful imports
-      if (counts.succeeded > 0) {
-        successCount.style.color = '#28a745';
-        successCount.style.fontWeight = 'bold';
-      }
-    }
-    if (failedCount) {
-      failedCount.textContent = counts.failed || 0;
-      // Add visual feedback for failed imports
-      if (counts.failed > 0) {
-        failedCount.style.color = '#dc3545';
-        failedCount.style.fontWeight = 'bold';
-      }
-    }
-    if (skippedCount) {
-      skippedCount.textContent = counts.skipped || 0;
-      // Add enhanced visual feedback for skipped imports
-      if (counts.skipped > 0) {
-        skippedCount.style.color = '#ffc107';
-        skippedCount.style.fontWeight = 'bold';
-        // Add a warning icon or indicator
-        skippedCount.innerHTML = `⚠️ ${counts.skipped}`;
-      } else {
-        skippedCount.innerHTML = counts.skipped || 0;
-      }
-    }
-
-    // Handle missing population errors (not counted in skipped)
-    if (counts.errors && counts.errors > 0) {
-      const errorCount = document.getElementById('import-error-count');
-      if (errorCount) {
-        errorCount.textContent = counts.errors;
-        errorCount.style.color = '#dc3545';
-        errorCount.style.fontWeight = 'bold';
-        errorCount.innerHTML = `❌ ${counts.errors}`;
-      }
-    }
-
-    // Update population information if provided
-    if (populationName) {
-      const popNameEl = document.getElementById('import-population-name');
-      if (popNameEl) popNameEl.textContent = populationName;
-    }
-    if (populationId) {
-      const popIdEl = document.getElementById('import-population-id');
-      if (popIdEl) popIdEl.textContent = populationId;
-    }
-
-    // Log progress message with status details
-    if (message) {
-      this.logMessage('info', message);
-    }
-
-    // Add detailed logging for skipped users
-    if (counts.skipped > 0) {
-      this.logMessage('warning', `⚠️ ${counts.skipped} user(s) skipped due to existing accounts`);
-    }
-  }
-
-  /**
-   * Updates the traditional progress bar system
-   * @param {number} percent - Progress percentage (0-100)
-   * @param {string} message - Progress message
-   * @param {object} counts - Success/fail/skip counts
-   * @param {string} populationName - Population name
-   * @param {string} populationId - Population ID
-   */
-  updateTraditionalProgressBar(percent, message, counts, populationName, populationId) {
-    const progressBar = document.getElementById('import-progress-bar');
-    const progressPercent = document.getElementById('import-progress-percent');
-    const progressText = document.getElementById('import-progress-text');
-    const progressCount = document.getElementById('import-progress-count');
-    if (progressBar) {
-      progressBar.style.width = `${percent}%`;
-      progressBar.setAttribute('aria-valuenow', percent);
-      this.logger.debug('UI', 'Traditional progress bar updated', {
-        percent
-      });
-    }
-    if (progressPercent) {
-      progressPercent.textContent = `${percent}%`;
-    }
-    if (progressText) {
-      progressText.textContent = message || 'Processing...';
-    }
-    if (progressCount) {
-      const current = counts.current || 0;
-      const total = counts.total || 0;
-      progressCount.textContent = `${current} of ${total} users`;
-    }
-  }
-
-  /**
-   * Updates the circular progress spinner system
-   * @param {number} percent - Progress percentage (0-100)
-   * @param {string} message - Progress message
-   */
-  updateCircularProgressSpinner(percent, message) {
-    const spinnerContainer = document.getElementById('import-progress-spinner');
-    if (!spinnerContainer) {
-      this.logger.debug('UI', 'Circular progress spinner container not found');
-      return;
-    }
-
-    // Only show circular spinner if traditional progress bar is hidden
-    const importStatus = document.getElementById('import-status');
-    if (importStatus && importStatus.style.display !== 'none') {
-      spinnerContainer.style.display = 'none';
-      return;
-    }
-
-    // Show and update circular spinner
-    spinnerContainer.style.display = 'block';
-    spinnerContainer.innerHTML = '';
-
-    // Create a flex column container for spinner and text
-    const flexContainer = document.createElement('div');
-    flexContainer.className = 'import-progress-flex';
-    flexContainer.style.display = 'flex';
-    flexContainer.style.flexDirection = 'column';
-    flexContainer.style.alignItems = 'center';
-    flexContainer.style.justifyContent = 'center';
-    flexContainer.style.gap = '0.75rem';
-    flexContainer.style.width = '100%';
-    flexContainer.style.margin = '0 auto';
-
-    // Create circular progress spinner with proper state management
-    const spinner = (0, _circularProgress.createCircularProgress)({
-      value: percent,
-      label: '',
-      // Only show percent in spinner, not message
-      state: percent === 100 ? 'complete' : percent > 0 ? '' : 'ready'
-    });
-
-    // Add debug logging for spinner creation
-    this.logger.debug('UI', 'Circular progress spinner created', {
-      percent,
-      state: spinner.className,
-      id: spinner.id
-    });
-    flexContainer.appendChild(spinner);
-
-    // Text block for percent and message
-    const textBlock = document.createElement('div');
-    textBlock.className = 'import-progress-text-block';
-    textBlock.style.textAlign = 'center';
-    textBlock.style.marginTop = '0.25rem';
-    textBlock.innerHTML = `
-            <div class="import-progress-percent" style="font-size: 1.3em; font-weight: 600; color: #7c3aed;">${percent}%</div>
-            <div class="import-progress-message" style="font-size: 1.05em; color: #333; margin-top: 0.2em;">${message || ''}</div>
-        `;
-    flexContainer.appendChild(textBlock);
-    spinnerContainer.appendChild(flexContainer);
-    this.logger.debug('UI', 'Circular progress spinner updated', {
-      percent,
-      message,
-      containerId: spinnerContainer.id
-    });
-  }
-
-  /**
-   * Updates progress count elements
-   * @param {object} counts - Success/fail/skip counts
-   */
-  updateProgressCounts(counts) {
-    const successCount = document.getElementById('import-success-count');
-    const failedCount = document.getElementById('import-failed-count');
-    const skippedCount = document.getElementById('import-skipped-count');
-    if (successCount) {
-      successCount.textContent = counts.succeeded || counts.success || 0;
-    }
-    if (failedCount) {
-      failedCount.textContent = counts.failed || 0;
-    }
-    if (skippedCount) {
-      skippedCount.textContent = counts.skipped || 0;
-    }
-  }
-
-  /**
-   * Updates population information display
-   * @param {string} populationName - Population name
-   * @param {string} populationId - Population ID
-   */
-  updatePopulationInfo(populationName, populationId) {
-    const populationNameElement = document.getElementById('import-population-name');
-    const populationIdElement = document.getElementById('import-population-id');
-
-    // Update population name (show 'Not selected' if empty)
-    if (populationNameElement) {
-      const displayName = populationName && populationName.trim() ? populationName : 'Not selected';
-      populationNameElement.textContent = displayName;
-      populationNameElement.setAttribute('data-content', displayName);
-    }
-
-    // Update population ID (show 'Not set' if empty)
-    if (populationIdElement) {
-      const displayId = populationId && populationId.trim() ? populationId : 'Not set';
-      populationIdElement.textContent = displayId;
-      populationIdElement.setAttribute('data-content', displayId);
-    }
-  }
-  resetImportProgress() {
-    this.logger.debug('UI', 'Resetting import progress');
-
-    // Reset traditional progress bar
-    const progressBar = document.getElementById('import-progress-bar');
-    const progressPercent = document.getElementById('import-progress-percent');
-    const progressText = document.getElementById('import-progress-text');
-    const progressCount = document.getElementById('import-progress-count');
-    const successCount = document.getElementById('import-success-count');
-    const failedCount = document.getElementById('import-failed-count');
-    const skippedCount = document.getElementById('import-skipped-count');
-    const populationNameElement = document.getElementById('import-population-name');
-    if (progressBar) {
-      progressBar.style.width = '0%';
-      progressBar.setAttribute('aria-valuenow', 0);
-    }
-    if (progressPercent) progressPercent.textContent = '0%';
-    if (progressText) progressText.textContent = 'Ready to import';
-    if (progressCount) progressCount.textContent = '0/0';
-    if (successCount) successCount.textContent = '0';
-    if (failedCount) failedCount.textContent = '0';
-    if (skippedCount) skippedCount.textContent = '0';
-
-    // Reset error count
-    const errorCount = document.getElementById('import-error-count');
-    if (errorCount) errorCount.textContent = '0';
-
-    // Population name
-    if (populationNameElement) {
-      populationNameElement.textContent = 'Not selected';
-      populationNameElement.setAttribute('data-content', 'Not selected');
-    }
-
-    // Hide all progress indicators
-    this.hideAllProgressIndicators();
-
-    // Reset error status
-    this.hideImportErrorStatus();
-    this.logger.debug('UI', 'Import progress reset completed');
-  }
-  showImportErrorStatus() {
-    let errorSummary = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
-    let errorDetails = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-    const errorStatusElement = document.getElementById('import-error-status');
-    const errorSummaryElement = document.getElementById('import-error-summary');
-    const errorDetailsElement = document.getElementById('import-error-details');
-    if (errorStatusElement) {
-      errorStatusElement.style.display = 'block';
-    }
-    if (errorSummaryElement && errorSummary) {
-      errorSummaryElement.innerHTML = `
-                <div style="color: #dc3545; font-weight: bold; margin-bottom: 10px;">
-                    <i class="fas fa-exclamation-circle"></i> ${errorSummary}
-                </div>
-            `;
-    }
-    if (errorDetailsElement && errorDetails.length > 0) {
-      let detailsHtml = '<div style="font-size: 0.9em; color: #666;">';
-      errorDetails.forEach((error, index) => {
-        detailsHtml += `
-                    <div style="margin-bottom: 8px; padding: 8px; background-color: #fff; border-left: 3px solid #dc3545; border-radius: 3px;">
-                        <strong>Error ${index + 1}:</strong> ${error}
-                    </div>
-                `;
-      });
-      detailsHtml += '</div>';
-      errorDetailsElement.innerHTML = detailsHtml;
-    }
-  }
-  hideImportErrorStatus() {
-    const errorStatusElement = document.getElementById('import-error-status');
-    const errorSummaryElement = document.getElementById('import-error-summary');
-    const errorDetailsElement = document.getElementById('import-error-details');
-    if (errorStatusElement) {
-      errorStatusElement.style.display = 'none';
-    }
-    if (errorSummaryElement) {
-      errorSummaryElement.innerHTML = '';
-    }
-    if (errorDetailsElement) {
-      errorDetailsElement.innerHTML = '';
-    }
-  }
-  updateImportErrorStatus(summary, errors) {
-    const errorStatus = document.getElementById('import-error-status');
-    if (!errorStatus) return;
-    errorStatus.style.display = 'block';
-    errorStatus.innerHTML = `
-            <div class="error-summary">
-                <i class="fas fa-exclamation-triangle"></i> <strong>Error Overview</strong>
-            </div>
-            <div class="error-main-message">
-                <i class="fas fa-exclamation-circle"></i> ${summary}
-            </div>
-            <div class="error-list">
-                ${errors.map((err, idx) => {
-      // Support error as string or { message, details }
-      let message = typeof err === 'string' ? err : err.message || 'Unknown error';
-      let details = typeof err === 'object' && err.details ? err.details : '';
-      return `
-                        <div class="error-row" data-error-idx="${idx}">
-                            <div class="error-row-header">
-                                <span class="error-label"><strong>Error ${idx + 1}:</strong> ${message}</span>
-                                ${details ? `<button class="error-toggle-btn" data-toggle-idx="${idx}"><i class="fas fa-chevron-down"></i> Details</button>` : ''}
-                            </div>
-                            ${details ? `<div class="error-details" id="error-details-${idx}" style="display:none;"><pre>${details}</pre></div>` : ''}
-                        </div>
-                    `;
-    }).join('')}
-            </div>
-        `;
-    // Add toggle listeners
-    Array.from(errorStatus.querySelectorAll('.error-toggle-btn')).forEach(btn => {
-      btn.onclick = e => {
-        const idx = btn.getAttribute('data-toggle-idx');
-        const detailsDiv = document.getElementById(`error-details-${idx}`);
-        if (detailsDiv) {
-          const isOpen = detailsDiv.style.display === 'block';
-          detailsDiv.style.display = isOpen ? 'none' : 'block';
-          btn.innerHTML = isOpen ? '<i class="fas fa-chevron-down"></i> Details' : '<i class="fas fa-chevron-up"></i> Hide';
-        }
-      };
-    });
-  }
-  showExportStatus() {
-    const overlay = document.getElementById('export-progress-modal-overlay');
-    if (overlay) overlay.style.display = 'flex';
-    const exportStatus = document.getElementById('export-status');
-    if (exportStatus) {
-      exportStatus.style.display = 'block';
-    }
-    this.isExporting = true;
-    this.updateLastRunStatus('export', 'User Export', 'In Progress', 'Starting export...', {
-      total: 0,
-      success: 0,
-      failed: 0,
-      skipped: 0
-    });
-    this.updateExportProgress(0, 0, 'Starting export...');
-  }
-  updateExportProgress(current, total, message) {
-    let counts = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
-    const percent = total > 0 ? Math.min(100, Math.round(current / total * 100)) : 0;
-    const spinnerContainer = document.getElementById('export-progress-spinner');
-    if (spinnerContainer) {
-      spinnerContainer.innerHTML = '';
-      spinnerContainer.appendChild((0, _circularProgress.createCircularProgress)({
-        value: percent,
-        label: message || 'Exporting Users'
-      }));
-    }
-    if (successCount) successCount.textContent = counts.success || 0;
-    if (failedCount) failedCount.textContent = counts.failed || 0;
-    if (skippedCount) skippedCount.textContent = counts.skipped || 0;
-    this.addProgressLogEntry(message, 'info', counts, 'export');
-    this.updateLastRunStatus('export', 'User Export', 'In Progress', message, counts);
-  }
-  resetExportProgress() {
-    const progressBar = document.getElementById('export-progress');
-    const progressPercent = document.getElementById('export-progress-percent');
-    const progressText = document.getElementById('export-progress-text');
-    const progressCount = document.getElementById('export-progress-count');
-    const successCount = document.getElementById('export-success-count');
-    const failedCount = document.getElementById('export-failed-count');
-    const skippedCount = document.getElementById('export-skipped-count');
-    if (progressBar) {
-      progressBar.style.width = '0%';
-      progressBar.setAttribute('aria-valuenow', 0);
-    }
-    if (progressPercent) progressPercent.textContent = '0%';
-    if (progressText) progressText.textContent = 'Ready to export';
-    if (progressCount) progressCount.textContent = '0/0';
-    if (successCount) successCount.textContent = '0';
-    if (failedCount) failedCount.textContent = '0';
-    if (skippedCount) skippedCount.textContent = '0';
-  }
-  showDeleteStatus(totalUsers) {
-    let populationName = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
-    let populationId = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
-    const overlay = document.getElementById('delete-progress-modal-overlay');
-    if (overlay) overlay.style.display = 'flex';
-    const deleteStatus = document.getElementById('delete-status');
-    if (deleteStatus) {
-      deleteStatus.style.display = 'block';
-    }
-    this.isDeleting = true;
-    this.updateLastRunStatus('delete', 'User Delete', 'In Progress', `Deleting ${totalUsers} users`, {
-      total: totalUsers,
-      success: 0,
-      failed: 0,
-      skipped: 0
-    });
-    this.updateDeleteProgress(0, totalUsers, 'Starting delete...', {}, populationName, populationId);
-  }
-  updateDeleteProgress(current, total, message) {
-    let counts = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
-    let populationName = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : '';
-    let populationId = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : '';
-    const percent = total > 0 ? Math.min(100, Math.round(current / total * 100)) : 0;
-    const spinnerContainer = document.getElementById('delete-progress-spinner');
-    if (spinnerContainer) {
-      spinnerContainer.innerHTML = '';
-      spinnerContainer.appendChild((0, _circularProgress.createCircularProgress)({
-        value: percent,
-        label: message || 'Deleting Users'
-      }));
-    }
-    if (successCount) successCount.textContent = counts.success || 0;
-    if (failedCount) failedCount.textContent = counts.failed || 0;
-    if (skippedCount) skippedCount.textContent = counts.skipped || 0;
-
-    // Update population name (show 'Not selected' if empty)
-    if (populationNameElement) {
-      const displayName = populationName && populationName.trim() ? populationName : 'Not selected';
-      populationNameElement.textContent = displayName;
-      populationNameElement.setAttribute('data-content', displayName);
-    }
-    // Update population ID (show 'Not set' if empty)
-    if (populationIdElement) {
-      const displayId = populationId && populationId.trim() ? populationId : 'Not set';
-      populationIdElement.textContent = displayId;
-      populationIdElement.setAttribute('data-content', displayId);
-    }
-    this.addProgressLogEntry(message, 'info', counts, 'delete');
-    this.updateLastRunStatus('delete', 'User Delete', 'In Progress', message, counts);
-  }
-  resetDeleteProgress() {
-    const progressBar = document.getElementById('delete-progress');
-    const progressPercent = document.getElementById('delete-progress-percent');
-    const progressText = document.getElementById('delete-progress-text');
-    const progressCount = document.getElementById('delete-progress-count');
-    const successCount = document.getElementById('delete-success-count');
-    const failedCount = document.getElementById('delete-failed-count');
-    const skippedCount = document.getElementById('delete-skipped-count');
-    if (progressBar) {
-      progressBar.style.width = '0%';
-      progressBar.setAttribute('aria-valuenow', 0);
-    }
-    if (progressPercent) progressPercent.textContent = '0%';
-    if (progressText) progressText.textContent = 'Ready to delete';
-    if (progressCount) progressCount.textContent = '0/0';
-    if (successCount) successCount.textContent = '0';
-    if (failedCount) failedCount.textContent = '0';
-    if (skippedCount) skippedCount.textContent = '0';
-  }
-  showModifyStatus(totalUsers) {
-    const overlay = document.getElementById('modify-progress-modal-overlay');
-    if (overlay) overlay.style.display = 'flex';
-    const modifyStatus = document.getElementById('modify-status');
-    if (modifyStatus) {
-      modifyStatus.style.display = 'block';
-    }
-    this.isModifying = true;
-    this.updateLastRunStatus('modify', 'User Modify', 'In Progress', `Modifying ${totalUsers} users`, {
-      total: totalUsers,
-      success: 0,
-      failed: 0,
-      skipped: 0
-    });
-    this.updateModifyProgress(0, totalUsers, 'Starting modify...');
-  }
-  updateModifyProgress(current, total, message) {
-    let counts = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
-    const percent = total > 0 ? Math.min(100, Math.round(current / total * 100)) : 0;
-    const spinnerContainer = document.getElementById('modify-progress-spinner');
-    if (spinnerContainer) {
-      spinnerContainer.innerHTML = '';
-      spinnerContainer.appendChild((0, _circularProgress.createCircularProgress)({
-        value: percent,
-        label: message || 'Modifying Users'
-      }));
-    }
-    if (successCount) successCount.textContent = counts.success || 0;
-    if (failedCount) failedCount.textContent = counts.failed || 0;
-    if (skippedCount) skippedCount.textContent = counts.skipped || 0;
-    this.addProgressLogEntry(message, 'info', counts, 'modify');
-    this.updateLastRunStatus('modify', 'User Modify', 'In Progress', message, counts);
-  }
-  resetModifyProgress() {
-    const progressBar = document.getElementById('modify-progress');
-    const progressPercent = document.getElementById('modify-progress-percent');
-    const progressText = document.getElementById('modify-progress-text');
-    const progressCount = document.getElementById('modify-progress-count');
-    const successCount = document.getElementById('modify-success-count');
-    const failedCount = document.getElementById('modify-failed-count');
-    const skippedCount = document.getElementById('modify-skipped-count');
-    if (progressBar) {
-      progressBar.style.width = '0%';
-      progressBar.setAttribute('aria-valuenow', 0);
-    }
-    if (progressPercent) progressPercent.textContent = '0%';
-    if (progressText) progressText.textContent = 'Ready to modify';
-    if (progressCount) progressCount.textContent = '0/0';
-    if (successCount) successCount.textContent = '0';
-    if (failedCount) failedCount.textContent = '0';
-    if (skippedCount) skippedCount.textContent = '0';
-  }
-  showPopulationDeleteStatus(populationName) {
-    const overlay = document.getElementById('population-delete-progress-modal-overlay');
-    if (overlay) overlay.style.display = 'flex';
-    const populationDeleteStatus = document.getElementById('population-delete-status');
-    if (populationDeleteStatus) {
-      populationDeleteStatus.style.display = 'block';
-    }
-    this.isPopulationDeleting = true;
-    this.updateLastRunStatus('population-delete', 'Population Delete', 'In Progress', `Deleting population: ${populationName}`, {
-      total: 1,
-      success: 0,
-      failed: 0,
-      skipped: 0
-    });
-    this.updatePopulationDeleteProgress(0, 1, 'Starting population delete...');
-  }
-  updatePopulationDeleteProgress(current, total, message) {
-    let counts = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
-    const percent = total > 0 ? Math.min(100, Math.round(current / total * 100)) : 0;
-    const spinnerContainer = document.getElementById('population-delete-progress-spinner');
-    if (spinnerContainer) {
-      spinnerContainer.innerHTML = '';
-      spinnerContainer.appendChild((0, _circularProgress.createCircularProgress)({
-        value: percent,
-        label: message || 'Deleting Population'
-      }));
-    }
-    if (successCount) successCount.textContent = counts.success || 0;
-    if (failedCount) failedCount.textContent = counts.failed || 0;
-    if (skippedCount) skippedCount.textContent = counts.skipped || 0;
-    this.addProgressLogEntry(message, 'info', counts, 'population-delete');
-    this.updateLastRunStatus('population-delete', 'Population Delete', 'In Progress', message, counts);
-  }
-  resetPopulationDeleteProgress() {
-    const progressBar = document.getElementById('population-delete-progress');
-    const progressPercent = document.getElementById('population-delete-progress-percent');
-    const progressText = document.getElementById('population-delete-progress-text');
-    const progressCount = document.getElementById('population-delete-progress-count');
-    if (progressBar) {
-      progressBar.style.width = '0%';
-      progressBar.setAttribute('aria-valuenow', 0);
-    }
-    if (progressPercent) progressPercent.textContent = '0%';
-    if (progressText) progressText.textContent = 'Ready to delete population';
-    if (progressCount) progressCount.textContent = '0/0';
-  }
-  updateLastRunStatus(operation, title, status, message) {
-    let counts = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
-    this.lastRunStatus[operation] = {
-      title,
-      status,
-      message,
-      counts,
-      timestamp: new Date().toISOString()
-    };
-  }
-  addProgressLogEntry(message, level) {
-    let counts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-    let operation = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
-    try {
-      const logEntry = {
-        timestamp: new Date().toISOString(),
-        level,
-        message,
-        counts,
-        operation
-      };
-
-      // Add to progress logs if available
-      const progressLogs = document.getElementById('progress-logs');
-      if (progressLogs) {
-        const logElement = document.createElement('div');
-        logElement.className = `log-entry log-${level}`;
-        const timeStr = new Date().toLocaleTimeString();
-
-        // Create header with timestamp, level, message, and expand icon if details exist
-        const headerElement = document.createElement('div');
-        headerElement.className = 'log-header';
-        headerElement.style.display = 'flex';
-        headerElement.style.alignItems = 'center';
-        headerElement.style.gap = '8px';
-        const timeElement = document.createElement('span');
-        timeElement.className = 'log-timestamp';
-        timeElement.textContent = timeStr;
-        const levelElement = document.createElement('span');
-        levelElement.className = 'log-level';
-        levelElement.textContent = level.toUpperCase();
-        const messageElement = document.createElement('span');
-        messageElement.className = 'log-message';
-        messageElement.textContent = message;
-        headerElement.appendChild(timeElement);
-        headerElement.appendChild(levelElement);
-        headerElement.appendChild(messageElement);
-
-        // Add count badges to header
-        if (counts.success !== undefined) {
-          const successElement = document.createElement('span');
-          successElement.className = 'log-success';
-          successElement.textContent = `✓ ${counts.success}`;
-          headerElement.appendChild(successElement);
-        }
-        if (counts.failed !== undefined) {
-          const failedElement = document.createElement('span');
-          failedElement.className = 'log-failed';
-          failedElement.textContent = `✗ ${counts.failed}`;
-          headerElement.appendChild(failedElement);
-        }
-        if (counts.skipped !== undefined) {
-          const skippedElement = document.createElement('span');
-          skippedElement.className = 'log-skipped';
-          skippedElement.textContent = `- ${counts.skipped}`;
-          headerElement.appendChild(skippedElement);
-        }
-
-        // Check if we have additional details for expandable content
-        const hasDetails = Object.keys(counts).length > 0 || operation;
-        let expandIcon = null;
-        if (hasDetails) {
-          expandIcon = document.createElement('span');
-          expandIcon.className = 'log-expand-icon';
-          expandIcon.innerHTML = '▶'; // Right-pointing triangle for collapsed state
-          expandIcon.style.cursor = 'pointer';
-          headerElement.appendChild(expandIcon);
-        }
-        logElement.appendChild(headerElement);
-
-        // Create details container for expandable content
-        if (hasDetails) {
-          const detailsElement = document.createElement('div');
-          detailsElement.className = 'log-details';
-          detailsElement.style.display = 'none'; // Initially hidden
-
-          // Add counts section if counts exist
-          if (Object.keys(counts).length > 0) {
-            const countsSection = document.createElement('div');
-            countsSection.className = 'log-detail-section';
-            const countsTitle = document.createElement('h4');
-            countsTitle.textContent = 'Counts';
-            countsSection.appendChild(countsTitle);
-            const countsContent = document.createElement('pre');
-            countsContent.className = 'log-detail-json';
-            countsContent.textContent = JSON.stringify(counts, null, 2);
-            countsSection.appendChild(countsContent);
-            detailsElement.appendChild(countsSection);
-          }
-
-          // Add operation section if operation exists
-          if (operation) {
-            const operationSection = document.createElement('div');
-            operationSection.className = 'log-detail-section';
-            const operationTitle = document.createElement('h4');
-            operationTitle.textContent = 'Operation';
-            operationSection.appendChild(operationTitle);
-            const operationContent = document.createElement('pre');
-            operationContent.className = 'log-detail-json';
-            operationContent.textContent = operation;
-            operationSection.appendChild(operationContent);
-            detailsElement.appendChild(operationSection);
-          }
-          logElement.appendChild(detailsElement);
-
-          // Add click handler for expand/collapse functionality
-          logElement.addEventListener('click', e => {
-            // Don't expand if clicking on the expand icon itself
-            if (e.target === expandIcon) {
-              return;
-            }
-            const details = logElement.querySelector('.log-details');
-            const icon = logElement.querySelector('.log-expand-icon');
-            if (details && icon) {
-              const isExpanded = details.style.display !== 'none';
-              if (isExpanded) {
-                // Collapse
-                details.style.display = 'none';
-                icon.innerHTML = '▶';
-                logElement.classList.remove('expanded');
-              } else {
-                // Expand
-                details.style.display = 'block';
-                icon.innerHTML = '▼';
-                logElement.classList.add('expanded');
-              }
-            }
-          });
-
-          // Add click handler for expand icon specifically
-          if (expandIcon) {
-            expandIcon.addEventListener('click', e => {
-              e.stopPropagation(); // Prevent triggering the log entry click
-
-              const details = logElement.querySelector('.log-details');
-              const icon = logElement.querySelector('.log-expand-icon');
-              if (details && icon) {
-                const isExpanded = details.style.display !== 'none';
-                if (isExpanded) {
-                  // Collapse
-                  details.style.display = 'none';
-                  icon.innerHTML = '▶';
-                  logElement.classList.remove('expanded');
-                } else {
-                  // Expand
-                  details.style.display = 'block';
-                  icon.innerHTML = '▼';
-                  logElement.classList.add('expanded');
-                }
-              }
-            });
-          }
-        }
-        progressLogs.appendChild(logElement);
-        progressLogs.scrollTop = progressLogs.scrollHeight;
-      }
-    } catch (error) {
-      console.error('Error adding progress log entry:', error);
-    }
-  }
-  refreshProgressData() {
-    // Refresh progress data from server
-    fetch('/api/queue/status').then(response => response.json()).then(data => {
-      if (data.success && data.jobs) {
-        // Update progress displays
-        this.updateProgressFromServer(data.jobs);
-      }
-    }).catch(error => {
-      this.logger.error('Error refreshing progress data:', error);
-    });
-  }
-  logMessage(type, message) {
-    let details = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
-    const logContainer = document.getElementById('log-entries');
-    if (!logContainer) return;
-    const entry = document.createElement('div');
-    entry.className = `log-entry log-${type}`;
-    const iconMap = {
-      success: '✅',
-      api: '🔄',
-      warning: '⚠️',
-      info: 'ℹ️',
-      error: '❌'
-    };
-    const icon = iconMap[type] || '';
-    const timestamp = new Date().toLocaleTimeString();
-
-    // Create header with icon, timestamp, message, and expand icon if details exist
-    const headerElement = document.createElement('div');
-    headerElement.className = 'log-header';
-    headerElement.style.display = 'flex';
-    headerElement.style.alignItems = 'center';
-    headerElement.style.gap = '8px';
-    const iconElement = document.createElement('span');
-    iconElement.className = 'log-icon';
-    iconElement.textContent = icon;
-    const timestampElement = document.createElement('span');
-    timestampElement.className = 'log-timestamp';
-    timestampElement.textContent = `[${timestamp}]`;
-    const messageElement = document.createElement('span');
-    messageElement.className = 'log-message';
-    messageElement.textContent = message;
-    headerElement.appendChild(iconElement);
-    headerElement.appendChild(timestampElement);
-    headerElement.appendChild(messageElement);
-
-    // Add expand icon if details exist
-    let expandIcon = null;
-    if (details) {
-      expandIcon = document.createElement('span');
-      expandIcon.className = 'log-expand-icon';
-      expandIcon.innerHTML = '▶'; // Right-pointing triangle for collapsed state
-      expandIcon.style.cursor = 'pointer';
-      headerElement.appendChild(expandIcon);
-    }
-    entry.appendChild(headerElement);
-
-    // Add details if they exist
-    if (details) {
-      const detailsElement = document.createElement('div');
-      detailsElement.className = 'log-details';
-      detailsElement.style.display = 'none'; // Initially hidden
-      detailsElement.innerHTML = details;
-      entry.appendChild(detailsElement);
-
-      // Add click handler for expand/collapse functionality
-      entry.addEventListener('click', e => {
-        // Don't expand if clicking on the expand icon itself
-        if (e.target === expandIcon) {
-          return;
-        }
-        const details = entry.querySelector('.log-details');
-        const icon = entry.querySelector('.log-expand-icon');
-        if (details && icon) {
-          const isExpanded = details.style.display !== 'none';
-          if (isExpanded) {
-            // Collapse
-            details.style.display = 'none';
-            icon.innerHTML = '▶';
-            entry.classList.remove('expanded');
-          } else {
-            // Expand
-            details.style.display = 'block';
-            icon.innerHTML = '▼';
-            entry.classList.add('expanded');
-          }
-        }
-      });
-
-      // Add click handler for expand icon specifically
-      if (expandIcon) {
-        expandIcon.addEventListener('click', e => {
-          e.stopPropagation(); // Prevent triggering the log entry click
-
-          const details = entry.querySelector('.log-details');
-          const icon = entry.querySelector('.log-expand-icon');
-          if (details && icon) {
-            const isExpanded = details.style.display !== 'none';
-            if (isExpanded) {
-              // Collapse
-              details.style.display = 'none';
-              icon.innerHTML = '▶';
-              entry.classList.remove('expanded');
-            } else {
-              // Expand
-              details.style.display = 'block';
-              icon.innerHTML = '▼';
-              entry.classList.add('expanded');
-            }
-          }
-        });
-      }
-    }
-    logContainer.appendChild(entry);
-    logContainer.scrollTop = logContainer.scrollHeight;
-  }
-  updateFileInfo(fileInfo) {
-    console.log('File info section repositioned under CSV file input');
-    console.log('File info section moved below file upload input.');
-  }
-
-  // Missing methods that were removed during cleanup
-
-  async showView(viewName) {
-    return await this.switchView(viewName);
-  }
-  switchView(viewName) {
-    try {
-      // Hide all views
-      const views = document.querySelectorAll('[data-view]');
-      views.forEach(view => {
-        view.style.display = 'none';
-      });
-
-      // Show the requested view
-      const targetView = document.querySelector(`[data-view="${viewName}"]`);
-      if (!targetView) {
-        throw new Error(`View '${viewName}' not found`);
-      }
-      targetView.style.display = 'block';
-
-      // Update navigation
-      this.navItems.forEach(item => {
-        item.classList.remove('active');
-      });
-      const activeNav = document.querySelector(`[data-view="${viewName}"]`);
-      if (activeNav) {
-        activeNav.classList.add('active');
-      }
-      this.currentView = viewName;
-      this.logger.info(`Switched to view: ${viewName}`);
-
-      // Load logs if switching to logs view
-      if (viewName === 'logs') {
-        this.loadAndDisplayLogs();
-      }
-    } catch (error) {
-      this.logger.error(`Error switching to view '${viewName}':`, error);
-      throw error;
-    }
-  }
-
-  /**
-   * Load and display logs from the server
-   */
-  async loadAndDisplayLogs() {
-    var _this = this;
-    if (!this.logsView) {
-      console.warn('Logs view element not found');
-      return;
-    }
-
-    // Safe logging function
-    const safeLog = function (message) {
-      let level = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'log';
-      let data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-      try {
-        if (_this.logger) {
-          if (typeof _this.logger[level] === 'function') {
-            _this.logger[level](message, data);
-            return;
-          } else if (typeof _this.logger.log === 'function') {
-            _this.logger.log(message, level, data);
-            return;
-          }
-        }
-        // Fallback to console
-        if (console[level]) {
-          console[level](message, data);
+        if (tokenInfo.isExpired) {
+          statusElement.className = 'token-status expired';
+          statusElement.textContent = 'Token expired';
+        } else if (tokenInfo.token) {
+          statusElement.className = 'token-status valid';
+          statusElement.textContent = `Token valid (${tokenInfo.timeRemaining})`;
         } else {
-          console.log(`[${level.toUpperCase()}]`, message, data);
-        }
-      } catch (logError) {
-        console.error('Error in safeLog:', logError);
-      }
-    };
-
-    // Get or create log entries container
-    let logEntries = this.logsView.querySelector('.log-entries');
-    if (!logEntries) {
-      logEntries = document.createElement('div');
-      logEntries.className = 'log-entries';
-      this.logsView.appendChild(logEntries);
-    }
-
-    // Show loading indicator
-    const loadingElement = document.createElement('div');
-    loadingElement.id = 'logs-loading';
-    loadingElement.textContent = 'Loading logs...';
-    loadingElement.style.padding = '1rem';
-    loadingElement.style.textAlign = 'center';
-    loadingElement.style.color = '#666';
-
-    // Clear existing content and show loading
-    logEntries.innerHTML = '';
-    logEntries.appendChild(loadingElement);
-    try {
-      // Fetch logs from the UI logs endpoint
-      safeLog('Fetching logs from /api/logs...', 'debug');
-      const response = await fetch('/api/logs?limit=200');
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const responseData = await response.json();
-      safeLog('Received logs from server', 'debug', {
-        count: responseData.logs?.length
-      });
-
-      // Clear any existing logs in the UI
-      logEntries.innerHTML = '';
-      if (responseData.success === true && Array.isArray(responseData.logs)) {
-        if (responseData.logs.length === 0) {
-          const noLogsElement = document.createElement('div');
-          noLogsElement.className = 'log-entry info';
-          noLogsElement.textContent = 'No logs available';
-          logEntries.appendChild(noLogsElement);
-          return;
-        }
-
-        // === LOG LOADING: NEWEST FIRST ===
-        // Process logs in reverse chronological order (newest first)
-        // Logs are reversed so newest entries show first (top of the list)
-        // Makes recent events immediately visible without scrolling
-        // Maintain this ordering for all future log-related features
-        const logsToProcess = [...responseData.logs].reverse();
-        logsToProcess.forEach((log, index) => {
-          try {
-            if (log && typeof log === 'object') {
-              const logElement = document.createElement('div');
-              const logLevel = (log.level || 'info').toLowerCase();
-              logElement.className = `log-entry log-${logLevel}`;
-              const timestamp = log.timestamp ? new Date(log.timestamp).toLocaleTimeString() : new Date().toLocaleTimeString();
-              const level = log.level ? log.level.toUpperCase() : 'INFO';
-              const message = log.message || 'No message';
-              logElement.innerHTML = `
-                                <span class="log-timestamp">[${timestamp}]</span>
-                                <span class="log-level">${level}</span>
-                                <span class="log-message">${message}</span>
-                            `;
-
-              // Add data if present
-              if (log.data && Object.keys(log.data).length > 0) {
-                const dataElement = document.createElement('pre');
-                dataElement.className = 'log-data';
-                dataElement.textContent = JSON.stringify(log.data, null, 2);
-                logElement.appendChild(dataElement);
-              }
-
-              // Insert at the top of the container (newest first)
-              if (logEntries.firstChild) {
-                logEntries.insertBefore(logElement, logEntries.firstChild);
-              } else {
-                logEntries.appendChild(logElement);
-              }
-            } else {
-              safeLog(`Skipping invalid log entry at index ${index}`, 'warn', log);
-            }
-          } catch (logError) {
-            safeLog(`Error processing log entry at index ${index}: ${logError.message}`, 'error', {
-              error: logError
-            });
-          }
-        });
-
-        // Scroll to top since newest entries are at the top
-        logEntries.scrollTop = 0;
-      } else {
-        const errorMsg = responseData.error || 'Failed to load logs';
-        logEntries.innerHTML = `<div class="error">${errorMsg}</div>`;
-        console.error('Failed to load logs:', errorMsg);
-        if (this.logger && typeof this.logger.error === 'function') {
-          this.logger.error('Failed to load logs:', errorMsg);
-        }
-      }
-    } catch (error) {
-      safeLog(`Error loading logs: ${error.message}`, 'error', {
-        error
-      });
-      logEntries.innerHTML = `<div class="error">Failed to load logs: ${error.message}</div>`;
-    }
-  }
-  addForm(formId, action, onSuccess, onError) {
-    try {
-      const form = document.getElementById(formId);
-      if (!form) {
-        this.logger.error(`Form with ID '${formId}' not found`);
-        return;
-      }
-
-      // Store form handlers
-      if (!this.forms) {
-        this.forms = {};
-      }
-      this.forms[formId] = {
-        action,
-        onSuccess,
-        onError
-      };
-
-      // Add submit handler
-      form.addEventListener('submit', async event => {
-        event.preventDefault();
-        await this.handleFormSubmit(formId, event);
-      });
-      this.logger.info(`Form '${formId}' added with action '${action}'`);
-    } catch (error) {
-      this.logger.error(`Error adding form '${formId}':`, error);
-    }
-  }
-  async handleFormSubmit(formId, event) {
-    try {
-      const formConfig = this.forms[formId];
-      if (!formConfig) {
-        this.logger.error(`No configuration found for form '${formId}'`);
-        return;
-      }
-
-      // Convert FormData to JSON for testing compatibility
-      const formData = new FormData(event.target);
-      const jsonData = {};
-      for (const [key, value] of formData.entries()) {
-        jsonData[key] = value;
-      }
-      const response = await fetch(formConfig.action, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(jsonData)
-      });
-      const data = await response.json();
-      if (data.success) {
-        if (formConfig.onSuccess) {
-          formConfig.onSuccess(data);
+          statusElement.className = 'token-status none';
+          statusElement.textContent = 'No token available';
         }
       } else {
-        if (formConfig.onError) {
-          formConfig.onError(data);
+        this.logger.warn('Current token status element not found');
+      }
+    } catch (error) {
+      this.logger.error('Error showing current token status', {
+        error: error.message,
+        tokenInfo
+      });
+    }
+  }
+
+  /**
+   * Update universal token status with Winston logging
+   */
+  updateUniversalTokenStatus(tokenInfo) {
+    try {
+      this.logger.debug('Universal token status updated', {
+        hasToken: !!tokenInfo.token,
+        timeRemaining: tokenInfo.timeRemaining
+      });
+      const universalStatusBar = _elementRegistry.ElementRegistry.universalTokenStatus ? _elementRegistry.ElementRegistry.universalTokenStatus() : null;
+      if (universalStatusBar) {
+        if (tokenInfo.isExpired) {
+          universalStatusBar.className = 'universal-token-status expired';
+          universalStatusBar.textContent = '🔴 Token Expired';
+        } else if (tokenInfo.token) {
+          universalStatusBar.className = 'universal-token-status valid';
+          universalStatusBar.textContent = `🟢 Token Valid (${tokenInfo.timeRemaining})`;
+        } else {
+          universalStatusBar.className = 'universal-token-status none';
+          universalStatusBar.textContent = '⚪ No Token';
         }
+      } else {
+        this.logger.warn('Universal token status bar not found');
       }
     } catch (error) {
-      this.logger.error(`Error submitting form '${formId}':`, error);
-      if (this.forms[formId] && this.forms[formId].onError) {
-        this.forms[formId].onError({
-          error: error.message
-        });
-      }
+      this.logger.error('Error updating universal token status', {
+        error: error.message,
+        tokenInfo
+      });
     }
   }
-  updateElementContent(elementId, content) {
+
+  /**
+   * Update home token status with Winston logging
+   */
+  updateHomeTokenStatus(isLoading = false) {
     try {
-      const element = document.getElementById(elementId);
-      if (!element) {
-        console.warn(`Element with ID '${elementId}' not found`);
-        return;
+      this.logger.debug('Home token status updated', {
+        isLoading
+      });
+      const homeTokenStatus = _elementRegistry.ElementRegistry.homeTokenStatus ? _elementRegistry.ElementRegistry.homeTokenStatus() : null;
+      if (homeTokenStatus) {
+        if (isLoading) {
+          homeTokenStatus.className = 'home-token-status loading';
+          homeTokenStatus.textContent = '🔄 Checking token...';
+        } else {
+          homeTokenStatus.className = 'home-token-status ready';
+          homeTokenStatus.textContent = '✅ Token ready';
+        }
+      } else {
+        this.logger.warn('Home token status element not found');
       }
-      element.innerHTML = content;
     } catch (error) {
-      this.logger.error(`Error updating element '${elementId}':`, error);
+      this.logger.error('Error updating home token status', {
+        error: error.message,
+        isLoading
+      });
     }
   }
-  savePersistedStatus() {
+
+  /**
+   * Update settings save status with Winston logging
+   */
+  updateSettingsSaveStatus(success, message = '') {
     try {
-      const status = {
-        import: this.lastRunStatus.import,
-        export: this.lastRunStatus.export,
-        delete: this.lastRunStatus.delete,
-        modify: this.lastRunStatus.modify,
-        'population-delete': this.lastRunStatus['population-delete']
-      };
-      if (typeof localStorage !== 'undefined') {
-        localStorage.setItem('pingone_import_status', JSON.stringify(status));
+      this.logger.info('Settings save status updated', {
+        success,
+        message
+      });
+      const saveStatusElement = _elementRegistry.ElementRegistry.settingsSaveStatus ? _elementRegistry.ElementRegistry.settingsSaveStatus() : null;
+      if (saveStatusElement) {
+        if (success) {
+          saveStatusElement.className = 'settings-save-status success';
+          saveStatusElement.textContent = '✅ Settings saved successfully';
+        } else {
+          saveStatusElement.className = 'settings-save-status error';
+          saveStatusElement.textContent = `❌ ${message || 'Failed to save settings'}`;
+        }
+      } else {
+        this.logger.warn('Settings save status element not found');
       }
     } catch (error) {
-      this.logger.error('Error saving persisted status:', error);
+      this.logger.error('Error updating settings save status', {
+        error: error.message,
+        success,
+        message
+      });
     }
   }
+
+  /**
+   * Show import status with Winston logging
+   */
+  showImportStatus(status, message = '', details = {}) {
+    try {
+      this.logger.info('Import status shown', {
+        status,
+        message,
+        details
+      });
+      const statusElement = _elementRegistry.ElementRegistry.importStatus ? _elementRegistry.ElementRegistry.importStatus() : null;
+      if (statusElement) {
+        statusElement.className = `import-status ${status}`;
+        statusElement.textContent = message;
+
+        // Add details if provided
+        if (Object.keys(details).length > 0) {
+          const detailsElement = document.createElement('div');
+          detailsElement.className = 'import-details';
+          detailsElement.textContent = JSON.stringify(details, null, 2);
+          statusElement.appendChild(detailsElement);
+        }
+      } else {
+        this.logger.warn('Import status element not found');
+      }
+    } catch (error) {
+      this.logger.error('Error showing import status', {
+        error: error.message,
+        status,
+        message
+      });
+    }
+  }
+
+  /**
+   * Clear all notifications
+   */
+  clearNotifications() {
+    try {
+      if (this.notificationContainer) {
+        this.notificationContainer.innerHTML = '';
+        this.logger.debug('All notifications cleared');
+      }
+    } catch (error) {
+      this.logger.error('Error clearing notifications', {
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Hide progress
+   */
+  hideProgress() {
+    try {
+      if (this.progressContainer) {
+        this.progressContainer.style.display = 'none';
+        this.logger.debug('Progress hidden');
+      }
+    } catch (error) {
+      this.logger.error('Error hiding progress', {
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Show progress
+   */
+  showProgress() {
+    try {
+      if (this.progressContainer) {
+        this.progressContainer.style.display = 'block';
+        this.logger.debug('Progress shown');
+      }
+    } catch (error) {
+      this.logger.error('Error showing progress', {
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Set button loading state
+   */
   setButtonLoading(buttonId, isLoading) {
     try {
       const button = document.getElementById(buttonId);
-      if (!button) {
-        this.logger.warn(`Button with ID '${buttonId}' not found`);
-        return;
-      }
-      if (isLoading) {
-        // Add loading state
-        button.disabled = true;
-        button.classList.add('loading');
-
-        // Add spinner if not already present
-        if (!button.querySelector('.spinner-border')) {
-          const spinner = document.createElement('span');
-          spinner.className = 'spinner-border spinner-border-sm me-2';
-          spinner.setAttribute('role', 'status');
-          spinner.setAttribute('aria-hidden', 'true');
-          button.insertBefore(spinner, button.firstChild);
+      if (button) {
+        if (isLoading) {
+          button.disabled = true;
+          button.innerHTML = '<span class="spinner"></span> Loading...';
+        } else {
+          button.disabled = false;
+          button.innerHTML = button.getAttribute('data-original-text') || 'Submit';
         }
+        this.logger.debug('Button loading state updated', {
+          buttonId,
+          isLoading
+        });
       } else {
-        // Remove loading state
-        button.disabled = false;
-        button.classList.remove('loading');
-
-        // Remove spinner
-        const spinner = button.querySelector('.spinner-border');
-        if (spinner) {
-          spinner.remove();
-        }
+        this.logger.warn(`Button with ID '${buttonId}' not found`);
       }
     } catch (error) {
-      this.logger.error(`Error setting button loading state for '${buttonId}':`, error);
-    }
-  }
-  updateLiveStatus(message) {
-    let type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'info';
-    const el = document.getElementById('status-live');
-    if (!el) return;
-    el.textContent = message;
-    el.className = `status-message status-${type}`;
-    el.style.display = 'block';
-  }
-  clearLiveStatus() {
-    const el = document.getElementById('status-live');
-    if (!el) return;
-    el.textContent = '';
-    el.style.display = 'none';
-  }
-
-  /**
-   * Show a status message with the specified type
-   * 
-   * Provides a consistent interface for displaying status messages
-   * to prevent method binding errors during SSE connections.
-   * 
-   * @param {string} type - The type of status message ('success', 'error', 'warning', 'info')
-   * @param {string} message - The main message to display
-   * @param {string} details - Optional details to display
-   */
-  showStatusMessage(type, message) {
-    let details = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
-    // Ensure this method exists to prevent binding errors during SSE connections
-    // This provides a fallback interface for status messages
-    switch (type) {
-      case 'success':
-        this.showSuccess(message, details);
-        break;
-      case 'error':
-        this.showError(message, details);
-        break;
-      case 'warning':
-        this.showWarning(message, details);
-        break;
-      case 'info':
-        this.showInfo(message, details);
-        break;
-      default:
-        // Default to info if type is not recognized
-        this.showInfo(message, details);
-        break;
+      this.logger.error('Error setting button loading state', {
+        error: error.message,
+        buttonId,
+        isLoading
+      });
     }
   }
 
   /**
-   * Show a success notification
-   * 
-   * Displays a success message to the user with appropriate styling
-   * and automatic dismissal after a timeout period.
-   * 
-   * @param {string} message - The success message to display
-   * @param {string} details - Optional additional details
+   * Update population fields with Winston logging
    */
+  updatePopulationFields(populations) {
+    try {
+      this.logger.debug('Population fields updated', {
+        populationCount: populations.length,
+        populationNames: populations.map(p => p.name)
+      });
+      const populationSelect = document.getElementById('import-population-select');
+      if (populationSelect) {
+        populationSelect.innerHTML = '<option value="">Select Population</option>';
+        populations.forEach(population => {
+          const option = document.createElement('option');
+          option.value = population.id;
+          option.textContent = population.name;
+          populationSelect.appendChild(option);
+        });
+      } else {
+        this.logger.warn('Population select element not found');
+      }
+    } catch (error) {
+      this.logger.error('Error updating population fields', {
+        error: error.message,
+        populations
+      });
+    }
+  }
 
   /**
-   * Centralized debug logger for UI and import flow
-   * @param {string} area - Tag/category for the log (e.g., 'Import', 'SSE')
-   * @param {string} message - Log message
-   * @param {any} data - Optional data to log
+   * Show a notification message
+   * @param {string} title - Notification title
+   * @param {string} message - Notification message
+   * @param {string} type - Notification type (success, error, warning, info)
+   * @param {Object} options - Additional options
+   */
+  showNotification(title, message, type = 'info', options = {}) {
+    try {
+      // Use existing methods based on type
+      switch (type) {
+        case 'success':
+          this.showSuccess(message);
+          break;
+        case 'error':
+          this.showError(title, message);
+          break;
+        case 'warning':
+          this.showWarning(message);
+          break;
+        case 'info':
+        default:
+          this.showInfo(message);
+          break;
+      }
+      this.logger.info('Notification shown', {
+        title,
+        message,
+        type
+      });
+    } catch (error) {
+      this.logger.error('Failed to show notification', {
+        error: error.message,
+        title,
+        message,
+        type
+      });
+      // Fallback to console
+      console.log(`[${type.toUpperCase()}] ${title}: ${message}`);
+    }
+  }
+
+  /**
+   * Debug log method for compatibility
    */
   debugLog(area, message) {
-    let data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    if (!DEBUG_MODE) return;
-    const formatted = `[DEBUG - ${area}] ${message}`;
-    if (data !== null) {
-      console.log(formatted, data);
-    } else {
-      console.log(formatted);
+    if (DEBUG_MODE) {
+      console.debug(`[${area}] ${message}`);
     }
-    // Also log to debug window if present
-    this.logDebugToWindow(area, message, data);
-  }
-
-  /**
-   * Appends a debug log entry to the debug log window in the UI (if present)
-   * @param {string} area - Log area/tag
-   * @param {string} message - Log message
-   * @param {any} data - Optional data
-   */
-  logDebugToWindow(area, message) {
-    let data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    const debugContent = document.getElementById('debug-log-content');
-    if (!debugContent) return;
-    // Create a new log entry element
-    const entry = document.createElement('div');
-    entry.className = `debug-log-entry debug-${area.toLowerCase()}`;
-    entry.setAttribute('data-area', area.toLowerCase());
-    entry.innerHTML = `<span class="debug-tag">[${area}]</span> <span class="debug-msg">${message}</span> ${data ? `<pre class='debug-data'>${JSON.stringify(data, null, 2)}</pre>` : ''}`;
-    debugContent.appendChild(entry);
-    debugContent.scrollTop = debugContent.scrollHeight;
-    // Apply current filters
-    applyDebugFilters();
   }
 }
-exports.UIManager = UIManager;
 
-},{"./circular-progress.js":4,"./logger.js":10}],15:[function(require,module,exports){
+// Create and export default instance
+exports.UIManager = UIManager;
+const uiManager = exports.uiManager = new UIManager();
+
+// Export the class and instance
+
+}).call(this)}).call(this,require('_process'))
+},{"./circular-progress.js":5,"./element-registry.js":7,"./winston-logger.js":17,"_process":2}],16:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11712,7 +8530,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.VersionManager = void 0;
 class VersionManager {
   constructor() {
-    this.version = '4.9'; // Update this with each new version
+    this.version = '5.0'; // Update this with each new version
     console.log(`Version Manager initialized with version ${this.version}`);
   }
   getVersion() {
@@ -11782,4 +8600,336 @@ class VersionManager {
 // ES Module export
 exports.VersionManager = VersionManager;
 
-},{}]},{},[2]);
+},{}],17:[function(require,module,exports){
+(function (process){(function (){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.apiLogger = exports.WinstonLogger = void 0;
+exports.createComponentLogger = createComponentLogger;
+exports.createWinstonLogger = createWinstonLogger;
+exports.uiLogger = exports.tokenLogger = exports.settingsLogger = exports.fileLogger = exports.defaultLogger = void 0;
+/**
+ * @fileoverview Winston-compatible logger for frontend/browser environment
+ * 
+ * This module provides a Winston-like logging interface for the frontend
+ * that maintains consistency with server-side Winston logging while
+ * working within browser constraints.
+ * 
+ * Features:
+ * - Winston-compatible API (info, warn, error, debug)
+ * - Structured logging with metadata
+ * - Timestamp formatting
+ * - Log level filtering
+ * - Console and server transport support
+ * - Error stack trace handling
+ * - Environment-aware configuration
+ */
+
+/**
+ * Winston-compatible logger for browser environment
+ */
+class WinstonLogger {
+  constructor(options = {}) {
+    this.level = options.level || this.getDefaultLevel();
+    this.service = options.service || 'pingone-import-frontend';
+    this.environment = options.environment || process.env.NODE_ENV || 'development';
+    this.enableServerLogging = options.enableServerLogging !== false;
+    this.enableConsoleLogging = options.enableConsoleLogging !== false;
+
+    // Log level hierarchy
+    this.levels = {
+      error: 0,
+      warn: 1,
+      info: 2,
+      debug: 3
+    };
+
+    // Initialize transports
+    this.transports = [];
+    this.initializeTransports();
+  }
+
+  /**
+   * Get default log level based on environment
+   */
+  getDefaultLevel() {
+    if (this.environment === 'production') {
+      return 'info';
+    } else if (this.environment === 'test') {
+      return 'warn';
+    } else {
+      return 'debug';
+    }
+  }
+
+  /**
+   * Initialize logging transports
+   */
+  initializeTransports() {
+    // Console transport
+    if (this.enableConsoleLogging) {
+      this.transports.push({
+        name: 'console',
+        log: (level, message, meta) => this.logToConsole(level, message, meta)
+      });
+    }
+
+    // Server transport (if enabled)
+    if (this.enableServerLogging) {
+      this.transports.push({
+        name: 'server',
+        log: (level, message, meta) => this.logToServer(level, message, meta)
+      });
+    }
+  }
+
+  /**
+   * Check if a log level should be logged
+   */
+  shouldLog(level) {
+    return this.levels[level] <= this.levels[this.level];
+  }
+
+  /**
+   * Format timestamp
+   */
+  formatTimestamp() {
+    return new Date().toISOString();
+  }
+
+  /**
+   * Format log entry
+   */
+  formatLogEntry(level, message, meta = {}) {
+    const timestamp = this.formatTimestamp();
+    return {
+      timestamp,
+      level,
+      message,
+      service: this.service,
+      environment: this.environment,
+      ...meta
+    };
+  }
+
+  /**
+   * Log to console with Winston-like formatting
+   */
+  logToConsole(level, message, meta = {}) {
+    if (!this.shouldLog(level)) return;
+    const logEntry = this.formatLogEntry(level, message, meta);
+    const timestamp = logEntry.timestamp;
+    const levelUpper = level.toUpperCase();
+
+    // Create formatted console message
+    let consoleMessage = `[${timestamp}] [${this.service}] ${levelUpper}: ${message}`;
+
+    // Add metadata if present
+    if (Object.keys(meta).length > 0) {
+      consoleMessage += `\n${JSON.stringify(meta, null, 2)}`;
+    }
+
+    // Use appropriate console method
+    switch (level) {
+      case 'error':
+        console.error(consoleMessage);
+        break;
+      case 'warn':
+        console.warn(consoleMessage);
+        break;
+      case 'info':
+        console.info(consoleMessage);
+        break;
+      case 'debug':
+        console.debug(consoleMessage);
+        break;
+      default:
+        console.log(consoleMessage);
+    }
+  }
+
+  /**
+   * Log to server via API endpoint
+   */
+  async logToServer(level, message, meta = {}) {
+    if (!this.shouldLog(level)) return;
+    try {
+      const logEntry = this.formatLogEntry(level, message, meta);
+
+      // Send to server logging endpoint
+      await fetch('/api/logs/ui', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(logEntry)
+      });
+    } catch (error) {
+      // Fallback to console if server logging fails
+      console.warn('Server logging failed, falling back to console:', error.message);
+      this.logToConsole(level, message, meta);
+    }
+  }
+
+  /**
+   * Main logging method
+   */
+  log(level, message, meta = {}) {
+    if (!this.shouldLog(level)) return;
+
+    // Send to all transports
+    this.transports.forEach(transport => {
+      try {
+        transport.log(level, message, meta);
+      } catch (error) {
+        console.error(`Error in ${transport.name} transport:`, error);
+      }
+    });
+  }
+
+  /**
+   * Log info level message
+   */
+  info(message, meta = {}) {
+    this.log('info', message, meta);
+  }
+
+  /**
+   * Log warn level message
+   */
+  warn(message, meta = {}) {
+    this.log('warn', message, meta);
+  }
+
+  /**
+   * Log error level message
+   */
+  error(message, meta = {}) {
+    this.log('error', message, meta);
+  }
+
+  /**
+   * Log debug level message
+   */
+  debug(message, meta = {}) {
+    this.log('debug', message, meta);
+  }
+
+  /**
+   * Log error with stack trace
+   */
+  errorWithStack(message, error, meta = {}) {
+    const errorMeta = {
+      ...meta,
+      error: {
+        message: error.message,
+        stack: error.stack,
+        code: error.code,
+        name: error.name
+      }
+    };
+    this.error(message, errorMeta);
+  }
+
+  /**
+   * Create child logger with additional metadata
+   */
+  child(additionalMeta = {}) {
+    const childLogger = new WinstonLogger({
+      level: this.level,
+      service: this.service,
+      environment: this.environment,
+      enableServerLogging: this.enableServerLogging,
+      enableConsoleLogging: this.enableConsoleLogging
+    });
+
+    // Override formatLogEntry to include additional metadata
+    childLogger.formatLogEntry = (level, message, meta = {}) => {
+      const baseEntry = this.formatLogEntry(level, message, meta);
+      return {
+        ...baseEntry,
+        ...additionalMeta
+      };
+    };
+    return childLogger;
+  }
+
+  /**
+   * Set log level
+   */
+  setLevel(level) {
+    if (this.levels.hasOwnProperty(level)) {
+      this.level = level;
+    } else {
+      this.warn(`Invalid log level: ${level}`);
+    }
+  }
+
+  /**
+   * Enable/disable server logging
+   */
+  setServerLogging(enabled) {
+    this.enableServerLogging = enabled;
+
+    // Update transports
+    this.transports = this.transports.filter(t => t.name !== 'server');
+    if (enabled) {
+      this.transports.push({
+        name: 'server',
+        log: (level, message, meta) => this.logToServer(level, message, meta)
+      });
+    }
+  }
+
+  /**
+   * Enable/disable console logging
+   */
+  setConsoleLogging(enabled) {
+    this.enableConsoleLogging = enabled;
+
+    // Update transports
+    this.transports = this.transports.filter(t => t.name !== 'console');
+    if (enabled) {
+      this.transports.push({
+        name: 'console',
+        log: (level, message, meta) => this.logToConsole(level, message, meta)
+      });
+    }
+  }
+}
+
+/**
+ * Create default logger instance
+ */
+exports.WinstonLogger = WinstonLogger;
+function createWinstonLogger(options = {}) {
+  return new WinstonLogger(options);
+}
+
+/**
+ * Create component-specific logger
+ */
+function createComponentLogger(component, options = {}) {
+  return createWinstonLogger({
+    ...options,
+    service: `${options.service || 'pingone-import'}-${component}`
+  });
+}
+
+/**
+ * Default logger instances
+ */
+const defaultLogger = exports.defaultLogger = createWinstonLogger();
+const apiLogger = exports.apiLogger = createComponentLogger('api');
+const uiLogger = exports.uiLogger = createComponentLogger('ui');
+const fileLogger = exports.fileLogger = createComponentLogger('file');
+const settingsLogger = exports.settingsLogger = createComponentLogger('settings');
+const tokenLogger = exports.tokenLogger = createComponentLogger('token');
+
+// Export the class for custom instances
+
+}).call(this)}).call(this,require('_process'))
+},{"_process":2}]},{},[3]);

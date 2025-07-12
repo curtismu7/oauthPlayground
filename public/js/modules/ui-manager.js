@@ -13,6 +13,7 @@
 
 import { createWinstonLogger } from './winston-logger.js';
 import { createCircularProgress } from './circular-progress.js';
+import { ElementRegistry } from './element-registry.js';
 
 // Enable debug mode for development (set to false in production)
 const DEBUG_MODE = true;
@@ -51,13 +52,24 @@ class UIManager {
     }
     
     /**
+     * Initialize UI manager (alias for initialize for compatibility)
+     */
+    async init() {
+        this.initialize();
+        return Promise.resolve();
+    }
+    
+    /**
      * Setup UI elements
      */
     setupElements() {
-        this.notificationContainer = document.getElementById('notification-container');
-        this.progressContainer = document.getElementById('progress-container');
-        this.tokenStatusElement = document.getElementById('token-status');
-        this.connectionStatusElement = document.getElementById('connection-status');
+        this.notificationContainer = ElementRegistry.notificationContainer ? ElementRegistry.notificationContainer() : null;
+        this.progressContainer = ElementRegistry.progressContainer ? ElementRegistry.progressContainer() : null;
+        this.tokenStatusElement = ElementRegistry.tokenStatus ? ElementRegistry.tokenStatus() : null;
+        this.connectionStatusElement = ElementRegistry.connectionStatus ? ElementRegistry.connectionStatus() : null;
+        
+        // Initialize navigation items for safe access
+        this.navItems = document.querySelectorAll('[data-view]');
         
         if (!this.notificationContainer) {
             this.logger.warn('Notification container not found');
@@ -71,97 +83,169 @@ class UIManager {
             hasNotificationContainer: !!this.notificationContainer,
             hasProgressContainer: !!this.progressContainer,
             hasTokenStatusElement: !!this.tokenStatusElement,
-            hasConnectionStatusElement: !!this.connectionStatusElement
+            hasConnectionStatusElement: !!this.connectionStatusElement,
+            navItemsCount: this.navItems ? this.navItems.length : 0
         });
     }
     
     /**
-     * Show notification with Winston logging
+     * Show a persistent, animated status bar message
+     * type: info, success, warning, error
+     * message: string
+     * options: { autoDismiss: boolean, duration: ms }
      */
-    showNotification(message, type = 'info', duration = 5000) {
-        try {
-            this.logger.info('Showing notification', { message, type, duration });
-            
-            if (!this.notificationContainer) {
-                this.logger.warn('Notification container not found, cannot show notification');
-                return;
-            }
-            
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.textContent = message;
-            
-            // Add close button
-            const closeButton = document.createElement('button');
-            closeButton.className = 'notification-close';
-            closeButton.innerHTML = '&times;';
-            closeButton.onclick = () => this.removeNotification(notification);
-            notification.appendChild(closeButton);
-            
-            this.notificationContainer.appendChild(notification);
-            
-            // Auto-remove after duration
-            if (duration > 0) {
-                setTimeout(() => this.removeNotification(notification), duration);
-            }
-            
-            this.logger.debug('Notification displayed', { 
-                message: message.substring(0, 50) + (message.length > 50 ? '...' : ''),
-                type,
-                duration
-            });
-            
-        } catch (error) {
-            this.logger.error('Error showing notification', { error: error.message, message, type });
+    showStatusBar(message, type = 'info', options = {}) {
+        const bar = ElementRegistry.statusBar ? ElementRegistry.statusBar() : null;
+        if (!bar) {
+            this.logger.warn('Status bar element not found');
+            return;
         }
+        
+        // Clear any existing auto-dismiss timers
+        if (this.statusBarTimer) {
+            clearTimeout(this.statusBarTimer);
+            this.statusBarTimer = null;
+        }
+        
+        // Remove previous content and classes
+        bar.className = 'status-bar';
+        bar.innerHTML = '';
+        
+        // Create icon element
+        const icon = document.createElement('span');
+        icon.className = 'status-icon';
+        icon.innerHTML = {
+            info: '<i class="fas fa-info-circle"></i>',
+            success: '<i class="fas fa-check-circle"></i>',
+            warning: '<i class="fas fa-exclamation-triangle"></i>',
+            error: '<i class="fas fa-times-circle"></i>'
+        }[type] || '<i class="fas fa-info-circle"></i>';
+        bar.appendChild(icon);
+        
+        // Create message element
+        const msg = document.createElement('span');
+        msg.className = 'status-message';
+        msg.textContent = message;
+        bar.appendChild(msg);
+        
+        // Add dismiss button for error/warning (persistent messages)
+        if (type === 'error' || type === 'warning') {
+            const dismiss = document.createElement('button');
+            dismiss.className = 'status-dismiss';
+            dismiss.innerHTML = '&times;';
+            dismiss.setAttribute('aria-label', 'Dismiss message');
+            dismiss.onclick = () => this.clearStatusBar();
+            bar.appendChild(dismiss);
+        }
+        
+        // Animate in with a slight delay for smooth transition
+        setTimeout(() => {
+            bar.classList.add('visible', type);
+        }, 10);
+        
+        // Auto-dismiss for success/info messages
+        const shouldAutoDismiss = options.autoDismiss !== false && (type === 'success' || type === 'info');
+        if (shouldAutoDismiss) {
+            const duration = options.duration || (type === 'success' ? 4000 : 3000);
+            this.statusBarTimer = setTimeout(() => {
+                this.clearStatusBar();
+            }, duration);
+        }
+        
+        // Log the status bar message
+        this.logger.info('Status bar message shown', { 
+            type, 
+            message: message.substring(0, 100), 
+            autoDismiss: shouldAutoDismiss,
+            duration: options.duration 
+        });
     }
     
     /**
-     * Remove notification
+     * Clear the status bar with smooth animation
      */
-    removeNotification(notification) {
-        try {
-            if (notification && notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-                this.logger.debug('Notification removed');
-            }
-        } catch (error) {
-            this.logger.error('Error removing notification', { error: error.message });
+    clearStatusBar() {
+        const bar = ElementRegistry.statusBar ? ElementRegistry.statusBar() : null;
+        if (!bar) return;
+        
+        // Clear any pending timers
+        if (this.statusBarTimer) {
+            clearTimeout(this.statusBarTimer);
+            this.statusBarTimer = null;
         }
+        
+        // Remove visible class to trigger fade out animation
+        bar.classList.remove('visible');
+        
+        // Clear content after animation completes
+        setTimeout(() => { 
+            bar.innerHTML = ''; 
+            bar.className = 'status-bar';
+        }, 400);
+        
+        this.logger.debug('Status bar cleared');
     }
     
     /**
-     * Show success notification
+     * Show a temporary success message with auto-dismiss
      */
     showSuccess(message, details = '') {
-        this.showNotification(message, 'success');
+        this.showStatusBar(message, 'success', { 
+            autoDismiss: true, 
+            duration: 4000 
+        });
+        
         if (details) {
             this.logger.info('Success notification with details', { message, details });
+        } else {
+            this.logger.info('Success notification shown', { message });
         }
     }
     
     /**
-     * Show error notification
+     * Show an error message that stays until dismissed
      */
     showError(title, message) {
-        this.showNotification(`${title}: ${message}`, 'error');
+        const fullMessage = title && message ? `${title}: ${message}` : (title || message);
+        this.showStatusBar(fullMessage, 'error', { autoDismiss: false });
         this.logger.error('Error notification shown', { title, message });
     }
     
     /**
-     * Show warning notification
+     * Show a warning message that stays until dismissed
      */
     showWarning(message) {
-        this.showNotification(message, 'warning');
+        this.showStatusBar(message, 'warning', { autoDismiss: false });
         this.logger.warn('Warning notification shown', { message });
     }
     
     /**
-     * Show info notification
+     * Show an info message with auto-dismiss
      */
     showInfo(message) {
-        this.showNotification(message, 'info');
+        this.showStatusBar(message, 'info', { 
+            autoDismiss: true, 
+            duration: 3000 
+        });
         this.logger.info('Info notification shown', { message });
+    }
+    
+    /**
+     * Show a loading message that stays until cleared
+     */
+    showLoading(message = 'Processing...') {
+        this.showStatusBar(message, 'info', { autoDismiss: false });
+        this.logger.info('Loading notification shown', { message });
+    }
+    
+    /**
+     * Clear loading state and show completion message
+     */
+    hideLoading(successMessage = null) {
+        this.clearStatusBar();
+        if (successMessage) {
+            this.showSuccess(successMessage);
+        }
     }
     
     /**
@@ -242,7 +326,7 @@ class UIManager {
                 isExpired: tokenInfo.isExpired
             });
             
-            const statusElement = document.getElementById('current-token-status');
+            const statusElement = ElementRegistry.currentTokenStatus ? ElementRegistry.currentTokenStatus() : null;
             if (statusElement) {
                 if (tokenInfo.isExpired) {
                     statusElement.className = 'token-status expired';
@@ -272,7 +356,7 @@ class UIManager {
                 timeRemaining: tokenInfo.timeRemaining
             });
             
-            const universalStatusBar = document.getElementById('universal-token-status');
+            const universalStatusBar = ElementRegistry.universalTokenStatus ? ElementRegistry.universalTokenStatus() : null;
             if (universalStatusBar) {
                 if (tokenInfo.isExpired) {
                     universalStatusBar.className = 'universal-token-status expired';
@@ -299,7 +383,7 @@ class UIManager {
         try {
             this.logger.debug('Home token status updated', { isLoading });
             
-            const homeTokenStatus = document.getElementById('home-token-status');
+            const homeTokenStatus = ElementRegistry.homeTokenStatus ? ElementRegistry.homeTokenStatus() : null;
             if (homeTokenStatus) {
                 if (isLoading) {
                     homeTokenStatus.className = 'home-token-status loading';
@@ -323,7 +407,7 @@ class UIManager {
         try {
             this.logger.info('Settings save status updated', { success, message });
             
-            const saveStatusElement = document.getElementById('settings-save-status');
+            const saveStatusElement = ElementRegistry.settingsSaveStatus ? ElementRegistry.settingsSaveStatus() : null;
             if (saveStatusElement) {
                 if (success) {
                     saveStatusElement.className = 'settings-save-status success';
@@ -347,7 +431,7 @@ class UIManager {
         try {
             this.logger.info('Import status shown', { status, message, details });
             
-            const statusElement = document.getElementById('import-status');
+            const statusElement = ElementRegistry.importStatus ? ElementRegistry.importStatus() : null;
             if (statusElement) {
                 statusElement.className = `import-status ${status}`;
                 statusElement.textContent = message;
@@ -456,6 +540,54 @@ class UIManager {
             }
         } catch (error) {
             this.logger.error('Error updating population fields', { error: error.message, populations });
+        }
+    }
+
+    /**
+     * Show a notification message
+     * @param {string} title - Notification title
+     * @param {string} message - Notification message
+     * @param {string} type - Notification type (success, error, warning, info)
+     * @param {Object} options - Additional options
+     */
+    showNotification(title, message, type = 'info', options = {}) {
+        try {
+            // Use existing methods based on type
+            switch (type) {
+                case 'success':
+                    this.showSuccess(message);
+                    break;
+                case 'error':
+                    this.showError(title, message);
+                    break;
+                case 'warning':
+                    this.showWarning(message);
+                    break;
+                case 'info':
+                default:
+                    this.showInfo(message);
+                    break;
+            }
+            
+            this.logger.info('Notification shown', { title, message, type });
+        } catch (error) {
+            this.logger.error('Failed to show notification', { 
+                error: error.message, 
+                title, 
+                message, 
+                type 
+            });
+            // Fallback to console
+            console.log(`[${type.toUpperCase()}] ${title}: ${message}`);
+        }
+    }
+
+    /**
+     * Debug log method for compatibility
+     */
+    debugLog(area, message) {
+        if (DEBUG_MODE) {
+            console.debug(`[${area}] ${message}`);
         }
     }
 }
