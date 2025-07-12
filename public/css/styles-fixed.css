@@ -553,4 +553,42 @@ label {
     .status-bar {
         left: 0;
     }
+}
+
+/* Disclaimer Status Display */
+.disclaimer-status-box {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border: 1px solid #c3e6cb;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.1);
+}
+
+.disclaimer-status-header h3 {
+    color: #155724;
+    margin-bottom: 8px;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.disclaimer-status-header p {
+    color: #155724;
+    margin-bottom: 0;
+    font-weight: 500;
+}
+
+.disclaimer-status-info {
+    margin-top: 12px;
+}
+
+.disclaimer-status-info p {
+    margin-bottom: 6px;
+    color: #155724;
+    font-size: 0.95rem;
+}
+
+.disclaimer-status-info i {
+    margin-right: 8px;
+    color: #28a745;
 } 
