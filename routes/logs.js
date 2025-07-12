@@ -18,6 +18,31 @@ const CLIENT_LOGS_FILE = join(LOGS_DIR, 'client.log');
 const uiLogs = [];
 const MAX_UI_LOGS = 1000; // Maximum number of UI logs to keep in memory
 
+// Persistent operation history log file
+const OPERATION_HISTORY_FILE = join(LOGS_DIR, 'operation-history.json');
+
+// Helper to read operation history
+async function readOperationHistory() {
+    try {
+        await ensureLogsDir();
+        const data = await fs.readFile(OPERATION_HISTORY_FILE, 'utf8').catch(() => '[]');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error('Error reading operation history:', error);
+        return [];
+    }
+}
+
+// Helper to write operation history
+async function writeOperationHistory(history) {
+    try {
+        await ensureLogsDir();
+        await fs.writeFile(OPERATION_HISTORY_FILE, JSON.stringify(history, null, 2));
+    } catch (error) {
+        console.error('Error writing operation history:', error);
+    }
+}
+
 // Create logs directory if it doesn't exist
 async function ensureLogsDir() {
     try {
@@ -411,6 +436,48 @@ router.post('/disk', express.json(), async (req, res) => {
             error: 'Failed to process disk log entry',
             details: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
+    }
+});
+
+/**
+ * Add a new operation log entry
+ * POST /api/operations/history
+ * Body: { operationType, total, success, skipped, errors, populationName, filename, timestamp, ... }
+ */
+router.post('/operations/history', express.json(), async (req, res) => {
+    try {
+        const entry = {
+            id: uuidv4(),
+            ...req.body,
+            timestamp: req.body.timestamp || new Date().toISOString()
+        };
+        const history = await readOperationHistory();
+        history.push(entry);
+        // Keep only the most recent 1000 entries
+        if (history.length > 1000) history.shift();
+        await writeOperationHistory(history);
+        res.json({ success: true, entry });
+    } catch (error) {
+        console.error('Error adding operation history entry:', error);
+        res.status(500).json({ success: false, error: 'Failed to add operation history entry' });
+    }
+});
+
+/**
+ * Get full operation history
+ * GET /api/operations/history?limit=100&sort=desc
+ */
+router.get('/operations/history', async (req, res) => {
+    try {
+        const { limit = 100, sort = 'desc' } = req.query;
+        let history = await readOperationHistory();
+        // Sort by timestamp
+        history.sort((a, b) => (sort === 'desc' ? b.timestamp.localeCompare(a.timestamp) : a.timestamp.localeCompare(b.timestamp)));
+        const limitNum = Math.min(parseInt(limit, 10) || 100, 1000);
+        res.json({ success: true, count: Math.min(history.length, limitNum), total: history.length, history: history.slice(0, limitNum) });
+    } catch (error) {
+        console.error('Error retrieving operation history:', error);
+        res.status(500).json({ success: false, error: 'Failed to retrieve operation history' });
     }
 });
 
