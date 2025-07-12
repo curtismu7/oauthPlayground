@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import cors from 'cors';
+import workerTokenManager from '../auth/workerTokenManager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -114,34 +115,18 @@ const proxyRequest = async (req, res) => {
                 headers[key] = value;
             });
         
-        // Add Authorization header if we have credentials
-        if (req.settings.apiClientId && req.settings.apiSecret) {
-            const tokenUrl = `https://auth.pingone.com/${environmentId}/as/token`;
-            const auth = Buffer.from(`${req.settings.apiClientId}:${req.settings.apiSecret}`).toString('base64');
-            
-            try {
-                const tokenResponse = await fetch(tokenUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'Authorization': `Basic ${auth}`
-                    },
-                    body: 'grant_type=client_credentials'
-                });
-                
-                if (!tokenResponse.ok) {
-                    throw new Error('Failed to authenticate with PingOne API');
-                }
-                
-                const tokenData = await tokenResponse.json();
-                headers['Authorization'] = `Bearer ${tokenData.access_token}`;
-                
-            } catch (error) {
-                console.error('Error obtaining access token:', error);
-                return res.status(401).json({ error: 'Failed to authenticate with PingOne API' });
-            }
-        } else {
-            return res.status(401).json({ error: 'API credentials are required' });
+        // Use the shared workerTokenManager for Authorization
+        try {
+            const token = await workerTokenManager.getAccessToken({
+                apiClientId: req.settings.apiClientId,
+                apiSecret: req.settings.apiSecret,
+                environmentId: req.settings.environmentId,
+                region: req.settings.region
+            });
+            headers['Authorization'] = `Bearer ${token}`;
+        } catch (error) {
+            console.error('Error obtaining access token from workerTokenManager:', error);
+            return res.status(401).json({ error: 'Failed to authenticate with PingOne API', details: error.message });
         }
         
         // Log the outgoing request for debugging

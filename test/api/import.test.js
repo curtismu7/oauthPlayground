@@ -1,19 +1,22 @@
-import { jest } from '@jest/globals';
+/**
+ * @fileoverview Import API Tests
+ * 
+ * Tests for the import API endpoints and functionality
+ * 
+ * @author PingOne Import Tool
+ * @version 4.9
+ */
+
+import { jest, describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
-import mongoose from 'mongoose';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-
-// Get the current module's directory
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 // Mock the server and models before importing them
 const mockApp = {
   listen: jest.fn(),
   use: jest.fn(),
-  get: jest.fn()
+  get: jest.fn(),
+  post: jest.fn()
 };
 
 // Mock the server.js export
@@ -22,135 +25,109 @@ jest.mock('../../server.js', () => ({
   default: mockApp
 }));
 
-// Mock the models
-jest.mock('../../models/import-job.js', () => ({
+// Mock the file handler
+jest.mock('../../public/js/modules/file-handler.js', () => ({
   __esModule: true,
-  default: class MockImportJob {
-    static find = jest.fn();
-    static findById = jest.fn();
-    save = jest.fn().mockResolvedValue(this);
-    toObject = () => ({});
+  FileHandler: class MockFileHandler {
+    constructor() {
+      this.parseCSV = jest.fn();
+      this.validateData = jest.fn();
+    }
   }
 }));
 
-// Mock the services
-const mockImportUsers = jest.fn().mockResolvedValue({ success: true });
-const mockPingOneService = jest.fn().mockImplementation(() => ({
-  importUsers: mockImportUsers
-}));
-
-const mockBroadcast = jest.fn();
-const mockWebSocketService = {
-  broadcast: mockBroadcast
-};
-
-jest.mock('../../services/pingone.service.js', () => ({
+// Mock the logger
+jest.mock('../../public/js/modules/file-logger.js', () => ({
   __esModule: true,
-  default: mockPingOneService
+  FileLogger: class MockFileLogger {
+    constructor() {
+      this.addLog = jest.fn();
+      this.getLogs = jest.fn();
+    }
+  }
 }));
 
-jest.mock('../../services/websocket.service.js', () => ({
-  __esModule: true,
-  default: mockWebSocketService
-}));
+describe('Import API Tests', () => {
+  let app;
+  let server;
 
-// Import the actual implementations after setting up mocks
-const { default: app } = await import('../../server.js');
-const { connect, closeDatabase, clearDatabase } = await import('../utils/db.js');
-const { default: ImportJob } = await import('../../models/import-job.js');
-
-describe('Import API', () => {
   beforeAll(async () => {
-    // Start in-memory MongoDB server
-    await connect();
-    
-    // Mock PingOne service methods
-    const { default: PingOneService } = await import('../../services/pingone.service.js');
-    PingOneService.mockImplementation(() => ({
-      importUsers: jest.fn().mockResolvedValue({ success: true })
-    }));
+    // Mock the server startup
+    const { default: startServer } = await import('../../server.js');
+    app = mockApp;
+    server = { close: jest.fn() };
   });
 
   afterAll(async () => {
-    await closeDatabase();
-    jest.clearAllMocks();
+    if (server) {
+      await server.close();
+    }
   });
 
-  beforeEach(async () => {
-    // Clear database before each test
-    await clearDatabase();
+  beforeEach(() => {
     jest.clearAllMocks();
   });
 
   describe('POST /api/import', () => {
-    it('should start a new import job', async () => {
-      const testUsers = [
-        { email: 'test1@example.com', firstName: 'Test', lastName: 'User1' },
-        { email: 'test2@example.com', firstName: 'Test', lastName: 'User2' }
-      ];
+    it('should handle file upload and return session ID', async () => {
+      const mockFile = {
+        fieldname: 'file',
+        originalname: 'test.csv',
+        buffer: Buffer.from('test,data\n1,2\n3,4'),
+        mimetype: 'text/csv'
+      };
 
-      const res = await request(app)
+      const response = await request(app)
         .post('/api/import')
-        .set('Authorization', 'Bearer test-token')
-        .send({
-          users: testUsers,
-          importType: 'auto'
-        });
+        .attach('file', mockFile.buffer, 'test.csv')
+        .field('populationId', 'test-population-id')
+        .field('populationName', 'Test Population');
 
-      expect(res.statusCode).toBe(200);
-      expect(res.body).toHaveProperty('success', true);
-      expect(res.body.data).toHaveProperty('jobId');
-      expect(res.body.data).toHaveProperty('status', 'pending');
-      
-      // Verify job was saved to database
-      const job = await ImportJob.findOne({ jobId: res.body.data.jobId });
-      expect(job).not.toBeNull();
-      expect(job.status).toBe('pending');
-      expect(job.total).toBe(2);
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('sessionId');
+      expect(response.body.success).toBe(true);
     });
 
-    it('should validate required fields', async () => {
-      const res = await request(app)
+    it('should return 400 if no file uploaded', async () => {
+      const response = await request(app)
         .post('/api/import')
-        .set('Authorization', 'Bearer test-token')
-        .send({});
+        .field('populationId', 'test-population-id')
+        .field('populationName', 'Test Population');
 
-      expect(res.statusCode).toBe(400);
-      expect(res.body.success).toBe(false);
-      expect(res.body.error.code).toBe('VALIDATION_ERROR');
+      expect(response.status).toBe(400);
+      expect(response.body.success).toBe(false);
+    });
+
+    it('should return 400 for invalid CSV format', async () => {
+      const mockFile = {
+        fieldname: 'file',
+        originalname: 'test.txt',
+        buffer: Buffer.from('invalid,data'),
+        mimetype: 'text/plain'
+      };
+
+      const response = await request(app)
+        .post('/api/import')
+        .attach('file', mockFile.buffer, 'test.txt')
+        .field('populationId', 'test-population-id')
+        .field('populationName', 'Test Population');
+
+      expect(response.status).toBe(400);
+      expect(response.body.success).toBe(false);
     });
   });
 
-  describe('GET /api/import/:jobId', () => {
-    it('should return job status', async () => {
-      const job = new ImportJob({
-        jobId: uuidv4(),
-        userId: 'test-user',
-        status: 'completed',
-        total: 10,
-        processed: 10,
-        success: 10,
-        failed: 0,
-        users: []
-      });
-      await job.save();
+  describe('GET /api/import/progress/:sessionId', () => {
+    it('should establish SSE connection', async () => {
+      const sessionId = uuidv4();
+      
+      const response = await request(app)
+        .get(`/api/import/progress/${sessionId}`)
+        .set('Accept', 'text/event-stream')
+        .set('Cache-Control', 'no-cache');
 
-      const res = await request(app)
-        .get(`/api/import/${job.jobId}`)
-        .set('Authorization', 'Bearer test-token');
-
-      expect(res.statusCode).toBe(200);
-      expect(res.body.data).toHaveProperty('status', 'completed');
-      expect(res.body.data).toHaveProperty('progress', 100);
-    });
-
-    it('should return 404 for non-existent job', async () => {
-      const res = await request(app)
-        .get(`/api/import/${uuidv4()}`)
-        .set('Authorization', 'Bearer test-token');
-
-      expect(res.statusCode).toBe(404);
-      expect(res.body.success).toBe(false);
+      expect(response.status).toBe(200);
+      expect(response.headers['content-type']).toContain('text/event-stream');
     });
   });
 });

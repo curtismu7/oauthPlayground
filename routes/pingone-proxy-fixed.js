@@ -4,6 +4,7 @@ import { URL } from 'url';
 import { v4 as uuidv4 } from 'uuid';
 import { fileURLToPath } from 'url';
 import path from 'path';
+import workerTokenManager from '../auth/workerTokenManager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -114,6 +115,21 @@ const proxyRequest = async (req, res) => {
         // Add request body for applicable methods
         if (['POST', 'PUT', 'PATCH'].includes(req.method) && req.body) {
             options.body = JSON.stringify(req.body);
+        }
+        
+        // In proxyRequest, before making the request to PingOne API, get the token from the shared manager
+        let token;
+        try {
+            token = await workerTokenManager.getAccessToken({
+                apiClientId: process.env.PINGONE_CLIENT_ID,
+                apiSecret: process.env.PINGONE_CLIENT_SECRET,
+                environmentId: process.env.PINGONE_ENVIRONMENT_ID,
+                region: process.env.PINGONE_REGION || 'NorthAmerica'
+            });
+            headers['Authorization'] = `Bearer ${token}`;
+        } catch (error) {
+            console.error('Error obtaining access token from workerTokenManager:', error);
+            return res.status(401).json({ error: 'Failed to authenticate with PingOne API', details: error.message });
         }
         
         // Make the request to PingOne API
