@@ -7,6 +7,191 @@ import winston from 'winston';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+/**
+ * @swagger
+ * /api/settings:
+ *   get:
+ *     summary: Get current settings
+ *     description: |
+ *       Retrieves the current PingOne configuration settings including environment ID,
+ *       client credentials, population ID, region, and rate limiting configuration.
+ *       
+ *       ## Settings Retrieved
+ *       - **Environment ID**: PingOne environment identifier
+ *       - **Client ID**: PingOne API client identifier
+ *       - **Client Secret**: Encrypted PingOne API secret
+ *       - **Population ID**: Default population for operations
+ *       - **Region**: PingOne service region
+ *       - **Rate Limit**: API rate limiting configuration
+ *       
+ *       ## Security
+ *       - Client secrets are encrypted in the response
+ *       - Sensitive data is masked for security
+ *       - Only authorized users can access settings
+ *     tags: [Settings]
+ *     responses:
+ *       200:
+ *         description: Settings retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SettingsResponse'
+ *             example:
+ *               success: true
+ *               data:
+ *                 environmentId: "b9817c16-9910-4415-b67e-4ac687da74d9"
+ *                 apiClientId: "26e7f07c-11a4-402a-b064-07b55aee189e"
+ *                 apiSecret: "enc:9p3hLItWFzw5BxKjH3.~TIGVPP~uj4os6fY93170dMvXadn1GEsWTP2lHSTAoevq"
+ *                 populationId: "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+ *                 region: "NorthAmerica"
+ *                 rateLimit: 90
+ *       500:
+ *         description: Failed to retrieve settings
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+
+/**
+ * @swagger
+ * /api/settings:
+ *   post:
+ *     summary: Create new settings
+ *     description: |
+ *       Creates new PingOne configuration settings. This endpoint is used for initial setup
+ *       or when completely replacing existing settings.
+ *       
+ *       ## Required Fields
+ *       - **environmentId**: PingOne environment identifier
+ *       - **apiClientId**: PingOne API client identifier
+ *       - **apiSecret**: PingOne API client secret (will be encrypted)
+ *       
+ *       ## Optional Fields
+ *       - **populationId**: Default population for operations
+ *       - **region**: PingOne service region (defaults to NorthAmerica)
+ *       - **rateLimit**: API rate limiting (defaults to 90)
+ *       
+ *       ## Security
+ *       - Client secrets are automatically encrypted before storage
+ *       - Settings are validated before saving
+ *       - Environment variables are updated automatically
+ *     tags: [Settings]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/SettingsUpdateRequest'
+ *           example:
+ *             environmentId: "b9817c16-9910-4415-b67e-4ac687da74d9"
+ *             apiClientId: "26e7f07c-11a4-402a-b064-07b55aee189e"
+ *             apiSecret: "your-client-secret"
+ *             populationId: "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+ *             region: "NorthAmerica"
+ *             rateLimit: 90
+ *     responses:
+ *       200:
+ *         description: Settings created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SettingsResponse'
+ *             example:
+ *               success: true
+ *               data:
+ *                 environmentId: "b9817c16-9910-4415-b67e-4ac687da74d9"
+ *                 apiClientId: "26e7f07c-11a4-402a-b064-07b55aee189e"
+ *                 apiSecret: "enc:9p3hLItWFzw5BxKjH3.~TIGVPP~uj4os6fY93170dMvXadn1GEsWTP2lHSTAoevq"
+ *                 populationId: "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+ *                 region: "NorthAmerica"
+ *                 rateLimit: 90
+ *       400:
+ *         description: Invalid settings data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               success: false
+ *               error: "Missing required field: environmentId"
+ *       500:
+ *         description: Failed to create settings
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+
+/**
+ * @swagger
+ * /api/settings:
+ *   put:
+ *     summary: Update existing settings
+ *     description: |
+ *       Updates existing PingOne configuration settings. Only provided fields will be updated,
+ *       leaving other settings unchanged.
+ *       
+ *       ## Updateable Fields
+ *       - **environmentId**: PingOne environment identifier
+ *       - **apiClientId**: PingOne API client identifier
+ *       - **apiSecret**: PingOne API client secret (will be encrypted)
+ *       - **populationId**: Default population for operations
+ *       - **region**: PingOne service region
+ *       - **rateLimit**: API rate limiting configuration
+ *       
+ *       ## Security
+ *       - Client secrets are automatically encrypted before storage
+ *       - Settings are validated before saving
+ *       - Environment variables are updated automatically
+ *       - Only changed fields are updated
+ *     tags: [Settings]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/SettingsUpdateRequest'
+ *           example:
+ *             environmentId: "b9817c16-9910-4415-b67e-4ac687da74d9"
+ *             apiClientId: "26e7f07c-11a4-402a-b064-07b55aee189e"
+ *             apiSecret: "your-client-secret"
+ *             populationId: "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+ *             region: "NorthAmerica"
+ *             rateLimit: 90
+ *     responses:
+ *       200:
+ *         description: Settings updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SettingsResponse'
+ *             example:
+ *               success: true
+ *               data:
+ *                 environmentId: "b9817c16-9910-4415-b67e-4ac687da74d9"
+ *                 apiClientId: "26e7f07c-11a4-402a-b064-07b55aee189e"
+ *                 apiSecret: "enc:9p3hLItWFzw5BxKjH3.~TIGVPP~uj4os6fY93170dMvXadn1GEsWTP2lHSTAoevq"
+ *                 populationId: "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+ *                 region: "NorthAmerica"
+ *                 rateLimit: 90
+ *       400:
+ *         description: Invalid settings data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               success: false
+ *               error: "Invalid environment ID format"
+ *       500:
+ *         description: Failed to update settings
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+
 // Create a logger instance for this module
 const logger = winston.createLogger({
     format: winston.format.combine(

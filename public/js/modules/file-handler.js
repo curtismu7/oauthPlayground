@@ -11,6 +11,8 @@
 // 
 // Provides comprehensive CSV processing with detailed validation feedback.
 
+import { ElementRegistry } from './element-registry.js';
+
 /**
  * File Handler Class
  * 
@@ -42,9 +44,9 @@ class FileHandler {
         this.currentFile = null;
         
         // Initialize UI elements for file handling
-        this.fileInput = document.getElementById('csv-file');
-        this.fileInfo = document.getElementById('file-info');
-        this.previewContainer = document.getElementById('preview-container');
+        this.fileInput = ElementRegistry.fileInput ? ElementRegistry.fileInput() : null;
+        this.fileInfo = ElementRegistry.fileInfo ? ElementRegistry.fileInfo() : null;
+        this.previewContainer = ElementRegistry.previewContainer ? ElementRegistry.previewContainer() : null;
         
         // Load last file info from localStorage for better UX
         this.lastFileInfo = this.loadLastFileInfo();
@@ -232,19 +234,19 @@ class FileHandler {
             
             switch (operationType) {
                 case 'import':
-                    fileLabel = document.querySelector('label[for="csv-file"] span');
-                    fileInput = document.getElementById('csv-file');
+                    fileLabel = ElementRegistry.fileInputLabel ? ElementRegistry.fileInputLabel() : null;
+                    fileInput = ElementRegistry.fileInput ? ElementRegistry.fileInput() : null;
                     break;
                 case 'delete':
-                    fileLabel = document.querySelector('label[for="delete-csv-file"] span');
-                    fileInput = document.getElementById('delete-csv-file');
+                    fileLabel = ElementRegistry.deleteFileInputLabel ? ElementRegistry.deleteFileInputLabel() : null;
+                    fileInput = ElementRegistry.deleteFileInput ? ElementRegistry.deleteFileInput() : null;
                     break;
                 case 'modify':
-                    fileLabel = document.querySelector('label[for="modify-csv-file"] span');
-                    fileInput = document.getElementById('modify-csv-file');
+                    fileLabel = ElementRegistry.modifyFileInputLabel ? ElementRegistry.modifyFileInputLabel() : null;
+                    fileInput = ElementRegistry.modifyFileInput ? ElementRegistry.modifyFileInput() : null;
                     break;
                 default:
-                    fileLabel = document.querySelector('.file-label span');
+                    fileLabel = ElementRegistry.fileInputLabel ? ElementRegistry.fileInputLabel() : null;
                     break;
             }
             
@@ -1029,7 +1031,7 @@ class FileHandler {
      * @param {string} containerId - The ID of the container element to update
      */
     updateFileInfoForElement(file, containerId) {
-        const container = document.getElementById(containerId);
+        const container = ElementRegistry.getById(containerId);
         console.log('updateFileInfoForElement called:', { containerId, container: !!container, file: !!file });
         if (!container || !file) {
             console.warn('updateFileInfoForElement: container or file is null', { containerId, hasContainer: !!container, hasFile: !!file });
@@ -1134,7 +1136,7 @@ class FileHandler {
         if (!rows || rows.length === 0) {
             this.previewContainer.innerHTML = '<div class="alert alert-info">No data to display</div>';
                     // Disable import button if no rows
-        const importBtnBottom = document.getElementById('start-import-btn-bottom');
+        const importBtnBottom = ElementRegistry.startImportBtnBottom ? ElementRegistry.startImportBtnBottom() : null;
         if (importBtnBottom) {
             importBtnBottom.disabled = true;
         }
@@ -1170,7 +1172,7 @@ class FileHandler {
         const hasPopulationChoice = this.checkPopulationChoice();
         
         // Enable import button after showing preview (only if population choice is made)
-        const importBtnBottom = document.getElementById('start-import-btn-bottom');
+        const importBtnBottom = ElementRegistry.startImportBtnBottom ? ElementRegistry.startImportBtnBottom() : null;
         if (importBtnBottom) {
             importBtnBottom.disabled = !hasPopulationChoice;
             this.logger.log(`Import button ${hasPopulationChoice ? 'enabled' : 'disabled'}`, 'debug');
@@ -1184,9 +1186,9 @@ class FileHandler {
      * @returns {boolean} True if a population choice has been made
      */
     checkPopulationChoice() {
-        const selectedPopulationId = document.getElementById('import-population-select')?.value || '';
-        const useDefaultPopulation = document.getElementById('use-default-population')?.checked || false;
-        const useCsvPopulationId = document.getElementById('use-csv-population-id')?.checked || false;
+        const selectedPopulationId = ElementRegistry.importPopulationSelect ? ElementRegistry.importPopulationSelect().value || '' : '';
+        const useDefaultPopulation = ElementRegistry.useDefaultPopulationCheckbox ? ElementRegistry.useDefaultPopulationCheckbox().checked || false : false;
+        const useCsvPopulationId = ElementRegistry.useCsvPopulationIdCheckbox ? ElementRegistry.useCsvPopulationIdCheckbox().checked || false : false;
         
         const hasSelectedPopulation = selectedPopulationId && selectedPopulationId.trim() !== '';
         

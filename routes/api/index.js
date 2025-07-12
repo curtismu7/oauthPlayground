@@ -23,8 +23,6 @@ import { Router } from 'express';
 import multer from 'multer';
 import { isFeatureEnabled, setFeatureFlag, getAllFeatureFlags, resetFeatureFlags } from '../../server/feature-flags.js';
 import { v4 as uuidv4 } from 'uuid';
-import express from 'express';
-import multer from 'multer';
 import { logSSEEvent, handleSSEError, generateConnectionId, updateSSEMetrics } from '../../server/sse-logger.js';
 
 // Feature flags configuration object for easy access
@@ -1003,8 +1001,8 @@ router.get('/import/progress/:sessionId', (req, res) => {
     updateSSEMetrics('connect', sessionId, { duration: Date.now() - connectionStart });
     
     // Store connection with enhanced tracking
-    app.importSessions = app.importSessions || {};
-    app.importSessions[sessionId] = {
+    req.app.importSessions = req.app.importSessions || {};
+    req.app.importSessions[sessionId] = {
         res,
         connectionId,
         startTime: connectionStart,
@@ -1024,8 +1022,8 @@ router.get('/import/progress/:sessionId', (req, res) => {
             updateSSEMetrics('keepalive', sessionId);
             
             // Update last activity
-            if (app.importSessions[sessionId]) {
-                app.importSessions[sessionId].lastActivity = Date.now();
+            if (req.app.importSessions[sessionId]) {
+                req.app.importSessions[sessionId].lastActivity = Date.now();
             }
         } catch (error) {
             // Handle keep-alive errors
@@ -1051,14 +1049,14 @@ router.get('/import/progress/:sessionId', (req, res) => {
             connectionId,
             duration: connectionDuration,
             reason: 'client_disconnect',
-            lastActivity: app.importSessions[sessionId]?.lastActivity
+            lastActivity: req.app.importSessions[sessionId]?.lastActivity
         });
         
         updateSSEMetrics('disconnect', sessionId, { duration: connectionDuration });
         
         // Clean up session
-        if (app.importSessions[sessionId]) {
-            delete app.importSessions[sessionId];
+        if (req.app.importSessions[sessionId]) {
+            delete req.app.importSessions[sessionId];
         }
     });
     
@@ -1089,8 +1087,8 @@ router.get('/import/progress/:sessionId', (req, res) => {
         updateSSEMetrics('error', sessionId, { duration: connectionDuration });
         
         // Clean up session on error
-        if (app.importSessions[sessionId]) {
-            delete app.importSessions[sessionId];
+        if (req.app.importSessions[sessionId]) {
+            delete req.app.importSessions[sessionId];
         }
         
         // Log recovery attempt if applicable
@@ -1128,8 +1126,8 @@ router.get('/import/progress/:sessionId', (req, res) => {
         
         updateSSEMetrics('error', sessionId, { duration: connectionDuration });
         
-        if (app.importSessions[sessionId]) {
-            delete app.importSessions[sessionId];
+        if (req.app.importSessions[sessionId]) {
+            delete req.app.importSessions[sessionId];
         }
     });
 });
@@ -1445,8 +1443,145 @@ router.post('/export-users', async (req, res, next) => {
 // ============================================================================
 
 /**
- * POST /api/modify
- * Modifies existing users in PingOne based on CSV data
+ * @swagger
+ * /api/modify:
+ *   post:
+ *     summary: Modify existing users from CSV
+ *     description: |
+ *       Processes a CSV file containing user data and updates existing users in PingOne.
+ *       This endpoint supports user lookup by username or email, batch processing with
+ *       delays to avoid API rate limits, and detailed result reporting.
+ *       
+ *       ## Features
+ *       - **User Lookup**: Finds users by username or email
+ *       - **Batch Processing**: Processes users in small batches to avoid rate limits
+ *       - **Create if Missing**: Optionally creates users if they don't exist
+ *       - **Password Generation**: Optionally generates passwords for new users
+ *       - **Detailed Reporting**: Comprehensive results with success/failure counts
+ *       
+ *       ## CSV Format
+ *       - Must include header row with column names
+ *       - Required fields: username or email (for user lookup)
+ *       - Optional fields: firstName, lastName, email, enabled, populationId
+ *       - Supports quoted values for fields containing commas
+ *       
+ *       ## Processing Options
+ *       - **createIfNotExists**: Create users if they don't exist (true/false)
+ *       - **defaultPopulationId**: Default population for new users
+ *       - **defaultEnabled**: Default enabled state for new users (true/false)
+ *       - **generatePasswords**: Generate passwords for new users (true/false)
+ *     tags: [Modify]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: CSV file containing user updates
+ *               createIfNotExists:
+ *                 type: string
+ *                 enum: [true, false]
+ *                 description: Whether to create users if they don't exist
+ *                 example: "true"
+ *               defaultPopulationId:
+ *                 type: string
+ *                 description: Default population ID for new users
+ *                 example: "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+ *               defaultEnabled:
+ *                 type: string
+ *                 enum: [true, false]
+ *                 description: Default enabled state for new users
+ *                 example: "true"
+ *               generatePasswords:
+ *                 type: string
+ *                 enum: [true, false]
+ *                 description: Whether to generate passwords for new users
+ *                 example: "false"
+ *             required:
+ *               - file
+ *     responses:
+ *       200:
+ *         description: User modification completed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 total:
+ *                   type: number
+ *                   description: Total number of users processed
+ *                   example: 100
+ *                 modified:
+ *                   type: number
+ *                   description: Number of users successfully modified
+ *                   example: 85
+ *                 created:
+ *                   type: number
+ *                   description: Number of users created (if createIfNotExists enabled)
+ *                   example: 10
+ *                 failed:
+ *                   type: number
+ *                   description: Number of users that failed to process
+ *                   example: 3
+ *                 skipped:
+ *                   type: number
+ *                   description: Number of users skipped (no changes needed)
+ *                   example: 2
+ *                 noChanges:
+ *                   type: number
+ *                   description: Number of users with no changes detected
+ *                   example: 0
+ *                 details:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       user:
+ *                         type: object
+ *                         description: User data from CSV
+ *                       status:
+ *                         type: string
+ *                         enum: [modified, created, failed, skipped, noChanges]
+ *                         description: Processing status for this user
+ *                       pingOneId:
+ *                         type: string
+ *                         description: PingOne user ID (if created or modified)
+ *                       error:
+ *                         type: string
+ *                         description: Error message (if failed)
+ *       400:
+ *         description: Invalid request (missing file or invalid data)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               success: false
+ *               error: "No file uploaded"
+ *               message: "Please upload a CSV file with user data"
+ *       413:
+ *         description: File too large (max 10MB)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+
+/**
+ * Processes a CSV file containing user data and updates existing users
  * 
  * This endpoint processes a CSV file containing user data and updates existing users
  * in PingOne. It supports user lookup by username or email, batch processing with
@@ -2135,5 +2270,203 @@ router.post('/pingone/get-token', async (req, res, next) => {
     }
 });
 
+// ============================================================================
+// WORKER TOKEN ENDPOINT
+// ============================================================================
+
+/**
+ * @swagger
+ * /api/token:
+ *   post:
+ *     summary: Get PingOne Worker Access Token
+ *     description: |
+ *       Retrieves a worker access token from PingOne using client credentials flow.
+ *       This token is required for authenticating subsequent API calls to PingOne services.
+ *       
+ *       ## Authentication Flow
+ *       1. This endpoint uses client credentials (client_id + client_secret) to authenticate
+ *       2. Returns an access token with expiry time for use in other API calls
+ *       3. The token should be included in Authorization header as "Bearer {token}"
+ *       
+ *       ## Usage
+ *       - Use this token in the Authorization header for other PingOne API calls
+ *       - Token expires after the specified time (typically 1 hour)
+ *       - Store the token securely and refresh before expiry
+ *       
+ *       ## Security Notes
+ *       - Client credentials are read from environment variables or settings file
+ *       - Never expose client_secret in client-side code
+ *       - Use HTTPS in production to protect credentials
+ *     tags:
+ *       - Authentication
+ *     security: []
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               client_id:
+ *                 type: string
+ *                 description: PingOne client ID (optional, uses server config if not provided)
+ *                 example: "26e7f07c-11a4-402a-b064-07b55aee189e"
+ *               client_secret:
+ *                 type: string
+ *                 description: PingOne client secret (optional, uses server config if not provided)
+ *                 example: "your-client-secret"
+ *               grant_type:
+ *                 type: string
+ *                 description: OAuth grant type (defaults to client_credentials)
+ *                 example: "client_credentials"
+ *                 default: "client_credentials"
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved access token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/TokenResponse'
+ *             example:
+ *               success: true
+ *               data:
+ *                 access_token: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *                 token_type: "Bearer"
+ *                 expires_in: 3600
+ *                 scope: "p1:read:user p1:write:user"
+ *                 expires_at: "2025-07-12T16:45:32.115Z"
+ *               message: "Access token retrieved successfully"
+ *       400:
+ *         description: Bad request - invalid parameters
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               success: false
+ *               error: "Invalid client credentials"
+ *               details:
+ *                 code: "INVALID_CREDENTIALS"
+ *       401:
+ *         description: Unauthorized - invalid client credentials
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               success: false
+ *               error: "Invalid client credentials"
+ *               details:
+ *                 code: "UNAUTHORIZED"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               success: false
+ *               error: "Failed to retrieve access token"
+ *               details:
+ *                 code: "TOKEN_ERROR"
+ */
+router.post('/token', async (req, res) => {
+    try {
+        debugLog("Token", "🔑 Worker token request received");
+        
+        // Get token manager from app
+        const tokenManager = req.app.get('tokenManager');
+        if (!tokenManager) {
+            debugLog("Token", "❌ Token manager not available");
+            return res.status(500).json({
+                success: false,
+                error: "Token manager not available",
+                details: { code: "TOKEN_MANAGER_ERROR" }
+            });
+        }
+
+        // Get custom credentials from request body (optional)
+        const { client_id, client_secret, grant_type = 'client_credentials' } = req.body;
+        
+        // Validate grant type
+        if (grant_type !== 'client_credentials') {
+            debugLog("Token", "❌ Invalid grant type", { grant_type });
+            return res.status(400).json({
+                success: false,
+                error: "Only client_credentials grant type is supported",
+                details: { code: "INVALID_GRANT_TYPE" }
+            });
+        }
+
+        // Create custom settings if client credentials provided
+        let customSettings = null;
+        if (client_id && client_secret) {
+            debugLog("Token", "🔧 Using custom client credentials");
+            customSettings = {
+                clientId: client_id,
+                clientSecret: client_secret,
+                environmentId: req.app.get('environmentId') || process.env.PINGONE_ENVIRONMENT_ID
+            };
+        }
+
+        // Get access token
+        const token = await tokenManager.getAccessToken(customSettings);
+        if (!token) {
+            debugLog("Token", "❌ Failed to get access token");
+            return res.status(401).json({
+                success: false,
+                error: "Failed to retrieve access token",
+                details: { code: "TOKEN_ERROR" }
+            });
+        }
+
+        // Get token info for response
+        const tokenInfo = tokenManager.getTokenInfo();
+        
+        debugLog("Token", "✅ Access token retrieved successfully", {
+            expiresIn: tokenInfo.expiresIn,
+            expiresAt: tokenInfo.expiresAt
+        });
+
+        // Return token response
+        res.json({
+            success: true,
+            data: {
+                access_token: token,
+                token_type: "Bearer",
+                expires_in: tokenInfo.expiresIn,
+                scope: "p1:read:user p1:write:user p1:read:population p1:write:population",
+                expires_at: tokenInfo.expiresAt
+            },
+            message: "Access token retrieved successfully"
+        });
+
+    } catch (error) {
+        debugLog("Token", "❌ Token request failed", { error: error.message });
+        
+        // Determine appropriate error response
+        let statusCode = 500;
+        let errorCode = "TOKEN_ERROR";
+        
+        if (error.message.includes("credentials") || error.message.includes("unauthorized")) {
+            statusCode = 401;
+            errorCode = "UNAUTHORIZED";
+        } else if (error.message.includes("invalid") || error.message.includes("bad request")) {
+            statusCode = 400;
+            errorCode = "INVALID_CREDENTIALS";
+        }
+
+        res.status(statusCode).json({
+            success: false,
+            error: "Failed to retrieve access token",
+            details: {
+                code: errorCode,
+                message: error.message
+            }
+        });
+    }
+});
+
+// ============================================================================
 // Export the configured router with all API endpoints
 export default router;

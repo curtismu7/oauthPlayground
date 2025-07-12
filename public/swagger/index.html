@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PingOne Import Tool API Documentation</title>
+  <link rel="stylesheet" type="text/css" href="./swagger-ui.css" />
+  <link rel="icon" href="/favicon.ico" />
+  <!-- Ping Identity Disclaimer Banner -->
+  <link rel="stylesheet" href="/css/ping-identity.css" />
+  <!-- Token Status Indicator CSS -->
+  <link rel="stylesheet" href="/css/token-status-indicator.css" />
+  <script src="/js/modules/disclaimer-banner.js"></script>
+  <!-- Token Status Indicator Script -->
+  <script src="/js/modules/token-status-indicator.js"></script>
+  <style>
+    body { margin: 0; background: #f8f9fa; }
+    #swagger-ui { max-width: 1200px; margin: 0 auto; padding: 20px; }
+  </style>
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="./swagger-ui-bundle.js"></script>
+  <script src="./swagger-ui-standalone-preset.js"></script>
+  <script>
+    // PingOne token auto-fetch and injection logic
+    let pingOneToken = null;
+    let tokenExpiry = 0;
+    let tokenRefreshTimeout = null;
+    let isFetchingToken = false; // Prevent multiple simultaneous requests
+
+    async function fetchToken() {
+      // Prevent multiple simultaneous token requests
+      if (isFetchingToken) {
+        return;
+      }
+      
+      isFetchingToken = true;
+      
+      try {
+        const res = await fetch('/api/token', { 
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!res.ok) {
+          throw new Error(`Token fetch failed: ${res.status} ${res.statusText}`);
+        }
+        
+        const data = await res.json();
+        
+        if (data.success && data.data && data.data.access_token) {
+          pingOneToken = data.data.access_token;
+          // Set expiry to 1 minute before actual expiry
+          const expiresIn = data.data.expires_in || 3600;
+          tokenExpiry = Date.now() + (expiresIn - 60) * 1000;
+          
+          // Clear existing timeout
+          if (tokenRefreshTimeout) {
+            clearTimeout(tokenRefreshTimeout);
+          }
+          
+          // Set up next refresh
+          tokenRefreshTimeout = setTimeout(() => {
+            fetchToken();
+          }, (expiresIn - 60) * 1000);
+          
+          // Optional: show a debug indicator
+          if (window.location.search.includes('debugToken')) {
+            let el = document.getElementById('token-debug');
+            if (!el) {
+              el = document.createElement('div');
+              el.id = 'token-debug';
+              el.style = 'position:fixed;bottom:10px;right:10px;background:#28a745;color:#fff;padding:8px 16px;border-radius:6px;z-index:9999;font-size:13px;opacity:0.85;';
+              document.body.appendChild(el);
+            }
+            el.textContent = `✅ Token fetched: ${new Date().toLocaleTimeString()}`;
+          }
+        } else {
+          throw new Error('Invalid token response format');
+        }
+      } catch (e) {
+        console.error('Token fetch error:', e);
+        pingOneToken = null;
+        
+        if (window.location.search.includes('debugToken')) {
+          let el = document.getElementById('token-debug');
+          if (!el) {
+            el = document.createElement('div');
+            el.id = 'token-debug';
+            el.style = 'position:fixed;bottom:10px;right:10px;background:#dc3545;color:#fff;padding:8px 16px;border-radius:6px;z-index:9999;font-size:13px;opacity:0.85;';
+            document.body.appendChild(el);
+          }
+          el.textContent = `❌ Token error: ${e.message}`;
+        }
+        
+        // Retry after 30 seconds on error
+        setTimeout(() => {
+          fetchToken();
+        }, 30000);
+      } finally {
+        isFetchingToken = false;
+      }
+    }
+
+    // Swagger UI initialization
+    window.onload = function() {
+      // Fetch initial token
+      fetchToken();
+      
+      const ui = SwaggerUIBundle({
+        url: '/swagger.json',
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        layout: 'StandaloneLayout',
+        requestInterceptor: (req) => {
+          // Inject token for all authenticated requests
+          if (pingOneToken && req.url.startsWith('/api/')) {
+            req.headers['Authorization'] = 'Bearer ' + pingOneToken;
+          }
+          return req;
+        },
+        responseInterceptor: (res) => {
+          // Handle 401 responses by refreshing token
+          if (res.status === 401 && pingOneToken) {
+            console.log('Token expired, refreshing...');
+            pingOneToken = null;
+            fetchToken();
+          }
+          return res;
+        },
+        // Hide the authorize button (token is auto-injected)
+        plugins: [
+          function HideAuthorizePlugin() {
+            return {
+              components: {
+                authorizeBtn: () => null
+              }
+            };
+          }
+        ],
+        onComplete: function() {
+          console.log('Swagger UI loaded successfully');
+        }
+      });
+      
+      window.ui = ui;
+    };
+  </script>
+</body>
+</html>

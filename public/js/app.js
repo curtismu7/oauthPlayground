@@ -259,39 +259,34 @@ class SecretFieldToggle {
  */
 class App {
     constructor() {
-        // Initialize core component modules
-        // Each module handles a specific aspect of the application
-        this.logger = new Logger();
-        this.fileLogger = new FileLogger();
-        this.settingsManager = new SettingsManager(this.logger);
-        this.uiManager = new UIManager(this.logger);
-        this.localClient = new LocalAPIClient();
-        this.tokenManager = new TokenManager(this.logger);
-        this.fileHandler = new FileHandler(this.logger, this.uiManager);
-        this.versionManager = new VersionManager(this.logger);
-        
-        // Initialize secret field manager for secure input handling
-        this.secretFieldToggle = new SecretFieldToggle();
-        
-        // Application state tracking
-        // Tracks current view and operation states to prevent conflicts
-        this.currentView = 'import';
-        this.isImporting = false;
-        this.isExporting = false;
-        this.isDeleting = false;
-        this.isModifying = false;
+        // Initialize core dependencies with safety checks
+        try {
+            this.logger = new Logger();
+            this.fileLogger = new FileLogger();
+            this.settingsManager = new SettingsManager();
+            this.uiManager = new UIManager();
+            this.localClient = new LocalAPIClient();
+            this.versionManager = new VersionManager();
             
-        // Abort controllers for canceling ongoing operations
-        this.importAbortController = null;
-        this.exportAbortController = null;
-        this.deleteAbortController = null;
-        this.modifyAbortController = null;
-
-        this.populationPromptShown = false;
-        this.populationChoice = null; // 'override', 'ignore', 'use-csv'
-        
-        // Error tracking for import operations
-        this.importErrors = [];
+            // Initialize state variables with safe defaults
+            this.currentView = 'home';
+            this.selectedPopulationId = null;
+            this.selectedPopulationName = null;
+            this.populationChoice = null;
+            this.importErrors = [];
+            this.importSessionId = null;
+            
+            // Initialize components that might fail
+            this.secretFieldToggle = null;
+            this.fileHandler = null;
+            this.pingOneClient = null;
+            
+            console.log('✅ App constructor completed successfully');
+        } catch (error) {
+            console.error('❌ Error in App constructor:', error);
+            // Ensure basic functionality even if some components fail
+            this.logger = { error: console.error, warn: console.warn, info: console.log };
+        }
     }
 
     /**
@@ -307,61 +302,128 @@ class App {
         try {
             console.log('Initializing app...');
             
+            // Validate core dependencies before proceeding
+            if (!this.logger) {
+                throw new Error('Logger not initialized');
+            }
+            
+            if (!this.settingsManager) {
+                throw new Error('SettingsManager not initialized');
+            }
+            
+            if (!this.uiManager) {
+                throw new Error('UIManager not initialized');
+            }
+            
             // Initialize API Factory first to establish API client infrastructure
             await this.initAPIFactory();
             
-            // Initialize API clients for PingOne communication
-            this.pingOneClient = apiFactory.getPingOneClient(this.logger, this.settingsManager);
+            // Initialize API clients for PingOne communication with safety check
+            if (apiFactory) {
+                this.pingOneClient = apiFactory.getPingOneClient(this.logger, this.settingsManager);
+            } else {
+                this.logger.warn('API Factory not available, PingOne client not initialized');
+            }
             
             // Initialize UI manager for interface management
-            await this.uiManager.init();
+            if (this.uiManager && typeof this.uiManager.init === 'function') {
+                await this.uiManager.init();
+            } else {
+                this.logger.warn('UIManager not properly initialized');
+            }
             
             // Initialize settings manager for configuration handling
-            await this.settingsManager.init();
+            if (this.settingsManager && typeof this.settingsManager.init === 'function') {
+                await this.settingsManager.init();
+            } else {
+                this.logger.warn('SettingsManager not properly initialized');
+            }
             
-            // Initialize file handler for CSV processing
-            this.fileHandler = new FileHandler(this.logger, this.uiManager);
+            // Initialize file handler for CSV processing with safety check
+            try {
+                this.fileHandler = new FileHandler(this.logger, this.uiManager);
+            } catch (error) {
+                this.logger.error('Failed to initialize FileHandler:', error);
+                this.fileHandler = null;
+            }
             
-            // Initialize secret field toggle for secure input handling
-            this.secretFieldToggle = new SecretFieldToggle();
-            this.secretFieldToggle.init();
+            // Initialize secret field toggle for secure input handling with safety check
+            try {
+                this.secretFieldToggle = new SecretFieldToggle();
+                if (this.secretFieldToggle && typeof this.secretFieldToggle.init === 'function') {
+                    this.secretFieldToggle.init();
+                }
+            } catch (error) {
+                this.logger.error('Failed to initialize SecretFieldToggle:', error);
+                this.secretFieldToggle = null;
+            }
             
-            // Load application settings from storage
-            await this.loadSettings();
+            // Load application settings from storage with safety check
+            try {
+                await this.loadSettings();
+            } catch (error) {
+                this.logger.error('Failed to load settings:', error);
+            }
             
             // Initialize universal token status after UI manager is ready
-            this.updateUniversalTokenStatus();
+            try {
+                this.updateUniversalTokenStatus();
+            } catch (error) {
+                this.logger.error('Failed to update universal token status:', error);
+            }
             
-            // Set up event listeners
-            this.setupEventListeners();
+            // Set up event listeners with safety check
+            try {
+                this.setupEventListeners();
+            } catch (error) {
+                this.logger.error('Failed to setup event listeners:', error);
+            }
             
             // Check disclaimer status and setup if needed
             // Ensures user has accepted terms before using the tool
-            const disclaimerPreviouslyAccepted = this.checkDisclaimerStatus();
-            if (!disclaimerPreviouslyAccepted) {
-                console.log('Disclaimer not previously accepted, setting up disclaimer agreement');
-                // Ensure DOM is ready before setting up disclaimer
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const disclaimerPreviouslyAccepted = this.checkDisclaimerStatus();
+                if (!disclaimerPreviouslyAccepted) {
+                    console.log('Disclaimer not previously accepted, setting up disclaimer agreement');
+                    // Ensure DOM is ready before setting up disclaimer
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', () => {
+                            this.setupDisclaimerAgreement();
+                        });
+                    } else {
+                        // DOM is already loaded, setup immediately
                         this.setupDisclaimerAgreement();
-                    });
+                    }
                 } else {
-                    // DOM is already loaded, setup immediately
-                    this.setupDisclaimerAgreement();
+                    console.log('Disclaimer previously accepted, tool already enabled');
                 }
-            } else {
-                console.log('Disclaimer previously accepted, tool already enabled');
+            } catch (error) {
+                this.logger.error('Failed to setup disclaimer:', error);
             }
             
             // Check server connection status to ensure backend is available
-            await this.checkServerConnectionStatus();
+            try {
+                await this.checkServerConnectionStatus();
+            } catch (error) {
+                this.logger.error('Failed to check server connection status:', error);
+            }
             
             // Update import button state after initialization
             // Ensures UI reflects current application state
-            this.updateImportButtonState();
+            try {
+                this.updateImportButtonState();
+            } catch (error) {
+                this.logger.error('Failed to update import button state:', error);
+            }
             
             // Update version information in UI for user reference
-            this.versionManager.updateTitle();
+            try {
+                if (this.versionManager && typeof this.versionManager.updateTitle === 'function') {
+                    this.versionManager.updateTitle();
+                }
+            } catch (error) {
+                this.logger.error('Failed to update version information:', error);
+            }
             
             console.log('App initialization complete');
             console.log("✅ Moved Import Progress section below Import Users button");
@@ -369,6 +431,15 @@ class App {
         } catch (error) {
             console.error('Error initializing app:', error);
             this.logger.error('App initialization failed', error);
+            
+            // Show user-friendly error message
+            try {
+                if (this.uiManager && typeof this.uiManager.showError === 'function') {
+                    this.uiManager.showError('Initialization Error', 'Failed to initialize the application. Please refresh the page and try again.');
+                }
+            } catch (uiError) {
+                console.error('Failed to show error message:', uiError);
+            }
         }
     }
 
@@ -816,7 +887,24 @@ class App {
     async checkServerConnectionStatus() {
         try {
             const response = await this.localClient.get('/api/health');
-            const { pingOneInitialized, lastError } = response;
+            
+            // Enhanced safe property extraction with comprehensive fallbacks
+            // Handle various response structures that might be returned
+            const responseData = response?.data || response || {};
+            const serverInfo = responseData?.server || {};
+            const checks = responseData?.checks || {};
+            
+            // Safely extract pingOne status with multiple fallback paths
+            const pingOneInitialized = serverInfo?.pingOneInitialized || 
+                                     serverInfo?.pingOne?.initialized || 
+                                     checks?.pingOneConnected === 'ok' || 
+                                     false;
+            
+            // Safely extract error information with multiple fallback paths
+            const lastError = serverInfo?.lastError || 
+                            serverInfo?.error || 
+                            checks?.pingOneConfigured === 'error' ? 'Configuration error' : null ||
+                            null;
             
             if (pingOneInitialized) {
                 this.logger.fileLogger.info('Server is connected to PingOne');
@@ -875,8 +963,16 @@ class App {
                 return false;
             }
         } catch (error) {
-            const statusMessage = `Failed to check server status: ${error.message}`;
-            this.logger.fileLogger.error('Server connection check failed', { error: error.message });
+            // Handle network errors, malformed responses, or server unavailability
+            const errorMessage = error?.message || 'Unknown error';
+            const statusMessage = `Failed to check server status: ${errorMessage}`;
+            
+            this.logger.fileLogger.error('Server connection check failed', { 
+                error: errorMessage,
+                stack: error?.stack,
+                response: error?.response
+            });
+            
             this.uiManager.updateConnectionStatus('error', statusMessage);
             
             // Check if we have a valid cached token before showing home token status
@@ -908,9 +1004,15 @@ class App {
     showView(view) {
         if (!view) return;
         
-        // Hide all views
+        // Hide all views with safe iteration
         const views = document.querySelectorAll('.view');
-        views.forEach(v => v.style.display = 'none');
+        if (views && views.length > 0) {
+            views.forEach(v => {
+                if (v && v.style) {
+                    v.style.display = 'none';
+                }
+            });
+        }
         
         // Show selected view
         const selectedView = document.getElementById(`${view}-view`);
@@ -937,16 +1039,56 @@ class App {
                 this.loadPopulations();
             }
             
-            // Update navigation
-            this.uiManager.navItems.forEach(item => {
-                item.classList.remove('active');
-                if (item.getAttribute('data-view') === view) {
-                    item.classList.add('active');
-                }
-            });
+            // Update navigation with safe navItems handling
+            this.updateNavigationActiveState(view);
             
             // Update universal token status when switching views
             this.updateUniversalTokenStatus();
+        }
+    }
+
+    /**
+     * Safely update navigation active state
+     * 
+     * Handles navigation item updates with proper null checks and fallbacks.
+     * Prevents crashes when navItems is undefined or DOM elements are missing.
+     * 
+     * @param {string} view - The current view being displayed
+     */
+    updateNavigationActiveState(view) {
+        try {
+            // Get navItems safely with fallback
+            let navItems = [];
+            
+            // Try to get navItems from UIManager first
+            if (this.uiManager && this.uiManager.navItems) {
+                navItems = this.uiManager.navItems;
+            } else {
+                // Fallback to direct DOM query
+                navItems = document.querySelectorAll('[data-view]');
+            }
+            
+            // Ensure navItems is an array-like object before iterating
+            if (navItems && navItems.length > 0) {
+                navItems.forEach(item => {
+                    if (item && item.classList) {
+                        item.classList.remove('active');
+                        if (item.getAttribute('data-view') === view) {
+                            item.classList.add('active');
+                        }
+                    }
+                });
+            } else {
+                // Log warning if no navigation items found
+                this.logger?.warn('No navigation items found for view update', { view });
+            }
+        } catch (error) {
+            // Log error but don't crash the app
+            console.error('Error updating navigation state:', error);
+            this.logger?.error('Failed to update navigation state', { 
+                error: error.message, 
+                view 
+            });
         }
     }
 
@@ -3329,3 +3471,305 @@ function setupImportProgressSSE(sessionId, onProgress) {
 // Example usage in your import logic:
 // const sse = setupImportProgressSSE(sessionId, handleProgressEvent);
 // When done: sse.close(); stopFallbackPolling();
+
+// Centralized error handler for API/network/form errors
+function handleAppError(error, context = {}) {
+    const ui = window.app && window.app.uiManager;
+    let userMessage = 'An unexpected error occurred. Please try again.';
+    let errorType = 'error';
+    
+    // Handle different error types with specific user-friendly messages
+    if (error && error.response) {
+        // HTTP error response
+        const status = error.response.status;
+        if (status === 401) {
+            userMessage = 'Session expired – please log in again.';
+            errorType = 'warning';
+        } else if (status === 403) {
+            userMessage = 'Access denied. Please check your permissions.';
+            errorType = 'error';
+        } else if (status === 404) {
+            userMessage = 'Resource not found. Please check your settings.';
+            errorType = 'warning';
+        } else if (status === 429) {
+            userMessage = 'Too many requests. Please wait a moment and try again.';
+            errorType = 'warning';
+        } else if (status >= 500) {
+            userMessage = 'Server error – please try again later.';
+            errorType = 'error';
+        } else {
+            // Try to get error message from response
+            error.response.json().then(data => {
+                userMessage = data.error || userMessage;
+                if (ui) ui.showStatusBar(userMessage, errorType, { autoDismiss: false });
+            }).catch(() => {
+                if (ui) ui.showStatusBar(userMessage, errorType, { autoDismiss: false });
+            });
+            return;
+        }
+    } else if (error && error.message) {
+        // Network or other errors
+        if (error.message.includes('Network') || error.message.includes('fetch')) {
+            userMessage = 'Network error – check your connection and try again.';
+            errorType = 'warning';
+        } else if (error.message.includes('timeout')) {
+            userMessage = 'Request timed out – please try again.';
+            errorType = 'warning';
+        } else if (error.message.includes('aborted')) {
+            userMessage = 'Request was cancelled.';
+            errorType = 'info';
+            return; // Don't show for user-initiated cancellations
+        } else if (error.message.includes('Failed to fetch')) {
+            userMessage = 'Cannot connect to server. Please check your connection.';
+            errorType = 'error';
+        }
+    }
+    
+    // Show error in status bar
+    if (ui) {
+        ui.showStatusBar(userMessage, errorType, { 
+            autoDismiss: errorType === 'info' || errorType === 'success',
+            duration: errorType === 'info' ? 3000 : 6000
+        });
+    }
+    
+    // Log error for debugging
+    console.error('Application error:', error, context);
+}
+
+// Enhanced safe API call wrapper with better error handling
+async function safeApiCall(apiFn, ...args) {
+    try {
+        return await apiFn(...args);
+    } catch (error) {
+        // Handle AbortError separately (user cancellation)
+        if (error.name === 'AbortError') {
+            console.log('Request was cancelled by user');
+            return;
+        }
+        
+        // Handle fetch errors
+        if (error instanceof TypeError && error.message.includes('fetch')) {
+            handleAppError(new Error('Network error – check your connection.'), { 
+                context: 'API call failed',
+                function: apiFn.name 
+            });
+        } else {
+            handleAppError(error, { 
+                context: 'API call failed',
+                function: apiFn.name 
+            });
+        }
+        throw error;
+    }
+}
+
+// Enhanced form validation with status bar feedback
+function validateAndSubmit(form, validateFn, submitFn) {
+    const ui = window.app && window.app.uiManager;
+    
+    // Validate form
+    const validation = validateFn(form);
+    if (!validation.valid) {
+        if (ui) {
+            ui.showStatusBar(validation.message, 'warning', { 
+                autoDismiss: true, 
+                duration: 4000 
+            });
+        }
+        return false;
+    }
+    
+    // Show loading state
+    if (ui) {
+        ui.showStatusBar('Processing...', 'info', { autoDismiss: false });
+    }
+    
+    // Submit with error handling
+    submitFn(form).catch(error => {
+        handleAppError(error, { context: 'Form submission failed' });
+    });
+    
+    return true;
+}
+
+// Enhanced fallback UI for critical errors
+function showFallbackUI(type) {
+    const ui = window.app && window.app.uiManager;
+    
+    switch (type) {
+        case '404':
+            ui && ui.showStatusBar('Page not found. Please return to Home.', 'warning', { autoDismiss: false });
+            break;
+        case '500':
+            ui && ui.showStatusBar('Server error – please try again later.', 'error', { autoDismiss: false });
+            break;
+        case 'maintenance':
+            ui && ui.showStatusBar('Service is under maintenance. Please try again later.', 'info', { autoDismiss: false });
+            break;
+        case 'network':
+            ui && ui.showStatusBar('Network connection lost. Please check your connection.', 'error', { autoDismiss: false });
+            break;
+        case 'timeout':
+            ui && ui.showStatusBar('Request timed out. Please try again.', 'warning', { autoDismiss: true });
+            break;
+        default:
+            ui && ui.showStatusBar('An unexpected error occurred.', 'error', { autoDismiss: false });
+    }
+}
+
+// Enhanced input validation with status bar feedback
+function validateInput(input, rules = {}) {
+    const ui = window.app && window.app.uiManager;
+    const value = input.value.trim();
+    
+    // Required field validation
+    if (rules.required && !value) {
+        const message = rules.requiredMessage || 'This field is required.';
+        if (ui) ui.showStatusBar(message, 'warning', { autoDismiss: true });
+        return false;
+    }
+    
+    // Email validation
+    if (rules.email && value) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) {
+            const message = rules.emailMessage || 'Please enter a valid email address.';
+            if (ui) ui.showStatusBar(message, 'warning', { autoDismiss: true });
+            return false;
+        }
+    }
+    
+    // URL validation
+    if (rules.url && value) {
+        try {
+            new URL(value);
+        } catch {
+            const message = rules.urlMessage || 'Please enter a valid URL.';
+            if (ui) ui.showStatusBar(message, 'warning', { autoDismiss: true });
+            return false;
+        }
+    }
+    
+    // Min length validation
+    if (rules.minLength && value.length < rules.minLength) {
+        const message = rules.minLengthMessage || `Must be at least ${rules.minLength} characters.`;
+        if (ui) ui.showStatusBar(message, 'warning', { autoDismiss: true });
+        return false;
+    }
+    
+    // Max length validation
+    if (rules.maxLength && value.length > rules.maxLength) {
+        const message = rules.maxLengthMessage || `Must be no more than ${rules.maxLength} characters.`;
+        if (ui) ui.showStatusBar(message, 'warning', { autoDismiss: true });
+        return false;
+    }
+    
+    // Custom validation
+    if (rules.custom && !rules.custom(value)) {
+        const message = rules.customMessage || 'Invalid input.';
+        if (ui) ui.showStatusBar(message, 'warning', { autoDismiss: true });
+        return false;
+    }
+    
+    return true;
+}
+
+// === Import Dashboard Logic ===
+function setupImportDashboard(app) {
+    const dashboardTab = document.querySelector('.nav-item[data-view="import-dashboard"]');
+    const dashboardView = document.getElementById('import-dashboard-view');
+    const dropZone = document.getElementById('import-drop-zone');
+    const fileInput = document.getElementById('dashboard-csv-file');
+    const fileFeedback = document.getElementById('dashboard-file-feedback');
+    const importOptions = document.getElementById('dashboard-import-options');
+    const importActions = document.getElementById('dashboard-import-actions');
+
+    if (!dashboardTab || !dashboardView || !dropZone || !fileInput) return;
+
+    // Navigation: Show dashboard view, hide others
+    dashboardTab.addEventListener('click', () => {
+        document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
+        dashboardView.style.display = 'block';
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        dashboardTab.classList.add('active');
+        // Reset dashboard state
+        fileFeedback.textContent = '';
+        dropZone.classList.remove('dragover');
+        fileInput.value = '';
+        importOptions.innerHTML = '';
+        importActions.innerHTML = '';
+        // Optionally, render import options here
+        renderDashboardImportOptions(app, importOptions, importActions);
+    });
+
+    // Drag-and-drop events
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+    dropZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+    });
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files && files.length > 0) {
+            handleDashboardFileSelect(files[0], app, fileFeedback, importOptions, importActions);
+        }
+    });
+    // Fallback file input
+    fileInput.addEventListener('change', (e) => {
+        const files = e.target.files;
+        if (files && files.length > 0) {
+            handleDashboardFileSelect(files[0], app, fileFeedback, importOptions, importActions);
+        }
+    });
+}
+
+function handleDashboardFileSelect(file, app, fileFeedback, importOptions, importActions) {
+    if (!file || !file.name.match(/\.csv$|\.txt$/i)) {
+        fileFeedback.textContent = 'Please select a valid CSV or TXT file.';
+        fileFeedback.classList.add('error');
+        return;
+    }
+    fileFeedback.classList.remove('error');
+    fileFeedback.innerHTML = `<i class="fas fa-check-circle" style="color:var(--ping-success-green)"></i> ${file.name} (${file.type || 'text/csv'})`;
+    // Use shared file handler logic
+    app.fileHandler.handleFile(file).then(() => {
+        // Render import options and actions after file is loaded
+        renderDashboardImportOptions(app, importOptions, importActions);
+    }).catch(err => {
+        fileFeedback.textContent = 'File parsing failed: ' + (err.message || err);
+        fileFeedback.classList.add('error');
+    });
+}
+
+function renderDashboardImportOptions(app, importOptions, importActions) {
+    // Reuse the same import options UI as the classic import view
+    // For simplicity, clone or move the relevant DOM or re-render options here
+    // Example: show a submit button
+    importOptions.innerHTML = '';
+    importActions.innerHTML = '';
+    // Add import options (toggles, etc.) as needed
+    // ...
+    // Add submit button
+    const submitBtn = document.createElement('button');
+    submitBtn.className = 'btn btn-primary';
+    submitBtn.innerHTML = '<i class="fas fa-upload"></i> Start Import';
+    submitBtn.onclick = () => app.startImport();
+    importActions.appendChild(submitBtn);
+}
+
+// Initialize dashboard after app is ready
+window.addEventListener('DOMContentLoaded', () => {
+    if (window.app) {
+        setupImportDashboard(window.app);
+    } else {
+        setTimeout(() => {
+            if (window.app) setupImportDashboard(window.app);
+        }, 1000);
+    }
+});
