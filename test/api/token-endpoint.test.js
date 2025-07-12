@@ -1,6 +1,14 @@
-const { expect } = require('chai');
-const sinon = require('sinon');
-const fetch = require('node-fetch');
+/**
+ * @fileoverview PingOne Token Endpoint Tests
+ * 
+ * Tests for PingOne token endpoint configuration and authentication
+ * 
+ * @author PingOne Import Tool
+ * @version 4.9
+ */
+
+import { jest, describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
+import request from 'supertest';
 
 // Test for PingOne Token Endpoint Configuration
 // This test verifies that token requests use auth.pingone.com instead of api.pingone.com
@@ -45,15 +53,12 @@ describe('PingOne Token Endpoint Tests', () => {
             });
 
             // Make a request that triggers token authentication
-            const response = await fetch('http://localhost:4000/api/pingone/test-connection', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({})
-            });
+            const response = await request('http://localhost:4000')
+                .post('/api/pingone/test-connection')
+                .set('Content-Type', 'application/json')
+                .send({});
 
-            expect(response.status).to.equal(200);
+            expect(response.status).toBe(200);
 
             // Verify that fetch was called with auth.pingone.com URL
             const calls = global.fetch.mock.calls;
@@ -79,13 +84,10 @@ describe('PingOne Token Endpoint Tests', () => {
             });
 
             // Make a request that triggers token authentication
-            await fetch('http://localhost:4000/api/pingone/test-connection', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({})
-            });
+            await request('http://localhost:4000')
+                .post('/api/pingone/test-connection')
+                .set('Content-Type', 'application/json')
+                .send({});
 
             // Verify that no calls were made to api.pingone.com for tokens
             const calls = global.fetch.mock.calls;
@@ -107,28 +109,22 @@ describe('PingOne Token Endpoint Tests', () => {
                 })
             });
 
-            const response = await fetch('http://localhost:4000/api/pingone/test-connection', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({})
-            });
+            const response = await request('http://localhost:4000')
+                .post('/api/pingone/test-connection')
+                .set('Content-Type', 'application/json')
+                .send({});
 
-            expect(response.status).to.equal(500); // Should return server error
+            expect(response.status).toBe(500); // Should return server error
         });
 
         it('should return 404 for direct /token endpoint access', async () => {
-            const response = await fetch('http://localhost:4000/api/pingone/token', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
+            const response = await request('http://localhost:4000')
+                .get('/api/pingone/token')
+                .set('Content-Type', 'application/json');
 
-            expect(response.status).to.equal(404);
+            expect(response.status).toBe(404);
             
-            const data = await response.json();
+            const data = response.body;
             expect(data.error).toBe('Endpoint Not Found');
             expect(data.message).toContain('The /token endpoint does not exist in the PingOne API');
             expect(data.availableEndpoints).toBeDefined();
