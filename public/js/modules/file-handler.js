@@ -1285,6 +1285,7 @@ class FileHandler {
      */
     initializeDropZone(dropZone) {
         if (!dropZone) return;
+        
         // Remove any previous listeners
         dropZone.removeEventListener('dragenter', this._onDragEnter);
         dropZone.removeEventListener('dragover', this._onDragOver);
@@ -1321,11 +1322,157 @@ class FileHandler {
                 }
             }
         };
+        
         // Attach listeners
         dropZone.addEventListener('dragenter', this._onDragEnter);
         dropZone.addEventListener('dragover', this._onDragOver);
         dropZone.addEventListener('dragleave', this._onDragLeave);
         dropZone.addEventListener('drop', this._onDrop);
+    }
+
+    /**
+     * Initialize global drag-and-drop prevention and routing
+     * This prevents the browser from trying to open files and routes them to the app
+     */
+    initializeGlobalDragAndDrop() {
+        // Prevent browser default behavior for file drops anywhere on the page
+        const preventDefaultDragEvents = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        };
+
+        // Handle file drops anywhere on the document
+        const handleGlobalDrop = async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Remove body drag-over class
+            document.body.classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            if (files && files.length > 0) {
+                const file = files[0];
+                
+                // Check if it's a supported file type
+                const fileName = file.name || '';
+                const fileExt = this.getFileExtension(fileName).toLowerCase();
+                const supportedExts = ['csv', 'txt'];
+                const knownBadExts = ['exe', 'js', 'png', 'jpg', 'jpeg', 'gif', 'pdf', 'zip', 'tar', 'gz'];
+                
+                if (fileExt && knownBadExts.includes(fileExt)) {
+                    this.uiManager.showNotification(`Unsupported file type: ${fileExt}. Please upload a CSV or text file.`, 'error');
+                    return;
+                }
+                
+                // Route to appropriate handler based on current view
+                const currentView = this.getCurrentView();
+                let targetDropZone = null;
+                
+                switch (currentView) {
+                    case 'import':
+                        targetDropZone = document.getElementById('import-drop-zone');
+                        break;
+                    case 'modify':
+                        targetDropZone = document.getElementById('modify-drop-zone');
+                        break;
+                    case 'import-dashboard':
+                        targetDropZone = document.getElementById('upload-zone');
+                        break;
+                    default:
+                        // Default to import view if no specific view is active
+                        targetDropZone = document.getElementById('import-drop-zone');
+                        break;
+                }
+                
+                // Show visual feedback on the target drop zone
+                if (targetDropZone) {
+                    targetDropZone.classList.add('drag-over');
+                    setTimeout(() => {
+                        targetDropZone.classList.remove('drag-over');
+                    }, 2000);
+                }
+                
+                try {
+                    await this.setFile(file);
+                    this.uiManager.showNotification(`File "${file.name}" processed successfully`, 'success');
+                } catch (error) {
+                    this.logger.error('Global drag-and-drop file error', { error: error.message });
+                    this.uiManager.showNotification('Failed to process dropped file: ' + error.message, 'error');
+                }
+            }
+        };
+
+        // Add visual feedback when dragging files over the document
+        const handleGlobalDragEnter = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Only add visual feedback if dragging files
+            if (e.dataTransfer.types.includes('Files')) {
+                document.body.classList.add('drag-over');
+            }
+        };
+
+        const handleGlobalDragLeave = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Only remove visual feedback if leaving the document entirely
+            if (e.target === document || e.target === document.body) {
+                document.body.classList.remove('drag-over');
+            }
+        };
+
+        // Add global event listeners
+        document.addEventListener('dragover', preventDefaultDragEvents);
+        document.addEventListener('dragenter', handleGlobalDragEnter);
+        document.addEventListener('dragleave', handleGlobalDragLeave);
+        document.addEventListener('drop', handleGlobalDrop);
+        
+        // Store references for cleanup
+        this._globalDragHandlers = {
+            preventDefaultDragEvents,
+            handleGlobalDragEnter,
+            handleGlobalDragLeave,
+            handleGlobalDrop
+        };
+        
+        this.logger.info('Global drag-and-drop prevention initialized');
+    }
+
+    /**
+     * Clean up global drag-and-drop event listeners
+     */
+    cleanupGlobalDragAndDrop() {
+        if (this._globalDragHandlers) {
+            document.removeEventListener('dragover', this._globalDragHandlers.preventDefaultDragEvents);
+            document.removeEventListener('dragenter', this._globalDragHandlers.handleGlobalDragEnter);
+            document.removeEventListener('dragleave', this._globalDragHandlers.handleGlobalDragLeave);
+            document.removeEventListener('drop', this._globalDragHandlers.handleGlobalDrop);
+            this._globalDragHandlers = null;
+        }
+        
+        // Remove any remaining visual feedback
+        document.body.classList.remove('drag-over');
+    }
+
+    /**
+     * Get the current active view
+     * @returns {string} The current view name
+     */
+    getCurrentView() {
+        const activeView = document.querySelector('.view[style*="block"]') || document.querySelector('.view:not([style*="none"])');
+        if (!activeView) return 'import';
+        
+        const viewId = activeView.id;
+        if (viewId === 'import-dashboard-view') return 'import-dashboard';
+        if (viewId === 'modify-csv-view') return 'modify';
+        if (viewId === 'delete-csv-view') return 'delete';
+        if (viewId === 'export-view') return 'export';
+        if (viewId === 'settings-view') return 'settings';
+        if (viewId === 'logs-view') return 'logs';
+        
+        return 'import'; // Default to import view
     }
 }
 
