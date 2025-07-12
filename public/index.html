@@ -201,6 +201,11 @@
                 </div>
                 
                 <div class="import-content">
+                    <div id="import-drop-zone" class="import-drop-zone" tabindex="0" aria-label="Drag and drop CSV file here or click to select">
+                        <i class="fas fa-cloud-upload-alt fa-2x"></i>
+                        <div><strong>Drag & Drop CSV File Here</strong></div>
+                        <div style="font-size:0.95em; color:#888;">or click to browse files</div>
+                    </div>
                     <div class="file-upload-container">
                         <input type="file" id="csv-file" accept=".csv,.txt" class="file-input">
                         <label for="csv-file" class="file-label">
@@ -406,6 +411,11 @@
                 </div>
                 
                 <div class="modify-content">
+                    <div id="modify-drop-zone" class="import-drop-zone" tabindex="0" aria-label="Drag and drop CSV file here or click to select">
+                        <i class="fas fa-cloud-upload-alt fa-2x"></i>
+                        <div><strong>Drag & Drop CSV File Here</strong></div>
+                        <div style="font-size:0.95em; color:#888;">or click to browse files</div>
+                    </div>
                     <div class="file-upload-container">
                         <input type="file" id="modify-csv-file" accept=".csv,.txt" class="file-input">
                         <label for="modify-csv-file" class="file-label">
@@ -466,7 +476,15 @@
                 <div class="export-content">
                     <div class="export-options-container">
                         <h3>Export Options</h3>
-                        
+                        <div class="form-group">
+                            <label for="export-population-filter">Population:</label>
+                            <select id="export-population-filter" class="form-control">
+                                <option value="all" selected>All</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="archived">Archived</option>
+                            </select>
+                        </div>
                         <div class="form-group">
                             <label for="export-population-id">Population ID:</label>
                             <input type="text" id="export-population-id" class="form-control" placeholder="Enter population ID or leave empty for all populations">
@@ -589,6 +607,10 @@
                         <button id="clear-logs" class="btn btn-danger">
                             <i class="fas fa-trash"></i> Clear Logs
                         </button>
+                        <button id="logs-search-icon" class="btn btn-light" title="Search Logs" aria-label="Search Logs" style="margin-left:8px;">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <input type="text" id="logs-search-input" class="form-control" placeholder="Search logs..." style="display:none; width:200px; margin-left:8px; vertical-align:middle;" aria-label="Search logs">
                     </div>
                 </div>
                 

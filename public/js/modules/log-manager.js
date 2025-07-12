@@ -52,6 +52,35 @@ class LogManager {
         
         // Add filter functionality
         this.addFilterControls();
+        // Add search icon logic
+        const searchIcon = document.getElementById('logs-search-icon');
+        const searchInput = document.getElementById('logs-search-input');
+        if (searchIcon && searchInput) {
+            searchIcon.addEventListener('click', () => {
+                if (searchInput.style.display === 'none') {
+                    searchInput.style.display = 'inline-block';
+                    searchInput.focus();
+                } else {
+                    searchInput.value = '';
+                    searchInput.style.display = 'none';
+                    this.filterText = '';
+                    this.applyFilters();
+                }
+            });
+            searchInput.addEventListener('input', (e) => {
+                this.filterText = e.target.value.toLowerCase();
+                this.applyFilters();
+            });
+            // Hide input on Escape
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    searchInput.value = '';
+                    searchInput.style.display = 'none';
+                    this.filterText = '';
+                    this.applyFilters();
+                }
+            });
+        }
     }
     
     addFilterControls() {
@@ -245,11 +274,10 @@ class LogManager {
     
     displayNoLogs() {
         if (!this.logsContainer) return;
-        
         this.logsContainer.innerHTML = `
             <div class="no-logs-message">
                 <i class="fas fa-info-circle"></i>
-                <p>No logs available</p>
+                <p>No logs found.</p>
                 <small>Logs will appear here when operations are performed</small>
             </div>
         `;
