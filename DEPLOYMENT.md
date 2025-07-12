@@ -95,7 +95,7 @@ CORS_ORIGIN=https://your-app-name.onrender.com
    - Environment ID
    - API Client ID
    - API Secret
-   - Region (NorthAmerica, Europe, AsiaPacific)
+   - Region code (NA, CA, EU, AU, SG, AP)
 
 ### 3.2 Configure in the App
 
@@ -105,9 +105,27 @@ CORS_ORIGIN=https://your-app-name.onrender.com
    - Environment ID
    - API Client ID
    - API Secret
-   - Region
+   - Region (use code: NA, CA, EU, AU, SG, AP)
 4. Test the connection
 5. Save settings
+
+### Region Codes
+
+| Region Name                        | Code | TLD     |
+|------------------------------------|------|---------|
+| North America (excluding Canada)   | NA   | com     |
+| Canada                             | CA   | ca      |
+| European Union                     | EU   | eu      |
+| Australia                          | AU   | com.au  |
+| Singapore                          | SG   | sg      |
+| Asia-Pacific                       | AP   | asia    |
+
+- The region dropdown now uses these codes. The correct API base URL is used automatically.
+
+### Progress UI
+
+- All major operations (Import, Export, Delete, Modify) feature a modern, non-blocking progress UI with real-time updates.
+- Progress and region features are testable via Swagger UI (`/swagger/html` or `/api-docs`) and the API tester (`public/api-tester.html`).
 
 ## Step 4: Test Your Deployment
 

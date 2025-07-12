@@ -213,3 +213,20 @@ The Swagger integration is now:
 - ✅ **Accessible**: WCAG compliant design
 
 **The API documentation is now live and ready for use!** 🎉 
+
+## 🌍 Region Codes & Progress UI
+
+- The API and UI now support the following region codes:
+
+| Region Name                        | Code | TLD     |
+|------------------------------------|------|---------|
+| North America (excluding Canada)   | NA   | com     |
+| Canada                             | CA   | ca      |
+| European Union                     | EU   | eu      |
+| Australia                          | AU   | com.au  |
+| Singapore                          | SG   | sg      |
+| Asia-Pacific                       | AP   | asia    |
+
+- The region dropdown uses these codes. The correct API base URL is used automatically.
+- All major operations (Import, Export, Delete, Modify) feature a modern, non-blocking progress UI with real-time updates.
+- Region and progress endpoints are fully documented and testable in Swagger UI and the API tester. 

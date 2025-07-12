@@ -20,6 +20,7 @@ import TokenManager from './modules/token-manager.js';
 import { FileHandler } from './modules/file-handler.js';
 import { VersionManager } from './modules/version-manager.js';
 import { apiFactory, initAPIFactory } from './modules/api-factory.js';
+import { progressManager } from './modules/progress-manager.js';
 
 /**
  * Secret Field Toggle Component
@@ -259,6 +260,11 @@ class SecretFieldToggle {
  */
 class App {
     constructor() {
+        // Production environment detection
+        this.isProduction = window.location.hostname !== 'localhost' && 
+                           window.location.hostname !== '127.0.0.1' &&
+                           !window.location.hostname.includes('dev');
+        
         // Initialize core dependencies with safety checks
         try {
             this.logger = new Logger();
@@ -267,6 +273,43 @@ class App {
             this.uiManager = new UIManager();
             this.localClient = new LocalAPIClient();
             this.versionManager = new VersionManager();
+            
+            // Create a safe logger wrapper to prevent undefined method errors
+            this.safeLogger = {
+                info: (msg, data) => {
+                    try {
+                        if (this.logger && typeof this.logger.info === 'function') {
+                            this.logger.info(msg, data);
+                        } else {
+                            console.log(`[INFO] ${msg}`, data);
+                        }
+                    } catch (error) {
+                        console.log(`[INFO] ${msg}`, data);
+                    }
+                },
+                warn: (msg, data) => {
+                    try {
+                        if (this.logger && typeof this.logger.warn === 'function') {
+                            this.logger.warn(msg, data);
+                        } else {
+                            console.warn(`[WARN] ${msg}`, data);
+                        }
+                    } catch (error) {
+                        console.warn(`[WARN] ${msg}`, data);
+                    }
+                },
+                error: (msg, data) => {
+                    try {
+                        if (this.logger && typeof this.logger.error === 'function') {
+                            this.logger.error(msg, data);
+                        } else {
+                            console.error(`[ERROR] ${msg}`, data);
+                        }
+                    } catch (error) {
+                        console.error(`[ERROR] ${msg}`, data);
+                    }
+                }
+            };
             
             // Initialize state variables with safe defaults
             this.currentView = 'home';
@@ -282,6 +325,31 @@ class App {
             this.pingOneClient = null;
             
             console.log('✅ App constructor completed successfully');
+            
+            // Production-specific configurations
+            if (this.isProduction) {
+                // Disable debug mode in production
+                window.DEBUG_MODE = false;
+                
+                // Add production error reporting
+                window.addEventListener('error', (event) => {
+                    this.safeLogger.error('Unhandled error in production', {
+                        message: event.message,
+                        filename: event.filename,
+                        lineno: event.lineno,
+                        colno: event.colno,
+                        error: event.error?.stack
+                    });
+                });
+                
+                // Add unhandled promise rejection handler
+                window.addEventListener('unhandledrejection', (event) => {
+                    this.safeLogger.error('Unhandled promise rejection in production', {
+                        reason: event.reason,
+                        promise: event.promise
+                    });
+                });
+            }
         } catch (error) {
             console.error('❌ Error in App constructor:', error);
             // Ensure basic functionality even if some components fail
@@ -301,6 +369,33 @@ class App {
     async init() {
         try {
             console.log('Initializing app...');
+            
+            // Ensure DOM is ready before proceeding with UI-dependent operations
+            if (document.readyState === 'loading') {
+                console.log('DOM still loading, waiting for DOMContentLoaded...');
+                await new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => {
+                        reject(new Error('DOM ready timeout - page may be unresponsive'));
+                    }, 30000); // 30 second timeout
+                    
+                    document.addEventListener('DOMContentLoaded', () => {
+                        clearTimeout(timeout);
+                        resolve();
+                    }, { once: true });
+                });
+            }
+            
+            // Additional validation to ensure critical elements exist
+            const criticalElements = [
+                'notification-area',
+                'universal-token-status',
+                'connection-status'
+            ];
+            
+            const missingElements = criticalElements.filter(id => !document.getElementById(id));
+            if (missingElements.length > 0) {
+                throw new Error(`Critical UI elements missing: ${missingElements.join(', ')}`);
+            }
             
             // Validate core dependencies before proceeding
             if (!this.logger) {
@@ -385,15 +480,7 @@ class App {
                 const disclaimerPreviouslyAccepted = this.checkDisclaimerStatus();
                 if (!disclaimerPreviouslyAccepted) {
                     console.log('Disclaimer not previously accepted, setting up disclaimer agreement');
-                    // Ensure DOM is ready before setting up disclaimer
-                    if (document.readyState === 'loading') {
-                        document.addEventListener('DOMContentLoaded', () => {
-                            this.setupDisclaimerAgreement();
-                        });
-                    } else {
-                        // DOM is already loaded, setup immediately
-                        this.setupDisclaimerAgreement();
-                    }
+                    this.setupDisclaimerAgreement();
                 } else {
                     console.log('Disclaimer previously accepted, tool already enabled');
                 }
@@ -453,122 +540,187 @@ class App {
         }
     }
 
-    async loadPopulations() {
+    /**
+     * Generic population loader for any dropdown by ID
+     */
+    async loadPopulationsForDropdown(dropdownId) {
+        const select = document.getElementById(dropdownId);
+        if (select) {
+            select.disabled = true;
+            select.innerHTML = '<option value="">Loading populations...</option>';
+        }
+        this.hidePopulationRetryButton(dropdownId);
         try {
-            console.log('🔄 Loading populations from PingOne...');
-            
+            if (!this.localClient) throw new Error('Internal error: API client unavailable');
             const response = await this.localClient.get('/api/pingone/populations');
-            
-            // The populations API returns the data directly as an array
             if (Array.isArray(response)) {
-                console.log('✅ Populations loaded successfully:', response.length, 'populations');
-                this.populatePopulationDropdown(response);
+                this.populatePopulationDropdown(dropdownId, response);
+                this.hidePopulationRetryButton(dropdownId);
             } else {
-                console.error('❌ Failed to load populations - invalid response format:', response);
-                this.showPopulationLoadError();
+                this.showPopulationLoadError(dropdownId, 'Invalid response from server');
             }
         } catch (error) {
-            console.error('❌ Error loading populations:', error);
-            this.showPopulationLoadError();
+            this.showPopulationLoadError(dropdownId, error && error.message ? error.message : 'Failed to load populations');
         }
     }
 
-    populatePopulationDropdown(populations) {
-        const populationSelect = document.getElementById('import-population-select');
-        if (!populationSelect) {
-            console.error('❌ Population select element not found');
-            return;
-        }
-
-        // Clear existing options
-        populationSelect.innerHTML = '';
-        
-        // Add default option
+    /**
+     * Populate a dropdown with populations
+     */
+    populatePopulationDropdown(dropdownId, populations) {
+        const select = document.getElementById(dropdownId);
+        if (!select) return;
+        select.innerHTML = '';
         const defaultOption = document.createElement('option');
         defaultOption.value = '';
         defaultOption.textContent = 'Select a population...';
-        populationSelect.appendChild(defaultOption);
-        
-        // Add population options
+        select.appendChild(defaultOption);
         populations.forEach(population => {
             const option = document.createElement('option');
             option.value = population.id;
             option.textContent = population.name;
-            populationSelect.appendChild(option);
+            select.appendChild(option);
         });
-        
-        console.log('✅ Population dropdown populated with', populations.length, 'populations');
-        
-        // Enable the select element
-        populationSelect.disabled = false;
-        
-        // Ensure event listener is attached (in case dropdown was recreated)
-        this.attachPopulationChangeListener();
-        
-        // Update import button state after populations are loaded
-        this.updateImportButtonState();
+        select.disabled = false;
+        // Attach change listener if needed (only for main import)
+        if (dropdownId === 'import-population-select') {
+            this.attachPopulationChangeListener();
+            this.updateImportButtonState();
+        }
     }
 
-    showPopulationLoadError() {
-        const populationSelect = document.getElementById('import-population-select');
-        if (populationSelect) {
-            populationSelect.innerHTML = '<option value="">Failed to load populations</option>';
-            populationSelect.disabled = true;
+    /**
+     * Show error and retry for a dropdown
+     */
+    showPopulationLoadError(dropdownId, message) {
+        const select = document.getElementById(dropdownId);
+        if (select) {
+            select.innerHTML = `<option value="">${message || 'Failed to load populations'}</option>`;
+            select.disabled = true;
         }
-        
-        this.uiManager.showError('Failed to load populations', 'Please check your PingOne connection and try again.');
+        this.showPopulationRetryButton(dropdownId);
+        if (dropdownId === 'import-population-select') {
+            this.uiManager.showError('Failed to load populations', message || 'Please check your PingOne connection and try again.');
+        }
+    }
+
+    /**
+     * Show retry button for a dropdown
+     */
+    showPopulationRetryButton(dropdownId) {
+        const retryId = `retry-${dropdownId}`;
+        let retryBtn = document.getElementById(retryId);
+        if (!retryBtn) {
+            retryBtn = document.createElement('button');
+            retryBtn.id = retryId;
+            retryBtn.textContent = 'Retry';
+            retryBtn.className = 'btn btn-secondary';
+            retryBtn.style.marginTop = '10px';
+            const parent = document.getElementById(dropdownId)?.parentElement;
+            if (parent) parent.appendChild(retryBtn);
+        }
+        retryBtn.onclick = () => {
+            retryBtn.disabled = true;
+            this.loadPopulationsForDropdown(dropdownId);
+        };
+        retryBtn.style.display = 'inline-block';
+    }
+
+    /**
+     * Hide retry button for a dropdown
+     */
+    hidePopulationRetryButton(dropdownId) {
+        const retryBtn = document.getElementById(`retry-${dropdownId}`);
+        if (retryBtn) retryBtn.style.display = 'none';
+    }
+
+    // Update all usages to use the generic loader
+    async loadPopulations() {
+        await this.loadPopulationsForDropdown('import-population-select');
+    }
+    // For dashboard, delete, modify, and main population select
+    async loadAllPopulationDropdowns() {
+        await Promise.all([
+            this.loadPopulationsForDropdown('import-population-select'),
+            this.loadPopulationsForDropdown('dashboard-population-select'),
+            this.loadPopulationsForDropdown('delete-population-select'),
+            this.loadPopulationsForDropdown('modify-population-select')
+        ]);
     }
 
     updateImportButtonState() {
-        const populationSelect = document.getElementById('import-population-select');
-        const hasFile = this.fileHandler.getCurrentFile() !== null;
-        
-        // Check both the dropdown value and the stored properties
-        const dropdownValue = populationSelect ? populationSelect.value : '';
-        const storedPopulationId = this.selectedPopulationId || '';
-        const hasPopulation = (dropdownValue && dropdownValue !== '') || (storedPopulationId && storedPopulationId !== '');
-        
-        console.log('=== Update Import Button State ===');
-        console.log('Has file:', hasFile);
-        console.log('Has population:', hasPopulation);
-        console.log('Dropdown value:', dropdownValue);
-        console.log('Stored population ID:', storedPopulationId);
-        console.log('Stored population name:', this.selectedPopulationName);
-        console.log('Population select element exists:', !!populationSelect);
-        console.log('====================================');
-        
-        // Get both import buttons
-        const topImportBtn = document.getElementById('start-import-btn');
-        const bottomImportBtn = document.getElementById('start-import-btn-bottom');
-        
-        const shouldEnable = hasFile && hasPopulation;
-        
-        if (topImportBtn) {
-            topImportBtn.disabled = !shouldEnable;
-        }
-        
-        if (bottomImportBtn) {
-            bottomImportBtn.disabled = !shouldEnable;
-        }
-        
-        console.log('Import buttons enabled:', shouldEnable);
-        
-        // Update population display in import stats if available
-        if (hasPopulation) {
-            const populationNameElement = document.getElementById('import-population-name');
-            const populationIdElement = document.getElementById('import-population-id');
+        try {
+            const populationSelect = document.getElementById('import-population-select');
+            const hasFile = this.fileHandler && this.fileHandler.getCurrentFile() !== null;
             
-            if (populationNameElement) {
-                populationNameElement.textContent = this.selectedPopulationName || populationSelect?.selectedOptions[0]?.text || 'Selected';
+            // Validate file handler exists
+            if (!this.fileHandler) {
+                console.warn('File handler not initialized');
             }
             
-            if (populationIdElement) {
-                populationIdElement.textContent = this.selectedPopulationId || dropdownValue || 'Set';
+            // Check both the dropdown value and the stored properties
+            const dropdownValue = populationSelect ? populationSelect.value : '';
+            const storedPopulationId = this.selectedPopulationId || '';
+            const hasPopulation = (dropdownValue && dropdownValue !== '') || (storedPopulationId && storedPopulationId !== '');
+            
+            // Production logging (reduced verbosity)
+            if (window.DEBUG_MODE) {
+                console.log('=== Update Import Button State ===');
+                console.log('Has file:', hasFile);
+                console.log('Has population:', hasPopulation);
+                console.log('Dropdown value:', dropdownValue);
+                console.log('Stored population ID:', storedPopulationId);
+                console.log('Stored population name:', this.selectedPopulationName);
+                console.log('Population select element exists:', !!populationSelect);
+                console.log('====================================');
             }
+            
+            // Get both import buttons with validation
+            const topImportBtn = document.getElementById('start-import');
+            const bottomImportBtn = document.getElementById('bottom-start-import');
+            
+            const shouldEnable = hasFile && hasPopulation;
+            
+            // Safely update button states
+            if (topImportBtn && typeof topImportBtn.disabled !== 'undefined') {
+                topImportBtn.disabled = !shouldEnable;
+            }
+            
+            if (bottomImportBtn && typeof bottomImportBtn.disabled !== 'undefined') {
+                bottomImportBtn.disabled = !shouldEnable;
+            }
+            
+            if (window.DEBUG_MODE) {
+                console.log('Import buttons enabled:', shouldEnable);
+            }
+            
+            // Update population display in import stats if available
+            if (hasPopulation) {
+                const populationNameElement = document.getElementById('import-population-name');
+                const populationIdElement = document.getElementById('import-population-id');
+                
+                if (populationNameElement && typeof populationNameElement.textContent !== 'undefined') {
+                    populationNameElement.textContent = this.selectedPopulationName || populationSelect?.selectedOptions[0]?.text || 'Selected';
+                }
+                
+                if (populationIdElement && typeof populationIdElement.textContent !== 'undefined') {
+                    populationIdElement.textContent = this.selectedPopulationId || dropdownValue || 'Set';
+                }
+            }
+            
+            // At the end, show the population prompt if needed
+            this.showPopulationChoicePrompt();
+            
+        } catch (error) {
+            console.error('Error updating import button state:', error);
+            // Fallback: disable buttons on error
+            const buttons = document.querySelectorAll('#start-import, #bottom-start-import');
+            buttons.forEach(btn => {
+                if (btn && typeof btn.disabled !== 'undefined') {
+                    btn.disabled = true;
+                }
+            });
         }
-        
-        // At the end, show the population prompt if needed
-        this.showPopulationChoicePrompt();
     }
 
     async loadSettings() {
@@ -623,20 +775,36 @@ class App {
         // Population selection change listener
         this.attachPopulationChangeListener();
 
-        // Import event listeners
-        const startImportBtn = document.getElementById('start-import-btn');
+        // Import event listeners with error handling
+        const startImportBtn = document.getElementById('start-import');
         if (startImportBtn) {
             startImportBtn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                await this.startImport();
+                try {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    await this.startImport();
+                } catch (error) {
+                    console.error('Error in start import handler:', error);
+                    if (this.uiManager && typeof this.uiManager.showError === 'function') {
+                        this.uiManager.showError('Import Error', 'Failed to start import. Please try again.');
+                    }
+                }
             });
         }
 
-        const startImportBtnBottom = document.getElementById('start-import-btn-bottom');
+        const startImportBtnBottom = document.getElementById('bottom-start-import');
         if (startImportBtnBottom) {
             startImportBtnBottom.addEventListener('click', async (e) => {
-                e.preventDefault();
-                await this.startImport();
+                try {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    await this.startImport();
+                } catch (error) {
+                    console.error('Error in bottom start import handler:', error);
+                    if (this.uiManager && typeof this.uiManager.showError === 'function') {
+                        this.uiManager.showError('Import Error', 'Failed to start import. Please try again.');
+                    }
+                }
             });
         }
 
@@ -886,13 +1054,21 @@ class App {
 
     async checkServerConnectionStatus() {
         try {
+            console.log('🔄 Starting server connection check...');
             const response = await this.localClient.get('/api/health');
+            console.log('✅ Health check response received:', response);
             
-            // Enhanced safe property extraction with comprehensive fallbacks
-            // Handle various response structures that might be returned
-            const responseData = response?.data || response || {};
+            // The localClient.get() returns the response data directly, not wrapped in a data property
+            // Handle the response structure correctly
+            const responseData = response || {};
             const serverInfo = responseData?.server || {};
             const checks = responseData?.checks || {};
+            
+            console.log('📊 Parsed response data:', {
+                responseData,
+                serverInfo,
+                checks
+            });
             
             // Safely extract pingOne status with multiple fallback paths
             const pingOneInitialized = serverInfo?.pingOneInitialized || 
@@ -900,19 +1076,28 @@ class App {
                                      checks?.pingOneConnected === 'ok' || 
                                      false;
             
+            // Additional check: if pingOneConnected is 'ok', consider it initialized
+            const isConnected = checks?.pingOneConnected === 'ok';
+            
             // Safely extract error information with multiple fallback paths
             const lastError = serverInfo?.lastError || 
                             serverInfo?.error || 
                             checks?.pingOneConfigured === 'error' ? 'Configuration error' : null ||
                             null;
             
-            if (pingOneInitialized) {
-                this.logger.fileLogger.info('Server is connected to PingOne');
+            console.log('🔍 Status analysis:', {
+                pingOneInitialized,
+                lastError,
+                checks
+            });
+            
+            if (pingOneInitialized || isConnected) {
+                this.safeLogger.info('Server is connected to PingOne');
                 this.uiManager.updateConnectionStatus('connected', 'Connected to PingOne');
                 
                 // Check if we have a valid cached token before hiding home token status
                 let hasValidToken = false;
-                if (this.pingOneClient) {
+                if (this.pingOneClient && typeof this.pingOneClient.getCachedToken === 'function') {
                     const cachedToken = this.pingOneClient.getCachedToken();
                     if (cachedToken) {
                         if (typeof localStorage !== 'undefined') {
@@ -925,6 +1110,8 @@ class App {
                             }
                         }
                     }
+                } else if (this.pingOneClient) {
+                    this.safeLogger.warn('pingOneClient.getCachedToken is not a function', this.pingOneClient);
                 }
                 
                 if (hasValidToken) {
@@ -935,12 +1122,12 @@ class App {
                 return true;
             } else {
                 const errorMessage = lastError || 'Not connected to PingOne';
-                this.logger.fileLogger.warn('Server is not connected to PingOne', { error: errorMessage });
+                this.safeLogger.warn('Server is not connected to PingOne', { error: errorMessage });
                 this.uiManager.updateConnectionStatus('disconnected', errorMessage);
                 
                 // Check if we have a valid cached token before showing home token status
-                let hasValidToken = false;
-                if (this.pingOneClient) {
+                hasValidToken = false;
+                if (this.pingOneClient && typeof this.pingOneClient.getCachedToken === 'function') {
                     const cachedToken = this.pingOneClient.getCachedToken();
                     if (cachedToken) {
                         if (typeof localStorage !== 'undefined') {
@@ -953,6 +1140,8 @@ class App {
                             }
                         }
                     }
+                } else if (this.pingOneClient) {
+                    this.safeLogger.warn('pingOneClient.getCachedToken is not a function', this.pingOneClient);
                 }
                 
                 if (hasValidToken) {
@@ -964,20 +1153,18 @@ class App {
             }
         } catch (error) {
             // Handle network errors, malformed responses, or server unavailability
-            const errorMessage = error?.message || 'Unknown error';
+            const errorMessage = error?.message || (typeof error === 'string' ? error : JSON.stringify(error));
             const statusMessage = `Failed to check server status: ${errorMessage}`;
             
-            this.logger.fileLogger.error('Server connection check failed', { 
-                error: errorMessage,
-                stack: error?.stack,
-                response: error?.response
-            });
+            // Always log as a string
+            console.error('❌ Server connection check failed:', errorMessage);
+            this.safeLogger.error('Server connection check failed', errorMessage);
             
             this.uiManager.updateConnectionStatus('error', statusMessage);
             
             // Check if we have a valid cached token before showing home token status
-            let hasValidToken = false;
-            if (this.pingOneClient) {
+            hasValidToken = false;
+            if (this.pingOneClient && typeof this.pingOneClient.getCachedToken === 'function') {
                 const cachedToken = this.pingOneClient.getCachedToken();
                 if (cachedToken) {
                     if (typeof localStorage !== 'undefined') {
@@ -990,6 +1177,8 @@ class App {
                         }
                     }
                 }
+            } else if (this.pingOneClient) {
+                this.safeLogger.warn('pingOneClient.getCachedToken is not a function', this.pingOneClient);
             }
             
             if (hasValidToken) {
@@ -1036,6 +1225,7 @@ class App {
             
             // Load populations when navigating to import view
             if (view === 'import') {
+                console.log('🔄 Navigating to import view, loading populations...');
                 this.loadPopulations();
             }
             
@@ -1121,7 +1311,7 @@ class App {
 
     async handleSaveSettings(settings) {
         try {
-            this.logger.fileLogger.info('Saving settings', settings);
+            this.logger.info('Saving settings', settings);
             
             // Update settings save status to show saving
             this.uiManager.updateSettingsSaveStatus('Saving settings...', 'info');
@@ -1152,7 +1342,7 @@ class App {
                 console.log('Updated #settings-connection-status after save (post-populate)');
             }
         } catch (error) {
-            this.logger.fileLogger.error('Failed to save settings', { error: error.message });
+            this.logger.error('Failed to save settings', { error: error.message });
             this.uiManager.updateSettingsSaveStatus('❌ Failed to save settings: ' + error.message, 'error');
         }
     }
@@ -1245,14 +1435,14 @@ class App {
                 });
                 
                 this.populationChoice = 'ui';
-                this.uiManager.logMessage('info', 'Using UI dropdown population selection (CSV population data ignored)');
+                this.uiManager.showInfo('Using UI dropdown population selection (CSV population data ignored)');
                 
                 // Log the population assignment
                 this.uiManager.debugLog("Population", `Assigned UI population ${uiPopulationId} to all ${users.length} users`);
             } else {
                 // No UI population selected - this will be handled by validation later
                 this.populationChoice = 'ui';
-                this.uiManager.logMessage('warning', 'No population selected in UI dropdown');
+                this.uiManager.showWarning('No population selected in UI dropdown');
             }
             
             // Show population prompt if needed (legacy)
@@ -1349,7 +1539,7 @@ class App {
                 console.error("SSE: ❌ Invalid sessionId - cannot establish connection", { sessionId });
                 this.uiManager.debugLog("SSE", "❌ Invalid sessionId - cannot establish connection", { sessionId });
                 this.uiManager.showError('SSE Connection Error', 'Invalid session ID. Cannot establish progress connection.');
-                this.uiManager.logMessage('error', 'SSE connection failed — missing session ID');
+                this.uiManager.showError('SSE Connection Failed', 'Missing session ID');
                 this.isImporting = false;
                 return;
             }
@@ -1359,7 +1549,7 @@ class App {
                 console.error("SSE: ❌ EventSource not supported in this browser");
                 this.uiManager.debugLog("SSE", "❌ EventSource not supported in this browser");
                 this.uiManager.showError('SSE Not Supported', 'Your browser does not support Server-Sent Events. Progress updates will not be available.');
-                this.uiManager.logMessage('error', 'SSE not supported in this browser');
+                this.uiManager.showError('SSE Not Supported', 'Server-Sent Events not supported in this browser');
                 this.isImporting = false;
                 return;
             }
@@ -1367,7 +1557,7 @@ class App {
             // Log SSE connection attempt for debugging
             console.log("SSE: 🔌 Establishing robust SSE connection with sessionId:", sessionId);
             this.uiManager.debugLog("SSE", `🔄 Establishing robust SSE connection with sessionId: ${sessionId}`);
-            this.uiManager.logMessage('info', `SSE: Opening robust connection with sessionId: ${sessionId}`);
+            this.uiManager.showInfo(`SSE: Opening robust connection with sessionId: ${sessionId}`);
             
             // Create robust SSE connection with enhanced features
             const sseUrl = `/api/import/progress/${sessionId}`;
@@ -1385,10 +1575,10 @@ class App {
                     // Update UI based on connection status
                     switch (status) {
                         case 'connecting':
-                            this.uiManager.logMessage('info', 'SSE: Connecting to server...');
+                            this.uiManager.showInfo('SSE: Connecting to server...');
                             break;
                         case 'connected':
-                            this.uiManager.logMessage('success', 'SSE: Real-time connection established');
+                            this.uiManager.showSuccess('SSE: Real-time connection established');
                             // Stop fallback polling if it was active
                             if (this.fallbackPolling) {
                                 stopFallbackPolling();
@@ -1396,10 +1586,10 @@ class App {
                             }
                             break;
                         case 'reconnecting':
-                            this.uiManager.logMessage('warning', `SSE: Reconnecting... Attempt ${data.attempt}/${data.maxRetries}`);
+                            this.uiManager.showWarning(`SSE: Reconnecting... Attempt ${data.attempt}/${data.maxRetries}`);
                             break;
                         case 'failed':
-                            this.uiManager.logMessage('error', 'SSE: Connection failed, switching to fallback mode');
+                            this.uiManager.showError('SSE Connection Failed', 'Switching to fallback mode');
                             // Start fallback polling
                             if (!this.fallbackPolling) {
                                 this.fallbackPolling = startFallbackPolling(sseUrl, (progressData) => {
@@ -1408,7 +1598,7 @@ class App {
                             }
                             break;
                         case 'disconnected':
-                            this.uiManager.logMessage('warning', 'SSE: Connection lost');
+                            this.uiManager.showWarning('SSE: Connection lost');
                             break;
                     }
                 },
@@ -1433,7 +1623,7 @@ class App {
                             rawData: event.data, 
                             error: e.message 
                         });
-                        this.uiManager.logMessage('error', 'SSE: Received malformed progress data from server');
+                        this.uiManager.showError('SSE Data Error', 'Received malformed progress data from server');
                         return;
                     }
 
@@ -1447,7 +1637,7 @@ class App {
                     this.uiManager.debugLog("SSE", "✅ Robust SSE connection opened", { 
                         event: event 
                     });
-                    this.uiManager.logMessage('info', `SSE connected for import (sessionId: ${sessionId})`);
+                    this.uiManager.showInfo(`SSE connected for import (sessionId: ${sessionId})`);
                     this.uiManager.showStatusMessage('success', 'Real-time connection established', 
                         'Progress updates will be shown in real-time during the import process.');
                 },
@@ -1458,12 +1648,12 @@ class App {
                     this.uiManager.debugLog("SSE", "❌ Robust SSE connection error", { 
                         error: event 
                     });
-                    this.uiManager.logMessage('error', 'SSE: Connection error occurred');
+                                            this.uiManager.showError('SSE Connection Error', 'Connection error occurred');
                     
                     // If robust SSE fails completely, start fallback polling
                     if (!this.fallbackPolling) {
                         console.log("SSE: 🔄 Starting fallback polling due to connection failure");
-                        this.uiManager.logMessage('warning', 'SSE: Switching to fallback polling mode');
+                        this.uiManager.showWarning('SSE: Switching to fallback polling mode');
                         this.fallbackPolling = startFallbackPolling(sseUrl, (progressData) => {
                             this.handleProgressUpdate(progressData);
                         });
@@ -1475,8 +1665,8 @@ class App {
             robustSSE.connect();
         };
 
-        /**
-         * Handles progress updates from SSE or fallback polling
+                /**
+         * Handles progress updates from SSE or fallback polling with enhanced progress manager
          * 
          * @param {Object} data - Progress data from server
          */
@@ -1485,7 +1675,7 @@ class App {
             if (data.current === undefined || data.total === undefined) {
                 console.error("Progress: ❌ Progress event missing required fields:", data);
                 this.uiManager.debugLog("Progress", "❌ Progress event missing required fields", data);
-                this.uiManager.logMessage('error', 'Progress: Missing required fields (current/total)');
+                this.uiManager.showError('Progress Error', 'Missing required fields (current/total)');
                 return;
             }
 
@@ -1502,7 +1692,17 @@ class App {
                 this.uiManager.debugLog("Progress", `📈 Progress update: ${data.current} of ${data.total} (${percentage}%)`);
             }
 
-            // Update UI with progress information
+            // Handle duplicate users with enhanced progress manager
+            if (data.duplicates && data.duplicates.length > 0) {
+                console.log("Progress: 🔄 Handling duplicate users:", data.duplicates.length);
+                this.uiManager.handleDuplicateUsers(data.duplicates, (mode, duplicates) => {
+                    console.log('🔄 [IMPORT] User chose duplicate handling mode:', mode);
+                    // Continue import with selected mode
+                    this.continueImportWithDuplicateMode(mode, duplicates);
+                });
+            }
+
+            // Update UI with enhanced progress information
             this.uiManager.updateImportProgress(
                 data.current || 0, 
                 data.total || 0, 
@@ -1514,13 +1714,13 @@ class App {
 
             // Display status message to user if provided
             if (data.message) {
-                this.uiManager.logMessage('info', data.message);
+                this.uiManager.showInfo(data.message);
             }
             
             // Log current user being processed if available
             if (data.user) {
                 const userName = data.user.username || data.user.email || 'unknown';
-                this.uiManager.logMessage('info', `Processing: ${userName}`);
+                this.uiManager.showInfo(`Processing: ${userName}`);
             }
             
             // Handle skipped users with detailed information
@@ -1543,7 +1743,7 @@ class App {
                     skipMessage += ` (${skipReason})`;
                 }
                 
-                this.uiManager.logMessage('warning', skipMessage);
+                this.uiManager.showWarning(skipMessage);
                 
                 // Update UI with skip information
                 if (data.counts && data.counts.skipped !== undefined) {
@@ -1552,10 +1752,15 @@ class App {
                 }
             }
 
-            // Handle completion
+            // Handle completion with enhanced progress manager
             if (data.status === 'complete' || data.current === data.total) {
                 console.log("Progress: ✅ Import completed");
-                this.uiManager.logMessage('success', 'Import completed successfully');
+                this.uiManager.completeOperation({
+                    success: data.counts?.success || 0,
+                    failed: data.counts?.failed || 0,
+                    skipped: data.counts?.skipped || 0,
+                    duplicates: data.counts?.duplicates || 0
+                });
                 
                 // Clean up connections
                 if (this.robustSSE) {
@@ -1573,7 +1778,7 @@ class App {
             // Handle errors
             if (data.status === 'error') {
                 console.error("Progress: ❌ Import error:", data.error);
-                this.uiManager.logMessage('error', `Import error: ${data.error || 'Unknown error'}`);
+                this.uiManager.showError('Import Error', data.error || 'Unknown error');
                 
                 // Clean up connections
                 if (this.robustSSE) {
@@ -1609,18 +1814,13 @@ class App {
                 fileName: importOptions.file?.name
             });
 
-            // Fixes binding issues and ensures the progress panel reflects live import state correctly
-            // Immediately updates population, population ID, and user count in the progress panel before SSE events arrive
-            
-            // Debug logging for progress window population display
-            console.log('🔍 [Progress Window Debug] Population info passed to UI:', {
-                totalUsers: importOptions.totalUsers,
+            // Start import operation with enhanced progress manager
+            this.uiManager.startImportOperation({
+                total: importOptions.totalUsers,
                 populationName: importOptions.selectedPopulationName,
-                populationId: importOptions.selectedPopulationId
+                populationId: importOptions.selectedPopulationId,
+                fileName: importOptions.file?.name
             });
-            
-            this.uiManager.showImportStatus(importOptions.totalUsers, importOptions.selectedPopulationName, importOptions.selectedPopulationId);
-            this.uiManager.updateImportProgress(0, importOptions.totalUsers, 'Preparing import...', {}, importOptions.selectedPopulationName, importOptions.selectedPopulationId);
 
             // Prepare FormData for file upload to server
             // Includes file, population selection, and metadata
@@ -1681,6 +1881,45 @@ class App {
     }
 
     /**
+     * Continue import with user's duplicate handling choice
+     * 
+     * @param {string} mode - Duplicate handling mode ('skip' or 'add')
+     * @param {Array} duplicates - Array of duplicate users
+     */
+    continueImportWithDuplicateMode(mode, duplicates) {
+        try {
+            console.log('🔄 [IMPORT] Continuing import with duplicate mode:', mode);
+            this.uiManager.debugLog("Import", `Continuing import with duplicate mode: ${mode}`);
+
+            // Send the user's choice to the server
+            fetch('/api/import/duplicates', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    mode: mode,
+                    duplicates: duplicates
+                })
+            }).then(response => {
+                if (response.ok) {
+                    console.log('✅ [IMPORT] Duplicate handling choice sent successfully');
+                    this.uiManager.showInfo(`Continuing import with ${mode} mode for duplicates`);
+                } else {
+                    console.error('❌ [IMPORT] Failed to send duplicate handling choice');
+                    this.uiManager.showError('Duplicate Handling Error', 'Failed to process duplicate handling choice');
+                }
+            }).catch(error => {
+                console.error('❌ [IMPORT] Error sending duplicate handling choice:', error);
+                this.uiManager.showError('Duplicate Handling Error', error.message || 'Unknown error');
+            });
+        } catch (error) {
+            console.error('❌ [IMPORT] Error in continueImportWithDuplicateMode:', error);
+            this.uiManager.showError('Duplicate Handling Error', error.message || 'Unknown error');
+        }
+    }
+
+    /**
      * Validates and retrieves import configuration options
      * 
      * Checks that a population is selected and a CSV file is loaded.
@@ -1690,20 +1929,12 @@ class App {
      * @returns {Object|null} Import options or null if validation fails
      */
     getImportOptions() {
-        // Get population selection from UI
-        const populationSelect = document.getElementById('import-population-select');
-        const selectedPopulationId = populationSelect?.value;
-        const selectedPopulationName = populationSelect?.selectedOptions[0]?.text || '';
+        const selectedPopulationId = document.getElementById('import-population-select')?.value;
+        const selectedPopulationName = document.getElementById('import-population-select')?.selectedOptions[0]?.text || '';
+        const skipDuplicatesByEmail = document.getElementById('skip-duplicates')?.checked || false;
+        const skipDuplicatesByUsername = document.getElementById('skip-duplicates-username')?.checked || false;
+        const sendWelcomeEmail = document.getElementById('send-welcome-email')?.checked || false;
         
-        // Debug logging to help troubleshoot population selection issues
-        console.log('=== getImportOptions Debug ===');
-        console.log('Population select element:', populationSelect);
-        console.log('Selected population ID:', selectedPopulationId);
-        console.log('Selected population name:', selectedPopulationName);
-        console.log('All options:', populationSelect ? Array.from(populationSelect.options).map(opt => ({ value: opt.value, text: opt.text })) : 'No select element');
-        console.log('===========================');
-        
-        // Validate population selection is required
         if (!selectedPopulationId) {
             this.uiManager.showError('No population selected', 'Please select a population before starting the import.');
             return null;
@@ -1721,7 +1952,10 @@ class App {
             selectedPopulationId,
             selectedPopulationName,
             totalUsers,
-            file: this.fileHandler.getCurrentFile()
+            file: this.fileHandler.getCurrentFile(),
+            skipDuplicatesByEmail,
+            skipDuplicatesByUsername,
+            sendWelcomeEmail
         };
     }
 
@@ -1815,7 +2049,7 @@ class App {
         this.isImporting = false;
         
         // Log cancellation
-        this.uiManager.logMessage('info', 'Import cancelled by user');
+                    this.uiManager.showInfo('Import cancelled by user');
         console.log("Import: 🚫 Import cancelled by user");
     }
 
@@ -2816,7 +3050,7 @@ class App {
                     if (users[idx]) users[idx].populationId = selectedPopulationId;
                 });
                 console.log("User resolved population conflict with:", selectedPopulationId);
-                this.uiManager.logMessage('info', `User resolved population conflict with: ${selectedPopulationId}`);
+                this.uiManager.showInfo(`User resolved population conflict with: ${selectedPopulationId}`);
                 closeModal();
                 // Resume import
                 this.startImport();
@@ -2835,27 +3069,29 @@ class App {
     }
 
     async loadPopulationsForModal(invalidData, sessionId) {
-        try {
-            const response = await fetch('/api/pingone/populations');
-            if (response.ok) {
-                const populations = await response.json();
-                const populationSelect = document.getElementById('valid-population-select');
-                
-                if (populationSelect) {
-                    populationSelect.innerHTML = '<option value="">Select a population...</option>';
-                    populations.forEach(population => {
-                        const option = document.createElement('option');
-                        option.value = population.id;
-                        option.textContent = population.name;
-                        populationSelect.appendChild(option);
-                    });
-                }
-            } else {
-                console.error('Failed to load populations for modal');
-            }
-        } catch (error) {
-            console.error('Error loading populations for modal:', error);
-        }
+        await this.loadPopulationsForDropdown('valid-population-select');
+        // The rest of the modal logic should assume the dropdown is now loaded or shows error/retry
+        // Remove the old fetch logic below:
+        // try {
+        //     const response = await fetch('/api/pingone/populations');
+        //     if (response.ok) {
+        //         const populations = await response.json();
+        //         const populationSelect = document.getElementById('valid-population-select');
+        //         if (populationSelect) {
+        //             populationSelect.innerHTML = '<option value="">Select a population...</option>';
+        //             populations.forEach(population => {
+        //                 const option = document.createElement('option');
+        //                 option.value = population.id;
+        //                 option.textContent = population.name;
+        //                 populationSelect.appendChild(option);
+        //             });
+        //         }
+        //     } else {
+        //         console.error('Failed to load populations for modal');
+        //     }
+        // } catch (error) {
+        //     console.error('Error loading populations for modal:', error);
+        // }
     }
 
     // Error tracking methods for import operations
@@ -3053,18 +3289,23 @@ class App {
     }
 
     attachPopulationChangeListener() {
+        console.log('🔄 Attaching population change listener...');
+        
         const populationSelectEl = document.getElementById('import-population-select');
         if (!populationSelectEl) {
-            console.error('Population select element not found for event listener');
+            console.error('❌ Population select element not found for event listener');
+            console.error('❌ Available select elements:', document.querySelectorAll('select[id*="population"]').length);
             return;
         }
         
+        console.log('✅ Population select element found for event listener');
+        
         // Remove existing listener to prevent duplicates
         populationSelectEl.removeEventListener('change', this.handlePopulationChange.bind(this));
+        console.log('🔄 Removed existing event listener');
         
         // Add the change listener
         populationSelectEl.addEventListener('change', this.handlePopulationChange.bind(this));
-        
         console.log('✅ Population change listener attached');
     }
     
@@ -3092,6 +3333,12 @@ class App {
         if (populationIdElement) {
             populationIdElement.textContent = selectedId || 'Not set';
         }
+    }
+
+    // If you have a modal or function that uses pick-population-select, add:
+    async loadPickPopulationModal() {
+        await this.loadPopulationsForDropdown('pick-population-select');
+        // The rest of the modal logic should assume the dropdown is now loaded or shows error/retry
     }
 }
 
@@ -3773,3 +4020,45 @@ window.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
 });
+
+// In the settings form logic:
+// When loading settings, set the region dropdown value to the region code
+function populateSettingsForm(settings) {
+    // ... existing code ...
+    const regionSelect = document.getElementById('region');
+    if (regionSelect && settings.region) {
+        regionSelect.value = settings.region;
+    }
+    // ... existing code ...
+}
+
+// When saving settings, get the region code from the dropdown
+function getSettingsFromForm() {
+    // ... existing code ...
+    const regionSelect = document.getElementById('region');
+    const region = regionSelect ? regionSelect.value : 'NA';
+    // ... existing code ...
+    return {
+        // ... other settings ...
+        region,
+        // ... other settings ...
+    };
+}
+
+// Helper to get selected region info from dropdown
+function getSelectedRegionInfo() {
+    const regionSelect = document.getElementById('region');
+    if (!regionSelect) return { code: 'NA', tld: 'com', label: 'North America (excluding Canada)' };
+    const selectedOption = regionSelect.options[regionSelect.selectedIndex];
+    return {
+        code: selectedOption.value,
+        tld: selectedOption.getAttribute('data-tld'),
+        label: selectedOption.textContent
+    };
+}
+
+// Ensure region dropdown is accessible
+const regionSelect = document.getElementById('region');
+if (regionSelect) {
+    regionSelect.setAttribute('aria-label', 'Select PingOne region');
+}

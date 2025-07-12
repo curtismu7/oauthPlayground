@@ -149,6 +149,62 @@ class PingOneClient {
     }
     
     /**
+     * Get cached token (alias for getCurrentTokenTimeRemaining for compatibility)
+     * Production-ready with comprehensive error handling and validation
+     */
+    getCachedToken() {
+        try {
+            // Validate token existence and format
+            if (!this.accessToken || typeof this.accessToken !== 'string') {
+                this.logger.debug('No valid cached token available');
+                return null;
+            }
+            
+            // Validate expiry timestamp
+            if (!this.tokenExpiry || typeof this.tokenExpiry !== 'number') {
+                this.logger.warn('Invalid token expiry timestamp');
+                this.clearToken(); // Clean up invalid state
+                return null;
+            }
+            
+            const now = Date.now();
+            const isExpired = this.tokenExpiry <= now;
+            
+            // Add buffer time (5 minutes) to prevent edge cases
+            const bufferTime = 5 * 60 * 1000; // 5 minutes in milliseconds
+            const isNearExpiry = (this.tokenExpiry - now) <= bufferTime;
+            
+            if (isExpired) {
+                this.logger.debug('Cached token is expired');
+                this.clearToken(); // Clean up expired token
+                return null;
+            }
+            
+            if (isNearExpiry) {
+                this.logger.warn('Token is near expiry, consider refreshing');
+            }
+            
+            // Validate token format (basic JWT structure check)
+            if (!this.accessToken.includes('.') || this.accessToken.split('.').length !== 3) {
+                this.logger.error('Invalid token format detected');
+                this.clearToken(); // Clean up invalid token
+                return null;
+            }
+            
+            this.logger.debug('Returning valid cached token');
+            return this.accessToken;
+        } catch (error) {
+            this.logger.error('Error getting cached token', { 
+                error: error.message,
+                stack: error.stack,
+                tokenLength: this.accessToken ? this.accessToken.length : 0
+            });
+            // Don't expose token in logs for security
+            return null;
+        }
+    }
+    
+    /**
      * Get current token time remaining
      */
     getCurrentTokenTimeRemaining() {
@@ -351,10 +407,12 @@ class PingOneClient {
                 populationId = null,
                 batchSize = 10,
                 retryAttempts = 3,
-                enableUsers = true
+                enableUsers = true,
+                skipDuplicatesByEmail = false,
+                skipDuplicatesByUsername = false
             } = options;
             
-            this.logger.debug('Initial setup completed', { batchSize, retryAttempts, enableUsers });
+            this.logger.debug('Initial setup completed', { batchSize, retryAttempts, enableUsers, skipDuplicatesByEmail, skipDuplicatesByUsername });
             
             // Validate input
             if (!csvData || !Array.isArray(csvData) || csvData.length === 0) {
@@ -379,63 +437,9 @@ class PingOneClient {
                 }
             }
             
-            // Check if CSV has population data
-            const hasPopulationData = csvData.some(user => user.populationId);
-            
-            if (hasPopulationData) {
-                this.logger.debug('CSV has population data, will use individual population IDs from CSV');
-            } else if (fallbackPopulationId) {
-                this.logger.debug('CSV population ID enabled but no population data found in CSV');
-            } else {
-                this.logger.debug('No population selected, showing modal...');
-                
-                // Show population selection modal
-                const modal = document.getElementById('population-selection-modal');
-                if (modal) {
-                    modal.style.display = 'block';
-                    
-                    // Wait for user selection
-                    return new Promise((resolve, reject) => {
-                        const confirmButton = document.getElementById('confirm-population-btn');
-                        const cancelButton = document.getElementById('cancel-population-btn');
-                        
-                        const handleConfirm = () => {
-                            const selectedPopulation = document.getElementById('population-select').value;
-                            if (selectedPopulation) {
-                                modal.style.display = 'none';
-                                this.logger.debug('User chose to continue without population selection, using default population');
-                                resolve(this.importUsers(csvData, { ...options, populationId: selectedPopulation }));
-                            }
-                        };
-                        
-                        const handleCancel = () => {
-                            modal.style.display = 'none';
-                            this.logger.debug('User cancelled population selection');
-                            reject(new Error('Population selection cancelled'));
-                        };
-                        
-                        confirmButton.onclick = handleConfirm;
-                        cancelButton.onclick = handleCancel;
-                    });
-                } else {
-                    // Try to get first available population as fallback
-                    try {
-                        const populations = await this.makeRequest('GET', '/environments/current/populations');
-                        if (populations._embedded && populations._embedded.populations.length > 0) {
-                            fallbackPopulationId = populations._embedded.populations[0].id;
-                            this.logger.debug('Using first available population as fallback', { fallbackPopulationId });
-                        } else {
-                            this.logger.debug('No populations available, skipping all users');
-                            return { success: false, message: 'No populations available' };
-                        }
-                    } catch (error) {
-                        this.logger.error('Error getting populations', { error: error.message });
-                        throw error;
-                    }
-                }
-            }
-            
-            this.logger.debug('Population selection completed', { fallbackPopulationId });
+            // Prepare sets for duplicate detection
+            const seenEmails = new Set();
+            const seenUsernames = new Set();
             
             // Process users in batches
             const totalUsers = csvData.length;
@@ -463,10 +467,27 @@ class PingOneClient {
                         
                         if (!userPopulationId) {
                             const error = `Missing population – user not processed. Username: ${user.email || user.username}`;
-                            this.logger.error(`Line ${csvData.indexOf(user) + 2}: ${error}`);
                             results.errors.push(error);
                             results.skipped++;
                             continue;
+                        }
+                        
+                        // Duplicate detection
+                        if (skipDuplicatesByEmail && user.email) {
+                            if (seenEmails.has(user.email.toLowerCase())) {
+                                this.logger.info(`Skipping duplicate user by email: ${user.email}`);
+                                results.skipped++;
+                                continue;
+                            }
+                            seenEmails.add(user.email.toLowerCase());
+                        }
+                        if (skipDuplicatesByUsername && user.username) {
+                            if (seenUsernames.has(user.username.toLowerCase())) {
+                                this.logger.info(`Skipping duplicate user by username: ${user.username}`);
+                                results.skipped++;
+                                continue;
+                            }
+                            seenUsernames.add(user.username.toLowerCase());
                         }
                         
                         // Create user
@@ -485,14 +506,12 @@ class PingOneClient {
                         
                         // Add optional fields
                         if (user.phoneNumber) userData.phoneNumber = user.phoneNumber;
-                        if (user.title) userData.title = user.title;
                         if (user.company) userData.company = user.company;
                         
                         const result = await this.createUser(userData, retryAttempts);
                         
                         if (result.success) {
                             results.created++;
-                            
                             // Disable user if requested
                             if (!enableUsers && result.userId) {
                                 this.logger.debug(`Disabling user ${result.userId} after creation`);
@@ -513,7 +532,6 @@ class PingOneClient {
                         results.processed++;
                         
                     } catch (error) {
-                        this.logger.error(`Unexpected error for user ${user.email || user.username}`, { error: error.message });
                         results.failed++;
                         results.errors.push(error.message);
                     }
