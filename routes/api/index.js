@@ -57,6 +57,10 @@ function debugLog(area, message, data = null) {
     }
 }
 
+// ============================================================================
+// MULTER CONFIGURATION
+// ============================================================================
+
 /**
  * Configure multer for secure file uploads
  * Uses memory storage for processing CSV files with 10MB size limit
@@ -70,13 +74,267 @@ const upload = multer({
 });
 
 // ============================================================================
+// IMPORT PROCESS FUNCTION
+// ============================================================================
+
+/**
+ * Runs the import process in the background
+ * 
+ * This function handles the complete import workflow:
+ * 1. Parses the uploaded CSV file
+ * 2. Validates user data and population information
+ * 3. Creates users in PingOne via API calls
+ * 4. Sends real-time progress updates via SSE
+ * 5. Handles errors and provides detailed logging
+ * 
+ * @param {string} sessionId - Unique session identifier for SSE communication
+ * @param {Object} app - Express app instance for accessing services
+ */
+async function runImportProcess(sessionId, app) {
+    try {
+        debugLog("Import", "🔄 Starting import process", { sessionId });
+        
+        // Get import session data
+        const importSessions = app.get('importSessions');
+        const session = importSessions.get(sessionId);
+        if (!session) {
+            throw new Error('Import session not found');
+        }
+        
+        const { file, populationId, populationName, totalUsers } = session;
+        
+        // Parse CSV file
+        debugLog("Import", "📄 Parsing CSV file", { fileName: file.originalname });
+        const csvContent = file.buffer.toString('utf8');
+        const lines = csvContent.split('\n').filter(line => line.trim());
+        
+        if (lines.length < 2) {
+            throw new Error('CSV file must contain at least a header row and one data row');
+        }
+        
+        // Parse header and data
+        const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+        const users = lines.slice(1).map((line, index) => {
+            const values = line.split(',').map(v => v.trim());
+            const user = {};
+            headers.forEach((header, i) => {
+                user[header] = values[i] || '';
+            });
+            user._lineNumber = index + 2; // +2 for 1-based indexing and header row
+            return user;
+        });
+        
+        debugLog("Import", "✅ CSV parsed successfully", { 
+            totalUsers: users.length,
+            headers: headers
+        });
+        
+        // Initialize progress tracking
+        let processed = 0;
+        let created = 0;
+        let skipped = 0;
+        let failed = 0;
+        let errors = [];
+        
+        // Get token manager for PingOne API calls
+        const tokenManager = app.get('tokenManager');
+        if (!tokenManager) {
+            throw new Error('Token manager not available');
+        }
+        
+        // Get access token
+        const token = await tokenManager.getAccessToken();
+        if (!token) {
+            throw new Error('Failed to get access token');
+        }
+        
+        // Get environment ID from settings
+        const settingsResponse = await fetch('http://localhost:4000/api/settings');
+        if (!settingsResponse.ok) {
+            throw new Error('Failed to load settings');
+        }
+        const settingsData = await settingsResponse.json();
+        const settings = settingsData.success && settingsData.data ? settingsData.data : settingsData;
+        const environmentId = settings.environmentId;
+        
+        if (!environmentId) {
+            throw new Error('Environment ID not configured');
+        }
+        
+        debugLog("Import", "🔑 Authentication ready", { environmentId });
+        
+        // Process users in batches to avoid rate limiting
+        const batchSize = 5;
+        const delayBetweenBatches = 1000; // 1 second delay between batches
+        
+        for (let i = 0; i < users.length; i += batchSize) {
+            const batch = users.slice(i, i + batchSize);
+            
+            debugLog("Import", `📦 Processing batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(users.length/batchSize)}`, {
+                batchSize: batch.length,
+                startIndex: i
+            });
+            
+            // Process each user in the batch
+            for (const user of batch) {
+                try {
+                    processed++;
+                    
+                    // Validate required fields
+                    const username = user.username || user.email;
+                    if (!username) {
+                        const error = `Line ${user._lineNumber}: Missing username or email`;
+                        errors.push(error);
+                        failed++;
+                        debugLog("Import", `❌ ${error}`);
+                        continue;
+                    }
+                    
+                    // Check if user already exists
+                    const checkUrl = `https://api.pingone.com/v1/environments/${environmentId}/users?username=${encodeURIComponent(username)}`;
+                    const checkResponse = await fetch(checkUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (checkResponse.ok) {
+                        const checkData = await checkResponse.json();
+                        if (checkData._embedded && checkData._embedded.users && checkData._embedded.users.length > 0) {
+                            // User already exists
+                            skipped++;
+                            debugLog("Import", `⏭️ User already exists: ${username}`, { lineNumber: user._lineNumber });
+                            sendProgressEvent(sessionId, processed, users.length, `Skipped: ${username} already exists`, 
+                                { processed, created, skipped, failed }, username, populationName, populationId);
+                            continue;
+                        }
+                    }
+                    
+                    // Create user in PingOne
+                    const createUrl = `https://api.pingone.com/v1/environments/${environmentId}/users`;
+                    const userData = {
+                        username: username,
+                        email: user.email || username,
+                        givenName: user.givenname || user.firstname || user['first name'] || '',
+                        familyName: user.familyname || user.lastname || user['last name'] || '',
+                        population: {
+                            id: populationId
+                        }
+                    };
+                    
+                    // Add optional fields if present
+                    if (user.phone) userData.phoneNumber = user.phone;
+                    if (user.title) userData.title = user.title;
+                    
+                    const createResponse = await fetch(createUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(userData)
+                    });
+                    
+                    if (createResponse.ok) {
+                        created++;
+                        debugLog("Import", `✅ User created successfully: ${username}`, { 
+                            lineNumber: user._lineNumber,
+                            populationName,
+                            populationId
+                        });
+                        sendProgressEvent(sessionId, processed, users.length, `Created: ${username} in ${populationName}`, 
+                            { processed, created, skipped, failed }, username, populationName, populationId);
+                    } else {
+                        const errorText = await createResponse.text();
+                        const error = `Line ${user._lineNumber}: Failed to create user ${username} - ${createResponse.status}: ${errorText}`;
+                        errors.push(error);
+                        failed++;
+                        debugLog("Import", `❌ ${error}`);
+                        sendProgressEvent(sessionId, processed, users.length, `Failed: ${username}`, 
+                            { processed, created, skipped, failed }, username, populationName, populationId);
+                    }
+                    
+                } catch (error) {
+                    const errorMsg = `Line ${user._lineNumber}: Error processing user ${user.username || user.email || 'unknown'} - ${error.message}`;
+                    errors.push(errorMsg);
+                    failed++;
+                    debugLog("Import", `❌ ${errorMsg}`);
+                    sendProgressEvent(sessionId, processed, users.length, `Error: ${user.username || user.email || 'unknown'}`, 
+                        { processed, created, skipped, failed }, user.username || user.email || 'unknown', populationName, populationId);
+                }
+            }
+            
+            // Add delay between batches to avoid rate limiting
+            if (i + batchSize < users.length) {
+                debugLog("Import", `⏱️ Adding delay between batches: ${delayBetweenBatches}ms`);
+                await new Promise(resolve => setTimeout(resolve, delayBetweenBatches));
+            }
+        }
+        
+        // Send completion event
+        debugLog("Import", "🏁 Import process completed", {
+            total: users.length,
+            processed,
+            created,
+            skipped,
+            failed,
+            errors: errors.length
+        });
+        
+        const finalMessage = `Import completed: ${created} created, ${failed} failed, ${skipped} skipped`;
+        sendCompletionEvent(sessionId, processed, users.length, finalMessage, { processed, created, skipped, failed });
+        
+        // Clean up session
+        importSessions.delete(sessionId);
+        
+    } catch (error) {
+        debugLog("Import", "❌ Error in background import process", {
+            error: error.message,
+            stack: error.stack
+        });
+        
+        sendErrorEvent(sessionId, 'Import failed', error.message);
+        
+        // Clean up session on error
+        const importSessions = app.get('importSessions');
+        if (importSessions) {
+            importSessions.delete(sessionId);
+        }
+    }
+}
+
+// ============================================================================
 // FEATURE FLAGS MANAGEMENT ENDPOINTS
 // ============================================================================
 
 /**
- * GET /api/feature-flags
- * Retrieves all current feature flags and their states
- * Used by frontend to display and manage feature toggle UI
+ * @swagger
+ * /api/feature-flags:
+ *   get:
+ *     summary: Get all feature flags
+ *     description: Retrieves all current feature flags and their states
+ *     tags: [Feature Flags]
+ *     responses:
+ *       200:
+ *         description: Feature flags retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 flags:
+ *                   $ref: '#/components/schemas/FeatureFlags'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.get('/feature-flags', (req, res) => {
     try {
@@ -88,11 +346,62 @@ router.get('/feature-flags', (req, res) => {
 });
 
 /**
- * POST /api/feature-flags/:flag
- * Updates a specific feature flag's enabled state
- * 
- * @param {string} flag - Feature flag name to update
- * @param {boolean} enabled - New enabled state for the flag
+ * @swagger
+ * /api/feature-flags/{flag}:
+ *   post:
+ *     summary: Update feature flag
+ *     description: Updates a specific feature flag's enabled state
+ *     tags: [Feature Flags]
+ *     parameters:
+ *       - in: path
+ *         name: flag
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Feature flag name to update
+ *         example: A
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               enabled:
+ *                 type: boolean
+ *                 description: New enabled state for the flag
+ *                 example: true
+ *             required:
+ *               - enabled
+ *     responses:
+ *       200:
+ *         description: Feature flag updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 flag:
+ *                   type: string
+ *                   example: A
+ *                 enabled:
+ *                   type: boolean
+ *                   example: true
+ *       400:
+ *         description: Invalid request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/feature-flags/:flag', (req, res) => {
     try {
@@ -112,9 +421,32 @@ router.post('/feature-flags/:flag', (req, res) => {
 });
 
 /**
- * POST /api/feature-flags/reset
- * Resets all feature flags to their default values
- * Useful for testing or when configuration gets corrupted
+ * @swagger
+ * /api/feature-flags/reset:
+ *   post:
+ *     summary: Reset feature flags
+ *     description: Resets all feature flags to their default values
+ *     tags: [Feature Flags]
+ *     responses:
+ *       200:
+ *         description: Feature flags reset successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Feature flags reset to defaults
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/feature-flags/reset', (req, res) => {
     try {
@@ -251,22 +583,268 @@ function sendErrorEvent(sessionId, title, message, details = {}) {
 }
 
 // ============================================================================
+// MAIN IMPORT ENDPOINT
+// ============================================================================
+
+/**
+ * @swagger
+ * /api/import:
+ *   post:
+ *     summary: Import users from CSV
+ *     description: Handles user import from CSV file with real-time progress tracking
+ *     tags: [Import]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: CSV file containing user data
+ *               populationId:
+ *                 type: string
+ *                 description: PingOne population ID
+ *                 example: 3840c98d-202d-4f6a-8871-f3bc66cb3fa8
+ *               populationName:
+ *                 type: string
+ *                 description: PingOne population name
+ *                 example: Sample Users
+ *               totalUsers:
+ *                 type: number
+ *                 description: Expected number of users in CSV
+ *                 example: 100
+ *             required:
+ *               - file
+ *               - populationId
+ *               - populationName
+ *     responses:
+ *       200:
+ *         description: Import started successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ImportResponse'
+ *       400:
+ *         description: Invalid request (missing file or population info)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       413:
+ *         description: File too large (max 10MB)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.post('/import', upload.single('file'), async (req, res, next) => {
+    try {
+        debugLog("Import", "🚀 Import request received");
+        
+        // Validate file upload
+        if (!req.file) {
+            debugLog("Import", "❌ No file uploaded");
+            return res.status(400).json({
+                success: false,
+                error: 'No file uploaded',
+                message: 'Please select a CSV file to import'
+            });
+        }
+        
+        // Validate population selection
+        const { populationId, populationName, totalUsers } = req.body;
+        if (!populationId || !populationName) {
+            debugLog("Import", "❌ Missing population information", { populationId, populationName });
+            return res.status(400).json({
+                success: false,
+                error: 'Missing population information',
+                message: 'Please select a population for the import'
+            });
+        }
+        
+        debugLog("Import", "✅ Import options validated", {
+            totalUsers: parseInt(totalUsers) || 0,
+            populationId,
+            populationName,
+            fileName: req.file.originalname
+        });
+        
+        // Generate session ID for SSE connection
+        const sessionId = uuidv4();
+        
+        // Store import session data
+        const importSession = {
+            sessionId,
+            file: req.file,
+            populationId,
+            populationName,
+            totalUsers: parseInt(totalUsers) || 0,
+            startTime: new Date(),
+            status: 'starting'
+        };
+        
+        // Store session in app context for SSE access
+        if (!req.app.get('importSessions')) {
+            req.app.set('importSessions', new Map());
+        }
+        req.app.get('importSessions').set(sessionId, importSession);
+        
+        debugLog("Import", "📋 Import session created", { sessionId });
+        
+        // Start import process in background
+        runImportProcess(sessionId, req.app)
+            .catch(error => {
+                debugLog("Import", "❌ Background import process failed", { error: error.message });
+                sendErrorEvent(sessionId, 'Import failed', error.message);
+            });
+        
+        // Return session ID for SSE connection
+        res.json({
+            success: true,
+            sessionId,
+            message: 'Import started successfully',
+            populationName,
+            populationId,
+            totalUsers: parseInt(totalUsers) || 0
+        });
+        
+    } catch (error) {
+        debugLog("Import", "❌ Import endpoint error", { error: error.message });
+        res.status(500).json({
+            success: false,
+            error: 'Import failed',
+            message: error.message,
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+
+// ============================================================================
+// SSE Endpoint for Import Progress
+// ============================================================================
+/**
+ * @swagger
+ * /api/import/progress/{sessionId}:
+ *   get:
+ *     summary: Get import progress via SSE
+ *     description: Establishes a Server-Sent Events (SSE) connection for real-time import progress
+ *     tags: [Import]
+ *     parameters:
+ *       - in: path
+ *         name: sessionId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Import session ID
+ *         example: session-12345
+ *     responses:
+ *       200:
+ *         description: SSE connection established
+ *         content:
+ *           text/event-stream:
+ *             schema:
+ *               type: string
+ *               description: Server-Sent Events stream
+ *       400:
+ *         description: Invalid session ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Session not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.get('/import/progress/:sessionId', (req, res) => {
+    const { sessionId } = req.params;
+    if (!sessionId || typeof sessionId !== 'string' || sessionId.length < 8) {
+        res.status(400).json({ error: 'Get session id not valid for SSE', code: 'INVALID_SESSION_ID' });
+        app.sseMetrics = app.sseMetrics || { active: 0, dropped: 0, errors: 0 };
+        app.sseMetrics.errors++;
+        console.error(`[SSE] Invalid session id: ${sessionId}`);
+        return;
+    }
+    // Set headers for SSE
+    res.set({
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'X-Accel-Buffering': 'no',
+    });
+    res.flushHeaders();
+    // Keep-alive interval
+    const keepAlive = setInterval(() => {
+        res.write(': keep-alive\n\n');
+    }, 25000);
+    // Track metrics
+    app.sseMetrics = app.sseMetrics || { active: 0, dropped: 0, errors: 0 };
+    app.sseMetrics.active++;
+    // Store connection
+    app.importSessions = app.importSessions || {};
+    app.importSessions[sessionId] = res;
+    console.log(`[SSE] Connection established for session: ${sessionId}`);
+    // Handle disconnect
+    req.on('close', () => {
+        clearInterval(keepAlive);
+        app.sseMetrics.active = Math.max(0, app.sseMetrics.active - 1);
+        app.sseMetrics.dropped++;
+        delete app.importSessions[sessionId];
+        console.warn(`[SSE] Connection closed for session: ${sessionId}`);
+    });
+});
+
+// ============================================================================
 // USER EXPORT ENDPOINT
 // ============================================================================
 
 /**
- * POST /api/export-users
- * Exports users from PingOne in JSON or CSV format with optional filtering
- * 
- * This endpoint fetches users from PingOne API, applies population filtering,
- * processes field selection (basic/custom/all), and returns data in the requested format.
- * 
- * @param {string} populationId - Population ID to filter users (empty string for all populations)
- * @param {string} fields - Field selection: 'basic', 'custom', or 'all'
- * @param {string} format - Output format: 'json' or 'csv'
- * @param {boolean|string} ignoreDisabledUsers - Whether to exclude disabled users
- * 
- * @returns {Object} JSON response with processed user data or CSV file download
+ * @swagger
+ * /api/export-users:
+ *   post:
+ *     summary: Export users from PingOne
+ *     description: Exports users from PingOne in JSON or CSV format with optional filtering
+ *     tags: [Export]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ExportRequest'
+ *     responses:
+ *       200:
+ *         description: Users exported successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ExportResponse'
+ *           text/csv:
+ *             schema:
+ *               type: string
+ *               description: CSV file content
+ *       400:
+ *         description: Invalid request parameters
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/export-users', async (req, res, next) => {
     try {
@@ -1001,7 +1579,7 @@ router.post('/modify', upload.single('file'), async (req, res, next) => {
             debugLog("SSE", "❌ Failed to send error event");
         }
     }
-}
+}); // <-- Add this closing brace to properly end the async function
 
 // Resolve invalid population endpoint
 router.post('/import/resolve-invalid-population', async (req, res, next) => {
