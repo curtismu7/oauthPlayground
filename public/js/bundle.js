@@ -2224,6 +2224,7 @@ class App {
   getExportOptions() {
     const selectedPopulationId = document.getElementById('export-population-select')?.value;
     const selectedPopulationName = document.getElementById('export-population-select')?.selectedOptions[0]?.text || '';
+    const populationFilter = document.getElementById('export-population-filter')?.value || 'all';
     if (!selectedPopulationId) {
       this.uiManager.showError('No population selected', 'Please select a population before starting the export.');
       return null;
@@ -2231,6 +2232,7 @@ class App {
     return {
       selectedPopulationId,
       selectedPopulationName,
+      populationFilter,
       fields: document.getElementById('export-fields-select')?.value || 'all',
       format: document.getElementById('export-format-select')?.value || 'csv',
       ignoreDisabledUsers: document.getElementById('export-ignore-disabled')?.checked || false
@@ -2665,8 +2667,8 @@ class App {
     }
   }
   refreshProgressPage() {
-    // Refresh progress data if needed
-    this.uiManager.refreshProgressData();
+    // No-op: No refreshProgressData method exists; navigation should not throw errors.
+    // If needed, call a real method here (e.g., this.uiManager.startExportOperation()), but only if required.
   }
 
   // Test function to verify population selection
@@ -4139,6 +4141,95 @@ const regionSelect = document.getElementById('region');
 if (regionSelect) {
   regionSelect.setAttribute('aria-label', 'Select PingOne region');
 }
+
+// ... existing code ...
+// After fileHandler and UIManager are initialized and import view is set up:
+function setupImportDropZone() {
+  const dropZone = document.getElementById('import-drop-zone');
+  const fileInput = document.getElementById('csv-file');
+  if (dropZone && fileInput && window.fileHandler) {
+    window.fileHandler.initializeDropZone(dropZone);
+    // Make clicking the drop zone open the file picker
+    dropZone.addEventListener('click', () => fileInput.click());
+    // Keyboard accessibility: Enter/Space triggers file input
+    dropZone.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        fileInput.click();
+      }
+    });
+  }
+}
+
+// Call this after import view is shown (or on DOMContentLoaded if always visible)
+document.addEventListener('DOMContentLoaded', () => {
+  setupImportDropZone();
+});
+// ... existing code ...
+
+// ... existing code ...
+// After fileHandler and UIManager are initialized and modify view is set up:
+function setupModifyDropZone() {
+  const dropZone = document.getElementById('modify-drop-zone');
+  const fileInput = document.getElementById('modify-csv-file');
+  if (dropZone && fileInput && window.fileHandler) {
+    window.fileHandler.initializeDropZone(dropZone);
+    // Make clicking the drop zone open the file picker
+    dropZone.addEventListener('click', () => fileInput.click());
+    // Keyboard accessibility: Enter/Space triggers file input
+    dropZone.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        fileInput.click();
+      }
+    });
+  } else {
+    if (!dropZone) console.warn('[Modify] Drop zone element missing');
+    if (!fileInput) console.warn('[Modify] File input element missing');
+    if (!window.fileHandler) console.warn('[Modify] FileHandler not initialized');
+  }
+}
+
+// Call this after modify view is shown
+function onModifyViewShown() {
+  setupModifyDropZone();
+  // Check for required token and population elements
+  const tokenStatus = document.getElementById('current-token-status');
+  const homeTokenStatus = document.getElementById('home-token-status');
+  const getTokenBtn = document.getElementById('get-token-btn');
+  if (!tokenStatus) console.warn('[Modify] #current-token-status element missing');
+  if (!homeTokenStatus) console.warn('[Modify] #home-token-status element missing');
+  if (!getTokenBtn) console.warn('[Modify] Get Token button missing');
+  // Only run population/token logic if elements exist
+  if (tokenStatus && homeTokenStatus && getTokenBtn) {
+    // Place any population or token logic here
+    // e.g., this.loadPopulationsForDropdown('modify-population-select');
+  }
+}
+
+// Patch showView to call onModifyViewShown for modify view
+const originalShowView = window.app && window.app.showView;
+if (originalShowView) {
+  window.app.showView = function (view) {
+    originalShowView.call(this, view);
+    if (view === 'modify') {
+      onModifyViewShown();
+    }
+  };
+} else {
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.app && typeof window.app.showView === 'function') {
+      const orig = window.app.showView;
+      window.app.showView = function (view) {
+        orig.call(this, view);
+        if (view === 'modify') {
+          onModifyViewShown();
+        }
+      };
+    }
+  });
+}
+// ... existing code ...
 
 },{"./modules/api-factory.js":4,"./modules/file-handler.js":8,"./modules/file-logger.js":9,"./modules/local-api-client.js":10,"./modules/logger.js":11,"./modules/pingone-client.js":12,"./modules/progress-manager.js":13,"./modules/settings-manager.js":14,"./modules/token-manager.js":15,"./modules/ui-manager.js":16,"./modules/version-manager.js":17,"@babel/runtime/helpers/interopRequireDefault":1}],4:[function(require,module,exports){
 "use strict";
@@ -6163,6 +6254,57 @@ class FileHandler {
    */
   getParseResults() {
     return this.parseResults || null;
+  }
+
+  /**
+   * Initialize drag-and-drop support for a drop zone element
+   * @param {HTMLElement} dropZone - The drop zone element
+   */
+  initializeDropZone(dropZone) {
+    if (!dropZone) return;
+    // Remove any previous listeners
+    dropZone.removeEventListener('dragenter', this._onDragEnter);
+    dropZone.removeEventListener('dragover', this._onDragOver);
+    dropZone.removeEventListener('dragleave', this._onDragLeave);
+    dropZone.removeEventListener('drop', this._onDrop);
+
+    // Bind event handlers to this instance
+    this._onDragEnter = e => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.classList.add('drag-over');
+    };
+    this._onDragOver = e => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.classList.add('drag-over');
+    };
+    this._onDragLeave = e => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.classList.remove('drag-over');
+    };
+    this._onDrop = async e => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.classList.remove('drag-over');
+      const files = e.dataTransfer.files;
+      if (files && files.length > 0) {
+        try {
+          await this.setFile(files[0]);
+        } catch (error) {
+          this.logger.error('Drag-and-drop file error', {
+            error: error.message
+          });
+          this.uiManager.showNotification('Failed to process dropped file: ' + error.message, 'error');
+        }
+      }
+    };
+    // Attach listeners
+    dropZone.addEventListener('dragenter', this._onDragEnter);
+    dropZone.addEventListener('dragover', this._onDragOver);
+    dropZone.addEventListener('dragleave', this._onDragLeave);
+    dropZone.addEventListener('drop', this._onDrop);
   }
 }
 exports.FileHandler = FileHandler;

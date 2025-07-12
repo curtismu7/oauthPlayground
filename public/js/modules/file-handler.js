@@ -1278,6 +1278,55 @@ class FileHandler {
     getParseResults() {
         return this.parseResults || null;
     }
+
+    /**
+     * Initialize drag-and-drop support for a drop zone element
+     * @param {HTMLElement} dropZone - The drop zone element
+     */
+    initializeDropZone(dropZone) {
+        if (!dropZone) return;
+        // Remove any previous listeners
+        dropZone.removeEventListener('dragenter', this._onDragEnter);
+        dropZone.removeEventListener('dragover', this._onDragOver);
+        dropZone.removeEventListener('dragleave', this._onDragLeave);
+        dropZone.removeEventListener('drop', this._onDrop);
+
+        // Bind event handlers to this instance
+        this._onDragEnter = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.add('drag-over');
+        };
+        this._onDragOver = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.add('drag-over');
+        };
+        this._onDragLeave = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('drag-over');
+        };
+        this._onDrop = async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            if (files && files.length > 0) {
+                try {
+                    await this.setFile(files[0]);
+                } catch (error) {
+                    this.logger.error('Drag-and-drop file error', { error: error.message });
+                    this.uiManager.showNotification('Failed to process dropped file: ' + error.message, 'error');
+                }
+            }
+        };
+        // Attach listeners
+        dropZone.addEventListener('dragenter', this._onDragEnter);
+        dropZone.addEventListener('dragover', this._onDragOver);
+        dropZone.addEventListener('dragleave', this._onDragLeave);
+        dropZone.addEventListener('drop', this._onDrop);
+    }
 }
 
 export { FileHandler };
