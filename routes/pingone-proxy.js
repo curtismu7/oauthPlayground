@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import winston from 'winston';
 import rateLimit from 'express-rate-limit';
 import crypto from 'crypto';
+import workerTokenManager from '../auth/workerTokenManager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -297,12 +298,12 @@ const proxyRequest = async (req, res) => {
         // Use the server's token manager for authentication
         try {
             logger.info('Getting access token from server token manager...');
-            const tokenManager = req.app.get('tokenManager');
-            if (!tokenManager) {
-                throw new Error('Token manager not available');
-            }
-            
-            const token = await tokenManager.getAccessToken();
+            const token = await workerTokenManager.getAccessToken({
+                apiClientId: req.settings.apiClientId,
+                apiSecret: req.settings.apiSecret,
+                environmentId: req.settings.environmentId,
+                region: req.settings.region
+            });
             logger.info('Successfully obtained access token from token manager');
             
             // Use the access token for the API request

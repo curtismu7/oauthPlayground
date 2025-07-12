@@ -1,49 +1,44 @@
-import { existsSync, readFileSync } from 'fs';
-import { dirname, resolve } from 'path';
-import { fileURLToPath } from 'url';
+/**
+ * @fileoverview Environment loader for tests
+ * 
+ * Loads environment variables from .env file for testing
+ * 
+ * @author PingOne Import Tool
+ * @version 4.9
+ */
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
+/**
+ * Load environment variables from .env file
+ */
 export function loadEnv() {
-  const envPath = resolve(__dirname, '../../.env');
-  
-  if (existsSync(envPath)) {
-    const envFile = readFileSync(envPath, 'utf-8');
-    const envVars = envFile.split('\n').reduce((acc, line) => {
-      // Skip comments and empty lines
-      if (line.startsWith('#') || !line.trim()) {
-        return acc;
-      }
-      
-      const [key, ...value] = line.split('=');
-      if (key && value) {
-        // Remove surrounding quotes if present
-        const cleanValue = value.join('=').trim().replace(/^['"]|['"]$/g, '');
-        acc[key] = cleanValue;
-      }
-      return acc;
-    }, {});
+  try {
+    const envPath = join(process.cwd(), '.env');
+    const envContent = readFileSync(envPath, 'utf8');
     
-    // Set environment variables if they don't already exist
+    const envVars = {};
+    envContent.split('\n').forEach(line => {
+      const trimmed = line.trim();
+      if (trimmed && !trimmed.startsWith('#')) {
+        const [key, ...valueParts] = trimmed.split('=');
+        if (key && valueParts.length > 0) {
+          envVars[key] = valueParts.join('=');
+        }
+      }
+    });
+    
+    // Set environment variables
     Object.entries(envVars).forEach(([key, value]) => {
-      if (key && !process.env[key]) {
+      if (!process.env[key]) {
         process.env[key] = value;
       }
     });
-  }
-  
-  // Verify required environment variables
-  const requiredVars = [
-    'PINGONE_ENVIRONMENT_ID',
-    'PINGONE_CLIENT_ID',
-    'PINGONE_CLIENT_SECRET'
-  ];
-  
-  const missingVars = requiredVars.filter(varName => !process.env[varName]);
-  if (missingVars.length > 0) {
-    throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
+    
+    return envVars;
+  } catch (error) {
+    console.warn('No .env file found, using existing environment variables');
+    return {};
   }
 }
-
-module.exports = { loadEnv };

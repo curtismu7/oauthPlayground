@@ -1,0 +1,315 @@
+// File: server/winston-config.js
+// Description: Production-ready Winston logging configuration with rotation,
+// compression, and comprehensive logging setup
+// 
+// This module provides centralized Winston configuration including:
+// - Multi-transport support (console, file, daily rotation)
+// - Error handling and recovery mechanisms
+// - Performance optimization with size limits
+// - Structured logging with metadata
+// - Environment-specific configurations
+// 
+// Supports development, production, and test environments with appropriate
+// logging levels and file management.
+
+import winston from 'winston';
+import DailyRotateFile from 'winston-daily-rotate-file';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+/**
+ * Create production-ready Winston logger configuration
+ * 
+ * @param {Object} options - Configuration options
+ * @param {string} options.service - Service name for logging
+ * @param {string} options.env - Environment (development, production, test)
+ * @param {boolean} options.enableFileLogging - Whether to enable file logging
+ * @returns {winston.Logger} Configured Winston logger
+ */
+export function createWinstonLogger(options = {}) {
+    const {
+        service = 'pingone-import',
+        env = process.env.NODE_ENV || 'development',
+        enableFileLogging = env !== 'test'
+    } = options;
+
+    // Base configuration
+    const logger = winston.createLogger({
+        level: process.env.LOG_LEVEL || (env === 'production' ? 'info' : 'debug'),
+        format: winston.format.combine(
+            winston.format.timestamp({
+                format: 'YYYY-MM-DD HH:mm:ss.SSS'
+            }),
+            winston.format.errors({ stack: true }),
+            winston.format.splat(),
+            winston.format.json({
+                replacer: (key, value) => {
+                    // Handle circular references and large objects
+                    if (value instanceof Error) {
+                        return {
+                            message: value.message,
+                            stack: value.stack,
+                            code: value.code
+                        };
+                    }
+                    // Limit large objects for logging
+                    if (typeof value === 'object' && value !== null) {
+                        const keys = Object.keys(value);
+                        if (keys.length > 20) {
+                            return { 
+                                _truncated: true, 
+                                keys: keys.slice(0, 20),
+                                message: 'Object truncated for logging'
+                            };
+                        }
+                    }
+                    return value;
+                }
+            })
+        ),
+        defaultMeta: { 
+            service,
+            env,
+            pid: process.pid,
+            version: process.env.APP_VERSION || '1.0.0'
+        },
+        transports: [
+            // Console transport for all environments
+            new winston.transports.Console({
+                format: winston.format.combine(
+                    winston.format.colorize(),
+                    winston.format.printf(({ timestamp, level, message, service, ...meta }) => {
+                        const metaString = Object.keys(meta).length ? 
+                            `\n${JSON.stringify(meta, null, 2)}` : '';
+                        return `[${timestamp}] [${service}] ${level}: ${message}${metaString}`;
+                    })
+                ),
+                handleExceptions: true,
+                handleRejections: true,
+                level: env === 'production' ? 'info' : 'debug'
+            })
+        ],
+        exitOnError: false
+    });
+
+    // Add file transports for production and development (not test)
+    if (enableFileLogging) {
+        // Error logs with rotation and compression
+        logger.add(new winston.transports.File({ 
+            filename: path.join(__dirname, '../logs/error.log'),
+            level: 'error',
+            maxsize: 10 * 1024 * 1024, // 10MB
+            maxFiles: 10,
+            tailable: true,
+            zippedArchive: true,
+            handleExceptions: true,
+            handleRejections: true,
+            format: winston.format.combine(
+                winston.format.timestamp({
+                    format: 'YYYY-MM-DD HH:mm:ss.SSS'
+                }),
+                winston.format.json()
+            )
+        }));
+        
+        // Combined logs with daily rotation
+        logger.add(new DailyRotateFile({
+            filename: path.join(__dirname, '../logs/combined-%DATE%.log'),
+            datePattern: 'YYYY-MM-DD',
+            maxSize: '20m',
+            maxFiles: '14d',
+            zippedArchive: true,
+            format: winston.format.combine(
+                winston.format.timestamp({
+                    format: 'YYYY-MM-DD HH:mm:ss.SSS'
+                }),
+                winston.format.json()
+            )
+        }));
+        
+        // Application-specific logs
+        logger.add(new winston.transports.File({
+            filename: path.join(__dirname, '../logs/application.log'),
+            level: 'info',
+            maxsize: 5 * 1024 * 1024, // 5MB
+            maxFiles: 5,
+            tailable: true,
+            zippedArchive: true,
+            format: winston.format.combine(
+                winston.format.timestamp({
+                    format: 'YYYY-MM-DD HH:mm:ss.SSS'
+                }),
+                winston.format.json()
+            )
+        }));
+        
+        // Performance logs
+        logger.add(new winston.transports.File({
+            filename: path.join(__dirname, '../logs/performance.log'),
+            level: 'info',
+            maxsize: 2 * 1024 * 1024, // 2MB
+            maxFiles: 3,
+            tailable: true,
+            zippedArchive: true,
+            format: winston.format.combine(
+                winston.format.timestamp({
+                    format: 'YYYY-MM-DD HH:mm:ss.SSS'
+                }),
+                winston.format.json()
+            )
+        }));
+    }
+
+    // Add environment-specific transports
+    if (env === 'production') {
+        // Production-specific error handling
+        logger.add(new winston.transports.File({
+            filename: path.join(__dirname, '../logs/production-errors.log'),
+            level: 'error',
+            maxsize: 5 * 1024 * 1024, // 5MB
+            maxFiles: 5,
+            tailable: true,
+            zippedArchive: true,
+            handleExceptions: true,
+            handleRejections: true
+        }));
+    }
+
+    return logger;
+}
+
+/**
+ * Create specialized logger for specific components
+ * 
+ * @param {string} component - Component name
+ * @param {Object} options - Logger options
+ * @returns {winston.Logger} Component-specific logger
+ */
+export function createComponentLogger(component, options = {}) {
+    const logger = createWinstonLogger(options);
+    
+    // Add component-specific file transport
+    if (options.enableFileLogging !== false) {
+        logger.add(new winston.transports.File({
+            filename: path.join(__dirname, `../logs/${component}.log`),
+            level: 'info',
+            maxsize: 5 * 1024 * 1024, // 5MB
+            maxFiles: 5,
+            tailable: true,
+            zippedArchive: true,
+            format: winston.format.combine(
+                winston.format.timestamp({
+                    format: 'YYYY-MM-DD HH:mm:ss.SSS'
+                }),
+                winston.format.json()
+            )
+        }));
+    }
+    
+    return logger;
+}
+
+/**
+ * Create HTTP request logger middleware
+ * 
+ * @param {winston.Logger} logger - Winston logger instance
+ * @returns {Function} Express middleware function
+ */
+export function createRequestLogger(logger) {
+    return (req, res, next) => {
+        const start = Date.now();
+        const requestId = req.headers['x-request-id'] || `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        
+        // Log request
+        logger.info('HTTP Request', {
+            requestId,
+            method: req.method,
+            url: req.originalUrl,
+            headers: {
+                'user-agent': req.get('user-agent'),
+                'content-type': req.get('content-type'),
+                'content-length': req.get('content-length')
+            },
+            query: req.query,
+            body: req.body ? JSON.stringify(req.body).substring(0, 500) : null,
+            ip: req.ip,
+            timestamp: new Date().toISOString()
+        });
+        
+        // Override res.end to log response
+        const originalEnd = res.end;
+        res.end = function(chunk, encoding) {
+            const duration = Date.now() - start;
+            const responseLog = {
+                requestId,
+                statusCode: res.statusCode,
+                statusMessage: res.statusMessage,
+                duration: `${duration}ms`,
+                headers: res.getHeaders(),
+                body: chunk ? chunk.toString().substring(0, 500) : null
+            };
+            
+            // Log response with appropriate level
+            const level = res.statusCode >= 400 ? 'warn' : 'info';
+            logger.log(level, 'HTTP Response', responseLog);
+            
+            originalEnd.call(res, chunk, encoding);
+        };
+        
+        next();
+    };
+}
+
+/**
+ * Create error logger middleware
+ * 
+ * @param {winston.Logger} logger - Winston logger instance
+ * @returns {Function} Express error middleware function
+ */
+export function createErrorLogger(logger) {
+    return (err, req, res, next) => {
+        const errorLog = {
+            error: err.message,
+            stack: err.stack,
+            code: err.code,
+            url: req.originalUrl,
+            method: req.method,
+            ip: req.ip,
+            userAgent: req.get('user-agent'),
+            body: req.body ? JSON.stringify(req.body).substring(0, 500) : null,
+            timestamp: new Date().toISOString()
+        };
+        
+        logger.error('Unhandled Error', errorLog);
+        next(err);
+    };
+}
+
+/**
+ * Create performance logger for timing operations
+ * 
+ * @param {winston.Logger} logger - Winston logger instance
+ * @returns {Function} Performance logging function
+ */
+export function createPerformanceLogger(logger) {
+    return (operation, duration, metadata = {}) => {
+        logger.info('Performance Metric', {
+            operation,
+            duration: `${duration}ms`,
+            timestamp: new Date().toISOString(),
+            ...metadata
+        });
+    };
+}
+
+// Export default logger instance
+export const defaultLogger = createWinstonLogger();
+
+// Export specialized loggers
+export const apiLogger = createComponentLogger('api');
+export const sseLogger = createComponentLogger('sse');
+export const importLogger = createComponentLogger('import');
+export const authLogger = createComponentLogger('auth'); 

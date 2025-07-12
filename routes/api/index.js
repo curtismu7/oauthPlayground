@@ -23,6 +23,9 @@ import { Router } from 'express';
 import multer from 'multer';
 import { isFeatureEnabled, setFeatureFlag, getAllFeatureFlags, resetFeatureFlags } from '../../server/feature-flags.js';
 import { v4 as uuidv4 } from 'uuid';
+import express from 'express';
+import multer from 'multer';
+import { logSSEEvent, handleSSEError, generateConnectionId, updateSSEMetrics } from '../../server/sse-logger.js';
 
 // Feature flags configuration object for easy access
 const featureFlags = {
@@ -476,6 +479,8 @@ router.post('/feature-flags/reset', (req, res) => {
  * @returns {boolean} Success status
  */
 function sendProgressEvent(sessionId, current, total, message, counts, user, populationName, populationId) {
+    const startTime = Date.now();
+    
     try {
         const eventData = {
             type: 'progress',
@@ -483,25 +488,81 @@ function sendProgressEvent(sessionId, current, total, message, counts, user, pop
             total,
             message,
             counts,
-            user,
+            user: {
+                username: user?.username || user?.email || 'unknown',
+                lineNumber: user?._lineNumber
+            },
             populationName,
             populationId,
             timestamp: new Date().toISOString()
         };
         
-        // Send to connected SSE clients
+        // Log progress event with enhanced context
+        logSSEEvent('progress', sessionId, {
+            progress: {
+                current,
+                total,
+                percentage: Math.round((current / total) * 100)
+            },
+            user: eventData.user,
+            population: { name: populationName, id: populationId },
+            message,
+            duration: Date.now() - startTime
+        });
+        
+        // Send to connected SSE clients with error handling
         if (global.sseClients && global.sseClients.has(sessionId)) {
             const client = global.sseClients.get(sessionId);
             if (client && !client.destroyed) {
-                client.write(`data: ${JSON.stringify(eventData)}\n\n`);
-                return true;
+                try {
+                    client.write(`data: ${JSON.stringify(eventData)}\n\n`);
+                    
+                    // Update metrics for successful send
+                    updateSSEMetrics('progress', sessionId, { 
+                        duration: Date.now() - startTime 
+                    });
+                    
+                    return true;
+                } catch (writeError) {
+                    // Handle write errors
+                    const recovery = handleSSEError(sessionId, writeError, {
+                        context: 'progress_event_write',
+                        eventData: { current, total, message }
+                    });
+                    
+                    logSSEEvent('error', sessionId, {
+                        error: writeError.message,
+                        context: 'progress_event_write',
+                        duration: Date.now() - startTime
+                    });
+                    
+                    return false;
+                }
             }
         }
         
-        debugLog("SSE", `Progress event sent: ${current}/${total} - ${message}`);
-        return true;
+        // Log if no client found
+        logSSEEvent('warning', sessionId, {
+            message: 'No SSE client found for session',
+            progress: { current, total },
+            duration: Date.now() - startTime
+        });
+        
+        return false;
     } catch (error) {
-        debugLog("SSE", `Failed to send progress event: ${error.message}`);
+        // Handle general errors
+        const recovery = handleSSEError(sessionId, error, {
+            context: 'progress_event_general',
+            eventData: { current, total, message }
+        });
+        
+        logSSEEvent('error', sessionId, {
+            error: error.message,
+            stack: error.stack,
+            context: 'progress_event_general',
+            duration: Date.now() - startTime
+        });
+        
         return false;
     }
 }
@@ -518,6 +579,8 @@ function sendProgressEvent(sessionId, current, total, message, counts, user, pop
  * @returns {boolean} Success status
  */
 function sendCompletionEvent(sessionId, current, total, message, counts) {
+    const startTime = Date.now();
+    
     try {
         const eventData = {
             type: 'completion',
@@ -528,19 +591,71 @@ function sendCompletionEvent(sessionId, current, total, message, counts) {
             timestamp: new Date().toISOString()
         };
         
-        // Send to connected SSE clients
+        // Log completion event with enhanced context
+        logSSEEvent('completion', sessionId, {
+            progress: {
+                current,
+                total,
+                percentage: Math.round((current / total) * 100)
+            },
+            counts,
+            message,
+            duration: Date.now() - startTime
+        });
+        
+        // Send to connected SSE clients with error handling
         if (global.sseClients && global.sseClients.has(sessionId)) {
             const client = global.sseClients.get(sessionId);
             if (client && !client.destroyed) {
-                client.write(`data: ${JSON.stringify(eventData)}\n\n`);
-                return true;
+                try {
+                    client.write(`data: ${JSON.stringify(eventData)}\n\n`);
+                    
+                    // Update metrics for successful send
+                    updateSSEMetrics('completion', sessionId, { 
+                        duration: Date.now() - startTime 
+                    });
+                    
+                    return true;
+                } catch (writeError) {
+                    // Handle write errors
+                    const recovery = handleSSEError(sessionId, writeError, {
+                        context: 'completion_event_write',
+                        eventData: { current, total, message }
+                    });
+                    
+                    logSSEEvent('error', sessionId, {
+                        error: writeError.message,
+                        context: 'completion_event_write',
+                        duration: Date.now() - startTime
+                    });
+                    
+                    return false;
+                }
             }
         }
         
-        debugLog("SSE", `Completion event sent: ${message}`);
-        return true;
+        // Log if no client found
+        logSSEEvent('warning', sessionId, {
+            message: 'No SSE client found for completion event',
+            progress: { current, total },
+            duration: Date.now() - startTime
+        });
+        
+        return false;
     } catch (error) {
-        debugLog("SSE", `Failed to send completion event: ${error.message}`);
+        // Handle general errors
+        const recovery = handleSSEError(sessionId, error, {
+            context: 'completion_event_general',
+            eventData: { current, total, message }
+        });
+        
+        logSSEEvent('error', sessionId, {
+            error: error.message,
+            stack: error.stack,
+            context: 'completion_event_general',
+            duration: Date.now() - startTime
+        });
+        
         return false;
     }
 }
@@ -556,6 +671,8 @@ function sendCompletionEvent(sessionId, current, total, message, counts) {
  * @returns {boolean} Success status
  */
 function sendErrorEvent(sessionId, title, message, details = {}) {
+    const startTime = Date.now();
+    
     try {
         const eventData = {
             type: 'error',
@@ -565,19 +682,69 @@ function sendErrorEvent(sessionId, title, message, details = {}) {
             timestamp: new Date().toISOString()
         };
         
-        // Send to connected SSE clients
+        // Log error event with enhanced context
+        logSSEEvent('error', sessionId, {
+            title,
+            message,
+            details,
+            duration: Date.now() - startTime,
+            context: 'error_event_send'
+        });
+        
+        // Send to connected SSE clients with error handling
         if (global.sseClients && global.sseClients.has(sessionId)) {
             const client = global.sseClients.get(sessionId);
             if (client && !client.destroyed) {
-                client.write(`data: ${JSON.stringify(eventData)}\n\n`);
-                return true;
+                try {
+                    client.write(`data: ${JSON.stringify(eventData)}\n\n`);
+                    
+                    // Update metrics for successful send
+                    updateSSEMetrics('error', sessionId, { 
+                        duration: Date.now() - startTime 
+                    });
+                    
+                    return true;
+                } catch (writeError) {
+                    // Handle write errors
+                    const recovery = handleSSEError(sessionId, writeError, {
+                        context: 'error_event_write',
+                        eventData: { title, message }
+                    });
+                    
+                    logSSEEvent('error', sessionId, {
+                        error: writeError.message,
+                        context: 'error_event_write',
+                        duration: Date.now() - startTime
+                    });
+                    
+                    return false;
+                }
             }
         }
         
-        debugLog("SSE", `Error event sent: ${title} - ${message}`);
-        return true;
+        // Log if no client found
+        logSSEEvent('warning', sessionId, {
+            message: 'No SSE client found for error event',
+            title,
+            message,
+            duration: Date.now() - startTime
+        });
+        
+        return false;
     } catch (error) {
-        debugLog("SSE", `Failed to send error event: ${error.message}`);
+        // Handle general errors
+        const recovery = handleSSEError(sessionId, error, {
+            context: 'error_event_general',
+            eventData: { title, message }
+        });
+        
+        logSSEEvent('error', sessionId, {
+            error: error.message,
+            stack: error.stack,
+            context: 'error_event_general',
+            duration: Date.now() - startTime
+        });
+        
         return false;
     }
 }
@@ -769,39 +936,201 @@ router.post('/import', upload.single('file'), async (req, res, next) => {
  */
 router.get('/import/progress/:sessionId', (req, res) => {
     const { sessionId } = req.params;
+    const clientIP = req.ip;
+    const userAgent = req.get('user-agent');
+    const connectionStart = Date.now();
+    const connectionId = generateConnectionId();
+    
+    // Log connection attempt with comprehensive context
+    logSSEEvent('connect_attempt', sessionId, {
+        clientIP,
+        userAgent,
+        connectionId,
+        timestamp: new Date().toISOString(),
+        duration: 0
+    });
+    
+    // Validate session ID with enhanced error handling
     if (!sessionId || typeof sessionId !== 'string' || sessionId.length < 8) {
-        res.status(400).json({ error: 'Get session id not valid for SSE', code: 'INVALID_SESSION_ID' });
-        app.sseMetrics = app.sseMetrics || { active: 0, dropped: 0, errors: 0 };
-        app.sseMetrics.errors++;
-        console.error(`[SSE] Invalid session id: ${sessionId}`);
-        return;
+        const error = new Error('Invalid session ID');
+        error.code = 'INVALID_SESSION_ID';
+        
+        logSSEEvent('connect_failed', sessionId, {
+            error: error.message,
+            clientIP,
+            userAgent,
+            connectionId,
+            duration: Date.now() - connectionStart,
+            reason: 'invalid_session_id'
+        });
+        
+        return res.status(400).json({ 
+            error: 'Invalid session ID for SSE connection', 
+            code: 'INVALID_SESSION_ID',
+            details: {
+                sessionId,
+                minLength: 8,
+                actualLength: sessionId ? sessionId.length : 0
+            }
+        });
     }
-    // Set headers for SSE
+    
+    // Set SSE headers with enhanced configuration
     res.set({
         'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Connection': 'keep-alive',
         'X-Accel-Buffering': 'no',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Cache-Control'
     });
     res.flushHeaders();
-    // Keep-alive interval
-    const keepAlive = setInterval(() => {
-        res.write(': keep-alive\n\n');
-    }, 25000);
-    // Track metrics
-    app.sseMetrics = app.sseMetrics || { active: 0, dropped: 0, errors: 0 };
-    app.sseMetrics.active++;
-    // Store connection
+    
+    // Log successful connection with detailed metrics
+    logSSEEvent('connect_success', sessionId, {
+        clientIP,
+        userAgent,
+        connectionId,
+        duration: Date.now() - connectionStart,
+        headers: {
+            'Content-Type': res.get('Content-Type'),
+            'Cache-Control': res.get('Cache-Control'),
+            'Connection': res.get('Connection')
+        }
+    });
+    
+    // Track connection metrics
+    updateSSEMetrics('connect', sessionId, { duration: Date.now() - connectionStart });
+    
+    // Store connection with enhanced tracking
     app.importSessions = app.importSessions || {};
-    app.importSessions[sessionId] = res;
-    console.log(`[SSE] Connection established for session: ${sessionId}`);
-    // Handle disconnect
+    app.importSessions[sessionId] = {
+        res,
+        connectionId,
+        startTime: connectionStart,
+        clientIP,
+        userAgent,
+        lastActivity: Date.now()
+    };
+    
+    // Keep-alive interval with enhanced logging
+    const keepAlive = setInterval(() => {
+        try {
+            res.write(': keep-alive\n\n');
+            logSSEEvent('keepalive', sessionId, {
+                connectionId,
+                duration: Date.now() - connectionStart
+            });
+            updateSSEMetrics('keepalive', sessionId);
+            
+            // Update last activity
+            if (app.importSessions[sessionId]) {
+                app.importSessions[sessionId].lastActivity = Date.now();
+            }
+        } catch (error) {
+            // Handle keep-alive errors
+            const recovery = handleSSEError(sessionId, error, {
+                context: 'keepalive_interval',
+                connectionId
+            });
+            
+            if (!recovery.shouldReconnect) {
+                clearInterval(keepAlive);
+            }
+        }
+    }, 25000);
+    
+    // Enhanced disconnect handling with detailed logging
     req.on('close', () => {
         clearInterval(keepAlive);
-        app.sseMetrics.active = Math.max(0, app.sseMetrics.active - 1);
-        app.sseMetrics.dropped++;
-        delete app.importSessions[sessionId];
-        console.warn(`[SSE] Connection closed for session: ${sessionId}`);
+        const connectionDuration = Date.now() - connectionStart;
+        
+        logSSEEvent('disconnect', sessionId, {
+            clientIP,
+            userAgent,
+            connectionId,
+            duration: connectionDuration,
+            reason: 'client_disconnect',
+            lastActivity: app.importSessions[sessionId]?.lastActivity
+        });
+        
+        updateSSEMetrics('disconnect', sessionId, { duration: connectionDuration });
+        
+        // Clean up session
+        if (app.importSessions[sessionId]) {
+            delete app.importSessions[sessionId];
+        }
+    });
+    
+    // Enhanced error handling with recovery mechanisms
+    req.on('error', (error) => {
+        clearInterval(keepAlive);
+        const connectionDuration = Date.now() - connectionStart;
+        
+        // Log error with full context
+        logSSEEvent('error', sessionId, {
+            error: error.message,
+            stack: error.stack,
+            code: error.code,
+            clientIP,
+            userAgent,
+            connectionId,
+            duration: connectionDuration,
+            context: 'request_error'
+        });
+        
+        // Attempt error recovery
+        const recovery = handleSSEError(sessionId, error, {
+            context: 'request_error',
+            connectionId,
+            duration: connectionDuration
+        });
+        
+        updateSSEMetrics('error', sessionId, { duration: connectionDuration });
+        
+        // Clean up session on error
+        if (app.importSessions[sessionId]) {
+            delete app.importSessions[sessionId];
+        }
+        
+        // Log recovery attempt if applicable
+        if (recovery.shouldReconnect) {
+            logSSEEvent('recovery_attempt', sessionId, {
+                strategy: recovery.reason,
+                delay: recovery.delay,
+                maxRetries: recovery.maxRetries,
+                connectionId
+            });
+        }
+    });
+    
+    // Handle response errors
+    res.on('error', (error) => {
+        clearInterval(keepAlive);
+        const connectionDuration = Date.now() - connectionStart;
+        
+        logSSEEvent('error', sessionId, {
+            error: error.message,
+            stack: error.stack,
+            code: error.code,
+            clientIP,
+            userAgent,
+            connectionId,
+            duration: connectionDuration,
+            context: 'response_error'
+        });
+        
+        const recovery = handleSSEError(sessionId, error, {
+            context: 'response_error',
+            connectionId,
+            duration: connectionDuration
+        });
+        
+        updateSSEMetrics('error', sessionId, { duration: connectionDuration });
+        
+        if (app.importSessions[sessionId]) {
+            delete app.importSessions[sessionId];
+        }
     });
 });
 
@@ -1106,7 +1435,6 @@ router.post('/export-users', async (req, res, next) => {
         res.setHeader('Content-Type', contentType);
         res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
         res.send(output);
-        
     } catch (error) {
         next(error);
     }
