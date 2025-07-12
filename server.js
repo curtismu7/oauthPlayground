@@ -26,6 +26,7 @@ import settingsRouter from './routes/settings.js';
 import pingoneProxyRouter from './routes/pingone-proxy.js';
 import apiRouter from './routes/api/index.js';
 import util from 'util';
+import { setupSwagger } from './swagger.js';
 
 // Import chalk for colored console output (optional dependency)
 let chalk = null;
@@ -306,6 +307,42 @@ app.use('/api/logs', logsRateLimiter, logsRouter);
 // Apply specific rate limiter to health endpoints
 app.use('/api/health', healthRateLimiter);
 
+/**
+ * @swagger
+ * /api/health:
+ *   get:
+ *     summary: Health check
+ *     description: Returns the health status of all services
+ *     tags: [Health]
+ *     responses:
+ *       200:
+ *         description: All services are healthy
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/HealthResponse'
+ *       503:
+ *         description: One or more services are unhealthy
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: unhealthy
+ *                 message:
+ *                   type: string
+ *                   example: One or more services are not healthy
+ *                 details:
+ *                   $ref: '#/components/schemas/HealthResponse/properties/details'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 // Health check endpoint
 app.get('/api/health', (req, res) => {
     try {
@@ -354,6 +391,9 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/settings', settingsRouter);
 app.use('/api', apiRouter);
+
+// Setup Swagger documentation
+setupSwagger(app);
 
 // Test PingOne connection endpoint (must be before pingone-proxy router)
 app.post('/api/pingone/test-connection', async (req, res) => {
