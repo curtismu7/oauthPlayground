@@ -4251,6 +4251,14 @@ if (originalShowView) {
 }
 // ... existing code ...
 
+// ... existing code ...
+window.enableToolAfterDisclaimer = () => {
+  if (window.app && typeof window.app.enableToolAfterDisclaimer === 'function') {
+    window.app.enableToolAfterDisclaimer();
+  }
+};
+// ... existing code ...
+
 },{"./modules/api-factory.js":4,"./modules/file-handler.js":8,"./modules/file-logger.js":9,"./modules/local-api-client.js":10,"./modules/logger.js":11,"./modules/pingone-client.js":12,"./modules/progress-manager.js":13,"./modules/settings-manager.js":14,"./modules/token-manager.js":15,"./modules/ui-manager.js":16,"./modules/version-manager.js":17,"@babel/runtime/helpers/interopRequireDefault":1}],4:[function(require,module,exports){
 "use strict";
 
@@ -10490,7 +10498,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.VersionManager = void 0;
 class VersionManager {
   constructor() {
-    this.version = '5.0'; // Update this with each new version
+    this.version = '5.1'; // Update this with each new version
     console.log(`Version Manager initialized with version ${this.version}`);
   }
   getVersion() {

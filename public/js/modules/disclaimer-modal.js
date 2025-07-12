@@ -277,10 +277,8 @@ class DisclaimerModal {
             card.style.opacity = '1';
         });
 
-        // Store acceptance in localStorage
-        localStorage.setItem('disclaimerAccepted', 'true');
-        localStorage.setItem('disclaimerAcceptedAt', new Date().toISOString());
-
+        // Store acceptance
+        DisclaimerModal.setDisclaimerAccepted();
         this.logEvent('application_enabled_after_disclaimer');
     }
 
@@ -355,39 +353,78 @@ class DisclaimerModal {
         }
     }
 
-    // Static method to check if disclaimer was previously accepted
+    // === CONFIGURATION ===
+    // Set to true for session-only disclaimer (shows once per browser session)
+    static DISCLAIMER_SESSION_ONLY = false; // set true for sessionStorage, false for localStorage
+    // Set expiry in days (set to 0 for no expiry)
+    static DISCLAIMER_EXPIRY_DAYS = 7; // e.g. 7 days, or 0 for no expiry
+
+    // Static method to check if disclaimer was previously accepted (with expiry/session logic)
     static isDisclaimerAccepted() {
-        return localStorage.getItem('disclaimerAccepted') === 'true';
+        if (DisclaimerModal.DISCLAIMER_SESSION_ONLY) {
+            return sessionStorage.getItem('disclaimerAccepted') === 'true';
+        }
+        // Expiry logic
+        const accepted = localStorage.getItem('disclaimerAccepted') === 'true';
+        if (!accepted) return false;
+        if (DisclaimerModal.DISCLAIMER_EXPIRY_DAYS > 0) {
+            const acceptedAt = localStorage.getItem('disclaimerAcceptedAt');
+            if (!acceptedAt) return false;
+            const acceptedDate = new Date(acceptedAt);
+            const now = new Date();
+            const diffDays = (now - acceptedDate) / (1000 * 60 * 60 * 24);
+            if (diffDays > DisclaimerModal.DISCLAIMER_EXPIRY_DAYS) {
+                // Expired, reset
+                DisclaimerModal.resetDisclaimerAcceptance();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Static method to set acceptance (handles session/local/expiry)
+    static setDisclaimerAccepted() {
+        if (DisclaimerModal.DISCLAIMER_SESSION_ONLY) {
+            sessionStorage.setItem('disclaimerAccepted', 'true');
+        } else {
+            localStorage.setItem('disclaimerAccepted', 'true');
+            localStorage.setItem('disclaimerAcceptedAt', new Date().toISOString());
+        }
     }
 
     // Static method to reset disclaimer acceptance
     static resetDisclaimerAcceptance() {
-        localStorage.removeItem('disclaimerAccepted');
-        localStorage.removeItem('disclaimerAcceptedAt');
+        if (DisclaimerModal.DISCLAIMER_SESSION_ONLY) {
+            sessionStorage.removeItem('disclaimerAccepted');
+        } else {
+            localStorage.removeItem('disclaimerAccepted');
+            localStorage.removeItem('disclaimerAcceptedAt');
+        }
     }
 }
 
 // Initialize disclaimer modal when DOM is loaded and app is ready
 document.addEventListener('DOMContentLoaded', () => {
     // Wait for app to be fully initialized before showing disclaimer
+    let disclaimerInitialized = false;
     const initializeDisclaimer = () => {
-        // Only show disclaimer if not previously accepted
+        if (disclaimerInitialized) return;
+        // Only show disclaimer if not previously accepted (with expiry/session logic)
         if (!DisclaimerModal.isDisclaimerAccepted()) {
             new DisclaimerModal();
+            disclaimerInitialized = true;
         } else {
-            // If previously accepted, ensure application is enabled
-            const disclaimerModal = new DisclaimerModal();
-            disclaimerModal.enableApplication();
-            disclaimerModal.hideModal();
+            // If previously accepted, just enable the application (no modal)
+            if (typeof window.enableToolAfterDisclaimer === 'function') {
+                window.enableToolAfterDisclaimer();
+            }
+            disclaimerInitialized = true;
         }
     };
-
     // Try to initialize immediately
     initializeDisclaimer();
-    
     // Also try after a short delay to ensure app components are loaded
     setTimeout(initializeDisclaimer, 100);
-    
     // Final attempt after longer delay to ensure logManager is available
     setTimeout(initializeDisclaimer, 1000);
 });

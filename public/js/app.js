@@ -4183,3 +4183,11 @@ if (originalShowView) {
     });
 }
 // ... existing code ...
+
+// ... existing code ...
+window.enableToolAfterDisclaimer = () => {
+    if (window.app && typeof window.app.enableToolAfterDisclaimer === 'function') {
+        window.app.enableToolAfterDisclaimer();
+    }
+};
+// ... existing code ...
