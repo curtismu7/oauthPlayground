@@ -334,13 +334,24 @@ class DisclaimerModal {
         // Log to console for debugging
         console.log(`[DisclaimerModal] ${eventName}:`, data);
         
-        // Send to server if logging is available
-        if (window.logManager) {
-            window.logManager.log('info', `Disclaimer modal: ${eventName}`, {
-                source: 'disclaimer-modal',
-                type: 'ui',
-                ...data
-            });
+        // Send to server if logging is available and properly initialized
+        try {
+            if (window.logManager && typeof window.logManager.log === 'function') {
+                window.logManager.log('info', `Disclaimer modal: ${eventName}`, {
+                    source: 'disclaimer-modal',
+                    type: 'ui',
+                    ...data
+                });
+            } else if (window.logManager) {
+                // Fallback: logManager exists but doesn't have log method
+                console.warn('[DisclaimerModal] logManager exists but log method is not available');
+            } else {
+                // Fallback: logManager not available
+                console.debug('[DisclaimerModal] logManager not available, using console logging only');
+            }
+        } catch (error) {
+            // Graceful fallback if logging fails
+            console.warn('[DisclaimerModal] Logging failed:', error);
         }
     }
 
@@ -356,17 +367,29 @@ class DisclaimerModal {
     }
 }
 
-// Initialize disclaimer modal when DOM is loaded
+// Initialize disclaimer modal when DOM is loaded and app is ready
 document.addEventListener('DOMContentLoaded', () => {
-    // Only show disclaimer if not previously accepted
-    if (!DisclaimerModal.isDisclaimerAccepted()) {
-        new DisclaimerModal();
-    } else {
-        // If previously accepted, ensure application is enabled
-        const disclaimerModal = new DisclaimerModal();
-        disclaimerModal.enableApplication();
-        disclaimerModal.hideModal();
-    }
+    // Wait for app to be fully initialized before showing disclaimer
+    const initializeDisclaimer = () => {
+        // Only show disclaimer if not previously accepted
+        if (!DisclaimerModal.isDisclaimerAccepted()) {
+            new DisclaimerModal();
+        } else {
+            // If previously accepted, ensure application is enabled
+            const disclaimerModal = new DisclaimerModal();
+            disclaimerModal.enableApplication();
+            disclaimerModal.hideModal();
+        }
+    };
+
+    // Try to initialize immediately
+    initializeDisclaimer();
+    
+    // Also try after a short delay to ensure app components are loaded
+    setTimeout(initializeDisclaimer, 100);
+    
+    // Final attempt after longer delay to ensure logManager is available
+    setTimeout(initializeDisclaimer, 1000);
 });
 
 // Export for global access
