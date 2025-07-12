@@ -430,6 +430,12 @@ class App {
         
         // Enable the select element
         populationSelect.disabled = false;
+        
+        // Ensure event listener is attached (in case dropdown was recreated)
+        this.attachPopulationChangeListener();
+        
+        // Update import button state after populations are loaded
+        this.updateImportButtonState();
     }
 
     showPopulationLoadError() {
@@ -445,12 +451,19 @@ class App {
     updateImportButtonState() {
         const populationSelect = document.getElementById('import-population-select');
         const hasFile = this.fileHandler.getCurrentFile() !== null;
-        const hasPopulation = populationSelect && populationSelect.value && populationSelect.value !== '';
+        
+        // Check both the dropdown value and the stored properties
+        const dropdownValue = populationSelect ? populationSelect.value : '';
+        const storedPopulationId = this.selectedPopulationId || '';
+        const hasPopulation = (dropdownValue && dropdownValue !== '') || (storedPopulationId && storedPopulationId !== '');
         
         console.log('=== Update Import Button State ===');
         console.log('Has file:', hasFile);
         console.log('Has population:', hasPopulation);
-        console.log('Population value:', populationSelect ? populationSelect.value : 'No select element');
+        console.log('Dropdown value:', dropdownValue);
+        console.log('Stored population ID:', storedPopulationId);
+        console.log('Stored population name:', this.selectedPopulationName);
+        console.log('Population select element exists:', !!populationSelect);
         console.log('====================================');
         
         // Get both import buttons
@@ -468,6 +481,21 @@ class App {
         }
         
         console.log('Import buttons enabled:', shouldEnable);
+        
+        // Update population display in import stats if available
+        if (hasPopulation) {
+            const populationNameElement = document.getElementById('import-population-name');
+            const populationIdElement = document.getElementById('import-population-id');
+            
+            if (populationNameElement) {
+                populationNameElement.textContent = this.selectedPopulationName || populationSelect?.selectedOptions[0]?.text || 'Selected';
+            }
+            
+            if (populationIdElement) {
+                populationIdElement.textContent = this.selectedPopulationId || dropdownValue || 'Set';
+            }
+        }
+        
         // At the end, show the population prompt if needed
         this.showPopulationChoicePrompt();
     }
@@ -522,16 +550,7 @@ class App {
         }
 
         // Population selection change listener
-        const populationSelectEl = document.getElementById('import-population-select');
-        if (populationSelectEl) {
-            populationSelectEl.addEventListener('change', (e) => {
-                const selectedId = populationSelectEl.value;
-                const selectedName = populationSelectEl.selectedOptions[0]?.text || '';
-                this.selectedPopulationId = selectedId;
-                this.selectedPopulationName = selectedName;
-                console.log('[Population] Dropdown changed:', { id: selectedId, name: selectedName });
-            });
-        }
+        this.attachPopulationChangeListener();
 
         // Import event listeners
         const startImportBtn = document.getElementById('start-import-btn');
@@ -1056,62 +1075,44 @@ class App {
             // Update import button state after file selection
             this.updateImportButtonState();
 
-            // --- Population conflict detection ---
+            // --- ALWAYS IGNORE CSV POPULATION DATA ---
+            // Get users from CSV for logging purposes only
             const users = this.fileHandler.getParsedUsers ? this.fileHandler.getParsedUsers() : [];
             // Log number of users parsed from CSV
             this.uiManager.debugLog("CSV", `Parsed ${users.length} users from CSV`);
+            
+            // Get selected population from UI dropdown
             const populationSelect = document.getElementById('import-population-select');
             const uiPopulationId = populationSelect && populationSelect.value;
+            
             // Log selected population
             this.uiManager.debugLog("Population", `Selected population: ${uiPopulationId}`);
-            let hasCsvPopulation = false;
-            if (users.length) {
-                hasCsvPopulation = Object.keys(users[0]).some(
-                    h => h.toLowerCase() === 'populationid' || h.toLowerCase() === 'population_id'
-                ) && users.some(u => u.populationId && u.populationId.trim() !== '');
-            }
-            // If both UI and CSV have population, show conflict modal and require explicit user choice
-            if (uiPopulationId && hasCsvPopulation) {
-                const modal = document.getElementById('population-conflict-modal');
-                if (modal) {
-                    modal.style.display = 'flex';
-                    // Set up modal buttons for user choice
-                    const useUiBtn = document.getElementById('use-ui-population');
-                    const useCsvBtn = document.getElementById('use-csv-population');
-                    const cancelBtn = document.getElementById('cancel-population-conflict');
-                    useUiBtn.onclick = () => {
-                        modal.style.display = 'none';
-                        // Overwrite all user records with UI populationId
-                        users.forEach(u => u.populationId = uiPopulationId);
-                        this.populationChoice = 'ui';
-                        this.uiManager.logMessage('info', 'Population conflict resolved: using UI dropdown');
-                    };
-                    useCsvBtn.onclick = () => {
-                        modal.style.display = 'none';
-                        // Use CSV populationId as-is
-                        this.populationChoice = 'csv';
-                        this.uiManager.logMessage('warning', 'Population conflict resolved: using CSV file (not recommended)');
-                    };
-                    cancelBtn.onclick = () => {
-                        modal.style.display = 'none';
-                        this.populationChoice = null;
-                        this.uiManager.logMessage('warning', 'Population conflict prompt cancelled. Defaulting to UI population.');
-                        // Default to UI population for safety
-                        users.forEach(u => u.populationId = uiPopulationId);
-                        this.populationChoice = 'ui';
-                    };
-                }
-                // Prevent further processing until user makes a choice
-                return;
-            }
-            // If only UI or only CSV, or after conflict resolved, always use UI population unless user explicitly chose CSV
-            // Prevents cross-population import errors due to incorrect or missing population ID propagation
-            if (uiPopulationId && (!hasCsvPopulation || this.populationChoice !== 'csv')) {
-                users.forEach(u => u.populationId = uiPopulationId);
+            
+            // ALWAYS use UI population selection and ignore any CSV population data
+            if (uiPopulationId) {
+                // Overwrite all user records with UI populationId, ignoring any CSV population data
+                users.forEach(u => {
+                    // Remove any existing population data from CSV
+                    delete u.populationId;
+                    delete u.population_id;
+                    delete u.populationName;
+                    delete u.population_name;
+                    
+                    // Set the UI-selected population
+                    u.populationId = uiPopulationId;
+                });
+                
                 this.populationChoice = 'ui';
-            } else if (!uiPopulationId && hasCsvPopulation) {
-                this.populationChoice = 'csv';
+                this.uiManager.logMessage('info', 'Using UI dropdown population selection (CSV population data ignored)');
+                
+                // Log the population assignment
+                this.uiManager.debugLog("Population", `Assigned UI population ${uiPopulationId} to all ${users.length} users`);
+            } else {
+                // No UI population selected - this will be handled by validation later
+                this.populationChoice = 'ui';
+                this.uiManager.logMessage('warning', 'No population selected in UI dropdown');
             }
+            
             // Show population prompt if needed (legacy)
             this.showPopulationChoicePrompt();
         } catch (error) {
@@ -1187,27 +1188,23 @@ class App {
             });
         }
 
-        // SSE connection management variables
-        let sseSource;
-        let sseRetryCount = 0;
-        const maxSseRetries = 3;
-        const retryDelay = 5000;
+        // Initialize SSE status indicator and fallback polling
+        ensureSSEStatusIndicator();
+        this.robustSSE = null;
+        this.fallbackPolling = null;
         
         /**
-         * Establishes SSE connection for real-time import progress updates
+         * Establishes robust SSE connection for real-time import progress updates
          * 
-         * Opens a persistent connection to receive progress events from the server.
-         * Handles various event types: progress updates, errors, and completion.
-         * Includes retry logic for connection failures and comprehensive debugging.
+         * Uses the new RobustEventSource wrapper with exponential backoff,
+         * connection status indicators, and automatic fallback to polling.
          * 
          * @param {string} sessionId - Unique session identifier for this import
          */
-        const connectSSE = (sessionId) => {
-            // Full SSE lifecycle logging added for connection visibility and debugging
-            
+        const connectRobustSSE = (sessionId) => {
             // Validate sessionId before attempting connection
             if (!sessionId || typeof sessionId !== 'string' || sessionId.trim() === '') {
-                console.error("SSE: ❌ SSE failed: sessionId is undefined or invalid", { sessionId });
+                console.error("SSE: ❌ Invalid sessionId - cannot establish connection", { sessionId });
                 this.uiManager.debugLog("SSE", "❌ Invalid sessionId - cannot establish connection", { sessionId });
                 this.uiManager.showError('SSE Connection Error', 'Invalid session ID. Cannot establish progress connection.');
                 this.uiManager.logMessage('error', 'SSE connection failed — missing session ID');
@@ -1226,75 +1223,62 @@ class App {
             }
 
             // Log SSE connection attempt for debugging
-            console.log("SSE: 🔌 SSE opening with sessionId:", sessionId);
-            this.uiManager.debugLog("SSE", `🔄 Attempting SSE connection with sessionId: ${sessionId}`, { 
-                retryCount: sseRetryCount, 
-                maxRetries: maxSseRetries,
-                browserSupport: !!window.EventSource
-            });
-            this.uiManager.logMessage('info', `SSE: Opening connection with sessionId: ${sessionId}`);
+            console.log("SSE: 🔌 Establishing robust SSE connection with sessionId:", sessionId);
+            this.uiManager.debugLog("SSE", `🔄 Establishing robust SSE connection with sessionId: ${sessionId}`);
+            this.uiManager.logMessage('info', `SSE: Opening robust connection with sessionId: ${sessionId}`);
             
-            try {
-                // Close existing connection if any
-                if (sseSource) {
-                    console.log("SSE: 🔄 Closing existing SSE connection before creating new one");
-                    this.uiManager.debugLog("SSE", "🔄 Closing existing SSE connection before creating new one");
-                    sseSource.close();
-                    sseSource = null;
-                }
-
-                // Create EventSource for Server-Sent Events connection
-                // This establishes a persistent HTTP connection for real-time updates
-                const sseUrl = `/api/import/progress/${sessionId}`;
-                console.log("SSE: 🔌 Creating EventSource for URL:", sseUrl);
-                this.uiManager.debugLog("SSE", `🔄 Creating EventSource for URL: ${sseUrl}`, {
-                    sessionId,
-                    url: sseUrl,
-                    timestamp: new Date().toISOString()
-                });
-                sseSource = new window.EventSource(sseUrl);
+            // Create robust SSE connection with enhanced features
+            const sseUrl = `/api/import/progress/${sessionId}`;
+            this.robustSSE = new RobustEventSource(sseUrl, {
+                maxRetries: 5,
+                baseDelay: 1000,
+                maxDelay: 30000,
                 
-                // Track if server has sent an error event to prevent false retries
-                let serverErrorReceived = false;
-                let connectionEstablished = false;
-                let lastHeartbeat = Date.now();
+                // Connection status updates
+                onStatus: (status, data) => {
+                    console.log(`SSE: Status update - ${status}`, data);
+                    this.uiManager.debugLog("SSE", `Status update: ${status}`, data);
+                    updateSSEStatusIndicator(status, false);
+                    
+                    // Update UI based on connection status
+                    switch (status) {
+                        case 'connecting':
+                            this.uiManager.logMessage('info', 'SSE: Connecting to server...');
+                            break;
+                        case 'connected':
+                            this.uiManager.logMessage('success', 'SSE: Real-time connection established');
+                            // Stop fallback polling if it was active
+                            if (this.fallbackPolling) {
+                                stopFallbackPolling();
+                                this.fallbackPolling = null;
+                            }
+                            break;
+                        case 'reconnecting':
+                            this.uiManager.logMessage('warning', `SSE: Reconnecting... Attempt ${data.attempt}/${data.maxRetries}`);
+                            break;
+                        case 'failed':
+                            this.uiManager.logMessage('error', 'SSE: Connection failed, switching to fallback mode');
+                            // Start fallback polling
+                            if (!this.fallbackPolling) {
+                                this.fallbackPolling = startFallbackPolling(sseUrl, (progressData) => {
+                                    this.handleProgressUpdate(progressData);
+                                });
+                            }
+                            break;
+                        case 'disconnected':
+                            this.uiManager.logMessage('warning', 'SSE: Connection lost');
+                            break;
+                    }
+                },
                 
-                // Handle connection opened event
-                sseSource.addEventListener('open', (event) => {
-                    lastHeartbeat = Date.now();
-                    console.log("SSE: ✅ SSE connection opened:", event);
-                    
-                    // Debug logging to check context binding
-                    console.log("SSE: Debug - UI Manager:", this.uiManager);
-                    console.log("SSE: Debug - Is showSuccess function:", typeof this.uiManager?.showSuccess);
-                    
-                    this.uiManager.debugLog("SSE", "✅ SSE connection opened", { 
-                        readyState: sseSource.readyState,
-                        event: event 
-                    });
-                    
-                    // Reset retry count on successful connection
-                    sseRetryCount = 0;
-                    
-                    // Log connection details for debugging
-                    this.uiManager.logMessage('info', `SSE connected for import (sessionId: ${sessionId})`);
-                    
-                    // Show connection status to user using the correct method
-                    this.uiManager.showStatusMessage('success', 'Real-time connection established', 
-                        'Progress updates will be shown in real-time during the import process.');
-                });
-
-                // Handle progress updates from the server
-                // Each event contains current progress, total count, and status information
-                sseSource.addEventListener('progress', (event) => {
-                    lastHeartbeat = Date.now();
-                    console.log("SSE: 📩 SSE message received:", event.data);
-                    this.uiManager.debugLog("SSE", "📊 Progress event received", { 
+                // Handle progress messages
+                onMessage: (event) => {
+                    console.log("SSE: 📩 Progress message received:", event.data);
+                    this.uiManager.debugLog("SSE", "📊 Progress message received", { 
                         data: event.data,
                         lastEventId: event.lastEventId,
                         origin: event.origin 
                     });
-                    this.uiManager.logMessage('info', `SSE: Progress update received`);
                     
                     let data;
                     try {
@@ -1311,352 +1295,158 @@ class App {
                         return;
                     }
 
-                    // Validate required fields in progress data
-                    if (data.current === undefined || data.total === undefined) {
-                        console.error("SSE: ❌ Progress event missing required fields:", data);
-                        this.uiManager.debugLog("SSE", "❌ Progress event missing required fields", data);
-                        this.uiManager.logMessage('error', 'SSE: Progress event missing required fields (current/total)');
-                        return;
-                    }
-
-                    // Log which user is currently being processed
-                    if (data.user) {
-                        console.log("SSE: 👤 Processing user:", data.user.username || data.user.email || 'unknown');
-                        this.uiManager.debugLog("SSE", `👤 Processing user: ${data.user.username || data.user.email || 'unknown'}`);
-                    }
-
-                    // Log progress update with current/total counts
-                    if (data.current !== undefined && data.total !== undefined) {
-                        const percentage = Math.round(data.current/data.total*100);
-                        console.log(`SSE: 📈 Progress update: ${data.current} of ${data.total} (${percentage}%)`);
-                        this.uiManager.debugLog("SSE", `📈 Progress update: ${data.current} of ${data.total} (${percentage}%)`);
-                    }
-
-                    // Update UI with progress information
-                    // This updates the progress bar, counts, and status messages
-                    this.uiManager.updateImportProgress(
-                        data.current || 0, 
-                        data.total || 0, 
-                        data.message || '', 
-                        data.counts || {}, 
-                        data.populationName || '', 
-                        data.populationId || ''
-                    );
-
-                    // Display status message to user if provided
-                    if (data.message) {
-                        this.uiManager.logMessage('info', data.message);
-                    }
-                    
-                    // Log current user being processed if available
-                    if (data.user) {
-                        const userName = data.user.username || data.user.email || 'unknown';
-                        this.uiManager.logMessage('info', `Processing: ${userName}`);
-                    }
-                    
-                    // Handle skipped users with detailed information
-                    if (data.status === 'skipped' && data.statusDetails) {
-                        const skipReason = data.statusDetails.reason || 'User already exists';
-                        const existingUser = data.statusDetails.existingUser;
-                        
-                        // Log detailed skip information
-                        console.log("SSE: ⚠️ User skipped:", {
-                            user: data.user,
-                            reason: skipReason,
-                            existingUser: existingUser
-                        });
-                        
-                        // Show warning message with skip details
-                        let skipMessage = `⚠️ Skipped: ${data.user.username || data.user.email || 'unknown user'}`;
-                        if (existingUser) {
-                            skipMessage += ` (exists as ${existingUser.username || existingUser.email} in ${existingUser.population})`;
-                        } else {
-                            skipMessage += ` (${skipReason})`;
-                        }
-                        
-                        this.uiManager.logMessage('warning', skipMessage);
-                        
-                        // Update UI with skip information
-                        if (data.counts && data.counts.skipped !== undefined) {
-                            console.log(`SSE: 📊 Skipped count updated: ${data.counts.skipped}`);
-                            this.uiManager.debugLog("SSE", `📊 Skipped count updated: ${data.counts.skipped}`);
-                        }
-                    }
-                });
-
-                // Handle explicit server error events
-                // These are sent by the server when import fails due to server-side issues
-                sseSource.addEventListener('error', (event) => {
-                    // Only handle this if it's a server-sent error event with data
-                    if (event.data) {
-                        serverErrorReceived = true;
-                        console.error("SSE: ❌ SSE server error event:", event);
-                        this.uiManager.debugLog("SSE", "❌ SSE server error event received", { 
-                            readyState: sseSource.readyState,
-                            error: event,
-                            serverErrorReceived 
-                        });
-                        this.uiManager.logMessage('error', 'SSE: Server error event received');
-
-                        let data = {};
-                        try {
-                            data = JSON.parse(event.data);
-                            console.log("SSE: ✅ Server error event data parsed:", data);
-                            this.uiManager.debugLog("SSE", "✅ Server error event data parsed", data);
-                        } catch (e) {
-                            console.error("SSE: ❌ Failed to parse server error event data:", e.message, "Raw data:", event.data);
-                            this.uiManager.debugLog("SSE", "❌ Failed to parse server error event data", { 
-                                rawData: event.data, 
-                                error: e.message 
-                            });
-                        }
-
-                        // Update UI with error information
-                        const errorSummary = 'Import failed due to server error';
-                        const errorDetails = [data.error || 'SSE server error'];
-                        this.uiManager.updateImportErrorStatus(errorSummary, errorDetails);
-                        this.uiManager.showError('Import failed', data.error || 'SSE server error');
-
-                        // Clean up connection and state
-                        console.log("SSE: 🧹 Cleaning up SSE connection after server error");
-                        this.uiManager.debugLog("SSE", "🧹 Cleaning up SSE connection after server error");
-                        sseSource.close();
-                        if (importProgressStreams && typeof importProgressStreams.delete === 'function') {
-                            importProgressStreams.delete(sessionId);
-                        }
-                        this.isImporting = false;
-                    }
-                    // For connection errors without data, let the onerror handler deal with it
-                });
-
-                // Handle import completion event
-                sseSource.addEventListener('complete', (event) => {
-                    lastHeartbeat = Date.now();
-                    console.log("SSE: ✅ Import completion event received:", event.data);
-                    this.uiManager.debugLog("SSE", "✅ Import completion event received", { 
-                        data: event.data,
-                        lastEventId: event.lastEventId 
-                    });
-                    this.uiManager.logMessage('success', 'SSE: Import completion event received');
-                    
-                    let data;
-                    try {
-                        data = JSON.parse(event.data);
-                        console.log("SSE: ✅ Completion data parsed successfully:", data);
-                        this.uiManager.debugLog("SSE", "✅ Completion data parsed successfully", data);
-                    } catch (e) {
-                        console.error("SSE: ❌ Failed to parse completion event data:", e.message, "Raw data:", event.data);
-                        this.uiManager.debugLog("SSE", "❌ Failed to parse completion event data", { 
-                            rawData: event.data, 
-                            error: e.message 
-                        });
-                        return;
-                    }
-
-                    // Update final progress and show completion message
-                    this.uiManager.updateImportProgress(
-                        data.current || 0, 
-                        data.total || 0, 
-                        data.message || 'Import completed', 
-                        data.counts || {}, 
-                        data.populationName || '', 
-                        data.populationId || ''
-                    );
-
-                    if (data.message) {
-                        this.uiManager.logMessage('success', data.message);
-                    }
-
-                    // Clean up connection
-                    console.log("SSE: 🧹 Cleaning up SSE connection after completion");
-                    this.uiManager.debugLog("SSE", "🧹 Cleaning up SSE connection after completion");
-                    sseSource.close();
-                    if (importProgressStreams && typeof importProgressStreams.delete === 'function') {
-                        importProgressStreams.delete(sessionId);
-                    }
-                    this.isImporting = false;
-                });
-
-                // Handle population conflict events
-                sseSource.addEventListener('population_conflict', (event) => {
-                    lastHeartbeat = Date.now();
-                    console.log("SSE: ⚠️ Population conflict event received:", event.data);
-                    this.uiManager.debugLog("SSE", "⚠️ Population conflict event received", { 
-                        data: event.data,
-                        lastEventId: event.lastEventId 
-                    });
-                    this.uiManager.logMessage('warning', 'SSE: Population conflict detected');
-                    
-                    let data;
-                    try {
-                        data = JSON.parse(event.data);
-                        console.log("SSE: ✅ Population conflict data parsed:", data);
-                        this.uiManager.debugLog("SSE", "✅ Population conflict data parsed", data);
-                    } catch (e) {
-                        console.error("SSE: ❌ Failed to parse population conflict data:", e.message, "Raw data:", event.data);
-                        this.uiManager.debugLog("SSE", "❌ Failed to parse population conflict data", { 
-                            rawData: event.data, 
-                            error: e.message 
-                        });
-                        return;
-                    }
-
-                    // Show population conflict modal
-                    this.showPopulationConflictModal(data, sessionId);
-                });
-
-                // Handle invalid population events
-                sseSource.addEventListener('invalid_population', (event) => {
-                    lastHeartbeat = Date.now();
-                    console.log("SSE: ⚠️ Invalid population event received:", event.data);
-                    this.uiManager.debugLog("SSE", "⚠️ Invalid population event received", { 
-                        data: event.data,
-                        lastEventId: event.lastEventId 
-                    });
-                    this.uiManager.logMessage('warning', 'SSE: Invalid population detected');
-                    
-                    let data;
-                    try {
-                        data = JSON.parse(event.data);
-                        console.log("SSE: ✅ Invalid population data parsed:", data);
-                        this.uiManager.debugLog("SSE", "✅ Invalid population data parsed", data);
-                    } catch (e) {
-                        console.error("SSE: ❌ Failed to parse invalid population data:", e.message, "Raw data:", event.data);
-                        this.uiManager.debugLog("SSE", "❌ Failed to parse invalid population data", { 
-                            rawData: event.data, 
-                            error: e.message 
-                        });
-                        return;
-                    }
-
-                    // Show invalid population modal
-                    this.showInvalidPopulationModal(data, sessionId);
-                });
-
-                // Handle connection close events
-                sseSource.addEventListener('close', (event) => {
-                    console.warn("SSE: ⚠️ SSE connection closed");
-                    this.uiManager.debugLog("SSE", "⚠️ SSE connection closed", { 
-                        readyState: sseSource.readyState,
+                    // Handle different event types
+                    this.handleProgressUpdate(data);
+                },
+                
+                // Handle connection opened
+                onOpen: (event) => {
+                    console.log("SSE: ✅ Robust SSE connection opened:", event);
+                    this.uiManager.debugLog("SSE", "✅ Robust SSE connection opened", { 
                         event: event 
                     });
-                    this.uiManager.logMessage('warning', 'SSE: Connection closed');
-                    
-                    // Clean up connection
-                    if (importProgressStreams && typeof importProgressStreams.delete === 'function') {
-                        importProgressStreams.delete(sessionId);
-                    }
-                    this.isImporting = false;
-                });
-
-                // Handle connection errors (network, timeout, etc.)
-                // This error handler deals with network-level connection issues
-                sseSource.onerror = (event) => {
-                    console.error("SSE: ❌ SSE connection error:", event);
-                    this.uiManager.debugLog("SSE", "❌ SSE connection error", { 
-                        readyState: sseSource.readyState,
-                        error: event,
-                        serverErrorReceived 
+                    this.uiManager.logMessage('info', `SSE connected for import (sessionId: ${sessionId})`);
+                    this.uiManager.showStatusMessage('success', 'Real-time connection established', 
+                        'Progress updates will be shown in real-time during the import process.');
+                },
+                
+                // Handle connection errors
+                onError: (event) => {
+                    console.error("SSE: ❌ Robust SSE connection error:", event);
+                    this.uiManager.debugLog("SSE", "❌ Robust SSE connection error", { 
+                        error: event 
                     });
+                    this.uiManager.logMessage('error', 'SSE: Connection error occurred');
                     
-                    // Only handle connection errors if we haven't received a server error
-                    if (!serverErrorReceived) {
-                        this.uiManager.logMessage('error', 'SSE: Connection error occurred');
-
-                        // Only retry if we haven't exceeded max retries
-                        if (sseRetryCount < maxSseRetries) {
-                            sseRetryCount++;
-                            console.warn(`SSE: 🔁 SSE reconnecting... Attempt #${sseRetryCount}`);
-                            this.uiManager.debugLog("SSE", `🔁 SSE reconnecting... Attempt #${sseRetryCount}`, {
-                                retryCount: sseRetryCount,
-                                maxRetries: maxSseRetries
-                            });
-                            this.uiManager.logMessage('warning', `SSE: Reconnecting... Attempt #${sseRetryCount}`);
-
-                            // Close current connection
-                            if (sseSource) {
-                                sseSource.close();
-                                sseSource = null;
-                            }
-
-                            // Retry connection with exponential backoff
-                            const retryDelay = Math.min(1000 * Math.pow(2, sseRetryCount - 1), 30000);
-                            console.log(`SSE: ⏱️ Retrying in ${retryDelay}ms`);
-                            this.uiManager.logMessage('info', `SSE: Retrying connection in ${retryDelay}ms`);
-
-                            setTimeout(() => {
-                                connectSSE(sessionId);
-                            }, retryDelay);
-                        } else {
-                            console.error("SSE: ❌ Max retries exceeded, stopping retries");
-                            this.uiManager.debugLog("SSE", "❌ Max retries exceeded", {
-                                retryCount: sseRetryCount,
-                                maxRetries: maxSseRetries
-                            });
-                            this.uiManager.logMessage('error', 'SSE: Max retries exceeded, stopping connection attempts');
-                            
-                            // Show user-friendly error message
-                            this.uiManager.showError('Connection Failed', 
-                                `Unable to establish stable connection to server after ${maxSseRetries} attempts. ` +
-                                'Please check your network connection and try again. ' +
-                                'If the problem persists, contact your administrator.'
-                            );
-                            
-                            // Clean up connection
-                            if (sseSource) {
-                                sseSource.close();
-                                sseSource = null;
-                            }
-                            if (importProgressStreams && typeof importProgressStreams.delete === 'function') {
-                                importProgressStreams.delete(sessionId);
-                            }
-                            this.isImporting = false;
-                        }
-                    } else {
-                        console.log("SSE: ℹ️ Ignoring connection error because server error was already received");
-                        this.uiManager.debugLog("SSE", "ℹ️ Ignoring connection error because server error was already received");
+                    // If robust SSE fails completely, start fallback polling
+                    if (!this.fallbackPolling) {
+                        console.log("SSE: 🔄 Starting fallback polling due to connection failure");
+                        this.uiManager.logMessage('warning', 'SSE: Switching to fallback polling mode');
+                        this.fallbackPolling = startFallbackPolling(sseUrl, (progressData) => {
+                            this.handleProgressUpdate(progressData);
+                        });
                     }
-                };
-
-                // Set up heartbeat monitoring with improved logic
-                // Only monitor heartbeat if connection is established and no server error received
-                const heartbeatInterval = setInterval(() => {
-                    if (connectionEstablished && !serverErrorReceived) {
-                        const timeSinceLastHeartbeat = Date.now() - lastHeartbeat;
-                        if (timeSinceLastHeartbeat > 90000) { // 90 seconds - more lenient
-                            console.warn("SSE: ⚠️ No heartbeat received for 90 seconds");
-                            this.uiManager.debugLog("SSE", "⚠️ No heartbeat received for 90 seconds", {
-                                timeSinceLastHeartbeat,
-                                lastHeartbeat: new Date(lastHeartbeat).toISOString(),
-                                connectionEstablished,
-                                serverErrorReceived
-                            });
-                            this.uiManager.logMessage('warning', 'SSE: No heartbeat received for 90 seconds');
-                        }
-                    }
-                }, 45000); // Check every 45 seconds - less frequent
-
-                // Clean up heartbeat monitoring when connection closes
-                sseSource.addEventListener('close', () => {
-                    clearInterval(heartbeatInterval);
-                });
-
-                // Store connection for cleanup
-                if (importProgressStreams && typeof importProgressStreams.set === 'function') {
-                    importProgressStreams.set(sessionId, sseSource);
                 }
+            });
 
-            } catch (error) {
-                console.error("SSE: ❌ Error creating SSE connection:", error.message);
-                this.uiManager.debugLog("SSE", "❌ Error creating SSE connection", { 
-                    error: error.message,
-                    stack: error.stack 
+            // Start the robust connection
+            robustSSE.connect();
+        };
+
+        /**
+         * Handles progress updates from SSE or fallback polling
+         * 
+         * @param {Object} data - Progress data from server
+         */
+        this.handleProgressUpdate = (data) => {
+            // Validate required fields in progress data
+            if (data.current === undefined || data.total === undefined) {
+                console.error("Progress: ❌ Progress event missing required fields:", data);
+                this.uiManager.debugLog("Progress", "❌ Progress event missing required fields", data);
+                this.uiManager.logMessage('error', 'Progress: Missing required fields (current/total)');
+                return;
+            }
+
+            // Log which user is currently being processed
+            if (data.user) {
+                console.log("Progress: 👤 Processing user:", data.user.username || data.user.email || 'unknown');
+                this.uiManager.debugLog("Progress", `👤 Processing user: ${data.user.username || data.user.email || 'unknown'}`);
+            }
+
+            // Log progress update with current/total counts
+            if (data.current !== undefined && data.total !== undefined) {
+                const percentage = Math.round(data.current/data.total*100);
+                console.log(`Progress: 📈 Progress update: ${data.current} of ${data.total} (${percentage}%)`);
+                this.uiManager.debugLog("Progress", `📈 Progress update: ${data.current} of ${data.total} (${percentage}%)`);
+            }
+
+            // Update UI with progress information
+            this.uiManager.updateImportProgress(
+                data.current || 0, 
+                data.total || 0, 
+                data.message || '', 
+                data.counts || {}, 
+                data.populationName || '', 
+                data.populationId || ''
+            );
+
+            // Display status message to user if provided
+            if (data.message) {
+                this.uiManager.logMessage('info', data.message);
+            }
+            
+            // Log current user being processed if available
+            if (data.user) {
+                const userName = data.user.username || data.user.email || 'unknown';
+                this.uiManager.logMessage('info', `Processing: ${userName}`);
+            }
+            
+            // Handle skipped users with detailed information
+            if (data.status === 'skipped' && data.statusDetails) {
+                const skipReason = data.statusDetails.reason || 'User already exists';
+                const existingUser = data.statusDetails.existingUser;
+                
+                // Log detailed skip information
+                console.log("Progress: ⚠️ User skipped:", {
+                    user: data.user,
+                    reason: skipReason,
+                    existingUser: existingUser
                 });
-                this.uiManager.logMessage('error', `SSE: Failed to create connection - ${error.message}`);
-                this.uiManager.showError('SSE Connection Error', `Failed to establish connection: ${error.message}`);
+                
+                // Show warning message with skip details
+                let skipMessage = `⚠️ Skipped: ${data.user.username || data.user.email || 'unknown user'}`;
+                if (existingUser) {
+                    skipMessage += ` (exists as ${existingUser.username || existingUser.email} in ${existingUser.population})`;
+                } else {
+                    skipMessage += ` (${skipReason})`;
+                }
+                
+                this.uiManager.logMessage('warning', skipMessage);
+                
+                // Update UI with skip information
+                if (data.counts && data.counts.skipped !== undefined) {
+                    console.log(`Progress: 📊 Skipped count updated: ${data.counts.skipped}`);
+                    this.uiManager.debugLog("Progress", `📊 Skipped count updated: ${data.counts.skipped}`);
+                }
+            }
+
+            // Handle completion
+            if (data.status === 'complete' || data.current === data.total) {
+                console.log("Progress: ✅ Import completed");
+                this.uiManager.logMessage('success', 'Import completed successfully');
+                
+                // Clean up connections
+                if (this.robustSSE) {
+                    this.robustSSE.close();
+                    this.robustSSE = null;
+                }
+                if (this.fallbackPolling) {
+                    stopFallbackPolling();
+                    this.fallbackPolling = null;
+                }
+                
+                this.isImporting = false;
+            }
+
+            // Handle errors
+            if (data.status === 'error') {
+                console.error("Progress: ❌ Import error:", data.error);
+                this.uiManager.logMessage('error', `Import error: ${data.error || 'Unknown error'}`);
+                
+                // Clean up connections
+                if (this.robustSSE) {
+                    this.robustSSE.close();
+                    this.robustSSE = null;
+                }
+                if (this.fallbackPolling) {
+                    stopFallbackPolling();
+                    this.fallbackPolling = null;
+                }
+                
                 this.isImporting = false;
             }
         };
+
         try {
             // Set import state to prevent multiple simultaneous imports
             this.isImporting = true;
@@ -1736,10 +1526,10 @@ class App {
             
             console.log('✅ [IMPORT] Session ID received:', sessionId);
             
-            // Log session ID and establish SSE connection for progress updates
+            // Log session ID and establish robust SSE connection for progress updates
             this.uiManager.debugLog("Import", "Session ID received", { sessionId });
-            console.log('🔌 [IMPORT] Establishing SSE connection with sessionId:', sessionId);
-            connectSSE(sessionId);
+            console.log('🔌 [IMPORT] Establishing robust SSE connection with sessionId:', sessionId);
+            connectRobustSSE(sessionId);
         } catch (error) {
             console.error('❌ [IMPORT] Error during import process:', error);
             this.uiManager.debugLog("Import", "Error starting import", error);
@@ -1801,18 +1591,27 @@ class App {
             return null;
         }
         
-        const selectedPopulationId = populationSelect.value;
-        const selectedPopulationName = populationSelect.selectedOptions[0]?.text || '';
+        // Check both dropdown value and stored properties
+        const dropdownValue = populationSelect.value;
+        const dropdownText = populationSelect.selectedOptions[0]?.text || '';
+        const storedPopulationId = this.selectedPopulationId || '';
+        const storedPopulationName = this.selectedPopulationName || '';
+        
+        // Use stored values if available, otherwise use dropdown values
+        const selectedPopulationId = storedPopulationId || dropdownValue;
+        const selectedPopulationName = storedPopulationName || dropdownText;
         
         console.log('=== getCurrentPopulationSelection ===');
-        console.log('Population ID:', selectedPopulationId);
-        console.log('Population Name:', selectedPopulationName);
+        console.log('Dropdown ID:', dropdownValue);
+        console.log('Dropdown Name:', dropdownText);
+        console.log('Stored ID:', storedPopulationId);
+        console.log('Stored Name:', storedPopulationName);
+        console.log('Final ID:', selectedPopulationId);
+        console.log('Final Name:', selectedPopulationName);
         console.log('Select element exists:', !!populationSelect);
-        console.log('Select element value:', populationSelect.value);
-        console.log('Selected option:', populationSelect.selectedOptions[0]);
         console.log('====================================');
         
-        if (!selectedPopulationId) {
+        if (!selectedPopulationId || selectedPopulationId === '') {
             return null;
         }
         
@@ -1846,9 +1645,36 @@ class App {
     }
 
     cancelImport() {
+        // Abort the import request
         if (this.importAbortController) {
             this.importAbortController.abort();
         }
+        
+        // Clean up robust SSE connection if it exists
+        if (this.robustSSE) {
+            console.log("Import: 🧹 Cleaning up robust SSE connection on cancel");
+            this.uiManager.debugLog("Import", "🧹 Cleaning up robust SSE connection on cancel");
+            this.robustSSE.close();
+            this.robustSSE = null;
+        }
+        
+        // Stop fallback polling if it's active
+        if (this.fallbackPolling) {
+            console.log("Import: 🧹 Stopping fallback polling on cancel");
+            this.uiManager.debugLog("Import", "🧹 Stopping fallback polling on cancel");
+            stopFallbackPolling();
+            this.fallbackPolling = null;
+        }
+        
+        // Update status indicator
+        updateSSEStatusIndicator('disconnected', false);
+        
+        // Reset import state
+        this.isImporting = false;
+        
+        // Log cancellation
+        this.uiManager.logMessage('info', 'Import cancelled by user');
+        console.log("Import: 🚫 Import cancelled by user");
     }
 
     /**
@@ -3083,6 +2909,48 @@ class App {
             this.uiManager.showError('Error', 'Failed to enable tool after disclaimer acceptance.');
         }
     }
+
+    attachPopulationChangeListener() {
+        const populationSelectEl = document.getElementById('import-population-select');
+        if (!populationSelectEl) {
+            console.error('Population select element not found for event listener');
+            return;
+        }
+        
+        // Remove existing listener to prevent duplicates
+        populationSelectEl.removeEventListener('change', this.handlePopulationChange.bind(this));
+        
+        // Add the change listener
+        populationSelectEl.addEventListener('change', this.handlePopulationChange.bind(this));
+        
+        console.log('✅ Population change listener attached');
+    }
+    
+    handlePopulationChange(e) {
+        const populationSelectEl = e.target;
+        const selectedId = populationSelectEl.value;
+        const selectedName = populationSelectEl.selectedOptions[0]?.text || '';
+        
+        this.selectedPopulationId = selectedId;
+        this.selectedPopulationName = selectedName;
+        
+        console.log('[Population] Dropdown changed:', { id: selectedId, name: selectedName });
+        
+        // Update import button state when population selection changes
+        this.updateImportButtonState();
+        
+        // Update population display in import stats
+        const populationNameElement = document.getElementById('import-population-name');
+        const populationIdElement = document.getElementById('import-population-id');
+        
+        if (populationNameElement) {
+            populationNameElement.textContent = selectedName || 'Not selected';
+        }
+        
+        if (populationIdElement) {
+            populationIdElement.textContent = selectedId || 'Not set';
+        }
+    }
 }
 
 // Initialize app when DOM is loaded
@@ -3279,3 +3147,185 @@ if (typeof window.importProgressStreams === 'undefined') {
     window.importProgressStreams = new Map();
 }
 const importProgressStreams = window.importProgressStreams;
+
+// ===============================
+// SSE EventSource Wrapper
+// ===============================
+
+/**
+ * Robust SSE (EventSource) wrapper with exponential backoff, connection status events, and full lifecycle logging.
+ * Usage: const sse = new RobustEventSource(url, { onMessage, onOpen, onError, onStatus });
+ */
+class RobustEventSource {
+    constructor(url, { onMessage, onOpen, onError, onStatus, maxRetries = 10, baseDelay = 1000, maxDelay = 30000 } = {}) {
+        this.url = url;
+        this.onMessage = onMessage;
+        this.onOpen = onOpen;
+        this.onError = onError;
+        this.onStatus = onStatus;
+        this.maxRetries = maxRetries;
+        this.baseDelay = baseDelay;
+        this.maxDelay = maxDelay;
+        this.retryCount = 0;
+        this.eventSource = null;
+        this.closed = false;
+        this.connect();
+    }
+
+    connect() {
+        if (this.closed) return;
+        this.eventSource = new EventSource(this.url);
+        this._emitStatus('connecting');
+        this.eventSource.onopen = (e) => {
+            this.retryCount = 0;
+            this._emitStatus('connected');
+            if (this.onOpen) this.onOpen(e);
+            console.log('[SSE] Connected:', this.url);
+        };
+        this.eventSource.onmessage = (e) => {
+            if (this.onMessage) this.onMessage(e);
+        };
+        this.eventSource.onerror = (e) => {
+            this._emitStatus('error');
+            if (this.onError) this.onError(e);
+            console.error('[SSE] Error:', e);
+            this.eventSource.close();
+            if (!this.closed) this._scheduleReconnect();
+        };
+        this.eventSource.onclose = (e) => {
+            this._emitStatus('closed');
+            console.warn('[SSE] Closed:', e);
+        };
+    }
+
+    _scheduleReconnect() {
+        if (this.retryCount >= this.maxRetries) {
+            this._emitStatus('failed');
+            console.error('[SSE] Max retries reached. Giving up.');
+            return;
+        }
+        const delay = Math.min(this.baseDelay * Math.pow(2, this.retryCount), this.maxDelay);
+        this.retryCount++;
+        this._emitStatus('reconnecting', delay);
+        console.warn(`[SSE] Reconnecting in ${delay}ms (attempt ${this.retryCount})`);
+        setTimeout(() => this.connect(), delay);
+    }
+
+    _emitStatus(status, data) {
+        if (this.onStatus) this.onStatus(status, data);
+    }
+
+    close() {
+        this.closed = true;
+        if (this.eventSource) this.eventSource.close();
+        this._emitStatus('closed');
+    }
+}
+// ===============================
+
+// ===============================
+// SSE Status Indicator & Fallback Polling
+// ===============================
+
+// Add a status indicator to the DOM (if not present)
+function ensureSSEStatusIndicator() {
+    let indicator = document.getElementById('sse-status-indicator');
+    if (!indicator) {
+        indicator = document.createElement('div');
+        indicator.id = 'sse-status-indicator';
+        indicator.style.position = 'fixed';
+        indicator.style.bottom = '80px';
+        indicator.style.right = '30px';
+        indicator.style.zIndex = '2000';
+        indicator.style.padding = '10px 18px';
+        indicator.style.borderRadius = '8px';
+        indicator.style.fontWeight = 'bold';
+        indicator.style.fontSize = '15px';
+        indicator.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+        indicator.style.display = 'flex';
+        indicator.style.alignItems = 'center';
+        indicator.innerHTML = '<span class="sse-status-dot" style="width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:10px;"></span><span class="sse-status-text"></span>';
+        document.body.appendChild(indicator);
+    }
+    return indicator;
+}
+
+function updateSSEStatusIndicator(status, fallback) {
+    const indicator = ensureSSEStatusIndicator();
+    const dot = indicator.querySelector('.sse-status-dot');
+    const text = indicator.querySelector('.sse-status-text');
+    let color = '#6c757d', msg = 'Unknown';
+    if (status === 'connected') { color = '#28a745'; msg = 'Connected'; }
+    else if (status === 'connecting') { color = '#ffc107'; msg = 'Connecting...'; }
+    else if (status === 'reconnecting') { color = '#ffc107'; msg = 'Reconnecting...'; }
+    else if (status === 'error') { color = '#dc3545'; msg = 'Connection Error'; }
+    else if (status === 'closed') { color = '#dc3545'; msg = 'Disconnected'; }
+    else if (status === 'failed') { color = '#dc3545'; msg = 'Failed'; }
+    dot.style.background = color;
+    text.textContent = msg + (fallback ? ' (Fallback Mode)' : '');
+    indicator.style.background = fallback ? '#fff3cd' : '#f8f9fa';
+    indicator.style.color = fallback ? '#856404' : '#333';
+    indicator.style.border = fallback ? '2px solid #ffc107' : '1px solid #dee2e6';
+    indicator.style.boxShadow = fallback ? '0 2px 12px #ffe066' : '0 2px 8px rgba(0,0,0,0.12)';
+    indicator.title = fallback ? 'Real-time updates unavailable, using fallback polling.' : 'SSE connection status';
+}
+
+// Fallback polling logic
+let fallbackPollingInterval = null;
+function startFallbackPolling(progressUrl, onProgress) {
+    if (fallbackPollingInterval) return;
+    updateSSEStatusIndicator('failed', true);
+    fallbackPollingInterval = setInterval(() => {
+        fetch(progressUrl)
+            .then(r => r.json())
+            .then(data => {
+                if (onProgress) onProgress({ data: JSON.stringify(data) });
+            })
+            .catch(err => {
+                console.error('[Fallback Polling] Error:', err);
+            });
+    }, 5000); // Poll every 5 seconds
+    console.warn('[SSE] Fallback polling started.');
+}
+function stopFallbackPolling() {
+    if (fallbackPollingInterval) {
+        clearInterval(fallbackPollingInterval);
+        fallbackPollingInterval = null;
+        console.log('[SSE] Fallback polling stopped.');
+    }
+}
+
+// Integrate with import progress logic
+function setupImportProgressSSE(sessionId, onProgress) {
+    const sseUrl = `/api/import/progress/${sessionId}`;
+    let fallbackActive = false;
+    let sse = new RobustEventSource(sseUrl, {
+        onMessage: (e) => {
+            if (onProgress) onProgress(e);
+        },
+        onOpen: () => {
+            updateSSEStatusIndicator('connected', false);
+            stopFallbackPolling();
+            fallbackActive = false;
+        },
+        onError: () => {
+            updateSSEStatusIndicator('error', fallbackActive);
+        },
+        onStatus: (status, data) => {
+            updateSSEStatusIndicator(status, fallbackActive);
+            if (status === 'failed') {
+                fallbackActive = true;
+                // Start fallback polling
+                startFallbackPolling(`/api/import/progress-fallback/${sessionId}`, onProgress);
+            } else if (status === 'connected') {
+                fallbackActive = false;
+                stopFallbackPolling();
+            }
+        }
+    });
+    return sse;
+}
+// ... existing code ...
+// Example usage in your import logic:
+// const sse = setupImportProgressSSE(sessionId, handleProgressEvent);
+// When done: sse.close(); stopFallbackPolling();
