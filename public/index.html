@@ -19,8 +19,12 @@
     <link rel="stylesheet" href="/css/token-status-indicator.css">
     <!-- Progress UI CSS -->
     <link rel="stylesheet" href="/css/progress-ui.css">
+    <!-- Disclaimer Modal CSS -->
+    <link rel="stylesheet" href="/css/disclaimer-modal.css">
     <!-- Disclaimer Banner Script -->
     <script src="/js/modules/disclaimer-banner.js"></script>
+    <!-- Disclaimer Modal Script -->
+    <script src="/js/modules/disclaimer-modal.js"></script>
     <!-- Token Status Indicator Script -->
     <script src="/js/modules/token-status-indicator.js"></script>
 </head>
@@ -117,38 +121,15 @@
                 <div class="home-header">
                     <h1>PingOne User Import Tool</h1>
                     
-                    <!-- Enhanced Disclaimer with Required Agreement -->
-                    <div id="disclaimer" class="disclaimer-box">
-                        <div class="disclaimer-header">
-                            <h3>⚠️ Important Disclaimer</h3>
-                            <p><strong>This tool is NOT an official Ping Identity product and is provided without any warranty or support. Use at your own risk. Backup your PingOne account and test in non-production environments only.</strong></p>
+                    <!-- Disclaimer Status Display -->
+                    <div id="disclaimer-status" class="disclaimer-status-box" style="display: none;">
+                        <div class="disclaimer-status-header">
+                            <h3>✅ Disclaimer Accepted</h3>
+                            <p><strong>You have acknowledged the disclaimer and can now use the tool.</strong></p>
                         </div>
-                        <div class="warning-section">
-                            <h4>📋 UNSUPPORTED TOOL DISCLAIMER:</h4>
-                            <ul>
-                                <li>No technical support is available from Ping Identity</li>
-                                <li>No updates or bug fixes are guaranteed</li>
-                                <li>No compatibility with future PingOne versions is assured</li>
-                                <li>No documentation or training is provided by Ping Identity</li>
-                                <li>This tool may stop working at any time without notice</li>
-                                <li>Use of this tool is not recommended for production environments</li>
-                                <li>You are responsible for testing and validating all operations</li>
-                            </ul>
-                        </div>
-                        <div class="acceptance-section">
-                            <div class="agreement-checkbox">
-                                <!-- Simplifies UX for disclaimer acknowledgment while still ensuring legal consent -->
-                                <input type="checkbox" id="disclaimer-agreement" required>
-                                <label for="disclaimer-agreement">
-                                    <strong>I acknowledge and accept the above disclaimer.</strong>
-                                    <span title="You must accept this disclaimer to use the tool." style="margin-left: 6px; color: #ffc107; cursor: help; font-size: 1.1em; vertical-align: middle;">
-                                        <i class="fas fa-info-circle" aria-hidden="true"></i>
-                                    </span>
-                                </label>
-                            </div>
-                            <button id="accept-disclaimer" class="btn btn-danger" disabled style="margin-top: 1rem; min-width: 120px;">
-                                Continue
-                            </button>
+                        <div class="disclaimer-status-info">
+                            <p><i class="fas fa-check-circle"></i> Application is enabled and ready for use.</p>
+                            <p><i class="fas fa-info-circle"></i> You can reset the disclaimer acceptance in the browser's developer console.</p>
                         </div>
                     </div>
                 </div>

@@ -2713,66 +2713,60 @@ class App {
 
   // Simplifies UX for disclaimer acknowledgment while still ensuring legal consent
   setupDisclaimerAgreement() {
-    // Validate presence of disclaimer elements before attaching listeners  
-    // Prevents crash when elements are missing or page changes structure
+    // New disclaimer modal system - check if disclaimer was previously accepted
+    console.log('[Disclaimer] Setting up disclaimer agreement system');
     try {
-      // Get required elements with defensive programming
+      // Check if disclaimer was previously accepted
+      if (window.DisclaimerModal && window.DisclaimerModal.isDisclaimerAccepted()) {
+        console.log('[Disclaimer] Disclaimer previously accepted, enabling tool');
+        this.enableToolAfterDisclaimer();
+        this.showDisclaimerStatus();
+        return;
+      }
+
+      // If disclaimer modal is available, let it handle the disclaimer flow
+      if (window.DisclaimerModal) {
+        console.log('[Disclaimer] Using new disclaimer modal system');
+        // The modal will handle the disclaimer flow automatically
+        return;
+      }
+
+      // Fallback to old disclaimer system if modal is not available
+      console.warn('[Disclaimer] Disclaimer modal not available, using fallback system');
+      this.setupFallbackDisclaimer();
+    } catch (err) {
+      console.error('[Disclaimer] Error in setupDisclaimerAgreement:', err);
+    }
+  }
+  setupFallbackDisclaimer() {
+    // Fallback disclaimer system for when modal is not available
+    try {
       const disclaimerCheckbox = document.getElementById('disclaimer-agreement');
       const acceptButton = document.getElementById('accept-disclaimer');
       const disclaimerBox = document.getElementById('disclaimer');
-
-      // Presence check for all required elements
       if (!disclaimerCheckbox || !acceptButton || !disclaimerBox) {
-        console.warn('[Disclaimer] Required disclaimer elements not found:', {
-          disclaimerCheckbox: !!disclaimerCheckbox,
-          acceptButton: !!acceptButton,
-          disclaimerBox: !!disclaimerBox
-        });
-
-        // Retry mechanism: if elements are not found, try again after a short delay
-        if (document.readyState === 'loading') {
-          console.log('[Disclaimer] DOM still loading, retrying in 100ms...');
-          setTimeout(() => this.setupDisclaimerAgreement(), 100);
-          return;
-        }
-
-        // Optional: Show a user-friendly message if disclaimer is broken
-        if (disclaimerBox) {
-          disclaimerBox.innerHTML = '<div class="alert alert-danger">Unable to load disclaimer controls. Please refresh or contact support.</div>';
-        }
+        console.warn('[Disclaimer] Fallback disclaimer elements not found');
         return;
       }
-      console.log('[Disclaimer] All required elements found successfully');
-
-      // Function to check if the checkbox is checked
+      console.log('[Disclaimer] Setting up fallback disclaimer system');
       const checkAgreementStatus = () => {
         const isChecked = disclaimerCheckbox.checked;
         acceptButton.disabled = !isChecked;
-
-        // Update button appearance based on checkbox status
         if (isChecked) {
           acceptButton.classList.remove('btn-secondary');
           acceptButton.classList.add('btn-danger');
-          console.log('[Disclaimer] ✅ Button enabled');
         } else {
           acceptButton.classList.remove('btn-danger');
           acceptButton.classList.add('btn-secondary');
-          console.log('[Disclaimer] ❌ Button disabled');
         }
       };
-
-      // Attach event listener to checkbox
       disclaimerCheckbox.addEventListener('change', e => {
         console.log('[Disclaimer] Checkbox changed:', e.target.checked);
         checkAgreementStatus();
       });
-
-      // Attach event listener to accept button
       acceptButton.addEventListener('click', e => {
         e.preventDefault();
         console.log('[Disclaimer] Accept button clicked');
-
-        // Validate checkbox is still checked
         if (disclaimerCheckbox.checked) {
           console.log('[Disclaimer] ✅ Disclaimer accepted - enabling tool');
           this.enableToolAfterDisclaimer();
@@ -2781,27 +2775,35 @@ class App {
           this.uiManager.showError('Disclaimer Error', 'Please check the agreement box before proceeding.');
         }
       });
-
-      // Initial status check
       checkAgreementStatus();
-      console.log('[Disclaimer] Setup completed successfully');
+      console.log('[Disclaimer] Fallback disclaimer setup completed');
     } catch (err) {
-      console.error('[Disclaimer] Error in setupDisclaimerAgreement:', err);
+      console.error('[Disclaimer] Error in setupFallbackDisclaimer:', err);
     }
   }
 
   // Check if disclaimer was previously accepted
   checkDisclaimerStatus() {
+    // Use the new disclaimer modal system if available
+    if (window.DisclaimerModal && window.DisclaimerModal.isDisclaimerAccepted()) {
+      console.log('[Disclaimer] Disclaimer previously accepted via modal system');
+      this.enableToolAfterDisclaimer();
+      this.showDisclaimerStatus();
+      return true;
+    }
+
+    // Fallback to localStorage check
     if (typeof localStorage !== 'undefined') {
       const disclaimerAccepted = localStorage.getItem('disclaimerAccepted');
       const disclaimerDate = localStorage.getItem('disclaimerAcceptedDate');
-      console.log('Disclaimer status check:', {
+      console.log('[Disclaimer] Status check:', {
         accepted: disclaimerAccepted,
         date: disclaimerDate
       });
       if (disclaimerAccepted === 'true') {
-        console.log('Disclaimer previously accepted, enabling tool');
+        console.log('[Disclaimer] Disclaimer previously accepted, enabling tool');
         this.enableToolAfterDisclaimer();
+        this.showDisclaimerStatus();
         return true;
       }
     }
@@ -3307,8 +3309,8 @@ class App {
         card.style.opacity = '1';
       });
 
-      // Show success message
-      this.uiManager.showSuccess('Tool Enabled', 'You have accepted the disclaimer. The tool is now enabled.');
+      // Show disclaimer status instead of success message
+      this.showDisclaimerStatus();
 
       // Store disclaimer acceptance in localStorage
       if (typeof localStorage !== 'undefined') {
@@ -3317,8 +3319,6 @@ class App {
       }
 
       // Scroll to top of page smoothly after disclaimer acceptance
-      // Ensures users are redirected to the top of the page immediately after accepting the disclaimer
-      // Helps surface important UI elements like token status, navigation icons, or action buttons
       setTimeout(() => {
         window.scrollTo({
           top: 0,
@@ -3326,12 +3326,28 @@ class App {
           behavior: 'smooth'
         });
         console.log('[Disclaimer] ✅ Scrolled to top of page smoothly');
-      }, 100); // Small delay to ensure UI updates are complete
-
+      }, 100);
       console.log('[Disclaimer] ✅ Tool enabled successfully after disclaimer acceptance');
     } catch (error) {
       console.error('[Disclaimer] Error enabling tool after disclaimer:', error);
       this.uiManager.showError('Error', 'Failed to enable tool after disclaimer acceptance.');
+    }
+  }
+  showDisclaimerStatus() {
+    // Show the disclaimer status section
+    const disclaimerStatus = document.getElementById('disclaimer-status');
+    if (disclaimerStatus) {
+      disclaimerStatus.style.display = 'block';
+      console.log('[Disclaimer] Disclaimer status shown');
+    }
+
+    // Log the disclaimer acceptance
+    if (window.logManager) {
+      window.logManager.log('info', 'Disclaimer accepted by user', {
+        source: 'app',
+        type: 'disclaimer',
+        timestamp: new Date().toISOString()
+      });
     }
   }
   attachPopulationChangeListener() {
