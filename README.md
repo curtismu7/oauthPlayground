@@ -234,6 +234,37 @@ For support and questions:
 
 ---
 
-**Version**: 5.0  
+## 🌍 Region Configuration
+
+The tool supports multiple PingOne regions with production-ready selection and validation:
+
+| Region Name                        | Code | TLD     |
+|------------------------------------|------|---------|
+| North America (excluding Canada)   | NA   | com     |
+| Canada                             | CA   | ca      |
+| European Union                     | EU   | eu      |
+| Australia                          | AU   | com.au  |
+| Singapore                          | SG   | sg      |
+| Asia-Pacific                       | AP   | asia    |
+
+- Select your region in **Settings**. The correct API base URL is used automatically.
+- Region info is used for all API calls and is saved in your settings.
+
+## ⏳ Modern Progress UI
+
+- All major operations (Import, Export, Delete, Modify) feature a modern, non-blocking progress UI.
+- Real-time updates via SSE (Server-Sent Events) and responsive controls.
+- Duplicate handling, error reporting, and accessibility features included.
+- Progress UI is tested via the API tester and Swagger UI.
+
+## 🧪 API Documentation & Testing
+
+- **Swagger UI**: Access at `/swagger/html` or `/api-docs` for interactive API documentation and live testing.
+- **Region and Progress Endpoints**: All region codes and progress endpoints are documented and testable in Swagger UI.
+- **API Tester**: Use `public/api-tester.html` for comprehensive UI and API testing, including region and progress features.
+
+---
+
+**Version**: 5.1  
 **Last Updated**: July 2025  
 **Maintainer**: Curtis Muir

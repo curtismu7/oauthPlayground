@@ -14,6 +14,7 @@
 import { createWinstonLogger } from './winston-logger.js';
 import { createCircularProgress } from './circular-progress.js';
 import { ElementRegistry } from './element-registry.js';
+import { progressManager } from './progress-manager.js';
 
 // Enable debug mode for development (set to false in production)
 const DEBUG_MODE = true;
@@ -579,6 +580,152 @@ class UIManager {
             });
             // Fallback to console
             console.log(`[${type.toUpperCase()}] ${title}: ${message}`);
+        }
+    }
+
+    /**
+     * Update import progress with enhanced functionality
+     * 
+     * @param {number} current - Current progress
+     * @param {number} total - Total items
+     * @param {string} message - Progress message
+     * @param {Object} counts - Progress counts
+     * @param {string} populationName - Population name
+     * @param {string} populationId - Population ID
+     */
+    updateImportProgress(current, total, message = '', counts = {}, populationName = '', populationId = '') {
+        try {
+            // Use the progress manager for enhanced progress handling
+            progressManager.updateProgress(current, total, message, {
+                ...counts,
+                population: populationName,
+                populationId: populationId
+            });
+
+            // Update operation stats
+            if (counts.success !== undefined) progressManager.operationStats.success = counts.success;
+            if (counts.failed !== undefined) progressManager.operationStats.failed = counts.failed;
+            if (counts.skipped !== undefined) progressManager.operationStats.skipped = counts.skipped;
+            if (counts.duplicates !== undefined) progressManager.operationStats.duplicates = counts.duplicates;
+
+            this.logger.debug('Import progress updated', { 
+                current, 
+                total, 
+                message: message.substring(0, 100),
+                counts,
+                populationName,
+                populationId
+            });
+        } catch (error) {
+            this.logger.error('Error updating import progress', { 
+                error: error.message, 
+                current, 
+                total, 
+                message 
+            });
+        }
+    }
+
+    /**
+     * Start import operation with progress manager
+     * 
+     * @param {Object} options - Import options
+     */
+    startImportOperation(options = {}) {
+        try {
+            progressManager.startOperation('import', options);
+            this.logger.info('Import operation started', { options });
+        } catch (error) {
+            this.logger.error('Error starting import operation', { 
+                error: error.message, 
+                options 
+            });
+        }
+    }
+
+    /**
+     * Start export operation with progress manager
+     * 
+     * @param {Object} options - Export options
+     */
+    startExportOperation(options = {}) {
+        try {
+            progressManager.startOperation('export', options);
+            this.logger.info('Export operation started', { options });
+        } catch (error) {
+            this.logger.error('Error starting export operation', { 
+                error: error.message, 
+                options 
+            });
+        }
+    }
+
+    /**
+     * Start delete operation with progress manager
+     * 
+     * @param {Object} options - Delete options
+     */
+    startDeleteOperation(options = {}) {
+        try {
+            progressManager.startOperation('delete', options);
+            this.logger.info('Delete operation started', { options });
+        } catch (error) {
+            this.logger.error('Error starting delete operation', { 
+                error: error.message, 
+                options 
+            });
+        }
+    }
+
+    /**
+     * Start modify operation with progress manager
+     * 
+     * @param {Object} options - Modify options
+     */
+    startModifyOperation(options = {}) {
+        try {
+            progressManager.startOperation('modify', options);
+            this.logger.info('Modify operation started', { options });
+        } catch (error) {
+            this.logger.error('Error starting modify operation', { 
+                error: error.message, 
+                options 
+            });
+        }
+    }
+
+    /**
+     * Complete current operation
+     * 
+     * @param {Object} results - Operation results
+     */
+    completeOperation(results = {}) {
+        try {
+            progressManager.completeOperation(results);
+            this.logger.info('Operation completed', { results });
+        } catch (error) {
+            this.logger.error('Error completing operation', { 
+                error: error.message, 
+                results 
+            });
+        }
+    }
+
+    /**
+     * Handle duplicate users during import
+     * 
+     * @param {Array} duplicates - Array of duplicate users
+     * @param {Function} onDecision - Callback for user decision
+     */
+    handleDuplicateUsers(duplicates, onDecision) {
+        try {
+            progressManager.handleDuplicates(duplicates, onDecision);
+            this.logger.info('Duplicate users handled', { count: duplicates.length });
+        } catch (error) {
+            this.logger.error('Error handling duplicate users', { 
+                error: error.message, 
+                duplicates 
+            });
         }
     }
 
