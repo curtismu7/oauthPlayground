@@ -592,3 +592,169 @@ label {
     margin-right: 8px;
     color: #28a745;
 } 
+
+/* Import Drop Zone Styles */
+.import-drop-zone {
+    border: 2px dashed var(--ping-gray-light);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    text-align: center;
+    background-color: var(--ping-white);
+    transition: var(--transition);
+    cursor: pointer;
+    margin-bottom: 1rem;
+    position: relative;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.import-drop-zone:hover {
+    border-color: var(--ping-accent-blue);
+    background-color: var(--ping-gray-lightest);
+}
+
+.import-drop-zone.drag-over {
+    border-color: var(--ping-success-green);
+    background-color: rgba(46, 133, 64, 0.1);
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(46, 133, 64, 0.3);
+}
+
+.import-drop-zone.drag-over::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(46, 133, 64, 0.1) 50%, transparent 70%);
+    animation: dragShine 1.5s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes dragShine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.import-drop-zone i {
+    color: var(--ping-gray);
+    margin-bottom: 0.5rem;
+    transition: var(--transition);
+}
+
+.import-drop-zone:hover i {
+    color: var(--ping-accent-blue);
+}
+
+.import-drop-zone.drag-over i {
+    color: var(--ping-success-green);
+    transform: scale(1.1);
+}
+
+.import-drop-zone strong {
+    color: var(--ping-black);
+    margin-bottom: 0.25rem;
+    transition: var(--transition);
+}
+
+.import-drop-zone.drag-over strong {
+    color: var(--ping-success-green);
+}
+
+/* Dashboard Upload Zone Styles */
+.upload-zone {
+    border: 3px dashed var(--ping-gray-light);
+    border-radius: var(--border-radius);
+    padding: 3rem;
+    text-align: center;
+    background-color: var(--ping-white);
+    transition: var(--transition);
+    cursor: pointer;
+    margin-bottom: 2rem;
+    position: relative;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.upload-zone:hover {
+    border-color: var(--ping-accent-blue);
+    background-color: var(--ping-gray-lightest);
+}
+
+.upload-zone.drag-over {
+    border-color: var(--ping-success-green);
+    background-color: rgba(46, 133, 64, 0.1);
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(46, 133, 64, 0.3);
+}
+
+.upload-zone.drag-over::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(46, 133, 64, 0.1) 50%, transparent 70%);
+    animation: dragShine 1.5s ease-in-out infinite;
+    pointer-events: none;
+}
+
+.upload-zone i {
+    color: var(--ping-gray);
+    margin-bottom: 1rem;
+    transition: var(--transition);
+}
+
+.upload-zone:hover i {
+    color: var(--ping-accent-blue);
+}
+
+.upload-zone.drag-over i {
+    color: var(--ping-success-green);
+    transform: scale(1.2);
+}
+
+.upload-zone h3 {
+    color: var(--ping-black);
+    margin-bottom: 0.5rem;
+    transition: var(--transition);
+}
+
+.upload-zone.drag-over h3 {
+    color: var(--ping-success-green);
+}
+
+/* Global drag feedback for document-level drops */
+body.drag-over {
+    background-color: rgba(46, 133, 64, 0.05);
+}
+
+body.drag-over::after {
+    content: 'Drop file to upload';
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--ping-success-green);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: var(--border-radius);
+    font-weight: var(--font-weight-bold);
+    z-index: 10000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    animation: fadeInOut 0.3s ease-in-out;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+    100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+} 

@@ -434,9 +434,13 @@ class App {
                 this.logger.warn('SettingsManager not properly initialized');
             }
             
-            // Initialize file handler for CSV processing with safety check
+            // Initialize FileHandler with safety check
             try {
                 this.fileHandler = new FileHandler(this.logger, this.uiManager);
+                // Initialize global drag-and-drop prevention and routing
+                if (this.fileHandler && typeof this.fileHandler.initializeGlobalDragAndDrop === 'function') {
+                    this.fileHandler.initializeGlobalDragAndDrop();
+                }
             } catch (error) {
                 this.logger.error('Failed to initialize FileHandler:', error);
                 this.fileHandler = null;
@@ -1826,8 +1830,8 @@ class App {
             // Includes file, population selection, and metadata
             const formData = new FormData();
             formData.append('file', importOptions.file);
-            formData.append('selectedPopulationId', importOptions.selectedPopulationId);
-            formData.append('selectedPopulationName', importOptions.selectedPopulationName);
+            formData.append('populationId', importOptions.selectedPopulationId);
+            formData.append('populationName', importOptions.selectedPopulationName);
             formData.append('totalUsers', importOptions.totalUsers);
             
             // Debug logging for backend request

@@ -1,4 +1,4 @@
-# 🚀 PingOne Import Tool v5.0 - Release Notes
+# 🚀 PingOne Import Tool v5.1 - Release Notes
 
 ## 📅 **Release Date**: July 12, 2025
 
@@ -65,7 +65,7 @@
 
 ---
 
-## 📋 **New Features in v5.0**
+## 📋 **New Features in v5.1**
 
 ### **1. Swagger UI Integration**
 - **Fixed Bottom Button**: Always accessible "API Docs" button
@@ -104,7 +104,7 @@
 
 ---
 
-## 🐛 **Bug Fixes in v5.0**
+## �� **Bug Fixes in v5.1**
 
 ### **Critical Runtime Fixes**
 - **Fixed**: "this.uiManager.showNotification is not a function" error
@@ -291,7 +291,7 @@ npm start
 
 ---
 
-**Version**: 5.0  
+**Version**: 5.1  
 **Release Date**: July 12, 2025  
 **Maintainer**: Curtis Muir  
 **Status**: Production Ready ✅ 
