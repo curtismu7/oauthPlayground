@@ -6,6 +6,8 @@ import winston from 'winston';
 import rateLimit from 'express-rate-limit';
 import crypto from 'crypto';
 import workerTokenManager from '../auth/workerTokenManager.js';
+import fetch from 'node-fetch';
+import { v4 as uuidv4 } from 'uuid';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -230,513 +232,179 @@ const injectSettings = async (req, res, next) => {
     }
 };
 
-// Proxy middleware
-const proxyRequest = async (req, res) => {
-    try {
-        logger.info('=== Starting proxyRequest ===');
-        logger.info('Request path:', req.path);
-        logger.info('Request method:', req.method);
-        logger.debug('Request headers:', req.headers);
-        logger.debug('Request body type:', typeof req.body);
-        logger.debug('Request rawBody exists:', !!req.rawBody);
-        if (req.rawBody) {
-            logger.debug('Raw body length:', req.rawBody.length);
-            logger.debug('Raw body start:', req.rawBody.substring(0, 200) + (req.rawBody.length > 200 ? '...' : ''));
-        }
+// Enhanced PingOne proxy with automatic token re-authentication
+// 
+// This proxy automatically handles token expiration by:
+// - Detecting 401 responses with token_expired errors
+// - Automatically obtaining new tokens using stored credentials
+// - Retrying the original request with the new token
+// - Providing seamless access without user intervention
+
+const createAutoRetryProxy = (tokenManager) => {
+    return async (req, res) => {
+        const requestId = uuidv4();
+        const startTime = Date.now();
         
-        const { environmentId, region } = req.settings;
-        logger.info('Using environmentId:', environmentId);
-        logger.info('Using region:', region);
-        
-        const baseUrl = PINGONE_API_BASE_URLS[region];
-        logger.info('Base URL:', baseUrl);
-        
-        if (!baseUrl) {
-            throw new Error(`Invalid region: ${region}`);
-        }
-        
-        // Construct the target URL
-        const targetPath = req.path.replace(/^\/api\/pingone/, '');
-        
-        // For certain endpoints, we need to inject the environment ID if not already present
-        let finalPath = targetPath;
-        if (!finalPath.includes('/environments/')) {
-            // These endpoints require environment ID in the path
-            const environmentScopedEndpoints = [
-                '/populations',
-                '/users',
-                '/applications',
-                '/groups',
-                '/roles',
-                '/schemas',
-                '/resources'
+        try {
+            // Get target URL from query parameters
+            const targetUrl = req.query.url;
+            if (!targetUrl) {
+                return res.status(400).json({ error: 'Target URL is required' });
+            }
+            
+            // Determine if this is an auth request (don't retry auth requests)
+            const isAuthRequest = targetUrl.includes('/as/token');
+            
+            console.log(`[${requestId}] Proxying to: ${targetUrl}`);
+            
+            // Prepare request headers
+            const headers = {};
+            
+            // Copy allowed headers from the original request
+            const allowedHeaders = [
+                'accept',
+                'accept-encoding',
+                'authorization',
+                'content-type',
+                'x-request-id'
             ];
             
-            const needsEnvironmentId = environmentScopedEndpoints.some(endpoint => 
-                finalPath.startsWith(endpoint) || finalPath.includes(endpoint));
-            
-            if (needsEnvironmentId) {
-                finalPath = `/environments/${environmentId}${targetPath}`;
-            }
-        }
-        
-        const targetUrl = new URL(`${baseUrl}/v1${finalPath}`);
-        logger.info('Target URL:', targetUrl.toString());
-        
-        // Forward query parameters
-        Object.entries(req.query).forEach(([key, value]) => {
-            targetUrl.searchParams.append(key, value);
-        });
-        
-        // Prepare headers
-        const headers = {
-            'Content-Type': req.get('Content-Type') || 'application/json',
-            'Accept': 'application/json',
-            'X-Correlation-ID': req.get('X-Correlation-ID') || crypto.randomUUID()
-        };
-        
-        // Use the server's token manager for authentication
-        try {
-            logger.info('Getting access token from server token manager...');
-            const token = await workerTokenManager.getAccessToken({
-                apiClientId: req.settings.apiClientId,
-                apiSecret: req.settings.apiSecret,
-                environmentId: req.settings.environmentId,
-                region: req.settings.region
-            });
-            logger.info('Successfully obtained access token from token manager');
-            
-            // Use the access token for the API request
-            headers['Authorization'] = `Bearer ${token}`;
-            logger.info('Authorization header set with Bearer token');
-            
-        } catch (error) {
-            logger.error('Error obtaining access token from token manager:', error);
-            
-            // Post error to UI for display
-            try {
-                const response = await fetch(`http://localhost:${process.env.PORT || 4000}/api/logs/error`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        message: `PingOne API authentication failed: ${error.message}`,
-                        details: {
-                            error: error.message,
-                            endpoint: req.path,
-                            method: req.method
-                        },
-                        source: 'pingone-api'
-                    })
-                });
-                
-                if (!response.ok) {
-                    logger.error('Failed to post error to UI:', response.statusText);
-                }
-            } catch (uiError) {
-                logger.error('Error posting to UI logs:', uiError.message);
-            }
-            
-            // Return a proper error response instead of throwing
-            res.status(403).json({
-                error: 'Authentication failed',
-                message: error.message,
-                details: {
-                    endpoint: req.path,
-                    method: req.method
+            Object.entries(req.headers).forEach(([key, value]) => {
+                const lowerKey = key.toLowerCase();
+                if (allowedHeaders.includes(lowerKey)) {
+                    headers[key] = value;
                 }
             });
-            return;
-        }
-        
-        // Prepare request body
-        let requestBody = null;
-        
-        if (req.method !== 'GET' && req.method !== 'HEAD') {
-            if (req.body) {
-                // For regular JSON requests, stringify the body
-                if (headers['Content-Type'] === 'application/json') {
-                    requestBody = JSON.stringify(req.body);
-                    logger.info('Request body prepared for JSON request, length:', requestBody ? requestBody.length : 0);
-                    logger.debug('Request body content:', req.body);
-                }
-                // For other content types, send as-is (e.g., FormData)
-                else {
-                    requestBody = req.body;
+            
+            // Add our own headers
+            headers['x-request-id'] = requestId;
+            headers['accept'] = 'application/json';
+            
+            // For non-auth requests, add authorization header with token
+            if (!isAuthRequest) {
+                try {
+                    const token = await tokenManager.getAccessToken({
+                        apiClientId: req.settings?.apiClientId,
+                        apiSecret: req.settings?.apiSecret,
+                        environmentId: req.settings?.environmentId,
+                        region: req.settings?.region
+                    });
+                    headers['Authorization'] = `Bearer ${token}`;
+                } catch (error) {
+                    console.error(`[${requestId}] Error obtaining access token:`, error.message);
+                    return res.status(401).json({ 
+                        error: 'Failed to authenticate with PingOne API', 
+                        details: error.message 
+                    });
                 }
             }
-        }
-        
-        // Forward the request with a timeout
-        logger.info('Sending request to PingOne API...');
-        
-        // Comprehensive request logging
-        const requestLog = {
-            type: 'api_request',
-            method: req.method,
-            url: targetUrl.toString(),
-            headers: {
-                'Content-Type': headers['Content-Type'],
-                'Accept': headers['Accept'],
-                'Authorization': headers['Authorization'] ? 'Bearer ***' : 'None',
-                'X-Correlation-ID': headers['X-Correlation-ID']
-            },
-            body: requestBody ? (typeof requestBody === 'string' ? JSON.parse(requestBody) : requestBody) : null,
-            timestamp: new Date().toISOString(),
-            requestId: req.requestId,
-            clientIp: req.ip,
-            userAgent: req.get('user-agent'),
-            source: 'pingone-proxy'
-        };
-        
-        logger.info('🔄 PingOne API Request:', requestLog);
-        
-        // Also send to UI logs for display
-        try {
-            await fetch(`http://localhost:${process.env.PORT || 4000}/api/logs/info`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    message: `PingOne API Request: ${req.method} ${targetUrl.toString()}`,
-                    details: requestLog,
-                    source: 'pingone-proxy'
-                })
-            });
-        } catch (logError) {
-            console.warn('Failed to send request log to UI:', logError);
-        }
-        
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-        
-        try {
-            const response = await fetch(targetUrl.toString(), {
+            
+            // Log the outgoing request for debugging
+            console.log(`[${requestId}] Proxying request:`, {
                 method: req.method,
-                headers,
-                body: requestBody,
-                signal: controller.signal
-            });
-            
-            clearTimeout(timeoutId);
-            
-            logger.info('Received response with status:', response.status);
-            logger.debug('Response headers:', [...response.headers.entries()]);
-            
-            // Check for error status codes and post to UI logs
-            if (!response.ok) {
-                let errorData = {};
-                try {
-                    const contentType = response.headers.get('content-type') || '';
-                    if (contentType.includes('application/json')) {
-                        errorData = await response.json();
-                    } else {
-                        errorData = { message: await response.text() };
-                    }
-                } catch (parseError) {
-                    errorData = { message: 'Failed to parse error response' };
-                }
-                
-                // Check if this is a uniqueness violation (user already exists)
-                const isUniquenessViolation = response.status === 400 && 
-                    errorData.code === 'INVALID_DATA' && 
-                    errorData.details && 
-                    errorData.details.some(detail => detail.code === 'UNIQUENESS_VIOLATION' && detail.target === 'username');
-                
-                if (isUniquenessViolation) {
-                    // Extract username from request body for friendly message
-                    let username = 'unknown';
-                    try {
-                        if (req.body && req.body.username) {
-                            username = req.body.username;
-                        }
-                    } catch (e) {
-                        // Ignore parsing errors
-                    }
-                    
-                    const friendlyMessage = `User '${username}' already exists in PingOne. Skipping this user.`;
-                    
-                    // Post warning to UI for display
-                    try {
-                        const uiResponse = await fetch(`http://localhost:${process.env.PORT || 4000}/api/logs/warning`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                message: friendlyMessage,
-                                details: {
-                                    status: response.status,
-                                    statusText: response.statusText,
-                                    error: errorData,
-                                    endpoint: req.path,
-                                    method: req.method,
-                                    url: targetUrl.toString(),
-                                    username: username
-                                },
-                                source: 'pingone-api'
-                            })
-                        });
-                        
-                        if (!uiResponse.ok) {
-                            logger.warn('Failed to post warning to UI:', uiResponse.statusText);
-                        }
-                    } catch (uiError) {
-                        logger.warn('Error posting to UI logs:', uiError.message);
-                    }
-                    
-                    // Log the warning to console as well
-                    logger.warn(friendlyMessage, errorData);
-                    
-                    // Return a success response with warning message
-                    res.status(200).json({
-                        success: true,
-                        warning: true,
-                        message: friendlyMessage,
-                        details: {
-                            username: username,
-                            reason: 'User already exists',
-                            originalError: errorData
-                        }
-                    });
-                    return;
-                } else {
-                    // Check if this is a 403 authentication error (wrong API secret)
-                    let friendlyMessage = `PingOne API request failed with status ${response.status}: ${errorData.message || 'Unknown error'}`;
-                    
-                    if (response.status === 403) {
-                        // Check for specific authentication error messages
-                        const errorMessage = errorData.message || '';
-                        if (errorMessage.includes('Invalid key=value pair') || 
-                            errorMessage.includes('Authorization header') ||
-                            errorMessage.includes('authentication') ||
-                            errorMessage.includes('credentials')) {
-                            friendlyMessage = '🔐 Authentication Failed: Your API Client Secret appears to be incorrect. Please check your PingOne settings and make sure you\'re using the correct Client Secret.';
-                        } else {
-                            friendlyMessage = '🚫 Access Denied: You don\'t have permission to access this resource. Please check your PingOne configuration and permissions.';
-                        }
-                    } else if (response.status === 401) {
-                        friendlyMessage = '🔑 Authentication Required: Your API credentials are invalid or expired. Please check your PingOne Client ID and Secret.';
-                    } else if (response.status === 400) {
-                        friendlyMessage = '⚠️ Bad Request: There was an issue with your request. Please check the data you\'re trying to send.';
-                    } else if (response.status === 404) {
-                        friendlyMessage = '🔍 Not Found: The requested resource was not found. Please check your Environment ID and endpoint.';
-                    } else if (response.status === 429) {
-                        friendlyMessage = '⏰ Rate Limited: Too many requests. Please wait a moment before trying again.';
-                    } else if (response.status >= 500) {
-                        friendlyMessage = '🔧 Server Error: PingOne is experiencing technical difficulties. Please try again later.';
-                    }
-                    
-                    // Post error to UI for display (for non-uniqueness violations)
-                    try {
-                        const uiResponse = await fetch(`http://localhost:${process.env.PORT || 4000}/api/logs/error`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                message: friendlyMessage,
-                                details: {
-                                    status: response.status,
-                                    statusText: response.statusText,
-                                    error: errorData,
-                                    endpoint: req.path,
-                                    method: req.method,
-                                    url: targetUrl.toString(),
-                                    originalMessage: errorData.message || 'Unknown error'
-                                },
-                                source: 'pingone-api'
-                            })
-                        });
-                        
-                        if (!uiResponse.ok) {
-                            logger.error('Failed to post error to UI:', uiResponse.statusText);
-                        }
-                    } catch (uiError) {
-                        logger.error('Error posting to UI logs:', uiError.message);
-                    }
-                    
-                    // Log the error to console as well
-                    logger.error(`PingOne API request failed: ${response.status} ${response.statusText}`, errorData);
-                }
-            }
-            
-            // Get the content type
-            const contentType = response.headers.get('content-type') || '';
-            
-            try {
-                // Handle different content types
-                let responseData;
-                
-                if (contentType.includes('application/json')) {
-                    responseData = await response.json().catch(() => ({}));
-                } else {
-                    responseData = await response.text();
-                }
-                
-                // Comprehensive response logging
-                const responseLog = {
-                    type: 'api_response',
-                    status: response.status,
-                    statusText: response.statusText,
-                    url: targetUrl.toString(),
-                    method: req.method,
-                    headers: Object.fromEntries([...response.headers.entries()]),
-                    data: responseData,
-                    timestamp: new Date().toISOString(),
-                    duration: Date.now() - req.startTime,
-                    requestId: req.requestId,
-                    contentType: contentType,
-                    source: 'pingone-proxy'
-                };
-                
-                logger.info('✅ PingOne API Response:', responseLog);
-                logger.info(`[${req.requestId}] Response status: ${response.status} (${Date.now() - req.startTime}ms)`);
-                
-                // Also send to UI logs for display
-                try {
-                    await fetch(`http://localhost:${process.env.PORT || 4000}/api/logs/info`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            message: `PingOne API Response: ${response.status} ${req.method} ${targetUrl.toString()}`,
-                            details: responseLog,
-                            source: 'pingone-proxy'
-                        })
-                    });
-                } catch (logError) {
-                    console.warn('Failed to send response log to UI:', logError);
-                }
-                
-                // Forward the response with appropriate headers and status
-                const resHeaders = {
-                    ...Object.fromEntries([...response.headers.entries()]),
-                    'access-control-allow-origin': '*',
-                    'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
-                    'access-control-allow-headers': 'Content-Type, Authorization, X-Requested-With'
-                };
-                
-                // Remove problematic headers
-                delete resHeaders['content-encoding'];
-                delete resHeaders['transfer-encoding'];
-                
-                res.status(response.status)
-                    .set(resHeaders);
-                    
-                if (typeof responseData === 'string') {
-                    res.send(responseData);
-                } else {
-                    res.json(responseData);
-                }
-            } catch (error) {
-                logger.error(`[${req.requestId}] Error:`, error);
-                
-                // Post error to UI for display
-                try {
-                    const uiResponse = await fetch(`http://localhost:${process.env.PORT || 4000}/api/logs/error`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            message: `PingOne API response parsing error: ${error.message}`,
-                            details: {
-                                error: error.message,
-                                endpoint: req.path,
-                                method: req.method,
-                                requestId: req.requestId
-                            },
-                            source: 'pingone-proxy'
-                        })
-                    });
-                    
-                    if (!uiResponse.ok) {
-                        console.error('Failed to post error to UI:', uiResponse.statusText);
-                    }
-                } catch (uiError) {
-                    console.error('Error posting to UI logs:', uiError.message);
-                }
-                
-                res.status(500).json({
-                    error: 'Proxy Error',
-                    message: error.message,
-                    stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-                });
-            }
-        } catch (error) {
-            console.error(`[${req.requestId}] Error:`, error);
-            
-            // Post error to UI for display
-            try {
-                const uiResponse = await fetch(`http://localhost:${process.env.PORT || 4000}/api/logs/error`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        message: `PingOne API proxy error: ${error.message}`,
-                        details: {
-                            error: error.message,
-                            endpoint: req.path,
-                            method: req.method,
-                            requestId: req.requestId
-                        },
-                        source: 'pingone-proxy'
-                    })
-                });
-                
-                if (!uiResponse.ok) {
-                    console.error('Failed to post error to UI:', uiResponse.statusText);
-                }
-            } catch (uiError) {
-                console.error('Error posting to UI logs:', uiError.message);
-            }
-            
-            res.status(500).json({
-                error: 'Proxy Error',
-                message: error.message,
-                stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-            });
-        }
-    } catch (error) {
-        console.error('Error in proxyRequest middleware:', error);
-        
-        // Post error to UI for display
-        try {
-            const uiResponse = await fetch(`http://localhost:${process.env.PORT || 4000}/api/logs/error`, {
-                method: 'POST',
+                url: targetUrl,
                 headers: {
-                    'Content-Type': 'application/json',
+                    ...headers,
+                    'Authorization': headers['Authorization'] ? '***REDACTED***' : 'Not set'
                 },
-                body: JSON.stringify({
-                    message: `PingOne API proxy middleware error: ${error.message}`,
-                    details: {
-                        error: error.message,
-                        endpoint: req.path,
-                        method: req.method
-                    },
-                    source: 'pingone-proxy'
-                })
+                body: req.body ? '***BODY***' : 'No body'
             });
             
-            if (!uiResponse.ok) {
-                console.error('Failed to post error to UI:', uiResponse.statusText);
+            // Make the request with automatic retry on token expiration
+            const response = await tokenManager.retryWithNewToken(async (token) => {
+                // Update authorization header with new token
+                if (!isAuthRequest) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+                
+                // Prepare request options
+                const fetchOptions = {
+                    method: req.method,
+                    headers: headers,
+                    timeout: 30000 // 30 second timeout
+                };
+                
+                // Add body for non-GET/HEAD requests
+                if (req.method !== 'GET' && req.method !== 'HEAD') {
+                    if (req.body) {
+                        fetchOptions.body = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+                    }
+                }
+                
+                return await fetch(targetUrl, fetchOptions);
+            });
+            
+            // Forward the response
+            const contentType = response.headers.get('content-type') || '';
+            const responseData = contentType.includes('application/json') 
+                ? await response.json() 
+                : await response.text();
+            
+            // Log response for debugging
+            console.log(`[${requestId}] Response received:`, {
+                status: response.status,
+                statusText: response.statusText,
+                contentType: contentType,
+                responseTime: `${Date.now() - startTime}ms`
+            });
+            
+            // Forward the response status and headers
+            res.status(response.status);
+            
+            // Copy relevant headers
+            const responseHeaders = response.headers;
+            ['content-type', 'content-length', 'cache-control'].forEach(header => {
+                const value = responseHeaders.get(header);
+                if (value) {
+                    res.set(header, value);
+                }
+            });
+            
+            // Send the response data
+            if (contentType.includes('application/json')) {
+                res.json(responseData);
+            } else {
+                res.send(responseData);
             }
-        } catch (uiError) {
-            console.error('Error posting to UI logs:', uiError.message);
+            
+        } catch (error) {
+            console.error(`[${requestId}] Proxy error:`, error.message);
+            
+            // Handle specific error types
+            if (error.message.includes('Rate limit exceeded')) {
+                return res.status(429).json({ 
+                    error: 'Rate limit exceeded', 
+                    details: 'Too many requests to PingOne API' 
+                });
+            }
+            
+            if (error.message.includes('Max retries exceeded')) {
+                return res.status(500).json({ 
+                    error: 'Service temporarily unavailable', 
+                    details: 'Failed to authenticate after multiple attempts' 
+                });
+            }
+            
+            return res.status(500).json({ 
+                error: 'Proxy error', 
+                details: error.message 
+            });
         }
-        
-        res.status(500).json({
-            error: 'Proxy Error',
-            message: error.message,
-            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-        });
-    }
+    };
 };
+
+// Apply middleware and routes
+router.use('/', (req, res, next) => {
+    // Get token manager from app
+    const tokenManager = req.app.get('tokenManager');
+    if (!tokenManager) {
+        return res.status(500).json({ error: 'Token manager not available' });
+    }
+    
+    // Create auto-retry proxy for this request
+    const autoRetryProxy = createAutoRetryProxy(tokenManager);
+    return autoRetryProxy(req, res, next);
+});
 
 // Apply middleware and routes
 // Note: express.json() is already applied by the main server
@@ -785,7 +453,17 @@ router.post('/token', (req, res) => {
 });
 
 // Proxy all other requests to PingOne API
-router.all('*', proxyRequest);
+router.all('*', (req, res, next) => {
+    // Get token manager from app
+    const tokenManager = req.app.get('tokenManager');
+    if (!tokenManager) {
+        return res.status(500).json({ error: 'Token manager not available' });
+    }
+    
+    // Create auto-retry proxy for this request
+    const autoRetryProxy = createAutoRetryProxy(tokenManager);
+    return autoRetryProxy(req, res, next);
+});
 
 // Export the router
 export default router;

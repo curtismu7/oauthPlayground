@@ -272,12 +272,14 @@
                     <div class="param-group">
                         <label>Region:</label>
                         <select class="form-control" id="settings-region">
-                            <option value="NorthAmerica">North America</option>
-                            <option value="Europe">Europe</option>
-                            <option value="Asia">Asia</option>
-                            <option value="Canada">Canada</option>
-                            <option value="Australia">Australia</option>
+                            <option value="NA">North America (excluding Canada)</option>
+                            <option value="CA">Canada</option>
+                            <option value="EU">European Union</option>
+                            <option value="AU">Australia</option>
+                            <option value="SG">Singapore</option>
+                            <option value="AP">Asia-Pacific</option>
                         </select>
+                        <small class="form-text text-muted">Use region code: NA, CA, EU, AU, SG, AP</small>
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -496,8 +498,8 @@
 
         <!-- UI Testing Section -->
         <div class="api-endpoint">
-            <h4><i class="fas fa-desktop"></i> UI Testing</h4>
-            <p class="endpoint-description">Run comprehensive UI tests to verify frontend functionality</p>
+            <h4><i class="fas fa-desktop"></i> UI & Progress Testing</h4>
+            <p class="endpoint-description">Run comprehensive UI tests to verify frontend functionality, including region selection and the new progress UI for all operations (Import, Export, Delete, Modify).</p>
             
             <div class="row">
                 <div class="col-md-12">

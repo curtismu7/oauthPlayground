@@ -1031,7 +1031,7 @@ class FileHandler {
      * @param {string} containerId - The ID of the container element to update
      */
     updateFileInfoForElement(file, containerId) {
-        const container = ElementRegistry.getById(containerId);
+        const container = document.getElementById(containerId);
         console.log('updateFileInfoForElement called:', { containerId, container: !!container, file: !!file });
         if (!container || !file) {
             console.warn('updateFileInfoForElement: container or file is null', { containerId, hasContainer: !!container, hasFile: !!file });

@@ -17,6 +17,8 @@
     <link rel="stylesheet" href="/css/ping-identity.css">
     <!-- Token Status Indicator CSS -->
     <link rel="stylesheet" href="/css/token-status-indicator.css">
+    <!-- Progress UI CSS -->
+    <link rel="stylesheet" href="/css/progress-ui.css">
     <!-- Disclaimer Banner Script -->
     <script src="/js/modules/disclaimer-banner.js"></script>
     <!-- Token Status Indicator Script -->
@@ -217,12 +219,6 @@
                         <h3>Select Population</h3>
                         <div class="population-options">
                             <div class="form-group">
-                                <label for="population-select">Population:</label>
-                                <select id="population-select" class="form-control">
-                                    <option value="">Loading populations...</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
                                 <label for="import-population-select">Import Population:</label>
                                 <select id="import-population-select" class="form-control">
                                     <option value="">Loading populations...</option>
@@ -238,6 +234,12 @@
                             <label>
                                 <input type="checkbox" id="skip-duplicates" checked>
                                 Skip duplicate users (by email)
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="skip-duplicates-username">
+                                Skip duplicate users (by username)
                             </label>
                         </div>
                         <div class="form-group">
@@ -300,6 +302,12 @@
                                 <label>
                                     <input type="checkbox" id="dashboard-skip-duplicates" checked>
                                     Skip duplicate users (by email)
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="dashboard-skip-duplicates-username">
+                                    Skip duplicate users (by username)
                                 </label>
                             </div>
                             <div class="form-group">
@@ -503,7 +511,7 @@
                 </div>
                 
                 <div class="settings-content">
-                    <div class="settings-section">
+                    <form class="settings-section">
                         <h3>PingOne Configuration</h3>
                         
                         <div class="form-group">
@@ -528,10 +536,13 @@
                         
                         <div class="form-group">
                             <label for="region">Region:</label>
-                            <select id="region" class="form-control">
-                                <option value="NorthAmerica">North America</option>
-                                <option value="Europe">Europe</option>
-                                <option value="AsiaPacific">Asia Pacific</option>
+                            <select id="region" class="form-control" aria-label="Select PingOne region">
+                                <option value="NA" data-tld="com">North America (excluding Canada)</option>
+                                <option value="CA" data-tld="ca">Canada</option>
+                                <option value="EU" data-tld="eu">European Union</option>
+                                <option value="AU" data-tld="com.au">Australia</option>
+                                <option value="SG" data-tld="sg">Singapore</option>
+                                <option value="AP" data-tld="asia">Asia-Pacific</option>
                             </select>
                         </div>
                         
@@ -539,7 +550,17 @@
                             <label for="rate-limit">Rate Limit (requests per minute):</label>
                             <input type="number" id="rate-limit" class="form-control" value="90" min="1" max="1000">
                         </div>
-                    </div>
+                        
+                        <div class="form-group">
+                            <label for="population-id">Default Population ID:</label>
+                            <input type="text" id="population-id" class="form-control" 
+                                   placeholder="Enter default population ID (optional)"
+                                   pattern="[a-fA-F0-9\-]{36}"
+                                   title="Please enter a valid UUID format (36 characters, alphanumeric with hyphens)"
+                                   maxlength="36">
+                            <small class="form-text">Optional: Set a default population ID for imports (UUID format)</small>
+                        </div>
+                    </form>
                     
                     <div class="form-actions">
                         <button id="save-settings" class="btn btn-primary">

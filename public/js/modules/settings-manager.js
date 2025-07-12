@@ -67,12 +67,29 @@ class SettingsManager {
     }
     
     /**
+     * Get region info by code
+     * @param {string} code - Region code (e.g., 'NA', 'CA', 'EU', 'AU', 'SG', 'AP')
+     * @returns {{code: string, tld: string, label: string}}
+     */
+    static getRegionInfo(code) {
+        const regions = {
+            NA: { code: 'NA', tld: 'com', label: 'North America (excluding Canada)' },
+            CA: { code: 'CA', tld: 'ca', label: 'Canada' },
+            EU: { code: 'EU', tld: 'eu', label: 'European Union' },
+            AU: { code: 'AU', tld: 'com.au', label: 'Australia' },
+            SG: { code: 'SG', tld: 'sg', label: 'Singapore' },
+            AP: { code: 'AP', tld: 'asia', label: 'Asia-Pacific' }
+        };
+        return regions[code] || regions['NA'];
+    }
+
+    /**
      * Get default settings
      */
     getDefaultSettings() {
         return {
             environmentId: '',
-            region: 'NorthAmerica',
+            region: 'NA',
             apiClientId: '',
             populationId: '',
             rateLimit: 50,

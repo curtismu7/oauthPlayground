@@ -8,19 +8,22 @@ class PingOneAPI {
     }
     
     /**
-     * Get the base URL for the PingOne API based on region
-     * @param {string} region - The region code (e.g., 'NorthAmerica', 'Europe')
+     * Get the base URL for the PingOne API based on region code
+     * @param {string} regionCode - The region code (e.g., 'NA', 'CA', 'EU', 'AU', 'SG', 'AP')
      * @returns {string} The base URL for the API
      */
-    getApiBaseUrl(region) {
-        const baseUrls = {
-            'NorthAmerica': 'https://api.pingone.com/v1',
-            'Europe': 'https://api.eu.pingone.com/v1',
-            'Asia': 'https://api.asia.pingone.com/v1',
-            'Canada': 'https://api.ca.pingone.com/v1'
-        };
-        
-        return baseUrls[region] || baseUrls['NorthAmerica'];
+    getApiBaseUrl(regionCode) {
+        const regionInfo = this.settingsManager.constructor.getRegionInfo(regionCode);
+        const tld = regionInfo.tld;
+        // Compose the base URL
+        if (regionCode === 'NA') return `https://api.pingone.com/v1`;
+        if (regionCode === 'CA') return `https://api.ca.pingone.ca/v1`;
+        if (regionCode === 'EU') return `https://api.eu.pingone.eu/v1`;
+        if (regionCode === 'AU') return `https://api.au.pingone.com.au/v1`;
+        if (regionCode === 'SG') return `https://api.sg.pingone.sg/v1`;
+        if (regionCode === 'AP') return `https://api.ap.pingone.asia/v1`;
+        // Fallback to NA
+        return `https://api.pingone.com/v1`;
     }
     
     /**

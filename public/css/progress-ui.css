@@ -1,0 +1,523 @@
+/**
+ * Progress UI Styles
+ * 
+ * Modern, responsive progress UI styles for the PingOne Import Tool
+ * Features:
+ * - Responsive design
+ * - Smooth animations
+ * - Professional appearance
+ * - Accessibility support
+ * - Dark/light theme support
+ */
+
+/* Progress Container */
+.progress-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 600px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    border: 1px solid #e1e5e9;
+    z-index: 10000;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    overflow: hidden;
+    animation: progressSlideIn 0.3s ease-out;
+}
+
+@keyframes progressSlideIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* Progress Header */
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.operation-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+}
+
+.cancel-operation {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cancel-operation:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.cancel-operation:active {
+    transform: translateY(0);
+}
+
+/* Progress Content */
+.progress-content {
+    padding: 24px;
+}
+
+/* Progress Bar */
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #f1f3f4;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    position: relative;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50 0%, #45a049 100%);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: progressShimmer 2s infinite;
+}
+
+@keyframes progressShimmer {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+/* Progress Text */
+.progress-text {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+/* Progress Details */
+.progress-details {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid #e9ecef;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.detail-item:last-child {
+    margin-bottom: 0;
+}
+
+.detail-label {
+    font-weight: 500;
+    color: #666;
+}
+
+.detail-value {
+    font-weight: 600;
+    color: #333;
+}
+
+.detail-value.success {
+    color: #28a745;
+}
+
+.detail-value.error {
+    color: #dc3545;
+}
+
+.detail-value.warning {
+    color: #ffc107;
+}
+
+/* Operation Status */
+.operation-status {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+}
+
+.operation-status.processing {
+    background: #e3f2fd;
+    color: #1976d2;
+    border: 1px solid #bbdefb;
+}
+
+.operation-status.complete {
+    background: #e8f5e8;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+}
+
+.operation-status.error {
+    background: #ffebee;
+    color: #c62828;
+    border: 1px solid #ffcdd2;
+}
+
+.operation-status.cancelled {
+    background: #fff3e0;
+    color: #ef6c00;
+    border: 1px solid #ffcc02;
+}
+
+/* Duplicate Handling */
+.duplicate-handling {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 16px;
+}
+
+.duplicate-handling h4 {
+    margin: 0 0 16px 0;
+    color: #856404;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.duplicate-options {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 16px;
+}
+
+.duplicate-options label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #856404;
+    cursor: pointer;
+}
+
+.duplicate-options input[type="radio"] {
+    margin: 0;
+    cursor: pointer;
+}
+
+.duplicate-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ffeaa7;
+    border-radius: 6px;
+    background: white;
+}
+
+.duplicate-user {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f8f9fa;
+    font-size: 14px;
+}
+
+.duplicate-user:last-child {
+    border-bottom: none;
+}
+
+.user-name {
+    font-weight: 600;
+    color: #333;
+}
+
+.user-email {
+    color: #666;
+    font-size: 12px;
+}
+
+.duplicate-reason {
+    color: #856404;
+    font-size: 12px;
+    font-style: italic;
+}
+
+.duplicate-decision-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 16px;
+}
+
+.duplicate-decision-btn:hover {
+    background: #0056b3;
+    transform: translateY(-1px);
+}
+
+.duplicate-decision-btn:active {
+    transform: translateY(0);
+}
+
+/* Completion Summary */
+.completion-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 16px;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.summary-item {
+    text-align: center;
+    padding: 12px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.summary-label {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.summary-value {
+    display: block;
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+}
+
+.summary-value.success {
+    color: #28a745;
+}
+
+.summary-value.error {
+    color: #dc3545;
+}
+
+.summary-value.warning {
+    color: #ffc107;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .progress-container {
+        width: 95%;
+        max-width: none;
+        margin: 20px;
+    }
+
+    .progress-header {
+        padding: 16px 20px;
+    }
+
+    .operation-title {
+        font-size: 16px;
+    }
+
+    .progress-content {
+        padding: 20px;
+    }
+
+    .duplicate-options {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .completion-summary {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .progress-container {
+        width: 100%;
+        margin: 10px;
+        border-radius: 8px;
+    }
+
+    .progress-header {
+        padding: 12px 16px;
+    }
+
+    .progress-content {
+        padding: 16px;
+    }
+
+    .completion-summary {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Accessibility */
+.progress-bar-fill[aria-valuenow] {
+    transition: width 0.3s ease;
+}
+
+/* Focus states */
+.cancel-operation:focus,
+.duplicate-decision-btn:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .progress-container {
+        border: 2px solid #000;
+    }
+
+    .progress-bar-fill {
+        background: #000;
+    }
+
+    .cancel-operation {
+        border: 2px solid #fff;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .progress-bar-fill,
+    .progress-container {
+        transition: none;
+    }
+
+    .progress-bar-fill::after {
+        animation: none;
+    }
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+    .progress-container {
+        background: #2d3748;
+        border-color: #4a5568;
+        color: #e2e8f0;
+    }
+
+    .progress-header {
+        background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+    }
+
+    .progress-text {
+        color: #e2e8f0;
+    }
+
+    .progress-details {
+        background: #4a5568;
+        border-color: #718096;
+    }
+
+    .detail-label {
+        color: #a0aec0;
+    }
+
+    .detail-value {
+        color: #e2e8f0;
+    }
+
+    .duplicate-handling {
+        background: #744210;
+        border-color: #d69e2e;
+    }
+
+    .duplicate-handling h4 {
+        color: #f6e05e;
+    }
+
+    .duplicate-options label {
+        color: #f6e05e;
+    }
+
+    .duplicate-list {
+        background: #2d3748;
+        border-color: #d69e2e;
+    }
+
+    .duplicate-user {
+        border-color: #4a5568;
+    }
+
+    .user-name {
+        color: #e2e8f0;
+    }
+
+    .user-email {
+        color: #a0aec0;
+    }
+
+    .duplicate-reason {
+        color: #f6e05e;
+    }
+
+    .completion-summary {
+        background: #4a5568;
+        border-color: #718096;
+    }
+
+    .summary-item {
+        background: #2d3748;
+        border-color: #718096;
+    }
+
+    .summary-label {
+        color: #a0aec0;
+    }
+
+    .summary-value {
+        color: #e2e8f0;
+    }
+} 

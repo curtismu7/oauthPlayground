@@ -1,5 +1,12 @@
 /**
- * TokenManager - Handles OAuth 2.0 token acquisition and caching
+ * TokenManager - Handles OAuth 2.0 token acquisition and caching with automatic re-authentication
+ * 
+ * Features:
+ * - Automatic token refresh before expiry
+ * - Detection of token expiration via 401 responses
+ * - Automatic retry of failed requests with new tokens
+ * - Secure credential storage and retrieval
+ * - Rate limiting to prevent API abuse
  */
 class TokenManager {
     /**
@@ -20,10 +27,16 @@ class TokenManager {
         this.isRefreshing = false;
         this.refreshQueue = [];
         
+        // Auto-retry configuration
+        this.maxRetries = 1; // Only retry once with new token
+        this.retryDelay = 1000; // 1 second delay before retry
+        
         // Bind methods
         this.getAccessToken = this.getAccessToken.bind(this);
         this._requestNewToken = this._requestNewToken.bind(this);
         this._isTokenValid = this._isTokenValid.bind(this);
+        this.handleTokenExpiration = this.handleTokenExpiration.bind(this);
+        this.retryWithNewToken = this.retryWithNewToken.bind(this);
     }
 
     /**
@@ -75,6 +88,134 @@ class TokenManager {
         } finally {
             this.isRefreshing = false;
         }
+    }
+
+    /**
+     * Handle token expiration detected from API response
+     * @param {Object} response - The failed API response
+     * @param {Function} retryFn - Function to retry the original request
+     * @returns {Promise<Object>} The retry result
+     */
+    async handleTokenExpiration(response, retryFn) {
+        this.logger.warn('Token expiration detected, attempting automatic re-authentication');
+        
+        // Clear the expired token
+        this.tokenCache = {
+            accessToken: null,
+            expiresAt: 0,
+            tokenType: 'Bearer',
+            lastRefresh: 0
+        };
+        
+        try {
+            // Get a new token using stored credentials
+            const newToken = await this.getAccessToken();
+            
+            if (!newToken) {
+                throw new Error('Failed to obtain new token for retry');
+            }
+            
+            this.logger.info('Successfully obtained new token, retrying request');
+            
+            // Wait a moment before retrying to avoid rate limiting
+            await new Promise(resolve => setTimeout(resolve, this.retryDelay));
+            
+            // Retry the original request with the new token
+            return await retryFn(newToken);
+            
+        } catch (error) {
+            this.logger.error('Failed to re-authenticate and retry request', {
+                error: error.message,
+                originalStatus: response.status
+            });
+            throw error;
+        }
+    }
+
+    /**
+     * Retry a failed request with a new token
+     * @param {Function} requestFn - Function that makes the API request
+     * @param {Object} options - Request options
+     * @returns {Promise<Object>} The API response
+     */
+    async retryWithNewToken(requestFn, options = {}) {
+        let retryCount = 0;
+        
+        while (retryCount <= this.maxRetries) {
+            try {
+                // Get current token
+                const token = await this.getAccessToken();
+                
+                // Make the request
+                const response = await requestFn(token);
+                
+                // Check if the response indicates token expiration
+                if (response.status === 401) {
+                    const responseText = await response.text().catch(() => '');
+                    const isTokenExpired = responseText.includes('token_expired') || 
+                                         responseText.includes('invalid_token') ||
+                                         responseText.includes('expired');
+                    
+                    if (isTokenExpired && retryCount < this.maxRetries) {
+                        this.logger.warn(`Token expired on attempt ${retryCount + 1}, retrying with new token`);
+                        
+                        // Clear expired token and get new one
+                        this.tokenCache = {
+                            accessToken: null,
+                            expiresAt: 0,
+                            tokenType: 'Bearer',
+                            lastRefresh: 0
+                        };
+                        
+                        retryCount++;
+                        continue;
+                    }
+                }
+                
+                // If we get here, the request was successful or we've exhausted retries
+                return response;
+                
+            } catch (error) {
+                if (retryCount >= this.maxRetries) {
+                    throw error;
+                }
+                
+                this.logger.warn(`Request failed on attempt ${retryCount + 1}, retrying`, {
+                    error: error.message
+                });
+                
+                retryCount++;
+                
+                // Wait before retrying
+                await new Promise(resolve => setTimeout(resolve, this.retryDelay));
+            }
+        }
+        
+        throw new Error('Max retries exceeded');
+    }
+
+    /**
+     * Create a request wrapper that automatically handles token expiration
+     * @param {Function} requestFn - Function that makes the API request
+     * @returns {Function} Wrapped function that handles token expiration
+     */
+    createAutoRetryWrapper(requestFn) {
+        return async (...args) => {
+            return await this.retryWithNewToken(async (token) => {
+                // Add the token to the request arguments
+                const requestArgs = [...args];
+                
+                // If the first argument is an options object, add the token to it
+                if (requestArgs[0] && typeof requestArgs[0] === 'object') {
+                    requestArgs[0].headers = {
+                        ...requestArgs[0].headers,
+                        'Authorization': `Bearer ${token}`
+                    };
+                }
+                
+                return await requestFn(...requestArgs);
+            });
+        };
     }
 
     /**
@@ -131,7 +272,7 @@ class TokenManager {
     }
 
     /**
-     * Request a new access token from PingOne
+     * Request a new access token from PingOne using stored credentials
      * @returns {Promise<string>} The new access token
      * @private
      */

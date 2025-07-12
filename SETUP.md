@@ -291,3 +291,32 @@ This application is provided as-is for educational and development purposes. Ple
 **Version**: 4.3.0  
 **Last Updated**: July 2025  
 **Compatibility**: Node.js 18+, PingOne API v1 
+
+### Region Selection
+
+The application supports the following PingOne regions:
+
+| Region Name                        | Code | TLD     |
+|------------------------------------|------|---------|
+| North America (excluding Canada)   | NA   | com     |
+| Canada                             | CA   | ca      |
+| European Union                     | EU   | eu      |
+| Australia                          | AU   | com.au  |
+| Singapore                          | SG   | sg      |
+| Asia-Pacific                       | AP   | asia    |
+
+- In **Settings**, select the region code (e.g., NA, CA, EU, AU, SG, AP).
+- The correct API base URL is used automatically for each region.
+- Region is saved in your settings and used for all API calls.
+
+### Progress UI
+
+- All major operations (Import, Export, Delete, Modify) feature a modern, non-blocking progress UI.
+- Real-time updates via SSE and responsive controls.
+- Duplicate handling, error reporting, and accessibility features included.
+- Progress UI can be tested via the API tester and Swagger UI.
+
+### Testing Region & Progress Features
+
+- Use `public/api-tester.html` to test region selection and progress endpoints.
+- Swagger UI (`/swagger/html` or `/api-docs`) documents and allows live testing of all region and progress endpoints. 

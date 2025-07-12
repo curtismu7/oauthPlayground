@@ -201,6 +201,7 @@ var _tokenManager = _interopRequireDefault(require("./modules/token-manager.js")
 var _fileHandler = require("./modules/file-handler.js");
 var _versionManager = require("./modules/version-manager.js");
 var _apiFactory = require("./modules/api-factory.js");
+var _progressManager = require("./modules/progress-manager.js");
 // File: app.js
 // Description: Main application entry point for PingOne user import tool
 // 
@@ -444,6 +445,9 @@ class SecretFieldToggle {
  */
 class App {
   constructor() {
+    // Production environment detection
+    this.isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && !window.location.hostname.includes('dev');
+
     // Initialize core dependencies with safety checks
     try {
       this.logger = new _logger.Logger();
@@ -452,6 +456,43 @@ class App {
       this.uiManager = new _uiManager.UIManager();
       this.localClient = new _localApiClient.LocalAPIClient();
       this.versionManager = new _versionManager.VersionManager();
+
+      // Create a safe logger wrapper to prevent undefined method errors
+      this.safeLogger = {
+        info: (msg, data) => {
+          try {
+            if (this.logger && typeof this.logger.info === 'function') {
+              this.logger.info(msg, data);
+            } else {
+              console.log(`[INFO] ${msg}`, data);
+            }
+          } catch (error) {
+            console.log(`[INFO] ${msg}`, data);
+          }
+        },
+        warn: (msg, data) => {
+          try {
+            if (this.logger && typeof this.logger.warn === 'function') {
+              this.logger.warn(msg, data);
+            } else {
+              console.warn(`[WARN] ${msg}`, data);
+            }
+          } catch (error) {
+            console.warn(`[WARN] ${msg}`, data);
+          }
+        },
+        error: (msg, data) => {
+          try {
+            if (this.logger && typeof this.logger.error === 'function') {
+              this.logger.error(msg, data);
+            } else {
+              console.error(`[ERROR] ${msg}`, data);
+            }
+          } catch (error) {
+            console.error(`[ERROR] ${msg}`, data);
+          }
+        }
+      };
 
       // Initialize state variables with safe defaults
       this.currentView = 'home';
@@ -466,6 +507,31 @@ class App {
       this.fileHandler = null;
       this.pingOneClient = null;
       console.log('✅ App constructor completed successfully');
+
+      // Production-specific configurations
+      if (this.isProduction) {
+        // Disable debug mode in production
+        window.DEBUG_MODE = false;
+
+        // Add production error reporting
+        window.addEventListener('error', event => {
+          this.safeLogger.error('Unhandled error in production', {
+            message: event.message,
+            filename: event.filename,
+            lineno: event.lineno,
+            colno: event.colno,
+            error: event.error?.stack
+          });
+        });
+
+        // Add unhandled promise rejection handler
+        window.addEventListener('unhandledrejection', event => {
+          this.safeLogger.error('Unhandled promise rejection in production', {
+            reason: event.reason,
+            promise: event.promise
+          });
+        });
+      }
     } catch (error) {
       console.error('❌ Error in App constructor:', error);
       // Ensure basic functionality even if some components fail
@@ -489,6 +555,30 @@ class App {
   async init() {
     try {
       console.log('Initializing app...');
+
+      // Ensure DOM is ready before proceeding with UI-dependent operations
+      if (document.readyState === 'loading') {
+        console.log('DOM still loading, waiting for DOMContentLoaded...');
+        await new Promise((resolve, reject) => {
+          const timeout = setTimeout(() => {
+            reject(new Error('DOM ready timeout - page may be unresponsive'));
+          }, 30000); // 30 second timeout
+
+          document.addEventListener('DOMContentLoaded', () => {
+            clearTimeout(timeout);
+            resolve();
+          }, {
+            once: true
+          });
+        });
+      }
+
+      // Additional validation to ensure critical elements exist
+      const criticalElements = ['notification-area', 'universal-token-status', 'connection-status'];
+      const missingElements = criticalElements.filter(id => !document.getElementById(id));
+      if (missingElements.length > 0) {
+        throw new Error(`Critical UI elements missing: ${missingElements.join(', ')}`);
+      }
 
       // Validate core dependencies before proceeding
       if (!this.logger) {
@@ -571,15 +661,7 @@ class App {
         const disclaimerPreviouslyAccepted = this.checkDisclaimerStatus();
         if (!disclaimerPreviouslyAccepted) {
           console.log('Disclaimer not previously accepted, setting up disclaimer agreement');
-          // Ensure DOM is ready before setting up disclaimer
-          if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-              this.setupDisclaimerAgreement();
-            });
-          } else {
-            // DOM is already loaded, setup immediately
-            this.setupDisclaimerAgreement();
-          }
+          this.setupDisclaimerAgreement();
         } else {
           console.log('Disclaimer previously accepted, tool already enabled');
         }
@@ -635,109 +717,176 @@ class App {
       throw error;
     }
   }
-  async loadPopulations() {
-    try {
-      console.log('🔄 Loading populations from PingOne...');
-      const response = await this.localClient.get('/api/pingone/populations');
 
-      // The populations API returns the data directly as an array
+  /**
+   * Generic population loader for any dropdown by ID
+   */
+  async loadPopulationsForDropdown(dropdownId) {
+    const select = document.getElementById(dropdownId);
+    if (select) {
+      select.disabled = true;
+      select.innerHTML = '<option value="">Loading populations...</option>';
+    }
+    this.hidePopulationRetryButton(dropdownId);
+    try {
+      if (!this.localClient) throw new Error('Internal error: API client unavailable');
+      const response = await this.localClient.get('/api/pingone/populations');
       if (Array.isArray(response)) {
-        console.log('✅ Populations loaded successfully:', response.length, 'populations');
-        this.populatePopulationDropdown(response);
+        this.populatePopulationDropdown(dropdownId, response);
+        this.hidePopulationRetryButton(dropdownId);
       } else {
-        console.error('❌ Failed to load populations - invalid response format:', response);
-        this.showPopulationLoadError();
+        this.showPopulationLoadError(dropdownId, 'Invalid response from server');
       }
     } catch (error) {
-      console.error('❌ Error loading populations:', error);
-      this.showPopulationLoadError();
+      this.showPopulationLoadError(dropdownId, error && error.message ? error.message : 'Failed to load populations');
     }
   }
-  populatePopulationDropdown(populations) {
-    const populationSelect = document.getElementById('import-population-select');
-    if (!populationSelect) {
-      console.error('❌ Population select element not found');
-      return;
-    }
 
-    // Clear existing options
-    populationSelect.innerHTML = '';
-
-    // Add default option
+  /**
+   * Populate a dropdown with populations
+   */
+  populatePopulationDropdown(dropdownId, populations) {
+    const select = document.getElementById(dropdownId);
+    if (!select) return;
+    select.innerHTML = '';
     const defaultOption = document.createElement('option');
     defaultOption.value = '';
     defaultOption.textContent = 'Select a population...';
-    populationSelect.appendChild(defaultOption);
-
-    // Add population options
+    select.appendChild(defaultOption);
     populations.forEach(population => {
       const option = document.createElement('option');
       option.value = population.id;
       option.textContent = population.name;
-      populationSelect.appendChild(option);
+      select.appendChild(option);
     });
-    console.log('✅ Population dropdown populated with', populations.length, 'populations');
-
-    // Enable the select element
-    populationSelect.disabled = false;
-
-    // Ensure event listener is attached (in case dropdown was recreated)
-    this.attachPopulationChangeListener();
-
-    // Update import button state after populations are loaded
-    this.updateImportButtonState();
-  }
-  showPopulationLoadError() {
-    const populationSelect = document.getElementById('import-population-select');
-    if (populationSelect) {
-      populationSelect.innerHTML = '<option value="">Failed to load populations</option>';
-      populationSelect.disabled = true;
+    select.disabled = false;
+    // Attach change listener if needed (only for main import)
+    if (dropdownId === 'import-population-select') {
+      this.attachPopulationChangeListener();
+      this.updateImportButtonState();
     }
-    this.uiManager.showError('Failed to load populations', 'Please check your PingOne connection and try again.');
+  }
+
+  /**
+   * Show error and retry for a dropdown
+   */
+  showPopulationLoadError(dropdownId, message) {
+    const select = document.getElementById(dropdownId);
+    if (select) {
+      select.innerHTML = `<option value="">${message || 'Failed to load populations'}</option>`;
+      select.disabled = true;
+    }
+    this.showPopulationRetryButton(dropdownId);
+    if (dropdownId === 'import-population-select') {
+      this.uiManager.showError('Failed to load populations', message || 'Please check your PingOne connection and try again.');
+    }
+  }
+
+  /**
+   * Show retry button for a dropdown
+   */
+  showPopulationRetryButton(dropdownId) {
+    const retryId = `retry-${dropdownId}`;
+    let retryBtn = document.getElementById(retryId);
+    if (!retryBtn) {
+      retryBtn = document.createElement('button');
+      retryBtn.id = retryId;
+      retryBtn.textContent = 'Retry';
+      retryBtn.className = 'btn btn-secondary';
+      retryBtn.style.marginTop = '10px';
+      const parent = document.getElementById(dropdownId)?.parentElement;
+      if (parent) parent.appendChild(retryBtn);
+    }
+    retryBtn.onclick = () => {
+      retryBtn.disabled = true;
+      this.loadPopulationsForDropdown(dropdownId);
+    };
+    retryBtn.style.display = 'inline-block';
+  }
+
+  /**
+   * Hide retry button for a dropdown
+   */
+  hidePopulationRetryButton(dropdownId) {
+    const retryBtn = document.getElementById(`retry-${dropdownId}`);
+    if (retryBtn) retryBtn.style.display = 'none';
+  }
+
+  // Update all usages to use the generic loader
+  async loadPopulations() {
+    await this.loadPopulationsForDropdown('import-population-select');
+  }
+  // For dashboard, delete, modify, and main population select
+  async loadAllPopulationDropdowns() {
+    await Promise.all([this.loadPopulationsForDropdown('import-population-select'), this.loadPopulationsForDropdown('dashboard-population-select'), this.loadPopulationsForDropdown('delete-population-select'), this.loadPopulationsForDropdown('modify-population-select')]);
   }
   updateImportButtonState() {
-    const populationSelect = document.getElementById('import-population-select');
-    const hasFile = this.fileHandler.getCurrentFile() !== null;
+    try {
+      const populationSelect = document.getElementById('import-population-select');
+      const hasFile = this.fileHandler && this.fileHandler.getCurrentFile() !== null;
 
-    // Check both the dropdown value and the stored properties
-    const dropdownValue = populationSelect ? populationSelect.value : '';
-    const storedPopulationId = this.selectedPopulationId || '';
-    const hasPopulation = dropdownValue && dropdownValue !== '' || storedPopulationId && storedPopulationId !== '';
-    console.log('=== Update Import Button State ===');
-    console.log('Has file:', hasFile);
-    console.log('Has population:', hasPopulation);
-    console.log('Dropdown value:', dropdownValue);
-    console.log('Stored population ID:', storedPopulationId);
-    console.log('Stored population name:', this.selectedPopulationName);
-    console.log('Population select element exists:', !!populationSelect);
-    console.log('====================================');
-
-    // Get both import buttons
-    const topImportBtn = document.getElementById('start-import-btn');
-    const bottomImportBtn = document.getElementById('start-import-btn-bottom');
-    const shouldEnable = hasFile && hasPopulation;
-    if (topImportBtn) {
-      topImportBtn.disabled = !shouldEnable;
-    }
-    if (bottomImportBtn) {
-      bottomImportBtn.disabled = !shouldEnable;
-    }
-    console.log('Import buttons enabled:', shouldEnable);
-
-    // Update population display in import stats if available
-    if (hasPopulation) {
-      const populationNameElement = document.getElementById('import-population-name');
-      const populationIdElement = document.getElementById('import-population-id');
-      if (populationNameElement) {
-        populationNameElement.textContent = this.selectedPopulationName || populationSelect?.selectedOptions[0]?.text || 'Selected';
+      // Validate file handler exists
+      if (!this.fileHandler) {
+        console.warn('File handler not initialized');
       }
-      if (populationIdElement) {
-        populationIdElement.textContent = this.selectedPopulationId || dropdownValue || 'Set';
-      }
-    }
 
-    // At the end, show the population prompt if needed
-    this.showPopulationChoicePrompt();
+      // Check both the dropdown value and the stored properties
+      const dropdownValue = populationSelect ? populationSelect.value : '';
+      const storedPopulationId = this.selectedPopulationId || '';
+      const hasPopulation = dropdownValue && dropdownValue !== '' || storedPopulationId && storedPopulationId !== '';
+
+      // Production logging (reduced verbosity)
+      if (window.DEBUG_MODE) {
+        console.log('=== Update Import Button State ===');
+        console.log('Has file:', hasFile);
+        console.log('Has population:', hasPopulation);
+        console.log('Dropdown value:', dropdownValue);
+        console.log('Stored population ID:', storedPopulationId);
+        console.log('Stored population name:', this.selectedPopulationName);
+        console.log('Population select element exists:', !!populationSelect);
+        console.log('====================================');
+      }
+
+      // Get both import buttons with validation
+      const topImportBtn = document.getElementById('start-import');
+      const bottomImportBtn = document.getElementById('bottom-start-import');
+      const shouldEnable = hasFile && hasPopulation;
+
+      // Safely update button states
+      if (topImportBtn && typeof topImportBtn.disabled !== 'undefined') {
+        topImportBtn.disabled = !shouldEnable;
+      }
+      if (bottomImportBtn && typeof bottomImportBtn.disabled !== 'undefined') {
+        bottomImportBtn.disabled = !shouldEnable;
+      }
+      if (window.DEBUG_MODE) {
+        console.log('Import buttons enabled:', shouldEnable);
+      }
+
+      // Update population display in import stats if available
+      if (hasPopulation) {
+        const populationNameElement = document.getElementById('import-population-name');
+        const populationIdElement = document.getElementById('import-population-id');
+        if (populationNameElement && typeof populationNameElement.textContent !== 'undefined') {
+          populationNameElement.textContent = this.selectedPopulationName || populationSelect?.selectedOptions[0]?.text || 'Selected';
+        }
+        if (populationIdElement && typeof populationIdElement.textContent !== 'undefined') {
+          populationIdElement.textContent = this.selectedPopulationId || dropdownValue || 'Set';
+        }
+      }
+
+      // At the end, show the population prompt if needed
+      this.showPopulationChoicePrompt();
+    } catch (error) {
+      console.error('Error updating import button state:', error);
+      // Fallback: disable buttons on error
+      const buttons = document.querySelectorAll('#start-import, #bottom-start-import');
+      buttons.forEach(btn => {
+        if (btn && typeof btn.disabled !== 'undefined') {
+          btn.disabled = true;
+        }
+      });
+    }
   }
   async loadSettings() {
     try {
@@ -787,19 +936,35 @@ class App {
     // Population selection change listener
     this.attachPopulationChangeListener();
 
-    // Import event listeners
-    const startImportBtn = document.getElementById('start-import-btn');
+    // Import event listeners with error handling
+    const startImportBtn = document.getElementById('start-import');
     if (startImportBtn) {
       startImportBtn.addEventListener('click', async e => {
-        e.preventDefault();
-        await this.startImport();
+        try {
+          e.preventDefault();
+          e.stopPropagation();
+          await this.startImport();
+        } catch (error) {
+          console.error('Error in start import handler:', error);
+          if (this.uiManager && typeof this.uiManager.showError === 'function') {
+            this.uiManager.showError('Import Error', 'Failed to start import. Please try again.');
+          }
+        }
       });
     }
-    const startImportBtnBottom = document.getElementById('start-import-btn-bottom');
+    const startImportBtnBottom = document.getElementById('bottom-start-import');
     if (startImportBtnBottom) {
       startImportBtnBottom.addEventListener('click', async e => {
-        e.preventDefault();
-        await this.startImport();
+        try {
+          e.preventDefault();
+          e.stopPropagation();
+          await this.startImport();
+        } catch (error) {
+          console.error('Error in bottom start import handler:', error);
+          if (this.uiManager && typeof this.uiManager.showError === 'function') {
+            this.uiManager.showError('Import Error', 'Failed to start import. Please try again.');
+          }
+        }
       });
     }
     const cancelImportBtn = document.getElementById('cancel-import-btn');
@@ -1044,26 +1209,41 @@ class App {
   }
   async checkServerConnectionStatus() {
     try {
+      console.log('🔄 Starting server connection check...');
       const response = await this.localClient.get('/api/health');
+      console.log('✅ Health check response received:', response);
 
-      // Enhanced safe property extraction with comprehensive fallbacks
-      // Handle various response structures that might be returned
-      const responseData = response?.data || response || {};
+      // The localClient.get() returns the response data directly, not wrapped in a data property
+      // Handle the response structure correctly
+      const responseData = response || {};
       const serverInfo = responseData?.server || {};
       const checks = responseData?.checks || {};
+      console.log('📊 Parsed response data:', {
+        responseData,
+        serverInfo,
+        checks
+      });
 
       // Safely extract pingOne status with multiple fallback paths
       const pingOneInitialized = serverInfo?.pingOneInitialized || serverInfo?.pingOne?.initialized || checks?.pingOneConnected === 'ok' || false;
 
+      // Additional check: if pingOneConnected is 'ok', consider it initialized
+      const isConnected = checks?.pingOneConnected === 'ok';
+
       // Safely extract error information with multiple fallback paths
       const lastError = serverInfo?.lastError || serverInfo?.error || checks?.pingOneConfigured === 'error' ? 'Configuration error' : null || null;
-      if (pingOneInitialized) {
-        this.logger.fileLogger.info('Server is connected to PingOne');
+      console.log('🔍 Status analysis:', {
+        pingOneInitialized,
+        lastError,
+        checks
+      });
+      if (pingOneInitialized || isConnected) {
+        this.safeLogger.info('Server is connected to PingOne');
         this.uiManager.updateConnectionStatus('connected', 'Connected to PingOne');
 
         // Check if we have a valid cached token before hiding home token status
         let hasValidToken = false;
-        if (this.pingOneClient) {
+        if (this.pingOneClient && typeof this.pingOneClient.getCachedToken === 'function') {
           const cachedToken = this.pingOneClient.getCachedToken();
           if (cachedToken) {
             if (typeof localStorage !== 'undefined') {
@@ -1076,6 +1256,8 @@ class App {
               }
             }
           }
+        } else if (this.pingOneClient) {
+          this.safeLogger.warn('pingOneClient.getCachedToken is not a function', this.pingOneClient);
         }
         if (hasValidToken) {
           this.uiManager.updateHomeTokenStatus(false);
@@ -1085,14 +1267,14 @@ class App {
         return true;
       } else {
         const errorMessage = lastError || 'Not connected to PingOne';
-        this.logger.fileLogger.warn('Server is not connected to PingOne', {
+        this.safeLogger.warn('Server is not connected to PingOne', {
           error: errorMessage
         });
         this.uiManager.updateConnectionStatus('disconnected', errorMessage);
 
         // Check if we have a valid cached token before showing home token status
-        let hasValidToken = false;
-        if (this.pingOneClient) {
+        hasValidToken = false;
+        if (this.pingOneClient && typeof this.pingOneClient.getCachedToken === 'function') {
           const cachedToken = this.pingOneClient.getCachedToken();
           if (cachedToken) {
             if (typeof localStorage !== 'undefined') {
@@ -1105,6 +1287,8 @@ class App {
               }
             }
           }
+        } else if (this.pingOneClient) {
+          this.safeLogger.warn('pingOneClient.getCachedToken is not a function', this.pingOneClient);
         }
         if (hasValidToken) {
           this.uiManager.updateHomeTokenStatus(false);
@@ -1115,18 +1299,17 @@ class App {
       }
     } catch (error) {
       // Handle network errors, malformed responses, or server unavailability
-      const errorMessage = error?.message || 'Unknown error';
+      const errorMessage = error?.message || (typeof error === 'string' ? error : JSON.stringify(error));
       const statusMessage = `Failed to check server status: ${errorMessage}`;
-      this.logger.fileLogger.error('Server connection check failed', {
-        error: errorMessage,
-        stack: error?.stack,
-        response: error?.response
-      });
+
+      // Always log as a string
+      console.error('❌ Server connection check failed:', errorMessage);
+      this.safeLogger.error('Server connection check failed', errorMessage);
       this.uiManager.updateConnectionStatus('error', statusMessage);
 
       // Check if we have a valid cached token before showing home token status
-      let hasValidToken = false;
-      if (this.pingOneClient) {
+      hasValidToken = false;
+      if (this.pingOneClient && typeof this.pingOneClient.getCachedToken === 'function') {
         const cachedToken = this.pingOneClient.getCachedToken();
         if (cachedToken) {
           if (typeof localStorage !== 'undefined') {
@@ -1139,6 +1322,8 @@ class App {
             }
           }
         }
+      } else if (this.pingOneClient) {
+        this.safeLogger.warn('pingOneClient.getCachedToken is not a function', this.pingOneClient);
       }
       if (hasValidToken) {
         this.uiManager.updateHomeTokenStatus(false);
@@ -1183,6 +1368,7 @@ class App {
 
       // Load populations when navigating to import view
       if (view === 'import') {
+        console.log('🔄 Navigating to import view, loading populations...');
         this.loadPopulations();
       }
 
@@ -1268,7 +1454,7 @@ class App {
   }
   async handleSaveSettings(settings) {
     try {
-      this.logger.fileLogger.info('Saving settings', settings);
+      this.logger.info('Saving settings', settings);
 
       // Update settings save status to show saving
       this.uiManager.updateSettingsSaveStatus('Saving settings...', 'info');
@@ -1299,7 +1485,7 @@ class App {
         console.log('Updated #settings-connection-status after save (post-populate)');
       }
     } catch (error) {
-      this.logger.fileLogger.error('Failed to save settings', {
+      this.logger.error('Failed to save settings', {
         error: error.message
       });
       this.uiManager.updateSettingsSaveStatus('❌ Failed to save settings: ' + error.message, 'error');
@@ -1392,14 +1578,14 @@ class App {
           u.populationId = uiPopulationId;
         });
         this.populationChoice = 'ui';
-        this.uiManager.logMessage('info', 'Using UI dropdown population selection (CSV population data ignored)');
+        this.uiManager.showInfo('Using UI dropdown population selection (CSV population data ignored)');
 
         // Log the population assignment
         this.uiManager.debugLog("Population", `Assigned UI population ${uiPopulationId} to all ${users.length} users`);
       } else {
         // No UI population selected - this will be handled by validation later
         this.populationChoice = 'ui';
-        this.uiManager.logMessage('warning', 'No population selected in UI dropdown');
+        this.uiManager.showWarning('No population selected in UI dropdown');
       }
 
       // Show population prompt if needed (legacy)
@@ -1500,7 +1686,7 @@ class App {
           sessionId
         });
         this.uiManager.showError('SSE Connection Error', 'Invalid session ID. Cannot establish progress connection.');
-        this.uiManager.logMessage('error', 'SSE connection failed — missing session ID');
+        this.uiManager.showError('SSE Connection Failed', 'Missing session ID');
         this.isImporting = false;
         return;
       }
@@ -1510,7 +1696,7 @@ class App {
         console.error("SSE: ❌ EventSource not supported in this browser");
         this.uiManager.debugLog("SSE", "❌ EventSource not supported in this browser");
         this.uiManager.showError('SSE Not Supported', 'Your browser does not support Server-Sent Events. Progress updates will not be available.');
-        this.uiManager.logMessage('error', 'SSE not supported in this browser');
+        this.uiManager.showError('SSE Not Supported', 'Server-Sent Events not supported in this browser');
         this.isImporting = false;
         return;
       }
@@ -1518,7 +1704,7 @@ class App {
       // Log SSE connection attempt for debugging
       console.log("SSE: 🔌 Establishing robust SSE connection with sessionId:", sessionId);
       this.uiManager.debugLog("SSE", `🔄 Establishing robust SSE connection with sessionId: ${sessionId}`);
-      this.uiManager.logMessage('info', `SSE: Opening robust connection with sessionId: ${sessionId}`);
+      this.uiManager.showInfo(`SSE: Opening robust connection with sessionId: ${sessionId}`);
 
       // Create robust SSE connection with enhanced features
       const sseUrl = `/api/import/progress/${sessionId}`;
@@ -1535,10 +1721,10 @@ class App {
           // Update UI based on connection status
           switch (status) {
             case 'connecting':
-              this.uiManager.logMessage('info', 'SSE: Connecting to server...');
+              this.uiManager.showInfo('SSE: Connecting to server...');
               break;
             case 'connected':
-              this.uiManager.logMessage('success', 'SSE: Real-time connection established');
+              this.uiManager.showSuccess('SSE: Real-time connection established');
               // Stop fallback polling if it was active
               if (this.fallbackPolling) {
                 stopFallbackPolling();
@@ -1546,10 +1732,10 @@ class App {
               }
               break;
             case 'reconnecting':
-              this.uiManager.logMessage('warning', `SSE: Reconnecting... Attempt ${data.attempt}/${data.maxRetries}`);
+              this.uiManager.showWarning(`SSE: Reconnecting... Attempt ${data.attempt}/${data.maxRetries}`);
               break;
             case 'failed':
-              this.uiManager.logMessage('error', 'SSE: Connection failed, switching to fallback mode');
+              this.uiManager.showError('SSE Connection Failed', 'Switching to fallback mode');
               // Start fallback polling
               if (!this.fallbackPolling) {
                 this.fallbackPolling = startFallbackPolling(sseUrl, progressData => {
@@ -1558,7 +1744,7 @@ class App {
               }
               break;
             case 'disconnected':
-              this.uiManager.logMessage('warning', 'SSE: Connection lost');
+              this.uiManager.showWarning('SSE: Connection lost');
               break;
           }
         },
@@ -1581,7 +1767,7 @@ class App {
               rawData: event.data,
               error: e.message
             });
-            this.uiManager.logMessage('error', 'SSE: Received malformed progress data from server');
+            this.uiManager.showError('SSE Data Error', 'Received malformed progress data from server');
             return;
           }
 
@@ -1594,7 +1780,7 @@ class App {
           this.uiManager.debugLog("SSE", "✅ Robust SSE connection opened", {
             event: event
           });
-          this.uiManager.logMessage('info', `SSE connected for import (sessionId: ${sessionId})`);
+          this.uiManager.showInfo(`SSE connected for import (sessionId: ${sessionId})`);
           this.uiManager.showStatusMessage('success', 'Real-time connection established', 'Progress updates will be shown in real-time during the import process.');
         },
         // Handle connection errors
@@ -1603,12 +1789,12 @@ class App {
           this.uiManager.debugLog("SSE", "❌ Robust SSE connection error", {
             error: event
           });
-          this.uiManager.logMessage('error', 'SSE: Connection error occurred');
+          this.uiManager.showError('SSE Connection Error', 'Connection error occurred');
 
           // If robust SSE fails completely, start fallback polling
           if (!this.fallbackPolling) {
             console.log("SSE: 🔄 Starting fallback polling due to connection failure");
-            this.uiManager.logMessage('warning', 'SSE: Switching to fallback polling mode');
+            this.uiManager.showWarning('SSE: Switching to fallback polling mode');
             this.fallbackPolling = startFallbackPolling(sseUrl, progressData => {
               this.handleProgressUpdate(progressData);
             });
@@ -1621,16 +1807,16 @@ class App {
     };
 
     /**
-     * Handles progress updates from SSE or fallback polling
-     * 
-     * @param {Object} data - Progress data from server
-     */
+    * Handles progress updates from SSE or fallback polling with enhanced progress manager
+    * 
+    * @param {Object} data - Progress data from server
+    */
     this.handleProgressUpdate = data => {
       // Validate required fields in progress data
       if (data.current === undefined || data.total === undefined) {
         console.error("Progress: ❌ Progress event missing required fields:", data);
         this.uiManager.debugLog("Progress", "❌ Progress event missing required fields", data);
-        this.uiManager.logMessage('error', 'Progress: Missing required fields (current/total)');
+        this.uiManager.showError('Progress Error', 'Missing required fields (current/total)');
         return;
       }
 
@@ -1647,18 +1833,28 @@ class App {
         this.uiManager.debugLog("Progress", `📈 Progress update: ${data.current} of ${data.total} (${percentage}%)`);
       }
 
-      // Update UI with progress information
+      // Handle duplicate users with enhanced progress manager
+      if (data.duplicates && data.duplicates.length > 0) {
+        console.log("Progress: 🔄 Handling duplicate users:", data.duplicates.length);
+        this.uiManager.handleDuplicateUsers(data.duplicates, (mode, duplicates) => {
+          console.log('🔄 [IMPORT] User chose duplicate handling mode:', mode);
+          // Continue import with selected mode
+          this.continueImportWithDuplicateMode(mode, duplicates);
+        });
+      }
+
+      // Update UI with enhanced progress information
       this.uiManager.updateImportProgress(data.current || 0, data.total || 0, data.message || '', data.counts || {}, data.populationName || '', data.populationId || '');
 
       // Display status message to user if provided
       if (data.message) {
-        this.uiManager.logMessage('info', data.message);
+        this.uiManager.showInfo(data.message);
       }
 
       // Log current user being processed if available
       if (data.user) {
         const userName = data.user.username || data.user.email || 'unknown';
-        this.uiManager.logMessage('info', `Processing: ${userName}`);
+        this.uiManager.showInfo(`Processing: ${userName}`);
       }
 
       // Handle skipped users with detailed information
@@ -1680,7 +1876,7 @@ class App {
         } else {
           skipMessage += ` (${skipReason})`;
         }
-        this.uiManager.logMessage('warning', skipMessage);
+        this.uiManager.showWarning(skipMessage);
 
         // Update UI with skip information
         if (data.counts && data.counts.skipped !== undefined) {
@@ -1689,10 +1885,15 @@ class App {
         }
       }
 
-      // Handle completion
+      // Handle completion with enhanced progress manager
       if (data.status === 'complete' || data.current === data.total) {
         console.log("Progress: ✅ Import completed");
-        this.uiManager.logMessage('success', 'Import completed successfully');
+        this.uiManager.completeOperation({
+          success: data.counts?.success || 0,
+          failed: data.counts?.failed || 0,
+          skipped: data.counts?.skipped || 0,
+          duplicates: data.counts?.duplicates || 0
+        });
 
         // Clean up connections
         if (this.robustSSE) {
@@ -1709,7 +1910,7 @@ class App {
       // Handle errors
       if (data.status === 'error') {
         console.error("Progress: ❌ Import error:", data.error);
-        this.uiManager.logMessage('error', `Import error: ${data.error || 'Unknown error'}`);
+        this.uiManager.showError('Import Error', data.error || 'Unknown error');
 
         // Clean up connections
         if (this.robustSSE) {
@@ -1742,17 +1943,13 @@ class App {
         fileName: importOptions.file?.name
       });
 
-      // Fixes binding issues and ensures the progress panel reflects live import state correctly
-      // Immediately updates population, population ID, and user count in the progress panel before SSE events arrive
-
-      // Debug logging for progress window population display
-      console.log('🔍 [Progress Window Debug] Population info passed to UI:', {
-        totalUsers: importOptions.totalUsers,
+      // Start import operation with enhanced progress manager
+      this.uiManager.startImportOperation({
+        total: importOptions.totalUsers,
         populationName: importOptions.selectedPopulationName,
-        populationId: importOptions.selectedPopulationId
+        populationId: importOptions.selectedPopulationId,
+        fileName: importOptions.file?.name
       });
-      this.uiManager.showImportStatus(importOptions.totalUsers, importOptions.selectedPopulationName, importOptions.selectedPopulationId);
-      this.uiManager.updateImportProgress(0, importOptions.totalUsers, 'Preparing import...', {}, importOptions.selectedPopulationName, importOptions.selectedPopulationId);
 
       // Prepare FormData for file upload to server
       // Includes file, population selection, and metadata
@@ -1811,6 +2008,45 @@ class App {
   }
 
   /**
+   * Continue import with user's duplicate handling choice
+   * 
+   * @param {string} mode - Duplicate handling mode ('skip' or 'add')
+   * @param {Array} duplicates - Array of duplicate users
+   */
+  continueImportWithDuplicateMode(mode, duplicates) {
+    try {
+      console.log('🔄 [IMPORT] Continuing import with duplicate mode:', mode);
+      this.uiManager.debugLog("Import", `Continuing import with duplicate mode: ${mode}`);
+
+      // Send the user's choice to the server
+      fetch('/api/import/duplicates', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          mode: mode,
+          duplicates: duplicates
+        })
+      }).then(response => {
+        if (response.ok) {
+          console.log('✅ [IMPORT] Duplicate handling choice sent successfully');
+          this.uiManager.showInfo(`Continuing import with ${mode} mode for duplicates`);
+        } else {
+          console.error('❌ [IMPORT] Failed to send duplicate handling choice');
+          this.uiManager.showError('Duplicate Handling Error', 'Failed to process duplicate handling choice');
+        }
+      }).catch(error => {
+        console.error('❌ [IMPORT] Error sending duplicate handling choice:', error);
+        this.uiManager.showError('Duplicate Handling Error', error.message || 'Unknown error');
+      });
+    } catch (error) {
+      console.error('❌ [IMPORT] Error in continueImportWithDuplicateMode:', error);
+      this.uiManager.showError('Duplicate Handling Error', error.message || 'Unknown error');
+    }
+  }
+
+  /**
    * Validates and retrieves import configuration options
    * 
    * Checks that a population is selected and a CSV file is loaded.
@@ -1820,23 +2056,11 @@ class App {
    * @returns {Object|null} Import options or null if validation fails
    */
   getImportOptions() {
-    // Get population selection from UI
-    const populationSelect = document.getElementById('import-population-select');
-    const selectedPopulationId = populationSelect?.value;
-    const selectedPopulationName = populationSelect?.selectedOptions[0]?.text || '';
-
-    // Debug logging to help troubleshoot population selection issues
-    console.log('=== getImportOptions Debug ===');
-    console.log('Population select element:', populationSelect);
-    console.log('Selected population ID:', selectedPopulationId);
-    console.log('Selected population name:', selectedPopulationName);
-    console.log('All options:', populationSelect ? Array.from(populationSelect.options).map(opt => ({
-      value: opt.value,
-      text: opt.text
-    })) : 'No select element');
-    console.log('===========================');
-
-    // Validate population selection is required
+    const selectedPopulationId = document.getElementById('import-population-select')?.value;
+    const selectedPopulationName = document.getElementById('import-population-select')?.selectedOptions[0]?.text || '';
+    const skipDuplicatesByEmail = document.getElementById('skip-duplicates')?.checked || false;
+    const skipDuplicatesByUsername = document.getElementById('skip-duplicates-username')?.checked || false;
+    const sendWelcomeEmail = document.getElementById('send-welcome-email')?.checked || false;
     if (!selectedPopulationId) {
       this.uiManager.showError('No population selected', 'Please select a population before starting the import.');
       return null;
@@ -1854,7 +2078,10 @@ class App {
       selectedPopulationId,
       selectedPopulationName,
       totalUsers,
-      file: this.fileHandler.getCurrentFile()
+      file: this.fileHandler.getCurrentFile(),
+      skipDuplicatesByEmail,
+      skipDuplicatesByUsername,
+      sendWelcomeEmail
     };
   }
 
@@ -1942,7 +2169,7 @@ class App {
     this.isImporting = false;
 
     // Log cancellation
-    this.uiManager.logMessage('info', 'Import cancelled by user');
+    this.uiManager.showInfo('Import cancelled by user');
     console.log("Import: 🚫 Import cancelled by user");
   }
 
@@ -2874,7 +3101,7 @@ class App {
           if (users[idx]) users[idx].populationId = selectedPopulationId;
         });
         console.log("User resolved population conflict with:", selectedPopulationId);
-        this.uiManager.logMessage('info', `User resolved population conflict with: ${selectedPopulationId}`);
+        this.uiManager.showInfo(`User resolved population conflict with: ${selectedPopulationId}`);
         closeModal();
         // Resume import
         this.startImport();
@@ -2891,26 +3118,29 @@ class App {
     });
   }
   async loadPopulationsForModal(invalidData, sessionId) {
-    try {
-      const response = await fetch('/api/pingone/populations');
-      if (response.ok) {
-        const populations = await response.json();
-        const populationSelect = document.getElementById('valid-population-select');
-        if (populationSelect) {
-          populationSelect.innerHTML = '<option value="">Select a population...</option>';
-          populations.forEach(population => {
-            const option = document.createElement('option');
-            option.value = population.id;
-            option.textContent = population.name;
-            populationSelect.appendChild(option);
-          });
-        }
-      } else {
-        console.error('Failed to load populations for modal');
-      }
-    } catch (error) {
-      console.error('Error loading populations for modal:', error);
-    }
+    await this.loadPopulationsForDropdown('valid-population-select');
+    // The rest of the modal logic should assume the dropdown is now loaded or shows error/retry
+    // Remove the old fetch logic below:
+    // try {
+    //     const response = await fetch('/api/pingone/populations');
+    //     if (response.ok) {
+    //         const populations = await response.json();
+    //         const populationSelect = document.getElementById('valid-population-select');
+    //         if (populationSelect) {
+    //             populationSelect.innerHTML = '<option value="">Select a population...</option>';
+    //             populations.forEach(population => {
+    //                 const option = document.createElement('option');
+    //                 option.value = population.id;
+    //                 option.textContent = population.name;
+    //                 populationSelect.appendChild(option);
+    //             });
+    //         }
+    //     } else {
+    //         console.error('Failed to load populations for modal');
+    //     }
+    // } catch (error) {
+    //     console.error('Error loading populations for modal:', error);
+    // }
   }
 
   // Error tracking methods for import operations
@@ -3103,14 +3333,18 @@ class App {
     }
   }
   attachPopulationChangeListener() {
+    console.log('🔄 Attaching population change listener...');
     const populationSelectEl = document.getElementById('import-population-select');
     if (!populationSelectEl) {
-      console.error('Population select element not found for event listener');
+      console.error('❌ Population select element not found for event listener');
+      console.error('❌ Available select elements:', document.querySelectorAll('select[id*="population"]').length);
       return;
     }
+    console.log('✅ Population select element found for event listener');
 
     // Remove existing listener to prevent duplicates
     populationSelectEl.removeEventListener('change', this.handlePopulationChange.bind(this));
+    console.log('🔄 Removed existing event listener');
 
     // Add the change listener
     populationSelectEl.addEventListener('change', this.handlePopulationChange.bind(this));
@@ -3139,6 +3373,12 @@ class App {
     if (populationIdElement) {
       populationIdElement.textContent = selectedId || 'Not set';
     }
+  }
+
+  // If you have a modal or function that uses pick-population-select, add:
+  async loadPickPopulationModal() {
+    await this.loadPopulationsForDropdown('pick-population-select');
+    // The rest of the modal logic should assume the dropdown is now loaded or shows error/retry
   }
 }
 
@@ -3854,22 +4094,369 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-},{"./modules/api-factory.js":4,"./modules/file-handler.js":8,"./modules/file-logger.js":9,"./modules/local-api-client.js":10,"./modules/logger.js":11,"./modules/pingone-client.js":12,"./modules/settings-manager.js":13,"./modules/token-manager.js":14,"./modules/ui-manager.js":15,"./modules/version-manager.js":16,"@babel/runtime/helpers/interopRequireDefault":1}],4:[function(require,module,exports){
+// In the settings form logic:
+// When loading settings, set the region dropdown value to the region code
+function populateSettingsForm(settings) {
+  // ... existing code ...
+  const regionSelect = document.getElementById('region');
+  if (regionSelect && settings.region) {
+    regionSelect.value = settings.region;
+  }
+  // ... existing code ...
+}
+
+// When saving settings, get the region code from the dropdown
+function getSettingsFromForm() {
+  // ... existing code ...
+  const regionSelect = document.getElementById('region');
+  const region = regionSelect ? regionSelect.value : 'NA';
+  // ... existing code ...
+  return {
+    // ... other settings ...
+    region
+    // ... other settings ...
+  };
+}
+
+// Helper to get selected region info from dropdown
+function getSelectedRegionInfo() {
+  const regionSelect = document.getElementById('region');
+  if (!regionSelect) return {
+    code: 'NA',
+    tld: 'com',
+    label: 'North America (excluding Canada)'
+  };
+  const selectedOption = regionSelect.options[regionSelect.selectedIndex];
+  return {
+    code: selectedOption.value,
+    tld: selectedOption.getAttribute('data-tld'),
+    label: selectedOption.textContent
+  };
+}
+
+// Ensure region dropdown is accessible
+const regionSelect = document.getElementById('region');
+if (regionSelect) {
+  regionSelect.setAttribute('aria-label', 'Select PingOne region');
+}
+
+},{"./modules/api-factory.js":4,"./modules/file-handler.js":8,"./modules/file-logger.js":9,"./modules/local-api-client.js":10,"./modules/logger.js":11,"./modules/pingone-client.js":12,"./modules/progress-manager.js":13,"./modules/settings-manager.js":14,"./modules/token-manager.js":15,"./modules/ui-manager.js":16,"./modules/version-manager.js":17,"@babel/runtime/helpers/interopRequireDefault":1}],4:[function(require,module,exports){
 "use strict";
 
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.initAPIFactory = exports.getAPIFactory = exports.apiFactory = exports.APIFactory = void 0;
+exports.apiFactory = exports.APIFactory = void 0;
+exports.createAutoRetryAPIClient = createAutoRetryAPIClient;
+exports.createPingOneAPIClient = createPingOneAPIClient;
+exports.initAPIFactory = exports.getAPIFactory = exports.default = void 0;
+var _tokenManager = _interopRequireDefault(require("./token-manager.js"));
 var _localApiClient = require("./local-api-client.js");
 var _pingoneClient = require("./pingone-client.js");
 /**
- * API Factory
- * Creates and manages API client instances
+ * API Factory - Creates API clients with automatic token re-authentication
+ * 
+ * This module provides a factory for creating API clients that automatically
+ * handle token expiration by detecting 401 responses and retrying with new tokens
+ * using stored credentials.
  */
 
 /**
- * API Factory class
+ * Create an API client with automatic token re-authentication
+ * @param {Object} settings - API settings including credentials
+ * @param {Object} logger - Logger instance
+ * @returns {Object} API client with auto-retry capabilities
+ */
+function createAutoRetryAPIClient(settings, logger) {
+  const tokenManager = new _tokenManager.default(logger, settings);
+
+  /**
+   * Make an API request with automatic token re-authentication
+   * @param {string} url - The API endpoint URL
+   * @param {Object} options - Request options
+   * @returns {Promise<Object>} The API response
+   */
+  async function makeRequest(url, options = {}) {
+    return await tokenManager.retryWithNewToken(async token => {
+      const requestOptions = {
+        ...options,
+        headers: {
+          ...options.headers,
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      };
+      const response = await fetch(url, requestOptions);
+
+      // Check for token expiration
+      if (response.status === 401) {
+        const responseText = await response.text().catch(() => '');
+        const isTokenExpired = responseText.includes('token_expired') || responseText.includes('invalid_token') || responseText.includes('expired');
+        if (isTokenExpired) {
+          throw new Error('TOKEN_EXPIRED');
+        }
+      }
+      return response;
+    });
+  }
+
+  /**
+   * GET request with auto-retry
+   * @param {string} url - The API endpoint URL
+   * @param {Object} options - Request options
+   * @returns {Promise<Object>} The API response
+   */
+  async function get(url, options = {}) {
+    return await makeRequest(url, {
+      ...options,
+      method: 'GET'
+    });
+  }
+
+  /**
+   * POST request with auto-retry
+   * @param {string} url - The API endpoint URL
+   * @param {Object} data - Request body data
+   * @param {Object} options - Request options
+   * @returns {Promise<Object>} The API response
+   */
+  async function post(url, data = null, options = {}) {
+    const requestOptions = {
+      ...options,
+      method: 'POST'
+    };
+    if (data) {
+      requestOptions.body = JSON.stringify(data);
+    }
+    return await makeRequest(url, requestOptions);
+  }
+
+  /**
+   * PUT request with auto-retry
+   * @param {string} url - The API endpoint URL
+   * @param {Object} data - Request body data
+   * @param {Object} options - Request options
+   * @returns {Promise<Object>} The API response
+   */
+  async function put(url, data = null, options = {}) {
+    const requestOptions = {
+      ...options,
+      method: 'PUT'
+    };
+    if (data) {
+      requestOptions.body = JSON.stringify(data);
+    }
+    return await makeRequest(url, requestOptions);
+  }
+
+  /**
+   * DELETE request with auto-retry
+   * @param {string} url - The API endpoint URL
+   * @param {Object} options - Request options
+   * @returns {Promise<Object>} The API response
+   */
+  async function del(url, options = {}) {
+    return await makeRequest(url, {
+      ...options,
+      method: 'DELETE'
+    });
+  }
+
+  /**
+   * PATCH request with auto-retry
+   * @param {string} url - The API endpoint URL
+   * @param {Object} data - Request body data
+   * @param {Object} options - Request options
+   * @returns {Promise<Object>} The API response
+   */
+  async function patch(url, data = null, options = {}) {
+    const requestOptions = {
+      ...options,
+      method: 'PATCH'
+    };
+    if (data) {
+      requestOptions.body = JSON.stringify(data);
+    }
+    return await makeRequest(url, requestOptions);
+  }
+
+  /**
+   * Get token information
+   * @returns {Object|null} Token info
+   */
+  function getTokenInfo() {
+    return tokenManager.getTokenInfo();
+  }
+
+  /**
+   * Update settings and clear token cache if credentials changed
+   * @param {Object} newSettings - New settings
+   */
+  function updateSettings(newSettings) {
+    tokenManager.updateSettings(newSettings);
+  }
+  return {
+    get,
+    post,
+    put,
+    del,
+    patch,
+    getTokenInfo,
+    updateSettings,
+    tokenManager
+  };
+}
+
+/**
+ * Create a PingOne API client with automatic token re-authentication
+ * @param {Object} settings - PingOne API settings
+ * @param {Object} logger - Logger instance
+ * @returns {Object} PingOne API client
+ */
+function createPingOneAPIClient(settings, logger) {
+  const baseURL = getPingOneBaseURL(settings.region);
+  const apiClient = createAutoRetryAPIClient(settings, logger);
+
+  /**
+   * Get PingOne base URL for the region
+   * @param {string} region - The region
+   * @returns {string} Base URL
+   */
+  function getPingOneBaseURL(region) {
+    const baseURLs = {
+      'NorthAmerica': 'https://api.pingone.com',
+      'Europe': 'https://api.eu.pingone.com',
+      'Canada': 'https://api.ca.pingone.com',
+      'Asia': 'https://api.apsoutheast.pingone.com',
+      'Australia': 'https://api.aus.pingone.com',
+      'US': 'https://api.pingone.com',
+      'EU': 'https://api.eu.pingone.com',
+      'AP': 'https://api.apsoutheast.pingone.com'
+    };
+    return baseURLs[region] || 'https://api.pingone.com';
+  }
+
+  /**
+   * Make a PingOne API request
+   * @param {string} endpoint - API endpoint (without base URL)
+   * @param {Object} options - Request options
+   * @returns {Promise<Object>} The API response
+   */
+  async function pingOneRequest(endpoint, options = {}) {
+    const url = `${baseURL}/v1${endpoint}`;
+    return await apiClient.makeRequest(url, options);
+  }
+
+  /**
+   * Get users from PingOne
+   * @param {Object} options - Query options
+   * @returns {Promise<Object>} Users response
+   */
+  async function getUsers(options = {}) {
+    const queryParams = new URLSearchParams(options).toString();
+    const endpoint = `/environments/${settings.environmentId}/users${queryParams ? `?${queryParams}` : ''}`;
+    return await pingOneRequest(endpoint, {
+      method: 'GET'
+    });
+  }
+
+  /**
+   * Create user in PingOne
+   * @param {Object} userData - User data
+   * @returns {Promise<Object>} Create user response
+   */
+  async function createUser(userData) {
+    const endpoint = `/environments/${settings.environmentId}/users`;
+    return await pingOneRequest(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(userData)
+    });
+  }
+
+  /**
+   * Update user in PingOne
+   * @param {string} userId - User ID
+   * @param {Object} userData - User data
+   * @returns {Promise<Object>} Update user response
+   */
+  async function updateUser(userId, userData) {
+    const endpoint = `/environments/${settings.environmentId}/users/${userId}`;
+    return await pingOneRequest(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(userData)
+    });
+  }
+
+  /**
+   * Delete user from PingOne
+   * @param {string} userId - User ID
+   * @returns {Promise<Object>} Delete user response
+   */
+  async function deleteUser(userId) {
+    const endpoint = `/environments/${settings.environmentId}/users/${userId}`;
+    return await pingOneRequest(endpoint, {
+      method: 'DELETE'
+    });
+  }
+
+  /**
+   * Get populations from PingOne
+   * @param {Object} options - Query options
+   * @returns {Promise<Object>} Populations response
+   */
+  async function getPopulations(options = {}) {
+    const queryParams = new URLSearchParams(options).toString();
+    const endpoint = `/environments/${settings.environmentId}/populations${queryParams ? `?${queryParams}` : ''}`;
+    return await pingOneRequest(endpoint, {
+      method: 'GET'
+    });
+  }
+
+  /**
+   * Create population in PingOne
+   * @param {Object} populationData - Population data
+   * @returns {Promise<Object>} Create population response
+   */
+  async function createPopulation(populationData) {
+    const endpoint = `/environments/${settings.environmentId}/populations`;
+    return await pingOneRequest(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(populationData)
+    });
+  }
+
+  /**
+   * Delete population from PingOne
+   * @param {string} populationId - Population ID
+   * @returns {Promise<Object>} Delete population response
+   */
+  async function deletePopulation(populationId) {
+    const endpoint = `/environments/${settings.environmentId}/populations/${populationId}`;
+    return await pingOneRequest(endpoint, {
+      method: 'DELETE'
+    });
+  }
+  return {
+    // API methods
+    getUsers,
+    createUser,
+    updateUser,
+    deleteUser,
+    getPopulations,
+    createPopulation,
+    deletePopulation,
+    // Token management
+    getTokenInfo: apiClient.getTokenInfo,
+    updateSettings: apiClient.updateSettings,
+    // Raw request method
+    request: pingOneRequest
+  };
+}
+
+/**
+ * API Factory class - Backward compatibility
  */
 class APIFactory {
   /**
@@ -3999,8 +4586,14 @@ const apiFactory = exports.apiFactory = {
 // For backward compatibility
 const getAPIFactory = () => defaultAPIFactory;
 exports.getAPIFactory = getAPIFactory;
+var _default = exports.default = {
+  createAutoRetryAPIClient,
+  createPingOneAPIClient,
+  initAPIFactory,
+  apiFactory
+};
 
-},{"./local-api-client.js":10,"./pingone-client.js":12}],5:[function(require,module,exports){
+},{"./local-api-client.js":10,"./pingone-client.js":12,"./token-manager.js":15,"@babel/runtime/helpers/interopRequireDefault":1}],5:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4234,27 +4827,88 @@ exports.ElementRegistry = void 0;
 
 const elementCache = {};
 function getElement(selector, description, required = true) {
-  if (elementCache[selector]) return elementCache[selector];
-  const el = document.querySelector(selector);
-  if (!el && required) {
-    console.warn(`[ElementRegistry] Missing required element: ${description} (${selector})`);
-  } else if (!el) {
-    console.info(`[ElementRegistry] Optional element not found: ${description} (${selector})`);
+  // Input validation
+  if (!selector || typeof selector !== 'string') {
+    console.error(`[ElementRegistry] Invalid selector provided: ${selector}`);
+    return null;
   }
-  elementCache[selector] = el;
-  return el;
+
+  // Security: Prevent potential XSS through selector injection
+  // Allow valid attribute selectors with quotes but prevent script injection
+  if (selector.includes('<') || selector.includes('>') || selector.includes('"') && !selector.includes('[') && !selector.includes(']') || selector.includes("'") && !selector.includes('[') && !selector.includes(']')) {
+    console.error(`[ElementRegistry] Potentially unsafe selector detected: ${selector}`);
+    return null;
+  }
+
+  // Check cache first
+  if (elementCache[selector]) {
+    return elementCache[selector];
+  }
+  try {
+    const el = document.querySelector(selector);
+    if (!el && required) {
+      console.warn(`[ElementRegistry] Missing required element: ${description} (${selector})`);
+    } else if (!el) {
+      console.info(`[ElementRegistry] Optional element not found: ${description} (${selector})`);
+    } else {
+      // Validate element is still in DOM
+      if (!document.contains(el)) {
+        console.warn(`[ElementRegistry] Element found but not in DOM: ${description} (${selector})`);
+        elementCache[selector] = null;
+        return null;
+      }
+    }
+    elementCache[selector] = el;
+    return el;
+  } catch (error) {
+    console.error(`[ElementRegistry] Error finding element: ${description} (${selector})`, error);
+    elementCache[selector] = null;
+    return null;
+  }
 }
 const ElementRegistry = exports.ElementRegistry = {
-  // Main UI elements (add more as needed)
+  // Main UI elements
   importButton: () => getElement('#import-btn', 'Import Button'),
-  fileInput: () => getElement('#file-input', 'File Input'),
+  fileInput: () => getElement('#csv-file', 'File Input'),
   statusBar: () => getElement('#status-bar', 'Status Bar'),
   dashboardTab: () => getElement('#dashboard-tab', 'Dashboard Tab'),
-  dragDropArea: () => getElement('#drag-drop-area', 'Drag-and-Drop Area', false)
-  // Add all other required selectors here, e.g.:
-  // userTable: () => getElement('#user-table', 'User Table'),
-  // settingsForm: () => getElement('#settings-form', 'Settings Form'),
-  // ...
+  dragDropArea: () => getElement('#drag-drop-area', 'Drag-and-Drop Area', false),
+  // Notification and progress containers
+  notificationContainer: () => getElement('#notification-area', 'Notification Container'),
+  progressContainer: () => getElement('#progress-container', 'Progress Container'),
+  // Token and connection status elements
+  tokenStatus: () => getElement('#universal-token-status', 'Token Status'),
+  connectionStatus: () => getElement('#connection-status', 'Connection Status'),
+  currentTokenStatus: () => getElement('#current-token-status', 'Current Token Status'),
+  universalTokenStatus: () => getElement('#universal-token-status', 'Universal Token Status'),
+  homeTokenStatus: () => getElement('#home-token-status', 'Home Token Status'),
+  // File handling elements
+  fileInfo: () => getElement('#file-info', 'File Info'),
+  previewContainer: () => getElement('#dashboard-preview', 'Preview Container'),
+  fileInputLabel: () => getElement('label[for="csv-file"]', 'File Input Label'),
+  deleteFileInput: () => getElement('#delete-csv-file', 'Delete File Input'),
+  deleteFileInputLabel: () => getElement('label[for="delete-csv-file"]', 'Delete File Input Label'),
+  modifyFileInput: () => getElement('#modify-csv-file', 'Modify File Input'),
+  modifyFileInputLabel: () => getElement('label[for="modify-csv-file"]', 'Modify File Input Label'),
+  // Population selection elements
+  importPopulationSelect: () => getElement('#import-population-select', 'Import Population Select'),
+  deletePopulationSelect: () => getElement('#delete-population-select', 'Delete Population Select'),
+  modifyPopulationSelect: () => getElement('#modify-population-select', 'Modify Population Select'),
+  dashboardPopulationSelect: () => getElement('#dashboard-population-select', 'Dashboard Population Select'),
+  // Import buttons
+  startImportBtn: () => getElement('#start-import', 'Start Import Button'),
+  startImportBtnBottom: () => getElement('#bottom-start-import', 'Bottom Start Import Button'),
+  // Settings elements
+  settingsSaveStatus: () => getElement('#settings-save-status', 'Settings Save Status'),
+  // Import status elements
+  importStatus: () => getElement('#import-status', 'Import Status'),
+  // Population checkboxes
+  useDefaultPopulationCheckbox: () => getElement('#use-default-population', 'Use Default Population Checkbox'),
+  useCsvPopulationIdCheckbox: () => getElement('#use-csv-population-id', 'Use CSV Population ID Checkbox'),
+  // Get Token button
+  getTokenBtn: () => getElement('#get-token-btn', 'Get Token Button'),
+  // Population ID form field
+  populationIdField: () => getElement('#population-id', 'Population ID Field')
 };
 
 },{}],8:[function(require,module,exports){
@@ -5272,7 +5926,7 @@ class FileHandler {
    * @param {string} containerId - The ID of the container element to update
    */
   updateFileInfoForElement(file, containerId) {
-    const container = _elementRegistry.ElementRegistry.getById(containerId);
+    const container = document.getElementById(containerId);
     console.log('updateFileInfoForElement called:', {
       containerId,
       container: !!container,
@@ -6579,7 +7233,7 @@ class Logger {
 exports.Logger = Logger;
 
 }).call(this)}).call(this,require('_process'))
-},{"./ui-manager.js":15,"./winston-logger.js":17,"_process":2}],12:[function(require,module,exports){
+},{"./ui-manager.js":16,"./winston-logger.js":18,"_process":2}],12:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 
@@ -6732,6 +7386,58 @@ class PingOneClient {
       this.logger.error('Error clearing token from storage', {
         error: error.message
       });
+    }
+  }
+
+  /**
+   * Get cached token (alias for getCurrentTokenTimeRemaining for compatibility)
+   * Production-ready with comprehensive error handling and validation
+   */
+  getCachedToken() {
+    try {
+      // Validate token existence and format
+      if (!this.accessToken || typeof this.accessToken !== 'string') {
+        this.logger.debug('No valid cached token available');
+        return null;
+      }
+
+      // Validate expiry timestamp
+      if (!this.tokenExpiry || typeof this.tokenExpiry !== 'number') {
+        this.logger.warn('Invalid token expiry timestamp');
+        this.clearToken(); // Clean up invalid state
+        return null;
+      }
+      const now = Date.now();
+      const isExpired = this.tokenExpiry <= now;
+
+      // Add buffer time (5 minutes) to prevent edge cases
+      const bufferTime = 5 * 60 * 1000; // 5 minutes in milliseconds
+      const isNearExpiry = this.tokenExpiry - now <= bufferTime;
+      if (isExpired) {
+        this.logger.debug('Cached token is expired');
+        this.clearToken(); // Clean up expired token
+        return null;
+      }
+      if (isNearExpiry) {
+        this.logger.warn('Token is near expiry, consider refreshing');
+      }
+
+      // Validate token format (basic JWT structure check)
+      if (!this.accessToken.includes('.') || this.accessToken.split('.').length !== 3) {
+        this.logger.error('Invalid token format detected');
+        this.clearToken(); // Clean up invalid token
+        return null;
+      }
+      this.logger.debug('Returning valid cached token');
+      return this.accessToken;
+    } catch (error) {
+      this.logger.error('Error getting cached token', {
+        error: error.message,
+        stack: error.stack,
+        tokenLength: this.accessToken ? this.accessToken.length : 0
+      });
+      // Don't expose token in logs for security
+      return null;
     }
   }
 
@@ -6931,12 +7637,16 @@ class PingOneClient {
         populationId = null,
         batchSize = 10,
         retryAttempts = 3,
-        enableUsers = true
+        enableUsers = true,
+        skipDuplicatesByEmail = false,
+        skipDuplicatesByUsername = false
       } = options;
       this.logger.debug('Initial setup completed', {
         batchSize,
         retryAttempts,
-        enableUsers
+        enableUsers,
+        skipDuplicatesByEmail,
+        skipDuplicatesByUsername
       });
 
       // Validate input
@@ -6964,70 +7674,9 @@ class PingOneClient {
         }
       }
 
-      // Check if CSV has population data
-      const hasPopulationData = csvData.some(user => user.populationId);
-      if (hasPopulationData) {
-        this.logger.debug('CSV has population data, will use individual population IDs from CSV');
-      } else if (fallbackPopulationId) {
-        this.logger.debug('CSV population ID enabled but no population data found in CSV');
-      } else {
-        this.logger.debug('No population selected, showing modal...');
-
-        // Show population selection modal
-        const modal = document.getElementById('population-selection-modal');
-        if (modal) {
-          modal.style.display = 'block';
-
-          // Wait for user selection
-          return new Promise((resolve, reject) => {
-            const confirmButton = document.getElementById('confirm-population-btn');
-            const cancelButton = document.getElementById('cancel-population-btn');
-            const handleConfirm = () => {
-              const selectedPopulation = document.getElementById('population-select').value;
-              if (selectedPopulation) {
-                modal.style.display = 'none';
-                this.logger.debug('User chose to continue without population selection, using default population');
-                resolve(this.importUsers(csvData, {
-                  ...options,
-                  populationId: selectedPopulation
-                }));
-              }
-            };
-            const handleCancel = () => {
-              modal.style.display = 'none';
-              this.logger.debug('User cancelled population selection');
-              reject(new Error('Population selection cancelled'));
-            };
-            confirmButton.onclick = handleConfirm;
-            cancelButton.onclick = handleCancel;
-          });
-        } else {
-          // Try to get first available population as fallback
-          try {
-            const populations = await this.makeRequest('GET', '/environments/current/populations');
-            if (populations._embedded && populations._embedded.populations.length > 0) {
-              fallbackPopulationId = populations._embedded.populations[0].id;
-              this.logger.debug('Using first available population as fallback', {
-                fallbackPopulationId
-              });
-            } else {
-              this.logger.debug('No populations available, skipping all users');
-              return {
-                success: false,
-                message: 'No populations available'
-              };
-            }
-          } catch (error) {
-            this.logger.error('Error getting populations', {
-              error: error.message
-            });
-            throw error;
-          }
-        }
-      }
-      this.logger.debug('Population selection completed', {
-        fallbackPopulationId
-      });
+      // Prepare sets for duplicate detection
+      const seenEmails = new Set();
+      const seenUsernames = new Set();
 
       // Process users in batches
       const totalUsers = csvData.length;
@@ -7051,10 +7700,27 @@ class PingOneClient {
             const userPopulationId = user.populationId || fallbackPopulationId;
             if (!userPopulationId) {
               const error = `Missing population – user not processed. Username: ${user.email || user.username}`;
-              this.logger.error(`Line ${csvData.indexOf(user) + 2}: ${error}`);
               results.errors.push(error);
               results.skipped++;
               continue;
+            }
+
+            // Duplicate detection
+            if (skipDuplicatesByEmail && user.email) {
+              if (seenEmails.has(user.email.toLowerCase())) {
+                this.logger.info(`Skipping duplicate user by email: ${user.email}`);
+                results.skipped++;
+                continue;
+              }
+              seenEmails.add(user.email.toLowerCase());
+            }
+            if (skipDuplicatesByUsername && user.username) {
+              if (seenUsernames.has(user.username.toLowerCase())) {
+                this.logger.info(`Skipping duplicate user by username: ${user.username}`);
+                results.skipped++;
+                continue;
+              }
+              seenUsernames.add(user.username.toLowerCase());
             }
 
             // Create user
@@ -7073,12 +7739,10 @@ class PingOneClient {
 
             // Add optional fields
             if (user.phoneNumber) userData.phoneNumber = user.phoneNumber;
-            if (user.title) userData.title = user.title;
             if (user.company) userData.company = user.company;
             const result = await this.createUser(userData, retryAttempts);
             if (result.success) {
               results.created++;
-
               // Disable user if requested
               if (!enableUsers && result.userId) {
                 this.logger.debug(`Disabling user ${result.userId} after creation`);
@@ -7099,9 +7763,6 @@ class PingOneClient {
             }
             results.processed++;
           } catch (error) {
-            this.logger.error(`Unexpected error for user ${user.email || user.username}`, {
-              error: error.message
-            });
             results.failed++;
             results.errors.push(error.message);
           }
@@ -7197,7 +7858,677 @@ const pingOneClient = exports.pingOneClient = new PingOneClient();
 // Export the class and instance
 
 }).call(this)}).call(this,require('_process'))
-},{"./ui-manager.js":15,"./winston-logger.js":17,"_process":2}],13:[function(require,module,exports){
+},{"./ui-manager.js":16,"./winston-logger.js":18,"_process":2}],13:[function(require,module,exports){
+(function (process){(function (){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.progressManager = exports.ProgressManager = void 0;
+var _winstonLogger = require("./winston-logger.js");
+var _elementRegistry = require("./element-registry.js");
+/**
+ * Progress Manager Module
+ * 
+ * Production-ready progress UI system with real-time updates for all operations:
+ * - Import, Export, Delete, Modify
+ * - Non-blocking UI updates
+ * - Responsive controls
+ * - Enhanced import logic with duplicate handling
+ * - Modern progress indicators
+ * 
+ * Features:
+ * - Real-time progress updates via SSE
+ * - Responsive progress bars and status indicators
+ * - Operation-specific progress tracking
+ * - Duplicate user handling with user choice
+ * - Error handling and recovery
+ * - Production-ready logging
+ */
+
+// Enable debug mode for development (set to false in production)
+const DEBUG_MODE = process.env.NODE_ENV !== 'production';
+
+/**
+ * Progress Manager Class
+ * 
+ * Manages all progress-related UI updates and operation tracking
+ */
+class ProgressManager {
+  constructor() {
+    // Initialize Winston logger
+    this.logger = (0, _winstonLogger.createWinstonLogger)({
+      service: 'pingone-progress',
+      environment: process.env.NODE_ENV || 'development'
+    });
+
+    // Operation state tracking
+    this.currentOperation = null;
+    this.operationStartTime = null;
+    this.operationStats = {
+      processed: 0,
+      total: 0,
+      success: 0,
+      failed: 0,
+      skipped: 0,
+      duplicates: 0
+    };
+
+    // Progress UI elements
+    this.progressContainer = null;
+    this.progressBar = null;
+    this.progressText = null;
+    this.progressDetails = null;
+    this.operationStatus = null;
+    this.cancelButton = null;
+
+    // Duplicate handling
+    this.duplicateUsers = [];
+    this.duplicateHandlingMode = 'skip'; // 'skip', 'add', 'prompt'
+
+    // Event listeners
+    this.onProgressUpdate = null;
+    this.onOperationComplete = null;
+    this.onOperationCancel = null;
+
+    // Initialize
+    this.initialize();
+  }
+
+  /**
+   * Initialize the progress manager
+   */
+  initialize() {
+    try {
+      this.setupElements();
+      this.setupEventListeners();
+      this.logger.info('Progress manager initialized successfully');
+    } catch (error) {
+      this.logger.error('Failed to initialize progress manager', {
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Setup DOM elements
+   */
+  setupElements() {
+    try {
+      // Main progress container
+      this.progressContainer = document.getElementById('progress-container') || this.createProgressContainer();
+
+      // Progress bar
+      this.progressBar = this.progressContainer.querySelector('.progress-bar-fill') || this.createProgressBar();
+
+      // Progress text
+      this.progressText = this.progressContainer.querySelector('.progress-text') || this.createProgressText();
+
+      // Progress details
+      this.progressDetails = this.progressContainer.querySelector('.progress-details') || this.createProgressDetails();
+
+      // Operation status
+      this.operationStatus = this.progressContainer.querySelector('.operation-status') || this.createOperationStatus();
+
+      // Cancel button
+      this.cancelButton = this.progressContainer.querySelector('.cancel-operation') || this.createCancelButton();
+      this.logger.debug('Progress elements setup completed');
+    } catch (error) {
+      this.logger.error('Error setting up progress elements', {
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Create progress container if it doesn't exist
+   */
+  createProgressContainer() {
+    const container = document.createElement('div');
+    container.id = 'progress-container';
+    container.className = 'progress-container';
+    container.style.display = 'none';
+    container.innerHTML = `
+            <div class="progress-header">
+                <h3 class="operation-title">Operation in Progress</h3>
+                <button class="cancel-operation" type="button">Cancel</button>
+            </div>
+            <div class="progress-content">
+                <div class="progress-bar">
+                    <div class="progress-bar-fill"></div>
+                </div>
+                <div class="progress-text">Preparing...</div>
+                <div class="progress-details"></div>
+                <div class="operation-status"></div>
+            </div>
+            <div class="duplicate-handling" style="display: none;">
+                <h4>Duplicate Users Found</h4>
+                <div class="duplicate-options">
+                    <label>
+                        <input type="radio" name="duplicate-handling" value="skip" checked>
+                        Skip duplicates
+                    </label>
+                    <label>
+                        <input type="radio" name="duplicate-handling" value="add">
+                        Add to PingOne
+                    </label>
+                </div>
+                <div class="duplicate-list"></div>
+            </div>
+        `;
+    document.body.appendChild(container);
+    return container;
+  }
+
+  /**
+   * Create progress bar element
+   */
+  createProgressBar() {
+    const progressBar = document.createElement('div');
+    progressBar.className = 'progress-bar-fill';
+    progressBar.style.width = '0%';
+    return progressBar;
+  }
+
+  /**
+   * Create progress text element
+   */
+  createProgressText() {
+    const progressText = document.createElement('div');
+    progressText.className = 'progress-text';
+    progressText.textContent = 'Preparing...';
+    return progressText;
+  }
+
+  /**
+   * Create progress details element
+   */
+  createProgressDetails() {
+    const progressDetails = document.createElement('div');
+    progressDetails.className = 'progress-details';
+    return progressDetails;
+  }
+
+  /**
+   * Create operation status element
+   */
+  createOperationStatus() {
+    const operationStatus = document.createElement('div');
+    operationStatus.className = 'operation-status';
+    return operationStatus;
+  }
+
+  /**
+   * Create cancel button element
+   */
+  createCancelButton() {
+    const cancelButton = document.createElement('button');
+    cancelButton.className = 'cancel-operation';
+    cancelButton.type = 'button';
+    cancelButton.textContent = 'Cancel';
+    return cancelButton;
+  }
+
+  /**
+   * Setup event listeners
+   */
+  setupEventListeners() {
+    try {
+      // Cancel button
+      if (this.cancelButton) {
+        this.cancelButton.addEventListener('click', () => {
+          this.cancelOperation();
+        });
+      }
+
+      // Duplicate handling radio buttons
+      const duplicateRadios = this.progressContainer.querySelectorAll('input[name="duplicate-handling"]');
+      duplicateRadios.forEach(radio => {
+        radio.addEventListener('change', e => {
+          this.duplicateHandlingMode = e.target.value;
+          this.logger.debug('Duplicate handling mode changed', {
+            mode: this.duplicateHandlingMode
+          });
+        });
+      });
+      this.logger.debug('Progress event listeners setup completed');
+    } catch (error) {
+      this.logger.error('Error setting up progress event listeners', {
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Start a new operation
+   * 
+   * @param {string} operationType - Type of operation (import, export, delete, modify)
+   * @param {Object} options - Operation options
+   */
+  startOperation(operationType, options = {}) {
+    try {
+      this.currentOperation = {
+        type: operationType,
+        startTime: Date.now(),
+        options: options
+      };
+      this.operationStartTime = Date.now();
+      this.resetOperationStats();
+      this.showProgress();
+      this.updateOperationTitle(operationType);
+      this.updateProgress(0, options.total || 0, 'Preparing operation...');
+      this.logger.info('Operation started', {
+        type: operationType,
+        options: options
+      });
+
+      // Trigger progress update callback
+      if (this.onProgressUpdate) {
+        this.onProgressUpdate({
+          type: 'start',
+          operation: operationType,
+          options: options
+        });
+      }
+    } catch (error) {
+      this.logger.error('Error starting operation', {
+        error: error.message,
+        operationType,
+        options
+      });
+    }
+  }
+
+  /**
+   * Update progress
+   * 
+   * @param {number} current - Current progress
+   * @param {number} total - Total items
+   * @param {string} message - Progress message
+   * @param {Object} details - Additional details
+   */
+  updateProgress(current, total, message = '', details = {}) {
+    try {
+      const percentage = total > 0 ? Math.round(current / total * 100) : 0;
+
+      // Update progress bar
+      if (this.progressBar) {
+        this.progressBar.style.width = `${percentage}%`;
+        this.progressBar.setAttribute('aria-valuenow', current);
+        this.progressBar.setAttribute('aria-valuemax', total);
+      }
+
+      // Update progress text
+      if (this.progressText) {
+        this.progressText.textContent = message || `${current} of ${total} (${percentage}%)`;
+      }
+
+      // Update progress details
+      if (this.progressDetails && Object.keys(details).length > 0) {
+        this.updateProgressDetails(details);
+      }
+
+      // Update operation stats
+      this.operationStats.processed = current;
+      this.operationStats.total = total;
+      this.logger.debug('Progress updated', {
+        current,
+        total,
+        percentage,
+        message: message.substring(0, 100)
+      });
+
+      // Trigger progress update callback
+      if (this.onProgressUpdate) {
+        this.onProgressUpdate({
+          type: 'progress',
+          current,
+          total,
+          percentage,
+          message,
+          details
+        });
+      }
+    } catch (error) {
+      this.logger.error('Error updating progress', {
+        error: error.message,
+        current,
+        total,
+        message
+      });
+    }
+  }
+
+  /**
+   * Update progress details
+   * 
+   * @param {Object} details - Progress details
+   */
+  updateProgressDetails(details) {
+    try {
+      if (!this.progressDetails) return;
+      const detailsHTML = Object.entries(details).map(([key, value]) => {
+        const label = key.charAt(0).toUpperCase() + key.slice(1);
+        return `<div class="detail-item">
+                        <span class="detail-label">${label}:</span>
+                        <span class="detail-value">${value}</span>
+                    </div>`;
+      }).join('');
+      this.progressDetails.innerHTML = detailsHTML;
+    } catch (error) {
+      this.logger.error('Error updating progress details', {
+        error: error.message,
+        details
+      });
+    }
+  }
+
+  /**
+   * Handle duplicate users during import
+   * 
+   * @param {Array} duplicates - Array of duplicate users
+   * @param {Function} onDecision - Callback for user decision
+   */
+  handleDuplicates(duplicates, onDecision) {
+    try {
+      this.duplicateUsers = duplicates;
+      const duplicateHandling = this.progressContainer.querySelector('.duplicate-handling');
+      const duplicateList = this.progressContainer.querySelector('.duplicate-list');
+      if (duplicateHandling && duplicateList) {
+        // Show duplicate handling section
+        duplicateHandling.style.display = 'block';
+
+        // Populate duplicate list
+        const duplicateHTML = duplicates.map(user => `
+                    <div class="duplicate-user">
+                        <span class="user-name">${user.username || user.email}</span>
+                        <span class="user-email">${user.email}</span>
+                        <span class="duplicate-reason">${user.reason || 'Already exists'}</span>
+                    </div>
+                `).join('');
+        duplicateList.innerHTML = duplicateHTML;
+
+        // Add decision button
+        const decisionButton = document.createElement('button');
+        decisionButton.className = 'duplicate-decision-btn';
+        decisionButton.textContent = 'Continue with Selection';
+        decisionButton.addEventListener('click', () => {
+          const selectedMode = this.progressContainer.querySelector('input[name="duplicate-handling"]:checked').value;
+          duplicateHandling.style.display = 'none';
+          onDecision(selectedMode, duplicates);
+        });
+        duplicateHandling.appendChild(decisionButton);
+      }
+      this.logger.info('Duplicate users handled', {
+        count: duplicates.length,
+        mode: this.duplicateHandlingMode
+      });
+    } catch (error) {
+      this.logger.error('Error handling duplicates', {
+        error: error.message,
+        duplicates
+      });
+    }
+  }
+
+  /**
+   * Update operation status
+   * 
+   * @param {string} status - Operation status
+   * @param {string} message - Status message
+   */
+  updateOperationStatus(status, message = '') {
+    try {
+      if (this.operationStatus) {
+        this.operationStatus.className = `operation-status ${status}`;
+        this.operationStatus.textContent = message || status;
+      }
+      this.logger.info('Operation status updated', {
+        status,
+        message
+      });
+    } catch (error) {
+      this.logger.error('Error updating operation status', {
+        error: error.message,
+        status,
+        message
+      });
+    }
+  }
+
+  /**
+   * Complete operation
+   * 
+   * @param {Object} results - Operation results
+   */
+  completeOperation(results = {}) {
+    try {
+      const duration = Date.now() - this.operationStartTime;
+      const durationText = this.formatDuration(duration);
+      this.updateOperationStatus('complete', `Operation completed in ${durationText}`);
+      this.updateProgress(this.operationStats.total, this.operationStats.total, 'Operation completed');
+
+      // Show completion details
+      if (this.progressDetails) {
+        const completionHTML = `
+                    <div class="completion-summary">
+                        <div class="summary-item">
+                            <span class="summary-label">Duration:</span>
+                            <span class="summary-value">${durationText}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Processed:</span>
+                            <span class="summary-value">${this.operationStats.processed}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Success:</span>
+                            <span class="summary-value success">${this.operationStats.success}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Failed:</span>
+                            <span class="summary-value error">${this.operationStats.failed}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Skipped:</span>
+                            <span class="summary-value warning">${this.operationStats.skipped}</span>
+                        </div>
+                    </div>
+                `;
+        this.progressDetails.innerHTML = completionHTML;
+      }
+      this.logger.info('Operation completed', {
+        duration,
+        stats: this.operationStats,
+        results
+      });
+
+      // Trigger completion callback
+      if (this.onOperationComplete) {
+        this.onOperationComplete({
+          type: 'complete',
+          duration,
+          stats: this.operationStats,
+          results
+        });
+      }
+
+      // Auto-hide after delay
+      setTimeout(() => {
+        this.hideProgress();
+      }, 5000);
+    } catch (error) {
+      this.logger.error('Error completing operation', {
+        error: error.message,
+        results
+      });
+    }
+  }
+
+  /**
+   * Cancel operation
+   */
+  cancelOperation() {
+    try {
+      this.updateOperationStatus('cancelled', 'Operation cancelled by user');
+      this.logger.info('Operation cancelled by user');
+
+      // Trigger cancel callback
+      if (this.onOperationCancel) {
+        this.onOperationCancel({
+          type: 'cancel',
+          operation: this.currentOperation
+        });
+      }
+
+      // Hide progress after delay
+      setTimeout(() => {
+        this.hideProgress();
+      }, 2000);
+    } catch (error) {
+      this.logger.error('Error cancelling operation', {
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Show progress
+   */
+  showProgress() {
+    try {
+      if (this.progressContainer) {
+        this.progressContainer.style.display = 'block';
+        this.logger.debug('Progress shown');
+      }
+    } catch (error) {
+      this.logger.error('Error showing progress', {
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Hide progress
+   */
+  hideProgress() {
+    try {
+      if (this.progressContainer) {
+        this.progressContainer.style.display = 'none';
+        this.resetOperationStats();
+        this.logger.debug('Progress hidden');
+      }
+    } catch (error) {
+      this.logger.error('Error hiding progress', {
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Update operation title
+   * 
+   * @param {string} operationType - Type of operation
+   */
+  updateOperationTitle(operationType) {
+    try {
+      const titleMap = {
+        'import': 'Importing Users',
+        'export': 'Exporting Users',
+        'delete': 'Deleting Users',
+        'modify': 'Modifying Users'
+      };
+      const title = titleMap[operationType] || 'Operation in Progress';
+      const titleElement = this.progressContainer.querySelector('.operation-title');
+      if (titleElement) {
+        titleElement.textContent = title;
+      }
+    } catch (error) {
+      this.logger.error('Error updating operation title', {
+        error: error.message,
+        operationType
+      });
+    }
+  }
+
+  /**
+   * Reset operation statistics
+   */
+  resetOperationStats() {
+    this.operationStats = {
+      processed: 0,
+      total: 0,
+      success: 0,
+      failed: 0,
+      skipped: 0,
+      duplicates: 0
+    };
+  }
+
+  /**
+   * Format duration in human-readable format
+   * 
+   * @param {number} milliseconds - Duration in milliseconds
+   * @returns {string} Formatted duration
+   */
+  formatDuration(milliseconds) {
+    const seconds = Math.floor(milliseconds / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    if (hours > 0) {
+      return `${hours}h ${minutes % 60}m ${seconds % 60}s`;
+    } else if (minutes > 0) {
+      return `${minutes}m ${seconds % 60}s`;
+    } else {
+      return `${seconds}s`;
+    }
+  }
+
+  /**
+   * Set progress update callback
+   * 
+   * @param {Function} callback - Progress update callback
+   */
+  setProgressCallback(callback) {
+    this.onProgressUpdate = callback;
+  }
+
+  /**
+   * Set operation complete callback
+   * 
+   * @param {Function} callback - Operation complete callback
+   */
+  setCompleteCallback(callback) {
+    this.onOperationComplete = callback;
+  }
+
+  /**
+   * Set operation cancel callback
+   * 
+   * @param {Function} callback - Operation cancel callback
+   */
+  setCancelCallback(callback) {
+    this.onOperationCancel = callback;
+  }
+
+  /**
+   * Debug log method for compatibility
+   */
+  debugLog(area, message) {
+    if (DEBUG_MODE) {
+      console.debug(`[${area}] ${message}`);
+    }
+  }
+}
+
+// Create and export default instance
+exports.ProgressManager = ProgressManager;
+const progressManager = exports.progressManager = new ProgressManager();
+
+// Export the class and instance
+
+}).call(this)}).call(this,require('_process'))
+},{"./element-registry.js":7,"./winston-logger.js":18,"_process":2}],14:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 
@@ -7278,12 +8609,53 @@ class SettingsManager {
   }
 
   /**
+   * Get region info by code
+   * @param {string} code - Region code (e.g., 'NA', 'CA', 'EU', 'AU', 'SG', 'AP')
+   * @returns {{code: string, tld: string, label: string}}
+   */
+  static getRegionInfo(code) {
+    const regions = {
+      NA: {
+        code: 'NA',
+        tld: 'com',
+        label: 'North America (excluding Canada)'
+      },
+      CA: {
+        code: 'CA',
+        tld: 'ca',
+        label: 'Canada'
+      },
+      EU: {
+        code: 'EU',
+        tld: 'eu',
+        label: 'European Union'
+      },
+      AU: {
+        code: 'AU',
+        tld: 'com.au',
+        label: 'Australia'
+      },
+      SG: {
+        code: 'SG',
+        tld: 'sg',
+        label: 'Singapore'
+      },
+      AP: {
+        code: 'AP',
+        tld: 'asia',
+        label: 'Asia-Pacific'
+      }
+    };
+    return regions[code] || regions['NA'];
+  }
+
+  /**
    * Get default settings
    */
   getDefaultSettings() {
     return {
       environmentId: '',
-      region: 'NorthAmerica',
+      region: 'NA',
       apiClientId: '',
       populationId: '',
       rateLimit: 50,
@@ -7583,7 +8955,7 @@ class SettingsManager {
 exports.SettingsManager = SettingsManager;
 
 }).call(this)}).call(this,require('_process'))
-},{"./crypto-utils.js":6,"./winston-logger.js":17,"_process":2}],14:[function(require,module,exports){
+},{"./crypto-utils.js":6,"./winston-logger.js":18,"_process":2}],15:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7591,7 +8963,14 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 /**
- * TokenManager - Handles OAuth 2.0 token acquisition and caching
+ * TokenManager - Handles OAuth 2.0 token acquisition and caching with automatic re-authentication
+ * 
+ * Features:
+ * - Automatic token refresh before expiry
+ * - Detection of token expiration via 401 responses
+ * - Automatic retry of failed requests with new tokens
+ * - Secure credential storage and retrieval
+ * - Rate limiting to prevent API abuse
  */
 class TokenManager {
   /**
@@ -7612,10 +8991,16 @@ class TokenManager {
     this.isRefreshing = false;
     this.refreshQueue = [];
 
+    // Auto-retry configuration
+    this.maxRetries = 1; // Only retry once with new token
+    this.retryDelay = 1000; // 1 second delay before retry
+
     // Bind methods
     this.getAccessToken = this.getAccessToken.bind(this);
     this._requestNewToken = this._requestNewToken.bind(this);
     this._isTokenValid = this._isTokenValid.bind(this);
+    this.handleTokenExpiration = this.handleTokenExpiration.bind(this);
+    this.retryWithNewToken = this.retryWithNewToken.bind(this);
   }
 
   /**
@@ -7665,6 +9050,120 @@ class TokenManager {
     } finally {
       this.isRefreshing = false;
     }
+  }
+
+  /**
+   * Handle token expiration detected from API response
+   * @param {Object} response - The failed API response
+   * @param {Function} retryFn - Function to retry the original request
+   * @returns {Promise<Object>} The retry result
+   */
+  async handleTokenExpiration(response, retryFn) {
+    this.logger.warn('Token expiration detected, attempting automatic re-authentication');
+
+    // Clear the expired token
+    this.tokenCache = {
+      accessToken: null,
+      expiresAt: 0,
+      tokenType: 'Bearer',
+      lastRefresh: 0
+    };
+    try {
+      // Get a new token using stored credentials
+      const newToken = await this.getAccessToken();
+      if (!newToken) {
+        throw new Error('Failed to obtain new token for retry');
+      }
+      this.logger.info('Successfully obtained new token, retrying request');
+
+      // Wait a moment before retrying to avoid rate limiting
+      await new Promise(resolve => setTimeout(resolve, this.retryDelay));
+
+      // Retry the original request with the new token
+      return await retryFn(newToken);
+    } catch (error) {
+      this.logger.error('Failed to re-authenticate and retry request', {
+        error: error.message,
+        originalStatus: response.status
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Retry a failed request with a new token
+   * @param {Function} requestFn - Function that makes the API request
+   * @param {Object} options - Request options
+   * @returns {Promise<Object>} The API response
+   */
+  async retryWithNewToken(requestFn, options = {}) {
+    let retryCount = 0;
+    while (retryCount <= this.maxRetries) {
+      try {
+        // Get current token
+        const token = await this.getAccessToken();
+
+        // Make the request
+        const response = await requestFn(token);
+
+        // Check if the response indicates token expiration
+        if (response.status === 401) {
+          const responseText = await response.text().catch(() => '');
+          const isTokenExpired = responseText.includes('token_expired') || responseText.includes('invalid_token') || responseText.includes('expired');
+          if (isTokenExpired && retryCount < this.maxRetries) {
+            this.logger.warn(`Token expired on attempt ${retryCount + 1}, retrying with new token`);
+
+            // Clear expired token and get new one
+            this.tokenCache = {
+              accessToken: null,
+              expiresAt: 0,
+              tokenType: 'Bearer',
+              lastRefresh: 0
+            };
+            retryCount++;
+            continue;
+          }
+        }
+
+        // If we get here, the request was successful or we've exhausted retries
+        return response;
+      } catch (error) {
+        if (retryCount >= this.maxRetries) {
+          throw error;
+        }
+        this.logger.warn(`Request failed on attempt ${retryCount + 1}, retrying`, {
+          error: error.message
+        });
+        retryCount++;
+
+        // Wait before retrying
+        await new Promise(resolve => setTimeout(resolve, this.retryDelay));
+      }
+    }
+    throw new Error('Max retries exceeded');
+  }
+
+  /**
+   * Create a request wrapper that automatically handles token expiration
+   * @param {Function} requestFn - Function that makes the API request
+   * @returns {Function} Wrapped function that handles token expiration
+   */
+  createAutoRetryWrapper(requestFn) {
+    return async (...args) => {
+      return await this.retryWithNewToken(async token => {
+        // Add the token to the request arguments
+        const requestArgs = [...args];
+
+        // If the first argument is an options object, add the token to it
+        if (requestArgs[0] && typeof requestArgs[0] === 'object') {
+          requestArgs[0].headers = {
+            ...requestArgs[0].headers,
+            'Authorization': `Bearer ${token}`
+          };
+        }
+        return await requestFn(...requestArgs);
+      });
+    };
   }
 
   /**
@@ -7719,7 +9218,7 @@ class TokenManager {
   }
 
   /**
-   * Request a new access token from PingOne
+   * Request a new access token from PingOne using stored credentials
    * @returns {Promise<string>} The new access token
    * @private
    */
@@ -7847,7 +9346,7 @@ class TokenManager {
 }
 var _default = exports.default = TokenManager;
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 
@@ -7858,6 +9357,7 @@ exports.uiManager = exports.UIManager = void 0;
 var _winstonLogger = require("./winston-logger.js");
 var _circularProgress = require("./circular-progress.js");
 var _elementRegistry = require("./element-registry.js");
+var _progressManager = require("./progress-manager.js");
 // File: ui-manager.js
 // Description: UI management for PingOne user import tool
 // 
@@ -8505,6 +10005,163 @@ class UIManager {
   }
 
   /**
+   * Update import progress with enhanced functionality
+   * 
+   * @param {number} current - Current progress
+   * @param {number} total - Total items
+   * @param {string} message - Progress message
+   * @param {Object} counts - Progress counts
+   * @param {string} populationName - Population name
+   * @param {string} populationId - Population ID
+   */
+  updateImportProgress(current, total, message = '', counts = {}, populationName = '', populationId = '') {
+    try {
+      // Use the progress manager for enhanced progress handling
+      _progressManager.progressManager.updateProgress(current, total, message, {
+        ...counts,
+        population: populationName,
+        populationId: populationId
+      });
+
+      // Update operation stats
+      if (counts.success !== undefined) _progressManager.progressManager.operationStats.success = counts.success;
+      if (counts.failed !== undefined) _progressManager.progressManager.operationStats.failed = counts.failed;
+      if (counts.skipped !== undefined) _progressManager.progressManager.operationStats.skipped = counts.skipped;
+      if (counts.duplicates !== undefined) _progressManager.progressManager.operationStats.duplicates = counts.duplicates;
+      this.logger.debug('Import progress updated', {
+        current,
+        total,
+        message: message.substring(0, 100),
+        counts,
+        populationName,
+        populationId
+      });
+    } catch (error) {
+      this.logger.error('Error updating import progress', {
+        error: error.message,
+        current,
+        total,
+        message
+      });
+    }
+  }
+
+  /**
+   * Start import operation with progress manager
+   * 
+   * @param {Object} options - Import options
+   */
+  startImportOperation(options = {}) {
+    try {
+      _progressManager.progressManager.startOperation('import', options);
+      this.logger.info('Import operation started', {
+        options
+      });
+    } catch (error) {
+      this.logger.error('Error starting import operation', {
+        error: error.message,
+        options
+      });
+    }
+  }
+
+  /**
+   * Start export operation with progress manager
+   * 
+   * @param {Object} options - Export options
+   */
+  startExportOperation(options = {}) {
+    try {
+      _progressManager.progressManager.startOperation('export', options);
+      this.logger.info('Export operation started', {
+        options
+      });
+    } catch (error) {
+      this.logger.error('Error starting export operation', {
+        error: error.message,
+        options
+      });
+    }
+  }
+
+  /**
+   * Start delete operation with progress manager
+   * 
+   * @param {Object} options - Delete options
+   */
+  startDeleteOperation(options = {}) {
+    try {
+      _progressManager.progressManager.startOperation('delete', options);
+      this.logger.info('Delete operation started', {
+        options
+      });
+    } catch (error) {
+      this.logger.error('Error starting delete operation', {
+        error: error.message,
+        options
+      });
+    }
+  }
+
+  /**
+   * Start modify operation with progress manager
+   * 
+   * @param {Object} options - Modify options
+   */
+  startModifyOperation(options = {}) {
+    try {
+      _progressManager.progressManager.startOperation('modify', options);
+      this.logger.info('Modify operation started', {
+        options
+      });
+    } catch (error) {
+      this.logger.error('Error starting modify operation', {
+        error: error.message,
+        options
+      });
+    }
+  }
+
+  /**
+   * Complete current operation
+   * 
+   * @param {Object} results - Operation results
+   */
+  completeOperation(results = {}) {
+    try {
+      _progressManager.progressManager.completeOperation(results);
+      this.logger.info('Operation completed', {
+        results
+      });
+    } catch (error) {
+      this.logger.error('Error completing operation', {
+        error: error.message,
+        results
+      });
+    }
+  }
+
+  /**
+   * Handle duplicate users during import
+   * 
+   * @param {Array} duplicates - Array of duplicate users
+   * @param {Function} onDecision - Callback for user decision
+   */
+  handleDuplicateUsers(duplicates, onDecision) {
+    try {
+      _progressManager.progressManager.handleDuplicates(duplicates, onDecision);
+      this.logger.info('Duplicate users handled', {
+        count: duplicates.length
+      });
+    } catch (error) {
+      this.logger.error('Error handling duplicate users', {
+        error: error.message,
+        duplicates
+      });
+    }
+  }
+
+  /**
    * Debug log method for compatibility
    */
   debugLog(area, message) {
@@ -8521,7 +10178,7 @@ const uiManager = exports.uiManager = new UIManager();
 // Export the class and instance
 
 }).call(this)}).call(this,require('_process'))
-},{"./circular-progress.js":5,"./element-registry.js":7,"./winston-logger.js":17,"_process":2}],16:[function(require,module,exports){
+},{"./circular-progress.js":5,"./element-registry.js":7,"./progress-manager.js":13,"./winston-logger.js":18,"_process":2}],17:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8600,7 +10257,7 @@ class VersionManager {
 // ES Module export
 exports.VersionManager = VersionManager;
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 
