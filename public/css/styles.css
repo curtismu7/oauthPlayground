@@ -3883,7 +3883,7 @@ label {
 .log-details {
     margin-top: 0.5rem;
     padding: 0.75rem;
-    background: #f4f4f4;
+    background: #e6f4ff;
     border-radius: 4px;
     font-size: 0.9em;
     color: #333;
@@ -5069,7 +5069,7 @@ label {
 .log-details {
     margin-top: 0.5rem;
     padding: 0.75rem;
-    background: #f4f4f4;
+    background: #e6f4ff;
     border-radius: 4px;
     font-size: 0.9em;
     color: #333;
@@ -6255,7 +6255,7 @@ label {
 .log-details {
     margin-top: 0.5rem;
     padding: 0.75rem;
-    background: #f4f4f4;
+    background: #e6f4ff;
     border-radius: 4px;
     font-size: 0.9em;
     color: #333;
@@ -7441,7 +7441,7 @@ label {
 .log-details {
     margin-top: 0.5rem;
     padding: 0.75rem;
-    background: #f4f4f4;
+    background: #e6f4ff;
     border-radius: 4px;
     font-size: 0.9em;
     color: #333;
@@ -8627,7 +8627,7 @@ label {
 .log-details {
     margin-top: 0.5rem;
     padding: 0.75rem;
-    background: #f4f4f4;
+    background: #e6f4ff;
     border-radius: 4px;
     font-size: 0.9em;
     color: #333;
@@ -9813,7 +9813,7 @@ label {
 .log-details {
     margin-top: 0.5rem;
     padding: 0.75rem;
-    background: #f4f4f4;
+    background: #e6f4ff;
     border-radius: 4px;
     font-size: 0.9em;
     color: #333;
@@ -10999,7 +10999,7 @@ label {
 .log-details {
     margin-top: 0.5rem;
     padding: 0.75rem;
-    background: #f4f4f4;
+    background: #e6f4ff;
     border-radius: 4px;
     font-size: 0.9em;
     color: #333;
@@ -11901,6 +11901,314 @@ label {
     border-left: 4px solid #6c757d;
 }
 
+/* Enhanced Delete Page Styles */
+.delete-type-selection {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #e5e8ed;
+}
+
+.delete-type-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.radio-option {
+    display: flex;
+    align-items: flex-start;
+    padding: 1rem;
+    border: 2px solid #e5e8ed;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #fff;
+}
+
+.radio-option:hover {
+    border-color: var(--ping-accent-blue);
+    background: #f8f9fa;
+}
+
+.radio-option input[type="radio"] {
+    margin-right: 1rem;
+    margin-top: 0.25rem;
+}
+
+.radio-label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+}
+
+.radio-label i {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.radio-label strong {
+    font-size: 1.1rem;
+    color: var(--ping-black);
+}
+
+.radio-label small {
+    color: var(--ping-gray);
+    font-size: 0.9rem;
+}
+
+.radio-option input[type="radio"]:checked + .radio-label {
+    color: var(--ping-accent-blue);
+}
+
+.radio-option input[type="radio"]:checked + .radio-label strong {
+    color: var(--ping-accent-blue);
+}
+
+.radio-option input[type="radio"]:checked + .radio-label i.text-danger {
+    color: var(--ping-primary-red) !important;
+}
+
+.delete-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #e5e8ed;
+}
+
+.environment-delete-warning {
+    margin-bottom: 1rem;
+}
+
+.environment-delete-warning .alert {
+    border-left: 4px solid var(--ping-primary-red);
+    background: #fff5f5;
+    border-color: #fed7d7;
+    color: #c53030;
+}
+
+.environment-delete-warning .alert h4 {
+    color: var(--ping-primary-red);
+    margin-bottom: 1rem;
+}
+
+.environment-delete-warning .alert ul {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+}
+
+.environment-delete-warning .alert li {
+    margin-bottom: 0.5rem;
+}
+
+.environment-delete-warning .alert strong {
+    color: var(--ping-primary-red);
+}
+
+#environment-confirmation {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+#environment-confirmation .alert-warning {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+#environment-confirmation label {
+    font-weight: 600;
+    color: #856404;
+}
+
+#environment-delete-text {
+    margin-top: 0.5rem;
+    border: 2px solid #ffeaa7;
+    background: #fff;
+}
+
+#environment-delete-text:focus {
+    border-color: var(--ping-warning-yellow);
+    box-shadow: 0 0 0 0.2rem rgba(255, 194, 14, 0.25);
+}
+
+.delete-options {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #e5e8ed;
+}
+
+.delete-options h3 {
+    margin-bottom: 1rem;
+    color: var(--ping-black);
+}
+
+.delete-options .form-group {
+    margin-bottom: 1rem;
+}
+
+.delete-options label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: var(--ping-black);
+}
+
+.delete-options input[type="checkbox"] {
+    margin-right: 0.5rem;
+}
+
+/* Drag and drop zone for delete */
+#import-drop-zone, #delete-drop-zone, #modify-drop-zone {
+    border: 2px dashed #d1d6db;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    background: #f8f9fa;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    margin-bottom: 1rem;
+}
+
+#import-drop-zone:hover, #delete-drop-zone:hover, #modify-drop-zone:hover {
+    border-color: var(--ping-accent-blue);
+    background: #f0f8ff;
+}
+
+#import-drop-zone.dragover, #delete-drop-zone.dragover, #modify-drop-zone.dragover {
+    border-color: var(--ping-accent-blue);
+    background: #e6f3ff;
+    transform: scale(1.02);
+}
+
+#import-drop-zone i, #delete-drop-zone i, #modify-drop-zone i {
+    color: var(--ping-accent-blue);
+    margin-bottom: 1rem;
+}
+
+/* Responsive design for delete page */
+@media (max-width: 768px) {
+    .delete-type-options {
+        gap: 0.75rem;
+    }
+    
+    .radio-option {
+        padding: 0.75rem;
+    }
+    
+    .radio-label strong {
+        font-size: 1rem;
+    }
+    
+    .radio-label small {
+        font-size: 0.85rem;
+    }
+    
+    .delete-section {
+        padding: 1rem;
+    }
+    
+    .environment-delete-warning .alert {
+        padding: 1rem;
+    }
+    
+    .environment-delete-warning .alert ul {
+        padding-left: 1rem;
+    }
+}
+
+/* Enhanced button states for delete */
+.btn-danger {
+    background-color: var(--ping-primary-red);
+    border-color: var(--ping-primary-red);
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: var(--ping-dark-red);
+    border-color: var(--ping-dark-red);
+}
+
+.btn-danger:disabled {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    opacity: 0.65;
+}
+
+/* File info styling for delete */
+.file-info {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e5e8ed;
+}
+
+.file-info .file-name {
+    font-weight: 600;
+    color: var(--ping-black);
+    font-size: 1.1rem;
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.file-info .file-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: var(--ping-gray);
+}
+
+/* Population selection styling */
+.population-selection {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #e5e8ed;
+}
+
+.population-selection h3 {
+    margin-bottom: 1rem;
+    color: var(--ping-black);
+}
+
+.population-options .form-group {
+    margin-bottom: 0;
+}
+
+.population-options label {
+    font-weight: 500;
+    color: var(--ping-black);
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.population-options select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d6db;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 1rem;
+}
+
+.population-options select:focus {
+    border-color: var(--ping-accent-blue);
+    box-shadow: 0 0 0 0.2rem rgba(0, 115, 200, 0.25);
+    outline: none;
+}
+
 .connection-status.connected {
     border-left-color: #28a745;
     background-color: #f0fff4;
@@ -12013,6 +12321,53 @@ label {
 .log-detail-section:last-child {
     border-bottom: none;
     padding-bottom: 0;
+}
+
+/* File Name Section - Unified Styling for Import, Modify, Delete */
+.file-name-section {
+    background: #e6f4ff;
+    color: #1a237e;
+    font-weight: bold;
+    font-size: 1.4rem;
+    text-align: center;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    padding: 15px;
+    box-shadow: none;
+    transition: background 0.2s;
+}
+.file-name-section .fa-file-csv {
+    margin-right: 10px;
+    font-size: 1.6rem;
+    color: #1976d2;
+}
+.file-name-section .file-name {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: #1a237e;
+    text-shadow: none;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+.file-name-section .file-status {
+    font-size: 1rem;
+    opacity: 0.95;
+    font-weight: 600;
+    color: #1976d2;
+}
+@media (max-width: 768px) {
+    .file-name-section .file-name {
+        font-size: 1.2rem !important;
+    }
+}
+@media (max-width: 480px) {
+    .file-name-section .file-name {
+        font-size: 1rem !important;
+    }
+    .file-name-section {
+        padding: 10px !important;
+    }
 }
 
 .

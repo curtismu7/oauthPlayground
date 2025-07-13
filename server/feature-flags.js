@@ -6,6 +6,7 @@ const DEFAULT_FLAGS = {
   A: false,
   B: false,
   C: false,
+  progressPage: false, // Progress page feature flag - disabled by default
 };
 
 // Get flags from environment variables or use defaults
@@ -14,6 +15,7 @@ function getFlagsFromEnv() {
     A: process.env.FEATURE_FLAG_A === 'true',
     B: process.env.FEATURE_FLAG_B === 'true',
     C: process.env.FEATURE_FLAG_C === 'true',
+    progressPage: process.env.FEATURE_FLAG_PROGRESS_PAGE === 'true', // Progress page from environment
   };
 }
 

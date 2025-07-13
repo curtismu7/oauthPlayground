@@ -202,6 +202,9 @@ var _fileHandler = require("./modules/file-handler.js");
 var _versionManager = require("./modules/version-manager.js");
 var _apiFactory = require("./modules/api-factory.js");
 var _progressManager = require("./modules/progress-manager.js");
+var _deleteManager = require("./modules/delete-manager.js");
+var _exportManager = require("./modules/export-manager.js");
+var _historyManager = require("./modules/history-manager.js");
 // File: app.js
 // Description: Main application entry point for PingOne user import tool
 // 
@@ -506,6 +509,8 @@ class App {
       this.secretFieldToggle = null;
       this.fileHandler = null;
       this.pingOneClient = null;
+      this.deleteManager = null;
+      this.exportManager = null;
       console.log('✅ App constructor completed successfully');
 
       // Production-specific configurations
@@ -555,6 +560,22 @@ class App {
   async init() {
     try {
       console.log('Initializing app...');
+
+      // Ensure logManager is available with fallback
+      if (!window.logManager) {
+        window.logManager = {};
+      }
+      if (typeof window.logManager.log !== 'function') {
+        window.logManager.log = function (level, message, data) {
+          const timestamp = new Date().toISOString();
+          const logMessage = `[${timestamp}] [${level.toUpperCase()}] ${message}`;
+          if (data) {
+            console.log(logMessage, data);
+          } else {
+            console.log(logMessage);
+          }
+        };
+      }
 
       // Ensure DOM is ready before proceeding with UI-dependent operations
       if (document.readyState === 'loading') {
@@ -638,6 +659,25 @@ class App {
         this.secretFieldToggle = null;
       }
 
+      // Initialize delete manager for enhanced delete functionality
+      try {
+        this.deleteManager = new _deleteManager.DeleteManager();
+        console.log('✅ DeleteManager initialized successfully');
+      } catch (error) {
+        this.logger.error('Failed to initialize DeleteManager:', error);
+        this.deleteManager = null;
+      }
+
+      // Initialize export manager for enhanced export functionality
+      try {
+        this.exportManager = new _exportManager.ExportManager();
+        this.historyManager = new _historyManager.HistoryManager();
+        console.log('✅ ExportManager initialized successfully');
+      } catch (error) {
+        this.logger.error('Failed to initialize ExportManager:', error);
+        this.exportManager = null;
+      }
+
       // Load application settings from storage with safety check
       try {
         await this.loadSettings();
@@ -695,6 +735,13 @@ class App {
         }
       } catch (error) {
         this.logger.error('Failed to update version information:', error);
+      }
+
+      // Initialize navigation visibility based on feature flags
+      try {
+        await this.initializeNavigationVisibility();
+      } catch (error) {
+        this.logger.error('Failed to initialize navigation visibility:', error);
       }
       console.log('App initialization complete');
       console.log("✅ Moved Import Progress section below Import Users button");
@@ -892,6 +939,50 @@ class App {
       });
     }
   }
+  updateModifyButtonState() {
+    try {
+      const populationSelect = document.getElementById('modify-population-select');
+      const hasFile = this.fileHandler && this.fileHandler.getCurrentFile() !== null;
+
+      // Validate file handler exists
+      if (!this.fileHandler) {
+        console.warn('File handler not initialized');
+      }
+
+      // Check both the dropdown value and the stored properties
+      const dropdownValue = populationSelect ? populationSelect.value : '';
+      const hasPopulation = dropdownValue && dropdownValue !== '';
+
+      // Production logging (reduced verbosity)
+      if (window.DEBUG_MODE) {
+        console.log('=== Update Modify Button State ===');
+        console.log('Has file:', hasFile);
+        console.log('Has population:', hasPopulation);
+        console.log('Dropdown value:', dropdownValue);
+        console.log('Population select element exists:', !!populationSelect);
+        console.log('====================================');
+      }
+
+      // Get modify button with validation
+      const modifyBtn = document.getElementById('start-modify');
+      const shouldEnable = hasFile && hasPopulation;
+
+      // Safely update button state
+      if (modifyBtn && typeof modifyBtn.disabled !== 'undefined') {
+        modifyBtn.disabled = !shouldEnable;
+      }
+      if (window.DEBUG_MODE) {
+        console.log('Modify button enabled:', shouldEnable);
+      }
+    } catch (error) {
+      console.error('Error updating modify button state:', error);
+      // Fallback: disable button on error
+      const modifyBtn = document.getElementById('start-modify');
+      if (modifyBtn && typeof modifyBtn.disabled !== 'undefined') {
+        modifyBtn.disabled = true;
+      }
+    }
+  }
   async loadSettings() {
     try {
       const response = await this.localClient.get('/api/settings');
@@ -937,8 +1028,74 @@ class App {
       });
     }
 
+    // Modify file upload event listeners
+    const modifyCsvFileInput = document.getElementById('modify-csv-file');
+    if (modifyCsvFileInput) {
+      modifyCsvFileInput.addEventListener('change', event => {
+        const file = event.target.files[0];
+        if (file) {
+          this.handleModifyFileSelect(file);
+        }
+      });
+    }
+
+    // Modify drop zone event listeners
+    const modifyDropZone = document.getElementById('modify-drop-zone');
+    if (modifyDropZone) {
+      // Prevent default drag behaviors
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        modifyDropZone.addEventListener(eventName, e => {
+          e.preventDefault();
+          e.stopPropagation();
+        });
+      });
+
+      // Add visual feedback for drag over
+      ['dragenter', 'dragover'].forEach(eventName => {
+        modifyDropZone.addEventListener(eventName, () => {
+          modifyDropZone.classList.add('drag-over');
+        });
+      });
+      ['dragleave', 'drop'].forEach(eventName => {
+        modifyDropZone.addEventListener(eventName, () => {
+          modifyDropZone.classList.remove('drag-over');
+        });
+      });
+
+      // Handle file drop
+      modifyDropZone.addEventListener('drop', e => {
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          this.handleModifyFileSelect(files[0]);
+          // Update the file input
+          modifyCsvFileInput.files = files;
+        }
+      });
+
+      // Handle click to open file picker
+      modifyDropZone.addEventListener('click', () => {
+        modifyCsvFileInput.click();
+      });
+    }
+
     // Population selection change listener
     this.attachPopulationChangeListener();
+
+    // Modify population selection change listener
+    const modifyPopulationSelect = document.getElementById('modify-population-select');
+    if (modifyPopulationSelect) {
+      modifyPopulationSelect.addEventListener('change', e => {
+        const selectedPopulationId = e.target.value;
+        const selectedPopulationName = e.target.selectedOptions[0]?.text || '';
+        console.log('=== Modify Population Selection Changed ===');
+        console.log('Selected Population ID:', selectedPopulationId);
+        console.log('Selected Population Name:', selectedPopulationName);
+        console.log('====================================');
+
+        // Update the modify button state based on population selection
+        this.updateModifyButtonState();
+      });
+    }
 
     // Import event listeners with error handling
     const startImportBtn = document.getElementById('start-import');
@@ -1148,10 +1305,10 @@ class App {
     // Navigation event listeners
     const navItems = document.querySelectorAll('[data-view]');
     navItems.forEach(item => {
-      item.addEventListener('click', e => {
+      item.addEventListener('click', async e => {
         e.preventDefault();
         const view = item.getAttribute('data-view');
-        this.showView(view);
+        await this.showView(view);
       });
     });
 
@@ -1346,8 +1503,79 @@ class App {
       return false;
     }
   }
-  showView(view) {
+
+  /**
+   * Check if a feature is enabled based on feature flags
+   * 
+   * @param {string} feature - The feature to check
+   * @returns {Promise<boolean>} - Whether the feature is enabled
+   */
+  async isFeatureEnabled(feature) {
+    try {
+      const response = await this.localClient.get('/api/feature-flags');
+      const flags = response || {};
+      return !!flags[feature];
+    } catch (error) {
+      console.warn(`Failed to check feature flag ${feature}:`, error);
+      return false; // Default to disabled on error
+    }
+  }
+
+  /**
+   * Initialize navigation visibility based on feature flags
+   * 
+   * Controls which navigation items are visible based on feature flag states.
+   * This ensures that disabled features are not accessible through navigation.
+   */
+  async initializeNavigationVisibility() {
+    try {
+      // Check progress page feature flag
+      const isProgressEnabled = await this.isFeatureEnabled('progressPage');
+
+      // Find progress navigation item
+      const progressNavItem = document.querySelector('[data-view="progress"]');
+      if (progressNavItem) {
+        if (isProgressEnabled) {
+          progressNavItem.style.display = 'block';
+          console.log('✅ Progress page navigation enabled');
+        } else {
+          progressNavItem.style.display = 'none';
+          console.log('❌ Progress page navigation disabled');
+        }
+      } else {
+        console.warn('Progress navigation item not found');
+      }
+
+      // Future: Add more feature flag checks here as needed
+      // Example: if (await this.isFeatureEnabled('modifyPage')) { ... }
+    } catch (error) {
+      console.error('Failed to initialize navigation visibility:', error);
+      // On error, hide feature-flag controlled items for safety
+      const progressNavItem = document.querySelector('[data-view="progress"]');
+      if (progressNavItem) {
+        progressNavItem.style.display = 'none';
+      }
+    }
+  }
+
+  /**
+   * Show view with feature flag validation
+   * 
+   * @param {string} view - The view to show
+   */
+  async showView(view) {
     if (!view) return;
+
+    // Check feature flags for specific views
+    if (view === 'progress') {
+      const isProgressEnabled = await this.isFeatureEnabled('progressPage');
+      if (!isProgressEnabled) {
+        // Redirect to home page if progress is disabled
+        this.uiManager.showWarning('Progress page is currently disabled.');
+        this.showView('home');
+        return;
+      }
+    }
 
     // Hide all views with safe iteration
     const views = document.querySelectorAll('.view');
@@ -1605,6 +1833,56 @@ class App {
       this.showPopulationChoicePrompt();
     } catch (error) {
       this.uiManager.showError('Failed to select file', error.message);
+    }
+  }
+
+  /**
+   * Handles modify file selection from the UI, parses CSV, and updates file information display
+   * @param {File} file - The selected CSV file for modification
+   */
+  async handleModifyFileSelect(file) {
+    try {
+      // Log file selection for debugging
+      this.uiManager.debugLog("ModifyFileUpload", `Modify file selected: ${file.name}, size: ${file.size}`);
+      await this.fileHandler.setFile(file, 'modify');
+      this.uiManager.showSuccess('File selected successfully', `Selected file: ${file.name} for modification`);
+
+      // Update modify button state after file selection
+      this.updateModifyButtonState();
+
+      // Get users from CSV for logging purposes
+      const users = this.fileHandler.getParsedUsers ? this.fileHandler.getParsedUsers() : [];
+      this.uiManager.debugLog("ModifyCSV", `Parsed ${users.length} users from CSV for modification`);
+
+      // Get selected population from UI dropdown
+      const populationSelect = document.getElementById('modify-population-select');
+      const uiPopulationId = populationSelect && populationSelect.value;
+
+      // Log selected population
+      this.uiManager.debugLog("ModifyPopulation", `Selected population: ${uiPopulationId}`);
+
+      // Use UI population selection for modify operation
+      if (uiPopulationId) {
+        // Overwrite all user records with UI populationId
+        users.forEach(u => {
+          // Remove any existing population data from CSV
+          delete u.populationId;
+          delete u.population_id;
+          delete u.populationName;
+          delete u.population_name;
+
+          // Set the UI-selected population
+          u.populationId = uiPopulationId;
+        });
+        this.uiManager.showInfo('Using UI dropdown population selection for modification');
+
+        // Log the population assignment
+        this.uiManager.debugLog("ModifyPopulation", `Assigned UI population ${uiPopulationId} to all ${users.length} users for modification`);
+      } else {
+        this.uiManager.showWarning('No population selected in UI dropdown for modification');
+      }
+    } catch (error) {
+      this.uiManager.showError('Failed to select file for modification', error.message);
     }
   }
 
@@ -2011,6 +2289,13 @@ class App {
         sessionId
       });
       console.log('🔌 [IMPORT] Establishing robust SSE connection with sessionId:', sessionId);
+      // After receiving sessionId and before calling connectRobustSSE
+      if (typeof RobustEventSource === 'undefined') {
+        this.uiManager?.showError?.('Real-time updates unavailable', 'The real-time import progress module failed to load. Please refresh or contact support.');
+        console.error('RobustEventSource is not defined. SSE will not be used.');
+        // Optionally, fallback to polling or just proceed without SSE
+        return;
+      }
       connectRobustSSE(sessionId);
     } catch (error) {
       console.error('❌ [IMPORT] Error during import process:', error);
@@ -2594,6 +2879,15 @@ class App {
       });
       if (response.success) {
         this.uiManager.showSuccess(`Feature flag ${flag} ${enabled ? 'enabled' : 'disabled'}`);
+
+        // Refresh navigation visibility when feature flags change
+        await this.initializeNavigationVisibility();
+
+        // If progress page was disabled and user is currently on it, redirect to home
+        if (flag === 'progressPage' && !enabled && this.currentView === 'progress') {
+          this.uiManager.showWarning('Progress page has been disabled. Redirecting to home page.');
+          this.showView('home');
+        }
       } else {
         this.uiManager.showError(`Failed to toggle feature flag ${flag}`, response.error);
       }
@@ -3465,91 +3759,8 @@ window.applyDebugFilters = function () {
 // Initialize debug filters
 window.debugFilters = {};
 
-// Global click handler for log entries to enable expand/collapse functionality
-document.addEventListener('click', e => {
-  // Check if the clicked element is a log entry or inside one
-  const logEntry = e.target.closest('.log-entry');
-  if (!logEntry) return;
-
-  // Check if the clicked element is an expand icon
-  const expandIcon = e.target.closest('.log-expand-icon');
-  if (expandIcon) {
-    e.stopPropagation(); // Prevent triggering the log entry click
-  }
-
-  // Find the details and icon elements
-  const details = logEntry.querySelector('.log-details');
-  const icon = logEntry.querySelector('.log-expand-icon');
-  if (details && icon) {
-    const isExpanded = details.style.display !== 'none';
-    if (isExpanded) {
-      // Collapse
-      details.style.display = 'none';
-      icon.innerHTML = '▶';
-      logEntry.classList.remove('expanded');
-    } else {
-      // Expand
-      details.style.display = 'block';
-      icon.innerHTML = '▼';
-      logEntry.classList.add('expanded');
-    }
-  }
-});
-
-// Function to add expand icons to existing log entries that don't have them
-window.addExpandIconsToLogEntries = function () {
-  const logEntries = document.querySelectorAll('.log-entry');
-  logEntries.forEach(entry => {
-    // Check if this entry already has an expand icon
-    const existingIcon = entry.querySelector('.log-expand-icon');
-    if (existingIcon) return;
-
-    // Check if this entry has details that could be expanded
-    const details = entry.querySelector('.log-details');
-    const hasData = entry.querySelector('.log-data, .log-context, .log-detail-section');
-    if (details || hasData) {
-      // Find the header or create one
-      let header = entry.querySelector('.log-header');
-      if (!header) {
-        // Create a header if it doesn't exist
-        header = document.createElement('div');
-        header.className = 'log-header';
-        header.style.display = 'flex';
-        header.style.alignItems = 'center';
-        header.style.gap = '8px';
-
-        // Move existing content to header
-        const children = Array.from(entry.children);
-        children.forEach(child => {
-          if (!child.classList.contains('log-details')) {
-            header.appendChild(child);
-          }
-        });
-        entry.insertBefore(header, entry.firstChild);
-      }
-
-      // Add expand icon
-      const expandIcon = document.createElement('span');
-      expandIcon.className = 'log-expand-icon';
-      expandIcon.innerHTML = '▶';
-      expandIcon.style.cursor = 'pointer';
-      header.appendChild(expandIcon);
-
-      // Ensure details are initially hidden
-      if (details) {
-        details.style.display = 'none';
-      }
-    }
-  });
-};
-
-// Call the function when the page loads
-document.addEventListener('DOMContentLoaded', () => {
-  // Add a small delay to ensure all content is loaded
-  setTimeout(() => {
-    window.addExpandIconsToLogEntries();
-  }, 100);
-});
+// Enhanced log entry expansion functionality is now handled by log-manager.js
+// This provides better accessibility, visual feedback, and reliable first-click behavior
 
 // === DEBUG LOG PANEL TOGGLE LOGIC ===
 
@@ -4298,7 +4509,7 @@ if (document.readyState === 'loading') {
 // Defensive: check robustSSE and uiManager before calling their methods
 // ... existing code ...
 
-},{"./modules/api-factory.js":4,"./modules/file-handler.js":8,"./modules/file-logger.js":9,"./modules/local-api-client.js":10,"./modules/logger.js":11,"./modules/pingone-client.js":12,"./modules/progress-manager.js":13,"./modules/settings-manager.js":14,"./modules/token-manager.js":15,"./modules/ui-manager.js":16,"./modules/version-manager.js":17,"@babel/runtime/helpers/interopRequireDefault":1}],4:[function(require,module,exports){
+},{"./modules/api-factory.js":4,"./modules/delete-manager.js":7,"./modules/export-manager.js":9,"./modules/file-handler.js":10,"./modules/file-logger.js":11,"./modules/history-manager.js":12,"./modules/local-api-client.js":13,"./modules/logger.js":14,"./modules/pingone-client.js":15,"./modules/progress-manager.js":16,"./modules/settings-manager.js":17,"./modules/token-manager.js":18,"./modules/ui-manager.js":19,"./modules/version-manager.js":20,"@babel/runtime/helpers/interopRequireDefault":1}],4:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -4751,7 +4962,7 @@ var _default = exports.default = {
   apiFactory
 };
 
-},{"./local-api-client.js":10,"./pingone-client.js":12,"./token-manager.js":15,"@babel/runtime/helpers/interopRequireDefault":1}],5:[function(require,module,exports){
+},{"./local-api-client.js":13,"./pingone-client.js":15,"./token-manager.js":18,"@babel/runtime/helpers/interopRequireDefault":1}],5:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4975,6 +5186,526 @@ const cryptoUtils = exports.cryptoUtils = new CryptoUtils();
 },{}],7:[function(require,module,exports){
 "use strict";
 
+/**
+ * Delete Manager - Enhanced delete functionality with full environment deletion, confirmation, and logging
+ * Handles file-based, population-based, and full environment user deletion
+ */
+
+class DeleteManager {
+  constructor() {
+    this.currentDeleteType = 'file';
+    this.selectedFile = null;
+    this.selectedPopulation = null;
+    this.isEnvironmentDeleteConfirmed = false;
+    this.isStandardDeleteConfirmed = false;
+    this.deleteTextConfirmation = '';
+    this.logger = console;
+    this.initializeEventListeners();
+    this.loadPopulations();
+  }
+  initializeEventListeners() {
+    // Delete type selection
+    document.querySelectorAll('input[name="delete-type"]').forEach(radio => {
+      radio.addEventListener('change', e => {
+        this.currentDeleteType = e.target.value;
+        this.updateDeleteSections();
+        this.updateConfirmationSections();
+        this.validateDeleteButton();
+        this.logDeleteTypeChange();
+      });
+    });
+
+    // File upload for delete
+    const deleteFileInput = document.getElementById('delete-csv-file');
+    const deleteDropZone = document.getElementById('delete-drop-zone');
+    if (deleteFileInput) {
+      deleteFileInput.addEventListener('change', e => {
+        this.handleFileSelection(e.target.files[0]);
+      });
+    }
+    if (deleteDropZone) {
+      this.setupDragAndDrop(deleteDropZone, deleteFileInput);
+    }
+
+    // Population selection
+    const populationSelect = document.getElementById('delete-population-select');
+    if (populationSelect) {
+      populationSelect.addEventListener('change', e => {
+        this.selectedPopulation = e.target.value;
+        this.validateDeleteButton();
+        this.logPopulationSelection();
+      });
+    }
+
+    // Standard confirmation
+    const confirmDeleteCheckbox = document.getElementById('confirm-delete');
+    if (confirmDeleteCheckbox) {
+      confirmDeleteCheckbox.addEventListener('change', e => {
+        this.isStandardDeleteConfirmed = e.target.checked;
+        this.validateDeleteButton();
+        this.logConfirmationChange('standard', e.target.checked);
+      });
+    }
+
+    // Environment confirmation
+    const confirmEnvironmentCheckbox = document.getElementById('confirm-environment-delete');
+    const environmentDeleteText = document.getElementById('environment-delete-text');
+    if (confirmEnvironmentCheckbox) {
+      confirmEnvironmentCheckbox.addEventListener('change', e => {
+        this.isEnvironmentDeleteConfirmed = e.target.checked;
+        this.validateDeleteButton();
+        this.logConfirmationChange('environment', e.target.checked);
+      });
+    }
+    if (environmentDeleteText) {
+      environmentDeleteText.addEventListener('input', e => {
+        this.deleteTextConfirmation = e.target.value;
+        this.validateDeleteButton();
+        this.logTextConfirmationChange();
+      });
+    }
+
+    // Start delete button
+    const startDeleteBtn = document.getElementById('start-delete');
+    if (startDeleteBtn) {
+      startDeleteBtn.addEventListener('click', () => {
+        this.startDelete();
+      });
+    }
+  }
+  setupDragAndDrop(dropZone, fileInput) {
+    // Prevent default browser behavior for all drag events
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, e => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    });
+
+    // Add visual feedback for drag events
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, () => {
+        dropZone.classList.add('dragover');
+        this.logDragEvent('dragenter');
+      });
+    });
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, () => {
+        dropZone.classList.remove('dragover');
+        if (eventName === 'drop') {
+          this.logDragEvent('drop');
+        }
+      });
+    });
+
+    // Handle file drop
+    dropZone.addEventListener('drop', e => {
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        this.handleFileSelection(files[0]);
+        if (fileInput) {
+          fileInput.files = files;
+        }
+      }
+    });
+
+    // Handle click to browse
+    dropZone.addEventListener('click', () => {
+      if (fileInput) {
+        fileInput.click();
+      }
+    });
+
+    // Add keyboard accessibility
+    dropZone.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        if (fileInput) {
+          fileInput.click();
+        }
+      }
+    });
+  }
+  handleFileSelection(file) {
+    if (!file) return;
+    this.logFileSelection(file);
+    this.selectedFile = file;
+    this.displayFileInfo(file);
+    this.validateDeleteButton();
+  }
+  displayFileInfo(file) {
+    const fileInfo = document.getElementById('delete-file-info');
+    if (!fileInfo) return;
+    const fileSize = (file.size / 1024).toFixed(2);
+    const fileExtension = file.name.split('.').pop().toLowerCase();
+    if (fileExtension !== 'csv' && fileExtension !== 'txt') {
+      fileInfo.innerHTML = `
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Invalid file type:</strong> Please select a CSV or TXT file.
+                </div>
+            `;
+      this.selectedFile = null;
+      this.logFileValidationError('Invalid file type', fileExtension);
+      return;
+    }
+
+    // Validate file size (10MB limit)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      fileInfo.innerHTML = `
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>File too large:</strong> Please select a file smaller than 10MB.
+                </div>
+            `;
+      this.selectedFile = null;
+      this.logFileValidationError('File too large', file.size);
+      return;
+    }
+    fileInfo.innerHTML = `
+            <div class="file-info">
+                <div class="file-name">${file.name}</div>
+                <div class="file-meta">
+                    <span>Size: ${fileSize} KB</span>
+                    <span>Type: ${fileExtension.toUpperCase()}</span>
+                </div>
+            </div>
+        `;
+    this.logFileValidationSuccess(file);
+  }
+  async loadPopulations() {
+    try {
+      this.logPopulationLoadStart();
+      const response = await fetch('/api/populations');
+      if (response.ok) {
+        const populations = await response.json();
+        this.populatePopulationSelect(populations);
+        this.logPopulationLoadSuccess(populations.length);
+      } else {
+        console.error('Failed to load populations');
+        this.logPopulationLoadError('Failed to load populations');
+      }
+    } catch (error) {
+      console.error('Error loading populations:', error);
+      this.logPopulationLoadError(error.message);
+    }
+  }
+  populatePopulationSelect(populations) {
+    const select = document.getElementById('delete-population-select');
+    if (!select) return;
+    select.innerHTML = '<option value="">Select a population...</option>';
+    populations.forEach(population => {
+      const option = document.createElement('option');
+      option.value = population.id;
+      option.textContent = population.name;
+      select.appendChild(option);
+    });
+  }
+  updateDeleteSections() {
+    const sections = {
+      'file': document.getElementById('delete-file-section'),
+      'population': document.getElementById('delete-population-section'),
+      'environment': document.getElementById('delete-environment-section')
+    };
+    Object.keys(sections).forEach(type => {
+      if (sections[type]) {
+        sections[type].style.display = type === this.currentDeleteType ? 'block' : 'none';
+      }
+    });
+  }
+  updateConfirmationSections() {
+    const standardConfirmation = document.getElementById('standard-confirmation');
+    const environmentConfirmation = document.getElementById('environment-confirmation');
+    if (standardConfirmation) {
+      standardConfirmation.style.display = this.currentDeleteType === 'environment' ? 'none' : 'block';
+    }
+    if (environmentConfirmation) {
+      environmentConfirmation.style.display = this.currentDeleteType === 'environment' ? 'block' : 'none';
+    }
+  }
+  validateDeleteButton() {
+    const startDeleteBtn = document.getElementById('start-delete');
+    if (!startDeleteBtn) return;
+    let isValid = false;
+    switch (this.currentDeleteType) {
+      case 'file':
+        isValid = this.selectedFile && this.isStandardDeleteConfirmed;
+        break;
+      case 'population':
+        isValid = this.selectedPopulation && this.isStandardDeleteConfirmed;
+        break;
+      case 'environment':
+        isValid = this.isEnvironmentDeleteConfirmed && this.deleteTextConfirmation === 'DELETE ALL';
+        break;
+    }
+    startDeleteBtn.disabled = !isValid;
+    this.logButtonValidation(isValid);
+  }
+  async startDelete() {
+    const startDeleteBtn = document.getElementById('start-delete');
+    if (startDeleteBtn) {
+      startDeleteBtn.disabled = true;
+      startDeleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting Delete...';
+    }
+    try {
+      let deleteData = {
+        type: this.currentDeleteType,
+        skipNotFound: document.getElementById('delete-skip-not-found')?.checked || false
+      };
+      switch (this.currentDeleteType) {
+        case 'file':
+          deleteData.file = this.selectedFile;
+          break;
+        case 'population':
+          deleteData.populationId = this.selectedPopulation;
+          break;
+        case 'environment':
+          deleteData.confirmation = this.deleteTextConfirmation;
+          break;
+      }
+      this.logDeleteStart(deleteData);
+      await this.performDelete(deleteData);
+    } catch (error) {
+      console.error('Delete failed:', error);
+      this.showError('Delete operation failed. Please try again.');
+      this.logDeleteError(error);
+    } finally {
+      if (startDeleteBtn) {
+        startDeleteBtn.disabled = false;
+        startDeleteBtn.innerHTML = '<i class="fas fa-trash"></i> Start Delete';
+      }
+    }
+  }
+  async performDelete(deleteData) {
+    const formData = new FormData();
+    formData.append('type', deleteData.type);
+    formData.append('skipNotFound', deleteData.skipNotFound);
+    if (deleteData.file) {
+      formData.append('file', deleteData.file);
+    }
+    if (deleteData.populationId) {
+      formData.append('populationId', deleteData.populationId);
+    }
+    if (deleteData.confirmation) {
+      formData.append('confirmation', deleteData.confirmation);
+    }
+    const response = await fetch('/api/delete-users', {
+      method: 'POST',
+      body: formData
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Delete operation failed');
+    }
+    const result = await response.json();
+    this.showSuccess(`Delete operation completed successfully. ${result.deletedCount} users deleted.`);
+
+    // Log the delete operation
+    this.logDeleteOperation(deleteData, result);
+  }
+  logDeleteOperation(deleteData, result) {
+    const logEntry = {
+      timestamp: new Date().toISOString(),
+      action: 'DELETE_USERS',
+      type: deleteData.type,
+      scope: this.getDeleteScope(deleteData),
+      metadata: this.getDeleteMetadata(deleteData),
+      result: {
+        deletedCount: result.deletedCount,
+        skippedCount: result.skippedCount || 0,
+        errors: result.errors || []
+      }
+    };
+
+    // Send to logging system
+    if (window.logManager) {
+      window.logManager.log('DELETE', 'User deletion completed', logEntry);
+    }
+
+    // Also log to console for debugging
+    console.log('Delete operation logged:', logEntry);
+  }
+  getDeleteScope(deleteData) {
+    switch (deleteData.type) {
+      case 'file':
+        return 'FILE_BASED';
+      case 'population':
+        return 'POPULATION_BASED';
+      case 'environment':
+        return 'FULL_ENVIRONMENT';
+      default:
+        return 'UNKNOWN';
+    }
+  }
+  getDeleteMetadata(deleteData) {
+    const metadata = {
+      skipNotFound: deleteData.skipNotFound
+    };
+    switch (deleteData.type) {
+      case 'file':
+        metadata.fileName = deleteData.file?.name;
+        metadata.fileSize = deleteData.file?.size;
+        break;
+      case 'population':
+        metadata.populationId = deleteData.populationId;
+        break;
+      case 'environment':
+        metadata.confirmationProvided = !!deleteData.confirmation;
+        break;
+    }
+    return metadata;
+  }
+
+  // Enhanced logging methods
+  logDeleteTypeChange() {
+    if (window.logManager) {
+      window.logManager.log('info', 'Delete type changed', {
+        type: this.currentDeleteType,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+  logFileSelection(file) {
+    if (window.logManager) {
+      window.logManager.log('info', 'File selected for deletion', {
+        fileName: file.name,
+        fileSize: file.size,
+        fileType: file.type,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+  logFileValidationError(error, details) {
+    if (window.logManager) {
+      window.logManager.log('warn', 'File validation failed', {
+        error: error,
+        details: details,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+  logFileValidationSuccess(file) {
+    if (window.logManager) {
+      window.logManager.log('info', 'File validation successful', {
+        fileName: file.name,
+        fileSize: file.size,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+  logDragEvent(eventType) {
+    if (window.logManager) {
+      window.logManager.log('debug', 'Drag event', {
+        eventType: eventType,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+  logPopulationLoadStart() {
+    if (window.logManager) {
+      window.logManager.log('info', 'Loading populations for delete', {
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+  logPopulationLoadSuccess(count) {
+    if (window.logManager) {
+      window.logManager.log('info', 'Populations loaded successfully', {
+        count: count,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+  logPopulationLoadError(error) {
+    if (window.logManager) {
+      window.logManager.log('error', 'Failed to load populations', {
+        error: error,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+  logPopulationSelection() {
+    if (window.logManager) {
+      window.logManager.log('info', 'Population selected for deletion', {
+        populationId: this.selectedPopulation,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+  logConfirmationChange(type, confirmed) {
+    if (window.logManager) {
+      window.logManager.log('info', 'Delete confirmation changed', {
+        type: type,
+        confirmed: confirmed,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+  logTextConfirmationChange() {
+    if (window.logManager) {
+      window.logManager.log('debug', 'Environment delete text confirmation changed', {
+        textLength: this.deleteTextConfirmation.length,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+  logButtonValidation(isValid) {
+    if (window.logManager) {
+      window.logManager.log('debug', 'Delete button validation', {
+        isValid: isValid,
+        deleteType: this.currentDeleteType,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+  logDeleteStart(deleteData) {
+    if (window.logManager) {
+      window.logManager.log('info', 'Delete operation started', {
+        type: deleteData.type,
+        scope: this.getDeleteScope(deleteData),
+        metadata: this.getDeleteMetadata(deleteData),
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+  logDeleteError(error) {
+    if (window.logManager) {
+      window.logManager.log('error', 'Delete operation failed', {
+        error: error.message,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+  showSuccess(message) {
+    if (window.uiManager) {
+      window.uiManager.showStatusMessage('success', 'Delete Complete', message);
+    } else {
+      alert(message);
+    }
+  }
+  showError(message) {
+    if (window.uiManager) {
+      window.uiManager.showStatusMessage('error', 'Delete Failed', message);
+    } else {
+      alert('Error: ' + message);
+    }
+  }
+}
+
+// Initialize delete manager when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  window.deleteManager = new DeleteManager();
+});
+
+// Export for module system
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = DeleteManager;
+}
+
+},{}],8:[function(require,module,exports){
+"use strict";
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -5069,7 +5800,586 @@ const ElementRegistry = exports.ElementRegistry = {
   populationIdField: () => getElement('#population-id', 'Population ID Field')
 };
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
+"use strict";
+
+/**
+ * Export Manager - Enhanced export functionality with population selection, credential overrides, token handling, and JWT decoding
+ * Handles all export operations with comprehensive token management and user transparency
+ */
+
+class ExportManager {
+  constructor() {
+    this.exportToken = null;
+    this.tokenExpiration = null;
+    this.tokenTimer = null;
+    this.overrideCredentials = false;
+    this.populations = [];
+    this.logger = console;
+    this.initializeEventListeners();
+    this.loadPopulations();
+    this.loadStoredCredentials();
+    this.startTokenTimer();
+  }
+  initializeEventListeners() {
+    // Population selection
+    const populationSelect = document.getElementById('export-population-select');
+    if (populationSelect) {
+      populationSelect.addEventListener('change', e => {
+        this.validateExportButton();
+        this.logPopulationSelection();
+      });
+    }
+
+    // Credential override toggle
+    const overrideCheckbox = document.getElementById('export-use-override-credentials');
+    if (overrideCheckbox) {
+      overrideCheckbox.addEventListener('change', e => {
+        this.toggleCredentialsOverride(e.target.checked);
+      });
+    }
+
+    // Generate export token
+    const generateTokenBtn = document.getElementById('generate-export-token');
+    if (generateTokenBtn) {
+      generateTokenBtn.addEventListener('click', () => {
+        this.generateExportToken();
+      });
+    }
+
+    // View raw token
+    const viewTokenBtn = document.getElementById('view-export-token');
+    if (viewTokenBtn) {
+      viewTokenBtn.addEventListener('click', () => {
+        this.showJWTDecoder();
+      });
+    }
+
+    // Refresh token
+    const refreshTokenBtn = document.getElementById('refresh-export-token');
+    if (refreshTokenBtn) {
+      refreshTokenBtn.addEventListener('click', () => {
+        this.refreshExportToken();
+      });
+    }
+
+    // JWT panel close
+    const closeJwtBtn = document.getElementById('close-jwt-panel');
+    if (closeJwtBtn) {
+      closeJwtBtn.addEventListener('click', () => {
+        this.hideJWTDecoder();
+      });
+    }
+
+    // Copy buttons
+    this.setupCopyButtons();
+
+    // Start export
+    const startExportBtn = document.getElementById('start-export');
+    if (startExportBtn) {
+      startExportBtn.addEventListener('click', () => {
+        this.startExport();
+      });
+    }
+
+    // Secret visibility toggle
+    const toggleSecretBtn = document.getElementById('toggle-export-secret-visibility');
+    if (toggleSecretBtn) {
+      toggleSecretBtn.addEventListener('click', () => {
+        this.toggleSecretVisibility();
+      });
+    }
+  }
+  async loadPopulations() {
+    try {
+      this.logPopulationLoadStart();
+      const response = await fetch('/api/populations');
+      if (response.ok) {
+        const populations = await response.json();
+        this.populations = populations;
+        this.populatePopulationSelect(populations);
+        this.logPopulationLoadSuccess(populations.length);
+      } else {
+        console.error('Failed to load populations');
+        this.logPopulationLoadError('Failed to load populations');
+      }
+    } catch (error) {
+      console.error('Error loading populations:', error);
+      this.logPopulationLoadError(error.message);
+    }
+  }
+  populatePopulationSelect(populations) {
+    const select = document.getElementById('export-population-select');
+    if (!select) return;
+
+    // Keep the existing ALL option and add populations
+    const allOption = select.querySelector('option[value="ALL"]');
+    select.innerHTML = '<option value="">Select a population...</option>';
+    if (allOption) {
+      select.appendChild(allOption);
+    }
+    populations.forEach(population => {
+      const option = document.createElement('option');
+      option.value = population.id;
+      option.textContent = population.name;
+      select.appendChild(option);
+    });
+  }
+  toggleCredentialsOverride(enabled) {
+    this.overrideCredentials = enabled;
+    const credentialsFields = document.getElementById('export-credentials-fields');
+    const tokenStatus = document.getElementById('export-token-status');
+    if (enabled) {
+      credentialsFields.style.display = 'block';
+      this.loadStoredCredentials();
+    } else {
+      credentialsFields.style.display = 'none';
+      tokenStatus.style.display = 'none';
+      this.clearExportToken();
+    }
+    this.validateExportButton();
+    this.logCredentialOverride(enabled);
+  }
+  loadStoredCredentials() {
+    try {
+      const stored = localStorage.getItem('exportCredentials');
+      if (stored) {
+        const credentials = JSON.parse(stored);
+        document.getElementById('export-environment-id').value = credentials.environmentId || '';
+        document.getElementById('export-api-client-id').value = credentials.apiClientId || '';
+        document.getElementById('export-api-secret').value = credentials.apiSecret || '';
+        document.getElementById('export-region').value = credentials.region || 'NA';
+      }
+    } catch (error) {
+      console.error('Error loading stored credentials:', error);
+    }
+  }
+  saveCredentials() {
+    try {
+      const credentials = {
+        environmentId: document.getElementById('export-environment-id').value,
+        apiClientId: document.getElementById('export-api-client-id').value,
+        apiSecret: document.getElementById('export-api-secret').value,
+        region: document.getElementById('export-region').value
+      };
+      localStorage.setItem('exportCredentials', JSON.stringify(credentials));
+    } catch (error) {
+      console.error('Error saving credentials:', error);
+    }
+  }
+  async generateExportToken() {
+    try {
+      const credentials = this.getExportCredentials();
+      if (!credentials) {
+        this.showError('Please fill in all credential fields');
+        return;
+      }
+      this.saveCredentials();
+      const response = await fetch('/api/export-token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(credentials)
+      });
+      if (response.ok) {
+        const result = await response.json();
+        this.setExportToken(result.token, result.expiresAt);
+        this.logTokenGeneration('success');
+      } else {
+        const error = await response.json();
+        this.showError('Failed to generate token: ' + error.message);
+        this.logTokenGeneration('error', error.message);
+      }
+    } catch (error) {
+      this.showError('Error generating token: ' + error.message);
+      this.logTokenGeneration('error', error.message);
+    }
+  }
+  async refreshExportToken() {
+    if (!this.overrideCredentials) {
+      this.showError('Credential override must be enabled to refresh token');
+      return;
+    }
+    await this.generateExportToken();
+  }
+  getExportCredentials() {
+    const environmentId = document.getElementById('export-environment-id').value;
+    const apiClientId = document.getElementById('export-api-client-id').value;
+    const apiSecret = document.getElementById('export-api-secret').value;
+    const region = document.getElementById('export-region').value;
+    if (!environmentId || !apiClientId || !apiSecret) {
+      return null;
+    }
+    return {
+      environmentId,
+      apiClientId,
+      apiSecret,
+      region
+    };
+  }
+  setExportToken(token, expiresAt) {
+    this.exportToken = token;
+    this.tokenExpiration = new Date(expiresAt);
+
+    // Store in localStorage
+    localStorage.setItem('exportToken', token);
+    localStorage.setItem('exportTokenExpires', expiresAt);
+
+    // Show token status
+    document.getElementById('export-token-status').style.display = 'block';
+
+    // Update token metadata
+    this.updateTokenMetadata();
+
+    // Start timer
+    this.startTokenTimer();
+    this.validateExportButton();
+    this.logTokenSet();
+  }
+  clearExportToken() {
+    this.exportToken = null;
+    this.tokenExpiration = null;
+
+    // Clear from localStorage
+    localStorage.removeItem('exportToken');
+    localStorage.removeItem('exportTokenExpires');
+
+    // Hide token status
+    document.getElementById('export-token-status').style.display = 'none';
+
+    // Stop timer
+    if (this.tokenTimer) {
+      clearInterval(this.tokenTimer);
+      this.tokenTimer = null;
+    }
+    this.validateExportButton();
+  }
+  startTokenTimer() {
+    if (this.tokenTimer) {
+      clearInterval(this.tokenTimer);
+    }
+    this.tokenTimer = setInterval(() => {
+      this.updateTokenTimer();
+    }, 1000);
+    this.updateTokenTimer();
+  }
+  updateTokenTimer() {
+    if (!this.tokenExpiration) return;
+    const now = new Date();
+    const timeLeft = this.tokenExpiration.getTime() - now.getTime();
+    if (timeLeft <= 0) {
+      // Token expired
+      this.clearExportToken();
+      this.showError('Export token has expired. Please generate a new token.');
+      return;
+    }
+    const minutes = Math.floor(timeLeft / 60000);
+    const seconds = Math.floor(timeLeft % 60000 / 1000);
+    const timerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    document.getElementById('export-token-timer').textContent = timerText;
+
+    // Update status indicator
+    const indicator = document.getElementById('export-token-status-indicator');
+    if (timeLeft < 300000) {
+      // Less than 5 minutes
+      indicator.className = 'token-status-indicator expired';
+    } else if (timeLeft < 600000) {
+      // Less than 10 minutes
+      indicator.className = 'token-status-indicator warning';
+    } else {
+      indicator.className = 'token-status-indicator valid';
+    }
+  }
+  updateTokenMetadata() {
+    if (!this.exportToken) return;
+    try {
+      const decoded = this.decodeJWT(this.exportToken);
+      document.getElementById('export-token-scopes').textContent = decoded.payload.scope || '--';
+      document.getElementById('export-token-environment').textContent = decoded.payload.env || '--';
+      document.getElementById('export-token-expires').textContent = new Date(decoded.payload.exp * 1000).toISOString();
+    } catch (error) {
+      console.error('Error updating token metadata:', error);
+    }
+  }
+  decodeJWT(token) {
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+      throw new Error('Invalid JWT format');
+    }
+    const header = JSON.parse(atob(parts[0]));
+    const payload = JSON.parse(atob(parts[1]));
+    const signature = parts[2];
+    return {
+      header,
+      payload,
+      signature,
+      raw: token
+    };
+  }
+  showJWTDecoder() {
+    if (!this.exportToken) {
+      this.showError('No export token available');
+      return;
+    }
+    try {
+      const decoded = this.decodeJWT(this.exportToken);
+      document.getElementById('export-jwt-raw').textContent = decoded.raw;
+      document.getElementById('export-jwt-header').textContent = JSON.stringify(decoded.header, null, 2);
+      document.getElementById('export-jwt-payload').textContent = JSON.stringify(decoded.payload, null, 2);
+      document.getElementById('export-jwt-signature').textContent = decoded.signature;
+      document.getElementById('export-jwt-panel').style.display = 'block';
+      this.logJWTView();
+    } catch (error) {
+      this.showError('Error decoding JWT: ' + error.message);
+    }
+  }
+  hideJWTDecoder() {
+    document.getElementById('export-jwt-panel').style.display = 'none';
+  }
+  setupCopyButtons() {
+    const copyButtons = [{
+      id: 'copy-jwt-raw',
+      target: 'export-jwt-raw'
+    }, {
+      id: 'copy-jwt-header',
+      target: 'export-jwt-header'
+    }, {
+      id: 'copy-jwt-payload',
+      target: 'export-jwt-payload'
+    }, {
+      id: 'copy-jwt-signature',
+      target: 'export-jwt-signature'
+    }];
+    copyButtons.forEach(button => {
+      const btn = document.getElementById(button.id);
+      if (btn) {
+        btn.addEventListener('click', () => {
+          this.copyToClipboard(button.target);
+        });
+      }
+    });
+  }
+  async copyToClipboard(elementId) {
+    try {
+      const element = document.getElementById(elementId);
+      const text = element.textContent;
+      await navigator.clipboard.writeText(text);
+      this.showSuccess('Copied to clipboard');
+    } catch (error) {
+      console.error('Error copying to clipboard:', error);
+      this.showError('Failed to copy to clipboard');
+    }
+  }
+  toggleSecretVisibility() {
+    const secretInput = document.getElementById('export-api-secret');
+    const toggleBtn = document.getElementById('toggle-export-secret-visibility');
+    const icon = toggleBtn.querySelector('i');
+    if (secretInput.type === 'password') {
+      secretInput.type = 'text';
+      icon.className = 'fas fa-eye-slash';
+    } else {
+      secretInput.type = 'password';
+      icon.className = 'fas fa-eye';
+    }
+  }
+  validateExportButton() {
+    const startExportBtn = document.getElementById('start-export');
+    const populationSelect = document.getElementById('export-population-select');
+    if (!startExportBtn || !populationSelect) return;
+    const hasPopulation = populationSelect.value;
+    const hasToken = this.overrideCredentials ? this.exportToken : true;
+    startExportBtn.disabled = !hasPopulation || !hasToken;
+  }
+  async startExport() {
+    const populationSelect = document.getElementById('export-population-select');
+    const selectedPopulation = populationSelect.value;
+    if (!selectedPopulation) {
+      this.showError('Please select a population');
+      return;
+    }
+    if (this.overrideCredentials && !this.exportToken) {
+      this.showError('Please generate an export token first');
+      return;
+    }
+    try {
+      const exportOptions = this.getExportOptions();
+      this.logExportStart(exportOptions);
+
+      // Show export status
+      if (window.uiManager) {
+        window.uiManager.showExportStatus();
+      }
+
+      // Send export request
+      const response = await fetch('/api/export-users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(exportOptions)
+      });
+      if (response.ok) {
+        const result = await response.json();
+        this.showSuccess('Export completed successfully', result.message);
+        this.logExportSuccess(result);
+        this.showExportReminder();
+      } else {
+        const error = await response.json();
+        this.showError('Export failed: ' + error.message);
+        this.logExportError(error.message);
+      }
+    } catch (error) {
+      this.showError('Export failed: ' + error.message);
+      this.logExportError(error.message);
+    }
+  }
+  getExportOptions() {
+    const populationSelect = document.getElementById('export-population-select');
+    const selectedPopulation = populationSelect.value;
+    const selectedPopulationName = populationSelect.selectedOptions[0]?.text || '';
+    return {
+      populationId: selectedPopulation,
+      populationName: selectedPopulationName,
+      userStatusFilter: document.getElementById('export-population-filter').value,
+      format: document.getElementById('export-format').value,
+      includeDisabled: document.getElementById('export-include-disabled').checked,
+      includeMetadata: document.getElementById('export-include-metadata').checked,
+      useOverrideCredentials: this.overrideCredentials,
+      exportToken: this.overrideCredentials ? this.exportToken : null
+    };
+  }
+  showExportReminder() {
+    if (this.overrideCredentials) {
+      this.showInfo('Export completed', 'Remember to get a new token before using Import, Delete, or Modify operations.');
+    }
+  }
+
+  // Logging methods
+  logPopulationLoadStart() {
+    if (window.logManager) {
+      window.logManager.log('info', 'Loading populations for export', {
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+  logPopulationLoadSuccess(count) {
+    if (window.logManager) {
+      window.logManager.log('info', 'Populations loaded successfully for export', {
+        count: count,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+  logPopulationLoadError(error) {
+    if (window.logManager) {
+      window.logManager.log('error', 'Failed to load populations for export', {
+        error: error,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+  logPopulationSelection() {
+    const populationSelect = document.getElementById('export-population-select');
+    if (window.logManager) {
+      window.logManager.log('info', 'Population selected for export', {
+        populationId: populationSelect.value,
+        populationName: populationSelect.selectedOptions[0]?.text || '',
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+  logCredentialOverride(enabled) {
+    if (window.logManager) {
+      window.logManager.log('info', 'Export credential override toggled', {
+        enabled: enabled,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+  logTokenGeneration(status, error = null) {
+    if (window.logManager) {
+      window.logManager.log(status === 'success' ? 'info' : 'error', 'Export token generation', {
+        status: status,
+        error: error,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+  logTokenSet() {
+    if (window.logManager) {
+      window.logManager.log('info', 'Export token set', {
+        hasToken: !!this.exportToken,
+        expiresAt: this.tokenExpiration?.toISOString(),
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+  logJWTView() {
+    if (window.logManager) {
+      window.logManager.log('info', 'JWT token viewed', {
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+  logExportStart(options) {
+    if (window.logManager) {
+      window.logManager.log('info', 'Export operation started', {
+        options: options,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+  logExportSuccess(result) {
+    if (window.logManager) {
+      window.logManager.log('info', 'Export operation completed successfully', {
+        result: result,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+  logExportError(error) {
+    if (window.logManager) {
+      window.logManager.log('error', 'Export operation failed', {
+        error: error,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+  showSuccess(title, message) {
+    if (window.uiManager) {
+      window.uiManager.showStatusMessage('success', title, message);
+    } else {
+      alert(`${title}: ${message}`);
+    }
+  }
+  showError(message) {
+    if (window.uiManager) {
+      window.uiManager.showStatusMessage('error', 'Export Error', message);
+    } else {
+      alert('Error: ' + message);
+    }
+  }
+  showInfo(title, message) {
+    if (window.uiManager) {
+      window.uiManager.showStatusMessage('info', title, message);
+    } else {
+      console.log(`${title}: ${message}`);
+    }
+  }
+}
+
+// Initialize export manager when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  window.exportManager = new ExportManager();
+});
+
+// Export for module system
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = ExportManager;
+}
+
+},{}],10:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5167,11 +6477,12 @@ class FileHandler {
    * @param {File} file - The file to set and process
    * @returns {Promise<Object>} Promise that resolves with processing result
    */
-  async setFile(file) {
+  async setFile(file, operationType = 'import') {
     try {
       this.logger.info('Setting file', {
         fileName: file.name,
-        fileSize: file.size
+        fileSize: file.size,
+        operationType
       });
 
       // Store the current file reference for later use
@@ -5179,7 +6490,7 @@ class FileHandler {
 
       // Process the file using the existing internal method
       // This includes validation, parsing, and UI updates
-      await this._handleFileInternal(file);
+      await this._handleFileInternal(file, null, operationType);
       return {
         success: true,
         file
@@ -5187,7 +6498,8 @@ class FileHandler {
     } catch (error) {
       this.logger.error('Failed to set file', {
         error: error.message,
-        fileName: file.name
+        fileName: file.name,
+        operationType
       });
       throw error;
     }
@@ -5461,12 +6773,13 @@ class FileHandler {
    * @param {Event} [event]
    * @private
    */
-  async _handleFileInternal(file, event) {
-    console.log('[CSV] _handleFileInternal called with file:', file.name, 'size:', file.size);
+  async _handleFileInternal(file, event, operationType = 'import') {
+    console.log('[CSV] _handleFileInternal called with file:', file.name, 'size:', file.size, 'operationType:', operationType);
     try {
       this.logger.info('Processing file', {
         fileName: file.name,
-        fileSize: file.size
+        fileSize: file.size,
+        operationType
       });
 
       // Validate file type - allow files without extensions or with any extension except known bad ones
@@ -5520,11 +6833,12 @@ class FileHandler {
       const message = `File processed: ${parseResults.validUsers} valid users, ${parseResults.invalidRows} invalid rows`;
       this.uiManager.showNotification(message, parseResults.invalidRows > 0 ? 'warning' : 'success');
 
-      // Update UI with enhanced file info display
-      this.updateFileInfoForElement(file, 'file-info');
+      // Update UI with enhanced file info display based on operation type
+      const fileInfoContainerId = operationType === 'modify' ? 'modify-file-info' : 'file-info';
+      this.updateFileInfoForElement(file, fileInfoContainerId);
 
       // Update file label to show last folder path
-      this.updateFileLabel('import');
+      this.updateFileLabel(operationType);
 
       // Log detailed errors for debugging
       if (parseResults.errors.length > 0) {
@@ -5534,14 +6848,19 @@ class FileHandler {
         });
       }
 
-      // Update import button state based on population selection
-      if (window.app && window.app.updateImportButtonState) {
-        window.app.updateImportButtonState();
+      // Update button state based on operation type
+      if (window.app) {
+        if (operationType === 'modify' && window.app.updateModifyButtonState) {
+          window.app.updateModifyButtonState();
+        } else if (operationType === 'import' && window.app.updateImportButtonState) {
+          window.app.updateImportButtonState();
+        }
       }
     } catch (error) {
       this.logger.error('Failed to process CSV file', {
         error: error.message,
-        fileName: file.name
+        fileName: file.name,
+        operationType
       });
       console.error('Error in _handleFileInternal:', error);
       let errorMessage = 'Failed to process CSV file. ';
@@ -6129,12 +7448,12 @@ class FileHandler {
             <div class="file-info-details" style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                 
                 <!-- Prominent File Name Section -->
-                <div class="file-name-section" style="text-align: center; margin-bottom: 20px; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 6px; color: white;">
-                    <div style="font-size: 1.8rem; font-weight: 700; margin-bottom: 5px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); word-break: break-word; overflow-wrap: break-word;">
-                        <i class="fas fa-file-csv" style="margin-right: 10px; font-size: 1.6rem;"></i>
+                <div class="file-name-section" style="text-align: center; margin-bottom: 20px; padding: 15px; background: #e6f4ff; border-radius: 6px; color: #1a237e; font-weight: bold; font-size: 1.4rem;">
+                    <div style="font-size: 1.8rem; font-weight: 700; margin-bottom: 5px; color: #1a237e; text-shadow: none; word-break: break-word; overflow-wrap: break-word;">
+                        <i class="fas fa-file-csv" style="margin-right: 10px; font-size: 1.6rem; color: #1976d2;"></i>
                         ${file.name}
                     </div>
-                    <div style="font-size: 0.9rem; opacity: 0.9; font-weight: 400;">
+                    <div style="font-size: 1rem; opacity: 0.95; font-weight: 600; color: #1976d2;">
                         File Selected Successfully
                     </div>
                 </div>
@@ -6188,7 +7507,7 @@ class FileHandler {
                 <style>
                     @media (max-width: 768px) {
                         .file-info-details .file-name-section div:first-child {
-                            font-size: 1.4rem !important;
+                            font-size: 1.2rem !important;
                         }
                         .file-info-grid {
                             grid-template-columns: 1fr !important;
@@ -6200,10 +7519,10 @@ class FileHandler {
                     }
                     @media (max-width: 480px) {
                         .file-info-details .file-name-section div:first-child {
-                            font-size: 1.2rem !important;
+                            font-size: 1rem !important;
                         }
                         .file-info-details {
-                            padding: 15px !important;
+                            padding: 10px !important;
                         }
                     }
                 </style>
@@ -6544,7 +7863,7 @@ class FileHandler {
 }
 exports.FileHandler = FileHandler;
 
-},{"./element-registry.js":7}],9:[function(require,module,exports){
+},{"./element-registry.js":8}],11:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6752,7 +8071,451 @@ class FileLogger {
 }
 exports.FileLogger = FileLogger;
 
-},{}],10:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.historyManager = exports.HistoryManager = void 0;
+// HistoryManager: Handles history page functionality including loading, filtering, and displaying operation history
+// Provides comprehensive history management with filtering, real-time updates, and expandable details
+
+class HistoryManager {
+  constructor() {
+    this.historyContainer = null;
+    this.refreshButton = null;
+    this.clearButton = null;
+    this.currentHistory = [];
+    this.isAutoRefresh = true;
+    this.refreshInterval = null;
+    this.filterType = '';
+    this.filterPopulation = '';
+    this.filterStartDate = '';
+    this.filterEndDate = '';
+    this.filterText = '';
+    this.initialize();
+  }
+  initialize() {
+    this.setupElements();
+    this.setupEventListeners();
+    this.startAutoRefresh();
+    this.loadHistory();
+  }
+  setupElements() {
+    this.historyContainer = document.getElementById('history-container');
+    this.refreshButton = document.getElementById('refresh-history');
+    this.clearButton = document.getElementById('clear-history');
+    if (!this.historyContainer) {
+      console.warn('History container not found');
+      return;
+    }
+    if (!this.refreshButton) {
+      console.warn('Refresh history button not found');
+    }
+    if (!this.clearButton) {
+      console.warn('Clear history button not found');
+    }
+  }
+  setupEventListeners() {
+    if (this.refreshButton) {
+      this.refreshButton.addEventListener('click', () => this.loadHistory());
+    }
+    if (this.clearButton) {
+      this.clearButton.addEventListener('click', () => this.clearHistory());
+    }
+
+    // Setup filter controls
+    this.setupFilterControls();
+
+    // Setup search functionality
+    this.setupSearchControls();
+  }
+  setupFilterControls() {
+    const typeFilter = document.getElementById('history-type-filter');
+    const populationFilter = document.getElementById('history-population-filter');
+    const startDateFilter = document.getElementById('history-date-start');
+    const endDateFilter = document.getElementById('history-date-end');
+    const applyFiltersBtn = document.getElementById('apply-history-filters');
+    const clearFiltersBtn = document.getElementById('clear-history-filters');
+    if (applyFiltersBtn) {
+      applyFiltersBtn.addEventListener('click', () => this.applyFilters());
+    }
+    if (clearFiltersBtn) {
+      clearFiltersBtn.addEventListener('click', () => this.clearFilters());
+    }
+
+    // Auto-apply filters on change
+    if (typeFilter) {
+      typeFilter.addEventListener('change', () => this.applyFilters());
+    }
+    if (populationFilter) {
+      populationFilter.addEventListener('input', () => this.applyFilters());
+    }
+    if (startDateFilter) {
+      startDateFilter.addEventListener('change', () => this.applyFilters());
+    }
+    if (endDateFilter) {
+      endDateFilter.addEventListener('change', () => this.applyFilters());
+    }
+  }
+  setupSearchControls() {
+    const searchIcon = document.getElementById('history-search-icon');
+    const searchInput = document.getElementById('history-search-input');
+    if (searchIcon && searchInput) {
+      searchIcon.addEventListener('click', () => {
+        if (searchInput.style.display === 'none') {
+          searchInput.style.display = 'inline-block';
+          searchInput.focus();
+        } else {
+          searchInput.value = '';
+          searchInput.style.display = 'none';
+          this.filterText = '';
+          this.applyFilters();
+        }
+      });
+      searchInput.addEventListener('input', e => {
+        this.filterText = e.target.value.toLowerCase();
+        this.applyFilters();
+      });
+
+      // Hide input on Escape
+      searchInput.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+          searchInput.value = '';
+          searchInput.style.display = 'none';
+          this.filterText = '';
+          this.applyFilters();
+        }
+      });
+    }
+  }
+  async loadHistory() {
+    try {
+      // Build query parameters
+      const params = new URLSearchParams();
+      params.append('limit', '100');
+      if (this.filterType) params.append('type', this.filterType);
+      if (this.filterPopulation) params.append('population', this.filterPopulation);
+      if (this.filterStartDate) params.append('startDate', this.filterStartDate);
+      if (this.filterEndDate) params.append('endDate', this.filterEndDate);
+      const response = await fetch(`/api/history?${params.toString()}`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      const data = await response.json();
+      if (data.success && data.operations) {
+        this.currentHistory = data.operations;
+        this.displayHistory();
+        this.scrollToTop();
+      } else {
+        console.warn('No history received or invalid response format');
+        this.displayNoHistory();
+      }
+    } catch (error) {
+      console.error('Failed to load history:', error);
+      this.displayError('Failed to load history: ' + error.message);
+    }
+  }
+  displayHistory() {
+    if (!this.historyContainer) return;
+    this.historyContainer.innerHTML = '';
+    if (this.currentHistory.length === 0) {
+      this.displayNoHistory();
+      return;
+    }
+    const filteredHistory = this.getFilteredHistory();
+    filteredHistory.forEach(operation => {
+      const historyElement = this.createHistoryElement(operation);
+      this.historyContainer.appendChild(historyElement);
+    });
+
+    // Update history count
+    this.updateHistoryCount(filteredHistory.length, this.currentHistory.length);
+  }
+  getFilteredHistory() {
+    return this.currentHistory.filter(operation => {
+      // Text search filter
+      if (this.filterText) {
+        const searchText = `${operation.type} ${operation.fileName} ${operation.population} ${operation.message}`.toLowerCase();
+        if (!searchText.includes(this.filterText)) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }
+  applyFilters() {
+    // Get current filter values
+    const typeFilter = document.getElementById('history-type-filter');
+    const populationFilter = document.getElementById('history-population-filter');
+    const startDateFilter = document.getElementById('history-date-start');
+    const endDateFilter = document.getElementById('history-date-end');
+    this.filterType = typeFilter ? typeFilter.value : '';
+    this.filterPopulation = populationFilter ? populationFilter.value : '';
+    this.filterStartDate = startDateFilter ? startDateFilter.value : '';
+    this.filterEndDate = endDateFilter ? endDateFilter.value : '';
+
+    // Reload history with new filters
+    this.loadHistory();
+  }
+  clearFilters() {
+    const typeFilter = document.getElementById('history-type-filter');
+    const populationFilter = document.getElementById('history-population-filter');
+    const startDateFilter = document.getElementById('history-date-start');
+    const endDateFilter = document.getElementById('history-date-end');
+    if (typeFilter) typeFilter.value = '';
+    if (populationFilter) populationFilter.value = '';
+    if (startDateFilter) startDateFilter.value = '';
+    if (endDateFilter) endDateFilter.value = '';
+    this.filterType = '';
+    this.filterPopulation = '';
+    this.filterStartDate = '';
+    this.filterEndDate = '';
+    this.loadHistory();
+  }
+  createHistoryElement(operation) {
+    const historyElement = document.createElement('div');
+    historyElement.className = `history-entry ${operation.type.toLowerCase()}`;
+    historyElement.setAttribute('data-operation-id', operation.id);
+    historyElement.setAttribute('tabindex', '0');
+    historyElement.setAttribute('role', 'button');
+    historyElement.setAttribute('aria-expanded', 'false');
+    historyElement.setAttribute('aria-label', `Operation: ${operation.type} - ${operation.fileName}`);
+    const timestamp = new Date(operation.timestamp).toLocaleString();
+    const typeClass = `operation-type ${operation.type.toLowerCase()}`;
+
+    // Create result summary
+    const resultSummary = this.createResultSummary(operation);
+    historyElement.innerHTML = `
+            <div class="history-header">
+                <div class="history-info">
+                    <span class="${typeClass}">${operation.type}</span>
+                    <span class="history-timestamp">${timestamp}</span>
+                </div>
+                <div class="history-summary">
+                    <span class="history-file">${this.escapeHtml(operation.fileName)}</span>
+                    <span class="history-population">${this.escapeHtml(operation.population)}</span>
+                    <span class="history-result">${resultSummary}</span>
+                </div>
+                <span class="history-expand-icon" aria-hidden="true">▶</span>
+            </div>
+            <div class="history-message">${this.escapeHtml(operation.message)}</div>
+            <div class="history-details" role="region" aria-label="Operation details">
+                <div class="history-details-content">
+                    <div class="history-detail-section">
+                        <h5>File Information:</h5>
+                        <p><strong>File Name:</strong> ${this.escapeHtml(operation.fileName)}</p>
+                        <p><strong>Population:</strong> ${this.escapeHtml(operation.population)}</p>
+                        <p><strong>Environment ID:</strong> ${this.escapeHtml(operation.environmentId)}</p>
+                    </div>
+                    
+                    <div class="history-detail-section">
+                        <h5>Operation Details:</h5>
+                        ${this.createOperationDetails(operation)}
+                    </div>
+                    
+                    ${operation.ip ? `
+                        <div class="history-detail-section">
+                            <h5>Connection Info:</h5>
+                            <p><strong>IP Address:</strong> ${operation.ip}</p>
+                            ${operation.userAgent ? `<p><strong>User Agent:</strong> ${this.escapeHtml(operation.userAgent)}</p>` : ''}
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+
+    // Enhanced click handler for expand/collapse
+    const handleToggle = event => {
+      event.preventDefault();
+      event.stopPropagation();
+      const isExpanded = historyElement.classList.contains('expanded');
+      const expandIcon = historyElement.querySelector('.history-expand-icon');
+      const details = historyElement.querySelector('.history-details');
+      if (isExpanded) {
+        // Collapse
+        historyElement.classList.remove('expanded');
+        historyElement.setAttribute('aria-expanded', 'false');
+        if (expandIcon) {
+          expandIcon.textContent = '▶';
+          expandIcon.setAttribute('aria-label', 'Expand operation details');
+        }
+        if (details) {
+          details.style.display = 'none';
+        }
+      } else {
+        // Expand
+        historyElement.classList.add('expanded');
+        historyElement.setAttribute('aria-expanded', 'true');
+        if (expandIcon) {
+          expandIcon.textContent = '▼';
+          expandIcon.setAttribute('aria-label', 'Collapse operation details');
+        }
+        if (details) {
+          details.style.display = 'block';
+          // Smooth scroll into view if needed
+          setTimeout(() => {
+            if (details.getBoundingClientRect().bottom > window.innerHeight) {
+              details.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest'
+              });
+            }
+          }, 100);
+        }
+      }
+    };
+
+    // Click handler
+    historyElement.addEventListener('click', handleToggle);
+
+    // Keyboard accessibility
+    historyElement.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        handleToggle(event);
+      }
+    });
+
+    // Focus management
+    historyElement.addEventListener('focus', () => {
+      historyElement.classList.add('focused');
+    });
+    historyElement.addEventListener('blur', () => {
+      historyElement.classList.remove('focused');
+    });
+    return historyElement;
+  }
+  createResultSummary(operation) {
+    switch (operation.type) {
+      case 'IMPORT':
+      case 'MODIFY':
+        return `✔️ ${operation.success || 0} Success / ❌ ${operation.errors || 0} Errors / ⚠️ ${operation.skipped || 0} Skipped`;
+      case 'EXPORT':
+        return `📊 ${operation.recordCount || 0} Records / 📁 ${operation.format || 'CSV'}`;
+      case 'DELETE':
+        return `🗑️ ${operation.deleteCount || 0} Deleted / 📋 ${operation.total || 0} Total`;
+      default:
+        return '📋 Operation completed';
+    }
+  }
+  createOperationDetails(operation) {
+    switch (operation.type) {
+      case 'IMPORT':
+      case 'MODIFY':
+        return `
+                    <p><strong>Total Processed:</strong> ${operation.total || 0}</p>
+                    <p><strong>Successfully Processed:</strong> ${operation.success || 0}</p>
+                    <p><strong>Errors:</strong> ${operation.errors || 0}</p>
+                    <p><strong>Skipped:</strong> ${operation.skipped || 0}</p>
+                `;
+      case 'EXPORT':
+        return `
+                    <p><strong>Record Count:</strong> ${operation.recordCount || 0}</p>
+                    <p><strong>Format:</strong> ${operation.format || 'CSV'}</p>
+                    <p><strong>File Size:</strong> ${operation.fileSize || 'Unknown'}</p>
+                `;
+      case 'DELETE':
+        return `
+                    <p><strong>Delete Type:</strong> ${operation.deleteType || 'file'}</p>
+                    <p><strong>Total Users:</strong> ${operation.total || 0}</p>
+                    <p><strong>Successfully Deleted:</strong> ${operation.deleteCount || 0}</p>
+                `;
+      default:
+        return '<p>No additional details available</p>';
+    }
+  }
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+  displayNoHistory() {
+    if (!this.historyContainer) return;
+    this.historyContainer.innerHTML = `
+            <div class="no-history-message">
+                <i class="fas fa-info-circle"></i>
+                <p>No operation history found.</p>
+                <small>History will appear here when operations are performed</small>
+            </div>
+        `;
+  }
+  displayError(message) {
+    if (!this.historyContainer) return;
+    this.historyContainer.innerHTML = `
+            <div class="history-error-message">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>${this.escapeHtml(message)}</p>
+                <button class="btn btn-secondary" onclick="window.historyManager.loadHistory()">
+                    <i class="fas fa-sync-alt"></i> Retry
+                </button>
+            </div>
+        `;
+  }
+  updateHistoryCount(filtered, total) {
+    const historyHeader = document.querySelector('.history-header h1');
+    if (historyHeader) {
+      if (filtered === total) {
+        historyHeader.textContent = `Operation History (${total})`;
+      } else {
+        historyHeader.textContent = `Operation History (${filtered}/${total})`;
+      }
+    }
+  }
+  scrollToTop() {
+    if (this.historyContainer) {
+      this.historyContainer.scrollTop = 0;
+    }
+  }
+  async clearHistory() {
+    if (!confirm('Are you sure you want to clear all operation history? This action cannot be undone.')) {
+      return;
+    }
+    try {
+      const response = await fetch('/api/logs/ui', {
+        method: 'DELETE'
+      });
+      if (response.ok) {
+        this.currentHistory = [];
+        this.displayHistory();
+        console.log('History cleared successfully');
+      } else {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error('Failed to clear history:', error);
+      alert('Failed to clear history: ' + error.message);
+    }
+  }
+  startAutoRefresh() {
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+    }
+    this.refreshInterval = setInterval(() => {
+      if (this.isAutoRefresh) {
+        this.loadHistory();
+      }
+    }, 10000); // Refresh every 10 seconds
+  }
+  stopAutoRefresh() {
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+      this.refreshInterval = null;
+    }
+  }
+  destroy() {
+    this.stopAutoRefresh();
+  }
+}
+
+// Create and export default instance
+exports.HistoryManager = HistoryManager;
+const historyManager = exports.historyManager = new HistoryManager();
+
+// Export the class and instance
+
+},{}],13:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7193,7 +8956,7 @@ class LocalAPIClient {
 exports.LocalAPIClient = LocalAPIClient;
 const localAPIClient = exports.localAPIClient = new LocalAPIClient(console);
 
-},{}],11:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 
@@ -7610,7 +9373,7 @@ class Logger {
 exports.Logger = Logger;
 
 }).call(this)}).call(this,require('_process'))
-},{"./ui-manager.js":16,"./winston-logger.js":18,"_process":2}],12:[function(require,module,exports){
+},{"./ui-manager.js":19,"./winston-logger.js":21,"_process":2}],15:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 
@@ -8235,7 +9998,7 @@ const pingOneClient = exports.pingOneClient = new PingOneClient();
 // Export the class and instance
 
 }).call(this)}).call(this,require('_process'))
-},{"./ui-manager.js":16,"./winston-logger.js":18,"_process":2}],13:[function(require,module,exports){
+},{"./ui-manager.js":19,"./winston-logger.js":21,"_process":2}],16:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 
@@ -8905,7 +10668,7 @@ const progressManager = exports.progressManager = new ProgressManager();
 // Export the class and instance
 
 }).call(this)}).call(this,require('_process'))
-},{"./element-registry.js":7,"./winston-logger.js":18,"_process":2}],14:[function(require,module,exports){
+},{"./element-registry.js":8,"./winston-logger.js":21,"_process":2}],17:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 
@@ -9332,7 +11095,7 @@ class SettingsManager {
 exports.SettingsManager = SettingsManager;
 
 }).call(this)}).call(this,require('_process'))
-},{"./crypto-utils.js":6,"./winston-logger.js":18,"_process":2}],15:[function(require,module,exports){
+},{"./crypto-utils.js":6,"./winston-logger.js":21,"_process":2}],18:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9723,7 +11486,7 @@ class TokenManager {
 }
 var _default = exports.default = TokenManager;
 
-},{}],16:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 
@@ -10574,7 +12337,7 @@ const uiManager = exports.uiManager = new UIManager();
 // Export the class and instance
 
 }).call(this)}).call(this,require('_process'))
-},{"./circular-progress.js":5,"./element-registry.js":7,"./progress-manager.js":13,"./winston-logger.js":18,"_process":2}],17:[function(require,module,exports){
+},{"./circular-progress.js":5,"./element-registry.js":8,"./progress-manager.js":16,"./winston-logger.js":21,"_process":2}],20:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10653,7 +12416,7 @@ class VersionManager {
 // ES Module export
 exports.VersionManager = VersionManager;
 
-},{}],18:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 
