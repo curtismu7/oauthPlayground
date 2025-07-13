@@ -54,7 +54,8 @@ class FeatureFlags {
         return {
             A: false, // Advanced import options
             B: false, // Experimental export format
-            C: false  // Enhanced logging
+            C: false, // Enhanced logging
+            progressPage: false // Progress page feature flag - disabled by default
         };
     }
     
@@ -178,6 +179,11 @@ class FeatureFlags {
             C: {
                 name: 'Enhanced Logging',
                 description: 'Enables detailed logging for debugging',
+                default: false
+            },
+            progressPage: {
+                name: 'Progress Page',
+                description: 'Enables the Progress page functionality',
                 default: false
             }
         };
