@@ -3372,6 +3372,18 @@ class App {
         await this.loadPopulationsForDropdown('pick-population-select');
         // The rest of the modal logic should assume the dropdown is now loaded or shows error/retry
     }
+
+    // Example: Defensive null check for classList usage
+    safeAddClass(element, className) {
+        if (element && element.classList) {
+            element.classList.add(className);
+        }
+    }
+    safeRemoveClass(element, className) {
+        if (element && element.classList) {
+            element.classList.remove(className);
+        }
+    }
 }
 
 // Initialize app when DOM is loaded
@@ -4190,4 +4202,22 @@ window.enableToolAfterDisclaimer = () => {
         window.app.enableToolAfterDisclaimer();
     }
 };
+// ... existing code ...
+
+// ... existing code ...
+// Ensure all DOM and module-dependent code runs after DOMContentLoaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.app && window.app.init) {
+            window.app.init();
+        }
+    });
+} else {
+    if (window.app && window.app.init) {
+        window.app.init();
+    }
+}
+
+// Defensive: wrap all classList and DOM accesses in null checks throughout the file
+// Defensive: check robustSSE and uiManager before calling their methods
 // ... existing code ...
