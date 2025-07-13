@@ -737,6 +737,19 @@ class UIManager {
             console.debug(`[${area}] ${message}`);
         }
     }
+
+    /**
+     * Show a status message (compatibility shim)
+     * @param {string} type - Message type (success, error, warning, info)
+     * @param {string} message - Main message
+     * @param {string} [details] - Optional details (shown in log only)
+     */
+    showStatusMessage(type, message, details = '') {
+        this.showStatusBar(message, type, { autoDismiss: type === 'success' || type === 'info' });
+        if (details) {
+            this.logger.info('Status message details', { type, message, details });
+        }
+    }
 }
 
 // Create and export default instance
