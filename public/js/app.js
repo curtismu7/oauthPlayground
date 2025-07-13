@@ -21,6 +21,9 @@ import { FileHandler } from './modules/file-handler.js';
 import { VersionManager } from './modules/version-manager.js';
 import { apiFactory, initAPIFactory } from './modules/api-factory.js';
 import { progressManager } from './modules/progress-manager.js';
+import { DeleteManager } from './modules/delete-manager.js';
+import { ExportManager } from './modules/export-manager.js';
+import { HistoryManager } from './modules/history-manager.js';
 
 /**
  * Secret Field Toggle Component
@@ -323,6 +326,8 @@ class App {
             this.secretFieldToggle = null;
             this.fileHandler = null;
             this.pingOneClient = null;
+            this.deleteManager = null;
+            this.exportManager = null;
             
             console.log('✅ App constructor completed successfully');
             
@@ -369,6 +374,22 @@ class App {
     async init() {
         try {
             console.log('Initializing app...');
+            
+            // Ensure logManager is available with fallback
+            if (!window.logManager) {
+                window.logManager = {};
+            }
+            if (typeof window.logManager.log !== 'function') {
+                window.logManager.log = function(level, message, data) {
+                    const timestamp = new Date().toISOString();
+                    const logMessage = `[${timestamp}] [${level.toUpperCase()}] ${message}`;
+                    if (data) {
+                        console.log(logMessage, data);
+                    } else {
+                        console.log(logMessage);
+                    }
+                };
+            }
             
             // Ensure DOM is ready before proceeding with UI-dependent operations
             if (document.readyState === 'loading') {
@@ -457,6 +478,25 @@ class App {
                 this.secretFieldToggle = null;
             }
             
+            // Initialize delete manager for enhanced delete functionality
+            try {
+                this.deleteManager = new DeleteManager();
+                console.log('✅ DeleteManager initialized successfully');
+            } catch (error) {
+                this.logger.error('Failed to initialize DeleteManager:', error);
+                this.deleteManager = null;
+            }
+            
+            // Initialize export manager for enhanced export functionality
+            try {
+                this.exportManager = new ExportManager();
+        this.historyManager = new HistoryManager();
+                console.log('✅ ExportManager initialized successfully');
+            } catch (error) {
+                this.logger.error('Failed to initialize ExportManager:', error);
+                this.exportManager = null;
+            }
+            
             // Load application settings from storage with safety check
             try {
                 await this.loadSettings();
@@ -514,6 +554,13 @@ class App {
                 }
             } catch (error) {
                 this.logger.error('Failed to update version information:', error);
+            }
+            
+            // Initialize navigation visibility based on feature flags
+            try {
+                await this.initializeNavigationVisibility();
+            } catch (error) {
+                this.logger.error('Failed to initialize navigation visibility:', error);
             }
             
             console.log('App initialization complete');
@@ -727,6 +774,54 @@ class App {
         }
     }
 
+    updateModifyButtonState() {
+        try {
+            const populationSelect = document.getElementById('modify-population-select');
+            const hasFile = this.fileHandler && this.fileHandler.getCurrentFile() !== null;
+            
+            // Validate file handler exists
+            if (!this.fileHandler) {
+                console.warn('File handler not initialized');
+            }
+            
+            // Check both the dropdown value and the stored properties
+            const dropdownValue = populationSelect ? populationSelect.value : '';
+            const hasPopulation = (dropdownValue && dropdownValue !== '');
+            
+            // Production logging (reduced verbosity)
+            if (window.DEBUG_MODE) {
+                console.log('=== Update Modify Button State ===');
+                console.log('Has file:', hasFile);
+                console.log('Has population:', hasPopulation);
+                console.log('Dropdown value:', dropdownValue);
+                console.log('Population select element exists:', !!populationSelect);
+                console.log('====================================');
+            }
+            
+            // Get modify button with validation
+            const modifyBtn = document.getElementById('start-modify');
+            
+            const shouldEnable = hasFile && hasPopulation;
+            
+            // Safely update button state
+            if (modifyBtn && typeof modifyBtn.disabled !== 'undefined') {
+                modifyBtn.disabled = !shouldEnable;
+            }
+            
+            if (window.DEBUG_MODE) {
+                console.log('Modify button enabled:', shouldEnable);
+            }
+            
+        } catch (error) {
+            console.error('Error updating modify button state:', error);
+            // Fallback: disable button on error
+            const modifyBtn = document.getElementById('start-modify');
+            if (modifyBtn && typeof modifyBtn.disabled !== 'undefined') {
+                modifyBtn.disabled = true;
+            }
+        }
+    }
+
     async loadSettings() {
         try {
             const response = await this.localClient.get('/api/settings');
@@ -776,8 +871,76 @@ class App {
             });
         }
 
+        // Modify file upload event listeners
+        const modifyCsvFileInput = document.getElementById('modify-csv-file');
+        if (modifyCsvFileInput) {
+            modifyCsvFileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    this.handleModifyFileSelect(file);
+                }
+            });
+        }
+
+        // Modify drop zone event listeners
+        const modifyDropZone = document.getElementById('modify-drop-zone');
+        if (modifyDropZone) {
+            // Prevent default drag behaviors
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                modifyDropZone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                });
+            });
+
+            // Add visual feedback for drag over
+            ['dragenter', 'dragover'].forEach(eventName => {
+                modifyDropZone.addEventListener(eventName, () => {
+                    modifyDropZone.classList.add('drag-over');
+                });
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                modifyDropZone.addEventListener(eventName, () => {
+                    modifyDropZone.classList.remove('drag-over');
+                });
+            });
+
+            // Handle file drop
+            modifyDropZone.addEventListener('drop', (e) => {
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    this.handleModifyFileSelect(files[0]);
+                    // Update the file input
+                    modifyCsvFileInput.files = files;
+                }
+            });
+
+            // Handle click to open file picker
+            modifyDropZone.addEventListener('click', () => {
+                modifyCsvFileInput.click();
+            });
+        }
+
         // Population selection change listener
         this.attachPopulationChangeListener();
+
+        // Modify population selection change listener
+        const modifyPopulationSelect = document.getElementById('modify-population-select');
+        if (modifyPopulationSelect) {
+            modifyPopulationSelect.addEventListener('change', (e) => {
+                const selectedPopulationId = e.target.value;
+                const selectedPopulationName = e.target.selectedOptions[0]?.text || '';
+                
+                console.log('=== Modify Population Selection Changed ===');
+                console.log('Selected Population ID:', selectedPopulationId);
+                console.log('Selected Population Name:', selectedPopulationName);
+                console.log('====================================');
+                
+                // Update the modify button state based on population selection
+                this.updateModifyButtonState();
+            });
+        }
 
         // Import event listeners with error handling
         const startImportBtn = document.getElementById('start-import');
@@ -992,10 +1155,10 @@ class App {
         // Navigation event listeners
         const navItems = document.querySelectorAll('[data-view]');
         navItems.forEach(item => {
-            item.addEventListener('click', (e) => {
+            item.addEventListener('click', async (e) => {
                 e.preventDefault();
                 const view = item.getAttribute('data-view');
-                this.showView(view);
+                await this.showView(view);
             });
         });
 
@@ -1203,8 +1366,79 @@ class App {
         }
     }
 
-    showView(view) {
+    /**
+     * Check if a feature is enabled based on feature flags
+     * 
+     * @param {string} feature - The feature to check
+     * @returns {Promise<boolean>} - Whether the feature is enabled
+     */
+    async isFeatureEnabled(feature) {
+        try {
+            const response = await this.localClient.get('/api/feature-flags');
+            const flags = response || {};
+            return !!flags[feature];
+        } catch (error) {
+            console.warn(`Failed to check feature flag ${feature}:`, error);
+            return false; // Default to disabled on error
+        }
+    }
+
+    /**
+     * Initialize navigation visibility based on feature flags
+     * 
+     * Controls which navigation items are visible based on feature flag states.
+     * This ensures that disabled features are not accessible through navigation.
+     */
+    async initializeNavigationVisibility() {
+        try {
+            // Check progress page feature flag
+            const isProgressEnabled = await this.isFeatureEnabled('progressPage');
+            
+            // Find progress navigation item
+            const progressNavItem = document.querySelector('[data-view="progress"]');
+            if (progressNavItem) {
+                if (isProgressEnabled) {
+                    progressNavItem.style.display = 'block';
+                    console.log('✅ Progress page navigation enabled');
+                } else {
+                    progressNavItem.style.display = 'none';
+                    console.log('❌ Progress page navigation disabled');
+                }
+            } else {
+                console.warn('Progress navigation item not found');
+            }
+            
+            // Future: Add more feature flag checks here as needed
+            // Example: if (await this.isFeatureEnabled('modifyPage')) { ... }
+            
+        } catch (error) {
+            console.error('Failed to initialize navigation visibility:', error);
+            // On error, hide feature-flag controlled items for safety
+            const progressNavItem = document.querySelector('[data-view="progress"]');
+            if (progressNavItem) {
+                progressNavItem.style.display = 'none';
+            }
+        }
+    }
+
+    /**
+     * Show view with feature flag validation
+     * 
+     * @param {string} view - The view to show
+     */
+    async showView(view) {
         if (!view) return;
+        
+        // Check feature flags for specific views
+        if (view === 'progress') {
+            const isProgressEnabled = await this.isFeatureEnabled('progressPage');
+            if (!isProgressEnabled) {
+                // Redirect to home page if progress is disabled
+                this.uiManager.showWarning('Progress page is currently disabled.');
+                this.showView('home');
+                return;
+            }
+        }
         
         // Hide all views with safe iteration
         const views = document.querySelectorAll('.view');
@@ -1462,6 +1696,57 @@ class App {
             this.showPopulationChoicePrompt();
         } catch (error) {
             this.uiManager.showError('Failed to select file', error.message);
+        }
+    }
+
+    /**
+     * Handles modify file selection from the UI, parses CSV, and updates file information display
+     * @param {File} file - The selected CSV file for modification
+     */
+    async handleModifyFileSelect(file) {
+        try {
+            // Log file selection for debugging
+            this.uiManager.debugLog("ModifyFileUpload", `Modify file selected: ${file.name}, size: ${file.size}`);
+            await this.fileHandler.setFile(file, 'modify');
+            this.uiManager.showSuccess('File selected successfully', `Selected file: ${file.name} for modification`);
+            
+            // Update modify button state after file selection
+            this.updateModifyButtonState();
+
+            // Get users from CSV for logging purposes
+            const users = this.fileHandler.getParsedUsers ? this.fileHandler.getParsedUsers() : [];
+            this.uiManager.debugLog("ModifyCSV", `Parsed ${users.length} users from CSV for modification`);
+            
+            // Get selected population from UI dropdown
+            const populationSelect = document.getElementById('modify-population-select');
+            const uiPopulationId = populationSelect && populationSelect.value;
+            
+            // Log selected population
+            this.uiManager.debugLog("ModifyPopulation", `Selected population: ${uiPopulationId}`);
+            
+            // Use UI population selection for modify operation
+            if (uiPopulationId) {
+                // Overwrite all user records with UI populationId
+                users.forEach(u => {
+                    // Remove any existing population data from CSV
+                    delete u.populationId;
+                    delete u.population_id;
+                    delete u.populationName;
+                    delete u.population_name;
+                    
+                    // Set the UI-selected population
+                    u.populationId = uiPopulationId;
+                });
+                
+                this.uiManager.showInfo('Using UI dropdown population selection for modification');
+                
+                // Log the population assignment
+                this.uiManager.debugLog("ModifyPopulation", `Assigned UI population ${uiPopulationId} to all ${users.length} users for modification`);
+            } else {
+                this.uiManager.showWarning('No population selected in UI dropdown for modification');
+            }
+        } catch (error) {
+            this.uiManager.showError('Failed to select file for modification', error.message);
         }
     }
 
@@ -1884,6 +2169,13 @@ class App {
             // Log session ID and establish robust SSE connection for progress updates
             this.uiManager.debugLog("Import", "Session ID received", { sessionId });
             console.log('🔌 [IMPORT] Establishing robust SSE connection with sessionId:', sessionId);
+            // After receiving sessionId and before calling connectRobustSSE
+            if (typeof RobustEventSource === 'undefined') {
+                this.uiManager?.showError?.('Real-time updates unavailable', 'The real-time import progress module failed to load. Please refresh or contact support.');
+                console.error('RobustEventSource is not defined. SSE will not be used.');
+                // Optionally, fallback to polling or just proceed without SSE
+                return;
+            }
             connectRobustSSE(sessionId);
         } catch (error) {
             console.error('❌ [IMPORT] Error during import process:', error);
@@ -2512,6 +2804,15 @@ class App {
             
             if (response.success) {
                 this.uiManager.showSuccess(`Feature flag ${flag} ${enabled ? 'enabled' : 'disabled'}`);
+                
+                // Refresh navigation visibility when feature flags change
+                await this.initializeNavigationVisibility();
+                
+                // If progress page was disabled and user is currently on it, redirect to home
+                if (flag === 'progressPage' && !enabled && this.currentView === 'progress') {
+                    this.uiManager.showWarning('Progress page has been disabled. Redirecting to home page.');
+                    this.showView('home');
+                }
             } else {
                 this.uiManager.showError(`Failed to toggle feature flag ${flag}`, response.error);
             }
@@ -3439,95 +3740,8 @@ window.applyDebugFilters = function() {
 // Initialize debug filters
 window.debugFilters = {};
 
-// Global click handler for log entries to enable expand/collapse functionality
-document.addEventListener('click', (e) => {
-    // Check if the clicked element is a log entry or inside one
-    const logEntry = e.target.closest('.log-entry');
-    if (!logEntry) return;
-    
-    // Check if the clicked element is an expand icon
-    const expandIcon = e.target.closest('.log-expand-icon');
-    if (expandIcon) {
-        e.stopPropagation(); // Prevent triggering the log entry click
-    }
-    
-    // Find the details and icon elements
-    const details = logEntry.querySelector('.log-details');
-    const icon = logEntry.querySelector('.log-expand-icon');
-    
-    if (details && icon) {
-        const isExpanded = details.style.display !== 'none';
-        
-        if (isExpanded) {
-            // Collapse
-            details.style.display = 'none';
-            icon.innerHTML = '▶';
-            logEntry.classList.remove('expanded');
-        } else {
-            // Expand
-            details.style.display = 'block';
-            icon.innerHTML = '▼';
-            logEntry.classList.add('expanded');
-        }
-    }
-});
-
-// Function to add expand icons to existing log entries that don't have them
-window.addExpandIconsToLogEntries = function() {
-    const logEntries = document.querySelectorAll('.log-entry');
-    logEntries.forEach(entry => {
-        // Check if this entry already has an expand icon
-        const existingIcon = entry.querySelector('.log-expand-icon');
-        if (existingIcon) return;
-        
-        // Check if this entry has details that could be expanded
-        const details = entry.querySelector('.log-details');
-        const hasData = entry.querySelector('.log-data, .log-context, .log-detail-section');
-        
-        if (details || hasData) {
-            // Find the header or create one
-            let header = entry.querySelector('.log-header');
-            if (!header) {
-                // Create a header if it doesn't exist
-                header = document.createElement('div');
-                header.className = 'log-header';
-                header.style.display = 'flex';
-                header.style.alignItems = 'center';
-                header.style.gap = '8px';
-                
-                // Move existing content to header
-                const children = Array.from(entry.children);
-                children.forEach(child => {
-                    if (!child.classList.contains('log-details')) {
-                        header.appendChild(child);
-                    }
-                });
-                
-                entry.insertBefore(header, entry.firstChild);
-            }
-            
-            // Add expand icon
-            const expandIcon = document.createElement('span');
-            expandIcon.className = 'log-expand-icon';
-            expandIcon.innerHTML = '▶';
-            expandIcon.style.cursor = 'pointer';
-            header.appendChild(expandIcon);
-            
-            // Ensure details are initially hidden
-            if (details) {
-                details.style.display = 'none';
-            }
-        }
-    });
-};
-
-// Call the function when the page loads
-document.addEventListener('DOMContentLoaded', () => {
-    // Add a small delay to ensure all content is loaded
-    setTimeout(() => {
-        window.addExpandIconsToLogEntries();
-    }, 100);
-});
+// Enhanced log entry expansion functionality is now handled by log-manager.js
+// This provides better accessibility, visual feedback, and reliable first-click behavior
 
 // === DEBUG LOG PANEL TOGGLE LOGIC ===
 

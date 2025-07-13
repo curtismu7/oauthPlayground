@@ -217,6 +217,10 @@ class LogManager {
         const logElement = document.createElement('div');
         logElement.className = `log-entry ${log.level}`;
         logElement.setAttribute('data-log-id', log.id);
+        logElement.setAttribute('tabindex', '0');
+        logElement.setAttribute('role', 'button');
+        logElement.setAttribute('aria-expanded', 'false');
+        logElement.setAttribute('aria-label', `Log entry: ${log.message}`);
         
         const timestamp = new Date(log.timestamp).toLocaleString();
         const levelClass = `log-level ${log.level}`;
@@ -227,11 +231,11 @@ class LogManager {
                     <span class="${levelClass}">${log.level.toUpperCase()}</span>
                     <span class="log-timestamp">${timestamp}</span>
                 </div>
-                <span class="log-expand-icon">▼</span>
+                <span class="log-expand-icon" aria-hidden="true">▶</span>
             </div>
             <div class="log-message">${this.escapeHtml(log.message)}</div>
             ${log.data ? `
-                <div class="log-details">
+                <div class="log-details" role="region" aria-label="Log details">
                     <div class="log-details-content">
                         <div class="log-detail-section">
                             <h5>Data:</h5>
@@ -254,13 +258,64 @@ class LogManager {
             ` : ''}
         `;
         
-        // Add click handler for expand/collapse
-        logElement.addEventListener('click', () => {
-            logElement.classList.toggle('expanded');
+        // Enhanced click handler for expand/collapse
+        const handleToggle = (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const isExpanded = logElement.classList.contains('expanded');
             const expandIcon = logElement.querySelector('.log-expand-icon');
-            if (expandIcon) {
-                expandIcon.textContent = logElement.classList.contains('expanded') ? '▲' : '▼';
+            const details = logElement.querySelector('.log-details');
+            
+            if (isExpanded) {
+                // Collapse
+                logElement.classList.remove('expanded');
+                logElement.setAttribute('aria-expanded', 'false');
+                if (expandIcon) {
+                    expandIcon.textContent = '▶';
+                    expandIcon.setAttribute('aria-label', 'Expand log details');
+                }
+                if (details) {
+                    details.style.display = 'none';
+                }
+            } else {
+                // Expand
+                logElement.classList.add('expanded');
+                logElement.setAttribute('aria-expanded', 'true');
+                if (expandIcon) {
+                    expandIcon.textContent = '▼';
+                    expandIcon.setAttribute('aria-label', 'Collapse log details');
+                }
+                if (details) {
+                    details.style.display = 'block';
+                    // Smooth scroll into view if needed
+                    setTimeout(() => {
+                        if (details.getBoundingClientRect().bottom > window.innerHeight) {
+                            details.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        }
+                    }, 100);
+                }
             }
+        };
+        
+        // Click handler
+        logElement.addEventListener('click', handleToggle);
+        
+        // Keyboard accessibility
+        logElement.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                handleToggle(event);
+            }
+        });
+        
+        // Focus management
+        logElement.addEventListener('focus', () => {
+            logElement.classList.add('focused');
+        });
+        
+        logElement.addEventListener('blur', () => {
+            logElement.classList.remove('focused');
         });
         
         return logElement;

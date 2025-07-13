@@ -94,20 +94,20 @@ class FileHandler {
      * @param {File} file - The file to set and process
      * @returns {Promise<Object>} Promise that resolves with processing result
      */
-    async setFile(file) {
+    async setFile(file, operationType = 'import') {
         try {
-            this.logger.info('Setting file', { fileName: file.name, fileSize: file.size });
+            this.logger.info('Setting file', { fileName: file.name, fileSize: file.size, operationType });
             
             // Store the current file reference for later use
             this.currentFile = file;
             
             // Process the file using the existing internal method
             // This includes validation, parsing, and UI updates
-            await this._handleFileInternal(file);
+            await this._handleFileInternal(file, null, operationType);
             
             return { success: true, file };
         } catch (error) {
-            this.logger.error('Failed to set file', { error: error.message, fileName: file.name });
+            this.logger.error('Failed to set file', { error: error.message, fileName: file.name, operationType });
             throw error;
         }
     }
@@ -391,10 +391,10 @@ class FileHandler {
      * @param {Event} [event]
      * @private
      */
-    async _handleFileInternal(file, event) {
-        console.log('[CSV] _handleFileInternal called with file:', file.name, 'size:', file.size);
+    async _handleFileInternal(file, event, operationType = 'import') {
+        console.log('[CSV] _handleFileInternal called with file:', file.name, 'size:', file.size, 'operationType:', operationType);
         try {
-            this.logger.info('Processing file', { fileName: file.name, fileSize: file.size });
+            this.logger.info('Processing file', { fileName: file.name, fileSize: file.size, operationType });
             
             // Validate file type - allow files without extensions or with any extension except known bad ones
             const fileName = file.name || '';
@@ -445,11 +445,12 @@ class FileHandler {
             const message = `File processed: ${parseResults.validUsers} valid users, ${parseResults.invalidRows} invalid rows`;
             this.uiManager.showNotification(message, parseResults.invalidRows > 0 ? 'warning' : 'success');
 
-            // Update UI with enhanced file info display
-            this.updateFileInfoForElement(file, 'file-info');
+            // Update UI with enhanced file info display based on operation type
+            const fileInfoContainerId = operationType === 'modify' ? 'modify-file-info' : 'file-info';
+            this.updateFileInfoForElement(file, fileInfoContainerId);
             
             // Update file label to show last folder path
-            this.updateFileLabel('import');
+            this.updateFileLabel(operationType);
 
             // Log detailed errors for debugging
             if (parseResults.errors.length > 0) {
@@ -459,15 +460,20 @@ class FileHandler {
                 });
             }
 
-            // Update import button state based on population selection
-            if (window.app && window.app.updateImportButtonState) {
-                window.app.updateImportButtonState();
+            // Update button state based on operation type
+            if (window.app) {
+                if (operationType === 'modify' && window.app.updateModifyButtonState) {
+                    window.app.updateModifyButtonState();
+                } else if (operationType === 'import' && window.app.updateImportButtonState) {
+                    window.app.updateImportButtonState();
+                }
             }
 
         } catch (error) {
             this.logger.error('Failed to process CSV file', {
                 error: error.message,
-                fileName: file.name
+                fileName: file.name,
+                operationType
             });
             console.error('Error in _handleFileInternal:', error);
 
@@ -1069,12 +1075,12 @@ class FileHandler {
             <div class="file-info-details" style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                 
                 <!-- Prominent File Name Section -->
-                <div class="file-name-section" style="text-align: center; margin-bottom: 20px; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 6px; color: white;">
-                    <div style="font-size: 1.8rem; font-weight: 700; margin-bottom: 5px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); word-break: break-word; overflow-wrap: break-word;">
-                        <i class="fas fa-file-csv" style="margin-right: 10px; font-size: 1.6rem;"></i>
+                <div class="file-name-section" style="text-align: center; margin-bottom: 20px; padding: 15px; background: #e6f4ff; border-radius: 6px; color: #1a237e; font-weight: bold; font-size: 1.4rem;">
+                    <div style="font-size: 1.8rem; font-weight: 700; margin-bottom: 5px; color: #1a237e; text-shadow: none; word-break: break-word; overflow-wrap: break-word;">
+                        <i class="fas fa-file-csv" style="margin-right: 10px; font-size: 1.6rem; color: #1976d2;"></i>
                         ${file.name}
                     </div>
-                    <div style="font-size: 0.9rem; opacity: 0.9; font-weight: 400;">
+                    <div style="font-size: 1rem; opacity: 0.95; font-weight: 600; color: #1976d2;">
                         File Selected Successfully
                     </div>
                 </div>
@@ -1128,7 +1134,7 @@ class FileHandler {
                 <style>
                     @media (max-width: 768px) {
                         .file-info-details .file-name-section div:first-child {
-                            font-size: 1.4rem !important;
+                            font-size: 1.2rem !important;
                         }
                         .file-info-grid {
                             grid-template-columns: 1fr !important;
@@ -1140,10 +1146,10 @@ class FileHandler {
                     }
                     @media (max-width: 480px) {
                         .file-info-details .file-name-section div:first-child {
-                            font-size: 1.2rem !important;
+                            font-size: 1rem !important;
                         }
                         .file-info-details {
-                            padding: 15px !important;
+                            padding: 10px !important;
                         }
                     }
                 </style>

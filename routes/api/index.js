@@ -24,6 +24,7 @@ import multer from 'multer';
 import { isFeatureEnabled, setFeatureFlag, getAllFeatureFlags, resetFeatureFlags } from '../../server/feature-flags.js';
 import { v4 as uuidv4 } from 'uuid';
 import { logSSEEvent, handleSSEError, generateConnectionId, updateSSEMetrics } from '../../server/sse-logger.js';
+import fetch from 'node-fetch'; // Add this if not already present
 
 // Feature flags configuration object for easy access
 const featureFlags = {
@@ -1173,6 +1174,214 @@ router.get('/import/progress/:sessionId', (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
+
+/**
+ * GET /api/history
+ * Returns operation history for Import, Export, Delete, and Modify operations
+ */
+router.get('/history', async (req, res) => {
+    try {
+        const { limit = 50, type, population, startDate, endDate } = req.query;
+        
+        // Get logs from the existing logs endpoint
+        const logsResponse = await fetch(`http://localhost:4000/api/logs/ui?limit=1000`);
+        if (!logsResponse.ok) {
+            return res.status(500).json({
+                success: false,
+                error: 'Failed to fetch logs for history'
+            });
+        }
+        
+        const logsData = await logsResponse.json();
+        if (!logsData.success || !logsData.logs) {
+            return res.status(500).json({
+                success: false,
+                error: 'Invalid logs data'
+            });
+        }
+        
+        // Filter and transform logs into operation history
+        const operations = [];
+        const operationTypes = ['IMPORT', 'EXPORT', 'DELETE', 'MODIFY'];
+        
+        logsData.logs.forEach(log => {
+            // Look for operation-related logs
+            const message = log.message.toLowerCase();
+            const data = log.data || {};
+            
+            let operationType = null;
+            let operationData = {};
+            
+            // Determine operation type from log message and data
+            if (message.includes('import') || data.operation === 'import') {
+                operationType = 'IMPORT';
+                operationData = {
+                    fileName: data.fileName || data.filename || 'Unknown file',
+                    population: data.population || data.populationName || 'Unknown population',
+                    success: data.success || 0,
+                    errors: data.errors || 0,
+                    skipped: data.skipped || 0,
+                    total: data.total || 0
+                };
+            } else if (message.includes('export') || data.operation === 'export') {
+                operationType = 'EXPORT';
+                operationData = {
+                    fileName: data.fileName || 'Export file',
+                    population: data.population || data.populationName || 'All populations',
+                    recordCount: data.recordCount || data.userCount || 0,
+                    format: data.format || 'CSV',
+                    fileSize: data.fileSize || 'Unknown'
+                };
+            } else if (message.includes('delete') || data.operation === 'delete') {
+                operationType = 'DELETE';
+                operationData = {
+                    fileName: data.fileName || data.filename || 'No file',
+                    population: data.population || data.populationName || 'Unknown population',
+                    deleteCount: data.deleteCount || data.deleted || 0,
+                    total: data.total || 0,
+                    deleteType: data.deleteType || 'file'
+                };
+            } else if (message.includes('modify') || data.operation === 'modify') {
+                operationType = 'MODIFY';
+                operationData = {
+                    fileName: data.fileName || data.filename || 'Unknown file',
+                    population: data.population || data.populationName || 'Unknown population',
+                    success: data.success || 0,
+                    errors: data.errors || 0,
+                    skipped: data.skipped || 0,
+                    total: data.total || 0
+                };
+            }
+            
+            if (operationType) {
+                // Apply filters
+                if (type && operationType !== type.toUpperCase()) {
+                    return;
+                }
+                
+                if (population && !operationData.population.toLowerCase().includes(population.toLowerCase())) {
+                    return;
+                }
+                
+                const operationDate = new Date(log.timestamp);
+                if (startDate && operationDate < new Date(startDate)) {
+                    return;
+                }
+                
+                if (endDate && operationDate > new Date(endDate)) {
+                    return;
+                }
+                
+                operations.push({
+                    id: log.id,
+                    timestamp: log.timestamp,
+                    type: operationType,
+                    message: log.message,
+                    level: log.level,
+                    ...operationData,
+                    environmentId: data.environmentId || 'Unknown',
+                    userAgent: log.userAgent,
+                    ip: log.ip
+                });
+            }
+        });
+        
+        // Sort by timestamp (most recent first)
+        operations.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        
+        // Apply limit
+        const limitedOperations = operations.slice(0, parseInt(limit));
+        
+        res.json({
+            success: true,
+            operations: limitedOperations,
+            total: operations.length,
+            filtered: limitedOperations.length
+        });
+        
+    } catch (error) {
+        debugLog("History", `❌ History error: ${error.message}`);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch operation history',
+            details: error.message
+        });
+    }
+});
+
+/**
+ * GET /api/populations
+router.get('/populations', async (req, res) => {
+    try {
+        // Get token manager from Express app context
+        const tokenManager = req.app.get('tokenManager');
+        if (!tokenManager) {
+            return res.status(500).json({ success: false, error: 'Token manager not available' });
+        }
+        
+        // Get credentials for environmentId and region
+        const credentials = await tokenManager.getCredentials();
+        if (!credentials || !credentials.environmentId) {
+            return res.status(500).json({ success: false, error: 'Missing environment ID' });
+        }
+        
+        const { environmentId, region } = credentials;
+        
+        // Get access token
+        const token = await tokenManager.getAccessToken();
+        if (!token) {
+            return res.status(401).json({ success: false, error: 'Failed to get access token' });
+        }
+        
+        // Fetch populations from PingOne API
+        const populationsUrl = `https://api.pingone.com/v1/environments/${environmentId}/populations`;
+        const response = await fetch(populationsUrl, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            debugLog("Populations", `❌ Failed to fetch populations: ${response.status} ${errorText}`);
+            return res.status(response.status).json({
+                success: false,
+                error: `Failed to fetch populations: ${response.statusText}`,
+                details: errorText
+            });
+        }
+        
+        const data = await response.json();
+        const populations = data._embedded?.populations || [];
+        
+        debugLog("Populations", `✅ Fetched ${populations.length} populations`);
+        
+        // Format populations for frontend
+        const formattedPopulations = populations.map(population => ({
+            id: population.id,
+            name: population.name,
+            description: population.description || '',
+            userCount: population.userCount || 0
+        }));
+        
+        res.json({
+            success: true,
+            populations: formattedPopulations,
+            total: formattedPopulations.length
+        });
+        
+    } catch (error) {
+        debugLog("Populations", `❌ Populations error: ${error.message}`);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch populations',
+            details: error.message
+        });
+    }
+});
+
 router.post('/export-users', async (req, res, next) => {
     try {
         const { populationId, fields, format, ignoreDisabledUsers } = req.body;
@@ -2466,6 +2675,728 @@ router.post('/token', async (req, res) => {
         });
     }
 });
+
+// ============================================================================
+// DELETE USERS API ENDPOINT
+// ============================================================================
+
+/**
+ * @swagger
+ * /api/delete-users:
+ *   post:
+ *     summary: Delete users from PingOne environment
+ *     description: |
+ *       Deletes users from the PingOne environment based on the specified type:
+ *       - File-based: Delete users listed in uploaded CSV file
+ *       - Population-based: Delete all users in a specific population
+ *       - Environment-based: Delete ALL users in the environment (requires confirmation)
+ *       
+ *       ## Delete Types
+ *       1. **File-based**: Upload CSV with usernames/emails to delete specific users
+ *       2. **Population-based**: Delete all users in a selected population
+ *       3. **Environment-based**: Delete ALL users in the environment (IRREVERSIBLE)
+ *       
+ *       ## Security & Confirmation
+ *       - Environment deletion requires "DELETE ALL" text confirmation
+ *       - All deletions are logged for audit purposes
+ *       - Skip option available for missing users
+ *       
+ *       ## Response
+ *       Returns deletion statistics including count of deleted and skipped users
+ *     tags:
+ *       - User Management
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - type
+ *             properties:
+ *               type:
+ *                 type: string
+ *                 enum: [file, population, environment]
+ *                 description: Type of deletion to perform
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: CSV file with users to delete (for file-based deletion)
+ *               populationId:
+ *                 type: string
+ *                 description: Population ID to delete all users from (for population-based deletion)
+ *               confirmation:
+ *                 type: string
+ *                 description: "DELETE ALL" confirmation text (for environment-based deletion)
+ *               skipNotFound:
+ *                 type: boolean
+ *                 description: Skip users not found in the population
+ *     responses:
+ *       200:
+ *         description: Users deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 deletedCount:
+ *                   type: number
+ *                 skippedCount:
+ *                   type: number
+ *                 errors:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *       400:
+ *         description: Bad request - invalid parameters or missing confirmation
+ *       401:
+ *         description: Unauthorized - invalid or missing token
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/delete-users', upload.single('file'), async (req, res) => {
+    try {
+        debugLog("Delete", "🗑️ Delete users request received", { 
+            type: req.body.type,
+            hasFile: !!req.file,
+            populationId: req.body.populationId,
+            confirmation: req.body.confirmation ? 'PROVIDED' : 'MISSING'
+        });
+
+        const { type, populationId, confirmation, skipNotFound } = req.body;
+        const file = req.file;
+
+        // Validate delete type
+        if (!type || !['file', 'population', 'environment'].includes(type)) {
+            return res.status(400).json({
+                success: false,
+                error: "Invalid delete type. Must be 'file', 'population', or 'environment'"
+            });
+        }
+
+        // Get token manager
+        const tokenManager = req.app.get('tokenManager');
+        if (!tokenManager) {
+            return res.status(500).json({
+                success: false,
+                error: "Token manager not available"
+            });
+        }
+
+        // Get access token
+        const token = await tokenManager.getAccessToken();
+        if (!token) {
+            return res.status(401).json({
+                success: false,
+                error: "Failed to get access token"
+            });
+        }
+
+        // Get environment ID
+        const settingsResponse = await fetch('http://localhost:4000/api/settings');
+        if (!settingsResponse.ok) {
+            return res.status(500).json({
+                success: false,
+                error: "Failed to load settings"
+            });
+        }
+        const settingsData = await settingsResponse.json();
+        const settings = settingsData.success && settingsData.data ? settingsData.data : settingsData;
+        const environmentId = settings.environmentId;
+
+        if (!environmentId) {
+            return res.status(500).json({
+                success: false,
+                error: "Environment ID not configured"
+            });
+        }
+
+        let usersToDelete = [];
+        let deleteType = '';
+
+        // Prepare users to delete based on type
+        switch (type) {
+            case 'file':
+                if (!file) {
+                    return res.status(400).json({
+                        success: false,
+                        error: "File is required for file-based deletion"
+                    });
+                }
+                usersToDelete = await parseDeleteFile(file);
+                deleteType = 'FILE_BASED';
+                break;
+
+            case 'population':
+                if (!populationId) {
+                    return res.status(400).json({
+                        success: false,
+                        error: "Population ID is required for population-based deletion"
+                    });
+                }
+                usersToDelete = await getUsersInPopulation(token, environmentId, populationId);
+                deleteType = 'POPULATION_BASED';
+                break;
+
+            case 'environment':
+                if (confirmation !== 'DELETE ALL') {
+                    return res.status(400).json({
+                        success: false,
+                        error: "Environment deletion requires 'DELETE ALL' confirmation"
+                    });
+                }
+                usersToDelete = await getAllUsers(token, environmentId);
+                deleteType = 'FULL_ENVIRONMENT';
+                break;
+        }
+
+        debugLog("Delete", `📋 Users to delete prepared`, { 
+            count: usersToDelete.length,
+            type: deleteType
+        });
+
+        // Perform deletion
+        const result = await performUserDeletion(token, environmentId, usersToDelete, skipNotFound === 'true');
+
+        // Log the deletion operation
+        logDeleteOperation(req, deleteType, usersToDelete.length, result);
+
+        res.json({
+            success: true,
+            deletedCount: result.deletedCount,
+            skippedCount: result.skippedCount,
+            errors: result.errors,
+            message: `Successfully deleted ${result.deletedCount} users`
+        });
+
+    } catch (error) {
+        debugLog("Delete", "❌ Delete operation failed", { error: error.message });
+        
+        res.status(500).json({
+            success: false,
+            error: "Delete operation failed",
+            details: error.message
+        });
+    }
+});
+
+/**
+ * Parse CSV file for user deletion
+ */
+async function parseDeleteFile(file) {
+    const csvContent = file.buffer.toString('utf8');
+    const lines = csvContent.split('\n').filter(line => line.trim());
+    
+    if (lines.length < 2) {
+        throw new Error('CSV file must contain at least a header row and one data row');
+    }
+
+    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+    const users = [];
+
+    for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',').map(v => v.trim());
+        const user = {};
+        
+        headers.forEach((header, j) => {
+            user[header] = values[j] || '';
+        });
+
+        // Extract username or email
+        const username = user.username || user.email || user.user;
+        if (username) {
+            users.push({ username, lineNumber: i + 1 });
+        }
+    }
+
+    return users;
+}
+
+/**
+ * Get all users in a specific population
+ */
+async function getUsersInPopulation(token, environmentId, populationId) {
+    const url = `https://api.pingone.com/v1/environments/${environmentId}/populations/${populationId}/users`;
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error(`Failed to get users in population: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data._embedded.users.map(user => ({ 
+        username: user.username || user.email,
+        userId: user.id 
+    }));
+}
+
+/**
+ * Get all users in the environment
+ */
+async function getAllUsers(token, environmentId) {
+    const url = `https://api.pingone.com/v1/environments/${environmentId}/users`;
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error(`Failed to get all users: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data._embedded.users.map(user => ({ 
+        username: user.username || user.email,
+        userId: user.id 
+    }));
+}
+
+/**
+ * Perform the actual user deletion
+ */
+async function performUserDeletion(token, environmentId, users, skipNotFound) {
+    let deletedCount = 0;
+    let skippedCount = 0;
+    let errors = [];
+
+    for (const user of users) {
+        try {
+            // If we have userId, use it directly
+            if (user.userId) {
+                const deleteUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${user.userId}`;
+                const response = await fetch(deleteUrl, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    deletedCount++;
+                    debugLog("Delete", `✅ Deleted user: ${user.username}`);
+                } else if (response.status === 404 && skipNotFound) {
+                    skippedCount++;
+                    debugLog("Delete", `⏭️ Skipped user not found: ${user.username}`);
+                } else {
+                    const error = `Failed to delete user ${user.username}: ${response.statusText}`;
+                    errors.push(error);
+                    debugLog("Delete", `❌ ${error}`);
+                }
+            } else {
+                // Search for user by username/email first
+                const searchUrl = `https://api.pingone.com/v1/environments/${environmentId}/users?username=${encodeURIComponent(user.username)}`;
+                const searchResponse = await fetch(searchUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (searchResponse.ok) {
+                    const searchData = await searchResponse.json();
+                    if (searchData._embedded && searchData._embedded.users.length > 0) {
+                        const userId = searchData._embedded.users[0].id;
+                        const deleteUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}`;
+                        const deleteResponse = await fetch(deleteUrl, {
+                            method: 'DELETE',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            }
+                        });
+
+                        if (deleteResponse.ok) {
+                            deletedCount++;
+                            debugLog("Delete", `✅ Deleted user: ${user.username}`);
+                        } else {
+                            const error = `Failed to delete user ${user.username}: ${deleteResponse.statusText}`;
+                            errors.push(error);
+                            debugLog("Delete", `❌ ${error}`);
+                        }
+                    } else if (skipNotFound) {
+                        skippedCount++;
+                        debugLog("Delete", `⏭️ Skipped user not found: ${user.username}`);
+                    } else {
+                        const error = `User not found: ${user.username}`;
+                        errors.push(error);
+                        debugLog("Delete", `❌ ${error}`);
+                    }
+                } else {
+                    const error = `Failed to search for user ${user.username}: ${searchResponse.statusText}`;
+                    errors.push(error);
+                    debugLog("Delete", `❌ ${error}`);
+                }
+            }
+
+            // Add small delay to avoid rate limiting
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+        } catch (error) {
+            const errorMsg = `Error deleting user ${user.username}: ${error.message}`;
+            errors.push(errorMsg);
+            debugLog("Delete", `❌ ${errorMsg}`);
+        }
+    }
+
+    return { deletedCount, skippedCount, errors };
+}
+
+/**
+ * Log deletion operation for audit purposes
+ */
+function logDeleteOperation(req, deleteType, totalUsers, result) {
+    const logEntry = {
+        timestamp: new Date().toISOString(),
+        action: 'DELETE_USERS',
+        type: deleteType,
+        totalUsers,
+        deletedCount: result.deletedCount,
+        skippedCount: result.skippedCount,
+        errors: result.errors,
+        userAgent: req.get('User-Agent'),
+        ip: req.ip
+    };
+
+    // Log to console for debugging
+    debugLog("Delete", "📝 Delete operation logged", logEntry);
+
+    // TODO: Add to centralized logging system
+    // This could be sent to a logging service or stored in database
+}
+
+// ============================================================================
+// Export Token Management
+// ============================================================================
+
+/**
+ * Generate export-specific token with override credentials
+ * POST /api/export-token
+ */
+router.post('/export-token', async (req, res) => {
+    try {
+        debugLog("Export", "🔑 Generating export token with override credentials");
+        
+        const { environmentId, apiClientId, apiSecret, region } = req.body;
+        
+        // Validate required fields
+        if (!environmentId || !apiClientId || !apiSecret) {
+            return res.status(400).json({
+                success: false,
+                error: 'Missing required fields: environmentId, apiClientId, apiSecret'
+            });
+        }
+
+        // Determine region TLD
+        const regionInfo = getRegionInfo(region || 'NA');
+        const tokenUrl = `https://auth.pingone.${regionInfo.tld}/${environmentId}/as/token`;
+        
+        // Generate token using override credentials
+        const tokenResponse = await fetch(tokenUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                grant_type: 'client_credentials',
+                scope: 'openid export delete'
+            }),
+            auth: {
+                username: apiClientId,
+                password: apiSecret
+            }
+        });
+
+        if (!tokenResponse.ok) {
+            const errorText = await tokenResponse.text();
+            debugLog("Export", `❌ Token generation failed: ${tokenResponse.status} ${errorText}`);
+            return res.status(400).json({
+                success: false,
+                error: `Failed to generate token: ${tokenResponse.statusText}`,
+                details: errorText
+            });
+        }
+
+        const tokenData = await tokenResponse.json();
+        
+        // Calculate expiration time (60 minutes from now)
+        const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+        
+        debugLog("Export", "✅ Export token generated successfully", {
+            environmentId,
+            expiresAt,
+            scopes: tokenData.scope
+        });
+
+        // Log token generation for audit
+        logExportTokenGeneration(req, environmentId, expiresAt);
+
+        res.json({
+            success: true,
+            token: tokenData.access_token,
+            expiresAt: expiresAt,
+            scopes: tokenData.scope,
+            environmentId: environmentId
+        });
+
+    } catch (error) {
+        debugLog("Export", `❌ Error generating export token: ${error.message}`);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to generate export token',
+            details: error.message
+        });
+    }
+});
+
+/**
+ * Enhanced export users endpoint with credential override support
+ * POST /api/export-users
+ */
+router.post('/export-users', async (req, res) => {
+    try {
+        debugLog("Export", "📤 Starting enhanced export operation");
+        
+        const {
+            populationId,
+            populationName,
+            userStatusFilter,
+            format,
+            includeDisabled,
+            includeMetadata,
+            useOverrideCredentials,
+            exportToken
+        } = req.body;
+
+        // Validate population selection
+        if (!populationId) {
+            return res.status(400).json({
+                success: false,
+                error: 'Population ID is required'
+            });
+        }
+
+        // Get token based on credential override
+        let token;
+        let environmentId;
+        
+        if (useOverrideCredentials && exportToken) {
+            // Use override credentials and provided token
+            token = exportToken;
+            // Extract environment ID from token if possible
+            try {
+                const decoded = decodeJWT(exportToken);
+                environmentId = decoded.payload.env || req.app.get('environmentId');
+            } catch (error) {
+                environmentId = req.app.get('environmentId');
+            }
+            debugLog("Export", "🔑 Using override credentials for export");
+        } else {
+            // Use shared app credentials
+            token = req.app.get('token');
+            environmentId = req.app.get('environmentId');
+            debugLog("Export", "🔑 Using shared app credentials for export");
+        }
+
+        if (!token) {
+            return res.status(401).json({
+                success: false,
+                error: 'No valid token available for export'
+            });
+        }
+
+        // Build export URL based on population selection
+        let exportUrl;
+        if (populationId === 'ALL') {
+            exportUrl = `https://api.pingone.com/v1/environments/${environmentId}/users`;
+        } else {
+            exportUrl = `https://api.pingone.com/v1/environments/${environmentId}/populations/${populationId}/users`;
+        }
+
+        // Add query parameters for filtering
+        const params = new URLSearchParams();
+        if (userStatusFilter && userStatusFilter !== 'all') {
+            params.append('filter', `status eq "${userStatusFilter}"`);
+        }
+        if (!includeDisabled) {
+            params.append('filter', 'enabled eq true');
+        }
+
+        if (params.toString()) {
+            exportUrl += `?${params.toString()}`;
+        }
+
+        debugLog("Export", "📡 Fetching users for export", {
+            url: exportUrl,
+            populationId,
+            userStatusFilter,
+            includeDisabled
+        });
+
+        // Fetch users from PingOne API
+        const response = await fetch(exportUrl, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            debugLog("Export", `❌ Failed to fetch users: ${response.status} ${errorText}`);
+            return res.status(response.status).json({
+                success: false,
+                error: `Failed to fetch users: ${response.statusText}`,
+                details: errorText
+            });
+        }
+
+        const data = await response.json();
+        const users = data._embedded?.users || [];
+
+        debugLog("Export", `✅ Fetched ${users.length} users for export`);
+
+        // Process and format export data
+        const exportData = users.map(user => {
+            const userData = {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                givenName: user.name?.given,
+                familyName: user.name?.family,
+                status: user.enabled ? 'active' : 'inactive',
+                createdAt: user.createdAt,
+                updatedAt: user.updatedAt
+            };
+
+            // Add metadata if requested
+            if (includeMetadata && user.metadata) {
+                userData.metadata = user.metadata;
+            }
+
+            return userData;
+        });
+
+        // Format export data
+        let formattedData;
+        let filename;
+        let contentType;
+
+        if (format === 'json') {
+            formattedData = JSON.stringify(exportData, null, 2);
+            filename = `users_export_${populationName || populationId}_${new Date().toISOString().split('T')[0]}.json`;
+            contentType = 'application/json';
+        } else {
+            // CSV format
+            const headers = Object.keys(exportData[0] || {});
+            const csvRows = [
+                headers.join(','),
+                ...exportData.map(user => 
+                    headers.map(header => {
+                        const value = user[header];
+                        return typeof value === 'string' && value.includes(',') 
+                            ? `"${value.replace(/"/g, '""')}"` 
+                            : value || '';
+                    }).join(',')
+                )
+            ];
+            formattedData = csvRows.join('\n');
+            filename = `users_export_${populationName || populationId}_${new Date().toISOString().split('T')[0]}.csv`;
+            contentType = 'text/csv';
+        }
+
+        // Log export operation
+        logExportOperation(req, {
+            populationId,
+            populationName,
+            userCount: users.length,
+            format,
+            includeDisabled,
+            includeMetadata,
+            useOverrideCredentials
+        });
+
+        // Set response headers for file download
+        res.setHeader('Content-Type', contentType);
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.setHeader('Content-Length', Buffer.byteLength(formattedData, 'utf8'));
+
+        debugLog("Export", "✅ Export completed successfully", {
+            userCount: users.length,
+            format,
+            filename
+        });
+
+        res.send(formattedData);
+
+    } catch (error) {
+        debugLog("Export", `❌ Export error: ${error.message}`);
+        res.status(500).json({
+            success: false,
+            error: 'Export failed',
+            details: error.message
+        });
+    }
+});
+
+/**
+ * Decode JWT token for environment extraction
+ */
+function decodeJWT(token) {
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+        throw new Error('Invalid JWT format');
+    }
+    
+    const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
+    return { payload };
+}
+
+/**
+ * Log export token generation for audit
+ */
+function logExportTokenGeneration(req, environmentId, expiresAt) {
+    const logEntry = {
+        timestamp: new Date().toISOString(),
+        action: 'EXPORT_TOKEN_GENERATION',
+        environmentId,
+        expiresAt,
+        userAgent: req.get('User-Agent'),
+        ip: req.ip
+    };
+
+    debugLog("Export", "📝 Export token generation logged", logEntry);
+}
+
+/**
+ * Log export operation for audit
+ */
+function logExportOperation(req, operationData) {
+    const logEntry = {
+        timestamp: new Date().toISOString(),
+        action: 'EXPORT_USERS',
+        ...operationData,
+        userAgent: req.get('User-Agent'),
+        ip: req.ip
+    };
+
+    debugLog("Export", "📝 Export operation logged", logEntry);
+}
 
 // ============================================================================
 // Export the configured router with all API endpoints
