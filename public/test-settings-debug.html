@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings Debug Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        .button:hover { background: #0056b3; }
+        .output { background: #f8f9fa; padding: 10px; border-radius: 3px; margin: 10px 0; white-space: pre-wrap; }
+        .error { color: #dc3545; }
+        .success { color: #28a745; }
+        .info { color: #17a2b8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Settings Storage Debug Test</h1>
+        
+        <div class="section">
+            <h2>Test Settings Storage</h2>
+            <button class="button" onclick="testSaveSettings()">Save Test Settings</button>
+            <button class="button" onclick="testLoadSettings()">Load Settings</button>
+            <button class="button" onclick="checkLocalStorage()">Check localStorage</button>
+            <button class="button" onclick="clearSettings()">Clear Settings</button>
+            <div id="output" class="output"></div>
+        </div>
+        
+        <div class="section">
+            <h2>Manual localStorage Check</h2>
+            <button class="button" onclick="manualCheck()">Manual Check</button>
+            <div id="manual-output" class="output"></div>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            const timestamp = new Date().toISOString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+            output.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function manualLog(message, type = 'info') {
+            const output = document.getElementById('manual-output');
+            const timestamp = new Date().toISOString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+            output.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        async function testSaveSettings() {
+            try {
+                log('Testing settings save...');
+                
+                // Create test settings
+                const testSettings = {
+                    environmentId: 'test-env-123',
+                    apiClientId: 'test-client-456',
+                    apiSecret: 'test-secret-789',
+                    region: 'NA',
+                    rateLimit: 50
+                };
+                
+                // Save to localStorage directly
+                localStorage.setItem('pingone-import-settings', JSON.stringify(testSettings));
+                
+                log('Settings saved directly to localStorage', 'success');
+                
+                // Verify it was saved
+                const stored = localStorage.getItem('pingone-import-settings');
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    log(`Verified: Found ${Object.keys(parsed).length} settings in localStorage`, 'success');
+                    log(`Environment ID: ${parsed.environmentId}`, 'info');
+                    log(`API Client ID: ${parsed.apiClientId}`, 'info');
+                } else {
+                    log('ERROR: Settings not found in localStorage after save', 'error');
+                }
+                
+            } catch (error) {
+                log(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testLoadSettings() {
+            try {
+                log('Testing settings load...');
+                
+                const stored = localStorage.getItem('pingone-import-settings');
+                if (!stored) {
+                    log('No settings found in localStorage', 'info');
+                    return;
+                }
+                
+                const parsed = JSON.parse(stored);
+                log(`Loaded ${Object.keys(parsed).length} settings`, 'success');
+                log(`Environment ID: ${parsed.environmentId || 'not set'}`, 'info');
+                log(`API Client ID: ${parsed.apiClientId || 'not set'}`, 'info');
+                log(`Region: ${parsed.region || 'not set'}`, 'info');
+                
+            } catch (error) {
+                log(`Error loading settings: ${error.message}`, 'error');
+            }
+        }
+
+        function checkLocalStorage() {
+            try {
+                log('Checking localStorage contents...');
+                
+                const keys = Object.keys(localStorage);
+                log(`Found ${keys.length} items in localStorage`, 'info');
+                
+                keys.forEach(key => {
+                    if (key.includes('pingone')) {
+                        const value = localStorage.getItem(key);
+                        log(`Key: ${key}`, 'info');
+                        log(`Value length: ${value ? value.length : 0}`, 'info');
+                        if (value && value.length < 200) {
+                            log(`Value preview: ${value}`, 'info');
+                        }
+                    }
+                });
+                
+            } catch (error) {
+                log(`Error checking localStorage: ${error.message}`, 'error');
+            }
+        }
+
+        function clearSettings() {
+            try {
+                log('Clearing settings...');
+                localStorage.removeItem('pingone-import-settings');
+                log('Settings cleared', 'success');
+            } catch (error) {
+                log(`Error clearing settings: ${error.message}`, 'error');
+            }
+        }
+
+        function manualCheck() {
+            try {
+                manualLog('Manual localStorage check...');
+                
+                // Check if localStorage is available
+                try {
+                    localStorage.setItem('test', 'test');
+                    localStorage.removeItem('test');
+                    manualLog('localStorage is available', 'success');
+                } catch (e) {
+                    manualLog('localStorage is NOT available', 'error');
+                    return;
+                }
+                
+                // Check for our settings key
+                const settingsKey = 'pingone-import-settings';
+                const stored = localStorage.getItem(settingsKey);
+                
+                if (!stored) {
+                    manualLog(`No data found for key: ${settingsKey}`, 'info');
+                    return;
+                }
+                
+                manualLog(`Found data for key: ${settingsKey}`, 'success');
+                manualLog(`Data length: ${stored.length}`, 'info');
+                
+                // Try to parse as JSON
+                try {
+                    const parsed = JSON.parse(stored);
+                    manualLog('Data is valid JSON', 'success');
+                    manualLog(`Keys: ${Object.keys(parsed).join(', ')}`, 'info');
+                    
+                    if (parsed.environmentId) {
+                        manualLog(`Environment ID: ${parsed.environmentId}`, 'info');
+                    }
+                    if (parsed.apiClientId) {
+                        manualLog(`API Client ID: ${parsed.apiClientId}`, 'info');
+                    }
+                    
+                } catch (jsonError) {
+                    manualLog('Data is not valid JSON, might be encrypted', 'info');
+                    manualLog(`JSON error: ${jsonError.message}`, 'error');
+                }
+                
+            } catch (error) {
+                manualLog(`Error in manual check: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run manual check on page load
+        window.addEventListener('load', () => {
+            log('Settings debug page loaded', 'info');
+            manualCheck();
+        });
+    </script>
+</body>
+</html> 
