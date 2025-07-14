@@ -497,14 +497,35 @@ class CredentialsModal {
 
 // Initialize credentials modal when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    // Only show credentials modal if disclaimer is accepted and credentials modal hasn't been shown
-    if (CredentialsModal.shouldShowCredentialsModal()) {
+    console.log('Credentials Modal: DOMContentLoaded event fired');
+    console.log('Disclaimer accepted:', DisclaimerModal.isDisclaimerAccepted());
+    console.log('Credentials modal shown:', localStorage.getItem('credentialsModalShown'));
+    console.log('Should show credentials modal:', CredentialsModal.shouldShowCredentialsModal());
+    
+    // Check if disclaimer is already accepted (user returning)
+    if (DisclaimerModal.isDisclaimerAccepted() && CredentialsModal.shouldShowCredentialsModal()) {
+        console.log('Credentials Modal: Showing modal for returning user');
         // Small delay to ensure disclaimer modal is fully closed
         setTimeout(() => {
             new CredentialsModal();
             CredentialsModal.setCredentialsModalShown();
-        }, 500);
+        }, 1000);
     }
+});
+
+// Listen for disclaimer completion events
+document.addEventListener('disclaimerAccepted', (event) => {
+    console.log('Credentials Modal: Disclaimer accepted event received', event.detail);
+    // Wait a bit longer for disclaimer modal to fully close
+    setTimeout(() => {
+        console.log('Credentials Modal: Checking if should show after disclaimer');
+        console.log('Should show credentials modal:', CredentialsModal.shouldShowCredentialsModal());
+        if (CredentialsModal.shouldShowCredentialsModal()) {
+            console.log('Credentials Modal: Creating modal after disclaimer acceptance');
+            new CredentialsModal();
+            CredentialsModal.setCredentialsModalShown();
+        }
+    }, 1500);
 });
 
 // Export for testing
