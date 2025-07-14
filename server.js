@@ -700,9 +700,23 @@ const startServer = async () => {
             // Don't crash the server for individual WebSocket errors
         });
         
+        // Add ping/pong to keep connection alive and detect issues
+        ws.isAlive = true;
+        ws.on('pong', () => {
+            ws.isAlive = true;
+        });
+        
         ws.on('message', (msg) => {
             try {
-                const { sessionId } = JSON.parse(msg);
+                // Handle ping messages
+                if (msg.toString() === 'ping') {
+                    ws.send('pong');
+                    return;
+                }
+                
+                // Parse JSON messages
+                const data = JSON.parse(msg);
+                const { sessionId } = data;
                 if (sessionId) {
                     global.wsClients.set(sessionId, ws);
                     ws.sessionId = sessionId;
@@ -710,14 +724,51 @@ const startServer = async () => {
             } catch (error) {
                 logger.warn('Failed to parse WebSocket message', {
                     error: error.message,
-                    message: msg.toString()
+                    message: msg.toString().substring(0, 100)
                 });
             }
         });
         
-        ws.on('close', () => {
+        ws.on('close', (code, reason) => {
+            logger.info('WebSocket connection closed', {
+                code,
+                reason: reason?.toString(),
+                sessionId: ws.sessionId
+            });
             if (ws.sessionId) global.wsClients.delete(ws.sessionId);
         });
+        
+        // Send initial connection confirmation
+        try {
+            ws.send(JSON.stringify({ type: 'connected', timestamp: Date.now() }));
+        } catch (error) {
+            logger.warn('Failed to send WebSocket welcome message', {
+                error: error.message
+            });
+        }
+    });
+    
+    // Set up ping interval to detect stale connections
+    const pingInterval = setInterval(() => {
+        wss.clients.forEach((ws) => {
+            if (ws.isAlive === false) {
+                logger.info('Terminating stale WebSocket connection');
+                return ws.terminate();
+            }
+            ws.isAlive = false;
+            try {
+                ws.ping();
+            } catch (error) {
+                logger.warn('Failed to ping WebSocket connection', {
+                    error: error.message
+                });
+            }
+        });
+    }, 30000); // Ping every 30 seconds
+    
+    // Clean up interval on server close
+    wss.on('close', () => {
+        clearInterval(pingInterval);
     });
 
     // --- Socket Connection Test on Startup ---
@@ -726,27 +777,48 @@ const startServer = async () => {
             logger.info('Testing socket connections on startup...');
             
             // Test Socket.IO endpoint
-            const socketIoTest = new Promise((resolve, reject) => {
+            const socketIoTest = (async () => {
                 const timeout = setTimeout(() => {
-                    reject(new Error('Socket.IO test timeout'));
+                    throw new Error('Socket.IO test timeout');
                 }, 5000);
                 
-                const testSocket = io.sockets.connect(`http://127.0.0.1:${PORT}`, {
-                    timeout: 3000,
-                    forceNew: true
-                });
-                
-                testSocket.on('connect', () => {
+                try {
+                    // Create a simple HTTP request to test Socket.IO endpoint
+                    const http = await import('http');
+                    const options = {
+                        hostname: '127.0.0.1',
+                        port: PORT,
+                        path: '/socket.io/',
+                        method: 'GET'
+                    };
+                    
+                    return new Promise((resolve, reject) => {
+                        const req = http.request(options, (res) => {
+                            clearTimeout(timeout);
+                            if (res.statusCode === 200) {
+                                resolve('Socket.IO endpoint accessible');
+                            } else {
+                                reject(new Error(`Socket.IO endpoint returned status ${res.statusCode}`));
+                            }
+                        });
+                        
+                        req.on('error', (error) => {
+                            clearTimeout(timeout);
+                            reject(new Error(`Socket.IO endpoint error: ${error.message}`));
+                        });
+                        
+                        req.setTimeout(3000, () => {
+                            clearTimeout(timeout);
+                            reject(new Error('Socket.IO endpoint timeout'));
+                        });
+                        
+                        req.end();
+                    });
+                } catch (error) {
                     clearTimeout(timeout);
-                    testSocket.disconnect();
-                    resolve('Socket.IO connection successful');
-                });
-                
-                testSocket.on('connect_error', (error) => {
-                    clearTimeout(timeout);
-                    reject(new Error(`Socket.IO connection failed: ${error.message}`));
-                });
-            });
+                    throw new Error(`Socket.IO test setup failed: ${error.message}`);
+                }
+            })();
             
             // Test WebSocket endpoint
             const webSocketTest = (async () => {
