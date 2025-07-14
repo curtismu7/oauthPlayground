@@ -415,6 +415,56 @@ async function fetchDefaultPopulation(environmentId, clientId, clientSecret) {
 }
 
 // Get settings
+/**
+ * @swagger
+ * /api/settings:
+ *   get:
+ *     summary: Get application settings
+ *     description: |
+ *       Retrieves the current application settings including PingOne API credentials,
+ *       environment configuration, and rate limiting settings.
+ *       
+ *       ## Settings Data
+ *       - **Environment ID**: PingOne environment identifier
+ *       - **API Client ID**: PingOne client ID for authentication
+ *       - **API Secret**: Encrypted PingOne client secret
+ *       - **Population ID**: Default population for operations
+ *       - **Region**: PingOne region (NorthAmerica, Europe, AsiaPacific)
+ *       - **Rate Limit**: API rate limiting configuration
+ *       
+ *       ## Security
+ *       - API secrets are masked in responses for security
+ *       - Only the last 4 characters are shown for verification
+ *       - Full secrets are never returned in responses
+ *       
+ *       ## Storage
+ *       Settings are stored in a JSON file with encryption for sensitive data.
+ *       Environment variables are also updated for runtime access.
+ *     tags: [Settings]
+ *     responses:
+ *       200:
+ *         description: Settings retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SettingsResponse'
+ *             example:
+ *               success: true
+ *               data: {
+ *                 environmentId: "b9817c16-9910-4415-b67e-4ac687da74d9",
+ *                 apiClientId: "26e7f07c-11a4-402a-b064-07b55aee189e",
+ *                 apiSecret: "enc:9p3hLItWFzw5BxKjH3.~TIGVPP~uj4os6fY93170dMvXadn1GEsWTP2lHSTAoevq",
+ *                 populationId: "3840c98d-202d-4f6a-8871-f3bc66cb3fa8",
+ *                 region: "NorthAmerica",
+ *                 rateLimit: 90
+ *               }
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 router.get("/", async (req, res) => {
     try {
         const settings = await readSettings();
@@ -441,6 +491,102 @@ router.get("/", async (req, res) => {
 });
 
 // Update settings
+/**
+ * @swagger
+ * /api/settings:
+ *   post:
+ *     summary: Update application settings
+ *     description: |
+ *       Updates the application settings including PingOne API credentials,
+ *       environment configuration, and rate limiting settings.
+ *       
+ *       ## Settings Update
+ *       - **Partial Updates**: Only provided fields are updated
+ *       - **Secret Preservation**: API secrets are preserved if not provided
+ *       - **Validation**: Required fields are validated before saving
+ *       - **Encryption**: Sensitive data is encrypted before storage
+ *       
+ *       ## Required Fields
+ *       - **environmentId**: PingOne environment identifier
+ *       - **apiClientId**: PingOne client ID for authentication
+ *       - **apiSecret**: PingOne client secret (will be encrypted)
+ *       
+ *       ## Optional Fields
+ *       - **populationId**: Default population for operations
+ *       - **region**: PingOne region (defaults to NorthAmerica)
+ *       - **rateLimit**: API rate limiting (defaults to 100)
+ *       
+ *       ## Security Features
+ *       - API secrets are encrypted before storage
+ *       - Existing secrets are preserved if not provided
+ *       - Environment variables are updated for runtime access
+ *       - Validation prevents saving placeholder values
+ *       
+ *       ## Storage
+ *       Settings are saved to a JSON file and environment variables
+ *       are updated for immediate use by the application.
+ *     tags: [Settings]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/SettingsUpdateRequest'
+ *           example:
+ *             environmentId: "b9817c16-9910-4415-b67e-4ac687da74d9"
+ *             apiClientId: "26e7f07c-11a4-402a-b064-07b55aee189e"
+ *             apiSecret: "your-client-secret"
+ *             populationId: "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+ *             region: "NorthAmerica"
+ *             rateLimit: 90
+ *     responses:
+ *       200:
+ *         description: Settings updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Settings updated successfully"
+ *                 settings:
+ *                   type: object
+ *                   properties:
+ *                     environmentId:
+ *                       type: string
+ *                       example: "***74d9"
+ *                     apiClientId:
+ *                       type: string
+ *                       example: "***189e"
+ *                     apiSecret:
+ *                       type: string
+ *                       example: "***oevq"
+ *                     populationId:
+ *                       type: string
+ *                       example: "***3fa8"
+ *                     region:
+ *                       type: string
+ *                       example: "NorthAmerica"
+ *       400:
+ *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               success: false
+ *               error: "Environment ID cannot be empty if provided"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 router.post("/", express.json(), async (req, res) => {
     try {
         const newSettings = { ...req.body };

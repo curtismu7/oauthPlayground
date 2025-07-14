@@ -192,6 +192,23 @@
             color: white;
             border-color: #007bff;
         }
+        
+        #token-status-bar {
+            padding: 8px 12px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #dee2e6;
+            font-size: 0.85em;
+        }
+        
+        #token-status-bar .status-indicator {
+            width: 8px;
+            height: 8px;
+        }
+        
+        #token-status {
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -208,6 +225,10 @@
                     <div>
                         <span class="status-indicator status-online"></span>
                         <span id="server-status">Server Online</span>
+                    </div>
+                    <div id="token-status-bar" class="d-flex align-items-center gap-2">
+                        <span class="status-indicator status-offline"></span>
+                        <span id="token-status">Token: Checking...</span>
                     </div>
                 </div>
             </div>
@@ -239,59 +260,61 @@
                 /api/settings
             </h4>
             <p class="endpoint-description">Update PingOne configuration settings</p>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="param-group">
-                        <label>Environment ID:</label>
-                        <input type="text" class="form-control" id="settings-env-id" placeholder="env-123456">
+            <form id="settings-form" onsubmit="testSettingsAPI(event)">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="param-group">
+                            <label for="settings-env-id">Environment ID:</label>
+                            <input type="text" class="form-control" id="settings-env-id" name="environmentId" placeholder="env-123456">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="param-group">
+                            <label for="settings-client-id">API Client ID:</label>
+                            <input type="text" class="form-control" id="settings-client-id" name="clientId" placeholder="client-123456">
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="param-group">
-                        <label>API Client ID:</label>
-                        <input type="text" class="form-control" id="settings-client-id" placeholder="client-123456">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="param-group">
+                            <label for="settings-secret">API Secret:</label>
+                            <input type="password" class="form-control" id="settings-secret" name="secret" placeholder="Your API secret">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="param-group">
+                            <label for="settings-pop-id">Population ID:</label>
+                            <input type="text" class="form-control" id="settings-pop-id" name="populationId" placeholder="pop-123456">
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="param-group">
-                        <label>API Secret:</label>
-                        <input type="password" class="form-control" id="settings-secret" placeholder="Your API secret">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="param-group">
+                            <label for="settings-region">Region:</label>
+                            <select class="form-control" id="settings-region" name="region">
+                                <option value="NA">North America (excluding Canada)</option>
+                                <option value="CA">Canada</option>
+                                <option value="EU">European Union</option>
+                                <option value="AU">Australia</option>
+                                <option value="SG">Singapore</option>
+                                <option value="AP">Asia-Pacific</option>
+                            </select>
+                            <small class="form-text text-muted">Use region code: NA, CA, EU, AU, SG, AP</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="param-group">
+                            <label for="settings-rate-limit">Rate Limit:</label>
+                            <input type="number" class="form-control" id="settings-rate-limit" name="rateLimit" value="100" min="1" max="1000">
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="param-group">
-                        <label>Population ID:</label>
-                        <input type="text" class="form-control" id="settings-pop-id" placeholder="pop-123456">
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="param-group">
-                        <label>Region:</label>
-                        <select class="form-control" id="settings-region">
-                            <option value="NA">North America (excluding Canada)</option>
-                            <option value="CA">Canada</option>
-                            <option value="EU">European Union</option>
-                            <option value="AU">Australia</option>
-                            <option value="SG">Singapore</option>
-                            <option value="AP">Asia-Pacific</option>
-                        </select>
-                        <small class="form-text text-muted">Use region code: NA, CA, EU, AU, SG, AP</small>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="param-group">
-                        <label>Rate Limit:</label>
-                        <input type="number" class="form-control" id="settings-rate-limit" value="100" min="1" max="1000">
-                    </div>
-                </div>
-            </div>
-            <button class="btn btn-primary" onclick="testSettingsAPI()">
-                <i class="fas fa-paper-plane"></i> Test Settings API
-            </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i> Test Settings API
+                </button>
+            </form>
             <div id="settings-response" class="response-area" style="display: none;"></div>
         </div>
 
@@ -308,6 +331,153 @@
             <div id="connection-response" class="response-area" style="display: none;"></div>
         </div>
 
+        <!-- Import API -->
+        <div class="api-endpoint">
+            <h4>
+                <span class="method-badge method-post">POST</span>
+                /api/import
+            </h4>
+            <p class="endpoint-description">Import users to PingOne from CSV file</p>
+            
+            <!-- Population Selection -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="param-group">
+                        <label for="import-population-dropdown">Select Population:</label>
+                        <select class="form-control" id="import-population-dropdown" onchange="updateImportPopulationFields()">
+                            <option value="">-- Select a population --</option>
+                        </select>
+                        <small class="form-text text-muted">Choose a population to auto-fill ID and Name fields</small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="param-group">
+                        <label>Population Status:</label>
+                        <div id="import-population-status" class="form-text">
+                            <span class="text-muted">Click "Load Populations" to fetch available populations</span>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="loadImportPopulations()">
+                            <i class="fas fa-sync-alt"></i> Load Populations
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="param-group">
+                        <label>CSV File:</label>
+                        <input type="file" class="form-control" id="import-file" accept=".csv">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="param-group">
+                        <label>Population ID:</label>
+                        <input type="text" class="form-control" id="import-pop-id" placeholder="a83ccc54-6a98-4754-a15e-dcb5b8b027ed" readonly>
+                        <small class="form-text text-muted">Auto-filled when population is selected</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="param-group">
+                        <label>Population Name:</label>
+                        <input type="text" class="form-control" id="import-pop-name" placeholder="Sample Users" readonly>
+                        <small class="form-text text-muted">Auto-filled when population is selected</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="param-group">
+                        <label>Total Users (optional):</label>
+                        <input type="number" class="form-control" id="import-total-users" min="1">
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-warning" onclick="testImportAPI()">
+                <i class="fas fa-upload"></i> Test Import API
+            </button>
+            <div id="import-response" class="response-area" style="display: none;"></div>
+        </div>
+
+        <!-- Modify API -->
+        <div class="api-endpoint">
+            <h4>
+                <span class="method-badge method-post">POST</span>
+                /api/modify
+            </h4>
+            <p class="endpoint-description">Modify users in PingOne from CSV file</p>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="param-group">
+                        <label>CSV File:</label>
+                        <input type="file" class="form-control" id="modify-file" accept=".csv">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="param-group">
+                        <label>Population ID:</label>
+                        <input type="text" class="form-control" id="modify-pop-id" placeholder="a83ccc54-6a98-4754-a15e-dcb5b8b027ed">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="param-group">
+                        <label>Population Name:</label>
+                        <input type="text" class="form-control" id="modify-pop-name" placeholder="Sample Users">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="param-group">
+                        <label>Total Users (optional):</label>
+                        <input type="number" class="form-control" id="modify-total-users" min="1">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="param-group">
+                        <label>Create If Not Exists:</label>
+                        <select class="form-control" id="modify-create-if-not-exists">
+                            <option value="false">No</option>
+                            <option value="true">Yes</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="param-group">
+                        <label>Default Enabled:</label>
+                        <select class="form-control" id="modify-default-enabled">
+                            <option value="true">True</option>
+                            <option value="false">False</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="param-group">
+                        <label>Generate Passwords:</label>
+                        <select class="form-control" id="modify-generate-passwords">
+                            <option value="false">No</option>
+                            <option value="true">Yes</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-info" onclick="testModifyAPI()">
+                <i class="fas fa-edit"></i> Test Modify API
+            </button>
+            <div id="modify-response" class="response-area" style="display: none;"></div>
+        </div>
+
+        <!-- Token API -->
+        <div class="api-endpoint">
+            <h4>
+                <span class="method-badge method-post">POST</span>
+                /api/token
+            </h4>
+            <p class="endpoint-description">Get PingOne Worker Access Token</p>
+            <button class="btn btn-success" onclick="testTokenAPI()">
+                <i class="fas fa-key"></i> Test Token API
+            </button>
+            <div id="token-response" class="response-area" style="display: none;"></div>
+        </div>
+
         <!-- Export API -->
         <div class="api-endpoint">
             <h4>
@@ -316,13 +486,13 @@
             </h4>
             <p class="endpoint-description">Export users from PingOne population</p>
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="param-group">
                         <label>Population ID:</label>
                         <input type="text" class="form-control" id="export-pop-id" placeholder="a83ccc54-6a98-4754-a15e-dcb5b8b027ed">
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="param-group">
                         <label>Format:</label>
                         <select class="form-control" id="export-format">
@@ -331,14 +501,18 @@
                         </select>
                     </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="param-group">
-                        <label>Fields (comma-separated):</label>
-                        <input type="text" class="form-control" id="export-fields" placeholder="username,email,firstName,lastName">
+                        <label>Fields:</label>
+                        <select class="form-control" id="export-fields">
+                            <option value="all">All</option>
+                            <option value="basic">Basic</option>
+                            <option value="custom">Custom</option>
+                        </select>
                     </div>
                 </div>
+            </div>
+            <div class="row">
                 <div class="col-md-6">
                     <div class="param-group">
                         <label>Ignore Disabled Users:</label>
@@ -353,33 +527,6 @@
                 <i class="fas fa-download"></i> Test Export API
             </button>
             <div id="export-response" class="response-area" style="display: none;"></div>
-        </div>
-
-        <!-- Import API -->
-        <div class="api-endpoint">
-            <h4>
-                <span class="method-badge method-post">POST</span>
-                /api/modify
-            </h4>
-            <p class="endpoint-description">Import users to PingOne from CSV file</p>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="param-group">
-                        <label>CSV File:</label>
-                        <input type="file" class="form-control" id="import-file" accept=".csv">
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="param-group">
-                        <label>Population ID (optional):</label>
-                        <input type="text" class="form-control" id="import-pop-id" placeholder="a83ccc54-6a98-4754-a15e-dcb5b8b027ed">
-                    </div>
-                </div>
-            </div>
-            <button class="btn btn-warning" onclick="testImportAPI()">
-                <i class="fas fa-upload"></i> Test Import API
-            </button>
-            <div id="import-response" class="response-area" style="display: none;"></div>
         </div>
 
         <!-- Populations API -->
@@ -735,6 +882,15 @@
         await checkServerStatus();
         await loadCurrentSettings();
         watchTokenStatusBar();
+        
+        // Initialize token status immediately on startup
+        try {
+            updateTokenStatus('checking', 'Checking token...');
+            await fetchToken();
+        } catch (error) {
+            console.error('Initial token check failed:', error);
+            updateTokenStatus('error', 'Token unavailable');
+        }
     });
 
     // =============================
@@ -771,7 +927,22 @@
                 document.getElementById('settings-rate-limit').value = settings.rateLimit || 100;
                 document.getElementById('export-pop-id').value = settings.populationId || '';
                 document.getElementById('import-pop-id').value = settings.populationId || '';
+                document.getElementById('modify-pop-id').value = settings.populationId || '';
+                document.getElementById('modify-pop-name').value = settings.populationName || '';
+                document.getElementById('modify-total-users').value = settings.totalUsers || '';
+                document.getElementById('modify-create-if-not-exists').value = settings.createIfNotExists || 'false';
+                document.getElementById('modify-default-enabled').value = settings.defaultEnabled || 'true';
+                document.getElementById('modify-generate-passwords').value = settings.generatePasswords || 'false';
             }
+            // Update region select to use API values
+            document.getElementById('settings-region').innerHTML = `
+                <option value="NorthAmerica">North America (excluding Canada)</option>
+                <option value="Europe">Europe</option>
+                <option value="AsiaPacific">Asia Pacific</option>
+                <option value="Canada">Canada</option>
+                <option value="Australia">Australia</option>
+                <option value="Singapore">Singapore</option>
+            `;
         } catch (error) {
             console.error('Failed to load settings:', error);
         }
@@ -811,6 +982,8 @@
     async function realCSVImport() {
         const fileInput = document.getElementById('import-file');
         const popId = document.getElementById('import-pop-id').value;
+        const popName = document.getElementById('import-pop-name').value;
+        const totalUsers = document.getElementById('import-total-users').value;
         const resultsDiv = document.getElementById('import-simulation-results');
         if (!fileInput.files[0]) {
             resultsDiv.innerHTML = '<div class="alert alert-danger">Please select a CSV file.</div>';
@@ -819,6 +992,8 @@
         const formData = new FormData();
         formData.append('file', fileInput.files[0]);
         if (popId) formData.append('populationId', popId);
+        if (popName) formData.append('populationName', popName);
+        if (totalUsers) formData.append('totalUsers', totalUsers);
         // Start import and listen for SSE
         try {
             const importResponse = await fetch('/api/import', { method: 'POST', body: formData });
@@ -909,19 +1084,709 @@
     }
 
     // =============================
-    // TOKEN STATUS BAR
+    // ENHANCED TOKEN MANAGEMENT
     // =============================
+    
+    // Token management variables
+    let pingOneToken = null;
+    let tokenExpiry = 0;
+    let tokenRefreshTimeout = null;
+    let isFetchingToken = false;
+    let requestQueue = [];
+    let isProcessingQueue = false;
+    
+    // Enhanced token fetch with queue management
+    async function fetchToken() {
+        // Prevent multiple simultaneous token requests
+        if (isFetchingToken) {
+            return new Promise((resolve) => {
+                requestQueue.push(resolve);
+            });
+        }
+        
+        isFetchingToken = true;
+        
+        try {
+            const res = await fetch('/api/token', { 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!res.ok) {
+                throw new Error(`Token fetch failed: ${res.status} ${res.statusText}`);
+            }
+            
+            const data = await res.json();
+            
+            if (data.success && data.data && data.data.access_token) {
+                pingOneToken = data.data.access_token;
+                tokenExpiry = Date.now() + (data.data.expires_in * 1000);
+                
+                // Set up automatic refresh 1 minute before expiry
+                const refreshTime = tokenExpiry - (60 * 1000); // 1 minute before expiry
+                const timeUntilRefresh = Math.max(0, refreshTime - Date.now());
+                
+                if (tokenRefreshTimeout) {
+                    clearTimeout(tokenRefreshTimeout);
+                }
+                
+                tokenRefreshTimeout = setTimeout(() => {
+                    console.log('Token expiring soon, refreshing...');
+                    pingOneToken = null;
+                    fetchToken();
+                }, timeUntilRefresh);
+                
+                updateTokenStatus('valid', 'Token valid');
+                console.log('Token fetched successfully');
+                
+                // Process queued requests
+                processRequestQueue();
+                
+                return pingOneToken;
+            } else {
+                throw new Error('Invalid token response format');
+            }
+        } catch (error) {
+            console.error('Token fetch failed:', error);
+            updateTokenStatus('error', 'Token fetch failed');
+            throw error;
+        } finally {
+            isFetchingToken = false;
+        }
+    }
+    
+    // Ensure token is valid before making requests
+    async function ensureValidToken() {
+        if (!pingOneToken || Date.now() >= tokenExpiry - (60 * 1000)) {
+            console.log('Token invalid or expiring soon, refreshing...');
+            await fetchToken();
+        }
+        return pingOneToken;
+    }
+    
+    // Process queued requests
+    async function processRequestQueue() {
+        if (isProcessingQueue || requestQueue.length === 0) {
+            return;
+        }
+        
+        isProcessingQueue = true;
+        
+        while (requestQueue.length > 0) {
+            const resolve = requestQueue.shift();
+            try {
+                const token = await ensureValidToken();
+                resolve(token);
+            } catch (error) {
+                resolve(null);
+            }
+        }
+        
+        isProcessingQueue = false;
+    }
+    
+    // Update token status display
+    function updateTokenStatus(status, message) {
+        const tokenBar = document.getElementById('token-status-bar');
+        const tokenStatus = document.getElementById('token-status');
+        const statusIndicator = tokenBar?.querySelector('.status-indicator');
+        
+        if (!tokenBar || !tokenStatus) {
+            console.warn('[api-tester] Token status elements not found');
+            return;
+        }
+        
+        // Update status indicator
+        if (statusIndicator) {
+            statusIndicator.className = 'status-indicator';
+            switch (status) {
+                case 'valid':
+                    statusIndicator.classList.add('status-online');
+                    break;
+                case 'error':
+                    statusIndicator.classList.add('status-offline');
+                    break;
+                case 'checking':
+                    statusIndicator.classList.add('status-offline');
+                    break;
+            }
+        }
+        
+        // Update status text with expiry information if available
+        let displayMessage = message;
+        if (status === 'valid' && tokenExpiry > 0) {
+            const timeRemaining = Math.max(0, tokenExpiry - Date.now());
+            const minutesRemaining = Math.floor(timeRemaining / (1000 * 60));
+            if (minutesRemaining > 0) {
+                displayMessage = `Valid (${minutesRemaining}m remaining)`;
+            } else {
+                displayMessage = 'Valid (expiring soon)';
+            }
+        }
+        
+        tokenStatus.textContent = `Token: ${displayMessage}`;
+    }
+    
+    // Enhanced token status bar watcher
     function watchTokenStatusBar() {
         const tokenBar = document.getElementById('token-status-bar');
-        setInterval(() => {
-            const token = localStorage.getItem('pingone_token');
-            if (token) {
-                // Optionally decode JWT and show expiry countdown
-                tokenBar.textContent = 'Token present';
-            } else {
-                tokenBar.textContent = 'No token';
+        if (!tokenBar) {
+            console.warn('[api-tester] token-status-bar element not found, skipping token status updates.');
+            return;
+        }
+        
+        // Periodic token validation (every 5 minutes)
+        setInterval(async () => {
+            try {
+                await ensureValidToken();
+            } catch (error) {
+                console.error('Periodic token validation failed:', error);
             }
+        }, 5 * 60 * 1000); // 5 minutes
+    }
+
+    // =============================
+    // API TEST FUNCTIONS
+    // =============================
+    
+    async function testConnectionAPI() {
+        const responseDiv = document.getElementById('connection-response');
+        responseDiv.style.display = 'block';
+        responseDiv.innerHTML = '<div class="loading">Testing Connection API...</div>';
+        
+        try {
+            // Ensure valid token before making request
+            await ensureValidToken();
+            
+            const response = await fetch('/api/pingone/test-connection', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            // Handle 401 responses by refreshing token and retrying
+            if (response.status === 401) {
+                console.log('Token expired (401 response), refreshing...');
+                pingOneToken = null;
+                tokenExpiry = 0;
+                
+                try {
+                    await fetchToken();
+                    console.log('Token refreshed successfully, retrying request');
+                    
+                    // Retry the request with fresh token
+                    const retryResponse = await fetch('/api/pingone/test-connection', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    const retryData = await retryResponse.json();
+                    
+                    if (retryResponse.ok) {
+                        responseDiv.innerHTML = `
+                            <div class="alert alert-success">
+                                <h5>✅ Connection Test Successful (with token refresh)</h5>
+                                <p><strong>Status:</strong> ${retryResponse.status} ${retryResponse.statusText}</p>
+                                <p><strong>Message:</strong> ${retryData.message || 'Connection successful'}</p>
+                                <p><strong>Note:</strong> Token was automatically refreshed</p>
+                                <details>
+                                    <summary>Response Details</summary>
+                                    <pre>${JSON.stringify(retryData, null, 2)}</pre>
+                                </details>
+                            </div>
+                        `;
+                        logToUIAndConsole('Connection API test successful (with token refresh)', retryData, 'success');
+                    } else {
+                        throw new Error(retryData.message || `HTTP ${retryResponse.status}: ${retryResponse.statusText}`);
+                    }
+                } catch (refreshError) {
+                    throw new Error(`Token refresh failed: ${refreshError.message}`);
+                }
+            } else {
+                const data = await response.json();
+                
+                if (response.ok) {
+                    responseDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            <h5>✅ Connection Test Successful</h5>
+                            <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                            <p><strong>Message:</strong> ${data.message || 'Connection successful'}</p>
+                            <details>
+                                <summary>Response Details</summary>
+                                <pre>${JSON.stringify(data, null, 2)}</pre>
+                            </details>
+                        </div>
+                    `;
+                    logToUIAndConsole('Connection API test successful', data, 'success');
+                } else {
+                    throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
+                }
+            }
+        } catch (error) {
+            responseDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <h5>❌ Connection Test Failed</h5>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <details>
+                        <summary>Error Details</summary>
+                        <pre>${error.stack || error.toString()}</pre>
+                    </details>
+                </div>
+            `;
+            logToUIAndConsole('Connection API test failed', error, 'error');
+        }
+    }
+
+    async function testImportAPI() {
+        const fileInput = document.getElementById('import-file');
+        const popId = document.getElementById('import-pop-id').value;
+        const popName = document.getElementById('import-pop-name').value;
+        const totalUsers = document.getElementById('import-total-users').value;
+        const responseDiv = document.getElementById('import-response');
+        
+        if (!fileInput.files[0]) {
+            responseDiv.style.display = 'block';
+            responseDiv.innerHTML = '<div class="alert alert-danger">Please select a CSV file.</div>';
+            return;
+        }
+        
+        responseDiv.style.display = 'block';
+        responseDiv.innerHTML = '<div class="loading">Testing Import API...</div>';
+        
+        try {
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            if (popId) formData.append('populationId', popId);
+            if (popName) formData.append('populationName', popName);
+            if (totalUsers) formData.append('totalUsers', totalUsers);
+            
+            const response = await fetch('/api/import', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                responseDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <h5>✅ Import API Test Successful</h5>
+                        <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                        <p><strong>Session ID:</strong> ${data.sessionId || 'N/A'}</p>
+                        <p><strong>Message:</strong> ${data.message || 'Import started successfully'}</p>
+                        <details>
+                            <summary>Response Details</summary>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </details>
+                    </div>
+                `;
+                logToUIAndConsole('Import API test successful', data, 'success');
+            } else {
+                throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
+            }
+        } catch (error) {
+            responseDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <h5>❌ Import API Test Failed</h5>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <details>
+                        <summary>Error Details</summary>
+                        <pre>${error.stack || error.toString()}</pre>
+                    </details>
+                </div>
+            `;
+            logToUIAndConsole('Import API test failed', error, 'error');
+        }
+    }
+
+    async function testModifyAPI() {
+        const fileInput = document.getElementById('modify-file');
+        const popId = document.getElementById('modify-pop-id').value;
+        const popName = document.getElementById('modify-pop-name').value;
+        const totalUsers = document.getElementById('modify-total-users').value;
+        const createIfNotExists = document.getElementById('modify-create-if-not-exists').value;
+        const defaultEnabled = document.getElementById('modify-default-enabled').value;
+        const generatePasswords = document.getElementById('modify-generate-passwords').value;
+        const responseDiv = document.getElementById('modify-response');
+        
+        if (!fileInput.files[0]) {
+            responseDiv.style.display = 'block';
+            responseDiv.innerHTML = '<div class="alert alert-danger">Please select a CSV file.</div>';
+            return;
+        }
+        
+        responseDiv.style.display = 'block';
+        responseDiv.innerHTML = '<div class="loading">Testing Modify API...</div>';
+        
+        try {
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            if (popId) formData.append('populationId', popId);
+            if (popName) formData.append('populationName', popName);
+            if (totalUsers) formData.append('totalUsers', totalUsers);
+            formData.append('createIfNotExists', createIfNotExists);
+            formData.append('defaultEnabled', defaultEnabled);
+            formData.append('generatePasswords', generatePasswords);
+            
+            const response = await fetch('/api/modify', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                responseDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <h5>✅ Modify API Test Successful</h5>
+                        <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                        <p><strong>Session ID:</strong> ${data.sessionId || 'N/A'}</p>
+                        <p><strong>Message:</strong> ${data.message || 'Modify operation started successfully'}</p>
+                        <details>
+                            <summary>Response Details</summary>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </details>
+                    </div>
+                `;
+                logToUIAndConsole('Modify API test successful', data, 'success');
+            } else {
+                throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
+            }
+        } catch (error) {
+            responseDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <h5>❌ Modify API Test Failed</h5>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <details>
+                        <summary>Error Details</summary>
+                        <pre>${error.stack || error.toString()}</pre>
+                    </details>
+                </div>
+            `;
+            logToUIAndConsole('Modify API test failed', error, 'error');
+        }
+    }
+
+    async function testTokenAPI() {
+        const responseDiv = document.getElementById('token-response');
+        responseDiv.style.display = 'block';
+        responseDiv.innerHTML = '<div class="loading">Testing Token API...</div>';
+        
+        try {
+            const response = await fetch('/api/token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                responseDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <h5>✅ Token API Test Successful</h5>
+                        <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                        <p><strong>Token:</strong> ${data.token ? data.token.slice(0, 32) + '...' : 'N/A'}</p>
+                        <p><strong>Message:</strong> ${data.message || 'Token retrieved successfully'}</p>
+                        <details>
+                            <summary>Response Details</summary>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </details>
+                    </div>
+                `;
+                logToUIAndConsole('Token API test successful', data, 'success');
+            } else {
+                throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
+            }
+        } catch (error) {
+            responseDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <h5>❌ Token API Test Failed</h5>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <details>
+                        <summary>Error Details</summary>
+                        <pre>${error.stack || error.toString()}</pre>
+                    </details>
+                </div>
+            `;
+            logToUIAndConsole('Token API test failed', error, 'error');
+        }
+    }
+
+    async function testExportAPI() {
+        const popId = document.getElementById('export-pop-id').value;
+        const format = document.getElementById('export-format').value;
+        const fields = document.getElementById('export-fields').value;
+        const ignoreDisabled = document.getElementById('export-ignore-disabled').value;
+        const responseDiv = document.getElementById('export-response');
+        
+        if (!popId) {
+            responseDiv.style.display = 'block';
+            responseDiv.innerHTML = '<div class="alert alert-danger">Please enter a Population ID.</div>';
+            return;
+        }
+        
+        responseDiv.style.display = 'block';
+        responseDiv.innerHTML = '<div class="loading">Testing Export API...</div>';
+        
+        try {
+            const response = await fetch('/api/export-users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    populationId: popId,
+                    format: format,
+                    fields: fields,
+                    ignoreDisabled: ignoreDisabled === 'true'
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                responseDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <h5>✅ Export API Test Successful</h5>
+                        <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                        <p><strong>Message:</strong> ${data.message || 'Export completed successfully'}</p>
+                        <details>
+                            <summary>Response Details</summary>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </details>
+                    </div>
+                `;
+                logToUIAndConsole('Export API test successful', data, 'success');
+            } else {
+                throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
+            }
+        } catch (error) {
+            responseDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <h5>❌ Export API Test Failed</h5>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <details>
+                        <summary>Error Details</summary>
+                        <pre>${error.stack || error.toString()}</pre>
+                    </details>
+                </div>
+            `;
+            logToUIAndConsole('Export API test failed', error, 'error');
+        }
+    }
+
+    // =============================
+    // POPULATION DROPDOWN FUNCTIONS
+    // =============================
+    
+    // Global variable to store populations
+    let importPopulations = [];
+    
+    // Load populations for Import API dropdown
+    async function loadImportPopulations() {
+        const dropdown = document.getElementById('import-population-dropdown');
+        const statusDiv = document.getElementById('import-population-status');
+        
+        // Update status
+        statusDiv.innerHTML = '<span class="text-info"><i class="fas fa-spinner fa-spin"></i> Loading populations...</span>';
+        
+        try {
+            const response = await fetch('/api/pingone/populations', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const populations = await response.json();
+            importPopulations = Array.isArray(populations) ? populations : [];
+            
+            // Clear existing options except the first one
+            dropdown.innerHTML = '<option value="">-- Select a population --</option>';
+            
+            // Add population options
+            importPopulations.forEach(population => {
+                const option = document.createElement('option');
+                option.value = population.id;
+                option.textContent = `${population.name} (${population.id.slice(-8)})`;
+                option.setAttribute('data-population-name', population.name);
+                dropdown.appendChild(option);
+            });
+            
+            // Update status
+            if (importPopulations.length > 0) {
+                statusDiv.innerHTML = `<span class="text-success"><i class="fas fa-check"></i> Loaded ${importPopulations.length} populations</span>`;
+            } else {
+                statusDiv.innerHTML = '<span class="text-warning"><i class="fas fa-exclamation-triangle"></i> No populations found</span>';
+            }
+            
+            logToUIAndConsole('Import populations loaded successfully', { count: importPopulations.length }, 'success');
+            
+        } catch (error) {
+            console.error('Error loading import populations:', error);
+            statusDiv.innerHTML = `<span class="text-danger"><i class="fas fa-times"></i> Error loading populations: ${error.message}</span>`;
+            logToUIAndConsole('Failed to load import populations', error, 'error');
+        }
+    }
+    
+    // Update population fields when dropdown selection changes
+    function updateImportPopulationFields() {
+        const dropdown = document.getElementById('import-population-dropdown');
+        const popIdField = document.getElementById('import-pop-id');
+        const popNameField = document.getElementById('import-pop-name');
+        
+        const selectedValue = dropdown.value;
+        
+        if (selectedValue) {
+            const selectedPopulation = importPopulations.find(pop => pop.id === selectedValue);
+            if (selectedPopulation) {
+                popIdField.value = selectedPopulation.id;
+                popNameField.value = selectedPopulation.name;
+                logToUIAndConsole('Population fields updated', { 
+                    id: selectedPopulation.id, 
+                    name: selectedPopulation.name 
+                }, 'info');
+            }
+        } else {
+            // Clear fields if no population is selected
+            popIdField.value = '';
+            popNameField.value = '';
+        }
+    }
+    
+    // Auto-load populations when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load populations after a short delay to ensure page is ready
+        setTimeout(() => {
+            loadImportPopulations();
         }, 1000);
+    });
+
+    async function testPopulationsAPI() {
+        const responseDiv = document.getElementById('populations-response');
+        responseDiv.style.display = 'block';
+        responseDiv.innerHTML = '<div class="loading">Testing Populations API...</div>';
+        
+        try {
+            const response = await fetch('/api/pingone/populations', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                responseDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <h5>✅ Populations API Test Successful</h5>
+                        <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                        <p><strong>Count:</strong> ${data.populations ? data.populations.length : 0} populations found</p>
+                        <p><strong>Message:</strong> ${data.message || 'Populations retrieved successfully'}</p>
+                        <details>
+                            <summary>Response Details</summary>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </details>
+                    </div>
+                `;
+                logToUIAndConsole('Populations API test successful', data, 'success');
+            } else {
+                throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
+            }
+        } catch (error) {
+            responseDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <h5>❌ Populations API Test Failed</h5>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <details>
+                        <summary>Error Details</summary>
+                        <pre>${error.stack || error.toString()}</pre>
+                    </details>
+                </div>
+            `;
+            logToUIAndConsole('Populations API test failed', error, 'error');
+        }
+    }
+
+    // Implement testSettingsAPI function
+    async function testSettingsAPI(event) {
+        if (event) {
+            event.preventDefault();
+        }
+        
+        const responseDiv = document.getElementById('settings-response');
+        responseDiv.style.display = 'block';
+        responseDiv.innerHTML = '<div class="loading">Testing Settings API...</div>';
+        
+        try {
+            // Get form data
+            const formData = new FormData(document.getElementById('settings-form'));
+            const settings = {
+                environmentId: formData.get('environmentId'),
+                apiClientId: formData.get('clientId'),
+                apiSecret: formData.get('secret'),
+                populationId: formData.get('populationId'),
+                region: formData.get('region'),
+                rateLimit: parseInt(formData.get('rateLimit')) || 100
+            };
+            
+            // Validate required fields
+            if (!settings.environmentId || !settings.apiClientId || !settings.apiSecret) {
+                throw new Error('Environment ID, API Client ID, and API Secret are required');
+            }
+            
+            // Test the settings API
+            const response = await fetch('/api/settings', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(settings)
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                responseDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <h5>✅ Settings API Test Successful</h5>
+                        <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                        <p><strong>Message:</strong> ${data.message || 'Settings updated successfully'}</p>
+                        <details>
+                            <summary>Response Details</summary>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </details>
+                    </div>
+                `;
+                logToUIAndConsole('Settings API test successful', data, 'success');
+            } else {
+                throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
+            }
+        } catch (error) {
+            responseDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <h5>❌ Settings API Test Failed</h5>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <details>
+                        <summary>Error Details</summary>
+                        <pre>${error.stack || error.toString()}</pre>
+                    </details>
+                </div>
+            `;
+            logToUIAndConsole('Settings API test failed', error, 'error');
+        }
     }
 
     // =============================
@@ -931,7 +1796,11 @@
         const logArea = document.getElementById('logs-test-results');
         const timestamp = new Date().toLocaleTimeString();
         const html = `<div class='alert alert-${type}'>[${timestamp}] ${message}<br><code>${JSON.stringify(data)}</code></div>`;
-        logArea.innerHTML = html + logArea.innerHTML;
+        if (logArea) {
+            logArea.innerHTML = html + logArea.innerHTML;
+        } else {
+            console.warn('[api-tester] logs-test-results element not found. Log:', message, data);
+        }
         console.log(`[${type.toUpperCase()}] ${message}`, data);
     }
 
@@ -946,7 +1815,7 @@
     <!-- Footer -->
     <footer class="app-footer">
       <div class="footer-content">
-        <div class="footer-logo">
+        <div class="footer-logo-bg">
           <img src="/ping-identity-logo.svg" alt="Ping Identity Logo" height="28" width="auto" loading="lazy" />
         </div>
         <div class="footer-text">

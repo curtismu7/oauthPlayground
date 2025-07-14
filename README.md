@@ -91,7 +91,7 @@ A comprehensive web-based tool for managing PingOne user imports, exports, and m
 4. Save settings
 
 ### API Documentation
-- Access Swagger UI at `/swagger/html`
+- Access Swagger UI at `/swagger.html`
 - View OpenAPI spec at `/swagger.json`
 - Test API endpoints directly from the interface
 
@@ -259,7 +259,7 @@ The tool supports multiple PingOne regions with production-ready selection and v
 
 ## 🧪 API Documentation & Testing
 
-- **Swagger UI**: Access at `/swagger/html` or `/api-docs` for interactive API documentation and live testing.
+- **Swagger UI**: Access at `/swagger.html` or `/api-docs` for interactive API documentation and live testing.
 - **Region and Progress Endpoints**: All region codes and progress endpoints are documented and testable in Swagger UI.
 - **API Tester**: Use `public/api-tester.html` for comprehensive UI and API testing, including region and progress features.
 

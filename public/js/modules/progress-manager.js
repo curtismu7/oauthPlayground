@@ -32,53 +32,28 @@ const DEBUG_MODE = process.env.NODE_ENV !== 'production';
  */
 class ProgressManager {
     constructor() {
-        // Initialize Winston logger
-        this.logger = createWinstonLogger({
-            service: 'pingone-progress',
-            environment: process.env.NODE_ENV || 'development'
-        });
-
-        // Operation state tracking
+        this.logger = createWinstonLogger('pingone-progress');
+        this.isEnabled = true; // Will be set to false if progress container is not found
         this.currentOperation = null;
-        this.operationStartTime = null;
-        this.operationStats = {
+        this.currentSessionId = null;
+        this.isActive = false;
+        this.startTime = null;
+        this.timingInterval = null;
+        this.progressCallback = null;
+        this.completeCallback = null;
+        this.cancelCallback = null;
+        this.duplicateHandlingMode = 'skip';
+        
+        // Stats tracking
+        this.stats = {
             processed: 0,
-            total: 0,
             success: 0,
             failed: 0,
             skipped: 0,
-            duplicates: 0
+            total: 0
         };
-
-        // Progress UI elements
-        this.progressContainer = null;
-        this.progressBar = null;
-        this.progressText = null;
-        this.progressDetails = null;
-        this.operationStatus = null;
-        this.cancelButton = null;
-        this.stepIndicator = null;
-        this.timeElapsed = null;
-        this.etaDisplay = null;
-
-        // SSE connection
-        this.sseConnection = null;
-        this.sessionId = null;
-
-        // Duplicate handling
-        this.duplicateUsers = [];
-        this.duplicateHandlingMode = 'skip'; // 'skip', 'add', 'prompt'
-
-        // Event listeners
-        this.onProgressUpdate = null;
-        this.onOperationComplete = null;
-        this.onOperationCancel = null;
-
-        this.progressTimeout = null; // Timeout for first progress event
-        this.progressReceived = false; // Track if any progress event was received
-
-        // Initialize
-        this.initialize();
+        
+        this.logger.debug('ProgressManager initialized');
     }
 
     /**
@@ -103,7 +78,8 @@ class ProgressManager {
             this.progressContainer = document.getElementById('progress-container');
             
             if (!this.progressContainer) {
-                this.logger.error('Progress container not found in HTML');
+                this.logger.warn('Progress container not found in HTML - progress functionality will be disabled');
+                this.isEnabled = false;
                 return;
             }
 
@@ -261,6 +237,7 @@ class ProgressManager {
             this.logger.debug('Enhanced progress elements setup completed');
         } catch (error) {
             this.logger.error('Error setting up progress elements', { error: error.message });
+            this.isEnabled = false;
         }
     }
 
@@ -269,6 +246,10 @@ class ProgressManager {
      */
     setupEventListeners() {
         try {
+            if (!this.progressContainer) {
+                this.logger.warn('Cannot set up event listeners: progress container not present');
+                return;
+            }
             // Cancel button
             if (this.cancelButton) {
                 this.cancelButton.addEventListener('click', () => {
@@ -296,6 +277,11 @@ class ProgressManager {
      */
     startOperation(operationType, options = {}) {
         try {
+            if (!this.isEnabled) {
+                this.logger.warn('Progress manager is disabled - operation will proceed without progress UI');
+                return;
+            }
+            
             this.currentOperation = operationType;
             this.operationStartTime = Date.now();
             this.resetOperationStats();
@@ -343,23 +329,27 @@ class ProgressManager {
     initializeSSEConnection(sessionId) {
         try {
             if (!sessionId) {
-                this.logger.warn('No session ID provided for SSE connection');
-                this.updateOperationStatus('warning', 'Unable to track progress: session context missing. Operation will continue without real-time updates.');
+                this.logger.warn('No session ID provided for SSE connection - will be updated when received from backend');
+                this.updateOperationStatus('info', 'Operation started. Real-time progress will be available once connection is established.');
                 return;
             }
 
-            // Use session manager to validate session ID
-            if (!sessionManager.validateSessionId(sessionId)) {
-                this.logger.error('Invalid session ID format', { sessionId, type: typeof sessionId });
-                this.updateOperationStatus('error', 'Invalid session ID format. Real-time progress tracking unavailable.');
-                return;
-            }
+            // Use session manager to validate session ID if available
+            if (typeof sessionManager !== 'undefined' && sessionManager.validateSessionId) {
+                if (!sessionManager.validateSessionId(sessionId)) {
+                    this.logger.error('Invalid session ID format', { sessionId, type: typeof sessionId });
+                    this.updateOperationStatus('error', 'Invalid session ID format. Real-time progress tracking unavailable.');
+                    return;
+                }
 
-            // Register session with session manager
-            sessionManager.registerSession(sessionId, this.currentOperation || 'unknown', {
-                startTime: this.operationStartTime,
-                stats: this.operationStats
-            });
+                // Register session with session manager
+                sessionManager.registerSession(sessionId, this.currentOperation || 'unknown', {
+                    startTime: this.operationStartTime,
+                    stats: this.operationStats
+                });
+            } else {
+                this.logger.warn('Session manager not available - proceeding without session validation');
+            }
 
             this.sessionId = sessionId;
             
@@ -410,11 +400,15 @@ class ProgressManager {
                 return;
             }
 
-            // Use session manager to validate session ID
-            if (!sessionManager.validateSessionId(sessionId)) {
-                this.logger.error('Invalid session ID provided for update', { sessionId });
-                this.updateOperationStatus('error', 'Invalid session ID format. Real-time progress tracking unavailable.');
-                return;
+            // Use session manager to validate session ID if available
+            if (typeof sessionManager !== 'undefined' && sessionManager.validateSessionId) {
+                if (!sessionManager.validateSessionId(sessionId)) {
+                    this.logger.error('Invalid session ID provided for update', { sessionId });
+                    this.updateOperationStatus('error', 'Invalid session ID format. Real-time progress tracking unavailable.');
+                    return;
+                }
+            } else {
+                this.logger.warn('Session manager not available - proceeding without session validation');
             }
 
             this.logger.info('Updating session ID', { sessionId });
@@ -535,6 +529,10 @@ class ProgressManager {
      */
     updateStatsDisplay() {
         try {
+            if (!this.progressContainer) {
+                this.logger.warn('Cannot update stats display: progress container not present');
+                return;
+            }
             const statElements = {
                 processed: this.progressContainer.querySelector('.stat-value.processed'),
                 success: this.progressContainer.querySelector('.stat-value.success'),
@@ -800,14 +798,26 @@ class ProgressManager {
     showProgress() {
         try {
             if (this.progressContainer) {
-                this.progressContainer.style.display = 'block';
-                
-                // Add animation class
-                setTimeout(() => {
-                    this.progressContainer.classList.add('visible');
-                }, 10);
-                
-                this.logger.debug('Progress shown');
+                // Find the progress overlay within the container
+                const progressOverlay = this.progressContainer.querySelector('.progress-overlay');
+                if (progressOverlay) {
+                    // Show the overlay
+                    progressOverlay.style.display = 'flex';
+                    
+                    // Add visible class for animation
+                    setTimeout(() => {
+                        progressOverlay.classList.add('visible');
+                    }, 10);
+                    
+                    this.logger.debug('Progress overlay shown');
+                } else {
+                    // Fallback: show the container directly
+                    this.progressContainer.style.display = 'block';
+                    setTimeout(() => {
+                        this.progressContainer.classList.add('visible');
+                    }, 10);
+                    this.logger.debug('Progress container shown (fallback)');
+                }
             }
         } catch (error) {
             this.logger.error('Error showing progress', { error: error.message });
@@ -820,15 +830,26 @@ class ProgressManager {
     hideProgress() {
         try {
             if (this.progressContainer) {
-                // Remove visible class for smooth transition
-                this.progressContainer.classList.remove('visible');
-                
-                // Hide after transition
-                setTimeout(() => {
-                    this.progressContainer.style.display = 'none';
-                }, 300);
-                
-                this.logger.debug('Progress hidden');
+                // Find the progress overlay within the container
+                const progressOverlay = this.progressContainer.querySelector('.progress-overlay');
+                if (progressOverlay) {
+                    // Remove visible class for smooth transition
+                    progressOverlay.classList.remove('visible');
+                    
+                    // Hide after transition
+                    setTimeout(() => {
+                        progressOverlay.style.display = 'none';
+                    }, 300);
+                    
+                    this.logger.debug('Progress overlay hidden');
+                } else {
+                    // Fallback: hide the container directly
+                    this.progressContainer.classList.remove('visible');
+                    setTimeout(() => {
+                        this.progressContainer.style.display = 'none';
+                    }, 300);
+                    this.logger.debug('Progress container hidden (fallback)');
+                }
             }
         } catch (error) {
             this.logger.error('Error hiding progress', { error: error.message });
@@ -840,6 +861,10 @@ class ProgressManager {
      */
     updateOperationTitle(operationType) {
         try {
+            if (!this.progressContainer) {
+                this.logger.warn('Cannot update operation title: progress container not present');
+                return;
+            }
             const titleElement = this.progressContainer.querySelector('.title-text');
             if (titleElement) {
                 const titles = {
@@ -860,6 +885,10 @@ class ProgressManager {
      */
     updateOperationDetails(options = {}) {
         try {
+            if (!this.progressContainer) {
+                this.logger.warn('Cannot update operation details: progress container not present');
+                return;
+            }
             const details = {
                 'operation-type': options.operationType || '-',
                 'population-name': options.populationName || '-',

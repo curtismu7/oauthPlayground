@@ -44,7 +44,7 @@ After Render finishes building and deploying:
 
 - `https://<your-render-app>.onrender.com/api/health`  
   - Should return HTTP 200 and JSON with `"status": "ok"` and a valid `"pingOneTokenStatus"`
-- `https://<your-render-app>.onrender.com/swagger/html`  
+- `https://<your-render-app>.onrender.com/swagger.html`  
   - Should load the Swagger UI and show your live API endpoints
 - `https://<your-render-app>.onrender.com/import`  
   - Should render the import dashboard with no errors
@@ -56,7 +56,7 @@ After Render finishes building and deploying:
 const fetch = require('node-fetch');
 const endpoints = [
   '/api/health',
-  '/swagger/html',
+  '/swagger.html',
   '/import'
 ];
 const base = 'https://<your-render-app>.onrender.com';

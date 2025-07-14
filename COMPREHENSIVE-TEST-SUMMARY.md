@@ -24,7 +24,7 @@ After completing the directory structure reorganization, comprehensive tests wer
 
 ### 🌐 Frontend Tests
 - **✅ Main Page**: `/` - HTML loads correctly
-- **✅ Swagger UI**: `/swagger/html` - Documentation accessible
+- **✅ Swagger UI**: `/swagger.html` - Documentation accessible
 - **✅ Favicon**: `/favicon.ico` - Icon loads correctly
 - **✅ Static Assets**: All CSS and JS files accessible
 
