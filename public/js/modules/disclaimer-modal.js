@@ -219,6 +219,11 @@ class DisclaimerModal {
         // Enable application functionality
         this.enableApplication();
         
+        // Dispatch custom event for other components to listen to
+        document.dispatchEvent(new CustomEvent('disclaimerAccepted', {
+            detail: { timestamp: new Date().toISOString() }
+        }));
+        
         // Announce to screen readers
         this.announceToScreenReader('Disclaimer accepted. Application is now enabled.');
     }
