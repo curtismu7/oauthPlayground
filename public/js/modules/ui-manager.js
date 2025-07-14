@@ -750,6 +750,89 @@ class UIManager {
             this.logger.info('Status message details', { type, message, details });
         }
     }
+
+    /**
+     * Show export status
+     */
+    showExportStatus() {
+        try {
+            this.showStatusBar('Export operation started', 'info');
+            this.logger.info('Export status shown');
+        } catch (error) {
+            this.logger.error('Error showing export status', { error: error.message });
+        }
+    }
+
+    /**
+     * Update export progress
+     */
+    updateExportProgress(current, total, message, counts = {}) {
+        try {
+            progressManager.updateProgress(current, total, message, {
+                ...counts,
+                operation: 'export'
+            });
+            this.logger.debug('Export progress updated', { current, total, message });
+        } catch (error) {
+            this.logger.error('Error updating export progress', { error: error.message });
+        }
+    }
+
+    /**
+     * Show delete status
+     */
+    showDeleteStatus(totalUsers, populationName, populationId) {
+        try {
+            this.showStatusBar(`Delete operation started for ${totalUsers} users in ${populationName}`, 'warning');
+            this.logger.info('Delete status shown', { totalUsers, populationName, populationId });
+        } catch (error) {
+            this.logger.error('Error showing delete status', { error: error.message });
+        }
+    }
+
+    /**
+     * Update delete progress
+     */
+    updateDeleteProgress(current, total, message, counts = {}, populationName = '', populationId = '') {
+        try {
+            progressManager.updateProgress(current, total, message, {
+                ...counts,
+                population: populationName,
+                populationId: populationId,
+                operation: 'delete'
+            });
+            this.logger.debug('Delete progress updated', { current, total, message, populationName });
+        } catch (error) {
+            this.logger.error('Error updating delete progress', { error: error.message });
+        }
+    }
+
+    /**
+     * Show modify status
+     */
+    showModifyStatus(totalUsers) {
+        try {
+            this.showStatusBar(`Modify operation started for ${totalUsers} users`, 'info');
+            this.logger.info('Modify status shown', { totalUsers });
+        } catch (error) {
+            this.logger.error('Error showing modify status', { error: error.message });
+        }
+    }
+
+    /**
+     * Update modify progress
+     */
+    updateModifyProgress(current, total, message, counts = {}) {
+        try {
+            progressManager.updateProgress(current, total, message, {
+                ...counts,
+                operation: 'modify'
+            });
+            this.logger.debug('Modify progress updated', { current, total, message });
+        } catch (error) {
+            this.logger.error('Error updating modify progress', { error: error.message });
+        }
+    }
 }
 
 // Create and export default instance

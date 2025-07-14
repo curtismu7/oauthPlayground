@@ -13,8 +13,18 @@ class DeleteManager {
         this.deleteTextConfirmation = '';
         this.logger = console;
         
-        this.initializeEventListeners();
-        this.loadPopulations();
+        // Only initialize if we're on a page with delete functionality
+        if (document.getElementById('delete-file-section') || 
+            document.getElementById('delete-population-section') || 
+            document.getElementById('delete-environment-section') ||
+            document.getElementById('start-delete')) {
+            try {
+                this.initializeEventListeners();
+                this.loadPopulations();
+            } catch (error) {
+                console.warn('DeleteManager initialization warning:', error);
+            }
+        }
     }
 
     initializeEventListeners() {
@@ -204,12 +214,26 @@ class DeleteManager {
 
     async loadPopulations() {
         try {
+            // Check if population select element exists before making API call
+            const populationSelect = document.getElementById('delete-population-select');
+            if (!populationSelect) {
+                console.log('Delete population select not found, skipping population load');
+                return;
+            }
+            
             this.logPopulationLoadStart();
             const response = await fetch('/api/populations');
             if (response.ok) {
-                const populations = await response.json();
-                this.populatePopulationSelect(populations);
-                this.logPopulationLoadSuccess(populations.length);
+                const data = await response.json();
+                // Handle the API response structure: { success: true, populations: [...], total: 123 }
+                const populations = data.populations || data;
+                if (Array.isArray(populations)) {
+                    this.populatePopulationSelect(populations);
+                    this.logPopulationLoadSuccess(populations.length);
+                } else {
+                    console.error('Invalid populations data format:', populations);
+                    this.logPopulationLoadError('Invalid populations data format');
+                }
             } else {
                 console.error('Failed to load populations');
                 this.logPopulationLoadError('Failed to load populations');
@@ -416,135 +440,163 @@ class DeleteManager {
 
     // Enhanced logging methods
     logDeleteTypeChange() {
-        if (window.logManager) {
+        if (window.logManager && typeof window.logManager.log === 'function') {
             window.logManager.log('info', 'Delete type changed', {
                 type: this.currentDeleteType,
                 timestamp: new Date().toISOString()
             });
+        } else {
+            console.info('Delete type changed:', { type: this.currentDeleteType, timestamp: new Date().toISOString() });
         }
     }
 
     logFileSelection(file) {
-        if (window.logManager) {
+        if (window.logManager && typeof window.logManager.log === 'function') {
             window.logManager.log('info', 'File selected for deletion', {
                 fileName: file.name,
                 fileSize: file.size,
                 fileType: file.type,
                 timestamp: new Date().toISOString()
             });
+        } else {
+            console.info('File selected for deletion:', { fileName: file.name, fileSize: file.size, fileType: file.type });
         }
     }
 
     logFileValidationError(error, details) {
-        if (window.logManager) {
+        if (window.logManager && typeof window.logManager.log === 'function') {
             window.logManager.log('warn', 'File validation failed', {
                 error: error,
                 details: details,
                 timestamp: new Date().toISOString()
             });
+        } else {
+            console.warn('File validation failed:', { error, details, timestamp: new Date().toISOString() });
         }
     }
 
     logFileValidationSuccess(file) {
-        if (window.logManager) {
+        if (window.logManager && typeof window.logManager.log === 'function') {
             window.logManager.log('info', 'File validation successful', {
                 fileName: file.name,
                 fileSize: file.size,
                 timestamp: new Date().toISOString()
             });
+        } else {
+            console.info('File validation successful:', { fileName: file.name, fileSize: file.size, timestamp: new Date().toISOString() });
         }
     }
 
     logDragEvent(eventType) {
-        if (window.logManager) {
+        if (window.logManager && typeof window.logManager.log === 'function') {
             window.logManager.log('debug', 'Drag event', {
                 eventType: eventType,
                 timestamp: new Date().toISOString()
             });
+        } else {
+            console.debug('Drag event:', { eventType, timestamp: new Date().toISOString() });
         }
     }
 
     logPopulationLoadStart() {
-        if (window.logManager) {
+        if (window.logManager && typeof window.logManager.log === 'function') {
             window.logManager.log('info', 'Loading populations for delete', {
                 timestamp: new Date().toISOString()
             });
+        } else {
+            console.info('Loading populations for delete:', { timestamp: new Date().toISOString() });
         }
     }
 
     logPopulationLoadSuccess(count) {
-        if (window.logManager) {
+        if (window.logManager && typeof window.logManager.log === 'function') {
             window.logManager.log('info', 'Populations loaded successfully', {
                 count: count,
                 timestamp: new Date().toISOString()
             });
+        } else {
+            console.info('Populations loaded successfully:', { count, timestamp: new Date().toISOString() });
         }
     }
 
     logPopulationLoadError(error) {
-        if (window.logManager) {
+        if (window.logManager && typeof window.logManager.log === 'function') {
             window.logManager.log('error', 'Failed to load populations', {
                 error: error,
                 timestamp: new Date().toISOString()
             });
+        } else {
+            console.error('Failed to load populations:', { error, timestamp: new Date().toISOString() });
         }
     }
 
     logPopulationSelection() {
-        if (window.logManager) {
+        if (window.logManager && typeof window.logManager.log === 'function') {
             window.logManager.log('info', 'Population selected for deletion', {
                 populationId: this.selectedPopulation,
                 timestamp: new Date().toISOString()
             });
+        } else {
+            console.info('Population selected for deletion:', { populationId: this.selectedPopulation, timestamp: new Date().toISOString() });
         }
     }
 
     logConfirmationChange(type, confirmed) {
-        if (window.logManager) {
+        if (window.logManager && typeof window.logManager.log === 'function') {
             window.logManager.log('info', 'Delete confirmation changed', {
                 type: type,
                 confirmed: confirmed,
                 timestamp: new Date().toISOString()
             });
+        } else {
+            console.info('Delete confirmation changed:', { type, confirmed, timestamp: new Date().toISOString() });
         }
     }
 
     logTextConfirmationChange() {
-        if (window.logManager) {
+        if (window.logManager && typeof window.logManager.log === 'function') {
             window.logManager.log('debug', 'Environment delete text confirmation changed', {
                 textLength: this.deleteTextConfirmation.length,
                 timestamp: new Date().toISOString()
             });
+        } else {
+            console.debug('Environment delete text confirmation changed:', { textLength: this.deleteTextConfirmation.length, timestamp: new Date().toISOString() });
         }
     }
 
     logButtonValidation(isValid) {
-        if (window.logManager) {
+        if (window.logManager && typeof window.logManager.log === 'function') {
             window.logManager.log('debug', 'Delete button validation', {
                 isValid: isValid,
                 deleteType: this.currentDeleteType,
                 timestamp: new Date().toISOString()
             });
+        } else {
+            console.debug('Delete button validation:', { isValid, deleteType: this.currentDeleteType, timestamp: new Date().toISOString() });
         }
     }
 
     logDeleteStart(deleteData) {
-        if (window.logManager) {
+        if (window.logManager && typeof window.logManager.log === 'function') {
             window.logManager.log('info', 'Delete operation started', {
                 type: deleteData.type,
                 scope: this.getDeleteScope(deleteData),
                 metadata: this.getDeleteMetadata(deleteData),
                 timestamp: new Date().toISOString()
             });
+        } else {
+            console.info('Delete operation started:', { type: deleteData.type, scope: this.getDeleteScope(deleteData), metadata: this.getDeleteMetadata(deleteData), timestamp: new Date().toISOString() });
         }
     }
 
     logDeleteError(error) {
-        if (window.logManager) {
+        if (window.logManager && typeof window.logManager.log === 'function') {
             window.logManager.log('error', 'Delete operation failed', {
                 error: error.message,
                 timestamp: new Date().toISOString()
             });
+        } else {
+            console.error('Delete operation failed:', { error: error.message, timestamp: new Date().toISOString() });
         }
     }
 
@@ -566,11 +618,23 @@ class DeleteManager {
 }
 
 // Initialize delete manager when DOM is loaded
+// Only initialize if delete UI elements exist
+function hasDeleteUI() {
+    return document.getElementById('delete-file-section') ||
+           document.getElementById('delete-population-section') ||
+           document.getElementById('delete-environment-section');
+}
 document.addEventListener('DOMContentLoaded', () => {
-    window.deleteManager = new DeleteManager();
+    if (hasDeleteUI()) {
+        try {
+            window.deleteManager = new DeleteManager();
+        } catch (error) {
+            console.error('Failed to initialize DeleteManager:', error);
+        }
+    } else {
+        window.deleteManager = null;
+    }
 });
 
-// Export for module system
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = DeleteManager;
-} 
+// Export for ES6 module system
+export { DeleteManager }; 

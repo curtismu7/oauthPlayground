@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PingOne User Import v5.1</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
     <!-- Ping Identity Official CSS -->
     <link rel="stylesheet" href="https://assets.pingone.com/ux/end-user-nano/0.1.0-alpha.9/end-user-nano.css">
     <link rel="stylesheet" href="https://assets.pingone.com/ux/astro-nano/0.1.0-alpha.11/icons.css">
@@ -28,8 +31,8 @@
     <!-- Token Status Indicator Script -->
     <script src="/js/modules/token-status-indicator.js"></script>
 </head>
-<body>
-    <div class="app-container ping-identity-theme">
+<body class="ping-identity-theme">
+    <div class="app-container">
         <!-- Sidebar -->
         <nav class="sidebar">
             <div class="sidebar-header">
@@ -116,6 +119,15 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Current Token Status Element -->
+            <div id="current-token-status" class="current-token-status" style="display: none;"></div>
+            
+            <!-- Home Token Status Element -->
+            <div id="home-token-status" class="home-token-status" style="display: none;"></div>
+            
+            <!-- Dashboard Preview Container -->
+            <div id="dashboard-preview" class="dashboard-preview" style="display: none;"></div>
             
             <!-- Home View -->
             <div id="home-view" class="view active">
@@ -251,6 +263,9 @@
                 <div class="history-header">
                     <h1>Operation History</h1>
                     <div class="history-actions">
+                        <button id="go-home-from-history" class="btn btn-secondary" type="button">
+                            <i class="fas fa-home"></i> Home
+                        </button>
                         <button id="refresh-history" class="btn btn-secondary">
                             <i class="fas fa-sync-alt"></i> Refresh
                         </button>
@@ -278,7 +293,9 @@
                         </div>
                         <div class="filter-group">
                             <label for="history-population-filter">Population:</label>
-                            <input type="text" id="history-population-filter" class="form-control" placeholder="Filter by population...">
+                            <select id="history-population-filter" class="form-control">
+                                <option value="">Loading populations...</option>
+                            </select>
                         </div>
                         <div class="filter-group">
                             <label for="history-date-start">Start Date:</label>
@@ -288,7 +305,7 @@
                             <label for="history-date-end">End Date:</label>
                             <input type="date" id="history-date-end" class="form-control">
                         </div>
-                        <div class="filter-group">
+                        <div class="filter-group" style="margin-top: 2rem;">
                             <button id="apply-history-filters" class="btn btn-primary">
                                 <i class="fas fa-filter"></i> Apply Filters
                             </button>
@@ -886,15 +903,26 @@
     </div>
 
     <!-- Footer -->
-    <footer class="app-footer">
-      <div class="footer-content">
-        <div class="footer-logo">
-          <img src="/ping-identity-logo.svg" alt="Ping Identity Logo" height="28" width="auto" loading="lazy" />
+    <footer class="ping-footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <div class="footer-logo">
+                        <img src="/ping-identity-logo.svg" alt="Ping Identity" height="24" width="auto" loading="lazy" />
+                    </div>
+                    <span class="footer-copyright">
+                        &copy; 2025 Ping Identity Corporation. All rights reserved.
+                    </span>
+                </div>
+                <div class="footer-right">
+                    <div class="footer-links">
+                        <a href="https://www.pingidentity.com/en/legal/privacy-policy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+                        <a href="https://www.pingidentity.com/en/legal/terms-of-use.html" target="_blank" rel="noopener noreferrer">Terms of Service</a>
+                        <a href="https://support.pingidentity.com/" target="_blank" rel="noopener noreferrer">Support</a>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="footer-text">
-          <span>&copy; 2025 Ping Identity. All rights reserved.</span>
-        </div>
-      </div>
     </footer>
 
     <!-- JavaScript -->

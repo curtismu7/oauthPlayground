@@ -98,8 +98,8 @@ export const ElementRegistry = {
   useDefaultPopulationCheckbox: () => getElement('#use-default-population', 'Use Default Population Checkbox'),
   useCsvPopulationIdCheckbox: () => getElement('#use-csv-population-id', 'Use CSV Population ID Checkbox'),
   
-  // Get Token button
-  getTokenBtn: () => getElement('#get-token-btn', 'Get Token Button'),
+          // Get Token button
+        getTokenBtn: () => getElement('#get-token-quick', 'Get Token Button'),
   
   // Population ID form field
   populationIdField: () => getElement('#population-id', 'Population ID Field'),

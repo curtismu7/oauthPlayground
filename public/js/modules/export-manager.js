@@ -12,10 +12,19 @@ class ExportManager {
         this.populations = [];
         this.logger = console;
         
-        this.initializeEventListeners();
-        this.loadPopulations();
-        this.loadStoredCredentials();
-        this.startTokenTimer();
+        // Only initialize if we're on a page with export functionality
+        if (document.getElementById('export-population-select') || 
+            document.getElementById('export-format') || 
+            document.getElementById('start-export')) {
+            try {
+                this.initializeEventListeners();
+                this.loadPopulations();
+                this.loadStoredCredentials();
+                this.startTokenTimer();
+            } catch (error) {
+                console.warn('ExportManager initialization warning:', error);
+            }
+        }
     }
 
     initializeEventListeners() {
@@ -90,13 +99,27 @@ class ExportManager {
 
     async loadPopulations() {
         try {
+            // Check if population select element exists before making API call
+            const populationSelect = document.getElementById('export-population-select');
+            if (!populationSelect) {
+                console.log('Export population select not found, skipping population load');
+                return;
+            }
+            
             this.logPopulationLoadStart();
             const response = await fetch('/api/populations');
             if (response.ok) {
-                const populations = await response.json();
-                this.populations = populations;
-                this.populatePopulationSelect(populations);
-                this.logPopulationLoadSuccess(populations.length);
+                const data = await response.json();
+                // Handle the API response structure: { success: true, populations: [...], total: 123 }
+                const populations = data.populations || data;
+                if (Array.isArray(populations)) {
+                    this.populations = populations;
+                    this.populatePopulationSelect(populations);
+                    this.logPopulationLoadSuccess(populations.length);
+                } else {
+                    console.error('Invalid populations data format:', populations);
+                    this.logPopulationLoadError('Invalid populations data format');
+                }
             } else {
                 console.error('Failed to load populations');
                 this.logPopulationLoadError('Failed to load populations');
@@ -502,35 +525,47 @@ class ExportManager {
 
     // Logging methods
     logPopulationLoadStart() {
-        if (window.logManager) {
+        if (window.logManager && typeof window.logManager.log === 'function') {
             window.logManager.log('info', 'Loading populations for export', {
                 timestamp: new Date().toISOString()
             });
+        } else {
+            console.info('Loading populations for export:', { timestamp: new Date().toISOString() });
         }
     }
 
     logPopulationLoadSuccess(count) {
-        if (window.logManager) {
+        if (window.logManager && typeof window.logManager.log === 'function') {
             window.logManager.log('info', 'Populations loaded successfully for export', {
                 count: count,
                 timestamp: new Date().toISOString()
             });
+        } else {
+            console.info('Populations loaded successfully for export:', { count, timestamp: new Date().toISOString() });
         }
     }
 
     logPopulationLoadError(error) {
-        if (window.logManager) {
+        if (window.logManager && typeof window.logManager.log === 'function') {
             window.logManager.log('error', 'Failed to load populations for export', {
                 error: error,
                 timestamp: new Date().toISOString()
             });
+        } else {
+            console.error('Failed to load populations for export:', error);
         }
     }
 
     logPopulationSelection() {
         const populationSelect = document.getElementById('export-population-select');
-        if (window.logManager) {
+        if (window.logManager && typeof window.logManager.log === 'function') {
             window.logManager.log('info', 'Population selected for export', {
+                populationId: populationSelect.value,
+                populationName: populationSelect.selectedOptions[0]?.text || '',
+                timestamp: new Date().toISOString()
+            });
+        } else {
+            console.info('Population selected for export:', {
                 populationId: populationSelect.value,
                 populationName: populationSelect.selectedOptions[0]?.text || '',
                 timestamp: new Date().toISOString()
@@ -539,27 +574,37 @@ class ExportManager {
     }
 
     logCredentialOverride(enabled) {
-        if (window.logManager) {
+        if (window.logManager && typeof window.logManager.log === 'function') {
             window.logManager.log('info', 'Export credential override toggled', {
                 enabled: enabled,
                 timestamp: new Date().toISOString()
             });
+        } else {
+            console.info('Export credential override toggled:', { enabled, timestamp: new Date().toISOString() });
         }
     }
 
     logTokenGeneration(status, error = null) {
-        if (window.logManager) {
+        if (window.logManager && typeof window.logManager.log === 'function') {
             window.logManager.log(status === 'success' ? 'info' : 'error', 'Export token generation', {
                 status: status,
                 error: error,
                 timestamp: new Date().toISOString()
             });
+        } else {
+            console[status === 'success' ? 'info' : 'error']('Export token generation:', { status, error, timestamp: new Date().toISOString() });
         }
     }
 
     logTokenSet() {
-        if (window.logManager) {
+        if (window.logManager && typeof window.logManager.log === 'function') {
             window.logManager.log('info', 'Export token set', {
+                hasToken: !!this.exportToken,
+                expiresAt: this.tokenExpiration?.toISOString(),
+                timestamp: new Date().toISOString()
+            });
+        } else {
+            console.info('Export token set:', {
                 hasToken: !!this.exportToken,
                 expiresAt: this.tokenExpiration?.toISOString(),
                 timestamp: new Date().toISOString()
@@ -568,37 +613,45 @@ class ExportManager {
     }
 
     logJWTView() {
-        if (window.logManager) {
+        if (window.logManager && typeof window.logManager.log === 'function') {
             window.logManager.log('info', 'JWT token viewed', {
                 timestamp: new Date().toISOString()
             });
+        } else {
+            console.info('JWT token viewed:', { timestamp: new Date().toISOString() });
         }
     }
 
     logExportStart(options) {
-        if (window.logManager) {
+        if (window.logManager && typeof window.logManager.log === 'function') {
             window.logManager.log('info', 'Export operation started', {
                 options: options,
                 timestamp: new Date().toISOString()
             });
+        } else {
+            console.info('Export operation started:', { options, timestamp: new Date().toISOString() });
         }
     }
 
     logExportSuccess(result) {
-        if (window.logManager) {
+        if (window.logManager && typeof window.logManager.log === 'function') {
             window.logManager.log('info', 'Export operation completed successfully', {
                 result: result,
                 timestamp: new Date().toISOString()
             });
+        } else {
+            console.info('Export operation completed successfully:', { result, timestamp: new Date().toISOString() });
         }
     }
 
     logExportError(error) {
-        if (window.logManager) {
+        if (window.logManager && typeof window.logManager.log === 'function') {
             window.logManager.log('error', 'Export operation failed', {
                 error: error,
                 timestamp: new Date().toISOString()
             });
+        } else {
+            console.error('Export operation failed:', { error, timestamp: new Date().toISOString() });
         }
     }
 
@@ -628,11 +681,23 @@ class ExportManager {
 }
 
 // Initialize export manager when DOM is loaded
+// Only initialize if export UI elements exist
+function hasExportUI() {
+    return document.getElementById('export-population-select') ||
+           document.getElementById('export-format') ||
+           document.getElementById('start-export');
+}
 document.addEventListener('DOMContentLoaded', () => {
-    window.exportManager = new ExportManager();
+    if (hasExportUI()) {
+        try {
+            window.exportManager = new ExportManager();
+        } catch (error) {
+            console.error('Failed to initialize ExportManager:', error);
+        }
+    } else {
+        window.exportManager = null;
+    }
 });
 
-// Export for module system
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = ExportManager;
-} 
+// Export for ES6 module system
+export { ExportManager }; 
