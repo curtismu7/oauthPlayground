@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import express, { Router } from 'express';
 import fetch from 'node-fetch';
 import { URL } from 'url';
 import { v4 as uuidv4 } from 'uuid';
@@ -55,6 +55,279 @@ const injectSettings = (req, res, next) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+
+/**
+ * @swagger
+ * /api/pingone/proxy:
+ *   get:
+ *     summary: Proxy request to PingOne API
+ *     description: |
+ *       Proxies requests to the PingOne API. This endpoint allows you to make
+ *       authenticated requests to any PingOne API endpoint through this server.
+ *       
+ *       ## Usage
+ *       - Use the `url` query parameter to specify the target PingOne API endpoint
+ *       - The server will automatically add authentication headers
+ *       - Supports all HTTP methods (GET, POST, PUT, DELETE, etc.)
+ *       
+ *       ## Examples
+ *       - Get users: `GET /api/pingone/proxy?url=https://api.pingone.com/v1/environments/{envId}/users`
+ *       - Create user: `POST /api/pingone/proxy?url=https://api.pingone.com/v1/environments/{envId}/users`
+ *       - Get populations: `GET /api/pingone/proxy?url=https://api.pingone.com/v1/environments/{envId}/populations`
+ *       
+ *       ## Authentication
+ *       The server automatically handles PingOne API authentication using configured credentials.
+ *     tags: [PingOne API]
+ *     parameters:
+ *       - in: query
+ *         name: url
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The target PingOne API URL to proxy to
+ *         example: "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users"
+ *     responses:
+ *       200:
+ *         description: Successful response from PingOne API
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               description: Response from PingOne API (varies by endpoint)
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               error: "Target URL is required"
+ *       401:
+ *         description: Authentication failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               error: "Failed to authenticate with PingOne API"
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *   post:
+ *     summary: Proxy POST request to PingOne API
+ *     description: |
+ *       Proxies POST requests to the PingOne API with request body.
+ *       Useful for creating users, updating populations, etc.
+ *     tags: [PingOne API]
+ *     parameters:
+ *       - in: query
+ *         name: url
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The target PingOne API URL to proxy to
+ *         example: "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             description: Request body to send to PingOne API
+ *     responses:
+ *       200:
+ *         description: Successful response from PingOne API
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Authentication failed
+ *       500:
+ *         description: Server error
+ *   put:
+ *     summary: Proxy PUT request to PingOne API
+ *     description: |
+ *       Proxies PUT requests to the PingOne API with request body.
+ *       Useful for updating users, populations, etc.
+ *     tags: [PingOne API]
+ *     parameters:
+ *       - in: query
+ *         name: url
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The target PingOne API URL to proxy to
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             description: Request body to send to PingOne API
+ *     responses:
+ *       200:
+ *         description: Successful response from PingOne API
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Authentication failed
+ *       500:
+ *         description: Server error
+ *   delete:
+ *     summary: Proxy DELETE request to PingOne API
+ *     description: |
+ *       Proxies DELETE requests to the PingOne API.
+ *       Useful for deleting users, populations, etc.
+ *     tags: [PingOne API]
+ *     parameters:
+ *       - in: query
+ *         name: url
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The target PingOne API URL to proxy to
+ *     responses:
+ *       200:
+ *         description: Successful response from PingOne API
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Authentication failed
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
+ * /api/pingone/users:
+ *   get:
+ *     summary: Get users from PingOne environment
+ *     description: |
+ *       Retrieves users from the configured PingOne environment.
+ *       This is a convenience endpoint that automatically constructs
+ *       the proper PingOne API URL using the configured environment ID.
+ *     tags: [PingOne API]
+ *     parameters:
+ *       - in: query
+ *         name: filter
+ *         schema:
+ *           type: string
+ *         description: PingOne filter expression (e.g., "username eq \"john.doe\"")
+ *         example: "username eq \"john.doe\""
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 100
+ *         description: Maximum number of users to return
+ *       - in: query
+ *         name: offset
+ *         schema:
+ *           type: integer
+ *           default: 0
+ *         description: Number of users to skip
+ *     responses:
+ *       200:
+ *         description: List of users from PingOne
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _embedded:
+ *                   type: object
+ *                   properties:
+ *                     users:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           username:
+ *                             type: string
+ *                           email:
+ *                             type: string
+ *                           name:
+ *                             type: object
+ *                             properties:
+ *                               given:
+ *                                 type: string
+ *                               family:
+ *                                 type: string
+ *                           population:
+ *                             type: object
+ *                             properties:
+ *                               id:
+ *                                 type: string
+ *                               name:
+ *                                 type: string
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Authentication failed
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
+ * /api/pingone/populations:
+ *   get:
+ *     summary: Get populations from PingOne environment
+ *     description: |
+ *       Retrieves populations from the configured PingOne environment.
+ *       This is a convenience endpoint that automatically constructs
+ *       the proper PingOne API URL using the configured environment ID.
+ *     tags: [PingOne API]
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 100
+ *         description: Maximum number of populations to return
+ *       - in: query
+ *         name: offset
+ *         schema:
+ *           type: integer
+ *           default: 0
+ *         description: Number of populations to skip
+ *     responses:
+ *       200:
+ *         description: List of populations from PingOne
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _embedded:
+ *                   type: object
+ *                   properties:
+ *                     populations:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           name:
+ *                             type: string
+ *                           description:
+ *                             type: string
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Authentication failed
+ *       500:
+ *         description: Server error
+ */
 
 // Proxy request handler
 const proxyRequest = async (req, res) => {
@@ -180,6 +453,52 @@ const proxyRequest = async (req, res) => {
     }
 };
 
+// Convenience endpoint for getting users
+const getUsers = async (req, res) => {
+    try {
+        // Use settings from middleware
+        const { environmentId, region } = req.settings || {};
+        if (!environmentId) {
+            return res.status(400).json({ error: 'Environment ID is required' });
+        }
+        
+        const baseUrl = PINGONE_API_BASE_URLS[region || 'NorthAmerica'];
+        const { filter, limit = 100, offset = 0 } = req.query;
+        
+        let url = `${baseUrl}/v1/environments/${environmentId}/users?limit=${limit}&offset=${offset}`;
+        if (filter) {
+            url += `&filter=${encodeURIComponent(filter)}`;
+        }
+        
+        req.query.url = url;
+        return proxyRequest(req, res);
+    } catch (error) {
+        console.error('Error in getUsers:', error);
+        res.status(500).json({ error: 'Failed to get users', details: error.message });
+    }
+};
+
+// Convenience endpoint for getting populations
+const getPopulations = async (req, res) => {
+    try {
+        // Use settings from middleware
+        const { environmentId, region } = req.settings || {};
+        if (!environmentId) {
+            return res.status(400).json({ error: 'Environment ID is required' });
+        }
+        
+        const baseUrl = PINGONE_API_BASE_URLS[region || 'NorthAmerica'];
+        const { limit = 100, offset = 0 } = req.query;
+        
+        const url = `${baseUrl}/v1/environments/${environmentId}/populations?limit=${limit}&offset=${offset}`;
+        req.query.url = url;
+        return proxyRequest(req, res);
+    } catch (error) {
+        console.error('Error in getPopulations:', error);
+        res.status(500).json({ error: 'Failed to get populations', details: error.message });
+    }
+};
+
 // Apply middleware and routes
 router.use(express.json());
 
@@ -194,7 +513,11 @@ router.use((req, res, next) => {
     }
 });
 
-// All requests go through the proxy handler
+// Convenience endpoints (must come before catch-all)
+router.get('/users', getUsers);
+router.get('/populations', getPopulations);
+
+// All other requests go through the proxy handler (catch-all)
 router.all('*', proxyRequest);
 
 export default router;

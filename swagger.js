@@ -29,12 +29,15 @@ const swaggerOptions = {
         - **User Import**: Upload CSV files to create users in PingOne populations
         - **User Export**: Export users from populations in JSON/CSV formats
         - **User Modification**: Update existing users with batch operations
+        - **User Deletion**: Remove users from populations with CSV file support
         - **Real-time Progress**: Server-Sent Events for import progress tracking
         - **Population Management**: Create and manage user populations
         - **Token Management**: Handle PingOne API authentication
         - **Feature Flags**: Enable/disable application features
         - **Comprehensive Logging**: Detailed logging for debugging and monitoring
         - **Settings Management**: Configure PingOne credentials and settings
+        - **Health Monitoring**: System health checks and status monitoring
+        - **History Tracking**: Operation history and audit logs
         
         ## Authentication
         Most endpoints require valid PingOne API credentials configured via settings.
@@ -50,6 +53,9 @@ const swaggerOptions = {
         
         ## Error Handling
         All endpoints return consistent error responses with appropriate HTTP status codes.
+        
+        ## Server-Sent Events (SSE)
+        Real-time progress updates are available via SSE connections for long-running operations.
       `,
       contact: {
         name: 'PingOne Import Tool Support',
@@ -467,6 +473,59 @@ const swaggerOptions = {
             },
           },
         },
+        // Delete schemas
+        DeleteRequest: {
+          type: 'object',
+          properties: {
+            file: {
+              type: 'string',
+              format: 'binary',
+              description: 'CSV file containing users to delete',
+            },
+            populationId: {
+              type: 'string',
+              description: 'PingOne population ID',
+              example: '3840c98d-202d-4f6a-8871-f3bc66cb3fa8',
+            },
+            populationName: {
+              type: 'string',
+              description: 'PingOne population name',
+              example: 'Sample Users',
+            },
+            skipNotFound: {
+              type: 'boolean',
+              description: 'Skip users that are not found',
+              example: true,
+            },
+          },
+          required: ['file', 'populationId', 'populationName'],
+        },
+        DeleteResponse: {
+          type: 'object',
+          properties: {
+            success: {
+              type: 'boolean',
+              example: true,
+            },
+            sessionId: {
+              type: 'string',
+              description: 'Unique session ID for progress tracking',
+              example: 'session-12345',
+            },
+            message: {
+              type: 'string',
+              example: 'Delete started successfully',
+            },
+            populationName: {
+              type: 'string',
+              example: 'Sample Users',
+            },
+            populationId: {
+              type: 'string',
+              example: '3840c98d-202d-4f6a-8871-f3bc66cb3fa8',
+            },
+          },
+        },
         // Settings schemas
         Settings: {
           type: 'object',
@@ -569,6 +628,11 @@ const swaggerOptions = {
             C: {
               type: 'boolean',
               description: 'Feature flag C',
+              example: false,
+            },
+            progressPage: {
+              type: 'boolean',
+              description: 'Progress page feature flag',
               example: false,
             },
           },
@@ -802,6 +866,127 @@ const swaggerOptions = {
             },
           },
         },
+        // History schemas
+        HistoryEntry: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              example: 'history-12345',
+            },
+            timestamp: {
+              type: 'string',
+              format: 'date-time',
+              example: '2025-07-12T15:35:29.053Z',
+            },
+            operation: {
+              type: 'string',
+              enum: ['import', 'export', 'modify', 'delete'],
+              example: 'import',
+            },
+            status: {
+              type: 'string',
+              enum: ['success', 'error', 'in_progress'],
+              example: 'success',
+            },
+            populationName: {
+              type: 'string',
+              example: 'Sample Users',
+            },
+            populationId: {
+              type: 'string',
+              example: '3840c98d-202d-4f6a-8871-f3bc66cb3fa8',
+            },
+            totalUsers: {
+              type: 'number',
+              example: 100,
+            },
+            processedUsers: {
+              type: 'number',
+              example: 95,
+            },
+            message: {
+              type: 'string',
+              example: 'Import completed successfully',
+            },
+            details: {
+              type: 'object',
+              description: 'Additional operation details',
+            },
+          },
+          required: ['id', 'timestamp', 'operation', 'status'],
+        },
+        HistoryResponse: {
+          type: 'object',
+          properties: {
+            success: {
+              type: 'boolean',
+              example: true,
+            },
+            count: {
+              type: 'number',
+              example: 50,
+            },
+            total: {
+              type: 'number',
+              example: 200,
+            },
+            history: {
+              type: 'array',
+              items: {
+                $ref: '#/components/schemas/HistoryEntry',
+              },
+            },
+          },
+        },
+        // SSE Event schemas
+        SSEEvent: {
+          type: 'object',
+          properties: {
+            event: {
+              type: 'string',
+              enum: ['progress', 'completion', 'error', 'keepalive'],
+              example: 'progress',
+            },
+            data: {
+              type: 'object',
+              description: 'Event-specific data',
+            },
+            timestamp: {
+              type: 'string',
+              format: 'date-time',
+              example: '2025-07-12T15:35:29.053Z',
+            },
+          },
+          required: ['event', 'data'],
+        },
+        // Version info schema
+        VersionInfo: {
+          type: 'object',
+          properties: {
+            version: {
+              type: 'string',
+              example: '5.3',
+            },
+            buildDate: {
+              type: 'string',
+              format: 'date-time',
+              example: '2025-07-12T15:35:29.053Z',
+            },
+            nodeVersion: {
+              type: 'string',
+              example: 'v22.16.0',
+            },
+            platform: {
+              type: 'string',
+              example: 'darwin',
+            },
+            environment: {
+              type: 'string',
+              example: 'development',
+            },
+          },
+        },
       },
     },
     security: [
@@ -979,8 +1164,8 @@ const swaggerUiOptions = {
  * Setup Swagger middleware
  */
 const setupSwagger = (app) => {
-  // Serve Swagger UI HTML file at /swagger/html
-  app.get('/swagger/html', (req, res) => {
+  // Serve Swagger UI HTML file at /swagger.html
+  app.get('/swagger.html', (req, res) => {
     res.sendFile(path.join(process.cwd(), 'public/swagger/index.html'));
   });
 
@@ -1006,11 +1191,11 @@ const setupSwagger = (app) => {
   });
 
   // Legacy route for backward compatibility
-  app.get('/swagger.html', (req, res) => {
-    res.redirect('/swagger/html');
+  app.get('/swagger/html', (req, res) => {
+    res.redirect('/swagger.html');
   });
 
-  console.log('📚 Swagger UI available at /swagger/html');
+  console.log('📚 Swagger UI available at /swagger.html');
   console.log('📄 Swagger JSON available at /swagger.json');
 };
 

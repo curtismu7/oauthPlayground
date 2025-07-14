@@ -181,7 +181,36 @@ export function createWinstonLogger(options = {}) {
                 winston.format.timestamp({
                     format: 'YYYY-MM-DD HH:mm:ss.SSS'
                 }),
-                winston.format.json()
+                winston.format.printf(({ timestamp, level, message, service, env, pid, version, stack, ...meta }) => {
+                    // Improved human-readable error log format
+                    let out = '';
+                    out += '\n================================================================================\n';
+                    out += `🕒 TIMESTAMP: ${timestamp}\n`;
+                    out += `🔴 LEVEL: ${level}\n`;
+                    if (pid) out += `🆔 PID: ${pid}\n`;
+                    if (service) out += `🔧 SERVICE: ${service}\n`;
+                    if (env) out += `🌍 ENVIRONMENT: ${env}\n`;
+                    if (version) out += `📝 VERSION: ${version}\n`;
+                    out += '\n';
+                    out += `💬 MESSAGE:\n${message}\n`;
+                    if (meta && meta.error) {
+                        out += `\n❌ ERROR: ${meta.error}\n`;
+                    }
+                    if (stack || (meta && meta.stack)) {
+                        out += '\n🧵 STACK TRACE:\n';
+                        out += (stack || meta.stack).split('\n').map(line => '    ' + line).join('\n') + '\n';
+                    }
+                    // Print any additional meta fields
+                    const extraMeta = { ...meta };
+                    delete extraMeta.error;
+                    delete extraMeta.stack;
+                    if (Object.keys(extraMeta).length > 0) {
+                        out += '\n🔎 META:\n';
+                        out += JSON.stringify(extraMeta, null, 2) + '\n';
+                    }
+                    out += '\n--------------------------------------------------------------------------------\n';
+                    return out;
+                })
             )
         }));
         

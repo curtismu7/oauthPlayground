@@ -75,7 +75,7 @@ start_server() {
     
     print_status "Starting server on port $PORT..."
     print_status "Server will be available at: http://localhost:$PORT"
-    print_status "Swagger UI: http://localhost:$PORT/swagger/html"
+    print_status "Swagger UI: http://localhost:$PORT/swagger.html"
     print_status "Press Ctrl+C to stop the server"
     echo
     

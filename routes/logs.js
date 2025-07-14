@@ -55,9 +55,94 @@ async function ensureLogsDir() {
 // [CLEANUP] Consolidated helper functions and removed duplicate logic
 
 /**
- * Post a log entry to UI logs for display on screen
- * POST /api/logs/ui
- * Body: { message: string, level: string, data: object, source: string }
+ * @swagger
+ * /api/logs/ui:
+ *   post:
+ *     summary: Create UI log entry
+ *     description: |
+ *       Creates a log entry for display in the UI. This endpoint is used by the frontend
+ *       to log user actions, system events, and debugging information.
+ *       
+ *       ## Log Levels
+ *       - **info**: General information and user actions
+ *       - **warning**: Warnings and non-critical issues
+ *       - **error**: Errors and critical issues
+ *       - **debug**: Debugging information (development only)
+ *       
+ *       ## Data Structure
+ *       Each log entry includes:
+ *       - Unique log ID
+ *       - Timestamp and log level
+ *       - Message and additional data
+ *       - Source information (frontend, server, etc.)
+ *       - Client IP and user agent
+ *       
+ *       ## Storage
+ *       Logs are stored in memory with a maximum of 1000 entries.
+ *       Older entries are automatically removed when the limit is reached.
+ *       
+ *       ## Usage
+ *       - Frontend logging for user actions
+ *       - System event tracking
+ *       - Debug information collection
+ *       - Error reporting and monitoring
+ *     tags: [Logs]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               message:
+ *                 type: string
+ *                 description: Log message
+ *                 example: "User import completed successfully"
+ *               level:
+ *                 type: string
+ *                 enum: [info, warning, error, debug]
+ *                 description: Log level
+ *                 example: info
+ *               data:
+ *                 type: object
+ *                 description: Additional log data
+ *                 example: { userId: "123", action: "import" }
+ *               source:
+ *                 type: string
+ *                 description: Source of the log
+ *                 example: frontend
+ *             required:
+ *               - message
+ *     responses:
+ *       200:
+ *         description: Log entry created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Log entry created"
+ *                 id:
+ *                   type: string
+ *                   description: Unique log entry ID
+ *                   example: "log-12345"
+ *       400:
+ *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/ui', express.json(), (req, res) => {
     try {
@@ -110,9 +195,76 @@ router.post('/ui', express.json(), (req, res) => {
 });
 
 /**
- * Get UI logs for display on screen
- * GET /api/logs/ui
- * Query params: limit (default: 100)
+ * @swagger
+ * /api/logs/ui:
+ *   get:
+ *     summary: Get UI logs
+ *     description: |
+ *       Retrieves UI logs for display in the frontend. This endpoint returns
+ *       the most recent log entries with optional filtering and limiting.
+ *       
+ *       ## Log Retrieval
+ *       - Returns the most recent logs first
+ *       - Supports limit parameter for pagination
+ *       - Maximum limit of 1000 entries per request
+ *       - Includes total count and filtered count
+ *       
+ *       ## Log Data
+ *       Each log entry includes:
+ *       - Unique log ID and timestamp
+ *       - Log level and message
+ *       - Additional data and metadata
+ *       - Source information and client details
+ *       
+ *       ## Usage
+ *       - Frontend log display
+ *       - Debug information retrieval
+ *       - System monitoring and troubleshooting
+ *       - User activity tracking
+ *     tags: [Logs]
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 1000
+ *           default: 100
+ *         description: Maximum number of logs to return
+ *         example: 100
+ *     responses:
+ *       200:
+ *         description: UI logs retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/LogsResponse'
+ *             example:
+ *               success: true
+ *               count: 50
+ *               total: 1000
+ *               logs: [
+ *                 {
+ *                   id: "log-12345",
+ *                   timestamp: "2025-07-12T15:35:29.053Z",
+ *                   level: "info",
+ *                   message: "User import completed successfully",
+ *                   data: {
+ *                     userId: "123",
+ *                     action: "import",
+ *                     source: "frontend",
+ *                     type: "ui"
+ *                   },
+ *                   ip: "127.0.0.1",
+ *                   userAgent: "Mozilla/5.0..."
+ *                 }
+ *               ]
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.get('/ui', (req, res) => {
     try {

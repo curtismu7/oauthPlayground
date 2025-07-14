@@ -18,16 +18,67 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { createWinstonLogger, createRequestLogger, createErrorLogger, createPerformanceLogger } from './server/winston-config.js';
 import TokenManager from './server/token-manager.js';
-import pingoneProxyRouter from './routes/pingone-proxy.js';
+import { 
+    isPortAvailable, 
+    findAvailablePort, 
+    getProcessesUsingPort, 
+    killProcessesUsingPort, 
+    generatePortConflictMessage, 
+    resolvePortConflict, 
+    checkPortStatus 
+} from './server/port-checker.js';
+import pingoneProxyRouter from './routes/pingone-proxy-fixed.js';
 import apiRouter from './routes/api/index.js';
 import settingsRouter from './routes/settings.js';
 import logsRouter from './routes/logs.js';
 import indexRouter from './routes/index.js';
 import { setupSwagger } from './swagger.js';
 import session from 'express-session';
+import fs from 'fs/promises';
+import { WebSocketServer } from 'ws';
+import { Server as SocketIOServer } from 'socket.io';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+/**
+ * Load settings from settings.json file and set environment variables
+ */
+async function loadSettingsFromFile() {
+    try {
+        const settingsPath = path.join(process.cwd(), 'data', 'settings.json');
+        logger.info('Loading settings from:', settingsPath);
+        
+        const data = await fs.readFile(settingsPath, 'utf8');
+        const settings = JSON.parse(data);
+        
+        logger.info('Settings loaded:', Object.keys(settings));
+        
+        // Set environment variables from settings file
+        if (settings.environmentId) {
+            process.env.PINGONE_ENVIRONMENT_ID = settings.environmentId;
+            logger.info('Set PINGONE_ENVIRONMENT_ID:', settings.environmentId.substring(0, 8) + '...');
+        }
+        if (settings.apiClientId) {
+            process.env.PINGONE_CLIENT_ID = settings.apiClientId;
+            logger.info('Set PINGONE_CLIENT_ID:', settings.apiClientId.substring(0, 8) + '...');
+        }
+        if (settings.apiSecret) {
+            process.env.PINGONE_CLIENT_SECRET = settings.apiSecret;
+            logger.info('Set PINGONE_CLIENT_SECRET: [HIDDEN]');
+        }
+        if (settings.region) {
+            process.env.PINGONE_REGION = settings.region;
+            logger.info('Set PINGONE_REGION:', settings.region);
+        }
+        
+        logger.info('Settings loaded from file and environment variables set');
+        return true;
+    } catch (error) {
+        logger.warn('Failed to load settings from file:', error.message);
+        return false;
+    }
+}
 
 // Create production-ready Winston logger
 const logger = createWinstonLogger({
@@ -54,7 +105,7 @@ const serverState = {
 
 // Create Express app
 const app = express();
-const PORT = process.env.PORT || 4000;
+let PORT = process.env.PORT || 4000;
 
 // Attach token manager to app for route access
 app.set('tokenManager', tokenManager);
@@ -102,13 +153,6 @@ app.use(express.urlencoded({
     limit: '10mb' 
 }));
 
-// Static file serving with caching headers
-app.use(express.static(path.join(__dirname, 'public'), {
-    maxAge: process.env.NODE_ENV === 'production' ? '1h' : 0,
-    etag: true,
-    lastModified: true
-}));
-
 // --- Auth routes ---
 app.get('/auth/login', (req, res) => {
   res.send('<h2>Login Required</h2><p>Please log in to continue.</p>');
@@ -131,12 +175,19 @@ function ensureAuthenticated(req, res, next) {
 }
 
 // --- Protect Swagger UI and spec ---
-app.use(['/swagger/html', '/swagger', '/swagger.json'], ensureAuthenticated);
+app.use(['/swagger.html', '/swagger', '/swagger.json'], ensureAuthenticated);
 
 // Setup Swagger documentation
 setupSwagger(app);
 
-console.log('📚 Swagger UI available at http://localhost:4000/swagger/html');
+// Static file serving with caching headers
+app.use(express.static(path.join(__dirname, 'public'), {
+    maxAge: process.env.NODE_ENV === 'production' ? '1h' : 0,
+    etag: true,
+    lastModified: true
+}));
+
+console.log('📚 Swagger UI available at http://localhost:4000/swagger.html');
 console.log('📄 Swagger JSON available at http://localhost:4000/swagger.json');
 
 /**
@@ -454,6 +505,9 @@ const startServer = async () => {
         serverState.isInitializing = true;
         serverState.lastError = null;
         
+        // Load settings from file at startup
+        await loadSettingsFromFile();
+        
         // Initialize PingOne connection
         logger.info('Initializing PingOne connection');
         try {
@@ -469,7 +523,53 @@ const startServer = async () => {
             serverState.pingOneInitialized = false;
         }
         
-        // Start server with port conflict handling
+        // Check port availability before starting server
+        logger.info('Checking port availability', { port: PORT });
+        
+        const portStatus = await checkPortStatus(PORT);
+        if (!portStatus.isAvailable) {
+            logger.error('Port conflict detected during startup', {
+                port: PORT,
+                processes: portStatus.processes
+            });
+            
+            console.log(portStatus.message);
+            
+            // Try to resolve port conflict automatically
+            try {
+                const resolvedPort = await resolvePortConflict(PORT, {
+                    autoKill: process.env.AUTO_KILL_PORT === 'true',
+                    findAlternative: true,
+                    maxAttempts: 5
+                });
+                
+                if (resolvedPort !== PORT) {
+                    logger.info('Using alternative port', { 
+                        originalPort: PORT, 
+                        newPort: resolvedPort 
+                    });
+                    console.log(`\n🔄 Using alternative port: ${resolvedPort}`);
+                    PORT = resolvedPort;
+                }
+            } catch (error) {
+                logger.error('Failed to resolve port conflict', {
+                    error: error.message,
+                    port: PORT
+                });
+                
+                serverState.isInitialized = false;
+                serverState.isInitializing = false;
+                serverState.lastError = error;
+                
+                if (process.env.NODE_ENV === 'production') {
+                    process.exit(1);
+                } else {
+                    throw error;
+                }
+            }
+        }
+        
+        // Start server with enhanced port conflict handling
         const server = app.listen(PORT, '127.0.0.1', () => {
             const duration = Date.now() - startTime;
             const url = `http://127.0.0.1:${PORT}`;
@@ -504,19 +604,18 @@ const startServer = async () => {
                 console.log(`   📄 Swagger JSON: ${url}/swagger.json`);
                 console.log('='.repeat(60) + '\n');
             }
-        }).on('error', (error) => {
+        }).on('error', async (error) => {
             if (error.code === 'EADDRINUSE') {
-                logger.error('Port conflict detected', {
+                const processes = await getProcessesUsingPort(PORT);
+                const errorMessage = generatePortConflictMessage(PORT, processes);
+                
+                logger.error('Port conflict detected during server startup', {
                     port: PORT,
                     error: error.message,
-                    suggestion: `Try using a different port or kill the process using port ${PORT}`
+                    processes: processes.map(p => ({ pid: p.pid, command: p.command }))
                 });
                 
-                console.log(`\n❌ Port ${PORT} is already in use!`);
-                console.log(`   Try one of these solutions:`);
-                console.log(`   1. Kill the process: lsof -ti:${PORT} | xargs kill -9`);
-                console.log(`   2. Use a different port: PORT=4001 node server.js`);
-                console.log(`   3. Wait a moment and try again\n`);
+                console.log(errorMessage);
             } else {
                 logger.error('Server startup error', {
                     error: error.message,
@@ -533,44 +632,59 @@ const startServer = async () => {
                 process.exit(1);
             }
         });
-        
-        // Handle server errors
-        server.on('error', (error) => {
-            logger.error('Server error', {
-                error: error.message,
-                code: error.code,
-                stack: error.stack,
-                syscall: error.syscall,
-                address: error.address,
-                port: error.port
-            });
-            
-            serverState.isInitialized = false;
-            serverState.isInitializing = false;
-            serverState.lastError = error;
-            
-            if (process.env.NODE_ENV === 'production') {
-                process.exit(1);
+
+    // --- Socket.IO server for primary real-time updates ---
+    const io = new SocketIOServer(server, {
+        cors: {
+            origin: '*', // Adjust as needed for security
+            methods: ['GET', 'POST']
+        }
+    });
+    global.ioClients = new Map();
+    io.on('connection', (socket) => {
+        socket.on('registerSession', (sessionId) => {
+            if (sessionId) {
+                global.ioClients.set(sessionId, socket);
+                socket.sessionId = sessionId;
             }
         });
-        
-        return server;
-    } catch (error) {
-        const duration = Date.now() - startTime;
-        performanceLogger('server_startup', duration, { status: 'error', error: error.message });
-        
-        logger.error('Server startup failed', {
-            error: error.message,
-            stack: error.stack,
-            duration: `${duration}ms`
+        socket.on('disconnect', () => {
+            if (socket.sessionId) global.ioClients.delete(socket.sessionId);
         });
-        
-        serverState.isInitialized = false;
-        serverState.isInitializing = false;
-        serverState.lastError = error;
-        
-        throw error;
-    }
+    });
+
+    // --- WebSocket server for fallback ---
+    const wss = new WebSocketServer({ server });
+    global.wsClients = new Map();
+    wss.on('connection', (ws, req) => {
+        ws.on('message', (msg) => {
+            try {
+                const { sessionId } = JSON.parse(msg);
+                if (sessionId) {
+                    global.wsClients.set(sessionId, ws);
+                    ws.sessionId = sessionId;
+                }
+            } catch {}
+        });
+        ws.on('close', () => {
+            if (ws.sessionId) global.wsClients.delete(ws.sessionId);
+        });
+    });
+
+    return server;
+} catch (error) {
+    const duration = Date.now() - startTime;
+    performanceLogger('server_startup', duration, { status: 'error', error: error.message });
+    logger.error('Server startup failed', {
+        error: error.message,
+        stack: error.stack,
+        duration: `${duration}ms`
+    });
+    serverState.isInitialized = false;
+    serverState.isInitializing = false;
+    serverState.lastError = error;
+    throw error;
+}
 };
 
 // Graceful shutdown handling

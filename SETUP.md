@@ -319,4 +319,4 @@ The application supports the following PingOne regions:
 ### Testing Region & Progress Features
 
 - Use `public/api-tester.html` to test region selection and progress endpoints.
-- Swagger UI (`/swagger/html` or `/api-docs`) documents and allows live testing of all region and progress endpoints. 
+- Swagger UI (`/swagger.html` or `/api-docs`) documents and allows live testing of all region and progress endpoints. 

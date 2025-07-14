@@ -64,29 +64,34 @@ class UIManager {
      * Setup UI elements
      */
     setupElements() {
-        this.notificationContainer = ElementRegistry.notificationContainer ? ElementRegistry.notificationContainer() : null;
-        this.progressContainer = ElementRegistry.progressContainer ? ElementRegistry.progressContainer() : null;
-        this.tokenStatusElement = ElementRegistry.tokenStatus ? ElementRegistry.tokenStatus() : null;
-        this.connectionStatusElement = ElementRegistry.connectionStatus ? ElementRegistry.connectionStatus() : null;
-        
-        // Initialize navigation items for safe access
-        this.navItems = document.querySelectorAll('[data-view]');
-        
-        if (!this.notificationContainer) {
-            this.logger.warn('Notification container not found');
+        try {
+            // Initialize core UI elements with safe fallbacks
+            this.notificationContainer = ElementRegistry.notificationContainer ? ElementRegistry.notificationContainer() : null;
+            this.progressContainer = ElementRegistry.progressContainer ? ElementRegistry.progressContainer() : null;
+            this.tokenStatusElement = ElementRegistry.tokenStatus ? ElementRegistry.tokenStatus() : null;
+            this.connectionStatusElement = ElementRegistry.connectionStatus ? ElementRegistry.connectionStatus() : null;
+            
+            // Initialize navigation items for safe access
+            this.navItems = document.querySelectorAll('[data-view]');
+            
+            if (!this.notificationContainer) {
+                this.logger.warn('Notification container not found');
+            }
+            
+            if (!this.progressContainer) {
+                this.logger.warn('Progress container not found');
+            }
+            
+            this.logger.debug('UI elements setup completed', {
+                hasNotificationContainer: !!this.notificationContainer,
+                hasProgressContainer: !!this.progressContainer,
+                hasTokenStatusElement: !!this.tokenStatusElement,
+                hasConnectionStatusElement: !!this.connectionStatusElement,
+                navItemsCount: this.navItems ? this.navItems.length : 0
+            });
+        } catch (error) {
+            this.logger.error('Error setting up UI elements', { error: error.message });
         }
-        
-        if (!this.progressContainer) {
-            this.logger.warn('Progress container not found');
-        }
-        
-        this.logger.debug('UI elements setup completed', {
-            hasNotificationContainer: !!this.notificationContainer,
-            hasProgressContainer: !!this.progressContainer,
-            hasTokenStatusElement: !!this.tokenStatusElement,
-            hasConnectionStatusElement: !!this.connectionStatusElement,
-            navItemsCount: this.navItems ? this.navItems.length : 0
-        });
     }
     
     /**
@@ -422,6 +427,86 @@ class UIManager {
             }
         } catch (error) {
             this.logger.error('Error updating settings save status', { error: error.message, success, message });
+        }
+    }
+    
+    /**
+     * Show enhanced settings action status
+     * @param {string} message - Status message
+     * @param {string} type - Status type (success, error, warning, info)
+     * @param {Object} options - Additional options
+     */
+    showSettingsActionStatus(message, type = 'info', options = {}) {
+        try {
+            this.logger.info('Settings action status shown', { message, type, options });
+            
+            const statusElement = document.getElementById('settings-action-status');
+            const statusIcon = statusElement?.querySelector('.status-icon');
+            const statusMessage = statusElement?.querySelector('.status-message');
+            const closeButton = statusElement?.querySelector('.status-close');
+            
+            if (!statusElement || !statusIcon || !statusMessage) {
+                this.logger.warn('Settings action status elements not found');
+                return;
+            }
+            
+            // Set icon based on type
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            statusIcon.textContent = icons[type] || icons.info;
+            
+            // Set message
+            statusMessage.textContent = message;
+            
+            // Update classes
+            statusElement.className = `action-status ${type}`;
+            statusElement.style.display = 'block';
+            
+            // Setup close button
+            if (closeButton) {
+                closeButton.onclick = () => {
+                    this.hideSettingsActionStatus();
+                };
+            }
+            
+            // Auto-hide if specified
+            if (options.autoHide !== false) {
+                const autoHideDelay = options.autoHideDelay || 5000; // 5 seconds default
+                setTimeout(() => {
+                    this.hideSettingsActionStatus();
+                }, autoHideDelay);
+            }
+            
+        } catch (error) {
+            this.logger.error('Error showing settings action status', { 
+                error: error.message, 
+                message, 
+                type, 
+                options 
+            });
+        }
+    }
+    
+    /**
+     * Hide settings action status
+     */
+    hideSettingsActionStatus() {
+        try {
+            const statusElement = document.getElementById('settings-action-status');
+            if (statusElement) {
+                statusElement.classList.add('auto-hide');
+                setTimeout(() => {
+                    statusElement.style.display = 'none';
+                    statusElement.classList.remove('auto-hide');
+                }, 300);
+            }
+        } catch (error) {
+            this.logger.error('Error hiding settings action status', { error: error.message });
         }
     }
     

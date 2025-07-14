@@ -24,7 +24,8 @@ import { progressManager } from './modules/progress-manager.js';
 import { DeleteManager } from './modules/delete-manager.js';
 import { ExportManager } from './modules/export-manager.js';
 import { HistoryManager } from './modules/history-manager.js';
-import { showTokenAlertModal } from './modules/token-alert-modal.js';
+import { showTokenAlertModal, clearTokenAlertSession } from './modules/token-alert-modal.js';
+import { io } from 'socket.io-client';
 
 /**
  * Secret Field Toggle Component
@@ -569,12 +570,7 @@ class App {
                 this.logger.error('Failed to update version information:', error);
             }
             
-            // Initialize navigation visibility based on feature flags
-            try {
-                await this.initializeNavigationVisibility();
-            } catch (error) {
-                this.logger.error('Failed to initialize navigation visibility:', error);
-            }
+            // Navigation visibility is handled by the UI manager
             
             console.log('App initialization complete');
             console.log("✅ Moved Import Progress section below Import Users button");
@@ -614,17 +610,43 @@ class App {
             select.innerHTML = '<option value="">Loading populations...</option>';
         }
         this.hidePopulationRetryButton(dropdownId);
+        
         try {
-            if (!this.localClient) throw new Error('Internal error: API client unavailable');
+            console.log(`🔄 Loading populations for dropdown: ${dropdownId}`);
+            
+            if (!this.localClient) {
+                throw new Error('Internal error: API client unavailable');
+            }
+            
             const response = await this.localClient.get('/api/pingone/populations');
+            console.log(`📋 Populations API response:`, response);
+            
             if (Array.isArray(response)) {
+                console.log(`✅ Loaded ${response.length} populations for ${dropdownId}`);
                 this.populatePopulationDropdown(dropdownId, response);
                 this.hidePopulationRetryButton(dropdownId);
+                
+                // Update button state after loading populations
+                if (dropdownId === 'import-population-select') {
+                    this.updateImportButtonState();
+                }
             } else {
-                this.showPopulationLoadError(dropdownId, 'Invalid response from server');
+                console.error(`❌ Invalid response format for populations:`, response);
+                this.showPopulationLoadError(dropdownId, 'Invalid response format from server');
             }
         } catch (error) {
-            this.showPopulationLoadError(dropdownId, error && error.message ? error.message : 'Failed to load populations');
+            console.error(`❌ Failed to load populations for ${dropdownId}:`, error);
+            const errorMessage = error && error.message ? error.message : 'Failed to load populations';
+            this.showPopulationLoadError(dropdownId, errorMessage);
+            
+            // Log additional debug information
+            if (this.logger) {
+                this.logger.error('Population loading failed', {
+                    dropdownId,
+                    error: error.message,
+                    stack: error.stack
+                });
+            }
         }
     }
 
@@ -739,19 +761,14 @@ class App {
                 console.log('====================================');
             }
             
-            // Get both import buttons with validation
-            const topImportBtn = document.getElementById('start-import');
-            const bottomImportBtn = document.getElementById('bottom-start-import');
+            // Get import button with validation (only one exists in HTML)
+            const importBtn = document.getElementById('start-import');
             
             const shouldEnable = hasFile && hasPopulation;
             
-            // Safely update button states
-            if (topImportBtn && typeof topImportBtn.disabled !== 'undefined') {
-                topImportBtn.disabled = !shouldEnable;
-            }
-            
-            if (bottomImportBtn && typeof bottomImportBtn.disabled !== 'undefined') {
-                bottomImportBtn.disabled = !shouldEnable;
+            // Safely update button state
+            if (importBtn && typeof importBtn.disabled !== 'undefined') {
+                importBtn.disabled = !shouldEnable;
             }
             
             if (window.DEBUG_MODE) {
@@ -777,13 +794,11 @@ class App {
             
         } catch (error) {
             console.error('Error updating import button state:', error);
-            // Fallback: disable buttons on error
-            const buttons = document.querySelectorAll('#start-import, #bottom-start-import');
-            buttons.forEach(btn => {
-                if (btn && typeof btn.disabled !== 'undefined') {
-                    btn.disabled = true;
-                }
-            });
+            // Fallback: disable button on error
+            const importBtn = document.getElementById('start-import');
+            if (importBtn && typeof importBtn.disabled !== 'undefined') {
+                importBtn.disabled = true;
+            }
         }
     }
 
@@ -837,6 +852,7 @@ class App {
 
     async loadSettings() {
         try {
+            // First try to load from server
             const response = await this.localClient.get('/api/settings');
             
             if (response.success && response.data) {
@@ -853,7 +869,7 @@ class App {
                 };
                 
                 this.populateSettingsForm(settings);
-                this.logger.info('Settings loaded and populated into form');
+                this.logger.info('Settings loaded from server and populated into form');
                 
                 // Show current token status if PingOneClient is available
                 if (this.pingOneClient) {
@@ -865,10 +881,33 @@ class App {
                     }
                 }
             } else {
-                this.logger.warn('No settings found or failed to load settings');
+                // Fallback to localStorage if server settings not available
+                this.logger.warn('No server settings found, trying localStorage...');
+                try {
+                    const localSettings = await this.settingsManager.loadSettings();
+                    if (localSettings && Object.keys(localSettings).length > 0) {
+                        this.populateSettingsForm(localSettings);
+                        this.logger.info('Settings loaded from localStorage and populated into form');
+                    } else {
+                        this.logger.info('No settings found in localStorage, using defaults');
+                    }
+                } catch (localError) {
+                    this.logger.error('Failed to load settings from localStorage:', localError);
+                }
             }
         } catch (error) {
-            this.logger.error('Failed to load settings:', error);
+            this.logger.error('Failed to load settings from server, trying localStorage...');
+            try {
+                const localSettings = await this.settingsManager.loadSettings();
+                if (localSettings && Object.keys(localSettings).length > 0) {
+                    this.populateSettingsForm(localSettings);
+                    this.logger.info('Settings loaded from localStorage (fallback) and populated into form');
+                } else {
+                    this.logger.info('No settings found in localStorage, using defaults');
+                }
+            } catch (localError) {
+                this.logger.error('Failed to load settings from localStorage:', localError);
+            }
         }
     }
 
@@ -972,21 +1011,7 @@ class App {
             });
         }
 
-        const startImportBtnBottom = document.getElementById('bottom-start-import');
-        if (startImportBtnBottom) {
-            startImportBtnBottom.addEventListener('click', async (e) => {
-                try {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    await this.startImport();
-                } catch (error) {
-                    console.error('Error in bottom start import handler:', error);
-                    if (this.uiManager && typeof this.uiManager.showError === 'function') {
-                        this.uiManager.showError('Import Error', 'Failed to start import. Please try again.');
-                    }
-                }
-            });
-        }
+
 
         const cancelImportBtn = document.getElementById('cancel-import-btn');
         if (cancelImportBtn) {
@@ -1077,6 +1102,30 @@ class App {
         if (settingsForm) {
             settingsForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                const formData = new FormData(settingsForm);
+                
+                // Get API secret from SecretFieldManager
+                const apiSecret = this.secretFieldToggle.getValue();
+                
+                const settings = {
+                    environmentId: formData.get('environment-id'),
+                    apiClientId: formData.get('api-client-id'),
+                    apiSecret: apiSecret,
+                    populationId: formData.get('population-id'),
+                    region: formData.get('region'),
+                    rateLimit: parseInt(formData.get('rate-limit')) || 90
+                };
+                await this.handleSaveSettings(settings);
+            });
+        }
+
+        // Save settings button event listener
+        const saveSettingsBtn = document.getElementById('save-settings');
+        if (saveSettingsBtn) {
+            saveSettingsBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                
+                // Get form data
                 const formData = new FormData(settingsForm);
                 
                 // Get API secret from SecretFieldManager
@@ -1405,43 +1454,9 @@ class App {
         }
     }
 
-    /**
-     * Initialize navigation visibility based on feature flags
-     * 
-     * Controls which navigation items are visible based on feature flag states.
-     * This ensures that disabled features are not accessible through navigation.
-     */
-    async initializeNavigationVisibility() {
-        try {
-            // Check progress page feature flag
-            const isProgressEnabled = await this.isFeatureEnabled('progressPage');
-            
-            // Find progress navigation item
-            const progressNavItem = document.querySelector('[data-view="progress"]');
-            if (progressNavItem) {
-                if (isProgressEnabled) {
-                    progressNavItem.style.display = 'block';
-                    console.log('✅ Progress page navigation enabled');
-                } else {
-                    progressNavItem.style.display = 'none';
-                    console.log('❌ Progress page navigation disabled');
-                }
-            } else {
-                console.warn('Progress navigation item not found');
-            }
-            
-            // Future: Add more feature flag checks here as needed
-            // Example: if (await this.isFeatureEnabled('modifyPage')) { ... }
-            
-        } catch (error) {
-            console.error('Failed to initialize navigation visibility:', error);
-            // On error, hide feature-flag controlled items for safety
-            const progressNavItem = document.querySelector('[data-view="progress"]');
-            if (progressNavItem) {
-                progressNavItem.style.display = 'none';
-            }
-        }
-    }
+    // UI for progress page is temporarily removed. 
+    // Controlled by backend feature flag: progressPage
+    // To re-enable: set FEATURE_FLAG_PROGRESS_PAGE=true in environment
 
     /**
      * Show view with feature flag validation
@@ -1450,17 +1465,6 @@ class App {
      */
     async showView(view) {
         if (!view) return;
-        
-        // Check feature flags for specific views
-        if (view === 'progress') {
-            const isProgressEnabled = await this.isFeatureEnabled('progressPage');
-            if (!isProgressEnabled) {
-                // Redirect to home page if progress is disabled
-                this.uiManager.showWarning('Progress page is currently disabled.');
-                this.showView('home');
-                return;
-            }
-        }
         
         // Hide all views with safe iteration
         const views = document.querySelectorAll('.view');
@@ -1480,11 +1484,6 @@ class App {
             
             // Handle universal token status visibility
             this.handleTokenStatusVisibility(view);
-            
-            // Refresh progress page when progress view is shown
-            if (view === 'progress') {
-                this.refreshProgressPage();
-            }
             
             // Load settings when navigating to settings view
             if (view === 'settings') {
@@ -1582,8 +1581,8 @@ class App {
         try {
             this.logger.info('Saving settings', settings);
             
-            // Update settings save status to show saving
-            this.uiManager.updateSettingsSaveStatus('Saving settings...', 'info');
+            // Show saving status using new enhanced status field
+            this.uiManager.showSettingsActionStatus('Saving settings...', 'info');
             
             // Just save settings without testing connections
             const response = await this.localClient.post('/api/settings', settings);
@@ -1594,8 +1593,9 @@ class App {
             // Update API clients with new settings
             this.pingOneClient = apiFactory.getPingOneClient(this.logger, this.settingsManager);
             
-            // Update settings save status to show success
-            this.uiManager.updateSettingsSaveStatus('✅ Settings saved successfully', 'success');
+            // Show success status using new enhanced status field
+            this.uiManager.showSettingsActionStatus('Settings saved successfully', 'success', { autoHideDelay: 3000 });
+            
             // Show green notification
             this.uiManager.showSuccess('Settings saved for PingOne');
             
@@ -1612,7 +1612,7 @@ class App {
             }
         } catch (error) {
             this.logger.error('Failed to save settings', { error: error.message });
-            this.uiManager.updateSettingsSaveStatus('❌ Failed to save settings: ' + error.message, 'error');
+            this.uiManager.showSettingsActionStatus('Failed to save settings: ' + error.message, 'error', { autoHide: false });
         }
     }
 
@@ -1853,143 +1853,165 @@ class App {
         this.fallbackPolling = null;
         
         /**
-         * Establishes robust SSE connection for real-time import progress updates
+         * Establishes Socket.IO connection for real-time import progress updates with WebSocket fallback
          * 
-         * Uses the new RobustEventSource wrapper with exponential backoff,
-         * connection status indicators, and automatic fallback to polling.
+         * Uses Socket.IO as primary real-time connection with automatic fallback to WebSocket
+         * if Socket.IO fails or disconnects.
          * 
          * @param {string} sessionId - Unique session identifier for this import
          */
-        const connectRobustSSE = (sessionId) => {
+        const connectRealTimeProgress = (sessionId) => {
             // Validate sessionId before attempting connection
             if (!sessionId || typeof sessionId !== 'string' || sessionId.trim() === '') {
-                console.error("SSE: ❌ Invalid sessionId - cannot establish connection", { sessionId });
-                this.uiManager.debugLog("SSE", "❌ Invalid sessionId - cannot establish connection", { sessionId });
-                this.uiManager.showError('SSE Connection Error', 'Invalid session ID. Cannot establish progress connection.');
-                this.uiManager.showError('SSE Connection Failed', 'Missing session ID');
+                console.error("RealTime: ❌ Invalid sessionId - cannot establish connection", { sessionId });
+                this.uiManager.debugLog("RealTime", "❌ Invalid sessionId - cannot establish connection", { sessionId });
+                this.uiManager.showError('Connection Error', 'Invalid session ID. Cannot establish progress connection.');
                 this.isImporting = false;
                 return;
             }
 
-            // Check if EventSource is supported in the browser
-            if (!window.EventSource) {
-                console.error("SSE: ❌ EventSource not supported in this browser");
-                this.uiManager.debugLog("SSE", "❌ EventSource not supported in this browser");
-                this.uiManager.showError('SSE Not Supported', 'Your browser does not support Server-Sent Events. Progress updates will not be available.');
-                this.uiManager.showError('SSE Not Supported', 'Server-Sent Events not supported in this browser');
-                this.isImporting = false;
-                return;
-            }
-
-            // Log SSE connection attempt for debugging
-            console.log("SSE: 🔌 Establishing robust SSE connection with sessionId:", sessionId);
-            this.uiManager.debugLog("SSE", `🔄 Establishing robust SSE connection with sessionId: ${sessionId}`);
-            this.uiManager.showInfo(`SSE: Opening robust connection with sessionId: ${sessionId}`);
+            // Log connection attempt for debugging
+            console.log("RealTime: 🔌 Establishing Socket.IO connection with sessionId:", sessionId);
+            this.uiManager.debugLog("RealTime", `🔄 Establishing Socket.IO connection with sessionId: ${sessionId}`);
+            this.uiManager.showInfo(`RealTime: Opening Socket.IO connection with sessionId: ${sessionId}`);
             
-            // Create robust SSE connection with enhanced features
-            const sseUrl = `/api/import/progress/${sessionId}`;
-            this.robustSSE = new RobustEventSource(sseUrl, {
-                maxRetries: 5,
-                baseDelay: 1000,
-                maxDelay: 30000,
+            // Initialize Socket.IO connection
+            this.socket = io();
+            
+            // Socket.IO event handlers
+            this.socket.on('connect', () => {
+                console.log("Socket.IO: ✅ Connected to server");
+                this.uiManager.debugLog("Socket.IO", "✅ Connected to server");
+                this.uiManager.showSuccess('Socket.IO: Real-time connection established');
                 
-                // Connection status updates
-                onStatus: (status, data) => {
-                    console.log(`SSE: Status update - ${status}`, data);
-                    this.uiManager.debugLog("SSE", `Status update: ${status}`, data);
-                    updateSSEStatusIndicator(status, false);
-                    
-                    // Update UI based on connection status
-                    switch (status) {
-                        case 'connecting':
-                            this.uiManager.showInfo('SSE: Connecting to server...');
-                            break;
-                        case 'connected':
-                            this.uiManager.showSuccess('SSE: Real-time connection established');
-                            // Stop fallback polling if it was active
-                            if (this.fallbackPolling) {
-                                stopFallbackPolling();
-                                this.fallbackPolling = null;
-                            }
-                            break;
-                        case 'reconnecting':
-                            this.uiManager.showWarning(`SSE: Reconnecting... Attempt ${data.attempt}/${data.maxRetries}`);
-                            break;
-                        case 'failed':
-                            this.uiManager.showError('SSE Connection Failed', 'Switching to fallback mode');
-                            // Start fallback polling
-                            if (!this.fallbackPolling) {
-                                this.fallbackPolling = startFallbackPolling(sseUrl, (progressData) => {
-                                    this.handleProgressUpdate(progressData);
-                                });
-                            }
-                            break;
-                        case 'disconnected':
-                            this.uiManager.showWarning('SSE: Connection lost');
-                            break;
-                    }
-                },
+                // Register session with server
+                this.socket.emit('registerSession', sessionId);
                 
-                // Handle progress messages
-                onMessage: (event) => {
-                    console.log("SSE: 📩 Progress message received:", event.data);
-                    this.uiManager.debugLog("SSE", "📊 Progress message received", { 
-                        data: event.data,
-                        lastEventId: event.lastEventId,
-                        origin: event.origin 
-                    });
+                // Stop fallback polling if it was active
+                if (this.fallbackPolling) {
+                    stopFallbackPolling();
+                    this.fallbackPolling = null;
+                }
+            });
+            
+            this.socket.on('progress', (data) => {
+                console.log("Socket.IO: 📩 Progress message received:", data);
+                this.uiManager.debugLog("Socket.IO", "📊 Progress message received", data);
+                this.handleProgressUpdate(data);
+            });
+            
+            this.socket.on('completion', (data) => {
+                console.log("Socket.IO: ✅ Completion message received:", data);
+                this.uiManager.debugLog("Socket.IO", "✅ Completion message received", data);
+                this.handleProgressUpdate(data);
+            });
+            
+            this.socket.on('error', (data) => {
+                console.log("Socket.IO: ❌ Error message received:", data);
+                this.uiManager.debugLog("Socket.IO", "❌ Error message received", data);
+                this.handleProgressUpdate(data);
+            });
+            
+            // Handle Socket.IO disconnection - fallback to WebSocket
+            this.socket.on('disconnect', (reason) => {
+                console.log("Socket.IO: 🔄 Disconnected, reason:", reason);
+                this.uiManager.debugLog("Socket.IO", `🔄 Disconnected, reason: ${reason}`);
+                this.uiManager.showWarning('Socket.IO: Connection lost, switching to WebSocket fallback');
+                
+                // Start WebSocket fallback
+                this.startWebSocketFallback(sessionId);
+            });
+            
+            // Handle Socket.IO connection errors - fallback to WebSocket
+            this.socket.on('connect_error', (error) => {
+                console.error("Socket.IO: ❌ Connection error:", error);
+                this.uiManager.debugLog("Socket.IO", "❌ Connection error", { error: error.message });
+                this.uiManager.showError('Socket.IO Connection Failed', 'Switching to WebSocket fallback');
+                
+                // Start WebSocket fallback
+                this.startWebSocketFallback(sessionId);
+            });
+        };
+        
+        /**
+         * WebSocket fallback for when Socket.IO fails
+         * 
+         * @param {string} sessionId - Unique session identifier for this import
+         */
+        this.startWebSocketFallback = (sessionId) => {
+            console.log("WebSocket: 🔌 Starting WebSocket fallback connection");
+            this.uiManager.debugLog("WebSocket", "🔄 Starting WebSocket fallback connection");
+            this.uiManager.showInfo('WebSocket: Establishing fallback connection');
+            
+            try {
+                this.ws = new WebSocket(`ws://${window.location.hostname}:${window.location.port || 4000}`);
+                
+                this.ws.onopen = () => {
+                    console.log("WebSocket: ✅ Connected to server");
+                    this.uiManager.debugLog("WebSocket", "✅ Connected to server");
+                    this.uiManager.showSuccess('WebSocket: Fallback connection established');
                     
-                    let data;
+                    // Send session ID to register with server
+                    this.ws.send(JSON.stringify({ sessionId }));
+                };
+                
+                this.ws.onmessage = (event) => {
+                    console.log("WebSocket: 📩 Message received:", event.data);
+                    this.uiManager.debugLog("WebSocket", "📊 Message received", { data: event.data });
+                    
                     try {
-                        data = JSON.parse(event.data);
-                        console.log("SSE: ✅ Progress data parsed successfully:", data);
-                        this.uiManager.debugLog("SSE", "✅ Progress data parsed successfully", data);
+                        const data = JSON.parse(event.data);
+                        this.handleProgressUpdate(data);
                     } catch (e) {
-                        console.error("SSE: ❌ Failed to parse progress event data:", e.message, "Raw data:", event.data);
-                        this.uiManager.debugLog("SSE", "❌ Failed to parse progress event data", { 
-                            rawData: event.data, 
-                            error: e.message 
-                        });
-                        this.uiManager.showError('SSE Data Error', 'Received malformed progress data from server');
-                        return;
+                        console.error("WebSocket: ❌ Failed to parse message:", e.message);
+                        this.uiManager.debugLog("WebSocket", "❌ Failed to parse message", { error: e.message });
                     }
-
-                    // Handle different event types
-                    this.handleProgressUpdate(data);
-                },
+                };
                 
-                // Handle connection opened
-                onOpen: (event) => {
-                    console.log("SSE: ✅ Robust SSE connection opened:", event);
-                    this.uiManager.debugLog("SSE", "✅ Robust SSE connection opened", { 
-                        event: event 
-                    });
-                    this.uiManager.showInfo(`SSE connected for import (sessionId: ${sessionId})`);
-                    this.uiManager.showStatusMessage('success', 'Real-time connection established', 
-                        'Progress updates will be shown in real-time during the import process.');
-                },
-                
-                // Handle connection errors
-                onError: (event) => {
-                    console.error("SSE: ❌ Robust SSE connection error:", event);
-                    this.uiManager.debugLog("SSE", "❌ Robust SSE connection error", { 
-                        error: event 
-                    });
-                                            this.uiManager.showError('SSE Connection Error', 'Connection error occurred');
+                this.ws.onerror = (error) => {
+                    console.error("WebSocket: ❌ Connection error:", error);
+                    this.uiManager.debugLog("WebSocket", "❌ Connection error", { error: error.message });
+                    this.uiManager.showError('WebSocket Connection Failed', 'All real-time connections failed');
                     
-                    // If robust SSE fails completely, start fallback polling
+                    // Fallback to polling if WebSocket also fails
                     if (!this.fallbackPolling) {
-                        console.log("SSE: 🔄 Starting fallback polling due to connection failure");
-                        this.uiManager.showWarning('SSE: Switching to fallback polling mode');
+                        console.log("WebSocket: 🔄 Starting polling fallback");
+                        this.uiManager.showWarning('WebSocket: Switching to polling fallback');
+                        const sseUrl = `/api/import/progress/${sessionId}`;
                         this.fallbackPolling = startFallbackPolling(sseUrl, (progressData) => {
                             this.handleProgressUpdate(progressData);
                         });
                     }
+                };
+                
+                this.ws.onclose = (event) => {
+                    console.log("WebSocket: 🔄 Connection closed:", event.code, event.reason);
+                    this.uiManager.debugLog("WebSocket", "🔄 Connection closed", { code: event.code, reason: event.reason });
+                    
+                    // Fallback to polling if WebSocket closes
+                    if (!this.fallbackPolling) {
+                        console.log("WebSocket: 🔄 Starting polling fallback after close");
+                        this.uiManager.showWarning('WebSocket: Connection closed, switching to polling');
+                        const sseUrl = `/api/import/progress/${sessionId}`;
+                        this.fallbackPolling = startFallbackPolling(sseUrl, (progressData) => {
+                            this.handleProgressUpdate(progressData);
+                        });
+                    }
+                };
+                
+            } catch (error) {
+                console.error("WebSocket: ❌ Failed to create WebSocket connection:", error);
+                this.uiManager.debugLog("WebSocket", "❌ Failed to create connection", { error: error.message });
+                this.uiManager.showError('WebSocket Setup Failed', 'WebSocket not supported, using polling fallback');
+                
+                // Fallback to polling
+                if (!this.fallbackPolling) {
+                    const sseUrl = `/api/import/progress/${sessionId}`;
+                    this.fallbackPolling = startFallbackPolling(sseUrl, (progressData) => {
+                        this.handleProgressUpdate(progressData);
+                    });
                 }
-            });
-
-            // Start the robust connection
-            this.robustSSE.connect();
+            }
         };
 
                 /**
@@ -2238,14 +2260,18 @@ class App {
             // Log session ID and establish robust SSE connection for progress updates
             this.uiManager.debugLog("Import", "Session ID received", { sessionId });
             console.log('🔌 [IMPORT] Establishing robust SSE connection with sessionId:', sessionId);
-            // After receiving sessionId and before calling connectRobustSSE
-            if (typeof RobustEventSource === 'undefined') {
-                this.uiManager?.showError?.('Real-time updates unavailable', 'The real-time import progress module failed to load. Please refresh or contact support.');
-                console.error('RobustEventSource is not defined. SSE will not be used.');
-                // Optionally, fallback to polling or just proceed without SSE
+            // After receiving sessionId and before calling connectRealTimeProgress
+            if (typeof io === 'undefined') {
+                this.uiManager?.showError?.('Real-time updates unavailable', 'The Socket.IO client failed to load. Please refresh or contact support.');
+                console.error('Socket.IO client is not defined. Real-time updates will not be used.');
+                // Fallback to polling
+                const sseUrl = `/api/import/progress/${sessionId}`;
+                this.fallbackPolling = startFallbackPolling(sseUrl, (progressData) => {
+                    this.handleProgressUpdate(progressData);
+                });
                 return;
             }
-            connectRobustSSE(sessionId);
+            connectRealTimeProgress(sessionId);
         } catch (error) {
             console.error('❌ [IMPORT] Error during import process:', error);
             this.uiManager.debugLog("Import", "Error starting import", error);
@@ -2768,20 +2794,20 @@ class App {
         try {
             // Set button loading state
             this.uiManager.setButtonLoading('test-connection-btn', true);
-            this.uiManager.updateConnectionStatus('connecting', 'Testing connection...');
+            this.uiManager.showSettingsActionStatus('Testing connection...', 'info');
             
             const response = await this.localClient.post('/api/pingone/test-connection');
             
             if (response.success) {
-                this.uiManager.updateConnectionStatus('connected', 'Connection test successful');
+                this.uiManager.showSettingsActionStatus('Connection test successful', 'success', { autoHideDelay: 3000 });
                 this.uiManager.showSuccess('Connection test successful', response.message);
             } else {
-                this.uiManager.updateConnectionStatus('error', 'Connection test failed');
+                this.uiManager.showSettingsActionStatus('Connection test failed: ' + response.error, 'error', { autoHide: false });
                 this.uiManager.showError('Connection test failed', response.error);
             }
             
         } catch (error) {
-            this.uiManager.updateConnectionStatus('error', 'Connection test failed: ' + error.message);
+            this.uiManager.showSettingsActionStatus('Connection test failed: ' + error.message, 'error', { autoHide: false });
             this.uiManager.showError('Connection test failed', error.message);
         } finally {
             // Always reset button loading state
@@ -2966,25 +2992,12 @@ class App {
             if (!tokenInfo.token || tokenInfo.isExpired) {
                 console.warn('❌ [TOKEN CHECK] No valid token found for operation:', operation);
                 
-                // Show error message
-                this.uiManager.showError(
-                    'Authentication Required', 
-                    'No valid token found. Please add credentials to continue.'
-                );
-                
-                // Redirect to settings page
-                console.log('🔄 [TOKEN CHECK] Redirecting to Settings page...');
-                this.showView('settings');
-                
-                // Update navigation to highlight settings
-                this.updateNavigationActiveState('settings');
-                
-                // Show additional guidance
-                setTimeout(() => {
-                    this.uiManager.showInfo(
-                        'Please configure your PingOne credentials in the Settings page to continue.'
-                    );
-                }, 1000);
+                // Show enhanced token alert modal with action button
+                showTokenAlertModal({
+                    tokenStatus: tokenInfo.token ? 'Expired' : 'Not Available',
+                    expiry: tokenInfo.expiry ? new Date(tokenInfo.expiry).toLocaleString() : '',
+                    operation: operation
+                });
                 
                 return false;
             }
@@ -3005,9 +3018,6 @@ class App {
             
             if (response.success) {
                 this.uiManager.showSuccess(`Feature flag ${flag} ${enabled ? 'enabled' : 'disabled'}`);
-                
-                // Refresh navigation visibility when feature flags change
-                await this.initializeNavigationVisibility();
                 
                 // If progress page was disabled and user is currently on it, redirect to home
                 if (flag === 'progressPage' && !enabled && this.currentView === 'progress') {

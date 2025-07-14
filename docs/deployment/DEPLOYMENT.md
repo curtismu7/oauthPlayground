@@ -125,7 +125,7 @@ CORS_ORIGIN=https://your-app-name.onrender.com
 ### Progress UI
 
 - All major operations (Import, Export, Delete, Modify) feature a modern, non-blocking progress UI with real-time updates.
-- Progress and region features are testable via Swagger UI (`/swagger/html` or `/api-docs`) and the API tester (`public/api-tester.html`).
+- Progress and region features are testable via Swagger UI (`/swagger.html` or `/api-docs`) and the API tester (`public/api-tester.html`).
 
 ## Step 4: Test Your Deployment
 
