@@ -334,6 +334,7 @@ class DisclaimerModal {
         
         // Send to server if logging is available and properly initialized
         try {
+            // Check if logManager exists and has the log method
             if (window.logManager && typeof window.logManager.log === 'function') {
                 window.logManager.log('info', `Disclaimer modal: ${eventName}`, {
                     source: 'disclaimer-modal',
@@ -341,11 +342,43 @@ class DisclaimerModal {
                     ...data
                 });
             } else if (window.logManager) {
-                // Fallback: logManager exists but doesn't have log method
-                console.warn('[DisclaimerModal] logManager exists but log method is not available');
+                // logManager exists but doesn't have log method - initialize it
+                if (typeof window.logManager.log !== 'function') {
+                    window.logManager.log = function(level, message, data) {
+                        const timestamp = new Date().toISOString();
+                        const logMessage = `[${timestamp}] [${level.toUpperCase()}] ${message}`;
+                        if (data) {
+                            console.log(logMessage, data);
+                        } else {
+                            console.log(logMessage);
+                        }
+                    };
+                    // Now try logging again
+                    window.logManager.log('info', `Disclaimer modal: ${eventName}`, {
+                        source: 'disclaimer-modal',
+                        type: 'ui',
+                        ...data
+                    });
+                }
             } else {
-                // Fallback: logManager not available
-                console.debug('[DisclaimerModal] logManager not available, using console logging only');
+                // logManager not available - create a basic one
+                window.logManager = {
+                    log: function(level, message, data) {
+                        const timestamp = new Date().toISOString();
+                        const logMessage = `[${timestamp}] [${level.toUpperCase()}] ${message}`;
+                        if (data) {
+                            console.log(logMessage, data);
+                        } else {
+                            console.log(logMessage);
+                        }
+                    }
+                };
+                // Now try logging
+                window.logManager.log('info', `Disclaimer modal: ${eventName}`, {
+                    source: 'disclaimer-modal',
+                    type: 'ui',
+                    ...data
+                });
             }
         } catch (error) {
             // Graceful fallback if logging fails
@@ -409,6 +442,22 @@ document.addEventListener('DOMContentLoaded', () => {
     let disclaimerInitialized = false;
     const initializeDisclaimer = () => {
         if (disclaimerInitialized) return;
+        
+        // Ensure logManager is available before proceeding
+        if (!window.logManager) {
+            window.logManager = {
+                log: function(level, message, data) {
+                    const timestamp = new Date().toISOString();
+                    const logMessage = `[${timestamp}] [${level.toUpperCase()}] ${message}`;
+                    if (data) {
+                        console.log(logMessage, data);
+                    } else {
+                        console.log(logMessage);
+                    }
+                }
+            };
+        }
+        
         // Only show disclaimer if not previously accepted (with expiry/session logic)
         if (!DisclaimerModal.isDisclaimerAccepted()) {
             new DisclaimerModal();
@@ -421,12 +470,15 @@ document.addEventListener('DOMContentLoaded', () => {
             disclaimerInitialized = true;
         }
     };
+    
     // Try to initialize immediately
     initializeDisclaimer();
     // Also try after a short delay to ensure app components are loaded
     setTimeout(initializeDisclaimer, 100);
     // Final attempt after longer delay to ensure logManager is available
     setTimeout(initializeDisclaimer, 1000);
+    // Additional attempt after app initialization
+    setTimeout(initializeDisclaimer, 2000);
 });
 
 // Export for global access

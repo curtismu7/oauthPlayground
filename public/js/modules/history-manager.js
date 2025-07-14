@@ -23,6 +23,7 @@ class HistoryManager {
         this.setupEventListeners();
         this.startAutoRefresh();
         this.loadHistory();
+        this.loadPopulations();
     }
     
     setupElements() {
@@ -474,6 +475,36 @@ class HistoryManager {
         if (this.refreshInterval) {
             clearInterval(this.refreshInterval);
             this.refreshInterval = null;
+        }
+    }
+    
+    async loadPopulations() {
+        try {
+            const response = await fetch('/api/populations');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            const populations = data.populations || [];
+            
+            const populationFilter = document.getElementById('history-population-filter');
+            if (populationFilter) {
+                // Clear existing options except the first one
+                populationFilter.innerHTML = '<option value="">All Populations</option>';
+                
+                // Add population options
+                populations.forEach(population => {
+                    const option = document.createElement('option');
+                    option.value = population.id;
+                    option.textContent = population.name;
+                    populationFilter.appendChild(option);
+                });
+                
+                console.log(`Loaded ${populations.length} populations for history filter`);
+            }
+        } catch (error) {
+            console.error('Failed to load populations for history filter:', error);
         }
     }
     

@@ -447,7 +447,7 @@ class FileHandler {
 
             // Update UI with enhanced file info display based on operation type
             const fileInfoContainerId = operationType === 'modify' ? 'modify-file-info' : 'file-info';
-            this.updateFileInfoForElement(file, fileInfoContainerId);
+            this.updateFileInfoForElement(file, fileInfoContainerId, parseResults.validUsers);
             
             // Update file label to show last folder path
             this.updateFileLabel(operationType);
@@ -1036,9 +1036,9 @@ class FileHandler {
      * @param {File} file - The file object
      * @param {string} containerId - The ID of the container element to update
      */
-    updateFileInfoForElement(file, containerId) {
+    updateFileInfoForElement(file, containerId, recordCount = null) {
         const container = document.getElementById(containerId);
-        console.log('updateFileInfoForElement called:', { containerId, container: !!container, file: !!file });
+        console.log('updateFileInfoForElement called:', { containerId, container: !!container, file: !!file, recordCount });
         if (!container || !file) {
             console.warn('updateFileInfoForElement: container or file is null', { containerId, hasContainer: !!container, hasFile: !!file });
             return;
@@ -1069,64 +1069,77 @@ class FileHandler {
         const isValidType = isCSV || isText || fileType === 'text/csv' || fileType === 'text/plain';
         const fileSizeInKB = Math.round(file.size / 1024);
         const fileSizeInMB = Math.round((file.size / 1024 / 1024) * 100) / 100;
+
+        // Determine record count display
+        let recordCountHTML = '';
+        if (isValidType && recordCount !== null) {
+            if (typeof recordCount === 'number') {
+                if (recordCount > 0) {
+                    recordCountHTML = `<div class="file-info-item" style="background: white; padding: 8px; border-radius: 4px; border: 1px solid #e9ecef;"><strong style="color: #495057; display: block; margin-bottom: 3px; font-size: 0.85rem;">🧾 Records</strong><span style="color: #0073C8; font-size: 0.8rem; font-weight: bold;">${recordCount}</span></div>`;
+                } else {
+                    recordCountHTML = `<div class="file-info-item" style="background: white; padding: 8px; border-radius: 4px; border: 1px solid #e9ecef;"><strong style="color: #495057; display: block; margin-bottom: 3px; font-size: 0.85rem;">🧾 Records</strong><span style="color: #dc3545; font-size: 0.8rem; font-weight: bold;">No user records found</span></div>`;
+                }
+            }
+        }
         
-        // Create improved file info display with prominent file name
+        // Create compact file info display with reduced footprint
         const fileInfoHTML = `
-            <div class="file-info-details" style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div class="file-info-details" style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 12px; margin: 8px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
                 
-                <!-- Prominent File Name Section -->
-                <div class="file-name-section" style="text-align: center; margin-bottom: 20px; padding: 15px; background: #e6f4ff; border-radius: 6px; color: #1a237e; font-weight: bold; font-size: 1.4rem;">
-                    <div style="font-size: 1.8rem; font-weight: 700; margin-bottom: 5px; color: #1a237e; text-shadow: none; word-break: break-word; overflow-wrap: break-word;">
-                        <i class="fas fa-file-csv" style="margin-right: 10px; font-size: 1.6rem; color: #1976d2;"></i>
+                <!-- Compact File Name Section -->
+                <div class="file-name-section" style="text-align: center; margin-bottom: 12px; padding: 8px; background: #e6f4ff; border-radius: 4px; color: #1a237e; font-weight: bold; font-size: 1.1rem;">
+                    <div style="font-size: 1.3rem; font-weight: 600; margin-bottom: 3px; color: #1a237e; text-shadow: none; word-break: break-word; overflow-wrap: break-word;">
+                        <i class="fas fa-file-csv" style="margin-right: 6px; font-size: 1.2rem; color: #1976d2;"></i>
                         ${file.name}
                     </div>
-                    <div style="font-size: 1rem; opacity: 0.95; font-weight: 600; color: #1976d2;">
+                    <div style="font-size: 0.85rem; opacity: 0.9; font-weight: 500; color: #1976d2;">
                         File Selected Successfully
                     </div>
                 </div>
                 
-                <!-- File Information Grid -->
-                <div class="file-info-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; font-size: 0.9em; margin-bottom: 15px;">
-                    <div class="file-info-item" style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #e9ecef;">
-                        <strong style="color: #495057; display: block; margin-bottom: 5px;">📊 File Size</strong>
-                        <span style="color: #6c757d;">${fileSize} (${fileSizeInKB} KB, ${fileSizeInMB} MB)</span>
+                <!-- Compact File Information Grid -->
+                <div class="file-info-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; font-size: 0.8em; margin-bottom: 10px;">
+                    <div class="file-info-item" style="background: white; padding: 8px; border-radius: 4px; border: 1px solid #e9ecef;">
+                        <strong style="color: #495057; display: block; margin-bottom: 3px; font-size: 0.85rem;">📊 File Size</strong>
+                        <span style="color: #6c757d; font-size: 0.8rem;">${fileSize} (${fileSizeInKB} KB, ${fileSizeInMB} MB)</span>
                     </div>
                     
-                    <div class="file-info-item" style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #e9ecef;">
-                        <strong style="color: #495057; display: block; margin-bottom: 5px;">📂 Directory</strong>
-                        <span style="color: #6c757d; word-break: break-all;">${filePath}</span>
+                    <div class="file-info-item" style="background: white; padding: 8px; border-radius: 4px; border: 1px solid #e9ecef;">
+                        <strong style="color: #495057; display: block; margin-bottom: 3px; font-size: 0.85rem;">📂 Directory</strong>
+                        <span style="color: #6c757d; word-break: break-all; font-size: 0.8rem;">${filePath}</span>
                     </div>
                     
-                    <div class="file-info-item" style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #e9ecef;">
-                        <strong style="color: #495057; display: block; margin-bottom: 5px;">📅 Last Modified</strong>
-                        <span style="color: #6c757d;">${lastModified}</span>
+                    <div class="file-info-item" style="background: white; padding: 8px; border-radius: 4px; border: 1px solid #e9ecef;">
+                        <strong style="color: #495057; display: block; margin-bottom: 3px; font-size: 0.85rem;">📅 Last Modified</strong>
+                        <span style="color: #6c757d; font-size: 0.8rem;">${lastModified}</span>
                     </div>
                     
-                    <div class="file-info-item" style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #e9ecef;">
-                        <strong style="color: #495057; display: block; margin-bottom: 5px;">🔤 File Type</strong>
-                        <span style="color: #6c757d;">${fileType || 'Unknown'}</span>
+                    <div class="file-info-item" style="background: white; padding: 8px; border-radius: 4px; border: 1px solid #e9ecef;">
+                        <strong style="color: #495057; display: block; margin-bottom: 3px; font-size: 0.85rem;">🔤 File Type</strong>
+                        <span style="color: #6c757d; font-size: 0.8rem;">${fileType || 'Unknown'}</span>
                     </div>
                     
-                    <div class="file-info-item" style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #e9ecef;">
-                        <strong style="color: #495057; display: block; margin-bottom: 5px;">📄 Extension</strong>
-                        <span style="color: ${isValidType ? '#28a745' : '#dc3545'}; font-weight: bold;">
+                    <div class="file-info-item" style="background: white; padding: 8px; border-radius: 4px; border: 1px solid #e9ecef;">
+                        <strong style="color: #495057; display: block; margin-bottom: 3px; font-size: 0.85rem;">📄 Extension</strong>
+                        <span style="color: ${isValidType ? '#28a745' : '#dc3545'}; font-weight: bold; font-size: 0.8rem;">
                             ${fileExtension ? '.' + fileExtension : 'None'}
                         </span>
                     </div>
+                    ${recordCountHTML}
                 </div>
                 
-                <!-- File Status Section -->
-                <div class="file-info-status" style="margin-top: 15px; padding: 12px; border-radius: 6px; background: ${isValidType ? '#d4edda' : '#f8d7da'}; border: 1px solid ${isValidType ? '#c3e6cb' : '#f5c6cb'}; display: flex; align-items: center; gap: 10px;">
-                    <i class="fas ${isValidType ? 'fa-check-circle' : 'fa-exclamation-triangle'}" style="color: ${isValidType ? '#155724' : '#721c24'}; font-size: 1.2rem;"></i>
-                    <span style="color: ${isValidType ? '#155724' : '#721c24'}; font-weight: bold;">
+                <!-- Compact File Status Section -->
+                <div class="file-info-status" style="margin-top: 8px; padding: 8px; border-radius: 4px; background: ${isValidType ? '#d4edda' : '#f8d7da'}; border: 1px solid ${isValidType ? '#c3e6cb' : '#f5c6cb'}; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas ${isValidType ? 'fa-check-circle' : 'fa-exclamation-triangle'}" style="color: ${isValidType ? '#155724' : '#721c24'}; font-size: 1rem;"></i>
+                    <span style="color: ${isValidType ? '#155724' : '#721c24'}; font-weight: bold; font-size: 0.85rem;">
                         ${isValidType ? '✅ File type is supported and ready for processing' : '⚠️ Warning: File type may not be optimal for import'}
                     </span>
                 </div>
                 
                 ${file.size > 5 * 1024 * 1024 ? `
-                <div class="file-info-warning" style="margin-top: 15px; padding: 12px; border-radius: 6px; background: #fff3cd; border: 1px solid #ffeaa7; display: flex; align-items: center; gap: 10px;">
-                    <i class="fas fa-exclamation-triangle" style="color: #856404; font-size: 1.2rem;"></i>
-                    <span style="color: #856404; font-weight: bold;">Large file detected - processing may take longer than usual</span>
+                <div class="file-info-warning" style="margin-top: 8px; padding: 8px; border-radius: 4px; background: #fff3cd; border: 1px solid #ffeaa7; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-exclamation-triangle" style="color: #856404; font-size: 1rem;"></i>
+                    <span style="color: #856404; font-weight: bold; font-size: 0.85rem;">Large file detected - processing may take longer than usual</span>
                 </div>
                 ` : ''}
                 
@@ -1134,22 +1147,22 @@ class FileHandler {
                 <style>
                     @media (max-width: 768px) {
                         .file-info-details .file-name-section div:first-child {
-                            font-size: 1.2rem !important;
+                            font-size: 1.1rem !important;
                         }
                         .file-info-grid {
                             grid-template-columns: 1fr !important;
-                            gap: 10px !important;
+                            gap: 6px !important;
                         }
                         .file-info-item {
-                            padding: 10px !important;
+                            padding: 6px !important;
                         }
                     }
                     @media (max-width: 480px) {
                         .file-info-details .file-name-section div:first-child {
-                            font-size: 1rem !important;
+                            font-size: 0.95rem !important;
                         }
                         .file-info-details {
-                            padding: 10px !important;
+                            padding: 8px !important;
                         }
                     }
                 </style>
@@ -1159,8 +1172,8 @@ class FileHandler {
         container.innerHTML = fileInfoHTML;
     }
 
-    updateFileInfo(file) {
-        this.updateFileInfoForElement(file, 'file-info');
+    updateFileInfo(file, recordCount = null) {
+        this.updateFileInfoForElement(file, 'file-info', recordCount);
     }
     
     showPreview(rows) {

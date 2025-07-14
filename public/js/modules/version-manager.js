@@ -1,6 +1,6 @@
 export class VersionManager {
     constructor() {
-        this.version = '5.1'; // Update this with each new version
+        this.version = '5.3'; // Update this with each new version
         console.log(`Version Manager initialized with version ${this.version}`);
     }
 
@@ -30,8 +30,8 @@ export class VersionManager {
         // Update the top version badge
         this.updateTopVersionBadge();
 
-        // Add version badge to the UI
-        this.addVersionBadge();
+        // Add version badge to the sidebar above the Ping Identity logo
+        this.addSidebarVersionBadge();
     }
     
     updateImportButton() {
@@ -49,28 +49,44 @@ export class VersionManager {
         }
     }
 
-    addVersionBadge() {
-        // Check if badge already exists
-        if (document.getElementById('version-badge')) {
+    addSidebarVersionBadge() {
+        // Remove existing badges if they exist
+        const existingTopLeftBadge = document.getElementById('top-left-version-badge');
+        if (existingTopLeftBadge) {
+            existingTopLeftBadge.remove();
+        }
+
+        const existingSidebarBadge = document.getElementById('sidebar-version-badge');
+        if (existingSidebarBadge) {
+            existingSidebarBadge.remove();
+        }
+
+        // Check if sidebar version badge already exists
+        if (document.getElementById('sidebar-version-badge')) {
             return;
         }
 
-        // Create version badge
+        // Create sidebar version badge
         const badge = document.createElement('div');
-        badge.id = 'version-badge';
+        badge.id = 'sidebar-version-badge';
+        badge.className = 'sidebar-version-badge';
         badge.textContent = this.getFormattedVersion();
-        badge.style.position = 'fixed';
-        badge.style.bottom = '10px';
-        badge.style.right = '10px';
-        badge.style.backgroundColor = '#333';
-        badge.style.color = 'white';
-        badge.style.padding = '2px 6px';
-        badge.style.borderRadius = '3px';
-        badge.style.fontSize = '12px';
-        badge.style.fontFamily = 'monospace';
-        badge.style.zIndex = '1000';
         
-        document.body.appendChild(badge);
+        // Find the footer and insert the badge just above the Ping Identity logo
+        const footer = document.querySelector('.ping-footer');
+        if (footer) {
+            const footerContainer = footer.querySelector('.footer-container');
+            if (footerContainer) {
+                // Insert the badge at the beginning of the footer container
+                footerContainer.insertBefore(badge, footerContainer.firstChild);
+            } else {
+                // Fallback: insert at the beginning of the footer
+                footer.insertBefore(badge, footer.firstChild);
+            }
+        } else {
+            // Fallback: add to body if footer not found
+            document.body.appendChild(badge);
+        }
     }
 }
 
