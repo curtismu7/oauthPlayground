@@ -68,7 +68,19 @@ class TokenAlertModal {
         // Settings button - navigate to settings
         this.settingsBtn.addEventListener('click', () => {
             this.hideModal();
-            window.location.href = '/settings';
+            // Navigate to settings view within the SPA instead of redirecting
+            if (window.app && window.app.showView) {
+                window.app.showView('settings');
+            } else {
+                // Fallback: navigate to settings view by triggering the settings nav item
+                const settingsNavItem = document.querySelector('[data-view="settings"]');
+                if (settingsNavItem) {
+                    settingsNavItem.click();
+                } else {
+                    // Final fallback: redirect to home page which will show settings
+                    window.location.href = '/';
+                }
+            }
         });
 
         // Close button - allow manual dismissal
