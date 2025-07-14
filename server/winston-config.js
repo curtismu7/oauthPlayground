@@ -322,38 +322,72 @@ export function createRequestLogger(logger) {
         const start = Date.now();
         const requestId = req.headers['x-request-id'] || `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         
-        // Log request
-        logger.info('HTTP Request', {
-            requestId,
-            method: req.method,
-            url: req.originalUrl,
-            headers: {
-                'user-agent': req.get('user-agent'),
-                'content-type': req.get('content-type'),
-                'content-length': req.get('content-length')
-            },
-            query: req.query,
-            body: req.body ? JSON.stringify(req.body).substring(0, 500) : null,
-            ip: req.ip,
-            timestamp: new Date().toISOString()
-        });
+        // Check if verbose logging is enabled
+        const verboseLogging = process.env.VERBOSE_LOGGING === 'true';
+        
+        // Skip logging for static assets, health checks, and Socket.IO in production
+        const skipLogging = !verboseLogging && (
+            req.path.startsWith('/js/') ||
+            req.path.startsWith('/css/') ||
+            req.path.startsWith('/vendor/') ||
+            req.path.startsWith('/favicon') ||
+            req.path === '/api/health' ||
+            req.path.startsWith('/socket.io/') ||
+            req.path.startsWith('/api/logs') // Skip log endpoint requests
+        );
+        
+        if (!skipLogging) {
+            // Log only essential request info
+            const logData = {
+                requestId,
+                method: req.method,
+                url: req.originalUrl,
+                ip: req.ip,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Add more details only in verbose mode
+            if (verboseLogging) {
+                logData.headers = {
+                    'user-agent': req.get('user-agent'),
+                    'content-type': req.get('content-type'),
+                    'content-length': req.get('content-length')
+                };
+                logData.query = Object.keys(req.query).length > 0 ? req.query : undefined;
+                logData.body = req.body ? JSON.stringify(req.body).substring(0, 500) : null;
+            }
+            
+            logger.info('HTTP Request', logData);
+        }
         
         // Override res.end to log response
         const originalEnd = res.end;
         res.end = function(chunk, encoding) {
             const duration = Date.now() - start;
-            const responseLog = {
-                requestId,
-                statusCode: res.statusCode,
-                statusMessage: res.statusMessage,
-                duration: `${duration}ms`,
-                headers: res.getHeaders(),
-                body: chunk ? chunk.toString().substring(0, 500) : null
-            };
             
-            // Log response with appropriate level
-            const level = res.statusCode >= 400 ? 'warn' : 'info';
-            logger.log(level, 'HTTP Response', responseLog);
+            // Only log responses for non-static assets, errors, or verbose mode
+            const shouldLogResponse = !skipLogging || res.statusCode >= 400 || verboseLogging;
+            
+            if (shouldLogResponse) {
+                const responseLog = {
+                    requestId,
+                    statusCode: res.statusCode,
+                    duration: `${duration}ms`
+                };
+                
+                // Add more details only in verbose mode
+                if (verboseLogging) {
+                    responseLog.headers = {
+                        'content-type': res.get('content-type'),
+                        'content-length': res.get('content-length')
+                    };
+                    responseLog.body = chunk ? chunk.toString().substring(0, 500) : null;
+                }
+                
+                // Log response with appropriate level
+                const level = res.statusCode >= 400 ? 'warn' : 'info';
+                logger.log(level, 'HTTP Response', responseLog);
+            }
             
             originalEnd.call(res, chunk, encoding);
         };
