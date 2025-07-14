@@ -1311,6 +1311,7 @@ router.get('/history', async (req, res) => {
 
 /**
  * GET /api/populations
+ */
 router.get('/populations', async (req, res) => {
     try {
         // Get token manager from Express app context

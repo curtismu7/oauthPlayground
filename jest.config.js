@@ -10,7 +10,7 @@
 
 export default {
   // Enable ESM support
-  extensionsToTreatAsEsm: ['.jsx', '.mjs'],
+  extensionsToTreatAsEsm: ['.jsx'],
   testEnvironment: 'node',
   
   // Transform configuration for ES modules

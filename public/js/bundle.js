@@ -664,7 +664,7 @@ class App {
         this.deleteManager = new _deleteManager.DeleteManager();
         console.log('✅ DeleteManager initialized successfully');
       } catch (error) {
-        this.logger.error('Failed to initialize DeleteManager:', error);
+        console.warn('DeleteManager initialization warning:', error);
         this.deleteManager = null;
       }
 
@@ -674,7 +674,7 @@ class App {
         this.historyManager = new _historyManager.HistoryManager();
         console.log('✅ ExportManager initialized successfully');
       } catch (error) {
-        this.logger.error('Failed to initialize ExportManager:', error);
+        console.warn('ExportManager initialization warning:', error);
         this.exportManager = null;
       }
 
@@ -710,7 +710,7 @@ class App {
           console.log('Disclaimer previously accepted, tool already enabled');
         }
       } catch (error) {
-        this.logger.error('Failed to setup disclaimer:', error);
+        console.warn('Failed to setup disclaimer:', error);
       }
 
       // Check server connection status to ensure backend is available
@@ -1289,7 +1289,7 @@ class App {
     }
 
     // Get token button
-    const getTokenBtn = document.getElementById('get-token-btn');
+    const getTokenBtn = document.getElementById('get-token-quick');
     if (getTokenBtn) {
       console.log('Setting up Get Token button event listener...');
       getTokenBtn.addEventListener('click', async e => {
@@ -1374,6 +1374,15 @@ class App {
         if (importStatus) {
           importStatus.style.display = 'none';
         }
+      });
+    }
+
+    // Home button in history view
+    const goHomeFromHistoryBtn = document.getElementById('go-home-from-history');
+    if (goHomeFromHistoryBtn) {
+      goHomeFromHistoryBtn.addEventListener('click', e => {
+        e.preventDefault();
+        this.showView('home');
       });
     }
   }
@@ -2796,7 +2805,7 @@ class App {
       console.log('Get Token button clicked - starting token retrieval...');
 
       // Set button loading state
-      this.uiManager.setButtonLoading('get-token-btn', true);
+      this.uiManager.setButtonLoading('get-token-quick', true);
       this.uiManager.updateConnectionStatus('connecting', 'Getting token...');
       console.log('Using PingOneClient to get token (with localStorage storage)...');
 
@@ -2869,7 +2878,7 @@ class App {
     } finally {
       // Always reset button loading state
       console.log('Resetting Get Token button loading state...');
-      this.uiManager.setButtonLoading('get-token-btn', false);
+      this.uiManager.setButtonLoading('get-token-quick', false);
     }
   }
   async toggleFeatureFlag(flag, enabled) {
@@ -3649,8 +3658,14 @@ class App {
     }
 
     // Log the disclaimer acceptance
-    if (window.logManager) {
+    if (window.logManager && typeof window.logManager.log === 'function') {
       window.logManager.log('info', 'Disclaimer accepted by user', {
+        source: 'app',
+        type: 'disclaimer',
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.info('[Disclaimer] Disclaimer accepted by user', {
         source: 'app',
         type: 'disclaimer',
         timestamp: new Date().toISOString()
@@ -4448,7 +4463,7 @@ function onModifyViewShown() {
   // Check for required token and population elements
   const tokenStatus = document.getElementById('current-token-status');
   const homeTokenStatus = document.getElementById('home-token-status');
-  const getTokenBtn = document.getElementById('get-token-btn');
+  const getTokenBtn = document.getElementById('get-token-quick');
   if (!tokenStatus) console.warn('[Modify] #current-token-status element missing');
   if (!homeTokenStatus) console.warn('[Modify] #home-token-status element missing');
   if (!getTokenBtn) console.warn('[Modify] Get Token button missing');
@@ -5186,6 +5201,10 @@ const cryptoUtils = exports.cryptoUtils = new CryptoUtils();
 },{}],7:[function(require,module,exports){
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.DeleteManager = void 0;
 /**
  * Delete Manager - Enhanced delete functionality with full environment deletion, confirmation, and logging
  * Handles file-based, population-based, and full environment user deletion
@@ -5200,8 +5219,16 @@ class DeleteManager {
     this.isStandardDeleteConfirmed = false;
     this.deleteTextConfirmation = '';
     this.logger = console;
-    this.initializeEventListeners();
-    this.loadPopulations();
+
+    // Only initialize if we're on a page with delete functionality
+    if (document.getElementById('delete-file-section') || document.getElementById('delete-population-section') || document.getElementById('delete-environment-section') || document.getElementById('start-delete')) {
+      try {
+        this.initializeEventListeners();
+        this.loadPopulations();
+      } catch (error) {
+        console.warn('DeleteManager initialization warning:', error);
+      }
+    }
   }
   initializeEventListeners() {
     // Delete type selection
@@ -5376,12 +5403,25 @@ class DeleteManager {
   }
   async loadPopulations() {
     try {
+      // Check if population select element exists before making API call
+      const populationSelect = document.getElementById('delete-population-select');
+      if (!populationSelect) {
+        console.log('Delete population select not found, skipping population load');
+        return;
+      }
       this.logPopulationLoadStart();
       const response = await fetch('/api/populations');
       if (response.ok) {
-        const populations = await response.json();
-        this.populatePopulationSelect(populations);
-        this.logPopulationLoadSuccess(populations.length);
+        const data = await response.json();
+        // Handle the API response structure: { success: true, populations: [...], total: 123 }
+        const populations = data.populations || data;
+        if (Array.isArray(populations)) {
+          this.populatePopulationSelect(populations);
+          this.logPopulationLoadSuccess(populations.length);
+        } else {
+          console.error('Invalid populations data format:', populations);
+          this.logPopulationLoadError('Invalid populations data format');
+        }
       } else {
         console.error('Failed to load populations');
         this.logPopulationLoadError('Failed to load populations');
@@ -5559,35 +5599,58 @@ class DeleteManager {
 
   // Enhanced logging methods
   logDeleteTypeChange() {
-    if (window.logManager) {
+    if (window.logManager && typeof window.logManager.log === 'function') {
       window.logManager.log('info', 'Delete type changed', {
+        type: this.currentDeleteType,
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.info('Delete type changed:', {
         type: this.currentDeleteType,
         timestamp: new Date().toISOString()
       });
     }
   }
   logFileSelection(file) {
-    if (window.logManager) {
+    if (window.logManager && typeof window.logManager.log === 'function') {
       window.logManager.log('info', 'File selected for deletion', {
         fileName: file.name,
         fileSize: file.size,
         fileType: file.type,
         timestamp: new Date().toISOString()
       });
+    } else {
+      console.info('File selected for deletion:', {
+        fileName: file.name,
+        fileSize: file.size,
+        fileType: file.type
+      });
     }
   }
   logFileValidationError(error, details) {
-    if (window.logManager) {
+    if (window.logManager && typeof window.logManager.log === 'function') {
       window.logManager.log('warn', 'File validation failed', {
         error: error,
         details: details,
         timestamp: new Date().toISOString()
       });
+    } else {
+      console.warn('File validation failed:', {
+        error,
+        details,
+        timestamp: new Date().toISOString()
+      });
     }
   }
   logFileValidationSuccess(file) {
-    if (window.logManager) {
+    if (window.logManager && typeof window.logManager.log === 'function') {
       window.logManager.log('info', 'File validation successful', {
+        fileName: file.name,
+        fileSize: file.size,
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.info('File validation successful:', {
         fileName: file.name,
         fileSize: file.size,
         timestamp: new Date().toISOString()
@@ -5595,73 +5658,121 @@ class DeleteManager {
     }
   }
   logDragEvent(eventType) {
-    if (window.logManager) {
+    if (window.logManager && typeof window.logManager.log === 'function') {
       window.logManager.log('debug', 'Drag event', {
         eventType: eventType,
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.debug('Drag event:', {
+        eventType,
         timestamp: new Date().toISOString()
       });
     }
   }
   logPopulationLoadStart() {
-    if (window.logManager) {
+    if (window.logManager && typeof window.logManager.log === 'function') {
       window.logManager.log('info', 'Loading populations for delete', {
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.info('Loading populations for delete:', {
         timestamp: new Date().toISOString()
       });
     }
   }
   logPopulationLoadSuccess(count) {
-    if (window.logManager) {
+    if (window.logManager && typeof window.logManager.log === 'function') {
       window.logManager.log('info', 'Populations loaded successfully', {
         count: count,
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.info('Populations loaded successfully:', {
+        count,
         timestamp: new Date().toISOString()
       });
     }
   }
   logPopulationLoadError(error) {
-    if (window.logManager) {
+    if (window.logManager && typeof window.logManager.log === 'function') {
       window.logManager.log('error', 'Failed to load populations', {
         error: error,
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.error('Failed to load populations:', {
+        error,
         timestamp: new Date().toISOString()
       });
     }
   }
   logPopulationSelection() {
-    if (window.logManager) {
+    if (window.logManager && typeof window.logManager.log === 'function') {
       window.logManager.log('info', 'Population selected for deletion', {
+        populationId: this.selectedPopulation,
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.info('Population selected for deletion:', {
         populationId: this.selectedPopulation,
         timestamp: new Date().toISOString()
       });
     }
   }
   logConfirmationChange(type, confirmed) {
-    if (window.logManager) {
+    if (window.logManager && typeof window.logManager.log === 'function') {
       window.logManager.log('info', 'Delete confirmation changed', {
         type: type,
         confirmed: confirmed,
         timestamp: new Date().toISOString()
       });
+    } else {
+      console.info('Delete confirmation changed:', {
+        type,
+        confirmed,
+        timestamp: new Date().toISOString()
+      });
     }
   }
   logTextConfirmationChange() {
-    if (window.logManager) {
+    if (window.logManager && typeof window.logManager.log === 'function') {
       window.logManager.log('debug', 'Environment delete text confirmation changed', {
+        textLength: this.deleteTextConfirmation.length,
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.debug('Environment delete text confirmation changed:', {
         textLength: this.deleteTextConfirmation.length,
         timestamp: new Date().toISOString()
       });
     }
   }
   logButtonValidation(isValid) {
-    if (window.logManager) {
+    if (window.logManager && typeof window.logManager.log === 'function') {
       window.logManager.log('debug', 'Delete button validation', {
         isValid: isValid,
+        deleteType: this.currentDeleteType,
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.debug('Delete button validation:', {
+        isValid,
         deleteType: this.currentDeleteType,
         timestamp: new Date().toISOString()
       });
     }
   }
   logDeleteStart(deleteData) {
-    if (window.logManager) {
+    if (window.logManager && typeof window.logManager.log === 'function') {
       window.logManager.log('info', 'Delete operation started', {
+        type: deleteData.type,
+        scope: this.getDeleteScope(deleteData),
+        metadata: this.getDeleteMetadata(deleteData),
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.info('Delete operation started:', {
         type: deleteData.type,
         scope: this.getDeleteScope(deleteData),
         metadata: this.getDeleteMetadata(deleteData),
@@ -5670,8 +5781,13 @@ class DeleteManager {
     }
   }
   logDeleteError(error) {
-    if (window.logManager) {
+    if (window.logManager && typeof window.logManager.log === 'function') {
       window.logManager.log('error', 'Delete operation failed', {
+        error: error.message,
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.error('Delete operation failed:', {
         error: error.message,
         timestamp: new Date().toISOString()
       });
@@ -5694,14 +5810,24 @@ class DeleteManager {
 }
 
 // Initialize delete manager when DOM is loaded
+// Only initialize if delete UI elements exist
+exports.DeleteManager = DeleteManager;
+function hasDeleteUI() {
+  return document.getElementById('delete-file-section') || document.getElementById('delete-population-section') || document.getElementById('delete-environment-section');
+}
 document.addEventListener('DOMContentLoaded', () => {
-  window.deleteManager = new DeleteManager();
+  if (hasDeleteUI()) {
+    try {
+      window.deleteManager = new DeleteManager();
+    } catch (error) {
+      console.error('Failed to initialize DeleteManager:', error);
+    }
+  } else {
+    window.deleteManager = null;
+  }
 });
 
-// Export for module system
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = DeleteManager;
-}
+// Export for ES6 module system
 
 },{}],8:[function(require,module,exports){
 "use strict";
@@ -5795,7 +5921,7 @@ const ElementRegistry = exports.ElementRegistry = {
   useDefaultPopulationCheckbox: () => getElement('#use-default-population', 'Use Default Population Checkbox'),
   useCsvPopulationIdCheckbox: () => getElement('#use-csv-population-id', 'Use CSV Population ID Checkbox'),
   // Get Token button
-  getTokenBtn: () => getElement('#get-token-btn', 'Get Token Button'),
+  getTokenBtn: () => getElement('#get-token-quick', 'Get Token Button'),
   // Population ID form field
   populationIdField: () => getElement('#population-id', 'Population ID Field')
 };
@@ -5803,6 +5929,10 @@ const ElementRegistry = exports.ElementRegistry = {
 },{}],9:[function(require,module,exports){
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.ExportManager = void 0;
 /**
  * Export Manager - Enhanced export functionality with population selection, credential overrides, token handling, and JWT decoding
  * Handles all export operations with comprehensive token management and user transparency
@@ -5816,10 +5946,18 @@ class ExportManager {
     this.overrideCredentials = false;
     this.populations = [];
     this.logger = console;
-    this.initializeEventListeners();
-    this.loadPopulations();
-    this.loadStoredCredentials();
-    this.startTokenTimer();
+
+    // Only initialize if we're on a page with export functionality
+    if (document.getElementById('export-population-select') || document.getElementById('export-format') || document.getElementById('start-export')) {
+      try {
+        this.initializeEventListeners();
+        this.loadPopulations();
+        this.loadStoredCredentials();
+        this.startTokenTimer();
+      } catch (error) {
+        console.warn('ExportManager initialization warning:', error);
+      }
+    }
   }
   initializeEventListeners() {
     // Population selection
@@ -5892,13 +6030,26 @@ class ExportManager {
   }
   async loadPopulations() {
     try {
+      // Check if population select element exists before making API call
+      const populationSelect = document.getElementById('export-population-select');
+      if (!populationSelect) {
+        console.log('Export population select not found, skipping population load');
+        return;
+      }
       this.logPopulationLoadStart();
       const response = await fetch('/api/populations');
       if (response.ok) {
-        const populations = await response.json();
-        this.populations = populations;
-        this.populatePopulationSelect(populations);
-        this.logPopulationLoadSuccess(populations.length);
+        const data = await response.json();
+        // Handle the API response structure: { success: true, populations: [...], total: 123 }
+        const populations = data.populations || data;
+        if (Array.isArray(populations)) {
+          this.populations = populations;
+          this.populatePopulationSelect(populations);
+          this.logPopulationLoadSuccess(populations.length);
+        } else {
+          console.error('Invalid populations data format:', populations);
+          this.logPopulationLoadError('Invalid populations data format');
+        }
       } else {
         console.error('Failed to load populations');
         this.logPopulationLoadError('Failed to load populations');
@@ -6257,32 +6408,49 @@ class ExportManager {
 
   // Logging methods
   logPopulationLoadStart() {
-    if (window.logManager) {
+    if (window.logManager && typeof window.logManager.log === 'function') {
       window.logManager.log('info', 'Loading populations for export', {
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.info('Loading populations for export:', {
         timestamp: new Date().toISOString()
       });
     }
   }
   logPopulationLoadSuccess(count) {
-    if (window.logManager) {
+    if (window.logManager && typeof window.logManager.log === 'function') {
       window.logManager.log('info', 'Populations loaded successfully for export', {
         count: count,
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.info('Populations loaded successfully for export:', {
+        count,
         timestamp: new Date().toISOString()
       });
     }
   }
   logPopulationLoadError(error) {
-    if (window.logManager) {
+    if (window.logManager && typeof window.logManager.log === 'function') {
       window.logManager.log('error', 'Failed to load populations for export', {
         error: error,
         timestamp: new Date().toISOString()
       });
+    } else {
+      console.error('Failed to load populations for export:', error);
     }
   }
   logPopulationSelection() {
     const populationSelect = document.getElementById('export-population-select');
-    if (window.logManager) {
+    if (window.logManager && typeof window.logManager.log === 'function') {
       window.logManager.log('info', 'Population selected for export', {
+        populationId: populationSelect.value,
+        populationName: populationSelect.selectedOptions[0]?.text || '',
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.info('Population selected for export:', {
         populationId: populationSelect.value,
         populationName: populationSelect.selectedOptions[0]?.text || '',
         timestamp: new Date().toISOString()
@@ -6290,25 +6458,42 @@ class ExportManager {
     }
   }
   logCredentialOverride(enabled) {
-    if (window.logManager) {
+    if (window.logManager && typeof window.logManager.log === 'function') {
       window.logManager.log('info', 'Export credential override toggled', {
         enabled: enabled,
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.info('Export credential override toggled:', {
+        enabled,
         timestamp: new Date().toISOString()
       });
     }
   }
   logTokenGeneration(status, error = null) {
-    if (window.logManager) {
+    if (window.logManager && typeof window.logManager.log === 'function') {
       window.logManager.log(status === 'success' ? 'info' : 'error', 'Export token generation', {
         status: status,
         error: error,
         timestamp: new Date().toISOString()
       });
+    } else {
+      console[status === 'success' ? 'info' : 'error']('Export token generation:', {
+        status,
+        error,
+        timestamp: new Date().toISOString()
+      });
     }
   }
   logTokenSet() {
-    if (window.logManager) {
+    if (window.logManager && typeof window.logManager.log === 'function') {
       window.logManager.log('info', 'Export token set', {
+        hasToken: !!this.exportToken,
+        expiresAt: this.tokenExpiration?.toISOString(),
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.info('Export token set:', {
         hasToken: !!this.exportToken,
         expiresAt: this.tokenExpiration?.toISOString(),
         timestamp: new Date().toISOString()
@@ -6316,32 +6501,51 @@ class ExportManager {
     }
   }
   logJWTView() {
-    if (window.logManager) {
+    if (window.logManager && typeof window.logManager.log === 'function') {
       window.logManager.log('info', 'JWT token viewed', {
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.info('JWT token viewed:', {
         timestamp: new Date().toISOString()
       });
     }
   }
   logExportStart(options) {
-    if (window.logManager) {
+    if (window.logManager && typeof window.logManager.log === 'function') {
       window.logManager.log('info', 'Export operation started', {
         options: options,
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.info('Export operation started:', {
+        options,
         timestamp: new Date().toISOString()
       });
     }
   }
   logExportSuccess(result) {
-    if (window.logManager) {
+    if (window.logManager && typeof window.logManager.log === 'function') {
       window.logManager.log('info', 'Export operation completed successfully', {
         result: result,
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.info('Export operation completed successfully:', {
+        result,
         timestamp: new Date().toISOString()
       });
     }
   }
   logExportError(error) {
-    if (window.logManager) {
+    if (window.logManager && typeof window.logManager.log === 'function') {
       window.logManager.log('error', 'Export operation failed', {
         error: error,
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.error('Export operation failed:', {
+        error,
         timestamp: new Date().toISOString()
       });
     }
@@ -6370,14 +6574,24 @@ class ExportManager {
 }
 
 // Initialize export manager when DOM is loaded
+// Only initialize if export UI elements exist
+exports.ExportManager = ExportManager;
+function hasExportUI() {
+  return document.getElementById('export-population-select') || document.getElementById('export-format') || document.getElementById('start-export');
+}
 document.addEventListener('DOMContentLoaded', () => {
-  window.exportManager = new ExportManager();
+  if (hasExportUI()) {
+    try {
+      window.exportManager = new ExportManager();
+    } catch (error) {
+      console.error('Failed to initialize ExportManager:', error);
+    }
+  } else {
+    window.exportManager = null;
+  }
 });
 
-// Export for module system
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = ExportManager;
-}
+// Export for ES6 module system
 
 },{}],10:[function(require,module,exports){
 "use strict";
@@ -12325,6 +12539,120 @@ class UIManager {
         type,
         message,
         details
+      });
+    }
+  }
+
+  /**
+   * Show export status
+   */
+  showExportStatus() {
+    try {
+      this.showStatusBar('Export operation started', 'info');
+      this.logger.info('Export status shown');
+    } catch (error) {
+      this.logger.error('Error showing export status', {
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Update export progress
+   */
+  updateExportProgress(current, total, message, counts = {}) {
+    try {
+      _progressManager.progressManager.updateProgress(current, total, message, {
+        ...counts,
+        operation: 'export'
+      });
+      this.logger.debug('Export progress updated', {
+        current,
+        total,
+        message
+      });
+    } catch (error) {
+      this.logger.error('Error updating export progress', {
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Show delete status
+   */
+  showDeleteStatus(totalUsers, populationName, populationId) {
+    try {
+      this.showStatusBar(`Delete operation started for ${totalUsers} users in ${populationName}`, 'warning');
+      this.logger.info('Delete status shown', {
+        totalUsers,
+        populationName,
+        populationId
+      });
+    } catch (error) {
+      this.logger.error('Error showing delete status', {
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Update delete progress
+   */
+  updateDeleteProgress(current, total, message, counts = {}, populationName = '', populationId = '') {
+    try {
+      _progressManager.progressManager.updateProgress(current, total, message, {
+        ...counts,
+        population: populationName,
+        populationId: populationId,
+        operation: 'delete'
+      });
+      this.logger.debug('Delete progress updated', {
+        current,
+        total,
+        message,
+        populationName
+      });
+    } catch (error) {
+      this.logger.error('Error updating delete progress', {
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Show modify status
+   */
+  showModifyStatus(totalUsers) {
+    try {
+      this.showStatusBar(`Modify operation started for ${totalUsers} users`, 'info');
+      this.logger.info('Modify status shown', {
+        totalUsers
+      });
+    } catch (error) {
+      this.logger.error('Error showing modify status', {
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Update modify progress
+   */
+  updateModifyProgress(current, total, message, counts = {}) {
+    try {
+      _progressManager.progressManager.updateProgress(current, total, message, {
+        ...counts,
+        operation: 'modify'
+      });
+      this.logger.debug('Modify progress updated', {
+        current,
+        total,
+        message
+      });
+    } catch (error) {
+      this.logger.error('Error updating modify progress', {
+        error: error.message
       });
     }
   }

@@ -52,7 +52,8 @@ class LogManager {
         
         // Add filter functionality
         this.addFilterControls();
-        // Add search icon logic
+        
+        // Add search icon logic for the original search input
         const searchIcon = document.getElementById('logs-search-icon');
         const searchInput = document.getElementById('logs-search-input');
         if (searchIcon && searchInput) {
@@ -103,10 +104,6 @@ class LogManager {
                 </select>
             </div>
             <div class="filter-group">
-                <label for="log-text-filter">Search:</label>
-                <input type="text" id="log-text-filter" class="form-control" placeholder="Search logs...">
-            </div>
-            <div class="filter-group">
                 <label>
                     <input type="checkbox" id="auto-refresh-toggle" checked>
                     Auto Refresh
@@ -118,19 +115,11 @@ class LogManager {
         
         // Add event listeners for filters
         const levelFilter = document.getElementById('log-level-filter');
-        const textFilter = document.getElementById('log-text-filter');
         const autoRefreshToggle = document.getElementById('auto-refresh-toggle');
         
         if (levelFilter) {
             levelFilter.addEventListener('change', (e) => {
                 this.filterLevel = e.target.value;
-                this.applyFilters();
-            });
-        }
-        
-        if (textFilter) {
-            textFilter.addEventListener('input', (e) => {
-                this.filterText = e.target.value.toLowerCase();
                 this.applyFilters();
             });
         }
