@@ -151,7 +151,7 @@ Performed full regression testing on real APIs, logging, Server-Sent Events (SSE
 - ✅ `/api/import/progress/:sessionId` - SSE endpoint
 - ✅ `/api/pingone/populations` - PingOne integration
 - ✅ `/api/feature-flags` - Feature flag management
-- ✅ `/swagger/html` - Documentation access
+- ✅ `/swagger.html` - Documentation access
 
 ### **Frontend Components Tested**
 - ✅ Main application page

@@ -304,6 +304,7 @@ class TokenStatusIndicator {
             case 'expiring':
                 this.statusIcon.textContent = '🟡';
                 this.statusText.textContent = message;
+                this.statusText.style.color = '#000'; // Force black text
                 this.statusTime.textContent = `(${this.formatTimeRemaining(timeRemaining)})`;
                 this.getTokenButton.style.display = 'inline-block';
                 break;

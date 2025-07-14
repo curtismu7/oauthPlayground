@@ -172,6 +172,11 @@ class HistoryManager {
         
         const filteredHistory = this.getFilteredHistory();
         
+        if (filteredHistory.length === 0) {
+            this.displayNoFilterResults();
+            return;
+        }
+        
         filteredHistory.forEach(operation => {
             const historyElement = this.createHistoryElement(operation);
             this.historyContainer.appendChild(historyElement);
@@ -181,8 +186,56 @@ class HistoryManager {
         this.updateHistoryCount(filteredHistory.length, this.currentHistory.length);
     }
     
+    displayNoFilterResults() {
+        if (!this.historyContainer) return;
+        
+        const hasFilters = this.filterType || this.filterPopulation || this.filterStartDate || this.filterEndDate || this.filterText;
+        
+        if (hasFilters) {
+            this.historyContainer.innerHTML = `
+                <div class="no-history-message">
+                    <i class="fas fa-search"></i>
+                    <h3>No records found</h3>
+                    <p>No operations match the selected filters.</p>
+                    <p>Try adjusting your filter criteria or <button class="btn btn-link" onclick="historyManager.clearFilters()">clear all filters</button> to see all records.</p>
+                </div>
+            `;
+        } else {
+            this.displayNoHistory();
+        }
+    }
+    
     getFilteredHistory() {
         return this.currentHistory.filter(operation => {
+            // Type filter
+            if (this.filterType && operation.type !== this.filterType) {
+                return false;
+            }
+            
+            // Population filter
+            if (this.filterPopulation && !operation.population.toLowerCase().includes(this.filterPopulation.toLowerCase())) {
+                return false;
+            }
+            
+            // Date range filters
+            if (this.filterStartDate) {
+                const operationDate = new Date(operation.timestamp);
+                const startDate = new Date(this.filterStartDate);
+                if (operationDate < startDate) {
+                    return false;
+                }
+            }
+            
+            if (this.filterEndDate) {
+                const operationDate = new Date(operation.timestamp);
+                const endDate = new Date(this.filterEndDate);
+                // Set end date to end of day for inclusive filtering
+                endDate.setHours(23, 59, 59, 999);
+                if (operationDate > endDate) {
+                    return false;
+                }
+            }
+            
             // Text search filter
             if (this.filterText) {
                 const searchText = `${operation.type} ${operation.fileName} ${operation.population} ${operation.message}`.toLowerCase();
@@ -207,8 +260,8 @@ class HistoryManager {
         this.filterStartDate = startDateFilter ? startDateFilter.value : '';
         this.filterEndDate = endDateFilter ? endDateFilter.value : '';
         
-        // Reload history with new filters
-        this.loadHistory();
+        // Apply filters to current data (client-side filtering)
+        this.displayHistory();
     }
     
     clearFilters() {
@@ -226,8 +279,10 @@ class HistoryManager {
         this.filterPopulation = '';
         this.filterStartDate = '';
         this.filterEndDate = '';
+        this.filterText = '';
         
-        this.loadHistory();
+        // Apply cleared filters to current data (client-side filtering)
+        this.displayHistory();
     }
     
     createHistoryElement(operation) {

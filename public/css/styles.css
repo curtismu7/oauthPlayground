@@ -395,6 +395,7 @@ h1 {
     align-items: center;
     gap: 1rem;
     margin-bottom: 2rem;
+    margin-top: 1rem; /* Additional top margin for better spacing */
 }
 
 /* Export View Styles */
@@ -12369,5 +12370,3 @@ label {
         padding: 10px !important;
     }
 }
-
-.
