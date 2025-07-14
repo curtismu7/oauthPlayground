@@ -478,10 +478,40 @@ class CredentialsModal {
     }
 
     // Static method to check if credentials modal should be shown
-    static shouldShowCredentialsModal() {
-        // Show credentials modal if disclaimer is accepted and credentials modal hasn't been shown
-        return DisclaimerModal.isDisclaimerAccepted() && 
-               !localStorage.getItem('credentialsModalShown');
+    static async shouldShowCredentialsModal() {
+        // Check if disclaimer is accepted
+        if (!DisclaimerModal.isDisclaimerAccepted()) {
+            return false;
+        }
+        
+        // Check if credentials modal has already been shown
+        if (localStorage.getItem('credentialsModalShown') === 'true') {
+            return false;
+        }
+        
+        // Check token status - show modal if no valid token
+        try {
+            const token = localStorage.getItem('pingone_worker_token');
+            const expiry = localStorage.getItem('pingone_token_expiry');
+            
+            if (!token || !expiry) {
+                return true; // No token available
+            }
+            
+            const expiryTime = parseInt(expiry, 10);
+            const now = Date.now();
+            const timeRemaining = expiryTime - now;
+            
+            if (timeRemaining <= 0) {
+                return true; // Token expired
+            }
+            
+            // Token is valid, but still show modal if it hasn't been shown before
+            return true;
+        } catch (error) {
+            console.error('Error checking token status:', error);
+            return true; // Show modal on error
+        }
     }
 
     // Static method to mark credentials modal as shown
@@ -493,40 +523,95 @@ class CredentialsModal {
     static resetCredentialsModal() {
         localStorage.removeItem('credentialsModalShown');
     }
+
+    // Static method to check if there's a valid token
+    static hasValidToken() {
+        try {
+            const token = localStorage.getItem('pingone_worker_token');
+            const expiry = localStorage.getItem('pingone_token_expiry');
+            
+            if (!token || !expiry) {
+                return false;
+            }
+            
+            const expiryTime = parseInt(expiry, 10);
+            const now = Date.now();
+            const timeRemaining = expiryTime - now;
+            
+            return timeRemaining > 0;
+        } catch (error) {
+            console.error('Error checking token validity:', error);
+            return false;
+        }
+    }
 }
 
 // Initialize credentials modal when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     console.log('Credentials Modal: DOMContentLoaded event fired');
     console.log('Disclaimer accepted:', DisclaimerModal.isDisclaimerAccepted());
     console.log('Credentials modal shown:', localStorage.getItem('credentialsModalShown'));
-    console.log('Should show credentials modal:', CredentialsModal.shouldShowCredentialsModal());
     
     // Check if disclaimer is already accepted (user returning)
-    if (DisclaimerModal.isDisclaimerAccepted() && CredentialsModal.shouldShowCredentialsModal()) {
-        console.log('Credentials Modal: Showing modal for returning user');
-        // Small delay to ensure disclaimer modal is fully closed
-        setTimeout(() => {
-            new CredentialsModal();
-            CredentialsModal.setCredentialsModalShown();
-        }, 1000);
+    if (DisclaimerModal.isDisclaimerAccepted()) {
+        const shouldShow = await CredentialsModal.shouldShowCredentialsModal();
+        console.log('Should show credentials modal:', shouldShow);
+        
+        if (shouldShow) {
+            console.log('Credentials Modal: Showing modal for returning user');
+            // Small delay to ensure disclaimer modal is fully closed
+            setTimeout(() => {
+                new CredentialsModal();
+                CredentialsModal.setCredentialsModalShown();
+            }, 1000);
+        }
     }
 });
 
 // Listen for disclaimer completion events
-document.addEventListener('disclaimerAccepted', (event) => {
+document.addEventListener('disclaimerAccepted', async (event) => {
     console.log('Credentials Modal: Disclaimer accepted event received', event.detail);
     // Wait a bit longer for disclaimer modal to fully close
-    setTimeout(() => {
+    setTimeout(async () => {
         console.log('Credentials Modal: Checking if should show after disclaimer');
-        console.log('Should show credentials modal:', CredentialsModal.shouldShowCredentialsModal());
-        if (CredentialsModal.shouldShowCredentialsModal()) {
+        const shouldShow = await CredentialsModal.shouldShowCredentialsModal();
+        console.log('Should show credentials modal:', shouldShow);
+        
+        if (shouldShow) {
             console.log('Credentials Modal: Creating modal after disclaimer acceptance');
             new CredentialsModal();
             CredentialsModal.setCredentialsModalShown();
         }
     }, 1500);
 });
+
+// Listen for token status changes
+document.addEventListener('token-updated', async (event) => {
+    console.log('Credentials Modal: Token updated event received', event.detail);
+    // Check if we should show credentials modal when token changes
+    setTimeout(async () => {
+        const shouldShow = await CredentialsModal.shouldShowCredentialsModal();
+        console.log('Should show credentials modal after token update:', shouldShow);
+        
+        if (shouldShow) {
+            console.log('Credentials Modal: Creating modal after token update');
+            new CredentialsModal();
+            CredentialsModal.setCredentialsModalShown();
+        }
+    }, 1000);
+});
+
+// Periodic check for token status (every 5 minutes)
+setInterval(async () => {
+    if (DisclaimerModal.isDisclaimerAccepted()) {
+        const shouldShow = await CredentialsModal.shouldShowCredentialsModal();
+        if (shouldShow) {
+            console.log('Credentials Modal: Periodic check - showing modal');
+            new CredentialsModal();
+            CredentialsModal.setCredentialsModalShown();
+        }
+    }
+}, 5 * 60 * 1000); // 5 minutes
 
 // Export for testing
 if (typeof module !== 'undefined' && module.exports) {
