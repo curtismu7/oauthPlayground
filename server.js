@@ -641,13 +641,35 @@ const startServer = async () => {
         }
     });
     global.ioClients = new Map();
+    
+    // Add error handling to Socket.IO server
+    io.on('error', (error) => {
+        logger.error('Socket.IO server error', {
+            error: error.message,
+            code: error.code,
+            stack: error.stack
+        });
+        // Don't crash the server for Socket.IO errors
+    });
+    
     io.on('connection', (socket) => {
+        // Add error handling to individual Socket.IO connections
+        socket.on('error', (error) => {
+            logger.error('Socket.IO connection error', {
+                error: error.message,
+                code: error.code,
+                stack: error.stack
+            });
+            // Don't crash the server for individual Socket.IO errors
+        });
+        
         socket.on('registerSession', (sessionId) => {
             if (sessionId) {
                 global.ioClients.set(sessionId, socket);
                 socket.sessionId = sessionId;
             }
         });
+        
         socket.on('disconnect', () => {
             if (socket.sessionId) global.ioClients.delete(socket.sessionId);
         });
@@ -656,7 +678,28 @@ const startServer = async () => {
     // --- WebSocket server for fallback ---
     const wss = new WebSocketServer({ server });
     global.wsClients = new Map();
+    
+    // Add error handling to WebSocket server
+    wss.on('error', (error) => {
+        logger.error('WebSocket server error', {
+            error: error.message,
+            code: error.code,
+            stack: error.stack
+        });
+        // Don't crash the server for WebSocket errors
+    });
+    
     wss.on('connection', (ws, req) => {
+        // Add error handling to individual WebSocket connections
+        ws.on('error', (error) => {
+            logger.error('WebSocket connection error', {
+                error: error.message,
+                code: error.code,
+                stack: error.stack
+            });
+            // Don't crash the server for individual WebSocket errors
+        });
+        
         ws.on('message', (msg) => {
             try {
                 const { sessionId } = JSON.parse(msg);
@@ -664,8 +707,14 @@ const startServer = async () => {
                     global.wsClients.set(sessionId, ws);
                     ws.sessionId = sessionId;
                 }
-            } catch {}
+            } catch (error) {
+                logger.warn('Failed to parse WebSocket message', {
+                    error: error.message,
+                    message: msg.toString()
+                });
+            }
         });
+        
         ws.on('close', () => {
             if (ws.sessionId) global.wsClients.delete(ws.sessionId);
         });
@@ -704,6 +753,14 @@ process.on('uncaughtException', (error) => {
         stack: error.stack,
         code: error.code
     });
+    
+    // Don't exit for WebSocket-related errors
+    if (error.message && error.message.includes('WebSocket')) {
+        logger.warn('Ignoring WebSocket error to prevent server crash', {
+            error: error.message
+        });
+        return;
+    }
     
     process.exit(1);
 });
