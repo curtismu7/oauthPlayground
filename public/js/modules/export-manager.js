@@ -152,7 +152,7 @@ class ExportManager {
 
     toggleCredentialsOverride(enabled) {
         this.overrideCredentials = enabled;
-        const credentialsFields = document.getElementById('export-credentials-fields');
+        const credentialsFields = document.getElementById('export-credentials-form');
         const tokenStatus = document.getElementById('export-token-status');
         
         if (enabled) {

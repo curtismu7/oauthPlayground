@@ -24,6 +24,7 @@ import { progressManager } from './modules/progress-manager.js';
 import { DeleteManager } from './modules/delete-manager.js';
 import { ExportManager } from './modules/export-manager.js';
 import { HistoryManager } from './modules/history-manager.js';
+import { showTokenAlertModal } from './modules/token-alert-modal.js';
 
 /**
  * Secret Field Toggle Component
@@ -495,6 +496,18 @@ class App {
             } catch (error) {
                 console.warn('ExportManager initialization warning:', error);
                 this.exportManager = null;
+            }
+            
+            // Initialize progress manager for enhanced progress tracking
+            try {
+                if (progressManager && typeof progressManager.initialize === 'function') {
+                    progressManager.initialize();
+                    console.log('✅ ProgressManager initialized successfully');
+                } else {
+                    console.warn('ProgressManager not available or missing initialize method');
+                }
+            } catch (error) {
+                console.warn('ProgressManager initialization warning:', error);
             }
             
             // Load application settings from storage with safety check
@@ -1769,6 +1782,13 @@ class App {
      * @returns {Promise<void>}
      */
     async startImport() {
+        // Check for valid token before proceeding
+        const hasValidToken = await this.checkTokenAndRedirect('import');
+        if (!hasValidToken) {
+            console.log('❌ [IMPORT] Import cancelled due to missing valid token');
+            return;
+        }
+
         // Prevent multiple simultaneous imports
         if (this.isImporting) {
             this.logger.warn('Import already in progress');
@@ -1969,7 +1989,7 @@ class App {
             });
 
             // Start the robust connection
-            robustSSE.connect();
+            this.robustSSE.connect();
         };
 
                 /**
@@ -2147,11 +2167,48 @@ class App {
             // Send CSV data and population info to backend for processing
             // The server will start the import process and return a session ID
             console.log('📤 [IMPORT] Sending request to backend...');
-            const response = await fetch('/api/import', {
+            
+            // Enhanced fetch configuration to handle protocol issues
+            const fetchOptions = {
                 method: 'POST',
                 body: formData,
-                signal: this.importAbortController.signal
+                signal: this.importAbortController.signal,
+                // Force HTTP/1.1 to avoid protocol mismatch issues
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            };
+            
+            console.log('🔧 [IMPORT] Fetch options:', {
+                method: fetchOptions.method,
+                hasSignal: !!fetchOptions.signal,
+                headers: fetchOptions.headers
             });
+            
+            let response;
+            let fetchAttempt = 1;
+            const maxAttempts = 3;
+            
+            while (fetchAttempt <= maxAttempts) {
+                try {
+                    console.log(`📤 [IMPORT] Attempt ${fetchAttempt}/${maxAttempts} - Sending request to backend...`);
+                    response = await fetch('/api/import', fetchOptions);
+                    break; // Success, exit the loop
+                } catch (fetchError) {
+                    console.error(`❌ [IMPORT] Attempt ${fetchAttempt} failed:`, fetchError);
+                    
+                    if (fetchAttempt === maxAttempts) {
+                        throw fetchError; // Re-throw on final attempt
+                    }
+                    
+                    // Wait before retry (exponential backoff)
+                    const delay = Math.pow(2, fetchAttempt - 1) * 1000;
+                    console.log(`⏳ [IMPORT] Waiting ${delay}ms before retry...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    fetchAttempt++;
+                }
+            }
             
             console.log('📥 [IMPORT] Backend response received:', {
                 status: response.status,
@@ -2175,6 +2232,9 @@ class App {
             
             console.log('✅ [IMPORT] Session ID received:', sessionId);
             
+            // Update progress manager with session ID
+            this.uiManager.updateImportOperationWithSessionId(sessionId);
+            
             // Log session ID and establish robust SSE connection for progress updates
             this.uiManager.debugLog("Import", "Session ID received", { sessionId });
             console.log('🔌 [IMPORT] Establishing robust SSE connection with sessionId:', sessionId);
@@ -2189,7 +2249,35 @@ class App {
         } catch (error) {
             console.error('❌ [IMPORT] Error during import process:', error);
             this.uiManager.debugLog("Import", "Error starting import", error);
-            this.uiManager.showError('Import failed', error.message || error);
+            
+            // Enhanced error handling for network protocol issues
+            let errorMessage = error.message || 'Unknown error occurred';
+            let errorTitle = 'Import failed';
+            
+            // Check for specific network protocol errors
+            if (error.message && error.message.includes('ERR_H2_OR_QUIC_REQUIRED')) {
+                errorTitle = 'Network Protocol Error';
+                errorMessage = 'The server requires HTTP/2 or QUIC protocol, but your browser is using HTTP/1.1. This is likely a server configuration issue. Please contact your system administrator.';
+            } else if (error.message && error.message.includes('Failed to fetch')) {
+                errorTitle = 'Network Connection Error';
+                errorMessage = 'Unable to connect to the import service. Please check your network connection and try again. If the problem persists, contact your system administrator.';
+            } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                errorTitle = 'Network Error';
+                errorMessage = 'Network request failed. Please check your internet connection and try again.';
+            } else if (error.name === 'AbortError') {
+                errorTitle = 'Import Cancelled';
+                errorMessage = 'The import operation was cancelled by the user.';
+            }
+            
+            // Log detailed error information for debugging
+            console.error('🔍 [IMPORT] Detailed error info:', {
+                name: error.name,
+                message: error.message,
+                stack: error.stack,
+                type: error.constructor.name
+            });
+            
+            this.uiManager.showError(errorTitle, errorMessage);
             this.isImporting = false;
         }
     }
@@ -2371,6 +2459,13 @@ class App {
      * Starts the user export flow by validating options, sending request to the server, and handling progress
      */
     async startExport() {
+        // Check for valid token before proceeding
+        const hasValidToken = await this.checkTokenAndRedirect('export');
+        if (!hasValidToken) {
+            console.log('❌ [EXPORT] Export cancelled due to missing valid token');
+            return;
+        }
+
         if (this.isExporting) {
             this.logger.warn('Export already in progress');
             return;
@@ -2424,14 +2519,20 @@ class App {
             this.uiManager.showError('No population selected', 'Please select a population before starting the export.');
             return null;
         }
-        return {
-            selectedPopulationId,
+        
+        const exportOptions = {
+            populationId: selectedPopulationId, // Send the correct field name backend expects
             selectedPopulationName,
             populationFilter,
             fields: document.getElementById('export-fields-select')?.value || 'all',
             format: document.getElementById('export-format-select')?.value || 'csv',
             ignoreDisabledUsers: document.getElementById('export-ignore-disabled')?.checked || false
         };
+        
+        // Log the export options for debugging
+        console.log('Export options prepared:', exportOptions);
+        
+        return exportOptions;
     }
 
     cancelExport() {
@@ -2444,6 +2545,13 @@ class App {
      * Starts the user delete flow by validating options, sending request to the server, and handling progress
      */
     async startDelete() {
+        // Check for valid token before proceeding
+        const hasValidToken = await this.checkTokenAndRedirect('delete');
+        if (!hasValidToken) {
+            console.log('❌ [DELETE] Delete cancelled due to missing valid token');
+            return;
+        }
+
         if (this.isDeleting) {
             this.logger.warn('Delete already in progress');
             return;
@@ -2522,6 +2630,13 @@ class App {
      * Starts the user modify flow by validating options, sending request to the server, and handling progress
      */
     async startModify() {
+        // Check for valid token before proceeding
+        const hasValidToken = await this.checkTokenAndRedirect('modify');
+        if (!hasValidToken) {
+            console.log('❌ [MODIFY] Modify cancelled due to missing valid token');
+            return;
+        }
+
         if (this.isModifying) {
             this.logger.warn('Modify already in progress');
             return;
@@ -2597,6 +2712,13 @@ class App {
     }
 
     async startPopulationDelete() {
+        // Check for valid token before proceeding
+        const hasValidToken = await this.checkTokenAndRedirect('population delete');
+        if (!hasValidToken) {
+            console.log('❌ [POPULATION DELETE] Population delete cancelled due to missing valid token');
+            return;
+        }
+
         try {
             const selectedPopulationId = document.getElementById('population-delete-select')?.value;
             const selectedPopulationName = document.getElementById('population-delete-select')?.selectedOptions[0]?.text || '';
@@ -2636,6 +2758,13 @@ class App {
     }
 
     async testConnection() {
+        // Check for valid token before proceeding
+        const hasValidToken = await this.checkTokenAndRedirect('connection test');
+        if (!hasValidToken) {
+            console.log('❌ [CONNECTION TEST] Connection test cancelled due to missing valid token');
+            return;
+        }
+
         try {
             // Set button loading state
             this.uiManager.setButtonLoading('test-connection-btn', true);
@@ -2726,7 +2855,8 @@ class App {
             
             // Use PingOneClient which handles localStorage storage
             if (!this.pingOneClient) {
-                throw new Error('PingOneClient not initialized');
+                this.uiManager.showError('Authentication Error', 'Authentication system not initialized. Please refresh the page and try again.');
+                return;
             }
             
             const token = await this.pingOneClient.getAccessToken();
@@ -2804,6 +2934,68 @@ class App {
             // Always reset button loading state
             console.log('Resetting Get Token button loading state...');
             this.uiManager.setButtonLoading('get-token-quick', false);
+        }
+    }
+
+    /**
+     * Check if a valid token is available and redirect to settings if not
+     * @param {string} operation - Name of the operation being attempted
+     * @returns {boolean} - True if valid token is available, false otherwise
+     */
+    async checkTokenAndRedirect(operation = 'operation') {
+        try {
+            console.log(`🔐 [TOKEN CHECK] Checking token for ${operation}...`);
+            
+            // Check if PingOneClient is available
+            if (!this.pingOneClient) {
+                console.error('❌ [TOKEN CHECK] PingOneClient not initialized');
+                this.uiManager.showError('Authentication Error', 'Authentication system not initialized. Please refresh the page and try again.');
+                return false;
+            }
+            
+            // Get current token status
+            const tokenInfo = this.pingOneClient.getCurrentTokenTimeRemaining();
+            
+            console.log('🔍 [TOKEN CHECK] Token status:', {
+                hasToken: !!tokenInfo.token,
+                isExpired: tokenInfo.isExpired,
+                timeRemaining: tokenInfo.timeRemaining
+            });
+            
+            // Check if token is valid and not expired
+            if (!tokenInfo.token || tokenInfo.isExpired) {
+                console.warn('❌ [TOKEN CHECK] No valid token found for operation:', operation);
+                
+                // Show error message
+                this.uiManager.showError(
+                    'Authentication Required', 
+                    'No valid token found. Please add credentials to continue.'
+                );
+                
+                // Redirect to settings page
+                console.log('🔄 [TOKEN CHECK] Redirecting to Settings page...');
+                this.showView('settings');
+                
+                // Update navigation to highlight settings
+                this.updateNavigationActiveState('settings');
+                
+                // Show additional guidance
+                setTimeout(() => {
+                    this.uiManager.showInfo(
+                        'Please configure your PingOne credentials in the Settings page to continue.'
+                    );
+                }, 1000);
+                
+                return false;
+            }
+            
+            console.log('✅ [TOKEN CHECK] Valid token found for operation:', operation);
+            return true;
+            
+        } catch (error) {
+            console.error('❌ [TOKEN CHECK] Error checking token:', error);
+            this.uiManager.showError('Authentication Error', 'Unable to verify authentication status. Please refresh the page and try again.');
+            return false;
         }
     }
 

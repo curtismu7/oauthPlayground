@@ -63,6 +63,71 @@
     --ping-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Top-Left Version Badge Styling */
+.top-left-version-badge {
+    position: absolute;
+    top: var(--ping-spacing-md);
+    left: var(--ping-spacing-md);
+    background: linear-gradient(135deg, var(--ping-primary) 0%, var(--ping-secondary) 100%);
+    color: var(--ping-white);
+    padding: var(--ping-spacing-xs) var(--ping-spacing-sm);
+    border-radius: var(--ping-radius-md);
+    font-family: var(--ping-font-family);
+    font-size: var(--ping-font-size-xs);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    box-shadow: var(--ping-shadow-sm);
+    z-index: 1000;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(4px);
+    transition: var(--ping-transition);
+    cursor: default;
+    user-select: none;
+}
+
+.top-left-version-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--ping-shadow-md);
+    background: linear-gradient(135deg, var(--ping-primary-dark) 0%, var(--ping-secondary) 100%);
+}
+
+.top-left-version-badge::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: var(--ping-radius-md);
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+    opacity: 0;
+    transition: var(--ping-transition);
+}
+
+.top-left-version-badge:hover::before {
+    opacity: 1;
+}
+
+/* Responsive adjustments for version badge */
+@media (max-width: 768px) {
+    .top-left-version-badge {
+        top: var(--ping-spacing-sm);
+        left: var(--ping-spacing-sm);
+        font-size: 10px;
+        padding: 2px 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    .top-left-version-badge {
+        top: 4px;
+        left: 4px;
+        font-size: 9px;
+        padding: 1px 4px;
+    }
+}
+
 /* Apply Ping Identity styling to public-facing views only */
 .ping-identity-theme {
     font-family: var(--ping-font-family);
@@ -368,6 +433,7 @@
 .ping-identity-theme .main-content {
     background-color: var(--ping-gray-50);
     padding: var(--ping-spacing-xl);
+    position: relative;
 }
 
 /* Status Bar - Ping Identity Style */
@@ -806,10 +872,15 @@ body.has-disclaimer-banner {
     background-color: var(--ping-gray-900);
     color: var(--ping-white);
     border-top: 1px solid var(--ping-gray-700);
-    position: relative;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
     z-index: 999;
-    margin-top: auto;
-    width: 100%;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .footer-container {
@@ -834,16 +905,33 @@ body.has-disclaimer-banner {
     flex-wrap: wrap;
 }
 
-.footer-logo img {
+.footer-logo {
+    padding: 8px 12px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+}
+
+.footer-logo:hover {
+    transform: translateY(-1px);
+}
+
+.ping-logo-img {
     height: 24px;
     width: auto;
-    opacity: 0.8;
+    transition: filter 0.3s ease;
+}
+
+.footer-logo:hover .ping-logo-img {
 }
 
 .footer-copyright {
-    color: var(--ping-gray-400);
+    color: var(--ping-white);
     font-size: var(--ping-font-size-sm);
     font-family: var(--ping-font-family);
+    font-weight: 400;
+    opacity: 0.9;
+    line-height: 1.4;
 }
 
 .footer-right {
@@ -858,30 +946,81 @@ body.has-disclaimer-banner {
 }
 
 .footer-links a {
-    color: var(--ping-gray-400);
+    color: var(--ping-white);
     text-decoration: none;
     font-size: var(--ping-font-size-sm);
     transition: var(--ping-transition);
     font-family: var(--ping-font-family);
+    font-weight: 400;
+    opacity: 0.8;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
 }
 
 .footer-links a:hover {
     color: var(--ping-white);
-    text-decoration: underline;
+    text-decoration: none;
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
 }
 
-/* Ensure footer stays at bottom */
+/* Sidebar Version Badge - Positioned above Ping Identity logo */
+.sidebar-version-badge {
+    background: linear-gradient(135deg, var(--ping-secondary) 0%, var(--ping-primary) 100%);
+    color: var(--ping-white);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: var(--ping-font-size-sm);
+    font-weight: 600;
+    font-family: var(--ping-font-family);
+    text-align: center;
+    margin-bottom: var(--ping-spacing-sm);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    z-index: 10;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
+
+.sidebar-version-badge::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.sidebar-version-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.sidebar-version-badge:hover::before {
+    left: 100%;
+}
+
+/* Ensure footer stays at bottom and main content doesn't overlap */
 body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     margin: 0;
     padding: 0;
+    padding-bottom: 80px; /* Space for fixed footer */
 }
 
 .app-container {
     display: flex;
-    min-height: 100vh;
+    min-height: calc(100vh - 80px); /* Account for footer height */
     flex: 1;
 }
 
@@ -889,13 +1028,14 @@ main {
     flex: 1;
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    min-height: calc(100vh - 80px); /* Account for footer height */
 }
 
 .main-content {
     flex: 1;
     display: flex;
     flex-direction: column;
+    padding-bottom: 20px; /* Extra space above footer */
 }
 
 /* Responsive footer */
@@ -908,6 +1048,8 @@ main {
     
     .footer-left {
         justify-content: center;
+        flex-direction: column;
+        gap: var(--ping-spacing-sm);
     }
     
     .footer-right {
@@ -916,6 +1058,28 @@ main {
     
     .footer-container {
         padding: 0 var(--ping-spacing-md);
+    }
+    
+    body {
+        padding-bottom: 120px; /* More space for mobile footer */
+    }
+    
+    .app-container {
+        min-height: calc(100vh - 120px);
+    }
+    
+    main {
+        min-height: calc(100vh - 120px);
+    }
+    
+    .ping-logo-img {
+        height: 20px;
+    }
+    
+    .sidebar-version-badge {
+        font-size: var(--ping-font-size-xs);
+        padding: 4px 10px;
+        margin-bottom: var(--ping-spacing-xs);
     }
 }
 
@@ -928,4 +1092,263 @@ main {
         justify-content: center;
         gap: var(--ping-spacing-md);
     }
+    
+    .footer-logo {
+        padding: 6px 10px;
+    }
+    
+    .sidebar-version-badge {
+        font-size: 10px;
+        padding: 3px 8px;
+        margin-bottom: var(--ping-spacing-xs);
+    }
+    
+    .ping-logo-img {
+        height: 18px;
+    }
+    
+    .footer-copyright {
+        font-size: 12px;
+    }
+    
+    .footer-links a {
+        font-size: 12px;
+        padding: 3px 6px;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .footer-logo {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.4);
+    }
+    
+    .footer-links a {
+        opacity: 1;
+    }
+    
+    .footer-copyright {
+        opacity: 1;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .footer-logo,
+    .footer-links a,
+    .ping-logo-img {
+        transition: none;
+    }
+    
+    .footer-logo:hover,
+    .footer-links a:hover {
+        transform: none;
+    }
+}
+
+/* ============================================================================
+   FORMATTED MESSAGE STYLES
+   ============================================================================ */
+
+/* Enhanced Log Entry Styles */
+.log-entry {
+    display: flex;
+    align-items: flex-start;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    border-radius: 6px;
+    font-size: 14px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    white-space: pre-wrap;
+    line-height: 1.4;
+}
+
+/* Formatted Message Styles */
+.log-message {
+    flex: 1;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Message Separator Styles */
+.log-message .message-separator {
+    color: #6c757d;
+    font-weight: bold;
+    margin: 8px 0;
+    text-align: center;
+}
+
+/* Event Marker Styles */
+.log-message .event-marker {
+    color: #007bff;
+    font-weight: bold;
+    margin: 4px 0;
+    padding: 2px 6px;
+    background-color: rgba(0, 123, 255, 0.1);
+    border-radius: 3px;
+    display: inline-block;
+}
+
+/* Timestamp Styles */
+.log-message .timestamp {
+    color: #6c757d;
+    font-size: 12px;
+    margin-right: 8px;
+}
+
+/* Progress Message Styles */
+.log-message .progress-indicator {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.log-message .progress-stats {
+    margin-left: 16px;
+    color: #495057;
+    font-size: 12px;
+}
+
+.log-message .progress-stats .stat-item {
+    margin: 2px 0;
+}
+
+/* Error Message Styles */
+.log-message .error-marker {
+    color: #dc3545;
+    font-weight: bold;
+    background-color: rgba(220, 53, 69, 0.1);
+    padding: 2px 6px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.log-message .error-details {
+    margin-left: 16px;
+    color: #721c24;
+    font-size: 12px;
+}
+
+/* Completion Message Styles */
+.log-message .completion-marker {
+    color: #28a745;
+    font-weight: bold;
+    background-color: rgba(40, 167, 69, 0.1);
+    padding: 2px 6px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.log-message .completion-results {
+    margin-left: 16px;
+    color: #155724;
+    font-size: 12px;
+}
+
+/* Progress Text Styles for Progress Window */
+.progress-text {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    color: #495057;
+    background-color: #f8f9fa;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #e9ecef;
+    margin: 8px 0;
+}
+
+/* Formatted Message Container */
+.formatted-message {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 12px;
+    margin: 8px 0;
+    color: #495057;
+}
+
+/* Message Block Separators */
+.message-separator {
+    color: #6c757d;
+    font-weight: bold;
+    text-align: center;
+    margin: 8px 0;
+    padding: 4px 0;
+    border-top: 1px solid #dee2e6;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Event Type Markers */
+.event-marker {
+    color: #007bff;
+    font-weight: bold;
+    background-color: rgba(0, 123, 255, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    margin: 4px 0;
+    border: 1px solid rgba(0, 123, 255, 0.2);
+}
+
+/* Statistics Display */
+.statistics-display {
+    margin-left: 16px;
+    color: #495057;
+    font-size: 12px;
+    background-color: rgba(0, 123, 255, 0.05);
+    padding: 8px;
+    border-radius: 4px;
+    border-left: 3px solid #007bff;
+}
+
+.statistics-display .stat-item {
+    margin: 2px 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.statistics-display .stat-label {
+    font-weight: 500;
+    color: #495057;
+}
+
+.statistics-display .stat-value {
+    font-weight: bold;
+    color: #007bff;
+}
+
+/* Error Display */
+.error-display {
+    margin-left: 16px;
+    color: #721c24;
+    font-size: 12px;
+    background-color: rgba(220, 53, 69, 0.05);
+    padding: 8px;
+    border-radius: 4px;
+    border-left: 3px solid #dc3545;
+}
+
+/* Results Display */
+.results-display {
+    margin-left: 16px;
+    color: #155724;
+    font-size: 12px;
+    background-color: rgba(40, 167, 69, 0.05);
+    padding: 8px;
+    border-radius: 4px;
+    border-left: 3px solid #28a745;
 } 

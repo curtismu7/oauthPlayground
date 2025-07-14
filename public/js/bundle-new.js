@@ -1717,13 +1717,19 @@ class App {
       this.uiManager.showError('No population selected', 'Please select a population before starting the export.');
       return null;
     }
-    return {
-      selectedPopulationId,
+    
+    const exportOptions = {
+      populationId: selectedPopulationId, // Send the correct field name backend expects
       selectedPopulationName,
       fields: document.getElementById('export-fields-select')?.value || 'all',
       format: document.getElementById('export-format-select')?.value || 'csv',
       ignoreDisabledUsers: document.getElementById('export-ignore-disabled')?.checked || false
     };
+    
+    // Log the export options for debugging
+    console.log('Export options prepared:', exportOptions);
+    
+    return exportOptions;
   }
   cancelExport() {
     if (this.exportAbortController) {
@@ -10794,12 +10800,77 @@ class UIManager {
     logEntries.innerHTML = '';
     logEntries.appendChild(loadingElement);
     try {
+      // Check token validity before making request
+      let hasValidToken = true;
+      if (window.app && window.app.pingOneClient) {
+        const tokenInfo = window.app.pingOneClient.getCurrentTokenTimeRemaining();
+        hasValidToken = tokenInfo.token && !tokenInfo.isExpired;
+        
+        if (!hasValidToken) {
+          safeLog('No valid token found - skipping log fetch', 'info');
+          logEntries.innerHTML = `
+            <div class="log-entry warning">
+              <span class="log-timestamp">[${new Date().toLocaleTimeString()}]</span>
+              <span class="log-level">WARNING</span>
+              <span class="log-message">Logs unavailable. Please authenticate first.</span>
+            </div>
+            <div class="log-entry info">
+              <span class="log-timestamp">[${new Date().toLocaleTimeString()}]</span>
+              <span class="log-level">INFO</span>
+              <span class="log-message">
+                <a href="#" onclick="window.app.showView('settings'); return false;" class="text-primary">
+                  Click here to add credentials
+                </a>
+              </span>
+            </div>
+          `;
+          return;
+        }
+      }
+
       // Fetch logs from the UI logs endpoint
-      safeLog('Fetching logs from /api/logs...', 'debug');
-      const response = await fetch('/api/logs?limit=200');
+      safeLog('Fetching logs from /api/logs/ui...', 'debug');
+      const response = await fetch('/api/logs/ui?limit=200');
+      
       if (!response.ok) {
+        // Handle authentication errors gracefully
+        if (response.status === 401 || response.status === 403) {
+          safeLog('Authentication required for logs - showing user guidance', 'info');
+          logEntries.innerHTML = `
+            <div class="log-entry warning">
+              <span class="log-timestamp">[${new Date().toLocaleTimeString()}]</span>
+              <span class="log-level">WARNING</span>
+              <span class="log-message">Authentication Required - No valid token found.</span>
+            </div>
+            <div class="log-entry info">
+              <span class="log-timestamp">[${new Date().toLocaleTimeString()}]</span>
+              <span class="log-level">INFO</span>
+              <span class="log-message">
+                <a href="#" onclick="window.app.showView('settings'); return false;" class="text-primary">
+                  Go to Settings to add credentials
+                </a>
+              </span>
+            </div>
+          `;
+          return;
+        }
+        
+        // Handle connection errors
+        if (response.status === 0 || response.status >= 500) {
+          safeLog('Server connection error - showing offline message', 'warn');
+          logEntries.innerHTML = `
+            <div class="log-entry error">
+              <span class="log-timestamp">[${new Date().toLocaleTimeString()}]</span>
+              <span class="log-level">ERROR</span>
+              <span class="log-message">Server connection failed. Please check your connection and try again.</span>
+            </div>
+          `;
+          return;
+        }
+        
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+      
       const responseData = await response.json();
       safeLog('Received logs from server', 'debug', {
         count: responseData.logs?.length
@@ -10872,10 +10943,49 @@ class UIManager {
         }
       }
     } catch (error) {
-      safeLog(`Error loading logs: ${error.message}`, 'error', {
-        error
-      });
-      logEntries.innerHTML = `<div class="error">Failed to load logs: ${error.message}</div>`;
+      // Suppress console errors for authentication and connection issues
+      const isAuthError = error.message.includes('401') || error.message.includes('403');
+      const isConnectionError = error.message.includes('Failed to fetch') || 
+                               error.message.includes('NetworkError') ||
+                               error.message.includes('ERR_CONNECTION_REFUSED');
+      
+      if (!isAuthError && !isConnectionError) {
+        safeLog(`Error loading logs: ${error.message}`, 'error', {
+          error
+        });
+      } else {
+        safeLog('Log fetch blocked due to authentication or connection issue', 'info');
+      }
+      
+      // Show user-friendly error message
+      if (isAuthError) {
+        logEntries.innerHTML = `
+          <div class="log-entry warning">
+            <span class="log-timestamp">[${new Date().toLocaleTimeString()}]</span>
+            <span class="log-level">WARNING</span>
+            <span class="log-message">Authentication Required - No valid token found.</span>
+          </div>
+          <div class="log-entry info">
+            <span class="log-timestamp">[${new Date().toLocaleTimeString()}]</span>
+            <span class="log-level">INFO</span>
+            <span class="log-message">
+              <a href="#" onclick="window.app.showView('settings'); return false;" class="text-primary">
+                Go to Settings to add credentials
+              </a>
+            </span>
+          </div>
+        `;
+      } else if (isConnectionError) {
+        logEntries.innerHTML = `
+          <div class="log-entry error">
+            <span class="log-timestamp">[${new Date().toLocaleTimeString()}]</span>
+            <span class="log-level">ERROR</span>
+            <span class="log-message">Server connection failed. Please check your connection and try again.</span>
+          </div>
+        `;
+      } else {
+        logEntries.innerHTML = `<div class="error">Failed to load logs: ${error.message}</div>`;
+      }
     }
   }
   addForm(formId, action, onSuccess, onError) {

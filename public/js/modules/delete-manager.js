@@ -348,6 +348,32 @@ class DeleteManager {
     }
 
     async performDelete(deleteData) {
+        // Validate delete data
+        if (!deleteData || !deleteData.type) {
+            throw new Error('Invalid delete data: type is required');
+        }
+
+        // Validate based on delete type
+        switch (deleteData.type) {
+            case 'file':
+                if (!deleteData.file) {
+                    throw new Error('File is required for file-based deletion');
+                }
+                break;
+            case 'population':
+                if (!deleteData.populationId) {
+                    throw new Error('Population ID is required for population-based deletion');
+                }
+                break;
+            case 'environment':
+                if (deleteData.confirmation !== 'DELETE ALL') {
+                    throw new Error('Environment deletion requires "DELETE ALL" confirmation');
+                }
+                break;
+            default:
+                throw new Error('Invalid delete type');
+        }
+
         const formData = new FormData();
         formData.append('type', deleteData.type);
         formData.append('skipNotFound', deleteData.skipNotFound);
@@ -370,8 +396,16 @@ class DeleteManager {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Delete operation failed');
+            let errorMessage = 'Delete operation failed';
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.message || errorData.error || errorMessage;
+                console.error('Delete API error:', errorData);
+            } catch (parseError) {
+                console.error('Failed to parse error response:', parseError);
+                errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+            }
+            throw new Error(errorMessage);
         }
 
         const result = await response.json();

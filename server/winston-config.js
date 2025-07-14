@@ -20,6 +20,75 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// ANSI color codes for console output
+const COLORS = {
+    reset: '\x1b[0m',
+    bright: '\x1b[1m',
+    dim: '\x1b[2m',
+    underscore: '\x1b[4m',
+    blink: '\x1b[5m',
+    reverse: '\x1b[7m',
+    hidden: '\x1b[8m',
+    fg: {
+        black: '\x1b[30m',
+        red: '\x1b[31m',
+        green: '\x1b[32m',
+        yellow: '\x1b[33m',
+        blue: '\x1b[34m',
+        magenta: '\x1b[35m',
+        cyan: '\x1b[36m',
+        white: '\x1b[37m',
+    },
+    bg: {
+        black: '\x1b[40m',
+        red: '\x1b[41m',
+        green: '\x1b[42m',
+        yellow: '\x1b[43m',
+        blue: '\x1b[44m',
+        magenta: '\x1b[45m',
+        cyan: '\x1b[46m',
+        white: '\x1b[47m',
+    }
+};
+
+// Helper: Visual separator
+export function logSeparator(char = '*', length = 60) {
+    return char.repeat(length);
+}
+
+// Helper: Event tag
+export function logTag(label) {
+    return `>>> ${label.toUpperCase()}`;
+}
+
+// Helper: Colorize message for console
+export function colorize(level, message) {
+    switch (level) {
+        case 'error':
+            return `${COLORS.fg.red}${message}${COLORS.reset}`;
+        case 'warn':
+            return `${COLORS.fg.yellow}${message}${COLORS.reset}`;
+        case 'info':
+            return `${COLORS.fg.green}${message}${COLORS.reset}`;
+        case 'debug':
+            return `${COLORS.fg.cyan}${message}${COLORS.reset}`;
+        default:
+            return message;
+    }
+}
+
+// Helper: Consistent log line formatting
+export function formatLogLine({ timestamp, level, message, service, tag, separator, ...meta }) {
+    let line = '';
+    if (separator) line += `\n${separator}\n`;
+    if (tag) line += `${tag} `;
+    line += `[${timestamp}] [${service}] [${level.toUpperCase()}] ${message}`;
+    if (Object.keys(meta).length) {
+        line += `\n${JSON.stringify(meta, null, 2)}`;
+    }
+    return line;
+}
+
 /**
  * Create production-ready Winston logger configuration
  * 
@@ -80,11 +149,12 @@ export function createWinstonLogger(options = {}) {
             // Console transport for all environments
             new winston.transports.Console({
                 format: winston.format.combine(
-                    winston.format.colorize(),
                     winston.format.printf(({ timestamp, level, message, service, ...meta }) => {
-                        const metaString = Object.keys(meta).length ? 
-                            `\n${JSON.stringify(meta, null, 2)}` : '';
-                        return `[${timestamp}] [${service}] ${level}: ${message}${metaString}`;
+                        // Support for visual separators, tags, and color
+                        let tag = meta.tag || '';
+                        let separator = meta.separator || '';
+                        let formatted = formatLogLine({ timestamp, level, message, service, tag, separator, ...meta });
+                        return colorize(level, formatted);
                     })
                 ),
                 handleExceptions: true,

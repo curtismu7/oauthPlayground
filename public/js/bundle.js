@@ -205,6 +205,7 @@ var _progressManager = require("./modules/progress-manager.js");
 var _deleteManager = require("./modules/delete-manager.js");
 var _exportManager = require("./modules/export-manager.js");
 var _historyManager = require("./modules/history-manager.js");
+var _tokenAlertModal = require("./modules/token-alert-modal.js");
 // File: app.js
 // Description: Main application entry point for PingOne user import tool
 // 
@@ -676,6 +677,18 @@ class App {
       } catch (error) {
         console.warn('ExportManager initialization warning:', error);
         this.exportManager = null;
+      }
+
+      // Initialize progress manager for enhanced progress tracking
+      try {
+        if (_progressManager.progressManager && typeof _progressManager.progressManager.initialize === 'function') {
+          _progressManager.progressManager.initialize();
+          console.log('✅ ProgressManager initialized successfully');
+        } else {
+          console.warn('ProgressManager not available or missing initialize method');
+        }
+      } catch (error) {
+        console.warn('ProgressManager initialization warning:', error);
       }
 
       // Load application settings from storage with safety check
@@ -1905,6 +1918,13 @@ class App {
    * @returns {Promise<void>}
    */
   async startImport() {
+    // Check for valid token before proceeding
+    const hasValidToken = await this.checkTokenAndRedirect('import');
+    if (!hasValidToken) {
+      console.log('❌ [IMPORT] Import cancelled due to missing valid token');
+      return;
+    }
+
     // Prevent multiple simultaneous imports
     if (this.isImporting) {
       this.logger.warn('Import already in progress');
@@ -2103,7 +2123,7 @@ class App {
       });
 
       // Start the robust connection
-      robustSSE.connect();
+      this.robustSSE.connect();
     };
 
     /**
@@ -2269,11 +2289,44 @@ class App {
       // Send CSV data and population info to backend for processing
       // The server will start the import process and return a session ID
       console.log('📤 [IMPORT] Sending request to backend...');
-      const response = await fetch('/api/import', {
+
+      // Enhanced fetch configuration to handle protocol issues
+      const fetchOptions = {
         method: 'POST',
         body: formData,
-        signal: this.importAbortController.signal
+        signal: this.importAbortController.signal,
+        // Force HTTP/1.1 to avoid protocol mismatch issues
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      };
+      console.log('🔧 [IMPORT] Fetch options:', {
+        method: fetchOptions.method,
+        hasSignal: !!fetchOptions.signal,
+        headers: fetchOptions.headers
       });
+      let response;
+      let fetchAttempt = 1;
+      const maxAttempts = 3;
+      while (fetchAttempt <= maxAttempts) {
+        try {
+          console.log(`📤 [IMPORT] Attempt ${fetchAttempt}/${maxAttempts} - Sending request to backend...`);
+          response = await fetch('/api/import', fetchOptions);
+          break; // Success, exit the loop
+        } catch (fetchError) {
+          console.error(`❌ [IMPORT] Attempt ${fetchAttempt} failed:`, fetchError);
+          if (fetchAttempt === maxAttempts) {
+            throw fetchError; // Re-throw on final attempt
+          }
+
+          // Wait before retry (exponential backoff)
+          const delay = Math.pow(2, fetchAttempt - 1) * 1000;
+          console.log(`⏳ [IMPORT] Waiting ${delay}ms before retry...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          fetchAttempt++;
+        }
+      }
       console.log('📥 [IMPORT] Backend response received:', {
         status: response.status,
         statusText: response.statusText,
@@ -2293,6 +2346,9 @@ class App {
       }
       console.log('✅ [IMPORT] Session ID received:', sessionId);
 
+      // Update progress manager with session ID
+      this.uiManager.updateImportOperationWithSessionId(sessionId);
+
       // Log session ID and establish robust SSE connection for progress updates
       this.uiManager.debugLog("Import", "Session ID received", {
         sessionId
@@ -2309,7 +2365,34 @@ class App {
     } catch (error) {
       console.error('❌ [IMPORT] Error during import process:', error);
       this.uiManager.debugLog("Import", "Error starting import", error);
-      this.uiManager.showError('Import failed', error.message || error);
+
+      // Enhanced error handling for network protocol issues
+      let errorMessage = error.message || 'Unknown error occurred';
+      let errorTitle = 'Import failed';
+
+      // Check for specific network protocol errors
+      if (error.message && error.message.includes('ERR_H2_OR_QUIC_REQUIRED')) {
+        errorTitle = 'Network Protocol Error';
+        errorMessage = 'The server requires HTTP/2 or QUIC protocol, but your browser is using HTTP/1.1. This is likely a server configuration issue. Please contact your system administrator.';
+      } else if (error.message && error.message.includes('Failed to fetch')) {
+        errorTitle = 'Network Connection Error';
+        errorMessage = 'Unable to connect to the import service. Please check your network connection and try again. If the problem persists, contact your system administrator.';
+      } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        errorTitle = 'Network Error';
+        errorMessage = 'Network request failed. Please check your internet connection and try again.';
+      } else if (error.name === 'AbortError') {
+        errorTitle = 'Import Cancelled';
+        errorMessage = 'The import operation was cancelled by the user.';
+      }
+
+      // Log detailed error information for debugging
+      console.error('🔍 [IMPORT] Detailed error info:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+        type: error.constructor.name
+      });
+      this.uiManager.showError(errorTitle, errorMessage);
       this.isImporting = false;
     }
   }
@@ -2484,6 +2567,12 @@ class App {
    * Starts the user export flow by validating options, sending request to the server, and handling progress
    */
   async startExport() {
+    // Check for valid token before proceeding
+    const hasValidToken = await this.checkTokenAndRedirect('export');
+    if (!hasValidToken) {
+      console.log('❌ [EXPORT] Export cancelled due to missing valid token');
+      return;
+    }
     if (this.isExporting) {
       this.logger.warn('Export already in progress');
       return;
@@ -2536,14 +2625,19 @@ class App {
       this.uiManager.showError('No population selected', 'Please select a population before starting the export.');
       return null;
     }
-    return {
-      selectedPopulationId,
+    const exportOptions = {
+      populationId: selectedPopulationId,
+      // Send the correct field name backend expects
       selectedPopulationName,
       populationFilter,
       fields: document.getElementById('export-fields-select')?.value || 'all',
       format: document.getElementById('export-format-select')?.value || 'csv',
       ignoreDisabledUsers: document.getElementById('export-ignore-disabled')?.checked || false
     };
+
+    // Log the export options for debugging
+    console.log('Export options prepared:', exportOptions);
+    return exportOptions;
   }
   cancelExport() {
     if (this.exportAbortController) {
@@ -2555,6 +2649,12 @@ class App {
    * Starts the user delete flow by validating options, sending request to the server, and handling progress
    */
   async startDelete() {
+    // Check for valid token before proceeding
+    const hasValidToken = await this.checkTokenAndRedirect('delete');
+    if (!hasValidToken) {
+      console.log('❌ [DELETE] Delete cancelled due to missing valid token');
+      return;
+    }
     if (this.isDeleting) {
       this.logger.warn('Delete already in progress');
       return;
@@ -2628,6 +2728,12 @@ class App {
    * Starts the user modify flow by validating options, sending request to the server, and handling progress
    */
   async startModify() {
+    // Check for valid token before proceeding
+    const hasValidToken = await this.checkTokenAndRedirect('modify');
+    if (!hasValidToken) {
+      console.log('❌ [MODIFY] Modify cancelled due to missing valid token');
+      return;
+    }
     if (this.isModifying) {
       this.logger.warn('Modify already in progress');
       return;
@@ -2697,6 +2803,12 @@ class App {
     }
   }
   async startPopulationDelete() {
+    // Check for valid token before proceeding
+    const hasValidToken = await this.checkTokenAndRedirect('population delete');
+    if (!hasValidToken) {
+      console.log('❌ [POPULATION DELETE] Population delete cancelled due to missing valid token');
+      return;
+    }
     try {
       const selectedPopulationId = document.getElementById('population-delete-select')?.value;
       const selectedPopulationName = document.getElementById('population-delete-select')?.selectedOptions[0]?.text || '';
@@ -2732,6 +2844,12 @@ class App {
     this.uiManager.showInfo('Population delete cancelled');
   }
   async testConnection() {
+    // Check for valid token before proceeding
+    const hasValidToken = await this.checkTokenAndRedirect('connection test');
+    if (!hasValidToken) {
+      console.log('❌ [CONNECTION TEST] Connection test cancelled due to missing valid token');
+      return;
+    }
     try {
       // Set button loading state
       this.uiManager.setButtonLoading('test-connection-btn', true);
@@ -2811,7 +2929,8 @@ class App {
 
       // Use PingOneClient which handles localStorage storage
       if (!this.pingOneClient) {
-        throw new Error('PingOneClient not initialized');
+        this.uiManager.showError('Authentication Error', 'Authentication system not initialized. Please refresh the page and try again.');
+        return;
       }
       const token = await this.pingOneClient.getAccessToken();
       console.log('Token retrieved successfully via PingOneClient');
@@ -2879,6 +2998,59 @@ class App {
       // Always reset button loading state
       console.log('Resetting Get Token button loading state...');
       this.uiManager.setButtonLoading('get-token-quick', false);
+    }
+  }
+
+  /**
+   * Check if a valid token is available and redirect to settings if not
+   * @param {string} operation - Name of the operation being attempted
+   * @returns {boolean} - True if valid token is available, false otherwise
+   */
+  async checkTokenAndRedirect(operation = 'operation') {
+    try {
+      console.log(`🔐 [TOKEN CHECK] Checking token for ${operation}...`);
+
+      // Check if PingOneClient is available
+      if (!this.pingOneClient) {
+        console.error('❌ [TOKEN CHECK] PingOneClient not initialized');
+        this.uiManager.showError('Authentication Error', 'Authentication system not initialized. Please refresh the page and try again.');
+        return false;
+      }
+
+      // Get current token status
+      const tokenInfo = this.pingOneClient.getCurrentTokenTimeRemaining();
+      console.log('🔍 [TOKEN CHECK] Token status:', {
+        hasToken: !!tokenInfo.token,
+        isExpired: tokenInfo.isExpired,
+        timeRemaining: tokenInfo.timeRemaining
+      });
+
+      // Check if token is valid and not expired
+      if (!tokenInfo.token || tokenInfo.isExpired) {
+        console.warn('❌ [TOKEN CHECK] No valid token found for operation:', operation);
+
+        // Show error message
+        this.uiManager.showError('Authentication Required', 'No valid token found. Please add credentials to continue.');
+
+        // Redirect to settings page
+        console.log('🔄 [TOKEN CHECK] Redirecting to Settings page...');
+        this.showView('settings');
+
+        // Update navigation to highlight settings
+        this.updateNavigationActiveState('settings');
+
+        // Show additional guidance
+        setTimeout(() => {
+          this.uiManager.showInfo('Please configure your PingOne credentials in the Settings page to continue.');
+        }, 1000);
+        return false;
+      }
+      console.log('✅ [TOKEN CHECK] Valid token found for operation:', operation);
+      return true;
+    } catch (error) {
+      console.error('❌ [TOKEN CHECK] Error checking token:', error);
+      this.uiManager.showError('Authentication Error', 'Unable to verify authentication status. Please refresh the page and try again.');
+      return false;
     }
   }
   async toggleFeatureFlag(flag, enabled) {
@@ -4524,7 +4696,7 @@ if (document.readyState === 'loading') {
 // Defensive: check robustSSE and uiManager before calling their methods
 // ... existing code ...
 
-},{"./modules/api-factory.js":4,"./modules/delete-manager.js":7,"./modules/export-manager.js":9,"./modules/file-handler.js":10,"./modules/file-logger.js":11,"./modules/history-manager.js":12,"./modules/local-api-client.js":13,"./modules/logger.js":14,"./modules/pingone-client.js":15,"./modules/progress-manager.js":16,"./modules/settings-manager.js":17,"./modules/token-manager.js":18,"./modules/ui-manager.js":19,"./modules/version-manager.js":20,"@babel/runtime/helpers/interopRequireDefault":1}],4:[function(require,module,exports){
+},{"./modules/api-factory.js":4,"./modules/delete-manager.js":7,"./modules/export-manager.js":9,"./modules/file-handler.js":10,"./modules/file-logger.js":11,"./modules/history-manager.js":12,"./modules/local-api-client.js":13,"./modules/logger.js":14,"./modules/pingone-client.js":16,"./modules/progress-manager.js":17,"./modules/settings-manager.js":19,"./modules/token-alert-modal.js":20,"./modules/token-manager.js":21,"./modules/ui-manager.js":22,"./modules/version-manager.js":23,"@babel/runtime/helpers/interopRequireDefault":1}],4:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -4977,7 +5149,7 @@ var _default = exports.default = {
   apiFactory
 };
 
-},{"./local-api-client.js":13,"./pingone-client.js":15,"./token-manager.js":18,"@babel/runtime/helpers/interopRequireDefault":1}],5:[function(require,module,exports){
+},{"./local-api-client.js":13,"./pingone-client.js":16,"./token-manager.js":21,"@babel/runtime/helpers/interopRequireDefault":1}],5:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5518,6 +5690,31 @@ class DeleteManager {
     }
   }
   async performDelete(deleteData) {
+    // Validate delete data
+    if (!deleteData || !deleteData.type) {
+      throw new Error('Invalid delete data: type is required');
+    }
+
+    // Validate based on delete type
+    switch (deleteData.type) {
+      case 'file':
+        if (!deleteData.file) {
+          throw new Error('File is required for file-based deletion');
+        }
+        break;
+      case 'population':
+        if (!deleteData.populationId) {
+          throw new Error('Population ID is required for population-based deletion');
+        }
+        break;
+      case 'environment':
+        if (deleteData.confirmation !== 'DELETE ALL') {
+          throw new Error('Environment deletion requires "DELETE ALL" confirmation');
+        }
+        break;
+      default:
+        throw new Error('Invalid delete type');
+    }
     const formData = new FormData();
     formData.append('type', deleteData.type);
     formData.append('skipNotFound', deleteData.skipNotFound);
@@ -5535,8 +5732,16 @@ class DeleteManager {
       body: formData
     });
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Delete operation failed');
+      let errorMessage = 'Delete operation failed';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorData.error || errorMessage;
+        console.error('Delete API error:', errorData);
+      } catch (parseError) {
+        console.error('Failed to parse error response:', parseError);
+        errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+      }
+      throw new Error(errorMessage);
     }
     const result = await response.json();
     this.showSuccess(`Delete operation completed successfully. ${result.deletedCount} users deleted.`);
@@ -6078,7 +6283,7 @@ class ExportManager {
   }
   toggleCredentialsOverride(enabled) {
     this.overrideCredentials = enabled;
-    const credentialsFields = document.getElementById('export-credentials-fields');
+    const credentialsFields = document.getElementById('export-credentials-form');
     const tokenStatus = document.getElementById('export-token-status');
     if (enabled) {
       credentialsFields.style.display = 'block';
@@ -7049,7 +7254,7 @@ class FileHandler {
 
       // Update UI with enhanced file info display based on operation type
       const fileInfoContainerId = operationType === 'modify' ? 'modify-file-info' : 'file-info';
-      this.updateFileInfoForElement(file, fileInfoContainerId);
+      this.updateFileInfoForElement(file, fileInfoContainerId, parseResults.validUsers);
 
       // Update file label to show last folder path
       this.updateFileLabel(operationType);
@@ -7616,12 +7821,13 @@ class FileHandler {
    * @param {File} file - The file object
    * @param {string} containerId - The ID of the container element to update
    */
-  updateFileInfoForElement(file, containerId) {
+  updateFileInfoForElement(file, containerId, recordCount = null) {
     const container = document.getElementById(containerId);
     console.log('updateFileInfoForElement called:', {
       containerId,
       container: !!container,
-      file: !!file
+      file: !!file,
+      recordCount
     });
     if (!container || !file) {
       console.warn('updateFileInfoForElement: container or file is null', {
@@ -7657,63 +7863,76 @@ class FileHandler {
     const fileSizeInKB = Math.round(file.size / 1024);
     const fileSizeInMB = Math.round(file.size / 1024 / 1024 * 100) / 100;
 
-    // Create improved file info display with prominent file name
+    // Determine record count display
+    let recordCountHTML = '';
+    if (isValidType && recordCount !== null) {
+      if (typeof recordCount === 'number') {
+        if (recordCount > 0) {
+          recordCountHTML = `<div class="file-info-item" style="background: white; padding: 8px; border-radius: 4px; border: 1px solid #e9ecef;"><strong style="color: #495057; display: block; margin-bottom: 3px; font-size: 0.85rem;">🧾 Records</strong><span style="color: #0073C8; font-size: 0.8rem; font-weight: bold;">${recordCount}</span></div>`;
+        } else {
+          recordCountHTML = `<div class="file-info-item" style="background: white; padding: 8px; border-radius: 4px; border: 1px solid #e9ecef;"><strong style="color: #495057; display: block; margin-bottom: 3px; font-size: 0.85rem;">🧾 Records</strong><span style="color: #dc3545; font-size: 0.8rem; font-weight: bold;">No user records found</span></div>`;
+        }
+      }
+    }
+
+    // Create compact file info display with reduced footprint
     const fileInfoHTML = `
-            <div class="file-info-details" style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div class="file-info-details" style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 12px; margin: 8px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
                 
-                <!-- Prominent File Name Section -->
-                <div class="file-name-section" style="text-align: center; margin-bottom: 20px; padding: 15px; background: #e6f4ff; border-radius: 6px; color: #1a237e; font-weight: bold; font-size: 1.4rem;">
-                    <div style="font-size: 1.8rem; font-weight: 700; margin-bottom: 5px; color: #1a237e; text-shadow: none; word-break: break-word; overflow-wrap: break-word;">
-                        <i class="fas fa-file-csv" style="margin-right: 10px; font-size: 1.6rem; color: #1976d2;"></i>
+                <!-- Compact File Name Section -->
+                <div class="file-name-section" style="text-align: center; margin-bottom: 12px; padding: 8px; background: #e6f4ff; border-radius: 4px; color: #1a237e; font-weight: bold; font-size: 1.1rem;">
+                    <div style="font-size: 1.3rem; font-weight: 600; margin-bottom: 3px; color: #1a237e; text-shadow: none; word-break: break-word; overflow-wrap: break-word;">
+                        <i class="fas fa-file-csv" style="margin-right: 6px; font-size: 1.2rem; color: #1976d2;"></i>
                         ${file.name}
                     </div>
-                    <div style="font-size: 1rem; opacity: 0.95; font-weight: 600; color: #1976d2;">
+                    <div style="font-size: 0.85rem; opacity: 0.9; font-weight: 500; color: #1976d2;">
                         File Selected Successfully
                     </div>
                 </div>
                 
-                <!-- File Information Grid -->
-                <div class="file-info-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; font-size: 0.9em; margin-bottom: 15px;">
-                    <div class="file-info-item" style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #e9ecef;">
-                        <strong style="color: #495057; display: block; margin-bottom: 5px;">📊 File Size</strong>
-                        <span style="color: #6c757d;">${fileSize} (${fileSizeInKB} KB, ${fileSizeInMB} MB)</span>
+                <!-- Compact File Information Grid -->
+                <div class="file-info-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; font-size: 0.8em; margin-bottom: 10px;">
+                    <div class="file-info-item" style="background: white; padding: 8px; border-radius: 4px; border: 1px solid #e9ecef;">
+                        <strong style="color: #495057; display: block; margin-bottom: 3px; font-size: 0.85rem;">📊 File Size</strong>
+                        <span style="color: #6c757d; font-size: 0.8rem;">${fileSize} (${fileSizeInKB} KB, ${fileSizeInMB} MB)</span>
                     </div>
                     
-                    <div class="file-info-item" style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #e9ecef;">
-                        <strong style="color: #495057; display: block; margin-bottom: 5px;">📂 Directory</strong>
-                        <span style="color: #6c757d; word-break: break-all;">${filePath}</span>
+                    <div class="file-info-item" style="background: white; padding: 8px; border-radius: 4px; border: 1px solid #e9ecef;">
+                        <strong style="color: #495057; display: block; margin-bottom: 3px; font-size: 0.85rem;">📂 Directory</strong>
+                        <span style="color: #6c757d; word-break: break-all; font-size: 0.8rem;">${filePath}</span>
                     </div>
                     
-                    <div class="file-info-item" style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #e9ecef;">
-                        <strong style="color: #495057; display: block; margin-bottom: 5px;">📅 Last Modified</strong>
-                        <span style="color: #6c757d;">${lastModified}</span>
+                    <div class="file-info-item" style="background: white; padding: 8px; border-radius: 4px; border: 1px solid #e9ecef;">
+                        <strong style="color: #495057; display: block; margin-bottom: 3px; font-size: 0.85rem;">📅 Last Modified</strong>
+                        <span style="color: #6c757d; font-size: 0.8rem;">${lastModified}</span>
                     </div>
                     
-                    <div class="file-info-item" style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #e9ecef;">
-                        <strong style="color: #495057; display: block; margin-bottom: 5px;">🔤 File Type</strong>
-                        <span style="color: #6c757d;">${fileType || 'Unknown'}</span>
+                    <div class="file-info-item" style="background: white; padding: 8px; border-radius: 4px; border: 1px solid #e9ecef;">
+                        <strong style="color: #495057; display: block; margin-bottom: 3px; font-size: 0.85rem;">🔤 File Type</strong>
+                        <span style="color: #6c757d; font-size: 0.8rem;">${fileType || 'Unknown'}</span>
                     </div>
                     
-                    <div class="file-info-item" style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #e9ecef;">
-                        <strong style="color: #495057; display: block; margin-bottom: 5px;">📄 Extension</strong>
-                        <span style="color: ${isValidType ? '#28a745' : '#dc3545'}; font-weight: bold;">
+                    <div class="file-info-item" style="background: white; padding: 8px; border-radius: 4px; border: 1px solid #e9ecef;">
+                        <strong style="color: #495057; display: block; margin-bottom: 3px; font-size: 0.85rem;">📄 Extension</strong>
+                        <span style="color: ${isValidType ? '#28a745' : '#dc3545'}; font-weight: bold; font-size: 0.8rem;">
                             ${fileExtension ? '.' + fileExtension : 'None'}
                         </span>
                     </div>
+                    ${recordCountHTML}
                 </div>
                 
-                <!-- File Status Section -->
-                <div class="file-info-status" style="margin-top: 15px; padding: 12px; border-radius: 6px; background: ${isValidType ? '#d4edda' : '#f8d7da'}; border: 1px solid ${isValidType ? '#c3e6cb' : '#f5c6cb'}; display: flex; align-items: center; gap: 10px;">
-                    <i class="fas ${isValidType ? 'fa-check-circle' : 'fa-exclamation-triangle'}" style="color: ${isValidType ? '#155724' : '#721c24'}; font-size: 1.2rem;"></i>
-                    <span style="color: ${isValidType ? '#155724' : '#721c24'}; font-weight: bold;">
+                <!-- Compact File Status Section -->
+                <div class="file-info-status" style="margin-top: 8px; padding: 8px; border-radius: 4px; background: ${isValidType ? '#d4edda' : '#f8d7da'}; border: 1px solid ${isValidType ? '#c3e6cb' : '#f5c6cb'}; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas ${isValidType ? 'fa-check-circle' : 'fa-exclamation-triangle'}" style="color: ${isValidType ? '#155724' : '#721c24'}; font-size: 1rem;"></i>
+                    <span style="color: ${isValidType ? '#155724' : '#721c24'}; font-weight: bold; font-size: 0.85rem;">
                         ${isValidType ? '✅ File type is supported and ready for processing' : '⚠️ Warning: File type may not be optimal for import'}
                     </span>
                 </div>
                 
                 ${file.size > 5 * 1024 * 1024 ? `
-                <div class="file-info-warning" style="margin-top: 15px; padding: 12px; border-radius: 6px; background: #fff3cd; border: 1px solid #ffeaa7; display: flex; align-items: center; gap: 10px;">
-                    <i class="fas fa-exclamation-triangle" style="color: #856404; font-size: 1.2rem;"></i>
-                    <span style="color: #856404; font-weight: bold;">Large file detected - processing may take longer than usual</span>
+                <div class="file-info-warning" style="margin-top: 8px; padding: 8px; border-radius: 4px; background: #fff3cd; border: 1px solid #ffeaa7; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-exclamation-triangle" style="color: #856404; font-size: 1rem;"></i>
+                    <span style="color: #856404; font-weight: bold; font-size: 0.85rem;">Large file detected - processing may take longer than usual</span>
                 </div>
                 ` : ''}
                 
@@ -7721,22 +7940,22 @@ class FileHandler {
                 <style>
                     @media (max-width: 768px) {
                         .file-info-details .file-name-section div:first-child {
-                            font-size: 1.2rem !important;
+                            font-size: 1.1rem !important;
                         }
                         .file-info-grid {
                             grid-template-columns: 1fr !important;
-                            gap: 10px !important;
+                            gap: 6px !important;
                         }
                         .file-info-item {
-                            padding: 10px !important;
+                            padding: 6px !important;
                         }
                     }
                     @media (max-width: 480px) {
                         .file-info-details .file-name-section div:first-child {
-                            font-size: 1rem !important;
+                            font-size: 0.95rem !important;
                         }
                         .file-info-details {
-                            padding: 10px !important;
+                            padding: 8px !important;
                         }
                     }
                 </style>
@@ -7744,8 +7963,8 @@ class FileHandler {
         `;
     container.innerHTML = fileInfoHTML;
   }
-  updateFileInfo(file) {
-    this.updateFileInfoForElement(file, 'file-info');
+  updateFileInfo(file, recordCount = null) {
+    this.updateFileInfoForElement(file, 'file-info', recordCount);
   }
   showPreview(rows) {
     if (!this.previewContainer) return;
@@ -8315,6 +8534,7 @@ class HistoryManager {
     this.setupEventListeners();
     this.startAutoRefresh();
     this.loadHistory();
+    this.loadPopulations();
   }
   setupElements() {
     this.historyContainer = document.getElementById('history-container');
@@ -8716,6 +8936,32 @@ class HistoryManager {
     if (this.refreshInterval) {
       clearInterval(this.refreshInterval);
       this.refreshInterval = null;
+    }
+  }
+  async loadPopulations() {
+    try {
+      const response = await fetch('/api/populations');
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      const data = await response.json();
+      const populations = data.populations || [];
+      const populationFilter = document.getElementById('history-population-filter');
+      if (populationFilter) {
+        // Clear existing options except the first one
+        populationFilter.innerHTML = '<option value="">All Populations</option>';
+
+        // Add population options
+        populations.forEach(population => {
+          const option = document.createElement('option');
+          option.value = population.id;
+          option.textContent = population.name;
+          populationFilter.appendChild(option);
+        });
+        console.log(`Loaded ${populations.length} populations for history filter`);
+      }
+    } catch (error) {
+      console.error('Failed to load populations for history filter:', error);
     }
   }
   destroy() {
@@ -9174,11 +9420,13 @@ const localAPIClient = exports.localAPIClient = new LocalAPIClient(console);
 (function (process){(function (){
 "use strict";
 
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.Logger = void 0;
 var _winstonLogger = require("./winston-logger.js");
+var _messageFormatter = _interopRequireDefault(require("./message-formatter.js"));
 var _uiManager = require("./ui-manager.js");
 /**
  * @fileoverview Winston-compatible logger for frontend environment
@@ -9466,10 +9714,30 @@ class Logger {
       levelBadge.textContent = logEntry.level.toUpperCase();
       logElement.appendChild(levelBadge);
 
-      // Create message
+      // Create message with formatting
       const message = document.createElement('span');
       message.className = 'log-message';
-      message.textContent = logEntry.message;
+
+      // Format the message for better readability
+      let formattedMessage = logEntry.message;
+      if (logEntry.data && logEntry.data.type) {
+        // Format based on message type
+        switch (logEntry.data.type) {
+          case 'progress':
+            formattedMessage = _messageFormatter.default.formatProgressMessage(logEntry.data.operation || 'import', logEntry.data.current || 0, logEntry.data.total || 0, logEntry.message, logEntry.data.counts || {});
+            break;
+          case 'error':
+            formattedMessage = _messageFormatter.default.formatErrorMessage(logEntry.data.operation || 'import', logEntry.message, logEntry.data);
+            break;
+          case 'completion':
+            formattedMessage = _messageFormatter.default.formatCompletionMessage(logEntry.data.operation || 'import', logEntry.data);
+            break;
+          default:
+            // Use original message for other types
+            formattedMessage = logEntry.message;
+        }
+      }
+      message.textContent = formattedMessage;
       logElement.appendChild(message);
 
       // Add details if present
@@ -9587,7 +9855,545 @@ class Logger {
 exports.Logger = Logger;
 
 }).call(this)}).call(this,require('_process'))
-},{"./ui-manager.js":19,"./winston-logger.js":21,"_process":2}],15:[function(require,module,exports){
+},{"./message-formatter.js":15,"./ui-manager.js":22,"./winston-logger.js":24,"@babel/runtime/helpers/interopRequireDefault":1,"_process":2}],15:[function(require,module,exports){
+(function (process){(function (){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.MessageFormatter = void 0;
+var _winstonLogger = require("./winston-logger.js");
+/**
+ * Enhanced Message Formatter Module
+ * 
+ * Improves readability of server messages with:
+ * - Visual separators and formatting
+ * - Structured message blocks
+ * - Event grouping and labeling
+ * - Timestamp formatting
+ * - Color coding and styling
+ * 
+ * Features:
+ * - Message block separation with asterisks
+ * - Event start/end markers
+ * - Structured formatting with line breaks
+ * - Timestamp and label formatting
+ * - Consistent styling across all message types
+ */
+
+/**
+ * Enhanced Message Formatter Class
+ * 
+ * Formats server messages for improved readability in logs and progress windows
+ */
+class MessageFormatter {
+  constructor() {
+    this.logger = (0, _winstonLogger.createWinstonLogger)({
+      service: 'pingone-message-formatter',
+      environment: process.env.NODE_ENV || 'development'
+    });
+
+    // Message formatting options
+    this.formattingOptions = {
+      showTimestamps: true,
+      showEventMarkers: true,
+      showSeparators: true,
+      maxMessageLength: 200,
+      separatorChar: '*',
+      separatorLength: 50
+    };
+
+    // Event type configurations
+    this.eventTypes = {
+      import: {
+        start: 'IMPORT STARTED',
+        end: 'IMPORT COMPLETED',
+        error: 'IMPORT ERROR',
+        color: '#3498db'
+      },
+      export: {
+        start: 'EXPORT STARTED',
+        end: 'EXPORT COMPLETED',
+        error: 'EXPORT ERROR',
+        color: '#27ae60'
+      },
+      modify: {
+        start: 'MODIFY STARTED',
+        end: 'MODIFY COMPLETED',
+        error: 'MODIFY ERROR',
+        color: '#f39c12'
+      },
+      delete: {
+        start: 'DELETE STARTED',
+        end: 'DELETE COMPLETED',
+        error: 'DELETE ERROR',
+        color: '#e74c3c'
+      },
+      validation: {
+        start: 'VALIDATION STARTED',
+        end: 'VALIDATION COMPLETED',
+        error: 'VALIDATION ERROR',
+        color: '#9b59b6'
+      },
+      connection: {
+        start: 'CONNECTION ESTABLISHED',
+        end: 'CONNECTION CLOSED',
+        error: 'CONNECTION ERROR',
+        color: '#1abc9c'
+      }
+    };
+  }
+
+  /**
+   * Format a message block with visual separators
+   * @param {string} eventType - Type of event (import, export, etc.)
+   * @param {string} eventStage - Stage of the event (start, end, error, progress)
+   * @param {string} message - The main message
+   * @param {Object} details - Additional details
+   * @returns {string} Formatted message block
+   */
+  formatMessageBlock(eventType, eventStage, message, details = {}) {
+    try {
+      const eventConfig = this.eventTypes[eventType] || this.eventTypes.import;
+      const timestamp = this.formatTimestamp(new Date());
+      const separator = this.createSeparator();
+      let formattedMessage = '';
+
+      // Add separator at the beginning
+      if (this.formattingOptions.showSeparators) {
+        formattedMessage += separator + '\n';
+      }
+
+      // Add event marker
+      if (this.formattingOptions.showEventMarkers) {
+        const marker = this.getEventMarker(eventConfig, eventStage);
+        formattedMessage += `${marker}\n`;
+      }
+
+      // Add timestamp
+      if (this.formattingOptions.showTimestamps) {
+        formattedMessage += `[${timestamp}] `;
+      }
+
+      // Add main message
+      formattedMessage += message + '\n';
+
+      // Add details if present
+      if (details && Object.keys(details).length > 0) {
+        formattedMessage += this.formatDetails(details);
+      }
+
+      // Add separator at the end
+      if (this.formattingOptions.showSeparators) {
+        formattedMessage += separator + '\n';
+      }
+      this.logger.debug('Message block formatted', {
+        eventType,
+        eventStage,
+        messageLength: message.length
+      });
+      return formattedMessage;
+    } catch (error) {
+      this.logger.error('Error formatting message block', {
+        error: error.message
+      });
+      return message; // Fallback to original message
+    }
+  }
+
+  /**
+   * Format a progress update message
+   * @param {string} operation - Operation type
+   * @param {number} current - Current progress
+   * @param {number} total - Total items
+   * @param {string} message - Progress message
+   * @param {Object} stats - Progress statistics
+   * @returns {string} Formatted progress message
+   */
+  formatProgressMessage(operation, current, total, message, stats = {}) {
+    try {
+      const timestamp = this.formatTimestamp(new Date());
+      const percentage = total > 0 ? Math.round(current / total * 100) : 0;
+      let formattedMessage = '';
+
+      // Add timestamp
+      if (this.formattingOptions.showTimestamps) {
+        formattedMessage += `[${timestamp}] `;
+      }
+
+      // Add progress indicator
+      formattedMessage += `PROGRESS: ${current}/${total} (${percentage}%)`;
+
+      // Add message if provided
+      if (message) {
+        formattedMessage += ` - ${message}`;
+      }
+
+      // Add stats if available
+      if (stats && Object.keys(stats).length > 0) {
+        formattedMessage += '\n' + this.formatProgressStats(stats);
+      }
+      return formattedMessage;
+    } catch (error) {
+      this.logger.error('Error formatting progress message', {
+        error: error.message
+      });
+      return message || `Progress: ${current}/${total}`;
+    }
+  }
+
+  /**
+   * Format an error message with context
+   * @param {string} operation - Operation type
+   * @param {string} errorMessage - Error message
+   * @param {Object} errorDetails - Error details
+   * @returns {string} Formatted error message
+   */
+  formatErrorMessage(operation, errorMessage, errorDetails = {}) {
+    try {
+      const eventConfig = this.eventTypes[operation] || this.eventTypes.import;
+      const timestamp = this.formatTimestamp(new Date());
+      const separator = this.createSeparator();
+      let formattedMessage = '';
+
+      // Add separator
+      if (this.formattingOptions.showSeparators) {
+        formattedMessage += separator + '\n';
+      }
+
+      // Add error marker
+      formattedMessage += `${eventConfig.error}\n`;
+
+      // Add timestamp and error message
+      if (this.formattingOptions.showTimestamps) {
+        formattedMessage += `[${timestamp}] `;
+      }
+      formattedMessage += `ERROR: ${errorMessage}\n`;
+
+      // Add error details if present
+      if (errorDetails && Object.keys(errorDetails).length > 0) {
+        formattedMessage += this.formatErrorDetails(errorDetails);
+      }
+
+      // Add separator
+      if (this.formattingOptions.showSeparators) {
+        formattedMessage += separator + '\n';
+      }
+      return formattedMessage;
+    } catch (error) {
+      this.logger.error('Error formatting error message', {
+        error: error.message
+      });
+      return `ERROR: ${errorMessage}`;
+    }
+  }
+
+  /**
+   * Format a completion message with results
+   * @param {string} operation - Operation type
+   * @param {Object} results - Operation results
+   * @returns {string} Formatted completion message
+   */
+  formatCompletionMessage(operation, results = {}) {
+    try {
+      const eventConfig = this.eventTypes[operation] || this.eventTypes.import;
+      const timestamp = this.formatTimestamp(new Date());
+      const separator = this.createSeparator();
+      let formattedMessage = '';
+
+      // Add separator
+      if (this.formattingOptions.showSeparators) {
+        formattedMessage += separator + '\n';
+      }
+
+      // Add completion marker
+      formattedMessage += `${eventConfig.end}\n`;
+
+      // Add timestamp
+      if (this.formattingOptions.showTimestamps) {
+        formattedMessage += `[${timestamp}] `;
+      }
+
+      // Add completion message
+      formattedMessage += `Operation completed successfully\n`;
+
+      // Add results if present
+      if (results && Object.keys(results).length > 0) {
+        formattedMessage += this.formatResults(results);
+      }
+
+      // Add separator
+      if (this.formattingOptions.showSeparators) {
+        formattedMessage += separator + '\n';
+      }
+      return formattedMessage;
+    } catch (error) {
+      this.logger.error('Error formatting completion message', {
+        error: error.message
+      });
+      return 'Operation completed successfully';
+    }
+  }
+
+  /**
+   * Format SSE event data for display
+   * @param {Object} eventData - SSE event data
+   * @returns {string} Formatted event message
+   */
+  formatSSEEvent(eventData) {
+    try {
+      const {
+        type,
+        message,
+        current,
+        total,
+        counts,
+        error
+      } = eventData;
+      const timestamp = this.formatTimestamp(new Date());
+      let formattedMessage = '';
+
+      // Add timestamp
+      if (this.formattingOptions.showTimestamps) {
+        formattedMessage += `[${timestamp}] `;
+      }
+
+      // Format based on event type
+      switch (type) {
+        case 'progress':
+          formattedMessage += this.formatProgressMessage('import', current, total, message, counts);
+          break;
+        case 'completion':
+          formattedMessage += this.formatCompletionMessage('import', eventData);
+          break;
+        case 'error':
+          formattedMessage += this.formatErrorMessage('import', message, eventData);
+          break;
+        default:
+          formattedMessage += `SSE EVENT [${type.toUpperCase()}]: ${message || 'No message'}`;
+      }
+      return formattedMessage;
+    } catch (error) {
+      this.logger.error('Error formatting SSE event', {
+        error: error.message
+      });
+      return eventData.message || 'SSE event received';
+    }
+  }
+
+  /**
+   * Create a visual separator line
+   * @returns {string} Separator string
+   */
+  createSeparator() {
+    const char = this.formattingOptions.separatorChar;
+    const length = this.formattingOptions.separatorLength;
+    return char.repeat(length);
+  }
+
+  /**
+   * Get event marker based on event type and stage
+   * @param {Object} eventConfig - Event configuration
+   * @param {string} stage - Event stage
+   * @returns {string} Event marker
+   */
+  getEventMarker(eventConfig, stage) {
+    switch (stage) {
+      case 'start':
+        return eventConfig.start;
+      case 'end':
+        return eventConfig.end;
+      case 'error':
+        return eventConfig.error;
+      default:
+        return eventConfig.start;
+    }
+  }
+
+  /**
+   * Format timestamp for display
+   * @param {Date} date - Date to format
+   * @returns {string} Formatted timestamp
+   */
+  formatTimestamp(date) {
+    return date.toLocaleTimeString('en-US', {
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  }
+
+  /**
+   * Format details object for display
+   * @param {Object} details - Details object
+   * @returns {string} Formatted details
+   */
+  formatDetails(details) {
+    try {
+      let formatted = '';
+      for (const [key, value] of Object.entries(details)) {
+        if (value !== null && value !== undefined) {
+          formatted += `  ${key}: ${value}\n`;
+        }
+      }
+      return formatted;
+    } catch (error) {
+      this.logger.error('Error formatting details', {
+        error: error.message
+      });
+      return '';
+    }
+  }
+
+  /**
+   * Format progress statistics
+   * @param {Object} stats - Progress statistics
+   * @returns {string} Formatted statistics
+   */
+  formatProgressStats(stats) {
+    try {
+      let formatted = '  Statistics:\n';
+      const statLabels = {
+        processed: 'Processed',
+        success: 'Success',
+        failed: 'Failed',
+        skipped: 'Skipped',
+        duplicates: 'Duplicates'
+      };
+      for (const [key, value] of Object.entries(stats)) {
+        if (value !== null && value !== undefined && statLabels[key]) {
+          formatted += `    ${statLabels[key]}: ${value}\n`;
+        }
+      }
+      return formatted;
+    } catch (error) {
+      this.logger.error('Error formatting progress stats', {
+        error: error.message
+      });
+      return '';
+    }
+  }
+
+  /**
+   * Format error details
+   * @param {Object} errorDetails - Error details
+   * @returns {string} Formatted error details
+   */
+  formatErrorDetails(errorDetails) {
+    try {
+      let formatted = '  Error Details:\n';
+      for (const [key, value] of Object.entries(errorDetails)) {
+        if (value !== null && value !== undefined) {
+          formatted += `    ${key}: ${value}\n`;
+        }
+      }
+      return formatted;
+    } catch (error) {
+      this.logger.error('Error formatting error details', {
+        error: error.message
+      });
+      return '';
+    }
+  }
+
+  /**
+   * Format operation results
+   * @param {Object} results - Operation results
+   * @returns {string} Formatted results
+   */
+  formatResults(results) {
+    try {
+      let formatted = '  Results:\n';
+      const resultLabels = {
+        total: 'Total Records',
+        success: 'Successful',
+        failed: 'Failed',
+        skipped: 'Skipped',
+        duplicates: 'Duplicates',
+        duration: 'Duration'
+      };
+      for (const [key, value] of Object.entries(results)) {
+        if (value !== null && value !== undefined && resultLabels[key]) {
+          let displayValue = value;
+          if (key === 'duration' && typeof value === 'number') {
+            displayValue = this.formatDuration(value);
+          }
+          formatted += `    ${resultLabels[key]}: ${displayValue}\n`;
+        }
+      }
+      return formatted;
+    } catch (error) {
+      this.logger.error('Error formatting results', {
+        error: error.message
+      });
+      return '';
+    }
+  }
+
+  /**
+   * Format duration in milliseconds to human readable format
+   * @param {number} milliseconds - Duration in milliseconds
+   * @returns {string} Formatted duration
+   */
+  formatDuration(milliseconds) {
+    try {
+      const seconds = Math.floor(milliseconds / 1000);
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      if (hours > 0) {
+        return `${hours}h ${minutes % 60}m ${seconds % 60}s`;
+      } else if (minutes > 0) {
+        return `${minutes}m ${seconds % 60}s`;
+      } else {
+        return `${seconds}s`;
+      }
+    } catch (error) {
+      this.logger.error('Error formatting duration', {
+        error: error.message
+      });
+      return `${milliseconds}ms`;
+    }
+  }
+
+  /**
+   * Update formatting options
+   * @param {Object} options - New formatting options
+   */
+  updateFormattingOptions(options) {
+    try {
+      this.formattingOptions = {
+        ...this.formattingOptions,
+        ...options
+      };
+      this.logger.debug('Formatting options updated', {
+        options
+      });
+    } catch (error) {
+      this.logger.error('Error updating formatting options', {
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Get current formatting options
+   * @returns {Object} Current formatting options
+   */
+  getFormattingOptions() {
+    return {
+      ...this.formattingOptions
+    };
+  }
+}
+
+// Create and export singleton instance
+exports.MessageFormatter = MessageFormatter;
+const messageFormatter = exports.default = new MessageFormatter();
+
+}).call(this)}).call(this,require('_process'))
+},{"./winston-logger.js":24,"_process":2}],16:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 
@@ -10212,32 +11018,35 @@ const pingOneClient = exports.pingOneClient = new PingOneClient();
 // Export the class and instance
 
 }).call(this)}).call(this,require('_process'))
-},{"./ui-manager.js":19,"./winston-logger.js":21,"_process":2}],16:[function(require,module,exports){
+},{"./ui-manager.js":22,"./winston-logger.js":24,"_process":2}],17:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.progressManager = exports.ProgressManager = void 0;
 var _winstonLogger = require("./winston-logger.js");
 var _elementRegistry = require("./element-registry.js");
+var _sessionManager = require("./session-manager.js");
+var _messageFormatter = _interopRequireDefault(require("./message-formatter.js"));
 /**
- * Progress Manager Module
+ * Enhanced Progress Manager Module
  * 
- * Production-ready progress UI system with real-time updates for all operations:
- * - Import, Export, Delete, Modify
- * - Non-blocking UI updates
- * - Responsive controls
- * - Enhanced import logic with duplicate handling
- * - Modern progress indicators
+ * Modern, real-time progress UI system with SSE integration:
+ * - Real-time updates via Server-Sent Events
+ * - Professional Ping Identity design system
+ * - Responsive and accessible
+ * - Enhanced visual feedback
+ * - Step-by-step progress tracking
  * 
  * Features:
  * - Real-time progress updates via SSE
- * - Responsive progress bars and status indicators
- * - Operation-specific progress tracking
- * - Duplicate user handling with user choice
- * - Error handling and recovery
+ * - Professional progress indicators
+ * - Step-by-step operation tracking
+ * - Enhanced error handling and recovery
+ * - Accessibility compliance
  * - Production-ready logging
  */
 
@@ -10245,9 +11054,9 @@ var _elementRegistry = require("./element-registry.js");
 const DEBUG_MODE = process.env.NODE_ENV !== 'production';
 
 /**
- * Progress Manager Class
+ * Enhanced Progress Manager Class
  * 
- * Manages all progress-related UI updates and operation tracking
+ * Manages all progress-related UI updates with real-time SSE integration
  */
 class ProgressManager {
   constructor() {
@@ -10276,6 +11085,13 @@ class ProgressManager {
     this.progressDetails = null;
     this.operationStatus = null;
     this.cancelButton = null;
+    this.stepIndicator = null;
+    this.timeElapsed = null;
+    this.etaDisplay = null;
+
+    // SSE connection
+    this.sseConnection = null;
+    this.sessionId = null;
 
     // Duplicate handling
     this.duplicateUsers = [];
@@ -10285,6 +11101,8 @@ class ProgressManager {
     this.onProgressUpdate = null;
     this.onOperationComplete = null;
     this.onOperationCancel = null;
+    this.progressTimeout = null; // Timeout for first progress event
+    this.progressReceived = false; // Track if any progress event was received
 
     // Initialize
     this.initialize();
@@ -10297,7 +11115,7 @@ class ProgressManager {
     try {
       this.setupElements();
       this.setupEventListeners();
-      this.logger.info('Progress manager initialized successfully');
+      this.logger.info('Enhanced progress manager initialized successfully');
     } catch (error) {
       this.logger.error('Failed to initialize progress manager', {
         error: error.message
@@ -10306,122 +11124,173 @@ class ProgressManager {
   }
 
   /**
-   * Setup DOM elements
+   * Setup DOM elements with enhanced design
    */
   setupElements() {
     try {
-      // Main progress container
-      this.progressContainer = document.getElementById('progress-container') || this.createProgressContainer();
+      // Main progress container - use existing one from HTML
+      this.progressContainer = document.getElementById('progress-container');
+      if (!this.progressContainer) {
+        this.logger.error('Progress container not found in HTML');
+        return;
+      }
 
-      // Progress bar
-      this.progressBar = this.progressContainer.querySelector('.progress-bar-fill') || this.createProgressBar();
+      // Create enhanced progress content
+      this.progressContainer.innerHTML = `
+                <div class="progress-overlay">
+                    <div class="progress-modal">
+                        <div class="progress-header">
+                            <div class="operation-info">
+                                <h3 class="operation-title">
+                                    <i class="fas fa-cog fa-spin"></i>
+                                    <span class="title-text">Operation in Progress</span>
+                                </h3>
+                                <div class="operation-subtitle">Processing your request...</div>
+                            </div>
+                            <button class="cancel-operation" type="button" aria-label="Cancel operation">
+                                <i class="fas fa-times"></i>
+                                <span>Cancel</span>
+                            </button>
+                        </div>
+                        
+                        <div class="progress-content">
+                            <div class="progress-steps">
+                                <div class="step active" data-step="init">
+                                    <div class="step-icon">
+                                        <i class="fas fa-play"></i>
+                                    </div>
+                                    <div class="step-label">Initializing</div>
+                                </div>
+                                <div class="step" data-step="validate">
+                                    <div class="step-icon">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="step-label">Validating</div>
+                                </div>
+                                <div class="step" data-step="process">
+                                    <div class="step-icon">
+                                        <i class="fas fa-cogs"></i>
+                                    </div>
+                                    <div class="step-label">Processing</div>
+                                </div>
+                                <div class="step" data-step="complete">
+                                    <div class="step-icon">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="step-label">Complete</div>
+                                </div>
+                            </div>
+                            
+                            <div class="progress-main">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar">
+                                        <div class="progress-bar-fill"></div>
+                                        <div class="progress-bar-glow"></div>
+                                    </div>
+                                    <div class="progress-percentage">0%</div>
+                                </div>
+                                
+                                <div class="progress-text">Preparing operation...</div>
+                                
+                                <div class="progress-stats">
+                                    <div class="stat-item">
+                                        <span class="stat-label">Processed:</span>
+                                        <span class="stat-value processed">0</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Success:</span>
+                                        <span class="stat-value success">0</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Failed:</span>
+                                        <span class="stat-value failed">0</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Skipped:</span>
+                                        <span class="stat-value skipped">0</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="progress-timing">
+                                    <div class="time-elapsed">
+                                        <i class="fas fa-clock"></i>
+                                        <span>Time: <span class="elapsed-value">00:00</span></span>
+                                    </div>
+                                    <div class="time-remaining">
+                                        <i class="fas fa-hourglass-half"></i>
+                                        <span>ETA: <span class="eta-value">Calculating...</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="progress-details">
+                                <div class="details-header">
+                                    <h4><i class="fas fa-info-circle"></i> Operation Details</h4>
+                                </div>
+                                <div class="details-content">
+                                    <div class="detail-item">
+                                        <span class="detail-label">Operation Type:</span>
+                                        <span class="detail-value operation-type">-</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Population:</span>
+                                        <span class="detail-value population-name">-</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">File:</span>
+                                        <span class="detail-value file-name">-</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Status:</span>
+                                        <span class="detail-value status-text">Initializing...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="duplicate-handling" style="display: none;">
+                            <div class="duplicate-header">
+                                <h4><i class="fas fa-exclamation-triangle"></i> Duplicate Users Found</h4>
+                                <p>Choose how to handle duplicate users in your data:</p>
+                            </div>
+                            <div class="duplicate-options">
+                                <label class="option-item">
+                                    <input type="radio" name="duplicate-handling" value="skip" checked>
+                                    <span class="option-text">
+                                        <i class="fas fa-forward"></i>
+                                        Skip duplicates
+                                    </span>
+                                </label>
+                                <label class="option-item">
+                                    <input type="radio" name="duplicate-handling" value="add">
+                                    <span class="option-text">
+                                        <i class="fas fa-plus"></i>
+                                        Add to PingOne
+                                    </span>
+                                </label>
+                            </div>
+                            <div class="duplicate-list"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
 
-      // Progress text
-      this.progressText = this.progressContainer.querySelector('.progress-text') || this.createProgressText();
-
-      // Progress details
-      this.progressDetails = this.progressContainer.querySelector('.progress-details') || this.createProgressDetails();
-
-      // Operation status
-      this.operationStatus = this.progressContainer.querySelector('.operation-status') || this.createOperationStatus();
-
-      // Cancel button
-      this.cancelButton = this.progressContainer.querySelector('.cancel-operation') || this.createCancelButton();
-      this.logger.debug('Progress elements setup completed');
+      // Get references to elements
+      this.progressBar = this.progressContainer.querySelector('.progress-bar-fill');
+      this.progressText = this.progressContainer.querySelector('.progress-text');
+      this.progressDetails = this.progressContainer.querySelector('.progress-details');
+      this.operationStatus = this.progressContainer.querySelector('.status-text');
+      this.cancelButton = this.progressContainer.querySelector('.cancel-operation');
+      this.stepIndicator = this.progressContainer.querySelector('.progress-steps');
+      this.timeElapsed = this.progressContainer.querySelector('.elapsed-value');
+      this.etaDisplay = this.progressContainer.querySelector('.eta-value');
+      this.progressPercentage = this.progressContainer.querySelector('.progress-percentage');
+      this.logger.debug('Enhanced progress elements setup completed');
     } catch (error) {
       this.logger.error('Error setting up progress elements', {
         error: error.message
       });
     }
-  }
-
-  /**
-   * Create progress container if it doesn't exist
-   */
-  createProgressContainer() {
-    const container = document.createElement('div');
-    container.id = 'progress-container';
-    container.className = 'progress-container';
-    container.style.display = 'none';
-    container.innerHTML = `
-            <div class="progress-header">
-                <h3 class="operation-title">Operation in Progress</h3>
-                <button class="cancel-operation" type="button">Cancel</button>
-            </div>
-            <div class="progress-content">
-                <div class="progress-bar">
-                    <div class="progress-bar-fill"></div>
-                </div>
-                <div class="progress-text">Preparing...</div>
-                <div class="progress-details"></div>
-                <div class="operation-status"></div>
-            </div>
-            <div class="duplicate-handling" style="display: none;">
-                <h4>Duplicate Users Found</h4>
-                <div class="duplicate-options">
-                    <label>
-                        <input type="radio" name="duplicate-handling" value="skip" checked>
-                        Skip duplicates
-                    </label>
-                    <label>
-                        <input type="radio" name="duplicate-handling" value="add">
-                        Add to PingOne
-                    </label>
-                </div>
-                <div class="duplicate-list"></div>
-            </div>
-        `;
-    document.body.appendChild(container);
-    return container;
-  }
-
-  /**
-   * Create progress bar element
-   */
-  createProgressBar() {
-    const progressBar = document.createElement('div');
-    progressBar.className = 'progress-bar-fill';
-    progressBar.style.width = '0%';
-    return progressBar;
-  }
-
-  /**
-   * Create progress text element
-   */
-  createProgressText() {
-    const progressText = document.createElement('div');
-    progressText.className = 'progress-text';
-    progressText.textContent = 'Preparing...';
-    return progressText;
-  }
-
-  /**
-   * Create progress details element
-   */
-  createProgressDetails() {
-    const progressDetails = document.createElement('div');
-    progressDetails.className = 'progress-details';
-    return progressDetails;
-  }
-
-  /**
-   * Create operation status element
-   */
-  createOperationStatus() {
-    const operationStatus = document.createElement('div');
-    operationStatus.className = 'operation-status';
-    return operationStatus;
-  }
-
-  /**
-   * Create cancel button element
-   */
-  createCancelButton() {
-    const cancelButton = document.createElement('button');
-    cancelButton.className = 'cancel-operation';
-    cancelButton.type = 'button';
-    cancelButton.textContent = 'Cancel';
-    return cancelButton;
   }
 
   /**
@@ -10436,10 +11305,10 @@ class ProgressManager {
         });
       }
 
-      // Duplicate handling radio buttons
-      const duplicateRadios = this.progressContainer.querySelectorAll('input[name="duplicate-handling"]');
-      duplicateRadios.forEach(radio => {
-        radio.addEventListener('change', e => {
+      // Duplicate handling options
+      const duplicateOptions = this.progressContainer.querySelectorAll('input[name="duplicate-handling"]');
+      duplicateOptions.forEach(option => {
+        option.addEventListener('change', e => {
           this.duplicateHandlingMode = e.target.value;
           this.logger.debug('Duplicate handling mode changed', {
             mode: this.duplicateHandlingMode
@@ -10448,269 +11317,467 @@ class ProgressManager {
       });
       this.logger.debug('Progress event listeners setup completed');
     } catch (error) {
-      this.logger.error('Error setting up progress event listeners', {
+      this.logger.error('Error setting up event listeners', {
         error: error.message
       });
     }
   }
 
   /**
-   * Start a new operation
-   * 
-   * @param {string} operationType - Type of operation (import, export, delete, modify)
-   * @param {Object} options - Operation options
+   * Start operation with enhanced UI
    */
   startOperation(operationType, options = {}) {
     try {
-      this.currentOperation = {
-        type: operationType,
-        startTime: Date.now(),
-        options: options
-      };
+      this.currentOperation = operationType;
       this.operationStartTime = Date.now();
       this.resetOperationStats();
-      this.showProgress();
-      this.updateOperationTitle(operationType);
-      this.updateProgress(0, options.total || 0, 'Preparing operation...');
-      this.logger.info('Operation started', {
-        type: operationType,
-        options: options
-      });
 
-      // Trigger progress update callback
-      if (this.onProgressUpdate) {
-        this.onProgressUpdate({
-          type: 'start',
-          operation: operationType,
-          options: options
-        });
-      }
+      // Update operation title
+      this.updateOperationTitle(operationType);
+
+      // Update operation details
+      this.updateOperationDetails(options);
+
+      // Show progress
+      this.showProgress();
+
+      // Initialize SSE connection
+      this.initializeSSEConnection(options.sessionId);
+
+      // Start timing updates
+      this.startTimingUpdates();
+
+      // Update step indicator
+      this.updateStepIndicator('init');
+      this.progressReceived = false;
+      if (this.progressTimeout) clearTimeout(this.progressTimeout);
+      // Start a timeout: if no progress event in 10s, show error
+      this.progressTimeout = setTimeout(() => {
+        if (!this.progressReceived) {
+          this.handleOperationError('No progress received from server. The operation may have stalled. Please retry.');
+        }
+      }, 10000);
+      this.logger.info('Operation started', {
+        operationType,
+        options,
+        sessionId: options.sessionId
+      });
     } catch (error) {
       this.logger.error('Error starting operation', {
         error: error.message,
-        operationType,
-        options
+        operationType
       });
     }
   }
 
   /**
-   * Update progress
-   * 
-   * @param {number} current - Current progress
-   * @param {number} total - Total items
-   * @param {string} message - Progress message
-   * @param {Object} details - Additional details
+   * Initialize SSE connection for real-time updates
+   */
+  initializeSSEConnection(sessionId) {
+    try {
+      if (!sessionId) {
+        this.logger.warn('No session ID provided for SSE connection');
+        this.updateOperationStatus('warning', 'Unable to track progress: session context missing. Operation will continue without real-time updates.');
+        return;
+      }
+
+      // Use session manager to validate session ID
+      if (!_sessionManager.sessionManager.validateSessionId(sessionId)) {
+        this.logger.error('Invalid session ID format', {
+          sessionId,
+          type: typeof sessionId
+        });
+        this.updateOperationStatus('error', 'Invalid session ID format. Real-time progress tracking unavailable.');
+        return;
+      }
+
+      // Register session with session manager
+      _sessionManager.sessionManager.registerSession(sessionId, this.currentOperation || 'unknown', {
+        startTime: this.operationStartTime,
+        stats: this.operationStats
+      });
+      this.sessionId = sessionId;
+
+      // Close existing connection
+      if (this.sseConnection) {
+        this.sseConnection.close();
+      }
+
+      // Create new SSE connection
+      this.sseConnection = new EventSource(`/api/import/progress/${sessionId}`);
+
+      // Handle connection open
+      this.sseConnection.onopen = () => {
+        this.logger.debug('SSE connection established', {
+          sessionId
+        });
+        this.updateOperationStatus('connected', 'Real-time connection established');
+      };
+
+      // Handle progress events
+      this.sseConnection.onmessage = event => {
+        this.logger.info('SSE event received', {
+          event: event.data
+        });
+        try {
+          const data = JSON.parse(event.data);
+          this.handleSSEEvent(data);
+        } catch (error) {
+          this.logger.error('Error parsing SSE event', {
+            error: error.message,
+            event: event.data
+          });
+        }
+      };
+
+      // Handle errors
+      this.sseConnection.onerror = error => {
+        this.logger.error('SSE connection error', {
+          error: error.message,
+          sessionId
+        });
+        this.updateOperationStatus('error', 'Connection lost. Retrying...');
+        this.handleOperationError('Lost connection to server. Please check your network or retry the operation.');
+      };
+    } catch (error) {
+      this.logger.error('Error initializing SSE connection', {
+        error: error.message,
+        sessionId
+      });
+    }
+  }
+
+  /**
+   * Update session ID after operation starts (for operations that get session ID from backend)
+   */
+  updateSessionId(sessionId) {
+    try {
+      if (!sessionId) {
+        this.logger.warn('Attempted to update with null/undefined session ID');
+        return;
+      }
+
+      // Use session manager to validate session ID
+      if (!_sessionManager.sessionManager.validateSessionId(sessionId)) {
+        this.logger.error('Invalid session ID provided for update', {
+          sessionId
+        });
+        this.updateOperationStatus('error', 'Invalid session ID format. Real-time progress tracking unavailable.');
+        return;
+      }
+      this.logger.info('Updating session ID', {
+        sessionId
+      });
+      this.sessionId = sessionId;
+
+      // Re-initialize SSE connection with new session ID
+      this.initializeSSEConnection(sessionId);
+    } catch (error) {
+      this.logger.error('Error updating session ID', {
+        error: error.message,
+        sessionId
+      });
+    }
+  }
+
+  /**
+   * Handle SSE events
+   */
+  handleSSEEvent(data) {
+    try {
+      this.logger.info('Progress SSE event', {
+        type: data.type,
+        data
+      });
+      if (!this.progressReceived && data.type === 'progress') {
+        this.progressReceived = true;
+        if (this.progressTimeout) {
+          clearTimeout(this.progressTimeout);
+          this.progressTimeout = null;
+        }
+      }
+
+      // Format the SSE event message for better readability
+      const formattedMessage = _messageFormatter.default.formatSSEEvent(data);
+      this.logger.info('Formatted SSE event', {
+        originalType: data.type,
+        formattedMessage: formattedMessage.substring(0, 100) + '...'
+      });
+      switch (data.type) {
+        case 'progress':
+          this.updateProgress(data.current, data.total, data.message, data.counts);
+          break;
+        case 'completion':
+          this.completeOperation(data);
+          break;
+        case 'error':
+          this.handleOperationError(data.message, data.details);
+          break;
+        default:
+          this.logger.debug('Unknown SSE event type', {
+            type: data.type,
+            data
+          });
+      }
+    } catch (error) {
+      this.logger.error('Error handling SSE event', {
+        error: error.message,
+        data
+      });
+    }
+  }
+
+  /**
+   * Update progress with enhanced visual feedback
    */
   updateProgress(current, total, message = '', details = {}) {
     try {
+      // Update stats
+      if (details.processed !== undefined) this.operationStats.processed = details.processed;
+      if (details.success !== undefined) this.operationStats.success = details.success;
+      if (details.failed !== undefined) this.operationStats.failed = details.failed;
+      if (details.skipped !== undefined) this.operationStats.skipped = details.skipped;
+
+      // Calculate percentage
       const percentage = total > 0 ? Math.round(current / total * 100) : 0;
 
       // Update progress bar
       if (this.progressBar) {
         this.progressBar.style.width = `${percentage}%`;
-        this.progressBar.setAttribute('aria-valuenow', current);
-        this.progressBar.setAttribute('aria-valuemax', total);
+        this.progressBar.setAttribute('aria-valuenow', percentage);
       }
 
-      // Update progress text
+      // Update percentage display
+      if (this.progressPercentage) {
+        this.progressPercentage.textContent = `${percentage}%`;
+      }
+
+      // Update progress text with formatted message
       if (this.progressText) {
-        this.progressText.textContent = message || `${current} of ${total} (${percentage}%)`;
+        const formattedProgressMessage = _messageFormatter.default.formatProgressMessage(this.currentOperation || 'import', current, total, message, details);
+        this.progressText.textContent = formattedProgressMessage;
       }
 
-      // Update progress details
-      if (this.progressDetails && Object.keys(details).length > 0) {
-        this.updateProgressDetails(details);
-      }
+      // Update stats display
+      this.updateStatsDisplay();
 
-      // Update operation stats
-      this.operationStats.processed = current;
-      this.operationStats.total = total;
+      // Update step indicator based on progress
+      this.updateStepIndicatorBasedOnProgress(percentage);
+
+      // Update operation status
+      this.updateOperationStatus('processing', message);
+
+      // Trigger callback
+      if (this.onProgressUpdate) {
+        this.onProgressUpdate(current, total, message, details);
+      }
       this.logger.debug('Progress updated', {
         current,
         total,
         percentage,
-        message: message.substring(0, 100)
+        message,
+        stats: this.operationStats
       });
-
-      // Trigger progress update callback
-      if (this.onProgressUpdate) {
-        this.onProgressUpdate({
-          type: 'progress',
-          current,
-          total,
-          percentage,
-          message,
-          details
-        });
-      }
     } catch (error) {
       this.logger.error('Error updating progress', {
-        error: error.message,
-        current,
-        total,
-        message
+        error: error.message
       });
     }
   }
 
   /**
-   * Update progress details
-   * 
-   * @param {Object} details - Progress details
+   * Update stats display
    */
-  updateProgressDetails(details) {
+  updateStatsDisplay() {
     try {
-      if (!this.progressDetails) return;
-      const detailsHTML = Object.entries(details).map(([key, value]) => {
-        const label = key.charAt(0).toUpperCase() + key.slice(1);
-        return `<div class="detail-item">
-                        <span class="detail-label">${label}:</span>
-                        <span class="detail-value">${value}</span>
-                    </div>`;
-      }).join('');
-      this.progressDetails.innerHTML = detailsHTML;
-    } catch (error) {
-      this.logger.error('Error updating progress details', {
-        error: error.message,
-        details
-      });
-    }
-  }
-
-  /**
-   * Handle duplicate users during import
-   * 
-   * @param {Array} duplicates - Array of duplicate users
-   * @param {Function} onDecision - Callback for user decision
-   */
-  handleDuplicates(duplicates, onDecision) {
-    try {
-      this.duplicateUsers = duplicates;
-      const duplicateHandling = this.progressContainer.querySelector('.duplicate-handling');
-      const duplicateList = this.progressContainer.querySelector('.duplicate-list');
-      if (duplicateHandling && duplicateList) {
-        // Show duplicate handling section
-        duplicateHandling.style.display = 'block';
-
-        // Populate duplicate list
-        const duplicateHTML = duplicates.map(user => `
-                    <div class="duplicate-user">
-                        <span class="user-name">${user.username || user.email}</span>
-                        <span class="user-email">${user.email}</span>
-                        <span class="duplicate-reason">${user.reason || 'Already exists'}</span>
-                    </div>
-                `).join('');
-        duplicateList.innerHTML = duplicateHTML;
-
-        // Add decision button
-        const decisionButton = document.createElement('button');
-        decisionButton.className = 'duplicate-decision-btn';
-        decisionButton.textContent = 'Continue with Selection';
-        decisionButton.addEventListener('click', () => {
-          const selectedMode = this.progressContainer.querySelector('input[name="duplicate-handling"]:checked').value;
-          duplicateHandling.style.display = 'none';
-          onDecision(selectedMode, duplicates);
-        });
-        duplicateHandling.appendChild(decisionButton);
+      const statElements = {
+        processed: this.progressContainer.querySelector('.stat-value.processed'),
+        success: this.progressContainer.querySelector('.stat-value.success'),
+        failed: this.progressContainer.querySelector('.stat-value.failed'),
+        skipped: this.progressContainer.querySelector('.stat-value.skipped')
+      };
+      if (statElements.processed) {
+        statElements.processed.textContent = this.operationStats.processed;
       }
-      this.logger.info('Duplicate users handled', {
-        count: duplicates.length,
-        mode: this.duplicateHandlingMode
-      });
-    } catch (error) {
-      this.logger.error('Error handling duplicates', {
-        error: error.message,
-        duplicates
-      });
-    }
-  }
-
-  /**
-   * Update operation status
-   * 
-   * @param {string} status - Operation status
-   * @param {string} message - Status message
-   */
-  updateOperationStatus(status, message = '') {
-    try {
-      if (this.operationStatus) {
-        this.operationStatus.className = `operation-status ${status}`;
-        this.operationStatus.textContent = message || status;
+      if (statElements.success) {
+        statElements.success.textContent = this.operationStats.success;
       }
-      this.logger.info('Operation status updated', {
-        status,
-        message
-      });
+      if (statElements.failed) {
+        statElements.failed.textContent = this.operationStats.failed;
+      }
+      if (statElements.skipped) {
+        statElements.skipped.textContent = this.operationStats.skipped;
+      }
     } catch (error) {
-      this.logger.error('Error updating operation status', {
-        error: error.message,
-        status,
-        message
+      this.logger.error('Error updating stats display', {
+        error: error.message
       });
     }
   }
 
   /**
-   * Complete operation
-   * 
-   * @param {Object} results - Operation results
+   * Update step indicator based on progress
+   */
+  updateStepIndicatorBasedOnProgress(percentage) {
+    try {
+      let currentStep = 'init';
+      if (percentage > 0 && percentage < 25) {
+        currentStep = 'validate';
+      } else if (percentage >= 25 && percentage < 90) {
+        currentStep = 'process';
+      } else if (percentage >= 90) {
+        currentStep = 'complete';
+      }
+      this.updateStepIndicator(currentStep);
+    } catch (error) {
+      this.logger.error('Error updating step indicator', {
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Update step indicator
+   */
+  updateStepIndicator(step) {
+    try {
+      if (!this.stepIndicator) return;
+
+      // Remove active class from all steps
+      const steps = this.stepIndicator.querySelectorAll('.step');
+      steps.forEach(s => s.classList.remove('active', 'completed'));
+
+      // Add active class to current step and completed to previous steps
+      const stepElement = this.stepIndicator.querySelector(`[data-step="${step}"]`);
+      if (stepElement) {
+        stepElement.classList.add('active');
+
+        // Mark previous steps as completed
+        const stepOrder = ['init', 'validate', 'process', 'complete'];
+        const currentIndex = stepOrder.indexOf(step);
+        for (let i = 0; i < currentIndex; i++) {
+          const prevStep = this.stepIndicator.querySelector(`[data-step="${stepOrder[i]}"]`);
+          if (prevStep) {
+            prevStep.classList.add('completed');
+          }
+        }
+      }
+    } catch (error) {
+      this.logger.error('Error updating step indicator', {
+        error: error.message,
+        step
+      });
+    }
+  }
+
+  /**
+   * Start timing updates
+   */
+  startTimingUpdates() {
+    try {
+      this.timingInterval = setInterval(() => {
+        this.updateTiming();
+      }, 1000);
+    } catch (error) {
+      this.logger.error('Error starting timing updates', {
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Update timing display
+   */
+  updateTiming() {
+    try {
+      if (!this.operationStartTime) return;
+      const elapsed = Date.now() - this.operationStartTime;
+      const elapsedFormatted = this.formatDuration(elapsed);
+      if (this.timeElapsed) {
+        this.timeElapsed.textContent = elapsedFormatted;
+      }
+
+      // Calculate ETA if we have progress data
+      if (this.operationStats.processed > 0 && this.operationStats.total > 0) {
+        const progress = this.operationStats.processed / this.operationStats.total;
+        if (progress > 0) {
+          const estimatedTotal = elapsed / progress;
+          const remaining = estimatedTotal - elapsed;
+          const etaFormatted = this.formatDuration(remaining);
+          if (this.etaDisplay) {
+            this.etaDisplay.textContent = etaFormatted;
+          }
+        }
+      }
+    } catch (error) {
+      this.logger.error('Error updating timing', {
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Complete operation with enhanced UI
    */
   completeOperation(results = {}) {
     try {
-      const duration = Date.now() - this.operationStartTime;
-      const durationText = this.formatDuration(duration);
-      this.updateOperationStatus('complete', `Operation completed in ${durationText}`);
-      this.updateProgress(this.operationStats.total, this.operationStats.total, 'Operation completed');
-
-      // Show completion details
-      if (this.progressDetails) {
-        const completionHTML = `
-                    <div class="completion-summary">
-                        <div class="summary-item">
-                            <span class="summary-label">Duration:</span>
-                            <span class="summary-value">${durationText}</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="summary-label">Processed:</span>
-                            <span class="summary-value">${this.operationStats.processed}</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="summary-label">Success:</span>
-                            <span class="summary-value success">${this.operationStats.success}</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="summary-label">Failed:</span>
-                            <span class="summary-value error">${this.operationStats.failed}</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="summary-label">Skipped:</span>
-                            <span class="summary-value warning">${this.operationStats.skipped}</span>
-                        </div>
-                    </div>
-                `;
-        this.progressDetails.innerHTML = completionHTML;
+      // Stop timing updates
+      if (this.timingInterval) {
+        clearInterval(this.timingInterval);
       }
-      this.logger.info('Operation completed', {
-        duration,
-        stats: this.operationStats,
-        results
-      });
+
+      // Close SSE connection
+      if (this.sseConnection) {
+        this.sseConnection.close();
+        this.sseConnection = null;
+      }
+
+      // Clean up session
+      if (this.sessionId) {
+        _sessionManager.sessionManager.unregisterSession(this.sessionId);
+        this.sessionId = null;
+      }
+
+      // Update final stats
+      if (results.processed !== undefined) this.operationStats.processed = results.processed;
+      if (results.success !== undefined) this.operationStats.success = results.success;
+      if (results.failed !== undefined) this.operationStats.failed = results.failed;
+      if (results.skipped !== undefined) this.operationStats.skipped = results.skipped;
+
+      // Update UI for completion
+      this.updateStepIndicator('complete');
+      this.updateOperationStatus('complete', results.message || 'Operation completed successfully');
+
+      // Update progress to 100%
+      if (this.progressBar) {
+        this.progressBar.style.width = '100%';
+      }
+      if (this.progressPercentage) {
+        this.progressPercentage.textContent = '100%';
+      }
+
+      // Show completion message
+      if (this.progressText) {
+        this.progressText.textContent = results.message || 'Operation completed successfully';
+      }
+
+      // Update final stats
+      this.updateStatsDisplay();
 
       // Trigger completion callback
       if (this.onOperationComplete) {
-        this.onOperationComplete({
-          type: 'complete',
-          duration,
-          stats: this.operationStats,
-          results
-        });
+        this.onOperationComplete(results);
       }
 
       // Auto-hide after delay
       setTimeout(() => {
         this.hideProgress();
-      }, 5000);
+      }, 3000);
+      this.logger.info('Operation completed', {
+        results,
+        stats: this.operationStats,
+        duration: this.operationStartTime ? Date.now() - this.operationStartTime : 0
+      });
     } catch (error) {
       this.logger.error('Error completing operation', {
         error: error.message,
@@ -10720,25 +11787,70 @@ class ProgressManager {
   }
 
   /**
+   * Handle operation error
+   */
+  handleOperationError(message, details = {}) {
+    try {
+      if (this.progressTimeout) {
+        clearTimeout(this.progressTimeout);
+        this.progressTimeout = null;
+      }
+      this.updateOperationStatus('error', message);
+      if (this.progressText) {
+        this.progressText.textContent = `Error: ${message}`;
+      }
+
+      // Update step indicator to show error
+      this.updateStepIndicator('error');
+      this.logger.error('Operation error', {
+        message,
+        details
+      });
+    } catch (error) {
+      this.logger.error('Error handling operation error', {
+        error: error.message
+      });
+    }
+  }
+
+  /**
    * Cancel operation
    */
   cancelOperation() {
     try {
+      // Close SSE connection
+      if (this.sseConnection) {
+        this.sseConnection.close();
+        this.sseConnection = null;
+      }
+
+      // Stop timing updates
+      if (this.timingInterval) {
+        clearInterval(this.timingInterval);
+      }
+
+      // Clean up session
+      if (this.sessionId) {
+        _sessionManager.sessionManager.unregisterSession(this.sessionId);
+        this.sessionId = null;
+      }
+
+      // Update UI
       this.updateOperationStatus('cancelled', 'Operation cancelled by user');
-      this.logger.info('Operation cancelled by user');
+      if (this.progressText) {
+        this.progressText.textContent = 'Operation cancelled';
+      }
 
       // Trigger cancel callback
       if (this.onOperationCancel) {
-        this.onOperationCancel({
-          type: 'cancel',
-          operation: this.currentOperation
-        });
+        this.onOperationCancel();
       }
 
       // Hide progress after delay
       setTimeout(() => {
         this.hideProgress();
       }, 2000);
+      this.logger.info('Operation cancelled by user');
     } catch (error) {
       this.logger.error('Error cancelling operation', {
         error: error.message
@@ -10747,12 +11859,17 @@ class ProgressManager {
   }
 
   /**
-   * Show progress
+   * Show progress with enhanced animation
    */
   showProgress() {
     try {
       if (this.progressContainer) {
         this.progressContainer.style.display = 'block';
+
+        // Add animation class
+        setTimeout(() => {
+          this.progressContainer.classList.add('visible');
+        }, 10);
         this.logger.debug('Progress shown');
       }
     } catch (error) {
@@ -10763,13 +11880,18 @@ class ProgressManager {
   }
 
   /**
-   * Hide progress
+   * Hide progress with smooth transition
    */
   hideProgress() {
     try {
       if (this.progressContainer) {
-        this.progressContainer.style.display = 'none';
-        this.resetOperationStats();
+        // Remove visible class for smooth transition
+        this.progressContainer.classList.remove('visible');
+
+        // Hide after transition
+        setTimeout(() => {
+          this.progressContainer.style.display = 'none';
+        }, 300);
         this.logger.debug('Progress hidden');
       }
     } catch (error) {
@@ -10781,21 +11903,18 @@ class ProgressManager {
 
   /**
    * Update operation title
-   * 
-   * @param {string} operationType - Type of operation
    */
   updateOperationTitle(operationType) {
     try {
-      const titleMap = {
-        'import': 'Importing Users',
-        'export': 'Exporting Users',
-        'delete': 'Deleting Users',
-        'modify': 'Modifying Users'
-      };
-      const title = titleMap[operationType] || 'Operation in Progress';
-      const titleElement = this.progressContainer.querySelector('.operation-title');
+      const titleElement = this.progressContainer.querySelector('.title-text');
       if (titleElement) {
-        titleElement.textContent = title;
+        const titles = {
+          'import': 'Importing Users',
+          'export': 'Exporting Users',
+          'delete': 'Deleting Users',
+          'modify': 'Modifying Users'
+        };
+        titleElement.textContent = titles[operationType] || 'Operation in Progress';
       }
     } catch (error) {
       this.logger.error('Error updating operation title', {
@@ -10806,7 +11925,49 @@ class ProgressManager {
   }
 
   /**
-   * Reset operation statistics
+   * Update operation details
+   */
+  updateOperationDetails(options = {}) {
+    try {
+      const details = {
+        'operation-type': options.operationType || '-',
+        'population-name': options.populationName || '-',
+        'file-name': options.fileName || '-'
+      };
+      Object.entries(details).forEach(([key, value]) => {
+        const element = this.progressContainer.querySelector(`.detail-value.${key.replace('-', '-')}`);
+        if (element) {
+          element.textContent = value;
+        }
+      });
+    } catch (error) {
+      this.logger.error('Error updating operation details', {
+        error: error.message,
+        options
+      });
+    }
+  }
+
+  /**
+   * Update operation status
+   */
+  updateOperationStatus(status, message = '') {
+    try {
+      if (this.operationStatus) {
+        this.operationStatus.textContent = message;
+        this.operationStatus.className = `detail-value status-text ${status}`;
+      }
+    } catch (error) {
+      this.logger.error('Error updating operation status', {
+        error: error.message,
+        status,
+        message
+      });
+    }
+  }
+
+  /**
+   * Reset operation stats
    */
   resetOperationStats() {
     this.operationStats = {
@@ -10820,28 +11981,24 @@ class ProgressManager {
   }
 
   /**
-   * Format duration in human-readable format
-   * 
-   * @param {number} milliseconds - Duration in milliseconds
-   * @returns {string} Formatted duration
+   * Format duration in MM:SS format
    */
   formatDuration(milliseconds) {
-    const seconds = Math.floor(milliseconds / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    if (hours > 0) {
-      return `${hours}h ${minutes % 60}m ${seconds % 60}s`;
-    } else if (minutes > 0) {
-      return `${minutes}m ${seconds % 60}s`;
-    } else {
-      return `${seconds}s`;
+    try {
+      const seconds = Math.floor(milliseconds / 1000);
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = seconds % 60;
+      return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    } catch (error) {
+      this.logger.error('Error formatting duration', {
+        error: error.message
+      });
+      return '00:00';
     }
   }
 
   /**
    * Set progress update callback
-   * 
-   * @param {Function} callback - Progress update callback
    */
   setProgressCallback(callback) {
     this.onProgressUpdate = callback;
@@ -10849,8 +12006,6 @@ class ProgressManager {
 
   /**
    * Set operation complete callback
-   * 
-   * @param {Function} callback - Operation complete callback
    */
   setCompleteCallback(callback) {
     this.onOperationComplete = callback;
@@ -10858,19 +12013,43 @@ class ProgressManager {
 
   /**
    * Set operation cancel callback
-   * 
-   * @param {Function} callback - Operation cancel callback
    */
   setCancelCallback(callback) {
     this.onOperationCancel = callback;
   }
 
   /**
-   * Debug log method for compatibility
+   * Debug logging
    */
   debugLog(area, message) {
     if (DEBUG_MODE) {
-      console.debug(`[${area}] ${message}`);
+      this.logger.debug(`[${area}] ${message}`);
+    }
+  }
+
+  /**
+   * Cleanup resources
+   */
+  destroy() {
+    try {
+      // Close SSE connection
+      if (this.sseConnection) {
+        this.sseConnection.close();
+        this.sseConnection = null;
+      }
+
+      // Clear timing interval
+      if (this.timingInterval) {
+        clearInterval(this.timingInterval);
+      }
+
+      // Hide progress
+      this.hideProgress();
+      this.logger.info('Progress manager destroyed');
+    } catch (error) {
+      this.logger.error('Error destroying progress manager', {
+        error: error.message
+      });
     }
   }
 }
@@ -10882,7 +12061,308 @@ const progressManager = exports.progressManager = new ProgressManager();
 // Export the class and instance
 
 }).call(this)}).call(this,require('_process'))
-},{"./element-registry.js":8,"./winston-logger.js":21,"_process":2}],17:[function(require,module,exports){
+},{"./element-registry.js":8,"./message-formatter.js":15,"./session-manager.js":18,"./winston-logger.js":24,"@babel/runtime/helpers/interopRequireDefault":1,"_process":2}],18:[function(require,module,exports){
+(function (process){(function (){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.sessionManager = exports.default = void 0;
+var _winstonLogger = require("./winston-logger.js");
+/**
+ * Session Manager for PingOne Import Tool
+ * 
+ * Handles session ID generation, validation, and management for SSE connections
+ * across all operations (import, export, modify, delete).
+ * 
+ * Features:
+ * - Centralized session ID generation
+ * - Session ID validation and format checking
+ * - Session tracking and cleanup
+ * - Error handling for missing/invalid session IDs
+ */
+
+/**
+ * Session Manager Class
+ */
+class SessionManager {
+  constructor() {
+    this.logger = (0, _winstonLogger.createWinstonLogger)({
+      service: 'pingone-import-session',
+      environment: process.env.NODE_ENV || 'development'
+    });
+    this.activeSessions = new Map();
+    this.sessionCounter = 0;
+  }
+
+  /**
+   * Generate a unique session ID
+   * @returns {string} Unique session identifier
+   */
+  generateSessionId() {
+    try {
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(2, 15);
+      const counter = ++this.sessionCounter;
+      const sessionId = `session_${timestamp}_${random}_${counter}`;
+      this.logger.debug('Session ID generated', {
+        sessionId
+      });
+      return sessionId;
+    } catch (error) {
+      this.logger.error('Error generating session ID', {
+        error: error.message
+      });
+      // Fallback to simple timestamp-based ID
+      return `session_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+    }
+  }
+
+  /**
+   * Validate session ID format and structure
+   * @param {string} sessionId - Session ID to validate
+   * @returns {boolean} True if valid, false otherwise
+   */
+  validateSessionId(sessionId) {
+    try {
+      if (!sessionId || typeof sessionId !== 'string') {
+        this.logger.warn('Session ID validation failed: null/undefined/non-string', {
+          sessionId,
+          type: typeof sessionId
+        });
+        return false;
+      }
+      if (sessionId.trim() === '') {
+        this.logger.warn('Session ID validation failed: empty string');
+        return false;
+      }
+
+      // Check for minimum length (should be at least 8 characters)
+      if (sessionId.length < 8) {
+        this.logger.warn('Session ID validation failed: too short', {
+          length: sessionId.length
+        });
+        return false;
+      }
+
+      // Check for valid characters (alphanumeric, underscore, hyphen)
+      const validPattern = /^[a-zA-Z0-9_-]+$/;
+      if (!validPattern.test(sessionId)) {
+        this.logger.warn('Session ID validation failed: invalid characters', {
+          sessionId
+        });
+        return false;
+      }
+      this.logger.debug('Session ID validation passed', {
+        sessionId
+      });
+      return true;
+    } catch (error) {
+      this.logger.error('Error validating session ID', {
+        error: error.message,
+        sessionId
+      });
+      return false;
+    }
+  }
+
+  /**
+   * Register an active session
+   * @param {string} sessionId - Session ID to register
+   * @param {string} operationType - Type of operation (import, export, etc.)
+   * @param {Object} metadata - Additional session metadata
+   */
+  registerSession(sessionId, operationType, metadata = {}) {
+    try {
+      if (!this.validateSessionId(sessionId)) {
+        this.logger.error('Cannot register invalid session ID', {
+          sessionId,
+          operationType
+        });
+        return false;
+      }
+      const sessionData = {
+        sessionId,
+        operationType,
+        createdAt: Date.now(),
+        lastActivity: Date.now(),
+        metadata
+      };
+      this.activeSessions.set(sessionId, sessionData);
+      this.logger.info('Session registered', {
+        sessionId,
+        operationType,
+        metadata
+      });
+      return true;
+    } catch (error) {
+      this.logger.error('Error registering session', {
+        error: error.message,
+        sessionId,
+        operationType
+      });
+      return false;
+    }
+  }
+
+  /**
+   * Update session activity timestamp
+   * @param {string} sessionId - Session ID to update
+   */
+  updateSessionActivity(sessionId) {
+    try {
+      const session = this.activeSessions.get(sessionId);
+      if (session) {
+        session.lastActivity = Date.now();
+        this.logger.debug('Session activity updated', {
+          sessionId
+        });
+      } else {
+        this.logger.warn('Session not found for activity update', {
+          sessionId
+        });
+      }
+    } catch (error) {
+      this.logger.error('Error updating session activity', {
+        error: error.message,
+        sessionId
+      });
+    }
+  }
+
+  /**
+   * Unregister a session
+   * @param {string} sessionId - Session ID to unregister
+   */
+  unregisterSession(sessionId) {
+    try {
+      const session = this.activeSessions.get(sessionId);
+      if (session) {
+        this.activeSessions.delete(sessionId);
+        this.logger.info('Session unregistered', {
+          sessionId,
+          operationType: session.operationType
+        });
+      } else {
+        this.logger.warn('Session not found for unregistration', {
+          sessionId
+        });
+      }
+    } catch (error) {
+      this.logger.error('Error unregistering session', {
+        error: error.message,
+        sessionId
+      });
+    }
+  }
+
+  /**
+   * Get session information
+   * @param {string} sessionId - Session ID to retrieve
+   * @returns {Object|null} Session data or null if not found
+   */
+  getSession(sessionId) {
+    try {
+      return this.activeSessions.get(sessionId) || null;
+    } catch (error) {
+      this.logger.error('Error getting session', {
+        error: error.message,
+        sessionId
+      });
+      return null;
+    }
+  }
+
+  /**
+   * Get all active sessions
+   * @returns {Array} Array of active session data
+   */
+  getActiveSessions() {
+    try {
+      return Array.from(this.activeSessions.values());
+    } catch (error) {
+      this.logger.error('Error getting active sessions', {
+        error: error.message
+      });
+      return [];
+    }
+  }
+
+  /**
+   * Clean up expired sessions
+   * @param {number} maxAge - Maximum age in milliseconds (default: 1 hour)
+   */
+  cleanupExpiredSessions(maxAge = 60 * 60 * 1000) {
+    try {
+      const now = Date.now();
+      const expiredSessions = [];
+      for (const [sessionId, session] of this.activeSessions.entries()) {
+        if (now - session.lastActivity > maxAge) {
+          expiredSessions.push(sessionId);
+        }
+      }
+      expiredSessions.forEach(sessionId => {
+        this.unregisterSession(sessionId);
+      });
+      if (expiredSessions.length > 0) {
+        this.logger.info('Cleaned up expired sessions', {
+          count: expiredSessions.length
+        });
+      }
+    } catch (error) {
+      this.logger.error('Error cleaning up expired sessions', {
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Get session statistics
+   * @returns {Object} Session statistics
+   */
+  getSessionStats() {
+    try {
+      const sessions = this.getActiveSessions();
+      const stats = {
+        total: sessions.length,
+        byOperation: {},
+        oldest: null,
+        newest: null
+      };
+      sessions.forEach(session => {
+        // Count by operation type
+        stats.byOperation[session.operationType] = (stats.byOperation[session.operationType] || 0) + 1;
+
+        // Track oldest and newest
+        if (!stats.oldest || session.createdAt < stats.oldest.createdAt) {
+          stats.oldest = session;
+        }
+        if (!stats.newest || session.createdAt > stats.newest.createdAt) {
+          stats.newest = session;
+        }
+      });
+      return stats;
+    } catch (error) {
+      this.logger.error('Error getting session stats', {
+        error: error.message
+      });
+      return {
+        total: 0,
+        byOperation: {},
+        oldest: null,
+        newest: null
+      };
+    }
+  }
+}
+
+// Export singleton instance
+const sessionManager = exports.sessionManager = new SessionManager();
+var _default = exports.default = sessionManager;
+
+}).call(this)}).call(this,require('_process'))
+},{"./winston-logger.js":24,"_process":2}],19:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 
@@ -11309,7 +12789,140 @@ class SettingsManager {
 exports.SettingsManager = SettingsManager;
 
 }).call(this)}).call(this,require('_process'))
-},{"./crypto-utils.js":6,"./winston-logger.js":21,"_process":2}],18:[function(require,module,exports){
+},{"./crypto-utils.js":6,"./winston-logger.js":24,"_process":2}],20:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.showTokenAlertModal = showTokenAlertModal;
+// Token Alert Modal - blocks interaction and guides user to settings if no valid token is available
+class TokenAlertModal {
+  constructor({
+    tokenStatus = '',
+    expiry = ''
+  } = {}) {
+    if (TokenAlertModal.hasShownThisSession()) return;
+    TokenAlertModal.setShownThisSession();
+    this.createModal(tokenStatus, expiry);
+    this.showModal();
+  }
+  createModal(tokenStatus, expiry) {
+    // Overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'disclaimer-modal-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-labelledby', 'token-alert-title');
+    overlay.setAttribute('aria-describedby', 'token-alert-content');
+
+    // Modal content
+    overlay.innerHTML = `
+            <div class="disclaimer-modal" tabindex="-1">
+                <div class="disclaimer-modal-header">
+                    <h2 id="token-alert-title">
+                        <span class="warning-icon" aria-hidden="true">&#9888;&#65039;</span>
+                        <span>Credentials Required</span>
+                    </h2>
+                </div>
+                <div class="disclaimer-modal-body">
+                    <div id="token-alert-content" class="disclaimer-content">
+                        <h3>🚫 No Valid Token Found</h3>
+                        <p><strong>No valid token found. You must add credentials before continuing.</strong></p>
+                        ${tokenStatus || expiry ? `<div class="token-status-info">
+                            <p><strong>Token status:</strong> ${tokenStatus ? tokenStatus : 'Unavailable'}</p>
+                            ${expiry ? `<p><strong>Token expired:</strong> ${expiry}</p>` : ''}
+                        </div>` : ''}
+                        <p>To restore functionality, please go to the Settings page and add your PingOne credentials, then generate a new token.</p>
+                    </div>
+                </div>
+                <div class="disclaimer-modal-footer">
+                    <div class="disclaimer-actions">
+                        <button type="button" class="disclaimer-btn disclaimer-btn-primary" id="token-alert-settings-btn">
+                            Go to Settings
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    document.body.appendChild(overlay);
+    this.overlay = overlay;
+    this.modal = overlay.querySelector('.disclaimer-modal');
+    this.settingsBtn = overlay.querySelector('#token-alert-settings-btn');
+    this.bindEvents();
+  }
+  bindEvents() {
+    this.settingsBtn.addEventListener('click', () => {
+      this.hideModal();
+      window.location.href = '/settings';
+    });
+    // Trap focus
+    this.overlay.addEventListener('keydown', e => this.handleKeyboardNavigation(e));
+    // Prevent closing by outside click or escape
+    this.overlay.addEventListener('click', e => {
+      if (e.target === this.overlay) {
+        e.preventDefault();
+      }
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+      }
+    });
+  }
+  handleKeyboardNavigation(e) {
+    const focusable = this.modal.querySelectorAll('button');
+    if (e.key === 'Tab') {
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    }
+  }
+  showModal() {
+    document.body.classList.add('disclaimer-modal-open');
+    this.overlay.classList.add('active');
+    this.modal.focus();
+  }
+  hideModal() {
+    this.overlay.classList.remove('active');
+    document.body.classList.remove('disclaimer-modal-open');
+    setTimeout(() => {
+      if (this.overlay && this.overlay.parentNode) {
+        this.overlay.parentNode.removeChild(this.overlay);
+      }
+    }, 300);
+  }
+  static hasShownThisSession() {
+    return sessionStorage.getItem('tokenAlertModalShown') === 'true';
+  }
+  static setShownThisSession() {
+    sessionStorage.setItem('tokenAlertModalShown', 'true');
+  }
+}
+
+// Export a function to show the modal
+function showTokenAlertModal({
+  tokenStatus = '',
+  expiry = ''
+} = {}) {
+  new TokenAlertModal({
+    tokenStatus,
+    expiry
+  });
+}
+
+},{}],21:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11700,7 +13313,7 @@ class TokenManager {
 }
 var _default = exports.default = TokenManager;
 
-},{}],19:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 
@@ -12401,20 +14014,45 @@ class UIManager {
   }
 
   /**
-   * Start import operation with progress manager
-   * 
-   * @param {Object} options - Import options
+   * Start import operation with enhanced progress manager
    */
   startImportOperation(options = {}) {
     try {
-      _progressManager.progressManager.startOperation('import', options);
-      this.logger.info('Import operation started', {
+      this.logger.info('Starting import operation', {
         options
       });
+      _progressManager.progressManager.startOperation('import', options);
     } catch (error) {
       this.logger.error('Error starting import operation', {
         error: error.message,
         options
+      });
+    }
+  }
+
+  /**
+   * Update import operation with session ID (called after backend response)
+   */
+  updateImportOperationWithSessionId(sessionId) {
+    try {
+      if (!sessionId) {
+        this.logger.warn('No session ID provided for import operation update');
+        return;
+      }
+      this.logger.info('Updating import operation with session ID', {
+        sessionId
+      });
+
+      // Update progress manager with session ID
+      if (_progressManager.progressManager && typeof _progressManager.progressManager.updateSessionId === 'function') {
+        _progressManager.progressManager.updateSessionId(sessionId);
+      } else {
+        this.logger.warn('Progress manager not available for session ID update');
+      }
+    } catch (error) {
+      this.logger.error('Error updating import operation with session ID', {
+        error: error.message,
+        sessionId
       });
     }
   }
@@ -12665,7 +14303,7 @@ const uiManager = exports.uiManager = new UIManager();
 // Export the class and instance
 
 }).call(this)}).call(this,require('_process'))
-},{"./circular-progress.js":5,"./element-registry.js":8,"./progress-manager.js":16,"./winston-logger.js":21,"_process":2}],20:[function(require,module,exports){
+},{"./circular-progress.js":5,"./element-registry.js":8,"./progress-manager.js":17,"./winston-logger.js":24,"_process":2}],23:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12674,7 +14312,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.VersionManager = void 0;
 class VersionManager {
   constructor() {
-    this.version = '5.1'; // Update this with each new version
+    this.version = '5.3'; // Update this with each new version
     console.log(`Version Manager initialized with version ${this.version}`);
   }
   getVersion() {
@@ -12701,8 +14339,8 @@ class VersionManager {
     // Update the top version badge
     this.updateTopVersionBadge();
 
-    // Add version badge to the UI
-    this.addVersionBadge();
+    // Add version badge to the sidebar above the Ping Identity logo
+    this.addSidebarVersionBadge();
   }
   updateImportButton() {
     const importButton = document.getElementById('start-import-btn');
@@ -12717,34 +14355,50 @@ class VersionManager {
       versionText.textContent = this.getFormattedVersion();
     }
   }
-  addVersionBadge() {
-    // Check if badge already exists
-    if (document.getElementById('version-badge')) {
+  addSidebarVersionBadge() {
+    // Remove existing badges if they exist
+    const existingTopLeftBadge = document.getElementById('top-left-version-badge');
+    if (existingTopLeftBadge) {
+      existingTopLeftBadge.remove();
+    }
+    const existingSidebarBadge = document.getElementById('sidebar-version-badge');
+    if (existingSidebarBadge) {
+      existingSidebarBadge.remove();
+    }
+
+    // Check if sidebar version badge already exists
+    if (document.getElementById('sidebar-version-badge')) {
       return;
     }
 
-    // Create version badge
+    // Create sidebar version badge
     const badge = document.createElement('div');
-    badge.id = 'version-badge';
+    badge.id = 'sidebar-version-badge';
+    badge.className = 'sidebar-version-badge';
     badge.textContent = this.getFormattedVersion();
-    badge.style.position = 'fixed';
-    badge.style.bottom = '10px';
-    badge.style.right = '10px';
-    badge.style.backgroundColor = '#333';
-    badge.style.color = 'white';
-    badge.style.padding = '2px 6px';
-    badge.style.borderRadius = '3px';
-    badge.style.fontSize = '12px';
-    badge.style.fontFamily = 'monospace';
-    badge.style.zIndex = '1000';
-    document.body.appendChild(badge);
+
+    // Find the footer and insert the badge just above the Ping Identity logo
+    const footer = document.querySelector('.ping-footer');
+    if (footer) {
+      const footerContainer = footer.querySelector('.footer-container');
+      if (footerContainer) {
+        // Insert the badge at the beginning of the footer container
+        footerContainer.insertBefore(badge, footerContainer.firstChild);
+      } else {
+        // Fallback: insert at the beginning of the footer
+        footer.insertBefore(badge, footer.firstChild);
+      }
+    } else {
+      // Fallback: add to body if footer not found
+      document.body.appendChild(badge);
+    }
   }
 }
 
 // ES Module export
 exports.VersionManager = VersionManager;
 
-},{}],21:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 

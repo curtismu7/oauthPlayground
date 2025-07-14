@@ -25,6 +25,8 @@ import { isFeatureEnabled, setFeatureFlag, getAllFeatureFlags, resetFeatureFlags
 import { v4 as uuidv4 } from 'uuid';
 import { logSSEEvent, handleSSEError, generateConnectionId, updateSSEMetrics } from '../../server/sse-logger.js';
 import fetch from 'node-fetch'; // Add this if not already present
+import { logSeparator, logTag } from '../../server/winston-config.js';
+import serverMessageFormatter from '../../server/message-formatter.js';
 
 // Feature flags configuration object for easy access
 const featureFlags = {
@@ -94,6 +96,12 @@ const upload = multer({
  */
 async function runImportProcess(sessionId, app) {
     try {
+        const logger = app.get('importLogger') || console;
+        logger.info(logSeparator());
+        logger.info(logTag('START OF IMPORT'), { tag: logTag('START OF IMPORT'), separator: logSeparator() });
+        logger.info(`[${new Date().toISOString()}] [INFO] Import process started`, { sessionId });
+        if (logger.flush) await logger.flush();
+        
         debugLog("Import", "🔄 Starting import process", { sessionId });
         
         // Get import session data
@@ -130,6 +138,7 @@ async function runImportProcess(sessionId, app) {
             totalUsers: users.length,
             headers: headers
         });
+        if (logger.flush) await logger.flush();
         
         // Initialize progress tracking
         let processed = 0;
@@ -164,10 +173,13 @@ async function runImportProcess(sessionId, app) {
         }
         
         debugLog("Import", "🔑 Authentication ready", { environmentId });
+        if (logger.flush) await logger.flush();
         
         // Process users in batches to avoid rate limiting
         const batchSize = 5;
         const delayBetweenBatches = 1000; // 1 second delay between batches
+        
+        const importStart = Date.now();
         
         for (let i = 0; i < users.length; i += batchSize) {
             const batch = users.slice(i, i + batchSize);
@@ -176,6 +188,7 @@ async function runImportProcess(sessionId, app) {
                 batchSize: batch.length,
                 startIndex: i
             });
+            if (logger.flush) await logger.flush();
             
             // Process each user in the batch
             for (const user of batch) {
@@ -189,6 +202,7 @@ async function runImportProcess(sessionId, app) {
                         errors.push(error);
                         failed++;
                         debugLog("Import", `❌ ${error}`);
+                        if (logger.flush) await logger.flush();
                         continue;
                     }
                     
@@ -246,6 +260,7 @@ async function runImportProcess(sessionId, app) {
                             populationName,
                             populationId
                         });
+                        if (logger.flush) await logger.flush();
                         sendProgressEvent(sessionId, processed, users.length, `Created: ${username} in ${populationName}`, 
                             { processed, created, skipped, failed }, username, populationName, populationId);
                     } else {
@@ -254,6 +269,7 @@ async function runImportProcess(sessionId, app) {
                         errors.push(error);
                         failed++;
                         debugLog("Import", `❌ ${error}`);
+                        if (logger.flush) await logger.flush();
                         sendProgressEvent(sessionId, processed, users.length, `Failed: ${username}`, 
                             { processed, created, skipped, failed }, username, populationName, populationId);
                     }
@@ -263,6 +279,7 @@ async function runImportProcess(sessionId, app) {
                     errors.push(errorMsg);
                     failed++;
                     debugLog("Import", `❌ ${errorMsg}`);
+                    if (logger.flush) await logger.flush();
                     sendProgressEvent(sessionId, processed, users.length, `Error: ${user.username || user.email || 'unknown'}`, 
                         { processed, created, skipped, failed }, user.username || user.email || 'unknown', populationName, populationId);
                 }
@@ -274,6 +291,22 @@ async function runImportProcess(sessionId, app) {
                 await new Promise(resolve => setTimeout(resolve, delayBetweenBatches));
             }
         }
+        
+        const importDuration = Date.now() - importStart;
+        logger.info(logSeparator('-'));
+        logger.info(logTag('IMPORT SUMMARY'), { tag: logTag('IMPORT SUMMARY'), separator: logSeparator('-') });
+        logger.info(`[${new Date().toISOString()}] [INFO] Import Summary:`, {
+            total: users.length,
+            processed,
+            created,
+            skipped,
+            failed,
+            durationMs: importDuration
+        });
+        logger.info(logSeparator());
+        logger.info(logTag('END OF IMPORT'), { tag: logTag('END OF IMPORT'), separator: logSeparator() });
+        logger.info(`[${new Date().toISOString()}] [INFO] Import process completed`, { sessionId });
+        if (logger.flush) await logger.flush();
         
         // Send completion event
         debugLog("Import", "🏁 Import process completed", {
@@ -292,10 +325,15 @@ async function runImportProcess(sessionId, app) {
         importSessions.delete(sessionId);
         
     } catch (error) {
-        debugLog("Import", "❌ Error in background import process", {
+        const logger = app.get('importLogger') || console;
+        logger.error(logSeparator());
+        logger.error(logTag('ERROR'), { tag: logTag('ERROR'), separator: logSeparator() });
+        logger.error(`[${new Date().toISOString()}] [ERROR] Import failed: ${error.message}`, {
             error: error.message,
             stack: error.stack
         });
+        logger.error(logSeparator());
+        if (logger.flush) await logger.flush();
         
         sendErrorEvent(sessionId, 'Import failed', error.message);
         
@@ -481,11 +519,20 @@ function sendProgressEvent(sessionId, current, total, message, counts, user, pop
     const startTime = Date.now();
     
     try {
+        // Format the message for better readability
+        const formattedMessage = serverMessageFormatter.formatProgressMessage(
+            'import', 
+            current, 
+            total, 
+            message, 
+            counts
+        );
+
         const eventData = {
             type: 'progress',
             current,
             total,
-            message,
+            message: formattedMessage, // Use formatted message
             counts,
             user: {
                 username: user?.username || user?.email || 'unknown',
@@ -581,11 +628,17 @@ function sendCompletionEvent(sessionId, current, total, message, counts) {
     const startTime = Date.now();
     
     try {
+        // Format the completion message for better readability
+        const formattedMessage = serverMessageFormatter.formatCompletionMessage(
+            'import', 
+            { current, total, ...counts }
+        );
+
         const eventData = {
             type: 'completion',
             current,
             total,
-            message,
+            message: formattedMessage, // Use formatted message
             counts,
             timestamp: new Date().toISOString()
         };
@@ -673,10 +726,17 @@ function sendErrorEvent(sessionId, title, message, details = {}) {
     const startTime = Date.now();
     
     try {
+        // Format the error message for better readability
+        const formattedMessage = serverMessageFormatter.formatErrorMessage(
+            'import', 
+            message, 
+            { title, ...details }
+        );
+
         const eventData = {
             type: 'error',
             title,
-            message,
+            message: formattedMessage, // Use formatted message
             details,
             timestamp: new Date().toISOString()
         };
@@ -814,6 +874,16 @@ function sendErrorEvent(sessionId, title, message, details = {}) {
  */
 router.post('/import', upload.single('file'), async (req, res, next) => {
     try {
+        const logger = req.app.get('importLogger') || console;
+        logger.info(logSeparator());
+        logger.info(logTag('IMPORT ENDPOINT HIT'), { tag: logTag('IMPORT ENDPOINT HIT'), separator: logSeparator() });
+        logger.info(`[${new Date().toISOString()}] [INFO] Import endpoint triggered`, {
+            file: req.file ? req.file.originalname : null,
+            populationId: req.body.populationId,
+            populationName: req.body.populationName
+        });
+        if (logger.flush) await logger.flush();
+        
         debugLog("Import", "🚀 Import request received");
         
         // Validate file upload
@@ -1183,20 +1253,37 @@ router.get('/history', async (req, res) => {
     try {
         const { limit = 50, type, population, startDate, endDate } = req.query;
         
-        // Get logs from the existing logs endpoint
-        const logsResponse = await fetch(`http://localhost:4000/api/logs/ui?limit=1000`);
-        if (!logsResponse.ok) {
-            return res.status(500).json({
-                success: false,
-                error: 'Failed to fetch logs for history'
-            });
-        }
+        // Get logs from the existing logs endpoint with caching
+        const cacheKey = `history_logs_${limit}_${type || 'all'}_${population || 'all'}`;
+        const cachedData = req.app.get('historyCache')?.get(cacheKey);
         
-        const logsData = await logsResponse.json();
-        if (!logsData.success || !logsData.logs) {
-            return res.status(500).json({
-                success: false,
-                error: 'Invalid logs data'
+        let logsData;
+        if (cachedData && (Date.now() - cachedData.timestamp) < 30000) { // 30 second cache
+            logsData = cachedData.data;
+        } else {
+            const logsResponse = await fetch(`http://localhost:4000/api/logs/ui?limit=1000`);
+            if (!logsResponse.ok) {
+                return res.status(500).json({
+                    success: false,
+                    error: 'Failed to fetch logs for history'
+                });
+            }
+            
+            logsData = await logsResponse.json();
+            if (!logsData.success || !logsData.logs) {
+                return res.status(500).json({
+                    success: false,
+                    error: 'Invalid logs data'
+                });
+            }
+            
+            // Cache the result
+            if (!req.app.get('historyCache')) {
+                req.app.set('historyCache', new Map());
+            }
+            req.app.get('historyCache').set(cacheKey, {
+                data: logsData,
+                timestamp: Date.now()
             });
         }
         
@@ -1385,18 +1472,84 @@ router.get('/populations', async (req, res) => {
 
 router.post('/export-users', async (req, res, next) => {
     try {
-        const { populationId, fields, format, ignoreDisabledUsers } = req.body;
+        // Log the incoming request for debugging
+        console.log('Export request received:', {
+            body: req.body,
+            headers: req.headers,
+            timestamp: new Date().toISOString()
+        });
+
+        // Extract and normalize request parameters
+        const { 
+            populationId, 
+            selectedPopulationId, // Frontend sends this
+            fields, 
+            format, 
+            ignoreDisabledUsers 
+        } = req.body;
+        
+        // Handle both field name variations
+        const actualPopulationId = populationId || selectedPopulationId;
         
         // Convert ignoreDisabledUsers to boolean if it's a string (handles form data)
         const shouldIgnoreDisabledUsers = ignoreDisabledUsers === true || ignoreDisabledUsers === 'true';
         
-        // Validate required population ID parameter
-        if (!populationId && populationId !== '') {
+        // Enhanced validation with detailed error messages
+        if (!actualPopulationId && actualPopulationId !== '') {
+            console.error('Export validation failed: Missing population ID', {
+                received: { populationId, selectedPopulationId },
+                body: req.body
+            });
             return res.status(400).json({
-                error: 'Missing population ID',
-                message: 'Population ID is required for export'
+                error: 'Missing required field',
+                message: 'Population ID is required for export operations',
+                details: {
+                    received: { populationId, selectedPopulationId },
+                    expected: 'populationId or selectedPopulationId'
+                }
             });
         }
+
+        // Validate format parameter
+        const validFormats = ['csv', 'json'];
+        if (format && !validFormats.includes(format)) {
+            console.error('Export validation failed: Invalid format', {
+                received: format,
+                validFormats
+            });
+            return res.status(400).json({
+                error: 'Invalid format',
+                message: `Format must be one of: ${validFormats.join(', ')}`,
+                details: {
+                    received: format,
+                    validFormats
+                }
+            });
+        }
+
+        // Validate fields parameter
+        const validFields = ['all', 'basic', 'custom'];
+        if (fields && !validFields.includes(fields)) {
+            console.error('Export validation failed: Invalid fields', {
+                received: fields,
+                validFields
+            });
+            return res.status(400).json({
+                error: 'Invalid fields',
+                message: `Fields must be one of: ${validFields.join(', ')}`,
+                details: {
+                    received: fields,
+                    validFields
+                }
+            });
+        }
+
+        console.log('Export validation passed, proceeding with export', {
+            populationId: actualPopulationId,
+            fields: fields || 'all',
+            format: format || 'csv',
+            ignoreDisabledUsers: shouldIgnoreDisabledUsers
+        });
 
         // Build PingOne API URL with population filtering and population details expansion
         // This ensures we get complete user data including population information
@@ -1404,8 +1557,8 @@ router.post('/export-users', async (req, res, next) => {
         const params = new URLSearchParams();
         
         // Add population filter if specified (empty string means all populations)
-        if (populationId && populationId.trim() !== '') {
-            params.append('population.id', populationId.trim());
+        if (actualPopulationId && actualPopulationId.trim() !== '') {
+            params.append('population.id', actualPopulationId.trim());
         }
         
         // Always expand population details to get population name and ID in response
@@ -1416,6 +1569,8 @@ router.post('/export-users', async (req, res, next) => {
             pingOneUrl += `?${params.toString()}`;
         }
 
+        console.log('Fetching users from PingOne API:', pingOneUrl);
+
         const pingOneResponse = await fetch(pingOneUrl, {
             method: 'GET',
             headers: {
@@ -1425,9 +1580,14 @@ router.post('/export-users', async (req, res, next) => {
 
         if (!pingOneResponse.ok) {
             const errorData = await pingOneResponse.json().catch(() => ({}));
+            console.error('PingOne API request failed:', {
+                status: pingOneResponse.status,
+                statusText: pingOneResponse.statusText,
+                errorData
+            });
             return res.status(pingOneResponse.status).json({
                 error: 'Failed to fetch users from PingOne',
-                message: errorData.message || `HTTP ${pingOneResponse.status}`,
+                message: errorData.message || `HTTP ${pingOneResponse.status}: ${pingOneResponse.statusText}`,
                 details: errorData
             });
         }
@@ -1442,10 +1602,21 @@ router.post('/export-users', async (req, res, next) => {
             users = [];
         }
 
+        console.log('Users fetched successfully:', {
+            count: users.length,
+            populationId: actualPopulationId
+        });
+
         // Filter out disabled users if the ignore flag is set
         // This provides a way to export only active users
         if (shouldIgnoreDisabledUsers) {
+            const originalCount = users.length;
             users = users.filter(user => user.enabled !== false);
+            console.log('Filtered disabled users:', {
+                originalCount,
+                filteredCount: users.length,
+                disabledCount: originalCount - users.length
+            });
         }
 
         // Check if population information is available in the user objects
@@ -1456,9 +1627,9 @@ router.post('/export-users', async (req, res, next) => {
         }
 
         // If population info is not available, try to fetch it separately
-        if (!hasPopulationInfo && populationId && populationId.trim() !== '') {
+        if (!hasPopulationInfo && actualPopulationId && actualPopulationId.trim() !== '') {
             try {
-                const populationResponse = await fetch(`http://127.0.0.1:4000/api/pingone/populations/${populationId.trim()}`);
+                const populationResponse = await fetch(`http://127.0.0.1:4000/api/pingone/populations/${actualPopulationId.trim()}`);
                 if (populationResponse.ok) {
                     const populationData = await populationResponse.json();
                     const populationName = populationData.name || '';
@@ -1467,13 +1638,17 @@ router.post('/export-users', async (req, res, next) => {
                     users = users.map(user => ({
                         ...user,
                         population: {
-                            id: populationId.trim(),
+                            id: actualPopulationId.trim(),
                             name: populationName
                         }
                     }));
+                    console.log('Added population info to users:', {
+                        populationId: actualPopulationId.trim(),
+                        populationName
+                    });
                 }
             } catch (error) {
-                // [CLEANUP] Removed verbose debug logging
+                console.warn('Failed to fetch population info:', error.message);
             }
         }
         
@@ -1600,6 +1775,12 @@ router.post('/export-users', async (req, res, next) => {
             });
         }
 
+        console.log('User processing completed:', {
+            originalCount: users.length,
+            processedCount: processedUsers.length,
+            fields: fields || 'all'
+        });
+
         // Convert processed user data to the requested output format
         // Supports both JSON and CSV formats with proper content type headers
         let output;
@@ -1640,10 +1821,22 @@ router.post('/export-users', async (req, res, next) => {
             fileName = `pingone-users-export-${new Date().toISOString().split('T')[0]}.csv`;
         }
 
+        console.log('Export completed successfully:', {
+            format: format || 'csv',
+            userCount: processedUsers.length,
+            fileName,
+            contentType
+        });
+
         res.setHeader('Content-Type', contentType);
         res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
         res.send(output);
     } catch (error) {
+        console.error('Export operation failed:', {
+            error: error.message,
+            stack: error.stack,
+            body: req.body
+        });
         next(error);
     }
 });
@@ -1807,6 +2000,21 @@ router.post('/export-users', async (req, res, next) => {
  */
 router.post('/modify', upload.single('file'), async (req, res, next) => {
     try {
+        const logger = req.app.get('importLogger') || console;
+        
+        logger.info(logSeparator());
+        logger.info(logTag('START OF MODIFY OPERATION'), { tag: logTag('START OF MODIFY OPERATION'), separator: logSeparator() });
+        logger.info(`[${new Date().toISOString()}] [INFO] Modify operation started`, {
+            fileName: req.file?.originalname || 'No file',
+            createIfNotExists: req.body.createIfNotExists,
+            defaultPopulationId: req.body.defaultPopulationId,
+            defaultEnabled: req.body.defaultEnabled,
+            generatePasswords: req.body.generatePasswords,
+            userAgent: req.get('User-Agent'),
+            ip: req.ip
+        });
+        if (logger.flush) await logger.flush();
+        
         const { createIfNotExists, defaultPopulationId, defaultEnabled, generatePasswords } = req.body;
         
         // Validate that a CSV file was uploaded
@@ -2730,7 +2938,7 @@ router.post('/token', async (req, res) => {
  *                 description: Population ID to delete all users from (for population-based deletion)
  *               confirmation:
  *                 type: string
- *                 description: "DELETE ALL" confirmation text (for environment-based deletion)
+ *                 description: DELETE ALL confirmation text for environment-based deletion
  *               skipNotFound:
  *                 type: boolean
  *                 description: Skip users not found in the population
@@ -2775,7 +2983,8 @@ router.post('/delete-users', upload.single('file'), async (req, res) => {
         if (!type || !['file', 'population', 'environment'].includes(type)) {
             return res.status(400).json({
                 success: false,
-                error: "Invalid delete type. Must be 'file', 'population', or 'environment'"
+                error: "Invalid delete type. Must be 'file', 'population', or 'environment'",
+                message: "Invalid delete type. Must be 'file', 'population', or 'environment'"
             });
         }
 
@@ -2784,7 +2993,8 @@ router.post('/delete-users', upload.single('file'), async (req, res) => {
         if (!tokenManager) {
             return res.status(500).json({
                 success: false,
-                error: "Token manager not available"
+                error: "Token manager not available",
+                message: "Token manager not available"
             });
         }
 
@@ -2793,7 +3003,8 @@ router.post('/delete-users', upload.single('file'), async (req, res) => {
         if (!token) {
             return res.status(401).json({
                 success: false,
-                error: "Failed to get access token"
+                error: "Failed to get access token",
+                message: "Failed to get access token"
             });
         }
 
@@ -2802,7 +3013,8 @@ router.post('/delete-users', upload.single('file'), async (req, res) => {
         if (!settingsResponse.ok) {
             return res.status(500).json({
                 success: false,
-                error: "Failed to load settings"
+                error: "Failed to load settings",
+                message: "Failed to load settings"
             });
         }
         const settingsData = await settingsResponse.json();
@@ -2812,7 +3024,8 @@ router.post('/delete-users', upload.single('file'), async (req, res) => {
         if (!environmentId) {
             return res.status(500).json({
                 success: false,
-                error: "Environment ID not configured"
+                error: "Environment ID not configured",
+                message: "Environment ID not configured"
             });
         }
 
@@ -2825,7 +3038,8 @@ router.post('/delete-users', upload.single('file'), async (req, res) => {
                 if (!file) {
                     return res.status(400).json({
                         success: false,
-                        error: "File is required for file-based deletion"
+                        error: "File is required for file-based deletion",
+                        message: "File is required for file-based deletion"
                     });
                 }
                 usersToDelete = await parseDeleteFile(file);
@@ -2836,7 +3050,8 @@ router.post('/delete-users', upload.single('file'), async (req, res) => {
                 if (!populationId) {
                     return res.status(400).json({
                         success: false,
-                        error: "Population ID is required for population-based deletion"
+                        error: "Population ID is required for population-based deletion",
+                        message: "Population ID is required for population-based deletion"
                     });
                 }
                 usersToDelete = await getUsersInPopulation(token, environmentId, populationId);
@@ -2847,7 +3062,8 @@ router.post('/delete-users', upload.single('file'), async (req, res) => {
                 if (confirmation !== 'DELETE ALL') {
                     return res.status(400).json({
                         success: false,
-                        error: "Environment deletion requires 'DELETE ALL' confirmation"
+                        error: "Environment deletion requires 'DELETE ALL' confirmation",
+                        message: "Environment deletion requires 'DELETE ALL' confirmation"
                     });
                 }
                 usersToDelete = await getAllUsers(token, environmentId);
@@ -2859,6 +3075,15 @@ router.post('/delete-users', upload.single('file'), async (req, res) => {
             count: usersToDelete.length,
             type: deleteType
         });
+
+        // Validate that we have users to delete
+        if (!usersToDelete || usersToDelete.length === 0) {
+            return res.status(400).json({
+                success: false,
+                error: "No users found to delete",
+                message: "No users found to delete. Please check your selection criteria."
+            });
+        }
 
         // Perform deletion
         const result = await performUserDeletion(token, environmentId, usersToDelete, skipNotFound === 'true');
@@ -2880,6 +3105,7 @@ router.post('/delete-users', upload.single('file'), async (req, res) => {
         res.status(500).json({
             success: false,
             error: "Delete operation failed",
+            message: error.message,
             details: error.message
         });
     }
@@ -3047,11 +3273,20 @@ async function performUserDeletion(token, environmentId, users, skipNotFound) {
             // Add small delay to avoid rate limiting
             await new Promise(resolve => setTimeout(resolve, 100));
 
-        } catch (error) {
-            const errorMsg = `Error deleting user ${user.username}: ${error.message}`;
-            errors.push(errorMsg);
-            debugLog("Delete", `❌ ${errorMsg}`);
+            } catch (error) {
+        const errorMsg = `Error deleting user ${user.username}: ${error.message}`;
+        errors.push(errorMsg);
+        debugLog("Delete", `❌ ${errorMsg}`);
+        
+        // Log additional error details for debugging
+        if (error.response) {
+            debugLog("Delete", `❌ API Error Details`, {
+                status: error.response.status,
+                statusText: error.response.statusText,
+                user: user.username
+            });
         }
+    }
     }
 
     return { deletedCount, skippedCount, errors };
@@ -3061,6 +3296,20 @@ async function performUserDeletion(token, environmentId, users, skipNotFound) {
  * Log deletion operation for audit purposes
  */
 function logDeleteOperation(req, deleteType, totalUsers, result) {
+    const logger = req.app.get('importLogger') || console;
+    
+    logger.info(logSeparator());
+    logger.info(logTag('DELETE OPERATION SUMMARY'), { tag: logTag('DELETE OPERATION SUMMARY'), separator: logSeparator('-') });
+    logger.info(`[${new Date().toISOString()}] [INFO] Delete operation completed`, {
+        deleteType,
+        totalUsers,
+        deletedCount: result.deletedCount,
+        skippedCount: result.skippedCount,
+        errorCount: result.errors?.length || 0,
+        duration: result.duration || 0
+    });
+    logger.info(logTag('END OF DELETE'), { tag: logTag('END OF DELETE'), separator: logSeparator() });
+    
     const logEntry = {
         timestamp: new Date().toISOString(),
         action: 'DELETE_USERS',
@@ -3090,6 +3339,18 @@ function logDeleteOperation(req, deleteType, totalUsers, result) {
  */
 router.post('/export-token', async (req, res) => {
     try {
+        const logger = req.app.get('importLogger') || console;
+        
+        logger.info(logSeparator());
+        logger.info(logTag('START OF EXPORT TOKEN GENERATION'), { tag: logTag('START OF EXPORT TOKEN GENERATION'), separator: logSeparator() });
+        logger.info(`[${new Date().toISOString()}] [INFO] Export token generation started`, {
+            environmentId: req.body.environmentId,
+            region: req.body.region,
+            userAgent: req.get('User-Agent'),
+            ip: req.ip
+        });
+        if (logger.flush) await logger.flush();
+        
         debugLog("Export", "🔑 Generating export token with override credentials");
         
         const { environmentId, apiClientId, apiSecret, region } = req.body;
@@ -3142,6 +3403,7 @@ router.post('/export-token', async (req, res) => {
             expiresAt,
             scopes: tokenData.scope
         });
+        if (logger.flush) await logger.flush();
 
         // Log token generation for audit
         logExportTokenGeneration(req, environmentId, expiresAt);
@@ -3155,6 +3417,15 @@ router.post('/export-token', async (req, res) => {
         });
 
     } catch (error) {
+        const logger = req.app.get('importLogger') || console;
+        logger.error(`[${new Date().toISOString()}] [ERROR] Export token generation failed: ${error.message}`, {
+            error: error.message,
+            stack: error.stack,
+            userAgent: req.get('User-Agent'),
+            ip: req.ip
+        });
+        if (logger.flush) await logger.flush();
+        
         debugLog("Export", `❌ Error generating export token: ${error.message}`);
         res.status(500).json({
             success: false,
@@ -3170,6 +3441,23 @@ router.post('/export-token', async (req, res) => {
  */
 router.post('/export-users', async (req, res) => {
     try {
+        const logger = req.app.get('importLogger') || console;
+        
+        logger.info(logSeparator());
+        logger.info(logTag('START OF EXPORT OPERATION'), { tag: logTag('START OF EXPORT OPERATION'), separator: logSeparator() });
+        logger.info(`[${new Date().toISOString()}] [INFO] Export operation started`, {
+            populationId: req.body.populationId,
+            populationName: req.body.populationName,
+            userStatusFilter: req.body.userStatusFilter,
+            format: req.body.format,
+            includeDisabled: req.body.includeDisabled,
+            includeMetadata: req.body.includeMetadata,
+            useOverrideCredentials: req.body.useOverrideCredentials,
+            userAgent: req.get('User-Agent'),
+            ip: req.ip
+        });
+        if (logger.flush) await logger.flush();
+        
         debugLog("Export", "📤 Starting enhanced export operation");
         
         const {
@@ -3271,6 +3559,7 @@ router.post('/export-users', async (req, res) => {
         const users = data._embedded?.users || [];
 
         debugLog("Export", `✅ Fetched ${users.length} users for export`);
+        if (logger.flush) await logger.flush();
 
         // Process and format export data
         const exportData = users.map(user => {
@@ -3342,10 +3631,20 @@ router.post('/export-users', async (req, res) => {
             format,
             filename
         });
+        if (logger.flush) await logger.flush();
 
         res.send(formattedData);
 
     } catch (error) {
+        const logger = req.app.get('importLogger') || console;
+        logger.error(`[${new Date().toISOString()}] [ERROR] Export operation failed: ${error.message}`, {
+            error: error.message,
+            stack: error.stack,
+            userAgent: req.get('User-Agent'),
+            ip: req.ip
+        });
+        if (logger.flush) await logger.flush();
+        
         debugLog("Export", `❌ Export error: ${error.message}`);
         res.status(500).json({
             success: false,
@@ -3372,6 +3671,18 @@ function decodeJWT(token) {
  * Log export token generation for audit
  */
 function logExportTokenGeneration(req, environmentId, expiresAt) {
+    const logger = req.app.get('importLogger') || console;
+    
+    logger.info(logSeparator());
+    logger.info(logTag('EXPORT TOKEN GENERATION'), { tag: logTag('EXPORT TOKEN GENERATION'), separator: logSeparator() });
+    logger.info(`[${new Date().toISOString()}] [INFO] Export token generated`, {
+        environmentId,
+        expiresAt,
+        userAgent: req.get('User-Agent'),
+        ip: req.ip
+    });
+    logger.info(logTag('END OF TOKEN GENERATION'), { tag: logTag('END OF TOKEN GENERATION'), separator: logSeparator() });
+    
     const logEntry = {
         timestamp: new Date().toISOString(),
         action: 'EXPORT_TOKEN_GENERATION',
@@ -3388,6 +3699,23 @@ function logExportTokenGeneration(req, environmentId, expiresAt) {
  * Log export operation for audit
  */
 function logExportOperation(req, operationData) {
+    const logger = req.app.get('importLogger') || console;
+    
+    logger.info(logSeparator());
+    logger.info(logTag('EXPORT OPERATION SUMMARY'), { tag: logTag('EXPORT OPERATION SUMMARY'), separator: logSeparator('-') });
+    logger.info(`[${new Date().toISOString()}] [INFO] Export operation completed`, {
+        populationId: operationData.populationId,
+        populationName: operationData.populationName,
+        userCount: operationData.userCount,
+        format: operationData.format,
+        includeDisabled: operationData.includeDisabled,
+        includeMetadata: operationData.includeMetadata,
+        useOverrideCredentials: operationData.useOverrideCredentials,
+        userAgent: req.get('User-Agent'),
+        ip: req.ip
+    });
+    logger.info(logTag('END OF EXPORT'), { tag: logTag('END OF EXPORT'), separator: logSeparator() });
+    
     const logEntry = {
         timestamp: new Date().toISOString(),
         action: 'EXPORT_USERS',
