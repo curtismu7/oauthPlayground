@@ -800,3 +800,132 @@ body.has-disclaimer-banner {
     border-color: rgba(255, 255, 255, 0.4);
   }
 } 
+
+/* Footer - Ping Identity Style */
+.ping-footer {
+    background-color: var(--ping-gray-900);
+    color: var(--ping-white);
+    border-top: 1px solid var(--ping-gray-700);
+    position: relative;
+    z-index: 999;
+    margin-top: auto;
+    width: 100%;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--ping-spacing-lg);
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--ping-spacing-lg) 0;
+    flex-wrap: wrap;
+    gap: var(--ping-spacing-md);
+}
+
+.footer-left {
+    display: flex;
+    align-items: center;
+    gap: var(--ping-spacing-md);
+    flex-wrap: wrap;
+}
+
+.footer-logo img {
+    height: 24px;
+    width: auto;
+    opacity: 0.8;
+}
+
+.footer-copyright {
+    color: var(--ping-gray-400);
+    font-size: var(--ping-font-size-sm);
+    font-family: var(--ping-font-family);
+}
+
+.footer-right {
+    display: flex;
+    align-items: center;
+}
+
+.footer-links {
+    display: flex;
+    gap: var(--ping-spacing-lg);
+    flex-wrap: wrap;
+}
+
+.footer-links a {
+    color: var(--ping-gray-400);
+    text-decoration: none;
+    font-size: var(--ping-font-size-sm);
+    transition: var(--ping-transition);
+    font-family: var(--ping-font-family);
+}
+
+.footer-links a:hover {
+    color: var(--ping-white);
+    text-decoration: underline;
+}
+
+/* Ensure footer stays at bottom */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+}
+
+.app-container {
+    display: flex;
+    min-height: 100vh;
+    flex: 1;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Responsive footer */
+@media (max-width: 768px) {
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--ping-spacing-md);
+    }
+    
+    .footer-left {
+        justify-content: center;
+    }
+    
+    .footer-right {
+        justify-content: center;
+    }
+    
+    .footer-container {
+        padding: 0 var(--ping-spacing-md);
+    }
+}
+
+@media (max-width: 480px) {
+    .footer-content {
+        padding: var(--ping-spacing-md) 0;
+    }
+    
+    .footer-links {
+        justify-content: center;
+        gap: var(--ping-spacing-md);
+    }
+} 

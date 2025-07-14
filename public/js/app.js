@@ -483,17 +483,17 @@ class App {
                 this.deleteManager = new DeleteManager();
                 console.log('✅ DeleteManager initialized successfully');
             } catch (error) {
-                this.logger.error('Failed to initialize DeleteManager:', error);
+                console.warn('DeleteManager initialization warning:', error);
                 this.deleteManager = null;
             }
             
             // Initialize export manager for enhanced export functionality
             try {
                 this.exportManager = new ExportManager();
-        this.historyManager = new HistoryManager();
+                this.historyManager = new HistoryManager();
                 console.log('✅ ExportManager initialized successfully');
             } catch (error) {
-                this.logger.error('Failed to initialize ExportManager:', error);
+                console.warn('ExportManager initialization warning:', error);
                 this.exportManager = null;
             }
             
@@ -529,7 +529,7 @@ class App {
                     console.log('Disclaimer previously accepted, tool already enabled');
                 }
             } catch (error) {
-                this.logger.error('Failed to setup disclaimer:', error);
+                console.warn('Failed to setup disclaimer:', error);
             }
             
             // Check server connection status to ensure backend is available
@@ -1139,7 +1139,7 @@ class App {
         }
 
         // Get token button
-        const getTokenBtn = document.getElementById('get-token-btn');
+        const getTokenBtn = document.getElementById('get-token-quick');
         if (getTokenBtn) {
             console.log('Setting up Get Token button event listener...');
             getTokenBtn.addEventListener('click', async (e) => {
@@ -1224,6 +1224,15 @@ class App {
                 if (importStatus) {
                     importStatus.style.display = 'none';
                 }
+            });
+        }
+
+        // Home button in history view
+        const goHomeFromHistoryBtn = document.getElementById('go-home-from-history');
+        if (goHomeFromHistoryBtn) {
+            goHomeFromHistoryBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.showView('home');
             });
         }
     }
@@ -2710,7 +2719,7 @@ class App {
             console.log('Get Token button clicked - starting token retrieval...');
             
             // Set button loading state
-            this.uiManager.setButtonLoading('get-token-btn', true);
+            this.uiManager.setButtonLoading('get-token-quick', true);
             this.uiManager.updateConnectionStatus('connecting', 'Getting token...');
             
             console.log('Using PingOneClient to get token (with localStorage storage)...');
@@ -2794,7 +2803,7 @@ class App {
         } finally {
             // Always reset button loading state
             console.log('Resetting Get Token button loading state...');
-            this.uiManager.setButtonLoading('get-token-btn', false);
+            this.uiManager.setButtonLoading('get-token-quick', false);
         }
     }
 
@@ -3621,8 +3630,14 @@ class App {
         }
 
         // Log the disclaimer acceptance
-        if (window.logManager) {
+        if (window.logManager && typeof window.logManager.log === 'function') {
             window.logManager.log('info', 'Disclaimer accepted by user', {
+                source: 'app',
+                type: 'disclaimer',
+                timestamp: new Date().toISOString()
+            });
+        } else {
+            console.info('[Disclaimer] Disclaimer accepted by user', {
                 source: 'app',
                 type: 'disclaimer',
                 timestamp: new Date().toISOString()
@@ -4384,7 +4399,7 @@ function onModifyViewShown() {
     // Check for required token and population elements
     const tokenStatus = document.getElementById('current-token-status');
     const homeTokenStatus = document.getElementById('home-token-status');
-    const getTokenBtn = document.getElementById('get-token-btn');
+            const getTokenBtn = document.getElementById('get-token-quick');
     if (!tokenStatus) console.warn('[Modify] #current-token-status element missing');
     if (!homeTokenStatus) console.warn('[Modify] #home-token-status element missing');
     if (!getTokenBtn) console.warn('[Modify] Get Token button missing');
