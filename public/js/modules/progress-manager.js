@@ -1,32 +1,34 @@
 /**
- * Progress Manager Module
+ * Enhanced Progress Manager Module
  * 
- * Production-ready progress UI system with real-time updates for all operations:
- * - Import, Export, Delete, Modify
- * - Non-blocking UI updates
- * - Responsive controls
- * - Enhanced import logic with duplicate handling
- * - Modern progress indicators
+ * Modern, real-time progress UI system with SSE integration:
+ * - Real-time updates via Server-Sent Events
+ * - Professional Ping Identity design system
+ * - Responsive and accessible
+ * - Enhanced visual feedback
+ * - Step-by-step progress tracking
  * 
  * Features:
  * - Real-time progress updates via SSE
- * - Responsive progress bars and status indicators
- * - Operation-specific progress tracking
- * - Duplicate user handling with user choice
- * - Error handling and recovery
+ * - Professional progress indicators
+ * - Step-by-step operation tracking
+ * - Enhanced error handling and recovery
+ * - Accessibility compliance
  * - Production-ready logging
  */
 
 import { createWinstonLogger } from './winston-logger.js';
 import { ElementRegistry } from './element-registry.js';
+import { sessionManager } from './session-manager.js';
+import messageFormatter from './message-formatter.js';
 
 // Enable debug mode for development (set to false in production)
 const DEBUG_MODE = process.env.NODE_ENV !== 'production';
 
 /**
- * Progress Manager Class
+ * Enhanced Progress Manager Class
  * 
- * Manages all progress-related UI updates and operation tracking
+ * Manages all progress-related UI updates with real-time SSE integration
  */
 class ProgressManager {
     constructor() {
@@ -55,6 +57,13 @@ class ProgressManager {
         this.progressDetails = null;
         this.operationStatus = null;
         this.cancelButton = null;
+        this.stepIndicator = null;
+        this.timeElapsed = null;
+        this.etaDisplay = null;
+
+        // SSE connection
+        this.sseConnection = null;
+        this.sessionId = null;
 
         // Duplicate handling
         this.duplicateUsers = [];
@@ -64,6 +73,9 @@ class ProgressManager {
         this.onProgressUpdate = null;
         this.onOperationComplete = null;
         this.onOperationCancel = null;
+
+        this.progressTimeout = null; // Timeout for first progress event
+        this.progressReceived = false; // Track if any progress event was received
 
         // Initialize
         this.initialize();
@@ -76,136 +88,180 @@ class ProgressManager {
         try {
             this.setupElements();
             this.setupEventListeners();
-            this.logger.info('Progress manager initialized successfully');
+            this.logger.info('Enhanced progress manager initialized successfully');
         } catch (error) {
             this.logger.error('Failed to initialize progress manager', { error: error.message });
         }
     }
 
     /**
-     * Setup DOM elements
+     * Setup DOM elements with enhanced design
      */
     setupElements() {
         try {
-            // Main progress container
-            this.progressContainer = document.getElementById('progress-container') || 
-                                   this.createProgressContainer();
+            // Main progress container - use existing one from HTML
+            this.progressContainer = document.getElementById('progress-container');
+            
+            if (!this.progressContainer) {
+                this.logger.error('Progress container not found in HTML');
+                return;
+            }
 
-            // Progress bar
-            this.progressBar = this.progressContainer.querySelector('.progress-bar-fill') ||
-                              this.createProgressBar();
+            // Create enhanced progress content
+            this.progressContainer.innerHTML = `
+                <div class="progress-overlay">
+                    <div class="progress-modal">
+                        <div class="progress-header">
+                            <div class="operation-info">
+                                <h3 class="operation-title">
+                                    <i class="fas fa-cog fa-spin"></i>
+                                    <span class="title-text">Operation in Progress</span>
+                                </h3>
+                                <div class="operation-subtitle">Processing your request...</div>
+                            </div>
+                            <button class="cancel-operation" type="button" aria-label="Cancel operation">
+                                <i class="fas fa-times"></i>
+                                <span>Cancel</span>
+                            </button>
+                        </div>
+                        
+                        <div class="progress-content">
+                            <div class="progress-steps">
+                                <div class="step active" data-step="init">
+                                    <div class="step-icon">
+                                        <i class="fas fa-play"></i>
+                                    </div>
+                                    <div class="step-label">Initializing</div>
+                                </div>
+                                <div class="step" data-step="validate">
+                                    <div class="step-icon">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="step-label">Validating</div>
+                                </div>
+                                <div class="step" data-step="process">
+                                    <div class="step-icon">
+                                        <i class="fas fa-cogs"></i>
+                                    </div>
+                                    <div class="step-label">Processing</div>
+                                </div>
+                                <div class="step" data-step="complete">
+                                    <div class="step-icon">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="step-label">Complete</div>
+                                </div>
+                            </div>
+                            
+                            <div class="progress-main">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar">
+                                        <div class="progress-bar-fill"></div>
+                                        <div class="progress-bar-glow"></div>
+                                    </div>
+                                    <div class="progress-percentage">0%</div>
+                                </div>
+                                
+                                <div class="progress-text">Preparing operation...</div>
+                                
+                                <div class="progress-stats">
+                                    <div class="stat-item">
+                                        <span class="stat-label">Processed:</span>
+                                        <span class="stat-value processed">0</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Success:</span>
+                                        <span class="stat-value success">0</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Failed:</span>
+                                        <span class="stat-value failed">0</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Skipped:</span>
+                                        <span class="stat-value skipped">0</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="progress-timing">
+                                    <div class="time-elapsed">
+                                        <i class="fas fa-clock"></i>
+                                        <span>Time: <span class="elapsed-value">00:00</span></span>
+                                    </div>
+                                    <div class="time-remaining">
+                                        <i class="fas fa-hourglass-half"></i>
+                                        <span>ETA: <span class="eta-value">Calculating...</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="progress-details">
+                                <div class="details-header">
+                                    <h4><i class="fas fa-info-circle"></i> Operation Details</h4>
+                                </div>
+                                <div class="details-content">
+                                    <div class="detail-item">
+                                        <span class="detail-label">Operation Type:</span>
+                                        <span class="detail-value operation-type">-</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Population:</span>
+                                        <span class="detail-value population-name">-</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">File:</span>
+                                        <span class="detail-value file-name">-</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Status:</span>
+                                        <span class="detail-value status-text">Initializing...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="duplicate-handling" style="display: none;">
+                            <div class="duplicate-header">
+                                <h4><i class="fas fa-exclamation-triangle"></i> Duplicate Users Found</h4>
+                                <p>Choose how to handle duplicate users in your data:</p>
+                            </div>
+                            <div class="duplicate-options">
+                                <label class="option-item">
+                                    <input type="radio" name="duplicate-handling" value="skip" checked>
+                                    <span class="option-text">
+                                        <i class="fas fa-forward"></i>
+                                        Skip duplicates
+                                    </span>
+                                </label>
+                                <label class="option-item">
+                                    <input type="radio" name="duplicate-handling" value="add">
+                                    <span class="option-text">
+                                        <i class="fas fa-plus"></i>
+                                        Add to PingOne
+                                    </span>
+                                </label>
+                            </div>
+                            <div class="duplicate-list"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
 
-            // Progress text
-            this.progressText = this.progressContainer.querySelector('.progress-text') ||
-                               this.createProgressText();
+            // Get references to elements
+            this.progressBar = this.progressContainer.querySelector('.progress-bar-fill');
+            this.progressText = this.progressContainer.querySelector('.progress-text');
+            this.progressDetails = this.progressContainer.querySelector('.progress-details');
+            this.operationStatus = this.progressContainer.querySelector('.status-text');
+            this.cancelButton = this.progressContainer.querySelector('.cancel-operation');
+            this.stepIndicator = this.progressContainer.querySelector('.progress-steps');
+            this.timeElapsed = this.progressContainer.querySelector('.elapsed-value');
+            this.etaDisplay = this.progressContainer.querySelector('.eta-value');
+            this.progressPercentage = this.progressContainer.querySelector('.progress-percentage');
 
-            // Progress details
-            this.progressDetails = this.progressContainer.querySelector('.progress-details') ||
-                                  this.createProgressDetails();
-
-            // Operation status
-            this.operationStatus = this.progressContainer.querySelector('.operation-status') ||
-                                  this.createOperationStatus();
-
-            // Cancel button
-            this.cancelButton = this.progressContainer.querySelector('.cancel-operation') ||
-                               this.createCancelButton();
-
-            this.logger.debug('Progress elements setup completed');
+            this.logger.debug('Enhanced progress elements setup completed');
         } catch (error) {
             this.logger.error('Error setting up progress elements', { error: error.message });
         }
-    }
-
-    /**
-     * Create progress container if it doesn't exist
-     */
-    createProgressContainer() {
-        const container = document.createElement('div');
-        container.id = 'progress-container';
-        container.className = 'progress-container';
-        container.style.display = 'none';
-        
-        container.innerHTML = `
-            <div class="progress-header">
-                <h3 class="operation-title">Operation in Progress</h3>
-                <button class="cancel-operation" type="button">Cancel</button>
-            </div>
-            <div class="progress-content">
-                <div class="progress-bar">
-                    <div class="progress-bar-fill"></div>
-                </div>
-                <div class="progress-text">Preparing...</div>
-                <div class="progress-details"></div>
-                <div class="operation-status"></div>
-            </div>
-            <div class="duplicate-handling" style="display: none;">
-                <h4>Duplicate Users Found</h4>
-                <div class="duplicate-options">
-                    <label>
-                        <input type="radio" name="duplicate-handling" value="skip" checked>
-                        Skip duplicates
-                    </label>
-                    <label>
-                        <input type="radio" name="duplicate-handling" value="add">
-                        Add to PingOne
-                    </label>
-                </div>
-                <div class="duplicate-list"></div>
-            </div>
-        `;
-
-        document.body.appendChild(container);
-        return container;
-    }
-
-    /**
-     * Create progress bar element
-     */
-    createProgressBar() {
-        const progressBar = document.createElement('div');
-        progressBar.className = 'progress-bar-fill';
-        progressBar.style.width = '0%';
-        return progressBar;
-    }
-
-    /**
-     * Create progress text element
-     */
-    createProgressText() {
-        const progressText = document.createElement('div');
-        progressText.className = 'progress-text';
-        progressText.textContent = 'Preparing...';
-        return progressText;
-    }
-
-    /**
-     * Create progress details element
-     */
-    createProgressDetails() {
-        const progressDetails = document.createElement('div');
-        progressDetails.className = 'progress-details';
-        return progressDetails;
-    }
-
-    /**
-     * Create operation status element
-     */
-    createOperationStatus() {
-        const operationStatus = document.createElement('div');
-        operationStatus.className = 'operation-status';
-        return operationStatus;
-    }
-
-    /**
-     * Create cancel button element
-     */
-    createCancelButton() {
-        const cancelButton = document.createElement('button');
-        cancelButton.className = 'cancel-operation';
-        cancelButton.type = 'button';
-        cancelButton.textContent = 'Cancel';
-        return cancelButton;
     }
 
     /**
@@ -220,10 +276,10 @@ class ProgressManager {
                 });
             }
 
-            // Duplicate handling radio buttons
-            const duplicateRadios = this.progressContainer.querySelectorAll('input[name="duplicate-handling"]');
-            duplicateRadios.forEach(radio => {
-                radio.addEventListener('change', (e) => {
+            // Duplicate handling options
+            const duplicateOptions = this.progressContainer.querySelectorAll('input[name="duplicate-handling"]');
+            duplicateOptions.forEach(option => {
+                option.addEventListener('change', (e) => {
                     this.duplicateHandlingMode = e.target.value;
                     this.logger.debug('Duplicate handling mode changed', { mode: this.duplicateHandlingMode });
                 });
@@ -231,284 +287,465 @@ class ProgressManager {
 
             this.logger.debug('Progress event listeners setup completed');
         } catch (error) {
-            this.logger.error('Error setting up progress event listeners', { error: error.message });
+            this.logger.error('Error setting up event listeners', { error: error.message });
         }
     }
 
     /**
-     * Start a new operation
-     * 
-     * @param {string} operationType - Type of operation (import, export, delete, modify)
-     * @param {Object} options - Operation options
+     * Start operation with enhanced UI
      */
     startOperation(operationType, options = {}) {
         try {
-            this.currentOperation = {
-                type: operationType,
-                startTime: Date.now(),
-                options: options
-            };
-
+            this.currentOperation = operationType;
             this.operationStartTime = Date.now();
             this.resetOperationStats();
-            this.showProgress();
+            
+            // Update operation title
             this.updateOperationTitle(operationType);
-            this.updateProgress(0, options.total || 0, 'Preparing operation...');
+            
+            // Update operation details
+            this.updateOperationDetails(options);
+            
+            // Show progress
+            this.showProgress();
+            
+            // Initialize SSE connection
+            this.initializeSSEConnection(options.sessionId);
+            
+            // Start timing updates
+            this.startTimingUpdates();
+            
+            // Update step indicator
+            this.updateStepIndicator('init');
+            
+            this.progressReceived = false;
+            if (this.progressTimeout) clearTimeout(this.progressTimeout);
+            // Start a timeout: if no progress event in 10s, show error
+            this.progressTimeout = setTimeout(() => {
+                if (!this.progressReceived) {
+                    this.handleOperationError('No progress received from server. The operation may have stalled. Please retry.');
+                }
+            }, 10000);
 
             this.logger.info('Operation started', { 
-                type: operationType, 
-                options: options 
-            });
-
-            // Trigger progress update callback
-            if (this.onProgressUpdate) {
-                this.onProgressUpdate({
-                    type: 'start',
-                    operation: operationType,
-                    options: options
-                });
-            }
-        } catch (error) {
-            this.logger.error('Error starting operation', { 
-                error: error.message, 
                 operationType, 
-                options 
+                options,
+                sessionId: options.sessionId 
             });
+        } catch (error) {
+            this.logger.error('Error starting operation', { error: error.message, operationType });
         }
     }
 
     /**
-     * Update progress
-     * 
-     * @param {number} current - Current progress
-     * @param {number} total - Total items
-     * @param {string} message - Progress message
-     * @param {Object} details - Additional details
+     * Initialize SSE connection for real-time updates
+     */
+    initializeSSEConnection(sessionId) {
+        try {
+            if (!sessionId) {
+                this.logger.warn('No session ID provided for SSE connection');
+                this.updateOperationStatus('warning', 'Unable to track progress: session context missing. Operation will continue without real-time updates.');
+                return;
+            }
+
+            // Use session manager to validate session ID
+            if (!sessionManager.validateSessionId(sessionId)) {
+                this.logger.error('Invalid session ID format', { sessionId, type: typeof sessionId });
+                this.updateOperationStatus('error', 'Invalid session ID format. Real-time progress tracking unavailable.');
+                return;
+            }
+
+            // Register session with session manager
+            sessionManager.registerSession(sessionId, this.currentOperation || 'unknown', {
+                startTime: this.operationStartTime,
+                stats: this.operationStats
+            });
+
+            this.sessionId = sessionId;
+            
+            // Close existing connection
+            if (this.sseConnection) {
+                this.sseConnection.close();
+            }
+
+            // Create new SSE connection
+            this.sseConnection = new EventSource(`/api/import/progress/${sessionId}`);
+            
+            // Handle connection open
+            this.sseConnection.onopen = () => {
+                this.logger.debug('SSE connection established', { sessionId });
+                this.updateOperationStatus('connected', 'Real-time connection established');
+            };
+
+            // Handle progress events
+            this.sseConnection.onmessage = (event) => {
+                this.logger.info('SSE event received', { event: event.data });
+                try {
+                    const data = JSON.parse(event.data);
+                    this.handleSSEEvent(data);
+                } catch (error) {
+                    this.logger.error('Error parsing SSE event', { error: error.message, event: event.data });
+                }
+            };
+
+            // Handle errors
+            this.sseConnection.onerror = (error) => {
+                this.logger.error('SSE connection error', { error: error.message, sessionId });
+                this.updateOperationStatus('error', 'Connection lost. Retrying...');
+                this.handleOperationError('Lost connection to server. Please check your network or retry the operation.');
+            };
+
+        } catch (error) {
+            this.logger.error('Error initializing SSE connection', { error: error.message, sessionId });
+        }
+    }
+
+    /**
+     * Update session ID after operation starts (for operations that get session ID from backend)
+     */
+    updateSessionId(sessionId) {
+        try {
+            if (!sessionId) {
+                this.logger.warn('Attempted to update with null/undefined session ID');
+                return;
+            }
+
+            // Use session manager to validate session ID
+            if (!sessionManager.validateSessionId(sessionId)) {
+                this.logger.error('Invalid session ID provided for update', { sessionId });
+                this.updateOperationStatus('error', 'Invalid session ID format. Real-time progress tracking unavailable.');
+                return;
+            }
+
+            this.logger.info('Updating session ID', { sessionId });
+            this.sessionId = sessionId;
+            
+            // Re-initialize SSE connection with new session ID
+            this.initializeSSEConnection(sessionId);
+            
+        } catch (error) {
+            this.logger.error('Error updating session ID', { error: error.message, sessionId });
+        }
+    }
+
+    /**
+     * Handle SSE events
+     */
+    handleSSEEvent(data) {
+        try {
+            this.logger.info('Progress SSE event', { type: data.type, data });
+            if (!this.progressReceived && data.type === 'progress') {
+                this.progressReceived = true;
+                if (this.progressTimeout) {
+                    clearTimeout(this.progressTimeout);
+                    this.progressTimeout = null;
+                }
+            }
+
+            // Format the SSE event message for better readability
+            const formattedMessage = messageFormatter.formatSSEEvent(data);
+            this.logger.info('Formatted SSE event', { 
+                originalType: data.type, 
+                formattedMessage: formattedMessage.substring(0, 100) + '...' 
+            });
+
+            switch (data.type) {
+                case 'progress':
+                    this.updateProgress(data.current, data.total, data.message, data.counts);
+                    break;
+                case 'completion':
+                    this.completeOperation(data);
+                    break;
+                case 'error':
+                    this.handleOperationError(data.message, data.details);
+                    break;
+                default:
+                    this.logger.debug('Unknown SSE event type', { type: data.type, data });
+            }
+        } catch (error) {
+            this.logger.error('Error handling SSE event', { error: error.message, data });
+        }
+    }
+
+    /**
+     * Update progress with enhanced visual feedback
      */
     updateProgress(current, total, message = '', details = {}) {
         try {
+            // Update stats
+            if (details.processed !== undefined) this.operationStats.processed = details.processed;
+            if (details.success !== undefined) this.operationStats.success = details.success;
+            if (details.failed !== undefined) this.operationStats.failed = details.failed;
+            if (details.skipped !== undefined) this.operationStats.skipped = details.skipped;
+
+            // Calculate percentage
             const percentage = total > 0 ? Math.round((current / total) * 100) : 0;
             
             // Update progress bar
             if (this.progressBar) {
                 this.progressBar.style.width = `${percentage}%`;
-                this.progressBar.setAttribute('aria-valuenow', current);
-                this.progressBar.setAttribute('aria-valuemax', total);
+                this.progressBar.setAttribute('aria-valuenow', percentage);
             }
 
-            // Update progress text
+            // Update percentage display
+            if (this.progressPercentage) {
+                this.progressPercentage.textContent = `${percentage}%`;
+            }
+
+            // Update progress text with formatted message
             if (this.progressText) {
-                this.progressText.textContent = message || `${current} of ${total} (${percentage}%)`;
+                const formattedProgressMessage = messageFormatter.formatProgressMessage(
+                    this.currentOperation || 'import', 
+                    current, 
+                    total, 
+                    message, 
+                    details
+                );
+                this.progressText.textContent = formattedProgressMessage;
             }
 
-            // Update progress details
-            if (this.progressDetails && Object.keys(details).length > 0) {
-                this.updateProgressDetails(details);
-            }
+            // Update stats display
+            this.updateStatsDisplay();
 
-            // Update operation stats
-            this.operationStats.processed = current;
-            this.operationStats.total = total;
+            // Update step indicator based on progress
+            this.updateStepIndicatorBasedOnProgress(percentage);
+
+            // Update operation status
+            this.updateOperationStatus('processing', message);
+
+            // Trigger callback
+            if (this.onProgressUpdate) {
+                this.onProgressUpdate(current, total, message, details);
+            }
 
             this.logger.debug('Progress updated', { 
                 current, 
                 total, 
                 percentage, 
-                message: message.substring(0, 100) 
+                message,
+                stats: this.operationStats 
             });
+        } catch (error) {
+            this.logger.error('Error updating progress', { error: error.message });
+        }
+    }
 
-            // Trigger progress update callback
-            if (this.onProgressUpdate) {
-                this.onProgressUpdate({
-                    type: 'progress',
-                    current,
-                    total,
-                    percentage,
-                    message,
-                    details
-                });
+    /**
+     * Update stats display
+     */
+    updateStatsDisplay() {
+        try {
+            const statElements = {
+                processed: this.progressContainer.querySelector('.stat-value.processed'),
+                success: this.progressContainer.querySelector('.stat-value.success'),
+                failed: this.progressContainer.querySelector('.stat-value.failed'),
+                skipped: this.progressContainer.querySelector('.stat-value.skipped')
+            };
+
+            if (statElements.processed) {
+                statElements.processed.textContent = this.operationStats.processed;
+            }
+            if (statElements.success) {
+                statElements.success.textContent = this.operationStats.success;
+            }
+            if (statElements.failed) {
+                statElements.failed.textContent = this.operationStats.failed;
+            }
+            if (statElements.skipped) {
+                statElements.skipped.textContent = this.operationStats.skipped;
             }
         } catch (error) {
-            this.logger.error('Error updating progress', { 
-                error: error.message, 
-                current, 
-                total, 
-                message 
-            });
+            this.logger.error('Error updating stats display', { error: error.message });
         }
     }
 
     /**
-     * Update progress details
-     * 
-     * @param {Object} details - Progress details
+     * Update step indicator based on progress
      */
-    updateProgressDetails(details) {
+    updateStepIndicatorBasedOnProgress(percentage) {
         try {
-            if (!this.progressDetails) return;
-
-            const detailsHTML = Object.entries(details)
-                .map(([key, value]) => {
-                    const label = key.charAt(0).toUpperCase() + key.slice(1);
-                    return `<div class="detail-item">
-                        <span class="detail-label">${label}:</span>
-                        <span class="detail-value">${value}</span>
-                    </div>`;
-                })
-                .join('');
-
-            this.progressDetails.innerHTML = detailsHTML;
-        } catch (error) {
-            this.logger.error('Error updating progress details', { 
-                error: error.message, 
-                details 
-            });
-        }
-    }
-
-    /**
-     * Handle duplicate users during import
-     * 
-     * @param {Array} duplicates - Array of duplicate users
-     * @param {Function} onDecision - Callback for user decision
-     */
-    handleDuplicates(duplicates, onDecision) {
-        try {
-            this.duplicateUsers = duplicates;
+            let currentStep = 'init';
             
-            const duplicateHandling = this.progressContainer.querySelector('.duplicate-handling');
-            const duplicateList = this.progressContainer.querySelector('.duplicate-list');
-            
-            if (duplicateHandling && duplicateList) {
-                // Show duplicate handling section
-                duplicateHandling.style.display = 'block';
-                
-                // Populate duplicate list
-                const duplicateHTML = duplicates.map(user => `
-                    <div class="duplicate-user">
-                        <span class="user-name">${user.username || user.email}</span>
-                        <span class="user-email">${user.email}</span>
-                        <span class="duplicate-reason">${user.reason || 'Already exists'}</span>
-                    </div>
-                `).join('');
-                
-                duplicateList.innerHTML = duplicateHTML;
-                
-                // Add decision button
-                const decisionButton = document.createElement('button');
-                decisionButton.className = 'duplicate-decision-btn';
-                decisionButton.textContent = 'Continue with Selection';
-                decisionButton.addEventListener('click', () => {
-                    const selectedMode = this.progressContainer.querySelector('input[name="duplicate-handling"]:checked').value;
-                    duplicateHandling.style.display = 'none';
-                    onDecision(selectedMode, duplicates);
-                });
-                
-                duplicateHandling.appendChild(decisionButton);
+            if (percentage > 0 && percentage < 25) {
+                currentStep = 'validate';
+            } else if (percentage >= 25 && percentage < 90) {
+                currentStep = 'process';
+            } else if (percentage >= 90) {
+                currentStep = 'complete';
             }
 
-            this.logger.info('Duplicate users handled', { 
-                count: duplicates.length,
-                mode: this.duplicateHandlingMode 
-            });
+            this.updateStepIndicator(currentStep);
         } catch (error) {
-            this.logger.error('Error handling duplicates', { 
-                error: error.message, 
-                duplicates 
-            });
+            this.logger.error('Error updating step indicator', { error: error.message });
         }
     }
 
     /**
-     * Update operation status
-     * 
-     * @param {string} status - Operation status
-     * @param {string} message - Status message
+     * Update step indicator
      */
-    updateOperationStatus(status, message = '') {
+    updateStepIndicator(step) {
         try {
-            if (this.operationStatus) {
-                this.operationStatus.className = `operation-status ${status}`;
-                this.operationStatus.textContent = message || status;
-            }
+            if (!this.stepIndicator) return;
 
-            this.logger.info('Operation status updated', { status, message });
+            // Remove active class from all steps
+            const steps = this.stepIndicator.querySelectorAll('.step');
+            steps.forEach(s => s.classList.remove('active', 'completed'));
+
+            // Add active class to current step and completed to previous steps
+            const stepElement = this.stepIndicator.querySelector(`[data-step="${step}"]`);
+            if (stepElement) {
+                stepElement.classList.add('active');
+                
+                // Mark previous steps as completed
+                const stepOrder = ['init', 'validate', 'process', 'complete'];
+                const currentIndex = stepOrder.indexOf(step);
+                
+                for (let i = 0; i < currentIndex; i++) {
+                    const prevStep = this.stepIndicator.querySelector(`[data-step="${stepOrder[i]}"]`);
+                    if (prevStep) {
+                        prevStep.classList.add('completed');
+                    }
+                }
+            }
         } catch (error) {
-            this.logger.error('Error updating operation status', { 
-                error: error.message, 
-                status, 
-                message 
-            });
+            this.logger.error('Error updating step indicator', { error: error.message, step });
         }
     }
 
     /**
-     * Complete operation
-     * 
-     * @param {Object} results - Operation results
+     * Start timing updates
+     */
+    startTimingUpdates() {
+        try {
+            this.timingInterval = setInterval(() => {
+                this.updateTiming();
+            }, 1000);
+        } catch (error) {
+            this.logger.error('Error starting timing updates', { error: error.message });
+        }
+    }
+
+    /**
+     * Update timing display
+     */
+    updateTiming() {
+        try {
+            if (!this.operationStartTime) return;
+
+            const elapsed = Date.now() - this.operationStartTime;
+            const elapsedFormatted = this.formatDuration(elapsed);
+
+            if (this.timeElapsed) {
+                this.timeElapsed.textContent = elapsedFormatted;
+            }
+
+            // Calculate ETA if we have progress data
+            if (this.operationStats.processed > 0 && this.operationStats.total > 0) {
+                const progress = this.operationStats.processed / this.operationStats.total;
+                if (progress > 0) {
+                    const estimatedTotal = elapsed / progress;
+                    const remaining = estimatedTotal - elapsed;
+                    const etaFormatted = this.formatDuration(remaining);
+                    
+                    if (this.etaDisplay) {
+                        this.etaDisplay.textContent = etaFormatted;
+                    }
+                }
+            }
+        } catch (error) {
+            this.logger.error('Error updating timing', { error: error.message });
+        }
+    }
+
+    /**
+     * Complete operation with enhanced UI
      */
     completeOperation(results = {}) {
         try {
-            const duration = Date.now() - this.operationStartTime;
-            const durationText = this.formatDuration(duration);
-
-            this.updateOperationStatus('complete', `Operation completed in ${durationText}`);
-            this.updateProgress(this.operationStats.total, this.operationStats.total, 'Operation completed');
-
-            // Show completion details
-            if (this.progressDetails) {
-                const completionHTML = `
-                    <div class="completion-summary">
-                        <div class="summary-item">
-                            <span class="summary-label">Duration:</span>
-                            <span class="summary-value">${durationText}</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="summary-label">Processed:</span>
-                            <span class="summary-value">${this.operationStats.processed}</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="summary-label">Success:</span>
-                            <span class="summary-value success">${this.operationStats.success}</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="summary-label">Failed:</span>
-                            <span class="summary-value error">${this.operationStats.failed}</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="summary-label">Skipped:</span>
-                            <span class="summary-value warning">${this.operationStats.skipped}</span>
-                        </div>
-                    </div>
-                `;
-                this.progressDetails.innerHTML = completionHTML;
+            // Stop timing updates
+            if (this.timingInterval) {
+                clearInterval(this.timingInterval);
             }
 
-            this.logger.info('Operation completed', { 
-                duration,
-                stats: this.operationStats,
-                results 
-            });
+            // Close SSE connection
+            if (this.sseConnection) {
+                this.sseConnection.close();
+                this.sseConnection = null;
+            }
+
+            // Clean up session
+            if (this.sessionId) {
+                sessionManager.unregisterSession(this.sessionId);
+                this.sessionId = null;
+            }
+
+            // Update final stats
+            if (results.processed !== undefined) this.operationStats.processed = results.processed;
+            if (results.success !== undefined) this.operationStats.success = results.success;
+            if (results.failed !== undefined) this.operationStats.failed = results.failed;
+            if (results.skipped !== undefined) this.operationStats.skipped = results.skipped;
+
+            // Update UI for completion
+            this.updateStepIndicator('complete');
+            this.updateOperationStatus('complete', results.message || 'Operation completed successfully');
+            
+            // Update progress to 100%
+            if (this.progressBar) {
+                this.progressBar.style.width = '100%';
+            }
+            if (this.progressPercentage) {
+                this.progressPercentage.textContent = '100%';
+            }
+
+            // Show completion message
+            if (this.progressText) {
+                this.progressText.textContent = results.message || 'Operation completed successfully';
+            }
+
+            // Update final stats
+            this.updateStatsDisplay();
 
             // Trigger completion callback
             if (this.onOperationComplete) {
-                this.onOperationComplete({
-                    type: 'complete',
-                    duration,
-                    stats: this.operationStats,
-                    results
-                });
+                this.onOperationComplete(results);
             }
 
             // Auto-hide after delay
             setTimeout(() => {
                 this.hideProgress();
-            }, 5000);
-        } catch (error) {
-            this.logger.error('Error completing operation', { 
-                error: error.message, 
-                results 
+            }, 3000);
+
+            this.logger.info('Operation completed', { 
+                results, 
+                stats: this.operationStats,
+                duration: this.operationStartTime ? Date.now() - this.operationStartTime : 0
             });
+        } catch (error) {
+            this.logger.error('Error completing operation', { error: error.message, results });
+        }
+    }
+
+    /**
+     * Handle operation error
+     */
+    handleOperationError(message, details = {}) {
+        try {
+            if (this.progressTimeout) {
+                clearTimeout(this.progressTimeout);
+                this.progressTimeout = null;
+            }
+            this.updateOperationStatus('error', message);
+            
+            if (this.progressText) {
+                this.progressText.textContent = `Error: ${message}`;
+            }
+
+            // Update step indicator to show error
+            this.updateStepIndicator('error');
+
+            this.logger.error('Operation error', { message, details });
+        } catch (error) {
+            this.logger.error('Error handling operation error', { error: error.message });
         }
     }
 
@@ -517,36 +754,59 @@ class ProgressManager {
      */
     cancelOperation() {
         try {
+            // Close SSE connection
+            if (this.sseConnection) {
+                this.sseConnection.close();
+                this.sseConnection = null;
+            }
+
+            // Stop timing updates
+            if (this.timingInterval) {
+                clearInterval(this.timingInterval);
+            }
+
+            // Clean up session
+            if (this.sessionId) {
+                sessionManager.unregisterSession(this.sessionId);
+                this.sessionId = null;
+            }
+
+            // Update UI
             this.updateOperationStatus('cancelled', 'Operation cancelled by user');
             
-            this.logger.info('Operation cancelled by user');
+            if (this.progressText) {
+                this.progressText.textContent = 'Operation cancelled';
+            }
 
             // Trigger cancel callback
             if (this.onOperationCancel) {
-                this.onOperationCancel({
-                    type: 'cancel',
-                    operation: this.currentOperation
-                });
+                this.onOperationCancel();
             }
 
             // Hide progress after delay
             setTimeout(() => {
                 this.hideProgress();
             }, 2000);
+
+            this.logger.info('Operation cancelled by user');
         } catch (error) {
-            this.logger.error('Error cancelling operation', { 
-                error: error.message 
-            });
+            this.logger.error('Error cancelling operation', { error: error.message });
         }
     }
 
     /**
-     * Show progress
+     * Show progress with enhanced animation
      */
     showProgress() {
         try {
             if (this.progressContainer) {
                 this.progressContainer.style.display = 'block';
+                
+                // Add animation class
+                setTimeout(() => {
+                    this.progressContainer.classList.add('visible');
+                }, 10);
+                
                 this.logger.debug('Progress shown');
             }
         } catch (error) {
@@ -555,13 +815,19 @@ class ProgressManager {
     }
 
     /**
-     * Hide progress
+     * Hide progress with smooth transition
      */
     hideProgress() {
         try {
             if (this.progressContainer) {
-                this.progressContainer.style.display = 'none';
-                this.resetOperationStats();
+                // Remove visible class for smooth transition
+                this.progressContainer.classList.remove('visible');
+                
+                // Hide after transition
+                setTimeout(() => {
+                    this.progressContainer.style.display = 'none';
+                }, 300);
+                
                 this.logger.debug('Progress hidden');
             }
         } catch (error) {
@@ -571,34 +837,62 @@ class ProgressManager {
 
     /**
      * Update operation title
-     * 
-     * @param {string} operationType - Type of operation
      */
     updateOperationTitle(operationType) {
         try {
-            const titleMap = {
-                'import': 'Importing Users',
-                'export': 'Exporting Users',
-                'delete': 'Deleting Users',
-                'modify': 'Modifying Users'
-            };
-
-            const title = titleMap[operationType] || 'Operation in Progress';
-            
-            const titleElement = this.progressContainer.querySelector('.operation-title');
+            const titleElement = this.progressContainer.querySelector('.title-text');
             if (titleElement) {
-                titleElement.textContent = title;
+                const titles = {
+                    'import': 'Importing Users',
+                    'export': 'Exporting Users',
+                    'delete': 'Deleting Users',
+                    'modify': 'Modifying Users'
+                };
+                titleElement.textContent = titles[operationType] || 'Operation in Progress';
             }
         } catch (error) {
-            this.logger.error('Error updating operation title', { 
-                error: error.message, 
-                operationType 
-            });
+            this.logger.error('Error updating operation title', { error: error.message, operationType });
         }
     }
 
     /**
-     * Reset operation statistics
+     * Update operation details
+     */
+    updateOperationDetails(options = {}) {
+        try {
+            const details = {
+                'operation-type': options.operationType || '-',
+                'population-name': options.populationName || '-',
+                'file-name': options.fileName || '-'
+            };
+
+            Object.entries(details).forEach(([key, value]) => {
+                const element = this.progressContainer.querySelector(`.detail-value.${key.replace('-', '-')}`);
+                if (element) {
+                    element.textContent = value;
+                }
+            });
+        } catch (error) {
+            this.logger.error('Error updating operation details', { error: error.message, options });
+        }
+    }
+
+    /**
+     * Update operation status
+     */
+    updateOperationStatus(status, message = '') {
+        try {
+            if (this.operationStatus) {
+                this.operationStatus.textContent = message;
+                this.operationStatus.className = `detail-value status-text ${status}`;
+            }
+        } catch (error) {
+            this.logger.error('Error updating operation status', { error: error.message, status, message });
+        }
+    }
+
+    /**
+     * Reset operation stats
      */
     resetOperationStats() {
         this.operationStats = {
@@ -612,29 +906,22 @@ class ProgressManager {
     }
 
     /**
-     * Format duration in human-readable format
-     * 
-     * @param {number} milliseconds - Duration in milliseconds
-     * @returns {string} Formatted duration
+     * Format duration in MM:SS format
      */
     formatDuration(milliseconds) {
-        const seconds = Math.floor(milliseconds / 1000);
-        const minutes = Math.floor(seconds / 60);
-        const hours = Math.floor(minutes / 60);
-
-        if (hours > 0) {
-            return `${hours}h ${minutes % 60}m ${seconds % 60}s`;
-        } else if (minutes > 0) {
-            return `${minutes}m ${seconds % 60}s`;
-        } else {
-            return `${seconds}s`;
+        try {
+            const seconds = Math.floor(milliseconds / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        } catch (error) {
+            this.logger.error('Error formatting duration', { error: error.message });
+            return '00:00';
         }
     }
 
     /**
      * Set progress update callback
-     * 
-     * @param {Function} callback - Progress update callback
      */
     setProgressCallback(callback) {
         this.onProgressUpdate = callback;
@@ -642,8 +929,6 @@ class ProgressManager {
 
     /**
      * Set operation complete callback
-     * 
-     * @param {Function} callback - Operation complete callback
      */
     setCompleteCallback(callback) {
         this.onOperationComplete = callback;
@@ -651,19 +936,42 @@ class ProgressManager {
 
     /**
      * Set operation cancel callback
-     * 
-     * @param {Function} callback - Operation cancel callback
      */
     setCancelCallback(callback) {
         this.onOperationCancel = callback;
     }
 
     /**
-     * Debug log method for compatibility
+     * Debug logging
      */
     debugLog(area, message) {
         if (DEBUG_MODE) {
-            console.debug(`[${area}] ${message}`);
+            this.logger.debug(`[${area}] ${message}`);
+        }
+    }
+
+    /**
+     * Cleanup resources
+     */
+    destroy() {
+        try {
+            // Close SSE connection
+            if (this.sseConnection) {
+                this.sseConnection.close();
+                this.sseConnection = null;
+            }
+
+            // Clear timing interval
+            if (this.timingInterval) {
+                clearInterval(this.timingInterval);
+            }
+
+            // Hide progress
+            this.hideProgress();
+
+            this.logger.info('Progress manager destroyed');
+        } catch (error) {
+            this.logger.error('Error destroying progress manager', { error: error.message });
         }
     }
 }

@@ -59,6 +59,9 @@ const PORT = process.env.PORT || 4000;
 // Attach token manager to app for route access
 app.set('tokenManager', tokenManager);
 
+// Attach logs router to app for internal access
+app.set('logsRouter', logsRouter);
+
 // Enhanced request logging middleware
 app.use(requestLogger);
 
@@ -69,8 +72,23 @@ app.use(cors({
         true,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 }));
+
+// Add headers to ensure proper HTTP/1.1 handling
+app.use((req, res, next) => {
+    // Force HTTP/1.1 for compatibility
+    res.setHeader('Connection', 'close');
+    res.setHeader('X-Powered-By', 'PingOne Import Tool');
+    
+    // Add debugging headers in development
+    if (process.env.NODE_ENV !== 'production') {
+        res.setHeader('X-Server-Protocol', req.protocol);
+        res.setHeader('X-Server-Version', req.httpVersion);
+    }
+    
+    next();
+});
 
 // Body parsing middleware with enhanced limits
 app.use(express.json({ 
@@ -451,7 +469,7 @@ const startServer = async () => {
             serverState.pingOneInitialized = false;
         }
         
-        // Start server
+        // Start server with port conflict handling
         const server = app.listen(PORT, '127.0.0.1', () => {
             const duration = Date.now() - startTime;
             const url = `http://127.0.0.1:${PORT}`;
@@ -485,6 +503,34 @@ const startServer = async () => {
                 console.log(`   📚 Swagger UI: ${url}/swagger.html`);
                 console.log(`   📄 Swagger JSON: ${url}/swagger.json`);
                 console.log('='.repeat(60) + '\n');
+            }
+        }).on('error', (error) => {
+            if (error.code === 'EADDRINUSE') {
+                logger.error('Port conflict detected', {
+                    port: PORT,
+                    error: error.message,
+                    suggestion: `Try using a different port or kill the process using port ${PORT}`
+                });
+                
+                console.log(`\n❌ Port ${PORT} is already in use!`);
+                console.log(`   Try one of these solutions:`);
+                console.log(`   1. Kill the process: lsof -ti:${PORT} | xargs kill -9`);
+                console.log(`   2. Use a different port: PORT=4001 node server.js`);
+                console.log(`   3. Wait a moment and try again\n`);
+            } else {
+                logger.error('Server startup error', {
+                    error: error.message,
+                    code: error.code,
+                    stack: error.stack
+                });
+            }
+            
+            serverState.isInitialized = false;
+            serverState.isInitializing = false;
+            serverState.lastError = error;
+            
+            if (process.env.NODE_ENV === 'production') {
+                process.exit(1);
             }
         });
         

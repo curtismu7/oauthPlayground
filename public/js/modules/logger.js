@@ -16,6 +16,7 @@
  */
 
 import { createWinstonLogger } from './winston-logger.js';
+import messageFormatter from './message-formatter.js';
 import { UIManager } from './ui-manager.js';
 const ui = window.app && window.app.uiManager;
 
@@ -274,10 +275,44 @@ class Logger {
             levelBadge.textContent = logEntry.level.toUpperCase();
             logElement.appendChild(levelBadge);
             
-            // Create message
+            // Create message with formatting
             const message = document.createElement('span');
             message.className = 'log-message';
-            message.textContent = logEntry.message;
+            
+            // Format the message for better readability
+            let formattedMessage = logEntry.message;
+            if (logEntry.data && logEntry.data.type) {
+                // Format based on message type
+                switch (logEntry.data.type) {
+                    case 'progress':
+                        formattedMessage = messageFormatter.formatProgressMessage(
+                            logEntry.data.operation || 'import',
+                            logEntry.data.current || 0,
+                            logEntry.data.total || 0,
+                            logEntry.message,
+                            logEntry.data.counts || {}
+                        );
+                        break;
+                    case 'error':
+                        formattedMessage = messageFormatter.formatErrorMessage(
+                            logEntry.data.operation || 'import',
+                            logEntry.message,
+                            logEntry.data
+                        );
+                        break;
+                    case 'completion':
+                        formattedMessage = messageFormatter.formatCompletionMessage(
+                            logEntry.data.operation || 'import',
+                            logEntry.data
+                        );
+                        break;
+                    default:
+                        // Use original message for other types
+                        formattedMessage = logEntry.message;
+                }
+            }
+            
+            message.textContent = formattedMessage;
             logElement.appendChild(message);
             
             // Add details if present

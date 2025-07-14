@@ -627,19 +627,38 @@ class UIManager {
     }
 
     /**
-     * Start import operation with progress manager
-     * 
-     * @param {Object} options - Import options
+     * Start import operation with enhanced progress manager
      */
     startImportOperation(options = {}) {
         try {
+            this.logger.info('Starting import operation', { options });
             progressManager.startOperation('import', options);
-            this.logger.info('Import operation started', { options });
         } catch (error) {
-            this.logger.error('Error starting import operation', { 
-                error: error.message, 
-                options 
-            });
+            this.logger.error('Error starting import operation', { error: error.message, options });
+        }
+    }
+
+    /**
+     * Update import operation with session ID (called after backend response)
+     */
+    updateImportOperationWithSessionId(sessionId) {
+        try {
+            if (!sessionId) {
+                this.logger.warn('No session ID provided for import operation update');
+                return;
+            }
+
+            this.logger.info('Updating import operation with session ID', { sessionId });
+            
+            // Update progress manager with session ID
+            if (progressManager && typeof progressManager.updateSessionId === 'function') {
+                progressManager.updateSessionId(sessionId);
+            } else {
+                this.logger.warn('Progress manager not available for session ID update');
+            }
+            
+        } catch (error) {
+            this.logger.error('Error updating import operation with session ID', { error: error.message, sessionId });
         }
     }
 
