@@ -720,6 +720,111 @@ const startServer = async () => {
         });
     });
 
+    // --- Socket Connection Test on Startup ---
+    const testSocketConnections = async () => {
+        try {
+            logger.info('Testing socket connections on startup...');
+            
+            // Test Socket.IO endpoint
+            const socketIoTest = new Promise((resolve, reject) => {
+                const timeout = setTimeout(() => {
+                    reject(new Error('Socket.IO test timeout'));
+                }, 5000);
+                
+                const testSocket = io.sockets.connect(`http://127.0.0.1:${PORT}`, {
+                    timeout: 3000,
+                    forceNew: true
+                });
+                
+                testSocket.on('connect', () => {
+                    clearTimeout(timeout);
+                    testSocket.disconnect();
+                    resolve('Socket.IO connection successful');
+                });
+                
+                testSocket.on('connect_error', (error) => {
+                    clearTimeout(timeout);
+                    reject(new Error(`Socket.IO connection failed: ${error.message}`));
+                });
+            });
+            
+            // Test WebSocket endpoint
+            const webSocketTest = (async () => {
+                const timeout = setTimeout(() => {
+                    throw new Error('WebSocket test timeout');
+                }, 5000);
+                
+                try {
+                    const WebSocket = (await import('ws')).WebSocket;
+                    const ws = new WebSocket(`ws://127.0.0.1:${PORT}`);
+                    
+                    return new Promise((resolve, reject) => {
+                        ws.on('open', () => {
+                            clearTimeout(timeout);
+                            ws.close();
+                            resolve('WebSocket connection successful');
+                        });
+                        
+                        ws.on('error', (error) => {
+                            clearTimeout(timeout);
+                            reject(new Error(`WebSocket connection failed: ${error.message}`));
+                        });
+                    });
+                } catch (error) {
+                    clearTimeout(timeout);
+                    throw error;
+                }
+            })();
+            
+            // Run both tests
+            const [socketIoResult, webSocketResult] = await Promise.allSettled([
+                socketIoTest,
+                webSocketTest
+            ]);
+            
+            // Log results
+            if (socketIoResult.status === 'fulfilled') {
+                logger.info('Socket.IO test passed', { result: socketIoResult.value });
+                console.log('✅ Socket.IO connection test: PASSED');
+            } else {
+                logger.warn('Socket.IO test failed', { error: socketIoResult.reason.message });
+                console.log('⚠️  Socket.IO connection test: FAILED');
+            }
+            
+            if (webSocketResult.status === 'fulfilled') {
+                logger.info('WebSocket test passed', { result: webSocketResult.value });
+                console.log('✅ WebSocket connection test: PASSED');
+            } else {
+                logger.warn('WebSocket test failed', { error: webSocketResult.reason.message });
+                console.log('⚠️  WebSocket connection test: FAILED');
+            }
+            
+            // Overall status
+            const allTestsPassed = socketIoResult.status === 'fulfilled' && webSocketResult.status === 'fulfilled';
+            
+            if (allTestsPassed) {
+                logger.info('All socket connection tests passed');
+                console.log('🎉 All real-time communication systems are working!');
+            } else {
+                logger.warn('Some socket connection tests failed', {
+                    socketIo: socketIoResult.status,
+                    webSocket: webSocketResult.status
+                });
+                console.log('⚠️  Some real-time communication systems may have issues');
+            }
+            
+        } catch (error) {
+            logger.error('Socket connection test failed', {
+                error: error.message,
+                stack: error.stack
+            });
+            console.log('❌ Socket connection test failed:', error.message);
+        }
+    };
+    
+    // Run socket tests after a short delay to ensure server is fully started
+    setTimeout(testSocketConnections, 1000);
+
     return server;
 } catch (error) {
     const duration = Date.now() - startTime;
