@@ -15,7 +15,6 @@ class SettingsManager {
         // Initialize settings with default values
         this.settings = this.getDefaultSettings();
         this.storageKey = 'pingone-import-settings';
-        this.crypto = new CryptoUtils();
         this.encryptionKey = null;
         
         // Initialize Winston logger for debugging and error reporting
@@ -120,7 +119,7 @@ class SettingsManager {
                 return this.settings;
             }
             
-            const decryptedData = await this.crypto.decrypt(storedData, this.encryptionKey);
+            const decryptedData = await CryptoUtils.decrypt(storedData, this.encryptionKey);
             const parsedSettings = JSON.parse(decryptedData);
             
             // Merge with defaults to ensure all properties exist
@@ -156,7 +155,7 @@ class SettingsManager {
             }
             
             const jsonData = JSON.stringify(this.settings);
-            const encryptedData = await this.crypto.encrypt(jsonData, this.encryptionKey);
+            const encryptedData = await CryptoUtils.encrypt(jsonData, this.encryptionKey);
             localStorage.setItem(this.storageKey, encryptedData);
             
             this.logger.info('Settings saved successfully', {
