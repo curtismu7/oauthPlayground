@@ -108,30 +108,51 @@ class SettingsManager {
      */
     async loadSettings() {
         try {
-            if (!this.encryptionInitialized) {
-                this.logger.warn('Encryption not initialized, loading settings without decryption');
-                return this.settings;
-            }
-            
             const storedData = localStorage.getItem(this.storageKey);
             if (!storedData) {
                 this.logger.info('No stored settings found, using defaults');
                 return this.settings;
             }
             
-            const decryptedData = await CryptoUtils.decrypt(storedData, this.encryptionKey);
-            const parsedSettings = JSON.parse(decryptedData);
-            
-            // Merge with defaults to ensure all properties exist
-            this.settings = { ...this.getDefaultSettings(), ...parsedSettings };
-            
-            this.logger.info('Settings loaded successfully', {
-                hasEnvironmentId: !!this.settings.environmentId,
-                hasApiClientId: !!this.settings.apiClientId,
-                region: this.settings.region
-            });
-            
-            return this.settings;
+            // Try to parse as JSON first (unencrypted)
+            try {
+                const parsedSettings = JSON.parse(storedData);
+                this.settings = { ...this.getDefaultSettings(), ...parsedSettings };
+                
+                this.logger.info('Settings loaded successfully (unencrypted)', {
+                    hasEnvironmentId: !!this.settings.environmentId,
+                    hasApiClientId: !!this.settings.apiClientId,
+                    region: this.settings.region
+                });
+                
+                return this.settings;
+            } catch (jsonError) {
+                // If JSON parsing fails, try decryption
+                if (!this.encryptionInitialized) {
+                    this.logger.warn('Encryption not initialized and JSON parsing failed, using defaults');
+                    return this.settings;
+                }
+                
+                try {
+                    const decryptedData = await CryptoUtils.decrypt(storedData, this.encryptionKey);
+                    const parsedSettings = JSON.parse(decryptedData);
+                    
+                    // Merge with defaults to ensure all properties exist
+                    this.settings = { ...this.getDefaultSettings(), ...parsedSettings };
+                    
+                    this.logger.info('Settings loaded successfully (encrypted)', {
+                        hasEnvironmentId: !!this.settings.environmentId,
+                        hasApiClientId: !!this.settings.apiClientId,
+                        region: this.settings.region
+                    });
+                    
+                    return this.settings;
+                } catch (decryptionError) {
+                    this.logger.error('Failed to decrypt settings', { error: decryptionError.message });
+                    // Return default settings on decryption error
+                    return this.settings;
+                }
+            }
         } catch (error) {
             this.logger.error('Failed to load settings', { error: error.message });
             // Return default settings on error
@@ -148,21 +169,41 @@ class SettingsManager {
                 this.settings = { ...this.settings, ...settings };
             }
             
+            // Always try to save without encryption first as fallback
+            const jsonData = JSON.stringify(this.settings);
+            
             if (!this.encryptionInitialized) {
                 this.logger.warn('Encryption not initialized, saving settings without encryption');
-                localStorage.setItem(this.storageKey, JSON.stringify(this.settings));
+                localStorage.setItem(this.storageKey, jsonData);
+                this.logger.info('Settings saved successfully (unencrypted)', {
+                    hasEnvironmentId: !!this.settings.environmentId,
+                    hasApiClientId: !!this.settings.apiClientId,
+                    region: this.settings.region
+                });
                 return;
             }
             
-            const jsonData = JSON.stringify(this.settings);
-            const encryptedData = await CryptoUtils.encrypt(jsonData, this.encryptionKey);
-            localStorage.setItem(this.storageKey, encryptedData);
-            
-            this.logger.info('Settings saved successfully', {
-                hasEnvironmentId: !!this.settings.environmentId,
-                hasApiClientId: !!this.settings.apiClientId,
-                region: this.settings.region
-            });
+            try {
+                const encryptedData = await CryptoUtils.encrypt(jsonData, this.encryptionKey);
+                localStorage.setItem(this.storageKey, encryptedData);
+                
+                this.logger.info('Settings saved successfully (encrypted)', {
+                    hasEnvironmentId: !!this.settings.environmentId,
+                    hasApiClientId: !!this.settings.apiClientId,
+                    region: this.settings.region
+                });
+            } catch (encryptionError) {
+                this.logger.warn('Encryption failed, saving settings without encryption', { 
+                    error: encryptionError.message 
+                });
+                // Fallback to unencrypted storage
+                localStorage.setItem(this.storageKey, jsonData);
+                this.logger.info('Settings saved successfully (unencrypted fallback)', {
+                    hasEnvironmentId: !!this.settings.environmentId,
+                    hasApiClientId: !!this.settings.apiClientId,
+                    region: this.settings.region
+                });
+            }
         } catch (error) {
             this.logger.error('Failed to save settings', { error: error.message });
             throw error;
@@ -354,6 +395,44 @@ class SettingsManager {
         } catch (error) {
             this.logger.error('Failed to import settings', { error: error.message });
             throw error;
+        }
+    }
+    
+    /**
+     * Debug method to check localStorage contents
+     */
+    debugLocalStorage() {
+        try {
+            const storedData = localStorage.getItem(this.storageKey);
+            if (!storedData) {
+                this.logger.info('No data found in localStorage', { key: this.storageKey });
+                return null;
+            }
+            
+            this.logger.info('localStorage contents found', { 
+                key: this.storageKey,
+                length: storedData.length,
+                preview: storedData.substring(0, 100) + (storedData.length > 100 ? '...' : '')
+            });
+            
+            // Try to parse as JSON
+            try {
+                const parsed = JSON.parse(storedData);
+                this.logger.info('Data is valid JSON', { 
+                    keys: Object.keys(parsed),
+                    hasEnvironmentId: !!parsed.environmentId,
+                    hasApiClientId: !!parsed.apiClientId
+                });
+                return parsed;
+            } catch (jsonError) {
+                this.logger.info('Data is not valid JSON, likely encrypted', { 
+                    error: jsonError.message 
+                });
+                return 'encrypted';
+            }
+        } catch (error) {
+            this.logger.error('Failed to debug localStorage', { error: error.message });
+            return null;
         }
     }
 }
