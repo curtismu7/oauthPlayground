@@ -18867,6 +18867,7 @@ var _default = exports.default = TokenManager;
 (function (process){(function (){
 "use strict";
 
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -18874,7 +18875,7 @@ exports.uiManager = exports.UIManager = void 0;
 var _winstonLogger = require("./winston-logger.js");
 var _circularProgress = require("./circular-progress.js");
 var _elementRegistry = require("./element-registry.js");
-var _progressManager = require("./progress-manager.js");
+var _progressManager = _interopRequireDefault(require("./progress-manager.js"));
 // File: ui-manager.js
 // Description: UI management for PingOne user import tool
 // 
@@ -19623,17 +19624,17 @@ class UIManager {
   updateImportProgress(current, total, message = '', counts = {}, populationName = '', populationId = '') {
     try {
       // Use the progress manager for enhanced progress handling
-      _progressManager.progressManager.updateProgress(current, total, message, {
+      _progressManager.default.updateProgress(current, total, message, {
         ...counts,
         population: populationName,
         populationId: populationId
       });
 
       // Update operation stats
-      if (counts.success !== undefined) _progressManager.progressManager.operationStats.success = counts.success;
-      if (counts.failed !== undefined) _progressManager.progressManager.operationStats.failed = counts.failed;
-      if (counts.skipped !== undefined) _progressManager.progressManager.operationStats.skipped = counts.skipped;
-      if (counts.duplicates !== undefined) _progressManager.progressManager.operationStats.duplicates = counts.duplicates;
+      if (counts.success !== undefined) _progressManager.default.operationStats.success = counts.success;
+      if (counts.failed !== undefined) _progressManager.default.operationStats.failed = counts.failed;
+      if (counts.skipped !== undefined) _progressManager.default.operationStats.skipped = counts.skipped;
+      if (counts.duplicates !== undefined) _progressManager.default.operationStats.duplicates = counts.duplicates;
       this.logger.debug('Import progress updated', {
         current,
         total,
@@ -19660,7 +19661,7 @@ class UIManager {
       this.logger.info('Starting import operation', {
         options
       });
-      _progressManager.progressManager.startOperation('import', options);
+      _progressManager.default.startOperation('import', options);
     } catch (error) {
       this.logger.error('Error starting import operation', {
         error: error.message,
@@ -19683,8 +19684,8 @@ class UIManager {
       });
 
       // Update progress manager with session ID
-      if (_progressManager.progressManager && typeof _progressManager.progressManager.updateSessionId === 'function') {
-        _progressManager.progressManager.updateSessionId(sessionId);
+      if (_progressManager.default && typeof _progressManager.default.updateSessionId === 'function') {
+        _progressManager.default.updateSessionId(sessionId);
       } else {
         this.logger.warn('Progress manager not available for session ID update');
       }
@@ -19703,7 +19704,7 @@ class UIManager {
    */
   startExportOperation(options = {}) {
     try {
-      _progressManager.progressManager.startOperation('export', options);
+      _progressManager.default.startOperation('export', options);
       this.logger.info('Export operation started', {
         options
       });
@@ -19722,7 +19723,7 @@ class UIManager {
    */
   startDeleteOperation(options = {}) {
     try {
-      _progressManager.progressManager.startOperation('delete', options);
+      _progressManager.default.startOperation('delete', options);
       this.logger.info('Delete operation started', {
         options
       });
@@ -19741,7 +19742,7 @@ class UIManager {
    */
   startModifyOperation(options = {}) {
     try {
-      _progressManager.progressManager.startOperation('modify', options);
+      _progressManager.default.startOperation('modify', options);
       this.logger.info('Modify operation started', {
         options
       });
@@ -19760,7 +19761,7 @@ class UIManager {
    */
   completeOperation(results = {}) {
     try {
-      _progressManager.progressManager.completeOperation(results);
+      _progressManager.default.completeOperation(results);
       this.logger.info('Operation completed', {
         results
       });
@@ -19780,7 +19781,7 @@ class UIManager {
    */
   handleDuplicateUsers(duplicates, onDecision) {
     try {
-      _progressManager.progressManager.handleDuplicates(duplicates, onDecision);
+      _progressManager.default.handleDuplicates(duplicates, onDecision);
       this.logger.info('Duplicate users handled', {
         count: duplicates.length
       });
@@ -19839,7 +19840,7 @@ class UIManager {
    */
   updateExportProgress(current, total, message, counts = {}) {
     try {
-      _progressManager.progressManager.updateProgress(current, total, message, {
+      _progressManager.default.updateProgress(current, total, message, {
         ...counts,
         operation: 'export'
       });
@@ -19878,7 +19879,7 @@ class UIManager {
    */
   updateDeleteProgress(current, total, message, counts = {}, populationName = '', populationId = '') {
     try {
-      _progressManager.progressManager.updateProgress(current, total, message, {
+      _progressManager.default.updateProgress(current, total, message, {
         ...counts,
         population: populationName,
         populationId: populationId,
@@ -19918,7 +19919,7 @@ class UIManager {
    */
   updateModifyProgress(current, total, message, counts = {}) {
     try {
-      _progressManager.progressManager.updateProgress(current, total, message, {
+      _progressManager.default.updateProgress(current, total, message, {
         ...counts,
         operation: 'modify'
       });
@@ -19942,7 +19943,7 @@ const uiManager = exports.uiManager = new UIManager();
 // Export the class and instance
 
 }).call(this)}).call(this,require('_process'))
-},{"./circular-progress.js":41,"./element-registry.js":44,"./progress-manager.js":53,"./winston-logger.js":60,"_process":25}],59:[function(require,module,exports){
+},{"./circular-progress.js":41,"./element-registry.js":44,"./progress-manager.js":53,"./winston-logger.js":60,"@babel/runtime/helpers/interopRequireDefault":1,"_process":25}],59:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

@@ -14,7 +14,7 @@
 import { createWinstonLogger } from './winston-logger.js';
 import { createCircularProgress } from './circular-progress.js';
 import { ElementRegistry } from './element-registry.js';
-import { progressManager } from './progress-manager.js';
+import progressManager from './progress-manager.js';
 
 // Enable debug mode for development (set to false in production)
 const DEBUG_MODE = true;
