@@ -7503,6 +7503,17 @@ class App {
         totalUsers: importOptions.totalUsers
       });
 
+      // Enhanced debug logging for population tracking
+      console.log('🔍 [Population Debug] Detailed population data:', {
+        selectedPopulationId: importOptions.selectedPopulationId,
+        selectedPopulationName: importOptions.selectedPopulationName,
+        hasPopulationId: !!importOptions.selectedPopulationId,
+        hasPopulationName: !!importOptions.selectedPopulationName,
+        populationIdType: typeof importOptions.selectedPopulationId,
+        populationNameType: typeof importOptions.selectedPopulationName,
+        totalUsers: importOptions.totalUsers
+      });
+
       // Send CSV data and population info to backend for processing
       // The server will start the import process and return a session ID
       console.log('📤 [IMPORT] Sending request to backend...');

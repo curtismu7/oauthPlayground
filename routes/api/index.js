@@ -113,6 +113,22 @@ async function runImportProcess(sessionId, app) {
         
         const { file, populationId, populationName, totalUsers } = session;
         
+        // DEBUG: Log the session data retrieved for import process
+        logger.info(`[${new Date().toISOString()}] [DEBUG] Import process started with session data`, {
+            sessionId,
+            populationId: populationId || 'MISSING',
+            populationName: populationName || 'MISSING',
+            totalUsers: totalUsers || 0,
+            fileName: file.originalname
+        });
+        if (logger.flush) await logger.flush();
+        
+        debugLog("Import", "🔍 Session data retrieved", { 
+            populationId: populationId || 'MISSING',
+            populationName: populationName || 'MISSING',
+            totalUsers: totalUsers || 0
+        });
+        
         // Parse CSV file
         debugLog("Import", "📄 Parsing CSV file", { fileName: file.originalname });
         const csvContent = file.buffer.toString('utf8');
@@ -227,6 +243,25 @@ async function runImportProcess(sessionId, app) {
                             continue;
                         }
                     }
+                    
+                    // DEBUG: Log the user data and population before PingOne API call
+                    logger.info(`[${new Date().toISOString()}] [DEBUG] Creating user in PingOne`, {
+                        sessionId,
+                        username,
+                        populationId: populationId || 'MISSING',
+                        populationName: populationName || 'MISSING',
+                        lineNumber: user._lineNumber,
+                        userData: {
+                            username,
+                            email: user.email || username,
+                            givenName: user.givenname || user.firstname || user['first name'] || '',
+                            familyName: user.familyname || user.lastname || user['last name'] || '',
+                            population: {
+                                id: populationId
+                            }
+                        }
+                    });
+                    if (logger.flush) await logger.flush();
                     
                     // Create user in PingOne
                     const createUrl = `https://api.pingone.com/v1/environments/${environmentId}/users`;
@@ -1020,8 +1055,30 @@ router.post('/import', upload.single('file'), async (req, res, next) => {
         
         // Validate population selection
         const { populationId, populationName, totalUsers } = req.body;
+        
+        // DEBUG: Log the received population data
+        logger.info(`[${new Date().toISOString()}] [DEBUG] Population data received from frontend`, {
+            populationId: populationId || 'MISSING',
+            populationName: populationName || 'MISSING',
+            totalUsers: totalUsers || 'MISSING',
+            hasPopulationId: !!populationId,
+            hasPopulationName: !!populationName
+        });
+        if (logger.flush) await logger.flush();
+        
+        debugLog("Import", "🔍 Population data received", { 
+            populationId: populationId || 'MISSING', 
+            populationName: populationName || 'MISSING',
+            totalUsers: totalUsers || 'MISSING'
+        });
+        
         if (!populationId || !populationName) {
             debugLog("Import", "❌ Missing population information", { populationId, populationName });
+            logger.error(`[${new Date().toISOString()}] [ERROR] Missing population information`, {
+                populationId: populationId || 'MISSING',
+                populationName: populationName || 'MISSING'
+            });
+            if (logger.flush) await logger.flush();
             return res.status(400).json({
                 success: false,
                 error: 'Missing population information',
@@ -1049,6 +1106,16 @@ router.post('/import', upload.single('file'), async (req, res, next) => {
             startTime: new Date(),
             status: 'starting'
         };
+        
+        // DEBUG: Log the session data being stored
+        logger.info(`[${new Date().toISOString()}] [DEBUG] Import session data stored`, {
+            sessionId,
+            populationId,
+            populationName,
+            totalUsers: parseInt(totalUsers) || 0,
+            fileName: req.file.originalname
+        });
+        if (logger.flush) await logger.flush();
         
         // Store session in app context for SSE access
         if (!req.app.get('importSessions')) {
