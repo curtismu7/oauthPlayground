@@ -20,7 +20,7 @@ import TokenManager from './modules/token-manager.js';
 import { FileHandler } from './modules/file-handler.js';
 import { VersionManager } from './modules/version-manager.js';
 import { apiFactory, initAPIFactory } from './modules/api-factory.js';
-import { progressManager } from './modules/progress-manager.js';
+import progressManager from './modules/progress-manager.js';
 import { DeleteManager } from './modules/delete-manager.js';
 import { ExportManager } from './modules/export-manager.js';
 import { HistoryManager } from './modules/history-manager.js';
