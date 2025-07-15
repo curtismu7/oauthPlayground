@@ -320,8 +320,31 @@ class CredentialsModal {
         this.hideModal();
         this.enableApplication();
         
+        // Update token status to reflect that credentials are now being used
+        this.updateTokenStatusAfterCredentialsUse();
+        
         // Show success message
         this.showSuccessMessage('Using current credentials. You can change them anytime in Settings.');
+    }
+    
+    updateTokenStatusAfterCredentialsUse() {
+        try {
+            // Access the global app instance to update token status
+            if (window.app && typeof window.app.updateUniversalTokenStatus === 'function') {
+                console.log('Credentials Modal: Updating token status after credentials use');
+                window.app.updateUniversalTokenStatus();
+                
+                // Also trigger a token check to get fresh status
+                if (window.app.pingOneClient && typeof window.app.pingOneClient.getCurrentTokenTimeRemaining === 'function') {
+                    const tokenInfo = window.app.pingOneClient.getCurrentTokenTimeRemaining();
+                    console.log('Credentials Modal: Current token info after credentials use:', tokenInfo);
+                }
+            } else {
+                console.warn('Credentials Modal: App instance not available for token status update');
+            }
+        } catch (error) {
+            console.error('Credentials Modal: Error updating token status:', error);
+        }
     }
 
     goToSettings() {
