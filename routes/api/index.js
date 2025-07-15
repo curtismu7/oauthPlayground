@@ -48,6 +48,74 @@ const router = Router();
 // Enable debug logging in development mode
 const DEBUG_MODE = process.env.NODE_ENV === 'development';
 
+// ============================================================================
+// HEALTH CHECK ENDPOINT
+// ============================================================================
+
+/**
+ * Health check endpoint for server monitoring
+ * Returns server status and basic health information
+ */
+router.get('/health', async (req, res) => {
+    try {
+        const startTime = Date.now();
+        
+        // Basic health checks
+        const healthChecks = {
+            server: true,
+            timestamp: new Date().toISOString(),
+            uptime: process.uptime(),
+            memory: process.memoryUsage(),
+            environment: process.env.NODE_ENV || 'development'
+        };
+        
+        // Check if token manager is available
+        try {
+            const tokenManager = req.app.get('tokenManager');
+            if (tokenManager) {
+                healthChecks.tokenManager = true;
+                healthChecks.tokenStatus = 'available';
+            } else {
+                healthChecks.tokenManager = false;
+                healthChecks.tokenStatus = 'unavailable';
+            }
+        } catch (error) {
+            healthChecks.tokenManager = false;
+            healthChecks.tokenStatus = 'error';
+            healthChecks.tokenError = error.message;
+        }
+        
+        // Check if settings are accessible
+        try {
+            const settingsPath = path.join(__dirname, '../../data/settings.json');
+            await fs.access(settingsPath);
+            healthChecks.settings = true;
+        } catch (error) {
+            healthChecks.settings = false;
+            healthChecks.settingsError = error.message;
+        }
+        
+        const responseTime = Date.now() - startTime;
+        
+        res.status(200).json({
+            success: true,
+            status: 'healthy',
+            checks: healthChecks,
+            responseTime: `${responseTime}ms`
+        });
+        
+        debugLog("Health", "✅ Health check completed", { responseTime });
+    } catch (error) {
+        debugLog("Health", "❌ Health check failed", { error: error.message });
+        res.status(500).json({
+            success: false,
+            status: 'unhealthy',
+            error: error.message,
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+
 /**
  * Debug logging utility for server-side diagnostics
  * Provides structured logging with timestamps and area categorization
@@ -1421,12 +1489,14 @@ router.get('/populations', async (req, res) => {
  */
 router.post('/export-users', async (req, res, next) => {
     try {
-        // Log the incoming request for debugging
-        console.log('Export request received:', {
-            body: req.body,
-            headers: req.headers,
-            timestamp: new Date().toISOString()
-        });
+        // Get token manager from Express app context
+        const tokenManager = req.app.get('tokenManager');
+        if (!tokenManager) {
+            return res.status(500).json({
+                success: false,
+                error: 'Token manager not available'
+            });
+        }
 
         // Extract and normalize request parameters
         const { 
@@ -1500,9 +1570,26 @@ router.post('/export-users', async (req, res, next) => {
             ignoreDisabledUsers: shouldIgnoreDisabledUsers
         });
 
-        // Build PingOne API URL with population filtering and population details expansion
-        // This ensures we get complete user data including population information
-        let pingOneUrl = 'http://127.0.0.1:4000/api/pingone/users';
+        // Get access token and environment ID directly from token manager
+        const token = await tokenManager.getAccessToken();
+        if (!token) {
+            return res.status(401).json({
+                success: false,
+                error: 'Failed to get access token - check your PingOne credentials'
+            });
+        }
+
+        const environmentId = await tokenManager.getEnvironmentId();
+        if (!environmentId) {
+            return res.status(400).json({
+                success: false,
+                error: 'Environment ID is required',
+                message: 'Please configure your Environment ID in the Settings page'
+            });
+        }
+
+        // Build PingOne API URL directly
+        let pingOneUrl = `${tokenManager.getApiBaseUrl()}/environments/${environmentId}/users`;
         const params = new URLSearchParams();
         
         // Add population filter if specified (empty string means all populations)
@@ -1523,6 +1610,8 @@ router.post('/export-users', async (req, res, next) => {
         const pingOneResponse = await fetch(pingOneUrl, {
             method: 'GET',
             headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
                 'Accept': 'application/json'
             }
         });
@@ -2343,7 +2432,7 @@ router.get('/pingone/users', async (req, res) => {
         }
 
         // Get environment ID from token manager
-        const environmentId = tokenManager.getEnvironmentId();
+        const environmentId = await tokenManager.getEnvironmentId();
         if (!environmentId) {
             return res.status(400).json({
                 success: false,

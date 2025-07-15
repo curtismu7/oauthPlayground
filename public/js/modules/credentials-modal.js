@@ -31,8 +31,18 @@ class CredentialsModal {
                 this.credentials = {
                     environmentId: settings.environmentId || settings['environment-id'] || '',
                     clientId: settings.apiClientId || settings['api-client-id'] || '',
-                    region: settings.region || 'NorthAmerica'
+                    clientSecret: settings.apiSecret || settings['api-secret'] || '',
+                    region: settings.region || 'NorthAmerica',
+                    populationId: settings.populationId || settings['population-id'] || '',
+                    rateLimit: settings.rateLimit || settings['rate-limit'] || 90
                 };
+                
+                console.log('Credentials loaded from server:', {
+                    hasEnvironmentId: !!this.credentials.environmentId,
+                    hasClientId: !!this.credentials.clientId,
+                    hasClientSecret: !!this.credentials.clientSecret,
+                    region: this.credentials.region
+                });
             } else {
                 console.warn('Failed to load credentials from settings');
                 this.credentials = null;
@@ -321,6 +331,9 @@ class CredentialsModal {
             // Save credentials to settings and get token
             await this.saveCredentialsAndGetToken();
             
+            // Mark modal as shown since credentials are now saved
+            CredentialsModal.setCredentialsModalShown();
+            
             this.hideModal();
             this.enableApplication();
             
@@ -351,32 +364,95 @@ class CredentialsModal {
             rateLimit: this.credentials.rateLimit || 90
         };
         
+        // Validate required fields before saving
+        if (!settings.environmentId || !settings.apiClientId || !settings.apiSecret) {
+            throw new Error('Missing required credentials: Environment ID, Client ID, and Client Secret are required');
+        }
+        
+        // Save to server via API endpoint - this is the critical fix
+        try {
+            console.log('Saving credentials to server...', {
+                hasEnvironmentId: !!settings.environmentId,
+                hasApiClientId: !!settings.apiClientId,
+                hasApiSecret: !!settings.apiSecret,
+                region: settings.region
+            });
+            
+            const response = await fetch('/api/settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(settings)
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(`Failed to save credentials to server: ${errorData.error || response.statusText}`);
+            }
+            
+            const result = await response.json();
+            console.log('Credentials saved to server successfully:', result);
+            
+            // Verify the save was successful by reading back the settings
+            const verifyResponse = await fetch('/api/settings');
+            if (verifyResponse.ok) {
+                const verifyData = await verifyResponse.json();
+                const savedSettings = verifyData.data || verifyData.settings || {};
+                console.log('Verified credentials saved to server:', {
+                    hasEnvironmentId: !!savedSettings.environmentId,
+                    hasApiClientId: !!savedSettings.apiClientId,
+                    hasApiSecret: !!savedSettings.apiSecret
+                });
+            }
+        } catch (error) {
+            console.error('Failed to save credentials to server:', error);
+            throw new Error(`Failed to save credentials: ${error.message}`);
+        }
+        
         // Save to credentials manager if available
         if (window.credentialsManager) {
-            window.credentialsManager.saveCredentials(settings);
-            console.log('Credentials saved to credentials manager');
+            try {
+                window.credentialsManager.saveCredentials(settings);
+                console.log('Credentials saved to credentials manager');
+            } catch (error) {
+                console.warn('Failed to save to credentials manager:', error);
+            }
         }
         
         // Save to localStorage as backup
-        localStorage.setItem('pingone_credentials', JSON.stringify(settings));
-        console.log('Credentials saved to localStorage');
+        try {
+            localStorage.setItem('pingone_credentials', JSON.stringify(settings));
+            console.log('Credentials saved to localStorage as backup');
+        } catch (error) {
+            console.warn('Failed to save to localStorage:', error);
+        }
         
         // Update settings form if on settings page
         if (window.app && window.app.populateSettingsForm) {
-            window.app.populateSettingsForm(settings);
-            console.log('Settings form updated with credentials');
+            try {
+                window.app.populateSettingsForm(settings);
+                console.log('Settings form updated with credentials');
+            } catch (error) {
+                console.warn('Failed to update settings form:', error);
+            }
         }
         
         // Get a new token with the saved credentials
         if (window.app && window.app.pingOneClient) {
-            // Update the PingOne client with new credentials
-            window.app.pingOneClient.updateCredentials(settings);
-            
-            // Get a new token
-            const token = await window.app.pingOneClient.getAccessToken();
-            console.log('New token acquired with saved credentials');
-            
-            return token;
+            try {
+                // Update the PingOne client with new credentials
+                window.app.pingOneClient.updateCredentials(settings);
+                
+                // Get a new token
+                const token = await window.app.pingOneClient.getAccessToken();
+                console.log('New token acquired with saved credentials');
+                
+                return token;
+            } catch (error) {
+                console.error('Failed to get token with saved credentials:', error);
+                throw new Error(`Failed to get token: ${error.message}`);
+            }
         } else {
             throw new Error('PingOne client not available');
         }
@@ -576,51 +652,107 @@ class CredentialsModal {
         // fetch('/api/logs', { method: 'POST', body: JSON.stringify(eventData) });
     }
 
-    // Static method to check if credentials modal should be shown
-    static async shouldShowCredentialsModal() {
-        // Check if disclaimer is accepted
-        if (!DisclaimerModal.isDisclaimerAccepted()) {
-            return false;
-        }
-        
-        // Check if credentials modal has already been shown
-        if (localStorage.getItem('credentialsModalShown') === 'true') {
-            return false;
-        }
-        
-        // Check token status - show modal if no valid token
+    /**
+     * Check if credentials are already properly saved and working
+     * @returns {Promise<boolean>} True if credentials are saved and working
+     */
+    static async areCredentialsSaved() {
         try {
-            const token = localStorage.getItem('pingone_worker_token');
-            const expiry = localStorage.getItem('pingone_token_expiry');
-            
-            if (!token || !expiry) {
-                return true; // No token available
+            const response = await fetch('/api/settings');
+            if (!response.ok) {
+                return false;
             }
             
-            const expiryTime = parseInt(expiry, 10);
-            const now = Date.now();
-            const timeRemaining = expiryTime - now;
+            const data = await response.json();
+            const settings = data.data || data.settings || {};
             
-            if (timeRemaining <= 0) {
-                return true; // Token expired
+            // Check if we have all required credentials
+            const hasRequiredCredentials = settings.environmentId && 
+                                        settings.apiClientId && 
+                                        settings.apiSecret;
+            
+            if (!hasRequiredCredentials) {
+                return false;
             }
             
-            // Token is valid, but still show modal if it hasn't been shown before
+            // Try to get a token to verify credentials work
+            if (window.app && window.app.pingOneClient) {
+                try {
+                    const token = await window.app.pingOneClient.getAccessToken();
+                    return !!token;
+                } catch (error) {
+                    console.warn('Credentials exist but token acquisition failed:', error);
+                    return false;
+                }
+            }
+            
             return true;
         } catch (error) {
-            console.error('Error checking token status:', error);
-            return true; // Show modal on error
+            console.error('Error checking if credentials are saved:', error);
+            return false;
         }
     }
 
-    // Static method to mark credentials modal as shown
-    static setCredentialsModalShown() {
-        localStorage.setItem('credentialsModalShown', 'true');
+    /**
+     * Check if the credentials modal should be shown
+     * @returns {Promise<boolean>} True if modal should be shown
+     */
+    static async shouldShowCredentialsModal() {
+        try {
+            // Check if modal was already shown in this session
+            const modalShown = sessionStorage.getItem('credentials_modal_shown');
+            if (modalShown === 'true') {
+                console.log('Credentials modal already shown in this session');
+                return false;
+            }
+            
+            // Check if credentials are already saved and working
+            const credentialsSaved = await this.areCredentialsSaved();
+            if (credentialsSaved) {
+                console.log('Credentials are already saved and working');
+                return false;
+            }
+            
+            // Check if we have any credentials at all
+            const response = await fetch('/api/settings');
+            if (!response.ok) {
+                console.log('No settings endpoint available');
+                return true; // Show modal if we can't check
+            }
+            
+            const data = await response.json();
+            const settings = data.data || data.settings || {};
+            
+            // Show modal if we have partial credentials (some but not all required)
+            const hasPartialCredentials = settings.environmentId || settings.apiClientId || settings.apiSecret;
+            if (hasPartialCredentials) {
+                console.log('Partial credentials found, showing modal for completion');
+                return true;
+            }
+            
+            // Show modal if no credentials at all
+            console.log('No credentials found, showing modal');
+            return true;
+        } catch (error) {
+            console.error('Error checking if credentials modal should be shown:', error);
+            return true; // Show modal on error to be safe
+        }
     }
 
-    // Static method to reset credentials modal state
+    /**
+     * Mark that the credentials modal has been shown
+     */
+    static setCredentialsModalShown() {
+        sessionStorage.setItem('credentials_modal_shown', 'true');
+        console.log('Credentials modal marked as shown for this session');
+    }
+
+    /**
+     * Reset the credentials modal state (for testing or re-showing)
+     */
     static resetCredentialsModal() {
-        localStorage.removeItem('credentialsModalShown');
+        sessionStorage.removeItem('credentials_modal_shown');
+        console.log('Credentials modal state reset');
     }
 
     // Static method to check if there's a valid token
@@ -649,7 +781,7 @@ class CredentialsModal {
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('Credentials Modal: DOMContentLoaded event fired');
     console.log('Disclaimer accepted:', DisclaimerModal.isDisclaimerAccepted());
-    console.log('Credentials modal shown:', localStorage.getItem('credentialsModalShown'));
+    console.log('Credentials modal shown:', sessionStorage.getItem('credentials_modal_shown'));
     
     // Check if disclaimer is already accepted (user returning)
     if (DisclaimerModal.isDisclaimerAccepted()) {

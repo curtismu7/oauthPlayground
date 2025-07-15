@@ -40,6 +40,16 @@
             font-family: monospace;
             font-size: 12px;
         }
+        .test-section {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
     </style>
 </head>
 <body>
@@ -47,10 +57,33 @@
         <h1>Progress Debug Test</h1>
         <p>This page tests the progress container functionality and debugging.</p>
         
-        <button class="test-button" onclick="testElementRegistry()">Test Element Registry</button>
-        <button class="test-button" onclick="testUIManager()">Test UI Manager</button>
-        <button class="test-button" onclick="testProgressContainer()">Test Progress Container</button>
-        <button class="test-button" onclick="testStartImport()">Test Start Import</button>
+        <div class="test-section">
+            <h3>Element Registry Tests</h3>
+            <button class="test-button" onclick="testElementRegistry()">Test Element Registry</button>
+            <button class="test-button" onclick="testUIManager()">Test UI Manager</button>
+            <button class="test-button" onclick="testProgressContainer()">Test Progress Container</button>
+            <button class="test-button" onclick="testStartImport()">Test Start Import</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>Direct Element Tests</h3>
+            <button class="test-button" onclick="testDirectElementAccess()">Test Direct Element Access</button>
+            <button class="test-button" onclick="testCSSDisplay()">Test CSS Display Properties</button>
+            <button class="test-button" onclick="testElementVisibility()">Test Element Visibility</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>App Integration Tests</h3>
+            <button class="test-button" onclick="testAppIntegration()">Test App Integration</button>
+            <button class="test-button" onclick="testShowProgressSection()">Test showProgressSection()</button>
+            <button class="test-button" onclick="testUIManagerShowProgress()">Test UI Manager showProgress()</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>Comprehensive Debug</h3>
+            <button class="test-button" onclick="runComprehensiveDebug()">Run Comprehensive Debug</button>
+            <button class="test-button" onclick="clearDebugOutput()">Clear Debug Output</button>
+        </div>
         
         <div id="debug-output" class="debug-info">
             <h3>Debug Output:</h3>
@@ -135,6 +168,11 @@
             }
             debugContent.appendChild(logEntry);
             console.log(message, data);
+        }
+        
+        function clearDebugOutput() {
+            const debugContent = document.getElementById('debug-content');
+            debugContent.innerHTML = '';
         }
         
         function testElementRegistry() {
@@ -236,6 +274,163 @@
             }
         }
         
+        function testDirectElementAccess() {
+            log('🧪 Testing Direct Element Access...');
+            
+            // Test all possible progress container selectors
+            const selectors = [
+                '#progress-container',
+                '.progress-container',
+                '[id="progress-container"]',
+                '[class*="progress"]'
+            ];
+            
+            selectors.forEach(selector => {
+                const elements = document.querySelectorAll(selector);
+                log(`Selector "${selector}" found ${elements.length} elements:`, 
+                    Array.from(elements).map(el => ({ id: el.id, className: el.className, display: el.style.display })));
+            });
+        }
+        
+        function testCSSDisplay() {
+            log('🧪 Testing CSS Display Properties...');
+            
+            const progressContainer = document.getElementById('progress-container');
+            if (progressContainer) {
+                const computedStyle = window.getComputedStyle(progressContainer);
+                log('Computed CSS properties:', {
+                    display: computedStyle.display,
+                    visibility: computedStyle.visibility,
+                    opacity: computedStyle.opacity,
+                    position: computedStyle.position,
+                    zIndex: computedStyle.zIndex
+                });
+                
+                // Test if element is actually visible
+                const rect = progressContainer.getBoundingClientRect();
+                log('Element dimensions:', {
+                    width: rect.width,
+                    height: rect.height,
+                    top: rect.top,
+                    left: rect.left,
+                    visible: rect.width > 0 && rect.height > 0
+                });
+            } else {
+                log('Progress container not found for CSS testing');
+            }
+        }
+        
+        function testElementVisibility() {
+            log('🧪 Testing Element Visibility...');
+            
+            const progressContainer = document.getElementById('progress-container');
+            if (progressContainer) {
+                // Test different display values
+                const testValues = ['block', 'inline-block', 'flex', 'grid'];
+                
+                testValues.forEach(value => {
+                    progressContainer.style.display = value;
+                    const isVisible = progressContainer.offsetParent !== null;
+                    log(`Display "${value}": visible = ${isVisible}`);
+                });
+                
+                // Reset to original state
+                progressContainer.style.display = 'none';
+            } else {
+                log('Progress container not found for visibility testing');
+            }
+        }
+        
+        function testAppIntegration() {
+            log('🧪 Testing App Integration...');
+            
+            // Test if app is available
+            if (window.app) {
+                log('App object available');
+                
+                // Test app methods
+                const methods = ['showProgressSection', 'startImport', 'uiManager'];
+                methods.forEach(method => {
+                    const available = typeof window.app[method] === 'function' || window.app[method];
+                    log(`App.${method} available:`, available);
+                });
+                
+                // Test UI manager specifically
+                if (window.app.uiManager) {
+                    log('UI Manager methods:', {
+                        showProgress: typeof window.app.uiManager.showProgress,
+                        progressContainer: !!window.app.uiManager.progressContainer
+                    });
+                }
+            } else {
+                log('App object not available');
+            }
+        }
+        
+        function testShowProgressSection() {
+            log('🧪 Testing showProgressSection()...');
+            
+            if (window.app && typeof window.app.showProgressSection === 'function') {
+                log('showProgressSection method available, calling...');
+                try {
+                    window.app.showProgressSection();
+                    log('showProgressSection called successfully');
+                } catch (error) {
+                    log('showProgressSection error:', error.message);
+                }
+            } else {
+                log('showProgressSection method not available');
+            }
+        }
+        
+        function testUIManagerShowProgress() {
+            log('🧪 Testing UI Manager showProgress()...');
+            
+            if (window.app && window.app.uiManager && typeof window.app.uiManager.showProgress === 'function') {
+                log('UI Manager showProgress method available, calling...');
+                try {
+                    window.app.uiManager.showProgress();
+                    log('UI Manager showProgress called successfully');
+                } catch (error) {
+                    log('UI Manager showProgress error:', error.message);
+                }
+            } else {
+                log('UI Manager showProgress method not available');
+            }
+        }
+        
+        function runComprehensiveDebug() {
+            log('🔍 Running Comprehensive Debug...');
+            
+            // Test all aspects
+            testElementRegistry();
+            testDirectElementAccess();
+            testCSSDisplay();
+            testElementVisibility();
+            testAppIntegration();
+            testUIManager();
+            
+            // Test actual showing
+            log('🧪 Testing actual progress display...');
+            const progressContainer = document.getElementById('progress-container');
+            if (progressContainer) {
+                progressContainer.style.display = 'block';
+                log('Progress container display set to block');
+                
+                // Check if it's actually visible
+                setTimeout(() => {
+                    const isVisible = progressContainer.offsetParent !== null;
+                    const rect = progressContainer.getBoundingClientRect();
+                    log('Final visibility check:', {
+                        isVisible,
+                        dimensions: { width: rect.width, height: rect.height },
+                        display: progressContainer.style.display,
+                        computedDisplay: window.getComputedStyle(progressContainer).display
+                    });
+                }, 100);
+            }
+        }
+        
         // Initialize test
         document.addEventListener('DOMContentLoaded', function() {
             log('🧪 Progress Debug Test Page Loaded');
@@ -244,6 +439,13 @@
             log('- testUIManager()');
             log('- testProgressContainer()');
             log('- testStartImport()');
+            log('- testDirectElementAccess()');
+            log('- testCSSDisplay()');
+            log('- testElementVisibility()');
+            log('- testAppIntegration()');
+            log('- testShowProgressSection()');
+            log('- testUIManagerShowProgress()');
+            log('- runComprehensiveDebug()');
         });
     </script>
 </body>
