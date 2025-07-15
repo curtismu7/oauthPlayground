@@ -264,32 +264,50 @@ class UIManager {
      * @param {string} message - Progress message
      */
     updateProgress(current, total, message = '') {
+        console.log('🔍 [UI MANAGER DEBUG] updateProgress() called with:', { current, total, message });
+        
         if (!this.progressContainer) {
+            console.error('🔍 [UI MANAGER DEBUG] Progress container not found in updateProgress');
             this.logger.warn('Progress container not found');
             return;
         }
         
+        console.log('🔍 [UI MANAGER DEBUG] Progress container found, calculating percentage...');
         const percentage = total > 0 ? Math.round((current / total) * 100) : 0;
+        console.log('🔍 [UI MANAGER DEBUG] Calculated percentage:', percentage);
         
         // Update progress bar
         const progressBar = this.progressContainer.querySelector('.progress-bar-fill');
+        console.log('🔍 [UI MANAGER DEBUG] Progress bar element:', progressBar);
         if (progressBar) {
             progressBar.style.width = `${percentage}%`;
+            console.log('🔍 [UI MANAGER DEBUG] Progress bar updated to:', `${percentage}%`);
+        } else {
+            console.error('🔍 [UI MANAGER DEBUG] Progress bar element not found');
         }
         
         // Update percentage text
         const percentageElement = this.progressContainer.querySelector('.progress-percentage');
+        console.log('🔍 [UI MANAGER DEBUG] Percentage element:', percentageElement);
         if (percentageElement) {
             percentageElement.textContent = `${percentage}%`;
+            console.log('🔍 [UI MANAGER DEBUG] Percentage text updated to:', `${percentage}%`);
+        } else {
+            console.error('🔍 [UI MANAGER DEBUG] Percentage element not found');
         }
         
         // Update progress text
         const progressText = this.progressContainer.querySelector('.progress-text');
+        console.log('🔍 [UI MANAGER DEBUG] Progress text element:', progressText);
         if (progressText && message) {
             progressText.textContent = message;
+            console.log('🔍 [UI MANAGER DEBUG] Progress text updated to:', message);
+        } else {
+            console.error('🔍 [UI MANAGER DEBUG] Progress text element not found or no message');
         }
         
         this.logger.debug('Progress updated', { current, total, percentage, message });
+        console.log('🔍 [UI MANAGER DEBUG] updateProgress() completed');
     }
     
     /**
@@ -579,13 +597,87 @@ class UIManager {
     }
     
     /**
-     * Show progress display
+     * Show progress section with enhanced debugging and fallback mechanisms
      */
     showProgress() {
-        if (this.progressContainer) {
-            this.progressContainer.style.display = 'block';
-            this.logger.debug('Progress display shown');
+        console.log('🔍 [UI MANAGER DEBUG] showProgress() called');
+        console.log('🔍 [UI MANAGER DEBUG] this.progressContainer:', this.progressContainer);
+        
+        // Try multiple ways to get the progress container
+        let progressContainer = this.progressContainer;
+        
+        if (!progressContainer) {
+            console.log('🔍 [UI MANAGER DEBUG] Progress container not found in UI manager, trying direct access...');
+            progressContainer = document.getElementById('progress-container');
         }
+        
+        if (!progressContainer) {
+            console.log('🔍 [UI MANAGER DEBUG] Progress container not found by ID, trying ElementRegistry...');
+            if (typeof ElementRegistry !== 'undefined' && ElementRegistry.progressContainer) {
+                progressContainer = ElementRegistry.progressContainer();
+            }
+        }
+        
+        if (!progressContainer) {
+            console.log('🔍 [UI MANAGER DEBUG] Progress container not found by ElementRegistry, trying class selector...');
+            progressContainer = document.querySelector('.progress-container');
+        }
+        
+        if (!progressContainer) {
+            console.error('🔍 [UI MANAGER DEBUG] Progress container not found by any method');
+            console.error('🔍 [UI MANAGER DEBUG] Available containers with "progress" in ID:', 
+                Array.from(document.querySelectorAll('[id*="progress"]')).map(el => el.id));
+            console.error('🔍 [UI MANAGER DEBUG] Available containers with "progress" in class:', 
+                Array.from(document.querySelectorAll('[class*="progress"]')).map(el => ({ id: el.id, className: el.className })));
+            return;
+        }
+        
+        console.log('🔍 [UI MANAGER DEBUG] Progress container found, showing...');
+        console.log('🔍 [UI MANAGER DEBUG] Current display style:', progressContainer.style.display);
+        console.log('🔍 [UI MANAGER DEBUG] Current visibility:', progressContainer.offsetParent !== null ? 'visible' : 'hidden');
+        
+        // Force show the progress container
+        progressContainer.style.display = 'block';
+        progressContainer.style.visibility = 'visible';
+        progressContainer.style.opacity = '1';
+        
+        // Ensure it's not hidden by CSS
+        progressContainer.classList.remove('hidden', 'd-none');
+        progressContainer.classList.add('visible');
+        
+        // Force layout recalculation
+        progressContainer.offsetHeight;
+        
+        console.log('🔍 [UI MANAGER DEBUG] Display style after setting to block:', progressContainer.style.display);
+        console.log('🔍 [UI MANAGER DEBUG] Container visibility:', progressContainer.offsetParent !== null ? 'visible' : 'hidden');
+        console.log('🔍 [UI MANAGER DEBUG] Container dimensions:', {
+            offsetWidth: progressContainer.offsetWidth,
+            offsetHeight: progressContainer.offsetHeight,
+            clientWidth: progressContainer.clientWidth,
+            clientHeight: progressContainer.clientHeight
+        });
+        
+        // Scroll into view if needed
+        if (progressContainer.offsetParent !== null) {
+            progressContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        // Update UI manager's reference
+        this.progressContainer = progressContainer;
+        
+        this.logger.debug('Progress display shown');
+        
+        // Additional verification
+        setTimeout(() => {
+            const isVisible = progressContainer.offsetParent !== null;
+            const rect = progressContainer.getBoundingClientRect();
+            console.log('🔍 [UI MANAGER DEBUG] Final verification:', {
+                isVisible,
+                dimensions: { width: rect.width, height: rect.height },
+                display: progressContainer.style.display,
+                computedDisplay: window.getComputedStyle(progressContainer).display
+            });
+        }, 100);
     }
     
     /**
@@ -770,18 +862,30 @@ class UIManager {
      * @param {string} options.populationId - Population ID
      */
     startImportOperation(options = {}) {
+        console.log('🔍 [UI MANAGER DEBUG] startImportOperation() called with options:', options);
+        
         const { operationType, totalUsers, populationName, populationId } = options;
         
+        console.log('🔍 [UI MANAGER DEBUG] About to call showProgress()...');
         this.showProgress();
+        console.log('🔍 [UI MANAGER DEBUG] showProgress() completed');
+        
+        console.log('🔍 [UI MANAGER DEBUG] About to call updateProgress()...');
         this.updateProgress(0, totalUsers || 0, 'Starting import operation...');
+        console.log('🔍 [UI MANAGER DEBUG] updateProgress() completed');
         
         // Update operation details
         const operationTypeElement = document.querySelector('.detail-value.operation-type');
+        console.log('🔍 [UI MANAGER DEBUG] Operation type element:', operationTypeElement);
         if (operationTypeElement) {
             operationTypeElement.textContent = operationType || 'Import';
+            console.log('🔍 [UI MANAGER DEBUG] Operation type updated to:', operationType || 'Import');
+        } else {
+            console.error('🔍 [UI MANAGER DEBUG] Operation type element not found');
         }
         
         this.logger.info('Import operation started', { operationType, totalUsers, populationName, populationId });
+        console.log('🔍 [UI MANAGER DEBUG] startImportOperation() completed');
     }
     
     /**

@@ -795,6 +795,22 @@ h1 {
     width: 100%;
     margin: 1.5rem 0 1rem;
     position: relative;
+    /* Ensure visibility when displayed */
+    z-index: 1000;
+}
+
+/* Force visibility when needed */
+.progress-container.visible {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Ensure progress container is not hidden by other elements */
+.progress-container[style*="display: block"] {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 .progress-section {

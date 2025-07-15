@@ -30,8 +30,13 @@ class TokenStatusIndicator {
             this.createStatusBar();
             this.bindEvents();
             this.startRefreshTimer();
-            this.updateStatus();
             this.isInitialized = true;
+            
+            // Update status and show if there's a valid token
+            this.updateStatus().then(() => {
+                // Show the indicator after updating status
+                this.show();
+            });
             
             console.log('✅ Token status indicator initialized successfully');
             console.log('Token status indicator element:', this.statusBar);

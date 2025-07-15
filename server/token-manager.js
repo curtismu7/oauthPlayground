@@ -445,6 +445,20 @@ class TokenManager {
     }
 
     /**
+     * Get the current environment ID from credentials
+     * @returns {Promise<string|null>} Environment ID or null if not available
+     */
+    async getEnvironmentId() {
+        try {
+            const credentials = await this.getCredentials();
+            return credentials ? credentials.environmentId : null;
+        } catch (error) {
+            this.logger.error('Failed to get environment ID:', error.message);
+            return null;
+        }
+    }
+
+    /**
      * Clear the current token
      */
     clearToken() {

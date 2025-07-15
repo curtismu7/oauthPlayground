@@ -5908,8 +5908,14 @@ class App {
 
       // Initialize global token manager
       try {
-        window.globalTokenManager = new GlobalTokenManager();
-        console.log('✅ GlobalTokenManager initialized successfully');
+        if (typeof GlobalTokenManager !== 'undefined') {
+          GlobalTokenManager.init();
+          window.globalTokenManager = GlobalTokenManager;
+          console.log('✅ GlobalTokenManager initialized successfully');
+        } else {
+          console.warn('GlobalTokenManager not available');
+          window.globalTokenManager = null;
+        }
       } catch (error) {
         console.warn('GlobalTokenManager initialization warning:', error);
         window.globalTokenManager = null;
@@ -6287,8 +6293,14 @@ class App {
         }
       }
 
-      // Fallback to server settings
-      const response = await this.localClient.get('/api/settings');
+      // Enhanced server settings loading with retry logic and health checking
+      const response = await this.localClient.get('/api/settings', {
+        retries: 3,
+        retryDelay: 1000,
+        maxRetryDelay: 10000,
+        healthCheck: true,
+        timeout: 8000
+      });
       if (response.success && response.data) {
         // Convert kebab-case to camelCase for the form
         let populationId = response.data['population-id'] || '';
@@ -7346,11 +7358,27 @@ class App {
     this.logger.info('Starting import process');
 
     // Show progress section and ensure it's visible
+    console.log('🔍 [IMPORT DEBUG] About to show progress section...');
+
+    // Debug: Check all progress-related containers
+    console.log('🔍 [IMPORT DEBUG] All progress containers in DOM:', {
+      'progress-container': !!document.getElementById('progress-container'),
+      'progress-section': !!document.getElementById('progress-section'),
+      'import-progress': !!document.getElementById('import-progress'),
+      'ui-progress': !!document.getElementById('ui-progress'),
+      'all-progress-elements': Array.from(document.querySelectorAll('[id*="progress"]')).map(el => el.id)
+    });
     this.showProgressSection();
 
     // Also ensure UI manager shows progress
     if (this.uiManager && typeof this.uiManager.showProgress === 'function') {
+      console.log('🔍 [IMPORT DEBUG] UI manager showProgress method available, calling...');
       this.uiManager.showProgress();
+    } else {
+      console.error('🔍 [IMPORT DEBUG] UI manager or showProgress method not available:', {
+        hasUIManager: !!this.uiManager,
+        showProgressType: this.uiManager ? typeof this.uiManager.showProgress : 'N/A'
+      });
     }
 
     // Always get the current population selection from the dropdown
@@ -8351,12 +8379,50 @@ class App {
    * Show the progress section with enhanced UI
    */
   showProgressSection() {
-    const progressContainer = document.getElementById('progress-container');
+    console.log('🔍 [PROGRESS DEBUG] showProgressSection() called');
+
+    // Try multiple ways to get the progress container
+    let progressContainer = document.getElementById('progress-container');
+    if (!progressContainer) {
+      console.log('🔍 [PROGRESS DEBUG] Progress container not found by ID, trying class selector...');
+      progressContainer = document.querySelector('.progress-container');
+    }
+    if (!progressContainer) {
+      console.log('🔍 [PROGRESS DEBUG] Progress container not found by class, trying ElementRegistry...');
+      if (typeof ElementRegistry !== 'undefined' && ElementRegistry.progressContainer) {
+        progressContainer = ElementRegistry.progressContainer();
+      }
+    }
+    console.log('🔍 [PROGRESS DEBUG] Progress container element:', progressContainer);
     if (progressContainer) {
+      console.log('🔍 [PROGRESS DEBUG] Progress container found, showing...');
+      console.log('🔍 [PROGRESS DEBUG] Current display style:', progressContainer.style.display);
+      console.log('🔍 [PROGRESS DEBUG] Current visibility:', progressContainer.offsetParent !== null ? 'visible' : 'hidden');
+
+      // Force show the progress container
       progressContainer.style.display = 'block';
+      progressContainer.style.visibility = 'visible';
+      progressContainer.style.opacity = '1';
+
+      // Ensure it's not hidden by CSS
+      progressContainer.classList.remove('hidden', 'd-none');
+      progressContainer.classList.add('visible');
+
+      // Force layout recalculation
+      progressContainer.offsetHeight;
+
+      // Scroll into view
       progressContainer.scrollIntoView({
         behavior: 'smooth',
         block: 'center'
+      });
+      console.log('🔍 [PROGRESS DEBUG] Display style after setting to block:', progressContainer.style.display);
+      console.log('🔍 [PROGRESS DEBUG] Container visibility:', progressContainer.offsetParent !== null ? 'visible' : 'hidden');
+      console.log('🔍 [PROGRESS DEBUG] Container dimensions:', {
+        offsetWidth: progressContainer.offsetWidth,
+        offsetHeight: progressContainer.offsetHeight,
+        clientWidth: progressContainer.clientWidth,
+        clientHeight: progressContainer.clientHeight
       });
 
       // Initialize progress values
@@ -8371,8 +8437,38 @@ class App {
       this.updateProgressStatus('Preparing import...', '');
       this.startProgressTiming();
       console.log('✅ [PROGRESS] Progress section shown successfully');
+
+      // Additional debugging for child elements
+      const progressBarFill = document.querySelector('.progress-bar-fill');
+      const progressPercentage = document.querySelector('.progress-percentage');
+      const statusMessage = document.querySelector('.status-message');
+      console.log('🔍 [PROGRESS DEBUG] Child elements:', {
+        progressBarFill: !!progressBarFill,
+        progressPercentage: !!progressPercentage,
+        statusMessage: !!statusMessage
+      });
+
+      // Additional verification
+      setTimeout(() => {
+        const isVisible = progressContainer.offsetParent !== null;
+        const rect = progressContainer.getBoundingClientRect();
+        console.log('🔍 [PROGRESS DEBUG] Final verification:', {
+          isVisible,
+          dimensions: {
+            width: rect.width,
+            height: rect.height
+          },
+          display: progressContainer.style.display,
+          computedDisplay: window.getComputedStyle(progressContainer).display
+        });
+      }, 100);
     } else {
       console.error('❌ [PROGRESS] Progress container not found');
+      console.error('🔍 [PROGRESS DEBUG] Available containers with "progress" in ID:', Array.from(document.querySelectorAll('[id*="progress"]')).map(el => el.id));
+      console.error('🔍 [PROGRESS DEBUG] Available containers with "progress" in class:', Array.from(document.querySelectorAll('[class*="progress"]')).map(el => ({
+        id: el.id,
+        className: el.className
+      })));
     }
   }
 
@@ -9469,21 +9565,22 @@ class App {
    */
   updateUniversalTokenStatus() {
     try {
-      if (this.uiManager && this.uiManager.updateUniversalTokenStatus) {
-        // Get current token info for accurate display
-        let tokenInfo = null;
-        if (this.pingOneClient) {
-          tokenInfo = this.pingOneClient.getCurrentTokenTimeRemaining();
-        }
+      console.log('🔄 Updating universal token status...');
 
-        // Update the universal token status bar
-        this.uiManager.updateUniversalTokenStatus(tokenInfo);
-        if (window.DEBUG_MODE) {
-          console.log('Universal token status updated:', tokenInfo);
-        }
+      // Update global token manager if available
+      if (window.globalTokenManager && typeof window.globalTokenManager.updateStatus === 'function') {
+        window.globalTokenManager.updateStatus();
+        console.log('✅ Global token status updated');
       }
+
+      // Update token status indicator if available
+      if (window.tokenStatusIndicator && typeof window.tokenStatusIndicator.updateStatus === 'function') {
+        window.tokenStatusIndicator.updateStatus();
+        console.log('✅ Token status indicator updated');
+      }
+      console.log('✅ Universal token status update complete');
     } catch (error) {
-      console.error('Error updating universal token status:', error);
+      console.error('❌ Error updating universal token status:', error);
     }
   }
 
@@ -14618,10 +14715,102 @@ class LocalAPIClient {
   constructor(logger, baseUrl = '') {
     this.logger = logger || console;
     this.baseUrl = baseUrl;
+    this.serverHealth = {
+      lastCheck: 0,
+      isHealthy: true,
+      consecutiveFailures: 0,
+      maxConsecutiveFailures: 3
+    };
+    this.healthCheckInterval = 30000; // 30 seconds
   }
 
   /**
-   * Make an API request to the local server
+   * Check server health before making requests
+   * @private
+   */
+  async _checkServerHealth() {
+    const now = Date.now();
+
+    // Only check health if enough time has passed since last check
+    if (now - this.serverHealth.lastCheck < this.healthCheckInterval) {
+      return this.serverHealth.isHealthy;
+    }
+    try {
+      const response = await fetch(`${this.baseUrl}/api/health`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json'
+        },
+        signal: AbortSignal.timeout(5000) // 5 second timeout
+      });
+      if (response.ok) {
+        this.serverHealth.isHealthy = true;
+        this.serverHealth.consecutiveFailures = 0;
+        this.logger.debug('✅ Server health check passed');
+      } else {
+        this.serverHealth.isHealthy = false;
+        this.serverHealth.consecutiveFailures++;
+        this.logger.warn('⚠️ Server health check failed', {
+          status: response.status
+        });
+      }
+    } catch (error) {
+      this.serverHealth.isHealthy = false;
+      this.serverHealth.consecutiveFailures++;
+      this.logger.warn('⚠️ Server health check error', {
+        error: error.message
+      });
+    }
+    this.serverHealth.lastCheck = now;
+    return this.serverHealth.isHealthy;
+  }
+
+  /**
+   * Calculate exponential backoff delay
+   * @private
+   */
+  _calculateBackoffDelay(attempt, baseDelay, maxDelay) {
+    const exponentialDelay = baseDelay * Math.pow(2, attempt - 1);
+    const jitter = Math.random() * 0.1 * exponentialDelay; // Add 10% jitter
+    return Math.min(exponentialDelay + jitter, maxDelay);
+  }
+
+  /**
+   * Determine if a request should be retried based on error type
+   * @private
+   */
+  _shouldRetry(error, attempt, maxRetries) {
+    // Don't retry if we've reached max attempts
+    if (attempt >= maxRetries) {
+      return false;
+    }
+
+    // Retry on network errors (no status code)
+    if (!error.status) {
+      return true;
+    }
+
+    // Retry on server errors (5xx)
+    if (error.status >= 500) {
+      return true;
+    }
+
+    // Retry on rate limits (429)
+    if (error.status === 429) {
+      return true;
+    }
+
+    // Retry on timeout errors (408)
+    if (error.status === 408) {
+      return true;
+    }
+
+    // Don't retry on client errors (4xx except 429, 408)
+    return false;
+  }
+
+  /**
+   * Make an API request to the local server with enhanced retry logic
    * @param {string} method - HTTP method (GET, POST, PUT, DELETE, etc.)
    * @param {string} endpoint - API endpoint (without base URL)
    * @param {Object} [data] - Request body (for POST/PUT/PATCH)
@@ -14636,8 +14825,22 @@ class LocalAPIClient {
     const requestOptions = {
       ...options,
       retries: options.retries || 3,
-      retryDelay: options.retryDelay || 1000 // 1 second base delay
+      retryDelay: options.retryDelay || 1000,
+      // 1 second base delay
+      maxRetryDelay: options.maxRetryDelay || 30000,
+      // 30 seconds max delay
+      healthCheck: options.healthCheck !== false,
+      // Enable health check by default
+      timeout: options.timeout || 10000 // 10 second timeout
     };
+
+    // Check server health before making request (if enabled)
+    if (requestOptions.healthCheck && endpoint !== '/api/health') {
+      const isHealthy = await this._checkServerHealth();
+      if (!isHealthy && this.serverHealth.consecutiveFailures >= this.serverHealth.maxConsecutiveFailures) {
+        throw new Error('Server is unhealthy and unavailable for requests');
+      }
+    }
 
     // Prepare headers
     const headers = {
@@ -14666,15 +14869,20 @@ class LocalAPIClient {
     };
     this.logger.debug('🔄 Local API Request:', requestLog);
 
-    // Retry logic
+    // Retry logic with exponential backoff
     let lastError = null;
     for (let attempt = 1; attempt <= requestOptions.retries; attempt++) {
       try {
+        // Create abort controller for timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), requestOptions.timeout);
         const response = await fetch(url, {
           method,
           headers,
-          body
+          body,
+          signal: controller.signal
         });
+        clearTimeout(timeoutId);
         const responseData = await this._handleResponse(response);
 
         // Log successful response with minimal details
@@ -14687,18 +14895,35 @@ class LocalAPIClient {
           source: 'local-api-client'
         };
         this.logger.debug('✅ Local API Response:', responseLog);
+
+        // Update server health on success
+        if (requestOptions.healthCheck) {
+          this.serverHealth.isHealthy = true;
+          this.serverHealth.consecutiveFailures = 0;
+        }
         return responseData;
       } catch (error) {
         lastError = error;
+
+        // Handle timeout errors
+        if (error.name === 'AbortError') {
+          error.message = 'Request timeout';
+          error.status = 408;
+        }
         this.logger.error(`Local API Error (attempt ${attempt}/${requestOptions.retries}):`, error);
 
         // Get the friendly error message if available
         const friendlyMessage = error.friendlyMessage || error.message;
         const isRateLimit = error.status === 429;
 
-        // Calculate baseDelay and delay here, before using them
+        // Check if we should retry this error
+        if (!this._shouldRetry(error, attempt, requestOptions.retries)) {
+          throw error;
+        }
+
+        // Calculate backoff delay
         const baseDelay = isRateLimit ? requestOptions.retryDelay * 2 : requestOptions.retryDelay;
-        const delay = baseDelay * Math.pow(2, attempt - 1);
+        const delay = this._calculateBackoffDelay(attempt, baseDelay, requestOptions.maxRetryDelay);
 
         // Show appropriate UI messages based on error type
         if (window.app && window.app.uiManager) {
@@ -14720,19 +14945,18 @@ class LocalAPIClient {
           }
         }
 
+        // Update server health on failure
+        if (requestOptions.healthCheck) {
+          this.serverHealth.isHealthy = false;
+          this.serverHealth.consecutiveFailures++;
+        }
+
         // If this is the last attempt, throw with friendly message
         if (attempt === requestOptions.retries) {
           throw error;
         }
 
-        // Only retry for rate limits (429) and server errors (5xx)
-        const shouldRetry = isRateLimit || error.status >= 500 || !error.status;
-        if (!shouldRetry) {
-          // Don't retry for client errors (4xx except 429), throw immediately
-          throw error;
-        }
-
-        // Use the delay calculated above
+        // Log retry attempt
         this.logger.info(`Retrying request in ${delay}ms... (attempt ${attempt + 1}/${requestOptions.retries})`);
         await new Promise(resolve => setTimeout(resolve, delay));
       }
@@ -19485,28 +19709,48 @@ class UIManager {
    * @param {string} message - Progress message
    */
   updateProgress(current, total, message = '') {
+    console.log('🔍 [UI MANAGER DEBUG] updateProgress() called with:', {
+      current,
+      total,
+      message
+    });
     if (!this.progressContainer) {
+      console.error('🔍 [UI MANAGER DEBUG] Progress container not found in updateProgress');
       this.logger.warn('Progress container not found');
       return;
     }
+    console.log('🔍 [UI MANAGER DEBUG] Progress container found, calculating percentage...');
     const percentage = total > 0 ? Math.round(current / total * 100) : 0;
+    console.log('🔍 [UI MANAGER DEBUG] Calculated percentage:', percentage);
 
     // Update progress bar
     const progressBar = this.progressContainer.querySelector('.progress-bar-fill');
+    console.log('🔍 [UI MANAGER DEBUG] Progress bar element:', progressBar);
     if (progressBar) {
       progressBar.style.width = `${percentage}%`;
+      console.log('🔍 [UI MANAGER DEBUG] Progress bar updated to:', `${percentage}%`);
+    } else {
+      console.error('🔍 [UI MANAGER DEBUG] Progress bar element not found');
     }
 
     // Update percentage text
     const percentageElement = this.progressContainer.querySelector('.progress-percentage');
+    console.log('🔍 [UI MANAGER DEBUG] Percentage element:', percentageElement);
     if (percentageElement) {
       percentageElement.textContent = `${percentage}%`;
+      console.log('🔍 [UI MANAGER DEBUG] Percentage text updated to:', `${percentage}%`);
+    } else {
+      console.error('🔍 [UI MANAGER DEBUG] Percentage element not found');
     }
 
     // Update progress text
     const progressText = this.progressContainer.querySelector('.progress-text');
+    console.log('🔍 [UI MANAGER DEBUG] Progress text element:', progressText);
     if (progressText && message) {
       progressText.textContent = message;
+      console.log('🔍 [UI MANAGER DEBUG] Progress text updated to:', message);
+    } else {
+      console.error('🔍 [UI MANAGER DEBUG] Progress text element not found or no message');
     }
     this.logger.debug('Progress updated', {
       current,
@@ -19514,6 +19758,7 @@ class UIManager {
       percentage,
       message
     });
+    console.log('🔍 [UI MANAGER DEBUG] updateProgress() completed');
   }
 
   /**
@@ -19811,13 +20056,87 @@ class UIManager {
   }
 
   /**
-   * Show progress display
+   * Show progress section with enhanced debugging and fallback mechanisms
    */
   showProgress() {
-    if (this.progressContainer) {
-      this.progressContainer.style.display = 'block';
-      this.logger.debug('Progress display shown');
+    console.log('🔍 [UI MANAGER DEBUG] showProgress() called');
+    console.log('🔍 [UI MANAGER DEBUG] this.progressContainer:', this.progressContainer);
+
+    // Try multiple ways to get the progress container
+    let progressContainer = this.progressContainer;
+    if (!progressContainer) {
+      console.log('🔍 [UI MANAGER DEBUG] Progress container not found in UI manager, trying direct access...');
+      progressContainer = document.getElementById('progress-container');
     }
+    if (!progressContainer) {
+      console.log('🔍 [UI MANAGER DEBUG] Progress container not found by ID, trying ElementRegistry...');
+      if (typeof _elementRegistry.ElementRegistry !== 'undefined' && _elementRegistry.ElementRegistry.progressContainer) {
+        progressContainer = _elementRegistry.ElementRegistry.progressContainer();
+      }
+    }
+    if (!progressContainer) {
+      console.log('🔍 [UI MANAGER DEBUG] Progress container not found by ElementRegistry, trying class selector...');
+      progressContainer = document.querySelector('.progress-container');
+    }
+    if (!progressContainer) {
+      console.error('🔍 [UI MANAGER DEBUG] Progress container not found by any method');
+      console.error('🔍 [UI MANAGER DEBUG] Available containers with "progress" in ID:', Array.from(document.querySelectorAll('[id*="progress"]')).map(el => el.id));
+      console.error('🔍 [UI MANAGER DEBUG] Available containers with "progress" in class:', Array.from(document.querySelectorAll('[class*="progress"]')).map(el => ({
+        id: el.id,
+        className: el.className
+      })));
+      return;
+    }
+    console.log('🔍 [UI MANAGER DEBUG] Progress container found, showing...');
+    console.log('🔍 [UI MANAGER DEBUG] Current display style:', progressContainer.style.display);
+    console.log('🔍 [UI MANAGER DEBUG] Current visibility:', progressContainer.offsetParent !== null ? 'visible' : 'hidden');
+
+    // Force show the progress container
+    progressContainer.style.display = 'block';
+    progressContainer.style.visibility = 'visible';
+    progressContainer.style.opacity = '1';
+
+    // Ensure it's not hidden by CSS
+    progressContainer.classList.remove('hidden', 'd-none');
+    progressContainer.classList.add('visible');
+
+    // Force layout recalculation
+    progressContainer.offsetHeight;
+    console.log('🔍 [UI MANAGER DEBUG] Display style after setting to block:', progressContainer.style.display);
+    console.log('🔍 [UI MANAGER DEBUG] Container visibility:', progressContainer.offsetParent !== null ? 'visible' : 'hidden');
+    console.log('🔍 [UI MANAGER DEBUG] Container dimensions:', {
+      offsetWidth: progressContainer.offsetWidth,
+      offsetHeight: progressContainer.offsetHeight,
+      clientWidth: progressContainer.clientWidth,
+      clientHeight: progressContainer.clientHeight
+    });
+
+    // Scroll into view if needed
+    if (progressContainer.offsetParent !== null) {
+      progressContainer.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+    }
+
+    // Update UI manager's reference
+    this.progressContainer = progressContainer;
+    this.logger.debug('Progress display shown');
+
+    // Additional verification
+    setTimeout(() => {
+      const isVisible = progressContainer.offsetParent !== null;
+      const rect = progressContainer.getBoundingClientRect();
+      console.log('🔍 [UI MANAGER DEBUG] Final verification:', {
+        isVisible,
+        dimensions: {
+          width: rect.width,
+          height: rect.height
+        },
+        display: progressContainer.style.display,
+        computedDisplay: window.getComputedStyle(progressContainer).display
+      });
+    }, 100);
   }
 
   /**
@@ -20003,19 +20322,28 @@ class UIManager {
    * @param {string} options.populationId - Population ID
    */
   startImportOperation(options = {}) {
+    console.log('🔍 [UI MANAGER DEBUG] startImportOperation() called with options:', options);
     const {
       operationType,
       totalUsers,
       populationName,
       populationId
     } = options;
+    console.log('🔍 [UI MANAGER DEBUG] About to call showProgress()...');
     this.showProgress();
+    console.log('🔍 [UI MANAGER DEBUG] showProgress() completed');
+    console.log('🔍 [UI MANAGER DEBUG] About to call updateProgress()...');
     this.updateProgress(0, totalUsers || 0, 'Starting import operation...');
+    console.log('🔍 [UI MANAGER DEBUG] updateProgress() completed');
 
     // Update operation details
     const operationTypeElement = document.querySelector('.detail-value.operation-type');
+    console.log('🔍 [UI MANAGER DEBUG] Operation type element:', operationTypeElement);
     if (operationTypeElement) {
       operationTypeElement.textContent = operationType || 'Import';
+      console.log('🔍 [UI MANAGER DEBUG] Operation type updated to:', operationType || 'Import');
+    } else {
+      console.error('🔍 [UI MANAGER DEBUG] Operation type element not found');
     }
     this.logger.info('Import operation started', {
       operationType,
@@ -20023,6 +20351,7 @@ class UIManager {
       populationName,
       populationId
     });
+    console.log('🔍 [UI MANAGER DEBUG] startImportOperation() completed');
   }
 
   /**

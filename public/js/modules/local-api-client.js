@@ -12,10 +12,99 @@ export class LocalAPIClient {
     constructor(logger, baseUrl = '') {
         this.logger = logger || console;
         this.baseUrl = baseUrl;
+        this.serverHealth = {
+            lastCheck: 0,
+            isHealthy: true,
+            consecutiveFailures: 0,
+            maxConsecutiveFailures: 3
+        };
+        this.healthCheckInterval = 30000; // 30 seconds
     }
 
     /**
-     * Make an API request to the local server
+     * Check server health before making requests
+     * @private
+     */
+    async _checkServerHealth() {
+        const now = Date.now();
+        
+        // Only check health if enough time has passed since last check
+        if (now - this.serverHealth.lastCheck < this.healthCheckInterval) {
+            return this.serverHealth.isHealthy;
+        }
+
+        try {
+            const response = await fetch(`${this.baseUrl}/api/health`, {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' },
+                signal: AbortSignal.timeout(5000) // 5 second timeout
+            });
+
+            if (response.ok) {
+                this.serverHealth.isHealthy = true;
+                this.serverHealth.consecutiveFailures = 0;
+                this.logger.debug('✅ Server health check passed');
+            } else {
+                this.serverHealth.isHealthy = false;
+                this.serverHealth.consecutiveFailures++;
+                this.logger.warn('⚠️ Server health check failed', { status: response.status });
+            }
+        } catch (error) {
+            this.serverHealth.isHealthy = false;
+            this.serverHealth.consecutiveFailures++;
+            this.logger.warn('⚠️ Server health check error', { error: error.message });
+        }
+
+        this.serverHealth.lastCheck = now;
+        return this.serverHealth.isHealthy;
+    }
+
+    /**
+     * Calculate exponential backoff delay
+     * @private
+     */
+    _calculateBackoffDelay(attempt, baseDelay, maxDelay) {
+        const exponentialDelay = baseDelay * Math.pow(2, attempt - 1);
+        const jitter = Math.random() * 0.1 * exponentialDelay; // Add 10% jitter
+        return Math.min(exponentialDelay + jitter, maxDelay);
+    }
+
+    /**
+     * Determine if a request should be retried based on error type
+     * @private
+     */
+    _shouldRetry(error, attempt, maxRetries) {
+        // Don't retry if we've reached max attempts
+        if (attempt >= maxRetries) {
+            return false;
+        }
+
+        // Retry on network errors (no status code)
+        if (!error.status) {
+            return true;
+        }
+
+        // Retry on server errors (5xx)
+        if (error.status >= 500) {
+            return true;
+        }
+
+        // Retry on rate limits (429)
+        if (error.status === 429) {
+            return true;
+        }
+
+        // Retry on timeout errors (408)
+        if (error.status === 408) {
+            return true;
+        }
+
+        // Don't retry on client errors (4xx except 429, 408)
+        return false;
+    }
+
+    /**
+     * Make an API request to the local server with enhanced retry logic
      * @param {string} method - HTTP method (GET, POST, PUT, DELETE, etc.)
      * @param {string} endpoint - API endpoint (without base URL)
      * @param {Object} [data] - Request body (for POST/PUT/PATCH)
@@ -30,8 +119,19 @@ export class LocalAPIClient {
         const requestOptions = {
             ...options,
             retries: options.retries || 3,
-            retryDelay: options.retryDelay || 1000 // 1 second base delay
+            retryDelay: options.retryDelay || 1000, // 1 second base delay
+            maxRetryDelay: options.maxRetryDelay || 30000, // 30 seconds max delay
+            healthCheck: options.healthCheck !== false, // Enable health check by default
+            timeout: options.timeout || 10000 // 10 second timeout
         };
+
+        // Check server health before making request (if enabled)
+        if (requestOptions.healthCheck && endpoint !== '/api/health') {
+            const isHealthy = await this._checkServerHealth();
+            if (!isHealthy && this.serverHealth.consecutiveFailures >= this.serverHealth.maxConsecutiveFailures) {
+                throw new Error('Server is unhealthy and unavailable for requests');
+            }
+        }
 
         // Prepare headers
         const headers = {
@@ -60,15 +160,22 @@ export class LocalAPIClient {
         };
         this.logger.debug('🔄 Local API Request:', requestLog);
 
-        // Retry logic
+        // Retry logic with exponential backoff
         let lastError = null;
         for (let attempt = 1; attempt <= requestOptions.retries; attempt++) {
             try {
+                // Create abort controller for timeout
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), requestOptions.timeout);
+
                 const response = await fetch(url, {
                     method,
                     headers,
-                    body
+                    body,
+                    signal: controller.signal
                 });
+
+                clearTimeout(timeoutId);
 
                 const responseData = await this._handleResponse(response);
 
@@ -83,18 +190,36 @@ export class LocalAPIClient {
                 };
                 this.logger.debug('✅ Local API Response:', responseLog);
 
+                // Update server health on success
+                if (requestOptions.healthCheck) {
+                    this.serverHealth.isHealthy = true;
+                    this.serverHealth.consecutiveFailures = 0;
+                }
+
                 return responseData;
             } catch (error) {
                 lastError = error;
+                
+                // Handle timeout errors
+                if (error.name === 'AbortError') {
+                    error.message = 'Request timeout';
+                    error.status = 408;
+                }
+
                 this.logger.error(`Local API Error (attempt ${attempt}/${requestOptions.retries}):`, error);
 
                 // Get the friendly error message if available
                 const friendlyMessage = error.friendlyMessage || error.message;
                 const isRateLimit = error.status === 429;
 
-                // Calculate baseDelay and delay here, before using them
+                // Check if we should retry this error
+                if (!this._shouldRetry(error, attempt, requestOptions.retries)) {
+                    throw error;
+                }
+
+                // Calculate backoff delay
                 const baseDelay = isRateLimit ? (requestOptions.retryDelay * 2) : requestOptions.retryDelay;
-                const delay = baseDelay * Math.pow(2, attempt - 1);
+                const delay = this._calculateBackoffDelay(attempt, baseDelay, requestOptions.maxRetryDelay);
 
                 // Show appropriate UI messages based on error type
                 if (window.app && window.app.uiManager) {
@@ -116,19 +241,18 @@ export class LocalAPIClient {
                     }
                 }
 
+                // Update server health on failure
+                if (requestOptions.healthCheck) {
+                    this.serverHealth.isHealthy = false;
+                    this.serverHealth.consecutiveFailures++;
+                }
+
                 // If this is the last attempt, throw with friendly message
                 if (attempt === requestOptions.retries) {
                     throw error;
                 }
 
-                // Only retry for rate limits (429) and server errors (5xx)
-                const shouldRetry = isRateLimit || error.status >= 500 || !error.status;
-                if (!shouldRetry) {
-                    // Don't retry for client errors (4xx except 429), throw immediately
-                    throw error;
-                }
-
-                // Use the delay calculated above
+                // Log retry attempt
                 this.logger.info(`Retrying request in ${delay}ms... (attempt ${attempt + 1}/${requestOptions.retries})`);
                 await new Promise(resolve => setTimeout(resolve, delay));
             }

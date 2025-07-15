@@ -155,14 +155,17 @@ const GlobalTokenManager = {
     getTokenInfo() {
         try {
             if (window.app && window.app.pingOneClient) {
-                const token = window.app.pingOneClient.getAccessToken();
-                if (token && token.expiresAt) {
-                    const now = Math.floor(Date.now() / 1000);
-                    const timeLeft = Math.max(0, token.expiresAt - now);
+                const tokenInfo = window.app.pingOneClient.getCurrentTokenTimeRemaining();
+                
+                if (tokenInfo && tokenInfo.token && !tokenInfo.isExpired) {
+                    // Parse the time remaining from the formatted string
+                    const timeRemaining = this.parseTimeRemaining(tokenInfo.timeRemaining);
+                    
                     return {
                         hasToken: true,
-                        timeLeft: timeLeft,
-                        expiresAt: token.expiresAt
+                        timeLeft: timeRemaining,
+                        expiresAt: window.app.pingOneClient.tokenExpiry,
+                        token: tokenInfo.token
                     };
                 }
             }
@@ -170,6 +173,43 @@ const GlobalTokenManager = {
         } catch (error) {
             console.error('Error getting token info:', error);
             return { hasToken: false, timeLeft: 0 };
+        }
+    },
+
+    /**
+     * Parse time remaining string to seconds
+     * Handles formats like "5m 30s", "1h 15m 30s", "45s"
+     */
+    parseTimeRemaining(timeString) {
+        if (!timeString || timeString === 'Expired') {
+            return 0;
+        }
+        
+        try {
+            let totalSeconds = 0;
+            
+            // Handle hours
+            const hoursMatch = timeString.match(/(\d+)h/);
+            if (hoursMatch) {
+                totalSeconds += parseInt(hoursMatch[1]) * 3600;
+            }
+            
+            // Handle minutes
+            const minutesMatch = timeString.match(/(\d+)m/);
+            if (minutesMatch) {
+                totalSeconds += parseInt(minutesMatch[1]) * 60;
+            }
+            
+            // Handle seconds
+            const secondsMatch = timeString.match(/(\d+)s/);
+            if (secondsMatch) {
+                totalSeconds += parseInt(secondsMatch[1]);
+            }
+            
+            return totalSeconds;
+        } catch (error) {
+            console.error('Error parsing time remaining:', error);
+            return 0;
         }
     },
 
@@ -252,5 +292,9 @@ const GlobalTokenManager = {
     }
 };
 
-// Export the module
-export default GlobalTokenManager; 
+// Export the module for browserify
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = GlobalTokenManager;
+} else if (typeof window !== 'undefined') {
+    window.GlobalTokenManager = GlobalTokenManager;
+} 
