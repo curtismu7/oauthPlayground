@@ -969,26 +969,23 @@ body.has-disclaimer-banner {
     transform: translateY(-1px);
 }
 
-/* Sidebar Version Badge - Positioned above Ping Identity logo */
+/* Sidebar Version Badge - Positioned after Ping Identity logo */
 .sidebar-version-badge {
+    display: inline-block;
     background: linear-gradient(135deg, var(--ping-secondary) 0%, var(--ping-primary) 100%);
     color: var(--ping-white);
-    padding: 6px 12px;
+    padding: 2px 8px;
     border-radius: 6px;
-    font-size: var(--ping-font-size-sm);
+    font-size: 11px;
     font-weight: 600;
     font-family: var(--ping-font-family);
-    text-align: center;
-    margin-bottom: var(--ping-spacing-sm);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    transition: all 0.3s ease;
+    margin-left: 8px;
+    margin-right: 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+    vertical-align: middle;
+    line-height: 1.2;
     position: relative;
-    overflow: hidden;
-    z-index: 10;
-    width: fit-content;
-    margin-left: auto;
-    margin-right: auto;
-    display: block;
+    z-index: 1;
 }
 
 .sidebar-version-badge::before {
@@ -1088,9 +1085,9 @@ main {
     }
     
     .sidebar-version-badge {
-        font-size: var(--ping-font-size-xs);
-        padding: 4px 10px;
-        margin-bottom: var(--ping-spacing-xs);
+        font-size: 10px;
+        padding: 2px 6px;
+        margin-left: 6px;
     }
 }
 
@@ -1109,9 +1106,9 @@ main {
     }
     
     .sidebar-version-badge {
-        font-size: 10px;
-        padding: 3px 8px;
-        margin-bottom: var(--ping-spacing-xs);
+        font-size: 9px;
+        padding: 1px 4px;
+        margin-left: 4px;
     }
     
     .ping-logo-img {
@@ -1589,4 +1586,48 @@ body.token-alert-open {
 
 .token-alert-overlay.active .token-alert-modal {
     animation: tokenAlertSlideIn 0.3s ease-out;
+} 
+
+.ping-trademark {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    font-family: var(--ping-font-family, 'Open Sans', Arial, sans-serif);
+    color: var(--ping-white);
+    margin-left: 6px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+.trademark-symbol {
+    font-size: 10px;
+    vertical-align: super;
+    margin-left: 2px;
+    opacity: 0.7;
+    font-weight: 400;
+} 
+
+.footer-version {
+    color: var(--ping-white);
+    font-size: 13px;
+    font-family: var(--ping-font-family);
+    font-weight: 400;
+    opacity: 0.9;
+    margin-left: 12px;
+    margin-right: 12px;
+    white-space: nowrap;
+}
+.ping-logo-img {
+    height: 20px;
+    width: auto;
+    display: block;
+    margin-right: 8px;
+}
+.ping-trademark {
+    font-size: 15px;
+    font-family: var(--ping-font-family);
+    font-weight: 500;
+    margin-left: 4px;
+    color: var(--ping-white);
+    letter-spacing: 0.5px;
+    display: inline-block;
 } 

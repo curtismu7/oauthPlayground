@@ -147,7 +147,13 @@ class WinstonLogger {
         if (!this.shouldLog(level)) return;
         
         try {
-            const logEntry = this.formatLogEntry(level, message, meta);
+            // Format the request body according to the API expectations
+            const requestBody = {
+                message,
+                level,
+                data: meta,
+                source: 'frontend'
+            };
             
             // Send to server logging endpoint
             await fetch('/api/logs/ui', {
@@ -155,9 +161,14 @@ class WinstonLogger {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(logEntry)
+                body: JSON.stringify(requestBody)
             });
         } catch (error) {
+            // Handle connection refused errors silently during startup
+            if (error.message.includes('Failed to fetch') || error.message.includes('ERR_CONNECTION_REFUSED')) {
+                // Don't log connection refused errors to avoid console spam during startup
+                return;
+            }
             // Fallback to console if server logging fails
             console.warn('Server logging failed, falling back to console:', error.message);
             this.logToConsole(level, message, meta);

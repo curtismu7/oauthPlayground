@@ -518,6 +518,13 @@ router.get('/users', getUsers);
 router.get('/populations', getPopulations);
 
 // All other requests go through the proxy handler (catch-all)
-router.all('*', proxyRequest);
+// Skip the get-token endpoint as it's handled by the main API router
+router.all('*', (req, res, next) => {
+    if (req.path === '/get-token') {
+        // Let the main API router handle this
+        return next();
+    }
+    return proxyRequest(req, res);
+});
 
 export default router;

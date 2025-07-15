@@ -195,8 +195,8 @@ class CredentialsModal {
     bindEvents() {
         // Use credentials button
         if (this.useCredentialsBtn) {
-            this.useCredentialsBtn.addEventListener('click', () => {
-                this.useCurrentCredentials();
+            this.useCredentialsBtn.addEventListener('click', async () => {
+                await this.useCurrentCredentials();
             });
         }
 
@@ -310,21 +310,95 @@ class CredentialsModal {
         this.lastFocusableElement = this.focusableElements[this.focusableElements.length - 1];
     }
 
-    useCurrentCredentials() {
+    async useCurrentCredentials() {
         this.logEvent('credentials_used', { 
             hasCredentials: !!this.credentials,
             environmentId: this.credentials?.environmentId ? 'set' : 'not_set',
             clientId: this.credentials?.clientId ? 'set' : 'not_set'
         });
         
-        this.hideModal();
-        this.enableApplication();
+        try {
+            // Save credentials to settings and get token
+            await this.saveCredentialsAndGetToken();
+            
+            this.hideModal();
+            this.enableApplication();
+            
+            // Update token status to reflect that credentials are now being used
+            this.updateTokenStatusAfterCredentialsUse();
+            
+            // Show success message
+            this.showSuccessMessage('Credentials saved and token acquired successfully!');
+            
+        } catch (error) {
+            console.error('Error using credentials:', error);
+            this.showError('Failed to use credentials', error.message);
+        }
+    }
+    
+    async saveCredentialsAndGetToken() {
+        if (!this.credentials) {
+            throw new Error('No credentials available to save');
+        }
         
-        // Update token status to reflect that credentials are now being used
-        this.updateTokenStatusAfterCredentialsUse();
+        // Convert credentials to settings format
+        const settings = {
+            environmentId: this.credentials.environmentId,
+            apiClientId: this.credentials.clientId,
+            apiSecret: this.credentials.clientSecret,
+            populationId: this.credentials.populationId || '',
+            region: this.credentials.region || 'NorthAmerica',
+            rateLimit: this.credentials.rateLimit || 90
+        };
         
-        // Show success message
-        this.showSuccessMessage('Using current credentials. You can change them anytime in Settings.');
+        // Save to credentials manager if available
+        if (window.credentialsManager) {
+            window.credentialsManager.saveCredentials(settings);
+            console.log('Credentials saved to credentials manager');
+        }
+        
+        // Save to localStorage as backup
+        localStorage.setItem('pingone_credentials', JSON.stringify(settings));
+        console.log('Credentials saved to localStorage');
+        
+        // Update settings form if on settings page
+        if (window.app && window.app.populateSettingsForm) {
+            window.app.populateSettingsForm(settings);
+            console.log('Settings form updated with credentials');
+        }
+        
+        // Get a new token with the saved credentials
+        if (window.app && window.app.pingOneClient) {
+            // Update the PingOne client with new credentials
+            window.app.pingOneClient.updateCredentials(settings);
+            
+            // Get a new token
+            const token = await window.app.pingOneClient.getAccessToken();
+            console.log('New token acquired with saved credentials');
+            
+            return token;
+        } else {
+            throw new Error('PingOne client not available');
+        }
+    }
+    
+    showError(title, message) {
+        // Create and show an error notification
+        const notification = document.createElement('div');
+        notification.className = 'notification notification-error';
+        notification.innerHTML = `
+            <i class="fas fa-exclamation-circle"></i>
+            <span><strong>${title}:</strong> ${message}</span>
+        `;
+        
+        const notificationArea = document.getElementById('notification-area');
+        if (notificationArea) {
+            notificationArea.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 8000);
+        }
     }
     
     updateTokenStatusAfterCredentialsUse() {

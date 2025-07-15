@@ -18,6 +18,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { createWinstonLogger, createRequestLogger, createErrorLogger, createPerformanceLogger } from './server/winston-config.js';
 import TokenManager from './server/token-manager.js';
+import { createConnectionManager } from './server/connection-manager.js';
 import { 
     isPortAvailable, 
     findAvailablePort, 
@@ -109,6 +110,12 @@ let PORT = process.env.PORT || 4000;
 
 // Attach token manager to app for route access
 app.set('tokenManager', tokenManager);
+
+// Set skip duplicate check flag if environment variable is set
+if (process.env.SKIP_DUPLICATE_CHECK === 'true') {
+    app.set('skipDuplicateCheck', true);
+    console.log('⚠️  SKIP_DUPLICATE_CHECK enabled - duplicate checking will be bypassed');
+}
 
 // Attach logs router to app for internal access
 app.set('logsRouter', logsRouter);
@@ -636,11 +643,27 @@ const startServer = async () => {
     // --- Socket.IO server for primary real-time updates ---
     const io = new SocketIOServer(server, {
         cors: {
-            origin: '*', // Adjust as needed for security
-            methods: ['GET', 'POST']
-        }
+            origin: "*",
+            methods: ["GET", "POST"]
+        },
+        pingTimeout: 60000, // 60 seconds - increased from default
+        pingInterval: 25000, // 25 seconds - increased from default
+        transports: ['polling'], // Start with polling only to avoid WebSocket issues
+        allowEIO3: true, // Allow Engine.IO v3 clients
+        maxHttpBufferSize: 1e6, // 1MB max payload
+        connectTimeout: 45000, // 45 seconds connection timeout
+        upgradeTimeout: 10000, // 10 seconds for transport upgrade
+        allowUpgrades: false, // Disable transport upgrades to avoid protocol conflicts
+        perMessageDeflate: false, // Disable compression to avoid compatibility issues
+        httpCompression: true, // Enable HTTP compression for polling
+        // wsEngine: 'ws' // Removed wsEngine setting to fix Socket.IO error
     });
     global.ioClients = new Map();
+    global.io = io; // Make Socket.IO instance globally available
+    
+    // Initialize connection manager
+    const connectionManager = createConnectionManager(logger);
+    app.set('connectionManager', connectionManager);
     
     // Add error handling to Socket.IO server
     io.on('error', (error) => {
@@ -653,123 +676,87 @@ const startServer = async () => {
     });
     
     io.on('connection', (socket) => {
+        logger.info('Socket.IO connection established', {
+            id: socket.id,
+            remoteAddress: socket.handshake.address
+        });
+        
+        // Set up connection health monitoring
+        socket.isAlive = true;
+        socket.lastActivity = Date.now();
+        
         // Add error handling to individual Socket.IO connections
         socket.on('error', (error) => {
             logger.error('Socket.IO connection error', {
                 error: error.message,
                 code: error.code,
-                stack: error.stack
+                stack: error.stack,
+                socketId: socket.id,
+                sessionId: socket.sessionId
             });
             // Don't crash the server for individual Socket.IO errors
         });
         
+        // Enhanced heartbeat monitoring
+        socket.on('ping', () => {
+            socket.isAlive = true;
+            socket.lastActivity = Date.now();
+            socket.emit('pong', { timestamp: Date.now() });
+        });
+        
+        // Monitor for client-side pong responses
+        socket.on('pong', () => {
+            socket.isAlive = true;
+            socket.lastActivity = Date.now();
+        });
+        
         socket.on('registerSession', (sessionId) => {
             if (sessionId) {
+                // Store socket reference
                 global.ioClients.set(sessionId, socket);
                 socket.sessionId = sessionId;
+                
+                // Join the session room for targeted messaging
+                socket.join(sessionId);
+                
+                logger.info('Socket.IO session registered', {
+                    sessionId,
+                    socketId: socket.id,
+                    totalClients: global.ioClients.size
+                });
+                
+                // Send confirmation
+                socket.emit('sessionRegistered', {
+                    sessionId,
+                    timestamp: Date.now()
+                });
             }
         });
         
-        socket.on('disconnect', () => {
-            if (socket.sessionId) global.ioClients.delete(socket.sessionId);
+        socket.on('disconnect', (reason) => {
+            logger.info('Socket.IO connection disconnected', {
+                socketId: socket.id,
+                sessionId: socket.sessionId,
+                reason
+            });
+            
+            if (socket.sessionId) {
+                global.ioClients.delete(socket.sessionId);
+                logger.info('Socket.IO session removed', {
+                    sessionId: socket.sessionId,
+                    remainingClients: global.ioClients.size
+                });
+            }
+        });
+        
+        // Handle ping/pong for connection health
+        socket.on('ping', () => {
+            socket.emit('pong', { timestamp: Date.now() });
         });
     });
 
-    // --- WebSocket server for fallback ---
-    const wss = new WebSocketServer({ server });
-    global.wsClients = new Map();
-    
-    // Add error handling to WebSocket server
-    wss.on('error', (error) => {
-        logger.error('WebSocket server error', {
-            error: error.message,
-            code: error.code,
-            stack: error.stack
-        });
-        // Don't crash the server for WebSocket errors
-    });
-    
-    wss.on('connection', (ws, req) => {
-        // Add error handling to individual WebSocket connections
-        ws.on('error', (error) => {
-            logger.error('WebSocket connection error', {
-                error: error.message,
-                code: error.code,
-                stack: error.stack
-            });
-            // Don't crash the server for individual WebSocket errors
-        });
-        
-        // Add ping/pong to keep connection alive and detect issues
-        ws.isAlive = true;
-        ws.on('pong', () => {
-            ws.isAlive = true;
-        });
-        
-        ws.on('message', (msg) => {
-            try {
-                // Handle ping messages
-                if (msg.toString() === 'ping') {
-                    ws.send('pong');
-                    return;
-                }
-                
-                // Parse JSON messages
-                const data = JSON.parse(msg);
-                const { sessionId } = data;
-                if (sessionId) {
-                    global.wsClients.set(sessionId, ws);
-                    ws.sessionId = sessionId;
-                }
-            } catch (error) {
-                logger.warn('Failed to parse WebSocket message', {
-                    error: error.message,
-                    message: msg.toString().substring(0, 100)
-                });
-            }
-        });
-        
-        ws.on('close', (code, reason) => {
-            logger.info('WebSocket connection closed', {
-                code,
-                reason: reason?.toString(),
-                sessionId: ws.sessionId
-            });
-            if (ws.sessionId) global.wsClients.delete(ws.sessionId);
-        });
-        
-        // Send initial connection confirmation
-        try {
-            ws.send(JSON.stringify({ type: 'connected', timestamp: Date.now() }));
-        } catch (error) {
-            logger.warn('Failed to send WebSocket welcome message', {
-                error: error.message
-            });
-        }
-    });
-    
-    // Set up ping interval to detect stale connections
-    const pingInterval = setInterval(() => {
-        wss.clients.forEach((ws) => {
-            if (ws.isAlive === false) {
-                logger.info('Terminating stale WebSocket connection');
-                return ws.terminate();
-            }
-            ws.isAlive = false;
-            try {
-                ws.ping();
-            } catch (error) {
-                logger.warn('Failed to ping WebSocket connection', {
-                    error: error.message
-                });
-            }
-        });
-    }, 30000); // Ping every 30 seconds
-    
-    // Clean up interval on server close
-    wss.on('close', () => {
-        clearInterval(pingInterval);
-    });
+    // Initialize connection manager with Socket.IO only
+    connectionManager.initialize(io);
 
     // --- Socket Connection Test on Startup ---
     const testSocketConnections = async () => {

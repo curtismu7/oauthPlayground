@@ -11,6 +11,10 @@ import { createWinstonLogger } from './winston-logger.js';
 import { CryptoUtils } from './crypto-utils.js';
 
 class SettingsManager {
+    /**
+     * Create a new SettingsManager instance
+     * @param {Object} logger - Winston logger instance for debugging
+     */
     constructor(logger = null) {
         // Initialize settings with default values
         this.settings = this.getDefaultSettings();
@@ -26,6 +30,7 @@ class SettingsManager {
     
     /**
      * Initialize the settings manager
+     * @returns {Promise<void>}
      */
     async init() {
         try {
@@ -40,6 +45,7 @@ class SettingsManager {
     
     /**
      * Initialize Winston logger
+     * @param {Object} logger - Logger instance
      */
     initializeLogger(logger) {
         if (logger && typeof logger.child === 'function') {
@@ -54,6 +60,7 @@ class SettingsManager {
     
     /**
      * Create a default console logger if none provided
+     * @returns {Object} Default logger object
      */
     createDefaultLogger() {
         return {
@@ -68,9 +75,13 @@ class SettingsManager {
     /**
      * Get region info by code
      * @param {string} code - Region code (e.g., 'NA', 'CA', 'EU', 'AU', 'SG', 'AP')
-     * @returns {{code: string, tld: string, label: string}}
+     * @returns {{code: string, tld: string, label: string}} Region information
      */
     static getRegionInfo(code) {
+        if (!code) {
+            return { code: 'NA', tld: 'com', label: 'North America (excluding Canada)' };
+        }
+        
         const regions = {
             NA: { code: 'NA', tld: 'com', label: 'North America (excluding Canada)' },
             CA: { code: 'CA', tld: 'ca', label: 'Canada' },
@@ -84,6 +95,7 @@ class SettingsManager {
 
     /**
      * Get default settings
+     * @returns {Object} Default settings object
      */
     getDefaultSettings() {
         return {
@@ -105,6 +117,7 @@ class SettingsManager {
     
     /**
      * Load settings from storage
+     * @returns {Promise<Object>} Loaded settings
      */
     async loadSettings() {
         try {
@@ -162,6 +175,8 @@ class SettingsManager {
     
     /**
      * Save settings to storage
+     * @param {Object} settings - Settings to save (optional)
+     * @returns {Promise<void>}
      */
     async saveSettings(settings = null) {
         try {
@@ -212,15 +227,28 @@ class SettingsManager {
     
     /**
      * Get a specific setting
+     * @param {string} key - Setting key
+     * @returns {*} Setting value
      */
     getSetting(key) {
+        if (!key) {
+            throw new Error('Setting key is required');
+        }
+        
         return this.settings[key];
     }
     
     /**
      * Set a specific setting
+     * @param {string} key - Setting key
+     * @param {*} value - Setting value
+     * @returns {Promise<void>}
      */
     async setSetting(key, value) {
+        if (!key) {
+            throw new Error('Setting key is required');
+        }
+        
         try {
             this.settings[key] = value;
             await this.saveSettings();
@@ -234,6 +262,7 @@ class SettingsManager {
     
     /**
      * Get all settings
+     * @returns {Object} All settings
      */
     getAllSettings() {
         return { ...this.settings };
@@ -241,8 +270,14 @@ class SettingsManager {
     
     /**
      * Update multiple settings at once
+     * @param {Object} newSettings - New settings to update
+     * @returns {Promise<void>}
      */
     async updateSettings(newSettings) {
+        if (!newSettings || typeof newSettings !== 'object') {
+            throw new Error('New settings object is required');
+        }
+        
         try {
             this.settings = { ...this.settings, ...newSettings };
             await this.saveSettings();
@@ -260,6 +295,7 @@ class SettingsManager {
     
     /**
      * Reset settings to defaults
+     * @returns {Promise<void>}
      */
     async resetSettings() {
         try {
@@ -275,6 +311,7 @@ class SettingsManager {
     
     /**
      * Clear all settings
+     * @returns {Promise<void>}
      */
     async clearSettings() {
         try {
@@ -290,6 +327,7 @@ class SettingsManager {
     
     /**
      * Initialize encryption with a key derived from browser and user-specific data
+     * @returns {Promise<void>}
      */
     async initializeEncryption() {
         try {
@@ -319,6 +357,7 @@ class SettingsManager {
                     return storedDeviceId;
                 }
             }
+            
             // Generate device ID from browser info
             const navigatorInfo = {
                 userAgent: navigator.userAgent,
@@ -332,7 +371,11 @@ class SettingsManager {
             const hashBuffer = await crypto.subtle.digest('SHA-256', data);
             const hashArray = Array.from(new Uint8Array(hashBuffer));
             const deviceId = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            if (typeof deviceId !== 'string' || !deviceId) return 'fallback-device-id';
+            
+            if (typeof deviceId !== 'string' || !deviceId) {
+                return 'fallback-device-id';
+            }
+            
             return deviceId;
         } catch (error) {
             this.logger.error('Failed to generate device ID:', error);
@@ -343,6 +386,7 @@ class SettingsManager {
     
     /**
      * Check if localStorage is available
+     * @returns {boolean} True if localStorage is available
      */
     isLocalStorageAvailable() {
         try {
@@ -358,6 +402,7 @@ class SettingsManager {
     
     /**
      * Export settings (for backup)
+     * @returns {Promise<Object>} Export data
      */
     async exportSettings() {
         try {
@@ -377,13 +422,19 @@ class SettingsManager {
     
     /**
      * Import settings (from backup)
+     * @param {Object} importData - Import data object
+     * @returns {Promise<void>}
      */
     async importSettings(importData) {
+        if (!importData) {
+            throw new Error('Import data is required');
+        }
+        
+        if (!importData.settings) {
+            throw new Error('Invalid import data: missing settings');
+        }
+        
         try {
-            if (!importData.settings) {
-                throw new Error('Invalid import data: missing settings');
-            }
-            
             this.settings = { ...this.getDefaultSettings(), ...importData.settings };
             await this.saveSettings();
             
@@ -400,6 +451,7 @@ class SettingsManager {
     
     /**
      * Debug method to check localStorage contents
+     * @returns {Object|null} Debug information
      */
     debugLocalStorage() {
         try {

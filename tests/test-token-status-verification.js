@@ -125,9 +125,9 @@ if (passedChecks === totalChecks) {
     console.log('\n🎉 Token Status Indicator implementation is complete and ready for use!');
     console.log('\n📋 Next Steps:');
     console.log('1. Start the server: npm start');
-    console.log('2. Visit http://localhost:3000 to see the indicator');
-    console.log('3. Test different scenarios at http://localhost:3000/test-token-status.html');
-    console.log('4. Check Swagger UI at http://localhost:3000/swagger/');
+    console.log('2. Visit http://localhost:4000 to see the indicator');
+    console.log('3. Test different scenarios at http://localhost:4000/test-token-status.html');
+    console.log('4. Check Swagger UI at http://localhost:4000/swagger/');
 } else {
     console.log('\n⚠️  Some checks failed. Please review the implementation.');
 }

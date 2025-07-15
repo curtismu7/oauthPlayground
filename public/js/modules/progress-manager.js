@@ -66,7 +66,7 @@ class ProgressManager {
     }
 
     /**
-     * Initialize the progress manager
+     * Initialize the progress manager and setup core functionality
      */
     initialize() {
         try {
@@ -91,6 +91,15 @@ class ProgressManager {
                 this.isEnabled = false;
                 return;
             }
+
+            // Log the progress container details for debugging
+            this.logger.info('Progress container found', {
+                id: this.progressContainer.id,
+                className: this.progressContainer.className,
+                display: this.progressContainer.style.display,
+                visibility: this.progressContainer.style.visibility,
+                offsetParent: this.progressContainer.offsetParent !== null
+            });
 
             // Create enhanced progress content
             this.progressContainer.innerHTML = `
@@ -190,16 +199,12 @@ class ProgressManager {
                                         <span class="detail-value operation-type">-</span>
                                     </div>
                                     <div class="detail-item">
+                                        <span class="detail-label">Session ID:</span>
+                                        <span class="detail-value session-id">-</span>
+                                    </div>
+                                    <div class="detail-item">
                                         <span class="detail-label">Population:</span>
-                                        <span class="detail-value population-name">-</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <span class="detail-label">File:</span>
-                                        <span class="detail-value file-name">-</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <span class="detail-label">Status:</span>
-                                        <span class="detail-value status-text">Initializing...</span>
+                                        <span class="detail-value population-info">-</span>
                                     </div>
                                     <div class="detail-item">
                                         <span class="detail-label">Connection:</span>
@@ -208,866 +213,752 @@ class ProgressManager {
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="duplicate-handling" style="display: none;">
-                            <div class="duplicate-header">
-                                <h4><i class="fas fa-exclamation-triangle"></i> Duplicate Handling</h4>
-                            </div>
-                            <div class="duplicate-content">
-                                <div class="duplicate-mode">
-                                    <label>
-                                        <input type="radio" name="duplicateMode" value="skip" checked>
-                                        <span>Skip duplicates</span>
-                                    </label>
-                                    <label>
-                                        <input type="radio" name="duplicateMode" value="update">
-                                        <span>Update existing</span>
-                                    </label>
-                                    <label>
-                                        <input type="radio" name="duplicateMode" value="create">
-                                        <span>Create new</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             `;
 
-            // Cache important elements
-            this.progressBar = this.progressContainer.querySelector('.progress-bar-fill');
-            this.progressPercentage = this.progressContainer.querySelector('.progress-percentage');
-            this.progressText = this.progressContainer.querySelector('.progress-text');
-            this.operationTitle = this.progressContainer.querySelector('.operation-title .title-text');
-            this.operationSubtitle = this.progressContainer.querySelector('.operation-subtitle');
-            this.statusText = this.progressContainer.querySelector('.status-text');
-            this.connectionType = this.progressContainer.querySelector('.connection-type');
-            this.cancelButton = this.progressContainer.querySelector('.cancel-operation');
-            this.steps = this.progressContainer.querySelectorAll('.step');
-            this.statsElements = {
-                processed: this.progressContainer.querySelector('.stat-value.processed'),
-                success: this.progressContainer.querySelector('.stat-value.success'),
-                failed: this.progressContainer.querySelector('.stat-value.failed'),
-                skipped: this.progressContainer.querySelector('.stat-value.skipped')
-            };
-            this.timingElements = {
-                elapsed: this.progressContainer.querySelector('.elapsed-value'),
-                eta: this.progressContainer.querySelector('.eta-value')
-            };
-            this.detailElements = {
-                operationType: this.progressContainer.querySelector('.detail-value.operation-type'),
-                populationName: this.progressContainer.querySelector('.detail-value.population-name'),
-                fileName: this.progressContainer.querySelector('.detail-value.file-name')
-            };
-
-            this.logger.debug('Progress elements setup complete');
+            this.logger.debug('Progress elements setup completed');
         } catch (error) {
             this.logger.error('Error setting up progress elements', { error: error.message });
+            this.isEnabled = false;
         }
     }
 
     /**
-     * Setup event listeners
+     * Setup event listeners for progress interactions
      */
     setupEventListeners() {
+        if (!this.isEnabled) {
+            this.logger.warn('Progress manager not enabled - skipping event listener setup');
+            return;
+        }
+
         try {
-            if (this.cancelButton) {
-                this.cancelButton.addEventListener('click', () => this.cancelOperation());
+            // Cancel operation button
+            const cancelButton = this.progressContainer.querySelector('.cancel-operation');
+            if (cancelButton) {
+                cancelButton.addEventListener('click', () => this.cancelOperation());
             }
 
-            // Duplicate handling mode changes
-            const duplicateModeInputs = this.progressContainer.querySelectorAll('input[name="duplicateMode"]');
-            duplicateModeInputs.forEach(input => {
-                input.addEventListener('change', (e) => {
-                    this.duplicateHandlingMode = e.target.value;
-                    this.logger.debug('Duplicate handling mode changed', { mode: this.duplicateHandlingMode });
-                });
-            });
+            // Close progress button (if exists)
+            const closeButton = this.progressContainer.querySelector('.close-progress-btn');
+            if (closeButton) {
+                closeButton.addEventListener('click', () => this.hideProgress());
+            }
 
-            this.logger.debug('Event listeners setup complete');
+            this.logger.debug('Progress event listeners setup completed');
         } catch (error) {
-            this.logger.error('Error setting up event listeners', { error: error.message });
+            this.logger.error('Error setting up progress event listeners', { error: error.message });
         }
     }
 
     /**
-     * Start a new operation with enhanced real-time communication
+     * Start a new operation with progress tracking
+     * @param {string} operationType - Type of operation (import, export, delete, modify)
+     * @param {Object} options - Operation options
+     * @param {number} options.totalUsers - Total number of users
+     * @param {string} options.populationName - Population name
+     * @param {string} options.populationId - Population ID
      */
     startOperation(operationType, options = {}) {
-        try {
-            this.logger.info('Starting operation', { operationType, options });
-            
-            this.currentOperation = operationType;
-            this.isActive = true;
-            this.startTime = Date.now();
-            this.connectionRetries = 0;
-            
-            // Reset stats
-            this.resetOperationStats();
-            
-            // Update operation details
-            this.updateOperationTitle(operationType);
-            this.updateOperationDetails(options);
-            this.updateOperationStatus('initializing', 'Starting operation...');
-            
-            // Show progress UI
-            this.showProgress();
-            
-            // Start timing updates
-            this.startTimingUpdates();
-            
-            // Initialize real-time connection when session ID is available
-            if (options.sessionId) {
-                this.initializeRealTimeConnection(options.sessionId);
-            }
-            
-            this.logger.info('Operation started successfully', { operationType });
-            
-        } catch (error) {
-            this.logger.error('Error starting operation', { error: error.message, operationType });
-            this.handleOperationError('Failed to start operation', { error: error.message });
+        if (!this.isEnabled) {
+            this.logger.warn('Progress manager not enabled - cannot start operation');
+            return;
         }
+
+        this.currentOperation = operationType;
+        this.isActive = true;
+        this.startTime = Date.now();
+        this.resetOperationStats();
+
+        // Update operation details
+        this.updateOperationTitle(operationType);
+        this.updateOperationDetails(options);
+
+        // Show progress
+        this.showProgress();
+
+        // Start timing updates
+        this.startTimingUpdates();
+
+        this.logger.info('Operation started', { operationType, options });
     }
 
     /**
-     * Initialize real-time connection with Socket.IO and WebSocket fallback
+     * Initialize real-time connection for progress updates
+     * @param {string} sessionId - Session ID for tracking
      */
     initializeRealTimeConnection(sessionId) {
-        try {
-            if (!sessionId) {
-                this.logger.warn('No session ID provided for real-time connection');
-                this.updateOperationStatus('info', 'Operation started. Real-time progress will be available once connection is established.');
-                return;
-            }
-
-            // Use session manager to validate session ID if available
-            if (typeof sessionManager !== 'undefined' && sessionManager.validateSessionId) {
-                if (!sessionManager.validateSessionId(sessionId)) {
-                    this.logger.error('Invalid session ID format', { sessionId, type: typeof sessionId });
-                    this.updateOperationStatus('error', 'Invalid session ID format. Real-time progress tracking unavailable.');
-                    return;
-                }
-
-                // Register session with session manager
-                sessionManager.registerSession(sessionId, this.currentOperation || 'unknown', {
-                    startTime: this.startTime,
-                    stats: this.stats
-                });
-            } else {
-                this.logger.warn('Session manager not available - proceeding without session validation');
-            }
-
-            this.currentSessionId = sessionId;
-            
-            // Close existing connections
-            this.closeConnections();
-            
-            // Try Socket.IO first, then WebSocket fallback
-            this.trySocketIOConnection(sessionId);
-            
-        } catch (error) {
-            this.logger.error('Error initializing real-time connection', { error: error.message, sessionId });
+        if (!sessionId) {
+            this.logger.warn('No session ID provided for real-time connection');
+            return;
         }
+
+        this.currentSessionId = sessionId;
+        this.connectionRetries = 0;
+
+        // Try Socket.IO first, then fallback to WebSocket
+        this.trySocketIOConnection(sessionId);
     }
 
     /**
-     * Try Socket.IO connection first
+     * Try Socket.IO connection for real-time updates
+     * @param {string} sessionId - Session ID for tracking
      */
     trySocketIOConnection(sessionId) {
         try {
-            this.logger.info('Attempting Socket.IO connection', { sessionId });
-            this.updateOperationStatus('connecting', 'Establishing Socket.IO connection...');
-            
-            // Check if Socket.IO is available
-            if (typeof io === 'undefined') {
-                this.logger.warn('Socket.IO not available, trying WebSocket fallback');
+            // Import Socket.IO dynamically
+            import('socket.io-client').then(({ io }) => {
+                this.socket = io('/', {
+                    transports: ['websocket', 'polling'],
+                    timeout: 5000,
+                    forceNew: true
+                });
+
+                this.socket.on('connect', () => {
+                    this.connectionType = 'socketio';
+                    this.updateConnectionType('Socket.IO');
+                    this.logger.info('Socket.IO connected', { sessionId });
+                });
+
+                this.socket.on('progress', (data) => {
+                    this.handleProgressEvent(data);
+                });
+
+                this.socket.on('complete', (data) => {
+                    this.handleCompletionEvent(data);
+                });
+
+                this.socket.on('error', (data) => {
+                    this.handleErrorEvent(data);
+                });
+
+                this.socket.on('disconnect', () => {
+                    this.logger.warn('Socket.IO disconnected');
+                    this.handleConnectionFailure();
+                });
+
+                // Join session room
+                this.socket.emit('join-session', { sessionId });
+
+            }).catch((error) => {
+                this.logger.warn('Socket.IO not available, trying WebSocket', { error: error.message });
                 this.tryWebSocketConnection(sessionId);
-                return;
-            }
-
-            // Create Socket.IO connection
-            this.socket = io({
-                timeout: 5000,
-                forceNew: true
-            });
-
-            // Register session
-            this.socket.emit('registerSession', sessionId);
-
-            // Handle connection events
-            this.socket.on('connect', () => {
-                this.logger.info('Socket.IO connection established', { sessionId });
-                this.connectionType = 'socketio';
-                this.updateConnectionType('Socket.IO');
-                this.updateOperationStatus('connected', 'Real-time connection established via Socket.IO');
-            });
-
-            this.socket.on('disconnect', () => {
-                this.logger.warn('Socket.IO connection disconnected', { sessionId });
-                this.updateOperationStatus('disconnected', 'Connection lost. Attempting to reconnect...');
-            });
-
-            this.socket.on('connect_error', (error) => {
-                this.logger.error('Socket.IO connection error', { error: error.message, sessionId });
-                this.updateOperationStatus('error', 'Socket.IO connection failed. Trying WebSocket fallback...');
-                this.tryWebSocketConnection(sessionId);
-            });
-
-            // Handle progress events
-            this.socket.on('progress', (data) => {
-                this.logger.info('Socket.IO progress event received', { data });
-                this.handleProgressEvent(data);
-            });
-
-            this.socket.on('completion', (data) => {
-                this.logger.info('Socket.IO completion event received', { data });
-                this.handleCompletionEvent(data);
-            });
-
-            this.socket.on('error', (data) => {
-                this.logger.error('Socket.IO error event received', { data });
-                this.handleErrorEvent(data);
             });
 
         } catch (error) {
-            this.logger.error('Error setting up Socket.IO connection', { error: error.message, sessionId });
+            this.logger.warn('Socket.IO connection failed, trying WebSocket', { error: error.message });
             this.tryWebSocketConnection(sessionId);
         }
     }
 
     /**
      * Try WebSocket connection as fallback
+     * @param {string} sessionId - Session ID for tracking
      */
     tryWebSocketConnection(sessionId) {
         try {
-            this.logger.info('Attempting WebSocket connection', { sessionId });
-            this.updateOperationStatus('connecting', 'Establishing WebSocket connection...');
-            
-            // Check if WebSocket is available
-            if (typeof WebSocket === 'undefined') {
-                this.logger.error('WebSocket not available');
-                this.updateOperationStatus('error', 'No real-time communication available');
-                return;
-            }
-
-            // Create WebSocket connection
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsUrl = `${protocol}//${window.location.host}`;
+            const wsUrl = `${protocol}//${window.location.host}/ws`;
+            
             this.websocket = new WebSocket(wsUrl);
 
-            // Handle WebSocket events
             this.websocket.onopen = () => {
-                this.logger.info('WebSocket connection established', { sessionId });
                 this.connectionType = 'websocket';
                 this.updateConnectionType('WebSocket');
-                this.updateOperationStatus('connected', 'Real-time connection established via WebSocket');
+                this.logger.info('WebSocket connected', { sessionId });
                 
-                // Register session
-                this.websocket.send(JSON.stringify({ sessionId }));
-            };
-
-            this.websocket.onclose = () => {
-                this.logger.warn('WebSocket connection closed', { sessionId });
-                this.updateOperationStatus('disconnected', 'WebSocket connection closed');
-            };
-
-            this.websocket.onerror = (error) => {
-                this.logger.error('WebSocket connection error', { error: error.message, sessionId });
-                this.updateOperationStatus('error', 'WebSocket connection failed');
-                this.handleConnectionFailure();
+                // Send session join message
+                this.websocket.send(JSON.stringify({
+                    type: 'join-session',
+                    sessionId: sessionId
+                }));
             };
 
             this.websocket.onmessage = (event) => {
                 try {
                     const data = JSON.parse(event.data);
-                    this.logger.info('WebSocket message received', { data });
-                    this.handleProgressEvent(data);
+                    switch (data.type) {
+                        case 'progress':
+                            this.handleProgressEvent(data);
+                            break;
+                        case 'complete':
+                            this.handleCompletionEvent(data);
+                            break;
+                        case 'error':
+                            this.handleErrorEvent(data);
+                            break;
+                    }
                 } catch (error) {
-                    this.logger.error('Error parsing WebSocket message', { error: error.message, data: event.data });
+                    this.logger.error('Error parsing WebSocket message', { error: error.message });
                 }
             };
 
+            this.websocket.onclose = (event) => {
+                this.logger.warn('WebSocket closed', { code: event.code, reason: event.reason });
+                this.handleConnectionFailure();
+            };
+
+            this.websocket.onerror = (error) => {
+                this.logger.error('WebSocket error', { error: error.message });
+                this.handleConnectionFailure();
+            };
+
         } catch (error) {
-            this.logger.error('Error setting up WebSocket connection', { error: error.message, sessionId });
+            this.logger.error('WebSocket connection failed', { error: error.message });
             this.handleConnectionFailure();
         }
     }
 
     /**
-     * Handle connection failure and retry logic
+     * Handle connection failure and implement fallback strategy
      */
     handleConnectionFailure() {
         this.connectionRetries++;
         
-        if (this.connectionRetries < this.maxRetries) {
-            this.logger.warn('Connection failed, retrying', { 
-                retry: this.connectionRetries, 
-                maxRetries: this.maxRetries 
-            });
-            this.updateOperationStatus('retrying', `Connection failed. Retrying (${this.connectionRetries}/${this.maxRetries})...`);
+        if (this.connectionRetries <= this.maxRetries) {
+            this.logger.info('Retrying connection', { attempt: this.connectionRetries, maxRetries: this.maxRetries });
             
-            // Retry after delay
             setTimeout(() => {
                 if (this.currentSessionId) {
                     this.initializeRealTimeConnection(this.currentSessionId);
                 }
-            }, 2000 * this.connectionRetries); // Exponential backoff
+            }, 1000 * this.connectionRetries); // Exponential backoff
         } else {
-            this.logger.error('Max connection retries reached');
-            this.updateOperationStatus('error', 'Failed to establish real-time connection after multiple attempts');
+            this.logger.warn('Max connection retries reached, falling back to polling');
+            this.updateConnectionType('Polling (Fallback)');
         }
     }
 
     /**
-     * Close all connections
+     * Close all real-time connections
      */
     closeConnections() {
         if (this.socket) {
             this.socket.disconnect();
             this.socket = null;
         }
-        
+
         if (this.websocket) {
-            this.websocket.close();
+            this.websocket.close(1000, 'Operation completed');
             this.websocket = null;
         }
-        
+
         this.connectionType = null;
+        this.logger.debug('Real-time connections closed');
     }
 
     /**
-     * Update session ID after operation starts
+     * Update session ID for tracking
+     * @param {string} sessionId - New session ID
      */
     updateSessionId(sessionId) {
-        try {
-            if (!sessionId) {
-                this.logger.warn('Attempted to update with null/undefined session ID');
-                return;
-            }
-
-            // Use session manager to validate session ID if available
-            if (typeof sessionManager !== 'undefined' && sessionManager.validateSessionId) {
-                if (!sessionManager.validateSessionId(sessionId)) {
-                    this.logger.error('Invalid session ID provided for update', { sessionId });
-                    this.updateOperationStatus('error', 'Invalid session ID format. Real-time progress tracking unavailable.');
-                    return;
-                }
-            } else {
-                this.logger.warn('Session manager not available - proceeding without session validation');
-            }
-
-            this.logger.info('Updating session ID', { sessionId });
-            this.currentSessionId = sessionId;
-            
-            // Re-initialize real-time connection with new session ID
-            this.initializeRealTimeConnection(sessionId);
-            
-        } catch (error) {
-            this.logger.error('Error updating session ID', { error: error.message, sessionId });
+        if (!sessionId) {
+            this.logger.warn('No session ID provided for update');
+            return;
         }
+
+        this.currentSessionId = sessionId;
+        
+        // Update session ID display
+        const sessionElement = this.progressContainer.querySelector('.detail-value.session-id');
+        if (sessionElement) {
+            sessionElement.textContent = sessionId;
+        }
+
+        this.logger.info('Session ID updated', { sessionId });
     }
 
     /**
-     * Handle progress events from real-time connections
+     * Handle progress event from real-time connection
+     * @param {Object} data - Progress event data
      */
     handleProgressEvent(data) {
-        try {
-            this.logger.info('Progress event received', { data });
-            
-            if (!this.progressReceived && data.type === 'progress') {
-                this.progressReceived = true;
-                if (this.progressTimeout) {
-                    clearTimeout(this.progressTimeout);
-                    this.progressTimeout = null;
-                }
-            }
-
-            // Format the event message for better readability
-            const formattedMessage = messageFormatter.formatProgressMessage(
-                this.currentOperation || 'import',
-                data.current || 0,
-                data.total || 0,
-                data.message || '',
-                data.counts || {}
-            );
-
-            this.updateProgress(data.current, data.total, data.message, data.counts);
-            
-        } catch (error) {
-            this.logger.error('Error handling progress event', { error: error.message, data });
+        if (!data) {
+            this.logger.warn('No progress data received');
+            return;
         }
+
+        const { current, total, message, counts } = data;
+        this.updateProgress(current, total, message, counts);
+        
+        this.logger.debug('Progress event handled', { current, total, message });
     }
 
     /**
-     * Handle completion events from real-time connections
+     * Handle completion event from real-time connection
+     * @param {Object} data - Completion event data
      */
     handleCompletionEvent(data) {
-        try {
-            this.logger.info('Completion event received', { data });
-            this.completeOperation(data);
-        } catch (error) {
-            this.logger.error('Error handling completion event', { error: error.message, data });
-        }
+        this.completeOperation(data);
+        this.logger.info('Completion event handled', { data });
     }
 
     /**
-     * Handle error events from real-time connections
+     * Handle error event from real-time connection
+     * @param {Object} data - Error event data
      */
     handleErrorEvent(data) {
-        try {
-            this.logger.error('Error event received', { data });
-            this.handleOperationError(data.message || 'Operation error', data.details || {});
-        } catch (error) {
-            this.logger.error('Error handling error event', { error: error.message, data });
-        }
+        const { message, details } = data;
+        this.handleOperationError(message, details);
+        this.logger.error('Error event handled', { message, details });
     }
 
     /**
-     * Update progress with enhanced visual feedback
+     * Update progress display with current values
+     * @param {number} current - Current progress value
+     * @param {number} total - Total progress value
+     * @param {string} message - Progress message
+     * @param {Object} details - Additional progress details
      */
     updateProgress(current, total, message = '', details = {}) {
-        try {
-            // Update stats
-            if (details.processed !== undefined) this.stats.processed = details.processed;
-            if (details.success !== undefined) this.stats.success = details.success;
-            if (details.failed !== undefined) this.stats.failed = details.failed;
-            if (details.skipped !== undefined) this.stats.skipped = details.skipped;
-
-            // Calculate percentage
-            const percentage = total > 0 ? Math.round((current / total) * 100) : 0;
-            
-            // Update progress bar
-            if (this.progressBar) {
-                this.progressBar.style.width = `${percentage}%`;
-                this.progressBar.setAttribute('aria-valuenow', percentage);
-            }
-
-            // Update percentage display
-            if (this.progressPercentage) {
-                this.progressPercentage.textContent = `${percentage}%`;
-            }
-
-            // Update progress text with formatted message
-            if (this.progressText) {
-                const formattedProgressMessage = messageFormatter.formatProgressMessage(
-                    this.currentOperation || 'import', 
-                    current, 
-                    total, 
-                    message, 
-                    details
-                );
-                this.progressText.textContent = formattedProgressMessage;
-            }
-
-            // Update stats display
-            this.updateStatsDisplay();
-
-            // Update step indicator based on progress
-            this.updateStepIndicatorBasedOnProgress(percentage);
-
-            // Update operation status
-            this.updateOperationStatus('processing', message);
-
-            // Trigger callback
-            if (this.progressCallback) {
-                this.progressCallback(current, total, message, details);
-            }
-
-            this.logger.debug('Progress updated', { 
-                current, 
-                total, 
-                percentage, 
-                message,
-                stats: this.stats 
-            });
-        } catch (error) {
-            this.logger.error('Error updating progress', { error: error.message });
+        if (!this.isEnabled || !this.progressContainer) {
+            this.logger.warn('Progress manager not enabled or container not found');
+            return;
         }
+
+        // Update progress bar
+        const progressBar = this.progressContainer.querySelector('.progress-bar-fill');
+        if (progressBar) {
+            const percentage = total > 0 ? Math.min(100, Math.round((current / total) * 100)) : 0;
+            progressBar.style.width = `${percentage}%`;
+        }
+
+        // Update percentage text
+        const percentageElement = this.progressContainer.querySelector('.progress-percentage');
+        if (percentageElement) {
+            const percentage = total > 0 ? Math.min(100, Math.round((current / total) * 100)) : 0;
+            percentageElement.textContent = `${percentage}%`;
+        }
+
+        // Update progress text
+        const progressText = this.progressContainer.querySelector('.progress-text');
+        if (progressText && message) {
+            progressText.textContent = message;
+        }
+
+        // Update step indicator based on progress
+        if (total > 0) {
+            const percentage = (current / total) * 100;
+            this.updateStepIndicatorBasedOnProgress(percentage);
+        }
+
+        // Update statistics if provided
+        if (details && typeof details === 'object') {
+            this.stats = { ...this.stats, ...details };
+            this.updateStatsDisplay();
+        }
+
+        this.logger.debug('Progress updated', { current, total, message, details });
     }
 
     /**
-     * Update stats display
+     * Update statistics display in the UI
      */
     updateStatsDisplay() {
-        try {
-            if (this.statsElements.processed) {
-                this.statsElements.processed.textContent = this.stats.processed;
+        if (!this.progressContainer) return;
+
+        Object.entries(this.stats).forEach(([key, value]) => {
+            const statElement = this.progressContainer.querySelector(`.stat-value.${key}`);
+            if (statElement) {
+                statElement.textContent = value || 0;
             }
-            if (this.statsElements.success) {
-                this.statsElements.success.textContent = this.stats.success;
-            }
-            if (this.statsElements.failed) {
-                this.statsElements.failed.textContent = this.stats.failed;
-            }
-            if (this.statsElements.skipped) {
-                this.statsElements.skipped.textContent = this.stats.skipped;
-            }
-        } catch (error) {
-            this.logger.error('Error updating stats display', { error: error.message });
-        }
+        });
+
+        this.logger.debug('Statistics display updated', { stats: this.stats });
     }
 
     /**
      * Update step indicator based on progress percentage
+     * @param {number} percentage - Progress percentage (0-100)
      */
     updateStepIndicatorBasedOnProgress(percentage) {
-        try {
-            let step = 'init';
-            
-            if (percentage > 0 && percentage < 25) {
-                step = 'validate';
-            } else if (percentage >= 25 && percentage < 90) {
-                step = 'process';
-            } else if (percentage >= 90) {
-                step = 'complete';
-            }
-            
-            this.updateStepIndicator(step);
-        } catch (error) {
-            this.logger.error('Error updating step indicator', { error: error.message });
+        let step = 'init';
+        
+        if (percentage >= 100) {
+            step = 'complete';
+        } else if (percentage >= 75) {
+            step = 'process';
+        } else if (percentage >= 25) {
+            step = 'validate';
         }
+
+        this.updateStepIndicator(step);
     }
 
     /**
-     * Update step indicator
+     * Update step indicator to show current operation phase
+     * @param {string} step - Step name (init, validate, process, complete)
      */
     updateStepIndicator(step) {
-        try {
-            this.steps.forEach(stepElement => {
-                stepElement.classList.remove('active', 'completed');
-                
-                if (stepElement.dataset.step === step) {
-                    stepElement.classList.add('active');
-                } else if (this.getStepOrder(stepElement.dataset.step) < this.getStepOrder(step)) {
-                    stepElement.classList.add('completed');
-                }
-            });
-        } catch (error) {
-            this.logger.error('Error updating step indicator', { error: error.message });
+        if (!this.progressContainer) return;
+
+        const steps = this.progressContainer.querySelectorAll('.step');
+        steps.forEach(stepElement => {
+            stepElement.classList.remove('active', 'completed');
+        });
+
+        const currentStep = this.progressContainer.querySelector(`[data-step="${step}"]`);
+        if (currentStep) {
+            currentStep.classList.add('active');
         }
+
+        // Mark previous steps as completed
+        const stepOrder = this.getStepOrder(step);
+        steps.forEach(stepElement => {
+            const stepName = stepElement.getAttribute('data-step');
+            const stepIndex = this.getStepOrder(stepName);
+            if (stepIndex < stepOrder) {
+                stepElement.classList.add('completed');
+            }
+        });
+
+        this.logger.debug('Step indicator updated', { step });
     }
 
     /**
      * Get step order for comparison
+     * @param {string} step - Step name
+     * @returns {number} Step order (0-3)
      */
     getStepOrder(step) {
-        const order = { 'init': 0, 'validate': 1, 'process': 2, 'complete': 3 };
+        const order = { init: 0, validate: 1, process: 2, complete: 3 };
         return order[step] || 0;
     }
 
     /**
-     * Start timing updates
+     * Start timing updates for operation duration
      */
     startTimingUpdates() {
-        try {
-            this.timingInterval = setInterval(() => {
-                this.updateTiming();
-            }, 1000);
-        } catch (error) {
-            this.logger.error('Error starting timing updates', { error: error.message });
+        if (this.timingInterval) {
+            clearInterval(this.timingInterval);
         }
+
+        this.timingInterval = setInterval(() => {
+            this.updateTiming();
+        }, 1000);
+
+        this.logger.debug('Timing updates started');
     }
 
     /**
-     * Update timing display
+     * Update timing display with elapsed time and ETA
      */
     updateTiming() {
-        try {
-            if (!this.startTime) return;
-            
-            const elapsed = Date.now() - this.startTime;
-            const elapsedFormatted = this.formatDuration(elapsed);
-            
-            if (this.timingElements.elapsed) {
-                this.timingElements.elapsed.textContent = elapsedFormatted;
-            }
-            
-            // Calculate ETA based on progress
-            if (this.stats.total > 0 && this.stats.processed > 0) {
-                const progress = this.stats.processed / this.stats.total;
+        if (!this.startTime || !this.progressContainer) return;
+
+        const elapsed = Date.now() - this.startTime;
+        const elapsedElement = this.progressContainer.querySelector('.elapsed-value');
+        if (elapsedElement) {
+            elapsedElement.textContent = this.formatDuration(elapsed);
+        }
+
+        // Calculate ETA if we have progress data
+        if (this.stats.total > 0 && this.stats.processed > 0) {
+            const progress = this.stats.processed / this.stats.total;
+            if (progress > 0) {
                 const estimatedTotal = elapsed / progress;
                 const remaining = estimatedTotal - elapsed;
-                const etaFormatted = this.formatDuration(remaining);
                 
-                if (this.timingElements.eta) {
-                    this.timingElements.eta.textContent = etaFormatted;
-                }
-            } else {
-                if (this.timingElements.eta) {
-                    this.timingElements.eta.textContent = 'Calculating...';
+                const etaElement = this.progressContainer.querySelector('.eta-value');
+                if (etaElement) {
+                    etaElement.textContent = this.formatDuration(remaining);
                 }
             }
-        } catch (error) {
-            this.logger.error('Error updating timing', { error: error.message });
         }
+
+        this.logger.debug('Timing updated', { elapsed });
     }
 
     /**
-     * Complete operation
+     * Complete operation with results
+     * @param {Object} results - Operation results
+     * @param {number} results.processed - Number of processed items
+     * @param {number} results.success - Number of successful items
+     * @param {number} results.failed - Number of failed items
+     * @param {number} results.skipped - Number of skipped items
      */
     completeOperation(results = {}) {
-        try {
-            this.logger.info('Operation completed', { results });
-            
-            this.isActive = false;
-            
-            // Stop timing updates
-            if (this.timingInterval) {
-                clearInterval(this.timingInterval);
-                this.timingInterval = null;
-            }
-            
-            // Update final progress
-            if (results.total) {
-                this.updateProgress(results.total, results.total, 'Operation completed', results);
-            }
-            
-            // Update step indicator
-            this.updateStepIndicator('complete');
-            
-            // Update operation status
-            this.updateOperationStatus('completed', 'Operation completed successfully');
-            
-            // Show completion message
-            if (this.progressText) {
-                const successCount = results.success || this.stats.success;
-                const totalCount = results.total || this.stats.total;
-                this.progressText.textContent = `Operation completed! Processed ${totalCount} items with ${successCount} successful.`;
-            }
-            
-            // Trigger completion callback
-            if (this.completeCallback) {
-                this.completeCallback(results);
-            }
-            
-            // Auto-hide after delay
-            setTimeout(() => {
-                this.hideProgress();
-            }, 3000);
-            
-        } catch (error) {
-            this.logger.error('Error completing operation', { error: error.message, results });
+        if (!this.isEnabled) {
+            this.logger.warn('Progress manager not enabled - cannot complete operation');
+            return;
         }
+
+        // Stop timing updates
+        if (this.timingInterval) {
+            clearInterval(this.timingInterval);
+            this.timingInterval = null;
+        }
+
+        // Close real-time connections
+        this.closeConnections();
+
+        // Update final progress
+        const { processed, success, failed, skipped } = results;
+        this.updateProgress(processed || 0, processed || 0, 'Operation completed');
+
+        // Update final statistics
+        this.stats = { ...this.stats, ...results };
+        this.updateStatsDisplay();
+
+        // Mark as complete
+        this.updateStepIndicator('complete');
+
+        // Call completion callback if provided
+        if (this.completeCallback && typeof this.completeCallback === 'function') {
+            this.completeCallback(results);
+        }
+
+        this.isActive = false;
+        this.logger.info('Operation completed', { results });
     }
 
     /**
      * Handle operation error
+     * @param {string} message - Error message
+     * @param {Object} details - Error details
      */
     handleOperationError(message, details = {}) {
-        try {
-            this.logger.error('Operation error', { message, details });
-            
-            this.isActive = false;
-            
-            // Stop timing updates
-            if (this.timingInterval) {
-                clearInterval(this.timingInterval);
-                this.timingInterval = null;
-            }
-            
-            // Update operation status
-            this.updateOperationStatus('error', message);
-            
-            // Show error message
-            if (this.progressText) {
-                this.progressText.textContent = `Error: ${message}`;
-            }
-            
-            // Update step indicator to show error
-            this.steps.forEach(step => {
-                step.classList.remove('active', 'completed');
-                step.classList.add('error');
-            });
-            
-        } catch (error) {
-            this.logger.error('Error handling operation error', { error: error.message });
+        if (!this.isEnabled) {
+            this.logger.warn('Progress manager not enabled - cannot handle error');
+            return;
         }
+
+        // Stop timing updates
+        if (this.timingInterval) {
+            clearInterval(this.timingInterval);
+            this.timingInterval = null;
+        }
+
+        // Close real-time connections
+        this.closeConnections();
+
+        // Update progress text with error
+        const progressText = this.progressContainer.querySelector('.progress-text');
+        if (progressText) {
+            progressText.textContent = `Error: ${message}`;
+            progressText.classList.add('error');
+        }
+
+        this.isActive = false;
+        this.logger.error('Operation error', { message, details });
     }
 
     /**
-     * Cancel operation
+     * Cancel current operation
      */
     cancelOperation() {
-        try {
-            this.logger.info('Operation cancelled by user');
-            
-            this.isActive = false;
-            
-            // Stop timing updates
-            if (this.timingInterval) {
-                clearInterval(this.timingInterval);
-                this.timingInterval = null;
-            }
-            
-            // Close connections
-            this.closeConnections();
-            
-            // Update operation status
-            this.updateOperationStatus('cancelled', 'Operation cancelled by user');
-            
-            // Trigger cancel callback
-            if (this.cancelCallback) {
-                this.cancelCallback();
-            }
-            
-            // Hide progress
-            this.hideProgress();
-            
-        } catch (error) {
-            this.logger.error('Error cancelling operation', { error: error.message });
+        if (!this.isEnabled || !this.isActive) {
+            this.logger.warn('No active operation to cancel');
+            return;
         }
+
+        // Stop timing updates
+        if (this.timingInterval) {
+            clearInterval(this.timingInterval);
+            this.timingInterval = null;
+        }
+
+        // Close real-time connections
+        this.closeConnections();
+
+        // Call cancel callback if provided
+        if (this.cancelCallback && typeof this.cancelCallback === 'function') {
+            this.cancelCallback();
+        }
+
+        this.isActive = false;
+        this.hideProgress();
+        this.logger.info('Operation cancelled');
     }
 
     /**
-     * Show progress UI
+     * Show progress display
      */
     showProgress() {
-        try {
-            if (this.progressContainer) {
-                this.progressContainer.style.display = 'block';
-                this.progressContainer.classList.add('active');
-            }
-        } catch (error) {
-            this.logger.error('Error showing progress', { error: error.message });
+        if (!this.isEnabled || !this.progressContainer) {
+            this.logger.warn('Progress manager not enabled or container not found');
+            return;
         }
+
+        this.progressContainer.style.display = 'block';
+        this.progressContainer.classList.add('visible');
+
+        // Focus management for accessibility
+        const cancelButton = this.progressContainer.querySelector('.cancel-operation');
+        if (cancelButton) {
+            cancelButton.focus();
+        }
+
+        this.logger.debug('Progress display shown');
     }
 
     /**
-     * Hide progress UI
+     * Hide progress display
      */
     hideProgress() {
-        try {
-            if (this.progressContainer) {
-                this.progressContainer.classList.remove('active');
-                setTimeout(() => {
-                    this.progressContainer.style.display = 'none';
-                }, 300);
-            }
-        } catch (error) {
-            this.logger.error('Error hiding progress', { error: error.message });
-        }
+        if (!this.progressContainer) return;
+
+        this.progressContainer.classList.remove('visible');
+        
+        setTimeout(() => {
+            this.progressContainer.style.display = 'none';
+        }, 300); // Match CSS transition duration
+
+        this.logger.debug('Progress display hidden');
     }
 
     /**
      * Update operation title
+     * @param {string} operationType - Type of operation
      */
     updateOperationTitle(operationType) {
-        try {
-            if (this.operationTitle) {
-                const titles = {
-                    'import': 'Import Operation',
-                    'export': 'Export Operation',
-                    'delete': 'Delete Operation',
-                    'update': 'Update Operation'
-                };
-                this.operationTitle.textContent = titles[operationType] || 'Operation in Progress';
-            }
-        } catch (error) {
-            this.logger.error('Error updating operation title', { error: error.message });
+        if (!this.progressContainer) return;
+
+        const titleElement = this.progressContainer.querySelector('.title-text');
+        if (titleElement) {
+            const titles = {
+                import: 'Import Users',
+                export: 'Export Users',
+                delete: 'Delete Users',
+                modify: 'Modify Users'
+            };
+            titleElement.textContent = titles[operationType] || 'Operation in Progress';
         }
+
+        this.logger.debug('Operation title updated', { operationType });
     }
 
     /**
      * Update operation details
+     * @param {Object} options - Operation options
+     * @param {string} options.populationName - Population name
+     * @param {string} options.populationId - Population ID
+     * @param {number} options.totalUsers - Total number of users
      */
     updateOperationDetails(options = {}) {
-        try {
-            if (this.detailElements.operationType) {
-                this.detailElements.operationType.textContent = options.operationType || this.currentOperation || '-';
-            }
-            if (this.detailElements.populationName) {
-                this.detailElements.populationName.textContent = options.populationName || '-';
-            }
-            if (this.detailElements.fileName) {
-                this.detailElements.fileName.textContent = options.fileName || '-';
-            }
-        } catch (error) {
-            this.logger.error('Error updating operation details', { error: error.message });
+        if (!this.progressContainer) return;
+
+        const { populationName, populationId, totalUsers } = options;
+
+        // Update operation type
+        const operationTypeElement = this.progressContainer.querySelector('.detail-value.operation-type');
+        if (operationTypeElement) {
+            operationTypeElement.textContent = this.currentOperation || 'Unknown';
         }
+
+        // Update population info
+        const populationElement = this.progressContainer.querySelector('.detail-value.population-info');
+        if (populationElement) {
+            populationElement.textContent = populationName || populationId || 'Unknown';
+        }
+
+        // Update total users in stats
+        if (totalUsers) {
+            this.stats.total = totalUsers;
+            this.updateStatsDisplay();
+        }
+
+        this.logger.debug('Operation details updated', { options });
     }
 
     /**
      * Update operation status
+     * @param {string} status - Operation status
+     * @param {string} message - Status message
      */
     updateOperationStatus(status, message = '') {
-        try {
-            if (this.statusText) {
-                this.statusText.textContent = message || status;
-            }
-        } catch (error) {
-            this.logger.error('Error updating operation status', { error: error.message });
+        if (!this.progressContainer) return;
+
+        const subtitleElement = this.progressContainer.querySelector('.operation-subtitle');
+        if (subtitleElement) {
+            subtitleElement.textContent = message || status;
         }
+
+        this.logger.debug('Operation status updated', { status, message });
     }
 
     /**
      * Update connection type display
+     * @param {string} type - Connection type
      */
     updateConnectionType(type) {
-        try {
-            if (this.connectionType) {
-                this.connectionType.textContent = type || '-';
-            }
-        } catch (error) {
-            this.logger.error('Error updating connection type', { error: error.message });
+        if (!this.progressContainer) return;
+
+        const connectionElement = this.progressContainer.querySelector('.detail-value.connection-type');
+        if (connectionElement) {
+            connectionElement.textContent = type;
         }
+
+        this.logger.debug('Connection type updated', { type });
     }
 
     /**
-     * Reset operation stats
+     * Reset operation statistics
      */
     resetOperationStats() {
-        try {
-            this.stats = {
-                processed: 0,
-                success: 0,
-                failed: 0,
-                skipped: 0,
-                total: 0
-            };
-            this.updateStatsDisplay();
-        } catch (error) {
-            this.logger.error('Error resetting operation stats', { error: error.message });
-        }
+        this.stats = {
+            processed: 0,
+            success: 0,
+            failed: 0,
+            skipped: 0,
+            total: 0
+        };
+
+        this.updateStatsDisplay();
+        this.logger.debug('Operation statistics reset');
     }
 
     /**
-     * Format duration in MM:SS format
+     * Format duration in milliseconds to human readable string
+     * @param {number} milliseconds - Duration in milliseconds
+     * @returns {string} Formatted duration string
      */
     formatDuration(milliseconds) {
-        try {
-            const seconds = Math.floor(milliseconds / 1000);
-            const minutes = Math.floor(seconds / 60);
-            const remainingSeconds = seconds % 60;
-            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-        } catch (error) {
-            this.logger.error('Error formatting duration', { error: error.message });
-            return '00:00';
+        const seconds = Math.floor(milliseconds / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+
+        if (hours > 0) {
+            return `${hours}:${String(minutes % 60).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+        } else if (minutes > 0) {
+            return `${minutes}:${String(seconds % 60).padStart(2, '0')}`;
+        } else {
+            return `${seconds}s`;
         }
     }
 
     /**
-     * Set progress callback
+     * Set progress callback function
+     * @param {Function} callback - Progress callback function
      */
     setProgressCallback(callback) {
         this.progressCallback = callback;
+        this.logger.debug('Progress callback set');
     }
 
     /**
-     * Set completion callback
+     * Set completion callback function
+     * @param {Function} callback - Completion callback function
      */
     setCompleteCallback(callback) {
         this.completeCallback = callback;
+        this.logger.debug('Completion callback set');
     }
 
     /**
-     * Set cancel callback
+     * Set cancel callback function
+     * @param {Function} callback - Cancel callback function
      */
     setCancelCallback(callback) {
         this.cancelCallback = callback;
+        this.logger.debug('Cancel callback set');
     }
 
     /**
-     * Debug logging
+     * Debug logging for development
+     * @param {string} area - Debug area
+     * @param {string} message - Debug message
      */
     debugLog(area, message) {
         if (DEBUG_MODE) {
@@ -1076,29 +967,35 @@ class ProgressManager {
     }
 
     /**
-     * Destroy progress manager
+     * Clean up resources and destroy the progress manager
      */
     destroy() {
-        try {
-            this.closeConnections();
-            
-            if (this.timingInterval) {
-                clearInterval(this.timingInterval);
-                this.timingInterval = null;
-            }
-            
-            this.isActive = false;
-            this.currentOperation = null;
-            this.currentSessionId = null;
-            
-            this.logger.info('Progress manager destroyed');
-        } catch (error) {
-            this.logger.error('Error destroying progress manager', { error: error.message });
+        // Stop timing updates
+        if (this.timingInterval) {
+            clearInterval(this.timingInterval);
+            this.timingInterval = null;
         }
+
+        // Close connections
+        this.closeConnections();
+
+        // Clear callbacks
+        this.progressCallback = null;
+        this.completeCallback = null;
+        this.cancelCallback = null;
+
+        // Reset state
+        this.isActive = false;
+        this.currentOperation = null;
+        this.currentSessionId = null;
+
+        this.logger.info('Progress manager destroyed');
     }
 }
 
-// Create and export singleton instance
+// Create and export default instance
 const progressManager = new ProgressManager();
 
-export default progressManager; 
+// Export the class and instance
+export default progressManager;
+export { ProgressManager }; 

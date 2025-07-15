@@ -99,16 +99,21 @@ class Logger {
                 
                 this._initializing = true;
                 try {
-                    // Simulate file logger initialization
+                    // Initialize actual FileLogger for client.log
+                    const { FileLogger } = await import('./file-logger.js');
+                    this._logger = new FileLogger('client.log');
+                    this._initialized = true;
+                    this._processQueue();
+                } catch (error) {
+                    console.warn('Failed to initialize file logger, falling back to console:', error.message);
+                    // Fallback to console logging
                     this._logger = {
                         log: (level, message, data) => {
-                            this.winstonLogger.log(level, message, data);
+                            console[level] || console.log(`[${level.toUpperCase()}] ${message}`, data);
                         }
                     };
                     this._initialized = true;
                     this._processQueue();
-                } catch (error) {
-                    this.winstonLogger.error('Failed to initialize file logger', { error: error.message });
                 } finally {
                     this._initializing = false;
                 }
@@ -117,12 +122,14 @@ class Logger {
             _processQueue() {
                 while (this._queue.length > 0) {
                     const { level, message, data } = this._queue.shift();
-                    this._logger.log(level, message, data);
+                    if (this._logger && typeof this._logger.log === 'function') {
+                        this._logger.log(level, message, data);
+                    }
                 }
             },
             
             log(level, message, data) {
-                if (this._initialized) {
+                if (this._initialized && this._logger) {
                     this._logger.log(level, message, data);
                 } else {
                     this._queue.push({ level, message, data });

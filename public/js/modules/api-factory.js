@@ -17,6 +17,10 @@ import { PingOneClient } from './pingone-client.js';
  * @returns {Object} API client with auto-retry capabilities
  */
 export function createAutoRetryAPIClient(settings, logger) {
+    if (!settings) {
+        throw new Error('Settings are required for API client creation');
+    }
+    
     const tokenManager = new TokenManager(logger, settings);
     
     /**
@@ -26,6 +30,10 @@ export function createAutoRetryAPIClient(settings, logger) {
      * @returns {Promise<Object>} The API response
      */
     async function makeRequest(url, options = {}) {
+        if (!url) {
+            throw new Error('URL is required for API request');
+        }
+        
         return await tokenManager.retryWithNewToken(async (token) => {
             const requestOptions = {
                 ...options,
@@ -62,6 +70,10 @@ export function createAutoRetryAPIClient(settings, logger) {
      * @returns {Promise<Object>} The API response
      */
     async function get(url, options = {}) {
+        if (!url) {
+            throw new Error('URL is required for GET request');
+        }
+        
         return await makeRequest(url, { ...options, method: 'GET' });
     }
     
@@ -73,6 +85,10 @@ export function createAutoRetryAPIClient(settings, logger) {
      * @returns {Promise<Object>} The API response
      */
     async function post(url, data = null, options = {}) {
+        if (!url) {
+            throw new Error('URL is required for POST request');
+        }
+        
         const requestOptions = { ...options, method: 'POST' };
         
         if (data) {
@@ -90,6 +106,10 @@ export function createAutoRetryAPIClient(settings, logger) {
      * @returns {Promise<Object>} The API response
      */
     async function put(url, data = null, options = {}) {
+        if (!url) {
+            throw new Error('URL is required for PUT request');
+        }
+        
         const requestOptions = { ...options, method: 'PUT' };
         
         if (data) {
@@ -106,6 +126,10 @@ export function createAutoRetryAPIClient(settings, logger) {
      * @returns {Promise<Object>} The API response
      */
     async function del(url, options = {}) {
+        if (!url) {
+            throw new Error('URL is required for DELETE request');
+        }
+        
         return await makeRequest(url, { ...options, method: 'DELETE' });
     }
     
@@ -117,6 +141,10 @@ export function createAutoRetryAPIClient(settings, logger) {
      * @returns {Promise<Object>} The API response
      */
     async function patch(url, data = null, options = {}) {
+        if (!url) {
+            throw new Error('URL is required for PATCH request');
+        }
+        
         const requestOptions = { ...options, method: 'PATCH' };
         
         if (data) {
@@ -139,6 +167,10 @@ export function createAutoRetryAPIClient(settings, logger) {
      * @param {Object} newSettings - New settings
      */
     function updateSettings(newSettings) {
+        if (!newSettings) {
+            throw new Error('New settings are required');
+        }
+        
         tokenManager.updateSettings(newSettings);
     }
     
@@ -161,6 +193,14 @@ export function createAutoRetryAPIClient(settings, logger) {
  * @returns {Object} PingOne API client
  */
 export function createPingOneAPIClient(settings, logger) {
+    if (!settings) {
+        throw new Error('Settings are required for PingOne API client creation');
+    }
+    
+    if (!settings.environmentId) {
+        throw new Error('Environment ID is required for PingOne API client');
+    }
+    
     const baseURL = getPingOneBaseURL(settings.region);
     const apiClient = createAutoRetryAPIClient(settings, logger);
     
@@ -190,6 +230,10 @@ export function createPingOneAPIClient(settings, logger) {
      * @returns {Promise<Object>} The API response
      */
     async function pingOneRequest(endpoint, options = {}) {
+        if (!endpoint) {
+            throw new Error('Endpoint is required for PingOne request');
+        }
+        
         const url = `${baseURL}/v1${endpoint}`;
         return await apiClient.makeRequest(url, options);
     }
@@ -211,6 +255,10 @@ export function createPingOneAPIClient(settings, logger) {
      * @returns {Promise<Object>} Create user response
      */
     async function createUser(userData) {
+        if (!userData) {
+            throw new Error('User data is required for user creation');
+        }
+        
         const endpoint = `/environments/${settings.environmentId}/users`;
         return await pingOneRequest(endpoint, { 
             method: 'POST',
@@ -225,6 +273,14 @@ export function createPingOneAPIClient(settings, logger) {
      * @returns {Promise<Object>} Update user response
      */
     async function updateUser(userId, userData) {
+        if (!userId) {
+            throw new Error('User ID is required for user update');
+        }
+        
+        if (!userData) {
+            throw new Error('User data is required for user update');
+        }
+        
         const endpoint = `/environments/${settings.environmentId}/users/${userId}`;
         return await pingOneRequest(endpoint, { 
             method: 'PUT',
@@ -238,6 +294,10 @@ export function createPingOneAPIClient(settings, logger) {
      * @returns {Promise<Object>} Delete user response
      */
     async function deleteUser(userId) {
+        if (!userId) {
+            throw new Error('User ID is required for user deletion');
+        }
+        
         const endpoint = `/environments/${settings.environmentId}/users/${userId}`;
         return await pingOneRequest(endpoint, { method: 'DELETE' });
     }
@@ -259,6 +319,10 @@ export function createPingOneAPIClient(settings, logger) {
      * @returns {Promise<Object>} Create population response
      */
     async function createPopulation(populationData) {
+        if (!populationData) {
+            throw new Error('Population data is required for population creation');
+        }
+        
         const endpoint = `/environments/${settings.environmentId}/populations`;
         return await pingOneRequest(endpoint, { 
             method: 'POST',
@@ -272,6 +336,10 @@ export function createPingOneAPIClient(settings, logger) {
      * @returns {Promise<Object>} Delete population response
      */
     async function deletePopulation(populationId) {
+        if (!populationId) {
+            throw new Error('Population ID is required for population deletion');
+        }
+        
         const endpoint = `/environments/${settings.environmentId}/populations/${populationId}`;
         return await pingOneRequest(endpoint, { method: 'DELETE' });
     }
@@ -305,6 +373,10 @@ class APIFactory {
      * @param {Object} settingsManager - Settings manager instance
      */
     constructor(logger, settingsManager) {
+        if (!settingsManager) {
+            throw new Error('Settings manager is required for API factory');
+        }
+        
         this.logger = logger || console;
         this.settingsManager = settingsManager;
         this.clients = new Map();
@@ -409,13 +481,28 @@ export { APIFactory, initAPIFactory };
 // For backward compatibility, export a default instance (will be initialized when initAPIFactory is called)
 let defaultAPIFactory = null;
 
+/**
+ * API Factory singleton for backward compatibility
+ */
 export const apiFactory = {
+    /**
+     * Get PingOne client
+     * @returns {PingOneClient} PingOne API client
+     * @throws {Error} If API factory is not initialized
+     */
     getPingOneClient: () => {
         if (!defaultAPIFactory) {
             throw new Error('API Factory not initialized. Call initAPIFactory() first.');
         }
         return defaultAPIFactory.getPingOneClient();
     },
+    
+    /**
+     * Get local client
+     * @param {string} [baseUrl=''] - Base URL for the API
+     * @returns {LocalAPIClient} Local API client
+     * @throws {Error} If API factory is not initialized
+     */
     getLocalClient: (baseUrl = '') => {
         if (!defaultAPIFactory) {
             throw new Error('API Factory not initialized. Call initAPIFactory() first.');
@@ -424,7 +511,10 @@ export const apiFactory = {
     }
 };
 
-// For backward compatibility
+/**
+ * Get the default API factory instance
+ * @returns {APIFactory|null} The default API factory instance
+ */
 export const getAPIFactory = () => defaultAPIFactory;
 
 export default {

@@ -43,7 +43,7 @@ let PORT = process.env.PORT || 4000;
 ### 2. Settings API Fix
 ```javascript
 // Before
-const settingsData = await fetch('http://localhost:3000/api/settings').then(res => res.json());
+const settingsData = await fetch('http://localhost:4000/api/settings').then(res => res.json());
 
 // After
 const settingsResponse = await fetch('http://localhost:4000/api/settings');
