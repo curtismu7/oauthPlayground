@@ -149,6 +149,35 @@ class PingOneClient {
     }
     
     /**
+     * Update credentials and clear existing token
+     * @param {Object} credentials - New credentials object
+     */
+    updateCredentials(credentials) {
+        try {
+            this.logger.info('Updating PingOne client credentials');
+            
+            // Clear existing token since credentials are changing
+            this.clearToken();
+            
+            // Store new credentials in localStorage
+            if (typeof localStorage !== 'undefined') {
+                localStorage.setItem('pingone_credentials', JSON.stringify(credentials));
+                this.logger.info('Credentials updated in localStorage');
+            }
+            
+            // Trigger a custom event to notify other components
+            window.dispatchEvent(new CustomEvent('credentials-updated', { 
+                detail: { credentials } 
+            }));
+            
+            this.logger.info('Credentials updated successfully');
+        } catch (error) {
+            this.logger.error('Error updating credentials', { error: error.message });
+            throw error;
+        }
+    }
+    
+    /**
      * Get cached token (alias for getCurrentTokenTimeRemaining for compatibility)
      * Production-ready with comprehensive error handling and validation
      */
@@ -263,7 +292,8 @@ class PingOneClient {
     }
     
     /**
-     * Get access token with caching and refresh logic
+     * Get an access token using client credentials flow
+     * @returns {Promise<string>} Access token
      */
     async getAccessToken() {
         try {
@@ -286,7 +316,11 @@ class PingOneClient {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
-                }
+                },
+                body: JSON.stringify({
+                    // You can add additional parameters here if needed
+                    // useOverrideCredentials: false
+                })
             });
             
             this.logger.debug('Fetch response', { status: response.status, ok: response.ok });
@@ -300,8 +334,14 @@ class PingOneClient {
             const data = await response.json();
             this.logger.debug('Data received from server', { 
                 hasAccessToken: !!data.access_token,
-                expiresIn: data.expires_in
+                expiresIn: data.expires_in,
+                success: data.success
             });
+            
+            if (!data.success) {
+                this.logger.warn('Server returned error', { data });
+                throw new Error(data.error || 'Failed to get token from server');
+            }
             
             if (!data.access_token) {
                 this.logger.warn('No access_token in server response', { data });
@@ -309,12 +349,12 @@ class PingOneClient {
             }
             
             // Save token to storage
-            const tokenSaved = this.saveTokenToStorage(data.access_token, data.expires_in);
+            const tokenSaved = this.saveTokenToStorage(data.access_token, data.expires_in || 3600);
             
             if (tokenSaved) {
                 this.logger.debug('Token saved to localStorage', {
                     tokenLength: data.access_token.length,
-                    expiresIn: data.expires_in
+                    expiresIn: data.expires_in || 3600
                 });
             } else {
                 this.logger.warn('Failed to store token in localStorage');

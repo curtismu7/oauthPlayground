@@ -88,6 +88,23 @@ a:hover, a:focus {
     z-index: 1000;
     transition: width 0.3s ease;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: rgba(255, 255, 255, 0.1);
+    display: block !important;
+    visibility: visible !important;
 }
 
 .sidebar-header {
@@ -588,17 +605,20 @@ label {
     line-height: 1.4;
 }
 
-/* Universal Token Status */
-.universal-token-status {
-    position: fixed;
-    top: 60px; /* Positioned below disclaimer banner */
-    left: var(--sidebar-width);
-    right: 0;
-    z-index: 998;
+/* Token Status Indicator - Replaces universal-token-status */
+.token-status-indicator {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: 1001;
     background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--ping-gray-light);
-    transition: margin-left 0.3s ease;
+    border-top: 1px solid var(--ping-gray-light);
+    border-bottom: none;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+    padding-bottom: 8px;
+    margin-bottom: 0;
+    transition: none;
 }
 
 .token-status-bar {
@@ -665,7 +685,7 @@ label {
         max-width: 40px;
     }
     
-    .universal-token-status {
+    .token-status-indicator {
         left: var(--sidebar-width-collapsed);
     }
     
@@ -728,7 +748,7 @@ label {
         padding-top: 180px; /* Maintain consistent top padding on small screens */
     }
     
-    .universal-token-status {
+    .token-status-indicator {
         left: 0;
     }
     
@@ -1792,4 +1812,158 @@ body.drag-over::after {
     }
 } 
 
- 
+/* Global Status Bar */
+.global-status-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 12px 20px;
+    transform: translateY(-100%);
+    transition: transform 0.3s ease-in-out;
+}
+
+.global-status-bar.show {
+    transform: translateY(0);
+}
+
+.global-status-bar .status-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.global-status-bar .status-text {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    margin: 0 12px;
+}
+
+.global-status-bar .status-icon {
+    font-size: 16px;
+    margin-right: 8px;
+}
+
+.global-status-bar .status-close {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.global-status-bar .status-close:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    color: #333;
+}
+
+/* Status types */
+.global-status-bar.info {
+    background: rgba(13, 110, 253, 0.95);
+    color: white;
+}
+
+.global-status-bar.info .status-text,
+.global-status-bar.info .status-icon {
+    color: white;
+}
+
+.global-status-bar.success {
+    background: rgba(25, 135, 84, 0.95);
+    color: white;
+}
+
+.global-status-bar.success .status-text,
+.global-status-bar.success .status-icon {
+    color: white;
+}
+
+.global-status-bar.warning {
+    background: rgba(255, 193, 7, 0.95);
+    color: #333;
+}
+
+.global-status-bar.warning .status-text,
+.global-status-bar.warning .status-icon {
+    color: #333;
+}
+
+.global-status-bar.error {
+    background: rgba(220, 53, 69, 0.95);
+    color: white;
+}
+
+.global-status-bar.error .status-text,
+.global-status-bar.error .status-icon {
+    color: white;
+}
+
+/* Adjust main content to account for status bar */
+.main-content {
+    padding-top: 0;
+}
+
+.global-status-bar.show + .main-content {
+    padding-top: 60px;
+} 
+
+/* API URL Display Styles */
+.api-url-display {
+    padding: 0.75rem 1rem;
+    background: #f8f9fa;
+    border-radius: var(--border-radius);
+    border: 1px solid #e9ecef;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    color: #495057;
+    word-break: break-all;
+    min-height: 2.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.api-url-display.has-url {
+    background: #e8f5e8;
+    border-color: #28a745;
+    color: #155724;
+}
+
+.api-url-display.no-url {
+    background: #f8f9fa;
+    border-color: #e9ecef;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.api-url-text {
+    display: inline-block;
+    width: 100%;
+    background-color: #ffebcc;
+    color: #000000;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.api-url-display.has-url .api-url-text {
+    background-color: #ffebcc;
+    color: #000000;
+    font-weight: 500;
+}
+
+.api-url-display.no-url .api-url-text {
+    background-color: #ffebcc;
+    color: #000000;
+    font-style: italic;
+}

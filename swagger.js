@@ -5,7 +5,7 @@
  * including request/response schemas, authentication, and examples.
  * 
  * @author PingOne Import Tool
- * @version 5.3
+ * @version 5.5
  */
 
 import swaggerJsdoc from 'swagger-jsdoc';
@@ -21,7 +21,7 @@ const swaggerOptions = {
     openapi: '3.0.0',
     info: {
       title: 'PingOne Import Tool API',
-      version: '5.3',
+      version: '5.5',
       description: `
         Comprehensive API for importing, exporting, and managing users in PingOne.
         
@@ -966,7 +966,7 @@ const swaggerOptions = {
           properties: {
             version: {
               type: 'string',
-              example: '5.3',
+              example: '5.5',
             },
             buildDate: {
               type: 'string',

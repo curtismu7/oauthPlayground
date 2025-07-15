@@ -54,7 +54,6 @@ export const ElementRegistry = {
   // Main UI elements
   importButton: () => getElement('#import-btn', 'Import Button'),
   fileInput: () => getElement('#csv-file', 'File Input'),
-  statusBar: () => getElement('#status-bar', 'Status Bar'),
   dashboardTab: () => getElement('#dashboard-tab', 'Dashboard Tab'),
   dragDropArea: () => getElement('#drag-drop-area', 'Drag-and-Drop Area', false),
   
@@ -63,10 +62,9 @@ export const ElementRegistry = {
   progressContainer: () => getElement('#progress-container', 'Progress Container'),
   
   // Token and connection status elements
-  tokenStatus: () => getElement('#universal-token-status', 'Token Status'),
+  tokenStatus: () => getElement('#token-status-indicator', 'Token Status'),
   connectionStatus: () => getElement('#connection-status', 'Connection Status'),
   currentTokenStatus: () => getElement('#current-token-status', 'Current Token Status'),
-  universalTokenStatus: () => getElement('#universal-token-status', 'Universal Token Status'),
   homeTokenStatus: () => getElement('#home-token-status', 'Home Token Status'),
   
   // File handling elements

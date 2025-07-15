@@ -26,15 +26,19 @@ class TokenStatusIndicator {
      */
     init() {
         try {
+            console.log('Initializing token status indicator...');
             this.createStatusBar();
             this.bindEvents();
             this.startRefreshTimer();
             this.updateStatus();
             this.isInitialized = true;
             
-            console.log('Token status indicator initialized');
+            console.log('✅ Token status indicator initialized successfully');
+            console.log('Token status indicator element:', this.statusBar);
+            console.log('Refresh button:', this.refreshButton);
+            console.log('Get token button:', this.getTokenButton);
         } catch (error) {
-            console.error('Error initializing token status indicator:', error);
+            console.error('❌ Error initializing token status indicator:', error);
         }
     }
 
@@ -42,14 +46,24 @@ class TokenStatusIndicator {
      * Create the status bar HTML structure
      */
     createStatusBar() {
+        console.log('Creating status bar...');
         // Check if status bar already exists
         if (document.getElementById('token-status-indicator')) {
+            console.log('Token status indicator already exists, using existing element');
             this.statusBar = document.getElementById('token-status-indicator');
             this.statusIcon = this.statusBar.querySelector('.token-status-icon');
             this.statusText = this.statusBar.querySelector('.token-status-text');
             this.statusTime = this.statusBar.querySelector('.token-status-time');
             this.refreshButton = this.statusBar.querySelector('#refresh-token-status');
             this.getTokenButton = this.statusBar.querySelector('#get-token-quick');
+            console.log('Found existing elements:', {
+                statusBar: !!this.statusBar,
+                statusIcon: !!this.statusIcon,
+                statusText: !!this.statusText,
+                statusTime: !!this.statusTime,
+                refreshButton: !!this.refreshButton,
+                getTokenButton: !!this.getTokenButton
+            });
             return;
         }
 
@@ -91,7 +105,19 @@ class TokenStatusIndicator {
      * Insert status bar into the page
      */
     insertStatusBar() {
-        // Try to find a good location for the status bar
+        // Try to find the sidebar first
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar) {
+            // Insert at the end of the sidebar, after the nav-links
+            const navLinks = sidebar.querySelector('.nav-links');
+            if (navLinks) {
+                // Insert after nav-links
+                sidebar.appendChild(this.statusBar);
+                return;
+            }
+        }
+
+        // Fallback: Try to find a good location for the status bar
         const locations = [
             () => document.querySelector('.main-content'),
             () => document.querySelector('#app'),

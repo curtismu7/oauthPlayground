@@ -3,354 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Import Debug Test</title>
+    <title>Import Debug Test - PingOne Import Tool</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        body { font-family: Arial, sans-serif; margin: 20px; }
         .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
-        .success { background-color: #d4edda; border-color: #c3e6cb; }
-        .error { background-color: #f8d7da; border-color: #f5c6cb; }
-        .warning { background-color: #fff3cd; border-color: #ffeaa7; }
-        .info { background-color: #d1ecf1; border-color: #bee5eb; }
-        .log { background-color: #f8f9fa; border: 1px solid #dee2e6; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto; padding: 10px; }
-        .button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
-        .button:hover { background: #0056b3; }
-        .button:disabled { background: #6c757d; cursor: not-allowed; }
-        .file-input { margin: 10px 0; }
-        .population-select { margin: 10px 0; }
-        .progress { margin: 10px 0; }
-        .progress-bar { width: 100%; height: 20px; background-color: #e9ecef; border-radius: 10px; overflow: hidden; }
-        .progress-fill { height: 100%; background-color: #007bff; width: 0%; transition: width 0.3s ease; }
+        .success { background: #d4edda; border-color: #c3e6cb; }
+        .error { background: #f8d7da; border-color: #f5c6cb; }
+        .info { background: #d1ecf1; border-color: #bee5eb; }
+        button { padding: 10px 15px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Import Functionality Debug Test</h1>
-        
-        <div class="test-section info">
-            <h3>Test Overview</h3>
-            <p>This test will systematically check each component of the import functionality to identify where the issue occurs.</p>
-        </div>
-
-        <div class="test-section">
-            <h3>1. Server Connection Test</h3>
-            <button class="button" onclick="testServerConnection()">Test Server Connection</button>
-            <div id="server-test-result"></div>
-        </div>
-
-        <div class="test-section">
-            <h3>2. File Upload Test</h3>
-            <input type="file" id="test-file" accept=".csv" class="file-input">
-            <button class="button" onclick="testFileUpload()">Test File Upload</button>
-            <div id="file-test-result"></div>
-        </div>
-
-        <div class="test-section">
-            <h3>3. Population Selection Test</h3>
-            <select id="test-population" class="population-select">
-                <option value="">Select Population</option>
-            </select>
-            <button class="button" onclick="testPopulationSelection()">Test Population Selection</button>
-            <div id="population-test-result"></div>
-        </div>
-
-        <div class="test-section">
-            <h3>4. Import Button State Test</h3>
-            <button class="button" onclick="testImportButtonState()">Test Import Button State</button>
-            <div id="button-test-result"></div>
-        </div>
-
-        <div class="test-section">
-            <h3>5. Import API Test</h3>
-            <button class="button" onclick="testImportAPI()">Test Import API</button>
-            <div id="api-test-result"></div>
-        </div>
-
-        <div class="test-section">
-            <h3>6. Progress Communication Test</h3>
-            <button class="button" onclick="testProgressCommunication()">Test Progress Communication</button>
-            <div id="progress-test-result"></div>
-        </div>
-
-        <div class="test-section">
-            <h3>7. Full Import Test</h3>
-            <button class="button" onclick="testFullImport()">Test Full Import Process</button>
-            <div id="full-test-result"></div>
-        </div>
-
-        <div class="test-section">
-            <h3>Debug Log</h3>
-            <div id="debug-log" class="log"></div>
-            <button class="button" onclick="clearLog()">Clear Log</button>
-        </div>
+    <h1>Import Debug Test</h1>
+    
+    <div class="test-section info">
+        <h3>1. Test Population Loading</h3>
+        <button class="btn-primary" onclick="testPopulationLoading()">Test Population API</button>
+        <div id="population-result"></div>
+    </div>
+    
+    <div class="test-section info">
+        <h3>2. Test File Upload</h3>
+        <input type="file" id="test-file" accept=".csv">
+        <button class="btn-primary" onclick="testFileUpload()">Test File Upload</button>
+        <div id="file-result"></div>
+    </div>
+    
+    <div class="test-section info">
+        <h3>3. Test Import Process</h3>
+        <select id="population-select">
+            <option value="">Select a population...</option>
+        </select>
+        <button class="btn-success" onclick="testImportProcess()">Test Import Process</button>
+        <div id="import-result"></div>
+    </div>
+    
+    <div class="test-section info">
+        <h3>4. Console Debug</h3>
+        <button class="btn-primary" onclick="enableDebugMode()">Enable Debug Mode</button>
+        <button class="btn-primary" onclick="clearConsole()">Clear Console</button>
+        <div id="debug-info"></div>
     </div>
 
     <script>
-        let testSessionId = null;
-        let testEventSource = null;
-
-        function log(message, type = 'info') {
-            const logDiv = document.getElementById('debug-log');
-            const timestamp = new Date().toISOString();
-            const logEntry = document.createElement('div');
-            logEntry.innerHTML = `<span style="color: #666;">[${timestamp}]</span> <span style="color: ${type === 'error' ? 'red' : type === 'success' ? 'green' : type === 'warning' ? 'orange' : 'blue'};"><strong>${type.toUpperCase()}:</strong></span> ${message}`;
-            logDiv.appendChild(logEntry);
-            logDiv.scrollTop = logDiv.scrollHeight;
+        // Enable debug mode
+        function enableDebugMode() {
+            window.DEBUG_MODE = true;
+            console.log('🔧 Debug mode enabled');
+            document.getElementById('debug-info').innerHTML = '<strong>Debug Mode:</strong> Enabled';
         }
 
-        function clearLog() {
-            document.getElementById('debug-log').innerHTML = '';
+        // Clear console
+        function clearConsole() {
+            console.clear();
+            console.log('🧹 Console cleared');
         }
 
-        async function testServerConnection() {
-            const resultDiv = document.getElementById('server-test-result');
-            resultDiv.innerHTML = '<p>Testing server connection...</p>';
-            
+        // Test population loading
+        async function testPopulationLoading() {
             try {
-                const response = await fetch('/api/settings');
-                if (response.ok) {
-                    const data = await response.json();
-                    resultDiv.innerHTML = '<p class="success">✅ Server connection successful</p>';
-                    log('Server connection test passed', 'success');
-                } else {
-                    resultDiv.innerHTML = '<p class="error">❌ Server connection failed</p>';
-                    log(`Server connection failed: ${response.status} ${response.statusText}`, 'error');
-                }
+                console.log('🔄 Testing population loading...');
+                document.getElementById('population-result').innerHTML = '<strong>Status:</strong> Loading...';
+                
+                const response = await fetch('/api/pingone/populations');
+                const populations = await response.json();
+                
+                console.log('📋 Populations loaded:', populations);
+                
+                // Populate the select dropdown
+                const select = document.getElementById('population-select');
+                select.innerHTML = '<option value="">Select a population...</option>';
+                
+                populations.forEach(population => {
+                    const option = document.createElement('option');
+                    option.value = population.id;
+                    option.textContent = `${population.name} (${population.userCount} users)`;
+                    select.appendChild(option);
+                });
+                
+                const result = `
+                    <strong>Status:</strong> Success ✅<br>
+                    <strong>Count:</strong> ${populations.length} populations loaded<br>
+                    <strong>Populations:</strong><br>
+                    <pre>${JSON.stringify(populations.map(p => ({ id: p.id, name: p.name, userCount: p.userCount })), null, 2)}</pre>
+                `;
+                
+                document.getElementById('population-result').innerHTML = result;
+                document.getElementById('population-result').parentElement.className = 'test-section success';
+                
             } catch (error) {
-                resultDiv.innerHTML = '<p class="error">❌ Server connection error</p>';
-                log(`Server connection error: ${error.message}`, 'error');
+                console.error('❌ Population loading failed:', error);
+                document.getElementById('population-result').innerHTML = `
+                    <strong>Status:</strong> Failed ❌<br>
+                    <strong>Error:</strong> ${error.message}
+                `;
+                document.getElementById('population-result').parentElement.className = 'test-section error';
             }
         }
 
-        async function testFileUpload() {
-            const resultDiv = document.getElementById('file-test-result');
+        // Test file upload
+        function testFileUpload() {
+            const fileInput = document.getElementById('test-file');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                document.getElementById('file-result').innerHTML = '<strong>Status:</strong> No file selected ❌';
+                document.getElementById('file-result').parentElement.className = 'test-section error';
+                return;
+            }
+            
+            console.log('📄 File selected:', file);
+            
+            const result = `
+                <strong>Status:</strong> File selected ✅<br>
+                <strong>Name:</strong> ${file.name}<br>
+                <strong>Size:</strong> ${file.size} bytes<br>
+                <strong>Type:</strong> ${file.type}<br>
+                <strong>Last Modified:</strong> ${new Date(file.lastModified).toLocaleString()}
+            `;
+            
+            document.getElementById('file-result').innerHTML = result;
+            document.getElementById('file-result').parentElement.className = 'test-section success';
+        }
+
+        // Test import process
+        async function testImportProcess() {
+            const populationSelect = document.getElementById('population-select');
             const fileInput = document.getElementById('test-file');
             
-            if (!fileInput.files[0]) {
-                resultDiv.innerHTML = '<p class="error">❌ No file selected</p>';
-                log('No file selected for upload test', 'error');
+            const selectedPopulation = populationSelect.value;
+            const file = fileInput.files[0];
+            
+            console.log('🚀 Testing import process...');
+            console.log('Population:', selectedPopulation);
+            console.log('File:', file);
+            
+            if (!selectedPopulation) {
+                document.getElementById('import-result').innerHTML = '<strong>Status:</strong> No population selected ❌';
+                document.getElementById('import-result').parentElement.className = 'test-section error';
                 return;
             }
-
-            const file = fileInput.files[0];
-            resultDiv.innerHTML = '<p>Testing file upload...</p>';
+            
+            if (!file) {
+                document.getElementById('import-result').innerHTML = '<strong>Status:</strong> No file selected ❌';
+                document.getElementById('import-result').parentElement.className = 'test-section error';
+                return;
+            }
             
             try {
+                // Create FormData for the import request
                 const formData = new FormData();
                 formData.append('file', file);
+                formData.append('populationId', selectedPopulation);
+                formData.append('populationName', populationSelect.selectedOptions[0].text);
+                formData.append('totalUsers', '10'); // Mock value
+                
+                console.log('📤 Sending import request...');
+                document.getElementById('import-result').innerHTML = '<strong>Status:</strong> Sending request...';
                 
                 const response = await fetch('/api/import', {
                     method: 'POST',
                     body: formData
                 });
                 
-                if (response.ok) {
-                    const data = await response.json();
-                    resultDiv.innerHTML = '<p class="success">✅ File upload successful</p>';
-                    log('File upload test passed', 'success');
-                    testSessionId = data.sessionId;
+                const result = await response.json();
+                console.log('📥 Import response:', result);
+                
+                if (result.success) {
+                    const successResult = `
+                        <strong>Status:</strong> Import started successfully ✅<br>
+                        <strong>Session ID:</strong> ${result.sessionId}<br>
+                        <strong>Message:</strong> ${result.message || 'Import process initiated'}
+                    `;
+                    document.getElementById('import-result').innerHTML = successResult;
+                    document.getElementById('import-result').parentElement.className = 'test-section success';
                 } else {
-                    const errorData = await response.json();
-                    resultDiv.innerHTML = `<p class="error">❌ File upload failed: ${errorData.message || 'Unknown error'}</p>`;
-                    log(`File upload failed: ${errorData.message || 'Unknown error'}`, 'error');
+                    const errorResult = `
+                        <strong>Status:</strong> Import failed ❌<br>
+                        <strong>Error:</strong> ${result.error}<br>
+                        <strong>Message:</strong> ${result.message}
+                    `;
+                    document.getElementById('import-result').innerHTML = errorResult;
+                    document.getElementById('import-result').parentElement.className = 'test-section error';
                 }
+                
             } catch (error) {
-                resultDiv.innerHTML = '<p class="error">❌ File upload error</p>';
-                log(`File upload error: ${error.message}`, 'error');
+                console.error('❌ Import process failed:', error);
+                document.getElementById('import-result').innerHTML = `
+                    <strong>Status:</strong> Import failed ❌<br>
+                    <strong>Error:</strong> ${error.message}
+                `;
+                document.getElementById('import-result').parentElement.className = 'test-section error';
             }
         }
 
-        async function testPopulationSelection() {
-            const resultDiv = document.getElementById('population-test-result');
-            resultDiv.innerHTML = '<p>Testing population selection...</p>';
-            
-            try {
-                const response = await fetch('/api/populations');
-                if (response.ok) {
-                    const data = await response.json();
-                    const select = document.getElementById('test-population');
-                    select.innerHTML = '<option value="">Select Population</option>';
-                    
-                    if (data.success && data.data && data.data.length > 0) {
-                        data.data.forEach(population => {
-                            const option = document.createElement('option');
-                            option.value = population.id;
-                            option.textContent = population.name;
-                            select.appendChild(option);
-                        });
-                        
-                        resultDiv.innerHTML = '<p class="success">✅ Population selection ready</p>';
-                        log(`Population selection test passed - ${data.data.length} populations loaded`, 'success');
-                    } else {
-                        resultDiv.innerHTML = '<p class="warning">⚠️ No populations available</p>';
-                        log('No populations available', 'warning');
-                    }
-                } else {
-                    resultDiv.innerHTML = '<p class="error">❌ Failed to load populations</p>';
-                    log('Failed to load populations', 'error');
-                }
-            } catch (error) {
-                resultDiv.innerHTML = '<p class="error">❌ Population selection error</p>';
-                log(`Population selection error: ${error.message}`, 'error');
-            }
-        }
-
-        function testImportButtonState() {
-            const resultDiv = document.getElementById('button-test-result');
-            resultDiv.innerHTML = '<p>Testing import button state...</p>';
-            
-            try {
-                // Check if app is available
-                if (typeof window.app === 'undefined') {
-                    resultDiv.innerHTML = '<p class="error">❌ App not initialized</p>';
-                    log('App not initialized', 'error');
-                    return;
-                }
-
-                // Check if updateImportButtonState method exists
-                if (typeof window.app.updateImportButtonState !== 'function') {
-                    resultDiv.innerHTML = '<p class="error">❌ updateImportButtonState method not found</p>';
-                    log('updateImportButtonState method not found', 'error');
-                    return;
-                }
-
-                // Test the method
-                window.app.updateImportButtonState();
-                resultDiv.innerHTML = '<p class="success">✅ Import button state test passed</p>';
-                log('Import button state test passed', 'success');
-            } catch (error) {
-                resultDiv.innerHTML = '<p class="error">❌ Import button state test failed</p>';
-                log(`Import button state test failed: ${error.message}`, 'error');
-            }
-        }
-
-        async function testImportAPI() {
-            const resultDiv = document.getElementById('api-test-result');
-            resultDiv.innerHTML = '<p>Testing import API...</p>';
-            
-            try {
-                const fileInput = document.getElementById('test-file');
-                const populationSelect = document.getElementById('test-population');
-                
-                if (!fileInput.files[0]) {
-                    resultDiv.innerHTML = '<p class="error">❌ No file selected</p>';
-                    log('No file selected for API test', 'error');
-                    return;
-                }
-                
-                if (!populationSelect.value) {
-                    resultDiv.innerHTML = '<p class="error">❌ No population selected</p>';
-                    log('No population selected for API test', 'error');
-                    return;
-                }
-
-                const formData = new FormData();
-                formData.append('file', fileInput.files[0]);
-                formData.append('populationId', populationSelect.value);
-                formData.append('populationName', populationSelect.options[populationSelect.selectedIndex].text);
-                formData.append('totalUsers', '1'); // Test with 1 user
-                
-                const response = await fetch('/api/import', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    testSessionId = data.sessionId;
-                    resultDiv.innerHTML = '<p class="success">✅ Import API test passed</p>';
-                    log(`Import API test passed - Session ID: ${data.sessionId}`, 'success');
-                } else {
-                    const errorData = await response.json();
-                    resultDiv.innerHTML = `<p class="error">❌ Import API failed: ${errorData.message || 'Unknown error'}</p>`;
-                    log(`Import API failed: ${errorData.message || 'Unknown error'}`, 'error');
-                }
-            } catch (error) {
-                resultDiv.innerHTML = '<p class="error">❌ Import API error</p>';
-                log(`Import API error: ${error.message}`, 'error');
-            }
-        }
-
-        function testProgressCommunication() {
-            const resultDiv = document.getElementById('progress-test-result');
-            resultDiv.innerHTML = '<p>Testing progress communication...</p>';
-            
-            if (!testSessionId) {
-                resultDiv.innerHTML = '<p class="error">❌ No session ID available</p>';
-                log('No session ID available for progress test', 'error');
-                return;
-            }
-
-            try {
-                // Test SSE connection
-                const eventSource = new EventSource(`/api/import/progress/${testSessionId}`);
-                
-                eventSource.onopen = function(event) {
-                    resultDiv.innerHTML = '<p class="success">✅ SSE connection established</p>';
-                    log('SSE connection established', 'success');
-                };
-                
-                eventSource.onmessage = function(event) {
-                    try {
-                        const data = JSON.parse(event.data);
-                        log(`Progress update received: ${JSON.stringify(data)}`, 'info');
-                    } catch (error) {
-                        log(`Failed to parse progress data: ${error.message}`, 'error');
-                    }
-                };
-                
-                eventSource.onerror = function(event) {
-                    resultDiv.innerHTML = '<p class="error">❌ SSE connection error</p>';
-                    log('SSE connection error', 'error');
-                    eventSource.close();
-                };
-                
-                // Close connection after 10 seconds
-                setTimeout(() => {
-                    eventSource.close();
-                    log('SSE connection closed after timeout', 'info');
-                }, 10000);
-                
-            } catch (error) {
-                resultDiv.innerHTML = '<p class="error">❌ Progress communication error</p>';
-                log(`Progress communication error: ${error.message}`, 'error');
-            }
-        }
-
-        async function testFullImport() {
-            const resultDiv = document.getElementById('full-test-result');
-            resultDiv.innerHTML = '<p>Testing full import process...</p>';
-            
-            try {
-                // Check if app is available
-                if (typeof window.app === 'undefined') {
-                    resultDiv.innerHTML = '<p class="error">❌ App not initialized</p>';
-                    log('App not initialized for full import test', 'error');
-                    return;
-                }
-
-                // Check if startImport method exists
-                if (typeof window.app.startImport !== 'function') {
-                    resultDiv.innerHTML = '<p class="error">❌ startImport method not found</p>';
-                    log('startImport method not found', 'error');
-                    return;
-                }
-
-                // Test the full import process
-                await window.app.startImport();
-                resultDiv.innerHTML = '<p class="success">✅ Full import test initiated</p>';
-                log('Full import test initiated', 'success');
-            } catch (error) {
-                resultDiv.innerHTML = '<p class="error">❌ Full import test failed</p>';
-                log(`Full import test failed: ${error.message}`, 'error');
-            }
-        }
-
-        // Initialize tests
+        // Auto-load populations on page load
         window.addEventListener('load', function() {
-            log('Import debug test page loaded', 'info');
-            testServerConnection();
-            testPopulationSelection();
+            console.log('🚀 Import debug test page loaded');
+            testPopulationLoading();
         });
     </script>
 </body>

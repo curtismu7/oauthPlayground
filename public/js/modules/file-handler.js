@@ -24,7 +24,16 @@ import { ElementRegistry } from './element-registry.js';
  * @param {Object} uiManager - UI manager for status updates
  */
 class FileHandler {
+    /**
+     * Create a new FileHandler instance
+     * @param {Object} logger - Logger instance for debugging
+     * @param {Object} uiManager - UI manager for status updates
+     */
     constructor(logger, uiManager) {
+        if (!logger) {
+            throw new Error('Logger is required for FileHandler');
+        }
+        
         this.logger = logger;
         this.uiManager = uiManager;
         
@@ -53,16 +62,16 @@ class FileHandler {
         
         // Initialize event listeners for file input
         this.initializeFileInput();
-
-
     }
-
-
 
     // ======================
     // File Info Management
     // ======================
     
+    /**
+     * Load last file info from localStorage
+     * @returns {Object|null} Last file info or null if not found
+     */
     loadLastFileInfo() {
         try {
             const savedFile = localStorage.getItem('lastSelectedFile');
@@ -92,9 +101,14 @@ class FileHandler {
      * import operations. Updates UI with file information and validation results.
      * 
      * @param {File} file - The file to set and process
+     * @param {string} operationType - The operation type ('import', 'delete', 'modify')
      * @returns {Promise<Object>} Promise that resolves with processing result
      */
     async setFile(file, operationType = 'import') {
+        if (!file) {
+            throw new Error('File is required for setFile operation');
+        }
+        
         try {
             this.logger.info('Setting file', { fileName: file.name, fileSize: file.size, operationType });
             
@@ -148,6 +162,10 @@ class FileHandler {
      * @returns {Promise<string>} Promise that resolves with file content as string
      */
     readFileAsText(file) {
+        if (!file) {
+            throw new Error('File is required for reading');
+        }
+        
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = (event) => resolve(event.target.result);
@@ -162,6 +180,10 @@ class FileHandler {
      * @param {string} operationType - The operation type ('import', 'delete', 'modify')
      */
     saveLastFolderPath(file, operationType = 'import') {
+        if (!file) {
+            return;
+        }
+        
         try {
             let folderPath = null;
             
@@ -273,7 +295,9 @@ class FileHandler {
      * @returns {string} The shortened path
      */
     shortenPath(path) {
-        if (!path) return '';
+        if (!path) {
+            return '';
+        }
         
         const maxLength = 30;
         if (path.length <= maxLength) {
@@ -301,7 +325,15 @@ class FileHandler {
         return result.length > maxLength ? '...' + result.slice(-maxLength + 3) : result;
     }
     
+    /**
+     * Save file info to localStorage
+     * @param {Object} fileInfo - File information object
+     */
     saveFileInfo(fileInfo) {
+        if (!fileInfo) {
+            return;
+        }
+        
         try {
             const fileData = {
                 name: fileInfo.name,
@@ -316,6 +348,9 @@ class FileHandler {
         }
     }
     
+    /**
+     * Clear file info from localStorage
+     */
     clearFileInfo() {
         try {
             localStorage.removeItem('lastSelectedFile');
@@ -345,8 +380,13 @@ class FileHandler {
     // File Handling
     // ======================
     
+    /**
+     * Initialize file input event listeners
+     */
     initializeFileInput() {
-        if (!this.fileInput) return;
+        if (!this.fileInput) {
+            return;
+        }
         
         // Remove existing event listeners
         const newFileInput = this.fileInput.cloneNode(true);
@@ -362,17 +402,26 @@ class FileHandler {
     
     /**
      * Handle a File object directly (not an event)
-     * @param {File} file
+     * @param {File} file - The file to handle
      */
     async handleFileObject(file) {
+        if (!file) {
+            throw new Error('File is required for handleFileObject');
+        }
+        
         await this._handleFileInternal(file);
     }
 
     /**
      * Handle file selection from an input event
-     * @param {Event} event
+     * @param {Event} event - The file selection event
      */
     async handleFileSelect(event) {
+        if (!event || !event.target) {
+            this.logger.warn('Invalid file selection event');
+            return;
+        }
+        
         const file = event.target.files[0];
         if (!file) {
             this.logger.warn('No file selected');
@@ -387,11 +436,16 @@ class FileHandler {
 
     /**
      * Shared internal file handling logic
-     * @param {File} file
-     * @param {Event} [event]
+     * @param {File} file - The file to process
+     * @param {Event} [event] - The file selection event (optional)
+     * @param {string} operationType - The operation type ('import', 'delete', 'modify')
      * @private
      */
     async _handleFileInternal(file, event, operationType = 'import') {
+        if (!file) {
+            throw new Error('File is required for internal file handling');
+        }
+        
         console.log('[CSV] _handleFileInternal called with file:', file.name, 'size:', file.size, 'operationType:', operationType);
         try {
             this.logger.info('Processing file', { fileName: file.name, fileSize: file.size, operationType });

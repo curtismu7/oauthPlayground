@@ -109,12 +109,12 @@ class DisclaimerBanner {
       });
     }
 
-    // Auto-hide after 30 seconds if not dismissed
+    // Auto-hide after 3 seconds if not dismissed
     this.autoHideTimeout = setTimeout(() => {
       if (this.isVisible) {
         this.dismissBanner();
       }
-    }, 30000);
+    }, 3000);
   }
 
   /**
