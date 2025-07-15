@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PingOne User Import v5.3</title>
+    <title>PingOne User Import v5.5</title>
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
@@ -26,6 +26,8 @@
     <link rel="stylesheet" href="/css/disclaimer-modal.css">
     <!-- Credentials Modal CSS -->
     <link rel="stylesheet" href="/css/credentials-modal.css">
+    <!-- Status Bar CSS -->
+    <link rel="stylesheet" href="/css/status-bar.css">
     <!-- Disclaimer Banner Script -->
     <script src="/js/modules/disclaimer-banner.js"></script>
     <!-- Disclaimer Modal Script -->
@@ -34,6 +36,12 @@
     <script src="/js/modules/credentials-modal.js"></script>
     <!-- Token Status Indicator Script -->
     <script src="/js/modules/token-status-indicator.js"></script>
+    <!-- Global Token Manager Script -->
+    <script src="/js/modules/global-token-manager.js"></script>
+    <!-- Global Status Manager Script -->
+    <script src="/js/modules/global-status-manager.js"></script>
+    <!-- Credentials Manager Script -->
+    <script src="/js/modules/credentials-manager.js"></script>
 </head>
 <body class="ping-identity-theme">
     <div class="app-container">
@@ -42,46 +50,97 @@
             <div class="sidebar-header">
                 <img src="https://raw.githubusercontent.com/curtismu7/CDN/fd81b602d8c3635a8ca40aab169c83b86eae2dc0/Ping%20Identity_idEzgMTpXK_1.svg" alt="Ping Identity" class="logo">
             </div>
-            <ul class="nav-links">
-                <li class="nav-item active" data-view="home">
-                    <i class="fas fa-home"></i>
-                    <span>Home</span>
-                </li>
-                <li class="nav-item" data-view="import">
-                    <i class="fas fa-upload"></i>
-                    <span>Import</span>
-                </li>
-                <li class="nav-item" data-view="history">
-                    <i class="fas fa-history"></i>
-                    <span>History</span>
-                </li>
-                <li class="nav-item" data-view="delete-csv">
-                    <i class="fas fa-trash"></i>
-                    <span>Delete</span>
-                </li>
-                <li class="nav-item" data-view="modify">
-                    <i class="fas fa-edit"></i>
-                    <span>Modify</span>
-                </li>
-                <li class="nav-item" data-view="export">
-                    <i class="fas fa-download"></i>
-                    <span>Export</span>
-                </li>
-                <li class="nav-item" data-view="settings">
-                    <i class="fas fa-cog"></i>
-                    <span>Settings</span>
-                </li>
-                <li class="nav-item" data-view="logs">
-                    <i class="fas fa-list"></i>
-                    <span>Logs</span>
-                </li>
-            </ul>
+            <div class="sidebar-content">
+                <ul class="nav-links">
+                    <li class="nav-item active" data-view="home">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </li>
+                    <li class="nav-item" data-view="import">
+                        <i class="fas fa-upload"></i>
+                        <span>Import</span>
+                    </li>
+                    <li class="nav-item" data-view="history">
+                        <i class="fas fa-history"></i>
+                        <span>History</span>
+                    </li>
+                    <li class="nav-item" data-view="delete-csv">
+                        <i class="fas fa-trash"></i>
+                        <span>Delete</span>
+                    </li>
+                    <li class="nav-item" data-view="modify">
+                        <i class="fas fa-edit"></i>
+                        <span>Modify</span>
+                    </li>
+                    <li class="nav-item" data-view="export">
+                        <i class="fas fa-download"></i>
+                        <span>Export</span>
+                    </li>
+                    <li class="nav-item" data-view="settings">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </li>
+                    <li class="nav-item" data-view="logs">
+                        <i class="fas fa-list"></i>
+                        <span>Logs</span>
+                    </li>
+                </ul>
+            </div>
+            <!-- Global Token Status Indicator -->
+            <div id="global-token-status" class="global-token-status">
+                <div class="global-token-header">
+                    <i class="fas fa-key"></i>
+                    <span class="global-token-title">Token Status</span>
+                    <div class="global-token-time">
+                        <span class="global-token-countdown"></span>
+                    </div>
+                </div>
+                <div class="global-token-content">
+                    <div class="global-token-status-display">
+                        <span class="global-token-icon">⏳</span>
+                        <span class="global-token-text">Checking token status...</span>
+                    </div>
+                    <div class="global-token-actions">
+                        <button id="global-refresh-token" class="btn btn-sm btn-outline-secondary" title="Refresh token status">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button id="global-get-token" class="btn btn-sm btn-success" title="Get new token" style="display: none;">
+                            <i class="fas fa-key"></i> Get Token
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Legacy Token Status Indicator (hidden) -->
+            <div id="token-status-indicator" class="token-status-indicator sidebar-bottom" style="display: none;">
+                <div class="token-status-content">
+                    <span class="token-status-icon" aria-hidden="true">⏳</span>
+                    <span class="token-status-text">Checking token status...</span>
+                    <span class="token-status-time"></span>
+                </div>
+                <div class="token-status-actions">
+                    <button id="refresh-token-status" class="btn btn-sm btn-outline-secondary" title="Refresh token status" style="display: inline-block;">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button id="get-token-quick" class="btn btn-sm btn-success" title="Get new token" style="display: none;">
+                        <i class="fas fa-key"></i> Get Token
+                    </button>
+                </div>
+            </div>
         </nav>
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Persistent Animated Status Bar -->
-            <div id="status-bar" class="status-bar"></div>
+            <!-- Global Status Bar -->
+            <div id="global-status-bar" class="global-status-bar" style="display: none;">
+                <div class="status-content">
+                    <i class="status-icon"></i>
+                    <span class="status-text"></span>
+                    <button class="status-close" title="Dismiss">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
             
             <!-- Universal Disclaimer Banner -->
             <div id="universal-disclaimer" class="universal-disclaimer-banner">
@@ -93,27 +152,8 @@
             
             <!-- Connection Status -->
             <div id="connection-status" class="connection-status" style="display: none;"></div>
-            <!-- Notification Area -->
-            <div id="notification-area" class="notification-area"></div>
-            
-            <!-- Universal Token Status Bar - Moved to main content area for better visibility -->
-            <div id="universal-token-status" class="universal-token-status">
-                <div class="token-status-bar">
-                    <div class="token-status-content">
-                        <span class="token-status-icon">⏳</span>
-                        <span class="token-status-text">Checking token status...</span>
-                        <span class="token-status-time"></span>
-                    </div>
-                    <div class="token-status-actions">
-                        <button id="refresh-token-status" class="btn btn-sm btn-outline-secondary" title="Refresh token status">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
-                        <button id="get-token-quick" class="btn btn-sm btn-success" title="Get new token" style="display: none;">
-                            <i class="fas fa-key"></i> Get Token
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <!-- Dedicated Status Header -->
+            <div id="notification-area" class="status-header"></div>
             
             <!-- Current Token Status Element -->
             <div id="current-token-status" class="current-token-status" style="display: none;"></div>
@@ -218,6 +258,15 @@
                                     <option value="">Loading populations...</option>
                                 </select>
                             </div>
+                            <div class="form-group">
+                                <label for="population-api-url">API URL:</label>
+                                <div id="population-api-url" class="api-url-display">
+                                    <span class="api-url-text">Select a population to see the API URL</span>
+                                </div>
+                                <div class="population-name-display" style="margin-top: 8px;">
+                                    <span class="population-name-text" style="background-color: #ffff00; color: #000000; padding: 4px 8px; border-radius: 4px; font-weight: 500;">Population: Select a population</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -236,12 +285,7 @@
                                 Skip duplicate users (by username)
                             </label>
                         </div>
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" id="send-welcome-email" checked>
-                                Send welcome email to new users
-                            </label>
-                        </div>
+
                     </div>
 
                     <!-- Import Button -->
@@ -251,8 +295,71 @@
                         </button>
                     </div>
 
-                    <!-- Progress Container for Import UI -->
-                    <div id="progress-container" class="progress-container" style="display:none;"></div>
+                    <!-- Enhanced Progress Section for Import UI -->
+                    <div id="progress-container" class="progress-container" style="display:none;">
+                        <div class="progress-section">
+                            <div class="progress-header">
+                                <h3><i class="fas fa-cog fa-spin"></i> Import Progress</h3>
+                                <button class="close-progress-btn" type="button" aria-label="Close progress">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="progress-content">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar">
+                                        <div class="progress-bar-fill"></div>
+                                    </div>
+                                    <div class="progress-percentage">0%</div>
+                                </div>
+                                
+                                <div class="progress-status">
+                                    <div class="status-message">Preparing import...</div>
+                                    <div class="status-details"></div>
+                                </div>
+                                
+                                <div class="progress-stats">
+                                    <div class="stat-item">
+                                        <span class="stat-label">Total:</span>
+                                        <span class="stat-value total">0</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Processed:</span>
+                                        <span class="stat-value processed">0</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Success:</span>
+                                        <span class="stat-value success">0</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Failed:</span>
+                                        <span class="stat-value failed">0</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Skipped:</span>
+                                        <span class="stat-value skipped">0</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="progress-timing">
+                                    <div class="time-elapsed">
+                                        <i class="fas fa-clock"></i>
+                                        <span>Elapsed: <span class="elapsed-value">00:00</span></span>
+                                    </div>
+                                    <div class="time-remaining">
+                                        <i class="fas fa-hourglass-half"></i>
+                                        <span>ETA: <span class="eta-value">Calculating...</span></span>
+                                    </div>
+                                </div>
+                                
+                                <div class="progress-actions">
+                                    <button class="btn btn-secondary cancel-import-btn" type="button">
+                                        <i class="fas fa-stop"></i> Cancel Import
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -811,6 +918,9 @@
                         <button id="test-connection-btn" class="btn btn-secondary">
                             <i class="fas fa-plug"></i> Test Connection
                         </button>
+                        <button id="get-token-btn" class="btn btn-success">
+                            <i class="fas fa-key"></i> Get Token
+                        </button>
                     </div>
                     
                     <!-- Enhanced Status Field -->
@@ -860,23 +970,16 @@
         </main>
     </div>
 
-    <!-- Ping Identity UI/UX Disclaimer -->
-    <div class="ping-disclaimer">
-        <p>
-            This application uses Ping Identity's UI/UX design system. 
-            For more information about Ping Identity's design guidelines, 
-            visit <a href="https://library.pingidentity.com/" target="_blank" rel="noopener noreferrer">Ping Identity Design Library</a>.
-        </p>
-    </div>
-
     <!-- Footer -->
     <footer class="ping-footer">
         <div class="footer-container">
             <div class="footer-content">
                 <div class="footer-left">
                     <div class="footer-logo">
-                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMTIwIDI0IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMTIuNDggMTIuNDhMMCAwSDEyLjQ4VjEyLjQ4WiIgZmlsbD0iI0ZGRiIvPgo8cGF0aCBkPSJNMTIuNDggMTIuNDhMMjQuOTYgMEgxMi40OFYxMi40OFoiIGZpbGw9IiNGRkYiLz4KPHBhdGggZD0iTTEyLjQ4IDEyLjQ4TDI0Ljk2IDI0Ljk2SDEyLjQ4VjEyLjQ4WiIgZmlsbD0iI0ZGRiIvPgo8cGF0aCBkPSJNMTIuNDggMTIuNDhMMCAyNC45NkgxMi40OFYxMi40OFoiIGZpbGw9IiNGRkYiLz4KPHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCA4MCAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTQwIDhDNDAgMTIuNDE4MyAzNi40MTgzIDE2IDMyIDE2QzI3LjU4MTcgMTYgMjQgMTIuNDE4MyAyNCA4QzI0IDMuNTgxNzIgMjcuNTgxNyAwIDMyIDBDMzYuNDE4MyAwIDQwIDMuNTgxNzIgNDAgOFoiIGZpbGw9IiNGRkYiLz4KPHBhdGggZD0iTTQ4IDhDNDggMTIuNDE4MyA0NC40MTgzIDE2IDQwIDE2QzM1LjU4MTcgMTYgMzIgMTIuNDE4MyAzMiA4QzMyIDMuNTgxNzIgMzUuNTgxNyAwIDQwIDBDNDQuNDE4MyAwIDQ4IDMuNTgxNzIgNDggOFoiIGZpbGw9IiNGRkYiLz4KPHBhdGggZD0iTTU2IDhDNTYgMTIuNDE4MyA1Mi40MTgzIDE2IDQ4IDE2QzQzLjU4MTcgMTYgNDAgMTIuNDE4MyA0MCA4QzQwIDMuNTgxNzIgNDMuNTgxNyAwIDQ4IDBDNTIuNDE4MyAwIDU2IDMuNTgxNzIgNTYgOFoiIGZpbGw9IiNGRkYiLz4KPHBhdGggZD0iTTY0IDhDNjQgMTIuNDE4MyA2MC40MTgzIDE2IDU2IDE2QzUxLjU4MTcgMTYgNDggMTIuNDE4MyA0OCA4QzQ4IDMuNTgxNzIgNTEuNTgxNyAwIDU2IDBDNjAuNDE4MyAwIDY0IDMuNTgxNzIgNjQgOFoiIGZpbGw9IiNGRkYiLz4KPHBhdGggZD0iTTcyIDhDNzIgMTIuNDE4MyA2OC40MTgzIDE2IDY0IDE2QzU5LjU4MTcgMTYgNTYgMTIuNDE4MyA1NiA4QzU2IDMuNTgxNzIgNTkuNTgxNyAwIDY0IDBDNjguNDE4MyAwIDcyIDMuNTgxNzIgNzIgOFoiIGZpbGw9IiNGRkYiLz4KPC9zdmc+Cjwvc3ZnPgo=" alt="Ping Identity" class="ping-logo-img">
+                        <img src="ping-identity-logo.png" alt="Ping Identity" class="ping-logo-img">
+                        <span class="ping-trademark">PingIdentity<span class="trademark-symbol">™</span></span>
                     </div>
+                    <span class="footer-version">Version: 1.0.0</span>
                     <span class="footer-copyright">
                         &copy; 2025 Ping Identity Corporation
                     </span>
@@ -894,7 +997,7 @@
     <!-- Socket.IO Client Library -->
     <script src="/socket.io/socket.io.js"></script>
     <!-- JavaScript -->
-    <script src="/js/bundle.js"></script>
+    <script src="/js/bundle.js?v=1.0.1"></script>
     <script src="/js/modules/log-manager.js"></script>
 </body>
 </html>

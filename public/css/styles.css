@@ -139,13 +139,60 @@ a:hover, a:focus {
     color: inherit;
 }
 
-/* Notification Area */
-.notification-area {
+/* Dedicated Status Header */
+.status-header {
     position: fixed;
-    top: 70px; /* Move below version badge */
-    right: 20px;
+    top: 0;
+    left: 0;
+    right: 0;
     z-index: 1000;
-    max-width: 350px;
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    padding: 10px 20px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 500;
+    color: #495057;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Hide status header when empty */
+.status-header:empty {
+    display: none;
+}
+
+/* Status content styling */
+.status-header .status-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.status-header .status-content i {
+    font-size: 16px;
+}
+
+.status-header .status-content.success {
+    color: #155724;
+}
+
+.status-header .status-content.error {
+    color: #721c24;
+}
+
+.status-header .status-content.warning {
+    color: #856404;
+}
+
+.status-header .status-content.info {
+    color: #0c5460;
 }
 
 /* Standardized Status Messages */
@@ -746,13 +793,232 @@ h1 {
 
 .progress-container {
     width: 100%;
+    margin: 1.5rem 0 1rem;
+    position: relative;
+}
+
+.progress-section {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.progress-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.progress-header h3 i {
+    animation: spin 2s linear infinite;
+}
+
+.progress-content {
+    padding: 1.5rem;
+}
+
+.progress-bar-container {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.progress-bar {
+    width: 100%;
     height: 12px;
     background: #f5f5f5;
     border-radius: 6px;
-    margin: 1.5rem 0 1rem;
     overflow: hidden;
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
     position: relative;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #3498db, #2980b9);
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.4);
+    position: relative;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.progress-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        -45deg,
+        rgba(255, 255, 255, 0.2) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0.2) 75%,
+        transparent 75%
+    );
+    background-size: 30px 30px;
+    animation: move 2s linear infinite;
+    opacity: 0.6;
+}
+
+.progress-percentage {
+    position: absolute;
+    top: -25px;
+    right: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #3498db;
+}
+
+.progress-status {
+    margin-bottom: 1rem;
+}
+
+.status-message {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.status-details {
+    font-size: 0.875rem;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.progress-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.stat-value {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.stat-value.success {
+    color: #28a745;
+}
+
+.stat-value.failed {
+    color: #dc3545;
+}
+
+.stat-value.skipped {
+    color: #ffc107;
+}
+
+.progress-timing {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.time-elapsed, .time-remaining {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.time-elapsed i, .time-remaining i {
+    color: #3498db;
+}
+
+.progress-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.cancel-import-btn {
+    background: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+.cancel-import-btn:hover {
+    background: #c82333;
+    border-color: #bd2130;
+}
+
+.close-progress-btn {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.close-progress-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+@keyframes move {
+    0% { background-position: 0 0; }
+    100% { background-position: 60px 0; }
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 .progress-bar {
@@ -12325,18 +12591,68 @@ label {
 }
 
 /* File Name Section - Unified Styling for Import, Modify, Delete */
-.file-name-section {
-    background: #e6f4ff;
-    color: #1a237e;
-    font-weight: bold;
-    font-size: 1.4rem;
-    text-align: center;
-    border-radius: 6px;
-    margin-bottom: 20px;
-    padding: 15px;
-    box-shadow: none;
-    transition: background 0.2s;
-}
+    .file-name-section {
+        background: #e6f4ff;
+        color: #1a237e;
+        font-weight: bold;
+        font-size: 1.4rem;
+        text-align: center;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        padding: 15px;
+        box-shadow: none;
+        transition: background 0.2s;
+    }
+
+    /* API URL Display Styles */
+    .api-url-display {
+        padding: 0.75rem 1rem;
+        background: #f8f9fa;
+        border-radius: var(--border-radius);
+        border: 1px solid #e9ecef;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        color: #495057;
+        word-break: break-all;
+        min-height: 2.5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .api-url-display.has-url {
+        background: #e8f5e8;
+        border-color: #28a745;
+        color: #155724;
+    }
+
+    .api-url-display.no-url {
+        background: #f8f9fa;
+        border-color: #e9ecef;
+        color: #6c757d;
+        font-style: italic;
+    }
+
+    .api-url-text {
+        display: inline-block;
+        width: 100%;
+        background-color: #ffebcc;
+        color: #000000;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-weight: 500;
+    }
+
+    .api-url-display.has-url .api-url-text {
+        background-color: #ffebcc;
+        color: #000000;
+        font-weight: 500;
+    }
+
+    .api-url-display.no-url .api-url-text {
+        background-color: #ffebcc;
+        color: #000000;
+        font-style: italic;
+    }
 .file-name-section .fa-file-csv {
     margin-right: 10px;
     font-size: 1.6rem;

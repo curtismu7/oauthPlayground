@@ -154,6 +154,11 @@ class LogManager {
             }
         } catch (error) {
             console.error('Failed to load logs:', error);
+            // Don't show error for connection refused during initial load
+            if (error.message.includes('Failed to fetch') || error.message.includes('ERR_CONNECTION_REFUSED')) {
+                console.log('Logs API not ready yet, will retry on next refresh cycle');
+                return;
+            }
             this.displayError('Failed to load logs: ' + error.message);
         }
     }

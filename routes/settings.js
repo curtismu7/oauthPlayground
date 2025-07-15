@@ -398,11 +398,18 @@ async function fetchDefaultPopulation(environmentId, clientId, clientSecret) {
         });
 
         if (populations._embedded && populations._embedded.populations && populations._embedded.populations.length > 0) {
-            const defaultPopulation = populations._embedded.populations[0];
+            // Find the actual default population (marked as default: true)
+            const actualDefaultPopulation = populations._embedded.populations.find(pop => pop.default === true);
+            
+            // Use actual default if found, otherwise use first population as fallback
+            const defaultPopulation = actualDefaultPopulation || populations._embedded.populations[0];
+            
             logger.info('Auto-detected default population', {
                 populationId: '***' + defaultPopulation.id.slice(-4),
                 name: defaultPopulation.name,
-                userCount: defaultPopulation.userCount || 0
+                userCount: defaultPopulation.userCount || 0,
+                isActualDefault: !!actualDefaultPopulation,
+                fallbackUsed: !actualDefaultPopulation
             });
             return defaultPopulation.id;
         }

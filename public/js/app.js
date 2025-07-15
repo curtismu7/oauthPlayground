@@ -411,7 +411,7 @@ class App {
             // Additional validation to ensure critical elements exist
             const criticalElements = [
                 'notification-area',
-                'universal-token-status',
+                'token-status-indicator',
                 'connection-status'
             ];
             
@@ -504,12 +504,52 @@ class App {
                 if (progressManager && typeof progressManager.initialize === 'function') {
                     progressManager.initialize();
                     console.log('✅ ProgressManager initialized successfully');
+                    
+                    // Expose progress manager globally for debugging and testing
+                    window.progressManager = progressManager;
+                    console.log('✅ ProgressManager exposed globally');
                 } else {
                     console.warn('ProgressManager not available or missing initialize method');
                 }
             } catch (error) {
                 console.warn('ProgressManager initialization warning:', error);
             }
+            
+            // Initialize global status manager for top-level status messages
+            try {
+                window.globalStatusManager = new GlobalStatusManager();
+                console.log('✅ GlobalStatusManager initialized successfully');
+            } catch (error) {
+                console.warn('GlobalStatusManager initialization warning:', error);
+                window.globalStatusManager = null;
+            }
+            
+            // Initialize credentials manager for credential persistence
+            try {
+                window.credentialsManager = new CredentialsManager();
+                console.log('✅ CredentialsManager initialized successfully');
+            } catch (error) {
+                console.warn('CredentialsManager initialization warning:', error);
+                window.credentialsManager = null;
+            }
+            
+                    // Initialize token status indicator
+        try {
+            window.tokenStatusIndicator = new TokenStatusIndicator();
+            console.log('✅ TokenStatusIndicator initialized successfully');
+        } catch (error) {
+            console.warn('TokenStatusIndicator initialization warning:', error);
+            window.tokenStatusIndicator = null;
+        }
+
+        // Initialize global token manager
+        try {
+            window.globalTokenManager = new GlobalTokenManager();
+            console.log('✅ GlobalTokenManager initialized successfully');
+        } catch (error) {
+            console.warn('GlobalTokenManager initialization warning:', error);
+            window.globalTokenManager = null;
+        }
             
             // Load application settings from storage with safety check
             try {
@@ -544,6 +584,13 @@ class App {
                 }
             } catch (error) {
                 console.warn('Failed to setup disclaimer:', error);
+            }
+            
+            // Setup universal disclaimer banner auto-hide after 3 seconds
+            try {
+                this.setupUniversalDisclaimerAutoHide();
+            } catch (error) {
+                console.warn('Failed to setup universal disclaimer auto-hide:', error);
             }
             
             // Check server connection status to ensure backend is available
@@ -604,38 +651,46 @@ class App {
      * Generic population loader for any dropdown by ID
      */
     async loadPopulationsForDropdown(dropdownId) {
+        console.log(`🔄 [Population] Starting load for dropdown: ${dropdownId}`);
+        
         const select = document.getElementById(dropdownId);
         if (select) {
             select.disabled = true;
             select.innerHTML = '<option value="">Loading populations...</option>';
+            console.log(`✅ [Population] Found dropdown element: ${dropdownId}`);
+        } else {
+            console.warn(`⚠️ [Population] Dropdown element not found: ${dropdownId}`);
         }
         this.hidePopulationRetryButton(dropdownId);
         
         try {
-            console.log(`🔄 Loading populations for dropdown: ${dropdownId}`);
+            console.log(`🔄 [Population] Loading populations for dropdown: ${dropdownId}`);
             
             if (!this.localClient) {
                 throw new Error('Internal error: API client unavailable');
             }
             
-            const response = await this.localClient.get('/api/pingone/populations');
-            console.log(`📋 Populations API response:`, response);
+            console.log(`🔄 [Population] Making API request to /api/populations...`);
+            const response = await this.localClient.get('/api/populations');
+            console.log(`📋 [Population] API response received:`, response);
             
-            if (Array.isArray(response)) {
-                console.log(`✅ Loaded ${response.length} populations for ${dropdownId}`);
-                this.populatePopulationDropdown(dropdownId, response);
+            if (response && response.populations && Array.isArray(response.populations)) {
+                console.log(`✅ [Population] Loaded ${response.populations.length} populations for ${dropdownId}`);
+                this.populatePopulationDropdown(dropdownId, response.populations);
                 this.hidePopulationRetryButton(dropdownId);
                 
                 // Update button state after loading populations
                 if (dropdownId === 'import-population-select') {
                     this.updateImportButtonState();
+                } else if (dropdownId === 'modify-population-select') {
+                    this.updateModifyButtonState();
                 }
             } else {
-                console.error(`❌ Invalid response format for populations:`, response);
+                console.error(`❌ [Population] Invalid response format for populations:`, response);
                 this.showPopulationLoadError(dropdownId, 'Invalid response format from server');
             }
         } catch (error) {
-            console.error(`❌ Failed to load populations for ${dropdownId}:`, error);
+            console.error(`❌ [Population] Failed to load populations for ${dropdownId}:`, error);
             const errorMessage = error && error.message ? error.message : 'Failed to load populations';
             this.showPopulationLoadError(dropdownId, errorMessage);
             
@@ -654,24 +709,40 @@ class App {
      * Populate a dropdown with populations
      */
     populatePopulationDropdown(dropdownId, populations) {
+        console.log(`🔄 [Population] Populating dropdown: ${dropdownId} with ${populations.length} populations`);
+        
         const select = document.getElementById(dropdownId);
-        if (!select) return;
+        if (!select) {
+            console.warn(`⚠️ [Population] Dropdown element not found: ${dropdownId}`);
+            return;
+        }
+        
         select.innerHTML = '';
         const defaultOption = document.createElement('option');
         defaultOption.value = '';
         defaultOption.textContent = 'Select a population...';
         select.appendChild(defaultOption);
+        
         populations.forEach(population => {
             const option = document.createElement('option');
             option.value = population.id;
             option.textContent = population.name;
             select.appendChild(option);
         });
+        
         select.disabled = false;
+        console.log(`✅ [Population] Successfully populated ${dropdownId} with ${populations.length} populations`);
+        
         // Attach change listener if needed (only for main import)
         if (dropdownId === 'import-population-select') {
             this.attachPopulationChangeListener();
             this.updateImportButtonState();
+            
+            // Initialize API URL display
+            this.updatePopulationApiUrl('', '');
+        } else if (dropdownId === 'modify-population-select') {
+            // Update modify button state when populations are loaded
+            this.updateModifyButtonState();
         }
     }
 
@@ -852,7 +923,36 @@ class App {
 
     async loadSettings() {
         try {
-            // First try to load from server
+            // First try to load from credentials manager (localStorage)
+            if (window.credentialsManager) {
+                const credentials = window.credentialsManager.getCredentials();
+                if (credentials && window.credentialsManager.hasCompleteCredentials()) {
+                    const settings = {
+                        environmentId: credentials.environmentId || '',
+                        apiClientId: credentials.apiClientId || '',
+                        apiSecret: credentials.apiSecret || '',
+                        populationId: credentials.populationId || '',
+                        region: credentials.region || 'NorthAmerica',
+                        rateLimit: 90 // Default rate limit
+                    };
+                    
+                    this.populateSettingsForm(settings);
+                    this.logger.info('Settings loaded from credentials manager and populated into form');
+                    
+                    // Show current token status if PingOneClient is available
+                    if (this.pingOneClient) {
+                        const tokenInfo = this.pingOneClient.getCurrentTokenTimeRemaining();
+                        this.uiManager.showCurrentTokenStatus(tokenInfo);
+                        
+                        if (window.DEBUG_MODE) {
+                            console.log('Current token status:', tokenInfo);
+                        }
+                    }
+                    return;
+                }
+            }
+            
+            // Fallback to server settings
             const response = await this.localClient.get('/api/settings');
             
             if (response.success && response.data) {
@@ -881,32 +981,32 @@ class App {
                     }
                 }
             } else {
-                // Fallback to localStorage if server settings not available
-                this.logger.warn('No server settings found, trying localStorage...');
+                // Fallback to settings manager if server settings not available
+                this.logger.warn('No server settings found, trying settings manager...');
                 try {
                     const localSettings = await this.settingsManager.loadSettings();
                     if (localSettings && Object.keys(localSettings).length > 0) {
                         this.populateSettingsForm(localSettings);
-                        this.logger.info('Settings loaded from localStorage and populated into form');
+                        this.logger.info('Settings loaded from settings manager and populated into form');
                     } else {
-                        this.logger.info('No settings found in localStorage, using defaults');
+                        this.logger.info('No settings found in settings manager, using defaults');
                     }
                 } catch (localError) {
-                    this.logger.error('Failed to load settings from localStorage:', localError);
+                    this.logger.error('Failed to load settings from settings manager:', localError);
                 }
             }
         } catch (error) {
-            this.logger.error('Failed to load settings from server, trying localStorage...');
+            this.logger.error('Failed to load settings from server, trying settings manager...');
             try {
                 const localSettings = await this.settingsManager.loadSettings();
                 if (localSettings && Object.keys(localSettings).length > 0) {
                     this.populateSettingsForm(localSettings);
-                    this.logger.info('Settings loaded from localStorage (fallback) and populated into form');
+                    this.logger.info('Settings loaded from settings manager (fallback) and populated into form');
                 } else {
-                    this.logger.info('No settings found in localStorage, using defaults');
+                    this.logger.info('No settings found in settings manager, using defaults');
                 }
             } catch (localError) {
-                this.logger.error('Failed to load settings from localStorage:', localError);
+                this.logger.error('Failed to load settings from settings manager:', localError);
             }
         }
     }
@@ -1016,6 +1116,23 @@ class App {
         const cancelImportBtn = document.getElementById('cancel-import-btn');
         if (cancelImportBtn) {
             cancelImportBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.cancelImport();
+            });
+        }
+
+        // Progress section event listeners
+        const closeProgressBtn = document.querySelector('.close-progress-btn');
+        if (closeProgressBtn) {
+            closeProgressBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.hideProgressSection();
+            });
+        }
+
+        const cancelImportProgressBtn = document.querySelector('.cancel-import-btn');
+        if (cancelImportProgressBtn) {
+            cancelImportProgressBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.cancelImport();
             });
@@ -1149,6 +1266,15 @@ class App {
             testConnectionBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 await this.testConnection();
+            });
+        }
+
+        // Get token button (settings page)
+        const settingsGetTokenBtn = document.getElementById('get-token-btn');
+        if (settingsGetTokenBtn) {
+            settingsGetTokenBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                await this.getToken();
             });
         }
 
@@ -1373,7 +1499,7 @@ class App {
                 this.uiManager.updateConnectionStatus('disconnected', errorMessage);
                 
                 // Check if we have a valid cached token before showing home token status
-                hasValidToken = false;
+                let hasValidToken = false;
                 if (this.pingOneClient && typeof this.pingOneClient.getCachedToken === 'function') {
                     const cachedToken = this.pingOneClient.getCachedToken();
                     if (cachedToken) {
@@ -1410,7 +1536,7 @@ class App {
             this.uiManager.updateConnectionStatus('error', statusMessage);
             
             // Check if we have a valid cached token before showing home token status
-            hasValidToken = false;
+            let hasValidToken = false;
             if (this.pingOneClient && typeof this.pingOneClient.getCachedToken === 'function') {
                 const cachedToken = this.pingOneClient.getCachedToken();
                 if (cachedToken) {
@@ -1487,8 +1613,13 @@ class App {
             
             // Load settings when navigating to settings view
             if (view === 'settings') {
-                this.loadSettings();
+                await this.loadSettings();
                 this.uiManager.updateSettingsSaveStatus('Please configure your API credentials and test the connection.', 'info');
+                
+                // Update token status in sidebar
+                if (this.tokenStatusIndicator) {
+                    this.tokenStatusIndicator.updateStatus();
+                }
             }
             
             // Load populations when navigating to import view
@@ -1497,11 +1628,22 @@ class App {
                 this.loadPopulations();
             }
             
+            // Load populations when navigating to modify view
+            if (view === 'modify') {
+                console.log('🔄 Navigating to modify view, loading populations...');
+                await this.loadPopulationsForDropdown('modify-population-select');
+            }
+            
             // Update navigation with safe navItems handling
             this.updateNavigationActiveState(view);
             
-            // Update universal token status when switching views
-            this.updateUniversalTokenStatus();
+                    // Update universal token status when switching views
+        this.updateUniversalTokenStatus();
+        
+        // Update global token manager
+        if (window.globalTokenManager) {
+            window.globalTokenManager.updateStatus();
+        }
         }
     }
 
@@ -1553,15 +1695,11 @@ class App {
     /**
      * Handle token status visibility based on current view
      * 
-     * Controls when the universal token status bar should be visible
-     * based on the current page. This ensures users see token status
-     * on functional pages but not on the home page with disclaimer.
-     * 
      * @param {string} view - The current view being displayed
      */
     handleTokenStatusVisibility(view) {
         try {
-            const tokenStatusBar = document.getElementById('universal-token-status');
+            const tokenStatusBar = document.getElementById('token-status-indicator');
             if (!tokenStatusBar) return;
             
             // Hide token status on home page (disclaimer page)
@@ -1584,8 +1722,33 @@ class App {
             // Show saving status using new enhanced status field
             this.uiManager.showSettingsActionStatus('Saving settings...', 'info');
             
-            // Just save settings without testing connections
-            const response = await this.localClient.post('/api/settings', settings);
+            // Save to credentials manager (localStorage)
+            if (window.credentialsManager) {
+                const credentials = {
+                    environmentId: settings.environmentId || '',
+                    apiClientId: settings.apiClientId || '',
+                    apiSecret: settings.apiSecret || '',
+                    populationId: settings.populationId || '',
+                    region: settings.region || 'NorthAmerica'
+                };
+                
+                // Validate credentials before saving
+                const validation = window.credentialsManager.validateCredentials(credentials);
+                if (!validation.isValid) {
+                    throw new Error(`Invalid credentials: ${validation.errors.join(', ')}`);
+                }
+                
+                window.credentialsManager.saveCredentials(credentials);
+                this.logger.info('Credentials saved to localStorage');
+            }
+            
+            // Also save to server for backup
+            try {
+                const response = await this.localClient.post('/api/settings', settings);
+                this.logger.info('Settings also saved to server');
+            } catch (serverError) {
+                this.logger.warn('Failed to save to server, but credentials saved to localStorage:', serverError.message);
+            }
             
             // Update settings manager
             this.settingsManager.updateSettings(settings);
@@ -1596,8 +1759,10 @@ class App {
             // Show success status using new enhanced status field
             this.uiManager.showSettingsActionStatus('Settings saved successfully', 'success', { autoHideDelay: 3000 });
             
-            // Show green notification
-            this.uiManager.showSuccess('Settings saved for PingOne');
+            // Show success message in global status bar
+            if (window.globalStatusManager) {
+                window.globalStatusManager.success('Settings saved successfully! Credentials stored in browser storage.');
+            }
             
             // Repopulate the form (if needed)
             this.populateSettingsForm(settings);
@@ -1613,6 +1778,75 @@ class App {
         } catch (error) {
             this.logger.error('Failed to save settings', { error: error.message });
             this.uiManager.showSettingsActionStatus('Failed to save settings: ' + error.message, 'error', { autoHide: false });
+            
+            // Show error in global status bar
+            if (window.globalStatusManager) {
+                window.globalStatusManager.error('Failed to save settings: ' + error.message);
+            }
+        }
+    }
+
+    /**
+     * Handle test connection button click
+     * Tests the current settings by attempting to get a new token
+     */
+    async handleTestConnection() {
+        try {
+            this.logger.info('Testing connection with current settings');
+            
+            // Show loading status
+            this.uiManager.showSettingsActionStatus('Testing connection...', 'info');
+            
+            // Test connection via API
+            const response = await this.localClient.post('/api/test-connection');
+            
+            if (response.success) {
+                this.logger.info('Connection test successful');
+                this.uiManager.showSettingsActionStatus('Connection test successful!', 'success', { autoHideDelay: 3000 });
+                
+                // Update token status in sidebar
+                if (this.tokenStatusIndicator) {
+                    this.tokenStatusIndicator.updateStatus();
+                }
+                
+                // Update global token manager
+                if (window.globalTokenManager) {
+                    window.globalTokenManager.updateStatus();
+                }
+                
+                // Update global status bar
+                if (window.globalStatusManager) {
+                    window.globalStatusManager.success('Connection test successful!');
+                }
+                
+                // Update connection status area
+                const connStatus = document.getElementById('settings-connection-status');
+                if (connStatus) {
+                    connStatus.textContent = '✅ Connection test successful!';
+                    connStatus.classList.remove('status-disconnected', 'status-error');
+                    connStatus.classList.add('status-success');
+                }
+                
+            } else {
+                throw new Error(response.error || 'Connection test failed');
+            }
+            
+        } catch (error) {
+            this.logger.error('Connection test failed:', error);
+            this.uiManager.showSettingsActionStatus(`Connection test failed: ${error.message}`, 'error', { autoHide: false });
+            
+            // Update global status bar
+            if (window.globalStatusManager) {
+                window.globalStatusManager.error(`Connection test failed: ${error.message}`);
+            }
+            
+            // Update connection status area
+            const connStatus = document.getElementById('settings-connection-status');
+            if (connStatus) {
+                connStatus.textContent = '❌ Connection test failed';
+                connStatus.classList.remove('status-success', 'status-disconnected');
+                connStatus.classList.add('status-error');
+            }
         }
     }
 
@@ -1799,7 +2033,15 @@ class App {
         console.log('🚀 [IMPORT] Starting import process');
         this.logger.info('Starting import process');
 
-        // Fetch selected population name and ID from dropdown
+        // Show progress section and ensure it's visible
+        this.showProgressSection();
+        
+        // Also ensure UI manager shows progress
+        if (this.uiManager && typeof this.uiManager.showProgress === 'function') {
+            this.uiManager.showProgress();
+        }
+
+        // Always get the current population selection from the dropdown
         const popSelect = document.getElementById('import-population-select');
         let populationId = popSelect && popSelect.value ? popSelect.value : '';
         let populationName = '';
@@ -1809,7 +2051,7 @@ class App {
         }
         
         // Debug logging for population selection
-        console.log('🔍 [Population Debug] Dropdown state:', {
+        console.log('🔍 [Population Debug] Current dropdown state:', {
             element: popSelect,
             selectedIndex: popSelect ? popSelect.selectedIndex : 'N/A',
             value: populationId,
@@ -1817,18 +2059,18 @@ class App {
             optionsCount: popSelect ? popSelect.options.length : 0
         });
         
-        // Store for use in progress updates
+        // Store current values for use in progress updates
         this.selectedPopulationId = populationId;
         this.selectedPopulationName = populationName;
         
         // Debug logging for stored values
-        console.log('🔍 [Population Debug] Stored values:', {
+        console.log('🔍 [Population Debug] Stored current values:', {
             selectedPopulationId: this.selectedPopulationId,
             selectedPopulationName: this.selectedPopulationName
         });
         
         // Log at import trigger to confirm the correct value is being used
-        console.log('🚀 [Import Trigger] Using population:', {
+        console.log('🚀 [Import Trigger] Using current population selection:', {
             id: populationId,
             name: populationName
         });
@@ -1867,6 +2109,7 @@ class App {
                 this.uiManager.debugLog("RealTime", "❌ Invalid sessionId - cannot establish connection", { sessionId });
                 this.uiManager.showError('Connection Error', 'Invalid session ID. Cannot establish progress connection.');
                 this.isImporting = false;
+                this.enableImportButton();
                 return;
             }
 
@@ -1875,8 +2118,21 @@ class App {
             this.uiManager.debugLog("RealTime", `🔄 Establishing Socket.IO connection with sessionId: ${sessionId}`);
             this.uiManager.showInfo(`RealTime: Opening Socket.IO connection with sessionId: ${sessionId}`);
             
-            // Initialize Socket.IO connection
-            this.socket = io();
+            // Initialize Socket.IO connection with enhanced configuration
+            this.socket = io({
+                transports: ['polling'], // Use polling only to avoid WebSocket issues
+                reconnectionAttempts: 5, // Increased from 3
+                reconnectionDelay: 1000,
+                reconnectionDelayMax: 5000, // Max delay between reconnection attempts
+                timeout: 20000,
+                forceNew: true,
+                pingTimeout: 60000, // Match server pingTimeout
+                pingInterval: 25000, // Match server pingInterval
+                upgrade: false, // Disable transport upgrades to avoid protocol conflicts
+                rememberUpgrade: false, // Don't remember transport upgrades
+                autoConnect: true,
+                upgradeTimeout: 10000 // Match server upgradeTimeout
+            });
             
             // Socket.IO event handlers
             this.socket.on('connect', () => {
@@ -1887,11 +2143,37 @@ class App {
                 // Register session with server
                 this.socket.emit('registerSession', sessionId);
                 
+                // Set up heartbeat monitoring
+                this.socket.lastActivity = Date.now();
+                this.socket.connectionTime = Date.now();
+                
                 // Stop fallback polling if it was active
                 if (this.fallbackPolling) {
                     stopFallbackPolling();
                     this.fallbackPolling = null;
                 }
+            });
+            
+            // Enhanced heartbeat monitoring
+            this.socket.on('ping', () => {
+                this.socket.lastActivity = Date.now();
+                console.log("Socket.IO: 💓 Ping received");
+            });
+            
+            this.socket.on('pong', () => {
+                this.socket.lastActivity = Date.now();
+                console.log("Socket.IO: 💓 Pong received");
+            });
+            
+            // Monitor connection health
+            this.socket.on('connect', () => {
+                this.socket.lastActivity = Date.now();
+            });
+            
+            this.socket.on('disconnect', () => {
+                const connectionDuration = this.socket.connectionTime ? 
+                    Date.now() - this.socket.connectionTime : 'unknown';
+                console.log("Socket.IO: 🔄 Disconnected after", connectionDuration, "ms");
             });
             
             this.socket.on('progress', (data) => {
@@ -1912,107 +2194,32 @@ class App {
                 this.handleProgressUpdate(data);
             });
             
-            // Handle Socket.IO disconnection - fallback to WebSocket
+            // Handle Socket.IO disconnection
             this.socket.on('disconnect', (reason) => {
                 console.log("Socket.IO: 🔄 Disconnected, reason:", reason);
                 this.uiManager.debugLog("Socket.IO", `🔄 Disconnected, reason: ${reason}`);
-                this.uiManager.showWarning('Socket.IO: Connection lost, switching to WebSocket fallback');
-                
-                // Start WebSocket fallback
-                this.startWebSocketFallback(sessionId);
+                this.uiManager.showWarning('Socket.IO: Connection lost, real-time updates unavailable');
             });
             
-            // Handle Socket.IO connection errors - fallback to WebSocket
+            // Handle Socket.IO connection errors
             this.socket.on('connect_error', (error) => {
-                console.error("Socket.IO: ❌ Connection error:", error);
-                this.uiManager.debugLog("Socket.IO", "❌ Connection error", { error: error.message });
-                this.uiManager.showError('Socket.IO Connection Failed', 'Switching to WebSocket fallback');
+                // Get population information for error logging
+                const populationInfo = {
+                    populationId: this.selectedPopulationId || 'unknown',
+                    populationName: this.selectedPopulationName || 'unknown'
+                };
                 
-                // Start WebSocket fallback
-                this.startWebSocketFallback(sessionId);
+                console.error("Socket.IO: ❌ Connection error:", error);
+                console.error("Socket.IO: ❌ Population context:", populationInfo);
+                this.uiManager.debugLog("Socket.IO", "❌ Connection error", { 
+                    error: error.message,
+                    ...populationInfo
+                });
+                this.uiManager.showError('Socket.IO Connection Failed', 'Real-time updates unavailable');
             });
         };
         
-        /**
-         * WebSocket fallback for when Socket.IO fails
-         * 
-         * @param {string} sessionId - Unique session identifier for this import
-         */
-        this.startWebSocketFallback = (sessionId) => {
-            console.log("WebSocket: 🔌 Starting WebSocket fallback connection");
-            this.uiManager.debugLog("WebSocket", "🔄 Starting WebSocket fallback connection");
-            this.uiManager.showInfo('WebSocket: Establishing fallback connection');
-            
-            try {
-                this.ws = new WebSocket(`ws://${window.location.hostname}:${window.location.port || 4000}`);
-                
-                this.ws.onopen = () => {
-                    console.log("WebSocket: ✅ Connected to server");
-                    this.uiManager.debugLog("WebSocket", "✅ Connected to server");
-                    this.uiManager.showSuccess('WebSocket: Fallback connection established');
-                    
-                    // Send session ID to register with server
-                    this.ws.send(JSON.stringify({ sessionId }));
-                };
-                
-                this.ws.onmessage = (event) => {
-                    console.log("WebSocket: 📩 Message received:", event.data);
-                    this.uiManager.debugLog("WebSocket", "📊 Message received", { data: event.data });
-                    
-                    try {
-                        const data = JSON.parse(event.data);
-                        this.handleProgressUpdate(data);
-                    } catch (e) {
-                        console.error("WebSocket: ❌ Failed to parse message:", e.message);
-                        this.uiManager.debugLog("WebSocket", "❌ Failed to parse message", { error: e.message });
-                    }
-                };
-                
-                this.ws.onerror = (error) => {
-                    console.error("WebSocket: ❌ Connection error:", error);
-                    this.uiManager.debugLog("WebSocket", "❌ Connection error", { error: error.message });
-                    this.uiManager.showError('WebSocket Connection Failed', 'All real-time connections failed');
-                    
-                    // Fallback to polling if WebSocket also fails
-                    if (!this.fallbackPolling) {
-                        console.log("WebSocket: 🔄 Starting polling fallback");
-                        this.uiManager.showWarning('WebSocket: Switching to polling fallback');
-                        const sseUrl = `/api/import/progress/${sessionId}`;
-                        this.fallbackPolling = startFallbackPolling(sseUrl, (progressData) => {
-                            this.handleProgressUpdate(progressData);
-                        });
-                    }
-                };
-                
-                this.ws.onclose = (event) => {
-                    console.log("WebSocket: 🔄 Connection closed:", event.code, event.reason);
-                    this.uiManager.debugLog("WebSocket", "🔄 Connection closed", { code: event.code, reason: event.reason });
-                    
-                    // Fallback to polling if WebSocket closes
-                    if (!this.fallbackPolling) {
-                        console.log("WebSocket: 🔄 Starting polling fallback after close");
-                        this.uiManager.showWarning('WebSocket: Connection closed, switching to polling');
-                        const sseUrl = `/api/import/progress/${sessionId}`;
-                        this.fallbackPolling = startFallbackPolling(sseUrl, (progressData) => {
-                            this.handleProgressUpdate(progressData);
-                        });
-                    }
-                };
-                
-            } catch (error) {
-                console.error("WebSocket: ❌ Failed to create WebSocket connection:", error);
-                this.uiManager.debugLog("WebSocket", "❌ Failed to create connection", { error: error.message });
-                this.uiManager.showError('WebSocket Setup Failed', 'WebSocket not supported, using polling fallback');
-                
-                // Fallback to polling
-                if (!this.fallbackPolling) {
-                    const sseUrl = `/api/import/progress/${sessionId}`;
-                    this.fallbackPolling = startFallbackPolling(sseUrl, (progressData) => {
-                        this.handleProgressUpdate(progressData);
-                    });
-                }
-            }
-        };
+
 
                 /**
          * Handles progress updates from SSE or fallback polling with enhanced progress manager
@@ -2032,6 +2239,26 @@ class App {
             if (data.user) {
                 console.log("Progress: 👤 Processing user:", data.user.username || data.user.email || 'unknown');
                 this.uiManager.debugLog("Progress", `👤 Processing user: ${data.user.username || data.user.email || 'unknown'}`);
+            }
+
+            // Update progress section
+            if (data.current !== undefined && data.total !== undefined) {
+                const percentage = Math.round((data.current / data.total) * 100);
+                this.updateProgressBar(percentage);
+                
+                // Update progress stats
+                this.updateProgressStats({
+                    total: data.total,
+                    processed: data.current,
+                    success: data.counts?.success || 0,
+                    failed: data.counts?.failed || 0,
+                    skipped: data.counts?.skipped || 0
+                });
+                
+                // Update status message
+                const statusMessage = data.message || `Processing ${data.current} of ${data.total} users...`;
+                const statusDetails = data.user ? `Current: ${data.user.username || data.user.email || 'unknown'}` : '';
+                this.updateProgressStatus(statusMessage, statusDetails);
             }
 
             // Log progress update with current/total counts
@@ -2104,6 +2331,18 @@ class App {
             // Handle completion with enhanced progress manager
             if (data.status === 'complete' || data.current === data.total) {
                 console.log("Progress: ✅ Import completed");
+                
+                // Update progress section for completion
+                this.updateProgressBar(100);
+                this.updateProgressStatus('Import completed successfully!', '');
+                this.updateProgressStats({
+                    total: data.total,
+                    processed: data.total,
+                    success: data.counts?.success || 0,
+                    failed: data.counts?.failed || 0,
+                    skipped: data.counts?.skipped || 0
+                });
+                
                 this.uiManager.completeOperation({
                     success: data.counts?.success || 0,
                     failed: data.counts?.failed || 0,
@@ -2122,11 +2361,21 @@ class App {
                 }
                 
                 this.isImporting = false;
+                this.enableImportButton();
+                
+                // Hide progress section after a delay
+                setTimeout(() => {
+                    this.hideProgressSection();
+                }, 3000);
             }
 
             // Handle errors
             if (data.status === 'error') {
                 console.error("Progress: ❌ Import error:", data.error);
+                
+                // Update progress section for error
+                this.updateProgressStatus('Import failed', data.error || 'Unknown error');
+                
                 this.uiManager.showError('Import Error', data.error || 'Unknown error');
                 
                 // Clean up connections
@@ -2140,6 +2389,12 @@ class App {
                 }
                 
                 this.isImporting = false;
+                this.enableImportButton();
+                
+                // Hide progress section after a delay
+                setTimeout(() => {
+                    this.hideProgressSection();
+                }, 5000);
             }
         };
 
@@ -2148,11 +2403,15 @@ class App {
             this.isImporting = true;
             this.importAbortController = new AbortController();
             
+            // Disable the import button while import is running
+            this.disableImportButton();
+            
             // Validate import options (file, population, etc.)
             const importOptions = this.getImportOptions();
             if (!importOptions) {
                 console.log('❌ [IMPORT] Import options validation failed');
                 this.isImporting = false;
+                this.enableImportButton();
                 return;
             }
 
@@ -2260,6 +2519,7 @@ class App {
                 this.uiManager.debugLog("Import", "Session ID is undefined. Import cannot proceed.");
                 this.uiManager.showError('Import failed', 'Session ID is undefined. Import cannot proceed.');
                 this.isImporting = false;
+                this.enableImportButton();
                 return;
             }
             
@@ -2316,6 +2576,31 @@ class App {
             
             this.uiManager.showError(errorTitle, errorMessage);
             this.isImporting = false;
+            this.enableImportButton();
+        }
+    }
+
+    /**
+     * Disable the import button while import is running
+     */
+    disableImportButton() {
+        const startImportBtn = document.getElementById('start-import');
+        if (startImportBtn) {
+            startImportBtn.disabled = true;
+            startImportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Import Running...';
+            console.log('🔒 [UI] Import button disabled');
+        }
+    }
+
+    /**
+     * Enable the import button when import is complete or cancelled
+     */
+    enableImportButton() {
+        const startImportBtn = document.getElementById('start-import');
+        if (startImportBtn) {
+            startImportBtn.disabled = false;
+            startImportBtn.innerHTML = '<i class="fas fa-upload"></i> Start Import';
+            console.log('🔓 [UI] Import button enabled');
         }
     }
 
@@ -2368,11 +2653,21 @@ class App {
      * @returns {Object|null} Import options or null if validation fails
      */
     getImportOptions() {
-        const selectedPopulationId = document.getElementById('import-population-select')?.value;
-        const selectedPopulationName = document.getElementById('import-population-select')?.selectedOptions[0]?.text || '';
+        // Always get the current population selection from the dropdown
+        const populationSelect = document.getElementById('import-population-select');
+        const selectedPopulationId = populationSelect?.value || '';
+        const selectedPopulationName = populationSelect?.selectedOptions[0]?.text || '';
         const skipDuplicatesByEmail = document.getElementById('skip-duplicates')?.checked || false;
         const skipDuplicatesByUsername = document.getElementById('skip-duplicates-username')?.checked || false;
-        const sendWelcomeEmail = document.getElementById('send-welcome-email')?.checked || false;
+        
+        // Debug logging for current population selection
+        console.log('🔍 [getImportOptions] Current population selection:', {
+            selectedPopulationId,
+            selectedPopulationName,
+            dropdownExists: !!populationSelect,
+            dropdownValue: populationSelect?.value,
+            dropdownText: populationSelect?.selectedOptions[0]?.text
+        });
         
         if (!selectedPopulationId) {
             this.uiManager.showError('No population selected', 'Please select a population before starting the import.');
@@ -2393,8 +2688,7 @@ class App {
             totalUsers,
             file: this.fileHandler.getCurrentFile(),
             skipDuplicatesByEmail,
-            skipDuplicatesByUsername,
-            sendWelcomeEmail
+            skipDuplicatesByUsername
         };
     }
 
@@ -2406,23 +2700,13 @@ class App {
             return null;
         }
         
-        // Check both dropdown value and stored properties
-        const dropdownValue = populationSelect.value;
-        const dropdownText = populationSelect.selectedOptions[0]?.text || '';
-        const storedPopulationId = this.selectedPopulationId || '';
-        const storedPopulationName = this.selectedPopulationName || '';
-        
-        // Use stored values if available, otherwise use dropdown values
-        const selectedPopulationId = storedPopulationId || dropdownValue;
-        const selectedPopulationName = storedPopulationName || dropdownText;
+        // Always use the current dropdown selection
+        const selectedPopulationId = populationSelect.value;
+        const selectedPopulationName = populationSelect.selectedOptions[0]?.text || '';
         
         console.log('=== getCurrentPopulationSelection ===');
-        console.log('Dropdown ID:', dropdownValue);
-        console.log('Dropdown Name:', dropdownText);
-        console.log('Stored ID:', storedPopulationId);
-        console.log('Stored Name:', storedPopulationName);
-        console.log('Final ID:', selectedPopulationId);
-        console.log('Final Name:', selectedPopulationName);
+        console.log('Current Dropdown ID:', selectedPopulationId);
+        console.log('Current Dropdown Name:', selectedPopulationName);
         console.log('Select element exists:', !!populationSelect);
         console.log('====================================');
         
@@ -2444,13 +2728,13 @@ class App {
             return null;
         }
         
-        // Force a re-read of the current selection
+        // Always get the current selection from the dropdown
         const currentValue = populationSelect.value;
         const currentText = populationSelect.selectedOptions[0]?.text || '';
         
         console.log('=== forceRefreshPopulationSelection ===');
-        console.log('Forced refresh - Population ID:', currentValue);
-        console.log('Forced refresh - Population Name:', currentText);
+        console.log('Current Population ID:', currentValue);
+        console.log('Current Population Name:', currentText);
         console.log('==========================================');
         
         return {
@@ -2486,9 +2770,13 @@ class App {
         
         // Reset import state
         this.isImporting = false;
+        this.enableImportButton();
+        
+        // Hide progress section
+        this.hideProgressSection();
         
         // Log cancellation
-                    this.uiManager.showInfo('Import cancelled by user');
+        this.uiManager.showInfo('Import cancelled by user');
         console.log("Import: 🚫 Import cancelled by user");
     }
 
@@ -2794,32 +3082,187 @@ class App {
         this.uiManager.showInfo('Population delete cancelled');
     }
 
-    async testConnection() {
-        // Check for valid token before proceeding
-        const hasValidToken = await this.checkTokenAndRedirect('connection test');
-        if (!hasValidToken) {
-            console.log('❌ [CONNECTION TEST] Connection test cancelled due to missing valid token');
-            return;
+    /**
+     * Show the progress section with enhanced UI
+     */
+    showProgressSection() {
+        const progressContainer = document.getElementById('progress-container');
+        if (progressContainer) {
+            progressContainer.style.display = 'block';
+            progressContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Initialize progress values
+            this.updateProgressBar(0);
+            this.updateProgressStats({
+                total: 0,
+                processed: 0,
+                success: 0,
+                failed: 0,
+                skipped: 0
+            });
+            this.updateProgressStatus('Preparing import...', '');
+            this.startProgressTiming();
+            
+            console.log('✅ [PROGRESS] Progress section shown successfully');
+        } else {
+            console.error('❌ [PROGRESS] Progress container not found');
         }
+    }
 
+    /**
+     * Hide the progress section
+     */
+    hideProgressSection() {
+        const progressContainer = document.getElementById('progress-container');
+        if (progressContainer) {
+            progressContainer.style.display = 'none';
+            this.stopProgressTiming();
+        }
+    }
+
+    /**
+     * Update the progress bar
+     * @param {number} percentage - Progress percentage (0-100)
+     */
+    updateProgressBar(percentage) {
+        const progressBarFill = document.querySelector('.progress-bar-fill');
+        const progressPercentage = document.querySelector('.progress-percentage');
+        
+        if (progressBarFill) {
+            progressBarFill.style.width = `${percentage}%`;
+        }
+        
+        if (progressPercentage) {
+            progressPercentage.textContent = `${Math.round(percentage)}%`;
+        }
+    }
+
+    /**
+     * Update progress statistics
+     * @param {Object} stats - Statistics object
+     */
+    updateProgressStats(stats) {
+        const statElements = {
+            total: document.querySelector('.stat-value.total'),
+            processed: document.querySelector('.stat-value.processed'),
+            success: document.querySelector('.stat-value.success'),
+            failed: document.querySelector('.stat-value.failed'),
+            skipped: document.querySelector('.stat-value.skipped')
+        };
+
+        Object.keys(stats).forEach(key => {
+            if (statElements[key]) {
+                statElements[key].textContent = stats[key];
+            }
+        });
+    }
+
+    /**
+     * Update progress status message
+     * @param {string} message - Main status message
+     * @param {string} details - Additional details
+     */
+    updateProgressStatus(message, details = '') {
+        const statusMessage = document.querySelector('.status-message');
+        const statusDetails = document.querySelector('.status-details');
+        
+        if (statusMessage) {
+            statusMessage.textContent = message;
+        }
+        
+        if (statusDetails) {
+            statusDetails.textContent = details;
+        }
+    }
+
+    /**
+     * Start progress timing
+     */
+    startProgressTiming() {
+        this.progressStartTime = Date.now();
+        this.progressTimingInterval = setInterval(() => {
+            this.updateProgressTiming();
+        }, 1000);
+    }
+
+    /**
+     * Stop progress timing
+     */
+    stopProgressTiming() {
+        if (this.progressTimingInterval) {
+            clearInterval(this.progressTimingInterval);
+            this.progressTimingInterval = null;
+        }
+    }
+
+    /**
+     * Update progress timing display
+     */
+    updateProgressTiming() {
+        if (!this.progressStartTime) return;
+
+        const elapsed = Date.now() - this.progressStartTime;
+        const elapsedElement = document.querySelector('.elapsed-value');
+        const etaElement = document.querySelector('.eta-value');
+        
+        if (elapsedElement) {
+            elapsedElement.textContent = this.formatDuration(Math.floor(elapsed / 1000));
+        }
+        
+        if (etaElement) {
+            // Simple ETA calculation - can be enhanced with more sophisticated logic
+            etaElement.textContent = 'Calculating...';
+        }
+    }
+
+    async testConnection() {
         try {
             // Set button loading state
             this.uiManager.setButtonLoading('test-connection-btn', true);
             this.uiManager.showSettingsActionStatus('Testing connection...', 'info');
             
-            const response = await this.localClient.post('/api/pingone/test-connection');
+            const response = await this.localClient.post('/api/test-connection');
             
             if (response.success) {
-                this.uiManager.showSettingsActionStatus('Connection test successful', 'success', { autoHideDelay: 3000 });
-                this.uiManager.showSuccess('Connection test successful', response.message);
+                this.uiManager.showSettingsActionStatus('Connection test successful!', 'success', { autoHideDelay: 3000 });
+                
+                // Update token status in sidebar
+                if (this.tokenStatusIndicator) {
+                    this.tokenStatusIndicator.updateStatus();
+                }
+                
+                // Update global status bar
+                if (window.globalStatusManager) {
+                    window.globalStatusManager.success('Connection test successful!');
+                }
+                
+                // Update connection status area
+                const connStatus = document.getElementById('settings-connection-status');
+                if (connStatus) {
+                    connStatus.textContent = '✅ Connection test successful!';
+                    connStatus.classList.remove('status-disconnected', 'status-error');
+                    connStatus.classList.add('status-success');
+                }
+                
             } else {
-                this.uiManager.showSettingsActionStatus('Connection test failed: ' + response.error, 'error', { autoHide: false });
-                this.uiManager.showError('Connection test failed', response.error);
+                throw new Error(response.error || 'Connection test failed');
             }
             
         } catch (error) {
-            this.uiManager.showSettingsActionStatus('Connection test failed: ' + error.message, 'error', { autoHide: false });
-            this.uiManager.showError('Connection test failed', error.message);
+            this.uiManager.showSettingsActionStatus(`Connection test failed: ${error.message}`, 'error', { autoHide: false });
+            
+            // Update global status bar
+            if (window.globalStatusManager) {
+                window.globalStatusManager.error(`Connection test failed: ${error.message}`);
+            }
+            
+            // Update connection status area
+            const connStatus = document.getElementById('settings-connection-status');
+            if (connStatus) {
+                connStatus.textContent = '❌ Connection test failed';
+                connStatus.classList.remove('status-success', 'status-disconnected');
+                connStatus.classList.add('status-error');
+            }
         } finally {
             // Always reset button loading state
             this.uiManager.setButtonLoading('test-connection-btn', false);
@@ -2884,8 +3327,11 @@ class App {
         try {
             console.log('Get Token button clicked - starting token retrieval...');
             
-            // Set button loading state
-            this.uiManager.setButtonLoading('get-token-quick', true);
+            // Set button loading state (only if button exists)
+            const getTokenButton = document.getElementById('get-token-quick');
+            if (getTokenButton) {
+                this.uiManager.setButtonLoading('get-token-quick', true);
+            }
             this.uiManager.updateConnectionStatus('connecting', 'Getting token...');
             
             console.log('Using PingOneClient to get token (with localStorage storage)...');
@@ -2941,6 +3387,22 @@ class App {
                     'Token has been saved to your browser for future use.');
                 this.uiManager.updateHomeTokenStatus(false);
                 
+                // Show settings-specific status messages
+                this.uiManager.showSettingsActionStatus(`Token acquired successfully! ${timeLeft ? `Time left: ${timeLeft}` : ''}`, 'success', { autoHideDelay: 5000 });
+                
+                // Update global status bar
+                if (window.globalStatusManager) {
+                    window.globalStatusManager.success(`Token acquired successfully! ${timeLeft ? `Time left: ${timeLeft}` : ''}`);
+                }
+                
+                // Update connection status area
+                const connStatus = document.getElementById('settings-connection-status');
+                if (connStatus) {
+                    connStatus.textContent = `✅ Token acquired! ${timeLeft ? `(${timeLeft} remaining)` : ''}`;
+                    connStatus.classList.remove('status-disconnected', 'status-error');
+                    connStatus.classList.add('status-success');
+                }
+                
                 // Refresh token status display on settings page
                 if (this.pingOneClient) {
                     const tokenInfo = this.pingOneClient.getCurrentTokenTimeRemaining();
@@ -2949,6 +3411,16 @@ class App {
                 
                 // Update universal token status across all pages
                 this.updateUniversalTokenStatus();
+                
+                // Update token status in sidebar
+                if (this.tokenStatusIndicator) {
+                    this.tokenStatusIndicator.updateStatus();
+                }
+                
+                // Update global token manager
+                if (window.globalTokenManager) {
+                    window.globalTokenManager.updateStatus();
+                }
                 
                 // Log success message if DEBUG_MODE is enabled
                 if (window.DEBUG_MODE) {
@@ -2961,16 +3433,51 @@ class App {
             } else {
                 this.uiManager.updateConnectionStatus('error', 'Failed to get token');
                 this.uiManager.showError('Failed to get token', 'No token received from server');
+                
+                // Show settings-specific error messages
+                this.uiManager.showSettingsActionStatus('Failed to get token: No token received from server', 'error', { autoHide: false });
+                
+                // Update global status bar
+                if (window.globalStatusManager) {
+                    window.globalStatusManager.error('Failed to get token: No token received from server');
+                }
+                
+                // Update connection status area
+                const connStatus = document.getElementById('settings-connection-status');
+                if (connStatus) {
+                    connStatus.textContent = '❌ Failed to get token';
+                    connStatus.classList.remove('status-success', 'status-disconnected');
+                    connStatus.classList.add('status-error');
+                }
             }
             
         } catch (error) {
             console.error('Error in getToken:', error);
             this.uiManager.updateConnectionStatus('error', 'Failed to get token: ' + error.message);
             this.uiManager.showError('Failed to get token', error.message);
+            
+            // Show settings-specific error messages
+            this.uiManager.showSettingsActionStatus(`Failed to get token: ${error.message}`, 'error', { autoHide: false });
+            
+            // Update global status bar
+            if (window.globalStatusManager) {
+                window.globalStatusManager.error(`Failed to get token: ${error.message}`);
+            }
+            
+            // Update connection status area
+            const connStatus = document.getElementById('settings-connection-status');
+            if (connStatus) {
+                connStatus.textContent = '❌ Failed to get token';
+                connStatus.classList.remove('status-success', 'status-disconnected');
+                connStatus.classList.add('status-error');
+            }
         } finally {
-            // Always reset button loading state
+            // Always reset button loading state (only if button exists)
             console.log('Resetting Get Token button loading state...');
-            this.uiManager.setButtonLoading('get-token-quick', false);
+            const getTokenButton = document.getElementById('get-token-quick');
+            if (getTokenButton) {
+                this.uiManager.setButtonLoading('get-token-quick', false);
+            }
         }
     }
 
@@ -3903,12 +4410,82 @@ class App {
         if (populationIdElement) {
             populationIdElement.textContent = selectedId || 'Not set';
         }
+
+        // Update API URL display
+        this.updatePopulationApiUrl(selectedId, selectedName);
     }
 
     // If you have a modal or function that uses pick-population-select, add:
     async loadPickPopulationModal() {
         await this.loadPopulationsForDropdown('pick-population-select');
         // The rest of the modal logic should assume the dropdown is now loaded or shows error/retry
+    }
+
+    /**
+     * Update the API URL display for the selected population
+     * @param {string} populationId - The selected population ID
+     * @param {string} populationName - The selected population name
+     */
+    updatePopulationApiUrl(populationId, populationName) {
+        const apiUrlElement = document.getElementById('population-api-url');
+        const apiUrlTextElement = apiUrlElement?.querySelector('.api-url-text');
+        const populationNameElement = document.querySelector('.population-name-text');
+        
+        if (!apiUrlElement || !apiUrlTextElement) {
+            console.warn('API URL display elements not found');
+            return;
+        }
+
+        if (populationId && populationName) {
+            // Get the current environment settings to construct the API URL
+            const environmentId = document.getElementById('environment-id')?.value;
+            const region = this.getSelectedRegionInfo();
+            
+            if (environmentId && region) {
+                const apiUrl = `${region.apiUrl}/v1/environments/${environmentId}/populations/${populationId}`;
+                apiUrlTextElement.textContent = apiUrl;
+                apiUrlElement.className = 'api-url-display has-url';
+                
+                // Update population name display
+                if (populationNameElement) {
+                    populationNameElement.textContent = `Population: ${populationName}`;
+                }
+            } else {
+                apiUrlTextElement.textContent = 'Environment not configured';
+                apiUrlElement.className = 'api-url-display no-url';
+                
+                // Update population name display
+                if (populationNameElement) {
+                    populationNameElement.textContent = 'Population: Environment not configured';
+                }
+            }
+        } else {
+            apiUrlTextElement.textContent = 'Select a population to see the API URL';
+            apiUrlElement.className = 'api-url-display no-url';
+            
+            // Update population name display
+            if (populationNameElement) {
+                populationNameElement.textContent = 'Population: Select a population';
+            }
+        }
+    }
+
+    getSelectedRegionInfo() {
+        const regionSelect = document.getElementById('region');
+        if (!regionSelect) return { code: 'NA', tld: 'com', label: 'North America (excluding Canada)', apiUrl: 'https://api.pingone.com' };
+        const selectedOption = regionSelect.options[regionSelect.selectedIndex];
+        const regionCode = selectedOption.value;
+        
+        // Define region information
+        const regionInfo = {
+            'NA': { code: 'NA', tld: 'com', label: 'North America (excluding Canada)', apiUrl: 'https://api.pingone.com' },
+            'CA': { code: 'CA', tld: 'ca', label: 'Canada', apiUrl: 'https://api.ca.pingone.ca' },
+            'EU': { code: 'EU', tld: 'eu', label: 'Europe', apiUrl: 'https://api.eu.pingone.eu' },
+            'AU': { code: 'AU', tld: 'com.au', label: 'Australia', apiUrl: 'https://api.au.pingone.com.au' },
+            'SG': { code: 'SG', tld: 'sg', label: 'Singapore', apiUrl: 'https://api.sg.pingone.sg' }
+        };
+        
+        return regionInfo[regionCode] || regionInfo['NA'];
     }
 
     // Example: Defensive null check for classList usage
@@ -3920,6 +4497,25 @@ class App {
     safeRemoveClass(element, className) {
         if (element && element.classList) {
             element.classList.remove(className);
+        }
+    }
+
+    // Setup universal disclaimer banner auto-hide after 3 seconds
+    setupUniversalDisclaimerAutoHide() {
+        const universalDisclaimer = document.getElementById('universal-disclaimer');
+        if (universalDisclaimer) {
+            console.log('Setting up universal disclaimer auto-hide (3 seconds)');
+            setTimeout(() => {
+                if (universalDisclaimer.style.display !== 'none') {
+                    console.log('Auto-hiding universal disclaimer banner');
+                    universalDisclaimer.style.display = 'none';
+                    if (this.uiManager && typeof this.uiManager.showInfo === 'function') {
+                        this.uiManager.showInfo('Disclaimer Hidden', 'The disclaimer banner has been automatically hidden.');
+                    }
+                }
+            }, 3000);
+        } else {
+            console.warn('Universal disclaimer banner not found');
         }
     }
 }
@@ -4540,17 +5136,7 @@ function getSettingsFromForm() {
     };
 }
 
-// Helper to get selected region info from dropdown
-function getSelectedRegionInfo() {
-    const regionSelect = document.getElementById('region');
-    if (!regionSelect) return { code: 'NA', tld: 'com', label: 'North America (excluding Canada)' };
-    const selectedOption = regionSelect.options[regionSelect.selectedIndex];
-    return {
-        code: selectedOption.value,
-        tld: selectedOption.getAttribute('data-tld'),
-        label: selectedOption.textContent
-    };
-}
+// Helper to get selected region info from dropdown (moved to App class)
 
 // Ensure region dropdown is accessible
 const regionSelect = document.getElementById('region');
@@ -4608,18 +5194,30 @@ function setupModifyDropZone() {
 
 // Call this after modify view is shown
 function onModifyViewShown() {
+    console.log('🔄 [Modify] View shown, setting up modify page...');
     setupModifyDropZone();
+    
     // Check for required token and population elements
     const tokenStatus = document.getElementById('current-token-status');
     const homeTokenStatus = document.getElementById('home-token-status');
-            const getTokenBtn = document.getElementById('get-token-quick');
+    const getTokenBtn = document.getElementById('get-token-quick');
+    const modifyPopulationSelect = document.getElementById('modify-population-select');
+    
     if (!tokenStatus) console.warn('[Modify] #current-token-status element missing');
     if (!homeTokenStatus) console.warn('[Modify] #home-token-status element missing');
     if (!getTokenBtn) console.warn('[Modify] Get Token button missing');
-    // Only run population/token logic if elements exist
-    if (tokenStatus && homeTokenStatus && getTokenBtn) {
-        // Place any population or token logic here
-        // e.g., this.loadPopulationsForDropdown('modify-population-select');
+    if (!modifyPopulationSelect) console.warn('[Modify] #modify-population-select element missing');
+    
+    // Load populations for modify dropdown if app is available
+    if (window.app && typeof window.app.loadPopulationsForDropdown === 'function') {
+        console.log('🔄 [Modify] Loading populations for modify dropdown...');
+        window.app.loadPopulationsForDropdown('modify-population-select').then(() => {
+            console.log('✅ [Modify] Populations loaded successfully');
+        }).catch(error => {
+            console.error('❌ [Modify] Failed to load populations:', error);
+        });
+    } else {
+        console.warn('[Modify] App or loadPopulationsForDropdown not available');
     }
 }
 
@@ -4655,20 +5253,5 @@ window.enableToolAfterDisclaimer = () => {
 };
 // ... existing code ...
 
-// ... existing code ...
-// Ensure all DOM and module-dependent code runs after DOMContentLoaded
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        if (window.app && window.app.init) {
-            window.app.init();
-        }
-    });
-} else {
-    if (window.app && window.app.init) {
-        window.app.init();
-    }
-}
-
 // Defensive: wrap all classList and DOM accesses in null checks throughout the file
 // Defensive: check robustSSE and uiManager before calling their methods
-// ... existing code ...

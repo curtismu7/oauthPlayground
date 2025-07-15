@@ -15,6 +15,10 @@ class TokenManager {
      * @param {Object} settings - Settings object containing API credentials
      */
     constructor(logger, settings) {
+        if (!settings) {
+            throw new Error('Settings are required for TokenManager');
+        }
+        
         this.logger = logger || console;
         this.settings = settings || {};
         this.tokenCache = {
@@ -97,6 +101,14 @@ class TokenManager {
      * @returns {Promise<Object>} The retry result
      */
     async handleTokenExpiration(response, retryFn) {
+        if (!response) {
+            throw new Error('Response is required for token expiration handling');
+        }
+        
+        if (!retryFn || typeof retryFn !== 'function') {
+            throw new Error('Retry function is required for token expiration handling');
+        }
+        
         this.logger.warn('Token expiration detected, attempting automatic re-authentication');
         
         // Clear the expired token
@@ -139,6 +151,10 @@ class TokenManager {
      * @returns {Promise<Object>} The API response
      */
     async retryWithNewToken(requestFn, options = {}) {
+        if (!requestFn || typeof requestFn !== 'function') {
+            throw new Error('Request function is required for retry operation');
+        }
+        
         let retryCount = 0;
         
         while (retryCount <= this.maxRetries) {
@@ -200,6 +216,10 @@ class TokenManager {
      * @returns {Function} Wrapped function that handles token expiration
      */
     createAutoRetryWrapper(requestFn) {
+        if (!requestFn || typeof requestFn !== 'function') {
+            throw new Error('Request function is required for auto-retry wrapper');
+        }
+        
         return async (...args) => {
             return await this.retryWithNewToken(async (token) => {
                 // Add the token to the request arguments
@@ -255,9 +275,15 @@ class TokenManager {
 
     /**
      * Get the auth domain for a given region
+     * @param {string} region - The region to get auth domain for
+     * @returns {string} The auth domain URL
      * @private
      */
     _getAuthDomain(region) {
+        if (!region) {
+            return 'auth.pingone.com';
+        }
+        
         const authDomainMap = {
             'NorthAmerica': 'auth.pingone.com',
             'Europe': 'auth.eu.pingone.com',
@@ -391,6 +417,10 @@ class TokenManager {
      * @param {Object} newSettings - New settings object
      */
     updateSettings(newSettings) {
+        if (!newSettings) {
+            throw new Error('New settings are required for update');
+        }
+        
         const credentialsChanged = 
             newSettings.apiClientId !== this.settings.apiClientId ||
             newSettings.apiSecret !== this.settings.apiSecret ||

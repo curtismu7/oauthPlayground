@@ -178,7 +178,7 @@ describe('Route Coverage Testing', () => {
     it('should include CORS headers for preflight requests', async () => {
       const response = await request(app)
         .options('/api/health')
-        .set('Origin', 'http://localhost:3000')
+        .set('Origin', 'http://localhost:4000')
         .set('Access-Control-Request-Method', 'GET')
         .set('Access-Control-Request-Headers', 'Content-Type')
         .expect(200);

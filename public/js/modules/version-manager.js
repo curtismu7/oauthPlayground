@@ -1,6 +1,6 @@
 export class VersionManager {
     constructor() {
-        this.version = '5.3'; // Update this with each new version
+        this.version = '5.5'; // Update this with each new version
         console.log(`Version Manager initialized with version ${this.version}`);
     }
 
@@ -72,16 +72,23 @@ export class VersionManager {
         badge.className = 'sidebar-version-badge';
         badge.textContent = this.getFormattedVersion();
         
-        // Find the footer and insert the badge just above the Ping Identity logo
+        // Find the footer and insert the badge in the footer-left section, after the logo and trademark
         const footer = document.querySelector('.ping-footer');
         if (footer) {
-            const footerContainer = footer.querySelector('.footer-container');
-            if (footerContainer) {
-                // Insert the badge at the beginning of the footer container
-                footerContainer.insertBefore(badge, footerContainer.firstChild);
+            const footerLeft = footer.querySelector('.footer-left');
+            if (footerLeft) {
+                // Insert the badge after the footer-logo div
+                const logoDiv = footerLeft.querySelector('.footer-logo');
+                if (logoDiv) {
+                    // Insert after the logo div
+                    footerLeft.insertBefore(badge, logoDiv.nextSibling);
+                } else {
+                    // Fallback: insert at the beginning of footer-left
+                    footerLeft.insertBefore(badge, footerLeft.firstChild);
+                }
             } else {
-                // Fallback: insert at the beginning of the footer
-                footer.insertBefore(badge, footer.firstChild);
+                // Fallback: insert at the end of the footer
+                footer.appendChild(badge);
             }
         } else {
             // Fallback: add to body if footer not found

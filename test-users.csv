@@ -1,6 +1,4 @@
-firstName,lastName,email,username
-John,Doe,john.doe@example.com,johndoe
-Jane,Smith,jane.smith@example.com,janesmith
-Bob,Johnson,bob.johnson@example.com,bobjohnson
-Alice,Brown,alice.brown@example.com,alicebrown
-Charlie,Davis,charlie.davis@example.com,charliedavis 
+username,email,firstName,lastName
+testuser1,test1@example.com,Test,User1
+testuser2,test2@example.com,Test,User2
+testuser3,test3@example.com,Test,User3 

@@ -234,7 +234,7 @@ export class LocalAPIClient {
      * @private
      */
     _getUnauthorizedMessage() {
-        return '🔑 Authentication failed. Please check your PingOne credentials and try again.';
+        return '🔑 Authentication failed. Please check your PingOne API credentials in the Settings page.';
     }
 
     /**
@@ -299,7 +299,7 @@ export class LocalAPIClient {
      */
     _getServerErrorMessage(status) {
         if (status >= 500) {
-            return '🔧 PingOne service is experiencing issues. Please try again in a few minutes.';
+            return '🔧 Server error. Please check your PingOne API credentials in the Settings page.';
         }
         return '🔧 An unexpected error occurred. Please try again.';
     }

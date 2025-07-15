@@ -41,7 +41,7 @@ class UIManager {
     }
     
     /**
-     * Initialize UI manager
+     * Initialize UI manager and setup core functionality
      */
     initialize() {
         try {
@@ -54,6 +54,7 @@ class UIManager {
     
     /**
      * Initialize UI manager (alias for initialize for compatibility)
+     * @returns {Promise<void>} Promise that resolves when initialization is complete
      */
     async init() {
         this.initialize();
@@ -61,7 +62,7 @@ class UIManager {
     }
     
     /**
-     * Setup UI elements
+     * Setup UI elements and initialize core DOM references
      */
     setupElements() {
         try {
@@ -96,16 +97,21 @@ class UIManager {
     
     /**
      * Show a persistent, animated status bar message
-     * type: info, success, warning, error
-     * message: string
-     * options: { autoDismiss: boolean, duration: ms }
+     * @param {string} message - The message to display
+     * @param {string} type - Message type: info, success, warning, error
+     * @param {Object} options - Additional options for display behavior
+     * @param {boolean} options.autoDismiss - Whether to auto-dismiss the message
+     * @param {number} options.duration - Duration in milliseconds before auto-dismiss
      */
     showStatusBar(message, type = 'info', options = {}) {
-        const bar = ElementRegistry.statusBar ? ElementRegistry.statusBar() : null;
-        if (!bar) {
-            this.logger.warn('Status bar element not found');
-            return;
-        }
+        // Status bar has been removed from the UI, so we'll just log the message
+        this.logger.info('Status bar message (element removed)', { 
+            type, 
+            message: message.substring(0, 100), 
+            autoDismiss: options.autoDismiss,
+            duration: options.duration 
+        });
+        return;
         
         // Clear any existing auto-dismiss timers
         if (this.statusBarTimer) {
@@ -171,29 +177,19 @@ class UIManager {
      * Clear the status bar with smooth animation
      */
     clearStatusBar() {
-        const bar = ElementRegistry.statusBar ? ElementRegistry.statusBar() : null;
-        if (!bar) return;
-        
-        // Clear any pending timers
+        // Status bar has been removed from the UI, so we'll just clear any timers
         if (this.statusBarTimer) {
             clearTimeout(this.statusBarTimer);
             this.statusBarTimer = null;
         }
         
-        // Remove visible class to trigger fade out animation
-        bar.classList.remove('visible');
-        
-        // Clear content after animation completes
-        setTimeout(() => { 
-            bar.innerHTML = ''; 
-            bar.className = 'status-bar';
-        }, 400);
-        
-        this.logger.debug('Status bar cleared');
+        this.logger.debug('Status bar cleared (element removed)');
     }
     
     /**
      * Show a temporary success message with auto-dismiss
+     * @param {string} message - Success message to display
+     * @param {string} details - Additional details (optional)
      */
     showSuccess(message, details = '') {
         this.showStatusBar(message, 'success', { 
@@ -202,745 +198,861 @@ class UIManager {
         });
         
         if (details) {
-            this.logger.info('Success notification with details', { message, details });
-        } else {
-            this.logger.info('Success notification shown', { message });
+            this.logger.info('Success message shown', { message, details });
         }
     }
     
     /**
-     * Show an error message that stays until dismissed
+     * Show an error message with persistent display
+     * @param {string} title - Error title
+     * @param {string} message - Error message
      */
     showError(title, message) {
-        const fullMessage = title && message ? `${title}: ${message}` : (title || message);
-        this.showStatusBar(fullMessage, 'error', { autoDismiss: false });
-        this.logger.error('Error notification shown', { title, message });
+        const errorMessage = title && message ? `${title}: ${message}` : title || message;
+        this.showStatusBar(errorMessage, 'error', { autoDismiss: false });
+        this.logger.error('Error message shown', { title, message });
     }
     
     /**
-     * Show a warning message that stays until dismissed
+     * Show a warning message with persistent display
+     * @param {string} message - Warning message
      */
     showWarning(message) {
         this.showStatusBar(message, 'warning', { autoDismiss: false });
-        this.logger.warn('Warning notification shown', { message });
+        this.logger.warn('Warning message shown', { message });
     }
     
     /**
-     * Show an info message with auto-dismiss
+     * Show an informational message with auto-dismiss
+     * @param {string} message - Info message
      */
     showInfo(message) {
         this.showStatusBar(message, 'info', { 
             autoDismiss: true, 
             duration: 3000 
         });
-        this.logger.info('Info notification shown', { message });
+        this.logger.info('Info message shown', { message });
     }
     
     /**
-     * Show a loading message that stays until cleared
+     * Show loading indicator with message
+     * @param {string} message - Loading message to display
      */
     showLoading(message = 'Processing...') {
         this.showStatusBar(message, 'info', { autoDismiss: false });
-        this.logger.info('Loading notification shown', { message });
+        this.logger.debug('Loading indicator shown', { message });
     }
     
     /**
-     * Clear loading state and show completion message
+     * Hide loading indicator and optionally show success message
+     * @param {string} successMessage - Optional success message to show after hiding loading
      */
     hideLoading(successMessage = null) {
         this.clearStatusBar();
+        
         if (successMessage) {
             this.showSuccess(successMessage);
         }
+        
+        this.logger.debug('Loading indicator hidden');
     }
     
     /**
-     * Update progress with Winston logging
+     * Update progress bar with current and total values
+     * @param {number} current - Current progress value
+     * @param {number} total - Total progress value
+     * @param {string} message - Progress message
      */
     updateProgress(current, total, message = '') {
-        try {
-            const percentage = total > 0 ? Math.round((current / total) * 100) : 0;
-            
-            this.logger.debug('Progress updated', { 
-                current, 
-                total, 
-                percentage, 
-                message: message.substring(0, 50) 
-            });
-            
-            if (this.progressContainer) {
-                const progressBar = this.progressContainer.querySelector('.progress-bar');
-                const progressText = this.progressContainer.querySelector('.progress-text');
-                
-                if (progressBar) {
-                    progressBar.style.width = `${percentage}%`;
-                }
-                
-                if (progressText) {
-                    progressText.textContent = message || `${current} of ${total} (${percentage}%)`;
-                }
-            }
-        } catch (error) {
-            this.logger.error('Error updating progress', { error: error.message, current, total });
+        if (!this.progressContainer) {
+            this.logger.warn('Progress container not found');
+            return;
         }
+        
+        const percentage = total > 0 ? Math.round((current / total) * 100) : 0;
+        
+        // Update progress bar
+        const progressBar = this.progressContainer.querySelector('.progress-bar-fill');
+        if (progressBar) {
+            progressBar.style.width = `${percentage}%`;
+        }
+        
+        // Update percentage text
+        const percentageElement = this.progressContainer.querySelector('.progress-percentage');
+        if (percentageElement) {
+            percentageElement.textContent = `${percentage}%`;
+        }
+        
+        // Update progress text
+        const progressText = this.progressContainer.querySelector('.progress-text');
+        if (progressText && message) {
+            progressText.textContent = message;
+        }
+        
+        this.logger.debug('Progress updated', { current, total, percentage, message });
     }
     
     /**
-     * Update token status with Winston logging
+     * Update token status display
+     * @param {string} status - Token status (valid, expired, etc.)
+     * @param {string} message - Status message
      */
     updateTokenStatus(status, message = '') {
-        try {
-            this.logger.info('Token status updated', { status, message });
-            
-            if (this.tokenStatusElement) {
-                this.tokenStatusElement.className = `token-status ${status}`;
-                this.tokenStatusElement.textContent = message || status;
-            } else {
-                this.logger.warn('Token status element not found');
-            }
-        } catch (error) {
-            this.logger.error('Error updating token status', { error: error.message, status, message });
+        if (!this.tokenStatusElement) {
+            this.logger.warn('Token status element not found');
+            return;
         }
+        
+        this.tokenStatusElement.className = `token-status ${status}`;
+        this.tokenStatusElement.textContent = message || status;
+        
+        this.logger.debug('Token status updated', { status, message });
     }
     
     /**
-     * Update connection status with Winston logging
+     * Update connection status display
+     * @param {string} status - Connection status (connected, disconnected, etc.)
+     * @param {string} message - Status message
      */
     updateConnectionStatus(status, message = '') {
-        try {
-            this.logger.info('Connection status updated', { status, message });
-            
-            if (this.connectionStatusElement) {
-                this.connectionStatusElement.className = `connection-status ${status}`;
-                this.connectionStatusElement.textContent = message || status;
-            } else {
-                this.logger.warn('Connection status element not found');
-            }
-        } catch (error) {
-            this.logger.error('Error updating connection status', { error: error.message, status, message });
+        if (!this.connectionStatusElement) {
+            this.logger.warn('Connection status element not found');
+            return;
         }
+        
+        this.connectionStatusElement.className = `connection-status ${status}`;
+        this.connectionStatusElement.textContent = message || status;
+        
+        this.logger.debug('Connection status updated', { status, message });
     }
     
     /**
-     * Show current token status with Winston logging
+     * Show current token status with detailed information
+     * @param {Object} tokenInfo - Token information object
      */
     showCurrentTokenStatus(tokenInfo) {
-        try {
-            this.logger.debug('Showing current token status', { 
-                hasToken: !!tokenInfo.token,
-                timeRemaining: tokenInfo.timeRemaining,
-                isExpired: tokenInfo.isExpired
-            });
-            
-            const statusElement = ElementRegistry.currentTokenStatus ? ElementRegistry.currentTokenStatus() : null;
-            if (statusElement) {
-                if (tokenInfo.isExpired) {
-                    statusElement.className = 'token-status expired';
-                    statusElement.textContent = 'Token expired';
-                } else if (tokenInfo.token) {
-                    statusElement.className = 'token-status valid';
-                    statusElement.textContent = `Token valid (${tokenInfo.timeRemaining})`;
-                } else {
-                    statusElement.className = 'token-status none';
-                    statusElement.textContent = 'No token available';
-                }
-            } else {
-                this.logger.warn('Current token status element not found');
-            }
-        } catch (error) {
-            this.logger.error('Error showing current token status', { error: error.message, tokenInfo });
+        if (!tokenInfo) {
+            this.logger.warn('No token info provided');
+            return;
         }
+        
+        const { isValid, expiresAt, timeRemaining } = tokenInfo;
+        
+        if (!isValid) {
+            this.updateTokenStatus('expired', 'Token expired');
+            return;
+        }
+        
+        const timeRemainingText = timeRemaining ? ` (${timeRemaining})` : '';
+        this.updateTokenStatus('valid', `Token valid${timeRemainingText}`);
+        
+        this.logger.info('Current token status displayed', { 
+            isValid, 
+            expiresAt, 
+            timeRemaining 
+        });
     }
     
     /**
-     * Update universal token status with Winston logging
+     * Update universal token status bar
+     * @param {Object} tokenInfo - Token information object
      */
     updateUniversalTokenStatus(tokenInfo) {
-        try {
-            this.logger.debug('Universal token status updated', { 
-                hasToken: !!tokenInfo.token,
-                timeRemaining: tokenInfo.timeRemaining
-            });
-            
-            const universalStatusBar = ElementRegistry.universalTokenStatus ? ElementRegistry.universalTokenStatus() : null;
-            if (universalStatusBar) {
-                if (tokenInfo.isExpired) {
-                    universalStatusBar.className = 'universal-token-status expired';
-                    universalStatusBar.textContent = '🔴 Token Expired';
-                } else if (tokenInfo.token) {
-                    universalStatusBar.className = 'universal-token-status valid';
-                    universalStatusBar.textContent = `🟢 Token Valid (${tokenInfo.timeRemaining})`;
-                } else {
-                    universalStatusBar.className = 'universal-token-status none';
-                    universalStatusBar.textContent = '⚪ No Token';
-                }
-            } else {
-                this.logger.warn('Universal token status bar not found');
-            }
-        } catch (error) {
-            this.logger.error('Error updating universal token status', { error: error.message, tokenInfo });
+        // Redirect to token-status-indicator instead of universal-token-status
+        const tokenStatusBar = document.getElementById('token-status-indicator');
+        if (!tokenStatusBar) {
+            this.logger.warn('Token status indicator not found');
+            return;
         }
+        
+        if (!tokenInfo) {
+            tokenStatusBar.style.display = 'none';
+            return;
+        }
+        
+        const { isValid, expiresAt, timeRemaining } = tokenInfo;
+        const statusContent = tokenStatusBar.querySelector('.token-status-content');
+        
+        if (statusContent) {
+            const icon = statusContent.querySelector('.token-status-icon');
+            const text = statusContent.querySelector('.token-status-text');
+            const time = statusContent.querySelector('.token-status-time');
+            
+            if (isValid) {
+                icon.textContent = '✅';
+                text.textContent = 'Token valid';
+                time.textContent = timeRemaining || '';
+            } else {
+                icon.textContent = '❌';
+                text.textContent = 'Token expired';
+                time.textContent = '';
+            }
+        }
+        
+        tokenStatusBar.style.display = 'block';
+        this.logger.debug('Token status indicator updated', { isValid, timeRemaining });
     }
     
     /**
-     * Update home token status with Winston logging
-     */
-    updateHomeTokenStatus(isLoading = false) {
-        try {
-            this.logger.debug('Home token status updated', { isLoading });
-            
-            const homeTokenStatus = ElementRegistry.homeTokenStatus ? ElementRegistry.homeTokenStatus() : null;
-            if (homeTokenStatus) {
-                if (isLoading) {
-                    homeTokenStatus.className = 'home-token-status loading';
-                    homeTokenStatus.textContent = '🔄 Checking token...';
-                } else {
-                    homeTokenStatus.className = 'home-token-status ready';
-                    homeTokenStatus.textContent = '✅ Token ready';
-                }
-            } else {
-                this.logger.warn('Home token status element not found');
-            }
-        } catch (error) {
-            this.logger.error('Error updating home token status', { error: error.message, isLoading });
-        }
-    }
-    
-    /**
-     * Update settings save status with Winston logging
-     */
-    updateSettingsSaveStatus(success, message = '') {
-        try {
-            this.logger.info('Settings save status updated', { success, message });
-            
-            const saveStatusElement = ElementRegistry.settingsSaveStatus ? ElementRegistry.settingsSaveStatus() : null;
-            if (saveStatusElement) {
-                if (success) {
-                    saveStatusElement.className = 'settings-save-status success';
-                    saveStatusElement.textContent = '✅ Settings saved successfully';
-                } else {
-                    saveStatusElement.className = 'settings-save-status error';
-                    saveStatusElement.textContent = `❌ ${message || 'Failed to save settings'}`;
-                }
-            } else {
-                this.logger.warn('Settings save status element not found');
-            }
-        } catch (error) {
-            this.logger.error('Error updating settings save status', { error: error.message, success, message });
-        }
-    }
-    
-    /**
-     * Show enhanced settings action status
+     * Update home page token status
+     * @param {boolean} isLoading - Whether to show loading state
      * @param {string} message - Status message
-     * @param {string} type - Status type (success, error, warning, info)
-     * @param {Object} options - Additional options
+     */
+    updateHomeTokenStatus(isLoading = false, message = '') {
+        const homeTokenStatus = document.getElementById('home-token-status');
+        if (!homeTokenStatus) {
+            this.logger.warn('Home token status element not found');
+            return;
+        }
+        
+        if (isLoading) {
+            homeTokenStatus.innerHTML = '';
+        } else {
+            // Use the provided token-status-indicator markup for unavailable state, with a Get New Token button
+            homeTokenStatus.innerHTML = `
+                <div id="token-status-indicator" class="token-status-indicator valid" role="status" aria-live="polite" style="display: block;">
+                    Token expired
+                    <button id="get-token-btn" class="btn btn-sm btn-success" style="margin-left: 12px;">
+                        <i class="fas fa-key"></i> Get New Token
+                    </button>
+                </div>
+            `;
+            // Wire up the button to call getNewToken if available
+            const getTokenBtn = document.getElementById('get-token-btn');
+            if (getTokenBtn) {
+                getTokenBtn.addEventListener('click', () => {
+                    if (window.tokenStatusIndicator && typeof window.tokenStatusIndicator.getNewToken === 'function') {
+                        window.tokenStatusIndicator.getNewToken();
+                    } else if (typeof this.getNewToken === 'function') {
+                        this.getNewToken();
+                    } else {
+                        alert('Get New Token functionality is not available.');
+                    }
+                });
+            }
+        }
+        
+        homeTokenStatus.style.display = 'block';
+        this.logger.debug('Home token status updated', { isLoading, message });
+    }
+    
+    /**
+     * Update settings save status with message and type
+     * @param {string} message - Status message
+     * @param {string} type - Message type (success, error, warning, info)
+     */
+    updateSettingsSaveStatus(message, type = 'info') {
+        const settingsStatus = document.querySelector('.settings-save-status');
+        if (!settingsStatus) {
+            this.logger.warn('Settings save status element not found');
+            return;
+        }
+        
+        // Update classes
+        settingsStatus.className = `settings-save-status ${type} show`;
+        
+        // Create simple HTML structure with text on the left, icon on the right
+        const iconClass = this.getStatusIcon(type);
+        settingsStatus.innerHTML = `
+            <span>${message}</span>
+            <i class="fas ${iconClass}"></i>
+        `;
+        
+        // Auto-hide success messages after 3 seconds
+        if (type === 'success') {
+            setTimeout(() => {
+                settingsStatus.classList.remove('show');
+            }, 3000);
+        }
+        
+        this.logger.info('Settings save status updated', { message, type });
+    }
+    
+    /**
+     * Show settings action status with enhanced options
+     * @param {string} message - Status message
+     * @param {string} type - Message type (success, error, warning, info)
+     * @param {Object} options - Additional display options
+     * @param {boolean} options.autoDismiss - Whether to auto-dismiss
+     * @param {number} options.duration - Duration before auto-dismiss
      */
     showSettingsActionStatus(message, type = 'info', options = {}) {
-        try {
-            this.logger.info('Settings action status shown', { message, type, options });
-            
-            const statusElement = document.getElementById('settings-action-status');
-            const statusIcon = statusElement?.querySelector('.status-icon');
-            const statusMessage = statusElement?.querySelector('.status-message');
-            const closeButton = statusElement?.querySelector('.status-close');
-            
-            if (!statusElement || !statusIcon || !statusMessage) {
-                this.logger.warn('Settings action status elements not found');
-                return;
-            }
-            
-            // Set icon based on type
-            const icons = {
-                success: '✅',
-                error: '❌',
-                warning: '⚠️',
-                info: 'ℹ️'
-            };
-            
-            statusIcon.textContent = icons[type] || icons.info;
-            
-            // Set message
-            statusMessage.textContent = message;
-            
-            // Update classes
-            statusElement.className = `action-status ${type}`;
-            statusElement.style.display = 'block';
-            
-            // Setup close button
-            if (closeButton) {
-                closeButton.onclick = () => {
-                    this.hideSettingsActionStatus();
-                };
-            }
-            
-            // Auto-hide if specified
-            if (options.autoHide !== false) {
-                const autoHideDelay = options.autoHideDelay || 5000; // 5 seconds default
-                setTimeout(() => {
-                    this.hideSettingsActionStatus();
-                }, autoHideDelay);
-            }
-            
-        } catch (error) {
-            this.logger.error('Error showing settings action status', { 
-                error: error.message, 
-                message, 
-                type, 
-                options 
-            });
+        const settingsActionStatus = document.getElementById('settings-action-status');
+        if (!settingsActionStatus) {
+            this.logger.warn('Settings action status element not found');
+            return;
         }
+        
+        // Clear existing content
+        settingsActionStatus.innerHTML = '';
+        settingsActionStatus.className = `settings-action-status ${type}`;
+        
+        // Create status content
+        const statusContent = document.createElement('div');
+        statusContent.className = 'status-content';
+        
+        const text = document.createElement('span');
+        text.textContent = message;
+        statusContent.appendChild(text);
+        
+        const icon = document.createElement('i');
+        icon.className = `fas ${this.getStatusIcon(type)}`;
+        statusContent.appendChild(icon);
+        
+        settingsActionStatus.appendChild(statusContent);
+        settingsActionStatus.style.display = 'block';
+        
+        // No auto-dismiss for any type
+        this.logger.info('Settings action status shown', { message, type, autoDismiss: false });
+    }
+    
+    /**
+     * Get appropriate icon class for status type
+     * @param {string} type - Status type
+     * @returns {string} Icon class name
+     */
+    getStatusIcon(type) {
+        const icons = {
+            success: 'fa-check-circle',
+            error: 'fa-times-circle',
+            warning: 'fa-exclamation-triangle',
+            info: 'fa-info-circle'
+        };
+        return icons[type] || icons.info;
     }
     
     /**
      * Hide settings action status
      */
     hideSettingsActionStatus() {
-        try {
-            const statusElement = document.getElementById('settings-action-status');
-            if (statusElement) {
-                statusElement.classList.add('auto-hide');
-                setTimeout(() => {
-                    statusElement.style.display = 'none';
-                    statusElement.classList.remove('auto-hide');
-                }, 300);
-            }
-        } catch (error) {
-            this.logger.error('Error hiding settings action status', { error: error.message });
+        const settingsActionStatus = document.getElementById('settings-action-status');
+        if (settingsActionStatus) {
+            settingsActionStatus.style.display = 'none';
+            this.logger.debug('Settings action status hidden');
         }
     }
     
     /**
-     * Show import status with Winston logging
+     * Show import status with operation details
+     * @param {string} status - Import status
+     * @param {string} message - Status message
+     * @param {Object} details - Additional details
      */
     showImportStatus(status, message = '', details = {}) {
-        try {
-            this.logger.info('Import status shown', { status, message, details });
-            
-            const statusElement = ElementRegistry.importStatus ? ElementRegistry.importStatus() : null;
-            if (statusElement) {
-                statusElement.className = `import-status ${status}`;
-                statusElement.textContent = message;
-                
-                // Add details if provided
-                if (Object.keys(details).length > 0) {
-                    const detailsElement = document.createElement('div');
-                    detailsElement.className = 'import-details';
-                    detailsElement.textContent = JSON.stringify(details, null, 2);
-                    statusElement.appendChild(detailsElement);
-                }
-            } else {
-                this.logger.warn('Import status element not found');
-            }
-        } catch (error) {
-            this.logger.error('Error showing import status', { error: error.message, status, message });
+        const importStatus = document.getElementById('import-status');
+        if (!importStatus) {
+            this.logger.warn('Import status element not found');
+            return;
         }
+        
+        importStatus.style.display = 'block';
+        importStatus.className = `import-status ${status}`;
+        
+        const statusText = importStatus.querySelector('.status-text');
+        if (statusText) {
+            statusText.textContent = message || status;
+        }
+        
+        this.logger.info('Import status shown', { status, message, details });
     }
     
     /**
-     * Clear all notifications
+     * Clear all notifications from the UI
      */
     clearNotifications() {
-        try {
-            if (this.notificationContainer) {
-                this.notificationContainer.innerHTML = '';
-                this.logger.debug('All notifications cleared');
-            }
-        } catch (error) {
-            this.logger.error('Error clearing notifications', { error: error.message });
+        if (this.notificationContainer) {
+            this.notificationContainer.innerHTML = '';
+            this.logger.debug('All notifications cleared');
         }
+        
+        this.clearStatusBar();
     }
     
     /**
-     * Hide progress
+     * Hide progress display
      */
     hideProgress() {
-        try {
-            if (this.progressContainer) {
-                this.progressContainer.style.display = 'none';
-                this.logger.debug('Progress hidden');
-            }
-        } catch (error) {
-            this.logger.error('Error hiding progress', { error: error.message });
+        if (this.progressContainer) {
+            this.progressContainer.style.display = 'none';
+            this.logger.debug('Progress display hidden');
         }
     }
     
     /**
-     * Show progress
+     * Show progress display
      */
     showProgress() {
-        try {
-            if (this.progressContainer) {
-                this.progressContainer.style.display = 'block';
-                this.logger.debug('Progress shown');
-            }
-        } catch (error) {
-            this.logger.error('Error showing progress', { error: error.message });
+        if (this.progressContainer) {
+            this.progressContainer.style.display = 'block';
+            this.logger.debug('Progress display shown');
         }
     }
     
     /**
      * Set button loading state
+     * @param {string} buttonId - Button element ID
+     * @param {boolean} isLoading - Whether to show loading state
      */
     setButtonLoading(buttonId, isLoading) {
-        try {
-            const button = document.getElementById(buttonId);
-            if (button) {
-                if (isLoading) {
-                    button.disabled = true;
-                    button.innerHTML = '<span class="spinner"></span> Loading...';
-                } else {
-                    button.disabled = false;
-                    button.innerHTML = button.getAttribute('data-original-text') || 'Submit';
-                }
-                this.logger.debug('Button loading state updated', { buttonId, isLoading });
+        const button = document.getElementById(buttonId);
+        if (!button) {
+            // Don't log warning for buttons that are intentionally hidden or optional
+            if (buttonId === 'get-token-quick') {
+                this.logger.debug(`Button with ID '${buttonId}' not found (may be hidden)`);
             } else {
                 this.logger.warn(`Button with ID '${buttonId}' not found`);
             }
-        } catch (error) {
-            this.logger.error('Error setting button loading state', { error: error.message, buttonId, isLoading });
+            return;
         }
+        
+        if (isLoading) {
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+            button.classList.add('loading');
+        } else {
+            button.disabled = false;
+            button.innerHTML = button.getAttribute('data-original-text') || 'Submit';
+            button.classList.remove('loading');
+        }
+        
+        this.logger.debug('Button loading state updated', { buttonId, isLoading });
     }
     
     /**
-     * Update population fields with Winston logging
+     * Update population dropdown fields with available populations
+     * @param {Array} populations - Array of population objects
      */
     updatePopulationFields(populations) {
-        try {
-            this.logger.debug('Population fields updated', { 
-                populationCount: populations.length,
-                populationNames: populations.map(p => p.name)
+        if (!populations || !Array.isArray(populations)) {
+            this.logger.warn('Invalid populations data provided');
+            return;
+        }
+        
+        const populationSelects = document.querySelectorAll('select[id*="population"]');
+        
+        populationSelects.forEach(select => {
+            // Store current selection
+            const currentValue = select.value;
+            
+            // Clear existing options
+            select.innerHTML = '';
+            
+            // Add default option
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Select a population...';
+            select.appendChild(defaultOption);
+            
+            // Add population options
+            populations.forEach(population => {
+                const option = document.createElement('option');
+                option.value = population.id;
+                option.textContent = population.name;
+                select.appendChild(option);
             });
             
-            const populationSelect = document.getElementById('import-population-select');
-            if (populationSelect) {
-                populationSelect.innerHTML = '<option value="">Select Population</option>';
-                populations.forEach(population => {
-                    const option = document.createElement('option');
-                    option.value = population.id;
-                    option.textContent = population.name;
-                    populationSelect.appendChild(option);
-                });
-            } else {
-                this.logger.warn('Population select element not found');
+            // Restore selection if it still exists
+            if (currentValue && select.querySelector(`option[value="${currentValue}"]`)) {
+                select.value = currentValue;
             }
-        } catch (error) {
-            this.logger.error('Error updating population fields', { error: error.message, populations });
-        }
+        });
+        
+        this.logger.info('Population fields updated', { 
+            populationCount: populations.length,
+            selectCount: populationSelects.length 
+        });
     }
-
+    
     /**
-     * Show a notification message
+     * Show notification with enhanced options
      * @param {string} title - Notification title
      * @param {string} message - Notification message
      * @param {string} type - Notification type (success, error, warning, info)
-     * @param {Object} options - Additional options
+     * @param {Object} options - Additional display options
+     * @param {boolean} options.autoDismiss - Whether to auto-dismiss
+     * @param {number} options.duration - Duration before auto-dismiss
      */
     showNotification(title, message, type = 'info', options = {}) {
-        try {
-            // Use existing methods based on type
-            switch (type) {
-                case 'success':
-                    this.showSuccess(message);
-                    break;
-                case 'error':
-                    this.showError(title, message);
-                    break;
-                case 'warning':
-                    this.showWarning(message);
-                    break;
-                case 'info':
-                default:
-                    this.showInfo(message);
-                    break;
-            }
-            
-            this.logger.info('Notification shown', { title, message, type });
-        } catch (error) {
-            this.logger.error('Failed to show notification', { 
-                error: error.message, 
-                title, 
-                message, 
-                type 
-            });
-            // Fallback to console
-            console.log(`[${type.toUpperCase()}] ${title}: ${message}`);
+        if (!this.notificationContainer) {
+            this.logger.warn('Notification container not found');
+            return;
         }
+        
+        // Clear existing content
+        this.notificationContainer.innerHTML = '';
+        
+        // Create status header content
+        const statusContent = document.createElement('div');
+        statusContent.className = 'status-content';
+        
+        // Add icon
+        const icon = document.createElement('i');
+        icon.className = `fas ${this.getStatusIcon(type)}`;
+        statusContent.appendChild(icon);
+        
+        // Add text
+        const text = document.createElement('span');
+        if (title && message) {
+            text.textContent = `${title}: ${message}`;
+        } else {
+            text.textContent = title || message;
+        }
+        statusContent.appendChild(text);
+        
+        // Add to container
+        this.notificationContainer.appendChild(statusContent);
+        
+        // Auto-dismiss if specified (but keep persistent for success messages)
+        const shouldAutoDismiss = options.autoDismiss !== false && type !== 'error' && type !== 'success';
+        if (shouldAutoDismiss) {
+            const duration = options.duration || 5000;
+            setTimeout(() => {
+                if (this.notificationContainer && this.notificationContainer.contains(statusContent)) {
+                    this.notificationContainer.innerHTML = '';
+                }
+            }, duration);
+        }
+        
+        this.logger.info('Status header updated', { title, message, type, autoDismiss: shouldAutoDismiss });
     }
-
+    
     /**
-     * Update import progress with enhanced functionality
-     * 
-     * @param {number} current - Current progress
-     * @param {number} total - Total items
+     * Update import progress with detailed statistics
+     * @param {number} current - Current progress value
+     * @param {number} total - Total progress value
      * @param {string} message - Progress message
-     * @param {Object} counts - Progress counts
+     * @param {Object} counts - Statistics counts
+     * @param {number} counts.processed - Number of processed items
+     * @param {number} counts.success - Number of successful items
+     * @param {number} counts.failed - Number of failed items
+     * @param {number} counts.skipped - Number of skipped items
      * @param {string} populationName - Population name
      * @param {string} populationId - Population ID
      */
     updateImportProgress(current, total, message = '', counts = {}, populationName = '', populationId = '') {
-        try {
-            // Use the progress manager for enhanced progress handling
-            progressManager.updateProgress(current, total, message, {
-                ...counts,
-                population: populationName,
-                populationId: populationId
-            });
-
-            // Update operation stats
-            if (counts.success !== undefined) progressManager.operationStats.success = counts.success;
-            if (counts.failed !== undefined) progressManager.operationStats.failed = counts.failed;
-            if (counts.skipped !== undefined) progressManager.operationStats.skipped = counts.skipped;
-            if (counts.duplicates !== undefined) progressManager.operationStats.duplicates = counts.duplicates;
-
-            this.logger.debug('Import progress updated', { 
-                current, 
-                total, 
-                message: message.substring(0, 100),
-                counts,
-                populationName,
-                populationId
-            });
-        } catch (error) {
-            this.logger.error('Error updating import progress', { 
-                error: error.message, 
-                current, 
-                total, 
-                message 
+        // Update main progress
+        this.updateProgress(current, total, message);
+        
+        // Update statistics if provided
+        if (counts && typeof counts === 'object') {
+            Object.entries(counts).forEach(([key, value]) => {
+                const statElement = document.querySelector(`.stat-value.${key}`);
+                if (statElement) {
+                    statElement.textContent = value || 0;
+                }
             });
         }
+        
+        // Update population information if provided
+        if (populationName || populationId) {
+            const populationElement = document.querySelector('.detail-value.population-info');
+            if (populationElement) {
+                populationElement.textContent = populationName || populationId || 'Unknown';
+            }
+        }
+        
+        this.logger.debug('Import progress updated', { 
+            current, 
+            total, 
+            message, 
+            counts, 
+            populationName, 
+            populationId 
+        });
     }
-
+    
     /**
-     * Start import operation with enhanced progress manager
+     * Start import operation with progress tracking
+     * @param {Object} options - Operation options
+     * @param {string} options.operationType - Type of operation
+     * @param {number} options.totalUsers - Total number of users
+     * @param {string} options.populationName - Population name
+     * @param {string} options.populationId - Population ID
      */
     startImportOperation(options = {}) {
-        try {
-            this.logger.info('Starting import operation', { options });
-            progressManager.startOperation('import', options);
-        } catch (error) {
-            this.logger.error('Error starting import operation', { error: error.message, options });
+        const { operationType, totalUsers, populationName, populationId } = options;
+        
+        this.showProgress();
+        this.updateProgress(0, totalUsers || 0, 'Starting import operation...');
+        
+        // Update operation details
+        const operationTypeElement = document.querySelector('.detail-value.operation-type');
+        if (operationTypeElement) {
+            operationTypeElement.textContent = operationType || 'Import';
         }
+        
+        this.logger.info('Import operation started', { operationType, totalUsers, populationName, populationId });
     }
-
+    
     /**
-     * Update import operation with session ID (called after backend response)
+     * Update import operation with session ID
+     * @param {string} sessionId - Session ID for tracking
      */
     updateImportOperationWithSessionId(sessionId) {
-        try {
-            if (!sessionId) {
-                this.logger.warn('No session ID provided for import operation update');
-                return;
-            }
-
-            this.logger.info('Updating import operation with session ID', { sessionId });
-            
-            // Update progress manager with session ID
-            if (progressManager && typeof progressManager.updateSessionId === 'function') {
-                progressManager.updateSessionId(sessionId);
-            } else {
-                this.logger.warn('Progress manager not available for session ID update');
-            }
-            
-        } catch (error) {
-            this.logger.error('Error updating import operation with session ID', { error: error.message, sessionId });
+        if (!sessionId) {
+            this.logger.warn('No session ID provided for import operation');
+            return;
         }
+        
+        const sessionElement = document.querySelector('.detail-value.session-id');
+        if (sessionElement) {
+            sessionElement.textContent = sessionId;
+        }
+        
+        this.logger.info('Import operation session ID updated', { sessionId });
     }
-
+    
     /**
-     * Start export operation with progress manager
-     * 
-     * @param {Object} options - Export options
+     * Start export operation with progress tracking
+     * @param {Object} options - Operation options
+     * @param {number} options.totalUsers - Total number of users
+     * @param {string} options.populationName - Population name
      */
     startExportOperation(options = {}) {
-        try {
-            progressManager.startOperation('export', options);
-            this.logger.info('Export operation started', { options });
-        } catch (error) {
-            this.logger.error('Error starting export operation', { 
-                error: error.message, 
-                options 
-            });
+        const { totalUsers, populationName } = options;
+        
+        this.showProgress();
+        this.updateProgress(0, totalUsers || 0, 'Starting export operation...');
+        
+        const operationTypeElement = document.querySelector('.detail-value.operation-type');
+        if (operationTypeElement) {
+            operationTypeElement.textContent = 'Export';
         }
+        
+        this.logger.info('Export operation started', { totalUsers, populationName });
     }
-
+    
     /**
-     * Start delete operation with progress manager
-     * 
-     * @param {Object} options - Delete options
+     * Start delete operation with progress tracking
+     * @param {Object} options - Operation options
+     * @param {number} options.totalUsers - Total number of users
+     * @param {string} options.populationName - Population name
      */
     startDeleteOperation(options = {}) {
-        try {
-            progressManager.startOperation('delete', options);
-            this.logger.info('Delete operation started', { options });
-        } catch (error) {
-            this.logger.error('Error starting delete operation', { 
-                error: error.message, 
-                options 
-            });
+        const { totalUsers, populationName } = options;
+        
+        this.showProgress();
+        this.updateProgress(0, totalUsers || 0, 'Starting delete operation...');
+        
+        const operationTypeElement = document.querySelector('.detail-value.operation-type');
+        if (operationTypeElement) {
+            operationTypeElement.textContent = 'Delete';
         }
+        
+        this.logger.info('Delete operation started', { totalUsers, populationName });
     }
-
+    
     /**
-     * Start modify operation with progress manager
-     * 
-     * @param {Object} options - Modify options
+     * Start modify operation with progress tracking
+     * @param {Object} options - Operation options
+     * @param {number} options.totalUsers - Total number of users
+     * @param {string} options.populationName - Population name
      */
     startModifyOperation(options = {}) {
-        try {
-            progressManager.startOperation('modify', options);
-            this.logger.info('Modify operation started', { options });
-        } catch (error) {
-            this.logger.error('Error starting modify operation', { 
-                error: error.message, 
-                options 
-            });
+        const { totalUsers, populationName } = options;
+        
+        this.showProgress();
+        this.updateProgress(0, totalUsers || 0, 'Starting modify operation...');
+        
+        const operationTypeElement = document.querySelector('.detail-value.operation-type');
+        if (operationTypeElement) {
+            operationTypeElement.textContent = 'Modify';
         }
+        
+        this.logger.info('Modify operation started', { totalUsers, populationName });
     }
-
+    
     /**
-     * Complete current operation
-     * 
+     * Complete operation with results
      * @param {Object} results - Operation results
+     * @param {number} results.processed - Number of processed items
+     * @param {number} results.success - Number of successful items
+     * @param {number} results.failed - Number of failed items
+     * @param {number} results.skipped - Number of skipped items
      */
     completeOperation(results = {}) {
-        try {
-            progressManager.completeOperation(results);
-            this.logger.info('Operation completed', { results });
-        } catch (error) {
-            this.logger.error('Error completing operation', { 
-                error: error.message, 
-                results 
-            });
-        }
+        const { processed, success, failed, skipped } = results;
+        
+        this.updateProgress(processed || 0, processed || 0, 'Operation completed');
+        
+        // Show completion message
+        const message = `Operation completed: ${success || 0} successful, ${failed || 0} failed, ${skipped || 0} skipped`;
+        this.showSuccess(message);
+        
+        // Hide progress after delay
+        setTimeout(() => {
+            this.hideProgress();
+        }, 2000);
+        
+        this.logger.info('Operation completed', { processed, success, failed, skipped });
     }
-
+    
     /**
-     * Handle duplicate users during import
-     * 
-     * @param {Array} duplicates - Array of duplicate users
-     * @param {Function} onDecision - Callback for user decision
+     * Handle duplicate users with decision callback
+     * @param {Array} duplicates - Array of duplicate user objects
+     * @param {Function} onDecision - Callback function for user decision
      */
     handleDuplicateUsers(duplicates, onDecision) {
-        try {
-            progressManager.handleDuplicates(duplicates, onDecision);
-            this.logger.info('Duplicate users handled', { count: duplicates.length });
-        } catch (error) {
-            this.logger.error('Error handling duplicate users', { 
-                error: error.message, 
-                duplicates 
-            });
+        if (!duplicates || duplicates.length === 0) {
+            this.logger.warn('No duplicates provided for handling');
+            return;
+        }
+        
+        const message = `Found ${duplicates.length} duplicate users. How would you like to proceed?`;
+        this.showWarning(message);
+        
+        // In a real implementation, you would show a modal or dialog here
+        // For now, we'll just log the decision
+        this.logger.info('Duplicate users found', { count: duplicates.length });
+        
+        if (onDecision && typeof onDecision === 'function') {
+            onDecision('skip'); // Default to skip
         }
     }
-
+    
     /**
-     * Debug log method for compatibility
+     * Debug logging for development
+     * @param {string} area - Debug area
+     * @param {string} message - Debug message
      */
     debugLog(area, message) {
         if (DEBUG_MODE) {
-            console.debug(`[${area}] ${message}`);
+            this.logger.debug(`[${area}] ${message}`);
         }
     }
-
+    
     /**
-     * Show a status message (compatibility shim)
-     * @param {string} type - Message type (success, error, warning, info)
-     * @param {string} message - Main message
-     * @param {string} [details] - Optional details (shown in log only)
+     * Show status message with type
+     * @param {string} type - Message type
+     * @param {string} message - Message content
+     * @param {string} details - Additional details
      */
     showStatusMessage(type, message, details = '') {
-        this.showStatusBar(message, type, { autoDismiss: type === 'success' || type === 'info' });
-        if (details) {
-            this.logger.info('Status message details', { type, message, details });
-        }
+        const fullMessage = details ? `${message}: ${details}` : message;
+        this.showNotification('Status Update', fullMessage, type);
     }
-
+    
     /**
      * Show export status
      */
     showExportStatus() {
-        try {
-            this.showStatusBar('Export operation started', 'info');
-            this.logger.info('Export status shown');
-        } catch (error) {
-            this.logger.error('Error showing export status', { error: error.message });
-        }
+        this.showProgress();
+        this.updateProgress(0, 100, 'Preparing export...');
+        this.logger.info('Export status shown');
     }
-
+    
     /**
      * Update export progress
+     * @param {number} current - Current progress
+     * @param {number} total - Total progress
+     * @param {string} message - Progress message
+     * @param {Object} counts - Statistics counts
      */
     updateExportProgress(current, total, message, counts = {}) {
-        try {
-            progressManager.updateProgress(current, total, message, {
-                ...counts,
-                operation: 'export'
+        this.updateProgress(current, total, message);
+        
+        // Update export-specific statistics
+        if (counts && typeof counts === 'object') {
+            Object.entries(counts).forEach(([key, value]) => {
+                const statElement = document.querySelector(`.stat-value.${key}`);
+                if (statElement) {
+                    statElement.textContent = value || 0;
+                }
             });
-            this.logger.debug('Export progress updated', { current, total, message });
-        } catch (error) {
-            this.logger.error('Error updating export progress', { error: error.message });
         }
+        
+        this.logger.debug('Export progress updated', { current, total, message, counts });
     }
-
+    
     /**
      * Show delete status
+     * @param {number} totalUsers - Total number of users
+     * @param {string} populationName - Population name
+     * @param {string} populationId - Population ID
      */
     showDeleteStatus(totalUsers, populationName, populationId) {
-        try {
-            this.showStatusBar(`Delete operation started for ${totalUsers} users in ${populationName}`, 'warning');
-            this.logger.info('Delete status shown', { totalUsers, populationName, populationId });
-        } catch (error) {
-            this.logger.error('Error showing delete status', { error: error.message });
+        this.showProgress();
+        this.updateProgress(0, totalUsers || 0, 'Preparing delete operation...');
+        
+        const operationTypeElement = document.querySelector('.detail-value.operation-type');
+        if (operationTypeElement) {
+            operationTypeElement.textContent = 'Delete';
         }
+        
+        this.logger.info('Delete status shown', { totalUsers, populationName, populationId });
     }
-
+    
     /**
      * Update delete progress
+     * @param {number} current - Current progress
+     * @param {number} total - Total progress
+     * @param {string} message - Progress message
+     * @param {Object} counts - Statistics counts
+     * @param {string} populationName - Population name
+     * @param {string} populationId - Population ID
      */
     updateDeleteProgress(current, total, message, counts = {}, populationName = '', populationId = '') {
-        try {
-            progressManager.updateProgress(current, total, message, {
-                ...counts,
-                population: populationName,
-                populationId: populationId,
-                operation: 'delete'
+        this.updateProgress(current, total, message);
+        
+        // Update delete-specific statistics
+        if (counts && typeof counts === 'object') {
+            Object.entries(counts).forEach(([key, value]) => {
+                const statElement = document.querySelector(`.stat-value.${key}`);
+                if (statElement) {
+                    statElement.textContent = value || 0;
+                }
             });
-            this.logger.debug('Delete progress updated', { current, total, message, populationName });
-        } catch (error) {
-            this.logger.error('Error updating delete progress', { error: error.message });
         }
+        
+        this.logger.debug('Delete progress updated', { 
+            current, 
+            total, 
+            message, 
+            counts, 
+            populationName, 
+            populationId 
+        });
     }
-
+    
     /**
      * Show modify status
+     * @param {number} totalUsers - Total number of users
      */
     showModifyStatus(totalUsers) {
-        try {
-            this.showStatusBar(`Modify operation started for ${totalUsers} users`, 'info');
-            this.logger.info('Modify status shown', { totalUsers });
-        } catch (error) {
-            this.logger.error('Error showing modify status', { error: error.message });
+        this.showProgress();
+        this.updateProgress(0, totalUsers || 0, 'Preparing modify operation...');
+        
+        const operationTypeElement = document.querySelector('.detail-value.operation-type');
+        if (operationTypeElement) {
+            operationTypeElement.textContent = 'Modify';
         }
+        
+        this.logger.info('Modify status shown', { totalUsers });
     }
-
+    
     /**
      * Update modify progress
+     * @param {number} current - Current progress
+     * @param {number} total - Total progress
+     * @param {string} message - Progress message
+     * @param {Object} counts - Statistics counts
      */
     updateModifyProgress(current, total, message, counts = {}) {
-        try {
-            progressManager.updateProgress(current, total, message, {
-                ...counts,
-                operation: 'modify'
+        this.updateProgress(current, total, message);
+        
+        // Update modify-specific statistics
+        if (counts && typeof counts === 'object') {
+            Object.entries(counts).forEach(([key, value]) => {
+                const statElement = document.querySelector(`.stat-value.${key}`);
+                if (statElement) {
+                    statElement.textContent = value || 0;
+                }
             });
-            this.logger.debug('Modify progress updated', { current, total, message });
-        } catch (error) {
-            this.logger.error('Error updating modify progress', { error: error.message });
         }
+        
+        this.logger.debug('Modify progress updated', { current, total, message, counts });
     }
 }
 
-// Create and export default instance
-const uiManager = new UIManager();
-
-// Export the class and instance
-export { UIManager, uiManager };
+// Export the UIManager class
+export { UIManager };

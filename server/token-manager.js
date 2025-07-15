@@ -170,6 +170,13 @@ class TokenManager {
         // Final check: all required credentials must be present
         if (!clientId || !clientSecret || !environmentId) {
             this.logger.error('Missing PingOne credentials: clientId, clientSecret, or environmentId');
+            this.logger.error('Please configure your PingOne API credentials in the Settings page or data/settings.json');
+            return null;
+        }
+
+        // Validate credential format
+        if (clientId === 'YOUR_CLIENT_ID_HERE' || clientSecret === 'YOUR_CLIENT_SECRET_HERE' || environmentId === 'YOUR_ENVIRONMENT_ID_HERE') {
+            this.logger.error('PingOne credentials are not configured. Please update data/settings.json with your actual credentials.');
             return null;
         }
 

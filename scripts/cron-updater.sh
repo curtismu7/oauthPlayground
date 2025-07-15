@@ -4,7 +4,7 @@
 # This script can be added to crontab for automated package updates
 
 # Configuration
-PROJECT_DIR="/Users/cmuir/cmuir/P1Sample/PingONe-cursor-import"
+PROJECT_DIR="/Users/cmuir/P1Import-apps/PingONe-cursor-import"
 LOG_FILE="$PROJECT_DIR/update-cron.log"
 LOCK_FILE="$PROJECT_DIR/update-cron.lock"
 NODE_PATH="/usr/local/bin/node"
