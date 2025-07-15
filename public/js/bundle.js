@@ -5384,7 +5384,7 @@ var _tokenManager = _interopRequireDefault(require("./modules/token-manager.js")
 var _fileHandler = require("./modules/file-handler.js");
 var _versionManager = require("./modules/version-manager.js");
 var _apiFactory = require("./modules/api-factory.js");
-var _progressManager = require("./modules/progress-manager.js");
+var _progressManager = _interopRequireDefault(require("./modules/progress-manager.js"));
 var _deleteManager = require("./modules/delete-manager.js");
 var _exportManager = require("./modules/export-manager.js");
 var _historyManager = require("./modules/history-manager.js");
@@ -5865,8 +5865,8 @@ class App {
 
       // Initialize progress manager for enhanced progress tracking
       try {
-        if (_progressManager.progressManager && typeof _progressManager.progressManager.initialize === 'function') {
-          _progressManager.progressManager.initialize();
+        if (_progressManager.default && typeof _progressManager.default.initialize === 'function') {
+          _progressManager.default.initialize();
           console.log('✅ ProgressManager initialized successfully');
         } else {
           console.warn('ProgressManager not available or missing initialize method');
