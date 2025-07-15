@@ -216,6 +216,22 @@ if (process.env.NODE_ENV !== 'test') {
         )
     }));
     
+    // Add combined.log transport for all SSE events
+    sseLogger.add(new winston.transports.File({
+        filename: path.join(__dirname, '../logs/combined.log'),
+        level: 'info',
+        maxsize: 20 * 1024 * 1024, // 20MB
+        maxFiles: 14,
+        tailable: true,
+        zippedArchive: true,
+        format: winston.format.combine(
+            winston.format.timestamp({
+                format: 'YYYY-MM-DD HH:mm:ss.SSS'
+            }),
+            winston.format.json()
+        )
+    }));
+
     // SSE errors log (errors only)
     sseLogger.add(new winston.transports.File({
         filename: path.join(__dirname, '../logs/sse-errors.log'),
