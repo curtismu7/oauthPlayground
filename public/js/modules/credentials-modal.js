@@ -26,10 +26,12 @@ class CredentialsModal {
             const response = await fetch('/api/settings');
             if (response.ok) {
                 const data = await response.json();
+                // The API returns data in data.data structure
+                const settings = data.data || data.settings || {};
                 this.credentials = {
-                    environmentId: data.settings['environment-id'] || data.settings.environmentId,
-                    clientId: data.settings['api-client-id'] || data.settings.apiClientId,
-                    region: data.settings.region || 'NorthAmerica'
+                    environmentId: settings.environmentId || settings['environment-id'] || '',
+                    clientId: settings.apiClientId || settings['api-client-id'] || '',
+                    region: settings.region || 'NorthAmerica'
                 };
             } else {
                 console.warn('Failed to load credentials from settings');
