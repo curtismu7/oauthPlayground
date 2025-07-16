@@ -635,19 +635,72 @@ class DeleteManager {
     }
 
     showSuccess(message) {
-        if (window.uiManager) {
+        if (window.app && window.app.uiManager) {
+            window.app.uiManager.showNotification(message, 'success');
+        } else if (window.uiManager) {
             window.uiManager.showStatusMessage('success', 'Delete Complete', message);
         } else {
-            alert(message);
+            // Create a modern notification instead of alert
+            this.showModernNotification(message, 'success');
         }
     }
 
     showError(message) {
-        if (window.uiManager) {
+        if (window.app && window.app.uiManager) {
+            window.app.uiManager.showNotification('Error: ' + message, 'error');
+        } else if (window.uiManager) {
             window.uiManager.showStatusMessage('error', 'Delete Failed', message);
         } else {
-            alert('Error: ' + message);
+            // Create a modern notification instead of alert
+            this.showModernNotification('Error: ' + message, 'error');
         }
+    }
+
+    showModernNotification(message, type = 'info') {
+        // Create a modern notification element
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            max-width: 400px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        `;
+
+        // Set background color based on type
+        if (type === 'success') {
+            notification.style.backgroundColor = '#28a745';
+        } else if (type === 'error') {
+            notification.style.backgroundColor = '#dc3545';
+        } else {
+            notification.style.backgroundColor = '#17a2b8';
+        }
+
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        // Animate in
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 100);
+
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }, 5000);
     }
 }
 

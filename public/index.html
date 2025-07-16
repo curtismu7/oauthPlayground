@@ -44,6 +44,66 @@
     <script src="/js/modules/credentials-manager.js"></script>
 </head>
 <body class="ping-identity-theme">
+    <!-- Startup Wait Screen -->
+    <div id="startup-wait-screen" class="startup-wait-screen">
+        <div class="startup-wait-content">
+            <div class="startup-wait-logo">
+                <img src="https://raw.githubusercontent.com/curtismu7/CDN/fd81b602d8c3635a8ca40aab169c83b86eae2dc0/Ping%20Identity_idEzgMTpXK_1.svg" alt="Ping Identity" class="startup-logo">
+            </div>
+            <div class="startup-wait-spinner">
+                <div class="spinner"></div>
+            </div>
+            <div class="startup-wait-text">
+                <h2>Initializing PingOne Import Tool</h2>
+                <p id="startup-status-text">Connecting to PingOne and loading configuration...</p>
+                <div class="startup-progress">
+                    <div class="startup-progress-bar">
+                        <div class="startup-progress-fill" id="startup-progress-fill"></div>
+                    </div>
+                    <span class="startup-progress-text" id="startup-progress-text">0%</span>
+                </div>
+            </div>
+            <div class="startup-wait-details">
+                <div class="startup-step" id="startup-step-1">
+                    <i class="fas fa-cog fa-spin"></i>
+                    <span>Loading application settings...</span>
+                </div>
+                <div class="startup-step" id="startup-step-2">
+                    <i class="fas fa-key"></i>
+                    <span>Authenticating with PingOne...</span>
+                </div>
+                <div class="startup-step" id="startup-step-3">
+                    <i class="fas fa-users"></i>
+                    <span>Loading population data...</span>
+                </div>
+                <div class="startup-step" id="startup-step-4">
+                    <i class="fas fa-check"></i>
+                    <span>Ready to use!</span>
+                </div>
+            </div>
+            <!-- Startup Disclaimer -->
+            <div class="startup-disclaimer">
+                <div class="disclaimer-content">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div class="disclaimer-text">
+                        <strong>DISCLAIMER:</strong> This tool is unsupported and provided as-is. Ping Identity is not liable for any harm or data loss. Please backup your PingOne account and test in non-production environments only.
+                    </div>
+                </div>
+            </div>
+            <!-- Token Status -->
+            <div class="startup-token-status" id="startup-token-status">
+                <div class="token-status-content">
+                    <i class="fas fa-key token-status-icon"></i>
+                    <span class="token-status-text">Checking authentication...</span>
+                </div>
+            </div>
+            <!-- Auto-dismiss warning -->
+            <div class="startup-auto-dismiss">
+                <small>This screen will automatically dismiss if initialization takes too long</small>
+            </div>
+        </div>
+    </div>
+    
     <div class="app-container">
         <!-- Sidebar -->
         <nav class="sidebar">

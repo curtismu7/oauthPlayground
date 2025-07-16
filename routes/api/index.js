@@ -2131,7 +2131,7 @@ router.post('/delete-users', upload.single('file'), async (req, res) => {
             });
         }
 
-        // Parse CSV file if provided
+        // Parse CSV file if provided, or get all users from population
         let usersToDelete = [];
         if (req.file) {
             const csvContent = req.file.buffer.toString('utf8');
@@ -2160,6 +2160,63 @@ router.post('/delete-users', upload.single('file'), async (req, res) => {
                 totalUsers: usersToDelete.length,
                 headers: headers
             });
+        } else if (req.body.type === 'population' && req.body.populationId) {
+            // Get all users from the specified population
+            debugLog("Delete", "👥 Fetching all users from population", {
+                populationId: req.body.populationId
+            });
+
+            try {
+                const populationResponse = await fetch(
+                    `${settings.apiBaseUrl}/environments/${environmentId}/populations/${req.body.populationId}/users`,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                );
+
+                if (populationResponse.ok) {
+                    const populationData = await populationResponse.json();
+                    if (populationData._embedded && populationData._embedded.users) {
+                        usersToDelete = populationData._embedded.users.map(user => ({
+                            username: user.username,
+                            email: user.primaryEmail?.address,
+                            id: user.id
+                        }));
+                        debugLog("Delete", "👥 Population users fetched successfully", {
+                            totalUsers: usersToDelete.length,
+                            populationId: req.body.populationId
+                        });
+                    } else {
+                        debugLog("Delete", "👥 No users found in population", {
+                            populationId: req.body.populationId
+                        });
+                    }
+                } else {
+                    const errorText = await populationResponse.text();
+                    debugLog("Delete", "❌ Failed to fetch population users", {
+                        populationId: req.body.populationId,
+                        status: populationResponse.status,
+                        error: errorText
+                    });
+                    return res.status(populationResponse.status).json({
+                        success: false,
+                        error: `Failed to fetch users from population: ${populationResponse.status} ${populationResponse.statusText}`,
+                        details: errorText
+                    });
+                }
+            } catch (error) {
+                debugLog("Delete", "❌ Error fetching population users", {
+                    populationId: req.body.populationId,
+                    error: error.message
+                });
+                return res.status(500).json({
+                    success: false,
+                    error: `Error fetching users from population: ${error.message}`
+                });
+            }
         }
 
         // Initialize progress tracking
@@ -2183,57 +2240,67 @@ router.post('/delete-users', upload.single('file'), async (req, res) => {
             try {
                 processed++;
                 
-                // Find user by username or email
+                // Find user by username or email, or use existing user data
                 let existingUser = null;
                 let lookupMethod = '';
 
-                // Try to find user by username first
-                if (user.username) {
-                    try {
-                        const searchResponse = await fetch(
-                            `${settings.apiBaseUrl}/environments/${environmentId}/users?filter=username eq "${user.username}"`,
-                            {
-                                headers: {
-                                    'Authorization': `Bearer ${token}`,
-                                    'Content-Type': 'application/json'
+                // If user already has an ID (from population fetch), use it directly
+                if (user.id) {
+                    existingUser = user;
+                    lookupMethod = 'id';
+                    debugLog("Delete", `🗑️ Using user with existing ID`, {
+                        user: existingUser.username || existingUser.email,
+                        userId: existingUser.id
+                    });
+                } else {
+                    // Try to find user by username first
+                    if (user.username) {
+                        try {
+                            const searchResponse = await fetch(
+                                `${settings.apiBaseUrl}/environments/${environmentId}/users?filter=username eq "${user.username}"`,
+                                {
+                                    headers: {
+                                        'Authorization': `Bearer ${token}`,
+                                        'Content-Type': 'application/json'
+                                    }
+                                }
+                            );
+
+                            if (searchResponse.ok) {
+                                const searchData = await searchResponse.json();
+                                if (searchData._embedded && searchData._embedded.users && searchData._embedded.users.length > 0) {
+                                    existingUser = searchData._embedded.users[0];
+                                    lookupMethod = 'username';
                                 }
                             }
-                        );
-
-                        if (searchResponse.ok) {
-                            const searchData = await searchResponse.json();
-                            if (searchData._embedded && searchData._embedded.users && searchData._embedded.users.length > 0) {
-                                existingUser = searchData._embedded.users[0];
-                                lookupMethod = 'username';
-                            }
+                        } catch (error) {
+                            debugLog("Delete", `🔍 Username lookup failed for "${user.username}"`, { error: error.message });
                         }
-                    } catch (error) {
-                        debugLog("Delete", `🔍 Username lookup failed for "${user.username}"`, { error: error.message });
                     }
-                }
 
-                // Try to find user by email if not found by username
-                if (!existingUser && user.email) {
-                    try {
-                        const searchResponse = await fetch(
-                            `${settings.apiBaseUrl}/environments/${environmentId}/users?filter=email eq "${user.email}"`,
-                            {
-                                headers: {
-                                    'Authorization': `Bearer ${token}`,
-                                    'Content-Type': 'application/json'
+                    // Try to find user by email if not found by username
+                    if (!existingUser && user.email) {
+                        try {
+                            const searchResponse = await fetch(
+                                `${settings.apiBaseUrl}/environments/${environmentId}/users?filter=email eq "${user.email}"`,
+                                {
+                                    headers: {
+                                        'Authorization': `Bearer ${token}`,
+                                        'Content-Type': 'application/json'
+                                    }
+                                }
+                            );
+
+                            if (searchResponse.ok) {
+                                const searchData = await searchResponse.json();
+                                if (searchData._embedded && searchData._embedded.users && searchData._embedded.users.length > 0) {
+                                    existingUser = searchData._embedded.users[0];
+                                    lookupMethod = 'email';
                                 }
                             }
-                        );
-
-                        if (searchResponse.ok) {
-                            const searchData = await searchResponse.json();
-                            if (searchData._embedded && searchData._embedded.users && searchData._embedded.users.length > 0) {
-                                existingUser = searchData._embedded.users[0];
-                                lookupMethod = 'email';
-                            }
+                        } catch (error) {
+                            debugLog("Delete", `🔍 Email lookup failed for "${user.email}"`, { error: error.message });
                         }
-                    } catch (error) {
-                        debugLog("Delete", `🔍 Email lookup failed for "${user.email}"`, { error: error.message });
                     }
                 }
 
@@ -2314,6 +2381,7 @@ router.post('/delete-users', upload.single('file'), async (req, res) => {
             totalUsers: usersToDelete.length,
             processed,
             deleted,
+            deletedCount: deleted, // Add this for frontend compatibility
             skipped,
             failed,
             errors: errors.length > 0 ? errors : undefined,
