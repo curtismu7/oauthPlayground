@@ -12702,3 +12702,276 @@ label {
         padding: 10px !important;
     }
 }
+
+/* Startup Wait Screen Styles */
+.startup-wait-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 0.5s ease-out;
+}
+
+.startup-wait-screen.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.startup-wait-content {
+    background: white;
+    border-radius: 20px;
+    padding: 3rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    max-width: 500px;
+    width: 90%;
+}
+
+.startup-wait-logo {
+    margin-bottom: 2rem;
+}
+
+.startup-logo {
+    height: 60px;
+    width: auto;
+}
+
+.startup-wait-spinner {
+    margin-bottom: 2rem;
+}
+
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.startup-wait-text h2 {
+    color: #333;
+    margin-bottom: 1rem;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.startup-wait-text p {
+    color: #666;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+}
+
+.startup-progress {
+    margin-bottom: 2rem;
+}
+
+.startup-progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.startup-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.startup-progress-text {
+    color: #667eea;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.startup-wait-details {
+    text-align: left;
+}
+
+.startup-step {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    color: #666;
+    font-size: 0.95rem;
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+}
+
+.startup-step.active {
+    opacity: 1;
+    color: #667eea;
+    font-weight: 600;
+}
+
+.startup-step.completed {
+    opacity: 1;
+    color: #28a745;
+}
+
+.startup-step i {
+    width: 20px;
+    text-align: center;
+}
+
+.startup-step.completed i {
+    color: #28a745;
+}
+
+.startup-step.active i {
+    color: #667eea;
+}
+
+/* Hide the main app container during startup */
+.app-container.startup-loading {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Responsive design for startup screen */
+@media (max-width: 768px) {
+    .startup-wait-content {
+        padding: 2rem;
+        margin: 1rem;
+    }
+    
+    .startup-wait-text h2 {
+        font-size: 1.5rem;
+    }
+    
+    .startup-wait-text p {
+        font-size: 1rem;
+    }
+    
+    .startup-logo {
+        height: 50px;
+    }
+    
+    .spinner {
+        width: 50px;
+        height: 50px;
+    }
+}
+
+/* Startup Disclaimer Styles */
+.startup-disclaimer {
+    margin-top: 2rem;
+    padding: 1rem;
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: 8px;
+    max-width: 100%;
+}
+
+.disclaimer-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.disclaimer-content i {
+    color: #ffc107;
+    font-size: 1.2rem;
+    margin-top: 0.1rem;
+    flex-shrink: 0;
+}
+
+.disclaimer-text {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: #856404;
+}
+
+.disclaimer-text strong {
+    color: #856404;
+}
+
+/* Auto-dismiss warning */
+.startup-auto-dismiss {
+    margin-top: 1rem;
+    text-align: center;
+    opacity: 0.7;
+}
+
+.startup-auto-dismiss small {
+    color: #666;
+    font-size: 0.8rem;
+}
+
+/* Enhanced startup screen with timeout indicator */
+.startup-wait-screen.timeout-warning {
+    animation: pulse-warning 2s ease-in-out infinite;
+}
+
+@keyframes pulse-warning {
+    0%, 100% { 
+        box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
+    }
+    50% { 
+        box-shadow: 0 0 0 10px rgba(255, 193, 7, 0);
+    }
+}
+
+/* Token status during startup */
+.startup-token-status {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: rgba(40, 167, 69, 0.1);
+    border: 1px solid rgba(40, 167, 69, 0.3);
+    border-radius: 6px;
+    display: none;
+}
+
+.startup-token-status.show {
+    display: block;
+}
+
+.startup-token-status.error {
+    background: rgba(220, 53, 69, 0.1);
+    border-color: rgba(220, 53, 69, 0.3);
+}
+
+.startup-token-status .token-status-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.startup-token-status .token-status-icon {
+    font-size: 1rem;
+}
+
+.startup-token-status.success .token-status-icon {
+    color: #28a745;
+}
+
+.startup-token-status.error .token-status-icon {
+    color: #dc3545;
+}
+
+.startup-token-status .token-status-text {
+    color: #333;
+}
+
+.startup-token-status.error .token-status-text {
+    color: #721c24;
+}

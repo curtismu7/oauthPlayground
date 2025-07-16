@@ -217,16 +217,39 @@ const GlobalTokenManager = {
      * Initialize the global token status
      */
     initGlobalTokenStatus() {
-        // Create the status window
+        // Wait for app to be available before initializing
+        this.waitForAppAndInit();
+    },
+
+    /**
+     * Wait for app to be available and then initialize
+     */
+    async waitForAppAndInit() {
+        let attempts = 0;
+        const maxAttempts = 20; // Wait up to 10 seconds
+        const retryDelay = 500;
+        
+        while (attempts < maxAttempts) {
+            if (window.app && typeof window.app.getToken === 'function') {
+                console.log('✅ App is ready, initializing global token manager...');
+                this.createGlobalTokenStatus();
+                this.setupGlobalTokenEventListeners();
+                this.startGlobalTokenTimer();
+                this.updateGlobalTokenStatus();
+                return;
+            } else {
+                attempts++;
+                console.log(`⏳ Waiting for app to be ready... (attempt ${attempts}/${maxAttempts})`);
+                if (attempts < maxAttempts) {
+                    await new Promise(resolve => setTimeout(resolve, retryDelay));
+                }
+            }
+        }
+        
+        console.warn('⚠️ App not available after waiting, initializing global token manager anyway...');
         this.createGlobalTokenStatus();
-        
-        // Set up event listeners
         this.setupGlobalTokenEventListeners();
-        
-        // Start the update timer
         this.startGlobalTokenTimer();
-        
-        // Initial update
         this.updateGlobalTokenStatus();
     },
 
@@ -271,14 +294,42 @@ const GlobalTokenManager = {
         try {
             console.log('Getting new token via global token manager...');
             
-            // Trigger token refresh through the main app's getToken method
-            if (window.app && typeof window.app.getToken === 'function') {
-                await window.app.getToken();
-                this.updateGlobalTokenStatus();
-                console.log('Token refreshed successfully');
-            } else {
-                console.warn('App getToken method not available');
+            // Wait for app to be available with retry mechanism
+            let attempts = 0;
+            const maxAttempts = 10;
+            const retryDelay = 500;
+            
+            while (attempts < maxAttempts) {
+                if (window.app && typeof window.app.getToken === 'function') {
+                    await window.app.getToken();
+                    this.updateGlobalTokenStatus();
+                    console.log('Token refreshed successfully');
+                    return;
+                } else {
+                    attempts++;
+                    console.log(`App not ready yet, attempt ${attempts}/${maxAttempts}`);
+                    if (attempts < maxAttempts) {
+                        await new Promise(resolve => setTimeout(resolve, retryDelay));
+                    }
+                }
             }
+            
+            console.warn('App getToken method not available after retries');
+            
+            // Fallback: try to trigger token refresh through PingOne client directly
+            if (window.app && window.app.pingOneClient && typeof window.app.pingOneClient.getAccessToken === 'function') {
+                try {
+                    await window.app.pingOneClient.getAccessToken();
+                    this.updateGlobalTokenStatus();
+                    console.log('Token refreshed via PingOne client');
+                    return;
+                } catch (error) {
+                    console.error('Failed to refresh token via PingOne client:', error);
+                }
+            }
+            
+            console.error('No available method to refresh token');
+            
         } catch (error) {
             console.error('Error getting new token:', error);
         }
