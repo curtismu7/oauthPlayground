@@ -24,26 +24,38 @@ class TokenStatusIndicator {
     /**
      * Initialize the token status indicator
      */
-    init() {
+    async init() {
+        if (this.isInitialized) {
+            console.log('TokenStatusIndicator already initialized');
+            return;
+        }
+
+        console.log('🔄 Initializing TokenStatusIndicator...');
+        
         try {
-            console.log('Initializing token status indicator...');
             this.createStatusBar();
             this.bindEvents();
             this.startRefreshTimer();
+            
+            // Force initial status update
+            await this.updateStatus();
+            
             this.isInitialized = true;
+            console.log('✅ TokenStatusIndicator initialized successfully');
             
-            // Update status and show if there's a valid token
-            this.updateStatus().then(() => {
-                // Show the indicator after updating status
-                this.show();
-            });
-            
-            console.log('✅ Token status indicator initialized successfully');
-            console.log('Token status indicator element:', this.statusBar);
-            console.log('Refresh button:', this.refreshButton);
-            console.log('Get token button:', this.getTokenButton);
+            // Debug: Check if Get Token button exists and is visible
+            if (this.getTokenButton) {
+                console.log('✅ Get Token button found:', {
+                    exists: !!this.getTokenButton,
+                    display: this.getTokenButton.style.display,
+                    visible: this.getTokenButton.style.display !== 'none'
+                });
+            } else {
+                console.warn('⚠️ Get Token button not found in status bar');
+            }
         } catch (error) {
-            console.error('❌ Error initializing token status indicator:', error);
+            console.error('❌ Failed to initialize TokenStatusIndicator:', error);
+            throw error;
         }
     }
 

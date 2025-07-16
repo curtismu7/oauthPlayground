@@ -252,10 +252,17 @@ class PingOneClient {
             
             const timeRemainingFormatted = this.formatDuration(Math.floor(timeRemaining / 1000));
             
-            this.logger.debug('Token time remaining calculated', {
-                timeRemaining: timeRemainingFormatted,
-                isExpired
-            });
+            // Only log debug message every 5 minutes (300000ms) to reduce noise
+            const lastLogTime = this.lastTokenTimeLog || 0;
+            const timeSinceLastLog = now - lastLogTime;
+            
+            if (timeSinceLastLog >= 300000) { // 5 minutes
+                this.logger.debug('Token time remaining calculated', {
+                    timeRemaining: timeRemainingFormatted,
+                    isExpired
+                });
+                this.lastTokenTimeLog = now;
+            }
             
             return {
                 token: this.accessToken,
