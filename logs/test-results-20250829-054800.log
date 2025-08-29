@@ -1,0 +1,41 @@
+[2025-08-29 05:48:00] [PASS] Node.js installed: v22.16.0
+[2025-08-29 05:48:00] [PASS] npm installed: v10.9.2
+[2025-08-29 05:48:00] [PASS] Git installed: git version 2.45.2
+[2025-08-29 05:48:00] [PASS] HTTP client available: curl
+[2025-08-29 05:48:00] [PASS] Core file exists: package.json: PASSED
+[2025-08-29 05:48:00] [PASS] Core file exists: index.html: PASSED
+[2025-08-29 05:48:00] [PASS] Core file exists: vite.config.ts: PASSED
+[2025-08-29 05:48:00] [PASS] Core file exists: .env.example: PASSED
+[2025-08-29 05:48:00] [PASS] Core file exists: README.md: PASSED
+[2025-08-29 05:48:00] [PASS] Directory exists: src: PASSED
+[2025-08-29 05:48:00] [PASS] Directory exists: src/pages: PASSED
+[2025-08-29 05:48:00] [PASS] Directory exists: src/components: PASSED
+[2025-08-29 05:48:00] [PASS] Directory exists: src/utils: PASSED
+[2025-08-29 05:48:00] [PASS] Directory exists: src/contexts: PASSED
+[2025-08-29 05:48:00] [PASS] Directory exists: src/types: PASSED
+[2025-08-29 05:48:00] [PASS] Directory exists: public: PASSED
+[2025-08-29 05:48:00] [PASS] Source file exists: src/main.tsx: PASSED
+[2025-08-29 05:48:00] [PASS] Source file exists: src/App.tsx: PASSED
+[2025-08-29 05:48:00] [PASS] Source file exists: src/utils/oauth.ts: PASSED
+[2025-08-29 05:48:00] [FAIL] Source file exists: src/utils/jwt.ts: File not found
+[2025-08-29 05:48:00] [FAIL] Source file exists: src/contexts/AuthContext.tsx: File not found
+[2025-08-29 05:48:00] [PASS] Source file exists: src/types/oauth.ts: PASSED
+[2025-08-29 05:48:00] [PASS] node_modules directory exists: PASSED
+[2025-08-29 05:48:01] [PASS] Dependency installed: react: v18.3.1
+[2025-08-29 05:48:02] [PASS] Dependency installed: react-dom: v18.3.1
+[2025-08-29 05:48:02] [PASS] Dependency installed: vite: v4.7.0
+[2025-08-29 05:48:03] [PASS] Dependency installed: typescript: v5.9.2
+[2025-08-29 05:48:04] [PASS] Dependency installed: @types/react: v18.3.7
+[2025-08-29 05:48:05] [PASS] Dependency installed: @types/react-dom: v18.3.7
+[2025-08-29 05:48:06] [PASS] Dependency installed: styled-components: v6.1.19
+[2025-08-29 05:48:06] [PASS] .env file exists: PASSED
+[2025-08-29 05:48:06] [PASS] Environment variable configured: PINGONE_ENVIRONMENT_ID: Value set
+[2025-08-29 05:48:06] [PASS] Environment variable configured: PINGONE_CLIENT_ID: Value set
+[2025-08-29 05:48:06] [PASS] Environment variable configured: PINGONE_CLIENT_SECRET: Value set
+[2025-08-29 05:48:06] [PASS] Environment variable configured: PINGONE_REDIRECT_URI: Value set
+[2025-08-29 05:48:06] [PASS] Environment variable configured: PINGONE_API_URL: Value set
+[2025-08-29 05:48:07] [FAIL] TypeScript compilation: TypeScript errors found
+[2025-08-29 05:48:08] [FAIL] Build process: Build failed - check console output
+[2025-08-29 05:48:08] [WARN] Port 3000 availability: Port is already in use
+[2025-08-29 05:48:08] [PASS] OAuth utilities accessible: PASSED
+[2025-08-29 05:48:08] [PASS] JWT utilities functional: PASSED

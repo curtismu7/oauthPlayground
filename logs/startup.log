@@ -1,0 +1,133 @@
+[2025-08-29 05:48:12] [INFO] OAuth Playground startup initiated
+[2025-08-29 05:48:13] [ERROR] Setup failed due to test failures
+[2025-08-29 07:17:24] [INFO] OAuth Playground startup initiated
+[2025-08-29 07:17:25] [ERROR] Setup failed due to test failures
+[2025-08-29 07:25:46] [INFO] OAuth Playground startup initiated
+[2025-08-29 07:25:47] [ERROR] Setup failed due to test failures
+[2025-08-29 07:26:06] [INFO] OAuth Playground startup initiated
+[2025-08-29 07:26:07] [ERROR] Setup failed due to test failures
+[2025-08-29 07:29:24] [INFO] OAuth Playground startup initiated
+[2025-08-29 07:29:25] [INFO] OAuth Playground setup completed successfully
+[2025-08-29 07:43:36] [INFO] OAuth Playground startup initiated
+[2025-08-29 07:43:36] [INFO] OAuth Playground setup completed successfully
+[2025-08-29 08:12:51] [INFO] OAuth Playground startup initiated
+[2025-08-29 08:12:52] [ERROR] Setup failed due to test failures
+[2025-08-29 08:21:41] [INFO] OAuth Playground startup initiated
+[2025-08-29 08:21:42] [ERROR] Setup failed due to test failures
+[2025-08-29 08:22:31] [INFO] OAuth Playground startup initiated
+[2025-08-29 08:22:31] [ERROR] Setup failed due to test failures
+[2025-08-29 08:37:18] [INFO] OAuth Playground startup initiated
+[2025-08-29 08:37:19] [ERROR] Setup failed due to test failures
+[2025-08-29 09:02:26] [INFO] OAuth Playground startup initiated
+[2025-08-29 09:02:27] [INFO] OAuth Playground setup completed successfully
+[2025-08-29 09:29:18] [INFO] OAuth Playground startup initiated
+[2025-08-29 09:29:18] [INFO] OAuth Playground setup completed successfully
+[2025-08-29 09:31:06] [INFO] OAuth Playground startup initiated
+[2025-08-29 09:31:07] [INFO] OAuth Playground setup completed successfully
+[2025-08-29 09:36:07] [INFO] OAuth Playground startup initiated
+[2025-08-29 09:36:08] [INFO] OAuth Playground setup completed successfully
+[2025-08-29 10:14:14 CDT] OAuth Playground Startup
+Node: v22.16.0 | NPM: 10.9.2 | Env: development
+App Version:   "version": "1.0.1", | Git: main@7a8a2b9
+Memory: .0017395MB / 64GB | CPU Cores: 10
+Starting dev server on port 3000
+Local URL: https://localhost:3000/
+Server Ready
+Local URL: https://localhost:3000/
+Network URL: https://:3000/
+[2025-08-29 10:24:13] [INFO] OAuth Playground startup initiated
+[2025-08-29 10:24:14] [INFO] OAuth Playground setup completed successfully
+[2025-08-29 10:29:20 CDT] OAuth Playground Startup
+Node: v22.16.0 | NPM: 10.9.2 | Env: development
+App Version:   "version": "1.0.2", | Git: main@c694ce6
+Memory: .00180054MB / 64GB | CPU Cores: 10
+Starting dev server on port 3000
+Local URL: https://localhost:3000/
+Server Ready
+Local URL: https://localhost:3000/
+Network URL: https://:3000/
+[2025-08-29 10:29:58] [INFO] OAuth Playground startup initiated
+[2025-08-29 10:29:59] [INFO] OAuth Playground setup completed successfully
+[2025-08-29 10:30:27 CDT] OAuth Playground Startup
+Node: v22.16.0 | NPM: 10.9.2 | Env: development
+App Version:   "version": "1.0.2", | Git: main@c694ce6
+Memory: .00180054MB / 64GB | CPU Cores: 10
+Starting dev server on port 3000
+Local URL: https://localhost:3000/
+Server Ready
+Local URL: https://localhost:3000/
+Network URL: https://:3000/
+[2025-08-29 10:31:57 CDT] OAuth Playground Startup
+Node: v22.16.0 | NPM: 10.9.2 | Env: development
+App Version:   "version": "1.0.2", | Git: main@c694ce6
+Memory: .00177002MB / 64GB | CPU Cores: 10
+Starting dev server on port 3000
+Local URL: https://localhost:3000/
+Server Ready
+Local URL: https://localhost:3000/
+Network URL: https://:3000/
+[2025-08-29 10:33:15 CDT] OAuth Playground Startup
+Node: v22.16.0 | NPM: 10.9.2 | Env: development
+App Version:   "version": "1.0.2", | Git: main@c694ce6
+Memory: .00180054MB / 64GB | CPU Cores: 10
+Starting dev server on port 3000
+Local URL: https://localhost:3000/
+Server Ready
+Local URL: https://localhost:3000/
+Network URL: https://:3000/
+[2025-08-29 10:36:59 CDT] OAuth Playground Startup
+Node: v22.16.0 | NPM: 10.9.2 | Env: development
+App Version:   "version": "1.0.2", | Git: main@c694ce6
+Memory: .00167847MB / 64GB | CPU Cores: 10
+Starting dev server on port 3000
+Local URL: https://localhost:3000/
+Server Ready
+Local URL: https://localhost:3000/
+Network URL: https://:3000/
+[2025-08-29 10:37:25 CDT] OAuth Playground Startup
+Node: v22.16.0 | NPM: 10.9.2 | Env: development
+App Version:   "version": "1.0.2", | Git: main@c694ce6
+Memory: .0017395MB / 64GB | CPU Cores: 10
+Starting dev server on port 3000
+Local URL: https://localhost:3000/
+Server Ready
+Local URL: https://localhost:3000/
+Network URL: https://:3000/
+[2025-08-29 10:38:22 CDT] OAuth Playground Startup
+Node: v22.16.0 | NPM: 10.9.2 | Env: development
+App Version:   "version": "1.0.2", | Git: main@c694ce6
+Memory: .00167847MB / 64GB | CPU Cores: 10
+Starting dev server on port 3000
+Local URL: https://localhost:3000/
+Server Ready
+Local URL: https://localhost:3000/
+Network URL: https://:3000/
+[2025-08-29 10:43:05] [INFO] OAuth Playground startup initiated
+[2025-08-29 10:43:05] [INFO] OAuth Playground setup completed successfully
+[2025-08-29 10:52:18 CDT] OAuth Playground Startup
+Node: v22.16.0 | NPM: 10.9.2 | Env: development
+App Version:   "version": "1.0.2", | Git: main@c694ce6
+Memory: .00180054MB / 64GB | CPU Cores: 10
+Starting dev server on port 3000
+Local URL: https://localhost:3000/
+Server Ready
+Local URL: https://localhost:3000/
+Network URL: https://:3000/
+[2025-08-29 10:53:58 CDT] OAuth Playground Startup
+Node: v22.16.0 | NPM: 10.9.2 | Env: development
+App Version:   "version": "1.0.2", | Git: main@c694ce6
+Memory: .0017395MB / 64GB | CPU Cores: 10
+Starting dev server on port 3000
+Local URL: https://localhost:3000/
+Server Ready
+Local URL: https://localhost:3000/
+Network URL: https://:3000/
+[2025-08-29 10:57:34 CDT] OAuth Playground Startup
+Node: v22.16.0 | NPM: 10.9.2 | Env: development
+App Version:   "version": "1.0.2", | Git: main@c694ce6
+Memory: .00167847MB / 64GB | CPU Cores: 10
+Starting dev server on port 3000
+Local URL: https://localhost:3000/
+Server Ready
+Local URL: https://localhost:3000/
+Network URL: https://:3000/
