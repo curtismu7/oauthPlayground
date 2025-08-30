@@ -366,13 +366,14 @@ const PKCEFlow = () => {
           response_type: 'code',
           client_id: config.clientId,
           redirect_uri: config.redirectUri,
-          scope: 'openid profile email',
+          scope: config.scopes || 'openid profile email',
           code_challenge: pkceData.codeChallenge,
           code_challenge_method: 'S256',
           state: Math.random().toString(36).substring(2, 15),
           nonce: Math.random().toString(36).substring(2, 15),
         });
-        const url = `${config.apiUrl}/authorize?${params.toString()}`;
+        const authEndpoint = (config.authEndpoint || `https://auth.pingone.com/${config.environmentId}/as/authorize`).replace('{envId}', config.environmentId);
+        const url = `${authEndpoint}?${params.toString()}`;
         setAuthUrl(url);
         return 2;
       }
@@ -448,12 +449,12 @@ const codeChallenge = await generateCodeChallenge(codeVerifier);
       title: 'Build Authorization URL',
       description: 'Include code challenge in the authorization request',
       code: `// Authorization URL with PKCE parameters
-const authUrl = '${config?.apiUrl || 'https://auth.pingone.com'}/authorize?' +
+const authUrl = '${(config?.authEndpoint || `https://auth.pingone.com/${config?.environmentId || 'YOUR_ENV_ID'}/as/authorize`)}' +
   new URLSearchParams({
     response_type: 'code',
     client_id: '${config?.clientId || 'your_client_id'}',
     redirect_uri: '${config?.redirectUri || 'https://yourapp.com/callback'}',
-    scope: 'openid profile email',
+    scope: '${config?.scopes || 'openid profile email'}',
     code_challenge: '${pkceData?.codeChallenge || 'derived_challenge'}',
     code_challenge_method: 'S256',
     state: 'random_state_value',
@@ -489,13 +490,13 @@ console.log('Authorization Code:', authorizationCode);`
       title: 'Exchange Code for Tokens (with PKCE)',
       description: 'Send authorization code and code verifier to token endpoint',
       code: `// POST to token endpoint with PKCE validation
-POST ${config?.apiUrl || 'https://auth.pingone.com'}/token
+POST ${config?.tokenEndpoint || `https://auth.pingone.com/${config?.environmentId || 'YOUR_ENV_ID'}/as/token`}
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=authorization_code
 &code=auth_code_123
 &code_verifier=${pkceData?.codeVerifier || 'original_code_verifier'}
-&redirect_uri=https://yourapp.com/callback
+&redirect_uri=${config?.redirectUri || 'https://yourapp.com/callback'}
 &client_id=${config?.clientId || 'your_client_id'}`
     },
     {

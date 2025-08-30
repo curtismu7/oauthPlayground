@@ -12,6 +12,28 @@ export interface PingOneConfig {
   tokenEndpoint: string;
   userInfoEndpoint: string;
   logoutEndpoint: string;
+  // Token endpoint client authentication method
+  tokenAuthMethod?: 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt';
+  // Options for client assertions (JWT) when using client_secret_jwt or private_key_jwt
+  clientAssertion?: {
+    hmacAlg?: 'HS256' | 'HS384' | 'HS512';
+    signAlg?: 'RS256' | 'ES256' | 'PS256' | 'RS384' | 'ES384' | 'RS512' | 'ES512';
+    privateKeyPEM?: string;
+    kid?: string;
+    x5t?: string;
+    audience?: string; // defaults to token endpoint
+  };
+  // Advanced configuration toggles
+  advanced?: {
+    // Request Object signing policy for authorization requests (PAR/JAR)
+    requestObjectPolicy?: 'default' | 'require' | 'allow_unsigned';
+    // OIDC Session Management / OP iframe monitoring
+    oidcSessionManagement?: boolean;
+    // Multi-resource scopes (comma or space separated string for UI convenience)
+    resourceScopes?: string;
+    // RP-initiated logout behavior: terminate session by ID token hint
+    terminateByIdToken?: boolean;
+  };
 }
 
 // App configuration from environment variables
@@ -45,6 +67,17 @@ export const pingOneConfig: PingOneConfig = {
   tokenEndpoint: '',
   userInfoEndpoint: '',
   logoutEndpoint: '',
+  tokenAuthMethod: 'client_secret_basic',
+  clientAssertion: {
+    hmacAlg: 'HS256',
+    signAlg: 'RS256',
+  },
+  advanced: {
+    requestObjectPolicy: 'default',
+    oidcSessionManagement: false,
+    resourceScopes: 'openid profile email',
+    terminateByIdToken: true,
+  },
 };
 
 // OAuth 2.0 PKCE Configuration
@@ -89,6 +122,7 @@ export const API_ENDPOINTS = {
   INTROSPECT: '/as/introspect',
   LOGOUT: '/as/signoff',
   PAR: '/as/par', // Pushed Authorization Requests endpoint
+  DEVICE_AUTHORIZATION: '/as/device_authorization',
 };
 
 // Error messages
