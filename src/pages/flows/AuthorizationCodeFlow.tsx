@@ -5,9 +5,8 @@ import { FiPlay, FiEye, FiAlertCircle, FiKey } from 'react-icons/fi';
 import ColorCodedURL from '../../components/ColorCodedURL';
 import { useAuth } from '../../contexts/AuthContext';
 import { useOAuth } from '../../contexts/OAuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Spinner from '../../components/Spinner';
-import FlowSettings from '../../components/FlowSettings';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -280,17 +279,28 @@ const ErrorMessage = styled.div`
 
 const AuthorizationCodeFlow = () => {
   const { isAuthenticated } = useAuth();
-  const { config } = useOAuth();
+  const { config, tokens: contextTokens } = useOAuth() as any;
+  const location = useLocation();
   const navigate = useNavigate();
   const [demoStatus, setDemoStatus] = useState('idle');
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [waitingForUser, setWaitingForUser] = useState(false);
-  const [tokensReceived, setTokensReceived] = useState(null);
+  const [tokensReceived, setTokensReceived] = useState<Record<string, any> | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const [authUrl, setAuthUrl] = useState('');
   const [authCode, setAuthCode] = useState('');
+
+  // If we already have tokens from the real OAuth flow, surface them in the demo
+  useEffect(() => {
+    if (contextTokens && !tokensReceived) {
+      setTokensReceived(contextTokens as any);
+      setCurrentStep(5);
+      setDemoStatus('success');
+      setIsLoading(false);
+    }
+  }, [contextTokens, tokensReceived]);
 
   // Define steps with real URLs from config
   const steps = [
@@ -417,8 +427,11 @@ grant_type=authorization_code
       case 2:
         // Step 3: Authorization server redirects back with code
         setTimeout(() => {
-          const authCode = 'auth-code-' + Math.random().toString(36).substr(2, 9);
-          setAuthCode(authCode);
+          // Prefer a real code if present in the URL (useful when user lands here after redirect)
+          const searchParams = new URLSearchParams(location.search || '');
+          const codeFromUrl = searchParams.get('code');
+          const code = codeFromUrl || ('auth-code-' + Math.random().toString(36).substr(2, 9));
+          setAuthCode(code);
           setCurrentStep(3);
           setWaitingForUser(true);
           setIsLoading(false);

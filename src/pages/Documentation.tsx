@@ -261,12 +261,12 @@ const validateIdToken = (idToken, clientId, issuer) => {
             <strong>Error:</strong> "Invalid grant"
             <br />
             <strong>Solution:</strong> This can occur for several reasons:
-            <ul style={{ marginLeft: '1.5rem', marginTop: '0.5rem' }}>
-              <li>The authorization code has expired (typically after 10 minutes)</li>
-              <li>The authorization code has already been used</li>
-              <li>The code verifier doesn't match the code challenge</li>
-            </ul>
           </p>
+          <ul style={{ marginLeft: '1.5rem', marginTop: '0.5rem' }}>
+            <li>The authorization code has expired (typically after 10 minutes)</li>
+            <li>The authorization code has already been used</li>
+            <li>The code verifier doesn't match the code challenge</li>
+          </ul>
         </div>
       </Section>
       
