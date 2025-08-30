@@ -366,7 +366,22 @@ const Login = () => {
   const [credentials, setCredentials] = useState({
     environmentId: 'b9817c16-9910-4415-b67e-4ac687da74d9',
     clientId: 'a4f963ea-0736-456a-be72-b1fa4f63f81f',
-    clientSecret: '0mClRqd3fif2vh4WJCO6B-8OZuOokzsh5gLw1V3GHbeGJYCMLk_zPfrptWzfYJ.a'
+    clientSecret: '0mClRqd3fif2vh4WJCO6B-8OZuOokzsh5gLw1V3GHbeGJYCMLk_zPfrptWzfYJ.a',
+    tokenAuthMethod: 'client_secret_post',
+    clientAssertion: {
+      hmacAlg: 'HS256',
+      signAlg: 'RS256',
+      privateKeyPEM: '',
+      kid: '',
+      audience: '',
+      x5t: ''
+    },
+    advanced: {
+      requestObjectPolicy: 'default',
+      oidcSessionManagement: false,
+      resourceScopes: 'openid profile email',
+      terminateByIdToken: true,
+    }
   });
   const [showClientSecret, setShowClientSecret] = useState(false);
   const toggleClientSecretVisibility = () => setShowClientSecret(!showClientSecret);
@@ -415,11 +430,22 @@ const Login = () => {
     }
   };
 
+  const tokenEndpointForEnv = (envId: string) => `https://auth.pingone.com/${envId}/as/token`;
+
   const handleCredentialChange = (field: string, value: string) => {
-    setCredentials(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setCredentials(prev => {
+      const next: any = { ...prev, [field]: value };
+      // If environment changes, refresh default audience if it was empty or matched previous default
+      if (field === 'environmentId') {
+        const oldDefault = tokenEndpointForEnv(prev.environmentId);
+        const newDefault = tokenEndpointForEnv(value);
+        const curAud = prev.clientAssertion?.audience || '';
+        if (!curAud || curAud === oldDefault) {
+          next.clientAssertion = { ...(prev.clientAssertion || {}), audience: newDefault };
+        }
+      }
+      return next;
+    });
   };
 
   const handleCredentialSave = () => {
@@ -443,10 +469,13 @@ const Login = () => {
         clientId: credentials.clientId,
         clientSecret: credentials.clientSecret,
         redirectUri: 'https://localhost:3000/callback',
-        scopes: 'openid profile email',
+        scopes: credentials.advanced?.resourceScopes || 'openid profile email',
         authEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/authorize`,
         tokenEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/token`,
-        userInfoEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/userinfo`
+        userInfoEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/userinfo`,
+        tokenAuthMethod: credentials.tokenAuthMethod,
+        clientAssertion: credentials.clientAssertion,
+        advanced: credentials.advanced,
       };
       localStorage.setItem('pingone_config', JSON.stringify(configToSave));
       console.log('✅ [Login] Config also saved to pingone_config');
@@ -492,10 +521,13 @@ const Login = () => {
         clientId: credentials.clientId,
         clientSecret: credentials.clientSecret,
         redirectUri: 'https://localhost:3000/callback',
-        scopes: 'openid profile email',
+        scopes: credentials.advanced?.resourceScopes || 'openid profile email',
         authEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/authorize`,
         tokenEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/token`,
-        userInfoEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/userinfo`
+        userInfoEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/userinfo`,
+        tokenAuthMethod: credentials.tokenAuthMethod,
+        clientAssertion: credentials.clientAssertion,
+        advanced: credentials.advanced,
       };
       localStorage.setItem('pingone_config', JSON.stringify(configToSave));
 
@@ -763,6 +795,145 @@ const Login = () => {
                 </CredentialWrapper>
               </CredentialRow>
 
+              {/* Token Endpoint Authentication Method */}
+              <CredentialRow>
+                <p><strong>Token Auth Method:</strong></p>
+                <CredentialWrapper>
+                  <select
+                    value={credentials.tokenAuthMethod}
+                    onChange={(e) => {
+                      const method = e.target.value;
+                      setCredentials(prev => {
+                        const next: any = { ...prev, tokenAuthMethod: method };
+                        if ((method === 'client_secret_jwt' || method === 'private_key_jwt')) {
+                          const defAud = tokenEndpointForEnv(prev.environmentId);
+                          const curAud = prev.clientAssertion?.audience || '';
+                          if (!curAud) {
+                            next.clientAssertion = { ...(prev.clientAssertion || {}), audience: defAud };
+                          }
+                        }
+                        return next;
+                      });
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '0.5rem',
+                      border: '1px solid #dee2e6',
+                      borderRadius: '4px',
+                      backgroundColor: '#f8f9fa'
+                    }}
+                  >
+                    <option value="client_secret_post">client_secret_post</option>
+                    <option value="client_secret_jwt">client_secret_jwt (HS256)</option>
+                    <option value="private_key_jwt">private_key_jwt (RS256/ES256)</option>
+                  </select>
+                </CredentialWrapper>
+              </CredentialRow>
+
+              {/* Client Assertion Options - HMAC */}
+              {credentials.tokenAuthMethod === 'client_secret_jwt' && (
+                <>
+                  <CredentialRow>
+                    <p><strong>HMAC Alg:</strong></p>
+                    <CredentialWrapper>
+                      <select
+                        value={credentials.clientAssertion?.hmacAlg || 'HS256'}
+                        onChange={(e) => setCredentials(prev => ({
+                          ...prev,
+                          clientAssertion: { ...(prev.clientAssertion || {}), hmacAlg: e.target.value as any }
+                        }))}
+                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #dee2e6', borderRadius: 4 as any, backgroundColor: '#f8f9fa' }}
+                      >
+                        <option value="HS256">HS256</option>
+                        <option value="HS384">HS384</option>
+                        <option value="HS512">HS512</option>
+                      </select>
+                    </CredentialWrapper>
+                  </CredentialRow>
+                  <CredentialRow>
+                    <p><strong>Audience (aud):</strong></p>
+                    <CredentialWrapper>
+                      <input
+                        type="text"
+                        placeholder="Defaults to token endpoint"
+                        value={credentials.clientAssertion?.audience || ''}
+                        onChange={(e) => setCredentials(prev => ({
+                          ...prev,
+                          clientAssertion: { ...(prev.clientAssertion || {}), audience: e.target.value }
+                        }))}
+                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #dee2e6', borderRadius: 4 as any, backgroundColor: '#f8f9fa' }}
+                      />
+                    </CredentialWrapper>
+                  </CredentialRow>
+                </>
+              )}
+
+              {/* Client Assertion Options - Private Key */}
+              {credentials.tokenAuthMethod === 'private_key_jwt' && (
+                <>
+                  <CredentialRow>
+                    <p><strong>Signing Alg:</strong></p>
+                    <CredentialWrapper>
+                      <select
+                        value={credentials.clientAssertion?.signAlg || 'RS256'}
+                        onChange={(e) => setCredentials(prev => ({
+                          ...prev,
+                          clientAssertion: { ...(prev.clientAssertion || {}), signAlg: e.target.value as any }
+                        }))}
+                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #dee2e6', borderRadius: 4 as any, backgroundColor: '#f8f9fa' }}
+                      >
+                        <option value="RS256">RS256</option>
+                        <option value="ES256">ES256</option>
+                      </select>
+                    </CredentialWrapper>
+                  </CredentialRow>
+                  <CredentialRow>
+                    <p><strong>kid:</strong></p>
+                    <CredentialWrapper>
+                      <input
+                        type="text"
+                        placeholder="Key ID registered in PingOne"
+                        value={credentials.clientAssertion?.kid || ''}
+                        onChange={(e) => setCredentials(prev => ({
+                          ...prev,
+                          clientAssertion: { ...(prev.clientAssertion || {}), kid: e.target.value }
+                        }))}
+                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #dee2e6', borderRadius: 4 as any, backgroundColor: '#f8f9fa' }}
+                      />
+                    </CredentialWrapper>
+                  </CredentialRow>
+                  <CredentialRow>
+                    <p><strong>Private Key (PEM):</strong></p>
+                    <CredentialWrapper>
+                      <textarea
+                        placeholder={`-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----`}
+                        value={credentials.clientAssertion?.privateKeyPEM || ''}
+                        onChange={(e) => setCredentials(prev => ({
+                          ...prev,
+                          clientAssertion: { ...(prev.clientAssertion || {}), privateKeyPEM: e.target.value }
+                        }))}
+                        style={{ width: '100%', minHeight: '120px', padding: '0.5rem', border: '1px solid #dee2e6', borderRadius: 4 as any, backgroundColor: '#f8f9fa', fontFamily: 'monospace' }}
+                      />
+                    </CredentialWrapper>
+                  </CredentialRow>
+                  <CredentialRow>
+                    <p><strong>Audience (aud):</strong></p>
+                    <CredentialWrapper>
+                      <input
+                        type="text"
+                        placeholder="Defaults to token endpoint"
+                        value={credentials.clientAssertion?.audience || ''}
+                        onChange={(e) => setCredentials(prev => ({
+                          ...prev,
+                          clientAssertion: { ...(prev.clientAssertion || {}), audience: e.target.value }
+                        }))}
+                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #dee2e6', borderRadius: 4 as any, backgroundColor: '#f8f9fa' }}
+                      />
+                    </CredentialWrapper>
+                  </CredentialRow>
+                </>
+              )}
+
               <CredentialRow>
                 <p><strong>Redirect URI:</strong></p>
                 <CredentialWrapper>
@@ -775,6 +946,101 @@ const Login = () => {
                   </CopyButton>
                 </CredentialWrapper>
               </CredentialRow>
+
+              {/* Advanced Configuration */}
+              <div style={{
+                backgroundColor: '#f8f9fa',
+                border: '1px solid #e9ecef',
+                borderRadius: 8,
+                padding: '1rem',
+                marginTop: '1rem'
+              }}>
+                <h4 style={{ marginTop: 0, marginBottom: '0.75rem', color: '#343a40' }}>Advanced Configuration</h4>
+
+                <CredentialRow>
+                  <p><strong>Req Object Policy:</strong></p>
+                  <CredentialWrapper>
+                    <select
+                      value={credentials.advanced?.requestObjectPolicy || 'default'}
+                      onChange={(e) => setCredentials(prev => ({
+                        ...prev,
+                        advanced: { ...(prev.advanced || {}), requestObjectPolicy: e.target.value as any }
+                      }))}
+                      style={{ width: '100%', padding: '0.5rem', border: '1px solid #dee2e6', borderRadius: 4 as any, backgroundColor: '#ffffff' }}
+                    >
+                      <option value="default">default</option>
+                      <option value="require">require</option>
+                      <option value="allow_unsigned">allow_unsigned</option>
+                    </select>
+                  </CredentialWrapper>
+                </CredentialRow>
+
+                <CredentialRow>
+                  <p><strong>x5t (JWT hdr):</strong></p>
+                  <CredentialWrapper>
+                    <input
+                      type="text"
+                      placeholder="Base64URL thumbprint"
+                      value={credentials.clientAssertion?.x5t || ''}
+                      onChange={(e) => setCredentials(prev => ({
+                        ...prev,
+                        clientAssertion: { ...(prev.clientAssertion || {}), x5t: e.target.value }
+                      }))}
+                      style={{ width: '100%', padding: '0.5rem', border: '1px solid #dee2e6', borderRadius: 4 as any, backgroundColor: '#ffffff' }}
+                    />
+                  </CredentialWrapper>
+                </CredentialRow>
+
+                <CredentialRow>
+                  <p><strong>OIDC Session Mgmt:</strong></p>
+                  <CredentialWrapper>
+                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <input
+                        type="checkbox"
+                        checked={!!credentials.advanced?.oidcSessionManagement}
+                        onChange={(e) => setCredentials(prev => ({
+                          ...prev,
+                          advanced: { ...(prev.advanced || {}), oidcSessionManagement: e.target.checked }
+                        }))}
+                      />
+                      Enable OP iframe monitoring
+                    </label>
+                  </CredentialWrapper>
+                </CredentialRow>
+
+                <CredentialRow>
+                  <p><strong>Resource Scopes:</strong></p>
+                  <CredentialWrapper>
+                    <input
+                      type="text"
+                      placeholder="openid profile email api://resource1 scope1 scope2"
+                      value={credentials.advanced?.resourceScopes || ''}
+                      onChange={(e) => setCredentials(prev => ({
+                        ...prev,
+                        advanced: { ...(prev.advanced || {}), resourceScopes: e.target.value }
+                      }))}
+                      style={{ width: '100%', padding: '0.5rem', border: '1px solid #dee2e6', borderRadius: 4 as any, backgroundColor: '#ffffff' }}
+                    />
+                  </CredentialWrapper>
+                </CredentialRow>
+
+                <CredentialRow>
+                  <p><strong>Logout via ID Token:</strong></p>
+                  <CredentialWrapper>
+                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <input
+                        type="checkbox"
+                        checked={!!credentials.advanced?.terminateByIdToken}
+                        onChange={(e) => setCredentials(prev => ({
+                          ...prev,
+                          advanced: { ...(prev.advanced || {}), terminateByIdToken: e.target.checked }
+                        }))}
+                      />
+                      Use RP-initiated logout with id_token_hint
+                    </label>
+                  </CredentialWrapper>
+                </CredentialRow>
+              </div>
 
               <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
                 <SubmitButton onClick={handleCredentialSave} disabled={isSavingCredentials} style={{ width: 'auto', padding: '0.75rem 2rem' }}>
