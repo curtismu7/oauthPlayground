@@ -243,6 +243,8 @@ export const OAuthProvider = ({ children }) => {
         redirectUri: config.redirectUri,
         code: params.code,
         codeVerifier: savedCodeVerifier,
+        authMethod: (config.tokenAuthMethod as any) || 'client_secret_basic',
+        assertionOptions: config.clientAssertion,
       });
       
       // Validate ID token if present
