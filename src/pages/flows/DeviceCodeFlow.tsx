@@ -349,10 +349,10 @@ const DeviceFlow = () => {
     try {
       setCurrentStep(1);
 
-      // Simulate device authorization request
+      // Simulate device authorization request (correct endpoint includes environment ID)
       const deviceAuthRequest = {
         method: 'POST',
-        url: `${config.apiUrl}/device_authorization`,
+        url: `https://auth.pingone.com/${config.environmentId}/as/device_authorization`,
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
         },
@@ -433,7 +433,7 @@ const DeviceFlow = () => {
       title: 'Device Initiates Flow',
       description: 'Device requests device and user codes from authorization server',
       code: `// POST to device authorization endpoint
-POST ${config?.apiUrl || 'https://auth.pingone.com'}/device_authorization
+POST https://auth.pingone.com/${config?.environmentId || 'YOUR_ENV_ID'}/as/device_authorization
 Content-Type: application/x-www-form-urlencoded
 
 client_id=${config?.clientId || 'your_client_id'}&scope=openid profile email
@@ -476,7 +476,7 @@ console.log('Enter code: ${deviceCodeData?.user_code || 'WDJB-MJHT'}');
       title: 'Device Polls for Authorization',
       description: 'Device repeatedly polls token endpoint until user completes authentication',
       code: `// Device polls token endpoint
-POST ${config?.apiUrl || 'https://auth.pingone.com'}/token
+POST https://auth.pingone.com/${config?.environmentId || 'YOUR_ENV_ID'}/as/token
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=urn:ietf:params:oauth:grant-type:device_code
