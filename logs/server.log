@@ -6411,3 +6411,252 @@
 [2025-08-30T14:57:32.293Z] GET /src/pages/flows/PKCEFlow.tsx?t=1756565852272 -> 200 (19ms)
 [2025-08-30T14:57:32.294Z] GET /src/pages/flows/PKCEFlow.tsx?t=1756565852272 -> 200 (1ms)
 [2025-08-30T14:57:32.295Z] GET /src/pages/flows/PKCEFlow.tsx?t=1756565852272 -> 200 (0ms)
+[2025-08-30T15:01:25.265Z] GET /src/contexts/OAuthContext.tsx?t=1756566085258 -> 200 (3ms)
+[2025-08-30T15:01:25.267Z] GET /src/contexts/AuthContext.tsx?t=1756566085258 -> 200 (3ms)
+[2025-08-30T15:01:25.267Z] GET /src/pages/flows/UserInfoFlow.tsx?t=1756566085258 -> 200 (2ms)
+[2025-08-30T15:01:25.268Z] GET /src/contexts/OAuthContext.tsx?t=1756566085258 -> 200 (1ms)
+[2025-08-30T15:01:25.268Z] GET /src/contexts/AuthContext.tsx?t=1756566085258 -> 200 (1ms)
+[2025-08-30T15:01:25.268Z] GET /src/pages/flows/UserInfoFlow.tsx?t=1756566085258 -> 200 (0ms)
+[2025-08-30T15:01:25.269Z] GET /src/contexts/OAuthContext.tsx?t=1756566085258 -> 200 (0ms)
+[2025-08-30T15:01:25.269Z] GET /src/contexts/AuthContext.tsx?t=1756566085258 -> 200 (0ms)
+[2025-08-30T15:01:25.271Z] GET /src/utils/oauth.ts?t=1756566085258 -> 200 (4ms)
+[2025-08-30T15:01:25.271Z] GET /src/pages/flows/UserInfoFlow.tsx?t=1756566085258 -> 200 (1ms)
+[2025-08-30T15:01:25.273Z] GET /src/utils/oauth.ts?t=1756566085258 -> 200 (0ms)
+[2025-08-30T15:01:25.275Z] GET /src/utils/oauth.ts?t=1756566085258 -> 200 (1ms)
+[2025-08-30T15:01:25.381Z] GET /src/pages/flows/ImplicitGrantFlow.tsx?t=1756566085258 -> 200 (103ms)
+[2025-08-30T15:01:25.381Z] GET /src/App.tsx?t=1756566085258 -> 200 (103ms)
+[2025-08-30T15:01:25.381Z] GET /src/pages/flows/PKCEFlow.tsx?t=1756566085258 -> 200 (103ms)
+[2025-08-30T15:01:25.381Z] GET /src/pages/flows/ClientCredentialsFlow.tsx?t=1756566085258 -> 200 (103ms)
+[2025-08-30T15:01:25.394Z] GET /src/pages/flows/IDTokensFlow.tsx?t=1756566085258 -> 200 (116ms)
+[2025-08-30T15:01:25.394Z] GET /src/pages/flows/DeviceCodeFlow.tsx?t=1756566085258 -> 200 (116ms)
+[2025-08-30T15:01:25.394Z] GET /src/pages/flows/ClientCredentialsFlow.tsx?t=1756566085258 -> 200 (1ms)
+[2025-08-30T15:01:25.394Z] GET /src/pages/flows/AuthorizationCodeFlow.tsx?t=1756566085258 -> 200 (116ms)
+[2025-08-30T15:01:25.394Z] GET /src/App.tsx?t=1756566085258 -> 200 (2ms)
+[2025-08-30T15:01:25.394Z] GET /src/pages/Dashboard.tsx?t=1756566085258 -> 200 (116ms)
+[2025-08-30T15:01:25.464Z] GET /src/App.tsx?t=1756566085258 -> 200 (70ms)
+[2025-08-30T15:01:25.464Z] GET /src/pages/Dashboard.tsx?t=1756566085258 -> 200 (70ms)
+[2025-08-30T15:01:25.486Z] GET /src/pages/Dashboard.tsx?t=1756566085258 -> 200 (7ms)
+[2025-08-30T15:01:25.486Z] GET /src/pages/flows/DeviceCodeFlow.tsx?t=1756566085258 -> 200 (6ms)
+[2025-08-30T15:01:25.485Z] GET /src/pages/flows/ClientCredentialsFlow.tsx?t=1756566085258 -> 200 (6ms)
+[2025-08-30T15:01:25.486Z] GET /src/pages/flows/ImplicitGrantFlow.tsx?t=1756566085258 -> 200 (5ms)
+[2025-08-30T15:01:25.510Z] GET /src/pages/flows/PKCEFlow.tsx?t=1756566085258 -> 200 (26ms)
+[2025-08-30T15:01:25.520Z] GET /src/pages/flows/DeviceCodeFlow.tsx?t=1756566085258 -> 200 (10ms)
+[2025-08-30T15:01:25.520Z] GET /src/pages/flows/AuthorizationCodeFlow.tsx?t=1756566085258 -> 200 (8ms)
+[2025-08-30T15:01:25.520Z] GET /src/pages/flows/ImplicitGrantFlow.tsx?t=1756566085258 -> 200 (9ms)
+[2025-08-30T15:01:25.520Z] GET /src/pages/flows/IDTokensFlow.tsx?t=1756566085258 -> 200 (8ms)
+[2025-08-30T15:01:25.520Z] GET /src/pages/flows/PKCEFlow.tsx?t=1756566085258 -> 200 (9ms)
+[2025-08-30T15:01:25.542Z] GET /src/pages/Login.tsx?t=1756566085258 -> 200 (149ms)
+[2025-08-30T15:01:25.542Z] GET /src/pages/flows/IDTokensFlow.tsx?t=1756566085258 -> 200 (4ms)
+[2025-08-30T15:01:25.542Z] GET /src/pages/flows/AuthorizationCodeFlow.tsx?t=1756566085258 -> 200 (3ms)
+[2025-08-30T15:01:25.542Z] GET /src/pages/Login.tsx?t=1756566085258 -> 200 (0ms)
+[2025-08-30T15:01:25.542Z] GET /src/pages/Callback.tsx?t=1756566085258 -> 200 (149ms)
+[2025-08-30T15:01:25.542Z] GET /src/components/Navbar.tsx?t=1756566085258 -> 200 (149ms)
+[2025-08-30T15:01:25.546Z] GET /src/pages/Callback.tsx?t=1756566085258 -> 200 (2ms)
+[2025-08-30T15:01:25.546Z] GET /src/components/Navbar.tsx?t=1756566085258 -> 200 (1ms)
+[2025-08-30T15:01:25.548Z] GET /src/pages/Login.tsx?t=1756566085258 -> 200 (3ms)
+[2025-08-30T15:01:25.548Z] GET /src/pages/Callback.tsx?t=1756566085258 -> 200 (1ms)
+[2025-08-30T15:01:25.548Z] GET /src/components/Navbar.tsx?t=1756566085258 -> 200 (0ms)
+[2025-08-30T15:01:25.574Z] CLIENT POST / :: [AuthContext] Initializing authentication...
+[2025-08-30T15:01:25.575Z] CLIENT POST / :: [AuthContext] Retrieved tokens from storage: true
+[2025-08-30T15:01:25.575Z] CLIENT POST / :: [AuthContext] Validating stored token...
+[2025-08-30T15:01:25.575Z] CLIENT POST / :: [AuthContext] Token is valid, setting authenticated state
+[2025-08-30T15:01:25.579Z] CLIENT POST / :: [AuthContext] Initializing authentication...
+[2025-08-30T15:01:25.580Z] CLIENT POST / :: [AuthContext] Validating stored token...
+[2025-08-30T15:01:25.579Z] CLIENT POST / :: [AuthContext] Retrieved tokens from storage: true
+[2025-08-30T15:01:25.580Z] CLIENT POST / :: [AuthContext] Token is valid, setting authenticated state
+[2025-08-30T15:01:25.985Z] CLIENT POST / :: [AuthContext] User info retrieved successfully
+[2025-08-30T15:01:25.985Z] CLIENT POST / :: [AuthContext] Authentication initialization complete
+[2025-08-30T15:01:26.124Z] CLIENT POST / :: [AuthContext] User info retrieved successfully
+[2025-08-30T15:01:26.124Z] CLIENT POST / :: [AuthContext] Authentication initialization complete
+[2025-08-30T15:01:26.492Z] CLIENT POST / :: [AuthContext] Initializing authentication...
+[2025-08-30T15:01:26.492Z] CLIENT POST / :: [AuthContext] Retrieved tokens from storage: true
+[2025-08-30T15:01:26.492Z] CLIENT POST / :: [AuthContext] Validating stored token...
+[2025-08-30T15:01:26.492Z] CLIENT POST / :: [AuthContext] Token is valid, setting authenticated state
+[2025-08-30T15:01:26.504Z] CLIENT POST / :: [AuthContext] Initializing authentication...
+[2025-08-30T15:01:26.504Z] CLIENT POST / :: [AuthContext] Retrieved tokens from storage: true
+[2025-08-30T15:01:26.504Z] CLIENT POST / :: [AuthContext] Validating stored token...
+[2025-08-30T15:01:26.506Z] CLIENT POST / :: [AuthContext] Token is valid, setting authenticated state
+[2025-08-30T15:01:26.507Z] CLIENT POST / :: [AuthContext] Initializing authentication...
+[2025-08-30T15:01:26.507Z] CLIENT POST / :: [AuthContext] Retrieved tokens from storage: true
+[2025-08-30T15:01:26.508Z] CLIENT POST / :: [AuthContext] Validating stored token...
+[2025-08-30T15:01:26.509Z] CLIENT POST / :: [AuthContext] Token is valid, setting authenticated state
+[2025-08-30T15:01:26.517Z] CLIENT POST / :: [AuthContext] Initializing authentication...
+[2025-08-30T15:01:26.517Z] CLIENT POST / :: [AuthContext] Retrieved tokens from storage: true
+[2025-08-30T15:01:26.518Z] CLIENT POST / :: [AuthContext] Validating stored token...
+[2025-08-30T15:01:26.518Z] CLIENT POST / :: [AuthContext] Token is valid, setting authenticated state
+[2025-08-30T15:01:26.635Z] CLIENT POST / :: [AuthContext] User info retrieved successfully
+[2025-08-30T15:01:26.635Z] CLIENT POST / :: [AuthContext] Authentication initialization complete
+[2025-08-30T15:01:26.813Z] CLIENT POST / :: [AuthContext] User info retrieved successfully
+[2025-08-30T15:01:26.814Z] CLIENT POST / :: [AuthContext] Authentication initialization complete
+[2025-08-30T15:01:26.991Z] CLIENT POST / :: [AuthContext] User info retrieved successfully
+[2025-08-30T15:01:26.991Z] CLIENT POST / :: [AuthContext] Authentication initialization complete
+[2025-08-30T15:01:27.105Z] CLIENT POST / :: [AuthContext] User info retrieved successfully
+[2025-08-30T15:01:27.105Z] CLIENT POST / :: [AuthContext] Authentication initialization complete
+[2025-08-30T15:01:36.467Z] GET /src/contexts/OAuthContext.tsx?t=1756566096462 -> 200 (2ms)
+[2025-08-30T15:01:36.467Z] GET /src/contexts/AuthContext.tsx?t=1756566096462 -> 200 (2ms)
+[2025-08-30T15:01:36.467Z] GET /src/pages/flows/UserInfoFlow.tsx?t=1756566096462 -> 200 (1ms)
+[2025-08-30T15:01:36.467Z] GET /src/contexts/OAuthContext.tsx?t=1756566096462 -> 200 (0ms)
+[2025-08-30T15:01:36.468Z] GET /src/contexts/AuthContext.tsx?t=1756566096462 -> 200 (1ms)
+[2025-08-30T15:01:36.468Z] GET /src/pages/flows/UserInfoFlow.tsx?t=1756566096462 -> 200 (0ms)
+[2025-08-30T15:01:36.470Z] GET /src/contexts/OAuthContext.tsx?t=1756566096462 -> 200 (0ms)
+[2025-08-30T15:01:36.470Z] GET /src/contexts/AuthContext.tsx?t=1756566096462 -> 200 (0ms)
+[2025-08-30T15:01:36.470Z] GET /src/utils/oauth.ts?t=1756566096462 -> 200 (0ms)
+[2025-08-30T15:01:36.471Z] GET /src/pages/flows/UserInfoFlow.tsx?t=1756566096462 -> 200 (0ms)
+[2025-08-30T15:01:36.472Z] GET /src/utils/oauth.ts?t=1756566096462 -> 200 (0ms)
+[2025-08-30T15:01:36.476Z] GET /src/utils/oauth.ts?t=1756566096462 -> 200 (0ms)
+[2025-08-30T15:01:36.530Z] GET /src/App.tsx?t=1756566096462 -> 200 (52ms)
+[2025-08-30T15:01:36.530Z] GET /src/pages/flows/ImplicitGrantFlow.tsx?t=1756566096462 -> 200 (52ms)
+[2025-08-30T15:01:36.530Z] GET /src/pages/Dashboard.tsx?t=1756566096462 -> 200 (52ms)
+[2025-08-30T15:01:36.530Z] GET /src/pages/flows/ClientCredentialsFlow.tsx?t=1756566096462 -> 200 (52ms)
+[2025-08-30T15:01:36.530Z] GET /src/pages/flows/DeviceCodeFlow.tsx?t=1756566096462 -> 200 (52ms)
+[2025-08-30T15:01:36.549Z] GET /src/App.tsx?t=1756566096462 -> 200 (1ms)
+[2025-08-30T15:01:36.549Z] GET /src/pages/flows/ClientCredentialsFlow.tsx?t=1756566096462 -> 200 (1ms)
+[2025-08-30T15:01:36.549Z] GET /src/pages/Dashboard.tsx?t=1756566096462 -> 200 (1ms)
+[2025-08-30T15:01:36.573Z] GET /src/pages/flows/PKCEFlow.tsx?t=1756566096462 -> 200 (89ms)
+[2025-08-30T15:01:36.573Z] GET /src/pages/flows/IDTokensFlow.tsx?t=1756566096462 -> 200 (88ms)
+[2025-08-30T15:01:36.573Z] GET /src/App.tsx?t=1756566096462 -> 200 (24ms)
+[2025-08-30T15:01:36.573Z] GET /src/pages/flows/AuthorizationCodeFlow.tsx?t=1756566096462 -> 200 (88ms)
+[2025-08-30T15:01:36.646Z] GET /src/pages/Dashboard.tsx?t=1756566096462 -> 200 (73ms)
+[2025-08-30T15:01:36.646Z] GET /src/pages/flows/DeviceCodeFlow.tsx?t=1756566096462 -> 200 (73ms)
+[2025-08-30T15:01:36.646Z] GET /src/pages/flows/ClientCredentialsFlow.tsx?t=1756566096462 -> 200 (73ms)
+[2025-08-30T15:01:36.646Z] GET /src/pages/flows/ImplicitGrantFlow.tsx?t=1756566096462 -> 200 (73ms)
+[2025-08-30T15:01:36.674Z] GET /src/pages/flows/DeviceCodeFlow.tsx?t=1756566096462 -> 200 (23ms)
+[2025-08-30T15:01:36.651Z] GET /src/pages/flows/PKCEFlow.tsx?t=1756566096462 -> 200 (6ms)
+[2025-08-30T15:01:36.674Z] GET /src/pages/flows/PKCEFlow.tsx?t=1756566096462 -> 200 (22ms)
+[2025-08-30T15:01:36.674Z] GET /src/pages/flows/IDTokensFlow.tsx?t=1756566096462 -> 200 (22ms)
+[2025-08-30T15:01:36.674Z] GET /src/pages/flows/ImplicitGrantFlow.tsx?t=1756566096462 -> 200 (22ms)
+[2025-08-30T15:01:36.681Z] GET /src/pages/flows/AuthorizationCodeFlow.tsx?t=1756566096462 -> 200 (7ms)
+[2025-08-30T15:01:36.693Z] GET /src/pages/flows/AuthorizationCodeFlow.tsx?t=1756566096462 -> 200 (12ms)
+[2025-08-30T15:01:36.693Z] GET /src/pages/flows/IDTokensFlow.tsx?t=1756566096462 -> 200 (12ms)
+[2025-08-30T15:01:36.694Z] GET /src/pages/Callback.tsx?t=1756566096462 -> 200 (145ms)
+[2025-08-30T15:01:36.694Z] GET /src/components/Navbar.tsx?t=1756566096462 -> 200 (145ms)
+[2025-08-30T15:01:36.693Z] GET /src/pages/Login.tsx?t=1756566096462 -> 200 (144ms)
+[2025-08-30T15:01:36.694Z] GET /src/pages/Login.tsx?t=1756566096462 -> 200 (1ms)
+[2025-08-30T15:01:36.697Z] GET /src/components/Navbar.tsx?t=1756566096462 -> 200 (1ms)
+[2025-08-30T15:01:36.697Z] GET /src/pages/Callback.tsx?t=1756566096462 -> 200 (1ms)
+[2025-08-30T15:01:36.698Z] GET /src/pages/Login.tsx?t=1756566096462 -> 200 (1ms)
+[2025-08-30T15:01:36.704Z] GET /src/components/Navbar.tsx?t=1756566096462 -> 200 (1ms)
+[2025-08-30T15:01:36.704Z] GET /src/pages/Callback.tsx?t=1756566096462 -> 200 (1ms)
+[2025-08-30T15:01:36.733Z] CLIENT POST / :: [AuthContext] Retrieved tokens from storage: true
+[2025-08-30T15:01:36.733Z] CLIENT POST / :: [AuthContext] Token is valid, setting authenticated state
+[2025-08-30T15:01:36.732Z] CLIENT POST / :: [AuthContext] Initializing authentication...
+[2025-08-30T15:01:36.733Z] CLIENT POST / :: [AuthContext] Validating stored token...
+[2025-08-30T15:01:36.740Z] CLIENT POST / :: [AuthContext] Initializing authentication...
+[2025-08-30T15:01:36.741Z] CLIENT POST / :: [AuthContext] Retrieved tokens from storage: true
+[2025-08-30T15:01:36.741Z] CLIENT POST / :: [AuthContext] Validating stored token...
+[2025-08-30T15:01:36.741Z] CLIENT POST / :: [AuthContext] Token is valid, setting authenticated state
+[2025-08-30T15:01:36.923Z] CLIENT POST / :: [AuthContext] User info retrieved successfully
+[2025-08-30T15:01:36.923Z] CLIENT POST / :: [AuthContext] Authentication initialization complete
+[2025-08-30T15:01:37.037Z] CLIENT POST / :: [AuthContext] User info retrieved successfully
+[2025-08-30T15:01:37.037Z] CLIENT POST / :: [AuthContext] Authentication initialization complete
+[2025-08-30T15:01:37.497Z] CLIENT POST / :: [AuthContext] Initializing authentication...
+[2025-08-30T15:01:37.501Z] CLIENT POST / :: [AuthContext] Retrieved tokens from storage: true
+[2025-08-30T15:01:37.501Z] CLIENT POST / :: [AuthContext] Validating stored token...
+[2025-08-30T15:01:37.501Z] CLIENT POST / :: [AuthContext] Token is valid, setting authenticated state
+[2025-08-30T15:01:37.503Z] CLIENT POST / :: [AuthContext] Initializing authentication...
+[2025-08-30T15:01:37.503Z] CLIENT POST / :: [AuthContext] Retrieved tokens from storage: true
+[2025-08-30T15:01:37.503Z] CLIENT POST / :: [AuthContext] Validating stored token...
+[2025-08-30T15:01:37.503Z] CLIENT POST / :: [AuthContext] Token is valid, setting authenticated state
+[2025-08-30T15:01:37.595Z] CLIENT POST / :: [AuthContext] User info retrieved successfully
+[2025-08-30T15:01:37.595Z] CLIENT POST / :: [AuthContext] Authentication initialization complete
+[2025-08-30T15:01:37.707Z] CLIENT POST / :: [AuthContext] User info retrieved successfully
+[2025-08-30T15:01:37.707Z] CLIENT POST / :: [AuthContext] Authentication initialization complete
+[2025-08-30T15:01:58.565Z] GET /src/contexts/OAuthContext.tsx?t=1756566118559 -> 200 (2ms)
+[2025-08-30T15:01:58.566Z] GET /src/contexts/AuthContext.tsx?t=1756566118559 -> 200 (2ms)
+[2025-08-30T15:01:58.566Z] GET /src/pages/flows/UserInfoFlow.tsx?t=1756566118559 -> 200 (1ms)
+[2025-08-30T15:01:58.566Z] GET /src/contexts/OAuthContext.tsx?t=1756566118559 -> 200 (0ms)
+[2025-08-30T15:01:58.567Z] GET /src/contexts/AuthContext.tsx?t=1756566118559 -> 200 (1ms)
+[2025-08-30T15:01:58.567Z] GET /src/pages/flows/UserInfoFlow.tsx?t=1756566118559 -> 200 (0ms)
+[2025-08-30T15:01:58.568Z] GET /src/contexts/OAuthContext.tsx?t=1756566118559 -> 200 (0ms)
+[2025-08-30T15:01:58.570Z] GET /src/contexts/AuthContext.tsx?t=1756566118559 -> 200 (2ms)
+[2025-08-30T15:01:58.570Z] GET /src/utils/oauth.ts?t=1756566118559 -> 200 (2ms)
+[2025-08-30T15:01:58.570Z] GET /src/pages/flows/UserInfoFlow.tsx?t=1756566118559 -> 200 (0ms)
+[2025-08-30T15:01:58.573Z] GET /src/utils/oauth.ts?t=1756566118559 -> 200 (1ms)
+[2025-08-30T15:01:58.574Z] GET /src/utils/oauth.ts?t=1756566118559 -> 200 (0ms)
+[2025-08-30T15:01:58.654Z] GET /src/App.tsx?t=1756566118559 -> 200 (71ms)
+[2025-08-30T15:01:58.654Z] GET /src/pages/Dashboard.tsx?t=1756566118559 -> 200 (70ms)
+[2025-08-30T15:01:58.654Z] GET /src/pages/flows/ClientCredentialsFlow.tsx?t=1756566118559 -> 200 (70ms)
+[2025-08-30T15:01:58.654Z] GET /src/pages/flows/DeviceCodeFlow.tsx?t=1756566118559 -> 200 (70ms)
+[2025-08-30T15:01:58.654Z] GET /src/pages/flows/PKCEFlow.tsx?t=1756566118559 -> 200 (70ms)
+[2025-08-30T15:01:58.654Z] GET /src/pages/flows/AuthorizationCodeFlow.tsx?t=1756566118559 -> 200 (70ms)
+[2025-08-30T15:01:58.654Z] GET /src/pages/flows/ImplicitGrantFlow.tsx?t=1756566118559 -> 200 (70ms)
+[2025-08-30T15:01:58.656Z] GET /src/pages/flows/IDTokensFlow.tsx?t=1756566118559 -> 200 (72ms)
+[2025-08-30T15:01:58.659Z] GET /src/pages/flows/ClientCredentialsFlow.tsx?t=1756566118559 -> 200 (2ms)
+[2025-08-30T15:01:58.659Z] GET /src/App.tsx?t=1756566118559 -> 200 (1ms)
+[2025-08-30T15:01:58.659Z] GET /src/pages/Dashboard.tsx?t=1756566118559 -> 200 (4ms)
+[2025-08-30T15:01:58.662Z] GET /src/pages/flows/ImplicitGrantFlow.tsx?t=1756566118559 -> 200 (3ms)
+[2025-08-30T15:01:58.662Z] GET /src/pages/flows/DeviceCodeFlow.tsx?t=1756566118559 -> 200 (4ms)
+[2025-08-30T15:01:58.662Z] GET /src/pages/Dashboard.tsx?t=1756566118559 -> 200 (1ms)
+[2025-08-30T15:01:58.662Z] GET /src/pages/flows/PKCEFlow.tsx?t=1756566118559 -> 200 (2ms)
+[2025-08-30T15:01:58.715Z] GET /src/pages/flows/ClientCredentialsFlow.tsx?t=1756566118559 -> 200 (54ms)
+[2025-08-30T15:01:58.715Z] GET /src/App.tsx?t=1756566118559 -> 200 (53ms)
+[2025-08-30T15:01:58.720Z] GET /src/pages/flows/IDTokensFlow.tsx?t=1756566118559 -> 200 (6ms)
+[2025-08-30T15:01:58.720Z] GET /src/pages/flows/AuthorizationCodeFlow.tsx?t=1756566118559 -> 200 (5ms)
+[2025-08-30T15:01:58.720Z] GET /src/pages/flows/DeviceCodeFlow.tsx?t=1756566118559 -> 200 (3ms)
+[2025-08-30T15:01:58.731Z] GET /src/pages/flows/PKCEFlow.tsx?t=1756566118559 -> 200 (11ms)
+[2025-08-30T15:01:58.731Z] GET /src/pages/flows/ImplicitGrantFlow.tsx?t=1756566118559 -> 200 (12ms)
+[2025-08-30T15:01:58.742Z] GET /src/pages/flows/IDTokensFlow.tsx?t=1756566118559 -> 200 (11ms)
+[2025-08-30T15:01:58.760Z] GET /src/components/Navbar.tsx?t=1756566118559 -> 200 (97ms)
+[2025-08-30T15:01:58.760Z] GET /src/pages/Login.tsx?t=1756566118559 -> 200 (96ms)
+[2025-08-30T15:01:58.760Z] GET /src/pages/flows/AuthorizationCodeFlow.tsx?t=1756566118559 -> 200 (18ms)
+[2025-08-30T15:01:58.760Z] GET /src/pages/Callback.tsx?t=1756566118559 -> 200 (96ms)
+[2025-08-30T15:01:58.762Z] GET /src/components/Navbar.tsx?t=1756566118559 -> 200 (2ms)
+[2025-08-30T15:01:58.763Z] GET /src/pages/Login.tsx?t=1756566118559 -> 200 (3ms)
+[2025-08-30T15:01:58.765Z] GET /src/pages/Callback.tsx?t=1756566118559 -> 200 (3ms)
+[2025-08-30T15:01:58.765Z] GET /src/components/Navbar.tsx?t=1756566118559 -> 200 (2ms)
+[2025-08-30T15:01:58.767Z] GET /src/pages/Callback.tsx?t=1756566118559 -> 200 (2ms)
+[2025-08-30T15:01:58.767Z] GET /src/pages/Login.tsx?t=1756566118559 -> 200 (3ms)
+[2025-08-30T15:01:58.793Z] CLIENT POST / :: [AuthContext] Initializing authentication...
+[2025-08-30T15:01:58.793Z] CLIENT POST / :: [AuthContext] Retrieved tokens from storage: true
+[2025-08-30T15:01:58.793Z] CLIENT POST / :: [AuthContext] Validating stored token...
+[2025-08-30T15:01:58.793Z] CLIENT POST / :: [AuthContext] Token is valid, setting authenticated state
+[2025-08-30T15:01:58.800Z] CLIENT POST / :: [AuthContext] Initializing authentication...
+[2025-08-30T15:01:58.800Z] CLIENT POST / :: [AuthContext] Retrieved tokens from storage: true
+[2025-08-30T15:01:58.800Z] CLIENT POST / :: [AuthContext] Validating stored token...
+[2025-08-30T15:01:58.800Z] CLIENT POST / :: [AuthContext] Token is valid, setting authenticated state
+[2025-08-30T15:01:58.996Z] CLIENT POST / :: [AuthContext] User info retrieved successfully
+[2025-08-30T15:01:58.996Z] CLIENT POST / :: [AuthContext] Authentication initialization complete
+[2025-08-30T15:01:59.119Z] CLIENT POST / :: [AuthContext] User info retrieved successfully
+[2025-08-30T15:01:59.119Z] CLIENT POST / :: [AuthContext] Authentication initialization complete
+[2025-08-30T15:01:59.501Z] CLIENT POST / :: [AuthContext] Initializing authentication...
+[2025-08-30T15:01:59.501Z] CLIENT POST / :: [AuthContext] Retrieved tokens from storage: true
+[2025-08-30T15:01:59.502Z] CLIENT POST / :: [AuthContext] Token is valid, setting authenticated state
+[2025-08-30T15:01:59.503Z] CLIENT POST / :: [AuthContext] Initializing authentication...
+[2025-08-30T15:01:59.503Z] CLIENT POST / :: [AuthContext] Retrieved tokens from storage: true
+[2025-08-30T15:01:59.501Z] CLIENT POST / :: [AuthContext] Validating stored token...
+[2025-08-30T15:01:59.503Z] CLIENT POST / :: [AuthContext] Validating stored token...
+[2025-08-30T15:01:59.503Z] CLIENT POST / :: [AuthContext] Token is valid, setting authenticated state
+[2025-08-30T15:02:00.133Z] CLIENT POST / :: [AuthContext] User info retrieved successfully
+[2025-08-30T15:02:00.133Z] CLIENT POST / :: [AuthContext] Authentication initialization complete
+[2025-08-30T15:02:00.244Z] CLIENT POST / :: [AuthContext] User info retrieved successfully
+[2025-08-30T15:02:00.246Z] CLIENT POST / :: [AuthContext] Authentication initialization complete
+[2025-08-30T15:02:11.015Z] GET /src/contexts/OAuthContext.tsx?t=1756566131002 -> 200 (10ms)
+[2025-08-30T15:02:11.017Z] GET /src/contexts/OAuthContext.tsx?t=1756566131002 -> 200 (1ms)
+[2025-08-30T15:02:11.018Z] GET /src/contexts/OAuthContext.tsx?t=1756566131002 -> 200 (0ms)
+[2025-08-30T15:02:11.048Z] GET /src/App.tsx?t=1756566131002 -> 200 (25ms)
+[2025-08-30T15:02:11.048Z] GET /src/pages/Dashboard.tsx?t=1756566131002 -> 200 (25ms)
+[2025-08-30T15:02:11.048Z] GET /src/pages/flows/ClientCredentialsFlow.tsx?t=1756566131002 -> 200 (25ms)
+[2025-08-30T15:02:11.049Z] GET /src/App.tsx?t=1756566131002 -> 200 (1ms)
+[2025-08-30T15:02:11.049Z] GET /src/pages/flows/ClientCredentialsFlow.tsx?t=1756566131002 -> 200 (1ms)
+[2025-08-30T15:02:11.049Z] GET /src/pages/Dashboard.tsx?t=1756566131002 -> 200 (0ms)
+[2025-08-30T15:02:11.145Z] GET /src/pages/flows/DeviceCodeFlow.tsx?t=1756566131002 -> 200 (122ms)
+[2025-08-30T15:02:11.145Z] GET /src/App.tsx?t=1756566131002 -> 200 (5ms)
+[2025-08-30T15:02:11.146Z] GET /src/pages/flows/ImplicitGrantFlow.tsx?t=1756566131002 -> 200 (108ms)
+[2025-08-30T15:02:11.145Z] GET /src/pages/flows/ClientCredentialsFlow.tsx?t=1756566131002 -> 200 (5ms)
+[2025-08-30T15:02:11.145Z] GET /src/pages/Dashboard.tsx?t=1756566131002 -> 200 (4ms)
+[2025-08-30T15:02:11.166Z] GET /src/pages/flows/DeviceCodeFlow.tsx?t=1756566131002 -> 200 (21ms)
+[2025-08-30T15:02:11.168Z] GET /src/pages/flows/IDTokensFlow.tsx?t=1756566131002 -> 200 (130ms)
+[2025-08-30T15:02:11.168Z] GET /src/pages/flows/AuthorizationCodeFlow.tsx?t=1756566131002 -> 200 (130ms)
+[2025-08-30T15:02:11.180Z] GET /src/pages/flows/ImplicitGrantFlow.tsx?t=1756566131002 -> 200 (12ms)
+[2025-08-30T15:02:11.180Z] GET /src/pages/flows/DeviceCodeFlow.tsx?t=1756566131002 -> 200 (11ms)
+[2025-08-30T15:02:11.185Z] GET /src/pages/flows/UserInfoFlow.tsx?t=1756566131002 -> 200 (147ms)
+[2025-08-30T15:02:11.185Z] GET /src/pages/flows/ImplicitGrantFlow.tsx?t=1756566131002 -> 200 (3ms)
+[2025-08-30T15:02:11.185Z] GET /src/pages/flows/IDTokensFlow.tsx?t=1756566131002 -> 200 (4ms)
+[2025-08-30T15:02:11.185Z] GET /src/pages/flows/PKCEFlow.tsx?t=1756566131002 -> 200 (147ms)
+[2025-08-30T15:02:11.186Z] GET /src/pages/flows/AuthorizationCodeFlow.tsx?t=1756566131002 -> 200 (1ms)
+[2025-08-30T15:02:11.186Z] GET /src/pages/flows/IDTokensFlow.tsx?t=1756566131002 -> 200 (1ms)
+[2025-08-30T15:02:11.186Z] GET /src/pages/flows/PKCEFlow.tsx?t=1756566131002 -> 200 (0ms)
+[2025-08-30T15:02:11.190Z] GET /src/pages/flows/PKCEFlow.tsx?t=1756566131002 -> 200 (0ms)
+[2025-08-30T15:02:11.192Z] GET /src/pages/flows/UserInfoFlow.tsx?t=1756566131002 -> 200 (1ms)
+[2025-08-30T15:02:11.195Z] GET /src/pages/flows/AuthorizationCodeFlow.tsx?t=1756566131002 -> 200 (2ms)
+[2025-08-30T15:02:11.196Z] GET /src/pages/flows/UserInfoFlow.tsx?t=1756566131002 -> 200 (2ms)
