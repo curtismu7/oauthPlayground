@@ -5,7 +5,8 @@ import {
 import {
   jwtVerify,
   createRemoteJWKSet,
-  JWTVerifyOptions
+  JWTVerifyOptions,
+  type JWTHeaderParameters,
 } from 'jose';
 
 // Client logging function for server.log
@@ -114,20 +115,29 @@ export const createSignedRequestObject = async (
   options: {
     privateKey: string;
     alg?: string;
+    kid?: string;
+    x5t?: string;
   }
 ): Promise<string> => {
   console.log('🔍 [OAuth] Creating signed request object (JAR)...');
   clientLog(`[OAuth] Creating signed request object (JAR)...`);
 
-  const { SignJWT } = await import('jose');
+  const { SignJWT, importPKCS8 } = await import('jose');
 
   try {
+    const header: JWTHeaderParameters = { alg: (options.alg as any) || 'RS256' };
+    if (options.kid) header.kid = options.kid;
+    if (options.x5t) header.x5t = options.x5t;
+
     const jwt = new SignJWT(payload)
-      .setProtectedHeader({ alg: options.alg || 'RS256' })
+      .setProtectedHeader(header)
       .setIssuedAt()
       .setExpirationTime('5m'); // Request objects typically expire quickly
 
-    const signedRequest = await jwt.sign(new TextEncoder().encode(options.privateKey));
+    // Sign using provided private key PEM
+    const alg = (options.alg as any) || 'RS256';
+    const key = await importPKCS8(options.privateKey, alg);
+    const signedRequest = await jwt.sign(key);
 
     console.log('✅ [OAuth] Signed request object created successfully');
     clientLog(`[OAuth] Signed request object created successfully`);
@@ -283,6 +293,30 @@ export const buildAuthUrl = ({
 };
 
 /**
+ * Build RP-initiated logout (signoff) URL
+ * @param {Object} cfg
+ * @param {string} cfg.logoutEndpoint - OP signoff endpoint
+ * @param {string} cfg.postLogoutRedirectUri - Where OP should redirect after logout
+ * @param {string} [cfg.idTokenHint] - Optional id_token to hint user session
+ */
+export const buildSignoffUrl = ({
+  logoutEndpoint,
+  postLogoutRedirectUri,
+  idTokenHint,
+}: {
+  logoutEndpoint: string;
+  postLogoutRedirectUri: string;
+  idTokenHint?: string;
+}) => {
+  const url = new URL(logoutEndpoint);
+  const params = new URLSearchParams();
+  if (idTokenHint) params.append('id_token_hint', idTokenHint);
+  if (postLogoutRedirectUri) params.append('post_logout_redirect_uri', postLogoutRedirectUri);
+  url.search = params.toString();
+  return url.toString();
+};
+
+/**
  * Validate redirect URI against allowed URIs for a client
  * @param {string} redirectUri - The redirect URI to validate
  * @param {string[]} allowedRedirectUris - Array of allowed redirect URIs
@@ -356,6 +390,27 @@ export const exchangeCodeForTokens = async ({
   code,
   codeVerifier,
   clientSecret,
+  authMethod = 'client_secret_basic',
+  assertionOptions,
+}: {
+  tokenEndpoint: string;
+  clientId: string;
+  redirectUri: string;
+  code: string;
+  codeVerifier?: string;
+  clientSecret?: string;
+  authMethod?: 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt';
+  assertionOptions?: {
+    // Common
+    audience?: string;
+    kid?: string;
+    x5t?: string;
+    // client_secret_jwt
+    hmacAlg?: 'HS256' | 'HS384' | 'HS512';
+    // private_key_jwt
+    privateKeyPEM?: string;
+    signAlg?: 'RS256' | 'ES256' | 'ES384' | 'PS256';
+  };
 }) => {
   const body = new URLSearchParams();
   body.append('grant_type', 'authorization_code');
@@ -367,14 +422,63 @@ export const exchangeCodeForTokens = async ({
     body.append('code_verifier', codeVerifier);
   }
   
-  const headers = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/x-www-form-urlencoded',
   };
-  
-  // For confidential clients, use Basic Auth or include client_secret in the body
-  if (clientSecret) {
-    const credentials = btoa(`${clientId}:${clientSecret}`);
-    headers['Authorization'] = `Basic ${credentials}`;
+
+  // Helper to produce a client assertion
+  const buildClientAssertion = async (
+    method: 'client_secret_jwt' | 'private_key_jwt'
+  ): Promise<string> => {
+    const now = Math.floor(Date.now() / 1000);
+    const exp = now + 300; // 5 minutes
+    const aud = assertionOptions?.audience || tokenEndpoint;
+    const claims = {
+      iss: clientId,
+      sub: clientId,
+      aud,
+      iat: now,
+      nbf: now,
+      exp,
+      jti: generateRandomString(32),
+    };
+
+    const { SignJWT, importPKCS8 } = await import('jose');
+    const header: JWTHeaderParameters = { alg: 'RS256' } as JWTHeaderParameters;
+    if (assertionOptions?.kid) header.kid = assertionOptions.kid;
+    if (assertionOptions?.x5t) header.x5t = assertionOptions.x5t;
+
+    if (method === 'client_secret_jwt') {
+      const alg = assertionOptions?.hmacAlg || 'HS256';
+      header.alg = alg;
+      const secret = new TextEncoder().encode(clientSecret || '');
+      return new SignJWT(claims).setProtectedHeader(header).sign(secret);
+    }
+
+    // private_key_jwt
+    const alg = (assertionOptions?.signAlg as any) || 'RS256';
+    header.alg = alg as any;
+    const pk = assertionOptions?.privateKeyPEM || '';
+    const key = await importPKCS8(pk, alg);
+    return new SignJWT(claims).setProtectedHeader(header).sign(key);
+  };
+
+  // Apply client authentication method
+  if (authMethod === 'client_secret_basic') {
+    if (clientSecret) {
+      const credentials = btoa(`${clientId}:${clientSecret}`);
+      headers['Authorization'] = `Basic ${credentials}`;
+    }
+  } else if (authMethod === 'client_secret_post') {
+    if (clientSecret) body.append('client_secret', clientSecret);
+  } else if (authMethod === 'client_secret_jwt') {
+    const assertion = await buildClientAssertion('client_secret_jwt');
+    body.append('client_assertion_type', 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer');
+    body.append('client_assertion', assertion);
+  } else if (authMethod === 'private_key_jwt') {
+    const assertion = await buildClientAssertion('private_key_jwt');
+    body.append('client_assertion_type', 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer');
+    body.append('client_assertion', assertion);
   }
   
   const response = await fetch(tokenEndpoint, {
