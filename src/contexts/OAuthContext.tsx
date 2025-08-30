@@ -9,7 +9,8 @@ import {
   exchangeCodeForTokens, 
   validateIdToken, 
   getUserInfo,
-  isTokenExpired
+  isTokenExpired,
+  buildSignoffUrl
 } from '../utils/oauth';
 
 const OAuthContext = createContext();
@@ -298,15 +299,34 @@ export const OAuthProvider = ({ children }) => {
   
   // Logout
   const logout = useCallback(() => {
+    const currentTokens = tokens; // capture for id_token_hint
     setTokens(null);
     setUserInfo(null);
-    
+
     // Clear tokens from localStorage
     localStorage.removeItem('oauth_tokens');
-    
-    // Redirect to home or login page
+
+    // RP-initiated logout (signoff) if configured
+    try {
+      const logoutEndpoint = config?.logoutEndpoint?.replace('{envId}', config?.environmentId || '') || '';
+      const postLogoutRedirectUri = config?.logoutRedirectUri || window.location.origin;
+      const idTokenHint = currentTokens?.id_token;
+      if (logoutEndpoint) {
+        const url = buildSignoffUrl({
+          logoutEndpoint,
+          postLogoutRedirectUri,
+          idTokenHint,
+        });
+        window.location.href = url;
+        return;
+      }
+    } catch (e) {
+      console.warn('Signoff redirect failed, falling back to local logout', e);
+    }
+
+    // Fallback: Redirect to home or login page
     navigate('/');
-  }, [navigate]);
+  }, [navigate, config, tokens]);
   
   // Check if user is authenticated
   const checkAuthStatus = useCallback(() => {
