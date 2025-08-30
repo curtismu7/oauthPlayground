@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiAlertCircle, FiShield } from 'react-icons/fi';
@@ -312,7 +312,7 @@ const generateCodeChallenge = async (codeVerifier: string) => {
 
 const PKCEFlow = () => {
   // Casting context to any locally to avoid broad refactor; we'll type the context in a separate pass
-  const { config } = useOAuth() as any;
+  const { config, tokens: contextTokens } = useOAuth() as any;
   const [demoStatus, setDemoStatus] = useState('idle');
   const [currentStep, setCurrentStep] = useState(0);
   const [tokensReceived, setTokensReceived] = useState<any>(null);
@@ -321,6 +321,17 @@ const PKCEFlow = () => {
   const [pkceData, setPkceData] = useState<any>(null);
   const [authUrl, setAuthUrl] = useState('');
   const [showFullTokens, setShowFullTokens] = useState(false);
+
+  // If real tokens exist in context (from a successful PKCE auth elsewhere), complete the demo
+  useEffect(() => {
+    if (contextTokens && !tokensReceived) {
+      setTokensReceived(contextTokens);
+      setDemoStatus('success');
+      setIsLoading(false);
+      // Jump to final step visually
+      setCurrentStep(steps.length - 1);
+    }
+  }, [contextTokens, tokensReceived]);
 
   const startPKCEFlow = async () => {
     setDemoStatus('loading');
