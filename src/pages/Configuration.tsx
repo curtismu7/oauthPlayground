@@ -87,14 +87,31 @@ const SaveButton = styled.button`
   border-radius: 0.375rem;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
+  min-width: 120px;
   
-  &:hover {
+  &:hover:not(:disabled) {
     background-color: ${({ theme }) => theme.colors.primaryDark};
   }
   
   &:disabled {
     opacity: 0.65;
     cursor: not-allowed;
+    background-color: ${({ theme }) => theme.colors.primary};
+  }
+  
+  .spinner {
+    margin-right: 8px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top: 2px solid white;
+    width: 16px;
+    height: 16px;
+    animation: spin 1s linear infinite;
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   }
   
   svg {
@@ -487,8 +504,17 @@ const Configuration = () => {
             
             <div style={{ marginTop: '2rem' }}>
               <SaveButton type="submit" disabled={isLoading}>
-                <FiSave />
-                {isLoading ? 'Saving...' : 'Save Configuration'}
+                {isLoading ? (
+                  <>
+                    <div className="spinner" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <FiSave size={18} style={{ marginRight: '8px' }} />
+                    Save Configuration
+                  </>
+                )}
               </SaveButton>
             </div>
           </form>
