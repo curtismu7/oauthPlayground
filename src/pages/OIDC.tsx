@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiUser, FiKey, FiEye, FiExternalLink } from 'react-icons/fi';
+import { FiUser, FiKey, FiExternalLink } from 'react-icons/fi';
 
 const OIDCContainer = styled.div`
   max-width: 1200px;

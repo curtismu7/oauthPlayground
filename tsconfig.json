@@ -13,6 +13,9 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
 
     /* Linting */
     "strict": true,
@@ -27,6 +30,7 @@
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
+    "downlevelIteration": true,
 
     /* Path mapping */
     "baseUrl": ".",
@@ -46,12 +50,8 @@
     "noUncheckedIndexedAccess": false
   },
   "include": [
-    "src/**/*",
-    "*.config.ts"
+    "src"
   ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ],
+  "exclude": ["node_modules"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
