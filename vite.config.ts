@@ -1,8 +1,8 @@
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import basicSsl from '@vitejs/plugin-basic-ssl';
 import fs from 'fs';
 import path from 'path';
+import react from '@vitejs/plugin-react';
+import basicSsl from '@vitejs/plugin-basic-ssl';
 
 export default defineConfig({
   plugins: [
@@ -33,7 +33,33 @@ export default defineConfig({
               append(`CLIENT ${req.method} ${req.url} :: ${msg}`);
               res.statusCode = 204;
               res.end();
-            } catch (e) {
+            } catch {
+              res.statusCode = 400;
+              res.end('Bad Request');
+            }
+          });
+        });
+
+        // Client log ingestion (development only)
+        server.middlewares.use('/__client-log', async (req, res) => {
+          if (req.method !== 'POST') {
+            res.statusCode = 405;
+            res.end('Method Not Allowed');
+            return;
+          }
+          let body = '';
+          req.on('data', (chunk) => (body += chunk));
+          req.on('end', () => {
+            try {
+              const payload = JSON.parse(body || '{}');
+              const logsDir = path.resolve(process.cwd(), 'logs');
+              if (!fs.existsSync(logsDir)) fs.mkdirSync(logsDir, { recursive: true });
+              const file = path.join(logsDir, 'client.log');
+              const line = `${new Date().toISOString()} ${payload.level || 'info'} ${payload.message || ''} ${JSON.stringify(payload.meta || {})}\n`;
+              fs.appendFileSync(file, line, { encoding: 'utf8' });
+              res.statusCode = 204;
+              res.end();
+            } catch {
               res.statusCode = 400;
               res.end('Bad Request');
             }
@@ -61,16 +87,27 @@ export default defineConfig({
       const certDir = path.resolve(process.cwd(), 'certs');
       const keyPath = path.join(certDir, 'localhost-key.pem');
       const certPath = path.join(certDir, 'localhost-cert.pem');
+      
+      // Define the HTTPS server options type
+      type HttpsServerOptions = {
+        key: Buffer;
+        cert: Buffer;
+      };
+      
       try {
         if (fs.existsSync(keyPath) && fs.existsSync(certPath)) {
-          return {
+          const options: HttpsServerOptions = {
             key: fs.readFileSync(keyPath),
             cert: fs.readFileSync(certPath),
-          } as any;
+          };
+          return options;
         }
-      } catch {}
+      } catch (error) {
+        console.error('Error reading SSL certificates:', error);
+      }
+      
       // Fall back to self-signed mode
-      return true;
+      return {}; // Vite will generate a self-signed cert when https: {}
     })(),
     hmr: { protocol: 'wss' },
   },

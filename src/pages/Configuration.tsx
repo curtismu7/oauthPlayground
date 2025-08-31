@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../components/Card';
-import { FiSave, FiAlertCircle, FiCheckCircle } from 'react-icons/fi';
+import { FiSave, FiAlertCircle, FiCheckCircle, FiEye, FiEyeOff } from 'react-icons/fi';
 
 const ConfigurationContainer = styled.div`
   max-width: 800px;
@@ -215,6 +215,7 @@ const Configuration = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [saveStatus, setSaveStatus] = useState(null);
+  const [showClientSecret, setShowClientSecret] = useState(false);
   
   // Load saved configuration on component mount
   useEffect(() => {
@@ -437,14 +438,35 @@ const Configuration = () => {
             
             <FormGroup>
               <label htmlFor="clientSecret">Client Secret (Optional)</label>
-              <input
-                type="password"
-                id="clientSecret"
-                name="clientSecret"
-                value={formData.clientSecret}
-                onChange={handleChange}
-                placeholder="Enter your application's Client Secret"
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showClientSecret ? 'text' : 'password'}
+                  id="clientSecret"
+                  name="clientSecret"
+                  value={formData.clientSecret}
+                  onChange={handleChange}
+                  placeholder="Enter your application's Client Secret"
+                  style={{ paddingRight: '2.5rem' }}
+                />
+                <button 
+                  type="button" 
+                  onClick={() => setShowClientSecret(!showClientSecret)}
+                  style={{
+                    position: 'absolute',
+                    right: '0.75rem',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#6c757d',
+                    padding: '0.25rem'
+                  }}
+                  aria-label={showClientSecret ? 'Hide client secret' : 'Show client secret'}
+                >
+                  {showClientSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                </button>
+              </div>
               <div className="form-text">
                 Only required for confidential clients using flows that require client authentication.
               </div>
