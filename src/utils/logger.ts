@@ -83,27 +83,37 @@ logger.rejections.handle(
 // Export logger
 export default logger;
 
+// Type for logger metadata
+type LogMeta = Record<string, unknown>;
+
 // Helper functions for different log levels
-export const logStartup = (message, meta = {}) => {
+export const logStartup = (message: string, meta: LogMeta = {}): void => {
   logger.info(`🚀 STARTUP: ${message}`, meta);
 };
 
-export const logError = (message, error = null, meta = {}) => {
-  logger.error(`❌ ERROR: ${message}`, { error: error?.message || error, stack: error?.stack, ...meta });
+export const logError = (message: string, error: unknown = null, meta: LogMeta = {}): void => {
+  const errorInfo = error && typeof error === 'object' 
+    ? { 
+        error: 'message' in error ? error.message : String(error),
+        stack: 'stack' in error ? error.stack : undefined
+      }
+    : { error: String(error) };
+    
+  logger.error(`❌ ERROR: ${message}`, { ...errorInfo, ...meta });
 };
 
-export const logWarning = (message, meta = {}) => {
+export const logWarning = (message: string, meta: LogMeta = {}): void => {
   logger.warn(`⚠️  WARNING: ${message}`, meta);
 };
 
-export const logSuccess = (message, meta = {}) => {
+export const logSuccess = (message: string, meta: LogMeta = {}): void => {
   logger.info(`✅ SUCCESS: ${message}`, meta);
 };
 
-export const logInfo = (message, meta = {}) => {
+export const logInfo = (message: string, meta: LogMeta = {}): void => {
   logger.info(`ℹ️  INFO: ${message}`, meta);
 };
 
-export const logDebug = (message, meta = {}) => {
-  logger.debug(`🔍 DEBUG: ${message}`, meta);
+export const logDebug = (message: string, meta: LogMeta = {}): void => {
+  logger.debug(`🐛 DEBUG: ${message}`, meta);
 };
