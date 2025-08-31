@@ -12,6 +12,8 @@ import {
   isTokenExpired,
   buildSignoffUrl
 } from '../utils/oauth';
+import { oauthStorage, sessionStorageService } from '../utils/storage';
+import { clientLog } from '../utils/clientLogger';
 
 // Types for OAuth config and context
 type ClientAssertionOptions = {
@@ -164,11 +166,23 @@ export const OAuthProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const codeVerifier = generateCodeVerifier();
       const codeChallenge = await generateCodeChallenge(codeVerifier);
       
-      // Save flow state to localStorage
-      localStorage.setItem('oauth_state', state);
-      localStorage.setItem('oauth_nonce', nonce);
-      localStorage.setItem('oauth_code_verifier', codeVerifier);
-      localStorage.setItem('oauth_flow_type', flowType);
+      // Save flow state to sessionStorage via shared oauthStorage
+      oauthStorage.setState(state);
+      oauthStorage.setNonce(nonce);
+      oauthStorage.setCodeVerifier(codeVerifier);
+      sessionStorageService.setItem('oauth_flow_type', flowType);
+
+      // Debug (no secrets): confirm what's stored before redirect
+      try {
+        console.debug('[OAuthContext] Prepared PKCE and state', {
+          flowType,
+          state,
+          nonce,
+          code_verifier_len: codeVerifier?.length || 0,
+          code_challenge_len: codeChallenge?.length || 0,
+          storage: 'sessionStorage (oauthStorage)'
+        });
+      } catch {}
       
       // Build authorization URL
       const authUrl = buildAuthUrl({
@@ -209,17 +223,39 @@ export const OAuthProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       
       const params = parseUrlParams(url);
       console.debug('[OAuthContext] Callback params parsed:', params);
-      // Capture all values BEFORE clearing storage
-      const savedState = localStorage.getItem('oauth_state');
-      const savedNonce = localStorage.getItem('oauth_nonce');
-      const savedCodeVerifier = localStorage.getItem('oauth_code_verifier');
-      const flowType = localStorage.getItem('oauth_flow_type') || 'authorization_code';
+      clientLog('debug', '[OAuthContext] Callback params parsed', { params });
+      // Only proceed if this context initiated the flow
+      const flowTypeExisting = sessionStorageService.getItem('oauth_flow_type');
+      if (!flowTypeExisting) {
+        console.debug('[OAuthContext] Skipping callback: no oauth_flow_type found, likely handled by AuthContext');
+        clientLog('debug', '[OAuthContext] Skipping callback: no oauth_flow_type found');
+        return false;
+      }
+      // Capture all values BEFORE clearing storage (use sessionStorage-backed helpers)
+      const savedState = oauthStorage.getState();
+      const savedNonce = oauthStorage.getNonce();
+      const savedCodeVerifier = oauthStorage.getCodeVerifier();
+      const flowType = flowTypeExisting || 'authorization_code';
+      try {
+        console.debug('[OAuthContext] Retrieved stored values on callback', {
+          flowType,
+          has_state: !!savedState,
+          has_nonce: !!savedNonce,
+          has_code_verifier: !!savedCodeVerifier,
+        });
+        clientLog('debug', '[OAuthContext] Retrieved stored values on callback', {
+          flowType,
+          has_state: !!savedState,
+          has_nonce: !!savedNonce,
+          has_code_verifier: !!savedCodeVerifier,
+        });
+      } catch {}
       
       // Clean up stored values (after capture)
-      localStorage.removeItem('oauth_state');
-      localStorage.removeItem('oauth_nonce');
-      localStorage.removeItem('oauth_code_verifier');
-      localStorage.removeItem('oauth_flow_type');
+      oauthStorage.clearState();
+      oauthStorage.clearNonce();
+      oauthStorage.clearCodeVerifier();
+      sessionStorageService.removeItem('oauth_flow_type');
       
       // Check for errors
       if (params.error) {
@@ -300,10 +336,16 @@ export const OAuthProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       
       // Exchange code for tokens
       if (!savedCodeVerifier) {
+        console.error('[OAuthContext] Missing code_verifier on callback; check storage alignment and redirect flow');
+        clientLog('error', '[OAuthContext] Missing code_verifier on callback');
         // Auth server may require PKCE; surface a clear error
         throw new Error('No value supplied for required parameter: code_verifier');
       }
       console.debug('[OAuthContext] Exchanging code for tokens at:', config.tokenEndpoint.replace('{envId}', config.environmentId));
+      clientLog('info', '[OAuthContext] Exchanging code for tokens', {
+        endpoint: config.tokenEndpoint.replace('{envId}', config.environmentId),
+        auth_method: config.tokenAuthMethod,
+      });
       // Normalize client assertion options to util's expected shape
       const alg = config.clientAssertion?.alg;
       const assertionOptionsNorm = config.clientAssertion
@@ -323,13 +365,16 @@ export const OAuthProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           }
         : undefined;
 
+      const inferredAuthMethod: 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt' | undefined =
+        (config.tokenAuthMethod as any) ?? (config.clientSecret ? 'client_secret_basic' : undefined);
+
       const tokenRequest = {
         tokenEndpoint: config.tokenEndpoint.replace('{envId}', config.environmentId),
         clientId: config.clientId,
         redirectUri: config.redirectUri,
         code: params.code,
         codeVerifier: savedCodeVerifier,
-        authMethod: (config.tokenAuthMethod as any) || 'client_secret_basic',
+        ...(inferredAuthMethod ? { authMethod: inferredAuthMethod } : {}),
         ...(assertionOptionsNorm ? { assertionOptions: assertionOptionsNorm } : {}),
         ...(config.clientSecret ? { clientSecret: config.clientSecret } as { clientSecret: string } : {}),
       };
