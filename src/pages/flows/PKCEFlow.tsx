@@ -325,6 +325,7 @@ const PKCEFlow = () => {
   // If real tokens exist in context (from a successful PKCE auth elsewhere), complete the demo
   useEffect(() => {
     if (contextTokens && !tokensReceived) {
+      console.debug('[PKCEFlow] Context tokens detected, completing demo');
       setTokensReceived(contextTokens);
       setDemoStatus('success');
       setIsLoading(false);
@@ -332,6 +333,20 @@ const PKCEFlow = () => {
       setCurrentStep(steps.length - 1);
     }
   }, [contextTokens, tokensReceived]);
+
+  // Watchdog: prevent indefinite running state
+  useEffect(() => {
+    if (demoStatus !== 'loading') return;
+    const timeout = setTimeout(() => {
+      if (demoStatus === 'loading' && !tokensReceived) {
+        console.warn('[PKCEFlow] Timeout waiting for tokens; marking error');
+        setError('Timed out waiting for tokens. Complete authentication or try again.');
+        setDemoStatus('error');
+        setIsLoading(false);
+      }
+    }, 120000); // 2 minutes
+    return () => clearTimeout(timeout);
+  }, [demoStatus, tokensReceived]);
 
   const startPKCEFlow = async () => {
     setDemoStatus('loading');
@@ -347,6 +362,7 @@ const PKCEFlow = () => {
       // Step 1 (manual): Generate code verifier and challenge
       const codeVerifier = generateCodeVerifier();
       const codeChallenge = await generateCodeChallenge(codeVerifier);
+      console.debug('[PKCEFlow] Generated PKCE values', { codeVerifierLen: codeVerifier.length, codeChallengeSample: codeChallenge.slice(0, 12) });
       setPkceData({ codeVerifier, codeChallenge, codeChallengeMethod: 'S256' });
       setCurrentStep(1);
     } catch (err) {
@@ -374,22 +390,26 @@ const PKCEFlow = () => {
         });
         const authEndpoint = (config.authEndpoint || `https://auth.pingone.com/${config.environmentId}/as/authorize`).replace('{envId}', config.environmentId);
         const url = `${authEndpoint}?${params.toString()}`;
+        console.debug('[PKCEFlow] Built authorization URL using configured endpoint', { authEndpoint, urlSample: url.slice(0, 64) + '…' });
         setAuthUrl(url);
         return 2;
       }
 
       // Step 2 -> 3: User authenticates
       if (prev === 2) {
+        console.debug('[PKCEFlow] Advancing to authentication step (user should authenticate)');
         return 3;
       }
 
       // Step 3 -> 4: Receive authorization code
       if (prev === 3) {
+        console.debug('[PKCEFlow] Simulating receipt of authorization code');
         return 4;
       }
 
       // Step 4 -> 5: Exchange code for tokens
       if (prev === 4) {
+        console.debug('[PKCEFlow] Simulating token exchange success');
         const mockTokens = {
           access_token:
             'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.pkce_validated_token_signature',
@@ -643,6 +663,17 @@ return tokens;`
               <h3>Authorization URL:</h3>
               <ColorCodedURL url={authUrl} />
               <URLParamExplainer url={authUrl} />
+              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
+                <DemoButton
+                  className="primary"
+                  onClick={() => {
+                    console.debug('[PKCEFlow] Redirecting to authorization URL');
+                    window.location.href = authUrl;
+                  }}
+                >
+                  Proceed to Authorize
+                </DemoButton>
+              </div>
             </div>
           )}
 
