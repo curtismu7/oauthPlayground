@@ -185,7 +185,22 @@ const Alert = styled.div<{ $variant?: 'success' | 'danger' | 'info' }>`
   }}
 `;
 
+const LoadingSpinner = styled.div`
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  border-radius: 50%;
+  border-top: 2px solid #0070cc;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+
 const Configuration = () => {
+  const [initialLoading, setInitialLoading] = useState(true);
   const [formData, setFormData] = useState({
     environmentId: '',
     clientId: '',
@@ -215,6 +230,8 @@ const Configuration = () => {
         console.error('Failed to load saved configuration:', error);
       }
     }
+    // Show spinner for 2 seconds
+    setTimeout(() => setInitialLoading(false), 2000);
   }, []);
   
   const handleChange = (e) => {
@@ -343,6 +360,14 @@ const Configuration = () => {
     }
   };
   
+  if (initialLoading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f8f9fa' }}>
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
   return (
     <ConfigurationContainer>
       <PageHeader>

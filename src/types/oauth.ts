@@ -81,7 +81,7 @@ export interface IdTokenPayload {
   at_hash?: string;
   c_hash?: string;
   s_hash?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface UserInfo {
@@ -105,7 +105,7 @@ export interface UserInfo {
   phone_number_verified?: boolean;
   address?: Address;
   updated_at?: number;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface Address {

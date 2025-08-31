@@ -111,7 +111,7 @@ export const parseUrlParams = (url: string): Record<string, string> => {
  * @returns {Promise<string>} Signed JWT request object
  */
 export const createSignedRequestObject = async (
-  payload: Record<string, any>,
+  payload: Record<string, unknown>,
   options: {
     privateKey: string;
     alg?: string;
@@ -125,7 +125,7 @@ export const createSignedRequestObject = async (
   const { SignJWT, importPKCS8 } = await import('jose');
 
   try {
-    const header: JWTHeaderParameters = { alg: (options.alg as any) || 'RS256' };
+    const header: JWTHeaderParameters = { alg: (options.alg as string) || 'RS256' };
     if (options.kid) header.kid = options.kid;
     if (options.x5t) header.x5t = options.x5t;
 
@@ -135,7 +135,7 @@ export const createSignedRequestObject = async (
       .setExpirationTime('5m'); // Request objects typically expire quickly
 
     // Sign using provided private key PEM
-    const alg = (options.alg as any) || 'RS256';
+    const alg = (options.alg as string) || 'RS256';
     const key = await importPKCS8(options.privateKey, alg);
     const signedRequest = await jwt.sign(key);
 
@@ -456,8 +456,8 @@ export const exchangeCodeForTokens = async ({
     }
 
     // private_key_jwt
-    const alg = (assertionOptions?.signAlg as any) || 'RS256';
-    header.alg = alg as any;
+    const alg = (assertionOptions?.signAlg as string) || 'RS256';
+    header.alg = alg as string;
     const pk = assertionOptions?.privateKeyPEM || '';
     const key = await importPKCS8(pk, alg);
     return new SignJWT(claims).setProtectedHeader(header).sign(key);
