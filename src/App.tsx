@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import styled, { ThemeProvider } from 'styled-components';
-import { AuthProvider } from './contexts/AuthContext';
-import { OAuthProvider } from './contexts/OAuthContext';
+import styled, { ThemeProvider, DefaultTheme } from 'styled-components';
+import { AuthProvider } from './contexts/NewAuthContext';
 import { GlobalStyle, theme } from './styles/global';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
@@ -13,7 +12,7 @@ import Configuration from './pages/Configuration';
 import Documentation from './pages/Documentation';
 import Login from './pages/Login';
 import Callback from './pages/Callback';
-import { useAuth } from './contexts/AuthContext';
+import { useAuth } from './contexts/NewAuthContext';
 
 // Import all the new OAuth and OIDC flow components
 import ImplicitGrantFlow from './pages/flows/ImplicitGrantFlow';
@@ -244,14 +243,164 @@ const AppRoutes = () => {
   );
 };
 
+// Define the theme type
+type ThemeColors = {
+  primary: string;
+  primaryLight: string;
+  primaryDark: string;
+  secondary: string;
+  success: string;
+  danger: string;
+  warning: string;
+  info: string;
+  light: string;
+  dark: string;
+  gray100: string;
+  gray200: string;
+  gray300: string;
+  gray400: string;
+  gray500: string;
+  gray600: string;
+  gray700: string;
+  gray800: string;
+  gray900: string;
+  [key: string]: string; // Allow additional color properties
+};
+
+type ThemeFonts = {
+  body: string;
+  heading: string;
+  monospace: string;
+};
+
+type ThemeShadows = {
+  sm: string;
+  md: string;
+  lg: string;
+  xl: string;
+};
+
+type ThemeBreakpoints = {
+  xs: string;
+  sm: string;
+  md: string;
+  lg: string;
+  xl: string;
+};
+
+type ThemeSpacing = {
+  xs: string;
+  sm: string;
+  md: string;
+  lg: string;
+  xl: string;
+  xxl: string;
+};
+
+type ThemeBorderRadius = {
+  sm: string;
+  md: string;
+  lg: string;
+  full: string;
+};
+
+// Extend the default theme type
+declare module 'styled-components' {
+  export interface DefaultTheme {
+    colors: ThemeColors;
+    fonts: ThemeFonts;
+    shadows: ThemeShadows;
+    breakpoints: ThemeBreakpoints;
+    spacing: ThemeSpacing;
+    borderRadius: ThemeBorderRadius;
+  }
+}
+
+// Helper function to safely access theme properties
+const getThemeValue = <T,>(value: T | undefined, defaultValue: T): T => {
+  return value !== undefined ? value : defaultValue;
+};
+
 function App() {
+  // Safely access theme properties with fallbacks
+  const themeColors = theme?.colors || {};
+  const themeFonts = theme?.fonts || { body: '', heading: '', monospace: '' };
+  const themeShadows = theme?.shadows || { sm: '', md: '', lg: '', xl: '' };
+  const themeBreakpoints = theme?.breakpoints || { xs: '', sm: '', md: '', lg: '', xl: '' };
+
+  const themeWithDefaults: DefaultTheme = {
+    // Colors with fallbacks
+    colors: {
+      ...themeColors,
+      primary: getThemeValue(themeColors.primary, '#4f46e5'),
+      primaryLight: getThemeValue(themeColors.primaryLight, '#6366f1'),
+      primaryDark: getThemeValue(themeColors.primaryDark, '#4338ca'),
+      secondary: getThemeValue(themeColors.secondary, '#10b981'),
+      success: getThemeValue(themeColors.success, '#10b981'),
+      danger: getThemeValue(themeColors.danger, '#ef4444'),
+      warning: getThemeValue(themeColors.warning, '#f59e0b'),
+      info: getThemeValue(themeColors.info, '#3b82f6'),
+      light: getThemeValue(themeColors.light, '#f9fafb'),
+      dark: getThemeValue(themeColors.dark, '#111827'),
+      gray100: getThemeValue(themeColors.gray100, '#f3f4f6'),
+      gray200: getThemeValue(themeColors.gray200, '#e5e7eb'),
+      gray300: getThemeValue(themeColors.gray300, '#d1d5db'),
+      gray400: getThemeValue(themeColors.gray400, '#9ca3af'),
+      gray500: getThemeValue(themeColors.gray500, '#6b7280'),
+      gray600: getThemeValue(themeColors.gray600, '#4b5563'),
+      gray700: getThemeValue(themeColors.gray700, '#374151'),
+      gray800: getThemeValue(themeColors.gray800, '#1f2937'),
+      gray900: getThemeValue(themeColors.gray900, '#111827'),
+    },
+
+    // Fonts with fallbacks
+    fonts: {
+      body: getThemeValue(themeFonts.body, 'system-ui, sans-serif'),
+      heading: getThemeValue(themeFonts.heading, 'system-ui, sans-serif'),
+      monospace: getThemeValue(themeFonts.monospace, '"SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace'),
+    },
+
+    // Shadows with fallbacks
+    shadows: {
+      sm: getThemeValue(themeShadows.sm, '0 1px 2px 0 rgba(0, 0, 0, 0.05)'),
+      md: getThemeValue(themeShadows.md, '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'),
+      lg: getThemeValue(themeShadows.lg, '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'),
+      xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+    },
+
+    // Breakpoints with fallbacks
+    breakpoints: {
+      xs: '0px',
+      sm: getThemeValue(themeBreakpoints.sm, '640px'),
+      md: getThemeValue(themeBreakpoints.md, '768px'),
+      lg: getThemeValue(themeBreakpoints.lg, '1024px'),
+      xl: getThemeValue(themeBreakpoints.xl, '1280px'),
+    },
+
+    // Spacing scale
+    spacing: {
+      xs: '0.25rem',
+      sm: '0.5rem',
+      md: '1rem',
+      lg: '1.5rem',
+      xl: '2rem',
+      xxl: '4rem',
+    },
+
+    // Border radius
+    borderRadius: {
+      sm: '0.125rem',
+      md: '0.25rem',
+      lg: '0.5rem',
+      full: '9999px',
+    },
+  };
+
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={themeWithDefaults}>
       <AuthProvider>
-        <OAuthProvider>
-          <GlobalStyle />
-          <AppRoutes />
-        </OAuthProvider>
+        <GlobalStyle />
+        <AppRoutes />
       </AuthProvider>
     </ThemeProvider>
   );
