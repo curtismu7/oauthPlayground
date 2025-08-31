@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiLogIn, FiAlertCircle, FiCopy, FiCheck, FiEdit, FiCheckCircle, FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiAlertCircle, FiCopy, FiCheck, FiEdit, FiCheckCircle, FiEye, FiEyeOff, FiLogIn } from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
 import { appConfig } from '../config/pingone';
 import Spinner from '../components/Spinner';
@@ -105,47 +105,7 @@ const LoginBody = styled.div`
   padding: 2rem;
 `;
 
-const FormGroup = styled.div`
-  margin-bottom: 1.5rem;
-
-  label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: ${({ theme }) => "#495057"};
-  }
-
-  input {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid ${({ theme }) => "#dee2e6"};
-    border-radius: 6px;
-    font-size: 1rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
-
-    &:focus {
-      outline: none;
-      border-color: #0070CC;
-      box-shadow: 0 0 0 3px rgba(0, 112, 204, 0.1);
-    }
-
-    &:disabled {
-      background-color: #f8f9fa;
-      cursor: not-allowed;
-    }
-  }
-  .error {
-    color: ${({ theme }) => "#dc3545"};
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
-  }
-`;
-
-const ErrorIcon = styled(FiAlertCircle)`
-  font-size: 3rem;
-  color: ${({ theme }) => "#dc3545"};
-  margin-bottom: 1.5rem;
-`;
+// Removed unused FormGroup and ErrorIcon
 
 const SubmitButton = styled.button`
   width: 100%;
@@ -153,7 +113,7 @@ const SubmitButton = styled.button`
   font-size: 1rem;
   font-weight: 500;
   color: white;
-  background-color: ${({ theme }) => "#007bff"};
+  background-color: #007bff;
   border: none;
   border-radius: 0.375rem;
   cursor: pointer;
@@ -163,7 +123,7 @@ const SubmitButton = styled.button`
   transition: background-color 0.2s;
   
   &:hover {
-    background-color: ${({ theme }) => "#0056b3"};
+    background-color: #0056b3;
   }
   
   &:disabled {
@@ -388,12 +348,11 @@ const Login = () => {
   const [saveStatus, setSaveStatus] = useState<{ type: string; title: string; message: string } | null>(null);
   const [isSavingCredentials, setIsSavingCredentials] = useState(false);
   
-  const { login, isAuthenticated } = useAuth();
-  const navigate = useNavigate();
+  const { login } = useAuth();
   const location = useLocation();
   
-  const from = location.state?.from?.pathname || '/';
-  
+  // const from = location.state?.from?.pathname || '/';
+
   // Check for redirect messages
   const redirectMessage = location.state?.message;
   const redirectType = location.state?.type || 'info';
