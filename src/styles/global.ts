@@ -24,7 +24,7 @@ export const theme = {
   },
   fonts: {
     body: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-    mono: 'SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+    monospace: 'SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
   },
   shadows: {
     sm: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
@@ -98,7 +98,7 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   code {
-    font-family: ${({ theme }) => theme.fonts.mono};
+    font-family: ${({ theme }) => theme.fonts.monospace};
     background-color: ${({ theme }) => theme.colors.gray200};
     padding: 0.2em 0.4em;
     border-radius: 3px;
@@ -111,7 +111,7 @@ export const GlobalStyle = createGlobalStyle`
     padding: 1rem;
     border-radius: 4px;
     overflow-x: auto;
-    font-family: ${({ theme }) => theme.fonts.mono};
+    font-family: ${({ theme }) => theme.fonts.monospace};
     font-size: 0.9rem;
     line-height: 1.5;
     margin: 1rem 0;
