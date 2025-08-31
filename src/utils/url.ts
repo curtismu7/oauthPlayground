@@ -2,13 +2,15 @@
  * URL utility functions for handling OAuth 2.0 and OpenID Connect URLs
  */
 
+import { QueryParams, HashParams, URLParseOptions, URLBuildOptions } from '../types/url';
+
 /**
  * Parse query parameters from a URL
- * @param {string} url - The URL to parse
- * @returns {Object} Parsed query parameters as key-value pairs
+ * @param url - The URL to parse
+ * @returns Parsed query parameters as key-value pairs
  */
-export const parseQueryParams = (url) => {
-  const params = {};
+export const parseQueryParams = (url: string): QueryParams => {
+  const params: QueryParams = {};
   const queryString = url.split('?')[1] || '';
   const pairs = queryString.split('&');
   
@@ -24,11 +26,11 @@ export const parseQueryParams = (url) => {
 
 /**
  * Parse hash fragment from a URL
- * @param {string} url - The URL to parse
- * @returns {Object} Parsed hash parameters as key-value pairs
+ * @param url - The URL to parse
+ * @returns Parsed hash parameters as key-value pairs
  */
-export const parseHashFragment = (url) => {
-  const params = {};
+export const parseHashFragment = (url: string): HashParams => {
+  const params: HashParams = {};
   const hash = url.split('#')[1] || '';
   const pairs = hash.split('&');
   
@@ -44,19 +46,19 @@ export const parseHashFragment = (url) => {
 
 /**
  * Build a URL with query parameters
- * @param {string} baseUrl - The base URL
- * @param {Object} params - Query parameters as key-value pairs
- * @returns {string} The constructed URL with query parameters
+ * @param baseUrl - The base URL
+ * @param params - Query parameters as key-value pairs
+ * @returns The constructed URL with query parameters
  */
-export const buildUrl = (baseUrl, params = {}) => {
+export const buildUrl = (baseUrl: string, params: QueryParams = {}): string => {
   const url = new URL(baseUrl);
   
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null) {
       if (Array.isArray(value)) {
-        value.forEach(v => url.searchParams.append(key, v));
+        value.forEach(v => url.searchParams.append(key, String(v)));
       } else {
-        url.searchParams.append(key, value);
+        url.searchParams.append(key, String(value));
       }
     }
   });
@@ -66,11 +68,11 @@ export const buildUrl = (baseUrl, params = {}) => {
 
 /**
  * Add query parameters to a URL
- * @param {string} url - The base URL
- * @param {Object} params - Query parameters to add
- * @returns {string} The URL with added query parameters
+ * @param url - The base URL
+ * @param params - Query parameters to add
+ * @returns The URL with added query parameters
  */
-export const addQueryParams = (url, params = {}) => {
+export const addQueryParams = (url: string, params: QueryParams = {}): string => {
   const urlObj = new URL(url, window.location.origin);
   
   Object.entries(params).forEach(([key, value]) => {
@@ -78,9 +80,9 @@ export const addQueryParams = (url, params = {}) => {
       if (Array.isArray(value)) {
         // Remove existing parameters with the same name
         urlObj.searchParams.delete(key);
-        value.forEach(v => urlObj.searchParams.append(key, v));
+        value.forEach(v => urlObj.searchParams.append(key, String(v)));
       } else {
-        urlObj.searchParams.set(key, value);
+        urlObj.searchParams.set(key, String(value));
       }
     }
   });
@@ -90,11 +92,11 @@ export const addQueryParams = (url, params = {}) => {
 
 /**
  * Remove query parameters from a URL
- * @param {string} url - The URL to modify
- * @param {string|string[]} paramNames - Parameter name(s) to remove
- * @returns {string} The URL with specified query parameters removed
+ * @param url - The URL to modify
+ * @param paramNames - Parameter name(s) to remove
+ * @returns The URL with specified query parameters removed
  */
-export const removeQueryParams = (url, paramNames) => {
+export const removeQueryParams = (url: string, paramNames: string | string[]): string => {
   const urlObj = new URL(url, window.location.origin);
   const paramsToRemove = Array.isArray(paramNames) ? paramNames : [paramNames];
   
@@ -107,11 +109,11 @@ export const removeQueryParams = (url, paramNames) => {
 
 /**
  * Get the current URL with or without query parameters
- * @param {boolean} includeSearch - Whether to include query parameters
- * @param {boolean} includeHash - Whether to include hash fragment
- * @returns {string} The current URL
+ * @param includeSearch - Whether to include query parameters
+ * @param includeHash - Whether to include hash fragment
+ * @returns The current URL
  */
-export const getCurrentUrl = (includeSearch = true, includeHash = true) => {
+export const getCurrentUrl = (includeSearch = true, includeHash = true): string => {
   let url = window.location.pathname;
   
   if (includeSearch && window.location.search) {
@@ -127,19 +129,19 @@ export const getCurrentUrl = (includeSearch = true, includeHash = true) => {
 
 /**
  * Check if a URL is absolute
- * @param {string} url - The URL to check
- * @returns {boolean} True if the URL is absolute
+ * @param url - The URL to check
+ * @returns True if the URL is absolute
  */
-export const isAbsoluteUrl = (url) => {
+export const isAbsoluteUrl = (url: string): boolean => {
   return /^[a-z][a-z0-9+.-]*:/.test(url);
 };
 
 /**
  * Ensure a URL is absolute by prepending the current origin if needed
- * @param {string} url - The URL to ensure is absolute
- * @returns {string} An absolute URL
+ * @param url - The URL to ensure is absolute
+ * @returns An absolute URL
  */
-export const ensureAbsoluteUrl = (url) => {
+export const ensureAbsoluteUrl = (url: string): string => {
   if (!url) return '';
   if (isAbsoluteUrl(url)) return url;
   
@@ -160,21 +162,21 @@ export const ensureAbsoluteUrl = (url) => {
 
 /**
  * Get the base URL (origin + pathname) without query parameters or hash
- * @param {string} [url] - The URL to process (defaults to current URL)
- * @returns {string} The base URL
+ * @param url - The URL to process (defaults to current URL)
+ * @returns The base URL
  */
-export const getBaseUrl = (url) => {
+export const getBaseUrl = (url?: string): string => {
   const urlObj = url ? new URL(url, window.location.origin) : new URL(window.location.href);
   return `${urlObj.origin}${urlObj.pathname}`.replace(/\/$/, '');
 };
 
 /**
  * Check if two URLs have the same origin
- * @param {string} url1 - First URL
- * @param {string} url2 - Second URL
- * @returns {boolean} True if the URLs have the same origin
+ * @param url1 - First URL
+ * @param url2 - Second URL
+ * @returns True if the URLs have the same origin
  */
-export const sameOrigin = (url1, url2) => {
+export const sameOrigin = (url1: string, url2: string): boolean => {
   try {
     const a = new URL(url1, window.location.href);
     const b = new URL(url2, window.location.href);
@@ -186,23 +188,23 @@ export const sameOrigin = (url1, url2) => {
 
 /**
  * Check if the current page is loaded over HTTPS
- * @returns {boolean} True if the page is loaded over HTTPS
+ * @returns True if the page is loaded over HTTPS
  */
-export const isHttps = () => {
+export const isHttps = (): boolean => {
   return window.location.protocol === 'https:';
 };
 
 /**
  * Check if the current page is loaded on localhost
- * @returns {boolean} True if the page is loaded on localhost
+ * @returns True if the page is loaded on localhost
  */
-export const isLocalhost = () => {
+export const isLocalhost = (): boolean => {
   return window.location.hostname === 'localhost' || 
-         window.location.hostname === '127.0.0.1' ||
+         window.location.hostname === '127.0.0.1' || 
          window.location.hostname === '[::1]';
 };
 
-export default {
+const urlUtils = {
   parseQueryParams,
   parseHashFragment,
   buildUrl,
@@ -216,3 +218,5 @@ export default {
   isHttps,
   isLocalhost
 };
+
+export default urlUtils;

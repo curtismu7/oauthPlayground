@@ -45,9 +45,14 @@ const parseEnv = (): EnvConfig => {
     return envSchema.parse(envVars);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      console.error('❌ Invalid environment variables:', error.errors);
+      console.error('❌ Invalid environment variables:');
+      error.issues.forEach(issue => {
+        console.error(`  - ${issue.path.join('.')}: ${issue.message}`);
+      });
+    } else if (error instanceof Error) {
+      console.error('❌ Failed to parse environment variables:', error.message);
     } else {
-      console.error('❌ Failed to parse environment variables:', error);
+      console.error('❌ Failed to parse environment variables: Unknown error');
     }
     throw new Error('Invalid environment variables');
   }
@@ -121,18 +126,18 @@ export const config = {
 export type Config = typeof config;
 
 // Helper function to get a nested config value by path
-export const getConfigValue = <T>(path: string, defaultValue?: T): T => {
+export const getConfigValue = <T>(path: string, defaultValue: T): T => {
   const keys = path.split('.');
   let result: any = config;
   
   for (const key of keys) {
     if (result === undefined || result === null) {
-      return defaultValue as T;
+      return defaultValue;
     }
-    result = result[key];
+    result = result[key as keyof typeof result];
   }
   
-  return result !== undefined ? result : defaultValue as T;
+  return result !== undefined ? result as T : defaultValue;
 };
 
 // Export the config as default
