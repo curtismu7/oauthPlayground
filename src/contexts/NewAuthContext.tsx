@@ -1,0 +1,421 @@
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import { oauthStorage } from '../utils/storage';
+import { pingOneConfig } from '../config/pingone';
+import type { OAuthTokens, UserInfo, OAuthTokenResponse } from '../types/storage';
+import { AuthContextType, AuthState, LoginResult } from '../types/auth';
+
+// Define the complete config type with all required properties
+interface AppConfig {
+  disableLogin: boolean;
+  clientId: string;
+  clientSecret: string;
+  redirectUri: string;
+  authorizationEndpoint: string;
+  tokenEndpoint: string;
+  userInfoEndpoint: string;
+  endSessionEndpoint: string;
+  scopes: string[];
+  environmentId: string;
+  [key: string]: any; // Allow additional properties
+}
+
+// Create the auth context
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Helper functions
+const isTokenValid = (tokens: OAuthTokens | null): boolean => {
+  if (!tokens?.access_token) return false;
+  const now = Date.now();
+  const expiresAt = tokens.expires_at || 0;
+  return expiresAt ? now < expiresAt : false;
+};
+
+const isRefreshTokenValid = (tokens: OAuthTokens | null): boolean => {
+  if (!tokens?.refresh_token) return false;
+  const now = Date.now();
+  const refreshExpiresAt = tokens.refresh_expires_at || 0;
+  return refreshExpiresAt ? now < refreshExpiresAt : false;
+};
+
+const getStoredTokens = (): OAuthTokens | null => {
+  try {
+    const tokens = oauthStorage.getTokens();
+    return tokens ? JSON.parse(JSON.stringify(tokens)) : null;
+  } catch (error) {
+    console.error('Error parsing stored tokens:', error);
+    return null;
+  }
+};
+
+const getStoredUser = (): UserInfo | null => {
+  try {
+    const user = oauthStorage.getUserInfo();
+    return user ? JSON.parse(JSON.stringify(user)) : null;
+  } catch (error) {
+    console.error('Error parsing stored user:', error);
+    return null;
+  }
+};
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Auth state
+  const [state, setState] = useState<AuthState>({
+    isAuthenticated: false,
+    user: null,
+    tokens: null,
+    isLoading: true,
+    error: null,
+  });
+
+  // Memoized config with default values if needed
+  const config = useMemo<AppConfig>(() => {
+    // Default values that match the AppConfig interface
+    const defaultConfig: AppConfig = {
+      disableLogin: process.env.REACT_APP_DISABLE_LOGIN === 'true' || false,
+      clientId: process.env.REACT_APP_CLIENT_ID || '',
+      clientSecret: process.env.REACT_APP_CLIENT_SECRET || '',
+      redirectUri: process.env.REACT_APP_REDIRECT_URI || `${window.location.origin}/callback`,
+      authorizationEndpoint: process.env.REACT_APP_AUTHORIZATION_ENDPOINT || '',
+      tokenEndpoint: process.env.REACT_APP_TOKEN_ENDPOINT || '',
+      userInfoEndpoint: process.env.REACT_APP_USERINFO_ENDPOINT || '',
+      endSessionEndpoint: process.env.REACT_APP_ENDSESSION_ENDPOINT || '',
+      scopes: (process.env.REACT_APP_SCOPES || 'openid profile email').split(' '),
+      environmentId: process.env.REACT_APP_ENVIRONMENT_ID || ''
+    };
+
+    try {
+      if (!pingOneConfig) {
+        return defaultConfig;
+      }
+
+      // Create a new config object with default values
+      const mergedConfig: AppConfig = { ...defaultConfig };
+      
+      // Manually map known properties from pingOneConfig
+      const configKeys: (keyof AppConfig)[] = [
+        'clientId', 'clientSecret', 'redirectUri', 'authorizationEndpoint',
+        'tokenEndpoint', 'userInfoEndpoint', 'endSessionEndpoint', 'scopes', 'environmentId'
+      ];
+      
+      // Apply values from pingOneConfig if they exist
+      configKeys.forEach(key => {
+        if (key in pingOneConfig) {
+          const value = (pingOneConfig as any)[key];
+          if (value !== undefined) {
+            (mergedConfig as any)[key] = value;
+          }
+        }
+      });
+
+      // Handle disableLogin separately
+      if ('disableLogin' in pingOneConfig) {
+        mergedConfig.disableLogin = Boolean((pingOneConfig as any).disableLogin);
+      } else {
+        mergedConfig.disableLogin = defaultConfig.disableLogin;
+      }
+
+      return mergedConfig;
+    } catch (error) {
+      console.error('Error loading config, using defaults:', error);
+      return defaultConfig;
+    }
+  }, []);
+
+  // Update state helper
+  const updateState = useCallback((updates: Partial<AuthState>) => {
+    setState(prev => ({
+      ...prev,
+      ...updates,
+      error: updates.error !== undefined ? updates.error : null, // Clear error if not provided
+    }));
+  }, []);
+
+  // Initialize auth state
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        const [storedTokens, storedUser] = await Promise.all([
+          getStoredTokens(),
+          getStoredUser(),
+        ]);
+
+        if (storedTokens && isTokenValid(storedTokens)) {
+          updateState({
+            isAuthenticated: true,
+            user: storedUser,
+            tokens: storedTokens,
+            isLoading: false,
+          });
+        } else if (storedTokens?.refresh_token && isRefreshTokenValid(storedTokens)) {
+          // Handle token refresh here
+          console.log('Token expired but refresh token is valid');
+          updateState({ isLoading: false });
+        } else {
+          // Clear invalid tokens
+          oauthStorage.clearAll();
+          updateState({ isLoading: false });
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        updateState({
+          error: 'Failed to initialize authentication',
+          isLoading: false,
+        });
+      }
+    };
+
+    initializeAuth();
+  }, [updateState]);
+
+  // Login function
+  const login = useCallback(async (redirectAfterLogin = '/'): Promise<LoginResult> => {
+    try {
+      updateState({ isLoading: true, error: null });
+
+      // Handle disabled login mode for testing
+      if (config.disableLogin) {
+        const mockUser = {
+          sub: 'mock-user-123',
+          email: 'test@example.com',
+          name: 'Test User',
+        };
+
+        const mockTokens = {
+          access_token: 'mock-access-token',
+          token_type: 'Bearer',
+          expires_in: 3600,
+          refresh_token: 'mock-refresh-token',
+          expires_at: Date.now() + 3600 * 1000,
+          refresh_expires_at: Date.now() + 5 * 24 * 3600 * 1000, // 5 days
+        };
+
+        oauthStorage.setUserInfo(mockUser);
+        oauthStorage.setTokens(mockTokens);
+
+        updateState({
+          isAuthenticated: true,
+          user: mockUser,
+          tokens: mockTokens,
+          isLoading: false,
+        });
+
+        return { success: true, redirectUrl: redirectAfterLogin };
+      }
+
+      // Handle regular OAuth flow
+      const codeVerifier = generateRandomString(64);
+      const codeChallenge = await generateCodeChallenge(codeVerifier);
+      const state = generateRandomString(32);
+      const nonce = generateRandomString(32);
+
+      // Store PKCE verifier and state for later verification
+      oauthStorage.setCodeVerifier(codeVerifier);
+      oauthStorage.setState(state);
+      oauthStorage.setNonce(nonce);
+
+      // Build authorization URL
+      const authUrl = new URL(config.authorizationEndpoint);
+      const params = new URLSearchParams({
+        response_type: 'code',
+        client_id: config.clientId,
+        redirect_uri: config.redirectUri,
+        scope: 'openid profile email',
+        state,
+        nonce,
+        code_challenge: codeChallenge,
+        code_challenge_method: 'S256',
+      });
+
+      authUrl.search = params.toString();
+      window.location.href = authUrl.toString();
+
+      return { success: true };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Login failed';
+      updateState({ error: errorMessage, isLoading: false });
+      return { success: false, error: errorMessage };
+    }
+  }, [config, updateState]);
+
+  // Logout function
+  const logout = useCallback(() => {
+    try {
+      // Clear all auth-related data
+      oauthStorage.clearAll();
+      
+      // Reset state
+      updateState({
+        isAuthenticated: false,
+        user: null,
+        tokens: null,
+        error: null,
+      });
+
+      // Redirect to home or login page
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Error during logout:', error);
+      updateState({ error: 'Failed to log out. Please try again.' });
+    }
+  }, [updateState]);
+
+  // Handle OAuth callback
+  const handleCallback = useCallback(async (url: string): Promise<LoginResult> => {
+    try {
+      updateState({ isLoading: true, error: null });
+
+      const urlObj = new URL(url);
+      const params = new URLSearchParams(urlObj.search);
+      const code = params.get('code');
+      const state = params.get('state');
+      const error = params.get('error');
+
+      if (error) {
+        throw new Error(`OAuth error: ${error}. ${params.get('error_description') || ''}`);
+      }
+
+      if (!code || !state) {
+        throw new Error('Missing required parameters in callback URL');
+      }
+
+      // Verify state matches what we stored
+      const storedState = oauthStorage.getState();
+      if (state !== storedState) {
+        throw new Error('Invalid state parameter');
+      }
+
+      // Exchange code for tokens
+      const codeVerifier = oauthStorage.getCodeVerifier();
+      if (!codeVerifier) {
+        throw new Error('Missing code verifier');
+      }
+
+      const tokenResponse = await exchangeCodeForTokens(
+        config.tokenEndpoint,
+        {
+          grant_type: 'authorization_code',
+          client_id: config.clientId,
+          redirect_uri: config.redirectUri,
+          code,
+          code_verifier: codeVerifier,
+        }
+      );
+
+      // Get user info
+      const userInfo = await getUserInfo(config.userInfoEndpoint, tokenResponse.access_token);
+      
+      // Store tokens and user info
+      oauthStorage.setTokens(tokenResponse);
+      oauthStorage.setUserInfo(userInfo);
+
+      // Update state
+      updateState({
+        isAuthenticated: true,
+        user: userInfo,
+        tokens: tokenResponse,
+        isLoading: false,
+      });
+
+      // Get redirect URL from session storage or use default
+      const redirectUrl = sessionStorage.getItem('redirect_after_login') || '/';
+      sessionStorage.removeItem('redirect_after_login');
+
+      return { success: true, redirectUrl };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
+      updateState({ error: errorMessage, isLoading: false });
+      return { success: false, error: errorMessage };
+    }
+  }, [config, updateState]);
+
+  // Set auth state
+  const setAuthState = useCallback((updates: Partial<AuthState>) => {
+    updateState(updates);
+  }, [updateState]);
+
+  // Context value
+  const contextValue = useMemo(() => ({
+    ...state,
+    login,
+    logout,
+    handleCallback,
+    setAuthState,
+  }), [state, login, logout, handleCallback, setAuthState]);
+
+  return (
+    <AuthContext.Provider value={contextValue}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+// Custom hook to use the auth context
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
+// Helper functions for PKCE flow
+function generateRandomString(length: number): string {
+  const array = new Uint8Array(length);
+  window.crypto.getRandomValues(array);
+  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
+async function generateCodeChallenge(verifier: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(verifier);
+  const digest = await window.crypto.subtle.digest('SHA-256', data);
+  return btoa(String.fromCharCode(...new Uint8Array(digest)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+}
+
+async function exchangeCodeForTokens(
+  tokenEndpoint: string,
+  params: Record<string, string>
+): Promise<OAuthTokens> {
+  const response = await fetch(tokenEndpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams(params),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.error_description || 'Failed to exchange code for tokens');
+  }
+
+  const data: OAuthTokenResponse = await response.json();
+  
+  // Add expiration timestamps
+  const now = Date.now();
+  const tokens: Omit<OAuthTokens, keyof OAuthTokenResponse> & OAuthTokenResponse = {
+    ...data,
+    expires_at: data.expires_in ? now + data.expires_in * 1000 : undefined,
+    refresh_expires_at: data.refresh_token ? now + 5 * 24 * 60 * 60 * 1000 : undefined, // 5 days
+  };
+
+  return tokens;
+}
+
+async function getUserInfo(userInfoEndpoint: string, accessToken: string): Promise<UserInfo> {
+  const response = await fetch(userInfoEndpoint, {
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Accept': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch user info');
+  }
+
+  return response.json();
+}

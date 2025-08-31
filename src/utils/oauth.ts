@@ -412,6 +412,15 @@ export const exchangeCodeForTokens = async ({
     signAlg?: 'RS256' | 'ES256' | 'ES384' | 'PS256';
   };
 }) => {
+  try {
+    console.debug('[oauth.util] Preparing token request', {
+      tokenEndpoint,
+      authMethod,
+      has_client_secret: !!clientSecret,
+      has_code_verifier: !!codeVerifier,
+      client_id_len: clientId?.length || 0,
+    });
+  } catch {}
   const body = new URLSearchParams();
   body.append('grant_type', 'authorization_code');
   body.append('client_id', clientId);
@@ -486,6 +495,13 @@ export const exchangeCodeForTokens = async ({
     headers,
     body,
   });
+  try {
+    console.debug('[oauth.util] Token endpoint responded', {
+      ok: response.ok,
+      status: response.status,
+      statusText: response.statusText,
+    });
+  } catch {}
   
   if (!response.ok) {
     const error = await response.json();

@@ -2,7 +2,7 @@
  * URL utility functions for handling OAuth 2.0 and OpenID Connect URLs
  */
 
-import { QueryParams, HashParams, URLParseOptions, URLBuildOptions } from '../types/url';
+import { QueryParams, HashParams } from '../types/url';
 
 /**
  * Parse query parameters from a URL
@@ -181,7 +181,7 @@ export const sameOrigin = (url1: string, url2: string): boolean => {
     const a = new URL(url1, window.location.href);
     const b = new URL(url2, window.location.href);
     return a.origin === b.origin;
-  } catch (e) {
+  } catch {
     return false;
   }
 };

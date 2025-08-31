@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiBookOpen, FiCode, FiLock, FiUser, FiHelpCircle, FiExternalLink } from 'react-icons/fi';
+import { FiBookOpen, FiCode, FiLock, FiUser, FiHelpCircle, FiExternalLink, FiPlay, FiTool, FiShield, FiSettings } from 'react-icons/fi';
 
 const DocumentationContainer = styled.div`
   max-width: 1200px;
@@ -118,6 +118,116 @@ const CodeBlock = styled.pre`
   }
 `;
 
+const QuickStartBanner = styled.div`
+  background: linear-gradient(135deg, ${({ theme }) => theme.colors.primary}, ${({ theme }) => theme.colors.primaryLight});
+  color: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  margin-bottom: 2rem;
+  text-align: center;
+
+  h2 {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+    color: white;
+  }
+
+  p {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.9;
+  }
+`;
+
+const QuickStartButton = styled(Link)`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: rgba(255, 255, 255, 0.15);
+  color: white;
+  text-decoration: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+  }
+`;
+
+const FeatureHighlight = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+`;
+
+const FeatureCard = styled.div`
+  background: white;
+  border: 2px solid ${({ theme }) => theme.colors.gray200};
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: ${({ theme }) => theme.colors.primary};
+    transform: translateY(-2px);
+    box-shadow: ${({ theme }) => theme.shadows.md};
+  }
+
+  .icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 1.5rem;
+    color: white;
+  }
+
+  .tutorials { background: linear-gradient(135deg, #10b981, #059669); }
+  .flows { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+  .security { background: linear-gradient(135deg, #f59e0b, #d97706); }
+  .tools { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+
+  h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+    color: ${({ theme }) => theme.colors.gray900};
+  }
+
+  p {
+    color: ${({ theme }) => theme.colors.gray600};
+    margin-bottom: 1rem;
+  }
+`;
+
+const FeatureButton = styled(Link)`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: ${({ theme }) => theme.colors.gray100};
+  color: ${({ theme }) => theme.colors.gray700};
+  text-decoration: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.primary};
+    color: white;
+  }
+`;
+
 const Documentation = () => {
   return (
     <DocumentationContainer>
@@ -128,6 +238,63 @@ const Documentation = () => {
           to help you understand and implement OAuth 2.0 and OpenID Connect with PingOne.
         </p>
       </PageHeader>
+
+      <QuickStartBanner>
+        <h2>🚀 Ready to Get Started?</h2>
+        <p>
+          Jump into our interactive tutorials and start learning OAuth 2.0 with hands-on examples
+        </p>
+        <QuickStartButton to="/enhanced-tutorials">
+          <FiPlay size={16} />
+          Start Interactive Tutorials
+        </QuickStartButton>
+      </QuickStartBanner>
+
+      <FeatureHighlight>
+        <FeatureCard>
+          <div className="icon tutorials">
+            <FiPlay />
+          </div>
+          <h3>Interactive Tutorials</h3>
+          <p>Step-by-step guided learning with real examples and immediate feedback</p>
+          <FeatureButton to="/enhanced-tutorials">
+            Try Tutorials
+          </FeatureButton>
+        </FeatureCard>
+
+        <FeatureCard>
+          <div className="icon flows">
+            <FiCode />
+          </div>
+          <h3>OAuth Flows</h3>
+          <p>Explore different OAuth 2.0 grant types with live implementations</p>
+          <FeatureButton to="/flows">
+            View Flows
+          </FeatureButton>
+        </FeatureCard>
+
+        <FeatureCard>
+          <div className="icon security">
+            <FiShield />
+          </div>
+          <h3>Security Guide</h3>
+          <p>Learn security best practices and common pitfalls to avoid</p>
+          <FeatureButton to="/documentation#security">
+            Security Tips
+          </FeatureButton>
+        </FeatureCard>
+
+        <FeatureCard>
+          <div className="icon tools">
+            <FiTool />
+          </div>
+          <h3>Developer Tools</h3>
+          <p>JWT decoder, PKCE generator, and other useful OAuth utilities</p>
+          <FeatureButton to="/enhanced-tutorials?tab=utilities">
+            Use Tools
+          </FeatureButton>
+        </FeatureCard>
+      </FeatureHighlight>
       
       <Section>
         <h2><FiBookOpen /> Getting Started</h2>
