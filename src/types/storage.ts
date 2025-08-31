@@ -1,7 +1,7 @@
 export type JsonPrimitive = string | number | boolean | null | undefined;
 export type JsonValue = JsonPrimitive | JsonObject | JsonArray;
 export type JsonObject = { [key: string]: JsonValue };
-export interface JsonArray extends Array<JsonValue> {}
+export type JsonArray = Array<JsonValue>;
 
 export interface StorageInterface {
   setItem: <T = JsonValue>(key: string, value: T) => void;
@@ -10,25 +10,57 @@ export interface StorageInterface {
   clear: () => void;
 }
 
+// Base OAuth 2.0 token response according to RFC 6749
 export interface OAuthTokenResponse {
   access_token: string;
   token_type: string;
   expires_in?: number;
   refresh_token?: string;
-  id_token?: string;
   scope?: string;
-  [key: string]: JsonValue | undefined;
+  [key: string]: unknown; // Allow additional properties
 }
 
-export interface UserInfo extends JsonObject {
+// Extended token response that includes ID token and timestamps
+export interface OAuthTokens extends OAuthTokenResponse {
+  id_token?: string;
+  expires_at?: number; // Timestamp when the access token expires
+  refresh_expires_at?: number; // Timestamp when the refresh token expires
+}
+
+// User information from the UserInfo endpoint (OpenID Connect)
+export interface UserInfo {
+  // Required subject identifier
   sub: string;
-  email?: string;
+  
+  // Standard claims (OpenID Connect Core 1.0)
   name?: string;
   given_name?: string;
   family_name?: string;
+  middle_name?: string;
+  nickname?: string;
   preferred_username?: string;
+  profile?: string;
+  picture?: string;
+  website?: string;
+  email?: string;
   email_verified?: boolean;
-  [key: string]: JsonValue | undefined;
+  gender?: string;
+  birthdate?: string;
+  zoneinfo?: string;
+  locale?: string;
+  phone_number?: string;
+  phone_number_verified?: boolean;
+  address?: {
+    formatted?: string;
+    street_address?: string;
+    locality?: string;
+    region?: string;
+    postal_code?: string;
+    country?: string;
+  };
+  
+  // Allow additional claims
+  [key: string]: unknown;
 }
 
 export interface OAuthConfig extends JsonObject {
