@@ -161,7 +161,7 @@ const Callback = () => {
         // Brief success state before navigating
         setTimeout(() => {
           navigate('/dashboard', { replace: true });
-        }, 800);
+        }, 1500);
         
       } catch (err) {
         console.error('❌ [Callback] OAuth callback error:', err);

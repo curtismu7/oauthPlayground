@@ -1,10 +1,47 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiAlertCircle, FiCopy, FiCheck, FiEdit, FiCheckCircle, FiEye, FiEyeOff, FiLogIn } from 'react-icons/fi';
+import { 
+  FiCopy, 
+  FiCheck, 
+  FiEye, 
+  FiEyeOff, 
+  FiEdit, 
+  FiCheckCircle, 
+  FiAlertCircle, 
+  FiLogIn 
+} from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
 import { appConfig } from '../config/pingone';
 import Spinner from '../components/Spinner';
+
+interface ClientAssertion {
+  hmacAlg: string;
+  signAlg: string;
+  privateKeyPEM: string;
+  kid: string;
+  audience: string;
+  x5t: string;
+  [key: string]: string; // For dynamic access to string properties
+}
+
+interface AdvancedSettings {
+  requestObjectPolicy?: string;
+  oidcSessionManagement: boolean;
+  resourceScopes: string;
+  terminateByIdToken: boolean;
+  [key: string]: string | boolean | undefined; // For dynamic access to other properties
+}
+
+interface Credentials {
+  environmentId: string;
+  clientId: string;
+  clientSecret: string;
+  tokenAuthMethod: string;
+  clientAssertion: ClientAssertion;
+  advanced: AdvancedSettings;
+  [key: string]: unknown; // For dynamic access to other properties
+}
 
 const LoginContainer = styled.div`
   min-height: 100vh;
@@ -28,7 +65,7 @@ const SetupSection = styled.div`
   max-width: 700px;
   min-width: 0;
 
-  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+  @media (max-width: 768px) {
     max-width: 100%;
   }
 `;
@@ -48,7 +85,7 @@ const LoginCard = styled.div`
 
 const LoginHeader = styled.div`
   padding: 1.5rem;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.gray200};
+  border-bottom: 1px solid #e9ecef;
   text-align: center;
 
   h1 {
@@ -142,9 +179,9 @@ const Alert = styled.div`
   border-radius: 0.375rem;
   display: flex;
   align-items: flex-start;
-  background-color: ${({ theme }) => `${theme.colors.danger}10`};
-  border: 1px solid ${({ theme }) => `${theme.colors.danger}20`};
-  color: ${({ theme }) => "#dc3545"};
+  background-color: rgba(220, 53, 69, 0.1);
+  border: 1px solid rgba(220, 53, 69, 0.2);
+  color: #dc3545;
   
   svg {
     margin-right: 0.75rem;
@@ -323,11 +360,11 @@ const Login = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [credentials, setCredentials] = useState({
+  const [credentials, setCredentials] = useState<Credentials>({
     environmentId: 'b9817c16-9910-4415-b67e-4ac687da74d9',
     clientId: 'a4f963ea-0736-456a-be72-b1fa4f63f81f',
     clientSecret: '0mClRqd3fif2vh4WJCO6B-8OZuOokzsh5gLw1V3GHbeGJYCMLk_zPfrptWzfYJ.a',
-    tokenAuthMethod: 'client_secret_post',
+    tokenAuthMethod: 'client_secret_basic',
     clientAssertion: {
       hmacAlg: 'HS256',
       signAlg: 'RS256',
@@ -393,7 +430,7 @@ const Login = () => {
 
   const handleCredentialChange = (field: string, value: string) => {
     setCredentials(prev => {
-      const next: any = { ...prev, [field]: value };
+      const next: Credentials = { ...prev, [field]: value };
       // If environment changes, refresh default audience if it was empty or matched previous default
       if (field === 'environmentId') {
         const oldDefault = tokenEndpointForEnv(prev.environmentId);
@@ -761,17 +798,24 @@ const Login = () => {
                   <select
                     value={credentials.tokenAuthMethod}
                     onChange={(e) => {
-                      const method = e.target.value;
+                      const method = e.target.value as 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt';
+                      
                       setCredentials(prev => {
-                        const next: any = { ...prev, tokenAuthMethod: method };
-                        if ((method === 'client_secret_jwt' || method === 'private_key_jwt')) {
+                        const updated = { ...prev, tokenAuthMethod: method };
+                        
+                        if (method === 'client_secret_jwt' || method === 'private_key_jwt') {
                           const defAud = tokenEndpointForEnv(prev.environmentId);
                           const curAud = prev.clientAssertion?.audience || '';
+                          
                           if (!curAud) {
-                            next.clientAssertion = { ...(prev.clientAssertion || {}), audience: defAud };
+                            updated.clientAssertion = {
+                              ...(prev.clientAssertion || {}),
+                              audience: defAud
+                            };
                           }
                         }
-                        return next;
+                        
+                        return updated;
                       });
                     }}
                     style={{
