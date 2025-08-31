@@ -13,14 +13,64 @@ import {
   buildSignoffUrl
 } from '../utils/oauth';
 
-const OAuthContext = createContext();
+// Types for OAuth config and context
+type ClientAssertionOptions = {
+  alg?: string;
+  kid?: string;
+  x5t?: string;
+  privateKeyPem?: string;
+  audience?: string;
+};
 
-export const OAuthProvider = ({ children }) => {
+type OAuthConfig = {
+  environmentId: string;
+  clientId: string;
+  clientSecret?: string;
+  redirectUri: string;
+  scopes: string;
+  authEndpoint: string; // may contain {envId}
+  tokenEndpoint: string; // may contain {envId}
+  userInfoEndpoint: string; // may contain {envId}
+  logoutEndpoint?: string; // may contain {envId}
+  logoutRedirectUri?: string;
+  tokenAuthMethod?: 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt';
+  clientAssertion?: ClientAssertionOptions;
+};
+
+type Tokens = {
+  access_token: string;
+  id_token?: string;
+  refresh_token?: string;
+  token_type: string;
+  expires_in?: number;
+  scope?: string;
+  issued_at?: number;
+  // optional enrichment
+  id_token_claims?: Record<string, any>;
+};
+
+type OAuthContextValue = {
+  config: OAuthConfig | null;
+  tokens: Tokens | null;
+  userInfo: any;
+  error: string | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  saveConfig: (newConfig: OAuthConfig) => boolean;
+  startOAuthFlow: (flowType?: 'authorization_code' | 'implicit', options?: Record<string, any>) => Promise<boolean>;
+  handleCallback: (url: string) => Promise<boolean>;
+  logout: () => void;
+  checkAuthStatus: () => boolean;
+};
+
+const OAuthContext = createContext<OAuthContextValue | undefined>(undefined);
+
+export const OAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   
   // Load saved configuration from localStorage
-  const loadConfig = () => {
+  const loadConfig = (): OAuthConfig | null => {
     try {
       const savedConfig = localStorage.getItem('pingone_config');
       return savedConfig ? JSON.parse(savedConfig) : null;
@@ -31,15 +81,15 @@ export const OAuthProvider = ({ children }) => {
   };
   
   // State for OAuth configuration and tokens
-  const [config, setConfig] = useState(loadConfig());
-  const [tokens, setTokens] = useState(() => {
+  const [config, setConfig] = useState<OAuthConfig | null>(loadConfig());
+  const [tokens, setTokens] = useState<Tokens | null>(() => {
     const savedTokens = localStorage.getItem('oauth_tokens');
     return savedTokens ? JSON.parse(savedTokens) : null;
   });
-  const [userInfo, setUserInfo] = useState(null);
-  const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userInfo, setUserInfo] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   
   // Save tokens to localStorage when they change
   useEffect(() => {
@@ -52,14 +102,27 @@ export const OAuthProvider = ({ children }) => {
     }
   }, [tokens]);
   
-  // Check if access token is expired
-  const isAccessTokenExpired = useCallback(() => {
+  // Check if access token is expired (supports opaque tokens)
+  const isAccessTokenExpired = useCallback((): boolean => {
     if (!tokens?.access_token) return true;
-    return isTokenExpired(tokens.access_token);
+    // Prefer expires_in + issued_at when available (works for opaque access tokens)
+    if (typeof tokens.expires_in === 'number' && typeof tokens.issued_at === 'number') {
+      const now = Math.floor(Date.now() / 1000);
+      const skew = 30; // seconds of clock skew tolerance
+      const expAt = tokens.issued_at + tokens.expires_in;
+      return now >= (expAt - skew);
+    }
+    // Fallback: try JWT exp check if the access token is a JWT
+    try {
+      return isTokenExpired(tokens.access_token);
+    } catch {
+      // If we cannot determine, be conservative but avoid immediate logout by treating as valid briefly
+      return false;
+    }
   }, [tokens]);
   
   // Check if refresh token is expired
-  const isRefreshTokenExpired = useCallback(() => {
+  const isRefreshTokenExpired = useCallback((): boolean => {
     if (!tokens?.refresh_token) return true;
     if (!tokens?.expires_in) return false; // If we don't have expires_in, assume it's valid
     
@@ -71,7 +134,7 @@ export const OAuthProvider = ({ children }) => {
   }, [tokens]);
   
   // Save configuration
-  const saveConfig = (newConfig) => {
+  const saveConfig = (newConfig: OAuthConfig): boolean => {
     try {
       localStorage.setItem('pingone_config', JSON.stringify(newConfig));
       setConfig(newConfig);
@@ -83,7 +146,10 @@ export const OAuthProvider = ({ children }) => {
   };
   
   // Initialize OAuth flow
-  const startOAuthFlow = useCallback(async (flowType = 'authorization_code', options = {}) => {
+  const startOAuthFlow = useCallback(async (
+    flowType: 'authorization_code' | 'implicit' = 'authorization_code',
+    options: Record<string, any> = {}
+  ): Promise<boolean> => {
     if (!config) {
       setError('OAuth configuration is missing. Please configure your PingOne settings first.');
       return false;
@@ -122,7 +188,7 @@ export const OAuthProvider = ({ children }) => {
       window.location.href = authUrl;
       return true;
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error starting OAuth flow:', error);
       setError(`Failed to start OAuth flow: ${error.message}`);
       setIsLoading(false);
@@ -131,7 +197,7 @@ export const OAuthProvider = ({ children }) => {
   }, [config]);
   
   // Handle OAuth callback
-  const handleCallback = useCallback(async (url) => {
+  const handleCallback = useCallback(async (url: string): Promise<boolean> => {
     if (!config) {
       setError('OAuth configuration is missing. Please configure your PingOne settings first.');
       return false;
@@ -142,6 +208,7 @@ export const OAuthProvider = ({ children }) => {
       setIsLoading(true);
       
       const params = parseUrlParams(url);
+      console.debug('[OAuthContext] Callback params parsed:', params);
       // Capture all values BEFORE clearing storage
       const savedState = localStorage.getItem('oauth_state');
       const savedNonce = localStorage.getItem('oauth_nonce');
@@ -180,7 +247,7 @@ export const OAuthProvider = ({ children }) => {
         }
         
         // Store tokens
-        const tokens = {
+        const tokens: Tokens = {
           access_token: params.access_token,
           id_token: params.id_token,
           token_type: params.token_type || 'Bearer',
@@ -188,7 +255,7 @@ export const OAuthProvider = ({ children }) => {
           scope: params.scope,
           issued_at: Math.floor(Date.now() / 1000),
         };
-        
+        console.debug('[OAuthContext] Storing tokens from implicit flow');
         setTokens(tokens);
         
         // Fetch user info if the token includes the required scope
@@ -236,16 +303,37 @@ export const OAuthProvider = ({ children }) => {
         // Auth server may require PKCE; surface a clear error
         throw new Error('No value supplied for required parameter: code_verifier');
       }
-      const tokenResponse = await exchangeCodeForTokens({
+      console.debug('[OAuthContext] Exchanging code for tokens at:', config.tokenEndpoint.replace('{envId}', config.environmentId));
+      // Normalize client assertion options to util's expected shape
+      const alg = config.clientAssertion?.alg;
+      const assertionOptionsNorm = config.clientAssertion
+        ? {
+            ...(config.clientAssertion.audience ? { audience: config.clientAssertion.audience } : {}),
+            ...(config.clientAssertion.kid ? { kid: config.clientAssertion.kid } : {}),
+            ...(config.clientAssertion.x5t ? { x5t: config.clientAssertion.x5t } : {}),
+            ...(config.clientAssertion.privateKeyPem
+              ? { privateKeyPEM: config.clientAssertion.privateKeyPem }
+              : {}),
+            ...((alg && ['RS256', 'ES256', 'ES384', 'PS256'].includes(alg))
+              ? { signAlg: alg as 'RS256' | 'ES256' | 'ES384' | 'PS256' }
+              : {}),
+            ...((alg && ['HS256', 'HS384', 'HS512'].includes(alg))
+              ? { hmacAlg: alg as 'HS256' | 'HS384' | 'HS512' }
+              : {}),
+          }
+        : undefined;
+
+      const tokenRequest = {
         tokenEndpoint: config.tokenEndpoint.replace('{envId}', config.environmentId),
         clientId: config.clientId,
-        clientSecret: config.clientSecret,
         redirectUri: config.redirectUri,
         code: params.code,
         codeVerifier: savedCodeVerifier,
         authMethod: (config.tokenAuthMethod as any) || 'client_secret_basic',
-        assertionOptions: config.clientAssertion,
-      });
+        ...(assertionOptionsNorm ? { assertionOptions: assertionOptionsNorm } : {}),
+        ...(config.clientSecret ? { clientSecret: config.clientSecret } as { clientSecret: string } : {}),
+      };
+      const tokenResponse = await exchangeCodeForTokens(tokenRequest);
       
       // Validate ID token if present
       if (tokenResponse.id_token) {
@@ -273,7 +361,8 @@ export const OAuthProvider = ({ children }) => {
       tokenResponse.issued_at = Math.floor(Date.now() / 1000);
       
       // Store tokens
-      setTokens(tokenResponse);
+      setTokens(tokenResponse as Tokens);
+      console.debug('[OAuthContext] Tokens stored successfully; notifying subscribers');
       
       // Fetch user info if the token includes the required scope
       if (tokenResponse.scope && tokenResponse.scope.includes('openid')) {
@@ -291,7 +380,7 @@ export const OAuthProvider = ({ children }) => {
       setIsLoading(false);
       return true;
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error handling OAuth callback:', error);
       setError(error.message || 'Failed to complete OAuth flow');
       setIsLoading(false);
@@ -300,7 +389,7 @@ export const OAuthProvider = ({ children }) => {
   }, [config]);
   
   // Logout
-  const logout = useCallback(() => {
+  const logout = useCallback((): void => {
     const currentTokens = tokens; // capture for id_token_hint
     setTokens(null);
     setUserInfo(null);
@@ -314,11 +403,12 @@ export const OAuthProvider = ({ children }) => {
       const postLogoutRedirectUri = config?.logoutRedirectUri || window.location.origin;
       const idTokenHint = currentTokens?.id_token;
       if (logoutEndpoint) {
-        const url = buildSignoffUrl({
+        const baseArgs: { logoutEndpoint: string; postLogoutRedirectUri: string; idTokenHint?: string } = {
           logoutEndpoint,
           postLogoutRedirectUri,
-          idTokenHint,
-        });
+          ...(idTokenHint ? { idTokenHint } : {}),
+        };
+        const url = buildSignoffUrl(baseArgs);
         window.location.href = url;
         return;
       }
@@ -331,7 +421,7 @@ export const OAuthProvider = ({ children }) => {
   }, [navigate, config, tokens]);
   
   // Check if user is authenticated
-  const checkAuthStatus = useCallback(() => {
+  const checkAuthStatus = useCallback((): boolean => {
     if (!tokens) return false;
     
     // Check if access token is expired

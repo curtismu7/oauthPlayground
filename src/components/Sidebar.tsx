@@ -150,8 +150,8 @@ const NavItemHeader = styled.div<NavItemHeaderProps>`
 const Sidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
   const [openMenus, setOpenMenus] = useState({
-    flows: false,
-    oidc: false,
+    flows: true, // Default to expanded
+    oidc: true,  // Default to expanded
   });
 
   // Auto-open menu based on current route

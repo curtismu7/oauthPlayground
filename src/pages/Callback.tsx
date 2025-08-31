@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { FiLoader, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
@@ -12,7 +12,7 @@ const CallbackContainer = styled.div`
   min-height: 100vh;
   padding: 2rem;
   text-align: center;
-  background-color: ${({ theme }) => theme.colors.gray50};
+  background-color: ${({ theme }) => theme.colors.gray100};
 `;
 
 const Card = styled.div`
@@ -146,16 +146,22 @@ const Callback = () => {
         
         console.log('✅ [Callback] Authorization code found, processing callback...');
         
-        // Process the OAuth callback
+        // Ensure minimum spinner time while processing callback
+        const start = Date.now();
         await handleCallback(window.location.href);
-        
+        const elapsed = Date.now() - start;
+        const remaining = Math.max(2000 - elapsed, 0);
+        if (remaining > 0) {
+          await new Promise((res) => setTimeout(res, remaining));
+        }
+
         // If we reach here, authentication was successful
         console.log('✅ [Callback] Authentication successful');
         setStatus('success');
-        // Redirect to the dashboard or the original URL after a short delay
+        // Brief success state before navigating
         setTimeout(() => {
           navigate('/dashboard', { replace: true });
-        }, 2000);
+        }, 800);
         
       } catch (err) {
         console.error('❌ [Callback] OAuth callback error:', err);
