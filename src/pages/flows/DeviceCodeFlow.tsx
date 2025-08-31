@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
-import { FiPlay, FiEye, FiCheckCircle, FiAlertCircle, FiCode, FiMonitor, FiSmartphone } from 'react-icons/fi';
+import { FiPlay, FiAlertCircle, FiMonitor, FiSmartphone } from 'react-icons/fi';
 import { useOAuth } from '../../contexts/OAuthContext';
 import Spinner from '../../components/Spinner';
 
@@ -350,14 +350,10 @@ const DeviceFlow = () => {
       setCurrentStep(1);
 
       // Simulate device authorization request (correct endpoint includes environment ID)
-      const deviceAuthRequest = {
-        method: 'POST',
-        url: `https://auth.pingone.com/${config.environmentId}/as/device_authorization`,
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: `client_id=${config.clientId}&scope=openid profile email`
-      };
+      // Example:
+      // POST https://auth.pingone.com/{envId}/as/device_authorization
+      // Content-Type: application/x-www-form-urlencoded
+      // client_id=...&scope=openid profile email
 
       setCurrentStep(2);
 

@@ -1,10 +1,60 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useNotifications } from '../contexts/NotificationContext';
 import { generateRandomString, sha256 } from '../utils/crypto';
+import { config } from '../services/config';
 
-const useOAuthFlow = (flowType = 'authorization_code') => {
-  const { user, isAuthenticated } = useAuth();
-  const [state, setState] = useState({
+// Types
+export interface OAuthTokens {
+  access_token: string;
+  id_token?: string;  // Make id_token optional
+  refresh_token?: string;
+  expires_in?: number;
+  token_type?: string;
+  scope?: string;
+  [key: string]: unknown; // Allow additional properties
+}
+
+type UserInfo = {
+  sub: string;
+  name?: string;
+  given_name?: string;
+  family_name?: string;
+  email?: string;
+  email_verified?: boolean;
+  picture?: string;
+  [key: string]: unknown; // Allow additional properties
+};
+
+type OAuthFlowState = {
+  codeVerifier: string;
+  state: string;
+  nonce: string;
+};
+
+type OAuthFlowReturn = {
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  error: string | null;
+  tokens: OAuthTokens | null;
+  userInfo: UserInfo | null;
+  flowState: OAuthFlowState;
+  initFlow: () => Promise<string | null>;
+  handleCallback: (callbackUrl: string) => Promise<void>;
+  logout: () => void;
+};
+
+const useOAuthFlow = (flowType = 'authorization_code'): OAuthFlowReturn => {
+  const { notify } = useNotifications();
+  const { setAuthState } = useAuth();
+  const [state, setState] = useState<{
+    isAuthenticated: boolean;
+    isLoading: boolean;
+    error: string | null;
+    tokens: OAuthTokens | null;
+    userInfo: UserInfo | null;
+    flowState: OAuthFlowState;
+  }>({
     isAuthenticated: false,
     isLoading: false,
     error: null,
@@ -17,19 +67,29 @@ const useOAuthFlow = (flowType = 'authorization_code') => {
     },
   });
 
-  // PingOne configuration - these should come from environment variables in production
-  const config = {
-    authEndpoint: 'https://auth.pingone.com/{{environmentId}}/as/authorize',
-    tokenEndpoint: 'https://auth.pingone.com/{{environmentId}}/as/token',
-    userInfoEndpoint: 'https://auth.pingone.com/{{environmentId}}/as/userinfo',
-    clientId: 'YOUR_CLIENT_ID',
-    redirectUri: window.location.origin + '/callback',
-    scopes: ['openid', 'profile', 'email'],
-  };
+  // Memoize the configuration to prevent unnecessary re-renders
+  const oauthConfig = useMemo(() => ({
+    authEndpoint: config.pingone.authEndpoint,
+    tokenEndpoint: config.pingone.tokenEndpoint,
+    userInfoEndpoint: config.pingone.userInfoEndpoint,
+    clientId: config.pingone.clientId,
+    redirectUri: config.pingone.redirectUri,
+    scopes: config.defaultScopes,
+  }), [
+    config.pingone.authEndpoint,
+    config.pingone.tokenEndpoint,
+    config.pingone.userInfoEndpoint,
+    config.pingone.clientId,
+    config.pingone.redirectUri,
+    config.defaultScopes,
+  ]);
 
   // Generate PKCE code verifier and challenge
-  const generatePkceCodes = useCallback(async () => {
-    const codeVerifier = generateRandomString(64);
+  const generatePkceCodes = useCallback(async (): Promise<{
+    codeVerifier: string;
+    codeChallenge: string;
+  }> => {
+    const codeVerifier = generateRandomString(config.pkce.codeVerifierLength);
     const hashed = await sha256(codeVerifier);
     const codeChallenge = btoa(String.fromCharCode(...new Uint8Array(hashed)))
       .replace(/\+/g, '-')
@@ -37,22 +97,23 @@ const useOAuthFlow = (flowType = 'authorization_code') => {
       .replace(/=+$/, '');
     
     return { codeVerifier, codeChallenge };
-  }, []);
+  }, [config.pkce.codeVerifierLength]);
 
   // Initialize the OAuth flow
-  const initFlow = useCallback(async () => {
+  const initFlow = useCallback(async (): Promise<string | null> => {
     try {
       setState(prev => ({ ...prev, isLoading: true, error: null }));
       
-      const state = generateRandomString(32);
-      const nonce = generateRandomString(32);
+      const state = generateRandomString(config.pkce.stateLength);
+      const nonce = generateRandomString(config.pkce.nonceLength);
+      const responseType = flowType === 'authorization_code' ? 'code' : 'token';
       
-      let authUrl = new URL(config.authEndpoint);
+      const authUrl = new URL(oauthConfig.authEndpoint);
       const params = new URLSearchParams({
-        response_type: flowType === 'authorization_code' ? 'code' : 'token',
-        client_id: config.clientId,
-        redirect_uri: config.redirectUri,
-        scope: config.scopes.join(' '),
+        response_type: responseType,
+        client_id: oauthConfig.clientId,
+        redirect_uri: oauthConfig.redirectUri,
+        scope: oauthConfig.scopes.join(' '),
         state,
         nonce,
       });
@@ -87,39 +148,51 @@ const useOAuthFlow = (flowType = 'authorization_code') => {
       return authUrl.toString();
       
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to initialize OAuth flow';
       console.error('Error initializing OAuth flow:', error);
       setState(prev => ({
         ...prev,
-        error: 'Failed to initialize OAuth flow',
+        error: errorMessage,
         isLoading: false,
       }));
       return null;
     }
-  }, [flowType, config, generatePkceCodes]);
+  }, [flowType, oauthConfig, generatePkceCodes]);
 
   // Handle OAuth callback
-  const handleCallback = useCallback(async (url) => {
+  const handleCallback = useCallback(async (url: string): Promise<void> => {
     try {
       setState(prev => ({ ...prev, isLoading: true, error: null }));
       
-      const params = new URLSearchParams(url.split('?')[1]);
+      const urlObj = new URL(url);
+      const params = new URLSearchParams(urlObj.search);
       const code = params.get('code');
-      const state = params.get('state');
+      const stateParam = params.get('state');
       const error = params.get('error');
       
       // Check for errors
       if (error) {
-        throw new Error(params.get('error_description') || 'Authorization failed');
+        const errorDesc = params.get('error_description') || 'Authorization failed';
+        notify(errorDesc, 'error');
+        throw new Error(errorDesc);
       }
       
-      // Verify state
-      if (state !== state.flowState.state) {
-        throw new Error('Invalid state parameter');
+      // Verify state matches
+      const currentState = state.flowState.state;
+      if (!stateParam || stateParam !== currentState) {
+        const errorMsg = 'Invalid state parameter';
+        notify(errorMsg, 'error');
+        throw new Error(errorMsg);
       }
       
       // Handle implicit flow (token in URL fragment)
       if (flowType === 'implicit') {
-        const hashParams = new URLSearchParams(url.split('#')[1]);
+        const hash = url.split('#')[1];
+        if (!hash) {
+          throw new Error('No token found in URL fragment');
+        }
+        
+        const hashParams = new URLSearchParams(hash);
         const accessToken = hashParams.get('access_token');
         const idToken = hashParams.get('id_token');
         
@@ -127,45 +200,84 @@ const useOAuthFlow = (flowType = 'authorization_code') => {
           throw new Error('No access token found in response');
         }
         
-        // Store tokens
-        const tokens = { access_token: accessToken, id_token: idToken };
+        // Create tokens object
+        const tokens: OAuthTokens = {
+          access_token: accessToken,
+          ...(idToken ? { id_token: idToken } : {}),
+          token_type: 'Bearer',
+          expires_in: 3600 // Default expiration
+        };
+        
+        // Store tokens in localStorage
         localStorage.setItem('oauth_tokens', JSON.stringify(tokens));
         
         // Fetch user info
-        const userInfo = await fetchUserInfo(accessToken);
+        let userInfo: UserInfo | null = null;
+        try {
+          const userInfoResponse = await fetch(oauthConfig.userInfoEndpoint, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          if (userInfoResponse.ok) {
+            userInfo = await userInfoResponse.json() as UserInfo;
+          }
+        } catch (error) {
+          console.warn('Failed to fetch user info:', error);
+        }
         
+        // Update state with tokens and user info
         setState(prev => ({
           ...prev,
           isAuthenticated: true,
           isLoading: false,
           tokens,
           userInfo,
+          error: null,
         }));
         
-        return { success: true, tokens, userInfo };
-      }
+        // Update auth context
+        setAuthState({
+          isAuthenticated: true,
+          user: userInfo || { sub: 'unknown' },
+          tokens,
+          isLoading: false,
+          error: null,
+        });
+        
+        notify('Successfully authenticated', 'success');
+        
+        return;
       
       // Handle authorization code flow
-      if (flowType === 'authorization_code' || flowType === 'pkce') {
+      } else if (flowType === 'authorization_code' || flowType === 'pkce') {
         if (!code) {
-          throw new Error('No authorization code found in response');
+          throw new Error('Authorization code not found in callback URL');
         }
         
-        // Exchange code for tokens
-        const tokenResponse = await fetch(config.tokenEndpoint, {
+        // Code is already checked for null above
+        
+        // Prepare token request body
+        const tokenParams = new URLSearchParams();
+        tokenParams.append('grant_type', 'authorization_code');
+        tokenParams.append('code', code);
+        tokenParams.append('redirect_uri', oauthConfig.redirectUri);
+        tokenParams.append('client_id', oauthConfig.clientId);
+        
+        // Add PKCE code verifier if using PKCE
+        if (flowType === 'pkce') {
+          tokenParams.append('code_verifier', state.flowState.codeVerifier);
+        }
+        
+        const tokenResponse = await fetch(oauthConfig.tokenEndpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json',
           },
-          body: new URLSearchParams({
-            grant_type: 'authorization_code',
-            client_id: config.clientId,
-            redirect_uri: config.redirectUri,
-            code,
-            ...(flowType === 'pkce' && {
-              code_verifier: state.flowState.codeVerifier,
-            }),
-          }),
+          body: tokenParams,
         });
         
         if (!tokenResponse.ok) {
@@ -173,11 +285,22 @@ const useOAuthFlow = (flowType = 'authorization_code') => {
           throw new Error(errorData.error_description || 'Failed to exchange code for tokens');
         }
         
-        const tokens = await tokenResponse.json();
+        const tokens: OAuthTokens = await tokenResponse.json();
         localStorage.setItem('oauth_tokens', JSON.stringify(tokens));
         
         // Fetch user info
-        const userInfo = await fetchUserInfo(tokens.access_token);
+        let userInfo: UserInfo | null = null;
+        if (tokens.access_token) {
+          const userInfoResponse = await fetch(oauthConfig.userInfoEndpoint, {
+            headers: {
+              Authorization: `Bearer ${tokens.access_token}`,
+            },
+          });
+          
+          if (userInfoResponse.ok) {
+            userInfo = await userInfoResponse.json();
+          }
+        }
         
         setState(prev => ({
           ...prev,
@@ -187,34 +310,22 @@ const useOAuthFlow = (flowType = 'authorization_code') => {
           userInfo,
         }));
         
-        return { success: true, tokens, userInfo };
+        return;
       }
       
     } catch (error) {
-      console.error('OAuth callback error:', error);
+      console.error('Error handling OAuth callback:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to handle OAuth callback';
       setState(prev => ({
         ...prev,
-        error: error.message || 'Authentication failed',
         isLoading: false,
+        error: errorMessage,
       }));
-      return { success: false, error: error.message };
+      // Error is already handled by setting state
+      return;
     }
-  }, [flowType, config, state.flowState]);
+  }, [flowType, oauthConfig, state.flowState]);
 
-  // Fetch user info from UserInfo endpoint
-  const fetchUserInfo = async (accessToken) => {
-    const response = await fetch(config.userInfoEndpoint, {
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-      },
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch user info');
-    }
-    
-    return await response.json();
-  };
 
   // Logout
   const logout = useCallback(() => {
@@ -231,7 +342,17 @@ const useOAuthFlow = (flowType = 'authorization_code') => {
         nonce: '',
       },
     });
-  }, []);
+    
+    setAuthState({
+      isAuthenticated: false,
+      user: null,
+      tokens: null,
+      isLoading: false,
+      error: null,
+    });
+    
+    notify('Successfully logged out', 'info');
+  }, [notify, setAuthState]);
 
   return {
     ...state,
