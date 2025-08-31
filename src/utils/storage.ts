@@ -2,19 +2,35 @@
  * Storage utility for managing browser storage (localStorage, sessionStorage)
  */
 
+import { 
+  StorageInterface, 
+  OAuthStorage, 
+  OAuthTokenResponse, 
+  UserInfo, 
+  OAuthConfig, 
+  JsonValue 
+} from '../types/storage';
+
 const STORAGE_PREFIX = 'pingone_playground_';
 
 /**
  * Get a namespaced storage key
- * @param {string} key - The key to namespace
- * @returns {string} Namespaced key
+ * @param key - The key to namespace
+ * @returns Namespaced key
  */
-const getKey = (key) => `${STORAGE_PREFIX}${key}`;
+const getKey = (key: string): string => `${STORAGE_PREFIX}${key}`;
 
 /**
  * Storage service for localStorage
  */
-export const localStorageService = {
+interface StorageService extends StorageInterface {
+  setItem<T>(key: string, value: T): boolean;
+  getItem<T = any>(key: string, defaultValue?: T | null): T | null;
+  removeItem(key: string): boolean;
+  clear(): boolean;
+}
+
+export const localStorageService: StorageService = {
   /**
    * Set an item in localStorage
    * @param {string} key - The key to set
@@ -88,7 +104,7 @@ export const localStorageService = {
 /**
  * Storage service for sessionStorage
  */
-export const sessionStorageService = {
+export const sessionStorageService: StorageService = {
   /**
    * Set an item in sessionStorage
    * @param {string} key - The key to set
@@ -162,71 +178,100 @@ export const sessionStorageService = {
 /**
  * OAuth specific storage helpers
  */
-export const oauthStorage = {
+export const oauthStorage: OAuthStorage = {
+  // Core StorageInterface methods
+  setItem<T>(key: string, value: T): boolean {
+    return sessionStorageService.setItem(key, value);
+  },
+  getItem<T = any>(key: string, defaultValue: T | null = null): T | null {
+    return sessionStorageService.getItem(key, defaultValue);
+  },
+  removeItem(key: string): boolean {
+    return sessionStorageService.removeItem(key);
+  },
+  clear(): void {
+    sessionStorageService.clear();
+  },
   // State
-  setState(state) {
+  setState(state: string): boolean {
     return sessionStorageService.setItem('oauth_state', state);
   },
-  getState() {
+  getState(): string | null {
     return sessionStorageService.getItem('oauth_state');
   },
-  clearState() {
+  clearState(): boolean {
     return sessionStorageService.removeItem('oauth_state');
   },
 
   // Nonce
-  setNonce(nonce) {
+  setNonce(nonce: string): boolean {
     return sessionStorageService.setItem('oauth_nonce', nonce);
   },
-  getNonce() {
+  getNonce(): string | null {
     return sessionStorageService.getItem('oauth_nonce');
   },
-  clearNonce() {
+  clearNonce(): boolean {
     return sessionStorageService.removeItem('oauth_nonce');
   },
 
   // PKCE Code Verifier
-  setCodeVerifier(verifier) {
-    return sessionStorageService.setItem('pkce_code_verifier', verifier);
+  setCodeVerifier(verifier: string): boolean {
+    return sessionStorageService.setItem('code_verifier', verifier);
   },
-  getCodeVerifier() {
-    return sessionStorageService.getItem('pkce_code_verifier');
+  getCodeVerifier(): string | null {
+    return sessionStorageService.getItem('code_verifier');
   },
-  clearCodeVerifier() {
-    return sessionStorageService.removeItem('pkce_code_verifier');
+  clearCodeVerifier(): boolean {
+    return sessionStorageService.removeItem('code_verifier');
   },
 
   // Tokens
-  setTokens(tokens) {
-    return localStorageService.setItem('auth_tokens', tokens);
+  setTokens(tokens: OAuthTokenResponse): boolean {
+    return this.setItem('tokens', tokens);
   },
-  getTokens() {
-    return localStorageService.getItem('auth_tokens');
+  
+  getTokens(): OAuthTokenResponse | null {
+    return this.getItem('tokens');
   },
-  clearTokens() {
-    return localStorageService.removeItem('auth_tokens');
+  
+  clearTokens(): boolean {
+    return this.removeItem('tokens');
   },
-
+  
   // User Info
-  setUserInfo(userInfo) {
-    return localStorageService.setItem('user_info', userInfo);
+  setUserInfo(userInfo: UserInfo): boolean {
+    return this.setItem('user_info', userInfo);
   },
-  getUserInfo() {
-    return localStorageService.getItem('user_info');
+  
+  getUserInfo(): UserInfo | null {
+    return this.getItem('user_info');
   },
-  clearUserInfo() {
-    return localStorageService.removeItem('user_info');
+  
+  clearUserInfo(): boolean {
+    return this.removeItem('user_info');
+  },
+  
+  // Configuration
+  setConfig(config: OAuthConfig): boolean {
+    return this.setItem('config', config);
+  },
+  
+  getConfig(): OAuthConfig | null {
+    return this.getItem('config');
+  },
+  clearConfig(): boolean {
+    return sessionStorageService.removeItem('oauth_config');
   },
 
-  // Configuration
-  setConfig(config) {
-    return localStorageService.setItem('oauth_config', config);
+  // Session start time
+  setSessionStartTime(timestamp: number): boolean {
+    return sessionStorageService.setItem('session_start_time', timestamp);
   },
-  getConfig() {
-    return localStorageService.getItem('oauth_config');
+  getSessionStartTime(): number | null {
+    return sessionStorageService.getItem('session_start_time');
   },
-  clearConfig() {
-    return localStorageService.removeItem('oauth_config');
+  clearSessionStartTime(): boolean {
+    return sessionStorageService.removeItem('session_start_time');
   },
 
   // Clear all OAuth related data

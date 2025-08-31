@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiEye, FiAlertCircle, FiKey } from 'react-icons/fi';
 import ColorCodedURL from '../../components/ColorCodedURL';
 import { useAuth } from '../../contexts/AuthContext';
 import { useOAuth } from '../../contexts/OAuthContext';
-import { useNavigate, useLocation } from 'react-router-dom';
 import Spinner from '../../components/Spinner';
 
 const Container = styled.div`
@@ -277,6 +277,14 @@ const ErrorMessage = styled.div`
   }
 `;
 
+// Type guard to check if an object has a specific property
+const hasProperty = <T extends object, K extends string>(
+  obj: T | null | undefined,
+  prop: K
+): obj is T & Record<K, unknown> => {
+  return obj != null && prop in obj;
+};
+
 const AuthorizationCodeFlow = () => {
   const { isAuthenticated } = useAuth();
   const { config, tokens: contextTokens } = useOAuth() as any;
@@ -286,7 +294,16 @@ const AuthorizationCodeFlow = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [waitingForUser, setWaitingForUser] = useState(false);
-  const [tokensReceived, setTokensReceived] = useState<Record<string, any> | null>(null);
+  interface TokenResponse {
+    access_token?: string;
+    id_token?: string;
+    refresh_token?: string;
+    token_type?: string;
+    expires_in?: number;
+    [key: string]: unknown;
+  }
+
+  const [tokensReceived, setTokensReceived] = useState<TokenResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const [authUrl, setAuthUrl] = useState('');
@@ -295,7 +312,7 @@ const AuthorizationCodeFlow = () => {
   // If we already have tokens from the real OAuth flow, surface them in the demo
   useEffect(() => {
     if (contextTokens && !tokensReceived) {
-      setTokensReceived(contextTokens as any);
+      setTokensReceived(contextTokens as Record<string, unknown> | null);
       setCurrentStep(5);
       setDemoStatus('success');
       setIsLoading(false);
@@ -367,20 +384,6 @@ grant_type=authorization_code
     }
   ];
 
-  const generateAuthUrl = () => {
-    // This would generate a proper authorization URL
-    const baseUrl = 'https://auth.pingone.com/your-env-id/as/authorize';
-    const params = new URLSearchParams({
-      client_id: 'your-client-id',
-      redirect_uri: 'https://your-app.com/callback',
-      response_type: 'code',
-      scope: 'openid profile email',
-      state: 'xyz123',
-      nonce: 'abc456'
-    });
-
-    return `${baseUrl}?${params.toString()}`;
-  };
 
   const startAuthFlow = () => {
     setDemoStatus('loading');
@@ -468,13 +471,17 @@ grant_type=authorization_code
             }
             return response.json();
           })
-          .then((tokenData: any) => {
-            setTokensReceived(tokenData);
+          .then((tokenData: unknown) => {
+            if (tokenData && typeof tokenData === 'object') {
+              setTokensReceived(tokenData as TokenResponse);
+            } else {
+              setTokensReceived(null);
+            }
             setCurrentStep(4);
             setWaitingForUser(true);
             setIsLoading(false);
           })
-          .catch((error: any) => {
+          .catch((error: Error) => {
             console.error('Token exchange error:', error);
             setError(`Failed to exchange authorization code for tokens: ${error.message}`);
             setIsLoading(false);
@@ -503,8 +510,8 @@ grant_type=authorization_code
               }
               return response.json();
             })
-            .then((userInfo: any) => {
-              setTokensReceived((prev: any) => ({
+            .then((userInfo: unknown) => {
+              setTokensReceived((prev: Record<string, unknown> | null) => ({
                 ...prev,
                 user_info: userInfo
               }));
@@ -512,7 +519,7 @@ grant_type=authorization_code
               setDemoStatus('success');
               setIsLoading(false);
             })
-            .catch((error: any) => {
+            .catch((error: Error) => {
               console.error('UserInfo call error:', error);
               // Still mark as success since we got tokens, just note the UserInfo error
               setCurrentStep(5);
@@ -668,7 +675,9 @@ grant_type=authorization_code
                   <strong>Full Token Response (JSON):</strong>
                   <button
                     onClick={() => {
-                      navigator.clipboard.writeText(tokensReceived.access_token || '');
+                      const accessToken = tokensReceived && 'access_token' in tokensReceived ? 
+                        String(tokensReceived.access_token) : '';
+                      navigator.clipboard.writeText(accessToken);
                       alert('Access token copied to clipboard!');
                     }}
                     style={{
@@ -699,7 +708,7 @@ grant_type=authorization_code
                   whiteSpace: 'pre-wrap',
                   wordBreak: 'break-word'
                 }}>
-                  {JSON.stringify(tokensReceived, null, 2)}
+                  {tokensReceived ? JSON.stringify(tokensReceived, null, 2) : 'No tokens received'}
                 </TokenDisplay>
               </div>
 
@@ -719,7 +728,7 @@ grant_type=authorization_code
                     <strong style={{ color: '#059669' }}>Access Token:</strong>
                     <button
                       onClick={() => {
-                        navigator.clipboard.writeText(tokensReceived.access_token || '');
+                        navigator.clipboard.writeText((tokensReceived.access_token as string) || '');
                         alert('Access token copied to clipboard!');
                       }}
                       style={{
@@ -749,12 +758,12 @@ grant_type=authorization_code
                     wordBreak: 'break-all',
                     whiteSpace: 'pre-wrap'
                   }}>
-                    {tokensReceived.access_token}
+                    {hasProperty(tokensReceived, 'access_token') ? String(tokensReceived.access_token) : 'Not available'}
                   </div>
                 </div>
 
                 {/* ID Token Box */}
-                {tokensReceived.id_token && (
+                {hasProperty(tokensReceived, 'id_token') && tokensReceived.id_token && (
                   <div style={{
                     marginBottom: '1rem',
                     padding: '1rem',
@@ -766,7 +775,7 @@ grant_type=authorization_code
                       <strong style={{ color: '#7c3aed' }}>ID Token:</strong>
                       <button
                         onClick={() => {
-                          navigator.clipboard.writeText(tokensReceived.id_token || '');
+                          navigator.clipboard.writeText((tokensReceived.id_token as string) || '');
                           alert('ID token copied to clipboard!');
                         }}
                         style={{
@@ -796,13 +805,13 @@ grant_type=authorization_code
                       wordBreak: 'break-all',
                       whiteSpace: 'pre-wrap'
                     }}>
-                      {tokensReceived.id_token}
+                      {hasProperty(tokensReceived, 'id_token') ? String(tokensReceived.id_token) : 'Not available'}
                     </div>
                   </div>
                 )}
 
                 {/* Refresh Token Box */}
-                {tokensReceived.refresh_token && (
+                {hasProperty(tokensReceived, 'refresh_token') && tokensReceived.refresh_token && (
                   <div style={{
                     marginBottom: '1rem',
                     padding: '1rem',
@@ -814,7 +823,10 @@ grant_type=authorization_code
                       <strong style={{ color: '#dc2626' }}>Refresh Token:</strong>
                       <button
                         onClick={() => {
-                          navigator.clipboard.writeText(tokensReceived.refresh_token || '');
+                          const refreshToken = hasProperty(tokensReceived, 'refresh_token') && tokensReceived.refresh_token 
+                            ? String(tokensReceived.refresh_token) 
+                            : '';
+                          navigator.clipboard.writeText(refreshToken);
                           alert('Refresh token copied to clipboard!');
                         }}
                         style={{
@@ -844,7 +856,7 @@ grant_type=authorization_code
                       wordBreak: 'break-all',
                       whiteSpace: 'pre-wrap'
                     }}>
-                      {tokensReceived.refresh_token}
+                      {hasProperty(tokensReceived, 'refresh_token') ? String(tokensReceived.refresh_token) : 'Not available'}
                     </div>
                   </div>
                 )}
@@ -860,11 +872,15 @@ grant_type=authorization_code
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.5rem' }}>
                     <div>
                       <strong style={{ fontSize: '0.875rem' }}>Token Type:</strong>
-                      <div style={{ fontFamily: 'monospace', fontSize: '0.85rem', marginTop: '0.25rem' }}>{tokensReceived.token_type}</div>
+                      <div style={{ fontFamily: 'monospace', fontSize: '0.85rem', marginTop: '0.25rem' }}>
+                        {tokensReceived.token_type || 'Not available'}
+                      </div>
                     </div>
                     <div>
                       <strong style={{ fontSize: '0.875rem' }}>Expires In:</strong>
-                      <div style={{ fontFamily: 'monospace', fontSize: '0.85rem', marginTop: '0.25rem' }}>{tokensReceived.expires_in} seconds</div>
+                      <div style={{ fontFamily: 'monospace', fontSize: '0.85rem', marginTop: '0.25rem' }}>
+                        {tokensReceived.expires_in ? `${tokensReceived.expires_in} seconds` : 'Not available'}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -889,7 +905,7 @@ grant_type=authorization_code
                   <FiEye size={16} />
                   View Token Management
                 </button>
-                {tokensReceived.id_token && (
+                {hasProperty(tokensReceived, 'id_token') && tokensReceived.id_token && (
                   <button
                     onClick={() => navigate(`/token-management`)}
                     style={{
