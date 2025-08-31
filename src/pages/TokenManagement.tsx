@@ -233,8 +233,9 @@ const TokenManagement = () => {
       setTokenStatus('valid');
     } catch (error) {
       console.error('JWT decode error:', error);
-      setJwtHeader('Error: ' + error.message);
-      setJwtPayload('Error: ' + error.message);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setJwtHeader('Error: ' + errorMessage);
+      setJwtPayload('Error: ' + errorMessage);
       setTokenStatus('invalid');
     }
   };

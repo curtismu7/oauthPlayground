@@ -274,7 +274,7 @@ const ImplicitGrantFlow = () => {
   const [demoStatus, setDemoStatus] = useState('idle');
   const [currentStep, setCurrentStep] = useState(0);
   const [authUrl, setAuthUrl] = useState('');
-  const [tokensReceived, setTokensReceived] = useState<any>(null);
+  const [tokensReceived, setTokensReceived] = useState<Record<string, unknown> | null>(null);
   const [error, setError] = useState<string | null>(null);
   
 
@@ -504,14 +504,14 @@ console.log('User ID:', decodedIdToken.sub);`
               <h3>Tokens Received:</h3>
               <TokenDisplay>
                 <strong>Access Token:</strong><br />
-                {tokensReceived.access_token}
+                {tokensReceived.access_token as string}
                 <br /><br />
                 <strong>ID Token:</strong><br />
-                {tokensReceived.id_token}
+                {tokensReceived.id_token as string}
                 <br /><br />
-                <strong>Token Type:</strong> {tokensReceived.token_type}<br />
-                <strong>Expires In:</strong> {tokensReceived.expires_in} seconds<br />
-                <strong>Scope:</strong> {tokensReceived.scope}
+                <strong>Token Type:</strong> {tokensReceived.token_type as string}<br />
+                <strong>Expires In:</strong> {tokensReceived.expires_in as number} seconds<br />
+                <strong>Scope:</strong> {tokensReceived.scope as string}
               </TokenDisplay>
             </div>
           )}

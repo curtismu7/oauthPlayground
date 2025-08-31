@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { 
   FiHome, FiCode, FiLock, FiUser, FiSettings, 
@@ -54,7 +54,7 @@ const NavSectionTitle = styled.h3`
   margin: 1.5rem 0 0.5rem;
 `;
 
-const NavItem = styled(NavLink)`
+const NavItem = styled(Link)`
   display: flex;
   align-items: center;
   padding: 0.75rem 1.5rem;
@@ -66,12 +66,6 @@ const NavItem = styled(NavLink)`
   &:hover {
     background-color: ${({ theme }) => theme.colors?.gray100 || '#f3f4f6'};
     color: ${({ theme }) => theme.colors?.primary || '#0070cc'};
-  }
-  
-  &.active {
-    background-color: ${({ theme }) => theme.colors?.primaryLight || '#e0f2fe'}20;
-    color: ${({ theme }) => theme.colors?.primary || '#0070cc'};
-    border-right: 3px solid ${({ theme }) => theme.colors?.primary || '#0070cc'};
   }
   
   svg {
@@ -86,7 +80,7 @@ const Submenu = styled.div<SubmenuProps>`
   transition: max-height 0.3s ease-in-out;
 `;
 
-const SubmenuItem = styled(NavLink)`
+const SubmenuItem = styled(Link)`
   display: flex;
   align-items: center;
   padding: 0.5rem 1.5rem 0.5rem 3.5rem;
@@ -100,22 +94,12 @@ const SubmenuItem = styled(NavLink)`
     color: ${({ theme }) => theme.colors?.primary || '#0070cc'};
   }
   
-  &.active {
-    background-color: ${({ theme }) => theme.colors?.primaryLight || '#e0f2fe'}10;
-    color: ${({ theme }) => theme.colors?.primary || '#0070cc'};
-    font-weight: 500;
-  }
-  
   &:before {
     content: '•';
     margin-right: 0.75rem;
     font-size: 1.5rem;
     line-height: 0;
     color: ${({ theme }) => theme.colors?.gray400 || '#9ca3af'};
-  }
-  
-  &.active:before {
-    color: ${({ theme }) => theme.colors?.primary || '#0070cc'};
   }
 `;
 

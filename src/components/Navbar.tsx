@@ -9,7 +9,7 @@ const NavbarContainer = styled.nav`
   top: 0;
   left: 0;
   right: 0;
-  height: 60px;
+  height: 80px;
   background-color: ${({ theme }) => theme.colors.primary};
   color: white;
   display: flex;
@@ -23,11 +23,19 @@ const Logo = styled.div`
   font-size: 1.25rem;
   font-weight: 600;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   
   img {
     height: 32px;
     margin-right: 0.75rem;
+  }
+  
+  .user-info {
+    font-size: 0.875rem;
+    font-weight: 400;
+    opacity: 0.9;
+    margin-top: 2px;
   }
 `;
 
@@ -74,7 +82,7 @@ const MenuButton = styled.button`
 `;
 
 const Navbar = ({ toggleSidebar }) => {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -90,6 +98,11 @@ const Navbar = ({ toggleSidebar }) => {
       
       <Logo>
         <span>PingOne OAuth Playground</span>
+        {isAuthenticated && user && (
+          <div className="user-info">
+            Welcome, {user.name || user.email}
+          </div>
+        )}
       </Logo>
       
       <NavItems>

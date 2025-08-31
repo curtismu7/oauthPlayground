@@ -4,8 +4,6 @@ declare module 'styled-components' {
   export interface DefaultTheme {
     colors: {
       primary: string;
-      primaryLight: string;
-      primaryDark: string;
       secondary: string;
       success: string;
       danger: string;
@@ -13,6 +11,7 @@ declare module 'styled-components' {
       info: string;
       light: string;
       dark: string;
+      white: string;
       gray100: string;
       gray200: string;
       gray300: string;
@@ -22,21 +21,37 @@ declare module 'styled-components' {
       gray700: string;
       gray800: string;
       gray900: string;
+      [key: string]: string;
     };
     fonts: {
       body: string;
       monospace: string;
     };
+    spacing: {
+      xs: string;
+      sm: string;
+      md: string;
+      lg: string;
+      xl: string;
+    };
+    borderRadius: {
+      sm: string;
+      md: string;
+      lg: string;
+    };
     shadows: {
       sm: string;
       md: string;
       lg: string;
+      xl: string;
+      [key: string]: string;
     };
     breakpoints: {
       sm: string;
       md: string;
       lg: string;
       xl: string;
+      [key: string]: string;
     };
   }
 }

@@ -6,12 +6,50 @@ import { Buffer } from 'buffer';
  * For production, verify tokens on the server-side or use a library like jose
  */
 
+// Types for JWT
+export interface JwtHeader {
+  alg: string;
+  typ: string;
+  kid?: string;
+  [key: string]: unknown;
+}
+
+export type JwtPayload = {
+  iss?: string;
+  sub?: string;
+  aud?: string | string[];
+  exp?: number;
+  nbf?: number;
+  iat?: number;
+  jti?: string;
+  [key: string]: unknown;
+};
+
+export type FormattedJwt = {
+  raw: string;
+  header: JwtHeader | string;
+  payload: JwtPayload | string | Record<string, unknown>;
+  signature: string;
+  error?: string;
+};
+
+export type TokenValidationOptions = {
+  requiredClaims?: string[];
+  requiredScopes?: string[];
+  leeway?: number;
+};
+
+export type ValidationResult = {
+  valid: boolean;
+  error?: string;
+};
+
 /**
  * Decode a JWT token without validation
- * @param {string} token - The JWT token to decode
- * @returns {Object|null} The decoded token payload or null if invalid
+ * @param token - The JWT token to decode
+ * @returns The decoded token payload or null if invalid
  */
-export const decodeJwt = (token) => {
+export const decodeJwt = (token: string | null | undefined): JwtPayload | null => {
   if (!token) return null;
   
   try {
@@ -38,7 +76,7 @@ export const decodeJwt = (token) => {
  * @param {number} [leeway=0] - Time in seconds to account for clock skew
  * @returns {boolean} True if the token is expired or invalid
  */
-export const isTokenExpired = (token, leeway = 0) => {
+export const isTokenExpired = (token: string | null | undefined, leeway = 0): boolean => {
   const payload = decodeJwt(token);
   if (!payload || !payload.exp) return true;
   
@@ -51,7 +89,7 @@ export const isTokenExpired = (token, leeway = 0) => {
  * @param {string} token - The JWT token
  * @returns {number|null} Expiration time as a Unix timestamp (in seconds) or null if invalid
  */
-export const getTokenExpiration = (token) => {
+export const getTokenExpiration = (token: string | null | undefined): number | null => {
   const payload = decodeJwt(token);
   return payload?.exp || null;
 };
@@ -62,7 +100,7 @@ export const getTokenExpiration = (token) => {
  * @param {number} [leeway=0] - Time in seconds to account for clock skew
  * @returns {number|null} Time remaining in seconds (can be negative) or null if invalid
  */
-export const getTimeRemaining = (token, leeway = 0) => {
+export const getTimeRemaining = (token: string | null | undefined, leeway = 0): number | null => {
   const exp = getTokenExpiration(token);
   if (exp === null) return null;
   
@@ -75,30 +113,43 @@ export const getTimeRemaining = (token, leeway = 0) => {
  * @param {string} token - The JWT token
  * @returns {Object} Formatted token with header, payload, and signature
  */
-export const formatJwt = (token) => {
+export const formatJwt = (token: string | null | undefined): FormattedJwt | null => {
   if (!token) return null;
   
   try {
-    const [header, payload, signature] = token.split('.');
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+      throw new Error('Invalid JWT format: token must have 3 parts');
+    }
     
-    const formatPart = (part) => {
+    const formatPart = <T>(part: string): T | string => {
       try {
         const decoded = Buffer.from(part, 'base64').toString('utf-8');
-        return JSON.parse(decoded);
-      } catch (e) {
+        return JSON.parse(decoded) as T;
+      } catch {
         return part;
       }
     };
     
+    const header = formatPart<JwtHeader>(parts[0]);
+    const payload = formatPart<JwtPayload>(parts[1]);
+    const signature = parts[2];
+    
     return {
       raw: token,
-      header: formatPart(header),
-      payload: formatPart(payload),
-      signature: signature
+      header,
+      payload,
+      signature
     };
   } catch (error) {
     console.error('Error formatting JWT:', error);
-    return { raw: token, error: 'Invalid token format' };
+    return { 
+      raw: token, 
+      header: 'Invalid token',
+      payload: 'Invalid token',
+      signature: '',
+      error: error instanceof Error ? error.message : 'Invalid token format'
+    };
   }
 };
 
@@ -107,7 +158,7 @@ export const formatJwt = (token) => {
  * @param {string} token - The JWT token
  * @returns {Object} Token claims
  */
-export const getTokenClaims = (token) => {
+export const getTokenClaims = (token: string | null | undefined): Record<string, unknown> => {
   const payload = decodeJwt(token);
   if (!payload) return {};
   
@@ -117,8 +168,8 @@ export const getTokenClaims = (token) => {
     'auth_time', 'nonce', 'acr', 'amr', 'azp', 'at_hash', 'c_hash'
   ];
   
-  const claims = {};
-  const customClaims = {};
+  const claims: Record<string, unknown> = {};
+  const customClaims: Record<string, unknown> = {};
   
   // Separate standard and custom claims
   Object.entries(payload).forEach(([key, value]) => {
@@ -141,9 +192,9 @@ export const getTokenClaims = (token) => {
  * @param {string|string[]} scope - The scope(s) to check for
  * @returns {boolean} True if the token has all the specified scopes
  */
-export const hasScope = (token, scope) => {
+export const hasScope = (token: string | null | undefined, scope: string | string[]): boolean => {
   const payload = decodeJwt(token);
-  if (!payload?.scope) return false;
+  if (!payload || typeof payload.scope !== 'string') return false;
   
   const tokenScopes = payload.scope.split(' ');
   const requiredScopes = Array.isArray(scope) ? scope : [scope];
@@ -156,7 +207,7 @@ export const hasScope = (token, scope) => {
  * @param {string} token - The JWT token
  * @returns {Date|null} Expiration date or null if invalid
  */
-export const getTokenExpirationDate = (token) => {
+export const getTokenExpirationDate = (token: string | null | undefined): Date | null => {
   const exp = getTokenExpiration(token);
   return exp ? new Date(exp * 1000) : null;
 };
@@ -167,7 +218,7 @@ export const getTokenExpirationDate = (token) => {
  * @param {number} [leeway=0] - Time in seconds to account for clock skew
  * @returns {string} Time remaining (e.g., "2h 30m")
  */
-export const getTimeRemainingFormatted = (token, leeway = 0) => {
+export const getTimeRemainingFormatted = (token: string | null | undefined, leeway = 0): string => {
   const seconds = getTimeRemaining(token, leeway);
   if (seconds === null) return 'Invalid token';
   
@@ -196,7 +247,7 @@ export const getTimeRemainingFormatted = (token, leeway = 0) => {
  * @param {number} [options.leeway=0] - Time in seconds to account for clock skew
  * @returns {{valid: boolean, error?: string}} Validation result
  */
-export const validateToken = (token, options = {}) => {
+export const validateToken = (token: string | null | undefined, options: TokenValidationOptions = {}): ValidationResult => {
   const {
     requiredClaims = [],
     requiredScopes = [],
@@ -232,7 +283,8 @@ export const validateToken = (token, options = {}) => {
   }
   
   // Check required claims
-  const missingClaims = [].concat(requiredClaims).filter(claim => !(claim in payload));
+  const claimsArray = Array.isArray(requiredClaims) ? requiredClaims : [requiredClaims];
+  const missingClaims = claimsArray.filter(claim => !(claim in payload));
   if (missingClaims.length > 0) {
     return { 
       valid: false, 
@@ -241,8 +293,9 @@ export const validateToken = (token, options = {}) => {
   }
   
   // Check required scopes
-  if (requiredScopes.length > 0) {
-    const missingScopes = [].concat(requiredScopes).filter(scope => !hasScope(token, scope));
+  if (requiredScopes && requiredScopes.length > 0) {
+    const scopesArray = Array.isArray(requiredScopes) ? requiredScopes : [requiredScopes];
+    const missingScopes = scopesArray.filter(scope => !hasScope(token, scope));
     if (missingScopes.length > 0) {
       return { 
         valid: false, 
@@ -254,7 +307,7 @@ export const validateToken = (token, options = {}) => {
   return { valid: true };
 };
 
-export default {
+const jwtUtils = {
   decodeJwt,
   isTokenExpired,
   getTokenExpiration,
@@ -266,3 +319,5 @@ export default {
   getTimeRemainingFormatted,
   validateToken
 };
+
+export default jwtUtils;

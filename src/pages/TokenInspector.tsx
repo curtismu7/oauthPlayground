@@ -1,397 +1,348 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { Card, CardHeader, CardBody } from '../components/Card';
-import { FiEye, FiEyeOff, FiCheckCircle, FiXCircle, FiCopy, FiDownload } from 'react-icons/fi';
-import { decodeJwt, formatJwt, validateToken, getTimeRemainingFormatted } from '../utils/jwt';
+import React, { useState, useEffect, useCallback } from 'react';
+import { ThemeProvider } from 'styled-components';
+import { FiCheckCircle, FiXCircle, FiCopy, FiDownload, FiEye, FiAlertTriangle } from 'react-icons/fi';
+import { formatJwt, validateToken, type FormattedJwt, type ValidationResult } from '../utils/jwt';
 import { oauthStorage } from '../utils/storage';
+import { defaultTheme } from '../types/token-inspector';
+import { createTokenError, isTokenError, TokenValidationError, TokenErrorMessages } from '../types/oauthErrors';
+import {
+  Container,
+  PageHeader,
+  TokenDisplay,
+  CardHeader,
+  CardBody,
+  ActionButton,
+  AnalysisGrid,
+  TokenPartCard,
+  TokenValidationCard,
+  ValidationStatus,
+  ClaimsTable,
+  ClaimRow
+} from '../components/token/TokenStyles';
 
-const TokenInspectorContainer = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1.5rem;
-`;
+interface ClaimEntry {
+  key: string;
+  value: unknown;
+  isJson: boolean;
+  error?: string;
+}
 
-const PageHeader = styled.div`
-  margin-bottom: 2rem;
-  
-  h1 {
-    font-size: 2rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray900};
-    margin-bottom: 0.5rem;
-  }
-  
-  p {
-    color: ${({ theme }) => theme.colors.gray600};
-    font-size: 1.1rem;
-  }
-`;
+type TokenInspectionResult = {
+  formattedToken: FormattedJwt | null;
+  validation: ValidationResult | null;
+  claims: ClaimEntry[];
+  error: TokenValidationError | null;
+};
 
-const TokenInputSection = styled(Card)`
-  margin-bottom: 2rem;
-`;
+const TokenInspector: React.FC = () => {
+  const [token, setToken] = useState<string>('');
+  const [inspectionResult, setInspectionResult] = useState<TokenInspectionResult>({
+    formattedToken: null,
+    validation: null,
+    claims: [],
+    error: null
+  });
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [copied, setCopied] = useState<boolean>(false);
+  
+  const { formattedToken, validation, claims, error } = inspectionResult;
 
-const TokenInput = styled.div`
-  margin-bottom: 1.5rem;
-  
-  label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: ${({ theme }) => theme.colors.gray700};
-  }
-  
-  textarea {
-    width: 100%;
-    min-height: 120px;
-    padding: 0.75rem;
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    font-size: 0.875rem;
-    border: 1px solid ${({ theme }) => theme.colors.gray300};
-    border-radius: 0.375rem;
-    resize: vertical;
-    
-    &:focus {
-      outline: none;
-      border-color: ${({ theme }) => theme.colors.primary};
-      box-shadow: 0 0 0 3px ${({ theme }) => `${theme.colors.primary}40`};
+  // Format JSON with syntax highlighting and error handling
+  const formatJson = useCallback((obj: unknown): string => {
+    try {
+      if (obj === null || obj === undefined) return 'null';
+      if (typeof obj === 'string') {
+        try {
+          // Try to parse if it's a JSON string
+          const parsed = JSON.parse(obj);
+          return JSON.stringify(parsed, null, 2);
+        } catch (e) {
+          // If not JSON, return as string
+          return `"${obj}"`;
+        }
+      }
+      if (typeof obj === 'number' || typeof obj === 'boolean') return String(obj);
+      if (typeof obj === 'object') {
+        return JSON.stringify(obj, null, 2);
+      }
+      return String(obj);
+    } catch (err) {
+      console.error('Error formatting JSON:', err);
+      return `[Error: ${err instanceof Error ? err.message : 'Unknown error formatting JSON'}]`;
     }
-  }
-`;
-
-const TokenActions = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  
-  button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    border-radius: 0.375rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    gap: 0.5rem;
-    
-    &:hover {
-      transform: translateY(-1px);
-    }
-  }
-`;
-
-const LoadStoredButton = styled.button`
-  background-color: ${({ theme }) => theme.colors.info};
-  color: white;
-  border: 1px solid transparent;
-  
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.infoDark || theme.colors.info};
-  }
-`;
-
-const ClearButton = styled.button`
-  background-color: ${({ theme }) => theme.colors.gray100};
-  color: ${({ theme }) => theme.colors.gray700};
-  border: 1px solid ${({ theme }) => theme.colors.gray300};
-  
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.gray200};
-  }
-`;
-
-const AnalysisGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  margin-top: 2rem;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const TokenValidationCard = styled(Card)`
-  h3 {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    
-    svg {
-      font-size: 1.25rem;
-    }
-  }
-`;
-
-const ValidationStatus = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  border-radius: 0.375rem;
-  font-weight: 500;
-  
-  &.valid {
-    background-color: ${({ theme }) => theme.colors.success}20;
-    color: ${({ theme }) => theme.colors.success};
-    border: 1px solid ${({ theme }) => theme.colors.success}40;
-  }
-  
-  &.invalid {
-    background-color: ${({ theme }) => theme.colors.danger}20;
-    color: ${({ theme }) => theme.colors.danger};
-    border: 1px solid ${({ theme }) => theme.colors.danger}40;
-  }
-  
-  &.warning {
-    background-color: ${({ theme }) => theme.colors.warning}20;
-    color: ${({ theme }) => theme.colors.warning};
-    border: 1px solid ${({ theme }) => theme.colors.warning}40;
-  }
-`;
-
-const TokenPartsGrid = styled.div`
-  display: grid;
-  gap: 1.5rem;
-`;
-
-const TokenPartCard = styled(Card)`
-  h4 {
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
-    color: ${({ theme }) => theme.colors.gray800};
-  }
-`;
-
-const TokenDisplay = styled.pre`
-  background-color: ${({ theme }) => theme.colors.gray50};
-  padding: 1rem;
-  border-radius: 0.375rem;
-  overflow-x: auto;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  margin: 0;
-  white-space: pre-wrap;
-  word-break: break-all;
-`;
-
-const ClaimsTable = styled.div`
-  margin-top: 1rem;
-`;
-
-const ClaimRow = styled.div`
-  display: grid;
-  grid-template-columns: 150px 1fr;
-  gap: 1rem;
-  padding: 0.75rem;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.gray200};
-  align-items: start;
-  
-  &:last-child {
-    border-bottom: none;
-  }
-  
-  .claim-key {
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray700};
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    font-size: 0.875rem;
-  }
-  
-  .claim-value {
-    color: ${({ theme }) => theme.colors.gray900};
-    font-size: 0.875rem;
-    line-height: 1.4;
-    
-    &.json {
-      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    }
-  }
-`;
-
-const TokenInspector = () => {
-  const [token, setToken] = useState('');
-  const [formattedToken, setFormattedToken] = useState(null);
-  const [validation, setValidation] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  }, []);
 
   // Load stored tokens on component mount
   useEffect(() => {
-    const storedTokens = oauthStorage.getTokens();
-    if (storedTokens?.access_token) {
-      setToken(storedTokens.access_token);
+    try {
+      const storedTokens = oauthStorage.getTokens();
+      if (storedTokens?.access_token) {
+        setToken(storedTokens.access_token);
+      }
+    } catch (err) {
+      const error = createTokenError('configuration_error', {
+        description: 'Failed to load stored tokens',
+        originalError: err
+      });
+      setInspectionResult(prev => ({
+        ...prev,
+        error
+      }));
     }
   }, []);
 
   // Analyze token when it changes
   useEffect(() => {
-    if (token.trim()) {
-      analyzeToken(token.trim());
-    } else {
-      setFormattedToken(null);
-      setValidation(null);
-    }
-  }, [token]);
+    const analyzeToken = async () => {
+      if (!token.trim()) {
+        setInspectionResult({
+          formattedToken: null,
+          validation: null,
+          claims: [],
+          error: null
+        });
+        return;
+      }
 
-  const analyzeToken = async (tokenToAnalyze) => {
-    setIsLoading(true);
+      setIsLoading(true);
+
+      try {
+        // Format the token
+        const formatted = formatJwt(token);
+        if (!formatted) {
+          throw createTokenError('invalid_token', {
+            description: 'Failed to parse JWT token',
+          });
+        }
+
+        // Validate the token
+        const validationResult = validateToken(token);
+        
+        // Extract claims
+        let claimEntries: ClaimEntry[] = [];
+        if (formatted.payload && typeof formatted.payload === 'object') {
+          claimEntries = Object.entries(formatted.payload).map(([key, value]) => {
+            try {
+              return {
+                key,
+                value,
+                isJson: typeof value === 'object' && value !== null,
+              };
+            } catch (err) {
+              return {
+                key,
+                value: `[Error: ${err instanceof Error ? err.message : 'Failed to parse claim'}]`,
+                isJson: false,
+                error: 'Failed to parse claim'
+              };
+            }
+          });
+        }
+
+        setInspectionResult({
+          formattedToken: formatted,
+          validation: validationResult,
+          claims: claimEntries,
+          error: validationResult.valid ? null : createTokenError('invalid_token', {
+            description: (validationResult.error && typeof validationResult.error === 'string' 
+              ? validationResult.error 
+              : 'Token validation failed'),
+          })
+        });
+      } catch (err) {
+        console.error('Error analyzing token:', err);
+        
+        const error = isTokenError(err) 
+          ? err 
+          : createTokenError('invalid_token', {
+              description: 'Failed to analyze token',
+              originalError: err
+            });
+            
+        setInspectionResult(prev => ({
+          ...prev,
+          error
+        }));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const debounceTimer = setTimeout(analyzeToken, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [token, formatJson]);
+
+  // Handle copy to clipboard
+  const handleCopy = useCallback((text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      const timer = setTimeout(() => setCopied(false), 2000);
+      return () => clearTimeout(timer);
+    }).catch(err => {
+      console.error('Failed to copy text:', err);
+      // Could show a toast notification here
+    });
+  }, []);
+
+  // Handle download
+  const handleDownload = useCallback((content: string, filename: string) => {
     try {
-      // Format the token
-      const formatted = formatJwt(tokenToAnalyze);
-      setFormattedToken(formatted);
-
-      // Validate the token
-      const validationResult = validateToken(tokenToAnalyze, {
-        requiredClaims: ['iss', 'sub', 'aud', 'exp', 'iat'],
-        requiredScopes: []
-      });
-      setValidation(validationResult);
-
-    } catch (error) {
-      console.error('Error analyzing token:', error);
-      setValidation({
-        valid: false,
-        error: error.message || 'Invalid token format'
-      });
-    } finally {
-      setIsLoading(false);
+      const blob = new Blob([content], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename.endsWith('.json') ? filename : `${filename}.json`;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      
+      // Cleanup
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 100);
+    } catch (err) {
+      console.error('Failed to download file:', err);
+      // Could show a toast notification here
     }
-  };
-
-  const loadStoredTokens = () => {
-    const storedTokens = oauthStorage.getTokens();
-    if (storedTokens?.access_token) {
-      setToken(storedTokens.access_token);
-    } else if (storedTokens?.id_token) {
-      setToken(storedTokens.id_token);
-    }
-  };
-
-  const clearToken = () => {
-    setToken('');
-    setFormattedToken(null);
-    setValidation(null);
-  };
-
-  const copyToken = () => {
-    navigator.clipboard.writeText(token);
-  };
-
-  const downloadToken = () => {
-    const blob = new Blob([token], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'token.txt';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  const renderClaims = (claims) => {
-    if (!claims) return null;
-
-    const entries = Object.entries(claims).map(([key, value]) => ({
-      key,
-      value: typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value),
-      isJson: typeof value === 'object'
-    }));
-
-    return (
-      <ClaimsTable>
-        {entries.map(({ key, value, isJson }) => (
-          <ClaimRow key={key}>
-            <div className="claim-key">{key}</div>
-            <div className={`claim-value ${isJson ? 'json' : ''}`}>
-              {value}
-            </div>
-          </ClaimRow>
-        ))}
-      </ClaimsTable>
-    );
-  };
+  }, []);
 
   return (
-    <TokenInspectorContainer>
-      <PageHeader>
-        <h1>Token Inspector</h1>
-        <p>Analyze and inspect JWT tokens from your OAuth flows</p>
-      </PageHeader>
+    <ThemeProvider theme={defaultTheme}>
+      <Container>
+        <PageHeader>
+          <h1>Token Inspector</h1>
+          <p>Inspect and validate JWT tokens</p>
+        </PageHeader>
 
-      <TokenInputSection>
-        <CardHeader>
-          <h2>Token Input</h2>
-        </CardHeader>
-        <CardBody>
-          <TokenInput>
-            <label htmlFor="token-input">JWT Token</label>
-            <textarea
-              id="token-input"
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              placeholder="Paste your JWT token here..."
-              spellCheck={false}
-            />
-          </TokenInput>
+        <TokenPartCard>
+          <CardHeader>
+            <h3>Token Input</h3>
+          </CardHeader>
+          <CardBody>
+            <div style={{ marginBottom: '1rem' }}>
+              <textarea
+                value={token}
+                onChange={(e) => setToken(e.target.value)}
+                placeholder="Paste your JWT token here..."
+                style={{
+                  width: '100%',
+                  minHeight: '100px',
+                  padding: '0.5rem',
+                  borderRadius: '4px',
+                  border: '1px solid #ced4da',
+                  fontFamily: 'monospace',
+                  fontSize: '14px'
+                }}
+              />
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <ActionButton
+                onClick={() => {
+                  const storedTokens = oauthStorage.getTokens();
+                  if (storedTokens?.access_token) {
+                    setToken(storedTokens.access_token);
+                  }
+                }}
+                variant="secondary"
+              >
+                <FiEye /> Load from Storage
+              </ActionButton>
+              <ActionButton
+                onClick={() => {
+                  setInspectionResult({
+                    formattedToken: null,
+                    validation: null,
+                    claims: [],
+                    error: null
+                  });
+                  setToken('');
+                }}
+                variant="danger"
+              >
+                Clear
+              </ActionButton>
+            </div>
+          </CardBody>
+        </TokenPartCard>
 
-          <TokenActions>
-            <LoadStoredButton onClick={loadStoredTokens}>
-              <FiEye /> Load Stored Token
-            </LoadStoredButton>
-            <button onClick={copyToken} disabled={!token}>
-              <FiCopy /> Copy
-            </button>
-            <button onClick={downloadToken} disabled={!token}>
-              <FiDownload /> Download
-            </button>
-            <ClearButton onClick={clearToken}>
-              <FiXCircle /> Clear
-            </ClearButton>
-          </TokenActions>
-        </CardBody>
-      </TokenInputSection>
+        {isLoading && (
+          <div style={{ textAlign: 'center', padding: '2rem' }}>
+            <p>Analyzing token...</p>
+          </div>
+        )}
 
-      {formattedToken && (
-        <AnalysisGrid>
-          <div>
+        {error && (
+          <div style={{
+            color: '#721c24',
+            backgroundColor: '#f8d7da',
+            border: '1px solid #f5c6cb',
+            borderRadius: '4px',
+            padding: '1rem',
+            margin: '1rem 0',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '0.5rem'
+          }}>
+            <FiAlertTriangle style={{ flexShrink: 0, marginTop: '0.2rem' }} />
+            <div>
+              <div style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>
+                {TokenErrorMessages[error.code as keyof typeof TokenErrorMessages] || 'An error occurred'}
+              </div>
+              <div style={{ fontSize: '0.9em', color: '#721c24cc' }}>
+                {error.description || error.message}
+              </div>
+              {process.env.NODE_ENV === 'development' && error.stack && (
+                <details style={{ marginTop: '0.5rem' }}>
+                  <summary style={{ cursor: 'pointer', fontSize: '0.8em' }}>Show details</summary>
+                  <pre style={{
+                    marginTop: '0.5rem',
+                    padding: '0.5rem',
+                    background: '#00000010',
+                    borderRadius: '4px',
+                    overflowX: 'auto',
+                    fontSize: '0.8em',
+                    whiteSpace: 'pre-wrap'
+                  }}>
+                    {error.stack}
+                  </pre>
+                </details>
+              )}
+            </div>
+          </div>
+        )}
+
+        {formattedToken && (
+          <AnalysisGrid>
             <TokenValidationCard>
               <CardHeader>
-                <h3>
-                  {validation?.valid ? (
-                    <>
-                      <FiCheckCircle />
-                      Token Valid
-                    </>
-                  ) : (
-                    <>
-                      <FiXCircle />
-                      Token Invalid
-                    </>
-                  )}
-                </h3>
+                <h3>Token Validation</h3>
               </CardHeader>
               <CardBody>
-                <ValidationStatus className={validation?.valid ? 'valid' : 'invalid'}>
-                  {validation?.valid ? (
-                    <>
-                      <FiCheckCircle />
-                      Token is valid and properly formatted
-                    </>
-                  ) : (
-                    <>
-                      <FiXCircle />
-                      {validation?.error || 'Token validation failed'}
-                    </>
-                  )}
-                </ValidationStatus>
-
-                {formattedToken.payload?.exp && (
+                {validation && (
+                  <ValidationStatus valid={validation.valid}>
+                    {validation.valid ? (
+                      <>
+                        <FiCheckCircle />
+                        <span>Token is valid</span>
+                      </>
+                    ) : (
+                      <>
+                        <FiXCircle />
+                        <span>Token is invalid</span>
+                      </>
+                    )}
+                  </ValidationStatus>
+                )}
+                
+                {validation?.error && (
                   <div style={{ marginTop: '1rem' }}>
-                    <strong>Expires:</strong> {getTimeRemainingFormatted(formattedToken.raw)}
+                    <h4>Issues found:</h4>
+                    <ul style={{ margin: '0.5rem 0 0 1.5rem', padding: 0 }}>
+                      <li style={{ color: '#dc3545', marginBottom: '0.25rem' }}>
+                        {validation.error}
+                      </li>
+                    </ul>
                   </div>
                 )}
               </CardBody>
@@ -399,46 +350,99 @@ const TokenInspector = () => {
 
             <TokenPartCard>
               <CardHeader>
-                <h4>Header</h4>
+                <h3>Token Details</h3>
               </CardHeader>
               <CardBody>
-                <TokenDisplay>
-                  {JSON.stringify(formattedToken.header, null, 2)}
-                </TokenDisplay>
-              </CardBody>
-            </TokenPartCard>
-          </div>
-
-          <div>
-            <TokenPartCard>
-              <CardHeader>
-                <h4>Payload (Claims)</h4>
-              </CardHeader>
-              <CardBody>
-                {formattedToken.payload ? (
-                  renderClaims(formattedToken.payload)
-                ) : (
+                <div style={{ marginBottom: '1rem' }}>
+                  <h4>Header</h4>
                   <TokenDisplay>
-                    {JSON.stringify(formattedToken.payload, null, 2)}
+                    <code>{formatJson(formattedToken.header)}</code>
                   </TokenDisplay>
-                )}
-              </CardBody>
-            </TokenPartCard>
+                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                    <ActionButton
+                      onClick={() => handleCopy(JSON.stringify(formattedToken.header, null, 2))}
+                      variant="secondary"
+                    >
+                      <FiCopy /> {copied ? 'Copied!' : 'Copy'}
+                    </ActionButton>
+                    <ActionButton
+                      onClick={() => handleDownload(JSON.stringify(formattedToken.header, null, 2), 'token-header.json')}
+                      variant="secondary"
+                    >
+                      <FiDownload /> Save
+                    </ActionButton>
+                  </div>
+                </div>
 
-            <TokenPartCard>
-              <CardHeader>
-                <h4>Signature</h4>
-              </CardHeader>
-              <CardBody>
-                <TokenDisplay>
-                  {formattedToken.signature}
-                </TokenDisplay>
+                <div style={{ marginBottom: '1rem' }}>
+                  <h4>Payload</h4>
+                  <TokenDisplay>
+                    <code>{formatJson(formattedToken.payload)}</code>
+                  </TokenDisplay>
+                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                    <ActionButton
+                      onClick={() => handleCopy(JSON.stringify(formattedToken.payload, null, 2))}
+                      variant="secondary"
+                    >
+                      <FiCopy /> {copied ? 'Copied!' : 'Copy'}
+                    </ActionButton>
+                    <ActionButton
+                      onClick={() => handleDownload(JSON.stringify(formattedToken.payload, null, 2), 'token-payload.json')}
+                      variant="secondary"
+                    >
+                      <FiDownload /> Save
+                    </ActionButton>
+                  </div>
+                </div>
+
+                <div>
+                  <h4>Signature</h4>
+                  <TokenDisplay>
+                    <code>{formattedToken.signature || 'No signature'}</code>
+                  </TokenDisplay>
+                  {formattedToken.signature && (
+                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                      <ActionButton
+                        onClick={() => handleCopy(formattedToken.signature || '')}
+                        variant="secondary"
+                      >
+                        <FiCopy /> {copied ? 'Copied!' : 'Copy'}
+                      </ActionButton>
+                    </div>
+                  )}
+                </div>
               </CardBody>
             </TokenPartCard>
-          </div>
-        </AnalysisGrid>
-      )}
-    </TokenInspectorContainer>
+          </AnalysisGrid>
+        )}
+
+        {claims.length > 0 && (
+          <TokenPartCard>
+            <CardHeader>
+              <h3>Claims</h3>
+            </CardHeader>
+            <CardBody>
+              <ClaimsTable>
+                {claims.map((claim, index) => (
+                  <ClaimRow key={index}>
+                    <div>
+                      <strong>{claim.key}</strong>
+                    </div>
+                    <div className={claim.isJson ? 'json' : ''}>
+                      {claim.isJson ? (
+                        <pre style={{ margin: 0 }}>{formatJson(claim.value)}</pre>
+                      ) : (
+                        String(claim.value)
+                      )}
+                    </div>
+                  </ClaimRow>
+                ))}
+              </ClaimsTable>
+            </CardBody>
+          </TokenPartCard>
+        )}
+      </Container>
+    </ThemeProvider>
   );
 };
 

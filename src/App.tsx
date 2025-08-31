@@ -39,14 +39,14 @@ const MainContent = styled.main`
   flex: 1;
   padding: 1.5rem;
   margin-left: 250px;
-  margin-top: 60px;
+  margin-top: 80px;
   overflow-y: auto;
   transition: margin 0.3s ease;
   
   @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
     margin-left: 0;
     padding: 1rem;
-    margin-top: 60px;
+    margin-top: 80px;
   }
 `;
 
