@@ -2,7 +2,7 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../components/Card';
 import { FiPlay, FiLock, FiUser, FiClock, FiShield, FiCode } from 'react-icons/fi';
-import { useOAuth } from '../contexts/OAuthContext';
+import { useAuth } from '../contexts/NewAuthContext';
 import type { OAuthFlow } from '../types/oauthFlows';
  
 

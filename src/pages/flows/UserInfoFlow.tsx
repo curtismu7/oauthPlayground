@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
-import { FiPlay, FiAlertCircle, FiUser, FiInfo } from 'react-icons/fi';
-import { useOAuth } from '../../contexts/OAuthContext';
+import { FiPlay, FiAlertCircle, FiUser, FiInfo, FiSend, FiDownload } from 'react-icons/fi';
+import { useAuth } from '../../contexts/NewAuthContext';
 import { getUserInfo, isTokenExpired } from '../../utils/oauth';
 import type { UserInfo as OIDCUserInfo } from '../../types/oauth';
 
@@ -64,7 +64,7 @@ const UseCaseHighlight = styled.div`
 
   svg {
     color: ${({ theme }) => theme.colors.success};
-    flex-shrink: 0;
+    flex-shink: 0;
     margin-top: 0.1rem;
   }
 
@@ -91,78 +91,198 @@ const DemoControls = styled.div`
   gap: 1rem;
   align-items: center;
   margin-bottom: 1.5rem;
+  flex-wrap: wrap;
 `;
 
-const DemoButton = styled.button`
+const DemoButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  font-size: 1rem;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
   font-weight: 500;
-  border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s;
+  text-decoration: none;
 
-  &.primary {
-    background-color: ${({ theme }) => theme.colors.primary};
-    color: white;
-    border: 1px solid transparent;
-
-    &:hover {
-      background-color: ${({ theme }) => theme.colors.primaryDark};
-    }
-  }
-
-  &.secondary {
-    background-color: transparent;
-    color: ${({ theme }) => theme.colors.primary};
-    border: 1px solid ${({ theme }) => theme.colors.primary};
-
-    &:hover {
-      background-color: ${({ theme }) => theme.colors.primary}10;
-    }
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  svg {
-    width: 18px;
-    height: 18px;
-  }
+  ${({ variant }) =>
+    variant === 'primary'
+      ? `
+        background-color: #3b82f6;
+        color: white;
+        &:hover:not(:disabled) {
+          background-color: #2563eb;
+        }
+        &:disabled {
+          background-color: #9ca3af;
+          cursor: not-allowed;
+        }
+      `
+      : `
+        background-color: #f3f4f6;
+        color: #374151;
+        &:hover:not(:disabled) {
+          background-color: #e5e7eb;
+        }
+        &:disabled {
+          background-color: #f3f4f6;
+          color: #9ca3af;
+          cursor: not-allowed;
+        }
+      `}
 `;
 
-const StatusIndicator = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+const StatusIndicator = styled.div<{ className?: string }>`
   padding: 0.5rem 1rem;
   border-radius: 0.375rem;
   font-size: 0.875rem;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 
   &.idle {
-    background-color: ${({ theme }) => theme.colors.gray100};
-    color: ${({ theme }) => theme.colors.gray700};
+    background-color: #f3f4f6;
+    color: #6b7280;
   }
 
   &.loading {
-    background-color: ${({ theme }) => theme.colors.info}20;
-    color: ${({ theme }) => theme.colors.info};
+    background-color: #dbeafe;
+    color: #1e40af;
   }
 
   &.success {
-    background-color: ${({ theme }) => theme.colors.success}20;
-    color: ${({ theme }) => theme.colors.success};
+    background-color: #d1fae5;
+    color: #065f46;
   }
 
   &.error {
-    background-color: ${({ theme }) => theme.colors.danger}20;
-    color: ${({ theme }) => theme.colors.danger};
+    background-color: #fee2e2;
+    color: #991b1b;
   }
+`;
+
+const ErrorMessage = styled.div`
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  margin: 1rem 0;
+  color: #991b1b;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+
+  svg {
+    flex-shink: 0;
+    margin-top: 0.1rem;
+  }
+`;
+
+const RequestResponseSection = styled.div`
+  margin: 2rem 0;
+  border: 1px solid ${({ theme }) => theme.colors.gray200};
+  border-radius: 0.5rem;
+  overflow: hidden;
+`;
+
+const RequestSection = styled.div`
+  background-color: #f0f9ff;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.gray200};
+  padding: 1.5rem;
+
+  h3 {
+    margin: 0 0 1rem 0;
+    color: #0369a1;
+    font-size: 1.125rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+`;
+
+const ResponseSection = styled.div`
+  background-color: #f0fdf4;
+  padding: 1.5rem;
+
+  h3 {
+    margin: 0 0 1rem 0;
+    color: #166534;
+    font-size: 1.125rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+`;
+
+const CodeBlock = styled.pre`
+  background-color: ${({ theme }) => theme.colors.gray900};
+  color: ${({ theme }) => theme.colors.gray100};
+  padding: 1rem;
+  border-radius: 0.375rem;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  margin: 1rem 0;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  border: 1px solid ${({ theme }) => theme.colors.gray800};
+  position: relative;
+`;
+
+const CopyButton = styled.button`
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+`;
+
+const JsonResponse = styled.div`
+  background-color: white;
+  border: 1px solid ${({ theme }) => theme.colors.gray200};
+  border-radius: 0.375rem;
+  padding: 1.5rem;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.875rem;
+  color: ${({ theme }) => theme.colors.gray800};
+  overflow-x: auto;
+  max-height: 400px;
+  overflow-y: auto;
+`;
+
+const JsonKey = styled.span`
+  color: #059669;
+  font-weight: 600;
+`;
+
+const JsonString = styled.span`
+  color: #dc2626;
+`;
+
+const JsonNumber = styled.span`
+  color: #7c3aed;
+`;
+
+const JsonBoolean = styled.span`
+  color: #ea580c;
+`;
+
+const JsonNull = styled.span`
+  color: #6b7280;
+  font-style: italic;
 `;
 
 const StepsContainer = styled.div`
@@ -175,23 +295,37 @@ const Step = styled.div<{
   error?: boolean;
 }>`
   display: flex;
-  align-items: flex-start;
   gap: 1rem;
   margin-bottom: 1.5rem;
-  padding: 1.5rem;
+  padding: 1rem;
   border-radius: 0.5rem;
-  background-color: ${({ active, completed, error }) => {
-    if (error) return 'rgba(239, 68, 68, 0.1)';
-    if (completed) return 'rgba(34, 197, 94, 0.1)';
-    if (active) return 'rgba(59, 130, 246, 0.1)';
-    return 'transparent';
-  }};
-  border: 2px solid ${({ active, completed, error }) => {
-    if (error) return '#ef4444';
-    if (completed) return '#22c55e';
-    if (active) return '#3b82f6';
-    return 'transparent';
-  }};
+  border: 2px solid transparent;
+  transition: all 0.2s;
+
+  ${({ active, completed, error }) => {
+    if (error) {
+      return `
+        border-color: #ef4444;
+        background-color: #fef2f2;
+      `;
+    }
+    if (completed) {
+      return `
+        border-color: #22c55e;
+        background-color: #f0fdf4;
+      `;
+    }
+    if (active) {
+      return `
+        border-color: #3b82f6;
+        background-color: #eff6ff;
+      `;
+    }
+    return `
+      border-color: #e5e7eb;
+      background-color: #f9fafb;
+    `;
+  }}
 `;
 
 const StepNumber = styled.div<{
@@ -207,7 +341,7 @@ const StepNumber = styled.div<{
   border-radius: 50%;
   font-weight: 600;
   font-size: 1rem;
-  flex-shrink: 0;
+  flex-shink: 0;
 
   ${({ active, completed, error }) => {
     if (error) {
@@ -252,44 +386,6 @@ const StepContent = styled.div`
   }
 `;
 
-const CodeBlock = styled.pre`
-  background-color: ${({ theme }) => theme.colors.gray900};
-  color: ${({ theme }) => theme.colors.gray100};
-  padding: 1rem;
-  border-radius: 0.375rem;
-  overflow-x: auto;
-  font-size: 0.875rem;
-  margin: 1rem 0;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  border: 1px solid ${({ theme }) => theme.colors.gray800};
-`;
-
-const UserInfoDisplay = styled.div`
-  background-color: ${({ theme }) => theme.colors.info}10;
-  border: 1px solid ${({ theme }) => theme.colors.info}30;
-  border-radius: 0.375rem;
-  padding: 1rem;
-  margin: 1rem 0;
-
-  h4 {
-    margin: 0 0 0.5rem 0;
-    color: ${({ theme }) => theme.colors.info};
-    font-size: 1rem;
-    font-weight: 600;
-  }
-
-  .userinfo-json {
-    background-color: white;
-    border: 1px solid ${({ theme }) => theme.colors.gray200};
-    border-radius: 0.25rem;
-    padding: 1rem;
-    font-family: monospace;
-    font-size: 0.875rem;
-    color: ${({ theme }) => theme.colors.gray800};
-    overflow-x: auto;
-  }
-`;
-
 const TokenDisplay = styled.div`
   background-color: ${({ theme }) => theme.colors.gray50};
   border: 1px solid ${({ theme }) => theme.colors.gray200};
@@ -298,33 +394,94 @@ const TokenDisplay = styled.div`
   margin: 1rem 0;
   font-family: monospace;
   font-size: 0.875rem;
+  color: ${({ theme }) => theme.colors.gray700};
   word-break: break-all;
-  color: ${({ theme }) => theme.colors.gray800};
 `;
 
-const ErrorMessage = styled.div`
-  background-color: ${({ theme }) => theme.colors.danger}10;
-  border: 1px solid ${({ theme }) => theme.colors.danger}30;
-  border-radius: 0.375rem;
-  padding: 1rem;
-  margin: 1rem 0;
-  color: ${({ theme }) => theme.colors.danger};
-  font-size: 0.9rem;
-`;
-
-const UserInfoFlow = () => {
-  const { config, tokens } = useOAuth();
-  const [demoStatus, setDemoStatus] = useState('idle');
+const UserInfoFlow: React.FC = () => {
+  const { tokens, config } = useAuth();
+  const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [currentStep, setCurrentStep] = useState(0);
   const [userInfo, setUserInfo] = useState<OIDCUserInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [accessToken, setAccessToken] = useState('');
+  const [requestDetails, setRequestDetails] = useState<{
+    url: string;
+    headers: Record<string, string>;
+    method: string;
+  } | null>(null);
+
+  // Function to format JSON with color coding
+  const formatJson = (obj: any, indent: number = 0): React.ReactNode[] => {
+    const spaces = '  '.repeat(indent);
+    const elements: React.ReactNode[] = [];
+    
+    if (obj === null) {
+      elements.push(<JsonNull>null</JsonNull>);
+      return elements;
+    }
+    
+    if (typeof obj === 'string') {
+      elements.push(<JsonString>"{obj}"</JsonString>);
+      return elements;
+    }
+    
+    if (typeof obj === 'number') {
+      elements.push(<JsonNumber>{obj}</JsonNumber>);
+      return elements;
+    }
+    
+    if (typeof obj === 'boolean') {
+      elements.push(<JsonBoolean>{obj.toString()}</JsonBoolean>);
+      return elements;
+    }
+    
+    if (Array.isArray(obj)) {
+      elements.push('[\n');
+      obj.forEach((item, index) => {
+        elements.push(spaces + '  ');
+        elements.push(...formatJson(item, indent + 1));
+        if (index < obj.length - 1) elements.push(',');
+        elements.push('\n');
+      });
+      elements.push(spaces + ']');
+      return elements;
+    }
+    
+    if (typeof obj === 'object') {
+      elements.push('{\n');
+      const keys = Object.keys(obj);
+      keys.forEach((key, index) => {
+        elements.push(spaces + '  ');
+        elements.push(<JsonKey>"{key}"</JsonKey>);
+        elements.push(': ');
+        elements.push(...formatJson(obj[key], indent + 1));
+        if (index < keys.length - 1) elements.push(',');
+        elements.push('\n');
+      });
+      elements.push(spaces + '}');
+      return elements;
+    }
+    
+    return elements;
+  };
+
+  // Function to copy text to clipboard
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      // You could add a toast notification here
+    } catch (error) {
+      console.error('Failed to copy:', error);
+    }
+  };
 
   const callUserInfoEndpoint = async () => {
     setDemoStatus('loading');
     setCurrentStep(0);
     setError(null);
     setUserInfo(null);
+    setRequestDetails(null);
 
     try {
       setCurrentStep(1);
@@ -342,6 +499,19 @@ const UserInfoFlow = () => {
       if (!userInfoUrl) {
         throw new Error('UserInfo endpoint is not configured. Check Configuration page.');
       }
+
+      // Prepare request details for display
+      const headers = {
+        'Authorization': `Bearer ${tokens.access_token}`,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      };
+
+      setRequestDetails({
+        url: userInfoUrl,
+        headers,
+        method: 'GET'
+      });
 
       setCurrentStep(3);
       // Real API call
@@ -364,6 +534,7 @@ const UserInfoFlow = () => {
     setUserInfo(null);
     setError(null);
     setAccessToken('');
+    setRequestDetails(null);
   };
 
   const maskedToken = accessToken ? `${accessToken.slice(0, 16)}...${accessToken.slice(-8)}` : '';
@@ -511,7 +682,7 @@ console.log('Welcome, ' + user.name + '!');`
               {demoStatus === 'error' && 'UserInfo call failed'}
             </StatusIndicator>
             <DemoButton
-              className="primary"
+              variant="primary"
               onClick={callUserInfoEndpoint}
               disabled={
                 demoStatus === 'loading' ||
@@ -524,7 +695,7 @@ console.log('Welcome, ' + user.name + '!');`
               Call UserInfo Endpoint
             </DemoButton>
             <DemoButton
-              className="secondary"
+              variant="secondary"
               onClick={resetDemo}
               disabled={demoStatus === 'idle'}
             >
@@ -564,22 +735,55 @@ console.log('Welcome, ' + user.name + '!');`
             </div>
           )}
 
-          {userInfo && (
-            <UserInfoDisplay>
-              <h4>User Information Retrieved:</h4>
-              <div className="userinfo-json">
-                {JSON.stringify(userInfo, null, 2)}
-              </div>
+          {/* Request/Response Section */}
+          {(requestDetails || userInfo) && (
+            <RequestResponseSection>
+              {requestDetails && (
+                <RequestSection>
+                  <h3>
+                    <FiSend />
+                    Request Details
+                  </h3>
+                  <CodeBlock>
+                    <CopyButton onClick={() => copyToClipboard(JSON.stringify(requestDetails, null, 2))}>
+                      Copy
+                    </CopyButton>
+                    <strong>URL:</strong> {requestDetails.url}
+                    <br />
+                    <strong>Method:</strong> {requestDetails.method}
+                    <br />
+                    <strong>Headers:</strong>
+                    <br />
+                    {Object.entries(requestDetails.headers).map(([key, value]) => (
+                      <div key={key} style={{ marginLeft: '1rem' }}>
+                        {key}: {key === 'Authorization' ? 'Bearer [REDACTED]' : value}
+                      </div>
+                    ))}
+                  </CodeBlock>
+                </RequestSection>
+              )}
 
-              <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
-                <strong>Standard Claims:</strong><br />
-                • <strong>sub:</strong> Subject identifier ({userInfo?.sub || '—'})<br />
-                • <strong>name:</strong> Full name ({userInfo?.name || '—'})<br />
-                • <strong>email:</strong> Email address ({userInfo?.email || '—'})<br />
-                • <strong>email_verified:</strong> Email verification status ({userInfo?.email_verified ? 'Verified' : 'Unverified'})<br />
-                • <strong>updated_at:</strong> Last update ({userInfo?.updated_at ? new Date((userInfo.updated_at as number) * 1000).toLocaleString() : '—'})
-              </div>
-            </UserInfoDisplay>
+              {userInfo && (
+                <ResponseSection>
+                  <h3>
+                    <FiDownload />
+                    Response Data
+                  </h3>
+                  <JsonResponse>
+                    {formatJson(userInfo)}
+                  </JsonResponse>
+                  
+                  <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
+                    <strong>Standard Claims:</strong><br />
+                    • <strong>sub:</strong> Subject identifier ({userInfo?.sub || '—'})<br />
+                    • <strong>name:</strong> Full name ({userInfo?.name || '—'})<br />
+                    • <strong>email:</strong> Email address ({userInfo?.email || '—'})<br />
+                    • <strong>email_verified:</strong> Email verification status ({userInfo?.email_verified ? 'Verified' : 'Unverified'})<br />
+                    • <strong>updated_at:</strong> Last update ({userInfo?.updated_at ? new Date((userInfo.updated_at as number) * 1000).toLocaleString() : '—'})
+                  </div>
+                </ResponseSection>
+              )}
+            </RequestResponseSection>
           )}
 
           <StepsContainer>
@@ -601,7 +805,12 @@ console.log('Welcome, ' + user.name + '!');`
                 <StepContent>
                   <h3>{step.title}</h3>
                   <p>{step.description}</p>
-                  <CodeBlock>{step.code}</CodeBlock>
+                  <CodeBlock>
+                    <CopyButton onClick={() => copyToClipboard(step.code)}>
+                      Copy
+                    </CopyButton>
+                    {step.code}
+                  </CodeBlock>
                 </StepContent>
               </Step>
             ))}

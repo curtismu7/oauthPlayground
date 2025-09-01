@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/NewAuthContext';
 import { useNotifications } from '../contexts/NotificationContext';
 import { generateRandomString, sha256 } from '../utils/crypto';
 import { config } from '../services/config';

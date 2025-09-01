@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useLocation, Link } from 'react-router-dom';
 import { Card, CardHeader, CardBody, CardFooter } from '../components/Card';
 import { FiCode, FiLock, FiUser, FiSettings, FiInfo, FiCheckCircle } from 'react-icons/fi';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/NewAuthContext';
 import { useOAuth } from '../contexts/OAuthContext';
 
 const DashboardContainer = styled.div`
