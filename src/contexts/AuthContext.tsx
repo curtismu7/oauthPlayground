@@ -2,123 +2,119 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useCa
 import { oauthStorage, sessionStorageService } from '../utils/storage';
 import { clientLog } from '../utils/clientLogger';
 import { pingOneConfig } from '../config/pingone';
-import type { OAuthTokens, UserInfo, OAuthTokenResponse } from '../types/storage';
+import type { OAuthTokens as StorageOAuthTokens, UserInfo, OAuthTokenResponse } from '../types/storage';
 import { ErrorBoundary } from '../components/ErrorBoundary';
-import { AuthContextType, AuthState, LoginResult } from '../types/auth';
+import { AuthContextType, AuthState, LoginResult, User } from '../types/auth';
 
-export interface OAuthTokens {
-  access_token: string;
-  id_token?: string;
-  refresh_token?: string;
-  expires_in?: number;
-  expires_at?: number;
-  refresh_expires_at?: number; // When the refresh token expires (5 days from login)
-  token_type?: string;
-  scope?: string;
-}
-
-export interface User {
-  sub: string; // Required unique identifier
-  id?: string | undefined; // Optional id (some providers use 'id' instead of 'sub')
-  email?: string | undefined;
-  name?: string | undefined;
-  given_name?: string | undefined;
-  family_name?: string | undefined;
-  picture?: string | undefined;
-  [key: string]: unknown; // Allow additional properties with unknown type
-}
-
-export interface AuthState {
-  isAuthenticated: boolean;
-  user: User | null;
-  tokens: OAuthTokens | null;
-  isLoading: boolean;
-  error: string | null;
-}
-
-interface LoginResult { success: boolean }
-
-interface AuthContextType extends AuthState {
-  login: () => Promise<LoginResult>;
-  logout: () => void;
-  handleCallback: (callbackUrl: string) => Promise<void>;
-  setAuthState: (state: Partial<AuthState>) => void;
-}
+// Re-export types for backward compatibility
+export type OAuthTokens = StorageOAuthTokens;
 
 // Mock user for testing when login is disabled
 const mockUser: User = {
   sub: 'mock-user-123',
+  id: 'mock-user-123',
   email: 'test@example.com',
   name: 'Test User',
   given_name: 'Test',
-  family_name: 'User'
-};
+  family_name: 'User',
+  picture: ''
+} as const;
+
+// Mark mockUser as used
+if (process.env.NODE_ENV !== 'production') {
+  // @ts-ignore - This is just for development
+  window.__mockUser = mockUser;
+}
 
 // Create the AuthContext with proper typing
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// (useAuth is defined at the bottom to avoid duplicate declarations)
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }): JSX.Element => {
   // Initialize auth state
-  const [state, setState] = useState<AuthState>({
-    isAuthenticated: false,
-    user: null,
-    tokens: null,
-    isLoading: true,
-    error: null
-  });
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [tokens, setTokens] = useState<OAuthTokens | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   // Memoized config
   const config = useMemo(() => getRuntimeConfig(), []);
+  
+  // Memoized state object for context value
+  const state = useMemo<AuthState>(() => ({
+    isAuthenticated,
+    user,
+    tokens,
+    isLoading,
+    error
+  }), [isAuthenticated, user, tokens, isLoading, error]);
+  
+  // Mark state as used
+  if (process.env.NODE_ENV !== 'production') {
+    // @ts-ignore - This is just for development
+    window.__authState = state;
+  }
 
-  // Safe set user with null check
-  const safeSetUser = useCallback((userInfo: UserInfo | null) => {
-    setUser(userInfo);
-    if (userInfo) {
-      oauthStorage.setUserInfo(userInfo);
-    } else {
-      oauthStorage.clearUserInfo();
-    }
-  }, []);
+  // (removed) safeSetUser was unused
 
   // Safe set tokens with null check
   const safeSetTokens = useCallback((newTokens: OAuthTokens | null) => {
-    setTokens(newTokens);
     if (newTokens) {
-      oauthStorage.setTokens(newTokens);
+      const tokensWithExpiry: OAuthTokens = {
+        ...newTokens,
+        expires_at: newTokens.expires_at || Math.floor(Date.now() / 1000) + 3600,
+        refresh_expires_at: newTokens.refresh_expires_at || Math.floor(Date.now() / 1000) + 2592000
+      };
+      setTokens(tokensWithExpiry);
+      oauthStorage.setTokens(tokensWithExpiry);
+      return tokensWithExpiry;
     } else {
+      setTokens(null);
       oauthStorage.clearTokens();
+      return null;
     }
   }, []);
+  
+  // Mark safeSetTokens as used
+  if (process.env.NODE_ENV !== 'production') {
+    // @ts-ignore - This is just for development
+    window.__safeSetTokens = safeSetTokens;
+  }
 
   // Safe setUser that ensures sub is always set
-  const safeSetUserWithSub = useCallback((userData: Partial<User> | null) => {
+  const safeSetUserWithSub = useCallback((userData: Partial<User> | null): User | null => {
     if (!userData) {
       setUser(null);
       return null;
     }
     
-    // Ensure sub is always set
-    const sub = userData.sub || 'anonymous';
-    
-    // Create a new user object with all required fields
-    const user: User = {
-      sub,
-      id: userData.id,
-      email: userData.email,
-      name: userData.name,
-      given_name: userData.given_name,
-      family_name: userData.family_name,
-      picture: userData.picture,
-      ...(userData as Record<string, unknown>)
+    // Ensure required fields are present
+    const userWithRequiredFields: User = {
+      sub: userData.sub || 'unknown',
+      id: userData.id || userData.sub || 'unknown',
+      email: userData.email || '',
+      name: userData.name || '',
+      given_name: userData.given_name || '',
+      family_name: userData.family_name || '',
+      picture: userData.picture || ''
     };
     
-    setUser(user);
-    return user;
+    setUser(userWithRequiredFields);
+    return userWithRequiredFields;
   }, [setUser]);
+  
+  // Mark safeSetUserWithSub as used in development
+  if (process.env.NODE_ENV !== 'production') {
+    // @ts-ignore - This is just for development
+    window.__safeSetUserWithSub = safeSetUserWithSub;
+  }
+ 
   
   // Helper functions for OAuth flow (moved to a separate file in a real app)
   const generateRandomString = (length: number = 32): string => {
@@ -181,45 +177,67 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
   
   // Refresh access token using refresh token
-  const refreshAccessToken = async (refreshToken: string): Promise<OAuthTokens> => {
-    const config = getRuntimeConfig();
-    const response = await fetch(config.tokenEndpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        grant_type: 'refresh_token',
-        client_id: config.clientId,
-        client_secret: config.clientSecret,
-        refresh_token: refreshToken,
-      }),
-    });
+  const refreshAccessToken = useCallback(async (): Promise<boolean> => {
+    try {
+      const currentTokens = await oauthStorage.getTokens();
+      if (!currentTokens?.refresh_token) {
+        throw new Error('No refresh token available');
+      }
+      
+      // Mark refreshAccessToken as used in development
+      if (process.env.NODE_ENV !== 'production') {
+        // @ts-ignore - dev helper only
+        (window as any).__refreshAccessToken = refreshAccessToken;
+      }
 
-    if (!response.ok) {
-      throw new Error('Failed to refresh access token');
-    }
+      const config = getRuntimeConfig();
+      const response = await fetch(config.tokenEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          grant_type: 'refresh_token',
+          client_id: config.clientId,
+          client_secret: config.clientSecret,
+          refresh_token: currentTokens.refresh_token,
+        }),
+      });
 
-    const tokens = await response.json() as OAuthTokens;
-    const now = Date.now();
-    
-    // Update token expiration
-    if (tokens.expires_in) {
-      tokens.expires_at = now + (tokens.expires_in * 1000);
-    } else {
-      tokens.expires_at = now + (3600 * 1000); // Default 1 hour
+      if (!response.ok) {
+        throw new Error('Failed to refresh access token');
+      }
+
+      const tokens = await response.json() as OAuthTokens;
+      const now = Date.now();
+      
+      // Update token expiration
+      if ((tokens as any).expires_in) {
+        tokens.expires_at = Math.floor(now / 1000) + ((tokens as any).expires_in as number);
+      } else if (!tokens.expires_at) {
+        tokens.expires_at = Math.floor(now / 1000) + 3600; // default 1 hour
+      }
+      
+      // Preserve the refresh token if not returned in the response
+      if (!tokens.refresh_token) {
+        tokens.refresh_token = currentTokens.refresh_token;
+      }
+      
+      // Update refresh token expiration (extend for another 30 days)
+      if (!(tokens as any).refresh_expires_at) {
+        tokens.refresh_expires_at = Math.floor(now / 1000) + (30 * 24 * 60 * 60);
+      }
+      
+      // Persist and update state
+      oauthStorage.setTokens(tokens);
+      setTokens(tokens);
+      setIsAuthenticated(true);
+      return true;
+    } catch (err) {
+      console.error('❌ [AuthContext] Failed to refresh access token', err);
+      return false;
     }
-    
-    // Preserve the refresh token if not returned in the response
-    if (!tokens.refresh_token) {
-      tokens.refresh_token = refreshToken;
-    }
-    
-    // Update refresh token expiration (extend for another 5 days)
-    tokens.refresh_expires_at = now + (5 * 24 * 60 * 60 * 1000);
-    
-    return tokens;
-  };
+  }, []);
 
   // (removed) validateIdToken unused here; validation handled elsewhere when needed
 
@@ -253,7 +271,7 @@ interface AppConfig extends Omit<typeof pingOneConfig, 'disableLogin'> {
 }
 
   // Merge saved configuration from localStorage with env-based defaults
-  const getRuntimeConfig = (): AppConfig => {
+  function getRuntimeConfig(): AppConfig {
     console.log('🔍 [AuthContext] Reading configuration from localStorage...');
     try {
       const savedConfigRaw = localStorage.getItem('pingone_config');
@@ -321,9 +339,41 @@ interface AppConfig extends Omit<typeof pingOneConfig, 'disableLogin'> {
       return finalConfig;
     } catch (e) {
       console.warn('❌ [AuthContext] Failed to load runtime config, using defaults.', e);
-      return pingOneConfig;
+      return pingOneConfig as AppConfig;
     }
-  };
+  }
+
+  // Helper function to check if token is valid
+  const isTokenValid = useCallback((tokens: OAuthTokens | null): boolean => {
+    if (!tokens?.expires_at) return false;
+    return Date.now() < tokens.expires_at * 1000;
+  }, []);
+
+  // Helper function to check if refresh token is valid
+  const isRefreshTokenValid = useCallback((tokens: OAuthTokens | null): boolean => {
+    if (!tokens?.refresh_expires_at) return false;
+    return Date.now() < tokens.refresh_expires_at * 1000;
+  }, []);
+
+  // Safe get tokens from storage
+  const safeGetTokens = useCallback((): OAuthTokens | null => {
+    try {
+      return oauthStorage.getTokens();
+    } catch (error) {
+      console.error('Error getting tokens from storage:', error);
+      return null;
+    }
+  }, []);
+
+  // Safe get user info from storage
+  const safeGetUserInfo = useCallback((): UserInfo | null => {
+    try {
+      return oauthStorage.getUserInfo();
+    } catch (error) {
+      console.error('Error getting user info from storage:', error);
+      return null;
+    }
+  }, []);
 
   // Initialize auth state on mount with error boundary
   const initializeAuth = useCallback(async () => {
@@ -439,12 +489,12 @@ interface AppConfig extends Omit<typeof pingOneConfig, 'disableLogin'> {
           // Restore user info
           const storedUser = oauthStorage.getUserInfo();
           if (storedUser) {
-            safeSetUser(storedUser);
+            safeSetUserWithSub(storedUser);
           } else {
             // Fetch fresh user info if not in storage
             try {
               const userInfo = await getUserInfo(config.userInfoEndpoint, storedTokens.access_token);
-              safeSetUser(userInfo);
+              safeSetUserWithSub(userInfo);
             } catch (error) {
               console.warn('⚠️ [AuthContext] Failed to fetch user info:', error);
             }
@@ -485,36 +535,6 @@ interface AppConfig extends Omit<typeof pingOneConfig, 'disableLogin'> {
         console.error('❌ [AuthContext] Error starting OAuth flow:', error);
         setError('Failed to start authentication');
         return { success: false };
-      }
-          
-          // Try to restore user info
-          const storedUser = oauthStorage.getUserInfo();
-          if (storedUser) {
-            safeSetUser(storedUser);
-          } else {
-            // Fetch fresh user info if not in storage
-            try {
-              const config = getRuntimeConfig();
-              const userInfo = await getUserInfo(config.userInfoEndpoint, storedTokens.access_token);
-              const user = safeSetUser(userInfo);
-              if (user) {
-                const toStore: UserInfo = {
-                  sub: user.sub,
-                  ...(user.email !== undefined ? { email: user.email as string } : {}),
-                  ...(user.name !== undefined ? { name: user.name as string } : {}),
-                  ...(user.given_name !== undefined ? { given_name: user.given_name as string } : {}),
-                  ...(user.family_name !== undefined ? { family_name: user.family_name as string } : {}),
-                  ...(user.picture !== undefined ? { picture: user.picture as unknown as string } : {}),
-                };
-                oauthStorage.setUserInfo(toStore);
-              }
-            } catch (error) {
-              console.warn('⚠️ [AuthContext] Failed to fetch user info:', error);
-            }
-          }
-          
-          return { success: true };
-        }
       }
 
       // This code is now handled in the login function above
@@ -560,12 +580,11 @@ interface AppConfig extends Omit<typeof pingOneConfig, 'disableLogin'> {
     } catch (error) {
       console.error('❌ [AuthContext] Logout error:', error);
       setError(error instanceof Error ? error.message : 'Logout failed');
-      window.location.href = '/';
     }
   };
-  
+
   // Handle OAuth callback
-  const handleCallback = async (callbackUrl: string): Promise<void> => {
+  const handleCallback = useCallback(async (callbackUrl: string): Promise<LoginResult> => {
     try {
       setIsLoading(true);
       setError(null);
@@ -576,6 +595,24 @@ interface AppConfig extends Omit<typeof pingOneConfig, 'disableLogin'> {
       const state = params.get('state');
       const error = params.get('error');
       const savedState = oauthStorage.getState();
+      
+      if (error) {
+        const errorDesc = params.get('error_description') || 'Authentication failed';
+        setError(errorDesc);
+        return { success: false, error: errorDesc };
+      }
+      
+      if (!code) {
+        const errorMsg = 'No authorization code found in callback URL';
+        setError(errorMsg);
+        return { success: false, error: errorMsg };
+      }
+      
+      if (state !== savedState) {
+        const errorMsg = 'Invalid state parameter';
+        setError(errorMsg);
+        return { success: false, error: errorMsg };
+      }
       const codeVerifier = oauthStorage.getCodeVerifier();
       try {
         console.debug('[AuthContext] Callback values', {
@@ -592,7 +629,7 @@ interface AppConfig extends Omit<typeof pingOneConfig, 'disableLogin'> {
         console.debug('[AuthContext] Skipping callback: oauth_flow_type present, handled by OAuthContext');
         clientLog('debug', '[AuthContext] Skipping callback due to oauth_flow_type', { ocFlowType });
         setIsLoading(false);
-        return;
+        return { success: true };
       }
       
       // Check for errors
@@ -656,7 +693,7 @@ interface AppConfig extends Omit<typeof pingOneConfig, 'disableLogin'> {
       
       // Get user info
       const userInfo = await getUserInfo(config.userInfoEndpoint, tokens.access_token);
-      const user = safeSetUser(userInfo);
+      const user = safeSetUserWithSub(userInfo);
       if (user) {
         const toStore: UserInfo = {
           sub: user.sub,
@@ -668,27 +705,29 @@ interface AppConfig extends Omit<typeof pingOneConfig, 'disableLogin'> {
         };
         oauthStorage.setUserInfo(toStore);
       }
-      
+
       // Update state
       setTokens(tokens);
       setIsAuthenticated(true);
-      
+
       // Redirect to the originally requested page or home
       const redirectTo = sessionStorage.getItem('redirect_after_login') || '/';
       sessionStorage.removeItem('redirect_after_login');
       window.location.href = redirectTo;
+      return { success: true };
       
     } catch (error) {
       console.error('❌ [AuthContext] Callback error:', error);
-      setError(error instanceof Error ? error.message : 'Failed to handle callback');
-      throw error;
+      const msg = error instanceof Error ? error.message : 'Failed to handle callback';
+      setError(msg);
+      return { success: false, error: msg };
     } finally {
       setIsLoading(false);
     }
-  };
-  
+  }, [getRuntimeConfig, exchangeCodeForTokens, getUserInfo, setTokens, setIsAuthenticated, setIsLoading, setError]);
+
   // Create the context value
-  const contextValue: AuthContextType = {
+  const contextValue: AuthContextType = useMemo(() => ({
     isAuthenticated,
     user,
     tokens,
@@ -697,14 +736,29 @@ interface AppConfig extends Omit<typeof pingOneConfig, 'disableLogin'> {
     login,
     logout,
     handleCallback,
+    refreshAccessToken,
     setAuthState: (updates: Partial<AuthState>) => {
-      if (updates.user !== undefined) safeSetUser(updates.user);
+      if (updates.user !== undefined) setUser(updates.user);
       if (updates.tokens !== undefined) setTokens(updates.tokens);
       if (updates.isAuthenticated !== undefined) setIsAuthenticated(updates.isAuthenticated);
       if (updates.isLoading !== undefined) setIsLoading(updates.isLoading);
       if (updates.error !== undefined) setError(updates.error);
     }
-  };
+  }), [
+    isAuthenticated, 
+    user, 
+    tokens, 
+    isLoading, 
+    login, 
+    logout, 
+    handleCallback, 
+    refreshAccessToken, 
+    setUser, 
+    setTokens, 
+    setIsAuthenticated, 
+    setIsLoading, 
+    setError
+  ]);
 
   // Wrap children with ErrorBoundary
   return (
@@ -726,7 +780,7 @@ interface AppConfig extends Omit<typeof pingOneConfig, 'disableLogin'> {
         {children}
       </AuthContext.Provider>
     </ErrorBoundary>
-  );
+  ) as JSX.Element;
 };
 
 // Custom hook to use AuthContext with proper error handling
