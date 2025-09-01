@@ -27,6 +27,7 @@ import TokenManagement from './pages/TokenManagement';
 import AIOpenIDConnectOverview from './pages/AIOpenIDConnectOverview';
 import AdvancedConfiguration from './pages/AdvancedConfiguration';
 import InteractiveTutorials from './pages/InteractiveTutorials';
+import AuthorizationRequestModal from './components/AuthorizationRequestModal';
 
 const AppContainer = styled.div`
   display: flex;
@@ -104,6 +105,7 @@ const AppRoutes = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showCredentialModal, setShowCredentialModal] = useState(false);
   const location = useLocation();
+  const { showAuthModal, authRequestData, proceedWithOAuth, closeAuthModal } = useAuth();
 
   // Close sidebar when route changes
   useEffect(() => {
@@ -165,17 +167,9 @@ const AppRoutes = () => {
 
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } />
+            <Route path="/dashboard" element={<Dashboard />} />
 
-            <Route path="/flows" element={
-              <ProtectedRoute>
-                <Flows />
-              </ProtectedRoute>
-            }>
+            <Route path="/flows" element={<Flows />}>
               <Route path="authorization-code" element={<AuthorizationCodeFlow />} />
               <Route path="implicit" element={<ImplicitGrantFlow />} />
               <Route path="client-credentials" element={<ClientCredentialsFlow />} />
@@ -183,52 +177,24 @@ const AppRoutes = () => {
               <Route path="device-code" element={<DeviceCodeFlow />} />
             </Route>
 
-            <Route path="/oidc" element={
-              <ProtectedRoute>
-                <OIDC />
-              </ProtectedRoute>
-            }>
+            <Route path="/oidc" element={<OIDC />}>
               <Route path="userinfo" element={<UserInfoFlow />} />
               <Route path="id-tokens" element={<IDTokensFlow />} />
             </Route>
             {/* Backward-compatible redirect for older links */}
             <Route path="/oidc/tokens" element={<Navigate to="/oidc/id-tokens" replace />} />
 
-            <Route path="/configuration" element={
-              <ProtectedRoute>
-                <Configuration />
-              </ProtectedRoute>
-            } />
+            <Route path="/configuration" element={<Configuration />} />
 
-            <Route path="/documentation" element={
-              <ProtectedRoute>
-                <Documentation />
-              </ProtectedRoute>
-            } />
+            <Route path="/documentation" element={<Documentation />} />
 
-            <Route path="/token-management" element={
-              <ProtectedRoute>
-                <TokenManagement />
-              </ProtectedRoute>
-            } />
+            <Route path="/token-management" element={<TokenManagement />} />
 
-            <Route path="/ai-overview" element={
-              <ProtectedRoute>
-                <AIOpenIDConnectOverview />
-              </ProtectedRoute>
-            } />
+            <Route path="/ai-overview" element={<AIOpenIDConnectOverview />} />
 
-            <Route path="/advanced-config" element={
-              <ProtectedRoute>
-                <AdvancedConfiguration />
-              </ProtectedRoute>
-            } />
+            <Route path="/advanced-config" element={<AdvancedConfiguration />} />
 
-            <Route path="/tutorials" element={
-              <ProtectedRoute>
-                <InteractiveTutorials />
-              </ProtectedRoute>
-            } />
+            <Route path="/tutorials" element={<InteractiveTutorials />} />
 
             <Route path="*" element={<div>Not Found</div>} />
           </Routes>
@@ -238,6 +204,14 @@ const AppRoutes = () => {
       <CredentialSetupModal
         isOpen={showCredentialModal}
         onComplete={handleCredentialSetupComplete}
+      />
+
+      <AuthorizationRequestModal
+        isOpen={showAuthModal}
+        onClose={closeAuthModal}
+        onProceed={proceedWithOAuth}
+        authorizationUrl={authRequestData?.authorizationUrl || ''}
+        requestParams={authRequestData?.requestParams || {}}
       />
     </>
   );

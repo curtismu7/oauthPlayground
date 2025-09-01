@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/NewAuthContext';
 import styled from 'styled-components';
 import { FiPlay, FiBook, FiCode, FiLock, FiSettings, FiEye, FiCheckCircle } from 'react-icons/fi';
 import InteractiveTutorial from '../components/InteractiveTutorial';
