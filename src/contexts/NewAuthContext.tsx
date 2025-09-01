@@ -316,6 +316,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading: false,
       });
 
+      // Track token source for Token Management page
+      // tokenSourceTracker.storeTokenSource({
+      //   source: 'login',
+      //   description: 'OAuth Login Flow - Authorization Code Grant',
+      //   tokens: {
+      //     access_token: tokenResponse.access_token,
+      //     id_token: tokenResponse.id_token || undefined,
+      //     refresh_token: tokenResponse.refresh_token || undefined,
+      //     token_type: tokenResponse.token_type,
+      //     expires_in: tokenResponse.expires_in || undefined,
+      //     scope: tokenResponse.scope || undefined
+      //   }
+      // });
+
       // Get redirect URL from session storage or use default
       const redirectUrl = sessionStorage.getItem('redirect_after_login') || '/';
       sessionStorage.removeItem('redirect_after_login');
