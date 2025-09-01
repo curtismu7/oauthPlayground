@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import { useAuth } from '../contexts/NewAuthContext';
 import { Card, CardHeader, CardBody } from '../components/Card';
 import { FiRefreshCw, FiCheckCircle, FiPlus, FiX, FiClock, FiKey, FiEye, FiTrash2, FiCopy, FiShield } from 'react-icons/fi';
+import styled from 'styled-components';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -186,6 +187,7 @@ const TokenManagement = () => {
   const [jwtPayload, setJwtPayload] = useState('');
   const [tokenStatus, setTokenStatus] = useState('none');
   const [isLoading, setIsLoading] = useState(false);
+  const [tokenSource, setTokenSource] = useState<any>(null);
 
   // Mock token data for demonstration
   const mockTokenData = {
@@ -203,6 +205,11 @@ const TokenManagement = () => {
       try {
         const tokenData = JSON.parse(storedToken);
         setTokenString(tokenData.token || '');
+        setTokenSource({
+          source: 'Local Storage',
+          description: 'Token loaded from browser storage',
+          timestamp: new Date().toLocaleString()
+        });
         // Auto-decode if token exists
         setTimeout(() => decodeJWT(tokenData.token), 100);
       } catch (error) {
@@ -254,6 +261,11 @@ const TokenManagement = () => {
       // Simulate API call to get token
       setTimeout(() => {
         setTokenString(mockTokenData.access_token);
+        setTokenSource({
+          source: 'API Call',
+          description: 'Token obtained from mock API',
+          timestamp: new Date().toLocaleString()
+        });
         decodeJWT(mockTokenData.access_token);
         setIsLoading(false);
       }, 1000);
@@ -281,6 +293,11 @@ const TokenManagement = () => {
       setTimeout(() => {
         const newToken = mockTokenData.access_token.replace('1234567890', Date.now().toString().slice(-10));
         setTokenString(newToken);
+        setTokenSource({
+          source: 'Token Refresh',
+          description: 'Token refreshed from mock API',
+          timestamp: new Date().toLocaleString()
+        });
         decodeJWT(newToken);
         setIsLoading(false);
       }, 1000);
