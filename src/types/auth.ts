@@ -1,5 +1,16 @@
 import { OAuthTokenResponse, UserInfo } from './storage';
 
+export interface User {
+  sub: string;
+  id?: string;
+  email?: string;
+  name?: string;
+  given_name?: string;
+  family_name?: string;
+  picture?: string;
+  [key: string]: unknown;
+}
+
 export interface LoginResult {
   success: boolean;
   error?: string;
