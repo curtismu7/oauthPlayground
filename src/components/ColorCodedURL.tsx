@@ -1,6 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 
+interface ColorCodedURLProps {
+  url: string;
+  className?: string;
+}
+
 const URLContainer = styled.span`
   font-family: 'SFMono-Regular', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', 'Courier New', monospace;
   font-size: 0.875rem;
@@ -9,7 +14,7 @@ const URLContainer = styled.span`
   white-space: pre-wrap;
 `;
 
-const URLPart = styled.span<{ type: 'base' | 'query' | 'param' | 'value' }>`
+const URLPart = styled.span<{ type: 'base' | 'question' | 'ampersand' | 'param' | 'equals' | 'value' }>`
   ${({ type }) => {
     switch (type) {
       case 'base':
@@ -17,9 +22,14 @@ const URLPart = styled.span<{ type: 'base' | 'query' | 'param' | 'value' }>`
           color: #1e40af; /* Blue for base URL */
           font-weight: 500;
         `;
-      case 'query':
+      case 'question':
         return `
-          color: #dc2626; /* Red for ? and query parts */
+          color: #dc2626; /* Red for ? */
+          font-weight: 600;
+        `;
+      case 'ampersand':
+        return `
+          color: #ea580c; /* Orange for & */
           font-weight: 600;
         `;
       case 'param':
@@ -27,9 +37,14 @@ const URLPart = styled.span<{ type: 'base' | 'query' | 'param' | 'value' }>`
           color: #059669; /* Green for parameter names */
           font-weight: 500;
         `;
+      case 'equals':
+        return `
+          color: #7c3aed; /* Purple for = */
+          font-weight: 400;
+        `;
       case 'value':
         return `
-          color: #7c3aed; /* Purple for parameter values */
+          color: #dc2626; /* Red for parameter values */
           font-weight: 400;
         `;
       default:
@@ -37,11 +52,6 @@ const URLPart = styled.span<{ type: 'base' | 'query' | 'param' | 'value' }>`
     }
   }}
 `;
-
-interface ColorCodedURLProps {
-  url: string;
-  className?: string;
-}
 
 export const ColorCodedURL: React.FC<ColorCodedURLProps> = ({ url, className }) => {
   if (!url || typeof url !== 'string') {
@@ -65,7 +75,7 @@ export const ColorCodedURL: React.FC<ColorCodedURLProps> = ({ url, className }) 
   // Add query part if it exists
   if (queryPart) {
     parts.push(
-      <URLPart key="question-mark" type="query">
+      <URLPart key="question-mark" type="question">
         ?
       </URLPart>
     );
@@ -75,7 +85,7 @@ export const ColorCodedURL: React.FC<ColorCodedURLProps> = ({ url, className }) 
     params.forEach((param, index) => {
       if (index > 0) {
         parts.push(
-          <URLPart key={`amp-${index}`} type="query">
+          <URLPart key={`amp-${index}`} type="ampersand">
             &
           </URLPart>
         );
@@ -91,7 +101,7 @@ export const ColorCodedURL: React.FC<ColorCodedURLProps> = ({ url, className }) 
       }
       if (value) {
         parts.push(
-          <URLPart key={`equals-${index}`} type="query">
+          <URLPart key={`equals-${index}`} type="equals">
             =
           </URLPart>
         );

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiAlertCircle, FiMonitor, FiSmartphone } from 'react-icons/fi';
-import { useOAuth } from '../../contexts/OAuthContext';
+import { useAuth } from '../../contexts/NewAuthContext';
 import Spinner from '../../components/Spinner';
 
 const Container = styled.div`

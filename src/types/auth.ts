@@ -30,6 +30,13 @@ export interface AuthContextType extends AuthState {
   logout: () => void;
   handleCallback: (url: string) => Promise<LoginResult>;
   setAuthState: (updates: Partial<AuthState>) => void;
+  showAuthModal: boolean;
+  authRequestData: {
+    authorizationUrl: string;
+    requestParams: Record<string, string>;
+  } | null;
+  proceedWithOAuth: () => void;
+  closeAuthModal: () => void;
 }
 
 export interface AuthProviderProps {
