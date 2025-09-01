@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import { useAuth } from '../contexts/NewAuthContext';
 import { FiPlay, FiRefreshCw, FiCheckCircle, FiCode, FiEye, FiSettings } from 'react-icons/fi';
 import TutorialStep from './TutorialStep';
 import { Card, CardHeader, CardBody } from './Card';
