@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiEye, FiAlertCircle, FiKey } from 'react-icons/fi';
 import ColorCodedURL from '../../components/ColorCodedURL';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/NewAuthContext';
 import { useOAuth } from '../../contexts/OAuthContext';
 import Spinner from '../../components/Spinner';
 
