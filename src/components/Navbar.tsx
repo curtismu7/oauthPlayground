@@ -81,7 +81,11 @@ const MenuButton = styled.button`
   }
 `;
 
-const Navbar = ({ toggleSidebar }) => {
+interface NavbarProps {
+  toggleSidebar: () => void;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
   const { isAuthenticated, logout, user } = useAuth();
   const navigate = useNavigate();
 
