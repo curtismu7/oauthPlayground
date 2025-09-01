@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { FiLoader, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/NewAuthContext';
 
 const CallbackContainer = styled.div`
   display: flex;

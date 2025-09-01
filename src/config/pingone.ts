@@ -38,28 +38,28 @@ export interface PingOneConfig {
 
 // App configuration from environment variables
 export const appConfig = {
-  title: process.env.PINGONE_APP_TITLE || 'PingOne OAuth Playground',
-  description: process.env.PINGONE_APP_DESCRIPTION || 'Interactive playground for OAuth 2.0 and OpenID Connect with PingOne',
-  version: process.env.PINGONE_APP_VERSION || '1.0.0',
-  defaultTheme: process.env.PINGONE_APP_DEFAULT_THEME || 'light',
+  title: (window as any).__PINGONE_APP_TITLE__ || 'PingOne OAuth Playground',
+  description: (window as any).__PINGONE_APP_DESCRIPTION__ || 'Interactive playground for OAuth 2.0 and OpenID Connect with PingOne',
+  version: (window as any).__PINGONE_APP_VERSION__ || '1.0.0',
+  defaultTheme: (window as any).__PINGONE_APP_DEFAULT_THEME__ || 'light',
   devServer: {
-    port: parseInt(process.env.PINGONE_DEV_SERVER_PORT || '3000'),
-    https: process.env.PINGONE_DEV_SERVER_HTTPS === 'true',
+    port: parseInt((window as any).__PINGONE_DEV_SERVER_PORT__ || '3000'),
+    https: (window as any).__PINGONE_DEV_SERVER_HTTPS__ === 'true',
   },
   features: {
-    debugMode: process.env.PINGONE_FEATURE_DEBUG_MODE === 'true',
-    analytics: process.env.PINGONE_FEATURE_ANALYTICS === 'true',
+    debugMode: (window as any).__PINGONE_FEATURE_DEBUG_MODE__ === 'true',
+    analytics: (window as any).__PINGONE_FEATURE_ANALYTICS__ === 'true',
   },
 };
 
 // Default PingOne configuration
 export const pingOneConfig: PingOneConfig = {
-  environmentId: process.env.PINGONE_ENVIRONMENT_ID || '',
-  clientId: process.env.PINGONE_CLIENT_ID || '',
-  clientSecret: process.env.PINGONE_CLIENT_SECRET || '',
-  redirectUri: process.env.PINGONE_REDIRECT_URI || `${window.location.origin}/callback`,
-  logoutRedirectUri: process.env.PINGONE_LOGOUT_REDIRECT_URI || window.location.origin,
-  apiUrl: process.env.PINGONE_API_URL || 'https://auth.pingone.com',
+  environmentId: (window as any).__PINGONE_ENVIRONMENT_ID__ || '',
+  clientId: (window as any).__PINGONE_CLIENT_ID__ || '',
+  clientSecret: (window as any).__PINGONE_CLIENT_SECRET__ || '',
+  redirectUri: (window as any).__PINGONE_REDIRECT_URI__ || `${window.location.origin}/callback`,
+  logoutRedirectUri: (window as any).__PINGONE_LOGOUT_REDIRECT_URI__ || window.location.origin,
+  apiUrl: (window as any).__PINGONE_API_URL__ || 'https://auth.pingone.com',
   authServerId: '', // Removed from .env as requested
   baseUrl: '',
   authUrl: '',
