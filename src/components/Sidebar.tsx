@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { 
-  FiHome, FiCode, FiLock, FiUser, FiSettings, 
-  FiChevronDown, FiChevronRight, FiBookOpen, FiEye 
+  FiHome, FiCode, FiUser, FiSettings, 
+  FiChevronDown, FiBookOpen, FiEye 
 } from 'react-icons/fi';
 
 interface SidebarContainerProps {
@@ -16,6 +16,11 @@ interface SubmenuProps {
 
 interface NavItemHeaderProps {
   $isOpen?: boolean;
+}
+
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 const SidebarContainer = styled.aside<SidebarContainerProps>`
@@ -131,7 +136,7 @@ const NavItemHeader = styled.div<NavItemHeaderProps>`
   }
 `;
 
-const Sidebar = ({ isOpen, onClose }) => {
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const location = useLocation();
   const [openMenus, setOpenMenus] = useState({
     flows: true, // Default to expanded
@@ -147,7 +152,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     });
   }, [location.pathname]);
 
-  const toggleMenu = (menu) => {
+  const toggleMenu = (menu: 'flows' | 'oidc') => {
     setOpenMenus(prev => ({
       ...prev,
       [menu]: !prev[menu]
