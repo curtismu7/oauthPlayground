@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { oauthStorage } from '../utils/storage';
-import { pingOneConfig } from '../config/pingone';
 import type { OAuthTokens, UserInfo, OAuthTokenResponse } from '../types/storage';
 import { AuthContextType, AuthState, LoginResult } from '../types/auth';
 
@@ -67,58 +66,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     error: null,
   });
 
-  // Memoized config with default values if needed
+  // Modal state
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authRequestData, setAuthRequestData] = useState<{
+    authorizationUrl: string;
+    requestParams: Record<string, string>;
+  } | null>(null);
+
+  // Simple config using Vite environment variables
   const config = useMemo<AppConfig>(() => {
-    // Default values that match the AppConfig interface
-    const defaultConfig: AppConfig = {
-      disableLogin: process.env.REACT_APP_DISABLE_LOGIN === 'true' || false,
-      clientId: process.env.REACT_APP_CLIENT_ID || '',
-      clientSecret: process.env.REACT_APP_CLIENT_SECRET || '',
-      redirectUri: process.env.REACT_APP_REDIRECT_URI || `${window.location.origin}/callback`,
-      authorizationEndpoint: process.env.REACT_APP_AUTHORIZATION_ENDPOINT || '',
-      tokenEndpoint: process.env.REACT_APP_TOKEN_ENDPOINT || '',
-      userInfoEndpoint: process.env.REACT_APP_USERINFO_ENDPOINT || '',
-      endSessionEndpoint: process.env.REACT_APP_ENDSESSION_ENDPOINT || '',
-      scopes: (process.env.REACT_APP_SCOPES || 'openid profile email').split(' '),
-      environmentId: process.env.REACT_APP_ENVIRONMENT_ID || ''
+    const envId = (window as any).__PINGONE_ENVIRONMENT_ID__;
+    const apiUrl = (window as any).__PINGONE_API_URL__;
+
+    return {
+      disableLogin: false, // Always allow login in this version
+      clientId: (window as any).__PINGONE_CLIENT_ID__ || '',
+      clientSecret: (window as any).__PINGONE_CLIENT_SECRET__ || '',
+      redirectUri: (window as any).__PINGONE_REDIRECT_URI__ || `${window.location.origin}/callback`,
+      authorizationEndpoint: apiUrl && envId ? `${apiUrl}/${envId}/as/authorize` : '',
+      tokenEndpoint: apiUrl && envId ? `${apiUrl}/${envId}/as/token` : '',
+      userInfoEndpoint: apiUrl && envId ? `${apiUrl}/${envId}/as/userinfo` : '',
+      endSessionEndpoint: apiUrl && envId ? `${apiUrl}/${envId}/as/endsession` : '',
+      scopes: ['openid', 'profile', 'email'],
+      environmentId: envId || ''
     };
-
-    try {
-      if (!pingOneConfig) {
-        return defaultConfig;
-      }
-
-      // Create a new config object with default values
-      const mergedConfig: AppConfig = { ...defaultConfig };
-      
-      // Manually map known properties from pingOneConfig
-      const configKeys: (keyof AppConfig)[] = [
-        'clientId', 'clientSecret', 'redirectUri', 'authorizationEndpoint',
-        'tokenEndpoint', 'userInfoEndpoint', 'endSessionEndpoint', 'scopes', 'environmentId'
-      ];
-      
-      // Apply values from pingOneConfig if they exist
-      configKeys.forEach(key => {
-        if (key in pingOneConfig) {
-          const value = (pingOneConfig as any)[key];
-          if (value !== undefined) {
-            (mergedConfig as any)[key] = value;
-          }
-        }
-      });
-
-      // Handle disableLogin separately
-      if ('disableLogin' in pingOneConfig) {
-        mergedConfig.disableLogin = Boolean((pingOneConfig as any).disableLogin);
-      } else {
-        mergedConfig.disableLogin = defaultConfig.disableLogin;
-      }
-
-      return mergedConfig;
-    } catch (error) {
-      console.error('Error loading config, using defaults:', error);
-      return defaultConfig;
-    }
   }, []);
 
   // Update state helper
@@ -347,6 +318,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     updateState(updates);
   }, [updateState]);
 
+  // Function to proceed with OAuth redirect after modal confirmation
+  const proceedWithOAuth = useCallback(() => {
+    if (authRequestData) {
+      console.log('🔍 [NewAuthContext] Proceeding with OAuth redirect');
+      window.location.href = authRequestData.authorizationUrl;
+    }
+  }, [authRequestData]);
+
+  // Close modal function
+  const closeAuthModal = useCallback(() => {
+    setShowAuthModal(false);
+    setAuthRequestData(null);
+  }, []);
+
   // Context value
   const contextValue = useMemo(() => ({
     ...state,
@@ -354,7 +339,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     logout,
     handleCallback,
     setAuthState,
-  }), [state, login, logout, handleCallback, setAuthState]);
+    showAuthModal,
+    authRequestData,
+    proceedWithOAuth,
+    closeAuthModal,
+  }), [state, login, logout, handleCallback, setAuthState, showAuthModal, authRequestData, proceedWithOAuth, closeAuthModal]);
 
   return (
     <AuthContext.Provider value={contextValue}>
