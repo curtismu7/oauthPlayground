@@ -2,7 +2,7 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiAlertCircle, FiLock } from 'react-icons/fi';
-import { useOAuth } from '../../contexts/OAuthContext';
+import { useAuth } from '../../contexts/NewAuthContext';
 import { ColorCodedURL } from '../../components/ColorCodedURL';
 import { URLParamExplainer } from '../../components/URLParamExplainer';
 import Typewriter from '../../components/Typewriter';

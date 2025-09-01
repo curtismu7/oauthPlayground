@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiEye, FiCheckCircle, FiAlertCircle, FiCode, FiShield, FiKey } from 'react-icons/fi';
-import { useOAuth } from '../../contexts/OAuthContext';
+import { useAuth } from '../../contexts/NewAuthContext';
 
 const Container = styled.div`
   max-width: 1200px;

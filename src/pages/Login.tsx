@@ -11,7 +11,7 @@ import {
   FiAlertCircle, 
   FiLogIn 
 } from 'react-icons/fi';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/NewAuthContext';
 import { appConfig } from '../config/pingone';
 import Spinner from '../components/Spinner';
 
@@ -464,7 +464,7 @@ const Login = () => {
         environmentId: credentials.environmentId,
         clientId: credentials.clientId,
         clientSecret: credentials.clientSecret,
-        redirectUri: 'https://localhost:3000/callback',
+        redirectUri: 'http://localhost:3001/callback',
         scopes: credentials.advanced?.resourceScopes || 'openid profile email',
         authEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/authorize`,
         tokenEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/token`,
@@ -516,7 +516,7 @@ const Login = () => {
         environmentId: credentials.environmentId,
         clientId: credentials.clientId,
         clientSecret: credentials.clientSecret,
-        redirectUri: 'https://localhost:3000/callback',
+        redirectUri: 'http://localhost:3001/callback',
         scopes: credentials.advanced?.resourceScopes || 'openid profile email',
         authEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/authorize`,
         tokenEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/token`,
@@ -662,6 +662,8 @@ const Login = () => {
 
             <CredentialsBox>
               <h4>📝 Enter Your Credentials</h4>
+              
+              <form onSubmit={(e) => { e.preventDefault(); handleCredentialSave(); }}>
               
               {saveStatus && (
                 <div style={{
@@ -1046,7 +1048,7 @@ const Login = () => {
               </div>
 
               <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-                <SubmitButton onClick={handleCredentialSave} disabled={isSavingCredentials} style={{ width: 'auto', padding: '0.75rem 2rem' }}>
+                <SubmitButton type="submit" disabled={isSavingCredentials} style={{ width: 'auto', padding: '0.75rem 2rem' }}>
                   {isSavingCredentials ? (
                     <>
                       <Spinner size={16} />
@@ -1060,6 +1062,8 @@ const Login = () => {
                   )}
                 </SubmitButton>
               </div>
+              
+              </form>
             </CredentialsBox>
 
             <p><em>💡 <strong>Need Help?</strong> Check the PingOne documentation or contact your PingOne administrator.</em></p>

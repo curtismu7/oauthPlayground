@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { AuthProvider, useAuth } from '../contexts/AuthContext';
+import { AuthProvider } from '../contexts/NewAuthContext';
+import { useAuth } from '../contexts/NewAuthContext';
 import { BrowserRouter as Router } from 'react-router-dom';
 
 describe('AuthContext', () => {
