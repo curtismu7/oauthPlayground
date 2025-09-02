@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
-import { FiPlay, FiAlertCircle, FiUser, FiInfo, FiSend, FiDownload, FiEye } from 'react-icons/fi';
+import { FiPlay, FiAlertCircle, FiUser, FiInfo, FiSend, FiDownload, FiEye, FiArrowRight } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { getUserInfo, isTokenExpired } from '../../utils/oauth';
 import { decodeJwt } from '../../utils/jwt';
@@ -1177,6 +1177,7 @@ console.log('Welcome, ' + user.name + '!');`,
               return (
                 <Step
                   key={index}
+                  id={`step-${index}`}
                   $active={currentStep === index && demoStatus === 'loading'}
                   $completed={currentStep > index}
                   $error={currentStep === index && demoStatus === 'error'}
@@ -1272,6 +1273,39 @@ console.log('Welcome, ' + user.name + '!');`,
                         fontSize: '0.875rem'
                       }}>
                         ✅ Step completed successfully
+                      </div>
+                    )}
+
+                    {/* Next button for each step */}
+                    {isExecuted && index < steps.length - 1 && (
+                      <div style={{ 
+                        marginTop: '1rem', 
+                        textAlign: 'center',
+                        padding: '1rem',
+                        borderTop: '1px solid #e5e7eb'
+                      }}>
+                        <button
+                          onClick={() => setCurrentStep(index + 1)}
+                          style={{
+                            background: '#3b82f6',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '0.375rem',
+                            padding: '0.5rem 1rem',
+                            fontSize: '0.875rem',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            margin: '0 auto',
+                            transition: 'background-color 0.2s'
+                          }}
+                          onMouseOver={(e) => e.currentTarget.style.background = '#2563eb'}
+                          onMouseOut={(e) => e.currentTarget.style.background = '#3b82f6'}
+                        >
+                          Next Step
+                          <FiArrowRight style={{ width: '1rem', height: '1rem' }} />
+                        </button>
                       </div>
                     )}
                   </StepContent>
