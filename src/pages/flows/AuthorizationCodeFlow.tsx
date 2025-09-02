@@ -693,6 +693,33 @@ grant_type=authorization_code
             </>
           )}
 
+          {/* Configuration Status */}
+          {!config?.clientId && (
+            <ErrorMessage>
+              <FiAlertCircle />
+              <strong>Configuration Required:</strong> PingOne settings are not configured. 
+              Please check the Configuration page or browser console for details.
+            </ErrorMessage>
+          )}
+          
+          {config?.clientId && (
+            <div style={{ 
+              background: '#f0f9ff', 
+              border: '1px solid #0ea5e9', 
+              borderRadius: '8px', 
+              padding: '1rem', 
+              marginBottom: '1rem',
+              fontSize: '0.9rem'
+            }}>
+              <strong>✅ PingOne Configuration Loaded:</strong>
+              <div style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}>
+                <div><strong>Client ID:</strong> {config.clientId}</div>
+                <div><strong>Environment ID:</strong> {config.environmentId}</div>
+                <div><strong>API URL:</strong> {config.authorizationEndpoint}</div>
+              </div>
+            </div>
+          )}
+
           {!isAuthenticated && (
             <ErrorMessage>
               <FiAlertCircle />

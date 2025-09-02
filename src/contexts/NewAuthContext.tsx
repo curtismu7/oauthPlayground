@@ -73,7 +73,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     requestParams: Record<string, string>;
   } | null>(null);
 
-  // Simple config using Vite environment variables
+  // Simple config using Vite environment variables with fallback to localStorage
   const config = useMemo<AppConfig>(() => {
     const envId = (window as any).__PINGONE_ENVIRONMENT_ID__;
     const apiUrl = (window as any).__PINGONE_API_URL__;
@@ -87,7 +87,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       redirectUri: (window as any).__PINGONE_REDIRECT_URI__
     });
 
-    return {
+    // Check if we have the required configuration
+    if (!envId || !apiUrl || !clientId) {
+      console.warn('⚠️ [NewAuthContext] Missing required environment variables, checking localStorage...');
+      
+      // Try to get from localStorage as fallback
+      const storedConfig = localStorage.getItem('pingone_config');
+      if (storedConfig) {
+        try {
+          const parsed = JSON.parse(storedConfig);
+          console.log('🔍 [NewAuthContext] Using stored config from localStorage:', parsed);
+          return {
+            disableLogin: false,
+            clientId: parsed.clientId || '',
+            clientSecret: parsed.clientSecret || '',
+            redirectUri: parsed.redirectUri || `${window.location.origin}/callback`,
+            authorizationEndpoint: parsed.authorizationEndpoint || '',
+            tokenEndpoint: parsed.tokenEndpoint || '',
+            userInfoEndpoint: parsed.userInfoEndpoint || '',
+            endSessionEndpoint: parsed.endSessionEndpoint || '',
+            scopes: ['openid', 'profile', 'email'],
+            environmentId: parsed.environmentId || ''
+          };
+        } catch (error) {
+          console.error('❌ [NewAuthContext] Failed to parse stored config:', error);
+        }
+      }
+      
+      console.error('❌ [NewAuthContext] No configuration available from environment or localStorage');
+      return {
+        disableLogin: false,
+        clientId: '',
+        clientSecret: '',
+        redirectUri: `${window.location.origin}/callback`,
+        authorizationEndpoint: '',
+        tokenEndpoint: '',
+        userInfoEndpoint: '',
+        endSessionEndpoint: '',
+        scopes: ['openid', 'profile', 'email'],
+        environmentId: ''
+      };
+    }
+
+    console.log('✅ [NewAuthContext] Configuration loaded successfully from environment variables');
+    
+    const config = {
       disableLogin: false, // Always allow login in this version
       clientId: clientId || '',
       clientSecret: (window as any).__PINGONE_CLIENT_SECRET__ || '',
@@ -99,6 +143,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       scopes: ['openid', 'profile', 'email'],
       environmentId: envId || ''
     };
+    
+    // Store config in localStorage for fallback
+    try {
+      localStorage.setItem('pingone_config', JSON.stringify(config));
+      console.log('💾 [NewAuthContext] Configuration stored in localStorage for fallback');
+    } catch (error) {
+      console.warn('⚠️ [NewAuthContext] Failed to store config in localStorage:', error);
+    }
+    
+    return config;
   }, []);
 
   // Update state helper
