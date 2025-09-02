@@ -389,7 +389,9 @@ const AuthorizationCodeFlow = () => {
   &acr_values=${flowConfig.acrValues.join(' ')}` : ''}${Object.keys(flowConfig.customParams).length > 0 ? `
   ${Object.entries(flowConfig.customParams).map(([k, v]) => `&${k}=${v}`).join('\n  ')}` : ''}`,
       execute: () => {
+        console.log('🔄 [AuthCodeFlow] Authorization code step executing', { config: !!config });
         if (!config) {
+          console.error('❌ [AuthCodeFlow] Configuration required');
           setError('Configuration required. Please configure your PingOne settings first.');
           return;
         }
@@ -460,7 +462,9 @@ grant_type=authorization_code
 &redirect_uri=${config?.redirectUri || 'https://your-app.com/callback'}${flowConfig.enablePKCE ? `
 &code_verifier=YOUR_CODE_VERIFIER` : ''}`,
       execute: async () => {
+        console.log('🔄 [AuthCodeFlow] Token exchange step executing', { config: !!config, authCode: !!authCode });
         if (!config || !authCode) {
+          console.error('❌ [AuthCodeFlow] Missing configuration or authorization code', { config: !!config, authCode: !!authCode });
           setError('Missing configuration or authorization code');
           return;
         }

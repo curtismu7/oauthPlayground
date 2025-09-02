@@ -151,9 +151,12 @@ export const StepByStepFlow: React.FC<StepByStepFlowProps> = ({
   title
 }) => {
   const executeCurrentStep = useCallback(async () => {
+    console.log('🔄 [StepByStepFlow] executeCurrentStep called', { currentStep, stepsLength: steps.length });
     if (currentStep < steps.length && steps[currentStep].execute) {
       try {
+        console.log('🔄 [StepByStepFlow] Executing step:', steps[currentStep].title);
         await steps[currentStep].execute!();
+        console.log('✅ [StepByStepFlow] Step executed successfully');
         
         // Auto-scroll to the executed step after a short delay
         setTimeout(() => {
