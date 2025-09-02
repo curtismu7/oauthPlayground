@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiEye, FiAlertCircle, FiKey, FiSettings, FiArrowRight } from 'react-icons/fi';
+import TokenDisplay from '../../components/TokenDisplay';
 import ColorCodedURL from '../../components/ColorCodedURL';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { FlowConfiguration, type FlowConfig } from '../../components/FlowConfiguration';
@@ -1108,8 +1109,8 @@ grant_type=authorization_code
                         )}
                         {stepResult.tokens && (
                           <div style={{ marginTop: '0.5rem' }}>
-                            <strong>Tokens:</strong><br />
-                            <pre>{JSON.stringify(stepResult.tokens, null, 2)}</pre>
+                            <strong>Tokens:</strong>
+                            <TokenDisplay tokens={stepResult.tokens} />
                           </div>
                         )}
                         {stepResult.message && (
