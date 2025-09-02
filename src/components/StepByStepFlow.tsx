@@ -221,7 +221,7 @@ export const StepByStepFlow: React.FC<StepByStepFlowProps> = ({
               disabled={currentStep >= steps.length - 1}
             >
               <FiArrowRight />
-              Next Step
+              {currentStep >= steps.length - 1 ? 'Done!' : 'Next Step'}
             </FlowButton>
             
             <FlowButton
