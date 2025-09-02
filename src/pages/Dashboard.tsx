@@ -4,7 +4,7 @@ import { useLocation, Link } from 'react-router-dom';
 import { Card, CardHeader, CardBody, CardFooter } from '../components/Card';
 import { FiCode, FiLock, FiUser, FiSettings, FiInfo, FiCheckCircle } from 'react-icons/fi';
 import { useAuth } from '../contexts/NewAuthContext';
-import { useOAuth } from '../contexts/OAuthContext';
+
 
 const DashboardContainer = styled.div`
   max-width: 1200px;
@@ -65,8 +65,7 @@ const FeatureCard = styled(Card)`
 `;
 
 const Dashboard = () => {
-  const { isAuthenticated } = useAuth();
-  const { config } = useOAuth();
+  const { isAuthenticated, config } = useAuth();
   const location = useLocation();
   const infoMessage = (location.state as any)?.message as string | undefined;
   const infoType = ((location.state as any)?.type as 'success' | 'error' | 'warning' | 'info' | undefined) || 'info';
