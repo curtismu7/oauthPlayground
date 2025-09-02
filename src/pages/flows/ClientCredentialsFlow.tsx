@@ -6,6 +6,7 @@ import { useAuth } from '../../contexts/NewAuthContext';
 import Spinner from '../../components/Spinner';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import ConfigurationButton from '../../components/ConfigurationButton';
+import TokenDisplayComponent from '../../components/TokenDisplay';
 import ColorCodedURL from '../../components/ColorCodedURL';
 
 const Container = styled.div`
@@ -725,14 +726,7 @@ fetch('/api/protected-resource', {
           {tokensReceived && (
             <div>
               <h3>Access Token Received:</h3>
-              <TokenDisplay>
-                <strong>Access Token:</strong><br />
-                {tokensReceived.access_token}
-                <br /><br />
-                <strong>Token Type:</strong> {tokensReceived.token_type}<br />
-                <strong>Expires In:</strong> {tokensReceived.expires_in} seconds<br />
-                <strong>Scope:</strong> {tokensReceived.scope}
-              </TokenDisplay>
+              <TokenDisplayComponent tokens={tokensReceived} />
             </div>
           )}
 
