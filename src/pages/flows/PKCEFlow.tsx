@@ -490,7 +490,7 @@ const authUrl = '${(config?.authorizationEndpoint || `https://auth.pingone.com/$
           nonce: Math.random().toString(36).substring(2, 15),
         });
 
-        const authEndpoint = config.authorizationEndpoint.replace('{envId}', config.environmentId);
+        const authEndpoint = (config.authorizationEndpoint || config.authEndpoint || '').replace('{envId}', config.environmentId);
         const url = `${authEndpoint}?${params.toString()}`;
 
         setAuthUrl(url);
