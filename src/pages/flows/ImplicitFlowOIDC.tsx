@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiAlertCircle, FiArrowRight } from 'react-icons/fi';
 import PageTitle from '../../components/PageTitle';
-import TokenDisplay from '../../components/TokenDisplay';
+import TokenDisplayComponent from '../../components/TokenDisplay';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import { ColorCodedURL } from '../../components/ColorCodedURL';
@@ -460,13 +460,13 @@ console.log('✅ ID token validation successful');`,
                         {stepResult.tokens && (
                           <div style={{ marginTop: '0.5rem' }}>
                             <strong>Tokens in URL Fragment:</strong>
-                            <TokenDisplay tokens={stepResult.tokens} />
+                            <TokenDisplayComponent tokens={stepResult.tokens} />
                           </div>
                         )}
                         {stepResult.extractedTokens && (
                           <div style={{ marginTop: '0.5rem' }}>
                             <strong>Extracted Tokens:</strong>
-                            <TokenDisplay tokens={stepResult.extractedTokens} />
+                            <TokenDisplayComponent tokens={stepResult.extractedTokens} />
                           </div>
                         )}
                         {stepResult.validation && (
