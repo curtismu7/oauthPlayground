@@ -188,6 +188,9 @@ const CodeBlock = styled.pre`
   overflow-x: auto;
   font-size: 0.875rem;
   line-height: 1.5;
+  color: #374151;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  white-space: pre-wrap;
 `;
 
 const HybridFlow: React.FC = () => {
