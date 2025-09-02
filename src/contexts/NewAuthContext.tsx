@@ -77,10 +77,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const config = useMemo<AppConfig>(() => {
     const envId = (window as any).__PINGONE_ENVIRONMENT_ID__;
     const apiUrl = (window as any).__PINGONE_API_URL__;
+    const clientId = (window as any).__PINGONE_CLIENT_ID__;
+
+    // Debug logging
+    console.log('🔍 [NewAuthContext] Environment variables:', {
+      envId,
+      apiUrl,
+      clientId,
+      redirectUri: (window as any).__PINGONE_REDIRECT_URI__
+    });
 
     return {
       disableLogin: false, // Always allow login in this version
-      clientId: (window as any).__PINGONE_CLIENT_ID__ || '',
+      clientId: clientId || '',
       clientSecret: (window as any).__PINGONE_CLIENT_SECRET__ || '',
       redirectUri: (window as any).__PINGONE_REDIRECT_URI__ || `${window.location.origin}/callback`,
       authorizationEndpoint: apiUrl && envId ? `${apiUrl}/${envId}/as/authorize` : '',
