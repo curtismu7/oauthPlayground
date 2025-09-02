@@ -6,6 +6,7 @@ import { useAuth } from '../../contexts/NewAuthContext';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import ConfigurationButton from '../../components/ConfigurationButton';
 
+
 const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;

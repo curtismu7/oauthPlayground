@@ -7,6 +7,7 @@ import Spinner from '../../components/Spinner';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import ConfigurationButton from '../../components/ConfigurationButton';
 import TokenDisplayComponent from '../../components/TokenDisplay';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
 import ColorCodedURL from '../../components/ColorCodedURL';
 
 const Container = styled.div`
@@ -564,7 +565,22 @@ const accessToken = generateAccessToken(clientId, scope);`,
           setStepResults(prev => ({ ...prev, 3: { response: tokenData, status: response.status } }));
           setExecutedSteps(prev => new Set(prev).add(3));
 
-          console.log('✅ [ClientCredentialsFlow] Tokens received:', tokenData);
+          // Store tokens using the shared utility
+          const tokensForStorage = {
+            access_token: tokenData.access_token,
+            id_token: tokenData.id_token,
+            refresh_token: tokenData.refresh_token,
+            token_type: tokenData.token_type,
+            expires_in: tokenData.expires_in,
+            scope: tokenData.scope || 'api:read'
+          };
+          
+          const success = storeOAuthTokens(tokensForStorage);
+          if (success) {
+            console.log('✅ [ClientCredentialsFlow] Tokens received and stored successfully');
+          } else {
+            console.error('❌ [ClientCredentialsFlow] Failed to store tokens');
+          }
         } catch (error: any) {
           setError(`Failed to exchange credentials for tokens: ${error.message}`);
           console.error('❌ [ClientCredentialsFlow] Token exchange error:', error);

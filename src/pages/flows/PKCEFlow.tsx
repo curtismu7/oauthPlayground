@@ -10,6 +10,7 @@ import { URLParamExplainer } from '../../components/URLParamExplainer';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import ConfigurationButton from '../../components/ConfigurationButton';
 import TokenDisplayComponent from '../../components/TokenDisplay';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -615,7 +616,22 @@ grant_type=authorization_code
           setStepResults(prev => ({ ...prev, 4: { response: mockTokens, tokens: mockTokens, status: 200, mock: true } }));
           setExecutedSteps(prev => new Set(prev).add(4));
 
-          console.log('✅ [PKCEFlow] Mock tokens generated:', mockTokens);
+          // Store tokens using the shared utility
+          const tokensForStorage = {
+            access_token: mockTokens.access_token,
+            id_token: mockTokens.id_token,
+            refresh_token: mockTokens.refresh_token,
+            token_type: mockTokens.token_type,
+            expires_in: mockTokens.expires_in,
+            scope: mockTokens.scope
+          };
+          
+          const success = storeOAuthTokens(tokensForStorage);
+          if (success) {
+            console.log('✅ [PKCEFlow] Mock tokens generated and stored successfully');
+          } else {
+            console.error('❌ [PKCEFlow] Failed to store mock tokens');
+          }
         }
       }
     },

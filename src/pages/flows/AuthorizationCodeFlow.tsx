@@ -10,6 +10,7 @@ import { FlowConfiguration, type FlowConfig } from '../../components/FlowConfigu
 import { getDefaultConfig, validatePingOneConfig } from '../../utils/flowConfigDefaults';
 import PageTitle from '../../components/PageTitle';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
 
 import Spinner from '../../components/Spinner';
 
@@ -531,7 +532,22 @@ grant_type=authorization_code
           setStepResults(prev => ({ ...prev, 3: { response: mockTokens, status: 200, mock: true } }));
           setExecutedSteps(prev => new Set(prev).add(3));
 
-          console.log('✅ [AuthCodeFlow] Mock tokens generated:', mockTokens);
+          // Store tokens using the shared utility
+          const tokensForStorage = {
+            access_token: mockTokens.access_token,
+            id_token: mockTokens.id_token,
+            refresh_token: mockTokens.refresh_token,
+            token_type: mockTokens.token_type,
+            expires_in: mockTokens.expires_in,
+            scope: 'openid profile email'
+          };
+          
+          const success = storeOAuthTokens(tokensForStorage);
+          if (success) {
+            console.log('✅ [AuthCodeFlow] Mock tokens generated and stored successfully');
+          } else {
+            console.error('❌ [AuthCodeFlow] Failed to store mock tokens');
+          }
         }
       }
     },
