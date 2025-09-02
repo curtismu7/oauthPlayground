@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
-import { FiPlay, FiAlertCircle, FiUser, FiInfo, FiSend, FiDownload } from 'react-icons/fi';
+import { FiPlay, FiAlertCircle, FiUser, FiInfo, FiSend, FiDownload, FiEye } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { getUserInfo, isTokenExpired } from '../../utils/oauth';
+import { decodeJwt } from '../../utils/jwt';
 import type { UserInfo as OIDCUserInfo } from '../../types/oauth';
 
 const Container = styled.div`
@@ -400,6 +401,10 @@ const TokenDisplay = styled.div`
 
 const UserInfoFlow: React.FC = () => {
   const { tokens, config } = useAuth();
+  
+  // Debug logging
+  console.log('🔍 [UserInfoFlow] Config:', config);
+  console.log('🔍 [UserInfoFlow] Tokens:', tokens);
   const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [currentStep, setCurrentStep] = useState(0);
   const [userInfo, setUserInfo] = useState<OIDCUserInfo | null>(null);
@@ -410,6 +415,7 @@ const UserInfoFlow: React.FC = () => {
     headers: Record<string, string>;
     method: string;
   } | null>(null);
+  const [decodedToken, setDecodedToken] = useState<any>(null);
 
   // Function to format JSON with color coding
   const formatJson = (obj: any, indent: number = 0): React.ReactNode[] => {
