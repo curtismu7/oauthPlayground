@@ -351,6 +351,7 @@ const AuthorizationCodeFlow = () => {
   const [error, setError] = useState<string | null>(null);
   const [authCode, setAuthCode] = useState<string>('');
   const [authUrl, setAuthUrl] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
 
 
 
