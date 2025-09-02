@@ -980,125 +980,162 @@ console.log('Welcome, ' + user.name + '!');`,
           )}
 
           {config && useAuthentication && (!tokens?.access_token || (tokens?.access_token && isTokenExpired(tokens.access_token))) && (
-            <ErrorMessage>
-              <FiAlertCircle />
-              <strong>Sign-in Required:</strong> Authentication mode is enabled. Complete an OAuth login with openid scope to obtain a valid access token before calling UserInfo.
-              <br /><br />
-              <strong>To get tokens:</strong>
-              <ul style={{ marginTop: '10px', paddingLeft: '20px' }}>
-                <li>Go to any OAuth flow page (e.g., Authorization Code Flow)</li>
-                <li>Complete the OAuth flow to get tokens</li>
-                <li>Return here to use the UserInfo endpoint</li>
-              </ul>
-              <br />
-              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                <button
-                  onClick={() => window.location.href = '/flows/authorization-code'}
-                  style={{
-                    padding: '8px 16px',
-                    backgroundColor: '#28a745',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '14px'
-                  }}
-                >
-                  🔐 Go to Authorization Code Flow
-                </button>
-                <button
-                  onClick={() => window.location.href = '/flows/implicit'}
-                  style={{
-                    padding: '8px 16px',
-                    backgroundColor: '#17a2b8',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '14px'
-                  }}
-                >
-                  🎯 Go to Implicit Flow
-                </button>
-                <button
-                  onClick={() => {
-                    console.log('🔍 [UserInfoFlow] Debug info:');
-                    console.log('Config:', config);
-                    console.log('Tokens:', tokens);
-                    console.log('Token expired check:', tokens?.access_token ? isTokenExpired(tokens.access_token) : 'No token');
-                    alert('Check browser console for debug information');
-                  }}
-                  style={{
-                    padding: '8px 16px',
-                    backgroundColor: '#6c757d',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '14px'
-                  }}
-                >
-                  🔍 Debug Info
-                </button>
-                <button
-                  onClick={() => {
-                    // Try to manually load tokens from multiple possible locations
-                    const possibleTokenKeys = [
-                      'pingone_playground_tokens', // Official storage key
-                      'oauth_tokens',              // Alternative key
-                      'tokens',                     // Generic tokens key
-                      'access_token'               // Direct token storage
-                    ];
+            <>
+              {/* Debug info for token detection */}
+              <div style={{ 
+                marginBottom: '1rem', 
+                padding: '0.5rem', 
+                backgroundColor: '#f0f9ff', 
+                border: '1px solid #0ea5e9', 
+                borderRadius: '0.25rem',
+                fontSize: '0.875rem'
+              }}>
+                <strong>🔍 Token Detection Debug:</strong><br />
+                • Config exists: {config ? 'Yes' : 'No'}<br />
+                • Authentication mode: {useAuthentication ? 'Enabled' : 'Disabled'}<br />
+                • Tokens object: {tokens ? 'Exists' : 'Null/Undefined'}<br />
+                • Access token: {tokens?.access_token ? 'Present' : 'Missing'}<br />
+                • Token expired: {tokens?.access_token ? (isTokenExpired(tokens.access_token) ? 'Yes' : 'No') : 'N/A'}<br />
+                • localStorage pingone_playground_tokens: {localStorage.getItem('pingone_playground_tokens') ? 'Present' : 'Missing'}
+              </div>
+              <ErrorMessage>
+                <FiAlertCircle />
+                <strong>Sign-in Required:</strong> Authentication mode is enabled. Complete an OAuth login with openid scope to obtain a valid access token before calling UserInfo.
+                <br /><br />
+                <strong>To get tokens:</strong>
+                <ul style={{ marginTop: '10px', paddingLeft: '20px' }}>
+                  <li>Go to any OAuth flow page (e.g., Authorization Code Flow)</li>
+                  <li>Complete the OAuth flow to get tokens</li>
+                  <li>Return here to use the UserInfo endpoint</li>
+                </ul>
+                <br />
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  <button
+                    onClick={() => window.location.href = '/flows/authorization-code'}
+                    style={{
+                      padding: '8px 16px',
+                      backgroundColor: '#28a745',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    🔐 Go to Authorization Code Flow
+                  </button>
+                  <button
+                    onClick={() => window.location.href = '/flows/implicit'}
+                    style={{
+                      padding: '8px 16px',
+                      backgroundColor: '#17a2b8',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    🎯 Go to Implicit Flow
+                  </button>
+                  <button
+                    onClick={() => {
+                      console.log('🔍 [UserInfoFlow] Debug info:');
+                      console.log('Config:', config);
+                      console.log('Tokens:', tokens);
+                      console.log('Token expired check:', tokens?.access_token ? isTokenExpired(tokens.access_token) : 'No token');
+                      alert('Check browser console for debug information');
+                    }}
+                    style={{
+                      padding: '8px 16px',
+                      backgroundColor: '#6c757d',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    🔍 Debug Info
+                  </button>
+                  <button
+                    onClick={() => {
+                      // Try to manually load tokens from multiple possible locations
+                      const possibleTokenKeys = [
+                        'pingone_playground_tokens', // Official storage key
+                        'oauth_tokens',              // Alternative key
+                        'tokens',                     // Generic tokens key
+                        'access_token'               // Direct token storage
+                      ];
 
-                    let foundTokens = false;
-                    for (const key of possibleTokenKeys) {
-                      const storedTokens = localStorage.getItem(key);
-                      if (storedTokens) {
-                        try {
-                          let parsedTokens;
-                          if (key === 'access_token') {
-                            // Handle direct token storage
-                            parsedTokens = { access_token: storedTokens };
-                          } else {
-                            parsedTokens = JSON.parse(storedTokens);
+                      let foundTokens = false;
+                      for (const key of possibleTokenKeys) {
+                        const storedTokens = localStorage.getItem(key);
+                        if (storedTokens) {
+                          try {
+                            let parsedTokens;
+                            if (key === 'access_token') {
+                              // Handle direct token storage
+                              parsedTokens = { access_token: storedTokens };
+                            } else {
+                              parsedTokens = JSON.parse(storedTokens);
+                            }
+
+                            if (parsedTokens.access_token) {
+                              console.log(`✅ [UserInfoFlow] Found tokens in '${key}', attempting to load...`);
+                              foundTokens = true;
+
+                              // Try to store in the official location for the auth context
+                              localStorage.setItem('pingone_playground_tokens', JSON.stringify(parsedTokens));
+                              console.log('✅ [UserInfoFlow] Copied tokens to official storage location');
+
+                              // Reload the page to trigger auth context reload
+                              window.location.reload();
+                              break;
+                            }
+                          } catch (error) {
+                            console.warn(`Failed to parse tokens from '${key}':`, error);
                           }
-
-                          if (parsedTokens.access_token) {
-                            console.log(`✅ [UserInfoFlow] Found tokens in '${key}', attempting to load...`);
-                            foundTokens = true;
-
-                            // Try to store in the official location for the auth context
-                            localStorage.setItem('pingone_playground_tokens', JSON.stringify(parsedTokens));
-                            console.log('✅ [UserInfoFlow] Copied tokens to official storage location');
-
-                            // Reload the page to trigger auth context reload
-                            window.location.reload();
-                            break;
-                          }
-                        } catch (error) {
-                          console.warn(`Failed to parse tokens from '${key}':`, error);
                         }
                       }
-                    }
 
-                    if (!foundTokens) {
-                      alert('No tokens found in any localStorage location. Please complete an OAuth flow first.');
-                    }
-                  }}
-                  style={{
-                    padding: '8px 16px',
-                    backgroundColor: '#ffc107',
-                    color: '#212529',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '14px'
-                  }}
-                >
-                  🔄 Load Tokens from Storage
-                </button>
-              </div>
-            </ErrorMessage>
+                      if (!foundTokens) {
+                        alert('No tokens found in any localStorage location. Please complete an OAuth flow first.');
+                      }
+                    }}
+                    style={{
+                      padding: '8px 16px',
+                      backgroundColor: '#ffc107',
+                      color: '#212529',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    🔄 Load Tokens from Storage
+                  </button>
+                  <button
+                    onClick={() => {
+                      // Force refresh the page to reload auth context
+                      console.log('🔄 [UserInfoFlow] Force refreshing page to reload auth context...');
+                      window.location.reload();
+                    }}
+                    style={{
+                      padding: '8px 16px',
+                      backgroundColor: '#dc3545',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    🔄 Force Refresh Page
+                  </button>
+                </div>
+              </ErrorMessage>
+            </>
           )}
 
           {error && (
