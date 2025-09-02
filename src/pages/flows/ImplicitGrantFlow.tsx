@@ -270,7 +270,7 @@ const ErrorMessage = styled.div`
 `;
 
 const ImplicitGrantFlow = () => {
-  const { config } = useOAuth() as any;
+  const { config } = useAuth();
   const [demoStatus, setDemoStatus] = useState('idle');
   const [currentStep, setCurrentStep] = useState(0);
   const [authUrl, setAuthUrl] = useState('');
