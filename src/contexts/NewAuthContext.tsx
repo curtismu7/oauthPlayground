@@ -73,110 +73,136 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     requestParams: Record<string, string>;
   } | null>(null);
 
-  // Simple config using Vite environment variables with fallback to localStorage
-  const config = useMemo<AppConfig>(() => {
+  // Configuration state that updates when localStorage changes
+  const [config, setConfig] = useState<AppConfig>(() => {
+    // Initialize config on first render
+    return loadConfiguration();
+  });
+
+  // Function to load configuration from environment variables or localStorage
+  function loadConfiguration(): AppConfig {
     const envId = (window as any).__PINGONE_ENVIRONMENT_ID__;
     const apiUrl = (window as any).__PINGONE_API_URL__;
     const clientId = (window as any).__PINGONE_CLIENT_ID__;
 
     // Debug logging
-    console.log('🔍 [NewAuthContext] Environment variables:', {
+    console.log('🔍 [NewAuthContext] Loading configuration...', {
       envId,
       apiUrl,
       clientId,
       redirectUri: (window as any).__PINGONE_REDIRECT_URI__
     });
 
-    // Check if we have the required configuration
-    if (!envId || !apiUrl || !clientId) {
-      console.warn('⚠️ [NewAuthContext] Missing required environment variables, checking localStorage...');
+    // Check if we have the required configuration from environment variables
+    if (envId && apiUrl && clientId) {
+      console.log('✅ [NewAuthContext] Using environment variables for configuration');
       
-      // Try to get from localStorage as fallback
-      console.log('🔍 [NewAuthContext] Checking localStorage for configuration...');
-      
-      // Check multiple possible keys for configuration
-      const possibleKeys = ['pingone_config', 'pingoneConfig', 'pingone', 'config'];
-      let storedConfig = null;
-      let configKey = null;
-      
-      for (const key of possibleKeys) {
-        const item = localStorage.getItem(key);
-        if (item) {
-          try {
-            const parsed = JSON.parse(item);
-            if (parsed.clientId || parsed.environmentId) {
-              storedConfig = parsed;
-              configKey = key;
-              console.log(`🔍 [NewAuthContext] Found config in localStorage key '${key}':`, parsed);
-              break;
-            }
-          } catch (error) {
-            console.warn(`⚠️ [NewAuthContext] Failed to parse localStorage key '${key}':`, error);
-          }
-        }
-      }
-      
-      if (storedConfig) {
-        console.log('🔍 [NewAuthContext] Using stored config from localStorage:', storedConfig);
-        
-        // Map the stored config fields to the expected AppConfig structure
-        const mappedConfig = {
-          disableLogin: false,
-          clientId: storedConfig.clientId || '',
-          clientSecret: storedConfig.clientSecret || '',
-          redirectUri: storedConfig.redirectUri || `${window.location.origin}/callback`,
-          authorizationEndpoint: storedConfig.authEndpoint || storedConfig.authorizationEndpoint || '', // Map authEndpoint to authorizationEndpoint
-          tokenEndpoint: storedConfig.tokenEndpoint || '',
-          userInfoEndpoint: storedConfig.userInfoEndpoint || '',
-          endSessionEndpoint: storedConfig.endSessionEndpoint || '',
-          scopes: storedConfig.scopes || ['openid', 'profile', 'email'],
-          environmentId: storedConfig.environmentId || ''
-        };
-        
-        console.log('🔍 [NewAuthContext] Mapped config:', mappedConfig);
-        return mappedConfig;
-      }
-      
-      console.error('❌ [NewAuthContext] No configuration available from environment or localStorage');
-      return {
+      const envConfig = {
         disableLogin: false,
-        clientId: '',
-        clientSecret: '',
-        redirectUri: `${window.location.origin}/callback`,
-        authorizationEndpoint: '',
-        tokenEndpoint: '',
-        userInfoEndpoint: '',
-        endSessionEndpoint: '',
+        clientId: clientId || '',
+        clientSecret: (window as any).__PINGONE_CLIENT_SECRET__ || '',
+        redirectUri: (window as any).__PINGONE_REDIRECT_URI__ || `${window.location.origin}/callback`,
+        authorizationEndpoint: `${apiUrl}/${envId}/as/authorize`,
+        tokenEndpoint: `${apiUrl}/${envId}/as/token`,
+        userInfoEndpoint: `${apiUrl}/${envId}/as/userinfo`,
+        endSessionEndpoint: `${apiUrl}/${envId}/as/endsession`,
         scopes: ['openid', 'profile', 'email'],
-        environmentId: ''
+        environmentId: envId || ''
       };
+      
+      // Store config in localStorage for fallback
+      try {
+        localStorage.setItem('pingone_config', JSON.stringify(envConfig));
+        console.log('💾 [NewAuthContext] Environment config stored in localStorage');
+      } catch (error) {
+        console.warn('⚠️ [NewAuthContext] Failed to store env config in localStorage:', error);
+      }
+      
+      return envConfig;
     }
 
-    console.log('✅ [NewAuthContext] Configuration loaded successfully from environment variables');
+    // Fallback to localStorage
+    console.log('⚠️ [NewAuthContext] Environment variables missing, checking localStorage...');
     
-    const config = {
-      disableLogin: false, // Always allow login in this version
-      clientId: clientId || '',
-      clientSecret: (window as any).__PINGONE_CLIENT_SECRET__ || '',
-      redirectUri: (window as any).__PINGONE_REDIRECT_URI__ || `${window.location.origin}/callback`,
-      authorizationEndpoint: apiUrl && envId ? `${apiUrl}/${envId}/as/authorize` : '',
-      tokenEndpoint: apiUrl && envId ? `${apiUrl}/${envId}/as/token` : '',
-      userInfoEndpoint: apiUrl && envId ? `${apiUrl}/${envId}/as/userinfo` : '',
-      endSessionEndpoint: apiUrl && envId ? `${apiUrl}/${envId}/as/endsession` : '',
-      scopes: ['openid', 'profile', 'email'],
-      environmentId: envId || ''
-    };
-    
-    // Store config in localStorage for fallback
-    try {
-      localStorage.setItem('pingone_config', JSON.stringify(config));
-      console.log('💾 [NewAuthContext] Configuration stored in localStorage for fallback');
-    } catch (error) {
-      console.warn('⚠️ [NewAuthContext] Failed to store config in localStorage:', error);
+    const storedConfig = localStorage.getItem('pingone_config');
+    if (storedConfig) {
+      try {
+        const parsed = JSON.parse(storedConfig);
+        console.log('🔍 [NewAuthContext] Found stored config:', parsed);
+        
+        // Validate that we have the minimum required fields
+        if (parsed.clientId && parsed.environmentId) {
+          // Map the stored config fields to the expected AppConfig structure
+          const mappedConfig = {
+            disableLogin: false,
+            clientId: parsed.clientId || '',
+            clientSecret: parsed.clientSecret || '',
+            redirectUri: parsed.redirectUri || `${window.location.origin}/callback`,
+            authorizationEndpoint: parsed.authEndpoint || parsed.authorizationEndpoint || '',
+            tokenEndpoint: parsed.tokenEndpoint || '',
+            userInfoEndpoint: parsed.userInfoEndpoint || '',
+            endSessionEndpoint: parsed.endSessionEndpoint || '',
+            scopes: parsed.scopes || ['openid', 'profile', 'email'],
+            environmentId: parsed.environmentId || ''
+          };
+          
+          console.log('✅ [NewAuthContext] Using stored config from localStorage:', mappedConfig);
+          return mappedConfig;
+        } else {
+          console.warn('⚠️ [NewAuthContext] Stored config missing required fields:', parsed);
+        }
+      } catch (error) {
+        console.error('❌ [NewAuthContext] Failed to parse stored config:', error);
+      }
     }
     
-    return config;
+    console.error('❌ [NewAuthContext] No valid configuration available');
+    return {
+      disableLogin: false,
+      clientId: '',
+      clientSecret: '',
+      redirectUri: `${window.location.origin}/callback`,
+      authorizationEndpoint: '',
+      tokenEndpoint: '',
+      userInfoEndpoint: '',
+      endSessionEndpoint: '',
+      scopes: ['openid', 'profile', 'email'],
+      environmentId: ''
+    };
+  }
+
+  // Function to refresh configuration
+  const refreshConfig = useCallback(() => {
+    console.log('🔄 [NewAuthContext] Refreshing configuration...');
+    const newConfig = loadConfiguration();
+    setConfig(newConfig);
   }, []);
+
+  // Listen for localStorage changes and force config refresh
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'pingone_config') {
+        console.log('🔄 [NewAuthContext] localStorage pingone_config changed, refreshing config...');
+        refreshConfig();
+      }
+    };
+
+    // Listen for storage events from other tabs/windows
+    window.addEventListener('storage', handleStorageChange);
+
+    // Also listen for custom events (for same-tab updates)
+    const handleCustomStorageChange = () => {
+      console.log('🔄 [NewAuthContext] Custom storage event received, refreshing config...');
+      refreshConfig();
+    };
+
+    window.addEventListener('pingone-config-changed', handleCustomStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('pingone-config-changed', handleCustomStorageChange);
+    };
+  }, [refreshConfig]);
 
   // Update state helper
   const updateState = useCallback((updates: Partial<AuthState>) => {
@@ -421,6 +447,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Context value
   const contextValue = useMemo(() => ({
     ...state,
+    config, // Add the config to the context
     login,
     logout,
     handleCallback,
@@ -429,7 +456,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     authRequestData,
     proceedWithOAuth,
     closeAuthModal,
-  }), [state, login, logout, handleCallback, setAuthState, showAuthModal, authRequestData, proceedWithOAuth, closeAuthModal]);
+  }), [state, config, login, logout, handleCallback, setAuthState, showAuthModal, authRequestData, proceedWithOAuth, closeAuthModal]);
 
   return (
     <AuthContext.Provider value={contextValue}>
