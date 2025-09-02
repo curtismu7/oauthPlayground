@@ -4,6 +4,7 @@ import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiEye, FiAlertCircle, FiCode, FiKey, FiShield } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
+import ConfigurationButton from '../../components/ConfigurationButton';
 import ColorCodedURL from '../../components/ColorCodedURL';
 
 const Container = styled.div`
@@ -489,6 +490,10 @@ if (Date.now() / 1000 > payload.exp) {
           tokens while maintaining security through PKCE and server-side code exchange.
         </p>
       </Header>
+
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+        <ConfigurationButton flowType="hybrid" />
+      </div>
 
       <FlowOverview>
         <CardHeader>

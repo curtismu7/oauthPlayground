@@ -4,6 +4,7 @@ import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiEye, FiCheckCircle, FiAlertCircle, FiCode, FiShield, FiKey, FiArrowRight } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
+import ConfigurationButton from '../../components/ConfigurationButton';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -596,6 +597,10 @@ console.log('ID token is valid!');`
           with real JWT parsing and cryptographic verification.
         </p>
       </Header>
+
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+        <ConfigurationButton flowType="id_tokens" />
+      </div>
 
       <FlowOverview>
         <CardHeader>
