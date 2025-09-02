@@ -190,6 +190,11 @@ const ImplicitFlowOIDC: React.FC = () => {
   &nonce=${Math.random().toString(36).substring(2, 15)}
   &state=${Math.random().toString(36).substring(2, 15)}`,
       execute: () => {
+        console.log('🔍 [ImplicitFlowOIDC] Config in execute:', config);
+        console.log('🔍 [ImplicitFlowOIDC] authorizationEndpoint:', config.authorizationEndpoint);
+        console.log('🔍 [ImplicitFlowOIDC] authEndpoint:', config.authEndpoint);
+        console.log('🔍 [ImplicitFlowOIDC] environmentId:', config.environmentId);
+        
         if (!config) {
           setError('Configuration required. Please configure your PingOne settings first.');
           return;
@@ -205,7 +210,9 @@ const ImplicitFlowOIDC: React.FC = () => {
         });
 
         const authEndpoint = (config.authorizationEndpoint || config.authEndpoint || '').replace('{envId}', config.environmentId);
+        console.log('🔍 [ImplicitFlowOIDC] Final authEndpoint after replacement:', authEndpoint);
         const url = `${authEndpoint}?${params.toString()}`;
+        console.log('🔍 [ImplicitFlowOIDC] Final URL constructed:', url);
 
         setStepResults(prev => ({ ...prev, 0: { url } }));
         setExecutedSteps(prev => new Set(prev).add(0));
