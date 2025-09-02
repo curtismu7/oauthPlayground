@@ -27,6 +27,8 @@ import TokenManagement from './pages/TokenManagement';
 import AIOpenIDConnectOverview from './pages/AIOpenIDConnectOverview';
 import AdvancedConfiguration from './pages/AdvancedConfiguration';
 import InteractiveTutorials from './pages/InteractiveTutorials';
+import OAuth21 from './pages/OAuth21';
+import OIDCSessionManagement from './pages/OIDCSessionManagement';
 import AuthorizationRequestModal from './components/AuthorizationRequestModal';
 
 const AppContainer = styled.div`
@@ -195,6 +197,9 @@ const AppRoutes = () => {
             <Route path="/advanced-config" element={<AdvancedConfiguration />} />
 
             <Route path="/tutorials" element={<InteractiveTutorials />} />
+
+            <Route path="/oauth-2-1" element={<OAuth21 />} />
+            <Route path="/oidc-session-management" element={<OIDCSessionManagement />} />
 
             <Route path="*" element={<div>Not Found</div>} />
           </Routes>
