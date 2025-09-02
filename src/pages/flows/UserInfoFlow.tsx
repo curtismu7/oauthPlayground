@@ -1231,26 +1231,106 @@ console.log('Welcome, ' + user.name + '!');`,
                         )}
                         {stepResult.headers && (
                           <div style={{ marginTop: '0.5rem' }}>
-                            <strong>Request Headers:</strong><br />
-                            <pre>{JSON.stringify(stepResult.headers, null, 2)}</pre>
+                            <strong>Request Headers:</strong>
+                            <div style={{
+                              marginTop: '0.5rem',
+                              backgroundColor: '#f0f9ff',
+                              border: '1px solid #0ea5e9',
+                              borderRadius: '0.5rem',
+                              padding: '1rem',
+                              fontFamily: 'SFMono-Regular, Monaco, Inconsolata, Roboto Mono, Consolas, Courier New, monospace',
+                              fontSize: '0.875rem',
+                              lineHeight: '1.5',
+                              overflow: 'auto',
+                              maxHeight: '300px'
+                            }}>
+                              <pre style={{
+                                margin: 0,
+                                whiteSpace: 'pre-wrap',
+                                wordBreak: 'break-word',
+                                color: '#0c4a6e'
+                              }}>
+                                {JSON.stringify(stepResult.headers, null, 2)}
+                              </pre>
+                            </div>
                           </div>
                         )}
                         {stepResult.response && (
                           <div style={{ marginTop: '0.5rem' }}>
-                            <strong>UserInfo Response:</strong><br />
-                            <pre>{JSON.stringify(stepResult.response, null, 2)}</pre>
+                            <strong>UserInfo Response:</strong>
+                            <div style={{
+                              marginTop: '0.5rem',
+                              backgroundColor: '#f8fafc',
+                              border: '1px solid #e2e8f0',
+                              borderRadius: '0.5rem',
+                              padding: '1rem',
+                              fontFamily: 'SFMono-Regular, Monaco, Inconsolata, Roboto Mono, Consolas, Courier New, monospace',
+                              fontSize: '0.875rem',
+                              lineHeight: '1.5',
+                              overflow: 'auto',
+                              maxHeight: '400px'
+                            }}>
+                              <pre style={{
+                                margin: 0,
+                                whiteSpace: 'pre-wrap',
+                                wordBreak: 'break-word',
+                                color: '#1f2937'
+                              }}>
+                                {JSON.stringify(stepResult.response, null, 2)}
+                              </pre>
+                            </div>
                           </div>
                         )}
                         {stepResult.userInfo && (
                           <div style={{ marginTop: '0.5rem' }}>
-                            <strong>Processed UserInfo:</strong><br />
-                            <pre>{JSON.stringify(stepResult.userInfo, null, 2)}</pre>
+                            <strong>Processed UserInfo:</strong>
+                            <div style={{
+                              marginTop: '0.5rem',
+                              backgroundColor: '#f0fdf4',
+                              border: '1px solid #22c55e',
+                              borderRadius: '0.5rem',
+                              padding: '1rem',
+                              fontFamily: 'SFMono-Regular, Monaco, Inconsolata, Roboto Mono, Consolas, Courier New, monospace',
+                              fontSize: '0.875rem',
+                              lineHeight: '1.5',
+                              overflow: 'auto',
+                              maxHeight: '400px'
+                            }}>
+                              <pre style={{
+                                margin: 0,
+                                whiteSpace: 'pre-wrap',
+                                wordBreak: 'break-word',
+                                color: '#14532d'
+                              }}>
+                                {JSON.stringify(stepResult.userInfo, null, 2)}
+                              </pre>
+                            </div>
                           </div>
                         )}
                         {stepResult.validation && (
                           <div style={{ marginTop: '0.5rem' }}>
-                            <strong>Validation Results:</strong><br />
-                            <pre>{JSON.stringify(stepResult.validation, null, 2)}</pre>
+                            <strong>Validation Results:</strong>
+                            <div style={{
+                              marginTop: '0.5rem',
+                              backgroundColor: '#fef3c7',
+                              border: '1px solid #f59e0b',
+                              borderRadius: '0.5rem',
+                              padding: '1rem',
+                              fontFamily: 'SFMono-Regular, Monaco, Inconsolata, Roboto Mono, Consolas, Courier New, monospace',
+                              fontSize: '0.875rem',
+                              lineHeight: '1.5',
+                              overflow: 'auto',
+                              maxHeight: '300px'
+                            }}>
+                              <pre style={{
+                                margin: 0,
+                                whiteSpace: 'pre-wrap',
+                                wordBreak: 'break-word',
+                                color: '#92400e'
+                              }}>
+                                {JSON.stringify(stepResult.validation, null, 2)}
+                              </pre>
+                            </div>
                           </div>
                         )}
                         {stepResult.message && (
