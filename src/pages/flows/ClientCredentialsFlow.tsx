@@ -327,7 +327,7 @@ type ApiCall = {
 };
 
 const ClientCredentialsFlow = () => {
-  const { config } = useOAuth() as any;
+  const { config } = useAuth();
   const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [tokensReceived, setTokensReceived] = useState<Tokens | null>(null);
