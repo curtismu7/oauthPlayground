@@ -474,42 +474,76 @@ const UserInfoFlow: React.FC = () => {
     tokenExpired: tokens?.access_token ? isTokenExpired(tokens.access_token) : 'N/A'
   });
 
-  // Try to load tokens from localStorage if not available in context
-  useEffect(() => {
-    if (!tokens?.access_token) {
-      // Check multiple possible token storage locations
-      const possibleTokenKeys = [
-        'pingone_playground_tokens', // Official storage key
-        'oauth_tokens',              // Alternative key
-        'access_token',              // Direct token storage
-        'tokens'                     // Generic tokens key
-      ];
+  // Enhanced token detection and loading system
+  const [localTokens, setLocalTokens] = useState<OAuthTokens | null>(null);
+  
+  // Function to scan localStorage for tokens
+  const scanForTokens = useCallback(() => {
+    console.log('🔍 [UserInfoFlow] Scanning localStorage for tokens...');
+    
+    const possibleTokenKeys = [
+      'pingone_playground_tokens', // Official storage key
+      'oauth_tokens',              // Alternative key
+      'access_token',              // Direct token storage
+      'tokens'                     // Generic tokens key
+    ];
 
-      for (const key of possibleTokenKeys) {
-        const storedTokens = localStorage.getItem(key);
-        if (storedTokens) {
-          try {
-            let parsedTokens;
-            if (key === 'access_token') {
-              // Handle direct token storage
-              parsedTokens = { access_token: storedTokens };
-            } else {
-              parsedTokens = JSON.parse(storedTokens);
-            }
-
-            if (parsedTokens.access_token) {
-              console.log(`✅ [UserInfoFlow] Found tokens in localStorage key '${key}':`, parsedTokens);
-              // Update the auth context with the found tokens
-              updateTokens(parsedTokens);
-              break;
-            }
-          } catch (error) {
-            console.warn(`🔍 [UserInfoFlow] Failed to parse stored tokens for key '${key}':`, error);
+    for (const key of possibleTokenKeys) {
+      const storedTokens = localStorage.getItem(key);
+      if (storedTokens) {
+        try {
+          let parsedTokens;
+          if (key === 'access_token') {
+            // Handle direct token storage
+            parsedTokens = { access_token: storedTokens };
+          } else {
+            parsedTokens = JSON.parse(storedTokens);
           }
+
+          if (parsedTokens.access_token) {
+            console.log(`✅ [UserInfoFlow] Found tokens in localStorage key '${key}':`, parsedTokens);
+            setLocalTokens(parsedTokens);
+            
+            // Also update the auth context if it doesn't have tokens
+            if (!tokens?.access_token) {
+              updateTokens(parsedTokens);
+            }
+            return parsedTokens;
+          }
+        } catch (error) {
+          console.warn(`🔍 [UserInfoFlow] Failed to parse stored tokens for key '${key}':`, error);
         }
       }
     }
+    
+    console.log('ℹ️ [UserInfoFlow] No tokens found in localStorage');
+    setLocalTokens(null);
+    return null;
   }, [tokens, updateTokens]);
+
+  // Load tokens on mount and when tokens change
+  useEffect(() => {
+    scanForTokens();
+  }, [scanForTokens]);
+
+  // Listen for storage changes (when tokens are added/removed from other tabs)
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key && e.key.includes('token') || e.key === 'pingone_playground_tokens') {
+        console.log('🔄 [UserInfoFlow] Storage changed, rescanning for tokens:', e.key);
+        scanForTokens();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [scanForTokens]);
+
+  // Function to manually refresh tokens
+  const refreshTokens = useCallback(() => {
+    console.log('🔄 [UserInfoFlow] Manually refreshing tokens...');
+    scanForTokens();
+  }, [scanForTokens]);
   const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [currentStep, setCurrentStep] = useState(0);
   const [userInfo, setUserInfo] = useState<OIDCUserInfo | null>(null);
@@ -631,25 +665,28 @@ const accessToken = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...';
 // - Expiration time
 // - Token type (Bearer)`,
       execute: () => {
-        if (!tokens?.access_token) {
-          setError('No access token available. Complete an OAuth flow with openid scope first.');
+        // Try to get tokens from multiple sources
+        const availableTokens = tokens?.access_token ? tokens : localTokens;
+        
+        if (!availableTokens?.access_token) {
+          setError('No access token available. Complete an OAuth flow with openid scope first, or check if tokens are stored in localStorage.');
           return;
         }
 
-        if (isTokenExpired(tokens.access_token)) {
+        if (isTokenExpired(availableTokens.access_token)) {
           setError('Access token is expired. Please sign in again.');
           return;
         }
 
-        setAccessToken(tokens.access_token);
+        setAccessToken(availableTokens.access_token);
         setStepResults(prev => ({
           ...prev,
           0: {
-            token: tokens.access_token,
+            token: availableTokens.access_token,
             tokenInfo: {
-              type: tokens.token_type,
-              scopes: tokens.scope,
-              expires: tokens.expires_at ? new Date(tokens.expires_at) : null
+              type: availableTokens.token_type,
+              scopes: availableTokens.scope,
+              expires: availableTokens.expires_at ? new Date(availableTokens.expires_at) : null
             }
           }
         }));
@@ -982,22 +1019,26 @@ console.log('Welcome, ' + user.name + '!');`,
 
           {config && useAuthentication && (!tokens?.access_token || (tokens?.access_token && isTokenExpired(tokens.access_token))) && (
             <>
-              {/* Debug info for token detection */}
+              {/* Enhanced Token Detection Debug Panel */}
               <div style={{ 
                 marginBottom: '1rem', 
-                padding: '0.5rem', 
+                padding: '1rem', 
                 backgroundColor: '#f0f9ff', 
-                border: '1px solid #0ea5e9', 
-                borderRadius: '0.25rem',
+                border: '2px solid #0ea5e9', 
+                borderRadius: '0.5rem',
                 fontSize: '0.875rem'
               }}>
-                <strong>🔍 Token Detection Debug:</strong><br />
-                • Config exists: {config ? 'Yes' : 'No'}<br />
-                • Authentication mode: {useAuthentication ? 'Enabled' : 'Disabled'}<br />
-                • Tokens object: {tokens ? 'Exists' : 'Null/Undefined'}<br />
-                • Access token: {tokens?.access_token ? 'Present' : 'Missing'}<br />
-                • Token expired: {tokens?.access_token ? (isTokenExpired(tokens.access_token) ? 'Yes' : 'No') : 'N/A'}<br />
-                • localStorage pingone_playground_tokens: {localStorage.getItem('pingone_playground_tokens') ? 'Present' : 'Missing'}
+                <h4 style={{ margin: '0 0 0.5rem 0', color: '#0c4a6e' }}>🔍 Enhanced Token Detection System</h4>
+                <div style={{ color: '#0c4a6e', lineHeight: '1.6' }}>
+                  <strong>🔐 Auth Context Tokens:</strong> {tokens ? '✅ Available' : '❌ Not available'}<br />
+                  <strong>💾 Local Storage Tokens:</strong> {localTokens ? '✅ Available' : '❌ Not available'}<br />
+                  <strong>🎯 Active Access Token:</strong> {accessToken ? `${accessToken.substring(0, 20)}...` : 'None'}<br />
+                  <strong>📍 Token Source:</strong> {tokens?.access_token ? 'Auth Context' : localTokens?.access_token ? 'Local Storage' : 'None'}<br />
+                  <strong>⚙️ Config:</strong> {config ? '✅ Loaded' : '❌ Not loaded'}<br />
+                  <strong>⏰ Token expired:</strong> {accessToken ? (isTokenExpired(accessToken) ? '❌ Yes' : '✅ No') : 'N/A'}<br />
+                  <strong>🔑 Scope:</strong> {(tokens?.scope || localTokens?.scope) || 'None'}<br />
+                  <strong>🗂️ localStorage keys:</strong> {Object.keys(localStorage).filter(key => key.includes('token') || key.includes('pingone')).join(', ') || 'None'}
+                </div>
               </div>
               <ErrorMessage>
                 <FiAlertCircle />
@@ -1060,54 +1101,7 @@ console.log('Welcome, ' + user.name + '!');`,
                     🔍 Debug Info
                   </button>
                   <button
-                    onClick={() => {
-                      // Try to manually load tokens from multiple possible locations
-                      const possibleTokenKeys = [
-                        'pingone_playground_tokens', // Official storage key
-                        'oauth_tokens',              // Alternative key
-                        'tokens',                     // Generic tokens key
-                        'access_token'               // Direct token storage
-                      ];
-
-                      let foundTokens = false;
-                      for (const key of possibleTokenKeys) {
-                        const storedTokens = localStorage.getItem(key);
-                        if (storedTokens) {
-                          try {
-                            let parsedTokens;
-                            if (key === 'access_token') {
-                              // Handle direct token storage
-                              parsedTokens = { access_token: storedTokens };
-                            } else {
-                              parsedTokens = JSON.parse(storedTokens);
-                            }
-
-                            if (parsedTokens.access_token) {
-                              console.log(`✅ [UserInfoFlow] Found tokens in '${key}', attempting to load...`);
-                              foundTokens = true;
-
-                              // Try to store in the official location for the auth context
-                              const success = storeOAuthTokens(parsedTokens);
-                              if (success) {
-                                console.log('✅ [UserInfoFlow] Tokens stored successfully using shared utility');
-                              } else {
-                                console.error('❌ [UserInfoFlow] Failed to store tokens using shared utility');
-                              }
-
-                              // Reload the page to trigger auth context reload
-                              window.location.reload();
-                              break;
-                            }
-                          } catch (error) {
-                            console.warn(`Failed to parse tokens from '${key}':`, error);
-                          }
-                        }
-                      }
-
-                      if (!foundTokens) {
-                        alert('No tokens found in any localStorage location. Please complete an OAuth flow first.');
-                      }
-                    }}
+                    onClick={refreshTokens}
                     style={{
                       padding: '8px 16px',
                       backgroundColor: '#ffc107',
@@ -1118,7 +1112,7 @@ console.log('Welcome, ' + user.name + '!');`,
                       fontSize: '14px'
                     }}
                   >
-                    🔄 Load Tokens from Storage
+                    🔄 Refresh Token Detection
                   </button>
                   <button
                     onClick={() => {
