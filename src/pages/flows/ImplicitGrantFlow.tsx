@@ -7,6 +7,7 @@ import { ColorCodedURL } from '../../components/ColorCodedURL';
 import { URLParamExplainer } from '../../components/URLParamExplainer';
 import Typewriter from '../../components/Typewriter';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
+import ConfigurationButton from '../../components/ConfigurationButton';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -334,6 +335,10 @@ console.log('User ID:', decodedIdToken.sub);`
           This flow is suitable for client-side applications but has security limitations.
         </p>
       </Header>
+
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+        <ConfigurationButton flowType="implicit" />
+      </div>
 
       <FlowOverview>
         <CardHeader>
