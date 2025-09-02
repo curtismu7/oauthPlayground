@@ -55,6 +55,17 @@ const MainContent = styled.main`
 `;
 
 import type { ReactNode } from 'react';
+// Scroll to top component
+const ScrollToTop: React.FC = () => {
+  const location = useLocation();
+  
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+  
+  return null;
+};
+
 const ProtectedRoute: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
@@ -174,6 +185,7 @@ const AppRoutes = () => {
 
   return (
     <>
+      <ScrollToTop />
       <AppContainer>
         <Navbar toggleSidebar={toggleSidebar} />
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
