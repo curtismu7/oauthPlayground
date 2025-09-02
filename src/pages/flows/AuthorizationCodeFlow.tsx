@@ -1142,8 +1142,8 @@ grant_type=authorization_code
                       </div>
                     )}
 
-                    {/* Next button for each step */}
-                    {isExecuted && index < steps.length - 1 && (
+                    {/* Next button for each step - only show if not already at next step */}
+                    {isExecuted && index < steps.length - 1 && currentStep <= index && (
                       <div style={{ 
                         marginTop: '1rem', 
                         textAlign: 'center',
@@ -1152,9 +1152,10 @@ grant_type=authorization_code
                       }}>
                         <button
                           onClick={() => {
-                            console.log('🔄 [AuthorizationCodeFlow] Next Step button clicked', { currentIndex: index, nextStep: index + 1, currentStepBefore: currentStep });
-                            setCurrentStep(index + 1);
-                            console.log('🔄 [AuthorizationCodeFlow] setCurrentStep called with:', index + 1);
+                            const nextStepIndex = index + 1;
+                            console.log('🔄 [AuthorizationCodeFlow] Next Step button clicked', { currentIndex: index, nextStep: nextStepIndex, currentStepBefore: currentStep });
+                            setCurrentStep(nextStepIndex);
+                            console.log('🔄 [AuthorizationCodeFlow] setCurrentStep called with:', nextStepIndex);
                           }}
                           style={{
                             background: '#3b82f6',
