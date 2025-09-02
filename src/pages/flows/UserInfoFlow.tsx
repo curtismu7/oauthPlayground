@@ -1191,8 +1191,8 @@ console.log('Welcome, ' + user.name + '!');`,
                     <h3>{step.title}</h3>
                     <p>{step.description}</p>
 
-                    {/* Show URL/Code section only after execution and when code exists */}
-                    {isExecuted && step.code && (
+                    {/* Show request code section always (this is the template/example) */}
+                    {step.code && (
                       <CodeBlock>
                         <CopyButton onClick={() => copyToClipboard(step.code)}>
                           Copy
