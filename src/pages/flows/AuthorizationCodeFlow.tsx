@@ -335,6 +335,11 @@ const AuthorizationCodeFlow = () => {
   const [demoStatus, setDemoStatus] = useState('idle');
   const [currentStep, setCurrentStep] = useState(0);
   
+  // Debug currentStep changes
+  useEffect(() => {
+    console.log('🔄 [AuthorizationCodeFlow] currentStep changed to:', currentStep);
+  }, [currentStep]);
+  
   // Flow configuration state
   const [flowConfig, setFlowConfig] = useState<FlowConfig>(() => getDefaultConfig('authorization-code'));
   const [showConfig, setShowConfig] = useState(false);
@@ -1153,10 +1158,21 @@ grant_type=authorization_code
                         <button
                           onClick={() => {
                             const nextStepIndex = index + 1;
-                            console.log('🔄 [AuthorizationCodeFlow] Next Step button clicked', { currentIndex: index, nextStep: nextStepIndex, currentStepBefore: currentStep });
+                            console.log('🔄 [AuthorizationCodeFlow] Next Step button clicked', { 
+                              currentIndex: index, 
+                              nextStep: nextStepIndex, 
+                              currentStepBefore: currentStep,
+                              stepsLength: steps.length,
+                              willAdvance: nextStepIndex > currentStep
+                            });
                             if (nextStepIndex > currentStep) {
+                              console.log('🔄 [AuthorizationCodeFlow] About to call setCurrentStep with:', nextStepIndex);
                               setCurrentStep(nextStepIndex);
                               console.log('🔄 [AuthorizationCodeFlow] setCurrentStep called with:', nextStepIndex);
+                              // Add a small delay to check if state actually changed
+                              setTimeout(() => {
+                                console.log('🔄 [AuthorizationCodeFlow] State after setCurrentStep:', { currentStep });
+                              }, 100);
                             } else {
                               console.log('🔄 [AuthorizationCodeFlow] Already at or past step', nextStepIndex, '- no change needed');
                             }
