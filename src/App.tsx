@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import styled, { ThemeProvider, DefaultTheme } from 'styled-components';
 import { AuthProvider } from './contexts/NewAuthContext';
+import { PageStyleProvider } from './contexts/PageStyleContext';
 import { GlobalStyle, theme } from './styles/global';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
@@ -30,6 +31,7 @@ import InteractiveTutorials from './pages/InteractiveTutorials';
 import OAuth21 from './pages/OAuth21';
 import OIDCSessionManagement from './pages/OIDCSessionManagement';
 import AuthorizationRequestModal from './components/AuthorizationRequestModal';
+import PageChangeSpinner from './components/PageChangeSpinner';
 
 const AppContainer = styled.div`
   display: flex;
@@ -106,6 +108,7 @@ const ProtectedRoute: React.FC<{ children: ReactNode }> = ({ children }) => {
 const AppRoutes = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showCredentialModal, setShowCredentialModal] = useState(false);
+  const [showPageSpinner, setShowPageSpinner] = useState(false);
   const location = useLocation();
   const { showAuthModal, authRequestData, proceedWithOAuth, closeAuthModal } = useAuth();
 
@@ -113,6 +116,18 @@ const AppRoutes = () => {
   useEffect(() => {
     setSidebarOpen(false);
   }, [location]);
+
+  // Show page change spinner when route changes
+  useEffect(() => {
+    setShowPageSpinner(true);
+    
+    // Hide spinner after minimum display time
+    const timer = setTimeout(() => {
+      setShowPageSpinner(false);
+    }, 800);
+    
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
 
   // Check for existing PingOne configuration on app load
   useEffect(() => {
@@ -217,6 +232,11 @@ const AppRoutes = () => {
         onProceed={proceedWithOAuth}
         authorizationUrl={authRequestData?.authorizationUrl || ''}
         requestParams={authRequestData?.requestParams || {}}
+      />
+      
+      <PageChangeSpinner 
+        isVisible={showPageSpinner} 
+        message="Loading page..." 
       />
     </>
   );
@@ -378,8 +398,10 @@ function App() {
   return (
     <ThemeProvider theme={themeWithDefaults}>
       <AuthProvider>
-        <GlobalStyle />
-        <AppRoutes />
+        <PageStyleProvider>
+          <GlobalStyle />
+          <AppRoutes />
+        </PageStyleProvider>
       </AuthProvider>
     </ThemeProvider>
   );
