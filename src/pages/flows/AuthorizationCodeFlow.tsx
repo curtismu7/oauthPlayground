@@ -1147,8 +1147,8 @@ grant_type=authorization_code
                       </div>
                     )}
 
-                    {/* Next button for each step - show if executed and not at the last step */}
-                    {isExecuted && index < steps.length - 1 && (
+                    {/* Next button for each step - only show if it can actually advance */}
+                    {isExecuted && index < steps.length - 1 && index + 1 > currentStep && (
                       <div style={{ 
                         marginTop: '1rem', 
                         textAlign: 'center',
@@ -1161,21 +1161,10 @@ grant_type=authorization_code
                             console.log('🔄 [AuthorizationCodeFlow] Next Step button clicked', { 
                               currentIndex: index, 
                               nextStep: nextStepIndex, 
-                              currentStepBefore: currentStep,
-                              stepsLength: steps.length,
-                              willAdvance: nextStepIndex > currentStep
+                              currentStepBefore: currentStep
                             });
-                            if (nextStepIndex > currentStep) {
-                              console.log('🔄 [AuthorizationCodeFlow] About to call setCurrentStep with:', nextStepIndex);
-                              setCurrentStep(nextStepIndex);
-                              console.log('🔄 [AuthorizationCodeFlow] setCurrentStep called with:', nextStepIndex);
-                              // Add a small delay to check if state actually changed
-                              setTimeout(() => {
-                                console.log('🔄 [AuthorizationCodeFlow] State after setCurrentStep:', { currentStep });
-                              }, 100);
-                            } else {
-                              console.log('🔄 [AuthorizationCodeFlow] Already at or past step', nextStepIndex, '- no change needed');
-                            }
+                            setCurrentStep(nextStepIndex);
+                            console.log('🔄 [AuthorizationCodeFlow] setCurrentStep called with:', nextStepIndex);
                           }}
                           style={{
                             background: '#3b82f6',
