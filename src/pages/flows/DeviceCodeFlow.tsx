@@ -775,8 +775,10 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
                     <h3>{step.title}</h3>
                     <p>{step.description}</p>
 
-                    {/* Show code section always */}
-                    <CodeBlock>{step.code}</CodeBlock>
+                    {/* Show code section only after execution and when code exists */}
+                    {isExecuted && step.code && (
+                      <CodeBlock>{step.code}</CodeBlock>
+                    )}
 
                     {/* Show response/result only after step is executed */}
                     {isExecuted && stepResult && (
