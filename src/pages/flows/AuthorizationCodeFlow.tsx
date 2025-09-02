@@ -1142,8 +1142,8 @@ grant_type=authorization_code
                       </div>
                     )}
 
-                    {/* Next button for each step - only show if not already at next step */}
-                    {isExecuted && index < steps.length - 1 && currentStep <= index && (
+                    {/* Next button for each step - show if executed and not at the last step */}
+                    {isExecuted && index < steps.length - 1 && (
                       <div style={{ 
                         marginTop: '1rem', 
                         textAlign: 'center',
@@ -1154,8 +1154,12 @@ grant_type=authorization_code
                           onClick={() => {
                             const nextStepIndex = index + 1;
                             console.log('🔄 [AuthorizationCodeFlow] Next Step button clicked', { currentIndex: index, nextStep: nextStepIndex, currentStepBefore: currentStep });
-                            setCurrentStep(nextStepIndex);
-                            console.log('🔄 [AuthorizationCodeFlow] setCurrentStep called with:', nextStepIndex);
+                            if (nextStepIndex > currentStep) {
+                              setCurrentStep(nextStepIndex);
+                              console.log('🔄 [AuthorizationCodeFlow] setCurrentStep called with:', nextStepIndex);
+                            } else {
+                              console.log('🔄 [AuthorizationCodeFlow] Already at or past step', nextStepIndex, '- no change needed');
+                            }
                           }}
                           style={{
                             background: '#3b82f6',
