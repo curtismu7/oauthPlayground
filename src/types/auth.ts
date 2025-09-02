@@ -26,6 +26,18 @@ export interface AuthState {
 }
 
 export interface AuthContextType extends AuthState {
+  config: {
+    disableLogin: boolean;
+    clientId: string;
+    clientSecret: string;
+    redirectUri: string;
+    authorizationEndpoint: string;
+    tokenEndpoint: string;
+    userInfoEndpoint: string;
+    endSessionEndpoint: string;
+    scopes: string[];
+    environmentId: string;
+  } | null;
   login: (redirectAfterLogin?: string) => Promise<LoginResult>;
   logout: () => void;
   handleCallback: (url: string) => Promise<LoginResult>;
