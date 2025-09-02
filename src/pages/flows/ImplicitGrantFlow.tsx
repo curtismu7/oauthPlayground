@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
-import { FiPlay, FiAlertCircle, FiLock } from 'react-icons/fi';
+import { FiAlertCircle, FiLock } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { ColorCodedURL } from '../../components/ColorCodedURL';
 import { URLParamExplainer } from '../../components/URLParamExplainer';
 import Typewriter from '../../components/Typewriter';
+import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -87,84 +88,7 @@ const DemoSection = styled(Card)`
   margin-bottom: 2rem;
 `;
 
-const DemoControls = styled.div`
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  margin-bottom: 1.5rem;
-`;
 
-const DemoButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 500;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &.primary {
-    background-color: ${({ theme }) => theme.colors.primary};
-    color: white;
-    border: 1px solid transparent;
-
-    &:hover {
-      background-color: ${({ theme }) => theme.colors.primaryDark};
-    }
-  }
-
-  &.secondary {
-    background-color: transparent;
-    color: ${({ theme }) => theme.colors.primary};
-    border: 1px solid ${({ theme }) => theme.colors.primary};
-
-    &:hover {
-      background-color: ${({ theme }) => theme.colors.primary}10;
-    }
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  svg {
-    width: 18px;
-    height: 18px;
-  }
-`;
-
-const StatusIndicator = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-
-  &.idle {
-    background-color: ${({ theme }) => theme.colors.gray100};
-    color: ${({ theme }) => theme.colors.gray700};
-  }
-
-  &.loading {
-    background-color: ${({ theme }) => theme.colors.info}20;
-    color: ${({ theme }) => theme.colors.info};
-  }
-
-  &.success {
-    background-color: ${({ theme }) => theme.colors.success}20;
-    color: ${({ theme }) => theme.colors.success};
-  }
-
-  &.error {
-    background-color: ${({ theme }) => theme.colors.danger}20;
-    color: ${({ theme }) => theme.colors.danger};
-  }
-`;
 
 const StepsContainer = styled.div`
   margin-top: 2rem;
@@ -299,37 +223,11 @@ const ImplicitGrantFlow = () => {
     setCurrentStep(0);
     setError(null);
     setTokensReceived(null);
-
-    try {
-      const url = generateAuthUrl();
-      setAuthUrl(url);
-      setCurrentStep(1);
-
-      // Simulate user clicking the link and being redirected back with tokens
-      // In a real implementation, this would redirect to PingOne
-      setTimeout(() => {
-        setCurrentStep(2);
-
-        // Simulate receiving tokens from the redirect
-        const mockTokens = {
-          access_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-          id_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-          token_type: 'Bearer',
-          expires_in: 3600,
-          scope: 'openid profile email'
-        };
-
-        setTokensReceived(mockTokens);
-        setCurrentStep(3);
-        setDemoStatus('success');
-      }, 3000);
-
-    } catch (err) {
-      console.error('Implicit flow failed:', err);
-      setError('Failed to start implicit flow. Please check your configuration.');
-      setDemoStatus('error');
-    }
+    setAuthUrl('');
+    console.log('🚀 [ImplicitGrantFlow] Starting implicit flow...');
   };
+
+
 
   const resetDemo = () => {
     setDemoStatus('idle');
@@ -339,7 +237,7 @@ const ImplicitGrantFlow = () => {
     setAuthUrl('');
   };
 
-  const steps = [
+  const steps: FlowStep[] = [
     {
       title: 'Generate Authorization URL',
       description: 'Create the authorization URL with the implicit grant parameters',
@@ -352,7 +250,12 @@ client_id: '${config?.clientId || 'your_client_id'}'
 redirect_uri: '${config?.redirectUri || 'https://yourapp.com/callback'}'
 scope: 'openid profile email'
 state: 'random_state_value'
-nonce: 'random_nonce_value'`
+nonce: 'random_nonce_value'`,
+      execute: () => {
+        const url = generateAuthUrl();
+        setAuthUrl(url);
+        console.log('✅ [ImplicitGrantFlow] Authorization URL generated:', url);
+      }
     },
     {
       title: 'Redirect User to Authorization Server',
@@ -363,7 +266,11 @@ window.location.href = authUrl;
 // PingOne handles:
 // - User authentication
 // - Consent for requested scopes
-// - Redirect back with tokens in URL fragment`
+// - Redirect back with tokens in URL fragment`,
+      execute: () => {
+        console.log('✅ [ImplicitGrantFlow] User would be redirected to PingOne');
+        // In a real implementation, this would redirect to PingOne
+      }
     },
     {
       title: 'Handle Redirect with Tokens',
@@ -382,7 +289,19 @@ const expiresIn = params.get('expires_in');
 
 // Store tokens securely
 localStorage.setItem('access_token', accessToken);
-localStorage.setItem('id_token', idToken);`
+localStorage.setItem('id_token', idToken);`,
+      execute: () => {
+        // Simulate receiving tokens from the redirect
+        const mockTokens = {
+          access_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+          id_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+          token_type: 'Bearer',
+          expires_in: 3600,
+          scope: 'openid profile email'
+        };
+        setTokensReceived(mockTokens);
+        console.log('✅ [ImplicitGrantFlow] Tokens received (simulated)');
+      }
     },
     {
       title: 'Use Tokens for API Calls',
@@ -452,29 +371,16 @@ console.log('User ID:', decodedIdToken.sub);`
           <h2>Interactive Demo</h2>
         </CardHeader>
         <CardBody>
-          <DemoControls>
-            <StatusIndicator className={demoStatus}>
-              {demoStatus === 'idle' && 'Ready to start'}
-              {demoStatus === 'loading' && 'Running implicit flow...'}
-              {demoStatus === 'success' && 'Flow completed successfully'}
-              {demoStatus === 'error' && 'Flow failed'}
-            </StatusIndicator>
-            <DemoButton
-              className="primary"
-              onClick={startImplicitFlow}
-              disabled={demoStatus === 'loading' || !config}
-            >
-              <FiPlay />
-              Start Implicit Flow
-            </DemoButton>
-            <DemoButton
-              className="secondary"
-              onClick={resetDemo}
-              disabled={demoStatus === 'idle'}
-            >
-              Reset Demo
-            </DemoButton>
-          </DemoControls>
+          <StepByStepFlow
+            steps={steps}
+            onStart={startImplicitFlow}
+            onReset={resetDemo}
+            status={demoStatus}
+            currentStep={currentStep}
+            onStepChange={setCurrentStep}
+            disabled={!config}
+            title="Implicit Flow"
+          />
 
           {!config && (
             <ErrorMessage>
@@ -490,6 +396,8 @@ console.log('User ID:', decodedIdToken.sub);`
               <strong>Error:</strong> {error}
             </ErrorMessage>
           )}
+
+
 
           {authUrl && (
             <div>
@@ -541,23 +449,7 @@ console.log('User ID:', decodedIdToken.sub);`
             ))}
           </StepsContainer>
 
-          {/* Manual navigation controls */}
-          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
-            <DemoButton
-              className="secondary"
-              onClick={() => setCurrentStep(s => Math.max(0, s - 1))}
-              disabled={demoStatus !== 'loading' || currentStep === 0}
-            >
-              Previous
-            </DemoButton>
-            <DemoButton
-              className="primary"
-              onClick={() => setCurrentStep(s => Math.min(steps.length - 1, s + 1))}
-              disabled={demoStatus !== 'loading' || currentStep >= steps.length - 1}
-            >
-              Next
-            </DemoButton>
-          </div>
+
         </CardBody>
       </DemoSection>
     </Container>
