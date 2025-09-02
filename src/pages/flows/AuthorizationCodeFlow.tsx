@@ -784,26 +784,63 @@ grant_type=authorization_code
           )}
 
           {tokensReceived && (
-            <div>
-              <h3>Tokens Received:</h3>
+            <div style={{ 
+              marginTop: '2rem', 
+              padding: '1.5rem', 
+              backgroundColor: '#f8fafc', 
+              border: '1px solid #e2e8f0', 
+              borderRadius: '0.75rem',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
+            }}>
+              <h3 style={{ 
+                marginTop: '0', 
+                marginBottom: '1.5rem', 
+                color: '#1e293b', 
+                fontSize: '1.5rem',
+                fontWeight: '600',
+                borderBottom: '2px solid #3b82f6',
+                paddingBottom: '0.75rem'
+              }}>
+                🎉 Tokens Received Successfully!
+              </h3>
               <TokenDisplayComponent tokens={tokensReceived} />
-              <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
+              <div style={{ 
+                marginTop: '2rem', 
+                display: 'flex', 
+                gap: '1rem',
+                justifyContent: 'center',
+                paddingTop: '1rem',
+                borderTop: '1px solid #e2e8f0'
+              }}>
                 <button
                   onClick={() => navigate(`/token-management`)}
                   style={{
-                    padding: '0.5rem 1rem',
+                    padding: '0.75rem 1.5rem',
                     backgroundColor: '#3b82f6',
                     color: 'white',
                     border: 'none',
-                    borderRadius: '0.375rem',
+                    borderRadius: '0.5rem',
                     cursor: 'pointer',
-                    fontSize: '0.875rem',
+                    fontSize: '1rem',
+                    fontWeight: '500',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.5rem'
+                    gap: '0.75rem',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.backgroundColor = '#2563eb';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                    e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.backgroundColor = '#3b82f6';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
                   }}
                 >
-                  <FiEye size={16} />
+                  <FiEye size={18} />
                   View Token Management
                 </button>
               </div>
@@ -811,7 +848,7 @@ grant_type=authorization_code
           )}
 
           <StepsContainer>
-            <h3>Flow Steps</h3>
+        <h3>Flow Steps</h3>
             {steps.map((step, index) => {
               const stepResult = stepResults[index];
               const isExecuted = executedSteps.has(index);
