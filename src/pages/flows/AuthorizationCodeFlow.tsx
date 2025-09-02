@@ -1020,10 +1020,12 @@ grant_type=authorization_code
                     <h3>{step.title}</h3>
                     <p>{step.description}</p>
 
-                    {/* Show URL/Code section always */}
-                    <CodeBlock style={{ marginTop: '1rem' }}>
-                      {step.code}
-                    </CodeBlock>
+                    {/* Show request code section always (this is the template/example) */}
+                    {step.code && (
+                      <CodeBlock style={{ marginTop: '1rem' }}>
+                        {step.code}
+                      </CodeBlock>
+                    )}
 
                     {/* Show response/result only after step is executed */}
                     {isExecuted && stepResult && (
