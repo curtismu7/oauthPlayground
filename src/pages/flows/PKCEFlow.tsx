@@ -7,6 +7,7 @@ import Spinner from '../../components/Spinner';
 import Typewriter from '../../components/Typewriter';
 import { ColorCodedURL } from '../../components/ColorCodedURL';
 import { URLParamExplainer } from '../../components/URLParamExplainer';
+import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -292,6 +293,41 @@ const ErrorMessage = styled.div`
   font-size: 0.9rem;
 `;
 
+const ResponseBox = styled.div<{ $backgroundColor?: string; $borderColor?: string }>`
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid ${({ $borderColor }) => $borderColor || '#e2e8f0'};
+  background-color: ${({ $backgroundColor }) => $backgroundColor || '#f8fafc'};
+  font-family: monospace;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow: visible;
+  max-width: 100%;
+
+  h4 {
+    margin: 0 0 0.5rem 0;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  pre {
+    margin: 0;
+    background: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    white-space: pre-wrap;
+    word-break: break-all;
+    overflow: visible;
+  }
+`;
+
 // Utility functions for PKCE
 const generateCodeVerifier = () => {
   const array = new Uint8Array(32);
@@ -322,6 +358,10 @@ const PKCEFlow = () => {
   const [authUrl, setAuthUrl] = useState('');
   const [showFullTokens, setShowFullTokens] = useState(false);
 
+  // Track execution results for each step
+  const [stepResults, setStepResults] = useState<Record<number, any>>({});
+  const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
+
   // If real tokens exist in context (from a successful PKCE auth elsewhere), complete the demo
   useEffect(() => {
     if (contextTokens && !tokensReceived) {
@@ -350,96 +390,18 @@ const PKCEFlow = () => {
 
   const startPKCEFlow = async () => {
     setDemoStatus('loading');
-    setIsLoading(true);
     setCurrentStep(0);
     setError(null);
     setTokensReceived(null);
     setPkceData(null);
     setAuthUrl('');
     setShowFullTokens(false);
-
-    try {
-      // Step 1 (manual): Generate code verifier and challenge
-      const codeVerifier = generateCodeVerifier();
-      const codeChallenge = await generateCodeChallenge(codeVerifier);
-      console.debug('[PKCEFlow] Generated PKCE values', { codeVerifierLen: codeVerifier.length, codeChallengeSample: codeChallenge.slice(0, 12) });
-      setPkceData({ codeVerifier, codeChallenge, codeChallengeMethod: 'S256' });
-      setCurrentStep(1);
-    } catch (err) {
-      console.error('PKCE flow init failed:', err);
-      setError('Failed to initialize PKCE flow.');
-      setDemoStatus('error');
-      setIsLoading(false);
-    }
+    setStepResults({});
+    setExecutedSteps(new Set());
+    console.log('🚀 [PKCEFlow] Starting PKCE flow...');
   };
 
-  const nextStep = () => {
-    if (!config) return;
-    setCurrentStep((prev) => {
-      // Step 1: Build authorization URL from generated PKCE
-      if (prev === 1 && pkceData) {
-        const params = new URLSearchParams({
-          response_type: 'code',
-          client_id: config.clientId,
-          redirect_uri: config.redirectUri,
-          scope: config.scopes || 'openid profile email',
-          code_challenge: pkceData.codeChallenge,
-          code_challenge_method: 'S256',
-          state: Math.random().toString(36).substring(2, 15),
-          nonce: Math.random().toString(36).substring(2, 15),
-        });
-        const authEndpoint = (config.authEndpoint || `https://auth.pingone.com/${config.environmentId}/as/authorize`).replace('{envId}', config.environmentId);
-        const url = `${authEndpoint}?${params.toString()}`;
-        console.debug('[PKCEFlow] Built authorization URL using configured endpoint', { authEndpoint, urlSample: url.slice(0, 64) + '…' });
-        setAuthUrl(url);
-        return 2;
-      }
 
-      // Step 2 -> 3: User authenticates
-      if (prev === 2) {
-        console.debug('[PKCEFlow] Advancing to authentication step (user should authenticate)');
-        return 3;
-      }
-
-      // Step 3 -> 4: Receive authorization code
-      if (prev === 3) {
-        console.debug('[PKCEFlow] Simulating receipt of authorization code');
-        return 4;
-      }
-
-      // Step 4 -> 5: Exchange code for tokens
-      if (prev === 4) {
-        console.debug('[PKCEFlow] Simulating token exchange success');
-        const mockTokens = {
-          access_token:
-            'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.pkce_validated_token_signature',
-          id_token:
-            'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.pkce_validated_id_token_signature',
-          token_type: 'Bearer',
-          expires_in: 3600,
-          scope: 'openid profile email',
-        };
-        setTokensReceived(mockTokens);
-        setDemoStatus('success');
-        setIsLoading(false);
-        return 5;
-      }
-
-      // Default: advance one step but cap at last step
-      const next = Math.min(prev + 1, steps.length - 1);
-      if (next === steps.length - 1) {
-        // Safety: if we reach the last step, ensure status reflects completion
-        setDemoStatus('success');
-        setIsLoading(false);
-      }
-      return next;
-    });
-  };
-
-  const prevStep = () => {
-    if (currentStep <= 0) return;
-    setCurrentStep(s => Math.max(0, s - 1));
-  };
 
   const resetDemo = () => {
     setDemoStatus('idle');
@@ -449,27 +411,53 @@ const PKCEFlow = () => {
     setPkceData(null);
     setAuthUrl('');
     setShowFullTokens(false);
+    setStepResults({});
+    setExecutedSteps(new Set());
   };
 
-  const steps = [
+  const steps: FlowStep[] = [
     {
       title: 'Generate Code Verifier & Challenge',
       description: 'Create a cryptographically secure code verifier and derive the code challenge',
       code: `// Generate 32-byte random string
 const codeVerifier = generateCodeVerifier();
-// Result: ${pkceData?.codeVerifier ? pkceData.codeVerifier.substring(0, 32) + '...' : 'random_32_byte_string'}
+// Result: random_32_byte_string
 
 // Derive code challenge using SHA-256
 const codeChallenge = await generateCodeChallenge(codeVerifier);
-// Result: ${pkceData?.codeChallenge ? pkceData.codeChallenge.substring(0, 20) + '...' : 'SHA256_hash_base64url'}
+// Result: SHA256_hash_base64url
 
-// Method: S256 (SHA-256)`
+// Method: S256 (SHA-256)`,
+      execute: async () => {
+        try {
+          const codeVerifier = generateCodeVerifier();
+          const codeChallenge = await generateCodeChallenge(codeVerifier);
+          const pkceDataObj = {
+            codeVerifier,
+            codeChallenge,
+            codeChallengeMethod: 'S256'
+          };
+
+          setPkceData(pkceDataObj);
+          setStepResults(prev => ({ ...prev, 0: { pkceData: pkceDataObj } }));
+          setExecutedSteps(prev => new Set(prev).add(0));
+
+          console.log('✅ [PKCEFlow] Generated PKCE values:', {
+            codeVerifier: codeVerifier.substring(0, 32) + '...',
+            codeChallenge: codeChallenge.substring(0, 20) + '...',
+            method: 'S256'
+          });
+        } catch (error: any) {
+          setError(`Failed to generate PKCE values: ${error.message}`);
+          console.error('❌ [PKCEFlow] PKCE generation failed:', error);
+        }
+      }
     },
     {
       title: 'Build Authorization URL',
       description: 'Include code challenge in the authorization request',
       code: `// Authorization URL with PKCE parameters
-const authUrl = '${(config?.authEndpoint || `https://auth.pingone.com/${config?.environmentId || 'YOUR_ENV_ID'}/as/authorize`)}' +
+const authUrl = '${(config?.authorizationEndpoint || `https://auth.pingone.com/${config?.environmentId || 'YOUR_ENV_ID'}/as/authorize`)}' +
   new URLSearchParams({
     response_type: 'code',
     client_id: '${config?.clientId || 'your_client_id'}',
@@ -479,7 +467,38 @@ const authUrl = '${(config?.authEndpoint || `https://auth.pingone.com/${config?.
     code_challenge_method: 'S256',
     state: 'random_state_value',
     nonce: 'random_nonce_value'
-  }).toString();`
+  }).toString();`,
+      execute: () => {
+        if (!config) {
+          setError('Configuration required. Please configure your PingOne settings first.');
+          return;
+        }
+
+        if (!pkceData) {
+          setError('PKCE data not found. Please execute the previous step first.');
+          return;
+        }
+
+        const params = new URLSearchParams({
+          response_type: 'code',
+          client_id: config.clientId,
+          redirect_uri: config.redirectUri,
+          scope: config.scopes?.join(' ') || 'openid profile email',
+          code_challenge: pkceData.codeChallenge,
+          code_challenge_method: 'S256',
+          state: Math.random().toString(36).substring(2, 15),
+          nonce: Math.random().toString(36).substring(2, 15),
+        });
+
+        const authEndpoint = config.authorizationEndpoint.replace('{envId}', config.environmentId);
+        const url = `${authEndpoint}?${params.toString()}`;
+
+        setAuthUrl(url);
+        setStepResults(prev => ({ ...prev, 1: { url } }));
+        setExecutedSteps(prev => new Set(prev).add(1));
+
+        console.log('✅ [PKCEFlow] Authorization URL built:', url);
+      }
     },
     {
       title: 'User Authentication',
@@ -489,7 +508,17 @@ const authUrl = '${(config?.authEndpoint || `https://auth.pingone.com/${config?.
 // User is redirected back with authorization code
 
 // Callback URL:
-https://yourapp.com/callback?code=auth_code_123&state=xyz789`
+https://yourapp.com/callback?code=auth_code_123&state=xyz789`,
+      execute: () => {
+        console.log('✅ [PKCEFlow] User would be redirected to PingOne for authentication');
+        setStepResults(prev => ({
+          ...prev,
+          2: {
+            message: 'User redirected to PingOne for authentication and consent'
+          }
+        }));
+        setExecutedSteps(prev => new Set(prev).add(2));
+      }
     },
     {
       title: 'Receive Authorization Code',
@@ -504,7 +533,21 @@ if (state !== storedState) {
   throw new Error('State parameter mismatch');
 }
 
-console.log('Authorization Code:', authorizationCode);`
+console.log('Authorization Code:', authorizationCode);`,
+      execute: () => {
+        // Simulate getting authorization code from URL or generate one
+        const searchParams = new URLSearchParams(window.location.search || '');
+        const codeFromUrl = searchParams.get('code');
+        const code = codeFromUrl || ('auth-code-' + Math.random().toString(36).substr(2, 9));
+
+        setStepResults(prev => ({
+          ...prev,
+          4: { code } // Note: This is step 4 in 0-based index
+        }));
+        setExecutedSteps(prev => new Set(prev).add(3));
+
+        console.log('✅ [PKCEFlow] Authorization code received:', code);
+      }
     },
     {
       title: 'Exchange Code for Tokens (with PKCE)',
@@ -517,7 +560,47 @@ grant_type=authorization_code
 &code=auth_code_123
 &code_verifier=${pkceData?.codeVerifier || 'original_code_verifier'}
 &redirect_uri=${config?.redirectUri || 'https://yourapp.com/callback'}
-&client_id=${config?.clientId || 'your_client_id'}`
+&client_id=${config?.clientId || 'your_client_id'}`,
+      execute: async () => {
+        if (!config || !pkceData) {
+          setError('Missing configuration or PKCE data');
+          return;
+        }
+
+        try {
+          const tokenUrl = config.tokenEndpoint;
+          const params = new URLSearchParams({
+            grant_type: 'authorization_code',
+            client_id: String(config.clientId),
+            client_secret: String(config.clientSecret || ''),
+            code: 'auth-code-simulated', // In real implementation, this would be the actual code
+            code_verifier: pkceData.codeVerifier,
+            redirect_uri: String(config.redirectUri),
+          });
+
+          const response = await fetch(tokenUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: params,
+          });
+
+          if (!response.ok) {
+            throw new Error(`Token exchange failed: ${response.status} ${response.statusText}`);
+          }
+
+          const tokenData = await response.json();
+          setTokensReceived(tokenData);
+          setStepResults(prev => ({ ...prev, 4: { response: tokenData, status: response.status } }));
+          setExecutedSteps(prev => new Set(prev).add(4));
+
+          console.log('✅ [PKCEFlow] Tokens received:', tokenData);
+        } catch (error: any) {
+          setError(`Failed to exchange authorization code for tokens: ${error.message}`);
+          console.error('❌ [PKCEFlow] Token exchange error:', error);
+        }
+      }
     },
     {
       title: 'Server Validates PKCE & Returns Tokens',
@@ -540,7 +623,19 @@ const tokens = {
   scope: "openid profile email"
 };
 
-return tokens;`
+return tokens;`,
+      execute: () => {
+        if (!tokensReceived) {
+          setError('No tokens received from previous step');
+          return;
+        }
+
+        setStepResults(prev => ({ ...prev, 5: { tokens: tokensReceived } }));
+        setExecutedSteps(prev => new Set(prev).add(5));
+        setDemoStatus('success');
+
+        console.log('✅ [PKCEFlow] PKCE validation completed successfully');
+      }
     }
   ];
 
@@ -595,38 +690,16 @@ return tokens;`
           <h2>Interactive Demo</h2>
         </CardHeader>
         <CardBody>
-          <DemoControls>
-            <StatusIndicator className={demoStatus}>
-              {demoStatus === 'idle' && 'Ready to start'}
-              {demoStatus === 'loading' && 'Executing PKCE flow...'}
-              {demoStatus === 'success' && 'Flow completed successfully'}
-              {demoStatus === 'error' && 'Flow failed'}
-            </StatusIndicator>
-            <DemoButton
-              className="primary"
-              onClick={startPKCEFlow}
-              disabled={demoStatus === 'loading' || !config || isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Spinner size={16} />
-                  Running Flow...
-                </>
-              ) : (
-                <>
-                  <FiPlay />
-                  Start PKCE Flow
-                </>
-              )}
-            </DemoButton>
-            <DemoButton
-              className="secondary"
-              onClick={resetDemo}
-              disabled={demoStatus === 'idle'}
-            >
-              Reset Demo
-            </DemoButton>
-          </DemoControls>
+          <StepByStepFlow
+            steps={steps}
+            onStart={startPKCEFlow}
+            onReset={resetDemo}
+            status={demoStatus}
+            currentStep={currentStep}
+            onStepChange={setCurrentStep}
+            disabled={!config}
+            title="PKCE Flow"
+          />
 
           {!config && (
             <ErrorMessage>
@@ -708,46 +781,98 @@ return tokens;`
 
           <StepsContainer>
             <h3>Flow Steps</h3>
-            {steps.map((step, index) => (
-              <Step
-                key={index}
-                $active={currentStep === index && demoStatus === 'loading'}
-                $completed={currentStep > index}
-                $error={currentStep === index && demoStatus === 'error'}
-              >
-                <StepNumber
+            {steps.map((step, index) => {
+              const stepResult = stepResults[index];
+              const isExecuted = executedSteps.has(index);
+
+              return (
+                <Step
+                  key={index}
                   $active={currentStep === index && demoStatus === 'loading'}
                   $completed={currentStep > index}
                   $error={currentStep === index && demoStatus === 'error'}
                 >
-                  {index + 1}
-                </StepNumber>
-                <StepContent>
-                  <h3>{step.title}</h3>
-                  <p>{step.description}</p>
-                  <Typewriter text={step.code} speed={8} />
-                </StepContent>
-              </Step>
-            ))}
-          </StepsContainer>
+                  <StepNumber
+                    $active={currentStep === index && demoStatus === 'loading'}
+                    $completed={currentStep > index}
+                    $error={currentStep === index && demoStatus === 'error'}
+                  >
+                    {index + 1}
+                  </StepNumber>
+                  <StepContent>
+                    <h3>{step.title}</h3>
+                    <p>{step.description}</p>
 
-          {/* Manual navigation controls */}
-          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
-            <DemoButton
-              className="secondary"
-              onClick={prevStep}
-              disabled={demoStatus !== 'loading' || currentStep === 0}
-            >
-              Previous
-            </DemoButton>
-            <DemoButton
-              className="primary"
-              onClick={nextStep}
-              disabled={demoStatus !== 'loading' || currentStep >= steps.length - 1}
-            >
-              Next
-            </DemoButton>
-          </div>
+                    {/* Show URL/Code section always */}
+                    <Typewriter text={step.code} speed={8} />
+
+                    {/* Show response/result only after step is executed */}
+                    {isExecuted && stepResult && (
+                      <ResponseBox
+                        $backgroundColor="#f8fafc"
+                        $borderColor="#e2e8f0"
+                      >
+                        <h4>Response:</h4>
+                        {stepResult.pkceData && (
+                          <div style={{ marginTop: '0.5rem' }}>
+                            <strong>PKCE Values Generated:</strong><br />
+                            <pre>Code Verifier: {stepResult.pkceData.codeVerifier.substring(0, 32)}...</pre>
+                            <pre>Code Challenge: {stepResult.pkceData.codeChallenge.substring(0, 20)}...</pre>
+                            <pre>Method: {stepResult.pkceData.codeChallengeMethod}</pre>
+                          </div>
+                        )}
+                        {stepResult.url && (
+                          <div style={{ marginTop: '0.5rem' }}>
+                            <strong>Authorization URL:</strong><br />
+                            <ColorCodedURL url={stepResult.url} />
+                          </div>
+                        )}
+                        {stepResult.code && (
+                          <div style={{ marginTop: '0.5rem' }}>
+                            <strong>Authorization Code:</strong><br />
+                            <pre>{stepResult.code}</pre>
+                          </div>
+                        )}
+                        {stepResult.response && (
+                          <div style={{ marginTop: '0.5rem' }}>
+                            <strong>Token Response:</strong><br />
+                            <pre>{JSON.stringify(stepResult.response, null, 2)}</pre>
+                          </div>
+                        )}
+                        {stepResult.tokens && (
+                          <div style={{ marginTop: '0.5rem' }}>
+                            <strong>Tokens:</strong><br />
+                            <pre>{JSON.stringify(stepResult.tokens, null, 2)}</pre>
+                          </div>
+                        )}
+                        {stepResult.message && (
+                          <div style={{ marginTop: '0.5rem' }}>
+                            <strong>Status:</strong><br />
+                            <pre>{stepResult.message}</pre>
+                          </div>
+                        )}
+                      </ResponseBox>
+                    )}
+
+                    {/* Show execution status */}
+                    {isExecuted && (
+                      <div style={{
+                        marginTop: '1rem',
+                        padding: '0.5rem',
+                        backgroundColor: '#d4edda',
+                        border: '1px solid #c3e6cb',
+                        borderRadius: '0.25rem',
+                        color: '#155724',
+                        fontSize: '0.875rem'
+                      }}>
+                        ✅ Step completed successfully
+                      </div>
+                    )}
+                  </StepContent>
+                </Step>
+              );
+            })}
+          </StepsContainer>
         </CardBody>
       </DemoSection>
     </Container>

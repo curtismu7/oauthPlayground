@@ -202,8 +202,8 @@ const LoadingSpinner = styled.div`
 const Configuration = () => {
   const [initialLoading, setInitialLoading] = useState(true);
   const [formData, setFormData] = useState({
-    environmentId: '',
-    clientId: '',
+    environmentId: 'test-env-123',
+    clientId: 'test-client-123',
     clientSecret: '',
     redirectUri: window.location.origin + '/callback',
     scopes: 'openid profile email',
@@ -252,6 +252,7 @@ const Configuration = () => {
   };
   
   const validateForm = () => {
+    console.log('🔍 [Configuration] Validating form with data:', formData);
     const newErrors = {};
     let isValid = true;
     
@@ -273,17 +274,21 @@ const Configuration = () => {
       isValid = false;
     }
     
+    console.log('🔍 [Configuration] Validation result:', { isValid, errors: newErrors });
     setErrors(newErrors);
     return isValid;
   };
   
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('🔍 [Configuration] Form submitted');
 
     if (!validateForm()) {
+      console.log('❌ [Configuration] Form validation failed');
       return;
     }
 
+    console.log('✅ [Configuration] Form validation passed, starting save...');
     setIsLoading(true);
     setSaveStatus(null);
 
@@ -296,70 +301,53 @@ const Configuration = () => {
         userInfoEndpoint: formData.userInfoEndpoint.replace('{envId}', formData.environmentId),
       };
 
-      // Save to server
-      const response = await fetch('/api/configuration', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(configToSave)
+      console.log('💾 [Configuration] Saving config to localStorage:', configToSave);
+
+      // Save to localStorage
+      localStorage.setItem('pingone_config', JSON.stringify(configToSave));
+
+      // Dispatch custom event to notify other components that config has changed
+      window.dispatchEvent(new CustomEvent('pingone-config-changed'));
+
+      console.log('✅ [Configuration] Config saved to localStorage successfully');
+
+      setSaveStatus({
+        type: 'success',
+        title: 'Configuration saved',
+        message: 'Your PingOne configuration has been saved successfully to localStorage.'
       });
 
-      if (response.ok) {
-        const result = await response.json();
-
-        if (result.success) {
-          // Also save to localStorage as backup
-          localStorage.setItem('pingone_config', JSON.stringify(configToSave));
-
-          setSaveStatus({
-            type: 'success',
-            title: 'Configuration saved',
-            message: 'Your PingOne configuration has been saved to the server successfully.'
-          });
-        } else {
-          throw new Error(result.message || 'Failed to save configuration');
-        }
-      } else {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
+      console.log('✅ [Configuration] Success status set');
     } catch (error) {
-      console.error('Failed to save configuration:', error);
-
-      // Fallback to localStorage if server save fails
-      try {
-        const configToSave = {
-          ...formData,
-          authEndpoint: formData.authEndpoint.replace('{envId}', formData.environmentId),
-          tokenEndpoint: formData.tokenEndpoint.replace('{envId}', formData.environmentId),
-          userInfoEndpoint: formData.userInfoEndpoint.replace('{envId}', formData.environmentId),
-        };
-
-        localStorage.setItem('pingone_config', JSON.stringify(configToSave));
-
-        setSaveStatus({
-          type: 'warning',
-          title: 'Configuration saved locally',
-          message: 'Configuration saved to localStorage. Server save failed, but you can continue using the app.'
-        });
-      } catch (localError) {
-        setSaveStatus({
-          type: 'danger',
-          title: 'Error',
-          message: 'Failed to save configuration to both server and localStorage. Please try again.'
-        });
-      }
+      console.error('❌ [Configuration] Failed to save configuration:', error);
+      
+      setSaveStatus({
+        type: 'danger',
+        title: 'Error',
+        message: 'Failed to save configuration. Please try again.'
+      });
     } finally {
+      console.log('🔄 [Configuration] Setting isLoading to false');
       setIsLoading(false);
-
-      // Clear success message after 5 seconds
-      if (saveStatus?.type === 'success') {
-        setTimeout(() => {
-          setSaveStatus(null);
-        }, 5000);
-      }
     }
   };
+
+  // Clear success message after 5 seconds when saveStatus changes
+  useEffect(() => {
+    if (saveStatus?.type === 'success') {
+      const timer = setTimeout(() => {
+        console.log('⏰ [Configuration] Clearing success message after 5 seconds');
+        setSaveStatus(null);
+      }, 5000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [saveStatus]);
+
+  // Debug state changes
+  useEffect(() => {
+    console.log('🔄 [Configuration] State changed - isLoading:', isLoading, 'saveStatus:', saveStatus);
+  }, [isLoading, saveStatus]);
   
   if (initialLoading) {
     return (
@@ -375,6 +363,8 @@ const Configuration = () => {
         <h1>PingOne Configuration</h1>
         <p>Configure your PingOne environment and application settings to get started with the OAuth Playground.</p>
       </PageHeader>
+      
+
       
       {saveStatus && (
         <Alert $variant={saveStatus.type}>
@@ -397,7 +387,14 @@ const Configuration = () => {
         </CardHeader>
         
         <CardBody>
-          <form onSubmit={handleSubmit}>
+          <form 
+            onSubmit={(e) => {
+              console.log('🔍 [Configuration] Form onSubmit triggered');
+              handleSubmit(e);
+            }} 
+            id="configForm" 
+            onKeyDown={(e) => console.log('🔍 [Configuration] Form keydown:', e.key)}
+          >
             <FormGroup>
               <label htmlFor="environmentId">Environment ID</label>
               <input
@@ -550,7 +547,11 @@ const Configuration = () => {
             </FormGroup>
             
             <div style={{ marginTop: '2rem' }}>
-              <SaveButton type="submit" disabled={isLoading}>
+              <SaveButton 
+                type="submit" 
+                disabled={isLoading}
+                onClick={() => console.log('🔘 [Configuration] Save button clicked')}
+              >
                 {isLoading ? (
                   <>
                     <div className="spinner" />
@@ -563,7 +564,47 @@ const Configuration = () => {
                   </>
                 )}
               </SaveButton>
+              
+
             </div>
+            
+            {/* Status message below the buttons */}
+            {saveStatus && (
+              <div style={{ 
+                marginTop: '1rem', 
+                padding: '12px 16px', 
+                borderRadius: '6px',
+                border: '1px solid',
+                fontSize: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                ...(saveStatus.type === 'success' ? {
+                  backgroundColor: '#f0fdf4',
+                  borderColor: '#bbf7d0',
+                  color: '#166534'
+                } : saveStatus.type === 'danger' ? {
+                  backgroundColor: '#fef2f2',
+                  borderColor: '#fecaca',
+                  color: '#991b1b'
+                } : {
+                  backgroundColor: '#eff6ff',
+                  borderColor: '#bfdbfe',
+                  color: '#1e40af'
+                })
+              }}>
+                {saveStatus.type === 'success' ? (
+                  <FiCheckCircle size={18} style={{ color: '#22c55e' }} />
+                ) : (
+                  <FiAlertCircle size={18} style={{ color: saveStatus.type === 'danger' ? '#ef4444' : '#3b82f6' }} />
+                )}
+                <div>
+                  <strong>{saveStatus.title}</strong>
+                  <br />
+                  {saveStatus.message}
+                </div>
+              </div>
+            )}
           </form>
         </CardBody>
       </Card>

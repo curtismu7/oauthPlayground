@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiAlertCircle, FiUser, FiInfo, FiSend, FiDownload, FiEye } from 'react-icons/fi';
@@ -6,6 +6,9 @@ import { useAuth } from '../../contexts/NewAuthContext';
 import { getUserInfo, isTokenExpired } from '../../utils/oauth';
 import { decodeJwt } from '../../utils/jwt';
 import type { UserInfo as OIDCUserInfo } from '../../types/oauth';
+import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
+import { ColorCodedURL } from '../../components/ColorCodedURL';
+import Typewriter from '../../components/Typewriter';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -179,6 +182,41 @@ const ErrorMessage = styled.div`
   svg {
     flex-shink: 0;
     margin-top: 0.1rem;
+  }
+`;
+
+const ResponseBox = styled.div<{ $backgroundColor?: string; $borderColor?: string }>`
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid ${({ $borderColor }) => $borderColor || '#e2e8f0'};
+  background-color: ${({ $backgroundColor }) => $backgroundColor || '#f8fafc'};
+  font-family: monospace;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow: visible;
+  max-width: 100%;
+
+  h4 {
+    margin: 0 0 0.5rem 0;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  pre {
+    margin: 0;
+    background: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    white-space: pre-wrap;
+    word-break: break-all;
+    overflow: visible;
   }
 `;
 
@@ -405,6 +443,68 @@ const UserInfoFlow: React.FC = () => {
   // Debug logging
   console.log('🔍 [UserInfoFlow] Config:', config);
   console.log('🔍 [UserInfoFlow] Tokens:', tokens);
+  console.log('🔍 [UserInfoFlow] Tokens type:', typeof tokens);
+  console.log('🔍 [UserInfoFlow] Tokens keys:', tokens ? Object.keys(tokens) : 'NO_TOKENS');
+  console.log('🔍 [UserInfoFlow] localStorage pingone_config:', localStorage.getItem('pingone_config'));
+  console.log('🔍 [UserInfoFlow] localStorage oauth_tokens:', localStorage.getItem('oauth_tokens'));
+  console.log('🔍 [UserInfoFlow] localStorage access_token:', localStorage.getItem('access_token'));
+  console.log('🔍 [UserInfoFlow] localStorage pingone_playground_tokens:', localStorage.getItem('pingone_playground_tokens'));
+  console.log('🔍 [UserInfoFlow] All localStorage keys:', Object.keys(localStorage));
+  console.log('🔍 [UserInfoFlow] Config check result:', {
+    hasConfig: !!config,
+    configKeys: config ? Object.keys(config) : 'NO_CONFIG',
+    configDetails: config ? {
+      clientId: config.clientId,
+      environmentId: config.environmentId,
+      userInfoEndpoint: config.userInfoEndpoint
+    } : 'NO_CONFIG'
+  });
+
+  // Check if tokens exist in any form
+  const hasTokens = tokens && tokens.access_token;
+  console.log('🔍 [UserInfoFlow] Has tokens:', hasTokens);
+  console.log('🔍 [UserInfoFlow] Token check:', {
+    tokensExist: !!tokens,
+    accessTokenExists: !!(tokens?.access_token),
+    tokenExpired: tokens?.access_token ? isTokenExpired(tokens.access_token) : 'N/A'
+  });
+
+  // Try to load tokens from localStorage if not available in context
+  useEffect(() => {
+    if (!tokens?.access_token) {
+      // Check multiple possible token storage locations
+      const possibleTokenKeys = [
+        'pingone_playground_tokens', // Official storage key
+        'oauth_tokens',              // Alternative key
+        'access_token',              // Direct token storage
+        'tokens'                     // Generic tokens key
+      ];
+
+      for (const key of possibleTokenKeys) {
+        const storedTokens = localStorage.getItem(key);
+        if (storedTokens) {
+          try {
+            let parsedTokens;
+            if (key === 'access_token') {
+              // Handle direct token storage
+              parsedTokens = { access_token: storedTokens };
+            } else {
+              parsedTokens = JSON.parse(storedTokens);
+            }
+
+            if (parsedTokens.access_token) {
+              console.log(`🔍 [UserInfoFlow] Found tokens in localStorage key '${key}':`, parsedTokens);
+              // Note: We can't directly set tokens in the auth context from here
+              // This would need to be handled in the AuthContext itself
+              break;
+            }
+          } catch (error) {
+            console.warn(`🔍 [UserInfoFlow] Failed to parse stored tokens for key '${key}':`, error);
+          }
+        }
+      }
+    }
+  }, [tokens]);
   const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [currentStep, setCurrentStep] = useState(0);
   const [userInfo, setUserInfo] = useState<OIDCUserInfo | null>(null);
@@ -416,6 +516,13 @@ const UserInfoFlow: React.FC = () => {
     method: string;
   } | null>(null);
   const [decodedToken, setDecodedToken] = useState<any>(null);
+
+  // Track execution results for each step
+  const [stepResults, setStepResults] = useState<Record<number, any>>({});
+  const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
+
+  // UserInfo authentication mode
+  const [useAuthentication, setUseAuthentication] = useState(false);
 
   // Function to format JSON with color coding
   const formatJson = (obj: any, indent: number = 0): React.ReactNode[] => {
@@ -482,56 +589,15 @@ const UserInfoFlow: React.FC = () => {
     }
   };
 
-  const callUserInfoEndpoint = async () => {
+  const startUserInfoFlow = () => {
     setDemoStatus('loading');
     setCurrentStep(0);
     setError(null);
     setUserInfo(null);
     setRequestDetails(null);
-
-    try {
-      setCurrentStep(1);
-      if (!tokens?.access_token) {
-        throw new Error('No access token available. Complete an OAuth flow with openid scope first.');
-      }
-      if (isTokenExpired(tokens.access_token)) {
-        throw new Error('Access token is expired. Please sign in again.');
-      }
-      setAccessToken(tokens.access_token);
-
-      setCurrentStep(2);
-      // Build real UserInfo endpoint from config
-      const userInfoUrl = config?.userInfoEndpoint?.replace('{envId}', config.environmentId);
-      if (!userInfoUrl) {
-        throw new Error('UserInfo endpoint is not configured. Check Configuration page.');
-      }
-
-      // Prepare request details for display
-      const headers = {
-        'Authorization': `Bearer ${tokens.access_token}`,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      };
-
-      setRequestDetails({
-        url: userInfoUrl,
-        headers,
-        method: 'GET'
-      });
-
-      setCurrentStep(3);
-      // Real API call
-      const info = await getUserInfo(userInfoUrl, tokens.access_token);
-      setUserInfo(info);
-      setCurrentStep(4);
-      setDemoStatus('success');
-
-    } catch (err: unknown) {
-      console.error('UserInfo call failed:', err);
-      const msg = err instanceof Error ? err.message : 'Failed to call UserInfo endpoint. Please check your configuration.';
-      setError(msg);
-      setDemoStatus('error');
-    }
+    setStepResults({});
+    setExecutedSteps(new Set());
+    console.log('🚀 [UserInfoFlow] Starting UserInfo flow...');
   };
 
   const resetDemo = () => {
@@ -541,43 +607,120 @@ const UserInfoFlow: React.FC = () => {
     setError(null);
     setAccessToken('');
     setRequestDetails(null);
+    setStepResults({});
+    setExecutedSteps(new Set());
   };
 
   const maskedToken = accessToken ? `${accessToken.slice(0, 16)}...${accessToken.slice(-8)}` : '';
 
-  const steps = [
-    {
+  const steps: FlowStep[] = [
+    ...(useAuthentication ? [{
       title: 'Obtain Access Token',
-      description: 'First, obtain an access token through any OAuth flow',
+      description: 'First, obtain an access token through any OAuth flow with openid scope',
       code: `// Access token obtained from OAuth flow
-const accessToken = '${maskedToken || 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...'}';
+const accessToken = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...';
 
 // This token contains:
 // - User identity information
 // - Granted scopes (including 'openid')
 // - Expiration time
-// - Token type (Bearer)`
-    },
+// - Token type (Bearer)`,
+      execute: () => {
+        if (!tokens?.access_token) {
+          setError('No access token available. Complete an OAuth flow with openid scope first.');
+          return;
+        }
+
+        if (isTokenExpired(tokens.access_token)) {
+          setError('Access token is expired. Please sign in again.');
+          return;
+        }
+
+        setAccessToken(tokens.access_token);
+        setStepResults(prev => ({
+          ...prev,
+          0: {
+            token: tokens.access_token,
+            tokenInfo: {
+              type: tokens.token_type,
+              scopes: tokens.scope,
+              expires: tokens.expires_at ? new Date(tokens.expires_at) : null
+            }
+          }
+        }));
+        setExecutedSteps(prev => new Set(prev).add(0));
+
+        console.log('✅ [UserInfoFlow] Access token validated:', tokens.access_token.substring(0, 20) + '...');
+      }
+    }] : []),
     {
       title: 'Prepare UserInfo Request',
-      description: 'Prepare GET request to UserInfo endpoint with Bearer token',
-      code: `// UserInfo endpoint URL (from OpenID Connect discovery)
-const userInfoUrl = '${(config?.userInfoEndpoint || 'https://auth.pingone.com/{envId}/as/userinfo')}'.replace('{envId}', '${config?.environmentId || 'YOUR_ENV_ID'}');
+      description: useAuthentication ? 'Prepare GET request to UserInfo endpoint with Bearer token' : 'Prepare GET request to UserInfo endpoint (no authentication)',
+      code: useAuthentication ? `// UserInfo endpoint URL (from OpenID Connect discovery)
+const userInfoUrl = '${config?.userInfoEndpoint || 'https://auth.pingone.com/{envId}/as/userinfo'}';
 
-// Prepare request headers
+// Prepare request headers with Bearer token
 const headers = {
-  'Authorization': 'Bearer ${maskedToken || 'your_access_token'}',
+  'Authorization': 'Bearer ${maskedToken}',
   'Accept': 'application/json',
   'Content-Type': 'application/json'
 };
 
 // Optional: Include DPoP proof for enhanced security
-// headers['DPoP'] = generateDPoPProof(userInfoUrl, 'GET', accessToken);`
+// headers['DPoP'] = generateDPoPProof(userInfoUrl, 'GET', accessToken);` : `// UserInfo endpoint URL (from OpenID Connect discovery)
+const userInfoUrl = '${config?.userInfoEndpoint || 'https://auth.pingone.com/{envId}/as/userinfo'}';
+
+// Prepare request headers (no authentication)
+const headers = {
+  'Accept': 'application/json',
+  'Content-Type': 'application/json'
+};
+
+// For unprotected UserInfo endpoints, no Authorization header needed`,
+      execute: () => {
+        if (!config?.userInfoEndpoint) {
+          setError('UserInfo endpoint is not configured. Check Configuration page.');
+          return;
+        }
+
+        const userInfoUrl = config.userInfoEndpoint.replace('{envId}', config.environmentId);
+        const headers: Record<string, string> = {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        };
+
+        if (useAuthentication) {
+          if (!accessToken) {
+            setError('Access token not available. Please execute previous step first.');
+            return;
+          }
+          headers['Authorization'] = `Bearer ${accessToken}`;
+        }
+
+        setRequestDetails({
+          url: userInfoUrl,
+          headers,
+          method: 'GET'
+        });
+
+        setStepResults(prev => ({
+          ...prev,
+          [useAuthentication ? 1 : 0]: {
+            url: userInfoUrl,
+            headers,
+            method: 'GET',
+            authenticated: useAuthentication
+          }
+        }));
+        setExecutedSteps(prev => new Set(prev).add(useAuthentication ? 1 : 0));
+
+        console.log('✅ [UserInfoFlow] UserInfo request prepared:', { url: userInfoUrl, method: 'GET', authenticated: useAuthentication });
+      }
     },
     {
       title: 'Make UserInfo API Call',
-      description: 'Send authenticated request to UserInfo endpoint',
-      code: `// Make authenticated GET request
+      description: useAuthentication ? 'Send authenticated request to UserInfo endpoint' : 'Send request to UserInfo endpoint (no authentication)',
+      code: useAuthentication ? `// Make authenticated GET request
 const response = await fetch(userInfoUrl, {
   method: 'GET',
   headers: headers,
@@ -597,7 +740,77 @@ if (!response.ok) {
   throw new Error('UserInfo request failed');
 }
 
-const userInfo = await response.json();`
+const userInfo = await response.json();` : `// Make unauthenticated GET request
+const response = await fetch(userInfoUrl, {
+  method: 'GET',
+  headers: headers,
+  credentials: 'same-origin' // For CORS considerations
+});
+
+// Handle response
+if (!response.ok) {
+  if (response.status === 401) {
+    // Endpoint requires authentication
+    throw new Error('Endpoint requires authentication. Try enabling authentication mode.');
+  }
+  if (response.status === 403) {
+    // Access forbidden
+    throw new Error('Access forbidden. Check endpoint permissions.');
+  }
+  throw new Error('UserInfo request failed');
+}
+
+const userInfo = await response.json();`,
+      execute: async () => {
+        if (!requestDetails?.url || (useAuthentication && !accessToken)) {
+          setError('Request details not available. Please execute previous steps first.');
+          return;
+        }
+
+        try {
+          const response = await fetch(requestDetails.url, {
+            method: requestDetails.method,
+            headers: requestDetails.headers,
+            credentials: 'same-origin'
+          });
+
+          if (!response.ok) {
+            if (useAuthentication && response.status === 401) {
+              throw new Error('Access token expired or invalid');
+            }
+            if (useAuthentication && response.status === 403) {
+              throw new Error('Access token does not have openid scope');
+            }
+            if (!useAuthentication && response.status === 401) {
+              throw new Error('Endpoint requires authentication. Try enabling authentication mode.');
+            }
+            if (response.status === 403) {
+              throw new Error('Access forbidden. Check endpoint permissions.');
+            }
+            throw new Error(`UserInfo request failed: ${response.status} ${response.statusText}`);
+          }
+
+          const userInfoData = await response.json();
+          setUserInfo(userInfoData);
+
+          const stepIndex = useAuthentication ? 2 : 1;
+          setStepResults(prev => ({
+            ...prev,
+            [stepIndex]: {
+              response: userInfoData,
+              status: response.status,
+              headers: Object.fromEntries(response.headers.entries()),
+              authenticated: useAuthentication
+            }
+          }));
+          setExecutedSteps(prev => new Set(prev).add(stepIndex));
+
+          console.log('✅ [UserInfoFlow] UserInfo API call successful:', userInfoData);
+        } catch (error: any) {
+          setError(`Failed to call UserInfo endpoint: ${error.message}`);
+          console.error('❌ [UserInfoFlow] UserInfo API call failed:', error);
+        }
+      }
     },
     {
       title: 'Process UserInfo Response',
@@ -625,7 +838,34 @@ const user = {
 localStorage.setItem('user_profile', JSON.stringify({ id: user.id, name: user.name, email: user.email }));
 
 // Use user information in your application
-console.log('Welcome, ' + user.name + '!');`
+console.log('Welcome, ' + user.name + '!');`,
+      execute: () => {
+        if (!userInfo) {
+          setError('No user information received. Please execute the API call first.');
+          return;
+        }
+
+        // Validate UserInfo response
+        if (!userInfo.sub) {
+          setError('Invalid UserInfo response: missing subject claim');
+          return;
+        }
+
+        setStepResults(prev => ({
+          ...prev,
+          3: {
+            userInfo,
+            validation: {
+              hasSubject: !!userInfo.sub,
+              claims: Object.keys(userInfo)
+            }
+          }
+        }));
+        setExecutedSteps(prev => new Set(prev).add(3));
+        setDemoStatus('success');
+
+        console.log('✅ [UserInfoFlow] User information processed successfully:', userInfo);
+      }
     }
   ];
 
@@ -650,16 +890,36 @@ console.log('Welcome, ' + user.name + '!');`
           <FlowDescription>
             <h2>What is the UserInfo Endpoint?</h2>
             <p>
-              The UserInfo endpoint is a protected resource in OpenID Connect that allows
-              clients to retrieve additional information about the authenticated user beyond
-              what's included in the ID token. It's particularly useful when you need more
-              detailed profile information or when the ID token is too large for browser-based flows.
+              The UserInfo endpoint in OpenID Connect allows clients to retrieve additional
+              information about the authenticated user beyond what's included in the ID token.
+              Unlike other OAuth endpoints, UserInfo can be either <strong>protected</strong> or
+              <strong>unprotected</strong> depending on your implementation.
             </p>
             <p>
-              <strong>How it works:</strong> After obtaining an access token with the 'openid' scope,
-              you can make an authenticated request to the UserInfo endpoint to get detailed user
-              profile information including name, email, profile picture, and other claims.
+              <strong>How it works:</strong> You can make a GET request to the UserInfo endpoint
+              to get detailed user profile information including name, email, profile picture,
+              and other claims. This can be done with or without authentication depending on
+              your server's configuration.
             </p>
+
+            <div style={{ marginTop: '1rem', padding: '1rem', backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #dee2e6' }}>
+              <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem', color: '#495057' }}>Authentication Mode</h3>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={useAuthentication}
+                  onChange={(e) => setUseAuthentication(e.target.checked)}
+                  style={{ margin: 0 }}
+                />
+                <span>Use Bearer token authentication</span>
+              </label>
+              <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#6c757d' }}>
+                {useAuthentication
+                  ? 'Will include Bearer token in request (requires valid access token)'
+                  : 'Will make unauthenticated request (endpoint must be unprotected)'
+                }
+              </p>
+            </div>
           </FlowDescription>
 
           <UseCaseHighlight>
@@ -680,47 +940,162 @@ console.log('Welcome, ' + user.name + '!');`
           <h2>Interactive Demo</h2>
         </CardHeader>
         <CardBody>
-          <DemoControls>
-            <StatusIndicator className={demoStatus}>
-              {demoStatus === 'idle' && 'Ready to start'}
-              {demoStatus === 'loading' && 'Calling UserInfo endpoint...'}
-              {demoStatus === 'success' && 'UserInfo retrieved successfully'}
-              {demoStatus === 'error' && 'UserInfo call failed'}
-            </StatusIndicator>
-            <DemoButton
-              variant="primary"
-              onClick={callUserInfoEndpoint}
-              disabled={
-                demoStatus === 'loading' ||
-                !config ||
-                !tokens?.access_token ||
-                isTokenExpired(tokens.access_token)
-              }
-            >
-              <FiPlay />
-              Call UserInfo Endpoint
-            </DemoButton>
-            <DemoButton
-              variant="secondary"
-              onClick={resetDemo}
-              disabled={demoStatus === 'idle'}
-            >
-              Reset Demo
-            </DemoButton>
-          </DemoControls>
+          <StepByStepFlow
+            steps={steps}
+            onStart={startUserInfoFlow}
+            onReset={resetDemo}
+            status={demoStatus}
+            currentStep={currentStep}
+            onStepChange={setCurrentStep}
+            disabled={!config || (useAuthentication && (!tokens?.access_token || isTokenExpired(tokens.access_token)))}
+            title="UserInfo Flow"
+          />
 
           {!config && (
             <ErrorMessage>
               <FiAlertCircle />
               <strong>Configuration Required:</strong> Please configure your PingOne settings
               in the Configuration page before running this demo.
+              <br />
+              <button 
+                onClick={() => {
+                  console.log('🔄 [UserInfoFlow] Manual refresh button clicked');
+                  window.location.reload();
+                }}
+                style={{
+                  marginTop: '10px',
+                  padding: '8px 16px',
+                  backgroundColor: '#007bff',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                🔄 Refresh Page
+              </button>
             </ErrorMessage>
           )}
 
-          {config && (!tokens?.access_token || (tokens?.access_token && isTokenExpired(tokens.access_token))) && (
+          {config && useAuthentication && (!tokens?.access_token || (tokens?.access_token && isTokenExpired(tokens.access_token))) && (
             <ErrorMessage>
               <FiAlertCircle />
-              <strong>Sign-in Required:</strong> Complete an OAuth login with openid scope to obtain a valid access token before calling UserInfo.
+              <strong>Sign-in Required:</strong> Authentication mode is enabled. Complete an OAuth login with openid scope to obtain a valid access token before calling UserInfo.
+              <br /><br />
+              <strong>To get tokens:</strong>
+              <ul style={{ marginTop: '10px', paddingLeft: '20px' }}>
+                <li>Go to any OAuth flow page (e.g., Authorization Code Flow)</li>
+                <li>Complete the OAuth flow to get tokens</li>
+                <li>Return here to use the UserInfo endpoint</li>
+              </ul>
+              <br />
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                <button
+                  onClick={() => window.location.href = '/flows/authorization-code'}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: '#28a745',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  🔐 Go to Authorization Code Flow
+                </button>
+                <button
+                  onClick={() => window.location.href = '/flows/implicit-grant'}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: '#17a2b8',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  🎯 Go to Implicit Flow
+                </button>
+                <button
+                  onClick={() => {
+                    console.log('🔍 [UserInfoFlow] Debug info:');
+                    console.log('Config:', config);
+                    console.log('Tokens:', tokens);
+                    console.log('Token expired check:', tokens?.access_token ? isTokenExpired(tokens.access_token) : 'No token');
+                    alert('Check browser console for debug information');
+                  }}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: '#6c757d',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  🔍 Debug Info
+                </button>
+                <button
+                  onClick={() => {
+                    // Try to manually load tokens from multiple possible locations
+                    const possibleTokenKeys = [
+                      'pingone_playground_tokens', // Official storage key
+                      'oauth_tokens',              // Alternative key
+                      'tokens',                     // Generic tokens key
+                      'access_token'               // Direct token storage
+                    ];
+
+                    let foundTokens = false;
+                    for (const key of possibleTokenKeys) {
+                      const storedTokens = localStorage.getItem(key);
+                      if (storedTokens) {
+                        try {
+                          let parsedTokens;
+                          if (key === 'access_token') {
+                            // Handle direct token storage
+                            parsedTokens = { access_token: storedTokens };
+                          } else {
+                            parsedTokens = JSON.parse(storedTokens);
+                          }
+
+                          if (parsedTokens.access_token) {
+                            console.log(`✅ [UserInfoFlow] Found tokens in '${key}', attempting to load...`);
+                            foundTokens = true;
+
+                            // Try to store in the official location for the auth context
+                            localStorage.setItem('pingone_playground_tokens', JSON.stringify(parsedTokens));
+                            console.log('✅ [UserInfoFlow] Copied tokens to official storage location');
+
+                            // Reload the page to trigger auth context reload
+                            window.location.reload();
+                            break;
+                          }
+                        } catch (error) {
+                          console.warn(`Failed to parse tokens from '${key}':`, error);
+                        }
+                      }
+                    }
+
+                    if (!foundTokens) {
+                      alert('No tokens found in any localStorage location. Please complete an OAuth flow first.');
+                    }
+                  }}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: '#ffc107',
+                    color: '#212529',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  🔄 Load Tokens from Storage
+                </button>
+              </div>
             </ErrorMessage>
           )}
 
@@ -794,32 +1169,112 @@ console.log('Welcome, ' + user.name + '!');`
 
           <StepsContainer>
             <h3>UserInfo Flow Steps</h3>
-            {steps.map((step, index) => (
-              <Step
-                key={index}
-                $active={currentStep === index && demoStatus === 'loading'}
-                $completed={currentStep > index}
-                $error={currentStep === index && demoStatus === 'error'}
-              >
-                <StepNumber
+            {steps.map((step, index) => {
+              const stepResult = stepResults[index];
+              const isExecuted = executedSteps.has(index);
+
+              return (
+                <Step
+                  key={index}
                   $active={currentStep === index && demoStatus === 'loading'}
                   $completed={currentStep > index}
                   $error={currentStep === index && demoStatus === 'error'}
                 >
-                  {index + 1}
-                </StepNumber>
-                <StepContent>
-                  <h3>{step.title}</h3>
-                  <p>{step.description}</p>
-                  <CodeBlock>
-                    <CopyButton onClick={() => copyToClipboard(step.code)}>
-                      Copy
-                    </CopyButton>
-                    {step.code}
-                  </CodeBlock>
-                </StepContent>
-              </Step>
-            ))}
+                  <StepNumber
+                    $active={currentStep === index && demoStatus === 'loading'}
+                    $completed={currentStep > index}
+                    $error={currentStep === index && demoStatus === 'error'}
+                  >
+                    {index + 1}
+                  </StepNumber>
+                  <StepContent>
+                    <h3>{step.title}</h3>
+                    <p>{step.description}</p>
+
+                    {/* Show URL/Code section always */}
+                    <CodeBlock>
+                      <CopyButton onClick={() => copyToClipboard(step.code)}>
+                        Copy
+                      </CopyButton>
+                      {step.code}
+                    </CodeBlock>
+
+                    {/* Show response/result only after step is executed */}
+                    {isExecuted && stepResult && (
+                      <ResponseBox
+                        $backgroundColor="#f8fafc"
+                        $borderColor="#e2e8f0"
+                      >
+                        <h4>Response:</h4>
+                        {stepResult.token && (
+                          <div style={{ marginTop: '0.5rem' }}>
+                            <strong>Access Token:</strong><br />
+                            <pre>{stepResult.token.substring(0, 32)}...</pre>
+                          </div>
+                        )}
+                        {stepResult.tokenInfo && (
+                          <div style={{ marginTop: '0.5rem' }}>
+                            <strong>Token Details:</strong><br />
+                            <pre>{JSON.stringify(stepResult.tokenInfo, null, 2)}</pre>
+                          </div>
+                        )}
+                        {stepResult.url && (
+                          <div style={{ marginTop: '0.5rem' }}>
+                            <strong>Request URL:</strong><br />
+                            <ColorCodedURL url={stepResult.url} />
+                          </div>
+                        )}
+                        {stepResult.headers && (
+                          <div style={{ marginTop: '0.5rem' }}>
+                            <strong>Request Headers:</strong><br />
+                            <pre>{JSON.stringify(stepResult.headers, null, 2)}</pre>
+                          </div>
+                        )}
+                        {stepResult.response && (
+                          <div style={{ marginTop: '0.5rem' }}>
+                            <strong>UserInfo Response:</strong><br />
+                            <pre>{JSON.stringify(stepResult.response, null, 2)}</pre>
+                          </div>
+                        )}
+                        {stepResult.userInfo && (
+                          <div style={{ marginTop: '0.5rem' }}>
+                            <strong>Processed UserInfo:</strong><br />
+                            <pre>{JSON.stringify(stepResult.userInfo, null, 2)}</pre>
+                          </div>
+                        )}
+                        {stepResult.validation && (
+                          <div style={{ marginTop: '0.5rem' }}>
+                            <strong>Validation Results:</strong><br />
+                            <pre>{JSON.stringify(stepResult.validation, null, 2)}</pre>
+                          </div>
+                        )}
+                        {stepResult.message && (
+                          <div style={{ marginTop: '0.5rem' }}>
+                            <strong>Status:</strong><br />
+                            <pre>{stepResult.message}</pre>
+                          </div>
+                        )}
+                      </ResponseBox>
+                    )}
+
+                    {/* Show execution status */}
+                    {isExecuted && (
+                      <div style={{
+                        marginTop: '1rem',
+                        padding: '0.5rem',
+                        backgroundColor: '#d4edda',
+                        border: '1px solid #c3e6cb',
+                        borderRadius: '0.25rem',
+                        color: '#155724',
+                        fontSize: '0.875rem'
+                      }}>
+                        ✅ Step completed successfully
+                      </div>
+                    )}
+                  </StepContent>
+                </Step>
+              );
+            })}
           </StepsContainer>
         </CardBody>
       </DemoSection>
