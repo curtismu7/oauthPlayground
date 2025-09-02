@@ -154,11 +154,17 @@ export const StepByStepFlow: React.FC<StepByStepFlowProps> = ({
     if (currentStep < steps.length && steps[currentStep].execute) {
       try {
         await steps[currentStep].execute!();
+        // Auto-advance to next step after successful execution
+        if (currentStep < steps.length - 1) {
+          setTimeout(() => {
+            onStepChange(currentStep + 1);
+          }, 500); // Small delay to show the result before advancing
+        }
       } catch (error) {
         console.error(`Failed to execute step ${currentStep + 1}:`, error);
       }
     }
-  }, [currentStep, steps]);
+  }, [currentStep, steps, onStepChange]);
 
   const goToNextStep = useCallback(() => {
     if (currentStep < steps.length - 1) {

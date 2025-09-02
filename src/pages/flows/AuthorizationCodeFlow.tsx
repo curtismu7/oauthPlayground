@@ -1021,10 +1021,26 @@ grant_type=authorization_code
                     <p>{step.description}</p>
 
                     {/* Show request code section always (this is the template/example) */}
-                    {step.code && (
+                    {step.code && step.code.trim() && (
                       <CodeBlock style={{ marginTop: '1rem' }}>
                         {step.code}
                       </CodeBlock>
+                    )}
+                    {/* Debug: Show if step.code is empty */}
+                    {(!step.code || !step.code.trim()) && (
+                      <div style={{ 
+                        marginTop: '1rem', 
+                        padding: '1rem', 
+                        backgroundColor: '#fef3c7', 
+                        border: '1px solid #f59e0b', 
+                        borderRadius: '0.375rem',
+                        fontSize: '0.875rem',
+                        color: '#92400e'
+                      }}>
+                        ⚠️ No code content available for this step (Step {index + 1}: {step.title})
+                        <br />
+                        <small>Debug: step.code = "{step.code}"</small>
+                      </div>
                     )}
 
                     {/* Show response/result only after step is executed */}
