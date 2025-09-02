@@ -774,29 +774,7 @@ return tokens;`,
           {tokensReceived && (
             <div>
               <h3>Tokens Received:</h3>
-              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', margin: '0.5rem 0' }}>
-                <DemoButton
-                  className="secondary"
-                  onClick={() => setShowFullTokens(v => !v)}
-                >
-                  {showFullTokens ? 'Hide full tokens' : 'Reveal full tokens (secure-by-default)'}
-                </DemoButton>
-              </div>
-              <TokenDisplay>
-                <strong>Access Token:</strong><br />
-                {showFullTokens
-                  ? tokensReceived.access_token
-                  : `${tokensReceived.access_token?.slice(0, 12)}…${tokensReceived.access_token?.slice(-12)}`}
-                <br /><br />
-                <strong>ID Token:</strong><br />
-                {showFullTokens
-                  ? tokensReceived.id_token
-                  : `${tokensReceived.id_token?.slice(0, 12)}…${tokensReceived.id_token?.slice(-12)}`}
-                <br /><br />
-                <strong>Token Type:</strong> {tokensReceived.token_type}<br />
-                <strong>Expires In:</strong> {tokensReceived.expires_in} seconds<br />
-                <strong>Scope:</strong> {tokensReceived.scope}
-              </TokenDisplay>
+              <TokenDisplayComponent tokens={tokensReceived} />
             </div>
           )}
 
