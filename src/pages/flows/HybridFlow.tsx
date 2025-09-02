@@ -220,7 +220,7 @@ const HybridFlow: React.FC = () => {
       code_challenge_method: 'S256'
     });
 
-    return `${config.authorizationEndpoint}?${params.toString()}`;
+    return `${config.authorizationEndpoint || config.authEndpoint || ''}?${params.toString()}`;
   };
 
   const startHybridFlow = async () => {
