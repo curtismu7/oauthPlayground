@@ -1286,7 +1286,10 @@ console.log('Welcome, ' + user.name + '!');`,
                         borderTop: '1px solid #e5e7eb'
                       }}>
                         <button
-                          onClick={() => setCurrentStep(index + 1)}
+                          onClick={() => {
+                            console.log('🔄 [UserInfoFlow] Next Step button clicked', { currentIndex: index, nextStep: index + 1 });
+                            setCurrentStep(index + 1);
+                          }}
                           style={{
                             background: '#3b82f6',
                             color: 'white',
