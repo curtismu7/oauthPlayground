@@ -5,6 +5,7 @@ import { FiPlay, FiEye, FiCheckCircle, FiAlertCircle, FiCode, FiServer, FiKey } 
 import { useAuth } from '../../contexts/NewAuthContext';
 import Spinner from '../../components/Spinner';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
+import ConfigurationButton from '../../components/ConfigurationButton';
 import ColorCodedURL from '../../components/ColorCodedURL';
 
 const Container = styled.div`
@@ -653,6 +654,10 @@ fetch('/api/protected-resource', {
           with real API calls to PingOne.
         </p>
       </Header>
+
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+        <ConfigurationButton flowType="client_credentials" />
+      </div>
 
       <FlowOverview>
         <CardHeader>
