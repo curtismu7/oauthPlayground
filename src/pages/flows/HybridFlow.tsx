@@ -597,7 +597,10 @@ if (Date.now() / 1000 > payload.exp) {
                     <h3>{step.title}</h3>
                     <p>{step.description}</p>
 
-                    <CodeBlock>{step.code}</CodeBlock>
+                    {/* Show code section only after execution and when code exists */}
+                    {isExecuted && step.code && (
+                      <CodeBlock>{step.code}</CodeBlock>
+                    )}
 
                     {isExecuted && stepResult && (
                       <ResponseBox>
