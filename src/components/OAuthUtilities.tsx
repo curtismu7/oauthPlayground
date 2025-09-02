@@ -151,7 +151,7 @@ const CopyButton = styled.button`
 const OAuthUtilities: React.FC = () => {
   // JWT Decoder State
   const [jwtInput, setJwtInput] = useState('');
-  const [decodedJwt, setDecodedJwt] = useState<any>(null);
+  const [decodedJwt, setDecodedJwt] = useState<{ header: any; payload: any } | null>(null);
   const [jwtError, setJwtError] = useState('');
 
   // PKCE Generator State
@@ -166,6 +166,23 @@ const OAuthUtilities: React.FC = () => {
   // Copy State
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
+  // Helper function to decode JWT parts
+  const parseJwtPart = (part: string) => {
+    try {
+      const base64 = part.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => `%${`00${c.charCodeAt(0).toString(16)}`.slice(-2)}`)
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch (e) {
+      console.error('Error parsing JWT part:', e);
+      return null;
+    }
+  };
+
   const handleDecodeJWT = () => {
     try {
       setJwtError('');
@@ -174,13 +191,29 @@ const OAuthUtilities: React.FC = () => {
         return;
       }
 
-      const decoded = parseJwt(jwtInput.trim());
-      if (!decoded) {
-        setJwtError('Invalid JWT token format');
+      const token = jwtInput.trim();
+      const parts = token.split('.');
+      
+      if (parts.length !== 3) {
+        setJwtError('Invalid JWT format: token must have 3 parts separated by dots');
         return;
       }
 
-      setDecodedJwt(decoded);
+      // Decode header
+      const header = parseJwtPart(parts[0]);
+      if (!header) {
+        setJwtError('Failed to decode JWT header');
+        return;
+      }
+
+      // Decode payload
+      const payload = parseJwtPart(parts[1]);
+      if (!payload) {
+        setJwtError('Failed to decode JWT payload');
+        return;
+      }
+
+      setDecodedJwt({ header, payload });
     } catch (error) {
       setJwtError('Failed to decode JWT: ' + (error as Error).message);
       setDecodedJwt(null);
@@ -257,16 +290,61 @@ const OAuthUtilities: React.FC = () => {
             )}
 
             {decodedJwt && (
-              <ResultBox $type="success">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                  <strong>Decoded Claims:</strong>
-                  <CopyButton onClick={() => handleCopy(JSON.stringify(decodedJwt, null, 2), 'jwt')}>
-                    {copiedField === 'jwt' ? <FiCheck size={12} /> : <FiCopy size={12} />}
-                    {copiedField === 'jwt' ? 'Copied!' : 'Copy'}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {/* Header Section */}
+                <ResultBox $type="info">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                    <strong>Header:</strong>
+                    <CopyButton onClick={() => handleCopy(JSON.stringify(decodedJwt.header, null, 2), 'header')}>
+                      {copiedField === 'header' ? <FiCheck size={12} /> : <FiCopy size={12} />}
+                      {copiedField === 'header' ? 'Copied!' : 'Copy'}
+                    </CopyButton>
+                  </div>
+                  <pre style={{ 
+                    margin: 0, 
+                    fontSize: '0.875rem', 
+                    lineHeight: '1.4',
+                    backgroundColor: '#f8fafc',
+                    padding: '0.75rem',
+                    borderRadius: '0.25rem',
+                    border: '1px solid #e2e8f0',
+                    overflow: 'auto'
+                  }}>
+                    {JSON.stringify(decodedJwt.header, null, 2)}
+                  </pre>
+                </ResultBox>
+
+                {/* Payload Section */}
+                <ResultBox $type="success">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                    <strong>Payload:</strong>
+                    <CopyButton onClick={() => handleCopy(JSON.stringify(decodedJwt.payload, null, 2), 'payload')}>
+                      {copiedField === 'payload' ? <FiCheck size={12} /> : <FiCopy size={12} />}
+                      {copiedField === 'payload' ? 'Copied!' : 'Copy'}
+                    </CopyButton>
+                  </div>
+                  <pre style={{ 
+                    margin: 0, 
+                    fontSize: '0.875rem', 
+                    lineHeight: '1.4',
+                    backgroundColor: '#f8fafc',
+                    padding: '0.75rem',
+                    borderRadius: '0.25rem',
+                    border: '1px solid #e2e8f0',
+                    overflow: 'auto'
+                  }}>
+                    {JSON.stringify(decodedJwt.payload, null, 2)}
+                  </pre>
+                </ResultBox>
+
+                {/* Full Token Copy */}
+                <div style={{ textAlign: 'center' }}>
+                  <CopyButton onClick={() => handleCopy(JSON.stringify(decodedJwt, null, 2), 'full')}>
+                    {copiedField === 'full' ? <FiCheck size={12} /> : <FiCopy size={12} />}
+                    {copiedField === 'full' ? 'Copied!' : 'Copy Full Decoded JWT'}
                   </CopyButton>
                 </div>
-                <pre>{JSON.stringify(decodedJwt, null, 2)}</pre>
-              </ResultBox>
+              </div>
             )}
           </CardBody>
         </UtilityCard>
