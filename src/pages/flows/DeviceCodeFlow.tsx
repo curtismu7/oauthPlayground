@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
-import { FiPlay, FiAlertCircle, FiMonitor, FiSmartphone } from 'react-icons/fi';
+import { FiPlay, FiAlertCircle, FiMonitor, FiSmartphone, FiArrowRight } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
 import Spinner from '../../components/Spinner';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';

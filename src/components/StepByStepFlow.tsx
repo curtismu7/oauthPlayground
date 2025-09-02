@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import { FiPlay, FiArrowRight, FiArrowLeft, FiRotateCcw } from 'react-icons/fi';
 
@@ -154,6 +154,18 @@ export const StepByStepFlow: React.FC<StepByStepFlowProps> = ({
     if (currentStep < steps.length && steps[currentStep].execute) {
       try {
         await steps[currentStep].execute!();
+        
+        // Auto-scroll to the executed step after a short delay
+        setTimeout(() => {
+          const stepElement = document.getElementById(`step-${currentStep}`);
+          if (stepElement) {
+            stepElement.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'center' 
+            });
+          }
+        }, 100);
+        
         // Auto-advance to next step after successful execution
         if (currentStep < steps.length - 1) {
           setTimeout(() => {
