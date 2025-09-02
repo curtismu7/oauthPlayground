@@ -1147,7 +1147,10 @@ grant_type=authorization_code
                         borderTop: '1px solid #e5e7eb'
                       }}>
                         <button
-                          onClick={() => setCurrentStep(index + 1)}
+                          onClick={() => {
+                            console.log('🔄 [AuthorizationCodeFlow] Next Step button clicked', { currentIndex: index, nextStep: index + 1 });
+                            setCurrentStep(index + 1);
+                          }}
                           style={{
                             background: '#3b82f6',
                             color: 'white',
