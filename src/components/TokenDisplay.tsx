@@ -209,18 +209,20 @@ const TokenValue = styled.pre<{ $isMasked?: boolean; $type?: 'access' | 'id' | '
     }
   }};
   border-radius: 0.5rem;
-  padding: 1rem;
+  padding: 1.5rem;
+  margin-top: 0.5rem;
   overflow-x: auto;
   word-break: break-all;
   white-space: pre-wrap;
+  text-indent: 0;
   box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
   position: relative;
 
   &::before {
     content: 'JWT Token';
     position: absolute;
-    top: -0.5rem;
-    left: 1rem;
+    top: -0.75rem;
+    left: 1.5rem;
     background: ${({ $type }) => {
       switch ($type) {
         case 'access':
@@ -236,10 +238,11 @@ const TokenValue = styled.pre<{ $isMasked?: boolean; $type?: 'access' | 'id' | '
     color: white;
     font-size: 0.65rem;
     font-weight: 600;
-    padding: 0.25rem 0.5rem;
+    padding: 0.25rem 0.75rem;
     border-radius: 0.25rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 `;
 
