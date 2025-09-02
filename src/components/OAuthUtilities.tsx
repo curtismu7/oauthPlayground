@@ -169,16 +169,32 @@ const OAuthUtilities: React.FC = () => {
   // Helper function to decode JWT parts
   const parseJwtPart = (part: string) => {
     try {
-      const base64 = part.replace(/-/g, '+').replace(/_/g, '/');
+      // Add padding if needed
+      let base64 = part.replace(/-/g, '+').replace(/_/g, '/');
+      while (base64.length % 4) {
+        base64 += '=';
+      }
+      
+      // Use modern base64 decoding
+      let decoded;
+      if (typeof window !== 'undefined' && window.btoa) {
+        // Browser environment
+        decoded = atob(base64);
+      } else {
+        // Node.js environment or fallback
+        decoded = Buffer.from(base64, 'base64').toString('binary');
+      }
+      
+      // Convert to UTF-8 string
       const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split('')
-          .map((c) => `%${`00${c.charCodeAt(0).toString(16)}`.slice(-2)}`)
-          .join('')
+        Array.from(decoded, (c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')
       );
-      return JSON.parse(jsonPayload);
+      
+      const parsed = JSON.parse(jsonPayload);
+      console.log('✅ [JWT Decoder] Successfully parsed JWT part:', { part: part.substring(0, 20) + '...', result: parsed });
+      return parsed;
     } catch (e) {
-      console.error('Error parsing JWT part:', e);
+      console.error('❌ [JWT Decoder] Error parsing JWT part:', e, 'Part:', part.substring(0, 20) + '...');
       return null;
     }
   };
@@ -186,13 +202,18 @@ const OAuthUtilities: React.FC = () => {
   const handleDecodeJWT = () => {
     try {
       setJwtError('');
+      setDecodedJwt(null); // Clear previous results
+      
       if (!jwtInput.trim()) {
         setJwtError('Please enter a JWT token');
         return;
       }
 
       const token = jwtInput.trim();
+      console.log('🔍 [JWT Decoder] Attempting to decode token:', token.substring(0, 50) + '...');
+      
       const parts = token.split('.');
+      console.log('🔍 [JWT Decoder] Token parts count:', parts.length);
       
       if (parts.length !== 3) {
         setJwtError('Invalid JWT format: token must have 3 parts separated by dots');
@@ -200,6 +221,7 @@ const OAuthUtilities: React.FC = () => {
       }
 
       // Decode header
+      console.log('🔍 [JWT Decoder] Decoding header part:', parts[0].substring(0, 20) + '...');
       const header = parseJwtPart(parts[0]);
       if (!header) {
         setJwtError('Failed to decode JWT header');
@@ -207,14 +229,18 @@ const OAuthUtilities: React.FC = () => {
       }
 
       // Decode payload
+      console.log('🔍 [JWT Decoder] Decoding payload part:', parts[1].substring(0, 20) + '...');
       const payload = parseJwtPart(parts[1]);
       if (!payload) {
         setJwtError('Failed to decode JWT payload');
         return;
       }
 
+      console.log('✅ [JWT Decoder] Successfully decoded JWT:', { header, payload });
       setDecodedJwt({ header, payload });
+      setJwtError(''); // Clear any previous errors
     } catch (error) {
+      console.error('❌ [JWT Decoder] Error in handleDecodeJWT:', error);
       setJwtError('Failed to decode JWT: ' + (error as Error).message);
       setDecodedJwt(null);
     }
@@ -275,10 +301,22 @@ const OAuthUtilities: React.FC = () => {
               />
             </InputGroup>
 
-            <Button onClick={handleDecodeJWT}>
-              <FiEye size={16} />
-              Decode JWT
-            </Button>
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+              <Button onClick={handleDecodeJWT}>
+                <FiEye size={16} />
+                Decode JWT
+              </Button>
+              <Button 
+                $variant="secondary" 
+                onClick={() => {
+                  const sampleToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+                  setJwtInput(sampleToken);
+                  console.log('🧪 [JWT Decoder] Loaded sample token for testing');
+                }}
+              >
+                🧪 Load Sample Token
+              </Button>
+            </div>
 
             {jwtError && (
               <ResultBox $type="error">
