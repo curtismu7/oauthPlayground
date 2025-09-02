@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
-import { FiPlay, FiEye, FiAlertCircle, FiKey } from 'react-icons/fi';
+import { FiPlay, FiEye, FiAlertCircle, FiKey, FiSettings } from 'react-icons/fi';
 import ColorCodedURL from '../../components/ColorCodedURL';
 import { useAuth } from '../../contexts/NewAuthContext';
+import { FlowConfiguration, type FlowConfig } from '../../components/FlowConfiguration';
+import { getDefaultConfig, validatePingOneConfig } from '../../utils/flowConfigDefaults';
 
 import Spinner from '../../components/Spinner';
 
@@ -294,6 +296,10 @@ const AuthorizationCodeFlow = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [waitingForUser, setWaitingForUser] = useState(false);
+  
+  // Flow configuration state
+  const [flowConfig, setFlowConfig] = useState<FlowConfig>(() => getDefaultConfig('authorization-code'));
+  const [showConfig, setShowConfig] = useState(false);
   interface TokenResponse {
     access_token?: string;
     id_token?: string;
@@ -327,11 +333,18 @@ const AuthorizationCodeFlow = () => {
       code: `GET /authorize?
   client_id=${config?.clientId || 'your-client-id'}
   &redirect_uri=${config?.redirectUri || 'https://your-app.com/callback'}
-  &response_type=code
-  &scope=${config?.scopes || 'openid profile email'}
-  &state=xyz123
-  &nonce=abc456`,
-      url: config ? `${config.authEndpoint.replace('{envId}', config.environmentId)}?client_id=${config.clientId}&redirect_uri=${encodeURIComponent(config.redirectUri)}&response_type=code&scope=${encodeURIComponent(config.scopes)}&state=xyz123&nonce=abc456` : 'Configure PingOne settings to see real URL',
+  &response_type=${flowConfig.responseType}
+  &scope=${flowConfig.scopes.join(' ')}
+  &state=${flowConfig.state || 'xyz123'}
+  &nonce=${flowConfig.nonce || 'abc456'}${flowConfig.enablePKCE ? `
+  &code_challenge=YOUR_CODE_CHALLENGE
+  &code_challenge_method=${flowConfig.codeChallengeMethod}` : ''}${flowConfig.maxAge > 0 ? `
+  &max_age=${flowConfig.maxAge}` : ''}${flowConfig.prompt ? `
+  &prompt=${flowConfig.prompt}` : ''}${flowConfig.loginHint ? `
+  &login_hint=${flowConfig.loginHint}` : ''}${flowConfig.acrValues.length > 0 ? `
+  &acr_values=${flowConfig.acrValues.join(' ')}` : ''}${Object.keys(flowConfig.customParams).length > 0 ? `
+  ${Object.entries(flowConfig.customParams).map(([k, v]) => `&${k}=${v}`).join('\n  ')}` : ''}`,
+      url: config ? `${config.authorizationEndpoint}?client_id=${config.clientId}&redirect_uri=${encodeURIComponent(config.redirectUri)}&response_type=${flowConfig.responseType}&scope=${encodeURIComponent(flowConfig.scopes.join(' '))}&state=${flowConfig.state || 'xyz123'}&nonce=${flowConfig.nonce || 'abc456'}${flowConfig.enablePKCE ? `&code_challenge=YOUR_CODE_CHALLENGE&code_challenge_method=${flowConfig.codeChallengeMethod}` : ''}${flowConfig.maxAge > 0 ? `&max_age=${flowConfig.maxAge}` : ''}${flowConfig.prompt ? `&prompt=${flowConfig.prompt}` : ''}${flowConfig.loginHint ? `&login_hint=${flowConfig.loginHint}` : ''}${flowConfig.acrValues.length > 0 ? `&acr_values=${encodeURIComponent(flowConfig.acrValues.join(' '))}` : ''}${Object.keys(flowConfig.customParams).length > 0 ? Object.entries(flowConfig.customParams).map(([k, v]) => `&${k}=${encodeURIComponent(v)}`).join('') : ''}` : 'Configure PingOne settings to see real URL',
       backgroundColor: '#f0f9ff',
       borderColor: '#0ea5e9'
     },
@@ -339,7 +352,7 @@ const AuthorizationCodeFlow = () => {
       title: 'User is Redirected to Authorization Server',
       description: 'The user is redirected to the authorization server where they authenticate and authorize the client.',
       code: 'User authenticates and grants permission',
-      url: config ? `${config.authEndpoint.replace('{envId}', config.environmentId)}?client_id=${config.clientId}&redirect_uri=${encodeURIComponent(config.redirectUri)}&response_type=code&scope=${encodeURIComponent(config.scopes)}&state=xyz123&nonce=abc456` : 'Configure PingOne settings to see real URL',
+      url: config ? `${config.authorizationEndpoint}?client_id=${config.clientId}&redirect_uri=${encodeURIComponent(config.redirectUri)}&response_type=${flowConfig.responseType}&scope=${encodeURIComponent(flowConfig.scopes.join(' '))}&state=${flowConfig.state || 'xyz123'}&nonce=${flowConfig.nonce || 'abc456'}${flowConfig.enablePKCE ? `&code_challenge=YOUR_CODE_CHALLENGE&code_challenge_method=${flowConfig.codeChallengeMethod}` : ''}${flowConfig.maxAge > 0 ? `&max_age=${flowConfig.maxAge}` : ''}${flowConfig.prompt ? `&prompt=${flowConfig.prompt}` : ''}${flowConfig.loginHint ? `&login_hint=${flowConfig.loginHint}` : ''}${flowConfig.acrValues.length > 0 ? `&acr_values=${encodeURIComponent(flowConfig.acrValues.join(' '))}` : ''}${Object.keys(flowConfig.customParams).length > 0 ? Object.entries(flowConfig.customParams).map(([k, v]) => `&${k}=${encodeURIComponent(v)}`).join('') : ''}` : 'Configure PingOne settings to see real URL',
       backgroundColor: '#fef3c7',
       borderColor: '#f59e0b'
     },
@@ -348,8 +361,8 @@ const AuthorizationCodeFlow = () => {
       description: 'After successful authentication, the authorization server redirects back to the client with an authorization code.',
       code: `GET ${config?.redirectUri || 'https://your-app.com/callback'}?
   code=authorization-code-here
-  &state=xyz123`,
-      url: config ? `${config.redirectUri}?code=auth-code-123&state=xyz123` : 'Configure PingOne settings to see real URL',
+  &state=${flowConfig.state || 'xyz123'}`,
+      url: config ? `${config.redirectUri}?code=auth-code-123&state=${flowConfig.state || 'xyz123'}` : 'Configure PingOne settings to see real URL',
       backgroundColor: '#eff6ff',
       borderColor: '#3b82f6'
     },
@@ -363,8 +376,9 @@ grant_type=authorization_code
 &client_id=${config?.clientId || 'your-client-id'}
 &client_secret=${config?.clientSecret ? '••••••••' : 'your-client-secret'}
 &code=authorization-code-here
-&redirect_uri=${config?.redirectUri || 'https://your-app.com/callback'}`,
-      url: config ? config.tokenEndpoint.replace('{envId}', config.environmentId) : 'Configure PingOne settings to see real URL',
+&redirect_uri=${config?.redirectUri || 'https://your-app.com/callback'}${flowConfig.enablePKCE ? `
+&code_verifier=YOUR_CODE_VERIFIER` : ''}`,
+      url: config ? config.tokenEndpoint : 'Configure PingOne settings to see real URL',
       backgroundColor: '#fef2f2',
       borderColor: '#ef4444'
     },
@@ -634,7 +648,50 @@ grant_type=authorization_code
             >
               Reset Demo
             </DemoButton>
+            <DemoButton
+              className="secondary"
+              onClick={() => setShowConfig(!showConfig)}
+            >
+              <FiSettings />
+              {showConfig ? 'Hide' : 'Show'} Configuration
+            </DemoButton>
           </DemoControls>
+
+          {/* Flow Configuration Panel */}
+          {showConfig && (
+            <>
+              <FlowConfiguration
+                config={flowConfig}
+                onConfigChange={setFlowConfig}
+                flowType="authorization-code"
+              />
+              
+              {/* Configuration Validation */}
+              {(() => {
+                const validation = validatePingOneConfig(flowConfig);
+                if (!validation.isValid) {
+                  return (
+                    <Card style={{ marginBottom: '1rem', borderColor: '#ef4444' }}>
+                      <CardHeader>
+                        <h4 style={{ color: '#ef4444', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <FiAlertCircle />
+                          Configuration Issues
+                        </h4>
+                      </CardHeader>
+                      <CardBody>
+                        <ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#ef4444' }}>
+                          {validation.errors.map((error, index) => (
+                            <li key={index}>{error}</li>
+                          ))}
+                        </ul>
+                      </CardBody>
+                    </Card>
+                  );
+                }
+                return null;
+              })()}
+            </>
+          )}
 
           {!isAuthenticated && (
             <ErrorMessage>
