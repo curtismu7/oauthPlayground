@@ -305,10 +305,12 @@ const OAuthUtilities: React.FC = () => {
                     fontSize: '0.875rem', 
                     lineHeight: '1.4',
                     backgroundColor: '#f8fafc',
+                    color: '#1f2937',
                     padding: '0.75rem',
                     borderRadius: '0.25rem',
                     border: '1px solid #e2e8f0',
-                    overflow: 'auto'
+                    overflow: 'auto',
+                    fontFamily: 'monospace'
                   }}>
                     {JSON.stringify(decodedJwt.header, null, 2)}
                   </pre>
@@ -328,10 +330,12 @@ const OAuthUtilities: React.FC = () => {
                     fontSize: '0.875rem', 
                     lineHeight: '1.4',
                     backgroundColor: '#f8fafc',
+                    color: '#1f2937',
                     padding: '0.75rem',
                     borderRadius: '0.25rem',
                     border: '1px solid #e2e8f0',
-                    overflow: 'auto'
+                    overflow: 'auto',
+                    fontFamily: 'monospace'
                   }}>
                     {JSON.stringify(decodedJwt.payload, null, 2)}
                   </pre>

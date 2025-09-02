@@ -846,173 +846,173 @@ grant_type=authorization_code
               </div>
             </div>
           )}
-
-          <StepsContainer>
-        <h3>Flow Steps</h3>
-            {steps.map((step, index) => {
-              const stepResult = stepResults[index];
-              const isExecuted = executedSteps.has(index);
-              
-              // Debug logging for step 2 (authorization code step)
-              if (index === 2) {
-                console.log('🔍 [AuthCodeFlow] Rendering step 2:', {
-                  stepTitle: step.title,
-                  stepResult,
-                  isExecuted,
-                  allStepResults: stepResults
-                });
-              }
-
-              return (
-                <Step
-                  key={index}
-                  id={`step-${index}`}
-                  $active={currentStep === index && demoStatus === 'loading'}
-                  $completed={currentStep > index}
-                  $error={currentStep === index && demoStatus === 'error'}
-                  style={{
-                    backgroundColor: step.backgroundColor,
-                    borderColor: step.borderColor,
-                    border: `2px solid ${step.borderColor}`
-                  }}
-                >
-                  <StepNumber
-                    $active={currentStep === index && demoStatus === 'loading'}
-                    $completed={currentStep > index}
-                    $error={currentStep === index && demoStatus === 'error'}
-                  >
-                    {index + 1}
-                  </StepNumber>
-                  <StepContent>
-                    <h3>{step.title}</h3>
-                    <p>{step.description}</p>
-
-                    {/* Show request code section always (this is the template/example) */}
-                    {step.code && step.code.trim() && (
-                      <CodeBlock style={{ marginTop: '1rem' }}>
-                        {step.code}
-                      </CodeBlock>
-                    )}
-                    {/* Debug: Show if step.code is empty */}
-                    {(!step.code || !step.code.trim()) && (
-                      <div style={{ 
-                        marginTop: '1rem', 
-                        padding: '1rem', 
-                        backgroundColor: '#fef3c7', 
-                        border: '1px solid #f59e0b', 
-                        borderRadius: '0.375rem',
-                        fontSize: '0.875rem',
-                        color: '#92400e'
-                      }}>
-                        ⚠️ No code content available for this step (Step {index + 1}: {step.title})
-                        <br />
-                        <small>Debug: step.code = "{step.code}"</small>
-                      </div>
-                    )}
-
-                    {/* Show response/result only after step is executed */}
-                    {isExecuted && stepResult && (
-                      <ResponseBox
-                        $backgroundColor={step.backgroundColor || '#f8fafc'}
-                        $borderColor={step.borderColor || '#e2e8f0'}
-                      >
-                        <h4>Response:</h4>
-                        {stepResult.url && (
-                          <div>
-                            <strong>URL:</strong><br />
-                            <ColorCodedURL url={stepResult.url} />
-                          </div>
-                        )}
-                        {stepResult.code && (
-                          <div style={{ marginTop: '0.5rem' }}>
-                            <strong>Authorization Code:</strong><br />
-                            <pre>{stepResult.code}</pre>
-                          </div>
-                        )}
-                        {stepResult.response && (
-                          <div style={{ marginTop: '0.5rem' }}>
-                            <strong>Token Response:</strong><br />
-                            <pre>{JSON.stringify(stepResult.response, null, 2)}</pre>
-                          </div>
-                        )}
-                        {stepResult.tokens && (
-                          <div style={{ marginTop: '0.5rem' }}>
-                            <strong>Tokens:</strong>
-                            <TokenDisplayComponent tokens={stepResult.tokens} />
-                          </div>
-                        )}
-                        {stepResult.message && (
-                          <div style={{ marginTop: '0.5rem' }}>
-                            <strong>Status:</strong><br />
-                            <pre>{stepResult.message}</pre>
-                          </div>
-                        )}
-                      </ResponseBox>
-                    )}
-
-                    {/* Show execution status */}
-                    {isExecuted && (
-                      <div style={{
-                        marginTop: '1rem',
-                        padding: '0.5rem',
-                        backgroundColor: '#d4edda',
-                        border: '1px solid #c3e6cb',
-                        borderRadius: '0.25rem',
-                        color: '#155724',
-                        fontSize: '0.875rem'
-                      }}>
-                        ✅ Step completed successfully
-                      </div>
-                    )}
-
-                    {/* Next button for each step - only show if it can actually advance */}
-                    {isExecuted && index < steps.length - 1 && index + 1 > currentStep && (
-                      <div style={{ 
-                        marginTop: '1rem', 
-                        textAlign: 'center',
-                        padding: '1rem',
-                        borderTop: '1px solid #e5e7eb'
-                      }}>
-                        <button
-                          onClick={() => {
-                            const nextStepIndex = index + 1;
-                            console.log('🔄 [AuthorizationCodeFlow] Next Step button clicked', { 
-                              currentIndex: index, 
-                              nextStep: nextStepIndex, 
-                              currentStepBefore: currentStep
-                            });
-                            setCurrentStep(nextStepIndex);
-                            console.log('🔄 [AuthorizationCodeFlow] setCurrentStep called with:', nextStepIndex);
-                          }}
-                          style={{
-                            background: '#3b82f6',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '0.375rem',
-                            padding: '0.5rem 1rem',
-                            fontSize: '0.875rem',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            margin: '0 auto',
-                            transition: 'background-color 0.2s'
-                          }}
-                          onMouseOver={(e) => e.currentTarget.style.background = '#2563eb'}
-                          onMouseOut={(e) => e.currentTarget.style.background = '#3b82f6'}
-                        >
-                          Next Step
-                          <FiArrowRight style={{ width: '1rem', height: '1rem' }} />
-                        </button>
-                      </div>
-                    )}
-                  </StepContent>
-                </Step>
-              );
-            })}
-          </StepsContainer>
         </CardBody>
       </DemoSection>
+
+      <StepsContainer>
+        <h3>Flow Steps</h3>
+        {steps.map((step, index) => {
+          const stepResult = stepResults[index];
+          const isExecuted = executedSteps.has(index);
+          
+          // Debug logging for step 2 (authorization code step)
+          if (index === 2) {
+            console.log('🔍 [AuthCodeFlow] Rendering step 2:', {
+              stepTitle: step.title,
+              stepResult,
+              isExecuted,
+              allStepResults: stepResults
+            });
+          }
+
+          return (
+            <Step
+              key={index}
+              id={`step-${index}`}
+              $active={currentStep === index && demoStatus === 'loading'}
+              $completed={currentStep > index}
+              $error={currentStep === index && demoStatus === 'error'}
+              style={{
+                backgroundColor: step.backgroundColor,
+                borderColor: step.borderColor,
+                border: `2px solid ${step.borderColor}`
+              }}
+            >
+              <StepNumber
+                $active={currentStep === index && demoStatus === 'loading'}
+                $completed={currentStep > index}
+                $error={currentStep === index && demoStatus === 'error'}
+              >
+                {index + 1}
+              </StepNumber>
+              <StepContent>
+                <h3>{step.title}</h3>
+                <p>{step.description}</p>
+
+                {/* Show request code section always (this is the template/example) */}
+                {step.code && step.code.trim() && (
+                  <CodeBlock style={{ marginTop: '1rem' }}>
+                    {step.code}
+                  </CodeBlock>
+                )}
+                {/* Debug: Show if step.code is empty */}
+                {(!step.code || !step.code.trim()) && (
+                  <div style={{ 
+                    marginTop: '1rem', 
+                    padding: '1rem', 
+                    backgroundColor: '#fef3c7', 
+                    border: '1px solid #f59e0b', 
+                    borderRadius: '0.375rem',
+                    fontSize: '0.875rem',
+                    color: '#92400e'
+                  }}>
+                    ⚠️ No code content available for this step (Step {index + 1}: {step.title})
+                    <br />
+                    <small>Debug: step.code = "{step.code}"</small>
+                  </div>
+                )}
+
+                {/* Show response/result only after step is executed */}
+                {isExecuted && stepResult && (
+                  <ResponseBox
+                    $backgroundColor={step.backgroundColor || '#f8fafc'}
+                    $borderColor={step.borderColor || '#e2e8f0'}
+                  >
+                    <h4>Response:</h4>
+                    {stepResult.url && (
+                      <div>
+                        <strong>URL:</strong><br />
+                        <ColorCodedURL url={stepResult.url} />
+                      </div>
+                    )}
+                    {stepResult.code && (
+                      <div style={{ marginTop: '0.5rem' }}>
+                        <strong>Authorization Code:</strong><br />
+                        <pre>{stepResult.code}</pre>
+                      </div>
+                    )}
+                    {stepResult.response && (
+                      <div style={{ marginTop: '0.5rem' }}>
+                        <strong>Token Response:</strong><br />
+                        <pre>{JSON.stringify(stepResult.response, null, 2)}</pre>
+                      </div>
+                    )}
+                    {stepResult.tokens && (
+                      <div style={{ marginTop: '0.5rem' }}>
+                        <strong>Tokens:</strong>
+                        <TokenDisplayComponent tokens={stepResult.tokens} />
+                      </div>
+                    )}
+                    {stepResult.message && (
+                      <div style={{ marginTop: '0.5rem' }}>
+                        <strong>Status:</strong><br />
+                        <pre>{stepResult.message}</pre>
+                      </div>
+                    )}
+                  </ResponseBox>
+                )}
+
+                {/* Show execution status */}
+                {isExecuted && (
+                  <div style={{
+                    marginTop: '1rem',
+                    padding: '0.5rem',
+                    backgroundColor: '#d4edda',
+                    border: '1px solid #c3e6cb',
+                    borderRadius: '0.25rem',
+                    color: '#155724',
+                    fontSize: '0.875rem'
+                  }}>
+                    ✅ Step completed successfully
+                  </div>
+                )}
+
+                {/* Next button for each step - only show if it can actually advance */}
+                {isExecuted && index < steps.length - 1 && index + 1 > currentStep && (
+                  <div style={{ 
+                    marginTop: '1rem', 
+                    textAlign: 'center',
+                    padding: '1rem',
+                    borderTop: '1px solid #e5e7eb'
+                  }}>
+                    <button
+                      onClick={() => {
+                        const nextStepIndex = index + 1;
+                        console.log('🔄 [AuthorizationCodeFlow] Next Step button clicked', { 
+                          currentIndex: index, 
+                          nextStep: nextStepIndex, 
+                          currentStepBefore: currentStep
+                        });
+                        setCurrentStep(nextStepIndex);
+                        console.log('🔄 [AuthorizationCodeFlow] setCurrentStep called with:', nextStepIndex);
+                      }}
+                      style={{
+                        background: '#3b82f6',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '0.375rem',
+                        padding: '0.5rem 1rem',
+                        fontSize: '0.875rem',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        margin: '0 auto',
+                        transition: 'background-color 0.2s'
+                      }}
+                      onMouseOver={(e) => e.currentTarget.style.background = '#2563eb'}
+                      onMouseOut={(e) => e.currentTarget.style.background = '#3b82f6'}
+                    >
+                      Next Step
+                      <FiArrowRight style={{ width: '1rem', height: '1rem' }} />
+                    </button>
+                  </div>
+                )}
+              </StepContent>
+            </Step>
+          );
+        })}
+      </StepsContainer>
     </Container>
   );
 };
