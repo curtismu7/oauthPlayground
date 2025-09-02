@@ -9,6 +9,7 @@ import { useAuth } from '../../contexts/NewAuthContext';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import { ColorCodedURL } from '../../components/ColorCodedURL';
 import Typewriter from '../../components/Typewriter';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
 
 const Page = styled.div`
   display: flex;
@@ -272,7 +273,21 @@ window.location.href = authUrl;
         }));
         setExecutedSteps(prev => new Set(prev).add(2));
 
-        console.log('✅ [ImplicitFlowOIDC] Tokens received in URL fragment');
+        // Store tokens using the shared utility
+        const tokensForStorage = {
+          access_token: mockTokens.access_token,
+          id_token: mockTokens.id_token,
+          token_type: mockTokens.token_type,
+          expires_in: mockTokens.expires_in,
+          scope: 'openid profile email'
+        };
+        
+        const success = storeOAuthTokens(tokensForStorage);
+        if (success) {
+          console.log('✅ [ImplicitFlowOIDC] Tokens received and stored successfully');
+        } else {
+          console.error('❌ [ImplicitFlowOIDC] Failed to store tokens');
+        }
       }
     },
     {
