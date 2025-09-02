@@ -290,9 +290,9 @@ const StepsContainer = styled.div`
 `;
 
 const Step = styled.div<{
-  active?: boolean;
-  completed?: boolean;
-  error?: boolean;
+  $active?: boolean;
+  $completed?: boolean;
+  $error?: boolean;
 }>`
   display: flex;
   gap: 1rem;
@@ -302,7 +302,7 @@ const Step = styled.div<{
   border: 2px solid transparent;
   transition: all 0.2s;
 
-  ${({ active, completed, error }) => {
+  ${({ $active: active, $completed: completed, $error: error }) => {
     if (error) {
       return `
         border-color: #ef4444;
@@ -329,9 +329,9 @@ const Step = styled.div<{
 `;
 
 const StepNumber = styled.div<{
-  active?: boolean;
-  completed?: boolean;
-  error?: boolean;
+  $active?: boolean;
+  $completed?: boolean;
+  $error?: boolean;
 }>`
   display: flex;
   align-items: center;
@@ -343,7 +343,7 @@ const StepNumber = styled.div<{
   font-size: 1rem;
   flex-shink: 0;
 
-  ${({ active, completed, error }) => {
+  ${({ $active: active, $completed: completed, $error: error }) => {
     if (error) {
       return `
         background-color: #ef4444;
@@ -791,14 +791,14 @@ console.log('Welcome, ' + user.name + '!');`
             {steps.map((step, index) => (
               <Step
                 key={index}
-                active={currentStep === index && demoStatus === 'loading'}
-                completed={currentStep > index}
-                error={currentStep === index && demoStatus === 'error'}
+                $active={currentStep === index && demoStatus === 'loading'}
+                $completed={currentStep > index}
+                $error={currentStep === index && demoStatus === 'error'}
               >
                 <StepNumber
-                  active={currentStep === index && demoStatus === 'loading'}
-                  completed={currentStep > index}
-                  error={currentStep === index && demoStatus === 'error'}
+                  $active={currentStep === index && demoStatus === 'loading'}
+                  $completed={currentStep > index}
+                  $error={currentStep === index && demoStatus === 'error'}
                 >
                   {index + 1}
                 </StepNumber>
