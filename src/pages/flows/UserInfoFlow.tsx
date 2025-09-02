@@ -269,6 +269,7 @@ const CodeBlock = styled.pre`
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   border: 1px solid ${({ theme }) => theme.colors.gray800};
   position: relative;
+  white-space: pre-wrap;
 `;
 
 const CopyButton = styled.button`
