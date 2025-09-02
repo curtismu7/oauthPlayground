@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { 
   FiHome, FiCode, FiUser, FiSettings, 
-  FiChevronDown, FiBookOpen, FiEye 
+  FiChevronDown, FiBookOpen, FiEye, FiShield, FiUsers
 } from 'react-icons/fi';
 
 interface SidebarContainerProps {
@@ -223,6 +223,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             </SubmenuItem>
           </Submenu>
         </NavItemWithSubmenu>
+        
+        <NavItem to="/oauth-2-1" onClick={onClose}>
+          <FiShield />
+          <span>OAuth 2.1</span>
+        </NavItem>
+        
+        <NavItem to="/oidc-session-management" onClick={onClose}>
+          <FiUsers />
+          <span>Session Management</span>
+        </NavItem>
       </NavSection>
       
       <NavSection>
