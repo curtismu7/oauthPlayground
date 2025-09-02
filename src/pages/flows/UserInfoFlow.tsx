@@ -1191,13 +1191,15 @@ console.log('Welcome, ' + user.name + '!');`,
                     <h3>{step.title}</h3>
                     <p>{step.description}</p>
 
-                    {/* Show URL/Code section always */}
-                    <CodeBlock>
-                      <CopyButton onClick={() => copyToClipboard(step.code)}>
-                        Copy
-                      </CopyButton>
-                      {step.code}
-                    </CodeBlock>
+                    {/* Show URL/Code section only after execution and when code exists */}
+                    {isExecuted && step.code && (
+                      <CodeBlock>
+                        <CopyButton onClick={() => copyToClipboard(step.code)}>
+                          Copy
+                        </CopyButton>
+                        {step.code}
+                      </CodeBlock>
+                    )}
 
                     {/* Show response/result only after step is executed */}
                     {isExecuted && stepResult && (
