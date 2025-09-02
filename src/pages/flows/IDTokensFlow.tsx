@@ -367,7 +367,7 @@ const parseJwt = (token: string) => {
 };
 
 const IDTokensFlow = () => {
-  const { config } = useOAuth();
+  const { config } = useAuth();
   const [demoStatus, setDemoStatus] = useState('idle');
   const [currentStep, setCurrentStep] = useState(0);
   const [idToken, setIdToken] = useState('');
