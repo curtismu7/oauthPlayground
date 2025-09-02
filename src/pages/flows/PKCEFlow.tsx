@@ -8,6 +8,7 @@ import Typewriter from '../../components/Typewriter';
 import { ColorCodedURL } from '../../components/ColorCodedURL';
 import { URLParamExplainer } from '../../components/URLParamExplainer';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
+import ConfigurationButton from '../../components/ConfigurationButton';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -651,6 +652,10 @@ return tokens;`,
           with real API calls to PingOne.
         </p>
       </Header>
+
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+        <ConfigurationButton flowType="pkce" />
+      </div>
 
       <FlowOverview>
         <CardHeader>

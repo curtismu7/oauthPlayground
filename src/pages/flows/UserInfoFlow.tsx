@@ -4,6 +4,7 @@ import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiAlertCircle, FiUser, FiInfo, FiSend, FiDownload, FiEye, FiArrowRight } from 'react-icons/fi';
 import PageTitle from '../../components/PageTitle';
 import TokenDisplayComponent from '../../components/TokenDisplay';
+import ConfigurationButton from '../../components/ConfigurationButton';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { getUserInfo, isTokenExpired } from '../../utils/oauth';
 import { decodeJwt } from '../../utils/jwt';
@@ -878,6 +879,10 @@ console.log('Welcome, ' + user.name + '!');`,
         title="OpenID Connect UserInfo"
         subtitle="Learn how to retrieve user profile information using the UserInfo endpoint. This endpoint provides detailed user claims and supports both authenticated and unauthenticated requests."
       />
+
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+        <ConfigurationButton flowType="userinfo" />
+      </div>
 
       <FlowOverview>
         <CardHeader>

@@ -5,6 +5,7 @@ import { FiPlay, FiAlertCircle, FiMonitor, FiSmartphone, FiArrowRight } from 're
 import { useAuth } from '../../contexts/NewAuthContext';
 import Spinner from '../../components/Spinner';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
+import ConfigurationButton from '../../components/ConfigurationButton';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -652,6 +653,10 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
           with real API calls to PingOne.
         </p>
       </Header>
+
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+        <ConfigurationButton flowType="device_code" />
+      </div>
 
       <FlowOverview>
         <CardHeader>
