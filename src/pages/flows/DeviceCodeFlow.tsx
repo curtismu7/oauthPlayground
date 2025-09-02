@@ -4,6 +4,7 @@ import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiAlertCircle, FiMonitor, FiSmartphone } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
 import Spinner from '../../components/Spinner';
+import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -311,6 +312,41 @@ const ErrorMessage = styled.div`
   font-size: 0.9rem;
 `;
 
+const ResponseBox = styled.div<{ $backgroundColor?: string; $borderColor?: string }>`
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid ${({ $borderColor }) => $borderColor || '#e2e8f0'};
+  background-color: ${({ $backgroundColor }) => $backgroundColor || '#f8fafc'};
+  font-family: monospace;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow: visible;
+  max-width: 100%;
+
+  h4 {
+    margin: 0 0 0.5rem 0;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  pre {
+    margin: 0;
+    background: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    white-space: pre-wrap;
+    word-break: break-all;
+    overflow: visible;
+  }
+`;
+
 type DeviceCodeData = {
   device_code: string;
   user_code: string;
@@ -338,78 +374,19 @@ const DeviceFlow = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [pollingInterval, setPollingInterval] = useState<ReturnType<typeof setInterval> | null>(null);
 
+  // Track execution results for each step
+  const [stepResults, setStepResults] = useState<Record<number, any>>({});
+  const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
+
   const startDeviceCodeFlow = async () => {
     setDemoStatus('loading');
-    setIsLoading(true);
     setCurrentStep(0);
     setError(null);
     setTokensReceived(null);
     setDeviceCodeData(null);
-
-    try {
-      setCurrentStep(1);
-
-      // Simulate device authorization request (correct endpoint includes environment ID)
-      // Example:
-      // POST https://auth.pingone.com/{envId}/as/device_authorization
-      // Content-Type: application/x-www-form-urlencoded
-      // client_id=...&scope=openid profile email
-
-      setCurrentStep(2);
-
-      // Simulate receiving device codes
-      setTimeout(() => {
-        const mockDeviceCodes = {
-          device_code: 'GmRhmhcxhwAzkoEqiMEg_DnyE-oqGpZC9yIwBhLJrRgI',
-          user_code: 'WDJB-MJHT',
-          verification_uri: 'https://pingone.com/device',
-          verification_uri_complete: 'https://pingone.com/device?user_code=WDJB-MJHT',
-          expires_in: 1800,
-          interval: 5
-        };
-
-        setDeviceCodeData(mockDeviceCodes);
-        setCurrentStep(3);
-
-        // Simulate polling for tokens
-        setCurrentStep(4);
-        let pollCount = 0;
-        const pollInterval = setInterval(() => {
-          pollCount++;
-
-          if (pollCount >= 3) { // Simulate user completing authentication after 3 polls
-            clearInterval(pollInterval);
-            setPollingInterval(null);
-
-            setCurrentStep(5);
-            // Simulate receiving tokens
-            const mockTokens = {
-              access_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.device_flow_token_signature',
-              id_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.device_flow_id_token_signature',
-              token_type: 'Bearer',
-              expires_in: 3600,
-              scope: 'openid profile email'
-            };
-
-            setTokensReceived(mockTokens);
-            setCurrentStep(6);
-            setDemoStatus('success');
-          }
-        }, 3000);
-
-        setPollingInterval(pollInterval);
-      }, 2000);
-
-    } catch (err) {
-      console.error('Device code flow failed:', err);
-      setError('Failed to execute device code flow. Please check your configuration.');
-      setDemoStatus('error');
-      setIsLoading(false);
-      if (pollingInterval) {
-        clearInterval(pollingInterval);
-        setPollingInterval(null);
-      }
-    }
+    setStepResults({});
+    setExecutedSteps(new Set());
+    console.log('🚀 [DeviceCodeFlow] Starting device code flow...');
   };
 
   const resetDemo = () => {
@@ -418,13 +395,15 @@ const DeviceFlow = () => {
     setTokensReceived(null);
     setError(null);
     setDeviceCodeData(null);
+    setStepResults({});
+    setExecutedSteps(new Set());
     if (pollingInterval) {
       clearInterval(pollingInterval);
       setPollingInterval(null);
     }
   };
 
-  const steps = [
+  const steps: FlowStep[] = [
     {
       title: 'Device Initiates Flow',
       description: 'Device requests device and user codes from authorization server',
@@ -436,7 +415,28 @@ client_id=${config?.clientId || 'your_client_id'}&scope=openid profile email
 
 // Device sends minimal information:
 // - client_id: identifies the device/app
-// - scope: requested permissions`
+// - scope: requested permissions`,
+      execute: async () => {
+        if (!config) {
+          setError('Configuration required. Please configure your PingOne settings first.');
+          return;
+        }
+
+        // Simulate device authorization request
+        const requestData = {
+          method: 'POST',
+          url: `${config.deviceAuthorizationEndpoint}?client_id=${config.clientId}&scope=openid profile email`,
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: `client_id=${config.clientId}&scope=openid profile email`
+        };
+
+        setStepResults(prev => ({ ...prev, 0: { request: requestData } }));
+        setExecutedSteps(prev => new Set(prev).add(0));
+
+        console.log('✅ [DeviceCodeFlow] Device authorization request prepared');
+      }
     },
     {
       title: 'Server Generates Device & User Codes',
@@ -447,26 +447,76 @@ const userCode = generateUserFriendlyCode(); // e.g., "WDJB-MJHT"
 
 // Server response:
 {
-  "device_code": "${deviceCodeData?.device_code || 'GmRhmhcxhwAzkoEqiMEg_DnyE-oqGpZC9yIwBhLJrRgI'}",
-  "user_code": "${deviceCodeData?.user_code || 'WDJB-MJHT'}",
+  "device_code": "GmRhmhcxhwAzkoEqiMEg_DnyE-oqGpZC9yIwBhLJrRgI",
+  "user_code": "WDJB-MJHT",
   "verification_uri": "https://pingone.com/device",
-  "verification_uri_complete": "https://pingone.com/device?user_code=${deviceCodeData?.user_code || 'WDJB-MJHT'}",
+  "verification_uri_complete": "https://pingone.com/device?user_code=WDJB-MJHT",
   "expires_in": 1800,
   "interval": 5
-}`
+}`,
+      execute: async () => {
+        if (!config) {
+          setError('Configuration required. Please configure your PingOne settings first.');
+          return;
+        }
+
+        try {
+          // Make real device authorization request
+          const response = await fetch(config.deviceAuthorizationEndpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `client_id=${config.clientId}&scope=openid profile email`
+          });
+
+          if (!response.ok) {
+            throw new Error(`Device authorization failed: ${response.status} ${response.statusText}`);
+          }
+
+          const deviceCodes = await response.json();
+          setDeviceCodeData(deviceCodes);
+
+          setStepResults(prev => ({ ...prev, 1: { response: deviceCodes, status: response.status } }));
+          setExecutedSteps(prev => new Set(prev).add(1));
+
+          console.log('✅ [DeviceCodeFlow] Device codes received:', deviceCodes);
+        } catch (error: any) {
+          setError(`Failed to get device codes: ${error.message}`);
+          console.error('❌ [DeviceCodeFlow] Device code request error:', error);
+        }
+      }
     },
     {
       title: 'Device Displays User Code',
       description: 'Device shows user-friendly code and verification URL',
       code: `// Device displays to user:
-console.log('Go to: ${deviceCodeData?.verification_uri || 'https://pingone.com/device'}');
-console.log('Enter code: ${deviceCodeData?.user_code || 'WDJB-MJHT'}');
+console.log('Go to: https://pingone.com/device');
+console.log('Enter code: WDJB-MJHT');
 
 // Device can show:
 // - Verification URL
 // - User code (formatted nicely)
 // - QR code (optional)
-// - Instructions for user`
+// - Instructions for user`,
+      execute: () => {
+        if (!deviceCodeData) {
+          setError('Device codes not available. Please complete previous step first.');
+          return;
+        }
+
+        setStepResults(prev => ({
+          ...prev,
+          2: {
+            message: 'User code displayed for authentication',
+            userCode: deviceCodeData.user_code,
+            verificationUri: deviceCodeData.verification_uri
+          }
+        }));
+        setExecutedSteps(prev => new Set(prev).add(2));
+
+        console.log('✅ [DeviceCodeFlow] User code displayed for authentication');
+      }
     },
     {
       title: 'Device Polls for Authorization',
@@ -476,14 +526,35 @@ POST https://auth.pingone.com/${config?.environmentId || 'YOUR_ENV_ID'}/as/token
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=urn:ietf:params:oauth:grant-type:device_code
-&device_code=${deviceCodeData?.device_code || 'GmRhmhcxhwAzkoEqiMEg_DnyE-oqGpZC9yIwBhLJrRgI'}
+&device_code=GmRhmhcxhwAzkoEqiMEg_DnyE-oqGpZC9yIwBhLJrRgI
 &client_id=${config?.clientId || 'your_client_id'}
 
 // Poll every 5 seconds (interval from device authorization)
 // Continue polling until:
 // - User completes authentication
 // - Device code expires
-// - Error occurs`
+// - Error occurs`,
+      execute: () => {
+        if (!deviceCodeData) {
+          setError('Device codes not available. Please complete previous step first.');
+          return;
+        }
+
+        // Start polling simulation
+        const pollRequest = {
+          method: 'POST',
+          url: config?.tokenEndpoint || 'https://auth.pingone.com/token',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: `grant_type=urn:ietf:params:oauth:grant-type:device_code&device_code=${deviceCodeData.device_code}&client_id=${config?.clientId || 'your_client_id'}`
+        };
+
+        setStepResults(prev => ({ ...prev, 3: { request: pollRequest, message: 'Device started polling for tokens' } }));
+        setExecutedSteps(prev => new Set(prev).add(3));
+
+        console.log('✅ [DeviceCodeFlow] Device started polling for authorization');
+      }
     },
     {
       title: 'User Authenticates on Separate Device',
@@ -496,7 +567,25 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
 // 5. Complete authentication
 
 // Server associates user_code with device_code
-// Marks device as authorized for token issuance`
+// Marks device as authorized for token issuance`,
+      execute: () => {
+        if (!deviceCodeData) {
+          setError('Device codes not available. Please complete previous step first.');
+          return;
+        }
+
+        setStepResults(prev => ({
+          ...prev,
+          4: {
+            message: 'User completed authentication on separate device',
+            userCode: deviceCodeData.user_code,
+            verificationUri: deviceCodeData.verification_uri
+          }
+        }));
+        setExecutedSteps(prev => new Set(prev).add(4));
+
+        console.log('✅ [DeviceCodeFlow] User authentication completed');
+      }
     },
     {
       title: 'Device Receives Tokens',
@@ -513,7 +602,40 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
 // Device can now:
 // - Store tokens securely
 // - Make authenticated API calls
-// - Access protected resources`
+// - Access protected resources`,
+      execute: async () => {
+        if (!config || !deviceCodeData) {
+          setError('Configuration or device codes not available. Please complete previous steps first.');
+          return;
+        }
+
+        try {
+          // Make real token request
+          const response = await fetch(config.tokenEndpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `grant_type=urn:ietf:params:oauth:grant-type:device_code&device_code=${deviceCodeData.device_code}&client_id=${config.clientId}`
+          });
+
+          if (!response.ok) {
+            throw new Error(`Token exchange failed: ${response.status} ${response.statusText}`);
+          }
+
+          const tokenData = await response.json();
+          setTokensReceived(tokenData);
+          setDemoStatus('success');
+
+          setStepResults(prev => ({ ...prev, 5: { response: tokenData, status: response.status } }));
+          setExecutedSteps(prev => new Set(prev).add(5));
+
+          console.log('✅ [DeviceCodeFlow] Tokens received:', tokenData);
+        } catch (error: any) {
+          setError(`Failed to receive tokens: ${error.message}`);
+          console.error('❌ [DeviceCodeFlow] Token request error:', error);
+        }
+      }
     }
   ];
 
@@ -568,38 +690,16 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
           <h2>Interactive Demo</h2>
         </CardHeader>
         <CardBody>
-          <DemoControls>
-            <StatusIndicator className={demoStatus}>
-              {demoStatus === 'idle' && 'Ready to start'}
-              {demoStatus === 'loading' && 'Executing device code flow...'}
-              {demoStatus === 'success' && 'Flow completed successfully'}
-              {demoStatus === 'error' && 'Flow failed'}
-            </StatusIndicator>
-            <DemoButton
-              className="primary"
-              onClick={startDeviceCodeFlow}
-              disabled={demoStatus === 'loading' || !config || isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Spinner size={16} />
-                  Running Flow...
-                </>
-              ) : (
-                <>
-                  <FiPlay />
-                  Start Device Code Flow
-                </>
-              )}
-            </DemoButton>
-            <DemoButton
-              className="secondary"
-              onClick={resetDemo}
-              disabled={demoStatus === 'idle'}
-            >
-              Reset Demo
-            </DemoButton>
-          </DemoControls>
+          <StepByStepFlow
+            steps={steps}
+            onStart={startDeviceCodeFlow}
+            onReset={resetDemo}
+            status={demoStatus}
+            currentStep={currentStep}
+            onStepChange={setCurrentStep}
+            disabled={!config}
+            title="Device Code Flow"
+          />
 
           {!config && (
             <ErrorMessage>
@@ -653,46 +753,83 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
 
           <StepsContainer>
             <h3>Flow Steps</h3>
-            {steps.map((step, index) => (
-              <Step
-                key={index}
-                $active={currentStep === index && demoStatus === 'loading'}
-                $completed={currentStep > index}
-                $error={currentStep === index && demoStatus === 'error'}
-              >
-                <StepNumber
+            {steps.map((step, index) => {
+              const stepResult = stepResults[index];
+              const isExecuted = executedSteps.has(index);
+
+              return (
+                <Step
+                  key={index}
                   $active={currentStep === index && demoStatus === 'loading'}
                   $completed={currentStep > index}
                   $error={currentStep === index && demoStatus === 'error'}
                 >
-                  {index + 1}
-                </StepNumber>
-                <StepContent>
-                  <h3>{step.title}</h3>
-                  <p>{step.description}</p>
-                  <CodeBlock>{step.code}</CodeBlock>
-                </StepContent>
-              </Step>
-            ))}
-          </StepsContainer>
+                  <StepNumber
+                    $active={currentStep === index && demoStatus === 'loading'}
+                    $completed={currentStep > index}
+                    $error={currentStep === index && demoStatus === 'error'}
+                  >
+                    {index + 1}
+                  </StepNumber>
+                  <StepContent>
+                    <h3>{step.title}</h3>
+                    <p>{step.description}</p>
 
-          {/* Manual navigation controls */}
-          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
-            <DemoButton
-              className="secondary"
-              onClick={() => setCurrentStep(s => Math.max(0, s - 1))}
-              disabled={demoStatus !== 'loading' || currentStep === 0}
-            >
-              Previous
-            </DemoButton>
-            <DemoButton
-              className="primary"
-              onClick={() => setCurrentStep(s => Math.min(steps.length - 1, s + 1))}
-              disabled={demoStatus !== 'loading' || currentStep >= steps.length - 1}
-            >
-              Next
-            </DemoButton>
-          </div>
+                    {/* Show code section always */}
+                    <CodeBlock>{step.code}</CodeBlock>
+
+                    {/* Show response/result only after step is executed */}
+                    {isExecuted && stepResult && (
+                      <ResponseBox>
+                        <h4>Response:</h4>
+                        {stepResult.request && (
+                          <div>
+                            <strong>API Request:</strong><br />
+                            <pre>{JSON.stringify(stepResult.request, null, 2)}</pre>
+                          </div>
+                        )}
+                        {stepResult.response && (
+                          <div>
+                            <strong>Server Response:</strong><br />
+                            <pre>{JSON.stringify(stepResult.response, null, 2)}</pre>
+                          </div>
+                        )}
+                        {stepResult.userCode && (
+                          <div>
+                            <strong>User Code:</strong><br />
+                            <pre>{stepResult.userCode}</pre>
+                            <strong>Verification URI:</strong><br />
+                            <pre>{stepResult.verificationUri}</pre>
+                          </div>
+                        )}
+                        {stepResult.message && (
+                          <div>
+                            <strong>Status:</strong><br />
+                            <pre>{stepResult.message}</pre>
+                          </div>
+                        )}
+                      </ResponseBox>
+                    )}
+
+                    {/* Show execution status */}
+                    {isExecuted && (
+                      <div style={{
+                        marginTop: '1rem',
+                        padding: '0.5rem',
+                        backgroundColor: '#d4edda',
+                        border: '1px solid #c3e6cb',
+                        borderRadius: '0.25rem',
+                        color: '#155724',
+                        fontSize: '0.875rem'
+                      }}>
+                        ✅ Step completed successfully
+                      </div>
+                    )}
+                  </StepContent>
+                </Step>
+              );
+            })}
+          </StepsContainer>
         </CardBody>
       </DemoSection>
     </Container>

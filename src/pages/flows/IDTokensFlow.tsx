@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiEye, FiCheckCircle, FiAlertCircle, FiCode, FiShield, FiKey } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
+import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -350,6 +351,41 @@ const ErrorMessage = styled.div`
   font-size: 0.9rem;
 `;
 
+const ResponseBox = styled.div<{ $backgroundColor?: string; $borderColor?: string }>`
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid ${({ $borderColor }) => $borderColor || '#e2e8f0'};
+  background-color: ${({ $backgroundColor }) => $backgroundColor || '#f8fafc'};
+  font-family: monospace;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow: visible;
+  max-width: 100%;
+
+  h4 {
+    margin: 0 0 0.5rem 0;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  pre {
+    margin: 0;
+    background: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    white-space: pre-wrap;
+    word-break: break-all;
+    overflow: visible;
+  }
+`;
+
 // JWT parsing utility
 const parseJwt = (token: string) => {
   try {
@@ -374,6 +410,10 @@ const IDTokensFlow = () => {
   const [decodedToken, setDecodedToken] = useState(null);
   const [validationResults, setValidationResults] = useState(null);
   const [error, setError] = useState(null);
+
+  // Track execution results for each step
+  const [stepResults, setStepResults] = useState<Record<number, any>>({});
+  const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
 
   const simulateIDTokenFlow = async () => {
     setDemoStatus('loading');

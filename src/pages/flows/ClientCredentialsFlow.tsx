@@ -4,6 +4,8 @@ import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiEye, FiCheckCircle, FiAlertCircle, FiCode, FiServer, FiKey } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
 import Spinner from '../../components/Spinner';
+import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
+import ColorCodedURL from '../../components/ColorCodedURL';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -277,6 +279,41 @@ const ErrorMessage = styled.div`
   font-size: 0.9rem;
 `;
 
+const ResponseBox = styled.div<{ $backgroundColor?: string; $borderColor?: string }>`
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid ${({ $borderColor }) => $borderColor || '#e2e8f0'};
+  background-color: ${({ $backgroundColor }) => $backgroundColor || '#f8fafc'};
+  font-family: monospace;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow: visible;
+  max-width: 100%;
+
+  h4 {
+    margin: 0 0 0.5rem 0;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  pre {
+    margin: 0;
+    background: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    white-space: pre-wrap;
+    word-break: break-all;
+    overflow: visible;
+  }
+`;
+
 const APICallDemo = styled.div`
   background-color: ${({ theme }) => theme.colors.gray100};
   border: 1px solid ${({ theme }) => theme.colors.gray200};
@@ -335,54 +372,19 @@ const ClientCredentialsFlow = () => {
   const [apiCall, setApiCall] = useState<ApiCall | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  // Track execution results for each step
+  const [stepResults, setStepResults] = useState<Record<number, any>>({});
+  const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
+
   const startClientCredentialsFlow = async () => {
     setDemoStatus('loading');
-    setIsLoading(true);
+    setCurrentStep(0);
     setError(null);
     setTokensReceived(null);
     setApiCall(null);
-
-    try {
-      setCurrentStep(1);
-
-      // Simulate preparing credentials
-      const credentials = btoa(`${config.clientId}:${config.clientSecret}`);
-      setCurrentStep(2);
-
-      // Simulate the API call
-      const tokenRequest: ApiCall = {
-        method: 'POST',
-        url: `${config.apiUrl}/token`,
-        headers: {
-          'Authorization': `Basic ${credentials}`,
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: 'grant_type=client_credentials&scope=api:read'
-      };
-
-      setApiCall(tokenRequest);
-      setCurrentStep(3);
-
-      // Simulate receiving tokens
-      setTimeout(() => {
-        const mockTokens: Tokens = {
-          access_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbGllbnRfY3JlZGVudGlhbHMiLCJzY29wZSI6ImFwaTpyZWFkIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzUwMjJ9.machine_access_token_signature',
-          token_type: 'Bearer',
-          expires_in: 3600,
-          scope: 'api:read'
-        };
-
-        setTokensReceived(mockTokens);
-        setCurrentStep(4);
-        setDemoStatus('success');
-      }, 2000);
-
-    } catch (err) {
-      console.error('Client credentials flow failed:', err);
-      setError('Failed to execute client credentials flow. Please check your configuration.');
-      setDemoStatus('error');
-      setIsLoading(false);
-    }
+    setStepResults({});
+    setExecutedSteps(new Set());
+    console.log('🚀 [ClientCredentialsFlow] Starting client credentials flow...');
   };
 
   const makeAuthenticatedAPICall = async () => {
@@ -430,9 +432,11 @@ const ClientCredentialsFlow = () => {
     setTokensReceived(null);
     setError(null);
     setApiCall(null);
+    setStepResults({});
+    setExecutedSteps(new Set());
   };
 
-  const steps = [
+  const steps: FlowStep[] = [
     {
       title: 'Prepare Client Credentials',
       description: 'Server prepares client credentials for authentication',
@@ -441,17 +445,52 @@ const credentials = btoa(clientId + ':' + clientSecret);
 
 // Example:
 const credentials = btoa('${config?.clientId || 'your_client_id'}:${config?.clientSecret || 'your_client_secret'}');
-// Result: ${config ? btoa(`${config.clientId}:${config.clientSecret}`).substring(0, 20) + '...' : 'Base64_encoded_credentials'}`
+// Result: ${config ? btoa(`${config.clientId}:${config.clientSecret}`).substring(0, 20) + '...' : 'Base64_encoded_credentials'}`,
+      execute: () => {
+        if (!config) {
+          setError('Configuration required. Please configure your PingOne settings first.');
+          return;
+        }
+
+        const credentials = btoa(`${config.clientId}:${config.clientSecret}`);
+        setStepResults(prev => ({ ...prev, 0: { credentials: credentials.substring(0, 20) + '...' } }));
+        setExecutedSteps(prev => new Set(prev).add(0));
+
+        console.log('✅ [ClientCredentialsFlow] Client credentials prepared:', credentials.substring(0, 20) + '...');
+      }
     },
     {
       title: 'Request Access Token',
       description: 'Server requests access token using client credentials',
       code: `// POST request to token endpoint
-POST ${config?.apiUrl || 'https://auth.pingone.com'}/token
+POST ${config?.tokenEndpoint || 'https://auth.pingone.com/token'}
 Authorization: Basic ${config ? btoa(`${config.clientId}:${config.clientSecret}`).substring(0, 20) + '...' : 'Base64_encoded_credentials'}
 Content-Type: application/x-www-form-urlencoded
 
-grant_type=client_credentials&scope=api:read`
+grant_type=client_credentials&scope=api:read`,
+      execute: async () => {
+        if (!config) {
+          setError('Configuration required. Please configure your PingOne settings first.');
+          return;
+        }
+
+        const credentials = btoa(`${config.clientId}:${config.clientSecret}`);
+        const tokenRequest: ApiCall = {
+          method: 'POST',
+          url: config.tokenEndpoint,
+          headers: {
+            'Authorization': `Basic ${credentials}`,
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: 'grant_type=client_credentials&scope=api:read'
+        };
+
+        setApiCall(tokenRequest);
+        setStepResults(prev => ({ ...prev, 1: { request: tokenRequest } }));
+        setExecutedSteps(prev => new Set(prev).add(1));
+
+        console.log('✅ [ClientCredentialsFlow] Token request prepared');
+      }
     },
     {
       title: 'Authorization Server Validates Credentials',
@@ -473,7 +512,12 @@ if (clientId !== storedClientId || clientSecret !== storedClientSecret) {
 }
 
 // Generate access token
-const accessToken = generateAccessToken(clientId, scope);`
+const accessToken = generateAccessToken(clientId, scope);`,
+      execute: () => {
+        console.log('✅ [ClientCredentialsFlow] Server validation simulated');
+        setStepResults(prev => ({ ...prev, 2: { message: 'Server validated credentials successfully' } }));
+        setExecutedSteps(prev => new Set(prev).add(2));
+      }
     },
     {
       title: 'Receive Access Token',
@@ -489,7 +533,40 @@ const accessToken = generateAccessToken(clientId, scope);`
 // - sub: client_id (for client credentials)
 // - scope: granted permissions
 // - iat: issued at time
-// - exp: expiration time`
+// - exp: expiration time`,
+      execute: async () => {
+        if (!config) {
+          setError('Configuration required. Please configure your PingOne settings first.');
+          return;
+        }
+
+        try {
+          const credentials = btoa(`${config.clientId}:${config.clientSecret}`);
+
+          const response = await fetch(config.tokenEndpoint, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Basic ${credentials}`,
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'grant_type=client_credentials&scope=api:read'
+          });
+
+          if (!response.ok) {
+            throw new Error(`Token exchange failed: ${response.status} ${response.statusText}`);
+          }
+
+          const tokenData = await response.json();
+          setTokensReceived(tokenData);
+          setStepResults(prev => ({ ...prev, 3: { response: tokenData, status: response.status } }));
+          setExecutedSteps(prev => new Set(prev).add(3));
+
+          console.log('✅ [ClientCredentialsFlow] Tokens received:', tokenData);
+        } catch (error: any) {
+          setError(`Failed to exchange credentials for tokens: ${error.message}`);
+          console.error('❌ [ClientCredentialsFlow] Token exchange error:', error);
+        }
+      }
     },
     {
       title: 'Make Authenticated API Calls',
@@ -507,7 +584,18 @@ fetch('/api/protected-resource', {
 .then(response => response.json())
 .then(data => {
   console.log('API Response:', data);
-});`
+});`,
+      execute: () => {
+        if (!tokensReceived) {
+          setError('No tokens received from previous step');
+          return;
+        }
+
+        console.log('✅ [ClientCredentialsFlow] Ready to make authenticated API calls');
+        setStepResults(prev => ({ ...prev, 4: { tokens: tokensReceived } }));
+        setExecutedSteps(prev => new Set(prev).add(4));
+        setDemoStatus('success');
+      }
     },
     {
       title: 'Handle API Response',
@@ -524,7 +612,31 @@ fetch('/api/protected-resource', {
 {
   "error": "invalid_token",
   "error_description": "The access token expired"
-}`
+}`,
+      execute: async () => {
+        if (!tokensReceived?.access_token) {
+          setError('No access token available');
+          return;
+        }
+
+        try {
+          // Simulate API call (in real implementation, this would be an actual API endpoint)
+          const apiResponse = {
+            data: "Protected resource content",
+            timestamp: new Date().toISOString(),
+            scope: "api:read",
+            client_id: config?.clientId || 'your_client_id'
+          };
+
+          setStepResults(prev => ({ ...prev, 5: { apiResponse } }));
+          setExecutedSteps(prev => new Set(prev).add(5));
+
+          console.log('✅ [ClientCredentialsFlow] API call completed');
+        } catch (error: any) {
+          setError(`Failed to make API call: ${error.message}`);
+          console.error('❌ [ClientCredentialsFlow] API call error:', error);
+        }
+      }
     }
   ];
 
@@ -578,48 +690,16 @@ fetch('/api/protected-resource', {
           <h2>Interactive Demo</h2>
         </CardHeader>
         <CardBody>
-          <DemoControls>
-            <StatusIndicator className={demoStatus}>
-              {demoStatus === 'idle' && 'Ready to start'}
-              {demoStatus === 'loading' && 'Executing client credentials flow...'}
-              {demoStatus === 'success' && 'Flow completed successfully'}
-              {demoStatus === 'error' && 'Flow failed'}
-            </StatusIndicator>
-            <DemoButton
-              className="primary"
-              onClick={startClientCredentialsFlow}
-              disabled={demoStatus === 'loading' || !config || isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Spinner size={16} />
-                  Running Flow...
-                </>
-              ) : (
-                <>
-                  <FiPlay />
-                  Start Client Credentials Flow
-                </>
-              )}
-            </DemoButton>
-            {tokensReceived && (
-              <DemoButton
-                className="primary"
-                onClick={makeAuthenticatedAPICall}
-                disabled={currentStep < 4}
-              >
-                <FiCode />
-                Test API Call
-              </DemoButton>
-            )}
-            <DemoButton
-              className="secondary"
-              onClick={resetDemo}
-              disabled={demoStatus === 'idle'}
-            >
-              Reset Demo
-            </DemoButton>
-          </DemoControls>
+          <StepByStepFlow
+            steps={steps}
+            onStart={startClientCredentialsFlow}
+            onReset={resetDemo}
+            status={demoStatus}
+            currentStep={currentStep}
+            onStepChange={setCurrentStep}
+            disabled={!config}
+            title="Client Credentials Flow"
+          />
 
           {!config && (
             <ErrorMessage>
@@ -671,46 +751,93 @@ fetch('/api/protected-resource', {
 
           <StepsContainer>
             <h3>Flow Steps</h3>
-            {steps.map((step, index) => (
-              <Step
-                key={index}
-                $active={currentStep === index && demoStatus === 'loading'}
-                $completed={currentStep > index}
-                $error={currentStep === index && demoStatus === 'error'}
-              >
-                <StepNumber
+            {steps.map((step, index) => {
+              const stepResult = stepResults[index];
+              const isExecuted = executedSteps.has(index);
+
+              return (
+                <Step
+                  key={index}
                   $active={currentStep === index && demoStatus === 'loading'}
                   $completed={currentStep > index}
                   $error={currentStep === index && demoStatus === 'error'}
                 >
-                  {index + 1}
-                </StepNumber>
-                <StepContent>
-                  <h3>{step.title}</h3>
-                  <p>{step.description}</p>
-                  <CodeBlock>{step.code}</CodeBlock>
-                </StepContent>
-              </Step>
-            ))}
-          </StepsContainer>
+                  <StepNumber
+                    $active={currentStep === index && demoStatus === 'loading'}
+                    $completed={currentStep > index}
+                    $error={currentStep === index && demoStatus === 'error'}
+                  >
+                    {index + 1}
+                  </StepNumber>
+                  <StepContent>
+                    <h3>{step.title}</h3>
+                    <p>{step.description}</p>
 
-          {/* Manual navigation controls */}
-          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
-            <DemoButton
-              className="secondary"
-              onClick={() => setCurrentStep(s => Math.max(0, s - 1))}
-              disabled={demoStatus !== 'loading' || currentStep === 0}
-            >
-              Previous
-            </DemoButton>
-            <DemoButton
-              className="primary"
-              onClick={() => setCurrentStep(s => Math.min(steps.length - 1, s + 1))}
-              disabled={demoStatus !== 'loading' || currentStep >= steps.length - 1}
-            >
-              Next
-            </DemoButton>
-          </div>
+                    {/* Show code section always */}
+                    <CodeBlock>{step.code}</CodeBlock>
+
+                    {/* Show response/result only after step is executed */}
+                    {isExecuted && stepResult && (
+                      <ResponseBox>
+                        <h4>Response:</h4>
+                        {stepResult.credentials && (
+                          <div>
+                            <strong>Base64 Credentials:</strong><br />
+                            <pre>{stepResult.credentials}</pre>
+                          </div>
+                        )}
+                        {stepResult.request && (
+                          <div>
+                            <strong>API Request:</strong><br />
+                            <pre>{JSON.stringify(stepResult.request, null, 2)}</pre>
+                          </div>
+                        )}
+                        {stepResult.response && (
+                          <div>
+                            <strong>Token Response:</strong><br />
+                            <pre>{JSON.stringify(stepResult.response, null, 2)}</pre>
+                          </div>
+                        )}
+                        {stepResult.tokens && (
+                          <div>
+                            <strong>Tokens:</strong><br />
+                            <pre>{JSON.stringify(stepResult.tokens, null, 2)}</pre>
+                          </div>
+                        )}
+                        {stepResult.apiResponse && (
+                          <div>
+                            <strong>API Response:</strong><br />
+                            <pre>{JSON.stringify(stepResult.apiResponse, null, 2)}</pre>
+                          </div>
+                        )}
+                        {stepResult.message && (
+                          <div>
+                            <strong>Status:</strong><br />
+                            <pre>{stepResult.message}</pre>
+                          </div>
+                        )}
+                      </ResponseBox>
+                    )}
+
+                    {/* Show execution status */}
+                    {isExecuted && (
+                      <div style={{
+                        marginTop: '1rem',
+                        padding: '0.5rem',
+                        backgroundColor: '#d4edda',
+                        border: '1px solid #c3e6cb',
+                        borderRadius: '0.25rem',
+                        color: '#155724',
+                        fontSize: '0.875rem'
+                      }}>
+                        ✅ Step completed successfully
+                      </div>
+                    )}
+                  </StepContent>
+                </Step>
+              );
+            })}
+          </StepsContainer>
         </CardBody>
       </DemoSection>
     </Container>
