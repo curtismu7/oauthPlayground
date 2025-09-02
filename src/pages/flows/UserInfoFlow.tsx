@@ -1277,8 +1277,8 @@ console.log('Welcome, ' + user.name + '!');`,
                       </div>
                     )}
 
-                    {/* Next button for each step */}
-                    {isExecuted && index < steps.length - 1 && (
+                    {/* Next button for each step - only show if not already at next step */}
+                    {isExecuted && index < steps.length - 1 && currentStep <= index && (
                       <div style={{ 
                         marginTop: '1rem', 
                         textAlign: 'center',
