@@ -5,7 +5,7 @@ import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiEye, FiAlertCircle, FiKey } from 'react-icons/fi';
 import ColorCodedURL from '../../components/ColorCodedURL';
 import { useAuth } from '../../contexts/NewAuthContext';
-import { useOAuth } from '../../contexts/OAuthContext';
+
 import Spinner from '../../components/Spinner';
 
 const Container = styled.div`
@@ -287,7 +287,7 @@ const hasProperty = <T extends object, K extends string>(
 
 const AuthorizationCodeFlow = () => {
   const { isAuthenticated } = useAuth();
-  const { config, tokens: contextTokens } = useOAuth() as any;
+  const { config, tokens: contextTokens } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [demoStatus, setDemoStatus] = useState('idle');
