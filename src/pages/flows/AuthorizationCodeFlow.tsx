@@ -246,6 +246,8 @@ const CodeBlock = styled.pre`
   overflow-x: auto;
   font-size: 0.875rem;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  color: ${({ theme }) => theme.colors.gray800};
+  white-space: pre-wrap;
 `;
 
 const TokenDisplay = styled.div`
