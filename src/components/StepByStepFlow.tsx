@@ -179,8 +179,12 @@ export const StepByStepFlow: React.FC<StepByStepFlowProps> = ({
   }, [currentStep, steps, onStepChange]);
 
   const goToNextStep = useCallback(() => {
+    console.log('🔄 [StepByStepFlow] goToNextStep called', { currentStep, stepsLength: steps.length });
     if (currentStep < steps.length - 1) {
+      console.log('🔄 [StepByStepFlow] Moving to next step:', currentStep + 1);
       onStepChange(currentStep + 1);
+    } else {
+      console.log('🔄 [StepByStepFlow] Already at last step, cannot go next');
     }
   }, [currentStep, steps.length, onStepChange]);
 
@@ -229,7 +233,10 @@ export const StepByStepFlow: React.FC<StepByStepFlowProps> = ({
             
             <FlowButton
               $variant="secondary"
-              onClick={goToNextStep}
+              onClick={() => {
+                console.log('🔄 [StepByStepFlow] Next Step button clicked');
+                goToNextStep();
+              }}
               disabled={currentStep >= steps.length - 1}
             >
               <FiArrowRight />
