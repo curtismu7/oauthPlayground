@@ -7,6 +7,7 @@ import ColorCodedURL from '../../components/ColorCodedURL';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { FlowConfiguration, type FlowConfig } from '../../components/FlowConfiguration';
 import { getDefaultConfig, validatePingOneConfig } from '../../utils/flowConfigDefaults';
+import PageTitle from '../../components/PageTitle';
 
 import Spinner from '../../components/Spinner';
 
@@ -568,16 +569,10 @@ grant_type=authorization_code
 
   return (
     <Container>
-      <Header>
-        <h1>
-          <FiKey />
-          Authorization Code Flow
-        </h1>
-        <p>
-          The most secure and widely used OAuth 2.0 flow for web applications.
-          Perfect for server-side applications that can securely store client secrets.
-        </p>
-      </Header>
+      <PageTitle 
+        title="Authorization Code Flow"
+        subtitle="The most secure and widely used OAuth 2.0 flow for web applications. Perfect for server-side applications that can securely store client secrets."
+      />
 
       <FlowOverview>
         <CardHeader>
