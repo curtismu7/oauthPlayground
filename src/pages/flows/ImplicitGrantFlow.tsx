@@ -8,6 +8,7 @@ import { URLParamExplainer } from '../../components/URLParamExplainer';
 import Typewriter from '../../components/Typewriter';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import ConfigurationButton from '../../components/ConfigurationButton';
+import TokenDisplayComponent from '../../components/TokenDisplay';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -415,17 +416,7 @@ console.log('User ID:', decodedIdToken.sub);`
           {tokensReceived && (
             <div>
               <h3>Tokens Received:</h3>
-              <TokenDisplay>
-                <strong>Access Token:</strong><br />
-                {tokensReceived.access_token as string}
-                <br /><br />
-                <strong>ID Token:</strong><br />
-                {tokensReceived.id_token as string}
-                <br /><br />
-                <strong>Token Type:</strong> {tokensReceived.token_type as string}<br />
-                <strong>Expires In:</strong> {tokensReceived.expires_in as number} seconds<br />
-                <strong>Scope:</strong> {tokensReceived.scope as string}
-              </TokenDisplay>
+              <TokenDisplayComponent tokens={tokensReceived} />
             </div>
           )}
 
