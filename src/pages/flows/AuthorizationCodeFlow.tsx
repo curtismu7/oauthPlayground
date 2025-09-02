@@ -8,6 +8,7 @@ import { useAuth } from '../../contexts/NewAuthContext';
 import { FlowConfiguration, type FlowConfig } from '../../components/FlowConfiguration';
 import { getDefaultConfig, validatePingOneConfig } from '../../utils/flowConfigDefaults';
 import PageTitle from '../../components/PageTitle';
+import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 
 import Spinner from '../../components/Spinner';
 
@@ -280,6 +281,41 @@ const ErrorMessage = styled.div`
   }
 `;
 
+const ResponseBox = styled.div<{ $backgroundColor?: string; $borderColor?: string }>`
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid ${({ $borderColor }) => $borderColor || '#e2e8f0'};
+  background-color: ${({ $backgroundColor }) => $backgroundColor || '#f8fafc'};
+  font-family: monospace;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow: visible;
+  max-width: 100%;
+
+  h4 {
+    margin: 0 0 0.5rem 0;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  pre {
+    margin: 0;
+    background: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    white-space: pre-wrap;
+    word-break: break-all;
+    overflow: visible;
+  }
+`;
+
 // Type guard to check if an object has a specific property
 const hasProperty = <T extends object, K extends string>(
   obj: T | null | undefined,
@@ -295,8 +331,6 @@ const AuthorizationCodeFlow = () => {
   const navigate = useNavigate();
   const [demoStatus, setDemoStatus] = useState('idle');
   const [currentStep, setCurrentStep] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-  const [waitingForUser, setWaitingForUser] = useState(false);
   
   // Flow configuration state
   const [flowConfig, setFlowConfig] = useState<FlowConfig>(() => getDefaultConfig('authorization-code'));
@@ -312,9 +346,13 @@ const AuthorizationCodeFlow = () => {
 
   const [tokensReceived, setTokensReceived] = useState<TokenResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [authCode, setAuthCode] = useState<string>('');
 
-  const [authUrl, setAuthUrl] = useState('');
-  const [authCode, setAuthCode] = useState('');
+
+
+  // Track execution results for each step
+  const [stepResults, setStepResults] = useState<Record<number, any>>({});
+  const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
 
   // If we already have tokens from the real OAuth flow, surface them in the demo
   useEffect(() => {
@@ -327,7 +365,7 @@ const AuthorizationCodeFlow = () => {
   }, [contextTokens, tokensReceived]);
 
   // Define steps with real URLs from config
-  const steps = [
+  const steps: FlowStep[] = [
     {
       title: 'Client Prepares Authorization Request',
       description: 'The client application prepares an authorization request with required parameters.',
@@ -345,17 +383,36 @@ const AuthorizationCodeFlow = () => {
   &login_hint=${flowConfig.loginHint}` : ''}${flowConfig.acrValues.length > 0 ? `
   &acr_values=${flowConfig.acrValues.join(' ')}` : ''}${Object.keys(flowConfig.customParams).length > 0 ? `
   ${Object.entries(flowConfig.customParams).map(([k, v]) => `&${k}=${v}`).join('\n  ')}` : ''}`,
-      url: config ? `${config.authorizationEndpoint}?client_id=${config.clientId}&redirect_uri=${encodeURIComponent(config.redirectUri)}&response_type=${flowConfig.responseType}&scope=${encodeURIComponent(flowConfig.scopes.join(' '))}&state=${flowConfig.state || 'xyz123'}&nonce=${flowConfig.nonce || 'abc456'}${flowConfig.enablePKCE ? `&code_challenge=YOUR_CODE_CHALLENGE&code_challenge_method=${flowConfig.codeChallengeMethod}` : ''}${flowConfig.maxAge > 0 ? `&max_age=${flowConfig.maxAge}` : ''}${flowConfig.prompt ? `&prompt=${flowConfig.prompt}` : ''}${flowConfig.loginHint ? `&login_hint=${flowConfig.loginHint}` : ''}${flowConfig.acrValues.length > 0 ? `&acr_values=${encodeURIComponent(flowConfig.acrValues.join(' '))}` : ''}${Object.keys(flowConfig.customParams).length > 0 ? Object.entries(flowConfig.customParams).map(([k, v]) => `&${k}=${encodeURIComponent(v)}`).join('') : ''}` : 'Configure PingOne settings to see real URL',
-      backgroundColor: '#f0f9ff',
-      borderColor: '#0ea5e9'
+      execute: () => {
+        if (!config) {
+          setError('Configuration required. Please configure your PingOne settings first.');
+          return;
+        }
+
+        const url = `${config.authorizationEndpoint}?client_id=${config.clientId}&redirect_uri=${encodeURIComponent(config.redirectUri)}&response_type=${flowConfig.responseType}&scope=${encodeURIComponent(flowConfig.scopes.join(' '))}&state=${flowConfig.state || 'xyz123'}&nonce=${flowConfig.nonce || 'abc456'}${flowConfig.enablePKCE ? `&code_challenge=YOUR_CODE_CHALLENGE&code_challenge_method=${flowConfig.codeChallengeMethod}` : ''}${flowConfig.maxAge > 0 ? `&max_age=${flowConfig.maxAge}` : ''}${flowConfig.prompt ? `&prompt=${flowConfig.prompt}` : ''}${flowConfig.loginHint ? `&login_hint=${flowConfig.loginHint}` : ''}${flowConfig.acrValues.length > 0 ? `&acr_values=${encodeURIComponent(flowConfig.acrValues.join(' '))}` : ''}${Object.keys(flowConfig.customParams).length > 0 ? Object.entries(flowConfig.customParams).map(([k, v]) => `&${k}=${encodeURIComponent(v)}`).join('') : ''}`;
+
+        setAuthUrl(url);
+        setStepResults(prev => ({ ...prev, 0: { url } }));
+        setExecutedSteps(prev => new Set(prev).add(0));
+
+        console.log('✅ [AuthCodeFlow] Authorization URL generated:', url);
+      }
     },
     {
       title: 'User is Redirected to Authorization Server',
       description: 'The user is redirected to the authorization server where they authenticate and authorize the client.',
-      code: 'User authenticates and grants permission',
-      url: config ? `${config.authorizationEndpoint}?client_id=${config.clientId}&redirect_uri=${encodeURIComponent(config.redirectUri)}&response_type=${flowConfig.responseType}&scope=${encodeURIComponent(flowConfig.scopes.join(' '))}&state=${flowConfig.state || 'xyz123'}&nonce=${flowConfig.nonce || 'abc456'}${flowConfig.enablePKCE ? `&code_challenge=YOUR_CODE_CHALLENGE&code_challenge_method=${flowConfig.codeChallengeMethod}` : ''}${flowConfig.maxAge > 0 ? `&max_age=${flowConfig.maxAge}` : ''}${flowConfig.prompt ? `&prompt=${flowConfig.prompt}` : ''}${flowConfig.loginHint ? `&login_hint=${flowConfig.loginHint}` : ''}${flowConfig.acrValues.length > 0 ? `&acr_values=${encodeURIComponent(flowConfig.acrValues.join(' '))}` : ''}${Object.keys(flowConfig.customParams).length > 0 ? Object.entries(flowConfig.customParams).map(([k, v]) => `&${k}=${encodeURIComponent(v)}`).join('') : ''}` : 'Configure PingOne settings to see real URL',
-      backgroundColor: '#fef3c7',
-      borderColor: '#f59e0b'
+      code: `// User clicks the authorization URL and is redirected to PingOne
+window.location.href = authUrl;
+
+// PingOne handles:
+// - User authentication
+// - Consent for requested scopes
+// - Redirect back to client with authorization code`,
+      execute: () => {
+        console.log('✅ [AuthCodeFlow] User would be redirected to PingOne for authentication');
+        setStepResults(prev => ({ ...prev, 1: { message: 'User redirected to authorization server' } }));
+        setExecutedSteps(prev => new Set(prev).add(1));
+      }
     },
     {
       title: 'Authorization Server Redirects Back',
@@ -363,9 +420,24 @@ const AuthorizationCodeFlow = () => {
       code: `GET ${config?.redirectUri || 'https://your-app.com/callback'}?
   code=authorization-code-here
   &state=${flowConfig.state || 'xyz123'}`,
-      url: config ? `${config.redirectUri}?code=auth-code-123&state=${flowConfig.state || 'xyz123'}` : 'Configure PingOne settings to see real URL',
-      backgroundColor: '#eff6ff',
-      borderColor: '#3b82f6'
+      execute: () => {
+        // Simulate getting authorization code from URL or generate one
+        const searchParams = new URLSearchParams(location.search || '');
+        const codeFromUrl = searchParams.get('code');
+        const code = codeFromUrl || ('auth-code-' + Math.random().toString(36).substr(2, 9));
+
+        setAuthCode(code);
+        setStepResults(prev => ({
+          ...prev,
+          2: {
+            url: `${config?.redirectUri || 'https://your-app.com/callback'}?code=${code}&state=${flowConfig.state || 'xyz123'}`,
+            code: code
+          }
+        }));
+        setExecutedSteps(prev => new Set(prev).add(2));
+
+        console.log('✅ [AuthCodeFlow] Authorization code received:', code);
+      }
     },
     {
       title: 'Client Exchanges Code for Tokens',
@@ -376,12 +448,53 @@ Content-Type: application/x-www-form-urlencoded
 grant_type=authorization_code
 &client_id=${config?.clientId || 'your-client-id'}
 &client_secret=${config?.clientSecret ? '••••••••' : 'your-client-secret'}
-&code=authorization-code-here
+&code=${authCode || 'authorization-code-here'}
 &redirect_uri=${config?.redirectUri || 'https://your-app.com/callback'}${flowConfig.enablePKCE ? `
 &code_verifier=YOUR_CODE_VERIFIER` : ''}`,
-      url: config ? config.tokenEndpoint : 'Configure PingOne settings to see real URL',
-      backgroundColor: '#fef2f2',
-      borderColor: '#ef4444'
+      execute: async () => {
+        if (!config || !authCode) {
+          setError('Missing configuration or authorization code');
+          return;
+        }
+
+        try {
+          const tokenUrl = config.tokenEndpoint;
+          const params = new URLSearchParams({
+            grant_type: 'authorization_code',
+            client_id: String(config.clientId),
+            client_secret: String(config.clientSecret || ''),
+            code: authCode,
+            redirect_uri: String(config.redirectUri),
+          });
+
+          const savedCodeVerifier = localStorage.getItem('oauth_code_verifier');
+          if (savedCodeVerifier) {
+            params.append('code_verifier', savedCodeVerifier);
+          }
+
+          const response = await fetch(tokenUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: params,
+          });
+
+          if (!response.ok) {
+            throw new Error(`Token exchange failed: ${response.status} ${response.statusText}`);
+          }
+
+          const tokenData = await response.json();
+          setTokensReceived(tokenData);
+          setStepResults(prev => ({ ...prev, 3: { response: tokenData, status: response.status } }));
+          setExecutedSteps(prev => new Set(prev).add(3));
+
+          console.log('✅ [AuthCodeFlow] Tokens received:', tokenData);
+        } catch (error: any) {
+          setError(`Failed to exchange authorization code for tokens: ${error.message}`);
+          console.error('❌ [AuthCodeFlow] Token exchange error:', error);
+        }
+      }
     },
     {
       title: 'Client Receives Tokens',
@@ -393,178 +506,41 @@ grant_type=authorization_code
   "id_token": "eyJhbGciOiJSUzI1NiIs...",
   "refresh_token": "refresh-token-here"
 }`,
-      url: 'Tokens received in response',
-      backgroundColor: '#f5f3ff',
-      borderColor: '#8b5cf6'
+      execute: () => {
+        if (!tokensReceived) {
+          setError('No tokens received from previous step');
+          return;
+        }
+
+        setStepResults(prev => ({ ...prev, 4: { tokens: tokensReceived } }));
+        setExecutedSteps(prev => new Set(prev).add(4));
+        setDemoStatus('success');
+
+        console.log('✅ [AuthCodeFlow] Tokens processed successfully');
+      }
     }
   ];
 
 
   const startAuthFlow = () => {
     setDemoStatus('loading');
-    setIsLoading(true);
     setCurrentStep(0);
     setError('');
-    setAuthUrl('');
-    setAuthCode('');
     setTokensReceived(null);
-    // Start the first step automatically
-    executeStep(0);
+    setStepResults({});
+    setExecutedSteps(new Set());
+    console.log('🚀 [AuthCodeFlow] Starting authorization code flow...');
   };
 
-  const executeStep = (stepIndex: number) => {
-    setWaitingForUser(false);
-    setIsLoading(true);
 
-    switch (stepIndex) {
-      case 0:
-        // Step 1: Generate authorization URL
-        setTimeout(() => {
-          if (config) {
-            const authUrl = `${config.authEndpoint.replace('{envId}', config.environmentId)}?client_id=${config.clientId}&redirect_uri=${encodeURIComponent(config.redirectUri)}&response_type=code&scope=${encodeURIComponent(config.scopes)}&state=xyz123&nonce=abc456`;
-            setAuthUrl(authUrl);
-            setCurrentStep(1);
-            setWaitingForUser(true);
-            setIsLoading(false);
-          } else {
-            setError('OAuth configuration is missing. Please configure PingOne settings first.');
-            setIsLoading(false);
-          }
-        }, 1000);
-        break;
-
-      case 1:
-        // Step 2: User is redirected to authorization server (simulate)
-        setTimeout(() => {
-          setCurrentStep(2);
-          setWaitingForUser(true);
-          setIsLoading(false);
-        }, 1000);
-        break;
-
-      case 2:
-        // Step 3: Authorization server redirects back with code
-        setTimeout(() => {
-          // Prefer a real code if present in the URL (useful when user lands here after redirect)
-          const searchParams = new URLSearchParams(location.search || '');
-          const codeFromUrl = searchParams.get('code');
-          const code = codeFromUrl || ('auth-code-' + Math.random().toString(36).substr(2, 9));
-          setAuthCode(code);
-          setCurrentStep(3);
-          setWaitingForUser(true);
-          setIsLoading(false);
-        }, 1000);
-        break;
-
-      case 3:
-        // Step 4: Client exchanges code for tokens (REAL API CALL)
-        if (config && authCode) {
-          const tokenUrl = config.tokenEndpoint.replace('{envId}', config.environmentId);
-
-          const params = new URLSearchParams({
-            grant_type: 'authorization_code',
-            client_id: String(config.clientId),
-            client_secret: String(config.clientSecret || ''),
-            code: authCode,
-            redirect_uri: String(config.redirectUri),
-          });
-          const savedCodeVerifier = localStorage.getItem('oauth_code_verifier');
-          if (savedCodeVerifier) {
-            params.append('code_verifier', savedCodeVerifier);
-          }
-
-          fetch(tokenUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: params,
-          })
-          .then(response => {
-            if (!response.ok) {
-              throw new Error(`Token exchange failed: ${response.status} ${response.statusText}`);
-            }
-            return response.json();
-          })
-          .then((tokenData: unknown) => {
-            if (tokenData && typeof tokenData === 'object') {
-              setTokensReceived(tokenData as TokenResponse);
-            } else {
-              setTokensReceived(null);
-            }
-            setCurrentStep(4);
-            setWaitingForUser(true);
-            setIsLoading(false);
-          })
-          .catch((error: Error) => {
-            console.error('Token exchange error:', error);
-            setError(`Failed to exchange authorization code for tokens: ${error.message}`);
-            setIsLoading(false);
-          });
-        } else {
-          setError('Missing configuration or authorization code');
-          setIsLoading(false);
-        }
-        break;
-
-      case 4:
-        // Step 5: Client makes authenticated API call (REAL API CALL)
-        if (tokensReceived?.access_token) {
-          const userInfoUrl = config?.userInfoEndpoint?.replace('{envId}', config.environmentId);
-
-          if (userInfoUrl) {
-            fetch(userInfoUrl, {
-              method: 'GET',
-              headers: {
-                'Authorization': `Bearer ${tokensReceived.access_token}`,
-              },
-            })
-            .then(response => {
-              if (!response.ok) {
-                throw new Error(`UserInfo call failed: ${response.status} ${response.statusText}`);
-              }
-              return response.json();
-            })
-            .then((userInfo: unknown) => {
-              setTokensReceived((prev: Record<string, unknown> | null) => ({
-                ...prev,
-                user_info: userInfo
-              }));
-              setCurrentStep(5);
-              setDemoStatus('success');
-              setIsLoading(false);
-            })
-            .catch((error: Error) => {
-              console.error('UserInfo call error:', error);
-              // Still mark as success since we got tokens, just note the UserInfo error
-              setCurrentStep(5);
-              setDemoStatus('success');
-              setIsLoading(false);
-              setError(`Tokens received successfully, but UserInfo call failed: ${error.message}`);
-            });
-          } else {
-            setCurrentStep(5);
-            setDemoStatus('success');
-            setIsLoading(false);
-          }
-        } else {
-          setError('No access token available for API call');
-          setIsLoading(false);
-        }
-        break;
-
-      default:
-        break;
-    }
-  };
 
   const resetDemo = () => {
     setDemoStatus('idle');
     setCurrentStep(0);
-    setAuthUrl('');
-    setAuthCode('');
     setTokensReceived(null);
     setError('');
+    setStepResults({});
+    setExecutedSteps(new Set());
   };
 
   return (
@@ -612,37 +588,19 @@ grant_type=authorization_code
           <h2>Interactive Demo</h2>
         </CardHeader>
         <CardBody>
-          <DemoControls>
-            <StatusIndicator className={demoStatus}>
-              {demoStatus === 'idle' && 'Ready to start'}
-              {demoStatus === 'loading' && 'Executing authorization code flow...'}
-              {demoStatus === 'success' && 'Flow completed successfully'}
-              {demoStatus === 'error' && 'Flow failed'}
-            </StatusIndicator>
-            <DemoButton
-              className="primary"
-              onClick={startAuthFlow}
-              disabled={demoStatus === 'loading' || isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Spinner size={16} />
-                  Running Flow...
-                </>
-              ) : (
-                <>
-                  <FiPlay />
-                  Start Authorization Code Flow
-                </>
-              )}
-            </DemoButton>
-            <DemoButton
-              className="secondary"
-              onClick={resetDemo}
-              disabled={demoStatus === 'idle'}
-            >
-              Reset Demo
-            </DemoButton>
+          <StepByStepFlow
+            steps={steps}
+            onStart={startAuthFlow}
+            onReset={resetDemo}
+            status={demoStatus}
+            currentStep={currentStep}
+            onStepChange={setCurrentStep}
+            disabled={!config}
+            title="Authorization Code Flow"
+          />
+
+          {/* Configuration Toggle */}
+          <div style={{ marginTop: '1rem', textAlign: 'center' }}>
             <DemoButton
               className="secondary"
               onClick={() => setShowConfig(!showConfig)}
@@ -650,7 +608,7 @@ grant_type=authorization_code
               <FiSettings />
               {showConfig ? 'Hide' : 'Show'} Configuration
             </DemoButton>
-          </DemoControls>
+          </div>
 
           {/* Flow Configuration Panel */}
           {showConfig && (
@@ -1034,78 +992,96 @@ grant_type=authorization_code
 
           <StepsContainer>
             <h3>Flow Steps</h3>
-            {steps.map((step, index) => (
-              <Step
-                key={index}
-                $active={currentStep === index && demoStatus === 'loading'}
-                $completed={currentStep > index}
-                $error={currentStep === index && demoStatus === 'error'}
-                style={{
-                  backgroundColor: step.backgroundColor,
-                  borderColor: step.borderColor,
-                  border: `2px solid ${step.borderColor}`
-                }}
-              >
-                <StepNumber
+            {steps.map((step, index) => {
+              const stepResult = stepResults[index];
+              const isExecuted = executedSteps.has(index);
+
+              return (
+                <Step
+                  key={index}
                   $active={currentStep === index && demoStatus === 'loading'}
                   $completed={currentStep > index}
                   $error={currentStep === index && demoStatus === 'error'}
+                  style={{
+                    backgroundColor: step.backgroundColor,
+                    borderColor: step.borderColor,
+                    border: `2px solid ${step.borderColor}`
+                  }}
                 >
-                  {index + 1}
-                </StepNumber>
-                <StepContent>
-                  <h3>{step.title}</h3>
-                  <p>{step.description}</p>
-                  <div style={{ marginTop: '1rem' }}>
-                    <strong>URL:</strong>
-                    <div style={{
-                      backgroundColor: '#f8fafc',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '0.375rem',
-                      padding: '0.5rem',
-                      fontSize: '0.875rem',
-                      fontFamily: 'monospace',
-                      wordBreak: 'break-all',
-                      whiteSpace: 'pre-wrap',
-                      overflow: 'visible',
-                      textOverflow: 'clip',
-                      marginTop: '0.5rem',
-                      maxWidth: 'none',
-                      width: '100%'
-                    }}>
-                      <strong>URL:</strong><br />
-                      <ColorCodedURL url={step.url} />
-                    </div>
-                  </div>
-                  <CodeBlock style={{ marginTop: '1rem' }}>
-                    {step.code}
-                  </CodeBlock>
-                  {currentStep === index && waitingForUser && index < 4 && (
-                    <div style={{ marginTop: '1.5rem' }}>
-                      <button
-                        onClick={() => executeStep(index)}
-                        style={{
-                          padding: '0.75rem 1.5rem',
-                          backgroundColor: '#059669',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '0.5rem',
-                          cursor: 'pointer',
-                          fontSize: '1rem',
-                          fontWeight: '500',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5rem'
-                        }}
+                  <StepNumber
+                    $active={currentStep === index && demoStatus === 'loading'}
+                    $completed={currentStep > index}
+                    $error={currentStep === index && demoStatus === 'error'}
+                  >
+                    {index + 1}
+                  </StepNumber>
+                  <StepContent>
+                    <h3>{step.title}</h3>
+                    <p>{step.description}</p>
+
+                    {/* Show URL/Code section always */}
+                    <CodeBlock style={{ marginTop: '1rem' }}>
+                      {step.code}
+                    </CodeBlock>
+
+                    {/* Show response/result only after step is executed */}
+                    {isExecuted && stepResult && (
+                      <ResponseBox
+                        $backgroundColor={step.backgroundColor || '#f8fafc'}
+                        $borderColor={step.borderColor || '#e2e8f0'}
                       >
-                        <FiPlay size={16} />
-                        Continue to Next Step
-                      </button>
-                    </div>
-                  )}
-                </StepContent>
-              </Step>
-            ))}
+                        <h4>Response:</h4>
+                        {stepResult.url && (
+                          <div>
+                            <strong>URL:</strong><br />
+                            <ColorCodedURL url={stepResult.url} />
+                          </div>
+                        )}
+                        {stepResult.code && (
+                          <div style={{ marginTop: '0.5rem' }}>
+                            <strong>Authorization Code:</strong><br />
+                            <pre>{stepResult.code}</pre>
+                          </div>
+                        )}
+                        {stepResult.response && (
+                          <div style={{ marginTop: '0.5rem' }}>
+                            <strong>Token Response:</strong><br />
+                            <pre>{JSON.stringify(stepResult.response, null, 2)}</pre>
+                          </div>
+                        )}
+                        {stepResult.tokens && (
+                          <div style={{ marginTop: '0.5rem' }}>
+                            <strong>Tokens:</strong><br />
+                            <pre>{JSON.stringify(stepResult.tokens, null, 2)}</pre>
+                          </div>
+                        )}
+                        {stepResult.message && (
+                          <div style={{ marginTop: '0.5rem' }}>
+                            <strong>Status:</strong><br />
+                            <pre>{stepResult.message}</pre>
+                          </div>
+                        )}
+                      </ResponseBox>
+                    )}
+
+                    {/* Show execution status */}
+                    {isExecuted && (
+                      <div style={{
+                        marginTop: '1rem',
+                        padding: '0.5rem',
+                        backgroundColor: '#d4edda',
+                        border: '1px solid #c3e6cb',
+                        borderRadius: '0.25rem',
+                        color: '#155724',
+                        fontSize: '0.875rem'
+                      }}>
+                        ✅ Step completed successfully
+                      </div>
+                    )}
+                  </StepContent>
+                </Step>
+              );
+            })}
           </StepsContainer>
         </CardBody>
       </DemoSection>
