@@ -8,6 +8,7 @@ import { URLParamExplainer } from '../../components/URLParamExplainer';
 import Typewriter from '../../components/Typewriter';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import ConfigurationButton from '../../components/ConfigurationButton';
+import { oauthStorage } from '../../utils/storage';
 import TokenDisplayComponent from '../../components/TokenDisplay';
 
 const Container = styled.div`
@@ -302,7 +303,19 @@ localStorage.setItem('id_token', idToken);`,
           scope: 'openid profile email'
         };
         setTokensReceived(mockTokens);
-        console.log('✅ [ImplicitGrantFlow] Tokens received (simulated)');
+        
+        // Store tokens using the proper oauthStorage method
+        const tokensForStorage = {
+          access_token: mockTokens.access_token,
+          id_token: mockTokens.id_token,
+          token_type: mockTokens.token_type,
+          expires_in: mockTokens.expires_in,
+          scope: mockTokens.scope,
+          timestamp: Date.now()
+        };
+        
+        oauthStorage.setTokens(tokensForStorage);
+        console.log('✅ [ImplicitGrantFlow] Tokens received and stored using oauthStorage');
       }
     },
     {
