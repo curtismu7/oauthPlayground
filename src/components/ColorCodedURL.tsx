@@ -9,7 +9,7 @@ interface ColorCodedURLProps {
 }
 
 interface URLPartInfo {
-  type: 'base' | 'question' | 'ampersand' | 'param' | 'equals' | 'value';
+  type: 'base' | 'question' | 'ampersand' | 'param';
   content: string;
   description?: string;
 }
@@ -138,15 +138,7 @@ const URLPartDescriptionParam = styled(URLPartDescription)`
   border-left-color: #059669;
 `;
 
-const URLPartDescriptionEquals = styled(URLPartDescription)`
-  background: #faf5ff;
-  border-left-color: #7c3aed;
-`;
 
-const URLPartDescriptionValue = styled(URLPartDescription)`
-  background: #fef2f2;
-  border-left-color: #dc2626;
-`;
 
 const PartName = styled.strong`
   font-family: 'SFMono-Regular', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', 'Courier New', monospace;
@@ -160,7 +152,7 @@ const PartDescription = styled.p`
   line-height: 1.5;
 `;
 
-const URLPart = styled.span<{ type: 'base' | 'question' | 'ampersand' | 'param' | 'equals' | 'value' }>`
+const URLPart = styled.span<{ type: 'base' | 'question' | 'ampersand' | 'param' }>`
   ${({ type }) => {
     switch (type) {
       case 'base':
@@ -180,18 +172,8 @@ const URLPart = styled.span<{ type: 'base' | 'question' | 'ampersand' | 'param' 
         `;
       case 'param':
         return `
-          color: #059669; /* Green for parameter names */
+          color: #059669; /* Green for parameter names and values */
           font-weight: 500;
-        `;
-      case 'equals':
-        return `
-          color: #7c3aed; /* Purple for = */
-          font-weight: 400;
-        `;
-      case 'value':
-        return `
-          color: #dc2626; /* Red for parameter values */
-          font-weight: 400;
         `;
       default:
         return '';
@@ -265,23 +247,21 @@ export const ColorCodedURL: React.FC<ColorCodedURLProps> = ({ url, className, sh
 
       const [key, value] = param.split('=');
       if (key) {
-        urlParts.push({
-          type: 'param',
-          content: key,
-          description: getParameterDescription(key)
-        });
-      }
-      if (value) {
-        urlParts.push({
-          type: 'equals',
-          content: '=',
-          description: 'Separates the parameter name from its value.'
-        });
-        urlParts.push({
-          type: 'value',
-          content: value,
-          description: `The value for the "${key}" parameter.`
-        });
+        if (value) {
+          // Combine parameter name and value, ignoring the equals sign
+          urlParts.push({
+            type: 'param',
+            content: `${key}=${value}`,
+            description: `${getParameterDescription(key)} Value: ${decodeURIComponent(value)}`
+          });
+        } else {
+          // Parameter without value
+          urlParts.push({
+            type: 'param',
+            content: key,
+            description: getParameterDescription(key)
+          });
+        }
       }
     });
   }
@@ -297,9 +277,7 @@ export const ColorCodedURL: React.FC<ColorCodedURLProps> = ({ url, className, sh
       'base': URLPartDescriptionBase,
       'question': URLPartDescriptionQuestion,
       'ampersand': URLPartDescriptionAmpersand,
-      'param': URLPartDescriptionParam,
-      'equals': URLPartDescriptionEquals,
-      'value': URLPartDescriptionValue
+      'param': URLPartDescriptionParam
     }[part.type];
 
     return (
