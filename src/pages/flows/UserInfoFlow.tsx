@@ -443,7 +443,7 @@ const TokenDisplay = styled.div`
 `;
 
 const UserInfoFlow: React.FC = () => {
-  const { tokens, config } = useAuth();
+  const { tokens, config, updateTokens } = useAuth();
   
   // Debug logging
   console.log('🔍 [UserInfoFlow] Config:', config);
@@ -498,9 +498,9 @@ const UserInfoFlow: React.FC = () => {
             }
 
             if (parsedTokens.access_token) {
-              console.log(`🔍 [UserInfoFlow] Found tokens in localStorage key '${key}':`, parsedTokens);
-              // Note: We can't directly set tokens in the auth context from here
-              // This would need to be handled in the AuthContext itself
+              console.log(`✅ [UserInfoFlow] Found tokens in localStorage key '${key}':`, parsedTokens);
+              // Update the auth context with the found tokens
+              updateTokens(parsedTokens);
               break;
             }
           } catch (error) {
@@ -509,7 +509,7 @@ const UserInfoFlow: React.FC = () => {
         }
       }
     }
-  }, [tokens]);
+  }, [tokens, updateTokens]);
   const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [currentStep, setCurrentStep] = useState(0);
   const [userInfo, setUserInfo] = useState<OIDCUserInfo | null>(null);

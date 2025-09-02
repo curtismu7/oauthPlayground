@@ -79,6 +79,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return loadConfiguration();
   });
 
+  // Load tokens from storage on component mount
+  useEffect(() => {
+    const loadTokensFromStorage = () => {
+      try {
+        const storedTokens = getStoredTokens();
+        if (storedTokens && storedTokens.access_token) {
+          console.log('✅ [NewAuthContext] Loading tokens from storage:', storedTokens);
+          setState(prev => ({
+            ...prev,
+            tokens: storedTokens,
+            isAuthenticated: true,
+            isLoading: false
+          }));
+        } else {
+          console.log('ℹ️ [NewAuthContext] No valid tokens found in storage');
+          setState(prev => ({
+            ...prev,
+            isLoading: false
+          }));
+        }
+      } catch (error) {
+        console.error('❌ [NewAuthContext] Error loading tokens from storage:', error);
+        setState(prev => ({
+          ...prev,
+          isLoading: false
+        }));
+      }
+    };
+
+    loadTokensFromStorage();
+  }, []);
+
   // Function to load configuration from environment variables or localStorage
   function loadConfiguration(): AppConfig {
     const envId = (window as any).__PINGONE_ENVIRONMENT_ID__;
@@ -444,6 +476,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAuthRequestData(null);
   }, []);
 
+  // Function to update tokens (useful for external token updates)
+  const updateTokens = useCallback((newTokens: OAuthTokens | null) => {
+    console.log('🔄 [NewAuthContext] Updating tokens:', newTokens);
+    setState(prev => ({
+      ...prev,
+      tokens: newTokens,
+      isAuthenticated: !!newTokens?.access_token,
+      isLoading: false
+    }));
+  }, []);
+
   // Context value
   const contextValue = useMemo(() => ({
     ...state,
@@ -456,7 +499,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     authRequestData,
     proceedWithOAuth,
     closeAuthModal,
-  }), [state, config, login, logout, handleCallback, setAuthState, showAuthModal, authRequestData, proceedWithOAuth, closeAuthModal]);
+    updateTokens, // Add the updateTokens function
+  }), [state, config, login, logout, handleCallback, setAuthState, showAuthModal, authRequestData, proceedWithOAuth, closeAuthModal, updateTokens]);
 
   return (
     <AuthContext.Provider value={contextValue}>
