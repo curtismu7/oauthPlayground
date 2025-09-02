@@ -430,16 +430,19 @@ window.location.href = authUrl;
         const code = codeFromUrl || ('auth-code-' + Math.random().toString(36).substr(2, 9));
 
         setAuthCode(code);
+        const stepResult = {
+          url: `${config?.redirectUri || 'https://your-app.com/callback'}?code=${code}&state=${flowConfig.state || 'xyz123'}`,
+          code: code
+        };
+        
         setStepResults(prev => ({
           ...prev,
-          2: {
-            url: `${config?.redirectUri || 'https://your-app.com/callback'}?code=${code}&state=${flowConfig.state || 'xyz123'}`,
-            code: code
-          }
+          2: stepResult
         }));
         setExecutedSteps(prev => new Set(prev).add(2));
 
         console.log('✅ [AuthCodeFlow] Authorization code received:', code);
+        console.log('🔍 [AuthCodeFlow] Step result set:', stepResult);
       }
     },
     {
@@ -998,6 +1001,16 @@ grant_type=authorization_code
             {steps.map((step, index) => {
               const stepResult = stepResults[index];
               const isExecuted = executedSteps.has(index);
+              
+              // Debug logging for step 2 (authorization code step)
+              if (index === 2) {
+                console.log('🔍 [AuthCodeFlow] Rendering step 2:', {
+                  stepTitle: step.title,
+                  stepResult,
+                  isExecuted,
+                  allStepResults: stepResults
+                });
+              }
 
               return (
                 <Step
