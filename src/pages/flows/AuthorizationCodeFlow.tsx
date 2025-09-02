@@ -1152,8 +1152,9 @@ grant_type=authorization_code
                       }}>
                         <button
                           onClick={() => {
-                            console.log('🔄 [AuthorizationCodeFlow] Next Step button clicked', { currentIndex: index, nextStep: index + 1 });
+                            console.log('🔄 [AuthorizationCodeFlow] Next Step button clicked', { currentIndex: index, nextStep: index + 1, currentStepBefore: currentStep });
                             setCurrentStep(index + 1);
+                            console.log('🔄 [AuthorizationCodeFlow] setCurrentStep called with:', index + 1);
                           }}
                           style={{
                             background: '#3b82f6',

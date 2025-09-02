@@ -150,6 +150,7 @@ export const StepByStepFlow: React.FC<StepByStepFlowProps> = ({
   disabled = false,
   title
 }) => {
+  console.log('🔄 [StepByStepFlow] Component rendered with currentStep:', currentStep);
   const executeCurrentStep = useCallback(async () => {
     console.log('🔄 [StepByStepFlow] executeCurrentStep called', { currentStep, stepsLength: steps.length });
     if (currentStep < steps.length && steps[currentStep].execute) {
@@ -273,6 +274,7 @@ export const StepByStepFlow: React.FC<StepByStepFlowProps> = ({
           <StepTitle>
             Step {currentStep + 1} of {steps.length}: {steps[currentStep]?.title}
           </StepTitle>
+          {console.log('🔄 [StepByStepFlow] Progress indicator showing step:', currentStep + 1, 'of', steps.length)}
           <StepDescription>
             {steps[currentStep]?.description}
           </StepDescription>
