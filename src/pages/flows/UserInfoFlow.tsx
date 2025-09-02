@@ -1007,7 +1007,7 @@ console.log('Welcome, ' + user.name + '!');`,
                   🔐 Go to Authorization Code Flow
                 </button>
                 <button
-                  onClick={() => window.location.href = '/flows/implicit-grant'}
+                  onClick={() => window.location.href = '/flows/implicit'}
                   style={{
                     padding: '8px 16px',
                     backgroundColor: '#17a2b8',
