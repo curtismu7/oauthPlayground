@@ -568,6 +568,129 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
 }`
       }
     ]
+  },
+  {
+    id: 'refresh-token',
+    title: 'Refresh Token Flow',
+    icon: <FiClock />,
+    description: 'Use refresh tokens to obtain new access tokens without re-authentication.',
+    security: 'high',
+    recommended: true,
+    complexity: 'low',
+    useCases: [
+      { title: 'Long-lived sessions', description: '' },
+      { title: 'Mobile apps', description: '' },
+      { title: 'SPAs with backend', description: '' }
+    ],
+    steps: [
+      {
+        title: 'Access token expires',
+        description: 'Current access token has expired and is no longer valid',
+        code: `// API call fails with 401 Unauthorized
+// Token expired, need to refresh`
+      },
+      {
+        title: 'Request new access token',
+        description: 'Use refresh token to request a new access token',
+        code: `POST /token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=refresh_token
+&refresh_token=your_refresh_token
+&client_id=your_client_id`
+      },
+      {
+        title: 'Authorization server validates refresh token',
+        description: 'Server validates refresh token and issues new tokens',
+        code: `// Server validates refresh token
+// Issues new access token and optionally new refresh token`
+      },
+      {
+        title: 'Receive new tokens',
+        description: 'Server returns new access token and optionally new refresh token',
+        code: `{
+  "access_token": "eyJ...",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "refresh_token": "new_refresh_token_here"
+}`
+      },
+      {
+        title: 'Continue with new token',
+        description: 'Use new access token for API calls, store new refresh token',
+        code: `// Store new tokens
+localStorage.setItem('access_token', newAccessToken);
+localStorage.setItem('refresh_token', newRefreshToken);
+
+// Continue with API calls
+fetch('/api/data', {
+  headers: {
+    'Authorization': 'Bearer ' + newAccessToken
+  }
+});`
+      }
+    ]
+  },
+  {
+    id: 'password-grant',
+    title: 'Password Grant (Legacy)',
+    icon: <FiLock />,
+    description: 'Direct username/password authentication (deprecated, use Authorization Code instead).',
+    security: 'low',
+    recommended: false,
+    complexity: 'low',
+    useCases: [
+      { title: 'Legacy applications', description: '' },
+      { title: 'Trusted first-party apps', description: '' },
+      { title: 'Migration scenarios', description: '' }
+    ],
+    steps: [
+      {
+        title: 'Collect user credentials',
+        description: 'Application collects username and password from user',
+        code: `const credentials = {
+  username: 'user@example.com',
+  password: 'userpassword'
+};`
+      },
+      {
+        title: 'Request access token',
+        description: 'Send credentials directly to token endpoint',
+        code: `POST /token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password
+&username=user@example.com
+&password=userpassword
+&client_id=your_client_id
+&scope=openid profile email`
+      },
+      {
+        title: 'Authorization server validates credentials',
+        description: 'Server validates username/password against user store',
+        code: `// Server validates credentials
+// Issues access token if valid`
+      },
+      {
+        title: 'Receive tokens',
+        description: 'Server returns access token and optionally refresh token',
+        code: `{
+  "access_token": "eyJ...",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "refresh_token": "optional_refresh_token"
+}`
+      },
+      {
+        title: 'Use access token',
+        description: 'Use access token for authenticated API calls',
+        code: `fetch('/api/user/profile', {
+  headers: {
+    'Authorization': 'Bearer ' + accessToken
+  }
+});`
+      }
+    ]
   }
 ];
 
@@ -633,6 +756,17 @@ const OAuthFlows = () => {
       <PageHeader>
         <h1>OAuth 2.0 Flows</h1>
         <p>Interactive demonstrations of different OAuth 2.0 and OpenID Connect flows</p>
+        <div style={{ 
+          background: '#f0f9ff', 
+          border: '1px solid #0ea5e9', 
+          borderRadius: '8px', 
+          padding: '1rem', 
+          marginTop: '1rem',
+          fontSize: '0.9rem'
+        }}>
+          <strong>🔐 PingOne Support:</strong> All flows shown below are fully supported by PingOne's OAuth 2.0 and OpenID Connect implementation. 
+          PingOne follows OAuth 2.0 RFC 6749 and OpenID Connect Core 1.0 specifications, ensuring industry-standard compliance and security.
+        </div>
       </PageHeader>
 
       <FlowsGrid>
