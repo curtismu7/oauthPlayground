@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiAlertCircle, FiUser, FiInfo, FiSend, FiDownload, FiEye, FiArrowRight } from 'react-icons/fi';
+import PageTitle from '../../components/PageTitle';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { getUserInfo, isTokenExpired } from '../../utils/oauth';
 import { decodeJwt } from '../../utils/jwt';
@@ -872,16 +873,10 @@ console.log('Welcome, ' + user.name + '!');`,
 
   return (
     <Container>
-      <Header>
-        <h1>
-          <FiUser />
-          OpenID Connect UserInfo
-        </h1>
-        <p>
-          Learn how to use the OpenID Connect UserInfo endpoint to retrieve
-          additional user information with real API calls to PingOne.
-        </p>
-      </Header>
+      <PageTitle 
+        title="OpenID Connect UserInfo"
+        subtitle="Learn how to retrieve user profile information using the UserInfo endpoint. This endpoint provides detailed user claims and supports both authenticated and unauthenticated requests."
+      />
 
       <FlowOverview>
         <CardHeader>
