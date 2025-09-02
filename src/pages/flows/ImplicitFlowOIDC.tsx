@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiAlertCircle, FiArrowRight } from 'react-icons/fi';
+import PageTitle from '../../components/PageTitle';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import { ColorCodedURL } from '../../components/ColorCodedURL';
@@ -367,12 +368,10 @@ console.log('✅ ID token validation successful');`,
 
   return (
     <Page>
-      <Title>Implicit Flow (OpenID Connect)</Title>
-      <Description>
-        Implicit Flow for OpenID Connect allows clients to obtain access and ID tokens directly from the authorization endpoint.
-        This flow is suitable for public clients (e.g., SPAs) that cannot securely store client secrets. However, it is
-        considered legacy and less secure than Authorization Code with PKCE.
-      </Description>
+      <PageTitle 
+        title="Implicit Flow (OpenID Connect)"
+        subtitle="Implicit Flow for OpenID Connect allows clients to obtain access and ID tokens directly from the authorization endpoint. This flow is suitable for public clients (e.g., SPAs) that cannot securely store client secrets. However, it is considered legacy and less secure than Authorization Code with PKCE."
+      />
 
       <Section>
         <SectionTitle>Security Considerations</SectionTitle>
