@@ -92,26 +92,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.warn('⚠️ [NewAuthContext] Missing required environment variables, checking localStorage...');
       
       // Try to get from localStorage as fallback
-      const storedConfig = localStorage.getItem('pingone_config');
-      if (storedConfig) {
-        try {
-          const parsed = JSON.parse(storedConfig);
-          console.log('🔍 [NewAuthContext] Using stored config from localStorage:', parsed);
-          return {
-            disableLogin: false,
-            clientId: parsed.clientId || '',
-            clientSecret: parsed.clientSecret || '',
-            redirectUri: parsed.redirectUri || `${window.location.origin}/callback`,
-            authorizationEndpoint: parsed.authorizationEndpoint || '',
-            tokenEndpoint: parsed.tokenEndpoint || '',
-            userInfoEndpoint: parsed.userInfoEndpoint || '',
-            endSessionEndpoint: parsed.endSessionEndpoint || '',
-            scopes: ['openid', 'profile', 'email'],
-            environmentId: parsed.environmentId || ''
-          };
-        } catch (error) {
-          console.error('❌ [NewAuthContext] Failed to parse stored config:', error);
+      console.log('🔍 [NewAuthContext] Checking localStorage for configuration...');
+      
+      // Check multiple possible keys for configuration
+      const possibleKeys = ['pingone_config', 'pingoneConfig', 'pingone', 'config'];
+      let storedConfig = null;
+      let configKey = null;
+      
+      for (const key of possibleKeys) {
+        const item = localStorage.getItem(key);
+        if (item) {
+          try {
+            const parsed = JSON.parse(item);
+            if (parsed.clientId || parsed.environmentId) {
+              storedConfig = parsed;
+              configKey = key;
+              console.log(`🔍 [NewAuthContext] Found config in localStorage key '${key}':`, parsed);
+              break;
+            }
+          } catch (error) {
+            console.warn(`⚠️ [NewAuthContext] Failed to parse localStorage key '${key}':`, error);
+          }
         }
+      }
+      
+      if (storedConfig) {
+        console.log('🔍 [NewAuthContext] Using stored config from localStorage:', storedConfig);
+        
+        // Map the stored config fields to the expected AppConfig structure
+        const mappedConfig = {
+          disableLogin: false,
+          clientId: storedConfig.clientId || '',
+          clientSecret: storedConfig.clientSecret || '',
+          redirectUri: storedConfig.redirectUri || `${window.location.origin}/callback`,
+          authorizationEndpoint: storedConfig.authEndpoint || storedConfig.authorizationEndpoint || '', // Map authEndpoint to authorizationEndpoint
+          tokenEndpoint: storedConfig.tokenEndpoint || '',
+          userInfoEndpoint: storedConfig.userInfoEndpoint || '',
+          endSessionEndpoint: storedConfig.endSessionEndpoint || '',
+          scopes: storedConfig.scopes || ['openid', 'profile', 'email'],
+          environmentId: storedConfig.environmentId || ''
+        };
+        
+        console.log('🔍 [NewAuthContext] Mapped config:', mappedConfig);
+        return mappedConfig;
       }
       
       console.error('❌ [NewAuthContext] No configuration available from environment or localStorage');
