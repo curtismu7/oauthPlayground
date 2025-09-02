@@ -312,7 +312,7 @@ const generateCodeChallenge = async (codeVerifier: string) => {
 
 const PKCEFlow = () => {
   // Casting context to any locally to avoid broad refactor; we'll type the context in a separate pass
-  const { config, tokens: contextTokens } = useOAuth() as any;
+  const { config, tokens: contextTokens } = useAuth();
   const [demoStatus, setDemoStatus] = useState('idle');
   const [currentStep, setCurrentStep] = useState(0);
   const [tokensReceived, setTokensReceived] = useState<any>(null);
