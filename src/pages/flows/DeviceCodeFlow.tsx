@@ -6,6 +6,7 @@ import { useAuth } from '../../contexts/NewAuthContext';
 import Spinner from '../../components/Spinner';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import ConfigurationButton from '../../components/ConfigurationButton';
+import TokenDisplayComponent from '../../components/TokenDisplay';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -743,17 +744,7 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
           {tokensReceived && (
             <div>
               <h3>Tokens Received:</h3>
-              <TokenDisplay>
-                <strong>Access Token:</strong><br />
-                {tokensReceived.access_token}
-                <br /><br />
-                <strong>ID Token:</strong><br />
-                {tokensReceived.id_token}
-                <br /><br />
-                <strong>Token Type:</strong> {tokensReceived.token_type}<br />
-                <strong>Expires In:</strong> {tokensReceived.expires_in} seconds<br />
-                <strong>Scope:</strong> {tokensReceived.scope}
-              </TokenDisplay>
+              <TokenDisplayComponent tokens={tokensReceived} />
             </div>
           )}
 
