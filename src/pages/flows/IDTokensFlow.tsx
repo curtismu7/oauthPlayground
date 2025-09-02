@@ -745,7 +745,10 @@ console.log('ID token is valid!');`
                 <StepContent>
                   <h3>{step.title}</h3>
                   <p>{step.description}</p>
-                  <CodeBlock>{step.code}</CodeBlock>
+                  {/* Show code section only after execution and when code exists */}
+                  {index < currentStep && step.code && (
+                    <CodeBlock>{step.code}</CodeBlock>
+                  )}
                 </StepContent>
               </Step>
             ))}
