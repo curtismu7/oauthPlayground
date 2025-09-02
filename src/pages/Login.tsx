@@ -12,7 +12,6 @@ import {
   FiLogIn 
 } from 'react-icons/fi';
 import { useAuth } from '../contexts/NewAuthContext';
-import { appConfig } from '../config/pingone';
 import Spinner from '../components/Spinner';
 
 interface ClientAssertion {
@@ -543,7 +542,7 @@ const Login = () => {
         <SetupSection>
             <DescriptionSection>
               <p>
-                <span>📝 {appConfig.description}</span>
+                <span>📝 Interactive playground for OAuth 2.0 and OpenID Connect with PingOne</span>
               </p>
             </DescriptionSection>
 
@@ -1074,9 +1073,9 @@ const Login = () => {
           <LoginCard>
             <LoginHeader>
               <h1>
-                <span>🔐 {appConfig.title}</span>
+                <span>🔐 PingOne OAuth Playground</span>
                 <small style={{ display: 'block', fontSize: '0.75rem', fontWeight: 'normal', marginTop: '0.25rem', color: '#666' }}>
-                  Version {appConfig.version}
+                  Version 2.0.1
                 </small>
               </h1>
             </LoginHeader>
