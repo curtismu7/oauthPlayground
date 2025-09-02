@@ -255,6 +255,7 @@ const CodeBlock = styled.pre`
   margin: 1rem 0;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   border: 1px solid ${({ theme }) => theme.colors.gray800};
+  white-space: pre-wrap;
 `;
 
 const TokenDisplay = styled.div`
