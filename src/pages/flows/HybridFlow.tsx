@@ -6,6 +6,7 @@ import { useAuth } from '../../contexts/NewAuthContext';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import ConfigurationButton from '../../components/ConfigurationButton';
 import ColorCodedURL from '../../components/ColorCodedURL';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -343,9 +344,15 @@ const tokens = {
   scope: hashParams.get('scope')
 };
 
-// Store tokens securely
-localStorage.setItem('access_token', tokens.access_token);
-localStorage.setItem('id_token', tokens.id_token);
+// Store tokens securely using shared utility
+const tokensForStorage = {
+  access_token: tokens.access_token,
+  id_token: tokens.id_token,
+  token_type: tokens.token_type,
+  expires_in: tokens.expires_in,
+  scope: tokens.scope
+};
+storeOAuthTokens(tokensForStorage);
 
 // Validate ID token (signature, claims, nonce)
 const isValid = validateIdToken(tokens.id_token);`,
@@ -416,7 +423,22 @@ grant_type=authorization_code
           setExecutedSteps(prev => new Set(prev).add(4));
           setDemoStatus('success');
 
-          console.log('✅ [HybridFlow] Code exchanged for additional tokens');
+          // Store tokens using the shared utility
+          const tokensForStorage = {
+            access_token: tokenData.access_token,
+            id_token: tokenData.id_token,
+            refresh_token: tokenData.refresh_token,
+            token_type: tokenData.token_type,
+            expires_in: tokenData.expires_in,
+            scope: tokenData.scope || 'openid profile email'
+          };
+          
+          const success = storeOAuthTokens(tokensForStorage);
+          if (success) {
+            console.log('✅ [HybridFlow] Code exchanged for additional tokens and stored successfully');
+          } else {
+            console.error('❌ [HybridFlow] Failed to store tokens');
+          }
         } catch (error: any) {
           setError(`Failed to exchange code for tokens: ${error.message}`);
           console.error('❌ [HybridFlow] Token exchange error:', error);
