@@ -12,6 +12,7 @@ import type { UserInfo as OIDCUserInfo } from '../../types/oauth';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import { ColorCodedURL } from '../../components/ColorCodedURL';
 import Typewriter from '../../components/Typewriter';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -1086,8 +1087,12 @@ console.log('Welcome, ' + user.name + '!');`,
                               foundTokens = true;
 
                               // Try to store in the official location for the auth context
-                              localStorage.setItem('pingone_playground_tokens', JSON.stringify(parsedTokens));
-                              console.log('✅ [UserInfoFlow] Copied tokens to official storage location');
+                              const success = storeOAuthTokens(parsedTokens);
+                              if (success) {
+                                console.log('✅ [UserInfoFlow] Tokens stored successfully using shared utility');
+                              } else {
+                                console.error('❌ [UserInfoFlow] Failed to store tokens using shared utility');
+                              }
 
                               // Reload the page to trigger auth context reload
                               window.location.reload();
