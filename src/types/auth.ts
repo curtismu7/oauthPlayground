@@ -49,6 +49,7 @@ export interface AuthContextType extends AuthState {
   } | null;
   proceedWithOAuth: () => void;
   closeAuthModal: () => void;
+  updateTokens: (tokens: OAuthTokenResponse | null) => void;
 }
 
 export interface AuthProviderProps {
