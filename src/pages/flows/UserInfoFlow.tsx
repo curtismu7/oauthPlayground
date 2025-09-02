@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiAlertCircle, FiUser, FiInfo, FiSend, FiDownload, FiEye, FiArrowRight } from 'react-icons/fi';
 import PageTitle from '../../components/PageTitle';
-import TokenDisplay from '../../components/TokenDisplay';
+import TokenDisplayComponent from '../../components/TokenDisplay';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { getUserInfo, isTokenExpired } from '../../utils/oauth';
 import { decodeJwt } from '../../utils/jwt';
@@ -1209,7 +1209,7 @@ console.log('Welcome, ' + user.name + '!');`,
                         {stepResult.token && (
                           <div style={{ marginTop: '0.5rem' }}>
                             <strong>Access Token:</strong>
-                            <TokenDisplay tokens={{ access_token: stepResult.token }} />
+                            <TokenDisplayComponent tokens={{ access_token: stepResult.token }} />
                           </div>
                         )}
                         {stepResult.tokenInfo && (
