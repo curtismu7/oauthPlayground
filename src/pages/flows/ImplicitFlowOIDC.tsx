@@ -179,7 +179,7 @@ const ImplicitFlowOIDC: React.FC = () => {
     {
       title: 'Client Prepares Authorization Request',
       description: 'The client application prepares an authorization request with OpenID Connect parameters.',
-      code: `GET /authorize?
+      code: `GET ${config?.authorizationEndpoint || config?.authEndpoint || 'https://auth.pingone.com/YOUR_ENV_ID/as/authorize'}?
   client_id=${config?.clientId || 'your_client_id'}
   &redirect_uri=${config?.redirectUri || 'https://your-app.com/callback'}
   &response_type=id_token token
@@ -201,7 +201,7 @@ const ImplicitFlowOIDC: React.FC = () => {
           state: Math.random().toString(36).substring(2, 15),
         });
 
-        const authEndpoint = config.authorizationEndpoint.replace('{envId}', config.environmentId);
+        const authEndpoint = (config.authorizationEndpoint || config.authEndpoint || '').replace('{envId}', config.environmentId);
         const url = `${authEndpoint}?${params.toString()}`;
 
         setStepResults(prev => ({ ...prev, 0: { url } }));
