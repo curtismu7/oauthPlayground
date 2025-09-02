@@ -150,7 +150,7 @@ export const StepByStepFlow: React.FC<StepByStepFlowProps> = ({
   disabled = false,
   title
 }) => {
-  console.log('🔄 [StepByStepFlow] Component rendered with currentStep:', currentStep);
+  console.log('🔄 [StepByStepFlow] Component rendered with currentStep:', currentStep, 'status:', status);
   const executeCurrentStep = useCallback(async () => {
     console.log('🔄 [StepByStepFlow] executeCurrentStep called', { currentStep, stepsLength: steps.length });
     if (currentStep < steps.length && steps[currentStep].execute) {
@@ -187,6 +187,7 @@ export const StepByStepFlow: React.FC<StepByStepFlowProps> = ({
     if (currentStep < steps.length - 1) {
       console.log('🔄 [StepByStepFlow] Moving to next step:', currentStep + 1);
       onStepChange(currentStep + 1);
+      console.log('🔄 [StepByStepFlow] onStepChange called with:', currentStep + 1);
     } else {
       console.log('🔄 [StepByStepFlow] Already at last step, cannot go next');
     }
