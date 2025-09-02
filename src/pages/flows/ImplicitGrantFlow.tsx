@@ -8,7 +8,7 @@ import { URLParamExplainer } from '../../components/URLParamExplainer';
 import Typewriter from '../../components/Typewriter';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import ConfigurationButton from '../../components/ConfigurationButton';
-import { oauthStorage } from '../../utils/storage';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
 import TokenDisplayComponent from '../../components/TokenDisplay';
 
 const Container = styled.div`
@@ -304,18 +304,21 @@ localStorage.setItem('id_token', idToken);`,
         };
         setTokensReceived(mockTokens);
         
-        // Store tokens using the proper oauthStorage method
+        // Store tokens using the shared utility
         const tokensForStorage = {
           access_token: mockTokens.access_token,
           id_token: mockTokens.id_token,
           token_type: mockTokens.token_type,
           expires_in: mockTokens.expires_in,
-          scope: mockTokens.scope,
-          timestamp: Date.now()
+          scope: mockTokens.scope
         };
         
-        oauthStorage.setTokens(tokensForStorage);
-        console.log('✅ [ImplicitGrantFlow] Tokens received and stored using oauthStorage');
+        const success = storeOAuthTokens(tokensForStorage);
+        if (success) {
+          console.log('✅ [ImplicitGrantFlow] Tokens received and stored successfully');
+        } else {
+          console.error('❌ [ImplicitGrantFlow] Failed to store tokens');
+        }
       }
     },
     {
