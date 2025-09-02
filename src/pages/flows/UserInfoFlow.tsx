@@ -1277,8 +1277,8 @@ console.log('Welcome, ' + user.name + '!');`,
                       </div>
                     )}
 
-                    {/* Next button for each step - show if executed and not at the last step */}
-                    {isExecuted && index < steps.length - 1 && (
+                    {/* Next button for each step - only show if it can actually advance */}
+                    {isExecuted && index < steps.length - 1 && index + 1 > currentStep && (
                       <div style={{ 
                         marginTop: '1rem', 
                         textAlign: 'center',
@@ -1289,12 +1289,8 @@ console.log('Welcome, ' + user.name + '!');`,
                           onClick={() => {
                             const nextStepIndex = index + 1;
                             console.log('🔄 [UserInfoFlow] Next Step button clicked', { currentIndex: index, nextStep: nextStepIndex, currentStepBefore: currentStep });
-                            if (nextStepIndex > currentStep) {
-                              setCurrentStep(nextStepIndex);
-                              console.log('🔄 [UserInfoFlow] setCurrentStep called with:', nextStepIndex);
-                            } else {
-                              console.log('🔄 [UserInfoFlow] Already at or past step', nextStepIndex, '- no change needed');
-                            }
+                            setCurrentStep(nextStepIndex);
+                            console.log('🔄 [UserInfoFlow] setCurrentStep called with:', nextStepIndex);
                           }}
                           style={{
                             background: '#3b82f6',
