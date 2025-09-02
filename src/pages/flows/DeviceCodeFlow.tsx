@@ -7,6 +7,7 @@ import Spinner from '../../components/Spinner';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import ConfigurationButton from '../../components/ConfigurationButton';
 import TokenDisplayComponent from '../../components/TokenDisplay';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -633,7 +634,22 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
           setStepResults(prev => ({ ...prev, 5: { response: tokenData, status: response.status } }));
           setExecutedSteps(prev => new Set(prev).add(5));
 
-          console.log('✅ [DeviceCodeFlow] Tokens received:', tokenData);
+          // Store tokens using the shared utility
+          const tokensForStorage = {
+            access_token: tokenData.access_token,
+            id_token: tokenData.id_token,
+            refresh_token: tokenData.refresh_token,
+            token_type: tokenData.token_type,
+            expires_in: tokenData.expires_in,
+            scope: tokenData.scope || 'openid profile email'
+          };
+          
+          const success = storeOAuthTokens(tokensForStorage);
+          if (success) {
+            console.log('✅ [DeviceCodeFlow] Tokens received and stored successfully');
+          } else {
+            console.error('❌ [DeviceCodeFlow] Failed to store tokens');
+          }
         } catch (error: any) {
           setError(`Failed to receive tokens: ${error.message}`);
           console.error('❌ [DeviceCodeFlow] Token request error:', error);
