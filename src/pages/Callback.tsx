@@ -100,28 +100,47 @@ const Callback = () => {
       setHasProcessed(true);
       
       try {
+        console.log('🚀 [Callback] ===== OAUTH CALLBACK DEBUG START =====');
         console.log('🔍 [Callback] Processing OAuth callback...');
         console.log('🔍 [Callback] Current URL:', window.location.href);
+        console.log('🔍 [Callback] URL pathname:', window.location.pathname);
+        console.log('🔍 [Callback] URL search:', window.location.search);
+        console.log('🔍 [Callback] URL hash:', window.location.hash);
+        console.log('🔍 [Callback] SearchParams entries:', Array.from(searchParams.entries()));
         
         // Get parameters from both query string and URL fragment
         const urlParams: Record<string, string> = {};
+        const queryParams: Record<string, string> = {};
+        const fragmentParams: Record<string, string> = {};
         
         // Get query parameters (Authorization Code Flow)
+        console.log('🔍 [Callback] Parsing query parameters...');
         for (const [key, value] of searchParams.entries()) {
           urlParams[key] = value;
+          queryParams[key] = value;
+          console.log(`  📝 Query param: ${key} = ${value}`);
         }
         
         // Get URL fragment parameters (Implicit Grant Flow)
+        console.log('🔍 [Callback] Parsing URL fragment...');
         if (window.location.hash) {
           const fragment = window.location.hash.substring(1); // Remove the #
-          const fragmentParams = new URLSearchParams(fragment);
-          for (const [key, value] of fragmentParams.entries()) {
+          console.log('🔍 [Callback] Raw fragment (without #):', fragment);
+          const fragmentParamsObj = new URLSearchParams(fragment);
+          for (const [key, value] of fragmentParamsObj.entries()) {
             urlParams[key] = value;
+            fragmentParams[key] = value;
+            console.log(`  📝 Fragment param: ${key} = ${value}`);
           }
+        } else {
+          console.log('🔍 [Callback] No URL fragment found');
         }
         
-        console.log('🔍 [Callback] URL parameters (query + fragment):', urlParams);
-        console.log('🔍 [Callback] URL fragment:', window.location.hash);
+        console.log('🔍 [Callback] ===== PARSED PARAMETERS =====');
+        console.log('🔍 [Callback] All URL parameters (merged):', urlParams);
+        console.log('🔍 [Callback] Query parameters only:', queryParams);
+        console.log('🔍 [Callback] Fragment parameters only:', fragmentParams);
+        console.log('🔍 [Callback] Parameter count - Total:', Object.keys(urlParams).length, 'Query:', Object.keys(queryParams).length, 'Fragment:', Object.keys(fragmentParams).length);
         
         // Check for error in the URL (e.g., user denied permission)
         if (urlParams.error) {
@@ -151,42 +170,89 @@ const Callback = () => {
         }
         
         // Check if we have the required parameters for either flow type
+        console.log('🔍 [Callback] ===== FLOW TYPE DETECTION =====');
         const hasAuthorizationCode = !!urlParams.code;
         const hasAccessToken = !!urlParams.access_token;
+        const hasIdToken = !!urlParams.id_token;
+        const hasState = !!urlParams.state;
+        const hasTokenType = !!urlParams.token_type;
+        const hasExpiresIn = !!urlParams.expires_in;
+        
+        console.log('🔍 [Callback] Flow detection results:');
+        console.log(`  🔑 Authorization Code: ${hasAuthorizationCode} ${urlParams.code ? `(${urlParams.code.substring(0, 10)}...)` : ''}`);
+        console.log(`  🎫 Access Token: ${hasAccessToken} ${urlParams.access_token ? `(${urlParams.access_token.substring(0, 20)}...)` : ''}`);
+        console.log(`  🆔 ID Token: ${hasIdToken} ${urlParams.id_token ? `(${urlParams.id_token.substring(0, 20)}...)` : ''}`);
+        console.log(`  🔒 State: ${hasState} ${urlParams.state ? `(${urlParams.state})` : ''}`);
+        console.log(`  📝 Token Type: ${hasTokenType} ${urlParams.token_type ? `(${urlParams.token_type})` : ''}`);
+        console.log(`  ⏰ Expires In: ${hasExpiresIn} ${urlParams.expires_in ? `(${urlParams.expires_in})` : ''}`);
         
         if (!hasAuthorizationCode && !hasAccessToken) {
+          console.error('❌ [Callback] ===== VALIDATION FAILED =====');
           console.error('❌ [Callback] No authorization code or access token found');
           console.error('❌ [Callback] Available parameters:', Object.keys(urlParams));
+          console.error('❌ [Callback] Parameter values:', urlParams);
+          console.error('❌ [Callback] This suggests the OAuth flow was interrupted or malformed');
           throw new Error('No authorization code or access token received. The OAuth flow may have been interrupted.');
         }
         
+        console.log('🔍 [Callback] ===== FLOW TYPE IDENTIFIED =====');
         if (hasAuthorizationCode) {
-          console.log('✅ [Callback] Authorization code found (Authorization Code Flow), processing callback...');
+          console.log('✅ [Callback] Authorization Code Flow detected');
+          console.log('✅ [Callback] Code value:', urlParams.code);
+          console.log('✅ [Callback] State value:', urlParams.state);
+          console.log('✅ [Callback] Processing Authorization Code Flow callback...');
         } else if (hasAccessToken) {
-          console.log('✅ [Callback] Access token found (Implicit Grant Flow), processing callback...');
+          console.log('✅ [Callback] Implicit Grant Flow detected');
+          console.log('✅ [Callback] Access token value:', urlParams.access_token);
+          console.log('✅ [Callback] Token type:', urlParams.token_type);
+          console.log('✅ [Callback] Expires in:', urlParams.expires_in);
+          console.log('✅ [Callback] ID token:', urlParams.id_token ? 'Present' : 'Not present');
+          console.log('✅ [Callback] Processing Implicit Grant Flow callback...');
         }
         
         // Ensure minimum spinner time while processing callback
+        console.log('🔍 [Callback] ===== CALLING HANDLECALLBACK =====');
+        console.log('🔍 [Callback] About to call handleCallback with URL:', window.location.href);
+        
         const start = Date.now();
-        await handleCallback(window.location.href);
+        try {
+          await handleCallback(window.location.href);
+          console.log('✅ [Callback] handleCallback completed successfully');
+        } catch (handleCallbackError) {
+          console.error('❌ [Callback] handleCallback failed:', handleCallbackError);
+          throw handleCallbackError; // Re-throw to be caught by outer try-catch
+        }
+        
         const elapsed = Date.now() - start;
+        console.log(`🔍 [Callback] handleCallback took ${elapsed}ms`);
+        
         const remaining = Math.max(2000 - elapsed, 0);
         if (remaining > 0) {
+          console.log(`🔍 [Callback] Waiting additional ${remaining}ms for minimum spinner time`);
           await new Promise((res) => setTimeout(res, remaining));
         }
 
         // If we reach here, authentication was successful
-        console.log('✅ [Callback] Authentication successful');
+        console.log('✅ [Callback] ===== AUTHENTICATION SUCCESSFUL =====');
+        console.log('✅ [Callback] Setting status to success and navigating to dashboard');
         setStatus('success');
         // Brief success state before navigating
         setTimeout(() => {
+          console.log('🔄 [Callback] Navigating to /dashboard');
           navigate('/dashboard', { replace: true });
         }, 1500);
+        console.log('✅ [Callback] ===== OAUTH CALLBACK DEBUG END (SUCCESS) =====');
         
       } catch (err) {
-        console.error('❌ [Callback] OAuth callback error:', err);
+        console.error('❌ [Callback] ===== OAUTH CALLBACK ERROR =====');
+        console.error('❌ [Callback] Error type:', typeof err);
+        console.error('❌ [Callback] Error message:', err instanceof Error ? err.message : 'Unknown error');
+        console.error('❌ [Callback] Error stack:', err instanceof Error ? err.stack : 'No stack trace');
+        console.error('❌ [Callback] Full error object:', err);
+        console.error('❌ [Callback] Setting status to error and showing error message');
         setStatus('error');
         setError(err instanceof Error ? err.message : 'An error occurred during authentication');
+        console.error('❌ [Callback] ===== OAUTH CALLBACK DEBUG END =====');
       }
     };
     
