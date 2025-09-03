@@ -85,13 +85,25 @@ const TokenDetails = styled.div`
 const TokenTextarea = styled.textarea`
   width: 100%;
   padding: 1rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid #374151;
   border-radius: 0.375rem;
   font-family: monospace;
   font-size: 0.875rem;
   resize: vertical;
   min-height: 120px;
   margin-bottom: 1rem;
+  background-color: #1f2937;
+  color: #ffffff;
+  
+  &::placeholder {
+    color: #9ca3af;
+  }
+  
+  &:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
 `;
 
 const ButtonGroup = styled.div`
@@ -153,8 +165,8 @@ const ActionButton = styled.button`
 `;
 
 const JWTContent = styled.pre`
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  border: 2px solid #cbd5e1;
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  border: 2px solid #374151;
   border-radius: 0.5rem;
   padding: 1.5rem;
   margin: 1rem 0;
@@ -164,9 +176,9 @@ const JWTContent = styled.pre`
   overflow-x: auto;
   white-space: pre-wrap;
   word-break: break-word;
-  color: #1e293b !important;
+  color: #ffffff !important;
   min-height: 120px;
-  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
   position: relative;
   
   &::before {
