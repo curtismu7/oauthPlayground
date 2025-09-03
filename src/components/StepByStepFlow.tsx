@@ -6,6 +6,134 @@ const FlowContainer = styled.div`
   margin-bottom: 1.5rem;
 `;
 
+const StepContainer = styled.div<{ $isActive: boolean; $isCompleted: boolean }>`
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  border: 2px solid ${({ $isActive, $isCompleted }) => 
+    $isActive ? '#007bff' : $isCompleted ? '#28a745' : '#dee2e6'};
+  background-color: ${({ $isActive, $isCompleted }) => 
+    $isActive ? 'rgba(0, 123, 255, 0.05)' : $isCompleted ? 'rgba(40, 167, 69, 0.05)' : '#ffffff'};
+  transition: all 0.3s ease;
+`;
+
+const StepHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+`;
+
+const StepTitle = styled.h4<{ $isActive: boolean; $isCompleted: boolean }>`
+  margin: 0;
+  color: ${({ $isActive, $isCompleted }) => 
+    $isActive ? '#007bff' : $isCompleted ? '#28a745' : '#495057'};
+  font-size: 1.1rem;
+  font-weight: 600;
+`;
+
+const StepNumber = styled.div<{ $isActive: boolean; $isCompleted: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: ${({ $isActive, $isCompleted }) => 
+    $isActive ? '#007bff' : $isCompleted ? '#28a745' : '#dee2e6'};
+  color: white;
+  font-weight: 600;
+  font-size: 0.875rem;
+`;
+
+const StepDescription = styled.p`
+  margin: 0 0 1rem 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+  line-height: 1.5;
+`;
+
+const CodeBlock = styled.pre`
+  background-color: #1f2937;
+  color: #f9fafb;
+  padding: 1rem;
+  border-radius: 0.375rem;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  margin: 1rem 0;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  border: 1px solid #374151;
+  white-space: pre-wrap;
+  position: relative;
+`;
+
+const StepActions = styled.div`
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 1rem;
+  justify-content: flex-end;
+`;
+
+const StepButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  ${({ $variant }) => {
+    if ($variant === 'primary') {
+      return `
+        background-color: #007bff;
+        color: white;
+        
+        &:hover:not(:disabled) {
+          background-color: #0056b3;
+        }
+        
+        &:disabled {
+          background-color: #6c757d;
+          cursor: not-allowed;
+        }
+      `;
+    } else if ($variant === 'success') {
+      return `
+        background-color: #28a745;
+        color: white;
+        
+        &:hover:not(:disabled) {
+          background-color: #1e7e34;
+        }
+        
+        &:disabled {
+          background-color: #6c757d;
+          cursor: not-allowed;
+        }
+      `;
+    } else {
+      return `
+        background-color: #6c757d;
+        color: white;
+        
+        &:hover:not(:disabled) {
+          background-color: #545b62;
+        }
+        
+        &:disabled {
+          background-color: #adb5bd;
+          cursor: not-allowed;
+        }
+      `;
+    }
+  }}
+`;
+
 const StepProgressIndicator = styled.div`
   margin-bottom: 1.5rem;
   padding: 1rem;
@@ -14,12 +142,12 @@ const StepProgressIndicator = styled.div`
   border: 1px solid #dee2e6;
 `;
 
-const StepTitle = styled.h4`
+const ProgressStepTitle = styled.h4`
   margin: 0 0 0.5rem 0;
   color: #495057;
 `;
 
-const StepDescription = styled.p`
+const ProgressStepDescription = styled.p`
   margin: 0;
   color: #6c757d;
   font-size: 0.9rem;
@@ -272,13 +400,13 @@ export const StepByStepFlow: React.FC<StepByStepFlowProps> = ({
       {/* Step Progress Indicator */}
       {status === 'loading' && (
         <StepProgressIndicator>
-          <StepTitle>
-            Step {currentStep + 1} of {steps.length}: {steps[currentStep]?.title}
-          </StepTitle>
-          {console.log('🔄 [StepByStepFlow] Progress indicator showing step:', currentStep + 1, 'of', steps.length)}
-          <StepDescription>
-            {steps[currentStep]?.description}
-          </StepDescription>
+                  <ProgressStepTitle>
+          Step {currentStep + 1} of {steps.length}: {steps[currentStep]?.title}
+        </ProgressStepTitle>
+        {console.log('🔄 [StepByStepFlow] Progress indicator showing step:', currentStep + 1, 'of', steps.length)}
+        <ProgressStepDescription>
+          {steps[currentStep]?.description}
+        </ProgressStepDescription>
           <StepDots>
             {steps.map((_, index) => (
               <StepDot
@@ -291,6 +419,67 @@ export const StepByStepFlow: React.FC<StepByStepFlowProps> = ({
             ))}
           </StepDots>
         </StepProgressIndicator>
+      )}
+
+      {/* Render Individual Steps */}
+      {status === 'loading' && (
+        <div>
+          {steps.map((step, index) => (
+            <StepContainer
+              key={index}
+              id={`step-${index}`}
+              $isActive={index === currentStep}
+              $isCompleted={index < currentStep}
+            >
+              <StepHeader>
+                <StepTitle $isActive={index === currentStep} $isCompleted={index < currentStep}>
+                  {step.title}
+                </StepTitle>
+                <StepNumber $isActive={index === currentStep} $isCompleted={index < currentStep}>
+                  {index + 1}
+                </StepNumber>
+              </StepHeader>
+              
+              <StepDescription>{step.description}</StepDescription>
+              
+              {step.code && (
+                <CodeBlock>{step.code}</CodeBlock>
+              )}
+              
+              <StepActions>
+                {index === currentStep && step.execute && (
+                  <StepButton
+                    $variant="primary"
+                    onClick={executeCurrentStep}
+                    disabled={disabled}
+                  >
+                    Execute Step {index + 1}
+                  </StepButton>
+                )}
+                
+                {index < steps.length - 1 && (
+                  <StepButton
+                    $variant="secondary"
+                    onClick={() => onStepChange(index + 1)}
+                    disabled={index >= currentStep}
+                  >
+                    <FiArrowRight />
+                    Next Step
+                  </StepButton>
+                )}
+                
+                {index === steps.length - 1 && index < currentStep && (
+                  <StepButton
+                    $variant="success"
+                    disabled
+                  >
+                    ✓ Complete
+                  </StepButton>
+                )}
+              </StepActions>
+            </StepContainer>
+          ))}
+        </div>
       )}
     </FlowContainer>
   );
