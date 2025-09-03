@@ -466,6 +466,26 @@ window.location.href = authUrl;
       }
     },
     {
+      title: 'User Authenticates on PingOne',
+      description: 'The user is now on PingOne\'s login page where they enter their credentials and click the login button. This step is handled entirely by PingOne.',
+      code: `// User is now on PingOne's login page
+// They enter their username and password
+// They click the "Login" button
+// PingOne validates their credentials
+// PingOne shows consent screen (if required)
+// User clicks "Allow" or "Authorize"`,
+      execute: () => {
+        console.log('🔍 [AuthCodeFlow] Step 3 - User authentication on PingOne');
+        console.log('ℹ️ [AuthCodeFlow] This step is handled by PingOne, not our application');
+        console.log('ℹ️ [AuthCodeFlow] User should be on PingOne login page now');
+        
+        return { 
+          message: 'User is authenticating on PingOne... This step is handled by PingOne.',
+          note: 'Check your browser - you should be on PingOne\'s login page'
+        };
+      }
+    },
+    {
       title: 'Authorization Server Redirects Back',
       description: 'After successful authentication, the authorization server redirects back to the client with an authorization code.',
       code: `GET ${config?.redirectUri || 'https://your-app.com/callback'}?

@@ -305,6 +305,26 @@ window.location.href = authUrl;
       }
     },
     {
+      title: 'User Authenticates on PingOne',
+      description: 'The user is now on PingOne\'s login page where they enter their credentials and click the login button. This step is handled entirely by PingOne.',
+      code: `// User is now on PingOne's login page
+// They enter their username and password
+// They click the "Login" button
+// PingOne validates their credentials
+// PingOne shows consent screen (if required)
+// User clicks "Allow" or "Authorize"`,
+      execute: () => {
+        console.log('🔍 [ImplicitGrantFlow] Step 3 - User authentication on PingOne');
+        console.log('ℹ️ [ImplicitGrantFlow] This step is handled by PingOne, not our application');
+        console.log('ℹ️ [ImplicitGrantFlow] User should be on PingOne login page now');
+        
+        return { 
+          message: 'User is authenticating on PingOne... This step is handled by PingOne.',
+          note: 'Check your browser - you should be on PingOne\'s login page'
+        };
+      }
+    },
+    {
       title: 'Handle Redirect with Tokens',
       description: 'PingOne redirects back with access token and ID token in URL fragment',
       code: `// Callback URL with tokens in fragment
