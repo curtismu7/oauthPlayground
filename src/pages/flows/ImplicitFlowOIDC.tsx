@@ -379,7 +379,7 @@ console.log('✅ ID token validation successful');`,
         subtitle="Implicit Flow for OpenID Connect allows clients to obtain access and ID tokens directly from the authorization endpoint. This flow is suitable for public clients (e.g., SPAs) that cannot securely store client secrets. However, it is considered legacy and less secure than Authorization Code with PKCE."
       />
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.5rem', marginBottom: '2rem', padding: '1rem 0' }}>
         <ConfigurationButton flowType="implicit" />
       </div>
 
