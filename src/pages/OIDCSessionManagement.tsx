@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../components/Card';
 import { FiUsers, FiLogOut, FiMonitor, FiShield, FiRefreshCw, FiInfo, FiCheck } from 'react-icons/fi';
+import PageTitle from '../components/PageTitle';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -9,25 +10,7 @@ const Container = styled.div`
   padding: 1.5rem;
 `;
 
-const Header = styled.div`
-  margin-bottom: 2rem;
 
-  h1 {
-    font-size: 2.5rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray900};
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  p {
-    color: ${({ theme }) => theme.colors.gray600};
-    font-size: 1.1rem;
-    line-height: 1.6;
-  }
-`;
 
 const OverviewCard = styled(Card)`
   margin-bottom: 2rem;
@@ -138,17 +121,15 @@ const SecurityNote = styled.div`
 const OIDCSessionManagement = () => {
   return (
     <Container>
-      <Header>
-        <h1>
-          <FiUsers />
-          OpenID Connect Session Management
-        </h1>
-        <p>
-          OpenID Connect Session Management 1.0 is a specification that defines how to manage sessions for OpenID Connect, 
-          including when to log out the End-User. It enables Relying Parties to monitor the End-User's login status 
-          at the OpenID Provider on an ongoing basis.
-        </p>
-      </Header>
+      <PageTitle 
+        title={
+          <>
+            <FiUsers />
+            OpenID Connect Session Management
+          </>
+        }
+        subtitle="OpenID Connect Session Management 1.0 is a specification that defines how to manage sessions for OpenID Connect, including when to log out the End-User. It enables Relying Parties to monitor the End-User's login status at the OpenID Provider on an ongoing basis."
+      />
 
       <OverviewCard>
         <CardHeader>
