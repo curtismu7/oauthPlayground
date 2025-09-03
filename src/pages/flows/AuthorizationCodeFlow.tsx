@@ -424,9 +424,17 @@ window.location.href = authUrl;
 // - Redirect back to client with authorization code`,
       execute: () => {
         try {
-          if (!authUrl) {
-            setError('Authorization URL not available. Please complete step 1 first.');
-            return { error: 'Authorization URL not available' };
+          // Check for authUrl from state first, then from step results
+          let urlToUse = authUrl;
+          if (!urlToUse) {
+            const step1Result = stepResults[0];
+            if (step1Result && step1Result.url) {
+              urlToUse = step1Result.url;
+              setAuthUrl(step1Result.url);
+            } else {
+              setError('Authorization URL not available. Please complete step 1 first.');
+              return { error: 'Authorization URL not available' };
+            }
           }
           
           console.log('✅ [AuthCodeFlow] Redirecting user to PingOne for authentication');
@@ -434,13 +442,13 @@ window.location.href = authUrl;
           
           // Actually redirect to PingOne
           setTimeout(() => {
-            window.location.href = authUrl;
+            window.location.href = urlToUse;
           }, 1000); // Small delay to show the message
           
           return result;
         } catch (error) {
-          console.error('❌ [AuthCodeFlow] Error in step 1:', error);
-          setError(`Error in step 1: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          console.error('❌ [AuthCodeFlow] Error in step 2:', error);
+          setError(`Error in step 2: ${error instanceof Error ? error.message : 'Unknown error'}`);
           return { error: error instanceof Error ? error.message : 'Unknown error' };
         }
       }
@@ -493,11 +501,21 @@ grant_type=authorization_code
 &redirect_uri=${config?.redirectUri || 'https://your-app.com/callback'}${flowConfig.enablePKCE ? `
 &code_verifier=YOUR_CODE_VERIFIER` : ''}`,
       execute: async () => {
-        console.log('🔄 [AuthCodeFlow] Token exchange step executing', { config: !!config, authCode: !!authCode });
-        if (!config || !authCode) {
-          console.error('❌ [AuthCodeFlow] Missing configuration or authorization code', { config: !!config, authCode: !!authCode });
+        // Check for authCode from state first, then from step results
+        let codeToUse = authCode;
+        if (!codeToUse) {
+          const step2Result = stepResults[2];
+          if (step2Result && step2Result.code) {
+            codeToUse = step2Result.code;
+            setAuthCode(step2Result.code);
+          }
+        }
+        
+        console.log('🔄 [AuthCodeFlow] Token exchange step executing', { config: !!config, authCode: !!codeToUse });
+        if (!config || !codeToUse) {
+          console.error('❌ [AuthCodeFlow] Missing configuration or authorization code', { config: !!config, authCode: !!codeToUse });
           setError('Missing configuration or authorization code');
-          return;
+          return { error: 'Missing configuration or authorization code' };
         }
 
         try {
@@ -507,7 +525,7 @@ grant_type=authorization_code
             grant_type: 'authorization_code',
             client_id: String(config.clientId),
             client_secret: String(config.clientSecret || ''),
-            code: authCode,
+            code: codeToUse,
             redirect_uri: String(config.redirectUri),
           });
 
