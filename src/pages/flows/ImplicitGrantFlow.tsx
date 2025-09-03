@@ -97,10 +97,10 @@ const ImplicitGrantFlow = () => {
     if (!config) return '';
 
     const params = new URLSearchParams({
-      response_type: 'token id_token',
+      response_type: 'token',
       client_id: config.clientId,
       redirect_uri: config.redirectUri,
-      scope: 'openid profile email',
+      scope: 'read write',
       state: Math.random().toString(36).substring(2, 15),
       nonce: Math.random().toString(36).substring(2, 15)
     });
@@ -150,10 +150,10 @@ const ImplicitGrantFlow = () => {
 const authUrl = '${generateAuthUrl()}';
 
 // Parameters:
-response_type: 'token id_token'
+response_type: 'token'
 client_id: '${config?.clientId || 'your_client_id'}'
 redirect_uri: '${config?.redirectUri || 'https://yourapp.com/callback'}'
-scope: 'openid profile email'
+scope: 'read write'
 state: 'random_state_value'
 nonce: 'random_nonce_value'`,
       execute: () => {
@@ -195,21 +195,18 @@ const hash = window.location.hash.substring(1);
 const params = new URLSearchParams(hash);
 
 const accessToken = params.get('access_token');
-const idToken = params.get('id_token');
 const tokenType = params.get('token_type');
 const expiresIn = params.get('expires_in');
 
 // Store tokens securely
-localStorage.setItem('access_token', accessToken);
-localStorage.setItem('id_token', idToken);`,
+localStorage.setItem('access_token', accessToken);`,
       execute: () => {
         // Simulate receiving tokens from the redirect
         const mockTokens = {
           access_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-          id_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
           token_type: 'Bearer',
           expires_in: 3600,
-          scope: 'openid profile email'
+          scope: 'read write'
         };
         setTokensReceived(mockTokens);
         const result = { tokens: mockTokens };
@@ -219,7 +216,6 @@ localStorage.setItem('id_token', idToken);`,
         // Store tokens using the shared utility
         const tokensForStorage = {
           access_token: mockTokens.access_token,
-          id_token: mockTokens.id_token,
           token_type: mockTokens.token_type,
           expires_in: mockTokens.expires_in,
           scope: mockTokens.scope
