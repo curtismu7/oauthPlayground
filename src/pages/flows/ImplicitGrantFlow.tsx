@@ -348,7 +348,7 @@ console.log('User ID:', decodedIdToken.sub);`,
         setDemoStatus('success');
         return result;
       }
-    }
+    },
   ], [config, authUrl, stepResults, executedSteps, generateAuthUrl]);
 
   return (
