@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiEye, FiCheckCircle, FiAlertCircle, FiCode, FiServer, FiKey } from 'react-icons/fi';
@@ -453,9 +453,9 @@ if (clientId !== storedClientId || clientSecret !== storedClientSecret) {
 
 // Generate access token
 const accessToken = generateAccessToken(clientId, scope);`,
-      execute: () => {
-        console.log('✅ [ClientCredentialsFlow] Server validation simulated');
-        const result = { message: 'Server validated credentials successfully' };
+      execute: () => {console.log('✅ [ClientCredentialsFlow] Server validation simulated');
+        const result = { message: 'Server validated credentials successfully'
+        return { message: 'Step completed' };};
         setStepResults(prev => ({ ...prev, 2: result }));
         setExecutedSteps(prev => new Set(prev).add(2));
         return result;
