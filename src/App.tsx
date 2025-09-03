@@ -60,7 +60,24 @@ const ScrollToTop: React.FC = () => {
   const location = useLocation();
   
   useEffect(() => {
+    // Scroll to top immediately
     window.scrollTo(0, 0);
+    
+    // Also scroll the main content area to top (in case of nested scrolling)
+    const mainContent = document.querySelector('main');
+    if (mainContent) {
+      mainContent.scrollTo(0, 0);
+    }
+    
+    // Additional scroll to top after a small delay to ensure it works
+    const timer = setTimeout(() => {
+      window.scrollTo(0, 0);
+      if (mainContent) {
+        mainContent.scrollTo(0, 0);
+      }
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, [location.pathname]);
   
   return null;
@@ -132,9 +149,21 @@ const AppRoutes = () => {
   useEffect(() => {
     setShowPageSpinner(true);
     
+    // Scroll to top immediately when route changes
+    window.scrollTo(0, 0);
+    const mainContent = document.querySelector('main');
+    if (mainContent) {
+      mainContent.scrollTo(0, 0);
+    }
+    
     // Hide spinner after minimum display time
     const timer = setTimeout(() => {
       setShowPageSpinner(false);
+      // Ensure scroll to top after spinner is hidden
+      window.scrollTo(0, 0);
+      if (mainContent) {
+        mainContent.scrollTo(0, 0);
+      }
     }, 800);
     
     return () => clearTimeout(timer);
