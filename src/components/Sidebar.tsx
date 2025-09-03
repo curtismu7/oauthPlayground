@@ -221,6 +221,21 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             <SubmenuItem to="/oidc/tokens" onClick={onClose}>
               ID Tokens
             </SubmenuItem>
+            <SubmenuItem to="/oidc/authorization-code" onClick={onClose}>
+              Authorization Code
+            </SubmenuItem>
+            <SubmenuItem to="/oidc/implicit" onClick={onClose}>
+              Implicit
+            </SubmenuItem>
+            <SubmenuItem to="/oidc/client-credentials" onClick={onClose}>
+              Client Credentials
+            </SubmenuItem>
+            <SubmenuItem to="/oidc/pkce" onClick={onClose}>
+              PKCE
+            </SubmenuItem>
+            <SubmenuItem to="/oidc/device-code" onClick={onClose}>
+              Device Code
+            </SubmenuItem>
           </Submenu>
         </NavItemWithSubmenu>
         
