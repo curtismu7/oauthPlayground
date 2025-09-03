@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiUser, FiKey, FiExternalLink } from 'react-icons/fi';
+import { FiUser, FiKey, FiExternalLink, FiCode, FiShield, FiLock, FiSmartphone, FiZap } from 'react-icons/fi';
 
 const OIDCContainer = styled.div`
   max-width: 1200px;
@@ -107,6 +107,51 @@ const OIDC: React.FC = () => {
             <p>
               Understand ID tokens, their structure, and how to validate them properly
               for secure authentication.
+            </p>
+          </FeatureCard>
+
+          <FeatureCard to="/oidc/authorization-code">
+            <FiCode />
+            <h3>Authorization Code</h3>
+            <p>
+              The most secure OAuth 2.0 flow for web applications. Learn how to implement
+              the authorization code flow with PKCE for maximum security.
+            </p>
+          </FeatureCard>
+
+          <FeatureCard to="/oidc/pkce">
+            <FiShield />
+            <h3>PKCE (Proof Key for Code Exchange)</h3>
+            <p>
+              Enhanced security for the authorization code flow. Essential for mobile apps
+              and single-page applications.
+            </p>
+          </FeatureCard>
+
+          <FeatureCard to="/oidc/implicit">
+            <FiZap />
+            <h3>Implicit Flow</h3>
+            <p>
+              Legacy OAuth 2.0 flow for single-page applications. Learn when and how to use it,
+              though PKCE is now recommended.
+            </p>
+          </FeatureCard>
+
+          <FeatureCard to="/oidc/client-credentials">
+            <FiLock />
+            <h3>Client Credentials</h3>
+            <p>
+              Server-to-server authentication flow. Perfect for API access and machine-to-machine
+              communication scenarios.
+            </p>
+          </FeatureCard>
+
+          <FeatureCard to="/oidc/device-code">
+            <FiSmartphone />
+            <h3>Device Code</h3>
+            <p>
+              OAuth 2.0 flow for devices with limited input capabilities. Ideal for smart TVs,
+              IoT devices, and command-line tools.
             </p>
           </FeatureCard>
 
