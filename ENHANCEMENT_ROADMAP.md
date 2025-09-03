@@ -57,7 +57,7 @@ auth.pingone.com/.../token:1 Failed to load resource: the server responded with 
 **Effort**: 2-3 days
 
 **Tasks**:
-- [ ] Update `Step` component in `IDTokensFlow.tsx` to use transient props (`$active`, `$completed`, `$error`)
+- [x] Update `Step` component in `IDTokensFlow.tsx` to use transient props (`$active`, `$completed`, `$error`)
 - [ ] Review all styled components for similar prop forwarding issues
 - [ ] Implement `shouldForwardProp` filtering where appropriate
 - [ ] Add ESLint rules to prevent future prop forwarding issues
@@ -103,7 +103,18 @@ interface TokenStorage {
 }
 ```
 
-#### 1.3 Fix API Authentication Issues
+#### 1.3 Enhanced Step-by-Step Flow Experience
+**Priority**: HIGH
+**Effort**: 1-2 days
+
+**Tasks**:
+- [x] Enhanced `StepByStepFlow` component with individual step rendering
+- [x] Added "Next" buttons between each code block for step navigation
+- [x] Implemented step-by-step visual progression with active/completed states
+- [x] Added execute buttons for each step with proper state management
+- [x] Consistent styling across all OAuth flow pages
+
+#### 1.4 Fix API Authentication Issues
 **Priority**: HIGH
 **Effort**: 2-3 days
 
