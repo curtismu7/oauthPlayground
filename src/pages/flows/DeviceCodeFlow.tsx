@@ -628,7 +628,7 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
             scope: tokenData.scope || 'openid profile email'
           };
           
-          const success = storeOAuthTokens(tokensForStorage);
+          const success = storeOAuthTokens(tokensForStorage, 'device_code', 'Device Code Flow');
           if (success) {
             console.log('✅ [DeviceCodeFlow] Tokens received and stored successfully');
           } else {
