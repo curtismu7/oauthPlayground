@@ -196,6 +196,16 @@ nonce: 'random_nonce_value'
 // Full URL:
 ${config?.authorizationEndpoint || 'https://auth.pingone.com/env_id/as/authorize'}?response_type=token&client_id=${config?.clientId || 'your_client_id'}&redirect_uri=${config?.redirectUri || 'https://yourapp.com/callback'}&scope=read%20write&state=random_state_value&nonce=random_nonce_value`,
       execute: () => {
+        // Check if step 1 has already been executed
+        if (executedSteps.has(0)) {
+          console.log('🔍 [ImplicitGrantFlow] Step 1 already executed, returning existing result');
+          const existingResult = stepResults[0];
+          if (existingResult && existingResult.url) {
+            setAuthUrl(existingResult.url);
+            return existingResult;
+          }
+        }
+        
         console.log('🔍 [ImplicitGrantFlow] Step 1 execute called:', {
           hasConfig: !!config,
           config: config ? {
@@ -223,7 +233,7 @@ ${config?.authorizationEndpoint || 'https://auth.pingone.com/env_id/as/authorize
         const result = { url };
         setStepResults(prev => ({ ...prev, 0: result }));
         setExecutedSteps(prev => new Set(prev).add(0));
-        console.log('✅ [ImplicitGrantFlow] Authorization URL generated:', url);
+        console.log('✅ [ImplicitGrantFlow] Authorization URL generated and stored:', url);
         return result;
       }
     },
@@ -251,27 +261,28 @@ window.location.href = authUrl;
           return { error: 'Configuration required' };
         }
         
-        if (!authUrl) {
-          // Check if step 1 was executed and has results
+        // Get the authorization URL from either state or step results
+        let urlToUse = authUrl;
+        if (!urlToUse) {
           const step1Result = stepResults[0];
           if (step1Result && step1Result.url) {
             console.log('🔍 [ImplicitGrantFlow] Using URL from step 1 result:', step1Result.url);
+            urlToUse = step1Result.url;
             setAuthUrl(step1Result.url);
-            // Continue with redirect
           } else {
             setError('Authorization URL not available. Please complete step 1 first.');
             return { error: 'Authorization URL not available' };
           }
         }
         
-        console.log('✅ [ImplicitGrantFlow] Redirecting user to PingOne for authentication');
-        const result = { message: 'Redirecting to authorization server...' };
+        console.log('✅ [ImplicitGrantFlow] Redirecting user to PingOne for authentication with URL:', urlToUse);
+        const result = { message: 'Redirecting to authorization server...', url: urlToUse };
         setStepResults(prev => ({ ...prev, 1: result }));
         setExecutedSteps(prev => new Set(prev).add(1));
         
         // Actually redirect to PingOne
         setTimeout(() => {
-          window.location.href = authUrl;
+          window.location.href = urlToUse;
         }, 1000); // Small delay to show the message
         
         return result;
