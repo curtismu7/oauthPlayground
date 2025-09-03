@@ -5,6 +5,7 @@ import { FiPlay, FiEye, FiCheckCircle, FiAlertCircle, FiCode, FiShield, FiKey, F
 import { useAuth } from '../../contexts/NewAuthContext';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import ConfigurationButton from '../../components/ConfigurationButton';
+import PageTitle from '../../components/PageTitle';
 
 
 const Container = styled.div`
@@ -13,25 +14,7 @@ const Container = styled.div`
   padding: 1.5rem;
 `;
 
-const Header = styled.div`
-  margin-bottom: 2rem;
 
-  h1 {
-    font-size: 2.5rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray900};
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  p {
-    color: ${({ theme }) => theme.colors.gray600};
-    font-size: 1.1rem;
-    line-height: 1.6;
-  }
-`;
 
 const FlowOverview = styled(Card)`
   margin-bottom: 2rem;
@@ -588,16 +571,15 @@ console.log('ID token is valid!');`
 
   return (
     <Container>
-      <Header>
-        <h1>
-          <FiShield />
-          OpenID Connect ID Tokens
-        </h1>
-        <p>
-          Learn how to handle and validate OpenID Connect ID tokens
-          with real JWT parsing and cryptographic verification.
-        </p>
-      </Header>
+      <PageTitle 
+        title={
+          <>
+            <FiShield />
+            OpenID Connect ID Tokens
+          </>
+        }
+        subtitle="Learn how to handle and validate OpenID Connect ID tokens with real JWT parsing and cryptographic verification."
+      />
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
         <ConfigurationButton flowType="id_tokens" />
