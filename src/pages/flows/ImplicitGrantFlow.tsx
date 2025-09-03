@@ -120,10 +120,6 @@ const ImplicitGrantFlow = () => {
     } : null
   });
 
-  // Debug authUrl state changes
-  React.useEffect(() => {
-    console.log('🔍 [ImplicitGrantFlow] authUrl state changed:', authUrl);
-  }, [authUrl]);
   const [currentStep, setCurrentStep] = useState(0);
   const [authUrl, setAuthUrl] = useState('');
   const [tokensReceived, setTokensReceived] = useState<Record<string, unknown> | null>(null);
@@ -131,6 +127,11 @@ const ImplicitGrantFlow = () => {
   const [stepResults, setStepResults] = useState<Record<number, any>>({});
   const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
   const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
+
+  // Debug authUrl state changes
+  React.useEffect(() => {
+    console.log('🔍 [ImplicitGrantFlow] authUrl state changed:', authUrl);
+  }, [authUrl]);
 
   // Generate authorization URL
   const generateAuthUrl = () => {
