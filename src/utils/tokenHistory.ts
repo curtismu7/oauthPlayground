@@ -63,6 +63,8 @@ export const addTokenToHistory = (
   tokens: any
 ): boolean => {
   try {
+    console.log('🔍 [TokenHistory] addTokenToHistory called with:', { flowType, flowName, hasAccessToken: !!tokens.access_token });
+    
     const history = getTokenHistory();
     const now = Date.now();
     
@@ -89,6 +91,8 @@ export const addTokenToHistory = (
       hasRefreshToken: !!tokens.refresh_token
     };
     
+    console.log('📝 [TokenHistory] Created history entry:', newEntry);
+    
     // Add to beginning of array (most recent first)
     history.entries.unshift(newEntry);
     
@@ -108,7 +112,8 @@ export const addTokenToHistory = (
       flowType,
       flowName,
       tokenCount: newEntry.tokenCount,
-      totalEntries: history.entries.length
+      totalEntries: history.entries.length,
+      storageKey: HISTORY_STORAGE_KEY
     });
     
     return true;
