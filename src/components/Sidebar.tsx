@@ -150,7 +150,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     setOpenMenus({
       flows: path.startsWith('/flows'),
       oidc: path.startsWith('/oidc'),
-      resources: path.startsWith('/oidc/userinfo') || path.startsWith('/oidc/tokens'),
+      resources: path.startsWith('/oidc/userinfo') || path.startsWith('/oidc/tokens') || 
+                 path.startsWith('/token-management') || path.startsWith('/documentation') || 
+                 path.startsWith('/configuration'),
     });
   }, [location.pathname]);
 
@@ -249,6 +251,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             <SubmenuItem to="/oidc/tokens" onClick={onClose}>
               ID Tokens
             </SubmenuItem>
+            <SubmenuItem to="/token-management" onClick={onClose}>
+              Token Management
+            </SubmenuItem>
+            <SubmenuItem to="/documentation" onClick={onClose}>
+              Documentation
+            </SubmenuItem>
+            <SubmenuItem to="/configuration" onClick={onClose}>
+              Configuration
+            </SubmenuItem>
           </Submenu>
         </NavItemWithSubmenu>
         
@@ -263,21 +274,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         </NavItem>
       </NavSection>
       
-      <NavSection>
-        <NavSectionTitle>Resources</NavSectionTitle>
-        <NavItem to="/token-management" onClick={onClose}>
-          <FiEye />
-          <span>Token Management</span>
-        </NavItem>
-        <NavItem to="/documentation" onClick={onClose}>
-          <FiBookOpen />
-          <span>Documentation</span>
-        </NavItem>
-        <NavItem to="/configuration" onClick={onClose}>
-          <FiSettings />
-          <span>Configuration</span>
-        </NavItem>
-      </NavSection>
+
     </SidebarContainer>
   );
 };
