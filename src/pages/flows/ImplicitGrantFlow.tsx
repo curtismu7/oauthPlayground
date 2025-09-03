@@ -285,6 +285,10 @@ window.location.href = authUrl;
         
         const authorizationUrl = `${config.authorizationEndpoint}?${params.toString()}`;
         console.log('✅ [ImplicitGrantFlow] Generated authorization URL:', authorizationUrl);
+        console.log('🔍 [ImplicitGrantFlow] Authorization endpoint:', config.authorizationEndpoint);
+        console.log('🔍 [ImplicitGrantFlow] Client ID:', config.clientId);
+        console.log('🔍 [ImplicitGrantFlow] Redirect URI:', config.redirectUri);
+        console.log('🔍 [ImplicitGrantFlow] URL parameters:', Object.fromEntries(params.entries()));
         
         // Store the URL in state
         setAuthUrl(authorizationUrl);
