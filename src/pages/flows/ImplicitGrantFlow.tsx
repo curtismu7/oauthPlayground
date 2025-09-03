@@ -181,12 +181,18 @@ const ImplicitGrantFlow = () => {
   };
 
   const handleStepResult = (stepIndex: number, result: any) => {
-    setStepResults(prev => ({ ...prev, [stepIndex]: result }));
+    console.log('🔍 [ImplicitGrantFlow] handleStepResult called:', { stepIndex, result });
+    setStepResults(prev => {
+      const newResults = { ...prev, [stepIndex]: result };
+      console.log('🔍 [ImplicitGrantFlow] Updated stepResults:', newResults);
+      return newResults;
+    });
     setStepsWithResults(prev => {
       const newSteps = [...prev];
       if (newSteps[stepIndex]) {
         newSteps[stepIndex] = { ...newSteps[stepIndex], result };
       }
+      console.log('🔍 [ImplicitGrantFlow] Updated stepsWithResults:', newSteps);
       return newSteps;
     });
   };

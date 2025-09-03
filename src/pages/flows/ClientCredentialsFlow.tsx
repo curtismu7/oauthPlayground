@@ -453,11 +453,9 @@ if (clientId !== storedClientId || clientSecret !== storedClientSecret) {
 
 // Generate access token
 const accessToken = generateAccessToken(clientId, scope);`,
-      execute: () => {console.log('✅ [ClientCredentialsFlow] Server validation simulated');
-        const result = { message: 'Server validated credentials successfully'
-        return { message: 'Step completed' };};
-        setStepResults(prev => ({ ...prev, 2: result }));
-        setExecutedSteps(prev => new Set(prev).add(2));
+      execute: () => {
+        console.log('✅ [ClientCredentialsFlow] Server validation simulated');
+        const result = { message: 'Server validated credentials successfully' };
         return result;
       }
     },
@@ -484,6 +482,13 @@ const accessToken = generateAccessToken(clientId, scope);`,
 
         try {
           const credentials = btoa(`${config.clientId}:${config.clientSecret}`);
+          
+          console.log('🔍 [ClientCredentialsFlow] Token exchange request:', {
+            tokenEndpoint: config.tokenEndpoint,
+            clientId: config.clientId,
+            clientSecret: config.clientSecret ? `${config.clientSecret.substring(0, 10)}...` : 'missing',
+            credentials: credentials ? `${credentials.substring(0, 20)}...` : 'missing'
+          });
 
           const response = await fetch(config.tokenEndpoint, {
             method: 'POST',
