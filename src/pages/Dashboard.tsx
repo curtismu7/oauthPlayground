@@ -4,7 +4,6 @@ import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardBody, CardFooter } from '../components/Card';
 import { FiCode, FiLock, FiUser, FiSettings, FiInfo, FiCheckCircle, FiPlay, FiBook, FiShield, FiClock, FiActivity, FiRefreshCw } from 'react-icons/fi';
 import { useAuth } from '../contexts/NewAuthContext';
-import { getOAuthTokens } from '../utils/tokenStorage';
 import { getRecentActivity } from '../utils/activityTracker';
 
 
@@ -188,10 +187,9 @@ const TokenStatus = styled.div`
 `;
 
 const Dashboard = () => {
-  const { isAuthenticated, config } = useAuth();
+  const { isAuthenticated, config, tokens } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const [tokens, setTokens] = useState<any>(null);
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   
@@ -202,11 +200,12 @@ const Dashboard = () => {
   const hasSavedCredentials = config && config.environmentId && config.clientId;
 
   useEffect(() => {
-    // Load tokens and recent activity
+    // Load recent activity
     const loadDashboardData = async () => {
       try {
-        const storedTokens = getOAuthTokens();
-        setTokens(storedTokens);
+        console.log('🔍 [Dashboard] Loading dashboard data...');
+        console.log('🔍 [Dashboard] Current tokens from useAuth:', tokens);
+        console.log('🔍 [Dashboard] isAuthenticated:', isAuthenticated);
         
         // Load recent activity using the activity tracker
         const activity = getRecentActivity();
@@ -217,13 +216,13 @@ const Dashboard = () => {
     };
 
     loadDashboardData();
-  }, []);
+  }, [tokens, isAuthenticated]);
 
   const refreshDashboard = async () => {
     setIsRefreshing(true);
     try {
-      const storedTokens = getOAuthTokens();
-      setTokens(storedTokens);
+      console.log('🔄 [Dashboard] Refreshing dashboard data...');
+      console.log('🔄 [Dashboard] Current tokens from useAuth:', tokens);
       
       const activity = getRecentActivity();
       setRecentActivity(activity.slice(0, 5));
