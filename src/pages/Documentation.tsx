@@ -231,7 +231,7 @@ const Documentation = () => {
         <p>
           Jump into our interactive tutorials and start learning OAuth 2.0 with hands-on examples
         </p>
-        <QuickStartButton to="/enhanced-tutorials">
+        <QuickStartButton to="/tutorials">
           <FiPlay size={16} />
           Start Interactive Tutorials
         </QuickStartButton>
@@ -244,7 +244,7 @@ const Documentation = () => {
           </div>
           <h3>Interactive Tutorials</h3>
           <p>Step-by-step guided learning with real examples and immediate feedback</p>
-          <FeatureButton to="/enhanced-tutorials">
+          <FeatureButton to="/tutorials">
             Try Tutorials
           </FeatureButton>
         </FeatureCard>
@@ -277,7 +277,7 @@ const Documentation = () => {
           </div>
           <h3>Developer Tools</h3>
           <p>JWT decoder, PKCE generator, and other useful OAuth utilities</p>
-          <FeatureButton to="/enhanced-tutorials?tab=utilities">
+          <FeatureButton to="/tutorials?tab=utilities">
             Use Tools
           </FeatureButton>
         </FeatureCard>

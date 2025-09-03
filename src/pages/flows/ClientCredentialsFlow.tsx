@@ -298,6 +298,7 @@ const ResponseBox = styled.div<{ $backgroundColor?: string; $borderColor?: strin
     white-space: pre-wrap;
     word-break: break-all;
     overflow: visible;
+    color: #1f2937 !important;
   }
 `;
 
@@ -472,8 +473,24 @@ grant_type=client_credentials&scope=api:read`,
           body: 'grant_type=client_credentials&scope=api:read'
         };
 
+        // Simulate the response for this step
+        const mockResponse = {
+          status: 'Token request sent successfully',
+          endpoint: config.tokenEndpoint,
+          method: 'POST',
+          authorization: `Basic ${credentials.substring(0, 20)}...`,
+          body: 'grant_type=client_credentials&scope=api:read'
+        };
+
         setApiCall(tokenRequest);
-        setStepResults(prev => ({ ...prev, 1: { request: tokenRequest } }));
+        setStepResults(prev => ({ 
+          ...prev, 
+          1: { 
+            request: tokenRequest,
+            response: mockResponse,
+            message: 'Token request prepared and sent to authorization server'
+          } 
+        }));
         setExecutedSteps(prev => new Set(prev).add(1));
 
         console.log('✅ [ClientCredentialsFlow] Token request prepared');
