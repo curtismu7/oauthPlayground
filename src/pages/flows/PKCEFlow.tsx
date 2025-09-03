@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
-import { FiPlay, FiAlertCircle, FiShield, FiArrowRight } from 'react-icons/fi';
+import { FiPlay, FiAlertCircle, FiShield } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
 import Spinner from '../../components/Spinner';
 import Typewriter from '../../components/Typewriter';
@@ -154,84 +154,7 @@ const StatusIndicator = styled.div`
   }
 `;
 
-const StepsContainer = styled.div`
-  margin-top: 2rem;
-`;
 
-const Step = styled.div<{ $active?: boolean; $completed?: boolean; $error?: boolean }>`
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  background-color: ${({ $active: active, $completed: completed, $error: error }) => {
-    if (error) return 'rgba(239, 68, 68, 0.1)';
-    if (completed) return 'rgba(34, 197, 94, 0.1)';
-    if (active) return 'rgba(59, 130, 246, 0.1)';
-    return 'transparent';
-  }};
-  border: 2px solid ${({ $active: active, $completed: completed, $error: error }) => {
-    if (error) return '#ef4444';
-    if (completed) return '#22c55e';
-    if (active) return '#3b82f6';
-    return 'transparent';
-  }};
-`;
-
-const StepNumber = styled.div<{ $active?: boolean; $completed?: boolean; $error?: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-  font-weight: 600;
-  font-size: 1rem;
-  flex-shrink: 0;
-
-  ${({ $active: active, $completed: completed, $error: error }) => {
-    if (error) {
-      return `
-        background-color: #ef4444;
-        color: white;
-      `;
-    }
-    if (completed) {
-      return `
-        background-color: #22c55e;
-        color: white;
-      `;
-    }
-    if (active) {
-      return `
-        background-color: #3b82f6;
-        color: white;
-      `;
-    }
-    return `
-      background-color: #e5e7eb;
-      color: #6b7280;
-    `;
-  }}
-`;
-
-const StepContent = styled.div`
-  flex: 1;
-
-  h3 {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray900};
-  }
-
-  p {
-    margin: 0 0 1rem 0;
-    color: ${({ theme }) => theme.colors.gray600};
-    line-height: 1.5;
-  }
-`;
 
 // (Removed unused CodeBlock styled component)
 
@@ -349,6 +272,7 @@ const PKCEFlow = () => {
   // Track execution results for each step
   const [stepResults, setStepResults] = useState<Record<number, any>>({});
   const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
+  const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
 
   // If real tokens exist in context (from a successful PKCE auth elsewhere), complete the demo
   useEffect(() => {
@@ -386,6 +310,7 @@ const PKCEFlow = () => {
     setShowFullTokens(false);
     setStepResults({});
     setExecutedSteps(new Set());
+    setStepsWithResults([...steps]); // Initialize with copy of steps
     console.log('🚀 [PKCEFlow] Starting PKCE flow...');
   };
 
@@ -401,6 +326,18 @@ const PKCEFlow = () => {
     setShowFullTokens(false);
     setStepResults({});
     setExecutedSteps(new Set());
+    setStepsWithResults([]);
+  };
+
+  const handleStepResult = (stepIndex: number, result: any) => {
+    setStepResults(prev => ({ ...prev, [stepIndex]: result }));
+    setStepsWithResults(prev => {
+      const newSteps = [...prev];
+      if (newSteps[stepIndex]) {
+        newSteps[stepIndex] = { ...newSteps[stepIndex], result };
+      }
+      return newSteps;
+    });
   };
 
   const steps: FlowStep[] = [
@@ -427,7 +364,8 @@ const codeChallenge = await generateCodeChallenge(codeVerifier);
           };
 
           setPkceData(pkceDataObj);
-          setStepResults(prev => ({ ...prev, 0: { pkceData: pkceDataObj } }));
+          const result = { pkceData: pkceDataObj };
+          setStepResults(prev => ({ ...prev, 0: result }));
           setExecutedSteps(prev => new Set(prev).add(0));
 
           console.log('✅ [PKCEFlow] Generated PKCE values:', {
@@ -435,6 +373,7 @@ const codeChallenge = await generateCodeChallenge(codeVerifier);
             codeChallenge: codeChallenge.substring(0, 20) + '...',
             method: 'S256'
           });
+          return result;
         } catch (error: any) {
           setError(`Failed to generate PKCE values: ${error.message}`);
           console.error('❌ [PKCEFlow] PKCE generation failed:', error);
@@ -482,10 +421,12 @@ const authUrl = '${(config?.authorizationEndpoint || `https://auth.pingone.com/$
         const url = `${authEndpoint}?${params.toString()}`;
 
         setAuthUrl(url);
-        setStepResults(prev => ({ ...prev, 1: { url } }));
+        const result = { url };
+        setStepResults(prev => ({ ...prev, 1: result }));
         setExecutedSteps(prev => new Set(prev).add(1));
 
         console.log('✅ [PKCEFlow] Authorization URL built:', url);
+        return result;
       }
     },
     {
@@ -499,13 +440,15 @@ const authUrl = '${(config?.authorizationEndpoint || `https://auth.pingone.com/$
 https://yourapp.com/callback?code=auth_code_123&state=xyz789`,
       execute: () => {
         console.log('✅ [PKCEFlow] User would be redirected to PingOne for authentication');
+        const result = {
+          message: 'User redirected to PingOne for authentication and consent'
+        };
         setStepResults(prev => ({
           ...prev,
-          2: {
-            message: 'User redirected to PingOne for authentication and consent'
-          }
+          2: result
         }));
         setExecutedSteps(prev => new Set(prev).add(2));
+        return result;
       }
     },
     {
@@ -528,13 +471,15 @@ console.log('Authorization Code:', authorizationCode);`,
         const codeFromUrl = searchParams.get('code');
         const code = codeFromUrl || ('auth-code-' + Math.random().toString(36).substr(2, 9));
 
+        const result = { code };
         setStepResults(prev => ({
           ...prev,
-          4: { code } // Note: This is step 4 in 0-based index
+          3: result // Note: This is step 3 in 0-based index
         }));
         setExecutedSteps(prev => new Set(prev).add(3));
 
         console.log('✅ [PKCEFlow] Authorization code received:', code);
+        return result;
       }
     },
     {
@@ -580,10 +525,12 @@ grant_type=authorization_code
 
           const tokenData = await response.json();
           setTokensReceived(tokenData);
-          setStepResults(prev => ({ ...prev, 4: { response: tokenData, tokens: tokenData, status: response.status } }));
+          const result = { response: tokenData, tokens: tokenData, status: response.status };
+          setStepResults(prev => ({ ...prev, 4: result }));
           setExecutedSteps(prev => new Set(prev).add(4));
 
           console.log('✅ [PKCEFlow] Tokens received:', tokenData);
+          return result;
         } catch (error: any) {
           console.warn('⚠️ [PKCEFlow] Real API failed, using mock tokens:', error.message);
           
@@ -598,7 +545,8 @@ grant_type=authorization_code
           };
           
           setTokensReceived(mockTokens);
-          setStepResults(prev => ({ ...prev, 4: { response: mockTokens, tokens: mockTokens, status: 200, mock: true } }));
+          const result = { response: mockTokens, tokens: mockTokens, status: 200, mock: true };
+          setStepResults(prev => ({ ...prev, 4: result }));
           setExecutedSteps(prev => new Set(prev).add(4));
 
           // Store tokens using the shared utility
@@ -617,6 +565,8 @@ grant_type=authorization_code
           } else {
             console.error('❌ [PKCEFlow] Failed to store mock tokens');
           }
+          
+          return result;
         }
       }
     },
@@ -645,14 +595,16 @@ return tokens;`,
       execute: () => {
         if (!tokensReceived) {
           setError('No tokens received from previous step');
-          return;
+          return { error: 'No tokens received from previous step' };
         }
 
-        setStepResults(prev => ({ ...prev, 5: { tokens: tokensReceived } }));
+        const result = { tokens: tokensReceived };
+        setStepResults(prev => ({ ...prev, 5: result }));
         setExecutedSteps(prev => new Set(prev).add(5));
         setDemoStatus('success');
 
         console.log('✅ [PKCEFlow] PKCE validation completed successfully');
+        return result;
       }
     }
   ];
@@ -712,12 +664,13 @@ return tokens;`,
         </CardHeader>
         <CardBody>
           <StepByStepFlow
-            steps={steps}
+            steps={stepsWithResults.length > 0 ? stepsWithResults : steps}
             onStart={startPKCEFlow}
             onReset={resetDemo}
             status={demoStatus}
             currentStep={currentStep}
             onStepChange={setCurrentStep}
+            onStepResult={handleStepResult}
             disabled={!config}
             title="PKCE Flow"
           />
@@ -778,138 +731,7 @@ return tokens;`,
             </div>
           )}
 
-          <StepsContainer>
-            <h3>Flow Steps</h3>
-            {steps.map((step, index) => {
-              const stepResult = stepResults[index];
-              const isExecuted = executedSteps.has(index);
 
-              return (
-                <Step
-                  key={index}
-                  $active={currentStep === index && demoStatus === 'loading'}
-                  $completed={currentStep > index}
-                  $error={currentStep === index && demoStatus === 'error'}
-                >
-                  <StepNumber
-                    $active={currentStep === index && demoStatus === 'loading'}
-                    $completed={currentStep > index}
-                    $error={currentStep === index && demoStatus === 'error'}
-                  >
-                    {index + 1}
-                  </StepNumber>
-                  <StepContent>
-                    <h3>{step.title}</h3>
-                    <p>{step.description}</p>
-
-                    {/* Show URL/Code section always */}
-                    <Typewriter text={step.code} speed={8} />
-
-                    {/* Show response/result only after step is executed */}
-                    {isExecuted && stepResult && (
-                      <ResponseBox
-                        $backgroundColor="#f8fafc"
-                        $borderColor="#e2e8f0"
-                      >
-                        <h4>Response:</h4>
-                        {stepResult.pkceData && (
-                          <div style={{ marginTop: '0.5rem' }}>
-                            <strong>PKCE Values Generated:</strong><br />
-                            <pre>Code Verifier: {stepResult.pkceData.codeVerifier.substring(0, 32)}...</pre>
-                            <pre>Code Challenge: {stepResult.pkceData.codeChallenge.substring(0, 20)}...</pre>
-                            <pre>Method: {stepResult.pkceData.codeChallengeMethod}</pre>
-                          </div>
-                        )}
-                        {stepResult.url && (
-                          <div style={{ marginTop: '0.5rem' }}>
-                            <strong>Authorization URL:</strong><br />
-                            <ColorCodedURL url={stepResult.url} />
-                          </div>
-                        )}
-                        {stepResult.code && (
-                          <div style={{ marginTop: '0.5rem' }}>
-                            <strong>Authorization Code:</strong><br />
-                            <pre>{stepResult.code}</pre>
-                          </div>
-                        )}
-                        {stepResult.response && (
-                          <div style={{ marginTop: '0.5rem' }}>
-                            <strong>Token Response:</strong><br />
-                            <pre>{JSON.stringify(stepResult.response, null, 2)}</pre>
-                          </div>
-                        )}
-                        {stepResult.tokens && (
-                          <div style={{ marginTop: '0.5rem' }}>
-                            <strong>Tokens:</strong>
-                            <TokenDisplayComponent tokens={stepResult.tokens} />
-                          </div>
-                        )}
-                        {stepResult.message && (
-                          <div style={{ marginTop: '0.5rem' }}>
-                            <strong>Status:</strong><br />
-                            <pre>{stepResult.message}</pre>
-                          </div>
-                        )}
-                      </ResponseBox>
-                    )}
-
-                    {/* Show execution status */}
-                    {isExecuted && (
-                      <div style={{
-                        marginTop: '1rem',
-                        padding: '0.5rem',
-                        backgroundColor: '#d4edda',
-                        border: '1px solid #c3e6cb',
-                        borderRadius: '0.25rem',
-                        color: '#155724',
-                        fontSize: '0.875rem'
-                      }}>
-                        ✅ Step completed successfully
-                      </div>
-                    )}
-
-                    {/* Next button for each step - only show if it can actually advance */}
-                    {isExecuted && index < steps.length - 1 && index + 1 > currentStep && (
-                      <div style={{ 
-                        marginTop: '1rem', 
-                        textAlign: 'center',
-                        padding: '1rem',
-                        borderTop: '1px solid #e5e7eb'
-                      }}>
-                        <button
-                          onClick={() => {
-                            const nextStepIndex = index + 1;
-                            console.log('🔄 [PKCEFlow] Next Step button clicked', { currentIndex: index, nextStep: nextStepIndex, currentStepBefore: currentStep });
-                            setCurrentStep(nextStepIndex);
-                            console.log('🔄 [PKCEFlow] setCurrentStep called with:', nextStepIndex);
-                          }}
-                          style={{
-                            background: '#3b82f6',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '0.375rem',
-                            padding: '0.5rem 1rem',
-                            fontSize: '0.875rem',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            margin: '0 auto',
-                            transition: 'background-color 0.2s'
-                          }}
-                          onMouseOver={(e) => e.currentTarget.style.background = '#2563eb'}
-                          onMouseOut={(e) => e.currentTarget.style.background = '#3b82f6'}
-                        >
-                          Next Step
-                          <FiArrowRight style={{ width: '1rem', height: '1rem' }} />
-                        </button>
-                      </div>
-                    )}
-                  </StepContent>
-                </Step>
-              );
-            })}
-          </StepsContainer>
         </CardBody>
       </DemoSection>
     </Container>
