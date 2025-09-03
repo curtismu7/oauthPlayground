@@ -79,11 +79,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return loadConfiguration();
   });
 
-  // Load tokens from storage on component mount
+  // Load tokens from storage on component mount and listen for changes
   useEffect(() => {
     const loadTokensFromStorage = () => {
       try {
         const storedTokens = getStoredTokens();
+        console.log('🔍 [NewAuthContext] Checking for tokens in storage:', storedTokens);
         if (storedTokens && storedTokens.access_token) {
           console.log('✅ [NewAuthContext] Loading tokens from storage:', storedTokens);
           setState(prev => ({
@@ -109,6 +110,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     loadTokensFromStorage();
+
+    // Listen for storage changes to detect new tokens
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'oauthStorage' || e.key?.includes('oauth')) {
+        console.log('🔍 [NewAuthContext] Storage change detected:', e.key, e.newValue);
+        loadTokensFromStorage();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   // Function to load configuration from environment variables or localStorage
