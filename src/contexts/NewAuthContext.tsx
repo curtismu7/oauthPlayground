@@ -431,20 +431,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       );
 
-      // Get user info
-      const userInfo = await getUserInfo(config.userInfoEndpoint, tokenResponse.access_token);
+      // Store tokens first
+      console.log('🔍 [NewAuthContext] Storing token response:', tokenResponse);
+      const storageSuccess = oauthStorage.setTokens(tokenResponse);
+      console.log('🔍 [NewAuthContext] Token storage success:', storageSuccess);
       
-      // Store tokens and user info
-      oauthStorage.setTokens(tokenResponse);
-      oauthStorage.setUserInfo(userInfo);
+      // Only get user info if this is an OIDC flow (has id_token or openid scope)
+      let userInfo = null;
+      if (tokenResponse.id_token || (tokenResponse.scope && tokenResponse.scope.includes('openid'))) {
+        console.log('🔍 [NewAuthContext] OIDC flow detected, fetching user info');
+        try {
+          userInfo = await getUserInfo(config.userInfoEndpoint, tokenResponse.access_token);
+          oauthStorage.setUserInfo(userInfo);
+        } catch (error) {
+          console.warn('⚠️ [NewAuthContext] Failed to fetch user info:', error);
+        }
+      } else {
+        console.log('🔍 [NewAuthContext] OAuth 2.0 flow detected, skipping user info fetch');
+      }
 
       // Update state
+      console.log('🔍 [NewAuthContext] Updating state with tokens:', tokenResponse);
       updateState({
         isAuthenticated: true,
         user: userInfo,
         tokens: tokenResponse,
         isLoading: false,
       });
+      console.log('✅ [NewAuthContext] State updated successfully');
 
       // Track token source for Token Management page
       // tokenSourceTracker.storeTokenSource({
