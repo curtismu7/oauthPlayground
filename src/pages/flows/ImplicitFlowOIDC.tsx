@@ -194,15 +194,26 @@ window.location.href = authUrl;
 // - Consent for requested scopes
 // - Redirect back to client with tokens in URL fragment`,
       execute: () => {
-        console.log('✅ [ImplicitFlowOIDC] User would be redirected to PingOne for authentication');
+        if (!authUrl) {
+          setError('Authorization URL not available. Please complete step 1 first.');
+          return { error: 'Authorization URL not available' };
+        }
+        
+        console.log('✅ [ImplicitFlowOIDC] Redirecting user to PingOne for authentication');
         const result = {
-          message: 'User redirected to authorization server for authentication and consent'
+          message: 'Redirecting to authorization server for authentication and consent...'
         };
         setStepResults(prev => ({
           ...prev,
           1: result
         }));
         setExecutedSteps(prev => new Set(prev).add(1));
+        
+        // Actually redirect to PingOne
+        setTimeout(() => {
+          window.location.href = authUrl;
+        }, 1000); // Small delay to show the message
+        
         return result;
       }
     },
