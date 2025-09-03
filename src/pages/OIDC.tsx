@@ -92,24 +92,6 @@ const OIDC: React.FC = () => {
         </PageHeader>
 
         <Grid>
-          <FeatureCard to="/oidc/userinfo">
-            <FiUser />
-            <h3>UserInfo Endpoint</h3>
-            <p>
-              Learn how to retrieve additional user information using the OpenID Connect UserInfo endpoint
-              to get profile data and claims.
-            </p>
-          </FeatureCard>
-
-          <FeatureCard to="/oidc/tokens">
-            <FiKey />
-            <h3>ID Tokens</h3>
-            <p>
-              Understand ID tokens, their structure, and how to validate them properly
-              for secure authentication.
-            </p>
-          </FeatureCard>
-
           <FeatureCard to="/oidc/authorization-code">
             <FiCode />
             <h3>Authorization Code</h3>
