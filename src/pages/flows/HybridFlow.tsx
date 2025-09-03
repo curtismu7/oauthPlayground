@@ -240,7 +240,7 @@ const HybridFlow: React.FC = () => {
       execute: () => {
         if (!config) {
           setError('Configuration required. Please configure your PingOne settings first.');
-          return;
+          return { error: 'Configuration required' };
         }
 
         const url = generateAuthUrl();
@@ -249,6 +249,7 @@ const HybridFlow: React.FC = () => {
         setExecutedSteps(prev => new Set(prev).add(0));
 
         console.log('✅ [HybridFlow] Authorization URL generated:', url);
+        return { url };
       }
     },
     {
@@ -263,8 +264,10 @@ ${config?.redirectUri || 'https://your-app.com/callback'}?
 &id_token=eyJhbGciOiJSUzI1NiIs...`,
       execute: () => {
         console.log('✅ [HybridFlow] User would be redirected to PingOne for authentication');
-        setStepResults(prev => ({ ...prev, 1: { message: 'User redirected to authorization server' } }));
+        const result = { message: 'User redirected to authorization server' };
+        setStepResults(prev => ({ ...prev, 1: result }));
         setExecutedSteps(prev => new Set(prev).add(1));
+        return result;
       }
     },
     {
@@ -293,16 +296,15 @@ const idToken = hashParams.get('id_token');`,
         };
 
         setRedirectParams(mockParams);
-        setStepResults(prev => ({
-          ...prev,
-          2: {
-            redirectUrl: `${config?.redirectUri || 'https://your-app.com/callback'}?code=${mockParams.code}&state=${mockParams.state}#access_token=${mockParams.access_token}&id_token=${mockParams.id_token}&token_type=${mockParams.token_type}&expires_in=${mockParams.expires_in}&scope=${mockParams.scope}`,
-            params: mockParams
-          }
-        }));
+        const result = {
+          redirectUrl: `${config?.redirectUri || 'https://your-app.com/callback'}?code=${mockParams.code}&state=${mockParams.state}#access_token=${mockParams.access_token}&id_token=${mockParams.id_token}&token_type=${mockParams.token_type}&expires_in=${mockParams.expires_in}&scope=${mockParams.scope}`,
+          params: mockParams
+        };
+        setStepResults(prev => ({ ...prev, 2: result }));
         setExecutedSteps(prev => new Set(prev).add(2));
 
         console.log('✅ [HybridFlow] Received code and tokens in redirect');
+        return result;
       }
     },
     {
@@ -347,10 +349,12 @@ const isValid = validateIdToken(tokens.id_token);`,
         };
 
         setTokensReceived(tokens);
-        setStepResults(prev => ({ ...prev, 3: { tokens, message: 'Tokens extracted from URL fragment' } }));
+        const result = { tokens, message: 'Tokens extracted from URL fragment' };
+        setStepResults(prev => ({ ...prev, 3: result }));
         setExecutedSteps(prev => new Set(prev).add(3));
 
         console.log('✅ [HybridFlow] Tokens processed from fragment');
+        return result;
       }
     },
     {
@@ -395,7 +399,8 @@ grant_type=authorization_code
 
           const tokenData = await response.json();
           setTokensReceived((prev: any) => ({ ...prev, ...tokenData }));
-          setStepResults(prev => ({ ...prev, 4: { response: tokenData, status: response.status } }));
+          const result = { response: tokenData, status: response.status };
+          setStepResults(prev => ({ ...prev, 4: result }));
           setExecutedSteps(prev => new Set(prev).add(4));
           setDemoStatus('success');
 
@@ -415,9 +420,11 @@ grant_type=authorization_code
           } else {
             console.error('❌ [HybridFlow] Failed to store tokens');
           }
+          return result;
         } catch (error: any) {
           setError(`Failed to exchange code for tokens: ${error.message}`);
           console.error('❌ [HybridFlow] Token exchange error:', error);
+          return { error: error.message };
         }
       }
     },
@@ -447,9 +454,13 @@ if (Date.now() / 1000 > payload.exp) {
   throw new Error('Token expired');
 }`,
       execute: () => {
-        if (!tokensReceived?.id_token) {
-          setError('No ID token available for validation');
-          return;
+        // Check if we have ID token from previous steps
+        const step3Result = stepResults[3];
+        const idToken = step3Result?.tokens?.id_token || tokensReceived?.id_token;
+        
+        if (!idToken) {
+          setError('No ID token available for validation. Please complete step 3 first.');
+          return { error: 'No ID token available for validation' };
         }
 
         // Simulate ID token validation
@@ -461,16 +472,15 @@ if (Date.now() / 1000 > payload.exp) {
           signature: 'Valid'
         };
 
-        setStepResults(prev => ({
-          ...prev,
-          5: {
-            validation: validationResult,
-            message: 'ID token validated successfully'
-          }
-        }));
+        const result = {
+          validation: validationResult,
+          message: 'ID token validated successfully'
+        };
+        setStepResults(prev => ({ ...prev, 5: result }));
         setExecutedSteps(prev => new Set(prev).add(5));
 
         console.log('✅ [HybridFlow] ID token validated');
+        return result;
       }
     }
   ];
