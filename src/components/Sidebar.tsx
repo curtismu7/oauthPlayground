@@ -173,7 +173,35 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       </NavSection>
 
       <NavSection>
-        <NavSectionTitle>OAuth 2.0 Flows</NavSectionTitle>
+        <NavSectionTitle>OpenID Connect</NavSectionTitle>
+        
+        <NavItemWithSubmenu>
+          <NavItemHeader 
+            onClick={() => toggleMenu('oidc')}
+            $isOpen={openMenus.oidc}
+          >
+            <div>
+              <FiUser />
+              <span>OpenID Connect</span>
+            </div>
+            <FiChevronDown />
+          </NavItemHeader>
+          
+          <Submenu $isOpen={openMenus.oidc}>
+            <SubmenuItem to="/oidc/authorization-code" onClick={onClose}>
+              Authorization Code
+            </SubmenuItem>
+            <SubmenuItem to="/oidc/implicit" onClick={onClose}>
+              Implicit
+            </SubmenuItem>
+            <SubmenuItem to="/oidc/client-credentials" onClick={onClose}>
+              Client Credentials
+            </SubmenuItem>
+            <SubmenuItem to="/oidc/device-code" onClick={onClose}>
+              Device Code
+            </SubmenuItem>
+          </Submenu>
+        </NavItemWithSubmenu>
         
         <NavItemWithSubmenu>
           <NavItemHeader 
@@ -199,34 +227,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             </SubmenuItem>
 
             <SubmenuItem to="/flows/device-code" onClick={onClose}>
-              Device Code
-            </SubmenuItem>
-          </Submenu>
-        </NavItemWithSubmenu>
-        
-        <NavItemWithSubmenu>
-          <NavItemHeader 
-            onClick={() => toggleMenu('oidc')}
-            $isOpen={openMenus.oidc}
-          >
-            <div>
-              <FiUser />
-              <span>OpenID Connect</span>
-            </div>
-            <FiChevronDown />
-          </NavItemHeader>
-          
-          <Submenu $isOpen={openMenus.oidc}>
-            <SubmenuItem to="/oidc/authorization-code" onClick={onClose}>
-              Authorization Code
-            </SubmenuItem>
-            <SubmenuItem to="/oidc/implicit" onClick={onClose}>
-              Implicit
-            </SubmenuItem>
-            <SubmenuItem to="/oidc/client-credentials" onClick={onClose}>
-              Client Credentials
-            </SubmenuItem>
-            <SubmenuItem to="/oidc/device-code" onClick={onClose}>
               Device Code
             </SubmenuItem>
           </Submenu>
