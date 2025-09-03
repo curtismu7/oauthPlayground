@@ -179,15 +179,15 @@ const TokenDisplay = styled.div`
 `;
 
 const DeviceCodeDisplay = styled.div`
-  background-color: ${({ theme }) => theme.colors.warning}10;
-  border: 1px solid ${({ theme }) => theme.colors.warning}30;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
   border-radius: 0.375rem;
   padding: 1rem;
   margin: 1rem 0;
 
   h4 {
     margin: 0 0 0.5rem 0;
-    color: ${({ theme }) => theme.colors.warning};
+    color: #dc2626;
     font-size: 1rem;
     font-weight: 600;
   }
@@ -196,7 +196,7 @@ const DeviceCodeDisplay = styled.div`
     font-family: monospace;
     font-size: 1.2rem;
     font-weight: bold;
-    color: ${({ theme }) => theme.colors.warning};
+    color: #dc2626;
     text-align: center;
     padding: 1rem;
     background-color: white;
