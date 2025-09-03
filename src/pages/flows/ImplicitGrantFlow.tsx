@@ -296,7 +296,7 @@ localStorage.setItem('id_token', idToken);`,
           scope: mockTokens.scope
         };
         
-        const success = storeOAuthTokens(tokensForStorage);
+        const success = storeOAuthTokens(tokensForStorage, 'implicit', 'Implicit Grant Flow');
         if (success) {
           console.log('✅ [ImplicitGrantFlow] Tokens received and stored successfully');
         } else {
