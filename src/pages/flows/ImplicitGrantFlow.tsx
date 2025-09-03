@@ -222,6 +222,7 @@ ${config?.authorizationEndpoint || 'https://auth.pingone.com/env_id/as/authorize
         const result = { url };
         setAuthUrl(url);
         console.log('✅ [ImplicitGrantFlow] Authorization URL generated and stored:', url);
+        console.log('🔍 [ImplicitGrantFlow] Step 1 returning result:', result);
         console.log('🔍 [ImplicitGrantFlow] Step 1 state updates completed:', { url, result });
         return result;
       }
@@ -255,6 +256,13 @@ window.location.href = authUrl;
         if (!urlToUse) {
           // Step 1 result is stored at index 1 (1-based indexing)
           const step1Result = stepResults[1];
+          console.log('🔍 [ImplicitGrantFlow] Step 2 debugging:', {
+            authUrl: authUrl,
+            stepResults: stepResults,
+            step1Result: step1Result,
+            hasStep1Result: !!step1Result,
+            step1ResultUrl: step1Result?.url
+          });
           if (step1Result && step1Result.url) {
             console.log('🔍 [ImplicitGrantFlow] Using URL from step 1 result:', step1Result.url);
             urlToUse = step1Result.url;
