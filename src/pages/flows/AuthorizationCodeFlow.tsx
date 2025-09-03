@@ -299,14 +299,14 @@ const ResponseBox = styled.div<{ $backgroundColor?: string; $borderColor?: strin
   word-break: break-all;
   overflow: visible;
   max-width: 100%;
-  color: #f9fafb;
+  color: #ffffff;
 
   h4 {
     margin: 0 0 0.5rem 0;
     font-family: inherit;
     font-size: 1rem;
     font-weight: 600;
-    color: #f9fafb;
+    color: #ffffff;
   }
 
   pre {
@@ -319,7 +319,7 @@ const ResponseBox = styled.div<{ $backgroundColor?: string; $borderColor?: strin
     white-space: pre-wrap;
     word-break: break-all;
     overflow: visible;
-    color: #f9fafb !important;
+    color: #ffffff !important;
   }
 `;
 
@@ -913,11 +913,11 @@ grant_type=authorization_code
                   <div style={{ 
                     marginTop: '1rem', 
                     padding: '1rem', 
-                    backgroundColor: '#fef3c7', 
-                    border: '1px solid #f59e0b', 
+                    backgroundColor: '#1f2937', 
+                    border: '1px solid #374151', 
                     borderRadius: '0.375rem',
                     fontSize: '0.875rem',
-                    color: '#92400e'
+                    color: '#ffffff'
                   }}>
                     ⚠️ No code content available for this step (Step {index + 1}: {step.title})
                     <br />
@@ -928,8 +928,8 @@ grant_type=authorization_code
                 {/* Show response/result only after step is executed */}
                 {isExecuted && stepResult && (
                   <ResponseBox
-                    $backgroundColor={step.backgroundColor || '#f8fafc'}
-                    $borderColor={step.borderColor || '#e2e8f0'}
+                    $backgroundColor={step.backgroundColor || '#1f2937'}
+                    $borderColor={step.borderColor || '#374151'}
                   >
                     <h4>Response:</h4>
                     {stepResult.url && (
@@ -970,10 +970,10 @@ grant_type=authorization_code
                   <div style={{
                     marginTop: '1rem',
                     padding: '0.5rem',
-                    backgroundColor: '#d4edda',
-                    border: '1px solid #c3e6cb',
+                    backgroundColor: '#1f2937',
+                    border: '1px solid #374151',
                     borderRadius: '0.25rem',
-                    color: '#155724',
+                    color: '#ffffff',
                     fontSize: '0.875rem'
                   }}>
                     ✅ Step completed successfully
