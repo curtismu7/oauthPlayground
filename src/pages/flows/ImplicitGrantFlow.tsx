@@ -265,53 +265,41 @@ window.location.href = authUrl;
 // - Consent for requested scopes
 // - Redirect back with tokens in URL fragment`,
       execute: () => {
-        console.log('🔍 [ImplicitGrantFlow] Step 2 execute called:', {
-          hasConfig: !!config,
-          hasAuthUrl: !!authUrl,
-          authUrl: authUrl,
-          stepResults: stepResults,
-          executedSteps: Array.from(executedSteps)
-        });
+        console.log('🚀 [ImplicitGrantFlow] Step 2 - Starting redirect to PingOne');
         
+        // Generate the authorization URL directly in step 2
         if (!config) {
           setError('Configuration required. Please configure your PingOne settings first.');
           return { error: 'Configuration required' };
         }
         
-        // Get the authorization URL from state (set by step 1)
-        let urlToUse = authUrl;
-        console.log('🔍 [ImplicitGrantFlow] Step 2 - Current authUrl state:', authUrl);
-        if (!urlToUse) {
-          // Fallback: try to get from step results
-          const step1Result = stepResults[0];
-          console.log('🔍 [ImplicitGrantFlow] Step 2 debugging:', {
-            authUrl: authUrl,
-            stepResults: stepResults,
-            stepResultsKeys: Object.keys(stepResults),
-            step1Result: step1Result,
-            hasStep1Result: !!step1Result,
-            step1ResultUrl: step1Result?.url
-          });
-          if (step1Result && step1Result.url) {
-            console.log('🔍 [ImplicitGrantFlow] Using URL from step 1 result:', step1Result.url);
-            urlToUse = step1Result.url;
-            setAuthUrl(step1Result.url);
-          } else {
-            console.log('❌ [ImplicitGrantFlow] No URL available from state or step results');
-            setError('Authorization URL not available. Please complete step 1 first.');
-            return { error: 'Authorization URL not available' };
-          }
-        } else {
-          console.log('✅ [ImplicitGrantFlow] Using URL from state:', urlToUse);
-        }
+        // Generate the authorization URL for Implicit Flow
+        const params = new URLSearchParams({
+          response_type: 'token',
+          client_id: config.clientId,
+          redirect_uri: config.redirectUri,
+          scope: 'read write',
+          state: Math.random().toString(36).substring(2, 15),
+          nonce: Math.random().toString(36).substring(2, 15)
+        });
         
-        console.log('✅ [ImplicitGrantFlow] Redirecting user to PingOne for authentication with URL:', urlToUse);
-        const result = { message: 'Redirecting to authorization server...', url: urlToUse };
+        const authorizationUrl = `${config.authorizationEndpoint}?${params.toString()}`;
+        console.log('✅ [ImplicitGrantFlow] Generated authorization URL:', authorizationUrl);
         
-        // Actually redirect to PingOne
+        // Store the URL in state
+        setAuthUrl(authorizationUrl);
+        
+        // Return success result
+        const result = { 
+          message: 'Redirecting to authorization server...', 
+          url: authorizationUrl 
+        };
+        
+        // Redirect after a short delay
         setTimeout(() => {
-          window.location.href = urlToUse;
-        }, 1000); // Small delay to show the message
+          console.log('🔄 [ImplicitGrantFlow] Redirecting to:', authorizationUrl);
+          window.location.href = authorizationUrl;
+        }, 1000);
         
         return result;
       }
