@@ -207,8 +207,13 @@ const TokenValue = styled.pre<{ $isMasked?: boolean; $type?: 'access' | 'id' | '
   box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
   position: relative;
   
-  /* Force black text with multiple selectors */
-  &, & * {
+  /* Force black text with multiple selectors - more aggressive */
+  &, & *, &::before, &::after {
+    color: #000000 !important;
+  }
+  
+  /* Override any inherited styles */
+  * {
     color: #000000 !important;
   }
 
