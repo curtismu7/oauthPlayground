@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/NewAuthContext';
 import { Card, CardHeader, CardBody } from '../components/Card';
 import { FiRefreshCw, FiCheckCircle, FiPlus, FiX, FiClock, FiKey, FiEye, FiTrash2, FiCopy, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
+import PageTitle from '../components/PageTitle';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -10,25 +11,7 @@ const Container = styled.div`
   padding: 1.5rem;
 `;
 
-const Header = styled.div`
-  margin-bottom: 2rem;
 
-  h1 {
-    font-size: 2.5rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray900};
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  p {
-    color: ${({ theme }) => theme.colors.gray600};
-    font-size: 1.1rem;
-    line-height: 1.6;
-  }
-`;
 
 const TokenSection = styled(Card)`
   margin-bottom: 2rem;
@@ -420,13 +403,15 @@ const TokenManagement = () => {
 
   return (
     <Container>
-      <Header>
-        <FiKey />
-        <div>
-          <h1>Token Management</h1>
-          <p>Monitor and manage PingOne authentication tokens</p>
-        </div>
-      </Header>
+      <PageTitle 
+        title={
+          <>
+            <FiKey />
+            Token Management
+          </>
+        }
+        subtitle="Monitor and manage PingOne authentication tokens"
+      />
 
       {/* Token Status Section */}
       <TokenSection>
