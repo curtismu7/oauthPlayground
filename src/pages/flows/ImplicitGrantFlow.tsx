@@ -5,7 +5,6 @@ import { FiAlertCircle, FiLock } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { ColorCodedURL } from '../../components/ColorCodedURL';
 import { URLParamExplainer } from '../../components/URLParamExplainer';
-import Typewriter from '../../components/Typewriter';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import ConfigurationButton from '../../components/ConfigurationButton';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
@@ -17,8 +16,6 @@ const Container = styled.div`
   margin: 0 auto;
   padding: 1.5rem;
 `;
-
-
 
 const FlowOverview = styled(Card)`
   margin-bottom: 2rem;
@@ -74,101 +71,6 @@ const DemoSection = styled(Card)`
   margin-bottom: 2rem;
 `;
 
-
-
-const StepsContainer = styled.div`
-  margin-top: 2rem;
-`;
-
-const Step = styled.div<{ $active?: boolean; $completed?: boolean; $error?: boolean }>`
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  background-color: ${({ $active: active, $completed: completed, $error: error }) => {
-    if (error) return 'rgba(239, 68, 68, 0.1)';
-    if (completed) return 'rgba(34, 197, 94, 0.1)';
-    if (active) return 'rgba(59, 130, 246, 0.1)';
-    return 'transparent';
-  }};
-  border: 2px solid ${({ $active: active, $completed: completed, $error: error }) => {
-    if (error) return '#ef4444';
-    if (completed) return '#22c55e';
-    if (active) return '#3b82f6';
-    return 'transparent';
-  }};
-`;
-
-const StepNumber = styled.div<{ $active?: boolean; $completed?: boolean; $error?: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-  font-weight: 600;
-  font-size: 1rem;
-  flex-shrink: 0;
-
-  ${({ $active: active, $completed: completed, $error: error }) => {
-    if (error) {
-      return `
-        background-color: #ef4444;
-        color: white;
-      `;
-    }
-    if (completed) {
-      return `
-        background-color: #22c55e;
-        color: white;
-      `;
-    }
-    if (active) {
-      return `
-        background-color: #3b82f6;
-        color: white;
-      `;
-    }
-    return `
-      background-color: #e5e7eb;
-      color: #6b7280;
-    `;
-  }}
-`;
-
-const StepContent = styled.div`
-  flex: 1;
-
-  h3 {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray900};
-  }
-
-  p {
-    margin: 0 0 1rem 0;
-    color: ${({ theme }) => theme.colors.gray600};
-    line-height: 1.5;
-  }
-`;
-
-// (Removed unused CodeBlock styled component)
-
-const TokenDisplay = styled.div`
-  background-color: ${({ theme }) => theme.colors.gray100};
-  border: 1px solid ${({ theme }) => theme.colors.gray200};
-  border-radius: 0.375rem;
-  padding: 1rem;
-  margin: 1rem 0;
-  font-family: monospace;
-  font-size: 0.875rem;
-  word-break: break-all;
-  color: ${({ theme }) => theme.colors.gray800};
-`;
-
 const ErrorMessage = styled.div`
   background-color: ${({ theme }) => theme.colors.danger}10;
   border: 1px solid ${({ theme }) => theme.colors.danger}30;
@@ -186,7 +88,9 @@ const ImplicitGrantFlow = () => {
   const [authUrl, setAuthUrl] = useState('');
   const [tokensReceived, setTokensReceived] = useState<Record<string, unknown> | null>(null);
   const [error, setError] = useState<string | null>(null);
-  
+  const [stepResults, setStepResults] = useState<Record<number, any>>({});
+  const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
+  const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
 
   // Generate authorization URL
   const generateAuthUrl = () => {
@@ -210,10 +114,11 @@ const ImplicitGrantFlow = () => {
     setError(null);
     setTokensReceived(null);
     setAuthUrl('');
+    setStepResults({});
+    setExecutedSteps(new Set());
+    setStepsWithResults([...steps]); // Initialize with copy of steps
     console.log('🚀 [ImplicitGrantFlow] Starting implicit flow...');
   };
-
-
 
   const resetDemo = () => {
     setDemoStatus('idle');
@@ -221,6 +126,9 @@ const ImplicitGrantFlow = () => {
     setTokensReceived(null);
     setError(null);
     setAuthUrl('');
+    setStepResults({});
+    setExecutedSteps(new Set());
+    setStepsWithResults([]);
   };
 
   const handleStepResult = (stepIndex: number, result: any) => {
@@ -251,7 +159,11 @@ nonce: 'random_nonce_value'`,
       execute: () => {
         const url = generateAuthUrl();
         setAuthUrl(url);
+        const result = { url };
+        setStepResults(prev => ({ ...prev, 0: result }));
+        setExecutedSteps(prev => new Set(prev).add(0));
         console.log('✅ [ImplicitGrantFlow] Authorization URL generated:', url);
+        return result;
       }
     },
     {
@@ -266,7 +178,10 @@ window.location.href = authUrl;
 // - Redirect back with tokens in URL fragment`,
       execute: () => {
         console.log('✅ [ImplicitGrantFlow] User would be redirected to PingOne');
-        // In a real implementation, this would redirect to PingOne
+        const result = { message: 'User redirected to authorization server' };
+        setStepResults(prev => ({ ...prev, 1: result }));
+        setExecutedSteps(prev => new Set(prev).add(1));
+        return result;
       }
     },
     {
@@ -297,6 +212,9 @@ localStorage.setItem('id_token', idToken);`,
           scope: 'openid profile email'
         };
         setTokensReceived(mockTokens);
+        const result = { tokens: mockTokens };
+        setStepResults(prev => ({ ...prev, 2: result }));
+        setExecutedSteps(prev => new Set(prev).add(2));
         
         // Store tokens using the shared utility
         const tokensForStorage = {
@@ -313,6 +231,8 @@ localStorage.setItem('id_token', idToken);`,
         } else {
           console.error('❌ [ImplicitGrantFlow] Failed to store tokens');
         }
+        
+        return result;
       }
     },
     {
@@ -330,7 +250,14 @@ fetch('/api/user/profile', { headers })
 
 // Validate ID token if needed
 const decodedIdToken = parseJwt(idToken);
-console.log('User ID:', decodedIdToken.sub);`
+console.log('User ID:', decodedIdToken.sub);`,
+      execute: () => {
+        const result = { message: 'Tokens ready for API calls' };
+        setStepResults(prev => ({ ...prev, 3: result }));
+        setExecutedSteps(prev => new Set(prev).add(3));
+        setDemoStatus('success');
+        return result;
+      }
     }
   ];
 
@@ -413,8 +340,6 @@ console.log('User ID:', decodedIdToken.sub);`
             </ErrorMessage>
           )}
 
-
-
           {authUrl && (
             <div>
               <h3>Authorization URL Generated:</h3>
@@ -429,33 +354,6 @@ console.log('User ID:', decodedIdToken.sub);`
               <TokenDisplayComponent tokens={tokensReceived} />
             </div>
           )}
-
-          <StepsContainer>
-            <h3>Flow Steps</h3>
-            {steps.map((step, index) => (
-              <Step
-                key={index}
-                $active={currentStep === index && demoStatus === 'loading'}
-                $completed={currentStep > index}
-                $error={currentStep === index && demoStatus === 'error'}
-              >
-                <StepNumber
-                  $active={currentStep === index && demoStatus === 'loading'}
-                  $completed={currentStep > index}
-                  $error={currentStep === index && demoStatus === 'error'}
-                >
-                  {index + 1}
-                </StepNumber>
-                <StepContent>
-                  <h3>{step.title}</h3>
-                  <p>{step.description}</p>
-                  <Typewriter text={step.code} speed={8} />
-                </StepContent>
-              </Step>
-            ))}
-          </StepsContainer>
-
-
         </CardBody>
       </DemoSection>
     </Container>
