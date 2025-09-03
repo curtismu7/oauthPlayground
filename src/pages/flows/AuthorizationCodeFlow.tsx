@@ -471,7 +471,7 @@ window.location.href = authUrl;
           window.location.href = authorizationUrl;
         }, 1000);
         
-        return result;
+        // Don't return result - execute should return void
       }
     },
     {
@@ -488,10 +488,7 @@ window.location.href = authUrl;
         console.log('ℹ️ [AuthCodeFlow] This step is handled by PingOne, not our application');
         console.log('ℹ️ [AuthCodeFlow] User should be on PingOne login page now');
         
-        return { 
-          message: 'User is authenticating on PingOne... This step is handled by PingOne.',
-          note: 'Check your browser - you should be on PingOne\'s login page'
-        };
+        // Don't return result - execute should return void
       }
     },
     {
