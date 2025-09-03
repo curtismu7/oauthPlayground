@@ -196,6 +196,18 @@ nonce: 'random_nonce_value'
 // Full URL:
 ${config?.authorizationEndpoint || 'https://auth.pingone.com/env_id/as/authorize'}?response_type=token&client_id=${config?.clientId || 'your_client_id'}&redirect_uri=${config?.redirectUri || 'https://yourapp.com/callback'}&scope=read%20write&state=random_state_value&nonce=random_nonce_value`,
       execute: () => {
+        console.log('🔍 [ImplicitGrantFlow] Step 1 execute called:', {
+          hasConfig: !!config,
+          config: config ? {
+            hasAuthorizationEndpoint: !!config.authorizationEndpoint,
+            hasClientId: !!config.clientId,
+            hasRedirectUri: !!config.redirectUri,
+            authorizationEndpoint: config.authorizationEndpoint,
+            clientId: config.clientId,
+            redirectUri: config.redirectUri
+          } : null
+        });
+        
         if (!config) {
           setError('Configuration required. Please configure your PingOne settings first.');
           return { error: 'Configuration required' };
@@ -226,14 +238,30 @@ window.location.href = authUrl;
 // - Consent for requested scopes
 // - Redirect back with tokens in URL fragment`,
       execute: () => {
+        console.log('🔍 [ImplicitGrantFlow] Step 2 execute called:', {
+          hasConfig: !!config,
+          hasAuthUrl: !!authUrl,
+          authUrl: authUrl,
+          stepResults: stepResults,
+          executedSteps: Array.from(executedSteps)
+        });
+        
         if (!config) {
           setError('Configuration required. Please configure your PingOne settings first.');
           return { error: 'Configuration required' };
         }
         
         if (!authUrl) {
-          setError('Authorization URL not available. Please complete step 1 first.');
-          return { error: 'Authorization URL not available' };
+          // Check if step 1 was executed and has results
+          const step1Result = stepResults[0];
+          if (step1Result && step1Result.url) {
+            console.log('🔍 [ImplicitGrantFlow] Using URL from step 1 result:', step1Result.url);
+            setAuthUrl(step1Result.url);
+            // Continue with redirect
+          } else {
+            setError('Authorization URL not available. Please complete step 1 first.');
+            return { error: 'Authorization URL not available' };
+          }
         }
         
         console.log('✅ [ImplicitGrantFlow] Redirecting user to PingOne for authentication');
