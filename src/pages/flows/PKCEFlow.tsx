@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiAlertCircle, FiShield } from 'react-icons/fi';
@@ -353,15 +353,14 @@ const codeChallenge = await generateCodeChallenge(codeVerifier);
 // Result: SHA256_hash_base64url
 
 // Method: S256 (SHA-256)`,
-      execute: async () => {
-        try {
+      execute: async () => {try {
           const codeVerifier = generateCodeVerifier();
           const codeChallenge = await generateCodeChallenge(codeVerifier);
           const pkceDataObj = {
             codeVerifier,
             codeChallenge,
             codeChallengeMethod: 'S256'
-          };
+        return { message: 'Step completed' };};
 
           setPkceData(pkceDataObj);
           const result = { pkceData: pkceDataObj };
@@ -476,13 +475,13 @@ if (state !== storedState) {
 }
 
 console.log('Authorization Code:', authorizationCode);`,
-      execute: () => {
-        // Simulate getting authorization code from URL or generate one
+      execute: () => {// Simulate getting authorization code from URL or generate one
         const searchParams = new URLSearchParams(window.location.search || '');
         const codeFromUrl = searchParams.get('code');
         const code = codeFromUrl || ('auth-code-' + Math.random().toString(36).substr(2, 9));
 
-        const result = { code };
+        const result = { code
+        return { message: 'Step completed' };};
         setStepResults(prev => ({
           ...prev,
           3: result // Note: This is step 3 in 0-based index
