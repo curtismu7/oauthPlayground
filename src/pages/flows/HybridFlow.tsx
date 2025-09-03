@@ -135,53 +135,13 @@ const ResponseBox = styled.div<{ $backgroundColor?: string; $borderColor?: strin
   }
 `;
 
-const StepsContainer = styled.div`
-  margin-top: 2rem;
-`;
 
-const Step = styled.div<{ $active?: boolean; $completed?: boolean; $error?: boolean }>`
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  background-color: ${({ $active: active, $completed: completed, $error: error }) => {
-    if (error) return 'rgba(239, 68, 68, 0.1)';
-    if (completed) return 'rgba(34, 197, 94, 0.1)';
-    if (active) return 'rgba(59, 130, 246, 0.1)';
-    return '#f9fafb';
-  }};
-  border: 2px solid ${({ $active: active, $completed: completed, $error: error }) => {
-    if (error) return '#ef4444';
-    if (completed) return '#22c55e';
-    if (active) return '#3b82f6';
-    return '#e5e7eb';
-  }};
-`;
 
-const StepNumber = styled.div<{ $active?: boolean; $completed?: boolean; $error?: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  font-weight: 600;
-  font-size: 0.875rem;
-  background-color: ${({ $active: active, $completed: completed, $error: error }) => {
-    if (error) return '#ef4444';
-    if (completed) return '#22c55e';
-    if (active) return '#3b82f6';
-    return '#9ca3af';
-  }};
-  color: white;
-  flex-shrink: 0;
-`;
 
-const StepContent = styled.div`
-  flex: 1;
-`;
+
+
+
+
 
 const CodeBlock = styled.pre`
   background-color: #f3f4f6;
