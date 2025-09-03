@@ -154,28 +154,28 @@ const StepsContainer = styled.div`
   margin-top: 2rem;
 `;
 
-const Step = styled.div`
+const Step = styled.div<{ $active: boolean; $completed: boolean; $error: boolean }>`
   display: flex;
   align-items: flex-start;
   gap: 1rem;
   margin-bottom: 1.5rem;
   padding: 1.5rem;
   border-radius: 0.5rem;
-  background-color: ${({ active, completed, error }) => {
-    if (error) return 'rgba(239, 68, 68, 0.1)';
-    if (completed) return 'rgba(34, 197, 94, 0.1)';
-    if (active) return 'rgba(59, 130, 246, 0.1)';
+  background-color: ${({ $active, $completed, $error }) => {
+    if ($error) return 'rgba(239, 68, 68, 0.1)';
+    if ($completed) return 'rgba(34, 197, 94, 0.1)';
+    if ($active) return 'rgba(59, 130, 246, 0.1)';
     return 'transparent';
   }};
-  border: 2px solid ${({ active, completed, error }) => {
-    if (error) return '#ef4444';
-    if (completed) return '#22c55e';
-    if (active) return '#3b82f6';
+  border: 2px solid ${({ $active, $completed, $error }) => {
+    if ($error) return '#ef4444';
+    if ($completed) return '#22c55e';
+    if ($active) return '#3b82f6';
     return 'transparent';
   }};
 `;
 
-const StepNumber = styled.div`
+const StepNumber = styled.div<{ $active: boolean; $completed: boolean; $error: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -186,20 +186,20 @@ const StepNumber = styled.div`
   font-size: 1rem;
   flex-shrink: 0;
 
-  ${({ active, completed, error }) => {
-    if (error) {
+  ${({ $active, $completed, $error }) => {
+    if ($error) {
       return `
         background-color: #ef4444;
         color: white;
       `;
     }
-    if (completed) {
+    if ($completed) {
       return `
         background-color: #22c55e;
         color: white;
       `;
     }
-    if (active) {
+    if ($active) {
       return `
         background-color: #3b82f6;
         color: white;
@@ -793,14 +793,14 @@ console.log('ID token is valid!');`
             {steps.map((step, index) => (
               <Step
                 key={index}
-                active={currentStep === index && demoStatus === 'loading'}
-                completed={currentStep > index}
-                error={currentStep === index && demoStatus === 'error'}
+                $active={currentStep === index && demoStatus === 'loading'}
+                $completed={currentStep > index}
+                $error={currentStep === index && demoStatus === 'error'}
               >
                 <StepNumber
-                  active={currentStep === index && demoStatus === 'loading'}
-                  completed={currentStep > index}
-                  error={currentStep === index && demoStatus === 'error'}
+                  $active={currentStep === index && demoStatus === 'loading'}
+                  $completed={currentStep > index}
+                  $error={currentStep === index && demoStatus === 'error'}
                 >
                   {index + 1}
                 </StepNumber>
