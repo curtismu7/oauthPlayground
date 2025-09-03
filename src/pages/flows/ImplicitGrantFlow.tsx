@@ -178,7 +178,7 @@ const ImplicitGrantFlow = () => {
     });
   };
 
-  const steps: FlowStep[] = [
+  const steps: FlowStep[] = useMemo(() => [
     {
       title: 'Generate Authorization URL',
       description: 'Create the authorization URL with the implicit grant parameters',
@@ -196,16 +196,6 @@ nonce: 'random_nonce_value'
 // Full URL:
 ${config?.authorizationEndpoint || 'https://auth.pingone.com/env_id/as/authorize'}?response_type=token&client_id=${config?.clientId || 'your_client_id'}&redirect_uri=${config?.redirectUri || 'https://yourapp.com/callback'}&scope=read%20write&state=random_state_value&nonce=random_nonce_value`,
       execute: () => {
-        // Check if step 1 has already been executed
-        if (executedSteps.has(0)) {
-          console.log('🔍 [ImplicitGrantFlow] Step 1 already executed, returning existing result');
-          const existingResult = stepResults[0];
-          if (existingResult && existingResult.url) {
-            setAuthUrl(existingResult.url);
-            return existingResult;
-          }
-        }
-        
         console.log('🔍 [ImplicitGrantFlow] Step 1 execute called:', {
           hasConfig: !!config,
           config: config ? {
@@ -231,8 +221,6 @@ ${config?.authorizationEndpoint || 'https://auth.pingone.com/env_id/as/authorize
         
         const result = { url };
         setAuthUrl(url);
-        setStepResults(prev => ({ ...prev, 0: result }));
-        setExecutedSteps(prev => new Set(prev).add(0));
         console.log('✅ [ImplicitGrantFlow] Authorization URL generated and stored:', url);
         console.log('🔍 [ImplicitGrantFlow] Step 1 state updates completed:', { url, result });
         return result;
@@ -281,8 +269,6 @@ window.location.href = authUrl;
         
         console.log('✅ [ImplicitGrantFlow] Redirecting user to PingOne for authentication with URL:', urlToUse);
         const result = { message: 'Redirecting to authorization server...', url: urlToUse };
-        setStepResults(prev => ({ ...prev, 1: result }));
-        setExecutedSteps(prev => new Set(prev).add(1));
         
         // Actually redirect to PingOne
         setTimeout(() => {
@@ -363,7 +349,7 @@ console.log('User ID:', decodedIdToken.sub);`,
         return result;
       }
     }
-  ];
+  ], [config, authUrl, stepResults, executedSteps, generateAuthUrl]);
 
   return (
     <Container>
