@@ -367,6 +367,7 @@ const AuthorizationCodeFlow = () => {
   // Track execution results for each step
   const [stepResults, setStepResults] = useState<Record<number, any>>({});
   const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
+  const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
 
   // If we already have tokens from the real OAuth flow, surface them in the demo
   useEffect(() => {
@@ -402,7 +403,7 @@ const AuthorizationCodeFlow = () => {
         if (!config) {
           console.error('❌ [AuthCodeFlow] Configuration required');
           setError('Configuration required. Please configure your PingOne settings first.');
-          return;
+          return { error: 'Configuration required' };
         }
 
         const url = `${config.authorizationEndpoint || config.authEndpoint || ''}?client_id=${config.clientId}&redirect_uri=${encodeURIComponent(config.redirectUri)}&response_type=${flowConfig.responseType}&scope=${encodeURIComponent(flowConfig.scopes.join(' '))}&state=${flowConfig.state || 'xyz123'}&nonce=${flowConfig.nonce || 'abc456'}${flowConfig.enablePKCE ? `&code_challenge=YOUR_CODE_CHALLENGE&code_challenge_method=${flowConfig.codeChallengeMethod}` : ''}${flowConfig.maxAge > 0 ? `&max_age=${flowConfig.maxAge}` : ''}${flowConfig.prompt ? `&prompt=${flowConfig.prompt}` : ''}${flowConfig.loginHint ? `&login_hint=${flowConfig.loginHint}` : ''}${flowConfig.acrValues.length > 0 ? `&acr_values=${encodeURIComponent(flowConfig.acrValues.join(' '))}` : ''}${Object.keys(flowConfig.customParams).length > 0 ? Object.entries(flowConfig.customParams).map(([k, v]) => `&${k}=${encodeURIComponent(v)}`).join('') : ''}`;
@@ -412,6 +413,7 @@ const AuthorizationCodeFlow = () => {
         setExecutedSteps(prev => new Set(prev).add(0));
 
         console.log('✅ [AuthCodeFlow] Authorization URL generated:', url);
+        return { url };
       }
     },
     {
@@ -597,6 +599,7 @@ grant_type=authorization_code
     setTokensReceived(null);
     setStepResults({});
     setExecutedSteps(new Set());
+    setStepsWithResults([...steps]); // Initialize with the steps array
     console.log('🚀 [AuthCodeFlow] Starting authorization code flow...');
   };
 
@@ -609,6 +612,22 @@ grant_type=authorization_code
     setError('');
     setStepResults({});
     setExecutedSteps(new Set());
+    setStepsWithResults([]);
+  };
+
+  const handleStepResult = (stepIndex: number, result: any) => {
+    console.log('🔄 [AuthCodeFlow] Step result received:', { stepIndex, result });
+    setStepResults(prev => ({ ...prev, [stepIndex]: result }));
+    setExecutedSteps(prev => new Set(prev).add(stepIndex));
+    
+    // Update the steps array with the result
+    setStepsWithResults(prev => {
+      const newSteps = [...prev];
+      if (newSteps[stepIndex]) {
+        newSteps[stepIndex] = { ...newSteps[stepIndex], result };
+      }
+      return newSteps;
+    });
   };
 
   return (
@@ -657,12 +676,13 @@ grant_type=authorization_code
         </CardHeader>
         <CardBody>
           <StepByStepFlow
-            steps={steps}
+            steps={stepsWithResults.length > 0 ? stepsWithResults : steps}
             onStart={startAuthFlow}
             onReset={resetDemo}
             status={demoStatus}
             currentStep={currentStep}
             onStepChange={setCurrentStep}
+            onStepResult={handleStepResult}
             disabled={!config}
             title="Authorization Code Flow"
           />
