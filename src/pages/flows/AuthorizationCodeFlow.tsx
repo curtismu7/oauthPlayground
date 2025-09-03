@@ -433,19 +433,28 @@ window.location.href = authUrl;
         }
         
         // Generate the authorization URL
+        const state = Math.random().toString(36).substring(2, 15);
+        const nonce = Math.random().toString(36).substring(2, 15);
+        
         const params = new URLSearchParams({
           client_id: config.clientId,
           redirect_uri: config.redirectUri,
           response_type: 'code',
           scope: 'openid profile email',
-          state: Math.random().toString(36).substring(2, 15),
-          nonce: Math.random().toString(36).substring(2, 15),
-          code_challenge: 'YOUR_CODE_CHALLENGE',
-          code_challenge_method: 'S256'
+          state: state,
+          nonce: nonce
         });
+        
+        // Only add PKCE if we have a real code challenge
+        // For now, let's use a simple authorization code flow without PKCE
+        console.log('🔍 [AuthCodeFlow] Using Authorization Code Flow without PKCE for simplicity');
         
         const authorizationUrl = `${config.authorizationEndpoint}?${params.toString()}`;
         console.log('✅ [AuthCodeFlow] Generated authorization URL:', authorizationUrl);
+        console.log('🔍 [AuthCodeFlow] Authorization endpoint:', config.authorizationEndpoint);
+        console.log('🔍 [AuthCodeFlow] Client ID:', config.clientId);
+        console.log('🔍 [AuthCodeFlow] Redirect URI:', config.redirectUri);
+        console.log('🔍 [AuthCodeFlow] URL parameters:', Object.fromEntries(params.entries()));
         
         // Store the URL in state
         setAuthUrl(authorizationUrl);
