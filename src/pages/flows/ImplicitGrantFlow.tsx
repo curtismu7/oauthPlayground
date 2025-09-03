@@ -106,6 +106,19 @@ const ErrorMessage = styled.div`
 const ImplicitGrantFlow = () => {
   const { config } = useAuth();
   const [demoStatus, setDemoStatus] = useState('idle');
+  
+  // Debug configuration loading
+  console.log('🔍 [ImplicitGrantFlow] Config debug:', {
+    hasConfig: !!config,
+    config: config ? {
+      hasAuthorizationEndpoint: !!config.authorizationEndpoint,
+      hasClientId: !!config.clientId,
+      hasRedirectUri: !!config.redirectUri,
+      authorizationEndpoint: config.authorizationEndpoint,
+      clientId: config.clientId,
+      redirectUri: config.redirectUri
+    } : null
+  });
   const [currentStep, setCurrentStep] = useState(0);
   const [authUrl, setAuthUrl] = useState('');
   const [tokensReceived, setTokensReceived] = useState<Record<string, unknown> | null>(null);
@@ -429,6 +442,21 @@ console.log('User ID:', decodedIdToken.sub);`,
               <FiAlertCircle />
               <strong>Configuration Required:</strong> Please configure your PingOne settings
               in the Configuration page before running this demo.
+              <br />
+              <button 
+                onClick={() => {
+                  console.log('🔍 [ImplicitGrantFlow] Debug Configuration Loading');
+                  console.log('localStorage keys:', Object.keys(localStorage));
+                  console.log('pingone_config:', localStorage.getItem('pingone_config'));
+                  console.log('pingoneConfig:', localStorage.getItem('pingoneConfig'));
+                  console.log('pingone:', localStorage.getItem('pingone'));
+                  console.log('config:', localStorage.getItem('config'));
+                  console.log('login_credentials:', localStorage.getItem('login_credentials'));
+                }}
+                style={{ marginTop: '10px', padding: '5px 10px', fontSize: '12px' }}
+              >
+                Debug Configuration Loading
+              </button>
             </ErrorMessage>
           )}
 
