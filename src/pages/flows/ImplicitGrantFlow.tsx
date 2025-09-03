@@ -271,10 +271,10 @@ window.location.href = authUrl;
           return { error: 'Configuration required' };
         }
         
-        // Get the authorization URL from either state or step results
+        // Get the authorization URL from state (set by step 1)
         let urlToUse = authUrl;
         if (!urlToUse) {
-          // Step 1 result is stored at index 0 (0-based indexing)
+          // Fallback: try to get from step results
           const step1Result = stepResults[0];
           console.log('🔍 [ImplicitGrantFlow] Step 2 debugging:', {
             authUrl: authUrl,
