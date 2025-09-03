@@ -67,6 +67,37 @@ const SecurityWarning = styled.div`
   }
 `;
 
+const DeprecationWarning = styled.div`
+  background-color: #fffbeb;
+  border: 1px solid #fed7aa;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+
+  svg {
+    color: #ea580c;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  h3 {
+    color: #ea580c;
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0;
+    color: #9a3412;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+`;
+
 const ResultSection = styled.div`
   margin-bottom: 2rem;
   padding: 1.5rem;
@@ -412,6 +443,18 @@ console.log('User ID:', decodedIdToken.sub);`,
         }
         subtitle="Learn how the Implicit Grant flow works with real API calls to PingOne. This flow is suitable for client-side applications but has security limitations."
       />
+
+      <DeprecationWarning>
+        <FiAlertCircle size={20} />
+        <div>
+          <h3>⚠️ Deprecated in OAuth 2.1</h3>
+          <p>
+            The Implicit Grant Flow has been deprecated in OAuth 2.1 due to security concerns. 
+            PingOne and most modern OAuth providers no longer support <code>response_type=token</code>. 
+            Use the Authorization Code Flow with PKCE instead for better security.
+          </p>
+        </div>
+      </DeprecationWarning>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '2rem', marginBottom: '3rem', padding: '1.5rem 0' }}>
         <ConfigurationButton flowType="implicit" />
