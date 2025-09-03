@@ -115,18 +115,11 @@ const OIDC: React.FC = () => {
             <h3>Authorization Code</h3>
             <p>
               The most secure OAuth 2.0 flow for web applications. Learn how to implement
-              the authorization code flow with PKCE for maximum security.
+              the authorization code flow, including PKCE extension for public clients.
             </p>
           </FeatureCard>
 
-          <FeatureCard to="/oidc/pkce">
-            <FiShield />
-            <h3>PKCE (Proof Key for Code Exchange)</h3>
-            <p>
-              Enhanced security for the authorization code flow. Essential for mobile apps
-              and single-page applications.
-            </p>
-          </FeatureCard>
+
 
           <FeatureCard to="/oidc/implicit">
             <FiZap />
