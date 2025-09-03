@@ -496,11 +496,17 @@ const accessToken = generateAccessToken(clientId, scope);`,
               'Authorization': `Basic ${credentials}`,
               'Content-Type': 'application/x-www-form-urlencoded'
             },
-            body: 'grant_type=client_credentials&scope=api:read'
+            body: 'grant_type=client_credentials'
           });
 
           if (!response.ok) {
-            throw new Error(`Token exchange failed: ${response.status} ${response.statusText}`);
+            const errorText = await response.text();
+            console.error('❌ [ClientCredentialsFlow] Token exchange failed:', {
+              status: response.status,
+              statusText: response.statusText,
+              errorResponse: errorText
+            });
+            throw new Error(`Token exchange failed: ${response.status} ${response.statusText} - ${errorText}`);
           }
 
           const tokenData = await response.json();
