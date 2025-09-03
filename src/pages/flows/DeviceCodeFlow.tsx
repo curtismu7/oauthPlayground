@@ -270,7 +270,6 @@ type DeviceCodeData = {
 
 type Tokens = {
   access_token: string;
-  id_token: string;
   token_type: string;
   expires_in: number;
   scope: string;
@@ -337,7 +336,7 @@ const DeviceFlow = () => {
 POST https://auth.pingone.com/${config?.environmentId || 'YOUR_ENV_ID'}/as/device_authorization
 Content-Type: application/x-www-form-urlencoded
 
-client_id=${config?.clientId || 'your_client_id'}&scope=openid profile email
+client_id=${config?.clientId || 'your_client_id'}&scope=read write
 
 // Device sends minimal information:
 // - client_id: identifies the device/app
@@ -351,11 +350,11 @@ client_id=${config?.clientId || 'your_client_id'}&scope=openid profile email
         // Simulate device authorization request
         const requestData = {
           method: 'POST',
-          url: `${config.deviceAuthorizationEndpoint}?client_id=${config.clientId}&scope=openid profile email`,
+          url: `${config.deviceAuthorizationEndpoint}?client_id=${config.clientId}&scope=read write`,
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
           },
-          body: `client_id=${config.clientId}&scope=openid profile email`
+          body: `client_id=${config.clientId}&scope=read write`
         };
 
         setStepResults(prev => ({ ...prev, 0: { request: requestData } }));
@@ -393,7 +392,7 @@ const userCode = generateUserFriendlyCode(); // e.g., "WDJB-MJHT"
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded'
             },
-            body: `client_id=${config.clientId}&scope=openid profile email`
+            body: `client_id=${config.clientId}&scope=read write`
           });
 
           if (!response.ok) {
@@ -519,10 +518,9 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
       code: `// Server returns tokens to device
 {
   "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
   "token_type": "Bearer",
   "expires_in": 3600,
-  "scope": "openid profile email"
+  "scope": "read write"
 }
 
 // Device can now:
@@ -559,11 +557,10 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
           // Store tokens using the shared utility
           const tokensForStorage = {
             access_token: tokenData.access_token,
-            id_token: tokenData.id_token,
             refresh_token: tokenData.refresh_token,
             token_type: tokenData.token_type,
             expires_in: tokenData.expires_in,
-            scope: tokenData.scope || 'openid profile email'
+            scope: tokenData.scope || 'read write'
           };
           
           const success = storeOAuthTokens(tokensForStorage, 'device_code', 'Device Code Flow');
