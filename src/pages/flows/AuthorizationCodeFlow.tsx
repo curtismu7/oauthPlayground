@@ -424,48 +424,45 @@ window.location.href = authUrl;
 // - Consent for requested scopes
 // - Redirect back to client with authorization code`,
       execute: () => {
-        try {
-          console.log('🔍 [AuthCodeFlow] Step 2 debugging:', {
-            authUrl: authUrl,
-            stepResults: stepResults,
-            step1Result: stepResults[0], // Step 1 is at index 0
-            hasStep1Result: !!stepResults[0],
-            step1ResultUrl: stepResults[0]?.url
-          });
-          
-          // Check for authUrl from state first, then from step results
-          let urlToUse = authUrl;
-          console.log('🔍 [AuthCodeFlow] Step 2 - Current authUrl state:', authUrl);
-          if (!urlToUse) {
-            // Fallback: try to get from step results
-            const step1Result = stepResults[0];
-            if (step1Result && step1Result.url) {
-              urlToUse = step1Result.url;
-              setAuthUrl(step1Result.url);
-              console.log('✅ [AuthCodeFlow] Using URL from step 1 result:', urlToUse);
-            } else {
-              console.log('❌ [AuthCodeFlow] No URL available from state or step results');
-              setError('Authorization URL not available. Please complete step 1 first.');
-              return { error: 'Authorization URL not available' };
-            }
-          } else {
-            console.log('✅ [AuthCodeFlow] Using URL from state:', urlToUse);
-          }
-          
-          console.log('✅ [AuthCodeFlow] Redirecting user to PingOne for authentication');
-          const result = { message: 'Redirecting to authorization server...' };
-          
-          // Actually redirect to PingOne
-          setTimeout(() => {
-            window.location.href = urlToUse;
-          }, 1000); // Small delay to show the message
-          
-          return result;
-        } catch (error) {
-          console.error('❌ [AuthCodeFlow] Error in step 2:', error);
-          setError(`Error in step 2: ${error instanceof Error ? error.message : 'Unknown error'}`);
-          return { error: error instanceof Error ? error.message : 'Unknown error' };
+        console.log('🚀 [AuthCodeFlow] Step 2 - Starting redirect to PingOne');
+        
+        // Generate the authorization URL directly in step 2
+        if (!config) {
+          setError('Configuration required. Please configure your PingOne settings first.');
+          return { error: 'Configuration required' };
         }
+        
+        // Generate the authorization URL
+        const params = new URLSearchParams({
+          client_id: config.clientId,
+          redirect_uri: config.redirectUri,
+          response_type: 'code',
+          scope: 'openid profile email',
+          state: Math.random().toString(36).substring(2, 15),
+          nonce: Math.random().toString(36).substring(2, 15),
+          code_challenge: 'YOUR_CODE_CHALLENGE',
+          code_challenge_method: 'S256'
+        });
+        
+        const authorizationUrl = `${config.authorizationEndpoint}?${params.toString()}`;
+        console.log('✅ [AuthCodeFlow] Generated authorization URL:', authorizationUrl);
+        
+        // Store the URL in state
+        setAuthUrl(authorizationUrl);
+        
+        // Return success result
+        const result = { 
+          message: 'Redirecting to authorization server...', 
+          url: authorizationUrl 
+        };
+        
+        // Redirect after a short delay
+        setTimeout(() => {
+          console.log('🔄 [AuthCodeFlow] Redirecting to:', authorizationUrl);
+          window.location.href = authorizationUrl;
+        }, 1000);
+        
+        return result;
       }
     },
     {
