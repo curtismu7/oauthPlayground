@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { 
   FiHome, FiCode, FiUser, FiSettings, 
-  FiChevronDown, FiBookOpen, FiEye, FiShield, FiUsers
+  FiChevronDown, FiBookOpen, FiEye, FiShield, FiUsers, FiDatabase
 } from 'react-icons/fi';
 
 interface SidebarContainerProps {
@@ -141,6 +141,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const [openMenus, setOpenMenus] = useState({
     flows: true, // Default to expanded
     oidc: true,  // Default to expanded
+    resources: true, // Default to expanded
   });
 
   // Auto-open menu based on current route
@@ -149,10 +150,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     setOpenMenus({
       flows: path.startsWith('/flows'),
       oidc: path.startsWith('/oidc'),
+      resources: path.startsWith('/oidc/userinfo') || path.startsWith('/oidc/tokens'),
     });
   }, [location.pathname]);
 
-  const toggleMenu = (menu: 'flows' | 'oidc') => {
+  const toggleMenu = (menu: 'flows' | 'oidc' | 'resources') => {
     setOpenMenus(prev => ({
       ...prev,
       [menu]: !prev[menu]
@@ -213,12 +215,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </NavItemHeader>
           
           <Submenu $isOpen={openMenus.oidc}>
-            <SubmenuItem to="/oidc/userinfo" onClick={onClose}>
-              UserInfo Endpoint
-            </SubmenuItem>
-            <SubmenuItem to="/oidc/tokens" onClick={onClose}>
-              ID Tokens
-            </SubmenuItem>
             <SubmenuItem to="/oidc/authorization-code" onClick={onClose}>
               Authorization Code
             </SubmenuItem>
@@ -228,9 +224,30 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             <SubmenuItem to="/oidc/client-credentials" onClick={onClose}>
               Client Credentials
             </SubmenuItem>
-
             <SubmenuItem to="/oidc/device-code" onClick={onClose}>
               Device Code
+            </SubmenuItem>
+          </Submenu>
+        </NavItemWithSubmenu>
+        
+        <NavItemWithSubmenu>
+          <NavItemHeader 
+            onClick={() => toggleMenu('resources')}
+            $isOpen={openMenus.resources}
+          >
+            <div>
+              <FiDatabase />
+              <span>Resources</span>
+            </div>
+            <FiChevronDown />
+          </NavItemHeader>
+          
+          <Submenu $isOpen={openMenus.resources}>
+            <SubmenuItem to="/oidc/userinfo" onClick={onClose}>
+              UserInfo Endpoint
+            </SubmenuItem>
+            <SubmenuItem to="/oidc/tokens" onClick={onClose}>
+              ID Tokens
             </SubmenuItem>
           </Submenu>
         </NavItemWithSubmenu>
