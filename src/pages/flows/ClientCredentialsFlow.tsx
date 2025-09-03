@@ -573,9 +573,13 @@ fetch('/api/protected-resource', {
   "error_description": "The access token expired"
 }`,
       execute: async () => {
-        if (!tokensReceived?.access_token) {
-          setError('No access token available');
-          return;
+        // Check if we have access token from previous steps
+        const step3Result = stepResults[3];
+        const accessToken = step3Result?.response?.access_token || tokensReceived?.access_token;
+        
+        if (!accessToken) {
+          setError('No access token available. Please complete step 3 (token exchange) first.');
+          return { error: 'No access token available' };
         }
 
         try {
@@ -590,12 +594,13 @@ fetch('/api/protected-resource', {
           const result = { apiResponse };
           setStepResults(prev => ({ ...prev, 5: result }));
           setExecutedSteps(prev => new Set(prev).add(5));
-          return result;
-
+          
           console.log('✅ [ClientCredentialsFlow] API call completed');
+          return result;
         } catch (error: any) {
           setError(`Failed to make API call: ${error.message}`);
           console.error('❌ [ClientCredentialsFlow] API call error:', error);
+          return { error: error.message };
         }
       }
     }
