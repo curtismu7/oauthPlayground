@@ -229,11 +229,12 @@ ${config?.authorizationEndpoint || 'https://auth.pingone.com/env_id/as/authorize
           return { error: 'Failed to generate authorization URL' };
         }
         
-        setAuthUrl(url);
         const result = { url };
+        setAuthUrl(url);
         setStepResults(prev => ({ ...prev, 0: result }));
         setExecutedSteps(prev => new Set(prev).add(0));
         console.log('✅ [ImplicitGrantFlow] Authorization URL generated and stored:', url);
+        console.log('🔍 [ImplicitGrantFlow] Step 1 state updates completed:', { url, result });
         return result;
       }
     },
@@ -270,9 +271,12 @@ window.location.href = authUrl;
             urlToUse = step1Result.url;
             setAuthUrl(step1Result.url);
           } else {
+            console.log('❌ [ImplicitGrantFlow] No URL available from state or step results');
             setError('Authorization URL not available. Please complete step 1 first.');
             return { error: 'Authorization URL not available' };
           }
+        } else {
+          console.log('✅ [ImplicitGrantFlow] Using URL from state:', urlToUse);
         }
         
         console.log('✅ [ImplicitGrantFlow] Redirecting user to PingOne for authentication with URL:', urlToUse);
