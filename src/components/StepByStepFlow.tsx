@@ -75,6 +75,37 @@ const StepActions = styled.div`
   justify-content: flex-end;
 `;
 
+const StepResult = styled.div`
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #1f2937;
+  border: 1px solid #374151;
+  border-radius: 0.5rem;
+  color: #ffffff;
+  font-family: monospace;
+  font-size: 0.875rem;
+  
+  h4 {
+    margin: 0 0 0.5rem 0;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  
+  pre {
+    margin: 0;
+    background: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    white-space: pre-wrap;
+    word-break: break-all;
+    overflow: visible;
+    color: #ffffff !important;
+  }
+`;
+
 const StepButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' }>`
   display: inline-flex;
   align-items: center;
@@ -255,6 +286,7 @@ export interface FlowStep {
   description: string;
   code?: string;
   execute?: () => Promise<void> | void;
+  result?: any; // Store the result of step execution
 }
 
 interface StepByStepFlowProps {
@@ -264,6 +296,7 @@ interface StepByStepFlowProps {
   status: 'idle' | 'loading' | 'success' | 'error';
   currentStep: number;
   onStepChange: (step: number) => void;
+  onStepResult?: (stepIndex: number, result: any) => void;
   disabled?: boolean;
   title: string;
 }
@@ -306,6 +339,18 @@ const MemoizedStep = React.memo<{
 
       {step.code && (
         <CodeBlock>{step.code}</CodeBlock>
+      )}
+
+      {/* Show step result if available */}
+      {step.result && (
+        <StepResult>
+          <h4>Response:</h4>
+          {typeof step.result === 'string' ? (
+            <pre>{step.result}</pre>
+          ) : (
+            <pre>{JSON.stringify(step.result, null, 2)}</pre>
+          )}
+        </StepResult>
       )}
 
       <StepActions>
@@ -352,13 +397,19 @@ const StepByStepFlowComponent: React.FC<StepByStepFlowProps> = ({
   status,
   currentStep,
   onStepChange,
+  onStepResult,
   disabled = false,
   title
 }) => {
   const executeCurrentStep = useCallback(async () => {
     if (currentStep < steps.length && steps[currentStep].execute) {
       try {
-        await steps[currentStep].execute!();
+        const result = await steps[currentStep].execute!();
+        
+        // Call the onStepResult callback if provided
+        if (onStepResult) {
+          onStepResult(currentStep, result);
+        }
         
         // Auto-scroll to the executed step after a short delay
         setTimeout(() => {
@@ -379,9 +430,13 @@ const StepByStepFlowComponent: React.FC<StepByStepFlowProps> = ({
         }
       } catch (error) {
         console.error(`Failed to execute step ${currentStep + 1}:`, error);
+        // Call onStepResult with error if provided
+        if (onStepResult) {
+          onStepResult(currentStep, { error: error.message || 'Unknown error' });
+        }
       }
     }
-  }, [currentStep, steps, onStepChange]);
+  }, [currentStep, steps, onStepChange, onStepResult]);
 
   const goToNextStep = useCallback(() => {
     if (currentStep < steps.length - 1) {
