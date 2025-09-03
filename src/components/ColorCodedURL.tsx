@@ -9,7 +9,7 @@ interface ColorCodedURLProps {
 }
 
 interface URLPartInfo {
-  type: 'base' | 'question' | 'ampersand' | 'param';
+  type: 'base' | 'question' | 'ampersand' | 'param' | 'param2' | 'param3' | 'equals';
   content: string;
   description?: string;
 }
@@ -138,6 +138,21 @@ const URLPartDescriptionParam = styled(URLPartDescription)`
   border-left-color: #059669;
 `;
 
+const URLPartDescriptionParam2 = styled(URLPartDescription)`
+  background: #fef3c7;
+  border-left-color: #d97706;
+`;
+
+const URLPartDescriptionParam3 = styled(URLPartDescription)`
+  background: #f3e8ff;
+  border-left-color: #7c3aed;
+`;
+
+const URLPartDescriptionEquals = styled(URLPartDescription)`
+  background: #f1f5f9;
+  border-left-color: #475569;
+`;
+
 
 
 const PartName = styled.strong`
@@ -152,7 +167,7 @@ const PartDescription = styled.p`
   line-height: 1.5;
 `;
 
-const URLPart = styled.span<{ type: 'base' | 'question' | 'ampersand' | 'param' }>`
+const URLPart = styled.span<{ type: 'base' | 'question' | 'ampersand' | 'param' | 'param2' | 'param3' | 'equals' }>`
   ${({ type }) => {
     switch (type) {
       case 'base':
@@ -173,6 +188,21 @@ const URLPart = styled.span<{ type: 'base' | 'question' | 'ampersand' | 'param' 
       case 'param':
         return `
           color: #059669; /* Green for parameter names and values */
+          font-weight: 500;
+        `;
+      case 'param2':
+        return `
+          color: #d97706; /* Amber for alternating parameters */
+          font-weight: 500;
+        `;
+      case 'param3':
+        return `
+          color: #7c3aed; /* Purple for alternating parameters */
+          font-weight: 500;
+        `;
+      case 'equals':
+        return `
+          color: #475569; /* Slate for equals sign */
           font-weight: 500;
         `;
       default:
@@ -248,16 +278,28 @@ export const ColorCodedURL: React.FC<ColorCodedURLProps> = ({ url, className, sh
       const [key, value] = param.split('=');
       if (key) {
         if (value) {
-          // Combine parameter name and value, ignoring the equals sign
+          // Add parameter name and value as separate parts with alternating colors
+          const paramType = index % 3 === 0 ? 'param' : index % 3 === 1 ? 'param2' : 'param3';
           urlParts.push({
-            type: 'param',
-            content: `${key}=${value}`,
-            description: `${getParameterDescription(key)} Value: ${decodeURIComponent(value)}`
+            type: paramType,
+            content: key,
+            description: getParameterDescription(key)
+          });
+          urlParts.push({
+            type: 'equals',
+            content: '=',
+            description: 'Separates parameter name from its value.'
+          });
+          urlParts.push({
+            type: paramType,
+            content: value,
+            description: `Value: ${decodeURIComponent(value)}`
           });
         } else {
           // Parameter without value
+          const paramType = index % 3 === 0 ? 'param' : index % 3 === 1 ? 'param2' : 'param3';
           urlParts.push({
-            type: 'param',
+            type: paramType,
             content: key,
             description: getParameterDescription(key)
           });
@@ -277,7 +319,10 @@ export const ColorCodedURL: React.FC<ColorCodedURLProps> = ({ url, className, sh
       'base': URLPartDescriptionBase,
       'question': URLPartDescriptionQuestion,
       'ampersand': URLPartDescriptionAmpersand,
-      'param': URLPartDescriptionParam
+      'param': URLPartDescriptionParam,
+      'param2': URLPartDescriptionParam2,
+      'param3': URLPartDescriptionParam3,
+      'equals': URLPartDescriptionEquals
     }[part.type];
 
     return (
