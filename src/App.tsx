@@ -18,7 +18,7 @@ import { useAuth } from './contexts/NewAuthContext';
 // Import all the new OAuth and OIDC flow components
 import ImplicitGrantFlow from './pages/flows/ImplicitGrantFlow';
 import ClientCredentialsFlow from './pages/flows/ClientCredentialsFlow';
-import PKCEFlow from './pages/flows/PKCEFlow';
+
 import DeviceCodeFlow from './pages/flows/DeviceCodeFlow';
 import AuthorizationCodeFlow from './pages/flows/AuthorizationCodeFlow';
 import UserInfoFlow from './pages/flows/UserInfoFlow';
@@ -231,7 +231,7 @@ const AppRoutes = () => {
               <Route path="authorization-code" element={<AuthorizationCodeFlow />} />
               <Route path="implicit" element={<ImplicitGrantFlow />} />
               <Route path="client-credentials" element={<ClientCredentialsFlow />} />
-              <Route path="pkce" element={<PKCEFlow />} />
+
               <Route path="device-code" element={<DeviceCodeFlow />} />
             </Route>
 
@@ -241,7 +241,7 @@ const AppRoutes = () => {
               <Route path="authorization-code" element={<AuthorizationCodeFlow />} />
               <Route path="implicit" element={<ImplicitGrantFlow />} />
               <Route path="client-credentials" element={<ClientCredentialsFlow />} />
-              <Route path="pkce" element={<PKCEFlow />} />
+
               <Route path="device-code" element={<DeviceCodeFlow />} />
             </Route>
             {/* Backward-compatible redirect for older links */}

@@ -193,9 +193,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             <SubmenuItem to="/flows/client-credentials" onClick={onClose}>
               Client Credentials
             </SubmenuItem>
-            <SubmenuItem to="/flows/pkce" onClick={onClose}>
-              PKCE
-            </SubmenuItem>
+
             <SubmenuItem to="/flows/device-code" onClick={onClose}>
               Device Code
             </SubmenuItem>
@@ -230,9 +228,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             <SubmenuItem to="/oidc/client-credentials" onClick={onClose}>
               Client Credentials
             </SubmenuItem>
-            <SubmenuItem to="/oidc/pkce" onClick={onClose}>
-              PKCE
-            </SubmenuItem>
+
             <SubmenuItem to="/oidc/device-code" onClick={onClose}>
               Device Code
             </SubmenuItem>
