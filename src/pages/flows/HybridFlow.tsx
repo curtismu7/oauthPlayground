@@ -371,9 +371,18 @@ grant_type=authorization_code
 &redirect_uri=${config?.redirectUri || 'https://your-app.com/callback'}
 &code_verifier=YOUR_CODE_VERIFIER`,
       execute: async () => {
-        if (!config || !redirectParams?.code) {
-          setError('Configuration or authorization code not available');
-          return;
+        if (!config) {
+          setError('Configuration required. Please configure your PingOne settings first.');
+          return { error: 'Configuration required' };
+        }
+
+        // Check if we have authorization code from previous steps
+        const step2Result = stepResults[2];
+        const authCode = step2Result?.params?.code || redirectParams?.code;
+        
+        if (!authCode) {
+          setError('Authorization code not available. Please complete step 2 first.');
+          return { error: 'Authorization code not available' };
         }
 
         try {
@@ -387,7 +396,7 @@ grant_type=authorization_code
               grant_type: 'authorization_code',
               client_id: config.clientId,
               client_secret: config.clientSecret || '',
-              code: redirectParams.code,
+              code: authCode,
               redirect_uri: config.redirectUri,
               code_verifier: 'mock_code_verifier' // In real implementation, use actual code verifier
             })
