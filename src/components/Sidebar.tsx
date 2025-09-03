@@ -191,6 +191,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             <SubmenuItem to="/oidc/authorization-code" onClick={onClose}>
               Authorization Code
             </SubmenuItem>
+            <SubmenuItem to="/oidc/hybrid" onClick={onClose}>
+              Hybrid Flow
+            </SubmenuItem>
             <SubmenuItem to="/oidc/implicit" onClick={onClose}>
               Implicit
             </SubmenuItem>

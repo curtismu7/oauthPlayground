@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiUser, FiKey, FiExternalLink, FiCode, FiShield, FiLock, FiSmartphone, FiZap } from 'react-icons/fi';
+import { FiUser, FiKey, FiExternalLink, FiCode, FiShield, FiLock, FiSmartphone, FiZap, FiLayers } from 'react-icons/fi';
 
 const OIDCContainer = styled.div`
   max-width: 1200px;
@@ -101,7 +101,14 @@ const OIDC: React.FC = () => {
             </p>
           </FeatureCard>
 
-
+          <FeatureCard to="/oidc/hybrid">
+            <FiLayers />
+            <h3>Hybrid Flow</h3>
+            <p>
+              Combines Authorization Code and Implicit flows. Get some tokens directly from
+              the authorization endpoint while also receiving an authorization code for back-channel exchange.
+            </p>
+          </FeatureCard>
 
           <FeatureCard to="/oidc/implicit">
             <FiZap />
