@@ -4,6 +4,7 @@
  */
 
 import { oauthStorage } from './storage';
+import { addTokenToHistory } from './tokenHistory';
 
 export interface OAuthTokens {
   access_token: string;
@@ -18,9 +19,11 @@ export interface OAuthTokens {
 /**
  * Store OAuth tokens using the standardized storage method
  * @param tokens - The OAuth tokens to store
+ * @param flowType - The OAuth flow type (e.g., 'authorization_code', 'implicit')
+ * @param flowName - The display name of the flow
  * @returns boolean - Success status
  */
-export const storeOAuthTokens = (tokens: OAuthTokens): boolean => {
+export const storeOAuthTokens = (tokens: OAuthTokens, flowType?: string, flowName?: string): boolean => {
   try {
     // Add timestamp if not present
     const tokensWithTimestamp = {
@@ -33,6 +36,11 @@ export const storeOAuthTokens = (tokens: OAuthTokens): boolean => {
     
     if (success) {
       console.log('✅ [TokenStorage] Tokens stored successfully using oauthStorage');
+      
+      // Add to token history if flow information is provided
+      if (flowType && flowName) {
+        addTokenToHistory(flowType, flowName, tokensWithTimestamp);
+      }
     } else {
       console.error('❌ [TokenStorage] Failed to store tokens using oauthStorage');
     }
