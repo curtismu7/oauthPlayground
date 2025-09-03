@@ -129,8 +129,41 @@ export const GlobalStyle = createGlobalStyle`
   pre[class*="TokenValue"], 
   pre[class*="sc-JQDoe"], 
   pre[class*="sc-fJaKAf"],
+  pre[class*="sc-fEETNT"],
   pre[class*="dhGOem"],
-  pre[class*="hIxTdn"] {
+  pre[class*="hIxTdn"],
+  pre[class*="bpDFur"] {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    color: #000000 !important;
+  }
+
+  /* Additional comprehensive JWT token text fixes */
+  div[class*="TokenValue"] pre,
+  div[class*="sc-ffIBOD"] pre,
+  div[class*="dOOaps"] pre {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    color: #000000 !important;
+  }
+
+  /* Force all pre elements in token sections to have black text */
+  .sc-ffIBOD pre,
+  .dOOaps pre,
+  .sc-fEETNT,
+  .bpDFur {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    color: #000000 !important;
+  }
+
+  /* Nuclear option - force ALL pre elements with JWT-like content to have black text */
+  pre:has-text("eyJ"),
+  pre[class*="sc-"] {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    color: #000000 !important;
+  }
+
+  /* Additional fallback for any remaining white text issues */
+  div[class*="sc-"] pre,
+  pre[class*="sc-"] {
     background-color: rgba(255, 255, 255, 0.95) !important;
     color: #000000 !important;
   }
