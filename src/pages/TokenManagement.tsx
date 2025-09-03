@@ -5,6 +5,7 @@ import { FiRefreshCw, FiCheckCircle, FiPlus, FiX, FiClock, FiKey, FiEye, FiTrash
 import styled from 'styled-components';
 import PageTitle from '../components/PageTitle';
 import { getOAuthTokens } from '../utils/tokenStorage';
+import { getTokenHistory, clearTokenHistory, removeTokenFromHistory, getFlowDisplayName, getFlowIcon, TokenHistoryEntry } from '../utils/tokenHistory';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -186,6 +187,138 @@ const JWTContent = styled.pre`
   }
 `;
 
+const HistoryEntry = styled.div`
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  
+  &:hover {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+`;
+
+const HistoryHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+`;
+
+const HistoryFlow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #374151;
+`;
+
+const HistoryTimestamp = styled.div`
+  font-size: 0.875rem;
+  color: #6b7280;
+`;
+
+const HistoryTokens = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+`;
+
+const TokenBadge = styled.span<{ $type: 'access' | 'id' | 'refresh' }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: ${({ $type }) => {
+    switch ($type) {
+      case 'access': return '#dbeafe';
+      case 'id': return '#fef3c7';
+      case 'refresh': return '#d1fae5';
+      default: return '#f3f4f6';
+    }
+  }};
+  color: ${({ $type }) => {
+    switch ($type) {
+      case 'access': return '#1e40af';
+      case 'id': return '#92400e';
+      case 'refresh': return '#065f46';
+      default: return '#374151';
+    }
+  }};
+  border: 1px solid ${({ $type }) => {
+    switch ($type) {
+      case 'access': return '#93c5fd';
+      case 'id': return '#fcd34d';
+      case 'refresh': return '#6ee7b7';
+      default: return '#d1d5db';
+    }
+  }};
+`;
+
+const HistoryActions = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+`;
+
+const HistoryButton = styled.button<{ $variant?: 'primary' | 'danger' }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  
+  ${({ $variant }) => {
+    switch ($variant) {
+      case 'primary':
+        return `
+          background-color: #3b82f6;
+          color: white;
+          &:hover {
+            background-color: #2563eb;
+          }
+        `;
+      case 'danger':
+        return `
+          background-color: #dc2626;
+          color: white;
+          &:hover {
+            background-color: #b91c1c;
+          }
+        `;
+      default:
+        return `
+          background-color: #f3f4f6;
+          color: #374151;
+          border-color: #d1d5db;
+          &:hover {
+            background-color: #e5e7eb;
+          }
+        `;
+    }
+  }}
+  
+  svg {
+    width: 12px;
+    height: 12px;
+  }
+`;
+
 const TokenManagement = () => {
   const [tokenString, setTokenString] = useState('');
   const [jwtHeader, setJwtHeader] = useState('');
@@ -193,6 +326,7 @@ const TokenManagement = () => {
   const [tokenStatus, setTokenStatus] = useState('none');
   const [isLoading, setIsLoading] = useState(false);
   const [tokenSource, setTokenSource] = useState<any>(null);
+  const [tokenHistory, setTokenHistory] = useState<TokenHistoryEntry[]>([]);
 
   // Mock token data for demonstration
   const mockTokenData = {
@@ -249,6 +383,10 @@ const TokenManagement = () => {
     };
     
     loadStoredTokens();
+    
+    // Load token history
+    const history = getTokenHistory();
+    setTokenHistory(history.entries);
   }, []);
 
   const decodeJWT = (token: string) => {
@@ -443,6 +581,33 @@ const TokenManagement = () => {
     }
   };
 
+  const handleClearHistory = () => {
+    if (confirm('Are you sure you want to clear all token history?')) {
+      clearTokenHistory();
+      setTokenHistory([]);
+      alert('Token history cleared successfully!');
+    }
+  };
+
+  const handleRemoveHistoryEntry = (entryId: string) => {
+    if (confirm('Are you sure you want to remove this token from history?')) {
+      removeTokenFromHistory(entryId);
+      setTokenHistory(prev => prev.filter(entry => entry.id !== entryId));
+    }
+  };
+
+  const handleLoadTokenFromHistory = (entry: TokenHistoryEntry) => {
+    if (entry.tokens.access_token) {
+      setTokenString(entry.tokens.access_token);
+      setTokenSource({
+        source: 'Token History',
+        description: `Token from ${entry.flowName} (${entry.timestampFormatted})`,
+        timestamp: entry.timestampFormatted
+      });
+      setTimeout(() => decodeJWT(entry.tokens.access_token), 100);
+    }
+  };
+
   return (
     <Container>
       <PageTitle 
@@ -633,17 +798,91 @@ const TokenManagement = () => {
         <CardHeader>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h2>Token History</h2>
-            <ActionButton className="secondary" style={{ fontSize: '0.75rem', padding: '0.5rem 1rem' }}>
-              <FiTrash2 />
-              Clear History
-            </ActionButton>
+            {tokenHistory.length > 0 && (
+              <ActionButton 
+                className="secondary" 
+                style={{ fontSize: '0.75rem', padding: '0.5rem 1rem' }}
+                onClick={handleClearHistory}
+              >
+                <FiTrash2 />
+                Clear History
+              </ActionButton>
+            )}
           </div>
         </CardHeader>
         <CardBody>
-          <div style={{ color: '#6b7280', fontStyle: 'italic' }}>
-            <FiClock style={{ display: 'inline', marginRight: '0.5rem' }} />
-            No token history available
-          </div>
+          {tokenHistory.length === 0 ? (
+            <div style={{ color: '#6b7280', fontStyle: 'italic', textAlign: 'center', padding: '2rem' }}>
+              <FiClock style={{ display: 'inline', marginRight: '0.5rem', fontSize: '1.5rem' }} />
+              <div style={{ marginTop: '0.5rem' }}>No token history available</div>
+              <div style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>
+                Complete OAuth flows to see token history here
+              </div>
+            </div>
+          ) : (
+            <div>
+              <div style={{ marginBottom: '1rem', color: '#6b7280', fontSize: '0.875rem' }}>
+                {tokenHistory.length} token{tokenHistory.length !== 1 ? 's' : ''} received from OAuth flows
+              </div>
+              {tokenHistory.map((entry) => (
+                <HistoryEntry 
+                  key={entry.id}
+                  onClick={() => handleLoadTokenFromHistory(entry)}
+                >
+                  <HistoryHeader>
+                    <HistoryFlow>
+                      <span>{getFlowIcon(entry.flowType)}</span>
+                      {entry.flowName}
+                    </HistoryFlow>
+                    <HistoryTimestamp>
+                      {entry.timestampFormatted}
+                    </HistoryTimestamp>
+                  </HistoryHeader>
+                  
+                  <HistoryTokens>
+                    {entry.hasAccessToken && (
+                      <TokenBadge $type="access">
+                        🔐 Access Token
+                      </TokenBadge>
+                    )}
+                    {entry.hasIdToken && (
+                      <TokenBadge $type="id">
+                        🎫 ID Token
+                      </TokenBadge>
+                    )}
+                    {entry.hasRefreshToken && (
+                      <TokenBadge $type="refresh">
+                        🔄 Refresh Token
+                      </TokenBadge>
+                    )}
+                  </HistoryTokens>
+                  
+                  <HistoryActions>
+                    <HistoryButton 
+                      $variant="primary"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleLoadTokenFromHistory(entry);
+                      }}
+                    >
+                      <FiEye />
+                      Load Token
+                    </HistoryButton>
+                    <HistoryButton 
+                      $variant="danger"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveHistoryEntry(entry.id);
+                      }}
+                    >
+                      <FiTrash2 />
+                      Remove
+                    </HistoryButton>
+                  </HistoryActions>
+                </HistoryEntry>
+              ))}
+            </div>
+          )}
         </CardBody>
       </TokenSection>
 
