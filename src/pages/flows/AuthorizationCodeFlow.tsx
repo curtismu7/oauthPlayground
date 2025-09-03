@@ -240,21 +240,21 @@ const StepContent = styled.div`
 `;
 
 const CodeBlock = styled.pre`
-  background-color: ${({ theme }) => theme.colors.gray100};
-  border: 1px solid ${({ theme }) => theme.colors.gray200};
+  background-color: #000000;
+  border: 1px solid #374151;
   border-radius: 0.375rem;
   padding: 1rem;
   margin: 1rem 0;
   overflow-x: auto;
   font-size: 0.875rem;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  color: ${({ theme }) => theme.colors.gray800};
+  color: #ffffff;
   white-space: pre-wrap;
 `;
 
 const TokenDisplay = styled.div`
-  background-color: ${({ theme }) => theme.colors.gray100};
-  border: 1px solid ${({ theme }) => theme.colors.gray200};
+  background-color: #000000;
+  border: 1px solid #374151;
   border-radius: 0.375rem;
   padding: 1rem;
   margin: 1rem 0;
@@ -265,6 +265,7 @@ const TokenDisplay = styled.div`
   overflow: visible;
   max-height: none;
   height: auto;
+  color: #ffffff;
 `;
 
 const ErrorMessage = styled.div`
