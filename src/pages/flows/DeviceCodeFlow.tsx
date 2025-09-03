@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
-import { FiPlay, FiAlertCircle, FiMonitor, FiSmartphone, FiArrowRight } from 'react-icons/fi';
+import { FiPlay, FiAlertCircle, FiMonitor, FiSmartphone } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
 import Spinner from '../../components/Spinner';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
@@ -151,84 +151,7 @@ const StatusIndicator = styled.div`
   }
 `;
 
-const StepsContainer = styled.div`
-  margin-top: 2rem;
-`;
 
-const Step = styled.div<{ $active?: boolean; $completed?: boolean; $error?: boolean }>`
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  background-color: ${({ $active: active, $completed: completed, $error: error }) => {
-    if (error) return 'rgba(239, 68, 68, 0.1)';
-    if (completed) return 'rgba(34, 197, 94, 0.1)';
-    if (active) return 'rgba(59, 130, 246, 0.1)';
-    return 'transparent';
-  }};
-  border: 2px solid ${({ $active: active, $completed: completed, $error: error }) => {
-    if (error) return '#ef4444';
-    if (completed) return '#22c55e';
-    if (active) return '#3b82f6';
-    return 'transparent';
-  }};
-`;
-
-const StepNumber = styled.div<{ $active?: boolean; $completed?: boolean; $error?: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-  font-weight: 600;
-  font-size: 1rem;
-  flex-shrink: 0;
-
-  ${({ $active: active, $completed: completed, $error: error }) => {
-    if (error) {
-      return `
-        background-color: #ef4444;
-        color: white;
-      `;
-    }
-    if (completed) {
-      return `
-        background-color: #22c55e;
-        color: white;
-      `;
-    }
-    if (active) {
-      return `
-        background-color: #3b82f6;
-        color: white;
-      `;
-    }
-    return `
-      background-color: #e5e7eb;
-      color: #6b7280;
-    `;
-  }}
-`;
-
-const StepContent = styled.div`
-  flex: 1;
-
-  h3 {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray900};
-  }
-
-  p {
-    margin: 0 0 1rem 0;
-    color: ${({ theme }) => theme.colors.gray600};
-    line-height: 1.5;
-  }
-`;
 
 const CodeBlock = styled.pre`
   background-color: ${({ theme }) => theme.colors.gray900};
@@ -763,87 +686,7 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
             </div>
           )}
 
-          <StepsContainer>
-            <h3>Flow Steps</h3>
-            {steps.map((step, index) => {
-              const stepResult = stepResults[index];
-              const isExecuted = executedSteps.has(index);
-
-              return (
-                <Step
-                  key={index}
-                  $active={currentStep === index && demoStatus === 'loading'}
-                  $completed={currentStep > index}
-                  $error={currentStep === index && demoStatus === 'error'}
-                >
-                  <StepNumber
-                    $active={currentStep === index && demoStatus === 'loading'}
-                    $completed={currentStep > index}
-                    $error={currentStep === index && demoStatus === 'error'}
-                  >
-                    {index + 1}
-                  </StepNumber>
-                  <StepContent>
-                    <h3>{step.title}</h3>
-                    <p>{step.description}</p>
-
-                    {/* Show request code section always (this is the template/example) */}
-                    {step.code && (
-                      <CodeBlock>{step.code}</CodeBlock>
-                    )}
-
-                    {/* Show response/result only after step is executed */}
-                    {isExecuted && stepResult && (
-                      <ResponseBox>
-                        <h4>Response:</h4>
-                        {stepResult.request && (
-                          <div>
-                            <strong>API Request:</strong><br />
-                            <pre>{JSON.stringify(stepResult.request, null, 2)}</pre>
-                          </div>
-                        )}
-                        {stepResult.response && (
-                          <div>
-                            <strong>Server Response:</strong><br />
-                            <pre>{JSON.stringify(stepResult.response, null, 2)}</pre>
-                          </div>
-                        )}
-                        {stepResult.userCode && (
-                          <div>
-                            <strong>User Code:</strong><br />
-                            <pre>{stepResult.userCode}</pre>
-                            <strong>Verification URI:</strong><br />
-                            <pre>{stepResult.verificationUri}</pre>
-                          </div>
-                        )}
-                        {stepResult.message && (
-                          <div>
-                            <strong>Status:</strong><br />
-                            <pre>{stepResult.message}</pre>
-                          </div>
-                        )}
-                      </ResponseBox>
-                    )}
-
-                    {/* Show execution status */}
-                    {isExecuted && (
-                      <div style={{
-                        marginTop: '1rem',
-                        padding: '0.5rem',
-                        backgroundColor: '#d4edda',
-                        border: '1px solid #c3e6cb',
-                        borderRadius: '0.25rem',
-                        color: '#155724',
-                        fontSize: '0.875rem'
-                      }}>
-                        ✅ Step completed successfully
-                      </div>
-                    )}
-                  </StepContent>
-                </Step>
-              );
-            })}
-          </StepsContainer>
+          
         </CardBody>
       </DemoSection>
     </Container>
