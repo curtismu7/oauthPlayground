@@ -268,7 +268,84 @@ interface StepByStepFlowProps {
   title: string;
 }
 
-export const StepByStepFlow: React.FC<StepByStepFlowProps> = ({
+// Memoized Step component to prevent unnecessary re-renders
+const MemoizedStep = React.memo<{
+  step: FlowStep;
+  index: number;
+  isActive: boolean;
+  isCompleted: boolean;
+  onExecute: () => Promise<void>;
+  onNext: () => void;
+  isLast: boolean;
+  disabled: boolean;
+}>(({ step, index, isActive, isCompleted, onExecute, onNext, isLast, disabled }) => {
+  const handleExecute = useCallback(() => {
+    onExecute();
+  }, [onExecute]);
+
+  const handleNext = useCallback(() => {
+    onNext();
+  }, [onNext]);
+
+  return (
+    <StepContainer
+      id={`step-${index}`}
+      $isActive={isActive}
+      $isCompleted={isCompleted}
+    >
+      <StepHeader>
+        <StepTitle $isActive={isActive} $isCompleted={isCompleted}>
+          {step.title}
+        </StepTitle>
+        <StepNumber $isActive={isActive} $isCompleted={isCompleted}>
+          {index + 1}
+        </StepNumber>
+      </StepHeader>
+
+      <StepDescription>{step.description}</StepDescription>
+
+      {step.code && (
+        <CodeBlock>{step.code}</CodeBlock>
+      )}
+
+      <StepActions>
+        {isActive && step.execute && (
+          <StepButton
+            $variant="primary"
+            onClick={handleExecute}
+            disabled={disabled}
+          >
+            Execute Step {index + 1}
+          </StepButton>
+        )}
+
+        {!isLast && (
+          <StepButton
+            $variant="secondary"
+            onClick={handleNext}
+            disabled={!isCompleted}
+          >
+            <FiArrowRight />
+            Next Step
+          </StepButton>
+        )}
+
+        {isLast && isCompleted && (
+          <StepButton
+            $variant="success"
+            disabled
+          >
+            ✓ Complete
+          </StepButton>
+        )}
+      </StepActions>
+    </StepContainer>
+  );
+});
+
+MemoizedStep.displayName = 'MemoizedStep';
+
+const StepByStepFlowComponent: React.FC<StepByStepFlowProps> = ({
   steps,
   onStart,
   onReset,
@@ -278,14 +355,10 @@ export const StepByStepFlow: React.FC<StepByStepFlowProps> = ({
   disabled = false,
   title
 }) => {
-  console.log('🔄 [StepByStepFlow] Component rendered with currentStep:', currentStep, 'status:', status);
   const executeCurrentStep = useCallback(async () => {
-    console.log('🔄 [StepByStepFlow] executeCurrentStep called', { currentStep, stepsLength: steps.length });
     if (currentStep < steps.length && steps[currentStep].execute) {
       try {
-        console.log('🔄 [StepByStepFlow] Executing step:', steps[currentStep].title);
         await steps[currentStep].execute!();
-        console.log('✅ [StepByStepFlow] Step executed successfully');
         
         // Auto-scroll to the executed step after a short delay
         setTimeout(() => {
@@ -311,13 +384,8 @@ export const StepByStepFlow: React.FC<StepByStepFlowProps> = ({
   }, [currentStep, steps, onStepChange]);
 
   const goToNextStep = useCallback(() => {
-    console.log('🔄 [StepByStepFlow] goToNextStep called', { currentStep, stepsLength: steps.length });
     if (currentStep < steps.length - 1) {
-      console.log('🔄 [StepByStepFlow] Moving to next step:', currentStep + 1);
       onStepChange(currentStep + 1);
-      console.log('🔄 [StepByStepFlow] onStepChange called with:', currentStep + 1);
-    } else {
-      console.log('🔄 [StepByStepFlow] Already at last step, cannot go next');
     }
   }, [currentStep, steps.length, onStepChange]);
 
@@ -400,13 +468,12 @@ export const StepByStepFlow: React.FC<StepByStepFlowProps> = ({
       {/* Step Progress Indicator */}
       {status === 'loading' && (
         <StepProgressIndicator>
-                  <ProgressStepTitle>
-          Step {currentStep + 1} of {steps.length}: {steps[currentStep]?.title}
-        </ProgressStepTitle>
-        {console.log('🔄 [StepByStepFlow] Progress indicator showing step:', currentStep + 1, 'of', steps.length)}
-        <ProgressStepDescription>
-          {steps[currentStep]?.description}
-        </ProgressStepDescription>
+          <ProgressStepTitle>
+            Step {currentStep + 1} of {steps.length}: {steps[currentStep]?.title}
+          </ProgressStepTitle>
+          <ProgressStepDescription>
+            {steps[currentStep]?.description}
+          </ProgressStepDescription>
           <StepDots>
             {steps.map((_, index) => (
               <StepDot
@@ -425,62 +492,24 @@ export const StepByStepFlow: React.FC<StepByStepFlowProps> = ({
       {status === 'loading' && (
         <div>
           {steps.map((step, index) => (
-            <StepContainer
+            <MemoizedStep
               key={index}
-              id={`step-${index}`}
-              $isActive={index === currentStep}
-              $isCompleted={index < currentStep}
-            >
-              <StepHeader>
-                <StepTitle $isActive={index === currentStep} $isCompleted={index < currentStep}>
-                  {step.title}
-                </StepTitle>
-                <StepNumber $isActive={index === currentStep} $isCompleted={index < currentStep}>
-                  {index + 1}
-                </StepNumber>
-              </StepHeader>
-              
-              <StepDescription>{step.description}</StepDescription>
-              
-              {step.code && (
-                <CodeBlock>{step.code}</CodeBlock>
-              )}
-              
-              <StepActions>
-                {index === currentStep && step.execute && (
-                  <StepButton
-                    $variant="primary"
-                    onClick={executeCurrentStep}
-                    disabled={disabled}
-                  >
-                    Execute Step {index + 1}
-                  </StepButton>
-                )}
-                
-                {index < steps.length - 1 && (
-                  <StepButton
-                    $variant="secondary"
-                    onClick={() => onStepChange(index + 1)}
-                    disabled={index >= currentStep}
-                  >
-                    <FiArrowRight />
-                    Next Step
-                  </StepButton>
-                )}
-                
-                {index === steps.length - 1 && index < currentStep && (
-                  <StepButton
-                    $variant="success"
-                    disabled
-                  >
-                    ✓ Complete
-                  </StepButton>
-                )}
-              </StepActions>
-            </StepContainer>
+              step={step}
+              index={index}
+              isActive={index === currentStep}
+              isCompleted={index < currentStep}
+              onExecute={executeCurrentStep}
+              onNext={() => onStepChange(index + 1)}
+              isLast={index === steps.length - 1}
+              disabled={disabled}
+            />
           ))}
         </div>
       )}
     </FlowContainer>
   );
 };
+
+StepByStepFlowComponent.displayName = 'StepByStepFlowComponent';
+
+export const StepByStepFlow = React.memo(StepByStepFlowComponent);
