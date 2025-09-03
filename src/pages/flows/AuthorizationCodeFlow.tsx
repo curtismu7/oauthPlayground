@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
@@ -379,7 +379,7 @@ const AuthorizationCodeFlow = () => {
   }, [contextTokens, tokensReceived]);
 
   // Define steps with real URLs from config
-  const steps: FlowStep[] = [
+  const steps: FlowStep[] = useMemo(() => [
     {
       title: 'Client Prepares Authorization Request',
       description: 'The client application prepares an authorization request with required parameters.',
@@ -408,9 +408,6 @@ const AuthorizationCodeFlow = () => {
         const url = `${config.authorizationEndpoint || config.authEndpoint || ''}?client_id=${config.clientId}&redirect_uri=${encodeURIComponent(config.redirectUri)}&response_type=${flowConfig.responseType}&scope=${encodeURIComponent(flowConfig.scopes.join(' '))}&state=${flowConfig.state || 'xyz123'}&nonce=${flowConfig.nonce || 'abc456'}${flowConfig.enablePKCE ? `&code_challenge=YOUR_CODE_CHALLENGE&code_challenge_method=${flowConfig.codeChallengeMethod}` : ''}${flowConfig.maxAge > 0 ? `&max_age=${flowConfig.maxAge}` : ''}${flowConfig.prompt ? `&prompt=${flowConfig.prompt}` : ''}${flowConfig.loginHint ? `&login_hint=${flowConfig.loginHint}` : ''}${flowConfig.acrValues.length > 0 ? `&acr_values=${encodeURIComponent(flowConfig.acrValues.join(' '))}` : ''}${Object.keys(flowConfig.customParams).length > 0 ? Object.entries(flowConfig.customParams).map(([k, v]) => `&${k}=${encodeURIComponent(v)}`).join('') : ''}`;
 
         setAuthUrl(url);
-        setStepResults(prev => ({ ...prev, 0: { url } }));
-        setExecutedSteps(prev => new Set(prev).add(0));
-
         console.log('✅ [AuthCodeFlow] Authorization URL generated:', url);
         return { url };
       }
@@ -434,8 +431,6 @@ window.location.href = authUrl;
           
           console.log('✅ [AuthCodeFlow] Redirecting user to PingOne for authentication');
           const result = { message: 'Redirecting to authorization server...' };
-          setStepResults(prev => ({ ...prev, 1: result }));
-          setExecutedSteps(prev => new Set(prev).add(1));
           
           // Actually redirect to PingOne
           setTimeout(() => {
@@ -608,7 +603,7 @@ grant_type=authorization_code
         return result;
       }
     }
-  ];
+  ], [config, authUrl, stepResults, executedSteps, flowConfig]);
 
 
   const startAuthFlow = () => {
