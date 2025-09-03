@@ -423,9 +423,14 @@ window.location.href = authUrl;
 // - Consent for requested scopes
 // - Redirect back to client with authorization code`,
       execute: () => {
-        console.log('✅ [AuthCodeFlow] User would be redirected to PingOne for authentication');
-        setStepResults(prev => ({ ...prev, 1: { message: 'User redirected to authorization server' } }));
-        setExecutedSteps(prev => new Set(prev).add(1));
+        try {
+          console.log('✅ [AuthCodeFlow] User would be redirected to PingOne for authentication');
+          setStepResults(prev => ({ ...prev, 1: { message: 'User redirected to authorization server' } }));
+          setExecutedSteps(prev => new Set(prev).add(1));
+        } catch (error) {
+          console.error('❌ [AuthCodeFlow] Error in step 1:', error);
+          setError(`Error in step 1: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
       }
     },
     {
@@ -435,25 +440,30 @@ window.location.href = authUrl;
   code=authorization-code-here
   &state=${flowConfig.state || 'xyz123'}`,
       execute: () => {
-        // Simulate getting authorization code from URL or generate one
-        const searchParams = new URLSearchParams(location.search || '');
-        const codeFromUrl = searchParams.get('code');
-        const code = codeFromUrl || ('auth-code-' + Math.random().toString(36).substr(2, 9));
+        try {
+          // Simulate getting authorization code from URL or generate one
+          const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search || '' : '');
+          const codeFromUrl = searchParams.get('code');
+          const code = codeFromUrl || ('auth-code-' + Math.random().toString(36).substr(2, 9));
 
-        setAuthCode(code);
-        const stepResult = {
-          url: `${config?.redirectUri || 'https://your-app.com/callback'}?code=${code}&state=${flowConfig.state || 'xyz123'}`,
-          code: code
-        };
-        
-        setStepResults(prev => ({
-          ...prev,
-          2: stepResult
-        }));
-        setExecutedSteps(prev => new Set(prev).add(2));
+          setAuthCode(code);
+          const stepResult = {
+            url: `${config?.redirectUri || 'https://your-app.com/callback'}?code=${code}&state=${flowConfig.state || 'xyz123'}`,
+            code: code
+          };
+          
+          setStepResults(prev => ({
+            ...prev,
+            2: stepResult
+          }));
+          setExecutedSteps(prev => new Set(prev).add(2));
 
-        console.log('✅ [AuthCodeFlow] Authorization code received:', code);
-        console.log('🔍 [AuthCodeFlow] Step result set:', stepResult);
+          console.log('✅ [AuthCodeFlow] Authorization code received:', code);
+          console.log('🔍 [AuthCodeFlow] Step result set:', stepResult);
+        } catch (error) {
+          console.error('❌ [AuthCodeFlow] Error in step 2:', error);
+          setError(`Error in step 2: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
       }
     },
     {
