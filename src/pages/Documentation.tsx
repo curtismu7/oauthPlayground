@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { FiBookOpen, FiCode, FiLock, FiUser, FiHelpCircle, FiExternalLink, FiPlay, FiTool, FiShield, FiSettings } from 'react-icons/fi';
+import PageTitle from '../components/PageTitle';
 
 const DocumentationContainer = styled.div`
   max-width: 1200px;
@@ -9,23 +10,7 @@ const DocumentationContainer = styled.div`
   padding: 1.5rem;
 `;
 
-const PageHeader = styled.div`
-  margin-bottom: 2.5rem;
-  
-  h1 {
-    font-size: 2rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray900};
-    margin-bottom: 0.75rem;
-  }
-  
-  p {
-    color: ${({ theme }) => theme.colors.gray600};
-    font-size: 1.1rem;
-    max-width: 800px;
-    line-height: 1.6;
-  }
-`;
+
 
 const Section = styled.section`
   margin-bottom: 3rem;
@@ -231,13 +216,15 @@ const FeatureButton = styled(Link)`
 const Documentation = () => {
   return (
     <DocumentationContainer>
-      <PageHeader>
-        <h1>OAuth 2.0 & OpenID Connect Documentation</h1>
-        <p>
-          Welcome to the OAuth Playground documentation. Here you'll find guides, examples, and references
-          to help you understand and implement OAuth 2.0 and OpenID Connect with PingOne.
-        </p>
-      </PageHeader>
+      <PageTitle 
+        title={
+          <>
+            <FiBookOpen />
+            OAuth 2.0 & OpenID Connect Documentation
+          </>
+        }
+        subtitle="Welcome to the OAuth Playground documentation. Here you'll find guides, examples, and references to help you understand and implement OAuth 2.0 and OpenID Connect with PingOne."
+      />
 
       <QuickStartBanner>
         <h2>🚀 Ready to Get Started?</h2>
