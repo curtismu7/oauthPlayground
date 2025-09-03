@@ -206,6 +206,12 @@ const Dashboard = () => {
         console.log('🔍 [Dashboard] Loading dashboard data...');
         console.log('🔍 [Dashboard] Current tokens from useAuth:', tokens);
         console.log('🔍 [Dashboard] isAuthenticated:', isAuthenticated);
+        console.log('🔍 [Dashboard] Token details:', {
+          hasTokens: !!tokens,
+          hasAccessToken: !!(tokens?.access_token),
+          tokenType: tokens?.token_type,
+          expiresIn: tokens?.expires_in
+        });
         
         // Load recent activity using the activity tracker
         const activity = getRecentActivity();
