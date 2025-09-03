@@ -234,12 +234,32 @@ const Callback = () => {
 
         // If we reach here, authentication was successful
         console.log('✅ [Callback] ===== AUTHENTICATION SUCCESSFUL =====');
-        console.log('✅ [Callback] Setting status to success and navigating to dashboard');
+        console.log('✅ [Callback] Setting status to success and determining redirect destination');
         setStatus('success');
+        
+        // Determine where to redirect based on the flow type
+        const flowType = localStorage.getItem('oauth_flow_type');
+        console.log('🔍 [Callback] Flow type from localStorage:', flowType);
+        
+        let redirectPath = '/dashboard'; // Default fallback
+        
+        if (flowType === 'authorization-code') {
+          redirectPath = '/flows/authorization-code';
+          console.log('🔄 [Callback] Redirecting back to Authorization Code Flow page');
+        } else if (flowType === 'implicit-grant') {
+          redirectPath = '/flows/implicit-grant';
+          console.log('🔄 [Callback] Redirecting back to Implicit Grant Flow page');
+        } else {
+          console.log('🔄 [Callback] No flow type found, redirecting to dashboard');
+        }
+        
+        // Clear the flow type from localStorage
+        localStorage.removeItem('oauth_flow_type');
+        
         // Brief success state before navigating
         setTimeout(() => {
-          console.log('🔄 [Callback] Navigating to /dashboard');
-          navigate('/dashboard', { replace: true });
+          console.log(`🔄 [Callback] Navigating to ${redirectPath}`);
+          navigate(redirectPath, { replace: true });
         }, 1500);
         console.log('✅ [Callback] ===== OAUTH CALLBACK DEBUG END (SUCCESS) =====');
         
