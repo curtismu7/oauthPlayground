@@ -602,7 +602,7 @@ grant_type=authorization_code
         console.log('✅ [AuthCodeFlow] Tokens processed successfully');
         return result;
       }
-    }
+    },
   ], [config, authUrl, stepResults, executedSteps, flowConfig]);
 
 
