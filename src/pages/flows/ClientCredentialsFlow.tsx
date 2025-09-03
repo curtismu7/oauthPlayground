@@ -364,6 +364,7 @@ const ClientCredentialsFlow = () => {
   // Track execution results for each step
   const [stepResults, setStepResults] = useState<Record<number, any>>({});
   const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
+  const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
 
   const startClientCredentialsFlow = async () => {
     setDemoStatus('loading');
