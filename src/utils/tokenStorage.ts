@@ -25,6 +25,8 @@ export interface OAuthTokens {
  */
 export const storeOAuthTokens = (tokens: OAuthTokens, flowType?: string, flowName?: string): boolean => {
   try {
+    console.log('🔍 [TokenStorage] storeOAuthTokens called with:', { tokens: tokens.access_token ? 'HAS_ACCESS_TOKEN' : 'NO_ACCESS_TOKEN', flowType, flowName });
+    
     // Add timestamp if not present
     const tokensWithTimestamp = {
       ...tokens,
@@ -39,7 +41,10 @@ export const storeOAuthTokens = (tokens: OAuthTokens, flowType?: string, flowNam
       
       // Add to token history if flow information is provided
       if (flowType && flowName) {
+        console.log('📝 [TokenStorage] Adding tokens to history for flow:', flowType, flowName);
         addTokenToHistory(flowType, flowName, tokensWithTimestamp);
+      } else {
+        console.warn('⚠️ [TokenStorage] No flow information provided, tokens not added to history');
       }
     } else {
       console.error('❌ [TokenStorage] Failed to store tokens using oauthStorage');
