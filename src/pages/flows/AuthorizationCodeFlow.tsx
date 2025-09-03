@@ -459,6 +459,9 @@ window.location.href = authUrl;
         // Store the URL in state
         setAuthUrl(authorizationUrl);
         
+        // Store the flow type so callback knows where to redirect back
+        localStorage.setItem('oauth_flow_type', 'authorization-code');
+        
         // Return success result
         const result = { 
           message: 'Redirecting to authorization server...', 
