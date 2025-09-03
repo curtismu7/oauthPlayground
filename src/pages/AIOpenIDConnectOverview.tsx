@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../components/Card';
-import { FiBookOpen, FiCode, FiShield, FiUsers, FiCheckCircle, FiAlertTriangle, FiInfo, FiArrowRight, FiBarChart3 } from 'react-icons/fi';
+import { FiBookOpen, FiCode, FiShield, FiUsers, FiCheckCircle, FiAlertTriangle, FiInfo, FiArrowRight, FiBarChart } from 'react-icons/fi';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -416,7 +416,7 @@ const AIOpenIDConnectOverview = () => {
       <ComparisonTable>
         <CardBody>
           <TableHeader>
-            <FiBarChart3 size={20} />
+            <FiBarChart size={20} />
             <h2>Quick Comparison</h2>
           </TableHeader>
           
