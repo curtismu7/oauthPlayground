@@ -763,11 +763,11 @@ grant_type=authorization_code
             </div>
           )}
 
-          {!isAuthenticated && (
+          {!config && (
             <ErrorMessage>
               <FiAlertCircle />
-              <strong>Note:</strong> This demo shows the flow conceptually.
-              For a real implementation, configure your PingOne environment first.
+              <strong>Configuration Required:</strong> Please configure your PingOne settings
+              in the Configuration page before running this demo.
             </ErrorMessage>
           )}
 
@@ -781,7 +781,7 @@ grant_type=authorization_code
           {authUrl && (
             <div>
               <h3>Authorization URL Generated:</h3>
-              <CodeBlock>{authUrl}</CodeBlock>
+              <ColorCodedURL url={authUrl} />
               <p><em>In a real app, the user would be redirected to this URL</em></p>
             </div>
           )}
