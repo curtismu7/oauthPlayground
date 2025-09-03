@@ -67,6 +67,28 @@ const SecurityWarning = styled.div`
   }
 `;
 
+const ResultSection = styled.div`
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: ${({ theme }) => theme.colors.gray50};
+  border-radius: 0.75rem;
+  border: 1px solid ${({ theme }) => theme.colors.gray200};
+
+  h3 {
+    color: ${({ theme }) => theme.colors.gray900};
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
 const DemoSection = styled(Card)`
   margin-bottom: 2rem;
 `;
@@ -337,18 +359,18 @@ console.log('User ID:', decodedIdToken.sub);`,
           )}
 
           {authUrl && (
-            <div>
+            <ResultSection>
               <h3>Authorization URL Generated:</h3>
               <ColorCodedURL url={authUrl} />
               <URLParamExplainer url={authUrl} />
-            </div>
+            </ResultSection>
           )}
 
           {tokensReceived && (
-            <div>
+            <ResultSection>
               <h3>Tokens Received:</h3>
               <TokenDisplayComponent tokens={tokensReceived} />
-            </div>
+            </ResultSection>
           )}
         </CardBody>
       </DemoSection>
