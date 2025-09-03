@@ -118,6 +118,8 @@ const TokenLabel = styled.h4<{ $type?: 'access' | 'id' | 'refresh' | 'info' }>`
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  position: relative;
+  z-index: 2;
 
   &::before {
     content: '';
@@ -139,6 +141,9 @@ const TokenLabel = styled.h4<{ $type?: 'access' | 'id' | 'refresh' | 'info' }>`
       }
     }};
     display: inline-block;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
   }
 `;
 
