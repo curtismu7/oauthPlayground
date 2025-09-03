@@ -10,6 +10,7 @@ import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import ConfigurationButton from '../../components/ConfigurationButton';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 import TokenDisplayComponent from '../../components/TokenDisplay';
+import PageTitle from '../../components/PageTitle';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -17,25 +18,7 @@ const Container = styled.div`
   padding: 1.5rem;
 `;
 
-const Header = styled.div`
-  margin-bottom: 2rem;
 
-  h1 {
-    font-size: 2.5rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray900};
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  p {
-    color: ${({ theme }) => theme.colors.gray600};
-    font-size: 1.1rem;
-    line-height: 1.6;
-  }
-`;
 
 const FlowOverview = styled(Card)`
   margin-bottom: 2rem;
@@ -342,16 +325,15 @@ console.log('User ID:', decodedIdToken.sub);`
 
   return (
     <Container>
-      <Header>
-        <h1>
-          <FiLock />
-          Implicit Grant Flow
-        </h1>
-        <p>
-          Learn how the Implicit Grant flow works with real API calls to PingOne.
-          This flow is suitable for client-side applications but has security limitations.
-        </p>
-      </Header>
+      <PageTitle 
+        title={
+          <>
+            <FiLock />
+            Implicit Grant Flow
+          </>
+        }
+        subtitle="Learn how the Implicit Grant flow works with real API calls to PingOne. This flow is suitable for client-side applications but has security limitations."
+      />
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
         <ConfigurationButton flowType="implicit" />
