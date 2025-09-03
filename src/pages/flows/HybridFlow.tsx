@@ -55,8 +55,8 @@ const FlowDescription = styled.div`
 `;
 
 const SecurityHighlight = styled.div`
-  background-color: ${({ theme }) => theme.colors.warning}10;
-  border: 1px solid ${({ theme }) => theme.colors.warning}30;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
   border-radius: 0.5rem;
   padding: 1rem;
   margin-bottom: 2rem;
@@ -65,13 +65,13 @@ const SecurityHighlight = styled.div`
   gap: 0.75rem;
 
   svg {
-    color: ${({ theme }) => theme.colors.warning};
+    color: #dc2626;
     flex-shrink: 0;
     margin-top: 0.1rem;
   }
 
   h3 {
-    color: ${({ theme }) => theme.colors.warning};
+    color: #dc2626;
     margin: 0 0 0.5rem 0;
     font-size: 1rem;
     font-weight: 600;
@@ -79,7 +79,7 @@ const SecurityHighlight = styled.div`
 
   p {
     margin: 0;
-    color: ${({ theme }) => theme.colors.warning};
+    color: #dc2626;
     font-size: 0.9rem;
   }
 `;
