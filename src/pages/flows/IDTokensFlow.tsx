@@ -6,6 +6,7 @@ import { useAuth } from '../../contexts/NewAuthContext';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import ConfigurationButton from '../../components/ConfigurationButton';
 import PageTitle from '../../components/PageTitle';
+import { getOAuthTokens } from '../../utils/tokenStorage';
 
 
 const Container = styled.div`
@@ -390,7 +391,7 @@ const parseJwt = (token: string) => {
 };
 
 const IDTokensFlow = () => {
-  const { config } = useAuth();
+  const { config, tokens } = useAuth();
   const [demoStatus, setDemoStatus] = useState('idle');
   const [currentStep, setCurrentStep] = useState(0);
   const [idToken, setIdToken] = useState('');
@@ -400,23 +401,67 @@ const IDTokensFlow = () => {
 
   // Track execution results for each step
   const [stepResults, setStepResults] = useState<Record<number, any>>({});
-  const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
+  const [executedSteps] = useState<Set<number>>(new Set());
+
+  // Load ID token from storage on component mount
+  useEffect(() => {
+    const loadStoredIDToken = () => {
+      try {
+        // First try to get from auth context
+        if (tokens?.id_token) {
+          console.log('✅ [IDTokensFlow] Found ID token in auth context:', tokens.id_token.substring(0, 50) + '...');
+          setIdToken(tokens.id_token);
+          return;
+        }
+
+        // Fallback to token storage utility
+        const oauthTokens = getOAuthTokens();
+        if (oauthTokens?.id_token) {
+          console.log('✅ [IDTokensFlow] Found ID token in storage:', oauthTokens.id_token.substring(0, 50) + '...');
+          setIdToken(oauthTokens.id_token);
+          return;
+        }
+
+        // Check localStorage for any ID token
+        const storedTokens = localStorage.getItem('pingone_playground_tokens');
+        if (storedTokens) {
+          try {
+            const parsed = JSON.parse(storedTokens);
+            if (parsed.id_token) {
+              console.log('✅ [IDTokensFlow] Found ID token in localStorage:', parsed.id_token.substring(0, 50) + '...');
+              setIdToken(parsed.id_token);
+              return;
+            }
+          } catch (e) {
+            console.warn('⚠️ [IDTokensFlow] Failed to parse localStorage tokens:', e);
+          }
+        }
+
+        console.log('ℹ️ [IDTokensFlow] No ID token found in storage');
+      } catch (error) {
+        console.error('❌ [IDTokensFlow] Error loading stored ID token:', error);
+      }
+    };
+
+    loadStoredIDToken();
+  }, [tokens]);
 
   const simulateIDTokenFlow = async () => {
     setDemoStatus('loading');
     setCurrentStep(0);
     setError(null);
-    setIdToken('');
     setDecodedToken(null);
     setValidationResults(null);
 
     try {
       setCurrentStep(1);
 
-      // Simulate receiving an ID token from OAuth flow
-      const mockIdToken = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJqb2huLmRvZUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpYXQiOjE1MTYyMzkwMjIsImV4cCI6MTUxNjI3NTAyMiwiaXNzIjoiaHR0cHM6Ly9hdXRoLnBpbmdvbmUuY29tIiwiYXVkIjoiYTRmOTYzZWEtMDczNi00NTZhLWJlNzItYjFmYTRmNjNmODFmIiwibm9uY2UiOiJyYW5kb21fbm9uY2VfdmFsdWUifQ.id_token_signature_placeholder';
+      // Check if we have a stored ID token
+      if (!idToken) {
+        throw new Error('No ID token available. Please complete an OAuth flow first to obtain an ID token.');
+      }
 
-      setIdToken(mockIdToken);
+      console.log('🔍 [IDTokensFlow] Processing stored ID token:', idToken.substring(0, 50) + '...');
       setCurrentStep(2);
 
       // Parse the ID token
@@ -426,26 +471,26 @@ const IDTokensFlow = () => {
 
       // Validate the ID token
       const validation = {
-        signature: { valid: true, message: 'Signature verified using JWKS' },
+        signature: { valid: true, message: 'Signature verification would require JWKS endpoint' },
         issuer: {
-          valid: decoded?.iss === `${config?.apiUrl || 'https://auth.pingone.com'}`,
-          message: `Issuer matches: ${decoded?.iss}`
+          valid: decoded?.iss && decoded.iss.includes('pingone.com'),
+          message: `Issuer: ${decoded?.iss || 'Unknown'}`
         },
         audience: {
-          valid: decoded?.aud === config?.clientId,
-          message: `Audience matches client ID: ${decoded?.aud}`
+          valid: decoded?.aud && (decoded.aud === config?.clientId || Array.isArray(decoded.aud) && decoded.aud.includes(config?.clientId)),
+          message: `Audience: ${decoded?.aud || 'Unknown'} (Client ID: ${config?.clientId || 'Not configured'})`
         },
         expiration: {
-          valid: decoded?.exp > Date.now() / 1000,
-          message: `Token expires: ${new Date((decoded?.exp || 0) * 1000).toLocaleString()}`
+          valid: decoded?.exp && decoded.exp > Date.now() / 1000,
+          message: decoded?.exp ? `Expires: ${new Date(decoded.exp * 1000).toLocaleString()}` : 'No expiration claim'
         },
         issuedAt: {
-          valid: decoded?.iat < Date.now() / 1000,
-          message: `Token issued: ${new Date((decoded?.iat || 0) * 1000).toLocaleString()}`
+          valid: decoded?.iat && decoded.iat < Date.now() / 1000,
+          message: decoded?.iat ? `Issued: ${new Date(decoded.iat * 1000).toLocaleString()}` : 'No issued at claim'
         },
         nonce: {
-          valid: decoded?.nonce === 'random_nonce_value',
-          message: 'Nonce matches original request'
+          valid: !!decoded?.nonce,
+          message: decoded?.nonce ? `Nonce present: ${decoded.nonce.substring(0, 10)}...` : 'No nonce claim'
         }
       };
 
@@ -633,7 +678,7 @@ console.log('ID token is valid!');`
             <DemoButton
               className="primary"
               onClick={simulateIDTokenFlow}
-              disabled={demoStatus === 'loading' || !config}
+              disabled={demoStatus === 'loading' || !config || !idToken}
             >
               <FiPlay />
               Process ID Token
@@ -653,6 +698,33 @@ console.log('ID token is valid!');`
               <strong>Configuration Required:</strong> Please configure your PingOne settings
               in the Configuration page before running this demo.
             </ErrorMessage>
+          )}
+
+          {!idToken && (
+            <ErrorMessage>
+              <FiAlertCircle />
+              <strong>No ID Token Available:</strong> Please complete an OAuth flow (like Implicit Grant Flow or Authorization Code Flow) 
+              that includes the 'openid' scope to obtain an ID token before running this demo.
+            </ErrorMessage>
+          )}
+
+          {idToken && (
+            <div style={{ 
+              background: 'rgba(34, 197, 94, 0.1)', 
+              border: '1px solid rgba(34, 197, 94, 0.3)', 
+              borderRadius: '0.5rem', 
+              padding: '1rem', 
+              marginBottom: '1rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}>
+              <FiCheckCircle style={{ color: '#22c55e' }} />
+              <div>
+                <strong style={{ color: '#22c55e' }}>ID Token Available:</strong> 
+                <span style={{ color: '#059669' }}> Found stored ID token from previous OAuth flow</span>
+              </div>
+            </div>
           )}
 
           {error && (
