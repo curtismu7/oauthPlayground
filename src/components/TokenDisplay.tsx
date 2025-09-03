@@ -209,7 +209,7 @@ const TokenValue = styled.pre<{ $isMasked?: boolean; $type?: 'access' | 'id' | '
     }
   }};
   border-radius: 0.5rem;
-  padding: 1.5rem;
+  padding: 2rem 1.5rem 1.5rem 1.5rem;
   margin-top: 0.5rem;
   overflow-x: auto;
   word-break: break-all;
