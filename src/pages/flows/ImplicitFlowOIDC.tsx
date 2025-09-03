@@ -283,7 +283,7 @@ window.location.href = authUrl;
           scope: 'openid profile email'
         };
         
-        const success = storeOAuthTokens(tokensForStorage);
+        const success = storeOAuthTokens(tokensForStorage, 'implicit_oidc', 'Implicit OIDC Flow');
         if (success) {
           console.log('✅ [ImplicitFlowOIDC] Tokens received and stored successfully');
         } else {
