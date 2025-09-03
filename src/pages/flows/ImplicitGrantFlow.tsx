@@ -121,9 +121,9 @@ const ImplicitGrantFlow = () => {
       return '';
     }
 
-    if (!config.apiUrl || !config.clientId || !config.redirectUri) {
+    if (!config.authorizationEndpoint || !config.clientId || !config.redirectUri) {
       console.warn('⚠️ [ImplicitGrantFlow] Missing required configuration:', {
-        apiUrl: !!config.apiUrl,
+        authorizationEndpoint: !!config.authorizationEndpoint,
         clientId: !!config.clientId,
         redirectUri: !!config.redirectUri
       });
@@ -139,7 +139,7 @@ const ImplicitGrantFlow = () => {
       nonce: Math.random().toString(36).substring(2, 15)
     });
 
-    const url = `${config.apiUrl}/authorize?${params.toString()}`;
+    const url = `${config.authorizationEndpoint}?${params.toString()}`;
     console.log('✅ [ImplicitGrantFlow] Generated authorization URL:', url);
     return url;
   };
@@ -191,7 +191,10 @@ client_id: '${config?.clientId || 'your_client_id'}'
 redirect_uri: '${config?.redirectUri || 'https://yourapp.com/callback'}'
 scope: 'read write'
 state: 'random_state_value'
-nonce: 'random_nonce_value'`,
+nonce: 'random_nonce_value'
+
+// Full URL:
+${config?.authorizationEndpoint || 'https://auth.pingone.com/env_id/as/authorize'}?response_type=token&client_id=${config?.clientId || 'your_client_id'}&redirect_uri=${config?.redirectUri || 'https://yourapp.com/callback'}&scope=read%20write&state=random_state_value&nonce=random_nonce_value`,
       execute: () => {
         if (!config) {
           setError('Configuration required. Please configure your PingOne settings first.');
