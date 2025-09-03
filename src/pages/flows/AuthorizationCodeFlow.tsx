@@ -428,16 +428,17 @@ window.location.href = authUrl;
           console.log('🔍 [AuthCodeFlow] Step 2 debugging:', {
             authUrl: authUrl,
             stepResults: stepResults,
-            step1Result: stepResults[1], // Step 1 is at index 1
-            hasStep1Result: !!stepResults[1],
-            step1ResultUrl: stepResults[1]?.url
+            step1Result: stepResults[0], // Step 1 is at index 0
+            hasStep1Result: !!stepResults[0],
+            step1ResultUrl: stepResults[0]?.url
           });
           
           // Check for authUrl from state first, then from step results
           let urlToUse = authUrl;
+          console.log('🔍 [AuthCodeFlow] Step 2 - Current authUrl state:', authUrl);
           if (!urlToUse) {
-            // Step 1 result is stored at index 1 (1-based indexing)
-            const step1Result = stepResults[1];
+            // Fallback: try to get from step results
+            const step1Result = stepResults[0];
             if (step1Result && step1Result.url) {
               urlToUse = step1Result.url;
               setAuthUrl(step1Result.url);
