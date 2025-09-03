@@ -589,7 +589,7 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
         subtitle="Learn how the Device Code flow works for devices with limited input capabilities with real API calls to PingOne."
       />
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.5rem', marginBottom: '2rem', padding: '1rem 0' }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '2rem', marginBottom: '3rem', padding: '1.5rem 0' }}>
         <ConfigurationButton flowType="device_code" />
       </div>
 

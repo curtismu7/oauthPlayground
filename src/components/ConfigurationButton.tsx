@@ -16,13 +16,14 @@ const Button = styled.button`
   color: white;
   border: none;
   border-radius: 0.375rem;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1.25rem;
   font-size: 0.875rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   transition: background-color 0.2s;
+  margin-bottom: 1.5rem;
 
   &:hover {
     background: #4b5563;
