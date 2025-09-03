@@ -519,9 +519,17 @@ grant_type=authorization_code
         let codeToUse = authCode;
         if (!codeToUse) {
           const step2Result = stepResults[2];
+          console.log('🔍 [AuthCodeFlow] Step 3 debugging:', {
+            authCode: authCode,
+            step2Result: step2Result,
+            stepResults: stepResults
+          });
           if (step2Result && step2Result.code) {
             codeToUse = step2Result.code;
             setAuthCode(step2Result.code);
+            console.log('✅ [AuthCodeFlow] Using code from step 2 result:', codeToUse);
+          } else {
+            console.log('❌ [AuthCodeFlow] No code available from step 2 result');
           }
         }
         

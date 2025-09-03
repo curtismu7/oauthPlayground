@@ -253,7 +253,8 @@ window.location.href = authUrl;
         // Get the authorization URL from either state or step results
         let urlToUse = authUrl;
         if (!urlToUse) {
-          const step1Result = stepResults[0];
+          // Step 1 result is stored at index 1 (1-based indexing)
+          const step1Result = stepResults[1];
           if (step1Result && step1Result.url) {
             console.log('🔍 [ImplicitGrantFlow] Using URL from step 1 result:', step1Result.url);
             urlToUse = step1Result.url;
