@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../components/Card';
-import { FiBookOpen, FiCode, FiShield, FiUsers, FiCheckCircle, FiAlertTriangle, FiInfo, FiArrowRight } from 'react-icons/fi';
+import { FiBookOpen, FiCode, FiShield, FiUsers, FiCheckCircle, FiAlertTriangle, FiInfo, FiArrowRight, FiBarChart3 } from 'react-icons/fi';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -135,6 +135,78 @@ const AIGeneratedBadge = styled.div`
   }
 `;
 
+const ComparisonTable = styled(Card)`
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  border: 2px solid #374151;
+  color: white;
+  margin: 2rem 0;
+`;
+
+const TableHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  
+  h2 {
+    color: white;
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  
+  svg {
+    color: #60a5fa;
+  }
+`;
+
+const Table = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  
+  th, td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #374151;
+  }
+  
+  th {
+    background-color: #374151;
+    color: #f9fafb;
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+  
+  td {
+    color: #e5e7eb;
+    vertical-align: top;
+  }
+  
+  tr:hover {
+    background-color: rgba(55, 65, 81, 0.3);
+  }
+`;
+
+const SecurityNote = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  
+  &.recommended {
+    color: #10b981;
+  }
+  
+  &.warning {
+    color: #f59e0b;
+  }
+  
+  svg {
+    flex-shrink: 0;
+  }
+`;
+
 const AIOpenIDConnectOverview = () => {
   const [expandedFlow, setExpandedFlow] = useState<string | null>(null);
 
@@ -205,6 +277,45 @@ const AIOpenIDConnectOverview = () => {
       description: 'Pieces of information about the end user included in the ID Token.',
       icon: FiInfo,
       examples: ['Standard claims (sub, name, email)', 'Custom claims', 'Verified claims', 'Aggregated claims']
+    }
+  ];
+
+  const flowComparison = [
+    {
+      flow: 'Authorization Code',
+      tokens: 'ID + Access (+Refresh)',
+      useCase: 'Web, mobile apps (PKCE)',
+      security: { type: 'recommended', text: 'Recommended', icon: FiCheckCircle }
+    },
+    {
+      flow: 'Implicit',
+      tokens: 'ID + Access',
+      useCase: 'Legacy SPAs',
+      security: { type: 'warning', text: 'Deprecated', icon: FiAlertTriangle }
+    },
+    {
+      flow: 'Hybrid',
+      tokens: 'Code + ID + Access',
+      useCase: 'Mixed web apps',
+      security: { type: 'warning', text: 'Rare today', icon: FiAlertTriangle }
+    },
+    {
+      flow: 'Client Credentials',
+      tokens: 'Access only',
+      useCase: 'Machine-to-machine',
+      security: { type: 'recommended', text: 'No user context', icon: FiCheckCircle }
+    },
+    {
+      flow: 'Device Code',
+      tokens: 'ID + Access (+Refresh)',
+      useCase: 'IoT, TVs, CLI tools',
+      security: { type: 'recommended', text: 'Secure', icon: FiCheckCircle }
+    },
+    {
+      flow: 'Refresh Token',
+      tokens: 'New ID + Access',
+      useCase: 'Long-lived sessions',
+      security: { type: 'warning', text: 'Secure storage needed', icon: FiAlertTriangle }
     }
   ];
 
@@ -300,6 +411,42 @@ const AIOpenIDConnectOverview = () => {
           ))}
         </OverviewGrid>
       </section>
+
+      {/* Quick Comparison Table */}
+      <ComparisonTable>
+        <CardBody>
+          <TableHeader>
+            <FiBarChart3 size={20} />
+            <h2>Quick Comparison</h2>
+          </TableHeader>
+          
+          <Table>
+            <thead>
+              <tr>
+                <th>Flow</th>
+                <th>Tokens Returned</th>
+                <th>Use Case</th>
+                <th>Security Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              {flowComparison.map((row, index) => (
+                <tr key={index}>
+                  <td><strong>{row.flow}</strong></td>
+                  <td>{row.tokens}</td>
+                  <td>{row.useCase}</td>
+                  <td>
+                    <SecurityNote className={row.security.type}>
+                      <row.security.icon size={16} />
+                      {row.security.text}
+                    </SecurityNote>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </CardBody>
+      </ComparisonTable>
 
       {/* Key OIDC Concepts */}
       <section style={{ marginBottom: '3rem' }}>
