@@ -434,15 +434,13 @@ window.location.href = authUrl;
         
         // Generate the authorization URL
         const state = Math.random().toString(36).substring(2, 15);
-        const nonce = Math.random().toString(36).substring(2, 15);
         
         const params = new URLSearchParams({
           client_id: config.clientId,
           redirect_uri: config.redirectUri,
           response_type: 'code',
-          scope: 'openid profile email',
-          state: state,
-          nonce: nonce
+          scope: 'read write',
+          state: state
         });
         
         // Only add PKCE if we have a real code challenge
