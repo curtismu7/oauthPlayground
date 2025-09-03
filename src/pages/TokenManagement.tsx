@@ -179,6 +179,14 @@ const JWTContent = styled.pre`
   overflow-x: auto;
   white-space: pre-wrap;
   word-break: break-word;
+  color: #1f2937 !important;
+  min-height: 100px;
+  
+  &:empty::before {
+    content: 'No token data';
+    color: #9ca3af;
+    font-style: italic;
+  }
 `;
 
 const TokenManagement = () => {
@@ -224,22 +232,62 @@ const TokenManagement = () => {
         throw new Error('Please enter a JWT token');
       }
 
+      console.log('🔍 [TokenManagement] Attempting to decode token:', token.substring(0, 50) + '...');
+
       const parts = token.split('.');
+      console.log('🔍 [TokenManagement] Token parts count:', parts.length);
+      
       if (parts.length !== 3) {
         throw new Error('Invalid JWT format. JWT should have 3 parts separated by dots.');
       }
 
+      // Helper function to decode JWT parts with proper base64 handling
+      const parseJwtPart = (part: string) => {
+        try {
+          // Add padding if needed
+          let base64 = part.replace(/-/g, '+').replace(/_/g, '/');
+          while (base64.length % 4) {
+            base64 += '=';
+          }
+          
+          // Use modern base64 decoding
+          let decoded;
+          if (typeof window !== 'undefined' && window.btoa) {
+            // Browser environment
+            decoded = atob(base64);
+          } else {
+            // Node.js environment or fallback
+            decoded = Buffer.from(base64, 'base64').toString('binary');
+          }
+          
+          // Convert to UTF-8 string
+          const jsonPayload = decodeURIComponent(
+            Array.from(decoded, (c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')
+          );
+          
+          const parsed = JSON.parse(jsonPayload);
+          console.log('✅ [TokenManagement] Successfully parsed JWT part:', { part: part.substring(0, 20) + '...', result: parsed });
+          return parsed;
+        } catch (e) {
+          console.error('❌ [TokenManagement] Error parsing JWT part:', e, 'Part:', part.substring(0, 20) + '...');
+          throw e;
+        }
+      };
+
       // Decode header
-      const header = JSON.parse(atob(parts[0].replace(/-/g, '+').replace(/_/g, '/')));
+      console.log('🔍 [TokenManagement] Decoding header part:', parts[0].substring(0, 20) + '...');
+      const header = parseJwtPart(parts[0]);
       setJwtHeader(JSON.stringify(header, null, 2));
 
       // Decode payload
-      const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+      console.log('🔍 [TokenManagement] Decoding payload part:', parts[1].substring(0, 20) + '...');
+      const payload = parseJwtPart(parts[1]);
       setJwtPayload(JSON.stringify(payload, null, 2));
 
+      console.log('✅ [TokenManagement] Successfully decoded JWT:', { header, payload });
       setTokenStatus('valid');
     } catch (error) {
-      console.error('JWT decode error:', error);
+      console.error('❌ [TokenManagement] JWT decode error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       setJwtHeader('Error: ' + errorMessage);
       setJwtPayload('Error: ' + errorMessage);
@@ -455,6 +503,17 @@ const TokenManagement = () => {
             >
               <FiEye />
               Decode JWT
+            </ActionButton>
+
+            <ActionButton
+              className="secondary"
+              onClick={() => {
+                const sampleToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+                setTokenString(sampleToken);
+                console.log('🧪 [TokenManagement] Loaded sample token for testing');
+              }}
+            >
+              🧪 Load Sample Token
             </ActionButton>
           </ButtonGroup>
         </CardBody>
