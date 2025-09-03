@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiAlertCircle, FiLock } from 'react-icons/fi';
@@ -119,6 +119,11 @@ const ImplicitGrantFlow = () => {
       redirectUri: config.redirectUri
     } : null
   });
+
+  // Debug authUrl state changes
+  React.useEffect(() => {
+    console.log('🔍 [ImplicitGrantFlow] authUrl state changed:', authUrl);
+  }, [authUrl]);
   const [currentStep, setCurrentStep] = useState(0);
   const [authUrl, setAuthUrl] = useState('');
   const [tokensReceived, setTokensReceived] = useState<Record<string, unknown> | null>(null);
@@ -239,6 +244,7 @@ ${config?.authorizationEndpoint || 'https://auth.pingone.com/env_id/as/authorize
         }
         
         const result = { url };
+        console.log('🔍 [ImplicitGrantFlow] Step 1 - About to set authUrl state:', url);
         setAuthUrl(url);
         console.log('✅ [ImplicitGrantFlow] Authorization URL generated and stored:', url);
         console.log('🔍 [ImplicitGrantFlow] Step 1 returning result:', result);
@@ -273,6 +279,7 @@ window.location.href = authUrl;
         
         // Get the authorization URL from state (set by step 1)
         let urlToUse = authUrl;
+        console.log('🔍 [ImplicitGrantFlow] Step 2 - Current authUrl state:', authUrl);
         if (!urlToUse) {
           // Fallback: try to get from step results
           const step1Result = stepResults[0];
