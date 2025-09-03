@@ -116,7 +116,19 @@ const ImplicitGrantFlow = () => {
 
   // Generate authorization URL
   const generateAuthUrl = () => {
-    if (!config) return '';
+    if (!config) {
+      console.warn('⚠️ [ImplicitGrantFlow] Configuration not available');
+      return '';
+    }
+
+    if (!config.apiUrl || !config.clientId || !config.redirectUri) {
+      console.warn('⚠️ [ImplicitGrantFlow] Missing required configuration:', {
+        apiUrl: !!config.apiUrl,
+        clientId: !!config.clientId,
+        redirectUri: !!config.redirectUri
+      });
+      return '';
+    }
 
     const params = new URLSearchParams({
       response_type: 'token',
@@ -127,7 +139,9 @@ const ImplicitGrantFlow = () => {
       nonce: Math.random().toString(36).substring(2, 15)
     });
 
-    return `${config.apiUrl}/authorize?${params.toString()}`;
+    const url = `${config.apiUrl}/authorize?${params.toString()}`;
+    console.log('✅ [ImplicitGrantFlow] Generated authorization URL:', url);
+    return url;
   };
 
   const startImplicitFlow = async () => {
@@ -179,7 +193,17 @@ scope: 'read write'
 state: 'random_state_value'
 nonce: 'random_nonce_value'`,
       execute: () => {
+        if (!config) {
+          setError('Configuration required. Please configure your PingOne settings first.');
+          return { error: 'Configuration required' };
+        }
+        
         const url = generateAuthUrl();
+        if (!url) {
+          setError('Failed to generate authorization URL. Please check your configuration.');
+          return { error: 'Failed to generate authorization URL' };
+        }
+        
         setAuthUrl(url);
         const result = { url };
         setStepResults(prev => ({ ...prev, 0: result }));
@@ -199,6 +223,11 @@ window.location.href = authUrl;
 // - Consent for requested scopes
 // - Redirect back with tokens in URL fragment`,
       execute: () => {
+        if (!config) {
+          setError('Configuration required. Please configure your PingOne settings first.');
+          return { error: 'Configuration required' };
+        }
+        
         if (!authUrl) {
           setError('Authorization URL not available. Please complete step 1 first.');
           return { error: 'Authorization URL not available' };
