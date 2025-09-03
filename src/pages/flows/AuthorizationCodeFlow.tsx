@@ -429,11 +429,14 @@ window.location.href = authUrl;
       execute: () => {
         try {
           console.log('✅ [AuthCodeFlow] User would be redirected to PingOne for authentication');
-          setStepResults(prev => ({ ...prev, 1: { message: 'User redirected to authorization server' } }));
+          const result = { message: 'User redirected to authorization server' };
+          setStepResults(prev => ({ ...prev, 1: result }));
           setExecutedSteps(prev => new Set(prev).add(1));
+          return result;
         } catch (error) {
           console.error('❌ [AuthCodeFlow] Error in step 1:', error);
           setError(`Error in step 1: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          return { error: error instanceof Error ? error.message : 'Unknown error' };
         }
       }
     },
@@ -464,9 +467,11 @@ window.location.href = authUrl;
 
           console.log('✅ [AuthCodeFlow] Authorization code received:', code);
           console.log('🔍 [AuthCodeFlow] Step result set:', stepResult);
+          return stepResult;
         } catch (error) {
           console.error('❌ [AuthCodeFlow] Error in step 2:', error);
           setError(`Error in step 2: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          return { error: error instanceof Error ? error.message : 'Unknown error' };
         }
       }
     },
@@ -527,10 +532,12 @@ grant_type=authorization_code
 
           const tokenData = await response.json();
           setTokensReceived(tokenData);
-          setStepResults(prev => ({ ...prev, 3: { response: tokenData, status: response.status } }));
+          const result = { response: tokenData, status: response.status };
+          setStepResults(prev => ({ ...prev, 3: result }));
           setExecutedSteps(prev => new Set(prev).add(3));
 
           console.log('✅ [AuthCodeFlow] Tokens received from API:', tokenData);
+          return result;
         } catch (error: any) {
           console.warn('⚠️ [AuthCodeFlow] Real API failed, using mock tokens:', error.message);
           
@@ -544,7 +551,8 @@ grant_type=authorization_code
           };
           
           setTokensReceived(mockTokens);
-          setStepResults(prev => ({ ...prev, 3: { response: mockTokens, status: 200, mock: true } }));
+          const result = { response: mockTokens, status: 200, mock: true };
+          setStepResults(prev => ({ ...prev, 3: result }));
           setExecutedSteps(prev => new Set(prev).add(3));
 
           // Store tokens using the shared utility
@@ -563,6 +571,8 @@ grant_type=authorization_code
           } else {
             console.error('❌ [AuthCodeFlow] Failed to store mock tokens');
           }
+          
+          return result;
         }
       }
     },
@@ -579,14 +589,16 @@ grant_type=authorization_code
       execute: () => {
         if (!tokensReceived) {
           setError('No tokens received from previous step');
-          return;
+          return { error: 'No tokens received from previous step' };
         }
 
-        setStepResults(prev => ({ ...prev, 4: { tokens: tokensReceived } }));
+        const result = { tokens: tokensReceived };
+        setStepResults(prev => ({ ...prev, 4: result }));
         setExecutedSteps(prev => new Set(prev).add(4));
         setDemoStatus('success');
 
         console.log('✅ [AuthCodeFlow] Tokens processed successfully');
+        return result;
       }
     }
   ];
