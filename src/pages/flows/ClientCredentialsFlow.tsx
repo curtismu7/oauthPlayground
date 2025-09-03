@@ -507,7 +507,6 @@ const accessToken = generateAccessToken(clientId, scope);`,
           // Store tokens using the shared utility
           const tokensForStorage = {
             access_token: tokenData.access_token,
-            id_token: tokenData.id_token,
             refresh_token: tokenData.refresh_token,
             token_type: tokenData.token_type,
             expires_in: tokenData.expires_in,
