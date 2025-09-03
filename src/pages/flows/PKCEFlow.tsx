@@ -439,15 +439,26 @@ const authUrl = '${(config?.authorizationEndpoint || `https://auth.pingone.com/$
 // Callback URL:
 https://yourapp.com/callback?code=auth_code_123&state=xyz789`,
       execute: () => {
-        console.log('✅ [PKCEFlow] User would be redirected to PingOne for authentication');
+        if (!authUrl) {
+          setError('Authorization URL not available. Please complete step 1 first.');
+          return { error: 'Authorization URL not available' };
+        }
+        
+        console.log('✅ [PKCEFlow] Redirecting user to PingOne for authentication');
         const result = {
-          message: 'User redirected to PingOne for authentication and consent'
+          message: 'Redirecting to PingOne for authentication and consent...'
         };
         setStepResults(prev => ({
           ...prev,
           2: result
         }));
         setExecutedSteps(prev => new Set(prev).add(2));
+        
+        // Actually redirect to PingOne
+        setTimeout(() => {
+          window.location.href = authUrl;
+        }, 1000); // Small delay to show the message
+        
         return result;
       }
     },

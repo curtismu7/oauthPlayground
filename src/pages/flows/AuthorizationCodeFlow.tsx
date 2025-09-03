@@ -427,10 +427,21 @@ window.location.href = authUrl;
 // - Redirect back to client with authorization code`,
       execute: () => {
         try {
-          console.log('✅ [AuthCodeFlow] User would be redirected to PingOne for authentication');
-          const result = { message: 'User redirected to authorization server' };
+          if (!authUrl) {
+            setError('Authorization URL not available. Please complete step 1 first.');
+            return { error: 'Authorization URL not available' };
+          }
+          
+          console.log('✅ [AuthCodeFlow] Redirecting user to PingOne for authentication');
+          const result = { message: 'Redirecting to authorization server...' };
           setStepResults(prev => ({ ...prev, 1: result }));
           setExecutedSteps(prev => new Set(prev).add(1));
+          
+          // Actually redirect to PingOne
+          setTimeout(() => {
+            window.location.href = authUrl;
+          }, 1000); // Small delay to show the message
+          
           return result;
         } catch (error) {
           console.error('❌ [AuthCodeFlow] Error in step 1:', error);
