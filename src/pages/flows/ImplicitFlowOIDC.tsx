@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
-import { FiPlay, FiAlertCircle, FiArrowRight } from 'react-icons/fi';
+import { FiPlay, FiAlertCircle } from 'react-icons/fi';
 import PageTitle from '../../components/PageTitle';
 import TokenDisplayComponent from '../../components/TokenDisplay';
 import ConfigurationButton from '../../components/ConfigurationButton';
@@ -97,63 +97,7 @@ const ResponseBox = styled.div<{ $backgroundColor?: string; $borderColor?: strin
   }
 `;
 
-const StepsContainer = styled.div`
-  margin-top: 2rem;
-`;
 
-const Step = styled.div<{ $active?: boolean; $completed?: boolean; $error?: boolean }>`
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  background-color: ${({ $active: active, $completed: completed, $error: error }) => {
-    if (error) return 'rgba(239, 68, 68, 0.1)';
-    if (completed) return 'rgba(34, 197, 94, 0.1)';
-    if (active) return 'rgba(59, 130, 246, 0.1)';
-    return '#f8f9fa';
-  }};
-  border: 2px solid ${({ $active: active, $completed: completed, $error: error }) => {
-    if (error) return '#ef4444';
-    if (completed) return '#22c55e';
-    if (active) return '#3b82f6';
-    return '#e2e8f0';
-  }};
-`;
-
-const StepNumber = styled.div<{ $active?: boolean; $completed?: boolean; $error?: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  font-weight: 600;
-  font-size: 0.875rem;
-  color: ${({ $active: active, $completed: completed, $error: error }) => {
-    if (error) return '#ef4444';
-    if (completed) return '#22c55e';
-    if (active) return '#3b82f6';
-    return '#6b7280';
-  }};
-  background-color: ${({ $active: active, $completed: completed, $error: error }) => {
-    if (error) return 'rgba(239, 68, 68, 0.1)';
-    if (completed) return 'rgba(34, 197, 94, 0.1)';
-    if (active) return 'rgba(59, 130, 246, 0.1)';
-    return '#f3f4f6';
-  }};
-  border: 2px solid ${({ $active: active, $completed: completed, $error: error }) => {
-    if (error) return '#ef4444';
-    if (completed) return '#22c55e';
-    if (active) return '#3b82f6';
-    return '#d1d5db';
-  }};
-`;
-
-const StepContent = styled.div`
-  flex: 1;
-`;
 
 const ImplicitFlowOIDC: React.FC = () => {
   const { config } = useAuth();
@@ -163,6 +107,7 @@ const ImplicitFlowOIDC: React.FC = () => {
   const [authUrl, setAuthUrl] = useState<string>('');
   const [stepResults, setStepResults] = useState<Record<number, any>>({});
   const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
+  const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
 
   const startImplicitFlow = () => {
     setDemoStatus('loading');
@@ -170,6 +115,7 @@ const ImplicitFlowOIDC: React.FC = () => {
     setError(null);
     setStepResults({});
     setExecutedSteps(new Set());
+    setStepsWithResults([...steps]); // Initialize with copy of steps
     console.log('🚀 [ImplicitFlowOIDC] Starting implicit flow...');
   };
 
@@ -179,6 +125,18 @@ const ImplicitFlowOIDC: React.FC = () => {
     setError('');
     setStepResults({});
     setExecutedSteps(new Set());
+    setStepsWithResults([]);
+  };
+
+  const handleStepResult = (stepIndex: number, result: any) => {
+    setStepResults(prev => ({ ...prev, [stepIndex]: result }));
+    setStepsWithResults(prev => {
+      const newSteps = [...prev];
+      if (newSteps[stepIndex]) {
+        newSteps[stepIndex] = { ...newSteps[stepIndex], result };
+      }
+      return newSteps;
+    });
   };
 
   const steps: FlowStep[] = [
@@ -217,10 +175,12 @@ const ImplicitFlowOIDC: React.FC = () => {
         const url = `${authEndpoint}?${params.toString()}`;
         console.log('🔍 [ImplicitFlowOIDC] Final URL constructed:', url);
 
-        setStepResults(prev => ({ ...prev, 0: { url } }));
+        const result = { url };
+        setStepResults(prev => ({ ...prev, 0: result }));
         setExecutedSteps(prev => new Set(prev).add(0));
 
         console.log('✅ [ImplicitFlowOIDC] Authorization URL generated:', url);
+        return result;
       }
     },
     {
@@ -235,13 +195,15 @@ window.location.href = authUrl;
 // - Redirect back to client with tokens in URL fragment`,
       execute: () => {
         console.log('✅ [ImplicitFlowOIDC] User would be redirected to PingOne for authentication');
+        const result = {
+          message: 'User redirected to authorization server for authentication and consent'
+        };
         setStepResults(prev => ({
           ...prev,
-          1: {
-            message: 'User redirected to authorization server for authentication and consent'
-          }
+          1: result
         }));
         setExecutedSteps(prev => new Set(prev).add(1));
+        return result;
       }
     },
     {
@@ -266,12 +228,13 @@ window.location.href = authUrl;
 
         const callbackUrl = `${config?.redirectUri || 'https://your-app.com/callback'}#access_token=${mockTokens.access_token}&id_token=${mockTokens.id_token}&token_type=${mockTokens.token_type}&expires_in=${mockTokens.expires_in}&state=${mockTokens.state}`;
 
+        const result = {
+          url: callbackUrl,
+          tokens: mockTokens
+        };
         setStepResults(prev => ({
           ...prev,
-          2: {
-            url: callbackUrl,
-            tokens: mockTokens
-          }
+          2: result
         }));
         setExecutedSteps(prev => new Set(prev).add(2));
 
@@ -290,6 +253,8 @@ window.location.href = authUrl;
         } else {
           console.error('❌ [ImplicitFlowOIDC] Failed to store tokens');
         }
+        
+        return result;
       }
     },
     {
@@ -328,16 +293,18 @@ window.history.replaceState(null, '', window.location.pathname);`,
           state: params.get('state'),
         };
 
+        const result = {
+          extractedTokens,
+          message: 'Tokens successfully extracted from URL fragment'
+        };
         setStepResults(prev => ({
           ...prev,
-          3: {
-            extractedTokens,
-            message: 'Tokens successfully extracted from URL fragment'
-          }
+          3: result
         }));
         setExecutedSteps(prev => new Set(prev).add(3));
 
         console.log('✅ [ImplicitFlowOIDC] Tokens extracted from URL fragment');
+        return result;
       }
     },
     {
@@ -377,17 +344,19 @@ console.log('✅ ID token validation successful');`,
           isValid: true
         };
 
+        const result = {
+          validation: validationResult,
+          message: 'ID token validation completed successfully'
+        };
         setStepResults(prev => ({
           ...prev,
-          4: {
-            validation: validationResult,
-            message: 'ID token validation completed successfully'
-          }
+          4: result
         }));
         setExecutedSteps(prev => new Set(prev).add(4));
         setDemoStatus('success');
 
         console.log('✅ [ImplicitFlowOIDC] ID token validation completed');
+        return result;
       }
     }
   ];
@@ -420,12 +389,13 @@ console.log('✅ ID token validation successful');`,
         </CardHeader>
         <CardBody>
           <StepByStepFlow
-            steps={steps}
+            steps={stepsWithResults.length > 0 ? stepsWithResults : steps}
             onStart={startImplicitFlow}
             onReset={resetDemo}
             status={demoStatus}
             currentStep={currentStep}
             onStepChange={setCurrentStep}
+            onStepResult={handleStepResult}
             disabled={!config}
             title="Implicit Flow"
           />
@@ -445,131 +415,7 @@ console.log('✅ ID token validation successful');`,
             </ErrorMessage>
           )}
 
-          <StepsContainer>
-            <h3>Flow Steps</h3>
-            {steps.map((step, index) => {
-              const stepResult = stepResults[index];
-              const isExecuted = executedSteps.has(index);
 
-              return (
-                <Step
-                  key={index}
-                  id={`step-${index}`}
-                  $active={currentStep === index && demoStatus === 'loading'}
-                  $completed={currentStep > index}
-                  $error={currentStep === index && demoStatus === 'error'}
-                >
-                  <StepNumber
-                    $active={currentStep === index && demoStatus === 'loading'}
-                    $completed={currentStep > index}
-                    $error={currentStep === index && demoStatus === 'error'}
-                  >
-                    {index + 1}
-                  </StepNumber>
-                  <StepContent>
-                    <h3>{step.title}</h3>
-                    <p>{step.description}</p>
-
-                    {/* Show URL/Code section always */}
-                    <Typewriter text={step.code} speed={8} />
-
-                    {/* Show response/result only after step is executed */}
-                    {isExecuted && stepResult && (
-                      <ResponseBox
-                        $backgroundColor="#f8fafc"
-                        $borderColor="#e2e8f0"
-                      >
-                        <h4>Response:</h4>
-                        {stepResult.url && (
-                          <div style={{ marginTop: '0.5rem' }}>
-                            <strong>URL:</strong><br />
-                            <ColorCodedURL url={stepResult.url} />
-                          </div>
-                        )}
-                        {stepResult.tokens && (
-                          <div style={{ marginTop: '0.5rem' }}>
-                            <strong>Tokens in URL Fragment:</strong>
-                            <TokenDisplayComponent tokens={stepResult.tokens} />
-                          </div>
-                        )}
-                        {stepResult.extractedTokens && (
-                          <div style={{ marginTop: '0.5rem' }}>
-                            <strong>Extracted Tokens:</strong>
-                            <TokenDisplayComponent tokens={stepResult.extractedTokens} />
-                          </div>
-                        )}
-                        {stepResult.validation && (
-                          <div style={{ marginTop: '0.5rem' }}>
-                            <strong>ID Token Validation:</strong><br />
-                            <pre>{JSON.stringify(stepResult.validation, null, 2)}</pre>
-                          </div>
-                        )}
-                        {stepResult.message && (
-                          <div style={{ marginTop: '0.5rem' }}>
-                            <strong>Status:</strong><br />
-                            <pre>{stepResult.message}</pre>
-                          </div>
-                        )}
-                      </ResponseBox>
-                    )}
-
-                    {/* Show execution status */}
-                    {isExecuted && (
-                      <div style={{
-                        marginTop: '1rem',
-                        padding: '0.5rem',
-                        backgroundColor: '#d4edda',
-                        border: '1px solid #c3e6cb',
-                        borderRadius: '0.25rem',
-                        color: '#155724',
-                        fontSize: '0.875rem'
-                      }}>
-                        ✅ Step completed successfully
-                      </div>
-                    )}
-
-                    {/* Next button for each step - only show if it can actually advance */}
-                    {isExecuted && index < steps.length - 1 && index + 1 > currentStep && (
-                      <div style={{ 
-                        marginTop: '1rem', 
-                        textAlign: 'center',
-                        padding: '1rem',
-                        borderTop: '1px solid #e5e7eb'
-                      }}>
-                        <button
-                          onClick={() => {
-                            const nextStepIndex = index + 1;
-                            console.log('🔄 [ImplicitFlowOIDC] Next Step button clicked', { currentIndex: index, nextStep: nextStepIndex, currentStepBefore: currentStep });
-                            setCurrentStep(nextStepIndex);
-                            console.log('🔄 [ImplicitFlowOIDC] setCurrentStep called with:', nextStepIndex);
-                          }}
-                          style={{
-                            background: '#3b82f6',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '0.375rem',
-                            padding: '0.5rem 1rem',
-                            fontSize: '0.875rem',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            margin: '0 auto',
-                            transition: 'background-color 0.2s'
-                          }}
-                          onMouseOver={(e) => e.currentTarget.style.background = '#2563eb'}
-                          onMouseOut={(e) => e.currentTarget.style.background = '#3b82f6'}
-                        >
-                          Next Step
-                          <FiArrowRight style={{ width: '1rem', height: '1rem' }} />
-                        </button>
-                      </div>
-                    )}
-                  </StepContent>
-                </Step>
-              );
-            })}
-          </StepsContainer>
         </CardBody>
       </DemoSection>
     </Page>
