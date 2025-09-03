@@ -80,17 +80,17 @@ const Flows = () => {
       <Header>
         <div>
           <Title>Flows</Title>
-          <Sub>Explore OAuth 2.0 and OpenID Connect flows. Defaults are secure-by-default (Auth Code + PKCE).</Sub>
+          <Sub>Explore OAuth 2.0 and OpenID Connect flows. Defaults are secure-by-default (Auth Code with PKCE).</Sub>
         </div>
       </Header>
 
       <Grid>
         <Card>
           <CardTitle>OAuth 2.0</CardTitle>
-          <Sub>Standards-based authorization flows. Recommended: Authorization Code with PKCE.</Sub>
+          <Sub>Standards-based authorization flows. Recommended: Authorization Code (with PKCE for public clients).</Sub>
           <Actions>
             <ButtonLink to="/flows/authorization-code">Authorization Code</ButtonLink>
-            <ButtonLink to="/flows/pkce">PKCE (S256)</ButtonLink>
+
             <SecondaryLink to="/flows/client-credentials">Client Credentials</SecondaryLink>
             <SecondaryLink to="/flows/device-code">Device Code</SecondaryLink>
             <SecondaryLink to="/flows/implicit">Implicit (legacy)</SecondaryLink>

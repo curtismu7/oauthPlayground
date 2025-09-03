@@ -662,6 +662,11 @@ grant_type=authorization_code
               the authorization server returns a temporary authorization code. The client then
               exchanges this code for tokens by making a secure server-to-server request.
             </p>
+            <p>
+              <strong>PKCE Extension:</strong> For public clients (mobile apps, SPAs) that cannot securely store client secrets,
+              the Authorization Code flow can be enhanced with PKCE (Proof Key for Code Exchange) to prevent authorization code
+              interception attacks. PKCE uses dynamically generated code verifiers and challenges instead of static client secrets.
+            </p>
           </FlowDescription>
 
           <SecurityHighlight>
