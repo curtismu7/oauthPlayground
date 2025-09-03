@@ -155,8 +155,25 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   /* Nuclear option - force ALL pre elements with JWT-like content to have black text */
-  pre:has-text("eyJ"),
   pre[class*="sc-"] {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    color: #000000 !important;
+  }
+
+  /* Force black text on ALL pre elements that might contain JWT tokens */
+  pre {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    color: #000000 !important;
+  }
+
+  /* Additional aggressive selectors for JWT token display */
+  div[class*="sc-"] pre,
+  pre[class*="sc-"],
+  pre[class*="TokenValue"],
+  pre[class*="dhGOem"],
+  pre[class*="hIxTdn"],
+  pre[class*="bpDFur"],
+  pre[class*="fEETNT"] {
     background-color: rgba(255, 255, 255, 0.95) !important;
     color: #000000 !important;
   }
