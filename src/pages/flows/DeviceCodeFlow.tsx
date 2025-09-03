@@ -366,6 +366,7 @@ const DeviceFlow = () => {
   // Track execution results for each step
   const [stepResults, setStepResults] = useState<Record<number, any>>({});
   const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
+  const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
 
   const startDeviceCodeFlow = async () => {
     setDemoStatus('loading');
@@ -375,6 +376,8 @@ const DeviceFlow = () => {
     setDeviceCodeData(null);
     setStepResults({});
     setExecutedSteps(new Set());
+    setStepsWithResults([]);
+    setStepsWithResults([...steps]); // Initialize with copy of steps
     console.log('🚀 [DeviceCodeFlow] Starting device code flow...');
   };
 
@@ -390,6 +393,17 @@ const DeviceFlow = () => {
       clearInterval(pollingInterval);
       setPollingInterval(null);
     }
+  };
+
+  const handleStepResult = (stepIndex: number, result: any) => {
+    setStepResults(prev => ({ ...prev, [stepIndex]: result }));
+    setStepsWithResults(prev => {
+      const newSteps = [...prev];
+      if (newSteps[stepIndex]) {
+        newSteps[stepIndex] = { ...newSteps[stepIndex], result };
+      }
+      return newSteps;
+    });
   };
 
   const steps: FlowStep[] = [
@@ -698,12 +712,13 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
         </CardHeader>
         <CardBody>
           <StepByStepFlow
-            steps={steps}
+            steps={stepsWithResults.length > 0 ? stepsWithResults : steps}
             onStart={startDeviceCodeFlow}
             onReset={resetDemo}
             status={demoStatus}
             currentStep={currentStep}
             onStepChange={setCurrentStep}
+            onStepResult={handleStepResult}
             disabled={!config}
             title="Device Code Flow"
           />
