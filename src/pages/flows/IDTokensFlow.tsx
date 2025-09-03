@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
-import { FiPlay, FiEye, FiCheckCircle, FiAlertCircle, FiCode, FiShield, FiKey, FiArrowRight } from 'react-icons/fi';
+import { FiPlay, FiEye, FiCheckCircle, FiAlertCircle, FiCode, FiShield, FiKey } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import ConfigurationButton from '../../components/ConfigurationButton';
@@ -150,84 +150,7 @@ const StatusIndicator = styled.div`
   }
 `;
 
-const StepsContainer = styled.div`
-  margin-top: 2rem;
-`;
 
-const Step = styled.div<{ $active: boolean; $completed: boolean; $error: boolean }>`
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  background-color: ${({ $active, $completed, $error }) => {
-    if ($error) return 'rgba(239, 68, 68, 0.1)';
-    if ($completed) return 'rgba(34, 197, 94, 0.1)';
-    if ($active) return 'rgba(59, 130, 246, 0.1)';
-    return 'transparent';
-  }};
-  border: 2px solid ${({ $active, $completed, $error }) => {
-    if ($error) return '#ef4444';
-    if ($completed) return '#22c55e';
-    if ($active) return '#3b82f6';
-    return 'transparent';
-  }};
-`;
-
-const StepNumber = styled.div<{ $active: boolean; $completed: boolean; $error: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-  font-weight: 600;
-  font-size: 1rem;
-  flex-shrink: 0;
-
-  ${({ $active, $completed, $error }) => {
-    if ($error) {
-      return `
-        background-color: #ef4444;
-        color: white;
-      `;
-    }
-    if ($completed) {
-      return `
-        background-color: #22c55e;
-        color: white;
-      `;
-    }
-    if ($active) {
-      return `
-        background-color: #3b82f6;
-        color: white;
-      `;
-    }
-    return `
-      background-color: #e5e7eb;
-      color: #6b7280;
-    `;
-  }}
-`;
-
-const StepContent = styled.div`
-  flex: 1;
-
-  h3 {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray900};
-  }
-
-  p {
-    margin: 0 0 1rem 0;
-    color: ${({ theme }) => theme.colors.gray600};
-    line-height: 1.5;
-  }
-`;
 
 const CodeBlock = styled.pre`
   background-color: ${({ theme }) => theme.colors.gray900};
@@ -401,7 +324,8 @@ const IDTokensFlow = () => {
 
   // Track execution results for each step
   const [stepResults, setStepResults] = useState<Record<number, any>>({});
-  const [executedSteps] = useState<Set<number>>(new Set());
+  const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
+  const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
 
   // Load ID token from storage on component mount
   useEffect(() => {
@@ -452,6 +376,9 @@ const IDTokensFlow = () => {
     setError(null);
     setDecodedToken(null);
     setValidationResults(null);
+    setStepResults({});
+    setExecutedSteps(new Set());
+    setStepsWithResults([...steps]);
 
     try {
       setCurrentStep(1);
@@ -512,6 +439,9 @@ const IDTokensFlow = () => {
     setDecodedToken(null);
     setValidationResults(null);
     setError(null);
+    setStepResults({});
+    setExecutedSteps(new Set());
+    setStepsWithResults([]);
   };
 
   const handleStepResult = (stepIndex: number, result: any) => {
@@ -679,29 +609,17 @@ console.log('ID token is valid!');`
           <h2>Interactive Demo</h2>
         </CardHeader>
         <CardBody>
-          <DemoControls>
-            <StatusIndicator className={demoStatus}>
-              {demoStatus === 'idle' && 'Ready to start'}
-              {demoStatus === 'loading' && 'Processing ID token...'}
-              {demoStatus === 'success' && 'ID token validated successfully'}
-              {demoStatus === 'error' && 'ID token processing failed'}
-            </StatusIndicator>
-            <DemoButton
-              className="primary"
-              onClick={simulateIDTokenFlow}
-              disabled={demoStatus === 'loading' || !config || !idToken}
-            >
-              <FiPlay />
-              Process ID Token
-            </DemoButton>
-            <DemoButton
-              className="secondary"
-              onClick={resetDemo}
-              disabled={demoStatus === 'idle'}
-            >
-              Reset Demo
-            </DemoButton>
-          </DemoControls>
+          <StepByStepFlow
+            steps={stepsWithResults.length > 0 ? stepsWithResults : steps}
+            onStart={simulateIDTokenFlow}
+            onReset={resetDemo}
+            status={demoStatus}
+            currentStep={currentStep}
+            onStepChange={setCurrentStep}
+            onStepResult={handleStepResult}
+            disabled={!config || !idToken}
+            title="ID Token Flow"
+          />
 
           {!config && (
             <ErrorMessage>
@@ -799,33 +717,7 @@ console.log('ID token is valid!');`
             </ValidationResults>
           )}
 
-          <StepsContainer>
-            <h3>ID Token Flow Steps</h3>
-            {steps.map((step, index) => (
-              <Step
-                key={index}
-                $active={currentStep === index && demoStatus === 'loading'}
-                $completed={currentStep > index}
-                $error={currentStep === index && demoStatus === 'error'}
-              >
-                <StepNumber
-                  $active={currentStep === index && demoStatus === 'loading'}
-                  $completed={currentStep > index}
-                  $error={currentStep === index && demoStatus === 'error'}
-                >
-                  {index + 1}
-                </StepNumber>
-                <StepContent>
-                  <h3>{step.title}</h3>
-                  <p>{step.description}</p>
-                  {/* Show request code section always (this is the template/example) */}
-                  {step.code && (
-                    <CodeBlock>{step.code}</CodeBlock>
-                  )}
-                </StepContent>
-              </Step>
-            ))}
-          </StepsContainer>
+          
         </CardBody>
       </DemoSection>
     </Container>
