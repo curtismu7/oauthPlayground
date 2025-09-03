@@ -300,6 +300,21 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
     updateConfig({ customClaims: newClaims });
   };
 
+  const updateCustomClaimKey = (oldKey: string, newKey: string) => {
+    if (oldKey === newKey) return;
+    
+    const newClaims = { ...config.customClaims };
+    const value = newClaims[oldKey];
+    
+    if (value !== undefined) {
+      delete newClaims[oldKey];
+      if (newKey.trim()) {
+        newClaims[newKey.trim()] = value;
+      }
+      updateConfig({ customClaims: newClaims });
+    }
+  };
+
   const removeCustomClaim = (key: string) => {
     const newClaims = { ...config.customClaims };
     delete newClaims[key];
@@ -549,7 +564,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
                       type="text"
                       placeholder="Claim name"
                       value={key}
-                      onChange={(e) => updateCustomClaim(key, e.target.value, String(value))}
+                      onChange={(e) => updateCustomClaimKey(key, e.target.value)}
                     />
                     <input
                       type="text"
@@ -571,11 +586,13 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
           <ConfigSection>
             <h4>Configuration Summary</h4>
             <div style={{ 
-              background: '#f8fafc', 
-              border: '1px solid #e2e8f0', 
-              borderRadius: '4px', 
-              padding: '1rem',
-              fontSize: '0.9rem'
+              background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)', 
+              border: '1px solid #cbd5e1', 
+              borderRadius: '8px', 
+              padding: '1.5rem',
+              fontSize: '0.9rem',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+              position: 'relative'
             }}>
               <div style={{ marginBottom: '0.5rem' }}>
                 <strong>Scopes:</strong> {config.scopes.join(' ')}
