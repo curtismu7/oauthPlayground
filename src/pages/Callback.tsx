@@ -103,13 +103,25 @@ const Callback = () => {
         console.log('🔍 [Callback] Processing OAuth callback...');
         console.log('🔍 [Callback] Current URL:', window.location.href);
         
-        // Get the full URL with query parameters
+        // Get parameters from both query string and URL fragment
         const urlParams: Record<string, string> = {};
+        
+        // Get query parameters (Authorization Code Flow)
         for (const [key, value] of searchParams.entries()) {
           urlParams[key] = value;
         }
         
-        console.log('🔍 [Callback] URL parameters:', urlParams);
+        // Get URL fragment parameters (Implicit Grant Flow)
+        if (window.location.hash) {
+          const fragment = window.location.hash.substring(1); // Remove the #
+          const fragmentParams = new URLSearchParams(fragment);
+          for (const [key, value] of fragmentParams.entries()) {
+            urlParams[key] = value;
+          }
+        }
+        
+        console.log('🔍 [Callback] URL parameters (query + fragment):', urlParams);
+        console.log('🔍 [Callback] URL fragment:', window.location.hash);
         
         // Check for error in the URL (e.g., user denied permission)
         if (urlParams.error) {
@@ -138,13 +150,21 @@ const Callback = () => {
           throw new Error(errorMessage);
         }
         
-        // Check if we have the required parameters
-        if (!urlParams.code) {
-          console.error('❌ [Callback] No authorization code in URL parameters');
-          throw new Error('No authorization code received. The OAuth flow may have been interrupted.');
+        // Check if we have the required parameters for either flow type
+        const hasAuthorizationCode = !!urlParams.code;
+        const hasAccessToken = !!urlParams.access_token;
+        
+        if (!hasAuthorizationCode && !hasAccessToken) {
+          console.error('❌ [Callback] No authorization code or access token found');
+          console.error('❌ [Callback] Available parameters:', Object.keys(urlParams));
+          throw new Error('No authorization code or access token received. The OAuth flow may have been interrupted.');
         }
         
-        console.log('✅ [Callback] Authorization code found, processing callback...');
+        if (hasAuthorizationCode) {
+          console.log('✅ [Callback] Authorization code found (Authorization Code Flow), processing callback...');
+        } else if (hasAccessToken) {
+          console.log('✅ [Callback] Access token found (Implicit Grant Flow), processing callback...');
+        }
         
         // Ensure minimum spinner time while processing callback
         const start = Date.now();
