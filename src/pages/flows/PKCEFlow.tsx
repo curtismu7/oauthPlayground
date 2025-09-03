@@ -610,7 +610,7 @@ grant_type=authorization_code
             scope: mockTokens.scope
           };
           
-          const success = storeOAuthTokens(tokensForStorage);
+          const success = storeOAuthTokens(tokensForStorage, 'pkce', 'PKCE Flow');
           if (success) {
             console.log('✅ [PKCEFlow] Mock tokens generated and stored successfully');
           } else {

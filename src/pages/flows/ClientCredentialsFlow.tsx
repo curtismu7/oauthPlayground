@@ -575,7 +575,7 @@ const accessToken = generateAccessToken(clientId, scope);`,
             scope: tokenData.scope || 'api:read'
           };
           
-          const success = storeOAuthTokens(tokensForStorage);
+          const success = storeOAuthTokens(tokensForStorage, 'client_credentials', 'Client Credentials Flow');
           if (success) {
             console.log('✅ [ClientCredentialsFlow] Tokens received and stored successfully');
           } else {
