@@ -514,6 +514,17 @@ const IDTokensFlow = () => {
     setError(null);
   };
 
+  const handleStepResult = (stepIndex: number, result: any) => {
+    setStepResults(prev => ({ ...prev, [stepIndex]: result }));
+    setStepsWithResults(prev => {
+      const newSteps = [...prev];
+      if (newSteps[stepIndex]) {
+        newSteps[stepIndex] = { ...newSteps[stepIndex], result };
+      }
+      return newSteps;
+    });
+  };
+
   const steps = [
     {
       title: 'Obtain ID Token',

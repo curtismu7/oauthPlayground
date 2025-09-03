@@ -563,6 +563,7 @@ const UserInfoFlow: React.FC = () => {
   // Track execution results for each step
   const [stepResults, setStepResults] = useState<Record<number, any>>({});
   const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
+  const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
 
   // UserInfo authentication mode
   const [useAuthentication, setUseAuthentication] = useState(false);
@@ -640,6 +641,8 @@ const UserInfoFlow: React.FC = () => {
     setRequestDetails(null);
     setStepResults({});
     setExecutedSteps(new Set());
+    setStepsWithResults([]);
+    setStepsWithResults([...steps]); // Initialize with copy of steps
     console.log('🚀 [UserInfoFlow] Starting UserInfo flow...');
   };
 
@@ -652,6 +655,17 @@ const UserInfoFlow: React.FC = () => {
     setRequestDetails(null);
     setStepResults({});
     setExecutedSteps(new Set());
+  };
+
+  const handleStepResult = (stepIndex: number, result: any) => {
+    setStepResults(prev => ({ ...prev, [stepIndex]: result }));
+    setStepsWithResults(prev => {
+      const newSteps = [...prev];
+      if (newSteps[stepIndex]) {
+        newSteps[stepIndex] = { ...newSteps[stepIndex], result };
+      }
+      return newSteps;
+    });
   };
 
   const maskedToken = accessToken ? `${accessToken.slice(0, 16)}...${accessToken.slice(-8)}` : '';
@@ -985,12 +999,13 @@ console.log('Welcome, ' + user.name + '!');`,
         </CardHeader>
         <CardBody>
           <StepByStepFlow
-            steps={steps}
+            steps={stepsWithResults.length > 0 ? stepsWithResults : steps}
             onStart={startUserInfoFlow}
             onReset={resetDemo}
             status={demoStatus}
             currentStep={currentStep}
             onStepChange={setCurrentStep}
+            onStepResult={handleStepResult}
             disabled={!config || (useAuthentication && (!tokens?.access_token || isTokenExpired(tokens.access_token)))}
             title="UserInfo Flow"
           />
