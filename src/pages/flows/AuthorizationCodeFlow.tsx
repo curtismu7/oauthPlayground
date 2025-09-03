@@ -409,6 +409,7 @@ const AuthorizationCodeFlow = () => {
 
         setAuthUrl(url);
         console.log('✅ [AuthCodeFlow] Authorization URL generated:', url);
+        console.log('🔍 [AuthCodeFlow] Step 1 returning result:', { url });
         return { url };
       }
     },
@@ -424,17 +425,30 @@ window.location.href = authUrl;
 // - Redirect back to client with authorization code`,
       execute: () => {
         try {
+          console.log('🔍 [AuthCodeFlow] Step 2 debugging:', {
+            authUrl: authUrl,
+            stepResults: stepResults,
+            step1Result: stepResults[1], // Step 1 is at index 1
+            hasStep1Result: !!stepResults[1],
+            step1ResultUrl: stepResults[1]?.url
+          });
+          
           // Check for authUrl from state first, then from step results
           let urlToUse = authUrl;
           if (!urlToUse) {
-            const step1Result = stepResults[0];
+            // Step 1 result is stored at index 1 (1-based indexing)
+            const step1Result = stepResults[1];
             if (step1Result && step1Result.url) {
               urlToUse = step1Result.url;
               setAuthUrl(step1Result.url);
+              console.log('✅ [AuthCodeFlow] Using URL from step 1 result:', urlToUse);
             } else {
+              console.log('❌ [AuthCodeFlow] No URL available from state or step results');
               setError('Authorization URL not available. Please complete step 1 first.');
               return { error: 'Authorization URL not available' };
             }
+          } else {
+            console.log('✅ [AuthCodeFlow] Using URL from state:', urlToUse);
           }
           
           console.log('✅ [AuthCodeFlow] Redirecting user to PingOne for authentication');
