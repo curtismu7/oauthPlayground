@@ -185,6 +185,16 @@ const TokenValue = styled.pre<{ $isMasked?: boolean; $type?: 'access' | 'id' | '
   line-height: 1.6;
   color: #000000 !important;
   background: rgba(255, 255, 255, 0.95) !important;
+  
+  /* Aggressive text color forcing */
+  &, & * {
+    color: #000000 !important;
+  }
+  
+  /* Force all child elements to have black text */
+  * {
+    color: #000000 !important;
+  }
   border: 2px solid ${({ $type }) => {
     switch ($type) {
       case 'access':
