@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/NewAuthContext';
 import { Card, CardHeader, CardBody } from '../components/Card';
-import { FiRefreshCw, FiCheckCircle, FiPlus, FiX, FiClock, FiKey, FiEye, FiTrash2, FiCopy, FiShield } from 'react-icons/fi';
+import { FiRefreshCw, FiCheckCircle, FiPlus, FiX, FiClock, FiKey, FiEye, FiTrash2, FiCopy } from 'react-icons/fi';
 import styled from 'styled-components';
 import PageTitle from '../components/PageTitle';
+import { getOAuthTokens } from '../utils/tokenStorage';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -151,19 +152,32 @@ const ActionButton = styled.button`
 `;
 
 const JWTContent = styled.pre`
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 0.375rem;
-  padding: 1rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border: 2px solid #cbd5e1;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
   margin: 1rem 0;
   font-family: 'SFMono-Regular', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', 'Courier New', monospace;
   font-size: 0.875rem;
-  line-height: 1.5;
+  line-height: 1.6;
   overflow-x: auto;
   white-space: pre-wrap;
   word-break: break-word;
-  color: #1f2937 !important;
-  min-height: 100px;
+  color: #1e293b !important;
+  min-height: 120px;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
+    border-radius: 0.5rem 0.5rem 0 0;
+  }
   
   &:empty::before {
     content: 'No token data';
@@ -190,23 +204,51 @@ const TokenManagement = () => {
   };
 
   useEffect(() => {
-    // Check for stored token on component mount
-    const storedToken = localStorage.getItem('pingone_token_cache');
-    if (storedToken) {
+    // Auto-load tokens from OAuth flows on component mount
+    const loadStoredTokens = () => {
       try {
-        const tokenData = JSON.parse(storedToken);
-        setTokenString(tokenData.token || '');
-        setTokenSource({
-          source: 'Local Storage',
-          description: 'Token loaded from browser storage',
-          timestamp: new Date().toLocaleString()
-        });
-        // Auto-decode if token exists
-        setTimeout(() => decodeJWT(tokenData.token), 100);
+        const oauthTokens = getOAuthTokens();
+        
+        if (oauthTokens && oauthTokens.access_token) {
+          console.log('🔄 [TokenManagement] Auto-loading tokens from OAuth flows:', oauthTokens);
+          setTokenString(oauthTokens.access_token);
+          setTokenSource({
+            source: 'OAuth Flow',
+            description: `Token from ${oauthTokens.token_type || 'Bearer'} flow`,
+            timestamp: oauthTokens.timestamp ? new Date(oauthTokens.timestamp).toLocaleString() : new Date().toLocaleString()
+          });
+          
+          // Auto-decode the token
+          setTimeout(() => decodeJWT(oauthTokens.access_token), 100);
+          
+          // Update token status based on expiration
+          if (oauthTokens.timestamp && oauthTokens.expires_in) {
+            const now = Date.now();
+            const expiresAt = oauthTokens.timestamp + (oauthTokens.expires_in * 1000);
+            setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
+          } else {
+            setTokenStatus('valid');
+          }
+        } else {
+          // Fallback to old storage method for backward compatibility
+          const storedToken = localStorage.getItem('pingone_token_cache');
+          if (storedToken) {
+            const tokenData = JSON.parse(storedToken);
+            setTokenString(tokenData.token || '');
+            setTokenSource({
+              source: 'Legacy Storage',
+              description: 'Token loaded from legacy browser storage',
+              timestamp: new Date().toLocaleString()
+            });
+            setTimeout(() => decodeJWT(tokenData.token), 100);
+          }
+        }
       } catch (error) {
-        console.error('Error loading stored token:', error);
+        console.error('❌ [TokenManagement] Error loading stored tokens:', error);
       }
-    }
+    };
+    
+    loadStoredTokens();
   }, []);
 
   const decodeJWT = (token: string) => {
@@ -605,40 +647,7 @@ const TokenManagement = () => {
         </CardBody>
       </TokenSection>
 
-      {/* Security Audit Section */}
-      <TokenSection>
-        <CardHeader>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h2>Security Audit</h2>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <ActionButton className="secondary" style={{ fontSize: '0.75rem', padding: '0.5rem 1rem' }}>
-                <FiShield />
-                View Security Log
-              </ActionButton>
-              <ActionButton className="danger" style={{ fontSize: '0.75rem', padding: '0.5rem 1rem' }}>
-                <FiTrash2 />
-                Clear Security Log
-              </ActionButton>
-            </div>
-          </div>
-        </CardHeader>
-        <CardBody>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#374151' }}>0</div>
-              <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>Security Events</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#374151' }}>0</div>
-              <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>CSRF Tokens</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#374151' }}>0</div>
-              <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>Warnings</div>
-            </div>
-          </div>
-        </CardBody>
-      </TokenSection>
+
     </Container>
   );
 };
