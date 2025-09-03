@@ -193,8 +193,8 @@ const ResponseBox = styled.div<{ $backgroundColor?: string; $borderColor?: strin
   margin: 1rem 0;
   padding: 1rem;
   border-radius: 0.5rem;
-  border: 1px solid ${({ $borderColor }) => $borderColor || '#e2e8f0'};
-  background-color: ${({ $backgroundColor }) => $backgroundColor || '#f8fafc'};
+  border: 1px solid ${({ $borderColor }) => $borderColor || '#374151'};
+  background-color: ${({ $backgroundColor }) => $backgroundColor || '#1f2937'};
   font-family: monospace;
   font-size: 0.875rem;
   line-height: 1.4;
@@ -202,13 +202,14 @@ const ResponseBox = styled.div<{ $backgroundColor?: string; $borderColor?: strin
   word-break: break-all;
   overflow: visible;
   max-width: 100%;
+  color: #f9fafb;
 
   h4 {
     margin: 0 0 0.5rem 0;
     font-family: inherit;
     font-size: 1rem;
     font-weight: 600;
-    color: #374151;
+    color: #f9fafb;
   }
 
   pre {
@@ -221,6 +222,7 @@ const ResponseBox = styled.div<{ $backgroundColor?: string; $borderColor?: strin
     white-space: pre-wrap;
     word-break: break-all;
     overflow: visible;
+    color: #f9fafb;
   }
 `;
 
@@ -232,13 +234,14 @@ const RequestResponseSection = styled.div`
 `;
 
 const RequestSection = styled.div`
-  background-color: #f0f9ff;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.gray200};
+  background-color: #1f2937;
+  border-bottom: 1px solid #374151;
   padding: 1.5rem;
+  color: #f9fafb;
 
   h3 {
     margin: 0 0 1rem 0;
-    color: #0369a1;
+    color: #f9fafb;
     font-size: 1.125rem;
     font-weight: 600;
     display: flex;
@@ -248,12 +251,13 @@ const RequestSection = styled.div`
 `;
 
 const ResponseSection = styled.div`
-  background-color: #f0fdf4;
+  background-color: #1f2937;
   padding: 1.5rem;
+  color: #f9fafb;
 
   h3 {
     margin: 0 0 1rem 0;
-    color: #166534;
+    color: #f9fafb;
     font-size: 1.125rem;
     font-weight: 600;
     display: flex;
