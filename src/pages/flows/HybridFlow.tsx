@@ -130,6 +130,7 @@ const ResponseBox = styled.div<{ $backgroundColor?: string; $borderColor?: strin
     white-space: pre-wrap;
     word-break: break-all;
     overflow: visible;
+    color: #1f2937 !important;
   }
 `;
 
