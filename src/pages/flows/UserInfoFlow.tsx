@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
-import { FiPlay, FiAlertCircle, FiUser, FiInfo, FiSend, FiDownload, FiEye, FiArrowRight } from 'react-icons/fi';
+import { FiPlay, FiAlertCircle, FiUser, FiInfo, FiSend, FiDownload, FiEye } from 'react-icons/fi';
 import PageTitle from '../../components/PageTitle';
 import TokenDisplayComponent from '../../components/TokenDisplay';
 import ConfigurationButton from '../../components/ConfigurationButton';
@@ -333,106 +333,7 @@ const JsonNull = styled.span`
   font-style: italic;
 `;
 
-const StepsContainer = styled.div`
-  margin-top: 2rem;
-`;
 
-const Step = styled.div<{
-  $active?: boolean;
-  $completed?: boolean;
-  $error?: boolean;
-}>`
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  border: 2px solid transparent;
-  transition: all 0.2s;
-
-  ${({ $active: active, $completed: completed, $error: error }) => {
-    if (error) {
-      return `
-        border-color: #ef4444;
-        background-color: #fef2f2;
-      `;
-    }
-    if (completed) {
-      return `
-        border-color: #22c55e;
-        background-color: #f0fdf4;
-      `;
-    }
-    if (active) {
-      return `
-        border-color: #3b82f6;
-        background-color: #eff6ff;
-      `;
-    }
-    return `
-      border-color: #e5e7eb;
-      background-color: #f9fafb;
-    `;
-  }}
-`;
-
-const StepNumber = styled.div<{
-  $active?: boolean;
-  $completed?: boolean;
-  $error?: boolean;
-}>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-  font-weight: 600;
-  font-size: 1rem;
-  flex-shink: 0;
-
-  ${({ $active: active, $completed: completed, $error: error }) => {
-    if (error) {
-      return `
-        background-color: #ef4444;
-        color: white;
-      `;
-    }
-    if (completed) {
-      return `
-        background-color: #22c55e;
-        color: white;
-      `;
-    }
-    if (active) {
-      return `
-        background-color: #3b82f6;
-        color: white;
-      `;
-    }
-    return `
-      background-color: #e5e7eb;
-      color: #6b7280;
-    `;
-  }}
-`;
-
-const StepContent = styled.div`
-  flex: 1;
-
-  h3 {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray900};
-  }
-
-  p {
-    margin: 0 0 1rem 0;
-    color: ${({ theme }) => theme.colors.gray600};
-    line-height: 1.5;
-  }
-`;
 
 const TokenDisplay = styled.div`
   background-color: ${({ theme }) => theme.colors.gray50};
@@ -697,20 +598,22 @@ const accessToken = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...';
         }
 
         setAccessToken(availableTokens.access_token);
+        const result = {
+          token: availableTokens.access_token,
+          tokenInfo: {
+            type: availableTokens.token_type,
+            scopes: availableTokens.scope,
+            expires: availableTokens.expires_at ? new Date(availableTokens.expires_at) : null
+          }
+        };
         setStepResults(prev => ({
           ...prev,
-          0: {
-            token: availableTokens.access_token,
-            tokenInfo: {
-              type: availableTokens.token_type,
-              scopes: availableTokens.scope,
-              expires: availableTokens.expires_at ? new Date(availableTokens.expires_at) : null
-            }
-          }
+          0: result
         }));
         setExecutedSteps(prev => new Set(prev).add(0));
 
-        console.log('✅ [UserInfoFlow] Access token validated:', tokens.access_token.substring(0, 20) + '...');
+        console.log('✅ [UserInfoFlow] Access token validated:', availableTokens.access_token.substring(0, 20) + '...');
+        return result;
       }
     }] : []),
     {
@@ -763,18 +666,20 @@ const headers = {
           method: 'GET'
         });
 
+        const result = {
+          url: userInfoUrl,
+          headers,
+          method: 'GET',
+          authenticated: useAuthentication
+        };
         setStepResults(prev => ({
           ...prev,
-          [useAuthentication ? 1 : 0]: {
-            url: userInfoUrl,
-            headers,
-            method: 'GET',
-            authenticated: useAuthentication
-          }
+          [useAuthentication ? 1 : 0]: result
         }));
         setExecutedSteps(prev => new Set(prev).add(useAuthentication ? 1 : 0));
 
         console.log('✅ [UserInfoFlow] UserInfo request prepared:', { url: userInfoUrl, method: 'GET', authenticated: useAuthentication });
+        return result;
       }
     },
     {
@@ -854,18 +759,20 @@ const userInfo = await response.json();`,
           setUserInfo(userInfoData);
 
           const stepIndex = useAuthentication ? 2 : 1;
+          const result = {
+            response: userInfoData,
+            status: response.status,
+            headers: Object.fromEntries(response.headers.entries()),
+            authenticated: useAuthentication
+          };
           setStepResults(prev => ({
             ...prev,
-            [stepIndex]: {
-              response: userInfoData,
-              status: response.status,
-              headers: Object.fromEntries(response.headers.entries()),
-              authenticated: useAuthentication
-            }
+            [stepIndex]: result
           }));
           setExecutedSteps(prev => new Set(prev).add(stepIndex));
 
           console.log('✅ [UserInfoFlow] UserInfo API call successful:', userInfoData);
+          return result;
         } catch (error: any) {
           setError(`Failed to call UserInfo endpoint: ${error.message}`);
           console.error('❌ [UserInfoFlow] UserInfo API call failed:', error);
@@ -911,20 +818,22 @@ console.log('Welcome, ' + user.name + '!');`,
           return;
         }
 
+        const result = {
+          userInfo,
+          validation: {
+            hasSubject: !!userInfo.sub,
+            claims: Object.keys(userInfo)
+          }
+        };
         setStepResults(prev => ({
           ...prev,
-          3: {
-            userInfo,
-            validation: {
-              hasSubject: !!userInfo.sub,
-              claims: Object.keys(userInfo)
-            }
-          }
+          3: result
         }));
         setExecutedSteps(prev => new Set(prev).add(3));
         setDemoStatus('success');
 
         console.log('✅ [UserInfoFlow] User information processed successfully:', userInfo);
+        return result;
       }
     }
   ];
@@ -1224,236 +1133,7 @@ console.log('Welcome, ' + user.name + '!');`,
             </RequestResponseSection>
           )}
 
-          <StepsContainer>
-            <h3>UserInfo Flow Steps</h3>
-            {steps.map((step, index) => {
-              const stepResult = stepResults[index];
-              const isExecuted = executedSteps.has(index);
 
-              return (
-                <Step
-                  key={index}
-                  id={`step-${index}`}
-                  $active={currentStep === index && demoStatus === 'loading'}
-                  $completed={currentStep > index}
-                  $error={currentStep === index && demoStatus === 'error'}
-                >
-                  <StepNumber
-                    $active={currentStep === index && demoStatus === 'loading'}
-                    $completed={currentStep > index}
-                    $error={currentStep === index && demoStatus === 'error'}
-                  >
-                    {index + 1}
-                  </StepNumber>
-                  <StepContent>
-                    <h3>{step.title}</h3>
-                    <p>{step.description}</p>
-
-                    {/* Show request code section always (this is the template/example) */}
-                    {step.code && (
-                      <CodeBlock>
-                        <CopyButton onClick={() => copyToClipboard(step.code)}>
-                          Copy
-                        </CopyButton>
-                        {step.code}
-                      </CodeBlock>
-                    )}
-
-                    {/* Show response/result only after step is executed */}
-                    {isExecuted && stepResult && (
-                      <ResponseBox
-                        $backgroundColor="#f8fafc"
-                        $borderColor="#e2e8f0"
-                      >
-                        <h4>Response:</h4>
-                        {stepResult.token && (
-                          <div style={{ marginTop: '0.5rem' }}>
-                            <strong>Access Token:</strong>
-                            <TokenDisplayComponent tokens={{ access_token: stepResult.token }} />
-                          </div>
-                        )}
-                        {stepResult.tokenInfo && (
-                          <div style={{ marginTop: '0.5rem' }}>
-                            <strong>Token Details:</strong><br />
-                            <pre>{JSON.stringify(stepResult.tokenInfo, null, 2)}</pre>
-                          </div>
-                        )}
-                        {stepResult.url && (
-                          <div style={{ marginTop: '0.5rem' }}>
-                            <strong>Request URL:</strong><br />
-                            <ColorCodedURL url={stepResult.url} />
-                          </div>
-                        )}
-                        {stepResult.headers && (
-                          <div style={{ marginTop: '0.5rem' }}>
-                            <strong>Request Headers:</strong>
-                            <div style={{
-                              marginTop: '0.5rem',
-                              backgroundColor: '#f0f9ff',
-                              border: '1px solid #0ea5e9',
-                              borderRadius: '0.5rem',
-                              padding: '1rem',
-                              fontFamily: 'SFMono-Regular, Monaco, Inconsolata, Roboto Mono, Consolas, Courier New, monospace',
-                              fontSize: '0.875rem',
-                              lineHeight: '1.5',
-                              overflow: 'auto',
-                              maxHeight: '300px'
-                            }}>
-                              <pre style={{
-                                margin: 0,
-                                whiteSpace: 'pre-wrap',
-                                wordBreak: 'break-word',
-                                color: '#0c4a6e'
-                              }}>
-                                {JSON.stringify(stepResult.headers, null, 2)}
-                              </pre>
-                            </div>
-                          </div>
-                        )}
-                        {stepResult.response && (
-                          <div style={{ marginTop: '0.5rem' }}>
-                            <strong>UserInfo Response:</strong>
-                            <div style={{
-                              marginTop: '0.5rem',
-                              backgroundColor: '#f8fafc',
-                              border: '1px solid #e2e8f0',
-                              borderRadius: '0.5rem',
-                              padding: '1rem',
-                              fontFamily: 'SFMono-Regular, Monaco, Inconsolata, Roboto Mono, Consolas, Courier New, monospace',
-                              fontSize: '0.875rem',
-                              lineHeight: '1.5',
-                              overflow: 'auto',
-                              maxHeight: '400px'
-                            }}>
-                              <pre style={{
-                                margin: 0,
-                                whiteSpace: 'pre-wrap',
-                                wordBreak: 'break-word',
-                                color: '#1f2937'
-                              }}>
-                                {JSON.stringify(stepResult.response, null, 2)}
-                              </pre>
-                            </div>
-                          </div>
-                        )}
-                        {stepResult.userInfo && (
-                          <div style={{ marginTop: '0.5rem' }}>
-                            <strong>Processed UserInfo:</strong>
-                            <div style={{
-                              marginTop: '0.5rem',
-                              backgroundColor: '#f0fdf4',
-                              border: '1px solid #22c55e',
-                              borderRadius: '0.5rem',
-                              padding: '1rem',
-                              fontFamily: 'SFMono-Regular, Monaco, Inconsolata, Roboto Mono, Consolas, Courier New, monospace',
-                              fontSize: '0.875rem',
-                              lineHeight: '1.5',
-                              overflow: 'auto',
-                              maxHeight: '400px'
-                            }}>
-                              <pre style={{
-                                margin: 0,
-                                whiteSpace: 'pre-wrap',
-                                wordBreak: 'break-word',
-                                color: '#14532d'
-                              }}>
-                                {JSON.stringify(stepResult.userInfo, null, 2)}
-                              </pre>
-                            </div>
-                          </div>
-                        )}
-                        {stepResult.validation && (
-                          <div style={{ marginTop: '0.5rem' }}>
-                            <strong>Validation Results:</strong>
-                            <div style={{
-                              marginTop: '0.5rem',
-                              backgroundColor: '#fef3c7',
-                              border: '1px solid #f59e0b',
-                              borderRadius: '0.5rem',
-                              padding: '1rem',
-                              fontFamily: 'SFMono-Regular, Monaco, Inconsolata, Roboto Mono, Consolas, Courier New, monospace',
-                              fontSize: '0.875rem',
-                              lineHeight: '1.5',
-                              overflow: 'auto',
-                              maxHeight: '300px'
-                            }}>
-                              <pre style={{
-                                margin: 0,
-                                whiteSpace: 'pre-wrap',
-                                wordBreak: 'break-word',
-                                color: '#92400e'
-                              }}>
-                                {JSON.stringify(stepResult.validation, null, 2)}
-                              </pre>
-                            </div>
-                          </div>
-                        )}
-                        {stepResult.message && (
-                          <div style={{ marginTop: '0.5rem' }}>
-                            <strong>Status:</strong><br />
-                            <pre>{stepResult.message}</pre>
-                          </div>
-                        )}
-                      </ResponseBox>
-                    )}
-
-                    {/* Show execution status */}
-                    {isExecuted && (
-                      <div style={{
-                        marginTop: '1rem',
-                        padding: '0.5rem',
-                        backgroundColor: '#d4edda',
-                        border: '1px solid #c3e6cb',
-                        borderRadius: '0.25rem',
-                        color: '#155724',
-                        fontSize: '0.875rem'
-                      }}>
-                        ✅ Step completed successfully
-                      </div>
-                    )}
-
-                    {/* Next button for each step - only show if it can actually advance */}
-                    {isExecuted && index < steps.length - 1 && index + 1 > currentStep && (
-                      <div style={{ 
-                        marginTop: '1rem', 
-                        textAlign: 'center',
-                        padding: '1rem',
-                        borderTop: '1px solid #e5e7eb'
-                      }}>
-                        <button
-                          onClick={() => {
-                            const nextStepIndex = index + 1;
-                            console.log('🔄 [UserInfoFlow] Next Step button clicked', { currentIndex: index, nextStep: nextStepIndex, currentStepBefore: currentStep });
-                            setCurrentStep(nextStepIndex);
-                            console.log('🔄 [UserInfoFlow] setCurrentStep called with:', nextStepIndex);
-                          }}
-                          style={{
-                            background: '#3b82f6',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '0.375rem',
-                            padding: '0.5rem 1rem',
-                            fontSize: '0.875rem',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            margin: '0 auto',
-                            transition: 'background-color 0.2s'
-                          }}
-                          onMouseOver={(e) => e.currentTarget.style.background = '#2563eb'}
-                          onMouseOut={(e) => e.currentTarget.style.background = '#3b82f6'}
-                        >
-                          Next Step
-                          <FiArrowRight style={{ width: '1rem', height: '1rem' }} />
-                        </button>
-                      </div>
-                    )}
-                  </StepContent>
-                </Step>
-              );
-            })}
-          </StepsContainer>
         </CardBody>
       </DemoSection>
     </Container>
