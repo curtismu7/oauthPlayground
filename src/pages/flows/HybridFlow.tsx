@@ -353,7 +353,7 @@ const tokensForStorage = {
   expires_in: tokens.expires_in,
   scope: tokens.scope
 };
-storeOAuthTokens(tokensForStorage);
+          storeOAuthTokens(tokensForStorage, 'hybrid', 'Hybrid Flow');
 
 // Validate ID token (signature, claims, nonce)
 const isValid = validateIdToken(tokens.id_token);`,
@@ -434,7 +434,7 @@ grant_type=authorization_code
             scope: tokenData.scope || 'openid profile email'
           };
           
-          const success = storeOAuthTokens(tokensForStorage);
+          const success = storeOAuthTokens(tokensForStorage, 'hybrid', 'Hybrid Flow');
           if (success) {
             console.log('✅ [HybridFlow] Code exchanged for additional tokens and stored successfully');
           } else {

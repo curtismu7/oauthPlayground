@@ -553,7 +553,7 @@ grant_type=authorization_code
             scope: 'openid profile email'
           };
           
-          const success = storeOAuthTokens(tokensForStorage);
+          const success = storeOAuthTokens(tokensForStorage, 'authorization_code', 'Authorization Code Flow');
           if (success) {
             console.log('✅ [AuthCodeFlow] Mock tokens generated and stored successfully');
           } else {
