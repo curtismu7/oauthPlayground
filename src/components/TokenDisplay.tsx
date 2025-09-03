@@ -183,19 +183,8 @@ const TokenValue = styled.pre<{ $isMasked?: boolean; $type?: 'access' | 'id' | '
   font-family: 'SFMono-Regular', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', 'Courier New', monospace;
   font-size: 0.8rem;
   line-height: 1.6;
-  color: ${({ $type }) => {
-    switch ($type) {
-      case 'access':
-        return '#1e3a8a';
-      case 'id':
-        return '#92400e';
-      case 'refresh':
-        return '#065f46';
-      default:
-        return '#1f2937';
-    }
-  }};
-  background: rgba(255, 255, 255, 0.8);
+  color: #000000 !important;
+  background: rgba(255, 255, 255, 0.95) !important;
   border: 2px solid ${({ $type }) => {
     switch ($type) {
       case 'access':
@@ -217,6 +206,11 @@ const TokenValue = styled.pre<{ $isMasked?: boolean; $type?: 'access' | 'id' | '
   text-indent: 0;
   box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
   position: relative;
+  
+  /* Force black text with multiple selectors */
+  &, & * {
+    color: #000000 !important;
+  }
 
   &::before {
     content: 'JWT Token';

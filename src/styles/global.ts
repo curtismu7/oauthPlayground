@@ -124,4 +124,14 @@ export const GlobalStyle = createGlobalStyle`
       font-size: inherit;
     }
   }
+
+  /* JWT Token Display - Force black text on white background */
+  pre[class*="TokenValue"], 
+  pre[class*="sc-JQDoe"], 
+  pre[class*="sc-fJaKAf"],
+  pre[class*="dhGOem"],
+  pre[class*="hIxTdn"] {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    color: #000000 !important;
+  }
 `;
