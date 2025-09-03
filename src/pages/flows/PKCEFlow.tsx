@@ -629,7 +629,7 @@ return tokens;`,
         subtitle="Learn how Proof Key for Code Exchange (PKCE) enhances the Authorization Code flow with real API calls to PingOne."
       />
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.5rem', marginBottom: '2rem', padding: '1rem 0' }}>
         <ConfigurationButton flowType="pkce" />
       </div>
 

@@ -845,7 +845,7 @@ console.log('Welcome, ' + user.name + '!');`,
         subtitle="Learn how to retrieve user profile information using the UserInfo endpoint. This endpoint provides detailed user claims and supports both authenticated and unauthenticated requests."
       />
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.5rem', marginBottom: '2rem', padding: '1rem 0' }}>
         <ConfigurationButton flowType="userinfo" />
       </div>
 
