@@ -602,6 +602,18 @@ async function exchangeCodeForTokens(
     clientSecretLength: clientSecret ? clientSecret.length : 0
   });
   
+  // Debug: Check if client secret might be Base64 encoded or have format issues
+  if (clientSecret) {
+    console.log('🔍 [exchangeCodeForTokens] Client secret analysis:', {
+      length: clientSecret.length,
+      startsWithBase64: /^[A-Za-z0-9+/=]+$/.test(clientSecret),
+      hasSpecialChars: /[^A-Za-z0-9+/=]/.test(clientSecret),
+      endsWithEquals: clientSecret.endsWith('='),
+      firstChars: clientSecret.substring(0, 20),
+      lastChars: clientSecret.substring(clientSecret.length - 20)
+    });
+  }
+  
   // Remove client credentials from body params (they go in Authorization header)
   const bodyParams = { ...params };
   delete bodyParams.client_id;
@@ -619,6 +631,16 @@ async function exchangeCodeForTokens(
   console.log('🔍 [exchangeCodeForTokens] Using Client Secret Basic authentication');
   console.log('🔍 [exchangeCodeForTokens] Credentials string length:', credentials.length);
   console.log('🔍 [exchangeCodeForTokens] Basic auth header length:', basicAuth.length);
+  
+  // Debug: Decode the Basic Auth header to verify it's correct
+  try {
+    const decoded = atob(basicAuth);
+    console.log('🔍 [exchangeCodeForTokens] Decoded Basic Auth:', decoded.substring(0, 50) + '...');
+    console.log('🔍 [exchangeCodeForTokens] Decoded length:', decoded.length);
+  } catch (e) {
+    console.error('❌ [exchangeCodeForTokens] Failed to decode Basic Auth:', e);
+  }
+  
   console.log('🔍 [exchangeCodeForTokens] Final request body:', new URLSearchParams(bodyParams).toString());
   console.log('🔍 [exchangeCodeForTokens] Request headers:', {
     'Content-Type': headers['Content-Type'],
