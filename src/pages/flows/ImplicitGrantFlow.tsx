@@ -254,36 +254,14 @@ nonce: 'random_nonce_value'
 // Full URL:
 ${config?.authorizationEndpoint || 'https://auth.pingone.com/env_id/as/authorize'}?response_type=id_token%20token&client_id=${config?.clientId || 'your_client_id'}&redirect_uri=${config?.redirectUri || 'https://yourapp.com/callback'}&scope=openid%20profile%20email&state=random_state_value&nonce=random_nonce_value`,
       execute: () => {
-        console.log('🔍 [ImplicitGrantFlow] Step 1 execute called:', {
-          hasConfig: !!config,
-          config: config ? {
-            hasAuthorizationEndpoint: !!config.authorizationEndpoint,
-            hasClientId: !!config.clientId,
-            hasRedirectUri: !!config.redirectUri,
-            authorizationEndpoint: config.authorizationEndpoint,
-            clientId: config.clientId,
-            redirectUri: config.redirectUri
-          } : null
-        });
+        console.log('🔍 [ImplicitGrantFlow] Step 1 execute called - DISABLED');
         
-        if (!config) {
-          setError('Configuration required. Please configure your PingOne settings first.');
-          return { error: 'Configuration required' };
-        }
-        
-        const url = generateAuthUrl();
-        if (!url) {
-          setError('Failed to generate authorization URL. Please check your configuration.');
-          return { error: 'Failed to generate authorization URL' };
-        }
-        
-        const result = { url };
-        console.log('🔍 [ImplicitGrantFlow] Step 1 - About to set authUrl state:', url);
-        setAuthUrl(url);
-        console.log('✅ [ImplicitGrantFlow] Authorization URL generated and stored:', url);
-        console.log('🔍 [ImplicitGrantFlow] Step 1 returning result:', result);
-        console.log('🔍 [ImplicitGrantFlow] Step 1 state updates completed:', { url, result });
-        console.log('🔍 [ImplicitGrantFlow] Step 1 result will be stored at index 0');
+        const result = { 
+          error: 'This flow is not supported by PingOne. Please use the Authorization Code Flow instead.',
+          message: 'Implicit Grant Flow is not supported by PingOne'
+        };
+        setStepResults(prev => ({ ...prev, 1: result }));
+        setExecutedSteps(prev => new Set(prev).add(1));
         return result;
       }
     },
@@ -298,50 +276,15 @@ window.location.href = authUrl;
 // - Consent for requested scopes
 // - Redirect back with tokens in URL fragment`,
       execute: () => {
-        console.log('🚀 [ImplicitGrantFlow] Step 2 - Starting redirect to PingOne');
+        console.log('🚀 [ImplicitGrantFlow] Step 2 - DISABLED (Not supported by PingOne)');
         
-        // Generate the authorization URL directly in step 2
-        if (!config) {
-          setError('Configuration required. Please configure your PingOne settings first.');
-          return { error: 'Configuration required' };
-        }
-        
-        // Generate the authorization URL for OIDC Implicit Flow
-        const params = new URLSearchParams({
-          response_type: 'id_token token',
-          client_id: config.clientId,
-          redirect_uri: config.redirectUri,
-          scope: 'openid profile email',
-          state: Math.random().toString(36).substring(2, 15),
-          nonce: Math.random().toString(36).substring(2, 15)
-        });
-        
-        const authorizationUrl = `${config.authorizationEndpoint}?${params.toString()}`;
-        console.log('✅ [ImplicitGrantFlow] Generated authorization URL:', authorizationUrl);
-        console.log('🔍 [ImplicitGrantFlow] Authorization endpoint:', config.authorizationEndpoint);
-        console.log('🔍 [ImplicitGrantFlow] Client ID:', config.clientId);
-        console.log('🔍 [ImplicitGrantFlow] Redirect URI:', config.redirectUri);
-        console.log('🔍 [ImplicitGrantFlow] URL parameters:', Object.fromEntries(params.entries()));
-        
-        // Store the URL in state
-        setAuthUrl(authorizationUrl);
-        
-        // Store the flow type so callback knows where to redirect back
-        localStorage.setItem('oauth_flow_type', 'implicit-grant');
-        
-        // Return success result
         const result = { 
-          message: 'Redirecting to authorization server...', 
-          url: authorizationUrl 
+          error: 'This flow is not supported by PingOne. Please use the Authorization Code Flow instead.',
+          message: 'Implicit Grant Flow is not supported by PingOne'
         };
-        
-        // Redirect after a short delay
-        setTimeout(() => {
-          console.log('🔄 [ImplicitGrantFlow] Redirecting to:', authorizationUrl);
-          window.location.href = authorizationUrl;
-        }, 1000);
-        
-        // Don't return result - execute should return void
+        setStepResults(prev => ({ ...prev, 2: result }));
+        setExecutedSteps(prev => new Set(prev).add(2));
+        return result;
       }
     },
     {
@@ -457,11 +400,16 @@ console.log('User ID:', decodedIdToken.sub);`,
       <DeprecationWarning>
         <FiAlertCircle size={20} />
         <div>
-          <h3>⚠️ Deprecated in OAuth 2.1</h3>
+          <h3>⚠️ Not Supported by PingOne</h3>
           <p>
-            The OAuth 2.0 Implicit Grant Flow has been deprecated in OAuth 2.1 due to security concerns. 
-            This page now demonstrates the OIDC Implicit Flow using <code>response_type=id_token token</code>, 
-            which is still supported but not recommended. Use the Authorization Code Flow with PKCE instead for better security.
+            The OIDC Implicit Flow using <code>response_type=id_token token</code> is not supported by PingOne. 
+            PingOne follows OAuth 2.1 security best practices and only supports the Authorization Code Flow with PKCE.
+            <br /><br />
+            <strong>Please use the Authorization Code Flow instead:</strong>
+            <br />
+            <a href="/flows/authorization-code" style={{ color: '#0070cc', textDecoration: 'underline' }}>
+              Go to Authorization Code Flow →
+            </a>
           </p>
         </div>
       </DeprecationWarning>
