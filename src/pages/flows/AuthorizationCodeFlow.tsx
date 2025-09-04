@@ -462,7 +462,7 @@ window.location.href = authUrl;
         setAuthUrl(authorizationUrl);
         
         // Store the flow type so callback knows where to redirect back
-        localStorage.setItem('oauth_flow_type', 'authorization-code-oidc');
+        localStorage.setItem('oauth_flow_type', 'authorization-code');
         
         // Return success result
         const result = { 
@@ -713,7 +713,7 @@ grant_type=authorization_code
     });
   };
 
-  const flowType = getFlowById('authorization-code-oidc');
+  const flowType = getFlowById('authorization-code');
 
   return (
     <Container>
