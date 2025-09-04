@@ -39,6 +39,7 @@ const isRefreshTokenValid = (tokens: OAuthTokens | null): boolean => {
 const getStoredTokens = (): OAuthTokens | null => {
   try {
     const tokens = oauthStorage.getTokens();
+    console.log('🔍 [getStoredTokens] Retrieved tokens from oauthStorage:', tokens);
     return tokens ? JSON.parse(JSON.stringify(tokens)) : null;
   } catch (error) {
     console.error('Error parsing stored tokens:', error);
@@ -435,6 +436,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('🔍 [NewAuthContext] Storing token response:', tokenResponse);
       const storageSuccess = oauthStorage.setTokens(tokenResponse);
       console.log('🔍 [NewAuthContext] Token storage success:', storageSuccess);
+      
+      // Debug: Check if tokens were actually stored
+      const storedTokens = oauthStorage.getTokens();
+      console.log('🔍 [NewAuthContext] Verification - tokens retrieved from storage:', storedTokens);
+      
+      // Debug: Check sessionStorage directly
+      const rawStoredTokens = sessionStorage.getItem('pingone_playground_tokens');
+      console.log('🔍 [NewAuthContext] Raw tokens in sessionStorage:', rawStoredTokens);
       
       // Only get user info if this is an OIDC flow (has id_token or openid scope)
       let userInfo = null;
