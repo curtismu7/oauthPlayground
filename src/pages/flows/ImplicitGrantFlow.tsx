@@ -337,6 +337,7 @@ const ImplicitGrantFlow = () => {
   };
 
   const resetDemo = () => {
+    console.log('🔄 [ImplicitGrantFlow] Reset button clicked - resetting all state');
     setDemoStatus('idle');
     setCurrentStep(0);
     setTokensReceived(null);
@@ -345,6 +346,10 @@ const ImplicitGrantFlow = () => {
     setStepResults({});
     setExecutedSteps(new Set());
     setStepsWithResults([]);
+    setIsLoading(false);
+    setShowAuthModal(false);
+    setPendingAuthUrl('');
+    setPendingRequestParams({});
   };
 
   const handleStepResult = (stepIndex: number, result: any) => {
