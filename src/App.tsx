@@ -11,6 +11,7 @@ import Dashboard from './pages/Dashboard';
 import Flows from './pages/Flows';
 import Configuration from './pages/Configuration';
 import Documentation from './pages/Documentation';
+import ExternalDocumentation from './pages/ExternalDocumentation';
 import Login from './pages/Login';
 import Callback from './pages/Callback';
 import { useAuth } from './contexts/NewAuthContext';
@@ -252,6 +253,8 @@ const AppRoutes = () => {
             <Route path="/configuration" element={<Configuration />} />
 
             <Route path="/documentation" element={<Documentation />} />
+
+            <Route path="/external-documentation" element={<ExternalDocumentation />} />
 
             <Route path="/token-management" element={<TokenManagement />} />
 

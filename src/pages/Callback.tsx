@@ -103,6 +103,16 @@ const Callback = () => {
         console.log('🚀 [Callback] ===== OAUTH CALLBACK DEBUG START =====');
         console.log('🔍 [Callback] Processing OAuth callback...');
         console.log('🔍 [Callback] Current URL:', window.location.href);
+        
+        // Check if we already have a redirect path stored (prevents double processing)
+        const storedRedirect = localStorage.getItem('oauth_callback_redirect');
+        if (storedRedirect) {
+          console.log('🔍 [Callback] Found stored redirect path:', storedRedirect);
+          console.log('🔄 [Callback] Navigating to stored redirect path');
+          localStorage.removeItem('oauth_callback_redirect');
+          navigate(storedRedirect, { replace: true });
+          return;
+        }
         console.log('🔍 [Callback] URL pathname:', window.location.pathname);
         console.log('🔍 [Callback] URL search:', window.location.search);
         console.log('🔍 [Callback] URL hash:', window.location.hash);
@@ -252,6 +262,9 @@ const Callback = () => {
         } else {
           console.log('🔄 [Callback] No flow type found, redirecting to dashboard');
         }
+        
+        // Store the redirect path before clearing the flow type
+        localStorage.setItem('oauth_callback_redirect', redirectPath);
         
         // Clear the flow type from localStorage
         localStorage.removeItem('oauth_flow_type');

@@ -10,6 +10,8 @@ import ConfigurationButton from '../../components/ConfigurationButton';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 import TokenDisplayComponent from '../../components/TokenDisplay';
 import PageTitle from '../../components/PageTitle';
+import FlowBadge from '../../components/FlowBadge';
+import { getFlowById } from '../../types/flowTypes';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -432,6 +434,8 @@ console.log('User ID:', decodedIdToken.sub);`,
     },
   ], [config, authUrl, stepResults, executedSteps, generateAuthUrl]);
 
+  const flowType = getFlowById('implicit-grant');
+
   return (
     <Container>
       <PageTitle 
@@ -443,6 +447,12 @@ console.log('User ID:', decodedIdToken.sub);`,
         }
         subtitle="Learn how the Implicit Grant flow works with real API calls to PingOne. This flow is suitable for client-side applications but has security limitations."
       />
+
+      {flowType && (
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
+          <FlowBadge flow={flowType} size="large" />
+        </div>
+      )}
 
       <DeprecationWarning>
         <FiAlertCircle size={20} />

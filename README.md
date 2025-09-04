@@ -1,103 +1,115 @@
-# PingOne OAuth 2.0 & OpenID Connect Playground
+# PingOne MPC Server
 
-An interactive playground for learning, testing, and mastering OAuth 2.0 and OpenID Connect with PingOne.
+A Multi-Party Computation (MPC) server designed to work with the PingOne OAuth Playground application, providing secure cryptographic computations across multiple participants.
 
-## Features
+## 🚀 Features
 
-- Interactive OAuth 2.0 flows:
-  - Authorization Code Flow
-  - PKCE (Proof Key for Code Exchange)
-  - Implicit Flow
-  - Client Credentials
-  - Device Code Flow
-- OpenID Connect integration
-- Real-time token inspection and validation
-- Comprehensive documentation and guides
-- Responsive design for all devices
+- **Multi-Party Computation**: Secure computation across multiple participants
+- **Real-time Communication**: WebSocket support for live updates
+- **PingOne Integration**: Seamless integration with PingOne OAuth Playground
+- **RESTful API**: Clean API endpoints for MPC operations
+- **Simple Setup**: Easy to run and test
 
-## Prerequisites
+## 📋 Supported MPC Operations
 
-- Node.js (v14 or later)
-- npm (v6 or later) or yarn
-- A PingOne account with an environment and application configured
+- **Addition**: Secure addition of multiple values
+- **Multiplication**: Secure multiplication of multiple values
+- **Comparison**: Secure comparison between values
 
-## Getting Started
+## 🛠️ Installation
 
-### 1. Clone the repository
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/curtismu7/PingOne_mpc.git
+   cd PingOne_mpc
+   ```
 
-```bash
-git clone https://github.com/yourusername/oauth-playground.git
-cd oauth-playground
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Start the server**:
+   ```bash
+   npm start
+   ```
+
+## 📡 API Endpoints
+
+### Health Check
+```http
+GET /health
 ```
 
-### 2. Install dependencies
+### MPC Computation
+```http
+POST /api/mpc/compute
+Content-Type: application/json
+
+{
+  "computationId": "unique-id",
+  "participants": ["participant1", "participant2"],
+  "operation": "add",
+  "inputs": [10, 20, 30]
+}
+```
+
+## 🔌 WebSocket API
+
+Connect to `ws://localhost:3001/ws` for real-time communication.
+
+### Message Types
+
+#### Start MPC Computation
+```json
+{
+  "type": "mpc_computation",
+  "computationId": "unique-id",
+  "participants": ["participant1", "participant2"],
+  "operation": "add",
+  "inputs": [10, 20, 30]
+}
+```
+
+#### Ping/Pong
+```json
+{
+  "type": "ping"
+}
+```
+
+## 🔗 PingOne OAuth Playground Integration
+
+This MPC server is designed to work seamlessly with the PingOne OAuth Playground application:
+
+1. **CORS Configuration**: Pre-configured for OAuth Playground URLs
+2. **WebSocket Support**: Real-time communication for live updates
+3. **RESTful API**: Easy integration with OAuth Playground frontend
+
+## 🚀 Quick Start
 
 ```bash
+# Install dependencies
 npm install
-# or
-yarn install
+
+# Start the server
+npm start
+
+# Test the server
+curl http://localhost:3001/health
 ```
 
-### 3. Configure your environment
+## 📄 License
 
-Create a `.env` file in the root directory with your PingOne configuration:
+MIT License
 
-```env
-PINGONE_ENVIRONMENT_ID=your-environment-id
-PINGONE_CLIENT_ID=your-client-id
-PINGONE_REDIRECT_URI=http://localhost:3000/callback
-PINGONE_API_URL=https://auth.pingone.com
-```
-
-### 4. Start the development server
-
-```bash
-npm run dev
-# or
-yarn dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Project Structure
-
-```
-/src
-  /components      # Reusable UI components
-  /contexts       # React contexts
-  /hooks          # Custom React hooks
-  /pages          # Page components
-  /services       # API and service integrations
-  /styles         # Global styles and theme
-  /utils          # Utility functions
-  App.jsx         # Main application component
-  main.jsx        # Application entry point
-```
-
-## Available Scripts
-
-- `npm run dev` - Start the development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview the production build
-- `npm run lint` - Run ESLint
-- `npm run format` - Format code with Prettier
-
-## Contributing
+## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
-## License
+---
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- [Ping Identity](https://www.pingidentity.com/) for their identity and access management solutions
-- [React](https://reactjs.org/) for the UI library
-- [Vite](https://vitejs.dev/) for the build tool
-- [Styled Components](https://styled-components.com/) for styling
-- [React Router](https://reactrouter.com/) for routing
+**Built for PingOne OAuth Playground** - Secure Multi-Party Computation made simple.
