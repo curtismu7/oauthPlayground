@@ -336,6 +336,14 @@ const hasProperty = <T extends object, K extends string>(
 const AuthorizationCodeFlow = () => {
   const { isAuthenticated } = useAuth();
   const { config, tokens: contextTokens } = useAuth();
+  
+  // Debug: Log when component mounts and tokens change
+  console.log('🔍 [AuthorizationCodeFlow] Component mounted/updated:', {
+    isAuthenticated,
+    hasContextTokens: !!contextTokens,
+    contextTokens: contextTokens ? Object.keys(contextTokens) : null,
+    config: config ? Object.keys(config) : null
+  });
   const location = useLocation();
   const navigate = useNavigate();
   const [demoStatus, setDemoStatus] = useState('idle');
@@ -408,6 +416,19 @@ const AuthorizationCodeFlow = () => {
       try {
         // Check sessionStorage with the correct key prefix
         const storedTokens = sessionStorage.getItem('pingone_playground_tokens');
+        // Debug: Check all sessionStorage keys
+        const allKeys = Object.keys(sessionStorage);
+        const pingoneKeys = allKeys.filter(key => key.includes('pingone'));
+        
+        console.log('🔍 [AuthorizationCodeFlow] Checking sessionStorage for tokens:', {
+          hasStoredTokens: !!storedTokens,
+          storedTokens: storedTokens ? 'FOUND' : 'NOT_FOUND',
+          tokensReceived,
+          currentStep,
+          allSessionKeys: allKeys,
+          pingoneKeys: pingoneKeys
+        });
+        
         if (storedTokens && !tokensReceived) {
           const parsedTokens = JSON.parse(storedTokens);
           console.log('🔄 [AuthorizationCodeFlow] Found tokens in sessionStorage, advancing flow state');
