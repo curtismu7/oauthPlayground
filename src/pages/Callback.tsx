@@ -1,366 +1,191 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import styled from 'styled-components';
-import { FiLoader, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
 import { useAuth } from '../contexts/NewAuthContext';
+import Spinner from '../components/Spinner';
+import styled from 'styled-components';
 
-const CallbackContainer = styled.div`
+const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
   padding: 2rem;
-  text-align: center;
-  background-color: ${({ theme }) => theme.colors.gray100};
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 `;
 
 const Card = styled.div`
   background: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  padding: 3rem 2rem;
-  width: 100%;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
   max-width: 500px;
-`;
-
-const Spinner = styled(FiLoader)`
-  animation: spin 1s linear infinite;
-  font-size: 3rem;
-  color: ${({ theme }) => theme.colors.primary};
-  margin-bottom: 1.5rem;
-  
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-`;
-
-const SuccessIcon = styled(FiCheckCircle)`
-  font-size: 3rem;
-  color: ${({ theme }) => theme.colors.success};
-  margin-bottom: 1.5rem;
-`;
-
-const ErrorIcon = styled(FiAlertCircle)`
-  font-size: 3rem;
-  color: ${({ theme }) => theme.colors.danger};
-  margin-bottom: 1.5rem;
+  width: 100%;
+  text-align: center;
 `;
 
 const Title = styled.h1`
+  color: #1f2937;
   font-size: 1.5rem;
   font-weight: 600;
-  color: ${({ theme }) => theme.colors.gray900};
   margin-bottom: 1rem;
 `;
 
 const Message = styled.p`
-  color: ${({ theme }) => theme.colors.gray600};
-  margin-bottom: 2rem;
-  line-height: 1.6;
-`;
-
-const Button = styled.button`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.75rem 1.5rem;
+  color: #6b7280;
   font-size: 1rem;
-  font-weight: 500;
-  color: white;
-  background-color: ${({ theme }) => theme.colors.primary};
-  border: none;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  text-decoration: none;
-  
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.primaryDark};
-    text-decoration: none;
-  }
+  margin-bottom: 2rem;
 `;
 
-const Callback = () => {
+const ErrorMessage = styled.div`
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+`;
+
+const SuccessMessage = styled.div`
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #16a34a;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+`;
+
+const Callback: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { handleCallback } = useAuth();
-  const [status, setStatus] = useState('processing');
-  const [error, setError] = useState('');
+  const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
+  const [message, setMessage] = useState('Processing authentication...');
+  const [error, setError] = useState<string | null>(null);
   const [hasProcessed, setHasProcessed] = useState(false);
-  
-  console.log('🚀 [Callback] Component mounted/rendered');
-  console.log('🔍 [Callback] Current URL:', window.location.href);
-  console.log('🔍 [Callback] Search params:', searchParams.toString());
-  console.log('🔍 [Callback] Location pathname:', window.location.pathname);
-  console.log('🔍 [Callback] Location search:', window.location.search);
 
   useEffect(() => {
     const processCallback = async () => {
-      console.log('🚀 [Callback] processCallback started');
-      console.log('🔍 [Callback] hasProcessed:', hasProcessed);
-      console.log('🔍 [Callback] searchParams:', searchParams.toString());
-      
-      // Prevent multiple processing attempts
       if (hasProcessed) {
-        console.log('🔄 [Callback] Callback already processed, skipping...');
+        console.log('🔄 [Callback] Already processed, skipping...');
         return;
       }
-      
+
+      console.log('🚀 [Callback] Starting callback processing...');
+      console.log('🔍 [Callback] Current URL:', window.location.href);
+      console.log('🔍 [Callback] Search params:', searchParams.toString());
+
       setHasProcessed(true);
-      
+
       try {
-        console.log('🚀 [Callback] ===== OAUTH CALLBACK DEBUG START =====');
-        console.log('🔍 [Callback] Processing OAuth callback...');
-        console.log('🔍 [Callback] Current URL:', window.location.href);
-        
-        // Don't redirect early - process the callback first
-        console.log('🔍 [Callback] Processing callback without early redirect');
-        console.log('🔍 [Callback] URL pathname:', window.location.pathname);
-        console.log('🔍 [Callback] URL search:', window.location.search);
-        console.log('🔍 [Callback] URL hash:', window.location.hash);
-        console.log('🔍 [Callback] SearchParams entries:', Array.from(searchParams.entries()));
-        
-        // Get parameters from both query string and URL fragment
-        const urlParams: Record<string, string> = {};
-        const queryParams: Record<string, string> = {};
-        const fragmentParams: Record<string, string> = {};
-        
-        // Get query parameters (Authorization Code Flow)
-        console.log('🔍 [Callback] Parsing query parameters...');
-        for (const [key, value] of searchParams.entries()) {
-          urlParams[key] = value;
-          queryParams[key] = value;
-          console.log(`  📝 Query param: ${key} = ${value}`);
-        }
-        
-        // Get URL fragment parameters (Implicit Grant Flow)
-        console.log('🔍 [Callback] Parsing URL fragment...');
-        if (window.location.hash) {
-          const fragment = window.location.hash.substring(1); // Remove the #
-          console.log('🔍 [Callback] Raw fragment (without #):', fragment);
-          const fragmentParamsObj = new URLSearchParams(fragment);
-          for (const [key, value] of fragmentParamsObj.entries()) {
-            urlParams[key] = value;
-            fragmentParams[key] = value;
-            console.log(`  📝 Fragment param: ${key} = ${value}`);
-          }
-        } else {
-          console.log('🔍 [Callback] No URL fragment found');
-        }
-        
-        console.log('🔍 [Callback] ===== PARSED PARAMETERS =====');
-        console.log('🔍 [Callback] All URL parameters (merged):', urlParams);
-        console.log('🔍 [Callback] Query parameters only:', queryParams);
-        console.log('🔍 [Callback] Fragment parameters only:', fragmentParams);
-        console.log('🔍 [Callback] Parameter count - Total:', Object.keys(urlParams).length, 'Query:', Object.keys(queryParams).length, 'Fragment:', Object.keys(fragmentParams).length);
-        
-        // Check for error in the URL (e.g., user denied permission)
-        if (urlParams.error) {
-          console.error('❌ [Callback] OAuth error in URL:', urlParams.error, urlParams.error_description);
-          let errorMessage = urlParams.error_description || 'Authorization failed';
-          
-          // Handle PingOne-specific errors with user-friendly messages
-          if (urlParams.error === 'NOT_FOUND') {
-            errorMessage = 'Configuration Issue: The PingOne environment or application could not be found. Please check your Environment ID and ensure your PingOne application is properly configured.';
-          } else if (urlParams.error === 'invalid_request') {
-            errorMessage = 'Invalid Request: The authorization request was malformed. Please try again or contact support if the issue persists.';
-          } else if (urlParams.error === 'unauthorized_client') {
-            errorMessage = 'Unauthorized Client: Your application is not authorized to make this request. Please check your Client ID configuration.';
-          } else if (urlParams.error === 'access_denied') {
-            errorMessage = 'Access Denied: The user denied the authorization request or the request was cancelled.';
-          } else if (urlParams.error === 'unsupported_response_type') {
-            errorMessage = 'Configuration Error: The requested response type is not supported. Please contact support.';
-          } else if (urlParams.error === 'invalid_scope') {
-            errorMessage = 'Invalid Scope: The requested permissions are not valid. Please check your scope configuration.';
-          } else if (urlParams.error === 'server_error') {
-            errorMessage = 'Server Error: PingOne encountered an internal error. Please try again later.';
-          } else if (urlParams.error === 'temporarily_unavailable') {
-            errorMessage = 'Service Unavailable: PingOne is temporarily unavailable. Please try again later.';
-          }
-          
-          throw new Error(errorMessage);
-        }
-        
-        // Check if we have the required parameters for either flow type
-        console.log('🔍 [Callback] ===== FLOW TYPE DETECTION =====');
-        const hasAuthorizationCode = !!urlParams.code;
-        const hasAccessToken = !!urlParams.access_token;
-        const hasIdToken = !!urlParams.id_token;
-        const hasState = !!urlParams.state;
-        const hasTokenType = !!urlParams.token_type;
-        const hasExpiresIn = !!urlParams.expires_in;
-        
-        console.log('🔍 [Callback] Flow detection results:');
-        console.log(`  🔑 Authorization Code: ${hasAuthorizationCode} ${urlParams.code ? `(${urlParams.code.substring(0, 10)}...)` : ''}`);
-        console.log(`  🎫 Access Token: ${hasAccessToken} ${urlParams.access_token ? `(${urlParams.access_token.substring(0, 20)}...)` : ''}`);
-        console.log(`  🆔 ID Token: ${hasIdToken} ${urlParams.id_token ? `(${urlParams.id_token.substring(0, 20)}...)` : ''}`);
-        console.log(`  🔒 State: ${hasState} ${urlParams.state ? `(${urlParams.state})` : ''}`);
-        console.log(`  📝 Token Type: ${hasTokenType} ${urlParams.token_type ? `(${urlParams.token_type})` : ''}`);
-        console.log(`  ⏰ Expires In: ${hasExpiresIn} ${urlParams.expires_in ? `(${urlParams.expires_in})` : ''}`);
-        
-        if (!hasAuthorizationCode && !hasAccessToken) {
-          console.error('❌ [Callback] ===== VALIDATION FAILED =====');
-          console.error('❌ [Callback] No authorization code or access token found');
-          console.error('❌ [Callback] Available parameters:', Object.keys(urlParams));
-          console.error('❌ [Callback] Parameter values:', urlParams);
-          console.error('❌ [Callback] This suggests the OAuth flow was interrupted or malformed');
-          throw new Error('No authorization code or access token received. The OAuth flow may have been interrupted.');
-        }
-        
-        console.log('🔍 [Callback] ===== FLOW TYPE IDENTIFIED =====');
-        if (hasAuthorizationCode) {
-          console.log('✅ [Callback] Authorization Code Flow detected');
-          console.log('✅ [Callback] Code value:', urlParams.code);
-          console.log('✅ [Callback] State value:', urlParams.state);
-          console.log('✅ [Callback] Processing Authorization Code Flow callback...');
-        } else if (hasAccessToken) {
-          console.log('✅ [Callback] Implicit Grant Flow detected');
-          console.log('✅ [Callback] Access token value:', urlParams.access_token);
-          console.log('✅ [Callback] Token type:', urlParams.token_type);
-          console.log('✅ [Callback] Expires in:', urlParams.expires_in);
-          console.log('✅ [Callback] ID token:', urlParams.id_token ? 'Present' : 'Not present');
-          console.log('✅ [Callback] Processing Implicit Grant Flow callback...');
-        }
-        
-        // Ensure minimum spinner time while processing callback
-        console.log('🔍 [Callback] ===== CALLING HANDLECALLBACK =====');
-        console.log('🔍 [Callback] About to call handleCallback with URL:', window.location.href);
-        
-        const start = Date.now();
-        try {
-          await handleCallback(window.location.href);
-          console.log('✅ [Callback] handleCallback completed successfully');
-        } catch (handleCallbackError) {
-          console.error('❌ [Callback] handleCallback failed:', handleCallbackError);
-          throw handleCallbackError; // Re-throw to be caught by outer try-catch
-        }
-        
-        const elapsed = Date.now() - start;
-        console.log(`🔍 [Callback] handleCallback took ${elapsed}ms`);
-        
-        const remaining = Math.max(2000 - elapsed, 0);
-        if (remaining > 0) {
-          console.log(`🔍 [Callback] Waiting additional ${remaining}ms for minimum spinner time`);
-          await new Promise((res) => setTimeout(res, remaining));
+        // Extract parameters from URL
+        const code = searchParams.get('code');
+        const state = searchParams.get('state');
+        const error = searchParams.get('error');
+        const errorDescription = searchParams.get('error_description');
+
+        console.log('🔍 [Callback] Extracted parameters:', { code, state, error, errorDescription });
+
+        // Check for OAuth errors
+        if (error) {
+          throw new Error(`OAuth error: ${error}. ${errorDescription || ''}`);
         }
 
-        // If we reach here, authentication was successful
-        console.log('✅ [Callback] ===== AUTHENTICATION SUCCESSFUL =====');
-        console.log('✅ [Callback] Setting status to success and determining redirect destination');
-        setStatus('success');
-        
-        // Determine where to redirect based on the flow type
-        const flowType = localStorage.getItem('oauth_flow_type');
-        console.log('🔍 [Callback] Flow type from localStorage:', flowType);
-        
-        // Debug: Check all localStorage keys
-        const allLocalKeys = Object.keys(localStorage);
-        const oauthKeys = allLocalKeys.filter(key => key.includes('oauth') || key.includes('flow'));
-        console.log('🔍 [Callback] All localStorage keys:', allLocalKeys);
-        console.log('🔍 [Callback] OAuth/Flow related keys:', oauthKeys);
-        
-        // Debug: Check sessionStorage too
-        const allSessionKeys = Object.keys(sessionStorage);
-        const sessionOauthKeys = allSessionKeys.filter(key => key.includes('oauth') || key.includes('flow'));
-        console.log('🔍 [Callback] All sessionStorage keys:', allSessionKeys);
-        console.log('🔍 [Callback] Session OAuth/Flow related keys:', sessionOauthKeys);
-        
-        let redirectPath = '/dashboard'; // Default fallback
-        
-        if (flowType === 'authorization-code') {
-          redirectPath = '/flows/authorization-code';
-          console.log('🔄 [Callback] Redirecting back to Authorization Code Flow page');
-        } else if (flowType === 'simplified-auth-code') {
-          redirectPath = '/flows/implicit';
-          console.log('🔄 [Callback] Redirecting back to Simplified Authorization Code Flow page');
-        } else if (flowType === 'implicit-grant') {
-          redirectPath = '/flows/implicit';
-          console.log('🔄 [Callback] Redirecting back to Implicit Grant Flow page (legacy)');
-        } else {
-          console.log('🔄 [Callback] No flow type found, redirecting to dashboard');
+        // Check for required parameters
+        if (!code || !state) {
+          throw new Error('Missing required parameters (code or state)');
         }
+
+        // Call the auth context to handle the callback
+        console.log('🔍 [Callback] Calling handleCallback...');
+        const result = await handleCallback(window.location.href);
         
-        // Store the redirect path and mark as processed to prevent double processing
-        localStorage.setItem('oauth_callback_redirect', redirectPath);
-        localStorage.setItem('oauth_callback_processed', 'true');
-        
-        // Clear the flow type from localStorage
-        localStorage.removeItem('oauth_flow_type');
-        
-        // Brief success state before navigating
-        setTimeout(() => {
-          console.log(`🔄 [Callback] Navigating to ${redirectPath}`);
-          navigate(redirectPath, { replace: true });
-        }, 1500);
-        console.log('✅ [Callback] ===== OAUTH CALLBACK DEBUG END (SUCCESS) =====');
-        
+        console.log('🔍 [Callback] handleCallback result:', result);
+
+        if (result.success) {
+          console.log('✅ [Callback] Authentication successful');
+          setStatus('success');
+          setMessage('Authentication successful! Redirecting...');
+          
+          // Determine redirect destination
+          const flowType = localStorage.getItem('oauth_flow_type');
+          console.log('🔍 [Callback] Flow type from localStorage:', flowType);
+          
+          let redirectPath = '/dashboard'; // default
+          
+          if (flowType === 'authorization-code') {
+            redirectPath = '/flows/authorization-code';
+          } else if (flowType === 'simplified-auth-code') {
+            redirectPath = '/flows/implicit';
+          } else if (flowType === 'pkce') {
+            redirectPath = '/flows/pkce';
+          } else if (flowType === 'client-credentials') {
+            redirectPath = '/flows/client-credentials';
+          } else if (flowType === 'device-code') {
+            redirectPath = '/flows/device-code';
+          }
+          
+          console.log('🔄 [Callback] Redirecting to:', redirectPath);
+          
+          // Clear the flow type
+          localStorage.removeItem('oauth_flow_type');
+          
+          // Redirect after a short delay
+          setTimeout(() => {
+            navigate(redirectPath, { replace: true });
+          }, 1500);
+          
+        } else {
+          throw new Error(result.error || 'Authentication failed');
+        }
+
       } catch (err) {
-        console.error('❌ [Callback] ===== OAUTH CALLBACK ERROR =====');
-        console.error('❌ [Callback] Error type:', typeof err);
-        console.error('❌ [Callback] Error message:', err instanceof Error ? err.message : 'Unknown error');
-        console.error('❌ [Callback] Error stack:', err instanceof Error ? err.stack : 'No stack trace');
-        console.error('❌ [Callback] Full error object:', err);
-        console.error('❌ [Callback] Setting status to error and showing error message');
+        console.error('❌ [Callback] Error processing callback:', err);
         setStatus('error');
-        setError(err instanceof Error ? err.message : 'An error occurred during authentication');
-        console.error('❌ [Callback] ===== OAUTH CALLBACK DEBUG END =====');
+        setError(err instanceof Error ? err.message : 'Authentication failed');
+        setMessage('Authentication failed');
+        
+        // Redirect to dashboard after error
+        setTimeout(() => {
+          navigate('/dashboard', { replace: true });
+        }, 3000);
       }
     };
-    
+
     processCallback();
   }, [searchParams, navigate, handleCallback, hasProcessed]);
 
-  const handleRetry = () => {
-    // Redirect to the login page to start the flow again
-    navigate('/login');
-  };
-
-  const handleGoToDashboard = () => {
-    navigate('/dashboard', { replace: true });
-  };
-
-  if (status === 'processing') {
-    return (
-      <CallbackContainer>
-        <Card>
-          <Spinner />
-          <Title>Completing Authentication</Title>
-          <Message>Please wait while we complete your login...</Message>
-        </Card>
-      </CallbackContainer>
-    );
-  }
-
-  if (status === 'success') {
-    return (
-      <CallbackContainer>
-        <Card>
-          <SuccessIcon />
-          <Title>Authentication Successful</Title>
-          <Message>You have been successfully authenticated. Redirecting to the dashboard...</Message>
-          <Button onClick={handleGoToDashboard}>
-            Go to Dashboard
-          </Button>
-        </Card>
-      </CallbackContainer>
-    );
-  }
-
-  // Error state
   return (
-    <CallbackContainer>
+    <Container>
       <Card>
-        <ErrorIcon />
-        <Title>Authentication Failed</Title>
-        <Message>
-          {error || 'An error occurred during the authentication process. Please try again.'}
-        </Message>
-        <Button onClick={handleRetry}>
-          Try Again
-        </Button>
+        <Title>Processing Authentication</Title>
+        
+        {status === 'processing' && (
+          <>
+            <Spinner />
+            <Message>{message}</Message>
+          </>
+        )}
+        
+        {status === 'success' && (
+          <>
+            <SuccessMessage>
+              ✅ {message}
+            </SuccessMessage>
+            <Spinner />
+          </>
+        )}
+        
+        {status === 'error' && (
+          <>
+            <ErrorMessage>
+              ❌ {error}
+            </ErrorMessage>
+            <Message>Redirecting to dashboard...</Message>
+          </>
+        )}
       </Card>
-    </CallbackContainer>
+    </Container>
   );
 };
 
