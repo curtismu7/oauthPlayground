@@ -643,7 +643,7 @@ window.location.href = authUrl;
         
         // Show the authorization request modal instead of redirecting immediately
         setPendingAuthUrl(authorizationUrl);
-        setPendingRequestParams({
+        const requestParams: Record<string, string> = {
           client_id: config.clientId,
           redirect_uri: config.redirectUri,
           response_type: 'code',
@@ -652,7 +652,14 @@ window.location.href = authUrl;
           nonce: nonce,
           code_challenge: codeChallenge,
           code_challenge_method: 'S256'
-        });
+        };
+
+        // Add login_hint if provided
+        if (config.loginHint) {
+          requestParams.login_hint = config.loginHint;
+        }
+
+        setPendingRequestParams(requestParams);
         setShowAuthModal(true);
         
         // Return success result
@@ -785,9 +792,9 @@ grant_type=authorization_code
             body: params,
           });
 
-          if (!response.ok) {
-            throw new Error(`Token exchange failed: ${response.status} ${response.statusText}`);
-          }
+            if (!response.ok) {
+              throw new Error(`Token exchange failed: ${response.status} ${response.statusText}`);
+            }
 
           const tokenData = await response.json();
           setTokensReceived(tokenData);
@@ -825,7 +832,7 @@ grant_type=authorization_code
           const success = storeOAuthTokens(tokensForStorage, 'authorization_code', 'Authorization Code Flow');
           if (success) {
             console.log('✅ [AuthCodeFlow] Mock tokens generated and stored successfully');
-          } else {
+            } else {
             console.error('❌ [AuthCodeFlow] Failed to store mock tokens');
           }
           
@@ -1025,8 +1032,8 @@ grant_type=authorization_code
                 }
                 return null;
               })()}
-            </>
-          )}
+                </>
+              )}
 
           {/* Configuration Status */}
           {!config?.clientId && (
@@ -1111,7 +1118,7 @@ grant_type=authorization_code
           )}
 
           {tokensReceived && (
-            <div style={{ 
+                <div style={{
               marginTop: '2rem', 
               padding: '1.5rem', 
               backgroundColor: '#f8fafc', 
@@ -1131,9 +1138,9 @@ grant_type=authorization_code
                 🎉 Tokens Received Successfully!
               </h3>
               <TokenDisplayComponent tokens={tokensReceived} />
-              <div style={{ 
+                  <div style={{
                 marginTop: '2rem', 
-                display: 'flex', 
+                          display: 'flex',
                 gap: '1rem',
                 justifyContent: 'center',
                 paddingTop: '1rem',
@@ -1176,8 +1183,8 @@ grant_type=authorization_code
         </CardBody>
       </DemoSection>
 
-      <StepsContainer>
-        <h3>Flow Steps</h3>
+          <StepsContainer>
+            <h3>Flow Steps</h3>
         {steps.map((step, index) => {
           const stepResult = stepResults[index];
           const isExecuted = executedSteps.has(index);
@@ -1193,28 +1200,28 @@ grant_type=authorization_code
           }
 
           return (
-            <Step
-              key={index}
+              <Step
+                key={index}
               id={`step-${index}`}
-              $active={currentStep === index && demoStatus === 'loading'}
-              $completed={currentStep > index}
-              $error={currentStep === index && demoStatus === 'error'}
-              style={{
-                backgroundColor: step.backgroundColor,
-                borderColor: step.borderColor,
-                border: `2px solid ${step.borderColor}`
-              }}
-            >
-              <StepNumber
                 $active={currentStep === index && demoStatus === 'loading'}
                 $completed={currentStep > index}
                 $error={currentStep === index && demoStatus === 'error'}
+                style={{
+                  backgroundColor: step.backgroundColor,
+                  borderColor: step.borderColor,
+                  border: `2px solid ${step.borderColor}`
+                }}
               >
-                {index + 1}
-              </StepNumber>
-              <StepContent>
-                <h3>{step.title}</h3>
-                <p>{step.description}</p>
+                <StepNumber
+                  $active={currentStep === index && demoStatus === 'loading'}
+                  $completed={currentStep > index}
+                  $error={currentStep === index && demoStatus === 'error'}
+                >
+                  {index + 1}
+                </StepNumber>
+                <StepContent>
+                  <h3>{step.title}</h3>
+                  <p>{step.description}</p>
 
                 {/* Show request code section always (this is the template/example) */}
                 {step.code && step.code.trim() && (
@@ -1224,13 +1231,13 @@ grant_type=authorization_code
                 )}
                 {/* Debug: Show if step.code is empty */}
                 {(!step.code || !step.code.trim()) && (
-                  <div style={{ 
+                    <div style={{
                     marginTop: '1rem', 
                     padding: '1rem', 
                     backgroundColor: '#1f2937', 
                     border: '1px solid #374151', 
-                    borderRadius: '0.375rem',
-                    fontSize: '0.875rem',
+                      borderRadius: '0.375rem',
+                      fontSize: '0.875rem',
                     color: '#ffffff'
                   }}>
                     ⚠️ No code content available for this step (Step {index + 1}: {step.title})
@@ -1248,15 +1255,15 @@ grant_type=authorization_code
                     <h4>Response:</h4>
                     {stepResult.url && (
                       <div>
-                        <strong>URL:</strong><br />
+                      <strong>URL:</strong><br />
                         <ColorCodedURL url={stepResult.url} />
-                      </div>
+                    </div>
                     )}
                     {stepResult.code && (
                       <div style={{ marginTop: '0.5rem' }}>
                         <strong>Authorization Code:</strong><br />
                         <pre>{stepResult.code}</pre>
-                      </div>
+                  </div>
                     )}
                     {stepResult.response && (
                       <div style={{ marginTop: '0.5rem' }}>
@@ -1302,7 +1309,7 @@ grant_type=authorization_code
                     padding: '1rem',
                     borderTop: '1px solid #e5e7eb'
                   }}>
-                    <button
+                      <button
                       onClick={() => {
                         const nextStepIndex = index + 1;
                         console.log('🔄 [AuthorizationCodeFlow] Next Step button clicked', { 
@@ -1313,33 +1320,33 @@ grant_type=authorization_code
                         setCurrentStep(nextStepIndex);
                         console.log('🔄 [AuthorizationCodeFlow] setCurrentStep called with:', nextStepIndex);
                       }}
-                      style={{
+                        style={{
                         background: '#3b82f6',
-                        color: 'white',
-                        border: 'none',
+                          color: 'white',
+                          border: 'none',
                         borderRadius: '0.375rem',
                         padding: '0.5rem 1rem',
                         fontSize: '0.875rem',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
                         gap: '0.5rem',
                         margin: '0 auto',
                         transition: 'background-color 0.2s'
-                      }}
+                        }}
                       onMouseOver={(e) => e.currentTarget.style.background = '#2563eb'}
                       onMouseOut={(e) => e.currentTarget.style.background = '#3b82f6'}
-                    >
+                      >
                       Next Step
                       <FiArrowRight style={{ width: '1rem', height: '1rem' }} />
-                    </button>
-                  </div>
-                )}
-              </StepContent>
-            </Step>
+                      </button>
+                    </div>
+                  )}
+                </StepContent>
+              </Step>
           );
         })}
-      </StepsContainer>
+          </StepsContainer>
       
       {/* Authorization Request Modal */}
       <AuthorizationRequestModal
