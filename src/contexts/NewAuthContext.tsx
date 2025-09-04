@@ -607,16 +607,14 @@ async function exchangeCodeForTokens(
   delete bodyParams.client_id;
   delete bodyParams.client_secret;
   
-  // PingOne is configured for "Client Secret Basic" - use Basic Auth
-  console.log('🔍 [exchangeCodeForTokens] Using Basic Auth (Client Secret Basic) as configured in PingOne');
+  // For PKCE flows, PingOne expects NONE authentication method (no client secret)
+  console.log('🔍 [exchangeCodeForTokens] Using PKCE flow - no client authentication required');
   
-  // Create Basic Auth header with client credentials
-  const basicAuth = btoa(`${clientId}:${clientSecret}`);
-  console.log('🔍 [exchangeCodeForTokens] Basic Auth header created:', `${basicAuth.substring(0, 20)}...`);
+  // Add client_id back to body for PKCE flows (no Basic Auth)
+  bodyParams.client_id = clientId;
   
   let headers: Record<string, string> = {
     'Content-Type': 'application/x-www-form-urlencoded',
-    'Authorization': `Basic ${basicAuth}`,
   };
   
   const response = await fetch(tokenEndpoint, {
