@@ -221,6 +221,27 @@ export const PINGONE_ERROR_MAPPINGS: PingOneErrorMapping = {
     ],
     severity: 'high',
     category: 'network'
+  },
+
+  'unsupported_authentication_method': {
+    originalError: 'Request denied: Unsupported authentication method',
+    userFriendlyMessage: 'Authentication Method Not Supported',
+    possibleCauses: [
+      'PingOne application is configured as SPA (Single Page Application)',
+      'Client Secret Basic authentication is disabled',
+      'Application type does not support confidential client flows',
+      'PKCE is required but not being used properly'
+    ],
+    solutions: [
+      'Check your PingOne application type in Admin console',
+      'If using PKCE, ensure your app is configured as "Single Page Application (SPA)"',
+      'If using Client Secret Basic, ensure your app is configured as "Confidential"',
+      'Enable "Client Secret Basic" authentication method in PingOne Admin',
+      'Verify that your application supports the authorization_code grant type',
+      'Check that your redirect URI matches exactly in PingOne configuration'
+    ],
+    severity: 'high',
+    category: 'authentication'
   }
 };
 
@@ -236,7 +257,8 @@ export const ERROR_PATTERNS = [
   { pattern: /invalid_token/i, key: 'invalid_token' },
   { pattern: /insufficient_scope/i, key: 'insufficient_scope' },
   { pattern: /ERR_CONNECTION_REFUSED/i, key: 'ERR_CONNECTION_REFUSED' },
-  { pattern: /Failed to fetch/i, key: 'Failed to fetch' }
+  { pattern: /Failed to fetch/i, key: 'Failed to fetch' },
+  { pattern: /unsupported authentication method/i, key: 'unsupported_authentication_method' }
 ];
 
 /**
