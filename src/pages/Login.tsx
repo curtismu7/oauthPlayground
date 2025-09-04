@@ -523,6 +523,7 @@ const Login = () => {
         tokenAuthMethod: credentials.tokenAuthMethod,
         clientAssertion: credentials.clientAssertion,
         advanced: credentials.advanced,
+        loginHint: credentials.loginHint || '',
       };
       localStorage.setItem('pingone_config', JSON.stringify(configToSave));
 
@@ -789,6 +790,28 @@ const Login = () => {
                   >
                     {copiedId === 'client-secret' ? <FiCheck size={16} /> : <FiCopy size={16} />}
                   </CopyButton>
+                </CredentialWrapper>
+              </CredentialRow>
+
+              {/* Login Hint */}
+              <CredentialRow>
+                <p><strong>Login Hint (Optional):</strong></p>
+                <CredentialWrapper>
+                  <input
+                    type="text"
+                    value={credentials.loginHint || ''}
+                    onChange={(e) => handleCredentialChange('loginHint', e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '0.375rem',
+                      fontSize: '0.875rem',
+                      backgroundColor: '#ffffff',
+                      color: '#1f2937'
+                    }}
+                    placeholder="username@domain.com"
+                  />
                 </CredentialWrapper>
               </CredentialRow>
 

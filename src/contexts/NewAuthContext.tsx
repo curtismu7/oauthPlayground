@@ -155,7 +155,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         userInfoEndpoint: `${apiUrl}/${envId}/as/userinfo`,
         endSessionEndpoint: `${apiUrl}/${envId}/as/endsession`,
         scopes: ['openid', 'profile', 'email'],
-        environmentId: envId || ''
+        environmentId: envId || '',
+        loginHint: (window as any).__PINGONE_LOGIN_HINT__ || ''
       };
       
       // Store config in localStorage for fallback
@@ -191,7 +192,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             userInfoEndpoint: parsed.userInfoEndpoint || '',
             endSessionEndpoint: parsed.endSessionEndpoint || '',
             scopes: parsed.scopes || ['openid', 'profile', 'email'],
-            environmentId: parsed.environmentId || ''
+            environmentId: parsed.environmentId || '',
+            loginHint: parsed.loginHint || ''
           };
           
           console.log('✅ [NewAuthContext] Using stored config from localStorage:', mappedConfig);
@@ -215,7 +217,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       userInfoEndpoint: '',
       endSessionEndpoint: '',
       scopes: ['openid', 'profile', 'email'],
-      environmentId: ''
+      environmentId: '',
+      loginHint: ''
     };
   }
 
@@ -356,6 +359,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         code_challenge: codeChallenge,
         code_challenge_method: 'S256',
       });
+
+      // Add login_hint if provided
+      if (config.loginHint) {
+        params.append('login_hint', config.loginHint);
+      }
 
       authUrl.search = params.toString();
       window.location.href = authUrl.toString();
