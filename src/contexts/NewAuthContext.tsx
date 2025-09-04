@@ -595,6 +595,11 @@ async function exchangeCodeForTokens(
   const clientId = params.client_id;
   const clientSecret = params.client_secret;
   
+  console.log('🔍 [exchangeCodeForTokens] Client credentials:', {
+    clientId: clientId ? `${clientId.substring(0, 8)}...` : 'MISSING',
+    clientSecret: clientSecret ? `${clientSecret.substring(0, 8)}...` : 'MISSING'
+  });
+  
   // Remove client credentials from body params (they go in header)
   const bodyParams = { ...params };
   delete bodyParams.client_id;
@@ -602,6 +607,7 @@ async function exchangeCodeForTokens(
   
   // Create Basic Auth header
   const basicAuth = btoa(`${clientId}:${clientSecret}`);
+  console.log('🔍 [exchangeCodeForTokens] Basic Auth header created:', `${basicAuth.substring(0, 20)}...`);
   
   const response = await fetch(tokenEndpoint, {
     method: 'POST',
@@ -618,6 +624,7 @@ async function exchangeCodeForTokens(
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
     console.error('❌ [exchangeCodeForTokens] Token exchange failed:', error);
+    console.error('❌ [exchangeCodeForTokens] Full error response:', JSON.stringify(error, null, 2));
     throw new Error(error.error_description || 'Failed to exchange code for tokens');
   }
 
