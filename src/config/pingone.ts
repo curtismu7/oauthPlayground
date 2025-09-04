@@ -82,8 +82,9 @@ export const pingOneConfig: PingOneConfig = {
 
 // OAuth 2.0 PKCE Configuration
 export const PKCE_CONFIG = {
-  codeChallengeMethod: 'S256',
+  codeChallengeMethod: 'S256', // Always use S256 for security, even with REQUIRED enforcement
   codeVerifierLength: 64,
+  enforcement: 'REQUIRED', // Default PKCE enforcement level
 };
 
 // Default OAuth scopes
