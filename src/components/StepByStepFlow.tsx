@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import styled from 'styled-components';
-import { FiPlay, FiArrowRight, FiArrowLeft, FiRotateCcw } from 'react-icons/fi';
+import { FiPlay, FiArrowRight, FiArrowLeft, FiRotateCcw, FiSettings } from 'react-icons/fi';
 
 const FlowContainer = styled.div`
   margin-bottom: 1.5rem;
@@ -214,7 +214,7 @@ const FlowControls = styled.div`
   flex-wrap: wrap;
 `;
 
-const FlowButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
+const FlowButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'config' | 'reset' }>`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -231,6 +231,36 @@ const FlowButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
       return `
         background-color: #007bff;
         color: white;
+        
+        &:hover:not(:disabled) {
+          background-color: #0056b3;
+        }
+        
+        &:disabled {
+          background-color: #6c757d;
+          cursor: not-allowed;
+        }
+      `;
+    } else if ($variant === 'config') {
+      return `
+        background-color: #007bff;
+        color: white;
+        
+        &:hover:not(:disabled) {
+          background-color: #0056b3;
+        }
+        
+        &:disabled {
+          background-color: #6c757d;
+          cursor: not-allowed;
+        }
+      `;
+    } else if ($variant === 'reset') {
+      return `
+        background-color: #007bff;
+        color: white;
+        padding: 0.875rem 1.75rem;
+        font-size: 0.9rem;
         
         &:hover:not(:disabled) {
           background-color: #0056b3;
@@ -299,6 +329,8 @@ interface StepByStepFlowProps {
   onStepResult?: (stepIndex: number, result: any) => void;
   disabled?: boolean;
   title: string;
+  onShowConfig?: () => void;
+  showConfigButton?: boolean;
 }
 
 // Memoized Step component to prevent unnecessary re-renders
@@ -399,7 +431,9 @@ const StepByStepFlowComponent: React.FC<StepByStepFlowProps> = ({
   onStepChange,
   onStepResult,
   disabled = false,
-  title
+  title,
+  onShowConfig,
+  showConfigButton = false
 }) => {
   const executeCurrentStep = useCallback(async () => {
     if (currentStep < steps.length && steps[currentStep].execute) {
@@ -459,6 +493,16 @@ const StepByStepFlowComponent: React.FC<StepByStepFlowProps> = ({
   return (
     <FlowContainer>
       <FlowControls>
+        {showConfigButton && onShowConfig && (
+          <FlowButton
+            $variant="config"
+            onClick={onShowConfig}
+          >
+            <FiSettings />
+            Show Configuration
+          </FlowButton>
+        )}
+        
         <StatusIndicator $status={status}>
           {status === 'idle' && 'Ready to start'}
           {status === 'loading' && `Step ${currentStep + 1} of ${steps.length}`}
@@ -511,7 +555,7 @@ const StepByStepFlowComponent: React.FC<StepByStepFlowProps> = ({
         )}
         
         <FlowButton
-          $variant="secondary"
+          $variant="reset"
           onClick={onReset}
           disabled={status === 'idle'}
         >

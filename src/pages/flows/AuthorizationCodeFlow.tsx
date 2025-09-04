@@ -980,18 +980,10 @@ grant_type=authorization_code
             onStepResult={handleStepResult}
             disabled={!config}
             title="Authorization Code Flow"
+            showConfigButton={true}
+            onShowConfig={() => setShowConfig(!showConfig)}
           />
 
-          {/* Configuration Toggle */}
-          <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-            <DemoButton
-              className="secondary"
-              onClick={() => setShowConfig(!showConfig)}
-            >
-              <FiSettings />
-              {showConfig ? 'Hide' : 'Show'} Configuration
-            </DemoButton>
-          </div>
 
           {/* Flow Configuration Panel */}
           {showConfig && (

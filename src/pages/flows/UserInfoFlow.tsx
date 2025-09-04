@@ -847,9 +847,6 @@ console.log('Welcome, ' + user.name + '!');`,
         subtitle="Learn how to retrieve user profile information using the UserInfo endpoint. This endpoint provides detailed user claims and supports both authenticated and unauthenticated requests."
       />
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '2rem', marginBottom: '3rem', padding: '1.5rem 0' }}>
-        <ConfigurationButton flowType="userinfo" />
-      </div>
 
       <FlowOverview>
         <CardHeader>
@@ -919,6 +916,11 @@ console.log('Welcome, ' + user.name + '!');`,
             onStepResult={handleStepResult}
             disabled={!config || (useAuthentication && (!tokens?.access_token || isTokenExpired(tokens.access_token)))}
             title="UserInfo Flow"
+            showConfigButton={true}
+            onShowConfig={() => {
+              // For UserInfo flow, we can show a simple alert or redirect to config page
+              window.location.href = '/configuration';
+            }}
           />
 
           {!config && (
