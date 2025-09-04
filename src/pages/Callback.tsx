@@ -255,15 +255,12 @@ const Callback = () => {
         
         let redirectPath = '/dashboard'; // Default fallback
         
-        if (flowType === 'authorization-code') {
-          redirectPath = '/flows/authorization-code';
-          console.log('🔄 [Callback] Redirecting back to Authorization Code Flow page');
+        if (flowType === 'authorization-code-oidc') {
+          redirectPath = '/flows/authorization-code-oidc';
+          console.log('🔄 [Callback] Redirecting back to OIDC Authorization Code Flow page');
         } else if (flowType === 'implicit-grant') {
           redirectPath = '/flows/implicit-grant';
           console.log('🔄 [Callback] Redirecting back to Implicit Grant Flow page');
-        } else if (flowType === 'oidc-authorization-code') {
-          redirectPath = '/flows/oidc-authorization-code';
-          console.log('🔄 [Callback] Redirecting back to OIDC Authorization Code Flow page');
         } else {
           console.log('🔄 [Callback] No flow type found, redirecting to dashboard');
         }

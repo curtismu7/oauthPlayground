@@ -12,51 +12,14 @@ export interface FlowType {
   securityLevel: 'high' | 'medium' | 'low';
 }
 
-// OAuth 2.0 Flows (RFC 6749)
-export const OAUTH2_FLOWS: FlowType[] = [
-  {
-    id: 'authorization-code',
-    name: 'Authorization Code Flow',
-    protocol: 'oauth2',
-    description: 'Standard OAuth 2.0 flow for server-side applications',
-    path: '/flows/authorization-code',
-    securityLevel: 'high'
-  },
-  {
-    id: 'client-credentials',
-    name: 'Client Credentials Flow',
-    protocol: 'oauth2',
-    description: 'Machine-to-machine OAuth 2.0 flow',
-    path: '/flows/client-credentials',
-    securityLevel: 'high'
-  },
-  {
-    id: 'device-code',
-    name: 'Device Code Flow',
-    protocol: 'oauth2',
-    description: 'OAuth 2.0 flow for input-constrained devices',
-    path: '/flows/device-code',
-    securityLevel: 'high'
-  },
-  {
-    id: 'implicit-grant',
-    name: 'Implicit Grant Flow',
-    protocol: 'oauth2',
-    description: 'Legacy OAuth 2.0 flow (deprecated in OAuth 2.1)',
-    path: '/flows/implicit-grant',
-    deprecated: true,
-    securityLevel: 'low'
-  }
-];
-
 // OpenID Connect Flows (OIDC)
 export const OIDC_FLOWS: FlowType[] = [
   {
-    id: 'oidc-authorization-code',
+    id: 'authorization-code-oidc',
     name: 'OIDC Authorization Code Flow',
     protocol: 'oidc',
-    description: 'OpenID Connect flow with ID tokens and user info',
-    path: '/flows/oidc-authorization-code',
+    description: 'OIDC Authorization Code Flow with ID tokens and user info',
+    path: '/flows/authorization-code-oidc',
     securityLevel: 'high'
   },
   {
@@ -94,8 +57,8 @@ export const OIDC_FLOWS: FlowType[] = [
   }
 ];
 
-// All flows combined
-export const ALL_FLOWS: FlowType[] = [...OAUTH2_FLOWS, ...OIDC_FLOWS];
+// All flows combined (OIDC only)
+export const ALL_FLOWS: FlowType[] = [...OIDC_FLOWS];
 
 // Helper functions
 export const getFlowByPath = (path: string): FlowType | undefined => {
