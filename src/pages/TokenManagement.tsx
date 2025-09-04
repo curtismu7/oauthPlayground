@@ -7,6 +7,73 @@ import PageTitle from '../components/PageTitle';
 import { getOAuthTokens } from '../utils/tokenStorage';
 import { getTokenHistory, clearTokenHistory, removeTokenFromHistory, getFlowDisplayName, getFlowIcon, TokenHistoryEntry } from '../utils/tokenHistory';
 
+// JSON Syntax Highlighter Component
+const JSONHighlighter: React.FC<{ jsonString: string }> = ({ jsonString }) => {
+  const highlightJSON = (json: string) => {
+    try {
+      // Parse and re-stringify to ensure valid JSON formatting
+      const parsed = JSON.parse(json);
+      const formatted = JSON.stringify(parsed, null, 2);
+      
+      // Split by lines and process each line
+      return formatted.split('\n').map((line, lineIndex) => {
+        // Match JSON key-value pairs
+        const keyValueRegex = /^(\s*)"([^"]+)":\s*(.+)$/;
+        const match = line.match(keyValueRegex);
+        
+        if (match) {
+          const [, indent, key, value] = match;
+          return (
+            <div key={lineIndex}>
+              <span style={{ color: '#1f2937' }}>{indent}</span>
+              <span style={{ color: '#1f2937' }}>"</span>
+              <span style={{ color: '#2563eb', fontWeight: '600' }}>{key}</span>
+              <span style={{ color: '#1f2937' }}>": </span>
+              <span style={{ color: '#dc2626' }}>{value}</span>
+            </div>
+          );
+        }
+        
+        // Handle array/object brackets and commas
+        const bracketRegex = /^(\s*)([\[\]{}])(.*)$/;
+        const bracketMatch = line.match(bracketRegex);
+        
+        if (bracketMatch) {
+          const [, indent, bracket, rest] = bracketMatch;
+          return (
+            <div key={lineIndex}>
+              <span style={{ color: '#1f2937' }}>{indent}</span>
+              <span style={{ color: '#6b7280', fontWeight: '600' }}>{bracket}</span>
+              <span style={{ color: '#1f2937' }}>{rest}</span>
+            </div>
+          );
+        }
+        
+        // Handle commas
+        if (line.includes(',')) {
+          return (
+            <div key={lineIndex} style={{ color: '#6b7280' }}>
+              {line}
+            </div>
+          );
+        }
+        
+        // Default styling for other lines
+        return (
+          <div key={lineIndex} style={{ color: '#1f2937' }}>
+            {line}
+          </div>
+        );
+      });
+    } catch (error) {
+      // If JSON parsing fails, return the original string
+      return <div style={{ color: '#dc2626' }}>{jsonString}</div>;
+    }
+  };
+
+  return <div>{highlightJSON(jsonString)}</div>;
+};
+
 const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
@@ -165,8 +232,8 @@ const ActionButton = styled.button`
 `;
 
 const JWTContent = styled.pre`
-  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-  border: 2px solid #374151;
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
   border-radius: 0.5rem;
   padding: 1.5rem;
   margin: 1rem 0;
@@ -176,9 +243,9 @@ const JWTContent = styled.pre`
   overflow-x: auto;
   white-space: pre-wrap;
   word-break: break-word;
-  color: #ffffff !important;
+  color: #1f2937 !important;
   min-height: 120px;
-  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
   position: relative;
   
   &::before {
@@ -732,14 +799,14 @@ const TokenManagement = () => {
           <div style={{ marginBottom: '1rem' }}>
             <h4>Header</h4>
             <JWTContent id="jwt-header" className="jwt-content">
-              {jwtHeader || 'No token data'}
+              {jwtHeader ? <JSONHighlighter jsonString={jwtHeader} /> : 'No token data'}
             </JWTContent>
           </div>
 
           <div>
             <h4>Payload</h4>
             <JWTContent id="jwt-payload" className="jwt-content">
-              {jwtPayload || 'No token data'}
+              {jwtPayload ? <JSONHighlighter jsonString={jwtPayload} /> : 'No token data'}
             </JWTContent>
           </div>
         </CardBody>
