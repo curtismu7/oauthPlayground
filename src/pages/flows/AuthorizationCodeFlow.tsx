@@ -373,10 +373,24 @@ const AuthorizationCodeFlow = () => {
   // If we already have tokens from the real OAuth flow, surface them in the demo
   useEffect(() => {
     if (contextTokens && !tokensReceived) {
+      console.log('🔄 [AuthorizationCodeFlow] Detected tokens from context, advancing flow state');
       setTokensReceived(contextTokens as Record<string, unknown> | null);
       setCurrentStep(5);
       setDemoStatus('success');
       setIsLoading(false);
+      
+      // Mark steps 1 and 2 as completed since we have tokens
+      setExecutedSteps(new Set([1, 2, 3, 4, 5]));
+      
+      // Set results for completed steps
+      setStepResults(prev => ({
+        ...prev,
+        1: { message: 'Authorization URL generated successfully' },
+        2: { message: 'User redirected to PingOne for authentication' },
+        3: { message: 'User authenticated on PingOne' },
+        4: { message: 'Authorization code received from PingOne' },
+        5: { message: 'Tokens exchanged successfully', tokens: contextTokens }
+      }));
     }
   }, [contextTokens, tokensReceived]);
 
