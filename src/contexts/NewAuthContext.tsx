@@ -597,7 +597,9 @@ async function exchangeCodeForTokens(
   
   console.log('🔍 [exchangeCodeForTokens] Client credentials:', {
     clientId: clientId ? `${clientId.substring(0, 8)}...` : 'MISSING',
-    clientSecret: clientSecret ? `${clientSecret.substring(0, 8)}...` : 'MISSING'
+    clientSecret: clientSecret ? `${clientSecret.substring(0, 8)}...` : 'MISSING',
+    clientIdLength: clientId ? clientId.length : 0,
+    clientSecretLength: clientSecret ? clientSecret.length : 0
   });
   
   // Remove client credentials from body params (they go in header)
@@ -605,16 +607,25 @@ async function exchangeCodeForTokens(
   delete bodyParams.client_id;
   delete bodyParams.client_secret;
   
-  // Create Basic Auth header
-  const basicAuth = btoa(`${clientId}:${clientSecret}`);
-  console.log('🔍 [exchangeCodeForTokens] Basic Auth header created:', `${basicAuth.substring(0, 20)}...`);
+  // Try with Basic Auth first, fallback to no auth if client secret is missing
+  let headers: Record<string, string> = {
+    'Content-Type': 'application/x-www-form-urlencoded',
+  };
+  
+  if (clientSecret) {
+    // Create Basic Auth header
+    const basicAuth = btoa(`${clientId}:${clientSecret}`);
+    console.log('🔍 [exchangeCodeForTokens] Basic Auth header created:', `${basicAuth.substring(0, 20)}...`);
+    headers['Authorization'] = `Basic ${basicAuth}`;
+  } else {
+    console.log('🔍 [exchangeCodeForTokens] No client secret, trying without Basic Auth');
+    // Add client_id back to body for public clients
+    bodyParams.client_id = clientId;
+  }
   
   const response = await fetch(tokenEndpoint, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': `Basic ${basicAuth}`,
-    },
+    headers,
     body: new URLSearchParams(bodyParams),
   });
 
