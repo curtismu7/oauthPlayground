@@ -572,7 +572,7 @@ window.location.href = authUrl;
 // - User authentication
 // - Consent for requested scopes
 // - Redirect back to client with authorization code`,
-      execute: () => {
+      execute: async () => {
         console.log('🚀 [AuthCodeFlow] Step 2 - Starting redirect to PingOne');
         
         // Generate the authorization URL directly in step 2
@@ -586,8 +586,17 @@ window.location.href = authUrl;
         const nonce = Math.random().toString(36).substring(2, 15);
         
         // Generate PKCE code verifier and challenge
-        const codeVerifier = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-        const codeChallenge = btoa(codeVerifier).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+        const codeVerifier = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        
+        // Generate code challenge using SHA256 hash (proper PKCE implementation)
+        const encoder = new TextEncoder();
+        const data = encoder.encode(codeVerifier);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = new Uint8Array(hashBuffer);
+        const codeChallenge = btoa(String.fromCharCode(...hashArray))
+          .replace(/\+/g, '-')
+          .replace(/\//g, '_')
+          .replace(/=/g, '');
         
         // Store all PKCE parameters using oauthStorage (same as NewAuthContext expects)
         oauthStorage.setState(state);
