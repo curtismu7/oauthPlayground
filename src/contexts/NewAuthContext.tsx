@@ -432,6 +432,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         {
           grant_type: 'authorization_code',
           client_id: config.clientId,
+          client_secret: config.clientSecret,
           redirect_uri: config.redirectUri,
           code,
           code_verifier: codeVerifier,
