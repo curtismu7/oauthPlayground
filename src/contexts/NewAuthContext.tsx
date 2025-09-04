@@ -644,6 +644,14 @@ async function exchangeCodeForTokens(
   console.log('  - Content-Type:', headers['Content-Type']);
   console.log('  - Authorization:', `Basic ${basicAuth.substring(0, 50)}...`);
   
+  // Show complete request details for debugging
+  console.log('📋 [exchangeCodeForTokens] ===== COMPLETE REQUEST TO PINGONE =====');
+  console.log('📋 [exchangeCodeForTokens] URL:', tokenEndpoint);
+  console.log('📋 [exchangeCodeForTokens] Method: POST');
+  console.log('📋 [exchangeCodeForTokens] Headers:', JSON.stringify(headers, null, 2));
+  console.log('📋 [exchangeCodeForTokens] Body:', new URLSearchParams(bodyParams).toString());
+  console.log('📋 [exchangeCodeForTokens] ===========================================');
+  
   const response = await fetch(tokenEndpoint, {
     method: 'POST',
     headers,
@@ -652,11 +660,17 @@ async function exchangeCodeForTokens(
 
   console.log('🔍 [exchangeCodeForTokens] Response status:', response.status);
   console.log('🔍 [exchangeCodeForTokens] Response ok:', response.ok);
+  console.log('🔍 [exchangeCodeForTokens] Response headers:', Object.fromEntries(response.headers.entries()));
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
     console.error('❌ [exchangeCodeForTokens] Token exchange failed:', error);
     console.error('❌ [exchangeCodeForTokens] Full error response:', JSON.stringify(error, null, 2));
+    console.error('📋 [exchangeCodeForTokens] ===== PINGONE ERROR RESPONSE =====');
+    console.error('📋 [exchangeCodeForTokens] Status:', response.status);
+    console.error('📋 [exchangeCodeForTokens] Status Text:', response.statusText);
+    console.error('📋 [exchangeCodeForTokens] Error Body:', JSON.stringify(error, null, 2));
+    console.error('📋 [exchangeCodeForTokens] ===================================');
     throw new Error(error.error_description || 'Failed to exchange code for tokens');
   }
 
