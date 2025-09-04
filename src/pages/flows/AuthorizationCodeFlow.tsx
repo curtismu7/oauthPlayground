@@ -345,6 +345,52 @@ const AuthorizationCodeFlow = () => {
     contextTokens: contextTokens ? Object.keys(contextTokens) : null,
     config: config ? Object.keys(config) : null
   });
+
+  // Check for existing tokens immediately on component mount
+  useEffect(() => {
+    console.log('🚀 [AuthorizationCodeFlow] Component mounted - checking for existing tokens');
+    
+    // Check context tokens first
+    if (contextTokens && !tokensReceived) {
+      console.log('✅ [AuthorizationCodeFlow] Found context tokens on mount');
+      setTokensReceived(contextTokens as Record<string, unknown> | null);
+      setCurrentStep(5);
+      setDemoStatus('success');
+      setIsLoading(false);
+      setExecutedSteps(new Set([1, 2, 3, 4, 5]));
+      setStepResults({
+        1: { message: 'Authorization URL generated successfully' },
+        2: { message: 'User redirected to PingOne for authentication' },
+        3: { message: 'User authenticated on PingOne' },
+        4: { message: 'Authorization code received from PingOne' },
+        5: { message: 'Tokens exchanged successfully', tokens: contextTokens }
+      });
+      return;
+    }
+    
+    // Fallback: Check sessionStorage
+    try {
+      const storedTokens = sessionStorage.getItem('pingone_playground_tokens');
+      if (storedTokens && !tokensReceived) {
+        const parsedTokens = JSON.parse(storedTokens);
+        console.log('✅ [AuthorizationCodeFlow] Found sessionStorage tokens on mount');
+        setTokensReceived(parsedTokens);
+        setCurrentStep(5);
+        setDemoStatus('success');
+        setIsLoading(false);
+        setExecutedSteps(new Set([1, 2, 3, 4, 5]));
+        setStepResults({
+          1: { message: 'Authorization URL generated successfully' },
+          2: { message: 'User redirected to PingOne for authentication' },
+          3: { message: 'User authenticated on PingOne' },
+          4: { message: 'Authorization code received from PingOne' },
+          5: { message: 'Tokens exchanged successfully', tokens: parsedTokens }
+        });
+      }
+    } catch (error) {
+      console.warn('⚠️ [AuthorizationCodeFlow] Error checking sessionStorage on mount:', error);
+    }
+  }, []); // Run only on mount
   const location = useLocation();
   const navigate = useNavigate();
   const [demoStatus, setDemoStatus] = useState('idle');
@@ -391,7 +437,8 @@ const AuthorizationCodeFlow = () => {
       hasTokensReceived: !!tokensReceived,
       contextTokens: contextTokens ? Object.keys(contextTokens) : null,
       currentStep,
-      demoStatus
+      demoStatus,
+      executedStepsSize: executedSteps.size
     });
     
     if (contextTokens && !tokensReceived) {
@@ -413,8 +460,10 @@ const AuthorizationCodeFlow = () => {
         4: { message: 'Authorization code received from PingOne' },
         5: { message: 'Tokens exchanged successfully', tokens: contextTokens }
       }));
+      
+      console.log('✅ [AuthorizationCodeFlow] Flow state updated - steps 1-5 marked as completed');
     }
-  }, [contextTokens, tokensReceived, currentStep, demoStatus]);
+  }, [contextTokens, tokensReceived, currentStep, demoStatus, executedSteps.size]);
 
   // Fallback: Check sessionStorage directly for tokens if context hasn't updated yet
   useEffect(() => {
@@ -455,6 +504,8 @@ const AuthorizationCodeFlow = () => {
             4: { message: 'Authorization code received from PingOne' },
             5: { message: 'Tokens exchanged successfully', tokens: parsedTokens }
           }));
+          
+          console.log('✅ [AuthorizationCodeFlow] SessionStorage fallback - flow state updated with steps 1-5 completed');
         }
       } catch (error) {
         console.warn('⚠️ [AuthorizationCodeFlow] Error checking sessionStorage for tokens:', error);
