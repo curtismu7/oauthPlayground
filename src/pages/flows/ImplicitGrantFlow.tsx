@@ -249,6 +249,11 @@ const ImplicitGrantFlow = () => {
       try {
         // Check sessionStorage with the correct key prefix
         const storedTokens = sessionStorage.getItem('pingone_playground_tokens');
+        
+        // Debug: Check what's actually in the tokens key
+        const rawTokens = sessionStorage.getItem('pingone_playground_tokens');
+        console.log('🔍 [ImplicitGrantFlow] Raw tokens from sessionStorage:', rawTokens);
+        
         if (storedTokens && !tokensReceived) {
           const parsedTokens = JSON.parse(storedTokens);
           console.log('🔄 [ImplicitGrantFlow] Found tokens in sessionStorage, advancing flow state');
