@@ -444,7 +444,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           redirect_uri: config.redirectUri,
           code,
           code_verifier: codeVerifier,
-        }
+        },
+        config
       );
       console.log('✅ [NewAuthContext] exchangeCodeForTokens completed successfully');
 
@@ -603,7 +604,8 @@ async function generateCodeChallenge(verifier: string): Promise<string> {
 
 async function exchangeCodeForTokens(
   tokenEndpoint: string,
-  params: Record<string, string>
+  params: Record<string, string>,
+  config?: any
 ): Promise<OAuthTokens> {
   console.log('🚀 [exchangeCodeForTokens] Starting token exchange via backend...');
   console.log('🔍 [exchangeCodeForTokens] Backend endpoint: http://localhost:3001/api/token-exchange');
@@ -616,7 +618,15 @@ async function exchangeCodeForTokens(
   const requestBody = {
     code: params.code,
     redirect_uri: params.redirect_uri,
-    code_verifier: params.code_verifier
+    code_verifier: params.code_verifier,
+    config: config ? {
+      environmentId: config.environmentId,
+      clientId: config.clientId,
+      clientSecret: config.clientSecret,
+      authenticationMethod: config.authenticationMethod || 'pkce',
+      usePKCE: config.usePKCE !== undefined ? config.usePKCE : true,
+      applicationType: config.applicationType || 'spa'
+    } : undefined
   };
   
   let headers: Record<string, string> = {

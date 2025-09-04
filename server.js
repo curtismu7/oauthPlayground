@@ -22,7 +22,7 @@ app.post('/api/token-exchange', async (req, res) => {
     console.log('🔄 [Backend] Token exchange request received');
     console.log('🔄 [Backend] Request body:', req.body);
 
-    const { code, redirect_uri, code_verifier } = req.body;
+    const { code, redirect_uri, code_verifier, config } = req.body;
 
     if (!code || !redirect_uri || !code_verifier) {
       return res.status(400).json({
@@ -31,15 +31,27 @@ app.post('/api/token-exchange', async (req, res) => {
       });
     }
 
-    // Get configuration from environment variables
-    const config = {
+    // Get configuration from environment variables or frontend config
+    const backendConfig = {
       environmentId: process.env.PINGONE_ENVIRONMENT_ID,
       clientId: process.env.PINGONE_CLIENT_ID,
       clientSecret: process.env.PINGONE_CLIENT_SECRET,
       apiUrl: process.env.PINGONE_API_URL || 'https://auth.pingone.com'
     };
 
-    if (!config.environmentId || !config.clientId || !config.clientSecret) {
+    // Use frontend config if provided, otherwise fall back to environment variables
+    const frontendConfig = config || {};
+    const finalConfig = {
+      environmentId: frontendConfig.environmentId || backendConfig.environmentId,
+      clientId: frontendConfig.clientId || backendConfig.clientId,
+      clientSecret: frontendConfig.clientSecret || backendConfig.clientSecret,
+      apiUrl: backendConfig.apiUrl,
+      authenticationMethod: frontendConfig.authenticationMethod || 'client_secret_basic',
+      usePKCE: frontendConfig.usePKCE !== undefined ? frontendConfig.usePKCE : true,
+      applicationType: frontendConfig.applicationType || 'spa'
+    };
+
+    if (!finalConfig.environmentId || !finalConfig.clientId) {
       console.error('❌ [Backend] Missing PingOne configuration');
       return res.status(500).json({
         error: 'server_error',
@@ -47,11 +59,7 @@ app.post('/api/token-exchange', async (req, res) => {
       });
     }
 
-    const tokenEndpoint = `${config.apiUrl}/${config.environmentId}/as/token`;
-
-    // Create Basic Auth header
-    const credentials = `${config.clientId}:${config.clientSecret}`;
-    const basicAuth = Buffer.from(credentials).toString('base64');
+    const tokenEndpoint = `${finalConfig.apiUrl}/${finalConfig.environmentId}/as/token`;
 
     // Prepare token request
     const tokenParams = new URLSearchParams({
@@ -63,15 +71,31 @@ app.post('/api/token-exchange', async (req, res) => {
 
     console.log('🔄 [Backend] Token endpoint:', tokenEndpoint);
     console.log('🔄 [Backend] Token params:', tokenParams.toString());
-    console.log('🔄 [Backend] Using Client Secret Basic authentication');
+    console.log('🔄 [Backend] Authentication method:', finalConfig.authenticationMethod);
+    console.log('🔄 [Backend] Application type:', finalConfig.applicationType);
+    console.log('🔄 [Backend] Use PKCE:', finalConfig.usePKCE);
+
+    // Prepare headers based on authentication method
+    let headers = {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    };
+
+    // Add authentication header based on configuration
+    if (finalConfig.authenticationMethod === 'client_secret_basic' && finalConfig.clientSecret) {
+      // Use Client Secret Basic authentication
+      const credentials = `${finalConfig.clientId}:${finalConfig.clientSecret}`;
+      const basicAuth = Buffer.from(credentials).toString('base64');
+      headers['Authorization'] = `Basic ${basicAuth}`;
+      console.log('🔄 [Backend] Using Client Secret Basic authentication');
+    } else {
+      // Use PKCE (no client secret in header)
+      console.log('🔄 [Backend] Using PKCE authentication (no client secret)');
+    }
 
     // Make token request to PingOne
     const response = await fetch(tokenEndpoint, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': `Basic ${basicAuth}`
-      },
+      headers: headers,
       body: tokenParams.toString()
     });
 
