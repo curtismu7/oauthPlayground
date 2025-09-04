@@ -608,7 +608,8 @@ async function exchangeCodeForTokens(
   delete bodyParams.client_secret;
   
   // Create Basic Auth header for Client Secret Basic authentication
-  const basicAuth = btoa(`${clientId}:${clientSecret}`);
+  const credentials = `${clientId}:${clientSecret}`;
+  const basicAuth = btoa(credentials);
   
   let headers: Record<string, string> = {
     'Content-Type': 'application/x-www-form-urlencoded',
@@ -616,6 +617,8 @@ async function exchangeCodeForTokens(
   };
   
   console.log('🔍 [exchangeCodeForTokens] Using Client Secret Basic authentication');
+  console.log('🔍 [exchangeCodeForTokens] Credentials string length:', credentials.length);
+  console.log('🔍 [exchangeCodeForTokens] Basic auth header length:', basicAuth.length);
   console.log('🔍 [exchangeCodeForTokens] Final request body:', new URLSearchParams(bodyParams).toString());
   console.log('🔍 [exchangeCodeForTokens] Request headers:', {
     'Content-Type': headers['Content-Type'],
