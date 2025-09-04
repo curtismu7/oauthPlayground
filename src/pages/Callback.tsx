@@ -258,9 +258,12 @@ const Callback = () => {
         if (flowType === 'authorization-code') {
           redirectPath = '/flows/authorization-code';
           console.log('🔄 [Callback] Redirecting back to Authorization Code Flow page');
+        } else if (flowType === 'simplified-auth-code') {
+          redirectPath = '/flows/implicit';
+          console.log('🔄 [Callback] Redirecting back to Simplified Authorization Code Flow page');
         } else if (flowType === 'implicit-grant') {
-          redirectPath = '/flows/implicit-grant';
-          console.log('🔄 [Callback] Redirecting back to Implicit Grant Flow page');
+          redirectPath = '/flows/implicit';
+          console.log('🔄 [Callback] Redirecting back to Implicit Grant Flow page (legacy)');
         } else {
           console.log('🔄 [Callback] No flow type found, redirecting to dashboard');
         }
