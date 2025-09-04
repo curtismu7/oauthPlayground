@@ -1,4 +1,5 @@
 import { OAuthTokenResponse, UserInfo } from './storage';
+import type { ErrorDetails } from '../utils/errorHandler';
 
 export interface User {
   sub: string;
@@ -23,6 +24,7 @@ export interface AuthState {
   tokens: OAuthTokenResponse | null;
   isLoading: boolean;
   error: string | null;
+  errorDetails?: ErrorDetails;
 }
 
 export interface AuthContextType extends AuthState {
