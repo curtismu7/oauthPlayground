@@ -15,11 +15,11 @@ export interface FlowType {
 // OpenID Connect Flows (OIDC)
 export const OIDC_FLOWS: FlowType[] = [
   {
-    id: 'authorization-code-oidc',
-    name: 'OIDC Authorization Code Flow',
+    id: 'authorization-code',
+    name: 'Authorization Code Flow',
     protocol: 'oidc',
     description: 'OIDC Authorization Code Flow with ID tokens and user info',
-    path: '/flows/authorization-code-oidc',
+    path: '/flows/authorization-code',
     securityLevel: 'high'
   },
   {
