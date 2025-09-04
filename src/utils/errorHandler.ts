@@ -229,13 +229,13 @@ export const PINGONE_ERROR_MAPPINGS: PingOneErrorMapping = {
     possibleCauses: [
       'PingOne application is configured as SPA (Single Page Application)',
       'Client Secret Basic authentication is disabled',
-      'Application type does not support confidential client flows',
+      'Application type does not support backend client flows',
       'PKCE is required but not being used properly'
     ],
     solutions: [
       'Check your PingOne application type in Admin console',
       'If using PKCE, ensure your app is configured as "Single Page Application (SPA)"',
-      'If using Client Secret Basic, ensure your app is configured as "Confidential"',
+      'If using Client Secret Basic, ensure your app is configured as "Backend Application"',
       'Enable "Client Secret Basic" authentication method in PingOne Admin',
       'Verify that your application supports the authorization_code grant type',
       'Check that your redirect URI matches exactly in PingOne configuration'
