@@ -591,12 +591,25 @@ async function exchangeCodeForTokens(
   console.log('🔍 [exchangeCodeForTokens] Token endpoint:', tokenEndpoint);
   console.log('🔍 [exchangeCodeForTokens] Request params:', params);
   
+  // Extract client credentials for Basic Auth
+  const clientId = params.client_id;
+  const clientSecret = params.client_secret;
+  
+  // Remove client credentials from body params (they go in header)
+  const bodyParams = { ...params };
+  delete bodyParams.client_id;
+  delete bodyParams.client_secret;
+  
+  // Create Basic Auth header
+  const basicAuth = btoa(`${clientId}:${clientSecret}`);
+  
   const response = await fetch(tokenEndpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': `Basic ${basicAuth}`,
     },
-    body: new URLSearchParams(params),
+    body: new URLSearchParams(bodyParams),
   });
 
   console.log('🔍 [exchangeCodeForTokens] Response status:', response.status);
