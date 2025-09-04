@@ -192,14 +192,15 @@ const ImplicitGrantFlow = () => {
     }
   }, [contextTokens, tokensReceived, currentStep, demoStatus]);
 
-  // Fallback: Check localStorage directly for tokens if context hasn't updated yet
+  // Fallback: Check sessionStorage directly for tokens if context hasn't updated yet
   useEffect(() => {
     const checkForStoredTokens = () => {
       try {
-        const storedTokens = localStorage.getItem('oauth_tokens');
+        // Check sessionStorage with the correct key prefix
+        const storedTokens = sessionStorage.getItem('pingone_playground_tokens');
         if (storedTokens && !tokensReceived) {
           const parsedTokens = JSON.parse(storedTokens);
-          console.log('🔄 [ImplicitGrantFlow] Found tokens in localStorage, advancing flow state');
+          console.log('🔄 [ImplicitGrantFlow] Found tokens in sessionStorage, advancing flow state');
           setTokensReceived(parsedTokens);
           setCurrentStep(3);
           setDemoStatus('success');
@@ -217,7 +218,7 @@ const ImplicitGrantFlow = () => {
           }));
         }
       } catch (error) {
-        console.warn('⚠️ [ImplicitGrantFlow] Error checking localStorage for tokens:', error);
+        console.warn('⚠️ [ImplicitGrantFlow] Error checking sessionStorage for tokens:', error);
       }
     };
 
