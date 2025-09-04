@@ -432,7 +432,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         {
           grant_type: 'authorization_code',
           client_id: config.clientId,
-          client_secret: config.clientSecret,
           redirect_uri: config.redirectUri,
           code,
           code_verifier: codeVerifier,
@@ -591,27 +590,11 @@ async function exchangeCodeForTokens(
   console.log('🔍 [exchangeCodeForTokens] Token endpoint:', tokenEndpoint);
   console.log('🔍 [exchangeCodeForTokens] Request params:', params);
   
-  // Extract client credentials for Basic Auth
-  const clientId = params.client_id;
-  const clientSecret = params.client_secret;
-  
-  console.log('🔍 [exchangeCodeForTokens] Client credentials:', {
-    clientId: clientId ? `${clientId.substring(0, 8)}...` : 'MISSING',
-    clientSecret: clientSecret ? `${clientSecret.substring(0, 8)}...` : 'MISSING',
-    clientIdLength: clientId ? clientId.length : 0,
-    clientSecretLength: clientSecret ? clientSecret.length : 0
-  });
-  
-  // Remove client credentials from body params (they go in header)
-  const bodyParams = { ...params };
-  delete bodyParams.client_id;
-  delete bodyParams.client_secret;
-  
   // For PKCE flows, PingOne expects NONE authentication method (no client secret)
   console.log('🔍 [exchangeCodeForTokens] Using PKCE flow - no client authentication required');
   
-  // Add client_id back to body for PKCE flows (no Basic Auth)
-  bodyParams.client_id = clientId;
+  // Use all params directly for PKCE flows (no client_secret included)
+  const bodyParams = { ...params };
   
   let headers: Record<string, string> = {
     'Content-Type': 'application/x-www-form-urlencoded',
