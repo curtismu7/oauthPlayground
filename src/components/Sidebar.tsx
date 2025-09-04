@@ -143,15 +143,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     resources: true, // Default to expanded
   });
 
-  // Auto-open menu based on current route
+  // Auto-open menu based on current route (only for resources, keep OIDC always expanded)
   useEffect(() => {
     const path = location.pathname;
-    setOpenMenus({
-      oidc: path.startsWith('/oidc'),
+    setOpenMenus(prev => ({
+      ...prev,
+      // Keep OIDC section always expanded (don't auto-collapse it)
       resources: path.startsWith('/oidc/userinfo') || path.startsWith('/oidc/tokens') || 
                  path.startsWith('/token-management') || path.startsWith('/documentation') || 
                  path.startsWith('/configuration'),
-    });
+    }));
   }, [location.pathname]);
 
   const toggleMenu = (menu: 'oidc' | 'resources') => {
