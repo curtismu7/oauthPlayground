@@ -463,8 +463,38 @@ const TokenManagement = () => {
     
     loadStoredTokens();
     
-    // Load token history
+    // Load token history and add current tokens if available
     const history = getTokenHistory();
+    const currentTokens = getOAuthTokens();
+    
+    // Create a current token entry if we have tokens but no history
+    if (currentTokens && currentTokens.access_token && history.entries.length === 0) {
+      const currentEntry: TokenHistoryEntry = {
+        id: 'current_tokens',
+        flowType: 'authorization_code', // Default, could be enhanced to detect actual flow
+        flowName: 'Current OAuth Flow',
+        tokens: {
+          access_token: currentTokens.access_token,
+          id_token: currentTokens.id_token,
+          refresh_token: currentTokens.refresh_token,
+          token_type: currentTokens.token_type,
+          expires_in: currentTokens.expires_in,
+          scope: currentTokens.scope
+        },
+        timestamp: currentTokens.timestamp || Date.now(),
+        timestampFormatted: new Date(currentTokens.timestamp || Date.now()).toLocaleString(),
+        tokenCount: Object.keys(currentTokens).filter(key => 
+          key.includes('token') && currentTokens[key]
+        ).length,
+        hasAccessToken: !!currentTokens.access_token,
+        hasIdToken: !!currentTokens.id_token,
+        hasRefreshToken: !!currentTokens.refresh_token
+      };
+      
+      // Add current tokens to the beginning of history
+      history.entries.unshift(currentEntry);
+    }
+    
     setTokenHistory(history.entries);
   }, []);
 
@@ -666,6 +696,42 @@ const TokenManagement = () => {
       setTokenHistory([]);
       alert('Token history cleared successfully!');
     }
+  };
+
+  const handleRefreshHistory = () => {
+    // Reload token history and current tokens
+    const history = getTokenHistory();
+    const currentTokens = getOAuthTokens();
+    
+    // Create a current token entry if we have tokens but no history
+    if (currentTokens && currentTokens.access_token && history.entries.length === 0) {
+      const currentEntry: TokenHistoryEntry = {
+        id: 'current_tokens',
+        flowType: 'authorization_code', // Default, could be enhanced to detect actual flow
+        flowName: 'Current OAuth Flow',
+        tokens: {
+          access_token: currentTokens.access_token,
+          id_token: currentTokens.id_token,
+          refresh_token: currentTokens.refresh_token,
+          token_type: currentTokens.token_type,
+          expires_in: currentTokens.expires_in,
+          scope: currentTokens.scope
+        },
+        timestamp: currentTokens.timestamp || Date.now(),
+        timestampFormatted: new Date(currentTokens.timestamp || Date.now()).toLocaleString(),
+        tokenCount: Object.keys(currentTokens).filter(key => 
+          key.includes('token') && currentTokens[key]
+        ).length,
+        hasAccessToken: !!currentTokens.access_token,
+        hasIdToken: !!currentTokens.id_token,
+        hasRefreshToken: !!currentTokens.refresh_token
+      };
+      
+      // Add current tokens to the beginning of history
+      history.entries.unshift(currentEntry);
+    }
+    
+    setTokenHistory(history.entries);
   };
 
   const handleRemoveHistoryEntry = (entryId: string) => {
@@ -877,16 +943,26 @@ const TokenManagement = () => {
         <CardHeader>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h2>Token History</h2>
-            {tokenHistory.length > 0 && (
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
               <ActionButton 
                 className="secondary" 
                 style={{ fontSize: '0.75rem', padding: '0.5rem 1rem' }}
-                onClick={handleClearHistory}
+                onClick={handleRefreshHistory}
               >
-                <FiTrash2 />
-                Clear History
+                <FiRefreshCw />
+                Refresh
               </ActionButton>
-            )}
+              {tokenHistory.length > 0 && (
+                <ActionButton 
+                  className="secondary" 
+                  style={{ fontSize: '0.75rem', padding: '0.5rem 1rem' }}
+                  onClick={handleClearHistory}
+                >
+                  <FiTrash2 />
+                  Clear History
+                </ActionButton>
+              )}
+            </div>
           </div>
         </CardHeader>
         <CardBody>
@@ -935,6 +1011,36 @@ const TokenManagement = () => {
                       </TokenBadge>
                     )}
                   </HistoryTokens>
+                  
+                  {/* OIDC Developer Information */}
+                  <div style={{ 
+                    marginTop: '0.75rem', 
+                    padding: '0.75rem', 
+                    backgroundColor: '#f8fafc', 
+                    borderRadius: '0.375rem',
+                    fontSize: '0.8rem',
+                    color: '#4b5563'
+                  }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                      <div>
+                        <strong>Flow Type:</strong> {entry.flowType}
+                      </div>
+                      <div>
+                        <strong>Token Type:</strong> {entry.tokens.token_type || 'Bearer'}
+                      </div>
+                      <div>
+                        <strong>Scope:</strong> {entry.tokens.scope || 'Not specified'}
+                      </div>
+                      <div>
+                        <strong>Expires In:</strong> {entry.tokens.expires_in ? `${entry.tokens.expires_in}s` : 'Not specified'}
+                      </div>
+                    </div>
+                    {entry.tokens.access_token && (
+                      <div style={{ marginTop: '0.5rem', wordBreak: 'break-all' }}>
+                        <strong>Access Token:</strong> {entry.tokens.access_token.substring(0, 50)}...
+                      </div>
+                    )}
+                  </div>
                   
                   <HistoryActions>
                     <HistoryButton 
