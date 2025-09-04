@@ -15,6 +15,7 @@ import FlowBadge from '../../components/FlowBadge';
 import { getFlowById } from '../../types/flowTypes';
 
 import Spinner from '../../components/Spinner';
+import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -370,6 +371,11 @@ const AuthorizationCodeFlow = () => {
   const [authCode, setAuthCode] = useState<string>('');
   const [authUrl, setAuthUrl] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Modal state for authorization request
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [pendingAuthUrl, setPendingAuthUrl] = useState('');
+  const [pendingRequestParams, setPendingRequestParams] = useState<Record<string, string>>({});
 
 
 
@@ -548,17 +554,23 @@ window.location.href = authUrl;
         // Store the flow type so callback knows where to redirect back
         localStorage.setItem('oauth_flow_type', 'authorization-code');
         
+        // Show the authorization request modal instead of redirecting immediately
+        setPendingAuthUrl(authorizationUrl);
+        setPendingRequestParams({
+          client_id: config.clientId,
+          redirect_uri: config.redirectUri,
+          response_type: 'code',
+          scope: 'openid profile email',
+          state: state,
+          nonce: nonce
+        });
+        setShowAuthModal(true);
+        
         // Return success result
         const result = { 
-          message: 'Redirecting to authorization server...', 
+          message: 'Authorization request prepared. Click "Proceed to PingOne" to continue...', 
           url: authorizationUrl 
         };
-        
-        // Redirect after a short delay
-        setTimeout(() => {
-          console.log('🔄 [AuthCodeFlow] Redirecting to:', authorizationUrl);
-          window.location.href = authorizationUrl;
-        }, 1000);
         
         // Don't return result - execute should return void
       }
@@ -780,6 +792,23 @@ grant_type=authorization_code
     setStepResults({});
     setExecutedSteps(new Set());
     setStepsWithResults([]);
+    setShowAuthModal(false);
+    setPendingAuthUrl('');
+    setPendingRequestParams({});
+  };
+
+  // Modal handlers
+  const handleModalClose = () => {
+    setShowAuthModal(false);
+    setPendingAuthUrl('');
+    setPendingRequestParams({});
+  };
+
+  const handleModalProceed = () => {
+    console.log('🔄 [AuthCodeFlow] Proceeding to PingOne:', pendingAuthUrl);
+    setShowAuthModal(false);
+    // Redirect to PingOne
+    window.location.href = pendingAuthUrl;
   };
 
   const handleStepResult = (stepIndex: number, result: any) => {
@@ -1226,6 +1255,15 @@ grant_type=authorization_code
           );
         })}
       </StepsContainer>
+      
+      {/* Authorization Request Modal */}
+      <AuthorizationRequestModal
+        isOpen={showAuthModal}
+        onClose={handleModalClose}
+        onProceed={handleModalProceed}
+        authorizationUrl={pendingAuthUrl}
+        requestParams={pendingRequestParams}
+      />
     </Container>
   );
 };
