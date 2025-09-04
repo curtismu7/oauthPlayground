@@ -607,14 +607,16 @@ async function exchangeCodeForTokens(
   delete bodyParams.client_id;
   delete bodyParams.client_secret;
   
-  // For Authorization Code Flow, try public client approach first (client_id in body)
-  console.log('🔍 [exchangeCodeForTokens] Using public client approach for Authorization Code Flow');
+  // PingOne is configured for "Client Secret Basic" - use Basic Auth
+  console.log('🔍 [exchangeCodeForTokens] Using Basic Auth (Client Secret Basic) as configured in PingOne');
   
-  // Add client_id back to body for public clients (no Basic Auth)
-  bodyParams.client_id = clientId;
+  // Create Basic Auth header with client credentials
+  const basicAuth = btoa(`${clientId}:${clientSecret}`);
+  console.log('🔍 [exchangeCodeForTokens] Basic Auth header created:', `${basicAuth.substring(0, 20)}...`);
   
   let headers: Record<string, string> = {
     'Content-Type': 'application/x-www-form-urlencoded',
+    'Authorization': `Basic ${basicAuth}`,
   };
   
   const response = await fetch(tokenEndpoint, {
