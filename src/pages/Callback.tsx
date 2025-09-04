@@ -92,6 +92,8 @@ const Callback = () => {
   console.log('🚀 [Callback] Component mounted/rendered');
   console.log('🔍 [Callback] Current URL:', window.location.href);
   console.log('🔍 [Callback] Search params:', searchParams.toString());
+  console.log('🔍 [Callback] Location pathname:', window.location.pathname);
+  console.log('🔍 [Callback] Location search:', window.location.search);
 
   useEffect(() => {
     const processCallback = async () => {
