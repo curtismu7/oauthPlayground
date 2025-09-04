@@ -595,23 +595,21 @@ async function exchangeCodeForTokens(
   const clientId = params.client_id;
   const clientSecret = params.client_secret;
   
-  console.log('🔍 [exchangeCodeForTokens] Client credentials:', {
-    clientId: clientId ? `${clientId.substring(0, 8)}...` : 'MISSING',
-    clientSecret: clientSecret ? `${clientSecret.substring(0, 8)}...` : 'MISSING',
-    clientIdLength: clientId ? clientId.length : 0,
-    clientSecretLength: clientSecret ? clientSecret.length : 0
-  });
+  console.log('🔍 [exchangeCodeForTokens] Client ID:', clientId);
+  console.log('🔍 [exchangeCodeForTokens] Client ID length:', clientId ? clientId.length : 0);
+  console.log('🔍 [exchangeCodeForTokens] Client Secret length:', clientSecret ? clientSecret.length : 0);
+  console.log('🔍 [exchangeCodeForTokens] Client Secret first 50 chars:', clientSecret ? clientSecret.substring(0, 50) : 'MISSING');
+  console.log('🔍 [exchangeCodeForTokens] Client Secret last 50 chars:', clientSecret ? clientSecret.substring(clientSecret.length - 50) : 'MISSING');
   
   // Debug: Check if client secret might be Base64 encoded or have format issues
   if (clientSecret) {
-    console.log('🔍 [exchangeCodeForTokens] Client secret analysis:', {
-      length: clientSecret.length,
-      startsWithBase64: /^[A-Za-z0-9+/=]+$/.test(clientSecret),
-      hasSpecialChars: /[^A-Za-z0-9+/=]/.test(clientSecret),
-      endsWithEquals: clientSecret.endsWith('='),
-      firstChars: clientSecret.substring(0, 20),
-      lastChars: clientSecret.substring(clientSecret.length - 20)
-    });
+    console.log('🔍 [exchangeCodeForTokens] Client secret analysis:');
+    console.log('  - Length:', clientSecret.length);
+    console.log('  - Is Base64 format:', /^[A-Za-z0-9+/=]+$/.test(clientSecret));
+    console.log('  - Has special chars:', /[^A-Za-z0-9+/=]/.test(clientSecret));
+    console.log('  - Ends with equals:', clientSecret.endsWith('='));
+    console.log('  - First 20 chars:', clientSecret.substring(0, 20));
+    console.log('  - Last 20 chars:', clientSecret.substring(clientSecret.length - 20));
   }
   
   // Remove client credentials from body params (they go in Authorization header)
@@ -642,10 +640,9 @@ async function exchangeCodeForTokens(
   }
   
   console.log('🔍 [exchangeCodeForTokens] Final request body:', new URLSearchParams(bodyParams).toString());
-  console.log('🔍 [exchangeCodeForTokens] Request headers:', {
-    'Content-Type': headers['Content-Type'],
-    'Authorization': `Basic ${basicAuth.substring(0, 20)}...`
-  });
+  console.log('🔍 [exchangeCodeForTokens] Request headers:');
+  console.log('  - Content-Type:', headers['Content-Type']);
+  console.log('  - Authorization:', `Basic ${basicAuth.substring(0, 50)}...`);
   
   const response = await fetch(tokenEndpoint, {
     method: 'POST',
