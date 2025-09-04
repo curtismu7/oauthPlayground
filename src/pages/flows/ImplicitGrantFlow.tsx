@@ -164,6 +164,14 @@ const ImplicitGrantFlow = () => {
 
   // If we already have tokens from the real OAuth flow, surface them in the demo
   useEffect(() => {
+    console.log('🔍 [ImplicitGrantFlow] useEffect triggered:', {
+      hasContextTokens: !!contextTokens,
+      hasTokensReceived: !!tokensReceived,
+      contextTokens: contextTokens ? Object.keys(contextTokens) : null,
+      currentStep,
+      demoStatus
+    });
+    
     if (contextTokens && !tokensReceived) {
       console.log('🔄 [ImplicitGrantFlow] Detected tokens from context, advancing flow state');
       setTokensReceived(contextTokens as Record<string, unknown> | null);
@@ -182,7 +190,45 @@ const ImplicitGrantFlow = () => {
         3: { message: 'User authenticated and tokens received from PingOne', tokens: contextTokens }
       }));
     }
-  }, [contextTokens, tokensReceived]);
+  }, [contextTokens, tokensReceived, currentStep, demoStatus]);
+
+  // Fallback: Check localStorage directly for tokens if context hasn't updated yet
+  useEffect(() => {
+    const checkForStoredTokens = () => {
+      try {
+        const storedTokens = localStorage.getItem('oauth_tokens');
+        if (storedTokens && !tokensReceived) {
+          const parsedTokens = JSON.parse(storedTokens);
+          console.log('🔄 [ImplicitGrantFlow] Found tokens in localStorage, advancing flow state');
+          setTokensReceived(parsedTokens);
+          setCurrentStep(3);
+          setDemoStatus('success');
+          setIsLoading(false);
+          
+          // Mark steps as completed
+          setExecutedSteps(new Set([1, 2, 3]));
+          
+          // Set results for completed steps
+          setStepResults(prev => ({
+            ...prev,
+            1: { message: 'Authorization URL generated successfully' },
+            2: { message: 'User redirected to PingOne for authentication' },
+            3: { message: 'User authenticated and tokens received from PingOne', tokens: parsedTokens }
+          }));
+        }
+      } catch (error) {
+        console.warn('⚠️ [ImplicitGrantFlow] Error checking localStorage for tokens:', error);
+      }
+    };
+
+    // Check immediately
+    checkForStoredTokens();
+    
+    // Also check after a short delay in case tokens are being stored asynchronously
+    const timer = setTimeout(checkForStoredTokens, 1000);
+    
+    return () => clearTimeout(timer);
+  }, [tokensReceived]);
 
   // Debug authUrl state changes
   React.useEffect(() => {
