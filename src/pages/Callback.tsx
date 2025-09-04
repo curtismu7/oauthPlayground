@@ -253,6 +253,18 @@ const Callback = () => {
         const flowType = localStorage.getItem('oauth_flow_type');
         console.log('🔍 [Callback] Flow type from localStorage:', flowType);
         
+        // Debug: Check all localStorage keys
+        const allLocalKeys = Object.keys(localStorage);
+        const oauthKeys = allLocalKeys.filter(key => key.includes('oauth') || key.includes('flow'));
+        console.log('🔍 [Callback] All localStorage keys:', allLocalKeys);
+        console.log('🔍 [Callback] OAuth/Flow related keys:', oauthKeys);
+        
+        // Debug: Check sessionStorage too
+        const allSessionKeys = Object.keys(sessionStorage);
+        const sessionOauthKeys = allSessionKeys.filter(key => key.includes('oauth') || key.includes('flow'));
+        console.log('🔍 [Callback] All sessionStorage keys:', allSessionKeys);
+        console.log('🔍 [Callback] Session OAuth/Flow related keys:', sessionOauthKeys);
+        
         let redirectPath = '/dashboard'; // Default fallback
         
         if (flowType === 'authorization-code') {

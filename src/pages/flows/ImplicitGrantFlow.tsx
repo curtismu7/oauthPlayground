@@ -456,6 +456,7 @@ window.location.href = authUrl;
         console.log('🔍 [ImplicitGrantFlow] URL parameters:', Object.fromEntries(params.entries()));
         setAuthUrl(authorizationUrl);
         localStorage.setItem('oauth_flow_type', 'simplified-auth-code');
+        console.log('🔍 [ImplicitGrantFlow] Set oauth_flow_type to simplified-auth-code in localStorage');
         
         // Show the authorization request modal instead of redirecting immediately
         setPendingAuthUrl(authorizationUrl);
