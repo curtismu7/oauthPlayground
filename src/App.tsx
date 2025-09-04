@@ -23,6 +23,7 @@ import ClientCredentialsFlow from './pages/flows/ClientCredentialsFlow';
 import DeviceCodeFlow from './pages/flows/DeviceCodeFlow';
 import HybridFlow from './pages/flows/HybridFlow';
 import AuthorizationCodeFlow from './pages/flows/AuthorizationCodeFlow';
+import OIDCAuthorizationCodeFlow from './pages/flows/OIDCAuthorizationCodeFlow';
 import UserInfoFlow from './pages/flows/UserInfoFlow';
 import IDTokensFlow from './pages/flows/IDTokensFlow';
 import OIDC from './pages/OIDC';
@@ -231,6 +232,7 @@ const AppRoutes = () => {
 
             <Route path="/flows" element={<Flows />}>
               <Route path="authorization-code" element={<AuthorizationCodeFlow />} />
+              <Route path="oidc-authorization-code" element={<OIDCAuthorizationCodeFlow />} />
               <Route path="implicit" element={<ImplicitGrantFlow />} />
               <Route path="client-credentials" element={<ClientCredentialsFlow />} />
 
