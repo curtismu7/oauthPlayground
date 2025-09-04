@@ -318,7 +318,7 @@ window.location.href = authUrl;
         console.log('🔍 [ImplicitGrantFlow] Redirect URI:', config.redirectUri);
         console.log('🔍 [ImplicitGrantFlow] URL parameters:', Object.fromEntries(params.entries()));
         setAuthUrl(authorizationUrl);
-        localStorage.setItem('oauth_flow_type', 'authorization-code');
+        localStorage.setItem('oauth_flow_type', 'simplified-auth-code');
         setTimeout(() => {
           console.log('🔄 [ImplicitGrantFlow] Redirecting to:', authorizationUrl);
           window.location.href = authorizationUrl;
@@ -416,7 +416,7 @@ console.log('User ID:', decodedIdToken.sub);`,
     },
   ], [config, authUrl, stepResults, executedSteps, generateAuthUrl]);
 
-  const flowType = getFlowById('authorization-code');
+  const flowType = getFlowById('simplified-auth-code');
 
   return (
     <Container>

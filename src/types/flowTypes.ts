@@ -23,6 +23,14 @@ export const OIDC_FLOWS: FlowType[] = [
     securityLevel: 'high'
   },
   {
+    id: 'simplified-auth-code',
+    name: 'Simplified Authorization Code Flow',
+    protocol: 'oidc',
+    description: 'Simplified authorization code flow for educational purposes',
+    path: '/flows/implicit',
+    securityLevel: 'high'
+  },
+  {
     id: 'oidc-implicit',
     name: 'OIDC Implicit Flow',
     protocol: 'oidc',
