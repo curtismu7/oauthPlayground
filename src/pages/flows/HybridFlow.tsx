@@ -7,6 +7,8 @@ import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import ConfigurationButton from '../../components/ConfigurationButton';
 import ColorCodedURL from '../../components/ColorCodedURL';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
+import { FlowConfiguration, type FlowConfig } from '../../components/FlowConfiguration';
+import { getDefaultConfig, validatePingOneConfig } from '../../utils/flowConfigDefaults';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -166,6 +168,10 @@ const HybridFlow: React.FC = () => {
   const [authUrl, setAuthUrl] = useState('');
   const [redirectParams, setRedirectParams] = useState<any>(null);
   const [tokensReceived, setTokensReceived] = useState<any>(null);
+  
+  // Flow configuration state
+  const [flowConfig, setFlowConfig] = useState<FlowConfig>(() => getDefaultConfig('hybrid'));
+  const [showConfig, setShowConfig] = useState(false);
 
   // Track execution results for each step
   const [stepResults, setStepResults] = useState<Record<number, any>>({});
@@ -178,13 +184,30 @@ const HybridFlow: React.FC = () => {
     const params = new URLSearchParams({
       client_id: config.clientId,
       redirect_uri: config.redirectUri,
-      response_type: 'code id_token token', // Hybrid flow returns code + tokens
-      scope: 'openid profile email',
-      state: Math.random().toString(36).substring(2, 15),
-      nonce: Math.random().toString(36).substring(2, 15),
+      response_type: flowConfig.responseType,
+      scope: flowConfig.scopes.join(' '),
+      state: flowConfig.state,
+      nonce: flowConfig.nonce,
       code_challenge: 'mock_code_challenge', // In real implementation, generate proper PKCE
-      code_challenge_method: 'S256'
+      code_challenge_method: flowConfig.codeChallengeMethod
     });
+
+    // Add response_mode=fragment for hybrid flows
+    params.append('response_mode', 'fragment');
+
+    // Add optional parameters
+    if (flowConfig.maxAge > 0) {
+      params.append('max_age', flowConfig.maxAge.toString());
+    }
+    if (flowConfig.prompt) {
+      params.append('prompt', flowConfig.prompt);
+    }
+    if (flowConfig.loginHint) {
+      params.append('login_hint', flowConfig.loginHint);
+    }
+    if (flowConfig.acrValues.length > 0) {
+      params.append('acr_values', flowConfig.acrValues.join(' '));
+    }
 
     return `${config.authorizationEndpoint || config.authEndpoint || ''}?${params.toString()}`;
   };
@@ -232,12 +255,17 @@ const HybridFlow: React.FC = () => {
       code: `GET ${config?.authorizationEndpoint || 'https://auth.pingone.com/authorize'}?
   client_id=${config?.clientId || 'your_client_id'}
   &redirect_uri=${config?.redirectUri || 'https://your-app.com/callback'}
-  &response_type=code id_token token
-  &scope=openid profile email
-  &state=xyz123
-  &nonce=abc456
+  &response_type=${flowConfig.responseType}
+  &scope=${flowConfig.scopes.join(' ')}
+  &state=${flowConfig.state}
+  &nonce=${flowConfig.nonce}
   &code_challenge=YOUR_CODE_CHALLENGE
-  &code_challenge_method=S256`,
+  &code_challenge_method=${flowConfig.codeChallengeMethod}
+  &response_mode=fragment${flowConfig.maxAge > 0 ? `
+  &max_age=${flowConfig.maxAge}` : ''}${flowConfig.prompt ? `
+  &prompt=${flowConfig.prompt}` : ''}${flowConfig.loginHint ? `
+  &login_hint=${flowConfig.loginHint}` : ''}${flowConfig.acrValues.length > 0 ? `
+  &acr_values=${flowConfig.acrValues.join(' ')}` : ''}`,
       execute: () => {
         if (!config) {
           setError('Configuration required. Please configure your PingOne settings first.');
@@ -554,6 +582,15 @@ if (Date.now() / 1000 > payload.exp) {
         </CardBody>
       </FlowOverview>
 
+      {/* Flow Configuration */}
+      {showConfig && (
+        <FlowConfiguration
+          config={flowConfig}
+          onConfigChange={setFlowConfig}
+          flowType="hybrid"
+        />
+      )}
+
       <DemoSection>
         <CardHeader>
           <h2>Interactive Demo</h2>
@@ -569,6 +606,8 @@ if (Date.now() / 1000 > payload.exp) {
             onStepResult={handleStepResult}
             disabled={!config}
             title="Hybrid Flow"
+            showConfigButton={true}
+            onShowConfig={() => setShowConfig(!showConfig)}
           />
 
           {!config && (

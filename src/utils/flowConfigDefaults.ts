@@ -143,6 +143,25 @@ export const getPasswordGrantConfig = (): FlowConfig => ({
   acrValues: ['urn:pingone:loa:1']
 });
 
+// Default configuration for Hybrid Flow
+export const getHybridConfig = (): FlowConfig => ({
+  scopes: ['openid', 'profile', 'email'],
+  responseType: 'code id_token token', // Default to all three
+  grantType: 'authorization_code',
+  enablePKCE: true,
+  codeChallengeMethod: 'S256',
+  customParams: {},
+  enableOIDC: true,
+  nonce: generateRandomString(32),
+  state: generateRandomString(32),
+  customClaims: {},
+  audience: '',
+  maxAge: 0,
+  prompt: '',
+  loginHint: '',
+  acrValues: ['urn:pingone:loa:1']
+});
+
 // Factory function to get default config based on flow type
 export const getDefaultConfig = (flowType: string): FlowConfig => {
   switch (flowType) {
@@ -160,6 +179,8 @@ export const getDefaultConfig = (flowType: string): FlowConfig => {
       return getRefreshTokenConfig();
     case 'password-grant':
       return getPasswordGrantConfig();
+    case 'hybrid':
+      return getHybridConfig();
     default:
       return getAuthorizationCodeConfig();
   }
@@ -182,11 +203,12 @@ export const getPingOnePresets = () => ({
   
   // PingOne-supported response types
   responseTypes: [
-    'code',           // Authorization Code
-    'token',          // Implicit
-    'id_token',       // OIDC ID Token
-    'code token',     // Hybrid
-    'code id_token'   // Hybrid
+    'code',                    // Authorization Code
+    'token',                   // Implicit
+    'id_token',                // OIDC ID Token
+    'code token',              // Hybrid
+    'code id_token',           // Hybrid
+    'code id_token token'      // Hybrid (all three)
   ],
   
   // PingOne-supported grant types
