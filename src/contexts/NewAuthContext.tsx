@@ -392,6 +392,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Handle OAuth callback
   const handleCallback = useCallback(async (url: string): Promise<LoginResult> => {
+    console.log('🚀 [NewAuthContext] handleCallback called with URL:', url);
     try {
       updateState({ isLoading: true, error: null });
 
@@ -400,6 +401,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const code = params.get('code');
       const state = params.get('state');
       const error = params.get('error');
+      
+      console.log('🔍 [NewAuthContext] Parsed callback parameters:', { code, state, error });
 
       if (error) {
         throw new Error(`OAuth error: ${error}. ${params.get('error_description') || ''}`);
@@ -493,6 +496,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       return { success: true, redirectUrl };
     } catch (error) {
+      console.error('❌ [NewAuthContext] Error in handleCallback:', error);
+      console.error('❌ [NewAuthContext] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
       const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
       updateState({ error: errorMessage, isLoading: false });
       return { success: false, error: errorMessage };
