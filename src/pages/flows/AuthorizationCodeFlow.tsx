@@ -475,9 +475,14 @@ const AuthorizationCodeFlow = () => {
         const allKeys = Object.keys(sessionStorage);
         const pingoneKeys = allKeys.filter(key => key.includes('pingone'));
         
+        // Debug: Check what's actually in the tokens key
+        const rawTokens = sessionStorage.getItem('pingone_playground_tokens');
+        console.log('🔍 [AuthorizationCodeFlow] Raw tokens from sessionStorage:', rawTokens);
+        
         console.log('🔍 [AuthorizationCodeFlow] Checking sessionStorage for tokens:', {
           hasStoredTokens: !!storedTokens,
           storedTokens: storedTokens ? 'FOUND' : 'NOT_FOUND',
+          rawTokens: rawTokens ? 'FOUND' : 'NOT_FOUND',
           tokensReceived,
           currentStep,
           allSessionKeys: allKeys,
