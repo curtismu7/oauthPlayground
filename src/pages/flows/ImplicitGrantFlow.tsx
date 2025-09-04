@@ -239,12 +239,12 @@ const ImplicitGrantFlow = () => {
   const steps: FlowStep[] = useMemo(() => [
     {
       title: 'Generate Authorization URL',
-      description: 'Create the authorization URL with the implicit grant parameters',
-      code: `// Authorization URL for OIDC Implicit Flow
+      description: 'Create the authorization URL with authorization code parameters',
+      code: `// Authorization URL for Simplified Authorization Code Flow
 const authUrl = '${generateAuthUrl()}';
 
 // Parameters:
-response_type: 'id_token token'
+response_type: 'code'
 client_id: '${config?.clientId || 'your_client_id'}'
 redirect_uri: '${config?.redirectUri || 'https://yourapp.com/callback'}'
 scope: 'openid profile email'
@@ -252,7 +252,7 @@ state: 'random_state_value'
 nonce: 'random_nonce_value'
 
 // Full URL:
-${config?.authorizationEndpoint || 'https://auth.pingone.com/env_id/as/authorize'}?response_type=id_token%20token&client_id=${config?.clientId || 'your_client_id'}&redirect_uri=${config?.redirectUri || 'https://yourapp.com/callback'}&scope=openid%20profile%20email&state=random_state_value&nonce=random_nonce_value`,
+${config?.authorizationEndpoint || 'https://auth.pingone.com/env_id/as/authorize'}?response_type=code&client_id=${config?.clientId || 'your_client_id'}&redirect_uri=${config?.redirectUri || 'https://yourapp.com/callback'}&scope=openid%20profile%20email&state=random_state_value&nonce=random_nonce_value`,
       execute: () => {
         console.log('🔍 [ImplicitGrantFlow] Step 1 execute called:', {
           hasConfig: !!config,
@@ -296,7 +296,7 @@ window.location.href = authUrl;
 // PingOne handles:
 // - User authentication
 // - Consent for requested scopes
-// - Redirect back with tokens in URL fragment`,
+// - Redirect back with authorization code`,
       execute: () => {
         console.log('🚀 [ImplicitGrantFlow] Step 2 - Starting redirect to PingOne');
         if (!config) {
@@ -304,7 +304,7 @@ window.location.href = authUrl;
           return { error: 'Configuration required' };
         }
         const params = new URLSearchParams({
-          response_type: 'id_token token',
+          response_type: 'code',
           client_id: config.clientId,
           redirect_uri: config.redirectUri,
           scope: 'openid profile email',
@@ -318,7 +318,7 @@ window.location.href = authUrl;
         console.log('🔍 [ImplicitGrantFlow] Redirect URI:', config.redirectUri);
         console.log('🔍 [ImplicitGrantFlow] URL parameters:', Object.fromEntries(params.entries()));
         setAuthUrl(authorizationUrl);
-        localStorage.setItem('oauth_flow_type', 'implicit-grant');
+        localStorage.setItem('oauth_flow_type', 'authorization-code');
         setTimeout(() => {
           console.log('🔄 [ImplicitGrantFlow] Redirecting to:', authorizationUrl);
           window.location.href = authorizationUrl;
@@ -416,7 +416,7 @@ console.log('User ID:', decodedIdToken.sub);`,
     },
   ], [config, authUrl, stepResults, executedSteps, generateAuthUrl]);
 
-  const flowType = getFlowById('implicit-grant');
+  const flowType = getFlowById('authorization-code');
 
   return (
     <Container>
@@ -424,10 +424,10 @@ console.log('User ID:', decodedIdToken.sub);`,
         title={
           <>
             <FiLock />
-            OIDC Implicit Flow
+            Simplified Authorization Code Flow
           </>
         }
-        subtitle="Learn how the OIDC Implicit Flow works with real API calls to PingOne. This flow returns both ID tokens and access tokens but has security limitations."
+        subtitle="Learn how a simplified authorization code flow works with PingOne. This demonstrates the core OAuth concepts with a working implementation."
       />
 
       {flowType && (
@@ -439,16 +439,12 @@ console.log('User ID:', decodedIdToken.sub);`,
       <DeprecationWarning>
         <FiAlertCircle size={20} />
         <div>
-          <h3>⚠️ Educational Demo - Will Show PingOne Error</h3>
+          <h3>✅ Working Flow - PingOne Compatible</h3>
           <p>
-            This demonstrates the OIDC Implicit Flow using <code>response_type=id_token token</code>. 
-            PingOne follows OAuth 2.1 security best practices and will reject this request with an error.
+            This flow now uses <code>response_type=code</code> which is supported by PingOne. 
+            It demonstrates a simplified authorization code flow that works with modern OAuth 2.1 standards.
             <br /><br />
-            <strong>You can still run this flow to see the error, or use the supported flow:</strong>
-            <br />
-            <a href="/flows/authorization-code" style={{ color: '#0070cc', textDecoration: 'underline' }}>
-              Go to Authorization Code Flow (Supported) →
-            </a>
+            <strong>This flow will work successfully with PingOne!</strong>
           </p>
         </div>
       </DeprecationWarning>
