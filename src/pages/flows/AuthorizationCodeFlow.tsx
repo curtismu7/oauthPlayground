@@ -13,6 +13,7 @@ import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import JSONHighlighter from '../../components/JSONHighlighter';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 import { oauthStorage } from '../../utils/storage';
+import UserFriendlyError from '../../components/UserFriendlyError';
 import FlowBadge from '../../components/FlowBadge';
 import { getFlowById } from '../../types/flowTypes';
 
@@ -1095,10 +1096,11 @@ grant_type=authorization_code
           )}
 
           {error && (
-            <ErrorMessage>
-              <FiAlertCircle />
-              <strong>Error:</strong> {error}
-            </ErrorMessage>
+            <UserFriendlyError 
+              error={error} 
+              onRetry={() => setError(null)}
+              showTechnicalDetails={true}
+            />
           )}
 
           {authUrl && (

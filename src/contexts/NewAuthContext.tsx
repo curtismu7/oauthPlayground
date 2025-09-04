@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { oauthStorage } from '../utils/storage';
 import type { OAuthTokens, UserInfo, OAuthTokenResponse } from '../types/storage';
 import { AuthContextType, AuthState, LoginResult } from '../types/auth';
+import { analyzeError, type ErrorDetails } from '../utils/errorHandler';
 
 // Define the complete config type with all required properties
 interface AppConfig {
@@ -506,8 +507,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       console.error('❌ [NewAuthContext] Error in handleCallback:', error);
       console.error('❌ [NewAuthContext] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-      const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
-      updateState({ error: errorMessage, isLoading: false });
+      
+      // Analyze error for user-friendly message
+      const errorDetails = analyzeError(error);
+      const errorMessage = errorDetails.userFriendlyMessage;
+      
+      // Store enhanced error details for display
+      updateState({ 
+        error: errorMessage, 
+        isLoading: false,
+        errorDetails: errorDetails
+      });
+      
       return { success: false, error: errorMessage };
     }
   }, [config, updateState]);
@@ -644,7 +655,12 @@ async function exchangeCodeForTokens(
     console.error('📋 [exchangeCodeForTokens] Status Text:', response.statusText);
     console.error('📋 [exchangeCodeForTokens] Error Body:', JSON.stringify(error, null, 2));
     console.error('📋 [exchangeCodeForTokens] ===================================');
-    throw new Error(error.error_description || 'Failed to exchange code for tokens');
+    
+    // Create enhanced error with PingOne-specific details
+    const enhancedError = new Error(error.error_description || error.error || 'Failed to exchange code for tokens');
+    (enhancedError as any).pingoneError = error;
+    (enhancedError as any).statusCode = response.status;
+    throw enhancedError;
   }
 
   const data: OAuthTokenResponse = await response.json();
