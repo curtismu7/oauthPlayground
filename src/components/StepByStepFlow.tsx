@@ -556,8 +556,11 @@ const StepByStepFlowComponent: React.FC<StepByStepFlowProps> = ({
         
         <FlowButton
           $variant="reset"
-          onClick={onReset}
-          disabled={status === 'idle'}
+          onClick={() => {
+            console.log('🔄 [StepByStepFlow] Reset button clicked', { status, currentStep });
+            onReset();
+          }}
+          disabled={status === 'idle' && currentStep === 0}
         >
           <FiRotateCcw />
           Reset
