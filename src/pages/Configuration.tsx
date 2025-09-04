@@ -210,6 +210,10 @@ const Configuration = () => {
     authEndpoint: 'https://auth.pingone.com/{envId}/as/authorize',
     tokenEndpoint: 'https://auth.pingone.com/{envId}/as/token',
     userInfoEndpoint: 'https://auth.pingone.com/{envId}/as/userinfo',
+    // Authentication method configuration
+    usePKCE: true,
+    authenticationMethod: 'pkce', // 'pkce' or 'client_secret_basic'
+    applicationType: 'spa', // 'spa' or 'confidential'
   });
   
   const [errors, setErrors] = useState({});
@@ -237,10 +241,36 @@ const Configuration = () => {
   
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => {
+      const newData = {
+        ...prev,
+        [name]: value
+      };
+      
+      // Auto-sync authentication method with application type
+      if (name === 'applicationType') {
+        if (value === 'spa') {
+          newData.authenticationMethod = 'pkce';
+          newData.usePKCE = true;
+        } else if (value === 'confidential') {
+          newData.authenticationMethod = 'client_secret_basic';
+          newData.usePKCE = false;
+        }
+      }
+      
+      // Auto-sync application type with authentication method
+      if (name === 'authenticationMethod') {
+        if (value === 'pkce') {
+          newData.applicationType = 'spa';
+          newData.usePKCE = true;
+        } else if (value === 'client_secret_basic') {
+          newData.applicationType = 'confidential';
+          newData.usePKCE = false;
+        }
+      }
+      
+      return newData;
+    });
     
     // Clear error when field is edited
     if (errors[name]) {
@@ -499,6 +529,56 @@ const Configuration = () => {
               />
               <div className="form-text">
                 Space-separated list of scopes to request. Common scopes: openid, profile, email, offline_access
+              </div>
+            </FormGroup>
+            
+            <h3 style={{ margin: '2rem 0 1rem', fontSize: '1.25rem' }}>Authentication Method</h3>
+            
+            <FormGroup>
+              <label htmlFor="applicationType">Application Type</label>
+              <select
+                id="applicationType"
+                name="applicationType"
+                value={formData.applicationType}
+                onChange={handleChange}
+              >
+                <option value="spa">Single Page Application (SPA)</option>
+                <option value="confidential">Confidential Application</option>
+              </select>
+              <div className="form-text">
+                Choose based on your PingOne application configuration. SPA uses PKCE, Confidential uses Client Secret Basic.
+              </div>
+            </FormGroup>
+            
+            <FormGroup>
+              <label htmlFor="authenticationMethod">Authentication Method</label>
+              <select
+                id="authenticationMethod"
+                name="authenticationMethod"
+                value={formData.authenticationMethod}
+                onChange={handleChange}
+              >
+                <option value="pkce">PKCE (Proof Key for Code Exchange)</option>
+                <option value="client_secret_basic">Client Secret Basic</option>
+              </select>
+              <div className="form-text">
+                PKCE is recommended for SPAs. Client Secret Basic is for confidential applications.
+              </div>
+            </FormGroup>
+            
+            <FormGroup>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <input
+                  type="checkbox"
+                  id="usePKCE"
+                  name="usePKCE"
+                  checked={formData.usePKCE}
+                  onChange={(e) => setFormData(prev => ({ ...prev, usePKCE: e.target.checked }))}
+                />
+                Enable PKCE (Proof Key for Code Exchange)
+              </label>
+              <div className="form-text">
+                PKCE adds security for public clients. Recommended for SPAs and mobile apps.
               </div>
             </FormGroup>
             
