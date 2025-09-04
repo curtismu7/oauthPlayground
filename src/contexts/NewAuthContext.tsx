@@ -586,40 +586,41 @@ async function exchangeCodeForTokens(
   tokenEndpoint: string,
   params: Record<string, string>
 ): Promise<OAuthTokens> {
-  console.log('🚀 [exchangeCodeForTokens] Starting token exchange...');
-  console.log('🔍 [exchangeCodeForTokens] Token endpoint:', tokenEndpoint);
+  console.log('🚀 [exchangeCodeForTokens] Starting token exchange via backend...');
+  console.log('🔍 [exchangeCodeForTokens] Backend endpoint: http://localhost:3001/api/token-exchange');
   console.log('🔍 [exchangeCodeForTokens] Request params:', params);
   
-  // For public clients with PKCE, no client secret is used
-  console.log('🔍 [exchangeCodeForTokens] Using Public Client authentication (PKCE)');
-  console.log('🔍 [exchangeCodeForTokens] Client ID:', params.client_id);
-  console.log('🔍 [exchangeCodeForTokens] No client secret required for public clients');
+  // Call our backend server instead of PingOne directly
+  const backendEndpoint = 'http://localhost:3001/api/token-exchange';
   
-  // Use all params directly for public client (client_id stays in body, no client_secret)
-  const bodyParams = { ...params };
-  
-  let headers: Record<string, string> = {
-    'Content-Type': 'application/x-www-form-urlencoded',
-    // NO Authorization header for public clients
+  // Prepare request body for backend
+  const requestBody = {
+    code: params.code,
+    redirect_uri: params.redirect_uri,
+    code_verifier: params.code_verifier
   };
   
-  console.log('🔍 [exchangeCodeForTokens] Final request body:', new URLSearchParams(bodyParams).toString());
+  let headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  
+  console.log('🔍 [exchangeCodeForTokens] Final request body:', JSON.stringify(requestBody, null, 2));
   console.log('🔍 [exchangeCodeForTokens] Request headers:');
   console.log('  - Content-Type:', headers['Content-Type']);
-  console.log('  - Authorization:', 'NONE (public client)');
+  console.log('  - Authorization:', 'NONE (handled by backend)');
   
   // Show complete request details for debugging
-  console.log('📋 [exchangeCodeForTokens] ===== COMPLETE REQUEST TO PINGONE =====');
-  console.log('📋 [exchangeCodeForTokens] URL:', tokenEndpoint);
+  console.log('📋 [exchangeCodeForTokens] ===== COMPLETE REQUEST TO BACKEND =====');
+  console.log('📋 [exchangeCodeForTokens] URL:', backendEndpoint);
   console.log('📋 [exchangeCodeForTokens] Method: POST');
   console.log('📋 [exchangeCodeForTokens] Headers:', JSON.stringify(headers, null, 2));
-  console.log('📋 [exchangeCodeForTokens] Body:', new URLSearchParams(bodyParams).toString());
+  console.log('📋 [exchangeCodeForTokens] Body:', JSON.stringify(requestBody, null, 2));
   console.log('📋 [exchangeCodeForTokens] ===========================================');
   
-  const response = await fetch(tokenEndpoint, {
+  const response = await fetch(backendEndpoint, {
     method: 'POST',
     headers,
-    body: new URLSearchParams(bodyParams),
+    body: JSON.stringify(requestBody),
   });
 
   console.log('🔍 [exchangeCodeForTokens] Response status:', response.status);
