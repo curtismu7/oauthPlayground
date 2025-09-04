@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/NewAuthContext';
 import Spinner from '../components/Spinner';
+import UserFriendlyError from '../components/UserFriendlyError';
 import styled from 'styled-components';
 
 const Container = styled.div`
@@ -46,6 +47,28 @@ const ErrorMessage = styled.div`
   margin-bottom: 1rem;
 `;
 
+const ActionButton = styled.button`
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 1rem;
+
+  &:hover {
+    background-color: #2563eb;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+`;
+
 const SuccessMessage = styled.div`
   background-color: #f0fdf4;
   border: 1px solid #bbf7d0;
@@ -63,6 +86,12 @@ const Callback: React.FC = () => {
   const [message, setMessage] = useState('Processing authentication...');
   const [error, setError] = useState<string | null>(null);
   const [hasProcessed, setHasProcessed] = useState(false);
+
+  const handleErrorDismiss = () => {
+    // Clear the flow type and redirect to dashboard
+    localStorage.removeItem('oauth_flow_type');
+    navigate('/dashboard', { replace: true });
+  };
 
   useEffect(() => {
     const processCallback = async () => {
@@ -144,11 +173,7 @@ const Callback: React.FC = () => {
         setStatus('error');
         setError(err instanceof Error ? err.message : 'Authentication failed');
         setMessage('Authentication failed');
-        
-        // Redirect to dashboard after error
-        setTimeout(() => {
-          navigate('/dashboard', { replace: true });
-        }, 3000);
+        // Don't auto-redirect - let user read the error and click OK
       }
     };
 
@@ -178,10 +203,14 @@ const Callback: React.FC = () => {
         
         {status === 'error' && (
           <>
-            <ErrorMessage>
-              ❌ {error}
-            </ErrorMessage>
-            <Message>Redirecting to dashboard...</Message>
+            <UserFriendlyError 
+              error={error} 
+              onRetry={handleErrorDismiss}
+              showTechnicalDetails={true}
+            />
+            <ActionButton onClick={handleErrorDismiss}>
+              OK - Return to Dashboard
+            </ActionButton>
           </>
         )}
       </Card>

@@ -13,6 +13,7 @@ import PageTitle from '../../components/PageTitle';
 import FlowBadge from '../../components/FlowBadge';
 import { getFlowById } from '../../types/flowTypes';
 import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
+import UserFriendlyError from '../../components/UserFriendlyError';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -700,10 +701,11 @@ console.log('User ID:', decodedIdToken.sub);`,
           )}
 
           {error && (
-            <ErrorMessage>
-              <FiAlertCircle />
-              <strong>Error:</strong> {error}
-            </ErrorMessage>
+            <UserFriendlyError 
+              error={error} 
+              onRetry={() => setError(null)}
+              showTechnicalDetails={true}
+            />
           )}
 
           {authUrl && (
