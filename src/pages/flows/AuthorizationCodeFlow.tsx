@@ -402,14 +402,15 @@ const AuthorizationCodeFlow = () => {
     }
   }, [contextTokens, tokensReceived, currentStep, demoStatus]);
 
-  // Fallback: Check localStorage directly for tokens if context hasn't updated yet
+  // Fallback: Check sessionStorage directly for tokens if context hasn't updated yet
   useEffect(() => {
     const checkForStoredTokens = () => {
       try {
-        const storedTokens = localStorage.getItem('oauth_tokens');
+        // Check sessionStorage with the correct key prefix
+        const storedTokens = sessionStorage.getItem('pingone_playground_tokens');
         if (storedTokens && !tokensReceived) {
           const parsedTokens = JSON.parse(storedTokens);
-          console.log('🔄 [AuthorizationCodeFlow] Found tokens in localStorage, advancing flow state');
+          console.log('🔄 [AuthorizationCodeFlow] Found tokens in sessionStorage, advancing flow state');
           setTokensReceived(parsedTokens);
           setCurrentStep(5);
           setDemoStatus('success');
@@ -429,7 +430,7 @@ const AuthorizationCodeFlow = () => {
           }));
         }
       } catch (error) {
-        console.warn('⚠️ [AuthorizationCodeFlow] Error checking localStorage for tokens:', error);
+        console.warn('⚠️ [AuthorizationCodeFlow] Error checking sessionStorage for tokens:', error);
       }
     };
 
