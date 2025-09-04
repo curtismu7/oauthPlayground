@@ -12,6 +12,7 @@ import TokenDisplayComponent from '../../components/TokenDisplay';
 import PageTitle from '../../components/PageTitle';
 import FlowBadge from '../../components/FlowBadge';
 import { getFlowById } from '../../types/flowTypes';
+import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -161,6 +162,11 @@ const ImplicitGrantFlow = () => {
   const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
   const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Modal state for authorization request
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [pendingAuthUrl, setPendingAuthUrl] = useState('');
+  const [pendingRequestParams, setPendingRequestParams] = useState<Record<string, string>>({});
 
   // If we already have tokens from the real OAuth flow, surface them in the demo
   useEffect(() => {
@@ -306,6 +312,20 @@ const ImplicitGrantFlow = () => {
     });
   };
 
+  // Modal handlers
+  const handleModalClose = () => {
+    setShowAuthModal(false);
+    setPendingAuthUrl('');
+    setPendingRequestParams({});
+  };
+
+  const handleModalProceed = () => {
+    console.log('🔄 [ImplicitGrantFlow] Proceeding to PingOne:', pendingAuthUrl);
+    setShowAuthModal(false);
+    // Redirect to PingOne
+    window.location.href = pendingAuthUrl;
+  };
+
   const steps: FlowStep[] = useMemo(() => [
     {
       title: 'Generate Authorization URL',
@@ -389,10 +409,18 @@ window.location.href = authUrl;
         console.log('🔍 [ImplicitGrantFlow] URL parameters:', Object.fromEntries(params.entries()));
         setAuthUrl(authorizationUrl);
         localStorage.setItem('oauth_flow_type', 'simplified-auth-code');
-        setTimeout(() => {
-          console.log('🔄 [ImplicitGrantFlow] Redirecting to:', authorizationUrl);
-          window.location.href = authorizationUrl;
-        }, 1000);
+        
+        // Show the authorization request modal instead of redirecting immediately
+        setPendingAuthUrl(authorizationUrl);
+        setPendingRequestParams({
+          client_id: config.clientId,
+          redirect_uri: config.redirectUri,
+          response_type: 'code',
+          scope: 'openid profile email',
+          state: Math.random().toString(36).substring(2, 15),
+          nonce: Math.random().toString(36).substring(2, 15)
+        });
+        setShowAuthModal(true);
         // Don't return result - execute should return void
       }
     },
@@ -617,6 +645,15 @@ console.log('User ID:', decodedIdToken.sub);`,
           )}
         </CardBody>
       </DemoSection>
+      
+      {/* Authorization Request Modal */}
+      <AuthorizationRequestModal
+        isOpen={showAuthModal}
+        onClose={handleModalClose}
+        onProceed={handleModalProceed}
+        authorizationUrl={pendingAuthUrl}
+        requestParams={pendingRequestParams}
+      />
     </Container>
   );
 };
