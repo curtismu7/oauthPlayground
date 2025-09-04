@@ -5,6 +5,7 @@ import { FiPlay, FiAlertCircle, FiUser, FiInfo, FiSend, FiDownload, FiEye } from
 import PageTitle from '../../components/PageTitle';
 import TokenDisplayComponent from '../../components/TokenDisplay';
 import ConfigurationButton from '../../components/ConfigurationButton';
+import JSONHighlighter from '../../components/JSONHighlighter';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { getUserInfo, isTokenExpired } from '../../utils/oauth';
 import { decodeJwt } from '../../utils/jwt';
@@ -313,27 +314,6 @@ const JsonResponse = styled.div`
   overflow-y: auto;
 `;
 
-const JsonKey = styled.span`
-  color: #059669;
-  font-weight: 600;
-`;
-
-const JsonString = styled.span`
-  color: #dc2626;
-`;
-
-const JsonNumber = styled.span`
-  color: #7c3aed;
-`;
-
-const JsonBoolean = styled.span`
-  color: #ea580c;
-`;
-
-const JsonNull = styled.span`
-  color: #6b7280;
-  font-style: italic;
-`;
 
 
 
@@ -471,60 +451,6 @@ const UserInfoFlow: React.FC = () => {
   // UserInfo authentication mode
   const [useAuthentication, setUseAuthentication] = useState(false);
 
-  // Function to format JSON with color coding
-  const formatJson = (obj: any, indent: number = 0): React.ReactNode[] => {
-    const spaces = '  '.repeat(indent);
-    const elements: React.ReactNode[] = [];
-    
-    if (obj === null) {
-      elements.push(<JsonNull>null</JsonNull>);
-      return elements;
-    }
-    
-    if (typeof obj === 'string') {
-      elements.push(<JsonString>"{obj}"</JsonString>);
-      return elements;
-    }
-    
-    if (typeof obj === 'number') {
-      elements.push(<JsonNumber>{obj}</JsonNumber>);
-      return elements;
-    }
-    
-    if (typeof obj === 'boolean') {
-      elements.push(<JsonBoolean>{obj.toString()}</JsonBoolean>);
-      return elements;
-    }
-    
-    if (Array.isArray(obj)) {
-      elements.push('[\n');
-      obj.forEach((item, index) => {
-        elements.push(spaces + '  ');
-        elements.push(...formatJson(item, indent + 1));
-        if (index < obj.length - 1) elements.push(',');
-        elements.push('\n');
-      });
-      elements.push(spaces + ']');
-      return elements;
-    }
-    
-    if (typeof obj === 'object') {
-      elements.push('{\n');
-      const keys = Object.keys(obj);
-      keys.forEach((key, index) => {
-        elements.push(spaces + '  ');
-        elements.push(<JsonKey>"{key}"</JsonKey>);
-        elements.push(': ');
-        elements.push(...formatJson(obj[key], indent + 1));
-        if (index < keys.length - 1) elements.push(',');
-        elements.push('\n');
-      });
-      elements.push(spaces + '}');
-      return elements;
-    }
-    
-    return elements;
-  };
 
   // Function to copy text to clipboard
   const copyToClipboard = async (text: string) => {
@@ -1121,7 +1047,7 @@ console.log('Welcome, ' + user.name + '!');`,
                     Response Data
                   </h3>
                   <JsonResponse>
-                    {formatJson(userInfo)}
+                    <JSONHighlighter jsonString={JSON.stringify(userInfo, null, 2)} />
                   </JsonResponse>
                   
                   <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>

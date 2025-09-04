@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FiTool, FiKey, FiEye, FiCopy, FiRefreshCw, FiCheck, FiAlertCircle } from 'react-icons/fi';
 import { Card, CardHeader, CardBody } from './Card';
+import JSONHighlighter from './JSONHighlighter';
 import { parseJwt, generateRandomString, generateCodeChallenge } from '../utils/oauth';
 
 const UtilitiesContainer = styled.div`
@@ -350,7 +351,7 @@ const OAuthUtilities: React.FC = () => {
                     overflow: 'auto',
                     fontFamily: 'monospace'
                   }}>
-                    {JSON.stringify(decodedJwt.header, null, 2)}
+                    <JSONHighlighter jsonString={JSON.stringify(decodedJwt.header, null, 2)} />
                   </pre>
                 </ResultBox>
 
@@ -375,7 +376,7 @@ const OAuthUtilities: React.FC = () => {
                     overflow: 'auto',
                     fontFamily: 'monospace'
                   }}>
-                    {JSON.stringify(decodedJwt.payload, null, 2)}
+                    <JSONHighlighter jsonString={JSON.stringify(decodedJwt.payload, null, 2)} />
                   </pre>
                 </ResultBox>
 

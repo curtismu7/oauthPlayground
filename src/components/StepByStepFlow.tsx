@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import { FiPlay, FiArrowRight, FiArrowLeft, FiRotateCcw, FiSettings } from 'react-icons/fi';
+import JSONHighlighter from './JSONHighlighter';
 
 const FlowContainer = styled.div`
   margin-bottom: 1.5rem;
@@ -380,7 +381,7 @@ const MemoizedStep = React.memo<{
           {typeof step.result === 'string' ? (
             <pre>{step.result}</pre>
           ) : (
-            <pre>{JSON.stringify(step.result, null, 2)}</pre>
+            <JSONHighlighter jsonString={JSON.stringify(step.result, null, 2)} />
           )}
         </StepResult>
       )}
