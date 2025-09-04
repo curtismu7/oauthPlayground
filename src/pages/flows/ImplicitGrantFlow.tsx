@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiAlertCircle, FiLock } from 'react-icons/fi';
@@ -160,6 +160,30 @@ const ImplicitGrantFlow = () => {
   const [stepResults, setStepResults] = useState<Record<number, any>>({});
   const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
   const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
+  const [demoStatus, setDemoStatus] = useState<'idle' | 'running' | 'success' | 'error'>('idle');
+  const [isLoading, setIsLoading] = useState(false);
+
+  // If we already have tokens from the real OAuth flow, surface them in the demo
+  useEffect(() => {
+    if (contextTokens && !tokensReceived) {
+      console.log('🔄 [ImplicitGrantFlow] Detected tokens from context, advancing flow state');
+      setTokensReceived(contextTokens as Record<string, unknown> | null);
+      setCurrentStep(3);
+      setDemoStatus('success');
+      setIsLoading(false);
+      
+      // Mark steps 1 and 2 as completed since we have tokens
+      setExecutedSteps(new Set([1, 2, 3]));
+      
+      // Set results for completed steps
+      setStepResults(prev => ({
+        ...prev,
+        1: { message: 'Authorization URL generated successfully' },
+        2: { message: 'User redirected to PingOne for authentication' },
+        3: { message: 'User authenticated and tokens received from PingOne', tokens: contextTokens }
+      }));
+    }
+  }, [contextTokens, tokensReceived]);
 
   // Debug authUrl state changes
   React.useEffect(() => {
