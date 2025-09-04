@@ -11,6 +11,7 @@ import { getDefaultConfig, validatePingOneConfig } from '../../utils/flowConfigD
 import PageTitle from '../../components/PageTitle';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
+import { oauthStorage } from '../../utils/storage';
 import FlowBadge from '../../components/FlowBadge';
 import { getFlowById } from '../../types/flowTypes';
 
@@ -583,6 +584,15 @@ window.location.href = authUrl;
         // Generate the authorization URL
         const state = Math.random().toString(36).substring(2, 15);
         const nonce = Math.random().toString(36).substring(2, 15);
+        
+        // Store state and nonce using oauthStorage (same as NewAuthContext expects)
+        oauthStorage.setState(state);
+        oauthStorage.setNonce(nonce);
+        
+        console.log('🔍 [AuthCodeFlow] Stored state and nonce in oauthStorage:', {
+          state: state.substring(0, 8) + '...',
+          nonce: nonce.substring(0, 8) + '...'
+        });
         
         const params = new URLSearchParams({
           client_id: config.clientId,
