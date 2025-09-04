@@ -600,6 +600,9 @@ async function exchangeCodeForTokens(
     'Content-Type': 'application/x-www-form-urlencoded',
   };
   
+  console.log('🔍 [exchangeCodeForTokens] Final request body:', new URLSearchParams(bodyParams).toString());
+  console.log('🔍 [exchangeCodeForTokens] Request headers:', headers);
+  
   const response = await fetch(tokenEndpoint, {
     method: 'POST',
     headers,
