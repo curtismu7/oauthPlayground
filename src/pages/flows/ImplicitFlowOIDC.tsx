@@ -228,13 +228,14 @@ window.location.href = authUrl;
 
 // Client receives URL like:
 // https://your-app.com/callback#access_token=eyJ...&id_token=eyJ...&token_type=Bearer&expires_in=3600&state=xyz123`,
-      execute: () => {const mockTokens = {
+      execute: () => {
+        const mockTokens = {
           access_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.mock_access_token_signature',
           id_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.mock_id_token_signature',
           token_type: 'Bearer',
           expires_in: 3600,
           state: Math.random().toString(36).substring(2, 15),
-        return { message: 'Step completed' };};
+        };
 
         const callbackUrl = `${config?.redirectUri || 'https://your-app.com/callback'}#access_token=${mockTokens.access_token}&id_token=${mockTokens.id_token}&token_type=${mockTokens.token_type}&expires_in=${mockTokens.expires_in}&state=${mockTokens.state}`;
 
@@ -291,7 +292,8 @@ const tokens = {
 
 // Clear the fragment from the URL
 window.history.replaceState(null, '', window.location.pathname);`,
-      execute: () => {const hash = '#access_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9&token_type=Bearer&expires_in=3600&id_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9&state=xyz789';
+      execute: () => {
+        const hash = '#access_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9&token_type=Bearer&expires_in=3600&id_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9&state=xyz789';
         const params = new URLSearchParams(hash.substring(1));
 
         const extractedTokens = {
@@ -300,7 +302,7 @@ window.history.replaceState(null, '', window.location.pathname);`,
           token_type: params.get('token_type'),
           expires_in: parseInt(params.get('expires_in') || '3600'),
           state: params.get('state'),
-        return { message: 'Step completed' };};
+        };
 
         const result = {
           extractedTokens,
@@ -343,14 +345,15 @@ if (payload.nonce !== storedNonce) {
 }
 
 console.log('✅ ID token validation successful');`,
-      execute: () => {// Simulate ID token validation
+      execute: () => {
+        // Simulate ID token validation
         const validationResult = {
           issuer: 'https://auth.pingone.com/YOUR_ENV_ID',
           audience: config?.clientId || 'your_client_id',
           expiration: new Date(Date.now() + 3600000),
           nonce: 'valid_nonce',
           isValid: true
-        return { message: 'Step completed' };};
+        };
 
         const result = {
           validation: validationResult,

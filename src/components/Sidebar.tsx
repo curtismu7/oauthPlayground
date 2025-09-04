@@ -263,6 +263,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             <SubmenuItem to="/configuration" onClick={onClose}>
               Configuration
             </SubmenuItem>
+            <SubmenuItem to="/external-documentation" onClick={onClose}>
+              External Documentation
+            </SubmenuItem>
           </Submenu>
         </NavItemWithSubmenu>
         

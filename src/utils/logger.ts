@@ -219,11 +219,11 @@ export class StructuredLogger {
     logger.info(`ℹ️ INFO: ${message}`, { ...this.context, ...meta });
   }
 
-  warn(message: string, meta: LogMeta = {}): void => {
+  warn(message: string, meta: LogMeta = {}): void {
     logger.warn(`⚠️ WARNING: ${message}`, { ...this.context, ...meta });
   }
 
-  error(message: string, error: unknown = null, meta: LogMeta = {}): void => {
+  error(message: string, error: unknown = null, meta: LogMeta = {}): void {
     const errorInfo = error && typeof error === 'object' 
       ? { 
           error: 'message' in error ? error.message : String(error),

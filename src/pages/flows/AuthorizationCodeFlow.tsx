@@ -11,6 +11,8 @@ import { getDefaultConfig, validatePingOneConfig } from '../../utils/flowConfigD
 import PageTitle from '../../components/PageTitle';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
+import FlowBadge from '../../components/FlowBadge';
+import { getFlowById } from '../../types/flowTypes';
 
 import Spinner from '../../components/Spinner';
 
@@ -709,12 +711,20 @@ grant_type=authorization_code
     });
   };
 
+  const flowType = getFlowById('authorization-code');
+
   return (
     <Container>
       <PageTitle 
         title="Authorization Code Flow"
         subtitle="The most secure and widely used OAuth 2.0 flow for web applications. Perfect for server-side applications that can securely store client secrets."
       />
+
+      {flowType && (
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
+          <FlowBadge flow={flowType} size="large" />
+        </div>
+      )}
 
       <FlowOverview>
         <CardHeader>
