@@ -196,16 +196,17 @@ const ResponseBox = styled.div<{ $backgroundColor?: string; $borderColor?: strin
   margin: 1rem 0;
   padding: 1rem;
   border-radius: 0.5rem;
-  border: 1px solid ${({ $borderColor }) => $borderColor || '#374151'};
-  background-color: ${({ $backgroundColor }) => $backgroundColor || '#1f2937'};
+  border: 2px solid ${({ $borderColor }) => $borderColor || '#e5e7eb'};
+  background-color: ${({ $backgroundColor }) => $backgroundColor || '#ffffff'};
   font-family: monospace;
   font-size: 0.875rem;
   line-height: 1.4;
   white-space: pre-wrap;
   word-break: break-all;
-  overflow: visible;
+  overflow-wrap: break-word;
   max-width: 100%;
-  color: #f9fafb;
+  color: #1f2937;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
 
   h4 {
     margin: 0 0 0.5rem 0;
