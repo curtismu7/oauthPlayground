@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ThemeProvider } from 'styled-components';
 import { FiCheckCircle, FiXCircle, FiCopy, FiDownload, FiEye, FiAlertTriangle } from 'react-icons/fi';
+import JSONHighlighter from '../components/JSONHighlighter';
 import { formatJwt, validateToken, type FormattedJwt, type ValidationResult } from '../utils/jwt';
 import { oauthStorage } from '../utils/storage';
 import { defaultTheme } from '../types/token-inspector';
@@ -47,30 +48,6 @@ const TokenInspector: React.FC = () => {
   
   const { formattedToken, validation, claims, error } = inspectionResult;
 
-  // Format JSON with syntax highlighting and error handling
-  const formatJson = useCallback((obj: unknown): string => {
-    try {
-      if (obj === null || obj === undefined) return 'null';
-      if (typeof obj === 'string') {
-        try {
-          // Try to parse if it's a JSON string
-          const parsed = JSON.parse(obj);
-          return JSON.stringify(parsed, null, 2);
-        } catch (e) {
-          // If not JSON, return as string
-          return `"${obj}"`;
-        }
-      }
-      if (typeof obj === 'number' || typeof obj === 'boolean') return String(obj);
-      if (typeof obj === 'object') {
-        return JSON.stringify(obj, null, 2);
-      }
-      return String(obj);
-    } catch (err) {
-      console.error('Error formatting JSON:', err);
-      return `[Error: ${err instanceof Error ? err.message : 'Unknown error formatting JSON'}]`;
-    }
-  }, []);
 
   // Load stored tokens on component mount
   useEffect(() => {
@@ -170,7 +147,7 @@ const TokenInspector: React.FC = () => {
 
     const debounceTimer = setTimeout(analyzeToken, 300);
     return () => clearTimeout(debounceTimer);
-  }, [token, formatJson]);
+  }, [token]);
 
   // Handle copy to clipboard
   const handleCopy = useCallback((text: string) => {
@@ -356,7 +333,7 @@ const TokenInspector: React.FC = () => {
                 <div style={{ marginBottom: '1rem' }}>
                   <h4>Header</h4>
                   <TokenDisplay>
-                    <code>{formatJson(formattedToken.header)}</code>
+                    <JSONHighlighter jsonString={JSON.stringify(formattedToken.header, null, 2)} />
                   </TokenDisplay>
                   <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
                     <ActionButton
@@ -377,7 +354,7 @@ const TokenInspector: React.FC = () => {
                 <div style={{ marginBottom: '1rem' }}>
                   <h4>Payload</h4>
                   <TokenDisplay>
-                    <code>{formatJson(formattedToken.payload)}</code>
+                    <JSONHighlighter jsonString={JSON.stringify(formattedToken.payload, null, 2)} />
                   </TokenDisplay>
                   <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
                     <ActionButton
@@ -430,7 +407,7 @@ const TokenInspector: React.FC = () => {
                     </div>
                     <div className={claim.isJson ? 'json' : ''}>
                       {claim.isJson ? (
-                        <pre style={{ margin: 0 }}>{formatJson(claim.value)}</pre>
+                        <JSONHighlighter jsonString={JSON.stringify(claim.value, null, 2)} />
                       ) : (
                         String(claim.value)
                       )}
