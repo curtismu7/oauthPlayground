@@ -10,6 +10,7 @@ import { FlowConfiguration, type FlowConfig } from '../../components/FlowConfigu
 import { getDefaultConfig, validatePingOneConfig } from '../../utils/flowConfigDefaults';
 import PageTitle from '../../components/PageTitle';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
+import JSONHighlighter from '../../components/JSONHighlighter';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 import { oauthStorage } from '../../utils/storage';
 import FlowBadge from '../../components/FlowBadge';
@@ -1254,7 +1255,7 @@ grant_type=authorization_code
                     {stepResult.response && (
                       <div style={{ marginTop: '0.5rem' }}>
                         <strong>Token Response:</strong><br />
-                        <pre>{JSON.stringify(stepResult.response, null, 2)}</pre>
+                        <JSONHighlighter jsonString={JSON.stringify(stepResult.response, null, 2)} />
                       </div>
                     )}
                     {stepResult.tokens && (
