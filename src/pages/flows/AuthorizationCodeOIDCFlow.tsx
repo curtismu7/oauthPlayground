@@ -436,13 +436,15 @@ window.location.href = authUrl;
         
         // Generate the authorization URL
         const state = Math.random().toString(36).substring(2, 15);
+        const nonce = Math.random().toString(36).substring(2, 15);
         
         const params = new URLSearchParams({
           client_id: config.clientId,
           redirect_uri: config.redirectUri,
           response_type: 'code',
-          scope: 'read write',
-          state: state
+          scope: 'openid profile email', // OIDC scope
+          state: state,
+          nonce: nonce // OIDC nonce
         });
         
         // Only add PKCE if we have a real code challenge
@@ -460,7 +462,7 @@ window.location.href = authUrl;
         setAuthUrl(authorizationUrl);
         
         // Store the flow type so callback knows where to redirect back
-        localStorage.setItem('oauth_flow_type', 'authorization-code');
+        localStorage.setItem('oauth_flow_type', 'authorization-code-oidc');
         
         // Return success result
         const result = { 
@@ -711,13 +713,13 @@ grant_type=authorization_code
     });
   };
 
-  const flowType = getFlowById('authorization-code');
+  const flowType = getFlowById('authorization-code-oidc');
 
   return (
     <Container>
       <PageTitle 
-        title="Authorization Code Flow"
-        subtitle="The most secure and widely used OAuth 2.0 flow for web applications. Perfect for server-side applications that can securely store client secrets."
+        title="OIDC Authorization Code Flow"
+        subtitle="OpenID Connect flow that provides both OAuth 2.0 access tokens and OIDC ID tokens with user information"
       />
 
       {flowType && (
