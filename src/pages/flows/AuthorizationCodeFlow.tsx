@@ -646,7 +646,9 @@ window.location.href = authUrl;
           response_type: 'code',
           scope: 'openid profile email',
           state: state,
-          nonce: nonce
+          nonce: nonce,
+          code_challenge: codeChallenge,
+          code_challenge_method: 'S256'
         });
         setShowAuthModal(true);
         
