@@ -160,7 +160,6 @@ const ImplicitGrantFlow = () => {
   const [stepResults, setStepResults] = useState<Record<number, any>>({});
   const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
   const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
-  const [demoStatus, setDemoStatus] = useState<'idle' | 'running' | 'success' | 'error'>('idle');
   const [isLoading, setIsLoading] = useState(false);
 
   // If we already have tokens from the real OAuth flow, surface them in the demo
