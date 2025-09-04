@@ -416,11 +416,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       // Exchange code for tokens
+      console.log('🔍 [NewAuthContext] Getting code verifier...');
       const codeVerifier = oauthStorage.getCodeVerifier();
+      console.log('🔍 [NewAuthContext] Code verifier:', codeVerifier ? 'FOUND' : 'NOT_FOUND');
       if (!codeVerifier) {
         throw new Error('Missing code verifier');
       }
 
+      console.log('🔍 [NewAuthContext] About to call exchangeCodeForTokens...');
       const tokenResponse = await exchangeCodeForTokens(
         config.tokenEndpoint,
         {
@@ -431,6 +434,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           code_verifier: codeVerifier,
         }
       );
+      console.log('✅ [NewAuthContext] exchangeCodeForTokens completed successfully');
 
       // Store tokens first
       console.log('🔍 [NewAuthContext] Storing token response:', tokenResponse);
@@ -577,6 +581,10 @@ async function exchangeCodeForTokens(
   tokenEndpoint: string,
   params: Record<string, string>
 ): Promise<OAuthTokens> {
+  console.log('🚀 [exchangeCodeForTokens] Starting token exchange...');
+  console.log('🔍 [exchangeCodeForTokens] Token endpoint:', tokenEndpoint);
+  console.log('🔍 [exchangeCodeForTokens] Request params:', params);
+  
   const response = await fetch(tokenEndpoint, {
     method: 'POST',
     headers: {
@@ -585,12 +593,17 @@ async function exchangeCodeForTokens(
     body: new URLSearchParams(params),
   });
 
+  console.log('🔍 [exchangeCodeForTokens] Response status:', response.status);
+  console.log('🔍 [exchangeCodeForTokens] Response ok:', response.ok);
+
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
+    console.error('❌ [exchangeCodeForTokens] Token exchange failed:', error);
     throw new Error(error.error_description || 'Failed to exchange code for tokens');
   }
 
   const data: OAuthTokenResponse = await response.json();
+  console.log('✅ [exchangeCodeForTokens] Token exchange successful:', data);
   
   // Add expiration timestamps
   const now = Date.now();
@@ -600,6 +613,7 @@ async function exchangeCodeForTokens(
     refresh_expires_at: data.refresh_token ? now + 5 * 24 * 60 * 60 * 1000 : undefined, // 5 days
   };
 
+  console.log('✅ [exchangeCodeForTokens] Final tokens with timestamps:', tokens);
   return tokens;
 }
 
