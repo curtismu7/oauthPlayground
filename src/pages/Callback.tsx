@@ -114,17 +114,8 @@ const Callback = () => {
         console.log('🔍 [Callback] Processing OAuth callback...');
         console.log('🔍 [Callback] Current URL:', window.location.href);
         
-        // Check if we already have a redirect path stored (prevents double processing)
-        const storedRedirect = localStorage.getItem('oauth_callback_redirect');
-        const isProcessed = localStorage.getItem('oauth_callback_processed');
-        if (storedRedirect && isProcessed) {
-          console.log('🔍 [Callback] Found stored redirect path:', storedRedirect);
-          console.log('🔄 [Callback] Navigating to stored redirect path');
-          localStorage.removeItem('oauth_callback_redirect');
-          localStorage.removeItem('oauth_callback_processed');
-          navigate(storedRedirect, { replace: true });
-          return;
-        }
+        // Don't redirect early - process the callback first
+        console.log('🔍 [Callback] Processing callback without early redirect');
         console.log('🔍 [Callback] URL pathname:', window.location.pathname);
         console.log('🔍 [Callback] URL search:', window.location.search);
         console.log('🔍 [Callback] URL hash:', window.location.hash);
