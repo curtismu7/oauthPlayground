@@ -237,12 +237,12 @@ const AppRoutes = () => {
             </Route>
 
             <Route path="/oidc" element={<OIDC />}>
+              <Route path="authorization-code" element={<AuthorizationCodeFlow />} />
               <Route path="userinfo" element={<UserInfoFlow />} />
               <Route path="id-tokens" element={<IDTokensFlow />} />
               <Route path="hybrid" element={<HybridFlow />} />
               <Route path="implicit" element={<ImplicitGrantFlow />} />
               <Route path="client-credentials" element={<ClientCredentialsFlow />} />
-
               <Route path="device-code" element={<DeviceCodeFlow />} />
             </Route>
             {/* Backward-compatible redirect for older links */}

@@ -183,10 +183,10 @@ const ImplicitGrantFlow = () => {
     }
 
     const params = new URLSearchParams({
-      response_type: 'token',
+      response_type: 'id_token token',
       client_id: config.clientId,
       redirect_uri: config.redirectUri,
-      scope: 'read write',
+      scope: 'openid profile email',
       state: Math.random().toString(36).substring(2, 15),
       nonce: Math.random().toString(36).substring(2, 15)
     });
@@ -240,19 +240,19 @@ const ImplicitGrantFlow = () => {
     {
       title: 'Generate Authorization URL',
       description: 'Create the authorization URL with the implicit grant parameters',
-      code: `// Authorization URL for Implicit Grant
+      code: `// Authorization URL for OIDC Implicit Flow
 const authUrl = '${generateAuthUrl()}';
 
 // Parameters:
-response_type: 'token'
+response_type: 'id_token token'
 client_id: '${config?.clientId || 'your_client_id'}'
 redirect_uri: '${config?.redirectUri || 'https://yourapp.com/callback'}'
-scope: 'read write'
+scope: 'openid profile email'
 state: 'random_state_value'
 nonce: 'random_nonce_value'
 
 // Full URL:
-${config?.authorizationEndpoint || 'https://auth.pingone.com/env_id/as/authorize'}?response_type=token&client_id=${config?.clientId || 'your_client_id'}&redirect_uri=${config?.redirectUri || 'https://yourapp.com/callback'}&scope=read%20write&state=random_state_value&nonce=random_nonce_value`,
+${config?.authorizationEndpoint || 'https://auth.pingone.com/env_id/as/authorize'}?response_type=id_token%20token&client_id=${config?.clientId || 'your_client_id'}&redirect_uri=${config?.redirectUri || 'https://yourapp.com/callback'}&scope=openid%20profile%20email&state=random_state_value&nonce=random_nonce_value`,
       execute: () => {
         console.log('🔍 [ImplicitGrantFlow] Step 1 execute called:', {
           hasConfig: !!config,
@@ -306,12 +306,12 @@ window.location.href = authUrl;
           return { error: 'Configuration required' };
         }
         
-        // Generate the authorization URL for Implicit Flow
+        // Generate the authorization URL for OIDC Implicit Flow
         const params = new URLSearchParams({
-          response_type: 'token',
+          response_type: 'id_token token',
           client_id: config.clientId,
           redirect_uri: config.redirectUri,
-          scope: 'read write',
+          scope: 'openid profile email',
           state: Math.random().toString(36).substring(2, 15),
           nonce: Math.random().toString(36).substring(2, 15)
         });
@@ -442,10 +442,10 @@ console.log('User ID:', decodedIdToken.sub);`,
         title={
           <>
             <FiLock />
-            Implicit Grant Flow
+            OIDC Implicit Flow
           </>
         }
-        subtitle="Learn how the Implicit Grant flow works with real API calls to PingOne. This flow is suitable for client-side applications but has security limitations."
+        subtitle="Learn how the OIDC Implicit Flow works with real API calls to PingOne. This flow returns both ID tokens and access tokens but has security limitations."
       />
 
       {flowType && (
@@ -459,9 +459,9 @@ console.log('User ID:', decodedIdToken.sub);`,
         <div>
           <h3>⚠️ Deprecated in OAuth 2.1</h3>
           <p>
-            The Implicit Grant Flow has been deprecated in OAuth 2.1 due to security concerns. 
-            PingOne and most modern OAuth providers no longer support <code>response_type=token</code>. 
-            Use the Authorization Code Flow with PKCE instead for better security.
+            The OAuth 2.0 Implicit Grant Flow has been deprecated in OAuth 2.1 due to security concerns. 
+            This page now demonstrates the OIDC Implicit Flow using <code>response_type=id_token token</code>, 
+            which is still supported but not recommended. Use the Authorization Code Flow with PKCE instead for better security.
           </p>
         </div>
       </DeprecationWarning>
