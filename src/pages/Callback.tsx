@@ -106,10 +106,12 @@ const Callback = () => {
         
         // Check if we already have a redirect path stored (prevents double processing)
         const storedRedirect = localStorage.getItem('oauth_callback_redirect');
-        if (storedRedirect) {
+        const isProcessed = localStorage.getItem('oauth_callback_processed');
+        if (storedRedirect && isProcessed) {
           console.log('🔍 [Callback] Found stored redirect path:', storedRedirect);
           console.log('🔄 [Callback] Navigating to stored redirect path');
           localStorage.removeItem('oauth_callback_redirect');
+          localStorage.removeItem('oauth_callback_processed');
           navigate(storedRedirect, { replace: true });
           return;
         }
@@ -259,12 +261,16 @@ const Callback = () => {
         } else if (flowType === 'implicit-grant') {
           redirectPath = '/flows/implicit-grant';
           console.log('🔄 [Callback] Redirecting back to Implicit Grant Flow page');
+        } else if (flowType === 'oidc-authorization-code') {
+          redirectPath = '/flows/oidc-authorization-code';
+          console.log('🔄 [Callback] Redirecting back to OIDC Authorization Code Flow page');
         } else {
           console.log('🔄 [Callback] No flow type found, redirecting to dashboard');
         }
         
-        // Store the redirect path before clearing the flow type
+        // Store the redirect path and mark as processed to prevent double processing
         localStorage.setItem('oauth_callback_redirect', redirectPath);
+        localStorage.setItem('oauth_callback_processed', 'true');
         
         // Clear the flow type from localStorage
         localStorage.removeItem('oauth_flow_type');
