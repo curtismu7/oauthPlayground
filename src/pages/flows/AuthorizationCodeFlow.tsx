@@ -372,6 +372,14 @@ const AuthorizationCodeFlow = () => {
 
   // If we already have tokens from the real OAuth flow, surface them in the demo
   useEffect(() => {
+    console.log('🔍 [AuthorizationCodeFlow] useEffect triggered:', {
+      hasContextTokens: !!contextTokens,
+      hasTokensReceived: !!tokensReceived,
+      contextTokens: contextTokens ? Object.keys(contextTokens) : null,
+      currentStep,
+      demoStatus
+    });
+    
     if (contextTokens && !tokensReceived) {
       console.log('🔄 [AuthorizationCodeFlow] Detected tokens from context, advancing flow state');
       setTokensReceived(contextTokens as Record<string, unknown> | null);
@@ -392,7 +400,47 @@ const AuthorizationCodeFlow = () => {
         5: { message: 'Tokens exchanged successfully', tokens: contextTokens }
       }));
     }
-  }, [contextTokens, tokensReceived]);
+  }, [contextTokens, tokensReceived, currentStep, demoStatus]);
+
+  // Fallback: Check localStorage directly for tokens if context hasn't updated yet
+  useEffect(() => {
+    const checkForStoredTokens = () => {
+      try {
+        const storedTokens = localStorage.getItem('oauth_tokens');
+        if (storedTokens && !tokensReceived) {
+          const parsedTokens = JSON.parse(storedTokens);
+          console.log('🔄 [AuthorizationCodeFlow] Found tokens in localStorage, advancing flow state');
+          setTokensReceived(parsedTokens);
+          setCurrentStep(5);
+          setDemoStatus('success');
+          setIsLoading(false);
+          
+          // Mark steps as completed
+          setExecutedSteps(new Set([1, 2, 3, 4, 5]));
+          
+          // Set results for completed steps
+          setStepResults(prev => ({
+            ...prev,
+            1: { message: 'Authorization URL generated successfully' },
+            2: { message: 'User redirected to PingOne for authentication' },
+            3: { message: 'User authenticated on PingOne' },
+            4: { message: 'Authorization code received from PingOne' },
+            5: { message: 'Tokens exchanged successfully', tokens: parsedTokens }
+          }));
+        }
+      } catch (error) {
+        console.warn('⚠️ [AuthorizationCodeFlow] Error checking localStorage for tokens:', error);
+      }
+    };
+
+    // Check immediately
+    checkForStoredTokens();
+    
+    // Also check after a short delay in case tokens are being stored asynchronously
+    const timer = setTimeout(checkForStoredTokens, 1000);
+    
+    return () => clearTimeout(timer);
+  }, [tokensReceived]);
 
   // Define steps with real URLs from config
   const steps: FlowStep[] = useMemo(() => [
