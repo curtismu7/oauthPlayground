@@ -79,16 +79,17 @@ const StepActions = styled.div`
 const StepResult = styled.div`
   margin-top: 1rem;
   padding: 1rem;
-  background-color: #1f2937;
-  border: 1px solid #374151;
+  background-color: #ffffff;
+  border: 2px solid #e5e7eb;
   border-radius: 0.5rem;
-  color: #ffffff;
+  color: #1f2937;
   font-family: monospace;
   font-size: 0.875rem;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
   
   h4 {
     margin: 0 0 0.5rem 0;
-    color: #ffffff;
+    color: #1f2937;
     font-size: 1rem;
     font-weight: 600;
   }
@@ -102,8 +103,9 @@ const StepResult = styled.div`
     line-height: inherit;
     white-space: pre-wrap;
     word-break: break-all;
-    overflow: visible;
-    color: #ffffff !important;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    color: #1f2937 !important;
   }
 `;
 
