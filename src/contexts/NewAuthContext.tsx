@@ -432,6 +432,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         {
           grant_type: 'authorization_code',
           client_id: config.clientId,
+          client_secret: config.clientSecret,
           redirect_uri: config.redirectUri,
           code,
           code_verifier: codeVerifier,
@@ -590,18 +591,36 @@ async function exchangeCodeForTokens(
   console.log('🔍 [exchangeCodeForTokens] Token endpoint:', tokenEndpoint);
   console.log('🔍 [exchangeCodeForTokens] Request params:', params);
   
-  // For PKCE flows, PingOne expects NONE authentication method (no client secret)
-  console.log('🔍 [exchangeCodeForTokens] Using PKCE flow - no client authentication required');
+  // Extract client credentials for Basic Auth
+  const clientId = params.client_id;
+  const clientSecret = params.client_secret;
   
-  // Use all params directly for PKCE flows (no client_secret included)
+  console.log('🔍 [exchangeCodeForTokens] Client credentials:', {
+    clientId: clientId ? `${clientId.substring(0, 8)}...` : 'MISSING',
+    clientSecret: clientSecret ? `${clientSecret.substring(0, 8)}...` : 'MISSING',
+    clientIdLength: clientId ? clientId.length : 0,
+    clientSecretLength: clientSecret ? clientSecret.length : 0
+  });
+  
+  // Remove client credentials from body params (they go in Authorization header)
   const bodyParams = { ...params };
+  delete bodyParams.client_id;
+  delete bodyParams.client_secret;
+  
+  // Create Basic Auth header for Client Secret Basic authentication
+  const basicAuth = btoa(`${clientId}:${clientSecret}`);
   
   let headers: Record<string, string> = {
     'Content-Type': 'application/x-www-form-urlencoded',
+    'Authorization': `Basic ${basicAuth}`,
   };
   
+  console.log('🔍 [exchangeCodeForTokens] Using Client Secret Basic authentication');
   console.log('🔍 [exchangeCodeForTokens] Final request body:', new URLSearchParams(bodyParams).toString());
-  console.log('🔍 [exchangeCodeForTokens] Request headers:', headers);
+  console.log('🔍 [exchangeCodeForTokens] Request headers:', {
+    'Content-Type': headers['Content-Type'],
+    'Authorization': `Basic ${basicAuth.substring(0, 20)}...`
+  });
   
   const response = await fetch(tokenEndpoint, {
     method: 'POST',
