@@ -88,9 +88,17 @@ const Callback = () => {
   const [status, setStatus] = useState('processing');
   const [error, setError] = useState('');
   const [hasProcessed, setHasProcessed] = useState(false);
+  
+  console.log('🚀 [Callback] Component mounted/rendered');
+  console.log('🔍 [Callback] Current URL:', window.location.href);
+  console.log('🔍 [Callback] Search params:', searchParams.toString());
 
   useEffect(() => {
     const processCallback = async () => {
+      console.log('🚀 [Callback] processCallback started');
+      console.log('🔍 [Callback] hasProcessed:', hasProcessed);
+      console.log('🔍 [Callback] searchParams:', searchParams.toString());
+      
       // Prevent multiple processing attempts
       if (hasProcessed) {
         console.log('🔄 [Callback] Callback already processed, skipping...');
