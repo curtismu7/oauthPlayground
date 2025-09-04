@@ -482,14 +482,21 @@ window.location.href = authUrl;
         
         // Show the authorization request modal instead of redirecting immediately
         setPendingAuthUrl(authorizationUrl);
-        setPendingRequestParams({
+        const requestParams: Record<string, string> = {
           client_id: config.clientId,
           redirect_uri: config.redirectUri,
           response_type: 'code',
           scope: 'openid profile email',
           state: Math.random().toString(36).substring(2, 15),
           nonce: Math.random().toString(36).substring(2, 15)
-        });
+        };
+
+        // Add login_hint if provided
+        if (config.loginHint) {
+          requestParams.login_hint = config.loginHint;
+        }
+
+        setPendingRequestParams(requestParams);
         setShowAuthModal(true);
         // Don't return result - execute should return void
       }
