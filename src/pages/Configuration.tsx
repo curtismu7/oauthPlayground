@@ -213,7 +213,7 @@ const Configuration = () => {
     // Authentication method configuration
     usePKCE: true,
     authenticationMethod: 'pkce', // 'pkce' or 'client_secret_basic'
-    applicationType: 'spa', // 'spa' or 'confidential'
+    applicationType: 'spa', // 'spa' or 'backend'
   });
   
   const [errors, setErrors] = useState({});
@@ -252,7 +252,7 @@ const Configuration = () => {
         if (value === 'spa') {
           newData.authenticationMethod = 'pkce';
           newData.usePKCE = true;
-        } else if (value === 'confidential') {
+        } else if (value === 'backend') {
           newData.authenticationMethod = 'client_secret_basic';
           newData.usePKCE = false;
         }
@@ -264,7 +264,7 @@ const Configuration = () => {
           newData.applicationType = 'spa';
           newData.usePKCE = true;
         } else if (value === 'client_secret_basic') {
-          newData.applicationType = 'confidential';
+          newData.applicationType = 'backend';
           newData.usePKCE = false;
         }
       }
@@ -543,10 +543,10 @@ const Configuration = () => {
                 onChange={handleChange}
               >
                 <option value="spa">Single Page Application (SPA)</option>
-                <option value="confidential">Confidential Application</option>
+                <option value="backend">Backend Application</option>
               </select>
               <div className="form-text">
-                Choose based on your PingOne application configuration. SPA uses PKCE, Confidential uses Client Secret Basic.
+                Choose based on your PingOne application configuration. SPA uses PKCE, Backend uses Client Secret Basic.
               </div>
             </FormGroup>
             
@@ -562,7 +562,7 @@ const Configuration = () => {
                 <option value="client_secret_basic">Client Secret Basic</option>
               </select>
               <div className="form-text">
-                PKCE is recommended for SPAs. Client Secret Basic is for confidential applications.
+                PKCE is recommended for SPAs. Client Secret Basic is for backend applications.
               </div>
             </FormGroup>
             
