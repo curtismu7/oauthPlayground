@@ -585,13 +585,20 @@ window.location.href = authUrl;
         const state = Math.random().toString(36).substring(2, 15);
         const nonce = Math.random().toString(36).substring(2, 15);
         
-        // Store state and nonce using oauthStorage (same as NewAuthContext expects)
+        // Generate PKCE code verifier and challenge
+        const codeVerifier = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        const codeChallenge = btoa(codeVerifier).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+        
+        // Store all PKCE parameters using oauthStorage (same as NewAuthContext expects)
         oauthStorage.setState(state);
         oauthStorage.setNonce(nonce);
+        oauthStorage.setCodeVerifier(codeVerifier);
         
-        console.log('🔍 [AuthCodeFlow] Stored state and nonce in oauthStorage:', {
+        console.log('🔍 [AuthCodeFlow] Stored PKCE parameters in oauthStorage:', {
           state: state.substring(0, 8) + '...',
-          nonce: nonce.substring(0, 8) + '...'
+          nonce: nonce.substring(0, 8) + '...',
+          codeVerifier: codeVerifier.substring(0, 8) + '...',
+          codeChallenge: codeChallenge.substring(0, 8) + '...'
         });
         
         const params = new URLSearchParams({
@@ -600,12 +607,13 @@ window.location.href = authUrl;
           response_type: 'code',
           scope: 'openid profile email', // OIDC scope
           state: state,
-          nonce: nonce // OIDC nonce
+          nonce: nonce, // OIDC nonce
+          code_challenge: codeChallenge,
+          code_challenge_method: 'S256'
         });
         
-        // Only add PKCE if we have a real code challenge
-        // For now, let's use a simple authorization code flow without PKCE
-        console.log('🔍 [AuthCodeFlow] Using Authorization Code Flow without PKCE for simplicity');
+        // Using PKCE for enhanced security
+        console.log('🔍 [AuthCodeFlow] Using Authorization Code Flow with PKCE');
         
         const authorizationUrl = `${config.authorizationEndpoint}?${params.toString()}`;
         console.log('✅ [AuthCodeFlow] Generated authorization URL:', authorizationUrl);
