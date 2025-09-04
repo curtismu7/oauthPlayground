@@ -604,6 +604,7 @@ window.location.href = authUrl;
         
         // Store the flow type so callback knows where to redirect back
         localStorage.setItem('oauth_flow_type', 'authorization-code');
+        console.log('🔍 [AuthorizationCodeFlow] Set oauth_flow_type to authorization-code in localStorage');
         
         // Show the authorization request modal instead of redirecting immediately
         setPendingAuthUrl(authorizationUrl);
