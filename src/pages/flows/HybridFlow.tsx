@@ -294,7 +294,8 @@ const hashParams = new URLSearchParams(window.location.hash.substring(1));
 const code = urlParams.get('code');
 const accessToken = hashParams.get('access_token');
 const idToken = hashParams.get('id_token');`,
-      execute: () => {// Simulate receiving code and tokens in redirect
+      execute: () => {
+        // Simulate receiving code and tokens in redirect
         const mockParams = {
           code: 'hybrid-auth-code-' + Math.random().toString(36).substr(2, 9),
           state: 'xyz123',
@@ -303,7 +304,7 @@ const idToken = hashParams.get('id_token');`,
           token_type: 'Bearer',
           expires_in: 3600,
           scope: 'openid profile email'
-        return { message: 'Step completed' };};
+        };
 
         setRedirectParams(mockParams);
         const result = {
