@@ -138,7 +138,7 @@ const ErrorMessage = styled.div`
 `;
 
 const ImplicitGrantFlow = () => {
-  const { config } = useAuth();
+  const { config, tokens: contextTokens } = useAuth();
   const [demoStatus, setDemoStatus] = useState('idle');
   
   // Debug configuration loading
@@ -153,6 +153,48 @@ const ImplicitGrantFlow = () => {
       redirectUri: config.redirectUri
     } : null
   });
+
+  // Check for existing tokens immediately on component mount
+  useEffect(() => {
+    console.log('🚀 [ImplicitGrantFlow] Component mounted - checking for existing tokens');
+    
+    // Check context tokens first
+    if (contextTokens && !tokensReceived) {
+      console.log('✅ [ImplicitGrantFlow] Found context tokens on mount');
+      setTokensReceived(contextTokens as Record<string, unknown> | null);
+      setCurrentStep(3);
+      setDemoStatus('success');
+      setIsLoading(false);
+      setExecutedSteps(new Set([1, 2, 3]));
+      setStepResults({
+        1: { message: 'Authorization URL generated successfully' },
+        2: { message: 'User redirected to PingOne for authentication' },
+        3: { message: 'User authenticated and tokens received from PingOne', tokens: contextTokens }
+      });
+      return;
+    }
+    
+    // Fallback: Check sessionStorage
+    try {
+      const storedTokens = sessionStorage.getItem('pingone_playground_tokens');
+      if (storedTokens && !tokensReceived) {
+        const parsedTokens = JSON.parse(storedTokens);
+        console.log('✅ [ImplicitGrantFlow] Found sessionStorage tokens on mount');
+        setTokensReceived(parsedTokens);
+        setCurrentStep(3);
+        setDemoStatus('success');
+        setIsLoading(false);
+        setExecutedSteps(new Set([1, 2, 3]));
+        setStepResults({
+          1: { message: 'Authorization URL generated successfully' },
+          2: { message: 'User redirected to PingOne for authentication' },
+          3: { message: 'User authenticated and tokens received from PingOne', tokens: parsedTokens }
+        });
+      }
+    } catch (error) {
+      console.warn('⚠️ [ImplicitGrantFlow] Error checking sessionStorage on mount:', error);
+    }
+  }, []); // Run only on mount
 
   const [currentStep, setCurrentStep] = useState(0);
   const [authUrl, setAuthUrl] = useState('');
@@ -175,7 +217,8 @@ const ImplicitGrantFlow = () => {
       hasTokensReceived: !!tokensReceived,
       contextTokens: contextTokens ? Object.keys(contextTokens) : null,
       currentStep,
-      demoStatus
+      demoStatus,
+      executedStepsSize: executedSteps.size
     });
     
     if (contextTokens && !tokensReceived) {
@@ -195,8 +238,10 @@ const ImplicitGrantFlow = () => {
         2: { message: 'User redirected to PingOne for authentication' },
         3: { message: 'User authenticated and tokens received from PingOne', tokens: contextTokens }
       }));
+      
+      console.log('✅ [ImplicitGrantFlow] Flow state updated - steps 1-3 marked as completed');
     }
-  }, [contextTokens, tokensReceived, currentStep, demoStatus]);
+  }, [contextTokens, tokensReceived, currentStep, demoStatus, executedSteps.size]);
 
   // Fallback: Check sessionStorage directly for tokens if context hasn't updated yet
   useEffect(() => {
@@ -222,6 +267,8 @@ const ImplicitGrantFlow = () => {
             2: { message: 'User redirected to PingOne for authentication' },
             3: { message: 'User authenticated and tokens received from PingOne', tokens: parsedTokens }
           }));
+          
+          console.log('✅ [ImplicitGrantFlow] SessionStorage fallback - flow state updated with steps 1-3 completed');
         }
       } catch (error) {
         console.warn('⚠️ [ImplicitGrantFlow] Error checking sessionStorage for tokens:', error);
