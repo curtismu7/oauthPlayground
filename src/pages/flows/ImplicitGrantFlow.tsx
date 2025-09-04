@@ -7,7 +7,7 @@ import { ColorCodedURL } from '../../components/ColorCodedURL';
 import { URLParamExplainer } from '../../components/URLParamExplainer';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import ConfigurationButton from '../../components/ConfigurationButton';
-import { storeOAuthTokens } from '../../utils/tokenStorage';
+import { storeOAuthTokens, clearOAuthTokens } from '../../utils/tokenStorage';
 import TokenDisplayComponent from '../../components/TokenDisplay';
 import PageTitle from '../../components/PageTitle';
 import FlowBadge from '../../components/FlowBadge';
@@ -138,7 +138,7 @@ const ErrorMessage = styled.div`
 `;
 
 const ImplicitGrantFlow = () => {
-  const { config, tokens: contextTokens } = useAuth();
+  const { config, tokens: contextTokens, updateTokens } = useAuth();
   const [demoStatus, setDemoStatus] = useState('idle');
   
   // Debug configuration loading
@@ -350,6 +350,18 @@ const ImplicitGrantFlow = () => {
     setShowAuthModal(false);
     setPendingAuthUrl('');
     setPendingRequestParams({});
+    
+    // Clear tokens from storage and context
+    clearOAuthTokens();
+    updateTokens(null);
+    
+    // Clear sessionStorage tokens as well
+    try {
+      sessionStorage.removeItem('pingone_playground_tokens');
+      console.log('✅ [ImplicitGrantFlow] Cleared sessionStorage tokens');
+    } catch (error) {
+      console.warn('⚠️ [ImplicitGrantFlow] Error clearing sessionStorage tokens:', error);
+    }
   };
 
   const handleStepResult = (stepIndex: number, result: any) => {

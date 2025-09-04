@@ -872,10 +872,14 @@ grant_type=authorization_code
 
 
   const resetDemo = () => {
+    console.log('🔄 [AuthCodeFlow] Reset button clicked - resetting all state');
     setDemoStatus('idle');
     setCurrentStep(0);
     setTokensReceived(null);
     setError('');
+    setAuthCode('');
+    setAuthUrl('');
+    setIsLoading(false);
     setStepResults({});
     setExecutedSteps(new Set());
     setStepsWithResults([]);
