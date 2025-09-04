@@ -3,20 +3,22 @@
 ## Current Issue
 The Authorization Code Flow with PKCE is failing with the error:
 ```
-"Request denied: Unsupported authentication method"
+"Request denied: Invalid client credentials"
 ```
 
 ## Root Cause
-Your PingOne application is configured with the wrong `tokenEndpointAuthMethod`. For PKCE flows, this must be set to `NONE`.
+Your PingOne application is configured as a confidential client, but it should be a **public client** for browser-based SPAs with PKCE.
 
 ## Required Configuration Changes
 
-### 1. Update Token Endpoint Authentication Method
+### 1. Update Application Type and Authentication Method
 
 **Current Setting (WRONG):**
+- Application Type: Confidential Client
 - Token Auth Method: `Client Secret Basic`
 
 **Required Setting (CORRECT):**
+- Application Type: `Single-Page Application (SPA)` or `Public Client`
 - Token Auth Method: `NONE`
 
 ### 2. Steps to Fix in PingOne Admin Console
@@ -32,10 +34,9 @@ Your PingOne application is configured with the wrong `tokenEndpointAuthMethod`.
    - Click on the application to edit it
    - Go to the "Configuration" or "Settings" tab
 
-4. **Update Token Endpoint Authentication Method**
-   - Find the "Token Endpoint Authentication Method" setting
-   - Change it from "Client Secret Basic" to "NONE"
-   - Save the changes
+4. **Update Application Type**
+   - Change "Application Type" to "Single-Page Application (SPA)" or "Public Client"
+   - This will automatically set the Token Endpoint Authentication Method to "NONE"
 
 5. **Verify Other Settings**
    - Ensure "Grant Types" includes "Authorization Code"
@@ -45,7 +46,7 @@ Your PingOne application is configured with the wrong `tokenEndpointAuthMethod`.
 ### 3. Expected Application Configuration
 
 ```
-Application Type: Single Page Application (SPA) or Native
+Application Type: Single-Page Application (SPA)
 Grant Types: Authorization Code
 Token Endpoint Authentication Method: NONE
 PKCE Enforcement: Required (or S256 Required)
@@ -54,10 +55,11 @@ Redirect URIs: https://localhost:3000/callback
 
 ## Why This Change is Required
 
-For PKCE (Proof Key for Code Exchange) flows:
-- The security comes from the `code_verifier` and `code_challenge` parameters
+For browser-based SPAs with PKCE (Proof Key for Code Exchange):
+- **Public clients** cannot securely store client secrets in the browser
+- Security comes from the `code_verifier` and `code_challenge` parameters
 - No client secret is needed or should be used
-- The `tokenEndpointAuthMethod` must be `NONE` to match this security model
+- The `tokenEndpointAuthMethod` must be `NONE` for public clients
 
 ## After Making the Change
 
@@ -75,7 +77,8 @@ After updating the configuration, the token request will include:
 - `code_verifier=<pkce_code_verifier>`
 
 And will NOT include:
-- `client_secret` (this is the key change)
+- `client_secret` (not used for public clients)
+- `Authorization` header (not needed for public clients)
 
 ## Troubleshooting
 
