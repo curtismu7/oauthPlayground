@@ -432,7 +432,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         {
           grant_type: 'authorization_code',
           client_id: config.clientId,
-          client_secret: config.clientSecret,
           redirect_uri: config.redirectUri,
           code,
           code_verifier: codeVerifier,
@@ -591,58 +590,23 @@ async function exchangeCodeForTokens(
   console.log('🔍 [exchangeCodeForTokens] Token endpoint:', tokenEndpoint);
   console.log('🔍 [exchangeCodeForTokens] Request params:', params);
   
-  // Extract client credentials for Basic Auth
-  const clientId = params.client_id;
-  const clientSecret = params.client_secret;
+  // For public clients with PKCE, no client secret is used
+  console.log('🔍 [exchangeCodeForTokens] Using Public Client authentication (PKCE)');
+  console.log('🔍 [exchangeCodeForTokens] Client ID:', params.client_id);
+  console.log('🔍 [exchangeCodeForTokens] No client secret required for public clients');
   
-  console.log('🔍 [exchangeCodeForTokens] Client ID:', clientId);
-  console.log('🔍 [exchangeCodeForTokens] Client ID length:', clientId ? clientId.length : 0);
-  console.log('🔍 [exchangeCodeForTokens] Client Secret length:', clientSecret ? clientSecret.length : 0);
-  console.log('🔍 [exchangeCodeForTokens] Client Secret first 50 chars:', clientSecret ? clientSecret.substring(0, 50) : 'MISSING');
-  console.log('🔍 [exchangeCodeForTokens] Client Secret last 50 chars:', clientSecret ? clientSecret.substring(clientSecret.length - 50) : 'MISSING');
-  
-  // Debug: Check if client secret might be Base64 encoded or have format issues
-  if (clientSecret) {
-    console.log('🔍 [exchangeCodeForTokens] Client secret analysis:');
-    console.log('  - Length:', clientSecret.length);
-    console.log('  - Is Base64 format:', /^[A-Za-z0-9+/=]+$/.test(clientSecret));
-    console.log('  - Has special chars:', /[^A-Za-z0-9+/=]/.test(clientSecret));
-    console.log('  - Ends with equals:', clientSecret.endsWith('='));
-    console.log('  - First 20 chars:', clientSecret.substring(0, 20));
-    console.log('  - Last 20 chars:', clientSecret.substring(clientSecret.length - 20));
-  }
-  
-  // Remove client credentials from body params (they go in Authorization header)
+  // Use all params directly for public client (client_id stays in body, no client_secret)
   const bodyParams = { ...params };
-  delete bodyParams.client_id;
-  delete bodyParams.client_secret;
-  
-  // Create Basic Auth header for Client Secret Basic authentication
-  const credentials = `${clientId}:${clientSecret}`;
-  const basicAuth = btoa(credentials);
   
   let headers: Record<string, string> = {
     'Content-Type': 'application/x-www-form-urlencoded',
-    'Authorization': `Basic ${basicAuth}`,
+    // NO Authorization header for public clients
   };
-  
-  console.log('🔍 [exchangeCodeForTokens] Using Client Secret Basic authentication');
-  console.log('🔍 [exchangeCodeForTokens] Credentials string length:', credentials.length);
-  console.log('🔍 [exchangeCodeForTokens] Basic auth header length:', basicAuth.length);
-  
-  // Debug: Decode the Basic Auth header to verify it's correct
-  try {
-    const decoded = atob(basicAuth);
-    console.log('🔍 [exchangeCodeForTokens] Decoded Basic Auth:', decoded.substring(0, 50) + '...');
-    console.log('🔍 [exchangeCodeForTokens] Decoded length:', decoded.length);
-  } catch (e) {
-    console.error('❌ [exchangeCodeForTokens] Failed to decode Basic Auth:', e);
-  }
   
   console.log('🔍 [exchangeCodeForTokens] Final request body:', new URLSearchParams(bodyParams).toString());
   console.log('🔍 [exchangeCodeForTokens] Request headers:');
   console.log('  - Content-Type:', headers['Content-Type']);
-  console.log('  - Authorization:', `Basic ${basicAuth.substring(0, 50)}...`);
+  console.log('  - Authorization:', 'NONE (public client)');
   
   const response = await fetch(tokenEndpoint, {
     method: 'POST',
