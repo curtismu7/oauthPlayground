@@ -200,8 +200,8 @@ const DemoSteps = styled.div`
 `;
 
 interface DemoStepStyledProps {
-  active: boolean;
-  completed: boolean;
+  $active: boolean;
+  $completed: boolean;
 }
 
 const DemoStep = styled.div<DemoStepStyledProps>`
@@ -211,20 +211,20 @@ const DemoStep = styled.div<DemoStepStyledProps>`
   margin-bottom: 1rem;
   padding: 1rem;
   border-radius: 0.5rem;
-  background-color: ${({ active, completed }) => {
-    if (completed) return 'rgba(34, 197, 94, 0.1)';
-    if (active) return 'rgba(59, 130, 246, 0.1)';
+  background-color: ${({ $active, $completed }) => {
+    if ($completed) return 'rgba(34, 197, 94, 0.1)';
+    if ($active) return 'rgba(59, 130, 246, 0.1)';
     return 'transparent';
   }};
   border: 2px solid
-    ${({ active, completed, theme }) => {
-      if (completed) return theme.colors.success;
-      if (active) return theme.colors.primary;
+    ${({ $active, $completed, theme }) => {
+      if ($completed) return theme.colors.success;
+      if ($active) return theme.colors.primary;
       return 'transparent';
     }};
 `;
 
-const StepNumber = styled.div<{ active: boolean; completed: boolean }>`
+const StepNumber = styled.div<{ $active: boolean; $completed: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -235,8 +235,8 @@ const StepNumber = styled.div<{ active: boolean; completed: boolean }>`
   font-size: 0.875rem;
   flex-shrink: 0;
   
-  ${({ active, completed }) => {
-    if (completed) {
+  ${({ $active, $completed }) => {
+    if ($completed) {
       return `
         background-color: #22c55e;
         color: white;
@@ -838,12 +838,12 @@ const OAuthFlows = () => {
               {selectedFlow.steps.map((step: OAuthFlow['steps'][number], index: number) => (
                 <DemoStep
                   key={index}
-                  active={currentStep === index && demoStatus === 'loading'}
-                  completed={currentStep > index}
+                  $active={currentStep === index && demoStatus === 'loading'}
+                  $completed={currentStep > index}
                 >
                   <StepNumber
-                    active={currentStep === index && demoStatus === 'loading'}
-                    completed={currentStep > index}
+                    $active={currentStep === index && demoStatus === 'loading'}
+                    $completed={currentStep > index}
                   >
                     {index + 1}
                   </StepNumber>
