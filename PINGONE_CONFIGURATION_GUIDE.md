@@ -40,7 +40,7 @@ Your PingOne application is configured as a confidential client, but it should b
 
 5. **Verify Other Settings**
    - Ensure "Grant Types" includes "Authorization Code"
-   - Ensure "PKCE Enforcement" is set to "REQUIRED" (not S256_REQUIRED)
+   - Ensure "PKCE Enforcement" is set to "Required" or "S256 Required"
    - Ensure "Redirect URIs" includes: `https://localhost:3000/callback`
 
 ### 3. Expected Application Configuration
@@ -49,7 +49,7 @@ Your PingOne application is configured as a confidential client, but it should b
 Application Type: Single-Page Application (SPA)
 Grant Types: Authorization Code
 Token Endpoint Authentication Method: NONE
-PKCE Enforcement: REQUIRED
+PKCE Enforcement: Required (or S256 Required)
 Redirect URIs: https://localhost:3000/callback
 ```
 

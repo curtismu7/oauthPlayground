@@ -9,6 +9,8 @@ import ColorCodedURL from '../../components/ColorCodedURL';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 import { FlowConfiguration, type FlowConfig } from '../../components/FlowConfiguration';
 import { getDefaultConfig, validatePingOneConfig } from '../../utils/flowConfigDefaults';
+import FlowCredentials from '../../components/FlowCredentials';
+import { EffectiveConfig } from '../../utils/configStore';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -121,7 +123,7 @@ const ResponseBox = styled.div<{ $backgroundColor?: string; $borderColor?: strin
     font-family: inherit;
     font-size: 1rem;
     font-weight: 600;
-    color: #f9fafb;
+    color: #1f2937;
   }
 
   pre {
@@ -177,6 +179,7 @@ const HybridFlow: React.FC = () => {
   const [stepResults, setStepResults] = useState<Record<number, any>>({});
   const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
   const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
+  const [effectiveConfig, setEffectiveConfig] = useState<EffectiveConfig | null>(null);
 
   const generateAuthUrl = () => {
     if (!config) return '';
@@ -187,13 +190,17 @@ const HybridFlow: React.FC = () => {
       response_type: flowConfig.responseType,
       scope: flowConfig.scopes.join(' '),
       state: flowConfig.state,
-      nonce: flowConfig.nonce,
-      code_challenge: 'mock_code_challenge', // In real implementation, generate proper PKCE
-      code_challenge_method: flowConfig.codeChallengeMethod
+      nonce: flowConfig.nonce
     });
 
     // Add response_mode=fragment for hybrid flows
     params.append('response_mode', 'fragment');
+    
+    // Add PKCE parameters if enabled
+    if (flowConfig.enablePKCE) {
+      params.append('code_challenge', 'YOUR_CODE_CHALLENGE'); // In real implementation, generate proper PKCE
+      params.append('code_challenge_method', flowConfig.codeChallengeMethod || 'S256');
+    }
 
     // Add optional parameters
     if (flowConfig.maxAge > 0) {
@@ -207,6 +214,13 @@ const HybridFlow: React.FC = () => {
     }
     if (flowConfig.acrValues.length > 0) {
       params.append('acr_values', flowConfig.acrValues.join(' '));
+    }
+    
+    // Add custom parameters
+    if (Object.keys(flowConfig.customParams).length > 0) {
+      Object.entries(flowConfig.customParams).forEach(([key, value]) => {
+        params.append(key, value);
+      });
     }
 
     return `${config.authorizationEndpoint || config.authEndpoint || ''}?${params.toString()}`;
@@ -265,7 +279,8 @@ const HybridFlow: React.FC = () => {
   &max_age=${flowConfig.maxAge}` : ''}${flowConfig.prompt ? `
   &prompt=${flowConfig.prompt}` : ''}${flowConfig.loginHint ? `
   &login_hint=${flowConfig.loginHint}` : ''}${flowConfig.acrValues.length > 0 ? `
-  &acr_values=${flowConfig.acrValues.join(' ')}` : ''}`,
+  &acr_values=${flowConfig.acrValues.join(' ')}` : ''}${Object.keys(flowConfig.customParams).length > 0 ? `
+  ${Object.entries(flowConfig.customParams).map(([k, v]) => `&${k}=${v}`).join('\n  ')}` : ''}`,
       execute: () => {
         if (!config) {
           setError('Configuration required. Please configure your PingOne settings first.');
@@ -292,19 +307,24 @@ ${config?.redirectUri || 'https://your-app.com/callback'}?
 #access_token=eyJhbGciOiJSUzI1NiIs...
 &id_token=eyJhbGciOiJSUzI1NiIs...`,
       execute: () => {
-        if (!authUrl) {
+        // Generate auth URL if not available
+        const url = authUrl || generateAuthUrl();
+        if (!url) {
           setError('Authorization URL not available. Please complete step 1 first.');
           return { error: 'Authorization URL not available' };
         }
         
         console.log('✅ [HybridFlow] Redirecting user to PingOne for authentication');
-        const result = { message: 'Redirecting to authorization server...' };
+        const result = { message: 'Redirecting to authorization server...', url };
         setStepResults(prev => ({ ...prev, 1: result }));
         setExecutedSteps(prev => new Set(prev).add(1));
         
+        // Store the flow type for redirect after callback
+        localStorage.setItem('oauth_flow_type', 'hybrid');
+        
         // Actually redirect to PingOne
         setTimeout(() => {
-          window.location.href = authUrl;
+          window.location.href = url;
         }, 1000); // Small delay to show the message
         
         return result;
@@ -581,6 +601,12 @@ if (Date.now() / 1000 > payload.exp) {
           </SecurityHighlight>
         </CardBody>
       </FlowOverview>
+
+      {/* Flow Credentials Configuration */}
+      <FlowCredentials 
+        flowType="hybrid"
+        onConfigChange={setEffectiveConfig}
+      />
 
       {/* Flow Configuration */}
       {showConfig && (

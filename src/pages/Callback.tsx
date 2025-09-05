@@ -137,8 +137,10 @@ const Callback: React.FC = () => {
           setMessage('Authentication successful! Redirecting...');
           
           // Determine redirect destination
-          const flowType = localStorage.getItem('oauth_flow_type');
-          console.log('🔍 [Callback] Flow type from localStorage:', flowType);
+          const flowType = localStorage.getItem('oauth_flow_type') || sessionStorage.getItem('oauth_flow_type');
+          console.log('🔍 [Callback] Flow type from localStorage:', localStorage.getItem('oauth_flow_type'));
+          console.log('🔍 [Callback] Flow type from sessionStorage:', sessionStorage.getItem('oauth_flow_type'));
+          console.log('🔍 [Callback] Final flow type:', flowType);
           
           let redirectPath = '/dashboard'; // default
           
@@ -152,12 +154,17 @@ const Callback: React.FC = () => {
             redirectPath = '/flows/client-credentials';
           } else if (flowType === 'device-code') {
             redirectPath = '/flows/device-code';
+          } else if (flowType === 'hybrid') {
+            redirectPath = '/oidc/hybrid';
+          } else if (flowType === 'oidc-authorization-code') {
+            redirectPath = '/oidc/authorization-code';
           }
           
           console.log('🔄 [Callback] Redirecting to:', redirectPath);
           
-          // Clear the flow type
+          // Clear the flow type from both storages
           localStorage.removeItem('oauth_flow_type');
+          sessionStorage.removeItem('oauth_flow_type');
           
           // Redirect after a short delay
           setTimeout(() => {
@@ -169,9 +176,12 @@ const Callback: React.FC = () => {
         }
 
       } catch (err) {
+        const currentUrl = window.location.href;
         console.error('❌ [Callback] Error processing callback:', err);
+        console.error('❌ [Callback] URL that caused the error:', currentUrl);
         setStatus('error');
-        setError(err instanceof Error ? err.message : 'Authentication failed');
+        const errorMessage = err instanceof Error ? err.message : 'Authentication failed';
+        setError(`${errorMessage}\n\nURL: ${currentUrl}`);
         setMessage('Authentication failed');
         // Don't auto-redirect - let user read the error and click OK
       }

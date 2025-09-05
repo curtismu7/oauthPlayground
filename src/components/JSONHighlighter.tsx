@@ -21,7 +21,7 @@ const JSONHighlighter: React.FC<JSONHighlighterProps> = ({ jsonString, className
         if (match) {
           const [, indent, key, value] = match;
           return (
-            <div key={lineIndex}>
+            <div key={lineIndex} style={{ wordBreak: 'break-all', overflowWrap: 'break-word' }}>
               <span style={{ color: '#1f2937' }}>{indent}</span>
               <span style={{ color: '#1f2937' }}>"</span>
               <span style={{ color: '#2563eb', fontWeight: '600' }}>{key}</span>
@@ -38,7 +38,7 @@ const JSONHighlighter: React.FC<JSONHighlighterProps> = ({ jsonString, className
         if (bracketMatch) {
           const [, indent, bracket, rest] = bracketMatch;
           return (
-            <div key={lineIndex}>
+            <div key={lineIndex} style={{ wordBreak: 'break-all', overflowWrap: 'break-word' }}>
               <span style={{ color: '#1f2937' }}>{indent}</span>
               <span style={{ color: '#6b7280', fontWeight: '600' }}>{bracket}</span>
               <span style={{ color: '#1f2937' }}>{rest}</span>
@@ -49,7 +49,7 @@ const JSONHighlighter: React.FC<JSONHighlighterProps> = ({ jsonString, className
         // Handle commas
         if (line.includes(',')) {
           return (
-            <div key={lineIndex} style={{ color: '#6b7280' }}>
+            <div key={lineIndex} style={{ color: '#6b7280', wordBreak: 'break-all', overflowWrap: 'break-word' }}>
               {line}
             </div>
           );
@@ -57,18 +57,34 @@ const JSONHighlighter: React.FC<JSONHighlighterProps> = ({ jsonString, className
         
         // Default styling for other lines
         return (
-          <div key={lineIndex} style={{ color: '#1f2937' }}>
+          <div key={lineIndex} style={{ color: '#1f2937', wordBreak: 'break-all', overflowWrap: 'break-word' }}>
             {line}
           </div>
         );
       });
     } catch (error) {
       // If JSON parsing fails, return the original string
-      return <div style={{ color: '#dc2626' }}>{jsonString}</div>;
+      return <div style={{ color: '#dc2626', wordBreak: 'break-all', overflowWrap: 'break-word' }}>{jsonString}</div>;
     }
   };
 
-  return <div className={className}>{highlightJSON(jsonString)}</div>;
+  return (
+    <div 
+      className={className}
+      style={{
+        wordBreak: 'break-all',
+        overflowWrap: 'break-word',
+        whiteSpace: 'pre-wrap',
+        maxWidth: '100%',
+        overflow: 'hidden'
+      }}
+    >
+      {highlightJSON(jsonString)}
+    </div>
+  );
 };
 
 export default JSONHighlighter;
+
+
+

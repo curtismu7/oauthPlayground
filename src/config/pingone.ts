@@ -40,7 +40,7 @@ export interface PingOneConfig {
 export const appConfig = {
   title: (window as any).__PINGONE_APP_TITLE__ || 'PingOne OAuth Playground',
   description: (window as any).__PINGONE_APP_DESCRIPTION__ || 'Interactive playground for OAuth 2.0 and OpenID Connect with PingOne',
-  version: (window as any).__PINGONE_APP_VERSION__ || '1.0.0',
+  version: (window as any).__PINGONE_APP_VERSION__ || '3.4.0',
   defaultTheme: (window as any).__PINGONE_APP_DEFAULT_THEME__ || 'light',
   devServer: {
     port: parseInt((window as any).__PINGONE_DEV_SERVER_PORT__ || '3000'),
@@ -82,9 +82,8 @@ export const pingOneConfig: PingOneConfig = {
 
 // OAuth 2.0 PKCE Configuration
 export const PKCE_CONFIG = {
-  codeChallengeMethod: 'S256', // Always use S256 for security, even with REQUIRED enforcement
+  codeChallengeMethod: 'S256',
   codeVerifierLength: 64,
-  enforcement: 'REQUIRED', // Default PKCE enforcement level
 };
 
 // Default OAuth scopes

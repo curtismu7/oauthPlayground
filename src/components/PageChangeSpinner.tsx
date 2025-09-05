@@ -110,7 +110,7 @@ const PageChangeSpinner: React.FC<PageChangeSpinnerProps> = ({
   // Ensure minimum display time
   useEffect(() => {
     if (isVisible && startTime) {
-      const minDisplayTime = 800; // 800ms minimum
+      const minDisplayTime = 500; // 500ms minimum
       const elapsed = Date.now() - startTime;
       
       if (elapsed < minDisplayTime) {

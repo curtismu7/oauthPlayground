@@ -14,7 +14,10 @@ const generateRandomString = (length: number) => {
 export const getAuthorizationCodeConfig = (): FlowConfig => ({
   scopes: ['openid', 'profile', 'email'],
   responseType: 'code',
+  responseMode: 'query', // Authorization Code Flow uses query mode
   grantType: 'authorization_code',
+  applicationType: 'spa',
+  authenticationMethod: 'none', // PKCE is handled separately
   enablePKCE: true,
   codeChallengeMethod: 'S256',
   customParams: {},
@@ -26,14 +29,26 @@ export const getAuthorizationCodeConfig = (): FlowConfig => ({
   maxAge: 0,
   prompt: '',
   loginHint: '',
-  acrValues: ['urn:pingone:loa:1']
+  acrValues: ['urn:pingone:loa:1'],
+  accessTokenLifetime: 60,
+  refreshTokenLifetime: 10080,
+  idTokenLifetime: 60,
+  allowedOrigins: ['https://localhost:3000'],
+  jwksMethod: 'jwks_url',
+  jwksUrl: '',
+  jwks: '',
+  requirePar: false,
+  parTimeout: 60
 });
 
 // Default configuration for PKCE Flow
 export const getPKCEConfig = (): FlowConfig => ({
   scopes: ['openid', 'profile', 'email'],
   responseType: 'code',
+  responseMode: 'query', // PKCE Flow uses query mode
   grantType: 'authorization_code',
+  applicationType: 'spa',
+  authenticationMethod: 'none', // PKCE is handled separately
   enablePKCE: true,
   codeChallengeMethod: 'S256',
   customParams: {},
@@ -45,14 +60,26 @@ export const getPKCEConfig = (): FlowConfig => ({
   maxAge: 0,
   prompt: '',
   loginHint: '',
-  acrValues: ['urn:pingone:loa:1']
+  acrValues: ['urn:pingone:loa:1'],
+  accessTokenLifetime: 60,
+  refreshTokenLifetime: 10080,
+  idTokenLifetime: 60,
+  allowedOrigins: ['https://localhost:3000'],
+  jwksMethod: 'jwks_url',
+  jwksUrl: '',
+  jwks: '',
+  requirePar: false,
+  parTimeout: 60
 });
 
 // Default configuration for Implicit Flow
 export const getImplicitConfig = (): FlowConfig => ({
   scopes: ['openid', 'profile', 'email'],
-  responseType: 'token',
+  responseType: 'id_token token', // OIDC Implicit Flow
+  responseMode: 'fragment', // Implicit Flow uses fragment mode
   grantType: 'implicit',
+  applicationType: 'spa',
+  authenticationMethod: 'none', // PKCE is handled separately
   enablePKCE: false,
   codeChallengeMethod: 'S256',
   customParams: {},
@@ -64,14 +91,26 @@ export const getImplicitConfig = (): FlowConfig => ({
   maxAge: 0,
   prompt: '',
   loginHint: '',
-  acrValues: ['urn:pingone:loa:1']
+  acrValues: ['urn:pingone:loa:1'],
+  accessTokenLifetime: 60,
+  refreshTokenLifetime: 10080,
+  idTokenLifetime: 60,
+  allowedOrigins: ['https://localhost:3000'],
+  jwksMethod: 'jwks_url',
+  jwksUrl: '',
+  jwks: '',
+  requirePar: false,
+  parTimeout: 60
 });
 
 // Default configuration for Client Credentials Flow
 export const getClientCredentialsConfig = (): FlowConfig => ({
   scopes: ['api:read', 'api:write'],
   responseType: '',
+  responseMode: 'query',
   grantType: 'client_credentials',
+  applicationType: 'backend',
+  authenticationMethod: 'client_secret_basic',
   enablePKCE: false,
   codeChallengeMethod: 'S256',
   customParams: {},
@@ -83,14 +122,57 @@ export const getClientCredentialsConfig = (): FlowConfig => ({
   maxAge: 0,
   prompt: '',
   loginHint: '',
-  acrValues: []
+  acrValues: [],
+  accessTokenLifetime: 5, // 5 minutes for security
+  refreshTokenLifetime: 0, // No refresh tokens for client credentials
+  idTokenLifetime: 5,
+  allowedOrigins: ['https://localhost:3000'],
+  jwksMethod: 'jwks_url',
+  jwksUrl: '',
+  jwks: '',
+  requirePar: false,
+  parTimeout: 60
+});
+
+// Default configuration for Worker Token Flow (short-lived tokens for security)
+export const getWorkerTokenConfig = (): FlowConfig => ({
+  scopes: ['api:read'],
+  responseType: '',
+  responseMode: 'query',
+  grantType: 'client_credentials',
+  applicationType: 'backend',
+  authenticationMethod: 'client_secret_post',
+  enablePKCE: false,
+  codeChallengeMethod: 'S256',
+  customParams: {},
+  enableOIDC: false,
+  nonce: '',
+  state: '',
+  customClaims: {},
+  audience: '',
+  maxAge: 0,
+  prompt: '',
+  loginHint: '',
+  acrValues: [],
+  accessTokenLifetime: 5, // 5 minutes for security
+  refreshTokenLifetime: 0, // No refresh tokens for worker tokens
+  idTokenLifetime: 5,
+  allowedOrigins: ['https://localhost:3000'],
+  jwksMethod: 'jwks_url',
+  jwksUrl: '',
+  jwks: '',
+  requirePar: false,
+  parTimeout: 60
 });
 
 // Default configuration for Device Code Flow
 export const getDeviceCodeConfig = (): FlowConfig => ({
   scopes: ['openid', 'profile', 'email'],
   responseType: '',
+  responseMode: 'query',
   grantType: 'urn:ietf:params:oauth:grant-type:device_code',
+  applicationType: 'spa',
+  authenticationMethod: 'none', // PKCE is handled separately
   enablePKCE: false,
   codeChallengeMethod: 'S256',
   customParams: {},
@@ -102,14 +184,26 @@ export const getDeviceCodeConfig = (): FlowConfig => ({
   maxAge: 0,
   prompt: '',
   loginHint: '',
-  acrValues: ['urn:pingone:loa:1']
+  acrValues: ['urn:pingone:loa:1'],
+  accessTokenLifetime: 60,
+  refreshTokenLifetime: 10080,
+  idTokenLifetime: 60,
+  allowedOrigins: ['https://localhost:3000'],
+  jwksMethod: 'jwks_url',
+  jwksUrl: '',
+  jwks: '',
+  requirePar: false,
+  parTimeout: 60
 });
 
 // Default configuration for Refresh Token Flow
 export const getRefreshTokenConfig = (): FlowConfig => ({
   scopes: ['openid', 'profile', 'email'],
   responseType: '',
+  responseMode: 'query',
   grantType: 'refresh_token',
+  applicationType: 'spa',
+  authenticationMethod: 'none', // PKCE is handled separately
   enablePKCE: false,
   codeChallengeMethod: 'S256',
   customParams: {},
@@ -121,14 +215,26 @@ export const getRefreshTokenConfig = (): FlowConfig => ({
   maxAge: 0,
   prompt: '',
   loginHint: '',
-  acrValues: []
+  acrValues: [],
+  accessTokenLifetime: 60,
+  refreshTokenLifetime: 10080,
+  idTokenLifetime: 60,
+  allowedOrigins: ['https://localhost:3000'],
+  jwksMethod: 'jwks_url',
+  jwksUrl: '',
+  jwks: '',
+  requirePar: false,
+  parTimeout: 60
 });
 
 // Default configuration for Password Grant Flow
 export const getPasswordGrantConfig = (): FlowConfig => ({
   scopes: ['openid', 'profile', 'email'],
   responseType: '',
+  responseMode: 'query',
   grantType: 'password',
+  applicationType: 'backend',
+  authenticationMethod: 'client_secret_basic',
   enablePKCE: false,
   codeChallengeMethod: 'S256',
   customParams: {},
@@ -140,14 +246,26 @@ export const getPasswordGrantConfig = (): FlowConfig => ({
   maxAge: 0,
   prompt: '',
   loginHint: '',
-  acrValues: ['urn:pingone:loa:1']
+  acrValues: ['urn:pingone:loa:1'],
+  accessTokenLifetime: 60,
+  refreshTokenLifetime: 10080,
+  idTokenLifetime: 60,
+  allowedOrigins: ['https://localhost:3000'],
+  jwksMethod: 'jwks_url',
+  jwksUrl: '',
+  jwks: '',
+  requirePar: false,
+  parTimeout: 60
 });
 
 // Default configuration for Hybrid Flow
 export const getHybridConfig = (): FlowConfig => ({
   scopes: ['openid', 'profile', 'email'],
-  responseType: 'code id_token token', // Default to all three
+  responseType: 'code id_token', // Default to most common hybrid type
+  responseMode: 'fragment', // Hybrid flows use fragment mode
   grantType: 'authorization_code',
+  applicationType: 'spa',
+  authenticationMethod: 'none', // PKCE is handled separately
   enablePKCE: true,
   codeChallengeMethod: 'S256',
   customParams: {},
@@ -159,7 +277,16 @@ export const getHybridConfig = (): FlowConfig => ({
   maxAge: 0,
   prompt: '',
   loginHint: '',
-  acrValues: ['urn:pingone:loa:1']
+  acrValues: ['urn:pingone:loa:1'],
+  accessTokenLifetime: 60,
+  refreshTokenLifetime: 10080,
+  idTokenLifetime: 60,
+  allowedOrigins: ['https://localhost:3000'],
+  jwksMethod: 'jwks_url',
+  jwksUrl: '',
+  jwks: '',
+  requirePar: false,
+  parTimeout: 60
 });
 
 // Factory function to get default config based on flow type
@@ -173,6 +300,8 @@ export const getDefaultConfig = (flowType: string): FlowConfig => {
       return getImplicitConfig();
     case 'client-credentials':
       return getClientCredentialsConfig();
+    case 'worker-token':
+      return getWorkerTokenConfig();
     case 'device-code':
       return getDeviceCodeConfig();
     case 'refresh-token':

@@ -63,3 +63,6 @@ echo "Press Ctrl+C to stop both servers"
 
 # Wait for processes
 wait
+
+
+

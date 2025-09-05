@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../components/Card';
-import { FiSave, FiAlertCircle, FiCheckCircle, FiEye, FiEyeOff } from 'react-icons/fi';
+import { 
+  FiSave, FiAlertCircle, FiCheckCircle, FiEye, FiEyeOff, 
+  FiSettings, FiShield, FiKey, FiClock, FiGlobe, FiServer 
+} from 'react-icons/fi';
 
 const ConfigurationContainer = styled.div`
   max-width: 800px;
@@ -23,6 +26,52 @@ const PageHeader = styled.div`
     color: ${({ theme }) => theme.colors.gray600};
     font-size: 1.1rem;
   }
+`;
+
+const SectionContainer = styled.div<{ $color: string }>`
+  background: linear-gradient(135deg, ${({ $color }) => $color}15, ${({ $color }) => $color}08);
+  border: 1px solid ${({ $color }) => $color}30;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, ${({ $color }) => $color}, ${({ $color }) => $color}80);
+  }
+`;
+
+const SectionHeader = styled.div<{ $color: string }>`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: ${({ $color }) => $color};
+    margin: 0;
+  }
+  
+  svg {
+    color: ${({ $color }) => $color};
+    font-size: 1.5rem;
+  }
+`;
+
+const SectionDescription = styled.p`
+  color: ${({ theme }) => theme.colors.gray600};
+  font-size: 0.95rem;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.5;
 `;
 
 const FormGroup = styled.div`
@@ -212,8 +261,22 @@ const Configuration = () => {
     userInfoEndpoint: 'https://auth.pingone.com/{envId}/as/userinfo',
     // Authentication method configuration
     usePKCE: true,
-    authenticationMethod: 'pkce', // 'pkce' or 'client_secret_basic'
+    enablePKCE: true,
+    authenticationMethod: 'none', // 'none', 'client_secret_basic', 'client_secret_post', 'client_secret_jwt', 'private_key_jwt'
     applicationType: 'spa', // 'spa' or 'backend'
+    // JSON Web Key Set configuration
+    jwksMethod: 'jwks_url', // 'jwks_url' or 'jwks'
+    jwksUrl: '',
+    jwks: '',
+    // Pushed Authorization Request configuration
+    requirePar: false,
+    parTimeout: 60,
+    // Token lifetime configuration
+    accessTokenLifetime: 60,
+    refreshTokenLifetime: 10080,
+    idTokenLifetime: 60,
+    // CORS configuration
+    allowedOrigins: ['https://localhost:3000']
   });
   
   const [errors, setErrors] = useState({});
@@ -235,8 +298,8 @@ const Configuration = () => {
         console.error('Failed to load saved configuration:', error);
       }
     }
-    // Show spinner for 2 seconds
-    setTimeout(() => setInitialLoading(false), 2000);
+    // Show spinner for 0.5 seconds
+    setTimeout(() => setInitialLoading(false), 500);
   }, []);
   
   const handleChange = (e) => {
@@ -250,20 +313,27 @@ const Configuration = () => {
       // Auto-sync authentication method with application type
       if (name === 'applicationType') {
         if (value === 'spa') {
-          newData.authenticationMethod = 'pkce';
+          // For SPAs, we use "none" authentication method (PKCE is handled separately)
+          newData.authenticationMethod = 'none';
           newData.usePKCE = true;
         } else if (value === 'backend') {
-          newData.authenticationMethod = 'client_secret_basic';
+          // Keep current auth method if it's already a backend method, otherwise default to client_secret_basic
+          const currentAuthMethod = prev.authenticationMethod || 'client_secret_basic';
+          if (['client_secret_basic', 'client_secret_post', 'client_secret_jwt', 'private_key_jwt'].includes(currentAuthMethod)) {
+            newData.authenticationMethod = currentAuthMethod;
+          } else {
+            newData.authenticationMethod = 'client_secret_basic';
+          }
           newData.usePKCE = false;
         }
       }
       
       // Auto-sync application type with authentication method
       if (name === 'authenticationMethod') {
-        if (value === 'pkce') {
+        if (value === 'none') {
           newData.applicationType = 'spa';
           newData.usePKCE = true;
-        } else if (value === 'client_secret_basic') {
+        } else if (['client_secret_basic', 'client_secret_post', 'client_secret_jwt', 'private_key_jwt'].includes(value)) {
           newData.applicationType = 'backend';
           newData.usePKCE = false;
         }
@@ -425,206 +495,455 @@ const Configuration = () => {
             id="configForm" 
             onKeyDown={(e) => console.log('🔍 [Configuration] Form keydown:', e.key)}
           >
-            <FormGroup>
-              <label htmlFor="environmentId">Environment ID</label>
-              <input
-                type="text"
-                id="environmentId"
-                name="environmentId"
-                value={formData.environmentId}
-                onChange={handleChange}
-                placeholder="e.g., abc12345-6789-4abc-def0-1234567890ab"
-                className={errors.environmentId ? 'is-invalid' : ''}
-              />
-              {errors.environmentId && (
-                <div className="invalid-feedback">{errors.environmentId}</div>
-              )}
-              <div className="form-text">
-                Your PingOne Environment ID. You can find this in the PingOne Admin Console.
-              </div>
-            </FormGroup>
-            
-            <FormGroup>
-              <label htmlFor="clientId">Client ID</label>
-              <input
-                type="text"
-                id="clientId"
-                name="clientId"
-                value={formData.clientId}
-                onChange={handleChange}
-                placeholder="Enter your application's Client ID"
-                className={errors.clientId ? 'is-invalid' : ''}
-              />
-              {errors.clientId && (
-                <div className="invalid-feedback">{errors.clientId}</div>
-              )}
-              <div className="form-text">
-                The Client ID of your application in PingOne.
-              </div>
-            </FormGroup>
-            
-            <FormGroup>
-              <label htmlFor="clientSecret">Client Secret (Optional)</label>
-              <div style={{ position: 'relative' }}>
+            {/* Basic OAuth Configuration */}
+            <SectionContainer $color="#3B82F6">
+              <SectionHeader $color="#3B82F6">
+                <FiSettings />
+                <h3>Basic OAuth Configuration</h3>
+              </SectionHeader>
+              <SectionDescription>
+                Configure the basic OAuth 2.0 and OpenID Connect settings for your application.
+              </SectionDescription>
+              
+              <FormGroup>
+                <label htmlFor="environmentId">Environment ID</label>
                 <input
-                  type={showClientSecret ? 'text' : 'password'}
-                  id="clientSecret"
-                  name="clientSecret"
-                  value={formData.clientSecret}
+                  type="text"
+                  id="environmentId"
+                  name="environmentId"
+                  value={formData.environmentId}
                   onChange={handleChange}
-                  placeholder="Enter your application's Client Secret"
-                  style={{ paddingRight: '2.5rem' }}
+                  placeholder="e.g., abc12345-6789-4abc-def0-1234567890ab"
+                  className={errors.environmentId ? 'is-invalid' : ''}
                 />
-                <button 
-                  type="button" 
-                  onClick={() => setShowClientSecret(!showClientSecret)}
-                  style={{
-                    position: 'absolute',
-                    right: '0.75rem',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    color: '#6c757d',
-                    padding: '0.25rem'
-                  }}
-                  aria-label={showClientSecret ? 'Hide client secret' : 'Show client secret'}
-                >
-                  {showClientSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
-                </button>
-              </div>
-              <div className="form-text">
-                Only required for confidential clients using flows that require client authentication.
-              </div>
-            </FormGroup>
-            
-            <FormGroup>
-              <label htmlFor="redirectUri">Redirect URI</label>
-              <input
-                type="url"
-                id="redirectUri"
-                name="redirectUri"
-                value={formData.redirectUri}
-                onChange={handleChange}
-                className={errors.redirectUri ? 'is-invalid' : ''}
-              />
-              {errors.redirectUri && (
-                <div className="invalid-feedback">{errors.redirectUri}</div>
-              )}
-              <div className="form-text">
-                The redirect URI registered in your PingOne application. Must match exactly.
-              </div>
-            </FormGroup>
-            
-            <FormGroup>
-              <label htmlFor="scopes">Scopes</label>
-              <input
-                type="text"
-                id="scopes"
-                name="scopes"
-                value={formData.scopes}
-                onChange={handleChange}
-                placeholder="openid profile email"
-              />
-              <div className="form-text">
-                Space-separated list of scopes to request. Common scopes: openid, profile, email, offline_access
-              </div>
-            </FormGroup>
-            
-            <h3 style={{ margin: '2rem 0 1rem', fontSize: '1.25rem' }}>Authentication Method</h3>
-            
-            <FormGroup>
-              <label htmlFor="applicationType">Application Type</label>
-              <select
-                id="applicationType"
-                name="applicationType"
-                value={formData.applicationType}
-                onChange={handleChange}
-              >
-                <option value="spa">Single Page Application (SPA)</option>
-                <option value="backend">Backend Application</option>
-              </select>
-              <div className="form-text">
-                Choose based on your PingOne application configuration. SPA uses PKCE, Backend uses Client Secret Basic.
-              </div>
-            </FormGroup>
-            
-            <FormGroup>
-              <label htmlFor="authenticationMethod">Authentication Method</label>
-              <select
-                id="authenticationMethod"
-                name="authenticationMethod"
-                value={formData.authenticationMethod}
-                onChange={handleChange}
-              >
-                <option value="pkce">PKCE (Proof Key for Code Exchange)</option>
-                <option value="client_secret_basic">Client Secret Basic</option>
-              </select>
-              <div className="form-text">
-                PKCE is recommended for SPAs. Client Secret Basic is for backend applications.
-              </div>
-            </FormGroup>
-            
-            <FormGroup>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                {errors.environmentId && (
+                  <div className="invalid-feedback">{errors.environmentId}</div>
+                )}
+                <div className="form-text">
+                  Your PingOne Environment ID. You can find this in the PingOne Admin Console.
+                </div>
+              </FormGroup>
+              
+              <FormGroup>
+                <label htmlFor="clientId">Client ID</label>
                 <input
-                  type="checkbox"
-                  id="usePKCE"
-                  name="usePKCE"
-                  checked={formData.usePKCE}
-                  onChange={(e) => setFormData(prev => ({ ...prev, usePKCE: e.target.checked }))}
+                  type="text"
+                  id="clientId"
+                  name="clientId"
+                  value={formData.clientId}
+                  onChange={handleChange}
+                  placeholder="Enter your application's Client ID"
+                  className={errors.clientId ? 'is-invalid' : ''}
                 />
-                Enable PKCE (Proof Key for Code Exchange)
-              </label>
-              <div className="form-text">
-                PKCE adds security for public clients. Recommended for SPAs and mobile apps.
-              </div>
-            </FormGroup>
+                {errors.clientId && (
+                  <div className="invalid-feedback">{errors.clientId}</div>
+                )}
+                <div className="form-text">
+                  The Client ID of your application in PingOne.
+                </div>
+              </FormGroup>
+              
+              <FormGroup>
+                <label htmlFor="clientSecret">Client Secret (Optional)</label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showClientSecret ? 'text' : 'password'}
+                    id="clientSecret"
+                    name="clientSecret"
+                    value={formData.clientSecret}
+                    onChange={handleChange}
+                    placeholder="Enter your application's Client Secret"
+                    style={{ paddingRight: '2.5rem' }}
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => setShowClientSecret(!showClientSecret)}
+                    style={{
+                      position: 'absolute',
+                      right: '0.75rem',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      color: '#6c757d',
+                      padding: '0.25rem'
+                    }}
+                    aria-label={showClientSecret ? 'Hide client secret' : 'Show client secret'}
+                  >
+                    {showClientSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                  </button>
+                </div>
+                <div className="form-text">
+                  Only required for confidential clients using flows that require client authentication.
+                </div>
+              </FormGroup>
+              
+              <FormGroup>
+                <label htmlFor="redirectUri">Redirect URI</label>
+                <input
+                  type="url"
+                  id="redirectUri"
+                  name="redirectUri"
+                  value={formData.redirectUri}
+                  onChange={handleChange}
+                  className={errors.redirectUri ? 'is-invalid' : ''}
+                />
+                {errors.redirectUri && (
+                  <div className="invalid-feedback">{errors.redirectUri}</div>
+                )}
+                <div className="form-text">
+                  The redirect URI registered in your PingOne application. Must match exactly.
+                </div>
+              </FormGroup>
+              
+              <FormGroup>
+                <label htmlFor="scopes">Scopes</label>
+                <input
+                  type="text"
+                  id="scopes"
+                  name="scopes"
+                  value={formData.scopes}
+                  onChange={handleChange}
+                  placeholder="openid profile email"
+                />
+                <div className="form-text">
+                  Space-separated list of scopes to request. Common scopes: openid, profile, email, offline_access
+                </div>
+              </FormGroup>
+            </SectionContainer>
             
-            <h3 style={{ margin: '2rem 0 1rem', fontSize: '1.25rem' }}>Advanced Settings</h3>
+            {/* Authentication Method Configuration */}
+            <SectionContainer $color="#10B981">
+              <SectionHeader $color="#10B981">
+                <FiShield />
+                <h3>Authentication Method</h3>
+              </SectionHeader>
+              <SectionDescription>
+                Configure how your application authenticates with the OAuth 2.0 token endpoint.
+              </SectionDescription>
+              
+              <FormGroup>
+                <label htmlFor="applicationType">Application Type</label>
+                <select
+                  id="applicationType"
+                  name="applicationType"
+                  value={formData.applicationType}
+                  onChange={handleChange}
+                >
+                  <option value="spa">Single Page Application (SPA)</option>
+                  <option value="backend">Backend Application</option>
+                </select>
+                <div className="form-text">
+                  Choose based on your PingOne application configuration. SPA uses PKCE, Backend uses Client Secret Basic.
+                </div>
+              </FormGroup>
+              
+              <FormGroup>
+                <label htmlFor="authenticationMethod">Authentication Method</label>
+                <select
+                  id="authenticationMethod"
+                  name="authenticationMethod"
+                  value={formData.authenticationMethod}
+                  onChange={handleChange}
+                >
+                  <option value="none">None</option>
+                  <option value="client_secret_basic">Client Secret Basic</option>
+                  <option value="client_secret_post">Client Secret Post</option>
+                  <option value="client_secret_jwt">Client Secret JWT</option>
+                  <option value="private_key_jwt">Private Key JWT</option>
+                </select>
+                <div className="form-text">
+                  Token endpoint authentication methods for backend applications. PKCE is configured separately above.
+                </div>
+              </FormGroup>
+              
+              <FormGroup>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <input
+                    type="checkbox"
+                    id="usePKCE"
+                    name="usePKCE"
+                    checked={formData.usePKCE}
+                    onChange={(e) => setFormData(prev => ({ ...prev, usePKCE: e.target.checked }))}
+                  />
+                  Enable PKCE (Proof Key for Code Exchange)
+                </label>
+                <div className="form-text">
+                  PKCE adds security for public clients. Recommended for SPAs and mobile apps.
+                </div>
+              </FormGroup>
+            </SectionContainer>
             
-            <FormGroup>
-              <label htmlFor="authEndpoint">Authorization Endpoint</label>
-              <input
-                type="url"
-                id="authEndpoint"
-                name="authEndpoint"
-                value={formData.authEndpoint}
-                onChange={handleChange}
-              />
-              <div className="form-text">
-                The authorization endpoint URL. Use {'{envId}'} as a placeholder for the environment ID.
-              </div>
-            </FormGroup>
+            {/* JSON Web Key Set Configuration */}
+            <SectionContainer $color="#8B5CF6">
+              <SectionHeader $color="#8B5CF6">
+                <FiKey />
+                <h3>JSON Web Key Set (JWKS)</h3>
+              </SectionHeader>
+              <SectionDescription>
+                Configure how to provide JSON Web Key Set for JWT token validation.
+              </SectionDescription>
+              
+              <FormGroup>
+                <label>JWKS Method</label>
+                <div style={{ display: 'flex', gap: '1rem', marginBottom: '0.5rem' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <input
+                      type="radio"
+                      name="jwksMethod"
+                      value="jwks_url"
+                      checked={formData.jwksMethod === 'jwks_url'}
+                      onChange={(e) => setFormData(prev => ({ ...prev, jwksMethod: e.target.value as 'jwks_url' | 'jwks' }))}
+                    />
+                    JWKS URL
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <input
+                      type="radio"
+                      name="jwksMethod"
+                      value="jwks"
+                      checked={formData.jwksMethod === 'jwks'}
+                      onChange={(e) => setFormData(prev => ({ ...prev, jwksMethod: e.target.value as 'jwks_url' | 'jwks' }))}
+                    />
+                    JWKS Content
+                  </label>
+                </div>
+                <div className="form-text">
+                  Choose how to provide JSON Web Key Set for token validation
+                </div>
+              </FormGroup>
+              
+              {formData.jwksMethod === 'jwks_url' ? (
+                <FormGroup>
+                  <label htmlFor="jwksUrl">JWKS URL</label>
+                  <input
+                    type="url"
+                    id="jwksUrl"
+                    name="jwksUrl"
+                    value={formData.jwksUrl}
+                    onChange={handleChange}
+                    placeholder="https://your-domain.com/.well-known/jwks.json"
+                  />
+                  <div className="form-text">
+                    URL to fetch the JSON Web Key Set
+                  </div>
+                </FormGroup>
+              ) : (
+                <FormGroup>
+                  <label htmlFor="jwks">JWKS Content</label>
+                  <textarea
+                    id="jwks"
+                    name="jwks"
+                    value={formData.jwks}
+                    onChange={handleChange}
+                    placeholder='{"keys": [...]}'
+                    rows={4}
+                  />
+                  <div className="form-text">
+                    JSON Web Key Set content
+                  </div>
+                </FormGroup>
+              )}
+            </SectionContainer>
             
-            <FormGroup>
-              <label htmlFor="tokenEndpoint">Token Endpoint</label>
-              <input
-                type="url"
-                id="tokenEndpoint"
-                name="tokenEndpoint"
-                value={formData.tokenEndpoint}
-                onChange={handleChange}
-              />
-              <div className="form-text">
-                The token endpoint URL. Use {'{envId}'} as a placeholder for the environment ID.
-              </div>
-            </FormGroup>
+            {/* Pushed Authorization Request Configuration */}
+            <SectionContainer $color="#F59E0B">
+              <SectionHeader $color="#F59E0B">
+                <FiServer />
+                <h3>Pushed Authorization Request (PAR)</h3>
+              </SectionHeader>
+              <SectionDescription>
+                Configure Pushed Authorization Request (RFC 9126) for enhanced security.
+              </SectionDescription>
+              
+              <FormGroup>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <input
+                    type="checkbox"
+                    id="requirePar"
+                    name="requirePar"
+                    checked={formData.requirePar}
+                    onChange={(e) => setFormData(prev => ({ ...prev, requirePar: e.target.checked }))}
+                  />
+                  Require Pushed Authorization Request
+                </label>
+                <div className="form-text">
+                  Enable PAR (RFC 9126) for enhanced security
+                </div>
+              </FormGroup>
+              
+              <FormGroup>
+                <label htmlFor="parTimeout">PAR Reference Timeout (seconds)</label>
+                <input
+                  type="number"
+                  id="parTimeout"
+                  name="parTimeout"
+                  value={formData.parTimeout}
+                  onChange={handleChange}
+                  min="1"
+                  max="3600"
+                />
+                <div className="form-text">
+                  How long PAR references remain valid (1-3600 seconds)
+                </div>
+              </FormGroup>
+            </SectionContainer>
             
-            <FormGroup>
-              <label htmlFor="userInfoEndpoint">UserInfo Endpoint</label>
-              <input
-                type="url"
-                id="userInfoEndpoint"
-                name="userInfoEndpoint"
-                value={formData.userInfoEndpoint}
-                onChange={handleChange}
-              />
-              <div className="form-text">
-                The UserInfo endpoint URL. Use {'{envId}'} as a placeholder for the environment ID.
-              </div>
-            </FormGroup>
+            {/* Token Lifetimes Configuration */}
+            <SectionContainer $color="#EF4444">
+              <SectionHeader $color="#EF4444">
+                <FiClock />
+                <h3>Token Lifetimes</h3>
+              </SectionHeader>
+              <SectionDescription>
+                Configure how long different types of tokens remain valid.
+              </SectionDescription>
+              
+              <FormGroup>
+                <label htmlFor="accessTokenLifetime">Access Token Lifetime (seconds)</label>
+                <input
+                  type="number"
+                  id="accessTokenLifetime"
+                  name="accessTokenLifetime"
+                  value={formData.accessTokenLifetime}
+                  onChange={handleChange}
+                  min="1"
+                  max="86400"
+                />
+                <div className="form-text">
+                  How long access tokens remain valid (1-86400 seconds)
+                </div>
+                {formData.accessTokenLifetime <= 600 && (
+                  <div style={{ 
+                    fontSize: '0.8rem', 
+                    color: '#dc2626', 
+                    marginTop: '0.25rem',
+                    background: '#fef2f2',
+                    padding: '0.5rem',
+                    borderRadius: '4px',
+                    border: '1px solid #fecaca'
+                  }}>
+                    ⚠️ <strong>Short-lived tokens:</strong> Tokens with very short lifetimes (≤10 minutes) 
+                    require frequent refresh and may impact application performance.
+                  </div>
+                )}
+              </FormGroup>
+              
+              <FormGroup>
+                <label htmlFor="refreshTokenLifetime">Refresh Token Lifetime (seconds)</label>
+                <input
+                  type="number"
+                  id="refreshTokenLifetime"
+                  name="refreshTokenLifetime"
+                  value={formData.refreshTokenLifetime}
+                  onChange={handleChange}
+                  min="1"
+                  max="31536000"
+                />
+                <div className="form-text">
+                  How long refresh tokens remain valid (1-31536000 seconds)
+                </div>
+              </FormGroup>
+              
+              <FormGroup>
+                <label htmlFor="idTokenLifetime">ID Token Lifetime (seconds)</label>
+                <input
+                  type="number"
+                  id="idTokenLifetime"
+                  name="idTokenLifetime"
+                  value={formData.idTokenLifetime}
+                  onChange={handleChange}
+                  min="1"
+                  max="86400"
+                />
+                <div className="form-text">
+                  How long ID tokens remain valid (1-86400 seconds)
+                </div>
+              </FormGroup>
+            </SectionContainer>
+            
+            {/* CORS Configuration */}
+            <SectionContainer $color="#06B6D4">
+              <SectionHeader $color="#06B6D4">
+                <FiGlobe />
+                <h3>CORS Configuration</h3>
+              </SectionHeader>
+              <SectionDescription>
+                Configure Cross-Origin Resource Sharing (CORS) allowed origins.
+              </SectionDescription>
+              
+              <FormGroup>
+                <label htmlFor="allowedOrigins">Allowed Origins</label>
+                <textarea
+                  id="allowedOrigins"
+                  name="allowedOrigins"
+                  value={Array.isArray(formData.allowedOrigins) ? formData.allowedOrigins.join('\n') : formData.allowedOrigins}
+                  onChange={(e) => {
+                    const origins = e.target.value.split('\n').filter(origin => origin.trim());
+                    setFormData(prev => ({ ...prev, allowedOrigins: origins }));
+                  }}
+                  rows={3}
+                  placeholder="https://localhost:3000&#10;https://app.example.com&#10;https://staging.example.com"
+                />
+                <div className="form-text">
+                  One origin per line. These origins will be allowed for CORS requests.
+                </div>
+              </FormGroup>
+            </SectionContainer>
+            
+            {/* Advanced Settings */}
+            <SectionContainer $color="#6B7280">
+              <SectionHeader $color="#6B7280">
+                <FiSettings />
+                <h3>Advanced Settings</h3>
+              </SectionHeader>
+              <SectionDescription>
+                Configure custom OAuth 2.0 and OpenID Connect endpoint URLs.
+              </SectionDescription>
+              
+              <FormGroup>
+                <label htmlFor="authEndpoint">Authorization Endpoint</label>
+                <input
+                  type="url"
+                  id="authEndpoint"
+                  name="authEndpoint"
+                  value={formData.authEndpoint}
+                  onChange={handleChange}
+                />
+                <div className="form-text">
+                  The authorization endpoint URL. Use {'{envId}'} as a placeholder for the environment ID.
+                </div>
+              </FormGroup>
+              
+              <FormGroup>
+                <label htmlFor="tokenEndpoint">Token Endpoint</label>
+                <input
+                  type="url"
+                  id="tokenEndpoint"
+                  name="tokenEndpoint"
+                  value={formData.tokenEndpoint}
+                  onChange={handleChange}
+                />
+                <div className="form-text">
+                  The token endpoint URL. Use {'{envId}'} as a placeholder for the environment ID.
+                </div>
+              </FormGroup>
+              
+              <FormGroup>
+                <label htmlFor="userInfoEndpoint">UserInfo Endpoint</label>
+                <input
+                  type="url"
+                  id="userInfoEndpoint"
+                  name="userInfoEndpoint"
+                  value={formData.userInfoEndpoint}
+                  onChange={handleChange}
+                />
+                <div className="form-text">
+                  The UserInfo endpoint URL. Use {'{envId}'} as a placeholder for the environment ID.
+                </div>
+              </FormGroup>
+            </SectionContainer>
             
             <div style={{ marginTop: '2rem' }}>
               <SaveButton 

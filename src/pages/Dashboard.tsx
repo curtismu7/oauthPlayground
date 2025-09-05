@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardBody, CardFooter } from '../components/Card';
-import { FiCode, FiLock, FiUser, FiSettings, FiInfo, FiCheckCircle, FiPlay, FiBook, FiShield, FiClock, FiActivity, FiRefreshCw } from 'react-icons/fi';
+import { FiCode, FiLock, FiUser, FiSettings, FiInfo, FiCheckCircle, FiPlay, FiBook, FiShield, FiClock, FiActivity, FiRefreshCw, FiEye, FiDatabase, FiExternalLink } from 'react-icons/fi';
 import { useAuth } from '../contexts/NewAuthContext';
 import { getRecentActivity } from '../utils/activityTracker';
 
@@ -40,8 +40,8 @@ const PageHeader = styled.div`
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
   margin-bottom: 2rem;
 `;
 
@@ -57,20 +57,22 @@ const FeatureCard = styled(Card)`
   }
   
   svg {
-    font-size: 2rem;
-    margin-bottom: 1rem;
+    font-size: 1.75rem;
+    margin-bottom: 0.75rem;
     color: ${({ theme }) => theme.colors.primary};
   }
   
   h3 {
-    font-size: 1.25rem;
-    margin-bottom: 0.75rem;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
   }
   
   p {
     color: ${({ theme }) => theme.colors.gray600};
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     flex-grow: 1;
+    font-size: 0.9rem;
+    line-height: 1.4;
   }
 `;
 
@@ -268,22 +270,34 @@ const Dashboard = () => {
 
   const features = [
     {
-      icon: <FiCode />,
-      title: 'OAuth 2.0 Flows',
-      description: 'Explore different OAuth 2.0 authorization flows including Authorization Code, Implicit, Client Credentials, and more.',
-      link: '/flows',
+      icon: <FiUser />,
+      title: 'UserInfo Endpoint',
+      description: 'Access user profile information using the OpenID Connect UserInfo endpoint.',
+      link: '/oidc/userinfo',
     },
     {
-      icon: <FiUser />,
-      title: 'OpenID Connect',
-      description: 'Learn about OpenID Connect and how it extends OAuth 2.0 with authentication and identity features.',
-      link: '/oidc',
+      icon: <FiEye />,
+      title: 'ID Tokens',
+      description: 'Inspect and validate OpenID Connect ID tokens with detailed claims analysis.',
+      link: '/oidc/id-tokens',
+    },
+    {
+      icon: <FiDatabase />,
+      title: 'Token Management',
+      description: 'Manage access tokens, refresh tokens, and other OAuth credentials securely.',
+      link: '/token-management',
     },
     {
       icon: <FiBook />,
       title: 'Documentation',
       description: 'Comprehensive guides and tutorials for OAuth 2.0 and OpenID Connect implementation.',
       link: '/documentation',
+    },
+    {
+      icon: <FiExternalLink />,
+      title: 'External Documentation',
+      description: 'Links to official OAuth 2.0, OpenID Connect, and PingOne documentation.',
+      link: '/external-documentation',
     },
   ];
 
@@ -393,8 +407,8 @@ const Dashboard = () => {
         </Card>
       )}
 
-      {/* Available Features */}
-      <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>Available Features</h2>
+      {/* Resources */}
+      <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>Resources</h2>
       <Grid>
         {features.map((feature, index) => (
           <FeatureCard key={index}>
