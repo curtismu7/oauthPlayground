@@ -2,8 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
-import { ThemeProvider } from 'styled-components';
-import { GlobalStyle, theme } from './styles/global';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -13,10 +11,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         v7_relativeSplatPath: true
       }}
     >
-      <ThemeProvider theme={theme}>
-        <GlobalStyle />
-        <App />
-      </ThemeProvider>
+      <App />
     </BrowserRouter>
   </React.StrictMode>
 );

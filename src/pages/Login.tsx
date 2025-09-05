@@ -463,7 +463,7 @@ const Login = () => {
         environmentId: credentials.environmentId,
         clientId: credentials.clientId,
         clientSecret: credentials.clientSecret,
-        redirectUri: 'http://localhost:3001/callback',
+        redirectUri: 'https://localhost:3000/callback',
         scopes: credentials.advanced?.resourceScopes || 'openid profile email',
         authEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/authorize`,
         tokenEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/token`,
@@ -515,7 +515,7 @@ const Login = () => {
         environmentId: credentials.environmentId,
         clientId: credentials.clientId,
         clientSecret: credentials.clientSecret,
-        redirectUri: 'http://localhost:3001/callback',
+        redirectUri: 'https://localhost:3000/callback',
         scopes: credentials.advanced?.resourceScopes || 'openid profile email',
         authEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/authorize`,
         tokenEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/token`,
@@ -1098,7 +1098,7 @@ const Login = () => {
               <h1>
                 <span>🔐 PingOne OAuth Playground</span>
                 <small style={{ display: 'block', fontSize: '0.75rem', fontWeight: 'normal', marginTop: '0.25rem', color: '#666' }}>
-                  Version 2.0.1
+                  Version 3.4.0
                 </small>
               </h1>
             </LoginHeader>

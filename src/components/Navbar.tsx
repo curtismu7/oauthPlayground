@@ -2,14 +2,14 @@ import React from 'react';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiMenu, FiSettings, FiHelpCircle, FiLogIn, FiLogOut } from 'react-icons/fi';
-import { useAuth } from '../contexts/NewAuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 const NavbarContainer = styled.nav`
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: 80px;
+  height: 60px;
   background-color: ${({ theme }) => theme.colors.primary};
   color: white;
   display: flex;
@@ -23,19 +23,11 @@ const Logo = styled.div`
   font-size: 1.25rem;
   font-weight: 600;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   
   img {
     height: 32px;
     margin-right: 0.75rem;
-  }
-  
-  .user-info {
-    font-size: 0.875rem;
-    font-weight: 400;
-    opacity: 0.9;
-    margin-top: 2px;
   }
 `;
 
@@ -85,8 +77,8 @@ interface NavbarProps {
   toggleSidebar: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
-  const { isAuthenticated, logout, user } = useAuth();
+const Navbar = ({ toggleSidebar }: NavbarProps) => {
+  const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -102,11 +94,6 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
       
       <Logo>
         <span>PingOne OAuth Playground</span>
-        {isAuthenticated && user && (
-          <div className="user-info">
-            Welcome, {user.name || user.email}
-          </div>
-        )}
       </Logo>
       
       <NavItems>

@@ -14,6 +14,13 @@ export default defineConfig(({ mode }) => {
       https: true, // Enable HTTPS in development
       // In production, Vercel will handle HTTPS
       // In development, basic-ssl plugin provides self-signed certificates
+      proxy: {
+        '/api': {
+          target: 'http://localhost:3001',
+          changeOrigin: true,
+          secure: false, // Allow self-signed certificates
+        }
+      }
     },
     build: {
       outDir: 'dist',

@@ -13,7 +13,6 @@ const CardContainer = styled.div<{ $accent?: Accent | undefined }>`
   ${({ $accent }) => {
     const accent = $accent;
     if (!accent) return '';
-    
     const accentColors = {
       primary: '#003087',
       success: '#28a745',
@@ -21,7 +20,6 @@ const CardContainer = styled.div<{ $accent?: Accent | undefined }>`
       warning: '#ffc107',
       info: '#17a2b8',
     };
-    
     return css`
       border-top: 3px solid ${accentColors[(accent as keyof typeof accentColors)] || accentColors.primary};
     `;
@@ -31,13 +29,11 @@ const CardContainer = styled.div<{ $accent?: Accent | undefined }>`
 const CardHeader = styled.div`
   padding: 1.25rem 1.5rem;
   border-bottom: 1px solid ${({ theme }) => theme.colors.gray200};
-  
   h2, h3, h4, h5, h6 {
     margin: 0;
     font-size: 1.25rem;
     font-weight: 600;
   }
-  
   .subtitle {
     color: ${({ theme }) => theme.colors.gray600};
     font-size: 0.875rem;
@@ -47,7 +43,6 @@ const CardHeader = styled.div`
 
 const CardBody = styled.div`
   padding: 1.5rem;
-  
   & > :last-child {
     margin-bottom: 0;
   }
@@ -57,7 +52,6 @@ const CardFooter = styled.div`
   padding: 1rem 1.5rem;
   background-color: ${({ theme }) => theme.colors.gray100};
   border-top: 1px solid ${({ theme }) => theme.colors.gray200};
-  
   & > :last-child {
     margin-bottom: 0;
   }

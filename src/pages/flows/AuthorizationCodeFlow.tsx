@@ -13,9 +13,12 @@ import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import JSONHighlighter from '../../components/JSONHighlighter';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 import { oauthStorage } from '../../utils/storage';
+import { generateCodeVerifier, generateCodeChallenge } from '../../utils/oauth';
 import UserFriendlyError from '../../components/UserFriendlyError';
 import FlowBadge from '../../components/FlowBadge';
 import { getFlowById } from '../../types/flowTypes';
+import FlowCredentials from '../../components/FlowCredentials';
+import { EffectiveConfig } from '../../utils/configStore';
 
 import Spinner from '../../components/Spinner';
 import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
@@ -409,6 +412,7 @@ const AuthorizationCodeFlow = () => {
   // Flow configuration state
   const [flowConfig, setFlowConfig] = useState<FlowConfig>(() => getDefaultConfig('authorization-code'));
   const [showConfig, setShowConfig] = useState(false);
+  const [effectiveConfig, setEffectiveConfig] = useState<EffectiveConfig | null>(null);
   interface TokenResponse {
     access_token?: string;
     refresh_token?: string;
@@ -589,18 +593,9 @@ window.location.href = authUrl;
         const state = Math.random().toString(36).substring(2, 15);
         const nonce = Math.random().toString(36).substring(2, 15);
         
-        // Generate PKCE code verifier and challenge
-        const codeVerifier = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-        
-        // Generate code challenge using SHA256 hash (proper PKCE implementation)
-        const encoder = new TextEncoder();
-        const data = encoder.encode(codeVerifier);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        const hashArray = new Uint8Array(hashBuffer);
-        const codeChallenge = btoa(String.fromCharCode(...hashArray))
-          .replace(/\+/g, '-')
-          .replace(/\//g, '_')
-          .replace(/=/g, '');
+        // Generate PKCE code verifier and challenge using proper functions
+        const codeVerifier = generateCodeVerifier(); // This generates a proper 64-character code verifier
+        const codeChallenge = await generateCodeChallenge(codeVerifier);
         
         // Store all PKCE parameters using oauthStorage (same as NewAuthContext expects)
         oauthStorage.setState(state);
@@ -979,6 +974,12 @@ grant_type=authorization_code
           </SecurityHighlight>
         </CardBody>
       </FlowOverview>
+
+      {/* Flow Credentials Configuration */}
+      <FlowCredentials 
+        flowType="auth_code_pkce"
+        onConfigChange={setEffectiveConfig}
+      />
 
       <DemoSection>
         <CardHeader>

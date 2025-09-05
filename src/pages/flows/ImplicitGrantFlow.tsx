@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
-import { FiAlertCircle, FiLock } from 'react-icons/fi';
+import { FiAlertCircle } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { ColorCodedURL } from '../../components/ColorCodedURL';
 import { URLParamExplainer } from '../../components/URLParamExplainer';
@@ -14,6 +14,8 @@ import FlowBadge from '../../components/FlowBadge';
 import { getFlowById } from '../../types/flowTypes';
 import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
 import UserFriendlyError from '../../components/UserFriendlyError';
+import FlowCredentials from '../../components/FlowCredentials';
+import { EffectiveConfig } from '../../utils/configStore';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -140,7 +142,8 @@ const ErrorMessage = styled.div`
 
 const ImplicitGrantFlow = () => {
   const { config, tokens: contextTokens, updateTokens } = useAuth();
-  const [demoStatus, setDemoStatus] = useState('idle');
+  const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [effectiveConfig, setEffectiveConfig] = useState<EffectiveConfig | null>(null); // Used by FlowCredentials component
   
   // Debug configuration loading
   console.log('🔍 [ImplicitGrantFlow] Config debug:', {
@@ -159,42 +162,38 @@ const ImplicitGrantFlow = () => {
   useEffect(() => {
     console.log('🚀 [ImplicitGrantFlow] Component mounted - checking for existing tokens');
     
-    // Check context tokens first
-    if (contextTokens && !tokensReceived) {
-      console.log('✅ [ImplicitGrantFlow] Found context tokens on mount');
-      setTokensReceived(contextTokens as Record<string, unknown> | null);
-      setCurrentStep(3);
-      setDemoStatus('success');
-      setIsLoading(false);
-      setExecutedSteps(new Set([1, 2, 3]));
-      setStepResults({
-        1: { message: 'Authorization URL generated successfully' },
-        2: { message: 'User redirected to PingOne for authentication' },
-        3: { message: 'User authenticated and tokens received from PingOne', tokens: contextTokens }
-      });
-      return;
-    }
-    
-    // Fallback: Check sessionStorage
-    try {
-      const storedTokens = sessionStorage.getItem('pingone_playground_tokens');
-      if (storedTokens && !tokensReceived) {
-        const parsedTokens = JSON.parse(storedTokens);
-        console.log('✅ [ImplicitGrantFlow] Found sessionStorage tokens on mount');
-        setTokensReceived(parsedTokens);
-        setCurrentStep(3);
-        setDemoStatus('success');
-        setIsLoading(false);
-        setExecutedSteps(new Set([1, 2, 3]));
-        setStepResults({
-          1: { message: 'Authorization URL generated successfully' },
-          2: { message: 'User redirected to PingOne for authentication' },
-          3: { message: 'User authenticated and tokens received from PingOne', tokens: parsedTokens }
-        });
+    // Check for Implicit Flow specific tokens only
+    // We should NOT show tokens from other flows (like Authorization Code Flow)
+    // Only show tokens that were specifically obtained through the Implicit Flow
+    const checkForImplicitFlowTokens = () => {
+      try {
+        // Check if there are tokens specifically from Implicit Flow
+        const implicitFlowTokens = sessionStorage.getItem('implicit_flow_tokens');
+        if (implicitFlowTokens && !tokensReceived) {
+          const parsedTokens = JSON.parse(implicitFlowTokens);
+          console.log('✅ [ImplicitGrantFlow] Found Implicit Flow specific tokens on mount');
+          setTokensReceived(parsedTokens);
+          setCurrentStep(3);
+          setDemoStatus('success');
+          // setIsLoading(false); // Not used in this component
+          setExecutedSteps(new Set([1, 2, 3]));
+          setStepResults({
+            1: { message: 'Authorization URL generated successfully' },
+            2: { message: 'User redirected to PingOne for authentication' },
+            3: { message: 'User authenticated and tokens received from PingOne', tokens: parsedTokens }
+          });
+          return;
+        }
+      } catch (error) {
+        console.warn('⚠️ [ImplicitGrantFlow] Error checking for Implicit Flow tokens:', error);
       }
-    } catch (error) {
-      console.warn('⚠️ [ImplicitGrantFlow] Error checking sessionStorage on mount:', error);
-    }
+    };
+    
+    checkForImplicitFlowTokens();
+    
+    // Note: We intentionally do NOT check for general tokens here
+    // The Implicit Flow should only show tokens that were specifically obtained through the Implicit Flow
+    // This prevents showing tokens from other flows (like Authorization Code Flow)
   }, []); // Run only on mount
 
   const [currentStep, setCurrentStep] = useState(0);
@@ -203,8 +202,7 @@ const ImplicitGrantFlow = () => {
   const [error, setError] = useState<string | null>(null);
   const [stepResults, setStepResults] = useState<Record<number, any>>({});
   const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
-  const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false); // Not used in this component
   
   // Modal state for authorization request
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -227,7 +225,7 @@ const ImplicitGrantFlow = () => {
       setTokensReceived(contextTokens as Record<string, unknown> | null);
       setCurrentStep(3);
       setDemoStatus('success');
-      setIsLoading(false);
+              // setIsLoading(false); // Not used in this component
       
       // Mark steps 1 and 2 as completed since we have tokens
       setExecutedSteps(new Set([1, 2, 3]));
@@ -244,24 +242,20 @@ const ImplicitGrantFlow = () => {
     }
   }, [contextTokens, tokensReceived, currentStep, demoStatus, executedSteps.size]);
 
-  // Fallback: Check sessionStorage directly for tokens if context hasn't updated yet
+  // Check for Implicit Flow specific tokens only
   useEffect(() => {
-    const checkForStoredTokens = () => {
+    const checkForImplicitFlowTokens = () => {
       try {
-        // Check sessionStorage with the correct key prefix
-        const storedTokens = sessionStorage.getItem('pingone_playground_tokens');
+        // Only check for tokens specifically from Implicit Flow
+        const implicitFlowTokens = sessionStorage.getItem('implicit_flow_tokens');
         
-        // Debug: Check what's actually in the tokens key
-        const rawTokens = sessionStorage.getItem('pingone_playground_tokens');
-        console.log('🔍 [ImplicitGrantFlow] Raw tokens from sessionStorage:', rawTokens);
-        
-        if (storedTokens && !tokensReceived) {
-          const parsedTokens = JSON.parse(storedTokens);
-          console.log('🔄 [ImplicitGrantFlow] Found tokens in sessionStorage, advancing flow state');
+        if (implicitFlowTokens && !tokensReceived) {
+          const parsedTokens = JSON.parse(implicitFlowTokens);
+          console.log('🔄 [ImplicitGrantFlow] Found Implicit Flow tokens, advancing flow state');
           setTokensReceived(parsedTokens);
           setCurrentStep(3);
           setDemoStatus('success');
-          setIsLoading(false);
+          // setIsLoading(false); // Not used in this component
           
           // Mark steps as completed
           setExecutedSteps(new Set([1, 2, 3]));
@@ -274,18 +268,18 @@ const ImplicitGrantFlow = () => {
             3: { message: 'User authenticated and tokens received from PingOne', tokens: parsedTokens }
           }));
           
-          console.log('✅ [ImplicitGrantFlow] SessionStorage fallback - flow state updated with steps 1-3 completed');
+          console.log('✅ [ImplicitGrantFlow] Implicit Flow tokens found - flow state updated with steps 1-3 completed');
         }
       } catch (error) {
-        console.warn('⚠️ [ImplicitGrantFlow] Error checking sessionStorage for tokens:', error);
+        console.warn('⚠️ [ImplicitGrantFlow] Error checking for Implicit Flow tokens:', error);
       }
     };
 
     // Check immediately
-    checkForStoredTokens();
+    checkForImplicitFlowTokens();
     
     // Also check after a short delay in case tokens are being stored asynchronously
-    const timer = setTimeout(checkForStoredTokens, 1000);
+    const timer = setTimeout(checkForImplicitFlowTokens, 1000);
     
     return () => clearTimeout(timer);
   }, [tokensReceived]);
@@ -322,6 +316,7 @@ const ImplicitGrantFlow = () => {
 
     const url = `${config.authorizationEndpoint}?${params.toString()}`;
     console.log('✅ [ImplicitGrantFlow] Generated authorization URL:', url);
+    console.log('🔍 [ImplicitGrantFlow] URL parameters:', Object.fromEntries(params.entries()));
     return url;
   };
 
@@ -333,7 +328,7 @@ const ImplicitGrantFlow = () => {
     setAuthUrl('');
     setStepResults({});
     setExecutedSteps(new Set());
-    setStepsWithResults([...steps]); // Initialize with copy of steps
+    // Steps are already initialized in useEffect
     console.log('🚀 [ImplicitGrantFlow] Starting implicit flow...');
   };
 
@@ -346,8 +341,8 @@ const ImplicitGrantFlow = () => {
     setAuthUrl('');
     setStepResults({});
     setExecutedSteps(new Set());
-    setStepsWithResults([]);
-    setIsLoading(false);
+    // setStepsWithResults([]); // This variable doesn't exist in this component
+            // setIsLoading(false); // Not used in this component
     setShowAuthModal(false);
     setPendingAuthUrl('');
     setPendingRequestParams({});
@@ -359,7 +354,8 @@ const ImplicitGrantFlow = () => {
     // Clear sessionStorage tokens as well
     try {
       sessionStorage.removeItem('pingone_playground_tokens');
-      console.log('✅ [ImplicitGrantFlow] Cleared sessionStorage tokens');
+      sessionStorage.removeItem('implicit_flow_tokens');
+      console.log('✅ [ImplicitGrantFlow] Cleared sessionStorage tokens and Implicit Flow specific tokens');
     } catch (error) {
       console.warn('⚠️ [ImplicitGrantFlow] Error clearing sessionStorage tokens:', error);
     }
@@ -372,14 +368,6 @@ const ImplicitGrantFlow = () => {
       console.log('🔍 [ImplicitGrantFlow] Updated stepResults:', newResults);
       return newResults;
     });
-    setStepsWithResults(prev => {
-      const newSteps = [...prev];
-      if (newSteps[stepIndex]) {
-        newSteps[stepIndex] = { ...newSteps[stepIndex], result };
-      }
-      console.log('🔍 [ImplicitGrantFlow] Updated stepsWithResults:', newSteps);
-      return newSteps;
-    });
   };
 
   // Modal handlers
@@ -391,6 +379,7 @@ const ImplicitGrantFlow = () => {
 
   const handleModalProceed = () => {
     console.log('🔄 [ImplicitGrantFlow] Proceeding to PingOne:', pendingAuthUrl);
+    console.log('🔍 [ImplicitGrantFlow] Authorization URL being used:', pendingAuthUrl);
     setShowAuthModal(false);
     // Redirect to PingOne
     window.location.href = pendingAuthUrl;
@@ -399,12 +388,12 @@ const ImplicitGrantFlow = () => {
   const steps: FlowStep[] = useMemo(() => [
     {
       title: 'Generate Authorization URL',
-      description: 'Create the authorization URL with authorization code parameters',
-      code: `// Authorization URL for Simplified Authorization Code Flow
+      description: 'Create the authorization URL with implicit flow parameters',
+      code: `// Authorization URL for Implicit Flow
 const authUrl = '${generateAuthUrl()}';
 
 // Parameters:
-response_type: 'code'
+response_type: 'id_token token'
 client_id: '${config?.clientId || 'your_client_id'}'
 redirect_uri: '${config?.redirectUri || 'https://yourapp.com/callback'}'
 scope: 'openid profile email'
@@ -412,7 +401,7 @@ state: 'random_state_value'
 nonce: 'random_nonce_value'
 
 // Full URL:
-${config?.authorizationEndpoint || 'https://auth.pingone.com/env_id/as/authorize'}?response_type=code&client_id=${config?.clientId || 'your_client_id'}&redirect_uri=${config?.redirectUri || 'https://yourapp.com/callback'}&scope=openid%20profile%20email&state=random_state_value&nonce=random_nonce_value`,
+${config?.authorizationEndpoint || 'https://auth.pingone.com/env_id/as/authorize'}?response_type=id_token%20token&client_id=${config?.clientId || 'your_client_id'}&redirect_uri=${config?.redirectUri || 'https://yourapp.com/callback'}&scope=openid%20profile%20email&state=random_state_value&nonce=random_nonce_value`,
       execute: () => {
         console.log('🔍 [ImplicitGrantFlow] Step 1 execute called:', {
           hasConfig: !!config,
@@ -493,13 +482,13 @@ window.location.href = authUrl;
         };
 
         // Add login_hint if provided
-        if (config.loginHint) {
-          requestParams.login_hint = config.loginHint;
+        if ((config as any).loginHint) {
+          requestParams.login_hint = (config as any).loginHint;
         }
 
         setPendingRequestParams(requestParams);
         setShowAuthModal(true);
-        // Don't return result - execute should return void
+        return { message: 'Authorization URL generated and modal shown' };
       }
     },
     {
@@ -559,6 +548,14 @@ localStorage.setItem('access_token', accessToken);`,
         const success = storeOAuthTokens(tokensForStorage, 'implicit', 'Implicit Grant Flow');
         if (success) {
           console.log('✅ [ImplicitGrantFlow] Tokens received and stored successfully');
+          
+          // Also store in Implicit Flow specific key for this component to find
+          try {
+            sessionStorage.setItem('implicit_flow_tokens', JSON.stringify(tokensForStorage));
+            console.log('✅ [ImplicitGrantFlow] Tokens also stored in Implicit Flow specific key');
+          } catch (error) {
+            console.warn('⚠️ [ImplicitGrantFlow] Failed to store in Implicit Flow specific key:', error);
+          }
         } else {
           console.error('❌ [ImplicitGrantFlow] Failed to store tokens');
         }
@@ -592,18 +589,16 @@ console.log('User ID:', decodedIdToken.sub);`,
     },
   ], [config, authUrl, stepResults, executedSteps, generateAuthUrl]);
 
-  const flowType = getFlowById('simplified-auth-code');
+  // Initialize steps when component mounts - removed to prevent infinite loop
+  // stepsWithResults is now managed directly in the useMemo above
+
+  const flowType = getFlowById('oidc-implicit');
 
   return (
     <Container>
       <PageTitle 
-        title={
-          <>
-            <FiLock />
-            Simplified Authorization Code Flow
-          </>
-        }
-        subtitle="Learn how a simplified authorization code flow works with PingOne. This demonstrates the core OAuth concepts with a working implementation."
+        title="Implicit Flow"
+        subtitle="Learn how the OAuth 2.0 Implicit Flow works with PingOne. This demonstrates the implicit grant type for single-page applications."
       />
 
       {flowType && (
@@ -660,13 +655,23 @@ console.log('User ID:', decodedIdToken.sub);`,
         </CardBody>
       </FlowOverview>
 
+      {/* Flow Credentials Configuration */}
+      <div style={{ marginBottom: '2rem', padding: '1rem', border: '2px solid #0070cc', borderRadius: '8px', backgroundColor: '#f0f8ff' }}>
+        <h3 style={{ margin: '0 0 1rem 0', color: '#0070cc' }}>🔧 Flow Credentials Configuration</h3>
+        <p style={{ margin: '0 0 1rem 0', color: '#666' }}>Configure PingOne credentials for this flow:</p>
+        <FlowCredentials 
+          flowType="implicit"
+          onConfigChange={setEffectiveConfig}
+        />
+      </div>
+
       <DemoSection>
         <CardHeader>
           <h2>Interactive Demo</h2>
         </CardHeader>
         <CardBody>
           <StepByStepFlow
-            steps={stepsWithResults.length > 0 ? stepsWithResults : steps}
+            steps={steps}
             onStart={startImplicitFlow}
             onReset={resetDemo}
             status={demoStatus}

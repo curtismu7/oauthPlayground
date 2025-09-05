@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { 
-  FiHome, FiCode, FiUser, FiSettings, 
-  FiChevronDown, FiBookOpen, FiEye, FiShield, FiUsers, FiDatabase
+  FiHome, FiCode, FiLock, FiUser, FiSettings, 
+  FiChevronDown, FiChevronRight, FiBookOpen, FiEye 
 } from 'react-icons/fi';
 
 interface SidebarContainerProps {
@@ -18,11 +18,6 @@ interface NavItemHeaderProps {
   $isOpen?: boolean;
 }
 
-interface SidebarProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
 const SidebarContainer = styled.aside<SidebarContainerProps>`
   position: fixed;
   top: 60px;
@@ -35,7 +30,6 @@ const SidebarContainer = styled.aside<SidebarContainerProps>`
   transition: transform 0.3s ease;
   overflow-y: auto;
   padding: 1rem 0;
-  
   @media (max-width: ${({ theme }) => theme.breakpoints?.lg || '1024px'}) {
     transform: ${({ $isOpen }) => $isOpen ? 'translateX(0)' : 'translateX(-100%)'};
   }
@@ -43,7 +37,6 @@ const SidebarContainer = styled.aside<SidebarContainerProps>`
 
 const NavSection = styled.div`
   margin-bottom: 1.5rem;
-  
   &:last-child {
     margin-bottom: 0;
   }
@@ -59,7 +52,7 @@ const NavSectionTitle = styled.h3`
   margin: 1.5rem 0 0.5rem;
 `;
 
-const NavItem = styled(Link)`
+const NavItem = styled(NavLink)`
   display: flex;
   align-items: center;
   padding: 0.75rem 1.5rem;
@@ -67,12 +60,15 @@ const NavItem = styled(Link)`
   text-decoration: none;
   transition: all 0.2s;
   font-weight: 500;
-  
   &:hover {
     background-color: ${({ theme }) => theme.colors?.gray100 || '#f3f4f6'};
     color: ${({ theme }) => theme.colors?.primary || '#0070cc'};
   }
-  
+  &.active {
+    background-color: ${({ theme }) => theme.colors?.primaryLight || '#e0f2fe'}20;
+    color: ${({ theme }) => theme.colors?.primary || '#0070cc'};
+    border-right: 3px solid ${({ theme }) => theme.colors?.primary || '#0070cc'};
+  }
   svg {
     margin-right: 0.75rem;
     font-size: 1.25rem;
@@ -85,7 +81,7 @@ const Submenu = styled.div<SubmenuProps>`
   transition: max-height 0.3s ease-in-out;
 `;
 
-const SubmenuItem = styled(Link)`
+const SubmenuItem = styled(NavLink)`
   display: flex;
   align-items: center;
   padding: 0.5rem 1.5rem 0.5rem 3.5rem;
@@ -93,18 +89,24 @@ const SubmenuItem = styled(Link)`
   text-decoration: none;
   font-size: 0.9rem;
   transition: all 0.2s;
-  
   &:hover {
     background-color: ${({ theme }) => theme.colors?.gray50 || '#f9fafb'};
     color: ${({ theme }) => theme.colors?.primary || '#0070cc'};
   }
-  
+  &.active {
+    background-color: ${({ theme }) => theme.colors?.primaryLight || '#e0f2fe'}10;
+    color: ${({ theme }) => theme.colors?.primary || '#0070cc'};
+    font-weight: 500;
+  }
   &:before {
     content: '•';
     margin-right: 0.75rem;
     font-size: 1.5rem;
     line-height: 0;
     color: ${({ theme }) => theme.colors?.gray400 || '#9ca3af'};
+  }
+  &.active:before {
+    color: ${({ theme }) => theme.colors?.primary || '#0070cc'};
   }
 `;
 
@@ -120,42 +122,36 @@ const NavItemHeader = styled.div<NavItemHeaderProps>`
   padding: 0.75rem 1.5rem;
   color: ${({ theme }) => theme.colors?.gray700 || '#374151'};
   font-weight: 500;
-  
   &:hover {
     background-color: ${({ theme }) => theme.colors?.gray100 || '#f3f4f6'};
     color: ${({ theme }) => theme.colors?.primary || '#0070cc'};
   }
-  
   svg:first-child {
     margin-right: 0.75rem;
   }
-  
   svg:last-child {
     transition: transform 0.2s;
     transform: rotate(${({ $isOpen }) => $isOpen ? '0deg' : '-90deg'});
   }
 `;
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+const Sidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
   const location = useLocation();
   const [openMenus, setOpenMenus] = useState({
-    oidc: true,  // Default to expanded
-    resources: true, // Default to expanded
+    flows: false,
+    oidc: false,
   });
 
-  // Auto-open menu based on current route (only for resources, keep OIDC always expanded)
+  // Auto-open menu based on current route
   useEffect(() => {
     const path = location.pathname;
-    setOpenMenus(prev => ({
-      ...prev,
-      // Keep OIDC section always expanded (don't auto-collapse it)
-      resources: path.startsWith('/oidc/userinfo') || path.startsWith('/oidc/tokens') || 
-                 path.startsWith('/token-management') || path.startsWith('/documentation') || 
-                 path.startsWith('/configuration'),
-    }));
+    setOpenMenus({
+      flows: path.startsWith('/flows'),
+      oidc: path.startsWith('/oidc'),
+    });
   }, [location.pathname]);
 
-  const toggleMenu = (menu: 'oidc' | 'resources') => {
+  const toggleMenu = (menu: string) => {
     setOpenMenus(prev => ({
       ...prev,
       [menu]: !prev[menu]
@@ -172,8 +168,36 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       </NavSection>
 
       <NavSection>
-        <NavSectionTitle>OpenID Connect</NavSectionTitle>
-        
+        <NavSectionTitle>OAuth 2.0 Flows</NavSectionTitle>
+        <NavItemWithSubmenu>
+          <NavItemHeader 
+            onClick={() => toggleMenu('flows')}
+            $isOpen={openMenus.flows}
+          >
+            <div>
+              <FiCode />
+              <span>OAuth 2.0 Flows</span>
+            </div>
+            <FiChevronDown />
+          </NavItemHeader>
+          <Submenu $isOpen={openMenus.flows}>
+            <SubmenuItem to="/flows/authorization-code" onClick={onClose}>
+              Authorization Code
+            </SubmenuItem>
+            <SubmenuItem to="/flows/implicit" onClick={onClose}>
+              Implicit
+            </SubmenuItem>
+            <SubmenuItem to="/flows/client-credentials" onClick={onClose}>
+              Client Credentials
+            </SubmenuItem>
+            <SubmenuItem to="/flows/pkce" onClick={onClose}>
+              PKCE
+            </SubmenuItem>
+            <SubmenuItem to="/flows/device-code" onClick={onClose}>
+              Device Code
+            </SubmenuItem>
+          </Submenu>
+        </NavItemWithSubmenu>
         <NavItemWithSubmenu>
           <NavItemHeader 
             onClick={() => toggleMenu('oidc')}
@@ -185,73 +209,31 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             </div>
             <FiChevronDown />
           </NavItemHeader>
-          
           <Submenu $isOpen={openMenus.oidc}>
-            <SubmenuItem to="/oidc/authorization-code" onClick={onClose}>
-              Authorization Code
-            </SubmenuItem>
-            <SubmenuItem to="/oidc/hybrid" onClick={onClose}>
-              Hybrid Flow
-            </SubmenuItem>
-            <SubmenuItem to="/oidc/implicit" onClick={onClose}>
-              Implicit
-            </SubmenuItem>
-            <SubmenuItem to="/oidc/client-credentials" onClick={onClose}>
-              Client Credentials
-            </SubmenuItem>
-            <SubmenuItem to="/oidc/device-code" onClick={onClose}>
-              Device Code
-            </SubmenuItem>
-          </Submenu>
-        </NavItemWithSubmenu>
-        
-        
-        <NavItemWithSubmenu>
-          <NavItemHeader 
-            onClick={() => toggleMenu('resources')}
-            $isOpen={openMenus.resources}
-          >
-            <div>
-              <FiDatabase />
-              <span>Resources</span>
-            </div>
-            <FiChevronDown />
-          </NavItemHeader>
-          
-          <Submenu $isOpen={openMenus.resources}>
             <SubmenuItem to="/oidc/userinfo" onClick={onClose}>
               UserInfo Endpoint
             </SubmenuItem>
             <SubmenuItem to="/oidc/tokens" onClick={onClose}>
               ID Tokens
             </SubmenuItem>
-            <SubmenuItem to="/token-management" onClick={onClose}>
-              Token Management
-            </SubmenuItem>
-            <SubmenuItem to="/documentation" onClick={onClose}>
-              Documentation
-            </SubmenuItem>
-            <SubmenuItem to="/configuration" onClick={onClose}>
-              Configuration
-            </SubmenuItem>
-            <SubmenuItem to="/external-documentation" onClick={onClose}>
-              External Documentation
-            </SubmenuItem>
           </Submenu>
         </NavItemWithSubmenu>
-        
-        <NavItem to="/oauth-2-1" onClick={onClose}>
-          <FiShield />
-          <span>OAuth 2.1</span>
+      </NavSection>
+      <NavSection>
+        <NavSectionTitle>Resources</NavSectionTitle>
+        <NavItem to="/token-management" onClick={onClose}>
+          <FiEye />
+          <span>Token Management</span>
         </NavItem>
-        
-        <NavItem to="/oidc-session-management" onClick={onClose}>
-          <FiUsers />
-          <span>Session Management</span>
+        <NavItem to="/documentation" onClick={onClose}>
+          <FiBookOpen />
+          <span>Documentation</span>
+        </NavItem>
+        <NavItem to="/configuration" onClick={onClose}>
+          <FiSettings />
+          <span>Configuration</span>
         </NavItem>
       </NavSection>
-      
-
     </SidebarContainer>
   );
 };

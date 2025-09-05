@@ -1,10 +1,59 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from './Card';
-import { FiSettings, FiEye, FiEyeOff, FiCopy, FiCheck } from 'react-icons/fi';
+import { 
+  FiSettings, FiEye, FiEyeOff, FiCopy, FiCheck, 
+  FiShield, FiKey, FiClock, FiGlobe, FiServer 
+} from 'react-icons/fi';
 
 const ConfigContainer = styled.div`
   margin-bottom: 2rem;
+`;
+
+const SectionContainer = styled.div<{ $color: string }>`
+  background: linear-gradient(135deg, ${({ $color }) => $color}15, ${({ $color }) => $color}08);
+  border: 1px solid ${({ $color }) => $color}30;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, ${({ $color }) => $color}, ${({ $color }) => $color}80);
+  }
+`;
+
+const SectionHeader = styled.div<{ $color: string }>`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  
+  h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: ${({ $color }) => $color};
+    margin: 0;
+  }
+  
+  svg {
+    color: ${({ $color }) => $color};
+    font-size: 1.25rem;
+  }
+`;
+
+const SectionDescription = styled.p`
+  color: ${({ theme }) => theme.colors.gray600};
+  font-size: 0.9rem;
+  margin: 0 0 1rem 0;
+  line-height: 1.4;
 `;
 
 const ConfigSection = styled.div`
@@ -201,7 +250,12 @@ export interface FlowConfig {
   // Basic OAuth parameters
   scopes: string[];
   responseType: string;
+  responseMode?: string;
   grantType: string;
+  
+  // Authentication method settings
+  applicationType?: 'spa' | 'backend';
+  authenticationMethod?: 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt';
   
   // PKCE settings
   enablePKCE: boolean;
@@ -224,6 +278,23 @@ export interface FlowConfig {
   prompt: string;
   loginHint: string;
   acrValues: string[];
+  
+  // Token settings
+  accessTokenLifetime: number; // in minutes
+  refreshTokenLifetime: number; // in minutes
+  idTokenLifetime: number; // in minutes
+  
+  // CORS settings
+  allowedOrigins: string[];
+  
+  // JSON Web Key Set settings
+  jwksMethod: 'jwks_url' | 'jwks';
+  jwksUrl: string;
+  jwks: string;
+  
+  // Pushed Authorization Request settings
+  requirePar: boolean;
+  parTimeout: number; // in seconds
 }
 
 interface FlowConfigurationProps {
@@ -357,11 +428,14 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
         </CardHeader>
         <CardBody>
           {/* Basic OAuth Parameters */}
-          <ConfigSection>
-            <h4>
+          <SectionContainer $color="#3B82F6">
+            <SectionHeader $color="#3B82F6">
               <FiSettings />
-              Basic OAuth Parameters
-            </h4>
+              <h4>Basic OAuth Parameters</h4>
+            </SectionHeader>
+            <SectionDescription>
+              Configure basic OAuth 2.0 parameters for your application.
+            </SectionDescription>
             <ConfigGrid>
               <ConfigField>
                 <label>Response Type</label>
@@ -392,11 +466,17 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
                 </select>
               </ConfigField>
             </ConfigGrid>
-          </ConfigSection>
+          </SectionContainer>
 
           {/* Scopes */}
-          <ConfigSection>
-            <h4>OAuth Scopes</h4>
+          <SectionContainer $color="#3B82F6">
+            <SectionHeader $color="#3B82F6">
+              <FiSettings />
+              <h4>OAuth Scopes</h4>
+            </SectionHeader>
+            <SectionDescription>
+              Select the OAuth scopes to request from the authorization server.
+            </SectionDescription>
             <ScopeContainer>
               {availableScopes.map(scope => (
                 <ScopeChip
@@ -408,12 +488,98 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
                 </ScopeChip>
               ))}
             </ScopeContainer>
-          </ConfigSection>
+          </SectionContainer>
+
+          {/* Authentication Method */}
+          <SectionContainer $color="#10B981">
+            <SectionHeader $color="#10B981">
+              <FiShield />
+              <h4>Authentication Method</h4>
+            </SectionHeader>
+            <SectionDescription>
+              Configure how your application authenticates with the OAuth 2.0 token endpoint.
+            </SectionDescription>
+            
+            <ConfigGrid>
+              <ConfigField>
+                <label>Application Type</label>
+                <select
+                  value={config.applicationType || 'spa'}
+                  onChange={(e) => {
+                    const newApplicationType = e.target.value as 'spa' | 'backend';
+                    const updates: Partial<FlowConfig> = { applicationType: newApplicationType };
+                    
+                    // Auto-sync authentication method based on application type
+                    if (newApplicationType === 'spa') {
+                      // For SPAs, we use "none" authentication method (PKCE is handled separately)
+                      updates.authenticationMethod = 'none';
+                      updates.enablePKCE = true;
+                    } else if (newApplicationType === 'backend') {
+                      // Keep current auth method if it's already a backend method, otherwise default to client_secret_basic
+                      const currentAuthMethod = config.authenticationMethod || 'client_secret_basic';
+                      if (['client_secret_basic', 'client_secret_post', 'client_secret_jwt', 'private_key_jwt'].includes(currentAuthMethod)) {
+                        updates.authenticationMethod = currentAuthMethod;
+                      } else {
+                        updates.authenticationMethod = 'client_secret_basic';
+                      }
+                      updates.enablePKCE = false;
+                    }
+                    
+                    updateConfig(updates);
+                  }}
+                >
+                  <option value="spa">Single Page Application (SPA)</option>
+                  <option value="backend">Backend Application</option>
+                </select>
+                <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                  Choose based on your PingOne application configuration. SPA uses PKCE, Backend uses Client Secret Basic.
+                </div>
+              </ConfigField>
+              
+              <ConfigField>
+                <label>Authentication Method</label>
+                <select
+                  value={config.authenticationMethod || 'none'}
+                  onChange={(e) => {
+                    const newAuthMethod = e.target.value as 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt';
+                    const updates: Partial<FlowConfig> = { authenticationMethod: newAuthMethod };
+                    
+                    // Auto-sync application type based on authentication method
+                    if (newAuthMethod === 'none') {
+                      updates.applicationType = 'spa';
+                      updates.enablePKCE = true;
+                    } else {
+                      // All other methods are for backend applications
+                      updates.applicationType = 'backend';
+                      updates.enablePKCE = false;
+                    }
+                    
+                    updateConfig(updates);
+                  }}
+                >
+                  <option value="none">None</option>
+                  <option value="client_secret_basic">Client Secret Basic</option>
+                  <option value="client_secret_post">Client Secret Post</option>
+                  <option value="client_secret_jwt">Client Secret JWT</option>
+                  <option value="private_key_jwt">Private Key JWT</option>
+                </select>
+                <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                  Token endpoint authentication methods for backend applications. PKCE is configured separately above.
+                </div>
+              </ConfigField>
+            </ConfigGrid>
+          </SectionContainer>
 
           {/* PKCE Settings */}
           {(flowType === 'authorization-code' || flowType === 'pkce') && (
-            <ConfigSection>
-              <h4>PKCE (Proof Key for Code Exchange)</h4>
+            <SectionContainer $color="#3B82F6">
+              <SectionHeader $color="#3B82F6">
+                <FiShield />
+                <h4>PKCE (Proof Key for Code Exchange)</h4>
+              </SectionHeader>
+              <SectionDescription>
+                Configure PKCE for enhanced security in public client flows.
+              </SectionDescription>
               <ConfigGrid>
                 <ToggleContainer>
                   <div
@@ -440,13 +606,19 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
                   </ConfigField>
                 )}
               </ConfigGrid>
-            </ConfigSection>
+            </SectionContainer>
           )}
 
           {/* OIDC Settings */}
           {config.enableOIDC && (
-            <ConfigSection>
-              <h4>OpenID Connect Settings</h4>
+            <SectionContainer $color="#8B5CF6">
+              <SectionHeader $color="#8B5CF6">
+                <FiKey />
+                <h4>OpenID Connect Settings</h4>
+              </SectionHeader>
+              <SectionDescription>
+                Configure OpenID Connect specific parameters for enhanced security.
+              </SectionDescription>
               <ConfigGrid>
                 <ConfigField>
                   <label>Nonce</label>
@@ -523,15 +695,222 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
                   </select>
                 </ConfigField>
               </ConfigGrid>
-            </ConfigSection>
+            </SectionContainer>
           )}
 
+          {/* Token Settings */}
+          <SectionContainer $color="#EF4444">
+            <SectionHeader $color="#EF4444">
+              <FiClock />
+              <h4>Token Settings</h4>
+            </SectionHeader>
+            <SectionDescription>
+              Configure token lifetimes and expiration settings.
+            </SectionDescription>
+            <ConfigGrid>
+              <ConfigField>
+                <label>Access Token Lifetime (minutes)</label>
+                <input
+                  type="number"
+                  value={config.accessTokenLifetime || 60}
+                  onChange={(e) => updateConfig({ accessTokenLifetime: parseInt(e.target.value) || 60 })}
+                  min="1"
+                  max="1440"
+                />
+                <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                  How long access tokens remain valid (1-1440 minutes)
+                </div>
+                {(config.accessTokenLifetime || 60) <= 10 && (
+                  <div style={{ 
+                    fontSize: '0.8rem', 
+                    color: '#dc2626', 
+                    marginTop: '0.25rem',
+                    background: '#fef2f2',
+                    padding: '0.5rem',
+                    borderRadius: '4px',
+                    border: '1px solid #fecaca'
+                  }}>
+                    ⚠️ <strong>Short-lived tokens:</strong> Tokens with very short lifetimes (≤10 minutes) 
+                    require frequent refresh and may impact application performance.
+                  </div>
+                )}
+              </ConfigField>
+              
+              <ConfigField>
+                <label>Refresh Token Lifetime (minutes)</label>
+                <input
+                  type="number"
+                  value={config.refreshTokenLifetime || 10080}
+                  onChange={(e) => updateConfig({ refreshTokenLifetime: parseInt(e.target.value) || 10080 })}
+                  min="1"
+                  max="525600"
+                />
+                <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                  How long refresh tokens remain valid (1-525600 minutes)
+                </div>
+              </ConfigField>
+              
+              <ConfigField>
+                <label>ID Token Lifetime (minutes)</label>
+                <input
+                  type="number"
+                  value={config.idTokenLifetime || 60}
+                  onChange={(e) => updateConfig({ idTokenLifetime: parseInt(e.target.value) || 60 })}
+                  min="1"
+                  max="1440"
+                />
+                <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                  How long ID tokens remain valid (1-1440 minutes)
+                </div>
+              </ConfigField>
+            </ConfigGrid>
+          </SectionContainer>
+
+          {/* CORS Settings */}
+          <SectionContainer $color="#06B6D4">
+            <SectionHeader $color="#06B6D4">
+              <FiGlobe />
+              <h4>CORS Settings</h4>
+            </SectionHeader>
+            <SectionDescription>
+              Configure Cross-Origin Resource Sharing (CORS) allowed origins.
+            </SectionDescription>
+            
+            <ConfigField>
+              <label>Allowed Origins</label>
+              <textarea
+                value={(config.allowedOrigins || []).join('\n')}
+                onChange={(e) => updateConfig({ allowedOrigins: e.target.value.split('\n').filter(origin => origin.trim()) })}
+                placeholder="https://localhost:3000&#10;https://your-app.com"
+                rows={3}
+              />
+              <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                One origin per line. These origins will be allowed to make CORS requests.
+              </div>
+            </ConfigField>
+          </SectionContainer>
+
+          {/* JSON Web Key Set Method */}
+          <SectionContainer $color="#8B5CF6">
+            <SectionHeader $color="#8B5CF6">
+              <FiKey />
+              <h4>JSON Web Key Set (JWKS)</h4>
+            </SectionHeader>
+            <SectionDescription>
+              Configure how to provide JSON Web Key Set for JWT token validation.
+            </SectionDescription>
+            <ConfigGrid>
+              <ConfigField>
+                <label>JWKS Method</label>
+                <div style={{ display: 'flex', gap: '1rem', marginBottom: '0.5rem' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <input
+                      type="radio"
+                      name="jwksMethod"
+                      value="jwks_url"
+                      checked={config.jwksMethod === 'jwks_url'}
+                      onChange={(e) => updateConfig({ jwksMethod: e.target.value as 'jwks_url' | 'jwks' })}
+                    />
+                    JWKS URL
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <input
+                      type="radio"
+                      name="jwksMethod"
+                      value="jwks"
+                      checked={config.jwksMethod === 'jwks'}
+                      onChange={(e) => updateConfig({ jwksMethod: e.target.value as 'jwks_url' | 'jwks' })}
+                    />
+                    JWKS
+                  </label>
+                </div>
+                <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                  Choose how to provide JSON Web Key Set for token validation
+                </div>
+              </ConfigField>
+              
+              {config.jwksMethod === 'jwks_url' ? (
+                <ConfigField>
+                  <label>JWKS URL</label>
+                  <input
+                    type="url"
+                    value={config.jwksUrl || ''}
+                    onChange={(e) => updateConfig({ jwksUrl: e.target.value })}
+                    placeholder="https://your-domain.com/.well-known/jwks.json"
+                  />
+                  <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                    URL to fetch the JSON Web Key Set
+                  </div>
+                </ConfigField>
+              ) : (
+                <ConfigField>
+                  <label>JWKS</label>
+                  <textarea
+                    value={config.jwks || ''}
+                    onChange={(e) => updateConfig({ jwks: e.target.value })}
+                    placeholder='{"keys": [...]}'
+                    rows={4}
+                  />
+                  <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                    JSON Web Key Set content
+                  </div>
+                </ConfigField>
+              )}
+            </ConfigGrid>
+          </SectionContainer>
+
+          {/* Pushed Authorization Request */}
+          <SectionContainer $color="#F59E0B">
+            <SectionHeader $color="#F59E0B">
+              <FiServer />
+              <h4>Pushed Authorization Request (PAR)</h4>
+            </SectionHeader>
+            <SectionDescription>
+              Configure Pushed Authorization Request (RFC 9126) for enhanced security.
+            </SectionDescription>
+            <ConfigGrid>
+              <ConfigField>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <input
+                    type="checkbox"
+                    checked={config.requirePar || false}
+                    onChange={(e) => updateConfig({ requirePar: e.target.checked })}
+                  />
+                  Require Pushed Authorization Request
+                </label>
+                <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                  Enable PAR (RFC 9126) for enhanced security
+                </div>
+              </ConfigField>
+              
+              <ConfigField>
+                <label>Pushed Authorization Request Reference Timeout (seconds)</label>
+                <input
+                  type="number"
+                  value={config.parTimeout || 60}
+                  onChange={(e) => updateConfig({ parTimeout: parseInt(e.target.value) || 60 })}
+                  min="1"
+                  max="3600"
+                />
+                <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                  How long PAR references remain valid (1-3600 seconds)
+                </div>
+              </ConfigField>
+            </ConfigGrid>
+          </SectionContainer>
+
           {/* Custom Parameters */}
-          <ConfigSection>
-            <h4>Custom Parameters</h4>
+          <SectionContainer $color="#6B7280">
+            <SectionHeader $color="#6B7280">
+              <FiSettings />
+              <h4>Custom Parameters</h4>
+            </SectionHeader>
+            <SectionDescription>
+              Add custom parameters to include in authorization requests.
+            </SectionDescription>
             <CustomClaimContainer>
-              {Object.entries(config.customParams).map(([key, value]) => (
-                <ClaimRow key={key}>
+              {Object.entries(config.customParams).map(([key, value], index) => (
+                <ClaimRow key={`param-${index}`}>
                   <input
                     type="text"
                     placeholder="Parameter name"
@@ -551,15 +930,21 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
                 + Add Custom Parameter
               </AddButton>
             </CustomClaimContainer>
-          </ConfigSection>
+          </SectionContainer>
 
           {/* Custom Claims for ID Tokens */}
           {config.enableOIDC && (
-            <ConfigSection>
-              <h4>Custom Claims for ID Token</h4>
+            <SectionContainer $color="#8B5CF6">
+              <SectionHeader $color="#8B5CF6">
+                <FiKey />
+                <h4>Custom Claims for ID Token</h4>
+              </SectionHeader>
+              <SectionDescription>
+                Configure custom claims to include in ID tokens.
+              </SectionDescription>
               <CustomClaimContainer>
-                {Object.entries(config.customClaims).map(([key, value]) => (
-                  <ClaimRow key={key}>
+                {Object.entries(config.customClaims).map(([key, value], index) => (
+                  <ClaimRow key={`claim-${index}`}>
                     <input
                       type="text"
                       placeholder="Claim name"
@@ -579,12 +964,18 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
                   + Add Custom Claim
                 </AddButton>
               </CustomClaimContainer>
-            </ConfigSection>
+            </SectionContainer>
           )}
 
           {/* Configuration Summary */}
-          <ConfigSection>
-            <h4>Configuration Summary</h4>
+          <SectionContainer $color="#10B981">
+            <SectionHeader $color="#10B981">
+              <FiSettings />
+              <h4>Configuration Summary</h4>
+            </SectionHeader>
+            <SectionDescription>
+              Review your current configuration settings.
+            </SectionDescription>
             <div style={{ 
               background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)', 
               border: '1px solid #cbd5e1', 
@@ -623,7 +1014,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
                 </div>
               )}
             </div>
-          </ConfigSection>
+          </SectionContainer>
         </CardBody>
       </Card>
     </ConfigContainer>
