@@ -99,7 +99,7 @@ const CollapseIcon = styled.div<{ $isCollapsed: boolean }>`
   height: 3rem;
   border-radius: 8px;
   background-color: ${({ $isCollapsed }) => $isCollapsed ? '#e5e7eb' : '#3b82f6'};
-  color: ${({ $isCollapsed }) => $isCollapsed ? '#6b7280' : '#ffffff'};
+  color: ${({ $isCollapsed }) => $isCollapsed ? '#6b7280' : '#dc2626'}; /* Red color for expanded state */
   transition: all 0.3s ease;
   cursor: pointer;
   border: 2px solid ${({ $isCollapsed }) => $isCollapsed ? '#d1d5db' : '#2563eb'};
@@ -110,6 +110,7 @@ const CollapseIcon = styled.div<{ $isCollapsed: boolean }>`
   &:hover {
     background-color: ${({ $isCollapsed }) => $isCollapsed ? '#f3f4f6' : '#2563eb'};
     border-color: ${({ $isCollapsed }) => $isCollapsed ? '#9ca3af' : '#1d4ed8'};
+    color: ${({ $isCollapsed }) => $isCollapsed ? '#6b7280' : '#ffffff'}; /* White on hover for expanded state */
     transform: scale(1.05);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
