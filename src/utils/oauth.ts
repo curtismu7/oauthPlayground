@@ -401,3 +401,34 @@ export const isTokenExpired = (token: string): boolean => {
   const now = Date.now() / 1000;
   return decoded.exp < now;
 };
+
+export const buildSignoffUrl = ({
+  signoffEndpoint,
+  clientId,
+  redirectUri,
+  idTokenHint,
+  state,
+}: {
+  signoffEndpoint: string;
+  clientId: string;
+  redirectUri: string;
+  idTokenHint?: string;
+  state?: string;
+}): string => {
+  const url = new URL(signoffEndpoint);
+  const params = new URLSearchParams();
+  
+  params.append('client_id', clientId);
+  params.append('post_logout_redirect_uri', redirectUri);
+  
+  if (idTokenHint) {
+    params.append('id_token_hint', idTokenHint);
+  }
+  
+  if (state) {
+    params.append('state', state);
+  }
+  
+  url.search = params.toString();
+  return url.toString();
+};
