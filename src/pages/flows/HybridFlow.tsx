@@ -7,6 +7,7 @@ import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import ConfigurationButton from '../../components/ConfigurationButton';
 import ColorCodedURL from '../../components/ColorCodedURL';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
+import FlowCredentials from '../../components/FlowCredentials';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -185,7 +186,11 @@ const HybridFlow: React.FC = () => {
       code_challenge_method: 'S256'
     });
 
-    return `${config.authorizationEndpoint || config.authEndpoint || ''}?${params.toString()}`;
+    // Construct authorization endpoint if not available
+    const authEndpoint = config.authorizationEndpoint || config.authEndpoint || 
+      `https://auth.pingone.com/${config.environmentId}/as/authorize`;
+    
+    return `${authEndpoint}?${params.toString()}`;
   };
 
   const startHybridFlow = async () => {
@@ -499,9 +504,12 @@ if (Date.now() / 1000 > payload.exp) {
         </p>
       </Header>
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
-        <ConfigurationButton flowType="hybrid" />
-      </div>
+      <FlowCredentials
+        flowType="hybrid"
+        onCredentialsChange={(credentials) => {
+          console.log('Hybrid flow credentials updated:', credentials);
+        }}
+      />
 
       <FlowOverview>
         <CardHeader>
@@ -548,6 +556,9 @@ if (Date.now() / 1000 > payload.exp) {
             onStepResult={handleStepResult}
             disabled={!config}
             title="Hybrid Flow"
+            configurationButton={
+              <ConfigurationButton flowType="hybrid" />
+            }
           />
 
           {!config && (

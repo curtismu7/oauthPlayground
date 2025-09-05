@@ -749,13 +749,15 @@ const Login = () => {
                       type={showClientSecret ? 'text' : 'password'}
                       value={credentials.clientSecret}
                       onChange={(e) => handleCredentialChange('clientSecret', e.target.value)}
+                      autoComplete="current-password"
                       style={{
                         width: '100%',
+                        maxWidth: '600px',
                         padding: '0.5rem 3.25rem 0.5rem 0.75rem',
                         border: '1px solid #dee2e6',
+                        fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+                        fontSize: '0.875rem',
                         borderRadius: '4px',
-                        fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
-                        fontSize: '0.85rem',
                         backgroundColor: '#f8f9fa'
                       }}
                       placeholder="Enter your application's Client Secret"

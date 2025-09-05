@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { oauthStorage } from '../utils/storage';
 import type { OAuthTokens, UserInfo, OAuthTokenResponse } from '../types/storage';
 import { AuthContextType, AuthState, LoginResult } from '../types/auth';
+import { logger } from '../utils/logger';
+import { PingOneErrorInterpreter } from '../utils/pingoneErrorInterpreter';
 
 // Define the complete config type with all required properties
 interface AppConfig {
@@ -41,7 +43,7 @@ const getStoredTokens = (): OAuthTokens | null => {
     const tokens = oauthStorage.getTokens();
     return tokens ? JSON.parse(JSON.stringify(tokens)) : null;
   } catch (error) {
-    console.error('Error parsing stored tokens:', error);
+    logger.error('NewAuthContext', 'Error parsing stored tokens', error);
     return null;
   }
 };
@@ -51,7 +53,7 @@ const getStoredUser = (): UserInfo | null => {
     const user = oauthStorage.getUserInfo();
     return user ? JSON.parse(JSON.stringify(user)) : null;
   } catch (error) {
-    console.error('Error parsing stored user:', error);
+    logger.error('NewAuthContext', 'Error parsing stored user', error);
     return null;
   }
 };
@@ -75,8 +77,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Configuration state that updates when localStorage changes
   const [config, setConfig] = useState<AppConfig>(() => {
-    // Initialize config on first render
-    return loadConfiguration();
+    // Initialize config on first render with error handling
+    try {
+      return loadConfiguration();
+    } catch (error) {
+      logger.error('NewAuthContext', 'Error loading initial configuration', error);
+      // Return a default config if loading fails
+      return {
+        disableLogin: false,
+        clientId: '',
+        clientSecret: '',
+        redirectUri: `${window.location.origin}/callback`,
+        authorizationEndpoint: '',
+        tokenEndpoint: '',
+        userInfoEndpoint: '',
+        endSessionEndpoint: '',
+        scopes: ['openid', 'profile', 'email'],
+        environmentId: ''
+      };
+    }
   });
 
   // Load tokens from storage on component mount
@@ -85,7 +104,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const storedTokens = getStoredTokens();
         if (storedTokens && storedTokens.access_token) {
-          console.log('✅ [NewAuthContext] Loading tokens from storage:', storedTokens);
+          logger.storage('NewAuthContext', 'Loading tokens from storage', storedTokens);
           setState(prev => ({
             ...prev,
             tokens: storedTokens,
@@ -93,14 +112,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             isLoading: false
           }));
         } else {
-          console.log('ℹ️ [NewAuthContext] No valid tokens found in storage');
+          logger.info('NewAuthContext', 'No valid tokens found in storage');
           setState(prev => ({
             ...prev,
             isLoading: false
           }));
         }
       } catch (error) {
-        console.error('❌ [NewAuthContext] Error loading tokens from storage:', error);
+        logger.error('NewAuthContext', 'Error loading tokens from storage', error);
         setState(prev => ({
           ...prev,
           isLoading: false
@@ -113,21 +132,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Function to load configuration from environment variables or localStorage
   function loadConfiguration(): AppConfig {
-    const envId = (window as any).__PINGONE_ENVIRONMENT_ID__;
-    const apiUrl = (window as any).__PINGONE_API_URL__;
-    const clientId = (window as any).__PINGONE_CLIENT_ID__;
+    try {
+      const envId = (window as any).__PINGONE_ENVIRONMENT_ID__;
+      const apiUrl = (window as any).__PINGONE_API_URL__;
+      const clientId = (window as any).__PINGONE_CLIENT_ID__;
 
-    // Debug logging
-    console.log('🔍 [NewAuthContext] Loading configuration...', {
-      envId,
-      apiUrl,
-      clientId,
-      redirectUri: (window as any).__PINGONE_REDIRECT_URI__
-    });
+      // Debug logging
+      logger.config('NewAuthContext', 'Loading configuration...', {
+        envId,
+        apiUrl,
+        clientId,
+        redirectUri: (window as any).__PINGONE_REDIRECT_URI__
+      });
 
     // Check if we have the required configuration from environment variables
     if (envId && apiUrl && clientId) {
-      console.log('✅ [NewAuthContext] Using environment variables for configuration');
+      logger.success('NewAuthContext', 'Using environment variables for configuration');
       
       const envConfig = {
         disableLogin: false,
@@ -145,22 +165,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Store config in localStorage for fallback
       try {
         localStorage.setItem('pingone_config', JSON.stringify(envConfig));
-        console.log('💾 [NewAuthContext] Environment config stored in localStorage');
+        logger.storage('NewAuthContext', 'Environment config stored in localStorage');
       } catch (error) {
-        console.warn('⚠️ [NewAuthContext] Failed to store env config in localStorage:', error);
+        logger.warn('NewAuthContext', 'Failed to store env config in localStorage', error);
       }
       
       return envConfig;
     }
 
     // Fallback to localStorage
-    console.log('⚠️ [NewAuthContext] Environment variables missing, checking localStorage...');
+    logger.warn('NewAuthContext', 'Environment variables missing, checking localStorage...');
     
     const storedConfig = localStorage.getItem('pingone_config');
     if (storedConfig) {
       try {
         const parsed = JSON.parse(storedConfig);
-        console.log('🔍 [NewAuthContext] Found stored config:', parsed);
+        logger.config('NewAuthContext', 'Found stored config', parsed);
         
         // Validate that we have the minimum required fields
         if (parsed.clientId && parsed.environmentId) {
@@ -170,7 +190,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             clientId: parsed.clientId || '',
             clientSecret: parsed.clientSecret || '',
             redirectUri: parsed.redirectUri || `${window.location.origin}/callback`,
-            authorizationEndpoint: parsed.authEndpoint || parsed.authorizationEndpoint || '',
+            authorizationEndpoint: parsed.authEndpoint || parsed.authorizationEndpoint || 
+              `https://auth.pingone.com/${parsed.environmentId}/as/authorize`,
             tokenEndpoint: parsed.tokenEndpoint || '',
             userInfoEndpoint: parsed.userInfoEndpoint || '',
             endSessionEndpoint: parsed.endSessionEndpoint || '',
@@ -178,34 +199,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             environmentId: parsed.environmentId || ''
           };
           
-          console.log('✅ [NewAuthContext] Using stored config from localStorage:', mappedConfig);
+          logger.success('NewAuthContext', 'Using stored config from localStorage', mappedConfig);
           return mappedConfig;
         } else {
-          console.warn('⚠️ [NewAuthContext] Stored config missing required fields:', parsed);
+          logger.warn('NewAuthContext', 'Stored config missing required fields', parsed);
         }
       } catch (error) {
-        console.error('❌ [NewAuthContext] Failed to parse stored config:', error);
+        logger.error('NewAuthContext', 'Failed to parse stored config', error);
       }
     }
     
-    console.error('❌ [NewAuthContext] No valid configuration available');
-    return {
-      disableLogin: false,
-      clientId: '',
-      clientSecret: '',
-      redirectUri: `${window.location.origin}/callback`,
-      authorizationEndpoint: '',
-      tokenEndpoint: '',
-      userInfoEndpoint: '',
-      endSessionEndpoint: '',
-      scopes: ['openid', 'profile', 'email'],
-      environmentId: ''
-    };
+      logger.error('NewAuthContext', 'No valid configuration available');
+      return {
+        disableLogin: false,
+        clientId: '',
+        clientSecret: '',
+        redirectUri: `${window.location.origin}/callback`,
+        authorizationEndpoint: '',
+        tokenEndpoint: '',
+        userInfoEndpoint: '',
+        endSessionEndpoint: '',
+        scopes: ['openid', 'profile', 'email'],
+        environmentId: ''
+      };
+    } catch (error) {
+      logger.error('NewAuthContext', 'Error in loadConfiguration', error);
+      return {
+        disableLogin: false,
+        clientId: '',
+        clientSecret: '',
+        redirectUri: `${window.location.origin}/callback`,
+        authorizationEndpoint: '',
+        tokenEndpoint: '',
+        userInfoEndpoint: '',
+        endSessionEndpoint: '',
+        scopes: ['openid', 'profile', 'email'],
+        environmentId: ''
+      };
+    }
   }
 
   // Function to refresh configuration
   const refreshConfig = useCallback(() => {
-    console.log('🔄 [NewAuthContext] Refreshing configuration...');
+    logger.config('NewAuthContext', 'Refreshing configuration...');
     const newConfig = loadConfiguration();
     setConfig(newConfig);
   }, []);
@@ -214,7 +250,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'pingone_config') {
-        console.log('🔄 [NewAuthContext] localStorage pingone_config changed, refreshing config...');
+        logger.storage('NewAuthContext', 'localStorage pingone_config changed, refreshing config...');
         refreshConfig();
       }
     };
@@ -224,7 +260,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Also listen for custom events (for same-tab updates)
     const handleCustomStorageChange = () => {
-      console.log('🔄 [NewAuthContext] Custom storage event received, refreshing config...');
+      logger.storage('NewAuthContext', 'Custom storage event received, refreshing config...');
       refreshConfig();
     };
 
@@ -263,7 +299,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           });
         } else if (storedTokens?.refresh_token && isRefreshTokenValid(storedTokens)) {
           // Handle token refresh here
-          console.log('Token expired but refresh token is valid');
+          logger.auth('NewAuthContext', 'Token expired but refresh token is valid');
           updateState({ isLoading: false });
         } else {
           // Clear invalid tokens
@@ -271,7 +307,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           updateState({ isLoading: false });
         }
       } catch (error) {
-        console.error('Error initializing auth:', error);
+        logger.error('NewAuthContext', 'Error initializing auth', error);
         updateState({
           error: 'Failed to initialize authentication',
           isLoading: false,
@@ -369,7 +405,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Redirect to home or login page
       window.location.href = '/';
     } catch (error) {
-      console.error('Error during logout:', error);
+      logger.error('NewAuthContext', 'Error during logout', error);
       updateState({ error: 'Failed to log out. Please try again.' });
     }
   }, [updateState]);
@@ -465,7 +501,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Function to proceed with OAuth redirect after modal confirmation
   const proceedWithOAuth = useCallback(() => {
     if (authRequestData) {
-      console.log('🔍 [NewAuthContext] Proceeding with OAuth redirect');
+      logger.oauth('NewAuthContext', 'Proceeding with OAuth redirect');
       window.location.href = authRequestData.authorizationUrl;
     }
   }, [authRequestData]);
@@ -478,7 +514,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Function to update tokens (useful for external token updates)
   const updateTokens = useCallback((newTokens: OAuthTokens | null) => {
-    console.log('🔄 [NewAuthContext] Updating tokens:', newTokens);
+    logger.auth('NewAuthContext', 'Updating tokens', newTokens);
     setState(prev => ({
       ...prev,
       tokens: newTokens,
@@ -488,19 +524,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   // Context value
-  const contextValue = useMemo(() => ({
-    ...state,
-    config, // Add the config to the context
-    login,
-    logout,
-    handleCallback,
-    setAuthState,
-    showAuthModal,
-    authRequestData,
-    proceedWithOAuth,
-    closeAuthModal,
-    updateTokens, // Add the updateTokens function
-  }), [state, config, login, logout, handleCallback, setAuthState, showAuthModal, authRequestData, proceedWithOAuth, closeAuthModal, updateTokens]);
+  const contextValue = useMemo(() => {
+    const value = {
+      ...state,
+      config, // Add the config to the context
+      login,
+      logout,
+      handleCallback,
+      setAuthState,
+      showAuthModal,
+      authRequestData,
+      proceedWithOAuth,
+      closeAuthModal,
+      updateTokens, // Add the updateTokens function
+    };
+    logger.debug('NewAuthContext', 'Creating context value', value);
+    return value;
+  }, [state, config, login, logout, handleCallback, setAuthState, showAuthModal, authRequestData, proceedWithOAuth, closeAuthModal, updateTokens]);
+
+  logger.debug('NewAuthContext', 'Rendering AuthProvider with contextValue', contextValue);
 
   return (
     <AuthContext.Provider value={contextValue}>
@@ -512,7 +554,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 // Custom hook to use the auth context
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
+  logger.debug('useAuth', 'Context value', context);
   if (!context) {
+    logger.error('useAuth', 'Context is undefined - not within AuthProvider');
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
@@ -549,7 +593,20 @@ async function exchangeCodeForTokens(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(error.error_description || 'Failed to exchange code for tokens');
+    logger.error('NewAuthContext', 'Token exchange failed', { 
+      status: response.status, 
+      statusText: response.statusText, 
+      error 
+    });
+    
+    // Try to interpret PingOne errors
+    const interpretedError = PingOneErrorInterpreter.interpret(error);
+    logger.error('NewAuthContext', 'PingOne error interpreted', {
+      original: error,
+      interpreted: interpretedError
+    });
+    
+    throw new Error(interpretedError.message);
   }
 
   const data: OAuthTokenResponse = await response.json();

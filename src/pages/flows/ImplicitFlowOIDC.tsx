@@ -10,6 +10,7 @@ import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import { ColorCodedURL } from '../../components/ColorCodedURL';
 import Typewriter from '../../components/Typewriter';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
+import FlowCredentials from '../../components/FlowCredentials';
 
 const Page = styled.div`
   display: flex;
@@ -170,7 +171,9 @@ const ImplicitFlowOIDC: React.FC = () => {
           state: Math.random().toString(36).substring(2, 15),
         });
 
-        const authEndpoint = (config.authorizationEndpoint || config.authEndpoint || '').replace('{envId}', config.environmentId);
+        // Construct authorization endpoint if not available
+        const authEndpoint = (config.authorizationEndpoint || config.authEndpoint || 
+          `https://auth.pingone.com/${config.environmentId}/as/authorize`).replace('{envId}', config.environmentId);
         console.log('🔍 [ImplicitFlowOIDC] Final authEndpoint after replacement:', authEndpoint);
         const url = `${authEndpoint}?${params.toString()}`;
         console.log('🔍 [ImplicitFlowOIDC] Final URL constructed:', url);
@@ -194,9 +197,23 @@ window.location.href = authUrl;
 // - Consent for requested scopes
 // - Redirect back to client with tokens in URL fragment`,
       execute: () => {
-        console.log('✅ [ImplicitFlowOIDC] User would be redirected to PingOne for authentication');
+        const stepResult = stepResults[0];
+        const authUrl = stepResult?.url;
+        
+        if (!authUrl) {
+          setError('Authorization URL not found. Please execute step 1 first.');
+          return { error: 'Authorization URL not found' };
+        }
+        
+        logger.flow('ImplicitFlowOIDC', 'Redirecting to PingOne for authentication', { authUrl });
+        console.log('✅ [ImplicitFlowOIDC] Redirecting to PingOne for authentication:', authUrl);
+        
+        // Actually redirect to PingOne
+        window.location.href = authUrl;
+        
         const result = {
-          message: 'User redirected to authorization server for authentication and consent'
+          message: 'Redirecting to PingOne...',
+          url: authUrl
         };
         setStepResults(prev => ({
           ...prev,
@@ -368,9 +385,12 @@ console.log('✅ ID token validation successful');`,
         subtitle="Implicit Flow for OpenID Connect allows clients to obtain access and ID tokens directly from the authorization endpoint. This flow is suitable for public clients (e.g., SPAs) that cannot securely store client secrets. However, it is considered legacy and less secure than Authorization Code with PKCE."
       />
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
-        <ConfigurationButton flowType="implicit" />
-      </div>
+      <FlowCredentials
+        flowType="implicit"
+        onCredentialsChange={(credentials) => {
+          console.log('Implicit OIDC flow credentials updated:', credentials);
+        }}
+      />
 
       <Section>
         <SectionTitle>Security Considerations</SectionTitle>
@@ -398,6 +418,9 @@ console.log('✅ ID token validation successful');`,
             onStepResult={handleStepResult}
             disabled={!config}
             title="Implicit Flow"
+            configurationButton={
+              <ConfigurationButton flowType="implicit" />
+            }
           />
 
           {!config && (

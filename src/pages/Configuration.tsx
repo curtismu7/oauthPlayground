@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../components/Card';
-import { FiSave, FiAlertCircle, FiCheckCircle, FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiSave, FiAlertCircle, FiCheckCircle, FiEye, FiEyeOff, FiGlobe, FiSettings } from 'react-icons/fi';
+import DiscoveryPanel from '../components/DiscoveryPanel';
+import { OpenIDConfiguration } from '../services/discoveryService';
 
 const ConfigurationContainer = styled.div`
   max-width: 800px;
@@ -216,6 +218,7 @@ const Configuration = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [saveStatus, setSaveStatus] = useState(null);
   const [showClientSecret, setShowClientSecret] = useState(false);
+  const [showDiscoveryPanel, setShowDiscoveryPanel] = useState(false);
   
   // Load saved configuration on component mount
   useEffect(() => {
@@ -348,6 +351,26 @@ const Configuration = () => {
   useEffect(() => {
     console.log('🔄 [Configuration] State changed - isLoading:', isLoading, 'saveStatus:', saveStatus);
   }, [isLoading, saveStatus]);
+
+  // Handle discovery panel configuration
+  const handleConfigurationDiscovered = (config: OpenIDConfiguration, environmentId: string) => {
+    console.log('🔍 [Configuration] Configuration discovered:', config);
+    
+    setFormData(prev => ({
+      ...prev,
+      environmentId: environmentId,
+      authEndpoint: config.authorization_endpoint,
+      tokenEndpoint: config.token_endpoint,
+      userInfoEndpoint: config.userinfo_endpoint,
+      scopes: config.scopes_supported?.join(' ') || 'openid profile email'
+    }));
+
+    setSaveStatus({
+      type: 'success',
+      title: 'Configuration Discovered',
+      message: `Successfully discovered and applied configuration for environment ${environmentId}`
+    });
+  };
   
   if (initialLoading) {
     return (
@@ -440,10 +463,16 @@ const Configuration = () => {
                   type={showClientSecret ? 'text' : 'password'}
                   id="clientSecret"
                   name="clientSecret"
+                  autoComplete="current-password"
                   value={formData.clientSecret}
                   onChange={handleChange}
                   placeholder="Enter your application's Client Secret"
-                  style={{ paddingRight: '2.5rem' }}
+                  style={{ 
+                    paddingRight: '2.5rem',
+                    maxWidth: '600px',
+                    fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+                    fontSize: '0.875rem'
+                  }}
                 />
                 <button 
                   type="button" 
@@ -546,7 +575,7 @@ const Configuration = () => {
               </div>
             </FormGroup>
             
-            <div style={{ marginTop: '2rem' }}>
+            <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
               <SaveButton 
                 type="submit" 
                 disabled={isLoading}
@@ -565,7 +594,36 @@ const Configuration = () => {
                 )}
               </SaveButton>
               
-
+              <button
+                type="button"
+                onClick={() => setShowDiscoveryPanel(true)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '0.625rem 1.25rem',
+                  fontSize: '1rem',
+                  fontWeight: '500',
+                  color: '#374151',
+                  backgroundColor: '#f9fafb',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.375rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease-in-out',
+                  minWidth: '120px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f3f4f6';
+                  e.currentTarget.style.borderColor = '#9ca3af';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f9fafb';
+                  e.currentTarget.style.borderColor = '#d1d5db';
+                }}
+              >
+                <FiGlobe size={18} style={{ marginRight: '8px' }} />
+                Auto-Discover
+              </button>
             </div>
             
             {/* Status message below the buttons */}
@@ -731,9 +789,19 @@ const Configuration = () => {
                     type="password"
                     placeholder="Enter your application's Client Secret"
                     value={formData.clientSecret ? '••••••••••••' : ''}
+                    autoComplete="current-password"
                     onChange={() => {}}
                     readOnly
-                    style={{ width: '100%', padding: '0.5rem', border: '1px solid rgb(222, 226, 230)', borderRadius: 4, fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace', fontSize: '0.85rem', backgroundColor: 'rgb(248, 249, 250)' }}
+                    style={{ 
+                      width: '100%', 
+                      maxWidth: '600px',
+                      padding: '0.5rem', 
+                      border: '1px solid rgb(222, 226, 230)', 
+                      borderRadius: 4, 
+                      fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace', 
+                      fontSize: '0.85rem', 
+                      backgroundColor: 'rgb(248, 249, 250)' 
+                    }}
                   />
                 </div>
               </div>
@@ -761,6 +829,14 @@ const Configuration = () => {
           </div>
         </CardBody>
       </Card>
+      
+      {/* Discovery Panel */}
+      {showDiscoveryPanel && (
+        <DiscoveryPanel
+          onConfigurationDiscovered={handleConfigurationDiscovered}
+          onClose={() => setShowDiscoveryPanel(false)}
+        />
+      )}
     </ConfigurationContainer>
   );
 };
