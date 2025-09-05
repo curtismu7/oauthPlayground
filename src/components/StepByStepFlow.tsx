@@ -299,6 +299,7 @@ interface StepByStepFlowProps {
   onStepResult?: (stepIndex: number, result: any) => void;
   disabled?: boolean;
   title: string;
+  configurationButton?: React.ReactNode;
 }
 
 // Memoized Step component to prevent unnecessary re-renders
@@ -399,7 +400,8 @@ const StepByStepFlowComponent: React.FC<StepByStepFlowProps> = ({
   onStepChange,
   onStepResult,
   disabled = false,
-  title
+  title,
+  configurationButton
 }) => {
   const executeCurrentStep = useCallback(async () => {
     if (currentStep < steps.length && steps[currentStep].execute) {
@@ -518,6 +520,8 @@ const StepByStepFlowComponent: React.FC<StepByStepFlowProps> = ({
           <FiRotateCcw />
           Reset
         </FlowButton>
+        
+        {configurationButton}
       </FlowControls>
 
       {/* Step Progress Indicator */}
