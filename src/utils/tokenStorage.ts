@@ -5,6 +5,7 @@
 
 import { oauthStorage } from './storage';
 import { addTokenToHistory } from './tokenHistory';
+import { tokenLifecycleManager } from './tokenLifecycle';
 
 export interface OAuthTokens {
   access_token: string;
@@ -43,8 +44,16 @@ export const storeOAuthTokens = (tokens: OAuthTokens, flowType?: string, flowNam
       if (flowType && flowName) {
         console.log('📝 [TokenStorage] Adding tokens to history for flow:', flowType, flowName);
         addTokenToHistory(flowType, flowName, tokensWithTimestamp);
+        
+        // Register token in lifecycle management system
+        try {
+          const tokenId = tokenLifecycleManager.registerToken(tokensWithTimestamp, flowType, flowName);
+          console.log('🔄 [TokenStorage] Token registered in lifecycle system:', tokenId);
+        } catch (error) {
+          console.warn('⚠️ [TokenStorage] Failed to register token in lifecycle system:', error);
+        }
       } else {
-        console.warn('⚠️ [TokenStorage] No flow information provided, tokens not added to history');
+        console.warn('⚠️ [TokenStorage] No flow information provided, tokens not added to history or lifecycle system');
       }
     } else {
       console.error('❌ [TokenStorage] Failed to store tokens using oauthStorage');
