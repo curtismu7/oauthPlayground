@@ -11,6 +11,9 @@ import { getDefaultConfig, validatePingOneConfig } from '../../utils/flowConfigD
 import PageTitle from '../../components/PageTitle';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
+import FlowCredentials from '../../components/FlowCredentials';
+import { logger } from '../../utils/logger';
+import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
 
 import Spinner from '../../components/Spinner';
 
@@ -367,6 +370,9 @@ const AuthorizationCodeFlow = () => {
   const [stepResults, setStepResults] = useState<Record<number, any>>({});
   const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
   const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
+  const [showRedirectModal, setShowRedirectModal] = useState(false);
+  const [redirectUrl, setRedirectUrl] = useState('');
+  const [redirectParams, setRedirectParams] = useState<Record<string, string>>({});
 
   // If we already have tokens from the real OAuth flow, surface them in the demo
   useEffect(() => {
@@ -398,20 +404,26 @@ const AuthorizationCodeFlow = () => {
   &acr_values=${flowConfig.acrValues.join(' ')}` : ''}${Object.keys(flowConfig.customParams).length > 0 ? `
   ${Object.entries(flowConfig.customParams).map(([k, v]) => `&${k}=${v}`).join('\n  ')}` : ''}`,
       execute: () => {
-        console.log('🔄 [AuthCodeFlow] Authorization code step executing', { config: !!config });
+        logger.flow('AuthorizationCodeFlow', 'Authorization code step executing', { config: !!config });
         if (!config) {
-          console.error('❌ [AuthCodeFlow] Configuration required');
+          logger.error('AuthorizationCodeFlow', 'Configuration required');
           setError('Configuration required. Please configure your PingOne settings first.');
           return { error: 'Configuration required' };
         }
 
-        const url = `${config.authorizationEndpoint || config.authEndpoint || ''}?client_id=${config.clientId}&redirect_uri=${encodeURIComponent(config.redirectUri)}&response_type=${flowConfig.responseType}&scope=${encodeURIComponent(flowConfig.scopes.join(' '))}&state=${flowConfig.state || 'xyz123'}&nonce=${flowConfig.nonce || 'abc456'}${flowConfig.enablePKCE ? `&code_challenge=YOUR_CODE_CHALLENGE&code_challenge_method=${flowConfig.codeChallengeMethod}` : ''}${flowConfig.maxAge > 0 ? `&max_age=${flowConfig.maxAge}` : ''}${flowConfig.prompt ? `&prompt=${flowConfig.prompt}` : ''}${flowConfig.loginHint ? `&login_hint=${flowConfig.loginHint}` : ''}${flowConfig.acrValues.length > 0 ? `&acr_values=${encodeURIComponent(flowConfig.acrValues.join(' '))}` : ''}${Object.keys(flowConfig.customParams).length > 0 ? Object.entries(flowConfig.customParams).map(([k, v]) => `&${k}=${encodeURIComponent(v)}`).join('') : ''}`;
+        // Construct authorization endpoint if not available
+        const authEndpoint = config.authorizationEndpoint || config.authEndpoint || 
+          `https://auth.pingone.com/${config.environmentId}/as/authorize`;
+        
+        logger.config('AuthorizationCodeFlow', 'Using authorization endpoint', { authEndpoint });
+        
+        const url = `${authEndpoint}?client_id=${config.clientId}&redirect_uri=${encodeURIComponent(config.redirectUri)}&response_type=${flowConfig.responseType}&scope=${encodeURIComponent(flowConfig.scopes.join(' '))}&state=${flowConfig.state || 'xyz123'}&nonce=${flowConfig.nonce || 'abc456'}${flowConfig.enablePKCE ? `&code_challenge=YOUR_CODE_CHALLENGE&code_challenge_method=${flowConfig.codeChallengeMethod}` : ''}${flowConfig.maxAge > 0 ? `&max_age=${flowConfig.maxAge}` : ''}${flowConfig.prompt ? `&prompt=${flowConfig.prompt}` : ''}${flowConfig.loginHint ? `&login_hint=${flowConfig.loginHint}` : ''}${flowConfig.acrValues.length > 0 ? `&acr_values=${encodeURIComponent(flowConfig.acrValues.join(' '))}` : ''}${Object.keys(flowConfig.customParams).length > 0 ? Object.entries(flowConfig.customParams).map(([k, v]) => `&${k}=${encodeURIComponent(v)}`).join('') : ''}`;
 
         setAuthUrl(url);
         setStepResults(prev => ({ ...prev, 0: { url } }));
         setExecutedSteps(prev => new Set(prev).add(0));
 
-        console.log('✅ [AuthCodeFlow] Authorization URL generated:', url);
+        logger.success('AuthorizationCodeFlow', 'Authorization URL generated', { url });
         return { url };
       }
     },
@@ -427,14 +439,33 @@ window.location.href = authUrl;
 // - Redirect back to client with authorization code`,
       execute: () => {
         try {
-          console.log('✅ [AuthCodeFlow] User would be redirected to PingOne for authentication');
-          const result = { message: 'User redirected to authorization server' };
+          if (!authUrl) {
+            setError('Authorization URL not found. Please execute step 1 first.');
+            return { error: 'Authorization URL not found' };
+          }
+          
+          logger.flow('AuthorizationCodeFlow', 'Preparing redirect modal for PingOne authentication', { authUrl });
+          console.log('✅ [AuthCodeFlow] Preparing redirect modal for PingOne authentication:', authUrl);
+          
+          // Parse URL to extract parameters
+          const url = new URL(authUrl);
+          const params: Record<string, string> = {};
+          url.searchParams.forEach((value, key) => {
+            params[key] = value;
+          });
+          
+          // Set modal data and show modal
+          setRedirectUrl(authUrl);
+          setRedirectParams(params);
+          setShowRedirectModal(true);
+          
+          const result = { message: 'Redirect modal prepared', url: authUrl };
           setStepResults(prev => ({ ...prev, 1: result }));
           setExecutedSteps(prev => new Set(prev).add(1));
           return result;
         } catch (error) {
-          console.error('❌ [AuthCodeFlow] Error in step 1:', error);
-          setError(`Error in step 1: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          console.error('❌ [AuthCodeFlow] Error in step 2:', error);
+          setError(`Error in step 2: ${error instanceof Error ? error.message : 'Unknown error'}`);
           return { error: error instanceof Error ? error.message : 'Unknown error' };
         }
       }
@@ -638,6 +669,17 @@ grant_type=authorization_code
     });
   };
 
+  const handleRedirectModalClose = () => {
+    setShowRedirectModal(false);
+    setRedirectUrl('');
+    setRedirectParams({});
+  };
+
+  const handleRedirectModalProceed = () => {
+    logger.flow('AuthorizationCodeFlow', 'Proceeding with redirect to PingOne', { url: redirectUrl });
+    window.location.href = redirectUrl;
+  };
+
   return (
     <Container>
       <PageTitle 
@@ -698,18 +740,16 @@ grant_type=authorization_code
             onStepResult={handleStepResult}
             disabled={!config}
             title="Authorization Code Flow"
+            configurationButton={
+              <DemoButton
+                className="secondary"
+                onClick={() => setShowConfig(!showConfig)}
+              >
+                <FiSettings />
+                {showConfig ? 'Hide' : 'Show'} Configuration
+              </DemoButton>
+            }
           />
-
-          {/* Configuration Toggle */}
-          <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-            <DemoButton
-              className="secondary"
-              onClick={() => setShowConfig(!showConfig)}
-            >
-              <FiSettings />
-              {showConfig ? 'Hide' : 'Show'} Configuration
-            </DemoButton>
-          </div>
 
           {/* Flow Configuration Panel */}
           {showConfig && (
@@ -746,6 +786,14 @@ grant_type=authorization_code
               })()}
             </>
           )}
+
+          {/* Flow Credentials - Always Visible */}
+          <FlowCredentials
+            flowType="authorization-code"
+            onCredentialsChange={(credentials) => {
+              console.log('Flow credentials updated:', credentials);
+            }}
+          />
 
           {/* Configuration Status */}
           {!config?.clientId && (
@@ -1059,6 +1107,15 @@ grant_type=authorization_code
           );
         })}
       </StepsContainer>
+
+      {/* Redirect Modal */}
+      <AuthorizationRequestModal
+        isOpen={showRedirectModal}
+        onClose={handleRedirectModalClose}
+        onProceed={handleRedirectModalProceed}
+        authorizationUrl={redirectUrl}
+        requestParams={redirectParams}
+      />
     </Container>
   );
 };

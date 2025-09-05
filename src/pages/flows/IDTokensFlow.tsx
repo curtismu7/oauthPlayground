@@ -7,6 +7,7 @@ import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import ConfigurationButton from '../../components/ConfigurationButton';
 import PageTitle from '../../components/PageTitle';
 import { getOAuthTokens } from '../../utils/tokenStorage';
+import FlowCredentials from '../../components/FlowCredentials';
 
 
 const Container = styled.div`
@@ -568,9 +569,12 @@ console.log('ID token is valid!');`
         subtitle="Learn how to handle and validate OpenID Connect ID tokens with real JWT parsing and cryptographic verification."
       />
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
-        <ConfigurationButton flowType="id_tokens" />
-      </div>
+      <FlowCredentials
+        flowType="id_tokens"
+        onCredentialsChange={(credentials) => {
+          console.log('ID Tokens flow credentials updated:', credentials);
+        }}
+      />
 
       <FlowOverview>
         <CardHeader>
@@ -619,6 +623,9 @@ console.log('ID token is valid!');`
             onStepResult={handleStepResult}
             disabled={!config || !idToken}
             title="ID Token Flow"
+            configurationButton={
+              <ConfigurationButton flowType="id_tokens" />
+            }
           />
 
           {!config && (

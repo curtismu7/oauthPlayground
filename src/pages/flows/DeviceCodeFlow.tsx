@@ -9,6 +9,7 @@ import ConfigurationButton from '../../components/ConfigurationButton';
 import TokenDisplayComponent from '../../components/TokenDisplay';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 import PageTitle from '../../components/PageTitle';
+import FlowCredentials from '../../components/FlowCredentials';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -589,9 +590,12 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
         subtitle="Learn how the Device Code flow works for devices with limited input capabilities with real API calls to PingOne."
       />
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
-        <ConfigurationButton flowType="device_code" />
-      </div>
+      <FlowCredentials
+        flowType="device_code"
+        onCredentialsChange={(credentials) => {
+          console.log('Device Code flow credentials updated:', credentials);
+        }}
+      />
 
       <FlowOverview>
         <CardHeader>
@@ -641,6 +645,9 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
             onStepResult={handleStepResult}
             disabled={!config}
             title="Device Code Flow"
+            configurationButton={
+              <ConfigurationButton flowType="device_code" />
+            }
           />
 
           {!config && (

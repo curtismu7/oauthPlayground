@@ -10,6 +10,7 @@ import TokenDisplayComponent from '../../components/TokenDisplay';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 import ColorCodedURL from '../../components/ColorCodedURL';
 import PageTitle from '../../components/PageTitle';
+import FlowCredentials from '../../components/FlowCredentials';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -613,9 +614,12 @@ fetch('/api/protected-resource', {
         subtitle="Learn how the Client Credentials flow works for machine-to-machine authentication with real API calls to PingOne."
       />
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
-        <ConfigurationButton flowType="client_credentials" />
-      </div>
+      <FlowCredentials
+        flowType="client_credentials"
+        onCredentialsChange={(credentials) => {
+          console.log('Client Credentials flow credentials updated:', credentials);
+        }}
+      />
 
       <FlowOverview>
         <CardHeader>
@@ -664,6 +668,9 @@ fetch('/api/protected-resource', {
             onStepResult={handleStepResult}
             disabled={!config}
             title="Client Credentials Flow"
+            configurationButton={
+              <ConfigurationButton flowType="client_credentials" />
+            }
           />
 
           {!config && (

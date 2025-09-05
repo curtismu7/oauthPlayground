@@ -13,6 +13,7 @@ import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import { ColorCodedURL } from '../../components/ColorCodedURL';
 import Typewriter from '../../components/Typewriter';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
+import FlowCredentials from '../../components/FlowCredentials';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -845,9 +846,12 @@ console.log('Welcome, ' + user.name + '!');`,
         subtitle="Learn how to retrieve user profile information using the UserInfo endpoint. This endpoint provides detailed user claims and supports both authenticated and unauthenticated requests."
       />
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
-        <ConfigurationButton flowType="userinfo" />
-      </div>
+      <FlowCredentials
+        flowType="userinfo"
+        onCredentialsChange={(credentials) => {
+          console.log('UserInfo flow credentials updated:', credentials);
+        }}
+      />
 
       <FlowOverview>
         <CardHeader>
@@ -917,6 +921,9 @@ console.log('Welcome, ' + user.name + '!');`,
             onStepResult={handleStepResult}
             disabled={!config || (useAuthentication && (!tokens?.access_token || isTokenExpired(tokens.access_token)))}
             title="UserInfo Flow"
+            configurationButton={
+              <ConfigurationButton flowType="userinfo" />
+            }
           />
 
           {!config && (

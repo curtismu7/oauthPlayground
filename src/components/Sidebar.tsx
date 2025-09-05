@@ -139,7 +139,6 @@ const NavItemHeader = styled.div<NavItemHeaderProps>`
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const location = useLocation();
   const [openMenus, setOpenMenus] = useState({
-    flows: true, // Default to expanded
     oidc: true,  // Default to expanded
     resources: true, // Default to expanded
   });
@@ -148,7 +147,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   useEffect(() => {
     const path = location.pathname;
     setOpenMenus({
-      flows: path.startsWith('/flows'),
       oidc: path.startsWith('/oidc'),
       resources: path.startsWith('/oidc/userinfo') || path.startsWith('/oidc/tokens') || 
                  path.startsWith('/token-management') || path.startsWith('/documentation') || 
@@ -156,7 +154,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     });
   }, [location.pathname]);
 
-  const toggleMenu = (menu: 'flows' | 'oidc' | 'resources') => {
+  const toggleMenu = (menu: 'oidc' | 'resources') => {
     setOpenMenus(prev => ({
       ...prev,
       [menu]: !prev[menu]
@@ -191,45 +189,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             <SubmenuItem to="/oidc/authorization-code" onClick={onClose}>
               Authorization Code
             </SubmenuItem>
-            <SubmenuItem to="/oidc/hybrid" onClick={onClose}>
-              Hybrid Flow
-            </SubmenuItem>
             <SubmenuItem to="/oidc/implicit" onClick={onClose}>
               Implicit
+            </SubmenuItem>
+            <SubmenuItem to="/oidc/hybrid" onClick={onClose}>
+              Hybrid Flow
             </SubmenuItem>
             <SubmenuItem to="/oidc/client-credentials" onClick={onClose}>
               Client Credentials
             </SubmenuItem>
+            <SubmenuItem to="/oidc/worker-token" onClick={onClose}>
+              Worker Token
+            </SubmenuItem>
             <SubmenuItem to="/oidc/device-code" onClick={onClose}>
-              Device Code
-            </SubmenuItem>
-          </Submenu>
-        </NavItemWithSubmenu>
-        
-        <NavItemWithSubmenu>
-          <NavItemHeader 
-            onClick={() => toggleMenu('flows')}
-            $isOpen={openMenus.flows}
-          >
-            <div>
-              <FiCode />
-              <span>OAuth 2.0 Flows</span>
-            </div>
-            <FiChevronDown />
-          </NavItemHeader>
-          
-          <Submenu $isOpen={openMenus.flows}>
-            <SubmenuItem to="/flows/authorization-code" onClick={onClose}>
-              Authorization Code
-            </SubmenuItem>
-            <SubmenuItem to="/flows/implicit" onClick={onClose}>
-              Implicit
-            </SubmenuItem>
-            <SubmenuItem to="/flows/client-credentials" onClick={onClose}>
-              Client Credentials
-            </SubmenuItem>
-
-            <SubmenuItem to="/flows/device-code" onClick={onClose}>
               Device Code
             </SubmenuItem>
           </Submenu>
