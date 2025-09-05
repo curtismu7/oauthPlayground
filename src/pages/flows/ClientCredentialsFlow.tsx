@@ -10,6 +10,8 @@ import TokenDisplayComponent from '../../components/TokenDisplay';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 import ColorCodedURL from '../../components/ColorCodedURL';
 import PageTitle from '../../components/PageTitle';
+import FlowCredentials from '../../components/FlowCredentials';
+import { EffectiveConfig } from '../../utils/configStore';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -210,7 +212,7 @@ const ResponseBox = styled.div<{ $backgroundColor?: string; $borderColor?: strin
     font-family: inherit;
     font-size: 1rem;
     font-weight: 600;
-    color: #f9fafb;
+    color: #1f2937;
   }
 
   pre {
@@ -289,6 +291,7 @@ const ClientCredentialsFlow = () => {
   const [stepResults, setStepResults] = useState<Record<number, any>>({});
   const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
   const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
+  const [effectiveConfig, setEffectiveConfig] = useState<EffectiveConfig | null>(null);
 
   const startClientCredentialsFlow = async () => {
     setDemoStatus('loading');
@@ -491,13 +494,23 @@ const accessToken = generateAccessToken(clientId, scope);`,
             credentials: credentials ? `${credentials.substring(0, 20)}...` : 'missing'
           });
 
-          const response = await fetch(config.tokenEndpoint, {
+          // Use our backend server for token exchange instead of direct PingOne call
+          const response = await fetch('/api/token-exchange', {
             method: 'POST',
             headers: {
-              'Authorization': `Basic ${credentials}`,
-              'Content-Type': 'application/x-www-form-urlencoded'
+              'Content-Type': 'application/json'
             },
-            body: 'grant_type=client_credentials'
+            body: JSON.stringify({
+              grant_type: 'client_credentials',
+              config: {
+                environmentId: config.environmentId,
+                clientId: config.clientId,
+                clientSecret: config.clientSecret,
+                authenticationMethod: 'client_secret_basic',
+                usePKCE: false,
+                applicationType: 'backend'
+              }
+            })
           });
 
           if (!response.ok) {
@@ -665,6 +678,12 @@ fetch('/api/protected-resource', {
           </UseCaseHighlight>
         </CardBody>
       </FlowOverview>
+
+      {/* Flow Credentials Configuration */}
+      <FlowCredentials 
+        flowType="client_credentials"
+        onConfigChange={setEffectiveConfig}
+      />
 
       <DemoSection>
         <CardHeader>

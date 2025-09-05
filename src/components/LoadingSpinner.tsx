@@ -31,7 +31,7 @@ interface LoadingSpinnerProps {
 }
 
 // Minimum delay for consistent UX feedback
-const MIN_SPINNER_DELAY = 2000; // 2 seconds
+const MIN_SPINNER_DELAY = 500; // 0.5 seconds
 
 export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   message = 'Loading...',

@@ -8,6 +8,13 @@ export interface ErrorDetails {
   solutions: string[];
   severity: 'low' | 'medium' | 'high' | 'critical';
   category: 'authentication' | 'authorization' | 'configuration' | 'network' | 'token' | 'unknown';
+  isPingOneConfigError?: boolean;
+  flowType?: string;
+  technicalDetails?: {
+    url?: string;
+    timestamp?: string;
+    [key: string]: any;
+  };
 }
 
 export interface PingOneErrorMapping {
@@ -225,23 +232,124 @@ export const PINGONE_ERROR_MAPPINGS: PingOneErrorMapping = {
 
   'unsupported_authentication_method': {
     originalError: 'Request denied: Unsupported authentication method',
-    userFriendlyMessage: 'Authentication Method Not Supported',
+    userFriendlyMessage: 'PingOne Configuration Issue',
     possibleCauses: [
-      'PingOne application is configured as SPA (Single Page Application)',
-      'Client Secret Basic authentication is disabled',
-      'Application type does not support backend client flows',
-      'PKCE is required but not being used properly'
+      'PingOne application is configured as SPA (Single Page Application) but trying to use Client Credentials flow',
+      'Client Secret Basic authentication is disabled in PingOne',
+      'Application type does not support the flow you are trying to use',
+      'PKCE is required but not being used properly',
+      'Wrong application type selected in PingOne Admin console'
     ],
     solutions: [
-      'Check your PingOne application type in Admin console',
-      'If using PKCE, ensure your app is configured as "Single Page Application (SPA)"',
-      'If using Client Secret Basic, ensure your app is configured as "Backend Application"',
-      'Enable "Client Secret Basic" authentication method in PingOne Admin',
-      'Verify that your application supports the authorization_code grant type',
-      'Check that your redirect URI matches exactly in PingOne configuration'
+      'For Client Credentials flow: Configure your app as "Backend Application" in PingOne',
+      'For PKCE flows: Configure your app as "Single Page Application (SPA)" in PingOne',
+      'Enable the correct authentication method in PingOne Admin console',
+      'Verify that your application supports the grant type you are trying to use',
+      'Check the PingOne setup guide for your specific flow type'
     ],
     severity: 'high',
+    category: 'configuration',
+    isPingOneConfigError: true
+  },
+
+  'code_verifier_length': {
+    originalError: 'code_verifier must be between 43 and 128 characters in length',
+    userFriendlyMessage: 'PKCE Code Verifier Length Invalid',
+    possibleCauses: [
+      'Code verifier is too short (less than 43 characters)',
+      'Code verifier is too long (more than 128 characters)',
+      'Code verifier generation is using incorrect method',
+      'PKCE implementation is not following RFC 7636 standards'
+    ],
+    solutions: [
+      'The application has been fixed to generate proper 64-character code verifiers',
+      'Try the authorization flow again - this should now work correctly',
+      'If the error persists, clear your browser cache and try again',
+      'Ensure you are using the latest version of the application',
+      'Contact support if the problem continues after refreshing'
+    ],
+    severity: 'medium',
     category: 'authentication'
+  },
+
+  'access_denied': {
+    originalError: 'access_denied',
+    userFriendlyMessage: 'Access Denied by User',
+    possibleCauses: [
+      'User clicked "Deny" on the authorization page',
+      'User cancelled the authorization process',
+      'User did not complete the authorization flow',
+      'Authorization was denied due to policy restrictions'
+    ],
+    solutions: [
+      'Try the authorization flow again',
+      'Make sure to click "Allow" or "Authorize" on the PingOne login page',
+      'Complete the entire authorization process without closing the browser',
+      'Check if there are any policy restrictions in PingOne Admin',
+      'Contact your administrator if you believe this is an error'
+    ],
+    severity: 'low',
+    category: 'authorization'
+  },
+
+  'server_error': {
+    originalError: 'server_error',
+    userFriendlyMessage: 'PingOne Server Error',
+    possibleCauses: [
+      'PingOne servers are experiencing issues',
+      'Temporary server overload or maintenance',
+      'Internal server configuration problems',
+      'Network issues between client and PingOne'
+    ],
+    solutions: [
+      'Wait a few minutes and try again',
+      'Check PingOne status page for known issues',
+      'Try refreshing the page',
+      'Contact PingOne support if the problem persists',
+      'Check your internet connection'
+    ],
+    severity: 'high',
+    category: 'network'
+  },
+
+  'temporarily_unavailable': {
+    originalError: 'temporarily_unavailable',
+    userFriendlyMessage: 'PingOne Service Temporarily Unavailable',
+    possibleCauses: [
+      'PingOne servers are under maintenance',
+      'Service is temporarily overloaded',
+      'Scheduled maintenance window',
+      'Network connectivity issues'
+    ],
+    solutions: [
+      'Wait a few minutes and try again',
+      'Check PingOne status page for maintenance windows',
+      'Try again later if maintenance is scheduled',
+      'Check your internet connection',
+      'Contact PingOne support if the issue persists'
+    ],
+    severity: 'medium',
+    category: 'network'
+  },
+
+  'invalid_redirect_uri': {
+    originalError: 'invalid_redirect_uri',
+    userFriendlyMessage: 'Invalid Redirect URI',
+    possibleCauses: [
+      'Redirect URI does not match the one configured in PingOne',
+      'Redirect URI is not in the allowed list',
+      'Redirect URI has incorrect format or protocol',
+      'Redirect URI is missing or malformed'
+    ],
+    solutions: [
+      'Check your redirect URI configuration in PingOne Admin',
+      'Ensure the redirect URI matches exactly (including protocol and port)',
+      'Add the redirect URI to the allowed list in PingOne',
+      'Verify the redirect URI format is correct (e.g., https://localhost:3000/callback)',
+      'Check that the redirect URI is properly URL-encoded'
+    ],
+    severity: 'high',
+    category: 'configuration'
   }
 };
 
@@ -258,7 +366,12 @@ export const ERROR_PATTERNS = [
   { pattern: /insufficient_scope/i, key: 'insufficient_scope' },
   { pattern: /ERR_CONNECTION_REFUSED/i, key: 'ERR_CONNECTION_REFUSED' },
   { pattern: /Failed to fetch/i, key: 'Failed to fetch' },
-  { pattern: /unsupported authentication method/i, key: 'unsupported_authentication_method' }
+  { pattern: /unsupported authentication method/i, key: 'unsupported_authentication_method' },
+  { pattern: /code_verifier must be between 43 and 128 characters/i, key: 'code_verifier_length' },
+  { pattern: /access_denied/i, key: 'access_denied' },
+  { pattern: /server_error/i, key: 'server_error' },
+  { pattern: /temporarily_unavailable/i, key: 'temporarily_unavailable' },
+  { pattern: /invalid_redirect_uri/i, key: 'invalid_redirect_uri' }
 ];
 
 /**

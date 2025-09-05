@@ -5,7 +5,7 @@ const envSchema = z.object({
   // Required environment variables
   VITE_APP_TITLE: z.string().default('PingOne OAuth Playground'),
   VITE_APP_DESCRIPTION: z.string().default('Interactive playground for OAuth 2.0 and OpenID Connect with PingOne'),
-  VITE_APP_VERSION: z.string().default('2.0.0'),
+  VITE_APP_VERSION: z.string().default('2.0.1'),
   VITE_APP_DEFAULT_THEME: z.enum(['light', 'dark']).default('light'),
   
   // PingOne Configuration
@@ -128,7 +128,7 @@ export type Config = typeof config;
 // Helper function to get a nested config value by path
 export const getConfigValue = <T>(path: string, defaultValue: T): T => {
   const keys = path.split('.');
-  let result: any = config;
+  let result: unknown = config;
   
   for (const key of keys) {
     if (result === undefined || result === null) {

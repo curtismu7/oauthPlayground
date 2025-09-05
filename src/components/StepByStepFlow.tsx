@@ -571,7 +571,7 @@ const StepByStepFlowComponent: React.FC<StepByStepFlowProps> = ({
       </FlowControls>
 
       {/* Step Progress Indicator */}
-      {status === 'loading' && (
+      {(status === 'loading' || status === 'idle') && (
         <StepProgressIndicator>
           <ProgressStepTitle>
             Step {currentStep + 1} of {steps.length}: {steps[currentStep]?.title}
@@ -594,7 +594,7 @@ const StepByStepFlowComponent: React.FC<StepByStepFlowProps> = ({
       )}
 
       {/* Render Individual Steps */}
-      {status === 'loading' && (
+      {(status === 'loading' || status === 'idle') && (
         <div>
           {steps.map((step, index) => (
             <MemoizedStep

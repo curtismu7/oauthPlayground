@@ -243,7 +243,7 @@ const ResponseBox = styled.div<{ $backgroundColor?: string; $borderColor?: strin
     font-family: inherit;
     font-size: 1rem;
     font-weight: 600;
-    color: #f9fafb;
+    color: #1f2937;
   }
 
   pre {
