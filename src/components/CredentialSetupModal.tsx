@@ -491,6 +491,11 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
                 onChange={handleChange}
                 placeholder="Enter your application's Client Secret (optional)"
                 disabled={isLoading}
+                style={{
+                  maxWidth: '600px',
+                  fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+                  fontSize: '0.875rem'
+                }}
               />
               <div className="form-text">
                 Only required for confidential clients

@@ -18,6 +18,7 @@ import { useAuth } from './contexts/NewAuthContext';
 // Import all the new OAuth and OIDC flow components
 import ImplicitGrantFlow from './pages/flows/ImplicitGrantFlow';
 import ClientCredentialsFlow from './pages/flows/ClientCredentialsFlow';
+import WorkerTokenFlow from './pages/flows/WorkerTokenFlow';
 
 import DeviceCodeFlow from './pages/flows/DeviceCodeFlow';
 import HybridFlow from './pages/flows/HybridFlow';
@@ -33,6 +34,7 @@ import OAuth21 from './pages/OAuth21';
 import OIDCSessionManagement from './pages/OIDCSessionManagement';
 import AuthorizationRequestModal from './components/AuthorizationRequestModal';
 import PageChangeSpinner from './components/PageChangeSpinner';
+import DebugPanel from './components/DebugPanel';
 
 const AppContainer = styled.div`
   display: flex;
@@ -232,6 +234,7 @@ const AppRoutes = () => {
               <Route path="authorization-code" element={<AuthorizationCodeFlow />} />
               <Route path="implicit" element={<ImplicitGrantFlow />} />
               <Route path="client-credentials" element={<ClientCredentialsFlow />} />
+              <Route path="worker-token" element={<WorkerTokenFlow />} />
 
               <Route path="device-code" element={<DeviceCodeFlow />} />
             </Route>
@@ -243,6 +246,7 @@ const AppRoutes = () => {
               <Route path="hybrid" element={<HybridFlow />} />
               <Route path="implicit" element={<ImplicitGrantFlow />} />
               <Route path="client-credentials" element={<ClientCredentialsFlow />} />
+              <Route path="worker-token" element={<WorkerTokenFlow />} />
 
               <Route path="device-code" element={<DeviceCodeFlow />} />
             </Route>
@@ -286,6 +290,8 @@ const AppRoutes = () => {
         isVisible={showPageSpinner} 
         message="Loading page..." 
       />
+      
+      <DebugPanel />
     </>
   );
 };
