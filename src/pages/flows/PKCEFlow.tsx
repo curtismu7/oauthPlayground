@@ -12,6 +12,7 @@ import ConfigurationButton from '../../components/ConfigurationButton';
 import TokenDisplayComponent from '../../components/TokenDisplay';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 import PageTitle from '../../components/PageTitle';
+import FlowCredentials from '../../components/FlowCredentials';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -417,7 +418,9 @@ const authUrl = '${(config?.authorizationEndpoint || `https://auth.pingone.com/$
           nonce: Math.random().toString(36).substring(2, 15),
         });
 
-        const authEndpoint = (config.authorizationEndpoint || config.authEndpoint || '').replace('{envId}', config.environmentId);
+        // Construct authorization endpoint if not available
+        const authEndpoint = (config.authorizationEndpoint || config.authEndpoint || 
+          `https://auth.pingone.com/${config.environmentId}/as/authorize`).replace('{envId}', config.environmentId);
         const url = `${authEndpoint}?${params.toString()}`;
 
         setAuthUrl(url);
@@ -439,9 +442,20 @@ const authUrl = '${(config?.authorizationEndpoint || `https://auth.pingone.com/$
 // Callback URL:
 https://yourapp.com/callback?code=auth_code_123&state=xyz789`,
       execute: () => {
-        console.log('✅ [PKCEFlow] User would be redirected to PingOne for authentication');
+        if (!authUrl) {
+          setError('Authorization URL not found. Please execute step 1 first.');
+          return { error: 'Authorization URL not found' };
+        }
+        
+        logger.flow('PKCEFlow', 'Redirecting to PingOne for authentication', { authUrl });
+        console.log('✅ [PKCEFlow] Redirecting to PingOne for authentication:', authUrl);
+        
+        // Actually redirect to PingOne
+        window.location.href = authUrl;
+        
         const result = {
-          message: 'User redirected to PingOne for authentication and consent'
+          message: 'Redirecting to PingOne...',
+          url: authUrl
         };
         setStepResults(prev => ({
           ...prev,
@@ -618,9 +632,12 @@ return tokens;`,
         subtitle="Learn how Proof Key for Code Exchange (PKCE) enhances the Authorization Code flow with real API calls to PingOne."
       />
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
-        <ConfigurationButton flowType="pkce" />
-      </div>
+      <FlowCredentials
+        flowType="pkce"
+        onCredentialsChange={(credentials) => {
+          console.log('PKCE flow credentials updated:', credentials);
+        }}
+      />
 
       <FlowOverview>
         <CardHeader>
@@ -670,6 +687,9 @@ return tokens;`,
             onStepResult={handleStepResult}
             disabled={!config}
             title="PKCE Flow"
+            configurationButton={
+              <ConfigurationButton flowType="pkce" />
+            }
           />
 
           {!config && (
