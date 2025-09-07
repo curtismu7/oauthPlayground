@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../components/Card';
-import { FiSave, FiAlertCircle, FiCheckCircle, FiEye, FiEyeOff, FiGlobe, FiSettings } from 'react-icons/fi';
+import { FiSave, FiAlertCircle, FiCheckCircle, FiEye, FiEyeOff, FiGlobe } from 'react-icons/fi';
 import DiscoveryPanel from '../components/DiscoveryPanel';
 import { OpenIDConfiguration } from '../services/discoveryService';
 
@@ -446,6 +446,7 @@ const Configuration = () => {
                 value={formData.clientId}
                 onChange={handleChange}
                 placeholder="Enter your application's Client ID"
+                autoComplete="username"
                 className={errors.clientId ? 'is-invalid' : ''}
               />
               {errors.clientId && (
@@ -469,7 +470,8 @@ const Configuration = () => {
                   placeholder="Enter your application's Client Secret"
                   style={{ 
                     paddingRight: '2.5rem',
-                    maxWidth: '610px',
+                    width: '100%',
+                    maxWidth: '800px',
                     fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
                     fontSize: '0.875rem'
                   }}
