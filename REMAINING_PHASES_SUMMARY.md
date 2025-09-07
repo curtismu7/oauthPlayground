@@ -24,6 +24,37 @@
 
 ---
 
+## 🔧 **DEBUGGING & TROUBLESHOOTING**
+
+### **Token Refresh Issues**
+If you encounter 401 Unauthorized errors or token refresh problems:
+
+#### **Browser Console Debugging**
+```javascript
+// Check current token state
+TokenDebugger.checkTokenState()
+
+// Validate a specific refresh token
+TokenDebugger.validateRefreshToken('your-token-here')
+
+// Clear all tokens manually
+TokenDebugger.clearAllTokens()
+```
+
+#### **Common Issues & Solutions**
+- **401 Unauthorized Errors**: Invalid refresh tokens are automatically detected and cleared
+- **Token Refresh Loops**: Use the "Clear Tokens" button in Dashboard to reset
+- **Missing Refresh Tokens**: Complete a new OAuth flow that provides refresh tokens
+- **Token Validation Failures**: Check token length (10-1000 chars) and format
+
+#### **Manual Token Cleanup**
+1. Open Dashboard page
+2. Click "Clear Tokens" button in Token Refresh Status section
+3. Page will reload with clean state
+4. Complete new OAuth flow for fresh tokens
+
+---
+
 ## 🎯 **REMAINING PHASES**
 
 ### **Phase 2: Short-term Improvements (1-2 weeks)**
@@ -164,9 +195,9 @@
 - **Impact:** Medium
 
 **Tasks:**
-- [ ] **Add more OAuth flows** (JWT Bearer, SAML)
-- [ ] **Implement token refresh automation**
-- [ ] **Add flow comparison tools**
+- [x] **Add more OAuth flows** (JWT Bearer, SAML)
+- [x] **Implement token refresh automation**
+- [x] **Add flow comparison tools**
 - [ ] **Create custom flow builder**
 - [ ] **Add multi-tenant support**
 

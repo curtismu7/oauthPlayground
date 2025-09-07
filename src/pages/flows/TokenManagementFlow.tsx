@@ -141,13 +141,15 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' | '
 `;
 
 const CodeBlock = styled.pre`
-  background: #1f2937;
-  color: #f9fafb;
+  background: #ffffff;
+  color: #111111;
+  border: 1px solid #d0d7de;
   padding: 1rem;
   border-radius: 0.375rem;
   font-size: 0.875rem;
   overflow-x: auto;
   margin: 1rem 0;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 `;
 
 const ResponseContainer = styled.div`

@@ -1,19 +1,23 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
+import { SpecCard } from '../../components/SpecCard';
 import { FiAlertCircle } from 'react-icons/fi';
 import { ColorCodedURL } from '../../components/ColorCodedURL';
 import { URLParamExplainer } from '../../components/URLParamExplainer';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import ConfigurationButton from '../../components/ConfigurationButton';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
+import { logger } from '../../utils/logger';
 import TokenDisplayComponent from '../../components/TokenDisplay';
 import PageTitle from '../../components/PageTitle';
 import FlowCredentials from '../../components/FlowCredentials';
-import { logger } from '../../utils/logger';
+import ContextualHelp from '../../components/ContextualHelp';
 import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
 import { getDefaultConfig } from '../../utils/flowConfigDefaults';
 import { config } from '../../services/config';
+import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
+import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -42,8 +46,8 @@ const FlowDescription = styled.div`
 `;
 
 const SecurityWarning = styled.div`
-  background-color: ${({ theme }) => theme.colors.warning}10;
-  border: 1px solid ${({ theme }) => theme.colors.warning}30;
+  background-color: #fdecea;
+  border: 1px solid #f5c2c7;
   border-radius: 0.5rem;
   padding: 1rem;
   margin-bottom: 2rem;
@@ -52,13 +56,13 @@ const SecurityWarning = styled.div`
   gap: 0.75rem;
 
   svg {
-    color: ${({ theme }) => theme.colors.warning};
+    color: #dc3545;
     flex-shrink: 0;
     margin-top: 0.1rem;
   }
 
   h3 {
-    color: ${({ theme }) => theme.colors.warning};
+    color: #dc3545;
     margin: 0 0 0.5rem 0;
     font-size: 1rem;
     font-weight: 600;
@@ -66,7 +70,7 @@ const SecurityWarning = styled.div`
 
   p {
     margin: 0;
-    color: ${({ theme }) => theme.colors.warning};
+    color: #dc3545;
     font-size: 0.9rem;
   }
 `;
@@ -101,6 +105,11 @@ const ImplicitGrantFlow = () => {
     console.log('🔍 [ImplicitGrantFlow] Modal state changed:', { showRedirectModal, redirectUrl: redirectUrl ? 'present' : 'empty' });
   }, [showRedirectModal, redirectUrl]);
 
+  // Log security warning display
+  useEffect(() => {
+    logger.info('ImplicitGrantFlow', 'Security warning displayed: Implicit Grant flow has security limitations and is generally not recommended for new applications');
+  }, []);
+
   // Generate authorization URL
   const generateAuthUrl = () => {
     if (!config) {
@@ -113,7 +122,7 @@ const ImplicitGrantFlow = () => {
     const params = new URLSearchParams({
       response_type: 'token',
       client_id: config.pingone.clientId,
-      redirect_uri: config.pingone.redirectUri,
+      redirect_uri: getCallbackUrlForFlow('implicit'),
       scope: 'read write',
       state: Math.random().toString(36).substring(2, 15),
       nonce: Math.random().toString(36).substring(2, 15)
@@ -162,6 +171,26 @@ const ImplicitGrantFlow = () => {
 
   const handleRedirectModalProceed = () => {
     logger.flow('ImplicitGrantFlow', 'Proceeding with redirect to PingOne', { url: redirectUrl });
+    
+    // Store the return path for after callback
+    const currentPath = window.location.pathname;
+    const returnPath = `${currentPath}?step=2`; // Return to step 2 (token handling)
+    sessionStorage.setItem('redirect_after_login', returnPath);
+    
+    // Store flow context in state parameter
+    const stateParam = new URLSearchParams(redirectUrl.split('?')[1]?.split('#')[0] || '').get('state');
+    if (stateParam) {
+      // Encode flow context in the state parameter
+      const flowContext = {
+        flow: 'implicit-grant',
+        step: 2,
+        returnPath: returnPath,
+        timestamp: Date.now()
+      };
+      sessionStorage.setItem(`flow_context_${stateParam}`, JSON.stringify(flowContext));
+    }
+    
+    console.log('🔄 [ImplicitGrantFlow] Stored return path:', returnPath);
     window.location.href = redirectUrl;
   };
 
@@ -175,7 +204,7 @@ const authUrl = '${generateAuthUrl()}';
 // Parameters:
 response_type: 'token'
 client_id: '${config.pingone.clientId || 'your_client_id'}'
-redirect_uri: '${config.pingone.redirectUri || 'https://yourapp.com/callback'}'
+redirect_uri: '${getCallbackUrlForFlow('implicit')}'
 scope: 'read write'
 state: 'random_state_value'
 nonce: 'random_nonce_value'`,
@@ -206,8 +235,10 @@ window.location.href = authUrl;
             setError('Authorization endpoint not configured. Please check your PingOne configuration.');
           }
           
+          // Use the correct callback URL for this flow
+          const callbackUrl = getCallbackUrlForFlow('implicit');
           // Generate the URL with current flow configuration
-          const url = `${authEndpoint}?client_id=${config.pingone.clientId}&redirect_uri=${encodeURIComponent(config.pingone.redirectUri)}&response_type=${flowConfig.responseType}&scope=${encodeURIComponent(flowConfig.scopes.join(' '))}&state=${flowConfig.state || 'xyz123'}&nonce=${flowConfig.nonce || 'abc456'}${flowConfig.maxAge > 0 ? `&max_age=${flowConfig.maxAge}` : ''}${flowConfig.prompt ? `&prompt=${flowConfig.prompt}` : ''}${flowConfig.loginHint ? `&login_hint=${flowConfig.loginHint}` : ''}${flowConfig.acrValues.length > 0 ? `&acr_values=${encodeURIComponent(flowConfig.acrValues.join(' '))}` : ''}${Object.keys(flowConfig.customParams).length > 0 ? Object.entries(flowConfig.customParams).map(([k, v]) => `&${k}=${encodeURIComponent(v)}`).join('') : ''}`;
+          const url = `${authEndpoint}?client_id=${config.pingone.clientId}&redirect_uri=${encodeURIComponent(callbackUrl)}&response_type=${flowConfig.responseType}&scope=${encodeURIComponent(flowConfig.scopes.join(' '))}&state=${flowConfig.state || 'xyz123'}&nonce=${flowConfig.nonce || 'abc456'}${flowConfig.maxAge > 0 ? `&max_age=${flowConfig.maxAge}` : ''}${flowConfig.prompt ? `&prompt=${flowConfig.prompt}` : ''}${flowConfig.loginHint ? `&login_hint=${flowConfig.loginHint}` : ''}${flowConfig.acrValues.length > 0 ? `&acr_values=${encodeURIComponent(flowConfig.acrValues.join(' '))}` : ''}${Object.keys(flowConfig.customParams).length > 0 ? Object.entries(flowConfig.customParams).map(([k, v]) => `&${k}=${encodeURIComponent(v)}`).join('') : ''}`;
 
           logger.flow('ImplicitGrantFlow', 'Preparing redirect modal for PingOne authentication', { url });
           console.log('✅ [ImplicitGrantFlow] Preparing redirect modal for PingOne authentication:', url);
@@ -303,12 +334,16 @@ console.log('User ID:', decodedIdToken.sub);`,
         subtitle="Learn how the Implicit Grant flow works with real API calls to PingOne. This flow is suitable for client-side applications but has security limitations."
       />
 
+      <ContextualHelp flowId="implicit" />
+
       <FlowCredentials
         flowType="implicit"
                     onCredentialsChange={(credentials) => {
               logger.config('ImplicitGrantFlow', 'Flow credentials updated', credentials);
             }}
       />
+
+      <CallbackUrlDisplay flowType="implicit" />
 
       <FlowOverview>
         <CardHeader>
@@ -328,14 +363,16 @@ console.log('User ID:', decodedIdToken.sub);`,
             </p>
           </FlowDescription>
 
-          <SecurityWarning>
+          <SecurityWarning role="alert">
             <FiAlertCircle size={20} />
             <div>
               <h3>Security Warning</h3>
-              <p>
-                The Implicit Grant flow has security limitations and is generally not recommended
-                for new applications. Consider using the Authorization Code flow with PKCE instead.
-              </p>
+              <SpecCard>
+                <p>
+                  The Implicit Grant flow has security limitations and is generally not recommended
+                  for new applications. Consider using the Authorization Code flow with PKCE instead.
+                </p>
+              </SpecCard>
             </div>
           </SecurityWarning>
         </CardBody>

@@ -4,11 +4,93 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PingOne OAuth 2.0 & OIDC Playground</title>
+  
+  <!-- Prevent autofill and extension noise -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="autocomplete" content="off">
+  <meta name="autofill" content="off">
+  
+  <!-- Disable password managers and autofill extensions -->
+  <meta name="password-manager" content="disabled">
+  <meta name="bitwarden" content="disabled">
+  <meta name="1password" content="disabled">
+  <meta name="lastpass" content="disabled">
+  <meta name="dashlane" content="disabled">
+  
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  
+  <style>
+    /* Prevent autofill styling and extension noise */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    input:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 30px white inset !important;
+      -webkit-text-fill-color: inherit !important;
+    }
+    
+    /* Hide autofill icons and suggestions */
+    input::-webkit-credentials-auto-fill-button {
+      display: none !important;
+    }
+    
+    /* Prevent extension overlays */
+    [data-bitwarden-watching] {
+      display: none !important;
+    }
+    
+    /* Disable autofill on all inputs */
+    input, textarea, select {
+      autocomplete: off !important;
+      data-form-type: other !important;
+    }
+  </style>
 </head>
 <body>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
+  
+  <script>
+    // Disable autofill and extension noise
+    document.addEventListener('DOMContentLoaded', function() {
+      // Disable autofill on all form elements
+      const inputs = document.querySelectorAll('input, textarea, select');
+      inputs.forEach(input => {
+        input.setAttribute('autocomplete', 'off');
+        input.setAttribute('data-form-type', 'other');
+        input.setAttribute('data-lpignore', 'true');
+        input.setAttribute('data-1p-ignore', 'true');
+        input.setAttribute('data-bwignore', 'true');
+      });
+      
+      // Prevent extension injection
+      const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.type === 'childList') {
+            mutation.addedNodes.forEach(function(node) {
+              if (node.nodeType === 1) { // Element node
+                // Remove extension overlays
+                if (node.hasAttribute && (
+                  node.hasAttribute('data-bitwarden-watching') ||
+                  node.hasAttribute('data-1password') ||
+                  node.hasAttribute('data-lastpass') ||
+                  node.hasAttribute('data-dashlane')
+                )) {
+                  node.remove();
+                }
+              }
+            });
+          }
+        });
+      });
+      
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+    });
+  </script>
 </body>
 </html>
