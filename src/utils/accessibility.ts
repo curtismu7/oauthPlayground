@@ -1,5 +1,8 @@
 import { logger } from './logger';
 
+// Check if we're in a browser environment
+const isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined';
+
 // Accessibility configuration interface
 export interface AccessibilityConfig {
   enableARIA: boolean;
@@ -356,11 +359,15 @@ export class AccessibilityManager {
     this.announcer = new ScreenReaderAnnouncer();
     this.contrastChecker = new ColorContrastChecker();
     
-    this.initialize();
+    if (isBrowser) {
+      this.initialize();
+    }
   }
 
   // Initialize accessibility features
   private initialize(): void {
+    if (!isBrowser) return;
+    
     if (this.config.enableReducedMotion) {
       this.handleReducedMotion();
     }
@@ -378,6 +385,8 @@ export class AccessibilityManager {
 
   // Handle reduced motion preference
   private handleReducedMotion(): void {
+    if (!isBrowser) return;
+    
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     
     const handleChange = (e: MediaQueryListEvent) => {
@@ -396,6 +405,8 @@ export class AccessibilityManager {
 
   // Setup keyboard navigation
   private setupKeyboardNavigation(): void {
+    if (!isBrowser) return;
+    
     document.addEventListener('keydown', (event) => {
       // Skip if user is typing in input
       if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
@@ -477,6 +488,27 @@ export class AccessibilityManager {
     return { ...this.config };
   }
 
+  // Announce message to screen reader
+  announce(message: string, priority: 'polite' | 'assertive' = 'polite'): void {
+    if (!isBrowser) return;
+    this.announcer.announce(message, priority);
+  }
+
+  // Get focus manager
+  getFocusManager(): FocusManager {
+    return this.focusManager;
+  }
+
+  // Get announcer
+  getAnnouncer(): ScreenReaderAnnouncer {
+    return this.announcer;
+  }
+
+  // Get contrast checker
+  getContrastChecker(): ColorContrastChecker {
+    return this.contrastChecker;
+  }
+
   // Destroy accessibility manager
   destroy(): void {
     this.announcer.destroy();
@@ -495,6 +527,11 @@ export const getFocusManager = (): FocusManager => {
 
 export const getAnnouncer = (): ScreenReaderAnnouncer => {
   return accessibilityManager.getAnnouncer();
+};
+
+export const announceToScreenReader = (message: string, priority: 'polite' | 'assertive' = 'polite'): void => {
+  if (!isBrowser) return;
+  accessibilityManager.announce(message, priority);
 };
 
 export const getContrastChecker = (): ColorContrastChecker => {
