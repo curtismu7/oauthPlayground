@@ -194,7 +194,7 @@ const DeviceFlow: React.FC<DeviceFlowProps> = ({ credentials }) => {
     appIdentifier: ''
   });
   const [deviceState, setDeviceState] = useState<DeviceFlowState | null>(null);
-  const [response, setResponse] = useState<any>(null);
+  const [response, setResponse] = useState<Record<string, unknown> | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Load existing device flow state on mount
@@ -409,7 +409,7 @@ if (tokenResponse.access_token) {
     setError(null);
   }, []);
 
-  const handleStepResult = useCallback((step: number, result: any) => {
+  const handleStepResult = useCallback((step: number, result: unknown) => {
     logger.info('DeviceFlow', `Step ${step + 1} completed`, result);
   }, []);
 
@@ -418,7 +418,7 @@ if (tokenResponse.access_token) {
     logger.info('DeviceFlow', 'Device state updated', newState);
   }, []);
 
-  const handleDeviceComplete = useCallback((tokens: any) => {
+  const handleDeviceComplete = useCallback((tokens: Record<string, unknown>) => {
     logger.success('DeviceFlow', 'Device authorization completed', tokens);
     setResponse({ tokens, message: 'Device authorization completed successfully' });
   }, []);

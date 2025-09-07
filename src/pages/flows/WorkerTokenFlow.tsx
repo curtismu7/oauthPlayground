@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiCheckCircle, FiAlertCircle, FiServer, FiKey, FiSettings, FiArrowRight, FiRefreshCw } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
+import { config } from '../../services/config';
 import Spinner from '../../components/Spinner';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import ConfigurationButton from '../../components/ConfigurationButton';
@@ -13,6 +14,7 @@ import PageTitle from '../../components/PageTitle';
 import FlowCredentials from '../../components/FlowCredentials';
 import { logger } from '../../utils/logger';
 import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
+import JSONHighlighter from '../../components/JSONHighlighter';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -226,7 +228,7 @@ const WorkerTokenFlow = () => {
   const [redirectParams, setRedirectParams] = useState<Record<string, string>>({});
 
   // Track execution results for each step
-  const [stepResults, setStepResults] = useState<Record<number, any>>({});
+  const [stepResults, setStepResults] = useState<Record<number, unknown>>({});
   const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
   const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
 
@@ -295,7 +297,7 @@ const WorkerTokenFlow = () => {
     logger.success('WorkerTokenFlow', 'Demo reset completed');
   };
 
-  const handleStepResult = (stepIndex: number, result: any) => {
+  const handleStepResult = (stepIndex: number, result: unknown) => {
     setStepResults(prev => ({ ...prev, [stepIndex]: result }));
     setStepsWithResults(prev => {
       const newSteps = [...prev];
@@ -338,10 +340,10 @@ const tokenRequest = {
           return { error: 'Configuration required' };
         }
 
-        const credentials = btoa(`${config.clientId}:${config.clientSecret}`);
+        const credentials = btoa(`${config.pingone.clientId}:${config.pingone.clientSecret}`);
         const tokenRequest: ApiCall = {
           method: 'POST',
-          url: `${config.tokenEndpoint}`,
+          url: `${config.pingone.tokenEndpoint}`,
           headers: {
             'Authorization': `Basic ${credentials}`,
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -351,7 +353,7 @@ const tokenRequest = {
 
         const mockResponse = {
           status: 'Token request prepared successfully',
-          endpoint: config.tokenEndpoint,
+          endpoint: config.pingone.tokenEndpoint,
           method: 'POST',
           authorization: `Basic ${credentials.substring(0, 20)}...`,
           body: 'grant_type=client_credentials&scope=pingone:read pingone:write'
@@ -393,21 +395,106 @@ const tokenData = await response.json();`,
           setCurrentStep(1);
           setIsLoading(true);
 
-          const credentials = btoa(`${config.clientId}:${config.clientSecret}`);
+          // Validate configuration
+          if (!config.pingone.clientId || !config.pingone.clientSecret || !config.pingone.tokenEndpoint) {
+            const missingFields = [];
+            if (!config.pingone.clientId) missingFields.push('clientId');
+            if (!config.pingone.clientSecret) missingFields.push('clientSecret');
+            if (!config.pingone.tokenEndpoint) missingFields.push('tokenEndpoint');
+            
+            const errorMsg = `Missing required configuration: ${missingFields.join(', ')}. Please configure your PingOne settings first.`;
+            logger.error('WorkerTokenFlow', 'Configuration validation failed', {
+              missingFields,
+              config: {
+                hasClientId: !!config.pingone.clientId,
+                hasClientSecret: !!config.pingone.clientSecret,
+                hasTokenEndpoint: !!config.pingone.tokenEndpoint,
+                tokenEndpoint: config.pingone.tokenEndpoint
+              }
+            });
+            throw new Error(errorMsg);
+          }
+
+          // Validate token endpoint format
+          try {
+            new URL(config.pingone.tokenEndpoint);
+          } catch (urlError) {
+            const errorMsg = `Invalid token endpoint URL: ${config.pingone.tokenEndpoint}. Please check your PingOne configuration.`;
+            logger.error('WorkerTokenFlow', 'Invalid token endpoint', {
+              tokenEndpoint: config.pingone.tokenEndpoint,
+              error: urlError
+            });
+            throw new Error(errorMsg);
+          }
+
+          const credentials = btoa(`${config.pingone.clientId}:${config.pingone.clientSecret}`);
           
-          // Make actual request to PingOne
-          const response = await fetch(config.tokenEndpoint, {
+          logger.flow('WorkerTokenFlow', 'Making real API call to PingOne', {
+            tokenEndpoint: config.pingone.tokenEndpoint,
+            clientId: config.pingone.clientId,
+            hasClientSecret: !!config.pingone.clientSecret
+          });
+          
+          // Make actual request to PingOne via backend proxy
+          const backendUrl = process.env.NODE_ENV === 'production' 
+            ? 'https://oauth-playground.vercel.app' 
+            : 'http://localhost:3001';
+          
+          const response = await fetch(`${backendUrl}/api/token-exchange`, {
             method: 'POST',
             headers: {
-              'Authorization': `Basic ${credentials}`,
-              'Content-Type': 'application/x-www-form-urlencoded'
+              'Content-Type': 'application/json'
             },
-            body: 'grant_type=client_credentials&scope=pingone:read pingone:write'
+            body: JSON.stringify({
+              grant_type: 'client_credentials',
+              client_id: config.pingone.clientId,
+              client_secret: config.pingone.clientSecret,
+              environment_id: config.pingone.environmentId,
+              scope: 'pingone:read pingone:write'
+            })
           });
 
           if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            throw new Error(`Token request failed: ${response.status} ${response.statusText}`);
+            logger.error('WorkerTokenFlow', 'PingOne API call failed', {
+              status: response.status,
+              statusText: response.statusText,
+              error: errorData,
+              tokenEndpoint: config.pingone.tokenEndpoint,
+              clientId: config.pingone.clientId
+            });
+            
+            let errorMessage = `PingOne API call failed: ${response.status} ${response.statusText}`;
+            
+            if (response.status === 401) {
+              errorMessage += '. Authentication failed. Please check:';
+              errorMessage += '\n1. Client ID is correct';
+              errorMessage += '\n2. Client Secret is correct';
+              errorMessage += '\n3. Environment ID is correct';
+              errorMessage += '\n4. Token endpoint URL is correct';
+              errorMessage += `\n\nCurrent configuration:`;
+              errorMessage += `\n- Client ID: ${config.pingone.clientId}`;
+              errorMessage += `\n- Token Endpoint: ${config.pingone.tokenEndpoint}`;
+              errorMessage += `\n- Environment ID: ${config.pingone.environmentId}`;
+            } else if (response.status === 400) {
+              errorMessage += '. Bad request. Please check:';
+              errorMessage += '\n1. Grant type is correct (client_credentials)';
+              errorMessage += '\n2. Scope is valid for your application';
+              errorMessage += '\n3. Request format is correct';
+            } else if (response.status === 403) {
+              errorMessage += '. Access forbidden. Please check:';
+              errorMessage += '\n1. Application has proper permissions';
+              errorMessage += '\n2. Scope is authorized for your application';
+            }
+            
+            if (errorData.error_description) {
+              errorMessage += `\n\nPingOne Error: ${errorData.error_description}`;
+            }
+            if (errorData.error) {
+              errorMessage += `\n\nError Code: ${errorData.error}`;
+            }
+            
+            throw new Error(errorMessage);
           }
 
           const tokenData = await response.json();
@@ -435,8 +522,9 @@ const tokenData = await response.json();`,
           });
           
           return result;
-        } catch (error: any) {
-          setError(`Failed to get worker token: ${error.message}`);
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          setError(`Failed to get worker token: ${errorMessage}`);
           setDemoStatus('error');
           logger.error('WorkerTokenFlow', 'Failed to get worker token', { error: error.message });
           return { error: error.message };
@@ -618,7 +706,7 @@ const data = await apiResponse.json();`,
               {apiCall.response && (
                 <div className="response">
                   Status: {apiCall.response.status}<br />
-                  {JSON.stringify(apiCall.response.data, null, 2)}
+                  <JSONHighlighter data={apiCall.response.data} />
                 </div>
               )}
             </APICallDemo>
@@ -639,4 +727,5 @@ const data = await apiResponse.json();`,
 };
 
 export default WorkerTokenFlow;
+
 
