@@ -4,6 +4,7 @@ import styled, { ThemeProvider, DefaultTheme } from 'styled-components';
 import { AuthProvider } from './contexts/NewAuthContext';
 import { PageStyleProvider } from './contexts/PageStyleContext';
 import { GlobalStyle, theme } from './styles/global';
+import './styles/spec-cards.css';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import CredentialSetupModal from './components/CredentialSetupModal';
