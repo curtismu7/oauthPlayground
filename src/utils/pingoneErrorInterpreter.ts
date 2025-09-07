@@ -4,7 +4,7 @@ export interface PingOneError {
   error_description?: string;
   error_uri?: string;
   state?: string;
-  details?: any;
+  details?: Record<string, unknown>;
 }
 
 export interface InterpretedError {
@@ -22,28 +22,28 @@ export class PingOneErrorInterpreter {
     'invalid_client': {
       title: 'Invalid Client Configuration',
       message: 'The client application is not properly configured in PingOne.',
-      suggestion: 'Check your Client ID and ensure the application is properly set up in PingOne Admin.',
+      suggestion: '1. Verify your Client ID is correct in the Configuration page\n2. Ensure your PingOne application is active and not disabled\n3. Check that your Environment ID matches the application\'s environment\n4. Verify the application type supports the OAuth flows you\'re trying to use\n5. Make sure your application has the necessary scopes configured',
       category: 'configuration' as const,
       severity: 'error' as const
     },
     'unauthorized_client': {
       title: 'Unauthorized Client',
       message: 'This client is not authorized to use the requested grant type.',
-      suggestion: 'Verify that your application type supports the OAuth flow you\'re trying to use.',
+      suggestion: '1. Check your application type in PingOne Admin (Web App, SPA, Native, etc.)\n2. Ensure the grant type is enabled for your application\n3. Verify your application has the correct OAuth 2.0 settings\n4. Check if your application requires specific scopes or permissions',
       category: 'configuration' as const,
       severity: 'error' as const
     },
     'unsupported_grant_type': {
       title: 'Unsupported Grant Type',
       message: 'The requested OAuth grant type is not supported for this client.',
-      suggestion: 'Check your application configuration in PingOne Admin and ensure the grant type is enabled.',
+      suggestion: '1. Go to PingOne Admin → Applications → Your App → OAuth 2.0\n2. Check which grant types are enabled (Authorization Code, Implicit, etc.)\n3. Enable the grant type you\'re trying to use\n4. Save the configuration and try again',
       category: 'configuration' as const,
       severity: 'error' as const
     },
     'invalid_redirect_uri': {
       title: 'Invalid Redirect URI',
       message: 'The redirect URI does not match what is configured in PingOne.',
-      suggestion: 'Update your redirect URI in PingOne Admin to match exactly: {redirect_uri}',
+      suggestion: '1. Go to PingOne Admin → Applications → Your App → OAuth 2.0\n2. Check the Redirect URIs section\n3. Add or update the redirect URI to match exactly: {redirect_uri}\n4. Ensure there are no trailing slashes or extra characters\n5. Save the configuration and try again',
       category: 'configuration' as const,
       severity: 'error' as const
     },
@@ -125,11 +125,12 @@ export class PingOneErrorInterpreter {
     }
   };
 
-  static interpret(error: PingOneError | any): InterpretedError {
-    // Handle different error formats
-    const errorCode = error?.error || error?.errorCode || error?.code || 'unknown';
-    const errorDescription = error?.error_description || error?.errorDescription || error?.message || '';
-    const errorDetails = error?.details || error?.details || {};
+  static interpret(error: PingOneError | unknown): InterpretedError {
+    // Handle different error formats with proper type checking
+    const errorObj = error as Record<string, unknown>;
+    const errorCode = errorObj?.error || errorObj?.errorCode || errorObj?.code || 'unknown';
+    const errorDescription = errorObj?.error_description || errorObj?.errorDescription || errorObj?.message || '';
+    const errorDetails = errorObj?.details || {};
 
     // Check for specific error patterns in description
     const description = errorDescription.toLowerCase();
@@ -253,4 +254,10 @@ export class PingOneErrorInterpreter {
 }
 
 export default PingOneErrorInterpreter;
+
+// Convenience function for easy usage
+export const interpretPingOneError = (error: string | PingOneError): InterpretedError => {
+  return PingOneErrorInterpreter.interpret(error);
+};
+
 

@@ -81,7 +81,7 @@ const DebugContent = styled.div`
   background: #1a1a1a;
 `;
 
-const LogEntry = styled.div<{ $level: string }>`
+const LogEntryContainer = styled.div<{ $level: string }>`
   margin-bottom: 0.25rem;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
@@ -160,10 +160,9 @@ const EmptyState = styled.div`
 interface LogEntry {
   timestamp: string;
   level: string;
-  context: string;
   component: string;
   message: string;
-  data?: any;
+  data?: unknown;
   error?: Error;
 }
 
@@ -212,7 +211,7 @@ const DebugPanel: React.FC = () => {
     return new Date(timestamp).toLocaleTimeString();
   };
 
-  const formatData = (data: any) => {
+  const formatData = (data: unknown): string => {
     if (data === null || data === undefined) return '';
     if (typeof data === 'string') return data;
     return JSON.stringify(data, null, 2);
@@ -253,18 +252,18 @@ const DebugPanel: React.FC = () => {
             <EmptyState>No logs available</EmptyState>
           ) : (
             logs.map((log, index) => (
-              <LogEntry key={index} $level={log.level}>
+              <LogEntryContainer key={index} $level={log.level}>
                 <LogTimestamp>{formatTimestamp(log.timestamp)}</LogTimestamp>
                 <LogLevel $level={log.level}>{log.level}</LogLevel>
                 <LogComponent>[{log.component}]</LogComponent>
                 <LogMessage>{log.message}</LogMessage>
-                {log.data && (
+                {log.data ? (
                   <LogData>{formatData(log.data)}</LogData>
-                )}
+                ) : null}
                 {log.error && (
                   <LogData>Error: {log.error.message}</LogData>
                 )}
-              </LogEntry>
+              </LogEntryContainer>
             ))
           )}
         </DebugContent>
@@ -274,4 +273,5 @@ const DebugPanel: React.FC = () => {
 };
 
 export default DebugPanel;
+
 
