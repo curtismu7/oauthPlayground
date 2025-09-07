@@ -13,6 +13,7 @@ import TokenDisplayComponent from '../../components/TokenDisplay';
 import PageTitle from '../../components/PageTitle';
 import FlowCredentials from '../../components/FlowCredentials';
 import ContextualHelp from '../../components/ContextualHelp';
+import ConfigurationStatus from '../../components/ConfigurationStatus';
 import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
 import { getDefaultConfig } from '../../utils/flowConfigDefaults';
 import { config } from '../../services/config';
@@ -332,6 +333,14 @@ console.log('User ID:', decodedIdToken.sub);`,
       <PageTitle 
         title="Implicit Grant Flow"
         subtitle="Learn how the Implicit Grant flow works with real API calls to PingOne. This flow is suitable for client-side applications but has security limitations."
+      />
+
+      <ConfigurationStatus 
+        config={config} 
+        onConfigure={() => {
+          console.log('🔧 [ImplicitGrantFlow] Configuration button clicked');
+        }}
+        flowType="implicit"
       />
 
       <ContextualHelp flowId="implicit" />
