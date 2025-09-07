@@ -13,6 +13,7 @@ import ColorCodedURL from '../../components/ColorCodedURL';
 import PageTitle from '../../components/PageTitle';
 import FlowCredentials from '../../components/FlowCredentials';
 import ContextualHelp from '../../components/ContextualHelp';
+import ConfigurationStatus from '../../components/ConfigurationStatus';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -659,6 +660,14 @@ fetch('/api/protected-resource', {
           </>
         }
         subtitle="Learn how the Client Credentials flow works for machine-to-machine authentication with real API calls to PingOne."
+      />
+
+      <ConfigurationStatus 
+        config={config} 
+        onConfigure={() => {
+          console.log('🔧 [ClientCredentialsFlow] Configuration button clicked');
+        }}
+        flowType="client-credentials"
       />
 
       <ContextualHelp flowId="client-credentials" />

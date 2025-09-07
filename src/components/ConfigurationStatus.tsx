@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from './Card';
 import { 
@@ -14,6 +14,7 @@ import { Link } from 'react-router-dom';
 interface ConfigurationStatusProps {
   config: any;
   onConfigure?: () => void;
+  onViewDetails?: () => void;
   flowType?: string;
 }
 
@@ -175,12 +176,16 @@ const getConfigurationStatus = (config: any) => {
     };
   }
 
-  const pingone = config.pingone || {};
+  // Handle both config structures: config.pingone.* and config.*
+  const clientId = config.pingone?.clientId || config.clientId;
+  const environmentId = config.pingone?.environmentId || config.environmentId;
+  const authEndpoint = config.pingone?.authEndpoint || config.authorizationEndpoint;
+  
   const missingItems = [];
   
-  if (!pingone.clientId) missingItems.push('Client ID');
-  if (!pingone.environmentId) missingItems.push('Environment ID');
-  if (!pingone.authEndpoint) missingItems.push('API URL');
+  if (!clientId) missingItems.push('Client ID');
+  if (!environmentId) missingItems.push('Environment ID');
+  if (!authEndpoint) missingItems.push('API URL');
 
   if (missingItems.length === 0) {
     return {
@@ -206,9 +211,27 @@ const getConfigurationStatus = (config: any) => {
 const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({ 
   config, 
   onConfigure, 
+  onViewDetails,
   flowType 
 }) => {
+  const [showDetails, setShowDetails] = useState(false);
   const { status, message, missingItems } = getConfigurationStatus(config);
+
+  const handleConfigure = () => {
+    console.log('🔧 [ConfigurationStatus] Configure button clicked', { status, config });
+    if (onConfigure) {
+      onConfigure();
+    }
+  };
+
+  const handleViewDetails = () => {
+    console.log('👁️ [ConfigurationStatus] View Details button clicked', { status, showDetails });
+    if (onViewDetails) {
+      onViewDetails();
+    } else {
+      setShowDetails(!showDetails);
+    }
+  };
 
   const getStatusIcon = () => {
     switch (status) {
@@ -232,14 +255,14 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
     switch (status) {
       case 'ready':
         return (
-          <PrimaryButton onClick={onConfigure}>
+          <PrimaryButton onClick={handleConfigure}>
             <FiSettings />
             Update Configuration
           </PrimaryButton>
         );
       case 'partial':
         return (
-          <PrimaryButton onClick={onConfigure}>
+          <PrimaryButton onClick={handleConfigure}>
             <FiSettings />
             Complete Configuration
           </PrimaryButton>
@@ -260,7 +283,7 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
   const getSecondaryAction = () => {
     if (status === 'ready') {
       return (
-        <SecondaryButton onClick={onConfigure}>
+        <SecondaryButton onClick={handleViewDetails}>
           <FiInfo />
           View Details
         </SecondaryButton>
@@ -301,21 +324,21 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
             </ConfigurationDetails>
           )}
           
-          {status === 'ready' && config?.pingone && (
+          {status === 'ready' && showDetails && config && (
             <ConfigurationDetails>
               <div className="details-title">Current Configuration:</div>
               <ul className="details-list">
                 <li>
                   <FiCheckCircle className="check-icon" />
-                  Client ID: {config.pingone.clientId}
+                  Client ID: {config.pingone?.clientId || config.clientId || 'Not set'}
                 </li>
                 <li>
                   <FiCheckCircle className="check-icon" />
-                  Environment ID: {config.pingone.environmentId}
+                  Environment ID: {config.pingone?.environmentId || config.environmentId || 'Not set'}
                 </li>
                 <li>
                   <FiCheckCircle className="check-icon" />
-                  API URL: {config.pingone.authEndpoint || 'Default'}
+                  API URL: {config.pingone?.authEndpoint || config.authorizationEndpoint || 'Default'}
                 </li>
               </ul>
             </ConfigurationDetails>
