@@ -89,8 +89,8 @@ const PingOneNote = styled.div`
 `;
 
 const SecurityNote = styled.div`
-  background-color: ${({ theme }) => theme.colors.warning}10;
-  border: 1px solid ${({ theme }) => theme.colors.warning}30;
+  background-color: #fdecea;
+  border: 1px solid #f5c2c7;
   border-radius: 0.5rem;
   padding: 1rem;
   margin: 1rem 0;
@@ -99,13 +99,13 @@ const SecurityNote = styled.div`
   gap: 0.75rem;
 
   svg {
-    color: ${({ theme }) => theme.colors.warning};
+    color: #dc3545;
     flex-shrink: 0;
     margin-top: 0.1rem;
   }
 
   h4 {
-    color: ${({ theme }) => theme.colors.warning};
+    color: #dc3545;
     margin: 0 0 0.5rem 0;
     font-size: 1rem;
     font-weight: 600;
@@ -113,7 +113,7 @@ const SecurityNote = styled.div`
 
   p {
     margin: 0;
-    color: ${({ theme }) => theme.colors.warning};
+    color: #dc3545;
     font-size: 0.9rem;
   }
 `;

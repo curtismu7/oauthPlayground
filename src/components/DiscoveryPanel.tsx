@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { FiSearch, FiCheckCircle, FiAlertCircle, FiRefreshCw, FiGlobe, FiX } from 'react-icons/fi';
+import { FiSearch, FiCheckCircle, FiAlertCircle, FiRefreshCw, FiGlobe, FiX, FiCheck } from 'react-icons/fi';
 import { discoveryService, OpenIDConfiguration } from '../services/discoveryService';
 import { logger } from '../utils/logger';
 import CopyIcon from './CopyIcon';
@@ -392,7 +392,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
                     onClick={() => handleCopyToClipboard(discoveredConfig.issuer, 'issuer')}
                     title="Copy Issuer"
                   >
-                    {copiedField === 'issuer' ? <FiCheckCircle size={14} /> : <CopyIcon size={14} />}
+                    {copiedField === 'issuer' ? <FiCheck size={14} /> : <CopyIcon size={14} />}
                   </CopyButton>
                 </ConfigValue>
               </ConfigItem>
@@ -405,7 +405,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
                     onClick={() => handleCopyToClipboard(discoveredConfig.authorization_endpoint, 'auth')}
                     title="Copy Authorization Endpoint"
                   >
-                    {copiedField === 'auth' ? <FiCheckCircle size={14} /> : <CopyIcon size={14} />}
+                    {copiedField === 'auth' ? <FiCheck size={14} /> : <CopyIcon size={14} />}
                   </CopyButton>
                 </ConfigValue>
               </ConfigItem>
@@ -418,7 +418,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
                     onClick={() => handleCopyToClipboard(discoveredConfig.token_endpoint, 'token')}
                     title="Copy Token Endpoint"
                   >
-                    {copiedField === 'token' ? <FiCheckCircle size={14} /> : <CopyIcon size={14} />}
+                    {copiedField === 'token' ? <FiCheck size={14} /> : <CopyIcon size={14} />}
                   </CopyButton>
                 </ConfigValue>
               </ConfigItem>
@@ -431,7 +431,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
                     onClick={() => handleCopyToClipboard(discoveredConfig.userinfo_endpoint, 'userinfo')}
                     title="Copy UserInfo Endpoint"
                   >
-                    {copiedField === 'userinfo' ? <FiCheckCircle size={14} /> : <CopyIcon size={14} />}
+                    {copiedField === 'userinfo' ? <FiCheck size={14} /> : <CopyIcon size={14} />}
                   </CopyButton>
                 </ConfigValue>
               </ConfigItem>
@@ -444,7 +444,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
                     onClick={() => handleCopyToClipboard(discoveredConfig.jwks_uri, 'jwks')}
                     title="Copy JWKS URI"
                   >
-                    {copiedField === 'jwks' ? <FiCheckCircle size={14} /> : <CopyIcon size={14} />}
+                    {copiedField === 'jwks' ? <FiCheck size={14} /> : <CopyIcon size={14} />}
                   </CopyButton>
                 </ConfigValue>
               </ConfigItem>

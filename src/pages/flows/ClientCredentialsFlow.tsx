@@ -12,6 +12,7 @@ import { storeOAuthTokens } from '../../utils/tokenStorage';
 import ColorCodedURL from '../../components/ColorCodedURL';
 import PageTitle from '../../components/PageTitle';
 import FlowCredentials from '../../components/FlowCredentials';
+import ContextualHelp from '../../components/ContextualHelp';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -376,7 +377,7 @@ const credentials = btoa(clientId + ':' + clientSecret);
 const credentials = btoa('${config?.pingone?.clientId || 'your_client_id'}:${config?.pingone?.clientSecret || 'your_client_secret'}');
 // Result: ${config ? btoa(`${config.pingone.clientId}:${config.pingone.clientSecret}`).substring(0, 20) + '...' : 'Base64_encoded_credentials'}`,
       execute: () => {
-        if (!config) {
+        if (!config || !config.pingone) {
           setError('Configuration required. Please configure your PingOne settings first.');
           return;
         }
@@ -399,7 +400,7 @@ Content-Type: application/x-www-form-urlencoded
 
 grant_type=client_credentials&scope=api:read`,
       execute: async () => {
-        if (!config) {
+        if (!config || !config.pingone) {
           setError('Configuration required. Please configure your PingOne settings first.');
           return;
         }
@@ -515,7 +516,7 @@ const accessToken = generateAccessToken(clientId, scope);`,
 // - iat: issued at time
 // - exp: expiration time`,
       execute: async () => {
-        if (!config) {
+        if (!config || !config.pingone) {
           setError('Configuration required. Please configure your PingOne settings first.');
           return;
         }
@@ -659,6 +660,8 @@ fetch('/api/protected-resource', {
         }
         subtitle="Learn how the Client Credentials flow works for machine-to-machine authentication with real API calls to PingOne."
       />
+
+      <ContextualHelp flowId="client-credentials" />
 
       <FlowCredentials
         flowType="client_credentials"

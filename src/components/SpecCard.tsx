@@ -111,8 +111,8 @@ export const SpecCard: React.FC<SpecCardProps> = ({
       role="region"
       aria-label={ariaLabel || title}
     >
-      {title && <h3>{title}</h3>}
-      <div>{children}</div>
+      {title && <h3 className="spec-card-title">{title}</h3>}
+      <div className="spec-card-content">{children}</div>
     </SpecCardContainer>
   );
 };
