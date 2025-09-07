@@ -11,6 +11,7 @@ const envSchema = z.object({
   // PingOne Configuration
   VITE_PINGONE_ENVIRONMENT_ID: z.string().min(1, 'PingOne Environment ID is required'),
   VITE_PINGONE_CLIENT_ID: z.string().min(1, 'PingOne Client ID is required'),
+  VITE_PINGONE_CLIENT_SECRET: z.string().min(1, 'PingOne Client Secret is required'),
   VITE_PINGONE_REDIRECT_URI: z.string().url('Valid redirect URI is required'),
   VITE_PINGONE_LOGOUT_REDIRECT_URI: z.string().url('Valid logout redirect URI is required'),
   VITE_PINGONE_API_URL: z.string().url('Valid API URL is required').default('https://auth.pingone.com'),
@@ -75,23 +76,16 @@ export const config = {
   pingone: {
     environmentId: env.VITE_PINGONE_ENVIRONMENT_ID,
     clientId: env.VITE_PINGONE_CLIENT_ID,
+    clientSecret: env.VITE_PINGONE_CLIENT_SECRET,
     redirectUri: env.VITE_PINGONE_REDIRECT_URI,
     logoutRedirectUri: env.VITE_PINGONE_LOGOUT_REDIRECT_URI,
     apiUrl: env.VITE_PINGONE_API_URL,
     
     // Derived endpoints
-    get authEndpoint() {
-      return `${this.apiUrl}/${this.environmentId}/as/authorize`;
-    },
-    get tokenEndpoint() {
-      return `${this.apiUrl}/${this.environmentId}/as/token`;
-    },
-    get userInfoEndpoint() {
-      return `${this.apiUrl}/${this.environmentId}/as/userinfo`;
-    },
-    get logoutEndpoint() {
-      return `${this.apiUrl}/${this.environmentId}/as/signoff`;
-    },
+    authEndpoint: `${env.VITE_PINGONE_API_URL}/${env.VITE_PINGONE_ENVIRONMENT_ID}/as/authorize`,
+    tokenEndpoint: `${env.VITE_PINGONE_API_URL}/${env.VITE_PINGONE_ENVIRONMENT_ID}/as/token`,
+    userInfoEndpoint: `${env.VITE_PINGONE_API_URL}/${env.VITE_PINGONE_ENVIRONMENT_ID}/as/userinfo`,
+    logoutEndpoint: `${env.VITE_PINGONE_API_URL}/${env.VITE_PINGONE_ENVIRONMENT_ID}/as/signoff`,
   },
   
   // Development settings
@@ -128,7 +122,7 @@ export type Config = typeof config;
 // Helper function to get a nested config value by path
 export const getConfigValue = <T>(path: string, defaultValue: T): T => {
   const keys = path.split('.');
-  let result: any = config;
+  let result: unknown = config;
   
   for (const key of keys) {
     if (result === undefined || result === null) {

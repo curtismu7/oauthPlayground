@@ -173,7 +173,7 @@ const HybridPostFlow: React.FC<HybridPostFlowProps> = ({ credentials }) => {
     uiLocales: '',
     claims: ''
   });
-  const [response, setResponse] = useState<any>(null);
+  const [response, setResponse] = useState<Record<string, unknown> | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const generateState = useCallback(() => {
@@ -463,8 +463,8 @@ console.log('All tokens stored successfully:', tokens);`,
     setError(null);
   }, []);
 
-  const handleStepResult = useCallback((step: number, result: any) => {
-    logger.info('HybridPostFlow', `Step ${step + 1} completed`, result);
+  const handleStepResult = useCallback((step: number, result: unknown) => {
+    logger.info('HybridPostFlow', `Step ${step + 1} completed`, result as any);
   }, []);
 
   return (

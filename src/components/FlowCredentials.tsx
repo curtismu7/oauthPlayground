@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import styled from 'styled-components';
 import { FiEye, FiEyeOff, FiCheckCircle, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import CopyIcon from './CopyIcon';
@@ -106,7 +106,7 @@ const FormGrid = styled.div`
   
   .client-secret-field {
     grid-column: 1 / -1;
-    max-width: 600px; /* Limit width for client secret */
+    max-width: 610px; /* Limit width for client secret */
   }
   
   @media (max-width: 768px) {
@@ -377,9 +377,8 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
     loadCredentials();
   }, [flowType, onCredentialsChange]);
 
-  // Save credentials to localStorage when they change
-  useEffect(() => {
-    // Only save if there are actual values and they're different from global
+  // Check for changes to enable/disable save button
+  const hasConfigChanges = useMemo(() => {
     const globalConfig = localStorage.getItem('pingone_config');
     let globalCredentials: FlowCredentialsData = {
       environmentId: '',
@@ -405,35 +404,11 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
     }
 
     // Check if any field is different from global
-    const hasChanges = Object.keys(credentials).some(key => {
+    return Object.keys(credentials).some(key => {
       const field = key as keyof FlowCredentialsData;
       return credentials[field] !== globalCredentials[field];
     });
-
-    if (hasChanges && (credentials.environmentId || credentials.clientId)) {
-      localStorage.setItem(`flow_credentials_${flowType}`, JSON.stringify(credentials));
-      onCredentialsChange?.(credentials);
-      
-      // Show save confirmation
-      setIsSaved(true);
-      setSaveMessage(`Credentials saved for ${flowType} flow`);
-      logger.success('FlowCredentials', `Credentials saved for ${flowType}`, credentials);
-      
-      // Clear save message after 3 seconds
-      setTimeout(() => {
-        setIsSaved(false);
-        setSaveMessage(null);
-      }, 3000);
-    } else if (credentials.environmentId || credentials.clientId) {
-      // Show that we're using global credentials
-      setIsSaved(true);
-      setSaveMessage(`Using global credentials for ${flowType} flow`);
-      setTimeout(() => {
-        setIsSaved(false);
-        setSaveMessage(null);
-      }, 2000);
-    }
-  }, [credentials, flowType, onCredentialsChange]);
+  }, [credentials]);
 
   const handleFieldChange = (field: keyof FlowCredentialsData, value: string) => {
     logger.ui('FlowCredentials', `Field changed: ${field}`, { field, valueLength: value.length });
@@ -480,6 +455,56 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
       'id-tokens': 'ID Tokens Flow'
     };
     return flowNames[flowType] || flowType;
+  };
+
+  const handleSaveCredentials = () => {
+    try {
+      logger.ui('FlowCredentials', `Saving credentials for ${flowType}`, credentials);
+      
+      // Save to flow-specific storage
+      localStorage.setItem(`flow_credentials_${flowType}`, JSON.stringify(credentials));
+      
+      // Update original credentials to mark as saved
+      setOriginalCredentials({ ...credentials });
+      setHasChanges(false);
+      
+      // Show success message
+      setIsSaved(true);
+      setSaveMessage(`Credentials saved for ${flowType} flow`);
+      
+      // Notify parent component
+      onCredentialsChange?.(credentials);
+      
+      logger.success('FlowCredentials', `Credentials saved for ${flowType}`, credentials);
+      
+      // Clear save message after 3 seconds
+      setTimeout(() => {
+        setIsSaved(false);
+        setSaveMessage(null);
+      }, 3000);
+    } catch (error) {
+      logger.error('FlowCredentials', 'Failed to save credentials', error);
+      setSaveMessage('Failed to save credentials');
+      setTimeout(() => setSaveMessage(null), 3000);
+    }
+  };
+
+  const handleResetCredentials = () => {
+    try {
+      logger.ui('FlowCredentials', `Resetting credentials for ${flowType}`);
+      
+      // Reset to original credentials
+      setCredentials({ ...originalCredentials });
+      setHasChanges(false);
+      
+      // Clear any save messages
+      setIsSaved(false);
+      setSaveMessage(null);
+      
+      logger.success('FlowCredentials', `Credentials reset for ${flowType}`);
+    } catch (error) {
+      logger.error('FlowCredentials', 'Failed to reset credentials', error);
+    }
   };
 
   return (
@@ -664,28 +689,28 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
             <button
               type="button"
               onClick={handleSaveCredentials}
-              disabled={!hasChanges}
+              disabled={!hasConfigChanges}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.5rem',
                 padding: '0.75rem 2rem',
-                backgroundColor: hasChanges ? '#3b82f6' : '#9ca3af',
+                backgroundColor: hasConfigChanges ? '#3b82f6' : '#9ca3af',
                 color: 'white',
                 border: 'none',
                 borderRadius: '0.375rem',
                 fontSize: '0.875rem',
                 fontWeight: '500',
-                cursor: hasChanges ? 'pointer' : 'not-allowed',
+                cursor: hasConfigChanges ? 'pointer' : 'not-allowed',
                 transition: 'all 0.2s',
-                opacity: hasChanges ? 1 : 0.6
+                opacity: hasConfigChanges ? 1 : 0.6
               }}
             >
               <FiCheckCircle size={16} />
               {isSaved ? 'Saved!' : 'Save Credentials'}
             </button>
             
-            {hasChanges && (
+            {hasConfigChanges && (
               <button
                 type="button"
                 onClick={handleResetCredentials}

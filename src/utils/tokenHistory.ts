@@ -60,7 +60,7 @@ export const getTokenHistory = (): TokenHistory => {
 export const addTokenToHistory = (
   flowType: string,
   flowName: string,
-  tokens: any
+  tokens: Record<string, unknown>
 ): boolean => {
   try {
     console.log('🔍 [TokenHistory] addTokenToHistory called with:', { flowType, flowName, hasAccessToken: !!tokens.access_token });
