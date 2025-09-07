@@ -238,7 +238,17 @@ const availableScopes = [
   'api:read', 'api:write', 'admin:read', 'admin:write'
 ];
 
-const defaultAcrValues = ['urn:pingone:loa:1', 'urn:pingone:loa:2', 'urn:pingone:loa:3'];
+const defaultAcrValues = [
+  'urn:mace:incommon:iap:silver',
+  'urn:mace:incommon:iap:bronze', 
+  'urn:mace:incommon:iap:gold',
+  'urn:pingone:loa:1',
+  'urn:pingone:loa:2', 
+  'urn:pingone:loa:3',
+  '1',
+  '2',
+  '3'
+];
 
 export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
   config,

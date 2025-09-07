@@ -35,6 +35,36 @@
   margin: 12px 0;
 }
 
+/* Force text color for all elements inside spec-card */
+.spec-card,
+.spec-card * {
+  color: var(--card-fg) !important;
+}
+
+/* Override any theme-based text colors */
+.spec-card p,
+.spec-card div,
+.spec-card span {
+  color: var(--card-fg) !important;
+}
+
+/* Specific styling for SpecCard content */
+.spec-card-title {
+  color: var(--card-fg) !important;
+  font-weight: 700 !important;
+  margin: 0 0 8px 0 !important;
+}
+
+.spec-card-content {
+  color: var(--card-fg) !important;
+}
+
+.spec-card-content p {
+  color: var(--card-muted) !important;
+  margin: 0 0 8px 0 !important;
+  line-height: 1.5 !important;
+}
+
 .spec-card h1,
 .spec-card h2,
 .spec-card h3,

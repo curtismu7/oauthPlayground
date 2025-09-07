@@ -15,6 +15,7 @@ import FlowCredentials from '../../components/FlowCredentials';
 import { logger } from '../../utils/logger';
 import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
 import JSONHighlighter from '../../components/JSONHighlighter';
+import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -316,6 +317,26 @@ const WorkerTokenFlow = () => {
 
   const handleRedirectModalProceed = () => {
     logger.flow('WorkerTokenFlow', 'Proceeding with redirect to PingOne', { url: redirectUrl });
+    
+    // Store the return path for after callback
+    const currentPath = window.location.pathname;
+    const returnPath = `${currentPath}?step=1`; // Return to step 1 (token request)
+    sessionStorage.setItem('redirect_after_login', returnPath);
+    
+    // Store flow context in state parameter
+    const stateParam = new URLSearchParams(redirectUrl.split('?')[1]?.split('#')[0] || '').get('state');
+    if (stateParam) {
+      // Encode flow context in the state parameter
+      const flowContext = {
+        flow: 'worker-token',
+        step: 1,
+        returnPath: returnPath,
+        timestamp: Date.now()
+      };
+      sessionStorage.setItem(`flow_context_${stateParam}`, JSON.stringify(flowContext));
+    }
+    
+    console.log('🔄 [WorkerTokenFlow] Stored return path:', returnPath);
     window.location.href = redirectUrl;
   };
 
@@ -335,7 +356,7 @@ const tokenRequest = {
   body: 'grant_type=client_credentials&scope=pingone:read pingone:write'
 };`,
       execute: () => {
-        if (!config) {
+        if (!config || !config.pingone) {
           setError('Configuration required. Please configure your PingOne settings first.');
           return { error: 'Configuration required' };
         }
@@ -386,7 +407,7 @@ const response = await fetch(tokenEndpoint, {
 
 const tokenData = await response.json();`,
       execute: async () => {
-        if (!config) {
+        if (!config || !config.pingone) {
           setError('Configuration required. Please configure your PingOne settings first.');
           return { error: 'Configuration required' };
         }
@@ -586,6 +607,8 @@ const data = await apiResponse.json();`,
           logger.config('WorkerTokenFlow', 'Worker credentials updated', credentials);
         }}
       />
+
+      <CallbackUrlDisplay flowType="worker-token" />
 
       <FlowOverview>
         <CardHeader>
