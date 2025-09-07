@@ -17,6 +17,7 @@ import FlowCredentials from '../../components/FlowCredentials';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
 import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
 import ContextualHelp from '../../components/ContextualHelp';
+import ConfigurationStatus from '../../components/ConfigurationStatus';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -605,6 +606,15 @@ return tokens;`,
           </>
         }
         subtitle="Learn how Proof Key for Code Exchange (PKCE) enhances the Authorization Code flow with real API calls to PingOne."
+      />
+
+      <ConfigurationStatus 
+        config={config} 
+        onConfigure={() => {
+          console.log('🔧 [PKCEFlow] Configuration button clicked');
+          // Could toggle a configuration panel or navigate to config page
+        }}
+        flowType="pkce"
       />
 
       <ContextualHelp flowId="pkce" />

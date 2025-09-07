@@ -14,6 +14,7 @@ import {
 import { useAuth } from '../contexts/NewAuthContext';
 import { config } from '../services/config';
 import Spinner from '../components/Spinner';
+import { getCallbackUrlForFlow } from '../utils/callbackUrls';
 
 // Define specific types for HMAC and signing algorithms
 type HMACAlgorithm = 'HS256' | 'HS384' | 'HS512';
@@ -467,7 +468,7 @@ const Login = () => {
         environmentId: credentials.environmentId,
         clientId: credentials.clientId,
         clientSecret: credentials.clientSecret,
-        redirectUri: config.pingone.redirectUri,
+        redirectUri: getCallbackUrlForFlow('dashboard'),
         scopes: credentials.advanced?.resourceScopes || 'openid profile email',
         authEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/authorize`,
         tokenEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/token`,
@@ -478,6 +479,11 @@ const Login = () => {
       };
       localStorage.setItem('pingone_config', JSON.stringify(configToSave));
       console.log('✅ [Login] Config also saved to pingone_config');
+      
+      // Dispatch event to notify other components of config change
+      window.dispatchEvent(new CustomEvent('pingone_config_changed', {
+        detail: { config: configToSave }
+      }));
       
       setSaveStatus({
         type: 'success',
@@ -519,7 +525,7 @@ const Login = () => {
         environmentId: credentials.environmentId,
         clientId: credentials.clientId,
         clientSecret: credentials.clientSecret,
-        redirectUri: config.pingone.redirectUri,
+        redirectUri: getCallbackUrlForFlow('dashboard'),
         scopes: credentials.advanced?.resourceScopes || 'openid profile email',
         authEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/authorize`,
         tokenEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/token`,
@@ -529,6 +535,11 @@ const Login = () => {
         advanced: credentials.advanced,
       };
       localStorage.setItem('pingone_config', JSON.stringify(configToSave));
+      
+      // Dispatch event to notify other components of config change
+      window.dispatchEvent(new CustomEvent('pingone_config_changed', {
+        detail: { config: configToSave }
+      }));
 
       // Redirect to PingOne for authentication
       await login();
@@ -622,9 +633,9 @@ const Login = () => {
                 <li>
                   <strong>Redirect URIs:</strong>
                   <span style={{ fontWeight: '800', fontSize: '1rem', color: '#0070CC', marginLeft: '0.5rem' }}>
-                    https://localhost:3000/callback
+                    {getCallbackUrlForFlow('dashboard')}
                     <button
-                      onClick={() => copyToClipboard('https://localhost:3000/callback', 'setup-redirect-uri')}
+                      onClick={() => copyToClipboard(getCallbackUrlForFlow('dashboard'), 'setup-redirect-uri')}
                       style={{
                         background: 'none',
                         border: '1px solid #0070CC',
@@ -947,9 +958,9 @@ const Login = () => {
               <CredentialRow>
                 <p><strong>Redirect URI:</strong></p>
                 <CredentialWrapper>
-                  <code>https://localhost:3000/callback</code>
+                  <code>{getCallbackUrlForFlow('dashboard')}</code>
                   <CopyButton
-                    onClick={() => copyToClipboard('https://localhost:3000/callback', 'redirect-uri')}
+                    onClick={() => copyToClipboard(getCallbackUrlForFlow('dashboard'), 'redirect-uri')}
                     title="Copy Redirect URI"
                   >
                     {copiedId === 'redirect-uri' ? <FiCheck size={16} /> : <FiCopy size={16} />}
