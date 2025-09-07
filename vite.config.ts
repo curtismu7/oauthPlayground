@@ -1,13 +1,62 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import basicSsl from '@vitejs/plugin-basic-ssl';
+import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(({ mode }) => {
   // Load env file based on `mode` in the current working directory.
   const env = loadEnv(mode, process.cwd(), '');
   
   return {
-    plugins: [react(), basicSsl()],
+    plugins: [
+      react(), 
+      basicSsl(),
+      VitePWA({
+        registerType: 'autoUpdate',
+        workbox: {
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+          runtimeCaching: [
+            {
+              urlPattern: /^https:\/\/api\./,
+              handler: 'NetworkFirst',
+              options: {
+                cacheName: 'api-cache',
+                expiration: {
+                  maxEntries: 100,
+                  maxAgeSeconds: 60 * 60 * 24 // 24 hours
+                }
+              }
+            },
+            {
+              urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'images-cache',
+                expiration: {
+                  maxEntries: 100,
+                  maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+                }
+              }
+            }
+          ]
+        },
+        manifest: {
+          name: 'OAuth Playground',
+          short_name: 'OAuth Playground',
+          description: 'Interactive playground for OAuth 2.0 and OpenID Connect',
+          theme_color: '#3b82f6',
+          background_color: '#ffffff',
+          display: 'standalone',
+          icons: [
+            {
+              src: '/favicon.ico',
+              sizes: 'any',
+              type: 'image/x-icon'
+            }
+          ]
+        }
+      })
+    ],
     server: {
       port: 3000,
       open: true,
@@ -18,6 +67,49 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: 'dist',
       sourcemap: true,
+      rollupOptions: {
+        output: {
+          manualChunks: (id) => {
+            // Vendor chunks
+            if (id.includes('node_modules')) {
+              if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+                return 'react-vendor';
+              }
+              if (id.includes('styled-components')) {
+                return 'styled-vendor';
+              }
+              if (id.includes('react-icons')) {
+                return 'icons-vendor';
+              }
+              return 'vendor';
+            }
+            
+            // OAuth flow chunks - group by functionality
+            if (id.includes('src/pages/flows/')) {
+              return 'oauth-flows';
+            }
+            
+            // Utility chunks
+            if (id.includes('src/utils/')) {
+              return 'utils';
+            }
+            
+            // Component chunks
+            if (id.includes('src/components/')) {
+              return 'components';
+            }
+          }
+        }
+      },
+      chunkSizeWarningLimit: 1000, // Increase warning limit to 1MB
+      target: 'esnext',
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: mode === 'production',
+          drop_debugger: mode === 'production'
+        }
+      }
     },
     define: {
       // Expose environment variables to the client
