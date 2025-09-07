@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiMenu, FiSettings, FiHelpCircle, FiLogIn, FiLogOut } from 'react-icons/fi';
 import { useAuth } from '../contexts/NewAuthContext';
+import { useAccessibility } from '../hooks/useAccessibility';
 
 const NavbarContainer = styled.nav`
   position: fixed;
@@ -88,44 +89,76 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
   const { isAuthenticated, logout, user } = useAuth();
   const navigate = useNavigate();
+  const { announceToScreenReader, setFocus } = useAccessibility();
 
   const handleLogout = () => {
     logout();
     navigate('/login');
+    announceToScreenReader('Logged out successfully');
+  };
+
+  const handleMenuToggle = () => {
+    toggleSidebar();
+    announceToScreenReader('Navigation menu toggled');
   };
 
   return (
-    <NavbarContainer>
-      <MenuButton onClick={toggleSidebar}>
-        <FiMenu size={24} />
+    <NavbarContainer 
+      role="banner"
+      aria-label="Main navigation"
+    >
+      <MenuButton 
+        onClick={handleMenuToggle}
+        aria-label="Toggle navigation menu"
+        aria-expanded="false"
+        aria-controls="sidebar-menu"
+        title="Toggle navigation menu"
+      >
+        <FiMenu size={24} aria-hidden="true" />
       </MenuButton>
       
       <Logo>
         <span>PingOne OAuth Playground</span>
         {isAuthenticated && user && (
-          <div className="user-info">
+          <div className="user-info" aria-live="polite">
             Welcome, {user.name || user.email}
           </div>
         )}
       </Logo>
       
-      <NavItems>
-        <Link to="/documentation" title="Documentation">
-          <FiHelpCircle />
+      <NavItems role="navigation" aria-label="Main navigation">
+        <Link 
+          to="/documentation" 
+          title="View documentation and help"
+          aria-label="View documentation and help"
+        >
+          <FiHelpCircle aria-hidden="true" />
           <span>Docs</span>
         </Link>
-        <Link to="/configuration" title="Configuration">
-          <FiSettings />
+        <Link 
+          to="/configuration" 
+          title="Configure OAuth settings"
+          aria-label="Configure OAuth settings"
+        >
+          <FiSettings aria-hidden="true" />
           <span>Configuration</span>
         </Link>
         {isAuthenticated ? (
-          <button onClick={handleLogout} title="Logout">
-            <FiLogOut />
+          <button 
+            onClick={handleLogout} 
+            title="Logout from the application"
+            aria-label="Logout from the application"
+          >
+            <FiLogOut aria-hidden="true" />
             <span>Logout</span>
           </button>
         ) : (
-          <Link to="/login" title="Login">
-            <FiLogIn />
+          <Link 
+            to="/login" 
+            title="Login to the application"
+            aria-label="Login to the application"
+          >
+            <FiLogIn aria-hidden="true" />
             <span>Login</span>
           </Link>
         )}

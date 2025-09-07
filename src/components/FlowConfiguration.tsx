@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from './Card';
 import { FiSettings, FiCopy, FiCheck } from 'react-icons/fi';
+import { useAccessibility } from '../hooks/useAccessibility';
 
 const ConfigContainer = styled.div`
   margin-bottom: 2rem;
@@ -245,6 +246,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
   flowType
 }) => {
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const { announceToScreenReader } = useAccessibility();
 
   const updateConfig = (updates: Partial<FlowConfig>) => {
     onConfigChange({ ...config, ...updates });
@@ -255,6 +257,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
       ? config.scopes.filter(s => s !== scope)
       : [...config.scopes, scope];
     updateConfig({ scopes: newScopes });
+    announceToScreenReader(`${scope} scope ${config.scopes.includes(scope) ? 'removed' : 'added'}`);
   };
 
   const addCustomParam = () => {
@@ -324,9 +327,11 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
     try {
       await navigator.clipboard.writeText(text);
       setCopiedField(field);
+      announceToScreenReader(`${field} copied to clipboard`);
       setTimeout(() => setCopiedField(null), 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
+      announceToScreenReader('Failed to copy to clipboard');
     }
   };
 
@@ -363,10 +368,12 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
             </h4>
             <ConfigGrid>
               <ConfigField>
-                <label>Response Type</label>
+                <label htmlFor="response-type-select">Response Type</label>
                 <select
+                  id="response-type-select"
                   value={config.responseType}
                   onChange={(e) => updateConfig({ responseType: e.target.value })}
+                  aria-describedby="response-type-help"
                 >
                   <option value="code">code (Authorization Code)</option>
                   <option value="token">token (Implicit)</option>
@@ -374,13 +381,18 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
                   <option value="code token">code token (Hybrid)</option>
                   <option value="code id_token">code id_token (Hybrid)</option>
                 </select>
+                <div id="response-type-help" className="sr-only">
+                  Select the OAuth response type for this flow
+                </div>
               </ConfigField>
               
               <ConfigField>
-                <label>Grant Type</label>
+                <label htmlFor="grant-type-select">Grant Type</label>
                 <select
+                  id="grant-type-select"
                   value={config.grantType}
                   onChange={(e) => updateConfig({ grantType: e.target.value })}
+                  aria-describedby="grant-type-help"
                 >
                   <option value="authorization_code">authorization_code</option>
                   <option value="implicit">implicit</option>
@@ -389,6 +401,9 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
                   <option value="refresh_token">refresh_token</option>
                   <option value="urn:ietf:params:oauth:grant-type:device_code">device_code</option>
                 </select>
+                <div id="grant-type-help" className="sr-only">
+                  Select the OAuth grant type for this flow
+                </div>
               </ConfigField>
             </ConfigGrid>
           </ConfigSection>
@@ -396,17 +411,34 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
           {/* Scopes */}
           <ConfigSection>
             <h4>OAuth Scopes</h4>
-            <ScopeContainer>
+            <ScopeContainer 
+              role="group" 
+              aria-label="OAuth scopes selection"
+              aria-describedby="scopes-help"
+            >
               {availableScopes.map(scope => (
                 <ScopeChip
                   key={scope}
                   $selected={config.scopes.includes(scope)}
                   onClick={() => toggleScope(scope)}
+                  role="checkbox"
+                  aria-checked={config.scopes.includes(scope)}
+                  aria-label={`${scope} scope`}
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      toggleScope(scope);
+                    }
+                  }}
                 >
                   {scope}
                 </ScopeChip>
               ))}
             </ScopeContainer>
+            <div id="scopes-help" className="sr-only">
+              Select the OAuth scopes for this flow. Use Enter or Space to toggle selection.
+            </div>
           </ConfigSection>
 
           {/* PKCE Settings */}
