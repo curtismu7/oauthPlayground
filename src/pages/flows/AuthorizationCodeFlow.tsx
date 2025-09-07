@@ -16,6 +16,20 @@ import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import FlowCredentials from '../../components/FlowCredentials';
 import { logger } from '../../utils/logger';
 import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
+import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
+import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
+import ContextualHelp from '../../components/ContextualHelp';
+// import { SpecCard } from '../../components/SpecCard';
+// import { TokenSurface } from '../../components/TokenSurface';
+
+interface StepResult {
+  url?: string;
+  code?: string;
+  tokenData?: Record<string, unknown>;
+  tokens?: Record<string, unknown>;
+  message?: string;
+  error?: string;
+}
 
 
 // Define window interface for PingOne environment variables
@@ -309,6 +323,21 @@ const AuthorizationCodeFlow = () => {
     setCodeChallenge(challenge);
     return { verifier, challenge };
   };
+
+  // Generate PKCE codes early when PKCE is enabled
+  useEffect(() => {
+    if (flowConfig.enablePKCE && !codeChallenge) {
+      console.log('🔑 [AuthCodeFlow] Auto-generating PKCE codes on mount...');
+      generatePKCECodes().then(({ challenge }) => {
+        console.log('🔑 [AuthCodeFlow] PKCE codes auto-generated:', { 
+          challenge: challenge?.substring(0, 20) + '...',
+          method: flowConfig.codeChallengeMethod 
+        });
+      }).catch(error => {
+        console.error('🔑 [AuthCodeFlow] Failed to auto-generate PKCE codes:', error);
+      });
+    }
+  }, [flowConfig.enablePKCE, codeChallenge, flowConfig.codeChallengeMethod]);
   const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
   const [showRedirectModal, setShowRedirectModal] = useState(false);
   const [redirectUrl, setRedirectUrl] = useState('');
@@ -336,7 +365,7 @@ const AuthorizationCodeFlow = () => {
       description: 'The client application prepares an authorization request with required parameters.',
       code: `GET /authorize?
   client_id=${config?.pingone?.clientId || 'your-client-id'}
-  &redirect_uri=${config?.pingone?.redirectUri || 'https://your-app.com/callback'}
+  &redirect_uri=${getCallbackUrlForFlow('authorization-code')}
   &response_type=${flowConfig.responseType}
   &scope=${flowConfig.scopes.join(' ')}
   &state=${flowConfig.state || 'xyz123'}
@@ -361,11 +390,32 @@ const AuthorizationCodeFlow = () => {
         logger.config('AuthorizationCodeFlow', 'Using authorization endpoint', { authEndpoint });
         
         // Generate PKCE codes if needed
-        if (flowConfig.enablePKCE && !codeChallenge) {
-          await generatePKCECodes();
+        let currentCodeChallenge = codeChallenge;
+        if (flowConfig.enablePKCE && !currentCodeChallenge) {
+          console.log('🔑 [AuthCodeFlow] Step 1: Generating PKCE codes synchronously...');
+          const pkceCodes = await generatePKCECodes();
+          currentCodeChallenge = pkceCodes.challenge;
+          console.log('🔑 [AuthCodeFlow] Step 1: PKCE codes generated:', { 
+            challenge: currentCodeChallenge?.substring(0, 20) + '...',
+            method: flowConfig.codeChallengeMethod 
+          });
+        } else if (flowConfig.enablePKCE && currentCodeChallenge) {
+          console.log('🔑 [AuthCodeFlow] Step 1: Using existing PKCE challenge:', currentCodeChallenge.substring(0, 20) + '...');
+        } else {
+          console.log('🔑 [AuthCodeFlow] Step 1: PKCE disabled or not needed');
+        }
+
+        // Safety check: if PKCE is enabled but no challenge available, throw error
+        if (flowConfig.enablePKCE && !currentCodeChallenge) {
+          throw new Error('PKCE is enabled but code challenge could not be generated');
         }
         
-        const url = `${authEndpoint}?client_id=${config.pingone.clientId}&redirect_uri=${encodeURIComponent(config.pingone.redirectUri)}&response_type=${flowConfig.responseType}&scope=${encodeURIComponent(flowConfig.scopes.join(' '))}&state=${flowConfig.state || 'xyz123'}&nonce=${flowConfig.nonce || 'abc456'}${flowConfig.enablePKCE ? `&code_challenge=${codeChallenge}&code_challenge_method=${flowConfig.codeChallengeMethod}` : ''}${flowConfig.maxAge > 0 ? `&max_age=${flowConfig.maxAge}` : ''}${flowConfig.prompt ? `&prompt=${flowConfig.prompt}` : ''}${flowConfig.loginHint ? `&login_hint=${flowConfig.loginHint}` : ''}${flowConfig.acrValues.length > 0 ? `&acr_values=${encodeURIComponent(flowConfig.acrValues.join(' '))}` : ''}${Object.keys(flowConfig.customParams).length > 0 ? Object.entries(flowConfig.customParams).map(([k, v]) => `&${k}=${encodeURIComponent(v)}`).join('') : ''}`;
+        // Use the correct callback URL for this flow
+        const callbackUrl = getCallbackUrlForFlow('authorization-code');
+        const url = `${authEndpoint}?client_id=${config.pingone.clientId}&redirect_uri=${encodeURIComponent(callbackUrl)}&response_type=${flowConfig.responseType}&scope=${encodeURIComponent(flowConfig.scopes.join(' '))}&state=${flowConfig.state || 'xyz123'}&nonce=${flowConfig.nonce || 'abc456'}${flowConfig.enablePKCE ? `&code_challenge=${currentCodeChallenge}&code_challenge_method=${flowConfig.codeChallengeMethod}` : ''}${flowConfig.maxAge > 0 ? `&max_age=${flowConfig.maxAge}` : ''}${flowConfig.prompt ? `&prompt=${flowConfig.prompt}` : ''}${flowConfig.loginHint ? `&login_hint=${flowConfig.loginHint}` : ''}${flowConfig.acrValues.length > 0 ? `&acr_values=${encodeURIComponent(flowConfig.acrValues.join(' '))}` : ''}${Object.keys(flowConfig.customParams).length > 0 ? Object.entries(flowConfig.customParams).map(([k, v]) => `&${k}=${encodeURIComponent(v)}`).join('') : ''}`;
+
+        console.log('🔗 [AuthCodeFlow] Step 1: Generated authorization URL:', url);
+        console.log('🔗 [AuthCodeFlow] Step 1: URL contains code_challenge:', url.includes('code_challenge'));
 
         setAuthUrl(url);
         setStepResults(prev => ({ ...prev, 0: { url } }));
@@ -395,12 +445,33 @@ window.location.href = authUrl;
           }
           
           // Generate PKCE codes if needed
-          if (flowConfig.enablePKCE && !codeChallenge) {
-            await generatePKCECodes();
+          let currentCodeChallenge = codeChallenge;
+          if (flowConfig.enablePKCE && !currentCodeChallenge) {
+            console.log('🔑 [AuthCodeFlow] Step 2: Generating PKCE codes synchronously...');
+            const pkceCodes = await generatePKCECodes();
+            currentCodeChallenge = pkceCodes.challenge;
+            console.log('🔑 [AuthCodeFlow] Step 2: PKCE codes generated:', { 
+              challenge: currentCodeChallenge?.substring(0, 20) + '...',
+              method: flowConfig.codeChallengeMethod 
+            });
+          } else if (flowConfig.enablePKCE && currentCodeChallenge) {
+            console.log('🔑 [AuthCodeFlow] Step 2: Using existing PKCE challenge:', currentCodeChallenge.substring(0, 20) + '...');
+          } else {
+            console.log('🔑 [AuthCodeFlow] Step 2: PKCE disabled or not needed');
+          }
+
+          // Safety check: if PKCE is enabled but no challenge available, throw error
+          if (flowConfig.enablePKCE && !currentCodeChallenge) {
+            throw new Error('PKCE is enabled but code challenge could not be generated');
           }
           
+          // Use the correct callback URL for this flow
+          const callbackUrl = getCallbackUrlForFlow('authorization-code');
           // Generate the URL with current flow configuration
-          const url = `${authEndpoint}?client_id=${config.pingone.clientId}&redirect_uri=${encodeURIComponent(config.pingone.redirectUri)}&response_type=${flowConfig.responseType}&scope=${encodeURIComponent(flowConfig.scopes.join(' '))}&state=${flowConfig.state || 'xyz123'}&nonce=${flowConfig.nonce || 'abc456'}${flowConfig.enablePKCE ? `&code_challenge=${codeChallenge}&code_challenge_method=${flowConfig.codeChallengeMethod}` : ''}${flowConfig.maxAge > 0 ? `&max_age=${flowConfig.maxAge}` : ''}${flowConfig.prompt ? `&prompt=${flowConfig.prompt}` : ''}${flowConfig.loginHint ? `&login_hint=${flowConfig.loginHint}` : ''}${flowConfig.acrValues.length > 0 ? `&acr_values=${encodeURIComponent(flowConfig.acrValues.join(' '))}` : ''}${Object.keys(flowConfig.customParams).length > 0 ? Object.entries(flowConfig.customParams).map(([k, v]) => `&${k}=${encodeURIComponent(v)}`).join('') : ''}`;
+          const url = `${authEndpoint}?client_id=${config.pingone.clientId}&redirect_uri=${encodeURIComponent(callbackUrl)}&response_type=${flowConfig.responseType}&scope=${encodeURIComponent(flowConfig.scopes.join(' '))}&state=${flowConfig.state || 'xyz123'}&nonce=${flowConfig.nonce || 'abc456'}${flowConfig.enablePKCE ? `&code_challenge=${currentCodeChallenge}&code_challenge_method=${flowConfig.codeChallengeMethod}` : ''}${flowConfig.maxAge > 0 ? `&max_age=${flowConfig.maxAge}` : ''}${flowConfig.prompt ? `&prompt=${flowConfig.prompt}` : ''}${flowConfig.loginHint ? `&login_hint=${flowConfig.loginHint}` : ''}${flowConfig.acrValues.length > 0 ? `&acr_values=${encodeURIComponent(flowConfig.acrValues.join(' '))}` : ''}${Object.keys(flowConfig.customParams).length > 0 ? Object.entries(flowConfig.customParams).map(([k, v]) => `&${k}=${encodeURIComponent(v)}`).join('') : ''}`;
+
+          console.log('🔗 [AuthCodeFlow] Step 2: Generated authorization URL:', url);
+          console.log('🔗 [AuthCodeFlow] Step 2: URL contains code_challenge:', url.includes('code_challenge'));
 
           logger.flow('AuthorizationCodeFlow', 'Preparing redirect modal for PingOne authentication', { url });
           console.log('✅ [AuthCodeFlow] Preparing redirect modal for PingOne authentication:', url);
@@ -432,7 +503,7 @@ window.location.href = authUrl;
     {
       title: 'Authorization Server Redirects Back',
       description: 'After successful authentication, the authorization server redirects back to the client with an authorization code.',
-      code: `GET ${config?.pingone?.redirectUri || 'https://your-app.com/callback'}?
+      code: `GET ${getCallbackUrlForFlow('authorization-code')}?
   code=authorization-code-here
   &state=${flowConfig.state || 'xyz123'}`,
       execute: () => {
@@ -444,7 +515,7 @@ window.location.href = authUrl;
 
           setAuthCode(code);
           const stepResult = {
-            url: `${config?.pingone?.redirectUri || 'https://your-app.com/callback'}?code=${code}&state=${flowConfig.state || 'xyz123'}`,
+            url: `${getCallbackUrlForFlow('authorization-code')}?code=${code}&state=${flowConfig.state || 'xyz123'}`,
             code: code
           };
           
@@ -473,7 +544,7 @@ grant_type=authorization_code
 &client_id=${config?.pingone?.clientId || 'your-client-id'}
 &client_secret=${config?.pingone?.clientSecret ? '••••••••' : 'your-client-secret'}
 &code=${authCode || 'authorization-code-here'}
-&redirect_uri=${config?.pingone?.redirectUri || 'https://your-app.com/callback'}${flowConfig.enablePKCE ? `
+&redirect_uri=${getCallbackUrlForFlow('authorization-code')}${flowConfig.enablePKCE ? `
 &code_verifier=${codeVerifier || 'YOUR_CODE_VERIFIER'}` : ''}`,
       execute: async () => {
         console.log('🔄 [AuthCodeFlow] Token exchange step executing', { config: !!config, authCode: !!authCode });
@@ -489,12 +560,12 @@ grant_type=authorization_code
             ? 'https://oauth-playground.vercel.app' 
             : 'http://localhost:3001';
           
-          const requestBody: any = {
+          const requestBody: Record<string, string> = {
             grant_type: 'authorization_code',
             client_id: String(config.pingone.clientId),
             client_secret: String(config.pingone.clientSecret || ''),
             code: authCode,
-            redirect_uri: String(config.pingone.redirectUri),
+            redirect_uri: getCallbackUrlForFlow('authorization-code'),
             environment_id: config.pingone.environmentId
           };
 
@@ -507,7 +578,7 @@ grant_type=authorization_code
             backendUrl,
             clientId: config.pingone.clientId,
             code: authCode.substring(0, 10) + '...',
-            redirectUri: config.pingone.redirectUri
+            redirectUri: getCallbackUrlForFlow('authorization-code')
           });
 
           const response = await fetch(`${backendUrl}/api/token-exchange`, {
@@ -556,6 +627,87 @@ grant_type=authorization_code
         setDemoStatus('success');
 
         console.log('✅ [AuthCodeFlow] Tokens processed successfully');
+      }
+    },
+    {
+      title: 'Token Refresh Demonstration',
+      description: 'Demonstrates how to use the refresh token to obtain new access tokens when the current one expires.',
+      code: `// When access token expires, use refresh token to get new tokens
+POST /token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=refresh_token
+&refresh_token=your-refresh-token
+&client_id=your-client-id
+&client_secret=your-client-secret
+
+// Response:
+{
+  "access_token": "new-access-token",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "refresh_token": "new-refresh-token" // Optional
+}`,
+      execute: async () => {
+        try {
+          if (!tokensReceived?.refresh_token) {
+            setError('No refresh token available for demonstration');
+            return;
+          }
+
+          if (!config?.pingone?.tokenEndpoint) {
+            setError('Token endpoint not configured');
+            return;
+          }
+
+          logger.info('AuthorizationCodeFlow', 'Demonstrating token refresh');
+
+          // Simulate token refresh request
+          const refreshRequestBody = new URLSearchParams({
+            grant_type: 'refresh_token',
+            refresh_token: tokensReceived.refresh_token,
+            client_id: config.pingone.clientId,
+            client_secret: config.pingone.clientSecret
+          });
+
+          const refreshResponse = await fetch(config.pingone.tokenEndpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'Accept': 'application/json'
+            },
+            body: refreshRequestBody.toString()
+          });
+
+          if (!refreshResponse.ok) {
+            const errorText = await refreshResponse.text();
+            throw new Error(`Refresh failed: ${refreshResponse.status} ${errorText}`);
+          }
+
+          const refreshTokenData = await refreshResponse.json();
+          
+          const result = { 
+            refreshRequest: {
+              grant_type: 'refresh_token',
+              refresh_token: tokensReceived.refresh_token.substring(0, 20) + '...',
+              client_id: config.pingone.clientId
+            },
+            refreshResponse: refreshTokenData
+          };
+
+          setStepResults(prev => ({ ...prev, 5: result }));
+          setExecutedSteps(prev => new Set(prev).add(5));
+
+          logger.info('AuthorizationCodeFlow', 'Token refresh demonstration completed', {
+            newAccessToken: refreshTokenData.access_token ? 'received' : 'not received',
+            newRefreshToken: refreshTokenData.refresh_token ? 'received' : 'not received'
+          });
+
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          logger.error('AuthorizationCodeFlow', 'Token refresh demonstration failed', { error: errorMessage });
+          setError(`Token refresh failed: ${errorMessage}`);
+        }
       }
     }
   ];
@@ -608,6 +760,26 @@ grant_type=authorization_code
 
   const handleRedirectModalProceed = () => {
     logger.flow('AuthorizationCodeFlow', 'Proceeding with redirect to PingOne', { url: redirectUrl });
+    
+    // Store the return path for after callback
+    const currentPath = window.location.pathname;
+    const returnPath = `${currentPath}?step=2`; // Return to step 2 (token exchange)
+    sessionStorage.setItem('redirect_after_login', returnPath);
+    
+    // Store flow context in state parameter
+    const stateParam = new URLSearchParams(redirectUrl.split('?')[1]?.split('#')[0] || '').get('state');
+    if (stateParam) {
+      // Encode flow context in the state parameter
+      const flowContext = {
+        flow: 'authorization-code',
+        step: 2,
+        returnPath: returnPath,
+        timestamp: Date.now()
+      };
+      sessionStorage.setItem(`flow_context_${stateParam}`, JSON.stringify(flowContext));
+    }
+    
+    console.log('🔄 [AuthCodeFlow] Stored return path:', returnPath);
     window.location.href = redirectUrl;
   };
 
@@ -617,6 +789,8 @@ grant_type=authorization_code
         title="Authorization Code Flow"
         subtitle="The most secure and widely used OAuth 2.0 flow for web applications. Perfect for server-side applications that can securely store client secrets."
       />
+
+      <ContextualHelp flowId="authorization-code" />
 
       <FlowOverview>
         <CardHeader>
@@ -725,6 +899,9 @@ grant_type=authorization_code
               console.log('Flow credentials updated:', credentials);
             }}
           />
+
+          {/* Callback URL Configuration */}
+          <CallbackUrlDisplay flowType="authorization-code" />
 
           {/* Configuration Status */}
           {!config?.pingone?.clientId && (
@@ -915,10 +1092,11 @@ grant_type=authorization_code
                 <p>{step.description}</p>
 
                 {/* Show request code section always (this is the template/example) */}
-                <CodeBlock style={{ marginTop: '1rem' }}>
-                  {/* @ts-ignore - step.code type inference issue */}
-                  {String(step.code || '')}
-                </CodeBlock>
+                {step.code && (
+                  <CodeBlock style={{ marginTop: '1rem' }}>
+                    {typeof step.code === 'string' ? step.code : (step.code as React.ReactNode)}
+                  </CodeBlock>
+                )}
 
                 {/* Show response/result only after step is executed */}
                 {isExecuted && stepResult && (
@@ -927,34 +1105,34 @@ grant_type=authorization_code
                     $borderColor="#374151"
                   >
                     <h4>Response:</h4>
-                    {(stepResult as any).url && (
+                    {(stepResult as StepResult).url && (
                       <div>
                         <strong>URL:</strong><br />
-                        <ColorCodedURL url={(stepResult as any).url} />
+                        <ColorCodedURL url={(stepResult as StepResult).url!} />
                       </div>
                     )}
-                    {(stepResult as any).code && (
+                    {(stepResult as StepResult).code && (
                       <div style={{ marginTop: '0.5rem' }}>
                         <strong>Authorization Code:</strong><br />
-                        <pre>{(stepResult as any).code}</pre>
+                        <pre>{(stepResult as StepResult).code}</pre>
                       </div>
                     )}
-                    {(stepResult as any).response && (
+                    {(stepResult as StepResult).tokenData && (
                       <div style={{ marginTop: '0.5rem' }}>
                         <strong>Token Response:</strong><br />
-                        <JSONHighlighter data={(stepResult as any).response} />
+                        <JSONHighlighter data={JSON.parse(JSON.stringify((stepResult as StepResult).tokenData!))} />
                       </div>
                     )}
-                    {(stepResult as any).tokens && (
+                    {(stepResult as StepResult).tokens && (
                       <div style={{ marginTop: '0.5rem' }}>
                         <strong>Tokens:</strong>
-                        <TokenDisplayComponent tokens={(stepResult as any).tokens} />
+                        <TokenDisplayComponent tokens={(stepResult as StepResult).tokens!} />
                       </div>
                     )}
-                    {(stepResult as any).message && (
+                    {(stepResult as StepResult).message && (
                       <div style={{ marginTop: '0.5rem' }}>
                         <strong>Status:</strong><br />
-                        <pre>{(stepResult as any).message}</pre>
+                        <pre>{(stepResult as StepResult).message}</pre>
                       </div>
                     )}
                   </ResponseBox>

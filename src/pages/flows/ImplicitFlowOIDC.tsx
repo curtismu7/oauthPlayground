@@ -12,6 +12,7 @@ import { ColorCodedURL } from '../../components/ColorCodedURL';
 import Typewriter from '../../components/Typewriter';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 import FlowCredentials from '../../components/FlowCredentials';
+import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
 
 const Page = styled.div`
   display: flex;
@@ -165,7 +166,7 @@ const ImplicitFlowOIDC: React.FC = () => {
 
         const params = new URLSearchParams({
           client_id: config.pingone.clientId,
-          redirect_uri: config.pingone.redirectUri,
+          redirect_uri: getCallbackUrlForFlow('implicit'),
           response_type: 'id_token token',
           scope: config.scopes?.join(' ') || 'openid profile email',
           nonce: Math.random().toString(36).substring(2, 15),

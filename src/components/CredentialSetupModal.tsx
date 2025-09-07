@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { FiLock, FiAlertCircle, FiCheckCircle } from 'react-icons/fi';
+import { FiLock, FiAlertCircle, FiCheckCircle, FiEye, FiEyeOff } from 'react-icons/fi';
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -223,6 +223,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [saveStatus, setSaveStatus] = useState<{ type: 'success' | 'danger'; title: string; message: string } | null>(null);
+  const [showClientSecret, setShowClientSecret] = useState(false);
   const [storedCredentials, setStoredCredentials] = useState<{
     pingone_config: Record<string, unknown>;
     login_credentials: Record<string, unknown>;
@@ -483,20 +484,46 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
 
             <FormGroup>
               <label htmlFor="clientSecret">Client Secret</label>
-              <input
-                type="password"
-                id="clientSecret"
-                name="clientSecret"
-                value={formData.clientSecret}
-                onChange={handleChange}
-                placeholder="Enter your application's Client Secret (optional)"
-                disabled={isLoading}
-                style={{
-                  maxWidth: '600px',
-                  fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
-                  fontSize: '0.875rem'
-                }}
-              />
+              <div style={{ position: 'relative', maxWidth: '600px' }}>
+                <input
+                  type={showClientSecret ? 'text' : 'password'}
+                  id="clientSecret"
+                  name="clientSecret"
+                  value={formData.clientSecret}
+                  onChange={handleChange}
+                  placeholder="Enter your application's Client Secret (optional)"
+                  disabled={isLoading}
+                  style={{
+                    width: '100%',
+                    paddingRight: '2.5rem',
+                    fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+                    fontSize: '0.875rem'
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowClientSecret(!showClientSecret)}
+                  disabled={isLoading}
+                  style={{
+                    position: 'absolute',
+                    right: '0.75rem',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#6c757d',
+                    padding: '0.25rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  aria-label={showClientSecret ? 'Hide client secret' : 'Show client secret'}
+                  title={showClientSecret ? 'Hide client secret' : 'Show client secret'}
+                >
+                  {showClientSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                </button>
+              </div>
               <div className="form-text">
                 Only required for confidential clients
               </div>

@@ -26,7 +26,7 @@ export const getAuthorizationCodeConfig = (): FlowConfig => ({
   maxAge: 0,
   prompt: '',
   loginHint: '',
-  acrValues: ['urn:pingone:loa:1']
+  acrValues: []
 });
 
 // Default configuration for PKCE Flow
@@ -45,7 +45,7 @@ export const getPKCEConfig = (): FlowConfig => ({
   maxAge: 0,
   prompt: '',
   loginHint: '',
-  acrValues: ['urn:pingone:loa:1']
+  acrValues: []
 });
 
 // Default configuration for Implicit Flow
@@ -64,7 +64,7 @@ export const getImplicitConfig = (): FlowConfig => ({
   maxAge: 0,
   prompt: '',
   loginHint: '',
-  acrValues: ['urn:pingone:loa:1']
+  acrValues: []
 });
 
 // Default configuration for Client Credentials Flow
@@ -102,7 +102,7 @@ export const getDeviceCodeConfig = (): FlowConfig => ({
   maxAge: 0,
   prompt: '',
   loginHint: '',
-  acrValues: ['urn:pingone:loa:1']
+  acrValues: []
 });
 
 // Default configuration for Refresh Token Flow
@@ -140,7 +140,7 @@ export const getPasswordGrantConfig = (): FlowConfig => ({
   maxAge: 0,
   prompt: '',
   loginHint: '',
-  acrValues: ['urn:pingone:loa:1']
+  acrValues: []
 });
 
 // Factory function to get default config based on flow type
