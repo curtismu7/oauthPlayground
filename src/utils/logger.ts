@@ -109,7 +109,38 @@ class Logger {
   }
 
   exportLogs(): string {
-    return JSON.stringify(this.logHistory, null, 2);
+    // Safe JSON stringify that handles circular references and DOM elements
+    const safeStringify = (obj: any, space?: number): string => {
+      const seen = new WeakSet();
+      return JSON.stringify(obj, (key, value) => {
+        // Skip circular references
+        if (typeof value === 'object' && value !== null) {
+          if (seen.has(value)) {
+            return '[Circular Reference]';
+          }
+          seen.add(value);
+        }
+        
+        // Handle DOM elements
+        if (value instanceof HTMLElement) {
+          return `[HTMLElement: ${value.tagName}]`;
+        }
+        
+        // Handle React components
+        if (value && typeof value === 'object' && value.$$typeof) {
+          return '[React Component]';
+        }
+        
+        // Handle functions
+        if (typeof value === 'function') {
+          return '[Function]';
+        }
+        
+        return value;
+      }, space);
+    };
+    
+    return safeStringify(this.logHistory, 2);
   }
 }
 

@@ -9,6 +9,8 @@ import ConfigurationButton from '../../components/ConfigurationButton';
 import ColorCodedURL from '../../components/ColorCodedURL';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 import FlowCredentials from '../../components/FlowCredentials';
+import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
+import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -57,8 +59,8 @@ const FlowDescription = styled.div`
 `;
 
 const SecurityHighlight = styled.div`
-  background-color: ${({ theme }) => theme.colors.warning}10;
-  border: 1px solid ${({ theme }) => theme.colors.warning}30;
+  background-color: #fdecea;
+  border: 1px solid #f5c2c7;
   border-radius: 0.5rem;
   padding: 1rem;
   margin-bottom: 2rem;
@@ -67,13 +69,13 @@ const SecurityHighlight = styled.div`
   gap: 0.75rem;
 
   svg {
-    color: ${({ theme }) => theme.colors.warning};
+    color: #dc3545;
     flex-shrink: 0;
     margin-top: 0.1rem;
   }
 
   h3 {
-    color: ${({ theme }) => theme.colors.warning};
+    color: #dc3545;
     margin: 0 0 0.5rem 0;
     font-size: 1rem;
     font-weight: 600;
@@ -81,7 +83,7 @@ const SecurityHighlight = styled.div`
 
   p {
     margin: 0;
-    color: ${({ theme }) => theme.colors.warning};
+    color: #dc3545;
     font-size: 0.9rem;
   }
 `;
@@ -174,11 +176,14 @@ const HybridFlow: React.FC = () => {
   const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
 
   const generateAuthUrl = () => {
-    if (!config) return '';
+    if (!config || !config.pingone) {
+      console.warn('HybridFlow: Configuration not available');
+      return '';
+    }
 
     const params = new URLSearchParams({
-      client_id: config.pingone.clientId,
-      redirect_uri: config.pingone.redirectUri,
+      client_id: config.pingone.clientId || '',
+      redirect_uri: getCallbackUrlForFlow('hybrid'),
       response_type: 'code id_token token', // Hybrid flow returns code + tokens
       scope: 'openid profile email',
       state: Math.random().toString(36).substring(2, 15),
@@ -189,6 +194,11 @@ const HybridFlow: React.FC = () => {
 
     // Construct authorization endpoint if not available
     const authEndpoint = config.pingone.authEndpoint;
+    
+    if (!authEndpoint) {
+      console.warn('HybridFlow: Authorization endpoint not configured');
+      return '';
+    }
     
     return `${authEndpoint}?${params.toString()}`;
   };
@@ -394,12 +404,12 @@ grant_type=authorization_code
             },
             body: JSON.stringify({
               grant_type: 'authorization_code',
-              client_id: config.pingone.clientId,
-              client_secret: config.pingone.clientSecret || '',
+              client_id: config?.pingone?.clientId || '',
+              client_secret: config?.pingone?.clientSecret || '',
               code: redirectParams.code,
-              redirect_uri: config.pingone.redirectUri,
+              redirect_uri: config?.pingone?.redirectUri || '',
               code_verifier: 'mock_code_verifier', // In real implementation, use actual code verifier
-              environment_id: config.pingone.environmentId
+              environment_id: config?.pingone?.environmentId || ''
             })
           });
 
@@ -516,6 +526,9 @@ if (Date.now() / 1000 > payload.exp) {
           console.log('Hybrid flow credentials updated:', credentials);
         }}
       />
+
+      {/* Callback URL Configuration */}
+      <CallbackUrlDisplay flowType="hybrid" />
 
       <FlowOverview>
         <CardHeader>
