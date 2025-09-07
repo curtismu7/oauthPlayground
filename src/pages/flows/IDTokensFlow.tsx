@@ -324,7 +324,7 @@ const IDTokensFlow = () => {
   const [error, setError] = useState(null);
 
   // Track execution results for each step
-  const [stepResults, setStepResults] = useState<Record<number, any>>({});
+  const [stepResults, setStepResults] = useState<Record<number, unknown>>({});
   const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
   const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
 
@@ -445,7 +445,7 @@ const IDTokensFlow = () => {
     setStepsWithResults([]);
   };
 
-  const handleStepResult = (stepIndex: number, result: any) => {
+  const handleStepResult = (stepIndex: number, result: unknown) => {
     setStepResults(prev => ({ ...prev, [stepIndex]: result }));
     setStepsWithResults(prev => {
       const newSteps = [...prev];

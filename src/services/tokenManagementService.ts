@@ -50,7 +50,7 @@ export interface TokenIntrospectionResponse {
   aud?: string | string[];
   iss?: string;
   jti?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface TokenRevocationRequest {
@@ -165,14 +165,37 @@ export class TokenManagementService {
     });
 
     try {
-      const tokenUrl = `${this.baseUrl}/as/token`;
+      // Use backend proxy to avoid CORS issues
+      const backendUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://oauth-playground.vercel.app' 
+        : 'http://localhost:3001';
+      
+      const tokenUrl = `${backendUrl}/api/token-exchange`;
+      
+      // Convert to JSON format for backend proxy
       const requestBody = this.buildTokenRequestBody(request, authMethod);
       const headers = this.buildTokenHeaders(authMethod);
+      
+      // Convert FormData to JSON if needed
+      let jsonBody: any = {};
+      if (requestBody instanceof FormData) {
+        for (const [key, value] of requestBody.entries()) {
+          jsonBody[key] = value;
+        }
+      } else {
+        jsonBody = requestBody;
+      }
 
       const response = await fetch(tokenUrl, {
         method: 'POST',
-        headers,
-        body: requestBody
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          environment_id: this.baseUrl.split('/').pop(), // Extract environment ID from baseUrl
+          ...jsonBody
+        })
       });
 
       if (!response.ok) {

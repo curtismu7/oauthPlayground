@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiEye, FiCheckCircle, FiAlertCircle, FiCode, FiServer, FiKey } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
+import { config } from '../../services/config';
 import Spinner from '../../components/Spinner';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import ConfigurationButton from '../../components/ConfigurationButton';
@@ -169,15 +170,16 @@ const CodeBlock = styled.pre`
 `;
 
 const TokenDisplay = styled.div`
-  background-color: ${({ theme }) => theme.colors.gray100};
-  border: 1px solid ${({ theme }) => theme.colors.gray200};
+  background-color: #000000;
+  border: 2px solid #374151;
   border-radius: 0.375rem;
   padding: 1rem;
   margin: 1rem 0;
   font-family: monospace;
   font-size: 0.875rem;
   word-break: break-all;
-  color: ${({ theme }) => theme.colors.gray800};
+  color: #ffffff;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
 `;
 
 const ErrorMessage = styled.div`
@@ -286,7 +288,7 @@ const ClientCredentialsFlow = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Track execution results for each step
-  const [stepResults, setStepResults] = useState<Record<number, any>>({});
+  const [stepResults, setStepResults] = useState<Record<number, unknown>>({});
   const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
   const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
 
@@ -352,7 +354,7 @@ const ClientCredentialsFlow = () => {
     setExecutedSteps(new Set());
   };
 
-  const handleStepResult = (stepIndex: number, result: any) => {
+  const handleStepResult = (stepIndex: number, result: unknown) => {
     setStepResults(prev => ({ ...prev, [stepIndex]: result }));
     setStepsWithResults(prev => {
       const newSteps = [...prev];
@@ -371,15 +373,15 @@ const ClientCredentialsFlow = () => {
 const credentials = btoa(clientId + ':' + clientSecret);
 
 // Example:
-const credentials = btoa('${config?.clientId || 'your_client_id'}:${config?.clientSecret || 'your_client_secret'}');
-// Result: ${config ? btoa(`${config.clientId}:${config.clientSecret}`).substring(0, 20) + '...' : 'Base64_encoded_credentials'}`,
+const credentials = btoa('${config?.pingone?.clientId || 'your_client_id'}:${config?.pingone?.clientSecret || 'your_client_secret'}');
+// Result: ${config ? btoa(`${config.pingone.clientId}:${config.pingone.clientSecret}`).substring(0, 20) + '...' : 'Base64_encoded_credentials'}`,
       execute: () => {
         if (!config) {
           setError('Configuration required. Please configure your PingOne settings first.');
           return;
         }
 
-        const credentials = btoa(`${config.clientId}:${config.clientSecret}`);
+        const credentials = btoa(`${config.pingone.clientId}:${config.pingone.clientSecret}`);
         const result = { credentials: credentials.substring(0, 20) + '...' };
         setStepResults(prev => ({ ...prev, 0: result }));
         setExecutedSteps(prev => new Set(prev).add(0));
@@ -391,8 +393,8 @@ const credentials = btoa('${config?.clientId || 'your_client_id'}:${config?.clie
       title: 'Request Access Token',
       description: 'Server requests access token using client credentials',
       code: `// POST request to token endpoint
-POST ${config?.tokenEndpoint || 'https://auth.pingone.com/token'}
-Authorization: Basic ${config ? btoa(`${config.clientId}:${config.clientSecret}`).substring(0, 20) + '...' : 'Base64_encoded_credentials'}
+POST ${config?.pingone?.tokenEndpoint || 'https://auth.pingone.com/token'}
+Authorization: Basic ${config ? btoa(`${config.pingone.clientId}:${config.pingone.clientSecret}`).substring(0, 20) + '...' : 'Base64_encoded_credentials'}
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=client_credentials&scope=api:read`,
@@ -402,10 +404,10 @@ grant_type=client_credentials&scope=api:read`,
           return;
         }
 
-        const credentials = btoa(`${config.clientId}:${config.clientSecret}`);
+        const credentials = btoa(`${config.pingone.clientId}:${config.pingone.clientSecret}`);
         const tokenRequest: ApiCall = {
           method: 'POST',
-          url: config.tokenEndpoint,
+          url: config.pingone.tokenEndpoint,
           headers: {
             'Authorization': `Basic ${credentials}`,
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -413,24 +415,59 @@ grant_type=client_credentials&scope=api:read`,
           body: 'grant_type=client_credentials&scope=api:read'
         };
 
-        const mockResponse = {
-          status: 'Token request sent successfully',
-          endpoint: config.tokenEndpoint,
-          method: 'POST',
-          authorization: `Basic ${credentials.substring(0, 20)}...`,
-          body: 'grant_type=client_credentials&scope=api:read'
-        };
+        try {
+          // Make real API call to PingOne via backend proxy
+          const backendUrl = process.env.NODE_ENV === 'production' 
+            ? 'https://oauth-playground.vercel.app' 
+            : 'http://localhost:3001';
+          
+          const response = await fetch(`${backendUrl}/api/token-exchange`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              grant_type: 'client_credentials',
+              client_id: config.pingone.clientId,
+              client_secret: config.pingone.clientSecret,
+              environment_id: config.pingone.environmentId,
+              scope: 'api:read'
+            })
+          });
 
-        setApiCall(tokenRequest);
-        const result = { 
-          request: tokenRequest,
-          response: mockResponse,
-          message: 'Token request prepared and sent to authorization server'
-        };
-        setStepResults(prev => ({ ...prev, 1: result }));
-        setExecutedSteps(prev => new Set(prev).add(1));
-        console.log('✅ [ClientCredentialsFlow] Token request prepared');
-        return result;
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(`Token request failed: ${response.status} ${response.statusText}. ${errorData.error_description || errorData.error || 'Please check your configuration and credentials.'}`);
+          }
+
+          const tokenData = await response.json();
+          
+          const realResponse = {
+            status: response.status,
+            statusText: response.statusText,
+            data: tokenData,
+            endpoint: config.pingone.tokenEndpoint,
+            method: 'POST',
+            authorization: `Basic ${credentials.substring(0, 20)}...`,
+            body: 'grant_type=client_credentials&scope=api:read'
+          };
+
+          setApiCall(tokenRequest);
+          const result = { 
+            request: tokenRequest,
+            response: realResponse,
+            message: 'Token request sent successfully to PingOne'
+          };
+          setStepResults(prev => ({ ...prev, 1: result }));
+          setExecutedSteps(prev => new Set(prev).add(1));
+          console.log('✅ [ClientCredentialsFlow] Real token request completed');
+          return result;
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          setError(errorMessage);
+          console.error('❌ [ClientCredentialsFlow] Token request failed:', error);
+          return { error: errorMessage };
+        }
       }
     },
     {
@@ -484,15 +521,22 @@ const accessToken = generateAccessToken(clientId, scope);`,
         }
 
         try {
-          const credentials = btoa(`${config.clientId}:${config.clientSecret}`);
+          const backendUrl = process.env.NODE_ENV === 'production' 
+            ? 'https://oauth-playground.vercel.app' 
+            : 'http://localhost:3001';
 
-          const response = await fetch(config.tokenEndpoint, {
+          const response = await fetch(`${backendUrl}/api/token-exchange`, {
             method: 'POST',
             headers: {
-              'Authorization': `Basic ${credentials}`,
-              'Content-Type': 'application/x-www-form-urlencoded'
+              'Content-Type': 'application/json'
             },
-            body: 'grant_type=client_credentials&scope=api:read'
+            body: JSON.stringify({
+              grant_type: 'client_credentials',
+              client_id: config.pingone.clientId,
+              client_secret: config.pingone.clientSecret,
+              environment_id: config.pingone.environmentId,
+              scope: 'api:read'
+            })
           });
 
           if (!response.ok) {
@@ -520,8 +564,9 @@ const accessToken = generateAccessToken(clientId, scope);`,
           } else {
             console.error('❌ [ClientCredentialsFlow] Failed to store tokens');
           }
-        } catch (error: any) {
-          setError(`Failed to exchange credentials for tokens: ${error.message}`);
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          setError(`Failed to exchange credentials for tokens: ${errorMessage}`);
           console.error('❌ [ClientCredentialsFlow] Token exchange error:', error);
         }
       }
@@ -594,8 +639,9 @@ fetch('/api/protected-resource', {
           return result;
 
           console.log('✅ [ClientCredentialsFlow] API call completed');
-        } catch (error: any) {
-          setError(`Failed to make API call: ${error.message}`);
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          setError(`Failed to make API call: ${errorMessage}`);
           console.error('❌ [ClientCredentialsFlow] API call error:', error);
         }
       }

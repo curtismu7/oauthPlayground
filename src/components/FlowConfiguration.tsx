@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from './Card';
-import { FiSettings, FiEye, FiEyeOff, FiCopy, FiCheck } from 'react-icons/fi';
+import { FiSettings, FiCopy, FiCheck } from 'react-icons/fi';
 
 const ConfigContainer = styled.div`
   margin-bottom: 2rem;
@@ -216,7 +216,7 @@ export interface FlowConfig {
   state: string;
   
   // Custom claims for ID tokens
-  customClaims: Record<string, any>;
+  customClaims: Record<string, unknown>;
   
   // Advanced settings
   audience: string;
@@ -232,7 +232,6 @@ interface FlowConfigurationProps {
   flowType: 'authorization-code' | 'pkce' | 'implicit' | 'client-credentials' | 'device-code' | 'refresh-token' | 'password-grant';
 }
 
-const defaultScopes = ['openid', 'profile', 'email'];
 const availableScopes = [
   'openid', 'profile', 'email', 'address', 'phone', 'offline_access',
   'api:read', 'api:write', 'admin:read', 'admin:write'

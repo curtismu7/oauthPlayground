@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { FiCopy, FiExternalLink, FiRefreshCw, FiCheckCircle, FiXCircle, FiClock, FiQrCode } from 'react-icons/fi';
+import { FiCopy, FiExternalLink, FiRefreshCw, FiXCircle, FiQrCode } from 'react-icons/fi';
 import { deviceFlowService, DeviceFlowState } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
+import JSONHighlighter from './JSONHighlighter';
 
 const DeviceFlowContainer = styled.div`
   background: white;
@@ -275,15 +276,13 @@ const LoadingSpinner = styled.div`
 interface DeviceFlowDisplayProps {
   state: DeviceFlowState;
   onStateUpdate?: (state: DeviceFlowState) => void;
-  onComplete?: (tokens: any) => void;
-  onError?: (error: Error) => void;
+  onComplete?: (tokens: Record<string, unknown>) => void;
 }
 
 const DeviceFlowDisplay: React.FC<DeviceFlowDisplayProps> = ({
   state,
   onStateUpdate,
-  onComplete,
-  onError
+  onComplete
 }) => {
   const [isPolling, setIsPolling] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(0);
@@ -439,9 +438,7 @@ const DeviceFlowDisplay: React.FC<DeviceFlowDisplayProps> = ({
         <div>
           <h4>Authorization Successful!</h4>
           <div style={{ background: '#f0fdf4', padding: '1rem', borderRadius: '0.375rem', marginBottom: '1rem' }}>
-            <pre style={{ margin: 0, fontSize: '0.875rem' }}>
-              {JSON.stringify(state.tokens, null, 2)}
-            </pre>
+            <JSONHighlighter data={state.tokens} />
           </div>
         </div>
       )}

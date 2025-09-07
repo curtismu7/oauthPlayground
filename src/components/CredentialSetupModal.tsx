@@ -224,8 +224,8 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
   const [isLoading, setIsLoading] = useState(false);
   const [saveStatus, setSaveStatus] = useState<{ type: 'success' | 'danger'; title: string; message: string } | null>(null);
   const [storedCredentials, setStoredCredentials] = useState<{
-    pingone_config: any;
-    login_credentials: any;
+    pingone_config: Record<string, unknown>;
+    login_credentials: Record<string, unknown>;
   } | null>(null);
 
   // Load existing credentials from localStorage when modal opens

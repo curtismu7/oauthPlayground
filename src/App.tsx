@@ -86,55 +86,6 @@ const ScrollToTop: React.FC = () => {
   return null;
 };
 
-const ProtectedRoute: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
-  const location = useLocation();
-  const [showSpinner, setShowSpinner] = useState(false);
-
-  // Ensure a minimum spinner display of 2 seconds while loading auth state
-  useEffect(() => {
-    let timer: number | undefined;
-    if (isLoading) {
-      setShowSpinner(true);
-      timer = window.setTimeout(() => setShowSpinner(false), 2000);
-    } else {
-      // If loading already finished, still show spinner briefly to avoid flash
-      setShowSpinner(true);
-      timer = window.setTimeout(() => setShowSpinner(false), 500);
-    }
-    return () => {
-      if (timer) window.clearTimeout(timer);
-    };
-  }, [isLoading, location.pathname]);
-
-  if (isLoading || showSpinner) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: '#f9fafb' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ width: '40px', height: '40px', border: '4px solid #e5e7eb', borderTop: '4px solid #0070cc', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-          <p style={{ color: '#6b7280', fontSize: '1rem', margin: 0 }}>
-            {isLoading ? 'Authenticating...' : 'Loading application...'}
-          </p>
-        </div>
-        <style>{`
-          @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        `}</style>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <Navigate
-        to="/login"
-        state={{ from: location, message: 'Please log in to access this page.', type: 'info' }}
-        replace
-      />
-    );
-  }
-
-  return children;
-};
 
 const AppRoutes = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
