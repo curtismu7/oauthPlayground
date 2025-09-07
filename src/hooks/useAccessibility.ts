@@ -301,22 +301,23 @@ export const useARIALabel = (label: string, description?: string) => {
     ...(description && { [ARIA_PROPERTIES.DESCRIBEDBY]: descriptionId })
   };
 
-  const labelElement = (
-    <span id={labelId} className="sr-only">
-      {label}
-    </span>
-  );
+  // Return accessibility attributes and helper functions
+  const getLabelElement = () => ({
+    id: labelId,
+    className: 'sr-only',
+    children: label
+  });
 
-  const descriptionElement = description ? (
-    <span id={descriptionId} className="sr-only">
-      {description}
-    </span>
-  ) : null;
+  const getDescriptionElement = () => description ? {
+    id: descriptionId,
+    className: 'sr-only',
+    children: description
+  } : null;
 
   return {
     ariaProps,
-    labelElement,
-    descriptionElement
+    getLabelElement,
+    getDescriptionElement
   };
 };
 
