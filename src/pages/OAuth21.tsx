@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../components/Card';
+import { SpecCard } from '../components/SpecCard';
 import { FiShield, FiAlertTriangle, FiCheck, FiX, FiInfo } from 'react-icons/fi';
 
 const Container = styled.div`
@@ -159,164 +160,206 @@ const OAuth21 = () => {
         <CardBody>
           <ChangesGrid>
             {/* PKCE Requirement */}
-            <ChangeCard $type="requirement">
-              <CardBody>
-                <ChangeIcon $type="requirement">
-                  <FiCheck />
-                </ChangeIcon>
-                <ChangeTitle>PKCE Required for Authorization Code Flow</ChangeTitle>
-                <ChangeDescription>
-                  PKCE (Proof Key for Code Exchange) is now <strong>required</strong> for all OAuth clients using 
-                  the authorization code flow, not just public clients.
-                </ChangeDescription>
-                <CodeBlock>{`// OAuth 2.1 REQUIRES PKCE for all clients
+            <SpecCard title="PKCE Required for Authorization Code Flow">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                <FiCheck style={{ color: '#10b981', fontSize: '1.25rem' }} />
+                <span style={{ fontWeight: '600', color: '#10b981' }}>REQUIRED</span>
+              </div>
+              <p>
+                PKCE (Proof Key for Code Exchange) is now <strong>required</strong> for all OAuth clients using 
+                the authorization code flow, not just public clients.
+              </p>
+              <pre>{`// OAuth 2.1 REQUIRES PKCE for all clients
 GET /authorize?
   response_type=code
   &client_id=your_client_id
   &code_challenge=YOUR_CODE_CHALLENGE
-  &code_challenge_method=S256`}</CodeBlock>
-                <PingOneNote>
-                  <FiInfo />
-                  <div>
-                    <h4>PingOne Support</h4>
-                    <p>PingOne fully supports PKCE and recommends its use for all OAuth flows.</p>
-                  </div>
-                </PingOneNote>
-              </CardBody>
-            </ChangeCard>
+  &code_challenge_method=S256`}</pre>
+              <div style={{ 
+                background: '#eff6ff', 
+                border: '1px solid #bfdbfe', 
+                borderRadius: '0.5rem', 
+                padding: '1rem', 
+                margin: '1rem 0',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.75rem'
+              }}>
+                <FiInfo style={{ color: '#3b82f6', flexShrink: 0, marginTop: '0.1rem' }} />
+                <div>
+                  <h4 style={{ color: '#3b82f6', margin: '0 0 0.5rem 0', fontSize: '1rem', fontWeight: '600' }}>PingOne Support</h4>
+                  <p style={{ margin: '0', color: '#3b82f6', fontSize: '0.9rem' }}>PingOne fully supports PKCE and recommends its use for all OAuth flows.</p>
+                </div>
+              </div>
+            </SpecCard>
 
             {/* Redirect URI Matching */}
-            <ChangeCard $type="requirement">
-              <CardBody>
-                <ChangeIcon $type="requirement">
-                  <FiCheck />
-                </ChangeIcon>
-                <ChangeTitle>Exact String Matching for Redirect URIs</ChangeTitle>
-                <ChangeDescription>
-                  Redirect URIs must be compared using exact string matching, eliminating the previous 
-                  substring matching behavior that could lead to security vulnerabilities.
-                </ChangeDescription>
-                <CodeBlock>{`// OAuth 2.1: Exact string matching required
+            <SpecCard title="Exact String Matching for Redirect URIs">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                <FiCheck style={{ color: '#10b981', fontSize: '1.25rem' }} />
+                <span style={{ fontWeight: '600', color: '#10b981' }}>REQUIRED</span>
+              </div>
+              <p>
+                Redirect URIs must be compared using exact string matching, eliminating the previous 
+                substring matching behavior that could lead to security vulnerabilities.
+              </p>
+              <pre>{`// OAuth 2.1: Exact string matching required
 // ✅ Correct - exact match
 redirect_uri=https://app.example.com/callback
 
 // ❌ OAuth 2.0 allowed substring matching
-// This is no longer permitted in OAuth 2.1`}</CodeBlock>
-                <PingOneNote>
-                  <FiInfo />
-                  <div>
-                    <h4>PingOne Support</h4>
-                    <p>PingOne already enforces exact redirect URI matching for security.</p>
-                  </div>
-                </PingOneNote>
-              </CardBody>
-            </ChangeCard>
+// This is no longer permitted in OAuth 2.1`}</pre>
+              <div style={{ 
+                background: '#eff6ff', 
+                border: '1px solid #bfdbfe', 
+                borderRadius: '0.5rem', 
+                padding: '1rem', 
+                margin: '1rem 0',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.75rem'
+              }}>
+                <FiInfo style={{ color: '#3b82f6', flexShrink: 0, marginTop: '0.1rem' }} />
+                <div>
+                  <h4 style={{ color: '#3b82f6', margin: '0 0 0.5rem 0', fontSize: '1rem', fontWeight: '600' }}>PingOne Support</h4>
+                  <p style={{ margin: '0', color: '#3b82f6', fontSize: '0.9rem' }}>PingOne already enforces exact redirect URI matching for security.</p>
+                </div>
+              </div>
+            </SpecCard>
 
             {/* Implicit Flow Deprecation */}
-            <ChangeCard $type="deprecation">
-              <CardBody>
-                <ChangeIcon $type="deprecation">
-                  <FiX />
-                </ChangeIcon>
-                <ChangeTitle>Implicit Grant Deprecated</ChangeTitle>
-                <ChangeDescription>
-                  The Implicit grant (`response_type=token`) is omitted from OAuth 2.1 specification 
-                  due to security concerns. Use Authorization Code flow with PKCE instead.
-                </ChangeDescription>
-                <CodeBlock>{`// ❌ OAuth 2.1: Implicit flow deprecated
+            <SpecCard title="Implicit Grant Deprecated">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                <FiX style={{ color: '#f59e0b', fontSize: '1.25rem' }} />
+                <span style={{ fontWeight: '600', color: '#f59e0b' }}>DEPRECATED</span>
+              </div>
+              <p>
+                The Implicit grant (`response_type=token`) is omitted from OAuth 2.1 specification 
+                due to security concerns. Use Authorization Code flow with PKCE instead.
+              </p>
+              <pre>{`// ❌ OAuth 2.1: Implicit flow deprecated
 // response_type=token is no longer supported
 
 // ✅ OAuth 2.1: Use Authorization Code + PKCE
 response_type=code
 &code_challenge=YOUR_CODE_CHALLENGE
-&code_challenge_method=S256`}</CodeBlock>
-                <PingOneNote>
-                  <FiInfo />
-                  <div>
-                    <h4>PingOne Support</h4>
-                    <p>PingOne still supports Implicit flow for backward compatibility but recommends using Authorization Code + PKCE.</p>
-                  </div>
-                </PingOneNote>
-              </CardBody>
-            </ChangeCard>
+&code_challenge_method=S256`}</pre>
+              <div style={{ 
+                background: '#eff6ff', 
+                border: '1px solid #bfdbfe', 
+                borderRadius: '0.5rem', 
+                padding: '1rem', 
+                margin: '1rem 0',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.75rem'
+              }}>
+                <FiInfo style={{ color: '#3b82f6', flexShrink: 0, marginTop: '0.1rem' }} />
+                <div>
+                  <h4 style={{ color: '#3b82f6', margin: '0 0 0.5rem 0', fontSize: '1rem', fontWeight: '600' }}>PingOne Support</h4>
+                  <p style={{ margin: '0', color: '#3b82f6', fontSize: '0.9rem' }}>PingOne still supports Implicit flow for backward compatibility but recommends using Authorization Code + PKCE.</p>
+                </div>
+              </div>
+            </SpecCard>
 
             {/* Password Grant Deprecation */}
-            <ChangeCard $type="deprecation">
-              <CardBody>
-                <ChangeIcon $type="deprecation">
-                  <FiX />
-                </ChangeIcon>
-                <ChangeTitle>Resource Owner Password Credentials Deprecated</ChangeTitle>
-                <ChangeDescription>
-                  The Password grant is omitted from OAuth 2.1 specification. Use Authorization Code flow 
-                  for user authentication scenarios.
-                </ChangeDescription>
-                <CodeBlock>{`// ❌ OAuth 2.1: Password grant deprecated
+            <SpecCard title="Resource Owner Password Credentials Deprecated">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                <FiX style={{ color: '#f59e0b', fontSize: '1.25rem' }} />
+                <span style={{ fontWeight: '600', color: '#f59e0b' }}>DEPRECATED</span>
+              </div>
+              <p>
+                The Password grant is omitted from OAuth 2.1 specification. Use Authorization Code flow 
+                for user authentication scenarios.
+              </p>
+              <pre>{`// ❌ OAuth 2.1: Password grant deprecated
 // grant_type=password is no longer supported
 
 // ✅ OAuth 2.1: Use Authorization Code flow
-// Let the authorization server handle authentication`}</CodeBlock>
-                <PingOneNote>
-                  <FiInfo />
-                  <div>
-                    <h4>PingOne Support</h4>
-                    <p>PingOne still supports Password grant for legacy applications but recommends migrating to Authorization Code flow.</p>
-                  </div>
-                </PingOneNote>
-              </CardBody>
-            </ChangeCard>
+// Let the authorization server handle authentication`}</pre>
+              <div style={{ 
+                background: '#eff6ff', 
+                border: '1px solid #bfdbfe', 
+                borderRadius: '0.5rem', 
+                padding: '1rem', 
+                margin: '1rem 0',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.75rem'
+              }}>
+                <FiInfo style={{ color: '#3b82f6', flexShrink: 0, marginTop: '0.1rem' }} />
+                <div>
+                  <h4 style={{ color: '#3b82f6', margin: '0 0 0.5rem 0', fontSize: '1rem', fontWeight: '600' }}>PingOne Support</h4>
+                  <p style={{ margin: '0', color: '#3b82f6', fontSize: '0.9rem' }}>PingOne still supports Password grant for legacy applications but recommends migrating to Authorization Code flow.</p>
+                </div>
+              </div>
+            </SpecCard>
 
             {/* Bearer Token Security */}
-            <ChangeCard $type="improvement">
-              <CardBody>
-                <ChangeIcon $type="improvement">
-                  <FiShield />
-                </ChangeIcon>
-                <ChangeTitle>Enhanced Bearer Token Security</ChangeTitle>
-                <ChangeDescription>
-                  Bearer token usage omits the use of bearer tokens in the query string of URIs, 
-                  improving security by preventing token leakage in logs and referrer headers.
-                </ChangeDescription>
-                <CodeBlock>{`// ❌ OAuth 2.1: No tokens in query strings
+            <SpecCard title="Enhanced Bearer Token Security">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                <FiShield style={{ color: '#3b82f6', fontSize: '1.25rem' }} />
+                <span style={{ fontWeight: '600', color: '#3b82f6' }}>IMPROVEMENT</span>
+              </div>
+              <p>
+                Bearer token usage omits the use of bearer tokens in the query string of URIs, 
+                improving security by preventing token leakage in logs and referrer headers.
+              </p>
+              <pre>{`// ❌ OAuth 2.1: No tokens in query strings
 // https://api.example.com/data?access_token=TOKEN
 
 // ✅ OAuth 2.1: Use Authorization header
-Authorization: Bearer YOUR_ACCESS_TOKEN`}</CodeBlock>
-                <PingOneNote>
-                  <FiInfo />
-                  <div>
-                    <h4>PingOne Support</h4>
-                    <p>PingOne follows OAuth 2.1 best practices for bearer token usage.</p>
-                  </div>
-                </PingOneNote>
-              </CardBody>
-            </ChangeCard>
+Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
+              <div style={{ 
+                background: '#eff6ff', 
+                border: '1px solid #bfdbfe', 
+                borderRadius: '0.5rem', 
+                padding: '1rem', 
+                margin: '1rem 0',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.75rem'
+              }}>
+                <FiInfo style={{ color: '#3b82f6', flexShrink: 0, marginTop: '0.1rem' }} />
+                <div>
+                  <h4 style={{ color: '#3b82f6', margin: '0 0 0.5rem 0', fontSize: '1rem', fontWeight: '600' }}>PingOne Support</h4>
+                  <p style={{ margin: '0', color: '#3b82f6', fontSize: '0.9rem' }}>PingOne follows OAuth 2.1 best practices for bearer token usage.</p>
+                </div>
+              </div>
+            </SpecCard>
 
             {/* Refresh Token Security */}
-            <ChangeCard $type="improvement">
-              <CardBody>
-                <ChangeIcon $type="improvement">
-                  <FiShield />
-                </ChangeIcon>
-                <ChangeTitle>Enhanced Refresh Token Security</ChangeTitle>
-                <ChangeDescription>
-                  Refresh tokens for public clients must either be sender-constrained or one-time use, 
-                  improving security for public client applications.
-                </ChangeDescription>
-                <CodeBlock>{`// OAuth 2.1: Enhanced refresh token security
+            <SpecCard title="Enhanced Refresh Token Security">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                <FiShield style={{ color: '#3b82f6', fontSize: '1.25rem' }} />
+                <span style={{ fontWeight: '600', color: '#3b82f6' }}>IMPROVEMENT</span>
+              </div>
+              <p>
+                Refresh tokens for public clients must either be sender-constrained or one-time use, 
+                improving security for public client applications.
+              </p>
+              <pre>{`// OAuth 2.1: Enhanced refresh token security
 // Public clients must use:
 // 1. Sender-constrained refresh tokens (e.g., mTLS)
 // 2. One-time use refresh tokens
-// 3. Or no refresh tokens at all`}</CodeBlock>
-                <PingOneNote>
-                  <FiInfo />
-                  <div>
-                    <h4>PingOne Support</h4>
-                    <p>PingOne supports both sender-constrained and one-time use refresh tokens for enhanced security.</p>
-                  </div>
-                </PingOneNote>
-              </CardBody>
-            </ChangeCard>
+// 3. Or no refresh tokens at all`}</pre>
+              <div style={{ 
+                background: '#eff6ff', 
+                border: '1px solid #bfdbfe', 
+                borderRadius: '0.5rem', 
+                padding: '1rem', 
+                margin: '1rem 0',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.75rem'
+              }}>
+                <FiInfo style={{ color: '#3b82f6', flexShrink: 0, marginTop: '0.1rem' }} />
+                <div>
+                  <h4 style={{ color: '#3b82f6', margin: '0 0 0.5rem 0', fontSize: '1rem', fontWeight: '600' }}>PingOne Support</h4>
+                  <p style={{ margin: '0', color: '#3b82f6', fontSize: '0.9rem' }}>PingOne supports both sender-constrained and one-time use refresh tokens for enhanced security.</p>
+                </div>
+              </div>
+            </SpecCard>
           </ChangesGrid>
         </CardBody>
       </Card>

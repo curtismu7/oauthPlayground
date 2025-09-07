@@ -4,17 +4,100 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PingOne OAuth 2.0 & OIDC Playground</title>
+  
+  <!-- Prevent autofill and extension noise -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="autocomplete" content="off">
+  <meta name="autofill" content="off">
+  
+  <!-- Disable password managers and autofill extensions -->
+  <meta name="password-manager" content="disabled">
+  <meta name="bitwarden" content="disabled">
+  <meta name="1password" content="disabled">
+  <meta name="lastpass" content="disabled">
+  <meta name="dashlane" content="disabled">
+  
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
-  <script type="module" crossorigin src="/assets/index-DLrA3Z8K.js"></script>
+  
+  <style>
+    /* Prevent autofill styling and extension noise */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    input:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 30px white inset !important;
+      -webkit-text-fill-color: inherit !important;
+    }
+    
+    /* Hide autofill icons and suggestions */
+    input::-webkit-credentials-auto-fill-button {
+      display: none !important;
+    }
+    
+    /* Prevent extension overlays */
+    [data-bitwarden-watching] {
+      display: none !important;
+    }
+    
+    /* Disable autofill on all inputs */
+    input, textarea, select {
+      autocomplete: off !important;
+      data-form-type: other !important;
+    }
+  </style>
+  <script type="module" crossorigin src="/assets/index-D4oO1Zft.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/vendor-BOzUWGk4.js">
-  <link rel="modulepreload" crossorigin href="/assets/react-vendor-f8fxnLd8.js">
-  <link rel="modulepreload" crossorigin href="/assets/styled-vendor-QXK0rvqD.js">
-  <link rel="modulepreload" crossorigin href="/assets/utils-wO2Xz-5z.js">
-  <link rel="modulepreload" crossorigin href="/assets/components-Bzu34XAU.js">
-  <link rel="modulepreload" crossorigin href="/assets/oauth-flows-DaFjMldY.js">
+  <link rel="modulepreload" crossorigin href="/assets/react-vendor-CyPb4e76.js">
+  <link rel="modulepreload" crossorigin href="/assets/styled-vendor-G0Kiz1B9.js">
+  <link rel="modulepreload" crossorigin href="/assets/utils-DeGkQDSt.js">
+  <link rel="modulepreload" crossorigin href="/assets/components-8Tm6F6PH.js">
+  <link rel="modulepreload" crossorigin href="/assets/oauth-flows-DdtqyzDf.js">
+  <link rel="stylesheet" crossorigin href="/assets/index-BrbX-bSZ.css">
 <link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
 <body>
   <div id="root"></div>
+  
+  <script>
+    // Disable autofill and extension noise
+    document.addEventListener('DOMContentLoaded', function() {
+      // Disable autofill on all form elements
+      const inputs = document.querySelectorAll('input, textarea, select');
+      inputs.forEach(input => {
+        input.setAttribute('autocomplete', 'off');
+        input.setAttribute('data-form-type', 'other');
+        input.setAttribute('data-lpignore', 'true');
+        input.setAttribute('data-1p-ignore', 'true');
+        input.setAttribute('data-bwignore', 'true');
+      });
+      
+      // Prevent extension injection
+      const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.type === 'childList') {
+            mutation.addedNodes.forEach(function(node) {
+              if (node.nodeType === 1) { // Element node
+                // Remove extension overlays
+                if (node.hasAttribute && (
+                  node.hasAttribute('data-bitwarden-watching') ||
+                  node.hasAttribute('data-1password') ||
+                  node.hasAttribute('data-lastpass') ||
+                  node.hasAttribute('data-dashlane')
+                )) {
+                  node.remove();
+                }
+              }
+            });
+          }
+        });
+      });
+      
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+    });
+  </script>
 </body>
 </html>
