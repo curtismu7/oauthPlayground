@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
-import { FiPlay, FiEye, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
+import { FiAlertCircle } from 'react-icons/fi';
 import { ColorCodedURL } from '../../components/ColorCodedURL';
 import { URLParamExplainer } from '../../components/URLParamExplainer';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
-import ConfigurationButton from '../../components/ConfigurationButton';
 import TokenDisplayComponent from '../../components/TokenDisplay';
 import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
 import { getDefaultConfig } from '../../utils/flowConfigDefaults';
-import { config } from '../../services/config';
 import { 
   BaseOAuthFlow, 
   Container, 
