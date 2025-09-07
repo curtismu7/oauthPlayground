@@ -19,6 +19,7 @@ import AuthorizationRequestModal from '../../components/AuthorizationRequestModa
 import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
 import ContextualHelp from '../../components/ContextualHelp';
+import ConfigurationStatus from '../../components/ConfigurationStatus';
 // import { SpecCard } from '../../components/SpecCard';
 // import { TokenSurface } from '../../components/TokenSurface';
 
@@ -790,6 +791,12 @@ grant_type=refresh_token
         subtitle="The most secure and widely used OAuth 2.0 flow for web applications. Perfect for server-side applications that can securely store client secrets."
       />
 
+      <ConfigurationStatus 
+        config={config} 
+        onConfigure={() => setShowConfig(!showConfig)}
+        flowType="authorization-code"
+      />
+
       <ContextualHelp flowId="authorization-code" />
 
       <FlowOverview>
@@ -903,64 +910,6 @@ grant_type=refresh_token
           {/* Callback URL Configuration */}
           <CallbackUrlDisplay flowType="authorization-code" />
 
-          {/* Configuration Status */}
-          {!config?.pingone?.clientId && (
-            <ErrorMessage>
-              <FiAlertCircle />
-              <strong>Configuration Required:</strong> PingOne settings are not configured. 
-              Please check the Configuration page or browser console for details.
-              <br />
-              <button 
-                onClick={() => {
-                  console.log('🔍 [AuthorizationCodeFlow] Current config:', config);
-                  console.log('🔍 [AuthorizationCodeFlow] localStorage keys:', Object.keys(localStorage));
-                  console.log('🔍 [AuthorizationCodeFlow] pingone_config:', localStorage.getItem('pingone_config'));
-                  console.log('🔍 [AuthorizationCodeFlow] Environment variables:', {
-                    envId: (window as WindowWithPingOne).__PINGONE_ENVIRONMENT_ID__,
-                    apiUrl: (window as WindowWithPingOne).__PINGONE_API_URL__,
-                    clientId: (window as WindowWithPingOne).__PINGONE_CLIENT_ID__
-                  });
-                }}
-                style={{
-                  marginTop: '0.5rem',
-                  padding: '0.5rem 1rem',
-                  background: '#f3f4f6',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '0.8rem'
-                }}
-              >
-                🔍 Debug Configuration Loading
-              </button>
-            </ErrorMessage>
-          )}
-          
-          {config?.pingone?.clientId && (
-            <div style={{ 
-              background: '#f0f9ff', 
-              border: '1px solid #0ea5e9', 
-              borderRadius: '8px', 
-              padding: '1rem', 
-              marginBottom: '1rem',
-              fontSize: '0.9rem'
-            }}>
-              <strong>✅ PingOne Configuration Loaded:</strong>
-              <div style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}>
-                <div><strong>Client ID:</strong> {config.pingone.clientId}</div>
-                <div><strong>Environment ID:</strong> {config.pingone.environmentId}</div>
-                <div><strong>API URL:</strong> {config.pingone.authEndpoint || 'Not configured'}</div>
-              </div>
-            </div>
-          )}
-
-          {!config && (
-            <ErrorMessage>
-              <FiAlertCircle />
-              <strong>Configuration Required:</strong> Please configure your PingOne settings
-              in the Configuration page before running this demo.
-            </ErrorMessage>
-          )}
 
           {error && (
             <ErrorMessage>
