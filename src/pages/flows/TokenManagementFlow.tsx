@@ -4,6 +4,7 @@ import { StepByStepFlow } from '../../components/StepByStepFlow';
 import FlowCredentials from '../../components/FlowCredentials';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 import { logger } from '../../utils/logger';
+import JSONHighlighter from '../../components/JSONHighlighter';
 import { 
   TokenManagementService, 
   TokenRequest, 
@@ -298,7 +299,7 @@ const TokenManagementFlow: React.FC<TokenManagementFlowProps> = ({ credentials }
     tokenToRevoke: '',
     revocationTokenTypeHint: 'access_token' as 'access_token' | 'refresh_token'
   });
-  const [response, setResponse] = useState<any>(null);
+  const [response, setResponse] = useState<Record<string, unknown> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [tokenResponse, setTokenResponse] = useState<TokenResponse | null>(null);
   const [introspectionResponse, setIntrospectionResponse] = useState<TokenIntrospectionResponse | null>(null);
@@ -447,7 +448,7 @@ console.log('Token Revoked:', revoked);`,
         setDemoStatus('loading');
         
         try {
-          let result: any;
+          let result: unknown;
           
           if (activeTab === 'exchange') {
             if (activeSubTab === 'auth_code') {
@@ -568,7 +569,7 @@ if (introspectionResponse) {
     setError(null);
   }, []);
 
-  const handleStepResult = useCallback((step: number, result: any) => {
+  const handleStepResult = useCallback((step: number, result: unknown) => {
     logger.info('TokenManagementFlow', `Step ${step + 1} completed`, result);
   }, []);
 
@@ -577,7 +578,7 @@ if (introspectionResponse) {
       setDemoStatus('loading');
       setError(null);
       
-      let result: any;
+      let result: unknown;
       
       if (activeTab === 'exchange') {
         if (activeSubTab === 'auth_code') {
@@ -814,7 +815,9 @@ if (introspectionResponse) {
       {response && (
         <ResponseContainer>
           <h4>Response:</h4>
-          <CodeBlock>{JSON.stringify(response, null, 2)}</CodeBlock>
+          <CodeBlock>
+            <JSONHighlighter data={response} />
+          </CodeBlock>
         </ResponseContainer>
       )}
 

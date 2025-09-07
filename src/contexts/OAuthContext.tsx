@@ -39,6 +39,23 @@ type OAuthConfig = {
   clientAssertion?: ClientAssertionOptions;
 };
 
+// Define specific types for ID token claims
+type IDTokenClaims = {
+  sub: string;
+  iss: string;
+  aud: string | string[];
+  exp: number;
+  iat: number;
+  auth_time?: number;
+  nonce?: string;
+  acr?: string;
+  amr?: string[];
+  azp?: string;
+  at_hash?: string;
+  c_hash?: string;
+  [key: string]: unknown; // Allow additional claims
+};
+
 type Tokens = {
   access_token: string;
   id_token?: string;
@@ -48,18 +65,63 @@ type Tokens = {
   scope?: string;
   issued_at?: number;
   // optional enrichment
-  id_token_claims?: Record<string, any>;
+  id_token_claims?: IDTokenClaims;
+};
+
+// Define UserInfo type based on OpenID Connect specification
+type UserInfo = {
+  sub: string;
+  name?: string;
+  given_name?: string;
+  family_name?: string;
+  middle_name?: string;
+  nickname?: string;
+  preferred_username?: string;
+  profile?: string;
+  picture?: string;
+  website?: string;
+  email?: string;
+  email_verified?: boolean;
+  gender?: string;
+  birthdate?: string;
+  zoneinfo?: string;
+  locale?: string;
+  phone_number?: string;
+  phone_number_verified?: boolean;
+  address?: {
+    formatted?: string;
+    street_address?: string;
+    locality?: string;
+    region?: string;
+    postal_code?: string;
+    country?: string;
+  };
+  updated_at?: number;
+  [key: string]: unknown; // Allow additional claims
+};
+
+// Define OAuth flow options
+type OAuthFlowOptions = {
+  state?: string;
+  nonce?: string;
+  prompt?: string;
+  max_age?: number;
+  ui_locales?: string;
+  id_token_hint?: string;
+  login_hint?: string;
+  acr_values?: string;
+  [key: string]: unknown; // Allow additional options
 };
 
 type OAuthContextValue = {
   config: OAuthConfig | null;
   tokens: Tokens | null;
-  userInfo: any;
+  userInfo: UserInfo | null;
   error: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   saveConfig: (newConfig: OAuthConfig) => boolean;
-  startOAuthFlow: (flowType?: 'authorization_code' | 'implicit', options?: Record<string, any>) => Promise<boolean>;
+  startOAuthFlow: (flowType?: 'authorization_code' | 'implicit', options?: OAuthFlowOptions) => Promise<boolean>;
   handleCallback: (url: string) => Promise<boolean>;
   logout: () => void;
   checkAuthStatus: () => boolean;
@@ -88,7 +150,7 @@ export const OAuthProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const savedTokens = localStorage.getItem('oauth_tokens');
     return savedTokens ? JSON.parse(savedTokens) : null;
   });
-  const [userInfo, setUserInfo] = useState<any>(null);
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -150,7 +212,7 @@ export const OAuthProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Initialize OAuth flow
   const startOAuthFlow = useCallback(async (
     flowType: 'authorization_code' | 'implicit' = 'authorization_code',
-    options: Record<string, any> = {}
+    options: OAuthFlowOptions = {}
   ): Promise<boolean> => {
     if (!config) {
       setError('OAuth configuration is missing. Please configure your PingOne settings first.');
@@ -202,9 +264,10 @@ export const OAuthProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       window.location.href = authUrl;
       return true;
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error starting OAuth flow:', error);
-      setError(`Failed to start OAuth flow: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setError(`Failed to start OAuth flow: ${errorMessage}`);
       setIsLoading(false);
       return false;
     }
@@ -366,7 +429,7 @@ export const OAuthProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         : undefined;
 
       const inferredAuthMethod: 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt' | undefined =
-        (config.tokenAuthMethod as any) ?? (config.clientSecret ? 'client_secret_basic' : undefined);
+        config.tokenAuthMethod ?? (config.clientSecret ? 'client_secret_basic' : undefined);
 
       const tokenRequest = {
         tokenEndpoint: config.tokenEndpoint.replace('{envId}', config.environmentId),
@@ -425,9 +488,10 @@ export const OAuthProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setIsLoading(false);
       return true;
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error handling OAuth callback:', error);
-      setError(error.message || 'Failed to complete OAuth flow');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to complete OAuth flow';
+      setError(errorMessage);
       setIsLoading(false);
       return false;
     }

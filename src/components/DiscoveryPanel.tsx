@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { FiSearch, FiCheckCircle, FiAlertCircle, FiRefreshCw, FiCopy, FiGlobe, FiSettings } from 'react-icons/fi';
+import { FiSearch, FiCheckCircle, FiAlertCircle, FiRefreshCw, FiGlobe, FiX } from 'react-icons/fi';
 import { discoveryService, OpenIDConfiguration } from '../services/discoveryService';
 import { logger } from '../utils/logger';
 import CopyIcon from './CopyIcon';
@@ -309,12 +309,6 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
     }
   };
 
-  const extractEnvironmentIdFromUrl = (url: string) => {
-    const extracted = discoveryService.extractEnvironmentIdFromUrl(url);
-    if (extracted) {
-      setEnvironmentId(extracted);
-    }
-  };
 
   return (
     <Overlay onClick={onClose}>
@@ -325,7 +319,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
             PingOne Discovery
           </Title>
           <CloseButton onClick={onClose}>
-            <FiSettings />
+            <FiX />
           </CloseButton>
         </Header>
 
@@ -479,4 +473,5 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 };
 
 export default DiscoveryPanel;
+
 

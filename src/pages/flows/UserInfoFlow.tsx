@@ -6,6 +6,7 @@ import PageTitle from '../../components/PageTitle';
 import TokenDisplayComponent from '../../components/TokenDisplay';
 import ConfigurationButton from '../../components/ConfigurationButton';
 import { useAuth } from '../../contexts/NewAuthContext';
+import { config } from '../../services/config';
 import { getUserInfo, isTokenExpired } from '../../utils/oauth';
 import { decodeJwt } from '../../utils/jwt';
 import type { UserInfo as OIDCUserInfo } from '../../types/oauth';
@@ -337,15 +338,16 @@ const JsonNull = styled.span`
 
 
 const TokenDisplay = styled.div`
-  background-color: ${({ theme }) => theme.colors.gray50};
-  border: 1px solid ${({ theme }) => theme.colors.gray200};
+  background-color: #000000;
+  border: 2px solid #374151;
   border-radius: 0.375rem;
   padding: 1rem;
   margin: 1rem 0;
   font-family: monospace;
   font-size: 0.875rem;
-  color: ${({ theme }) => theme.colors.gray700};
+  color: #ffffff;
   word-break: break-all;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
 `;
 
 const UserInfoFlow: React.FC = () => {
@@ -365,9 +367,9 @@ const UserInfoFlow: React.FC = () => {
     hasConfig: !!config,
     configKeys: config ? Object.keys(config) : 'NO_CONFIG',
     configDetails: config ? {
-      clientId: config.clientId,
-      environmentId: config.environmentId,
-      userInfoEndpoint: config.userInfoEndpoint
+      clientId: config.pingone.clientId,
+      environmentId: config.pingone.environmentId,
+      userInfoEndpoint: config.pingone.userInfoEndpoint
     } : 'NO_CONFIG'
   });
 
@@ -460,10 +462,10 @@ const UserInfoFlow: React.FC = () => {
     headers: Record<string, string>;
     method: string;
   } | null>(null);
-  const [decodedToken, setDecodedToken] = useState<any>(null);
+  const [decodedToken, setDecodedToken] = useState<Record<string, unknown> | null>(null);
 
   // Track execution results for each step
-  const [stepResults, setStepResults] = useState<Record<number, any>>({});
+  const [stepResults, setStepResults] = useState<Record<number, unknown>>({});
   const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
   const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
 
@@ -471,7 +473,7 @@ const UserInfoFlow: React.FC = () => {
   const [useAuthentication, setUseAuthentication] = useState(false);
 
   // Function to format JSON with color coding
-  const formatJson = (obj: any, indent: number = 0): React.ReactNode[] => {
+  const formatJson = (obj: unknown, indent: number = 0): React.ReactNode[] => {
     const spaces = '  '.repeat(indent);
     const elements: React.ReactNode[] = [];
     
@@ -559,7 +561,7 @@ const UserInfoFlow: React.FC = () => {
     setExecutedSteps(new Set());
   };
 
-  const handleStepResult = (stepIndex: number, result: any) => {
+  const handleStepResult = (stepIndex: number, result: unknown) => {
     setStepResults(prev => ({ ...prev, [stepIndex]: result }));
     setStepsWithResults(prev => {
       const newSteps = [...prev];
@@ -642,12 +644,12 @@ const headers = {
 
 // For unprotected UserInfo endpoints, no Authorization header needed`,
       execute: () => {
-        if (!config?.userInfoEndpoint) {
+        if (!config?.pingone?.userInfoEndpoint) {
           setError('UserInfo endpoint is not configured. Check Configuration page.');
           return;
         }
 
-        const userInfoUrl = config.userInfoEndpoint.replace('{envId}', config.environmentId);
+        const userInfoUrl = config.pingone.userInfoEndpoint.replace('{envId}', config.pingone.environmentId);
         const headers: Record<string, string> = {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
@@ -774,8 +776,9 @@ const userInfo = await response.json();`,
 
           console.log('✅ [UserInfoFlow] UserInfo API call successful:', userInfoData);
           return result;
-        } catch (error: any) {
-          setError(`Failed to call UserInfo endpoint: ${error.message}`);
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          setError(`Failed to call UserInfo endpoint: ${errorMessage}`);
           console.error('❌ [UserInfoFlow] UserInfo API call failed:', error);
         }
       }

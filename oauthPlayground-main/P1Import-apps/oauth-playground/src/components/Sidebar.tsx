@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { 
-  FiHome, FiCode, FiLock, FiUser, FiSettings, 
-  FiChevronDown, FiChevronRight, FiBookOpen 
+  FiHome, FiCode, FiUser, FiSettings, 
+  FiChevronDown, FiBookOpen 
 } from 'react-icons/fi';
 
 const SidebarContainer = styled.aside`

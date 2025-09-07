@@ -9,6 +9,8 @@ import {
   Container,
   PageHeader,
   TokenDisplay,
+  TokenHeader,
+  TokenPayload,
   CardHeader,
   CardBody,
   ActionButton,
@@ -355,9 +357,9 @@ const TokenInspector: React.FC = () => {
               <CardBody>
                 <div style={{ marginBottom: '1rem' }}>
                   <h4>Header</h4>
-                  <TokenDisplay>
+                  <TokenHeader>
                     <code>{formatJson(formattedToken.header)}</code>
-                  </TokenDisplay>
+                  </TokenHeader>
                   <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
                     <ActionButton
                       onClick={() => handleCopy(JSON.stringify(formattedToken.header, null, 2))}
@@ -376,9 +378,9 @@ const TokenInspector: React.FC = () => {
 
                 <div style={{ marginBottom: '1rem' }}>
                   <h4>Payload</h4>
-                  <TokenDisplay>
+                  <TokenPayload>
                     <code>{formatJson(formattedToken.payload)}</code>
-                  </TokenDisplay>
+                  </TokenPayload>
                   <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
                     <ActionButton
                       onClick={() => handleCopy(JSON.stringify(formattedToken.payload, null, 2))}

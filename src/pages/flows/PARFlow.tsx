@@ -263,7 +263,7 @@ const PARFlow: React.FC<PARFlowProps> = ({ credentials }) => {
     keyId: '',
     jwksUri: ''
   });
-  const [response, setResponse] = useState<any>(null);
+  const [response, setResponse] = useState<Record<string, unknown> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [parResponse, setParResponse] = useState<PARResponse | null>(null);
   const [parService] = useState(() => new PARService(formData.environmentId));
@@ -535,7 +535,7 @@ if (tokenResponse.ok) {
     setError(null);
   }, []);
 
-  const handleStepResult = useCallback((step: number, result: any) => {
+  const handleStepResult = useCallback((step: number, result: unknown) => {
     logger.info('PARFlow', `Step ${step + 1} completed`, result);
   }, []);
 

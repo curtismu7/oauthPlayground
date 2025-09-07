@@ -10,7 +10,7 @@ interface TokenDisplayProps {
     expires_in?: number;
     refresh_token?: string;
     scope?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
 }
 
@@ -93,6 +93,36 @@ const TokenHeader = styled.div`
   margin-bottom: 1rem;
   padding-bottom: 0.75rem;
   border-bottom: 2px solid rgba(255, 255, 255, 0.6);
+  position: relative;
+`;
+
+const TokenTypeLabel = styled.div<{ $type?: 'access' | 'id' | 'refresh' | 'info' }>`
+  position: absolute;
+  top: -0.75rem;
+  right: 0;
+  background: ${({ $type }) => {
+    switch ($type) {
+      case 'access':
+        return '#3b82f6';
+      case 'id':
+        return '#f59e0b';
+      case 'refresh':
+        return '#10b981';
+      case 'info':
+        return '#8b5cf6';
+      default:
+        return '#6b7280';
+    }
+  }};
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1;
 `;
 
 const TokenLabel = styled.h4<{ $type?: 'access' | 'id' | 'refresh' | 'info' }>`
@@ -183,8 +213,8 @@ const TokenValue = styled.pre<{ $isMasked?: boolean; $type?: 'access' | 'id' | '
   font-family: 'SFMono-Regular', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', 'Courier New', monospace;
   font-size: 0.8rem;
   line-height: 1.6;
-  color: #000000 !important;
-  background: rgba(255, 255, 255, 0.95) !important;
+  color: #000000;
+  background: rgba(255, 255, 255, 0.95);
   border: 2px solid ${({ $type }) => {
     switch ($type) {
       case 'access':
@@ -198,7 +228,7 @@ const TokenValue = styled.pre<{ $isMasked?: boolean; $type?: 'access' | 'id' | '
     }
   }};
   border-radius: 0.5rem;
-  padding: 2rem 1.5rem 1.5rem 1.5rem;
+  padding: 1.5rem;
   margin-top: 0.5rem;
   overflow-x: auto;
   word-break: break-all;
@@ -206,42 +236,18 @@ const TokenValue = styled.pre<{ $isMasked?: boolean; $type?: 'access' | 'id' | '
   text-indent: 0;
   box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
   position: relative;
+  min-height: 4rem;
   
-  /* Force black text with multiple selectors - more aggressive */
+  /* Ensure text is always visible and readable */
   &, & *, &::before, &::after {
-    color: #000000 !important;
+    color: #000000;
+    background-color: transparent;
   }
   
   /* Override any inherited styles */
   * {
-    color: #000000 !important;
-  }
-
-  &::before {
-    content: 'JWT Token';
-    position: absolute;
-    top: -0.75rem;
-    left: 1.5rem;
-    background: ${({ $type }) => {
-      switch ($type) {
-        case 'access':
-          return '#3b82f6';
-        case 'id':
-          return '#f59e0b';
-        case 'refresh':
-          return '#10b981';
-        default:
-          return '#6b7280';
-      }
-    }};
-    color: white;
-    font-size: 0.65rem;
-    font-weight: 600;
-    padding: 0.25rem 0.75rem;
-    border-radius: 0.25rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    color: #000000;
+    background-color: transparent;
   }
 `;
 
@@ -345,6 +351,7 @@ const TokenDisplay: React.FC<TokenDisplayProps> = ({ tokens }) => {
       <TokenSection key={key} $type={type}>
         <TokenHeader>
           <TokenLabel $type={type}>{label}</TokenLabel>
+          <TokenTypeLabel $type={type}>JWT Token</TokenTypeLabel>
           <TokenActions>
             {isToken && (
               <ActionButton
