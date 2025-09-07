@@ -86,29 +86,6 @@ const TokenDetails = styled.div`
   }
 `;
 
-const TokenTextarea = styled.textarea`
-  width: 100%;
-  padding: 1rem;
-  border: 1px solid #374151;
-  border-radius: 0.375rem;
-  font-family: monospace;
-  font-size: 0.875rem;
-  resize: vertical;
-  min-height: 120px;
-  margin-bottom: 1rem;
-  background-color: #1f2937;
-  color: #ffffff;
-  
-  &::placeholder {
-    color: #9ca3af;
-  }
-  
-  &:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-`;
 
 const ButtonGroup = styled.div`
   display: flex;
@@ -168,110 +145,8 @@ const ActionButton = styled.button`
   }
 `;
 
-const JWTContent = styled.pre`
-  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-  border: 2px solid #374151;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  margin: 1rem 0;
-  font-family: 'SFMono-Regular', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', 'Courier New', monospace;
-  font-size: 0.875rem;
-  line-height: 1.6;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  word-break: break-word;
-  color: #ffffff !important;
-  min-height: 120px;
-  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
-  position: relative;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
-    border-radius: 0.5rem 0.5rem 0 0;
-  }
-  
-  &:empty::before {
-    content: 'No token data';
-    color: #9ca3af;
-    font-style: italic;
-  }
-`;
 
-const JWTHeader = styled.pre`
-  background: #000000;
-  border: 2px solid #374151;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  margin: 1rem 0;
-  font-family: 'SFMono-Regular', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', 'Courier New', monospace;
-  font-size: 0.875rem;
-  line-height: 1.6;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  word-break: break-word;
-  color: #ffffff !important;
-  min-height: 120px;
-  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
-  position: relative;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
-    border-radius: 0.5rem 0.5rem 0 0;
-  }
-  
-  &:empty::before {
-    content: 'No token data';
-    color: #9ca3af;
-    font-style: italic;
-  }
-`;
 
-const JWTPayload = styled.pre`
-  background: #ffffff;
-  border: 2px solid #e5e7eb;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  margin: 1rem 0;
-  font-family: 'SFMono-Regular', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', 'Courier New', monospace;
-  font-size: 0.875rem;
-  line-height: 1.6;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  word-break: break-word;
-  color: #000000 !important;
-  min-height: 120px;
-  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.1);
-  position: relative;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #10b981, #059669, #047857);
-    border-radius: 0.5rem 0.5rem 0 0;
-  }
-  
-  &:empty::before {
-    content: 'No token data';
-    color: #6b7280;
-    font-style: italic;
-  }
-`;
 
 const HistoryEntry = styled.div`
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
@@ -553,7 +428,7 @@ const FixItem = styled.div<{ $priority: 'low' | 'medium' | 'high' | 'critical' }
       case 'high': return '#fff7ed';
       case 'medium': return '#fffbeb';
       case 'low': return '#f0fdf4';
-      default: '#ffffff';
+      default: return '#ffffff';
     }
   }};
 `;
@@ -1030,11 +905,13 @@ const TokenManagement = () => {
           <h2>Raw Token</h2>
         </CardHeader>
         <CardBody>
-          <TokenTextarea
+          <TokenSurface
+            as="textarea"
             id="token-string"
             value={tokenString}
             onChange={handleTokenInput}
             placeholder="Paste your JWT token here or get a token using the 'Get Token' button"
+            ariaLabel="Raw JWT token input"
           />
 
           <ButtonGroup>
@@ -1090,16 +967,26 @@ const TokenManagement = () => {
         <CardBody>
           <div style={{ marginBottom: '1rem' }}>
             <h4>Header</h4>
-            <JWTHeader id="jwt-header" className="jwt-content">
+            <TokenSurface
+              id="jwt-header"
+              className="jwt-content"
+              ariaLabel="JWT Header"
+              scrollable
+            >
               {jwtHeader || 'No token data'}
-            </JWTHeader>
+            </TokenSurface>
           </div>
 
           <div>
             <h4>Payload</h4>
-            <JWTPayload id="jwt-payload" className="jwt-content">
+            <TokenSurface
+              id="jwt-payload"
+              className="jwt-content"
+              ariaLabel="JWT Payload"
+              scrollable
+            >
               {jwtPayload || 'No token data'}
-            </JWTPayload>
+            </TokenSurface>
           </div>
         </CardBody>
       </TokenSection>

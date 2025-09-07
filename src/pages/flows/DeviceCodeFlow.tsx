@@ -345,7 +345,7 @@ client_id=${config?.clientId || 'your_client_id'}&scope=read write
 // - client_id: identifies the device/app
 // - scope: requested permissions`,
       execute: async () => {
-        if (!config) {
+        if (!config || !config.pingone) {
           setError('Configuration required. Please configure your PingOne settings first.');
           return;
         }
@@ -383,7 +383,7 @@ const userCode = generateUserFriendlyCode(); // e.g., "WDJB-MJHT"
   "interval": 5
 }`,
       execute: async () => {
-        if (!config) {
+        if (!config || !config.pingone) {
           setError('Configuration required. Please configure your PingOne settings first.');
           return;
         }
@@ -541,7 +541,7 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
 // - Make authenticated API calls
 // - Access protected resources`,
       execute: async () => {
-        if (!config || !deviceCodeData) {
+        if (!config || !config.pingone || !deviceCodeData) {
           setError('Configuration or device codes not available. Please complete previous steps first.');
           return;
         }

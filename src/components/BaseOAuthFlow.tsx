@@ -43,8 +43,8 @@ export const FlowDescription = styled.div`
 `;
 
 export const SecurityWarning = styled.div`
-  background-color: ${({ theme }) => theme.colors.warning}10;
-  border: 1px solid ${({ theme }) => theme.colors.warning}30;
+  background-color: #fdecea;
+  border: 1px solid #f5c2c7;
   border-radius: 0.5rem;
   padding: 1rem;
   margin-bottom: 2rem;
@@ -53,7 +53,7 @@ export const SecurityWarning = styled.div`
   gap: 0.75rem;
 
   .icon {
-    color: ${({ theme }) => theme.colors.warning};
+    color: #dc3545;
     margin-top: 0.125rem;
     flex-shrink: 0;
   }
@@ -62,14 +62,14 @@ export const SecurityWarning = styled.div`
     flex: 1;
 
     h3 {
-      color: ${({ theme }) => theme.colors.warning};
+      color: #dc3545;
       font-size: 1rem;
       font-weight: 600;
       margin: 0 0 0.5rem 0;
     }
 
     p {
-      color: ${({ theme }) => theme.colors.gray700};
+      color: #dc3545;
       margin: 0;
       font-size: 0.875rem;
       line-height: 1.5;

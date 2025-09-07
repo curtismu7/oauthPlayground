@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import styled from 'styled-components';
-import { FiEye, FiEyeOff, FiCheckCircle, FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { FiEye, FiEyeOff, FiCheckCircle, FiChevronDown, FiChevronUp, FiCheck } from 'react-icons/fi';
 import CopyIcon from './CopyIcon';
 import { logger } from '../utils/logger';
 
@@ -106,7 +106,7 @@ const FormGrid = styled.div`
   
   .client-secret-field {
     grid-column: 1 / -1;
-    max-width: 610px; /* Limit width for client secret */
+    max-width: 800px; /* Increased width for longer client secrets */
   }
   
   @media (max-width: 768px) {
@@ -153,6 +153,7 @@ const SecretInputContainer = styled.div`
 
 const Input = styled.input`
   width: 100%;
+  min-width: 400px;
   padding: 0.5rem;
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
@@ -557,7 +558,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
                     aria-label="Copy Environment ID"
                     title="Copy Environment ID"
                   >
-                    {copiedField === 'Environment ID' ? <FiCheckCircle size={16} /> : <CopyIcon size={16} />}
+                    {copiedField === 'Environment ID' ? <FiCheck size={16} /> : <CopyIcon size={16} />}
                   </Button>
                 </div>
               </InputContainer>
@@ -583,7 +584,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
                     aria-label="Copy Client ID"
                     title="Copy Client ID"
                   >
-                    {copiedField === 'Client ID' ? <FiCheckCircle size={16} /> : <CopyIcon size={16} />}
+                    {copiedField === 'Client ID' ? <FiCheck size={16} /> : <CopyIcon size={16} />}
                   </Button>
                 </div>
               </InputContainer>
@@ -619,7 +620,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
                     aria-label="Copy Client Secret"
                     title="Copy Client Secret"
                   >
-                    {copiedField === 'Client Secret' ? <FiCheckCircle size={16} /> : <CopyIcon size={16} />}
+                    {copiedField === 'Client Secret' ? <FiCheck size={16} /> : <CopyIcon size={16} />}
                   </Button>
                 </div>
               </SecretInputContainer>
@@ -645,7 +646,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
                     aria-label="Copy Redirect URI"
                     title="Copy Redirect URI"
                   >
-                    {copiedField === 'Redirect URI' ? <FiCheckCircle size={16} /> : <CopyIcon size={16} />}
+                    {copiedField === 'Redirect URI' ? <FiCheck size={16} /> : <CopyIcon size={16} />}
                   </Button>
                 </div>
               </InputContainer>
@@ -671,7 +672,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
                     aria-label="Copy Additional Scopes"
                     title="Copy Additional Scopes"
                   >
-                    {copiedField === 'Additional Scopes' ? <FiCheckCircle size={16} /> : <CopyIcon size={16} />}
+                    {copiedField === 'Additional Scopes' ? <FiCheck size={16} /> : <CopyIcon size={16} />}
                   </Button>
                 </div>
               </InputContainer>

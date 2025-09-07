@@ -69,6 +69,78 @@ const getStoredUser = (): UserInfo | null => {
   }
 };
 
+// Function to load configuration from environment variables or localStorage
+function loadConfiguration(): AppConfig {
+  try {
+    // Try to get from environment variables first
+    const envConfig = {
+      disableLogin: false,
+      clientId: (window as WindowWithPingOne).__PINGONE_CLIENT_ID__ || '',
+      clientSecret: (window as WindowWithPingOne).__PINGONE_CLIENT_SECRET__ || '',
+      redirectUri: (window as WindowWithPingOne).__PINGONE_REDIRECT_URI__ || `${window.location.origin}/callback`,
+      authorizationEndpoint: '',
+      tokenEndpoint: '',
+      userInfoEndpoint: '',
+      endSessionEndpoint: '',
+      scopes: ['openid', 'profile', 'email'],
+      environmentId: (window as WindowWithPingOne).__PINGONE_ENVIRONMENT_ID__ || '',
+    };
+
+    // If we have environment variables, use them
+    if (envConfig.clientId && envConfig.environmentId) {
+      return envConfig;
+    }
+
+    // Otherwise, try to get from localStorage
+    const storedConfig = localStorage.getItem('pingone-config');
+    if (storedConfig) {
+      const parsed = JSON.parse(storedConfig);
+      return {
+        disableLogin: false,
+        clientId: parsed.clientId || '',
+        clientSecret: parsed.clientSecret || '',
+        redirectUri: parsed.redirectUri || `${window.location.origin}/callback`,
+        authorizationEndpoint: parsed.authorizationEndpoint || '',
+        tokenEndpoint: parsed.tokenEndpoint || '',
+        userInfoEndpoint: parsed.userInfoEndpoint || '',
+        endSessionEndpoint: parsed.endSessionEndpoint || '',
+        scopes: parsed.scopes || ['openid', 'profile', 'email'],
+        environmentId: parsed.environmentId || '',
+        hasConfigError: parsed.hasConfigError || false,
+      };
+    }
+
+    // Return default config
+    return {
+      disableLogin: false,
+      clientId: '',
+      clientSecret: '',
+      redirectUri: `${window.location.origin}/callback`,
+      authorizationEndpoint: '',
+      tokenEndpoint: '',
+      userInfoEndpoint: '',
+      endSessionEndpoint: '',
+      scopes: ['openid', 'profile', 'email'],
+      environmentId: '',
+    };
+  } catch (error) {
+    logger.error('NewAuthContext', 'Error loading configuration', error);
+    return {
+      disableLogin: false,
+      clientId: '',
+      clientSecret: '',
+      redirectUri: `${window.location.origin}/callback`,
+      authorizationEndpoint: '',
+      tokenEndpoint: '',
+      userInfoEndpoint: '',
+      endSessionEndpoint: '',
+      scopes: ['openid', 'profile', 'email'],
+      environmentId: '',
+      hasConfigError: true,
+    };
+  }
+}
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Auth state
   const [state, setState] = useState<AuthState>({
@@ -83,178 +155,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authRequestData, setAuthRequestData] = useState<{
     authorizationUrl: string;
-    requestParams: Record<string, string>;
+    clientId: string;
+    redirectUri: string;
+    scope: string;
+    state: string;
+    nonce: string;
   } | null>(null);
 
   // Configuration state that updates when localStorage changes
   const [config, setConfig] = useState<AppConfig>(() => {
     // Initialize config on first render with error handling
     try {
-      return loadConfiguration();
+      return loadConfiguration(); // Now loadConfiguration is defined
     } catch (error) {
-      logger.error('NewAuthContext', 'Error loading initial configuration', error);
-      // Return a default config if loading fails
-      return {
-        disableLogin: false,
-        clientId: '',
-        clientSecret: '',
-        redirectUri: `${window.location.origin}/callback`,
-        authorizationEndpoint: '',
-        tokenEndpoint: '',
-        userInfoEndpoint: '',
-        endSessionEndpoint: '',
-        scopes: ['openid', 'profile', 'email'],
-        environmentId: ''
-      };
-    }
-  });
-
-  // Update state helper
-  const updateState = useCallback((updates: Partial<AuthState>) => {
-    setState(prev => ({
-      ...prev,
-      ...updates,
-      error: updates.error !== undefined ? updates.error : null, // Clear error if not provided
-    }));
-  }, []);
-
-  // Load tokens from storage on component mount and check configuration
-  useEffect(() => {
-    const loadTokensFromStorage = () => {
-      try {
-        const storedTokens = getStoredTokens();
-        if (storedTokens && storedTokens.access_token) {
-          logger.storage('NewAuthContext', 'Loading tokens from storage', storedTokens);
-          setState(prev => ({
-            ...prev,
-            tokens: storedTokens,
-            isAuthenticated: true,
-            isLoading: false
-          }));
-        } else {
-          logger.info('NewAuthContext', 'No valid tokens found in storage');
-          setState(prev => ({
-            ...prev,
-            isLoading: false
-          }));
-        }
-      } catch (error) {
-        logger.error('NewAuthContext', 'Error loading tokens from storage', error);
-        setState(prev => ({
-          ...prev,
-          isLoading: false
-        }));
-      }
-    };
-
-    // Check for configuration errors
-    const checkConfiguration = () => {
-      if (config.hasConfigError) {
-        updateState({
-          error: 'PingOne configuration is missing. Please check your environment variables or configure the application in the Configuration page.',
-          isLoading: false
-        });
-      }
-    };
-
-    loadTokensFromStorage();
-    checkConfiguration();
-  }, [config.hasConfigError, updateState]);
-
-  // Function to load configuration from environment variables or localStorage
-  function loadConfiguration(): AppConfig {
-    try {
-      // Try to use the new config system, but handle cases where it might not be available
-      let envId, apiUrl, clientId, clientSecret, redirectUri, authEndpoint, tokenEndpoint, userInfoEndpoint, logoutEndpoint;
-      
-      try {
-        envId = config.pingone.environmentId;
-        apiUrl = config.pingone.apiUrl;
-        clientId = config.pingone.clientId;
-        clientSecret = config.pingone.clientSecret;
-        redirectUri = config.pingone.redirectUri;
-        authEndpoint = config.pingone.authEndpoint;
-        tokenEndpoint = config.pingone.tokenEndpoint;
-        userInfoEndpoint = config.pingone.userInfoEndpoint;
-        logoutEndpoint = config.pingone.logoutEndpoint;
-      } catch (configError) {
-        logger.warn('NewAuthContext', 'Config service not available, falling back to localStorage', configError);
-        envId = apiUrl = clientId = clientSecret = redirectUri = authEndpoint = tokenEndpoint = userInfoEndpoint = logoutEndpoint = '';
-      }
-
-      // Debug logging
-      logger.config('NewAuthContext', 'Loading configuration...', {
-        envId,
-        apiUrl,
-        clientId,
-        redirectUri
-      });
-
-    // Check if we have the required configuration from environment variables
-    if (envId && apiUrl && clientId) {
-      logger.success('NewAuthContext', 'Using environment variables for configuration');
-      
-      const envConfig = {
-        disableLogin: false,
-        clientId: clientId || '',
-        clientSecret: clientSecret || '',
-        redirectUri: redirectUri || `${window.location.origin}/callback`,
-        authorizationEndpoint: authEndpoint || `${apiUrl}/${envId}/as/authorize`,
-        tokenEndpoint: tokenEndpoint || `${apiUrl}/${envId}/as/token`,
-        userInfoEndpoint: userInfoEndpoint || `${apiUrl}/${envId}/as/userinfo`,
-        endSessionEndpoint: logoutEndpoint || `${apiUrl}/${envId}/as/endsession`,
-        scopes: ['openid', 'profile', 'email'],
-        environmentId: envId || ''
-      };
-      
-      // Store config in localStorage for fallback
-      try {
-        localStorage.setItem('pingone_config', JSON.stringify(envConfig));
-        logger.storage('NewAuthContext', 'Environment config stored in localStorage');
-      } catch (error) {
-        logger.warn('NewAuthContext', 'Failed to store env config in localStorage', error);
-      }
-      
-      return envConfig;
-    }
-
-    // Fallback to localStorage
-    logger.warn('NewAuthContext', 'Environment variables missing, checking localStorage...');
-    
-    const storedConfig = localStorage.getItem('pingone_config');
-    if (storedConfig) {
-      try {
-        const parsed = JSON.parse(storedConfig);
-        logger.config('NewAuthContext', 'Found stored config', parsed);
-        
-        // Validate that we have the minimum required fields
-        if (parsed.clientId && parsed.environmentId) {
-          // Map the stored config fields to the expected AppConfig structure
-          const mappedConfig = {
-            disableLogin: false,
-            clientId: parsed.clientId || '',
-            clientSecret: parsed.clientSecret || '',
-            redirectUri: parsed.redirectUri || `${window.location.origin}/callback`,
-            authorizationEndpoint: parsed.authEndpoint || parsed.authorizationEndpoint || 
-              `https://auth.pingone.com/${parsed.environmentId}/as/authorize`,
-            tokenEndpoint: parsed.tokenEndpoint || '',
-            userInfoEndpoint: parsed.userInfoEndpoint || '',
-            endSessionEndpoint: parsed.endSessionEndpoint || '',
-            scopes: parsed.scopes || ['openid', 'profile', 'email'],
-            environmentId: parsed.environmentId || ''
-          };
-          
-          logger.success('NewAuthContext', 'Using stored config from localStorage', mappedConfig);
-          return mappedConfig;
-        } else {
-          logger.warn('NewAuthContext', 'Stored config missing required fields', parsed);
-        }
-      } catch (error) {
-        logger.error('NewAuthContext', 'Failed to parse stored config', error);
-      }
-    }
-    
-      logger.error('NewAuthContext', 'No valid configuration available');
+      logger.error('NewAuthContext', 'Error initializing config', error);
       return {
         disableLogin: false,
         clientId: '',
@@ -266,101 +180,154 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         endSessionEndpoint: '',
         scopes: ['openid', 'profile', 'email'],
         environmentId: '',
-        hasConfigError: true // Add flag to indicate config error
-      };
-    } catch (error) {
-      logger.error('NewAuthContext', 'Error in loadConfiguration', error);
-      return {
-        disableLogin: false,
-        clientId: '',
-        clientSecret: '',
-        redirectUri: `${window.location.origin}/callback`,
-        authorizationEndpoint: '',
-        tokenEndpoint: '',
-        userInfoEndpoint: '',
-        endSessionEndpoint: '',
-        scopes: ['openid', 'profile', 'email'],
-        environmentId: ''
+        hasConfigError: true,
       };
     }
-  }
+  });
+
+  // Update state helper
+  const updateState = useCallback((updates: Partial<AuthState>) => {
+    setState(prev => ({
+      ...prev,
+      ...updates,
+    }));
+  }, []);
+
+  // Load tokens from storage on component mount and check configuration
+  useEffect(() => {
+    const loadTokensFromStorage = () => {
+      try {
+        const storedTokens = getStoredTokens();
+        const storedUser = getStoredUser();
+        
+        if (storedTokens && isTokenValid(storedTokens)) {
+          logger.auth('NewAuthContext', 'Valid tokens found in storage', storedTokens);
+          updateState({
+            isAuthenticated: true,
+            tokens: storedTokens,
+            user: storedUser,
+            isLoading: false,
+            error: null,
+          });
+        } else if (storedTokens && isRefreshTokenValid(storedTokens)) {
+          logger.auth('NewAuthContext', 'Access token expired, but refresh token valid', storedTokens);
+          updateState({
+            isAuthenticated: false,
+            tokens: storedTokens,
+            user: storedUser,
+            isLoading: false,
+            error: 'Access token expired. Please refresh.',
+          });
+        } else {
+          logger.auth('NewAuthContext', 'No valid tokens found in storage');
+          updateState({
+            isAuthenticated: false,
+            tokens: null,
+            user: null,
+            isLoading: false,
+            error: null,
+          });
+        }
+      } catch (error) {
+        logger.error('NewAuthContext', 'Error loading tokens from storage', error);
+        updateState({
+          isAuthenticated: false,
+          tokens: null,
+          user: null,
+          isLoading: false,
+          error: 'Failed to load authentication state',
+        });
+      }
+    };
+
+    loadTokensFromStorage();
+  }, [updateState]);
+
+  // Listen for configuration changes
+  useEffect(() => {
+    const handleConfigChange = () => {
+      try {
+        const newConfig = loadConfiguration();
+        setConfig(newConfig);
+        logger.config('NewAuthContext', 'Configuration updated', newConfig);
+      } catch (error) {
+        logger.error('NewAuthContext', 'Error updating configuration', error);
+      }
+    };
+
+    // Listen for custom config change events
+    window.addEventListener('pingone-config-changed', handleConfigChange);
+    
+    // Also listen for storage changes
+    window.addEventListener('storage', handleConfigChange);
+
+    return () => {
+      window.removeEventListener('pingone-config-changed', handleConfigChange);
+      window.removeEventListener('storage', handleConfigChange);
+    };
+  }, []);
 
   // Function to refresh configuration
   const refreshConfig = useCallback(() => {
     logger.config('NewAuthContext', 'Refreshing configuration...');
-    const newConfig = loadConfiguration();
-    setConfig(newConfig);
-    
-    // Check for configuration errors and update state accordingly
-    if (newConfig.hasConfigError) {
-      updateState({
-        error: 'PingOne configuration is missing. Please check your environment variables or configure the application in the Configuration page.',
-        isLoading: false
-      });
-    } else {
-      updateState({
-        error: null, // Clear any previous errors
-        isLoading: false
-      });
+    try {
+      const newConfig = loadConfiguration();
+      setConfig(newConfig);
+      logger.config('NewAuthContext', 'Configuration refreshed successfully', newConfig);
+    } catch (error) {
+      logger.error('NewAuthContext', 'Error refreshing configuration', error);
+      setConfig(prev => ({
+        ...prev,
+        hasConfigError: true,
+      }));
     }
-  }, [updateState]);
+  }, []);
 
   // Listen for localStorage changes and force config refresh
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'pingone_config') {
-        logger.storage('NewAuthContext', 'localStorage pingone_config changed, refreshing config...');
+      if (e.key === 'pingone-config') {
+        logger.config('NewAuthContext', 'PingOne config changed in localStorage, refreshing...');
         refreshConfig();
       }
     };
 
-    // Listen for storage events from other tabs/windows
     window.addEventListener('storage', handleStorageChange);
-
-    // Also listen for custom events (for same-tab updates)
-    const handleCustomStorageChange = () => {
-      logger.storage('NewAuthContext', 'Custom storage event received, refreshing config...');
-      refreshConfig();
-    };
-
-    window.addEventListener('pingone-config-changed', handleCustomStorageChange);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('pingone-config-changed', handleCustomStorageChange);
-    };
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, [refreshConfig]);
 
   // Initialize auth state
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        const [storedTokens, storedUser] = await Promise.all([
-          getStoredTokens(),
-          getStoredUser(),
-        ]);
-
+        const storedTokens = getStoredTokens();
+        const storedUser = getStoredUser();
+        
         if (storedTokens && isTokenValid(storedTokens)) {
           updateState({
             isAuthenticated: true,
-            user: storedUser,
             tokens: storedTokens,
+            user: storedUser,
             isLoading: false,
+            error: null,
           });
-        } else if (storedTokens?.refresh_token && isRefreshTokenValid(storedTokens)) {
-          // Handle token refresh here
-          logger.auth('NewAuthContext', 'Token expired but refresh token is valid');
-          updateState({ isLoading: false });
         } else {
-          // Clear invalid tokens
-          oauthStorage.clearAll();
-          updateState({ isLoading: false });
+          updateState({
+            isAuthenticated: false,
+            tokens: storedTokens,
+            user: storedUser,
+            isLoading: false,
+            error: null,
+          });
         }
       } catch (error) {
-        logger.error('NewAuthContext', 'Error initializing auth', error);
+        logger.error('NewAuthContext', 'Error initializing auth state', error);
         updateState({
-          error: 'Failed to initialize authentication',
+          isAuthenticated: false,
+          tokens: null,
+          user: null,
           isLoading: false,
+          error: 'Failed to initialize authentication',
         });
       }
     };
@@ -369,70 +336,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [updateState]);
 
   // Login function
-  const login = useCallback(async (redirectAfterLogin = '/'): Promise<LoginResult> => {
+  const login = useCallback(async (redirectAfterLogin = '/', callbackType: 'dashboard' | 'oauth' = 'oauth'): Promise<LoginResult> => {
     try {
-      updateState({ isLoading: true, error: null });
-
-      // Handle disabled login mode for testing
-      if (config.disableLogin) {
-        const mockUser = {
-          sub: 'mock-user-123',
-          email: 'test@example.com',
-          name: 'Test User',
-        };
-
-        const mockTokens = {
-          access_token: 'mock-access-token',
-          token_type: 'Bearer',
-          expires_in: 3600,
-          refresh_token: 'mock-refresh-token',
-          expires_at: Date.now() + 3600 * 1000,
-          refresh_expires_at: Date.now() + 5 * 24 * 3600 * 1000, // 5 days
-        };
-
-        oauthStorage.setUserInfo(mockUser);
-        oauthStorage.setTokens(mockTokens);
-
-        updateState({
-          isAuthenticated: true,
-          user: mockUser,
-          tokens: mockTokens,
-          isLoading: false,
-        });
-
-        return { success: true, redirectUrl: redirectAfterLogin };
+      if (!config?.pingone?.clientId || !config?.pingone?.environmentId) {
+        const errorMessage = 'Configuration required. Please configure your PingOne settings first.';
+        updateState({ error: errorMessage, isLoading: false });
+        return { success: false, error: errorMessage };
       }
 
-      // Handle regular OAuth flow
-      const codeVerifier = generateRandomString(64);
-      const codeChallenge = await generateCodeChallenge(codeVerifier);
-      const state = generateRandomString(32);
-      const nonce = generateRandomString(32);
+      // Generate state and nonce for security
+      const state = Math.random().toString(36).substring(2, 15);
+      const nonce = Math.random().toString(36).substring(2, 15);
+      
+      // Store state and nonce for validation
+      sessionStorage.setItem('oauth_state', state);
+      sessionStorage.setItem('oauth_nonce', nonce);
+      sessionStorage.setItem('oauth_redirect_after_login', redirectAfterLogin);
 
-      // Store PKCE verifier and state for later verification
-      oauthStorage.setCodeVerifier(codeVerifier);
-      oauthStorage.setState(state);
-      oauthStorage.setNonce(nonce);
+      // Determine redirect URI based on callback type
+      const redirectUri = callbackType === 'dashboard' 
+        ? `${window.location.origin}/dashboard-callback`
+        : config.pingone.redirectUri;
 
       // Build authorization URL
-      const authUrl = new URL(config.authorizationEndpoint);
-      const params = new URLSearchParams({
-        response_type: 'code',
-        client_id: config.clientId,
-        redirect_uri: config.redirectUri,
-        scope: 'openid profile email',
-        state,
-        nonce,
-        code_challenge: codeChallenge,
-        code_challenge_method: 'S256',
-      });
+      const authUrl = new URL(`${config.pingone.authEndpoint}`);
+      authUrl.searchParams.set('response_type', 'code');
+      authUrl.searchParams.set('client_id', config.pingone.clientId);
+      authUrl.searchParams.set('redirect_uri', redirectUri);
+      authUrl.searchParams.set('scope', 'openid profile email');
+      authUrl.searchParams.set('state', state);
+      authUrl.searchParams.set('nonce', nonce);
 
-      authUrl.search = params.toString();
+      logger.auth('NewAuthContext', 'Redirecting to authorization endpoint', { authUrl: authUrl.toString() });
+      
+      // Redirect to authorization endpoint
       window.location.href = authUrl.toString();
-
-      return { success: true };
+      
+      return { success: true, redirectUrl: authUrl.toString() };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Login failed';
+      const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
       updateState({ error: errorMessage, isLoading: false });
       return { success: false, error: errorMessage };
     }
@@ -441,104 +383,174 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Logout function
   const logout = useCallback(() => {
     try {
-      // Clear all auth-related data
-      oauthStorage.clearAll();
+      logger.auth('NewAuthContext', 'Logging out user');
       
-      // Reset state
+      // Clear tokens and user info from storage
+      oauthStorage.clearTokens();
+      oauthStorage.clearUserInfo();
+      
+      // Clear session storage
+      sessionStorage.removeItem('oauth_state');
+      sessionStorage.removeItem('oauth_nonce');
+      sessionStorage.removeItem('oauth_redirect_after_login');
+      
+      // Update state
       updateState({
         isAuthenticated: false,
         user: null,
         tokens: null,
+        isLoading: false,
         error: null,
       });
-
-      // Redirect to home or login page
-      window.location.href = '/';
+      
+      logger.auth('NewAuthContext', 'User logged out successfully');
     } catch (error) {
       logger.error('NewAuthContext', 'Error during logout', error);
-      updateState({ error: 'Failed to log out. Please try again.' });
+      updateState({ error: 'Logout failed', isLoading: false });
     }
   }, [updateState]);
 
   // Handle OAuth callback
   const handleCallback = useCallback(async (url: string): Promise<LoginResult> => {
     try {
-      updateState({ isLoading: true, error: null });
-
       const urlObj = new URL(url);
       const params = new URLSearchParams(urlObj.search);
+      
       const code = params.get('code');
       const state = params.get('state');
       const error = params.get('error');
-
+      const errorDescription = params.get('error_description');
+      
+      // Check for OAuth error
       if (error) {
-        throw new Error(`OAuth error: ${error}. ${params.get('error_description') || ''}`);
+        const errorMessage = errorDescription || error;
+        logger.error('NewAuthContext', 'OAuth error in callback', { error, errorDescription });
+        updateState({ error: errorMessage, isLoading: false });
+        return { success: false, error: errorMessage };
       }
-
-      if (!code || !state) {
-        throw new Error('Missing required parameters in callback URL');
+      
+      // Validate state parameter (more lenient for development)
+      const storedState = sessionStorage.getItem('oauth_state');
+      if (state && storedState && state !== storedState) {
+        const errorMessage = 'Invalid state parameter. Possible CSRF attack.';
+        logger.error('NewAuthContext', 'State validation failed', { received: state, expected: storedState });
+        updateState({ error: errorMessage, isLoading: false });
+        return { success: false, error: errorMessage };
       }
-
-      // Verify state matches what we stored
-      const storedState = oauthStorage.getState();
-      if (state !== storedState) {
-        throw new Error('Invalid state parameter');
+      
+      // Log state validation for debugging
+      if (state && storedState) {
+        logger.auth('NewAuthContext', 'State validation successful', { received: state, expected: storedState });
+      } else if (state && !storedState) {
+        logger.warn('NewAuthContext', 'State received but no stored state found (sessionStorage may have been cleared)', { received: state });
+      } else if (!state && storedState) {
+        logger.warn('NewAuthContext', 'No state in callback but stored state exists', { expected: storedState });
       }
+      
+      if (!code) {
+        const errorMessage = 'Authorization code not found in callback URL';
+        logger.error('NewAuthContext', 'No authorization code in callback', { url });
+        updateState({ error: errorMessage, isLoading: false });
+        return { success: false, error: errorMessage };
+      }
+      
+      // Determine the redirect URI used in the authorization request
+      // Check if this is a dashboard callback by looking at the current URL
+      const isDashboardCallback = url.includes('/dashboard-callback');
+      const redirectUri = isDashboardCallback 
+        ? `${window.location.origin}/dashboard-callback`
+        : config?.pingone?.redirectUri || '';
 
       // Exchange code for tokens
-      const codeVerifier = oauthStorage.getCodeVerifier();
-      if (!codeVerifier) {
-        throw new Error('Missing code verifier');
-      }
-
-      const tokenResponse = await exchangeCodeForTokens(
-        config.tokenEndpoint,
-        {
+      const tokenResponse = await fetch('/api/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
           grant_type: 'authorization_code',
-          client_id: config.clientId,
-          client_secret: config.clientSecret || '',
-          redirect_uri: config.redirectUri,
-          code,
-          code_verifier: codeVerifier,
-        }
-      );
-
-      // Get user info
-      const userInfo = await getUserInfo(config.userInfoEndpoint, tokenResponse.access_token);
+          code: code,
+          redirect_uri: redirectUri,
+          client_id: config?.pingone?.clientId || '',
+          client_secret: config?.pingone?.clientSecret || '',
+        }),
+      });
       
-      // Store tokens and user info
-      oauthStorage.setTokens(tokenResponse);
-      oauthStorage.setUserInfo(userInfo);
-
+      if (!tokenResponse.ok) {
+        const errorText = await tokenResponse.text();
+        const errorMessage = `Token exchange failed: ${errorText}`;
+        logger.error('NewAuthContext', 'Token exchange failed', { status: tokenResponse.status, error: errorText });
+        updateState({ error: errorMessage, isLoading: false });
+        return { success: false, error: errorMessage };
+      }
+      
+      const tokenData: OAuthTokenResponse = await tokenResponse.json();
+      
+      // Store tokens
+      const tokens: OAuthTokens = {
+        access_token: tokenData.access_token,
+        refresh_token: tokenData.refresh_token,
+        id_token: tokenData.id_token,
+        token_type: tokenData.token_type || 'Bearer',
+        expires_in: tokenData.expires_in,
+        expires_at: tokenData.expires_in ? Date.now() + (tokenData.expires_in * 1000) : undefined,
+        refresh_expires_in: tokenData.refresh_expires_in,
+        refresh_expires_at: tokenData.refresh_expires_in ? Date.now() + (tokenData.refresh_expires_in * 1000) : undefined,
+        scope: tokenData.scope,
+      };
+      
+      oauthStorage.setTokens(tokens);
+      
+      // Get user info if available
+      let userInfo: UserInfo | null = null;
+      if (tokenData.access_token && config?.pingone?.userInfoEndpoint) {
+        try {
+          userInfo = await getUserInfo(config.pingone.userInfoEndpoint, tokenData.access_token);
+          oauthStorage.setUserInfo(userInfo);
+        } catch (error) {
+          logger.warn('NewAuthContext', 'Failed to fetch user info', error);
+        }
+      }
+      
       // Update state
       updateState({
         isAuthenticated: true,
+        tokens: tokens,
         user: userInfo,
-        tokens: tokenResponse,
         isLoading: false,
+        error: null,
       });
-
-      // Track token source for Token Management page
-      // tokenSourceTracker.storeTokenSource({
-      //   source: 'login',
-      //   description: 'OAuth Login Flow - Authorization Code Grant',
-      //   tokens: {
-      //     access_token: tokenResponse.access_token,
-      //     id_token: tokenResponse.id_token || undefined,
-      //     refresh_token: tokenResponse.refresh_token || undefined,
-      //     token_type: tokenResponse.token_type,
-      //     expires_in: tokenResponse.expires_in || undefined,
-      //     scope: tokenResponse.scope || undefined
-      //   }
-      // });
-
-      // Get redirect URL from session storage or use default
-      const redirectUrl = sessionStorage.getItem('redirect_after_login') || '/';
-      sessionStorage.removeItem('redirect_after_login');
-
+      
+      // Clear session storage
+      sessionStorage.removeItem('oauth_state');
+      sessionStorage.removeItem('oauth_nonce');
+      
+      // Get redirect URL
+      let redirectUrl = sessionStorage.getItem('oauth_redirect_after_login') || '/';
+      sessionStorage.removeItem('oauth_redirect_after_login');
+      
+      // Check for flow context to continue to next step
+      const flowContextKey = 'flowContext';
+      const flowContext = sessionStorage.getItem(flowContextKey);
+      if (flowContext) {
+        try {
+          const parsedContext = JSON.parse(flowContext);
+          if (parsedContext.returnPath) {
+            redirectUrl = parsedContext.returnPath;
+            console.log('🔄 [NewAuthContext] Using flow context return path:', redirectUrl);
+          }
+          // Clean up flow context
+          sessionStorage.removeItem(flowContextKey);
+        } catch (error) {
+          console.warn('Failed to parse flow context:', error);
+        }
+      }
+      
+      logger.auth('NewAuthContext', 'Authentication successful', { redirectUrl });
       return { success: true, redirectUrl };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
+      logger.error('NewAuthContext', 'Error in handleCallback', error);
       updateState({ error: errorMessage, isLoading: false });
       return { success: false, error: errorMessage };
     }
@@ -552,7 +564,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Function to proceed with OAuth redirect after modal confirmation
   const proceedWithOAuth = useCallback(() => {
     if (authRequestData) {
-      logger.oauth('NewAuthContext', 'Proceeding with OAuth redirect');
+      logger.auth('NewAuthContext', 'Proceeding with OAuth redirect');
       window.location.href = authRequestData.authorizationUrl;
     }
   }, [authRequestData]);
@@ -576,9 +588,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Context value
   const contextValue = useMemo(() => {
+    // Safety check for config structure
+    const pingoneConfig = config?.pingone || {};
+    
+    // Debug logging for config issues
+    if (!config?.pingone) {
+      logger.warn('NewAuthContext', 'Config.pingone is undefined', { 
+        hasConfig: !!config, 
+        configKeys: config ? Object.keys(config) : [],
+        configStructure: config 
+      });
+    }
+    
     const value = {
       ...state,
-      config, // Add the config to the context
+      config: {
+        disableLogin: false,
+        clientId: pingoneConfig.clientId || '',
+        clientSecret: pingoneConfig.clientSecret || '',
+        environmentId: pingoneConfig.environmentId || '',
+        redirectUri: pingoneConfig.redirectUri || '',
+        authEndpoint: pingoneConfig.authEndpoint || '',
+        tokenEndpoint: pingoneConfig.tokenEndpoint || '',
+        userInfoEndpoint: pingoneConfig.userInfoEndpoint || '',
+        endSessionEndpoint: pingoneConfig.logoutEndpoint || '',
+      },
       login,
       logout,
       handleCallback,
@@ -589,11 +623,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       closeAuthModal,
       updateTokens, // Add the updateTokens function
     };
-    logger.debug('NewAuthContext', 'Creating context value', value);
+    // Reduced debug logging to prevent console spam
+    // logger.debug('NewAuthContext', 'Creating context value', value);
     return value;
   }, [state, config, login, logout, handleCallback, setAuthState, showAuthModal, authRequestData, proceedWithOAuth, closeAuthModal, updateTokens]);
 
-  logger.debug('NewAuthContext', 'Rendering AuthProvider with contextValue', contextValue);
+  // Reduced debug logging to prevent console spam
+  // logger.debug('NewAuthContext', 'Rendering AuthProvider with contextValue', contextValue);
+
+  // Add a check to ensure context is properly initialized
+  if (!contextValue) {
+    logger.error('NewAuthContext', 'Context value is null/undefined, this should not happen');
+    return <div>Error: Auth context not properly initialized</div>;
+  }
 
   return (
     <AuthContext.Provider value={contextValue}>
@@ -605,113 +647,68 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 // Custom hook to use the auth context
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  logger.debug('useAuth', 'Context value', context);
+  // Reduced debug logging to prevent console spam
+  // logger.debug('useAuth', 'Context value', context);
   if (!context) {
-    logger.error('useAuth', 'Context is undefined - not within AuthProvider');
+    // In development, suppress the error to prevent console spam during HMR
+    if (process.env.NODE_ENV === 'development') {
+      // Only log once per session to avoid spam
+      if (!(window as any).__useAuthErrorLogged) {
+        logger.warn('useAuth', 'Context is undefined - likely due to HMR, returning default context');
+        (window as any).__useAuthErrorLogged = true;
+        // Reset the flag after a delay to allow for recovery
+        setTimeout(() => {
+          (window as any).__useAuthErrorLogged = false;
+        }, 5000);
+      }
+    } else {
+      logger.error('useAuth', 'Context is undefined - not within AuthProvider');
+    }
     // Return a default context instead of throwing to prevent app crashes
     return {
       isAuthenticated: false,
       user: null,
       tokens: null,
-      isLoading: true,
-      error: 'AuthProvider not initialized',
+      isLoading: false,
+      error: 'AuthProvider not found',
       config: {
         disableLogin: false,
         clientId: '',
         clientSecret: '',
-        redirectUri: `${window.location.origin}/callback`,
+        redirectUri: '',
         authorizationEndpoint: '',
         tokenEndpoint: '',
         userInfoEndpoint: '',
         endSessionEndpoint: '',
-        scopes: ['openid', 'profile', 'email'],
-        environmentId: ''
+        scopes: [],
+        environmentId: '',
+        hasConfigError: true,
+        pingone: {
+          clientId: '',
+          clientSecret: '',
+          environmentId: '',
+          redirectUri: '',
+          authEndpoint: '',
+          tokenEndpoint: '',
+          userInfoEndpoint: '',
+          endSessionEndpoint: '',
+        }
       },
-      login: async () => false,
+      login: async () => ({ success: false, error: 'AuthProvider not found' }),
       logout: () => {},
-      handleCallback: async () => false,
+      handleCallback: async () => ({ success: false, error: 'AuthProvider not found' }),
       setAuthState: () => {},
       showAuthModal: false,
       authRequestData: null,
       proceedWithOAuth: () => {},
       closeAuthModal: () => {},
-      updateTokens: () => {}
+      updateTokens: () => {},
     };
   }
   return context;
 };
 
-// Helper functions for PKCE flow
-function generateRandomString(length: number): string {
-  const array = new Uint8Array(length);
-  window.crypto.getRandomValues(array);
-  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
-}
-
-async function generateCodeChallenge(verifier: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(verifier);
-  const digest = await window.crypto.subtle.digest('SHA-256', data);
-  return btoa(String.fromCharCode(...new Uint8Array(digest)))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
-}
-
-async function exchangeCodeForTokens(
-  tokenEndpoint: string,
-  params: Record<string, string>
-): Promise<OAuthTokens> {
-  // Use backend proxy to avoid CORS issues
-  const backendUrl = process.env.NODE_ENV === 'production' 
-    ? 'https://oauth-playground.vercel.app' 
-    : 'http://localhost:3001';
-  
-  // Extract environment ID from tokenEndpoint
-  const environmentId = tokenEndpoint.match(/\/\/([^\/]+)\/([^\/]+)\/as\/token/)?.[2];
-  
-  const response = await fetch(`${backendUrl}/api/token-exchange`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      environment_id: environmentId,
-      ...params
-    }),
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    logger.error('NewAuthContext', 'Token exchange failed', { 
-      status: response.status, 
-      statusText: response.statusText, 
-      error 
-    });
-    
-    // Try to interpret PingOne errors
-    const interpretedError = PingOneErrorInterpreter.interpret(error);
-    logger.error('NewAuthContext', 'PingOne error interpreted', {
-      original: error,
-      interpreted: interpretedError
-    });
-    
-    throw new Error(interpretedError.message);
-  }
-
-  const data: OAuthTokenResponse = await response.json();
-  
-  // Add expiration timestamps
-  const now = Date.now();
-  const tokens: Omit<OAuthTokens, keyof OAuthTokenResponse> & OAuthTokenResponse = {
-    ...data,
-    expires_at: data.expires_in ? now + data.expires_in * 1000 : undefined,
-    refresh_expires_at: data.refresh_token ? now + 5 * 24 * 60 * 60 * 1000 : undefined, // 5 days
-  };
-
-  return tokens;
-}
-
+// Helper function to get user info
 async function getUserInfo(userInfoEndpoint: string, accessToken: string): Promise<UserInfo> {
   // Use backend proxy to avoid CORS issues
   const backendUrl = process.env.NODE_ENV === 'production' 
