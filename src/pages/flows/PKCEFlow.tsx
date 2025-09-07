@@ -14,6 +14,9 @@ import TokenDisplayComponent from '../../components/TokenDisplay';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 import PageTitle from '../../components/PageTitle';
 import FlowCredentials from '../../components/FlowCredentials';
+import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
+import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
+import ContextualHelp from '../../components/ContextualHelp';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -412,7 +415,7 @@ const authUrl = '${(config?.authorizationEndpoint || `https://auth.pingone.com/$
         const params = new URLSearchParams({
           response_type: 'code',
           client_id: config.pingone.clientId,
-          redirect_uri: config.pingone.redirectUri,
+          redirect_uri: getCallbackUrlForFlow('authorization-code'),
           scope: config.scopes?.join(' ') || 'read write',
           code_challenge: pkceData.codeChallenge,
           code_challenge_method: 'S256',
@@ -523,7 +526,7 @@ grant_type=authorization_code
             client_secret: String(config.pingone.clientSecret || ''),
             code: 'auth-code-simulated', // In real implementation, this would be the actual code
             code_verifier: pkceData.codeVerifier,
-            redirect_uri: String(config.pingone.redirectUri),
+            redirect_uri: getCallbackUrlForFlow('authorization-code'),
           });
 
           const response = await fetch(tokenUrl, {
@@ -604,12 +607,16 @@ return tokens;`,
         subtitle="Learn how Proof Key for Code Exchange (PKCE) enhances the Authorization Code flow with real API calls to PingOne."
       />
 
+      <ContextualHelp flowId="pkce" />
+
       <FlowCredentials
         flowType="pkce"
         onCredentialsChange={(credentials) => {
           console.log('PKCE flow credentials updated:', credentials);
         }}
       />
+
+      <CallbackUrlDisplay flowType="authorization-code" />
 
       <FlowOverview>
         <CardHeader>

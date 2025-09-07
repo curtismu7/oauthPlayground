@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { Card, CardHeader, CardBody, CardFooter } from '../components/Card';
-import { FiCode, FiLock, FiUser, FiSettings, FiInfo, FiCheckCircle, FiPlay, FiBook, FiShield, FiClock, FiActivity, FiRefreshCw, FiTool } from 'react-icons/fi';
+import { Card, CardBody } from '../components/Card';
+import { FiCode, FiUser, FiSettings, FiInfo, FiCheckCircle, FiPlay, FiBook, FiShield, FiClock, FiActivity, FiRefreshCw, FiTool } from 'react-icons/fi';
 import { useAuth } from '../contexts/NewAuthContext';
 import { getOAuthTokens } from '../utils/tokenStorage';
 import { getRecentActivity } from '../utils/activityTracker';
 import { interpretPingOneError } from '../utils/pingoneErrorInterpreter';
+import { useTokenRefresh } from '../hooks/useTokenRefresh';
+import { TokenDebugger } from '../utils/tokenDebug';
 
 
 const DashboardContainer = styled.div`
@@ -276,19 +278,51 @@ const ActivityList = styled.div`
 `;
 
 const Dashboard = () => {
-  const { isAuthenticated, config, error } = useAuth();
+  const { config, error } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [tokens, setTokens] = useState<Record<string, unknown> | null>(null);
   const [recentActivity, setRecentActivity] = useState<Record<string, unknown>[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showActivityModal, setShowActivityModal] = useState(false);
+
+  // Token refresh automation for Dashboard login
+  const {
+    isRefreshing: isTokenRefreshing,
+    lastRefreshAt,
+    nextRefreshAt,
+    refreshError,
+    refreshTokens,
+    stopAutoRefresh,
+    startAutoRefresh,
+    status: refreshStatus
+  } = useTokenRefresh({
+    autoRefresh: true,
+    refreshThreshold: 300, // 5 minutes before expiry
+    onRefreshSuccess: (newTokens) => {
+      console.log('✅ [Dashboard] Token refresh successful', newTokens);
+      setTokens(newTokens);
+    },
+    onRefreshError: (error) => {
+      console.error('❌ [Dashboard] Token refresh failed', error);
+    }
+  });
   
   const infoMessage = (location.state as { message?: string })?.message;
   const infoType = ((location.state as { type?: 'success' | 'error' | 'warning' | 'info' })?.type) || 'info';
 
   // Check if there are saved credentials
   const hasSavedCredentials = config && config.environmentId && config.clientId;
+  
+  // Debug logging for configuration status
+  useEffect(() => {
+    console.log('🔍 [Dashboard] Config status check:', {
+      hasConfig: !!config,
+      environmentId: config?.environmentId,
+      clientId: config?.clientId,
+      hasSavedCredentials
+    });
+  }, [config, hasSavedCredentials]);
 
   // Handle refresh button click
   const handleRefresh = async () => {
@@ -608,6 +642,125 @@ const Dashboard = () => {
                   </div>
                 )}
               </div>
+              {/* Token Refresh Status */}
+              <div style={{ marginTop: '0.75rem', padding: '0.75rem', backgroundColor: refreshStatus.isInitialized ? '#f0f9ff' : '#fef3c7', borderRadius: '0.375rem', border: `1px solid ${refreshStatus.isInitialized ? '#bfdbfe' : '#fbbf24'}` }}>
+                <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', fontWeight: '600', color: refreshStatus.isInitialized ? '#1e40af' : '#92400e', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <FiRefreshCw style={{ fontSize: '0.875rem' }} />
+                  Token Refresh Status
+                </h4>
+                {refreshStatus.isInitialized ? (
+                  <>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.5rem', fontSize: '0.75rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                        <div style={{ 
+                          width: '6px', 
+                          height: '6px', 
+                          borderRadius: '50%', 
+                          backgroundColor: refreshStatus.autoRefreshEnabled ? '#10b981' : '#6b7280' 
+                        }} />
+                        <span>Auto Refresh: {refreshStatus.autoRefreshEnabled ? 'Enabled' : 'Disabled'}</span>
+                      </div>
+                      {isTokenRefreshing && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                          <FiRefreshCw style={{ color: '#3b82f6', fontSize: '0.75rem', animation: 'spin 1s linear infinite' }} />
+                          <span>Refreshing...</span>
+                        </div>
+                      )}
+                      {lastRefreshAt && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                          <FiCheckCircle style={{ color: '#10b981', fontSize: '0.75rem' }} />
+                          <span>Last: {lastRefreshAt.toLocaleTimeString()}</span>
+                        </div>
+                      )}
+                      {nextRefreshAt && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                          <FiClock style={{ color: '#6b7280', fontSize: '0.75rem' }} />
+                          <span>Next: {nextRefreshAt.toLocaleTimeString()}</span>
+                        </div>
+                      )}
+                      {refreshError && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: '#dc2626' }}>
+                          <FiInfo style={{ fontSize: '0.75rem' }} />
+                          <span>Error: {refreshError}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem' }}>
+                    <button
+                      onClick={refreshTokens}
+                      disabled={isTokenRefreshing}
+                      style={{
+                        padding: '0.25rem 0.5rem',
+                        fontSize: '0.75rem',
+                        backgroundColor: '#3b82f6',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '0.25rem',
+                        cursor: isTokenRefreshing ? 'not-allowed' : 'pointer',
+                        opacity: isTokenRefreshing ? 0.5 : 1
+                      }}
+                    >
+                      <FiRefreshCw style={{ marginRight: '0.25rem', fontSize: '0.75rem' }} />
+                      Refresh Now
+                    </button>
+                    <button
+                      onClick={refreshStatus.autoRefreshEnabled ? stopAutoRefresh : startAutoRefresh}
+                      style={{
+                        padding: '0.25rem 0.5rem',
+                        fontSize: '0.75rem',
+                        backgroundColor: refreshStatus.autoRefreshEnabled ? '#6b7280' : '#10b981',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '0.25rem',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {refreshStatus.autoRefreshEnabled ? 'Stop Auto' : 'Start Auto'}
+                    </button>
+                    <button
+                      onClick={async () => {
+                        try {
+                          const result = await TokenDebugger.clearAllTokens();
+                          if (result.success) {
+                            console.log('✅ [Dashboard] Cleared all tokens from storage');
+                            window.location.reload(); // Reload to refresh status
+                          } else {
+                            console.error('❌ [Dashboard] Failed to clear tokens:', result.error);
+                            alert(`Failed to clear tokens: ${result.error}`);
+                          }
+                        } catch (error) {
+                          console.error('❌ [Dashboard] Failed to clear tokens:', error);
+                          alert(`Failed to clear tokens: ${error}`);
+                        }
+                      }}
+                      style={{
+                        padding: '0.25rem 0.5rem',
+                        fontSize: '0.75rem',
+                        backgroundColor: '#dc2626',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '0.25rem',
+                        cursor: 'pointer'
+                      }}
+                      title="Clear all tokens from storage and reload page"
+                    >
+                      Clear Tokens
+                    </button>
+                  </div>
+                  </>
+                ) : (
+                  <div style={{ fontSize: '0.75rem', color: '#92400e' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', marginBottom: '0.5rem' }}>
+                      <FiInfo style={{ fontSize: '0.75rem' }} />
+                      <span>No refresh token available</span>
+                    </div>
+                    <p style={{ margin: '0', fontSize: '0.7rem', color: '#a16207' }}>
+                      Token refresh requires a valid refresh token. Complete an OAuth flow that provides refresh tokens to enable automatic token refresh.
+                    </p>
+                  </div>
+                )}
+              </div>
+
               <div style={{ marginTop: '0.75rem' }}>
                 <Link 
                   to="/token-management" 

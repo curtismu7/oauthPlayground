@@ -10,6 +10,9 @@ import Sidebar from './components/Sidebar';
 import CredentialSetupModal from './components/CredentialSetupModal';
 import Dashboard from './pages/Dashboard';
 import Flows from './pages/Flows';
+import OAuthFlowsNew from './pages/OAuthFlowsNew';
+import FlowComparisonTool from './components/FlowComparisonTool';
+import InteractiveFlowDiagram from './components/InteractiveFlowDiagram';
 import Configuration from './pages/Configuration';
 import Documentation from './pages/Documentation';
 import Login from './pages/Login';
@@ -24,8 +27,10 @@ import WorkerTokenFlow from './pages/flows/WorkerTokenFlow';
 import DeviceCodeFlow from './pages/flows/DeviceCodeFlow';
 import HybridFlow from './pages/flows/HybridFlow';
 import AuthorizationCodeFlow from './pages/flows/AuthorizationCodeFlow';
+import JWTBearerFlow from './pages/flows/JWTBearerFlow';
 import UserInfoFlow from './pages/flows/UserInfoFlow';
 import IDTokensFlow from './pages/flows/IDTokensFlow';
+import PARFlow from './pages/flows/PARFlow';
 import OIDC from './pages/OIDC';
 import TokenManagement from './pages/TokenManagement';
 import AIOpenIDConnectOverview from './pages/AIOpenIDConnectOverview';
@@ -33,9 +38,19 @@ import AdvancedConfiguration from './pages/AdvancedConfiguration';
 import InteractiveTutorials from './pages/InteractiveTutorials';
 import OAuth21 from './pages/OAuth21';
 import OIDCSessionManagement from './pages/OIDCSessionManagement';
+import OIDCSpecs from './pages/docs/OIDCSpecs';
+import OIDCForAI from './pages/docs/OIDCForAI';
 import AuthorizationRequestModal from './components/AuthorizationRequestModal';
 import PageChangeSpinner from './components/PageChangeSpinner';
 import DebugPanel from './components/DebugPanel';
+import AuthErrorBoundary from './components/AuthErrorBoundary';
+
+// Import callback components
+import AuthzCallback from './components/callbacks/AuthzCallback';
+import HybridCallback from './components/callbacks/HybridCallback';
+import ImplicitCallback from './components/callbacks/ImplicitCallback';
+import WorkerTokenCallback from './components/callbacks/WorkerTokenCallback';
+import DeviceCodeStatus from './components/callbacks/DeviceCodeStatus';
 
 const AppContainer = styled.div`
   display: flex;
@@ -177,16 +192,32 @@ const AppRoutes = () => {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/callback" element={<Callback />} />
+            
+            {/* Per-flow callback routes */}
+            <Route path="/authz-callback" element={<AuthzCallback />} />
+            <Route path="/hybrid-callback" element={<HybridCallback />} />
+            <Route path="/implicit-callback" element={<ImplicitCallback />} />
+            <Route path="/worker-token-callback" element={<WorkerTokenCallback />} />
+            <Route path="/device-code-status" element={<DeviceCodeStatus />} />
+            <Route path="/dashboard-callback" element={<Callback />} />
 
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
             <Route path="/dashboard" element={<Dashboard />} />
 
-            <Route path="/flows" element={<Flows />}>
+            <Route path="/flows" element={<OAuthFlowsNew />} />
+            <Route path="/flows/compare" element={<FlowComparisonTool />} />
+            <Route path="/flows/diagrams" element={<InteractiveFlowDiagram />} />
+            
+            <Route path="/flows-old" element={<Flows />}>
               <Route path="authorization-code" element={<AuthorizationCodeFlow />} />
               <Route path="implicit" element={<ImplicitGrantFlow />} />
               <Route path="client-credentials" element={<ClientCredentialsFlow />} />
               <Route path="worker-token" element={<WorkerTokenFlow />} />
+              <Route path="jwt-bearer" element={<JWTBearerFlow />} />
+              <Route path="userinfo" element={<UserInfoFlow />} />
+              <Route path="id-tokens" element={<IDTokensFlow />} />
+              <Route path="par" element={<PARFlow />} />
 
               <Route path="device-code" element={<DeviceCodeFlow />} />
             </Route>
@@ -199,6 +230,7 @@ const AppRoutes = () => {
               <Route path="implicit" element={<ImplicitGrantFlow />} />
               <Route path="client-credentials" element={<ClientCredentialsFlow />} />
               <Route path="worker-token" element={<WorkerTokenFlow />} />
+              <Route path="jwt-bearer" element={<JWTBearerFlow />} />
 
               <Route path="device-code" element={<DeviceCodeFlow />} />
             </Route>
@@ -208,6 +240,9 @@ const AppRoutes = () => {
             <Route path="/configuration" element={<Configuration />} />
 
             <Route path="/documentation" element={<Documentation />} />
+
+            <Route path="/docs/oidc-specs" element={<OIDCSpecs />} />
+            <Route path="/docs/oidc-for-ai" element={<OIDCForAI />} />
 
             <Route path="/token-management" element={<TokenManagement />} />
 
@@ -403,12 +438,14 @@ function App() {
 
   return (
     <ThemeProvider theme={themeWithDefaults}>
-      <AuthProvider>
-        <PageStyleProvider>
-          <GlobalStyle />
-          <AppRoutes />
-        </PageStyleProvider>
-      </AuthProvider>
+      <AuthErrorBoundary>
+        <AuthProvider>
+          <PageStyleProvider>
+            <GlobalStyle />
+            <AppRoutes />
+          </PageStyleProvider>
+        </AuthProvider>
+      </AuthErrorBoundary>
     </ThemeProvider>
   );
 }
