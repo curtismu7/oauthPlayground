@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FiCopy, FiCheck, FiEye, FiEyeOff } from 'react-icons/fi';
+import { useAccessibility } from '../hooks/useAccessibility';
 
 interface TokenDisplayProps {
   tokens: {
@@ -296,21 +297,26 @@ const InfoValue = styled.span`
 const TokenDisplay: React.FC<TokenDisplayProps> = ({ tokens }) => {
   const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({});
   const [maskedStates, setMaskedStates] = useState<Record<string, boolean>>({});
+  const { announceToScreenReader } = useAccessibility();
 
   const copyToClipboard = async (text: string, key: string) => {
     try {
       await navigator.clipboard.writeText(text);
       setCopiedStates(prev => ({ ...prev, [key]: true }));
+      announceToScreenReader(`${key} copied to clipboard`);
       setTimeout(() => {
         setCopiedStates(prev => ({ ...prev, [key]: false }));
       }, 2000);
     } catch (err) {
       console.error('Failed to copy text: ', err);
+      announceToScreenReader('Failed to copy to clipboard');
     }
   };
 
   const toggleMask = (key: string) => {
     setMaskedStates(prev => ({ ...prev, [key]: !prev[key] }));
+    const isMasked = maskedStates[key];
+    announceToScreenReader(`${key} ${isMasked ? 'unmasked' : 'masked'}`);
   };
 
   const maskToken = (token: string) => {
@@ -358,8 +364,9 @@ const TokenDisplay: React.FC<TokenDisplayProps> = ({ tokens }) => {
                 $variant="secondary"
                 onClick={() => toggleMask(key)}
                 title={isMasked ? 'Show full token' : 'Mask token'}
+                aria-label={isMasked ? `Show full ${key}` : `Mask ${key}`}
               >
-                {isMasked ? <FiEye /> : <FiEyeOff />}
+                {isMasked ? <FiEye aria-hidden="true" /> : <FiEyeOff aria-hidden="true" />}
                 {isMasked ? 'Show' : 'Mask'}
               </ActionButton>
             )}
@@ -367,8 +374,9 @@ const TokenDisplay: React.FC<TokenDisplayProps> = ({ tokens }) => {
               $variant="primary"
               onClick={() => copyToClipboard(String(value), key)}
               title="Copy to clipboard"
+              aria-label={`Copy ${key} to clipboard`}
             >
-              {isCopied ? <FiCheck /> : <FiCopy />}
+              {isCopied ? <FiCheck aria-hidden="true" /> : <FiCopy aria-hidden="true" />}
               {isCopied ? 'Copied!' : 'Copy'}
             </ActionButton>
           </TokenActions>
@@ -381,7 +389,7 @@ const TokenDisplay: React.FC<TokenDisplayProps> = ({ tokens }) => {
   };
 
   return (
-    <TokenContainer>
+    <TokenContainer role="region" aria-label="OAuth tokens display">
       <TokenHeaderMain>
         <h3>🔐 OAuth Tokens Received</h3>
         <p>Your authentication tokens are displayed below with enhanced security features</p>
