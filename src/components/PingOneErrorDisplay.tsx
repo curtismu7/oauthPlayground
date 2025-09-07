@@ -181,7 +181,7 @@ const CategoryBadge = styled.span<{ $category: string }>`
 `;
 
 interface PingOneErrorDisplayProps {
-  error: any;
+  error: unknown;
   onRetry?: () => void;
   onDismiss?: () => void;
 }
@@ -272,4 +272,5 @@ const PingOneErrorDisplay: React.FC<PingOneErrorDisplayProps> = ({
 };
 
 export default PingOneErrorDisplay;
+
 
