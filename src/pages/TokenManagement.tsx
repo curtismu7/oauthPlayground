@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/NewAuthContext';
 import { Card, CardHeader, CardBody } from '../components/Card';
-import { FiRefreshCw, FiCheckCircle, FiPlus, FiX, FiClock, FiKey, FiEye, FiTrash2, FiCopy } from 'react-icons/fi';
+import { FiRefreshCw, FiCheckCircle, FiPlus, FiX, FiClock, FiKey, FiEye, FiTrash2, FiCopy, FiShield, FiAlertTriangle, FiXCircle, FiInfo, FiDownload, FiSettings } from 'react-icons/fi';
 import styled from 'styled-components';
 import PageTitle from '../components/PageTitle';
 import { getOAuthTokens } from '../utils/tokenStorage';
 import { getTokenHistory, clearTokenHistory, removeTokenFromHistory, getFlowDisplayName, getFlowIcon, TokenHistoryEntry } from '../utils/tokenHistory';
+import { useTokenAnalysis } from '../hooks/useTokenAnalysis';
+import { useErrorDiagnosis } from '../hooks/useErrorDiagnosis';
+import JSONHighlighter from '../components/JSONHighlighter';
+import { TokenSurface } from '../components/TokenSurface';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -401,6 +405,219 @@ const HistoryButton = styled.button<{ $variant?: 'primary' | 'danger' }>`
   }
 `;
 
+// New styled components for enhanced features
+const AnalysisSection = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const SecurityScoreCard = styled.div<{ $score: number }>`
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background: ${({ $score }) => {
+    if ($score >= 80) return 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)';
+    if ($score >= 60) return 'linear-gradient(135deg, #fefce8 0%, #fef3c7 100%)';
+    if ($score >= 40) return 'linear-gradient(135deg, #fef2f2 0%, #fecaca 100%)';
+    return 'linear-gradient(135deg, #fef2f2 0%, #fca5a5 100%)';
+  }};
+  border: 1px solid ${({ $score }) => {
+    if ($score >= 80) return '#bbf7d0';
+    if ($score >= 60) return '#fde68a';
+    if ($score >= 40) return '#fecaca';
+    return '#fca5a5';
+  }};
+`;
+
+const ScoreCircle = styled.div<{ $score: number }>`
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: ${({ $score }) => {
+    if ($score >= 80) return '#16a34a';
+    if ($score >= 60) return '#d97706';
+    if ($score >= 40) return '#dc2626';
+    return '#991b1b';
+  }};
+  background: ${({ $score }) => {
+    if ($score >= 80) return '#dcfce7';
+    if ($score >= 60) return '#fef3c7';
+    if ($score >= 40) return '#fecaca';
+    return '#fca5a5';
+  }};
+  margin: 0 auto 1rem;
+`;
+
+const IssueList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+`;
+
+const IssueItem = styled.div<{ $severity: 'low' | 'medium' | 'high' | 'critical' }>`
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  border-left: 4px solid ${({ $severity }) => {
+    switch ($severity) {
+      case 'critical': return '#dc2626';
+      case 'high': return '#ea580c';
+      case 'medium': return '#d97706';
+      case 'low': return '#16a34a';
+      default: return '#6b7280';
+    }
+  }};
+  background-color: ${({ $severity }) => {
+    switch ($severity) {
+      case 'critical': return '#fef2f2';
+      case 'high': return '#fff7ed';
+      case 'medium': return '#fffbeb';
+      case 'low': return '#f0fdf4';
+      default: return '#f9fafb';
+    }
+  }};
+`;
+
+const RecommendationList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
+const RecommendationItem = styled.div`
+  padding: 0.75rem;
+  background-color: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+`;
+
+const ErrorDiagnosisCard = styled.div`
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+`;
+
+const ErrorInput = styled.textarea`
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-family: monospace;
+  font-size: 0.875rem;
+  resize: vertical;
+  min-height: 100px;
+  margin-bottom: 1rem;
+  background-color: #ffffff;
+  color: #1f2937;
+  
+  &:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+`;
+
+const FixList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+`;
+
+const FixItem = styled.div<{ $priority: 'low' | 'medium' | 'high' | 'critical' }>`
+  padding: 1rem;
+  border-radius: 0.375rem;
+  border: 1px solid ${({ $priority }) => {
+    switch ($priority) {
+      case 'critical': return '#dc2626';
+      case 'high': return '#ea580c';
+      case 'medium': return '#d97706';
+      case 'low': return '#16a34a';
+      default: return '#d1d5db';
+    }
+  }};
+  background-color: ${({ $priority }) => {
+    switch ($priority) {
+      case 'critical': return '#fef2f2';
+      case 'high': return '#fff7ed';
+      case 'medium': return '#fffbeb';
+      case 'low': return '#f0fdf4';
+      default: '#ffffff';
+    }
+  }};
+`;
+
+const TabContainer = styled.div`
+  display: flex;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 1.5rem;
+`;
+
+const Tab = styled.button<{ $active: boolean }>`
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  color: ${({ $active }) => $active ? '#3b82f6' : '#6b7280'};
+  border-bottom-color: ${({ $active }) => $active ? '#3b82f6' : 'transparent'};
+  
+  &:hover {
+    color: #3b82f6;
+  }
+`;
+
+const TabContent = styled.div<{ $active: boolean }>`
+  display: ${({ $active }) => $active ? 'block' : 'none'};
+`;
+
+const RefreshStatus = styled.div<{ $status: 'valid' | 'expiring' | 'expired' | 'unknown' }>`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background-color: ${({ $status }) => {
+    switch ($status) {
+      case 'valid': return '#f0fdf4';
+      case 'expiring': return '#fef3c7';
+      case 'expired': return '#fef2f2';
+      default: return '#f9fafb';
+    }
+  }};
+  color: ${({ $status }) => {
+    switch ($status) {
+      case 'valid': return '#16a34a';
+      case 'expiring': return '#d97706';
+      case 'expired': return '#dc2626';
+      default: return '#6b7280';
+    }
+  }};
+  border: 1px solid ${({ $status }) => {
+    switch ($status) {
+      case 'valid': return '#bbf7d0';
+      case 'expiring': return '#fde68a';
+      case 'expired': return '#fecaca';
+      default: return '#e5e7eb';
+    }
+  }};
+`;
+
 const TokenManagement = () => {
   const [tokenString, setTokenString] = useState('');
   const [jwtHeader, setJwtHeader] = useState('');
@@ -409,6 +626,42 @@ const TokenManagement = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [tokenSource, setTokenSource] = useState<Record<string, unknown> | null>(null);
   const [tokenHistory, setTokenHistory] = useState<TokenHistoryEntry[]>([]);
+  const [activeTab, setActiveTab] = useState<'analysis' | 'diagnosis'>('analysis');
+  const [errorInput, setErrorInput] = useState('');
+
+  // Token analysis hook
+  const {
+    analyzeToken,
+    currentAnalysis,
+    securityAnalysis,
+    refreshInfo,
+    getTokenExpirationStatus,
+    getTokenSecurityScore,
+    getTokenRecommendations,
+    getCriticalIssues,
+    getValidationErrors,
+    needsRefresh,
+    getTokenTypeInfo,
+    getTokenClaims,
+    isAnalyzing,
+    isValid,
+    riskScore,
+    hasIssues,
+    hasErrors,
+    canRefresh
+  } = useTokenAnalysis({ enabled: true, autoAnalyze: true });
+
+  // Error diagnosis hook
+  const {
+    diagnoseError,
+    currentDiagnosis,
+    getSuggestedFixes,
+    getErrorConfidence,
+    getErrorSeverity,
+    getErrorCategory,
+    isDiagnosing,
+    hasCurrentDiagnosis
+  } = useErrorDiagnosis({ enabled: true });
 
   // Mock token data for demonstration
   const mockTokenData = {
@@ -579,26 +832,6 @@ const TokenManagement = () => {
     }
   };
 
-  const handleRefreshToken = async () => {
-    setIsLoading(true);
-    try {
-      // Simulate token refresh
-      setTimeout(() => {
-        const newToken = mockTokenData.access_token.replace('1234567890', Date.now().toString().slice(-10));
-        setTokenString(newToken);
-        setTokenSource({
-          source: 'Token Refresh',
-          description: 'Token refreshed from mock API',
-          timestamp: new Date().toLocaleString()
-        });
-        decodeJWT(newToken);
-        setIsLoading(false);
-      }, 1000);
-    } catch (error) {
-      console.error('Error refreshing token:', error);
-      setIsLoading(false);
-    }
-  };
 
   const handleValidateToken = async () => {
     if (!tokenString) {
@@ -689,6 +922,62 @@ const TokenManagement = () => {
       setTimeout(() => decodeJWT(entry.tokens.access_token), 100);
     }
   };
+
+  // New functions for enhanced features
+  const handleAnalyzeToken = async () => {
+    if (!tokenString.trim()) return;
+    
+    try {
+      await analyzeToken(tokenString);
+    } catch (error) {
+      console.error('Token analysis failed:', error);
+    }
+  };
+
+  const handleDiagnoseError = async () => {
+    if (!errorInput.trim()) return;
+    
+    try {
+      await diagnoseError(errorInput);
+    } catch (error) {
+      console.error('Error diagnosis failed:', error);
+    }
+  };
+
+  const handleRefreshToken = async () => {
+    if (!canRefresh || !refreshInfo?.refreshToken) return;
+    
+    setIsLoading(true);
+    try {
+      // In a real implementation, this would call the refresh endpoint
+      console.log('Refreshing token...');
+      
+      // Simulate token refresh for now
+      setTimeout(() => {
+        const newToken = mockTokenData.access_token.replace('1234567890', Date.now().toString().slice(-10));
+        setTokenString(newToken);
+        setTokenSource({
+          source: 'Token Refresh',
+          description: 'Token refreshed from analysis system',
+          timestamp: new Date().toLocaleString()
+        });
+        decodeJWT(newToken);
+        setIsLoading(false);
+      }, 1000);
+      
+      // await refreshToken(tokenString, refreshInfo.refreshToken);
+    } catch (error) {
+      console.error('Token refresh failed:', error);
+      setIsLoading(false);
+    }
+  };
+
+  // Auto-analyze token when it changes
+  useEffect(() => {
+    if (tokenString.trim()) {
+      handleAnalyzeToken();
+    }
+  }, [tokenString]);
 
   return (
     <Container>
@@ -968,6 +1257,286 @@ const TokenManagement = () => {
         </CardBody>
       </TokenSection>
 
+      {/* Enhanced Token Analysis and Error Diagnosis Section */}
+      <TokenSection>
+        <CardHeader>
+          <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+            <FiShield />
+            Token Analysis & Error Diagnosis
+          </h3>
+        </CardHeader>
+        <CardBody>
+          <TabContainer>
+            <Tab $active={activeTab === 'analysis'} onClick={() => setActiveTab('analysis')}>
+              <FiShield style={{ marginRight: '0.5rem' }} />
+              Token Analysis
+            </Tab>
+            <Tab $active={activeTab === 'diagnosis'} onClick={() => setActiveTab('diagnosis')}>
+              <FiAlertTriangle style={{ marginRight: '0.5rem' }} />
+              Error Diagnosis
+            </Tab>
+          </TabContainer>
+
+          {/* Token Analysis Tab */}
+          <TabContent $active={activeTab === 'analysis'}>
+            {tokenString ? (
+              <div>
+                {/* Token Status and Refresh Info */}
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <RefreshStatus $status={getTokenExpirationStatus().status}>
+                    {getTokenExpirationStatus().status === 'valid' && <FiCheckCircle />}
+                    {getTokenExpirationStatus().status === 'expiring' && <FiClock />}
+                    {getTokenExpirationStatus().status === 'expired' && <FiXCircle />}
+                    {getTokenExpirationStatus().status === 'unknown' && <FiInfo />}
+                    {getTokenExpirationStatus().status === 'valid' && 'Token is valid'}
+                    {getTokenExpirationStatus().status === 'expiring' && 'Token expiring soon'}
+                    {getTokenExpirationStatus().status === 'expired' && 'Token has expired'}
+                    {getTokenExpirationStatus().status === 'unknown' && 'Token status unknown'}
+                    {getTokenExpirationStatus().timeRemaining > 0 && (
+                      <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}>
+                        ({Math.floor(getTokenExpirationStatus().timeRemaining / 1000 / 60)} minutes remaining)
+                      </span>
+                    )}
+                  </RefreshStatus>
+                  
+                  {canRefresh && (
+                    <div style={{ marginTop: '0.5rem' }}>
+                      <ActionButton 
+                        className="secondary" 
+                        onClick={handleRefreshToken}
+                        disabled={isAnalyzing}
+                      >
+                        <FiRefreshCw />
+                        Refresh Token
+                      </ActionButton>
+                    </div>
+                  )}
+                </div>
+
+                {/* Analysis Results */}
+                {currentAnalysis && (
+                  <AnalysisSection>
+                    {/* Security Score */}
+                    <SecurityScoreCard $score={getTokenSecurityScore().overall}>
+                      <h4 style={{ margin: '0 0 1rem 0', textAlign: 'center' }}>Security Score</h4>
+                      <ScoreCircle $score={getTokenSecurityScore().overall}>
+                        {getTokenSecurityScore().overall}
+                      </ScoreCircle>
+                      <div style={{ textAlign: 'center', fontSize: '0.875rem', color: '#6b7280' }}>
+                        {getTokenSecurityScore().overall >= 80 && 'Excellent'}
+                        {getTokenSecurityScore().overall >= 60 && getTokenSecurityScore().overall < 80 && 'Good'}
+                        {getTokenSecurityScore().overall >= 40 && getTokenSecurityScore().overall < 60 && 'Fair'}
+                        {getTokenSecurityScore().overall < 40 && 'Poor'}
+                      </div>
+                    </SecurityScoreCard>
+
+                    {/* Token Information */}
+                    <div>
+                      <h4 style={{ margin: '0 0 1rem 0' }}>Token Information</h4>
+                      <div style={{ display: 'grid', gap: '0.5rem' }}>
+                        <div><strong>Type:</strong> {getTokenTypeInfo().type}</div>
+                        <div><strong>Format:</strong> {getTokenTypeInfo().format}</div>
+                        {getTokenTypeInfo().issuer && <div><strong>Issuer:</strong> {getTokenTypeInfo().issuer}</div>}
+                        {getTokenTypeInfo().subject && <div><strong>Subject:</strong> {getTokenTypeInfo().subject}</div>}
+                        {getTokenTypeInfo().scopes && (
+                          <div><strong>Scopes:</strong> {getTokenTypeInfo().scopes?.join(', ')}</div>
+                        )}
+                      </div>
+                    </div>
+                  </AnalysisSection>
+                )}
+
+                {/* Security Issues */}
+                {hasIssues && (
+                  <div style={{ marginBottom: '1.5rem' }}>
+                    <h4 style={{ margin: '0 0 1rem 0', color: '#dc2626' }}>
+                      <FiAlertTriangle style={{ marginRight: '0.5rem' }} />
+                      Security Issues ({getCriticalIssues().length})
+                    </h4>
+                    <IssueList>
+                      {getCriticalIssues().map((issue, index) => (
+                        <IssueItem key={index} $severity={issue.severity}>
+                          <div style={{ fontWeight: '500', marginBottom: '0.25rem' }}>
+                            {issue.type.replace(/_/g, ' ').toUpperCase()}
+                          </div>
+                          <div style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
+                            {issue.description}
+                          </div>
+                          <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                            <strong>Recommendation:</strong> {issue.recommendation}
+                          </div>
+                        </IssueItem>
+                      ))}
+                    </IssueList>
+                  </div>
+                )}
+
+                {/* Validation Errors */}
+                {hasErrors && (
+                  <div style={{ marginBottom: '1.5rem' }}>
+                    <h4 style={{ margin: '0 0 1rem 0', color: '#dc2626' }}>
+                      <FiXCircle style={{ marginRight: '0.5rem' }} />
+                      Validation Errors ({getValidationErrors().length})
+                    </h4>
+                    <IssueList>
+                      {getValidationErrors().map((error, index) => (
+                        <IssueItem key={index} $severity={error.severity}>
+                          <div style={{ fontWeight: '500', marginBottom: '0.25rem' }}>
+                            {error.field}
+                          </div>
+                          <div style={{ fontSize: '0.875rem' }}>
+                            {error.error}
+                          </div>
+                        </IssueItem>
+                      ))}
+                    </IssueList>
+                  </div>
+                )}
+
+                {/* Recommendations */}
+                {getTokenRecommendations().length > 0 && (
+                  <div style={{ marginBottom: '1.5rem' }}>
+                    <h4 style={{ margin: '0 0 1rem 0', color: '#3b82f6' }}>
+                      <FiInfo style={{ marginRight: '0.5rem' }} />
+                      Recommendations
+                    </h4>
+                    <RecommendationList>
+                      {getTokenRecommendations().map((recommendation, index) => (
+                        <RecommendationItem key={index}>
+                          {recommendation}
+                        </RecommendationItem>
+                      ))}
+                    </RecommendationList>
+                  </div>
+                )}
+
+                {/* Token Claims */}
+                {Object.keys(getTokenClaims()).length > 0 && (
+                  <div>
+                    <h4 style={{ margin: '0 0 1rem 0' }}>Token Claims</h4>
+                    <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '0.5rem', padding: '1rem' }}>
+                      <JSONHighlighter data={getTokenClaims()} />
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
+                <FiKey size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
+                <p>Enter a token above to see detailed analysis</p>
+              </div>
+            )}
+          </TabContent>
+
+          {/* Error Diagnosis Tab */}
+          <TabContent $active={activeTab === 'diagnosis'}>
+            <div>
+              <h4 style={{ margin: '0 0 1rem 0' }}>Error Diagnosis</h4>
+              <p style={{ marginBottom: '1rem', color: '#6b7280', fontSize: '0.875rem' }}>
+                Paste an error message below to get automated diagnosis and suggested fixes.
+              </p>
+              
+              <ErrorInput
+                placeholder="Paste error message here..."
+                value={errorInput}
+                onChange={(e) => setErrorInput(e.target.value)}
+              />
+              
+              <ButtonGroup>
+                <ActionButton 
+                  className="primary" 
+                  onClick={handleDiagnoseError}
+                  disabled={!errorInput.trim() || isDiagnosing}
+                >
+                  {isDiagnosing ? <FiRefreshCw className="animate-spin" /> : <FiAlertTriangle />}
+                  {isDiagnosing ? 'Diagnosing...' : 'Diagnose Error'}
+                </ActionButton>
+                <ActionButton 
+                  className="secondary" 
+                  onClick={() => setErrorInput('')}
+                >
+                  <FiX />
+                  Clear
+                </ActionButton>
+              </ButtonGroup>
+
+              {/* Diagnosis Results */}
+              {hasCurrentDiagnosis && currentDiagnosis && (
+                <div style={{ marginTop: '1.5rem' }}>
+                  <div style={{ 
+                    padding: '1rem', 
+                    borderRadius: '0.5rem', 
+                    backgroundColor: '#f0f9ff', 
+                    border: '1px solid #bae6fd',
+                    marginBottom: '1rem'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                      <FiCheckCircle style={{ color: '#3b82f6' }} />
+                      <strong>Diagnosis Complete</strong>
+                    </div>
+                    <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                      <div><strong>Confidence:</strong> {getErrorConfidence()}%</div>
+                      <div><strong>Severity:</strong> {getErrorSeverity()}</div>
+                      <div><strong>Category:</strong> {getErrorCategory()}</div>
+                    </div>
+                  </div>
+
+                  {/* Suggested Fixes */}
+                  {getSuggestedFixes().length > 0 && (
+                    <div>
+                      <h4 style={{ margin: '0 0 1rem 0' }}>Suggested Fixes</h4>
+                      <FixList>
+                        {getSuggestedFixes().map((fix, index) => (
+                          <FixItem key={index} $priority={fix.priority}>
+                            <div style={{ fontWeight: '500', marginBottom: '0.5rem' }}>
+                              {fix.title}
+                            </div>
+                            <div style={{ fontSize: '0.875rem', marginBottom: '0.75rem' }}>
+                              {fix.description}
+                            </div>
+                            <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.5rem' }}>
+                              <strong>Priority:</strong> {fix.priority} | 
+                              <strong> Time:</strong> {fix.estimatedTime} | 
+                              <strong> Success Rate:</strong> {fix.successRate}%
+                            </div>
+                            {fix.steps.length > 0 && (
+                              <div>
+                                <strong style={{ fontSize: '0.75rem' }}>Steps:</strong>
+                                <ol style={{ fontSize: '0.75rem', marginTop: '0.25rem', paddingLeft: '1.25rem' }}>
+                                  {fix.steps.map((step, stepIndex) => (
+                                    <li key={stepIndex} style={{ marginBottom: '0.25rem' }}>
+                                      {step}
+                                    </li>
+                                  ))}
+                                </ol>
+                              </div>
+                            )}
+                            {fix.codeExample && (
+                              <div style={{ marginTop: '0.75rem' }}>
+                                <strong style={{ fontSize: '0.75rem' }}>Code Example:</strong>
+                                <pre style={{ 
+                                  fontSize: '0.75rem', 
+                                  background: '#f3f4f6', 
+                                  padding: '0.5rem', 
+                                  borderRadius: '0.25rem',
+                                  marginTop: '0.25rem',
+                                  overflow: 'auto'
+                                }}>
+                                  {fix.codeExample}
+                                </pre>
+                              </div>
+                            )}
+                          </FixItem>
+                        ))}
+                      </FixList>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </TabContent>
+        </CardBody>
+      </TokenSection>
 
     </Container>
   );

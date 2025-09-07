@@ -4,7 +4,7 @@ import type { OAuthTokens, UserInfo, OAuthTokenResponse } from '../types/storage
 import { AuthContextType, AuthState, LoginResult } from '../types/auth';
 import { logger } from '../utils/logger';
 import { PingOneErrorInterpreter } from '../utils/pingoneErrorInterpreter';
-import { config } from '../services/config';
+import config from '../services/config';
 
 // Define window interface for PingOne environment variables
 interface WindowWithPingOne extends Window {
