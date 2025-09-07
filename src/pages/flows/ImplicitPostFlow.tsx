@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
+import { SpecCard } from '../../components/SpecCard';
 import FlowCredentials from '../../components/FlowCredentials';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 import { logger } from '../../utils/logger';
@@ -411,11 +412,13 @@ console.log('Tokens stored successfully:', tokens);`,
 
       <WarningContainer>
         <h4>⚠️ Security Warning</h4>
-        <p>
-          The Implicit flow is less secure than the Authorization Code flow because tokens are 
-          exposed in the URL. It's recommended to use Authorization Code flow with PKCE for 
-          better security, especially for new applications.
-        </p>
+        <SpecCard>
+          <p>
+            The Implicit flow is less secure than the Authorization Code flow because tokens are 
+            exposed in the URL. It's recommended to use Authorization Code flow with PKCE for 
+            better security, especially for new applications.
+          </p>
+        </SpecCard>
       </WarningContainer>
 
       <FlowCredentials

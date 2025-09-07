@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { 
   FiHome, FiCode, FiUser, FiSettings, 
-  FiChevronDown, FiBookOpen, FiEye, FiShield, FiUsers, FiDatabase, FiTool
+  FiChevronDown, FiBookOpen, FiEye, FiShield, FiUsers, FiDatabase, FiTool, FiCpu
 } from 'react-icons/fi';
 
 interface SidebarContainerProps {
@@ -138,26 +138,69 @@ const NavItemHeader = styled.div<NavItemHeaderProps>`
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const location = useLocation();
-  const [openMenus, setOpenMenus] = useState({
-    oidc: false,  // Default to collapsed
-    resources: false, // Default to collapsed
+  // Load persisted menu state from localStorage
+  const [openMenus, setOpenMenus] = useState(() => {
+    try {
+      const saved = localStorage.getItem('nav.openSections');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return {
+          oidc: parsed.oidc ?? true,  // Default to expanded
+          resources: parsed.resources ?? true, // Default to expanded
+          docs: parsed.docs ?? false, // Default to collapsed
+        };
+      }
+    } catch (error) {
+      console.warn('Failed to load navigation state from localStorage:', error);
+    }
+    return {
+      oidc: true,  // Default to expanded
+      resources: true, // Default to expanded
+      docs: false, // Default to collapsed
+    };
   });
 
-  // Auto-open menu based on current route
+  // Auto-open menu based on current route and persist state
   useEffect(() => {
     const path = location.pathname;
-    setOpenMenus({
-      oidc: path.startsWith('/oidc'),
-      resources: path.startsWith('/oidc/userinfo') || path.startsWith('/oidc/tokens') || 
-                 path.startsWith('/token-management') || path.startsWith('/documentation'),
+    setOpenMenus(prev => {
+      const newState = {
+        ...prev,
+        // Auto-expand if current route matches
+        oidc: path.startsWith('/oidc') || prev.oidc,
+        resources: (path.startsWith('/oidc/userinfo') || path.startsWith('/oidc/tokens') || 
+                   path.startsWith('/token-management') || path.startsWith('/documentation')) || prev.resources,
+        docs: path.startsWith('/docs') || prev.docs,
+      };
+      
+      // Persist to localStorage
+      try {
+        localStorage.setItem('nav.openSections', JSON.stringify(newState));
+      } catch (error) {
+        console.warn('Failed to save navigation state to localStorage:', error);
+      }
+      
+      return newState;
     });
   }, [location.pathname]);
 
-  const toggleMenu = (menu: 'oidc' | 'resources') => {
-    setOpenMenus(prev => ({
-      ...prev,
-      [menu]: !prev[menu]
-    }));
+  const toggleMenu = (menu: 'oidc' | 'resources' | 'docs') => {
+    setOpenMenus(prev => {
+      const newState = {
+        ...prev,
+        [menu]: !prev[menu]
+      };
+      
+      // Persist to localStorage
+      try {
+        localStorage.setItem('nav.openSections', JSON.stringify(newState));
+        console.log(`[📂 MENU] ${menu} toggled to ${newState[menu] ? 'expanded' : 'collapsed'}`);
+      } catch (error) {
+        console.warn('Failed to save navigation state to localStorage:', error);
+      }
+      
+      return newState;
+    });
   };
 
   return (
@@ -214,6 +257,29 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </Submenu>
         </NavItemWithSubmenu>
         
+
+        <NavItemWithSubmenu>
+          <NavItemHeader 
+            onClick={() => toggleMenu('docs')}
+            $isOpen={openMenus.docs}
+          >
+            <div>
+              <FiBookOpen />
+              <span>Docs</span>
+            </div>
+            <FiChevronDown />
+          </NavItemHeader>
+          
+          <Submenu $isOpen={openMenus.docs}>
+            <SubmenuItem to="/docs/oidc-specs" onClick={onClose}>
+              OIDC Specs
+            </SubmenuItem>
+            <SubmenuItem to="/docs/oidc-for-ai" onClick={onClose}>
+              OIDC for AI
+            </SubmenuItem>
+          </Submenu>
+        </NavItemWithSubmenu>
+
         <NavItemWithSubmenu>
           <NavItemHeader 
             onClick={() => toggleMenu('resources')}
@@ -229,9 +295,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           <Submenu $isOpen={openMenus.resources}>
             <SubmenuItem to="/token-management" onClick={onClose}>
               Token Management
-            </SubmenuItem>
-            <SubmenuItem to="/flows/device-code" onClick={onClose}>
-              Device Code Flow
             </SubmenuItem>
             <SubmenuItem to="/flows/par" onClick={onClose}>
               Pushed Authorization

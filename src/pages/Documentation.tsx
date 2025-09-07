@@ -237,6 +237,33 @@ const Documentation = () => {
         </QuickStartButton>
       </QuickStartBanner>
 
+      <Section>
+        <h2><FiBookOpen /> Documentation Overview</h2>
+        <p>
+          This documentation provides comprehensive guidance for implementing OAuth 2.0 and OpenID Connect with PingOne. 
+          Whether you're a beginner or an experienced developer, you'll find the resources you need to build secure, 
+          standards-compliant authentication systems.
+        </p>
+        
+        <div style={{ 
+          background: '#f8fafc', 
+          border: '1px solid #e2e8f0', 
+          borderRadius: '0.5rem', 
+          padding: '1.5rem', 
+          marginTop: '1rem' 
+        }}>
+          <h3 style={{ marginTop: 0, color: '#1f2937' }}>What You'll Learn:</h3>
+          <ul style={{ marginBottom: 0, color: '#4b5563' }}>
+            <li><strong>OAuth 2.0 Fundamentals:</strong> Understanding roles, tokens, and grant types</li>
+            <li><strong>OpenID Connect:</strong> Authentication layer built on OAuth 2.0</li>
+            <li><strong>Security Best Practices:</strong> Protecting against common vulnerabilities</li>
+            <li><strong>PingOne Integration:</strong> Step-by-step setup and configuration</li>
+            <li><strong>Flow Implementation:</strong> Hands-on examples for each OAuth flow</li>
+            <li><strong>Troubleshooting:</strong> Common issues and their solutions</li>
+          </ul>
+        </div>
+      </Section>
+
       <FeatureHighlight>
         <FeatureCard>
           <div className="icon tutorials">
@@ -347,8 +374,22 @@ const Documentation = () => {
         <h2><FiLock /> Security Best Practices</h2>
         <p>
           Implementing OAuth 2.0 and OpenID Connect securely requires following best practices to protect
-          against common vulnerabilities.
+          against common vulnerabilities. This section covers essential security measures that every developer
+          should implement when working with OAuth 2.0 and OpenID Connect.
         </p>
+        
+        <div style={{ 
+          background: '#fef2f2', 
+          border: '1px solid #fecaca', 
+          borderRadius: '0.5rem', 
+          padding: '1rem', 
+          marginBottom: '1.5rem' 
+        }}>
+          <p style={{ margin: 0, color: '#dc2626', fontWeight: '500' }}>
+            <strong>⚠️ Security Warning:</strong> OAuth 2.0 and OpenID Connect handle sensitive authentication data. 
+            Always follow these security guidelines to protect your users and applications.
+          </p>
+        </div>
         
         <div style={{ marginTop: '1.5rem' }}>
           <h3>Always Use HTTPS</h3>
@@ -392,6 +433,23 @@ const validateIdToken = (idToken, clientId, issuer) => {
       
       <Section>
         <h2><FiHelpCircle /> Common Issues & Troubleshooting</h2>
+        <p>
+          This section covers the most common issues developers encounter when implementing OAuth 2.0 and OpenID Connect,
+          along with practical solutions and debugging tips to help you resolve them quickly.
+        </p>
+        
+        <div style={{ 
+          background: '#f0f9ff', 
+          border: '1px solid #bae6fd', 
+          borderRadius: '0.5rem', 
+          padding: '1rem', 
+          marginBottom: '1.5rem' 
+        }}>
+          <p style={{ margin: 0, color: '#0369a1', fontWeight: '500' }}>
+            <strong>💡 Pro Tip:</strong> Most OAuth 2.0 errors are related to configuration issues. Double-check your 
+            client settings, redirect URIs, and scopes before diving into complex debugging.
+          </p>
+        </div>
         
         <div style={{ marginTop: '1.5rem' }}>
           <h3>Invalid Redirect URI</h3>
