@@ -4,8 +4,10 @@
  */
 
 import { oauthStorage } from './storage';
+import { secureTokenStorage } from './secureTokenStorage';
 import { addTokenToHistory } from './tokenHistory';
 import { tokenLifecycleManager } from './tokenLifecycle';
+import { logger } from './logger';
 
 export interface OAuthTokens {
   access_token: string;
@@ -26,7 +28,7 @@ export interface OAuthTokens {
  */
 export const storeOAuthTokens = (tokens: OAuthTokens, flowType?: string, flowName?: string): boolean => {
   try {
-    console.log('🔍 [TokenStorage] storeOAuthTokens called with:', { tokens: tokens.access_token ? 'HAS_ACCESS_TOKEN' : 'NO_ACCESS_TOKEN', flowType, flowName });
+    logger.debug('TokenStorage', 'storeOAuthTokens called', { tokens: tokens.access_token ? 'HAS_ACCESS_TOKEN' : 'NO_ACCESS_TOKEN', flowType, flowName });
     
     // Add timestamp if not present
     const tokensWithTimestamp = {
@@ -34,34 +36,34 @@ export const storeOAuthTokens = (tokens: OAuthTokens, flowType?: string, flowNam
       timestamp: tokens.timestamp || Date.now()
     };
     
-    // Store using oauthStorage (which handles proper key prefixing)
-    const success = oauthStorage.setTokens(tokensWithTimestamp);
+    // Store using secure storage (encrypted sessionStorage)
+    const success = secureTokenStorage.storeTokens(tokensWithTimestamp);
     
     if (success) {
-      console.log('✅ [TokenStorage] Tokens stored successfully using oauthStorage');
+      logger.success('TokenStorage', 'Tokens stored securely using secureTokenStorage');
       
       // Add to token history if flow information is provided
       if (flowType && flowName) {
-        console.log('📝 [TokenStorage] Adding tokens to history for flow:', flowType, flowName);
+        logger.info('TokenStorage', 'Adding tokens to history for flow', { flowType, flowName });
         addTokenToHistory(flowType, flowName, tokensWithTimestamp);
         
         // Register token in lifecycle management system
         try {
           const tokenId = tokenLifecycleManager.registerToken(tokensWithTimestamp, flowType, flowName);
-          console.log('🔄 [TokenStorage] Token registered in lifecycle system:', tokenId);
+          logger.flow('TokenStorage', 'Token registered in lifecycle system', { tokenId });
         } catch (error) {
-          console.warn('⚠️ [TokenStorage] Failed to register token in lifecycle system:', error);
+          logger.warn('TokenStorage', 'Failed to register token in lifecycle system', undefined, error);
         }
       } else {
-        console.warn('⚠️ [TokenStorage] No flow information provided, tokens not added to history or lifecycle system');
+        logger.warn('TokenStorage', 'No flow information provided, tokens not added to history or lifecycle system');
       }
     } else {
-      console.error('❌ [TokenStorage] Failed to store tokens using oauthStorage');
+      logger.error('TokenStorage', 'Failed to store tokens using secureTokenStorage');
     }
     
     return success;
   } catch (error) {
-    console.error('❌ [TokenStorage] Error storing tokens:', error);
+    logger.error('TokenStorage', 'Error storing tokens', undefined, error);
     return false;
   }
 };
@@ -72,17 +74,17 @@ export const storeOAuthTokens = (tokens: OAuthTokens, flowType?: string, flowNam
  */
 export const getOAuthTokens = (): OAuthTokens | null => {
   try {
-    const tokens = oauthStorage.getTokens();
+    const tokens = secureTokenStorage.getTokens();
     
     if (tokens) {
-      console.log('✅ [TokenStorage] Tokens retrieved successfully from oauthStorage');
+      logger.success('TokenStorage', 'Tokens retrieved successfully from secureTokenStorage');
       return tokens;
     } else {
-      console.log('ℹ️ [TokenStorage] No tokens found in oauthStorage');
+      logger.info('TokenStorage', 'No tokens found in secureTokenStorage');
       return null;
     }
   } catch (error) {
-    console.error('❌ [TokenStorage] Error retrieving tokens:', error);
+    logger.error('TokenStorage', 'Error retrieving tokens', undefined, error);
     return null;
   }
 };
@@ -93,17 +95,17 @@ export const getOAuthTokens = (): OAuthTokens | null => {
  */
 export const clearOAuthTokens = (): boolean => {
   try {
-    const success = oauthStorage.clearTokens();
+    const success = secureTokenStorage.clearTokens();
     
     if (success) {
-      console.log('✅ [TokenStorage] Tokens cleared successfully from oauthStorage');
+      logger.success('TokenStorage', 'Tokens cleared successfully from secureTokenStorage');
     } else {
-      console.error('❌ [TokenStorage] Failed to clear tokens from oauthStorage');
+      logger.error('TokenStorage', 'Failed to clear tokens from secureTokenStorage');
     }
     
     return success;
   } catch (error) {
-    console.error('❌ [TokenStorage] Error clearing tokens:', error);
+    logger.error('TokenStorage', 'Error clearing tokens', undefined, error);
     return false;
   }
 };
@@ -114,27 +116,9 @@ export const clearOAuthTokens = (): boolean => {
  */
 export const hasValidOAuthTokens = (): boolean => {
   try {
-    const tokens = getOAuthTokens();
-    
-    if (!tokens || !tokens.access_token) {
-      return false;
-    }
-    
-    // Check if token is expired (if timestamp and expires_in are available)
-    if (tokens.timestamp && tokens.expires_in) {
-      const now = Date.now();
-      const expiresAt = tokens.timestamp + (tokens.expires_in * 1000);
-      
-      if (now >= expiresAt) {
-        console.log('ℹ️ [TokenStorage] Tokens found but expired');
-        return false;
-      }
-    }
-    
-    console.log('✅ [TokenStorage] Valid tokens found');
-    return true;
+    return secureTokenStorage.hasValidTokens();
   } catch (error) {
-    console.error('❌ [TokenStorage] Error checking token validity:', error);
+    logger.error('TokenStorage', 'Error checking token validity', undefined, error);
     return false;
   }
 };
@@ -145,30 +129,9 @@ export const hasValidOAuthTokens = (): boolean => {
  */
 export const getTokenExpirationStatus = () => {
   try {
-    const tokens = getOAuthTokens();
-    
-    if (!tokens || !tokens.timestamp || !tokens.expires_in) {
-      return {
-        hasTokens: false,
-        isExpired: false,
-        expiresAt: null,
-        timeRemaining: null
-      };
-    }
-    
-    const now = Date.now();
-    const expiresAt = tokens.timestamp + (tokens.expires_in * 1000);
-    const timeRemaining = expiresAt - now;
-    const isExpired = timeRemaining <= 0;
-    
-    return {
-      hasTokens: true,
-      isExpired,
-      expiresAt: new Date(expiresAt),
-      timeRemaining: isExpired ? 0 : timeRemaining
-    };
+    return secureTokenStorage.getTokenExpirationStatus();
   } catch (error) {
-    console.error('❌ [TokenStorage] Error getting token expiration status:', error);
+    logger.error('TokenStorage', 'Error getting token expiration status', undefined, error);
     return {
       hasTokens: false,
       isExpired: false,

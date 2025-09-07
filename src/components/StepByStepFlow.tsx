@@ -284,9 +284,9 @@ const StatusIndicator = styled.div<{ $status: 'idle' | 'loading' | 'success' | '
 export interface FlowStep {
   title: string;
   description: string;
-  code?: string;
+  code?: string | React.ReactNode;
   execute?: () => Promise<void> | void;
-  result?: any; // Store the result of step execution
+  result?: unknown; // Store the result of step execution
 }
 
 interface StepByStepFlowProps {
@@ -296,7 +296,7 @@ interface StepByStepFlowProps {
   status: 'idle' | 'loading' | 'success' | 'error';
   currentStep: number;
   onStepChange: (step: number) => void;
-  onStepResult?: (stepIndex: number, result: any) => void;
+  onStepResult?: (stepIndex: number, result: unknown) => void;
   disabled?: boolean;
   title: string;
   configurationButton?: React.ReactNode;

@@ -9,7 +9,7 @@ export interface JWTPayload {
   nbf?: number; // Not before
   iat?: number; // Issued at
   jti?: string; // JWT ID
-  [key: string]: any; // Additional claims
+  [key: string]: unknown; // Additional claims
 }
 
 export interface LoginHintTokenPayload extends JWTPayload {
@@ -33,8 +33,8 @@ export interface RequestObjectPayload extends JWTPayload {
   max_age?: number;
   ui_locales?: string;
   claims?: {
-    userinfo?: Record<string, any>;
-    id_token?: Record<string, any>;
+    userinfo?: Record<string, unknown>;
+    id_token?: Record<string, unknown>;
   };
 }
 
@@ -110,8 +110,8 @@ class JWTGenerator {
       maxAge?: number;
       uiLocales?: string;
       claims?: {
-        userinfo?: Record<string, any>;
-        id_token?: Record<string, any>;
+        userinfo?: Record<string, unknown>;
+        id_token?: Record<string, unknown>;
       };
       expiryMinutes?: number;
     } = {}
@@ -234,7 +234,7 @@ class JWTGenerator {
    */
   validateJWT(token: string, secret?: string): {
     valid: boolean;
-    payload?: any;
+    payload?: JWTPayload;
     error?: string;
   } {
     try {
@@ -302,7 +302,7 @@ class JWTGenerator {
   /**
    * Sign JWT with HMAC algorithm
    */
-  private signJWT(payload: any, algorithm: string, secret?: string): string {
+  private signJWT(payload: JWTPayload, algorithm: string, secret?: string): string {
     // In a real implementation, you would use a proper JWT library like jsonwebtoken
     // For this demo, we'll create a mock JWT structure
     const header = {
@@ -324,7 +324,7 @@ class JWTGenerator {
   /**
    * Sign JWT with private key (RSA)
    */
-  private signJWTWithPrivateKey(payload: any, header: any, privateKey: string): string {
+  private signJWTWithPrivateKey(payload: JWTPayload, header: Record<string, unknown>, privateKey: string): string {
     // In a real implementation, you would use a proper JWT library with RSA signing
     // For this demo, we'll create a mock JWT structure
     const encodedHeader = this.base64UrlEncode(JSON.stringify(header));

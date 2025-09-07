@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { oauthStorage } from '../utils/storage';
-import { pingOneConfig } from '../config/pingone';
+import { config } from '../services/config';
 import PingOneSessionManager from '../utils/pingoneSession';
 
 // Extend the OAuthTokens interface to include session info
@@ -32,7 +32,7 @@ interface AuthState {
   tokens: OAuthTokens | null;
   isLoading: boolean;
   error: string | null;
-  sessionInfo?: any;
+  sessionInfo?: Record<string, unknown>;
   sessionRemainingTime?: number;
 }
 
@@ -42,7 +42,7 @@ interface AuthContextType extends AuthState {
   handleCallback: (callbackUrl: string) => Promise<void>;
   setAuthState: (updates: Partial<AuthState>) => void;
   refreshSession: () => Promise<boolean>;
-  getSessionInfo: () => Promise<any>;
+  getSessionInfo: () => Promise<Record<string, unknown>>;
   configureSession: (lifetimeMinutes: number, idleTimeoutMinutes?: number) => Promise<boolean>;
 }
 
@@ -57,14 +57,14 @@ let sessionManager: PingOneSessionManager;
 
 // Helper to get runtime config
 const getRuntimeConfig = () => ({
-  clientId: process.env.REACT_APP_CLIENT_ID || pingOneConfig.clientId,
-  clientSecret: process.env.REACT_APP_CLIENT_SECRET || pingOneConfig.clientSecret,
-  authBaseUrl: pingOneConfig.authBaseUrl,
-  tokenEndpoint: `${pingOneConfig.authBaseUrl}/${pingOneConfig.envId}/as/token`,
-  userInfoEndpoint: `${pingOneConfig.authBaseUrl}/${pingOneConfig.envId}/userinfo`,
-  redirectUri: window.location.origin + '/callback',
-  envId: pingOneConfig.envId,
-  domain: pingOneConfig.domain,
+  clientId: process.env.REACT_APP_CLIENT_ID || config.pingone.clientId,
+  clientSecret: process.env.REACT_APP_CLIENT_SECRET || '',
+  authBaseUrl: config.pingone.apiUrl,
+  tokenEndpoint: config.pingone.tokenEndpoint,
+  userInfoEndpoint: config.pingone.userInfoEndpoint,
+  redirectUri: config.pingone.redirectUri,
+  envId: config.pingone.environmentId,
+  domain: config.pingone.apiUrl,
 });
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
@@ -422,7 +422,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Get current session info
-  const getSessionInfo = async (): Promise<any> => {
+  const getSessionInfo = async (): Promise<Record<string, unknown>> => {
     try {
       if (!state.tokens?.access_token) {
         throw new Error('No active session');

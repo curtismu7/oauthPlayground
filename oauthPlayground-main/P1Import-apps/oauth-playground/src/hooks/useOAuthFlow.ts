@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { generateRandomString, sha256 } from '../utils/crypto';
 
 const useOAuthFlow = (flowType = 'authorization_code') => {
-  const { user, isAuthenticated } = useAuth();
+  const { } = useAuth();
   const [state, setState] = useState({
     isAuthenticated: false,
     isLoading: false,

@@ -4,6 +4,7 @@ import { StepByStepFlow } from '../../components/StepByStepFlow';
 import FlowCredentials from '../../components/FlowCredentials';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 import { logger } from '../../utils/logger';
+import JSONHighlighter from '../../components/JSONHighlighter';
 import { PARService, PARRequest, PARAuthMethod } from '../../services/parService';
 
 const FlowContainer = styled.div`
@@ -245,7 +246,7 @@ const ImplicitRequestURIFlow: React.FC<ImplicitRequestURIFlowProps> = ({ credent
     claims: '{"userinfo": {"email": null, "phone_number": null}}',
     requestUri: ''
   });
-  const [response, setResponse] = useState<any>(null);
+  const [response, setResponse] = useState<Record<string, unknown> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [requestUri, setRequestUri] = useState<string>('');
 
@@ -489,7 +490,7 @@ console.log('Implicit tokens stored:', tokens);`,
     setError(null);
   }, []);
 
-  const handleStepResult = useCallback((step: number, result: any) => {
+  const handleStepResult = useCallback((step: number, result: unknown) => {
     logger.info('ImplicitRequestURIFlow', `Step ${step + 1} completed`, result);
   }, []);
 
@@ -594,7 +595,9 @@ console.log('Implicit tokens stored:', tokens);`,
       {response && (
         <ResponseContainer>
           <h4>Response:</h4>
-          <CodeBlock>{JSON.stringify(response, null, 2)}</CodeBlock>
+          <CodeBlock>
+            <JSONHighlighter data={response} />
+          </CodeBlock>
         </ResponseContainer>
       )}
 

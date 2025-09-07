@@ -480,7 +480,7 @@ class SecurityAuditor {
       if (!stored) return [];
       
       const reports = JSON.parse(stored);
-      return reports.map((report: any) => ({
+      return reports.map((report: Record<string, unknown>) => ({
         ...report,
         timestamp: new Date(report.timestamp)
       }));

@@ -179,7 +179,7 @@ const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
     setCompletedSteps(new Set());
   };
 
-  const getStepActionButton = (step: any) => {
+  const getStepActionButton = (step: unknown) => {
     if (!step.action) return undefined;
 
     const icons = {

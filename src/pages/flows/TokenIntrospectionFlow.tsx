@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
 import FlowCredentials from '../../components/FlowCredentials';
 import { logger } from '../../utils/logger';
+import JSONHighlighter from '../../components/JSONHighlighter';
 import { 
   TokenManagementService, 
   TokenAuthMethod, 
@@ -270,7 +271,7 @@ const TokenIntrospectionFlow: React.FC<TokenIntrospectionFlowProps> = ({ credent
     keyId: '',
     jwksUri: ''
   });
-  const [response, setResponse] = useState<any>(null);
+  const [response, setResponse] = useState<Record<string, unknown> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [introspectionResponse, setIntrospectionResponse] = useState<TokenIntrospectionResponse | null>(null);
   const [tokenService] = useState(() => new TokenManagementService(formData.environmentId));
@@ -556,7 +557,7 @@ console.log('Token validation result:', validation);`,
     setError(null);
   }, []);
 
-  const handleStepResult = useCallback((step: number, result: any) => {
+  const handleStepResult = useCallback((step: number, result: unknown) => {
     logger.info('TokenIntrospectionFlow', `Step ${step + 1} completed`, result);
   }, []);
 
@@ -826,7 +827,9 @@ console.log('Token validation result:', validation);`,
       {response && (
         <ResponseContainer>
           <h4>Response:</h4>
-          <CodeBlock>{JSON.stringify(response, null, 2)}</CodeBlock>
+          <CodeBlock>
+            <JSONHighlighter data={response} />
+          </CodeBlock>
         </ResponseContainer>
       )}
 

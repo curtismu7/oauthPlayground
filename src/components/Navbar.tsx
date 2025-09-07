@@ -114,9 +114,9 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
           <FiHelpCircle />
           <span>Docs</span>
         </Link>
-        <Link to="/configuration" title="Settings">
+        <Link to="/configuration" title="Configuration">
           <FiSettings />
-          <span>Settings</span>
+          <span>Configuration</span>
         </Link>
         {isAuthenticated ? (
           <button onClick={handleLogout} title="Logout">

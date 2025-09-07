@@ -1,10 +1,15 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
 import { oauthStorage, sessionStorageService } from '../utils/storage';
 import { clientLog } from '../utils/clientLogger';
-import { pingOneConfig } from '../config/pingone';
+import { config } from '../services/config';
 import type { OAuthTokens as StorageOAuthTokens, UserInfo, OAuthTokenResponse } from '../types/storage';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { AuthContextType, AuthState, LoginResult, User } from '../types/auth';
+
+// Define type for development window helpers
+interface WindowWithDevHelpers extends Window {
+  __refreshAccessToken?: () => Promise<void>;
+}
 
 // Re-export types for backward compatibility
 export type OAuthTokens = StorageOAuthTokens;
@@ -186,8 +191,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }): JSX.Ele
       
       // Mark refreshAccessToken as used in development
       if (process.env.NODE_ENV !== 'production') {
-        // @ts-ignore - dev helper only
-        (window as any).__refreshAccessToken = refreshAccessToken;
+        (window as WindowWithDevHelpers).__refreshAccessToken = refreshAccessToken;
       }
 
       const config = getRuntimeConfig();
@@ -212,8 +216,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }): JSX.Ele
       const now = Date.now();
       
       // Update token expiration
-      if ((tokens as any).expires_in) {
-        tokens.expires_at = Math.floor(now / 1000) + ((tokens as any).expires_in as number);
+      if (tokens.expires_in) {
+        tokens.expires_at = Math.floor(now / 1000) + tokens.expires_in;
       } else if (!tokens.expires_at) {
         tokens.expires_at = Math.floor(now / 1000) + 3600; // default 1 hour
       }
@@ -224,7 +228,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }): JSX.Ele
       }
       
       // Update refresh token expiration (extend for another 30 days)
-      if (!(tokens as any).refresh_expires_at) {
+      if (!tokens.refresh_expires_at) {
         tokens.refresh_expires_at = Math.floor(now / 1000) + (30 * 24 * 60 * 60);
       }
       
@@ -266,7 +270,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }): JSX.Ele
   // Using shared client logger from utils/clientLogger
 
   // Extend PingOneConfig interface to include disableLogin
-interface AppConfig extends Omit<typeof pingOneConfig, 'disableLogin'> {
+interface AppConfig extends Omit<typeof config.pingone, 'disableLogin'> {
   disableLogin?: boolean;
 }
 
@@ -286,8 +290,8 @@ interface AppConfig extends Omit<typeof pingOneConfig, 'disableLogin'> {
       const savedCreds = savedCredsRaw ? JSON.parse(savedCredsRaw) : {};
 
       // Prefer explicit config from Configuration page; fall back to credentials from Login page
-      const envId = savedConfig.environmentId || savedCreds.environmentId || pingOneConfig.environmentId;
-      const apiUrl = pingOneConfig.apiUrl || 'https://auth.pingone.com';
+      const envId = savedConfig.environmentId || savedCreds.environmentId || config.pingone.environmentId;
+      const apiUrl = config.pingone.apiUrl || 'https://auth.pingone.com';
       const baseUrl = `${apiUrl}/${envId}`;
       const authBase = `${baseUrl}/as`;
 
@@ -308,12 +312,12 @@ interface AppConfig extends Omit<typeof pingOneConfig, 'disableLogin'> {
 
       const finalConfig = {
         environmentId: envId,
-        clientId: savedConfig.clientId || savedCreds.clientId || pingOneConfig.clientId,
-        clientSecret: savedConfig.clientSecret || savedCreds.clientSecret || pingOneConfig.clientSecret,
-        redirectUri: savedConfig.redirectUri || pingOneConfig.redirectUri,
-        logoutRedirectUri: pingOneConfig.logoutRedirectUri,
+        clientId: savedConfig.clientId || savedCreds.clientId || config.pingone.clientId,
+        clientSecret: savedConfig.clientSecret || savedCreds.clientSecret || '',
+        redirectUri: savedConfig.redirectUri || config.pingone.redirectUri,
+        logoutRedirectUri: config.pingone.logoutRedirectUri,
         apiUrl,
-        authServerId: pingOneConfig.authServerId,
+        authServerId: '',
         baseUrl,
         // Add disableLogin flag (default to false if not set)
         disableLogin: savedConfig.disableLogin || false,
@@ -339,7 +343,7 @@ interface AppConfig extends Omit<typeof pingOneConfig, 'disableLogin'> {
       return finalConfig;
     } catch (e) {
       console.warn('❌ [AuthContext] Failed to load runtime config, using defaults.', e);
-      return pingOneConfig as AppConfig;
+      return config.pingone as AppConfig;
     }
   }
 
