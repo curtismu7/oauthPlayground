@@ -55,14 +55,37 @@ export class PARService {
     });
 
     try {
-      const parUrl = `${this.baseUrl}/as/par`;
+      // Use backend proxy to avoid CORS issues
+      const backendUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://oauth-playground.vercel.app' 
+        : 'http://localhost:3001';
+      
+      const parUrl = `${backendUrl}/api/par`;
+      
+      // Convert to JSON format for backend proxy
       const requestBody = this.buildPARRequestBody(request, authMethod);
       const headers = this.buildPARHeaders(authMethod);
+      
+      // Convert FormData to JSON if needed
+      let jsonBody: any = {};
+      if (requestBody instanceof FormData) {
+        for (const [key, value] of requestBody.entries()) {
+          jsonBody[key] = value;
+        }
+      } else {
+        jsonBody = requestBody;
+      }
 
       const response = await fetch(parUrl, {
         method: 'POST',
-        headers,
-        body: requestBody
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          environment_id: this.baseUrl.split('/').pop(), // Extract environment ID from baseUrl
+          ...jsonBody
+        })
       });
 
       if (!response.ok) {
@@ -306,7 +329,7 @@ export class PARService {
   /**
    * Parse PAR response and extract request URI
    */
-  parsePARResponse(response: any): PARResponse {
+  parsePARResponse(response: unknown): PARResponse {
     if (!response.request_uri) {
       throw new Error('Invalid PAR response: missing request_uri');
     }

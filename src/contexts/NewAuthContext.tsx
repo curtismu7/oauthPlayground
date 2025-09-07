@@ -4,6 +4,16 @@ import type { OAuthTokens, UserInfo, OAuthTokenResponse } from '../types/storage
 import { AuthContextType, AuthState, LoginResult } from '../types/auth';
 import { logger } from '../utils/logger';
 import { PingOneErrorInterpreter } from '../utils/pingoneErrorInterpreter';
+import { config } from '../services/config';
+
+// Define window interface for PingOne environment variables
+interface WindowWithPingOne extends Window {
+  __PINGONE_ENVIRONMENT_ID__?: string;
+  __PINGONE_API_URL__?: string;
+  __PINGONE_CLIENT_ID__?: string;
+  __PINGONE_CLIENT_SECRET__?: string;
+  __PINGONE_REDIRECT_URI__?: string;
+}
 
 // Define the complete config type with all required properties
 interface AppConfig {
@@ -17,7 +27,8 @@ interface AppConfig {
   endSessionEndpoint: string;
   scopes: string[];
   environmentId: string;
-  [key: string]: any; // Allow additional properties
+  hasConfigError?: boolean; // Flag to indicate configuration error
+  [key: string]: unknown; // Allow additional properties
 }
 
 // Create the auth context
@@ -98,7 +109,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   });
 
-  // Load tokens from storage on component mount
+  // Update state helper
+  const updateState = useCallback((updates: Partial<AuthState>) => {
+    setState(prev => ({
+      ...prev,
+      ...updates,
+      error: updates.error !== undefined ? updates.error : null, // Clear error if not provided
+    }));
+  }, []);
+
+  // Load tokens from storage on component mount and check configuration
   useEffect(() => {
     const loadTokensFromStorage = () => {
       try {
@@ -127,22 +147,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     };
 
+    // Check for configuration errors
+    const checkConfiguration = () => {
+      if (config.hasConfigError) {
+        updateState({
+          error: 'PingOne configuration is missing. Please check your environment variables or configure the application in the Configuration page.',
+          isLoading: false
+        });
+      }
+    };
+
     loadTokensFromStorage();
-  }, []);
+    checkConfiguration();
+  }, [config.hasConfigError, updateState]);
 
   // Function to load configuration from environment variables or localStorage
   function loadConfiguration(): AppConfig {
     try {
-      const envId = (window as any).__PINGONE_ENVIRONMENT_ID__;
-      const apiUrl = (window as any).__PINGONE_API_URL__;
-      const clientId = (window as any).__PINGONE_CLIENT_ID__;
+      // Try to use the new config system, but handle cases where it might not be available
+      let envId, apiUrl, clientId, clientSecret, redirectUri, authEndpoint, tokenEndpoint, userInfoEndpoint, logoutEndpoint;
+      
+      try {
+        envId = config.pingone.environmentId;
+        apiUrl = config.pingone.apiUrl;
+        clientId = config.pingone.clientId;
+        clientSecret = config.pingone.clientSecret;
+        redirectUri = config.pingone.redirectUri;
+        authEndpoint = config.pingone.authEndpoint;
+        tokenEndpoint = config.pingone.tokenEndpoint;
+        userInfoEndpoint = config.pingone.userInfoEndpoint;
+        logoutEndpoint = config.pingone.logoutEndpoint;
+      } catch (configError) {
+        logger.warn('NewAuthContext', 'Config service not available, falling back to localStorage', configError);
+        envId = apiUrl = clientId = clientSecret = redirectUri = authEndpoint = tokenEndpoint = userInfoEndpoint = logoutEndpoint = '';
+      }
 
       // Debug logging
       logger.config('NewAuthContext', 'Loading configuration...', {
         envId,
         apiUrl,
         clientId,
-        redirectUri: (window as any).__PINGONE_REDIRECT_URI__
+        redirectUri
       });
 
     // Check if we have the required configuration from environment variables
@@ -152,12 +197,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const envConfig = {
         disableLogin: false,
         clientId: clientId || '',
-        clientSecret: (window as any).__PINGONE_CLIENT_SECRET__ || '',
-        redirectUri: (window as any).__PINGONE_REDIRECT_URI__ || `${window.location.origin}/callback`,
-        authorizationEndpoint: `${apiUrl}/${envId}/as/authorize`,
-        tokenEndpoint: `${apiUrl}/${envId}/as/token`,
-        userInfoEndpoint: `${apiUrl}/${envId}/as/userinfo`,
-        endSessionEndpoint: `${apiUrl}/${envId}/as/endsession`,
+        clientSecret: clientSecret || '',
+        redirectUri: redirectUri || `${window.location.origin}/callback`,
+        authorizationEndpoint: authEndpoint || `${apiUrl}/${envId}/as/authorize`,
+        tokenEndpoint: tokenEndpoint || `${apiUrl}/${envId}/as/token`,
+        userInfoEndpoint: userInfoEndpoint || `${apiUrl}/${envId}/as/userinfo`,
+        endSessionEndpoint: logoutEndpoint || `${apiUrl}/${envId}/as/endsession`,
         scopes: ['openid', 'profile', 'email'],
         environmentId: envId || ''
       };
@@ -220,7 +265,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         userInfoEndpoint: '',
         endSessionEndpoint: '',
         scopes: ['openid', 'profile', 'email'],
-        environmentId: ''
+        environmentId: '',
+        hasConfigError: true // Add flag to indicate config error
       };
     } catch (error) {
       logger.error('NewAuthContext', 'Error in loadConfiguration', error);
@@ -244,7 +290,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     logger.config('NewAuthContext', 'Refreshing configuration...');
     const newConfig = loadConfiguration();
     setConfig(newConfig);
-  }, []);
+    
+    // Check for configuration errors and update state accordingly
+    if (newConfig.hasConfigError) {
+      updateState({
+        error: 'PingOne configuration is missing. Please check your environment variables or configure the application in the Configuration page.',
+        isLoading: false
+      });
+    } else {
+      updateState({
+        error: null, // Clear any previous errors
+        isLoading: false
+      });
+    }
+  }, [updateState]);
 
   // Listen for localStorage changes and force config refresh
   useEffect(() => {
@@ -271,15 +330,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       window.removeEventListener('pingone-config-changed', handleCustomStorageChange);
     };
   }, [refreshConfig]);
-
-  // Update state helper
-  const updateState = useCallback((updates: Partial<AuthState>) => {
-    setState(prev => ({
-      ...prev,
-      ...updates,
-      error: updates.error !== undefined ? updates.error : null, // Clear error if not provided
-    }));
-  }, []);
 
   // Initialize auth state
   useEffect(() => {
@@ -446,6 +496,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         {
           grant_type: 'authorization_code',
           client_id: config.clientId,
+          client_secret: config.clientSecret || '',
           redirect_uri: config.redirectUri,
           code,
           code_verifier: codeVerifier,
@@ -557,7 +608,35 @@ export const useAuth = (): AuthContextType => {
   logger.debug('useAuth', 'Context value', context);
   if (!context) {
     logger.error('useAuth', 'Context is undefined - not within AuthProvider');
-    throw new Error('useAuth must be used within an AuthProvider');
+    // Return a default context instead of throwing to prevent app crashes
+    return {
+      isAuthenticated: false,
+      user: null,
+      tokens: null,
+      isLoading: true,
+      error: 'AuthProvider not initialized',
+      config: {
+        disableLogin: false,
+        clientId: '',
+        clientSecret: '',
+        redirectUri: `${window.location.origin}/callback`,
+        authorizationEndpoint: '',
+        tokenEndpoint: '',
+        userInfoEndpoint: '',
+        endSessionEndpoint: '',
+        scopes: ['openid', 'profile', 'email'],
+        environmentId: ''
+      },
+      login: async () => false,
+      logout: () => {},
+      handleCallback: async () => false,
+      setAuthState: () => {},
+      showAuthModal: false,
+      authRequestData: null,
+      proceedWithOAuth: () => {},
+      closeAuthModal: () => {},
+      updateTokens: () => {}
+    };
   }
   return context;
 };
@@ -583,12 +662,23 @@ async function exchangeCodeForTokens(
   tokenEndpoint: string,
   params: Record<string, string>
 ): Promise<OAuthTokens> {
-  const response = await fetch(tokenEndpoint, {
+  // Use backend proxy to avoid CORS issues
+  const backendUrl = process.env.NODE_ENV === 'production' 
+    ? 'https://oauth-playground.vercel.app' 
+    : 'http://localhost:3001';
+  
+  // Extract environment ID from tokenEndpoint
+  const environmentId = tokenEndpoint.match(/\/\/([^\/]+)\/([^\/]+)\/as\/token/)?.[2];
+  
+  const response = await fetch(`${backendUrl}/api/token-exchange`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Type': 'application/json',
     },
-    body: new URLSearchParams(params),
+    body: JSON.stringify({
+      environment_id: environmentId,
+      ...params
+    }),
   });
 
   if (!response.ok) {
@@ -623,9 +713,17 @@ async function exchangeCodeForTokens(
 }
 
 async function getUserInfo(userInfoEndpoint: string, accessToken: string): Promise<UserInfo> {
-  const response = await fetch(userInfoEndpoint, {
+  // Use backend proxy to avoid CORS issues
+  const backendUrl = process.env.NODE_ENV === 'production' 
+    ? 'https://oauth-playground.vercel.app' 
+    : 'http://localhost:3001';
+  
+  // Extract environment ID from userInfoEndpoint
+  const environmentId = userInfoEndpoint.match(/\/\/([^\/]+)\/([^\/]+)\/as\/userinfo/)?.[2];
+  
+  const response = await fetch(`${backendUrl}/api/userinfo?access_token=${accessToken}&environment_id=${environmentId}`, {
+    method: 'GET',
     headers: {
-      'Authorization': `Bearer ${accessToken}`,
       'Accept': 'application/json',
     },
   });

@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiEye, FiAlertCircle, FiCode, FiKey, FiShield } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
+import { config } from '../../services/config';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import ConfigurationButton from '../../components/ConfigurationButton';
 import ColorCodedURL from '../../components/ColorCodedURL';
@@ -164,11 +165,11 @@ const HybridFlow: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
   const [authUrl, setAuthUrl] = useState('');
-  const [redirectParams, setRedirectParams] = useState<any>(null);
-  const [tokensReceived, setTokensReceived] = useState<any>(null);
+  const [redirectParams, setRedirectParams] = useState<Record<string, string> | null>(null);
+  const [tokensReceived, setTokensReceived] = useState<Record<string, unknown> | null>(null);
 
   // Track execution results for each step
-  const [stepResults, setStepResults] = useState<Record<number, any>>({});
+  const [stepResults, setStepResults] = useState<Record<number, unknown>>({});
   const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
   const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
 
@@ -176,8 +177,8 @@ const HybridFlow: React.FC = () => {
     if (!config) return '';
 
     const params = new URLSearchParams({
-      client_id: config.clientId,
-      redirect_uri: config.redirectUri,
+      client_id: config.pingone.clientId,
+      redirect_uri: config.pingone.redirectUri,
       response_type: 'code id_token token', // Hybrid flow returns code + tokens
       scope: 'openid profile email',
       state: Math.random().toString(36).substring(2, 15),
@@ -187,8 +188,7 @@ const HybridFlow: React.FC = () => {
     });
 
     // Construct authorization endpoint if not available
-    const authEndpoint = config.authorizationEndpoint || config.authEndpoint || 
-      `https://auth.pingone.com/${config.environmentId}/as/authorize`;
+    const authEndpoint = config.pingone.authEndpoint;
     
     return `${authEndpoint}?${params.toString()}`;
   };
@@ -218,7 +218,7 @@ const HybridFlow: React.FC = () => {
     setExecutedSteps(new Set());
   };
 
-  const handleStepResult = (stepIndex: number, result: any) => {
+  const handleStepResult = (stepIndex: number, result: unknown) => {
     setStepResults(prev => ({ ...prev, [stepIndex]: result }));
     setStepsWithResults(prev => {
       const newSteps = [...prev];
@@ -382,19 +382,24 @@ grant_type=authorization_code
         }
 
         try {
-          // Make real token exchange request
-          const response = await fetch(config.tokenEndpoint, {
+          // Make real token exchange request via backend proxy
+          const backendUrl = process.env.NODE_ENV === 'production' 
+            ? 'https://oauth-playground.vercel.app' 
+            : 'http://localhost:3001';
+          
+          const response = await fetch(`${backendUrl}/api/token-exchange`, {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/x-www-form-urlencoded'
+              'Content-Type': 'application/json'
             },
-            body: new URLSearchParams({
+            body: JSON.stringify({
               grant_type: 'authorization_code',
-              client_id: config.clientId,
-              client_secret: config.clientSecret || '',
+              client_id: config.pingone.clientId,
+              client_secret: config.pingone.clientSecret || '',
               code: redirectParams.code,
-              redirect_uri: config.redirectUri,
-              code_verifier: 'mock_code_verifier' // In real implementation, use actual code verifier
+              redirect_uri: config.pingone.redirectUri,
+              code_verifier: 'mock_code_verifier', // In real implementation, use actual code verifier
+              environment_id: config.pingone.environmentId
             })
           });
 
@@ -403,7 +408,7 @@ grant_type=authorization_code
           }
 
           const tokenData = await response.json();
-          setTokensReceived((prev: any) => ({ ...prev, ...tokenData }));
+          setTokensReceived((prev: Record<string, unknown>) => ({ ...prev, ...tokenData }));
           const result = { response: tokenData, status: response.status };
           setStepResults(prev => ({ ...prev, 4: result }));
           setExecutedSteps(prev => new Set(prev).add(4));
@@ -426,8 +431,9 @@ grant_type=authorization_code
             console.error('❌ [HybridFlow] Failed to store tokens');
           }
           return result;
-        } catch (error: any) {
-          setError(`Failed to exchange code for tokens: ${error.message}`);
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          setError(`Failed to exchange code for tokens: ${errorMessage}`);
           console.error('❌ [HybridFlow] Token exchange error:', error);
           return { error: error.message };
         }

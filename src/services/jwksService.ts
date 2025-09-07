@@ -37,7 +37,12 @@ class JWKSService {
    */
   async fetchJWKS(environmentId: string): Promise<JWKSResponse> {
     try {
-      const jwksUri = `https://auth.pingone.com/${environmentId}/as/jwks`;
+      // Use backend proxy to avoid CORS issues
+      const backendUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://oauth-playground.vercel.app' 
+        : 'http://localhost:3001';
+      
+      const jwksUri = `${backendUrl}/api/jwks?environment_id=${environmentId}`;
       
       // Check cache first
       const cached = this.getCachedJWKS(environmentId);
@@ -46,13 +51,13 @@ class JWKSService {
         return cached;
       }
 
-      logger.info('JWKSService', `Fetching JWKS from ${jwksUri}`);
+      logger.info('JWKSService', `Fetching JWKS via backend proxy`);
       
       const response = await fetch(jwksUri, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
-          'User-Agent': 'OAuth-Playground/1.0'
+          'Content-Type': 'application/json'
         }
       });
 

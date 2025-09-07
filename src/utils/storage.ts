@@ -25,7 +25,7 @@ const getKey = (key: string): string => `${STORAGE_PREFIX}${key}`;
  */
 interface StorageService extends StorageInterface {
   setItem<T>(key: string, value: T): boolean;
-  getItem<T = any>(key: string, defaultValue?: T | null): T | null;
+  getItem<T = unknown>(key: string, defaultValue?: T | null): T | null;
   removeItem(key: string): boolean;
   clear(): boolean;
 }
@@ -183,7 +183,7 @@ export const oauthStorage: OAuthStorage = {
   setItem<T>(key: string, value: T): boolean {
     return sessionStorageService.setItem(key, value);
   },
-  getItem<T = any>(key: string, defaultValue: T | null = null): T | null {
+  getItem<T = unknown>(key: string, defaultValue: T | null = null): T | null {
     return sessionStorageService.getItem(key, defaultValue);
   },
   removeItem(key: string): boolean {

@@ -105,7 +105,7 @@ class PingOneSessionManager {
   }
 
   // Get session information
-  public async getSessionInfo(accessToken: string): Promise<any> {
+  public async getSessionInfo(accessToken: string): Promise<Record<string, unknown>> {
     try {
       const response = await fetch(
         `https://api.pingone.com/v1/environments/${this.config.envId}/sessions/me`,
