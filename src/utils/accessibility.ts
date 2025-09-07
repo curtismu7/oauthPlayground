@@ -494,21 +494,6 @@ export class AccessibilityManager {
     this.announcer.announce(message, priority);
   }
 
-  // Get focus manager
-  getFocusManager(): FocusManager {
-    return this.focusManager;
-  }
-
-  // Get announcer
-  getAnnouncer(): ScreenReaderAnnouncer {
-    return this.announcer;
-  }
-
-  // Get contrast checker
-  getContrastChecker(): ColorContrastChecker {
-    return this.contrastChecker;
-  }
-
   // Destroy accessibility manager
   destroy(): void {
     this.announcer.destroy();
