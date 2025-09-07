@@ -148,7 +148,7 @@ const Callback = () => {
         
         // Ensure minimum spinner time while processing callback
         const start = Date.now();
-        await handleCallback(window.location.href);
+        const result = await handleCallback(window.location.href);
         const elapsed = Date.now() - start;
         const remaining = Math.max(2000 - elapsed, 0);
         if (remaining > 0) {
@@ -158,9 +158,15 @@ const Callback = () => {
         // If we reach here, authentication was successful
         console.log('✅ [Callback] Authentication successful');
         setStatus('success');
+        
+        // Get the redirect URL from the callback result
+        const redirectUrl = result.redirectUrl || '/dashboard';
+        
+        console.log('🔄 [Callback] Redirecting to:', redirectUrl);
+        
         // Brief success state before navigating
         setTimeout(() => {
-          navigate('/dashboard', { replace: true });
+          navigate(redirectUrl, { replace: true });
         }, 1500);
         
       } catch (err) {
