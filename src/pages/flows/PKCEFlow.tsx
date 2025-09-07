@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiAlertCircle, FiShield } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
+import { config } from '../../services/config';
 import Spinner from '../../components/Spinner';
 import Typewriter from '../../components/Typewriter';
 import { ColorCodedURL } from '../../components/ColorCodedURL';
@@ -160,15 +161,16 @@ const StatusIndicator = styled.div`
 // (Removed unused CodeBlock styled component)
 
 const TokenDisplay = styled.div`
-  background-color: ${({ theme }) => theme.colors.gray100};
-  border: 1px solid ${({ theme }) => theme.colors.gray200};
+  background-color: #000000;
+  border: 2px solid #374151;
   border-radius: 0.375rem;
   padding: 1rem;
   margin: 1rem 0;
   font-family: monospace;
   font-size: 0.875rem;
   word-break: break-all;
-  color: ${({ theme }) => theme.colors.gray800};
+  color: #ffffff;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
 `;
 
 const PKCEDisplay = styled.div`
@@ -259,19 +261,18 @@ const generateCodeChallenge = async (codeVerifier: string) => {
 };
 
 const PKCEFlow = () => {
-  // Casting context to any locally to avoid broad refactor; we'll type the context in a separate pass
   const { config, tokens: contextTokens } = useAuth();
   const [demoStatus, setDemoStatus] = useState('idle');
   const [currentStep, setCurrentStep] = useState(0);
-  const [tokensReceived, setTokensReceived] = useState<any>(null);
+  const [tokensReceived, setTokensReceived] = useState<Record<string, unknown> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [pkceData, setPkceData] = useState<any>(null);
+  const [pkceData, setPkceData] = useState<Record<string, unknown> | null>(null);
   const [authUrl, setAuthUrl] = useState('');
   const [showFullTokens, setShowFullTokens] = useState(false);
 
   // Track execution results for each step
-  const [stepResults, setStepResults] = useState<Record<number, any>>({});
+  const [stepResults, setStepResults] = useState<Record<number, unknown>>({});
   const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
   const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
 
@@ -330,7 +331,7 @@ const PKCEFlow = () => {
     setStepsWithResults([]);
   };
 
-  const handleStepResult = (stepIndex: number, result: any) => {
+  const handleStepResult = (stepIndex: number, result: unknown) => {
     setStepResults(prev => ({ ...prev, [stepIndex]: result }));
     setStepsWithResults(prev => {
       const newSteps = [...prev];
@@ -375,8 +376,9 @@ const codeChallenge = await generateCodeChallenge(codeVerifier);
             method: 'S256'
           });
           return result;
-        } catch (error: any) {
-          setError(`Failed to generate PKCE values: ${error.message}`);
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          setError(`Failed to generate PKCE values: ${errorMessage}`);
           console.error('❌ [PKCEFlow] PKCE generation failed:', error);
         }
       }
@@ -409,8 +411,8 @@ const authUrl = '${(config?.authorizationEndpoint || `https://auth.pingone.com/$
 
         const params = new URLSearchParams({
           response_type: 'code',
-          client_id: config.clientId,
-          redirect_uri: config.redirectUri,
+          client_id: config.pingone.clientId,
+          redirect_uri: config.pingone.redirectUri,
           scope: config.scopes?.join(' ') || 'read write',
           code_challenge: pkceData.codeChallenge,
           code_challenge_method: 'S256',
@@ -419,8 +421,7 @@ const authUrl = '${(config?.authorizationEndpoint || `https://auth.pingone.com/$
         });
 
         // Construct authorization endpoint if not available
-        const authEndpoint = (config.authorizationEndpoint || config.authEndpoint || 
-          `https://auth.pingone.com/${config.environmentId}/as/authorize`).replace('{envId}', config.environmentId);
+        const authEndpoint = config.pingone.authEndpoint;
         const url = `${authEndpoint}?${params.toString()}`;
 
         setAuthUrl(url);
@@ -515,14 +516,14 @@ grant_type=authorization_code
         }
 
         try {
-          const tokenUrl = config.tokenEndpoint;
+          const tokenUrl = config.pingone.tokenEndpoint;
           const params = new URLSearchParams({
             grant_type: 'authorization_code',
-            client_id: String(config.clientId),
-            client_secret: String(config.clientSecret || ''),
+            client_id: String(config.pingone.clientId),
+            client_secret: String(config.pingone.clientSecret || ''),
             code: 'auth-code-simulated', // In real implementation, this would be the actual code
             code_verifier: pkceData.codeVerifier,
-            redirect_uri: String(config.redirectUri),
+            redirect_uri: String(config.pingone.redirectUri),
           });
 
           const response = await fetch(tokenUrl, {
@@ -545,40 +546,11 @@ grant_type=authorization_code
 
           console.log('✅ [PKCEFlow] Tokens received:', tokenData);
           return result;
-        } catch (error: any) {
-          console.warn('⚠️ [PKCEFlow] Real API failed, using mock tokens:', error.message);
-          
-          // Fallback to mock tokens for demo purposes
-          const mockTokens = {
-            access_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.EkN-DOsnsuRjRO6BxXemmJDm3HbxrbRzXglbN2S4sOkopdU4IsDxTI8jO19W_A4K8ZPJijNLis4EZsHeY559a4DFOd50_OqgH58ERTqYZyhtFJh3w9Hl6B1JKdHOsm0R8aBc_htvzJdR54bL9JYe6OvhALbbSRU7Nx1n2HclYFjtYL4a1XBfUw',
-            token_type: 'Bearer',
-            expires_in: 3600,
-            refresh_token: 'refresh-token-' + Math.random().toString(36).substr(2, 9),
-            scope: 'read write'
-          };
-          
-          setTokensReceived(mockTokens);
-          const result = { response: mockTokens, tokens: mockTokens, status: 200, mock: true };
-          setStepResults(prev => ({ ...prev, 4: result }));
-          setExecutedSteps(prev => new Set(prev).add(4));
-
-          // Store tokens using the shared utility
-          const tokensForStorage = {
-            access_token: mockTokens.access_token,
-            refresh_token: mockTokens.refresh_token,
-            token_type: mockTokens.token_type,
-            expires_in: mockTokens.expires_in,
-            scope: mockTokens.scope
-          };
-          
-          const success = storeOAuthTokens(tokensForStorage, 'pkce', 'PKCE Flow');
-          if (success) {
-            console.log('✅ [PKCEFlow] Mock tokens generated and stored successfully');
-          } else {
-            console.error('❌ [PKCEFlow] Failed to store mock tokens');
-          }
-          
-          return result;
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          console.error('❌ [PKCEFlow] Real API call failed:', errorMessage);
+          setError(errorMessage);
+          return { error: errorMessage };
         }
       }
     },

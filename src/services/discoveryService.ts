@@ -54,25 +54,74 @@ class DiscoveryService {
         };
       }
 
-      // Determine the base URL based on region
-      const baseUrl = this.getBaseUrl(region);
-      const discoveryUrl = `${baseUrl}/${environmentId}/.well-known/openid_configuration`;
+      // Use backend proxy to avoid CORS issues
+      const backendUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://oauth-playground.vercel.app' 
+        : 'http://localhost:3001';
+      
+      const discoveryUrl = `${backendUrl}/api/discovery?environment_id=${environmentId}&region=${region}`;
 
-      logger.discovery('DiscoveryService', 'Fetching configuration from PingOne', { discoveryUrl });
+      logger.discovery('DiscoveryService', 'Fetching configuration via backend proxy', { discoveryUrl });
 
       const response = await fetch(discoveryUrl, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
-          'User-Agent': 'PingOne-OAuth-Playground/1.0'
+          'Content-Type': 'application/json'
         }
       });
 
       if (!response.ok) {
-        throw new Error(`Discovery failed: ${response.status} ${response.statusText}`);
+        const errorData = await response.json();
+        logger.warn('DiscoveryService', 'Backend discovery failed', {
+          status: response.status,
+          error: errorData
+        });
+        
+        // Return a fallback configuration based on known PingOne patterns
+        const fallbackConfig: OpenIDConfiguration = {
+          issuer: `https://auth.pingone.com/${environmentId}`,
+          authorization_endpoint: `https://auth.pingone.com/${environmentId}/as/authorize`,
+          token_endpoint: `https://auth.pingone.com/${environmentId}/as/token`,
+          userinfo_endpoint: `https://auth.pingone.com/${environmentId}/as/userinfo`,
+          jwks_uri: `https://auth.pingone.com/${environmentId}/as/jwks`,
+          scopes_supported: ['openid', 'profile', 'email', 'address', 'phone'],
+          response_types_supported: ['code', 'id_token', 'token', 'id_token token', 'code id_token', 'code token', 'code id_token token'],
+          grant_types_supported: ['authorization_code', 'implicit', 'client_credentials', 'refresh_token', 'urn:ietf:params:oauth:grant-type:device_code'],
+          subject_types_supported: ['public'],
+          id_token_signing_alg_values_supported: ['RS256', 'RS384', 'RS512'],
+          token_endpoint_auth_methods_supported: ['client_secret_basic', 'client_secret_post', 'private_key_jwt', 'client_secret_jwt'],
+          claims_supported: ['sub', 'iss', 'aud', 'exp', 'iat', 'auth_time', 'nonce', 'acr', 'amr', 'azp', 'at_hash', 'c_hash'],
+          code_challenge_methods_supported: ['S256', 'plain'],
+          request_parameter_supported: true,
+          request_uri_parameter_supported: true,
+          require_request_uri_registration: false,
+          end_session_endpoint: `https://auth.pingone.com/${environmentId}/as/signoff`,
+          revocation_endpoint: `https://auth.pingone.com/${environmentId}/as/revoke`,
+          introspection_endpoint: `https://auth.pingone.com/${environmentId}/as/introspect`,
+          device_authorization_endpoint: `https://auth.pingone.com/${environmentId}/as/device`,
+          pushed_authorization_request_endpoint: `https://auth.pingone.com/${environmentId}/as/par`
+        };
+
+        logger.info('DiscoveryService', 'Using fallback configuration', {
+          environmentId,
+          issuer: fallbackConfig.issuer
+        });
+
+        return {
+          success: true,
+          configuration: fallbackConfig,
+          environmentId
+        };
       }
 
-      const configuration: OpenIDConfiguration = await response.json();
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || 'Discovery failed');
+      }
+
+      const configuration: OpenIDConfiguration = result.configuration;
 
       // Validate required fields
       if (!configuration.issuer || !configuration.authorization_endpoint || !configuration.token_endpoint) {
@@ -93,7 +142,8 @@ class DiscoveryService {
           token: configuration.token_endpoint,
           userinfo: configuration.userinfo_endpoint,
           jwks: configuration.jwks_uri
-        }
+        },
+        fallback: result.fallback || false
       });
 
       return {
@@ -186,4 +236,5 @@ class DiscoveryService {
 
 export const discoveryService = new DiscoveryService();
 export default discoveryService;
+
 

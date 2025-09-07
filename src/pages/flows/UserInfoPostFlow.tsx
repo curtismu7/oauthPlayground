@@ -4,6 +4,7 @@ import { StepByStepFlow } from '../../components/StepByStepFlow';
 import FlowCredentials from '../../components/FlowCredentials';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 import { logger } from '../../utils/logger';
+import JSONHighlighter from '../../components/JSONHighlighter';
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -230,9 +231,9 @@ const UserInfoPostFlow: React.FC<UserInfoPostFlowProps> = ({ credentials }) => {
     uiLocales: 'en',
     includeClaims: true
   });
-  const [response, setResponse] = useState<any>(null);
+  const [response, setResponse] = useState<Record<string, unknown> | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [userInfo, setUserInfo] = useState<any>(null);
+  const [userInfo, setUserInfo] = useState<Record<string, unknown> | null>(null);
 
   const steps = [
     {
@@ -458,7 +459,7 @@ const retryUserInfoRequest = async (retryCount = 0) => {
     setError(null);
   }, []);
 
-  const handleStepResult = useCallback((step: number, result: any) => {
+  const handleStepResult = useCallback((step: number, result: unknown) => {
     logger.info('UserInfoPostFlow', `Step ${step + 1} completed`, result);
   }, []);
 
@@ -600,7 +601,9 @@ const retryUserInfoRequest = async (retryCount = 0) => {
       {response && (
         <ResponseContainer>
           <h4>Response:</h4>
-          <CodeBlock>{JSON.stringify(response, null, 2)}</CodeBlock>
+          <CodeBlock>
+            <JSONHighlighter data={response} />
+          </CodeBlock>
         </ResponseContainer>
       )}
 

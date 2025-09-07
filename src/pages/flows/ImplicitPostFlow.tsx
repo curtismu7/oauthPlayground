@@ -169,7 +169,7 @@ const ImplicitPostFlow: React.FC<ImplicitPostFlowProps> = ({ credentials }) => {
     uiLocales: '',
     claims: ''
   });
-  const [response, setResponse] = useState<any>(null);
+  const [response, setResponse] = useState<Record<string, unknown> | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const generateState = useCallback(() => {
@@ -396,7 +396,7 @@ console.log('Tokens stored successfully:', tokens);`,
     setError(null);
   }, []);
 
-  const handleStepResult = useCallback((step: number, result: any) => {
+  const handleStepResult = useCallback((step: number, result: unknown) => {
     logger.info('ImplicitPostFlow', `Step ${step + 1} completed`, result);
   }, []);
 

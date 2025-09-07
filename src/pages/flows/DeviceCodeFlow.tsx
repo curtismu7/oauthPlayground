@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiAlertCircle, FiMonitor, FiSmartphone } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
+import { config } from '../../services/config';
 import Spinner from '../../components/Spinner';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import ConfigurationButton from '../../components/ConfigurationButton';
@@ -168,15 +169,16 @@ const CodeBlock = styled.pre`
 `;
 
 const TokenDisplay = styled.div`
-  background-color: ${({ theme }) => theme.colors.gray100};
-  border: 1px solid ${({ theme }) => theme.colors.gray200};
+  background-color: #000000;
+  border: 2px solid #374151;
   border-radius: 0.375rem;
   padding: 1rem;
   margin: 1rem 0;
   font-family: monospace;
   font-size: 0.875rem;
   word-break: break-all;
-  color: ${({ theme }) => theme.colors.gray800};
+  color: #ffffff;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
 `;
 
 const DeviceCodeDisplay = styled.div`
@@ -287,7 +289,7 @@ const DeviceFlow = () => {
   const [pollingInterval, setPollingInterval] = useState<ReturnType<typeof setInterval> | null>(null);
 
   // Track execution results for each step
-  const [stepResults, setStepResults] = useState<Record<number, any>>({});
+  const [stepResults, setStepResults] = useState<Record<number, unknown>>({});
   const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
   const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
 
@@ -318,7 +320,7 @@ const DeviceFlow = () => {
     }
   };
 
-  const handleStepResult = (stepIndex: number, result: any) => {
+  const handleStepResult = (stepIndex: number, result: unknown) => {
     setStepResults(prev => ({ ...prev, [stepIndex]: result }));
     setStepsWithResults(prev => {
       const newSteps = [...prev];
@@ -351,11 +353,11 @@ client_id=${config?.clientId || 'your_client_id'}&scope=read write
         // Simulate device authorization request
         const requestData = {
           method: 'POST',
-          url: `${config.deviceAuthorizationEndpoint}?client_id=${config.clientId}&scope=read write`,
+          url: `${config.pingone.deviceAuthorizationEndpoint}?client_id=${config.pingone.clientId}&scope=read write`,
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
           },
-          body: `client_id=${config.clientId}&scope=read write`
+          body: `client_id=${config.pingone.clientId}&scope=read write`
         };
 
         setStepResults(prev => ({ ...prev, 0: { request: requestData } }));
@@ -387,13 +389,22 @@ const userCode = generateUserFriendlyCode(); // e.g., "WDJB-MJHT"
         }
 
         try {
-          // Make real device authorization request
-          const response = await fetch(config.deviceAuthorizationEndpoint, {
+          // Make real device authorization request via backend proxy
+          const backendUrl = process.env.NODE_ENV === 'production' 
+            ? 'https://oauth-playground.vercel.app' 
+            : 'http://localhost:3001';
+          
+          const response = await fetch(`${backendUrl}/api/device-authorization`, {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/x-www-form-urlencoded'
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
             },
-            body: `client_id=${config.clientId}&scope=read write`
+            body: JSON.stringify({
+              environment_id: config.pingone.environmentId,
+              client_id: config.pingone.clientId,
+              scope: 'read write'
+            })
           });
 
           if (!response.ok) {
@@ -407,8 +418,9 @@ const userCode = generateUserFriendlyCode(); // e.g., "WDJB-MJHT"
           setExecutedSteps(prev => new Set(prev).add(1));
 
           console.log('✅ [DeviceCodeFlow] Device codes received:', deviceCodes);
-        } catch (error: any) {
-          setError(`Failed to get device codes: ${error.message}`);
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          setError(`Failed to get device codes: ${errorMessage}`);
           console.error('❌ [DeviceCodeFlow] Device code request error:', error);
         }
       }
@@ -535,13 +547,22 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
         }
 
         try {
-          // Make real token request
-          const response = await fetch(config.tokenEndpoint, {
+          // Make real token request via backend proxy
+          const backendUrl = process.env.NODE_ENV === 'production' 
+            ? 'https://oauth-playground.vercel.app' 
+            : 'http://localhost:3001';
+          
+          const response = await fetch(`${backendUrl}/api/token-exchange`, {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/x-www-form-urlencoded'
+              'Content-Type': 'application/json'
             },
-            body: `grant_type=urn:ietf:params:oauth:grant-type:device_code&device_code=${deviceCodeData.device_code}&client_id=${config.clientId}`
+            body: JSON.stringify({
+              grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
+              device_code: deviceCodeData.device_code,
+              client_id: config.pingone.clientId,
+              environment_id: config.pingone.environmentId
+            })
           });
 
           if (!response.ok) {
@@ -570,8 +591,9 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
           } else {
             console.error('❌ [DeviceCodeFlow] Failed to store tokens');
           }
-        } catch (error: any) {
-          setError(`Failed to receive tokens: ${error.message}`);
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          setError(`Failed to receive tokens: ${errorMessage}`);
           console.error('❌ [DeviceCodeFlow] Token request error:', error);
         }
       }

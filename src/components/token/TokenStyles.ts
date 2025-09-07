@@ -36,6 +36,48 @@ export const TokenDisplay = styled.pre`
   }
 `;
 
+export const TokenHeader = styled.pre`
+  background-color: #000000;
+  color: #ffffff;
+  padding: ${({ theme }: { theme: ThemeType }) => theme.spacing.md};
+  border-radius: ${({ theme }: { theme: ThemeType }) => theme.borderRadius.md};
+  border: 2px solid #374151;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: ${({ theme }: { theme: ThemeType }) => theme.spacing.md} 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-family: ${({ theme }: { theme: ThemeType }) => theme.fonts.monospace};
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+  
+  code {
+    font-family: inherit;
+    color: #ffffff;
+  }
+`;
+
+export const TokenPayload = styled.pre`
+  background-color: #ffffff;
+  color: #000000;
+  padding: ${({ theme }: { theme: ThemeType }) => theme.spacing.md};
+  border-radius: ${({ theme }: { theme: ThemeType }) => theme.borderRadius.md};
+  border: 2px solid #e5e7eb;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: ${({ theme }: { theme: ThemeType }) => theme.spacing.md} 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-family: ${({ theme }: { theme: ThemeType }) => theme.fonts.monospace};
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+  
+  code {
+    font-family: inherit;
+    color: #000000;
+  }
+`;
+
 export const CardHeader = styled.div`
   padding: ${({ theme }: { theme: ThemeType }) => 
     `${theme.spacing.md} ${theme.spacing.md} 0`};

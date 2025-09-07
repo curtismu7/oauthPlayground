@@ -1,8 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
-import { FiAlertCircle, FiLock } from 'react-icons/fi';
-import { useAuth } from '../../contexts/NewAuthContext';
+import { FiAlertCircle } from 'react-icons/fi';
 import { ColorCodedURL } from '../../components/ColorCodedURL';
 import { URLParamExplainer } from '../../components/URLParamExplainer';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
@@ -13,6 +12,8 @@ import PageTitle from '../../components/PageTitle';
 import FlowCredentials from '../../components/FlowCredentials';
 import { logger } from '../../utils/logger';
 import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
+import { getDefaultConfig } from '../../utils/flowConfigDefaults';
+import { config } from '../../services/config';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -85,18 +86,20 @@ const ErrorMessage = styled.div`
 `;
 
 const ImplicitGrantFlow = () => {
-  const { config } = useAuth();
-  const [demoStatus, setDemoStatus] = useState('idle');
+  const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [currentStep, setCurrentStep] = useState(0);
   const [authUrl, setAuthUrl] = useState('');
   const [tokensReceived, setTokensReceived] = useState<Record<string, unknown> | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [stepResults, setStepResults] = useState<Record<number, any>>({});
-  const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
   const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
   const [showRedirectModal, setShowRedirectModal] = useState(false);
   const [redirectUrl, setRedirectUrl] = useState('');
   const [redirectParams, setRedirectParams] = useState<Record<string, string>>({});
+
+  // Debug modal state changes
+  useEffect(() => {
+    console.log('🔍 [ImplicitGrantFlow] Modal state changed:', { showRedirectModal, redirectUrl: redirectUrl ? 'present' : 'empty' });
+  }, [showRedirectModal, redirectUrl]);
 
   // Generate authorization URL
   const generateAuthUrl = () => {
@@ -109,16 +112,15 @@ const ImplicitGrantFlow = () => {
 
     const params = new URLSearchParams({
       response_type: 'token',
-      client_id: config.clientId,
-      redirect_uri: config.redirectUri,
+      client_id: config.pingone.clientId,
+      redirect_uri: config.pingone.redirectUri,
       scope: 'read write',
       state: Math.random().toString(36).substring(2, 15),
       nonce: Math.random().toString(36).substring(2, 15)
     });
 
     // Construct authorization endpoint if not available
-    const authEndpoint = config.authorizationEndpoint || config.authEndpoint || 
-      `https://auth.pingone.com/${config.environmentId}/as/authorize`;
+    const authEndpoint = config.pingone.authEndpoint;
 
     logger.config('ImplicitGrantFlow', 'Using authorization endpoint', { authEndpoint });
 
@@ -135,8 +137,6 @@ const ImplicitGrantFlow = () => {
     setError(null);
     setTokensReceived(null);
     setAuthUrl('');
-    setStepResults({});
-    setExecutedSteps(new Set());
     setStepsWithResults([...steps]); // Initialize with copy of steps
     logger.success('ImplicitGrantFlow', 'Implicit flow started successfully');
   };
@@ -148,24 +148,13 @@ const ImplicitGrantFlow = () => {
     setTokensReceived(null);
     setError(null);
     setAuthUrl('');
-    setStepResults({});
-    setExecutedSteps(new Set());
     setStepsWithResults([]);
     logger.success('ImplicitGrantFlow', 'Demo reset completed');
   };
 
-  const handleStepResult = (stepIndex: number, result: any) => {
-    setStepResults(prev => ({ ...prev, [stepIndex]: result }));
-    setStepsWithResults(prev => {
-      const newSteps = [...prev];
-      if (newSteps[stepIndex]) {
-        newSteps[stepIndex] = { ...newSteps[stepIndex], result };
-      }
-      return newSteps;
-    });
-  };
 
   const handleRedirectModalClose = () => {
+    console.log('🔒 [ImplicitGrantFlow] Closing redirect modal');
     setShowRedirectModal(false);
     setRedirectUrl('');
     setRedirectParams({});
@@ -185,8 +174,8 @@ const authUrl = '${generateAuthUrl()}';
 
 // Parameters:
 response_type: 'token'
-client_id: '${config?.clientId || 'your_client_id'}'
-redirect_uri: '${config?.redirectUri || 'https://yourapp.com/callback'}'
+client_id: '${config.pingone.clientId || 'your_client_id'}'
+redirect_uri: '${config.pingone.redirectUri || 'https://yourapp.com/callback'}'
 scope: 'read write'
 state: 'random_state_value'
 nonce: 'random_nonce_value'`,
@@ -194,11 +183,7 @@ nonce: 'random_nonce_value'`,
         logger.flow('ImplicitGrantFlow', 'Executing authorization URL generation step');
         const url = generateAuthUrl();
         setAuthUrl(url);
-        const result = { url };
-        setStepResults(prev => ({ ...prev, 0: result }));
-        setExecutedSteps(prev => new Set(prev).add(0));
         logger.success('ImplicitGrantFlow', 'Authorization URL step completed', { url });
-        return result;
       }
     },
     {
@@ -211,31 +196,40 @@ window.location.href = authUrl;
 // - User authentication
 // - Consent for requested scopes
 // - Redirect back with tokens in URL fragment`,
-      execute: () => {
-        if (!authUrl) {
-          setError('Authorization URL not found. Please execute step 1 first.');
-          return { error: 'Authorization URL not found' };
+      execute: async () => {
+        try {
+          // Generate the authorization URL directly instead of relying on step 1
+          const flowConfig = getDefaultConfig('implicit');
+          const authEndpoint = config.pingone.authEndpoint;
+          
+          if (!authEndpoint) {
+            setError('Authorization endpoint not configured. Please check your PingOne configuration.');
+          }
+          
+          // Generate the URL with current flow configuration
+          const url = `${authEndpoint}?client_id=${config.pingone.clientId}&redirect_uri=${encodeURIComponent(config.pingone.redirectUri)}&response_type=${flowConfig.responseType}&scope=${encodeURIComponent(flowConfig.scopes.join(' '))}&state=${flowConfig.state || 'xyz123'}&nonce=${flowConfig.nonce || 'abc456'}${flowConfig.maxAge > 0 ? `&max_age=${flowConfig.maxAge}` : ''}${flowConfig.prompt ? `&prompt=${flowConfig.prompt}` : ''}${flowConfig.loginHint ? `&login_hint=${flowConfig.loginHint}` : ''}${flowConfig.acrValues.length > 0 ? `&acr_values=${encodeURIComponent(flowConfig.acrValues.join(' '))}` : ''}${Object.keys(flowConfig.customParams).length > 0 ? Object.entries(flowConfig.customParams).map(([k, v]) => `&${k}=${encodeURIComponent(v)}`).join('') : ''}`;
+
+          logger.flow('ImplicitGrantFlow', 'Preparing redirect modal for PingOne authentication', { url });
+          console.log('✅ [ImplicitGrantFlow] Preparing redirect modal for PingOne authentication:', url);
+          
+          // Parse URL to extract parameters
+          const urlObj = new URL(url);
+          const params: Record<string, string> = {};
+          urlObj.searchParams.forEach((value, key) => {
+            params[key] = value;
+          });
+          
+          // Set modal data and show modal
+          console.log('🔓 [ImplicitGrantFlow] Opening redirect modal with URL:', url);
+          setRedirectUrl(url);
+          setRedirectParams(params);
+          setShowRedirectModal(true);
+          
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          setError(`Error in step 2: ${errorMessage}`);
+          console.error('❌ [ImplicitGrantFlow] Error in step 2:', error);
         }
-        
-        logger.flow('ImplicitGrantFlow', 'Preparing redirect modal for PingOne authentication', { authUrl });
-        console.log('✅ [ImplicitGrantFlow] Preparing redirect modal for PingOne authentication:', authUrl);
-        
-        // Parse URL to extract parameters
-        const url = new URL(authUrl);
-        const params: Record<string, string> = {};
-        url.searchParams.forEach((value, key) => {
-          params[key] = value;
-        });
-        
-        // Set modal data and show modal
-        setRedirectUrl(authUrl);
-        setRedirectParams(params);
-        setShowRedirectModal(true);
-        
-        const result = { message: 'Redirect modal prepared', url: authUrl };
-        setStepResults(prev => ({ ...prev, 1: result }));
-        setExecutedSteps(prev => new Set(prev).add(1));
-        return result;
       }
     },
     {
@@ -263,9 +257,6 @@ localStorage.setItem('access_token', accessToken);`,
           scope: 'read write'
         };
         setTokensReceived(mockTokens);
-        const result = { tokens: mockTokens };
-        setStepResults(prev => ({ ...prev, 2: result }));
-        setExecutedSteps(prev => new Set(prev).add(2));
         
         // Store tokens using the shared utility
         const tokensForStorage = {
@@ -281,8 +272,6 @@ localStorage.setItem('access_token', accessToken);`,
         } else {
           console.error('❌ [ImplicitGrantFlow] Failed to store tokens');
         }
-        
-        return result;
       }
     },
     {
@@ -302,11 +291,7 @@ fetch('/api/user/profile', { headers })
 const decodedIdToken = parseJwt(idToken);
 console.log('User ID:', decodedIdToken.sub);`,
       execute: () => {
-        const result = { message: 'Tokens ready for API calls' };
-        setStepResults(prev => ({ ...prev, 3: result }));
-        setExecutedSteps(prev => new Set(prev).add(3));
         setDemoStatus('success');
-        return result;
       }
     }
   ];
@@ -314,12 +299,7 @@ console.log('User ID:', decodedIdToken.sub);`,
   return (
     <Container>
       <PageTitle 
-        title={
-          <>
-            <FiLock />
-            Implicit Grant Flow
-          </>
-        }
+        title="Implicit Grant Flow"
         subtitle="Learn how the Implicit Grant flow works with real API calls to PingOne. This flow is suitable for client-side applications but has security limitations."
       />
 
@@ -373,7 +353,6 @@ console.log('User ID:', decodedIdToken.sub);`,
             status={demoStatus}
             currentStep={currentStep}
             onStepChange={setCurrentStep}
-            onStepResult={handleStepResult}
             disabled={!config}
             title="Implicit Flow"
             configurationButton={

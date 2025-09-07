@@ -68,7 +68,12 @@ class DeviceFlowService {
     request: DeviceAuthorizationRequest
   ): Promise<DeviceAuthorizationResponse> {
     try {
-      const deviceEndpoint = `https://auth.pingone.com/${environmentId}/as/device`;
+      // Use backend proxy to avoid CORS issues
+      const backendUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://oauth-playground.vercel.app' 
+        : 'http://localhost:3001';
+      
+      const deviceEndpoint = `${backendUrl}/api/device-authorization`;
       
       logger.info('DeviceFlowService', 'Starting device authorization flow', {
         environmentId,
@@ -76,23 +81,24 @@ class DeviceFlowService {
         scope: request.scope
       });
 
-      const formData = new FormData();
-      formData.append('client_id', request.client_id);
-      if (request.scope) formData.append('scope', request.scope);
-      if (request.audience) formData.append('audience', request.audience);
-      if (request.acr_values) formData.append('acr_values', request.acr_values);
-      if (request.prompt) formData.append('prompt', request.prompt);
-      if (request.max_age) formData.append('max_age', request.max_age.toString());
-      if (request.ui_locales) formData.append('ui_locales', request.ui_locales);
-      if (request.claims) formData.append('claims', request.claims);
-      if (request.app_identifier) formData.append('app_identifier', request.app_identifier);
-
       const response = await fetch(deviceEndpoint, {
         method: 'POST',
-        body: formData,
         headers: {
+          'Content-Type': 'application/json',
           'Accept': 'application/json'
-        }
+        },
+        body: JSON.stringify({
+          environment_id: environmentId,
+          client_id: request.client_id,
+          scope: request.scope,
+          audience: request.audience,
+          acr_values: request.acr_values,
+          prompt: request.prompt,
+          max_age: request.max_age,
+          ui_locales: request.ui_locales,
+          claims: request.claims,
+          app_identifier: request.app_identifier
+        })
       });
 
       if (!response.ok) {

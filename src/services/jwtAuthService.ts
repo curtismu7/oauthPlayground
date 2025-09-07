@@ -17,7 +17,7 @@ export interface JWTClaims {
   jti: string; // JWT ID
   iat: number; // issued at
   exp: number; // expiration
-  [key: string]: any; // additional claims
+  [key: string]: unknown; // additional claims
 }
 
 export interface TokenResponse {
@@ -411,4 +411,5 @@ class JWTAuthService {
 
 export const jwtAuthService = new JWTAuthService();
 export default jwtAuthService;
+
 

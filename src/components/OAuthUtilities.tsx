@@ -151,7 +151,7 @@ const CopyButton = styled.button`
 const OAuthUtilities: React.FC = () => {
   // JWT Decoder State
   const [jwtInput, setJwtInput] = useState('');
-  const [decodedJwt, setDecodedJwt] = useState<{ header: any; payload: any } | null>(null);
+  const [decodedJwt, setDecodedJwt] = useState<{ header: Record<string, unknown>; payload: Record<string, unknown> } | null>(null);
   const [jwtError, setJwtError] = useState('');
 
   // PKCE Generator State
@@ -342,11 +342,11 @@ const OAuthUtilities: React.FC = () => {
                     margin: 0, 
                     fontSize: '0.875rem', 
                     lineHeight: '1.4',
-                    backgroundColor: '#f8fafc',
-                    color: '#1f2937',
+                    backgroundColor: '#000000',
+                    color: '#ffffff',
                     padding: '0.75rem',
                     borderRadius: '0.25rem',
-                    border: '1px solid #e2e8f0',
+                    border: '2px solid #374151',
                     overflow: 'auto',
                     fontFamily: 'monospace'
                   }}>
@@ -367,11 +367,11 @@ const OAuthUtilities: React.FC = () => {
                     margin: 0, 
                     fontSize: '0.875rem', 
                     lineHeight: '1.4',
-                    backgroundColor: '#f8fafc',
-                    color: '#1f2937',
+                    backgroundColor: '#ffffff',
+                    color: '#000000',
                     padding: '0.75rem',
                     borderRadius: '0.25rem',
-                    border: '1px solid #e2e8f0',
+                    border: '2px solid #e5e7eb',
                     overflow: 'auto',
                     fontFamily: 'monospace'
                   }}>
