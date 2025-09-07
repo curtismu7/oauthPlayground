@@ -41,6 +41,29 @@ export const theme = {
 };
 
 export const GlobalStyle = createGlobalStyle`
+  :root {
+    /* Design Tokens for Spec Cards */
+    --card-bg: #ffffff;
+    --card-fg: #111111;
+    --card-border: #E5E7EB;
+    --card-muted: #525252;
+    --code-bg: #f6f8fa;
+    --code-fg: #0f172a;
+    --card-radius: 12px;
+    --card-padding: 16px;
+    --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  }
+
+  /* Dark mode - Keep accessible contrast */
+  .dark :root {
+    --card-bg: #ffffff;
+    --card-fg: #111111;
+    --card-border: #E5E7EB;
+    --card-muted: #404040;
+    --code-bg: #f6f8fa;
+    --code-fg: #0f172a;
+  }
+
   * {
     box-sizing: border-box;
     margin: 0;
