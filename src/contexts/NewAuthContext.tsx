@@ -92,7 +92,7 @@ function loadConfiguration(): AppConfig {
     }
 
     // Otherwise, try to get from localStorage
-    const storedConfig = localStorage.getItem('pingone-config');
+    const storedConfig = localStorage.getItem('pingone_config');
     if (storedConfig) {
       const parsed = JSON.parse(storedConfig);
       return {
@@ -256,13 +256,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     // Listen for custom config change events
-    window.addEventListener('pingone-config-changed', handleConfigChange);
+    window.addEventListener('pingone_config_changed', handleConfigChange);
     
     // Also listen for storage changes
     window.addEventListener('storage', handleConfigChange);
 
     return () => {
-      window.removeEventListener('pingone-config-changed', handleConfigChange);
+      window.removeEventListener('pingone_config_changed', handleConfigChange);
       window.removeEventListener('storage', handleConfigChange);
     };
   }, []);
@@ -286,7 +286,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Listen for localStorage changes and force config refresh
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'pingone-config') {
+      if (e.key === 'pingone_config') {
         logger.config('NewAuthContext', 'PingOne config changed in localStorage, refreshing...');
         refreshConfig();
       }
