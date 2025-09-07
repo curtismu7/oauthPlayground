@@ -199,6 +199,76 @@ const JWTContent = styled.pre`
   }
 `;
 
+const JWTHeader = styled.pre`
+  background: #000000;
+  border: 2px solid #374151;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin: 1rem 0;
+  font-family: 'SFMono-Regular', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', 'Courier New', monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #ffffff !important;
+  min-height: 120px;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
+    border-radius: 0.5rem 0.5rem 0 0;
+  }
+  
+  &:empty::before {
+    content: 'No token data';
+    color: #9ca3af;
+    font-style: italic;
+  }
+`;
+
+const JWTPayload = styled.pre`
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin: 1rem 0;
+  font-family: 'SFMono-Regular', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', 'Courier New', monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #000000 !important;
+  min-height: 120px;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #10b981, #059669, #047857);
+    border-radius: 0.5rem 0.5rem 0 0;
+  }
+  
+  &:empty::before {
+    content: 'No token data';
+    color: #6b7280;
+    font-style: italic;
+  }
+`;
+
 const HistoryEntry = styled.div`
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   border: 1px solid #e2e8f0;
@@ -337,7 +407,7 @@ const TokenManagement = () => {
   const [jwtPayload, setJwtPayload] = useState('');
   const [tokenStatus, setTokenStatus] = useState('none');
   const [isLoading, setIsLoading] = useState(false);
-  const [tokenSource, setTokenSource] = useState<any>(null);
+  const [tokenSource, setTokenSource] = useState<Record<string, unknown> | null>(null);
   const [tokenHistory, setTokenHistory] = useState<TokenHistoryEntry[]>([]);
 
   // Mock token data for demonstration
@@ -731,16 +801,16 @@ const TokenManagement = () => {
         <CardBody>
           <div style={{ marginBottom: '1rem' }}>
             <h4>Header</h4>
-            <JWTContent id="jwt-header" className="jwt-content">
+            <JWTHeader id="jwt-header" className="jwt-content">
               {jwtHeader || 'No token data'}
-            </JWTContent>
+            </JWTHeader>
           </div>
 
           <div>
             <h4>Payload</h4>
-            <JWTContent id="jwt-payload" className="jwt-content">
+            <JWTPayload id="jwt-payload" className="jwt-content">
               {jwtPayload || 'No token data'}
-            </JWTContent>
+            </JWTPayload>
           </div>
         </CardBody>
       </TokenSection>

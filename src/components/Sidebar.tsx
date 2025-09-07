@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { 
   FiHome, FiCode, FiUser, FiSettings, 
-  FiChevronDown, FiBookOpen, FiEye, FiShield, FiUsers, FiDatabase
+  FiChevronDown, FiBookOpen, FiEye, FiShield, FiUsers, FiDatabase, FiTool
 } from 'react-icons/fi';
 
 interface SidebarContainerProps {
@@ -139,8 +139,8 @@ const NavItemHeader = styled.div<NavItemHeaderProps>`
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const location = useLocation();
   const [openMenus, setOpenMenus] = useState({
-    oidc: true,  // Default to expanded
-    resources: true, // Default to expanded
+    oidc: false,  // Default to collapsed
+    resources: false, // Default to collapsed
   });
 
   // Auto-open menu based on current route
@@ -149,8 +149,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     setOpenMenus({
       oidc: path.startsWith('/oidc'),
       resources: path.startsWith('/oidc/userinfo') || path.startsWith('/oidc/tokens') || 
-                 path.startsWith('/token-management') || path.startsWith('/documentation') || 
-                 path.startsWith('/configuration'),
+                 path.startsWith('/token-management') || path.startsWith('/documentation'),
     });
   }, [location.pathname]);
 
@@ -167,6 +166,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         <NavItem to="/dashboard" onClick={onClose}>
           <FiHome />
           <span>Dashboard</span>
+        </NavItem>
+        <NavItem to="/configuration" onClick={onClose}>
+          <FiSettings />
+          <span>Configuration</span>
+        </NavItem>
+        <NavItem to="/flows/userinfo" onClick={onClose}>
+          <FiUser />
+          <span>Get UserInfo</span>
         </NavItem>
       </NavSection>
 
@@ -213,27 +220,24 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             $isOpen={openMenus.resources}
           >
             <div>
-              <FiDatabase />
+              <FiTool />
               <span>Resources</span>
             </div>
             <FiChevronDown />
           </NavItemHeader>
           
           <Submenu $isOpen={openMenus.resources}>
-            <SubmenuItem to="/oidc/userinfo" onClick={onClose}>
-              UserInfo Endpoint
-            </SubmenuItem>
-            <SubmenuItem to="/oidc/tokens" onClick={onClose}>
-              ID Tokens
-            </SubmenuItem>
             <SubmenuItem to="/token-management" onClick={onClose}>
               Token Management
             </SubmenuItem>
+            <SubmenuItem to="/flows/device-code" onClick={onClose}>
+              Device Code Flow
+            </SubmenuItem>
+            <SubmenuItem to="/flows/par" onClick={onClose}>
+              Pushed Authorization
+            </SubmenuItem>
             <SubmenuItem to="/documentation" onClick={onClose}>
               Documentation
-            </SubmenuItem>
-            <SubmenuItem to="/configuration" onClick={onClose}>
-              Configuration
             </SubmenuItem>
           </Submenu>
         </NavItemWithSubmenu>

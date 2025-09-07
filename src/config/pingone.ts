@@ -1,3 +1,21 @@
+// Define types for window object properties injected by Vite
+interface WindowWithPingOne extends Window {
+  __PINGONE_ENVIRONMENT_ID__?: string;
+  __PINGONE_CLIENT_ID__?: string;
+  __PINGONE_CLIENT_SECRET__?: string;
+  __PINGONE_REDIRECT_URI__?: string;
+  __PINGONE_LOGOUT_REDIRECT_URI__?: string;
+  __PINGONE_API_URL__?: string;
+  __PINGONE_APP_TITLE__?: string;
+  __PINGONE_APP_DESCRIPTION__?: string;
+  __PINGONE_APP_VERSION__?: string;
+  __PINGONE_APP_DEFAULT_THEME__?: string;
+  __PINGONE_DEV_SERVER_PORT__?: string;
+  __PINGONE_DEV_SERVER_HTTPS__?: string;
+  __PINGONE_FEATURE_DEBUG_MODE__?: string;
+  __PINGONE_FEATURE_ANALYTICS__?: string;
+}
+
 export interface PingOneConfig {
   environmentId: string;
   clientId: string;
@@ -37,29 +55,31 @@ export interface PingOneConfig {
 }
 
 // App configuration from environment variables
+const typedWindow = window as WindowWithPingOne;
+
 export const appConfig = {
-  title: (window as any).__PINGONE_APP_TITLE__ || 'PingOne OAuth Playground',
-  description: (window as any).__PINGONE_APP_DESCRIPTION__ || 'Interactive playground for OAuth 2.0 and OpenID Connect with PingOne',
-  version: (window as any).__PINGONE_APP_VERSION__ || '1.0.0',
-  defaultTheme: (window as any).__PINGONE_APP_DEFAULT_THEME__ || 'light',
+  title: typedWindow.__PINGONE_APP_TITLE__ || 'PingOne OAuth Playground',
+  description: typedWindow.__PINGONE_APP_DESCRIPTION__ || 'Interactive playground for OAuth 2.0 and OpenID Connect with PingOne',
+  version: typedWindow.__PINGONE_APP_VERSION__ || '1.0.0',
+  defaultTheme: typedWindow.__PINGONE_APP_DEFAULT_THEME__ || 'light',
   devServer: {
-    port: parseInt((window as any).__PINGONE_DEV_SERVER_PORT__ || '3000'),
-    https: (window as any).__PINGONE_DEV_SERVER_HTTPS__ === 'true',
+    port: parseInt(typedWindow.__PINGONE_DEV_SERVER_PORT__ || '3000'),
+    https: typedWindow.__PINGONE_DEV_SERVER_HTTPS__ === 'true',
   },
   features: {
-    debugMode: (window as any).__PINGONE_FEATURE_DEBUG_MODE__ === 'true',
-    analytics: (window as any).__PINGONE_FEATURE_ANALYTICS__ === 'true',
+    debugMode: typedWindow.__PINGONE_FEATURE_DEBUG_MODE__ === 'true',
+    analytics: typedWindow.__PINGONE_FEATURE_ANALYTICS__ === 'true',
   },
 };
 
 // Default PingOne configuration
 export const pingOneConfig: PingOneConfig = {
-  environmentId: (window as any).__PINGONE_ENVIRONMENT_ID__ || '',
-  clientId: (window as any).__PINGONE_CLIENT_ID__ || '',
-  clientSecret: (window as any).__PINGONE_CLIENT_SECRET__ || '',
-  redirectUri: (window as any).__PINGONE_REDIRECT_URI__ || `${window.location.origin}/callback`,
-  logoutRedirectUri: (window as any).__PINGONE_LOGOUT_REDIRECT_URI__ || window.location.origin,
-  apiUrl: (window as any).__PINGONE_API_URL__ || 'https://auth.pingone.com',
+  environmentId: typedWindow.__PINGONE_ENVIRONMENT_ID__ || '',
+  clientId: typedWindow.__PINGONE_CLIENT_ID__ || '',
+  clientSecret: typedWindow.__PINGONE_CLIENT_SECRET__ || '',
+  redirectUri: typedWindow.__PINGONE_REDIRECT_URI__ || `${window.location.origin}/callback`,
+  logoutRedirectUri: typedWindow.__PINGONE_LOGOUT_REDIRECT_URI__ || window.location.origin,
+  apiUrl: typedWindow.__PINGONE_API_URL__ || 'https://auth.pingone.com',
   authServerId: '', // Removed from .env as requested
   baseUrl: '',
   authUrl: '',

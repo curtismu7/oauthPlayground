@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
 import FlowCredentials from '../../components/FlowCredentials';
 import { logger } from '../../utils/logger';
+import JSONHighlighter from '../../components/JSONHighlighter';
 import { 
   TokenManagementService, 
   TokenRevocationRequest
@@ -274,9 +275,9 @@ const TokenRevocationFlow: React.FC<TokenRevocationFlowProps> = ({ credentials }
     bulkTokens: '',
     revocationReason: 'user_logout'
   });
-  const [response, setResponse] = useState<any>(null);
+  const [response, setResponse] = useState<Record<string, unknown> | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [revocationResult, setRevocationResult] = useState<any>(null);
+  const [revocationResult, setRevocationResult] = useState<Record<string, unknown> | null>(null);
   const [tokenService] = useState(() => new TokenManagementService(formData.environmentId));
 
   const steps = [
@@ -349,7 +350,7 @@ if (revoked) {
         setDemoStatus('loading');
         
         try {
-          let result: any;
+          let result: unknown;
           
           if (activeTab === 'bulk_revocation') {
             // Simulate bulk revocation
@@ -531,7 +532,7 @@ cleanupAfterRevocation(revocationResult);`,
     setError(null);
   }, []);
 
-  const handleStepResult = useCallback((step: number, result: any) => {
+  const handleStepResult = useCallback((step: number, result: unknown) => {
     logger.info('TokenRevocationFlow', `Step ${step + 1} completed`, result);
   }, []);
 
@@ -540,7 +541,7 @@ cleanupAfterRevocation(revocationResult);`,
       setDemoStatus('loading');
       setError(null);
       
-      let result: any;
+      let result: unknown;
       
       if (activeTab === 'bulk_revocation') {
         const tokens = formData.bulkTokens.split('\n').filter(token => token.trim());
@@ -707,7 +708,9 @@ cleanupAfterRevocation(revocationResult);`,
       {response && (
         <ResponseContainer>
           <h4>Response:</h4>
-          <CodeBlock>{JSON.stringify(response, null, 2)}</CodeBlock>
+          <CodeBlock>
+            <JSONHighlighter data={response} />
+          </CodeBlock>
         </ResponseContainer>
       )}
 

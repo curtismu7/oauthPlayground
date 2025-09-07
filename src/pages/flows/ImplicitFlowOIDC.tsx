@@ -6,6 +6,7 @@ import PageTitle from '../../components/PageTitle';
 import TokenDisplayComponent from '../../components/TokenDisplay';
 import ConfigurationButton from '../../components/ConfigurationButton';
 import { useAuth } from '../../contexts/NewAuthContext';
+import { config } from '../../services/config';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import { ColorCodedURL } from '../../components/ColorCodedURL';
 import Typewriter from '../../components/Typewriter';
@@ -106,7 +107,7 @@ const ImplicitFlowOIDC: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [authUrl, setAuthUrl] = useState<string>('');
-  const [stepResults, setStepResults] = useState<Record<number, any>>({});
+  const [stepResults, setStepResults] = useState<Record<number, unknown>>({});
   const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
   const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
 
@@ -129,7 +130,7 @@ const ImplicitFlowOIDC: React.FC = () => {
     setStepsWithResults([]);
   };
 
-  const handleStepResult = (stepIndex: number, result: any) => {
+  const handleStepResult = (stepIndex: number, result: unknown) => {
     setStepResults(prev => ({ ...prev, [stepIndex]: result }));
     setStepsWithResults(prev => {
       const newSteps = [...prev];
@@ -153,9 +154,9 @@ const ImplicitFlowOIDC: React.FC = () => {
   &state=${Math.random().toString(36).substring(2, 15)}`,
       execute: () => {
         console.log('🔍 [ImplicitFlowOIDC] Config in execute:', config);
-        console.log('🔍 [ImplicitFlowOIDC] authorizationEndpoint:', config.authorizationEndpoint);
-        console.log('🔍 [ImplicitFlowOIDC] authEndpoint:', config.authEndpoint);
-        console.log('🔍 [ImplicitFlowOIDC] environmentId:', config.environmentId);
+        console.log('🔍 [ImplicitFlowOIDC] authorizationEndpoint:', config.pingone.authEndpoint);
+        console.log('🔍 [ImplicitFlowOIDC] authEndpoint:', config.pingone.authEndpoint);
+        console.log('🔍 [ImplicitFlowOIDC] environmentId:', config.pingone.environmentId);
         
         if (!config) {
           setError('Configuration required. Please configure your PingOne settings first.');
@@ -163,8 +164,8 @@ const ImplicitFlowOIDC: React.FC = () => {
         }
 
         const params = new URLSearchParams({
-          client_id: config.clientId,
-          redirect_uri: config.redirectUri,
+          client_id: config.pingone.clientId,
+          redirect_uri: config.pingone.redirectUri,
           response_type: 'id_token token',
           scope: config.scopes?.join(' ') || 'openid profile email',
           nonce: Math.random().toString(36).substring(2, 15),
@@ -172,8 +173,7 @@ const ImplicitFlowOIDC: React.FC = () => {
         });
 
         // Construct authorization endpoint if not available
-        const authEndpoint = (config.authorizationEndpoint || config.authEndpoint || 
-          `https://auth.pingone.com/${config.environmentId}/as/authorize`).replace('{envId}', config.environmentId);
+        const authEndpoint = config.pingone.authEndpoint;
         console.log('🔍 [ImplicitFlowOIDC] Final authEndpoint after replacement:', authEndpoint);
         const url = `${authEndpoint}?${params.toString()}`;
         console.log('🔍 [ImplicitFlowOIDC] Final URL constructed:', url);

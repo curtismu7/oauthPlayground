@@ -33,7 +33,7 @@ export default defineConfig({
               append(`CLIENT ${req.method} ${req.url} :: ${msg}`);
               res.statusCode = 204;
               res.end();
-            } catch (e) {
+            } catch {
               res.statusCode = 400;
               res.end('Bad Request');
             }
@@ -66,7 +66,7 @@ export default defineConfig({
           return {
             key: fs.readFileSync(keyPath),
             cert: fs.readFileSync(certPath),
-          } as any;
+          } as { key: Buffer; cert: Buffer };
         }
       } catch {}
       // Fall back to self-signed mode

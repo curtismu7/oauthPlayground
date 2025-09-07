@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
+import JSONHighlighter from './JSONHighlighter';
 
 const TemplatesContainer = styled.div`
   background: white;
@@ -165,7 +166,7 @@ interface FlowTemplate {
   description: string;
   flowType: string;
   features: string[];
-  configuration: any;
+  configuration: Record<string, unknown>;
   isDefault?: boolean;
 }
 
@@ -433,7 +434,7 @@ const FlowConfigurationTemplates: React.FC = () => {
         <div>
           <h4>Configuration Preview</h4>
           <ConfigPreview>
-            {JSON.stringify(selectedTemplate.configuration, null, 2)}
+            <JSONHighlighter data={selectedTemplate.configuration} />
           </ConfigPreview>
           
           <ButtonGroup>

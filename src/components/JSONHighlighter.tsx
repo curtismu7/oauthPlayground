@@ -1,8 +1,23 @@
 import React from 'react';
 import styled from 'styled-components';
 
+// Define JSON value types
+type JSONValue = 
+  | string 
+  | number 
+  | boolean 
+  | null 
+  | JSONObject 
+  | JSONArray;
+
+interface JSONObject {
+  [key: string]: JSONValue;
+}
+
+interface JSONArray extends Array<JSONValue> {}
+
 interface JSONHighlighterProps {
-  data: any;
+  data: JSONValue;
   className?: string;
 }
 
@@ -27,23 +42,23 @@ const JSONKey = styled.span`
 `;
 
 const JSONValue = styled.span`
-  color: #3b82f6; /* Blue for values */
+  color: #dc2626; /* Red for values */
 `;
 
 const JSONString = styled.span`
-  color: #3b82f6; /* Blue for string values */
+  color: #dc2626; /* Red for string values */
 `;
 
 const JSONNumber = styled.span`
-  color: #3b82f6; /* Blue for number values */
+  color: #dc2626; /* Red for number values */
 `;
 
 const JSONBoolean = styled.span`
-  color: #3b82f6; /* Blue for boolean values */
+  color: #dc2626; /* Red for boolean values */
 `;
 
 const JSONNull = styled.span`
-  color: #3b82f6; /* Blue for null values */
+  color: #dc2626; /* Red for null values */
 `;
 
 const JSONPunctuation = styled.span`
@@ -51,7 +66,7 @@ const JSONPunctuation = styled.span`
 `;
 
 const JSONHighlighter: React.FC<JSONHighlighterProps> = ({ data, className }) => {
-  const formatValue = (value: any, indent: number = 0): React.ReactNode => {
+  const formatValue = (value: JSONValue, indent: number = 0): React.ReactNode => {
     const spaces = '  '.repeat(indent);
     
     if (value === null) {
@@ -125,4 +140,5 @@ const JSONHighlighter: React.FC<JSONHighlighterProps> = ({ data, className }) =>
 };
 
 export default JSONHighlighter;
+
 

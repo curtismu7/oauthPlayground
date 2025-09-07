@@ -12,24 +12,28 @@ import {
   FiLogIn 
 } from 'react-icons/fi';
 import { useAuth } from '../contexts/NewAuthContext';
+import { config } from '../services/config';
 import Spinner from '../components/Spinner';
 
+// Define specific types for HMAC and signing algorithms
+type HMACAlgorithm = 'HS256' | 'HS384' | 'HS512';
+type SigningAlgorithm = 'RS256' | 'ES256' | 'PS256' | 'RS384' | 'ES384' | 'RS512' | 'ES512';
+type RequestObjectPolicy = 'default' | 'require' | 'allow_unsigned';
+
 interface ClientAssertion {
-  hmacAlg: string;
-  signAlg: string;
+  hmacAlg: HMACAlgorithm;
+  signAlg: SigningAlgorithm;
   privateKeyPEM: string;
   kid: string;
   audience: string;
   x5t: string;
-  [key: string]: string; // For dynamic access to string properties
 }
 
 interface AdvancedSettings {
-  requestObjectPolicy?: string;
+  requestObjectPolicy?: RequestObjectPolicy;
   oidcSessionManagement: boolean;
   resourceScopes: string;
   terminateByIdToken: boolean;
-  [key: string]: string | boolean | undefined; // For dynamic access to other properties
 }
 
 interface Credentials {
@@ -463,7 +467,7 @@ const Login = () => {
         environmentId: credentials.environmentId,
         clientId: credentials.clientId,
         clientSecret: credentials.clientSecret,
-        redirectUri: 'http://localhost:3001/callback',
+        redirectUri: config.pingone.redirectUri,
         scopes: credentials.advanced?.resourceScopes || 'openid profile email',
         authEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/authorize`,
         tokenEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/token`,
@@ -515,7 +519,7 @@ const Login = () => {
         environmentId: credentials.environmentId,
         clientId: credentials.clientId,
         clientSecret: credentials.clientSecret,
-        redirectUri: 'http://localhost:3001/callback',
+        redirectUri: config.pingone.redirectUri,
         scopes: credentials.advanced?.resourceScopes || 'openid profile email',
         authEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/authorize`,
         tokenEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/token`,
@@ -752,7 +756,7 @@ const Login = () => {
                       autoComplete="current-password"
                       style={{
                         width: '100%',
-                        maxWidth: '600px',
+                        maxWidth: '610px',
                         padding: '0.5rem 3.25rem 0.5rem 0.75rem',
                         border: '1px solid #dee2e6',
                         fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
@@ -846,9 +850,9 @@ const Login = () => {
                         value={credentials.clientAssertion?.hmacAlg || 'HS256'}
                         onChange={(e) => setCredentials(prev => ({
                           ...prev,
-                          clientAssertion: { ...(prev.clientAssertion || {}), hmacAlg: e.target.value as any }
+                          clientAssertion: { ...(prev.clientAssertion || {}), hmacAlg: e.target.value as HMACAlgorithm }
                         }))}
-                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #dee2e6', borderRadius: 4 as any, backgroundColor: '#f8f9fa' }}
+                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #dee2e6', borderRadius: 4, backgroundColor: '#f8f9fa' }}
                       >
                         <option value="HS256">HS256</option>
                         <option value="HS384">HS384</option>
@@ -867,7 +871,7 @@ const Login = () => {
                           ...prev,
                           clientAssertion: { ...(prev.clientAssertion || {}), audience: e.target.value }
                         }))}
-                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #dee2e6', borderRadius: 4 as any, backgroundColor: '#f8f9fa' }}
+                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #dee2e6', borderRadius: 4, backgroundColor: '#f8f9fa' }}
                       />
                     </CredentialWrapper>
                   </CredentialRow>
@@ -884,9 +888,9 @@ const Login = () => {
                         value={credentials.clientAssertion?.signAlg || 'RS256'}
                         onChange={(e) => setCredentials(prev => ({
                           ...prev,
-                          clientAssertion: { ...(prev.clientAssertion || {}), signAlg: e.target.value as any }
+                          clientAssertion: { ...(prev.clientAssertion || {}), signAlg: e.target.value as SigningAlgorithm }
                         }))}
-                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #dee2e6', borderRadius: 4 as any, backgroundColor: '#f8f9fa' }}
+                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #dee2e6', borderRadius: 4, backgroundColor: '#f8f9fa' }}
                       >
                         <option value="RS256">RS256</option>
                         <option value="ES256">ES256</option>
@@ -904,7 +908,7 @@ const Login = () => {
                           ...prev,
                           clientAssertion: { ...(prev.clientAssertion || {}), kid: e.target.value }
                         }))}
-                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #dee2e6', borderRadius: 4 as any, backgroundColor: '#f8f9fa' }}
+                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #dee2e6', borderRadius: 4, backgroundColor: '#f8f9fa' }}
                       />
                     </CredentialWrapper>
                   </CredentialRow>
@@ -918,7 +922,7 @@ const Login = () => {
                           ...prev,
                           clientAssertion: { ...(prev.clientAssertion || {}), privateKeyPEM: e.target.value }
                         }))}
-                        style={{ width: '100%', minHeight: '120px', padding: '0.5rem', border: '1px solid #dee2e6', borderRadius: 4 as any, backgroundColor: '#f8f9fa', fontFamily: 'monospace' }}
+                        style={{ width: '100%', minHeight: '120px', padding: '0.5rem', border: '1px solid #dee2e6', borderRadius: 4, backgroundColor: '#f8f9fa', fontFamily: 'monospace' }}
                       />
                     </CredentialWrapper>
                   </CredentialRow>
@@ -933,7 +937,7 @@ const Login = () => {
                           ...prev,
                           clientAssertion: { ...(prev.clientAssertion || {}), audience: e.target.value }
                         }))}
-                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #dee2e6', borderRadius: 4 as any, backgroundColor: '#f8f9fa' }}
+                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #dee2e6', borderRadius: 4, backgroundColor: '#f8f9fa' }}
                       />
                     </CredentialWrapper>
                   </CredentialRow>
@@ -970,9 +974,9 @@ const Login = () => {
                       value={credentials.advanced?.requestObjectPolicy || 'default'}
                       onChange={(e) => setCredentials(prev => ({
                         ...prev,
-                        advanced: { ...(prev.advanced || {}), requestObjectPolicy: e.target.value as any }
+                        advanced: { ...(prev.advanced || {}), requestObjectPolicy: e.target.value as RequestObjectPolicy }
                       }))}
-                      style={{ width: '100%', padding: '0.5rem', border: '1px solid #dee2e6', borderRadius: 4 as any, backgroundColor: '#ffffff' }}
+                      style={{ width: '100%', padding: '0.5rem', border: '1px solid #dee2e6', borderRadius: 4, backgroundColor: '#ffffff' }}
                     >
                       <option value="default">default</option>
                       <option value="require">require</option>
@@ -992,7 +996,7 @@ const Login = () => {
                         ...prev,
                         clientAssertion: { ...(prev.clientAssertion || {}), x5t: e.target.value }
                       }))}
-                      style={{ width: '100%', padding: '0.5rem', border: '1px solid #dee2e6', borderRadius: 4 as any, backgroundColor: '#ffffff' }}
+                      style={{ width: '100%', padding: '0.5rem', border: '1px solid #dee2e6', borderRadius: 4, backgroundColor: '#ffffff' }}
                     />
                   </CredentialWrapper>
                 </CredentialRow>
@@ -1025,7 +1029,7 @@ const Login = () => {
                         ...prev,
                         advanced: { ...(prev.advanced || {}), resourceScopes: e.target.value }
                       }))}
-                      style={{ width: '100%', padding: '0.5rem', border: '1px solid #dee2e6', borderRadius: 4 as any, backgroundColor: '#ffffff' }}
+                      style={{ width: '100%', padding: '0.5rem', border: '1px solid #dee2e6', borderRadius: 4, backgroundColor: '#ffffff' }}
                     />
                   </CredentialWrapper>
                 </CredentialRow>

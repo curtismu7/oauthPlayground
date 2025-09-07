@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { oauthStorage } from '../utils/storage';
-import { pingOneConfig } from '../config/pingone';
+import { config } from '../services/config';
 
 // Interfaces
 export interface OAuthTokens {

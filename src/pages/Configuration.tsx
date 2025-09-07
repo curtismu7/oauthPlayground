@@ -469,7 +469,7 @@ const Configuration = () => {
                   placeholder="Enter your application's Client Secret"
                   style={{ 
                     paddingRight: '2.5rem',
-                    maxWidth: '600px',
+                    maxWidth: '610px',
                     fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
                     fontSize: '0.875rem'
                   }}

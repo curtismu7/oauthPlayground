@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardBody, CardFooter } from '../components/Card';
-import { FiCode, FiLock, FiUser, FiSettings, FiInfo, FiCheckCircle, FiPlay, FiBook, FiShield, FiClock, FiActivity, FiRefreshCw } from 'react-icons/fi';
+import { FiCode, FiLock, FiUser, FiSettings, FiInfo, FiCheckCircle, FiPlay, FiBook, FiShield, FiClock, FiActivity, FiRefreshCw, FiTool } from 'react-icons/fi';
 import { useAuth } from '../contexts/NewAuthContext';
 import { getOAuthTokens } from '../utils/tokenStorage';
 import { getRecentActivity } from '../utils/activityTracker';
+import { interpretPingOneError } from '../utils/pingoneErrorInterpreter';
 
 
 const DashboardContainer = styled.div`
@@ -126,41 +127,6 @@ const QuickActionButton = styled.button`
   }
 `;
 
-const ActivityList = styled.div`
-  .activity-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid #f3f4f6;
-    
-    &:last-child {
-      border-bottom: none;
-    }
-    
-    svg {
-      font-size: 1rem;
-      color: #6b7280;
-    }
-    
-    .activity-content {
-      flex: 1;
-      
-      .activity-title {
-        font-size: 0.875rem;
-        font-weight: 500;
-        color: #1f2937;
-        margin: 0 0 0.25rem 0;
-      }
-      
-      .activity-time {
-        font-size: 0.75rem;
-        color: #6b7280;
-        margin: 0;
-      }
-    }
-  }
-`;
 
 const TokenStatus = styled.div`
   display: flex;
@@ -187,22 +153,156 @@ const TokenStatus = styled.div`
   }
 `;
 
+const IconButton = styled.button`
+  background: none !important;
+  border: none !important;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  display: flex;
+  align-items: center;
+  color: #6b7280;
+  transition: color 0.2s;
+  
+  &:hover {
+    color: #3b82f6 !important;
+  }
+  
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+`;
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`;
+
+const ModalContent = styled.div`
+  background: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+`;
+
+const ModalHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  
+  h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+  }
+`;
+
+const CloseButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  color: #6b7280;
+  font-size: 1.5rem;
+  line-height: 1;
+  
+  &:hover {
+    color: #374151;
+    background: #f3f4f6;
+  }
+`;
+
+const ActivityList = styled.div`
+  .activity-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e5e7eb;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    .activity-icon {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6b7280;
+    }
+    
+    .activity-content {
+      flex: 1;
+      
+      .activity-type {
+        font-weight: 500;
+        color: #1f2937;
+        margin-bottom: 0.25rem;
+      }
+      
+      .activity-timestamp {
+        font-size: 0.875rem;
+        color: #6b7280;
+      }
+    }
+  }
+  
+  .no-activity {
+    text-align: center;
+    color: #6b7280;
+    padding: 2rem;
+    font-style: italic;
+  }
+`;
+
 const Dashboard = () => {
-  const { isAuthenticated, config } = useAuth();
+  const { isAuthenticated, config, error } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const [tokens, setTokens] = useState<any>(null);
-  const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const [tokens, setTokens] = useState<Record<string, unknown> | null>(null);
+  const [recentActivity, setRecentActivity] = useState<Record<string, unknown>[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showActivityModal, setShowActivityModal] = useState(false);
   
-  const infoMessage = (location.state as any)?.message as string | undefined;
-  const infoType = ((location.state as any)?.type as 'success' | 'error' | 'warning' | 'info' | undefined) || 'info';
+  const infoMessage = (location.state as { message?: string })?.message;
+  const infoType = ((location.state as { type?: 'success' | 'error' | 'warning' | 'info' })?.type) || 'info';
 
   // Check if there are saved credentials
   const hasSavedCredentials = config && config.environmentId && config.clientId;
 
+  // Handle refresh button click
+  const handleRefresh = async () => {
+    await refreshDashboard();
+  };
+
+  // Handle activity button click
+  const handleActivity = () => {
+    console.log('Activity button clicked - showing recent activity:', recentActivity);
+    setShowActivityModal(true);
+  };
+
+  // Load initial dashboard data
   useEffect(() => {
-    // Load tokens and recent activity
     const loadDashboardData = async () => {
       try {
         const storedTokens = getOAuthTokens();
@@ -217,7 +317,20 @@ const Dashboard = () => {
     };
 
     loadDashboardData();
-  }, []);
+  }, []); // Empty dependency array - only run once on mount
+
+  // Set up interval to check for new tokens
+  useEffect(() => {
+    const tokenCheckInterval = setInterval(() => {
+      const storedTokens = getOAuthTokens();
+      if (storedTokens && (!tokens || storedTokens.access_token !== tokens.access_token)) {
+        setTokens(storedTokens);
+        console.log('🔄 [Dashboard] New tokens detected:', storedTokens);
+      }
+    }, 2000);
+
+    return () => clearInterval(tokenCheckInterval);
+  }, [tokens]); // This effect only runs when tokens change
 
   const refreshDashboard = async () => {
     setIsRefreshing(true);
@@ -265,19 +378,25 @@ const Dashboard = () => {
     {
       icon: <FiCode />,
       title: 'OAuth 2.0 Flows',
-      description: 'Explore different OAuth 2.0 authorization flows including Authorization Code, Implicit, Client Credentials, and more.',
+      description: 'Interactive demonstrations of Authorization Code, PKCE, Client Credentials, Device Code, and more.',
       link: '/flows',
+    },
+    {
+      icon: <FiShield />,
+      title: 'Token Management',
+      description: 'Comprehensive token operations including exchange, refresh, introspection, and revocation.',
+      link: '/token-management',
     },
     {
       icon: <FiUser />,
       title: 'OpenID Connect',
-      description: 'Learn about OpenID Connect and how it extends OAuth 2.0 with authentication and identity features.',
-      link: '/oidc',
+      description: 'ID Tokens, UserInfo endpoint, and authentication flows with identity features.',
+      link: '/flows/id-tokens',
     },
     {
-      icon: <FiBook />,
-      title: 'Documentation',
-      description: 'Comprehensive guides and tutorials for OAuth 2.0 and OpenID Connect implementation.',
+      icon: <FiTool />,
+      title: 'Developer Tools',
+      description: 'JWT decoder, PKCE generator, and utilities for OAuth development.',
       link: '/documentation',
     },
   ];
@@ -305,35 +424,139 @@ const Dashboard = () => {
         </div>
       )}
 
+      {error && (() => {
+        const errorInfo = interpretPingOneError(error);
+        return (
+          <div style={{
+            padding: '1.5rem',
+            marginBottom: '1.5rem',
+            borderRadius: '0.5rem',
+            backgroundColor: errorInfo.severity === 'error' ? '#fef2f2' : errorInfo.severity === 'warning' ? '#fffbeb' : '#eff6ff',
+            border: `1px solid ${errorInfo.severity === 'error' ? '#fecaca' : errorInfo.severity === 'warning' ? '#fde68a' : '#bfdbfe'}`,
+            color: errorInfo.severity === 'error' ? '#991b1b' : errorInfo.severity === 'warning' ? '#92400e' : '#1e40af'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', marginBottom: '1rem' }}>
+              <div style={{ 
+                padding: '0.5rem', 
+                borderRadius: '0.375rem', 
+                backgroundColor: errorInfo.severity === 'error' ? '#fecaca' : errorInfo.severity === 'warning' ? '#fde68a' : '#bfdbfe',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minWidth: '2.5rem',
+                height: '2.5rem'
+              }}>
+                {errorInfo.severity === 'error' ? <FiSettings style={{ fontSize: '1.25rem', color: '#dc2626' }} /> : 
+                 errorInfo.severity === 'warning' ? <FiInfo style={{ fontSize: '1.25rem', color: '#d97706' }} /> :
+                 <FiInfo style={{ fontSize: '1.25rem', color: '#2563eb' }} />}
+              </div>
+              <div style={{ flex: 1 }}>
+                <h3 style={{ 
+                  fontSize: '1.125rem', 
+                  fontWeight: '600', 
+                  margin: '0 0 0.5rem 0',
+                  color: errorInfo.severity === 'error' ? '#991b1b' : errorInfo.severity === 'warning' ? '#92400e' : '#1e40af'
+                }}>
+                  {errorInfo.title}
+                </h3>
+                <p style={{ 
+                  margin: '0 0 1rem 0', 
+                  fontSize: '0.875rem',
+                  lineHeight: '1.5'
+                }}>
+                  {errorInfo.message}
+                </p>
+                {errorInfo.suggestion && (
+                  <div style={{
+                    padding: '0.75rem',
+                    backgroundColor: errorInfo.severity === 'error' ? '#fef7f7' : errorInfo.severity === 'warning' ? '#fffbeb' : '#f0f9ff',
+                    border: `1px solid ${errorInfo.severity === 'error' ? '#fecaca' : errorInfo.severity === 'warning' ? '#fde68a' : '#bfdbfe'}`,
+                    borderRadius: '0.375rem',
+                    marginBottom: '1rem'
+                  }}>
+                    <h4 style={{ 
+                      fontSize: '0.875rem', 
+                      fontWeight: '600', 
+                      margin: '0 0 0.5rem 0',
+                      color: errorInfo.severity === 'error' ? '#991b1b' : errorInfo.severity === 'warning' ? '#92400e' : '#1e40af'
+                    }}>
+                      💡 How to Fix:
+                    </h4>
+                    <div style={{ 
+                      margin: 0, 
+                      fontSize: '0.875rem',
+                      lineHeight: '1.6'
+                    }}>
+                      {errorInfo.suggestion.split('\n').map((line, index) => (
+                        <div key={index} style={{ marginBottom: '0.5rem' }}>
+                          {line}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                  <Link to="/configuration" style={{ 
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.5rem 1rem',
+                    backgroundColor: errorInfo.severity === 'error' ? '#dc2626' : errorInfo.severity === 'warning' ? '#d97706' : '#2563eb',
+                    color: 'white',
+                    textDecoration: 'none',
+                    borderRadius: '0.375rem',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    transition: 'all 0.2s'
+                  }}>
+                    <FiSettings style={{ fontSize: '1rem' }} />
+                    Configure PingOne Settings
+                  </Link>
+                  <Link to="/documentation" style={{ 
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.5rem 1rem',
+                    backgroundColor: 'transparent',
+                    color: errorInfo.severity === 'error' ? '#dc2626' : errorInfo.severity === 'warning' ? '#d97706' : '#2563eb',
+                    textDecoration: 'none',
+                    border: `1px solid ${errorInfo.severity === 'error' ? '#dc2626' : errorInfo.severity === 'warning' ? '#d97706' : '#2563eb'}`,
+                    borderRadius: '0.375rem',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    transition: 'all 0.2s'
+                  }}>
+                    <FiBook style={{ fontSize: '1rem' }} />
+                    View Documentation
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Status Overview */}
       <StatusCard>
         <CardBody>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: '600', margin: 0 }}>System Status</h2>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <button
-                onClick={refreshDashboard}
+              <IconButton
+                onClick={handleRefresh}
                 disabled={isRefreshing}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: '0.25rem',
-                  borderRadius: '0.25rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  color: '#6b7280',
-                  transition: 'color 0.2s'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.color = '#3b82f6'}
-                onMouseLeave={(e) => e.currentTarget.style.color = '#6b7280'}
               >
                 <FiRefreshCw style={{ 
                   fontSize: '1rem', 
                   animation: isRefreshing ? 'spin 1s linear infinite' : 'none'
                 }} />
-              </button>
-              <FiActivity style={{ fontSize: '1.5rem', color: '#3b82f6' }} />
+              </IconButton>
+              <IconButton
+                onClick={handleActivity}
+                style={{ color: '#3b82f6' }}
+              >
+                <FiActivity style={{ fontSize: '1.5rem' }} />
+              </IconButton>
             </div>
           </div>
           
@@ -348,6 +571,68 @@ const Dashboard = () => {
               <span>{hasSavedCredentials ? 'Environment Configured' : 'Setup Required'}</span>
             </TokenStatus>
           </div>
+
+          {/* Token Details */}
+          {tokens && (
+            <div style={{ marginTop: '1rem', padding: '1rem', backgroundColor: '#f8fafc', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
+              <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', fontWeight: '600', color: '#374151' }}>Token Details</h4>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.5rem', fontSize: '0.75rem' }}>
+                {tokens.access_token && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                    <FiCheckCircle style={{ color: '#10b981', fontSize: '0.75rem' }} />
+                    <span>Access Token</span>
+                  </div>
+                )}
+                {tokens.id_token && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                    <FiCheckCircle style={{ color: '#10b981', fontSize: '0.75rem' }} />
+                    <span>ID Token</span>
+                  </div>
+                )}
+                {tokens.refresh_token && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                    <FiCheckCircle style={{ color: '#10b981', fontSize: '0.75rem' }} />
+                    <span>Refresh Token</span>
+                  </div>
+                )}
+                {tokens.token_type && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                    <FiInfo style={{ color: '#6b7280', fontSize: '0.75rem' }} />
+                    <span>Type: {tokens.token_type}</span>
+                  </div>
+                )}
+                {tokens.expires_in && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                    <FiClock style={{ color: '#6b7280', fontSize: '0.75rem' }} />
+                    <span>Expires: {tokens.expires_in}s</span>
+                  </div>
+                )}
+              </div>
+              <div style={{ marginTop: '0.75rem' }}>
+                <Link 
+                  to="/token-management" 
+                  style={{ 
+                    display: 'inline-flex', 
+                    alignItems: 'center', 
+                    gap: '0.5rem',
+                    padding: '0.5rem 1rem',
+                    backgroundColor: '#3b82f6',
+                    color: 'white',
+                    textDecoration: 'none',
+                    borderRadius: '0.375rem',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    transition: 'background-color 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
+                >
+                  <FiTool size={16} />
+                  View Token Details
+                </Link>
+              </div>
+            </div>
+          )}
         </CardBody>
       </StatusCard>
 
@@ -394,14 +679,19 @@ const Dashboard = () => {
         {features.map((feature, index) => (
           <FeatureCard key={index}>
             <CardBody className="flex flex-col h-full">
-              {feature.icon}
-              <h3>{feature.title}</h3>
-              <p>{feature.description}</p>
+              <div style={{ fontSize: '2rem', marginBottom: '0.75rem', color: '#3b82f6' }}>
+                {feature.icon}
+              </div>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>{feature.title}</h3>
+              <p style={{ color: '#6b7280', fontSize: '0.875rem', lineHeight: '1.5', marginBottom: '1rem' }}>
+                {feature.description}
+              </p>
               <Link 
                 to={feature.link}
-                className="mt-auto inline-flex items-center text-sm font-medium text-primary hover:text-primary-dark"
+                className="mt-auto inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+                style={{ textDecoration: 'none' }}
               >
-                Learn more
+                Explore feature
                 <svg className="ml-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
                 </svg>
@@ -424,6 +714,43 @@ const Dashboard = () => {
           </ol>
         </CardBody>
       </Card>
+
+      {/* Activity Modal */}
+      {showActivityModal && (
+        <ModalOverlay onClick={() => setShowActivityModal(false)}>
+          <ModalContent onClick={(e) => e.stopPropagation()}>
+            <ModalHeader>
+              <h2>Recent Activity</h2>
+              <CloseButton onClick={() => setShowActivityModal(false)}>
+                ×
+              </CloseButton>
+            </ModalHeader>
+            <ActivityList>
+              {recentActivity.length > 0 ? (
+                recentActivity.map((item, index) => (
+                  <div key={index} className="activity-item">
+                    <div className="activity-icon">
+                      <FiActivity />
+                    </div>
+                    <div className="activity-content">
+                      <div className="activity-type">
+                        {item.type || 'Unknown Activity'}
+                      </div>
+                      <div className="activity-timestamp">
+                        {item.timestamp || 'No timestamp available'}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="no-activity">
+                  No recent activity to display
+                </div>
+              )}
+            </ActivityList>
+          </ModalContent>
+        </ModalOverlay>
+      )}
     </DashboardContainer>
   );
 };

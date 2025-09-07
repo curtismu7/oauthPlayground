@@ -273,7 +273,7 @@ class TokenLifecycleManager {
       if (!stored) return [];
       
       const data = JSON.parse(stored);
-      return data.map((item: any) => ({
+      return data.map((item: Record<string, unknown>) => ({
         ...item,
         createdAt: new Date(item.createdAt),
         expiresAt: new Date(item.expiresAt),
@@ -319,7 +319,7 @@ class TokenLifecycleManager {
       if (!stored) return [];
       
       const data = JSON.parse(stored);
-      return data.map((item: any) => ({
+      return data.map((item: Record<string, unknown>) => ({
         ...item,
         timestamp: new Date(item.timestamp)
       }));
