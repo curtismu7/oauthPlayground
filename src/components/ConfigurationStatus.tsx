@@ -368,6 +368,10 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
                   <FiCheckCircle className="check-icon" />
                   API URL: {credentialManager.getAllCredentials().authEndpoint || 'Default'}
                 </li>
+                <li>
+                  <FiCheckCircle className="check-icon" />
+                  Callback URL: {credentialManager.getAllCredentials().redirectUri || 'Not set'}
+                </li>
               </ul>
             </>
           )}
