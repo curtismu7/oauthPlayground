@@ -365,9 +365,9 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [credentials, setCredentials] = useState<Credentials>({
-    environmentId: 'b9817c16-9910-4415-b67e-4ac687da74d9',
-    clientId: 'a4f963ea-0736-456a-be72-b1fa4f63f81f',
-    clientSecret: 'YOUR_CLIENT_SECRET',
+    environmentId: '',
+    clientId: '',
+    clientSecret: '',
     tokenAuthMethod: 'client_secret_basic',
     clientAssertion: {
       hmacAlg: 'HS256',
@@ -405,6 +405,15 @@ const Login = () => {
     if (savedCredentials) {
       try {
         const parsedCredentials = JSON.parse(savedCredentials);
+        
+        // Check if the client secret is the problematic hardcoded one
+        if (parsedCredentials.clientSecret === 'YOUR_CLIENT_SECRET') {
+          console.log('🧹 [Login] Clearing problematic hardcoded client secret');
+          parsedCredentials.clientSecret = '';
+          // Update localStorage with cleared secret
+          localStorage.setItem('login_credentials', JSON.stringify(parsedCredentials));
+        }
+        
         console.log('✅ [Login] Found saved credentials:', {
           hasEnvironmentId: !!parsedCredentials.environmentId,
           hasClientId: !!parsedCredentials.clientId,

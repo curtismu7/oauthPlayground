@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { FiLoader, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
 import { useAuth } from '../contexts/NewAuthContext';
+import { getValidatedCurrentUrl } from '../utils/urlValidation';
 
 const CallbackContainer = styled.div`
   display: flex;
@@ -135,20 +136,68 @@ const Callback = () => {
             errorMessage = 'Service Unavailable: PingOne is temporarily unavailable. Please try again later.';
           }
           
+          // If this is a popup, send error to parent and close
+          if (window.opener && !window.opener.closed) {
+            console.log('📤 [Callback] Sending error message to parent window');
+            window.opener.postMessage({
+              type: 'oauth-callback',
+              error: urlParams.error,
+              error_description: errorMessage
+            }, window.location.origin);
+            setTimeout(() => {
+              window.close();
+            }, 1000);
+            setStatus('error');
+            setError(errorMessage);
+            return;
+          }
+          
           throw new Error(errorMessage);
         }
         
         // Check if we have the required parameters
         if (!urlParams.code) {
           console.error('❌ [Callback] No authorization code in URL parameters');
+          console.error('❌ [Callback] Available parameters:', Object.keys(urlParams));
+          
+          // If we're on the callback page but have no OAuth parameters, this might be a direct navigation
+          if (Object.keys(urlParams).length === 0) {
+            throw new Error('This appears to be a direct navigation to the callback page. Please start the OAuth flow from the Authorization Code Flow page.');
+          }
+          
           throw new Error('No authorization code received. The OAuth flow may have been interrupted.');
         }
         
         console.log('✅ [Callback] Authorization code found, processing callback...');
         
+        // Check if this is a popup window and send message to parent
+        if (window.opener && !window.opener.closed) {
+          console.log('📤 [Callback] Sending message to parent window');
+          window.opener.postMessage({
+            type: 'oauth-callback',
+            code: urlParams.code,
+            state: urlParams.state,
+            error: urlParams.error,
+            error_description: urlParams.error_description
+          }, window.location.origin);
+          
+          // Close the popup after a brief delay
+          setTimeout(() => {
+            window.close();
+          }, 1000);
+          
+          setStatus('success');
+          return;
+        }
+        
         // Ensure minimum spinner time while processing callback
         const start = Date.now();
-        const result = await handleCallback(window.location.href);
+        
+        // Validate the current URL before passing to handleCallback
+        const currentUrl = getValidatedCurrentUrl('Callback');
+        console.log('🔍 [Callback] Current URL for handleCallback:', currentUrl);
+        
+        const result = await handleCallback(currentUrl);
         const elapsed = Date.now() - start;
         const remaining = Math.max(2000 - elapsed, 0);
         if (remaining > 0) {

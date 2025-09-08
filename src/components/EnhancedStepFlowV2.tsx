@@ -43,6 +43,7 @@ export interface EnhancedFlowStep {
   icon?: React.ReactNode;
   code?: string;
   execute?: () => Promise<any>;
+  canExecute?: boolean;
   result?: any;
   error?: string;
   timestamp?: number;
@@ -513,7 +514,8 @@ const CopyButton = styled.button`
 
 // JSON Display
 const JsonDisplay = styled.div`
-  background: white;
+  background: #f9fafb;
+  color: #1f2937;
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
   padding: 1rem;
@@ -645,7 +647,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
           setStepHistory(data.stepHistory || []);
         }
       } catch (error) {
-        logger.warn('Failed to load persisted flow state', { error });
+        logger.warn('Failed to load persisted flow state', `error: ${error}`);
       }
     }
   }, [persistKey]);
@@ -661,7 +663,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
         };
         localStorage.setItem(`enhanced-flow-${persistKey}`, JSON.stringify(data));
       } catch (error) {
-        logger.warn('Failed to save flow state', { error });
+        logger.warn('Failed to save flow state', `error: ${error}`);
       }
     }
   }, [persistKey, currentStepIndex, stepHistory]);
@@ -684,16 +686,24 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 
   // Execute step
   const executeStep = useCallback(async (stepIndex: number) => {
+    console.log('🔧 [EnhancedStepFlowV2] executeStep called', { stepIndex, totalSteps: steps.length });
     const step = steps[stepIndex];
-    if (!step || !step.execute) return;
+    console.log('🔧 [EnhancedStepFlowV2] Current step:', { step: step?.title, hasExecute: !!step?.execute });
+    
+    if (!step || !step.execute) {
+      console.log('❌ [EnhancedStepFlowV2] No step or execute function found');
+      return;
+    }
 
     setIsExecuting(true);
     const startTime = Date.now();
 
     try {
-      logger.info(`Executing step: ${step.title}`, { stepId: step.id });
+      console.log('🚀 [EnhancedStepFlowV2] Starting execution of step:', step.title);
+      logger.info(`Executing step: ${step.title}`, `stepId: ${step.id}`);
       const result = await step.execute();
       const duration = Date.now() - startTime;
+      console.log('✅ [EnhancedStepFlowV2] Step execution completed:', { result, duration });
 
       const historyEntry: StepHistory = {
         stepId: step.id,
@@ -712,7 +722,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
         }, 1000);
       }
 
-      logger.info(`Step completed: ${step.title}`, { duration, result });
+      logger.info(`Step completed: ${step.title}`, `duration: ${duration}ms, result: ${JSON.stringify(result)}`);
     } catch (error) {
       const duration = Date.now() - startTime;
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -727,7 +737,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
       setStepHistory(prev => [...prev.filter(h => h.stepId !== step.id), historyEntry]);
       onStepError?.(step.id, errorMessage);
 
-      logger.error(`Step failed: ${step.title}`, { error: errorMessage, duration });
+      logger.error(`Step failed: ${step.title}`, `error: ${errorMessage}, duration: ${duration}ms`);
     } finally {
       setIsExecuting(false);
     }
@@ -768,7 +778,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
       setCopiedText(text);
       setTimeout(() => setCopiedText(null), 2000);
     } catch (error) {
-      logger.error('Failed to copy to clipboard', { error });
+      logger.error('Failed to copy to clipboard', `error: ${error}`);
     }
   }, []);
 
@@ -899,19 +909,47 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
             {currentStep.execute && (
               <Button
                 $variant="primary"
-                onClick={() => executeStep(currentStepIndex)}
-                disabled={isExecuting}
+                onClick={() => {
+                  console.log('🔧 [EnhancedStepFlowV2] Execute button clicked', { 
+                    currentStepIndex, 
+                    stepTitle: currentStep.title,
+                    hasExecute: !!currentStep.execute,
+                    canExecute: currentStep.canExecute
+                  });
+                  executeStep(currentStepIndex);
+                }}
+                disabled={isExecuting || !currentStep.canExecute}
                 $loading={isExecuting}
+                style={{ 
+                  opacity: !currentStep.canExecute ? 0.5 : 1,
+                  cursor: !currentStep.canExecute ? 'not-allowed' : 'pointer'
+                }}
+                title={!currentStep.canExecute ? 'Complete the previous step first' : ''}
               >
                 {isExecuting ? (
                   <>
                     <LoadingSpinner />
-                    Executing...
+                    {currentStep.id === 'setup-credentials' ? 'Saving...' :
+                     currentStep.id === 'generate-pkce' ? 'Generating...' :
+                     currentStep.id === 'build-auth-url' ? 'Building URL...' : 
+                     currentStep.id === 'exchange-tokens' ? 'Exchanging Tokens...' :
+                     currentStep.id === 'validate-tokens' ? 'Validating...' :
+                     'Executing...'}
                   </>
                 ) : (
                   <>
-                    <FiPlay />
-                    Execute
+                    {currentStep.id === 'setup-credentials' ? <FiSave /> :
+                     currentStep.id === 'generate-pkce' ? <FiShield /> :
+                     currentStep.id === 'build-auth-url' ? <FiGlobe /> : 
+                     currentStep.id === 'exchange-tokens' ? <FiKey /> :
+                     currentStep.id === 'validate-tokens' ? <FiUser /> :
+                     <FiPlay />}
+                    {currentStep.id === 'setup-credentials' ? 'Save' :
+                     currentStep.id === 'generate-pkce' ? 'Generate' :
+                     currentStep.id === 'build-auth-url' ? 'Build URL' : 
+                     currentStep.id === 'exchange-tokens' ? 'Exchange Tokens' :
+                     currentStep.id === 'validate-tokens' ? 'Get User Info' :
+                     'Execute'}
                   </>
                 )}
               </Button>
