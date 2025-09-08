@@ -20,12 +20,13 @@ const CallbackUrlHeader = styled.div`
   margin-bottom: 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  background-color: #f8fafc;
+  background-color: #f1f5f9 !important;
   padding: 1rem;
   border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
   
   &:hover {
-    opacity: 0.9;
+    background-color: #e2e8f0 !important;
   }
 `;
 
