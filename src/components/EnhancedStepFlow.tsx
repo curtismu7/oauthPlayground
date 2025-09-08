@@ -434,7 +434,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
           logger.info('EnhancedStepFlow', 'Loaded persisted state', state);
         }
       } catch (error) {
-        logger.error('EnhancedStepFlow', 'Failed to load persisted state', error);
+        logger.error('EnhancedStepFlow', 'Failed to load persisted state', error instanceof Error ? error.message : String(error), error instanceof Error ? error : undefined);
       }
     }
   }, [persistKey]);
@@ -452,7 +452,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
         localStorage.setItem(persistKey, JSON.stringify(state));
         logger.debug('EnhancedStepFlow', 'Saved state to localStorage', state);
       } catch (error) {
-        logger.error('EnhancedStepFlow', 'Failed to save state', error);
+        logger.error('EnhancedStepFlow', 'Failed to save state', error instanceof Error ? error.message : String(error), error instanceof Error ? error : undefined);
       }
     }
   }, [persistKey, currentStepIndex, stepResults, stepHistory]);
@@ -471,7 +471,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
     const startTime = Date.now();
 
     try {
-      logger.info('EnhancedStepFlow', `Executing step: ${stepId}`, { step: step.title });
+      logger.info('EnhancedStepFlow', `Executing step: ${stepId}`, `step: ${step.title}`);
       
       const result = await step.execute();
       const duration = Date.now() - startTime;
@@ -498,7 +498,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
       // Notify parent
       onStepComplete?.(stepId, result);
       
-      logger.success('EnhancedStepFlow', `Step completed: ${stepId}`, { result, duration });
+      logger.success('EnhancedStepFlow', `Step completed: ${stepId}`, `result: ${JSON.stringify(result)}, duration: ${duration}ms`);
       
       // Auto-advance if enabled
       if (autoAdvance && currentStepIndex < steps.length - 1) {
@@ -526,7 +526,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
       // Notify parent
       onStepError?.(stepId, errorMessage);
       
-      logger.error('EnhancedStepFlow', `Step failed: ${stepId}`, error);
+      logger.error('EnhancedStepFlow', `Step failed: ${stepId}`, error instanceof Error ? error.message : String(error), error instanceof Error ? error : undefined);
     } finally {
       setExecutingStep(null);
     }
@@ -536,7 +536,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
   const goToStep = useCallback((index: number) => {
     if (index >= 0 && index < steps.length && (allowStepJumping || Math.abs(index - currentStepIndex) <= 1)) {
       setCurrentStepIndex(index);
-      logger.debug('EnhancedStepFlow', `Navigated to step ${index}`, { stepId: steps[index]?.id });
+      logger.debug('EnhancedStepFlow', `Navigated to step ${index}`, `stepId: ${steps[index]?.id}`);
     }
   }, [steps, currentStepIndex, allowStepJumping]);
 
@@ -570,9 +570,9 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
       await navigator.clipboard.writeText(code);
       setCopiedCode(stepId);
       setTimeout(() => setCopiedCode(null), 2000);
-      logger.debug('EnhancedStepFlow', 'Code copied to clipboard', { stepId });
+      logger.debug('EnhancedStepFlow', 'Code copied to clipboard', `stepId: ${stepId}`);
     } catch (error) {
-      logger.error('EnhancedStepFlow', 'Failed to copy code', error);
+      logger.error('EnhancedStepFlow', 'Failed to copy code', error instanceof Error ? error.message : String(error), error instanceof Error ? error : undefined);
     }
   }, []);
 
@@ -605,7 +605,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
   useEffect(() => {
     if (isFlowComplete) {
       onFlowComplete?.(stepResults);
-      logger.success('EnhancedStepFlow', 'Flow completed', { results: stepResults });
+      logger.success('EnhancedStepFlow', 'Flow completed', `results: ${JSON.stringify(stepResults)}`);
     }
   }, [isFlowComplete, stepResults, onFlowComplete]);
 
