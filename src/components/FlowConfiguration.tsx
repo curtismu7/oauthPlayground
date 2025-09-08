@@ -1,11 +1,109 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from './Card';
-import { FiSettings, FiCopy, FiCheck } from 'react-icons/fi';
+import { FiSettings, FiCopy, FiCheck, FiSave, FiChevronDown, FiChevronRight } from 'react-icons/fi';
 import { useAccessibility } from '../hooks/useAccessibility';
 
 const ConfigContainer = styled.div`
   margin-bottom: 2rem;
+`;
+
+const SaveButton = styled.button`
+  background: #059669;
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  margin-top: 1.5rem;
+  width: 100%;
+  justify-content: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  
+  &:hover {
+    background: #047857;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+  
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  &:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+`;
+
+const SuccessMessage = styled.div`
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  animation: slideIn 0.3s ease;
+  
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+`;
+
+const CollapsibleHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    opacity: 0.8;
+  }
+  
+  h2 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .collapse-icon {
+    transition: transform 0.2s ease;
+    opacity: 0.7;
+    
+    &:hover {
+      opacity: 1;
+    }
+  }
+`;
+
+const CollapsibleContent = styled.div<{ $isExpanded: boolean }>`
+  max-height: ${({ $isExpanded }) => $isExpanded ? '2000px' : '0'};
+  overflow: hidden;
+  transition: max-height 0.3s ease;
 `;
 
 const ConfigSection = styled.div`
@@ -256,6 +354,9 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
   flowType
 }) => {
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
   const { announceToScreenReader } = useAccessibility();
 
   const updateConfig = (updates: Partial<FlowConfig>) => {
@@ -362,15 +463,44 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
     updateConfig({ state: generateRandomString(32) });
   };
 
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      // Simulate save operation (in a real app, this would save to backend/localStorage)
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Show success message
+      setShowSuccessMessage(true);
+      announceToScreenReader('Configuration saved successfully');
+      
+      // Hide success message after 3 seconds
+      setTimeout(() => {
+        setShowSuccessMessage(false);
+      }, 3000);
+    } catch (error) {
+      console.error('Failed to save configuration:', error);
+      announceToScreenReader('Failed to save configuration');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <ConfigContainer>
       <Card>
         <CardHeader>
-          <h3>Flow Configuration</h3>
+          <CollapsibleHeader onClick={() => setIsExpanded(!isExpanded)}>
+            <h3>
+              <FiSettings />
+              Flow Configuration
+            </h3>
+            {isExpanded ? <FiChevronDown className="collapse-icon" /> : <FiChevronRight className="collapse-icon" />}
+          </CollapsibleHeader>
           <p>Customize OAuth parameters to see how they affect the flow</p>
         </CardHeader>
         <CardBody>
-          {/* Basic OAuth Parameters */}
+          <CollapsibleContent $isExpanded={isExpanded}>
+            {/* Basic OAuth Parameters */}
           <ConfigSection>
             <h4>
               <FiSettings />
@@ -665,6 +795,21 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
               )}
             </div>
           </ConfigSection>
+          </CollapsibleContent>
+
+          {/* Save Button */}
+          <SaveButton onClick={handleSave} disabled={isSaving}>
+            <FiSave />
+            {isSaving ? 'Saving...' : 'Save Configuration'}
+          </SaveButton>
+
+          {/* Success Message */}
+          {showSuccessMessage && (
+            <SuccessMessage>
+              <FiCheck />
+              Configuration saved successfully!
+            </SuccessMessage>
+          )}
         </CardBody>
       </Card>
     </ConfigContainer>
