@@ -654,7 +654,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
               
               {config.enableOIDC && (
                 <div style={{ marginBottom: '0.5rem' }}>
-                  <strong>OIDC:</strong> Nonce: {config.nonce}, State: {config.state}
+                  <strong>OIDC:</strong> Nonce: {config.nonce}, <strong>State:</strong> {config.state}
                 </div>
               )}
               
