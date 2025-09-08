@@ -4,6 +4,7 @@ import { Card, CardHeader, CardBody } from '../components/Card';
 import { FiSave, FiAlertCircle, FiCheckCircle, FiEye, FiEyeOff, FiGlobe } from 'react-icons/fi';
 import DiscoveryPanel from '../components/DiscoveryPanel';
 import { OpenIDConfiguration } from '../services/discoveryService';
+import { credentialManager } from '../utils/credentialManager';
 
 const ConfigurationContainer = styled.div`
   max-width: 800px;
@@ -212,6 +213,10 @@ const Configuration = () => {
     authEndpoint: 'https://auth.pingone.com/{envId}/as/authorize',
     tokenEndpoint: 'https://auth.pingone.com/{envId}/as/token',
     userInfoEndpoint: 'https://auth.pingone.com/{envId}/as/userinfo',
+    enablePKCE: true,
+    codeChallengeMethod: 'S256',
+    responseType: 'code',
+    enableOIDC: true,
   });
   
   const [errors, setErrors] = useState({});
@@ -222,18 +227,47 @@ const Configuration = () => {
   
   // Load saved configuration on component mount
   useEffect(() => {
-    const savedConfig = localStorage.getItem('pingone_config');
-    if (savedConfig) {
-      try {
-        const parsedConfig = JSON.parse(savedConfig);
-        setFormData(prev => ({
-          ...prev,
-          ...parsedConfig
-        }));
-      } catch (error) {
-        console.error('Failed to load saved configuration:', error);
+    // Load from credential manager first
+    const permanentCredentials = credentialManager.loadPermanentCredentials();
+    
+    if (permanentCredentials.environmentId || permanentCredentials.clientId) {
+      console.log('✅ [Configuration] Loading from credential manager');
+      setFormData(prev => ({
+        ...prev,
+        environmentId: permanentCredentials.environmentId || '',
+        clientId: permanentCredentials.clientId || '',
+        redirectUri: permanentCredentials.redirectUri || prev.redirectUri,
+        scopes: Array.isArray(permanentCredentials.scopes) ? permanentCredentials.scopes.join(' ') : permanentCredentials.scopes || prev.scopes,
+        authEndpoint: permanentCredentials.authEndpoint || prev.authEndpoint,
+        tokenEndpoint: permanentCredentials.tokenEndpoint || prev.tokenEndpoint,
+        userInfoEndpoint: permanentCredentials.userInfoEndpoint || prev.userInfoEndpoint,
+        endSessionEndpoint: permanentCredentials.endSessionEndpoint || prev.endSessionEndpoint
+      }));
+    } else {
+      // Fallback to legacy pingone_config
+      const savedConfig = localStorage.getItem('pingone_config');
+      if (savedConfig) {
+        try {
+          const parsedConfig = JSON.parse(savedConfig);
+          
+          // Check if the client secret is the problematic hardcoded one
+          if (parsedConfig.clientSecret === '0mClRqd3fif2vh4WJCO6B-8OZuOokzsh5gLw1V3GHbeGJYCMLk_zPfrptWzfYJ.a') {
+            console.log('🧹 [Configuration] Clearing problematic hardcoded client secret');
+            parsedConfig.clientSecret = '';
+            // Update localStorage with cleared secret
+            localStorage.setItem('pingone_config', JSON.stringify(parsedConfig));
+          }
+          
+          setFormData(prev => ({
+            ...prev,
+            ...parsedConfig
+          }));
+        } catch (error) {
+          console.error('Failed to load saved configuration:', error);
+        }
       }
     }
+    
     // Show spinner for 2 seconds
     setTimeout(() => setInitialLoading(false), 2000);
   }, []);
@@ -304,15 +338,28 @@ const Configuration = () => {
         userInfoEndpoint: formData.userInfoEndpoint.replace('{envId}', formData.environmentId),
       };
 
-      console.log('💾 [Configuration] Saving config to localStorage:', configToSave);
+      console.log('💾 [Configuration] Saving config using credential manager:', configToSave);
 
-      // Save to localStorage
+      // Save permanent credentials (Environment ID, Client ID, etc.)
+      const permanentSuccess = credentialManager.savePermanentCredentials({
+        environmentId: configToSave.environmentId,
+        clientId: configToSave.clientId,
+        redirectUri: configToSave.redirectUri,
+        scopes: configToSave.scopes ? configToSave.scopes.split(' ') : ['openid', 'profile', 'email'],
+        authEndpoint: configToSave.authEndpoint,
+        tokenEndpoint: configToSave.tokenEndpoint,
+        userInfoEndpoint: configToSave.userInfoEndpoint,
+        endSessionEndpoint: configToSave.endSessionEndpoint
+      });
+
+      // Also save to legacy pingone_config for backward compatibility
       localStorage.setItem('pingone_config', JSON.stringify(configToSave));
 
       // Dispatch custom event to notify other components that config has changed
       window.dispatchEvent(new CustomEvent('pingone-config-changed'));
+      window.dispatchEvent(new CustomEvent('permanent-credentials-changed'));
 
-      console.log('✅ [Configuration] Config saved to localStorage successfully');
+      console.log('✅ [Configuration] Config saved successfully:', { permanentSuccess });
 
       setSaveStatus({
         type: 'success',
@@ -530,6 +577,82 @@ const Configuration = () => {
               />
               <div className="form-text">
                 Space-separated list of scopes to request. Common scopes: openid, profile, email, offline_access
+              </div>
+            </FormGroup>
+
+            <h3 style={{ margin: '2rem 0 1rem', fontSize: '1.25rem' }}>OAuth Flow Settings</h3>
+            
+            <FormGroup>
+              <label htmlFor="responseType">Response Type</label>
+              <select
+                id="responseType"
+                name="responseType"
+                value={formData.responseType}
+                onChange={handleChange}
+              >
+                <option value="code">code (Authorization Code Flow)</option>
+                <option value="id_token">id_token (Implicit Flow)</option>
+                <option value="id_token token">id_token token (Implicit Flow with Access Token)</option>
+                <option value="code id_token">code id_token (Hybrid Flow)</option>
+                <option value="code token">code token (Hybrid Flow)</option>
+                <option value="code id_token token">code id_token token (Hybrid Flow)</option>
+              </select>
+              <div className="form-text">
+                The OAuth response type determines which tokens are returned in the authorization response.
+              </div>
+            </FormGroup>
+
+            <FormGroup>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <input
+                  type="checkbox"
+                  id="enablePKCE"
+                  name="enablePKCE"
+                  checked={formData.enablePKCE}
+                  onChange={(e) => setFormData(prev => ({ ...prev, enablePKCE: e.target.checked }))}
+                />
+                <label htmlFor="enablePKCE" style={{ margin: 0, fontWeight: '500' }}>
+                  Enable PKCE (Proof Key for Code Exchange)
+                </label>
+              </div>
+              <div className="form-text">
+                PKCE adds security by preventing authorization code interception attacks. Recommended for all flows.
+              </div>
+            </FormGroup>
+
+            {formData.enablePKCE && (
+              <FormGroup>
+                <label htmlFor="codeChallengeMethod">Code Challenge Method</label>
+                <select
+                  id="codeChallengeMethod"
+                  name="codeChallengeMethod"
+                  value={formData.codeChallengeMethod}
+                  onChange={handleChange}
+                >
+                  <option value="S256">S256 (SHA256 - Recommended)</option>
+                  <option value="plain">plain (Plain text - Less secure)</option>
+                </select>
+                <div className="form-text">
+                  The method used to generate the code challenge from the code verifier.
+                </div>
+              </FormGroup>
+            )}
+
+            <FormGroup>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <input
+                  type="checkbox"
+                  id="enableOIDC"
+                  name="enableOIDC"
+                  checked={formData.enableOIDC}
+                  onChange={(e) => setFormData(prev => ({ ...prev, enableOIDC: e.target.checked }))}
+                />
+                <label htmlFor="enableOIDC" style={{ margin: 0, fontWeight: '500' }}>
+                  Enable OpenID Connect (OIDC)
+                </label>
+              </div>
+              <div className="form-text">
+                Enable OpenID Connect features like ID tokens and user information endpoints.
               </div>
             </FormGroup>
             

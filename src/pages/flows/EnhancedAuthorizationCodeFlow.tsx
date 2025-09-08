@@ -797,13 +797,13 @@ console.log('User Info:', userInfo);`,
         showDebugInfo={true}
         allowStepJumping={true}
         onStepComplete={(stepId, result) => {
-          logger.info('EnhancedAuthCodeFlow', `Step completed: ${stepId}`, result);
+          logger.info('EnhancedAuthCodeFlow', `Step completed: ${stepId}`, JSON.stringify(result));
         }}
         onStepError={(stepId, error) => {
           logger.error('EnhancedAuthCodeFlow', `Step failed: ${stepId}`, error);
         }}
         onFlowComplete={(results) => {
-          logger.success('EnhancedAuthCodeFlow', 'Flow completed successfully', results);
+          logger.success('EnhancedAuthCodeFlow', 'Flow completed successfully', JSON.stringify(results));
         }}
       />
     </Container>
