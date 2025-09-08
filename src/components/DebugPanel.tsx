@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { FiTerminal, FiX, FiDownload, FiTrash2, FiEye, FiEyeOff, FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { FiTerminal, FiX, FiDownload, FiTrash2, FiEye, FiEyeOff, FiChevronDown, FiChevronUp, FiMinimize2, FiMaximize2 } from 'react-icons/fi';
 import { logger } from '../utils/logger';
 import ErrorHelpPanel from './ErrorHelpPanel';
 import TokenExchangeDebugger from './TokenExchangeDebugger';
@@ -347,8 +347,8 @@ const DebugPanel: React.FC = () => {
             <FiDownload />
             Export
           </DebugButton>
-          <DebugButton onClick={handleToggle} title="Toggle panel">
-            <FiX />
+          <DebugButton onClick={handleToggle} title={isOpen ? "Minimize panel" : "Maximize panel"}>
+            {isOpen ? <FiMinimize2 /> : <FiMaximize2 />}
           </DebugButton>
         </DebugControls>
       </DebugHeader>
