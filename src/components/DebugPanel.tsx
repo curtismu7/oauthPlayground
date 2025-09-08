@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { FiTerminal, FiX, FiDownload, FiTrash2, FiEye, FiEyeOff } from 'react-icons/fi';
 import { logger } from '../utils/logger';
+import ErrorHelpPanel from './ErrorHelpPanel';
+import TokenExchangeDebugger from './TokenExchangeDebugger';
 
 const DebugPanelContainer = styled.div<{ $isOpen: boolean }>`
   position: fixed;
@@ -170,20 +172,70 @@ const DebugPanel: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [autoScroll, setAutoScroll] = useState(true);
+  const [hasRecentErrors, setHasRecentErrors] = useState(false);
+  const [dismissedErrors, setDismissedErrors] = useState(false);
+  const [errorHelpDismissed, setErrorHelpDismissed] = useState(false);
 
   useEffect(() => {
     // Get initial logs
     const initialLogs = logger.getLogHistory();
     setLogs(initialLogs);
+    checkForRecentErrors(initialLogs);
 
     // Set up interval to check for new logs
     const interval = setInterval(() => {
       const newLogs = logger.getLogHistory();
       setLogs(newLogs);
+      checkForRecentErrors(newLogs);
     }, 1000);
 
     return () => clearInterval(interval);
   }, []);
+
+  const checkForRecentErrors = (logEntries: LogEntry[]) => {
+    const fiveMinutesAgo = Date.now() - (5 * 60 * 1000);
+    const recentErrors = logEntries.filter(log => 
+      log.level === 'error' && 
+      new Date(log.timestamp).getTime() > fiveMinutesAgo
+    );
+    const hasErrors = recentErrors.length > 0;
+    setHasRecentErrors(hasErrors);
+    
+    // Reset dismissed state when new errors occur
+    if (hasErrors && errorHelpDismissed) {
+      setErrorHelpDismissed(false);
+    }
+    
+    // Reset dismiss state when new errors appear
+    if (recentErrors.length > 0) {
+      setErrorHelpDismissed(false);
+    }
+  };
+
+  const getErrorType = (): 'configuration' | 'network' | 'oauth' | 'general' => {
+    const recentLogs = logs.filter(log => 
+      log.level === 'error' && 
+      new Date(log.timestamp).getTime() > (Date.now() - 5 * 60 * 1000)
+    );
+
+    for (const log of recentLogs) {
+      const message = log.message.toLowerCase();
+      
+      if (message.includes('config') || message.includes('credential') || message.includes('environment')) {
+        return 'configuration';
+      }
+      
+      if (message.includes('network') || message.includes('fetch') || message.includes('connection') || message.includes('timeout')) {
+        return 'network';
+      }
+      
+      if (message.includes('oauth') || message.includes('token') || message.includes('authorization') || message.includes('scope')) {
+        return 'oauth';
+      }
+    }
+
+    return 'general';
+  };
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
@@ -214,7 +266,41 @@ const DebugPanel: React.FC = () => {
   const formatData = (data: unknown): string => {
     if (data === null || data === undefined) return '';
     if (typeof data === 'string') return data;
-    return JSON.stringify(data, null, 2);
+    if (typeof data === 'number' || typeof data === 'boolean') return String(data);
+    
+    // Handle DOM elements and other non-serializable objects
+    if (data instanceof HTMLElement) {
+      return `[DOM Element: ${data.tagName}]`;
+    }
+    
+    if (data instanceof Event) {
+      return `[Event: ${data.type}]`;
+    }
+    
+    if (data instanceof Error) {
+      return `[Error: ${data.message}]`;
+    }
+    
+    // Handle functions
+    if (typeof data === 'function') {
+      return `[Function: ${data.name || 'anonymous'}]`;
+    }
+    
+    // Handle objects with circular references
+    try {
+      return JSON.stringify(data, null, 2);
+    } catch (error) {
+      // If JSON.stringify fails, try to extract useful info
+      if (typeof data === 'object' && data !== null) {
+        try {
+          const keys = Object.keys(data);
+          return `[Object with keys: ${keys.join(', ')}]`;
+        } catch (keyError) {
+          return `[Object: ${data.constructor?.name || 'Unknown'}]`;
+        }
+      }
+      return `[${typeof data}: ${String(data)}]`;
+    }
   };
 
   return (
@@ -223,6 +309,16 @@ const DebugPanel: React.FC = () => {
         <DebugTitle>
           <FiTerminal />
           Debug Console ({logs.length} logs)
+          {hasRecentErrors && (
+            <span style={{ 
+              color: '#dc2626', 
+              fontSize: '0.75rem', 
+              marginLeft: '0.5rem',
+              fontWeight: 'bold'
+            }}>
+              ⚠️ ERRORS DETECTED
+            </span>
+          )}
         </DebugTitle>
         <DebugControls onClick={(e) => e.stopPropagation()}>
           <DebugButton
@@ -248,6 +344,23 @@ const DebugPanel: React.FC = () => {
       
       {isOpen && (
         <DebugContent>
+          {hasRecentErrors && !errorHelpDismissed && (
+            <>
+              <ErrorHelpPanel 
+                errorType={getErrorType()}
+                onRefresh={() => window.location.reload()}
+                onOpenSettings={() => {
+                  // Navigate to configuration page
+                  window.location.href = '/configuration';
+                }}
+                onDismiss={() => setErrorHelpDismissed(true)}
+              />
+              {getErrorType() === 'oauth' && (
+                <TokenExchangeDebugger />
+              )}
+            </>
+          )}
+          
           {logs.length === 0 ? (
             <EmptyState>No logs available</EmptyState>
           ) : (

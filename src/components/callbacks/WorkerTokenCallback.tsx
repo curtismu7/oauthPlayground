@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/NewAuthContext';
 import styled from 'styled-components';
 import { FiCheckCircle, FiXCircle, FiLoader } from 'react-icons/fi';
 import { logger } from '../../utils/logger';
+import { getValidatedCurrentUrl } from '../../utils/urlValidation';
 
 const CallbackContainer = styled.div`
   display: flex;
@@ -62,6 +63,7 @@ const StatusMessage = styled.p`
 
 const ErrorDetails = styled.pre`
   background: #f3f4f6;
+  color: #1f2937;
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
   padding: 1rem;
@@ -82,9 +84,10 @@ const WorkerTokenCallback: React.FC = () => {
   useEffect(() => {
     const processCallback = async () => {
       try {
-        logger.oauth('WorkerTokenCallback', 'Processing worker token callback', { url: location.href });
+        const currentUrl = getValidatedCurrentUrl('WorkerTokenCallback');
+        logger.oauth('WorkerTokenCallback', 'Processing worker token callback', { url: currentUrl });
         
-        const result = await handleCallback(location.href);
+        const result = await handleCallback(currentUrl);
         
         if (result.success) {
           setStatus('success');

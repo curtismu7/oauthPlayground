@@ -73,6 +73,7 @@ const WarningMessage = styled.div`
 
 const ErrorDetails = styled.pre`
   background: #f3f4f6;
+  color: #1f2937;
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
   padding: 1rem;

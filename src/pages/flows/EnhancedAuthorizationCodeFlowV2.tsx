@@ -18,12 +18,14 @@ import {
   FiEyeOff,
   FiZap,
   FiBookmark,
-  FiClock
+  FiClock,
+  FiLoader
 } from 'react-icons/fi';
 import EnhancedStepFlowV2, { EnhancedFlowStep } from '../../components/EnhancedStepFlowV2';
 import { generateCodeVerifier, generateCodeChallenge } from '../../utils/oauth';
 import { persistentCredentials } from '../../utils/persistentCredentials';
 import { logger } from '../../utils/logger';
+import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
 import '../../styles/enhanced-flow.css';
 
 // Styled Components for Enhanced UI
@@ -31,7 +33,7 @@ const FormField = styled.div`
   margin-bottom: 1rem;
 `;
 
-const FormLabel = styled.label`
+const FormLabel = styled.label<{ $highlight?: boolean }>`
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
@@ -42,16 +44,30 @@ const FormLabel = styled.label`
     content: ' *';
     color: #ef4444;
   }
+  
+  ${props => props.$highlight && `
+    color: #10b981;
+    font-size: 1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    
+    &::before {
+      content: "🎯";
+      font-size: 1.2rem;
+    }
+  `}
 `;
 
-const FormInput = styled.input`
+const FormInput = styled.input<{ $generated?: boolean }>`
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid ${({ $generated }) => $generated ? '#10b981' : '#e5e7eb'};
   border-radius: 0.5rem;
   font-size: 1rem;
   transition: all 0.2s ease;
-  background: white;
+  background: ${({ $generated }) => $generated ? '#f0fdf4' : 'white'};
   color: #1f2937;
   
   &:focus {
@@ -169,6 +185,8 @@ const UrlDisplay = styled.div`
   color: #e5e7eb;
   padding: 1rem;
   border-radius: 0.5rem;
+  border: 3px solid #10b981;
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.2), 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.875rem;
   line-height: 1.5;
@@ -176,6 +194,12 @@ const UrlDisplay = styled.div`
   margin: 1rem 0;
   position: relative;
   white-space: pre-wrap;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-color: #059669;
+    box-shadow: 0 0 0 1px rgba(5, 150, 105, 0.3), 0 6px 8px -1px rgba(0, 0, 0, 0.15);
+  }
 `;
 
 const CopyButton = styled.button`
@@ -226,6 +250,20 @@ const ParameterValue = styled.span`
   color: #6b7280;
   max-width: 60%;
   word-break: break-all;
+`;
+
+const JsonDisplay = styled.div`
+  background: #f9fafb;
+  color: #1f2937;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  position: relative;
 `;
 
 const TestingMethodCard = styled.div<{ $selected: boolean }>`
@@ -331,11 +369,12 @@ const DetailItem = styled.div`
 const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   const [credentials, setCredentials] = useState({
     clientId: '',
+    clientSecret: '',
     environmentId: '',
     authorizationEndpoint: '',
     tokenEndpoint: '',
     userInfoEndpoint: '',
-    redirectUri: 'https://localhost:3000/callback',
+    redirectUri: window.location.origin + '/authz-callback',
     scopes: 'openid profile email',
     responseType: 'code',
     codeChallengeMethod: 'S256'
@@ -353,6 +392,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   const [userInfo, setUserInfo] = useState<any>(null);
   const [testingMethod, setTestingMethod] = useState<'popup' | 'redirect'>('popup');
   const [copiedText, setCopiedText] = useState<string | null>(null);
+  const [isAuthorizing, setIsAuthorizing] = useState<boolean>(false);
+  const [isExchangingTokens, setIsExchangingTokens] = useState<boolean>(false);
 
   // Load persistent credentials
   useEffect(() => {
@@ -410,29 +451,54 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   // Handle authorization
   const handleAuthorization = useCallback(() => {
     if (testingMethod === 'popup') {
+      setIsAuthorizing(true);
       const popup = window.open(authUrl, 'oauth-popup', 'width=600,height=700');
       if (popup) {
+        // Listen for messages from the popup
+        const messageHandler = (event: MessageEvent) => {
+          if (event.origin !== window.location.origin) return;
+          if (event.data.type === 'oauth-callback') {
+            const { code: callbackCode, state: callbackState, error } = event.data;
+            if (error) {
+              logger.error('Authorization error received', error);
+              setIsAuthorizing(false);
+            } else if (callbackCode && callbackState === state) {
+              setAuthCode(callbackCode);
+              logger.info('Authorization code received via message', `code: ${callbackCode.substring(0, 10)}...`);
+              setIsAuthorizing(false);
+              popup.close();
+              window.removeEventListener('message', messageHandler);
+            }
+          }
+        };
+        window.addEventListener('message', messageHandler);
+        
+        // Check if popup was closed without completing auth
         const checkClosed = setInterval(() => {
           if (popup.closed) {
             clearInterval(checkClosed);
-            // Check for callback in URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const code = urlParams.get('code');
-            const stateParam = urlParams.get('state');
-            if (code && stateParam === state) {
-              setAuthCode(code);
+            window.removeEventListener('message', messageHandler);
+            setIsAuthorizing(false);
+            if (!authCode) {
+              logger.warn('Popup closed without authorization code');
             }
           }
         }, 1000);
+      } else {
+        setIsAuthorizing(false);
+        logger.error('Failed to open popup window');
       }
     } else {
+      // Full redirect
+      logger.info('Redirecting to authorization server', `url: ${authUrl}`);
       window.location.href = authUrl;
     }
-  }, [authUrl, testingMethod, state]);
+  }, [authUrl, testingMethod, state, authCode]);
 
   // Exchange code for tokens
   const exchangeCodeForTokens = useCallback(async () => {
     try {
+      setIsExchangingTokens(true);
       const response = await fetch(credentials.tokenEndpoint, {
         method: 'POST',
         headers: {
@@ -443,19 +509,32 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           code: authCode,
           redirect_uri: credentials.redirectUri,
           client_id: credentials.clientId,
-          code_verifier: pkceCodes.codeVerifier
+          code_verifier: pkceCodes.codeVerifier,
+          ...(credentials.clientSecret && { client_secret: credentials.clientSecret })
         })
       });
 
       if (!response.ok) {
-        throw new Error(`Token exchange failed: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        logger.error('Token exchange failed', { status: response.status, error: errorData });
+        
+        // Use PingOne error interpreter for friendly messages
+        const interpretedError = PingOneErrorInterpreter.interpret({
+          error: errorData.error || 'token_exchange_failed',
+          error_description: errorData.error_description || errorData.details || `HTTP ${response.status}: ${response.statusText}`,
+          details: errorData
+        });
+        
+        throw new Error(`${interpretedError.title}: ${interpretedError.message}${interpretedError.suggestion ? `\n\nSuggestion: ${interpretedError.suggestion}` : ''}`);
       }
 
       const tokenData = await response.json();
       setTokens(tokenData);
       logger.info('Tokens received', { tokenData });
+      setIsExchangingTokens(false);
     } catch (error) {
       logger.error('Token exchange failed', { error });
+      setIsExchangingTokens(false);
       throw error;
     }
   }, [credentials, authCode, pkceCodes.codeVerifier]);
@@ -474,7 +553,17 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error(`UserInfo request failed: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        logger.error('UserInfo request failed', { status: response.status, error: errorData });
+        
+        // Use PingOne error interpreter for friendly messages
+        const interpretedError = PingOneErrorInterpreter.interpret({
+          error: errorData.error || 'userinfo_request_failed',
+          error_description: errorData.error_description || errorData.details || `HTTP ${response.status}: ${response.statusText}`,
+          details: errorData
+        });
+        
+        throw new Error(`${interpretedError.title}: ${interpretedError.message}${interpretedError.suggestion ? `\n\nSuggestion: ${interpretedError.suggestion}` : ''}`);
       }
 
       const userData = await response.json();
@@ -556,6 +645,20 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           </FormField>
 
           <FormField>
+            <FormLabel>Client Secret</FormLabel>
+            <FormInput
+              type="password"
+              value={credentials.clientSecret || ''}
+              onChange={(e) => setCredentials(prev => ({ ...prev, clientSecret: e.target.value }))}
+              placeholder="your-client-secret (optional for PKCE)"
+            />
+            <ValidationIndicator $valid={true}>
+              <FiInfo />
+              Optional for PKCE flows, required for confidential clients
+            </ValidationIndicator>
+          </FormField>
+
+          <FormField>
             <FormLabel>Authorization Endpoint</FormLabel>
             <FormInput
               type="text"
@@ -617,6 +720,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               value={pkceCodes.codeVerifier}
               readOnly
               placeholder="Click Generate to create PKCE codes"
+              $generated={!!pkceCodes.codeVerifier}
             />
             {pkceCodes.codeVerifier && (
               <CopyButton onClick={() => copyToClipboard(pkceCodes.codeVerifier)}>
@@ -632,6 +736,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               value={pkceCodes.codeChallenge}
               readOnly
               placeholder="Click Generate to create PKCE codes"
+              $generated={!!pkceCodes.codeChallenge}
             />
             {pkceCodes.codeChallenge && (
               <CopyButton onClick={() => copyToClipboard(pkceCodes.codeChallenge)}>
@@ -659,7 +764,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       content: (
         <div>
           <FormField>
-            <FormLabel>Generated Authorization URL</FormLabel>
+            <FormLabel $highlight>Generated Authorization URL</FormLabel>
             <UrlDisplay>
               {authUrl || 'Click "Build URL" to generate the authorization URL'}
               {authUrl && (
@@ -669,6 +774,45 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               )}
             </UrlDisplay>
           </FormField>
+
+          {authUrl && (
+            <FormField>
+              <FormLabel>URL Components (JSON)</FormLabel>
+              <JsonDisplay>
+                {JSON.stringify({
+                  baseUrl: credentials.authorizationEndpoint,
+                  response_type: credentials.responseType,
+                  client_id: credentials.clientId,
+                  redirect_uri: credentials.redirectUri,
+                  scope: credentials.scopes,
+                  state: state,
+                  code_challenge: pkceCodes.codeChallenge,
+                  code_challenge_method: credentials.codeChallengeMethod
+                }, null, 2)}
+                <CopyButton onClick={() => copyToClipboard(JSON.stringify({
+                  baseUrl: credentials.authorizationEndpoint,
+                  response_type: credentials.responseType,
+                  client_id: credentials.clientId,
+                  redirect_uri: credentials.redirectUri,
+                  scope: credentials.scopes,
+                  state: state,
+                  code_challenge: pkceCodes.codeChallenge,
+                  code_challenge_method: credentials.codeChallengeMethod
+                }, null, 2))}>
+                  {copiedText === JSON.stringify({
+                    baseUrl: credentials.authorizationEndpoint,
+                    response_type: credentials.responseType,
+                    client_id: credentials.clientId,
+                    redirect_uri: credentials.redirectUri,
+                    scope: credentials.scopes,
+                    state: state,
+                    code_challenge: pkceCodes.codeChallenge,
+                    code_challenge_method: credentials.codeChallengeMethod
+                  }, null, 2) ? <FiCheckCircle /> : <FiCopy />}
+                </CopyButton>
+              </JsonDisplay>
+            </FormField>
+          )}
 
           {authUrl && (
             <ParameterBreakdown>
@@ -771,6 +915,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               value={authCode}
               onChange={(e) => setAuthCode(e.target.value)}
               placeholder="Authorization code will appear here automatically"
+              $generated={!!authCode}
             />
             <ValidationIndicator $valid={!!authCode}>
               {authCode ? <FiCheckCircle /> : <FiAlertTriangle />}
@@ -843,18 +988,72 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
 
           {tokens && (
             <div>
-              <h4>Token Response:</h4>
-              <UrlDisplay>
+              <h4>Token Response (JSON):</h4>
+              <JsonDisplay>
                 {JSON.stringify(tokens, null, 2)}
                 <CopyButton onClick={() => copyToClipboard(JSON.stringify(tokens, null, 2))}>
                   {copiedText === JSON.stringify(tokens, null, 2) ? <FiCheckCircle /> : <FiCopy />}
                 </CopyButton>
-              </UrlDisplay>
+              </JsonDisplay>
             </div>
           )}
+
+          <FormField>
+            <FormLabel>Token Request Details (JSON)</FormLabel>
+            <JsonDisplay>
+              {JSON.stringify({
+                endpoint: credentials.tokenEndpoint,
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: {
+                  grant_type: 'authorization_code',
+                  code: authCode || '[AUTHORIZATION_CODE]',
+                  redirect_uri: credentials.redirectUri,
+                  client_id: credentials.clientId,
+                  code_verifier: pkceCodes.codeVerifier || '[CODE_VERIFIER]',
+                  ...(credentials.clientSecret && { client_secret: credentials.clientSecret })
+                }
+              }, null, 2)}
+              <CopyButton onClick={() => copyToClipboard(JSON.stringify({
+                endpoint: credentials.tokenEndpoint,
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: {
+                  grant_type: 'authorization_code',
+                  code: authCode || '[AUTHORIZATION_CODE]',
+                  redirect_uri: credentials.redirectUri,
+                  client_id: credentials.clientId,
+                  code_verifier: pkceCodes.codeVerifier || '[CODE_VERIFIER]',
+                  ...(credentials.clientSecret && { client_secret: credentials.clientSecret })
+                }
+              }, null, 2))}>
+                {copiedText === JSON.stringify({
+                  endpoint: credentials.tokenEndpoint,
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                  },
+                  body: {
+                    grant_type: 'authorization_code',
+                    code: authCode || '[AUTHORIZATION_CODE]',
+                    redirect_uri: credentials.redirectUri,
+                    client_id: credentials.clientId,
+                    code_verifier: pkceCodes.codeVerifier || '[CODE_VERIFIER]'
+                  }
+                }, null, 2) ? <FiCheckCircle /> : <FiCopy />}
+              </CopyButton>
+            </JsonDisplay>
+          </FormField>
         </div>
       ),
-      execute: exchangeCodeForTokens
+      execute: async () => {
+        await exchangeCodeForTokens();
+        return { success: true };
+      }
     },
     {
       id: 'validate-tokens',
@@ -875,6 +1074,34 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               <ParameterValue>Bearer {tokens?.access_token ? tokens.access_token.substring(0, 20) + '...' : '[ACCESS_TOKEN]'}</ParameterValue>
             </ParameterItem>
           </ParameterBreakdown>
+
+          <FormField>
+            <FormLabel>UserInfo Request Details (JSON)</FormLabel>
+            <JsonDisplay>
+              {JSON.stringify({
+                endpoint: credentials.userInfoEndpoint,
+                method: 'GET',
+                headers: {
+                  'Authorization': `Bearer ${tokens?.access_token ? tokens.access_token.substring(0, 20) + '...' : '[ACCESS_TOKEN]'}`
+                }
+              }, null, 2)}
+              <CopyButton onClick={() => copyToClipboard(JSON.stringify({
+                endpoint: credentials.userInfoEndpoint,
+                method: 'GET',
+                headers: {
+                  'Authorization': `Bearer ${tokens?.access_token ? tokens.access_token.substring(0, 20) + '...' : '[ACCESS_TOKEN]'}`
+                }
+              }, null, 2))}>
+                {copiedText === JSON.stringify({
+                  endpoint: credentials.userInfoEndpoint,
+                  method: 'GET',
+                  headers: {
+                    'Authorization': `Bearer ${tokens?.access_token ? tokens.access_token.substring(0, 20) + '...' : '[ACCESS_TOKEN]'}`
+                  }
+                }, null, 2) ? <FiCheckCircle /> : <FiCopy />}
+              </CopyButton>
+            </JsonDisplay>
+          </FormField>
 
           {userInfo && (
             <div>
@@ -914,13 +1141,13 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                 </ProfileDetails>
               </UserProfileCard>
 
-              <h4>Raw Response:</h4>
-              <UrlDisplay>
+              <h4>Raw Response (JSON):</h4>
+              <JsonDisplay>
                 {JSON.stringify(userInfo, null, 2)}
                 <CopyButton onClick={() => copyToClipboard(JSON.stringify(userInfo, null, 2))}>
                   {copiedText === JSON.stringify(userInfo, null, 2) ? <FiCheckCircle /> : <FiCopy />}
                 </CopyButton>
-              </UrlDisplay>
+              </JsonDisplay>
             </div>
           )}
 
@@ -936,7 +1163,10 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           )}
         </div>
       ),
-      execute: getUserInfo
+      execute: async () => {
+        await getUserInfo();
+        return { success: true };
+      }
     }
   ];
 
