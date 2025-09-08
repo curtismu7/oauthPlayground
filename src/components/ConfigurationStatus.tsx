@@ -11,6 +11,7 @@ import {
 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { credentialManager } from '../utils/credentialManager';
+import { getCallbackUrlForFlow } from '../utils/callbackUrls';
 
 interface ConfigurationStatusProps {
   config: any;
@@ -370,7 +371,7 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
                 </li>
                 <li>
                   <FiCheckCircle className="check-icon" />
-                  Callback URL: {credentialManager.getAllCredentials().redirectUri || 'Not set'}
+                  Callback URL: {flowType ? getCallbackUrlForFlow(flowType) : (credentialManager.getAllCredentials().redirectUri || 'Not set')}
                 </li>
               </ul>
             </>
