@@ -12,7 +12,8 @@ import {
   FiChevronRight,
   FiStar,
   FiCheckCircle,
-  FiXCircle
+  FiXCircle,
+  FiZap
 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 
@@ -354,6 +355,30 @@ const flowCategories: FlowCategory[] = [
         useCases: ['Web Apps', 'Mobile Apps', 'SPAs'],
         route: '/flows/authorization-code'
       },
+        {
+          id: 'enhanced-authorization-code',
+          title: '🚀 Enhanced Authorization Code Flow',
+          description: 'Redesigned with better UX, persistent credentials, and step-by-step debugging',
+          icon: <FiZap />,
+          security: 'high',
+          recommended: true,
+          complexity: 'medium',
+          implementationTime: '2-3 hours',
+          useCases: ['Learning', 'Debugging', 'Development'],
+          route: '/flows/enhanced-authorization-code'
+        },
+        {
+          id: 'enhanced-authorization-code-v2',
+          title: '🎨 Enhanced Authorization Code Flow V2',
+          description: 'Complete UI design implementation with visual design system, responsive layout, and accessibility features',
+          icon: <FiZap />,
+          security: 'high',
+          recommended: true,
+          complexity: 'medium',
+          implementationTime: '2-3 hours',
+          useCases: ['Learning', 'Debugging', 'Development', 'UI/UX Reference'],
+          route: '/flows/enhanced-authorization-code-v2'
+        },
       {
         id: 'pkce',
         title: 'PKCE Flow',
