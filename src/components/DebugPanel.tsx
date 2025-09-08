@@ -369,7 +369,7 @@ const DebugPanel: React.FC = () => {
                 <LogTimestamp>{formatTimestamp(log.timestamp)}</LogTimestamp>
                 <LogLevel $level={log.level}>{log.level}</LogLevel>
                 <LogComponent>[{log.component}]</LogComponent>
-                <LogMessage>{log.message}</LogMessage>
+                <LogMessage>{formatData(log.message)}</LogMessage>
                 {log.data ? (
                   <LogData>{formatData(log.data)}</LogData>
                 ) : null}
