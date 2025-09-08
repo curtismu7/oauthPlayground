@@ -366,10 +366,11 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
     console.log('🔧 [CredentialSetupModal] Form data changed:', formData);
   }, [formData]);
 
-  // Validate UUID format
+  // Validate Environment ID format (more flexible for PingOne)
   const validateEnvironmentId = (envId: string): boolean => {
-    const uuidRegex = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
-    return uuidRegex.test(envId);
+    // PingOne Environment IDs can be UUIDs or other formats
+    // Just check that it's not empty and has reasonable length
+    return envId.trim().length > 0 && envId.trim().length >= 8;
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -391,10 +392,12 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
+    console.log('🔧 [CredentialSetupModal] Validating form data:', formData);
+
     if (!formData.environmentId) {
       newErrors.environmentId = 'Environment ID is required';
     } else if (!validateEnvironmentId(formData.environmentId)) {
-      newErrors.environmentId = 'Environment ID must be a valid UUID format';
+      newErrors.environmentId = 'Environment ID must be at least 8 characters long';
     }
 
     if (!formData.clientId) {
@@ -408,7 +411,9 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const isValid = Object.keys(newErrors).length === 0;
+    console.log('🔧 [CredentialSetupModal] Validation result:', { isValid, errors: newErrors });
+    return isValid;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
