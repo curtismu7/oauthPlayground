@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { getValidatedCurrentUrl } from '../utils/urlValidation';
 import { 
   generateRandomString, 
   generateCodeVerifier, 
@@ -565,13 +566,19 @@ export const OAuthProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Handle OAuth callback on component mount if we're on the callback URL
   useEffect(() => {
     if (location.pathname === '/callback' && location.search) {
-      handleCallback(window.location.href).then(success => {
-        if (success) {
-          navigate('/dashboard');
-        } else {
-          navigate('/login', { state: { error: 'Authentication failed' } });
-        }
-      });
+      try {
+        const currentUrl = getValidatedCurrentUrl('OAuthContext');
+        handleCallback(currentUrl).then(success => {
+          if (success) {
+            navigate('/dashboard');
+          } else {
+            navigate('/login', { state: { error: 'Authentication failed' } });
+          }
+        });
+      } catch (error) {
+        console.error('Invalid callback URL detected:', error);
+        navigate('/login', { state: { error: 'Invalid callback URL' } });
+      }
     }
   }, [location, navigate, handleCallback]);
   

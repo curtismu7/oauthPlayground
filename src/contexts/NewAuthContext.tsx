@@ -4,7 +4,9 @@ import type { OAuthTokens, UserInfo, OAuthTokenResponse } from '../types/storage
 import { AuthContextType, AuthState, LoginResult } from '../types/auth';
 import { logger } from '../utils/logger';
 import { PingOneErrorInterpreter } from '../utils/pingoneErrorInterpreter';
+import { validateAndParseCallbackUrl } from '../utils/urlValidation';
 import config from '../services/config';
+import { credentialManager } from '../utils/credentialManager';
 
 // Define window interface for PingOne environment variables
 interface WindowWithPingOne extends Window {
@@ -91,22 +93,21 @@ function loadConfiguration(): AppConfig {
       return envConfig;
     }
 
-    // Otherwise, try to get from localStorage
-    const storedConfig = localStorage.getItem('pingone_config');
-    if (storedConfig) {
-      const parsed = JSON.parse(storedConfig);
+    // Otherwise, try to get from credential manager
+    const allCredentials = credentialManager.getAllCredentials();
+    if (allCredentials.environmentId && allCredentials.clientId) {
       return {
         disableLogin: false,
-        clientId: parsed.clientId || '',
-        clientSecret: parsed.clientSecret || '',
-        redirectUri: parsed.redirectUri || `${window.location.origin}/callback`,
-        authorizationEndpoint: parsed.authorizationEndpoint || '',
-        tokenEndpoint: parsed.tokenEndpoint || '',
-        userInfoEndpoint: parsed.userInfoEndpoint || '',
-        endSessionEndpoint: parsed.endSessionEndpoint || '',
-        scopes: parsed.scopes || ['openid', 'profile', 'email'],
-        environmentId: parsed.environmentId || '',
-        hasConfigError: parsed.hasConfigError || false,
+        clientId: allCredentials.clientId,
+        clientSecret: allCredentials.clientSecret || '',
+        redirectUri: allCredentials.redirectUri || `${window.location.origin}/dashboard-callback`,
+        authorizationEndpoint: allCredentials.authEndpoint || '',
+        tokenEndpoint: allCredentials.tokenEndpoint || '',
+        userInfoEndpoint: allCredentials.userInfoEndpoint || '',
+        endSessionEndpoint: allCredentials.endSessionEndpoint || '',
+        scopes: allCredentials.scopes || ['openid', 'profile', 'email'],
+        environmentId: allCredentials.environmentId,
+        hasConfigError: false,
       };
     }
 
@@ -256,13 +257,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     // Listen for custom config change events
-    window.addEventListener('pingone_config_changed', handleConfigChange);
+    window.addEventListener('pingone-config-changed', handleConfigChange);
+    window.addEventListener('permanent-credentials-changed', handleConfigChange);
     
     // Also listen for storage changes
     window.addEventListener('storage', handleConfigChange);
 
     return () => {
-      window.removeEventListener('pingone_config_changed', handleConfigChange);
+      window.removeEventListener('pingone-config-changed', handleConfigChange);
+      window.removeEventListener('permanent-credentials-changed', handleConfigChange);
       window.removeEventListener('storage', handleConfigChange);
     };
   }, []);
@@ -335,10 +338,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initializeAuth();
   }, [updateState]);
 
+  // Listen for configuration changes from the Configuration page
+  useEffect(() => {
+    const handleConfigChange = () => {
+      try {
+        const newConfig = loadConfiguration();
+        setConfig(newConfig);
+        logger.info('NewAuthContext', 'Configuration updated from localStorage');
+      } catch (error) {
+        logger.error('NewAuthContext', 'Error reloading configuration', error);
+      }
+    };
+
+    // Listen for the custom event dispatched when config is saved
+    window.addEventListener('pingone-config-changed', handleConfigChange);
+    
+    return () => {
+      window.removeEventListener('pingone-config-changed', handleConfigChange);
+    };
+  }, []);
+
   // Login function
   const login = useCallback(async (redirectAfterLogin = '/', callbackType: 'dashboard' | 'oauth' = 'oauth'): Promise<LoginResult> => {
     try {
-      if (!config?.pingone?.clientId || !config?.pingone?.environmentId) {
+      if (!config?.clientId || !config?.environmentId) {
         const errorMessage = 'Configuration required. Please configure your PingOne settings first.';
         updateState({ error: errorMessage, isLoading: false });
         return { success: false, error: errorMessage };
@@ -413,13 +436,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Handle OAuth callback
   const handleCallback = useCallback(async (url: string): Promise<LoginResult> => {
     try {
-      const urlObj = new URL(url);
-      const params = new URLSearchParams(urlObj.search);
-      
-      const code = params.get('code');
-      const state = params.get('state');
-      const error = params.get('error');
-      const errorDescription = params.get('error_description');
+      // Validate and parse the callback URL
+      const { urlObj, params, code, state, error, errorDescription } = validateAndParseCallbackUrl(url, 'NewAuthContext');
       
       // Check for OAuth error
       if (error) {
@@ -449,7 +467,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (!code) {
         const errorMessage = 'Authorization code not found in callback URL';
-        logger.error('NewAuthContext', 'No authorization code in callback', { url });
+        logger.error('NewAuthContext', 'No authorization code in callback', { 
+          url, 
+          params: Object.fromEntries(params.entries()),
+          hasCode: !!code,
+          hasState: !!state,
+          hasError: !!error
+        });
         updateState({ error: errorMessage, isLoading: false });
         return { success: false, error: errorMessage };
       }
@@ -588,12 +612,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Context value
   const contextValue = useMemo(() => {
-    // Safety check for config structure
-    const pingoneConfig = config?.pingone || {};
+    // Handle both config structures: config.pingone.* and config.*
+    const pingoneConfig = (config?.pingone as any) || (config as any) || {};
     
     // Debug logging for config issues
-    if (!config?.pingone) {
-      logger.warn('NewAuthContext', 'Config.pingone is undefined', { 
+    if (!config) {
+      logger.warn('NewAuthContext', 'Config is undefined', { 
         hasConfig: !!config, 
         configKeys: config ? Object.keys(config) : [],
         configStructure: config 
@@ -608,10 +632,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         clientSecret: pingoneConfig.clientSecret || '',
         environmentId: pingoneConfig.environmentId || '',
         redirectUri: pingoneConfig.redirectUri || '',
-        authEndpoint: pingoneConfig.authEndpoint || '',
+        authorizationEndpoint: pingoneConfig.authEndpoint || pingoneConfig.authorizationEndpoint || '',
         tokenEndpoint: pingoneConfig.tokenEndpoint || '',
         userInfoEndpoint: pingoneConfig.userInfoEndpoint || '',
-        endSessionEndpoint: pingoneConfig.logoutEndpoint || '',
+        endSessionEndpoint: pingoneConfig.logoutEndpoint || pingoneConfig.endSessionEndpoint || '',
+        scopes: pingoneConfig.scopes || ['openid', 'profile', 'email'],
+        // Also provide the original config structure for backward compatibility
+        pingone: {
+          clientId: pingoneConfig.clientId || '',
+          clientSecret: pingoneConfig.clientSecret || '',
+          environmentId: pingoneConfig.environmentId || '',
+          redirectUri: pingoneConfig.redirectUri || '',
+          authEndpoint: pingoneConfig.authEndpoint || pingoneConfig.authorizationEndpoint || '',
+          tokenEndpoint: pingoneConfig.tokenEndpoint || '',
+          userInfoEndpoint: pingoneConfig.userInfoEndpoint || '',
+          endSessionEndpoint: pingoneConfig.logoutEndpoint || pingoneConfig.endSessionEndpoint || '',
+        }
       },
       login,
       logout,

@@ -1,29 +1,69 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Card, CardHeader, CardBody } from './Card';
 import { 
   FiCheckCircle, 
   FiAlertCircle, 
   FiSettings, 
-  FiArrowRight,
+  FiChevronDown,
+  FiChevronRight,
   FiExternalLink,
   FiInfo
 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
+import { credentialManager } from '../utils/credentialManager';
 
 interface ConfigurationStatusProps {
   config: any;
   onConfigure?: () => void;
   onViewDetails?: () => void;
   flowType?: string;
+  defaultExpanded?: boolean;
 }
 
 const StatusContainer = styled.div`
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 `;
 
-const StatusCard = styled(Card)<{ $status: 'ready' | 'partial' | 'missing' }>`
-  border-left: 4px solid ${({ $status }) => {
+const CompactStatusBar = styled.div<{ $status: 'ready' | 'partial' | 'missing' }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background-color: ${({ $status }) => {
+    switch ($status) {
+      case 'ready': return '#f0fdf4';
+      case 'partial': return '#fffbeb';
+      case 'missing': return '#fef2f2';
+      default: return '#f9fafb';
+    }
+  }};
+  border: 1px solid ${({ $status }) => {
+    switch ($status) {
+      case 'ready': return '#bbf7d0';
+      case 'partial': return '#fde68a';
+      case 'missing': return '#fecaca';
+      default: return '#e5e7eb';
+    }
+  }};
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+`;
+
+const StatusLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+`;
+
+const StatusIcon = styled.div<{ $status: 'ready' | 'partial' | 'missing' }>`
+  font-size: 1.25rem;
+  color: ${({ $status }) => {
     switch ($status) {
       case 'ready': return '#22c55e';
       case 'partial': return '#f59e0b';
@@ -31,114 +71,76 @@ const StatusCard = styled(Card)<{ $status: 'ready' | 'partial' | 'missing' }>`
       default: return '#6b7280';
     }
   }};
-  
-  .status-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    
-    .status-icon {
-      font-size: 1.5rem;
-      color: ${({ $status }) => {
-        switch ($status) {
-          case 'ready': return '#22c55e';
-          case 'partial': return '#f59e0b';
-          case 'missing': return '#ef4444';
-          default: return '#6b7280';
-        }
-      }};
-    }
-    
-    .status-title {
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: ${({ theme }) => theme.colors.gray900};
-      margin: 0;
-    }
-  }
 `;
 
-const StatusMessage = styled.div`
-  color: ${({ theme }) => theme.colors.gray700};
-  line-height: 1.6;
-  margin-bottom: 1.5rem;
+const StatusText = styled.div`
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: ${({ theme }) => theme.colors.gray900};
 `;
 
-const ActionButtons = styled.div`
+const StatusRight = styled.div`
   display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-`;
-
-const PrimaryButton = styled.button`
-  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
+`;
+
+const CompactButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
   background-color: ${({ theme }) => theme.colors.primary};
   color: white;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
   
   &:hover {
     background-color: ${({ theme }) => theme.colors.primaryDark};
-    transform: translateY(-1px);
   }
 `;
 
-const SecondaryButton = styled.button`
+const CompactLinkButton = styled(Link)`
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background-color: transparent;
-  color: ${({ theme }) => theme.colors.gray700};
-  border: 1px solid ${({ theme }) => theme.colors.gray300};
-  border-radius: 0.5rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.gray50};
-    border-color: ${({ theme }) => theme.colors.gray400};
-  }
-`;
-
-const LinkButton = styled(Link)`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
   background-color: transparent;
   color: ${({ theme }) => theme.colors.primary};
   border: 1px solid ${({ theme }) => theme.colors.primary};
-  border-radius: 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
   font-weight: 500;
   text-decoration: none;
   transition: all 0.2s;
   
   &:hover {
     background-color: ${({ theme }) => theme.colors.primary}10;
-    transform: translateY(-1px);
   }
 `;
 
-const ConfigurationDetails = styled.div`
+const ExpandableContent = styled.div<{ $expanded: boolean }>`
+  max-height: ${({ $expanded }) => $expanded ? '500px' : '0'};
+  overflow: hidden;
+  transition: max-height 0.3s ease;
   background-color: ${({ theme }) => theme.colors.gray50};
-  border-radius: 0.5rem;
+  border: 1px solid ${({ theme }) => theme.colors.gray200};
+  border-top: none;
+  border-radius: 0 0 0.5rem 0.5rem;
+`;
+
+const ExpandedContent = styled.div`
   padding: 1rem;
-  margin-top: 1rem;
   
   .details-title {
     font-size: 0.875rem;
     font-weight: 600;
     color: ${({ theme }) => theme.colors.gray700};
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
   }
   
   .details-list {
@@ -165,35 +167,33 @@ const ConfigurationDetails = styled.div`
       }
     }
   }
+  
+  .action-buttons {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+  }
 `;
 
-const getConfigurationStatus = (config: any) => {
-  if (!config) {
-    return {
-      status: 'missing' as const,
-      message: 'PingOne configuration is not loaded. Please configure your settings to use this flow.',
-      missingItems: ['Client ID', 'Environment ID', 'API URL']
-    };
-  }
-
-  // Handle both config structures: config.pingone.* and config.*
-  const clientId = config.pingone?.clientId || config.clientId;
-  const environmentId = config.pingone?.environmentId || config.environmentId;
-  const authEndpoint = config.pingone?.authEndpoint || config.authorizationEndpoint;
+const getConfigurationStatus = () => {
+  // Use the credential manager to get the current status
+  const credentials = credentialManager.getAllCredentials();
+  const status = credentialManager.getCredentialsStatus();
   
   const missingItems = [];
   
-  if (!clientId) missingItems.push('Client ID');
-  if (!environmentId) missingItems.push('Environment ID');
-  if (!authEndpoint) missingItems.push('API URL');
+  if (!credentials.environmentId) missingItems.push('Environment ID');
+  if (!credentials.clientId) missingItems.push('Client ID');
+  if (!credentials.authEndpoint) missingItems.push('API URL');
 
-  if (missingItems.length === 0) {
+  if (status.overall === 'complete') {
     return {
       status: 'ready' as const,
       message: 'Your PingOne configuration is complete and ready to use. You can start the demo below.',
       missingItems: []
     };
-  } else if (missingItems.length < 3) {
+  } else if (status.overall === 'partial') {
     return {
       status: 'partial' as const,
       message: 'Your PingOne configuration is partially complete. Some features may not work properly.',
@@ -212,24 +212,45 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
   config, 
   onConfigure, 
   onViewDetails,
-  flowType 
+  flowType,
+  defaultExpanded = false
 }) => {
-  const [showDetails, setShowDetails] = useState(false);
-  const { status, message, missingItems } = getConfigurationStatus(config);
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+  const [statusData, setStatusData] = useState(() => getConfigurationStatus());
+  
+  // Update status when credentials change
+  useEffect(() => {
+    const handleCredentialChange = () => {
+      setStatusData(getConfigurationStatus());
+    };
 
-  const handleConfigure = () => {
+    // Listen for credential changes
+    window.addEventListener('permanent-credentials-changed', handleCredentialChange);
+    window.addEventListener('pingone-config-changed', handleCredentialChange);
+    
+    return () => {
+      window.removeEventListener('permanent-credentials-changed', handleCredentialChange);
+      window.removeEventListener('pingone-config-changed', handleCredentialChange);
+    };
+  }, []);
+
+  const { status, message, missingItems } = statusData;
+
+  const handleConfigure = (e: React.MouseEvent) => {
+    e.stopPropagation();
     console.log('🔧 [ConfigurationStatus] Configure button clicked', { status, config });
     if (onConfigure) {
       onConfigure();
     }
   };
 
-  const handleViewDetails = () => {
-    console.log('👁️ [ConfigurationStatus] View Details button clicked', { status, showDetails });
+  const handleViewDetails = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    console.log('👁️ [ConfigurationStatus] View Details button clicked', { status, isExpanded });
     if (onViewDetails) {
       onViewDetails();
     } else {
-      setShowDetails(!showDetails);
+      setIsExpanded(!isExpanded);
     }
   };
 
@@ -242,7 +263,7 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
     }
   };
 
-  const getStatusTitle = () => {
+  const getStatusText = () => {
     switch (status) {
       case 'ready': return 'Configuration Ready';
       case 'partial': return 'Partial Configuration';
@@ -255,25 +276,25 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
     switch (status) {
       case 'ready':
         return (
-          <PrimaryButton onClick={handleConfigure}>
+          <CompactButton onClick={handleConfigure}>
             <FiSettings />
-            Update Configuration
-          </PrimaryButton>
+            Update
+          </CompactButton>
         );
       case 'partial':
         return (
-          <PrimaryButton onClick={handleConfigure}>
+          <CompactButton onClick={handleConfigure}>
             <FiSettings />
-            Complete Configuration
-          </PrimaryButton>
+            Complete
+          </CompactButton>
         );
       case 'missing':
         return (
-          <LinkButton to="/configuration">
+          <CompactLinkButton to="/configuration">
             <FiSettings />
-            Configure PingOne
+            Configure
             <FiExternalLink />
-          </LinkButton>
+          </CompactLinkButton>
         );
       default:
         return null;
@@ -283,10 +304,10 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
   const getSecondaryAction = () => {
     if (status === 'ready') {
       return (
-        <SecondaryButton onClick={handleViewDetails}>
+        <CompactButton onClick={handleViewDetails}>
           <FiInfo />
-          View Details
-        </SecondaryButton>
+          Details
+        </CompactButton>
       );
     }
     return null;
@@ -294,24 +315,31 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
 
   return (
     <StatusContainer>
-      <StatusCard $status={status}>
-        <CardHeader>
-          <div className="status-header">
-            <div className="status-icon">{getStatusIcon()}</div>
-            <h3 className="status-title">{getStatusTitle()}</h3>
-          </div>
-        </CardHeader>
+      <CompactStatusBar 
+        $status={status} 
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <StatusLeft>
+          <StatusIcon $status={status}>{getStatusIcon()}</StatusIcon>
+          <StatusText>{getStatusText()}</StatusText>
+        </StatusLeft>
         
-        <CardBody>
-          <StatusMessage>{message}</StatusMessage>
-          
-          <ActionButtons>
-            {getPrimaryAction()}
-            {getSecondaryAction()}
-          </ActionButtons>
+        <StatusRight>
+          {getPrimaryAction()}
+          {getSecondaryAction()}
+          {isExpanded ? <FiChevronDown /> : <FiChevronRight />}
+        </StatusRight>
+      </CompactStatusBar>
+      
+      <ExpandableContent $expanded={isExpanded}>
+        <ExpandedContent>
+          <div className="details-title">Configuration Details:</div>
+          <div style={{ marginBottom: '1rem', fontSize: '0.875rem', color: '#6b7280' }}>
+            {message}
+          </div>
           
           {status !== 'ready' && missingItems.length > 0 && (
-            <ConfigurationDetails>
+            <>
               <div className="details-title">Missing Configuration:</div>
               <ul className="details-list">
                 {missingItems.map((item, index) => (
@@ -321,30 +349,30 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
                   </li>
                 ))}
               </ul>
-            </ConfigurationDetails>
+            </>
           )}
           
-          {status === 'ready' && showDetails && config && (
-            <ConfigurationDetails>
+          {status === 'ready' && (
+            <>
               <div className="details-title">Current Configuration:</div>
               <ul className="details-list">
                 <li>
                   <FiCheckCircle className="check-icon" />
-                  Client ID: {config.pingone?.clientId || config.clientId || 'Not set'}
+                  Client ID: {credentialManager.getAllCredentials().clientId || 'Not set'}
                 </li>
                 <li>
                   <FiCheckCircle className="check-icon" />
-                  Environment ID: {config.pingone?.environmentId || config.environmentId || 'Not set'}
+                  Environment ID: {credentialManager.getAllCredentials().environmentId || 'Not set'}
                 </li>
                 <li>
                   <FiCheckCircle className="check-icon" />
-                  API URL: {config.pingone?.authEndpoint || config.authorizationEndpoint || 'Default'}
+                  API URL: {credentialManager.getAllCredentials().authEndpoint || 'Default'}
                 </li>
               </ul>
-            </ConfigurationDetails>
+            </>
           )}
-        </CardBody>
-      </StatusCard>
+        </ExpandedContent>
+      </ExpandableContent>
     </StatusContainer>
   );
 };

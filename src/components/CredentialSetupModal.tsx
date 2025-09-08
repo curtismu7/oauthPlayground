@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { FiLock, FiAlertCircle, FiCheckCircle, FiEye, FiEyeOff } from 'react-icons/fi';
+import { credentialManager } from '../utils/credentialManager';
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -141,6 +142,39 @@ const SaveButton = styled.button`
   }
 `;
 
+const CancelButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #6b7280;
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  margin-right: 0.75rem;
+
+  &:hover {
+    background-color: #f9fafb;
+    border-color: #9ca3af;
+    color: #374151;
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+`;
+
 const Alert = styled.div<{ $variant?: 'success' | 'danger' | 'info' }>`
   padding: 1rem;
   margin-bottom: 1.5rem;
@@ -207,6 +241,49 @@ const Alert = styled.div<{ $variant?: 'success' | 'danger' | 'info' }>`
   }}
 `;
 
+const SecretInputContainer = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 600px;
+
+  input {
+    padding-right: 3rem;
+    font-family: Monaco, Menlo, "Ubuntu Mono", monospace;
+    font-size: 0.875rem;
+  }
+
+  .toggle-button {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6c757d;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s;
+
+    &:hover {
+      background-color: #f8f9fa;
+      color: #0070CC;
+    }
+
+    &:active {
+      transform: translateY(-50%) scale(0.95);
+    }
+
+    svg {
+      transition: all 0.2s;
+    }
+  }
+`;
+
 interface CredentialSetupModalProps {
   isOpen: boolean;
   onComplete: () => void;
@@ -217,13 +294,13 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
     environmentId: '',
     clientId: '',
     clientSecret: '',
-    redirectUri: window.location.origin + '/callback'
+    redirectUri: window.location.origin + '/dashboard-callback'
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [showSecret, setShowSecret] = useState(false);
   const [saveStatus, setSaveStatus] = useState<{ type: 'success' | 'danger'; title: string; message: string } | null>(null);
-  const [showClientSecret, setShowClientSecret] = useState(false);
   const [storedCredentials, setStoredCredentials] = useState<{
     pingone_config: Record<string, unknown>;
     login_credentials: Record<string, unknown>;
@@ -232,49 +309,50 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
   // Load existing credentials from localStorage when modal opens
   useEffect(() => {
     if (isOpen) {
-      console.log('🔍 [CredentialSetupModal] Loading existing credentials from localStorage...');
+      console.log('🔍 [CredentialSetupModal] Loading existing credentials from credential manager...');
       
       try {
-        const pingoneConfig = localStorage.getItem('pingone_config');
-        const loginCredentials = localStorage.getItem('login_credentials');
+        // Load credentials using the credential manager
+        const allCredentials = credentialManager.getAllCredentials();
         
-        console.log('🔍 [CredentialSetupModal] localStorage contents:');
-        console.log('   pingone_config:', pingoneConfig ? 'present' : 'missing');
-        console.log('   login_credentials:', loginCredentials ? 'present' : 'missing');
+        console.log('🔍 [CredentialSetupModal] Loaded credentials:', allCredentials);
+        
+        // Check if we have permanent credentials
+        const hasPermanentCredentials = credentialManager.arePermanentCredentialsComplete();
+        const hasSessionCredentials = !!allCredentials.clientSecret;
         
         const stored = {
-          pingone_config: pingoneConfig ? JSON.parse(pingoneConfig) : null,
-          login_credentials: loginCredentials ? JSON.parse(loginCredentials) : null
+          pingone_config: hasPermanentCredentials ? {
+            environmentId: allCredentials.environmentId,
+            clientId: allCredentials.clientId,
+            redirectUri: allCredentials.redirectUri
+          } : null,
+          login_credentials: hasSessionCredentials ? {
+            clientSecret: allCredentials.clientSecret
+          } : null
         };
         
         setStoredCredentials(stored);
         
         // Pre-populate form with existing credentials
-        if (stored.login_credentials) {
-          console.log('✅ [CredentialSetupModal] Pre-populating form with login_credentials');
-          setFormData(prev => ({
-            ...prev,
-            environmentId: stored.login_credentials.environmentId || '',
-            clientId: stored.login_credentials.clientId || '',
-            clientSecret: stored.login_credentials.clientSecret || ''
-          }));
-        } else if (stored.pingone_config) {
-          console.log('✅ [CredentialSetupModal] Pre-populating form with pingone_config');
-          setFormData(prev => ({
-            ...prev,
-            environmentId: stored.pingone_config.environmentId || '',
-            clientId: stored.pingone_config.clientId || '',
-            clientSecret: stored.pingone_config.clientSecret || '',
-            redirectUri: stored.pingone_config.redirectUri || prev.redirectUri
-          }));
+        if (hasPermanentCredentials || hasSessionCredentials) {
+          console.log('✅ [CredentialSetupModal] Pre-populating form with existing credentials');
+          const newFormData = {
+            environmentId: allCredentials.environmentId || '',
+            clientId: allCredentials.clientId || '',
+            clientSecret: allCredentials.clientSecret || '',
+            redirectUri: allCredentials.redirectUri || window.location.origin + '/dashboard-callback'
+          };
+          console.log('🔧 [CredentialSetupModal] Setting form data to:', newFormData);
+          setFormData(newFormData);
         } else {
           console.log('⚠️ [CredentialSetupModal] No existing credentials found');
         }
         
         console.log('✅ [CredentialSetupModal] Form pre-populated with:', {
-          environmentId: formData.environmentId,
-          hasClientId: !!formData.clientId,
-          hasClientSecret: !!formData.clientSecret
+          environmentId: allCredentials.environmentId,
+          hasClientId: !!allCredentials.clientId,
+          hasClientSecret: !!allCredentials.clientSecret
         });
         
       } catch (error) {
@@ -282,6 +360,11 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
       }
     }
   }, [isOpen]);
+
+  // Debug form data changes
+  useEffect(() => {
+    console.log('🔧 [CredentialSetupModal] Form data changed:', formData);
+  }, [formData]);
 
   // Validate UUID format
   const validateEnvironmentId = (envId: string): boolean => {
@@ -330,37 +413,43 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('🔧 [CredentialSetupModal] Save button clicked', { formData, errors });
 
     if (!validateForm()) {
+      console.log('❌ [CredentialSetupModal] Form validation failed', { errors });
       return;
     }
 
+    console.log('✅ [CredentialSetupModal] Form validation passed, starting save...');
     setIsLoading(true);
     setSaveStatus(null);
 
     try {
-      // Format configuration for storage
-      const configToSave = {
+      // Save permanent credentials (Environment ID, Client ID, etc.)
+      const permanentSuccess = credentialManager.savePermanentCredentials({
         environmentId: formData.environmentId,
         clientId: formData.clientId,
-        clientSecret: formData.clientSecret,
         redirectUri: formData.redirectUri,
-        scopes: 'openid profile email',
+        scopes: ['openid', 'profile', 'email'],
         authEndpoint: `https://auth.pingone.com/${formData.environmentId}/as/authorize`,
         tokenEndpoint: `https://auth.pingone.com/${formData.environmentId}/as/token`,
         userInfoEndpoint: `https://auth.pingone.com/${formData.environmentId}/as/userinfo`
-      };
+      });
 
-      // Save to localStorage
-      localStorage.setItem('pingone_config', JSON.stringify(configToSave));
-
-      // Also save as login_credentials for backward compatibility
-      const loginCredentials = {
-        environmentId: formData.environmentId,
-        clientId: formData.clientId,
+      // Save session credentials (Client Secret)
+      const sessionSuccess = credentialManager.saveSessionCredentials({
         clientSecret: formData.clientSecret
-      };
-      localStorage.setItem('login_credentials', JSON.stringify(loginCredentials));
+      });
+
+      if (!permanentSuccess || !sessionSuccess) {
+        throw new Error('Failed to save credentials to credential manager');
+      }
+
+      // Dispatch events to notify other components that config has changed
+      window.dispatchEvent(new CustomEvent('pingone-config-changed'));
+      window.dispatchEvent(new CustomEvent('permanent-credentials-changed'));
+
+      console.log('✅ [CredentialSetupModal] Configuration saved successfully to localStorage and events dispatched');
 
       setSaveStatus({
         type: 'success',
@@ -370,6 +459,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
 
       // Auto-close after success
       setTimeout(() => {
+        console.log('🔄 [CredentialSetupModal] Auto-closing modal after successful save');
         onComplete();
       }, 2000);
 
@@ -383,6 +473,10 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleCancel = () => {
+    onComplete();
   };
 
   if (!isOpen) {
@@ -422,20 +516,23 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
             </h4>
             <div style={{ fontSize: '0.85rem', color: '#6c757d' }}>
               <div style={{ marginBottom: '0.25rem' }}>
-                <strong>pingone_config:</strong> {storedCredentials?.pingone_config ? 
-                  <span style={{ color: '#28a745' }}>✅ Present</span> : 
+                <strong>Permanent Credentials:</strong> {credentialManager.arePermanentCredentialsComplete() ? 
+                  <span style={{ color: '#28a745' }}>✅ Complete</span> : 
                   <span style={{ color: '#dc3545' }}>❌ Missing</span>}
               </div>
               <div style={{ marginBottom: '0.25rem' }}>
-                <strong>login_credentials:</strong> {storedCredentials?.login_credentials ? 
+                <strong>Session Credentials:</strong> {credentialManager.getAllCredentials().clientSecret ? 
                   <span style={{ color: '#28a745' }}>✅ Present</span> : 
                   <span style={{ color: '#dc3545' }}>❌ Missing</span>}
               </div>
-              {storedCredentials?.login_credentials && (
+              <div style={{ marginBottom: '0.25rem', fontSize: '0.8rem', color: '#6c757d' }}>
+                <strong>Status:</strong> {credentialManager.getCredentialsStatus().overall}
+              </div>
+              {credentialManager.arePermanentCredentialsComplete() && (
                 <div style={{ marginTop: '0.5rem', padding: '0.5rem', backgroundColor: 'white', borderRadius: '4px', border: '1px solid #dee2e6' }}>
-                  <div><strong>Environment ID:</strong> {storedCredentials.login_credentials.environmentId || 'Not set'}</div>
-                  <div><strong>Client ID:</strong> {storedCredentials.login_credentials.clientId ? `${storedCredentials.login_credentials.clientId.substring(0, 12)}...` : 'Not set'}</div>
-                  <div><strong>Client Secret:</strong> {storedCredentials.login_credentials.clientSecret ? '••••••••' : 'Not set'}</div>
+                  <div><strong>Environment ID:</strong> {credentialManager.getAllCredentials().environmentId || 'Not set'}</div>
+                  <div><strong>Client ID:</strong> {credentialManager.getAllCredentials().clientId ? `${credentialManager.getAllCredentials().clientId.substring(0, 12)}...` : 'Not set'}</div>
+                  <div><strong>Client Secret:</strong> {credentialManager.getAllCredentials().clientSecret ? '••••••••' : 'Not set'}</div>
                 </div>
               )}
             </div>
@@ -484,46 +581,27 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
 
             <FormGroup>
               <label htmlFor="clientSecret">Client Secret</label>
-              <div style={{ position: 'relative', maxWidth: '600px' }}>
+              <SecretInputContainer>
                 <input
-                  type={showClientSecret ? 'text' : 'password'}
+                  type={showSecret ? 'text' : 'password'}
                   id="clientSecret"
                   name="clientSecret"
                   value={formData.clientSecret}
                   onChange={handleChange}
                   placeholder="Enter your application's Client Secret (optional)"
                   disabled={isLoading}
-                  style={{
-                    width: '100%',
-                    paddingRight: '2.5rem',
-                    fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
-                    fontSize: '0.875rem'
-                  }}
                 />
                 <button
                   type="button"
-                  onClick={() => setShowClientSecret(!showClientSecret)}
+                  className="toggle-button"
+                  onClick={() => setShowSecret(!showSecret)}
                   disabled={isLoading}
-                  style={{
-                    position: 'absolute',
-                    right: '0.75rem',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    color: '#6c757d',
-                    padding: '0.25rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                  aria-label={showClientSecret ? 'Hide client secret' : 'Show client secret'}
-                  title={showClientSecret ? 'Hide client secret' : 'Show client secret'}
+                  aria-label={showSecret ? 'Hide client secret' : 'Show client secret'}
+                  title={showSecret ? 'Hide client secret' : 'Show client secret'}
                 >
-                  {showClientSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                  {showSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
                 </button>
-              </div>
+              </SecretInputContainer>
               <div className="form-text">
                 Only required for confidential clients
               </div>
@@ -551,6 +629,9 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
         </ModalBody>
 
         <ModalFooter>
+          <CancelButton onClick={handleCancel} disabled={isLoading}>
+            Cancel
+          </CancelButton>
           <SaveButton onClick={handleSubmit} disabled={isLoading}>
             {isLoading ? 'Saving...' : 'Save Configuration'}
           </SaveButton>
