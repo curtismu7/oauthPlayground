@@ -800,7 +800,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
           {/* Save Button */}
           <SaveButton onClick={handleSave} disabled={isSaving}>
             <FiSave />
-            {isSaving ? 'Saving...' : 'Save Configuration'}
+            {isSaving ? 'Saving...' : 'Flow Config'}
           </SaveButton>
 
           {/* Success Message */}
