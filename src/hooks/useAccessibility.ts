@@ -198,7 +198,7 @@ export const useAccessibility = (config: UseAccessibilityConfig = {}): UseAccess
       }
     }
 
-    logger.info('[useAccessibility] Element focused:', event.target);
+    logger.info('[useAccessibility] Element focused:', event.target instanceof HTMLElement ? `[HTMLElement: ${event.target.tagName}]` : String(event.target));
   }, [announceChanges, screenReader, announcer]);
 
   // Handle blur events
@@ -206,7 +206,7 @@ export const useAccessibility = (config: UseAccessibilityConfig = {}): UseAccess
     setIsFocused(false);
     setHasFocus(false);
     
-    logger.info('[useAccessibility] Element blurred:', event.target);
+    logger.info('[useAccessibility] Element blurred:', event.target instanceof HTMLElement ? `[HTMLElement: ${event.target.tagName}]` : String(event.target));
   }, []);
 
   // Focus management functions

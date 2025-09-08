@@ -8,6 +8,7 @@ import './styles/spec-cards.css';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import CredentialSetupModal from './components/CredentialSetupModal';
+import { credentialManager } from './utils/credentialManager';
 import Dashboard from './pages/Dashboard';
 import Flows from './pages/Flows';
 import OAuthFlowsNew from './pages/OAuthFlowsNew';
@@ -18,6 +19,7 @@ import Documentation from './pages/Documentation';
 import Login from './pages/Login';
 import Callback from './pages/Callback';
 import { useAuth } from './contexts/NewAuthContext';
+import { useScrollToTop } from './hooks/useScrollToTop';
 
 // Import all the new OAuth and OIDC flow components
 import ImplicitGrantFlow from './pages/flows/ImplicitGrantFlow';
@@ -27,6 +29,7 @@ import WorkerTokenFlow from './pages/flows/WorkerTokenFlow';
 import DeviceCodeFlow from './pages/flows/DeviceCodeFlow';
 import HybridFlow from './pages/flows/HybridFlow';
 import AuthorizationCodeFlow from './pages/flows/AuthorizationCodeFlow';
+import AuthorizationCodeFlowBackup from './pages/flows/AuthorizationCodeFlow.backup';
 import EnhancedAuthorizationCodeFlow from './pages/flows/EnhancedAuthorizationCodeFlow';
 import EnhancedAuthorizationCodeFlowV2 from './pages/flows/EnhancedAuthorizationCodeFlowV2';
 import JWTBearerFlow from './pages/flows/JWTBearerFlow';
@@ -111,6 +114,9 @@ const AppRoutes = () => {
   const [showPageSpinner, setShowPageSpinner] = useState(false);
   const location = useLocation();
   const { showAuthModal, authRequestData, proceedWithOAuth, closeAuthModal } = useAuth();
+  
+  // Scroll to top when route changes
+  useScrollToTop();
 
   // Close sidebar when route changes
   useEffect(() => {
@@ -121,21 +127,9 @@ const AppRoutes = () => {
   useEffect(() => {
     setShowPageSpinner(true);
     
-    // Scroll to top immediately when route changes
-    window.scrollTo(0, 0);
-    const mainContent = document.querySelector('main');
-    if (mainContent) {
-      mainContent.scrollTo(0, 0);
-    }
-    
     // Hide spinner after minimum display time
     const timer = setTimeout(() => {
       setShowPageSpinner(false);
-      // Ensure scroll to top after spinner is hidden
-      window.scrollTo(0, 0);
-      if (mainContent) {
-        mainContent.scrollTo(0, 0);
-      }
     }, 800);
     
     return () => clearTimeout(timer);
@@ -146,18 +140,18 @@ const AppRoutes = () => {
     const checkConfiguration = () => {
       console.log('🔍 [App] Checking for existing configuration...');
       try {
-        const savedConfig = localStorage.getItem('pingone_config');
-        const savedCreds = localStorage.getItem('login_credentials');
+        // Check if we have any credentials using the credential manager
+        const hasPermanentCredentials = credentialManager.arePermanentCredentialsComplete();
+        const hasSessionCredentials = !!credentialManager.getAllCredentials().clientSecret;
 
         console.log('🔍 [App] Configuration check:', {
-          hasSavedConfig: !!savedConfig,
-          hasSavedCreds: !!savedCreds,
-          savedConfigKeys: savedConfig ? Object.keys(JSON.parse(savedConfig)) : [],
-          savedCredsKeys: savedCreds ? Object.keys(JSON.parse(savedCreds)) : []
+          hasPermanentCredentials,
+          hasSessionCredentials,
+          overallStatus: credentialManager.getCredentialsStatus()
         });
 
-        // Only show modal if BOTH configuration and credentials are missing
-        if (!savedConfig && !savedCreds) {
+        // Only show modal if no credentials are found
+        if (!hasPermanentCredentials && !hasSessionCredentials) {
           console.log('⚠️ [App] No credentials found, showing setup modal');
           setShowCredentialModal(true);
         } else {
@@ -210,11 +204,12 @@ const AppRoutes = () => {
             <Route path="/flows" element={<OAuthFlowsNew />} />
             <Route path="/flows/compare" element={<FlowComparisonTool />} />
             <Route path="/flows/diagrams" element={<InteractiveFlowDiagram />} />
+            <Route path="/flows/authorization-code" element={<AuthorizationCodeFlow />} />
             <Route path="/flows/enhanced-authorization-code" element={<EnhancedAuthorizationCodeFlow />} />
-        <Route path="/flows/enhanced-authorization-code-v2" element={<EnhancedAuthorizationCodeFlowV2 />} />
+            <Route path="/flows/enhanced-authorization-code-v2" element={<EnhancedAuthorizationCodeFlowV2 />} />
             
             <Route path="/flows-old" element={<Flows />}>
-              <Route path="authorization-code" element={<AuthorizationCodeFlow />} />
+              <Route path="authorization-code" element={<AuthorizationCodeFlowBackup />} />
               <Route path="implicit" element={<ImplicitGrantFlow />} />
               <Route path="client-credentials" element={<ClientCredentialsFlow />} />
               <Route path="worker-token" element={<WorkerTokenFlow />} />

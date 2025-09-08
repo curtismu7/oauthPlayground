@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { FiCopy, FiExternalLink, FiCheck, FiAlertTriangle } from 'react-icons/fi';
+import { FiCopy, FiExternalLink, FiCheck, FiAlertTriangle, FiChevronDown, FiChevronRight } from 'react-icons/fi';
 import { getCallbackUrlForFlow, getCallbackDescription, flowRequiresRedirectUri } from '../utils/callbackUrls';
 import { logger } from '../utils/logger';
 
@@ -15,8 +15,18 @@ const CallbackUrlContainer = styled.div`
 const CallbackUrlHeader = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.5rem;
   margin-bottom: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: #f8fafc;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  
+  &:hover {
+    opacity: 0.9;
+  }
 `;
 
 const CallbackUrlTitle = styled.h3`
@@ -26,10 +36,13 @@ const CallbackUrlTitle = styled.h3`
   margin: 0;
 `;
 
-const CallbackUrlContent = styled.div`
+const CallbackUrlContent = styled.div<{ $isExpanded: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  max-height: ${({ $isExpanded }) => $isExpanded ? '500px' : '0'};
+  overflow: hidden;
+  transition: max-height 0.3s ease;
 `;
 
 const UrlDisplay = styled.div`
@@ -120,7 +133,6 @@ const SetupInstructions = styled.div`
   background: #eff6ff;
   border: 1px solid #bfdbfe;
   border-radius: 0.5rem;
-  padding: 1rem;
   margin-top: 1rem;
 `;
 
@@ -129,6 +141,9 @@ const SetupTitle = styled.h4`
   font-weight: 600;
   color: #1e40af;
   margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 `;
 
 const SetupList = styled.ol`
@@ -146,10 +161,12 @@ const SetupListItem = styled.li`
 interface CallbackUrlDisplayProps {
   flowType: string;
   baseUrl?: string;
+  defaultExpanded?: boolean; // New prop to control default state
 }
 
-const CallbackUrlDisplay: React.FC<CallbackUrlDisplayProps> = ({ flowType, baseUrl }) => {
+const CallbackUrlDisplay: React.FC<CallbackUrlDisplayProps> = ({ flowType, baseUrl, defaultExpanded = false }) => {
   const [copied, setCopied] = useState(false);
+  const [isSetupExpanded, setIsSetupExpanded] = useState(defaultExpanded);
   
   const callbackUrl = getCallbackUrlForFlow(flowType, baseUrl);
   const description = getCallbackDescription(flowType);
@@ -159,7 +176,7 @@ const CallbackUrlDisplay: React.FC<CallbackUrlDisplayProps> = ({ flowType, baseU
     try {
       await navigator.clipboard.writeText(callbackUrl);
       setCopied(true);
-      logger.oauth('CallbackUrlDisplay', 'Callback URL copied to clipboard', { flowType, callbackUrl });
+      logger.auth('CallbackUrlDisplay', 'Callback URL copied to clipboard', { flowType, callbackUrl });
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
       logger.error('CallbackUrlDisplay', 'Failed to copy callback URL', error);
@@ -168,7 +185,7 @@ const CallbackUrlDisplay: React.FC<CallbackUrlDisplayProps> = ({ flowType, baseU
 
   const handleOpenInNewTab = () => {
     window.open(callbackUrl, '_blank');
-    logger.oauth('CallbackUrlDisplay', 'Callback URL opened in new tab', { flowType, callbackUrl });
+    logger.ui('CallbackUrlDisplay', 'Callback URL opened in new tab', { flowType, callbackUrl });
   };
 
   if (!requiresRedirect) {
@@ -194,10 +211,11 @@ const CallbackUrlDisplay: React.FC<CallbackUrlDisplayProps> = ({ flowType, baseU
 
   return (
     <CallbackUrlContainer>
-      <CallbackUrlHeader>
+      <CallbackUrlHeader onClick={() => setIsSetupExpanded(!isSetupExpanded)}>
         <CallbackUrlTitle>Configure in PingOne</CallbackUrlTitle>
+        {isSetupExpanded ? <FiChevronDown /> : <FiChevronRight />}
       </CallbackUrlHeader>
-      <CallbackUrlContent>
+      <CallbackUrlContent $isExpanded={isSetupExpanded}>
         <Description>{description}</Description>
         
         <UrlDisplay>
