@@ -38,6 +38,7 @@ import IDTokensFlow from './pages/flows/IDTokensFlow';
 import PARFlow from './pages/flows/PARFlow';
 import OIDC from './pages/OIDC';
 import TokenManagement from './pages/TokenManagement';
+import AutoDiscover from './pages/AutoDiscover';
 import AIOpenIDConnectOverview from './pages/AIOpenIDConnectOverview';
 import AdvancedConfiguration from './pages/AdvancedConfiguration';
 import InteractiveTutorials from './pages/InteractiveTutorials';
@@ -243,6 +244,7 @@ const AppRoutes = () => {
             <Route path="/docs/oidc-specs" element={<OIDCSpecs />} />
             <Route path="/docs/oidc-for-ai" element={<OIDCForAI />} />
 
+            <Route path="/auto-discover" element={<AutoDiscover />} />
             <Route path="/token-management" element={<TokenManagement />} />
 
             <Route path="/ai-overview" element={<AIOpenIDConnectOverview />} />
