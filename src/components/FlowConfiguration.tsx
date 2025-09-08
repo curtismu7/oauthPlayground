@@ -571,8 +571,8 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
           <ConfigSection>
             <h4>Custom Parameters</h4>
             <CustomClaimContainer>
-              {Object.entries(config.customParams).map(([key, value]) => (
-                <ClaimRow key={key}>
+              {Object.entries(config.customParams).map(([key, value], index) => (
+                <ClaimRow key={`param-${index}`}>
                   <input
                     type="text"
                     placeholder="Parameter name"
@@ -599,8 +599,8 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
             <ConfigSection>
               <h4>Custom Claims for ID Token</h4>
               <CustomClaimContainer>
-                {Object.entries(config.customClaims).map(([key, value]) => (
-                  <ClaimRow key={key}>
+                {Object.entries(config.customClaims).map(([key, value], index) => (
+                  <ClaimRow key={`claim-${index}`}>
                     <input
                       type="text"
                       placeholder="Claim name"
