@@ -613,7 +613,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
             </FormGroup>
 
             <FormGroup>
-              <label htmlFor="redirectUri">Redirect URI *</label>
+              <label htmlFor="redirectUri">Callback URL *</label>
               <input
                 type="url"
                 id="redirectUri"
@@ -622,12 +622,61 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
                 onChange={handleChange}
                 className={errors.redirectUri ? 'is-invalid' : ''}
                 disabled={isLoading}
+                placeholder="https://localhost:3000/authz-callback"
               />
               {errors.redirectUri && (
                 <div className="invalid-feedback">{errors.redirectUri}</div>
               )}
               <div className="form-text">
                 Must match the redirect URI configured in your PingOne application
+              </div>
+            </FormGroup>
+
+            <FormGroup>
+              <label htmlFor="authEndpoint">Authorization Endpoint</label>
+              <input
+                type="url"
+                id="authEndpoint"
+                name="authEndpoint"
+                value={formData.environmentId ? `https://auth.pingone.com/${formData.environmentId}/as/authorize` : ''}
+                readOnly
+                disabled
+                style={{ backgroundColor: '#f8f9fa', color: '#6c757d' }}
+              />
+              <div className="form-text">
+                Auto-generated from Environment ID
+              </div>
+            </FormGroup>
+
+            <FormGroup>
+              <label htmlFor="scopes">Scopes</label>
+              <input
+                type="text"
+                id="scopes"
+                name="scopes"
+                value="openid profile email"
+                readOnly
+                disabled
+                style={{ backgroundColor: '#f8f9fa', color: '#6c757d' }}
+              />
+              <div className="form-text">
+                Standard OAuth scopes for user authentication
+              </div>
+            </FormGroup>
+
+            <FormGroup>
+              <label htmlFor="responseType">Response Type</label>
+              <select
+                id="responseType"
+                name="responseType"
+                value="code"
+                disabled
+                style={{ backgroundColor: '#f8f9fa', color: '#6c757d' }}
+              >
+                <option value="code">code (Authorization Code Flow)</option>
+              </select>
+              <div className="form-text">
+                OAuth response type for authorization code flow
               </div>
             </FormGroup>
           </form>
