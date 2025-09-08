@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { FiSearch, FiCheckCircle, FiAlertCircle, FiRefreshCw, FiGlobe, FiX, FiCheck } from 'react-icons/fi';
 import { discoveryService, OpenIDConfiguration } from '../services/discoveryService';
 import { logger } from '../utils/logger';
+import { credentialManager } from '../utils/credentialManager';
 import CopyIcon from './CopyIcon';
 
 interface DiscoveryPanelProps {
@@ -247,6 +248,21 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
   const [status, setStatus] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
   const [discoveredConfig, setDiscoveredConfig] = useState<OpenIDConfiguration | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  // Load stored Environment ID when component mounts
+  useEffect(() => {
+    try {
+      const allCredentials = credentialManager.getAllCredentials();
+      if (allCredentials.environmentId) {
+        setEnvironmentId(allCredentials.environmentId);
+        logger.info('DiscoveryPanel', 'Pre-populated Environment ID from stored credentials', {
+          environmentId: allCredentials.environmentId
+        });
+      }
+    } catch (error) {
+      logger.error('DiscoveryPanel', 'Failed to load stored Environment ID', error);
+    }
+  }, []);
 
   const handleDiscover = async () => {
     if (!environmentId.trim()) {
