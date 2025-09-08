@@ -293,6 +293,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </NavItemHeader>
           
           <Submenu $isOpen={openMenus.resources}>
+            <SubmenuItem to="/auto-discover" onClick={onClose}>
+              Auto-discover
+            </SubmenuItem>
             <SubmenuItem to="/token-management" onClick={onClose}>
               Token Management
             </SubmenuItem>
