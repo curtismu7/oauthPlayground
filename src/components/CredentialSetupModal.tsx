@@ -294,7 +294,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
     environmentId: '',
     clientId: '',
     clientSecret: '',
-    redirectUri: window.location.origin + '/dashboard-callback'
+    redirectUri: window.location.origin + '/authz-callback'
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -341,7 +341,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
             environmentId: allCredentials.environmentId || '',
             clientId: allCredentials.clientId || '',
             clientSecret: allCredentials.clientSecret || '',
-            redirectUri: allCredentials.redirectUri || window.location.origin + '/dashboard-callback'
+            redirectUri: allCredentials.redirectUri || window.location.origin + '/authz-callback'
           };
           console.log('🔧 [CredentialSetupModal] Setting form data to:', newFormData);
           setFormData(newFormData);
