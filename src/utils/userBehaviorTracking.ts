@@ -272,7 +272,7 @@ export class UserBehaviorTracker {
       ...properties
     });
 
-    logger.info('[UserBehaviorTracker] User action tracked:', { action, element });
+    logger.info('[UserBehaviorTracker] User action tracked:', `action: ${action}, element: ${element}`);
   }
 
   // Track flow interaction
@@ -299,7 +299,7 @@ export class UserBehaviorTracker {
       ...properties
     });
 
-    logger.info('[UserBehaviorTracker] Flow started:', { flowType, flowId });
+    logger.info('[UserBehaviorTracker] Flow started:', `flowType: ${flowType}, flowId: ${flowId}`);
     return flowId;
   }
 
@@ -322,7 +322,7 @@ export class UserBehaviorTracker {
 
     flow.steps.push(step);
 
-    logger.info('[UserBehaviorTracker] Flow step tracked:', { flowId, stepName, stepId });
+    logger.info('[UserBehaviorTracker] Flow step tracked:', `flowId: ${flowId}, stepName: ${stepName}, stepId: ${stepId}`);
     return stepId;
   }
 
@@ -341,7 +341,7 @@ export class UserBehaviorTracker {
       }
     }
 
-    logger.info('[UserBehaviorTracker] Flow step completed:', { stepId, success });
+    logger.info('[UserBehaviorTracker] Flow step completed:', `stepId: ${stepId}, success: ${success}`);
   }
 
   // Complete flow
@@ -378,7 +378,7 @@ export class UserBehaviorTracker {
       });
     }
 
-    logger.info('[UserBehaviorTracker] Flow completed:', { flowId, success, completionRate: flow.completionRate });
+    logger.info('[UserBehaviorTracker] Flow completed:', `flowId: ${flowId}, success: ${success}, completionRate: ${flow.completionRate}`);
   }
 
   // Setup event listeners
