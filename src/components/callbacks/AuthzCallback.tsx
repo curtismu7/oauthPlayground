@@ -87,6 +87,12 @@ const AuthzCallback: React.FC = () => {
         const currentUrl = getValidatedCurrentUrl('AuthzCallback');
         logger.auth('AuthzCallback', 'Processing authorization callback', { url: currentUrl });
         
+        // Check if this is a popup window and send message to parent
+        const isPopup = window.opener && !window.opener.closed;
+        if (isPopup) {
+          console.log('📤 [AuthzCallback] Popup detected, sending message to parent window');
+        }
+        
         const result = await handleCallback(currentUrl);
         
         if (result.success) {
@@ -94,21 +100,61 @@ const AuthzCallback: React.FC = () => {
           setMessage('Authorization successful! Redirecting...');
           logger.auth('AuthzCallback', 'Authorization successful', { redirectUrl: result.redirectUrl });
           
-          // Redirect after a short delay
-          setTimeout(() => {
-            navigate(result.redirectUrl || '/');
-          }, 1500);
+          // If this is a popup, send success message to parent and close
+          if (isPopup) {
+            console.log('📤 [AuthzCallback] Sending success message to parent window');
+            window.opener.postMessage({
+              type: 'oauth-callback',
+              code: new URL(currentUrl).searchParams.get('code'),
+              state: new URL(currentUrl).searchParams.get('state'),
+              success: true
+            }, window.location.origin);
+            setTimeout(() => {
+              window.close();
+            }, 1000);
+          } else {
+            // Redirect after a short delay for non-popup
+            setTimeout(() => {
+              navigate(result.redirectUrl || '/');
+            }, 1500);
+          }
         } else {
           setStatus('error');
           setMessage('Authorization failed');
           setError(result.error || 'Unknown error occurred');
           logger.error('AuthzCallback', 'Authorization failed', { error: result.error });
+          
+          // If this is a popup, send error message to parent and close
+          if (isPopup) {
+            console.log('📤 [AuthzCallback] Sending error message to parent window');
+            window.opener.postMessage({
+              type: 'oauth-callback',
+              error: result.error || 'Authorization failed',
+              error_description: result.error || 'Unknown error occurred'
+            }, window.location.origin);
+            setTimeout(() => {
+              window.close();
+            }, 2000);
+          }
         }
       } catch (err) {
         setStatus('error');
         setMessage('Authorization failed');
         setError(err instanceof Error ? err.message : 'Unknown error occurred');
         logger.error('AuthzCallback', 'Error processing callback', err);
+        
+        // If this is a popup, send error message to parent and close
+        if (window.opener && !window.opener.closed) {
+          console.log('📤 [AuthzCallback] Sending error message to parent window');
+          window.opener.postMessage({
+            type: 'oauth-callback',
+            error: 'callback_error',
+            error_description: err instanceof Error ? err.message : 'Unknown error occurred'
+          }, window.location.origin);
+          setTimeout(() => {
+            window.close();
+          }, 2000);
+        }
       }
     };
 
