@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { FiTerminal, FiX, FiDownload, FiTrash2, FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiTerminal, FiX, FiDownload, FiTrash2, FiEye, FiEyeOff, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import { logger } from '../utils/logger';
 import ErrorHelpPanel from './ErrorHelpPanel';
 import TokenExchangeDebugger from './TokenExchangeDebugger';
@@ -41,6 +41,16 @@ const DebugTitle = styled.div`
   color: #fff;
   font-weight: 600;
   font-size: 0.875rem;
+  
+  svg:last-of-type {
+    margin-left: 0.5rem;
+    transition: transform 0.2s ease;
+    opacity: 0.8;
+    
+    &:hover {
+      opacity: 1;
+    }
+  }
 `;
 
 const DebugControls = styled.div`
@@ -309,6 +319,7 @@ const DebugPanel: React.FC = () => {
         <DebugTitle>
           <FiTerminal />
           Debug Console ({logs.length} logs)
+          {isOpen ? <FiChevronDown /> : <FiChevronUp />}
           {hasRecentErrors && (
             <span style={{ 
               color: '#dc2626', 
