@@ -568,15 +568,19 @@ const AuthorizationCodeFlow: React.FC = () => {
 
   // Handle authorization
   const handleAuthorization = useCallback(() => {
+    console.log('🔧 [AuthorizationCodeFlow] handleAuthorization called', { testingMethod, authUrl });
     if (testingMethod === 'popup') {
       setIsAuthorizing(true);
+      console.log('🔧 [AuthorizationCodeFlow] Opening popup with URL:', authUrl);
       const popup = window.open(authUrl, 'oauth-popup', 'width=600,height=700');
       if (popup) {
         // Listen for messages from the popup
         const messageHandler = (event: MessageEvent) => {
+          console.log('🔧 [AuthorizationCodeFlow] Message received from popup:', event.data, 'origin:', event.origin);
           if (event.origin !== window.location.origin) return;
           if (event.data.type === 'oauth-callback') {
             const { code: callbackCode, state: callbackState, error } = event.data;
+            console.log('🔧 [AuthorizationCodeFlow] OAuth callback received:', { callbackCode, callbackState, error, expectedState: state });
             if (error) {
               logger.error('Authorization error received', error);
               setIsAuthorizing(false);
@@ -1134,8 +1138,9 @@ const AuthorizationCodeFlow: React.FC = () => {
         </div>
       ),
       execute: async () => {
-        // Generate the authorization URL
+        // Generate the authorization URL and open popup/redirect
         generateAuthUrl();
+        handleAuthorization();
         return { success: true };
       },
       canExecute: true
@@ -1198,10 +1203,8 @@ const AuthorizationCodeFlow: React.FC = () => {
         </div>
       ),
       execute: async () => {
-        if (!authCode) {
-          // If no authorization code yet, trigger the authorization
-          handleAuthorization();
-        }
+        // Authorization should already be triggered in the previous step
+        // This step just waits for the callback to be processed
         return { success: true };
       },
       canExecute: true
