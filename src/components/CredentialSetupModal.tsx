@@ -294,7 +294,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
     environmentId: '',
     clientId: '',
     clientSecret: '',
-    redirectUri: window.location.origin + '/authz-callback'
+    redirectUri: window.location.origin + '/dashboard-callback'
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -314,6 +314,18 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
       try {
         // Load credentials using the credential manager
         const allCredentials = credentialManager.getAllCredentials();
+        
+        // Also check the old pingone_config localStorage key for backward compatibility
+        const oldConfig = localStorage.getItem('pingone_config');
+        let oldCredentials = null;
+        if (oldConfig) {
+          try {
+            oldCredentials = JSON.parse(oldConfig);
+            console.log('🔍 [CredentialSetupModal] Found old config:', oldCredentials);
+          } catch (e) {
+            console.log('❌ [CredentialSetupModal] Failed to parse old config:', e);
+          }
+        }
         
         console.log('🔍 [CredentialSetupModal] Loaded credentials:', allCredentials);
         
@@ -335,13 +347,13 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
         setStoredCredentials(stored);
         
         // Pre-populate form with existing credentials
-        if (hasPermanentCredentials || hasSessionCredentials) {
+        if (hasPermanentCredentials || hasSessionCredentials || oldCredentials) {
           console.log('✅ [CredentialSetupModal] Pre-populating form with existing credentials');
           const newFormData = {
-            environmentId: allCredentials.environmentId || '',
-            clientId: allCredentials.clientId || '',
-            clientSecret: allCredentials.clientSecret || '',
-            redirectUri: allCredentials.redirectUri || window.location.origin + '/authz-callback'
+            environmentId: allCredentials.environmentId || oldCredentials?.environmentId || '',
+            clientId: allCredentials.clientId || oldCredentials?.clientId || '',
+            clientSecret: allCredentials.clientSecret || oldCredentials?.clientSecret || '',
+            redirectUri: allCredentials.redirectUri || oldCredentials?.redirectUri || window.location.origin + '/dashboard-callback'
           };
           console.log('🔧 [CredentialSetupModal] Setting form data to:', newFormData);
           setFormData(newFormData);
