@@ -315,7 +315,7 @@ export const validateCSRFRequest = (request: Request | any): boolean => {
   return csrfProtection.validateRequest(request);
 };
 
-// React hooks and HOCs are available in src/hooks/useCSRFProtection.ts
+// React hooks and HOCs are available in src/hooks/useCSRFProtection.tsx
 
 // CSRF middleware for API requests
 export const csrfMiddleware = async (request: Request): Promise<Request> => {

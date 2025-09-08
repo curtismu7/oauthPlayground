@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { FiEye, FiEyeOff, FiCheckCircle, FiChevronDown, FiChevronUp, FiCheck } from 'react-icons/fi';
 import CopyIcon from './CopyIcon';
 import { logger } from '../utils/logger';
+import { credentialManager, type AllCredentials } from '../utils/credentialManager';
 
 interface FlowCredentialsProps {
   flowType: string;
@@ -371,7 +372,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
           logger.info('FlowCredentials', `Using global credentials for ${flowType}`, baseCredentials);
         }
       } catch (error) {
-        logger.error('FlowCredentials', 'Failed to load credentials', error);
+        logger.error('FlowCredentials', 'Failed to load credentials', error instanceof Error ? error.message : String(error), error instanceof Error ? error : undefined);
       }
     };
 
@@ -427,7 +428,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
       setTimeout(() => setCopiedField(null), 2000);
       logger.success('FlowCredentials', `Successfully copied ${fieldName}`);
     } catch (error) {
-      logger.error('FlowCredentials', 'Failed to copy to clipboard', error);
+      logger.error('FlowCredentials', 'Failed to copy to clipboard', error instanceof Error ? error.message : String(error), error instanceof Error ? error : undefined);
     }
   };
 
@@ -484,7 +485,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
         setSaveMessage(null);
       }, 3000);
     } catch (error) {
-      logger.error('FlowCredentials', 'Failed to save credentials', error);
+      logger.error('FlowCredentials', 'Failed to save credentials', error instanceof Error ? error.message : String(error), error instanceof Error ? error : undefined);
       setSaveMessage('Failed to save credentials');
       setTimeout(() => setSaveMessage(null), 3000);
     }
@@ -504,7 +505,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
       
       logger.success('FlowCredentials', `Credentials reset for ${flowType}`);
     } catch (error) {
-      logger.error('FlowCredentials', 'Failed to reset credentials', error);
+      logger.error('FlowCredentials', 'Failed to reset credentials', error instanceof Error ? error.message : String(error), error instanceof Error ? error : undefined);
     }
   };
 
