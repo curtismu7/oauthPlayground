@@ -492,7 +492,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
           <CollapsibleHeader onClick={() => setIsExpanded(!isExpanded)}>
             <h3>
               <FiSettings />
-              Flow Configuration
+              Flow Config
             </h3>
             {isExpanded ? <FiChevronDown className="collapse-icon" /> : <FiChevronRight className="collapse-icon" />}
           </CollapsibleHeader>
