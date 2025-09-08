@@ -69,6 +69,55 @@ const FormGroup = styled.div`
     color: ${({ theme }) => theme.colors.gray600};
   }
   
+  /* Custom checkbox styling */
+  input[type="checkbox"] {
+    width: auto !important;
+    margin-right: 0.5rem;
+    appearance: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid ${({ theme }) => theme.colors.gray300};
+    border-radius: 0.25rem;
+    background-color: white;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.15s ease-in-out;
+    
+    &:checked {
+      background-color: ${({ theme }) => theme.colors.primary};
+      border-color: ${({ theme }) => theme.colors.primary};
+    }
+    
+    &:checked::after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 0.875rem;
+      font-weight: bold;
+    }
+    
+    &:focus {
+      box-shadow: 0 0 0 3px ${({ theme }) => `${theme.colors.primary}40`};
+    }
+  }
+  
+  /* Checkbox container styling */
+  .checkbox-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+    
+    label {
+      margin: 0;
+      cursor: pointer;
+      line-height: 1.5;
+    }
+  }
+  
   .invalid-feedback {
     display: block;
     margin-top: 0.25rem;
@@ -580,7 +629,14 @@ const Configuration = () => {
               </div>
             </FormGroup>
 
-            <h3 style={{ margin: '2rem 0 1rem', fontSize: '1.25rem' }}>OAuth Flow Settings</h3>
+            <h3 style={{ 
+              margin: '2rem 0 1.5rem', 
+              fontSize: '1.25rem', 
+              fontWeight: '600',
+              color: '#1f2937',
+              borderBottom: '2px solid #e5e7eb',
+              paddingBottom: '0.5rem'
+            }}>OAuth Flow Settings</h3>
             
             <FormGroup>
               <label htmlFor="responseType">Response Type</label>
@@ -603,7 +659,7 @@ const Configuration = () => {
             </FormGroup>
 
             <FormGroup>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+              <div className="checkbox-container">
                 <input
                   type="checkbox"
                   id="enablePKCE"
@@ -611,7 +667,7 @@ const Configuration = () => {
                   checked={formData.enablePKCE}
                   onChange={(e) => setFormData(prev => ({ ...prev, enablePKCE: e.target.checked }))}
                 />
-                <label htmlFor="enablePKCE" style={{ margin: 0, fontWeight: '500' }}>
+                <label htmlFor="enablePKCE">
                   Enable PKCE (Proof Key for Code Exchange)
                 </label>
               </div>
@@ -639,7 +695,7 @@ const Configuration = () => {
             )}
 
             <FormGroup>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+              <div className="checkbox-container">
                 <input
                   type="checkbox"
                   id="enableOIDC"
@@ -647,7 +703,7 @@ const Configuration = () => {
                   checked={formData.enableOIDC}
                   onChange={(e) => setFormData(prev => ({ ...prev, enableOIDC: e.target.checked }))}
                 />
-                <label htmlFor="enableOIDC" style={{ margin: 0, fontWeight: '500' }}>
+                <label htmlFor="enableOIDC">
                   Enable OpenID Connect (OIDC)
                 </label>
               </div>
@@ -656,7 +712,14 @@ const Configuration = () => {
               </div>
             </FormGroup>
             
-            <h3 style={{ margin: '2rem 0 1rem', fontSize: '1.25rem' }}>Advanced Settings</h3>
+            <h3 style={{ 
+              margin: '2rem 0 1.5rem', 
+              fontSize: '1.25rem', 
+              fontWeight: '600',
+              color: '#1f2937',
+              borderBottom: '2px solid #e5e7eb',
+              paddingBottom: '0.5rem'
+            }}>Advanced Settings</h3>
             
             <FormGroup>
               <label htmlFor="authEndpoint">Authorization Endpoint</label>
