@@ -176,7 +176,7 @@ start_frontend() {
     local attempt=0
     
     while [ $attempt -lt $max_attempts ]; do
-        if curl -s "$FRONTEND_URL" >/dev/null 2>&1; then
+        if curl -s -k "$FRONTEND_URL" >/dev/null 2>&1; then
             print_success "Frontend server started successfully on $FRONTEND_URL"
             return 0
         fi
