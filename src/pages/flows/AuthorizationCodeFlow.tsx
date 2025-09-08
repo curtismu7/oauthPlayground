@@ -448,7 +448,7 @@ const AuthorizationCodeFlow: React.FC = () => {
           environmentId: allCredentials.environmentId || '',
           clientId: allCredentials.clientId || '',
           clientSecret: allCredentials.clientSecret || '',
-          redirectUri: allCredentials.redirectUri || prev.redirectUri,
+          redirectUri: window.location.origin + '/authz-callback', // Always use authz-callback for Authorization Code Flow
           scopes: Array.isArray(allCredentials.scopes) ? allCredentials.scopes.join(' ') : allCredentials.scopes || prev.scopes,
           authorizationEndpoint: allCredentials.authEndpoint || prev.authorizationEndpoint,
           tokenEndpoint: allCredentials.tokenEndpoint || prev.tokenEndpoint,
