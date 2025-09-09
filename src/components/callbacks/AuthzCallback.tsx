@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { FiCheckCircle, FiXCircle, FiLoader } from 'react-icons/fi';
 import { logger } from '../../utils/logger';
 import { getValidatedCurrentUrl } from '../../utils/urlValidation';
+import OAuthErrorHelper from '../OAuthErrorHelper';
 
 const CallbackContainer = styled.div`
   display: flex;
@@ -191,8 +192,14 @@ const AuthzCallback: React.FC = () => {
           {status === 'error' && 'Authorization Failed'}
         </StatusTitle>
         <StatusMessage>{message}</StatusMessage>
-        {error && (
-          <ErrorDetails>{error}</ErrorDetails>
+        {error && status === 'error' && (
+          <OAuthErrorHelper
+            error={error}
+            errorDescription={error}
+            correlationId={new URLSearchParams(location.search).get('correlation_id') || undefined}
+            onRetry={() => window.location.reload()}
+            onGoToConfig={() => window.location.href = '/configuration'}
+          />
         )}
       </StatusCard>
     </CallbackContainer>
