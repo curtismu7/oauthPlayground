@@ -940,10 +940,25 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
             <Button
               $variant="secondary"
               onClick={goToPreviousStep}
-              disabled={currentStepIndex === 0}
+              disabled={currentStepIndex === 0 || isExecuting}
+              $loading={isExecuting}
+              style={{ 
+                opacity: (currentStepIndex === 0 || isExecuting) ? 0.5 : 1,
+                cursor: (currentStepIndex === 0 || isExecuting) ? 'not-allowed' : 'pointer'
+              }}
+              title={currentStepIndex === 0 ? 'No previous step' : isExecuting ? 'Please wait...' : ''}
             >
-              <FiChevronLeft />
-              Back
+              {isExecuting ? (
+                <>
+                  <LoadingSpinner />
+                  Please wait...
+                </>
+              ) : (
+                <>
+                  <FiChevronLeft />
+                  Back
+                </>
+              )}
             </Button>
 
             {currentStep.execute && (
@@ -954,17 +969,18 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
                     currentStepIndex, 
                     stepTitle: currentStep.title,
                     hasExecute: !!currentStep.execute,
-                    canExecute: currentStep.canExecute
+                    canExecute: currentStep.canExecute,
+                    isExecuting
                   });
                   executeStep(currentStepIndex);
                 }}
                 disabled={isExecuting || !currentStep.canExecute}
                 $loading={isExecuting}
                 style={{ 
-                  opacity: !currentStep.canExecute ? 0.5 : 1,
-                  cursor: !currentStep.canExecute ? 'not-allowed' : 'pointer'
+                  opacity: (!currentStep.canExecute || isExecuting) ? 0.5 : 1,
+                  cursor: (!currentStep.canExecute || isExecuting) ? 'not-allowed' : 'pointer'
                 }}
-                title={!currentStep.canExecute ? 'Complete the previous step first' : ''}
+                title={!currentStep.canExecute ? 'Complete the previous step first' : isExecuting ? 'Please wait...' : ''}
               >
                 {isExecuting ? (
                   <>
@@ -998,15 +1014,25 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
             <Button
               $variant="success"
               onClick={goToNextStep}
-              disabled={currentStepIndex === steps.length - 1 || !isCurrentStepCompleted}
+              disabled={currentStepIndex === steps.length - 1 || !isCurrentStepCompleted || isExecuting}
+              $loading={isExecuting}
               style={{ 
-                opacity: (!isCurrentStepCompleted && currentStepIndex < steps.length - 1) ? 0.5 : 1,
-                cursor: (!isCurrentStepCompleted && currentStepIndex < steps.length - 1) ? 'not-allowed' : 'pointer'
+                opacity: (!isCurrentStepCompleted && currentStepIndex < steps.length - 1) || isExecuting ? 0.5 : 1,
+                cursor: (!isCurrentStepCompleted && currentStepIndex < steps.length - 1) || isExecuting ? 'not-allowed' : 'pointer'
               }}
-              title={(!isCurrentStepCompleted && currentStepIndex < steps.length - 1) ? 'Complete the current step first' : ''}
+              title={(!isCurrentStepCompleted && currentStepIndex < steps.length - 1) ? 'Complete the current step first' : isExecuting ? 'Please wait...' : ''}
             >
-              Next
-              <FiChevronRight />
+              {isExecuting ? (
+                <>
+                  <LoadingSpinner />
+                  Please wait...
+                </>
+              ) : (
+                <>
+                  Next
+                  <FiChevronRight />
+                </>
+              )}
             </Button>
           </ActionButtons>
         </StepContent>
