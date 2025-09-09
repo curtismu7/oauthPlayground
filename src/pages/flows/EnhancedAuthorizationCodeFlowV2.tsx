@@ -512,7 +512,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         setUserInfo(authContext.authState.user);
       }
       
-      sessionStorage.setItem('enhanced-authz-code-v2-step', '3'); // Step 4 is index 3
+      sessionStorage.setItem('enhanced-authz-code-v2-step', '4'); // Step 5 (handle-callback) is index 4
       return;
     }
     
@@ -2009,9 +2009,18 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Current URL:', window.location.href);
           console.log('🔍 [EnhancedAuthorizationCodeFlowV2] URL search params:', window.location.search);
           
+          // Check if we have an authorization code in the URL
+          const urlParams = new URLSearchParams(window.location.search);
+          const code = urlParams.get('code');
+          
+          if (code) {
+            console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Authorization code found in URL, going to step 4 (handle-callback)');
+            return 4; // Go directly to handle-callback step
+          }
+          
           if (storedStep) {
             const stepIndex = parseInt(storedStep, 10);
-            console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Restoring step from URL:', stepIndex);
+            console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Restoring step from stored value:', stepIndex);
             sessionStorage.removeItem('enhanced-authz-code-v2-step'); // Clean up
             return stepIndex;
           }
