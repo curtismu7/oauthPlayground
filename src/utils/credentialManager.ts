@@ -22,7 +22,7 @@ class CredentialManager {
   private readonly PERMANENT_CREDENTIALS_KEY = 'pingone_permanent_credentials';
   private readonly SESSION_CREDENTIALS_KEY = 'pingone_session_credentials';
   private cache: { permanent?: PermanentCredentials; session?: SessionCredentials; all?: AllCredentials; timestamp?: number } = {};
-  private readonly CACHE_DURATION = 1000; // 1 second cache
+  private readonly CACHE_DURATION = 5000; // 5 second cache
 
   /**
    * Invalidate cache when credentials are modified
