@@ -21,6 +21,15 @@ export interface AllCredentials extends PermanentCredentials, SessionCredentials
 class CredentialManager {
   private readonly PERMANENT_CREDENTIALS_KEY = 'pingone_permanent_credentials';
   private readonly SESSION_CREDENTIALS_KEY = 'pingone_session_credentials';
+  private cache: { permanent?: PermanentCredentials; session?: SessionCredentials; all?: AllCredentials; timestamp?: number } = {};
+  private readonly CACHE_DURATION = 1000; // 1 second cache
+
+  /**
+   * Invalidate cache when credentials are modified
+   */
+  private invalidateCache(): void {
+    this.cache = {};
+  }
 
   /**
    * Save permanent credentials (Environment ID, Client ID, etc.)
@@ -41,6 +50,9 @@ class CredentialManager {
       });
 
       localStorage.setItem(this.PERMANENT_CREDENTIALS_KEY, JSON.stringify(updated));
+      
+      // Invalidate cache after saving
+      this.invalidateCache();
       
       // Verify it was saved
       const saved = localStorage.getItem(this.PERMANENT_CREDENTIALS_KEY);
@@ -223,6 +235,9 @@ class CredentialManager {
 
       sessionStorage.setItem(this.SESSION_CREDENTIALS_KEY, JSON.stringify(updated));
       
+      // Invalidate cache after saving
+      this.invalidateCache();
+      
       logger.success('CredentialManager', 'Saved session credentials', {
         hasClientSecret: !!updated.clientSecret
       });
@@ -259,6 +274,13 @@ class CredentialManager {
    * Get all credentials (permanent + session)
    */
   getAllCredentials(): AllCredentials {
+    // Check cache first
+    const now = Date.now();
+    if (this.cache.all && this.cache.timestamp && (now - this.cache.timestamp) < this.CACHE_DURATION) {
+      console.log('🔧 [CredentialManager] getAllCredentials - using cache');
+      return this.cache.all;
+    }
+
     const permanent = this.loadPermanentCredentials();
     const session = this.loadSessionCredentials();
     
@@ -269,6 +291,10 @@ class CredentialManager {
       ...permanent,
       ...session
     };
+    
+    // Update cache
+    this.cache.all = result;
+    this.cache.timestamp = now;
     
     console.log('🔧 [CredentialManager] getAllCredentials - result:', result);
     return result;
