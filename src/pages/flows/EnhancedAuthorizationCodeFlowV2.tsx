@@ -822,10 +822,10 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   const generatePKCECodes = useCallback(async () => {
     try {
       console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Starting PKCE generation...');
-      const verifier = generateCodeVerifier();
+    const verifier = generateCodeVerifier();
       const challenge = await generateCodeChallenge(verifier);
       console.log('✅ [EnhancedAuthorizationCodeFlowV2] PKCE codes generated:', { verifier: verifier.substring(0, 20) + '...', challenge: challenge.substring(0, 20) + '...' });
-      setPkceCodes({ codeVerifier: verifier, codeChallenge: challenge });
+    setPkceCodes({ codeVerifier: verifier, codeChallenge: challenge });
       
       // Store code_verifier in sessionStorage for token exchange
       sessionStorage.setItem('code_verifier', verifier);
@@ -1134,11 +1134,11 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             <FormLabel>Client Secret</FormLabel>
             <form>
               <div style={{ position: 'relative' }}>
-                <FormInput
+            <FormInput
                   type={showSecret ? 'text' : 'password'}
-                  value={credentials.clientSecret || ''}
-                  onChange={(e) => setCredentials(prev => ({ ...prev, clientSecret: e.target.value }))}
-                  placeholder="your-client-secret (optional for PKCE)"
+              value={credentials.clientSecret || ''}
+              onChange={(e) => setCredentials(prev => ({ ...prev, clientSecret: e.target.value }))}
+              placeholder="your-client-secret (optional for PKCE)"
                   style={{ paddingRight: '3rem' }}
                 />
                 <button
@@ -1250,8 +1250,13 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         </div>
       ),
       execute: async () => {
+        setIsSavingCredentials(true);
+        try {
         await saveCredentials();
         return { success: true };
+        } finally {
+          setIsSavingCredentials(false);
+      }
       },
       canExecute: Boolean(credentials.environmentId && credentials.clientId && credentials.redirectUri)
     },
@@ -1309,6 +1314,17 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             </InfoBox>
           )}
 
+          {isSavingCredentials && (
+            <InfoBox type="info">
+              <FiLoader className="animate-spin" />
+              <div>
+                <strong>🔄 Saving Credentials...</strong>
+                <br />
+                Storing your PingOne configuration securely.
+              </div>
+            </InfoBox>
+          )}
+
           {pkceGenerated && (
             <InfoBox type="success">
               <FiCheckCircle />
@@ -1331,31 +1347,31 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             }}>
               <h4 style={{ margin: '0 0 1rem 0', color: '#065f46' }}>Generated PKCE Codes</h4>
               
-              <FormField>
-                <FormLabel>Code Verifier (Generated)</FormLabel>
-                <FormInput
-                  type="text"
-                  value={pkceCodes.codeVerifier}
-                  readOnly
+          <FormField>
+            <FormLabel>Code Verifier (Generated)</FormLabel>
+            <FormInput
+              type="text"
+              value={pkceCodes.codeVerifier}
+              readOnly
                   $generated={!!pkceCodes.codeVerifier}
-                />
-                <CopyButton onClick={() => copyToClipboard(pkceCodes.codeVerifier)}>
-                  {copiedText === pkceCodes.codeVerifier ? <FiCheckCircle /> : <FiCopy />}
-                </CopyButton>
-              </FormField>
+            />
+              <CopyButton onClick={() => copyToClipboard(pkceCodes.codeVerifier)}>
+                {copiedText === pkceCodes.codeVerifier ? <FiCheckCircle /> : <FiCopy />}
+              </CopyButton>
+          </FormField>
 
-              <FormField>
-                <FormLabel>Code Challenge (SHA256)</FormLabel>
-                <FormInput
-                  type="text"
-                  value={pkceCodes.codeChallenge}
-                  readOnly
+          <FormField>
+            <FormLabel>Code Challenge (SHA256)</FormLabel>
+            <FormInput
+              type="text"
+              value={pkceCodes.codeChallenge}
+              readOnly
                   $generated={!!pkceCodes.codeChallenge}
-                />
-                <CopyButton onClick={() => copyToClipboard(pkceCodes.codeChallenge)}>
-                  {copiedText === pkceCodes.codeChallenge ? <FiCheckCircle /> : <FiCopy />}
-                </CopyButton>
-              </FormField>
+            />
+              <CopyButton onClick={() => copyToClipboard(pkceCodes.codeChallenge)}>
+                {copiedText === pkceCodes.codeChallenge ? <FiCheckCircle /> : <FiCopy />}
+              </CopyButton>
+          </FormField>
             </div>
           )}
         </div>
@@ -1404,6 +1420,17 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
 
 
 
+          {isBuildingUrl && (
+            <InfoBox type="info">
+              <FiLoader className="animate-spin" />
+              <div>
+                <strong>🔄 Building Authorization URL...</strong>
+                <br />
+                Constructing the complete authorization URL with all required parameters.
+              </div>
+            </InfoBox>
+          )}
+
           {urlGenerated && (
             <InfoBox type="success">
               <FiCheckCircle />
@@ -1411,18 +1438,6 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                 <strong>✅ Authorization URL Generated Successfully!</strong>
                 <br />
                 Your authorization URL has been built with all required OAuth parameters. You can now proceed to redirect the user to PingOne for authentication.
-              </div>
-            </InfoBox>
-          )}
-
-
-          {isBuildingUrl && (
-            <InfoBox type="info">
-              <FiLoader className="animate-spin" />
-              <div>
-                <strong>🔄 Building Authorization URL...</strong>
-                <br />
-                Constructing the complete authorization URL with all required OAuth parameters...
               </div>
             </InfoBox>
           )}
@@ -1474,10 +1489,30 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                 </button>
               </div>
 
-              <FormField>
-                <FormLabel>URL Components (JSON)</FormLabel>
-                <JsonDisplay>
-                  {JSON.stringify({
+            <FormField>
+              <FormLabel>URL Components (JSON)</FormLabel>
+              <JsonDisplay>
+                {JSON.stringify({
+                  baseUrl: credentials.authorizationEndpoint,
+                  response_type: credentials.responseType,
+                  client_id: credentials.clientId,
+                  redirect_uri: credentials.redirectUri,
+                  scope: credentials.scopes,
+                  state: state,
+                  code_challenge: pkceCodes.codeChallenge,
+                  code_challenge_method: credentials.codeChallengeMethod
+                }, null, 2)}
+                <CopyButton onClick={() => copyToClipboard(JSON.stringify({
+                  baseUrl: credentials.authorizationEndpoint,
+                  response_type: credentials.responseType,
+                  client_id: credentials.clientId,
+                  redirect_uri: credentials.redirectUri,
+                  scope: credentials.scopes,
+                  state: state,
+                  code_challenge: pkceCodes.codeChallenge,
+                  code_challenge_method: credentials.codeChallengeMethod
+                }, null, 2))}>
+                  {copiedText === JSON.stringify({
                     baseUrl: credentials.authorizationEndpoint,
                     response_type: credentials.responseType,
                     client_id: credentials.clientId,
@@ -1486,62 +1521,42 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                     state: state,
                     code_challenge: pkceCodes.codeChallenge,
                     code_challenge_method: credentials.codeChallengeMethod
-                  }, null, 2)}
-                  <CopyButton onClick={() => copyToClipboard(JSON.stringify({
-                    baseUrl: credentials.authorizationEndpoint,
-                    response_type: credentials.responseType,
-                    client_id: credentials.clientId,
-                    redirect_uri: credentials.redirectUri,
-                    scope: credentials.scopes,
-                    state: state,
-                    code_challenge: pkceCodes.codeChallenge,
-                    code_challenge_method: credentials.codeChallengeMethod
-                  }, null, 2))}>
-                    {copiedText === JSON.stringify({
-                      baseUrl: credentials.authorizationEndpoint,
-                      response_type: credentials.responseType,
-                      client_id: credentials.clientId,
-                      redirect_uri: credentials.redirectUri,
-                      scope: credentials.scopes,
-                      state: state,
-                      code_challenge: pkceCodes.codeChallenge,
-                      code_challenge_method: credentials.codeChallengeMethod
-                    }, null, 2) ? <FiCheckCircle /> : <FiCopy />}
-                  </CopyButton>
-                </JsonDisplay>
-              </FormField>
+                  }, null, 2) ? <FiCheckCircle /> : <FiCopy />}
+                </CopyButton>
+              </JsonDisplay>
+            </FormField>
 
-              <ParameterBreakdown>
-                <h4>Parameter Breakdown:</h4>
-                <ParameterItem>
-                  <ParameterName>response_type</ParameterName>
-                  <ParameterValue>code (Authorization Code Flow)</ParameterValue>
-                </ParameterItem>
-                <ParameterItem>
-                  <ParameterName>client_id</ParameterName>
-                  <ParameterValue>{credentials.clientId}</ParameterValue>
-                </ParameterItem>
-                <ParameterItem>
-                  <ParameterName>redirect_uri</ParameterName>
-                  <ParameterValue>{credentials.redirectUri}</ParameterValue>
-                </ParameterItem>
-                <ParameterItem>
-                  <ParameterName>scope</ParameterName>
-                  <ParameterValue>{credentials.scopes}</ParameterValue>
-                </ParameterItem>
-                <ParameterItem>
-                  <ParameterName>state</ParameterName>
-                  <ParameterValue>{state}</ParameterValue>
-                </ParameterItem>
-                <ParameterItem>
-                  <ParameterName>code_challenge</ParameterName>
-                  <ParameterValue>{pkceCodes.codeChallenge}</ParameterValue>
-                </ParameterItem>
-                <ParameterItem>
-                  <ParameterName>code_challenge_method</ParameterName>
-                  <ParameterValue>{credentials.codeChallengeMethod}</ParameterValue>
-                </ParameterItem>
-              </ParameterBreakdown>
+            <ParameterBreakdown>
+              <h4>Parameter Breakdown:</h4>
+              <ParameterItem>
+                <ParameterName>response_type</ParameterName>
+                <ParameterValue>code (Authorization Code Flow)</ParameterValue>
+              </ParameterItem>
+              <ParameterItem>
+                <ParameterName>client_id</ParameterName>
+                <ParameterValue>{credentials.clientId}</ParameterValue>
+              </ParameterItem>
+              <ParameterItem>
+                <ParameterName>redirect_uri</ParameterName>
+                <ParameterValue>{credentials.redirectUri}</ParameterValue>
+              </ParameterItem>
+              <ParameterItem>
+                <ParameterName>scope</ParameterName>
+                <ParameterValue>{credentials.scopes}</ParameterValue>
+              </ParameterItem>
+              <ParameterItem>
+                <ParameterName>state</ParameterName>
+                <ParameterValue>{state}</ParameterValue>
+              </ParameterItem>
+              <ParameterItem>
+                <ParameterName>code_challenge</ParameterName>
+                <ParameterValue>{pkceCodes.codeChallenge}</ParameterValue>
+              </ParameterItem>
+              <ParameterItem>
+                <ParameterName>code_challenge_method</ParameterName>
+                <ParameterValue>{credentials.codeChallengeMethod}</ParameterValue>
+              </ParameterItem>
+            </ParameterBreakdown>
             </div>
           )}
         </div>
@@ -1633,14 +1648,14 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           )}
 
           {!callbackSuccess && !callbackError && !authCode && (
-            <CallbackListener>
-              <FiClock size={48} style={{ marginBottom: '1rem', color: '#6b7280' }} />
-              <h4>Waiting for authorization callback...</h4>
-              <p>Expected format:</p>
-              <code>
-                {credentials.redirectUri}?code=AUTH_CODE_HERE&state={state}
-              </code>
-            </CallbackListener>
+          <CallbackListener>
+            <FiClock size={48} style={{ marginBottom: '1rem', color: '#6b7280' }} />
+            <h4>Waiting for authorization callback...</h4>
+            <p>Expected format:</p>
+            <code>
+              {credentials.redirectUri}?code=AUTH_CODE_HERE&state={state}
+            </code>
+          </CallbackListener>
           )}
 
           {(callbackSuccess || authCode) && (
@@ -1835,6 +1850,17 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             </ParameterItem>
           </ParameterBreakdown>
 
+          {isExchangingTokens && (
+            <InfoBox type="info">
+              <FiLoader className="animate-spin" />
+              <div>
+                <strong>🔄 Exchanging Authorization Code for Tokens...</strong>
+                <br />
+                Making secure request to PingOne token endpoint.
+              </div>
+            </InfoBox>
+          )}
+
           {tokens && (
             <div>
               <h4>Token Response (JSON):</h4>
@@ -1900,8 +1926,13 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         </div>
       ),
       execute: async () => {
+        setIsExchangingTokens(true);
+        try {
         await exchangeCodeForTokens();
         return { success: true };
+        } finally {
+          setIsExchangingTokens(false);
+      }
       },
       canExecute: Boolean(authCode && credentials.environmentId && credentials.clientId)
     },
@@ -1924,6 +1955,17 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               <ParameterValue>Bearer {tokens?.access_token ? tokens.access_token.substring(0, 20) + '...' : '[ACCESS_TOKEN]'}</ParameterValue>
             </ParameterItem>
           </ParameterBreakdown>
+
+          {isGettingUserInfo && (
+            <InfoBox type="info">
+              <FiLoader className="animate-spin" />
+              <div>
+                <strong>🔄 Retrieving User Information...</strong>
+                <br />
+                Fetching user profile data from the UserInfo endpoint...
+              </div>
+            </InfoBox>
+          )}
 
           <FormField>
             <FormLabel>UserInfo Request Details (JSON)</FormLabel>
@@ -2025,8 +2067,13 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         </div>
       ),
       execute: async () => {
+        setIsGettingUserInfo(true);
+        try {
         await getUserInfo();
         return { success: true };
+        } finally {
+          setIsGettingUserInfo(false);
+        }
       },
       canExecute: Boolean(tokens?.access_token && credentials.environmentId && credentials.clientId)
     }
@@ -2186,13 +2233,13 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         />
       )}
 
-      <EnhancedStepFlowV2
-        steps={steps}
-        title="🚀 Enhanced Authorization Code Flow"
-        persistKey="enhanced-authz-code"
-        autoAdvance={false}
-        showDebugInfo={true}
-        allowStepJumping={true}
+    <EnhancedStepFlowV2
+      steps={steps}
+      title="🚀 Enhanced Authorization Code Flow"
+      persistKey="enhanced-authz-code"
+      autoAdvance={false}
+      showDebugInfo={true}
+      allowStepJumping={true}
         initialStepIndex={(() => {
           const storedStep = sessionStorage.getItem('enhanced-authz-code-v2-step');
           console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitialStepIndex - Checking for stored step:', storedStep);
