@@ -784,7 +784,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       sessionStorage.removeItem('oauth_nonce');
       
       // Clean up flow context after successful token exchange
-      const flowContextKey = 'flowContext';
       const flowContext = sessionStorage.getItem(flowContextKey);
       if (flowContext) {
         console.log('🧹 [NewAuthContext] Cleaning up flow context after successful token exchange');
@@ -796,7 +795,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       sessionStorage.removeItem('oauth_redirect_after_login');
       
       // Check for flow context to continue to next step
-      const flowContext = sessionStorage.getItem(flowContextKey);
       console.log('🔍 [NewAuthContext] Checking flow context:', flowContext);
       console.log('🔍 [NewAuthContext] All sessionStorage keys:', Object.keys(sessionStorage));
       console.log('🔍 [NewAuthContext] All sessionStorage contents:', Object.fromEntries(Object.keys(sessionStorage).map(key => [key, sessionStorage.getItem(key)])));
