@@ -13,8 +13,12 @@ import {
 } from 'react-icons/fi';
 import { useAuth } from '../contexts/NewAuthContext';
 import { config } from '../services/config';
+import packageJson from '../../package.json';
 import Spinner from '../components/Spinner';
 import { getCallbackUrlForFlow } from '../utils/callbackUrls';
+import { credentialManager } from '../utils/credentialManager';
+import AuthorizationRequestModal from '../components/AuthorizationRequestModal';
+import DebugCredentials from '../components/DebugCredentials';
 
 // Define specific types for HMAC and signing algorithms
 type HMACAlgorithm = 'HS256' | 'HS384' | 'HS512';
@@ -53,65 +57,22 @@ const LoginContainer = styled.div`
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #0070CC 0%, #0056A3 100%);
-  padding: 2rem;
+  padding: 0.5rem;
 `;
 
 const LoginLayout = styled.div`
   display: flex;
-  gap: 2rem;
+  flex-direction: column;
+  gap: 1.5rem;
   width: 100%;
   max-width: 1400px;
-  align-items: flex-start;
+  align-items: stretch;
 `;
 
 const SetupSection = styled.div`
-  flex: 1;
-  max-width: 700px;
-  min-width: 0;
-
-  @media (max-width: 768px) {
-    max-width: 100%;
-  }
-`;
-
-const LoginSection = styled.div`
-  flex: 1;
-  max-width: 480px;
-`;
-
-const LoginCard = styled.div`
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
   width: 100%;
-  overflow: hidden;
+  min-width: 0;
 `;
-
-const LoginHeader = styled.div`
-  padding: 1.5rem;
-  border-bottom: 1px solid #e9ecef;
-  text-align: center;
-
-  h1 {
-    margin: 0;
-    font-size: 2rem;
-    font-weight: 800;
-    color: #0070CC;
-    letter-spacing: -0.5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-
-    span {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-  }
-`;
-
-// Removed TitleCopyButton (copy not needed for app title)
 
 const DescriptionSection = styled.div`
   background-color: #f8f9fa;
@@ -138,12 +99,6 @@ const DescriptionSection = styled.div`
       gap: 0.5rem;
     }
   }
-`;
-
-// Removed DescCopyButton (copy not needed for description)
-
-const LoginBody = styled.div`
-  padding: 2rem;
 `;
 
 // Removed unused FormGroup and ErrorIcon
@@ -389,8 +344,24 @@ const Login = () => {
   const [saveStatus, setSaveStatus] = useState<{ type: string; title: string; message: string } | null>(null);
   const [isSavingCredentials, setIsSavingCredentials] = useState(false);
   
+  // Modal state for URL preview
+  const [showRedirectModal, setShowRedirectModal] = useState<boolean>(false);
+  const [redirectUrl, setRedirectUrl] = useState<string>('');
+  const [redirectParams, setRedirectParams] = useState<Record<string, string>>({});
+  
   const { login } = useAuth();
   const location = useLocation();
+  
+  // Modal handler functions
+  const handleRedirectModalClose = () => {
+    setShowRedirectModal(false);
+    setIsLoading(false);
+  };
+
+  const handleRedirectModalProceed = () => {
+    console.log('🚀 [Login] Proceeding with redirect to PingOne:', redirectUrl);
+    window.location.href = redirectUrl;
+  };
   
   // const from = location.state?.from?.pathname || '/';
 
@@ -400,7 +371,44 @@ const Login = () => {
   
   // Load saved credentials on component mount
   useEffect(() => {
-    console.log('🔍 [Login] Loading credentials from localStorage...');
+    console.log('🔍 [Login] Loading credentials from localStorage and credential manager...');
+    
+    // First try to load from credential manager (newer approach)
+    const allCredentials = credentialManager.getAllCredentials();
+    console.log('🔍 [Login] Credential manager result:', allCredentials);
+    
+    if (allCredentials.environmentId && allCredentials.clientId) {
+      console.log('✅ [Login] Found credentials from credential manager:', {
+        hasEnvironmentId: !!allCredentials.environmentId,
+        hasClientId: !!allCredentials.clientId,
+        hasClientSecret: !!allCredentials.clientSecret,
+        clientIdPrefix: allCredentials.clientId?.substring(0, 8) + '...'
+      });
+      
+      setCredentials({
+        environmentId: allCredentials.environmentId,
+        clientId: allCredentials.clientId,
+        clientSecret: allCredentials.clientSecret || '',
+        tokenAuthMethod: 'client_secret_basic',
+        clientAssertion: {
+          hmacAlg: 'HS256',
+          signAlg: 'RS256',
+          privateKeyPEM: '',
+          kid: '',
+          audience: '',
+          x5t: ''
+        },
+        advanced: {
+          requestObjectPolicy: 'default',
+          oidcSessionManagement: false,
+          resourceScopes: 'openid profile email',
+          terminateByIdToken: true,
+        }
+      });
+      return;
+    }
+    
+    // Fallback to old localStorage approach
     const savedCredentials = localStorage.getItem('login_credentials');
     if (savedCredentials) {
       try {
@@ -414,7 +422,7 @@ const Login = () => {
           localStorage.setItem('login_credentials', JSON.stringify(parsedCredentials));
         }
         
-        console.log('✅ [Login] Found saved credentials:', {
+        console.log('✅ [Login] Found saved credentials from localStorage:', {
           hasEnvironmentId: !!parsedCredentials.environmentId,
           hasClientId: !!parsedCredentials.clientId,
           hasClientSecret: !!parsedCredentials.clientSecret,
@@ -425,7 +433,7 @@ const Login = () => {
         console.error('❌ [Login] Failed to parse saved credentials:', error);
       }
     } else {
-      console.log('⚠️ [Login] No saved credentials found in localStorage');
+      console.log('⚠️ [Login] No saved credentials found in localStorage or credential manager');
     }
   }, []);
   
@@ -458,19 +466,37 @@ const Login = () => {
   };
 
   const handleCredentialSave = () => {
-    console.log('💾 [Login] Saving credentials to localStorage...');
+    console.log('🔧 [Login] Saving credentials...');
     setSaveStatus(null);
     setIsSavingCredentials(true);
     
     try {
-      // Save to localStorage
-      localStorage.setItem('login_credentials', JSON.stringify(credentials));
-      console.log('✅ [Login] Credentials saved to login_credentials:', {
-        hasEnvironmentId: !!credentials.environmentId,
-        hasClientId: !!credentials.clientId,
-        hasClientSecret: !!credentials.clientSecret,
-        clientIdPrefix: credentials.clientId?.substring(0, 8) + '...'
+      // Save permanent credentials using credential manager
+      const permanentSuccess = credentialManager.savePermanentCredentials({
+        environmentId: credentials.environmentId,
+        clientId: credentials.clientId,
+        redirectUri: getCallbackUrlForFlow('dashboard'),
+        scopes: credentials.advanced?.resourceScopes?.split(' ') || ['openid', 'profile', 'email'],
+        authEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/authorize`,
+        tokenEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/token`,
+        userInfoEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/userinfo`
       });
+
+      // Save session credentials (Client Secret)
+      const sessionSuccess = credentialManager.saveSessionCredentials({
+        clientSecret: credentials.clientSecret
+      });
+
+      if (!permanentSuccess || !sessionSuccess) {
+        throw new Error('Failed to save credentials to credential manager');
+      }
+
+      // Debug localStorage after saving
+      console.log('🔍 [Login] After saving credentials:');
+      credentialManager.debugLocalStorage();
+
+      // Also save to legacy localStorage for backward compatibility
+      localStorage.setItem('login_credentials', JSON.stringify(credentials));
       
       // Also save as pingone_config for consistency with other parts of the app
       const configToSave = {
@@ -487,18 +513,29 @@ const Login = () => {
         advanced: credentials.advanced,
       };
       localStorage.setItem('pingone_config', JSON.stringify(configToSave));
-      console.log('✅ [Login] Config also saved to pingone_config');
       
-      // Dispatch event to notify other components of config change
+      console.log('✅ [Login] Credentials saved successfully:', {
+        hasEnvironmentId: !!credentials.environmentId,
+        hasClientId: !!credentials.clientId,
+        hasClientSecret: !!credentials.clientSecret,
+        clientIdPrefix: credentials.clientId?.substring(0, 8) + '...'
+      });
+      
+      // Dispatch events to notify other components of config change
       window.dispatchEvent(new CustomEvent('pingone_config_changed', {
         detail: { config: configToSave }
       }));
+      window.dispatchEvent(new CustomEvent('pingone-config-changed'));
+      window.dispatchEvent(new CustomEvent('permanent-credentials-changed'));
       
       setSaveStatus({
         type: 'success',
         title: 'Credentials saved',
-        message: 'Your login credentials have been saved successfully.'
+        message: 'Your login credentials have been saved successfully. The Configuration page has been updated with these same values.'
       });
+      
+      // Force a re-render to update the display with new values
+      setCredentials(prev => ({ ...prev }));
     } catch (error) {
       console.error('❌ [Login] Failed to save credentials:', error);
       setSaveStatus({
@@ -520,11 +557,19 @@ const Login = () => {
   };
 
   const handleLogin = async () => {
+    console.log('🚀 [Login] Starting login process...');
     setError('');
-
     setIsLoading(true);
 
     try {
+      console.log('💾 [Login] Saving credentials before login:', {
+        hasEnvironmentId: !!credentials.environmentId,
+        hasClientId: !!credentials.clientId,
+        hasClientSecret: !!credentials.clientSecret,
+        environmentId: credentials.environmentId,
+        clientId: credentials.clientId?.substring(0, 8) + '...'
+      });
+
       // Save current form credentials to localStorage before login
       // This ensures the OAuth redirect uses the correct credentials
       localStorage.setItem('login_credentials', JSON.stringify(credentials));
@@ -545,16 +590,54 @@ const Login = () => {
       };
       localStorage.setItem('pingone_config', JSON.stringify(configToSave));
       
+      console.log('✅ [Login] Credentials saved, config prepared:', {
+        redirectUri: configToSave.redirectUri,
+        authEndpoint: configToSave.authEndpoint,
+        tokenEndpoint: configToSave.tokenEndpoint,
+        userInfoEndpoint: configToSave.userInfoEndpoint
+      });
+      
       // Dispatch event to notify other components of config change
       window.dispatchEvent(new CustomEvent('pingone_config_changed', {
         detail: { config: configToSave }
       }));
 
+      console.log('🔄 [Login] Calling login function with dashboard callback type...');
+      
       // Redirect to PingOne for authentication
-      await login();
-      // The login function will handle the redirect, so we don't need to do anything else
+      const result = await login('/', 'dashboard');
+      
+      console.log('📋 [Login] Login function result:', result);
+      
+      if (!result.success) {
+        console.error('❌ [Login] Login failed:', result.error);
+        setError(result.error || 'Login failed');
+        setIsLoading(false);
+        return;
+      }
+      
+      console.log('✅ [Login] Login initiated successfully, showing URL preview modal');
+      
+      // Parse URL to extract parameters for modal display
+      if (result.redirectUrl) {
+        const urlObj = new URL(result.redirectUrl);
+        const params: Record<string, string> = {};
+        urlObj.searchParams.forEach((value, key) => {
+          params[key] = value;
+        });
+        
+        console.log('🔓 [Login] Opening redirect modal with URL:', result.redirectUrl);
+        setRedirectUrl(result.redirectUrl);
+        setRedirectParams(params);
+        setShowRedirectModal(true);
+      }
     } catch (err) {
-      console.error('Login error:', err);
+      console.error('❌ [Login] Login error:', err);
+      console.error('❌ [Login] Error details:', {
+        message: err instanceof Error ? err.message : 'Unknown error',
+        stack: err instanceof Error ? err.stack : undefined,
+        error: err
+      });
       setError('An error occurred during login. Please try again.');
       setIsLoading(false);
     }
@@ -589,9 +672,9 @@ const Login = () => {
                 <li>
                   <strong>Application Name:</strong>
                   <span style={{ fontWeight: '800', fontSize: '1rem', color: '#0070CC', marginLeft: '0.5rem' }}>
-                    PingOne OAuth Playground
+                    PingOne OAuth/OIDC Playground v{packageJson.version}
                     <button
-                      onClick={() => copyToClipboard('PingOne OAuth Playground', 'setup-app-name')}
+                      onClick={() => copyToClipboard(`PingOne OAuth/OIDC Playground v${packageJson.version}`, 'setup-app-name')}
                       style={{
                         background: 'none',
                         border: '1px solid #0070CC',
@@ -685,6 +768,44 @@ const Login = () => {
 
             <CredentialsBox>
               <h4>📝 Enter Your Credentials</h4>
+              
+              {redirectMessage && (
+                <div style={{
+                  padding: '1rem',
+                  marginBottom: '1.5rem',
+                  borderRadius: '0.375rem',
+                  backgroundColor: redirectType === 'success' ? '#f0fdf4' : redirectType === 'error' ? '#fef2f2' : redirectType === 'warning' ? '#fffbeb' : '#eff6ff',
+                  border: `1px solid ${redirectType === 'success' ? '#bbf7d0' : redirectType === 'error' ? '#fecaca' : redirectType === 'warning' ? '#fde68a' : '#bfdbfe'}`,
+                  color: redirectType === 'success' ? '#166534' : redirectType === 'error' ? '#991b1b' : redirectType === 'warning' ? '#92400e' : '#1e40af',
+                  display: 'flex',
+                  alignItems: 'flex-start'
+                }}>
+                  {redirectType === 'success' ? (
+                    <FiCheckCircle size={20} style={{ marginRight: '0.75rem', marginTop: '0.2rem', flexShrink: 0 }} />
+                  ) : redirectType === 'error' ? (
+                    <FiAlertCircle size={20} style={{ marginRight: '0.75rem', marginTop: '0.2rem', flexShrink: 0 }} />
+                  ) : redirectType === 'warning' ? (
+                    <FiAlertCircle size={20} style={{ marginRight: '0.75rem', marginTop: '0.2rem', flexShrink: 0 }} />
+                  ) : (
+                    <FiAlertCircle size={20} style={{ marginRight: '0.75rem', marginTop: '0.2rem', flexShrink: 0 }} />
+                  )}
+                  <div>
+                    <h4 style={{ marginTop: 0, marginBottom: '0.5rem', fontWeight: 600 }}>
+                      {redirectType === 'success' ? 'Success' : 
+                       redirectType === 'error' ? 'Error' : 
+                       redirectType === 'warning' ? 'Warning' : 'Information'}
+                    </h4>
+                    <p style={{ margin: 0, fontSize: '0.9375rem' }}>{redirectMessage}</p>
+                  </div>
+                </div>
+              )}
+
+              {error && (
+                <Alert>
+                  <FiAlertCircle size={20} />
+                  <div>{error}</div>
+                </Alert>
+              )}
               
               <form onSubmit={(e) => { e.preventDefault(); handleCredentialSave(); }}>
               
@@ -1072,7 +1193,7 @@ const Login = () => {
                 </CredentialRow>
               </div>
 
-              <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+              <div style={{ marginTop: '1.5rem', textAlign: 'center', display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                 <SubmitButton type="submit" disabled={isSavingCredentials} style={{ width: 'auto', padding: '0.75rem 2rem' }}>
                   {isSavingCredentials ? (
                     <>
@@ -1086,67 +1207,8 @@ const Login = () => {
                     </>
                   )}
                 </SubmitButton>
-              </div>
-              
-              </form>
-            </CredentialsBox>
-
-            <p><em>💡 <strong>Need Help?</strong> Check the PingOne documentation or contact your PingOne administrator.</em></p>
-          </PingOneSetupSection>
-        </SetupSection>
-
-        <LoginSection>
-          <LoginCard>
-            <LoginHeader>
-              <h1>
-                <span>🔐 PingOne OAuth Playground</span>
-                <small style={{ display: 'block', fontSize: '0.75rem', fontWeight: 'normal', marginTop: '0.25rem', color: '#666' }}>
-                  Version 2.0.1
-                </small>
-              </h1>
-            </LoginHeader>
-
-            <LoginBody>
-              {redirectMessage && (
-                <div style={{
-                  padding: '1rem',
-                  marginBottom: '1.5rem',
-                  borderRadius: '0.375rem',
-                  backgroundColor: redirectType === 'success' ? '#f0fdf4' : redirectType === 'error' ? '#fef2f2' : redirectType === 'warning' ? '#fffbeb' : '#eff6ff',
-                  border: `1px solid ${redirectType === 'success' ? '#bbf7d0' : redirectType === 'error' ? '#fecaca' : redirectType === 'warning' ? '#fde68a' : '#bfdbfe'}`,
-                  color: redirectType === 'success' ? '#166534' : redirectType === 'error' ? '#991b1b' : redirectType === 'warning' ? '#92400e' : '#1e40af',
-                  display: 'flex',
-                  alignItems: 'flex-start'
-                }}>
-                  {redirectType === 'success' ? (
-                    <FiCheckCircle size={20} style={{ marginRight: '0.75rem', marginTop: '0.2rem', flexShrink: 0 }} />
-                  ) : redirectType === 'error' ? (
-                    <FiAlertCircle size={20} style={{ marginRight: '0.75rem', marginTop: '0.2rem', flexShrink: 0 }} />
-                  ) : redirectType === 'warning' ? (
-                    <FiAlertCircle size={20} style={{ marginRight: '0.75rem', marginTop: '0.2rem', flexShrink: 0 }} />
-                  ) : (
-                    <FiAlertCircle size={20} style={{ marginRight: '0.75rem', marginTop: '0.2rem', flexShrink: 0 }} />
-                  )}
-                  <div>
-                    <h4 style={{ marginTop: 0, marginBottom: '0.5rem', fontWeight: 600 }}>
-                      {redirectType === 'success' ? 'Success' : 
-                       redirectType === 'error' ? 'Error' : 
-                       redirectType === 'warning' ? 'Warning' : 'Information'}
-                    </h4>
-                    <p style={{ margin: 0, fontSize: '0.9375rem' }}>{redirectMessage}</p>
-                  </div>
-                </div>
-              )}
-
-              {error && (
-                <Alert>
-                  <FiAlertCircle size={20} />
-                  <div>{error}</div>
-                </Alert>
-              )}
-
-              <div style={{ textAlign: 'center', padding: '2rem 0' }}>
-                <SubmitButton onClick={handleLogin} disabled={isLoading} style={{ width: 'auto', padding: '0.75rem 2rem' }}>
+                
+                <SubmitButton onClick={handleLogin} disabled={isLoading} style={{ width: 'auto', padding: '0.6rem 1.5rem' }}>
                   {isLoading ? (
                     <>
                       <Spinner size={16} />
@@ -1160,10 +1222,26 @@ const Login = () => {
                   )}
                 </SubmitButton>
               </div>
-            </LoginBody>
-          </LoginCard>
-        </LoginSection>
+              
+              </form>
+            </CredentialsBox>
+
+            <p><em>💡 <strong>Need Help?</strong> Check the PingOne documentation or contact your PingOne administrator.</em></p>
+            </PingOneSetupSection>
+          </SetupSection>
+          
+          <DebugCredentials />
+
       </LoginLayout>
+      
+      {/* Authorization Request Modal */}
+      <AuthorizationRequestModal
+        isOpen={showRedirectModal}
+        onClose={handleRedirectModalClose}
+        onProceed={handleRedirectModalProceed}
+        authorizationUrl={redirectUrl}
+        requestParams={redirectParams}
+      />
     </LoginContainer>
   );
 };

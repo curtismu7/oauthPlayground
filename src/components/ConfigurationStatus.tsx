@@ -279,7 +279,7 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
         return (
           <CompactButton onClick={handleConfigure}>
             <FiSettings />
-            Update
+            Update Config
           </CompactButton>
         );
       case 'partial':

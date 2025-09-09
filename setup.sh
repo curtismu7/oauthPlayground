@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# PingOne OAuth Playground Setup Script
+# PingOne OAuth/OIDC Playground Setup Script
 # This script helps set up the development environment
 
-echo "🚀 Starting PingOne OAuth Playground setup..."
+echo "🚀 Starting PingOne OAuth/OIDC Playground setup..."
 
 # Check if Node.js is installed
 if ! command -v node &> /dev/null; then

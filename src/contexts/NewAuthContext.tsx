@@ -7,6 +7,7 @@ import { PingOneErrorInterpreter } from '../utils/pingoneErrorInterpreter';
 import { validateAndParseCallbackUrl } from '../utils/urlValidation';
 import config from '../services/config';
 import { credentialManager } from '../utils/credentialManager';
+import { generateCodeChallenge } from '../utils/oauth';
 
 // Define window interface for PingOne environment variables
 interface WindowWithPingOne extends Window {
@@ -71,9 +72,11 @@ const getStoredUser = (): UserInfo | null => {
   }
 };
 
-// Function to load configuration from environment variables or localStorage
-function loadConfiguration(): AppConfig {
+  // Function to load configuration from environment variables or localStorage
+async function loadConfiguration(): Promise<AppConfig> {
   try {
+    console.log('🔧 [NewAuthContext] Loading configuration...');
+    
     // Try to get from environment variables first
     const envConfig = {
       disableLogin: false,
@@ -88,15 +91,21 @@ function loadConfiguration(): AppConfig {
       environmentId: (window as WindowWithPingOne).__PINGONE_ENVIRONMENT_ID__ || '',
     };
 
+    console.log('🔧 [NewAuthContext] Environment config:', envConfig);
+
     // If we have environment variables, use them
     if (envConfig.clientId && envConfig.environmentId) {
+      console.log('✅ [NewAuthContext] Using environment variables');
       return envConfig;
     }
 
     // Otherwise, try to get from credential manager
-    const allCredentials = credentialManager.getAllCredentials();
+    console.log('🔧 [NewAuthContext] Loading from credential manager...');
+    const allCredentials = await credentialManager.getAllCredentialsAsync();
+    console.log('🔧 [NewAuthContext] Credential manager result:', allCredentials);
+    
     if (allCredentials.environmentId && allCredentials.clientId) {
-      return {
+      const configFromCredentials = {
         disableLogin: false,
         clientId: allCredentials.clientId,
         clientSecret: allCredentials.clientSecret || '',
@@ -109,6 +118,8 @@ function loadConfiguration(): AppConfig {
         environmentId: allCredentials.environmentId,
         hasConfigError: false,
       };
+      console.log('✅ [NewAuthContext] Using credentials from credential manager:', configFromCredentials);
+      return configFromCredentials;
     }
 
     // Return default config
@@ -167,7 +178,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [config, setConfig] = useState<AppConfig>(() => {
     // Initialize config on first render with error handling
     try {
-      return loadConfiguration(); // Now loadConfiguration is defined
+      // For now, return default config - async loading will happen in useEffect
+      return {
+        disableLogin: false,
+        clientId: '',
+        clientSecret: '',
+        redirectUri: `${window.location.origin}/dashboard-callback`,
+        authorizationEndpoint: '',
+        tokenEndpoint: '',
+        userInfoEndpoint: '',
+        endSessionEndpoint: '',
+        scopes: ['openid', 'profile', 'email'],
+        environmentId: '',
+        hasConfigError: false,
+      };
     } catch (error) {
       logger.error('NewAuthContext', 'Error initializing config', error);
       return {
@@ -185,6 +209,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
     }
   });
+
+  // Load configuration asynchronously on mount
+  useEffect(() => {
+    const loadConfig = async () => {
+      try {
+        const loadedConfig = await loadConfiguration();
+        setConfig(loadedConfig);
+        logger.config('NewAuthContext', 'Configuration loaded successfully', loadedConfig);
+      } catch (error) {
+        logger.error('NewAuthContext', 'Error loading configuration', error);
+        setConfig(prev => ({ ...prev, hasConfigError: true }));
+      }
+    };
+    
+    loadConfig();
+  }, []);
 
   // Update state helper
   const updateState = useCallback((updates: Partial<AuthState>) => {
@@ -246,9 +286,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Listen for configuration changes
   useEffect(() => {
-    const handleConfigChange = () => {
+    const handleConfigChange = async () => {
       try {
-        const newConfig = loadConfiguration();
+        const newConfig = await loadConfiguration();
         setConfig(newConfig);
         logger.config('NewAuthContext', 'Configuration updated', newConfig);
       } catch (error) {
@@ -271,10 +311,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   // Function to refresh configuration
-  const refreshConfig = useCallback(() => {
+  const refreshConfig = useCallback(async () => {
     logger.config('NewAuthContext', 'Refreshing configuration...');
     try {
-      const newConfig = loadConfiguration();
+      const newConfig = await loadConfiguration();
       setConfig(newConfig);
       logger.config('NewAuthContext', 'Configuration refreshed successfully', newConfig);
     } catch (error) {
@@ -340,9 +380,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Listen for configuration changes from the Configuration page
   useEffect(() => {
-    const handleConfigChange = () => {
+    const handleConfigChange = async () => {
       try {
-        const newConfig = loadConfiguration();
+        const newConfig = await loadConfiguration();
         setConfig(newConfig);
         logger.info('NewAuthContext', 'Configuration updated from localStorage');
       } catch (error) {
@@ -360,43 +400,114 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Login function
   const login = useCallback(async (redirectAfterLogin = '/', callbackType: 'dashboard' | 'oauth' = 'oauth'): Promise<LoginResult> => {
+    console.log('🚀 [NewAuthContext] Starting login process...', {
+      redirectAfterLogin,
+      callbackType,
+      hasConfig: !!config,
+      clientId: config?.clientId,
+      environmentId: config?.environmentId,
+      authorizationEndpoint: config?.authorizationEndpoint
+    });
+
     try {
       if (!config?.clientId || !config?.environmentId) {
         const errorMessage = 'Configuration required. Please configure your PingOne settings first.';
+        console.error('❌ [NewAuthContext] Missing configuration:', {
+          hasClientId: !!config?.clientId,
+          hasEnvironmentId: !!config?.environmentId,
+          config
+        });
         updateState({ error: errorMessage, isLoading: false });
         return { success: false, error: errorMessage };
       }
+
+      console.log('✅ [NewAuthContext] Configuration validated');
 
       // Generate state and nonce for security
       const state = Math.random().toString(36).substring(2, 15);
       const nonce = Math.random().toString(36).substring(2, 15);
       
-      // Store state and nonce for validation
+      console.log('🔐 [NewAuthContext] Generated security parameters:', {
+        state: state.substring(0, 8) + '...',
+        nonce: nonce.substring(0, 8) + '...'
+      });
+      
+      // Generate PKCE codes for enhanced security
+      const codeVerifier = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      const codeChallenge = await generateCodeChallenge(codeVerifier);
+      
+      console.log('🔧 [NewAuthContext] PKCE generation successful:', { 
+        codeVerifier: codeVerifier.substring(0, 20) + '...', 
+        codeChallenge: codeChallenge.substring(0, 20) + '...',
+        codeVerifierLength: codeVerifier.length,
+        codeChallengeLength: codeChallenge.length
+      });
+      
+      // Store state, nonce, and PKCE codes for validation
       sessionStorage.setItem('oauth_state', state);
       sessionStorage.setItem('oauth_nonce', nonce);
+      sessionStorage.setItem('code_verifier', codeVerifier);
       sessionStorage.setItem('oauth_redirect_after_login', redirectAfterLogin);
+      
+      console.log('💾 [NewAuthContext] Stored in sessionStorage:', {
+        oauth_state: state.substring(0, 8) + '...',
+        oauth_nonce: nonce.substring(0, 8) + '...',
+        code_verifier: codeVerifier.substring(0, 20) + '...',
+        oauth_redirect_after_login: redirectAfterLogin
+      });
 
       // Determine redirect URI based on callback type
       const redirectUri = callbackType === 'dashboard' 
         ? `${window.location.origin}/dashboard-callback`
-        : config.pingone.redirectUri;
+        : config.redirectUri;
+
+      console.log('🔗 [NewAuthContext] Redirect URI configuration:', {
+        callbackType,
+        redirectUri,
+        windowOrigin: window.location.origin,
+        configRedirectUri: config.redirectUri,
+        finalRedirectUri: redirectUri
+      });
 
       // Build authorization URL
-      const authUrl = new URL(`${config.pingone.authEndpoint}`);
+      const authUrl = new URL(`${config.authorizationEndpoint}`);
       authUrl.searchParams.set('response_type', 'code');
-      authUrl.searchParams.set('client_id', config.pingone.clientId);
+      authUrl.searchParams.set('client_id', config.clientId);
       authUrl.searchParams.set('redirect_uri', redirectUri);
       authUrl.searchParams.set('scope', 'openid profile email');
       authUrl.searchParams.set('state', state);
       authUrl.searchParams.set('nonce', nonce);
+      authUrl.searchParams.set('code_challenge', codeChallenge);
+      authUrl.searchParams.set('code_challenge_method', 'S256');
 
-      logger.auth('NewAuthContext', 'Redirecting to authorization endpoint', { authUrl: authUrl.toString() });
+      console.log('🌐 [NewAuthContext] Built authorization URL:', {
+        baseUrl: config.authorizationEndpoint,
+        fullUrl: authUrl.toString(),
+        params: {
+          response_type: 'code',
+          client_id: config.clientId,
+          redirect_uri: redirectUri,
+          scope: 'openid profile email',
+          state: state.substring(0, 8) + '...',
+          nonce: nonce.substring(0, 8) + '...',
+          code_challenge: codeChallenge.substring(0, 20) + '...',
+          code_challenge_method: 'S256'
+        }
+      });
+
+      logger.auth('NewAuthContext', 'Prepared authorization URL for modal display', { authUrl: authUrl.toString() });
       
-      // Redirect to authorization endpoint
-      window.location.href = authUrl.toString();
+      console.log('🚀 [NewAuthContext] Authorization URL prepared, returning for modal display...');
       
+      // Return the URL for modal display instead of direct redirect
       return { success: true, redirectUrl: authUrl.toString() };
     } catch (error) {
+      console.error('❌ [NewAuthContext] Login error:', error);
+      console.error('❌ [NewAuthContext] Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        error
+      });
       const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
       updateState({ error: errorMessage, isLoading: false });
       return { success: false, error: errorMessage };
@@ -483,32 +594,83 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const isDashboardCallback = url.includes('/dashboard-callback');
       const redirectUri = isDashboardCallback 
         ? `${window.location.origin}/dashboard-callback`
-        : config?.pingone?.redirectUri || '';
+        : config?.redirectUri || '';
 
+      // Get code_verifier from sessionStorage for PKCE
+      const codeVerifier = sessionStorage.getItem('code_verifier');
+      console.log('🔧 [NewAuthContext] Retrieved code_verifier from sessionStorage:', codeVerifier ? 'present' : 'missing');
+      
       // Exchange code for tokens
-      const tokenResponse = await fetch('/api/token', {
+      const requestBody = {
+        grant_type: 'authorization_code',
+        code: code,
+        redirect_uri: redirectUri,
+        client_id: config?.clientId || '',
+        client_secret: config?.clientSecret || '',
+        environment_id: config?.environmentId || '',
+        ...(codeVerifier && { code_verifier: codeVerifier })
+      };
+      
+      console.log('🔧 [NewAuthContext] Token exchange request:', requestBody);
+      console.log('🔧 [NewAuthContext] Config object:', config);
+      console.log('🔧 [NewAuthContext] PingOne config:', config?.pingone);
+      console.log('🔧 [NewAuthContext] Request body validation:', {
+        hasGrantType: !!requestBody.grant_type,
+        hasCode: !!requestBody.code,
+        hasRedirectUri: !!requestBody.redirect_uri,
+        hasClientId: !!requestBody.client_id,
+        hasClientSecret: !!requestBody.client_secret,
+        hasEnvironmentId: !!requestBody.environment_id,
+        hasCodeVerifier: !!requestBody.code_verifier,
+      });
+      
+      console.log('🌐 [NewAuthContext] Making token exchange request to /api/token-exchange');
+      console.log('📤 [NewAuthContext] Request details:', {
+        url: '/api/token-exchange',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: requestBody
+      });
+
+      const tokenResponse = await fetch('/api/token-exchange', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
         },
-        body: new URLSearchParams({
-          grant_type: 'authorization_code',
-          code: code,
-          redirect_uri: redirectUri,
-          client_id: config?.pingone?.clientId || '',
-          client_secret: config?.pingone?.clientSecret || '',
-        }),
+        body: JSON.stringify(requestBody),
+      });
+      
+      console.log('📥 [NewAuthContext] Token exchange response:', {
+        status: tokenResponse.status,
+        statusText: tokenResponse.statusText,
+        ok: tokenResponse.ok,
+        headers: Object.fromEntries(tokenResponse.headers.entries())
       });
       
       if (!tokenResponse.ok) {
         const errorText = await tokenResponse.text();
         const errorMessage = `Token exchange failed: ${errorText}`;
+        console.error('❌ [NewAuthContext] Token exchange failed:', {
+          status: tokenResponse.status,
+          statusText: tokenResponse.statusText,
+          errorText,
+          requestBody
+        });
         logger.error('NewAuthContext', 'Token exchange failed', { status: tokenResponse.status, error: errorText });
         updateState({ error: errorMessage, isLoading: false });
         return { success: false, error: errorMessage };
       }
       
       const tokenData: OAuthTokenResponse = await tokenResponse.json();
+      console.log('✅ [NewAuthContext] Token exchange successful:', {
+        hasAccessToken: !!tokenData.access_token,
+        hasRefreshToken: !!tokenData.refresh_token,
+        hasIdToken: !!tokenData.id_token,
+        tokenType: tokenData.token_type,
+        expiresIn: tokenData.expires_in,
+        scope: tokenData.scope,
+        tokenData
+      });
       
       // Store tokens
       const tokens: OAuthTokens = {
@@ -523,7 +685,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         scope: tokenData.scope,
       };
       
+      console.log('💾 [NewAuthContext] Storing tokens in oauthStorage:', {
+        hasAccessToken: !!tokens.access_token,
+        hasRefreshToken: !!tokens.refresh_token,
+        hasIdToken: !!tokens.id_token,
+        tokenType: tokens.token_type,
+        expiresIn: tokens.expires_in
+      });
+      
       oauthStorage.setTokens(tokens);
+      
+      console.log('✅ [NewAuthContext] Tokens stored successfully');
       
       // Get user info if available
       let userInfo: UserInfo | null = null;
@@ -537,6 +709,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       // Update state
+      console.log('🔄 [NewAuthContext] Updating auth state with tokens:', {
+        isAuthenticated: true,
+        hasTokens: !!tokens,
+        hasUser: !!userInfo,
+        tokens: tokens ? {
+          hasAccessToken: !!tokens.access_token,
+          hasRefreshToken: !!tokens.refresh_token,
+          hasIdToken: !!tokens.id_token
+        } : null
+      });
+      
       updateState({
         isAuthenticated: true,
         tokens: tokens,
@@ -556,18 +739,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Check for flow context to continue to next step
       const flowContextKey = 'flowContext';
       const flowContext = sessionStorage.getItem(flowContextKey);
+      console.log('🔍 [NewAuthContext] Checking flow context:', flowContext);
+      console.log('🔍 [NewAuthContext] All sessionStorage keys:', Object.keys(sessionStorage));
+      console.log('🔍 [NewAuthContext] All sessionStorage contents:', Object.fromEntries(Object.keys(sessionStorage).map(key => [key, sessionStorage.getItem(key)])));
+      
       if (flowContext) {
         try {
           const parsedContext = JSON.parse(flowContext);
+          console.log('🔍 [NewAuthContext] Parsed flow context:', parsedContext);
+          
           if (parsedContext.returnPath) {
             redirectUrl = parsedContext.returnPath;
             console.log('🔄 [NewAuthContext] Using flow context return path:', redirectUrl);
+          } else {
+            console.log('⚠️ [NewAuthContext] No returnPath in flow context');
           }
           // Clean up flow context
           sessionStorage.removeItem(flowContextKey);
         } catch (error) {
           console.warn('Failed to parse flow context:', error);
         }
+      } else {
+        console.log('⚠️ [NewAuthContext] No flow context found in sessionStorage');
       }
       
       logger.auth('NewAuthContext', 'Authentication successful', { redirectUrl });

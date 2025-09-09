@@ -175,7 +175,9 @@ const ImplicitGrantFlow = () => {
     
     // Store the return path for after callback
     const currentPath = window.location.pathname;
-    const returnPath = `${currentPath}?step=2`; // Return to step 2 (token handling)
+    // Ensure we use the correct route path regardless of current path
+    const correctPath = currentPath.includes('/oidc/') ? '/flows-old/implicit' : currentPath;
+    const returnPath = `${correctPath}?step=2`; // Return to step 2 (token handling)
     sessionStorage.setItem('redirect_after_login', returnPath);
     
     // Store flow context in state parameter

@@ -479,6 +479,13 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
                 >
                   Clear
                 </Button>
+                <Button
+                  variant="secondary"
+                  onClick={onClose}
+                >
+                  <FiX />
+                  Close
+                </Button>
               </div>
             </ConfigurationDisplay>
           )}
