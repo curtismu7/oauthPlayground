@@ -1751,6 +1751,129 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       )}
 
       {/* Callback URL Configuration */}
+      <div style={{ 
+        marginBottom: '2rem', 
+        padding: '1.5rem', 
+        backgroundColor: '#f8fafc', 
+        border: '1px solid #e2e8f0', 
+        borderRadius: '0.75rem' 
+      }}>
+        <h3 style={{ 
+          margin: '0 0 1rem 0', 
+          fontSize: '1.125rem', 
+          fontWeight: '600', 
+          color: '#1f2937',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem'
+        }}>
+          🔗 Callback URL Configuration
+        </h3>
+        
+        <div style={{ marginBottom: '1rem' }}>
+          <label style={{ 
+            display: 'block', 
+            marginBottom: '0.5rem', 
+            fontSize: '0.875rem', 
+            fontWeight: '500', 
+            color: '#374151' 
+          }}>
+            Redirect URI
+          </label>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <input
+              type="text"
+              value={credentials.redirectUri}
+              onChange={(e) => setCredentials(prev => ({ ...prev, redirectUri: e.target.value }))}
+              style={{
+                flex: 1,
+                padding: '0.75rem',
+                border: '1px solid #d1d5db',
+                borderRadius: '0.5rem',
+                fontSize: '0.875rem',
+                fontFamily: 'monospace',
+                backgroundColor: 'white'
+              }}
+              placeholder="https://localhost:3000/authz-callback"
+            />
+            <button
+              onClick={() => {
+                const defaultUri = window.location.origin + '/authz-callback';
+                setCredentials(prev => ({ ...prev, redirectUri: defaultUri }));
+              }}
+              style={{
+                padding: '0.75rem 1rem',
+                backgroundColor: '#f3f4f6',
+                border: '1px solid #d1d5db',
+                borderRadius: '0.5rem',
+                fontSize: '0.875rem',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              Reset to Default
+            </button>
+            <button
+              onClick={() => {
+                // Save the updated credentials
+                const updatedCredentials = { ...credentials };
+                credentialManager.saveCredentials(updatedCredentials);
+                console.log('✅ Callback URL saved:', credentials.redirectUri);
+              }}
+              style={{
+                padding: '0.75rem 1rem',
+                backgroundColor: '#3b82f6',
+                border: '1px solid #3b82f6',
+                borderRadius: '0.5rem',
+                fontSize: '0.875rem',
+                color: 'white',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              Save Callback URL
+            </button>
+          </div>
+          <p style={{ 
+            margin: '0.5rem 0 0 0', 
+            fontSize: '0.75rem', 
+            color: '#6b7280' 
+          }}>
+            This URL must be configured in your PingOne application settings as an allowed redirect URI.
+          </p>
+        </div>
+
+        <div style={{ 
+          backgroundColor: '#eff6ff', 
+          border: '1px solid #bfdbfe', 
+          borderRadius: '0.5rem', 
+          padding: '1rem' 
+        }}>
+          <h4 style={{ 
+            margin: '0 0 0.5rem 0', 
+            fontSize: '0.875rem', 
+            fontWeight: '600', 
+            color: '#1e40af' 
+          }}>
+            Setup Instructions:
+          </h4>
+          <ol style={{ 
+            margin: '0', 
+            paddingLeft: '1.25rem', 
+            fontSize: '0.875rem', 
+            color: '#1e40af',
+            lineHeight: '1.5'
+          }}>
+            <li>Copy the redirect URI above</li>
+            <li>Go to your PingOne application settings</li>
+            <li>Navigate to "Redirect URIs" section</li>
+            <li>Add the copied URI to your allowed redirect URIs</li>
+            <li>Save your configuration</li>
+          </ol>
+        </div>
+      </div>
+
+      {/* Callback URL Display */}
       <CallbackUrlDisplay flowType="authorization-code" />
 
       {/* Authorization URL Display - Moved to bottom */}
