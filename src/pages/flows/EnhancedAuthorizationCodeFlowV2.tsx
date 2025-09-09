@@ -1759,8 +1759,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       <div style={{ 
         marginBottom: '2rem', 
         padding: '1.5rem', 
-        backgroundColor: authUrl ? '#f0fdf4' : '#f8fafc', 
-        border: authUrl ? '1px solid #22c55e' : '1px solid #e2e8f0', 
+        backgroundColor: credentialsSaved ? '#f0fdf4' : '#f8fafc', 
+        border: credentialsSaved ? '1px solid #22c55e' : '1px solid #e2e8f0', 
         borderRadius: '0.75rem' 
       }}>
         <h3 style={{ 
@@ -1823,6 +1823,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                 // Save the updated credentials
                 const updatedCredentials = { ...credentials };
                 credentialManager.saveCredentials(updatedCredentials);
+                setCredentialsSaved(true);
                 console.log('✅ Callback URL saved:', credentials.redirectUri);
               }}
               style={{
@@ -1846,6 +1847,24 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           }}>
             This URL must be configured in your PingOne application settings as an allowed redirect URI.
           </p>
+          
+          {credentialsSaved && (
+            <div style={{
+              marginTop: '1rem',
+              padding: '0.75rem',
+              backgroundColor: '#f0fdf4',
+              border: '1px solid #22c55e',
+              borderRadius: '0.5rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}>
+              <FiCheckCircle style={{ color: '#22c55e' }} />
+              <span style={{ color: '#15803d', fontSize: '0.875rem', fontWeight: '500' }}>
+                Callback URL saved successfully!
+              </span>
+            </div>
+          )}
         </div>
 
         <div style={{ 
