@@ -320,6 +320,7 @@ interface FlowConfigurationProps {
   config: FlowConfig;
   onConfigChange: (config: FlowConfig) => void;
   flowType: 'authorization-code' | 'pkce' | 'implicit' | 'client-credentials' | 'device-code' | 'refresh-token' | 'password-grant';
+  isConfigured?: boolean; // Whether credentials are already saved
 }
 
 const availableScopes = [
@@ -342,7 +343,8 @@ const defaultAcrValues = [
 export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
   config,
   onConfigChange,
-  flowType
+  flowType,
+  isConfigured = false
 }) => {
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -798,7 +800,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
             ) : (
               <>
                 <FiSave />
-                Save Configuration
+                {isConfigured ? 'Complete' : 'Save Configuration'}
               </>
             )}
           </SaveButton>
