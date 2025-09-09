@@ -1,5 +1,5 @@
 // src/pages/flows/EnhancedAuthorizationCodeFlowV2.tsx - Enhanced with complete UI design implementation
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { 
@@ -574,6 +574,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   const [flowConfig, setFlowConfig] = useState<FlowConfig>(getDefaultConfig('authorization-code'));
   const [showAuthSuccessModal, setShowAuthSuccessModal] = useState(false);
   const [isModalLoading, setIsModalLoading] = useState(false);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const stepFlowRef = useRef<any>(null);
   const [showRedirectModal, setShowRedirectModal] = useState(false);
   const [redirectUrl, setRedirectUrl] = useState('');
   const [redirectParams, setRedirectParams] = useState({});
@@ -792,6 +794,41 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     
     loadCredentials();
     console.log('🧹 [EnhancedAuthorizationCodeFlowV2] Cleared all flow states and loaded credentials on mount');
+  }, []);
+
+  // Initialize step index based on URL parameters and stored step
+  useEffect(() => {
+    const initializeStepIndex = () => {
+      const storedStep = sessionStorage.getItem('enhanced-authz-code-v2-step');
+      console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Checking for stored step:', storedStep);
+      console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Current URL:', window.location.href);
+      
+      // Check if we have an authorization code in the URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      const state = urlParams.get('state');
+      const step = urlParams.get('step');
+      
+      console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - URL params:', { code, state, step });
+      
+      if (code) {
+        console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Authorization code found in URL, going to step 4 (handle-callback)');
+        setCurrentStepIndex(4); // Go directly to handle-callback step
+        return;
+      }
+      
+      if (storedStep) {
+        const stepIndex = parseInt(storedStep, 10);
+        console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Restoring step from stored value:', stepIndex);
+        setCurrentStepIndex(stepIndex);
+        return;
+      }
+      
+      console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - No step to restore, starting from beginning');
+      setCurrentStepIndex(0);
+    };
+
+    initializeStepIndex();
   }, []);
 
   // Listen for credential changes (debounced to prevent excessive calls)
@@ -2339,42 +2376,19 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       )}
 
     <EnhancedStepFlowV2
+      ref={stepFlowRef}
       steps={steps}
       title="🚀 Enhanced Authorization Code Flow"
       persistKey="enhanced-authz-code"
       autoAdvance={false}
       showDebugInfo={true}
       allowStepJumping={true}
-        initialStepIndex={(() => {
-          const storedStep = sessionStorage.getItem('enhanced-authz-code-v2-step');
-          console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitialStepIndex - Checking for stored step:', storedStep);
-          console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitialStepIndex - Current URL:', window.location.href);
-          console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitialStepIndex - URL search params:', window.location.search);
-          
-          // Check if we have an authorization code in the URL
-          const urlParams = new URLSearchParams(window.location.search);
-          const code = urlParams.get('code');
-          const state = urlParams.get('state');
-          const step = urlParams.get('step');
-          
-          console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitialStepIndex - URL params:', { code, state, step });
-          
-          if (code) {
-            console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitialStepIndex - Authorization code found in URL, going to step 4 (handle-callback)');
-            return 4; // Go directly to handle-callback step
-          }
-          
-          if (storedStep) {
-            const stepIndex = parseInt(storedStep, 10);
-            console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitialStepIndex - Restoring step from stored value:', stepIndex);
-            // Don't remove the stored step here - let the component handle it
-            return stepIndex;
-          }
-          
-          console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitialStepIndex - No step to restore, starting from beginning');
-          return undefined;
-        })()}
-      />
+      initialStepIndex={currentStepIndex}
+      onStepChange={(stepIndex) => {
+        console.log('🔔 [EnhancedAuthorizationCodeFlowV2] Step changed to:', stepIndex);
+        setCurrentStepIndex(stepIndex);
+      }}
+    />
 
       {/* Authorization Request Modal */}
       <AuthorizationRequestModal
@@ -2463,9 +2477,15 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                     await new Promise(resolve => setTimeout(resolve, 500));
                     
                     setShowAuthSuccessModal(false);
-                    // Advance to step 6 (token exchange) - index 5 (0-based)
+                    
+                    // Direct approach: Set the step index directly
+                    console.log('🔔 [EnhancedAuthorizationCodeFlowV2] Modal button clicked - advancing to step 5 (exchange-tokens)');
+                    setCurrentStepIndex(5);
+                    
+                    // Also store in sessionStorage for persistence
                     sessionStorage.setItem('enhanced-authz-code-v2-step', '5');
-                    // Trigger a custom event to notify the step flow to advance
+                    
+                    // Trigger a custom event as backup
                     window.dispatchEvent(new CustomEvent('advance-to-step', { 
                       detail: { stepIndex: 5, stepName: 'exchange-tokens' } 
                     }));
