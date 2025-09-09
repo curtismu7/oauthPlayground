@@ -1,5 +1,5 @@
 // src/pages/flows/EnhancedAuthorizationCodeFlowV2.tsx - Enhanced with complete UI design implementation
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { 
@@ -575,7 +575,6 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   const [showAuthSuccessModal, setShowAuthSuccessModal] = useState(false);
   const [isModalLoading, setIsModalLoading] = useState(false);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const stepFlowRef = useRef<any>(null);
   const [showRedirectModal, setShowRedirectModal] = useState(false);
   const [redirectUrl, setRedirectUrl] = useState('');
   const [redirectParams, setRedirectParams] = useState({});
@@ -2389,7 +2388,6 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       )}
 
     <EnhancedStepFlowV2
-      ref={stepFlowRef}
       steps={steps}
       title="🚀 Enhanced Authorization Code Flow"
       persistKey="enhanced-authz-code"
