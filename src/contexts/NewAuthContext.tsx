@@ -598,13 +598,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (flowContext) {
         try {
           const parsedContext = JSON.parse(flowContext);
+          console.log('🔧 [NewAuthContext] Parsed flow context:', parsedContext);
           if (parsedContext.redirectUri) {
             redirectUri = parsedContext.redirectUri;
             console.log('🔧 [NewAuthContext] Using redirect URI from flow context:', redirectUri);
+          } else {
+            console.log('⚠️ [NewAuthContext] No redirectUri in flow context');
           }
         } catch (error) {
           console.warn('Failed to parse flow context for redirect URI:', error);
         }
+      } else {
+        console.log('⚠️ [NewAuthContext] No flow context found in sessionStorage');
       }
       
       // Fallback to determining by callback URL if no flow context
@@ -778,12 +783,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       sessionStorage.removeItem('oauth_state');
       sessionStorage.removeItem('oauth_nonce');
       
+      // Clean up flow context after successful token exchange
+      const flowContextKey = 'flowContext';
+      const flowContext = sessionStorage.getItem(flowContextKey);
+      if (flowContext) {
+        console.log('🧹 [NewAuthContext] Cleaning up flow context after successful token exchange');
+        sessionStorage.removeItem(flowContextKey);
+      }
+      
       // Get redirect URL
       let redirectUrl = sessionStorage.getItem('oauth_redirect_after_login') || '/';
       sessionStorage.removeItem('oauth_redirect_after_login');
       
       // Check for flow context to continue to next step
-      const flowContextKey = 'flowContext';
       const flowContext = sessionStorage.getItem(flowContextKey);
       console.log('🔍 [NewAuthContext] Checking flow context:', flowContext);
       console.log('🔍 [NewAuthContext] All sessionStorage keys:', Object.keys(sessionStorage));
@@ -800,8 +812,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           } else {
             console.log('⚠️ [NewAuthContext] No returnPath in flow context');
           }
-          // Clean up flow context
-          sessionStorage.removeItem(flowContextKey);
         } catch (error) {
           console.warn('Failed to parse flow context:', error);
         }
