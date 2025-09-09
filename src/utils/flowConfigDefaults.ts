@@ -27,7 +27,8 @@ export const getAuthorizationCodeConfig = (): FlowConfig => ({
   prompt: '',
   loginHint: '',
   acrValues: [],
-  showSuccessModal: true
+  showSuccessModal: true,
+  showCredentialsModal: true
 });
 
 // Default configuration for PKCE Flow
@@ -47,7 +48,8 @@ export const getPKCEConfig = (): FlowConfig => ({
   prompt: '',
   loginHint: '',
   acrValues: [],
-  showSuccessModal: true
+  showSuccessModal: true,
+  showCredentialsModal: true
 });
 
 // Default configuration for Implicit Flow
@@ -67,7 +69,8 @@ export const getImplicitConfig = (): FlowConfig => ({
   prompt: '',
   loginHint: '',
   acrValues: [],
-  showSuccessModal: true
+  showSuccessModal: true,
+  showCredentialsModal: true
 });
 
 // Default configuration for Client Credentials Flow
@@ -87,7 +90,8 @@ export const getClientCredentialsConfig = (): FlowConfig => ({
   prompt: '',
   loginHint: '',
   acrValues: [],
-  showSuccessModal: true
+  showSuccessModal: true,
+  showCredentialsModal: true
 });
 
 // Default configuration for Device Code Flow
@@ -107,7 +111,8 @@ export const getDeviceCodeConfig = (): FlowConfig => ({
   prompt: '',
   loginHint: '',
   acrValues: [],
-  showSuccessModal: true
+  showSuccessModal: true,
+  showCredentialsModal: true
 });
 
 // Default configuration for Refresh Token Flow
@@ -127,7 +132,8 @@ export const getRefreshTokenConfig = (): FlowConfig => ({
   prompt: '',
   loginHint: '',
   acrValues: [],
-  showSuccessModal: true
+  showSuccessModal: true,
+  showCredentialsModal: true
 });
 
 // Default configuration for Password Grant Flow
@@ -147,7 +153,8 @@ export const getPasswordGrantConfig = (): FlowConfig => ({
   prompt: '',
   loginHint: '',
   acrValues: [],
-  showSuccessModal: true
+  showSuccessModal: true,
+  showCredentialsModal: true
 });
 
 // Factory function to get default config based on flow type

@@ -317,6 +317,7 @@ export interface FlowConfig {
   
   // UI settings
   showSuccessModal: boolean;
+  showCredentialsModal: boolean;
 }
 
 interface FlowConfigurationProps {
@@ -753,6 +754,21 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
           {/* UI Settings */}
           <ConfigSection>
             <h4>UI Settings</h4>
+            <ConfigField>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={config.showCredentialsModal}
+                  onChange={(e) => updateConfig({ showCredentialsModal: e.target.checked })}
+                  aria-describedby="credentials-modal-help"
+                />
+                Show Credentials Modal at Startup
+              </label>
+              <div id="credentials-modal-help" style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                Display the credentials setup modal when the application starts
+              </div>
+            </ConfigField>
+            
             <ConfigField>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
                 <input
