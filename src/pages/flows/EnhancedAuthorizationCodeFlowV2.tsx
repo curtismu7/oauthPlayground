@@ -457,6 +457,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     if (stepParam) {
       const stepIndex = parseInt(stepParam, 10) - 1; // Convert to 0-based index
       console.log('🔍 [EnhancedAuthorizationCodeFlowV2] URL step parameter detected:', stepParam, '-> step index:', stepIndex);
+      console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Setting stored step to:', stepIndex);
       sessionStorage.setItem('enhanced-authz-code-v2-step', stepIndex.toString());
       return;
     }
@@ -1947,6 +1948,10 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         allowStepJumping={true}
         initialStepIndex={(() => {
           const storedStep = sessionStorage.getItem('enhanced-authz-code-v2-step');
+          console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Checking for stored step:', storedStep);
+          console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Current URL:', window.location.href);
+          console.log('🔍 [EnhancedAuthorizationCodeFlowV2] URL search params:', window.location.search);
+          
           if (storedStep) {
             const stepIndex = parseInt(storedStep, 10);
             console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Restoring step from URL:', stepIndex);
