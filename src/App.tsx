@@ -117,7 +117,7 @@ const AppRoutes = () => {
       try {
         // Check if credentials modal should be shown based on flow config
         const flowConfig = JSON.parse(localStorage.getItem('enhanced-flow-authorization-code') || '{}');
-        const shouldShowCredentialsModal = flowConfig.showCredentialsModal !== false; // Default to true if not set
+        const shouldShowCredentialsModal = flowConfig.showCredentialsModal === true; // Only show if explicitly enabled
         
         console.log('🔍 [App] Flow config showCredentialsModal:', shouldShowCredentialsModal);
         console.log('🔍 [App] Flow config raw value:', flowConfig.showCredentialsModal);
