@@ -2422,7 +2422,15 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             </ModalBody>
 
             <ModalFooter>
-              <ModalButton $primary onClick={() => setShowAuthSuccessModal(false)}>
+              <ModalButton $primary onClick={() => {
+                setShowAuthSuccessModal(false);
+                // Advance to step 5 (token exchange) - index 4
+                sessionStorage.setItem('enhanced-authz-code-v2-step', '4');
+                // Trigger a custom event to notify the step flow to advance
+                window.dispatchEvent(new CustomEvent('advance-to-step', { 
+                  detail: { stepIndex: 4, stepName: 'exchange-tokens' } 
+                }));
+              }}>
                 Continue with Flow
               </ModalButton>
             </ModalFooter>
