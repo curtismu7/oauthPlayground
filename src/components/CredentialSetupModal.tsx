@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { FiLock, FiAlertCircle, FiCheckCircle, FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiLock, FiAlertCircle, FiCheckCircle, FiEye, FiEyeOff, FiLoader } from 'react-icons/fi';
 import { credentialManager } from '../utils/credentialManager';
+import StandardMessage from './StandardMessage';
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -175,71 +176,6 @@ const CancelButton = styled.button`
   }
 `;
 
-const Alert = styled.div<{ $variant?: 'success' | 'danger' | 'info' }>`
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-
-  svg {
-    margin-top: 0.1rem;
-    flex-shrink: 0;
-  }
-
-  div {
-    flex: 1;
-  }
-
-  h4 {
-    margin: 0 0 0.5rem 0;
-    font-weight: 600;
-    font-size: 0.9rem;
-  }
-
-  p {
-    margin: 0;
-    font-size: 0.85rem;
-  }
-
-  ${({ $variant }) => {
-    switch ($variant) {
-      case 'success':
-        return `
-          background-color: #f0fdf4;
-          border-color: #bbf7d0;
-          color: #166534;
-
-          svg {
-            color: #22c55e;
-          }
-        `;
-      case 'danger':
-        return `
-          background-color: #fef2f2;
-          border-color: #fecaca;
-          color: #991b1b;
-
-          svg {
-            color: #ef4444;
-          }
-        `;
-      case 'info':
-      default:
-        return `
-          background-color: #eff6ff;
-          border-color: #bfdbfe;
-          color: #1e40af;
-
-          svg {
-            color: #3b82f6;
-          }
-        `;
-    }
-  }}
-`;
 
 const SecretInputContainer = styled.div`
   position: relative;
@@ -306,10 +242,46 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
     login_credentials: Record<string, unknown>;
   } | null>(null);
 
+  // Load credentials from environment variables
+  const loadFromEnvironmentVariables = async () => {
+    try {
+      console.log('🔄 [CredentialSetupModal] Loading credentials from environment variables...');
+      
+      const response = await fetch('/api/env-config');
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const envConfig = await response.json();
+      console.log('✅ [CredentialSetupModal] Loaded from environment config:', envConfig);
+      
+      // Pre-populate form with environment variables
+      const newFormData = {
+        environmentId: envConfig.environmentId || '',
+        clientId: envConfig.clientId || '',
+        clientSecret: envConfig.clientSecret || '', // Pre-populate client secret from .env
+        redirectUri: envConfig.redirectUri || window.location.origin + '/dashboard-callback'
+      };
+      
+      console.log('🔧 [CredentialSetupModal] Setting form data from environment variables:', newFormData);
+      setFormData(newFormData);
+      
+    } catch (error) {
+      console.error('❌ [CredentialSetupModal] Failed to load from environment variables:', error);
+      // Keep the default form data if environment loading fails
+    }
+  };
+
   // Load existing credentials from localStorage when modal opens
   useEffect(() => {
     if (isOpen) {
       console.log('🔍 [CredentialSetupModal] Loading existing credentials from credential manager...');
+      
+      // Debug: Check all localStorage keys
+      console.log('🔍 [CredentialSetupModal] All localStorage keys:', Object.keys(localStorage));
+      console.log('🔍 [CredentialSetupModal] pingone_permanent_credentials:', localStorage.getItem('pingone_permanent_credentials'));
+      console.log('🔍 [CredentialSetupModal] pingone_session_credentials:', localStorage.getItem('pingone_session_credentials'));
+      console.log('🔍 [CredentialSetupModal] pingone_config:', localStorage.getItem('pingone_config'));
       
       try {
         // Load credentials using the credential manager
@@ -356,9 +328,18 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
             redirectUri: allCredentials.redirectUri || oldCredentials?.redirectUri || window.location.origin + '/dashboard-callback'
           };
           console.log('🔧 [CredentialSetupModal] Setting form data to:', newFormData);
+          console.log('🔧 [CredentialSetupModal] hasPermanentCredentials:', hasPermanentCredentials);
+          console.log('🔧 [CredentialSetupModal] hasSessionCredentials:', hasSessionCredentials);
+          console.log('🔧 [CredentialSetupModal] oldCredentials:', oldCredentials);
           setFormData(newFormData);
         } else {
-          console.log('⚠️ [CredentialSetupModal] No existing credentials found');
+          console.log('⚠️ [CredentialSetupModal] No existing credentials found, loading from environment variables...');
+          console.log('🔧 [CredentialSetupModal] hasPermanentCredentials:', hasPermanentCredentials);
+          console.log('🔧 [CredentialSetupModal] hasSessionCredentials:', hasSessionCredentials);
+          console.log('🔧 [CredentialSetupModal] oldCredentials:', oldCredentials);
+          
+          // Load from environment variables as fallback
+          loadFromEnvironmentVariables();
         }
         
         console.log('✅ [CredentialSetupModal] Form pre-populated with:', {
@@ -513,17 +494,11 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
 
         <ModalBody>
           {saveStatus && (
-            <Alert $variant={saveStatus.type}>
-              {saveStatus.type === 'success' ? (
-                <FiCheckCircle size={20} />
-              ) : (
-                <FiAlertCircle size={20} />
-              )}
-              <div>
-                <h4>{saveStatus.title}</h4>
-                <p>{saveStatus.message}</p>
-              </div>
-            </Alert>
+            <StandardMessage
+              type={saveStatus.type === 'danger' ? 'error' : saveStatus.type}
+              title={saveStatus.title}
+              message={saveStatus.message}
+            />
           )}
 
           {/* Current localStorage Status */}
@@ -699,7 +674,14 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
             Cancel
           </CancelButton>
           <SaveButton onClick={handleSubmit} disabled={isLoading}>
-            {isLoading ? 'Saving...' : 'Save Configuration'}
+            {isLoading ? (
+              <>
+                <FiLoader className="animate-spin" />
+                Saving...
+              </>
+            ) : (
+              'Save Configuration'
+            )}
           </SaveButton>
         </ModalFooter>
       </ModalContent>

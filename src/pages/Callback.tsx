@@ -101,8 +101,15 @@ const Callback = () => {
       setHasProcessed(true);
       
       try {
-        console.log('🔍 [Callback] Processing OAuth callback...');
+        console.log('🚀 [Callback] Starting OAuth callback processing...');
         console.log('🔍 [Callback] Current URL:', window.location.href);
+        console.log('🔍 [Callback] Location details:', {
+          href: window.location.href,
+          pathname: window.location.pathname,
+          search: window.location.search,
+          hash: window.location.hash,
+          origin: window.location.origin
+        });
         
         // Get the full URL with query parameters
         const urlParams: Record<string, string> = {};
@@ -111,6 +118,20 @@ const Callback = () => {
         }
         
         console.log('🔍 [Callback] URL parameters:', urlParams);
+        
+        // Check sessionStorage for stored values
+        const storedState = sessionStorage.getItem('oauth_state');
+        const storedCodeVerifier = sessionStorage.getItem('code_verifier');
+        const storedRedirectAfterLogin = sessionStorage.getItem('oauth_redirect_after_login');
+        
+        console.log('💾 [Callback] SessionStorage values:', {
+          hasStoredState: !!storedState,
+          hasStoredCodeVerifier: !!storedCodeVerifier,
+          hasStoredRedirectAfterLogin: !!storedRedirectAfterLogin,
+          storedState: storedState?.substring(0, 8) + '...',
+          storedCodeVerifier: storedCodeVerifier?.substring(0, 20) + '...',
+          storedRedirectAfterLogin
+        });
         
         // Check for error in the URL (e.g., user denied permission)
         if (urlParams.error) {
