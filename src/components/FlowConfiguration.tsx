@@ -460,6 +460,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
     setIsSaving(true);
     try {
       // Simulate save operation (in a real app, this would save to backend/localStorage)
+      // Add minimum delay to ensure spinner is visible
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Show success message
