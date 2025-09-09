@@ -784,7 +784,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       sessionStorage.removeItem('oauth_nonce');
       
       // Clean up flow context after successful token exchange
-      const flowContext = sessionStorage.getItem(flowContextKey);
       if (flowContext) {
         console.log('🧹 [NewAuthContext] Cleaning up flow context after successful token exchange');
         sessionStorage.removeItem(flowContextKey);
