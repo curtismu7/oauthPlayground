@@ -736,6 +736,9 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
 
   // Handle authorization
   const handleAuthorization = useCallback(() => {
+    // Use the same redirect URI logic as in generateAuthUrl
+    const redirectUri = getCallbackUrlForFlow('authorization-code');
+    
     if (testingMethod === 'popup') {
       setIsAuthorizing(true);
       
@@ -810,9 +813,6 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Full redirect - Current path:', currentPath);
       console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Full redirect - Correct path:', correctPath);
       console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Full redirect - Return path:', returnPath);
-      
-      // Use the same redirect URI logic as in generateAuthUrl
-      const redirectUri = getCallbackUrlForFlow('authorization-code');
       
       const flowContext = {
         flow: 'enhanced-authorization-code-v2',
