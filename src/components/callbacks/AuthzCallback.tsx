@@ -120,10 +120,28 @@ const AuthzCallback: React.FC = () => {
               window.close();
             }, 1000);
           } else {
+            // For non-popup, preserve the authorization code and state in the redirect URL
+            const urlParams = new URL(currentUrl).searchParams;
+            const code = urlParams.get('code');
+            const state = urlParams.get('state');
+            
+            let redirectUrl = result.redirectUrl || '/';
+            
+            // If we have a return path and authorization code, preserve the code and state
+            if (code && redirectUrl.includes('enhanced-authorization-code-v2')) {
+              const url = new URL(redirectUrl, window.location.origin);
+              url.searchParams.set('code', code);
+              if (state) {
+                url.searchParams.set('state', state);
+              }
+              redirectUrl = url.toString();
+              console.log('🔧 [AuthzCallback] Preserving code and state in redirect URL:', redirectUrl);
+            }
+            
             // Redirect after a short delay for non-popup
-            console.log('🔄 [AuthzCallback] Redirecting to:', result.redirectUrl || '/');
+            console.log('🔄 [AuthzCallback] Redirecting to:', redirectUrl);
             setTimeout(() => {
-              navigate(result.redirectUrl || '/');
+              navigate(redirectUrl);
             }, 1500);
           }
         } else {
