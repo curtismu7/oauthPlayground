@@ -423,6 +423,9 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
     setSaveStatus(null);
 
     try {
+      // Add minimum delay to ensure spinner is visible
+      const minDelay = new Promise(resolve => setTimeout(resolve, 500));
+      
       // Save permanent credentials (Environment ID, Client ID, etc.)
       const permanentSuccess = credentialManager.savePermanentCredentials({
         environmentId: formData.environmentId,
@@ -446,6 +449,9 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
       // Dispatch events to notify other components that config has changed
       window.dispatchEvent(new CustomEvent('pingone-config-changed'));
       window.dispatchEvent(new CustomEvent('permanent-credentials-changed'));
+      
+      // Wait for minimum delay to ensure spinner is visible
+      await minDelay;
 
       console.log('✅ [CredentialSetupModal] Configuration saved successfully to localStorage and events dispatched');
 
