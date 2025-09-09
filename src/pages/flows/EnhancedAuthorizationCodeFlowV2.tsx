@@ -2503,10 +2503,20 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                     // Add a small delay to show the spinner
                     await new Promise(resolve => setTimeout(resolve, 500));
                     
-                    console.log('🔔 [EnhancedAuthorizationCodeFlowV2] Modal button clicked - advancing to step 5 (exchange-tokens)');
+                    console.log('🔔 [EnhancedAuthorizationCodeFlowV2] Modal button clicked - current step:', currentStepIndex);
                     
                     // Close the modal first
                     setShowAuthSuccessModal(false);
+                    
+                    // If we're already on step 5 (exchange-tokens), just close the modal
+                    if (currentStepIndex === 5) {
+                      console.log('✅ [EnhancedAuthorizationCodeFlowV2] Already on step 5, just closing modal');
+                      setIsModalLoading(false);
+                      return;
+                    }
+                    
+                    // Otherwise, advance to step 5
+                    console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Advancing to step 5 (exchange-tokens)');
                     
                     // Clear any existing step storage
                     sessionStorage.removeItem('enhanced-authz-code-v2-step');
