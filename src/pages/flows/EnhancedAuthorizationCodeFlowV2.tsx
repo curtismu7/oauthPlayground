@@ -473,13 +473,13 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         setCallbackError(null);
         
         // Check if we have tokens from the auth context
-        if (authContext.authState.tokens) {
+        if (authContext?.authState?.tokens) {
           console.log('✅ [EnhancedAuthorizationCodeFlowV2] Tokens found in auth context:', authContext.authState.tokens);
           setTokens(authContext.authState.tokens);
         }
         
         // Check if we have user info from the auth context
-        if (authContext.authState.user) {
+        if (authContext?.authState?.user) {
           console.log('✅ [EnhancedAuthorizationCodeFlowV2] User info found in auth context:', authContext.authState.user);
           setUserInfo(authContext.authState.user);
         }
@@ -501,13 +501,13 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       setCallbackError(null);
       
       // Check if we have tokens from the auth context
-      if (authContext.authState.tokens) {
+      if (authContext?.authState?.tokens) {
         console.log('✅ [EnhancedAuthorizationCodeFlowV2] Tokens found in auth context:', authContext.authState.tokens);
         setTokens(authContext.authState.tokens);
       }
       
       // Check if we have user info from the auth context
-      if (authContext.authState.user) {
+      if (authContext?.authState?.user) {
         console.log('✅ [EnhancedAuthorizationCodeFlowV2] User info found in auth context:', authContext.authState.user);
         setUserInfo(authContext.authState.user);
       }
@@ -521,7 +521,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     if (storedStep) {
       console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Restoring from stored step:', storedStep);
     }
-  }, [location.search, authContext.authState.tokens, authContext.authState.user]);
+  }, [location.search, authContext?.authState?.tokens, authContext?.authState?.user]);
 
   // Load credentials immediately to ensure buttons are enabled
   useEffect(() => {
