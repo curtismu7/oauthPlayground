@@ -764,7 +764,9 @@ grant_type=refresh_token
     
     // Store the return path for after callback
     const currentPath = window.location.pathname;
-    const returnPath = `${currentPath}?step=2`; // Return to step 2 (token exchange)
+    // Ensure we use the correct route path regardless of current path
+    const correctPath = currentPath.includes('/oidc/') ? '/flows-old/authorization-code' : currentPath;
+    const returnPath = `${correctPath}?step=2`; // Return to step 2 (token exchange)
     sessionStorage.setItem('redirect_after_login', returnPath);
     
     // Store flow context in state parameter
@@ -908,7 +910,7 @@ grant_type=refresh_token
           />
 
           {/* Callback URL Configuration */}
-          <CallbackUrlDisplay flowType="authorization-code" defaultExpanded={true} />
+          <CallbackUrlDisplay flowType="authorization-code" />
 
 
           {error && (
