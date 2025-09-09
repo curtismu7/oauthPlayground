@@ -786,6 +786,10 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
   const currentStep = steps[currentStepIndex];
   const completedSteps = stepHistory.filter(h => !h.error).length;
   const progress = (completedSteps / steps.length) * 100;
+  
+  // Check if current step has been completed successfully
+  const currentStepHistory = stepHistory.find(h => h.stepId === currentStep?.id);
+  const isCurrentStepCompleted = currentStepHistory && !currentStepHistory.error;
 
   if (!currentStep) {
     return (
@@ -958,7 +962,12 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
             <Button
               $variant="success"
               onClick={goToNextStep}
-              disabled={currentStepIndex === steps.length - 1}
+              disabled={currentStepIndex === steps.length - 1 || !isCurrentStepCompleted}
+              style={{ 
+                opacity: (!isCurrentStepCompleted && currentStepIndex < steps.length - 1) ? 0.5 : 1,
+                cursor: (!isCurrentStepCompleted && currentStepIndex < steps.length - 1) ? 'not-allowed' : 'pointer'
+              }}
+              title={(!isCurrentStepCompleted && currentStepIndex < steps.length - 1) ? 'Complete the current step first' : ''}
             >
               Next
               <FiChevronRight />

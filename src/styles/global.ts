@@ -160,4 +160,18 @@ export const GlobalStyle = createGlobalStyle`
     background-color: rgba(255, 255, 255, 0.95) !important;
     color: #000000 !important;
   }
+
+  /* Spinner animation */
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
 `;

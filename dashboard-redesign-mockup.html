@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth Playground - Dashboard Redesign</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon.flows { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .stat-icon.tokens { background: linear-gradient(135deg, #f093fb, #f5576c); color: white; }
+        .stat-icon.success { background: linear-gradient(135deg, #4facfe, #00f2fe); color: white; }
+        .stat-icon.security { background: linear-gradient(135deg, #43e97b, #38f9d7); color: white; }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        .content-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .recent-activity {
+            margin-top: 1.5rem;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            transition: background 0.3s ease;
+        }
+
+        .activity-item:hover {
+            background: #f8f9fa;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .activity-icon.success { background: rgba(67, 233, 123, 0.1); color: #43e97b; }
+        .activity-icon.warning { background: rgba(255, 193, 7, 0.1); color: #ffc107; }
+        .activity-icon.info { background: rgba(102, 126, 234, 0.1); color: #667eea; }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-time {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .flow-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-badge.active { background: rgba(67, 233, 123, 0.1); color: #43e97b; }
+        .status-badge.pending { background: rgba(255, 193, 7, 0.1); color: #ffc107; }
+        .status-badge.error { background: rgba(245, 87, 108, 0.1); color: #f5576c; }
+
+        .token-info {
+            background: #f8f9fa;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .token-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .token-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .token-label {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .token-value {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            color: #666;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .refresh-btn {
+            background: #f8f9fa;
+            color: #667eea;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+            
+            .dashboard-container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>OAuth Playground</h1>
+            <p>Your comprehensive OAuth 2.0 and OpenID Connect testing environment</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon flows">🔐</div>
+                <div class="stat-value">8</div>
+                <div class="stat-label">OAuth Flows</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon tokens">🎫</div>
+                <div class="stat-value">24</div>
+                <div class="stat-label">Tokens Generated</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon success">✅</div>
+                <div class="stat-value">98%</div>
+                <div class="stat-label">Success Rate</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon security">🛡️</div>
+                <div class="stat-value">100%</div>
+                <div class="stat-label">Security Score</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Column -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">Quick Actions</h2>
+                </div>
+                
+                <div class="quick-actions">
+                    <a href="#" class="action-btn">
+                        <span>🔑</span>
+                        Authorization Code Flow
+                    </a>
+                    <a href="#" class="action-btn">
+                        <span>🔐</span>
+                        PKCE Flow
+                    </a>
+                    <a href="#" class="action-btn">
+                        <span>👤</span>
+                        Client Credentials
+                    </a>
+                    <a href="#" class="action-btn">
+                        <span>📱</span>
+                        Device Code Flow
+                    </a>
+                    <a href="#" class="action-btn">
+                        <span>🔍</span>
+                        Discovery
+                    </a>
+                    <a href="#" class="action-btn">
+                        <span>⚙️</span>
+                        Configuration
+                    </a>
+                </div>
+
+                <div class="recent-activity">
+                    <h3 style="margin-bottom: 1rem; color: #333;">Recent Activity</h3>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon success">✅</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Authorization Code Flow completed</div>
+                            <div class="activity-time">2 minutes ago</div>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon info">🔍</div>
+                        <div class="activity-content">
+                            <div class="activity-title">OpenID Connect discovery performed</div>
+                            <div class="activity-time">5 minutes ago</div>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon warning">⚠️</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Token refresh attempted</div>
+                            <div class="activity-time">10 minutes ago</div>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon success">🎫</div>
+                        <div class="activity-content">
+                            <div class="activity-title">New access token generated</div>
+                            <div class="activity-time">15 minutes ago</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">Current Session</h2>
+                    <button class="refresh-btn">🔄 Refresh</button>
+                </div>
+
+                <div class="flow-status">
+                    <span class="status-badge active">Active</span>
+                    <span>Authorization Code Flow</span>
+                </div>
+
+                <div class="token-info">
+                    <div class="token-row">
+                        <span class="token-label">Access Token:</span>
+                        <span class="token-value">eyJhbGciOiJSUzI1NiIs...</span>
+                    </div>
+                    <div class="token-row">
+                        <span class="token-label">Refresh Token:</span>
+                        <span class="token-value">eyJhbGciOiJSUzI1NiIs...</span>
+                    </div>
+                    <div class="token-row">
+                        <span class="token-label">ID Token:</span>
+                        <span class="token-value">eyJhbGciOiJSUzI1NiIs...</span>
+                    </div>
+                    <div class="token-row">
+                        <span class="token-label">Expires:</span>
+                        <span class="token-value">2h 34m</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1.5rem;">
+                    <h3 style="margin-bottom: 1rem; color: #333;">Environment Status</h3>
+                    <div class="flow-status">
+                        <span class="status-badge active">Connected</span>
+                        <span>PingOne Environment</span>
+                    </div>
+                    <div style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+                        Environment ID: b9817c16-9910-4415-b67e-4ac687da74d9
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

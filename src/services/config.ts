@@ -3,9 +3,9 @@ import { z } from 'zod';
 // Define the schema for environment variables
 const envSchema = z.object({
   // Required environment variables
-  VITE_APP_TITLE: z.string().default('PingOne OAuth Playground'),
+  VITE_APP_TITLE: z.string().default('PingOne OAuth/OIDC Playground'),
   VITE_APP_DESCRIPTION: z.string().default('Interactive playground for OAuth 2.0 and OpenID Connect with PingOne'),
-  VITE_APP_VERSION: z.string().default('2.0.0'),
+  VITE_APP_VERSION: z.string().default('4.9.2'),
   VITE_APP_DEFAULT_THEME: z.enum(['light', 'dark']).default('light'),
   
   // PingOne Configuration

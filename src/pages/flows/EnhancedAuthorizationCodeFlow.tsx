@@ -558,6 +558,23 @@ window.open(authUrl, '_blank');`,
           throw new Error('Authorization URL not built yet');
         }
         
+        // Set up flow context for popup callback
+        const currentPath = window.location.pathname;
+        const returnPath = `${currentPath}?step=4`; // Return to step 4 (token exchange)
+        
+        console.log('🔍 [EnhancedAuthorizationCodeFlow] Popup - Current path:', currentPath);
+        console.log('🔍 [EnhancedAuthorizationCodeFlow] Popup - Return path:', returnPath);
+        
+        const flowContext = {
+          flow: 'enhanced-authorization-code',
+          step: 4,
+          returnPath: returnPath,
+          timestamp: Date.now()
+        };
+        sessionStorage.setItem('flowContext', JSON.stringify(flowContext));
+        
+        console.log('🔄 [EnhancedAuthorizationCodeFlow] Stored flow context for callback:', flowContext);
+        
         // Open in new window for testing
         window.open(authUrl, '_blank', 'width=600,height=700');
         

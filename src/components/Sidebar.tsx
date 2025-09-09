@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { 
-  FiHome, FiCode, FiUser, FiSettings, 
+  FiHome, FiCode, FiUser, FiSettings, FiSearch,
   FiChevronDown, FiBookOpen, FiEye, FiShield, FiUsers, FiDatabase, FiTool, FiCpu
 } from 'react-icons/fi';
 
@@ -145,6 +145,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       if (saved) {
         const parsed = JSON.parse(saved);
         return {
+          oauth: parsed.oauth ?? true,  // Default to expanded
           oidc: parsed.oidc ?? true,  // Default to expanded
           resources: parsed.resources ?? true, // Default to expanded
           docs: parsed.docs ?? false, // Default to collapsed
@@ -154,6 +155,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       console.warn('Failed to load navigation state from localStorage:', error);
     }
     return {
+      oauth: true,  // Default to expanded
       oidc: true,  // Default to expanded
       resources: true, // Default to expanded
       docs: false, // Default to collapsed
@@ -167,9 +169,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       const newState = {
         ...prev,
         // Auto-expand if current route matches
-        oidc: path.startsWith('/oidc') || prev.oidc,
+        oauth: (path.startsWith('/flows') && !path.includes('enhanced-authorization-code-v2')) || prev.oauth,
+        oidc: path.startsWith('/oidc') || path.includes('enhanced-authorization-code-v2') || prev.oidc,
         resources: (path.startsWith('/oidc/userinfo') || path.startsWith('/oidc/tokens') || 
-                   path.startsWith('/token-management') || path.startsWith('/documentation')) || prev.resources,
+                   path.startsWith('/token-management') || path.startsWith('/documentation') ||
+                   path.startsWith('/flows/compare') || path.startsWith('/flows/diagrams') ||
+                   path.startsWith('/flows/par')) || prev.resources,
         docs: path.startsWith('/docs') || prev.docs,
       };
       
@@ -184,7 +189,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     });
   }, [location.pathname]);
 
-  const toggleMenu = (menu: 'oidc' | 'resources' | 'docs') => {
+  const toggleMenu = (menu: 'oauth' | 'oidc' | 'resources' | 'docs') => {
     setOpenMenus(prev => {
       const newState = {
         ...prev,
@@ -214,15 +219,32 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           <FiSettings />
           <span>Configuration</span>
         </NavItem>
-        <NavItem to="/flows/userinfo" onClick={onClose}>
-          <FiUser />
-          <span>Get UserInfo</span>
+        <NavItem to="/auto-discover" onClick={onClose}>
+          <FiSearch />
+          <span>OIDC Discovery</span>
         </NavItem>
       </NavSection>
 
       <NavSection>
-        <NavSectionTitle>OpenID Connect</NavSectionTitle>
+        <NavSectionTitle>OAuth & OpenID Connect</NavSectionTitle>
         
+        <NavItemWithSubmenu>
+          <NavItemHeader 
+            onClick={() => toggleMenu('oauth')}
+            $isOpen={openMenus.oauth}
+          >
+            <div>
+              <FiShield />
+              <span>OAuth Flows</span>
+            </div>
+            <FiChevronDown />
+          </NavItemHeader>
+          
+          <Submenu $isOpen={openMenus.oauth}>
+            {/* OAuth flows section - keeping empty for now */}
+          </Submenu>
+        </NavItemWithSubmenu>
+
         <NavItemWithSubmenu>
           <NavItemHeader 
             onClick={() => toggleMenu('oidc')}
@@ -236,8 +258,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </NavItemHeader>
           
           <Submenu $isOpen={openMenus.oidc}>
-            <SubmenuItem to="/oidc/authorization-code" onClick={onClose}>
-              Authorization Code
+            <SubmenuItem to="/flows/enhanced-authorization-code-v2" onClick={onClose}>
+              Enhanced Auth Code V2
             </SubmenuItem>
             <SubmenuItem to="/oidc/implicit" onClick={onClose}>
               Implicit
@@ -293,14 +315,17 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </NavItemHeader>
           
           <Submenu $isOpen={openMenus.resources}>
-            <SubmenuItem to="/auto-discover" onClick={onClose}>
-              Auto-discover
-            </SubmenuItem>
             <SubmenuItem to="/token-management" onClick={onClose}>
               Token Management
             </SubmenuItem>
             <SubmenuItem to="/flows/par" onClick={onClose}>
               Pushed Authorization
+            </SubmenuItem>
+            <SubmenuItem to="/flows/compare" onClick={onClose}>
+              Flow Comparison
+            </SubmenuItem>
+            <SubmenuItem to="/flows/diagrams" onClick={onClose}>
+              Interactive Diagrams
             </SubmenuItem>
             <SubmenuItem to="/documentation" onClick={onClose}>
               Documentation

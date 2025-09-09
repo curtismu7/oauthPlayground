@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FiMenu, FiSettings, FiHelpCircle, FiLogIn, FiLogOut } from 'react-icons/fi';
 import { useAuth } from '../contexts/NewAuthContext';
 import { useAccessibility } from '../hooks/useAccessibility';
+import packageJson from '../../package.json';
 
 const NavbarContainer = styled.nav`
   position: fixed;
@@ -118,7 +119,7 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
       </MenuButton>
       
       <Logo>
-        <span>PingOne OAuth Playground</span>
+        <span>PingOne OAuth/OIDC Playground v{packageJson.version}</span>
         {isAuthenticated && user && (
           <div className="user-info" aria-live="polite">
             Welcome, {user.name || user.email}
