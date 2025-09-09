@@ -76,6 +76,7 @@ interface EnhancedStepFlowProps {
   autoAdvance?: boolean;
   showDebugInfo?: boolean;
   allowStepJumping?: boolean;
+  initialStepIndex?: number; // Initial step to start on
 }
 
 // Enhanced Styled Components with new design system
@@ -627,9 +628,10 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
   persistKey,
   autoAdvance = false,
   showDebugInfo = true,
-  allowStepJumping = true
+  allowStepJumping = true,
+  initialStepIndex
 }) => {
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [currentStepIndex, setCurrentStepIndex] = useState(initialStepIndex || 0);
   const [stepHistory, setStepHistory] = useState<StepHistory[]>([]);
   const [isExecuting, setIsExecuting] = useState(false);
   const [showCredentials, setShowCredentials] = useState(false);
@@ -643,14 +645,33 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
         const saved = localStorage.getItem(`enhanced-flow-${persistKey}`);
         if (saved) {
           const data = JSON.parse(saved);
-          setCurrentStepIndex(data.currentStepIndex || 0);
+          // Use initialStepIndex if provided, otherwise use persisted state
+          const stepIndex = initialStepIndex !== undefined ? initialStepIndex : (data.currentStepIndex || 0);
+          setCurrentStepIndex(stepIndex);
           setStepHistory(data.stepHistory || []);
+          
+          if (initialStepIndex !== undefined) {
+            console.log('🔍 [EnhancedStepFlowV2] Using initialStepIndex:', initialStepIndex);
+          }
+        } else if (initialStepIndex !== undefined) {
+          // If no persisted state but initialStepIndex is provided, use it
+          setCurrentStepIndex(initialStepIndex);
+          console.log('🔍 [EnhancedStepFlowV2] Using initialStepIndex (no persisted state):', initialStepIndex);
         }
       } catch (error) {
         logger.warn('Failed to load persisted flow state', `error: ${error}`);
+        // Fallback to initialStepIndex if provided
+        if (initialStepIndex !== undefined) {
+          setCurrentStepIndex(initialStepIndex);
+          console.log('🔍 [EnhancedStepFlowV2] Using initialStepIndex (fallback):', initialStepIndex);
+        }
       }
+    } else if (initialStepIndex !== undefined) {
+      // If no persistKey but initialStepIndex is provided, use it
+      setCurrentStepIndex(initialStepIndex);
+      console.log('🔍 [EnhancedStepFlowV2] Using initialStepIndex (no persistKey):', initialStepIndex);
     }
-  }, [persistKey]);
+  }, [persistKey, initialStepIndex]);
 
   // Save state to localStorage
   const saveState = useCallback(() => {
