@@ -26,7 +26,8 @@ export const getAuthorizationCodeConfig = (): FlowConfig => ({
   maxAge: 0,
   prompt: '',
   loginHint: '',
-  acrValues: []
+  acrValues: [],
+  showSuccessModal: true
 });
 
 // Default configuration for PKCE Flow
@@ -45,7 +46,8 @@ export const getPKCEConfig = (): FlowConfig => ({
   maxAge: 0,
   prompt: '',
   loginHint: '',
-  acrValues: []
+  acrValues: [],
+  showSuccessModal: true
 });
 
 // Default configuration for Implicit Flow
@@ -64,7 +66,8 @@ export const getImplicitConfig = (): FlowConfig => ({
   maxAge: 0,
   prompt: '',
   loginHint: '',
-  acrValues: []
+  acrValues: [],
+  showSuccessModal: true
 });
 
 // Default configuration for Client Credentials Flow
@@ -83,7 +86,8 @@ export const getClientCredentialsConfig = (): FlowConfig => ({
   maxAge: 0,
   prompt: '',
   loginHint: '',
-  acrValues: []
+  acrValues: [],
+  showSuccessModal: true
 });
 
 // Default configuration for Device Code Flow
@@ -102,7 +106,8 @@ export const getDeviceCodeConfig = (): FlowConfig => ({
   maxAge: 0,
   prompt: '',
   loginHint: '',
-  acrValues: []
+  acrValues: [],
+  showSuccessModal: true
 });
 
 // Default configuration for Refresh Token Flow
@@ -121,7 +126,8 @@ export const getRefreshTokenConfig = (): FlowConfig => ({
   maxAge: 0,
   prompt: '',
   loginHint: '',
-  acrValues: []
+  acrValues: [],
+  showSuccessModal: true
 });
 
 // Default configuration for Password Grant Flow
@@ -140,7 +146,8 @@ export const getPasswordGrantConfig = (): FlowConfig => ({
   maxAge: 0,
   prompt: '',
   loginHint: '',
-  acrValues: []
+  acrValues: [],
+  showSuccessModal: true
 });
 
 // Factory function to get default config based on flow type

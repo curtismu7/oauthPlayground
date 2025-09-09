@@ -314,6 +314,9 @@ export interface FlowConfig {
   prompt: string;
   loginHint: string;
   acrValues: string[];
+  
+  // UI settings
+  showSuccessModal: boolean;
 }
 
 interface FlowConfigurationProps {
@@ -746,6 +749,25 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
               </CustomClaimContainer>
             </ConfigSection>
           )}
+
+          {/* UI Settings */}
+          <ConfigSection>
+            <h4>UI Settings</h4>
+            <ConfigField>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={config.showSuccessModal}
+                  onChange={(e) => updateConfig({ showSuccessModal: e.target.checked })}
+                  aria-describedby="success-modal-help"
+                />
+                Show Success Modal
+              </label>
+              <div id="success-modal-help" style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                Display a modal with authorization success details when returning from PingOne
+              </div>
+            </ConfigField>
+          </ConfigSection>
 
           {/* Configuration Summary */}
           <ConfigSection>
