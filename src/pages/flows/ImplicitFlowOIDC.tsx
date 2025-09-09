@@ -235,20 +235,12 @@ window.location.href = authUrl;
 
 // Client receives URL like:
 // https://your-app.com/callback#access_token=eyJ...&id_token=eyJ...&token_type=Bearer&expires_in=3600&state=xyz123`,
-      execute: () => {
-        const mockTokens = {
-          access_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.mock_access_token_signature',
-          id_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.mock_id_token_signature',
-          token_type: 'Bearer',
-          expires_in: 3600,
-          state: Math.random().toString(36).substring(2, 15),
-        };
-
-        const callbackUrl = `${config?.redirectUri || 'https://your-app.com/callback'}#access_token=${mockTokens.access_token}&id_token=${mockTokens.id_token}&token_type=${mockTokens.token_type}&expires_in=${mockTokens.expires_in}&state=${mockTokens.state}`;
-
+      execute: async () => {
+        // This step simulates the callback that would come from PingOne
+        // In a real implementation, this would be handled by the callback URL
         const result = {
-          url: callbackUrl,
-          tokens: mockTokens
+          message: 'This step simulates the callback from PingOne. In a real implementation, PingOne would redirect to your callback URL with the tokens in the URL fragment.',
+          note: 'To test with real tokens, configure your PingOne application and use the actual authorization URL from step 1.'
         };
         setStepResults(prev => ({
           ...prev,
@@ -256,21 +248,8 @@ window.location.href = authUrl;
         }));
         setExecutedSteps(prev => new Set(prev).add(2));
 
-        // Store tokens using the shared utility
-        const tokensForStorage = {
-          access_token: mockTokens.access_token,
-          id_token: mockTokens.id_token,
-          token_type: mockTokens.token_type,
-          expires_in: mockTokens.expires_in,
-          scope: 'openid profile email'
-        };
-        
-        const success = storeOAuthTokens(tokensForStorage, 'implicit_oidc', 'Implicit OIDC Flow');
-        if (success) {
-          console.log('✅ [ImplicitFlowOIDC] Tokens received and stored successfully');
-        } else {
-          console.error('❌ [ImplicitFlowOIDC] Failed to store tokens');
-        }
+        // Note: In a real implementation, tokens would be extracted from the URL fragment
+        // and stored using the storeOAuthTokens utility
         
         return result;
       }
