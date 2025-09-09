@@ -399,6 +399,112 @@ const CodeLine = styled.div`
   word-break: break-all;
 `;
 
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`;
+
+const ModalContent = styled.div`
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  position: relative;
+`;
+
+const ModalHeader = styled.div`
+  text-align: center;
+  margin-bottom: 2rem;
+`;
+
+const ModalTitle = styled.h2`
+  margin: 0 0 0.5rem 0;
+  color: #1e40af;
+  font-size: 1.5rem;
+`;
+
+const ModalSubtitle = styled.p`
+  margin: 0;
+  color: #6b7280;
+  font-size: 1rem;
+`;
+
+const ModalBody = styled.div`
+  margin-bottom: 2rem;
+`;
+
+const SuccessSection = styled.div`
+  background: #f0fdf4;
+  border: 1px solid #22c55e;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+`;
+
+const SuccessTitle = styled.h3`
+  margin: 0 0 0.5rem 0;
+  color: #15803d;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const CodeDisplay = styled.div`
+  background: white;
+  border: 1px solid #22c55e;
+  border-radius: 0.25rem;
+  padding: 0.75rem;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.875rem;
+  word-break: break-all;
+  margin-top: 0.5rem;
+`;
+
+const ModalFooter = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+`;
+
+const ModalButton = styled.button<{ $primary?: boolean }>`
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  ${props => props.$primary ? `
+    background: #3b82f6;
+    color: white;
+    
+    &:hover {
+      background: #2563eb;
+    }
+  ` : `
+    background: #f3f4f6;
+    color: #374151;
+    
+    &:hover {
+      background: #e5e7eb;
+    }
+  `}
+`;
+
 // Main Component
 const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   const authContext = useAuth();
@@ -436,6 +542,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   const [showSecret, setShowSecret] = useState<boolean>(false);
   const [showConfig, setShowConfig] = useState(false);
   const [flowConfig, setFlowConfig] = useState<FlowConfig>(getDefaultConfig('authorization-code'));
+  const [showAuthSuccessModal, setShowAuthSuccessModal] = useState(false);
   const [showRedirectModal, setShowRedirectModal] = useState(false);
   const [redirectUrl, setRedirectUrl] = useState('');
   const [redirectParams, setRedirectParams] = useState({});
@@ -488,6 +595,9 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         setCallbackSuccess(true);
         setCallbackError(null);
         
+        // Show success modal to user
+        setShowAuthSuccessModal(true);
+        
         // Check if we have tokens from the auth context
         if (authContext?.authState?.tokens) {
           console.log('✅ [EnhancedAuthorizationCodeFlowV2] Tokens found in auth context:', authContext.authState.tokens);
@@ -515,6 +625,9 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       // Mark callback as successful and check for tokens
       setCallbackSuccess(true);
       setCallbackError(null);
+      
+      // Show success modal to user
+      setShowAuthSuccessModal(true);
       
       // Check if we have tokens from the auth context
       if (authContext?.authState?.tokens) {
@@ -2119,6 +2232,81 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         authorizationUrl={redirectUrl}
         requestParams={redirectParams}
       />
+
+      {/* Authorization Success Modal */}
+      {showAuthSuccessModal && (
+        <ModalOverlay onClick={() => setShowAuthSuccessModal(false)}>
+          <ModalContent onClick={(e) => e.stopPropagation()}>
+            <ModalHeader>
+              <FiCheckCircle size={48} style={{ color: '#22c55e', marginBottom: '1rem' }} />
+              <ModalTitle>🎉 Authorization Successful!</ModalTitle>
+              <ModalSubtitle>
+                You've successfully returned from PingOne authentication
+              </ModalSubtitle>
+            </ModalHeader>
+
+            <ModalBody>
+              <SuccessSection>
+                <SuccessTitle>
+                  <FiCode />
+                  Authorization Code Received
+                </SuccessTitle>
+                <CodeDisplay>{authCode}</CodeDisplay>
+              </SuccessSection>
+
+              {tokens && (
+                <SuccessSection>
+                  <SuccessTitle>
+                    <FiKey />
+                    Tokens Exchanged Successfully
+                  </SuccessTitle>
+                  <div style={{ fontSize: '0.875rem' }}>
+                    <div>✅ Access Token: {tokens.access_token ? 'Received' : 'Missing'}</div>
+                    <div>✅ Refresh Token: {tokens.refresh_token ? 'Received' : 'Missing'}</div>
+                    <div>✅ ID Token: {tokens.id_token ? 'Received' : 'Missing'}</div>
+                    <div>Token Type: {tokens.token_type || 'Bearer'}</div>
+                    <div>Expires In: {tokens.expires_in ? `${tokens.expires_in} seconds` : 'Unknown'}</div>
+                    <div>Scope: {tokens.scope || 'Not specified'}</div>
+                  </div>
+                </SuccessSection>
+              )}
+
+              {userInfo && (
+                <SuccessSection>
+                  <SuccessTitle>
+                    <FiUser />
+                    User Information Retrieved
+                  </SuccessTitle>
+                  <div style={{ fontSize: '0.875rem' }}>
+                    <div>Name: {userInfo.name || 'Not provided'}</div>
+                    <div>Email: {userInfo.email || 'Not provided'}</div>
+                    <div>Subject: {userInfo.sub || 'Not provided'}</div>
+                  </div>
+                </SuccessSection>
+              )}
+
+              {!tokens && (
+                <div style={{ 
+                  background: '#fef3c7', 
+                  border: '1px solid #f59e0b', 
+                  borderRadius: '0.5rem', 
+                  padding: '1rem',
+                  textAlign: 'center'
+                }}>
+                  <FiClock style={{ marginRight: '0.5rem' }} />
+                  <strong>Next Step:</strong> Proceed to exchange your authorization code for tokens
+                </div>
+              )}
+            </ModalBody>
+
+            <ModalFooter>
+              <ModalButton onClick={() => setShowAuthSuccessModal(false)}>
+                Continue with Flow
+              </ModalButton>
+            </ModalFooter>
+          </ModalContent>
+        </ModalOverlay>
+      )}
     </div>
   );
 };
