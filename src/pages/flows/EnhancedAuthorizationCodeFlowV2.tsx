@@ -1216,51 +1216,6 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             </InfoBox>
           )}
 
-          {/* Generated Authorization URL Section - Below success message */}
-          {urlGenerated && authUrl && (
-            <div style={{ 
-              marginTop: '1.5rem', 
-              padding: '1.5rem', 
-              backgroundColor: authUrl ? '#f0fdf4' : '#f0f9ff', 
-              border: authUrl ? '1px solid #22c55e' : '1px solid #0ea5e9', 
-              borderRadius: '0.75rem' 
-            }}>
-              <h3 style={{ 
-                margin: '0 0 1rem 0', 
-                fontSize: '1.1rem', 
-                fontWeight: '600', 
-                color: authUrl ? '#15803d' : '#0c4a6e', 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '0.5rem' 
-              }}>
-                <FiGlobe />
-                Generated Authorization URL
-              </h3>
-              
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '0.5rem', 
-                padding: '0.75rem', 
-                backgroundColor: 'white', 
-                border: authUrl ? '1px solid #22c55e' : '1px solid #0ea5e9', 
-                borderRadius: '0.5rem' 
-              }}>
-                <code style={{ 
-                  flex: 1, 
-                  fontSize: '0.875rem', 
-                  color: authUrl ? '#15803d' : '#0c4a6e', 
-                  wordBreak: 'break-all' 
-                }}>
-                  {authUrl}
-                </code>
-                <CopyButton onClick={() => copyToClipboard(authUrl)}>
-                  {copiedText === authUrl ? <FiCheckCircle /> : <FiCopy />}
-                </CopyButton>
-              </div>
-            </div>
-          )}
 
           {isBuildingUrl && (
             <InfoBox type="info">
