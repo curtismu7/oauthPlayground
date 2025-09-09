@@ -1091,19 +1091,35 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   const exchangeCodeForTokens = useCallback(async () => {
     try {
       setIsExchangingTokens(true);
-      const response = await fetch(credentials.tokenEndpoint, {
+      
+      // Use backend proxy for secure token exchange
+      const backendUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://oauth-playground.vercel.app' 
+        : 'http://localhost:3001';
+      
+      const requestBody = {
+        grant_type: 'authorization_code',
+        client_id: credentials.clientId,
+        client_secret: credentials.clientSecret || '',
+        code: authCode,
+        redirect_uri: credentials.redirectUri,
+        environment_id: credentials.environmentId,
+        code_verifier: pkceCodes.codeVerifier
+      };
+
+      console.log('🔄 [EnhancedAuthCodeFlowV2] Token exchange via backend proxy:', {
+        backendUrl,
+        clientId: credentials.clientId,
+        code: authCode.substring(0, 10) + '...',
+        redirectUri: credentials.redirectUri
+      });
+
+      const response = await fetch(`${backendUrl}/api/token-exchange`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
         },
-        body: new URLSearchParams({
-          grant_type: 'authorization_code',
-          code: authCode,
-          redirect_uri: credentials.redirectUri,
-          client_id: credentials.clientId,
-          code_verifier: pkceCodes.codeVerifier,
-          ...(credentials.clientSecret && { client_secret: credentials.clientSecret })
-        })
+        body: JSON.stringify(requestBody)
       });
 
       if (!response.ok) {
