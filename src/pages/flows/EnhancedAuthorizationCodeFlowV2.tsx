@@ -595,8 +595,11 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         setCallbackSuccess(true);
         setCallbackError(null);
         
-        // Show success modal to user
-        setShowAuthSuccessModal(true);
+        // Show success modal to user - use setTimeout to ensure it shows
+        setTimeout(() => {
+          console.log('🔔 [EnhancedAuthorizationCodeFlowV2] Forcing modal to show after redirect');
+          setShowAuthSuccessModal(true);
+        }, 100);
         
         // Check if we have tokens from the auth context
         if (authContext?.authState?.tokens) {
@@ -626,8 +629,11 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       setCallbackSuccess(true);
       setCallbackError(null);
       
-      // Show success modal to user
-      setShowAuthSuccessModal(true);
+      // Show success modal to user - use setTimeout to ensure it shows
+      setTimeout(() => {
+        console.log('🔔 [EnhancedAuthorizationCodeFlowV2] Forcing modal to show after redirect (no step param)');
+        setShowAuthSuccessModal(true);
+      }, 100);
       
       // Check if we have tokens from the auth context
       if (authContext?.authState?.tokens) {
@@ -651,6 +657,29 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Restoring from stored step:', storedStep);
     }
   }, [location.search, authContext?.authState?.tokens, authContext?.authState?.user]);
+
+  // Additional useEffect to force modal display when authCode is present
+  useEffect(() => {
+    if (authCode && !showAuthSuccessModal) {
+      console.log('🔔 [EnhancedAuthorizationCodeFlowV2] AuthCode detected, forcing modal to show');
+      setTimeout(() => {
+        setShowAuthSuccessModal(true);
+      }, 200);
+    }
+  }, [authCode, showAuthSuccessModal]);
+
+  // Force modal display on page load if we have an auth code
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    
+    if (code && !showAuthSuccessModal) {
+      console.log('🔔 [EnhancedAuthorizationCodeFlowV2] Page load with auth code, forcing modal display');
+      setTimeout(() => {
+        setShowAuthSuccessModal(true);
+      }, 500);
+    }
+  }, []); // Run only on mount
 
   // Debug effect to track state changes
   useEffect(() => {
@@ -2091,6 +2120,52 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1.5rem' }}>
+      {/* Success Banner - Always visible when authCode is present */}
+      {authCode && (
+        <div style={{
+          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+          color: 'white',
+          padding: '1rem 1.5rem',
+          borderRadius: '0.75rem',
+          marginBottom: '2rem',
+          boxShadow: '0 10px 25px -5px rgba(16, 185, 129, 0.3)',
+          border: '1px solid #059669',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="4"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
+            opacity: 0.1
+          }} />
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
+              <FiCheckCircle size={32} />
+              <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold' }}>
+                🎉 Authorization Successful!
+              </h3>
+            </div>
+            <p style={{ margin: 0, fontSize: '1.1rem', opacity: 0.9 }}>
+              You've successfully returned from PingOne authentication. Your authorization code has been received and you can now proceed with the token exchange.
+            </p>
+            {tokens && (
+              <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'rgba(255,255,255,0.2)', borderRadius: '0.5rem' }}>
+                <strong>✅ Tokens Exchanged Successfully!</strong> - Access token, refresh token, and ID token have been received.
+              </div>
+            )}
+            {userInfo && (
+              <div style={{ marginTop: '0.5rem', padding: '0.75rem', background: 'rgba(255,255,255,0.2)', borderRadius: '0.5rem' }}>
+                <strong>👤 User Information Retrieved!</strong> - User profile data has been successfully fetched.
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       <ConfigurationStatus 
         config={config} 
         onConfigure={() => setShowConfig(!showConfig)}
