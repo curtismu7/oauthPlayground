@@ -5,6 +5,8 @@ import { FiSave, FiAlertCircle, FiCheckCircle, FiEye, FiEyeOff, FiGlobe } from '
 import DiscoveryPanel from '../components/DiscoveryPanel';
 import { OpenIDConfiguration } from '../services/discoveryService';
 import { credentialManager } from '../utils/credentialManager';
+import StandardMessage from '../components/StandardMessage';
+import packageJson from '../../package.json';
 
 const ConfigurationContainer = styled.div`
   max-width: 800px;
@@ -171,71 +173,6 @@ const SaveButton = styled.button`
   }
 `;
 
-const Alert = styled.div<{ $variant?: 'success' | 'danger' | 'info' }>`
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-  border: 1px solid transparent;
-  border-radius: 0.375rem;
-  display: flex;
-  align-items: flex-start;
-  
-  svg {
-    margin-right: 0.75rem;
-    margin-top: 0.2rem;
-    flex-shrink: 0;
-  }
-  
-  div {
-    flex: 1;
-  }
-  
-  h4 {
-    margin-top: 0;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-  }
-  
-  p {
-    margin: 0;
-    font-size: 0.9375rem;
-  }
-  
-  ${({ $variant }) => {
-    switch ($variant) {
-      case 'success':
-        return `
-          background-color: #f0fdf4;
-          border-color: #bbf7d0;
-          color: #166534;
-          
-          svg {
-            color: #22c55e;
-          }
-        `;
-      case 'danger':
-        return `
-          background-color: #fef2f2;
-          border-color: #fecaca;
-          color: #991b1b;
-          
-          svg {
-            color: #ef4444;
-          }
-        `;
-      case 'info':
-      default:
-        return `
-          background-color: #eff6ff;
-          border-color: #bfdbfe;
-          color: #1e40af;
-          
-          svg {
-            color: #3b82f6;
-          }
-        `;
-    }
-  }}
-`;
 
 const LoadingSpinner = styled.div`
   border: 2px solid rgba(0, 0, 0, 0.3);
@@ -276,49 +213,96 @@ const Configuration = () => {
   
   // Load saved configuration on component mount
   useEffect(() => {
-    // Load from credential manager first
-    const permanentCredentials = credentialManager.loadPermanentCredentials();
-    
-    if (permanentCredentials.environmentId || permanentCredentials.clientId) {
-      console.log('✅ [Configuration] Loading from credential manager');
-      setFormData(prev => ({
-        ...prev,
-        environmentId: permanentCredentials.environmentId || '',
-        clientId: permanentCredentials.clientId || '',
-        redirectUri: permanentCredentials.redirectUri || prev.redirectUri,
-        scopes: Array.isArray(permanentCredentials.scopes) ? permanentCredentials.scopes.join(' ') : permanentCredentials.scopes || prev.scopes,
-        authEndpoint: permanentCredentials.authEndpoint || prev.authEndpoint,
-        tokenEndpoint: permanentCredentials.tokenEndpoint || prev.tokenEndpoint,
-        userInfoEndpoint: permanentCredentials.userInfoEndpoint || prev.userInfoEndpoint,
-        endSessionEndpoint: permanentCredentials.endSessionEndpoint || prev.endSessionEndpoint
-      }));
-    } else {
-      // Fallback to legacy pingone_config
-      const savedConfig = localStorage.getItem('pingone_config');
-      if (savedConfig) {
-        try {
-          const parsedConfig = JSON.parse(savedConfig);
-          
-          // Check if the client secret is the problematic hardcoded one
-          if (parsedConfig.clientSecret === '0mClRqd3fif2vh4WJCO6B-8OZuOokzsh5gLw1V3GHbeGJYCMLk_zPfrptWzfYJ.a') {
-            console.log('🧹 [Configuration] Clearing problematic hardcoded client secret');
-            parsedConfig.clientSecret = '';
-            // Update localStorage with cleared secret
-            localStorage.setItem('pingone_config', JSON.stringify(parsedConfig));
+    const loadConfiguration = () => {
+      // Load from credential manager first
+      const permanentCredentials = credentialManager.loadPermanentCredentials();
+      
+      if (permanentCredentials.environmentId || permanentCredentials.clientId) {
+        console.log('✅ [Configuration] Loading from credential manager');
+        setFormData(prev => ({
+          ...prev,
+          environmentId: permanentCredentials.environmentId || '',
+          clientId: permanentCredentials.clientId || '',
+          redirectUri: permanentCredentials.redirectUri || prev.redirectUri,
+          scopes: Array.isArray(permanentCredentials.scopes) ? permanentCredentials.scopes.join(' ') : permanentCredentials.scopes || prev.scopes,
+          authEndpoint: permanentCredentials.authEndpoint || prev.authEndpoint,
+          tokenEndpoint: permanentCredentials.tokenEndpoint || prev.tokenEndpoint,
+          userInfoEndpoint: permanentCredentials.userInfoEndpoint || prev.userInfoEndpoint,
+          endSessionEndpoint: permanentCredentials.endSessionEndpoint || prev.endSessionEndpoint
+        }));
+      } else {
+        // Fallback to legacy pingone_config
+        const savedConfig = localStorage.getItem('pingone_config');
+        if (savedConfig) {
+          try {
+            const parsedConfig = JSON.parse(savedConfig);
+            
+            // Check if the client secret is the problematic hardcoded one
+            if (parsedConfig.clientSecret === '0mClRqd3fif2vh4WJCO6B-8OZuOokzsh5gLw1V3GHbeGJYCMLk_zPfrptWzfYJ.a') {
+              console.log('🧹 [Configuration] Clearing problematic hardcoded client secret');
+              parsedConfig.clientSecret = '';
+              // Update localStorage with cleared secret
+              localStorage.setItem('pingone_config', JSON.stringify(parsedConfig));
+            }
+            
+            setFormData(prev => ({
+              ...prev,
+              ...parsedConfig
+            }));
+          } catch (error) {
+            console.error('Failed to load saved configuration:', error);
           }
-          
-          setFormData(prev => ({
-            ...prev,
-            ...parsedConfig
-          }));
-        } catch (error) {
-          console.error('Failed to load saved configuration:', error);
         }
       }
-    }
+    };
+
+    loadConfiguration();
     
-    // Show spinner for 2 seconds
-    setTimeout(() => setInitialLoading(false), 2000);
+    // Show spinner for 500ms
+    setTimeout(() => setInitialLoading(false), 500);
+  }, []);
+
+  // Listen for credential changes from login page
+  useEffect(() => {
+    const handleCredentialChange = () => {
+      console.log('🔄 [Configuration] Credentials updated from login page, refreshing configuration...');
+      
+      // Load from credential manager
+      const permanentCredentials = credentialManager.loadPermanentCredentials();
+      
+      if (permanentCredentials.environmentId || permanentCredentials.clientId) {
+        setFormData(prev => ({
+          ...prev,
+          environmentId: permanentCredentials.environmentId || '',
+          clientId: permanentCredentials.clientId || '',
+          redirectUri: permanentCredentials.redirectUri || prev.redirectUri,
+          scopes: Array.isArray(permanentCredentials.scopes) ? permanentCredentials.scopes.join(' ') : permanentCredentials.scopes || prev.scopes,
+          authEndpoint: permanentCredentials.authEndpoint || prev.authEndpoint,
+          tokenEndpoint: permanentCredentials.tokenEndpoint || prev.tokenEndpoint,
+          userInfoEndpoint: permanentCredentials.userInfoEndpoint || prev.userInfoEndpoint,
+          endSessionEndpoint: permanentCredentials.endSessionEndpoint || prev.endSessionEndpoint
+        }));
+        
+        // Show success message
+        setSaveStatus({
+          type: 'success',
+          title: 'Configuration Updated',
+          message: 'Configuration has been automatically updated with the credentials saved from the login page.'
+        });
+        
+        // Clear message after 5 seconds
+        setTimeout(() => setSaveStatus(null), 5000);
+      }
+    };
+
+    // Listen for credential change events
+    window.addEventListener('permanent-credentials-changed', handleCredentialChange);
+    window.addEventListener('pingone-config-changed', handleCredentialChange);
+
+    return () => {
+      window.removeEventListener('permanent-credentials-changed', handleCredentialChange);
+      window.removeEventListener('pingone-config-changed', handleCredentialChange);
+    };
   }, []);
   
   const handleChange = (e) => {
@@ -476,6 +460,18 @@ const Configuration = () => {
     );
   }
 
+  // Show page-level spinner when saving
+  if (isLoading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f8f9fa' }}>
+        <div style={{ textAlign: 'center' }}>
+          <LoadingSpinner />
+          <p style={{ marginTop: '1rem', fontSize: '1.1rem', color: '#374151' }}>Saving Configuration...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <ConfigurationContainer>
       <PageHeader>
@@ -486,17 +482,11 @@ const Configuration = () => {
 
       
       {saveStatus && (
-        <Alert $variant={saveStatus.type}>
-          {saveStatus.type === 'success' ? (
-            <FiCheckCircle size={20} />
-          ) : (
-            <FiAlertCircle size={20} />
-          )}
-          <div>
-            <h4>{saveStatus.title}</h4>
-            <p>{saveStatus.message}</p>
-          </div>
-        </Alert>
+        <StandardMessage
+          type={saveStatus.type === 'danger' ? 'error' : saveStatus.type}
+          title={saveStatus.title}
+          message={saveStatus.message}
+        />
       )}
       
       <Card>
@@ -816,40 +806,11 @@ const Configuration = () => {
             
             {/* Status message below the buttons */}
             {saveStatus && (
-              <div style={{ 
-                marginTop: '1rem', 
-                padding: '12px 16px', 
-                borderRadius: '6px',
-                border: '1px solid',
-                fontSize: '14px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                ...(saveStatus.type === 'success' ? {
-                  backgroundColor: '#f0fdf4',
-                  borderColor: '#bbf7d0',
-                  color: '#166534'
-                } : saveStatus.type === 'danger' ? {
-                  backgroundColor: '#fef2f2',
-                  borderColor: '#fecaca',
-                  color: '#991b1b'
-                } : {
-                  backgroundColor: '#eff6ff',
-                  borderColor: '#bfdbfe',
-                  color: '#1e40af'
-                })
-              }}>
-                {saveStatus.type === 'success' ? (
-                  <FiCheckCircle size={18} style={{ color: '#22c55e' }} />
-                ) : (
-                  <FiAlertCircle size={18} style={{ color: saveStatus.type === 'danger' ? '#ef4444' : '#3b82f6' }} />
-                )}
-                <div>
-                  <strong>{saveStatus.title}</strong>
-                  <br />
-                  {saveStatus.message}
-                </div>
-              </div>
+              <StandardMessage
+                type={saveStatus.type === 'danger' ? 'error' : saveStatus.type}
+                title={saveStatus.title}
+                message={saveStatus.message}
+              />
             )}
           </form>
         </CardBody>
@@ -885,7 +846,7 @@ const Configuration = () => {
                 <li>
                   <strong>Application Name:</strong>
                   <span style={{ fontWeight: 800, fontSize: '1rem', color: 'rgb(0, 112, 204)', marginLeft: '0.5rem' }}>
-                    PingOne OAuth Playground
+                    PingOne OAuth/OIDC Playground v{packageJson.version}
                   </span>
                 </li>
                 <li>
@@ -1000,9 +961,6 @@ const Configuration = () => {
                 </div>
               </div>
               <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-                <button className="sc-bSFBcf kmoxbp" type="button" disabled style={{ width: 'auto', padding: '0.75rem 2rem', opacity: 0.6 }}>
-                  Save Credentials
-                </button>
                 <div className="form-text" style={{ marginTop: '0.5rem' }}>
                   Use the form above on this page to save your actual configuration securely.
                 </div>

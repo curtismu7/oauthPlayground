@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { jwtGenerator, LoginHintTokenPayload, RequestObjectPayload, ClientSecretJWTPayload, PrivateKeyJWTPayload } from '../utils/jwtGenerator';
 
 const GeneratorContainer = styled.div`
@@ -217,6 +218,7 @@ const JWTGenerator: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'login-hint' | 'request-object' | 'client-secret' | 'private-key' | 'jwks'>('login-hint');
   const [generatedJWT, setGeneratedJWT] = useState<string>('');
   const [message, setMessage] = useState<{ type: 'info' | 'success' | 'warning' | 'error'; text: string } | null>(null);
+  const [showSecret, setShowSecret] = useState<boolean>(false);
 
   // Form states
   const [loginHintForm, setLoginHintForm] = useState({
@@ -637,12 +639,37 @@ const JWTGenerator: React.FC = () => {
         </FormGroup>
         <FormGroup>
           <Label>Client Secret *</Label>
-          <Input
-            type="password"
-            value={clientSecretForm.clientSecret}
-            onChange={(e) => setClientSecretForm(prev => ({ ...prev, clientSecret: e.target.value }))}
-            placeholder="your-client-secret"
-          />
+          <div style={{ position: 'relative' }}>
+            <Input
+              type={showSecret ? 'text' : 'password'}
+              value={clientSecretForm.clientSecret}
+              onChange={(e) => setClientSecretForm(prev => ({ ...prev, clientSecret: e.target.value }))}
+              placeholder="your-client-secret"
+              style={{ paddingRight: '3rem' }}
+            />
+            <button
+              type="button"
+              onClick={() => setShowSecret(!showSecret)}
+              style={{
+                position: 'absolute',
+                right: '0.75rem',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: '#6c757d',
+                padding: '0.25rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              aria-label={showSecret ? 'Hide client secret' : 'Show client secret'}
+              title={showSecret ? 'Hide client secret' : 'Show client secret'}
+            >
+              {showSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+            </button>
+          </div>
         </FormGroup>
       </FormSection>
       <FormSection>

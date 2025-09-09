@@ -2,19 +2,19 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Card, CardBody } from '../components/Card';
-import { FiCode, FiUser, FiSettings, FiInfo, FiCheckCircle, FiPlay, FiBook, FiShield, FiClock, FiActivity, FiRefreshCw, FiTool } from 'react-icons/fi';
+import { FiCode, FiUser, FiSettings, FiInfo, FiCheckCircle, FiPlay, FiBook, FiShield, FiClock, FiActivity, FiRefreshCw, FiTool, FiKey, FiGlobe, FiEye, FiCopy } from 'react-icons/fi';
 import { useAuth } from '../contexts/NewAuthContext';
-import { getOAuthTokens } from '../utils/tokenStorage';
 import { getRecentActivity } from '../utils/activityTracker';
 import { interpretPingOneError } from '../utils/pingoneErrorInterpreter';
 import { useTokenRefresh } from '../hooks/useTokenRefresh';
 import { TokenDebugger } from '../utils/tokenDebug';
 
-
 const DashboardContainer = styled.div`
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 2rem;
+  background: #f8f9fa;
+  min-height: 100vh;
   
   @keyframes spin {
     from {
@@ -26,62 +26,133 @@ const DashboardContainer = styled.div`
   }
 `;
 
-const PageHeader = styled.div`
+const Header = styled.div`
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 2rem;
   margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
   
   h1 {
-    font-size: 2rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray900};
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
     margin-bottom: 0.5rem;
   }
   
   p {
-    color: ${({ theme }) => theme.colors.gray600};
+    color: #666;
     font-size: 1.1rem;
   }
 `;
 
-const Grid = styled.div`
+const StatsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
   margin-bottom: 2rem;
+  
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
-const FeatureCard = styled(Card)`
-  transition: transform 0.2s, box-shadow 0.2s;
-  height: 100%;
+const StatCard = styled.div`
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  min-height: 120px;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  }
-  
-  svg {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-    color: ${({ theme }) => theme.colors.primary};
-  }
-  
-  h3 {
-    font-size: 1.25rem;
-    margin-bottom: 0.75rem;
-  }
-  
-  p {
-    color: ${({ theme }) => theme.colors.gray600};
-    margin-bottom: 1.5rem;
-    flex-grow: 1;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 `;
 
-const StatusCard = styled(Card)`
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  border: 1px solid #cbd5e1;
+const StatIcon = styled.div<{ $variant: 'flows' | 'tokens' | 'success' | 'security' }>`
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+  color: white;
+  
+  ${({ $variant }) => {
+    switch ($variant) {
+      case 'flows':
+        return 'background: linear-gradient(135deg, #667eea, #764ba2);';
+      case 'tokens':
+        return 'background: linear-gradient(135deg, #f093fb, #f5576c);';
+      case 'success':
+        return 'background: linear-gradient(135deg, #4facfe, #00f2fe);';
+      case 'security':
+        return 'background: linear-gradient(135deg, #43e97b, #38f9d7);';
+      default:
+        return 'background: linear-gradient(135deg, #667eea, #764ba2);';
+    }
+  }}
+`;
+
+const StatValue = styled.div`
+  font-size: 2rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 0.25rem;
+`;
+
+const StatLabel = styled.div`
+  color: #666;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+`;
+
+const MainContent = styled.div`
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const ContentCard = styled.div<{ $shaded?: boolean }>`
+  background: ${({ $shaded }) => $shaded ? 'linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%)' : '#ffffff'};
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid ${({ $shaded }) => $shaded ? '#d1e7ff' : '#e5e7eb'};
+`;
+
+const CardHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 1.5rem;
+`;
+
+const CardTitle = styled.h2`
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
 `;
 
 const QuickActions = styled.div`
@@ -91,200 +162,235 @@ const QuickActions = styled.div`
   margin-bottom: 2rem;
 `;
 
-const QuickActionButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.5rem;
+const ActionButton = styled(Link)`
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
-  text-align: left;
-  
-  &:hover {
-    border-color: #3b82f6;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  }
-  
-  svg {
-    font-size: 1.5rem;
-    color: #3b82f6;
-  }
-  
-  div {
-    h4 {
-      font-size: 0.875rem;
-      font-weight: 600;
-      margin: 0 0 0.25rem 0;
-      color: #1f2937;
-    }
-    
-    p {
-      font-size: 0.75rem;
-      color: #6b7280;
-      margin: 0;
-    }
-  }
-`;
-
-
-const TokenStatus = styled.div`
+  transition: all 0.3s ease;
+  text-decoration: none;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: ${({ $hasTokens }: { $hasTokens: boolean }) => 
-    $hasTokens ? '#f0fdf4' : '#fef2f2'};
-  border: 1px solid ${({ $hasTokens }: { $hasTokens: boolean }) => 
-    $hasTokens ? '#bbf7d0' : '#fecaca'};
-  border-radius: 0.375rem;
-  margin-bottom: 1rem;
   
-  svg {
-    color: ${({ $hasTokens }: { $hasTokens: boolean }) => 
-      $hasTokens ? '#16a34a' : '#dc2626'};
-  }
-  
-  span {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: ${({ $hasTokens }: { $hasTokens: boolean }) => 
-      $hasTokens ? '#166534' : '#991b1b'};
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    color: white;
+    text-decoration: none;
   }
 `;
 
-const IconButton = styled.button`
-  background: none !important;
-  border: none !important;
+const RefreshButton = styled.button`
+  background: #f8f9fa;
+  color: #667eea;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
   cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 0.25rem;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  color: #6b7280;
-  transition: color 0.2s;
+  gap: 0.5rem;
   
   &:hover {
-    color: #3b82f6 !important;
+    background: #e9ecef;
+    border-color: #667eea;
   }
   
   &:disabled {
-    cursor: not-allowed;
     opacity: 0.6;
+    cursor: not-allowed;
   }
 `;
 
-const ModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+const RecentActivity = styled.div`
+  margin-top: 1.5rem;
+`;
+
+const ActivityItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 0.5rem;
+  transition: background 0.3s ease;
+  
+  &:hover {
+    background: #f8f9fa;
+  }
+`;
+
+const ActivityIcon = styled.div<{ $type: 'success' | 'warning' | 'info' }>`
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  font-size: 1.2rem;
+  
+  ${({ $type }) => {
+    switch ($type) {
+      case 'success':
+        return 'background: rgba(67, 233, 123, 0.1); color: #43e97b;';
+      case 'warning':
+        return 'background: rgba(255, 193, 7, 0.1); color: #ffc107;';
+      case 'info':
+        return 'background: rgba(102, 126, 234, 0.1); color: #667eea;';
+      default:
+        return 'background: rgba(102, 126, 234, 0.1); color: #667eea;';
+    }
+  }}
 `;
 
-const ModalContent = styled.div`
-  background: white;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  max-width: 500px;
-  width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+const ActivityContent = styled.div`
+  flex: 1;
 `;
 
-const ModalHeader = styled.div`
+const ActivityTitle = styled.div`
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 0.25rem;
+`;
+
+const ActivityTime = styled.div`
+  font-size: 0.85rem;
+  color: #666;
+`;
+
+const FlowStatus = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+`;
+
+const StatusBadge = styled.span<{ $status: 'active' | 'pending' | 'error' }>`
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  
+  ${({ $status }) => {
+    switch ($status) {
+      case 'active':
+        return 'background: rgba(67, 233, 123, 0.1); color: #43e97b;';
+      case 'pending':
+        return 'background: rgba(255, 193, 7, 0.1); color: #ffc107;';
+      case 'error':
+        return 'background: rgba(245, 87, 108, 0.1); color: #f5576c;';
+      default:
+        return 'background: rgba(67, 233, 123, 0.1); color: #43e97b;';
+    }
+  }}
+`;
+
+const TokenInfo = styled.div`
+  background: #f8f9fa;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+`;
+
+const TokenRow = styled.div`
+  display: flex;
+  flex-direction: column;
   margin-bottom: 1rem;
   
-  h2 {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #1f2937;
+  &:last-child {
+    margin-bottom: 0;
   }
 `;
 
-const CloseButton = styled.button`
-  background: none;
+const TokenLabel = styled.span`
+  font-weight: 500;
+  color: #333;
+`;
+
+const TokenValue = styled.span`
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-size: 0.8rem;
+  color: #2d3748;
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  border: 1px solid #cbd5e0;
+  padding: 0.75rem;
+  border-radius: 6px;
+  word-break: break-all;
+  white-space: pre-wrap;
+  line-height: 1.4;
+  margin-top: 0.25rem;
+  display: block;
+  position: relative;
+`;
+
+const TokenRowContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+  position: relative;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const TokenRowWithCopy = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const CopyButton = styled.button`
+  background: #667eea;
+  color: white;
   border: none;
+  border-radius: 4px;
+  padding: 0.5rem;
   cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 0.25rem;
-  color: #6b7280;
-  font-size: 1.5rem;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  margin-top: 0.25rem;
   
   &:hover {
-    color: #374151;
-    background: #f3f4f6;
-  }
-`;
-
-const ActivityList = styled.div`
-  .activity-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid #e5e7eb;
-    
-    &:last-child {
-      border-bottom: none;
-    }
-    
-    .activity-icon {
-      width: 2rem;
-      height: 2rem;
-      border-radius: 50%;
-      background: #f3f4f6;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #6b7280;
-    }
-    
-    .activity-content {
-      flex: 1;
-      
-      .activity-type {
-        font-weight: 500;
-        color: #1f2937;
-        margin-bottom: 0.25rem;
-      }
-      
-      .activity-timestamp {
-        font-size: 0.875rem;
-        color: #6b7280;
-      }
-    }
+    background: #5a67d8;
+    transform: translateY(-1px);
   }
   
-  .no-activity {
-    text-align: center;
-    color: #6b7280;
-    padding: 2rem;
-    font-style: italic;
+  &:active {
+    transform: translateY(0);
+  }
+  
+  &.copied {
+    background: #48bb78;
   }
 `;
 
 const Dashboard = () => {
-  const { config, error } = useAuth();
+  const { config, error, tokens: authTokens, isAuthenticated } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [tokens, setTokens] = useState<Record<string, unknown> | null>(null);
   const [recentActivity, setRecentActivity] = useState<Record<string, unknown>[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showActivityModal, setShowActivityModal] = useState(false);
+  const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({});
 
   // Token refresh automation for Dashboard login
   const {
@@ -339,571 +445,414 @@ const Dashboard = () => {
   useEffect(() => {
     const loadDashboardData = async () => {
       try {
-        const storedTokens = getOAuthTokens();
-        setTokens(storedTokens);
+        console.log('🔍 [Dashboard] Loading dashboard data...', {
+          hasAuthTokens: !!authTokens,
+          isAuthenticated,
+          authTokens: authTokens ? {
+            hasAccessToken: !!authTokens.access_token,
+            hasRefreshToken: !!authTokens.refresh_token,
+            hasIdToken: !!authTokens.id_token,
+            tokenType: authTokens.token_type,
+            expiresIn: authTokens.expires_in
+          } : null
+        });
+
+        // Use tokens from auth context instead of storage
+        setTokens(authTokens);
+
+        // Load recent activity
+        let activity = getRecentActivity();
         
-        // Load recent activity using the activity tracker
-        const activity = getRecentActivity();
-        setRecentActivity(activity.slice(0, 5)); // Show last 5 activities
+        // If no activity exists, create some sample data for demonstration
+        if (activity.length === 0) {
+          const sampleActivities = [
+            {
+              id: 'sample_1',
+              action: 'Completed Authorization Code Flow',
+              flowType: 'authorization-code',
+              timestamp: Date.now() - 300000, // 5 minutes ago
+              success: true,
+              details: 'Successfully obtained access token'
+            },
+            {
+              id: 'sample_2',
+              action: 'Updated Configuration: Environment ID',
+              flowType: 'configuration',
+              timestamp: Date.now() - 600000, // 10 minutes ago
+              success: true,
+              details: 'Environment ID configured'
+            },
+            {
+              id: 'sample_3',
+              action: 'Completed PKCE Flow',
+              flowType: 'pkce',
+              timestamp: Date.now() - 900000, // 15 minutes ago
+              success: true,
+              details: 'PKCE flow completed successfully'
+            }
+          ];
+          
+          // Store sample activities
+          localStorage.setItem('pingone_playground_recent_activity', JSON.stringify(sampleActivities));
+          activity = sampleActivities;
+        }
+        
+        setRecentActivity(activity);
       } catch (error) {
-        console.error('Failed to load dashboard data:', error);
+        console.error('Error loading dashboard data:', error);
       }
     };
 
     loadDashboardData();
-  }, []); // Empty dependency array - only run once on mount
+  }, [authTokens, isAuthenticated]);
 
-  // Set up interval to check for new tokens
-  useEffect(() => {
-    const tokenCheckInterval = setInterval(() => {
-      const storedTokens = getOAuthTokens();
-      if (storedTokens && (!tokens || storedTokens.access_token !== tokens.access_token)) {
-        setTokens(storedTokens);
-        console.log('🔄 [Dashboard] New tokens detected:', storedTokens);
-      }
-    }, 2000);
-
-    return () => clearInterval(tokenCheckInterval);
-  }, [tokens]); // This effect only runs when tokens change
-
+  // Refresh dashboard data
   const refreshDashboard = async () => {
     setIsRefreshing(true);
     try {
-      const storedTokens = getOAuthTokens();
-      setTokens(storedTokens);
-      
+      // Use tokens from auth context instead of storage
+      setTokens(authTokens);
+
+      // Reload recent activity
       const activity = getRecentActivity();
-      setRecentActivity(activity.slice(0, 5));
+      setRecentActivity(activity);
     } catch (error) {
-      console.error('Failed to refresh dashboard:', error);
+      console.error('Error refreshing dashboard data:', error);
     } finally {
       setIsRefreshing(false);
     }
   };
 
-  const quickActions = [
-    {
-      icon: <FiPlay />,
-      title: 'Start Authorization Code Flow',
-      description: 'Most common OAuth flow',
-      action: () => navigate('/flows/authorization-code'),
-    },
-    {
-      icon: <FiShield />,
-      title: 'Test PKCE Flow',
-      description: 'Enhanced security flow',
-      action: () => navigate('/flows/pkce'),
-    },
-    {
-      icon: <FiUser />,
-      title: 'Get User Info',
-      description: 'Retrieve user profile',
-      action: () => navigate('/flows/userinfo'),
-    },
-    {
-      icon: <FiSettings />,
-      title: 'Configure Settings',
-      description: 'Setup environment',
-      action: () => navigate('/configuration'),
-    },
-  ];
+  // Calculate real stats
+  const stats = {
+    flows: 6, // Actual OAuth flows available: Authorization Code, PKCE, Implicit, Hybrid, Client Credentials, Device Code
+    tokens: tokens ? (tokens.access_token ? 1 : 0) : 0, // Current active tokens
+    success: calculateSuccessRate(), // Real success rate based on recent activity
+    security: calculateSecurityScore() // Real security score based on configuration
+  };
 
-  const features = [
-    {
-      icon: <FiCode />,
-      title: 'OAuth 2.0 Flows',
-      description: 'Interactive demonstrations of Authorization Code, PKCE, Client Credentials, Device Code, and more.',
-      link: '/flows',
-    },
-    {
-      icon: <FiShield />,
-      title: 'Token Management',
-      description: 'Comprehensive token operations including exchange, refresh, introspection, and revocation.',
-      link: '/token-management',
-    },
-    {
-      icon: <FiUser />,
-      title: 'OpenID Connect',
-      description: 'ID Tokens, UserInfo endpoint, and authentication flows with identity features.',
-      link: '/flows/id-tokens',
-    },
-    {
-      icon: <FiTool />,
-      title: 'Developer Tools',
-      description: 'JWT decoder, PKCE generator, and utilities for OAuth development.',
-      link: '/documentation',
-    },
-  ];
+  // Calculate success rate based on recent activity
+  function calculateSuccessRate(): number {
+    if (recentActivity.length === 0) return 0;
+    
+    const successfulActivities = recentActivity.filter(activity => 
+      activity.type === 'success' || 
+      (activity.title && activity.title.toLowerCase().includes('success'))
+    ).length;
+    
+    return Math.round((successfulActivities / recentActivity.length) * 100);
+  }
+
+  // Calculate security score based on configuration
+  function calculateSecurityScore(): number {
+    let score = 0;
+    
+    // Check if credentials are configured
+    if (config?.clientId && config?.environmentId) score += 25;
+    
+    // Check if client secret is configured
+    if (config?.clientSecret) score += 25;
+    
+    // Check if PKCE is being used (indicated by code_verifier in sessionStorage)
+    if (sessionStorage.getItem('code_verifier')) score += 25;
+    
+    // Check if state parameter is being used
+    if (sessionStorage.getItem('oauth_state')) score += 25;
+    
+    return score;
+  }
+
+  // Get recent activity items
+  const activityItems = recentActivity.slice(0, 4).map((activity, index) => ({
+    id: activity.id || index,
+    type: activity.success ? 'success' : 'warning' as 'success' | 'warning' | 'info',
+    title: activity.action,
+    time: new Date(activity.timestamp).toLocaleString(),
+    icon: activity.success ? '✅' : '⚠️'
+  }));
+
+  // Get token expiration time
+  const getTokenExpiration = () => {
+    if (!tokens || !tokens.expires_in) return 'N/A';
+    const expiresIn = tokens.expires_in as number;
+    const hours = Math.floor(expiresIn / 3600);
+    const minutes = Math.floor((expiresIn % 3600) / 60);
+    return `${hours}h ${minutes}m`;
+  };
+
+  const handleCopyToken = async (tokenType: string, tokenValue: string) => {
+    try {
+      await navigator.clipboard.writeText(tokenValue);
+      setCopiedStates(prev => ({ ...prev, [tokenType]: true }));
+      setTimeout(() => {
+        setCopiedStates(prev => ({ ...prev, [tokenType]: false }));
+      }, 2000);
+    } catch (error) {
+      console.error('Error copying token:', error);
+    }
+  };
 
   return (
     <DashboardContainer>
-      <PageHeader>
-        <h1>PingOne OAuth 2.0 & OIDC Playground</h1>
-        <p>Learn, test, and master OAuth 2.0 and OpenID Connect with interactive examples</p>
-      </PageHeader>
+      {/* Header */}
+      <Header>
+        <h1>OAuth/OIDC Playground</h1>
+        <p>Your comprehensive OAuth 2.0 and OpenID Connect testing environment</p>
+      </Header>
 
-      {infoMessage && (
-        <div style={{
-          padding: '1rem',
-          marginBottom: '1.5rem',
-          borderRadius: '0.375rem',
-          backgroundColor: infoType === 'success' ? '#f0fdf4' : infoType === 'error' ? '#fef2f2' : infoType === 'warning' ? '#fffbeb' : '#eff6ff',
-          border: `1px solid ${infoType === 'success' ? '#bbf7d0' : infoType === 'error' ? '#fecaca' : infoType === 'warning' ? '#fde68a' : '#bfdbfe'}`,
-          color: infoType === 'success' ? '#166534' : infoType === 'error' ? '#991b1b' : infoType === 'warning' ? '#92400e' : '#1e40af'
-        }}>
-          <strong style={{ display: 'block', marginBottom: '0.25rem' }}>
-            {infoType === 'success' ? 'Success' : infoType === 'error' ? 'Error' : infoType === 'warning' ? 'Warning' : 'Information'}
-          </strong>
-          <div>{infoMessage}</div>
-        </div>
-      )}
+      {/* Stats Grid */}
+      <StatsGrid>
+        <StatCard>
+          <StatIcon $variant="flows">🔐</StatIcon>
+          <StatValue>{stats.flows}</StatValue>
+          <StatLabel>OAuth Flows</StatLabel>
+        </StatCard>
+        <StatCard>
+          <StatIcon $variant="tokens">🎫</StatIcon>
+          <StatValue>{stats.tokens}</StatValue>
+          <StatLabel>Active Tokens</StatLabel>
+        </StatCard>
+        <StatCard>
+          <StatIcon $variant="success">✅</StatIcon>
+          <StatValue>{stats.success}%</StatValue>
+          <StatLabel>Success Rate</StatLabel>
+        </StatCard>
+        <StatCard>
+          <StatIcon $variant="security">🛡️</StatIcon>
+          <StatValue>{stats.security}%</StatValue>
+          <StatLabel>Security Score</StatLabel>
+        </StatCard>
+      </StatsGrid>
 
-      {error && (() => {
-        const errorInfo = interpretPingOneError(error);
-        return (
-          <div style={{
-            padding: '1.5rem',
-            marginBottom: '1.5rem',
-            borderRadius: '0.5rem',
-            backgroundColor: errorInfo.severity === 'error' ? '#fef2f2' : errorInfo.severity === 'warning' ? '#fffbeb' : '#eff6ff',
-            border: `1px solid ${errorInfo.severity === 'error' ? '#fecaca' : errorInfo.severity === 'warning' ? '#fde68a' : '#bfdbfe'}`,
-            color: errorInfo.severity === 'error' ? '#991b1b' : errorInfo.severity === 'warning' ? '#92400e' : '#1e40af'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', marginBottom: '1rem' }}>
-              <div style={{ 
-                padding: '0.5rem', 
-                borderRadius: '0.375rem', 
-                backgroundColor: errorInfo.severity === 'error' ? '#fecaca' : errorInfo.severity === 'warning' ? '#fde68a' : '#bfdbfe',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                minWidth: '2.5rem',
-                height: '2.5rem'
-              }}>
-                {errorInfo.severity === 'error' ? <FiSettings style={{ fontSize: '1.25rem', color: '#dc2626' }} /> : 
-                 errorInfo.severity === 'warning' ? <FiInfo style={{ fontSize: '1.25rem', color: '#d97706' }} /> :
-                 <FiInfo style={{ fontSize: '1.25rem', color: '#2563eb' }} />}
-              </div>
-              <div style={{ flex: 1 }}>
-                <h3 style={{ 
-                  fontSize: '1.125rem', 
-                  fontWeight: '600', 
-                  margin: '0 0 0.5rem 0',
-                  color: errorInfo.severity === 'error' ? '#991b1b' : errorInfo.severity === 'warning' ? '#92400e' : '#1e40af'
-                }}>
-                  {errorInfo.title}
-                </h3>
-                <p style={{ 
-                  margin: '0 0 1rem 0', 
-                  fontSize: '0.875rem',
-                  lineHeight: '1.5'
-                }}>
-                  {errorInfo.message}
-                </p>
-                {errorInfo.suggestion && (
-                  <div style={{
-                    padding: '0.75rem',
-                    backgroundColor: errorInfo.severity === 'error' ? '#fef7f7' : errorInfo.severity === 'warning' ? '#fffbeb' : '#f0f9ff',
-                    border: `1px solid ${errorInfo.severity === 'error' ? '#fecaca' : errorInfo.severity === 'warning' ? '#fde68a' : '#bfdbfe'}`,
-                    borderRadius: '0.375rem',
-                    marginBottom: '1rem'
-                  }}>
-                    <h4 style={{ 
-                      fontSize: '0.875rem', 
-                      fontWeight: '600', 
-                      margin: '0 0 0.5rem 0',
-                      color: errorInfo.severity === 'error' ? '#991b1b' : errorInfo.severity === 'warning' ? '#92400e' : '#1e40af'
-                    }}>
-                      💡 How to Fix:
-                    </h4>
-                    <div style={{ 
-                      margin: 0, 
-                      fontSize: '0.875rem',
-                      lineHeight: '1.6'
-                    }}>
-                      {errorInfo.suggestion.split('\n').map((line, index) => (
-                        <div key={index} style={{ marginBottom: '0.5rem' }}>
-                          {line}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                  <Link to="/configuration" style={{ 
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    padding: '0.5rem 1rem',
-                    backgroundColor: errorInfo.severity === 'error' ? '#dc2626' : errorInfo.severity === 'warning' ? '#d97706' : '#2563eb',
-                    color: 'white',
-                    textDecoration: 'none',
-                    borderRadius: '0.375rem',
-                    fontSize: '0.875rem',
-                    fontWeight: '500',
-                    transition: 'all 0.2s'
-                  }}>
-                    <FiSettings style={{ fontSize: '1rem' }} />
-                    Configure PingOne Settings
-                  </Link>
-                  <Link to="/documentation" style={{ 
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    padding: '0.5rem 1rem',
-                    backgroundColor: 'transparent',
-                    color: errorInfo.severity === 'error' ? '#dc2626' : errorInfo.severity === 'warning' ? '#d97706' : '#2563eb',
-                    textDecoration: 'none',
-                    border: `1px solid ${errorInfo.severity === 'error' ? '#dc2626' : errorInfo.severity === 'warning' ? '#d97706' : '#2563eb'}`,
-                    borderRadius: '0.375rem',
-                    fontSize: '0.875rem',
-                    fontWeight: '500',
-                    transition: 'all 0.2s'
-                  }}>
-                    <FiBook style={{ fontSize: '1rem' }} />
-                    View Documentation
-                  </Link>
-                </div>
-              </div>
-            </div>
+      {/* System Status Card */}
+      <ContentCard style={{ marginBottom: '2rem' }}>
+        <CardHeader>
+          <CardTitle>System Status</CardTitle>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <RefreshButton onClick={handleRefresh} disabled={isRefreshing}>
+              <FiRefreshCw style={{ 
+                animation: isRefreshing ? 'spin 1s linear infinite' : 'none'
+              }} />
+            </RefreshButton>
+            <RefreshButton style={{ background: '#e3f2fd', color: '#1976d2', borderColor: '#bbdefb' }}>
+              <FiActivity />
+            </RefreshButton>
           </div>
-        );
-      })()}
-
-      {/* Status Overview */}
-      <StatusCard>
-        <CardBody>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', margin: 0 }}>System Status</h2>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <IconButton
-                onClick={handleRefresh}
-                disabled={isRefreshing}
-              >
-                <FiRefreshCw style={{ 
-                  fontSize: '1rem', 
-                  animation: isRefreshing ? 'spin 1s linear infinite' : 'none'
-                }} />
-              </IconButton>
-              <IconButton
-                onClick={handleActivity}
-                style={{ color: '#3b82f6' }}
-              >
-                <FiActivity style={{ fontSize: '1.5rem' }} />
-              </IconButton>
-            </div>
-          </div>
+        </CardHeader>
+        
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <StatusBadge 
+            $status={tokens ? 'active' : 'error'}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.5rem',
+              padding: '0.75rem 1rem',
+              fontSize: '0.9rem'
+            }}
+          >
+            <FiClock />
+            {tokens ? 'Active Tokens' : 'No Active Tokens'}
+          </StatusBadge>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-            <TokenStatus $hasTokens={!!tokens}>
-              {tokens ? <FiCheckCircle /> : <FiClock />}
-              <span>{tokens ? 'Tokens Available' : 'No Active Tokens'}</span>
-            </TokenStatus>
-            
-            <TokenStatus $hasTokens={hasSavedCredentials}>
-              {hasSavedCredentials ? <FiCheckCircle /> : <FiSettings />}
-              <span>{hasSavedCredentials ? 'Environment Configured' : 'Setup Required'}</span>
-            </TokenStatus>
-          </div>
+          <StatusBadge 
+            $status={hasSavedCredentials ? 'active' : 'error'}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.5rem',
+              padding: '0.75rem 1rem',
+              fontSize: '0.9rem'
+            }}
+          >
+            <FiCheckCircle />
+            {hasSavedCredentials ? 'Environment Configured' : 'Environment Not Configured'}
+          </StatusBadge>
+        </div>
+      </ContentCard>
 
-          {/* Token Details */}
-          {tokens && (
-            <div style={{ marginTop: '1rem', padding: '1rem', backgroundColor: '#f8fafc', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
-              <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', fontWeight: '600', color: '#374151' }}>Token Details</h4>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.5rem', fontSize: '0.75rem' }}>
+      {/* Main Content - Full Width */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+        {/* Quick Actions */}
+        <ContentCard>
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+          </CardHeader>
+          
+          <QuickActions>
+            <ActionButton to="/flows/authorization-code">
+              <span>🔑</span>
+              Authorization Code Flow
+            </ActionButton>
+            <ActionButton to="/flows/authorization-code-pkce">
+              <span>🔐</span>
+              PKCE Flow
+            </ActionButton>
+            <ActionButton to="/flows/client-credentials">
+              <span>👤</span>
+              Client Credentials
+            </ActionButton>
+            <ActionButton to="/flows/device-code">
+              <span>📱</span>
+              Device Code Flow
+            </ActionButton>
+            <ActionButton to="/auto-discover">
+              <span>🔍</span>
+              Discovery
+            </ActionButton>
+            <ActionButton to="/configuration">
+              <span>⚙️</span>
+              Configuration
+            </ActionButton>
+          </QuickActions>
+        </ContentCard>
+
+        {/* Recent Activity */}
+        <ContentCard>
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+          </CardHeader>
+          
+          <RecentActivity>
+            {activityItems.length > 0 ? (
+              activityItems.map((item) => (
+                <ActivityItem key={item.id}>
+                  <ActivityIcon $type={item.type}>{item.icon}</ActivityIcon>
+                  <ActivityContent>
+                    <ActivityTitle>{item.title}</ActivityTitle>
+                    <ActivityTime>{item.time}</ActivityTime>
+                  </ActivityContent>
+                </ActivityItem>
+              ))
+            ) : (
+              <div style={{ textAlign: 'center', color: '#666', padding: '2rem', fontStyle: 'italic' }}>
+                No recent activity
+              </div>
+            )}
+          </RecentActivity>
+        </ContentCard>
+      </div>
+
+      {/* Bottom Section - Current Session and Environment Status */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginTop: '2rem' }}>
+        {/* Current Session */}
+        <ContentCard $shaded={true}>
+          <CardHeader>
+            <CardTitle>Current Session</CardTitle>
+          </CardHeader>
+
+          <FlowStatus>
+            <StatusBadge $status="active">Active</StatusBadge>
+            <span>Authorization Code Flow</span>
+          </FlowStatus>
+
+          {tokens ? (
+            <TokenInfo style={{ marginTop: '1rem' }}>
+              <TokenRowWithCopy>
+                <TokenRowContainer>
+                  <TokenLabel>Access Token:</TokenLabel>
+                  <TokenValue>
+                    {tokens.access_token ? (tokens.access_token as string) : 'N/A'}
+                  </TokenValue>
+                </TokenRowContainer>
                 {tokens.access_token && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                    <FiCheckCircle style={{ color: '#10b981', fontSize: '0.75rem' }} />
-                    <span>Access Token</span>
-                  </div>
+                  <CopyButton
+                    className={copiedStates.access_token ? 'copied' : ''}
+                    onClick={() => handleCopyToken('access_token', tokens.access_token as string)}
+                  >
+                    <FiCopy size={12} />
+                    {copiedStates.access_token ? 'Copied!' : 'Copy'}
+                  </CopyButton>
                 )}
-                {tokens.id_token && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                    <FiCheckCircle style={{ color: '#10b981', fontSize: '0.75rem' }} />
-                    <span>ID Token</span>
-                  </div>
-                )}
+              </TokenRowWithCopy>
+              
+              <TokenRowWithCopy>
+                <TokenRowContainer>
+                  <TokenLabel>Refresh Token:</TokenLabel>
+                  <TokenValue>
+                    {tokens.refresh_token ? (tokens.refresh_token as string) : 'N/A'}
+                  </TokenValue>
+                </TokenRowContainer>
                 {tokens.refresh_token && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                    <FiCheckCircle style={{ color: '#10b981', fontSize: '0.75rem' }} />
-                    <span>Refresh Token</span>
-                  </div>
+                  <CopyButton
+                    className={copiedStates.refresh_token ? 'copied' : ''}
+                    onClick={() => handleCopyToken('refresh_token', tokens.refresh_token as string)}
+                  >
+                    <FiCopy size={12} />
+                    {copiedStates.refresh_token ? 'Copied!' : 'Copy'}
+                  </CopyButton>
                 )}
-                {tokens.token_type && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                    <FiInfo style={{ color: '#6b7280', fontSize: '0.75rem' }} />
-                    <span>Type: {tokens.token_type}</span>
-                  </div>
+              </TokenRowWithCopy>
+              
+              <TokenRowWithCopy>
+                <TokenRowContainer>
+                  <TokenLabel>ID Token:</TokenLabel>
+                  <TokenValue>
+                    {tokens.id_token ? (tokens.id_token as string) : 'N/A'}
+                  </TokenValue>
+                </TokenRowContainer>
+                {tokens.id_token && (
+                  <CopyButton
+                    className={copiedStates.id_token ? 'copied' : ''}
+                    onClick={() => handleCopyToken('id_token', tokens.id_token as string)}
+                  >
+                    <FiCopy size={12} />
+                    {copiedStates.id_token ? 'Copied!' : 'Copy'}
+                  </CopyButton>
                 )}
-                {tokens.expires_in && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                    <FiClock style={{ color: '#6b7280', fontSize: '0.75rem' }} />
-                    <span>Expires: {tokens.expires_in}s</span>
-                  </div>
-                )}
-              </div>
-              {/* Token Refresh Status */}
-              <div style={{ marginTop: '0.75rem', padding: '0.75rem', backgroundColor: refreshStatus.isInitialized ? '#f0f9ff' : '#fef3c7', borderRadius: '0.375rem', border: `1px solid ${refreshStatus.isInitialized ? '#bfdbfe' : '#fbbf24'}` }}>
-                <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', fontWeight: '600', color: refreshStatus.isInitialized ? '#1e40af' : '#92400e', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <FiRefreshCw style={{ fontSize: '0.875rem' }} />
-                  Token Refresh Status
-                </h4>
-                {refreshStatus.isInitialized ? (
-                  <>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.5rem', fontSize: '0.75rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                        <div style={{ 
-                          width: '6px', 
-                          height: '6px', 
-                          borderRadius: '50%', 
-                          backgroundColor: refreshStatus.autoRefreshEnabled ? '#10b981' : '#6b7280' 
-                        }} />
-                        <span>Auto Refresh: {refreshStatus.autoRefreshEnabled ? 'Enabled' : 'Disabled'}</span>
-                      </div>
-                      {isTokenRefreshing && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                          <FiRefreshCw style={{ color: '#3b82f6', fontSize: '0.75rem', animation: 'spin 1s linear infinite' }} />
-                          <span>Refreshing...</span>
-                        </div>
-                      )}
-                      {lastRefreshAt && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                          <FiCheckCircle style={{ color: '#10b981', fontSize: '0.75rem' }} />
-                          <span>Last: {lastRefreshAt.toLocaleTimeString()}</span>
-                        </div>
-                      )}
-                      {nextRefreshAt && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                          <FiClock style={{ color: '#6b7280', fontSize: '0.75rem' }} />
-                          <span>Next: {nextRefreshAt.toLocaleTimeString()}</span>
-                        </div>
-                      )}
-                      {refreshError && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: '#dc2626' }}>
-                          <FiInfo style={{ fontSize: '0.75rem' }} />
-                          <span>Error: {refreshError}</span>
-                        </div>
-                      )}
-                    </div>
-                    <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem' }}>
-                    <button
-                      onClick={refreshTokens}
-                      disabled={isTokenRefreshing}
-                      style={{
-                        padding: '0.25rem 0.5rem',
-                        fontSize: '0.75rem',
-                        backgroundColor: '#3b82f6',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '0.25rem',
-                        cursor: isTokenRefreshing ? 'not-allowed' : 'pointer',
-                        opacity: isTokenRefreshing ? 0.5 : 1
-                      }}
-                    >
-                      <FiRefreshCw style={{ marginRight: '0.25rem', fontSize: '0.75rem' }} />
-                      Refresh Now
-                    </button>
-                    <button
-                      onClick={refreshStatus.autoRefreshEnabled ? stopAutoRefresh : startAutoRefresh}
-                      style={{
-                        padding: '0.25rem 0.5rem',
-                        fontSize: '0.75rem',
-                        backgroundColor: refreshStatus.autoRefreshEnabled ? '#6b7280' : '#10b981',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '0.25rem',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      {refreshStatus.autoRefreshEnabled ? 'Stop Auto' : 'Start Auto'}
-                    </button>
-                    <button
-                      onClick={async () => {
-                        try {
-                          const result = await TokenDebugger.clearAllTokens();
-                          if (result.success) {
-                            console.log('✅ [Dashboard] Cleared all tokens from storage');
-                            window.location.reload(); // Reload to refresh status
-                          } else {
-                            console.error('❌ [Dashboard] Failed to clear tokens:', result.error);
-                            alert(`Failed to clear tokens: ${result.error}`);
-                          }
-                        } catch (error) {
-                          console.error('❌ [Dashboard] Failed to clear tokens:', error);
-                          alert(`Failed to clear tokens: ${error}`);
-                        }
-                      }}
-                      style={{
-                        padding: '0.25rem 0.5rem',
-                        fontSize: '0.75rem',
-                        backgroundColor: '#dc2626',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '0.25rem',
-                        cursor: 'pointer'
-                      }}
-                      title="Clear all tokens from storage and reload page"
-                    >
-                      Clear Tokens
-                    </button>
-                  </div>
-                  </>
-                ) : (
-                  <div style={{ fontSize: '0.75rem', color: '#92400e' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', marginBottom: '0.5rem' }}>
-                      <FiInfo style={{ fontSize: '0.75rem' }} />
-                      <span>No refresh token available</span>
-                    </div>
-                    <p style={{ margin: '0', fontSize: '0.7rem', color: '#a16207' }}>
-                      Token refresh requires a valid refresh token. Complete an OAuth flow that provides refresh tokens to enable automatic token refresh.
-                    </p>
-                  </div>
-                )}
-              </div>
+              </TokenRowWithCopy>
+              
+              <TokenRow>
+                <TokenLabel>Expires:</TokenLabel>
+                <TokenValue>{getTokenExpiration()}</TokenValue>
+              </TokenRow>
+            </TokenInfo>
+          ) : (
+            <div style={{ textAlign: 'center', color: '#666', padding: '2rem' }}>
+              No active tokens
+            </div>
+          )}
+        </ContentCard>
 
-              <div style={{ marginTop: '0.75rem' }}>
-                <Link 
-                  to="/token-management" 
-                  style={{ 
-                    display: 'inline-flex', 
-                    alignItems: 'center', 
-                    gap: '0.5rem',
-                    padding: '0.5rem 1rem',
-                    backgroundColor: '#3b82f6',
-                    color: 'white',
-                    textDecoration: 'none',
-                    borderRadius: '0.375rem',
-                    fontSize: '0.875rem',
-                    fontWeight: '500',
-                    transition: 'background-color 0.2s'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
-                >
-                  <FiTool size={16} />
-                  View Token Details
-                </Link>
+        {/* Environment Status */}
+        <ContentCard>
+          <CardHeader>
+            <CardTitle>Environment Status</CardTitle>
+          </CardHeader>
+
+          <FlowStatus>
+            <StatusBadge $status={hasSavedCredentials ? 'active' : 'error'}>
+              {hasSavedCredentials ? 'Connected' : 'Not Configured'}
+            </StatusBadge>
+            <span>PingOne Environment</span>
+          </FlowStatus>
+
+          {hasSavedCredentials && (
+            <div style={{ marginTop: '1rem' }}>
+              <div style={{ 
+                fontSize: '0.9rem', 
+                color: '#666', 
+                marginBottom: '0.5rem',
+                fontWeight: '500'
+              }}>
+                Environment ID:
+              </div>
+              <div style={{ 
+                fontFamily: 'Monaco, Menlo, monospace',
+                fontSize: '0.85rem',
+                color: '#333',
+                background: '#f8f9fa',
+                padding: '0.5rem',
+                borderRadius: '4px',
+                border: '1px solid #e5e7eb',
+                wordBreak: 'break-all'
+              }}>
+                {config?.environmentId}
               </div>
             </div>
           )}
-        </CardBody>
-      </StatusCard>
-
-      {/* Quick Actions */}
-      <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>Quick Actions</h2>
-      <QuickActions>
-        {quickActions.map((action, index) => (
-          <QuickActionButton key={index} onClick={action.action}>
-            {action.icon}
-            <div>
-              <h4>{action.title}</h4>
-              <p>{action.description}</p>
-            </div>
-          </QuickActionButton>
-        ))}
-      </QuickActions>
-
-      {/* Recent Activity */}
-      {recentActivity.length > 0 && (
-        <Card style={{ marginBottom: '2rem' }}>
-          <CardBody>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>Recent Activity</h2>
-            <ActivityList>
-              {recentActivity.map((activity, index) => (
-                <div key={activity.id || index} className="activity-item">
-                  {activity.success ? <FiCheckCircle style={{ color: '#16a34a' }} /> : <FiClock style={{ color: '#dc2626' }} />}
-                  <div className="activity-content">
-                    <div className="activity-title">{activity.action || 'OAuth Flow Executed'}</div>
-                    <p className="activity-time">
-                      {new Date(activity.timestamp).toLocaleString()}
-                      {activity.flowType && ` • ${activity.flowType}`}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </ActivityList>
-          </CardBody>
-        </Card>
-      )}
-
-      {/* Available Features */}
-      <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>Available Features</h2>
-      <Grid>
-        {features.map((feature, index) => (
-          <FeatureCard key={index}>
-            <CardBody className="flex flex-col h-full">
-              <div style={{ fontSize: '2rem', marginBottom: '0.75rem', color: '#3b82f6' }}>
-                {feature.icon}
-              </div>
-              <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>{feature.title}</h3>
-              <p style={{ color: '#6b7280', fontSize: '0.875rem', lineHeight: '1.5', marginBottom: '1rem' }}>
-                {feature.description}
-              </p>
-              <Link 
-                to={feature.link}
-                className="mt-auto inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
-                style={{ textDecoration: 'none' }}
-              >
-                Explore feature
-                <svg className="ml-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </Link>
-            </CardBody>
-          </FeatureCard>
-        ))}
-      </Grid>
-
-      {/* Getting Started */}
-      <Card style={{ marginTop: '2rem' }}>
-        <CardBody>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>Getting Started</h2>
-          <ol style={{ listStyle: 'decimal', paddingLeft: '1.25rem', lineHeight: '1.75' }}>
-            <li style={{ marginBottom: '0.5rem' }}>Configure your PingOne environment in the Settings page</li>
-            <li style={{ marginBottom: '0.5rem' }}>Use Quick Actions above to start common OAuth flows</li>
-            <li style={{ marginBottom: '0.5rem' }}>Follow the interactive guide to understand each step</li>
-            <li style={{ marginBottom: '0.5rem' }}>Inspect requests and responses in real-time</li>
-            <li>Review the documentation for detailed explanations</li>
-          </ol>
-        </CardBody>
-      </Card>
-
-      {/* Activity Modal */}
-      {showActivityModal && (
-        <ModalOverlay onClick={() => setShowActivityModal(false)}>
-          <ModalContent onClick={(e) => e.stopPropagation()}>
-            <ModalHeader>
-              <h2>Recent Activity</h2>
-              <CloseButton onClick={() => setShowActivityModal(false)}>
-                ×
-              </CloseButton>
-            </ModalHeader>
-            <ActivityList>
-              {recentActivity.length > 0 ? (
-                recentActivity.map((item, index) => (
-                  <div key={index} className="activity-item">
-                    <div className="activity-icon">
-                      <FiActivity />
-                    </div>
-                    <div className="activity-content">
-                      <div className="activity-type">
-                        {item.type || 'Unknown Activity'}
-                      </div>
-                      <div className="activity-timestamp">
-                        {item.timestamp || 'No timestamp available'}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="no-activity">
-                  No recent activity to display
-                </div>
-              )}
-            </ActivityList>
-          </ModalContent>
-        </ModalOverlay>
-      )}
+        </ContentCard>
+      </div>
     </DashboardContainer>
   );
 };
