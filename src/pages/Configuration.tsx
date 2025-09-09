@@ -503,8 +503,72 @@ const Configuration = () => {
         <h1>PingOne Configuration</h1>
         <p>Configure your PingOne environment and application settings to get started with the OAuth Playground.</p>
       </PageHeader>
-      
 
+      {/* UI Settings - Moved to top */}
+      <Card style={{ marginBottom: '2rem', backgroundColor: '#f8f9fa', border: '2px solid #e9ecef' }}>
+        <CardHeader>
+          <h2>🎛️ UI Settings</h2>
+          <p className="subtitle">Configure user interface behavior and modal display options</p>
+        </CardHeader>
+        
+        <CardBody>
+          <FormGroup>
+            <div className="checkbox-container">
+              <input
+                type="checkbox"
+                id="showCredentialsModal"
+                name="showCredentialsModal"
+                checked={formData.showCredentialsModal}
+                onChange={(e) => {
+                  console.log('🔧 [Configuration] showCredentialsModal changed:', e.target.checked);
+                  setFormData(prev => ({
+                    ...prev,
+                    showCredentialsModal: e.target.checked
+                  }));
+                }}
+              />
+              <label htmlFor="showCredentialsModal">
+                Show Credentials Modal at Startup
+                <div className="form-text">
+                  Display the credentials setup modal when the application starts (if no credentials are found)
+                </div>
+              </label>
+            </div>
+          </FormGroup>
+
+          <FormGroup>
+            <div className="checkbox-container">
+              <input
+                type="checkbox"
+                id="showSuccessModal"
+                name="showSuccessModal"
+                checked={formData.showSuccessModal}
+                onChange={(e) => {
+                  console.log('🔧 [Configuration] showSuccessModal changed:', e.target.checked);
+                  setFormData(prev => ({
+                    ...prev,
+                    showSuccessModal: e.target.checked
+                  }));
+                }}
+              />
+              <label htmlFor="showSuccessModal">
+                Show Success Modal
+                <div className="form-text">
+                  Display a modal with authorization success details when returning from PingOne
+                </div>
+              </label>
+            </div>
+          </FormGroup>
+
+          <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#e9ecef', borderRadius: '0.5rem', border: '1px solid #ced4da' }}>
+            <h4 style={{ margin: '0 0 0.5rem 0', color: '#495057' }}>💡 UI Settings Info</h4>
+            <p style={{ margin: '0', fontSize: '0.9rem', color: '#6c757d' }}>
+              These settings control the display of modals throughout the application. 
+              Changes are saved to the flow configuration and will affect all OAuth flows.
+            </p>
+          </div>
+        </CardBody>
+      </Card>
       
       {saveStatus && (
         <StandardMessage
@@ -1001,60 +1065,6 @@ const Configuration = () => {
         </CardBody>
       </Card>
 
-      {/* UI Settings */}
-      <Card>
-        <CardHeader>
-          <h2>UI Settings</h2>
-          <p className="subtitle">Configure user interface behavior and modal display options</p>
-        </CardHeader>
-        
-        <CardBody>
-          <FormGroup>
-            <div className="checkbox-container">
-              <input
-                type="checkbox"
-                id="showCredentialsModal"
-                name="showCredentialsModal"
-                checked={formData.showCredentialsModal}
-                onChange={handleChange}
-              />
-              <label htmlFor="showCredentialsModal">
-                Show Credentials Modal at Startup
-                <div className="form-text">
-                  Display the credentials setup modal when the application starts (if no credentials are found)
-                </div>
-              </label>
-            </div>
-          </FormGroup>
-
-          <FormGroup>
-            <div className="checkbox-container">
-              <input
-                type="checkbox"
-                id="showSuccessModal"
-                name="showSuccessModal"
-                checked={formData.showSuccessModal}
-                onChange={handleChange}
-              />
-              <label htmlFor="showSuccessModal">
-                Show Success Modal
-                <div className="form-text">
-                  Display a modal with authorization success details when returning from PingOne
-                </div>
-              </label>
-            </div>
-          </FormGroup>
-
-          <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#f8f9fa', borderRadius: '0.5rem', border: '1px solid #e9ecef' }}>
-            <h4 style={{ margin: '0 0 0.5rem 0', color: '#495057' }}>💡 UI Settings Info</h4>
-            <p style={{ margin: '0', fontSize: '0.9rem', color: '#6c757d' }}>
-              These settings control the display of modals throughout the application. 
-              Changes are saved to the flow configuration and will affect all OAuth flows.
-            </p>
-          </div>
-        </CardBody>
-      </Card>
-      
       {/* Discovery Panel */}
       {showDiscoveryPanel && (
         <DiscoveryPanel
