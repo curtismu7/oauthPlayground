@@ -507,10 +507,13 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     console.log('🧹 [EnhancedAuthorizationCodeFlowV2] Cleared all flow states and loaded credentials on mount');
   }, []);
 
-  // Listen for credential changes
+  // Listen for credential changes (debounced to prevent excessive calls)
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    
     const handleCredentialChange = () => {
-      const loadCredentials = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
         try {
           const allCredentials = credentialManager.getAllCredentials();
           console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Reloading credentials after change:', allCredentials);
@@ -532,14 +535,13 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           console.error('❌ [EnhancedAuthorizationCodeFlowV2] Failed to reload credentials:', error);
           logger.error('Failed to reload credentials', { error });
         }
-      };
-      
-      loadCredentials();
+      }, 100); // Debounce by 100ms
     };
     
     window.addEventListener('permanent-credentials-changed', handleCredentialChange);
     
     return () => {
+      clearTimeout(timeoutId);
       window.removeEventListener('permanent-credentials-changed', handleCredentialChange);
     };
   }, []);
@@ -894,37 +896,39 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
 
           <FormField>
             <FormLabel>Client Secret</FormLabel>
-            <div style={{ position: 'relative' }}>
-              <FormInput
-                type={showSecret ? 'text' : 'password'}
-                value={credentials.clientSecret || ''}
-                onChange={(e) => setCredentials(prev => ({ ...prev, clientSecret: e.target.value }))}
-                placeholder="your-client-secret (optional for PKCE)"
-                style={{ paddingRight: '3rem' }}
-              />
-              <button
-                type="button"
-                onClick={() => setShowSecret(!showSecret)}
-                style={{
-                  position: 'absolute',
-                  right: '0.75rem',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: '#6c757d',
-                  padding: '0.25rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-                aria-label={showSecret ? 'Hide client secret' : 'Show client secret'}
-                title={showSecret ? 'Hide client secret' : 'Show client secret'}
-              >
-                {showSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
-              </button>
-            </div>
+            <form>
+              <div style={{ position: 'relative' }}>
+                <FormInput
+                  type={showSecret ? 'text' : 'password'}
+                  value={credentials.clientSecret || ''}
+                  onChange={(e) => setCredentials(prev => ({ ...prev, clientSecret: e.target.value }))}
+                  placeholder="your-client-secret (optional for PKCE)"
+                  style={{ paddingRight: '3rem' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowSecret(!showSecret)}
+                  style={{
+                    position: 'absolute',
+                    right: '0.75rem',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#6c757d',
+                    padding: '0.25rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  aria-label={showSecret ? 'Hide client secret' : 'Show client secret'}
+                  title={showSecret ? 'Hide client secret' : 'Show client secret'}
+                >
+                  {showSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                </button>
+              </div>
+            </form>
             <ValidationIndicator $valid={true}>
               <FiInfo />
               Optional for PKCE flows, required for confidential clients
