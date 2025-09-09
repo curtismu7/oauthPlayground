@@ -456,6 +456,22 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     const code = urlParams.get('code');
     const state = urlParams.get('state');
     
+    console.log('🔍 [EnhancedAuthorizationCodeFlowV2] URL params:', { stepParam, code, state });
+    console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Current location:', location);
+    console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Auth context state:', authContext?.authState);
+    console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Current state values:', {
+      authCode,
+      callbackSuccess,
+      callbackError,
+      tokens: !!tokens,
+      userInfo: !!userInfo,
+      credentials: {
+        environmentId: !!credentials.environmentId,
+        clientId: !!credentials.clientId,
+        redirectUri: !!credentials.redirectUri
+      }
+    });
+    
     // If we have step parameter, use it (this comes from the callback redirect)
     if (stepParam) {
       const stepIndex = parseInt(stepParam, 10) - 1; // Convert to 0-based index
@@ -522,6 +538,24 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Restoring from stored step:', storedStep);
     }
   }, [location.search, authContext?.authState?.tokens, authContext?.authState?.user]);
+
+  // Debug effect to track state changes
+  useEffect(() => {
+    console.log('🔍 [EnhancedAuthorizationCodeFlowV2] State change detected:', {
+      authCode: !!authCode,
+      authCodeValue: authCode,
+      callbackSuccess,
+      callbackError,
+      tokens: !!tokens,
+      userInfo: !!userInfo,
+      credentials: {
+        environmentId: !!credentials.environmentId,
+        clientId: !!credentials.clientId,
+        redirectUri: !!credentials.redirectUri
+      },
+      timestamp: new Date().toISOString()
+    });
+  }, [authCode, callbackSuccess, callbackError, tokens, userInfo, credentials.environmentId, credentials.clientId, credentials.redirectUri]);
 
   // Load credentials immediately to ensure buttons are enabled
   useEffect(() => {
@@ -1595,7 +1629,19 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           </FormField>
         </div>
       ),
-      canExecute: Boolean(authCode && credentials.environmentId && credentials.clientId)
+      canExecute: (() => {
+        const canExec = Boolean(authCode && credentials.environmentId && credentials.clientId);
+        console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Handle Callback canExecute check:', {
+          authCode: !!authCode,
+          authCodeValue: authCode,
+          environmentId: !!credentials.environmentId,
+          environmentIdValue: credentials.environmentId,
+          clientId: !!credentials.clientId,
+          clientIdValue: credentials.clientId,
+          canExecute: canExec
+        });
+        return canExec;
+      })()
     },
     {
       id: 'exchange-tokens',
@@ -2005,25 +2051,31 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         allowStepJumping={true}
         initialStepIndex={(() => {
           const storedStep = sessionStorage.getItem('enhanced-authz-code-v2-step');
-          console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Checking for stored step:', storedStep);
-          console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Current URL:', window.location.href);
-          console.log('🔍 [EnhancedAuthorizationCodeFlowV2] URL search params:', window.location.search);
+          console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitialStepIndex - Checking for stored step:', storedStep);
+          console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitialStepIndex - Current URL:', window.location.href);
+          console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitialStepIndex - URL search params:', window.location.search);
           
           // Check if we have an authorization code in the URL
           const urlParams = new URLSearchParams(window.location.search);
           const code = urlParams.get('code');
+          const state = urlParams.get('state');
+          const step = urlParams.get('step');
+          
+          console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitialStepIndex - URL params:', { code, state, step });
           
           if (code) {
-            console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Authorization code found in URL, going to step 4 (handle-callback)');
+            console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitialStepIndex - Authorization code found in URL, going to step 4 (handle-callback)');
             return 4; // Go directly to handle-callback step
           }
           
           if (storedStep) {
             const stepIndex = parseInt(storedStep, 10);
-            console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Restoring step from stored value:', stepIndex);
+            console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitialStepIndex - Restoring step from stored value:', stepIndex);
             sessionStorage.removeItem('enhanced-authz-code-v2-step'); // Clean up
             return stepIndex;
           }
+          
+          console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitialStepIndex - No step to restore, starting from beginning');
           return undefined;
         })()}
       />
