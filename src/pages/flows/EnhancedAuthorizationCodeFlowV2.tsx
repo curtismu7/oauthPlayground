@@ -23,6 +23,7 @@ import {
 } from 'react-icons/fi';
 import EnhancedStepFlowV2, { EnhancedFlowStep } from '../../components/EnhancedStepFlowV2';
 import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
+import OAuthErrorHelper from '../../components/OAuthErrorHelper';
 import { generateCodeVerifier, generateCodeChallenge } from '../../utils/oauth';
 import { credentialManager } from '../../utils/credentialManager';
 import { logger } from '../../utils/logger';
@@ -439,6 +440,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   const [isGettingUserInfo, setIsGettingUserInfo] = useState<boolean>(false);
   const [credentialsSaved, setCredentialsSaved] = useState<boolean>(false);
   const [urlGenerated, setUrlGenerated] = useState<boolean>(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [errorDescription, setErrorDescription] = useState<string | null>(null);
 
   // Load credentials immediately to ensure buttons are enabled
   useEffect(() => {
@@ -676,12 +679,16 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         const messageHandler = (event: MessageEvent) => {
           if (event.origin !== window.location.origin) return;
           if (event.data.type === 'oauth-callback') {
-            const { code: callbackCode, state: callbackState, error } = event.data;
+            const { code: callbackCode, state: callbackState, error, error_description } = event.data;
             if (error) {
               logger.error('Authorization error received', error);
+              setAuthError(error);
+              setErrorDescription(error_description || error);
               setIsAuthorizing(false);
             } else if (callbackCode && callbackState === state) {
               setAuthCode(callbackCode);
+              setAuthError(null);
+              setErrorDescription(null);
               logger.info('Authorization code received via message', `code: ${callbackCode.substring(0, 10)}...`);
               setIsAuthorizing(false);
               popup.close();
@@ -1712,6 +1719,20 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             </button>
           </div>
         </div>
+      )}
+
+      {/* OAuth Error Helper */}
+      {authError && (
+        <OAuthErrorHelper
+          error={authError}
+          errorDescription={errorDescription}
+          onRetry={() => {
+            setAuthError(null);
+            setErrorDescription(null);
+            handleAuthorization();
+          }}
+          onGoToConfig={() => window.location.href = '/configuration'}
+        />
       )}
 
       <EnhancedStepFlowV2
