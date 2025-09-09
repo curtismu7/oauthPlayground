@@ -203,7 +203,7 @@ const Configuration = () => {
     codeChallengeMethod: 'S256',
     responseType: 'code',
     enableOIDC: true,
-    showCredentialsModal: true,
+    showCredentialsModal: false,
     showSuccessModal: true,
   });
   
