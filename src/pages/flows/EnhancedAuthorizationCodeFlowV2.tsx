@@ -808,12 +808,25 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       const code = urlParams.get('code');
       const state = urlParams.get('state');
       const step = urlParams.get('step');
+      const action = urlParams.get('action');
       
-      console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - URL params:', { code, state, step });
+      console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - URL params:', { code, state, step, action });
       
       if (code) {
         console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Authorization code found in URL, going to step 4 (handle-callback)');
         setCurrentStepIndex(4); // Go directly to handle-callback step
+        return;
+      }
+      
+      if (step) {
+        const stepIndex = parseInt(step, 10);
+        console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Step from URL:', stepIndex);
+        setCurrentStepIndex(stepIndex);
+        // Clean up URL parameters after using them
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.delete('step');
+        newUrl.searchParams.delete('action');
+        window.history.replaceState({}, '', newUrl.toString());
         return;
       }
       
@@ -2476,20 +2489,28 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                     // Add a small delay to show the spinner
                     await new Promise(resolve => setTimeout(resolve, 500));
                     
+                    console.log('🔔 [EnhancedAuthorizationCodeFlowV2] Modal button clicked - advancing to step 5 (exchange-tokens)');
+                    
+                    // Close the modal first
                     setShowAuthSuccessModal(false);
                     
-                    // Direct approach: Set the step index directly
-                    console.log('🔔 [EnhancedAuthorizationCodeFlowV2] Modal button clicked - advancing to step 5 (exchange-tokens)');
-                    setCurrentStepIndex(5);
+                    // Clear any existing step storage
+                    sessionStorage.removeItem('enhanced-authz-code-v2-step');
                     
-                    // Also store in sessionStorage for persistence
-                    sessionStorage.setItem('enhanced-authz-code-v2-step', '5');
+                    // Use URL redirect to force a fresh page load with the correct step
+                    const currentUrl = new URL(window.location.href);
+                    currentUrl.searchParams.set('step', '5');
+                    currentUrl.searchParams.set('action', 'exchange-tokens');
+                    // Add cache-busting parameter
+                    currentUrl.searchParams.set('t', Date.now().toString());
                     
-                    // Trigger a custom event as backup
-                    window.dispatchEvent(new CustomEvent('advance-to-step', { 
-                      detail: { stepIndex: 5, stepName: 'exchange-tokens' } 
-                    }));
-                  } finally {
+                    console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Redirecting to:', currentUrl.toString());
+                    
+                    // Force a hard redirect to ensure clean state
+                    window.location.href = currentUrl.toString();
+                    
+                  } catch (error) {
+                    console.error('❌ [EnhancedAuthorizationCodeFlowV2] Error in modal button click:', error);
                     setIsModalLoading(false);
                   }
                 }}
