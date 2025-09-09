@@ -1883,47 +1883,6 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
 
 
       {/* Authorization URL Display - Moved to bottom */}
-      {authUrl && (
-        <div style={{ 
-          marginBottom: '2rem', 
-          padding: '1rem', 
-          backgroundColor: '#f8f9fa', 
-          border: '1px solid #e9ecef', 
-          borderRadius: '6px' 
-        }}>
-          <h4 style={{ marginBottom: '0.5rem', color: '#495057' }}>Generated Authorization URL:</h4>
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '0.5rem',
-            backgroundColor: 'white',
-            padding: '0.75rem',
-            border: '1px solid #dee2e6',
-            borderRadius: '4px',
-            fontFamily: 'monospace',
-            fontSize: '0.875rem',
-            wordBreak: 'break-all'
-          }}>
-            <span style={{ flex: 1 }}>{authUrl}</span>
-            <button
-              onClick={() => copyToClipboard(authUrl)}
-              style={{
-                background: 'none',
-                border: '1px solid #007bff',
-                color: '#007bff',
-                cursor: 'pointer',
-                padding: '0.25rem 0.5rem',
-                borderRadius: '4px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.25rem'
-              }}
-            >
-              {copiedText === authUrl ? <FiCheckCircle size={16} /> : <FiCopy size={16} />}
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* OAuth Error Helper */}
       {authError && (
