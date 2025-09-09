@@ -479,7 +479,7 @@ const ModalFooter = styled.div`
   gap: 1rem;
 `;
 
-const ModalButton = styled.button<{ $primary?: boolean }>`
+const ModalButton = styled.button<{ $primary?: boolean; $loading?: boolean }>`
   padding: 0.75rem 1.5rem;
   border-radius: 0.5rem;
   border: none;
@@ -487,22 +487,52 @@ const ModalButton = styled.button<{ $primary?: boolean }>`
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
   
   ${props => props.$primary ? `
     background: #3b82f6;
     color: white;
     
-    &:hover {
+    &:hover:not(:disabled) {
       background: #2563eb;
     }
   ` : `
     background: #f3f4f6;
     color: #374151;
     
-    &:hover {
+    &:hover:not(:disabled) {
       background: #e5e7eb;
     }
   `}
+  
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+  
+  ${props => props.$loading && `
+    color: transparent;
+    cursor: wait;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 1rem;
+      height: 1rem;
+      border: 2px solid transparent;
+      border-top: 2px solid currentColor;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+  `}
+  
+  @keyframes spin {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+  }
 `;
 
 // Main Component
@@ -543,6 +573,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   const [showConfig, setShowConfig] = useState(false);
   const [flowConfig, setFlowConfig] = useState<FlowConfig>(getDefaultConfig('authorization-code'));
   const [showAuthSuccessModal, setShowAuthSuccessModal] = useState(false);
+  const [isModalLoading, setIsModalLoading] = useState(false);
   const [showRedirectModal, setShowRedirectModal] = useState(false);
   const [redirectUrl, setRedirectUrl] = useState('');
   const [redirectParams, setRedirectParams] = useState({});
@@ -2422,16 +2453,29 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             </ModalBody>
 
             <ModalFooter>
-              <ModalButton $primary onClick={() => {
-                setShowAuthSuccessModal(false);
-                // Advance to step 5 (token exchange) - index 4
-                sessionStorage.setItem('enhanced-authz-code-v2-step', '4');
-                // Trigger a custom event to notify the step flow to advance
-                window.dispatchEvent(new CustomEvent('advance-to-step', { 
-                  detail: { stepIndex: 4, stepName: 'exchange-tokens' } 
-                }));
-              }}>
-                Continue with Flow
+              <ModalButton 
+                $primary 
+                $loading={isModalLoading}
+                disabled={isModalLoading}
+                onClick={async () => {
+                  setIsModalLoading(true);
+                  try {
+                    // Add a small delay to show the spinner
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    setShowAuthSuccessModal(false);
+                    // Advance to step 5 (token exchange) - index 4
+                    sessionStorage.setItem('enhanced-authz-code-v2-step', '4');
+                    // Trigger a custom event to notify the step flow to advance
+                    window.dispatchEvent(new CustomEvent('advance-to-step', { 
+                      detail: { stepIndex: 4, stepName: 'exchange-tokens' } 
+                    }));
+                  } finally {
+                    setIsModalLoading(false);
+                  }
+                }}
+              >
+                {isModalLoading ? 'Processing...' : 'Continue with Flow'}
               </ModalButton>
             </ModalFooter>
           </ModalContent>
