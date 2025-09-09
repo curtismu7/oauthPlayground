@@ -1837,7 +1837,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                 whiteSpace: 'nowrap'
               }}
             >
-              Save Callback URL
+              Save Config
             </button>
           </div>
           <p style={{ 
@@ -1861,7 +1861,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             }}>
               <FiCheckCircle style={{ color: '#22c55e' }} />
               <span style={{ color: '#15803d', fontSize: '0.875rem', fontWeight: '500' }}>
-                Callback URL saved successfully!
+                Config saved successfully!
               </span>
             </div>
           )}
