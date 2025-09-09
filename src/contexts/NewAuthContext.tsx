@@ -600,14 +600,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const codeVerifier = sessionStorage.getItem('code_verifier');
       console.log('🔧 [NewAuthContext] Retrieved code_verifier from sessionStorage:', codeVerifier ? 'present' : 'missing');
       
+      // Fallback to credential manager if config is not loaded
+      let clientId = config?.clientId || '';
+      let clientSecret = config?.clientSecret || '';
+      let environmentId = config?.environmentId || '';
+      
+      if (!clientId || !environmentId) {
+        console.log('⚠️ [NewAuthContext] Config not loaded, trying credential manager fallback...');
+        try {
+          // Import credential manager dynamically to avoid circular dependency
+          const { credentialManager } = await import('../utils/credentialManager');
+          const credentials = credentialManager.getAllCredentials();
+          
+          clientId = clientId || credentials.clientId || '';
+          clientSecret = clientSecret || credentials.clientSecret || '';
+          environmentId = environmentId || credentials.environmentId || '';
+          
+          console.log('🔧 [NewAuthContext] Fallback credentials loaded:', {
+            hasClientId: !!clientId,
+            hasClientSecret: !!clientSecret,
+            hasEnvironmentId: !!environmentId
+          });
+        } catch (error) {
+          console.error('❌ [NewAuthContext] Failed to load fallback credentials:', error);
+        }
+      }
+      
       // Exchange code for tokens
       const requestBody = {
         grant_type: 'authorization_code',
         code: code,
         redirect_uri: redirectUri,
-        client_id: config?.clientId || '',
-        client_secret: config?.clientSecret || '',
-        environment_id: config?.environmentId || '',
+        client_id: clientId,
+        client_secret: clientSecret,
+        environment_id: environmentId,
         ...(codeVerifier && { code_verifier: codeVerifier })
       };
       
