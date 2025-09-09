@@ -298,27 +298,17 @@ const hashParams = new URLSearchParams(window.location.hash.substring(1));
 const code = urlParams.get('code');
 const accessToken = hashParams.get('access_token');
 const idToken = hashParams.get('id_token');`,
-      execute: () => {
-        // Simulate receiving code and tokens in redirect
-        const mockParams = {
-          code: 'hybrid-auth-code-' + Math.random().toString(36).substr(2, 9),
-          state: 'xyz123',
-          access_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.hybrid_access_token_signature',
-          id_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.hybrid_id_token_signature',
-          token_type: 'Bearer',
-          expires_in: 3600,
-          scope: 'openid profile email'
-        };
-
-        setRedirectParams(mockParams);
+      execute: async () => {
+        // This step simulates the callback that would come from PingOne
+        // In a real implementation, this would be handled by the callback URL
         const result = {
-          redirectUrl: `${config?.redirectUri || 'https://your-app.com/callback'}?code=${mockParams.code}&state=${mockParams.state}#access_token=${mockParams.access_token}&id_token=${mockParams.id_token}&token_type=${mockParams.token_type}&expires_in=${mockParams.expires_in}&scope=${mockParams.scope}`,
-          params: mockParams
+          message: 'This step simulates the callback from PingOne. In a real implementation, PingOne would redirect to your callback URL with both the authorization code and tokens.',
+          note: 'To test with real tokens, configure your PingOne application and use the actual authorization URL from step 1.'
         };
         setStepResults(prev => ({ ...prev, 2: result }));
         setExecutedSteps(prev => new Set(prev).add(2));
 
-        console.log('✅ [HybridFlow] Received code and tokens in redirect');
+        console.log('✅ [HybridFlow] Simulated callback step completed');
         return result;
       }
     },
