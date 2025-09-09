@@ -320,7 +320,9 @@ const WorkerTokenFlow = () => {
     
     // Store the return path for after callback
     const currentPath = window.location.pathname;
-    const returnPath = `${currentPath}?step=1`; // Return to step 1 (token request)
+    // Ensure we use the correct route path regardless of current path
+    const correctPath = currentPath.includes('/oidc/') ? '/flows-old/worker-token' : currentPath;
+    const returnPath = `${correctPath}?step=1`; // Return to step 1 (token request)
     sessionStorage.setItem('redirect_after_login', returnPath);
     
     // Store flow context in state parameter
