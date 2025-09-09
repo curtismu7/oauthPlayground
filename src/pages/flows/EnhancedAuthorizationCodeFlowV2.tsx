@@ -1105,11 +1105,11 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             <div style={{ 
               marginTop: '2rem', 
               padding: '1.5rem', 
-              background: '#f8f9fa', 
-              border: '1px solid #e9ecef', 
+              background: '#f0f9ff', 
+              border: '1px solid #0ea5e9', 
               borderRadius: '0.5rem' 
             }}>
-              <h4 style={{ margin: '0 0 1rem 0', color: '#495057' }}>Generated PKCE Codes</h4>
+              <h4 style={{ margin: '0 0 1rem 0', color: '#0c4a6e' }}>Generated PKCE Codes</h4>
               
               <FormField>
                 <FormLabel>Code Verifier (Generated)</FormLabel>
