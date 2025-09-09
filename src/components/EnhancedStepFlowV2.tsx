@@ -673,6 +673,21 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
     }
   }, [persistKey, initialStepIndex]);
 
+  // Listen for custom step advancement events
+  useEffect(() => {
+    const handleAdvanceToStep = (event: CustomEvent) => {
+      const { stepIndex, stepName } = event.detail;
+      console.log('🔔 [EnhancedStepFlowV2] Received advance-to-step event:', { stepIndex, stepName });
+      setCurrentStepIndex(stepIndex);
+    };
+
+    window.addEventListener('advance-to-step', handleAdvanceToStep as EventListener);
+    
+    return () => {
+      window.removeEventListener('advance-to-step', handleAdvanceToStep as EventListener);
+    };
+  }, []);
+
   // Save state to localStorage
   const saveState = useCallback(() => {
     if (persistKey) {
