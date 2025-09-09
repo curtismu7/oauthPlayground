@@ -2387,7 +2387,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       />
 
       {/* Authorization Success Modal */}
-      {showAuthSuccessModal && (
+      {showAuthSuccessModal && flowConfig.showSuccessModal && (
         <ModalOverlay onClick={() => setShowAuthSuccessModal(false)}>
           <ModalContent onClick={(e) => e.stopPropagation()}>
             <ModalHeader>
