@@ -29,7 +29,6 @@ import WorkerTokenFlow from './pages/flows/WorkerTokenFlow';
 import DeviceCodeFlow from './pages/flows/DeviceCodeFlow';
 import HybridFlow from './pages/flows/HybridFlow';
 import AuthorizationCodeFlow from './pages/flows/AuthorizationCodeFlow';
-import AuthorizationCodeFlowBackup from './pages/flows/AuthorizationCodeFlow.backup';
 import EnhancedAuthorizationCodeFlow from './pages/flows/EnhancedAuthorizationCodeFlow';
 import EnhancedAuthorizationCodeFlowV2 from './pages/flows/EnhancedAuthorizationCodeFlowV2';
 import JWTBearerFlow from './pages/flows/JWTBearerFlow';
@@ -200,7 +199,7 @@ const AppRoutes = () => {
             <Route path="/flows/enhanced-authorization-code-v2" element={<EnhancedAuthorizationCodeFlowV2 />} />
             
             <Route path="/flows-old" element={<Flows />}>
-              <Route path="authorization-code" element={<AuthorizationCodeFlowBackup />} />
+              <Route path="authorization-code" element={<AuthorizationCodeFlow />} />
               <Route path="implicit" element={<ImplicitGrantFlow />} />
               <Route path="client-credentials" element={<ClientCredentialsFlow />} />
               <Route path="worker-token" element={<WorkerTokenFlow />} />
