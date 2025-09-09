@@ -115,6 +115,12 @@ const AppRoutes = () => {
     const checkConfiguration = () => {
       console.log('🔍 [App] Checking for existing configuration...');
       try {
+        // Check if credentials modal should be shown based on flow config
+        const flowConfig = JSON.parse(localStorage.getItem('enhanced-flow-authorization-code') || '{}');
+        const shouldShowCredentialsModal = flowConfig.showCredentialsModal !== false; // Default to true if not set
+        
+        console.log('🔍 [App] Flow config showCredentialsModal:', shouldShowCredentialsModal);
+        
         // Debug: Check all localStorage keys
         console.log('🔍 [App] All localStorage keys:', Object.keys(localStorage));
         console.log('🔍 [App] pingone_permanent_credentials:', localStorage.getItem('pingone_permanent_credentials'));
@@ -132,15 +138,16 @@ const AppRoutes = () => {
           hasPermanentCredentials,
           hasSessionCredentials,
           overallStatus: credentialManager.getCredentialsStatus(),
-          allCredentials
+          allCredentials,
+          shouldShowCredentialsModal
         });
 
-        // Only show modal if no credentials are found
-        if (!hasPermanentCredentials && !hasSessionCredentials) {
-          console.log('⚠️ [App] No credentials found, showing setup modal');
+        // Only show modal if no credentials are found AND credentials modal is enabled
+        if (!hasPermanentCredentials && !hasSessionCredentials && shouldShowCredentialsModal) {
+          console.log('⚠️ [App] No credentials found and credentials modal enabled, showing setup modal');
           setShowCredentialModal(true);
         } else {
-          console.log('✅ [App] Credentials found, skipping setup modal');
+          console.log('✅ [App] Credentials found or credentials modal disabled, skipping setup modal');
           setShowCredentialModal(false);
         }
       } catch (error) {
