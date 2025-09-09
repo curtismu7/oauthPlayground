@@ -119,6 +119,8 @@ const AppRoutes = () => {
         const shouldShowCredentialsModal = flowConfig.showCredentialsModal !== false; // Default to true if not set
         
         console.log('🔍 [App] Flow config showCredentialsModal:', shouldShowCredentialsModal);
+        console.log('🔍 [App] Flow config raw value:', flowConfig.showCredentialsModal);
+        console.log('🔍 [App] Full flow config:', flowConfig);
         
         // Debug: Check all localStorage keys
         console.log('🔍 [App] All localStorage keys:', Object.keys(localStorage));
@@ -144,9 +146,21 @@ const AppRoutes = () => {
         // Only show modal if no credentials are found AND credentials modal is enabled
         if (!hasPermanentCredentials && !hasSessionCredentials && shouldShowCredentialsModal) {
           console.log('⚠️ [App] No credentials found and credentials modal enabled, showing setup modal');
+          console.log('🔍 [App] Modal will show because:', {
+            hasPermanentCredentials,
+            hasSessionCredentials,
+            shouldShowCredentialsModal,
+            flowConfigValue: flowConfig.showCredentialsModal
+          });
           setShowCredentialModal(true);
         } else {
           console.log('✅ [App] Credentials found or credentials modal disabled, skipping setup modal');
+          console.log('🔍 [App] Modal will NOT show because:', {
+            hasPermanentCredentials,
+            hasSessionCredentials,
+            shouldShowCredentialsModal,
+            flowConfigValue: flowConfig.showCredentialsModal
+          });
           setShowCredentialModal(false);
         }
       } catch (error) {
