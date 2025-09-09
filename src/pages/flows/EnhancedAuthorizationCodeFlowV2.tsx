@@ -1745,6 +1745,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             config={flowConfig}
             onConfigChange={setFlowConfig}
             flowType="authorization-code"
+            isConfigured={!!(credentials.clientId && credentials.environmentId)}
           />
         </div>
       )}
