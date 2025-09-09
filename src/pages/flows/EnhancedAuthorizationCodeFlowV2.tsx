@@ -1156,7 +1156,12 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     },
     {
       id: 'build-auth-url',
-      title: 'Build Authorization URL',
+      title: (
+        <>
+          <FiGlobe />
+          Build Authorization URL
+        </>
+      ),
       description: 'Construct the complete authorization URL with all required OAuth parameters.',
       icon: <FiGlobe />,
       category: 'authorization',
@@ -1754,8 +1759,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       <div style={{ 
         marginBottom: '2rem', 
         padding: '1.5rem', 
-        backgroundColor: '#f8fafc', 
-        border: '1px solid #e2e8f0', 
+        backgroundColor: authUrl ? '#f0fdf4' : '#f8fafc', 
+        border: authUrl ? '1px solid #22c55e' : '1px solid #e2e8f0', 
         borderRadius: '0.75rem' 
       }}>
         <h3 style={{ 
@@ -1873,8 +1878,6 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         </div>
       </div>
 
-      {/* Callback URL Display */}
-      <CallbackUrlDisplay flowType="authorization-code" />
 
       {/* Authorization URL Display - Moved to bottom */}
       {authUrl && (
