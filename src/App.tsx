@@ -57,6 +57,7 @@ import HybridCallback from './components/callbacks/HybridCallback';
 import ImplicitCallback from './components/callbacks/ImplicitCallback';
 import WorkerTokenCallback from './components/callbacks/WorkerTokenCallback';
 import DeviceCodeStatus from './components/callbacks/DeviceCodeStatus';
+import DashboardCallback from './components/callbacks/DashboardCallback';
 
 const AppContainer = styled.div`
   display: flex;
@@ -80,33 +81,6 @@ const MainContent = styled.main`
 `;
 
 import type { ReactNode } from 'react';
-// Scroll to top component
-const ScrollToTop: React.FC = () => {
-  const location = useLocation();
-  
-  useEffect(() => {
-    // Scroll to top immediately
-    window.scrollTo(0, 0);
-    
-    // Also scroll the main content area to top (in case of nested scrolling)
-    const mainContent = document.querySelector('main');
-    if (mainContent) {
-      mainContent.scrollTo(0, 0);
-    }
-    
-    // Additional scroll to top after a small delay to ensure it works
-    const timer = setTimeout(() => {
-      window.scrollTo(0, 0);
-      if (mainContent) {
-        mainContent.scrollTo(0, 0);
-      }
-    }, 100);
-    
-    return () => clearTimeout(timer);
-  }, [location.pathname]);
-  
-  return null;
-};
 
 
 const AppRoutes = () => {
@@ -141,14 +115,24 @@ const AppRoutes = () => {
     const checkConfiguration = () => {
       console.log('🔍 [App] Checking for existing configuration...');
       try {
+        // Debug: Check all localStorage keys
+        console.log('🔍 [App] All localStorage keys:', Object.keys(localStorage));
+        console.log('🔍 [App] pingone_permanent_credentials:', localStorage.getItem('pingone_permanent_credentials'));
+        console.log('🔍 [App] pingone_session_credentials:', localStorage.getItem('pingone_session_credentials'));
+        console.log('🔍 [App] pingone_config:', localStorage.getItem('pingone_config'));
+        
         // Check if we have any credentials using the credential manager
+        const allCredentials = credentialManager.getAllCredentials();
+        console.log('🔍 [App] All credentials from manager:', allCredentials);
+        
         const hasPermanentCredentials = credentialManager.arePermanentCredentialsComplete();
         const hasSessionCredentials = !!credentialManager.getAllCredentials().clientSecret;
 
         console.log('🔍 [App] Configuration check:', {
           hasPermanentCredentials,
           hasSessionCredentials,
-          overallStatus: credentialManager.getCredentialsStatus()
+          overallStatus: credentialManager.getCredentialsStatus(),
+          allCredentials
         });
 
         // Only show modal if no credentials are found
@@ -181,7 +165,6 @@ const AppRoutes = () => {
 
   return (
     <>
-      <ScrollToTop />
       <AppContainer>
         <Navbar toggleSidebar={toggleSidebar} />
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
@@ -196,7 +179,7 @@ const AppRoutes = () => {
             <Route path="/implicit-callback" element={<ImplicitCallback />} />
             <Route path="/worker-token-callback" element={<WorkerTokenCallback />} />
             <Route path="/device-code-status" element={<DeviceCodeStatus />} />
-            <Route path="/dashboard-callback" element={<Callback />} />
+            <Route path="/dashboard-callback" element={<DashboardCallback />} />
 
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
 

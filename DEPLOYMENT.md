@@ -1,7 +1,7 @@
 # Deployment Guide
 
 ## Overview
-The PingOne OAuth Playground is a comprehensive educational tool for learning OAuth 2.0 and OpenID Connect with PingOne. This guide covers deployment options and configuration.
+The PingOne OAuth/OIDC Playground is a comprehensive educational tool for learning OAuth 2.0 and OpenID Connect with PingOne. This guide covers deployment options and configuration.
 
 ## Prerequisites
 - Node.js 18+
@@ -70,7 +70,7 @@ PINGONE_API_URL=https://auth.pingone.com
 PINGONE_AUTH_SERVER_ID=your-auth-server-id
 
 # App Configuration
-PINGONE_APP_TITLE="PingOne OAuth Playground"
+PINGONE_APP_TITLE="PingOne OAuth/OIDC Playground"
 PINGONE_APP_DESCRIPTION="Interactive playground for OAuth 2.0 and OpenID Connect with PingOne"
 PINGONE_APP_VERSION=1.0.0
 PINGONE_APP_DEFAULT_THEME=light

@@ -10,6 +10,7 @@ import { useTokenAnalysis } from '../hooks/useTokenAnalysis';
 import { useErrorDiagnosis } from '../hooks/useErrorDiagnosis';
 import JSONHighlighter from '../components/JSONHighlighter';
 import { TokenSurface } from '../components/TokenSurface';
+import StandardMessage from '../components/StandardMessage';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -548,56 +549,46 @@ const TokenManagement = () => {
   };
 
   useEffect(() => {
-    // Auto-load tokens from OAuth flows on component mount
-    const loadStoredTokens = () => {
+    // Auto-load current Access Token from auth context
+    const loadCurrentToken = () => {
       try {
-        const oauthTokens = getOAuthTokens();
+        console.log('🔄 [TokenManagement] Loading current token from auth context:', tokens);
         
-        if (oauthTokens && oauthTokens.access_token) {
-          console.log('🔄 [TokenManagement] Auto-loading tokens from OAuth flows:', oauthTokens);
-          setTokenString(oauthTokens.access_token);
+        if (tokens && tokens.access_token) {
+          console.log('✅ [TokenManagement] Found current access token, auto-loading and decoding');
+          setTokenString(tokens.access_token);
           setTokenSource({
-            source: 'OAuth Flow',
-            description: `Token from ${oauthTokens.token_type || 'Bearer'} flow`,
-            timestamp: oauthTokens.timestamp ? new Date(oauthTokens.timestamp).toLocaleString() : new Date().toLocaleString()
+            source: 'Current Session',
+            description: `Active Access Token from ${tokens.token_type || 'Bearer'} flow`,
+            timestamp: new Date().toLocaleString()
           });
           
           // Auto-decode the token
-          setTimeout(() => decodeJWT(oauthTokens.access_token), 100);
+          setTimeout(() => decodeJWT(tokens.access_token), 100);
           
           // Update token status based on expiration
-          if (oauthTokens.timestamp && oauthTokens.expires_in) {
+          if (tokens.expires_at) {
             const now = Date.now();
-            const expiresAt = oauthTokens.timestamp + (oauthTokens.expires_in * 1000);
+            const expiresAt = new Date(tokens.expires_at).getTime();
             setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
           } else {
             setTokenStatus('valid');
           }
         } else {
-          // Fallback to old storage method for backward compatibility
-          const storedToken = localStorage.getItem('pingone_token_cache');
-          if (storedToken) {
-            const tokenData = JSON.parse(storedToken);
-            setTokenString(tokenData.token || '');
-            setTokenSource({
-              source: 'Legacy Storage',
-              description: 'Token loaded from legacy browser storage',
-              timestamp: new Date().toLocaleString()
-            });
-            setTimeout(() => decodeJWT(tokenData.token), 100);
-          }
+          console.log('ℹ️ [TokenManagement] No current access token found in auth context');
+          setTokenStatus('none');
         }
       } catch (error) {
-        console.error('❌ [TokenManagement] Error loading stored tokens:', error);
+        console.error('❌ [TokenManagement] Error loading current token:', error);
       }
     };
     
-    loadStoredTokens();
+    loadCurrentToken();
     
     // Load token history
     const history = getTokenHistory();
     setTokenHistory(history.entries);
-  }, []);
+  }, [tokens]);
 
   const decodeJWT = (token: string) => {
     try {
@@ -679,19 +670,36 @@ const TokenManagement = () => {
   const handleGetToken = async () => {
     setIsLoading(true);
     try {
-      // Simulate API call to get token
-      setTimeout(() => {
-        setTokenString(mockTokenData.access_token);
+      console.log('🔄 [TokenManagement] Getting current token from auth context:', tokens);
+      
+      if (tokens && tokens.access_token) {
+        console.log('✅ [TokenManagement] Loading current access token');
+        setTokenString(tokens.access_token);
         setTokenSource({
-          source: 'API Call',
-          description: 'Token obtained from mock API',
+          source: 'Current Session',
+          description: `Active Access Token from ${tokens.token_type || 'Bearer'} flow`,
           timestamp: new Date().toLocaleString()
         });
-        decodeJWT(mockTokenData.access_token);
-        setIsLoading(false);
-      }, 1000);
+        
+        // Auto-decode the token
+        decodeJWT(tokens.access_token);
+        
+        // Update token status based on expiration
+        if (tokens.expires_at) {
+          const now = Date.now();
+          const expiresAt = new Date(tokens.expires_at).getTime();
+          setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
+        } else {
+          setTokenStatus('valid');
+        }
+      } else {
+        console.log('⚠️ [TokenManagement] No current access token available');
+        alert('No current access token available. Please complete an OAuth flow first.');
+      }
     } catch (error) {
-      console.error('Error getting token:', error);
+      console.error('❌ [TokenManagement] Error getting token:', error);
+      alert('Error loading current token: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    } finally {
       setIsLoading(false);
     }
   };
@@ -703,6 +711,28 @@ const TokenManagement = () => {
         alert('Token copied to clipboard!');
       } catch (error) {
         console.error('Error copying token:', error);
+      }
+    }
+  };
+
+  const handleCopyHeader = async () => {
+    if (jwtHeader) {
+      try {
+        await navigator.clipboard.writeText(jwtHeader);
+        alert('JWT Header copied to clipboard!');
+      } catch (error) {
+        console.error('Error copying header:', error);
+      }
+    }
+  };
+
+  const handleCopyPayload = async () => {
+    if (jwtPayload) {
+      try {
+        await navigator.clipboard.writeText(jwtPayload);
+        alert('JWT Payload copied to clipboard!');
+      } catch (error) {
+        console.error('Error copying payload:', error);
       }
     }
   };
@@ -866,6 +896,57 @@ const TokenManagement = () => {
         subtitle="Monitor and manage PingOne authentication tokens"
       />
 
+      {/* Current Token Status Section */}
+      {tokens && tokens.access_token && (
+        <TokenSection>
+          <CardHeader>
+            <h2>Current Access Token</h2>
+          </CardHeader>
+          <CardBody>
+            <TokenStatus className={tokenStatus}>
+              <div className="indicator"></div>
+              <div className="text">
+                <strong>Active Access Token Available</strong>
+                <br />
+                <small style={{ color: '#6b7280' }}>
+                  Token from your current OAuth session is automatically loaded and decoded below.
+                  You can also paste other tokens for analysis.
+                </small>
+              </div>
+            </TokenStatus>
+            
+            <TokenDetails>
+              <div className="detail">
+                <span className="label">Token Type</span>
+                <span className="value">{tokens.token_type || 'Bearer'}</span>
+              </div>
+              <div className="detail">
+                <span className="label">Scope</span>
+                <span className="value">{tokens.scope || 'Not specified'}</span>
+              </div>
+              <div className="detail">
+                <span className="label">Expires</span>
+                <span className="value">
+                  {tokens.expires_at 
+                    ? new Date(tokens.expires_at).toLocaleString()
+                    : 'Not specified'
+                  }
+                </span>
+              </div>
+              <div className="detail">
+                <span className="label">Status</span>
+                <span className="value" style={{ 
+                  color: tokenStatus === 'valid' ? '#22c55e' : tokenStatus === 'expired' ? '#ef4444' : '#6b7280',
+                  fontWeight: '600'
+                }}>
+                  {tokenStatus === 'valid' ? 'Valid' : tokenStatus === 'expired' ? 'Expired' : 'Unknown'}
+                </span>
+              </div>
+            </TokenDetails>
+          </CardBody>
+        </TokenSection>
+      )}
+
       {/* Token Status Section */}
       <TokenSection>
         <CardHeader>
@@ -899,10 +980,16 @@ const TokenManagement = () => {
         </CardBody>
       </TokenSection>
 
-      {/* Raw Token Section */}
+      {/* Token Input Section */}
       <TokenSection>
         <CardHeader>
-          <h2>Raw Token</h2>
+          <h2>Token Decoder</h2>
+          <p style={{ margin: '0.5rem 0 0 0', color: '#6b7280', fontSize: '0.875rem' }}>
+            {tokenSource?.source === 'Current Session' 
+              ? 'Currently showing your active Access Token. You can also paste any other JWT token below for decoding.'
+              : 'Paste any JWT token below to decode and analyze it.'
+            }
+          </p>
         </CardHeader>
         <CardBody>
           <TokenSurface
@@ -910,8 +997,8 @@ const TokenManagement = () => {
             id="token-string"
             value={tokenString}
             onChange={handleTokenInput}
-            placeholder="Paste your JWT token here or get a token using the 'Get Token' button"
-            ariaLabel="Raw JWT token input"
+            placeholder="Paste any JWT token here to decode it (Access Token, ID Token, etc.)"
+            ariaLabel="JWT token input for decoding"
           />
 
           <ButtonGroup>
@@ -966,7 +1053,19 @@ const TokenManagement = () => {
         </CardHeader>
         <CardBody>
           <div style={{ marginBottom: '1rem' }}>
-            <h4>Header</h4>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <h4 style={{ margin: 0 }}>Header</h4>
+              {jwtHeader && jwtHeader !== 'No token data' && !jwtHeader.startsWith('Error:') && (
+                <ActionButton
+                  className="secondary"
+                  onClick={handleCopyHeader}
+                  style={{ fontSize: '0.75rem', padding: '0.5rem 0.75rem' }}
+                >
+                  <FiCopy />
+                  Copy Header
+                </ActionButton>
+              )}
+            </div>
             <TokenSurface
               id="jwt-header"
               className="jwt-content"
@@ -978,7 +1077,19 @@ const TokenManagement = () => {
           </div>
 
           <div>
-            <h4>Payload</h4>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <h4 style={{ margin: 0 }}>Payload</h4>
+              {jwtPayload && jwtPayload !== 'No token data' && !jwtPayload.startsWith('Error:') && (
+                <ActionButton
+                  className="secondary"
+                  onClick={handleCopyPayload}
+                  style={{ fontSize: '0.75rem', padding: '0.5rem 0.75rem' }}
+                >
+                  <FiCopy />
+                  Copy Payload
+                </ActionButton>
+              )}
+            </div>
             <TokenSurface
               id="jwt-payload"
               className="jwt-content"

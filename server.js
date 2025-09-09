@@ -36,8 +36,44 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Environment variables endpoint (for frontend to load default credentials)
+app.get('/api/env-config', (req, res) => {
+  console.log('🔧 [Server] Environment config requested');
+  
+  const envConfig = {
+    environmentId: process.env.PINGONE_ENVIRONMENT_ID || process.env.VITE_PINGONE_ENVIRONMENT_ID || '',
+    clientId: process.env.PINGONE_CLIENT_ID || process.env.VITE_PINGONE_CLIENT_ID || '',
+    clientSecret: process.env.PINGONE_CLIENT_SECRET || process.env.VITE_PINGONE_CLIENT_SECRET || '',
+    redirectUri: process.env.PINGONE_REDIRECT_URI || process.env.VITE_PINGONE_REDIRECT_URI || 'https://localhost:3000/authz-callback',
+    scopes: ['openid', 'profile', 'email'],
+    apiUrl: process.env.PINGONE_API_URL || process.env.VITE_PINGONE_API_URL || 'https://auth.pingone.com'
+  };
+  
+  console.log('📤 [Server] Sending environment config:', {
+    hasEnvironmentId: !!envConfig.environmentId,
+    hasClientId: !!envConfig.clientId,
+    redirectUri: envConfig.redirectUri
+  });
+  
+  res.json(envConfig);
+});
+
 // OAuth Token Exchange Endpoint
 app.post('/api/token-exchange', async (req, res) => {
+  console.log('🚀 [Server] Token exchange request received');
+  console.log('📥 [Server] Request body:', {
+    grant_type: req.body.grant_type,
+    client_id: req.body.client_id,
+    redirect_uri: req.body.redirect_uri,
+    hasCode: !!req.body.code,
+    hasCodeVerifier: !!req.body.code_verifier,
+    hasClientSecret: !!req.body.client_secret,
+    hasEnvironmentId: !!req.body.environment_id,
+    code: req.body.code?.substring(0, 20) + '...',
+    codeVerifier: req.body.code_verifier?.substring(0, 20) + '...',
+    clientId: req.body.client_id?.substring(0, 8) + '...'
+  });
+
   try {
     const { 
       grant_type, 
@@ -46,11 +82,18 @@ app.post('/api/token-exchange', async (req, res) => {
       redirect_uri, 
       code, 
       code_verifier,
-      scope 
+      scope,
+      environment_id
     } = req.body;
 
     // Validate required parameters
     if (!grant_type || !client_id) {
+      console.error('❌ [Server] Missing required parameters:', {
+        hasGrantType: !!grant_type,
+        hasClientId: !!client_id,
+        grantType: grant_type,
+        clientId: client_id
+      });
       return res.status(400).json({
         error: 'invalid_request',
         error_description: 'Missing required parameters: grant_type and client_id'
@@ -60,6 +103,11 @@ app.post('/api/token-exchange', async (req, res) => {
     // Get environment ID from client_id or request
     const environmentId = req.body.environment_id || process.env.PINGONE_ENVIRONMENT_ID;
     if (!environmentId) {
+      console.error('❌ [Server] Missing environment_id:', {
+        fromRequestBody: !!req.body.environment_id,
+        fromEnv: !!process.env.PINGONE_ENVIRONMENT_ID,
+        environmentId
+      });
       return res.status(400).json({
         error: 'invalid_request',
         error_description: 'Missing environment_id'
@@ -68,6 +116,17 @@ app.post('/api/token-exchange', async (req, res) => {
 
     // Build token endpoint URL
     const tokenEndpoint = `https://auth.pingone.com/${environmentId}/as/token`;
+
+    console.log('🔧 [Server] Token exchange configuration:', {
+      environmentId,
+      tokenEndpoint,
+      grantType: grant_type,
+      clientId: client_id?.substring(0, 8) + '...',
+      hasClientSecret: !!client_secret,
+      hasCode: !!code,
+      hasCodeVerifier: !!code_verifier,
+      redirectUri: redirect_uri
+    });
 
     // Prepare request body
     const tokenRequestBody = new URLSearchParams({
@@ -88,14 +147,24 @@ app.post('/api/token-exchange', async (req, res) => {
     if (client_secret) {
       const credentials = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
       headers['Authorization'] = `Basic ${credentials}`;
+      console.log('🔐 [Server] Using Basic Auth for confidential client');
       // Don't add client_secret to body when using Basic Auth
     } else {
       // For public clients, add client_id to body
       tokenRequestBody.append('client_id', client_id);
+      console.log('🔓 [Server] Using public client authentication');
     }
 
-    console.log(`[Token Exchange] ${grant_type} flow for client: ${client_id}`);
-    console.log(`[Token Exchange] Token endpoint: ${tokenEndpoint}`);
+    console.log('🌐 [Server] Making request to PingOne token endpoint:', {
+      url: tokenEndpoint,
+      method: 'POST',
+      headers: {
+        'Content-Type': headers['Content-Type'],
+        'Accept': headers['Accept'],
+        'Authorization': headers['Authorization'] ? 'Basic [REDACTED]' : 'None'
+      },
+      body: tokenRequestBody.toString()
+    });
 
     // Make request to PingOne
     const tokenResponse = await fetch(tokenEndpoint, {
@@ -104,23 +173,48 @@ app.post('/api/token-exchange', async (req, res) => {
       body: tokenRequestBody
     });
 
+    console.log('📥 [Server] PingOne token response:', {
+      status: tokenResponse.status,
+      statusText: tokenResponse.statusText,
+      ok: tokenResponse.ok,
+      headers: Object.fromEntries(tokenResponse.headers.entries())
+    });
+
     const responseData = await tokenResponse.json();
 
     if (!tokenResponse.ok) {
-      console.error(`[Token Exchange] PingOne error:`, responseData);
+      console.error('❌ [Server] PingOne token exchange error:', {
+        status: tokenResponse.status,
+        statusText: tokenResponse.statusText,
+        responseData,
+        requestBody: tokenRequestBody.toString()
+      });
       return res.status(tokenResponse.status).json(responseData);
     }
 
-    console.log(`[Token Exchange] Success for client: ${client_id}`);
+    console.log('✅ [Server] Token exchange successful:', {
+      hasAccessToken: !!responseData.access_token,
+      hasRefreshToken: !!responseData.refresh_token,
+      hasIdToken: !!responseData.id_token,
+      tokenType: responseData.token_type,
+      expiresIn: responseData.expires_in,
+      scope: responseData.scope,
+      clientId: client_id?.substring(0, 8) + '...'
+    });
     
     // Add server-side metadata
     responseData.server_timestamp = new Date().toISOString();
     responseData.grant_type = grant_type;
 
+    console.log('📤 [Server] Sending response to client');
     res.json(responseData);
 
   } catch (error) {
-    console.error('[Token Exchange] Server error:', error);
+    console.error('❌ [Server] Token exchange server error:', {
+      message: error.message,
+      stack: error.stack,
+      error
+    });
     res.status(500).json({
       error: 'server_error',
       error_description: 'Internal server error during token exchange'

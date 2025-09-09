@@ -1,4 +1,4 @@
-# PingOne OAuth Playground
+# PingOne OAuth/OIDC Playground
 
 [build]
   publish = "dist"
