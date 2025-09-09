@@ -753,6 +753,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         flow: 'enhanced-authorization-code-v2',
         step: 4,
         returnPath: returnPath,
+        redirectUri: redirectUri, // Store the redirect URI used in authorization
         timestamp: Date.now()
       };
       sessionStorage.setItem('flowContext', JSON.stringify(flowContext));
@@ -814,6 +815,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         flow: 'enhanced-authorization-code-v2',
         step: 4,
         returnPath: returnPath,
+        redirectUri: redirectUri, // Store the redirect URI used in authorization
         timestamp: Date.now()
       };
       sessionStorage.setItem('flowContext', JSON.stringify(flowContext));

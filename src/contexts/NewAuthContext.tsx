@@ -590,11 +590,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       // Determine the redirect URI used in the authorization request
-      // Check if this is a dashboard callback by looking at the current URL
-      const isDashboardCallback = url.includes('/dashboard-callback');
-      const redirectUri = isDashboardCallback 
-        ? `${window.location.origin}/dashboard-callback`
-        : config?.redirectUri || '';
+      // First check if we have a stored redirect URI from the flow context
+      let redirectUri = '';
+      const flowContextKey = 'flowContext';
+      const flowContext = sessionStorage.getItem(flowContextKey);
+      
+      if (flowContext) {
+        try {
+          const parsedContext = JSON.parse(flowContext);
+          if (parsedContext.redirectUri) {
+            redirectUri = parsedContext.redirectUri;
+            console.log('🔧 [NewAuthContext] Using redirect URI from flow context:', redirectUri);
+          }
+        } catch (error) {
+          console.warn('Failed to parse flow context for redirect URI:', error);
+        }
+      }
+      
+      // Fallback to determining by callback URL if no flow context
+      if (!redirectUri) {
+        const isDashboardCallback = url.includes('/dashboard-callback');
+        redirectUri = isDashboardCallback 
+          ? `${window.location.origin}/dashboard-callback`
+          : config?.redirectUri || '';
+        console.log('🔧 [NewAuthContext] Using fallback redirect URI:', redirectUri);
+      }
 
       // Get code_verifier from sessionStorage for PKCE
       const codeVerifier = sessionStorage.getItem('code_verifier');
