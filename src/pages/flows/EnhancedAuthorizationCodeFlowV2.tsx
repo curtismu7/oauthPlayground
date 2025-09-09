@@ -1034,7 +1034,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             <CodeLine>GET /as/authorize?response_type=code&client_id=...&code_challenge={pkceCodes.codeChallenge || '[CODE_CHALLENGE]'}&code_challenge_method=S256</CodeLine>
             <CodeComment>// Step 2: Authorization Server returns authorization code</CodeComment>
             <CodeLine>redirect_uri?code=[AUTHORIZATION_CODE]&state=[STATE]</CodeLine>
-            <CodeComment>// Step 3: Token Exchange (with code_verifier)</CodeLine>
+            <CodeComment>// Step 3: Token Exchange (with code_verifier)</CodeComment>
             <CodeLine>POST /as/token</CodeLine>
             <CodeLine>grant_type=authorization_code&code=[AUTHORIZATION_CODE]&code_verifier={pkceCodes.codeVerifier || '[CODE_VERIFIER]'}</CodeLine>
             <CodeComment>// Step 4: Server validates: SHA256(code_verifier) === code_challenge</CodeComment>
