@@ -2422,7 +2422,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             </ModalBody>
 
             <ModalFooter>
-              <ModalButton onClick={() => setShowAuthSuccessModal(false)}>
+              <ModalButton $primary onClick={() => setShowAuthSuccessModal(false)}>
                 Continue with Flow
               </ModalButton>
             </ModalFooter>
