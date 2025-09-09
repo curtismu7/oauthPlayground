@@ -13,9 +13,9 @@ const SaveButton = styled.button`
   background: #059669;
   color: white;
   border: none;
-  padding: 1rem 2rem;
+  padding: 0.75rem 1.5rem;
   border-radius: 0.5rem;
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
   display: flex;
@@ -23,7 +23,7 @@ const SaveButton = styled.button`
   gap: 0.5rem;
   transition: all 0.2s ease;
   margin-top: 1.5rem;
-  width: 100%;
+  width: auto;
   justify-content: center;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   
@@ -798,7 +798,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
             ) : (
               <>
                 <FiSave />
-                Flow Config
+                Save Configuration
               </>
             )}
           </SaveButton>
