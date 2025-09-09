@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from './Card';
 import { FiSettings, FiCopy, FiCheck, FiSave, FiChevronDown, FiChevronRight } from 'react-icons/fi';
+import StandardMessage from './StandardMessage';
 import { useAccessibility } from '../hooks/useAccessibility';
 
 const ConfigContainer = styled.div`
@@ -43,33 +44,23 @@ const SaveButton = styled.button`
     transform: none;
     box-shadow: none;
   }
-`;
-
-const SuccessMessage = styled.div`
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  color: #166534;
-  padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
-  margin-top: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  animation: slideIn 0.3s ease;
   
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
+  .spinner {
+    margin-right: 8px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top: 2px solid white;
+    width: 16px;
+    height: 16px;
+    animation: spin 1s linear infinite;
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   }
 `;
+
 
 const CollapsibleHeader = styled.div`
   display: flex;
@@ -799,16 +790,25 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 
           {/* Save Button */}
           <SaveButton onClick={handleSave} disabled={isSaving}>
-            <FiSave />
-            {isSaving ? 'Saving...' : 'Flow Config'}
+            {isSaving ? (
+              <>
+                <div className="spinner" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <FiSave />
+                Flow Config
+              </>
+            )}
           </SaveButton>
 
           {/* Success Message */}
           {showSuccessMessage && (
-            <SuccessMessage>
-              <FiCheck />
-              Configuration saved successfully!
-            </SuccessMessage>
+            <StandardMessage
+              type="success"
+              message="Configuration saved successfully!"
+            />
           )}
         </CardBody>
       </Card>

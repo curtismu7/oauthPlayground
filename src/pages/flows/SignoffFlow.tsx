@@ -416,9 +416,10 @@ const cleanupSession = () => {
   localStorage.removeItem('device_flow_state');
   localStorage.removeItem('resume_token');
   
-  // Clear any other session data
+  // Clear any other session data (but preserve permanent credentials)
   const sessionKeys = Object.keys(localStorage).filter(key => 
-    key.startsWith('pingone_') || key.startsWith('oauth_')
+    (key.startsWith('pingone_') && key !== 'pingone_permanent_credentials') || 
+    key.startsWith('oauth_')
   );
   sessionKeys.forEach(key => localStorage.removeItem(key));
   

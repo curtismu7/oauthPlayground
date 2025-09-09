@@ -22,10 +22,17 @@ import {
   FiLoader
 } from 'react-icons/fi';
 import EnhancedStepFlowV2, { EnhancedFlowStep } from '../../components/EnhancedStepFlowV2';
+import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
 import { generateCodeVerifier, generateCodeChallenge } from '../../utils/oauth';
-import { persistentCredentials } from '../../utils/persistentCredentials';
+import { credentialManager } from '../../utils/credentialManager';
 import { logger } from '../../utils/logger';
 import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
+import ConfigurationStatus from '../../components/ConfigurationStatus';
+import ContextualHelp from '../../components/ContextualHelp';
+import { FlowConfiguration, type FlowConfig } from '../../components/FlowConfiguration';
+import { getDefaultConfig } from '../../utils/flowConfigDefaults';
+import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
+import { useAuth } from '../../contexts/NewAuthContext';
 import '../../styles/enhanced-flow.css';
 
 // Styled Components for Enhanced UI
@@ -365,8 +372,33 @@ const DetailItem = styled.div`
   color: #6b7280;
 `;
 
+const CodeBlock = styled.div`
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 1rem 0;
+  font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  overflow-x: auto;
+`;
+
+const CodeComment = styled.div`
+  color: #6c757d;
+  font-style: italic;
+  margin: 0.25rem 0;
+`;
+
+const CodeLine = styled.div`
+  color: #212529;
+  margin: 0.25rem 0;
+  word-break: break-all;
+`;
+
 // Main Component
 const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
+  const { config } = useAuth();
   const [credentials, setCredentials] = useState({
     clientId: '',
     clientSecret: '',
@@ -394,38 +426,186 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   const [copiedText, setCopiedText] = useState<string | null>(null);
   const [isAuthorizing, setIsAuthorizing] = useState<boolean>(false);
   const [isExchangingTokens, setIsExchangingTokens] = useState<boolean>(false);
+  const [showSecret, setShowSecret] = useState<boolean>(false);
+  const [showConfig, setShowConfig] = useState(false);
+  const [flowConfig, setFlowConfig] = useState<FlowConfig>(getDefaultConfig('authorization-code'));
+  const [showRedirectModal, setShowRedirectModal] = useState(false);
+  const [redirectUrl, setRedirectUrl] = useState('');
+  const [redirectParams, setRedirectParams] = useState({});
+  const [isGeneratingPKCE, setIsGeneratingPKCE] = useState<boolean>(false);
+  const [pkceGenerated, setPkceGenerated] = useState<boolean>(false);
+  const [isSavingCredentials, setIsSavingCredentials] = useState<boolean>(false);
+  const [isBuildingUrl, setIsBuildingUrl] = useState<boolean>(false);
+  const [isGettingUserInfo, setIsGettingUserInfo] = useState<boolean>(false);
+  const [credentialsSaved, setCredentialsSaved] = useState<boolean>(false);
+  const [urlGenerated, setUrlGenerated] = useState<boolean>(false);
 
-  // Load persistent credentials
+  // Load credentials immediately to ensure buttons are enabled
   useEffect(() => {
     const loadCredentials = async () => {
       try {
-        const saved = await persistentCredentials.loadCredentials('enhanced-authz-code');
-        if (saved) {
-          setCredentials(prev => ({ ...prev, ...saved }));
+        // Debug localStorage contents
+        credentialManager.debugLocalStorage();
+        
+        const allCredentials = credentialManager.getAllCredentials();
+        console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Loading credentials:', allCredentials);
+        
+        // Check if we have any credentials
+        const hasCredentials = allCredentials.environmentId || allCredentials.clientId;
+        
+        if (!hasCredentials) {
+          console.log('⚠️ [EnhancedAuthorizationCodeFlowV2] No credentials found, loading from environment variables...');
+          try {
+            const response = await fetch('/api/env-config');
+            if (response.ok) {
+              const envConfig = await response.json();
+              console.log('✅ [EnhancedAuthorizationCodeFlowV2] Loaded from environment config:', envConfig);
+              
+              setCredentials(prev => ({ 
+                ...prev, 
+                environmentId: envConfig.environmentId || '',
+                clientId: envConfig.clientId || '',
+                clientSecret: envConfig.clientSecret || '',
+                redirectUri: envConfig.redirectUri || window.location.origin + '/authz-callback',
+                authorizationEndpoint: envConfig.authEndpoint || `${envConfig.apiUrl}/${envConfig.environmentId}/as/authorize`,
+                tokenEndpoint: envConfig.tokenEndpoint || `${envConfig.apiUrl}/${envConfig.environmentId}/as/token`,
+                userInfoEndpoint: envConfig.userInfoEndpoint || `${envConfig.apiUrl}/${envConfig.environmentId}/as/userinfo`,
+                scopes: Array.isArray(envConfig.scopes) ? envConfig.scopes.join(' ') : (envConfig.scopes || 'openid profile email')
+              }));
+              
+              console.log('✅ [EnhancedAuthorizationCodeFlowV2] Credentials loaded from environment variables');
+              return;
+            }
+          } catch (envError) {
+            console.warn('⚠️ [EnhancedAuthorizationCodeFlowV2] Failed to load from environment variables:', envError);
+          }
         }
+        
+        setCredentials(prev => ({ 
+          ...prev, 
+          environmentId: allCredentials.environmentId || '',
+          clientId: allCredentials.clientId || '',
+          clientSecret: allCredentials.clientSecret || '',
+          redirectUri: allCredentials.redirectUri || window.location.origin + '/authz-callback',
+          authorizationEndpoint: allCredentials.authEndpoint || '',
+          tokenEndpoint: allCredentials.tokenEndpoint || '',
+          userInfoEndpoint: allCredentials.userInfoEndpoint || '',
+          scopes: Array.isArray(allCredentials.scopes) ? allCredentials.scopes.join(' ') : (allCredentials.scopes || 'openid profile email')
+        }));
+        
+        console.log('✅ [EnhancedAuthorizationCodeFlowV2] Credentials loaded successfully');
       } catch (error) {
-        logger.warn('Failed to load persistent credentials', { error });
+        console.error('❌ [EnhancedAuthorizationCodeFlowV2] Failed to load credentials:', error);
+        logger.error('Failed to load credentials', { error });
       }
     };
+    
     loadCredentials();
+    console.log('🧹 [EnhancedAuthorizationCodeFlowV2] Cleared all flow states and loaded credentials on mount');
+  }, []);
+
+  // Listen for credential changes
+  useEffect(() => {
+    const handleCredentialChange = () => {
+      const loadCredentials = () => {
+        try {
+          const allCredentials = credentialManager.getAllCredentials();
+          console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Reloading credentials after change:', allCredentials);
+          
+          setCredentials(prev => ({ 
+            ...prev, 
+            environmentId: allCredentials.environmentId || '',
+            clientId: allCredentials.clientId || '',
+            clientSecret: allCredentials.clientSecret || '',
+            redirectUri: allCredentials.redirectUri || window.location.origin + '/authz-callback',
+            authorizationEndpoint: allCredentials.authEndpoint || '',
+            tokenEndpoint: allCredentials.tokenEndpoint || '',
+            userInfoEndpoint: allCredentials.userInfoEndpoint || '',
+            scopes: Array.isArray(allCredentials.scopes) ? allCredentials.scopes.join(' ') : (allCredentials.scopes || 'openid profile email')
+          }));
+          
+          console.log('✅ [EnhancedAuthorizationCodeFlowV2] Credentials reloaded successfully');
+        } catch (error) {
+          console.error('❌ [EnhancedAuthorizationCodeFlowV2] Failed to reload credentials:', error);
+          logger.error('Failed to reload credentials', { error });
+        }
+      };
+      
+      loadCredentials();
+    };
+    
+    window.addEventListener('permanent-credentials-changed', handleCredentialChange);
+    
+    return () => {
+      window.removeEventListener('permanent-credentials-changed', handleCredentialChange);
+    };
   }, []);
 
   // Save credentials
   const saveCredentials = useCallback(async () => {
+    setIsSavingCredentials(true);
     try {
-      await persistentCredentials.saveCredentials('enhanced-authz-code', credentials);
-      logger.info('Credentials saved successfully');
+      console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Saving credentials:', credentials);
+      
+      // Prepare permanent credentials (Environment ID, Client ID, etc.)
+      const permanentCreds = {
+        environmentId: credentials.environmentId,
+        clientId: credentials.clientId,
+        redirectUri: credentials.redirectUri,
+        scopes: credentials.scopes,
+        authEndpoint: credentials.authorizationEndpoint,
+        tokenEndpoint: credentials.tokenEndpoint,
+        userInfoEndpoint: credentials.userInfoEndpoint
+      };
+      
+      // Save permanent credentials (Environment ID, Client ID, etc.)
+      const permanentSuccess = credentialManager.savePermanentCredentials(permanentCreds);
+
+      // Save session credentials (Client Secret)
+      const sessionSuccess = credentialManager.saveSessionCredentials({
+        clientSecret: credentials.clientSecret
+      });
+
+      if (permanentSuccess && sessionSuccess) {
+        logger.info('Credentials saved successfully to credential manager', '');
+        
+        // Dispatch events to notify other components that config has changed
+        window.dispatchEvent(new CustomEvent('pingone-config-changed'));
+        window.dispatchEvent(new CustomEvent('permanent-credentials-changed'));
+        
+        console.log('✅ [EnhancedAuthorizationCodeFlowV2] Configuration saved successfully to localStorage and events dispatched');
+      } else {
+        throw new Error('Failed to save credentials to credential manager');
+      }
     } catch (error) {
+      console.error('❌ [EnhancedAuthorizationCodeFlowV2] Failed to save credentials:', error);
       logger.error('Failed to save credentials', { error });
+    } finally {
+      setIsSavingCredentials(false);
+      setCredentialsSaved(true);
     }
   }, [credentials]);
 
   // Generate PKCE codes
-  const generatePKCECodes = useCallback(() => {
-    const verifier = generateCodeVerifier();
-    const challenge = generateCodeChallenge(verifier);
-    setPkceCodes({ codeVerifier: verifier, codeChallenge: challenge });
-    logger.info('PKCE codes generated');
+  const generatePKCECodes = useCallback(async () => {
+    try {
+      console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Starting PKCE generation...');
+      const verifier = generateCodeVerifier();
+      const challenge = await generateCodeChallenge(verifier);
+      console.log('✅ [EnhancedAuthorizationCodeFlowV2] PKCE codes generated:', { verifier: verifier.substring(0, 20) + '...', challenge: challenge.substring(0, 20) + '...' });
+      setPkceCodes({ codeVerifier: verifier, codeChallenge: challenge });
+      
+      // Store code_verifier in sessionStorage for token exchange
+      sessionStorage.setItem('code_verifier', verifier);
+      console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Stored code_verifier in sessionStorage');
+      
+      logger.info('PKCE codes generated', '');
+      return { verifier, challenge };
+    } catch (error) {
+      console.error('❌ [EnhancedAuthorizationCodeFlowV2] Failed to generate PKCE codes:', error);
+      logger.error('Failed to generate PKCE codes', String(error));
+      throw error;
+    }
   }, []);
 
   // Generate authorization URL
@@ -433,25 +613,63 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     const generatedState = Math.random().toString(36).substring(2, 15);
     setState(generatedState);
     
+    // Ensure scopes are properly formatted
+    const scopes = credentials.scopes || 'openid profile email';
+    console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Generating auth URL with scopes:', scopes);
+    
     const params = new URLSearchParams({
-      response_type: credentials.responseType,
+      response_type: credentials.responseType || 'code',
       client_id: credentials.clientId,
       redirect_uri: credentials.redirectUri,
-      scope: credentials.scopes,
+      scope: scopes,
       state: generatedState,
       code_challenge: pkceCodes.codeChallenge,
-      code_challenge_method: credentials.codeChallengeMethod
+      code_challenge_method: credentials.codeChallengeMethod || 'S256'
     });
 
+    // Validate required parameters
+    if (!credentials.clientId) {
+      throw new Error('Client ID is required');
+    }
+    if (!credentials.redirectUri) {
+      throw new Error('Redirect URI is required');
+    }
+    if (!scopes || scopes.trim() === '') {
+      throw new Error('At least one scope must be specified');
+    }
+
     const url = `${credentials.authorizationEndpoint}?${params.toString()}`;
+    console.log('✅ [EnhancedAuthorizationCodeFlowV2] Generated authorization URL:', url);
+    console.log('🔧 [EnhancedAuthorizationCodeFlowV2] URL parameters:', Object.fromEntries(params));
     setAuthUrl(url);
-    logger.info('Authorization URL generated', { url });
+    logger.info('Authorization URL generated', { url, scopes });
   }, [credentials, pkceCodes.codeChallenge]);
 
   // Handle authorization
   const handleAuthorization = useCallback(() => {
     if (testingMethod === 'popup') {
       setIsAuthorizing(true);
+      
+      // Set up flow context for popup callback
+      const currentPath = window.location.pathname;
+      // Ensure we use the correct route path regardless of current path
+      const correctPath = currentPath.includes('/oidc/') ? '/flows/enhanced-authorization-code-v2' : currentPath;
+      const returnPath = `${correctPath}?step=4`; // Return to step 4 (token exchange)
+
+      console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Popup - Current path:', currentPath);
+      console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Popup - Correct path:', correctPath);
+      console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Popup - Return path:', returnPath);
+      
+      const flowContext = {
+        flow: 'enhanced-authorization-code-v2',
+        step: 4,
+        returnPath: returnPath,
+        timestamp: Date.now()
+      };
+      sessionStorage.setItem('flowContext', JSON.stringify(flowContext));
+      
+      console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Stored flow context for callback:', flowContext);
+      
       const popup = window.open(authUrl, 'oauth-popup', 'width=600,height=700');
       if (popup) {
         // Listen for messages from the popup
@@ -489,6 +707,26 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         logger.error('Failed to open popup window');
       }
     } else {
+      // Full redirect - set up flow context to return to correct step
+      const currentPath = window.location.pathname;
+      // Ensure we use the correct route path regardless of current path
+      const correctPath = currentPath.includes('/oidc/') ? '/flows/enhanced-authorization-code-v2' : currentPath;
+      const returnPath = `${correctPath}?step=4`; // Return to step 4 (token exchange)
+
+      console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Full redirect - Current path:', currentPath);
+      console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Full redirect - Correct path:', correctPath);
+      console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Full redirect - Return path:', returnPath);
+      
+      const flowContext = {
+        flow: 'enhanced-authorization-code-v2',
+        step: 4,
+        returnPath: returnPath,
+        timestamp: Date.now()
+      };
+      sessionStorage.setItem('flowContext', JSON.stringify(flowContext));
+      
+      console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Stored flow context for callback:', flowContext);
+      
       // Full redirect
       logger.info('Redirecting to authorization server', `url: ${authUrl}`);
       window.location.href = authUrl;
@@ -545,6 +783,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       throw new Error('No access token available');
     }
 
+    setIsGettingUserInfo(true);
     try {
       const response = await fetch(credentials.userInfoEndpoint, {
         headers: {
@@ -572,6 +811,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     } catch (error) {
       logger.error('UserInfo request failed', { error });
       throw error;
+    } finally {
+      setIsGettingUserInfo(false);
     }
   }, [credentials.userInfoEndpoint, tokens]);
 
@@ -646,15 +887,55 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
 
           <FormField>
             <FormLabel>Client Secret</FormLabel>
-            <FormInput
-              type="password"
-              value={credentials.clientSecret || ''}
-              onChange={(e) => setCredentials(prev => ({ ...prev, clientSecret: e.target.value }))}
-              placeholder="your-client-secret (optional for PKCE)"
-            />
+            <div style={{ position: 'relative' }}>
+              <FormInput
+                type={showSecret ? 'text' : 'password'}
+                value={credentials.clientSecret || ''}
+                onChange={(e) => setCredentials(prev => ({ ...prev, clientSecret: e.target.value }))}
+                placeholder="your-client-secret (optional for PKCE)"
+                style={{ paddingRight: '3rem' }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowSecret(!showSecret)}
+                style={{
+                  position: 'absolute',
+                  right: '0.75rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#6c757d',
+                  padding: '0.25rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+                aria-label={showSecret ? 'Hide client secret' : 'Show client secret'}
+                title={showSecret ? 'Hide client secret' : 'Show client secret'}
+              >
+                {showSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+              </button>
+            </div>
             <ValidationIndicator $valid={true}>
               <FiInfo />
               Optional for PKCE flows, required for confidential clients
+            </ValidationIndicator>
+          </FormField>
+
+          <FormField>
+            <FormLabel className="required">Callback URL</FormLabel>
+            <FormInput
+              type="url"
+              value={credentials.redirectUri}
+              onChange={(e) => setCredentials(prev => ({ ...prev, redirectUri: e.target.value }))}
+              placeholder="https://localhost:3000/authz-callback"
+              required
+            />
+            <ValidationIndicator $valid={!!credentials.redirectUri}>
+              {credentials.redirectUri ? <FiCheckCircle /> : <FiAlertTriangle />}
+              {credentials.redirectUri ? 'Valid Callback URL' : 'Callback URL is required'}
             </ValidationIndicator>
           </FormField>
 
@@ -697,12 +978,35 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               <strong>Security Note:</strong> Your credentials will be saved locally in your browser and are not transmitted to any external servers.
             </div>
           </InfoBox>
+
+          {isSavingCredentials && (
+            <InfoBox type="info">
+              <FiLoader className="animate-spin" />
+              <div>
+                <strong>🔄 Saving Credentials...</strong>
+                <br />
+                Securely storing your OAuth credentials for future sessions...
+              </div>
+            </InfoBox>
+          )}
+
+          {credentialsSaved && (
+            <InfoBox type="success">
+              <FiCheckCircle />
+              <div>
+                <strong>✅ Credentials Saved Successfully!</strong>
+                <br />
+                Your OAuth credentials have been saved and are ready to use. You can now proceed to the next step.
+              </div>
+            </InfoBox>
+          )}
         </div>
       ),
       execute: async () => {
         await saveCredentials();
         return { success: true };
-      }
+      },
+      canExecute: Boolean(credentials.environmentId && credentials.clientId && credentials.redirectUri)
     },
     {
       id: 'generate-pkce',
@@ -745,15 +1049,76 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             )}
           </FormField>
 
+          <CodeBlock>
+            <CodeComment>// How PKCE Codes Are Used in OAuth Flow</CodeComment>
+            <CodeComment>// Step 1: Authorization Request (with code_challenge)</CodeComment>
+            <CodeLine>GET /as/authorize?response_type=code&client_id=...&code_challenge={pkceCodes.codeChallenge || '[CODE_CHALLENGE]'}&code_challenge_method=S256</CodeLine>
+            <CodeComment>// Step 2: Authorization Server returns authorization code</CodeComment>
+            <CodeLine>redirect_uri?code=[AUTHORIZATION_CODE]&state=[STATE]</CodeLine>
+            <CodeComment>// Step 3: Token Exchange (with code_verifier)</CodeComment>
+            <CodeLine>POST /as/token</CodeLine>
+            <CodeLine>grant_type=authorization_code&code=[AUTHORIZATION_CODE]&code_verifier={pkceCodes.codeVerifier || '[CODE_VERIFIER]'}</CodeLine>
+            <CodeComment>// Step 4: Server validates: SHA256(code_verifier) === code_challenge</CodeComment>
+          </CodeBlock>
+
           <InfoBox type="info">
             <FiInfo />
+            <div>
+              <strong>How PKCE Codes Are Used (OIDC Specification):</strong>
+              <br /><br />
+              <strong>1. Authorization Request:</strong> The <code>code_challenge</code> is sent to the authorization server in the initial request.
+              <br /><br />
+              <strong>2. Token Exchange:</strong> The <code>code_verifier</code> is sent back to the token endpoint to prove you initiated the request.
+              <br /><br />
+              <strong>3. Security Benefit:</strong> Even if an attacker intercepts the authorization code, they cannot exchange it for tokens without the code verifier.
+              <br /><br />
+              <strong>OIDC Compliance:</strong> PKCE is required for public clients (mobile apps, SPAs) and recommended for all clients per RFC 7636.
+            </div>
+          </InfoBox>
+
+          <InfoBox type="info">
+            <FiShield />
             <div>
               <strong>Security Note:</strong> PKCE codes are automatically generated and will be used in the authorization request to enhance security.
             </div>
           </InfoBox>
+
+          {isGeneratingPKCE && (
+            <InfoBox type="info">
+              <FiLoader className="animate-spin" />
+              <div>
+                <strong>🔄 Generating PKCE Codes...</strong>
+                <br />
+                Creating secure code verifier and challenge for enhanced OAuth security...
+              </div>
+            </InfoBox>
+          )}
+
+          {pkceGenerated && (
+            <InfoBox type="success">
+              <FiCheckCircle />
+              <div>
+                <strong>✅ PKCE Codes Generated Successfully!</strong>
+                <br />
+                Your PKCE codes have been generated and are ready to use. These will be included in the authorization request for enhanced security.
+              </div>
+            </InfoBox>
+          )}
         </div>
       ),
-      execute: generatePKCECodes
+      execute: async () => {
+        setIsGeneratingPKCE(true);
+        try {
+          const { challenge } = await generatePKCECodes();
+          setPkceGenerated(true);
+          // Regenerate authorization URL with PKCE codes
+          generateAuthUrl(challenge);
+          return { success: true };
+        } finally {
+          setIsGeneratingPKCE(false);
+        }
+      },
+      canExecute: Boolean(credentials.environmentId && credentials.clientId && credentials.redirectUri)
     },
     {
       id: 'build-auth-url',
@@ -763,19 +1128,22 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       category: 'authorization',
       content: (
         <div>
-          <FormField>
-            <FormLabel $highlight>Generated Authorization URL</FormLabel>
-            <UrlDisplay>
-              {authUrl || 'Click "Build URL" to generate the authorization URL'}
-              {authUrl && (
-                <CopyButton onClick={() => copyToClipboard(authUrl)}>
-                  {copiedText === authUrl ? <FiCheckCircle /> : <FiCopy />}
-                </CopyButton>
-              )}
-            </UrlDisplay>
-          </FormField>
+          <CodeBlock>
+            <CodeComment>// Authorization URL for Authorization Code Flow</CodeComment>
+            <CodeLine>
+              const authUrl = '{authUrl || 'Click "Build URL" to generate the authorization URL'}';
+            </CodeLine>
+            <CodeComment>// Parameters:</CodeComment>
+            <CodeLine>response_type: '{credentials.responseType}'</CodeLine>
+            <CodeLine>client_id: '{credentials.clientId}'</CodeLine>
+            <CodeLine>redirect_uri: '{credentials.redirectUri}'</CodeLine>
+            <CodeLine>scope: '{credentials.scopes}'</CodeLine>
+            <CodeLine>state: '{state}'</CodeLine>
+            <CodeLine>code_challenge: '{pkceCodes.codeChallenge}'</CodeLine>
+            <CodeLine>code_challenge_method: '{credentials.codeChallengeMethod}'</CodeLine>
+          </CodeBlock>
 
-          {authUrl && (
+          {urlGenerated && authUrl && (
             <FormField>
               <FormLabel>URL Components (JSON)</FormLabel>
               <JsonDisplay>
@@ -814,7 +1182,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             </FormField>
           )}
 
-          {authUrl && (
+          {urlGenerated && authUrl && (
             <ParameterBreakdown>
               <h4>Parameter Breakdown:</h4>
               <ParameterItem>
@@ -847,9 +1215,93 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               </ParameterItem>
             </ParameterBreakdown>
           )}
+
+          {urlGenerated && (
+            <InfoBox type="success">
+              <FiCheckCircle />
+              <div>
+                <strong>✅ Authorization URL Generated Successfully!</strong>
+                <br />
+                Your authorization URL has been built with all required OAuth parameters. You can now proceed to redirect the user to PingOne for authentication.
+              </div>
+            </InfoBox>
+          )}
+
+          {/* Generated Authorization URL Section - Below success message */}
+          {urlGenerated && authUrl && (
+            <div style={{ 
+              marginTop: '1.5rem', 
+              padding: '1.5rem', 
+              backgroundColor: authUrl ? '#f0fdf4' : '#f0f9ff', 
+              border: authUrl ? '1px solid #22c55e' : '1px solid #0ea5e9', 
+              borderRadius: '0.75rem' 
+            }}>
+              <h3 style={{ 
+                margin: '0 0 1rem 0', 
+                fontSize: '1.1rem', 
+                fontWeight: '600', 
+                color: authUrl ? '#15803d' : '#0c4a6e', 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '0.5rem' 
+              }}>
+                <FiGlobe />
+                Generated Authorization URL
+              </h3>
+              
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '0.5rem', 
+                padding: '0.75rem', 
+                backgroundColor: 'white', 
+                border: authUrl ? '1px solid #22c55e' : '1px solid #0ea5e9', 
+                borderRadius: '0.5rem' 
+              }}>
+                <code style={{ 
+                  flex: 1, 
+                  fontSize: '0.875rem', 
+                  color: authUrl ? '#15803d' : '#0c4a6e', 
+                  wordBreak: 'break-all' 
+                }}>
+                  {authUrl}
+                </code>
+                <CopyButton onClick={() => copyToClipboard(authUrl)}>
+                  {copiedText === authUrl ? <FiCheckCircle /> : <FiCopy />}
+                </CopyButton>
+              </div>
+            </div>
+          )}
+
+          {isBuildingUrl && (
+            <InfoBox type="info">
+              <FiLoader className="animate-spin" />
+              <div>
+                <strong>🔄 Building Authorization URL...</strong>
+                <br />
+                Constructing the complete authorization URL with all required OAuth parameters...
+              </div>
+            </InfoBox>
+          )}
         </div>
       ),
-      execute: generateAuthUrl
+      execute: async () => {
+        setIsBuildingUrl(true);
+        try {
+          console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Build Authorization URL step executing...');
+          console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Current credentials:', credentials);
+          console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Current PKCE codes:', pkceCodes);
+          
+          const generatedUrl = generateAuthUrl();
+          console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Generated URL:', generatedUrl);
+          setUrlGenerated(true);
+          
+          return { success: true };
+        } finally {
+          setIsBuildingUrl(false);
+        }
+      },
+      canExecute: Boolean(credentials.environmentId && credentials.clientId && credentials.redirectUri)
     },
     {
       id: 'user-authorization',
@@ -889,7 +1341,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           </InfoBox>
         </div>
       ),
-      execute: handleAuthorization
+      execute: handleAuthorization,
+      canExecute: Boolean(authUrl && credentials.environmentId && credentials.clientId)
     },
     {
       id: 'handle-callback',
@@ -936,7 +1389,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             </ValidationIndicator>
           </FormField>
         </div>
-      )
+      ),
+      canExecute: Boolean(credentials.environmentId && credentials.clientId && credentials.redirectUri)
     },
     {
       id: 'exchange-tokens',
@@ -1053,7 +1507,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       execute: async () => {
         await exchangeCodeForTokens();
         return { success: true };
-      }
+      },
+      canExecute: Boolean(authCode && credentials.environmentId && credentials.clientId)
     },
     {
       id: 'validate-tokens',
@@ -1151,6 +1606,17 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             </div>
           )}
 
+          {isGettingUserInfo && (
+            <InfoBox type="info">
+              <FiLoader className="animate-spin" />
+              <div>
+                <strong>🔄 Retrieving User Information...</strong>
+                <br />
+                Fetching user profile data from the UserInfo endpoint...
+              </div>
+            </InfoBox>
+          )}
+
           {tokens && userInfo && (
             <InfoBox type="success">
               <FiCheckCircle />
@@ -1166,19 +1632,106 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       execute: async () => {
         await getUserInfo();
         return { success: true };
-      }
+      },
+      canExecute: Boolean(tokens?.access_token && credentials.environmentId && credentials.clientId)
     }
   ];
 
+  // Modal handlers
+  const handleRedirectModalClose = () => {
+    setShowRedirectModal(false);
+  };
+
+  const handleRedirectModalProceed = () => {
+    setShowRedirectModal(false);
+    window.open(redirectUrl, '_blank');
+  };
+
   return (
-    <EnhancedStepFlowV2
-      steps={steps}
-      title="🚀 Enhanced Authorization Code Flow"
-      persistKey="enhanced-authz-code"
-      autoAdvance={false}
-      showDebugInfo={true}
-      allowStepJumping={true}
-    />
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1.5rem' }}>
+      <ConfigurationStatus 
+        config={config} 
+        onConfigure={() => setShowConfig(!showConfig)}
+        flowType="authorization-code"
+        defaultExpanded={true}
+      />
+
+      <ContextualHelp flowId="authorization-code" />
+
+      {showConfig && (
+        <div style={{ marginBottom: '2rem' }}>
+          <FlowConfiguration
+            config={flowConfig}
+            onConfigChange={setFlowConfig}
+            flowType="authorization-code"
+          />
+        </div>
+      )}
+
+      {/* Callback URL Configuration */}
+      <CallbackUrlDisplay flowType="authorization-code" />
+
+      {/* Authorization URL Display - Moved to bottom */}
+      {authUrl && (
+        <div style={{ 
+          marginBottom: '2rem', 
+          padding: '1rem', 
+          backgroundColor: '#f8f9fa', 
+          border: '1px solid #e9ecef', 
+          borderRadius: '6px' 
+        }}>
+          <h4 style={{ marginBottom: '0.5rem', color: '#495057' }}>Generated Authorization URL:</h4>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '0.5rem',
+            backgroundColor: 'white',
+            padding: '0.75rem',
+            border: '1px solid #dee2e6',
+            borderRadius: '4px',
+            fontFamily: 'monospace',
+            fontSize: '0.875rem',
+            wordBreak: 'break-all'
+          }}>
+            <span style={{ flex: 1 }}>{authUrl}</span>
+            <button
+              onClick={() => copyToClipboard(authUrl)}
+              style={{
+                background: 'none',
+                border: '1px solid #007bff',
+                color: '#007bff',
+                cursor: 'pointer',
+                padding: '0.25rem 0.5rem',
+                borderRadius: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.25rem'
+              }}
+            >
+              {copiedText === authUrl ? <FiCheckCircle size={16} /> : <FiCopy size={16} />}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <EnhancedStepFlowV2
+        steps={steps}
+        title="🚀 Enhanced Authorization Code Flow"
+        persistKey="enhanced-authz-code"
+        autoAdvance={false}
+        showDebugInfo={true}
+        allowStepJumping={true}
+      />
+
+      {/* Authorization Request Modal */}
+      <AuthorizationRequestModal
+        isOpen={showRedirectModal}
+        onClose={handleRedirectModalClose}
+        onProceed={handleRedirectModalProceed}
+        authorizationUrl={redirectUrl}
+        requestParams={redirectParams}
+      />
+    </div>
   );
 };
 
