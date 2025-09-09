@@ -450,13 +450,28 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const stepParam = urlParams.get('step');
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
     
+    // If we have step parameter, use it (this comes from the callback redirect)
     if (stepParam) {
       const stepIndex = parseInt(stepParam, 10) - 1; // Convert to 0-based index
       console.log('🔍 [EnhancedAuthorizationCodeFlowV2] URL step parameter detected:', stepParam, '-> step index:', stepIndex);
-      
-      // Store the step index to be used by EnhancedStepFlowV2
       sessionStorage.setItem('enhanced-authz-code-v2-step', stepIndex.toString());
+      return;
+    }
+    
+    // If we have authorization code, we should be on step 4 (handle callback)
+    if (code) {
+      console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Authorization code detected, restoring to step 4 (handle callback)');
+      sessionStorage.setItem('enhanced-authz-code-v2-step', '3'); // Step 4 is index 3
+      return;
+    }
+    
+    // Check if we're coming back from a redirect and should restore to a specific step
+    const storedStep = sessionStorage.getItem('enhanced-authz-code-v2-step');
+    if (storedStep) {
+      console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Restoring from stored step:', storedStep);
     }
   }, [location.search]);
 
