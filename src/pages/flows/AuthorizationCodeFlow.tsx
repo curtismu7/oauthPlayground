@@ -13,9 +13,12 @@ import {
   FiInfo,
   FiAlertTriangle,
   FiClock,
-  FiLoader
+  FiLoader,
+  FiEye,
+  FiEyeOff
 } from 'react-icons/fi';
 import EnhancedStepFlowV2, { EnhancedFlowStep } from '../../components/EnhancedStepFlowV2';
+import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
 import { generateCodeVerifier, generateCodeChallenge } from '../../utils/oauth';
 import { credentialManager } from '../../utils/credentialManager';
 import { logger } from '../../utils/logger';
@@ -431,16 +434,40 @@ const AuthorizationCodeFlow: React.FC = () => {
   const [isAuthorizing, setIsAuthorizing] = useState<boolean>(false);
   const [isExchangingTokens, setIsExchangingTokens] = useState<boolean>(false);
   const [isSavingCredentials, setIsSavingCredentials] = useState<boolean>(false);
+  const [showSecret, setShowSecret] = useState<boolean>(false);
   const [isGeneratingPKCE, setIsGeneratingPKCE] = useState<boolean>(false);
   const [isGettingUserInfo, setIsGettingUserInfo] = useState<boolean>(false);
+  const [hasAttemptedAuthorization, setHasAttemptedAuthorization] = useState<boolean>(false);
+  const [showRedirectModal, setShowRedirectModal] = useState<boolean>(false);
+  const [redirectUrl, setRedirectUrl] = useState<string>('');
+  const [redirectParams, setRedirectParams] = useState<Record<string, string>>({});
 
-  // Load persistent credentials
+  // Clear authUrl and related states on component mount, then load credentials
   useEffect(() => {
+    setAuthUrl('');
+    setAuthUrlGenerated(false);
+    setState('');
+    setAuthCode('');
+    setTokens(null);
+    setUserInfo(null);
+    setPkceGenerated(false);
+    setHasAttemptedAuthorization(false);
+    
+    // Clear persisted step history to ensure clean start
+    try {
+      localStorage.removeItem('enhanced-flow-enhanced-authz-code');
+      console.log('🧹 [AuthorizationCodeFlow] Cleared persisted step history');
+    } catch (error) {
+      console.warn('⚠️ [AuthorizationCodeFlow] Could not clear persisted history:', error);
+    }
+    
+    // Load credentials immediately to ensure buttons are enabled
     const loadCredentials = () => {
       try {
-        // Load from credential manager (permanent + session)
-        const allCredentials = credentialManager.getAllCredentials();
+        // Debug localStorage contents
+        credentialManager.debugLocalStorage();
         
+        const allCredentials = credentialManager.getAllCredentials();
         console.log('🔧 [AuthorizationCodeFlow] Loading credentials:', allCredentials);
         
         setCredentials(prev => ({ 
@@ -448,7 +475,7 @@ const AuthorizationCodeFlow: React.FC = () => {
           environmentId: allCredentials.environmentId || '',
           clientId: allCredentials.clientId || '',
           clientSecret: allCredentials.clientSecret || '',
-          redirectUri: window.location.origin + '/authz-callback', // Always use authz-callback for Authorization Code Flow
+          redirectUri: window.location.origin + '/authz-callback',
           scopes: Array.isArray(allCredentials.scopes) ? allCredentials.scopes.join(' ') : allCredentials.scopes || prev.scopes,
           authorizationEndpoint: allCredentials.authEndpoint || prev.authorizationEndpoint,
           tokenEndpoint: allCredentials.tokenEndpoint || prev.tokenEndpoint,
@@ -466,9 +493,33 @@ const AuthorizationCodeFlow: React.FC = () => {
     };
     
     loadCredentials();
-    
-    // Listen for credential changes
+    console.log('🧹 [AuthorizationCodeFlow] Cleared all flow states and loaded credentials on mount');
+  }, []);
+
+  // Listen for credential changes
+  useEffect(() => {
     const handleCredentialChange = () => {
+      const loadCredentials = () => {
+        try {
+          const allCredentials = credentialManager.getAllCredentials();
+          console.log('🔧 [AuthorizationCodeFlow] Reloading credentials after change:', allCredentials);
+          
+          setCredentials(prev => ({ 
+            ...prev, 
+            environmentId: allCredentials.environmentId || '',
+            clientId: allCredentials.clientId || '',
+            clientSecret: allCredentials.clientSecret || '',
+            redirectUri: window.location.origin + '/authz-callback',
+            scopes: Array.isArray(allCredentials.scopes) ? allCredentials.scopes.join(' ') : allCredentials.scopes || prev.scopes,
+            authorizationEndpoint: allCredentials.authEndpoint || prev.authorizationEndpoint,
+            tokenEndpoint: allCredentials.tokenEndpoint || prev.tokenEndpoint,
+            userInfoEndpoint: allCredentials.userInfoEndpoint || prev.userInfoEndpoint
+          }));
+        } catch (error) {
+          logger.warn('Failed to reload credentials from credential manager', String(error));
+        }
+      };
+      
       loadCredentials();
     };
     
@@ -531,6 +582,11 @@ const AuthorizationCodeFlow: React.FC = () => {
       console.log('✅ [AuthorizationCodeFlow] PKCE codes generated:', { verifier: verifier.substring(0, 20) + '...', challenge: challenge.substring(0, 20) + '...' });
       setPkceCodes({ codeVerifier: verifier, codeChallenge: challenge });
       setPkceGenerated(true);
+      
+      // Store code_verifier in sessionStorage for token exchange
+      sessionStorage.setItem('code_verifier', verifier);
+      console.log('🔧 [AuthorizationCodeFlow] Stored code_verifier in sessionStorage');
+      
       logger.info('PKCE codes generated', '');
       setIsGeneratingPKCE(false);
       return { verifier, challenge };
@@ -549,6 +605,10 @@ const AuthorizationCodeFlow: React.FC = () => {
     const generatedState = Math.random().toString(36).substring(2, 15);
     setState(generatedState);
     
+    // Store state in sessionStorage for callback validation
+    sessionStorage.setItem('oauth_state', generatedState);
+    console.log('🔧 [AuthorizationCodeFlow] Stored state in sessionStorage:', generatedState);
+    
     const params = new URLSearchParams({
       response_type: credentials.responseType,
       client_id: credentials.clientId,
@@ -564,6 +624,7 @@ const AuthorizationCodeFlow: React.FC = () => {
     setAuthUrl(url);
     setAuthUrlGenerated(true);
     logger.info('Authorization URL generated', url);
+    return url; // Return the URL so it can be used immediately
   }, [credentials, pkceCodes.codeChallenge]);
 
   // Handle authorization
@@ -719,6 +780,101 @@ const AuthorizationCodeFlow: React.FC = () => {
     }
   }, []);
 
+  // Modal handlers
+  const handleRedirectModalClose = useCallback(() => {
+    setShowRedirectModal(false);
+  }, []);
+
+  const handleRedirectModalProceed = useCallback(() => {
+    if (testingMethod === 'popup') {
+      setIsAuthorizing(true);
+      
+      // Set up flow context for popup callback
+      const currentPath = window.location.pathname;
+      // Ensure we use the correct route path regardless of current path
+      const correctPath = currentPath.includes('/oidc/') ? '/flows/authorization-code' : currentPath;
+      const returnPath = `${correctPath}?step=4`; // Return to step 4 (token exchange)
+      
+      console.log('🔍 [AuthorizationCodeFlow] Popup - Current path:', currentPath);
+      console.log('🔍 [AuthorizationCodeFlow] Popup - Correct path:', correctPath);
+      console.log('🔍 [AuthorizationCodeFlow] Popup - Return path:', returnPath);
+      
+      const flowContext = {
+        flow: 'authorization-code',
+        step: 4,
+        returnPath: returnPath,
+        timestamp: Date.now()
+      };
+      sessionStorage.setItem('flowContext', JSON.stringify(flowContext));
+      
+      console.log('🔄 [AuthorizationCodeFlow] Stored flow context for popup callback:', flowContext);
+      console.log('🔍 [AuthorizationCodeFlow] Popup - Flow context stored in sessionStorage:', sessionStorage.getItem('flowContext'));
+      console.log('🔧 [AuthorizationCodeFlow] Opening popup with URL:', redirectUrl);
+      const popup = window.open(redirectUrl, 'oauth-popup', 'width=600,height=700');
+      if (popup) {
+        // Listen for messages from the popup
+        const messageHandler = (event: MessageEvent) => {
+          console.log('🔧 [AuthorizationCodeFlow] Message received from popup:', event.data, 'origin:', event.origin);
+          if (event.origin !== window.location.origin) return;
+          if (event.data.type === 'oauth-callback') {
+            const { code: callbackCode, state: callbackState, error } = event.data;
+            console.log('🔧 [AuthorizationCodeFlow] OAuth callback received:', { callbackCode, callbackState, error, expectedState: state });
+            if (error) {
+              logger.error('Authorization error received', error);
+              setIsAuthorizing(false);
+            } else if (callbackCode && callbackState === state) {
+              setAuthCode(callbackCode);
+              logger.info('Authorization code received via message', `code: ${callbackCode.substring(0, 10)}...`);
+              setIsAuthorizing(false);
+              popup.close();
+              window.removeEventListener('message', messageHandler);
+            }
+          }
+        };
+        window.addEventListener('message', messageHandler);
+        
+        // Check if popup was closed without completing auth
+        const checkClosed = setInterval(() => {
+          if (popup.closed) {
+            clearInterval(checkClosed);
+            window.removeEventListener('message', messageHandler);
+            setIsAuthorizing(false);
+            if (!authCode) {
+              logger.warn('Popup closed without authorization code');
+            }
+          }
+        }, 1000);
+      } else {
+        setIsAuthorizing(false);
+        logger.error('Failed to open popup window');
+      }
+    } else {
+      // Full redirect - set up flow context to return to correct step
+      const currentPath = window.location.pathname;
+      // Ensure we use the correct route path regardless of current path
+      const correctPath = currentPath.includes('/oidc/') ? '/flows/authorization-code' : currentPath;
+      const returnPath = `${correctPath}?step=4`; // Return to step 4 (token exchange)
+      
+      console.log('🔍 [AuthorizationCodeFlow] Current path:', currentPath);
+      console.log('🔍 [AuthorizationCodeFlow] Correct path:', correctPath);
+      console.log('🔍 [AuthorizationCodeFlow] Return path:', returnPath);
+      
+      // Store flow context for callback
+      const flowContext = {
+        flow: 'authorization-code',
+        step: 4,
+        returnPath: returnPath,
+        timestamp: Date.now()
+      };
+      sessionStorage.setItem('flowContext', JSON.stringify(flowContext));
+      
+      console.log('🔄 [AuthorizationCodeFlow] Stored flow context for callback:', flowContext);
+      console.log('🔍 [AuthorizationCodeFlow] Flow context stored in sessionStorage:', sessionStorage.getItem('flowContext'));
+      logger.info('Redirecting to authorization server', `url: ${redirectUrl}`);
+      window.location.href = redirectUrl;
+    }
+  }, [redirectUrl, testingMethod, state, authCode]);
+
 
   // Auto-generate endpoints
   useEffect(() => {
@@ -775,15 +931,55 @@ const AuthorizationCodeFlow: React.FC = () => {
 
           <FormField>
             <FormLabel>Client Secret</FormLabel>
-            <FormInput
-              type="password"
-              value={credentials.clientSecret || ''}
-              onChange={(e) => setCredentials(prev => ({ ...prev, clientSecret: e.target.value }))}
-              placeholder="your-client-secret (optional for PKCE)"
-            />
+            <div style={{ position: 'relative' }}>
+              <FormInput
+                type={showSecret ? 'text' : 'password'}
+                value={credentials.clientSecret || ''}
+                onChange={(e) => setCredentials(prev => ({ ...prev, clientSecret: e.target.value }))}
+                placeholder="your-client-secret (optional for PKCE)"
+                style={{ paddingRight: '3rem' }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowSecret(!showSecret)}
+                style={{
+                  position: 'absolute',
+                  right: '0.75rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#6c757d',
+                  padding: '0.25rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+                aria-label={showSecret ? 'Hide client secret' : 'Show client secret'}
+                title={showSecret ? 'Hide client secret' : 'Show client secret'}
+              >
+                {showSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+              </button>
+            </div>
             <ValidationIndicator $valid={true}>
               <FiInfo />
               Optional for PKCE flows, required for confidential clients
+            </ValidationIndicator>
+          </FormField>
+
+          <FormField>
+            <FormLabel className="required">Callback URL</FormLabel>
+            <FormInput
+              type="url"
+              value={credentials.redirectUri}
+              onChange={(e) => setCredentials(prev => ({ ...prev, redirectUri: e.target.value }))}
+              placeholder="https://localhost:3000/authz-callback"
+              required
+            />
+            <ValidationIndicator $valid={!!credentials.redirectUri}>
+              {credentials.redirectUri ? <FiCheckCircle /> : <FiAlertTriangle />}
+              {credentials.redirectUri ? 'Valid Callback URL' : 'Callback URL is required'}
             </ValidationIndicator>
           </FormField>
 
@@ -854,7 +1050,7 @@ const AuthorizationCodeFlow: React.FC = () => {
         await saveCredentials();
         return { success: true };
       },
-      canExecute: true
+      canExecute: Boolean(credentials.clientId && credentials.environmentId && credentials.clientSecret)
     },
     {
       id: 'generate-pkce',
@@ -952,6 +1148,63 @@ const AuthorizationCodeFlow: React.FC = () => {
               </div>
             </InfoBox>
           )}
+
+          {/* PKCE Fields - Always visible, populated when generated */}
+          <div style={{ 
+            marginTop: '1.5rem', 
+            padding: '1.5rem', 
+            backgroundColor: pkceCodes.codeVerifier ? '#f0fdf4' : '#f8f9fa', 
+            border: pkceCodes.codeVerifier ? '1px solid #22c55e' : '1px solid #e5e7eb', 
+            borderRadius: '0.75rem' 
+          }}>
+            <h3 style={{ 
+              margin: '0 0 1rem 0', 
+              fontSize: '1.1rem', 
+              fontWeight: '600', 
+              color: pkceCodes.codeVerifier ? '#15803d' : '#374151', 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.5rem' 
+            }}>
+              <FiShield />
+              PKCE Codes
+            </h3>
+            
+            <div style={{ display: 'grid', gap: '1rem' }}>
+              <FormField>
+                <FormLabel>Code Verifier (Generated)</FormLabel>
+                <FormInput
+                  type="text"
+                  value={pkceCodes.codeVerifier || ''}
+                  readOnly
+                  placeholder="Click Generate to create PKCE codes"
+                  $generated={!!pkceCodes.codeVerifier}
+                />
+                {pkceCodes.codeVerifier && (
+                  <CopyButton onClick={() => copyToClipboard(pkceCodes.codeVerifier)}>
+                    {copiedText === pkceCodes.codeVerifier ? <FiCheckCircle /> : <FiCopy />}
+                  </CopyButton>
+                )}
+              </FormField>
+
+              <FormField>
+                <FormLabel>Code Challenge (SHA256)</FormLabel>
+                <FormInput
+                  type="text"
+                  value={pkceCodes.codeChallenge || ''}
+                  readOnly
+                  placeholder="Click Generate to create PKCE codes"
+                  $generated={!!pkceCodes.codeChallenge}
+                />
+                {pkceCodes.codeChallenge && (
+                  <CopyButton onClick={() => copyToClipboard(pkceCodes.codeChallenge)}>
+                    {copiedText === pkceCodes.codeChallenge ? <FiCheckCircle /> : <FiCopy />}
+                  </CopyButton>
+                )}
+              </FormField>
+            </div>
+          </div>
+
         </div>
       ),
       execute: async () => {
@@ -960,7 +1213,7 @@ const AuthorizationCodeFlow: React.FC = () => {
         generateAuthUrl(challenge);
         return { success: true };
       },
-      canExecute: true
+      canExecute: Boolean(credentials.clientId && credentials.environmentId && credentials.authorizationEndpoint)
     },
     {
       id: 'build-auth-url',
@@ -973,7 +1226,7 @@ const AuthorizationCodeFlow: React.FC = () => {
           <CodeBlock>
             <CodeComment>// Authorization URL for Authorization Code Flow</CodeComment>
             <CodeLine>
-              const authUrl = '{authUrl || `https://auth.pingone.com/${credentials.environmentId}/as/authorize?response_type=${credentials.responseType}&client_id=${credentials.clientId}&redirect_uri=${encodeURIComponent(credentials.redirectUri)}&scope=${encodeURIComponent(credentials.scopes)}&state=${state}&code_challenge=${pkceCodes.codeChallenge}&code_challenge_method=${credentials.codeChallengeMethod}`}';
+              const authUrl = '{authUrl || 'Click "Build URL" to generate the authorization URL'}';
             </CodeLine>
             <CodeComment>// Parameters:</CodeComment>
             <CodeLine>response_type: '{credentials.responseType}'</CodeLine>
@@ -985,19 +1238,7 @@ const AuthorizationCodeFlow: React.FC = () => {
             <CodeLine>code_challenge_method: '{credentials.codeChallengeMethod}'</CodeLine>
           </CodeBlock>
 
-          <FormField>
-            <FormLabel $highlight>Generated Authorization URL</FormLabel>
-            <UrlDisplay>
-              {authUrl || 'Click "Build URL" to generate the authorization URL'}
-              {authUrl && (
-                <CopyButton onClick={() => copyToClipboard(authUrl)}>
-                  {copiedText === authUrl ? <FiCheckCircle /> : <FiCopy />}
-                </CopyButton>
-              )}
-            </UrlDisplay>
-          </FormField>
-
-          {authUrl && (
+          {authUrlGenerated && authUrl && (
             <FormField>
               <FormLabel>URL Components (JSON)</FormLabel>
               <JsonDisplay>
@@ -1036,7 +1277,7 @@ const AuthorizationCodeFlow: React.FC = () => {
             </FormField>
           )}
 
-          {authUrl && (
+          {authUrlGenerated && authUrl && (
             <ParameterBreakdown>
               <h4>Parameter Breakdown:</h4>
               <ParameterItem>
@@ -1080,13 +1321,59 @@ const AuthorizationCodeFlow: React.FC = () => {
               </div>
             </InfoBox>
           )}
+
+          {/* Generated Authorization URL Section - Below success message */}
+          {authUrlGenerated && authUrl && (
+            <div style={{ 
+              marginTop: '1.5rem', 
+              padding: '1.5rem', 
+              backgroundColor: authUrl ? '#f0fdf4' : '#f0f9ff', 
+              border: authUrl ? '1px solid #22c55e' : '1px solid #0ea5e9', 
+              borderRadius: '0.75rem' 
+            }}>
+              <h3 style={{ 
+                margin: '0 0 1rem 0', 
+                fontSize: '1.1rem', 
+                fontWeight: '600', 
+                color: authUrl ? '#15803d' : '#0c4a6e', 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '0.5rem' 
+              }}>
+                <FiGlobe />
+                Generated Authorization URL
+              </h3>
+              
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '0.5rem', 
+                padding: '0.75rem', 
+                backgroundColor: 'white', 
+                border: authUrl ? '1px solid #22c55e' : '1px solid #0ea5e9', 
+                borderRadius: '0.5rem' 
+              }}>
+                <code style={{ 
+                  flex: 1, 
+                  fontSize: '0.875rem', 
+                  color: authUrl ? '#15803d' : '#0c4a6e', 
+                  wordBreak: 'break-all' 
+                }}>
+                  {authUrl}
+                </code>
+                <CopyButton onClick={() => copyToClipboard(authUrl)}>
+                  {copiedText === authUrl ? <FiCheckCircle /> : <FiCopy />}
+                </CopyButton>
+              </div>
+            </div>
+          )}
         </div>
       ),
       execute: async () => {
         generateAuthUrl();
         return { success: true };
       },
-      canExecute: true
+      canExecute: Boolean(credentials.clientId && credentials.environmentId && credentials.authorizationEndpoint)
     },
     {
       id: 'user-authorization',
@@ -1135,15 +1422,131 @@ const AuthorizationCodeFlow: React.FC = () => {
               </div>
             </InfoBox>
           )}
+
+          {/* Action Buttons */}
+          <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => {
+                setHasAttemptedAuthorization(true);
+                
+                // Parse URL to extract parameters for the modal
+                const urlObj = new URL(authUrl);
+                const params: Record<string, string> = {};
+                urlObj.searchParams.forEach((value, key) => {
+                  params[key] = value;
+                });
+                
+                // Set modal data and show modal
+                console.log('🔓 [AuthorizationCodeFlow] Opening redirect modal with URL:', authUrl);
+                setRedirectUrl(authUrl);
+                setRedirectParams(params);
+                setShowRedirectModal(true);
+              }}
+              disabled={!authUrl || isAuthorizing}
+              style={{
+                padding: '0.75rem 1.5rem',
+                backgroundColor: testingMethod === 'popup' ? '#3b82f6' : '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.5rem',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                cursor: !authUrl || isAuthorizing ? 'not-allowed' : 'pointer',
+                opacity: !authUrl || isAuthorizing ? 0.5 : 1,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+            >
+              {testingMethod === 'popup' ? '🪟 Open Popup' : '🌐 Redirect to PingOne'}
+            </button>
+
+            <button
+              onClick={() => copyToClipboard(authUrl)}
+              disabled={!authUrl}
+              style={{
+                padding: '0.75rem 1.5rem',
+                backgroundColor: copiedText === authUrl ? '#10b981' : '#6b7280',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.5rem',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                cursor: !authUrl ? 'not-allowed' : 'pointer',
+                opacity: !authUrl ? 0.5 : 1,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                transition: 'background-color 0.2s ease'
+              }}
+            >
+              {copiedText === authUrl ? <FiCheckCircle /> : <FiCopy />}
+              {copiedText === authUrl ? 'Copied!' : 'Copy URL'}
+            </button>
+          </div>
         </div>
       ),
       execute: async () => {
         // Generate the authorization URL and open popup/redirect
-        generateAuthUrl();
-        handleAuthorization();
+        console.log('🔧 [AuthorizationCodeFlow] Build Authorization URL step executing...');
+        console.log('🔧 [AuthorizationCodeFlow] Current credentials:', credentials);
+        console.log('🔧 [AuthorizationCodeFlow] Current PKCE codes:', pkceCodes);
+        
+        const generatedUrl = generateAuthUrl();
+        console.log('🔧 [AuthorizationCodeFlow] Generated URL:', generatedUrl);
+        
+        // Use the generated URL directly for authorization
+        if (testingMethod === 'popup') {
+          setIsAuthorizing(true);
+          console.log('🔧 [AuthorizationCodeFlow] Opening popup with URL:', generatedUrl);
+          const popup = window.open(generatedUrl, 'oauth-popup', 'width=600,height=700');
+          if (popup) {
+            // Listen for messages from the popup
+            const messageHandler = (event: MessageEvent) => {
+              console.log('🔧 [AuthorizationCodeFlow] Message received from popup:', event.data, 'origin:', event.origin);
+              if (event.origin !== window.location.origin) return;
+              if (event.data.type === 'oauth-callback') {
+                const { code: callbackCode, state: callbackState, error } = event.data;
+                console.log('🔧 [AuthorizationCodeFlow] OAuth callback received:', { callbackCode, callbackState, error, expectedState: state });
+                if (error) {
+                  logger.error('Authorization error received', error);
+                  setIsAuthorizing(false);
+                } else if (callbackCode && callbackState === state) {
+                  setAuthCode(callbackCode);
+                  logger.info('Authorization code received via message', `code: ${callbackCode.substring(0, 10)}...`);
+                  setIsAuthorizing(false);
+                  popup.close();
+                  window.removeEventListener('message', messageHandler);
+                }
+              }
+            };
+            window.addEventListener('message', messageHandler);
+            
+            // Check if popup was closed without completing auth
+            const checkClosed = setInterval(() => {
+              if (popup.closed) {
+                clearInterval(checkClosed);
+                window.removeEventListener('message', messageHandler);
+                setIsAuthorizing(false);
+                if (!authCode) {
+                  logger.warn('Popup closed without authorization code');
+                }
+              }
+            }, 1000);
+          } else {
+            setIsAuthorizing(false);
+            logger.error('Failed to open popup window');
+          }
+        } else {
+          // Full redirect
+          console.log('🔧 [AuthorizationCodeFlow] Full redirect triggered', { generatedUrl, testingMethod });
+          logger.info('Redirecting to authorization server', `url: ${generatedUrl}`);
+          window.location.href = generatedUrl;
+        }
+        
         return { success: true };
       },
-      canExecute: true
+      canExecute: Boolean(authUrl && authUrl.trim().length > 0 && hasAttemptedAuthorization)
     },
     {
       id: 'handle-callback',
@@ -1207,7 +1610,7 @@ const AuthorizationCodeFlow: React.FC = () => {
         // This step just waits for the callback to be processed
         return { success: true };
       },
-      canExecute: true
+      canExecute: Boolean(authCode && authCode.trim().length > 0)
     },
     {
       id: 'exchange-tokens',
@@ -1513,7 +1916,7 @@ const AuthorizationCodeFlow: React.FC = () => {
       )}
 
       {/* Callback URL Configuration */}
-      <CallbackUrlDisplay flowType="authorization-code" defaultExpanded={true} />
+      <CallbackUrlDisplay flowType="authorization-code" />
 
       <EnhancedStepFlowV2
         steps={steps}
@@ -1522,6 +1925,15 @@ const AuthorizationCodeFlow: React.FC = () => {
         autoAdvance={false}
         showDebugInfo={true}
         allowStepJumping={true}
+      />
+
+      {/* Authorization Request Modal */}
+      <AuthorizationRequestModal
+        isOpen={showRedirectModal}
+        onClose={handleRedirectModalClose}
+        onProceed={handleRedirectModalProceed}
+        authorizationUrl={redirectUrl}
+        requestParams={redirectParams}
       />
     </div>
   );

@@ -100,6 +100,12 @@ const AuthzCallback: React.FC = () => {
           setMessage('Authorization successful! Redirecting...');
           logger.auth('AuthzCallback', 'Authorization successful', { redirectUrl: result.redirectUrl });
           
+          console.log('🔍 [AuthzCallback] Redirect URL from result:', result.redirectUrl);
+          console.log('🔍 [AuthzCallback] Is popup:', isPopup);
+          console.log('🔍 [AuthzCallback] Current URL:', window.location.href);
+          console.log('🔍 [AuthzCallback] SessionStorage keys:', Object.keys(sessionStorage));
+          console.log('🔍 [AuthzCallback] Flow context in sessionStorage:', sessionStorage.getItem('flowContext'));
+          
           // If this is a popup, send success message to parent and close
           if (isPopup) {
             console.log('📤 [AuthzCallback] Sending success message to parent window');
@@ -114,6 +120,7 @@ const AuthzCallback: React.FC = () => {
             }, 1000);
           } else {
             // Redirect after a short delay for non-popup
+            console.log('🔄 [AuthzCallback] Redirecting to:', result.redirectUrl || '/');
             setTimeout(() => {
               navigate(result.redirectUrl || '/');
             }, 1500);
