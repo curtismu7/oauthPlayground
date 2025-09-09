@@ -111,6 +111,7 @@ const AppRoutes = () => {
 
   // Check for existing PingOne configuration on app load
   useEffect(() => {
+    console.log('🔍 [App] useEffect triggered - checking configuration...');
     const checkConfiguration = () => {
       console.log('🔍 [App] Checking for existing configuration...');
       try {
