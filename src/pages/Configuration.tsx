@@ -203,6 +203,8 @@ const Configuration = () => {
     codeChallengeMethod: 'S256',
     responseType: 'code',
     enableOIDC: true,
+    showCredentialsModal: true,
+    showSuccessModal: true,
   });
   
   const [errors, setErrors] = useState({});
@@ -253,6 +255,18 @@ const Configuration = () => {
             console.error('Failed to load saved configuration:', error);
           }
         }
+      }
+
+      // Load UI settings from flow configuration
+      const flowConfigKey = 'enhanced-flow-authorization-code';
+      const flowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
+      if (flowConfig.showCredentialsModal !== undefined || flowConfig.showSuccessModal !== undefined) {
+        console.log('✅ [Configuration] Loading UI settings from flow config:', flowConfig);
+        setFormData(prev => ({
+          ...prev,
+          showCredentialsModal: flowConfig.showCredentialsModal !== undefined ? flowConfig.showCredentialsModal : prev.showCredentialsModal,
+          showSuccessModal: flowConfig.showSuccessModal !== undefined ? flowConfig.showSuccessModal : prev.showSuccessModal
+        }));
       }
     };
 
@@ -387,6 +401,17 @@ const Configuration = () => {
 
       // Also save to legacy pingone_config for backward compatibility
       localStorage.setItem('pingone_config', JSON.stringify(configToSave));
+
+      // Save UI settings to flow configuration
+      const flowConfigKey = 'enhanced-flow-authorization-code';
+      const existingFlowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
+      const updatedFlowConfig = {
+        ...existingFlowConfig,
+        showCredentialsModal: formData.showCredentialsModal,
+        showSuccessModal: formData.showSuccessModal
+      };
+      localStorage.setItem(flowConfigKey, JSON.stringify(updatedFlowConfig));
+      console.log('💾 [Configuration] UI settings saved to flow config:', updatedFlowConfig);
 
       // Dispatch custom event to notify other components that config has changed
       window.dispatchEvent(new CustomEvent('pingone-config-changed'));
@@ -971,6 +996,60 @@ const Configuration = () => {
               <em>
                 💡 <strong>Need Help?</strong> Check the PingOne documentation or contact your PingOne administrator.
               </em>
+            </p>
+          </div>
+        </CardBody>
+      </Card>
+
+      {/* UI Settings */}
+      <Card>
+        <CardHeader>
+          <h2>UI Settings</h2>
+          <p className="subtitle">Configure user interface behavior and modal display options</p>
+        </CardHeader>
+        
+        <CardBody>
+          <FormGroup>
+            <div className="checkbox-container">
+              <input
+                type="checkbox"
+                id="showCredentialsModal"
+                name="showCredentialsModal"
+                checked={formData.showCredentialsModal}
+                onChange={handleChange}
+              />
+              <label htmlFor="showCredentialsModal">
+                Show Credentials Modal at Startup
+                <div className="form-text">
+                  Display the credentials setup modal when the application starts (if no credentials are found)
+                </div>
+              </label>
+            </div>
+          </FormGroup>
+
+          <FormGroup>
+            <div className="checkbox-container">
+              <input
+                type="checkbox"
+                id="showSuccessModal"
+                name="showSuccessModal"
+                checked={formData.showSuccessModal}
+                onChange={handleChange}
+              />
+              <label htmlFor="showSuccessModal">
+                Show Success Modal
+                <div className="form-text">
+                  Display a modal with authorization success details when returning from PingOne
+                </div>
+              </label>
+            </div>
+          </FormGroup>
+
+          <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#f8f9fa', borderRadius: '0.5rem', border: '1px solid #e9ecef' }}>
+            <h4 style={{ margin: '0 0 0.5rem 0', color: '#495057' }}>💡 UI Settings Info</h4>
+            <p style={{ margin: '0', fontSize: '0.9rem', color: '#6c757d' }}>
+              These settings control the display of modals throughout the application. 
+              Changes are saved to the flow configuration and will affect all OAuth flows.
             </p>
           </div>
         </CardBody>
