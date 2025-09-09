@@ -401,7 +401,8 @@ const CodeLine = styled.div`
 
 // Main Component
 const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
-  const { config } = useAuth();
+  const authContext = useAuth();
+  const { config } = authContext;
   const location = useLocation();
   const [credentials, setCredentials] = useState({
     clientId: '',
@@ -426,6 +427,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   const [state, setState] = useState('');
   const [tokens, setTokens] = useState<any>(null);
   const [userInfo, setUserInfo] = useState<any>(null);
+  const [callbackSuccess, setCallbackSuccess] = useState(false);
+  const [callbackError, setCallbackError] = useState<string | null>(null);
   const [testingMethod, setTestingMethod] = useState<'popup' | 'redirect'>('popup');
   const [copiedText, setCopiedText] = useState<string | null>(null);
   const [isAuthorizing, setIsAuthorizing] = useState<boolean>(false);
@@ -463,6 +466,23 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       if (code) {
         console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Setting authCode from URL (with step param):', code);
         setAuthCode(code);
+        setState(state || '');
+        
+        // Mark callback as successful and check for tokens
+        setCallbackSuccess(true);
+        setCallbackError(null);
+        
+        // Check if we have tokens from the auth context
+        if (authContext.authState.tokens) {
+          console.log('✅ [EnhancedAuthorizationCodeFlowV2] Tokens found in auth context:', authContext.authState.tokens);
+          setTokens(authContext.authState.tokens);
+        }
+        
+        // Check if we have user info from the auth context
+        if (authContext.authState.user) {
+          console.log('✅ [EnhancedAuthorizationCodeFlowV2] User info found in auth context:', authContext.authState.user);
+          setUserInfo(authContext.authState.user);
+        }
       }
       
       sessionStorage.setItem('enhanced-authz-code-v2-step', stepIndex.toString());
@@ -474,6 +494,24 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Authorization code detected, restoring to step 4 (handle callback)');
       console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Setting authCode from URL:', code);
       setAuthCode(code); // Set the authorization code from URL parameters
+      setState(state || '');
+      
+      // Mark callback as successful and check for tokens
+      setCallbackSuccess(true);
+      setCallbackError(null);
+      
+      // Check if we have tokens from the auth context
+      if (authContext.authState.tokens) {
+        console.log('✅ [EnhancedAuthorizationCodeFlowV2] Tokens found in auth context:', authContext.authState.tokens);
+        setTokens(authContext.authState.tokens);
+      }
+      
+      // Check if we have user info from the auth context
+      if (authContext.authState.user) {
+        console.log('✅ [EnhancedAuthorizationCodeFlowV2] User info found in auth context:', authContext.authState.user);
+        setUserInfo(authContext.authState.user);
+      }
+      
       sessionStorage.setItem('enhanced-authz-code-v2-step', '3'); // Step 4 is index 3
       return;
     }
@@ -483,7 +521,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     if (storedStep) {
       console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Restoring from stored step:', storedStep);
     }
-  }, [location.search]);
+  }, [location.search, authContext.authState.tokens, authContext.authState.user]);
 
   // Load credentials immediately to ensure buttons are enabled
   useEffect(() => {
@@ -1242,19 +1280,19 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             <div style={{ 
               marginTop: '2rem', 
               padding: '1.5rem', 
-              background: '#f8f9fa', 
-              border: '1px solid #e9ecef', 
+              background: '#f0fdf4', 
+              border: '1px solid #22c55e', 
               borderRadius: '0.5rem' 
             }}>
-              <h4 style={{ margin: '0 0 1rem 0', color: '#495057' }}>Generated Authorization URL</h4>
+              <h4 style={{ margin: '0 0 1rem 0', color: '#15803d' }}>Generated Authorization URL</h4>
               
               <div style={{ 
                 display: 'flex', 
                 alignItems: 'center', 
                 gap: '0.5rem', 
                 padding: '0.75rem', 
-                backgroundColor: 'white', 
-                border: '1px solid #e9ecef', 
+                backgroundColor: '#f0fdf4', 
+                border: '1px solid #22c55e', 
                 borderRadius: '0.5rem',
                 marginBottom: '1rem'
               }}>
@@ -1423,14 +1461,105 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       category: 'authorization',
       content: (
         <div>
-          <CallbackListener>
-            <FiClock size={48} style={{ marginBottom: '1rem', color: '#6b7280' }} />
-            <h4>Waiting for authorization callback...</h4>
-            <p>Expected format:</p>
-            <code>
-              {credentials.redirectUri}?code=AUTH_CODE_HERE&state={state}
-            </code>
-          </CallbackListener>
+          {!callbackSuccess && !callbackError && (
+            <CallbackListener>
+              <FiClock size={48} style={{ marginBottom: '1rem', color: '#6b7280' }} />
+              <h4>Waiting for authorization callback...</h4>
+              <p>Expected format:</p>
+              <code>
+                {credentials.redirectUri}?code=AUTH_CODE_HERE&state={state}
+              </code>
+            </CallbackListener>
+          )}
+
+          {callbackSuccess && (
+            <div style={{ 
+              marginTop: '2rem', 
+              padding: '1.5rem', 
+              background: '#f0fdf4', 
+              border: '1px solid #22c55e', 
+              borderRadius: '0.5rem' 
+            }}>
+              <h4 style={{ margin: '0 0 1rem 0', color: '#15803d' }}>
+                <FiCheckCircle style={{ marginRight: '0.5rem' }} />
+                Authorization Callback Successful!
+              </h4>
+              
+              <div style={{ marginBottom: '1rem' }}>
+                <strong>Authorization Code:</strong>
+                <code style={{ 
+                  display: 'block', 
+                  marginTop: '0.5rem', 
+                  padding: '0.5rem', 
+                  background: 'white', 
+                  border: '1px solid #22c55e', 
+                  borderRadius: '0.25rem',
+                  wordBreak: 'break-all'
+                }}>
+                  {authCode}
+                </code>
+              </div>
+
+              {tokens && (
+                <div style={{ marginBottom: '1rem' }}>
+                  <strong>Tokens Received:</strong>
+                  <ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
+                    <li>✅ Access Token: {tokens.access_token ? 'Received' : 'Missing'}</li>
+                    <li>✅ Refresh Token: {tokens.refresh_token ? 'Received' : 'Missing'}</li>
+                    <li>✅ ID Token: {tokens.id_token ? 'Received' : 'Missing'}</li>
+                    <li>Token Type: {tokens.token_type || 'Bearer'}</li>
+                    <li>Expires In: {tokens.expires_in ? `${tokens.expires_in} seconds` : 'Unknown'}</li>
+                    <li>Scope: {tokens.scope || 'Not specified'}</li>
+                  </ul>
+                </div>
+              )}
+
+              {userInfo && (
+                <div style={{ marginBottom: '1rem' }}>
+                  <strong>User Information:</strong>
+                  <div style={{ 
+                    marginTop: '0.5rem', 
+                    padding: '0.5rem', 
+                    background: 'white', 
+                    border: '1px solid #22c55e', 
+                    borderRadius: '0.25rem'
+                  }}>
+                    <p><strong>Subject (sub):</strong> {userInfo.sub || 'Not available'}</p>
+                    <p><strong>Name:</strong> {userInfo.name || 'Not available'}</p>
+                    <p><strong>Email:</strong> {userInfo.email || 'Not available'}</p>
+                    <p><strong>Preferred Username:</strong> {userInfo.preferred_username || 'Not available'}</p>
+                  </div>
+                </div>
+              )}
+
+              <div style={{ 
+                padding: '0.75rem', 
+                background: '#dcfce7', 
+                border: '1px solid #16a34a', 
+                borderRadius: '0.25rem',
+                color: '#15803d'
+              }}>
+                <FiCheckCircle style={{ marginRight: '0.5rem' }} />
+                Ready to proceed to Step 5: Exchange Code for Tokens
+              </div>
+            </div>
+          )}
+
+          {callbackError && (
+            <div style={{ 
+              marginTop: '2rem', 
+              padding: '1.5rem', 
+              background: '#fef2f2', 
+              border: '1px solid #ef4444', 
+              borderRadius: '0.5rem' 
+            }}>
+              <h4 style={{ margin: '0 0 1rem 0', color: '#dc2626' }}>
+                <FiAlertTriangle style={{ marginRight: '0.5rem' }} />
+                Authorization Callback Error
+              </h4>
+              <p style={{ color: '#dc2626' }}>{callbackError}</p>
+            </div>
+          )}
 
           <FormField>
             <FormLabel>Authorization Code (Auto-detected)</FormLabel>
@@ -1461,7 +1590,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           </FormField>
         </div>
       ),
-      canExecute: Boolean(credentials.environmentId && credentials.clientId && credentials.redirectUri)
+      canExecute: Boolean(authCode && credentials.environmentId && credentials.clientId)
     },
     {
       id: 'exchange-tokens',
