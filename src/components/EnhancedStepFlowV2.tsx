@@ -77,6 +77,7 @@ interface EnhancedStepFlowProps {
   showDebugInfo?: boolean;
   allowStepJumping?: boolean;
   initialStepIndex?: number; // Initial step to start on
+  onStepChange?: (stepIndex: number) => void; // Callback when step changes
 }
 
 // Enhanced Styled Components with new design system
@@ -629,12 +630,20 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
   autoAdvance = false,
   showDebugInfo = true,
   allowStepJumping = true,
-  initialStepIndex
+  initialStepIndex,
+  onStepChange
 }) => {
   const [currentStepIndex, setCurrentStepIndex] = useState(initialStepIndex || 0);
   const [stepHistory, setStepHistory] = useState<StepHistory[]>([]);
   const [isExecuting, setIsExecuting] = useState(false);
   const [showCredentials, setShowCredentials] = useState(false);
+
+  // Notify parent component when step changes
+  useEffect(() => {
+    if (onStepChange) {
+      onStepChange(currentStepIndex);
+    }
+  }, [currentStepIndex, onStepChange]);
   const [showDebug, setShowDebug] = useState(false);
   const [copiedText, setCopiedText] = useState<string | null>(null);
 
