@@ -458,6 +458,13 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       const stepIndex = parseInt(stepParam, 10) - 1; // Convert to 0-based index
       console.log('🔍 [EnhancedAuthorizationCodeFlowV2] URL step parameter detected:', stepParam, '-> step index:', stepIndex);
       console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Setting stored step to:', stepIndex);
+      
+      // If we also have an authorization code in the URL, set it
+      if (code) {
+        console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Setting authCode from URL (with step param):', code);
+        setAuthCode(code);
+      }
+      
       sessionStorage.setItem('enhanced-authz-code-v2-step', stepIndex.toString());
       return;
     }
@@ -465,6 +472,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     // If we have authorization code, we should be on step 4 (handle callback)
     if (code) {
       console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Authorization code detected, restoring to step 4 (handle callback)');
+      console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Setting authCode from URL:', code);
+      setAuthCode(code); // Set the authorization code from URL parameters
       sessionStorage.setItem('enhanced-authz-code-v2-step', '3'); // Step 4 is index 3
       return;
     }
