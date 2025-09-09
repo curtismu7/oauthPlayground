@@ -504,7 +504,7 @@ const Configuration = () => {
         <p>Configure your PingOne environment and application settings to get started with the OAuth Playground.</p>
       </PageHeader>
 
-      {/* UI Settings - Moved to top */}
+      {/* UI Settings - Moved to top, outside form */}
       <Card style={{ marginBottom: '2rem', backgroundColor: '#f8f9fa', border: '2px solid #e9ecef' }}>
         <CardHeader>
           <h2>🎛️ UI Settings</h2>
@@ -525,6 +525,15 @@ const Configuration = () => {
                     ...prev,
                     showCredentialsModal: e.target.checked
                   }));
+                  // Auto-save UI settings immediately
+                  const flowConfigKey = 'enhanced-flow-authorization-code';
+                  const existingFlowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
+                  const updatedFlowConfig = {
+                    ...existingFlowConfig,
+                    showCredentialsModal: e.target.checked
+                  };
+                  localStorage.setItem(flowConfigKey, JSON.stringify(updatedFlowConfig));
+                  console.log('💾 [Configuration] UI settings auto-saved:', updatedFlowConfig);
                 }}
               />
               <label htmlFor="showCredentialsModal">
@@ -549,6 +558,15 @@ const Configuration = () => {
                     ...prev,
                     showSuccessModal: e.target.checked
                   }));
+                  // Auto-save UI settings immediately
+                  const flowConfigKey = 'enhanced-flow-authorization-code';
+                  const existingFlowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
+                  const updatedFlowConfig = {
+                    ...existingFlowConfig,
+                    showSuccessModal: e.target.checked
+                  };
+                  localStorage.setItem(flowConfigKey, JSON.stringify(updatedFlowConfig));
+                  console.log('💾 [Configuration] UI settings auto-saved:', updatedFlowConfig);
                 }}
               />
               <label htmlFor="showSuccessModal">
@@ -564,7 +582,7 @@ const Configuration = () => {
             <h4 style={{ margin: '0 0 0.5rem 0', color: '#495057' }}>💡 UI Settings Info</h4>
             <p style={{ margin: '0', fontSize: '0.9rem', color: '#6c757d' }}>
               These settings control the display of modals throughout the application. 
-              Changes are saved to the flow configuration and will affect all OAuth flows.
+              Changes are saved automatically and will affect all OAuth flows.
             </p>
           </div>
         </CardBody>
