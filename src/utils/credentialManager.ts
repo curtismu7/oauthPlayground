@@ -65,17 +65,39 @@ class CredentialManager {
   }
 
   /**
-   * Load permanent credentials
+   * Load permanent credentials from localStorage, with fallback to environment variables
    */
   loadPermanentCredentials(): PermanentCredentials {
     try {
       const stored = localStorage.getItem(this.PERMANENT_CREDENTIALS_KEY);
       console.log('🔧 [CredentialManager] Loading from localStorage:', {
         key: this.PERMANENT_CREDENTIALS_KEY,
-        stored: stored
+        stored: stored,
+        allKeys: Object.keys(localStorage).filter(key => key.includes('pingone'))
       });
       
-      if (!stored) {
+      if (stored) {
+        // Load from localStorage if available
+        const credentials = JSON.parse(stored);
+        console.log('✅ [CredentialManager] Loaded from localStorage:', credentials);
+        
+        // Ensure required fields have defaults
+        const result = {
+          environmentId: credentials.environmentId || '',
+          clientId: credentials.clientId || '',
+          redirectUri: credentials.redirectUri || window.location.origin + '/dashboard-callback',
+          scopes: credentials.scopes || ['openid', 'profile', 'email'],
+          authEndpoint: credentials.authEndpoint,
+          tokenEndpoint: credentials.tokenEndpoint,
+          userInfoEndpoint: credentials.userInfoEndpoint,
+          endSessionEndpoint: credentials.endSessionEndpoint
+        };
+        
+        console.log('✅ [CredentialManager] Returning credentials:', result);
+        return result;
+      } else {
+        // No localStorage found, return empty credentials
+        // The async loading will be handled by loadPermanentCredentialsAsync
         console.log('❌ [CredentialManager] No stored credentials found');
         return {
           environmentId: '',
@@ -84,27 +106,100 @@ class CredentialManager {
           scopes: ['openid', 'profile', 'email']
         };
       }
-
-      const credentials = JSON.parse(stored);
-      console.log('✅ [CredentialManager] Parsed credentials:', credentials);
-      
-      // Ensure required fields have defaults
-      const result = {
-        environmentId: credentials.environmentId || '',
-        clientId: credentials.clientId || '',
-        redirectUri: credentials.redirectUri || window.location.origin + '/dashboard-callback',
-        scopes: credentials.scopes || ['openid', 'profile', 'email'],
-        authEndpoint: credentials.authEndpoint,
-        tokenEndpoint: credentials.tokenEndpoint,
-        userInfoEndpoint: credentials.userInfoEndpoint,
-        endSessionEndpoint: credentials.endSessionEndpoint
-      };
-      
-      console.log('✅ [CredentialManager] Returning credentials:', result);
-      return result;
     } catch (error) {
       console.error('❌ [CredentialManager] Failed to load permanent credentials:', error);
       logger.error('CredentialManager', 'Failed to load permanent credentials', error);
+      return {
+        environmentId: '',
+        clientId: '',
+        redirectUri: window.location.origin + '/dashboard-callback',
+        scopes: ['openid', 'profile', 'email']
+      };
+    }
+  }
+
+  /**
+   * Load permanent credentials asynchronously, with fallback to environment variables
+   */
+  async loadPermanentCredentialsAsync(): Promise<PermanentCredentials> {
+    try {
+      const stored = localStorage.getItem(this.PERMANENT_CREDENTIALS_KEY);
+      console.log('🔧 [CredentialManager] Loading from localStorage (async):', {
+        key: this.PERMANENT_CREDENTIALS_KEY,
+        stored: stored,
+        allKeys: Object.keys(localStorage).filter(key => key.includes('pingone'))
+      });
+      
+      if (stored) {
+        // Load from localStorage if available
+        const credentials = JSON.parse(stored);
+        console.log('✅ [CredentialManager] Loaded from localStorage:', credentials);
+        
+        // Ensure required fields have defaults
+        const result = {
+          environmentId: credentials.environmentId || '',
+          clientId: credentials.clientId || '',
+          redirectUri: credentials.redirectUri || window.location.origin + '/dashboard-callback',
+          scopes: credentials.scopes || ['openid', 'profile', 'email'],
+          authEndpoint: credentials.authEndpoint,
+          tokenEndpoint: credentials.tokenEndpoint,
+          userInfoEndpoint: credentials.userInfoEndpoint,
+          endSessionEndpoint: credentials.endSessionEndpoint
+        };
+        
+        console.log('✅ [CredentialManager] Returning credentials:', result);
+        return result;
+      } else {
+        // Fallback to environment variables
+        console.log('🔄 [CredentialManager] No localStorage found, checking environment variables...');
+        const credentials = await this.loadFromEnvironmentVariables();
+        
+        if (credentials.environmentId && credentials.clientId) {
+          console.log('✅ [CredentialManager] Loaded from environment variables:', credentials);
+          // Auto-save to localStorage for future use
+          this.savePermanentCredentials(credentials);
+        } else {
+          console.log('❌ [CredentialManager] No credentials found in localStorage or environment');
+        }
+        
+        return credentials;
+      }
+    } catch (error) {
+      console.error('❌ [CredentialManager] Failed to load permanent credentials:', error);
+      logger.error('CredentialManager', 'Failed to load permanent credentials', error);
+      
+      // Final fallback to environment variables
+      return await this.loadFromEnvironmentVariables();
+    }
+  }
+
+  /**
+   * Load credentials from environment variables via API endpoint
+   */
+  private async loadFromEnvironmentVariables(): Promise<PermanentCredentials> {
+    try {
+      console.log('🔄 [CredentialManager] Fetching environment config from server...');
+      
+      const response = await fetch('/api/env-config');
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const envConfig = await response.json();
+      console.log('✅ [CredentialManager] Loaded from environment config:', envConfig);
+      
+      return {
+        environmentId: envConfig.environmentId || '',
+        clientId: envConfig.clientId || '',
+        redirectUri: envConfig.redirectUri || window.location.origin + '/dashboard-callback',
+        scopes: envConfig.scopes || ['openid', 'profile', 'email'],
+        authEndpoint: envConfig.authEndpoint,
+        tokenEndpoint: envConfig.tokenEndpoint,
+        userInfoEndpoint: envConfig.userInfoEndpoint,
+        endSessionEndpoint: envConfig.endSessionEndpoint
+      };
+    } catch (error) {
+      console.error('❌ [CredentialManager] Failed to load from environment variables:', error);
       return {
         environmentId: '',
         clientId: '',
@@ -167,10 +262,35 @@ class CredentialManager {
     const permanent = this.loadPermanentCredentials();
     const session = this.loadSessionCredentials();
     
-    return {
+    console.log('🔧 [CredentialManager] getAllCredentials - permanent:', permanent);
+    console.log('🔧 [CredentialManager] getAllCredentials - session:', session);
+    
+    const result = {
       ...permanent,
       ...session
     };
+    
+    console.log('🔧 [CredentialManager] getAllCredentials - result:', result);
+    return result;
+  }
+
+  /**
+   * Get all credentials asynchronously (permanent + session)
+   */
+  async getAllCredentialsAsync(): Promise<AllCredentials> {
+    const permanent = await this.loadPermanentCredentialsAsync();
+    const session = this.loadSessionCredentials();
+    
+    console.log('🔧 [CredentialManager] getAllCredentialsAsync - permanent:', permanent);
+    console.log('🔧 [CredentialManager] getAllCredentialsAsync - session:', session);
+    
+    const result = {
+      ...permanent,
+      ...session
+    };
+    
+    console.log('🔧 [CredentialManager] getAllCredentialsAsync - result:', result);
+    return result;
   }
 
   /**
@@ -265,6 +385,18 @@ class CredentialManager {
       session: sessionStatus,
       overall: overallStatus
     };
+  }
+
+  /**
+   * Debug method to check localStorage contents
+   */
+  debugLocalStorage(): void {
+    console.log('🔍 [CredentialManager] Debug localStorage contents:');
+    console.log('🔍 [CredentialManager] All localStorage keys:', Object.keys(localStorage));
+    console.log('🔍 [CredentialManager] pingone_permanent_credentials:', localStorage.getItem('pingone_permanent_credentials'));
+    console.log('🔍 [CredentialManager] pingone_session_credentials:', localStorage.getItem('pingone_session_credentials'));
+    console.log('🔍 [CredentialManager] pingone_config:', localStorage.getItem('pingone_config'));
+    console.log('🔍 [CredentialManager] login_credentials:', localStorage.getItem('login_credentials'));
   }
 }
 

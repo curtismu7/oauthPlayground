@@ -58,9 +58,9 @@ export interface PingOneConfig {
 const typedWindow = window as WindowWithPingOne;
 
 export const appConfig = {
-  title: typedWindow.__PINGONE_APP_TITLE__ || 'PingOne OAuth Playground',
+  title: typedWindow.__PINGONE_APP_TITLE__ || 'PingOne OAuth/OIDC Playground',
   description: typedWindow.__PINGONE_APP_DESCRIPTION__ || 'Interactive playground for OAuth 2.0 and OpenID Connect with PingOne',
-  version: typedWindow.__PINGONE_APP_VERSION__ || '1.0.0',
+  version: typedWindow.__PINGONE_APP_VERSION__ || '4.9.2',
   defaultTheme: typedWindow.__PINGONE_APP_DEFAULT_THEME__ || 'light',
   devServer: {
     port: parseInt(typedWindow.__PINGONE_DEV_SERVER_PORT__ || '3000'),
