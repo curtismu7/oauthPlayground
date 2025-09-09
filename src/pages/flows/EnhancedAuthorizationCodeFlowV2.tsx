@@ -1,5 +1,6 @@
 // src/pages/flows/EnhancedAuthorizationCodeFlowV2.tsx - Enhanced with complete UI design implementation
 import React, { useState, useEffect, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { 
   FiUser, 
@@ -400,6 +401,7 @@ const CodeLine = styled.div`
 // Main Component
 const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   const { config } = useAuth();
+  const location = useLocation();
   const [credentials, setCredentials] = useState({
     clientId: '',
     clientSecret: '',
@@ -442,6 +444,20 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   const [urlGenerated, setUrlGenerated] = useState<boolean>(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [errorDescription, setErrorDescription] = useState<string | null>(null);
+
+  // Handle URL parameters to restore correct step
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const stepParam = urlParams.get('step');
+    
+    if (stepParam) {
+      const stepIndex = parseInt(stepParam, 10) - 1; // Convert to 0-based index
+      console.log('🔍 [EnhancedAuthorizationCodeFlowV2] URL step parameter detected:', stepParam, '-> step index:', stepIndex);
+      
+      // Store the step index to be used by EnhancedStepFlowV2
+      sessionStorage.setItem('enhanced-authz-code-v2-step', stepIndex.toString());
+    }
+  }, [location.search]);
 
   // Load credentials immediately to ensure buttons are enabled
   useEffect(() => {
@@ -1800,6 +1816,16 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         autoAdvance={false}
         showDebugInfo={true}
         allowStepJumping={true}
+        initialStepIndex={(() => {
+          const storedStep = sessionStorage.getItem('enhanced-authz-code-v2-step');
+          if (storedStep) {
+            const stepIndex = parseInt(storedStep, 10);
+            console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Restoring step from URL:', stepIndex);
+            sessionStorage.removeItem('enhanced-authz-code-v2-step'); // Clean up
+            return stepIndex;
+          }
+          return undefined;
+        })()}
       />
 
       {/* Authorization Request Modal */}
