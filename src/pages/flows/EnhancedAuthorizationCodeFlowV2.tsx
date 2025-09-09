@@ -1500,7 +1500,26 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       category: 'authorization',
       content: (
         <div>
-          {!callbackSuccess && !callbackError && (
+          {authCode && (
+            <div style={{ 
+              marginBottom: '2rem', 
+              padding: '1.5rem', 
+              background: '#dbeafe', 
+              border: '2px solid #3b82f6', 
+              borderRadius: '0.75rem',
+              textAlign: 'center'
+            }}>
+              <FiCheckCircle size={48} style={{ marginBottom: '1rem', color: '#1d4ed8' }} />
+              <h3 style={{ margin: '0 0 0.5rem 0', color: '#1e40af' }}>
+                🎉 Welcome Back from PingOne!
+              </h3>
+              <p style={{ margin: '0', color: '#1e40af', fontSize: '1.1rem' }}>
+                Your authorization was successful. You can now proceed with the token exchange.
+              </p>
+            </div>
+          )}
+
+          {!callbackSuccess && !callbackError && !authCode && (
             <CallbackListener>
               <FiClock size={48} style={{ marginBottom: '1rem', color: '#6b7280' }} />
               <h4>Waiting for authorization callback...</h4>
@@ -1511,7 +1530,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             </CallbackListener>
           )}
 
-          {callbackSuccess && (
+          {(callbackSuccess || authCode) && (
             <div style={{ 
               marginTop: '2rem', 
               padding: '1.5rem', 
@@ -1540,8 +1559,14 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               </div>
 
               {tokens && (
-                <div style={{ marginBottom: '1rem' }}>
-                  <strong>Tokens Received:</strong>
+                <div style={{ 
+                  marginBottom: '1rem', 
+                  padding: '1rem', 
+                  background: '#ecfdf5', 
+                  border: '1px solid #10b981', 
+                  borderRadius: '0.5rem' 
+                }}>
+                  <strong style={{ color: '#065f46' }}>🎉 Tokens Successfully Exchanged!</strong>
                   <ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
                     <li>✅ Access Token: {tokens.access_token ? 'Received' : 'Missing'}</li>
                     <li>✅ Refresh Token: {tokens.refresh_token ? 'Received' : 'Missing'}</li>
@@ -1554,8 +1579,14 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               )}
 
               {userInfo && (
-                <div style={{ marginBottom: '1rem' }}>
-                  <strong>User Information:</strong>
+                <div style={{ 
+                  marginBottom: '1rem', 
+                  padding: '1rem', 
+                  background: '#fef3c7', 
+                  border: '1px solid #f59e0b', 
+                  borderRadius: '0.5rem' 
+                }}>
+                  <strong style={{ color: '#92400e' }}>👤 User Information Retrieved!</strong>
                   <div style={{ 
                     marginTop: '0.5rem', 
                     padding: '0.5rem', 
