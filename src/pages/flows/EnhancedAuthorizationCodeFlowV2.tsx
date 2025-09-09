@@ -2464,11 +2464,11 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                     await new Promise(resolve => setTimeout(resolve, 500));
                     
                     setShowAuthSuccessModal(false);
-                    // Advance to step 5 (token exchange) - index 4
-                    sessionStorage.setItem('enhanced-authz-code-v2-step', '4');
+                    // Advance to step 6 (token exchange) - index 5 (0-based)
+                    sessionStorage.setItem('enhanced-authz-code-v2-step', '5');
                     // Trigger a custom event to notify the step flow to advance
                     window.dispatchEvent(new CustomEvent('advance-to-step', { 
-                      detail: { stepIndex: 4, stepName: 'exchange-tokens' } 
+                      detail: { stepIndex: 5, stepName: 'exchange-tokens' } 
                     }));
                   } finally {
                     setIsModalLoading(false);
