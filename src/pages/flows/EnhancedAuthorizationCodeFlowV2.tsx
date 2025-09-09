@@ -1024,45 +1024,13 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       isOptional: true,
       content: (
         <div>
-          <FormField>
-            <FormLabel>Code Verifier (Generated)</FormLabel>
-            <FormInput
-              type="text"
-              value={pkceCodes.codeVerifier}
-              readOnly
-              placeholder="Click Generate to create PKCE codes"
-              $generated={!!pkceCodes.codeVerifier}
-            />
-            {pkceCodes.codeVerifier && (
-              <CopyButton onClick={() => copyToClipboard(pkceCodes.codeVerifier)}>
-                {copiedText === pkceCodes.codeVerifier ? <FiCheckCircle /> : <FiCopy />}
-              </CopyButton>
-            )}
-          </FormField>
-
-          <FormField>
-            <FormLabel>Code Challenge (SHA256)</FormLabel>
-            <FormInput
-              type="text"
-              value={pkceCodes.codeChallenge}
-              readOnly
-              placeholder="Click Generate to create PKCE codes"
-              $generated={!!pkceCodes.codeChallenge}
-            />
-            {pkceCodes.codeChallenge && (
-              <CopyButton onClick={() => copyToClipboard(pkceCodes.codeChallenge)}>
-                {copiedText === pkceCodes.codeChallenge ? <FiCheckCircle /> : <FiCopy />}
-              </CopyButton>
-            )}
-          </FormField>
-
           <CodeBlock>
             <CodeComment>// How PKCE Codes Are Used in OAuth Flow</CodeComment>
             <CodeComment>// Step 1: Authorization Request (with code_challenge)</CodeComment>
             <CodeLine>GET /as/authorize?response_type=code&client_id=...&code_challenge={pkceCodes.codeChallenge || '[CODE_CHALLENGE]'}&code_challenge_method=S256</CodeLine>
             <CodeComment>// Step 2: Authorization Server returns authorization code</CodeComment>
             <CodeLine>redirect_uri?code=[AUTHORIZATION_CODE]&state=[STATE]</CodeLine>
-            <CodeComment>// Step 3: Token Exchange (with code_verifier)</CodeComment>
+            <CodeComment>// Step 3: Token Exchange (with code_verifier)</CodeLine>
             <CodeLine>POST /as/token</CodeLine>
             <CodeLine>grant_type=authorization_code&code=[AUTHORIZATION_CODE]&code_verifier={pkceCodes.codeVerifier || '[CODE_VERIFIER]'}</CodeLine>
             <CodeComment>// Step 4: Server validates: SHA256(code_verifier) === code_challenge</CodeComment>
@@ -1111,6 +1079,45 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               </div>
             </InfoBox>
           )}
+
+          {/* Generated PKCE Codes - Display at bottom */}
+          {pkceGenerated && pkceCodes.codeVerifier && (
+            <div style={{ 
+              marginTop: '2rem', 
+              padding: '1.5rem', 
+              background: '#f8f9fa', 
+              border: '1px solid #e9ecef', 
+              borderRadius: '0.5rem' 
+            }}>
+              <h4 style={{ margin: '0 0 1rem 0', color: '#495057' }}>Generated PKCE Codes</h4>
+              
+              <FormField>
+                <FormLabel>Code Verifier (Generated)</FormLabel>
+                <FormInput
+                  type="text"
+                  value={pkceCodes.codeVerifier}
+                  readOnly
+                  $generated={!!pkceCodes.codeVerifier}
+                />
+                <CopyButton onClick={() => copyToClipboard(pkceCodes.codeVerifier)}>
+                  {copiedText === pkceCodes.codeVerifier ? <FiCheckCircle /> : <FiCopy />}
+                </CopyButton>
+              </FormField>
+
+              <FormField>
+                <FormLabel>Code Challenge (SHA256)</FormLabel>
+                <FormInput
+                  type="text"
+                  value={pkceCodes.codeChallenge}
+                  readOnly
+                  $generated={!!pkceCodes.codeChallenge}
+                />
+                <CopyButton onClick={() => copyToClipboard(pkceCodes.codeChallenge)}>
+                  {copiedText === pkceCodes.codeChallenge ? <FiCheckCircle /> : <FiCopy />}
+                </CopyButton>
+              </FormField>
+            </div>
+          )}
         </div>
       ),
       execute: async () => {
@@ -1150,78 +1157,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             <CodeLine>code_challenge_method: '{credentials.codeChallengeMethod}'</CodeLine>
           </CodeBlock>
 
-          {urlGenerated && authUrl && (
-            <FormField>
-              <FormLabel>URL Components (JSON)</FormLabel>
-              <JsonDisplay>
-                {JSON.stringify({
-                  baseUrl: credentials.authorizationEndpoint,
-                  response_type: credentials.responseType,
-                  client_id: credentials.clientId,
-                  redirect_uri: credentials.redirectUri,
-                  scope: credentials.scopes,
-                  state: state,
-                  code_challenge: pkceCodes.codeChallenge,
-                  code_challenge_method: credentials.codeChallengeMethod
-                }, null, 2)}
-                <CopyButton onClick={() => copyToClipboard(JSON.stringify({
-                  baseUrl: credentials.authorizationEndpoint,
-                  response_type: credentials.responseType,
-                  client_id: credentials.clientId,
-                  redirect_uri: credentials.redirectUri,
-                  scope: credentials.scopes,
-                  state: state,
-                  code_challenge: pkceCodes.codeChallenge,
-                  code_challenge_method: credentials.codeChallengeMethod
-                }, null, 2))}>
-                  {copiedText === JSON.stringify({
-                    baseUrl: credentials.authorizationEndpoint,
-                    response_type: credentials.responseType,
-                    client_id: credentials.clientId,
-                    redirect_uri: credentials.redirectUri,
-                    scope: credentials.scopes,
-                    state: state,
-                    code_challenge: pkceCodes.codeChallenge,
-                    code_challenge_method: credentials.codeChallengeMethod
-                  }, null, 2) ? <FiCheckCircle /> : <FiCopy />}
-                </CopyButton>
-              </JsonDisplay>
-            </FormField>
-          )}
 
-          {urlGenerated && authUrl && (
-            <ParameterBreakdown>
-              <h4>Parameter Breakdown:</h4>
-              <ParameterItem>
-                <ParameterName>response_type</ParameterName>
-                <ParameterValue>code (Authorization Code Flow)</ParameterValue>
-              </ParameterItem>
-              <ParameterItem>
-                <ParameterName>client_id</ParameterName>
-                <ParameterValue>{credentials.clientId}</ParameterValue>
-              </ParameterItem>
-              <ParameterItem>
-                <ParameterName>redirect_uri</ParameterName>
-                <ParameterValue>{credentials.redirectUri}</ParameterValue>
-              </ParameterItem>
-              <ParameterItem>
-                <ParameterName>scope</ParameterName>
-                <ParameterValue>{credentials.scopes}</ParameterValue>
-              </ParameterItem>
-              <ParameterItem>
-                <ParameterName>state</ParameterName>
-                <ParameterValue>{state}</ParameterValue>
-              </ParameterItem>
-              <ParameterItem>
-                <ParameterName>code_challenge</ParameterName>
-                <ParameterValue>{pkceCodes.codeChallenge}</ParameterValue>
-              </ParameterItem>
-              <ParameterItem>
-                <ParameterName>code_challenge_method</ParameterName>
-                <ParameterValue>{credentials.codeChallengeMethod}</ParameterValue>
-              </ParameterItem>
-            </ParameterBreakdown>
-          )}
 
           {urlGenerated && (
             <InfoBox type="success">
@@ -1289,6 +1225,124 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                 Constructing the complete authorization URL with all required OAuth parameters...
               </div>
             </InfoBox>
+          )}
+
+          {/* Generated Authorization URL Results - Display at bottom */}
+          {urlGenerated && authUrl && (
+            <div style={{ 
+              marginTop: '2rem', 
+              padding: '1.5rem', 
+              background: '#f8f9fa', 
+              border: '1px solid #e9ecef', 
+              borderRadius: '0.5rem' 
+            }}>
+              <h4 style={{ margin: '0 0 1rem 0', color: '#495057' }}>Generated Authorization URL</h4>
+              
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '0.5rem', 
+                padding: '0.75rem', 
+                backgroundColor: 'white', 
+                border: '1px solid #e9ecef', 
+                borderRadius: '0.5rem',
+                marginBottom: '1rem'
+              }}>
+                <code style={{ 
+                  flex: 1, 
+                  fontSize: '0.875rem', 
+                  color: '#495057', 
+                  wordBreak: 'break-all' 
+                }}>
+                  {authUrl}
+                </code>
+                <button
+                  onClick={() => copyToClipboard(authUrl)}
+                  style={{
+                    background: 'none',
+                    border: '1px solid #007bff',
+                    color: '#007bff',
+                    cursor: 'pointer',
+                    padding: '0.25rem 0.5rem',
+                    borderRadius: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.25rem'
+                  }}
+                >
+                  {copiedText === authUrl ? <FiCheckCircle size={16} /> : <FiCopy size={16} />}
+                </button>
+              </div>
+
+              <FormField>
+                <FormLabel>URL Components (JSON)</FormLabel>
+                <JsonDisplay>
+                  {JSON.stringify({
+                    baseUrl: credentials.authorizationEndpoint,
+                    response_type: credentials.responseType,
+                    client_id: credentials.clientId,
+                    redirect_uri: credentials.redirectUri,
+                    scope: credentials.scopes,
+                    state: state,
+                    code_challenge: pkceCodes.codeChallenge,
+                    code_challenge_method: credentials.codeChallengeMethod
+                  }, null, 2)}
+                  <CopyButton onClick={() => copyToClipboard(JSON.stringify({
+                    baseUrl: credentials.authorizationEndpoint,
+                    response_type: credentials.responseType,
+                    client_id: credentials.clientId,
+                    redirect_uri: credentials.redirectUri,
+                    scope: credentials.scopes,
+                    state: state,
+                    code_challenge: pkceCodes.codeChallenge,
+                    code_challenge_method: credentials.codeChallengeMethod
+                  }, null, 2))}>
+                    {copiedText === JSON.stringify({
+                      baseUrl: credentials.authorizationEndpoint,
+                      response_type: credentials.responseType,
+                      client_id: credentials.clientId,
+                      redirect_uri: credentials.redirectUri,
+                      scope: credentials.scopes,
+                      state: state,
+                      code_challenge: pkceCodes.codeChallenge,
+                      code_challenge_method: credentials.codeChallengeMethod
+                    }, null, 2) ? <FiCheckCircle /> : <FiCopy />}
+                  </CopyButton>
+                </JsonDisplay>
+              </FormField>
+
+              <ParameterBreakdown>
+                <h4>Parameter Breakdown:</h4>
+                <ParameterItem>
+                  <ParameterName>response_type</ParameterName>
+                  <ParameterValue>code (Authorization Code Flow)</ParameterValue>
+                </ParameterItem>
+                <ParameterItem>
+                  <ParameterName>client_id</ParameterName>
+                  <ParameterValue>{credentials.clientId}</ParameterValue>
+                </ParameterItem>
+                <ParameterItem>
+                  <ParameterName>redirect_uri</ParameterName>
+                  <ParameterValue>{credentials.redirectUri}</ParameterValue>
+                </ParameterItem>
+                <ParameterItem>
+                  <ParameterName>scope</ParameterName>
+                  <ParameterValue>{credentials.scopes}</ParameterValue>
+                </ParameterItem>
+                <ParameterItem>
+                  <ParameterName>state</ParameterName>
+                  <ParameterValue>{state}</ParameterValue>
+                </ParameterItem>
+                <ParameterItem>
+                  <ParameterName>code_challenge</ParameterName>
+                  <ParameterValue>{pkceCodes.codeChallenge}</ParameterValue>
+                </ParameterItem>
+                <ParameterItem>
+                  <ParameterName>code_challenge_method</ParameterName>
+                  <ParameterValue>{credentials.codeChallengeMethod}</ParameterValue>
+                </ParameterItem>
+              </ParameterBreakdown>
+            </div>
           )}
         </div>
       ),
