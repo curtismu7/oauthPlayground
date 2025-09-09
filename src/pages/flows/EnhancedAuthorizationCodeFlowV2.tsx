@@ -28,6 +28,7 @@ import OAuthErrorHelper from '../../components/OAuthErrorHelper';
 import { generateCodeVerifier, generateCodeChallenge } from '../../utils/oauth';
 import { credentialManager } from '../../utils/credentialManager';
 import { logger } from '../../utils/logger';
+import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
 import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
 import ConfigurationStatus from '../../components/ConfigurationStatus';
 import ContextualHelp from '../../components/ContextualHelp';
@@ -638,10 +639,14 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     const scopes = credentials.scopes || 'openid profile email';
     console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Generating auth URL with scopes:', scopes);
     
+    // Use the correct callback URL for authorization code flow
+    const redirectUri = getCallbackUrlForFlow('authorization-code');
+    console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Using redirect URI:', redirectUri);
+    
     const params = new URLSearchParams({
       response_type: credentials.responseType || 'code',
       client_id: credentials.clientId,
-      redirect_uri: credentials.redirectUri,
+      redirect_uri: redirectUri,
       scope: scopes,
       state: generatedState,
       code_challenge: pkceCodes.codeChallenge,
@@ -652,7 +657,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     if (!credentials.clientId) {
       throw new Error('Client ID is required');
     }
-    if (!credentials.redirectUri) {
+    if (!redirectUri) {
       throw new Error('Redirect URI is required');
     }
     if (!scopes || scopes.trim() === '') {
@@ -1783,13 +1788,13 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             fontWeight: '500', 
             color: '#374151' 
           }}>
-            Redirect URI
+            Redirect URI (Read-only - Auto-configured)
           </label>
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             <input
               type="text"
-              value={credentials.redirectUri}
-              onChange={(e) => setCredentials(prev => ({ ...prev, redirectUri: e.target.value }))}
+              value={getCallbackUrlForFlow('authorization-code')}
+              readOnly
               style={{
                 flex: 1,
                 padding: '0.75rem',
@@ -1797,34 +1802,15 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                 borderRadius: '0.5rem',
                 fontSize: '0.875rem',
                 fontFamily: 'monospace',
-                backgroundColor: 'white'
+                backgroundColor: '#f9fafb',
+                color: '#6b7280'
               }}
               placeholder="https://localhost:3000/authz-callback"
             />
             <button
               onClick={() => {
-                const defaultUri = window.location.origin + '/authz-callback';
-                setCredentials(prev => ({ ...prev, redirectUri: defaultUri }));
-              }}
-              style={{
-                padding: '0.75rem 1rem',
-                backgroundColor: '#f3f4f6',
-                border: '1px solid #d1d5db',
-                borderRadius: '0.5rem',
-                fontSize: '0.875rem',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              Reset to Default
-            </button>
-            <button
-              onClick={() => {
-                // Save the updated credentials
-                const updatedCredentials = { ...credentials };
-                credentialManager.saveCredentials(updatedCredentials);
-                setCredentialsSaved(true);
-                console.log('✅ Callback URL saved:', credentials.redirectUri);
+                navigator.clipboard.writeText(getCallbackUrlForFlow('authorization-code'));
+                console.log('✅ Callback URL copied to clipboard');
               }}
               style={{
                 padding: '0.75rem 1rem',
@@ -1837,7 +1823,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                 whiteSpace: 'nowrap'
               }}
             >
-              Save Config
+              Copy URL
             </button>
           </div>
           <p style={{ 
@@ -1845,26 +1831,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             fontSize: '0.75rem', 
             color: '#6b7280' 
           }}>
-            This URL must be configured in your PingOne application settings as an allowed redirect URI.
+            This URL is automatically configured for the authorization code flow. Copy it and add it to your PingOne application settings as an allowed redirect URI.
           </p>
-          
-          {credentialsSaved && (
-            <div style={{
-              marginTop: '1rem',
-              padding: '0.75rem',
-              backgroundColor: '#f0fdf4',
-              border: '1px solid #22c55e',
-              borderRadius: '0.5rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem'
-            }}>
-              <FiCheckCircle style={{ color: '#22c55e' }} />
-              <span style={{ color: '#15803d', fontSize: '0.875rem', fontWeight: '500' }}>
-                Config saved successfully!
-              </span>
-            </div>
-          )}
         </div>
 
         <div style={{ 
