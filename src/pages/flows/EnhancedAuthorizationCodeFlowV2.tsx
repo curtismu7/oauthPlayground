@@ -724,40 +724,20 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     }
   }, [location.search, authContext?.authState?.tokens, authContext?.authState?.user]);
 
-  // Additional useEffect to force modal display when authCode is present
-  // But only if we're on step 4 (handle callback), not step 5 (exchange tokens)
+  // Show success modal only when we have an authorization code and are on step 4 (handle callback)
   useEffect(() => {
-    if (authCode && !showAuthSuccessModal && currentStepIndex === 4) {
+    if (authCode && currentStepIndex === 4 && !showAuthSuccessModal) {
       console.log('🔔 [EnhancedAuthorizationCodeFlowV2] AuthCode detected on step 4, forcing modal to show');
       setTimeout(() => {
         setShowAuthSuccessModal(true);
       }, 200);
-    } else if (authCode && currentStepIndex === 5) {
-      console.log('🔔 [EnhancedAuthorizationCodeFlowV2] AuthCode detected on step 5, skipping modal (auto-exchanging tokens)');
+    } else if (currentStepIndex === 5) {
+      console.log('🔔 [EnhancedAuthorizationCodeFlowV2] On step 5, ensuring modal is hidden');
       setShowAuthSuccessModal(false);
     }
-  }, [authCode, showAuthSuccessModal, currentStepIndex]);
+  }, [authCode, currentStepIndex, showAuthSuccessModal]);
 
-  // Force modal display on page load if we have an auth code
-  // But only if we're not going directly to step 5
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
-    const step = urlParams.get('step');
-    
-    if (code && !showAuthSuccessModal) {
-      // If step=5, don't show modal (auto-exchange tokens)
-      if (step === '5') {
-        console.log('🔔 [EnhancedAuthorizationCodeFlowV2] Page load with auth code and step=5, skipping modal (auto-exchanging tokens)');
-        setShowAuthSuccessModal(false);
-      } else {
-        console.log('🔔 [EnhancedAuthorizationCodeFlowV2] Page load with auth code, forcing modal display');
-        setTimeout(() => {
-          setShowAuthSuccessModal(true);
-        }, 500);
-      }
-    }
-  }, []); // Run only on mount
+  // This useEffect is now handled by the main step initialization logic above
 
   // Debug effect to track state changes
   useEffect(() => {
@@ -843,7 +823,14 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
 
   // Initialize step index based on URL parameters and stored step
   useEffect(() => {
+    let hasInitialized = false;
+    
     const initializeStepIndex = () => {
+      if (hasInitialized) {
+        console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Already initialized, skipping');
+        return;
+      }
+      hasInitialized = true;
       const storedStep = sessionStorage.getItem('enhanced-authz-code-v2-step');
       console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Checking for stored step:', storedStep);
       console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Current URL:', window.location.href);
@@ -857,39 +844,33 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       
       console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - URL params:', { code, state, step, action });
       
-      if (code) {
-        // If we have a step parameter, respect it (this comes from the modal redirect)
-        if (step) {
-          const stepIndex = parseInt(step, 10);
-          console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Authorization code found with step parameter, going to step:', stepIndex);
-          setCurrentStepIndex(stepIndex);
-          
-          // If step is 5 (exchange tokens), automatically exchange the code
-          if (stepIndex === 5) {
-            console.log('🔄 [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Step 5 detected, will auto-exchange tokens');
-            // Set the auth code and trigger exchange
-            setAuthCode(code);
-            setState(state || '');
-            setCallbackSuccess(true);
-            setCallbackError(null);
-            
-            // Auto-exchange tokens after a short delay
-            setTimeout(async () => {
-              try {
-                console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Auto-exchanging authorization code for tokens');
-                await exchangeCodeForTokens();
-                console.log('✅ [EnhancedAuthorizationCodeFlowV2] Auto token exchange successful');
-              } catch (error) {
-                console.error('❌ [EnhancedAuthorizationCodeFlowV2] Auto token exchange failed:', error);
-              }
-            }, 100);
+      // PRIORITY 1: If we have both code and step=5, go directly to step 5 and exchange tokens
+      if (code && step === '5') {
+        console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Authorization code with step=5, going directly to step 5');
+        setCurrentStepIndex(5);
+        setAuthCode(code);
+        setState(state || '');
+        setCallbackSuccess(true);
+        setCallbackError(null);
+        
+        // Auto-exchange tokens immediately
+        setTimeout(async () => {
+          try {
+            console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Auto-exchanging authorization code for tokens');
+            await exchangeCodeForTokens();
+            console.log('✅ [EnhancedAuthorizationCodeFlowV2] Auto token exchange successful');
+          } catch (error) {
+            console.error('❌ [EnhancedAuthorizationCodeFlowV2] Auto token exchange failed:', error);
           }
-          return;
-        } else {
-          console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Authorization code found in URL, going to step 4 (handle-callback)');
-          setCurrentStepIndex(4); // Go directly to handle-callback step
-          return;
-        }
+        }, 100);
+        return;
+      }
+      
+      // PRIORITY 2: If we have authorization code but no step, go to step 4 (handle callback)
+      if (code && !step) {
+        console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Authorization code found in URL, going to step 4 (handle-callback)');
+        setCurrentStepIndex(4);
+        return;
       }
       
       if (step) {
