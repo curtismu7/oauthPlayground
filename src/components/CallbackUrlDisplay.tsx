@@ -20,21 +20,31 @@ const CallbackUrlHeader = styled.div`
   margin-bottom: 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  background-color: #f1f5f9 !important;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
   padding: 1rem;
   border-radius: 0.5rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #2563eb;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
   
   &:hover {
-    background-color: #e2e8f0 !important;
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%) !important;
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
+    transform: translateY(-1px);
   }
 `;
 
 const CallbackUrlTitle = styled.h3`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: #ffffff;
   margin: 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+`;
+
+const ChevronIcon = styled.div`
+  color: #ffffff;
+  font-size: 1.25rem;
+  transition: transform 0.2s ease;
 `;
 
 const CallbackUrlContent = styled.div<{ $isExpanded: boolean }>`
@@ -214,7 +224,9 @@ const CallbackUrlDisplay: React.FC<CallbackUrlDisplayProps> = ({ flowType, baseU
     <CallbackUrlContainer>
       <CallbackUrlHeader onClick={() => setIsSetupExpanded(!isSetupExpanded)}>
         <CallbackUrlTitle>Configure in PingOne</CallbackUrlTitle>
-        {isSetupExpanded ? <FiChevronDown /> : <FiChevronRight />}
+        <ChevronIcon>
+          {isSetupExpanded ? <FiChevronDown /> : <FiChevronRight />}
+        </ChevronIcon>
       </CallbackUrlHeader>
       <CallbackUrlContent $isExpanded={isSetupExpanded}>
         <Description>{description}</Description>
