@@ -241,7 +241,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </NavItemHeader>
           
           <Submenu $isOpen={openMenus.oauth}>
-            {/* OAuth flows section - keeping empty for now */}
+            <SubmenuItem to="/flows/authorization-code" onClick={onClose}>
+              Authorization Code
+            </SubmenuItem>
+            <SubmenuItem to="/flows/client-credentials" onClick={onClose}>
+              Client Credentials
+            </SubmenuItem>
+            <SubmenuItem to="/flows/resource-owner-password" onClick={onClose}>
+              Resource Owner Password
+            </SubmenuItem>
           </Submenu>
         </NavItemWithSubmenu>
 
@@ -275,6 +283,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             </SubmenuItem>
             <SubmenuItem to="/oidc/device-code" onClick={onClose}>
               Device Code
+            </SubmenuItem>
+            <SubmenuItem to="/flows/resource-owner-password" onClick={onClose}>
+              Resource Owner Password
             </SubmenuItem>
           </Submenu>
         </NavItemWithSubmenu>
