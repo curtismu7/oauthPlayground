@@ -868,16 +868,20 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         setCallbackSuccess(true);
         setCallbackError(null);
         
-        // Auto-exchange tokens immediately
-        setTimeout(async () => {
-          try {
-            console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Auto-exchanging authorization code for tokens');
-            await exchangeCodeForTokens();
-            console.log('✅ [EnhancedAuthorizationCodeFlowV2] Auto token exchange successful');
-          } catch (error) {
-            console.error('❌ [EnhancedAuthorizationCodeFlowV2] Auto token exchange failed:', error);
-          }
-        }, 100);
+        // Auto-exchange tokens immediately (only if not already exchanging)
+        if (!isExchangingTokens && !tokens?.access_token) {
+          setTimeout(async () => {
+            try {
+              console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Auto-exchanging authorization code for tokens');
+              await exchangeCodeForTokens();
+              console.log('✅ [EnhancedAuthorizationCodeFlowV2] Auto token exchange successful');
+            } catch (error) {
+              console.error('❌ [EnhancedAuthorizationCodeFlowV2] Auto token exchange failed:', error);
+            }
+          }, 100);
+        } else {
+          console.log('⚠️ [EnhancedAuthorizationCodeFlowV2] Skipping auto-exchange - already in progress or tokens exist');
+        }
         return;
       }
       
@@ -1174,6 +1178,29 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
 
   // Exchange code for tokens
   const exchangeCodeForTokens = useCallback(async () => {
+    // Prevent multiple simultaneous exchanges
+    if (isExchangingTokens) {
+      console.log('⚠️ [EnhancedAuthCodeFlowV2] Token exchange already in progress, skipping');
+      return;
+    }
+
+    // Check if we already have tokens
+    if (tokens?.access_token) {
+      console.log('⚠️ [EnhancedAuthCodeFlowV2] Tokens already exist, skipping exchange');
+      return;
+    }
+
+    // Validate required parameters
+    if (!authCode) {
+      throw new Error('No authorization code available for token exchange');
+    }
+    if (!credentials.clientId) {
+      throw new Error('Client ID is required for token exchange');
+    }
+    if (!pkceCodes.codeVerifier) {
+      throw new Error('Code verifier is required for PKCE token exchange');
+    }
+
     try {
       setIsExchangingTokens(true);
       
@@ -1225,6 +1252,11 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       setTokens(tokenData);
       logger.info('Tokens received', { tokenData });
       setIsExchangingTokens(false);
+      
+      // Clear the authorization code after successful exchange to prevent reuse
+      setAuthCode('');
+      sessionStorage.removeItem('oauth_auth_code');
+      console.log('🧹 [EnhancedAuthCodeFlowV2] Cleared authorization code after successful exchange');
     } catch (error) {
       logger.error('Token exchange failed', { error });
       setIsExchangingTokens(false);
