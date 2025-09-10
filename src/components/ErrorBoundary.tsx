@@ -1,88 +1,111 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import styled from 'styled-components';
+import { FiAlertTriangle, FiRefreshCw, FiHome } from 'react-icons/fi';
 
 const ErrorContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
   padding: 2rem;
-  margin: 1rem;
-  border: 2px solid #dc3545;
-  border-radius: 0.5rem;
-  background-color: #f8d7da;
-  color: #721c24;
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
 `;
 
-const ErrorTitle = styled.h2`
+const ErrorCard = styled.div`
+  background: white;
+  border-radius: 1rem;
+  padding: 3rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+`;
+
+const ErrorIcon = styled.div`
+  color: #ef4444;
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+`;
+
+const ErrorTitle = styled.h1`
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
   margin: 0 0 1rem 0;
-  color: #721c24;
-  font-size: 1.5rem;
 `;
 
-const ErrorMessage = styled.pre`
-  background-color: #f1f3f4;
+const ErrorMessage = styled.p`
+  font-size: 1.125rem;
+  color: #6b7280;
+  margin: 0 0 2rem 0;
+  line-height: 1.6;
+`;
+
+const ErrorDetails = styled.details`
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
   padding: 1rem;
-  border-radius: 0.375rem;
-  overflow-x: auto;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.875rem;
-  margin: 1rem 0;
-  border: 1px solid #dee2e6;
+  margin: 1.5rem 0;
+  text-align: left;
+`;
+
+const ErrorSummary = styled.summary`
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
 `;
 
 const ErrorStack = styled.pre`
-  background-color: #f8f9fa;
+  background: #1f2937;
+  color: #f9fafb;
   padding: 1rem;
   border-radius: 0.375rem;
   overflow-x: auto;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.75rem;
-  margin: 1rem 0;
-  border: 1px solid #dee2e6;
-  max-height: 300px;
-  overflow-y: auto;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  margin: 0;
 `;
 
 const ActionButtons = styled.div`
   display: flex;
   gap: 1rem;
-  margin-top: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
 `;
 
-const Button = styled.button<{ $variant: 'primary' | 'secondary' }>`
-  padding: 0.5rem 1rem;
+const ActionButton = styled.button`
+  background: #3b82f6;
+  color: white;
   border: none;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s;
   
-  ${({ $variant }) => {
-    if ($variant === 'primary') {
-      return `
-        background-color: #007bff;
-        color: white;
-        
-        &:hover {
-          background-color: #0056b3;
-        }
-      `;
-    } else {
-      return `
-        background-color: #6c757d;
-        color: white;
-        
-        &:hover {
-          background-color: #545b62;
-        }
-      `;
+  &:hover {
+    background: #2563eb;
+  }
+  
+  &:nth-child(2) {
+    background: #6b7280;
+    
+    &:hover {
+      background: #4b5563;
     }
-  }}
+  }
 `;
 
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
-  onError?: (error: Error, errorInfo: ErrorInfo) => void;
-  resetOnPropsChange?: boolean;
 }
 
 interface State {
@@ -91,7 +114,7 @@ interface State {
   errorInfo: ErrorInfo | null;
 }
 
-export class ErrorBoundary extends Component<Props, State> {
+class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -110,91 +133,64 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('🚨 [ErrorBoundary] Error caught:', error);
-    console.error('🚨 [ErrorBoundary] Error info:', errorInfo);
-    
+    console.error('ErrorBoundary caught an error:', error, errorInfo);
     this.setState({
       error,
       errorInfo
     });
-
-    // Call custom error handler if provided
-    if (this.props.onError) {
-      this.props.onError(error, errorInfo);
-    }
-
-    // Log to external service in production
-    if (process.env.NODE_ENV === 'production') {
-      // TODO: Implement error reporting service
-      console.error('🚨 [ErrorBoundary] Production error:', {
-        message: error.message,
-        stack: error.stack,
-        componentStack: errorInfo.componentStack
-      });
-    }
   }
-
-  componentDidUpdate(prevProps: Props) {
-    // Reset error state when props change (useful for route changes)
-    if (this.props.resetOnPropsChange && prevProps.children !== this.props.children) {
-      this.setState({
-        hasError: false,
-        error: null,
-        errorInfo: null
-      });
-    }
-  }
-
-  handleReset = () => {
-    this.setState({
-      hasError: false,
-      error: null,
-      errorInfo: null
-    });
-  };
 
   handleReload = () => {
     window.location.reload();
   };
 
+  handleGoHome = () => {
+    window.location.href = '/dashboard';
+  };
+
   render() {
     if (this.state.hasError) {
-      // Custom fallback UI
       if (this.props.fallback) {
         return this.props.fallback;
       }
 
-      // Default error UI
       return (
         <ErrorContainer>
-          <ErrorTitle>🚨 Something went wrong</ErrorTitle>
-          
-          <p>
-            An unexpected error occurred. This has been logged and our team has been notified.
-          </p>
+          <ErrorCard>
+            <ErrorIcon>
+              <FiAlertTriangle />
+            </ErrorIcon>
+            <ErrorTitle>Something went wrong</ErrorTitle>
+            <ErrorMessage>
+              An unexpected error occurred. This might be due to a server connectivity issue 
+              or a problem with the application.
+            </ErrorMessage>
+            
+            <ErrorDetails>
+              <ErrorSummary>Error Details</ErrorSummary>
+              <div>
+                <p><strong>Error:</strong> {this.state.error?.message}</p>
+                {this.state.errorInfo && (
+                  <ErrorStack>
+                    {this.state.error?.stack}
+                    {'\n\nComponent Stack:'}
+                    {this.state.errorInfo.componentStack}
+                  </ErrorStack>
+                )}
+              </div>
+            </ErrorDetails>
 
-          {this.state.error && (
-            <div>
-              <strong>Error:</strong>
-              <ErrorMessage>{this.state.error.message}</ErrorMessage>
-            </div>
-          )}
-
-          {this.state.errorInfo && this.state.errorInfo.componentStack && (
-            <div>
-              <strong>Component Stack:</strong>
-              <ErrorStack>{this.state.errorInfo.componentStack}</ErrorStack>
-            </div>
-          )}
-
-          <ActionButtons>
-            <Button $variant="primary" onClick={this.handleReset}>
-              Try Again
-            </Button>
-            <Button $variant="secondary" onClick={this.handleReload}>
-              Reload Page
-            </Button>
-          </ActionButtons>
+            <ActionButtons>
+              <ActionButton onClick={this.handleReload}>
+                <FiRefreshCw />
+                Reload Page
+              </ActionButton>
+              <ActionButton onClick={this.handleGoHome}>
+                <FiHome />
+                Go to Dashboard
+              </ActionButton>
+            </ActionButtons>
+          </ErrorCard>
         </ErrorContainer>
       );
     }
@@ -203,42 +199,4 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 }
 
-// HOC for functional components
-export const withErrorBoundary = <P extends object>(
-  Component: React.ComponentType<P>,
-  errorBoundaryProps?: Omit<Props, 'children'>
-) => {
-  const WrappedComponent = (props: P) => (
-    <ErrorBoundary {...errorBoundaryProps}>
-      <Component {...props} />
-    </ErrorBoundary>
-  );
-
-  WrappedComponent.displayName = `withErrorBoundary(${Component.displayName || Component.name})`;
-  return WrappedComponent;
-};
-
-// Flow-specific error boundary
-export const FlowErrorBoundary: React.FC<{ children: ReactNode; flowName: string }> = ({ children, flowName }) => (
-  <ErrorBoundary
-    onError={(error, errorInfo) => {
-      console.error(`🚨 [${flowName}] Flow error:`, error);
-      console.error(`🚨 [${flowName}] Error info:`, errorInfo);
-    }}
-    fallback={
-      <ErrorContainer>
-        <ErrorTitle>🚨 {flowName} Flow Error</ErrorTitle>
-        <p>
-          An error occurred while executing the {flowName} flow. Please try again or contact support if the problem persists.
-        </p>
-        <ActionButtons>
-          <Button $variant="primary" onClick={() => window.location.reload()}>
-            Reload Page
-          </Button>
-        </ActionButtons>
-      </ErrorContainer>
-    }
-  >
-    {children}
-  </ErrorBoundary>
-);
+export default ErrorBoundary;
