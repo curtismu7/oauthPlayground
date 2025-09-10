@@ -674,6 +674,10 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           setTimeout(async () => {
             try {
               console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Auto-exchanging stored authorization code for tokens');
+              
+              // Ensure credentials are loaded before token exchange
+              await loadCredentials(true); // Skip test clearing during auto-exchange
+              
               await exchangeCodeForTokens();
               console.log('✅ [EnhancedAuthorizationCodeFlowV2] Auto token exchange successful');
             } catch (error) {
@@ -714,6 +718,10 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       setTimeout(async () => {
         try {
           console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Auto-exchanging authorization code for tokens');
+          
+          // Ensure credentials are loaded before token exchange
+          await loadCredentials(true); // Skip test clearing during auto-exchange
+          
           await exchangeCodeForTokens();
           console.log('✅ [EnhancedAuthorizationCodeFlowV2] Auto token exchange successful');
         } catch (error) {
@@ -764,9 +772,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     });
   }, [authCode, callbackSuccess, callbackError, tokens, userInfo, credentials.environmentId, credentials.clientId, credentials.redirectUri]);
 
-  // Load credentials immediately to ensure buttons are enabled
-  useEffect(() => {
-    const loadCredentials = async () => {
+  // Load credentials function - accessible throughout the component
+  const loadCredentials = useCallback(async (skipTestClear: boolean = false) => {
       try {
         // Debug localStorage contents
         credentialManager.debugLocalStorage();
@@ -775,7 +782,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Loading credentials:', allCredentials);
         
         // Check for test values and clear them (only if BOTH are test values)
-        if (allCredentials.clientId === 'test-client-123' && allCredentials.environmentId === 'test-env-123') {
+        // Skip clearing during auto-token exchange to prevent breaking the flow
+        if (!skipTestClear && allCredentials.clientId === 'test-client-123' && allCredentials.environmentId === 'test-env-123') {
           console.log('🧹 [EnhancedAuthorizationCodeFlowV2] Found test values, clearing credentials');
           credentialManager.clearAllCredentials();
           console.log('✅ [EnhancedAuthorizationCodeFlowV2] Test credentials cleared');
@@ -830,11 +838,13 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         console.error('❌ [EnhancedAuthorizationCodeFlowV2] Failed to load credentials:', error);
         logger.error('Failed to load credentials', { error });
       }
-    };
-    
+    }, []);
+
+  // Load credentials immediately to ensure buttons are enabled
+  useEffect(() => {
     loadCredentials();
     console.log('🧹 [EnhancedAuthorizationCodeFlowV2] Cleared all flow states and loaded credentials on mount');
-  }, []);
+  }, [loadCredentials]);
 
   // Initialize step index based on URL parameters and stored step
   useEffect(() => {
@@ -873,6 +883,10 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           setTimeout(async () => {
             try {
               console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Auto-exchanging authorization code for tokens');
+              
+              // Ensure credentials are loaded before token exchange
+              await loadCredentials(true); // Skip test clearing during auto-exchange
+              
               // Use the code directly since state might not be updated yet
               await exchangeCodeForTokensWithCode(code);
               console.log('✅ [EnhancedAuthorizationCodeFlowV2] Auto token exchange successful');
