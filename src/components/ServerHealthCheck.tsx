@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { FiWifi, FiWifiOff, FiRefreshCw, FiAlertTriangle, FiCheckCircle } from 'react-icons/fi';
 
 const pulse = keyframes`
@@ -41,7 +41,7 @@ const HealthCard = styled.div<{ $status: 'checking' | 'online' | 'offline' }>`
   border-radius: 0.75rem;
   padding: 1rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  animation: ${({ $status }) => $status === 'checking' ? pulse : 'none'} 2s infinite;
+  animation: ${({ $status }) => $status === 'checking' ? css`${pulse} 2s infinite` : 'none'};
 `;
 
 const HealthHeader = styled.div`
@@ -62,7 +62,7 @@ const HealthIcon = styled.div<{ $status: 'checking' | 'online' | 'offline' }>`
   }};
   font-size: 1.25rem;
   
-  ${({ $status }) => $status === 'checking' && `
+  ${({ $status }) => $status === 'checking' && css`
     animation: ${spin} 1s linear infinite;
   `}
 `;
