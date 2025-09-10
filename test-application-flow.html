@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth Flow Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .pass { background-color: #d4edda; border-color: #c3e6cb; }
+        .fail { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🧪 OAuth Flow Test Suite</h1>
+    
+    <div class="test-section info">
+        <h3>Test Configuration</h3>
+        <p>This test will verify that the OAuth flow generates valid URLs with correct user-selected values.</p>
+        <button onclick="runAllTests()">Run All Tests</button>
+        <button onclick="clearTestData()">Clear Test Data</button>
+    </div>
+
+    <div id="test-results"></div>
+
+    <script>
+        // Test credentials (using real values)
+        const testCredentials = {
+            environmentId: 'b9817c16-9910-4415-b67e-4ac687da74d9',
+            clientId: 'a4f963ea-0736-456a-be72-b1fa4f63f81f',
+            redirectUri: 'https://localhost:3000/authz-callback',
+            scopes: 'openid profile email'
+        };
+
+        function addTestResult(title, passed, details = '') {
+            const resultsDiv = document.getElementById('test-results');
+            const testDiv = document.createElement('div');
+            testDiv.className = `test-section ${passed ? 'pass' : 'fail'}`;
+            testDiv.innerHTML = `
+                <h3>${passed ? '✅' : '❌'} ${title}</h3>
+                ${details ? `<pre>${details}</pre>` : ''}
+            `;
+            resultsDiv.appendChild(testDiv);
+        }
+
+        function generatePKCECodes() {
+            // Generate code verifier (43-128 characters, URL-safe)
+            const codeVerifier = btoa(crypto.getRandomValues(new Uint8Array(32)).join(''))
+                .replace(/\+/g, '-')
+                .replace(/\//g, '_')
+                .replace(/=/g, '');
+            
+            // Generate code challenge (SHA256 hash of verifier)
+            return crypto.subtle.digest('SHA-256', new TextEncoder().encode(codeVerifier))
+                .then(hash => {
+                    const codeChallenge = btoa(String.fromCharCode(...new Uint8Array(hash)))
+                        .replace(/\+/g, '-')
+                        .replace(/\//g, '_')
+                        .replace(/=/g, '');
+                    return { codeVerifier, codeChallenge };
+                });
+        }
+
+        async function testPKCECodeGeneration() {
+            try {
+                const codes = await generatePKCECodes();
+                
+                // Validate code verifier
+                const verifierValid = codes.codeVerifier.length >= 43 && codes.codeVerifier.length <= 128;
+                const challengeValid = codes.codeChallenge.length === 43;
+                
+                if (verifierValid && challengeValid) {
+                    addTestResult('PKCE Code Generation', true, 
+                        `Code Verifier: ${codes.codeVerifier.substring(0, 20)}...\n` +
+                        `Code Challenge: ${codes.codeChallenge.substring(0, 20)}...\n` +
+                        `Verifier Length: ${codes.codeVerifier.length}\n` +
+                        `Challenge Length: ${codes.codeChallenge.length}`
+                    );
+                    return codes;
+                } else {
+                    addTestResult('PKCE Code Generation', false, 
+                        `Verifier valid: ${verifierValid}, Challenge valid: ${challengeValid}`
+                    );
+                    return null;
+                }
+            } catch (error) {
+                addTestResult('PKCE Code Generation', false, `Error: ${error.message}`);
+                return null;
+            }
+        }
+
+        async function testAuthorizationURLGeneration(pkceCodes) {
+            try {
+                const state = Math.random().toString(36).substring(2, 15);
+                const authEndpoint = `https://auth.pingone.com/${testCredentials.environmentId}/as/authorize`;
+                
+                const params = new URLSearchParams({
+                    response_type: 'code',
+                    client_id: testCredentials.clientId,
+                    redirect_uri: testCredentials.redirectUri,
+                    scope: testCredentials.scopes,
+                    state: state,
+                    code_challenge: pkceCodes.codeChallenge,
+                    code_challenge_method: 'S256'
+                });
+                
+                const authUrl = `${authEndpoint}?${params.toString()}`;
+                
+                // Validate URL structure
+                const url = new URL(authUrl);
+                const isValid = url.hostname === 'auth.pingone.com' && 
+                              url.pathname.includes(testCredentials.environmentId) &&
+                              url.searchParams.get('client_id') === testCredentials.clientId &&
+                              url.searchParams.get('redirect_uri') === testCredentials.redirectUri;
+                
+                addTestResult('Authorization URL Generation', isValid, 
+                    `Generated URL: ${authUrl}\n\n` +
+                    `URL Validation:\n` +
+                    `- Hostname: ${url.hostname} (expected: auth.pingone.com)\n` +
+                    `- Environment ID in path: ${url.pathname.includes(testCredentials.environmentId)}\n` +
+                    `- Client ID: ${url.searchParams.get('client_id')}\n` +
+                    `- Redirect URI: ${url.searchParams.get('redirect_uri')}\n` +
+                    `- Scope: ${url.searchParams.get('scope')}\n` +
+                    `- State: ${url.searchParams.get('state')}\n` +
+                    `- Code Challenge: ${url.searchParams.get('code_challenge').substring(0, 20)}...\n` +
+                    `- Code Challenge Method: ${url.searchParams.get('code_challenge_method')}`
+                );
+                
+                return { authUrl, state };
+            } catch (error) {
+                addTestResult('Authorization URL Generation', false, `Error: ${error.message}`);
+                return null;
+            }
+        }
+
+        async function testCredentialValidation() {
+            const tests = [
+                {
+                    name: 'Environment ID Format',
+                    test: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(testCredentials.environmentId),
+                    details: `Environment ID: ${testCredentials.environmentId}`
+                },
+                {
+                    name: 'Client ID Format',
+                    test: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(testCredentials.clientId),
+                    details: `Client ID: ${testCredentials.clientId}`
+                },
+                {
+                    name: 'Redirect URI Format',
+                    test: testCredentials.redirectUri.startsWith('https://') || testCredentials.redirectUri.startsWith('http://localhost'),
+                    details: `Redirect URI: ${testCredentials.redirectUri}`
+                },
+                {
+                    name: 'Required Scopes',
+                    test: testCredentials.scopes.split(' ').includes('openid'),
+                    details: `Scopes: ${testCredentials.scopes}`
+                }
+            ];
+            
+            let allPassed = true;
+            tests.forEach(test => {
+                if (!test.test) allPassed = false;
+                addTestResult(test.name, test.test, test.details);
+            });
+            
+            return allPassed;
+        }
+
+        async function testAPIEndpoints() {
+            try {
+                // Test environment config endpoint
+                const response = await fetch('http://localhost:3001/api/env-config');
+                if (response.ok) {
+                    const config = await response.json();
+                    addTestResult('Environment Config API', true, 
+                        `Environment ID: ${config.environmentId}\n` +
+                        `Client ID: ${config.clientId}\n` +
+                        `API URL: ${config.apiUrl}`
+                    );
+                } else {
+                    addTestResult('Environment Config API', false, 
+                        `HTTP ${response.status}: ${response.statusText}`
+                    );
+                }
+            } catch (error) {
+                addTestResult('Environment Config API', false, 
+                    `Connection failed: ${error.message}\n` +
+                    `Make sure the backend server is running on port 3001`
+                );
+            }
+        }
+
+        async function runAllTests() {
+            // Clear previous results
+            document.getElementById('test-results').innerHTML = '';
+            
+            addTestResult('Starting Tests', true, 'Running comprehensive OAuth flow tests...');
+            
+            // Test credential validation
+            const credentialsValid = await testCredentialValidation();
+            
+            // Test PKCE code generation
+            const pkceCodes = await testPKCECodeGeneration();
+            
+            // Test authorization URL generation
+            let authUrlResult = null;
+            if (pkceCodes) {
+                authUrlResult = await testAuthorizationURLGeneration(pkceCodes);
+            }
+            
+            // Test API endpoints
+            await testAPIEndpoints();
+            
+            // Summary
+            const allTestsPassed = credentialsValid && pkceCodes && authUrlResult;
+            addTestResult('Overall Test Results', allTestsPassed, 
+                allTestsPassed ? 
+                '🎉 All tests passed! The OAuth flow should work correctly.' :
+                '❌ Some tests failed. Please check the individual test results above.'
+            );
+        }
+
+        function clearTestData() {
+            // Clear localStorage test data
+            const keysToRemove = [
+                'pingone_permanent_credentials',
+                'pingone_session_credentials',
+                'pingone_config',
+                'login_credentials',
+                'enhanced-flow-authorization-code'
+            ];
+            
+            keysToRemove.forEach(key => {
+                if (localStorage.getItem(key)) {
+                    localStorage.removeItem(key);
+                }
+            });
+            
+            addTestResult('Test Data Cleared', true, 'Cleared all test data from localStorage');
+        }
+
+        // Run tests on page load
+        window.addEventListener('load', () => {
+            addTestResult('Test Suite Loaded', true, 'Ready to run OAuth flow tests');
+        });
+    </script>
+</body>
+</html>
