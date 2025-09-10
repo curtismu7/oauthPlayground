@@ -774,12 +774,22 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         const allCredentials = credentialManager.getAllCredentials();
         console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Loading credentials:', allCredentials);
         
-        // Check for test values and clear them (only if BOTH are test values)
+        // Check for test values and clear them (only if BOTH are test values AND no other valid config exists)
         if (allCredentials.clientId === 'test-client-123' && allCredentials.environmentId === 'test-env-123') {
-          console.log('🧹 [EnhancedAuthorizationCodeFlowV2] Found test values, clearing credentials');
-          credentialManager.clearAllCredentials();
-          console.log('✅ [EnhancedAuthorizationCodeFlowV2] Test credentials cleared');
-          return;
+          console.log('🧹 [EnhancedAuthorizationCodeFlowV2] Found test values, checking if we should clear...');
+          
+          // Check if there are any other valid credentials in localStorage
+          const pingoneConfig = localStorage.getItem('pingone_config');
+          const loginCredentials = localStorage.getItem('login_credentials');
+          
+          if (!pingoneConfig && !loginCredentials) {
+            console.log('🧹 [EnhancedAuthorizationCodeFlowV2] No other credentials found, clearing test values');
+            credentialManager.clearAllCredentials();
+            console.log('✅ [EnhancedAuthorizationCodeFlowV2] Test credentials cleared');
+            return;
+          } else {
+            console.log('⚠️ [EnhancedAuthorizationCodeFlowV2] Other credentials exist, keeping test values for now');
+          }
         }
         
         // Check if we have any credentials
