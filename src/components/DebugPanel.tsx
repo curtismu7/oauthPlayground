@@ -185,6 +185,8 @@ const DebugPanel: React.FC = () => {
   const [hasRecentErrors, setHasRecentErrors] = useState(false);
   const [dismissedErrors, setDismissedErrors] = useState(false);
   const [errorHelpDismissed, setErrorHelpDismissed] = useState(false);
+  const [newMessageCount, setNewMessageCount] = useState(0);
+  const [lastLogCount, setLastLogCount] = useState(0);
 
   useEffect(() => {
     // Get initial logs
@@ -192,14 +194,55 @@ const DebugPanel: React.FC = () => {
     setLogs(initialLogs);
     checkForRecentErrors(initialLogs);
 
+    // Intercept native console methods to capture all console messages
+    const originalConsoleLog = console.log;
+    const originalConsoleError = console.error;
+    const originalConsoleWarn = console.warn;
+    const originalConsoleDebug = console.debug;
+
+    const captureConsoleMessage = (level: string, originalMethod: Function) => {
+      return (...args: any[]) => {
+        // Call the original method first
+        originalMethod.apply(console, args);
+        
+        // Capture the message for our debug panel
+        const message = args.map(arg => 
+          typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+        ).join(' ');
+        
+        // Add to logger history
+        logger.addEntry(level, 'CONSOLE', message, args.length > 1 ? args : undefined);
+      };
+    };
+
+    // Override console methods
+    console.log = captureConsoleMessage('INFO', originalConsoleLog);
+    console.error = captureConsoleMessage('ERROR', originalConsoleError);
+    console.warn = captureConsoleMessage('WARN', originalConsoleWarn);
+    console.debug = captureConsoleMessage('DEBUG', originalConsoleDebug);
+
     // Set up interval to check for new logs
     const interval = setInterval(() => {
       const newLogs = logger.getLogHistory();
       setLogs(newLogs);
       checkForRecentErrors(newLogs);
+      
+      // Track new messages
+      const currentLogCount = newLogs.length;
+      if (currentLogCount > lastLogCount) {
+        setNewMessageCount(prev => prev + (currentLogCount - lastLogCount));
+      }
+      setLastLogCount(currentLogCount);
     }, 1000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      // Restore original console methods
+      console.log = originalConsoleLog;
+      console.error = originalConsoleError;
+      console.warn = originalConsoleWarn;
+      console.debug = originalConsoleDebug;
+    };
   }, []);
 
   const checkForRecentErrors = (logEntries: LogEntry[]) => {
@@ -249,6 +292,10 @@ const DebugPanel: React.FC = () => {
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
+    if (!isOpen) {
+      // Clear new message count when opening
+      setNewMessageCount(0);
+    }
   };
 
   const handleClear = () => {
@@ -319,6 +366,19 @@ const DebugPanel: React.FC = () => {
         <DebugTitle>
           <FiTerminal />
           Debug Console ({logs.length} logs)
+          {newMessageCount > 0 && !isOpen && (
+            <span style={{ 
+              backgroundColor: '#3b82f6', 
+              color: 'white',
+              fontSize: '0.7rem', 
+              marginLeft: '0.5rem',
+              padding: '0.125rem 0.375rem',
+              borderRadius: '0.75rem',
+              fontWeight: 'bold'
+            }}>
+              {newMessageCount} new
+            </span>
+          )}
           {isOpen ? <FiChevronDown /> : <FiChevronUp />}
           {hasRecentErrors && (
             <span style={{ 
