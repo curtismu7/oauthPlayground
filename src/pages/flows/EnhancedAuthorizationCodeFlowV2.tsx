@@ -622,7 +622,6 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         redirectUri: !!credentials.redirectUri
     }
   }
-  }
   });
     
     // If we have step parameter, use it (this comes from the callback redirect)
