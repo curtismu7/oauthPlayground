@@ -35,6 +35,7 @@ import JWTBearerFlow from './pages/flows/JWTBearerFlow';
 import UserInfoFlow from './pages/flows/UserInfoFlow';
 import IDTokensFlow from './pages/flows/IDTokensFlow';
 import PARFlow from './pages/flows/PARFlow';
+import ResourceOwnerPasswordFlow from './pages/flows/ResourceOwnerPasswordFlow';
 import OIDC from './pages/OIDC';
 import TokenManagement from './pages/TokenManagement';
 import AutoDiscover from './pages/AutoDiscover';
@@ -212,6 +213,7 @@ const AppRoutes = () => {
             <Route path="/flows/authorization-code" element={<AuthorizationCodeFlow />} />
             <Route path="/flows/enhanced-authorization-code" element={<EnhancedAuthorizationCodeFlow />} />
             <Route path="/flows/enhanced-authorization-code-v2" element={<EnhancedAuthorizationCodeFlowV2 />} />
+            <Route path="/flows/resource-owner-password" element={<ResourceOwnerPasswordFlow />} />
             
             <Route path="/flows-old" element={<Flows />}>
               <Route path="authorization-code" element={<AuthorizationCodeFlow />} />
