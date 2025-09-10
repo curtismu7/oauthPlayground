@@ -216,6 +216,12 @@ const Configuration = () => {
   // Load saved configuration on component mount
   useEffect(() => {
     const loadConfiguration = () => {
+      // Debug: Check all localStorage keys first
+      console.log('🔧 [Configuration] All localStorage keys:', Object.keys(localStorage));
+      console.log('🔧 [Configuration] pingone_permanent_credentials:', localStorage.getItem('pingone_permanent_credentials'));
+      console.log('🔧 [Configuration] pingone_config:', localStorage.getItem('pingone_config'));
+      console.log('🔧 [Configuration] login_credentials:', localStorage.getItem('login_credentials'));
+      
       // Load from credential manager first
       const permanentCredentials = credentialManager.loadPermanentCredentials();
       
@@ -240,6 +246,7 @@ const Configuration = () => {
         if (savedConfig) {
           try {
             const parsedConfig = JSON.parse(savedConfig);
+            console.log('🔧 [Configuration] Loading from legacy pingone_config:', parsedConfig);
             
             // Check if the client secret is the problematic hardcoded one
             if (parsedConfig.clientSecret === '0mClRqd3fif2vh4WJCO6B-8OZuOokzsh5gLw1V3GHbeGJYCMLk_zPfrptWzfYJ.a') {
@@ -253,8 +260,54 @@ const Configuration = () => {
               ...prev,
               ...parsedConfig
             }));
+            
+            // Migrate to new credential manager if we have valid credentials
+            if (parsedConfig.environmentId && parsedConfig.clientId) {
+              console.log('🔄 [Configuration] Migrating legacy credentials to credential manager');
+              credentialManager.savePermanentCredentials({
+                environmentId: parsedConfig.environmentId,
+                clientId: parsedConfig.clientId,
+                redirectUri: parsedConfig.redirectUri || window.location.origin + '/callback',
+                scopes: parsedConfig.scopes || ['openid', 'profile', 'email'],
+                authEndpoint: parsedConfig.authEndpoint,
+                tokenEndpoint: parsedConfig.tokenEndpoint,
+                userInfoEndpoint: parsedConfig.userInfoEndpoint,
+                endSessionEndpoint: parsedConfig.endSessionEndpoint
+              });
+            }
           } catch (error) {
             console.error('Failed to load saved configuration:', error);
+          }
+        } else {
+          // Try login_credentials as last resort
+          const loginCreds = localStorage.getItem('login_credentials');
+          if (loginCreds) {
+            try {
+              const parsedLoginCreds = JSON.parse(loginCreds);
+              console.log('🔧 [Configuration] Loading from login_credentials:', parsedLoginCreds);
+              
+              setFormData(prev => ({
+                ...prev,
+                ...parsedLoginCreds
+              }));
+              
+              // Migrate to new credential manager if we have valid credentials
+              if (parsedLoginCreds.environmentId && parsedLoginCreds.clientId) {
+                console.log('🔄 [Configuration] Migrating login credentials to credential manager');
+                credentialManager.savePermanentCredentials({
+                  environmentId: parsedLoginCreds.environmentId,
+                  clientId: parsedLoginCreds.clientId,
+                  redirectUri: parsedLoginCreds.redirectUri || window.location.origin + '/callback',
+                  scopes: parsedLoginCreds.scopes || ['openid', 'profile', 'email'],
+                  authEndpoint: parsedLoginCreds.authEndpoint,
+                  tokenEndpoint: parsedLoginCreds.tokenEndpoint,
+                  userInfoEndpoint: parsedLoginCreds.userInfoEndpoint,
+                  endSessionEndpoint: parsedLoginCreds.endSessionEndpoint
+                });
+              }
+            } catch (error) {
+              console.error('Failed to load login credentials:', error);
+            }
           }
         }
       }
