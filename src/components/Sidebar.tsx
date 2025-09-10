@@ -293,11 +293,17 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </NavItemHeader>
           
           <Submenu $isOpen={openMenus.docs}>
+            <SubmenuItem to="/documentation" onClick={onClose}>
+              Local Documentation
+            </SubmenuItem>
             <SubmenuItem to="/docs/oidc-specs" onClick={onClose}>
               OIDC Specs
             </SubmenuItem>
             <SubmenuItem to="/docs/oidc-for-ai" onClick={onClose}>
               OIDC for AI
+            </SubmenuItem>
+            <SubmenuItem as="a" href="https://apidocs.pingidentity.com" target="_blank" rel="noopener noreferrer" onClick={onClose}>
+              PingOne API Docs
             </SubmenuItem>
           </Submenu>
         </NavItemWithSubmenu>
@@ -326,9 +332,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             </SubmenuItem>
             <SubmenuItem to="/flows/diagrams" onClick={onClose}>
               Interactive Diagrams
-            </SubmenuItem>
-            <SubmenuItem to="/documentation" onClick={onClose}>
-              Documentation
             </SubmenuItem>
           </Submenu>
         </NavItemWithSubmenu>
