@@ -1017,6 +1017,14 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     const generatedState = Math.random().toString(36).substring(2, 15);
     setState(generatedState);
     
+    // Debug: Log all credential values
+    console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Current credentials:', {
+      clientId: credentials.clientId,
+      environmentId: credentials.environmentId,
+      authorizationEndpoint: credentials.authorizationEndpoint,
+      scopes: credentials.scopes
+    });
+    
     // Ensure scopes are properly formatted
     const scopes = credentials.scopes || 'openid profile email';
     console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Generating auth URL with scopes:', scopes);
@@ -1024,6 +1032,23 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     // Use the correct callback URL for authorization code flow
     const redirectUri = getCallbackUrlForFlow('authorization-code');
     console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Using redirect URI:', redirectUri);
+    
+    // Validate required parameters BEFORE building URL
+    if (!credentials.clientId) {
+      throw new Error('Client ID is required. Please configure your credentials first.');
+    }
+    if (!credentials.environmentId) {
+      throw new Error('Environment ID is required. Please configure your credentials first.');
+    }
+    if (!credentials.authorizationEndpoint) {
+      throw new Error('Authorization endpoint is required. Please configure your credentials first.');
+    }
+    if (!redirectUri) {
+      throw new Error('Redirect URI is required');
+    }
+    if (!scopes || scopes.trim() === '') {
+      throw new Error('At least one scope must be specified');
+    }
     
     const params = new URLSearchParams({
       response_type: credentials.responseType || 'code',
@@ -1034,17 +1059,6 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       code_challenge: pkceCodes.codeChallenge,
       code_challenge_method: credentials.codeChallengeMethod || 'S256'
     });
-
-    // Validate required parameters
-    if (!credentials.clientId) {
-      throw new Error('Client ID is required');
-    }
-    if (!redirectUri) {
-      throw new Error('Redirect URI is required');
-    }
-    if (!scopes || scopes.trim() === '') {
-      throw new Error('At least one scope must be specified');
-    }
 
     const url = `${credentials.authorizationEndpoint}?${params.toString()}`;
     console.log('✅ [EnhancedAuthorizationCodeFlowV2] Generated authorization URL:', url);
@@ -1161,11 +1175,11 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         : 'http://localhost:3001';
       
       const requestBody = {
-        grant_type: 'authorization_code',
+          grant_type: 'authorization_code',
         client_id: credentials.clientId,
         client_secret: credentials.clientSecret || '',
-        code: authCode,
-        redirect_uri: credentials.redirectUri,
+          code: authCode,
+          redirect_uri: credentials.redirectUri,
         environment_id: credentials.environmentId,
         code_verifier: pkceCodes.codeVerifier
       };
@@ -1321,11 +1335,11 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           <FormField>
             <FormLabel>Client Secret</FormLabel>
             <div style={{ position: 'relative' }}>
-              <FormInput
+            <FormInput
                 type={showSecret ? 'text' : 'password'}
-                value={credentials.clientSecret || ''}
-                onChange={(e) => setCredentials(prev => ({ ...prev, clientSecret: e.target.value }))}
-                placeholder="your-client-secret (optional for PKCE)"
+              value={credentials.clientSecret || ''}
+              onChange={(e) => setCredentials(prev => ({ ...prev, clientSecret: e.target.value }))}
+              placeholder="your-client-secret (optional for PKCE)"
                 style={{ paddingRight: '3rem' }}
                 autoComplete="new-password"
               />
