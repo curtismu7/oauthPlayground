@@ -5,11 +5,25 @@ import { getCallbackUrlForFlow, getCallbackDescription, flowRequiresRedirectUri 
 import { logger } from '../utils/logger';
 
 const CallbackUrlContainer = styled.div`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f0f9ff 100%);
+  border: 2px solid #0ea5e9;
   border-radius: 0.75rem;
   padding: 1.5rem;
   margin: 1.5rem 0;
+  box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.1), 0 2px 4px -1px rgba(14, 165, 233, 0.06);
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.05) 0%, rgba(56, 189, 248, 0.05) 100%);
+    border-radius: 0.75rem;
+    pointer-events: none;
+  }
 `;
 
 const CallbackUrlHeader = styled.div`
@@ -25,6 +39,8 @@ const CallbackUrlHeader = styled.div`
   border-radius: 0.5rem;
   border: 1px solid #2563eb;
   box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+  position: relative;
+  z-index: 1;
   
   &:hover {
     background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%) !important;
@@ -54,6 +70,8 @@ const CallbackUrlContent = styled.div<{ $isExpanded: boolean }>`
   max-height: ${({ $isExpanded }) => $isExpanded ? '500px' : '0'};
   overflow: hidden;
   transition: max-height 0.3s ease;
+  position: relative;
+  z-index: 1;
 `;
 
 const UrlDisplay = styled.div`
