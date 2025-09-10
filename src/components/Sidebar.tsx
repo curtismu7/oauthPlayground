@@ -313,6 +313,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             <SubmenuItem to="/docs/oidc-for-ai" onClick={onClose}>
               OIDC for AI
             </SubmenuItem>
+            <SubmenuItem to="/docs/oauth2-security-best-practices" onClick={onClose}>
+              OAuth 2.0 Security Best Practices
+            </SubmenuItem>
             <SubmenuItem as="a" href="https://apidocs.pingidentity.com" target="_blank" rel="noopener noreferrer" onClick={onClose}>
               PingOne API Docs
             </SubmenuItem>
