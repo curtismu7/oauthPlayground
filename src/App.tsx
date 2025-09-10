@@ -49,6 +49,8 @@ import OIDCForAI from './pages/docs/OIDCForAI';
 import AuthorizationRequestModal from './components/AuthorizationRequestModal';
 import PageChangeSpinner from './components/PageChangeSpinner';
 import DebugPanel from './components/DebugPanel';
+import ErrorBoundary from './components/ErrorBoundary';
+import ServerStatusProvider from './components/ServerStatusProvider';
 import AuthErrorBoundary from './components/AuthErrorBoundary';
 
 // Import callback components
@@ -445,14 +447,18 @@ function App() {
 
   return (
     <ThemeProvider theme={themeWithDefaults}>
-      <AuthErrorBoundary>
-        <AuthProvider>
-          <PageStyleProvider>
-            <GlobalStyle />
-            <AppRoutes />
-          </PageStyleProvider>
-        </AuthProvider>
-      </AuthErrorBoundary>
+      <ErrorBoundary>
+        <ServerStatusProvider>
+          <AuthErrorBoundary>
+            <AuthProvider>
+              <PageStyleProvider>
+                <GlobalStyle />
+                <AppRoutes />
+              </PageStyleProvider>
+            </AuthProvider>
+          </AuthErrorBoundary>
+        </ServerStatusProvider>
+      </ErrorBoundary>
     </ThemeProvider>
   );
 }
