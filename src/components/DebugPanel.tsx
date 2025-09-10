@@ -206,9 +206,20 @@ const DebugPanel: React.FC = () => {
         originalMethod.apply(console, args);
         
         // Capture the message for our debug panel
-        const message = args.map(arg => 
-          typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
-        ).join(' ');
+        const message = args.map(arg => {
+          if (typeof arg === 'object' && arg !== null) {
+            try {
+              return JSON.stringify(arg, null, 2);
+            } catch (error) {
+              // Handle circular references
+              if (error instanceof TypeError && error.message.includes('circular')) {
+                return '[Circular Reference]';
+              }
+              return String(arg);
+            }
+          }
+          return String(arg);
+        }).join(' ');
         
         // Add to logger history
         logger.addEntry(level, 'CONSOLE', message, args.length > 1 ? args : undefined);
