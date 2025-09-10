@@ -73,12 +73,18 @@ const FormLabel = styled.label<{ $highlight?: boolean }>`
 const FormInput = styled.input<{ $generated?: boolean }>`
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid ${({ $generated }) => $generated ? '#10b981' : '#e5e7eb'};
+  border: 1px solid ${({ $generated }) => $generated ? '#10b981' : '#d1d5db'};
   border-radius: 0.5rem;
   font-size: 1rem;
   transition: all 0.2s ease;
   background: ${({ $generated }) => $generated ? '#f0fdf4' : 'white'};
   color: #1f2937;
+  cursor: text;
+  
+  &:hover {
+    border-color: #9ca3af;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  }
   
   &:focus {
     outline: none;
@@ -98,6 +104,7 @@ const FormInput = styled.input<{ $generated?: boolean }>`
     background: #f9fafb;
     color: #6b7280;
     cursor: not-allowed;
+    border-color: #e5e7eb;
   }
 `;
 
@@ -1353,13 +1360,31 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
 
           <FormField>
             <FormLabel className="required">Callback URL</FormLabel>
-            <FormInput
-              type="url"
-              value={credentials.redirectUri}
-              onChange={(e) => setCredentials(prev => ({ ...prev, redirectUri: e.target.value }))}
-              placeholder="https://localhost:3000/authz-callback"
-              required
-            />
+            <div style={{ position: 'relative' }}>
+              <FormInput
+                type="url"
+                value={credentials.redirectUri}
+                onChange={(e) => setCredentials(prev => ({ ...prev, redirectUri: e.target.value }))}
+                placeholder="https://localhost:3000/authz-callback"
+                required
+                style={{ 
+                  paddingRight: '2.5rem',
+                  fontFamily: 'monospace',
+                  fontSize: '0.875rem'
+                }}
+              />
+              <div style={{
+                position: 'absolute',
+                right: '0.75rem',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: '#6b7280',
+                fontSize: '0.75rem',
+                pointerEvents: 'none'
+              }}>
+                ✏️
+              </div>
+            </div>
             <ValidationIndicator $valid={!!credentials.redirectUri}>
               {credentials.redirectUri ? <FiCheckCircle /> : <FiAlertTriangle />}
               {credentials.redirectUri ? 'Valid Callback URL' : 'Callback URL is required'}
