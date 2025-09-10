@@ -219,6 +219,8 @@ const Configuration = () => {
       // Load from credential manager first
       const permanentCredentials = credentialManager.loadPermanentCredentials();
       
+      console.log('🔧 [Configuration] Loading configuration, permanent credentials:', permanentCredentials);
+      
       if (permanentCredentials.environmentId || permanentCredentials.clientId) {
         console.log('✅ [Configuration] Loading from credential manager');
         setFormData(prev => ({
