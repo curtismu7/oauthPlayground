@@ -545,7 +545,7 @@ const ModalButton = styled.button<{ $primary?: boolean; $loading?: boolean }>`
 // Main Component
 const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   const authContext = useAuth();
-  const { config } = authContext;
+  const { config, user: authUser, tokens: authTokens, isAuthenticated } = authContext;
   const location = useLocation();
   const [credentials, setCredentials] = useState({
     clientId: '',
@@ -604,7 +604,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     
     console.log('🔍 [EnhancedAuthorizationCodeFlowV2] URL params:', { stepParam, code, state });
     console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Current location:', location);
-    console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Auth context state:', authContext?.authState);
+    console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Auth context state:', { isAuthenticated, user: authUser, tokens: authTokens });
     console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Current state values:', {
       authCode,
       callbackSuccess,
@@ -647,15 +647,15 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         }, 100);
         
         // Check if we have tokens from the auth context
-        if (authContext?.authState?.tokens) {
-          console.log('✅ [EnhancedAuthorizationCodeFlowV2] Tokens found in auth context:', authContext.authState.tokens);
-          setTokens(authContext.authState.tokens);
+        if (authTokens) {
+          console.log('✅ [EnhancedAuthorizationCodeFlowV2] Tokens found in auth context:', authTokens);
+          setTokens(authTokens);
         }
         
         // Check if we have user info from the auth context
-        if (authContext?.authState?.user) {
-          console.log('✅ [EnhancedAuthorizationCodeFlowV2] User info found in auth context:', authContext.authState.user);
-          setUserInfo(authContext.authState.user);
+        if (authUser) {
+          console.log('✅ [EnhancedAuthorizationCodeFlowV2] User info found in auth context:', authUser);
+          setUserInfo(authUser);
         }
       } else {
         console.log('⚠️ [EnhancedAuthorizationCodeFlowV2] Step parameter found but no authorization code in URL');
@@ -729,7 +729,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     if (storedStep) {
       console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Restoring from stored step:', storedStep);
     }
-  }, [location.search, authContext?.authState?.tokens, authContext?.authState?.user]);
+  }, [location.search, authTokens, authUser]);
 
   // Show success modal only when we have an authorization code and are on step 4 (handle callback)
   useEffect(() => {
@@ -838,7 +838,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         console.log('✅ [EnhancedAuthorizationCodeFlowV2] Credentials loaded successfully');
       } catch (error) {
         console.error('❌ [EnhancedAuthorizationCodeFlowV2] Failed to load credentials:', error);
-        logger.error('Failed to load credentials', { error });
+        logger.error('EnhancedAuthorizationCodeFlowV2', 'Failed to load credentials', String(error));
       }
     };
     
@@ -954,7 +954,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           console.log('✅ [EnhancedAuthorizationCodeFlowV2] Credentials reloaded successfully');
         } catch (error) {
           console.error('❌ [EnhancedAuthorizationCodeFlowV2] Failed to reload credentials:', error);
-          logger.error('Failed to reload credentials', { error });
+          logger.error('EnhancedAuthorizationCodeFlowV2', 'Failed to reload credentials', String(error));
         }
       }, 100); // Debounce by 100ms
     };
@@ -978,7 +978,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         environmentId: credentials.environmentId,
         clientId: credentials.clientId,
         redirectUri: credentials.redirectUri,
-        scopes: credentials.scopes,
+        scopes: typeof credentials.scopes === 'string' ? credentials.scopes.split(' ').filter(Boolean) : credentials.scopes,
         authEndpoint: credentials.authorizationEndpoint,
         tokenEndpoint: credentials.tokenEndpoint,
         userInfoEndpoint: credentials.userInfoEndpoint
@@ -1005,7 +1005,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       }
     } catch (error) {
       console.error('❌ [EnhancedAuthorizationCodeFlowV2] Failed to save credentials:', error);
-      logger.error('Failed to save credentials', { error });
+      logger.error('EnhancedAuthorizationCodeFlowV2', 'Failed to save credentials', String(error));
     } finally {
       setIsSavingCredentials(false);
       setCredentialsSaved(true);
@@ -1086,11 +1086,11 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     console.log('✅ [EnhancedAuthorizationCodeFlowV2] Generated authorization URL:', url);
     console.log('🔧 [EnhancedAuthorizationCodeFlowV2] URL parameters:', Object.fromEntries(params));
     setAuthUrl(url);
-    logger.info('Authorization URL generated', { url, scopes });
+    logger.info('EnhancedAuthorizationCodeFlowV2', 'Authorization URL generated', { url, scopes });
   }, [credentials, pkceCodes.codeChallenge]);
 
   // Handle authorization
-  const handleAuthorization = useCallback(() => {
+  const handleAuthorization = useCallback(async () => {
     // Use the same redirect URI logic as in generateAuthUrl
     const redirectUri = getCallbackUrlForFlow('authorization-code');
     
@@ -1134,7 +1134,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               setAuthCode(callbackCode);
               setAuthError(null);
               setErrorDescription(null);
-              logger.info('Authorization code received via message', `code: ${callbackCode.substring(0, 10)}...`);
+              logger.info('EnhancedAuthorizationCodeFlowV2', 'Authorization code received via message', `code: ${callbackCode.substring(0, 10)}...`);
               setIsAuthorizing(false);
               popup.close();
               window.removeEventListener('message', messageHandler);
@@ -1150,13 +1150,13 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             window.removeEventListener('message', messageHandler);
             setIsAuthorizing(false);
             if (!authCode) {
-              logger.warn('Popup closed without authorization code');
+              logger.warn('EnhancedAuthorizationCodeFlowV2', 'Popup closed without authorization code');
             }
           }
         }, 1000);
       } else {
         setIsAuthorizing(false);
-        logger.error('Failed to open popup window');
+        logger.error('EnhancedAuthorizationCodeFlowV2', 'Failed to open popup window');
       }
     } else {
       // Full redirect - set up flow context to return to correct step
@@ -1181,7 +1181,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Stored flow context for callback:', flowContext);
       
       // Full redirect
-      logger.info('Redirecting to authorization server', `url: ${authUrl}`);
+      logger.info('EnhancedAuthorizationCodeFlowV2', 'Redirecting to authorization server', `url: ${authUrl}`);
       window.location.href = authUrl;
     }
   }, [authUrl, testingMethod, state, authCode]);
@@ -1246,7 +1246,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        logger.error('Token exchange failed', { status: response.status, error: errorData });
+        logger.error('EnhancedAuthorizationCodeFlowV2', 'Token exchange failed', { status: response.status, error: errorData });
         
         // Use PingOne error interpreter for friendly messages
         const interpretedError = PingOneErrorInterpreter.interpret({
@@ -1260,7 +1260,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
 
       const tokenData = await response.json();
       setTokens(tokenData);
-      logger.info('Tokens received', { tokenData });
+      logger.info('EnhancedAuthorizationCodeFlowV2', 'Tokens received', tokenData);
       setIsExchangingTokens(false);
       
       // Clear the authorization code after successful exchange to prevent reuse
@@ -1268,7 +1268,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       sessionStorage.removeItem('oauth_auth_code');
       console.log('🧹 [EnhancedAuthCodeFlowV2] Cleared authorization code after successful exchange');
     } catch (error) {
-      logger.error('Token exchange failed', { error });
+      logger.error('EnhancedAuthorizationCodeFlowV2', 'Token exchange failed', String(error));
       setIsExchangingTokens(false);
       throw error;
     }
@@ -1290,7 +1290,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        logger.error('UserInfo request failed', { status: response.status, error: errorData });
+        logger.error('EnhancedAuthorizationCodeFlowV2', 'UserInfo request failed', { status: response.status, error: errorData });
         
         // Use PingOne error interpreter for friendly messages
         const interpretedError = PingOneErrorInterpreter.interpret({
@@ -1304,9 +1304,9 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
 
       const userData = await response.json();
       setUserInfo(userData);
-      logger.info('User info retrieved', { userData });
+      logger.info('EnhancedAuthorizationCodeFlowV2', 'User info retrieved', userData);
     } catch (error) {
-      logger.error('UserInfo request failed', { error });
+      logger.error('EnhancedAuthorizationCodeFlowV2', 'UserInfo request failed', String(error));
       throw error;
     } finally {
       setIsGettingUserInfo(false);
@@ -1320,7 +1320,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       setCopiedText(text);
       setTimeout(() => setCopiedText(null), 2000);
     } catch (error) {
-      logger.error('Failed to copy to clipboard', { error });
+      logger.error('EnhancedAuthorizationCodeFlowV2', 'Failed to copy to clipboard', String(error));
     }
   }, []);
 
@@ -1651,7 +1651,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           const { challenge } = await generatePKCECodes();
           setPkceGenerated(true);
           // Regenerate authorization URL with PKCE codes
-          generateAuthUrl(challenge);
+          generateAuthUrl();
           return { success: true };
         } finally {
           setIsGeneratingPKCE(false);
@@ -1661,12 +1661,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     },
     {
       id: 'build-auth-url',
-      title: (
-        <>
-          <FiGlobe />
-          Build Authorization URL
-        </>
-      ),
+      title: 'Build Authorization URL',
       description: 'Construct the complete authorization URL with all required OAuth parameters.',
       icon: <FiGlobe />,
       category: 'authorization',
@@ -2448,7 +2443,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       {authError && (
         <OAuthErrorHelper
           error={authError}
-          errorDescription={errorDescription}
+          errorDescription={errorDescription || ''}
           onRetry={() => {
             setAuthError(null);
             setErrorDescription(null);
