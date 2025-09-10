@@ -28,7 +28,7 @@ export const useScrollToTop = () => {
       const scrollableContainers = document.querySelectorAll('[data-scrollable]');
       scrollableContainers.forEach(container => {
         if (container instanceof HTMLElement) {
-          console.log('🔄 [useScrollToTop] Scrolling container to top:', container);
+          console.log('🔄 [useScrollToTop] Scrolling container to top');
           container.scrollTo(scrollOptions);
         }
       });
@@ -39,7 +39,7 @@ export const useScrollToTop = () => {
         if (element instanceof HTMLElement) {
           const style = window.getComputedStyle(element);
           if (style.overflowY === 'auto' || style.overflowY === 'scroll') {
-            console.log('🔄 [useScrollToTop] Scrolling overflow container to top:', element);
+            console.log('🔄 [useScrollToTop] Scrolling overflow container to top');
             element.scrollTo(scrollOptions);
           }
         }
