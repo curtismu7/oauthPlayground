@@ -28,6 +28,7 @@ import OAuthErrorHelper from '../../components/OAuthErrorHelper';
 import { generateCodeVerifier, generateCodeChallenge } from '../../utils/oauth';
 import { credentialManager } from '../../utils/credentialManager';
 import { logger } from '../../utils/logger';
+import { useApiCall } from '../../utils/apiClient';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
 import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
 import ConfigurationStatus from '../../components/ConfigurationStatus';
@@ -578,6 +579,9 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   const [callbackSuccess, setCallbackSuccess] = useState(false);
   const [callbackError, setCallbackError] = useState<string | null>(null);
   const [testingMethod, setTestingMethod] = useState<'popup' | 'redirect'>('popup');
+  
+  // API client for better error handling
+  const { callApi, serverStatus } = useApiCall();
   const [copiedText, setCopiedText] = useState<string | null>(null);
   const [isAuthorizing, setIsAuthorizing] = useState<boolean>(false);
   const [isExchangingTokens, setIsExchangingTokens] = useState<boolean>(false);
@@ -620,9 +624,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         environmentId: !!credentials.environmentId,
         clientId: !!credentials.clientId,
         redirectUri: !!credentials.redirectUri
-    }
-  }
-  });
+      }
+    });
     
     // If we have step parameter, use it (this comes from the callback redirect)
     if (stepParam) {
@@ -838,9 +841,9 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       if (!hasCredentials) {
         console.log('⚠️ [EnhancedAuthorizationCodeFlowV2] No credentials found, loading from environment variables...');
         try {
-          const response = await fetch('/api/env-config');
-          if (response.ok) {
-            const envConfig = await response.json();
+          const response = await callApi(() => fetch('/api/env-config'));
+          if (response.ok && response.data) {
+            const envConfig = response.data;
             console.log('✅ [EnhancedAuthorizationCodeFlowV2] Loaded from environment config:', envConfig);
             
             setCredentials(prev => ({ 
@@ -1351,11 +1354,9 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-      }
-  },
+        },
         body: JSON.stringify(requestBody)
-    }
-  });
+      });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -1463,11 +1464,9 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-      }
-  },
+        },
         body: JSON.stringify(requestBody)
-    }
-  });
+      });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
