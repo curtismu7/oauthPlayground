@@ -2337,109 +2337,19 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         </div>
       )}
 
-      {/* Callback URL Configuration */}
+      {/* Callback URL Configuration - Collapsible with shaded background */}
       <div style={{ 
         marginBottom: '2rem', 
-        padding: '1.5rem', 
-        backgroundColor: credentialsSaved ? '#f0fdf4' : '#f8fafc', 
-        border: credentialsSaved ? '1px solid #22c55e' : '1px solid #e2e8f0', 
-        borderRadius: '0.75rem' 
+        backgroundColor: '#f8fafc', 
+        border: '1px solid #e2e8f0', 
+        borderRadius: '0.75rem',
+        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
       }}>
-        <h3 style={{ 
-          margin: '0 0 1rem 0', 
-          fontSize: '1.125rem', 
-          fontWeight: '600', 
-          color: '#1f2937',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem'
-        }}>
-          🔗 Callback URL Configuration
-        </h3>
-        
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ 
-            display: 'block', 
-            marginBottom: '0.5rem', 
-            fontSize: '0.875rem', 
-            fontWeight: '500', 
-            color: '#374151' 
-          }}>
-            Redirect URI (Read-only - Auto-configured)
-          </label>
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            <input
-              type="text"
-              value={getCallbackUrlForFlow('authorization-code')}
-              readOnly
-              style={{
-                flex: 1,
-                padding: '0.75rem',
-                border: '1px solid #d1d5db',
-                borderRadius: '0.5rem',
-                fontSize: '0.875rem',
-                fontFamily: 'monospace',
-                backgroundColor: '#f9fafb',
-                color: '#6b7280'
-              }}
-              placeholder="https://localhost:3000/authz-callback"
-            />
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(getCallbackUrlForFlow('authorization-code'));
-                console.log('✅ Callback URL copied to clipboard');
-              }}
-              style={{
-                padding: '0.75rem 1rem',
-                backgroundColor: '#3b82f6',
-                border: '1px solid #3b82f6',
-                borderRadius: '0.5rem',
-                fontSize: '0.875rem',
-                color: 'white',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              Copy URL
-            </button>
-          </div>
-          <p style={{ 
-            margin: '0.5rem 0 0 0', 
-            fontSize: '0.75rem', 
-            color: '#6b7280' 
-          }}>
-            This URL is automatically configured for the authorization code flow. Copy it and add it to your PingOne application settings as an allowed redirect URI.
-          </p>
-        </div>
-
-        <div style={{ 
-          backgroundColor: '#eff6ff', 
-          border: '1px solid #bfdbfe', 
-          borderRadius: '0.5rem', 
-          padding: '1rem' 
-        }}>
-          <h4 style={{ 
-            margin: '0 0 0.5rem 0', 
-            fontSize: '0.875rem', 
-            fontWeight: '600', 
-            color: '#1e40af' 
-          }}>
-            Setup Instructions:
-          </h4>
-          <ol style={{ 
-            margin: '0', 
-            paddingLeft: '1.25rem', 
-            fontSize: '0.875rem', 
-            color: '#1e40af',
-            lineHeight: '1.5'
-          }}>
-            <li>Copy the redirect URI above</li>
-            <li>Go to your PingOne application settings</li>
-            <li>Navigate to "Redirect URIs" section</li>
-            <li>Add the copied URI to your allowed redirect URIs</li>
-            <li>Save your configuration</li>
-          </ol>
-        </div>
+        <CallbackUrlDisplay 
+          flowType="authorization-code" 
+          baseUrl={window.location.origin}
+          defaultExpanded={false}
+        />
       </div>
 
 
