@@ -780,11 +780,25 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         
         const allCredentials = credentialManager.getAllCredentials();
         console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Loading credentials:', allCredentials);
+        console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Credential details:', {
+          hasEnvironmentId: !!allCredentials.environmentId,
+          hasClientId: !!allCredentials.clientId,
+          hasRedirectUri: !!allCredentials.redirectUri,
+          hasAuthEndpoint: !!allCredentials.authEndpoint,
+          hasTokenEndpoint: !!allCredentials.tokenEndpoint,
+          environmentId: allCredentials.environmentId,
+          clientId: allCredentials.clientId
+        });
         
-        // Check for test values and clear them (only if BOTH are test values)
+        // Check for test values and clear them (only if BOTH are test values AND no other valid data exists)
         // Skip clearing during auto-token exchange to prevent breaking the flow
-        if (!skipTestClear && allCredentials.clientId === 'test-client-123' && allCredentials.environmentId === 'test-env-123') {
-          console.log('🧹 [EnhancedAuthorizationCodeFlowV2] Found test values, clearing credentials');
+        if (!skipTestClear && 
+            allCredentials.clientId === 'test-client-123' && 
+            allCredentials.environmentId === 'test-env-123' &&
+            !allCredentials.redirectUri && 
+            !allCredentials.authEndpoint && 
+            !allCredentials.tokenEndpoint) {
+          console.log('🧹 [EnhancedAuthorizationCodeFlowV2] Found test values with no other config, clearing credentials');
           credentialManager.clearAllCredentials();
           console.log('✅ [EnhancedAuthorizationCodeFlowV2] Test credentials cleared');
           return;
@@ -838,7 +852,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         console.error('❌ [EnhancedAuthorizationCodeFlowV2] Failed to load credentials:', error);
         logger.error('Failed to load credentials', { error });
       }
-    }, []);
+    }
+  }, []);
 
   // Load credentials immediately to ensure buttons are enabled
   useEffect(() => {
