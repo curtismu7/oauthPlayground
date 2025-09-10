@@ -191,8 +191,8 @@ const LoadingSpinner = styled.div`
 const Configuration = () => {
   const [initialLoading, setInitialLoading] = useState(true);
   const [formData, setFormData] = useState({
-    environmentId: 'test-env-123',
-    clientId: 'test-client-123',
+    environmentId: '',
+    clientId: '',
     clientSecret: '',
     redirectUri: window.location.origin + '/callback',
     scopes: 'openid profile email',
