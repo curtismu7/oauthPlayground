@@ -1887,7 +1887,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       category: 'authorization',
       content: (
         <div>
-          {authCode && (
+          {(authCode || callbackSuccess) && (
             <div style={{ 
               marginBottom: '2rem', 
               padding: '1.5rem', 
@@ -1901,7 +1901,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                 🎉 Welcome Back from PingOne!
               </h3>
               <p style={{ margin: '0', color: '#1e40af', fontSize: '1.1rem' }}>
-                Your authorization was successful. You can now proceed with the token exchange.
+                Your authorization was successful. Hit the Next button to proceed with the token exchange.
               </p>
             </div>
           )}
