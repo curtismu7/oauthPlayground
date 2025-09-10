@@ -774,8 +774,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         const allCredentials = credentialManager.getAllCredentials();
         console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Loading credentials:', allCredentials);
         
-        // Check for test values and clear them
-        if (allCredentials.clientId === 'test-client-123' || allCredentials.environmentId === 'test-env-123') {
+        // Check for test values and clear them (only if BOTH are test values)
+        if (allCredentials.clientId === 'test-client-123' && allCredentials.environmentId === 'test-env-123') {
           console.log('🧹 [EnhancedAuthorizationCodeFlowV2] Found test values, clearing credentials');
           credentialManager.clearAllCredentials();
           console.log('✅ [EnhancedAuthorizationCodeFlowV2] Test credentials cleared');
