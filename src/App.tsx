@@ -46,6 +46,7 @@ import OAuth21 from './pages/OAuth21';
 import OIDCSessionManagement from './pages/OIDCSessionManagement';
 import OIDCSpecs from './pages/docs/OIDCSpecs';
 import OIDCForAI from './pages/docs/OIDCForAI';
+import OAuth2SecurityBestPractices from './pages/docs/OAuth2SecurityBestPractices';
 import AuthorizationRequestModal from './components/AuthorizationRequestModal';
 import PageChangeSpinner from './components/PageChangeSpinner';
 import DebugPanel from './components/DebugPanel';
@@ -251,6 +252,7 @@ const AppRoutes = () => {
 
             <Route path="/docs/oidc-specs" element={<OIDCSpecs />} />
             <Route path="/docs/oidc-for-ai" element={<OIDCForAI />} />
+            <Route path="/docs/oauth2-security-best-practices" element={<OAuth2SecurityBestPractices />} />
 
             <Route path="/auto-discover" element={<AutoDiscover />} />
             <Route path="/token-management" element={<TokenManagement />} />
