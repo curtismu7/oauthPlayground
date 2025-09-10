@@ -873,7 +873,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           setTimeout(async () => {
             try {
               console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Auto-exchanging authorization code for tokens');
-              await exchangeCodeForTokens();
+              // Use the code directly since state might not be updated yet
+              await exchangeCodeForTokensWithCode(code);
               console.log('✅ [EnhancedAuthorizationCodeFlowV2] Auto token exchange successful');
             } catch (error) {
               console.error('❌ [EnhancedAuthorizationCodeFlowV2] Auto token exchange failed:', error);
@@ -1175,6 +1176,94 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       window.location.href = authUrl;
     }
   }, [authUrl, testingMethod, state, authCode]);
+
+  // Exchange code for tokens with specific code parameter
+  const exchangeCodeForTokensWithCode = useCallback(async (codeToUse: string) => {
+    // Prevent multiple simultaneous exchanges
+    if (isExchangingTokens) {
+      console.log('⚠️ [EnhancedAuthCodeFlowV2] Token exchange already in progress, skipping');
+      return;
+    }
+
+    // Check if we already have tokens
+    if (tokens?.access_token) {
+      console.log('⚠️ [EnhancedAuthCodeFlowV2] Tokens already exist, skipping exchange');
+      return;
+    }
+
+    // Validate required parameters
+    if (!codeToUse) {
+      throw new Error('No authorization code available for token exchange');
+    }
+    if (!credentials.clientId) {
+      throw new Error('Client ID is required for token exchange');
+    }
+    if (!pkceCodes.codeVerifier) {
+      throw new Error('Code verifier is required for PKCE token exchange');
+    }
+
+    try {
+      setIsExchangingTokens(true);
+      
+      // Use backend proxy for secure token exchange
+      const backendUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://oauth-playground.vercel.app' 
+        : 'http://localhost:3001';
+      
+      const requestBody = {
+          grant_type: 'authorization_code',
+        client_id: credentials.clientId,
+        client_secret: credentials.clientSecret || '',
+          code: codeToUse,
+          redirect_uri: credentials.redirectUri,
+        environment_id: credentials.environmentId,
+        code_verifier: pkceCodes.codeVerifier
+      };
+
+      console.log('🔄 [EnhancedAuthCodeFlowV2] Token exchange via backend proxy:', {
+        backendUrl,
+        clientId: credentials.clientId,
+        code: codeToUse.substring(0, 10) + '...',
+        redirectUri: credentials.redirectUri
+      });
+
+      const response = await fetch(`${backendUrl}/api/token-exchange`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        logger.error('Token exchange failed', { status: response.status, error: errorData });
+        
+        // Use PingOne error interpreter for friendly messages
+        const interpretedError = PingOneErrorInterpreter.interpret({
+          error: errorData.error || 'token_exchange_failed',
+          error_description: errorData.error_description || errorData.details || `HTTP ${response.status}: ${response.statusText}`,
+          details: errorData
+        });
+        
+        throw new Error(`${interpretedError.title}: ${interpretedError.message}${interpretedError.suggestion ? `\n\nSuggestion: ${interpretedError.suggestion}` : ''}`);
+      }
+
+      const tokenData = await response.json();
+      setTokens(tokenData);
+      logger.info('Tokens received', { tokenData });
+      setIsExchangingTokens(false);
+      
+      // Clear the authorization code after successful exchange to prevent reuse
+      setAuthCode('');
+      sessionStorage.removeItem('oauth_auth_code');
+      console.log('🧹 [EnhancedAuthCodeFlowV2] Cleared authorization code after successful exchange');
+    } catch (error) {
+      logger.error('Token exchange failed', { error });
+      setIsExchangingTokens(false);
+      throw error;
+    }
+  }, [credentials, pkceCodes.codeVerifier, isExchangingTokens, tokens]);
 
   // Exchange code for tokens
   const exchangeCodeForTokens = useCallback(async () => {
