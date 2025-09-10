@@ -650,36 +650,34 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       return;
     }
     
-    // If we have authorization code, we should be on step 4 (handle callback)
+    // If we have authorization code, we should go to step 5 (exchange tokens) and exchange immediately
     if (code) {
-      console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Authorization code detected, restoring to step 4 (handle callback)');
+      console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Authorization code detected, going to step 5 (exchange tokens)');
       console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Setting authCode from URL:', code);
       setAuthCode(code); // Set the authorization code from URL parameters
       setState(state || '');
       
-      // Mark callback as successful and check for tokens
+      // Mark callback as successful
       setCallbackSuccess(true);
       setCallbackError(null);
       
-      // Show success modal to user - use setTimeout to ensure it shows
-      setTimeout(() => {
-        console.log('🔔 [EnhancedAuthorizationCodeFlowV2] Forcing modal to show after redirect (no step param)');
-        setShowAuthSuccessModal(true);
+      // Set step to 5 (exchange tokens) and store it
+      const stepIndex = 5;
+      console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Setting step to 5 (exchange tokens)');
+      setCurrentStepIndex(stepIndex);
+      sessionStorage.setItem('enhanced-authz-code-v2-step', stepIndex.toString());
+      
+      // Automatically exchange the code for tokens
+      setTimeout(async () => {
+        try {
+          console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Auto-exchanging authorization code for tokens');
+          await exchangeCodeForTokens();
+          console.log('✅ [EnhancedAuthorizationCodeFlowV2] Auto token exchange successful');
+        } catch (error) {
+          console.error('❌ [EnhancedAuthorizationCodeFlowV2] Auto token exchange failed:', error);
+        }
       }, 100);
       
-      // Check if we have tokens from the auth context
-      if (authContext?.authState?.tokens) {
-        console.log('✅ [EnhancedAuthorizationCodeFlowV2] Tokens found in auth context:', authContext.authState.tokens);
-        setTokens(authContext.authState.tokens);
-      }
-      
-      // Check if we have user info from the auth context
-      if (authContext?.authState?.user) {
-        console.log('✅ [EnhancedAuthorizationCodeFlowV2] User info found in auth context:', authContext.authState.user);
-        setUserInfo(authContext.authState.user);
-      }
-      
-      sessionStorage.setItem('enhanced-authz-code-v2-step', '4'); // Step 5 (handle-callback) is index 4
       return;
     }
     
@@ -2411,10 +2409,10 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       showDebugInfo={true}
       allowStepJumping={true}
       initialStepIndex={currentStepIndex}
-      onStepChange={(stepIndex) => {
+      onStepChange={useCallback((stepIndex) => {
         console.log('🔔 [EnhancedAuthorizationCodeFlowV2] Step changed to:', stepIndex);
         setCurrentStepIndex(stepIndex);
-      }}
+      }, [])}
     />
 
       {/* Authorization Request Modal */}
