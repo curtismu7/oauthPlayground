@@ -724,7 +724,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           
           await exchangeCodeForTokens();
           console.log('✅ [EnhancedAuthorizationCodeFlowV2] Auto token exchange successful');
-        } catch (error) {
+      } catch (error) {
           console.error('❌ [EnhancedAuthorizationCodeFlowV2] Auto token exchange failed:', error);
         }
       }, 100);
@@ -1205,14 +1205,24 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       return;
     }
 
+    // Get credentials directly from credential manager to ensure we have the latest values
+    const currentCredentials = credentialManager.getAllCredentials();
+    const codeVerifier = sessionStorage.getItem('code_verifier') || '';
+    
+    console.log('🔧 [EnhancedAuthCodeFlowV2] Using credentials for token exchange:', {
+      clientId: currentCredentials.clientId,
+      environmentId: currentCredentials.environmentId,
+      hasCodeVerifier: !!codeVerifier
+    });
+
     // Validate required parameters
     if (!codeToUse) {
       throw new Error('No authorization code available for token exchange');
     }
-    if (!credentials.clientId) {
+    if (!currentCredentials.clientId) {
       throw new Error('Client ID is required for token exchange');
     }
-    if (!pkceCodes.codeVerifier) {
+    if (!codeVerifier) {
       throw new Error('Code verifier is required for PKCE token exchange');
     }
 
@@ -1226,19 +1236,19 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       
       const requestBody = {
           grant_type: 'authorization_code',
-        client_id: credentials.clientId,
-        client_secret: credentials.clientSecret || '',
+        client_id: currentCredentials.clientId,
+        client_secret: currentCredentials.clientSecret || '',
           code: codeToUse,
-          redirect_uri: credentials.redirectUri,
-        environment_id: credentials.environmentId,
-        code_verifier: pkceCodes.codeVerifier
+          redirect_uri: currentCredentials.redirectUri,
+        environment_id: currentCredentials.environmentId,
+        code_verifier: codeVerifier
       };
 
       console.log('🔄 [EnhancedAuthCodeFlowV2] Token exchange via backend proxy:', {
         backendUrl,
-        clientId: credentials.clientId,
+        clientId: currentCredentials.clientId,
         code: codeToUse.substring(0, 10) + '...',
-        redirectUri: credentials.redirectUri
+        redirectUri: currentCredentials.redirectUri
       });
 
       const response = await fetch(`${backendUrl}/api/token-exchange`, {
@@ -1293,14 +1303,24 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       return;
     }
 
+    // Get credentials directly from credential manager to ensure we have the latest values
+    const currentCredentials = credentialManager.getAllCredentials();
+    const codeVerifier = sessionStorage.getItem('code_verifier') || '';
+    
+    console.log('🔧 [EnhancedAuthCodeFlowV2] Using credentials for token exchange:', {
+      clientId: currentCredentials.clientId,
+      environmentId: currentCredentials.environmentId,
+      hasCodeVerifier: !!codeVerifier
+    });
+
     // Validate required parameters
     if (!authCode) {
       throw new Error('No authorization code available for token exchange');
     }
-    if (!credentials.clientId) {
+    if (!currentCredentials.clientId) {
       throw new Error('Client ID is required for token exchange');
     }
-    if (!pkceCodes.codeVerifier) {
+    if (!codeVerifier) {
       throw new Error('Code verifier is required for PKCE token exchange');
     }
 
@@ -1314,19 +1334,19 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       
       const requestBody = {
           grant_type: 'authorization_code',
-        client_id: credentials.clientId,
-        client_secret: credentials.clientSecret || '',
+        client_id: currentCredentials.clientId,
+        client_secret: currentCredentials.clientSecret || '',
           code: authCode,
-          redirect_uri: credentials.redirectUri,
-        environment_id: credentials.environmentId,
-        code_verifier: pkceCodes.codeVerifier
+          redirect_uri: currentCredentials.redirectUri,
+        environment_id: currentCredentials.environmentId,
+        code_verifier: codeVerifier
       };
 
       console.log('🔄 [EnhancedAuthCodeFlowV2] Token exchange via backend proxy:', {
         backendUrl,
-        clientId: credentials.clientId,
+        clientId: currentCredentials.clientId,
         code: authCode.substring(0, 10) + '...',
-        redirectUri: credentials.redirectUri
+        redirectUri: currentCredentials.redirectUri
       });
 
       const response = await fetch(`${backendUrl}/api/token-exchange`, {
