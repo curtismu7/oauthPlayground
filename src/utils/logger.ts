@@ -40,6 +40,11 @@ class Logger {
     }
   }
 
+  // Public method to add entries from console interception
+  addEntry(level: string, component: string, message: string, data?: LogData, error?: Error) {
+    this.addToHistory(level, component, message, data, error);
+  }
+
   error(component: string, message: string, data?: LogData, error?: Error) {
     this.addToHistory('ERROR', component, message, data, error);
     console.error(`❌ [${component}] ${message}`, data || '', error || '');
