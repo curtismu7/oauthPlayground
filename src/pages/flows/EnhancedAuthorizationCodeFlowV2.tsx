@@ -1935,6 +1935,25 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       category: 'authorization',
       content: (
         <div>
+          {/* Clear instructions for users */}
+          <div style={{ 
+            marginBottom: '2rem', 
+            padding: '1.5rem', 
+            background: '#f0f9ff', 
+            border: '2px solid #0ea5e9', 
+            borderRadius: '0.75rem',
+            textAlign: 'center'
+          }}>
+            <FiUser size={48} style={{ marginBottom: '1rem', color: '#0284c7' }} />
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#0c4a6e' }}>
+              🚀 Ready to Test Authorization!
+            </h3>
+            <p style={{ margin: '0', color: '#0c4a6e', fontSize: '1.1rem' }}>
+              Click the <strong>Execute</strong> button below to redirect to PingOne for authentication. 
+              You'll be taken to PingOne's login page where you can test the OAuth flow.
+            </p>
+          </div>
+
           <h4>Choose your testing method:</h4>
           
           <TestingMethodCard 
@@ -1960,7 +1979,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             <div>
               <strong>State Parameter:</strong> {state}
               <br />
-              Remember this value to verify the callback
+              <small>This value will be returned by PingOne to verify the callback is legitimate</small>
             </div>
           </InfoBox>
         </div>
