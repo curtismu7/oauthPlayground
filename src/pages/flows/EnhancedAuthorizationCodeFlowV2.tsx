@@ -623,6 +623,12 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         setAuthCode(code);
         setState(state || '');
         
+        // Store authorization code in sessionStorage for persistence
+        sessionStorage.setItem('oauth_auth_code', code);
+        if (state) {
+          sessionStorage.setItem('oauth_state', state);
+        }
+        
         // Mark callback as successful and check for tokens
         setCallbackSuccess(true);
         setCallbackError(null);
@@ -644,6 +650,30 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           console.log('✅ [EnhancedAuthorizationCodeFlowV2] User info found in auth context:', authContext.authState.user);
           setUserInfo(authContext.authState.user);
         }
+      } else {
+        console.log('⚠️ [EnhancedAuthorizationCodeFlowV2] Step parameter found but no authorization code in URL');
+        console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Full URL:', window.location.href);
+        console.log('🔍 [EnhancedAuthorizationCodeFlowV2] URL search params:', location.search);
+        
+        // Check if we have a stored authorization code
+        const storedCode = sessionStorage.getItem('oauth_auth_code');
+        if (storedCode) {
+          console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Found stored authorization code:', storedCode);
+          setAuthCode(storedCode);
+          setCallbackSuccess(true);
+          setCallbackError(null);
+          
+          // Automatically exchange the code for tokens
+          setTimeout(async () => {
+            try {
+              console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Auto-exchanging stored authorization code for tokens');
+              await exchangeCodeForTokens();
+              console.log('✅ [EnhancedAuthorizationCodeFlowV2] Auto token exchange successful');
+            } catch (error) {
+              console.error('❌ [EnhancedAuthorizationCodeFlowV2] Auto token exchange failed:', error);
+            }
+          }, 100);
+        }
       }
       
       sessionStorage.setItem('enhanced-authz-code-v2-step', stepIndex.toString());
@@ -656,6 +686,12 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Setting authCode from URL:', code);
       setAuthCode(code); // Set the authorization code from URL parameters
       setState(state || '');
+      
+      // Store authorization code in sessionStorage for persistence
+      sessionStorage.setItem('oauth_auth_code', code);
+      if (state) {
+        sessionStorage.setItem('oauth_state', state);
+      }
       
       // Mark callback as successful
       setCallbackSuccess(true);
@@ -2523,6 +2559,13 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                     const currentUrl = new URL(window.location.href);
                     currentUrl.searchParams.set('step', '5');
                     currentUrl.searchParams.set('action', 'exchange-tokens');
+                    // Preserve authorization code if it exists
+                    if (authCode) {
+                      currentUrl.searchParams.set('code', authCode);
+                    }
+                    if (state) {
+                      currentUrl.searchParams.set('state', state);
+                    }
                     // Add cache-busting parameter
                     currentUrl.searchParams.set('t', Date.now().toString());
                     
