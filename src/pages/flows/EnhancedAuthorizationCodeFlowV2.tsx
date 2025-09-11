@@ -20,7 +20,9 @@ import {
   FiZap,
   FiBookmark,
   FiClock,
-  FiLoader
+  FiLoader,
+  FiChevronDown,
+  FiChevronRight
 } from 'react-icons/fi';
 import EnhancedStepFlowV2, { EnhancedFlowStep } from '../../components/EnhancedStepFlowV2';
 import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
@@ -594,6 +596,69 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   const [urlGenerated, setUrlGenerated] = useState<boolean>(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [errorDescription, setErrorDescription] = useState<string | null>(null);
+  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
+    'setup-credentials': false,
+    'exchange-tokens': false,
+    'userinfo': false,
+    'refresh-tokens': false
+  });
+  const [usedAuthCode, setUsedAuthCode] = useState<string | null>(null);
+  const [showUrlDetailsInStep4, setShowUrlDetailsInStep4] = useState<boolean>(true);
+
+  // Load UI configuration
+  useEffect(() => {
+    const flowConfigKey = 'enhanced-flow-authorization-code';
+    const flowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
+    if (flowConfig.showUrlDetailsInStep4 !== undefined) {
+      setShowUrlDetailsInStep4(flowConfig.showUrlDetailsInStep4);
+      console.log('🔧 [EnhancedAuthCodeFlowV2] Loaded showUrlDetailsInStep4 setting:', flowConfig.showUrlDetailsInStep4);
+    }
+  }, []);
+
+  // Load credentials on component mount
+  useEffect(() => {
+    console.log('🔍 [EnhancedAuthCodeFlowV2] Component mounted with credentials:', {
+      hasClientId: !!credentials.clientId,
+      hasEnvironmentId: !!credentials.environmentId,
+      hasRedirectUri: !!credentials.redirectUri,
+      clientId: credentials.clientId ? `${credentials.clientId.substring(0, 8)}...` : 'none'
+    });
+
+    // If credentials are empty, try to load them from storage
+    if (!credentials.clientId || !credentials.environmentId) {
+      console.log('🔧 [EnhancedAuthCodeFlowV2] Loading credentials from storage on mount');
+      const storedCredentials = credentialManager.loadAuthzFlowCredentials();
+      if (storedCredentials) {
+        const convertedCredentials = {
+          clientId: storedCredentials.clientId,
+          clientSecret: storedCredentials.clientSecret || '',
+          environmentId: storedCredentials.environmentId,
+          authorizationEndpoint: storedCredentials.authEndpoint || '',
+          tokenEndpoint: storedCredentials.tokenEndpoint || '',
+          userInfoEndpoint: storedCredentials.userInfoEndpoint || '',
+          redirectUri: storedCredentials.redirectUri,
+          scopes: storedCredentials.scopes.join(' '),
+          responseType: 'code',
+          codeChallengeMethod: 'S256'
+        };
+        setCredentials(convertedCredentials);
+        console.log('✅ [EnhancedAuthCodeFlowV2] Loaded credentials from storage:', {
+          clientId: storedCredentials.clientId ? `${storedCredentials.clientId.substring(0, 8)}...` : 'none',
+          environmentId: storedCredentials.environmentId
+        });
+      } else {
+        console.log('⚠️ [EnhancedAuthCodeFlowV2] No stored credentials found - user needs to configure');
+      }
+    }
+  }, []);
+
+  // Toggle collapsed section
+  const toggleSection = (sectionId: string) => {
+    setCollapsedSections(prev => ({
+      ...prev,
+      [sectionId]: !prev[sectionId]
+    }));
+  };
 
   // Handle URL parameters to restore correct step
   useEffect(() => {
@@ -714,6 +779,13 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       setTimeout(async () => {
         try {
           console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Auto-exchanging authorization code for tokens');
+          
+          // Ensure PKCE codes are generated before exchange
+          if (!pkceCodes.codeVerifier) {
+            console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Generating PKCE codes before exchange');
+            await generatePKCECodes();
+          }
+          
           await exchangeCodeForTokens();
           console.log('✅ [EnhancedAuthorizationCodeFlowV2] Auto token exchange successful');
         } catch (error) {
@@ -883,6 +955,13 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           setTimeout(async () => {
             try {
               console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Auto-exchanging authorization code for tokens');
+              
+              // Ensure PKCE codes are generated before exchange
+              if (!pkceCodes.codeVerifier) {
+                console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Generating PKCE codes before exchange');
+                await generatePKCECodes();
+              }
+              
               await exchangeCodeForTokens();
               console.log('✅ [EnhancedAuthorizationCodeFlowV2] Auto token exchange successful');
             } catch (error) {
@@ -1200,20 +1279,127 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       return;
     }
 
-    // Validate required parameters
-    if (!authCode) {
+    // Check if we've already used this authorization code
+    if (usedAuthCode && usedAuthCode === authCode) {
+      console.log('⚠️ [EnhancedAuthCodeFlowV2] Authorization code already used, skipping exchange');
+      return;
+    }
+
+    // MANDATORY CREDENTIAL VALIDATION - This is the key fix
+    console.log('🔍 [EnhancedAuthCodeFlowV2] Validating credentials before token exchange...');
+    
+    // Check if we have valid credentials in state
+    if (!credentials.clientId || credentials.clientId.trim() === '') {
+      console.error('❌ [EnhancedAuthCodeFlowV2] No valid client ID found in credentials state');
+      throw new Error('OAuth credentials are missing. Please go back to Step 1 and save your credentials first, then restart the OAuth flow.');
+    }
+    
+    if (!credentials.environmentId || credentials.environmentId.trim() === '') {
+      console.error('❌ [EnhancedAuthCodeFlowV2] No valid environment ID found in credentials state');
+      throw new Error('Environment ID is missing. Please go back to Step 1 and save your credentials first, then restart the OAuth flow.');
+    }
+    
+    if (!credentials.redirectUri || credentials.redirectUri.trim() === '') {
+      console.error('❌ [EnhancedAuthCodeFlowV2] No valid redirect URI found in credentials state');
+      throw new Error('Redirect URI is missing. Please go back to Step 1 and save your credentials first, then restart the OAuth flow.');
+    }
+
+    console.log('✅ [EnhancedAuthCodeFlowV2] Credentials validation passed:', {
+      clientId: credentials.clientId ? `${credentials.clientId.substring(0, 8)}...` : 'none',
+      environmentId: credentials.environmentId,
+      redirectUri: credentials.redirectUri
+    });
+
+    // Add a small delay to ensure all state is properly set
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // Use the validated credentials directly - no complex loading needed
+    const currentCredentials = credentials;
+    
+    // Check if we have authorization code, if not try to load from sessionStorage
+    let currentAuthCode = authCode;
+    if (!currentAuthCode) {
+      const storedCode = sessionStorage.getItem('oauth_auth_code');
+      if (storedCode) {
+        console.log('🔧 [EnhancedAuthCodeFlowV2] Loading authorization code from sessionStorage');
+        currentAuthCode = storedCode;
+        // Update the state
+        setAuthCode(storedCode);
+      }
+    }
+
+    // Final validation with detailed error messages
+    console.log('🔍 [EnhancedAuthCodeFlowV2] Final validation before exchange:', {
+      hasAuthCode: !!currentAuthCode,
+      hasClientId: !!currentCredentials.clientId,
+      hasEnvironmentId: !!currentCredentials.environmentId,
+      hasRedirectUri: !!currentCredentials.redirectUri,
+      clientId: currentCredentials.clientId ? `${currentCredentials.clientId.substring(0, 8)}...` : 'none'
+    });
+    
+    if (!currentAuthCode) {
       throw new Error('No authorization code available for token exchange');
     }
-    if (!credentials.clientId) {
-      throw new Error('Client ID is required for token exchange');
+    if (!currentCredentials.clientId) {
+      throw new Error('OAuth credentials are missing. Please go back to Step 1 and save your credentials first, then restart the OAuth flow.');
     }
-    if (!pkceCodes.codeVerifier) {
+    if (!currentCredentials.environmentId) {
+      throw new Error('Environment ID is missing. Please go back to Step 1 and save your credentials first, then restart the OAuth flow.');
+    }
+    if (!currentCredentials.redirectUri) {
+      throw new Error('Redirect URI is missing. Please go back to Step 1 and save your credentials first, then restart the OAuth flow.');
+    }
+
+    // Check if we've already used this authorization code
+    if (usedAuthCode === currentAuthCode) {
+      throw new Error('This authorization code has already been used. Please start a new OAuth flow.');
+    }
+    
+    // Check if we have PKCE codes, if not try to load from sessionStorage
+    let codeVerifier = pkceCodes.codeVerifier;
+    if (!codeVerifier) {
+      const storedVerifier = sessionStorage.getItem('code_verifier');
+      if (storedVerifier) {
+        console.log('🔧 [EnhancedAuthCodeFlowV2] Loading code verifier from sessionStorage');
+        codeVerifier = storedVerifier;
+        // Update the state
+        setPkceCodes(prev => ({ ...prev, codeVerifier: storedVerifier }));
+      }
+    }
+    
+    if (!codeVerifier) {
       throw new Error('Code verifier is required for PKCE token exchange');
     }
 
     try {
       setIsExchangingTokens(true);
       
+      // Mark this authorization code as used
+      setUsedAuthCode(currentAuthCode);
+      
+      // FINAL VALIDATION - This is the last chance to catch empty values
+      console.log('🔍 [EnhancedAuthCodeFlowV2] Final validation before request body construction:', {
+        clientId: currentCredentials.clientId,
+        clientIdLength: currentCredentials.clientId?.length || 0,
+        environmentId: currentCredentials.environmentId,
+        redirectUri: currentCredentials.redirectUri
+      });
+
+      if (!currentCredentials.clientId || currentCredentials.clientId.trim() === '') {
+        console.error('❌ [EnhancedAuthCodeFlowV2] CRITICAL: clientId is empty in request body construction!');
+        throw new Error('CRITICAL ERROR: Client ID is empty. This should not happen after validation.');
+      }
+
+      if (!currentCredentials.environmentId || currentCredentials.environmentId.trim() === '') {
+        console.error('❌ [EnhancedAuthCodeFlowV2] CRITICAL: environmentId is empty in request body construction!');
+        throw new Error('CRITICAL ERROR: Environment ID is empty. This should not happen after validation.');
+      }
+
+      if (!currentCredentials.redirectUri || currentCredentials.redirectUri.trim() === '') {
+        console.error('❌ [EnhancedAuthCodeFlowV2] CRITICAL: redirectUri is empty in request body construction!');
+        throw new Error('CRITICAL ERROR: Redirect URI is empty. This should not happen after validation.');
+      }
+
       // Use backend proxy for secure token exchange
       const backendUrl = process.env.NODE_ENV === 'production' 
         ? 'https://oauth-playground.vercel.app' 
@@ -1221,27 +1407,53 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       
       const requestBody = {
           grant_type: 'authorization_code',
-        client_id: credentials.clientId,
-        client_secret: credentials.clientSecret || '',
-          code: authCode,
-          redirect_uri: credentials.redirectUri,
-        environment_id: credentials.environmentId,
-        code_verifier: pkceCodes.codeVerifier
+        client_id: currentCredentials.clientId.trim(), // Ensure no whitespace
+        client_secret: currentCredentials.clientSecret || '',
+          code: currentAuthCode,
+          redirect_uri: currentCredentials.redirectUri.trim(), // Ensure no whitespace
+        environment_id: currentCredentials.environmentId.trim(), // Ensure no whitespace
+        code_verifier: codeVerifier
       };
 
       console.log('🔄 [EnhancedAuthCodeFlowV2] Token exchange via backend proxy:', {
         backendUrl,
-        clientId: credentials.clientId,
-        code: authCode.substring(0, 10) + '...',
-        redirectUri: credentials.redirectUri
+        clientId: currentCredentials.clientId,
+        code: currentAuthCode.substring(0, 10) + '...',
+        redirectUri: currentCredentials.redirectUri
       });
 
+      console.log('🔍 [EnhancedAuthCodeFlowV2] Request body being sent:', {
+        grant_type: requestBody.grant_type,
+        client_id: requestBody.client_id ? `${requestBody.client_id.substring(0, 8)}...` : 'none',
+        client_id_length: requestBody.client_id?.length || 0,
+        client_id_empty: requestBody.client_id === '',
+        has_client_secret: !!requestBody.client_secret,
+        code: requestBody.code ? `${requestBody.code.substring(0, 10)}...` : 'none',
+        redirect_uri: requestBody.redirect_uri,
+        environment_id: requestBody.environment_id,
+        has_code_verifier: !!requestBody.code_verifier
+      });
+
+      // CRITICAL: Final check before sending
+      if (requestBody.client_id === '' || !requestBody.client_id) {
+        console.error('❌ [EnhancedAuthCodeFlowV2] CRITICAL: Request body has empty client_id!', requestBody);
+        throw new Error('CRITICAL ERROR: Request body contains empty client_id. This should never happen.');
+      }
+
+      console.log('🌐 [EnhancedAuthCodeFlowV2] Sending request to:', `${backendUrl}/api/token-exchange`);
+      
       const response = await fetch(`${backendUrl}/api/token-exchange`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(requestBody)
+      });
+
+      console.log('📡 [EnhancedAuthCodeFlowV2] Response received:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
       });
 
       if (!response.ok) {
@@ -1270,7 +1482,17 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     } catch (error) {
       logger.error('EnhancedAuthorizationCodeFlowV2', 'Token exchange failed', String(error));
       setIsExchangingTokens(false);
-      throw error;
+      
+      // Provide more specific error messages
+      if (String(error).includes('Invalid Grant')) {
+        throw new Error('Authorization code has expired or been used already. Please start a new OAuth flow to get a fresh authorization code.');
+      } else if (String(error).includes('Client ID is required')) {
+        throw new Error('OAuth credentials are missing. Please go back to Step 1 and save your credentials first.');
+      } else if (String(error).includes('Code verifier is required')) {
+        throw new Error('PKCE codes are missing. Please go back to Step 2 and generate PKCE codes first.');
+      } else {
+        throw error;
+      }
     }
   }, [credentials, authCode, pkceCodes.codeVerifier]);
 
@@ -1352,7 +1574,26 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       category: 'preparation',
       content: (
         <div>
-          <FormField>
+          <div 
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between',
+              cursor: 'pointer',
+              padding: '0.5rem 0',
+              borderBottom: '1px solid #e5e7eb',
+              marginBottom: '1rem'
+            }}
+            onClick={() => toggleSection('setup-credentials')}
+          >
+            <h4 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              OAuth Credentials Configuration
+            </h4>
+            {collapsedSections['setup-credentials'] ? <FiChevronRight /> : <FiChevronDown />}
+          </div>
+          {!collapsedSections['setup-credentials'] && (
+            <div>
+              <FormField>
             <FormLabel className="required">Environment ID</FormLabel>
             <FormInput
               type="text"
@@ -1515,6 +1756,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                 Your OAuth credentials have been saved and are ready to use. You can now proceed to the next step.
               </div>
             </InfoBox>
+          )}
+            </div>
           )}
         </div>
       ),
@@ -1882,7 +2125,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         </div>
       ),
       execute: handleAuthorization,
-      canExecute: Boolean(authUrl && credentials.environmentId && credentials.clientId)
+      canExecute: Boolean(authUrl && credentials.environmentId && credentials.clientId && credentials.redirectUri)
     },
     {
       id: 'handle-callback',
@@ -1949,6 +2192,63 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                   {authCode}
                 </code>
               </div>
+
+              {showUrlDetailsInStep4 && (
+                <div style={{ 
+                  marginBottom: '1rem', 
+                  padding: '1.5rem', 
+                  background: '#f8fafc', 
+                  border: '1px solid #e2e8f0', 
+                  borderRadius: '0.5rem' 
+                }}>
+                  <h4 style={{ margin: '0 0 1rem 0', color: '#1e40af', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <FiInfo />
+                    Callback URL Details
+                  </h4>
+                  
+                  <ParameterBreakdown>
+                    <ParameterItem>
+                      <ParameterName>Redirect URI</ParameterName>
+                      <ParameterValue>{credentials.redirectUri}</ParameterValue>
+                    </ParameterItem>
+                    <ParameterItem>
+                      <ParameterName>Authorization Code</ParameterName>
+                      <ParameterValue>{authCode}</ParameterValue>
+                    </ParameterItem>
+                    <ParameterItem>
+                      <ParameterName>State Parameter</ParameterName>
+                      <ParameterValue>{state || 'Not provided'}</ParameterValue>
+                    </ParameterItem>
+                    <ParameterItem>
+                      <ParameterName>Client ID</ParameterName>
+                      <ParameterValue>{credentials.clientId}</ParameterValue>
+                    </ParameterItem>
+                    <ParameterItem>
+                      <ParameterName>Environment ID</ParameterName>
+                      <ParameterValue>{credentials.environmentId}</ParameterValue>
+                    </ParameterItem>
+                    <ParameterItem>
+                      <ParameterName>Scopes</ParameterName>
+                      <ParameterValue>{credentials.scopes}</ParameterValue>
+                    </ParameterItem>
+                  </ParameterBreakdown>
+                  
+                  <div style={{ marginTop: '1rem', padding: '1rem', background: '#e0f2fe', border: '1px solid #0ea5e9', borderRadius: '0.5rem' }}>
+                    <h5 style={{ margin: '0 0 0.5rem 0', color: '#0c4a6e' }}>Complete Callback URL:</h5>
+                    <code style={{ 
+                      display: 'block', 
+                      padding: '0.5rem', 
+                      background: 'white', 
+                      border: '1px solid #0ea5e9', 
+                      borderRadius: '0.25rem',
+                      wordBreak: 'break-all',
+                      fontSize: '0.9rem'
+                    }}>
+                      {credentials.redirectUri}?code={authCode}&state={state}
+                    </code>
+                  </div>
+                </div>
+              )}
 
               {tokens && (
                 <div style={{ 
