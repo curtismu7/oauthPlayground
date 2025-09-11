@@ -4,7 +4,7 @@ import styled, { css } from 'styled-components';
 type Accent = 'primary' | 'success' | 'danger' | 'warning' | 'info' | (string & {});
 
 const CardContainer = styled.div<{ $accent?: Accent | undefined }>`
-  background-color: white;
+  background-color: #f0f8ff;
   border-radius: 0.5rem;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   overflow: hidden;

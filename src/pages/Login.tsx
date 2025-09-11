@@ -471,8 +471,8 @@ const Login = () => {
     setIsSavingCredentials(true);
     
     try {
-      // Save permanent credentials using credential manager
-      const permanentSuccess = credentialManager.savePermanentCredentials({
+      // Save configuration credentials using credential manager
+      const permanentSuccess = credentialManager.saveConfigCredentials({
         environmentId: credentials.environmentId,
         clientId: credentials.clientId,
         redirectUri: getCallbackUrlForFlow('dashboard'),
