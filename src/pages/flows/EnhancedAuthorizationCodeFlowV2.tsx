@@ -562,6 +562,48 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     codeChallengeMethod: 'S256'
   });
 
+  const [credentialsLoaded, setCredentialsLoaded] = useState(false);
+  const [stepMessages, setStepMessages] = useState<{[key: string]: string}>({});
+
+  // Update step message
+  const updateStepMessage = useCallback((stepId: string, message: string) => {
+    setStepMessages(prev => ({ ...prev, [stepId]: message }));
+  }, []);
+
+  // Clear step message
+  const clearStepMessage = useCallback((stepId: string) => {
+    setStepMessages(prev => {
+      const newMessages = { ...prev };
+      delete newMessages[stepId];
+      return newMessages;
+    });
+  }, []);
+
+  // Debug credentials state
+  console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Current credentials state:', {
+    environmentId: credentials.environmentId ? `${credentials.environmentId.substring(0, 8)}...` : 'none',
+    clientId: credentials.clientId ? `${credentials.clientId.substring(0, 8)}...` : 'none',
+    redirectUri: credentials.redirectUri || 'none',
+    hasClientSecret: !!credentials.clientSecret,
+    canExecutePKCE: Boolean(credentials.environmentId && credentials.clientId && credentials.redirectUri),
+    credentialsLoaded: credentialsLoaded
+  });
+
+  // Monitor credentials changes
+  useEffect(() => {
+    console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Credentials changed:', {
+      environmentId: credentials.environmentId ? `${credentials.environmentId.substring(0, 8)}...` : 'none',
+      clientId: credentials.clientId ? `${credentials.clientId.substring(0, 8)}...` : 'none',
+      redirectUri: credentials.redirectUri || 'none',
+      canExecutePKCE: Boolean(credentials.environmentId && credentials.clientId && credentials.redirectUri)
+    });
+  }, [credentials.environmentId, credentials.clientId, credentials.redirectUri]);
+
+  // Monitor credentials loaded state
+  useEffect(() => {
+    console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Credentials loaded state changed:', credentialsLoaded);
+  }, [credentialsLoaded]);
+
   const [pkceCodes, setPkceCodes] = useState({
     codeVerifier: '',
     codeChallenge: ''
@@ -624,11 +666,31 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       clientId: credentials.clientId ? `${credentials.clientId.substring(0, 8)}...` : 'none'
     });
 
+    // Clear any old authorization codes to prevent auto-exchange with expired codes
+    const oldAuthCode = sessionStorage.getItem('oauth_auth_code');
+    if (oldAuthCode) {
+      console.log('🧹 [EnhancedAuthCodeFlowV2] Clearing old authorization code to prevent auto-exchange with expired code');
+      sessionStorage.removeItem('oauth_auth_code');
+      // Don't clear PKCE codes - they can be reused for multiple authorization attempts
+      console.log('🔧 [EnhancedAuthCodeFlowV2] Preserving PKCE codes for reuse');
+    }
+
     // If credentials are empty, try to load them from storage
     if (!credentials.clientId || !credentials.environmentId) {
       console.log('🔧 [EnhancedAuthCodeFlowV2] Loading credentials from storage on mount');
-      const storedCredentials = credentialManager.loadAuthzFlowCredentials();
-      if (storedCredentials) {
+      
+      // PRIMARY: Load from authz flow credentials (dedicated storage for this flow)
+      let storedCredentials = credentialManager.loadAuthzFlowCredentials();
+      console.log('🔍 [EnhancedAuthCodeFlowV2] Authz flow credentials:', storedCredentials);
+      
+      // FALLBACK: Only if authz flow credentials are completely blank, try permanent credentials
+      if (!storedCredentials || (!storedCredentials.clientId && !storedCredentials.environmentId)) {
+        console.log('🔧 [EnhancedAuthCodeFlowV2] Authz flow credentials are blank, falling back to permanent credentials');
+        storedCredentials = credentialManager.loadPermanentCredentials();
+        console.log('🔍 [EnhancedAuthCodeFlowV2] Permanent credentials (fallback):', storedCredentials);
+      }
+      
+      if (storedCredentials && storedCredentials.clientId) {
         const convertedCredentials = {
           clientId: storedCredentials.clientId,
           clientSecret: storedCredentials.clientSecret || '',
@@ -637,14 +699,15 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           tokenEndpoint: storedCredentials.tokenEndpoint || '',
           userInfoEndpoint: storedCredentials.userInfoEndpoint || '',
           redirectUri: storedCredentials.redirectUri,
-          scopes: storedCredentials.scopes.join(' '),
+          scopes: Array.isArray(storedCredentials.scopes) ? storedCredentials.scopes.join(' ') : (storedCredentials.scopes || 'openid profile email'),
           responseType: 'code',
           codeChallengeMethod: 'S256'
         };
         setCredentials(convertedCredentials);
         console.log('✅ [EnhancedAuthCodeFlowV2] Loaded credentials from storage:', {
           clientId: storedCredentials.clientId ? `${storedCredentials.clientId.substring(0, 8)}...` : 'none',
-          environmentId: storedCredentials.environmentId
+          environmentId: storedCredentials.environmentId,
+          source: storedCredentials.clientSecret ? 'authz-flow' : 'permanent-fallback'
         });
       } else {
         console.log('⚠️ [EnhancedAuthCodeFlowV2] No stored credentials found - user needs to configure');
@@ -735,16 +798,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           setCallbackSuccess(true);
           setCallbackError(null);
           
-          // Automatically exchange the code for tokens
-          setTimeout(async () => {
-            try {
-              console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Auto-exchanging stored authorization code for tokens');
-              await exchangeCodeForTokens();
-              console.log('✅ [EnhancedAuthorizationCodeFlowV2] Auto token exchange successful');
-            } catch (error) {
-              console.error('❌ [EnhancedAuthorizationCodeFlowV2] Auto token exchange failed:', error);
-            }
-          }, 100);
+          // Don't auto-exchange stored codes - let the user manually proceed to step 5
+          console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Stored authorization code found, user should proceed to step 5 manually');
         }
       }
       
@@ -769,29 +824,15 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       setCallbackSuccess(true);
       setCallbackError(null);
       
-      // Set step to 5 (exchange tokens) and store it
-      const stepIndex = 5;
-      console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Setting step to 5 (exchange tokens)');
+      // Set step to 4 (handle callback) and store it
+      const stepIndex = 4;
+      console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Setting step to 4 (handle callback)');
       setCurrentStepIndex(stepIndex);
       sessionStorage.setItem('enhanced-authz-code-v2-step', stepIndex.toString());
       
-      // Automatically exchange the code for tokens
-      setTimeout(async () => {
-        try {
-          console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Auto-exchanging authorization code for tokens');
-          
-          // Ensure PKCE codes are generated before exchange
-          if (!pkceCodes.codeVerifier) {
-            console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Generating PKCE codes before exchange');
-            await generatePKCECodes();
-          }
-          
-          await exchangeCodeForTokens();
-          console.log('✅ [EnhancedAuthorizationCodeFlowV2] Auto token exchange successful');
-        } catch (error) {
-          console.error('❌ [EnhancedAuthorizationCodeFlowV2] Auto token exchange failed:', error);
-        }
-      }, 100);
+      // Show success message for callback
+      updateStepMessage('handle-callback', '✅ Authorization successful! You have been authenticated with PingOne. Click "Next" to proceed to token exchange.');
+      console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Authorization code received, user should proceed to step 5 manually');
       
       return;
     }
@@ -810,8 +851,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       setTimeout(() => {
         setShowAuthSuccessModal(true);
       }, 200);
-    } else if (currentStepIndex === 5) {
-      console.log('🔔 [EnhancedAuthorizationCodeFlowV2] On step 5, ensuring modal is hidden');
+    } else if (currentStepIndex !== 4) {
+      console.log('🔔 [EnhancedAuthorizationCodeFlowV2] Not on step 4, ensuring modal is hidden');
       setShowAuthSuccessModal(false);
     }
   }, [authCode, currentStepIndex, showAuthSuccessModal]);
@@ -843,8 +884,25 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         // Debug localStorage contents
         credentialManager.debugLocalStorage();
         
-        const allCredentials = credentialManager.getAllCredentials();
-        console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Loading credentials:', allCredentials);
+        // PRIMARY: Load from authz flow credentials (dedicated storage for this flow)
+        let allCredentials = credentialManager.loadAuthzFlowCredentials();
+        console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Loading authz flow credentials:', allCredentials);
+        
+        // FALLBACK: Only if authz flow credentials are completely blank, try permanent credentials
+        if (!allCredentials || (!allCredentials.clientId && !allCredentials.environmentId)) {
+          console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Authz flow credentials are blank, falling back to permanent credentials');
+          allCredentials = credentialManager.loadPermanentCredentials();
+          console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Loading permanent credentials (fallback):', allCredentials);
+        }
+        
+        // Debug what we found
+        console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Final credentials to load:', {
+          hasCredentials: !!allCredentials,
+          environmentId: allCredentials?.environmentId ? `${allCredentials.environmentId.substring(0, 8)}...` : 'none',
+          clientId: allCredentials?.clientId ? `${allCredentials.clientId.substring(0, 8)}...` : 'none',
+          redirectUri: allCredentials?.redirectUri || 'none',
+          source: allCredentials?.clientSecret ? 'authz-flow' : 'permanent-fallback'
+        });
         
         // Check for test values and clear them (only if BOTH are test values AND no other valid config exists)
         if (allCredentials.clientId === 'test-client-123' && allCredentials.environmentId === 'test-env-123') {
@@ -907,14 +965,27 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           scopes: Array.isArray(allCredentials.scopes) ? allCredentials.scopes.join(' ') : (allCredentials.scopes || 'openid profile email')
         }));
         
-        console.log('✅ [EnhancedAuthorizationCodeFlowV2] Credentials loaded successfully');
+        console.log('✅ [EnhancedAuthorizationCodeFlowV2] Credentials loaded successfully:', {
+          environmentId: allCredentials.environmentId ? `${allCredentials.environmentId.substring(0, 8)}...` : 'none',
+          clientId: allCredentials.clientId ? `${allCredentials.clientId.substring(0, 8)}...` : 'none',
+          redirectUri: allCredentials.redirectUri || 'none',
+          hasClientSecret: !!allCredentials.clientSecret
+        });
+        
+        // Mark credentials as loaded
+        setCredentialsLoaded(true);
       } catch (error) {
         console.error('❌ [EnhancedAuthorizationCodeFlowV2] Failed to load credentials:', error);
         logger.error('EnhancedAuthorizationCodeFlowV2', 'Failed to load credentials', String(error));
       }
     };
     
-    loadCredentials();
+    // Load credentials asynchronously
+    loadCredentials().then(() => {
+      console.log('✅ [EnhancedAuthorizationCodeFlowV2] Credentials loading completed');
+    }).catch((error) => {
+      console.error('❌ [EnhancedAuthorizationCodeFlowV2] Failed to load credentials:', error);
+    });
     console.log('🧹 [EnhancedAuthorizationCodeFlowV2] Cleared all flow states and loaded credentials on mount');
   }, []);
 
@@ -950,26 +1021,69 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         setCallbackSuccess(true);
         setCallbackError(null);
         
-        // Auto-exchange tokens immediately (only if not already exchanging)
-        if (!isExchangingTokens && !tokens?.access_token) {
-          setTimeout(async () => {
-            try {
-              console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Auto-exchanging authorization code for tokens');
-              
-              // Ensure PKCE codes are generated before exchange
-              if (!pkceCodes.codeVerifier) {
-                console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Generating PKCE codes before exchange');
-                await generatePKCECodes();
+        // Show message about what's happening
+        updateStepMessage('exchange-tokens', '🔄 Ready to exchange authorization code for tokens. Click the "Sign On" button to proceed with token exchange.');
+        
+        // Auto-exchange tokens immediately (only if not already exchanging and on correct step)
+        // Use the step we just set (5) instead of currentStepIndex which hasn't updated yet
+        if (false) { // Disabled auto-exchange - user must manually execute
+          // Check if this is a fresh authorization code (not an old one from sessionStorage)
+          const isFreshCode = !sessionStorage.getItem('oauth_auth_code');
+          if (isFreshCode) {
+            setTimeout(async () => {
+              try {
+                console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Auto-exchanging fresh authorization code for tokens');
+                
+                // CRITICAL: Ensure credentials are loaded before auto-exchange
+                if (!credentials.clientId || !credentials.environmentId) {
+                  console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Loading credentials before auto-exchange');
+                // PRIMARY: Load from authz flow credentials (dedicated storage for this flow)
+                let storedCredentials = credentialManager.loadAuthzFlowCredentials();
+                
+                // FALLBACK: Only if authz flow credentials are completely blank, try permanent credentials
+                if (!storedCredentials || (!storedCredentials.clientId && !storedCredentials.environmentId)) {
+                  console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Authz flow credentials are blank, falling back to permanent credentials');
+                  storedCredentials = credentialManager.loadPermanentCredentials();
+                }
+                
+                if (storedCredentials && storedCredentials.clientId) {
+                  const convertedCredentials = {
+                    clientId: storedCredentials.clientId,
+                    clientSecret: storedCredentials.clientSecret || '',
+                    environmentId: storedCredentials.environmentId,
+                    authorizationEndpoint: storedCredentials.authEndpoint || '',
+                    tokenEndpoint: storedCredentials.tokenEndpoint || '',
+                    userInfoEndpoint: storedCredentials.userInfoEndpoint || '',
+                    redirectUri: storedCredentials.redirectUri,
+                    scopes: Array.isArray(storedCredentials.scopes) ? storedCredentials.scopes.join(' ') : (storedCredentials.scopes || 'openid profile email'),
+                    responseType: 'code',
+                    codeChallengeMethod: 'S256'
+                  };
+                  setCredentials(convertedCredentials);
+                  console.log('✅ [EnhancedAuthorizationCodeFlowV2] Loaded credentials for auto-exchange');
+                } else {
+                  console.error('❌ [EnhancedAuthorizationCodeFlowV2] No credentials found for auto-exchange');
+                  return;
+                }
+                }
+                
+                // Ensure PKCE codes are generated before exchange
+                if (!pkceCodes.codeVerifier) {
+                  console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Generating PKCE codes before exchange');
+                  await generatePKCECodes();
+                }
+                
+                await exchangeCodeForTokens();
+                console.log('✅ [EnhancedAuthorizationCodeFlowV2] Auto token exchange successful');
+              } catch (error) {
+                console.error('❌ [EnhancedAuthorizationCodeFlowV2] Auto token exchange failed:', error);
               }
-              
-              await exchangeCodeForTokens();
-              console.log('✅ [EnhancedAuthorizationCodeFlowV2] Auto token exchange successful');
-            } catch (error) {
-              console.error('❌ [EnhancedAuthorizationCodeFlowV2] Auto token exchange failed:', error);
-            }
-          }, 100);
+            }, 500); // Increased delay to ensure credentials are loaded
+          } else {
+            console.log('⚠️ [EnhancedAuthorizationCodeFlowV2] Skipping auto-exchange - using old authorization code, user should start fresh flow');
+          }
         } else {
-          console.log('⚠️ [EnhancedAuthorizationCodeFlowV2] Skipping auto-exchange - already in progress or tokens exist');
+          console.log('⚠️ [EnhancedAuthorizationCodeFlowV2] Skipping auto-exchange - already in progress, tokens exist, or not on correct step');
         }
         return;
       }
@@ -1015,8 +1129,16 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
         try {
-          const allCredentials = credentialManager.getAllCredentials();
-          console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Reloading credentials after change:', allCredentials);
+          // Use the same loading logic as the main loadCredentials function
+          let allCredentials = credentialManager.loadAuthzFlowCredentials();
+          console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Reloading authz flow credentials after change:', allCredentials);
+          
+          // FALLBACK: Only if authz flow credentials are completely blank, try permanent credentials
+          if (!allCredentials || (!allCredentials.clientId && !allCredentials.environmentId)) {
+            console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Authz flow credentials are blank, falling back to permanent credentials');
+            allCredentials = credentialManager.loadPermanentCredentials();
+            console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Reloading permanent credentials (fallback):', allCredentials);
+          }
           
           setCredentials(prev => ({ 
             ...prev, 
@@ -1052,10 +1174,11 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     try {
       console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Saving credentials:', credentials);
       
-      // Prepare permanent credentials (Environment ID, Client ID, etc.)
-      const permanentCreds = {
+      // Prepare authz flow credentials (Environment ID, Client ID, etc.)
+      const authzFlowCreds = {
         environmentId: credentials.environmentId,
         clientId: credentials.clientId,
+        clientSecret: credentials.clientSecret, // Include client secret in authz flow storage
         redirectUri: credentials.redirectUri,
         scopes: typeof credentials.scopes === 'string' ? credentials.scopes.split(' ').filter(Boolean) : credentials.scopes,
         authEndpoint: credentials.authorizationEndpoint,
@@ -1063,24 +1186,28 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         userInfoEndpoint: credentials.userInfoEndpoint
       };
       
-      // Save permanent credentials (Environment ID, Client ID, etc.)
-      const permanentSuccess = credentialManager.savePermanentCredentials(permanentCreds);
+      // Save to authz flow credentials (dedicated storage for this flow)
+      const authzFlowSuccess = credentialManager.saveAuthzFlowCredentials(authzFlowCreds);
 
-      // Save session credentials (Client Secret)
-      const sessionSuccess = credentialManager.saveSessionCredentials({
-        clientSecret: credentials.clientSecret
-      });
-
-      if (permanentSuccess && sessionSuccess) {
-        logger.info('Credentials saved successfully to credential manager', '');
+      if (authzFlowSuccess) {
+        logger.info('Authz flow credentials saved successfully to credential manager', '');
+        
+        // Clear cache to ensure fresh data is loaded
+        credentialManager.clearCache();
         
         // Dispatch events to notify other components that config has changed
         window.dispatchEvent(new CustomEvent('pingone-config-changed'));
         window.dispatchEvent(new CustomEvent('permanent-credentials-changed'));
         
-        console.log('✅ [EnhancedAuthorizationCodeFlowV2] Configuration saved successfully to localStorage and events dispatched');
+        console.log('✅ [EnhancedAuthorizationCodeFlowV2] Authz flow credentials saved successfully to localStorage and events dispatched');
+        
+        // Keep the form values - don't clear them after saving
+        console.log('✅ [EnhancedAuthorizationCodeFlowV2] Form values preserved after save');
+        
+        // Show success message
+        updateStepMessage('setup-credentials', '✅ Credentials saved successfully! You can now proceed to Step 2 to generate PKCE codes.');
       } else {
-        throw new Error('Failed to save credentials to credential manager');
+        throw new Error('Failed to save authz flow credentials to credential manager');
       }
     } catch (error) {
       console.error('❌ [EnhancedAuthorizationCodeFlowV2] Failed to save credentials:', error);
@@ -1105,6 +1232,10 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Stored code_verifier in sessionStorage');
       
       logger.info('PKCE codes generated', '');
+      
+      // Show success message
+      updateStepMessage('generate-pkce', '✅ PKCE codes generated successfully! These codes add security to your OAuth flow. You can now proceed to Step 3 to build the authorization URL.');
+      
       return { verifier, challenge };
     } catch (error) {
       console.error('❌ [EnhancedAuthorizationCodeFlowV2] Failed to generate PKCE codes:', error);
@@ -1199,6 +1330,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       
       const popup = window.open(authUrl, 'oauth-popup', 'width=600,height=700');
       if (popup) {
+        // Show message about what just happened
+        updateStepMessage('user-authorization', '✅ Authorization URL opened in popup! Please complete the login process. You will be redirected back here automatically.');
         // Listen for messages from the popup
         const messageHandler = (event: MessageEvent) => {
           if (event.origin !== window.location.origin) return;
@@ -1217,6 +1350,9 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               setIsAuthorizing(false);
               popup.close();
               window.removeEventListener('message', messageHandler);
+              
+              // Show success message
+              updateStepMessage('handle-callback', '✅ Authorization successful! You have been authenticated with PingOne. Proceeding to token exchange...');
             }
           }
         };
@@ -1259,6 +1395,9 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       
       console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Stored flow context for callback:', flowContext);
       
+      // Show message about what just happened
+      updateStepMessage('user-authorization', '✅ Redirecting to PingOne for authentication. You will be redirected back here after login.');
+      
       // Full redirect
       logger.info('EnhancedAuthorizationCodeFlowV2', 'Redirecting to authorization server', `url: ${authUrl}`);
       window.location.href = authUrl;
@@ -1285,36 +1424,68 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       return;
     }
 
+    // Additional check: if authCode is empty, don't proceed
+    if (!authCode || authCode.trim() === '') {
+      throw new Error('No authorization code available. Please complete the OAuth flow first.');
+    }
+
+    // CRITICAL: Load credentials if they're missing
+    console.log('🔍 [EnhancedAuthCodeFlowV2] Checking credentials before token exchange...');
+    let currentCredentials = credentials;
+    
+    // If credentials are empty, try to load them from storage
+    if (!currentCredentials.clientId || !currentCredentials.environmentId) {
+      console.log('🔧 [EnhancedAuthCodeFlowV2] Loading credentials from storage before token exchange');
+      const storedCredentials = credentialManager.loadAuthzFlowCredentials();
+      if (storedCredentials) {
+        const convertedCredentials = {
+          clientId: storedCredentials.clientId,
+          clientSecret: storedCredentials.clientSecret || '',
+          environmentId: storedCredentials.environmentId,
+          authorizationEndpoint: storedCredentials.authEndpoint || '',
+          tokenEndpoint: storedCredentials.tokenEndpoint || '',
+          userInfoEndpoint: storedCredentials.userInfoEndpoint || '',
+          redirectUri: storedCredentials.redirectUri,
+          scopes: storedCredentials.scopes.join(' '),
+          responseType: 'code',
+          codeChallengeMethod: 'S256'
+        };
+        setCredentials(convertedCredentials);
+        currentCredentials = convertedCredentials;
+        console.log('✅ [EnhancedAuthCodeFlowV2] Loaded credentials from storage:', {
+          clientId: storedCredentials.clientId ? `${storedCredentials.clientId.substring(0, 8)}...` : 'none',
+          environmentId: storedCredentials.environmentId
+        });
+      }
+    }
+
     // MANDATORY CREDENTIAL VALIDATION - This is the key fix
     console.log('🔍 [EnhancedAuthCodeFlowV2] Validating credentials before token exchange...');
     
     // Check if we have valid credentials in state
-    if (!credentials.clientId || credentials.clientId.trim() === '') {
+    if (!currentCredentials.clientId || currentCredentials.clientId.trim() === '') {
       console.error('❌ [EnhancedAuthCodeFlowV2] No valid client ID found in credentials state');
-      throw new Error('OAuth credentials are missing. Please go back to Step 1 and save your credentials first, then restart the OAuth flow.');
+      throw new Error('Client ID is required for token exchange. Please configure your OAuth credentials first.');
     }
     
-    if (!credentials.environmentId || credentials.environmentId.trim() === '') {
+    if (!currentCredentials.environmentId || currentCredentials.environmentId.trim() === '') {
       console.error('❌ [EnhancedAuthCodeFlowV2] No valid environment ID found in credentials state');
-      throw new Error('Environment ID is missing. Please go back to Step 1 and save your credentials first, then restart the OAuth flow.');
+      throw new Error('Environment ID is missing. Please configure your OAuth credentials first.');
     }
     
-    if (!credentials.redirectUri || credentials.redirectUri.trim() === '') {
+    if (!currentCredentials.redirectUri || currentCredentials.redirectUri.trim() === '') {
       console.error('❌ [EnhancedAuthCodeFlowV2] No valid redirect URI found in credentials state');
-      throw new Error('Redirect URI is missing. Please go back to Step 1 and save your credentials first, then restart the OAuth flow.');
+      throw new Error('Redirect URI is missing. Please configure your OAuth credentials first.');
     }
 
     console.log('✅ [EnhancedAuthCodeFlowV2] Credentials validation passed:', {
-      clientId: credentials.clientId ? `${credentials.clientId.substring(0, 8)}...` : 'none',
-      environmentId: credentials.environmentId,
-      redirectUri: credentials.redirectUri
+      clientId: currentCredentials.clientId ? `${currentCredentials.clientId.substring(0, 8)}...` : 'none',
+      environmentId: currentCredentials.environmentId,
+      redirectUri: currentCredentials.redirectUri
     });
 
     // Add a small delay to ensure all state is properly set
     await new Promise(resolve => setTimeout(resolve, 100));
-
-    // Use the validated credentials directly - no complex loading needed
-    const currentCredentials = credentials;
     
     // Check if we have authorization code, if not try to load from sessionStorage
     let currentAuthCode = authCode;
@@ -1357,6 +1528,11 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     
     // Check if we have PKCE codes, if not try to load from sessionStorage
     let codeVerifier = pkceCodes.codeVerifier;
+    console.log('🔍 [EnhancedAuthCodeFlowV2] PKCE code verifier check:', {
+      fromState: pkceCodes.codeVerifier ? `${pkceCodes.codeVerifier.substring(0, 10)}...` : 'none',
+      fromSessionStorage: sessionStorage.getItem('code_verifier') ? `${sessionStorage.getItem('code_verifier')?.substring(0, 10)}...` : 'none'
+    });
+    
     if (!codeVerifier) {
       const storedVerifier = sessionStorage.getItem('code_verifier');
       if (storedVerifier) {
@@ -1368,14 +1544,18 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     }
     
     if (!codeVerifier) {
-      throw new Error('Code verifier is required for PKCE token exchange');
+      console.error('❌ [EnhancedAuthCodeFlowV2] No code verifier found in state or sessionStorage');
+      throw new Error('Code verifier is required for PKCE token exchange. Please go back to Step 2 and generate PKCE codes first.');
     }
 
     try {
       setIsExchangingTokens(true);
       
-      // Mark this authorization code as used
+      // Mark this authorization code as used and clear it immediately to prevent reuse
       setUsedAuthCode(currentAuthCode);
+      setAuthCode(''); // Clear from component state
+      sessionStorage.removeItem('oauth_auth_code'); // Clear from sessionStorage
+      console.log('🧹 [EnhancedAuthCodeFlowV2] Cleared authorization code to prevent reuse');
       
       // FINAL VALIDATION - This is the last chance to catch empty values
       console.log('🔍 [EnhancedAuthCodeFlowV2] Final validation before request body construction:', {
@@ -1475,6 +1655,9 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       logger.info('EnhancedAuthorizationCodeFlowV2', 'Tokens received', tokenData);
       setIsExchangingTokens(false);
       
+      // Show success message
+      updateStepMessage('exchange-tokens', '🎉 Token exchange successful! You now have access and refresh tokens. The OAuth flow is complete!');
+      
       // Clear the authorization code after successful exchange to prevent reuse
       setAuthCode('');
       sessionStorage.removeItem('oauth_auth_code');
@@ -1482,6 +1665,9 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     } catch (error) {
       logger.error('EnhancedAuthorizationCodeFlowV2', 'Token exchange failed', String(error));
       setIsExchangingTokens(false);
+      
+      // Show error message
+      updateStepMessage('exchange-tokens', `❌ Token exchange failed: ${error instanceof Error ? error.message : String(error)}`);
       
       // Provide more specific error messages
       if (String(error).includes('Invalid Grant')) {
@@ -1593,6 +1779,11 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           </div>
           {!collapsedSections['setup-credentials'] && (
             <div>
+              {stepMessages['setup-credentials'] && (
+                <InfoBox type="success">
+                  <div>{stepMessages['setup-credentials']}</div>
+                </InfoBox>
+              )}
               <FormField>
             <FormLabel className="required">Environment ID</FormLabel>
             <FormInput
@@ -1781,6 +1972,11 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       isOptional: true,
       content: (
         <div>
+          {stepMessages['generate-pkce'] && (
+            <InfoBox type="success">
+              <div>{stepMessages['generate-pkce']}</div>
+            </InfoBox>
+          )}
           <CodeBlock>
             <CodeComment>// How PKCE Codes Are Used in OAuth Flow</CodeComment>
             <CodeComment>// Step 1: Authorization Request (with code_challenge)</CodeComment>
@@ -2122,6 +2318,15 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               Remember this value to verify the callback
             </div>
           </InfoBox>
+
+          {/* Message near buttons */}
+          {stepMessages['user-authorization'] && (
+            <div style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>
+              <InfoBox type="info">
+                <div>{stepMessages['user-authorization']}</div>
+              </InfoBox>
+            </div>
+          )}
         </div>
       ),
       execute: handleAuthorization,
@@ -2320,6 +2525,31 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                 Authorization Callback Error
               </h4>
               <p style={{ color: '#dc2626' }}>{callbackError}</p>
+              <button
+                onClick={() => {
+                  // Clear all OAuth state and start fresh
+                  sessionStorage.removeItem('oauth_auth_code');
+                  sessionStorage.removeItem('code_verifier');
+                  sessionStorage.removeItem('code_challenge');
+                  setAuthCode('');
+                  setCallbackError(null);
+                  setCallbackSuccess(false);
+                  setCurrentStepIndex(0);
+                  sessionStorage.removeItem('enhanced-authz-code-v2-step');
+                  console.log('🧹 [EnhancedAuthorizationCodeFlowV2] Cleared all OAuth state, starting fresh');
+                }}
+                style={{
+                  marginTop: '1rem',
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#dc2626',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '0.25rem',
+                  cursor: 'pointer'
+                }}
+              >
+                🧹 Clear & Start Fresh
+              </button>
             </div>
           )}
 
@@ -2347,11 +2577,20 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             />
             <ValidationIndicator $valid={state === state}>
               <FiCheckCircle />
-              State parameter matches
-            </ValidationIndicator>
-          </FormField>
-        </div>
-      ),
+            State parameter matches
+          </ValidationIndicator>
+        </FormField>
+
+        {/* Message near buttons */}
+        {stepMessages['handle-callback'] && (
+          <div style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>
+            <InfoBox type="success">
+              <div>{stepMessages['handle-callback']}</div>
+            </InfoBox>
+          </div>
+        )}
+      </div>
+    ),
       canExecute: (() => {
         const canExec = Boolean(authCode && credentials.environmentId && credentials.clientId);
         console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Handle Callback canExecute check:', {
@@ -2374,6 +2613,11 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       category: 'token-exchange',
       content: (
         <div>
+          {stepMessages['exchange-tokens'] && (
+            <InfoBox type="info">
+              <div>{stepMessages['exchange-tokens']}</div>
+            </InfoBox>
+          )}
           <h4>Token Request Details:</h4>
           <ParameterBreakdown>
             <ParameterItem>
@@ -2487,6 +2731,52 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               </CopyButton>
             </JsonDisplay>
           </FormField>
+
+          {/* Clear & Start Fresh Button */}
+          <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+            <button
+              onClick={() => {
+                // Clear all OAuth state and start fresh
+                sessionStorage.removeItem('oauth_auth_code');
+                sessionStorage.removeItem('code_verifier');
+                sessionStorage.removeItem('code_challenge');
+                setAuthCode('');
+                setCallbackError(null);
+                setCallbackSuccess(false);
+                setCurrentStepIndex(0);
+                sessionStorage.removeItem('enhanced-authz-code-v2-step');
+                console.log('🧹 [EnhancedAuthorizationCodeFlowV2] Cleared all OAuth state, starting fresh');
+              }}
+              style={{
+                padding: '0.75rem 1.5rem',
+                backgroundColor: '#6b7280',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.5rem',
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: '500'
+              }}
+            >
+              🧹 Clear & Start Fresh OAuth Flow
+            </button>
+            <p style={{ 
+              marginTop: '0.5rem', 
+              fontSize: '0.75rem', 
+              color: '#6b7280' 
+            }}>
+              Use this if you're getting "Invalid Grant" errors with expired codes
+            </p>
+          </div>
+
+          {/* Message near buttons */}
+          {stepMessages['exchange-tokens'] && (
+            <div style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>
+              <InfoBox type="info">
+                <div>{stepMessages['exchange-tokens']}</div>
+              </InfoBox>
+            </div>
+          )}
         </div>
       ),
       execute: async () => {
