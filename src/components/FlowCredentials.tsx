@@ -321,56 +321,30 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
       try {
         logger.config('FlowCredentials', `Loading credentials for flow: ${flowType}`);
         
-        // Start with global credentials as the base
-        let baseCredentials: FlowCredentialsData = {
-          environmentId: '',
-          clientId: '',
-          clientSecret: '',
-          redirectUri: '',
-          additionalScopes: ''
-        };
-
-        // Load global credentials first
-        const globalConfig = localStorage.getItem('pingone_config');
-        if (globalConfig) {
-          const parsed = JSON.parse(globalConfig);
-          baseCredentials = {
-            environmentId: parsed.environmentId || '',
-            clientId: parsed.clientId || '',
-            clientSecret: parsed.clientSecret || '',
-            redirectUri: parsed.redirectUri || '',
-            additionalScopes: parsed.additionalScopes || ''
-          };
-          logger.config('FlowCredentials', 'Loaded global credentials', {
-            hasEnvironmentId: !!baseCredentials.environmentId,
-            hasClientId: !!baseCredentials.clientId,
-            hasClientSecret: !!baseCredentials.clientSecret
-          });
-        }
-
-        // Override with flow-specific credentials if they exist
-        const flowStored = localStorage.getItem(`flow_credentials_${flowType}`);
-        if (flowStored) {
-          const flowParsed = JSON.parse(flowStored);
-          logger.config('FlowCredentials', `Found flow-specific credentials for ${flowType}`, flowParsed);
-          
-          // Only override fields that have values in flow-specific storage
-          const finalCredentials = {
-            environmentId: flowParsed.environmentId || baseCredentials.environmentId,
-            clientId: flowParsed.clientId || baseCredentials.clientId,
-            clientSecret: flowParsed.clientSecret || baseCredentials.clientSecret,
-            redirectUri: flowParsed.redirectUri || baseCredentials.redirectUri,
-            additionalScopes: flowParsed.additionalScopes || baseCredentials.additionalScopes
-          };
-          setCredentials(finalCredentials);
-          onCredentialsChange?.(finalCredentials);
-          logger.success('FlowCredentials', `Credentials loaded for ${flowType}`, finalCredentials);
+        // Load credentials from appropriate storage based on flow type
+        let flowCredentials: any = {};
+        
+        if (flowType === 'implicit') {
+          flowCredentials = credentialManager.loadImplicitFlowCredentials();
+        } else if (flowType === 'authorization-code' || flowType === 'enhanced-authorization-code-v2') {
+          flowCredentials = credentialManager.loadAuthzFlowCredentials();
         } else {
-          // No flow-specific credentials, use global as-is
-          setCredentials(baseCredentials);
-          onCredentialsChange?.(baseCredentials);
-          logger.info('FlowCredentials', `Using global credentials for ${flowType}`, baseCredentials);
+          // Fallback to config credentials for other flows
+          flowCredentials = credentialManager.loadConfigCredentials();
         }
+        
+        // Convert to FlowCredentialsData format
+        const finalCredentials: FlowCredentialsData = {
+          environmentId: flowCredentials.environmentId || '',
+          clientId: flowCredentials.clientId || '',
+          clientSecret: flowCredentials.clientSecret || '',
+          redirectUri: flowCredentials.redirectUri || '',
+          additionalScopes: Array.isArray(flowCredentials.scopes) ? flowCredentials.scopes.join(' ') : (flowCredentials.scopes || '')
+        };
+        
+        setCredentials(finalCredentials);
+        onCredentialsChange?.(finalCredentials);
+        logger.success('FlowCredentials', `Credentials loaded for ${flowType}`, finalCredentials);
       } catch (error) {
         logger.error('FlowCredentials', 'Failed to load credentials', error instanceof Error ? error.message : String(error), error instanceof Error ? error : undefined);
       }
@@ -463,8 +437,29 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
     try {
       logger.ui('FlowCredentials', `Saving credentials for ${flowType}`, credentials);
       
-      // Save to flow-specific storage
-      localStorage.setItem(`flow_credentials_${flowType}`, JSON.stringify(credentials));
+      // Convert to PermanentCredentials format
+      const permanentCredentials = {
+        environmentId: credentials.environmentId,
+        clientId: credentials.clientId,
+        clientSecret: credentials.clientSecret,
+        redirectUri: credentials.redirectUri,
+        scopes: credentials.additionalScopes ? credentials.additionalScopes.split(' ').filter(s => s.trim()) : ['openid', 'profile', 'email']
+      };
+      
+      // Save to appropriate credential storage based on flow type
+      let saveSuccess = false;
+      if (flowType === 'implicit') {
+        saveSuccess = credentialManager.saveImplicitFlowCredentials(permanentCredentials);
+      } else if (flowType === 'authorization-code' || flowType === 'enhanced-authorization-code-v2') {
+        saveSuccess = credentialManager.saveAuthzFlowCredentials(permanentCredentials);
+      } else {
+        // Fallback to config credentials for other flows
+        saveSuccess = credentialManager.saveConfigCredentials(permanentCredentials);
+      }
+      
+      if (!saveSuccess) {
+        throw new Error('Failed to save credentials to storage');
+      }
       
       // Update original credentials to mark as saved
       setOriginalCredentials({ ...credentials });

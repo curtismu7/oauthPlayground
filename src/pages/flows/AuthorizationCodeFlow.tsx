@@ -15,7 +15,10 @@ import {
   FiClock,
   FiLoader,
   FiEye,
-  FiEyeOff
+  FiEyeOff,
+  FiChevronDown,
+  FiSave,
+  FiRefreshCw
 } from 'react-icons/fi';
 import EnhancedStepFlowV2, { EnhancedFlowStep } from '../../components/EnhancedStepFlowV2';
 import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
@@ -397,10 +400,132 @@ const DetailItem = styled.div`
   color: #6b7280;
 `;
 
+// Collapsible Credentials Section
+const CollapsibleSection = styled.div`
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  background: white;
+  overflow: hidden;
+`;
+
+const CollapsibleHeader = styled.button`
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background: #f9fafb;
+  border: none;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  
+  &:hover {
+    background: #f3f4f6;
+  }
+  
+  &:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: -2px;
+  }
+`;
+
+const CollapsibleTitle = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 1rem;
+`;
+
+const CollapsibleIcon = styled.div<{ $isOpen: boolean }>`
+  color: #6b7280;
+  transition: transform 0.2s;
+  transform: ${props => props.$isOpen ? 'rotate(180deg)' : 'rotate(0deg)'};
+`;
+
+const CollapsibleContent = styled.div<{ $isOpen: boolean }>`
+  max-height: ${props => props.$isOpen ? '2000px' : '0'};
+  overflow: hidden;
+  opacity: ${props => props.$isOpen ? '1' : '0'};
+  visibility: ${props => props.$isOpen ? 'visible' : 'hidden'};
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+  padding: ${props => props.$isOpen ? '1.5rem' : '0'};
+`;
+
+// Button Components
+const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
+  padding: 0.75rem 1.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+  
+  ${props => props.$variant === 'primary' ? `
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+    
+    &:hover:not(:disabled) {
+      background: #2563eb;
+      border-color: #2563eb;
+    }
+  ` : `
+    background: white;
+    color: #374151;
+    
+    &:hover:not(:disabled) {
+      background: #f9fafb;
+    }
+  `}
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+`;
+
+const ToggleButton = styled.button`
+  background: none;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+  transition: all 0.2s;
+  
+  &:hover {
+    background: #f9fafb;
+    color: #374151;
+  }
+`;
+
 // Main Component
 const AuthorizationCodeFlow: React.FC = () => {
   const { config } = useAuth();
   const [showConfig, setShowConfig] = useState(false);
+  const [showCredentials, setShowCredentials] = useState(false);
+  const [showClientSecret, setShowClientSecret] = useState(false);
+  
+  // Debug log for initial state
+  console.log('AuthorizationCodeFlow: showCredentials initial state:', showCredentials);
   const [flowConfig, setFlowConfig] = useState<FlowConfig>(getDefaultConfig('authorization-code'));
   
   const [credentials, setCredentials] = useState({
@@ -571,6 +696,35 @@ const AuthorizationCodeFlow: React.FC = () => {
       return { success: false, error: String(error) };
     }
   }, [credentials]);
+
+  // Load credentials
+  const loadCredentials = useCallback(() => {
+    try {
+      // Debug localStorage contents
+      credentialManager.debugLocalStorage();
+      
+      const allCredentials = credentialManager.getAllCredentials();
+      console.log('🔧 [AuthorizationCodeFlow] Loading credentials:', allCredentials);
+      
+      setCredentials(prev => ({ 
+        ...prev, 
+        environmentId: allCredentials.environmentId || '',
+        clientId: allCredentials.clientId || '',
+        clientSecret: allCredentials.clientSecret || '',
+        redirectUri: window.location.origin + '/authz-callback',
+        scopes: Array.isArray(allCredentials.scopes) ? allCredentials.scopes.join(' ') : allCredentials.scopes || prev.scopes,
+        authorizationEndpoint: allCredentials.authEndpoint || prev.authorizationEndpoint,
+        tokenEndpoint: allCredentials.tokenEndpoint || prev.tokenEndpoint,
+        userInfoEndpoint: allCredentials.userInfoEndpoint || prev.userInfoEndpoint
+      }));
+      
+      console.log('✅ [AuthorizationCodeFlow] Credentials loaded successfully');
+      logger.info('Credentials loaded', '');
+    } catch (error) {
+      console.error('❌ [AuthorizationCodeFlow] Failed to load credentials:', error);
+      logger.error('Failed to load credentials', String(error));
+    }
+  }, []);
 
   // Generate PKCE codes
   const generatePKCECodes = useCallback(async () => {
@@ -1917,6 +2071,136 @@ const AuthorizationCodeFlow: React.FC = () => {
 
       {/* Callback URL Configuration */}
       <CallbackUrlDisplay flowType="authorization-code" />
+
+      {/* Collapsible OAuth Credentials Section */}
+      <CollapsibleSection>
+        <CollapsibleHeader onClick={() => {
+          console.log('Toggling showCredentials from', showCredentials, 'to', !showCredentials);
+          setShowCredentials(!showCredentials);
+        }}>
+          <CollapsibleTitle>
+            <FiSettings />
+            Setup OAuth Credentials
+          </CollapsibleTitle>
+          <CollapsibleIcon $isOpen={showCredentials}>
+            <FiChevronDown />
+          </CollapsibleIcon>
+        </CollapsibleHeader>
+        <CollapsibleContent $isOpen={showCredentials}>
+          <div>
+            <FormField>
+              <FormLabel className="required">Environment ID</FormLabel>
+              <FormInput
+                type="text"
+                value={credentials.environmentId}
+                onChange={(e) => setCredentials(prev => ({ ...prev, environmentId: e.target.value }))}
+                placeholder="your-environment-id"
+                required
+              />
+              <ValidationIndicator $valid={!!credentials.environmentId}>
+                {credentials.environmentId ? <FiCheckCircle /> : <FiAlertTriangle />}
+                {credentials.environmentId ? 'Valid Environment ID' : 'Environment ID is required'}
+              </ValidationIndicator>
+            </FormField>
+
+            <FormField>
+              <FormLabel className="required">Client ID</FormLabel>
+              <FormInput
+                type="text"
+                value={credentials.clientId}
+                onChange={(e) => setCredentials(prev => ({ ...prev, clientId: e.target.value }))}
+                placeholder="your-client-id"
+                required
+              />
+              <ValidationIndicator $valid={!!credentials.clientId}>
+                {credentials.clientId ? <FiCheckCircle /> : <FiAlertTriangle />}
+                {credentials.clientId ? 'Valid Client ID' : 'Client ID is required'}
+              </ValidationIndicator>
+            </FormField>
+
+            <FormField>
+              <FormLabel>Client Secret (Optional for Public Clients)</FormLabel>
+              <FormInput
+                type={showClientSecret ? 'text' : 'password'}
+                value={credentials.clientSecret}
+                onChange={(e) => setCredentials(prev => ({ ...prev, clientSecret: e.target.value }))}
+                placeholder="your-client-secret"
+              />
+              <ValidationIndicator $valid={true}>
+                <FiCheckCircle />
+                {credentials.clientSecret ? 'Client Secret provided' : 'Public client (no secret required)'}
+              </ValidationIndicator>
+              <ToggleButton onClick={() => setShowClientSecret(!showClientSecret)}>
+                {showClientSecret ? <FiEyeOff /> : <FiEye />}
+                {showClientSecret ? 'Hide' : 'Show'} Secret
+              </ToggleButton>
+            </FormField>
+
+            <FormField>
+              <FormLabel className="required">Redirect URI</FormLabel>
+              <FormInput
+                type="text"
+                value={credentials.redirectUri}
+                onChange={(e) => setCredentials(prev => ({ ...prev, redirectUri: e.target.value }))}
+                placeholder="https://your-app.com/callback"
+                required
+              />
+              <ValidationIndicator $valid={!!credentials.redirectUri}>
+                {credentials.redirectUri ? <FiCheckCircle /> : <FiAlertTriangle />}
+                {credentials.redirectUri ? 'Valid Redirect URI' : 'Redirect URI is required'}
+              </ValidationIndicator>
+            </FormField>
+
+            <FormField>
+              <FormLabel>Scopes</FormLabel>
+              <FormInput
+                type="text"
+                value={credentials.scopes}
+                onChange={(e) => setCredentials(prev => ({ ...prev, scopes: e.target.value }))}
+                placeholder="openid profile email"
+              />
+              <ValidationIndicator $valid={!!credentials.scopes}>
+                <FiCheckCircle />
+                {credentials.scopes || 'Using default scopes'}
+              </ValidationIndicator>
+            </FormField>
+
+            <ButtonGroup>
+              <Button 
+                onClick={saveCredentials}
+                disabled={isSavingCredentials || !credentials.environmentId || !credentials.clientId}
+                $variant="primary"
+              >
+                {isSavingCredentials ? <FiLoader className="animate-spin" /> : <FiSave />}
+                {isSavingCredentials ? 'Saving...' : 'Save Credentials'}
+              </Button>
+              
+              <Button 
+                onClick={loadCredentials}
+                $variant="secondary"
+              >
+                <FiRefreshCw />
+                Load Saved
+              </Button>
+            </ButtonGroup>
+
+            {credentials.environmentId && (
+              <InfoBox type="info" style={{ marginTop: '1rem' }}>
+                <FiInfo />
+                <div>
+                  <strong>Auto-generated endpoints:</strong>
+                  <br />
+                  Authorization: {credentials.authorizationEndpoint}
+                  <br />
+                  Token: {credentials.tokenEndpoint}
+                  <br />
+                  UserInfo: {credentials.userInfoEndpoint}
+                </div>
+              </InfoBox>
+            )}
+          </div>
+        </CollapsibleContent>
+      </CollapsibleSection>
 
       <EnhancedStepFlowV2
         steps={steps}

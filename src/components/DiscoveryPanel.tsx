@@ -249,20 +249,71 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
   const [discoveredConfig, setDiscoveredConfig] = useState<OpenIDConfiguration | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
-  // Load stored Environment ID when component mounts
+  // Load stored discovery preferences when component mounts
   useEffect(() => {
     try {
-      const allCredentials = credentialManager.getAllCredentials();
-      if (allCredentials.environmentId) {
-        setEnvironmentId(allCredentials.environmentId);
-        logger.info('DiscoveryPanel', 'Pre-populated Environment ID from stored credentials', {
-          environmentId: allCredentials.environmentId
+      // Load discovery preferences (Environment ID and Region)
+      const preferences = credentialManager.loadDiscoveryPreferences();
+      
+      if (preferences.environmentId) {
+        setEnvironmentId(preferences.environmentId);
+        logger.info('DiscoveryPanel', 'Pre-populated Environment ID from discovery preferences', {
+          environmentId: preferences.environmentId
         });
+      } else {
+        // Fallback: Try to load from existing credentials
+        const configCreds = credentialManager.loadConfigCredentials();
+        const authzCreds = credentialManager.loadAuthzFlowCredentials();
+        
+        let allCredentials = configCreds;
+        if (!allCredentials.environmentId && !allCredentials.clientId) {
+          allCredentials = authzCreds;
+        }
+        
+        if (!allCredentials.environmentId && !allCredentials.clientId) {
+          try {
+            const oldCredentials = credentialManager.getAllCredentials();
+            if (oldCredentials.environmentId) {
+              allCredentials = oldCredentials;
+            }
+          } catch (error) {
+            console.log('🔍 [DiscoveryPanel] Fallback getAllCredentials() failed:', error);
+          }
+        }
+        
+        if (allCredentials.environmentId) {
+          setEnvironmentId(allCredentials.environmentId);
+          logger.info('DiscoveryPanel', 'Pre-populated Environment ID from stored credentials', {
+            environmentId: allCredentials.environmentId
+          });
+        }
       }
+      
+      // Set the region from preferences
+      setRegion(preferences.region);
+      logger.info('DiscoveryPanel', 'Pre-populated Region from discovery preferences', {
+        region: preferences.region
+      });
+      
     } catch (error) {
-      logger.error('DiscoveryPanel', 'Failed to load stored Environment ID', error);
+      logger.error('DiscoveryPanel', 'Failed to load stored discovery preferences', error);
     }
   }, []);
+
+  // Save preferences when Environment ID or Region changes
+  const handleEnvironmentIdChange = (value: string) => {
+    setEnvironmentId(value);
+    // Save preferences when user types
+    if (value.trim()) {
+      credentialManager.saveDiscoveryPreferences({ environmentId: value });
+    }
+  };
+
+  const handleRegionChange = (value: string) => {
+    setRegion(value);
+    // Save preferences when user changes region
+    credentialManager.saveDiscoveryPreferences({ region: value });
+  };
 
   const handleDiscover = async () => {
     if (!environmentId.trim()) {
@@ -274,6 +325,12 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
       setStatus({ type: 'error', message: 'Invalid Environment ID format. Please enter a valid UUID.' });
       return;
     }
+
+    // Save current preferences before discovering
+    credentialManager.saveDiscoveryPreferences({ 
+      environmentId: environmentId.trim(), 
+      region 
+    });
 
     setIsLoading(true);
     setStatus(null);
@@ -350,7 +407,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
               id="environmentId"
               type="text"
               value={environmentId}
-              onChange={(e) => setEnvironmentId(e.target.value)}
+              onChange={(e) => handleEnvironmentIdChange(e.target.value)}
               placeholder="Enter your PingOne Environment ID (UUID format)"
               disabled={isLoading}
             />
@@ -364,7 +421,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
             <Select
               id="region"
               value={region}
-              onChange={(e) => setRegion(e.target.value)}
+              onChange={(e) => handleRegionChange(e.target.value)}
               disabled={isLoading}
             >
               <option value="us">United States (us)</option>
