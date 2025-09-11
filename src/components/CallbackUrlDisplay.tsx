@@ -241,7 +241,7 @@ const CallbackUrlDisplay: React.FC<CallbackUrlDisplayProps> = ({ flowType, baseU
   return (
     <CallbackUrlContainer>
       <CallbackUrlHeader onClick={() => setIsSetupExpanded(!isSetupExpanded)}>
-        <CallbackUrlTitle>Configure in PingOne</CallbackUrlTitle>
+        <CallbackUrlTitle>Set the Redirect URI in PingOne</CallbackUrlTitle>
         <ChevronIcon>
           {isSetupExpanded ? <FiChevronDown /> : <FiChevronRight />}
         </ChevronIcon>

@@ -9,7 +9,8 @@ import {
   FiCheckCircle,
   FiExternalLink,
   FiCopy,
-  FiRefreshCw
+  FiRefreshCw,
+  FiX
 } from 'react-icons/fi';
 
 const ErrorContainer = styled.div`
@@ -144,6 +145,7 @@ interface OAuthErrorHelperProps {
   correlationId?: string;
   onRetry?: () => void;
   onGoToConfig?: () => void;
+  onDismiss?: () => void;
 }
 
 export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
@@ -151,7 +153,8 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
   errorDescription,
   correlationId,
   onRetry,
-  onGoToConfig
+  onGoToConfig,
+  onDismiss
 }) => {
   const getErrorGuidance = (error: string) => {
     switch (error.toLowerCase()) {
@@ -390,6 +393,16 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
           <FiExternalLink size={16} />
           PingOne Documentation
         </ActionButton>
+        
+        {onDismiss && (
+          <ActionButton 
+            onClick={onDismiss}
+            style={{ background: '#6b7280', color: 'white' }}
+          >
+            <FiX size={16} />
+            Dismiss
+          </ActionButton>
+        )}
       </div>
     </ErrorContainer>
   );

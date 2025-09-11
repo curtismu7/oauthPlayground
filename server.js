@@ -71,7 +71,8 @@ app.post('/api/token-exchange', async (req, res) => {
     hasEnvironmentId: !!req.body.environment_id,
     code: req.body.code?.substring(0, 20) + '...',
     codeVerifier: req.body.code_verifier?.substring(0, 20) + '...',
-    clientId: req.body.client_id?.substring(0, 8) + '...'
+    clientId: req.body.client_id?.substring(0, 8) + '...',
+    fullBody: req.body
   });
 
   try {
@@ -87,12 +88,13 @@ app.post('/api/token-exchange', async (req, res) => {
     } = req.body;
 
     // Validate required parameters
-    if (!grant_type || !client_id) {
+    if (!grant_type || !client_id || client_id.trim() === '') {
       console.error('❌ [Server] Missing required parameters:', {
         hasGrantType: !!grant_type,
         hasClientId: !!client_id,
         grantType: grant_type,
-        clientId: client_id
+        clientId: client_id,
+        clientIdLength: client_id?.length || 0
       });
       return res.status(400).json({
         error: 'invalid_request',
@@ -131,6 +133,7 @@ app.post('/api/token-exchange', async (req, res) => {
     // Prepare request body
     const tokenRequestBody = new URLSearchParams({
       grant_type,
+      client_id: client_id,
       redirect_uri: redirect_uri || '',
       code: code || '',
       code_verifier: code_verifier || '',
@@ -144,15 +147,23 @@ app.post('/api/token-exchange', async (req, res) => {
     };
 
     // For confidential clients, use Basic Auth instead of client_secret in body
-    if (client_secret) {
+    if (client_secret && client_secret.trim() !== '') {
       const credentials = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
       headers['Authorization'] = `Basic ${credentials}`;
-      console.log('🔐 [Server] Using Basic Auth for confidential client');
+      console.log('🔐 [Server] Using Basic Auth for confidential client:', {
+        clientId: client_id?.substring(0, 8) + '...',
+        clientSecretLength: client_secret?.length || 0,
+        hasClientSecret: !!client_secret,
+        basicAuthHeader: `Basic ${credentials.substring(0, 20)}...`
+      });
       // Don't add client_secret to body when using Basic Auth
     } else {
-      // For public clients, add client_id to body
-      tokenRequestBody.append('client_id', client_id);
-      console.log('🔓 [Server] Using public client authentication');
+      // For public clients, client_id is already in the body
+      console.log('🔓 [Server] Using public client authentication:', {
+        clientId: client_id?.substring(0, 8) + '...',
+        hasClientSecret: !!client_secret,
+        clientSecretLength: client_secret?.length || 0
+      });
     }
 
     console.log('🌐 [Server] Making request to PingOne token endpoint:', {
