@@ -101,7 +101,11 @@ async function loadConfiguration(): Promise<AppConfig> {
 
     // Otherwise, try to get from credential manager
     console.log('🔧 [NewAuthContext] Loading from credential manager...');
-    const allCredentials = await credentialManager.getAllCredentialsAsync();
+    // Try to load from config credentials first, then fall back to authz flow credentials
+    let allCredentials = credentialManager.loadConfigCredentials();
+    if (!allCredentials.environmentId && !allCredentials.clientId) {
+      allCredentials = credentialManager.loadAuthzFlowCredentials();
+    }
     console.log('🔧 [NewAuthContext] Credential manager result:', allCredentials);
     
     if (allCredentials.environmentId && allCredentials.clientId) {
@@ -560,6 +564,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Validate state parameter (more lenient for development)
       const storedState = sessionStorage.getItem('oauth_state');
+      console.log('🔍 [NewAuthContext] State validation:', { 
+        received: state, 
+        stored: storedState, 
+        match: state === storedState,
+        bothExist: !!(state && storedState)
+      });
+      
       if (state && storedState && state !== storedState) {
         const errorMessage = 'Invalid state parameter. Possible CSRF attack.';
         logger.error('NewAuthContext', 'State validation failed', { received: state, expected: storedState });
@@ -635,7 +646,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
           // Import credential manager dynamically to avoid circular dependency
           const { credentialManager } = await import('../utils/credentialManager');
-          const credentials = credentialManager.getAllCredentials();
+          // Try to load from config credentials first, then fall back to authz flow credentials
+          let credentials = credentialManager.loadConfigCredentials();
+          if (!credentials.environmentId && !credentials.clientId) {
+            credentials = credentialManager.loadAuthzFlowCredentials();
+          }
           
           clientId = clientId || credentials.clientId || '';
           clientSecret = clientSecret || credentials.clientSecret || '';
@@ -651,14 +666,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
       
+      // CRITICAL VALIDATION - Ensure we have valid credentials
+      if (!clientId || clientId.trim() === '') {
+        console.error('❌ [NewAuthContext] CRITICAL: clientId is empty!', { clientId, environmentId, redirectUri });
+        throw new Error('Client ID is required for token exchange. Please configure your OAuth credentials first.');
+      }
+      
+      if (!environmentId || environmentId.trim() === '') {
+        console.error('❌ [NewAuthContext] CRITICAL: environmentId is empty!', { clientId, environmentId, redirectUri });
+        throw new Error('Environment ID is required for token exchange. Please configure your OAuth credentials first.');
+      }
+      
+      if (!redirectUri || redirectUri.trim() === '') {
+        console.error('❌ [NewAuthContext] CRITICAL: redirectUri is empty!', { clientId, environmentId, redirectUri });
+        throw new Error('Redirect URI is required for token exchange. Please configure your OAuth credentials first.');
+      }
+
       // Exchange code for tokens
       const requestBody = {
         grant_type: 'authorization_code',
         code: code,
-        redirect_uri: redirectUri,
-        client_id: clientId,
-        client_secret: clientSecret,
-        environment_id: environmentId,
+        redirect_uri: redirectUri.trim(),
+        client_id: clientId.trim(), // Ensure no whitespace
+        client_secret: clientSecret || '',
+        environment_id: environmentId.trim(), // Ensure no whitespace
         ...(codeVerifier && { code_verifier: codeVerifier })
       };
       
@@ -675,6 +706,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         hasCodeVerifier: !!requestBody.code_verifier,
       });
       
+      // FINAL VALIDATION - Last chance to catch empty values
+      if (requestBody.client_id === '' || !requestBody.client_id) {
+        console.error('❌ [NewAuthContext] CRITICAL: Request body has empty client_id!', requestBody);
+        throw new Error('CRITICAL ERROR: Request body contains empty client_id. This should never happen.');
+      }
+
       console.log('🌐 [NewAuthContext] Making token exchange request to /api/token-exchange');
       console.log('📤 [NewAuthContext] Request details:', {
         url: '/api/token-exchange',
@@ -856,6 +893,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }));
   }, []);
 
+  // Dismiss error function
+  const dismissError = useCallback(() => {
+    updateState({ error: null });
+  }, [updateState]);
+
   // Context value
   const contextValue = useMemo(() => {
     // Handle both config structures: config.pingone.* and config.*
@@ -904,11 +946,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       proceedWithOAuth,
       closeAuthModal,
       updateTokens, // Add the updateTokens function
+      dismissError, // Add the dismissError function
     };
     // Reduced debug logging to prevent console spam
     // logger.debug('NewAuthContext', 'Creating context value', value);
     return value;
-  }, [state, config, login, logout, handleCallback, setAuthState, showAuthModal, authRequestData, proceedWithOAuth, closeAuthModal, updateTokens]);
+  }, [state, config, login, logout, handleCallback, setAuthState, showAuthModal, authRequestData, proceedWithOAuth, closeAuthModal, updateTokens, dismissError]);
 
   // Reduced debug logging to prevent console spam
   // logger.debug('NewAuthContext', 'Rendering AuthProvider with contextValue', contextValue);
@@ -985,6 +1028,7 @@ export const useAuth = (): AuthContextType => {
       proceedWithOAuth: () => {},
       closeAuthModal: () => {},
       updateTokens: () => {},
+      dismissError: () => {},
     };
   }
   return context;

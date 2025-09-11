@@ -108,8 +108,8 @@ const AutoDiscover: React.FC = () => {
 
   const handleConfigurationDiscovered = (config: OpenIDConfiguration, environmentId: string) => {
     try {
-      // Save the discovered configuration to credential manager
-      const success = credentialManager.savePermanentCredentials({
+      // Save the discovered configuration to config credentials
+      const success = credentialManager.saveConfigCredentials({
         environmentId: environmentId,
         clientId: '', // Will be filled in by user
         redirectUri: window.location.origin + '/dashboard-callback',

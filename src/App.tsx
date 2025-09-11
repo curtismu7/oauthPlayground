@@ -53,6 +53,7 @@ import DebugPanel from './components/DebugPanel';
 import ErrorBoundary from './components/ErrorBoundary';
 import ServerStatusProvider from './components/ServerStatusProvider';
 import AuthErrorBoundary from './components/AuthErrorBoundary';
+import GlobalErrorDisplay from './components/GlobalErrorDisplay';
 
 // Import callback components
 import AuthzCallback from './components/callbacks/AuthzCallback';
@@ -134,11 +135,15 @@ const AppRoutes = () => {
         console.log('🔍 [App] pingone_config:', localStorage.getItem('pingone_config'));
         
         // Check if we have any credentials using the credential manager
-        const allCredentials = credentialManager.getAllCredentials();
+        // Try to load from config credentials first, then fall back to authz flow credentials
+        let allCredentials = credentialManager.loadConfigCredentials();
+        if (!allCredentials.environmentId && !allCredentials.clientId) {
+          allCredentials = credentialManager.loadAuthzFlowCredentials();
+        }
         console.log('🔍 [App] All credentials from manager:', allCredentials);
         
-        const hasPermanentCredentials = credentialManager.arePermanentCredentialsComplete();
-        const hasSessionCredentials = !!credentialManager.getAllCredentials().clientSecret;
+        const hasPermanentCredentials = !!(allCredentials.environmentId && allCredentials.clientId);
+        const hasSessionCredentials = !!allCredentials.clientSecret;
 
         console.log('🔍 [App] Configuration check:', {
           hasPermanentCredentials,
@@ -190,6 +195,7 @@ const AppRoutes = () => {
 
   return (
     <>
+      <GlobalErrorDisplay />
       <AppContainer>
         <Navbar toggleSidebar={toggleSidebar} />
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { FiExternalLink, FiCopy, FiCheck, FiX } from 'react-icons/fi';
 import ColorCodedURL from './ColorCodedURL';
@@ -219,6 +219,20 @@ const AuthorizationRequestModal: React.FC<AuthorizationRequestModalProps> = ({
   requestParams,
 }) => {
   const [copied, setCopied] = React.useState(false);
+
+  // Handle escape key to close modal
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      return () => document.removeEventListener('keydown', handleEscape);
+    }
+  }, [isOpen, onClose]);
 
   const handleCopy = async () => {
     try {
