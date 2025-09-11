@@ -4,6 +4,7 @@ import { logger } from './logger';
 export interface PermanentCredentials {
   environmentId: string;
   clientId: string;
+  clientSecret?: string;
   redirectUri: string;
   scopes: string[];
   authEndpoint?: string;
@@ -16,11 +17,23 @@ export interface SessionCredentials {
   clientSecret: string;
 }
 
-export interface AllCredentials extends PermanentCredentials, SessionCredentials {}
+export interface AllCredentials extends PermanentCredentials {
+  clientSecret: string; // Required in AllCredentials
+}
+
+export interface DiscoveryPreferences {
+  environmentId: string;
+  region: string;
+  lastUpdated: number;
+}
 
 class CredentialManager {
   private readonly PERMANENT_CREDENTIALS_KEY = 'pingone_permanent_credentials';
   private readonly SESSION_CREDENTIALS_KEY = 'pingone_session_credentials';
+  private readonly CONFIG_CREDENTIALS_KEY = 'pingone_config_credentials';
+  private readonly AUTHZ_FLOW_CREDENTIALS_KEY = 'pingone_authz_flow_credentials';
+  private readonly IMPLICIT_FLOW_CREDENTIALS_KEY = 'pingone_implicit_flow_credentials';
+  private readonly DISCOVERY_PREFERENCES_KEY = 'pingone_discovery_preferences';
   private cache: { permanent?: PermanentCredentials; session?: SessionCredentials; all?: AllCredentials; timestamp?: number } = {};
   private readonly CACHE_DURATION = 5000; // 5 second cache
 
@@ -32,8 +45,286 @@ class CredentialManager {
   }
 
   /**
+   * Save configuration-specific credentials (from Configuration page)
+   * These are separate from flow-specific credentials
+   */
+  saveConfigCredentials(credentials: Partial<PermanentCredentials>): boolean {
+    try {
+      const existing = this.loadConfigCredentials();
+      const updated = {
+        ...existing,
+        ...credentials,
+        lastUpdated: Date.now()
+      };
+
+      console.log('🔧 [CredentialManager] Saving config credentials to localStorage:', {
+        key: this.CONFIG_CREDENTIALS_KEY,
+        data: updated
+      });
+
+      localStorage.setItem(this.CONFIG_CREDENTIALS_KEY, JSON.stringify(updated));
+      
+      // Invalidate cache after saving
+      this.invalidateCache();
+      
+      // Verify it was saved
+      const saved = localStorage.getItem(this.CONFIG_CREDENTIALS_KEY);
+      console.log('✅ [CredentialManager] Verified config credentials save:', saved);
+      
+      logger.success('CredentialManager', 'Saved config credentials', {
+        hasEnvironmentId: !!updated.environmentId,
+        hasClientId: !!updated.clientId,
+        hasRedirectUri: !!updated.redirectUri
+      });
+
+      // Dispatch event to notify other components
+      window.dispatchEvent(new CustomEvent('config-credentials-changed', {
+        detail: { credentials: updated }
+      }));
+
+      return true;
+    } catch (error) {
+      logger.error('CredentialManager', 'Failed to save config credentials', String(error));
+      return false;
+    }
+  }
+
+  /**
+   * Load configuration-specific credentials
+   */
+  loadConfigCredentials(): PermanentCredentials {
+    try {
+      const stored = localStorage.getItem(this.CONFIG_CREDENTIALS_KEY);
+      console.log('🔧 [CredentialManager] Loading config credentials from localStorage:', {
+        key: this.CONFIG_CREDENTIALS_KEY,
+        stored: stored
+      });
+      
+      if (stored) {
+        const credentials = JSON.parse(stored);
+        console.log('✅ [CredentialManager] Loaded config credentials from localStorage:', credentials);
+        
+        const result = {
+          environmentId: credentials.environmentId || '',
+          clientId: credentials.clientId || '',
+          redirectUri: credentials.redirectUri || window.location.origin + '/dashboard-callback',
+          scopes: credentials.scopes || ['openid', 'profile', 'email'],
+          authEndpoint: credentials.authEndpoint,
+          tokenEndpoint: credentials.tokenEndpoint,
+          userInfoEndpoint: credentials.userInfoEndpoint,
+          endSessionEndpoint: credentials.endSessionEndpoint
+        };
+        
+        console.log('✅ [CredentialManager] Returning config credentials:', result);
+        return result;
+      } else {
+        console.log('❌ [CredentialManager] No config credentials found');
+        return {
+          environmentId: '',
+          clientId: '',
+          redirectUri: window.location.origin + '/dashboard-callback',
+          scopes: ['openid', 'profile', 'email']
+        };
+      }
+    } catch (error) {
+      console.error('❌ [CredentialManager] Failed to load config credentials:', error);
+      logger.error('CredentialManager', 'Failed to load config credentials', String(error));
+      return {
+        environmentId: '',
+        clientId: '',
+        redirectUri: window.location.origin + '/dashboard-callback',
+        scopes: ['openid', 'profile', 'email']
+      };
+    }
+  }
+
+  /**
+   * Save authorization flow-specific credentials (from Authorization Code flows)
+   * These are separate from configuration credentials
+   */
+  saveAuthzFlowCredentials(credentials: Partial<PermanentCredentials>): boolean {
+    try {
+      const existing = this.loadAuthzFlowCredentials();
+      const updated = {
+        ...existing,
+        ...credentials,
+        lastUpdated: Date.now()
+      };
+
+      console.log('🔧 [CredentialManager] Saving authz flow credentials to localStorage:', {
+        key: this.AUTHZ_FLOW_CREDENTIALS_KEY,
+        data: updated
+      });
+
+      localStorage.setItem(this.AUTHZ_FLOW_CREDENTIALS_KEY, JSON.stringify(updated));
+      
+      // Invalidate cache after saving
+      this.invalidateCache();
+      
+      // Verify it was saved
+      const saved = localStorage.getItem(this.AUTHZ_FLOW_CREDENTIALS_KEY);
+      console.log('✅ [CredentialManager] Verified authz flow credentials save:', saved);
+      
+      logger.success('CredentialManager', 'Saved authz flow credentials', {
+        hasEnvironmentId: !!updated.environmentId,
+        hasClientId: !!updated.clientId,
+        hasRedirectUri: !!updated.redirectUri
+      });
+
+      // Dispatch event to notify other components
+      window.dispatchEvent(new CustomEvent('authz-flow-credentials-changed', {
+        detail: { credentials: updated }
+      }));
+
+      return true;
+    } catch (error) {
+      logger.error('CredentialManager', 'Failed to save authz flow credentials', error);
+      return false;
+    }
+  }
+
+  /**
+   * Load authorization flow-specific credentials
+   */
+  loadAuthzFlowCredentials(): PermanentCredentials {
+    try {
+      const stored = localStorage.getItem(this.AUTHZ_FLOW_CREDENTIALS_KEY);
+      console.log('🔧 [CredentialManager] Loading authz flow credentials from localStorage:', {
+        key: this.AUTHZ_FLOW_CREDENTIALS_KEY,
+        stored: stored
+      });
+      
+      if (stored) {
+        const credentials = JSON.parse(stored);
+        console.log('✅ [CredentialManager] Loaded authz flow credentials from localStorage:', credentials);
+        
+        const result = {
+          environmentId: credentials.environmentId || '',
+          clientId: credentials.clientId || '',
+          clientSecret: credentials.clientSecret || '',
+          redirectUri: credentials.redirectUri || window.location.origin + '/authz-callback',
+          scopes: credentials.scopes || ['openid', 'profile', 'email'],
+          authEndpoint: credentials.authEndpoint,
+          tokenEndpoint: credentials.tokenEndpoint,
+          userInfoEndpoint: credentials.userInfoEndpoint,
+          endSessionEndpoint: credentials.endSessionEndpoint
+        };
+        
+        console.log('✅ [CredentialManager] Returning authz flow credentials:', result);
+        return result;
+      } else {
+        console.log('❌ [CredentialManager] No authz flow credentials found');
+        return {
+          environmentId: '',
+          clientId: '',
+          clientSecret: '',
+          redirectUri: window.location.origin + '/authz-callback',
+          scopes: ['openid', 'profile', 'email']
+        };
+      }
+    } catch (error) {
+      console.error('❌ [CredentialManager] Failed to load authz flow credentials:', error);
+      logger.error('CredentialManager', 'Failed to load authz flow credentials', String(error));
+      return {
+        environmentId: '',
+        clientId: '',
+        clientSecret: '',
+        redirectUri: window.location.origin + '/authz-callback',
+        scopes: ['openid', 'profile', 'email']
+      };
+    }
+  }
+
+  /**
+   * Save implicit flow-specific credentials (from Implicit flow)
+   * These are separate from configuration and authz flow credentials
+   */
+  saveImplicitFlowCredentials(credentials: Partial<PermanentCredentials>): boolean {
+    try {
+      const existing = this.loadImplicitFlowCredentials();
+      const updated = {
+        ...existing,
+        ...credentials,
+        lastUpdated: Date.now()
+      };
+
+      console.log('🔧 [CredentialManager] Saving implicit flow credentials to localStorage:', {
+        key: this.IMPLICIT_FLOW_CREDENTIALS_KEY,
+        data: updated
+      });
+
+      localStorage.setItem(this.IMPLICIT_FLOW_CREDENTIALS_KEY, JSON.stringify(updated));
+      this.invalidateCache();
+      
+      // Dispatch event to notify components of credential change
+      window.dispatchEvent(new CustomEvent('implicit-flow-credentials-changed', { 
+        detail: { credentials: updated } 
+      }));
+      
+      console.log('✅ [CredentialManager] Successfully saved implicit flow credentials to localStorage');
+      return true;
+    } catch (error) {
+      console.error('❌ [CredentialManager] Error saving implicit flow credentials to localStorage:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Load implicit flow-specific credentials
+   */
+  loadImplicitFlowCredentials(): PermanentCredentials {
+    try {
+      const stored = localStorage.getItem(this.IMPLICIT_FLOW_CREDENTIALS_KEY);
+      console.log('🔧 [CredentialManager] Loading implicit flow credentials from localStorage:', {
+        key: this.IMPLICIT_FLOW_CREDENTIALS_KEY,
+        stored: stored
+      });
+      
+      if (stored) {
+        const credentials = JSON.parse(stored);
+        console.log('✅ [CredentialManager] Loaded implicit flow credentials from localStorage:', credentials);
+        
+        const result = {
+          environmentId: credentials.environmentId || '',
+          clientId: credentials.clientId || '',
+          clientSecret: credentials.clientSecret || '',
+          redirectUri: credentials.redirectUri || window.location.origin + '/implicit-callback',
+          scopes: credentials.scopes || ['openid', 'profile', 'email'],
+          authEndpoint: credentials.authEndpoint,
+          tokenEndpoint: credentials.tokenEndpoint,
+          userInfoEndpoint: credentials.userInfoEndpoint,
+          endSessionEndpoint: credentials.endSessionEndpoint
+        };
+        
+        console.log('✅ [CredentialManager] Returning implicit flow credentials:', result);
+        return result;
+      } else {
+        console.log('❌ [CredentialManager] No implicit flow credentials found');
+        return {
+          environmentId: '',
+          clientId: '',
+          clientSecret: '',
+          redirectUri: window.location.origin + '/implicit-callback',
+          scopes: ['openid', 'profile', 'email']
+        };
+      }
+    } catch (error) {
+      console.error('❌ [CredentialManager] Failed to load implicit flow credentials:', error);
+      logger.error('CredentialManager', 'Failed to load implicit flow credentials', String(error));
+      return {
+        environmentId: '',
+        clientId: '',
+        clientSecret: '',
+        redirectUri: window.location.origin + '/implicit-callback',
+        scopes: ['openid', 'profile', 'email']
+      };
+    }
+  }
+
+  /**
    * Save permanent credentials (Environment ID, Client ID, etc.)
    * These persist across browser refreshes and sessions
+   * @deprecated Use saveConfigCredentials or saveAuthzFlowCredentials instead
    */
   savePermanentCredentials(credentials: Partial<PermanentCredentials>): boolean {
     try {
@@ -414,6 +705,52 @@ class CredentialManager {
   }
 
   /**
+   * Save discovery preferences (Environment ID and Region)
+   */
+  saveDiscoveryPreferences(preferences: Partial<DiscoveryPreferences>): boolean {
+    try {
+      const existing = this.loadDiscoveryPreferences();
+      const updated: DiscoveryPreferences = {
+        environmentId: preferences.environmentId || existing.environmentId || '',
+        region: preferences.region || existing.region || 'us',
+        lastUpdated: Date.now()
+      };
+      
+      localStorage.setItem(this.DISCOVERY_PREFERENCES_KEY, JSON.stringify(updated));
+      logger.info('Discovery preferences saved', `environmentId: ${updated.environmentId}, region: ${updated.region}`);
+      return true;
+    } catch (error) {
+      logger.error('Failed to save discovery preferences', String(error));
+      return false;
+    }
+  }
+
+  /**
+   * Load discovery preferences
+   */
+  loadDiscoveryPreferences(): DiscoveryPreferences {
+    try {
+      const stored = localStorage.getItem(this.DISCOVERY_PREFERENCES_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        return {
+          environmentId: parsed.environmentId || '',
+          region: parsed.region || 'us',
+          lastUpdated: parsed.lastUpdated || 0
+        };
+      }
+    } catch (error) {
+      logger.error('Failed to load discovery preferences', String(error));
+    }
+    
+    return {
+      environmentId: '',
+      region: 'us',
+      lastUpdated: 0
+    };
+  }
+
+  /**
    * Debug method to check localStorage contents
    */
   debugLocalStorage(): void {
@@ -421,6 +758,8 @@ class CredentialManager {
     console.log('🔍 [CredentialManager] All localStorage keys:', Object.keys(localStorage));
     console.log('🔍 [CredentialManager] pingone_permanent_credentials:', localStorage.getItem('pingone_permanent_credentials'));
     console.log('🔍 [CredentialManager] pingone_session_credentials:', localStorage.getItem('pingone_session_credentials'));
+    console.log('🔍 [CredentialManager] pingone_config_credentials:', localStorage.getItem('pingone_config_credentials'));
+    console.log('🔍 [CredentialManager] pingone_authz_flow_credentials:', localStorage.getItem('pingone_authz_flow_credentials'));
     console.log('🔍 [CredentialManager] pingone_config:', localStorage.getItem('pingone_config'));
     console.log('🔍 [CredentialManager] login_credentials:', localStorage.getItem('login_credentials'));
   }
@@ -428,6 +767,3 @@ class CredentialManager {
 
 // Export singleton instance
 export const credentialManager = new CredentialManager();
-
-// Export types for use in components
-export type { PermanentCredentials, SessionCredentials, AllCredentials };

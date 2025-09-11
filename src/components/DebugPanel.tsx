@@ -376,7 +376,17 @@ const DebugPanel: React.FC = () => {
       <DebugHeader onClick={handleToggle}>
         <DebugTitle>
           <FiTerminal />
-          Debug Console ({logs.length} logs)
+          Debug Console ({logs.length}/500 logs)
+          {logs.length >= 500 && (
+            <span style={{ 
+              color: '#f59e0b', 
+              fontSize: '0.7rem', 
+              marginLeft: '0.5rem',
+              fontWeight: 'bold'
+            }}>
+              (LIMIT REACHED)
+            </span>
+          )}
           {newMessageCount > 0 && !isOpen && (
             <span style={{ 
               backgroundColor: '#3b82f6', 

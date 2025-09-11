@@ -647,6 +647,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
   const [showDebug, setShowDebug] = useState(false);
   const [copiedText, setCopiedText] = useState<string | null>(null);
 
+
   // Load persisted state
   useEffect(() => {
     if (persistKey) {
@@ -729,6 +730,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
     return 'pending';
   }, [currentStepIndex, stepHistory, steps]);
 
+
   // Execute step
   const executeStep = useCallback(async (stepIndex: number) => {
     console.log('🔧 [EnhancedStepFlowV2] executeStep called', { stepIndex, totalSteps: steps.length });
@@ -798,6 +800,42 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
   const goToNextStep = useCallback(() => {
     if (currentStepIndex < steps.length - 1) {
       setCurrentStepIndex(currentStepIndex + 1);
+      
+      // Custom scroll behavior based on page type
+      setTimeout(() => {
+        const isAuthorizationCodePage = window.location.pathname.includes('authorization-code');
+        
+        if (isAuthorizationCodePage) {
+          // For authorization code pages: scroll to progress bar (step indicator)
+          const progressBar = document.querySelector('[data-testid="progress-bar"]') || 
+                             document.querySelector('.progress-bar') ||
+                             document.querySelector('[role="progressbar"]');
+          if (progressBar) {
+            progressBar.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start' 
+            });
+          } else {
+            // Fallback: scroll to top of the flow container
+            const flowContainer = document.querySelector('[data-testid="enhanced-step-flow"]') ||
+                                 document.querySelector('.enhanced-step-flow') ||
+                                 document.querySelector('main');
+            if (flowContainer) {
+              flowContainer.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+              });
+            }
+          }
+        } else {
+          // For all other pages: scroll all the way to top
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          const mainContent = document.querySelector('main');
+          if (mainContent) {
+            mainContent.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        }
+      }, 100);
     } else {
       // Flow complete
       const results = stepHistory.reduce((acc, entry) => {
@@ -849,7 +887,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 
   return (
     <ResponsiveContainer>
-      <Container>
+      <Container data-testid="enhanced-step-flow">
         <Header>
           <Title>{title}</Title>
           <Subtitle>Interactive step-by-step OAuth flow with enhanced debugging</Subtitle>
@@ -890,7 +928,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
         </StepProgressContainer>
 
         {/* Progress Bar */}
-        <ProgressBar>
+        <ProgressBar data-testid="progress-bar">
           <ProgressFill $progress={progress} />
         </ProgressBar>
 
@@ -1014,7 +1052,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
                      currentStep.id === 'build-auth-url' ? 'Build URL' : 
                      currentStep.id === 'exchange-tokens' ? 'Exchange Tokens' :
                      currentStep.id === 'validate-tokens' ? 'Get User Info' :
-                     'Execute'}
+                     'Sign On'}
                   </>
                 )}
               </Button>

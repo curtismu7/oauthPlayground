@@ -7,7 +7,8 @@ import {
   FiChevronDown,
   FiChevronRight,
   FiExternalLink,
-  FiInfo
+  FiInfo,
+  FiRefreshCw
 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { credentialManager } from '../utils/credentialManager';
@@ -178,9 +179,21 @@ const ExpandedContent = styled.div`
 `;
 
 const getConfigurationStatus = () => {
-  // Use the credential manager to get the current status
-  const credentials = credentialManager.getAllCredentials();
-  const status = credentialManager.getCredentialsStatus();
+  // Use the new prioritized credential loading logic
+  let credentials = credentialManager.loadConfigCredentials();
+  if (!credentials.environmentId && !credentials.clientId) {
+    credentials = credentialManager.loadAuthzFlowCredentials();
+  }
+  if (!credentials.environmentId && !credentials.clientId) {
+    credentials = credentialManager.getAllCredentials();
+  }
+  
+  console.log('🔍 [ConfigurationStatus] Current credentials:', {
+    environmentId: credentials.environmentId ? `${credentials.environmentId.substring(0, 8)}...` : 'MISSING',
+    clientId: credentials.clientId ? `${credentials.clientId.substring(0, 8)}...` : 'MISSING',
+    authEndpoint: credentials.authEndpoint ? 'SET' : 'MISSING',
+    source: credentials.environmentId ? 'loaded' : 'none'
+  });
   
   const missingItems = [];
   
@@ -188,13 +201,13 @@ const getConfigurationStatus = () => {
   if (!credentials.clientId) missingItems.push('Client ID');
   if (!credentials.authEndpoint) missingItems.push('API URL');
 
-  if (status.overall === 'complete') {
+  if (missingItems.length === 0) {
     return {
       status: 'ready' as const,
       message: 'Your PingOne configuration is complete and ready to use. You can start the demo below.',
       missingItems: []
     };
-  } else if (status.overall === 'partial') {
+  } else if (missingItems.length < 3) {
     return {
       status: 'partial' as const,
       message: 'Your PingOne configuration is partially complete. Some features may not work properly.',
@@ -222,12 +235,16 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
   // Update status when credentials change
   useEffect(() => {
     const handleCredentialChange = () => {
+      console.log('🔄 [ConfigurationStatus] Credential change detected, refreshing status');
       setStatusData(getConfigurationStatus());
     };
 
     // Listen for credential changes
     window.addEventListener('permanent-credentials-changed', handleCredentialChange);
     window.addEventListener('pingone-config-changed', handleCredentialChange);
+    
+    // Also refresh on component mount
+    handleCredentialChange();
     
     return () => {
       window.removeEventListener('permanent-credentials-changed', handleCredentialChange);
@@ -253,6 +270,12 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
     } else {
       setIsExpanded(!isExpanded);
     }
+  };
+
+  const handleRefresh = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    console.log('🔄 [ConfigurationStatus] Manual refresh button clicked');
+    setStatusData(getConfigurationStatus());
   };
 
   const getStatusIcon = () => {
@@ -314,6 +337,15 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
     return null;
   };
 
+  const getRefreshAction = () => {
+    return (
+      <CompactButton onClick={handleRefresh} style={{ backgroundColor: '#6b7280' }}>
+        <FiRefreshCw />
+        Refresh
+      </CompactButton>
+    );
+  };
+
   return (
     <StatusContainer>
       <CompactStatusBar 
@@ -328,6 +360,7 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
         <StatusRight>
           {getPrimaryAction()}
           {getSecondaryAction()}
+          {getRefreshAction()}
           {isExpanded ? <FiChevronDown /> : <FiChevronRight />}
         </StatusRight>
       </CompactStatusBar>
@@ -353,29 +386,40 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
             </>
           )}
           
-          {status === 'ready' && (
-            <>
-              <div className="details-title">Current Configuration:</div>
-              <ul className="details-list">
-                <li>
-                  <FiCheckCircle className="check-icon" />
-                  Client ID: {credentialManager.getAllCredentials().clientId || 'Not set'}
-                </li>
-                <li>
-                  <FiCheckCircle className="check-icon" />
-                  Environment ID: {credentialManager.getAllCredentials().environmentId || 'Not set'}
-                </li>
-                <li>
-                  <FiCheckCircle className="check-icon" />
-                  API URL: {credentialManager.getAllCredentials().authEndpoint || 'Default'}
-                </li>
-                <li>
-                  <FiCheckCircle className="check-icon" />
-                  Callback URL: {flowType ? getCallbackUrlForFlow(flowType) : (credentialManager.getAllCredentials().redirectUri || 'Not set')}
-                </li>
-              </ul>
-            </>
-          )}
+          {status === 'ready' && (() => {
+            // Use the same prioritized loading logic for display
+            let displayCredentials = credentialManager.loadConfigCredentials();
+            if (!displayCredentials.environmentId && !displayCredentials.clientId) {
+              displayCredentials = credentialManager.loadAuthzFlowCredentials();
+            }
+            if (!displayCredentials.environmentId && !displayCredentials.clientId) {
+              displayCredentials = credentialManager.getAllCredentials();
+            }
+            
+            return (
+              <>
+                <div className="details-title">Current Configuration:</div>
+                <ul className="details-list">
+                  <li>
+                    <FiCheckCircle className="check-icon" />
+                    Client ID: {displayCredentials.clientId || 'Not set'}
+                  </li>
+                  <li>
+                    <FiCheckCircle className="check-icon" />
+                    Environment ID: {displayCredentials.environmentId || 'Not set'}
+                  </li>
+                  <li>
+                    <FiCheckCircle className="check-icon" />
+                    API URL: {displayCredentials.authEndpoint || 'Default'}
+                  </li>
+                  <li>
+                    <FiCheckCircle className="check-icon" />
+                    Callback URL: {flowType ? getCallbackUrlForFlow(flowType) : (displayCredentials.redirectUri || 'Not set')}
+                  </li>
+                </ul>
+              </>
+            );
+          })()}
         </ExpandedContent>
       </ExpandableContent>
     </StatusContainer>

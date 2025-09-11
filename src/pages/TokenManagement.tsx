@@ -495,6 +495,7 @@ const RefreshStatus = styled.div<{ $status: 'valid' | 'expiring' | 'expired' | '
 `;
 
 const TokenManagement = () => {
+  const { tokens } = useAuth();
   const [tokenString, setTokenString] = useState('');
   const [jwtHeader, setJwtHeader] = useState('');
   const [jwtPayload, setJwtPayload] = useState('');

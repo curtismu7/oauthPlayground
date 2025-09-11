@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Card, CardHeader, CardBody } from '../components/Card';
-import { FiSave, FiAlertCircle, FiCheckCircle, FiEye, FiEyeOff, FiGlobe } from 'react-icons/fi';
+import { FiSave, FiEye, FiEyeOff, FiGlobe } from 'react-icons/fi';
 import DiscoveryPanel from '../components/DiscoveryPanel';
 import { OpenIDConfiguration } from '../services/discoveryService';
 import { credentialManager } from '../utils/credentialManager';
 import StandardMessage from '../components/StandardMessage';
+import CollapsibleSection from '../components/CollapsibleSection';
 import packageJson from '../../package.json';
 
 const ConfigurationContainer = styled.div`
@@ -205,6 +205,7 @@ const Configuration = () => {
     enableOIDC: true,
     showCredentialsModal: false,
     showSuccessModal: true,
+    showUrlDetailsInStep4: true,
   });
   
   const [errors, setErrors] = useState({});
@@ -222,23 +223,24 @@ const Configuration = () => {
       console.log('🔧 [Configuration] pingone_config:', localStorage.getItem('pingone_config'));
       console.log('🔧 [Configuration] login_credentials:', localStorage.getItem('login_credentials'));
       
-      // Load from credential manager first
-      const permanentCredentials = credentialManager.loadPermanentCredentials();
+      // Load from configuration-specific credentials first
+      const configCredentials = credentialManager.loadConfigCredentials();
       
-      console.log('🔧 [Configuration] Loading configuration, permanent credentials:', permanentCredentials);
+      console.log('🔧 [Configuration] Loading configuration, config credentials:', configCredentials);
       
-      if (permanentCredentials.environmentId || permanentCredentials.clientId) {
-        console.log('✅ [Configuration] Loading from credential manager');
+      if (configCredentials.environmentId || configCredentials.clientId) {
+        console.log('✅ [Configuration] Loading from config credentials');
         setFormData(prev => ({
           ...prev,
-          environmentId: permanentCredentials.environmentId || '',
-          clientId: permanentCredentials.clientId || '',
-          redirectUri: permanentCredentials.redirectUri || prev.redirectUri,
-          scopes: Array.isArray(permanentCredentials.scopes) ? permanentCredentials.scopes.join(' ') : permanentCredentials.scopes || prev.scopes,
-          authEndpoint: permanentCredentials.authEndpoint || prev.authEndpoint,
-          tokenEndpoint: permanentCredentials.tokenEndpoint || prev.tokenEndpoint,
-          userInfoEndpoint: permanentCredentials.userInfoEndpoint || prev.userInfoEndpoint,
-          endSessionEndpoint: permanentCredentials.endSessionEndpoint || prev.endSessionEndpoint
+          environmentId: configCredentials.environmentId || '',
+          clientId: configCredentials.clientId || '',
+          clientSecret: (configCredentials as any).clientSecret || '',
+          redirectUri: configCredentials.redirectUri || prev.redirectUri,
+          scopes: Array.isArray(configCredentials.scopes) ? configCredentials.scopes.join(' ') : configCredentials.scopes || prev.scopes,
+          authEndpoint: configCredentials.authEndpoint || prev.authEndpoint,
+          tokenEndpoint: configCredentials.tokenEndpoint || prev.tokenEndpoint,
+          userInfoEndpoint: configCredentials.userInfoEndpoint || prev.userInfoEndpoint,
+          endSessionEndpoint: configCredentials.endSessionEndpoint || prev.endSessionEndpoint
         }));
       } else {
         // Fallback to legacy pingone_config
@@ -263,10 +265,11 @@ const Configuration = () => {
             
             // Migrate to new credential manager if we have valid credentials
             if (parsedConfig.environmentId && parsedConfig.clientId) {
-              console.log('🔄 [Configuration] Migrating legacy credentials to credential manager');
-              credentialManager.savePermanentCredentials({
+              console.log('🔄 [Configuration] Migrating legacy credentials to config credentials');
+              credentialManager.saveConfigCredentials({
                 environmentId: parsedConfig.environmentId,
                 clientId: parsedConfig.clientId,
+                clientSecret: parsedConfig.clientSecret || '',
                 redirectUri: parsedConfig.redirectUri || window.location.origin + '/callback',
                 scopes: parsedConfig.scopes || ['openid', 'profile', 'email'],
                 authEndpoint: parsedConfig.authEndpoint,
@@ -293,10 +296,11 @@ const Configuration = () => {
               
               // Migrate to new credential manager if we have valid credentials
               if (parsedLoginCreds.environmentId && parsedLoginCreds.clientId) {
-                console.log('🔄 [Configuration] Migrating login credentials to credential manager');
-                credentialManager.savePermanentCredentials({
+                console.log('🔄 [Configuration] Migrating login credentials to config credentials');
+                credentialManager.saveConfigCredentials({
                   environmentId: parsedLoginCreds.environmentId,
                   clientId: parsedLoginCreds.clientId,
+                  clientSecret: parsedLoginCreds.clientSecret || '',
                   redirectUri: parsedLoginCreds.redirectUri || window.location.origin + '/callback',
                   scopes: parsedLoginCreds.scopes || ['openid', 'profile', 'email'],
                   authEndpoint: parsedLoginCreds.authEndpoint,
@@ -315,12 +319,13 @@ const Configuration = () => {
       // Load UI settings from flow configuration
       const flowConfigKey = 'enhanced-flow-authorization-code';
       const flowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
-      if (flowConfig.showCredentialsModal !== undefined || flowConfig.showSuccessModal !== undefined) {
+      if (flowConfig.showCredentialsModal !== undefined || flowConfig.showSuccessModal !== undefined || flowConfig.showUrlDetailsInStep4 !== undefined) {
         console.log('✅ [Configuration] Loading UI settings from flow config:', flowConfig);
         setFormData(prev => ({
           ...prev,
           showCredentialsModal: flowConfig.showCredentialsModal !== undefined ? flowConfig.showCredentialsModal : prev.showCredentialsModal,
-          showSuccessModal: flowConfig.showSuccessModal !== undefined ? flowConfig.showSuccessModal : prev.showSuccessModal
+          showSuccessModal: flowConfig.showSuccessModal !== undefined ? flowConfig.showSuccessModal : prev.showSuccessModal,
+          showUrlDetailsInStep4: flowConfig.showUrlDetailsInStep4 !== undefined ? flowConfig.showUrlDetailsInStep4 : prev.showUrlDetailsInStep4
         }));
       }
     };
@@ -336,20 +341,20 @@ const Configuration = () => {
     const handleCredentialChange = () => {
       console.log('🔄 [Configuration] Credentials updated from login page, refreshing configuration...');
       
-      // Load from credential manager
-      const permanentCredentials = credentialManager.loadPermanentCredentials();
+      // Load from config credentials
+      const configCredentials = credentialManager.loadConfigCredentials();
       
-      if (permanentCredentials.environmentId || permanentCredentials.clientId) {
+      if (configCredentials.environmentId || configCredentials.clientId) {
         setFormData(prev => ({
           ...prev,
-          environmentId: permanentCredentials.environmentId || '',
-          clientId: permanentCredentials.clientId || '',
-          redirectUri: permanentCredentials.redirectUri || prev.redirectUri,
-          scopes: Array.isArray(permanentCredentials.scopes) ? permanentCredentials.scopes.join(' ') : permanentCredentials.scopes || prev.scopes,
-          authEndpoint: permanentCredentials.authEndpoint || prev.authEndpoint,
-          tokenEndpoint: permanentCredentials.tokenEndpoint || prev.tokenEndpoint,
-          userInfoEndpoint: permanentCredentials.userInfoEndpoint || prev.userInfoEndpoint,
-          endSessionEndpoint: permanentCredentials.endSessionEndpoint || prev.endSessionEndpoint
+          environmentId: configCredentials.environmentId || '',
+          clientId: configCredentials.clientId || '',
+          redirectUri: configCredentials.redirectUri || prev.redirectUri,
+          scopes: Array.isArray(configCredentials.scopes) ? configCredentials.scopes.join(' ') : configCredentials.scopes || prev.scopes,
+          authEndpoint: configCredentials.authEndpoint || prev.authEndpoint,
+          tokenEndpoint: configCredentials.tokenEndpoint || prev.tokenEndpoint,
+          userInfoEndpoint: configCredentials.userInfoEndpoint || prev.userInfoEndpoint,
+          endSessionEndpoint: configCredentials.endSessionEndpoint || prev.endSessionEndpoint
         }));
         
         // Show success message
@@ -442,10 +447,11 @@ const Configuration = () => {
 
       console.log('💾 [Configuration] Saving config using credential manager:', configToSave);
 
-      // Save permanent credentials (Environment ID, Client ID, etc.)
-      const permanentSuccess = credentialManager.savePermanentCredentials({
+      // Save configuration-specific credentials (Environment ID, Client ID, etc.)
+      const configSuccess = credentialManager.saveConfigCredentials({
         environmentId: configToSave.environmentId,
         clientId: configToSave.clientId,
+        clientSecret: configToSave.clientSecret,
         redirectUri: configToSave.redirectUri,
         scopes: configToSave.scopes ? configToSave.scopes.split(' ') : ['openid', 'profile', 'email'],
         authEndpoint: configToSave.authEndpoint,
@@ -463,16 +469,19 @@ const Configuration = () => {
       const updatedFlowConfig = {
         ...existingFlowConfig,
         showCredentialsModal: formData.showCredentialsModal,
-        showSuccessModal: formData.showSuccessModal
+        showSuccessModal: formData.showSuccessModal,
+        showUrlDetailsInStep4: formData.showUrlDetailsInStep4
       };
       localStorage.setItem(flowConfigKey, JSON.stringify(updatedFlowConfig));
       console.log('💾 [Configuration] UI settings saved to flow config:', updatedFlowConfig);
 
       // Dispatch custom event to notify other components that config has changed
+      console.log('📡 [Configuration] Dispatching configuration change events...');
       window.dispatchEvent(new CustomEvent('pingone-config-changed'));
       window.dispatchEvent(new CustomEvent('permanent-credentials-changed'));
+      console.log('📡 [Configuration] Configuration change events dispatched');
 
-      console.log('✅ [Configuration] Config saved successfully:', { permanentSuccess });
+      console.log('✅ [Configuration] Config saved successfully:', { configSuccess });
 
       setSaveStatus({
         type: 'success',
@@ -560,13 +569,12 @@ const Configuration = () => {
       </PageHeader>
 
       {/* UI Settings - Moved to top, outside form */}
-      <Card style={{ marginBottom: '2rem', backgroundColor: '#f8f9fa', border: '2px solid #e9ecef' }}>
-        <CardHeader>
-          <h2>🎛️ UI Settings</h2>
-          <p className="subtitle">Configure user interface behavior and modal display options</p>
-        </CardHeader>
-        
-        <CardBody>
+      <CollapsibleSection
+        title="UI Settings"
+        subtitle="Configure user interface behavior and modal display options"
+        icon="🎛️"
+        defaultCollapsed={true}
+      >
           <FormGroup>
             <div className="checkbox-container">
               <input
@@ -633,6 +641,39 @@ const Configuration = () => {
             </div>
           </FormGroup>
 
+          <FormGroup>
+            <div className="checkbox-container">
+              <input
+                type="checkbox"
+                id="showUrlDetailsInStep4"
+                name="showUrlDetailsInStep4"
+                checked={formData.showUrlDetailsInStep4}
+                onChange={(e) => {
+                  console.log('🔧 [Configuration] showUrlDetailsInStep4 changed:', e.target.checked);
+                  setFormData(prev => ({
+                    ...prev,
+                    showUrlDetailsInStep4: e.target.checked
+                  }));
+                  // Auto-save UI settings immediately
+                  const flowConfigKey = 'enhanced-flow-authorization-code';
+                  const existingFlowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
+                  const updatedFlowConfig = {
+                    ...existingFlowConfig,
+                    showUrlDetailsInStep4: e.target.checked
+                  };
+                  localStorage.setItem(flowConfigKey, JSON.stringify(updatedFlowConfig));
+                  console.log('💾 [Configuration] UI settings auto-saved:', updatedFlowConfig);
+                }}
+              />
+              <label htmlFor="showUrlDetailsInStep4">
+                Show URL Details in Step 4
+                <div className="form-text">
+                  Display detailed URL information and parameters in step 4 of the Enhanced Authorization Code Flow
+                </div>
+              </label>
+            </div>
+          </FormGroup>
+
           <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#e9ecef', borderRadius: '0.5rem', border: '1px solid #ced4da' }}>
             <h4 style={{ margin: '0 0 0.5rem 0', color: '#495057' }}>💡 UI Settings Info</h4>
             <p style={{ margin: '0', fontSize: '0.9rem', color: '#6c757d' }}>
@@ -640,8 +681,7 @@ const Configuration = () => {
               Changes are saved automatically and will affect all OAuth flows.
             </p>
           </div>
-        </CardBody>
-      </Card>
+      </CollapsibleSection>
       
       {saveStatus && (
         <StandardMessage
@@ -651,13 +691,11 @@ const Configuration = () => {
         />
       )}
       
-      <Card>
-        <CardHeader>
-          <h2>Environment Settings</h2>
-          <p className="subtitle">Configure your PingOne environment and application details</p>
-        </CardHeader>
-        
-        <CardBody>
+      <CollapsibleSection
+        title="Environment Settings"
+        subtitle="Configure your PingOne environment and application details"
+        defaultCollapsed={true}
+      >
           <form 
             onSubmit={(e) => {
               console.log('🔍 [Configuration] Form onSubmit triggered');
@@ -975,16 +1013,14 @@ const Configuration = () => {
               />
             )}
           </form>
-        </CardBody>
-      </Card>
+      </CollapsibleSection>
       
-      <Card style={{ marginTop: '2rem' }}>
-        <CardHeader>
-          <h2>Configuration Help</h2>
-          <p className="subtitle">How to set up your PingOne application</p>
-        </CardHeader>
-        
-        <CardBody>
+      <CollapsibleSection
+        title="Configuration Help"
+        subtitle="How to set up your PingOne application"
+        icon="❓"
+        defaultCollapsed={true}
+      >
           <div>
             <h3 style={{ marginTop: 0 }}>🔧 PingOne Configuration Required</h3>
             <p>To use this OAuth Playground, you need to configure your PingOne environment:</p>
@@ -1135,8 +1171,7 @@ const Configuration = () => {
               </em>
             </p>
           </div>
-        </CardBody>
-      </Card>
+      </CollapsibleSection>
 
       {/* Discovery Panel */}
       {showDiscoveryPanel && (
