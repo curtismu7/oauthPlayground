@@ -103,13 +103,20 @@ const ResponseBox = styled.div<{ $backgroundColor?: string; $borderColor?: strin
 
 
 const ImplicitFlowOIDC: React.FC = () => {
-  const { config } = useAuth();
+  const { config: globalConfig } = useAuth();
   const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [currentStep, setCurrentStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [authUrl, setAuthUrl] = useState<string>('');
   const [stepResults, setStepResults] = useState<Record<number, unknown>>({});
   const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
+  const [flowCredentials, setFlowCredentials] = useState({
+    environmentId: '',
+    clientId: '',
+    clientSecret: '',
+    redirectUri: '',
+    additionalScopes: ''
+  });
   const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
 
   const startImplicitFlow = () => {
@@ -146,36 +153,41 @@ const ImplicitFlowOIDC: React.FC = () => {
     {
       title: 'Client Prepares Authorization Request',
       description: 'The client application prepares an authorization request with OpenID Connect parameters.',
-      code: `GET ${config?.authorizationEndpoint || config?.authEndpoint || 'https://auth.pingone.com/YOUR_ENV_ID/as/authorize'}?
-  client_id=${config?.clientId || 'your_client_id'}
-  &redirect_uri=${config?.redirectUri || 'https://your-app.com/callback'}
+      code: `GET ${flowCredentials.environmentId ? `https://auth.pingone.com/${flowCredentials.environmentId}/as/authorize` : 'https://auth.pingone.com/YOUR_ENV_ID/as/authorize'}?
+  client_id=${flowCredentials.clientId || 'your_client_id'}
+  &redirect_uri=${flowCredentials.redirectUri || 'https://your-app.com/callback'}
   &response_type=id_token token
-  &scope=${config?.scopes?.join(' ') || 'openid profile email'}
+  &scope=${flowCredentials.additionalScopes || 'openid profile email'}
   &nonce=${Math.random().toString(36).substring(2, 15)}
   &state=${Math.random().toString(36).substring(2, 15)}`,
       execute: () => {
-        console.log('🔍 [ImplicitFlowOIDC] Config in execute:', config);
-        console.log('🔍 [ImplicitFlowOIDC] authorizationEndpoint:', config.pingone.authEndpoint);
-        console.log('🔍 [ImplicitFlowOIDC] authEndpoint:', config.pingone.authEndpoint);
-        console.log('🔍 [ImplicitFlowOIDC] environmentId:', config.pingone.environmentId);
+        console.log('🔍 [ImplicitFlowOIDC] Global config:', globalConfig);
+        console.log('🔍 [ImplicitFlowOIDC] Flow credentials:', flowCredentials);
         
-        if (!config) {
+        // Use flow credentials if available, otherwise fall back to global config
+        const credentials = flowCredentials.environmentId ? flowCredentials : globalConfig;
+        
+        if (!credentials || !credentials.environmentId) {
           setError('Configuration required. Please configure your PingOne settings first.');
           return;
         }
 
+        // Use the redirect URI from credentials if available, otherwise use the callback URL
+        const redirectUri = flowCredentials.redirectUri || getCallbackUrlForFlow('implicit');
+        
         const params = new URLSearchParams({
-          client_id: config.pingone.clientId,
-          redirect_uri: getCallbackUrlForFlow('implicit'),
+          client_id: credentials.clientId,
+          redirect_uri: redirectUri,
           response_type: 'id_token token',
-          scope: config.scopes?.join(' ') || 'openid profile email',
+          scope: flowCredentials.additionalScopes || 'openid profile email',
           nonce: Math.random().toString(36).substring(2, 15),
           state: Math.random().toString(36).substring(2, 15),
         });
 
-        // Construct authorization endpoint if not available
-        const authEndpoint = config.pingone.authEndpoint;
-        console.log('🔍 [ImplicitFlowOIDC] Final authEndpoint after replacement:', authEndpoint);
+        // Construct authorization endpoint
+        const authEndpoint = credentials.authEndpoint || `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
+        console.log('🔍 [ImplicitFlowOIDC] Final authEndpoint:', authEndpoint);
+        console.log('🔍 [ImplicitFlowOIDC] Redirect URI:', redirectUri);
         const url = `${authEndpoint}?${params.toString()}`;
         console.log('🔍 [ImplicitFlowOIDC] Final URL constructed:', url);
 
@@ -369,6 +381,7 @@ console.log('✅ ID token validation successful');`,
         flowType="implicit"
         onCredentialsChange={(credentials) => {
           console.log('Implicit OIDC flow credentials updated:', credentials);
+          setFlowCredentials(credentials);
         }}
       />
 
