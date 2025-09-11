@@ -763,6 +763,19 @@ class CredentialManager {
     console.log('🔍 [CredentialManager] pingone_config:', localStorage.getItem('pingone_config'));
     console.log('🔍 [CredentialManager] login_credentials:', localStorage.getItem('login_credentials'));
   }
+
+  /**
+   * Clear the cache to force fresh data loading
+   */
+  clearCache(): void {
+    this.cache = {
+      permanent: null,
+      session: null,
+      all: null,
+      timestamp: null
+    };
+    console.log('🧹 [CredentialManager] Cache cleared');
+  }
 }
 
 // Export singleton instance
