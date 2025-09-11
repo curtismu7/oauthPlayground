@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { FiSettings } from 'react-icons/fi';
 import { FlowConfiguration, type FlowConfig } from './FlowConfiguration';
@@ -102,6 +102,20 @@ const ConfigurationButton: React.FC<ConfigurationButtonProps> = ({
     const defaultConfig = getDefaultConfig(flowType);
     return { ...defaultConfig, ...currentConfig };
   });
+
+  // Handle escape key to close modal
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && showModal) {
+        setShowModal(false);
+      }
+    };
+
+    if (showModal) {
+      document.addEventListener('keydown', handleEscape);
+      return () => document.removeEventListener('keydown', handleEscape);
+    }
+  }, [showModal]);
 
   const handleConfigChange = (newConfig: FlowConfig) => {
     setConfig(newConfig);

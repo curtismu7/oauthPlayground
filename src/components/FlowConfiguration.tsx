@@ -317,6 +317,7 @@ export interface FlowConfig {
   
   // UI settings
   showSuccessModal: boolean;
+  showAuthCodeInModal: boolean;
   showCredentialsModal: boolean;
 }
 
@@ -354,7 +355,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
-  const { announceToScreenReader } = useAccessibility();
+  const { announce } = useAccessibility();
 
   const updateConfig = (updates: Partial<FlowConfig>) => {
     onConfigChange({ ...config, ...updates });
@@ -365,7 +366,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
       ? config.scopes.filter(s => s !== scope)
       : [...config.scopes, scope];
     updateConfig({ scopes: newScopes });
-    announceToScreenReader(`${scope} scope ${config.scopes.includes(scope) ? 'removed' : 'added'}`);
+    announce(`${scope} scope ${config.scopes.includes(scope) ? 'removed' : 'added'}`);
   };
 
   const addCustomParam = () => {
@@ -435,11 +436,11 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
     try {
       await navigator.clipboard.writeText(text);
       setCopiedField(field);
-      announceToScreenReader(`${field} copied to clipboard`);
+      announce(`${field} copied to clipboard`);
       setTimeout(() => setCopiedField(null), 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
-      announceToScreenReader('Failed to copy to clipboard');
+      announce('Failed to copy to clipboard');
     }
   };
 
@@ -469,7 +470,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
       
       // Show success message
       setShowSuccessMessage(true);
-      announceToScreenReader('Configuration saved successfully');
+      announce('Configuration saved successfully');
       
       // Hide success message after 3 seconds
       setTimeout(() => {
@@ -477,7 +478,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
       }, 3000);
     } catch (error) {
       console.error('Failed to save configuration:', error);
-      announceToScreenReader('Failed to save configuration');
+      announce('Failed to save configuration');
     } finally {
       setIsSaving(false);
     }
@@ -781,6 +782,21 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
               </label>
               <div id="success-modal-help" style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>
                 Display a modal with authorization success details when returning from PingOne
+              </div>
+            </ConfigField>
+            
+            <ConfigField>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={config.showAuthCodeInModal}
+                  onChange={(e) => updateConfig({ showAuthCodeInModal: e.target.checked })}
+                  aria-describedby="auth-code-display-help"
+                />
+                Show Authorization Code in Modal
+              </label>
+              <div id="auth-code-display-help" style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                Display the raw authorization code in the success modal (disable for production security)
               </div>
             </ConfigField>
           </ConfigSection>
