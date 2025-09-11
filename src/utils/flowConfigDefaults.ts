@@ -28,6 +28,7 @@ export const getAuthorizationCodeConfig = (): FlowConfig => ({
   loginHint: '',
   acrValues: [],
   showSuccessModal: true,
+  showAuthCodeInModal: true,
   showCredentialsModal: true
 });
 
@@ -49,6 +50,7 @@ export const getPKCEConfig = (): FlowConfig => ({
   loginHint: '',
   acrValues: [],
   showSuccessModal: true,
+  showAuthCodeInModal: true,
   showCredentialsModal: true
 });
 
@@ -70,6 +72,7 @@ export const getImplicitConfig = (): FlowConfig => ({
   loginHint: '',
   acrValues: [],
   showSuccessModal: true,
+  showAuthCodeInModal: true,
   showCredentialsModal: true
 });
 
@@ -91,6 +94,7 @@ export const getClientCredentialsConfig = (): FlowConfig => ({
   loginHint: '',
   acrValues: [],
   showSuccessModal: true,
+  showAuthCodeInModal: true,
   showCredentialsModal: true
 });
 
@@ -112,6 +116,7 @@ export const getDeviceCodeConfig = (): FlowConfig => ({
   loginHint: '',
   acrValues: [],
   showSuccessModal: true,
+  showAuthCodeInModal: true,
   showCredentialsModal: true
 });
 
@@ -133,6 +138,7 @@ export const getRefreshTokenConfig = (): FlowConfig => ({
   loginHint: '',
   acrValues: [],
   showSuccessModal: true,
+  showAuthCodeInModal: true,
   showCredentialsModal: true
 });
 
@@ -154,6 +160,7 @@ export const getPasswordGrantConfig = (): FlowConfig => ({
   loginHint: '',
   acrValues: [],
   showSuccessModal: true,
+  showAuthCodeInModal: true,
   showCredentialsModal: true
 });
 

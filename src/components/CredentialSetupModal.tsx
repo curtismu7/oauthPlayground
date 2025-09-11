@@ -242,6 +242,20 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
     login_credentials: Record<string, unknown>;
   } | null>(null);
 
+  // Handle escape key to close modal
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isOpen) {
+        onComplete();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      return () => document.removeEventListener('keydown', handleEscape);
+    }
+  }, [isOpen, onComplete]);
+
   // Load credentials from environment variables
   const loadFromEnvironmentVariables = async () => {
     try {
@@ -426,8 +440,8 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
       // Add minimum delay to ensure spinner is visible
       const minDelay = new Promise(resolve => setTimeout(resolve, 500));
       
-      // Save permanent credentials (Environment ID, Client ID, etc.)
-      const permanentSuccess = credentialManager.savePermanentCredentials({
+      // Save configuration credentials (Environment ID, Client ID, etc.)
+      const permanentSuccess = credentialManager.saveConfigCredentials({
         environmentId: formData.environmentId,
         clientId: formData.clientId,
         redirectUri: formData.redirectUri,
