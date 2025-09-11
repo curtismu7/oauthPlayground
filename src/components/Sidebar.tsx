@@ -145,7 +145,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       if (saved) {
         const parsed = JSON.parse(saved);
         return {
-          oauth: parsed.oauth ?? true,  // Default to expanded
+          oauth: parsed.oauth ?? false,  // Default to collapsed
           oidc: parsed.oidc ?? true,  // Default to expanded
           resources: parsed.resources ?? true, // Default to expanded
           docs: parsed.docs ?? false, // Default to collapsed
@@ -155,7 +155,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       console.warn('Failed to load navigation state from localStorage:', error);
     }
     return {
-      oauth: true,  // Default to expanded
+      oauth: false,  // Default to collapsed
       oidc: true,  // Default to expanded
       resources: true, // Default to expanded
       docs: false, // Default to collapsed
@@ -172,9 +172,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         oauth: (path.startsWith('/flows') && !path.includes('enhanced-authorization-code-v2')) || prev.oauth,
         oidc: path.startsWith('/oidc') || path.includes('enhanced-authorization-code-v2') || prev.oidc,
         resources: (path.startsWith('/oidc/userinfo') || path.startsWith('/oidc/tokens') || 
-                   path.startsWith('/token-management') || path.startsWith('/documentation') ||
-                   path.startsWith('/flows/compare') || path.startsWith('/flows/diagrams') ||
-                   path.startsWith('/flows/par')) || prev.resources,
+                   path.startsWith('/token-management') || path.startsWith('/auto-discover') ||
+                   path.startsWith('/documentation') || path.startsWith('/flows/compare') || 
+                   path.startsWith('/flows/diagrams') || path.startsWith('/flows/par')) || prev.resources,
         docs: path.startsWith('/docs') || prev.docs,
       };
       
@@ -337,6 +337,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           <Submenu $isOpen={openMenus.resources}>
             <SubmenuItem to="/token-management" onClick={onClose}>
               Token Management
+            </SubmenuItem>
+            <SubmenuItem to="/auto-discover" onClick={onClose}>
+              Auto-Discover
             </SubmenuItem>
             <SubmenuItem to="/flows/par" onClick={onClose}>
               Pushed Authorization
