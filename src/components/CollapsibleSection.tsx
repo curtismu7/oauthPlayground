@@ -11,7 +11,9 @@ interface CollapsibleSectionProps {
   className?: string;
 }
 
-const SectionContainer = styled.div<{ collapsed: boolean }>`
+const SectionContainer = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'collapsed' && prop !== '$collapsed'
+})<{ $collapsed: boolean }>`
   margin-bottom: 2rem;
   background: white;
   border-radius: 0.75rem;
@@ -60,7 +62,9 @@ const Subtitle = styled.p`
   font-weight: 400;
 `;
 
-const ChevronIcon = styled.div<{ collapsed: boolean }>`
+const ChevronIcon = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'collapsed' && prop !== '$collapsed'
+})<{ $collapsed: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -70,7 +74,7 @@ const ChevronIcon = styled.div<{ collapsed: boolean }>`
   background: white;
   border: 1px solid #d1d5db;
   transition: all 0.2s ease;
-  transform: ${({ collapsed }) => collapsed ? 'rotate(0deg)' : 'rotate(90deg)'};
+  transform: ${({ $collapsed }) => $collapsed ? 'rotate(0deg)' : 'rotate(90deg)'};
 
   &:hover {
     background: #f9fafb;
@@ -78,12 +82,14 @@ const ChevronIcon = styled.div<{ collapsed: boolean }>`
   }
 `;
 
-const SectionContent = styled.div<{ collapsed: boolean }>`
-  padding: ${({ collapsed }) => collapsed ? '0' : '1.5rem'};
-  max-height: ${({ collapsed }) => collapsed ? '0' : 'none'};
+const SectionContent = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'collapsed' && prop !== '$collapsed'
+})<{ $collapsed: boolean }>`
+  padding: ${({ $collapsed }) => $collapsed ? '0' : '1.5rem'};
+  max-height: ${({ $collapsed }) => $collapsed ? '0' : 'none'};
   overflow: hidden;
-  opacity: ${({ collapsed }) => collapsed ? '0' : '1'};
-  visibility: ${({ collapsed }) => collapsed ? 'hidden' : 'visible'};
+  opacity: ${({ $collapsed }) => $collapsed ? '0' : '1'};
+  visibility: ${({ $collapsed }) => $collapsed ? 'hidden' : 'visible'};
   transition: all 0.3s ease;
 `;
 
@@ -102,7 +108,7 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   };
 
   return (
-    <SectionContainer collapsed={collapsed} className={className}>
+    <SectionContainer $collapsed={collapsed} className={className}>
       <SectionHeader onClick={handleToggle}>
         <SectionTitle>
           <TitleText>
@@ -111,11 +117,11 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
           </TitleText>
           {subtitle && <Subtitle>{subtitle}</Subtitle>}
         </SectionTitle>
-        <ChevronIcon collapsed={collapsed}>
+        <ChevronIcon $collapsed={collapsed}>
           {collapsed ? <FiChevronRight size={16} /> : <FiChevronDown size={16} />}
         </ChevronIcon>
       </SectionHeader>
-      <SectionContent collapsed={collapsed}>
+      <SectionContent $collapsed={collapsed}>
         {children}
       </SectionContent>
     </SectionContainer>
