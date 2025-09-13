@@ -149,7 +149,7 @@ const ServerHealthCheck: React.FC<ServerHealthCheckProps> = ({ onDismiss }) => {
           'Accept': 'application/json',
         },
         // Add timeout
-        signal: AbortSignal.timeout(5000)
+        signal: AbortSignal.timeout(10000)
       });
       
       if (response.ok) {
@@ -165,9 +165,13 @@ const ServerHealthCheck: React.FC<ServerHealthCheckProps> = ({ onDismiss }) => {
     }
   };
 
-  // Initial check
+  // Initial check with delay to allow backend to start
   useEffect(() => {
-    checkServerHealth();
+    const timer = setTimeout(() => {
+      checkServerHealth();
+    }, 2000); // 2 second delay
+    
+    return () => clearTimeout(timer);
   }, []);
 
   // Periodic checks every 30 seconds
