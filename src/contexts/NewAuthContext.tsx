@@ -571,11 +571,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         bothExist: !!(state && storedState)
       });
       
+      // Only validate state if both exist - be more lenient for development
       if (state && storedState && state !== storedState) {
         const errorMessage = 'Invalid state parameter. Possible CSRF attack.';
         logger.error('NewAuthContext', 'State validation failed', { received: state, expected: storedState });
         updateState({ error: errorMessage, isLoading: false });
         return { success: false, error: errorMessage };
+      }
+      
+      // If we have a state but no stored state, log a warning but don't fail
+      if (state && !storedState) {
+        logger.warn('NewAuthContext', 'State received but no stored state found - this may happen if sessionStorage was cleared', { received: state });
       }
       
       // Log state validation for debugging
@@ -598,6 +604,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
         updateState({ error: errorMessage, isLoading: false });
         return { success: false, error: errorMessage };
+      }
+
+      // EARLY GATE: If this callback is for Enhanced Authorization Code Flow V2,
+      // do not perform any credential validation or token exchange here.
+      try {
+        const flowContextRawEarly = sessionStorage.getItem('flowContext');
+        if (flowContextRawEarly) {
+          const parsedEarly = JSON.parse(flowContextRawEarly);
+          const isEnhancedV2Early = parsedEarly?.flow === 'enhanced-authorization-code-v2';
+          if (isEnhancedV2Early) {
+            // Persist auth code and state for the flow page to handle later
+            sessionStorage.setItem('oauth_auth_code', code);
+            if (state) sessionStorage.setItem('oauth_state', state);
+            const returnPathEarly = parsedEarly?.returnPath || '/flows/enhanced-authorization-code-v2?step=4';
+            logger.auth('NewAuthContext', 'Early deferral: Enhanced Auth Code Flow V2 detected; skipping token exchange in context', { returnPath: returnPathEarly });
+            return { success: true, redirectUrl: returnPathEarly };
+          }
+        }
+      } catch (e) {
+        logger.warn('NewAuthContext', 'Failed to parse flowContext during early gating', e as unknown as string);
       }
       
       // Determine the redirect URI used in the authorization request
@@ -646,17 +672,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
           // Import credential manager dynamically to avoid circular dependency
           const { credentialManager } = await import('../utils/credentialManager');
-          // Try to load from config credentials first, then fall back to authz flow credentials
-          let credentials = credentialManager.loadConfigCredentials();
+          // Prefer Authorization Code flow credentials; fall back to dashboard/config only if missing
+          let credentials = credentialManager.loadAuthzFlowCredentials();
           if (!credentials.environmentId && !credentials.clientId) {
-            credentials = credentialManager.loadAuthzFlowCredentials();
+            credentials = credentialManager.loadConfigCredentials();
           }
-          
+
           clientId = clientId || credentials.clientId || '';
           clientSecret = clientSecret || credentials.clientSecret || '';
           environmentId = environmentId || credentials.environmentId || '';
-          
-          console.log('🔧 [NewAuthContext] Fallback credentials loaded:', {
+
+          console.log('🔧 [NewAuthContext] Fallback credentials loaded (preferring AuthZ):', {
             hasClientId: !!clientId,
             hasClientSecret: !!clientSecret,
             hasEnvironmentId: !!environmentId
@@ -680,6 +706,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!redirectUri || redirectUri.trim() === '') {
         console.error('❌ [NewAuthContext] CRITICAL: redirectUri is empty!', { clientId, environmentId, redirectUri });
         throw new Error('Redirect URI is required for token exchange. Please configure your OAuth credentials first.');
+      }
+
+      // If this callback belongs to the Enhanced Authorization Code Flow V2,
+      // do NOT auto-exchange here. Defer token exchange to the flow page to avoid double-use of the code.
+      try {
+        const flowContextRaw = sessionStorage.getItem('flowContext');
+        if (flowContextRaw) {
+          const parsed = JSON.parse(flowContextRaw);
+          const isEnhancedV2 = parsed?.flow === 'enhanced-authorization-code-v2';
+          if (isEnhancedV2) {
+            // Persist auth code and state for the flow page
+            if (code) {
+              sessionStorage.setItem('oauth_auth_code', code);
+            }
+            if (state) {
+              sessionStorage.setItem('oauth_state', state);
+            }
+            const returnPath = parsed?.returnPath || '/flows/enhanced-authorization-code-v2?step=4';
+            logger.auth('NewAuthContext', 'Deferring token exchange to Enhanced Auth Code Flow V2 page', { returnPath });
+            return { success: true, redirectUrl: returnPath };
+          }
+        }
+      } catch (e) {
+        // Non-fatal: if flowContext is malformed, proceed with normal handling
+        logger.warn('NewAuthContext', 'Failed to inspect flowContext for enhanced flow gating', e as unknown as string);
       }
 
       // Exchange code for tokens
