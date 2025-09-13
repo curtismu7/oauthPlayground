@@ -127,15 +127,19 @@ const AuthzCallback: React.FC = () => {
             
             let redirectUrl = result.redirectUrl || '/';
             
-            // If we have a return path and authorization code, preserve the code and state
-            if (code && redirectUrl.includes('enhanced-authorization-code-v2')) {
-              const url = new URL(redirectUrl, window.location.origin);
-              url.searchParams.set('code', code);
-              if (state) {
-                url.searchParams.set('state', state);
-              }
-              redirectUrl = url.toString();
-              console.log('🔧 [AuthzCallback] Preserving code and state in redirect URL:', redirectUrl);
+            console.log('🔍 [AuthzCallback] Debug redirect info:', {
+              code: code ? `${code.substring(0, 10)}...` : 'none',
+              state: state ? `${state.substring(0, 10)}...` : 'none',
+              redirectUrl,
+              hasEnhancedV2: redirectUrl.includes('enhanced-authorization-code-v2'),
+              hasFlows: redirectUrl.includes('/flows/')
+            });
+            
+            // For Enhanced Authorization Code Flow V2, we don't need to preserve code and state in the URL
+            // because the flow will handle them from the callback URL parameters
+            if (code && (redirectUrl.includes('enhanced-authorization-code-v2') || redirectUrl.includes('/flows/'))) {
+              console.log('🔧 [AuthzCallback] Enhanced flow detected, using return path as-is:', redirectUrl);
+              // Don't modify the redirectUrl - let the flow handle the code and state from the callback
             }
             
             // Redirect after a short delay for non-popup
