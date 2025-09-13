@@ -1249,6 +1249,10 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     const generatedState = Math.random().toString(36).substring(2, 15);
     setState(generatedState);
     
+    // Store state in sessionStorage for CSRF protection validation
+    sessionStorage.setItem('oauth_state', generatedState);
+    console.log('🔐 [EnhancedAuthorizationCodeFlowV2] Stored state for CSRF protection:', generatedState);
+    
     // Debug: Log all credential values
     console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Current credentials:', {
       clientId: credentials.clientId,
@@ -1551,11 +1555,9 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     try {
       setIsExchangingTokens(true);
       
-      // Mark this authorization code as used and clear it immediately to prevent reuse
+      // Store the auth code for validation but don't clear it yet
       setUsedAuthCode(currentAuthCode);
-      setAuthCode(''); // Clear from component state
-      sessionStorage.removeItem('oauth_auth_code'); // Clear from sessionStorage
-      console.log('🧹 [EnhancedAuthCodeFlowV2] Cleared authorization code to prevent reuse');
+      console.log('🔐 [EnhancedAuthCodeFlowV2] Using authorization code for token exchange:', currentAuthCode.substring(0, 10) + '...');
       
       // FINAL VALIDATION - This is the last chance to catch empty values
       console.log('🔍 [EnhancedAuthCodeFlowV2] Final validation before request body construction:', {
@@ -1613,6 +1615,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         environment_id: requestBody.environment_id,
         has_code_verifier: !!requestBody.code_verifier
       });
+      
+      console.log('🔍 [EnhancedAuthCodeFlowV2] Full request body for debugging:', JSON.stringify(requestBody, null, 2));
 
       // CRITICAL: Final check before sending
       if (requestBody.client_id === '' || !requestBody.client_id) {
@@ -1658,10 +1662,11 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       // Show success message
       updateStepMessage('exchange-tokens', '🎉 Token exchange successful! You now have access and refresh tokens. The OAuth flow is complete!');
       
-      // Clear the authorization code after successful exchange to prevent reuse
+      // Clear the authorization code and state after successful exchange to prevent reuse
       setAuthCode('');
       sessionStorage.removeItem('oauth_auth_code');
-      console.log('🧹 [EnhancedAuthCodeFlowV2] Cleared authorization code after successful exchange');
+      sessionStorage.removeItem('oauth_state');
+      console.log('🧹 [EnhancedAuthCodeFlowV2] Cleared authorization code and state after successful exchange');
     } catch (error) {
       logger.error('EnhancedAuthorizationCodeFlowV2', 'Token exchange failed', String(error));
       setIsExchangingTokens(false);
@@ -1671,6 +1676,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       
       // Provide more specific error messages
       if (String(error).includes('Invalid Grant')) {
+        // Show a more helpful message for Invalid Grant errors
+        updateStepMessage('exchange-tokens', '❌ Authorization code has expired or been used already. Click "Clear & Start Fresh" below to begin a new OAuth flow.');
         throw new Error('Authorization code has expired or been used already. Please start a new OAuth flow to get a fresh authorization code.');
       } else if (String(error).includes('Client ID is required')) {
         throw new Error('OAuth credentials are missing. Please go back to Step 1 and save your credentials first.');
@@ -2531,6 +2538,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                   sessionStorage.removeItem('oauth_auth_code');
                   sessionStorage.removeItem('code_verifier');
                   sessionStorage.removeItem('code_challenge');
+                  sessionStorage.removeItem('oauth_state');
                   setAuthCode('');
                   setCallbackError(null);
                   setCallbackSuccess(false);
@@ -2592,14 +2600,11 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       </div>
     ),
       canExecute: (() => {
-        const canExec = Boolean(authCode && credentials.environmentId && credentials.clientId);
+        // Enable Next on Step 4 as soon as we have an auth code
+        const canExec = Boolean(authCode);
         console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Handle Callback canExecute check:', {
           authCode: !!authCode,
           authCodeValue: authCode,
-          environmentId: !!credentials.environmentId,
-          environmentIdValue: credentials.environmentId,
-          clientId: !!credentials.clientId,
-          clientIdValue: credentials.clientId,
           canExecute: canExec
         });
         return canExec;
@@ -2614,7 +2619,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       content: (
         <div>
           {stepMessages['exchange-tokens'] && (
-            <InfoBox type="info">
+            <InfoBox type="success">
               <div>{stepMessages['exchange-tokens']}</div>
             </InfoBox>
           )}
@@ -2740,22 +2745,35 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                 sessionStorage.removeItem('oauth_auth_code');
                 sessionStorage.removeItem('code_verifier');
                 sessionStorage.removeItem('code_challenge');
+                sessionStorage.removeItem('oauth_state');
                 setAuthCode('');
                 setCallbackError(null);
                 setCallbackSuccess(false);
                 setCurrentStepIndex(0);
                 sessionStorage.removeItem('enhanced-authz-code-v2-step');
+                // Clear any error messages
+                updateStepMessage('exchange-tokens', '');
                 console.log('🧹 [EnhancedAuthorizationCodeFlowV2] Cleared all OAuth state, starting fresh');
               }}
               style={{
                 padding: '0.75rem 1.5rem',
-                backgroundColor: '#6b7280',
+                backgroundColor: '#dc2626',
                 color: 'white',
                 border: 'none',
                 borderRadius: '0.5rem',
                 cursor: 'pointer',
                 fontSize: '0.875rem',
-                fontWeight: '500'
+                fontWeight: '600',
+                boxShadow: '0 4px 6px -1px rgba(220, 38, 38, 0.3)',
+                transition: 'all 0.2s'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.backgroundColor = '#b91c1c';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.backgroundColor = '#dc2626';
+                e.currentTarget.style.transform = 'translateY(0)';
               }}
             >
               🧹 Clear & Start Fresh OAuth Flow
@@ -2763,16 +2781,17 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             <p style={{ 
               marginTop: '0.5rem', 
               fontSize: '0.75rem', 
-              color: '#6b7280' 
+              color: '#dc2626',
+              fontWeight: '500'
             }}>
-              Use this if you're getting "Invalid Grant" errors with expired codes
+              ⚠️ Use this if you're getting "Invalid Grant" errors with expired codes
             </p>
           </div>
 
           {/* Message near buttons */}
           {stepMessages['exchange-tokens'] && (
             <div style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>
-              <InfoBox type="info">
+              <InfoBox type="success">
                 <div>{stepMessages['exchange-tokens']}</div>
               </InfoBox>
             </div>
@@ -2954,40 +2973,27 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           borderRadius: '0.75rem',
           marginBottom: '2rem',
           boxShadow: '0 10px 25px -5px rgba(16, 185, 129, 0.3)',
-          border: '1px solid #059669',
-          position: 'relative',
-          overflow: 'hidden'
+          border: '1px solid #059669'
         }}>
-          <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="4"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
-            opacity: 0.1
-          }} />
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
-              <FiCheckCircle size={32} />
-              <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold' }}>
-                🎉 Authorization Successful!
-              </h3>
-            </div>
-            <p style={{ margin: 0, fontSize: '1.1rem', opacity: 0.9 }}>
-              You've successfully returned from PingOne authentication. Your authorization code has been received and you can now proceed with the token exchange.
-            </p>
-            {tokens && (
-              <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'rgba(255,255,255,0.2)', borderRadius: '0.5rem' }}>
-                <strong>✅ Tokens Exchanged Successfully!</strong> - Access token, refresh token, and ID token have been received.
-              </div>
-            )}
-            {userInfo && (
-              <div style={{ marginTop: '0.5rem', padding: '0.75rem', background: 'rgba(255,255,255,0.2)', borderRadius: '0.5rem' }}>
-                <strong>👤 User Information Retrieved!</strong> - User profile data has been successfully fetched.
-              </div>
-            )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
+            <FiCheckCircle size={32} />
+            <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold' }}>
+              🎉 Authorization Successful!
+            </h3>
           </div>
+          <p style={{ margin: 0, fontSize: '1.1rem', opacity: 0.9 }}>
+            You've successfully returned from PingOne authentication. Your authorization code has been received and you can now proceed with the token exchange.
+          </p>
+          {tokens && (
+            <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'rgba(255,255,255,0.2)', borderRadius: '0.5rem' }}>
+              <strong>✅ Tokens Exchanged Successfully!</strong> - Access token, refresh token, and ID token have been received.
+            </div>
+          )}
+          {userInfo && (
+            <div style={{ marginTop: '0.5rem', padding: '0.75rem', background: 'rgba(255,255,255,0.2)', borderRadius: '0.5rem' }}>
+              <strong>👤 User Information Retrieved!</strong> - User profile data has been successfully fetched.
+            </div>
+          )}
         </div>
       )}
 
