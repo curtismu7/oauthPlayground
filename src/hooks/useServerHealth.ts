@@ -22,7 +22,7 @@ export const useServerHealth = (checkInterval: number = 30000) => {
     
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
       
       const response = await fetch('/api/health', {
         method: 'GET',
@@ -63,9 +63,13 @@ export const useServerHealth = (checkInterval: number = 30000) => {
     }
   }, []);
 
-  // Initial check
+  // Initial check with delay to allow backend to start
   useEffect(() => {
-    checkHealth();
+    const timer = setTimeout(() => {
+      checkHealth();
+    }, 2000); // 2 second delay
+    
+    return () => clearTimeout(timer);
   }, [checkHealth]);
 
   // Periodic checks
