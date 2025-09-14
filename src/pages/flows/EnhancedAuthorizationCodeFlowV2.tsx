@@ -240,10 +240,12 @@ const CopyButton = styled.button`
 `;
 
 const ParameterBreakdown = styled.div`
-  background: #f9fafb;
+  background: linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%);
+  border: 1px solid #d1e7ff;
   padding: 1rem;
   border-radius: 0.5rem;
   margin: 1rem 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 `;
 
 const ParameterItem = styled.div`
@@ -272,9 +274,9 @@ const ParameterValue = styled.span`
 `;
 
 const JsonDisplay = styled.div`
-  background: #f9fafb;
+  background: linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%);
   color: #1f2937;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #d1e7ff;
   border-radius: 0.5rem;
   padding: 1rem;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -282,6 +284,7 @@ const JsonDisplay = styled.div`
   line-height: 1.5;
   overflow-x: auto;
   white-space: pre-wrap;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   position: relative;
 `;
 
@@ -2936,6 +2939,122 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                 All tokens are valid and user information retrieved successfully.
               </div>
             </InfoBox>
+          )}
+
+          {/* Token Decode Buttons */}
+          {tokens && (
+            <div style={{ marginTop: '2rem', padding: '1.5rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '0.75rem' }}>
+              <h4 style={{ margin: '0 0 1rem 0', color: '#1f2937', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <FiKey />
+                Token Management
+              </h4>
+              <p style={{ margin: '0 0 1.5rem 0', color: '#6b7280', fontSize: '0.9rem' }}>
+                Decode and inspect your tokens to see their contents and claims.
+              </p>
+              
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                <button
+                  onClick={() => {
+                    if (tokens.access_token) {
+                      // Copy access token to clipboard
+                      navigator.clipboard.writeText(tokens.access_token).then(() => {
+                        console.log('✅ Access token copied to clipboard');
+                      });
+                      
+                      // Navigate to token management page
+                      window.location.href = '/token-management';
+                    }
+                  }}
+                  disabled={!tokens.access_token}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.75rem 1.5rem',
+                    background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '0.5rem',
+                    fontSize: '0.875rem',
+                    fontWeight: '600',
+                    cursor: tokens.access_token ? 'pointer' : 'not-allowed',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)',
+                    opacity: tokens.access_token ? 1 : 0.5
+                  }}
+                  onMouseOver={(e) => {
+                    if (tokens.access_token) {
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                      e.currentTarget.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.4)';
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    if (tokens.access_token) {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.3)';
+                    }
+                  }}
+                >
+                  <FiKey />
+                  Decode Access Token
+                </button>
+
+                <button
+                  onClick={() => {
+                    if (tokens.id_token) {
+                      // Copy ID token to clipboard
+                      navigator.clipboard.writeText(tokens.id_token).then(() => {
+                        console.log('✅ ID token copied to clipboard');
+                      });
+                      
+                      // Navigate to token management page
+                      window.location.href = '/token-management';
+                    }
+                  }}
+                  disabled={!tokens.id_token}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.75rem 1.5rem',
+                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '0.5rem',
+                    fontSize: '0.875rem',
+                    fontWeight: '600',
+                    cursor: tokens.id_token ? 'pointer' : 'not-allowed',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 2px 4px rgba(16, 185, 129, 0.3)',
+                    opacity: tokens.id_token ? 1 : 0.5
+                  }}
+                  onMouseOver={(e) => {
+                    if (tokens.id_token) {
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                      e.currentTarget.style.boxShadow = '0 4px 8px rgba(16, 185, 129, 0.4)';
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    if (tokens.id_token) {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = '0 2px 4px rgba(16, 185, 129, 0.3)';
+                    }
+                  }}
+                >
+                  <FiShield />
+                  Decode ID Token
+                </button>
+              </div>
+
+              <div style={{ marginTop: '1rem', fontSize: '0.8rem', color: '#6b7280' }}>
+                <p style={{ margin: '0 0 0.5rem 0' }}>
+                  <strong>Access Token:</strong> {tokens.access_token ? 'Available' : 'Not available'}
+                </p>
+                <p style={{ margin: '0' }}>
+                  <strong>ID Token:</strong> {tokens.id_token ? 'Available' : 'Not available'}
+                </p>
+              </div>
+            </div>
           )}
         </div>
       ),
