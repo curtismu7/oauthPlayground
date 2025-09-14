@@ -221,6 +221,31 @@ const StepCount = styled.div`
   font-weight: 500;
 `;
 
+const SuccessMessage = styled.div`
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
+  animation: slideIn 0.3s ease-out;
+  
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+`;
+
 // Step Content Area
 const StepContent = styled.div`
   background: white;
@@ -719,12 +744,16 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
   }, [saveState]);
 
   // Get step status
-  const getStepStatus = useCallback((stepIndex: number): 'completed' | 'active' | 'pending' | 'error' => {
+  const getStepStatus = useCallback((stepIndex: number): 'completed' | 'active' | 'pending' | 'error' | 'success' => {
     if (stepIndex < currentStepIndex) {
       const history = stepHistory.find(h => h.stepId === steps[stepIndex]?.id);
-      return history?.error ? 'error' : 'completed';
+      if (history?.error) return 'error';
+      if (history?.result) return 'completed';
+      return 'completed';
     }
     if (stepIndex === currentStepIndex) {
+      const history = stepHistory.find(h => h.stepId === steps[stepIndex]?.id);
+      if (history?.result && !history?.error) return 'success';
       return 'active';
     }
     return 'pending';
@@ -762,6 +791,9 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
       setStepHistory(prev => [...prev.filter(h => h.stepId !== step.id), historyEntry]);
       onStepComplete?.(step.id, result);
 
+      // Show success feedback
+      console.log('✅ [EnhancedStepFlowV2] Step completed successfully:', step.title);
+      
       // Auto-advance if enabled and not the last step
       if (autoAdvance && stepIndex < steps.length - 1) {
         setTimeout(() => {
@@ -908,6 +940,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
                     title={`Step ${index + 1}: ${step.title}`}
                   >
                     {status === 'completed' ? <FiCheckCircle /> : 
+                     status === 'success' ? <FiCheckCircle /> :
                      status === 'error' ? <FiXCircle /> : 
                      index + 1}
                     <StepLabel>{step.title}</StepLabel>
@@ -1140,6 +1173,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
                     title={`Step ${index + 1}: ${step.title}`}
                   >
                     {status === 'completed' ? <FiCheckCircle /> : 
+                     status === 'success' ? <FiCheckCircle /> :
                      status === 'error' ? <FiXCircle /> : 
                      index + 1}
                     <StepLabel>{step.title}</StepLabel>
