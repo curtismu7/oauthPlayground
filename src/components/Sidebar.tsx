@@ -201,7 +201,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       if (saved) {
         const parsed = JSON.parse(saved);
         return {
-          oauth: parsed.oauth ?? false,  // Default to collapsed
+          oauth: false,  // Always start with OAuth menu collapsed
           oidc: parsed.oidc ?? true,  // Default to expanded
           resources: parsed.resources ?? true, // Default to expanded
           docs: parsed.docs ?? false, // Default to collapsed
@@ -224,8 +224,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     setOpenMenus(prev => {
       const newState = {
         ...prev,
-        // Auto-expand if current route matches
-        oauth: (path.startsWith('/flows') && !path.includes('enhanced-authorization-code-v2')) || prev.oauth,
+        // Auto-expand if current route matches (OAuth menu stays collapsed by default)
+        oauth: prev.oauth, // Keep OAuth menu collapsed by default
         oidc: path.startsWith('/oidc') || path.includes('enhanced-authorization-code-v2') || prev.oidc,
         resources: (path.startsWith('/oidc/userinfo') || path.startsWith('/oidc/tokens') || 
                    path.startsWith('/token-management') || path.startsWith('/auto-discover') ||
