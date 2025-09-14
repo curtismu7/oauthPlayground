@@ -19,7 +19,7 @@ import Documentation from './pages/Documentation';
 import Login from './pages/Login';
 import Callback from './pages/Callback';
 import { useAuth } from './contexts/NewAuthContext';
-import { useScrollToTop } from './hooks/useScrollToTop';
+import { useScrollToBottom } from './hooks/useScrollToBottom';
 
 // Import all the new OAuth and OIDC flow components
 import ImplicitGrantFlow from './pages/flows/ImplicitGrantFlow';
@@ -94,8 +94,8 @@ const AppRoutes = () => {
   const location = useLocation();
   const { showAuthModal, authRequestData, proceedWithOAuth, closeAuthModal } = useAuth();
   
-  // Scroll to top when route changes
-  useScrollToTop();
+  // Scroll to bottom when route changes
+  useScrollToBottom();
 
   // Close sidebar when route changes
   useEffect(() => {
