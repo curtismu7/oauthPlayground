@@ -682,6 +682,32 @@ const TokenManagement = () => {
   };
 
   const handleDecodeClick = () => {
+    // If no token in input, try to get current token from auth context or storage
+    if (!tokenString || tokenString.trim() === '') {
+      console.log('🔄 [TokenManagement] No token in input, attempting to load current token...');
+      
+      // Try to get token from auth context first
+      if (tokens && tokens.access_token) {
+        console.log('✅ [TokenManagement] Loading token from auth context for decoding');
+        setTokenString(tokens.access_token);
+        setTimeout(() => decodeJWT(tokens.access_token), 100);
+        return;
+      }
+      
+      // Try to get token from storage
+      const storedTokens = getOAuthTokens();
+      if (storedTokens && storedTokens.access_token) {
+        console.log('✅ [TokenManagement] Loading token from storage for decoding');
+        setTokenString(storedTokens.access_token);
+        setTimeout(() => decodeJWT(storedTokens.access_token), 100);
+        return;
+      }
+      
+      // No token available
+      alert('No token available to decode. Please load a token first or enter one manually.');
+      return;
+    }
+    
     decodeJWT(tokenString);
   };
 
