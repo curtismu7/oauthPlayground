@@ -222,20 +222,36 @@ const UrlDisplay = styled.div`
 `;
 
 const CopyButton = styled.button`
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
   border: none;
-  color: #e5e7eb;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
   
   &:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+  }
+  
+  &:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
   }
 `;
 
@@ -2973,7 +2989,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                       <ParameterValue>{tokens.scope || 'Not specified'}</ParameterValue>
                     </ParameterItem>
                   </ParameterBreakdown>
-                  <div style={{ marginTop: '0.5rem' }}>
+                  <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'flex-end' }}>
                     <CopyButton onClick={() => copyToClipboard(tokens.access_token)}>
                       {copiedText === tokens.access_token ? <FiCheckCircle /> : <FiCopy />}
                       Copy Access Token
@@ -3000,7 +3016,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                       <ParameterValue>Used to obtain new access tokens</ParameterValue>
                     </ParameterItem>
                   </ParameterBreakdown>
-                  <div style={{ marginTop: '0.5rem' }}>
+                  <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'flex-end' }}>
                     <CopyButton onClick={() => copyToClipboard(tokens.refresh_token)}>
                       {copiedText === tokens.refresh_token ? <FiCheckCircle /> : <FiCopy />}
                       Copy Refresh Token
@@ -3031,7 +3047,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                       <ParameterValue>Contains user identity information</ParameterValue>
                     </ParameterItem>
                   </ParameterBreakdown>
-                  <div style={{ marginTop: '0.5rem' }}>
+                  <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'flex-end' }}>
                     <CopyButton onClick={() => copyToClipboard(tokens.id_token)}>
                       {copiedText === tokens.id_token ? <FiCheckCircle /> : <FiCopy />}
                       Copy ID Token
@@ -3047,11 +3063,13 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                 </h5>
                 <JsonDisplay>
                   {JSON.stringify(tokens, null, 2)}
+                </JsonDisplay>
+                <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'flex-end' }}>
                   <CopyButton onClick={() => copyToClipboard(JSON.stringify(tokens, null, 2))}>
                     {copiedText === JSON.stringify(tokens, null, 2) ? <FiCheckCircle /> : <FiCopy />}
                     Copy All Tokens
                   </CopyButton>
-                </JsonDisplay>
+                </div>
               </div>
             </div>
           )}
