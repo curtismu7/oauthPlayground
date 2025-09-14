@@ -550,33 +550,50 @@ const TokenManagement = () => {
   };
 
   useEffect(() => {
-    // Auto-load current Access Token from auth context
+    // Auto-load current Access Token from auth context or storage
     const loadCurrentToken = () => {
       try {
         console.log('🔄 [TokenManagement] Loading current token from auth context:', tokens);
         
-        if (tokens && tokens.access_token) {
+        // First try to get token from auth context
+        let currentTokens = tokens;
+        
+        // If no tokens in auth context, try to load from storage
+        if (!currentTokens || !currentTokens.access_token) {
+          console.log('ℹ️ [TokenManagement] No tokens in auth context, checking storage...');
+          currentTokens = getOAuthTokens();
+          if (currentTokens) {
+            console.log('✅ [TokenManagement] Found tokens in storage:', currentTokens);
+          }
+        }
+        
+        if (currentTokens && currentTokens.access_token) {
           console.log('✅ [TokenManagement] Found current access token, auto-loading and decoding');
-          setTokenString(tokens.access_token);
+          setTokenString(currentTokens.access_token);
           setTokenSource({
-            source: 'Current Session',
-            description: `Active Access Token from ${tokens.token_type || 'Bearer'} flow`,
+            source: currentTokens === tokens ? 'Current Session' : 'Stored Tokens',
+            description: `Active Access Token from ${currentTokens.token_type || 'Bearer'} flow`,
             timestamp: new Date().toLocaleString()
           });
           
           // Auto-decode the token
-          setTimeout(() => decodeJWT(tokens.access_token), 100);
+          setTimeout(() => decodeJWT(currentTokens.access_token), 100);
           
           // Update token status based on expiration
-          if (tokens.expires_at) {
+          if (currentTokens.expires_at) {
             const now = Date.now();
-            const expiresAt = new Date(tokens.expires_at).getTime();
+            const expiresAt = new Date(currentTokens.expires_at).getTime();
+            setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
+          } else if (currentTokens.expires_in) {
+            // Calculate expiration from expires_in
+            const now = Date.now();
+            const expiresAt = now + (currentTokens.expires_in * 1000);
             setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
           } else {
             setTokenStatus('valid');
           }
         } else {
-          console.log('ℹ️ [TokenManagement] No current access token found in auth context');
+          console.log('ℹ️ [TokenManagement] No current access token found in auth context or storage');
           setTokenStatus('none');
         }
       } catch (error) {
@@ -878,6 +895,40 @@ const TokenManagement = () => {
     }
   };
 
+  const handleLoadFromStorage = () => {
+    console.log('🔄 [TokenManagement] Loading tokens from storage...');
+    const storedTokens = getOAuthTokens();
+    
+    if (storedTokens && storedTokens.access_token) {
+      console.log('✅ [TokenManagement] Found stored tokens, loading...');
+      setTokenString(storedTokens.access_token);
+      setTokenSource({
+        source: 'Stored Tokens',
+        description: `Access Token from ${storedTokens.token_type || 'Bearer'} flow`,
+        timestamp: new Date().toLocaleString()
+      });
+      
+      // Auto-decode the token
+      setTimeout(() => decodeJWT(storedTokens.access_token), 100);
+      
+      // Update token status
+      if (storedTokens.expires_at) {
+        const now = Date.now();
+        const expiresAt = new Date(storedTokens.expires_at).getTime();
+        setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
+      } else if (storedTokens.expires_in) {
+        const now = Date.now();
+        const expiresAt = now + (storedTokens.expires_in * 1000);
+        setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
+      } else {
+        setTokenStatus('valid');
+      }
+    } else {
+      console.log('ℹ️ [TokenManagement] No stored tokens found');
+      setTokenStatus('none');
+    }
+  };
+
   // Auto-analyze token when it changes
   useEffect(() => {
     if (tokenString.trim()) {
@@ -1021,6 +1072,14 @@ const TokenManagement = () => {
             >
               <FiCopy />
               Copy Token
+            </ActionButton>
+
+            <ActionButton
+              className="secondary"
+              onClick={handleLoadFromStorage}
+            >
+              <FiRefreshCw />
+              Load from Storage
             </ActionButton>
 
             <ActionButton
