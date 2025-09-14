@@ -194,6 +194,17 @@ const DebugPanel: React.FC = () => {
     setLogs(initialLogs);
     checkForRecentErrors(initialLogs);
 
+    // Track user activity to reduce idle logging
+    const trackUserActivity = () => {
+      logger.recordUserActivity();
+    };
+
+    // Add event listeners for user activity
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+    events.forEach(event => {
+      document.addEventListener(event, trackUserActivity, true);
+    });
+
     // Intercept native console methods to capture all console messages
     const originalConsoleLog = console.log;
     const originalConsoleError = console.error;
@@ -248,6 +259,10 @@ const DebugPanel: React.FC = () => {
 
     return () => {
       clearInterval(interval);
+      // Remove user activity event listeners
+      events.forEach(event => {
+        document.removeEventListener(event, trackUserActivity, true);
+      });
       // Restore original console methods
       console.log = originalConsoleLog;
       console.error = originalConsoleError;
