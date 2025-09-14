@@ -637,6 +637,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   const [callbackError, setCallbackError] = useState<string | null>(null);
   const [testingMethod, setTestingMethod] = useState<'popup' | 'redirect'>('popup');
   const [copiedText, setCopiedText] = useState<string | null>(null);
+  const [customToken, setCustomToken] = useState<string>('');
   const [isAuthorizing, setIsAuthorizing] = useState<boolean>(false);
   const [isExchangingTokens, setIsExchangingTokens] = useState<boolean>(false);
   const [showSecret, setShowSecret] = useState<boolean>(false);
@@ -3085,10 +3086,70 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                 Decode and inspect your tokens to see their contents and claims.
               </p>
               
+              {/* Token Paste Area */}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h5 style={{ margin: '0 0 0.5rem 0', color: '#1f2937', fontSize: '0.9rem', fontWeight: '600' }}>
+                  Decode Custom Token
+                </h5>
+                <p style={{ margin: '0 0 0.75rem 0', color: '#6b7280', fontSize: '0.8rem' }}>
+                  Paste any JWT token below to decode and inspect its contents.
+                </p>
+                <FormTextarea
+                  placeholder="Paste your JWT token here (e.g., eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...)"
+                  value={customToken}
+                  onChange={(e) => setCustomToken(e.target.value)}
+                  style={{ minHeight: '4rem', fontFamily: 'Monaco, Menlo, monospace', fontSize: '0.8rem' }}
+                />
+                <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+                  <CopyButton 
+                    onClick={() => {
+                      if (customToken.trim()) {
+                        // Store the custom token in localStorage for the token management page
+                        const tokenData = {
+                          access_token: customToken.trim(),
+                          token_type: 'Bearer',
+                          custom: true
+                        };
+                        
+                        // Store in localStorage for token management page
+                        localStorage.setItem('oauth_tokens', JSON.stringify(tokenData));
+                        console.log('✅ Custom token stored for token management page');
+                        
+                        // Copy custom token to clipboard
+                        navigator.clipboard.writeText(customToken).then(() => {
+                          console.log('✅ Custom token copied to clipboard');
+                        });
+                        
+                        // Navigate to token management page
+                        window.location.href = '/token-management';
+                      }
+                    }}
+                    disabled={!customToken.trim()}
+                  >
+                    {copiedText === customToken ? <FiCheckCircle /> : <FiCopy />}
+                    Decode Custom Token
+                  </CopyButton>
+                </div>
+              </div>
+              
               <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                 <button
                   onClick={() => {
                     if (tokens.access_token) {
+                      // Store the access token in localStorage for the token management page
+                      const tokenData = {
+                        access_token: tokens.access_token,
+                        id_token: tokens.id_token,
+                        refresh_token: tokens.refresh_token,
+                        token_type: tokens.token_type || 'Bearer',
+                        expires_in: tokens.expires_in,
+                        scope: tokens.scope
+                      };
+                      
+                      // Store in localStorage for token management page
+                      localStorage.setItem('oauth_tokens', JSON.stringify(tokenData));
+                      console.log('✅ Access token stored for token management page');
+                      
                       // Copy access token to clipboard
                       navigator.clipboard.writeText(tokens.access_token).then(() => {
                         console.log('✅ Access token copied to clipboard');
@@ -3135,6 +3196,20 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                 <button
                   onClick={() => {
                     if (tokens.id_token) {
+                      // Store the ID token in localStorage for the token management page
+                      const tokenData = {
+                        access_token: tokens.access_token,
+                        id_token: tokens.id_token,
+                        refresh_token: tokens.refresh_token,
+                        token_type: tokens.token_type || 'Bearer',
+                        expires_in: tokens.expires_in,
+                        scope: tokens.scope
+                      };
+                      
+                      // Store in localStorage for token management page
+                      localStorage.setItem('oauth_tokens', JSON.stringify(tokenData));
+                      console.log('✅ ID token stored for token management page');
+                      
                       // Copy ID token to clipboard
                       navigator.clipboard.writeText(tokens.id_token).then(() => {
                         console.log('✅ ID token copied to clipboard');
