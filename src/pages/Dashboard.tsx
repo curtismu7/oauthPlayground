@@ -383,6 +383,7 @@ const CopyButton = styled.button`
 `;
 
 const Dashboard = () => {
+  console.log('🔧 [Dashboard] Component rendering');
   const { config, error, tokens: authTokens, isAuthenticated } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -680,19 +681,19 @@ const Dashboard = () => {
           </CardHeader>
           
           <QuickActions>
-            <ActionButton to="/flows/authorization-code">
+            <ActionButton to="/flows/enhanced-authorization-code-v2">
               <span>🔑</span>
               Authorization Code Flow
             </ActionButton>
-            <ActionButton to="/flows/authorization-code-pkce">
+            <ActionButton to="/flows/enhanced-authorization-code-v2">
               <span>🔐</span>
               PKCE Flow
             </ActionButton>
-            <ActionButton to="/flows/client-credentials">
+            <ActionButton to="/oidc/client-credentials">
               <span>👤</span>
               Client Credentials
             </ActionButton>
-            <ActionButton to="/flows/device-code">
+            <ActionButton to="/oidc/device-code">
               <span>📱</span>
               Device Code Flow
             </ActionButton>
