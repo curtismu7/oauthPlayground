@@ -6,6 +6,7 @@ import { OpenIDConfiguration } from '../services/discoveryService';
 import { credentialManager } from '../utils/credentialManager';
 import StandardMessage from '../components/StandardMessage';
 import CollapsibleSection from '../components/CollapsibleSection';
+import CredentialStatusPanel from '../components/CredentialStatusPanel';
 import packageJson from '../../package.json';
 
 const ConfigurationContainer = styled.div`
@@ -199,6 +200,7 @@ const Configuration = () => {
     authEndpoint: 'https://auth.pingone.com/{envId}/as/authorize',
     tokenEndpoint: 'https://auth.pingone.com/{envId}/as/token',
     userInfoEndpoint: 'https://auth.pingone.com/{envId}/as/userinfo',
+    endSessionEndpoint: 'https://auth.pingone.com/{envId}/as/end_session',
     enablePKCE: true,
     codeChallengeMethod: 'S256',
     responseType: 'code',
@@ -208,9 +210,9 @@ const Configuration = () => {
     showUrlDetailsInStep4: true,
   });
   
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [saveStatus, setSaveStatus] = useState(null);
+  const [saveStatus, setSaveStatus] = useState<{type: 'success' | 'error' | 'info' | 'danger', title: string, message: string} | null>(null);
   const [showClientSecret, setShowClientSecret] = useState(false);
   const [showDiscoveryPanel, setShowDiscoveryPanel] = useState(false);
   
@@ -228,7 +230,7 @@ const Configuration = () => {
       
       console.log('🔧 [Configuration] Loading configuration, config credentials:', configCredentials);
       
-      if (configCredentials.environmentId || configCredentials.clientId) {
+      if (configCredentials && (configCredentials.environmentId || configCredentials.clientId)) {
         console.log('✅ [Configuration] Loading from config credentials');
         setFormData(prev => ({
           ...prev,
@@ -344,7 +346,7 @@ const Configuration = () => {
       // Load from config credentials
       const configCredentials = credentialManager.loadConfigCredentials();
       
-      if (configCredentials.environmentId || configCredentials.clientId) {
+      if (configCredentials && (configCredentials.environmentId || configCredentials.clientId)) {
         setFormData(prev => ({
           ...prev,
           environmentId: configCredentials.environmentId || '',
@@ -379,7 +381,7 @@ const Configuration = () => {
     };
   }, []);
   
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -397,7 +399,7 @@ const Configuration = () => {
   
   const validateForm = () => {
     console.log('🔍 [Configuration] Validating form with data:', formData);
-    const newErrors = {};
+    const newErrors: Record<string, string> = {};
     let isValid = true;
     
     if (!formData.environmentId) {
@@ -423,7 +425,7 @@ const Configuration = () => {
     return isValid;
   };
   
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('🔍 [Configuration] Form submitted');
 
@@ -567,6 +569,9 @@ const Configuration = () => {
         <h1>PingOne Configuration</h1>
         <p>Configure your PingOne environment and application settings to get started with the OAuth Playground.</p>
       </PageHeader>
+
+      {/* Credential Status Panel */}
+      <CredentialStatusPanel />
 
       {/* UI Settings - Moved to top, outside form */}
       <CollapsibleSection

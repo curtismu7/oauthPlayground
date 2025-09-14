@@ -59,23 +59,46 @@ const NavSectionTitle = styled.h3`
   margin: 1.5rem 0 0.5rem;
 `;
 
-const NavItem = styled(Link)`
+const NavItem = styled(Link)<{ $isActive?: boolean }>`
   display: flex;
   align-items: center;
   padding: 0.75rem 1.5rem;
-  color: ${({ theme }) => theme.colors?.gray700 || '#374151'};
+  color: ${({ $isActive, theme }) => 
+    $isActive 
+      ? (theme.colors?.primary || '#0070cc')
+      : (theme.colors?.gray700 || '#374151')
+  };
   text-decoration: none;
   transition: all 0.2s;
-  font-weight: 500;
+  font-weight: ${({ $isActive }) => $isActive ? '600' : '500'};
+  background-color: ${({ $isActive, theme }) => 
+    $isActive 
+      ? (theme.colors?.primaryLight || '#e6f3ff')
+      : 'transparent'
+  };
+  border-right: ${({ $isActive, theme }) => 
+    $isActive 
+      ? `3px solid ${theme.colors?.primary || '#0070cc'}`
+      : '3px solid transparent'
+  };
   
   &:hover {
-    background-color: ${({ theme }) => theme.colors?.gray100 || '#f3f4f6'};
+    background-color: ${({ $isActive, theme }) => 
+      $isActive 
+        ? (theme.colors?.primaryLight || '#e6f3ff')
+        : (theme.colors?.gray100 || '#f3f4f6')
+    };
     color: ${({ theme }) => theme.colors?.primary || '#0070cc'};
   }
   
   svg {
     margin-right: 0.75rem;
     font-size: 1.25rem;
+    color: ${({ $isActive, theme }) => 
+      $isActive 
+        ? (theme.colors?.primary || '#0070cc')
+        : 'inherit'
+    };
   }
 `;
 
@@ -85,17 +108,36 @@ const Submenu = styled.div<SubmenuProps>`
   transition: max-height 0.3s ease-in-out;
 `;
 
-const SubmenuItem = styled(Link)`
+const SubmenuItem = styled(Link)<{ $isActive?: boolean }>`
   display: flex;
   align-items: center;
   padding: 0.5rem 1.5rem 0.5rem 3.5rem;
-  color: ${({ theme }) => theme.colors?.gray700 || '#374151'};
+  color: ${({ $isActive, theme }) => 
+    $isActive 
+      ? (theme.colors?.primary || '#0070cc')
+      : (theme.colors?.gray700 || '#374151')
+  };
   text-decoration: none;
   font-size: 0.9rem;
+  font-weight: ${({ $isActive }) => $isActive ? '600' : '400'};
   transition: all 0.2s;
+  background-color: ${({ $isActive, theme }) => 
+    $isActive 
+      ? (theme.colors?.primaryLight || '#e6f3ff')
+      : 'transparent'
+  };
+  border-right: ${({ $isActive, theme }) => 
+    $isActive 
+      ? `3px solid ${theme.colors?.primary || '#0070cc'}`
+      : '3px solid transparent'
+  };
   
   &:hover {
-    background-color: ${({ theme }) => theme.colors?.gray50 || '#f9fafb'};
+    background-color: ${({ $isActive, theme }) => 
+      $isActive 
+        ? (theme.colors?.primaryLight || '#e6f3ff')
+        : (theme.colors?.gray50 || '#f9fafb')
+    };
     color: ${({ theme }) => theme.colors?.primary || '#0070cc'};
   }
   
@@ -104,7 +146,11 @@ const SubmenuItem = styled(Link)`
     margin-right: 0.75rem;
     font-size: 1.5rem;
     line-height: 0;
-    color: ${({ theme }) => theme.colors?.gray400 || '#9ca3af'};
+    color: ${({ $isActive, theme }) => 
+      $isActive 
+        ? (theme.colors?.primary || '#0070cc')
+        : (theme.colors?.gray400 || '#9ca3af')
+    };
   }
 `;
 
@@ -138,6 +184,16 @@ const NavItemHeader = styled.div<NavItemHeaderProps>`
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const location = useLocation();
+  
+  // Helper function to check if a route is active
+  const isActiveRoute = (path: string): boolean => {
+    if (path === '/dashboard' && location.pathname === '/') return true;
+    if (path === location.pathname) return true;
+    // For submenu items, check if current path starts with the route
+    if (location.pathname.startsWith(path) && path !== '/') return true;
+    return false;
+  };
+  
   // Load persisted menu state from localStorage
   const [openMenus, setOpenMenus] = useState(() => {
     try {
@@ -211,15 +267,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   return (
     <SidebarContainer $isOpen={isOpen}>
       <NavSection>
-        <NavItem to="/dashboard" onClick={onClose}>
+        <NavItem to="/dashboard" onClick={onClose} $isActive={isActiveRoute('/dashboard')}>
           <FiHome />
           <span>Dashboard</span>
         </NavItem>
-        <NavItem to="/configuration" onClick={onClose}>
+        <NavItem to="/configuration" onClick={onClose} $isActive={isActiveRoute('/configuration')}>
           <FiSettings />
           <span>Configuration</span>
         </NavItem>
-        <NavItem to="/auto-discover" onClick={onClose}>
+        <NavItem to="/auto-discover" onClick={onClose} $isActive={isActiveRoute('/auto-discover')}>
           <FiSearch />
           <span>OIDC Discovery</span>
         </NavItem>
@@ -241,13 +297,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </NavItemHeader>
           
           <Submenu $isOpen={openMenus.oauth}>
-            <SubmenuItem to="/flows/authorization-code" onClick={onClose}>
+            <SubmenuItem to="/oidc/authorization-code" onClick={onClose} $isActive={isActiveRoute('/oidc/authorization-code')}>
               Authorization Code
             </SubmenuItem>
-            <SubmenuItem to="/flows/client-credentials" onClick={onClose}>
+            <SubmenuItem to="/oidc/client-credentials" onClick={onClose} $isActive={isActiveRoute('/oidc/client-credentials')}>
               Client Credentials
             </SubmenuItem>
-            <SubmenuItem to="/flows/resource-owner-password" onClick={onClose}>
+            <SubmenuItem to="/flows/resource-owner-password" onClick={onClose} $isActive={isActiveRoute('/flows/resource-owner-password')}>
               Resource Owner Password
             </SubmenuItem>
           </Submenu>
@@ -266,25 +322,25 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </NavItemHeader>
           
           <Submenu $isOpen={openMenus.oidc}>
-            <SubmenuItem to="/flows/enhanced-authorization-code-v2" onClick={onClose}>
+            <SubmenuItem to="/flows/enhanced-authorization-code-v2" onClick={onClose} $isActive={isActiveRoute('/flows/enhanced-authorization-code-v2')}>
               Enhanced Auth Code V2
             </SubmenuItem>
-            <SubmenuItem to="/oidc/implicit" onClick={onClose}>
+            <SubmenuItem to="/oidc/implicit" onClick={onClose} $isActive={isActiveRoute('/oidc/implicit')}>
               Implicit
             </SubmenuItem>
-            <SubmenuItem to="/oidc/hybrid" onClick={onClose}>
+            <SubmenuItem to="/oidc/hybrid" onClick={onClose} $isActive={isActiveRoute('/oidc/hybrid')}>
               Hybrid Flow
             </SubmenuItem>
-            <SubmenuItem to="/oidc/client-credentials" onClick={onClose}>
+            <SubmenuItem to="/oidc/client-credentials" onClick={onClose} $isActive={isActiveRoute('/oidc/client-credentials')}>
               Client Credentials
             </SubmenuItem>
-            <SubmenuItem to="/oidc/worker-token" onClick={onClose}>
+            <SubmenuItem to="/oidc/worker-token" onClick={onClose} $isActive={isActiveRoute('/oidc/worker-token')}>
               Worker Token
             </SubmenuItem>
-            <SubmenuItem to="/oidc/device-code" onClick={onClose}>
+            <SubmenuItem to="/oidc/device-code" onClick={onClose} $isActive={isActiveRoute('/oidc/device-code')}>
               Device Code
             </SubmenuItem>
-            <SubmenuItem to="/flows/resource-owner-password" onClick={onClose}>
+            <SubmenuItem to="/flows/resource-owner-password" onClick={onClose} $isActive={isActiveRoute('/flows/resource-owner-password')}>
               Resource Owner Password
             </SubmenuItem>
           </Submenu>
