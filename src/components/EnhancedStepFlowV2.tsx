@@ -1124,6 +1124,40 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
             </CollapsiblePanel>
           </>
         )}
+
+        {/* Bottom Step Progress Indicator - Duplicate for easy access */}
+        <StepProgressContainer style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid #e5e7eb' }}>
+          <StepProgressWrapper>
+            {steps.map((step, index) => {
+              const status = getStepStatus(index);
+              const isLast = index === steps.length - 1;
+              
+              return (
+                <React.Fragment key={`bottom-${step.id}`}>
+                  <StepIndicator
+                    status={status}
+                    onClick={() => goToStep(index)}
+                    title={`Step ${index + 1}: ${step.title}`}
+                  >
+                    {status === 'completed' ? <FiCheckCircle /> : 
+                     status === 'error' ? <FiXCircle /> : 
+                     index + 1}
+                    <StepLabel>{step.title}</StepLabel>
+                  </StepIndicator>
+                  {!isLast && (
+                    <StepConnector
+                      $completed={status === 'completed'}
+                      $active={status === 'active'}
+                    />
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </StepProgressWrapper>
+          <StepCount>
+            {completedSteps} of {steps.length} completed
+          </StepCount>
+        </StepProgressContainer>
       </Container>
     </ResponsiveContainer>
   );
