@@ -2941,6 +2941,120 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             </InfoBox>
           )}
 
+          {/* Token Display Section */}
+          {tokens && (
+            <div style={{ marginTop: '2rem' }}>
+              <h4>Received Tokens:</h4>
+              
+              {/* Access Token */}
+              {tokens.access_token && (
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <h5 style={{ margin: '0 0 0.5rem 0', color: '#1f2937', fontSize: '0.9rem', fontWeight: '600' }}>
+                    Access Token
+                  </h5>
+                  <ParameterBreakdown>
+                    <ParameterItem>
+                      <ParameterName>Token</ParameterName>
+                      <ParameterValue style={{ fontFamily: 'Monaco, Menlo, monospace', fontSize: '0.8rem', wordBreak: 'break-all' }}>
+                        {tokens.access_token}
+                      </ParameterValue>
+                    </ParameterItem>
+                    <ParameterItem>
+                      <ParameterName>Type</ParameterName>
+                      <ParameterValue>{tokens.token_type || 'Bearer'}</ParameterValue>
+                    </ParameterItem>
+                    <ParameterItem>
+                      <ParameterName>Expires In</ParameterName>
+                      <ParameterValue>{tokens.expires_in ? `${tokens.expires_in} seconds` : 'Unknown'}</ParameterValue>
+                    </ParameterItem>
+                    <ParameterItem>
+                      <ParameterName>Scope</ParameterName>
+                      <ParameterValue>{tokens.scope || 'Not specified'}</ParameterValue>
+                    </ParameterItem>
+                  </ParameterBreakdown>
+                  <div style={{ marginTop: '0.5rem' }}>
+                    <CopyButton onClick={() => copyToClipboard(tokens.access_token)}>
+                      {copiedText === tokens.access_token ? <FiCheckCircle /> : <FiCopy />}
+                      Copy Access Token
+                    </CopyButton>
+                  </div>
+                </div>
+              )}
+
+              {/* Refresh Token */}
+              {tokens.refresh_token && (
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <h5 style={{ margin: '0 0 0.5rem 0', color: '#1f2937', fontSize: '0.9rem', fontWeight: '600' }}>
+                    Refresh Token
+                  </h5>
+                  <ParameterBreakdown>
+                    <ParameterItem>
+                      <ParameterName>Token</ParameterName>
+                      <ParameterValue style={{ fontFamily: 'Monaco, Menlo, monospace', fontSize: '0.8rem', wordBreak: 'break-all' }}>
+                        {tokens.refresh_token}
+                      </ParameterValue>
+                    </ParameterItem>
+                    <ParameterItem>
+                      <ParameterName>Purpose</ParameterName>
+                      <ParameterValue>Used to obtain new access tokens</ParameterValue>
+                    </ParameterItem>
+                  </ParameterBreakdown>
+                  <div style={{ marginTop: '0.5rem' }}>
+                    <CopyButton onClick={() => copyToClipboard(tokens.refresh_token)}>
+                      {copiedText === tokens.refresh_token ? <FiCheckCircle /> : <FiCopy />}
+                      Copy Refresh Token
+                    </CopyButton>
+                  </div>
+                </div>
+              )}
+
+              {/* ID Token */}
+              {tokens.id_token && (
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <h5 style={{ margin: '0 0 0.5rem 0', color: '#1f2937', fontSize: '0.9rem', fontWeight: '600' }}>
+                    ID Token (JWT)
+                  </h5>
+                  <ParameterBreakdown>
+                    <ParameterItem>
+                      <ParameterName>Token</ParameterName>
+                      <ParameterValue style={{ fontFamily: 'Monaco, Menlo, monospace', fontSize: '0.8rem', wordBreak: 'break-all' }}>
+                        {tokens.id_token}
+                      </ParameterValue>
+                    </ParameterItem>
+                    <ParameterItem>
+                      <ParameterName>Type</ParameterName>
+                      <ParameterValue>JWT (JSON Web Token)</ParameterValue>
+                    </ParameterItem>
+                    <ParameterItem>
+                      <ParameterName>Purpose</ParameterName>
+                      <ParameterValue>Contains user identity information</ParameterValue>
+                    </ParameterItem>
+                  </ParameterBreakdown>
+                  <div style={{ marginTop: '0.5rem' }}>
+                    <CopyButton onClick={() => copyToClipboard(tokens.id_token)}>
+                      {copiedText === tokens.id_token ? <FiCheckCircle /> : <FiCopy />}
+                      Copy ID Token
+                    </CopyButton>
+                  </div>
+                </div>
+              )}
+
+              {/* All Tokens JSON */}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h5 style={{ margin: '0 0 0.5rem 0', color: '#1f2937', fontSize: '0.9rem', fontWeight: '600' }}>
+                  Complete Token Response
+                </h5>
+                <JsonDisplay>
+                  {JSON.stringify(tokens, null, 2)}
+                  <CopyButton onClick={() => copyToClipboard(JSON.stringify(tokens, null, 2))}>
+                    {copiedText === JSON.stringify(tokens, null, 2) ? <FiCheckCircle /> : <FiCopy />}
+                    Copy All Tokens
+                  </CopyButton>
+                </JsonDisplay>
+              </div>
+            </div>
+          )}
+
           {/* Token Decode Buttons */}
           {tokens && (
             <div style={{ marginTop: '2rem', padding: '1.5rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '0.75rem' }}>
