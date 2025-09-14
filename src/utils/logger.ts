@@ -23,6 +23,9 @@ interface LogEntry {
 class Logger {
   private logHistory: LogEntry[] = [];
   private maxLogEntries = 500;
+  private lastUserActivity = Date.now();
+  private idleThreshold = 30000; // 30 seconds of inactivity
+  private isIdle = false;
 
   private addToHistory(level: string, component: string, message: string, data?: LogData, error?: Error) {
     const entry: LogEntry = {
@@ -42,8 +45,50 @@ class Logger {
     }
   }
 
+  // Track user activity
+  recordUserActivity() {
+    this.lastUserActivity = Date.now();
+    this.isIdle = false;
+  }
+
+  // Check if user is idle
+  private checkIdleStatus() {
+    const now = Date.now();
+    const timeSinceActivity = now - this.lastUserActivity;
+    this.isIdle = timeSinceActivity > this.idleThreshold;
+    return this.isIdle;
+  }
+
+  // Check if we should log based on activity and level
+  private shouldLog(level: string, component: string): boolean {
+    // Always log errors and warnings regardless of idle status
+    if (level === 'ERROR' || level === 'WARN') {
+      return true;
+    }
+    
+    // Always log user-initiated actions
+    if (component.includes('Button') || component.includes('Click') || component.includes('User')) {
+      return true;
+    }
+    
+    // Check if user is idle
+    const isIdle = this.checkIdleStatus();
+    
+    // Don't log debug/info messages when idle unless they're important
+    if (isIdle && (level === 'DEBUG' || level === 'INFO')) {
+      return false;
+    }
+    
+    return true;
+  }
+
   // Public method to add entries from console interception
   addEntry(level: string, component: string, message: string, data?: LogData, error?: Error) {
+    // Check if we should log this entry
+    if (!this.shouldLog(level, component)) {
+      return;
+    }
+    
     this.addToHistory(level, component, message, data, error);
   }
 
@@ -64,6 +109,11 @@ class Logger {
   }
 
   info(component: string, message: string, data?: LogData) {
+    // Check if we should log info messages
+    if (!this.shouldLog('INFO', component)) {
+      return;
+    }
+    
     this.addToHistory('INFO', component, message, data);
     // Only log to console if not called from DebugPanel to prevent circular references
     if (component !== 'CONSOLE') {
@@ -72,6 +122,11 @@ class Logger {
   }
 
   debug(component: string, message: string, data?: LogData) {
+    // Check if we should log debug messages
+    if (!this.shouldLog('DEBUG', component)) {
+      return;
+    }
+    
     this.addToHistory('DEBUG', component, message, data);
     // Only log to console if not called from DebugPanel to prevent circular references
     if (component !== 'CONSOLE') {
