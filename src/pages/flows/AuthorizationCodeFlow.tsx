@@ -25,7 +25,7 @@ import AuthorizationRequestModal from '../../components/AuthorizationRequestModa
 import { generateCodeVerifier, generateCodeChallenge } from '../../utils/oauth';
 import { credentialManager } from '../../utils/credentialManager';
 import { logger } from '../../utils/logger';
-import { useScrollToTop } from '../../hooks/useScrollToTop';
+import { useScrollToBottom } from '../../hooks/useScrollToBottom';
 import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
 import { FlowConfiguration, type FlowConfig } from '../../components/FlowConfiguration';
 import { getDefaultConfig } from '../../utils/flowConfigDefaults';
