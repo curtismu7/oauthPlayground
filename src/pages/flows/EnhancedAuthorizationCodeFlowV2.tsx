@@ -904,6 +904,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           environmentId: allCredentials?.environmentId ? `${allCredentials.environmentId.substring(0, 8)}...` : 'none',
           clientId: allCredentials?.clientId ? `${allCredentials.clientId.substring(0, 8)}...` : 'none',
           redirectUri: allCredentials?.redirectUri || 'none',
+          hasClientSecret: !!allCredentials?.clientSecret,
           source: allCredentials?.clientSecret ? 'authz-flow' : 'permanent-fallback'
         });
         
