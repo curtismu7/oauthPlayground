@@ -641,7 +641,8 @@ const Dashboard = () => {
           </div>
         </CardHeader>
         
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+        {/* Overall System Status */}
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
           <StatusBadge 
             $status={tokens ? 'active' : 'error'}
             style={{ 
@@ -669,6 +670,166 @@ const Dashboard = () => {
             <FiCheckCircle />
             {hasSavedCredentials ? 'Environment Configured' : 'Environment Not Configured'}
           </StatusBadge>
+        </div>
+
+        {/* Flow Status Details */}
+        <div style={{ marginTop: '1rem' }}>
+          <h3 style={{ 
+            fontSize: '1.1rem', 
+            fontWeight: '600', 
+            color: '#333', 
+            marginBottom: '1rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            <FiShield />
+            OIDC Flow Status
+          </h3>
+          
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+            gap: '1rem' 
+          }}>
+            {/* Authorization Code Flow */}
+            <div style={{ 
+              background: '#f8f9fa', 
+              border: '1px solid #e5e7eb', 
+              borderRadius: '8px', 
+              padding: '1rem' 
+            }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'space-between',
+                marginBottom: '0.5rem'
+              }}>
+                <span style={{ fontWeight: '500', color: '#333' }}>Authorization Code</span>
+                <StatusBadge $status={hasSavedCredentials ? 'active' : 'pending'}>
+                  {hasSavedCredentials ? 'Ready' : 'Needs Config'}
+                </StatusBadge>
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#666' }}>
+                {hasSavedCredentials ? 'Environment configured' : 'Configure environment first'}
+              </div>
+            </div>
+
+            {/* PKCE Flow */}
+            <div style={{ 
+              background: '#f8f9fa', 
+              border: '1px solid #e5e7eb', 
+              borderRadius: '8px', 
+              padding: '1rem' 
+            }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'space-between',
+                marginBottom: '0.5rem'
+              }}>
+                <span style={{ fontWeight: '500', color: '#333' }}>PKCE Flow</span>
+                <StatusBadge $status={hasSavedCredentials ? 'active' : 'pending'}>
+                  {hasSavedCredentials ? 'Ready' : 'Needs Config'}
+                </StatusBadge>
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#666' }}>
+                {hasSavedCredentials ? 'Environment configured' : 'Configure environment first'}
+              </div>
+            </div>
+
+            {/* Client Credentials */}
+            <div style={{ 
+              background: '#f8f9fa', 
+              border: '1px solid #e5e7eb', 
+              borderRadius: '8px', 
+              padding: '1rem' 
+            }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'space-between',
+                marginBottom: '0.5rem'
+              }}>
+                <span style={{ fontWeight: '500', color: '#333' }}>Client Credentials</span>
+                <StatusBadge $status={hasSavedCredentials ? 'active' : 'pending'}>
+                  {hasSavedCredentials ? 'Ready' : 'Needs Config'}
+                </StatusBadge>
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#666' }}>
+                {hasSavedCredentials ? 'Environment configured' : 'Configure environment first'}
+              </div>
+            </div>
+
+            {/* Device Code Flow */}
+            <div style={{ 
+              background: '#f8f9fa', 
+              border: '1px solid #e5e7eb', 
+              borderRadius: '8px', 
+              padding: '1rem' 
+            }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'space-between',
+                marginBottom: '0.5rem'
+              }}>
+                <span style={{ fontWeight: '500', color: '#333' }}>Device Code</span>
+                <StatusBadge $status={hasSavedCredentials ? 'active' : 'pending'}>
+                  {hasSavedCredentials ? 'Ready' : 'Needs Config'}
+                </StatusBadge>
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#666' }}>
+                {hasSavedCredentials ? 'Environment configured' : 'Configure environment first'}
+              </div>
+            </div>
+
+            {/* Implicit Flow */}
+            <div style={{ 
+              background: '#f8f9fa', 
+              border: '1px solid #e5e7eb', 
+              borderRadius: '8px', 
+              padding: '1rem' 
+            }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'space-between',
+                marginBottom: '0.5rem'
+              }}>
+                <span style={{ fontWeight: '500', color: '#333' }}>Implicit Flow</span>
+                <StatusBadge $status="error">
+                  Deprecated
+                </StatusBadge>
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#666' }}>
+                Not recommended for new applications
+              </div>
+            </div>
+
+            {/* Hybrid Flow */}
+            <div style={{ 
+              background: '#f8f9fa', 
+              border: '1px solid #e5e7eb', 
+              borderRadius: '8px', 
+              padding: '1rem' 
+            }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'space-between',
+                marginBottom: '0.5rem'
+              }}>
+                <span style={{ fontWeight: '500', color: '#333' }}>Hybrid Flow</span>
+                <StatusBadge $status={hasSavedCredentials ? 'active' : 'pending'}>
+                  {hasSavedCredentials ? 'Ready' : 'Needs Config'}
+                </StatusBadge>
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#666' }}>
+                {hasSavedCredentials ? 'Environment configured' : 'Configure environment first'}
+              </div>
+            </div>
+          </div>
         </div>
       </ContentCard>
 
