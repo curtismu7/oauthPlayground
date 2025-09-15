@@ -613,11 +613,11 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     });
   }, []);
 
-  // Scroll to bottom helper function
-  const scrollToBottom = useCallback(() => {
+  // Scroll to top helper function for Authorization flow
+  const scrollToTop = useCallback(() => {
     setTimeout(() => {
       window.scrollTo({
-        top: document.documentElement.scrollHeight,
+        top: 0,
         behavior: 'smooth'
       });
     }, 100);
@@ -779,6 +779,11 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       console.log('🔧 [EnhancedAuthCodeFlowV2] Loaded showUrlDetailsInStep4 setting:', flowConfig.showUrlDetailsInStep4);
     }
   }, []);
+
+  // Scroll to top when component mounts or current step changes
+  useEffect(() => {
+    scrollToTop();
+  }, [currentStepIndex, scrollToTop]);
 
   // Load credentials on component mount
   useEffect(() => {
@@ -3618,7 +3623,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         config={config} 
         onConfigure={() => setShowConfig(!showConfig)}
         flowType="authorization-code"
-        defaultExpanded={true}
+        defaultExpanded={false}
       />
 
       <ContextualHelp flowId="authorization-code" />
