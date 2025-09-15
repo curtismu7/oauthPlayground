@@ -2607,15 +2607,6 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             </div>
           </InfoBox>
 
-          {/* Message near buttons */}
-          {stepMessages['user-authorization'] && (
-            <div style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>
-              <InfoBox type="success">
-                <div>{stepMessages['user-authorization']}</div>
-              </InfoBox>
-            </div>
-          )}
-
           {/* Clear User Guidance Message */}
           <InfoBox type="info" style={{ marginTop: '2rem', marginBottom: '1rem' }}>
             <FiUser />
@@ -2637,6 +2628,15 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               <strong>💡 Tip:</strong> The popup method is easier for testing - you can see the callback happen in real-time!
             </div>
           </InfoBox>
+
+          {/* Success Message at Bottom */}
+          {stepMessages['user-authorization'] && (
+            <div style={{ marginTop: '2rem', marginBottom: '1rem' }}>
+              <InfoBox type="success">
+                <div>{stepMessages['user-authorization']}</div>
+              </InfoBox>
+            </div>
+          )}
 
           {/* Reset Flow Button */}
           <div style={{ 
