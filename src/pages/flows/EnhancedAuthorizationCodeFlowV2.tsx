@@ -598,6 +598,16 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     });
   }, []);
 
+  // Scroll to bottom helper function
+  const scrollToBottom = useCallback(() => {
+    setTimeout(() => {
+      window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: 'smooth'
+      });
+    }, 100);
+  }, []);
+
   // Debug credentials state
   console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Current credentials state:', {
     environmentId: credentials.environmentId ? `${credentials.environmentId.substring(0, 8)}...` : 'none',
@@ -1227,6 +1237,9 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         
         // Show success message
         updateStepMessage('setup-credentials', '✅ Credentials saved successfully! You can now proceed to Step 2 to generate PKCE codes.');
+        
+        // Scroll to bottom to show the success message and next step
+        scrollToBottom();
       } else {
         throw new Error('Failed to save authz flow credentials to credential manager');
       }
@@ -1256,6 +1269,9 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       
       // Show success message
       updateStepMessage('generate-pkce', '✅ PKCE codes generated successfully! These codes add security to your OAuth flow. You can now proceed to Step 3 to build the authorization URL.');
+      
+      // Scroll to bottom to show the generated codes and next step
+      scrollToBottom();
       
       return { verifier, challenge };
     } catch (error) {
@@ -1322,6 +1338,9 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     console.log('🔧 [EnhancedAuthorizationCodeFlowV2] URL parameters:', Object.fromEntries(params));
     setAuthUrl(url);
     logger.info('EnhancedAuthorizationCodeFlowV2', 'Authorization URL generated', { url, scopes });
+    
+    // Scroll to bottom to show the generated URL and next step
+    scrollToBottom();
   }, [credentials, pkceCodes.codeChallenge]);
 
   // Handle authorization
@@ -1683,6 +1702,9 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       // Show success message
       updateStepMessage('exchange-tokens', '🎉 Token exchange successful! You now have access and refresh tokens. The OAuth flow is complete!');
       
+      // Scroll to bottom to show the tokens and next steps
+      scrollToBottom();
+      
       // Clear the authorization code and state after successful exchange to prevent reuse
       setAuthCode('');
       sessionStorage.removeItem('oauth_auth_code');
@@ -1741,6 +1763,9 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       const userData = await response.json();
       setUserInfo(userData);
       logger.info('EnhancedAuthorizationCodeFlowV2', 'User info retrieved', userData);
+      
+      // Scroll to bottom to show the user info
+      scrollToBottom();
     } catch (error) {
       logger.error('EnhancedAuthorizationCodeFlowV2', 'UserInfo request failed', String(error));
       throw error;
