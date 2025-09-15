@@ -298,13 +298,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           
           <Submenu $isOpen={openMenus.oauth}>
             <SubmenuItem to="/oidc/authorization-code" onClick={onClose} $isActive={isActiveRoute('/oidc/authorization-code')}>
-              Authorization Code
+              OAuth 2.0 Authorization Code
             </SubmenuItem>
             <SubmenuItem to="/oidc/client-credentials" onClick={onClose} $isActive={isActiveRoute('/oidc/client-credentials')}>
-              Client Credentials
+              OAuth 2.0 Client Credentials
             </SubmenuItem>
             <SubmenuItem to="/flows/resource-owner-password" onClick={onClose} $isActive={isActiveRoute('/flows/resource-owner-password')}>
-              Resource Owner Password
+              OAuth 2.0 Resource Owner Password
             </SubmenuItem>
           </Submenu>
         </NavItemWithSubmenu>
@@ -323,25 +323,25 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           
           <Submenu $isOpen={openMenus.oidc}>
             <SubmenuItem to="/flows/enhanced-authorization-code-v2" onClick={onClose} $isActive={isActiveRoute('/flows/enhanced-authorization-code-v2')}>
-              Enhanced Auth Code V2
+              OIDC Enhanced Auth Code V2
             </SubmenuItem>
             <SubmenuItem to="/oidc/implicit" onClick={onClose} $isActive={isActiveRoute('/oidc/implicit')}>
-              Implicit
+              OIDC Implicit
             </SubmenuItem>
             <SubmenuItem to="/oidc/hybrid" onClick={onClose} $isActive={isActiveRoute('/oidc/hybrid')}>
-              Hybrid Flow
+              OIDC Hybrid Flow
             </SubmenuItem>
             <SubmenuItem to="/oidc/client-credentials" onClick={onClose} $isActive={isActiveRoute('/oidc/client-credentials')}>
-              Client Credentials
+              OIDC Client Credentials
             </SubmenuItem>
             <SubmenuItem to="/oidc/worker-token" onClick={onClose} $isActive={isActiveRoute('/oidc/worker-token')}>
-              Worker Token
+              OIDC Worker Token
             </SubmenuItem>
             <SubmenuItem to="/oidc/device-code" onClick={onClose} $isActive={isActiveRoute('/oidc/device-code')}>
-              Device Code
+              OIDC Device Code
             </SubmenuItem>
             <SubmenuItem to="/flows/resource-owner-password" onClick={onClose} $isActive={isActiveRoute('/flows/resource-owner-password')}>
-              Resource Owner Password
+              OIDC Resource Owner Password
             </SubmenuItem>
           </Submenu>
         </NavItemWithSubmenu>
