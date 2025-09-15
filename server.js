@@ -654,7 +654,7 @@ app.use('/api', (req, res) => {
 });
 
 // Error handling middleware
-app.use((error, req, res) => {
+app.use((error, req, res, next) => {
   console.error('[Server] Unhandled error:', error);
   res.status(500).json({
     error: 'server_error',
