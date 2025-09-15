@@ -2589,12 +2589,12 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                 }}>
                   <strong style={{ color: '#065f46' }}>🎉 Tokens Successfully Exchanged!</strong>
                   <ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
-                    <li>✅ Access Token: {tokens.access_token ? 'Received' : 'Missing'}</li>
-                    <li>✅ Refresh Token: {tokens.refresh_token ? 'Received' : 'Missing'}</li>
-                    <li>✅ ID Token: {tokens.id_token ? 'Received' : 'Missing'}</li>
-                    <li>Token Type: {tokens.token_type || 'Bearer'}</li>
-                    <li>Expires In: {tokens.expires_in ? `${tokens.expires_in} seconds` : 'Unknown'}</li>
-                    <li>Scope: {tokens.scope || 'Not specified'}</li>
+                    <li>✅ Access Token: <strong style={{ color: '#1e40af' }}>{tokens.access_token ? 'Received' : 'Missing'}</strong></li>
+                    <li>✅ Refresh Token: <strong style={{ color: '#1e40af' }}>{tokens.refresh_token ? 'Received' : 'Missing'}</strong></li>
+                    <li>✅ ID Token: <strong style={{ color: '#1e40af' }}>{tokens.id_token ? 'Received' : 'Missing'}</strong></li>
+                    <li>Token Type: <strong style={{ color: '#1e40af' }}>{tokens.token_type || 'Bearer'}</strong></li>
+                    <li>Expires In: <strong style={{ color: '#1e40af' }}>{tokens.expires_in ? `${tokens.expires_in} seconds` : 'Unknown'}</strong></li>
+                    <li>Scope: <strong style={{ color: '#1e40af' }}>{tokens.scope || 'Not specified'}</strong></li>
                   </ul>
                 </div>
               )}
@@ -3081,21 +3081,21 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                   <ParameterBreakdown>
                     <ParameterItem>
                       <ParameterName>Token</ParameterName>
-                      <ParameterValue style={{ fontFamily: 'Monaco, Menlo, monospace', fontSize: '0.8rem', wordBreak: 'break-all' }}>
+                      <ParameterValue style={{ fontFamily: 'Monaco, Menlo, monospace', fontSize: '0.8rem', wordBreak: 'break-all', fontWeight: 'bold', color: '#1e40af' }}>
                         {tokens.access_token}
                       </ParameterValue>
                     </ParameterItem>
                     <ParameterItem>
                       <ParameterName>Type</ParameterName>
-                      <ParameterValue>{tokens.token_type || 'Bearer'}</ParameterValue>
+                      <ParameterValue style={{ fontWeight: 'bold', color: '#1e40af' }}>{tokens.token_type || 'Bearer'}</ParameterValue>
                     </ParameterItem>
                     <ParameterItem>
                       <ParameterName>Expires In</ParameterName>
-                      <ParameterValue>{tokens.expires_in ? `${tokens.expires_in} seconds` : 'Unknown'}</ParameterValue>
+                      <ParameterValue style={{ fontWeight: 'bold', color: '#1e40af' }}>{tokens.expires_in ? `${tokens.expires_in} seconds` : 'Unknown'}</ParameterValue>
                     </ParameterItem>
                     <ParameterItem>
                       <ParameterName>Scope</ParameterName>
-                      <ParameterValue>{tokens.scope || 'Not specified'}</ParameterValue>
+                      <ParameterValue style={{ fontWeight: 'bold', color: '#1e40af' }}>{tokens.scope || 'Not specified'}</ParameterValue>
                     </ParameterItem>
                   </ParameterBreakdown>
                   <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'flex-end' }}>
@@ -3116,13 +3116,13 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                   <ParameterBreakdown>
                     <ParameterItem>
                       <ParameterName>Token</ParameterName>
-                      <ParameterValue style={{ fontFamily: 'Monaco, Menlo, monospace', fontSize: '0.8rem', wordBreak: 'break-all' }}>
+                      <ParameterValue style={{ fontFamily: 'Monaco, Menlo, monospace', fontSize: '0.8rem', wordBreak: 'break-all', fontWeight: 'bold', color: '#1e40af' }}>
                         {tokens.refresh_token}
                       </ParameterValue>
                     </ParameterItem>
                     <ParameterItem>
                       <ParameterName>Purpose</ParameterName>
-                      <ParameterValue>Used to obtain new access tokens</ParameterValue>
+                      <ParameterValue style={{ fontWeight: 'bold', color: '#1e40af' }}>Used to obtain new access tokens</ParameterValue>
                     </ParameterItem>
                   </ParameterBreakdown>
                   <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'flex-end' }}>
@@ -3143,17 +3143,17 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                   <ParameterBreakdown>
                     <ParameterItem>
                       <ParameterName>Token</ParameterName>
-                      <ParameterValue style={{ fontFamily: 'Monaco, Menlo, monospace', fontSize: '0.8rem', wordBreak: 'break-all' }}>
+                      <ParameterValue style={{ fontFamily: 'Monaco, Menlo, monospace', fontSize: '0.8rem', wordBreak: 'break-all', fontWeight: 'bold', color: '#1e40af' }}>
                         {tokens.id_token}
                       </ParameterValue>
                     </ParameterItem>
                     <ParameterItem>
                       <ParameterName>Type</ParameterName>
-                      <ParameterValue>JWT (JSON Web Token)</ParameterValue>
+                      <ParameterValue style={{ fontWeight: 'bold', color: '#1e40af' }}>JWT (JSON Web Token)</ParameterValue>
                     </ParameterItem>
                     <ParameterItem>
                       <ParameterName>Purpose</ParameterName>
-                      <ParameterValue>Contains user identity information</ParameterValue>
+                      <ParameterValue style={{ fontWeight: 'bold', color: '#1e40af' }}>Contains user identity information</ParameterValue>
                     </ParameterItem>
                   </ParameterBreakdown>
                   <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'flex-end' }}>
@@ -3364,10 +3364,10 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
 
               <div style={{ marginTop: '1rem', fontSize: '0.8rem', color: '#6b7280' }}>
                 <p style={{ margin: '0 0 0.5rem 0' }}>
-                  <strong>Access Token:</strong> {tokens.access_token ? 'Available' : 'Not available'}
+                  <strong>Access Token:</strong> <strong style={{ color: '#1e40af' }}>{tokens.access_token ? 'Available' : 'Not available'}</strong>
                 </p>
                 <p style={{ margin: '0' }}>
-                  <strong>ID Token:</strong> {tokens.id_token ? 'Available' : 'Not available'}
+                  <strong>ID Token:</strong> <strong style={{ color: '#1e40af' }}>{tokens.id_token ? 'Available' : 'Not available'}</strong>
                 </p>
               </div>
             </div>
@@ -3540,12 +3540,12 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                     Tokens Exchanged Successfully
                   </SuccessTitle>
                   <div style={{ fontSize: '0.875rem' }}>
-                    <div>✅ Access Token: {tokens.access_token ? 'Received' : 'Missing'}</div>
-                    <div>✅ Refresh Token: {tokens.refresh_token ? 'Received' : 'Missing'}</div>
-                    <div>✅ ID Token: {tokens.id_token ? 'Received' : 'Missing'}</div>
-                    <div>Token Type: {tokens.token_type || 'Bearer'}</div>
-                    <div>Expires In: {tokens.expires_in ? `${tokens.expires_in} seconds` : 'Unknown'}</div>
-                    <div>Scope: {tokens.scope || 'Not specified'}</div>
+                    <div>✅ Access Token: <strong style={{ color: '#1e40af' }}>{tokens.access_token ? 'Received' : 'Missing'}</strong></div>
+                    <div>✅ Refresh Token: <strong style={{ color: '#1e40af' }}>{tokens.refresh_token ? 'Received' : 'Missing'}</strong></div>
+                    <div>✅ ID Token: <strong style={{ color: '#1e40af' }}>{tokens.id_token ? 'Received' : 'Missing'}</strong></div>
+                    <div>Token Type: <strong style={{ color: '#1e40af' }}>{tokens.token_type || 'Bearer'}</strong></div>
+                    <div>Expires In: <strong style={{ color: '#1e40af' }}>{tokens.expires_in ? `${tokens.expires_in} seconds` : 'Unknown'}</strong></div>
+                    <div>Scope: <strong style={{ color: '#1e40af' }}>{tokens.scope || 'Not specified'}</strong></div>
                   </div>
                 </SuccessSection>
               )}
