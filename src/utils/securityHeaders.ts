@@ -178,13 +178,13 @@ export class SecurityHeadersManager {
       res.setHeader(key, value);
     });
 
-    logger.info('[SecurityHeaders] Security headers applied to Express response');
+    logger.info('SecurityHeaders', 'Security headers applied to Express response');
   }
 
   // Update CSP directive
   updateCSPDirective(directive: string, sources: string[]): void {
     this.config.cspDirectives[directive] = sources;
-    logger.info(`[SecurityHeaders] CSP directive updated: ${directive}`);
+    logger.info('SecurityHeaders', `CSP directive updated: ${directive}`);
   }
 
   // Add CSP source to directive
@@ -195,7 +195,7 @@ export class SecurityHeadersManager {
     
     if (!this.config.cspDirectives[directive].includes(source)) {
       this.config.cspDirectives[directive].push(source);
-      logger.info(`[SecurityHeaders] CSP source added: ${directive} -> ${source}`);
+      logger.info('SecurityHeaders', `CSP source added: ${directive} -> ${source}`);
     }
   }
 
@@ -205,7 +205,7 @@ export class SecurityHeadersManager {
       const index = this.config.cspDirectives[directive].indexOf(source);
       if (index > -1) {
         this.config.cspDirectives[directive].splice(index, 1);
-        logger.info(`[SecurityHeaders] CSP source removed: ${directive} -> ${source}`);
+        logger.info('SecurityHeaders', `CSP source removed: ${directive} -> ${source}`);
       }
     }
   }
@@ -213,13 +213,13 @@ export class SecurityHeadersManager {
   // Update permissions policy
   updatePermissionsPolicy(feature: string, allowlist: string[]): void {
     this.config.permissionsPolicy[feature] = allowlist;
-    logger.info(`[SecurityHeaders] Permissions policy updated: ${feature}`);
+    logger.info('SecurityHeaders', `Permissions policy updated: ${feature}`);
   }
 
   // Update configuration
   updateConfig(newConfig: Partial<SecurityHeadersConfig>): void {
     this.config = { ...this.config, ...newConfig };
-    logger.info('[SecurityHeaders] Configuration updated');
+    logger.info('SecurityHeaders', 'Configuration updated');
   }
 
   // Get current configuration
@@ -236,7 +236,7 @@ export class SecurityHeadersManager {
     ];
 
     if (!validDirectives.includes(directive)) {
-      logger.warn(`[SecurityHeaders] Invalid CSP directive: ${directive}`);
+      logger.warn('SecurityHeaders', `Invalid CSP directive: ${directive}`);
       return false;
     }
 
@@ -247,7 +247,7 @@ export class SecurityHeadersManager {
 
     for (const source of sources) {
       if (!validSources.includes(source) && !source.startsWith('http') && !source.startsWith('data')) {
-        logger.warn(`[SecurityHeaders] Invalid CSP source: ${source}`);
+        logger.warn('SecurityHeaders', `Invalid CSP source: ${source}`);
         return false;
       }
     }
