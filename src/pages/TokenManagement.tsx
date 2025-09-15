@@ -1318,13 +1318,33 @@ const TokenManagement = () => {
 
           <ButtonGroup>
             <ActionButton
-              id="get-token-btn"
+              id="get-access-token-btn"
               className="primary"
-              onClick={handleGetToken}
+              onClick={() => handleGetSpecificToken('access_token')}
               disabled={isLoading}
             >
               <FiKey />
-              {isLoading ? 'Getting...' : 'Get Token'}
+              {isLoading ? 'Getting...' : 'Get Access Token'}
+            </ActionButton>
+
+            <ActionButton
+              id="get-id-token-btn"
+              className="primary"
+              onClick={() => handleGetSpecificToken('id_token')}
+              disabled={isLoading}
+            >
+              <FiShield />
+              {isLoading ? 'Getting...' : 'Get ID Token'}
+            </ActionButton>
+
+            <ActionButton
+              id="get-refresh-token-btn"
+              className="primary"
+              onClick={() => handleGetSpecificToken('refresh_token')}
+              disabled={isLoading}
+            >
+              <FiRefreshCw />
+              {isLoading ? 'Getting...' : 'Get Refresh Token'}
             </ActionButton>
 
             <ActionButton
