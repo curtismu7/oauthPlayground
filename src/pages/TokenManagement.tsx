@@ -899,6 +899,31 @@ const TokenManagement = () => {
         }
       }
       
+      // Also check localStorage for tokens from Authorization Code flow
+      if (!currentTokens) {
+        console.log('ℹ️ [TokenManagement] Checking localStorage for oauth_tokens...');
+        const localStorageTokens = localStorage.getItem('oauth_tokens');
+        if (localStorageTokens) {
+          try {
+            currentTokens = JSON.parse(localStorageTokens);
+            console.log('✅ [TokenManagement] Found tokens in localStorage:', currentTokens);
+          } catch (parseError) {
+            console.error('❌ [TokenManagement] Error parsing localStorage tokens:', parseError);
+          }
+        }
+      }
+      
+      // Debug: Log all available token types
+      if (currentTokens) {
+        console.log('🔍 [TokenManagement] Available tokens:', {
+          access_token: currentTokens.access_token ? '✅' : '❌',
+          id_token: currentTokens.id_token ? '✅' : '❌',
+          refresh_token: currentTokens.refresh_token ? '✅' : '❌',
+          token_type: currentTokens.token_type || 'none',
+          expires_in: currentTokens.expires_in || 'none'
+        });
+      }
+      
       if (currentTokens && currentTokens[tokenType]) {
         console.log(`✅ [TokenManagement] Loading current ${tokenType}`);
         setTokenString(currentTokens[tokenType]);
@@ -928,6 +953,7 @@ const TokenManagement = () => {
         setSuccessMessage(`✅ ${tokenType.replace('_', ' ').toUpperCase()} loaded successfully!`);
       } else {
         console.log(`⚠️ [TokenManagement] No current ${tokenType} available`);
+        console.log('🔍 [TokenManagement] Current tokens object:', currentTokens);
         setMessage({
           type: 'error',
           title: 'No Token Available',
