@@ -1091,7 +1091,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         setCallbackError(null);
         
         // Show message about what's happening
-        updateStepMessage('exchange-tokens', '🔄 Ready to exchange authorization code for tokens. Click the "Sign On" button to proceed with token exchange.');
+        updateStepMessage('exchange-tokens', '🔄 Ready to exchange authorization code for tokens. Click the "Exchange Token" button to proceed with token exchange.');
         
         // Auto-exchange tokens immediately (only if not already exchanging and on correct step)
         // Use the step we just set (5) instead of currentStepIndex which hasn't updated yet
@@ -3483,6 +3483,67 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           onGoToConfig={() => window.location.href = '/configuration'}
         />
       )}
+
+      {/* Reset Flow Button */}
+      <div style={{ 
+        marginBottom: '2rem', 
+        padding: '1rem', 
+        backgroundColor: '#fef2f2', 
+        border: '1px solid #fecaca', 
+        borderRadius: '0.5rem',
+        textAlign: 'center'
+      }}>
+        <h3 style={{ margin: '0 0 0.5rem 0', color: '#dc2626', fontSize: '1rem' }}>
+          <FiRefreshCw style={{ marginRight: '0.5rem' }} />
+          Reset Flow
+        </h3>
+        <p style={{ margin: '0 0 1rem 0', color: '#6b7280', fontSize: '0.875rem' }}>
+          Clear all data and start over from Step 1
+        </p>
+        <button
+          onClick={() => {
+            if (confirm('Are you sure you want to reset the entire flow? This will clear all progress and data.')) {
+              // Clear all state
+              setCredentials({});
+              setAuthCode('');
+              setTokens(null);
+              setUserInfo(null);
+              setAuthError(null);
+              setErrorDescription(null);
+              setPkceCodeVerifier('');
+              setPkceCodeChallenge('');
+              setAuthUrl('');
+              setCustomToken('');
+              
+              // Clear any stored data
+              localStorage.removeItem('oauth_tokens');
+              sessionStorage.clear();
+              
+              // Reset to step 1
+              window.location.reload();
+            }
+          }}
+          style={{
+            padding: '0.75rem 1.5rem',
+            backgroundColor: '#dc2626',
+            color: 'white',
+            border: 'none',
+            borderRadius: '0.375rem',
+            fontSize: '0.875rem',
+            fontWeight: '500',
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            transition: 'background-color 0.2s'
+          }}
+          onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#b91c1c'}
+          onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
+        >
+          <FiRefreshCw />
+          Reset Flow
+        </button>
+      </div>
 
     <EnhancedStepFlowV2
       steps={steps}
