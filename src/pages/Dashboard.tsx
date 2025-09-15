@@ -477,7 +477,7 @@ const Dashboard = () => {
             },
             {
               id: 'sample_2',
-              action: 'Updated Configuration: Environment ID',
+              action: 'Updated PingOne Credentials: Environment ID',
               flowType: 'configuration',
               timestamp: Date.now() - 600000, // 10 minutes ago
               success: true,
@@ -860,11 +860,11 @@ const Dashboard = () => {
             </ActionButton>
             <ActionButton to="/auto-discover">
               <span>🔍</span>
-              Discovery
+              Well Known Endpoint (OIDC Discovery)
             </ActionButton>
             <ActionButton to="/configuration">
               <span>⚙️</span>
-              Configuration
+              PingOne Credentials Config
             </ActionButton>
           </QuickActions>
         </ContentCard>
