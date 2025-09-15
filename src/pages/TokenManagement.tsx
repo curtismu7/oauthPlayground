@@ -17,6 +17,17 @@ const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 1.5rem;
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 `;
 
 
@@ -511,6 +522,7 @@ const TokenManagement = () => {
   const [activeTab, setActiveTab] = useState<'analysis' | 'diagnosis'>('analysis');
   const [errorInput, setErrorInput] = useState('');
   const [message, setMessage] = useState<{ type: 'success' | 'error' | 'warning' | 'info'; title?: string; message: string } | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // Token analysis hook
   const {
@@ -569,7 +581,19 @@ const TokenManagement = () => {
           console.log('ℹ️ [TokenManagement] No tokens in auth context, checking storage...');
           currentTokens = getOAuthTokens();
           if (currentTokens) {
-            console.log('✅ [TokenManagement] Found tokens in storage:', currentTokens);
+            console.log('✅ [TokenManagement] Found tokens in secure storage:', currentTokens);
+          } else {
+            // Also check localStorage for tokens from Authorization Code flow
+            console.log('ℹ️ [TokenManagement] Checking localStorage for oauth_tokens...');
+            const localStorageTokens = localStorage.getItem('oauth_tokens');
+            if (localStorageTokens) {
+              try {
+                currentTokens = JSON.parse(localStorageTokens);
+                console.log('✅ [TokenManagement] Found tokens in localStorage:', currentTokens);
+              } catch (parseError) {
+                console.error('❌ [TokenManagement] Error parsing localStorage tokens:', parseError);
+              }
+            }
           }
         }
         
@@ -677,6 +701,7 @@ const TokenManagement = () => {
 
       console.log('✅ [TokenManagement] Successfully decoded JWT:', { header, payload });
       setTokenStatus('valid');
+      setSuccessMessage('Token successfully decoded! You can now view the header and payload details below.');
     } catch (error) {
       console.error('❌ [TokenManagement] JWT decode error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
@@ -688,6 +713,7 @@ const TokenManagement = () => {
 
   const handleTokenInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setTokenString(e.target.value);
+    setSuccessMessage(null); // Clear success message when user types
   };
 
   const handleDecodeClick = () => {
@@ -1046,14 +1072,6 @@ const TokenManagement = () => {
         }
         subtitle="Monitor and manage PingOne authentication tokens"
       />
-      {message && (
-        <StandardMessage
-          type={message.type}
-          title={message.title}
-          message={message.message}
-          onDismiss={() => setMessage(null)}
-        />
-      )}
 
       {/* Current Token Status Section */}
       {tokens && tokens.access_token && (
@@ -1176,6 +1194,36 @@ const TokenManagement = () => {
               }}
             />
           </TokenSurface>
+
+          {/* Success Message */}
+          {successMessage && (
+            <div style={{
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              color: 'white',
+              padding: '0.75rem 1rem',
+              borderRadius: '0.5rem',
+              marginBottom: '1rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              fontWeight: '500',
+              boxShadow: '0 4px 6px -1px rgba(16, 185, 129, 0.3)',
+              animation: 'slideIn 0.3s ease-out'
+            }}>
+              <FiCheckCircle size={20} />
+              {successMessage}
+            </div>
+          )}
+
+          {/* Error/Warning Message */}
+          {message && (
+            <StandardMessage
+              type={message.type}
+              title={message.title}
+              message={message.message}
+              onDismiss={() => setMessage(null)}
+            />
+          )}
 
           <ButtonGroup>
             <ActionButton
