@@ -362,8 +362,8 @@ const Configuration = () => {
         // Show success message
         setSaveStatus({
           type: 'success',
-          title: 'Configuration Updated',
-          message: 'Configuration has been automatically updated with the credentials saved from the login page.'
+          title: 'PingOne Credentials Updated',
+          message: 'PingOne credentials have been automatically updated with the credentials saved from the login page.'
         });
         
         // Clear message after 5 seconds
@@ -487,8 +487,8 @@ const Configuration = () => {
 
       setSaveStatus({
         type: 'success',
-        title: 'Configuration saved',
-        message: 'Your PingOne configuration has been saved successfully to localStorage.'
+        title: 'PingOne Credentials saved',
+        message: 'Your PingOne credentials have been saved successfully to localStorage.'
       });
 
       console.log('✅ [Configuration] Success status set');
@@ -498,7 +498,7 @@ const Configuration = () => {
       setSaveStatus({
         type: 'danger',
         title: 'Error',
-        message: 'Failed to save configuration. Please try again.'
+        message: 'Failed to save PingOne credentials. Please try again.'
       });
     } finally {
       console.log('🔄 [Configuration] Setting isLoading to false');
@@ -538,8 +538,8 @@ const Configuration = () => {
 
     setSaveStatus({
       type: 'success',
-      title: 'Configuration Discovered',
-      message: `Successfully discovered and applied configuration for environment ${environmentId}`
+      title: 'PingOne Credentials Discovered',
+      message: `Successfully discovered and applied PingOne credentials for environment ${environmentId}`
     });
   };
   
@@ -557,7 +557,7 @@ const Configuration = () => {
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f8f9fa' }}>
         <div style={{ textAlign: 'center' }}>
           <LoadingSpinner />
-          <p style={{ marginTop: '1rem', fontSize: '1.1rem', color: '#374151' }}>Saving Configuration...</p>
+          <p style={{ marginTop: '1rem', fontSize: '1.1rem', color: '#374151' }}>Saving PingOne Credentials...</p>
         </div>
       </div>
     );
@@ -566,7 +566,7 @@ const Configuration = () => {
   return (
     <ConfigurationContainer>
       <PageHeader>
-        <h1>PingOne Configuration</h1>
+        <h1>PingOne Credentials Config</h1>
         <p>Configure your PingOne environment and application settings to get started with the OAuth Playground.</p>
       </PageHeader>
 
