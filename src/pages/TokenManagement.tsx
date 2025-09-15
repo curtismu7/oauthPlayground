@@ -12,6 +12,7 @@ import { useScrollToTop } from '../hooks/useScrollToTop';
 import JSONHighlighter from '../components/JSONHighlighter';
 import { TokenSurface } from '../components/TokenSurface';
 import StandardMessage from '../components/StandardMessage';
+import ConfirmationModal from '../components/ConfirmationModal';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -523,6 +524,11 @@ const TokenManagement = () => {
   const [errorInput, setErrorInput] = useState('');
   const [message, setMessage] = useState<{ type: 'success' | 'error' | 'warning' | 'info'; title?: string; message: string } | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showRevokeModal, setShowRevokeModal] = useState(false);
+  const [showClearModal, setShowClearModal] = useState(false);
+  const [showClearHistoryModal, setShowClearHistoryModal] = useState(false);
+  const [showRemoveHistoryModal, setShowRemoveHistoryModal] = useState(false);
+  const [historyEntryToRemove, setHistoryEntryToRemove] = useState<string | null>(null);
 
   // Token analysis hook
   const {
@@ -970,54 +976,75 @@ const TokenManagement = () => {
   };
 
   const handleRevokeToken = async () => {
-    if (confirm('Are you sure you want to revoke this token?')) {
-      setIsLoading(true);
-      try {
-        // Simulate token revocation
-        setTimeout(() => {
-          setTokenString('');
-          setJwtHeader('');
-          setJwtPayload('');
-          setTokenStatus('none');
-          setMessage({
-            type: 'success',
-            title: 'Token Revoked',
-            message: 'Token revoked successfully!'
-          });
-          setIsLoading(false);
-        }, 500);
-      } catch (error) {
-        console.error('Error revoking token:', error);
+    setShowRevokeModal(true);
+  };
+
+  const confirmRevokeToken = async () => {
+    setIsLoading(true);
+    try {
+      // Simulate token revocation
+      setTimeout(() => {
+        setTokenString('');
+        setJwtHeader('');
+        setJwtPayload('');
+        setTokenStatus('none');
+        setMessage({
+          type: 'success',
+          title: 'Token Revoked',
+          message: 'Token revoked successfully!'
+        });
         setIsLoading(false);
-      }
+      }, 500);
+    } catch (error) {
+      console.error('Error revoking token:', error);
+      setIsLoading(false);
     }
   };
 
   const handleClearToken = () => {
-    if (confirm('Are you sure you want to clear the token?')) {
-      setTokenString('');
-      setJwtHeader('');
-      setJwtPayload('');
-      setTokenStatus('none');
-    }
+    setShowClearModal(true);
+  };
+
+  const confirmClearToken = () => {
+    setTokenString('');
+    setJwtHeader('');
+    setJwtPayload('');
+    setTokenStatus('none');
+    setMessage({
+      type: 'success',
+      title: 'Token Cleared',
+      message: 'Token has been cleared successfully!'
+    });
   };
 
   const handleClearHistory = () => {
-    if (confirm('Are you sure you want to clear all token history?')) {
-      clearTokenHistory();
-      setTokenHistory([]);
-      setMessage({
-        type: 'success',
-        title: 'History Cleared',
-        message: 'Token history cleared successfully!'
-      });
-    }
+    setShowClearHistoryModal(true);
+  };
+
+  const confirmClearHistory = () => {
+    clearTokenHistory();
+    setTokenHistory([]);
+    setMessage({
+      type: 'success',
+      title: 'History Cleared',
+      message: 'Token history cleared successfully!'
+    });
   };
 
   const handleRemoveHistoryEntry = (entryId: string) => {
-    if (confirm('Are you sure you want to remove this token from history?')) {
-      removeTokenFromHistory(entryId);
-      setTokenHistory(prev => prev.filter(entry => entry.id !== entryId));
+    setHistoryEntryToRemove(entryId);
+    setShowRemoveHistoryModal(true);
+  };
+
+  const confirmRemoveHistoryEntry = () => {
+    if (historyEntryToRemove) {
+      removeTokenFromHistory(historyEntryToRemove);
+      setTokenHistory(prev => prev.filter(entry => entry.id !== historyEntryToRemove));
+      setMessage({
+        type: 'success',
+        title: 'Entry Removed',
+        message: 'Token entry removed from history successfully!'
+      });
     }
   };
 
@@ -1980,6 +2007,55 @@ const TokenManagement = () => {
           </TabContent>
         </CardBody>
       </TokenSection>
+
+      {/* Confirmation Modals */}
+      <ConfirmationModal
+        isOpen={showRevokeModal}
+        onClose={() => setShowRevokeModal(false)}
+        onConfirm={confirmRevokeToken}
+        title="Revoke Token"
+        message="Are you sure you want to revoke this token? This action cannot be undone and the token will no longer be valid."
+        confirmText="Revoke Token"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={isLoading}
+      />
+
+      <ConfirmationModal
+        isOpen={showClearModal}
+        onClose={() => setShowClearModal(false)}
+        onConfirm={confirmClearToken}
+        title="Clear Token"
+        message="Are you sure you want to clear the current token? This will remove it from the display but won't revoke it on the server."
+        confirmText="Clear Token"
+        cancelText="Cancel"
+        variant="primary"
+      />
+
+      <ConfirmationModal
+        isOpen={showClearHistoryModal}
+        onClose={() => setShowClearHistoryModal(false)}
+        onConfirm={confirmClearHistory}
+        title="Clear Token History"
+        message="Are you sure you want to clear all token history? This action cannot be undone and all stored token history will be permanently removed."
+        confirmText="Clear History"
+        cancelText="Cancel"
+        variant="danger"
+      />
+
+      <ConfirmationModal
+        isOpen={showRemoveHistoryModal}
+        onClose={() => {
+          setShowRemoveHistoryModal(false);
+          setHistoryEntryToRemove(null);
+        }}
+        onConfirm={confirmRemoveHistoryEntry}
+        title="Remove Token Entry"
+        message="Are you sure you want to remove this token entry from history? This action cannot be undone."
+        confirmText="Remove Entry"
+        cancelText="Cancel"
+        variant="danger"
+      />
 
     </Container>
   );
