@@ -302,6 +302,17 @@ const JsonDisplay = styled.div`
   white-space: pre-wrap;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   position: relative;
+  
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+      box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.3);
+    }
+    50% {
+      transform: scale(1.02);
+      box-shadow: 0 8px 12px -2px rgba(22, 163, 74, 0.4);
+    }
+  }
 `;
 
 const TestingMethodCard = styled.div<{ $selected: boolean }>`
@@ -1699,8 +1710,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       logger.info('EnhancedAuthorizationCodeFlowV2', 'Tokens received', tokenData);
       setIsExchangingTokens(false);
       
-      // Show success message
-      updateStepMessage('exchange-tokens', '🎉 Token exchange successful! You now have access and refresh tokens. The OAuth flow is complete!');
+      // Show success message with strong instruction to scroll up
+      updateStepMessage('exchange-tokens', '🎉 SUCCESS! Tokens received! Scroll up to see your new access and refresh tokens in the green boxes above. The OAuth flow is complete!');
       
       // Scroll to bottom to show the tokens and next steps
       scrollToBottom();
@@ -2722,13 +2733,33 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
 
           {tokens && (
             <div>
-              <h4>Token Response (JSON):</h4>
-              <JsonDisplay>
+              <h4 style={{ color: '#16a34a', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <FiCheckCircle />
+                ✅ Token Response (JSON) - SUCCESS!
+              </h4>
+              <JsonDisplay style={{
+                background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+                border: '2px solid #16a34a',
+                boxShadow: '0 4px 6px -1px rgba(22, 163, 74, 0.3)',
+                animation: 'pulse 2s ease-in-out'
+              }}>
                 {JSON.stringify(tokens, null, 2)}
                 <CopyButton onClick={() => copyToClipboard(JSON.stringify(tokens, null, 2))}>
                   {copiedText === JSON.stringify(tokens, null, 2) ? <FiCheckCircle /> : <FiCopy />}
                 </CopyButton>
               </JsonDisplay>
+              <div style={{
+                marginTop: '1rem',
+                padding: '1rem',
+                background: '#f0fdf4',
+                border: '1px solid #16a34a',
+                borderRadius: '0.5rem',
+                color: '#15803d',
+                fontWeight: '600',
+                textAlign: 'center'
+              }}>
+                🎉 NEW TOKENS RECEIVED! Scroll up to see all your tokens in the green boxes above!
+              </div>
             </div>
           )}
 
