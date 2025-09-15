@@ -926,7 +926,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
         </Header>
 
         {/* Step Progress Indicator */}
-        <StepProgressContainer>
+        <StepProgressContainer data-testid="step-progress">
           <StepProgressWrapper>
             {steps.map((step, index) => {
               const status = getStepStatus(index);
@@ -1159,7 +1159,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
         )}
 
         {/* Bottom Step Progress Indicator - Duplicate for easy access */}
-        <StepProgressContainer style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid #e5e7eb' }}>
+        <StepProgressContainer data-testid="step-progress-bottom" style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid #e5e7eb' }}>
           <StepProgressWrapper>
             {steps.map((step, index) => {
               const status = getStepStatus(index);
