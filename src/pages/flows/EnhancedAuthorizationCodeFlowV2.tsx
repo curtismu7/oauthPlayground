@@ -2428,6 +2428,28 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               </InfoBox>
             </div>
           )}
+
+          {/* Clear User Guidance Message */}
+          <InfoBox type="info" style={{ marginTop: '2rem', marginBottom: '1rem' }}>
+            <FiUser />
+            <div>
+              <strong>📋 What to do next:</strong>
+              <br />
+              <br />
+              1. <strong>Choose your testing method</strong> above (popup recommended for testing)
+              <br />
+              2. <strong>Click the "Sign On" button</strong> below to redirect to PingOne
+              <br />
+              3. <strong>Log in with your PingOne credentials</strong> in the popup/redirect
+              <br />
+              4. <strong>Authorize the application</strong> when prompted
+              <br />
+              5. <strong>You'll be redirected back</strong> automatically with an authorization code
+              <br />
+              <br />
+              <strong>💡 Tip:</strong> The popup method is easier for testing - you can see the callback happen in real-time!
+            </div>
+          </InfoBox>
         </div>
       ),
       execute: handleAuthorization,
