@@ -185,9 +185,10 @@ const InfoBox = styled.div<{ type: 'info' | 'warning' | 'success' | 'error' }>`
         `;
       case 'success':
         return `
-          background: #ecfdf5;
-          border-left: 4px solid #10b981;
-          color: #065f46;
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          border-left: 4px solid #047857;
+          color: #ffffff;
+          box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
         `;
       case 'error':
         return `
@@ -1277,12 +1278,15 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         
         // Scroll to step progress to show the success message and next step
         scrollToStepProgress();
+        
+        return { success: true, message: 'Credentials saved successfully' };
       } else {
         throw new Error('Failed to save authz flow credentials to credential manager');
       }
     } catch (error) {
       console.error('❌ [EnhancedAuthorizationCodeFlowV2] Failed to save credentials:', error);
       logger.error('EnhancedAuthorizationCodeFlowV2', 'Failed to save credentials', String(error));
+      throw error; // Re-throw to let the step execution handle the error
     } finally {
       setIsSavingCredentials(false);
       setCredentialsSaved(true);
@@ -3469,6 +3473,11 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       onStepChange={useCallback((stepIndex) => {
         console.log('🔔 [EnhancedAuthorizationCodeFlowV2] Step changed to:', stepIndex);
         setCurrentStepIndex(stepIndex);
+      }, [])}
+      onStepComplete={useCallback((stepId, result) => {
+        console.log('✅ [EnhancedAuthorizationCodeFlowV2] Step completed:', stepId, result);
+        // The step completion is already handled by the EnhancedStepFlowV2 component
+        // This callback is for any additional logic we might need
       }, [])}
     />
 
