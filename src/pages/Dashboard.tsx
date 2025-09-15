@@ -844,7 +844,7 @@ const Dashboard = () => {
           <QuickActions>
             <ActionButton to="/flows/enhanced-authorization-code-v2">
               <span>🔑</span>
-              OIDC Authorization Code Flow
+              OIDC Authorization Code
             </ActionButton>
             <ActionButton to="/flows/authorization-code">
               <span>🔐</span>
