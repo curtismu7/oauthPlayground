@@ -2071,6 +2071,18 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               <div>{stepMessages['generate-pkce']}</div>
             </InfoBox>
           )}
+
+          {pkceGenerated && (
+            <InfoBox type="success">
+              <FiCheckCircle />
+              <div>
+                <strong>✅ PKCE Codes Generated Successfully!</strong>
+                <br />
+                Your PKCE codes have been generated and are ready to use. These will be included in the authorization request for enhanced security.
+              </div>
+            </InfoBox>
+          )}
+
           <CodeBlock>
             <CodeComment>// How PKCE Codes Are Used in OAuth Flow</CodeComment>
             <CodeComment>// Step 1: Authorization Request (with code_challenge)</CodeComment>
@@ -2123,17 +2135,6 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                 <strong>🔄 Saving Credentials...</strong>
                 <br />
                 Storing your PingOne configuration securely.
-              </div>
-            </InfoBox>
-          )}
-
-          {pkceGenerated && (
-            <InfoBox type="success">
-              <FiCheckCircle />
-              <div>
-                <strong>✅ PKCE Codes Generated Successfully!</strong>
-                <br />
-                Your PKCE codes have been generated and are ready to use. These will be included in the authorization request for enhanced security.
               </div>
             </InfoBox>
           )}
@@ -2200,6 +2201,23 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       category: 'authorization',
       content: (
         <div>
+          {stepMessages['build-auth-url'] && (
+            <InfoBox type="success">
+              <div>{stepMessages['build-auth-url']}</div>
+            </InfoBox>
+          )}
+
+          {urlGenerated && (
+            <InfoBox type="success">
+              <FiCheckCircle />
+              <div>
+                <strong>✅ Authorization URL Generated Successfully!</strong>
+                <br />
+                Your authorization URL has been built with all required OAuth parameters. You can now proceed to redirect the user to PingOne for authentication.
+              </div>
+            </InfoBox>
+          )}
+
           <CodeBlock>
             <CodeComment>// Authorization URL for Authorization Code Flow</CodeComment>
             <CodeLine>
@@ -2224,17 +2242,6 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                 <strong>🔄 Building Authorization URL...</strong>
                 <br />
                 Constructing the complete authorization URL with all required parameters.
-              </div>
-            </InfoBox>
-          )}
-
-          {urlGenerated && (
-            <InfoBox type="success">
-              <FiCheckCircle />
-              <div>
-                <strong>✅ Authorization URL Generated Successfully!</strong>
-                <br />
-                Your authorization URL has been built with all required OAuth parameters. You can now proceed to redirect the user to PingOne for authentication.
               </div>
             </InfoBox>
           )}
@@ -2434,6 +2441,12 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       category: 'authorization',
       content: (
         <div>
+          {stepMessages['handle-callback'] && (
+            <InfoBox type="success">
+              <div>{stepMessages['handle-callback']}</div>
+            </InfoBox>
+          )}
+
           {authCode && (
             <div style={{ 
               marginBottom: '2rem', 
@@ -2676,14 +2689,6 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           </ValidationIndicator>
         </FormField>
 
-        {/* Message near buttons */}
-        {stepMessages['handle-callback'] && (
-          <div style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>
-            <InfoBox type="success">
-              <div>{stepMessages['handle-callback']}</div>
-            </InfoBox>
-          </div>
-        )}
       </div>
     ),
       canExecute: (() => {
@@ -2895,14 +2900,6 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             </p>
           </div>
 
-          {/* Message near buttons */}
-          {stepMessages['exchange-tokens'] && (
-            <div style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>
-              <InfoBox type="success">
-                <div>{stepMessages['exchange-tokens']}</div>
-              </InfoBox>
-            </div>
-          )}
         </div>
       ),
       execute: async () => {
@@ -2924,6 +2921,23 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       category: 'validation',
       content: (
         <div>
+          {stepMessages['validate-tokens'] && (
+            <InfoBox type="success">
+              <div>{stepMessages['validate-tokens']}</div>
+            </InfoBox>
+          )}
+
+          {tokens && userInfo && (
+            <InfoBox type="success">
+              <FiCheckCircle />
+              <div>
+                <strong>🎉 OAuth Flow Complete!</strong>
+                <br />
+                All tokens are valid and user information retrieved successfully.
+              </div>
+            </InfoBox>
+          )}
+
           <h4>UserInfo Request:</h4>
           <ParameterBreakdown>
             <ParameterItem>
@@ -3030,17 +3044,6 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                 <strong>🔄 Retrieving User Information...</strong>
                 <br />
                 Fetching user profile data from the UserInfo endpoint...
-              </div>
-            </InfoBox>
-          )}
-
-          {tokens && userInfo && (
-            <InfoBox type="success">
-              <FiCheckCircle />
-              <div>
-                <strong>🎉 OAuth Flow Complete!</strong>
-                <br />
-                All tokens are valid and user information retrieved successfully.
               </div>
             </InfoBox>
           )}
