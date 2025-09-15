@@ -2727,11 +2727,6 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       category: 'token-exchange',
       content: (
         <div>
-          {stepMessages['exchange-tokens'] && (
-            <InfoBox type="success">
-              <div>{stepMessages['exchange-tokens']}</div>
-            </InfoBox>
-          )}
           <h4>Token Request Details:</h4>
           <ParameterBreakdown>
             <ParameterItem>
@@ -2916,6 +2911,13 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               ⚠️ Use this if you're getting "Invalid Grant" errors with expired codes
             </p>
           </div>
+
+          {/* Success message at bottom above buttons */}
+          {stepMessages['exchange-tokens'] && (
+            <InfoBox type="success" style={{ marginTop: '2rem', marginBottom: '1rem' }}>
+              <div>{stepMessages['exchange-tokens']}</div>
+            </InfoBox>
+          )}
 
         </div>
       ),
