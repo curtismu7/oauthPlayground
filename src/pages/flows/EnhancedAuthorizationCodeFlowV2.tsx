@@ -622,24 +622,23 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   // Scroll to step progress indicator helper function
   const scrollToStepProgress = useCallback(() => {
     setTimeout(() => {
-      // Look for the step progress container with the step indicators
-      const stepProgressElement = document.querySelector('[data-testid="step-progress"]') || 
-                                 document.querySelector('[data-testid="step-progress-bottom"]') ||
+      // Look for the BOTTOM step progress container with the step indicators (the one with border-top)
+      const stepProgressElement = document.querySelector('[data-testid="step-progress-bottom"]') ||
                                  document.querySelector('[class*="sc-imTTCS"]') || 
                                  document.querySelector('[class*="StepProgressContainer"]');
       
       if (stepProgressElement) {
-        console.log('🎯 [EnhancedAuthorizationCodeFlowV2] Scrolling to step progress indicator');
+        console.log('🎯 [EnhancedAuthorizationCodeFlowV2] Scrolling to BOTTOM step progress indicator');
         stepProgressElement.scrollIntoView({ 
           behavior: 'smooth', 
           block: 'center',
           inline: 'nearest'
         });
       } else {
-        // Fallback to scrolling to top if step progress not found
-        console.log('⚠️ [EnhancedAuthorizationCodeFlowV2] Step progress not found, scrolling to top');
+        // Fallback to scrolling to bottom if step progress not found
+        console.log('⚠️ [EnhancedAuthorizationCodeFlowV2] Bottom step progress not found, scrolling to bottom');
         window.scrollTo({
-          top: 0,
+          top: document.documentElement.scrollHeight,
           behavior: 'smooth'
         });
       }
