@@ -598,6 +598,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   const [stepMessages, setStepMessages] = useState<{[key: string]: string}>({});
   const [showResetModal, setShowResetModal] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const [showClearCredentialsModal, setShowClearCredentialsModal] = useState(false);
+  const [isClearingCredentials, setIsClearingCredentials] = useState(false);
 
   // Update step message
   const updateStepMessage = useCallback((stepId: string, message: string) => {
@@ -649,25 +651,13 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     }, 100);
   }, []);
 
-  // Reset flow function
+  // Reset flow function (preserves credentials)
   const handleResetFlow = useCallback(async () => {
     setIsResetting(true);
     try {
-      console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Resetting flow...');
+      console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Resetting flow (preserving credentials)...');
       
-      // Clear all state
-      setCredentials({
-        clientId: '',
-        clientSecret: '',
-        environmentId: '',
-        authorizationEndpoint: '',
-        tokenEndpoint: '',
-        userInfoEndpoint: '',
-        redirectUri: window.location.origin + '/authz-callback',
-        scopes: 'openid profile email',
-        responseType: 'code',
-        codeChallengeMethod: 'S256'
-      });
+      // Clear flow state but preserve credentials
       setAuthCode('');
       setTokens(null);
       setUserInfo(null);
@@ -681,23 +671,78 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       setStepMessages({});
       setCurrentStepIndex(0);
       
-      // Clear any stored data
+      // Clear flow-specific stored data but preserve credentials
       localStorage.removeItem('oauth_tokens');
-      sessionStorage.clear();
+      sessionStorage.removeItem('oauth_auth_code');
+      sessionStorage.removeItem('code_verifier');
+      sessionStorage.removeItem('code_challenge');
+      sessionStorage.removeItem('oauth_state');
+      sessionStorage.removeItem('enhanced-authz-code-v2-step');
       
-      // Clear credential manager data
-      await credentialManager.clearAllCredentials();
-      
-      console.log('✅ [EnhancedAuthorizationCodeFlowV2] Flow reset completed');
+      console.log('✅ [EnhancedAuthorizationCodeFlowV2] Flow reset completed (credentials preserved)');
       
       // Show success message
-      updateStepMessage('reset', 'Flow has been reset successfully. You can now start over from Step 1.');
+      updateStepMessage('reset', 'Flow has been reset successfully. Your credentials are preserved. You can now start over from Step 1.');
       
     } catch (error) {
       console.error('❌ [EnhancedAuthorizationCodeFlowV2] Error resetting flow:', error);
     } finally {
       setIsResetting(false);
       setShowResetModal(false);
+    }
+  }, [updateStepMessage]);
+
+  // Clear credentials function
+  const handleClearCredentials = useCallback(async () => {
+    setIsClearingCredentials(true);
+    try {
+      console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Clearing all credentials...');
+      
+      // Clear credentials state
+      setCredentials({
+        clientId: '',
+        clientSecret: '',
+        environmentId: '',
+        authorizationEndpoint: '',
+        tokenEndpoint: '',
+        userInfoEndpoint: '',
+        redirectUri: window.location.origin + '/authz-callback',
+        scopes: 'openid profile email',
+        responseType: 'code',
+        codeChallengeMethod: 'S256'
+      });
+      
+      // Clear all flow state
+      setAuthCode('');
+      setTokens(null);
+      setUserInfo(null);
+      setAuthError(null);
+      setErrorDescription(null);
+      setPkceCodes({ codeVerifier: '', codeChallenge: '' });
+      setAuthUrl('');
+      setCustomToken('');
+      setCallbackSuccess(false);
+      setCallbackError(null);
+      setStepMessages({});
+      setCurrentStepIndex(0);
+      
+      // Clear all stored data
+      localStorage.removeItem('oauth_tokens');
+      sessionStorage.clear();
+      
+      // Clear credential manager data
+      await credentialManager.clearAllCredentials();
+      
+      console.log('✅ [EnhancedAuthorizationCodeFlowV2] All credentials cleared');
+      
+      // Show success message
+      updateStepMessage('clear-credentials', 'All credentials have been cleared. Please configure your PingOne settings again.');
+      
+    } catch (error) {
+      console.error('❌ [EnhancedAuthorizationCodeFlowV2] Error clearing credentials:', error);
+    } finally {
+      setIsClearingCredentials(false);
+      setShowClearCredentialsModal(false);
     }
   }, [updateStepMessage]);
 
@@ -2113,11 +2158,51 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             textAlign: 'center'
           }}>
             <h4 style={{ margin: '0 0 0.5rem 0', color: '#dc2626', fontSize: '0.875rem' }}>
-              <FiRefreshCw style={{ marginRight: '0.5rem' }} />
-              Need to Start Over?
+              <FiSettings style={{ marginRight: '0.5rem' }} />
+              Clear Credentials
             </h4>
             <p style={{ margin: '0 0 1rem 0', color: '#6b7280', fontSize: '0.8rem' }}>
-              Clear all data and reset the entire flow
+              Remove all saved PingOne credentials and start fresh
+            </p>
+            <button
+              onClick={() => setShowClearCredentialsModal(true)}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: '#dc2626',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.375rem',
+                fontSize: '0.8rem',
+                fontWeight: '500',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#b91c1c'}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
+            >
+              <FiSettings />
+              Clear Credentials
+            </button>
+          </div>
+
+          {/* Reset Flow Button */}
+          <div style={{ 
+            marginTop: '1rem', 
+            padding: '1rem', 
+            backgroundColor: '#fef2f2', 
+            border: '1px solid #fecaca', 
+            borderRadius: '0.5rem',
+            textAlign: 'center'
+          }}>
+            <h4 style={{ margin: '0 0 0.5rem 0', color: '#dc2626', fontSize: '0.875rem' }}>
+              <FiRefreshCw style={{ marginRight: '0.5rem' }} />
+              Reset Flow
+            </h4>
+            <p style={{ margin: '0 0 1rem 0', color: '#6b7280', fontSize: '0.8rem' }}>
+              Clear flow progress and tokens (credentials preserved)
             </p>
             <button
               onClick={() => setShowResetModal(true)}
@@ -2292,7 +2377,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               Need to Start Over?
             </h4>
             <p style={{ margin: '0 0 1rem 0', color: '#6b7280', fontSize: '0.8rem' }}>
-              Clear all data and reset the entire flow
+              Clear flow progress and tokens (credentials preserved)
             </p>
             <button
               onClick={() => setShowResetModal(true)}
@@ -2522,7 +2607,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               Need to Start Over?
             </h4>
             <p style={{ margin: '0 0 1rem 0', color: '#6b7280', fontSize: '0.8rem' }}>
-              Clear all data and reset the entire flow
+              Clear flow progress and tokens (credentials preserved)
             </p>
             <button
               onClick={() => setShowResetModal(true)}
@@ -2652,7 +2737,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               Need to Start Over?
             </h4>
             <p style={{ margin: '0 0 1rem 0', color: '#6b7280', fontSize: '0.8rem' }}>
-              Clear all data and reset the entire flow
+              Clear flow progress and tokens (credentials preserved)
             </p>
             <button
               onClick={() => setShowResetModal(true)}
@@ -3142,7 +3227,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               Need to Start Over?
             </h4>
             <p style={{ margin: '0 0 1rem 0', color: '#6b7280', fontSize: '0.8rem' }}>
-              Clear all data and reset the entire flow
+              Clear flow progress and tokens (credentials preserved)
             </p>
             <button
               onClick={() => setShowResetModal(true)}
@@ -3643,7 +3728,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               Need to Start Over?
             </h4>
             <p style={{ margin: '0 0 1rem 0', color: '#6b7280', fontSize: '0.8rem' }}>
-              Clear all data and reset the entire flow
+              Clear flow progress and tokens (credentials preserved)
             </p>
             <button
               onClick={() => setShowResetModal(true)}
@@ -3786,11 +3871,24 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         onClose={() => setShowResetModal(false)}
         onConfirm={handleResetFlow}
         title="Reset Flow"
-        message="Are you sure you want to reset the entire flow? This will clear all progress and data, including credentials, tokens, and step progress."
+        message="Are you sure you want to reset the flow? This will clear flow progress and tokens, but preserve your credentials."
         confirmText="Reset Flow"
         cancelText="Cancel"
         variant="danger"
         isLoading={isResetting}
+      />
+
+      {/* Clear Credentials Modal */}
+      <ConfirmationModal
+        isOpen={showClearCredentialsModal}
+        onClose={() => setShowClearCredentialsModal(false)}
+        onConfirm={handleClearCredentials}
+        title="Clear All Credentials"
+        message="Are you sure you want to clear all PingOne credentials? This will remove all saved configuration and you'll need to re-enter your credentials."
+        confirmText="Clear Credentials"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={isClearingCredentials}
       />
 
     <EnhancedStepFlowV2
