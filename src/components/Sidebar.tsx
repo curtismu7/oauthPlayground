@@ -295,7 +295,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           >
             <div>
               <FiShield />
-              <span>OAuth Flows</span>
+              <span>OAuth 2.0 Flows</span>
             </div>
             <FiChevronDown />
           </NavItemHeader>
