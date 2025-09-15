@@ -37,6 +37,7 @@ import ContextualHelp from '../../components/ContextualHelp';
 import { FlowConfiguration, type FlowConfig } from '../../components/FlowConfiguration';
 import { getDefaultConfig } from '../../utils/flowConfigDefaults';
 import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
+import ConfirmationModal from '../../components/ConfirmationModal';
 import { useAuth } from '../../contexts/NewAuthContext';
 import '../../styles/enhanced-flow.css';
 
@@ -595,6 +596,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
 
   const [credentialsLoaded, setCredentialsLoaded] = useState(false);
   const [stepMessages, setStepMessages] = useState<{[key: string]: string}>({});
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   // Update step message
   const updateStepMessage = useCallback((stepId: string, message: string) => {
@@ -645,6 +648,58 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       }
     }, 100);
   }, []);
+
+  // Reset flow function
+  const handleResetFlow = useCallback(async () => {
+    setIsResetting(true);
+    try {
+      console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Resetting flow...');
+      
+      // Clear all state
+      setCredentials({
+        clientId: '',
+        clientSecret: '',
+        environmentId: '',
+        authorizationEndpoint: '',
+        tokenEndpoint: '',
+        userInfoEndpoint: '',
+        redirectUri: window.location.origin + '/authz-callback',
+        scopes: 'openid profile email',
+        responseType: 'code',
+        codeChallengeMethod: 'S256'
+      });
+      setAuthCode('');
+      setTokens(null);
+      setUserInfo(null);
+      setAuthError(null);
+      setErrorDescription(null);
+      setPkceCodes({ codeVerifier: '', codeChallenge: '' });
+      setAuthUrl('');
+      setCustomToken('');
+      setCallbackSuccess(false);
+      setCallbackError(null);
+      setStepMessages({});
+      setCurrentStepIndex(0);
+      
+      // Clear any stored data
+      localStorage.removeItem('oauth_tokens');
+      sessionStorage.clear();
+      
+      // Clear credential manager data
+      await credentialManager.clearAllCredentials();
+      
+      console.log('✅ [EnhancedAuthorizationCodeFlowV2] Flow reset completed');
+      
+      // Show success message
+      updateStepMessage('reset', 'Flow has been reset successfully. You can now start over from Step 1.');
+      
+    } catch (error) {
+      console.error('❌ [EnhancedAuthorizationCodeFlowV2] Error resetting flow:', error);
+    } finally {
+      setIsResetting(false);
+      setShowResetModal(false);
+    }
+  }, [updateStepMessage]);
 
   // Debug credentials state
   console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Current credentials state:', {
@@ -2042,6 +2097,46 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               </div>
             </InfoBox>
           )}
+
+          {/* Reset Flow Button */}
+          <div style={{ 
+            marginTop: '2rem', 
+            padding: '1rem', 
+            backgroundColor: '#fef2f2', 
+            border: '1px solid #fecaca', 
+            borderRadius: '0.5rem',
+            textAlign: 'center'
+          }}>
+            <h4 style={{ margin: '0 0 0.5rem 0', color: '#dc2626', fontSize: '0.875rem' }}>
+              <FiRefreshCw style={{ marginRight: '0.5rem' }} />
+              Need to Start Over?
+            </h4>
+            <p style={{ margin: '0 0 1rem 0', color: '#6b7280', fontSize: '0.8rem' }}>
+              Clear all data and reset the entire flow
+            </p>
+            <button
+              onClick={() => setShowResetModal(true)}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: '#dc2626',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.375rem',
+                fontSize: '0.8rem',
+                fontWeight: '500',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#b91c1c'}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
+            >
+              <FiRefreshCw />
+              Reset Flow
+            </button>
+          </div>
             </div>
           )}
         </div>
@@ -3484,66 +3579,18 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         />
       )}
 
-      {/* Reset Flow Button */}
-      <div style={{ 
-        marginBottom: '2rem', 
-        padding: '1rem', 
-        backgroundColor: '#fef2f2', 
-        border: '1px solid #fecaca', 
-        borderRadius: '0.5rem',
-        textAlign: 'center'
-      }}>
-        <h3 style={{ margin: '0 0 0.5rem 0', color: '#dc2626', fontSize: '1rem' }}>
-          <FiRefreshCw style={{ marginRight: '0.5rem' }} />
-          Reset Flow
-        </h3>
-        <p style={{ margin: '0 0 1rem 0', color: '#6b7280', fontSize: '0.875rem' }}>
-          Clear all data and start over from Step 1
-        </p>
-        <button
-          onClick={() => {
-            if (confirm('Are you sure you want to reset the entire flow? This will clear all progress and data.')) {
-              // Clear all state
-              setCredentials({});
-              setAuthCode('');
-              setTokens(null);
-              setUserInfo(null);
-              setAuthError(null);
-              setErrorDescription(null);
-              setPkceCodeVerifier('');
-              setPkceCodeChallenge('');
-              setAuthUrl('');
-              setCustomToken('');
-              
-              // Clear any stored data
-              localStorage.removeItem('oauth_tokens');
-              sessionStorage.clear();
-              
-              // Reset to step 1
-              window.location.reload();
-            }
-          }}
-          style={{
-            padding: '0.75rem 1.5rem',
-            backgroundColor: '#dc2626',
-            color: 'white',
-            border: 'none',
-            borderRadius: '0.375rem',
-            fontSize: '0.875rem',
-            fontWeight: '500',
-            cursor: 'pointer',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            transition: 'background-color 0.2s'
-          }}
-          onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#b91c1c'}
-          onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
-        >
-          <FiRefreshCw />
-          Reset Flow
-        </button>
-      </div>
+      {/* Reset Flow Modal */}
+      <ConfirmationModal
+        isOpen={showResetModal}
+        onClose={() => setShowResetModal(false)}
+        onConfirm={handleResetFlow}
+        title="Reset Flow"
+        message="Are you sure you want to reset the entire flow? This will clear all progress and data, including credentials, tokens, and step progress."
+        confirmText="Reset Flow"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={isResetting}
+      />
 
     <EnhancedStepFlowV2
       steps={steps}
