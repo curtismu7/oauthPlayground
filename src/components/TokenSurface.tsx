@@ -21,12 +21,14 @@ const TokenSurfaceContainer = styled.div`
 
   textarea {
     width: 100%;
-    min-height: 140px;
+    min-height: 300px;
     resize: vertical;
     border: 0;
     outline: none;
     background: transparent !important;
     color: inherit !important;
+    font-size: 14px;
+    line-height: 1.5;
   }
 
   &.scrollable {

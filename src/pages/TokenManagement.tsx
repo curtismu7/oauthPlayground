@@ -603,10 +603,13 @@ const TokenManagement = () => {
         }
       } catch (error) {
         console.error('❌ [TokenManagement] Error loading current token:', error);
+        setTokenStatus('none');
       }
     };
     
-    loadCurrentToken();
+    // Add a small delay to ensure auth context is fully loaded
+    const timer = setTimeout(loadCurrentToken, 100);
+    return () => clearTimeout(timer);
     
     // Load token history
     const history = getTokenHistory();
@@ -724,29 +727,44 @@ const TokenManagement = () => {
     try {
       console.log('🔄 [TokenManagement] Getting current token from auth context:', tokens);
       
-      if (tokens && tokens.access_token) {
+      let currentTokens = tokens;
+      
+      // If no tokens in auth context, try to load from storage
+      if (!currentTokens || !currentTokens.access_token) {
+        console.log('ℹ️ [TokenManagement] No tokens in auth context, checking storage...');
+        currentTokens = getOAuthTokens();
+        if (currentTokens) {
+          console.log('✅ [TokenManagement] Found tokens in storage:', currentTokens);
+        }
+      }
+      
+      if (currentTokens && currentTokens.access_token) {
         console.log('✅ [TokenManagement] Loading current access token');
-        setTokenString(tokens.access_token);
+        setTokenString(currentTokens.access_token);
         setTokenSource({
-          source: 'Current Session',
-          description: `Active Access Token from ${tokens.token_type || 'Bearer'} flow`,
+          source: currentTokens === tokens ? 'Current Session' : 'Stored Tokens',
+          description: `Access Token from ${currentTokens.token_type || 'Bearer'} flow`,
           timestamp: new Date().toLocaleString()
         });
         
         // Auto-decode the token
-        decodeJWT(tokens.access_token);
+        decodeJWT(currentTokens.access_token);
         
         // Update token status based on expiration
-        if (tokens.expires_at) {
+        if (currentTokens.expires_at) {
           const now = Date.now();
-          const expiresAt = new Date(tokens.expires_at).getTime();
+          const expiresAt = new Date(currentTokens.expires_at).getTime();
+          setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
+        } else if (currentTokens.expires_in) {
+          const now = Date.now();
+          const expiresAt = now + (currentTokens.expires_in * 1000);
           setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
         } else {
           setTokenStatus('valid');
         }
       } else {
         console.log('⚠️ [TokenManagement] No current access token available');
-        alert('No current access token available. Please complete an OAuth flow first.');
+        alert('No current access token available. Please complete an OAuth flow first or use "Load from Storage" to load previously saved tokens.');
       }
     } catch (error) {
       console.error('❌ [TokenManagement] Error getting token:', error);
