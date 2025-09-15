@@ -1,15 +1,23 @@
 import React from 'react';
 import styled from 'styled-components';
+import JSONHighlighter from './JSONHighlighter';
 
-const TokenSurfaceContainer = styled.div`
-  background: var(--card-bg) !important;
+const TokenSurfaceContainer = styled.div<{ $hasToken?: boolean }>`
+  background: ${({ $hasToken }) => 
+    $hasToken 
+      ? 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)' 
+      : 'var(--card-bg)'
+  } !important;
   color: var(--card-fg) !important;
-  border: 1px solid var(--card-border);
+  border: 1px solid ${({ $hasToken }) => 
+    $hasToken ? '#bbf7d0' : 'var(--card-border)'
+  };
   border-radius: var(--card-radius);
   padding: var(--card-padding);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   font-size: 13px;
   line-height: 1.4;
+  transition: all 0.3s ease;
 
   pre, code, textarea {
     background: transparent !important;
@@ -21,7 +29,7 @@ const TokenSurfaceContainer = styled.div`
 
   textarea {
     width: 100%;
-    min-height: 300px;
+    min-height: 400px; /* Increased from 300px */
     resize: vertical;
     border: 0;
     outline: none;
@@ -33,7 +41,7 @@ const TokenSurfaceContainer = styled.div`
 
   &.scrollable {
     overflow: auto;
-    max-height: 320px;
+    max-height: 420px; /* Increased from 320px */
     white-space: pre;
   }
 
@@ -54,6 +62,9 @@ interface TokenSurfaceProps {
   scrollable?: boolean;
   className?: string;
   'aria-label'?: string;
+  hasToken?: boolean;
+  isJson?: boolean;
+  jsonContent?: string;
 }
 
 /**
@@ -65,7 +76,10 @@ export const TokenSurface: React.FC<TokenSurfaceProps> = ({
   children, 
   scrollable = false,
   className = '', 
-  'aria-label': ariaLabel 
+  'aria-label': ariaLabel,
+  hasToken = false,
+  isJson = false,
+  jsonContent
 }) => {
   return (
     <section>
@@ -74,8 +88,13 @@ export const TokenSurface: React.FC<TokenSurfaceProps> = ({
         className={`token-surface ${scrollable ? 'scrollable' : ''} ${className}`}
         role="region"
         aria-label={ariaLabel || title}
+        $hasToken={hasToken}
       >
-        {children}
+        {isJson && jsonContent ? (
+          <JSONHighlighter data={JSON.parse(jsonContent)} />
+        ) : (
+          children
+        )}
       </TokenSurfaceContainer>
     </section>
   );
