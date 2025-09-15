@@ -114,7 +114,7 @@ const SubmenuItem = styled(Link)<{ $isActive?: boolean }>`
   padding: 0.5rem 1.5rem 0.5rem 3.5rem;
   color: ${({ $isActive, theme }) => 
     $isActive 
-      ? (theme.colors?.primary || '#0070cc')
+      ? '#ffffff'
       : (theme.colors?.gray700 || '#374151')
   };
   text-decoration: none;
@@ -123,22 +123,26 @@ const SubmenuItem = styled(Link)<{ $isActive?: boolean }>`
   transition: all 0.2s;
   background-color: ${({ $isActive, theme }) => 
     $isActive 
-      ? (theme.colors?.primaryLight || '#e6f3ff')
+      ? (theme.colors?.primary || '#0070cc')
       : 'transparent'
   };
   border-right: ${({ $isActive, theme }) => 
     $isActive 
-      ? `3px solid ${theme.colors?.primary || '#0070cc'}`
+      ? `3px solid ${theme.colors?.primaryDark || '#0056b3'}`
       : '3px solid transparent'
   };
   
   &:hover {
     background-color: ${({ $isActive, theme }) => 
       $isActive 
-        ? (theme.colors?.primaryLight || '#e6f3ff')
+        ? (theme.colors?.primaryDark || '#0056b3')
         : (theme.colors?.gray50 || '#f9fafb')
     };
-    color: ${({ theme }) => theme.colors?.primary || '#0070cc'};
+    color: ${({ $isActive, theme }) => 
+      $isActive 
+        ? '#ffffff'
+        : (theme.colors?.primary || '#0070cc')
+    };
   }
   
   &:before {
@@ -148,7 +152,7 @@ const SubmenuItem = styled(Link)<{ $isActive?: boolean }>`
     line-height: 0;
     color: ${({ $isActive, theme }) => 
       $isActive 
-        ? (theme.colors?.primary || '#0070cc')
+        ? '#ffffff'
         : (theme.colors?.gray400 || '#9ca3af')
     };
   }
