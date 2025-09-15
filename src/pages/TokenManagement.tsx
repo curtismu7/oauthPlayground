@@ -883,6 +883,69 @@ const TokenManagement = () => {
     }
   };
 
+  const handleGetSpecificToken = async (tokenType: 'access_token' | 'id_token' | 'refresh_token') => {
+    setIsLoading(true);
+    try {
+      console.log(`🔄 [TokenManagement] Getting ${tokenType} from auth context:`, tokens);
+      
+      let currentTokens = tokens;
+      
+      // If no tokens in auth context, try to load from storage
+      if (!currentTokens) {
+        console.log('ℹ️ [TokenManagement] No tokens in auth context, checking storage...');
+        currentTokens = getOAuthTokens();
+        if (currentTokens) {
+          console.log('✅ [TokenManagement] Found tokens in storage:', currentTokens);
+        }
+      }
+      
+      if (currentTokens && currentTokens[tokenType]) {
+        console.log(`✅ [TokenManagement] Loading current ${tokenType}`);
+        setTokenString(currentTokens[tokenType]);
+        setTokenSource({
+          source: currentTokens === tokens ? 'Current Session' : 'Stored Tokens',
+          description: `${tokenType.replace('_', ' ').toUpperCase()} from ${currentTokens.token_type || 'Bearer'} flow`,
+          timestamp: new Date().toLocaleString()
+        });
+        
+        // Auto-decode the token
+        decodeJWT(currentTokens[tokenType]);
+        
+        // Update token status based on expiration
+        if (currentTokens.expires_at) {
+          const now = Date.now();
+          const expiresAt = new Date(currentTokens.expires_at).getTime();
+          setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
+        } else if (currentTokens.expires_in) {
+          const now = Date.now();
+          const expiresAt = now + (currentTokens.expires_in * 1000);
+          setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
+        } else {
+          setTokenStatus('valid');
+        }
+
+        // Show success message
+        setSuccessMessage(`✅ ${tokenType.replace('_', ' ').toUpperCase()} loaded successfully!`);
+      } else {
+        console.log(`⚠️ [TokenManagement] No current ${tokenType} available`);
+        setMessage({
+          type: 'error',
+          title: 'No Token Available',
+          message: `No ${tokenType.replace('_', ' ')} found in current session or storage. Please complete an OAuth flow first.`
+        });
+      }
+    } catch (error) {
+      console.error(`❌ [TokenManagement] Error getting ${tokenType}:`, error);
+      setMessage({
+        type: 'error',
+        title: 'Error Getting Token',
+        message: `Failed to retrieve ${tokenType.replace('_', ' ')}: ${error instanceof Error ? error.message : 'Unknown error'}`
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleCopyToken = async () => {
     if (tokenString) {
       try {
