@@ -1,9 +1,9 @@
 // Service Worker for OAuth Playground
-// Version: 1.0.0
+// Version: 1.0.1
 
-const CACHE_NAME = 'oauth-playground-v1';
-const STATIC_CACHE_NAME = 'oauth-playground-static-v1';
-const DYNAMIC_CACHE_NAME = 'oauth-playground-dynamic-v1';
+const CACHE_NAME = 'oauth-playground-v1.0.1';
+const STATIC_CACHE_NAME = 'oauth-playground-static-v1.0.1';
+const DYNAMIC_CACHE_NAME = 'oauth-playground-dynamic-v1.0.1';
 
 // Static assets to cache
 const STATIC_ASSETS = [
@@ -35,18 +35,32 @@ self.addEventListener('install', (event) => {
   console.log('[SW] Installing service worker...');
   
   event.waitUntil(
-    caches.open(STATIC_CACHE_NAME)
-      .then((cache) => {
-        console.log('[SW] Caching static assets');
-        return cache.addAll(STATIC_ASSETS);
-      })
-      .then(() => {
-        console.log('[SW] Static assets cached successfully');
-        return self.skipWaiting();
-      })
-      .catch((error) => {
-        console.error('[SW] Failed to cache static assets:', error);
-      })
+    // Clear old caches first
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName.startsWith('oauth-playground-') && 
+              !cacheName.includes('v1.0.1')) {
+            console.log('[SW] Deleting old cache:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    }).then(() => {
+      // Cache new static assets
+      return caches.open(STATIC_CACHE_NAME)
+        .then((cache) => {
+          console.log('[SW] Caching static assets');
+          return cache.addAll(STATIC_ASSETS);
+        })
+        .then(() => {
+          console.log('[SW] Static assets cached successfully');
+          return self.skipWaiting();
+        })
+        .catch((error) => {
+          console.error('[SW] Failed to cache static assets:', error);
+        });
+    })
   );
 });
 
