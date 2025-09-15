@@ -8,6 +8,7 @@ import { getOAuthTokens } from '../utils/tokenStorage';
 import { getTokenHistory, clearTokenHistory, removeTokenFromHistory, getFlowDisplayName, getFlowIcon, TokenHistoryEntry } from '../utils/tokenHistory';
 import { useTokenAnalysis } from '../hooks/useTokenAnalysis';
 import { useErrorDiagnosis } from '../hooks/useErrorDiagnosis';
+import { useScrollToTop } from '../hooks/useScrollToTop';
 import JSONHighlighter from '../components/JSONHighlighter';
 import { TokenSurface } from '../components/TokenSurface';
 import StandardMessage from '../components/StandardMessage';
@@ -496,6 +497,10 @@ const RefreshStatus = styled.div<{ $status: 'valid' | 'expiring' | 'expired' | '
 
 const TokenManagement = () => {
   const { tokens } = useAuth();
+  
+  // Scroll to top when page loads
+  useScrollToTop();
+  
   const [tokenString, setTokenString] = useState('');
   const [jwtHeader, setJwtHeader] = useState('');
   const [jwtPayload, setJwtPayload] = useState('');
