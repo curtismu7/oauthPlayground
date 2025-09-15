@@ -687,6 +687,7 @@ const TokenManagement = () => {
       console.log('🔄 [TokenManagement] No token in input, attempting to load current token...');
       
       // Try to get token from auth context first
+      console.log('🔍 [TokenManagement] Auth context tokens:', tokens);
       if (tokens && tokens.access_token) {
         console.log('✅ [TokenManagement] Loading token from auth context for decoding');
         setTokenString(tokens.access_token);
@@ -696,6 +697,7 @@ const TokenManagement = () => {
       
       // Try to get token from storage
       const storedTokens = getOAuthTokens();
+      console.log('🔍 [TokenManagement] Stored tokens from getOAuthTokens():', storedTokens);
       if (storedTokens && storedTokens.access_token) {
         console.log('✅ [TokenManagement] Loading token from storage for decoding');
         setTokenString(storedTokens.access_token);
@@ -704,6 +706,7 @@ const TokenManagement = () => {
       }
       
       // No token available
+      console.log('❌ [TokenManagement] No token available in auth context or storage');
       alert('No token available to decode. Please load a token first or enter one manually.');
       return;
     }
@@ -925,6 +928,8 @@ const TokenManagement = () => {
     console.log('🔄 [TokenManagement] Loading tokens from storage...');
     const storedTokens = getOAuthTokens();
     
+    console.log('🔍 [TokenManagement] Stored tokens from getOAuthTokens():', storedTokens);
+    
     if (storedTokens && storedTokens.access_token) {
       console.log('✅ [TokenManagement] Found stored tokens, loading...');
       setTokenString(storedTokens.access_token);
@@ -1065,7 +1070,7 @@ const TokenManagement = () => {
           <p style={{ margin: '0.5rem 0 0 0', color: '#6b7280', fontSize: '0.875rem' }}>
             {tokenSource?.source === 'Current Session' 
               ? 'Currently showing your active Access Token. You can also paste any other JWT token below for decoding.'
-              : 'Paste any JWT token below to decode and analyze it.'
+              : 'Paste any JWT token below to decode and analyze it. You can get tokens from the AuthZ Code Flow or paste custom tokens.'
             }
           </p>
         </CardHeader>
@@ -1075,7 +1080,7 @@ const TokenManagement = () => {
             id="token-string"
             value={tokenString}
             onChange={handleTokenInput}
-            placeholder="Paste any JWT token here to decode it (Access Token, ID Token, etc.)"
+            placeholder="Paste any JWT token here to decode it (Access Token, ID Token, etc.) or use the buttons above to load tokens from AuthZ Code Flow"
             ariaLabel="JWT token input for decoding"
           />
 
@@ -1106,6 +1111,42 @@ const TokenManagement = () => {
             >
               <FiRefreshCw />
               Load from Storage
+            </ActionButton>
+
+            <ActionButton
+              className="secondary"
+              onClick={() => {
+                console.log('🔄 [TokenManagement] Getting token from AuthZ Code Flow...');
+                // Try to get token from auth context first
+                if (tokens && tokens.access_token) {
+                  console.log('✅ [TokenManagement] Found token in auth context');
+                  setTokenString(tokens.access_token);
+                  setTokenSource({
+                    source: 'AuthZ Code Flow',
+                    description: 'Access Token from current OAuth session',
+                    timestamp: new Date().toLocaleString()
+                  });
+                  setTimeout(() => decodeJWT(tokens.access_token), 100);
+                } else {
+                  // Try to get from storage
+                  const storedTokens = getOAuthTokens();
+                  if (storedTokens && storedTokens.access_token) {
+                    console.log('✅ [TokenManagement] Found token in storage');
+                    setTokenString(storedTokens.access_token);
+                    setTokenSource({
+                      source: 'AuthZ Code Flow (Stored)',
+                      description: 'Access Token from stored OAuth session',
+                      timestamp: new Date().toLocaleString()
+                    });
+                    setTimeout(() => decodeJWT(storedTokens.access_token), 100);
+                  } else {
+                    alert('No token available from AuthZ Code Flow. Please complete the OAuth flow first.');
+                  }
+                }
+              }}
+            >
+              <FiKey />
+              Get from AuthZ Code Flow
             </ActionButton>
 
             <ActionButton
