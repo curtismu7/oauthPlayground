@@ -485,11 +485,11 @@ const Dashboard = () => {
             },
             {
               id: 'sample_3',
-              action: 'Completed PKCE Flow',
-              flowType: 'pkce',
+              action: 'Completed OAuth 2.0 Authorization Code Flow',
+              flowType: 'oauth-authorization-code',
               timestamp: Date.now() - 900000, // 15 minutes ago
               success: true,
-              details: 'PKCE flow completed successfully'
+              details: 'OAuth 2.0 Authorization Code flow completed successfully'
             }
           ];
           
@@ -526,7 +526,7 @@ const Dashboard = () => {
 
   // Calculate real stats
   const stats = {
-    flows: 6, // Actual OAuth flows available: Authorization Code, PKCE, Implicit, Hybrid, Client Credentials, Device Code
+    flows: 6, // Actual OAuth flows available: OIDC Authorization Code, OAuth 2.0 Authorization Code, Implicit, Hybrid, OIDC Client Credentials, OIDC Device Code Flow
     tokens: tokens ? (tokens.access_token ? 1 : 0) : 0, // Current active tokens
     success: calculateSuccessRate(), // Real success rate based on recent activity
     security: calculateSecurityScore() // Real security score based on configuration
@@ -715,7 +715,7 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* PKCE Flow */}
+            {/* OAuth 2.0 Authorization Code */}
             <div style={{ 
               background: '#f8f9fa', 
               border: '1px solid #e5e7eb', 
@@ -728,7 +728,7 @@ const Dashboard = () => {
                 justifyContent: 'space-between',
                 marginBottom: '0.5rem'
               }}>
-                <span style={{ fontWeight: '500', color: '#333' }}>PKCE Flow</span>
+                <span style={{ fontWeight: '500', color: '#333' }}>OAuth 2.0 Authorization Code</span>
                 <StatusBadge $status={hasSavedCredentials ? 'active' : 'pending'}>
                   {hasSavedCredentials ? 'Ready' : 'Needs Config'}
                 </StatusBadge>
@@ -738,7 +738,7 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Client Credentials */}
+            {/* OIDC Client Credentials */}
             <div style={{ 
               background: '#f8f9fa', 
               border: '1px solid #e5e7eb', 
@@ -751,7 +751,7 @@ const Dashboard = () => {
                 justifyContent: 'space-between',
                 marginBottom: '0.5rem'
               }}>
-                <span style={{ fontWeight: '500', color: '#333' }}>Client Credentials</span>
+                <span style={{ fontWeight: '500', color: '#333' }}>OIDC Client Credentials</span>
                 <StatusBadge $status={hasSavedCredentials ? 'active' : 'pending'}>
                   {hasSavedCredentials ? 'Ready' : 'Needs Config'}
                 </StatusBadge>
@@ -761,7 +761,7 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Device Code Flow */}
+            {/* OIDC Device Code Flow */}
             <div style={{ 
               background: '#f8f9fa', 
               border: '1px solid #e5e7eb', 
@@ -774,7 +774,7 @@ const Dashboard = () => {
                 justifyContent: 'space-between',
                 marginBottom: '0.5rem'
               }}>
-                <span style={{ fontWeight: '500', color: '#333' }}>Device Code</span>
+                <span style={{ fontWeight: '500', color: '#333' }}>OIDC Device Code Flow</span>
                 <StatusBadge $status={hasSavedCredentials ? 'active' : 'pending'}>
                   {hasSavedCredentials ? 'Ready' : 'Needs Config'}
                 </StatusBadge>
@@ -844,19 +844,19 @@ const Dashboard = () => {
           <QuickActions>
             <ActionButton to="/flows/enhanced-authorization-code-v2">
               <span>🔑</span>
-              Authorization Code Flow
+              OIDC Authorization Code Flow
             </ActionButton>
-            <ActionButton to="/flows/enhanced-authorization-code-v2">
+            <ActionButton to="/flows/authorization-code">
               <span>🔐</span>
-              PKCE Flow
+              OAuth 2.0 Authorization Code
             </ActionButton>
             <ActionButton to="/oidc/client-credentials">
               <span>👤</span>
-              Client Credentials
+              OIDC Client Credentials
             </ActionButton>
             <ActionButton to="/oidc/device-code">
               <span>📱</span>
-              Device Code Flow
+              OIDC Device Code Flow
             </ActionButton>
             <ActionButton to="/auto-discover">
               <span>🔍</span>
