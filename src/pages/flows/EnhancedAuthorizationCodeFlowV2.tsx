@@ -2423,7 +2423,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           {/* Message near buttons */}
           {stepMessages['user-authorization'] && (
             <div style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>
-              <InfoBox type="info">
+              <InfoBox type="success">
                 <div>{stepMessages['user-authorization']}</div>
               </InfoBox>
             </div>
@@ -2470,22 +2470,17 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           )}
 
           {authCode && (
-            <div style={{ 
-              marginBottom: '2rem', 
-              padding: '1.5rem', 
-              background: '#dbeafe', 
-              border: '2px solid #3b82f6', 
-              borderRadius: '0.75rem',
-              textAlign: 'center'
-            }}>
-              <FiCheckCircle size={48} style={{ marginBottom: '1rem', color: '#1d4ed8' }} />
-              <h3 style={{ margin: '0 0 0.5rem 0', color: '#1e40af' }}>
-                🎉 Welcome Back from PingOne!
-              </h3>
-              <p style={{ margin: '0', color: '#1e40af', fontSize: '1.1rem' }}>
-                Your authorization was successful. You can now proceed with the token exchange.
-              </p>
-            </div>
+            <InfoBox type="success" style={{ marginBottom: '2rem', textAlign: 'center' }}>
+              <FiCheckCircle size={48} style={{ marginBottom: '1rem' }} />
+              <div>
+                <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem' }}>
+                  🎉 Welcome Back from PingOne!
+                </h3>
+                <p style={{ margin: '0', fontSize: '1.1rem' }}>
+                  Your authorization was successful. You can now proceed with the token exchange.
+                </p>
+              </div>
+            </InfoBox>
           )}
 
           {!callbackSuccess && !callbackError && !authCode && (
