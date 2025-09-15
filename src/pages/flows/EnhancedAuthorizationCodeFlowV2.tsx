@@ -2272,6 +2272,46 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           </FormField>
             </div>
           )}
+
+          {/* Reset Flow Button */}
+          <div style={{ 
+            marginTop: '2rem', 
+            padding: '1rem', 
+            backgroundColor: '#fef2f2', 
+            border: '1px solid #fecaca', 
+            borderRadius: '0.5rem',
+            textAlign: 'center'
+          }}>
+            <h4 style={{ margin: '0 0 0.5rem 0', color: '#dc2626', fontSize: '0.875rem' }}>
+              <FiRefreshCw style={{ marginRight: '0.5rem' }} />
+              Need to Start Over?
+            </h4>
+            <p style={{ margin: '0 0 1rem 0', color: '#6b7280', fontSize: '0.8rem' }}>
+              Clear all data and reset the entire flow
+            </p>
+            <button
+              onClick={() => setShowResetModal(true)}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: '#dc2626',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.375rem',
+                fontSize: '0.8rem',
+                fontWeight: '500',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#b91c1c'}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
+            >
+              <FiRefreshCw />
+              Reset Flow
+            </button>
+          </div>
         </div>
       ),
       execute: async () => {
@@ -2281,6 +2321,10 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           setPkceGenerated(true);
           // Regenerate authorization URL with PKCE codes
           generateAuthUrl();
+          
+          // Update step message for success
+          updateStepMessage('generate-pkce', '✅ PKCE codes generated successfully! Your codes are ready to use for enhanced security.');
+          
           return { success: true };
         } finally {
           setIsGeneratingPKCE(false);
@@ -2458,6 +2502,46 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             </ParameterBreakdown>
             </div>
           )}
+
+          {/* Reset Flow Button */}
+          <div style={{ 
+            marginTop: '2rem', 
+            padding: '1rem', 
+            backgroundColor: '#fef2f2', 
+            border: '1px solid #fecaca', 
+            borderRadius: '0.5rem',
+            textAlign: 'center'
+          }}>
+            <h4 style={{ margin: '0 0 0.5rem 0', color: '#dc2626', fontSize: '0.875rem' }}>
+              <FiRefreshCw style={{ marginRight: '0.5rem' }} />
+              Need to Start Over?
+            </h4>
+            <p style={{ margin: '0 0 1rem 0', color: '#6b7280', fontSize: '0.8rem' }}>
+              Clear all data and reset the entire flow
+            </p>
+            <button
+              onClick={() => setShowResetModal(true)}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: '#dc2626',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.375rem',
+                fontSize: '0.8rem',
+                fontWeight: '500',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#b91c1c'}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
+            >
+              <FiRefreshCw />
+              Reset Flow
+            </button>
+          </div>
         </div>
       ),
       execute: async () => {
@@ -2470,6 +2554,9 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           const generatedUrl = generateAuthUrl();
           console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Generated URL:', generatedUrl);
           setUrlGenerated(true);
+          
+          // Update step message for success
+          updateStepMessage('build-auth-url', '✅ Authorization URL built successfully! Your URL is ready for user redirection.');
           
           return { success: true };
         } finally {
