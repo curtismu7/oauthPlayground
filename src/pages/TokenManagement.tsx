@@ -567,6 +567,70 @@ const TokenManagement = () => {
     scope: 'openid profile email'
   };
 
+  // Generate a realistic-looking but intentionally flawed PingOne token for security demonstration
+  const generateBadSecurityToken = () => {
+    const now = Math.floor(Date.now() / 1000);
+    
+    // Create a realistic PingOne token header with security flaws
+    const header = {
+      alg: 'HS256', // Weak algorithm (should be RS256 for PingOne)
+      typ: 'JWT',
+      kid: 'bad-key-id', // Invalid key ID
+      iss: 'https://auth.pingone.com' // Missing environment ID
+    };
+
+    // Create a realistic PingOne token payload with multiple security issues
+    const payload = {
+      // Standard OIDC claims with security flaws
+      iss: 'https://auth.pingone.com', // Missing environment ID (should be https://auth.pingone.com/{env_id})
+      sub: 'user-12345',
+      aud: 'bad-client-id', // Wrong audience
+      exp: now + 7200, // Expires in 2 hours (too long)
+      iat: now - 3600, // Issued 1 hour ago (too old)
+      auth_time: now - 7200, // Auth time 2 hours ago (too old)
+      nonce: 'weak-nonce-123', // Weak nonce
+      
+      // Missing critical security claims
+      // acr: missing (Authentication Context Class Reference)
+      // amr: missing (Authentication Methods References)
+      // azp: missing (Authorized Party)
+      
+      // User profile claims with issues
+      name: 'John Doe',
+      given_name: 'John',
+      family_name: 'Doe',
+      email: 'john.doe@example.com',
+      email_verified: false, // Email not verified (security risk)
+      picture: 'https://insecure-site.com/avatar.jpg', // HTTP instead of HTTPS
+      locale: 'en-US',
+      
+      // Custom claims with security issues
+      'custom:role': 'admin', // Overly broad role
+      'custom:permissions': ['read', 'write', 'delete', 'admin'], // Too many permissions
+      'custom:session_id': 'session-123', // Weak session ID
+      'custom:ip_address': '192.168.1.100', // Internal IP exposed
+      'custom:user_agent': 'Mozilla/5.0...', // User agent exposed
+      
+      // JWT security issues
+      jti: 'jwt-id-123', // Weak JTI
+      nbf: now - 1800, // Not before is in the past (invalid)
+      
+      // Missing security features
+      // at_hash: missing (Access Token hash)
+      // c_hash: missing (Code hash)
+      // s_hash: missing (State hash)
+    };
+
+    // Encode header and payload
+    const encodedHeader = btoa(JSON.stringify(header)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+    const encodedPayload = btoa(JSON.stringify(payload)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+    
+    // Create a weak signature (using a simple HMAC with a weak key)
+    const weakSignature = 'bad-signature-that-would-fail-validation';
+    
+    return `${encodedHeader}.${encodedPayload}.${weakSignature}`;
+  };
+
   useEffect(() => {
     // Auto-load current Access Token from auth context or storage
     const loadCurrentToken = () => {
@@ -1248,7 +1312,53 @@ const TokenManagement = () => {
 
             <ActionButton
               className="secondary"
-              onClick={handleLoadFromStorage}
+              onClick={() => {
+                console.log('🔄 [TokenManagement] Loading tokens from storage...');
+                const storedTokens = getOAuthTokens();
+                
+                console.log('🔍 [TokenManagement] Stored tokens from getOAuthTokens():', storedTokens);
+                
+                if (storedTokens && storedTokens.access_token) {
+                  console.log('✅ [TokenManagement] Found stored tokens, loading...');
+                  setTokenString(storedTokens.access_token);
+                  setTokenSource({
+                    source: 'Stored Tokens',
+                    description: `Access Token from ${storedTokens.token_type || 'Bearer'} flow`,
+                    timestamp: new Date().toLocaleString()
+                  });
+                  
+                  // Auto-decode the token
+                  setTimeout(() => decodeJWT(storedTokens.access_token), 100);
+                  
+                  // Update token status
+                  if (storedTokens.expires_at) {
+                    const now = Date.now();
+                    const expiresAt = new Date(storedTokens.expires_at).getTime();
+                    setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
+                  } else if (storedTokens.expires_in) {
+                    const now = Date.now();
+                    const expiresAt = now + (storedTokens.expires_in * 1000);
+                    setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
+                  } else {
+                    setTokenStatus('valid');
+                  }
+                  
+                  // Show success message
+                  setMessage({
+                    type: 'success',
+                    title: 'Token Loaded from Storage!',
+                    message: 'Successfully loaded and decoded token from secure storage.'
+                  });
+                } else {
+                  console.log('ℹ️ [TokenManagement] No stored tokens found');
+                  setTokenStatus('none');
+                  setMessage({
+                    type: 'warning',
+                    title: 'No Stored Tokens',
+                    message: 'No tokens found in secure storage. Complete an OAuth flow first.'
+                  });
+                }
+              }}
             >
               <FiRefreshCw />
               Load from Storage
@@ -1268,6 +1378,13 @@ const TokenManagement = () => {
                     timestamp: new Date().toLocaleString()
                   });
                   setTimeout(() => decodeJWT(tokens.access_token), 100);
+                  
+                  // Show success message
+                  setMessage({
+                    type: 'success',
+                    title: 'Token Loaded from AuthZ Code Flow!',
+                    message: 'Successfully loaded and decoded access token from current OAuth session.'
+                  });
                 } else {
                   // Try to get from storage
                   const storedTokens = getOAuthTokens();
@@ -1280,6 +1397,13 @@ const TokenManagement = () => {
                       timestamp: new Date().toLocaleString()
                     });
                     setTimeout(() => decodeJWT(storedTokens.access_token), 100);
+                    
+                    // Show success message
+                    setMessage({
+                      type: 'success',
+                      title: 'Token Loaded from Stored Session!',
+                      message: 'Successfully loaded and decoded access token from stored OAuth session.'
+                    });
                   } else {
                     setMessage({
                       type: 'warning',
@@ -1309,10 +1433,52 @@ const TokenManagement = () => {
               onClick={() => {
                 const sampleToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
                 setTokenString(sampleToken);
+                setTokenSource({
+                  source: 'Sample Token',
+                  description: 'JWT sample token for testing and demonstration',
+                  timestamp: new Date().toLocaleString()
+                });
                 console.log('🧪 [TokenManagement] Loaded sample token for testing');
+                
+                // Auto-decode the sample token
+                setTimeout(() => decodeJWT(sampleToken), 100);
+                
+                // Show success message
+                setMessage({
+                  type: 'success',
+                  title: 'Sample Token Loaded!',
+                  message: 'Loaded a sample JWT token for testing. The token has been automatically decoded.'
+                });
               }}
             >
               🧪 Load Sample Token
+            </ActionButton>
+
+            <ActionButton
+              className="danger"
+              onClick={() => {
+                // Generate a realistic-looking but intentionally flawed PingOne token
+                const badToken = generateBadSecurityToken();
+                setTokenString(badToken);
+                setTokenSource({
+                  source: 'Security Demo',
+                  description: 'Intentionally flawed token for security demonstration',
+                  timestamp: new Date().toLocaleString()
+                });
+                console.log('🚨 [TokenManagement] Loaded bad security token for demonstration');
+                
+                // Auto-decode the bad token
+                setTimeout(() => decodeJWT(badToken), 100);
+                
+                // Show success message
+                setMessage({
+                  type: 'success',
+                  title: 'Bad Security Token Loaded!',
+                  message: 'Generated a token with intentional security flaws for demonstration. Check the analysis section to see detected issues.'
+                });
+              }}
+            >
+              🚨 Bad Security Token
             </ActionButton>
           </ButtonGroup>
         </CardBody>
@@ -1686,7 +1852,7 @@ const TokenManagement = () => {
                   </div>
                 )}
 
-                {/* Token Claims */}
+                {/* Token Claims - REMOVED FOR NOW (saved for potential future use)
                 {Object.keys(getTokenClaims()).length > 0 && (
                   <div>
                     <h4 style={{ margin: '0 0 1rem 0' }}>Token Claims</h4>
@@ -1695,6 +1861,7 @@ const TokenManagement = () => {
                     </div>
                   </div>
                 )}
+                */}
               </div>
             ) : (
               <div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
