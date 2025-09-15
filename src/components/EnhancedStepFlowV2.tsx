@@ -745,17 +745,27 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 
   // Get step status
   const getStepStatus = useCallback((stepIndex: number): 'completed' | 'active' | 'pending' | 'error' | 'success' => {
+    const history = stepHistory.find(h => h.stepId === steps[stepIndex]?.id);
+    
+    // If step has an error, mark as error
+    if (history?.error) return 'error';
+    
+    // If step has a successful result, mark as completed (regardless of position)
+    if (history?.result && !history?.error) {
+      return stepIndex < currentStepIndex ? 'completed' : 'success';
+    }
+    
+    // If step is before current step and no history, assume completed
     if (stepIndex < currentStepIndex) {
-      const history = stepHistory.find(h => h.stepId === steps[stepIndex]?.id);
-      if (history?.error) return 'error';
-      if (history?.result) return 'completed';
       return 'completed';
     }
+    
+    // If step is current step, mark as active
     if (stepIndex === currentStepIndex) {
-      const history = stepHistory.find(h => h.stepId === steps[stepIndex]?.id);
-      if (history?.result && !history?.error) return 'success';
       return 'active';
     }
+    
+    // Otherwise, pending
     return 'pending';
   }, [currentStepIndex, stepHistory, steps]);
 
