@@ -310,12 +310,19 @@ const CredentialStatusPanel: React.FC = () => {
   };
 
   const refreshStatuses = useCallback(async () => {
-    console.log('🔄 [CredentialStatusPanel] Refreshing statuses');
+    console.log('🔄 [CredentialStatusPanel] Refreshing statuses - button clicked');
     setIsLoading(true);
     try {
+      console.log('🔄 [CredentialStatusPanel] Loading credentials...');
       const configCredentials = credentialManager.loadConfigCredentials();
       const authzFlowCredentials = credentialManager.loadAuthzFlowCredentials();
       const implicitFlowCredentials = credentialManager.loadImplicitFlowCredentials();
+      
+      console.log('🔄 [CredentialStatusPanel] Loaded credentials:', {
+        config: configCredentials,
+        authz: authzFlowCredentials,
+        implicit: implicitFlowCredentials
+      });
       
       logger.debug('CredentialStatusPanel', 'Loaded credentials', {
         config: configCredentials,
@@ -347,9 +354,11 @@ const CredentialStatusPanel: React.FC = () => {
         }
       ];
       
+      console.log('🔄 [CredentialStatusPanel] Setting new statuses:', statuses);
       setFlowStatuses(statuses);
       setLastRefresh(new Date());
       
+      console.log('🔄 [CredentialStatusPanel] Statuses updated successfully');
       logger.debug('CredentialStatusPanel', 'Statuses updated', statuses);
     } catch (error) {
       logger.error('CredentialStatusPanel', 'Error refreshing statuses', error);
@@ -397,7 +406,13 @@ const CredentialStatusPanel: React.FC = () => {
       <StatusHeader>
         <h3>System Status</h3>
         <ButtonGroup>
-          <RefreshButton onClick={refreshStatuses} disabled={isLoading}>
+          <RefreshButton 
+            onClick={(e) => {
+              console.log('🔄 [CredentialStatusPanel] Refresh button clicked!', e);
+              refreshStatuses();
+            }} 
+            disabled={isLoading}
+          >
             <FiRefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
             {isLoading ? 'Refreshing...' : 'Refresh'}
           </RefreshButton>
