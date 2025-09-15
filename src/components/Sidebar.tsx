@@ -327,7 +327,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           
           <Submenu $isOpen={openMenus.oidc}>
             <SubmenuItem to="/flows/enhanced-authorization-code-v2" onClick={onClose} $isActive={isActiveRoute('/flows/enhanced-authorization-code-v2')}>
-              OIDC Enhanced Auth Code V2
+              OIDC Authorization Code
             </SubmenuItem>
             <SubmenuItem to="/oidc/implicit" onClick={onClose} $isActive={isActiveRoute('/oidc/implicit')}>
               OIDC Implicit
