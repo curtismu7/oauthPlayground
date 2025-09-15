@@ -619,6 +619,33 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     }, 100);
   }, []);
 
+  // Scroll to step progress indicator helper function
+  const scrollToStepProgress = useCallback(() => {
+    setTimeout(() => {
+      // Look for the step progress container with the step indicators
+      const stepProgressElement = document.querySelector('[data-testid="step-progress"]') || 
+                                 document.querySelector('[data-testid="step-progress-bottom"]') ||
+                                 document.querySelector('[class*="sc-imTTCS"]') || 
+                                 document.querySelector('[class*="StepProgressContainer"]');
+      
+      if (stepProgressElement) {
+        console.log('🎯 [EnhancedAuthorizationCodeFlowV2] Scrolling to step progress indicator');
+        stepProgressElement.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center',
+          inline: 'nearest'
+        });
+      } else {
+        // Fallback to scrolling to top if step progress not found
+        console.log('⚠️ [EnhancedAuthorizationCodeFlowV2] Step progress not found, scrolling to top');
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      }
+    }, 100);
+  }, []);
+
   // Debug credentials state
   console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Current credentials state:', {
     environmentId: credentials.environmentId ? `${credentials.environmentId.substring(0, 8)}...` : 'none',
@@ -1249,8 +1276,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         // Show success message
         updateStepMessage('setup-credentials', '✅ Credentials saved successfully! You can now proceed to Step 2 to generate PKCE codes.');
         
-        // Scroll to bottom to show the success message and next step
-        scrollToBottom();
+        // Scroll to step progress to show the success message and next step
+        scrollToStepProgress();
       } else {
         throw new Error('Failed to save authz flow credentials to credential manager');
       }
@@ -1281,8 +1308,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       // Show success message
       updateStepMessage('generate-pkce', '✅ PKCE codes generated successfully! These codes add security to your OAuth flow. You can now proceed to Step 3 to build the authorization URL.');
       
-      // Scroll to bottom to show the generated codes and next step
-      scrollToBottom();
+      // Scroll to step progress to show the generated codes and next step
+      scrollToStepProgress();
       
       return { verifier, challenge };
     } catch (error) {
@@ -1350,8 +1377,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     setAuthUrl(url);
     logger.info('EnhancedAuthorizationCodeFlowV2', 'Authorization URL generated', { url, scopes });
     
-    // Scroll to bottom to show the generated URL and next step
-    scrollToBottom();
+    // Scroll to step progress to show the generated URL and next step
+    scrollToStepProgress();
   }, [credentials, pkceCodes.codeChallenge]);
 
   // Handle authorization
@@ -1713,8 +1740,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       // Show success message with strong instruction to scroll up
       updateStepMessage('exchange-tokens', '🎉 SUCCESS! Tokens received! Scroll up to see your new access and refresh tokens in the green boxes above. The OAuth flow is complete!');
       
-      // Scroll to bottom to show the tokens and next steps
-      scrollToBottom();
+      // Scroll to step progress to show the tokens and next steps
+      scrollToStepProgress();
       
       // Clear the authorization code and state after successful exchange to prevent reuse
       setAuthCode('');
@@ -1775,8 +1802,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       setUserInfo(userData);
       logger.info('EnhancedAuthorizationCodeFlowV2', 'User info retrieved', userData);
       
-      // Scroll to bottom to show the user info
-      scrollToBottom();
+      // Scroll to step progress to show the user info
+      scrollToStepProgress();
     } catch (error) {
       logger.error('EnhancedAuthorizationCodeFlowV2', 'UserInfo request failed', String(error));
       throw error;
