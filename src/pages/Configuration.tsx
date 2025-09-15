@@ -1005,7 +1005,7 @@ const Configuration = () => {
                 }}
               >
                 <FiGlobe size={18} style={{ marginRight: '8px' }} />
-                Auto-Discover
+                Well Known Endpoint (OIDC Discovery)
               </button>
             </div>
             
