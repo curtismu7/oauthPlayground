@@ -510,6 +510,7 @@ const TokenManagement = () => {
   const [tokenHistory, setTokenHistory] = useState<TokenHistoryEntry[]>([]);
   const [activeTab, setActiveTab] = useState<'analysis' | 'diagnosis'>('analysis');
   const [errorInput, setErrorInput] = useState('');
+  const [message, setMessage] = useState<{ type: 'success' | 'error' | 'warning' | 'info'; title?: string; message: string } | null>(null);
 
   // Token analysis hook
   const {
@@ -715,7 +716,11 @@ const TokenManagement = () => {
       
       // No token available
       console.log('❌ [TokenManagement] No token available in auth context or storage');
-      alert('No token available to decode. Please load a token first or enter one manually.');
+      setMessage({
+        type: 'warning',
+        title: 'No Token Available',
+        message: 'No token available to decode. Please load a token first or enter one manually.'
+      });
       return;
     }
     
@@ -764,11 +769,19 @@ const TokenManagement = () => {
         }
       } else {
         console.log('⚠️ [TokenManagement] No current access token available');
-        alert('No current access token available. Please complete an OAuth flow first or use "Load from Storage" to load previously saved tokens.');
+        setMessage({
+          type: 'error',
+          title: 'No Token Available',
+          message: 'No current access token available. Please complete an OAuth flow first or use "Load from Storage" to load previously saved tokens.'
+        });
       }
     } catch (error) {
       console.error('❌ [TokenManagement] Error getting token:', error);
-      alert('Error loading current token: ' + (error instanceof Error ? error.message : 'Unknown error'));
+      setMessage({
+        type: 'error',
+        title: 'Error Loading Token',
+        message: 'Error loading current token: ' + (error instanceof Error ? error.message : 'Unknown error')
+      });
     } finally {
       setIsLoading(false);
     }
@@ -778,7 +791,11 @@ const TokenManagement = () => {
     if (tokenString) {
       try {
         await navigator.clipboard.writeText(tokenString);
-        alert('Token copied to clipboard!');
+        setMessage({
+          type: 'success',
+          title: 'Copied!',
+          message: 'Token copied to clipboard!'
+        });
       } catch (error) {
         console.error('Error copying token:', error);
       }
@@ -789,7 +806,11 @@ const TokenManagement = () => {
     if (jwtHeader) {
       try {
         await navigator.clipboard.writeText(jwtHeader);
-        alert('JWT Header copied to clipboard!');
+        setMessage({
+          type: 'success',
+          title: 'Copied!',
+          message: 'JWT Header copied to clipboard!'
+        });
       } catch (error) {
         console.error('Error copying header:', error);
       }
@@ -800,7 +821,11 @@ const TokenManagement = () => {
     if (jwtPayload) {
       try {
         await navigator.clipboard.writeText(jwtPayload);
-        alert('JWT Payload copied to clipboard!');
+        setMessage({
+          type: 'success',
+          title: 'Copied!',
+          message: 'JWT Payload copied to clipboard!'
+        });
       } catch (error) {
         console.error('Error copying payload:', error);
       }
@@ -810,7 +835,11 @@ const TokenManagement = () => {
 
   const handleValidateToken = async () => {
     if (!tokenString) {
-      alert('No token to validate');
+      setMessage({
+        type: 'warning',
+        title: 'No Token',
+        message: 'No token to validate'
+      });
       return;
     }
 
@@ -819,7 +848,11 @@ const TokenManagement = () => {
       // Simulate token validation
       setTimeout(() => {
         setTokenStatus('valid');
-        alert('Token is valid!');
+        setMessage({
+          type: 'success',
+          title: 'Token Valid',
+          message: 'Token is valid!'
+        });
         setIsLoading(false);
       }, 500);
     } catch (error) {
@@ -833,7 +866,11 @@ const TokenManagement = () => {
     try {
       // Simulate connection test
       setTimeout(() => {
-        alert('Connection test successful!');
+        setMessage({
+          type: 'success',
+          title: 'Connection Test',
+          message: 'Connection test successful!'
+        });
         setIsLoading(false);
       }, 1000);
     } catch (error) {
@@ -852,7 +889,11 @@ const TokenManagement = () => {
           setJwtHeader('');
           setJwtPayload('');
           setTokenStatus('none');
-          alert('Token revoked successfully!');
+          setMessage({
+            type: 'success',
+            title: 'Token Revoked',
+            message: 'Token revoked successfully!'
+          });
           setIsLoading(false);
         }, 500);
       } catch (error) {
@@ -875,7 +916,11 @@ const TokenManagement = () => {
     if (confirm('Are you sure you want to clear all token history?')) {
       clearTokenHistory();
       setTokenHistory([]);
-      alert('Token history cleared successfully!');
+      setMessage({
+        type: 'success',
+        title: 'History Cleared',
+        message: 'Token history cleared successfully!'
+      });
     }
   };
 
@@ -1001,6 +1046,14 @@ const TokenManagement = () => {
         }
         subtitle="Monitor and manage PingOne authentication tokens"
       />
+      {message && (
+        <StandardMessage
+          type={message.type}
+          title={message.title}
+          message={message.message}
+          onDismiss={() => setMessage(null)}
+        />
+      )}
 
       {/* Current Token Status Section */}
       {tokens && tokens.access_token && (
@@ -1099,13 +1152,30 @@ const TokenManagement = () => {
         </CardHeader>
         <CardBody>
           <TokenSurface
-            as="textarea"
-            id="token-string"
-            value={tokenString}
-            onChange={handleTokenInput}
-            placeholder="Paste any JWT token here to decode it (Access Token, ID Token, etc.) or use the buttons above to load tokens from AuthZ Code Flow"
+            hasToken={!!tokenString}
+            isJson={!!tokenString && tokenString.trim().startsWith('{')}
+            jsonContent={tokenString && tokenString.trim().startsWith('{') ? tokenString : undefined}
             ariaLabel="JWT token input for decoding"
-          />
+          >
+            <textarea
+              id="token-string"
+              value={tokenString}
+              onChange={handleTokenInput}
+              placeholder="Paste any JWT token here to decode it (Access Token, ID Token, etc.) or use the buttons above to load tokens from AuthZ Code Flow"
+              style={{
+                width: '100%',
+                minHeight: '400px',
+                resize: 'vertical',
+                border: 0,
+                outline: 'none',
+                background: 'transparent',
+                color: 'inherit',
+                fontFamily: 'inherit',
+                fontSize: '14px',
+                lineHeight: '1.5'
+              }}
+            />
+          </TokenSurface>
 
           <ButtonGroup>
             <ActionButton
@@ -1163,7 +1233,11 @@ const TokenManagement = () => {
                     });
                     setTimeout(() => decodeJWT(storedTokens.access_token), 100);
                   } else {
-                    alert('No token available from AuthZ Code Flow. Please complete the OAuth flow first.');
+                    setMessage({
+                      type: 'warning',
+                      title: 'No Token Available',
+                      message: 'No token available from AuthZ Code Flow. Please complete the OAuth flow first.'
+                    });
                   }
                 }
               }}
@@ -1221,6 +1295,9 @@ const TokenManagement = () => {
               className="jwt-content"
               ariaLabel="JWT Header"
               scrollable
+              hasToken={!!jwtHeader}
+              isJson={!!jwtHeader}
+              jsonContent={jwtHeader}
             >
               {jwtHeader || 'No token data'}
             </TokenSurface>
@@ -1245,6 +1322,9 @@ const TokenManagement = () => {
               className="jwt-content"
               ariaLabel="JWT Payload"
               scrollable
+              hasToken={!!jwtPayload}
+              isJson={!!jwtPayload}
+              jsonContent={jwtPayload}
             >
               {jwtPayload || 'No token data'}
             </TokenSurface>
