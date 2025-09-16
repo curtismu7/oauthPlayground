@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiEye, FiCheckCircle, FiAlertCircle, FiCode, FiServer, FiKey } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
@@ -14,6 +15,7 @@ import PageTitle from '../../components/PageTitle';
 import FlowCredentials from '../../components/FlowCredentials';
 import ContextualHelp from '../../components/ContextualHelp';
 import ConfigurationStatus from '../../components/ConfigurationStatus';
+import CentralizedSuccessMessage, { showClientCredentialsSuccess, showFlowError } from '../../components/CentralizedSuccessMessage';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -281,6 +283,9 @@ type ApiCall = {
 };
 
 const ClientCredentialsFlow = () => {
+  // Centralized scroll management - ALL pages start at top
+  usePageScroll({ pageName: 'Client Credentials Flow', force: true });
+  
   const { config } = useAuth();
   const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [currentStep, setCurrentStep] = useState<number>(0);
@@ -570,6 +575,9 @@ const accessToken = generateAccessToken(clientId, scope);`,
           const errorMessage = error instanceof Error ? error.message : 'Unknown error';
           setError(`Failed to exchange credentials for tokens: ${errorMessage}`);
           console.error('❌ [ClientCredentialsFlow] Token exchange error:', error);
+          
+          // Show centralized error message
+          showFlowError('❌ Client Credentials Failed', `Failed to exchange credentials for tokens: ${errorMessage}`);
         }
       }
     },
@@ -601,6 +609,10 @@ fetch('/api/protected-resource', {
         setStepResults(prev => ({ ...prev, 4: result }));
         setExecutedSteps(prev => new Set(prev).add(4));
         setDemoStatus('success');
+        
+        // Show centralized success message
+        showClientCredentialsSuccess();
+        
         return result;
       }
     },
@@ -775,6 +787,10 @@ fetch('/api/protected-resource', {
           
         </CardBody>
       </DemoSection>
+      
+      {/* Centralized Success/Error Messages */}
+      <CentralizedSuccessMessage position="top" />
+      <CentralizedSuccessMessage position="bottom" />
     </Container>
   );
 };
