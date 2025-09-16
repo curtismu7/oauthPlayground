@@ -1780,7 +1780,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         : 'http://localhost:3001';
       
       const requestBody = {
-          grant_type: 'authorization_code',
+          grant_type: flowConfig.grantType || 'authorization_code',
         client_id: currentCredentials.clientId.trim(), // Ensure no whitespace
         client_secret: currentCredentials.clientSecret || '',
           code: currentAuthCode,
@@ -1798,6 +1798,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
 
       console.log('🔍 [EnhancedAuthCodeFlowV2] Request body being sent:', {
         grant_type: requestBody.grant_type,
+        grant_type_source: flowConfig.grantType ? 'Flow Config' : 'Default',
         client_id: requestBody.client_id ? `${requestBody.client_id.substring(0, 8)}...` : 'none',
         client_id_length: requestBody.client_id?.length || 0,
         client_id_empty: requestBody.client_id === '',
