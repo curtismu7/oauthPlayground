@@ -27,6 +27,7 @@ export const getAuthorizationCodeConfig = (): FlowConfig => ({
   prompt: '',
   loginHint: '',
   acrValues: [],
+  clientAuthMethod: 'client_secret_post',
   showSuccessModal: true,
   showAuthCodeInModal: true,
   showCredentialsModal: true
@@ -49,6 +50,7 @@ export const getPKCEConfig = (): FlowConfig => ({
   prompt: '',
   loginHint: '',
   acrValues: [],
+  clientAuthMethod: 'client_secret_post',
   showSuccessModal: true,
   showAuthCodeInModal: true,
   showCredentialsModal: true
@@ -71,6 +73,7 @@ export const getImplicitConfig = (): FlowConfig => ({
   prompt: '',
   loginHint: '',
   acrValues: [],
+  clientAuthMethod: 'client_secret_post',
   showSuccessModal: true,
   showAuthCodeInModal: true,
   showCredentialsModal: true
@@ -93,6 +96,7 @@ export const getClientCredentialsConfig = (): FlowConfig => ({
   prompt: '',
   loginHint: '',
   acrValues: [],
+  clientAuthMethod: 'client_secret_post',
   showSuccessModal: true,
   showAuthCodeInModal: true,
   showCredentialsModal: true
@@ -115,6 +119,7 @@ export const getDeviceCodeConfig = (): FlowConfig => ({
   prompt: '',
   loginHint: '',
   acrValues: [],
+  clientAuthMethod: 'client_secret_post',
   showSuccessModal: true,
   showAuthCodeInModal: true,
   showCredentialsModal: true
@@ -137,6 +142,7 @@ export const getRefreshTokenConfig = (): FlowConfig => ({
   prompt: '',
   loginHint: '',
   acrValues: [],
+  clientAuthMethod: 'client_secret_post',
   showSuccessModal: true,
   showAuthCodeInModal: true,
   showCredentialsModal: true
@@ -159,6 +165,7 @@ export const getPasswordGrantConfig = (): FlowConfig => ({
   prompt: '',
   loginHint: '',
   acrValues: [],
+  clientAuthMethod: 'client_secret_post',
   showSuccessModal: true,
   showAuthCodeInModal: true,
   showCredentialsModal: true
