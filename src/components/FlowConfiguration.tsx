@@ -315,6 +315,9 @@ export interface FlowConfig {
   loginHint: string;
   acrValues: string[];
   
+  // Client Authentication (OIDC Section 9)
+  clientAuthMethod: 'client_secret_post' | 'client_secret_basic' | 'client_secret_jwt' | 'private_key_jwt' | 'none';
+  
   // UI settings
   showSuccessModal: boolean;
   showAuthCodeInModal: boolean;
@@ -695,6 +698,34 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
               </ConfigGrid>
             </ConfigSection>
           )}
+
+          {/* Client Authentication Methods (OIDC Section 9) */}
+          <ConfigSection>
+            <h4>Client Authentication Method</h4>
+            <p style={{ fontSize: '0.875rem', color: '#6b7280', margin: '0.5rem 0 1rem 0' }}>
+              Choose how the client authenticates with the authorization server during token exchange.
+            </p>
+            <ConfigField>
+              <label>Authentication Method</label>
+              <select
+                value={config.clientAuthMethod}
+                onChange={(e) => updateConfig({ clientAuthMethod: e.target.value as FlowConfig['clientAuthMethod'] })}
+              >
+                <option value="client_secret_post">client_secret_post (Secret in POST body) - Current</option>
+                <option value="client_secret_basic">client_secret_basic (HTTP Basic Auth) - Secure</option>
+                <option value="client_secret_jwt">client_secret_jwt (JWT with shared secret) - More Secure</option>
+                <option value="private_key_jwt">private_key_jwt (JWT with private key) - Most Secure</option>
+                <option value="none">none (Public client, PKCE required) - For SPAs/Mobile</option>
+              </select>
+              <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.5rem' }}>
+                {config.clientAuthMethod === 'client_secret_post' && '📤 Client secret sent in request body (current implementation)'}
+                {config.clientAuthMethod === 'client_secret_basic' && '🔐 Client secret sent via HTTP Basic Authentication header'}
+                {config.clientAuthMethod === 'client_secret_jwt' && '🏆 Client creates JWT signed with client secret (HS256)'}
+                {config.clientAuthMethod === 'private_key_jwt' && '🔒 Client creates JWT signed with private key (RS256) - Enterprise grade'}
+                {config.clientAuthMethod === 'none' && '⚠️ No client authentication - PKCE required for security'}
+              </div>
+            </ConfigField>
+          </ConfigSection>
 
           {/* Custom Parameters */}
           <ConfigSection>
