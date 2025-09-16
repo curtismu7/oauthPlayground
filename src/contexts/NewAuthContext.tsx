@@ -102,11 +102,21 @@ async function loadConfiguration(): Promise<AppConfig> {
     // Otherwise, try to get from credential manager
     console.log('🔧 [NewAuthContext] Loading from credential manager...');
     // Try to load from config credentials first, then fall back to authz flow credentials
-    let allCredentials = credentialManager.loadConfigCredentials();
+    let configCredentials = credentialManager.loadConfigCredentials();
+    console.log('🔧 [NewAuthContext] Config credentials result:', configCredentials);
+    
+    let authzCredentials = credentialManager.loadAuthzFlowCredentials();
+    console.log('🔧 [NewAuthContext] Authz credentials result:', authzCredentials);
+    
+    // Use config credentials if available, otherwise use authz credentials
+    let allCredentials = configCredentials;
     if (!allCredentials.environmentId && !allCredentials.clientId) {
-      allCredentials = credentialManager.loadAuthzFlowCredentials();
+      allCredentials = authzCredentials;
+      console.log('🔧 [NewAuthContext] Using authz credentials as fallback');
+    } else {
+      console.log('🔧 [NewAuthContext] Using config credentials');
     }
-    console.log('🔧 [NewAuthContext] Credential manager result:', allCredentials);
+    console.log('🔧 [NewAuthContext] Final credential manager result:', allCredentials);
     
     if (allCredentials.environmentId && allCredentials.clientId) {
       const configFromCredentials = {
@@ -303,6 +313,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Listen for custom config change events
     window.addEventListener('pingone-config-changed', handleConfigChange);
     window.addEventListener('permanent-credentials-changed', handleConfigChange);
+    window.addEventListener('config-credentials-changed', handleConfigChange);
     
     // Also listen for storage changes
     window.addEventListener('storage', handleConfigChange);
@@ -310,6 +321,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       window.removeEventListener('pingone-config-changed', handleConfigChange);
       window.removeEventListener('permanent-credentials-changed', handleConfigChange);
+      window.removeEventListener('config-credentials-changed', handleConfigChange);
       window.removeEventListener('storage', handleConfigChange);
     };
   }, []);
@@ -1079,7 +1091,11 @@ export const useAuth = (): AuthContextType => {
       proceedWithOAuth: () => {},
       closeAuthModal: () => {},
       updateTokens: () => {},
-      dismissError: () => {},
+      dismissError: () => {
+        // Clear the error by reloading the page to reset context
+        console.log('🔄 [useAuth] Dismissing error by reloading page');
+        window.location.reload();
+      },
     };
   }
   return context;
