@@ -24,7 +24,8 @@ import {
 import EnhancedStepFlowV2, { EnhancedFlowStep } from '../../components/EnhancedStepFlowV2';
 import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
 import OAuthErrorHelper from '../../components/OAuthErrorHelper';
-import { generateCodeVerifier, generateCodeChallenge } from '../../utils/oauth';
+import { generateCodeVerifier, generateCodeChallenge, validateIdToken } from '../../utils/oauth';
+import { applyClientAuthentication, getAuthMethodSecurityLevel } from '../../utils/clientAuthentication';
 import { credentialManager } from '../../utils/credentialManager';
 import { logger } from '../../utils/logger';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
@@ -37,8 +38,30 @@ import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { useAuthorizationFlowScroll } from '../../hooks/usePageScroll';
-import CentralizedSuccessMessage from '../../components/CentralizedSuccessMessage';
+import CentralizedSuccessMessage, { showFlowSuccess, showFlowError } from '../../components/CentralizedSuccessMessage';
 import '../../styles/enhanced-flow.css';
+
+// STANDARDIZATION: Design System Constants (Guide Lines 511-517)
+const DESIGN_COLORS = {
+  SUCCESS: '#10b981',      // 🟢 Green gradient
+  ERROR: '#dc2626',        // 🔴 Red gradient  
+  WARNING: '#f59e0b',      // 🟡 Amber
+  INFO: '#3b82f6',         // 🔵 Blue
+  NEUTRAL: '#6b7280'       // ⚪ Gray
+};
+
+// STANDARDIZATION: Icon Mapping System (Guide Lines 518-528)
+const FLOW_ICONS = {
+  SETUP: FiSettings,       // 🔧 Setup/Config
+  SECURITY: FiShield,      // 🛡️ Security/PKCE
+  AUTHORIZATION: FiGlobe,  // 🌐 Authorization
+  TOKENS: FiKey,          // 🔑 Tokens
+  USER: FiUser,           // 👤 User Info
+  SUCCESS: FiCheckCircle, // ✅ Success
+  ERROR: FiAlertTriangle, // ❌ Error
+  RESET: FiRefreshCw,     // 🔄 Reset
+  CODE: FiCode            // 📝 Code
+};
 
 // Styled Components for Enhanced UI
 const FormField = styled.div`
@@ -580,19 +603,42 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   const [flowConfig, setFlowConfig] = useState<FlowConfig>(() => getDefaultConfig('authorization-code'));
 
   const [credentialsLoaded, setCredentialsLoaded] = useState(false);
+
+  // STANDARDIZATION: Enhanced step results system (Guide Lines 156-175)
+  const [stepResults, setStepResults] = useState<Record<string, unknown>>({});
+  
+  // Step messages (keeping simple for compatibility)
   const [stepMessages, setStepMessages] = useState<{[key: string]: string}>({});
   const [showResetModal, setShowResetModal] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [showClearCredentialsModal, setShowClearCredentialsModal] = useState(false);
   const [isClearingCredentials, setIsClearingCredentials] = useState(false);
 
-  // Update step message
+  // Update step message (keeping simple for compatibility)
   const updateStepMessage = useCallback((stepId: string, message: string) => {
     setStepMessages(prev => ({ ...prev, [stepId]: message }));
   }, []);
 
-  // Clear step message
-  // Removed unused clearStepMessage function
+  const clearStepMessage = useCallback((stepId: string) => {
+    setStepMessages(prev => {
+      const newMessages = { ...prev };
+      delete newMessages[stepId];
+      return newMessages;
+    });
+  }, []);
+
+  // STANDARDIZATION: Enhanced step results system (Guide Lines 88-105)
+  const saveStepResult = useCallback((stepId: string, result: unknown) => {
+    setStepResults(prev => ({ ...prev, [stepId]: result }));
+  }, []);
+
+  const hasStepResult = useCallback((stepId: string) => {
+    return stepId in stepResults;
+  }, [stepResults]);
+
+  const getStepResult = useCallback((stepId: string) => {
+    return stepResults[stepId];
+  }, [stepResults]);
 
   // Scroll to top helper function for Authorization flow
   const scrollToTop = useCallback(() => {
@@ -630,13 +676,16 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     }, 100);
   }, []);
 
-  // Reset flow function (preserves credentials)
+  // STANDARDIZATION: Enhanced reset functionality (Guide Lines 111-142)
   const handleResetFlow = useCallback(async () => {
     setIsResetting(true);
     try {
       console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Resetting flow (preserving credentials)...');
       
-      // Clear flow state but preserve credentials
+      // Set reset flag to prevent restoration logic
+      setJustReset(true);
+      
+      // Clear all flow state but preserve credentials
       setAuthCode('');
       setTokens(null);
       setUserInfo(null);
@@ -648,23 +697,35 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       setCallbackSuccess(false);
       setCallbackError(null);
       setStepMessages({});
+      setStepResults({});
       setCurrentStepIndex(0);
+      setCompletedSteps(new Set());
       
-      // Clear flow-specific stored data but preserve credentials
-      localStorage.removeItem('oauth_tokens');
+      // Clear sessionStorage flow data
+      sessionStorage.removeItem('oauth_tokens');
       sessionStorage.removeItem('oauth_auth_code');
       sessionStorage.removeItem('code_verifier');
       sessionStorage.removeItem('code_challenge');
       sessionStorage.removeItem('oauth_state');
+      sessionStorage.removeItem('oauth_nonce');
       sessionStorage.removeItem('enhanced-authz-code-v2-step');
+      
+      // Clear URL parameters
+      const currentUrl = new URL(window.location.href);
+      currentUrl.search = '';
+      window.history.replaceState({}, '', currentUrl.toString());
       
       console.log('✅ [EnhancedAuthorizationCodeFlowV2] Flow reset completed (credentials preserved)');
       
-      // Show success message
-      updateStepMessage('reset', 'Flow has been reset successfully. Your credentials are preserved. You can now start over from Step 1.');
+      // Show centralized success message
+      showFlowSuccess('✅ Flow Reset', 'Flow has been reset successfully. Your credentials are preserved.');
+      
+      // Clear reset flag after short delay
+      setTimeout(() => setJustReset(false), 1000);
       
     } catch (error) {
       console.error('❌ [EnhancedAuthorizationCodeFlowV2] Error resetting flow:', error);
+      showFlowError('❌ Reset Failed', 'Failed to reset flow. Please try again.');
     } finally {
       setIsResetting(false);
       setShowResetModal(false);
@@ -1410,9 +1471,14 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     const generatedState = flowConfig.state || Math.random().toString(36).substring(2, 15);
     setState(generatedState);
     
-    // Store state in sessionStorage for CSRF protection validation
+    // OIDC COMPLIANCE: Store state and nonce for validation (Section 15.5.2)
     sessionStorage.setItem('oauth_state', generatedState);
     console.log('🔐 [EnhancedAuthorizationCodeFlowV2] Stored state for CSRF protection:', generatedState);
+    
+    // Store nonce for ID token validation (OIDC Section 15.5.2)
+    const generatedNonce = flowConfig.nonce || Math.random().toString(36).substring(2, 15);
+    sessionStorage.setItem('oauth_nonce', generatedNonce);
+    console.log('🔐 [EnhancedAuthorizationCodeFlowV2] Stored nonce for ID token validation:', generatedNonce);
     
     // Debug: Log all credential values and flow config
     console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Current credentials:', {
@@ -1455,7 +1521,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       redirect_uri: redirectUri,
       scope: scopes,
       state: generatedState,
-      nonce: flowConfig.nonce || Math.random().toString(36).substring(2, 15)
+      nonce: generatedNonce
     });
 
     // Add PKCE parameters if enabled
@@ -1774,20 +1840,41 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         throw new Error('CRITICAL ERROR: Redirect URI is empty. This should not happen after validation.');
       }
 
+      // OIDC COMPLIANCE: Use selected client authentication method (Section 9)
+      console.log('🔐 [EnhancedAuthCodeFlowV2] Using client authentication method:', flowConfig.clientAuthMethod);
+      
+      // Prepare base request body
+      const baseBody = new URLSearchParams({
+        grant_type: flowConfig.grantType || 'authorization_code',
+        code: currentAuthCode,
+        redirect_uri: currentCredentials.redirectUri.trim(),
+      });
+      
+      // Add PKCE code verifier if available
+      if (codeVerifier) {
+        baseBody.append('code_verifier', codeVerifier);
+      }
+      
+      // Apply client authentication method
+      const authConfig = {
+        method: flowConfig.clientAuthMethod,
+        clientId: currentCredentials.clientId.trim(),
+        clientSecret: currentCredentials.clientSecret,
+        tokenEndpoint: currentCredentials.tokenEndpoint
+      };
+      
+      const authenticatedRequest = await applyClientAuthentication(authConfig, baseBody);
+      
+      // Convert URLSearchParams to object for backend compatibility
+      const requestBody = {
+        ...Object.fromEntries(authenticatedRequest.body),
+        environment_id: currentCredentials.environmentId.trim()
+      };
+      
       // Use backend proxy for secure token exchange
       const backendUrl = process.env.NODE_ENV === 'production' 
         ? 'https://oauth-playground.vercel.app' 
         : 'http://localhost:3001';
-      
-      const requestBody = {
-          grant_type: flowConfig.grantType || 'authorization_code',
-        client_id: currentCredentials.clientId.trim(), // Ensure no whitespace
-        client_secret: currentCredentials.clientSecret || '',
-          code: currentAuthCode,
-          redirect_uri: currentCredentials.redirectUri.trim(), // Ensure no whitespace
-        environment_id: currentCredentials.environmentId.trim(), // Ensure no whitespace
-        code_verifier: codeVerifier
-      };
 
       console.log('🔄 [EnhancedAuthCodeFlowV2] Token exchange via backend proxy:', {
         backendUrl,
@@ -1818,11 +1905,17 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       }
 
       console.log('🌐 [EnhancedAuthCodeFlowV2] Sending request to:', `${backendUrl}/api/token-exchange`);
+      console.log('🔐 [EnhancedAuthCodeFlowV2] Authentication method details:', {
+        method: flowConfig.clientAuthMethod,
+        security: getAuthMethodSecurityLevel(flowConfig.clientAuthMethod),
+        hasCustomHeaders: Object.keys(authenticatedRequest.headers).length > 1
+      });
       
       const response = await fetch(`${backendUrl}/api/token-exchange`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...authenticatedRequest.headers  // Include authentication headers
         },
         body: JSON.stringify(requestBody)
       });
@@ -1850,10 +1943,49 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       const tokenData = await response.json();
       setTokens(tokenData);
       logger.info('EnhancedAuthorizationCodeFlowV2', 'Tokens received', tokenData);
+      
+      // OIDC COMPLIANCE: Validate ID token if present (Section 3.1.3.7)
+      if (tokenData.id_token) {
+        try {
+          console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Validating ID token per OIDC spec...');
+          
+          // Get stored nonce for validation
+          const storedNonce = sessionStorage.getItem('oauth_nonce');
+          
+          // Validate ID token with signature verification, issuer, audience, nonce, and max_age
+          const validatedPayload = await validateIdToken(
+            tokenData.id_token,
+            currentCredentials.clientId,
+            currentCredentials.authorizationEndpoint.replace('/as/authorize', ''),
+            storedNonce || undefined,
+            flowConfig.maxAge > 0 ? flowConfig.maxAge : undefined
+          );
+          
+          console.log('✅ [EnhancedAuthorizationCodeFlowV2] ID token validation successful:', {
+            subject: validatedPayload.sub,
+            issuer: validatedPayload.iss,
+            audience: validatedPayload.aud,
+            nonce: validatedPayload.nonce ? '✅ Validated' : 'Not present',
+            authTime: validatedPayload.auth_time ? '✅ Present' : 'Not present'
+          });
+          
+          // Clear the nonce after successful validation (prevent reuse)
+          sessionStorage.removeItem('oauth_nonce');
+          
+        } catch (validationError) {
+          console.error('❌ [EnhancedAuthorizationCodeFlowV2] ID token validation failed:', validationError);
+          // Don't fail the entire flow, but log the validation error
+          logger.error('EnhancedAuthorizationCodeFlowV2', 'ID token validation failed', String(validationError));
+          
+          // Show warning but continue (for educational purposes)
+          updateStepMessage('exchange-tokens', `⚠️ SECURITY WARNING: ID token validation failed: ${validationError instanceof Error ? validationError.message : String(validationError)}. Tokens received but ID token is not OIDC-compliant.`);
+        }
+      }
+      
       setIsExchangingTokens(false);
       
       // Show success message with strong instruction to scroll up
-      updateStepMessage('exchange-tokens', '🎉 SUCCESS! Tokens received! Scroll up to see your new access and refresh tokens in the green boxes above. The OAuth flow is complete!');
+      updateStepMessage('exchange-tokens', '🎉 SUCCESS! Tokens received and ID token validated per OIDC spec! Scroll up to see your new access and refresh tokens in the green boxes above. The OAuth flow is complete!');
       
       // Scroll to step progress to show the tokens and next steps
       scrollToStepProgress();
@@ -2232,6 +2364,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         setIsSavingCredentials(true);
         try {
         await saveCredentials();
+        showFlowSuccess('✅ Credentials Saved Successfully');
         return { success: true };
         } finally {
           setIsSavingCredentials(false);
@@ -2407,6 +2540,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         try {
           await generatePKCECodes();
           setPkceGenerated(true);
+          showFlowSuccess('🛡️ PKCE Codes Generated Successfully');
           // Regenerate authorization URL with PKCE codes
           generateAuthUrl();
           
