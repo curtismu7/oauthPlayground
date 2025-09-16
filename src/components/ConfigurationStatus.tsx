@@ -13,6 +13,7 @@ import {
 import { Link } from 'react-router-dom';
 import { credentialManager } from '../utils/credentialManager';
 import { getCallbackUrlForFlow } from '../utils/callbackUrls';
+import { getSharedConfigurationStatus } from '../utils/configurationStatus';
 
 interface ConfigurationStatusProps {
   config: any;
@@ -178,49 +179,6 @@ const ExpandedContent = styled.div`
   }
 `;
 
-const getConfigurationStatus = () => {
-  // Use the new prioritized credential loading logic
-  let credentials = credentialManager.loadConfigCredentials();
-  if (!credentials.environmentId && !credentials.clientId) {
-    credentials = credentialManager.loadAuthzFlowCredentials();
-  }
-  if (!credentials.environmentId && !credentials.clientId) {
-    credentials = credentialManager.getAllCredentials();
-  }
-  
-  console.log('🔍 [ConfigurationStatus] Current credentials:', {
-    environmentId: credentials.environmentId ? `${credentials.environmentId.substring(0, 8)}...` : 'MISSING',
-    clientId: credentials.clientId ? `${credentials.clientId.substring(0, 8)}...` : 'MISSING',
-    authEndpoint: credentials.authEndpoint ? 'SET' : 'MISSING',
-    source: credentials.environmentId ? 'loaded' : 'none'
-  });
-  
-  const missingItems = [];
-  
-  if (!credentials.environmentId) missingItems.push('Environment ID');
-  if (!credentials.clientId) missingItems.push('Client ID');
-  if (!credentials.authEndpoint) missingItems.push('API URL');
-
-  if (missingItems.length === 0) {
-    return {
-      status: 'ready' as const,
-      message: 'Your PingOne configuration is complete and ready to use. You can start the demo below.',
-      missingItems: []
-    };
-  } else if (missingItems.length < 3) {
-    return {
-      status: 'partial' as const,
-      message: 'Your PingOne configuration is partially complete. Some features may not work properly.',
-      missingItems
-    };
-  } else {
-    return {
-      status: 'missing' as const,
-      message: 'PingOne configuration is missing required settings. Please configure your settings to use this flow.',
-      missingItems
-    };
-  }
-};
 
 const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({ 
   config, 
@@ -230,18 +188,19 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
   defaultExpanded = false
 }) => {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
-  const [statusData, setStatusData] = useState(() => getConfigurationStatus());
+  const [statusData, setStatusData] = useState(() => getSharedConfigurationStatus(flowType));
   
   // Update status when credentials change
   useEffect(() => {
     const handleCredentialChange = () => {
       console.log('🔄 [ConfigurationStatus] Credential change detected, refreshing status');
-      setStatusData(getConfigurationStatus());
+      setStatusData(getSharedConfigurationStatus(flowType));
     };
 
     // Listen for credential changes
     window.addEventListener('permanent-credentials-changed', handleCredentialChange);
     window.addEventListener('pingone-config-changed', handleCredentialChange);
+    window.addEventListener('config-credentials-changed', handleCredentialChange);
     
     // Also refresh on component mount
     handleCredentialChange();
@@ -249,6 +208,7 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
     return () => {
       window.removeEventListener('permanent-credentials-changed', handleCredentialChange);
       window.removeEventListener('pingone-config-changed', handleCredentialChange);
+      window.removeEventListener('config-credentials-changed', handleCredentialChange);
     };
   }, []);
 
@@ -275,7 +235,7 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
   const handleRefresh = (e: React.MouseEvent) => {
     e.stopPropagation();
     console.log('🔄 [ConfigurationStatus] Manual refresh button clicked');
-    setStatusData(getConfigurationStatus());
+    setStatusData(getSharedConfigurationStatus(flowType));
   };
 
   const getStatusIcon = () => {
@@ -288,11 +248,12 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
   };
 
   const getStatusText = () => {
+    const flowName = flowType === 'authorization-code' ? 'Authorization Code Flow' : 'Flow';
     switch (status) {
-      case 'ready': return 'Configuration Ready';
-      case 'partial': return 'Partial Configuration';
-      case 'missing': return 'Configuration Required';
-      default: return 'Configuration Status';
+      case 'ready': return `${flowName} Configuration Ready`;
+      case 'partial': return `${flowName} Partial Configuration`;
+      case 'missing': return `${flowName} Configuration Required`;
+      default: return `${flowName} Configuration Status`;
     }
   };
 
@@ -372,7 +333,7 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
             {message}
           </div>
           
-          {status !== 'ready' && missingItems.length > 0 && (
+          {status !== 'ready' && missingItems && missingItems.length > 0 && (
             <>
               <div className="details-title">Missing Configuration:</div>
               <ul className="details-list">
