@@ -532,7 +532,9 @@ const getJWKS = (issuer: string) => {
 export const validateIdToken = async (
   idToken: string,
   clientId: string,
-  issuer: string
+  issuer: string,
+  nonce?: string,
+  maxAge?: number
 ): Promise<IdTokenPayload> => {
   console.log('🔍 [OAuth] Validating ID token with signature verification...');
   clientLog(`[OAuth] Validating ID token with signature verification...`);
@@ -577,7 +579,31 @@ export const validateIdToken = async (
     });
     clientLog(`[OAuth] Token payload: iss=${payload.iss}, aud=${payload.aud}, exp=${payload.exp}, sub=${payload.sub}`);
 
+    // OIDC COMPLIANCE: Additional validations per Section 3.1.3.7
+    
+    // Validate nonce if provided (Section 15.5.2)
+    if (nonce && payload.nonce !== nonce) {
+      console.error('❌ [OAuth] Nonce validation failed');
+      clientLog(`[OAuth] Nonce validation failed: expected=${nonce}, received=${payload.nonce}`);
+      throw new Error('Nonce validation failed - possible replay attack');
+    }
+    
+    // Validate auth_time if max_age was specified (Section 3.1.2.1)
+    if (maxAge && payload.auth_time) {
+      const now = Math.floor(Date.now() / 1000);
+      const maxAllowedAge = now - maxAge;
+      if (payload.auth_time < maxAllowedAge) {
+        console.error('❌ [OAuth] Authentication too old based on max_age');
+        clientLog(`[OAuth] Authentication too old: auth_time=${payload.auth_time}, max_allowed=${maxAllowedAge}`);
+        throw new Error(`Authentication too old: performed ${now - payload.auth_time} seconds ago, max_age allows ${maxAge} seconds`);
+      }
+    }
+
     console.log('✅ [OAuth] ID token signature and claims validation successful');
+    console.log('🔍 [OAuth] Validation details:', {
+      nonce: nonce ? (payload.nonce === nonce ? '✅ Valid' : '❌ Invalid') : 'Not checked',
+      maxAge: maxAge ? (payload.auth_time ? '✅ Checked' : '❌ Missing auth_time') : 'Not specified'
+    });
     clientLog(`[OAuth] ID token signature and claims validation successful`);
 
     return payload as IdTokenPayload;
