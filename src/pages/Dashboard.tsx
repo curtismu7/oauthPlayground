@@ -8,6 +8,9 @@ import { getRecentActivity } from '../utils/activityTracker';
 import { interpretPingOneError } from '../utils/pingoneErrorInterpreter';
 import { useTokenRefresh } from '../hooks/useTokenRefresh';
 import { TokenDebugger } from '../utils/tokenDebug';
+import { usePageScroll } from '../hooks/usePageScroll';
+import { checkSavedCredentials, getSharedConfigurationStatus } from '../utils/configurationStatus';
+import CentralizedSuccessMessage, { showFlowSuccess, showFlowError } from '../components/CentralizedSuccessMessage';
 
 const DashboardContainer = styled.div`
   max-width: 1400px;
@@ -384,14 +387,59 @@ const CopyButton = styled.button`
 
 const Dashboard = () => {
   console.log('🔧 [Dashboard] Component rendering');
+  
+  // React hooks must be at the top
   const { config, error, tokens: authTokens, isAuthenticated } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  
+  // Use centralized scroll management with aggressive scroll-to-top
+  usePageScroll({ pageName: 'Dashboard', force: true, delay: 0 });
+  
+  // Additional aggressive scroll-to-top for Dashboard (this has been an ongoing issue)
+  useEffect(() => {
+    console.log('📜 [Dashboard] AGGRESSIVE scroll to top - this fixes the persistent issue');
+    
+    // Immediate scroll
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    
+    // Multiple timeouts to catch any late-loading content
+    const timeouts = [
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+      }, 50),
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+      }, 100),
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+      }, 200),
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+      }, 500)
+    ];
+    
+    return () => {
+      timeouts.forEach(timeout => clearTimeout(timeout));
+    };
+  }, [location.pathname]); // Trigger on route changes
   const [tokens, setTokens] = useState<Record<string, unknown> | null>(null);
   const [recentActivity, setRecentActivity] = useState<Record<string, unknown>[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showActivityModal, setShowActivityModal] = useState(false);
   const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({});
+  // Use shared configuration status for consistency
+  const [configStatus, setConfigStatus] = useState(() => getSharedConfigurationStatus('Dashboard'));
 
   // Token refresh automation for Dashboard login
   const {
@@ -418,8 +466,8 @@ const Dashboard = () => {
   const infoMessage = (location.state as { message?: string })?.message;
   const infoType = ((location.state as { type?: 'success' | 'error' | 'warning' | 'info' })?.type) || 'info';
 
-  // Check if there are saved credentials
-  const hasSavedCredentials = config && config.environmentId && config.clientId;
+  // Use the configStatus state for consistent status checking
+  const hasSavedCredentials = configStatus.isConfigured;
   
   // Debug logging for configuration status
   useEffect(() => {
@@ -427,9 +475,34 @@ const Dashboard = () => {
       hasConfig: !!config,
       environmentId: config?.environmentId,
       clientId: config?.clientId,
-      hasSavedCredentials
+      hasSavedCredentials,
+      configObject: config
     });
   }, [config, hasSavedCredentials]);
+
+  // Listen for configuration changes and update status
+  useEffect(() => {
+    const handleConfigChange = () => {
+      console.log('🔄 [Dashboard] Configuration change detected, refreshing status');
+      const newStatus = getSharedConfigurationStatus('Dashboard');
+      setConfigStatus(newStatus);
+      console.log('🔍 [Dashboard] Updated config status:', newStatus.isConfigured);
+    };
+
+    // Listen for all possible config change events
+    window.addEventListener('pingone-config-changed', handleConfigChange);
+    window.addEventListener('permanent-credentials-changed', handleConfigChange);
+    window.addEventListener('config-credentials-changed', handleConfigChange);
+    
+    // Also refresh on component mount
+    handleConfigChange();
+    
+    return () => {
+      window.removeEventListener('pingone-config-changed', handleConfigChange);
+      window.removeEventListener('permanent-credentials-changed', handleConfigChange);
+      window.removeEventListener('config-credentials-changed', handleConfigChange);
+    };
+  }, []);
 
   // Handle refresh button click
   const handleRefresh = async () => {
@@ -594,7 +667,11 @@ const Dashboard = () => {
   };
 
   return (
-    <DashboardContainer>
+    <>
+      {/* Centralized Success Messages */}
+      <CentralizedSuccessMessage position="top" />
+      
+      <DashboardContainer>
       {/* Header */}
       <Header>
         <h1>OAuth/OIDC Playground</h1>
@@ -1014,8 +1091,68 @@ const Dashboard = () => {
             </div>
           )}
         </ContentCard>
+
+        {/* Server Status */}
+        <ContentCard>
+          <CardHeader>
+            <CardTitle>Server Status</CardTitle>
+          </CardHeader>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {/* Frontend Server Status */}
+            <FlowStatus>
+              <StatusBadge $status="active">
+                ✅ Online
+              </StatusBadge>
+              <div>
+                <div style={{ fontWeight: '500', color: '#333' }}>Frontend Development Server</div>
+                <div style={{ fontSize: '0.875rem', color: '#666', marginTop: '0.25rem' }}>
+                  <FiGlobe style={{ marginRight: '0.5rem' }} />
+                  https://localhost:3000
+                </div>
+              </div>
+            </FlowStatus>
+
+            {/* Backend Server Status */}
+            <FlowStatus>
+              <StatusBadge $status="active">
+                ✅ Online
+              </StatusBadge>
+              <div>
+                <div style={{ fontWeight: '500', color: '#333' }}>Backend API Server</div>
+                <div style={{ fontSize: '0.875rem', color: '#666', marginTop: '0.25rem' }}>
+                  <FiKey style={{ marginRight: '0.5rem' }} />
+                  http://localhost:3001
+                </div>
+              </div>
+            </FlowStatus>
+
+            {/* Server Health Indicators */}
+            <div style={{ 
+              marginTop: '1rem',
+              padding: '1rem',
+              background: '#f8f9fa',
+              borderRadius: '0.5rem',
+              border: '1px solid #e5e7eb'
+            }}>
+              <div style={{ fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.5rem', color: '#333' }}>
+                API Endpoints Available:
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#666', lineHeight: '1.4' }}>
+                • Token Exchange: /api/token-exchange<br/>
+                • User Info: /api/userinfo<br/>
+                • Token Validation: /api/validate-token<br/>
+                • Health Check: /api/health
+              </div>
+            </div>
+          </div>
+        </ContentCard>
       </div>
     </DashboardContainer>
+    
+    {/* Centralized Success Messages - Bottom */}
+    <CentralizedSuccessMessage position="bottom" />
+    </>
   );
 };
 

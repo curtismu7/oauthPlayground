@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { FiSave, FiEye, FiEyeOff, FiGlobe } from 'react-icons/fi';
+import { usePageScroll } from '../hooks/usePageScroll';
+import { getSharedConfigurationStatus } from '../utils/configurationStatus';
 import DiscoveryPanel from '../components/DiscoveryPanel';
 import { OpenIDConfiguration } from '../services/discoveryService';
 import { credentialManager } from '../utils/credentialManager';
 import StandardMessage from '../components/StandardMessage';
 import CollapsibleSection from '../components/CollapsibleSection';
+import CentralizedSuccessMessage, { showFlowSuccess, showFlowError } from '../components/CentralizedSuccessMessage';
 import CredentialStatusPanel from '../components/CredentialStatusPanel';
 import packageJson from '../../package.json';
 
@@ -190,6 +193,9 @@ const LoadingSpinner = styled.div`
 `;
 
 const Configuration = () => {
+  // Centralized scroll management - ALL pages start at top
+  usePageScroll({ pageName: 'Configuration', force: true });
+  
   const [initialLoading, setInitialLoading] = useState(true);
   const [formData, setFormData] = useState({
     environmentId: '',
@@ -490,6 +496,12 @@ const Configuration = () => {
         title: 'PingOne Credentials saved',
         message: 'Your PingOne credentials have been saved successfully to localStorage.'
       });
+      
+      // Show centralized success message as well
+      showFlowSuccess(
+        '✅ Configuration Saved Successfully!',
+        'Your PingOne OAuth credentials have been saved and are ready to use across all flows.'
+      );
 
       console.log('✅ [Configuration] Success status set');
     } catch (error) {
@@ -500,6 +512,12 @@ const Configuration = () => {
         title: 'Error',
         message: 'Failed to save PingOne credentials. Please try again.'
       });
+      
+      // Show centralized error message as well
+      showFlowError(
+        '❌ Configuration Save Failed',
+        'Failed to save PingOne credentials. Please check your input and try again.'
+      );
     } finally {
       console.log('🔄 [Configuration] Setting isLoading to false');
       setIsLoading(false);
@@ -541,6 +559,12 @@ const Configuration = () => {
       title: 'PingOne Credentials Discovered',
       message: `Successfully discovered and applied PingOne credentials for environment ${environmentId}`
     });
+    
+    // Show centralized success message as well
+    showFlowSuccess(
+      '🔍 Discovery Successful!',
+      `PingOne configuration automatically discovered and applied for environment ${environmentId}`
+    );
   };
   
   if (initialLoading) {
@@ -1185,6 +1209,10 @@ const Configuration = () => {
           onClose={() => setShowDiscoveryPanel(false)}
         />
       )}
+
+      {/* Centralized Success/Error Messages */}
+      <CentralizedSuccessMessage position="top" />
+      <CentralizedSuccessMessage position="bottom" />
     </ConfigurationContainer>
   );
 };
