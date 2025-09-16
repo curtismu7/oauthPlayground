@@ -8,11 +8,12 @@ import { getOAuthTokens } from '../utils/tokenStorage';
 import { getTokenHistory, clearTokenHistory, removeTokenFromHistory, getFlowDisplayName, getFlowIcon, TokenHistoryEntry } from '../utils/tokenHistory';
 import { useTokenAnalysis } from '../hooks/useTokenAnalysis';
 import { useErrorDiagnosis } from '../hooks/useErrorDiagnosis';
-import { useScrollToTop } from '../hooks/useScrollToTop';
+import { usePageScroll } from '../hooks/usePageScroll';
 import JSONHighlighter from '../components/JSONHighlighter';
 import { TokenSurface } from '../components/TokenSurface';
 import StandardMessage from '../components/StandardMessage';
 import ConfirmationModal from '../components/ConfirmationModal';
+import CentralizedSuccessMessage, { showFlowSuccess, showFlowError } from '../components/CentralizedSuccessMessage';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -511,7 +512,8 @@ const TokenManagement = () => {
   const { tokens } = useAuth();
   
   // Scroll to top when page loads
-  useScrollToTop();
+  // Use centralized scroll management
+  usePageScroll({ pageName: 'Token Management', force: true });
   
   const [tokenString, setTokenString] = useState('');
   const [jwtHeader, setJwtHeader] = useState('');
@@ -646,20 +648,24 @@ const TokenManagement = () => {
         // First try to get token from auth context
         let currentTokens = tokens;
         
-        // If no tokens in auth context, try to load from storage
+        // If no tokens in auth context or no access token, try to load from storage
         if (!currentTokens || !currentTokens.access_token) {
-          console.log('ℹ️ [TokenManagement] No tokens in auth context, checking storage...');
-          currentTokens = getOAuthTokens();
-          if (currentTokens) {
-            console.log('✅ [TokenManagement] Found tokens in secure storage:', currentTokens);
+          console.log('ℹ️ [TokenManagement] No access token in auth context, checking storage...');
+          const storageTokens = getOAuthTokens();
+          if (storageTokens && (storageTokens.access_token || storageTokens.id_token || storageTokens.refresh_token)) {
+            console.log('✅ [TokenManagement] Found tokens in secure storage:', storageTokens);
+            currentTokens = storageTokens;
           } else {
-            // Also check localStorage for tokens from Authorization Code flow
+            // Check localStorage for tokens from Authorization Code flow
             console.log('ℹ️ [TokenManagement] Checking localStorage for oauth_tokens...');
             const localStorageTokens = localStorage.getItem('oauth_tokens');
             if (localStorageTokens) {
               try {
-                currentTokens = JSON.parse(localStorageTokens);
-                console.log('✅ [TokenManagement] Found tokens in localStorage:', currentTokens);
+                const parsedTokens = JSON.parse(localStorageTokens);
+                console.log('✅ [TokenManagement] Found tokens in localStorage:', parsedTokens);
+                if (parsedTokens && (parsedTokens.access_token || parsedTokens.id_token || parsedTokens.refresh_token)) {
+                  currentTokens = parsedTokens;
+                }
               } catch (parseError) {
                 console.error('❌ [TokenManagement] Error parsing localStorage tokens:', parseError);
               }
@@ -667,17 +673,32 @@ const TokenManagement = () => {
           }
         }
         
+        // Auto-load the best available token (prefer access token, then ID token, then refresh token)
+        let tokenToLoad = null;
+        let tokenTypeToLoad = '';
+        
         if (currentTokens && currentTokens.access_token) {
-          console.log('✅ [TokenManagement] Found current access token, auto-loading and decoding');
-          setTokenString(currentTokens.access_token);
+          tokenToLoad = currentTokens.access_token;
+          tokenTypeToLoad = 'access_token';
+        } else if (currentTokens && currentTokens.id_token) {
+          tokenToLoad = currentTokens.id_token;
+          tokenTypeToLoad = 'id_token';
+        } else if (currentTokens && currentTokens.refresh_token) {
+          tokenToLoad = currentTokens.refresh_token;
+          tokenTypeToLoad = 'refresh_token';
+        }
+        
+        if (tokenToLoad) {
+          console.log(`✅ [TokenManagement] Found current ${tokenTypeToLoad}, auto-loading and decoding`);
+          setTokenString(tokenToLoad);
           setTokenSource({
             source: currentTokens === tokens ? 'Current Session' : 'Stored Tokens',
-            description: `Active Access Token from ${currentTokens.token_type || 'Bearer'} flow`,
+            description: `${tokenTypeToLoad.replace('_', ' ').toUpperCase()} from ${currentTokens.token_type || 'Bearer'} flow`,
             timestamp: new Date().toLocaleString()
           });
           
           // Auto-decode the token
-          setTimeout(() => decodeJWT(currentTokens.access_token), 100);
+          setTimeout(() => decodeJWT(tokenToLoad), 100);
           
           // Update token status based on expiration
           if (currentTokens.expires_at) {
@@ -693,7 +714,7 @@ const TokenManagement = () => {
             setTokenStatus('valid');
           }
         } else {
-          console.log('ℹ️ [TokenManagement] No current access token found in auth context or storage');
+          console.log('ℹ️ [TokenManagement] No tokens found in auth context or storage');
           setTokenStatus('none');
         }
       } catch (error) {
@@ -890,25 +911,27 @@ const TokenManagement = () => {
       
       let currentTokens = tokens;
       
-      // If no tokens in auth context, try to load from storage
-      if (!currentTokens) {
-        console.log('ℹ️ [TokenManagement] No tokens in auth context, checking storage...');
-        currentTokens = getOAuthTokens();
-        if (currentTokens) {
-          console.log('✅ [TokenManagement] Found tokens in storage:', currentTokens);
-        }
-      }
-      
-      // Also check localStorage for tokens from Authorization Code flow
-      if (!currentTokens) {
-        console.log('ℹ️ [TokenManagement] Checking localStorage for oauth_tokens...');
-        const localStorageTokens = localStorage.getItem('oauth_tokens');
-        if (localStorageTokens) {
-          try {
-            currentTokens = JSON.parse(localStorageTokens);
-            console.log('✅ [TokenManagement] Found tokens in localStorage:', currentTokens);
-          } catch (parseError) {
-            console.error('❌ [TokenManagement] Error parsing localStorage tokens:', parseError);
+      // If no tokens in auth context OR the specific token type is missing, try to load from storage
+      if (!currentTokens || !currentTokens[tokenType]) {
+        console.log(`ℹ️ [TokenManagement] No ${tokenType} in auth context, checking storage...`);
+        const storageTokens = getOAuthTokens();
+        if (storageTokens && storageTokens[tokenType]) {
+          console.log(`✅ [TokenManagement] Found ${tokenType} in secure storage:`, storageTokens);
+          currentTokens = storageTokens;
+        } else {
+          // Check localStorage for tokens from Authorization Code flow
+          console.log('ℹ️ [TokenManagement] Checking localStorage for oauth_tokens...');
+          const localStorageTokens = localStorage.getItem('oauth_tokens');
+          if (localStorageTokens) {
+            try {
+              const parsedTokens = JSON.parse(localStorageTokens);
+              console.log('✅ [TokenManagement] Found tokens in localStorage:', parsedTokens);
+              if (parsedTokens && parsedTokens[tokenType]) {
+                currentTokens = parsedTokens;
+              }
+            } catch (parseError) {
+              console.error('❌ [TokenManagement] Error parsing localStorage tokens:', parseError);
+            }
           }
         }
       }
@@ -1323,15 +1346,21 @@ const TokenManagement = () => {
           <TokenDetails>
             <div className="detail">
               <div className="label">Token Type</div>
-              <div className="value">Bearer</div>
+              <div className="value">
+                Bearer {getTokenTypeInfo().type !== 'unknown' && `(${getTokenTypeInfo().type === 'access' ? 'Access Token' : getTokenTypeInfo().type === 'id' ? 'ID Token' : getTokenTypeInfo().type === 'refresh' ? 'Refresh Token' : getTokenTypeInfo().type})`}
+              </div>
             </div>
             <div className="detail">
               <div className="label">Expires In</div>
-              <div className="value">1 hour</div>
+              <div className="value">
+                {currentAnalysis?.expiresIn ? `${Math.floor(currentAnalysis.expiresIn / 60)} minutes` : '1 hour'}
+              </div>
             </div>
             <div className="detail">
               <div className="label">Scope</div>
-              <div className="value">openid profile email</div>
+              <div className="value">
+                {getTokenTypeInfo().scopes?.join(' ') || 'openid profile email'}
+              </div>
             </div>
           </TokenDetails>
         </CardBody>
@@ -2165,6 +2194,10 @@ const TokenManagement = () => {
         cancelText="Cancel"
         variant="danger"
       />
+
+      {/* Centralized Success/Error Messages */}
+      <CentralizedSuccessMessage position="top" />
+      <CentralizedSuccessMessage position="bottom" />
 
     </Container>
   );

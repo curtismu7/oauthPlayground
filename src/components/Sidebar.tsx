@@ -65,7 +65,7 @@ const NavItem = styled(Link)<{ $isActive?: boolean }>`
   padding: 0.75rem 1.5rem;
   color: ${({ $isActive, theme }) => 
     $isActive 
-      ? (theme.colors?.primary || '#0070cc')
+      ? '#ffffff'
       : (theme.colors?.gray700 || '#374151')
   };
   text-decoration: none;
@@ -73,7 +73,7 @@ const NavItem = styled(Link)<{ $isActive?: boolean }>`
   font-weight: ${({ $isActive }) => $isActive ? '600' : '500'};
   background-color: ${({ $isActive, theme }) => 
     $isActive 
-      ? (theme.colors?.primaryLight || '#e6f3ff')
+      ? (theme.colors?.primary || '#0070cc')
       : 'transparent'
   };
   border-right: ${({ $isActive, theme }) => 
@@ -85,10 +85,14 @@ const NavItem = styled(Link)<{ $isActive?: boolean }>`
   &:hover {
     background-color: ${({ $isActive, theme }) => 
       $isActive 
-        ? (theme.colors?.primaryLight || '#e6f3ff')
+        ? (theme.colors?.primaryDark || '#0056b3')
         : (theme.colors?.gray100 || '#f3f4f6')
     };
-    color: ${({ theme }) => theme.colors?.primary || '#0070cc'};
+    color: ${({ $isActive, theme }) => 
+      $isActive 
+        ? '#ffffff'
+        : (theme.colors?.primary || '#0070cc')
+    };
   }
   
   svg {
@@ -96,7 +100,7 @@ const NavItem = styled(Link)<{ $isActive?: boolean }>`
     font-size: 1.25rem;
     color: ${({ $isActive, theme }) => 
       $isActive 
-        ? (theme.colors?.primary || '#0070cc')
+        ? '#ffffff'
         : 'inherit'
     };
   }
@@ -399,7 +403,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               Token Management
             </SubmenuItem>
             <SubmenuItem to="/auto-discover" onClick={onClose}>
-              Auto-Discover
+              OIDC Discovery
             </SubmenuItem>
             <SubmenuItem to="/flows/par" onClick={onClose}>
               Pushed Authorization
@@ -409,6 +413,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             </SubmenuItem>
             <SubmenuItem to="/flows/diagrams" onClick={onClose}>
               Interactive Diagrams
+            </SubmenuItem>
+            <SubmenuItem 
+              as="a" 
+              href="https://developer.pingidentity.com/en/tools/jwt-decoder.html" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              onClick={onClose}
+            >
+              Ping JWT Decoder ↗
             </SubmenuItem>
           </Submenu>
         </NavItemWithSubmenu>

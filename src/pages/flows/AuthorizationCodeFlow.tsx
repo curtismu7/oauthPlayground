@@ -25,7 +25,7 @@ import AuthorizationRequestModal from '../../components/AuthorizationRequestModa
 import { generateCodeVerifier, generateCodeChallenge } from '../../utils/oauth';
 import { credentialManager } from '../../utils/credentialManager';
 import { logger } from '../../utils/logger';
-import { useScrollToBottom } from '../../hooks/useScrollToBottom';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
 import { FlowConfiguration, type FlowConfig } from '../../components/FlowConfiguration';
 import { getDefaultConfig } from '../../utils/flowConfigDefaults';
@@ -519,6 +519,9 @@ const ToggleButton = styled.button`
 
 // Main Component
 const AuthorizationCodeFlow: React.FC = () => {
+  // Centralized scroll management - ALL pages start at top
+  usePageScroll({ pageName: 'Authorization Code Flow', force: true });
+  
   const { config } = useAuth();
   const [showConfig, setShowConfig] = useState(false);
   const [showCredentials, setShowCredentials] = useState(false);
