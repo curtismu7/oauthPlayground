@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiEye, FiAlertCircle, FiCode, FiKey, FiShield } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
@@ -162,6 +163,9 @@ const CodeBlock = styled.pre`
 `;
 
 const HybridFlow: React.FC = () => {
+  // Centralized scroll management - ALL pages start at top
+  usePageScroll({ pageName: 'Hybrid Flow', force: true });
+  
   const { config } = useAuth();
   const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [currentStep, setCurrentStep] = useState<number>(0);

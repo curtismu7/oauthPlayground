@@ -19,7 +19,7 @@ import Documentation from './pages/Documentation';
 import Login from './pages/Login';
 import Callback from './pages/Callback';
 import { useAuth } from './contexts/NewAuthContext';
-import { useScrollToBottom } from './hooks/useScrollToBottom';
+// Removed useScrollToBottom - using centralized scroll management per page
 
 // Import all the new OAuth and OIDC flow components
 import ImplicitGrantFlow from './pages/flows/ImplicitGrantFlow';
@@ -94,8 +94,7 @@ const AppRoutes = () => {
   const location = useLocation();
   const { showAuthModal, authRequestData, proceedWithOAuth, closeAuthModal } = useAuth();
   
-  // Scroll to bottom when route changes
-  useScrollToBottom();
+  // Removed global scroll to bottom - individual pages now handle their own scroll behavior
 
   // Close sidebar when route changes
   useEffect(() => {
