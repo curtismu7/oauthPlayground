@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import { Card, CardHeader, CardBody } from '../../components/Card';
 import { SpecCard } from '../../components/SpecCard';
 import { FiAlertCircle } from 'react-icons/fi';
@@ -91,6 +92,9 @@ const ErrorMessage = styled.div`
 `;
 
 const ImplicitGrantFlow = () => {
+  // Centralized scroll management - ALL pages start at top
+  usePageScroll({ pageName: 'Implicit Grant Flow', force: true });
+  
   const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [currentStep, setCurrentStep] = useState(0);
   const [authUrl, setAuthUrl] = useState('');

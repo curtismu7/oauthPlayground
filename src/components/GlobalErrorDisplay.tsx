@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { FiX, FiAlertCircle } from 'react-icons/fi';
 import { useAuth } from '../contexts/NewAuthContext';
@@ -97,6 +97,20 @@ const SuggestionText = styled.div`
 
 const GlobalErrorDisplay: React.FC = () => {
   const { error, dismissError } = useAuth();
+
+  // Handle ESC key to close error
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && error) {
+        dismissError();
+      }
+    };
+
+    if (error) {
+      document.addEventListener('keydown', handleEscape);
+      return () => document.removeEventListener('keydown', handleEscape);
+    }
+  }, [error, dismissError]);
 
   if (!error) {
     return null;

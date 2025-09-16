@@ -10,15 +10,12 @@ import {
   FiCode, 
   FiCheckCircle, 
   FiCopy,
-  FiExternalLink,
   FiRefreshCw,
   FiSettings,
   FiInfo,
   FiAlertTriangle,
   FiEye,
   FiEyeOff,
-  FiZap,
-  FiBookmark,
   FiClock,
   FiLoader,
   FiChevronDown,
@@ -31,14 +28,16 @@ import { generateCodeVerifier, generateCodeChallenge } from '../../utils/oauth';
 import { credentialManager } from '../../utils/credentialManager';
 import { logger } from '../../utils/logger';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
+import { FlowConfiguration, FlowConfig } from '../../components/FlowConfiguration';
+import { getDefaultConfig } from '../../utils/flowConfigDefaults';
 import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
 import ConfigurationStatus from '../../components/ConfigurationStatus';
 import ContextualHelp from '../../components/ContextualHelp';
-import { FlowConfiguration, type FlowConfig } from '../../components/FlowConfiguration';
-import { getDefaultConfig } from '../../utils/flowConfigDefaults';
 import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import { useAuth } from '../../contexts/NewAuthContext';
+import { useAuthorizationFlowScroll } from '../../hooks/usePageScroll';
+import CentralizedSuccessMessage from '../../components/CentralizedSuccessMessage';
 import '../../styles/enhanced-flow.css';
 
 // Styled Components for Enhanced UI
@@ -201,27 +200,7 @@ const InfoBox = styled.div<{ type: 'info' | 'warning' | 'success' | 'error' }>`
   }}
 `;
 
-const UrlDisplay = styled.div`
-  background: #1f2937;
-  color: #e5e7eb;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  border: 3px solid #10b981;
-  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.2), 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  overflow-x: auto;
-  margin: 1rem 0;
-  position: relative;
-  white-space: pre-wrap;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    border-color: #059669;
-    box-shadow: 0 0 0 1px rgba(5, 150, 105, 0.3), 0 6px 8px -1px rgba(0, 0, 0, 0.15);
-  }
-`;
+// Removed unused UrlDisplay styled component
 
 const CopyButton = styled.button`
   display: flex;
@@ -580,6 +559,9 @@ const ModalButton = styled.button<{ $primary?: boolean; $loading?: boolean }>`
 const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   const authContext = useAuth();
   const { config, user: authUser, tokens: authTokens, isAuthenticated } = authContext;
+  
+  // Use centralized scroll management for Authorization flow
+  useAuthorizationFlowScroll('Enhanced Authorization Code Flow V2');
   const location = useLocation();
   const [credentials, setCredentials] = useState({
     clientId: '',
@@ -594,6 +576,9 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     codeChallengeMethod: 'S256'
   });
 
+  // Flow Configuration state - integrates with the Flow Config UI
+  const [flowConfig, setFlowConfig] = useState<FlowConfig>(() => getDefaultConfig('authorization-code'));
+
   const [credentialsLoaded, setCredentialsLoaded] = useState(false);
   const [stepMessages, setStepMessages] = useState<{[key: string]: string}>({});
   const [showResetModal, setShowResetModal] = useState(false);
@@ -607,13 +592,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   }, []);
 
   // Clear step message
-  const clearStepMessage = useCallback((stepId: string) => {
-    setStepMessages(prev => {
-      const newMessages = { ...prev };
-      delete newMessages[stepId];
-      return newMessages;
-    });
-  }, []);
+  // Removed unused clearStepMessage function
 
   // Scroll to top helper function for Authorization flow
   const scrollToTop = useCallback(() => {
@@ -779,24 +758,22 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   const [authUrl, setAuthUrl] = useState('');
   const [authCode, setAuthCode] = useState('');
   const [state, setState] = useState('');
-  const [tokens, setTokens] = useState<any>(null);
-  const [userInfo, setUserInfo] = useState<any>(null);
+  const [tokens, setTokens] = useState<Record<string, unknown> | null>(null);
+  const [userInfo, setUserInfo] = useState<Record<string, unknown> | null>(null);
   const [callbackSuccess, setCallbackSuccess] = useState(false);
   const [callbackError, setCallbackError] = useState<string | null>(null);
   const [testingMethod, setTestingMethod] = useState<'popup' | 'redirect'>('popup');
   const [copiedText, setCopiedText] = useState<string | null>(null);
   const [customToken, setCustomToken] = useState<string>('');
-  const [isAuthorizing, setIsAuthorizing] = useState<boolean>(false);
+  // Removed unused isAuthorizing state
   const [isExchangingTokens, setIsExchangingTokens] = useState<boolean>(false);
   const [showSecret, setShowSecret] = useState<boolean>(false);
   const [showConfig, setShowConfig] = useState(false);
-  const [flowConfig, setFlowConfig] = useState<FlowConfig>(getDefaultConfig('authorization-code'));
   const [showAuthSuccessModal, setShowAuthSuccessModal] = useState(false);
   const [isModalLoading, setIsModalLoading] = useState(false);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [showRedirectModal, setShowRedirectModal] = useState(false);
-  const [redirectUrl, setRedirectUrl] = useState('');
-  const [redirectParams, setRedirectParams] = useState({});
+  // Removed unused redirect state variables
   const [isGeneratingPKCE, setIsGeneratingPKCE] = useState<boolean>(false);
   const [pkceGenerated, setPkceGenerated] = useState<boolean>(false);
   const [isSavingCredentials, setIsSavingCredentials] = useState<boolean>(false);
@@ -1427,25 +1404,27 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     }
   }, []);
 
-  // Generate authorization URL
+  // Generate authorization URL with Flow Config integration
   const generateAuthUrl = useCallback(() => {
-    const generatedState = Math.random().toString(36).substring(2, 15);
+    // Use state from Flow Config or generate new one
+    const generatedState = flowConfig.state || Math.random().toString(36).substring(2, 15);
     setState(generatedState);
     
     // Store state in sessionStorage for CSRF protection validation
     sessionStorage.setItem('oauth_state', generatedState);
     console.log('🔐 [EnhancedAuthorizationCodeFlowV2] Stored state for CSRF protection:', generatedState);
     
-    // Debug: Log all credential values
+    // Debug: Log all credential values and flow config
     console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Current credentials:', {
       clientId: credentials.clientId,
       environmentId: credentials.environmentId,
       authorizationEndpoint: credentials.authorizationEndpoint,
       scopes: credentials.scopes
     });
+    console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Flow config:', flowConfig);
     
-    // Ensure scopes are properly formatted
-    const scopes = credentials.scopes || 'openid profile email';
+    // Use scopes from Flow Config or fallback to credentials
+    const scopes = flowConfig.scopes.length > 0 ? flowConfig.scopes.join(' ') : (credentials.scopes || 'openid profile email');
     console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Generating auth URL with scopes:', scopes);
     
     // Use the correct callback URL for authorization code flow
@@ -1469,25 +1448,52 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       throw new Error('At least one scope must be specified');
     }
     
+    // Build basic parameters
     const params = new URLSearchParams({
-      response_type: credentials.responseType || 'code',
+      response_type: flowConfig.responseType || credentials.responseType || 'code',
       client_id: credentials.clientId,
       redirect_uri: redirectUri,
       scope: scopes,
       state: generatedState,
-      code_challenge: pkceCodes.codeChallenge,
-      code_challenge_method: credentials.codeChallengeMethod || 'S256'
+      nonce: flowConfig.nonce || Math.random().toString(36).substring(2, 15)
+    });
+
+    // Add PKCE parameters if enabled
+    if (flowConfig.enablePKCE && pkceCodes.codeChallenge) {
+      params.append('code_challenge', pkceCodes.codeChallenge);
+      params.append('code_challenge_method', flowConfig.codeChallengeMethod || 'S256');
+    }
+
+    // Add optional Flow Config parameters
+    if (flowConfig.maxAge > 0) {
+      params.append('max_age', flowConfig.maxAge.toString());
+    }
+    if (flowConfig.prompt) {
+      params.append('prompt', flowConfig.prompt);
+    }
+    if (flowConfig.loginHint) {
+      params.append('login_hint', flowConfig.loginHint);
+    }
+    if (flowConfig.acrValues.length > 0) {
+      params.append('acr_values', flowConfig.acrValues.join(' '));
+    }
+
+    // Add custom parameters from Flow Config
+    Object.entries(flowConfig.customParams).forEach(([key, value]) => {
+      if (key && value) {
+        params.append(key, value);
+      }
     });
 
     const url = `${credentials.authorizationEndpoint}?${params.toString()}`;
-    console.log('✅ [EnhancedAuthorizationCodeFlowV2] Generated authorization URL:', url);
+    console.log('✅ [EnhancedAuthorizationCodeFlowV2] Generated authorization URL with Flow Config:', url);
     console.log('🔧 [EnhancedAuthorizationCodeFlowV2] URL parameters:', Object.fromEntries(params));
     setAuthUrl(url);
-    logger.info('EnhancedAuthorizationCodeFlowV2', 'Authorization URL generated', { url, scopes });
+    logger.info('EnhancedAuthorizationCodeFlowV2', 'Authorization URL generated with Flow Config', { url, scopes, flowConfig });
     
     // Scroll to step progress to show the generated URL and next step
     scrollToStepProgress();
-  }, [credentials, pkceCodes.codeChallenge]);
+  }, [credentials, pkceCodes.codeChallenge, flowConfig]);
 
   // Handle authorization
   const handleAuthorization = useCallback(async () => {
@@ -1495,7 +1501,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     const redirectUri = getCallbackUrlForFlow('authorization-code');
     
     if (testingMethod === 'popup') {
-      setIsAuthorizing(true);
+      // Authorization starting
       
       // Set up flow context for popup callback
       const currentPath = window.location.pathname;
@@ -1531,13 +1537,13 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               logger.error('Authorization error received', error);
               setAuthError(error);
               setErrorDescription(error_description || error);
-              setIsAuthorizing(false);
+              // Authorization completed
             } else if (callbackCode && callbackState === state) {
               setAuthCode(callbackCode);
               setAuthError(null);
               setErrorDescription(null);
               logger.info('EnhancedAuthorizationCodeFlowV2', 'Authorization code received via message', `code: ${callbackCode.substring(0, 10)}...`);
-              setIsAuthorizing(false);
+              // Authorization completed
               popup.close();
               window.removeEventListener('message', messageHandler);
               
@@ -1932,9 +1938,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   }, []);
 
   // Validate credentials
-  const validateCredentials = useCallback(() => {
-    return credentials.clientId && credentials.environmentId && credentials.authorizationEndpoint;
-  }, [credentials]);
+  // Removed unused validateCredentials function
 
   // Auto-generate endpoints
   useEffect(() => {
@@ -2148,84 +2152,76 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             </InfoBox>
           )}
 
-          {/* Reset Flow Button */}
+          {/* Flow Control Actions - Combined Box */}
           <div style={{ 
             marginTop: '2rem', 
-            padding: '1rem', 
+            padding: '1.5rem', 
             backgroundColor: '#fef2f2', 
             border: '1px solid #fecaca', 
             borderRadius: '0.5rem',
             textAlign: 'center'
           }}>
-            <h4 style={{ margin: '0 0 0.5rem 0', color: '#dc2626', fontSize: '0.875rem' }}>
+            <h4 style={{ margin: '0 0 1rem 0', color: '#dc2626', fontSize: '1rem', fontWeight: '600' }}>
               <FiSettings style={{ marginRight: '0.5rem' }} />
-              Clear Credentials
+              Flow Control Actions
             </h4>
-            <p style={{ margin: '0 0 1rem 0', color: '#6b7280', fontSize: '0.8rem' }}>
-              Remove all saved PingOne credentials and start fresh
-            </p>
-            <button
-              onClick={() => setShowClearCredentialsModal(true)}
-              style={{
-                padding: '0.5rem 1rem',
-                backgroundColor: '#dc2626',
-                color: 'white',
-                border: 'none',
-                borderRadius: '0.375rem',
-                fontSize: '0.8rem',
-                fontWeight: '500',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                transition: 'background-color 0.2s'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#b91c1c'}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
-            >
-              <FiSettings />
-              Clear Credentials
-            </button>
-          </div>
-
-          {/* Reset Flow Button */}
-          <div style={{ 
-            marginTop: '1rem', 
-            padding: '1rem', 
-            backgroundColor: '#fef2f2', 
-            border: '1px solid #fecaca', 
-            borderRadius: '0.5rem',
-            textAlign: 'center'
-          }}>
-            <h4 style={{ margin: '0 0 0.5rem 0', color: '#dc2626', fontSize: '0.875rem' }}>
-              <FiRefreshCw style={{ marginRight: '0.5rem' }} />
-              Reset Flow
-            </h4>
-            <p style={{ margin: '0 0 1rem 0', color: '#6b7280', fontSize: '0.8rem' }}>
-              Clear flow progress and tokens (credentials preserved)
-            </p>
-            <button
-              onClick={() => setShowResetModal(true)}
-              style={{
-                padding: '0.5rem 1rem',
-                backgroundColor: '#dc2626',
-                color: 'white',
-                border: 'none',
-                borderRadius: '0.375rem',
-                fontSize: '0.8rem',
-                fontWeight: '500',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                transition: 'background-color 0.2s'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#b91c1c'}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
-            >
-              <FiRefreshCw />
-              Reset Flow
-            </button>
+            
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+              {/* Clear Credentials Button */}
+              <button
+                onClick={() => setShowClearCredentialsModal(true)}
+                style={{
+                  padding: '0.75rem 1.25rem',
+                  backgroundColor: '#dc2626',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  transition: 'background-color 0.2s',
+                  minWidth: '160px'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#b91c1c'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
+              >
+                <FiSettings />
+                Clear Credentials
+              </button>
+              
+              {/* Reset Flow Button */}
+              <button
+                onClick={() => setShowResetModal(true)}
+                style={{
+                  padding: '0.75rem 1.25rem',
+                  backgroundColor: '#dc2626',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  transition: 'background-color 0.2s',
+                  minWidth: '160px'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#b91c1c'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
+              >
+                <FiRefreshCw />
+                Reset Flow
+              </button>
+            </div>
+            
+            <div style={{ marginTop: '1rem', fontSize: '0.8rem', color: '#6b7280', lineHeight: '1.4' }}>
+              <strong>Clear Credentials:</strong> Remove all saved PingOne credentials and start fresh<br/>
+              <strong>Reset Flow:</strong> Clear flow progress and tokens (credentials preserved)
+            </div>
           </div>
             </div>
           )}
@@ -2363,37 +2359,35 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             </div>
           )}
 
-          {/* Reset Flow Button */}
+          {/* Reset Flow Button - Standardized Style */}
           <div style={{ 
             marginTop: '2rem', 
-            padding: '1rem', 
+            padding: '1.5rem', 
             backgroundColor: '#fef2f2', 
             border: '1px solid #fecaca', 
             borderRadius: '0.5rem',
             textAlign: 'center'
           }}>
-            <h4 style={{ margin: '0 0 0.5rem 0', color: '#dc2626', fontSize: '0.875rem' }}>
+            <h4 style={{ margin: '0 0 1rem 0', color: '#dc2626', fontSize: '1rem', fontWeight: '600' }}>
               <FiRefreshCw style={{ marginRight: '0.5rem' }} />
               Need to Start Over?
             </h4>
-            <p style={{ margin: '0 0 1rem 0', color: '#6b7280', fontSize: '0.8rem' }}>
-              Clear flow progress and tokens (credentials preserved)
-            </p>
             <button
               onClick={() => setShowResetModal(true)}
               style={{
-                padding: '0.5rem 1rem',
+                padding: '0.75rem 1.25rem',
                 backgroundColor: '#dc2626',
                 color: 'white',
                 border: 'none',
                 borderRadius: '0.375rem',
-                fontSize: '0.8rem',
+                fontSize: '0.875rem',
                 fontWeight: '500',
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                transition: 'background-color 0.2s'
+                transition: 'background-color 0.2s',
+                minWidth: '160px'
               }}
               onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#b91c1c'}
               onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
@@ -2401,13 +2395,16 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               <FiRefreshCw />
               Reset Flow
             </button>
+            <div style={{ marginTop: '1rem', fontSize: '0.8rem', color: '#6b7280', lineHeight: '1.4' }}>
+              Clear flow progress and tokens (credentials preserved)
+            </div>
           </div>
         </div>
       ),
       execute: async () => {
         setIsGeneratingPKCE(true);
         try {
-          const { challenge } = await generatePKCECodes();
+          await generatePKCECodes();
           setPkceGenerated(true);
           // Regenerate authorization URL with PKCE codes
           generateAuthUrl();
@@ -2593,37 +2590,35 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             </div>
           )}
 
-          {/* Reset Flow Button */}
+          {/* Reset Flow Button - Standardized Style */}
           <div style={{ 
             marginTop: '2rem', 
-            padding: '1rem', 
+            padding: '1.5rem', 
             backgroundColor: '#fef2f2', 
             border: '1px solid #fecaca', 
             borderRadius: '0.5rem',
             textAlign: 'center'
           }}>
-            <h4 style={{ margin: '0 0 0.5rem 0', color: '#dc2626', fontSize: '0.875rem' }}>
+            <h4 style={{ margin: '0 0 1rem 0', color: '#dc2626', fontSize: '1rem', fontWeight: '600' }}>
               <FiRefreshCw style={{ marginRight: '0.5rem' }} />
               Need to Start Over?
             </h4>
-            <p style={{ margin: '0 0 1rem 0', color: '#6b7280', fontSize: '0.8rem' }}>
-              Clear flow progress and tokens (credentials preserved)
-            </p>
             <button
               onClick={() => setShowResetModal(true)}
               style={{
-                padding: '0.5rem 1rem',
+                padding: '0.75rem 1.25rem',
                 backgroundColor: '#dc2626',
                 color: 'white',
                 border: 'none',
                 borderRadius: '0.375rem',
-                fontSize: '0.8rem',
+                fontSize: '0.875rem',
                 fontWeight: '500',
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                transition: 'background-color 0.2s'
+                transition: 'background-color 0.2s',
+                minWidth: '160px'
               }}
               onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#b91c1c'}
               onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
@@ -2631,6 +2626,9 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               <FiRefreshCw />
               Reset Flow
             </button>
+            <div style={{ marginTop: '1rem', fontSize: '0.8rem', color: '#6b7280', lineHeight: '1.4' }}>
+              Clear flow progress and tokens (credentials preserved)
+            </div>
           </div>
         </div>
       ),
@@ -2723,37 +2721,35 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             </div>
           )}
 
-          {/* Reset Flow Button */}
+          {/* Reset Flow Button - Standardized Style */}
           <div style={{ 
             marginTop: '2rem', 
-            padding: '1rem', 
+            padding: '1.5rem', 
             backgroundColor: '#fef2f2', 
             border: '1px solid #fecaca', 
             borderRadius: '0.5rem',
             textAlign: 'center'
           }}>
-            <h4 style={{ margin: '0 0 0.5rem 0', color: '#dc2626', fontSize: '0.875rem' }}>
+            <h4 style={{ margin: '0 0 1rem 0', color: '#dc2626', fontSize: '1rem', fontWeight: '600' }}>
               <FiRefreshCw style={{ marginRight: '0.5rem' }} />
               Need to Start Over?
             </h4>
-            <p style={{ margin: '0 0 1rem 0', color: '#6b7280', fontSize: '0.8rem' }}>
-              Clear flow progress and tokens (credentials preserved)
-            </p>
             <button
               onClick={() => setShowResetModal(true)}
               style={{
-                padding: '0.5rem 1rem',
+                padding: '0.75rem 1.25rem',
                 backgroundColor: '#dc2626',
                 color: 'white',
                 border: 'none',
                 borderRadius: '0.375rem',
-                fontSize: '0.8rem',
+                fontSize: '0.875rem',
                 fontWeight: '500',
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                transition: 'background-color 0.2s'
+                transition: 'background-color 0.2s',
+                minWidth: '160px'
               }}
               onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#b91c1c'}
               onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
@@ -2761,6 +2757,9 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               <FiRefreshCw />
               Reset Flow
             </button>
+            <div style={{ marginTop: '1rem', fontSize: '0.8rem', color: '#6b7280', lineHeight: '1.4' }}>
+              Clear flow progress and tokens (credentials preserved)
+            </div>
           </div>
         </div>
       ),
@@ -3213,37 +3212,35 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             </JsonDisplay>
           </FormField>
 
-          {/* Reset Flow Button */}
+          {/* Reset Flow Button - Standardized Style */}
           <div style={{ 
             marginTop: '2rem', 
-            padding: '1rem', 
+            padding: '1.5rem', 
             backgroundColor: '#fef2f2', 
             border: '1px solid #fecaca', 
             borderRadius: '0.5rem',
             textAlign: 'center'
           }}>
-            <h4 style={{ margin: '0 0 0.5rem 0', color: '#dc2626', fontSize: '0.875rem' }}>
+            <h4 style={{ margin: '0 0 1rem 0', color: '#dc2626', fontSize: '1rem', fontWeight: '600' }}>
               <FiRefreshCw style={{ marginRight: '0.5rem' }} />
               Need to Start Over?
             </h4>
-            <p style={{ margin: '0 0 1rem 0', color: '#6b7280', fontSize: '0.8rem' }}>
-              Clear flow progress and tokens (credentials preserved)
-            </p>
             <button
               onClick={() => setShowResetModal(true)}
               style={{
-                padding: '0.5rem 1rem',
+                padding: '0.75rem 1.25rem',
                 backgroundColor: '#dc2626',
                 color: 'white',
                 border: 'none',
                 borderRadius: '0.375rem',
-                fontSize: '0.8rem',
+                fontSize: '0.875rem',
                 fontWeight: '500',
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                transition: 'background-color 0.2s'
+                transition: 'background-color 0.2s',
+                minWidth: '160px'
               }}
               onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#b91c1c'}
               onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
@@ -3251,6 +3248,9 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               <FiRefreshCw />
               Reset Flow
             </button>
+            <div style={{ marginTop: '1rem', fontSize: '0.8rem', color: '#6b7280', lineHeight: '1.4' }}>
+              Clear flow progress and tokens (credentials preserved)
+            </div>
           </div>
 
           {/* Success message at bottom above buttons */}
@@ -3714,37 +3714,35 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             </div>
           )}
 
-          {/* Reset Flow Button */}
+          {/* Reset Flow Button - Standardized Style */}
           <div style={{ 
             marginTop: '2rem', 
-            padding: '1rem', 
+            padding: '1.5rem', 
             backgroundColor: '#fef2f2', 
             border: '1px solid #fecaca', 
             borderRadius: '0.5rem',
             textAlign: 'center'
           }}>
-            <h4 style={{ margin: '0 0 0.5rem 0', color: '#dc2626', fontSize: '0.875rem' }}>
+            <h4 style={{ margin: '0 0 1rem 0', color: '#dc2626', fontSize: '1rem', fontWeight: '600' }}>
               <FiRefreshCw style={{ marginRight: '0.5rem' }} />
               Need to Start Over?
             </h4>
-            <p style={{ margin: '0 0 1rem 0', color: '#6b7280', fontSize: '0.8rem' }}>
-              Clear flow progress and tokens (credentials preserved)
-            </p>
             <button
               onClick={() => setShowResetModal(true)}
               style={{
-                padding: '0.5rem 1rem',
+                padding: '0.75rem 1.25rem',
                 backgroundColor: '#dc2626',
                 color: 'white',
                 border: 'none',
                 borderRadius: '0.375rem',
-                fontSize: '0.8rem',
+                fontSize: '0.875rem',
                 fontWeight: '500',
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                transition: 'background-color 0.2s'
+                transition: 'background-color 0.2s',
+                minWidth: '160px'
               }}
               onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#b91c1c'}
               onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
@@ -3752,6 +3750,9 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               <FiRefreshCw />
               Reset Flow
             </button>
+            <div style={{ marginTop: '1rem', fontSize: '0.8rem', color: '#6b7280', lineHeight: '1.4' }}>
+              Clear flow progress and tokens (credentials preserved)
+            </div>
           </div>
         </div>
       ),
@@ -3775,11 +3776,15 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
 
   const handleRedirectModalProceed = () => {
     setShowRedirectModal(false);
-    window.open(redirectUrl, '_blank');
+    // Redirect functionality removed - using direct authorization
   };
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1.5rem' }}>
+    <>
+      {/* Centralized Success Messages */}
+      <CentralizedSuccessMessage position="top" />
+      
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1.5rem' }}>
       {/* Success Banner - Always visible when authCode is present */}
       {authCode && (
         <div style={{
@@ -3816,7 +3821,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       <ConfigurationStatus 
         config={config} 
         onConfigure={() => setShowConfig(!showConfig)}
-        flowType="authorization-code"
+        flowType="Authorization Code Flow"
         defaultExpanded={false}
       />
 
@@ -3915,8 +3920,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         isOpen={showRedirectModal}
         onClose={handleRedirectModalClose}
         onProceed={handleRedirectModalProceed}
-        authorizationUrl={redirectUrl}
-        requestParams={redirectParams}
+        authorizationUrl=""
+        requestParams={{}}
       />
 
       {/* Authorization Success Modal */}
@@ -4046,6 +4051,10 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         </ModalOverlay>
       )}
     </div>
+    
+    {/* Centralized Success Messages - Bottom */}
+    <CentralizedSuccessMessage position="bottom" />
+    </>
   );
 };
 
