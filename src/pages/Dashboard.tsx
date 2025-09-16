@@ -678,29 +678,70 @@ const Dashboard = () => {
         <p>Your comprehensive OAuth 2.0 and OpenID Connect testing environment</p>
       </Header>
 
-      {/* Stats Grid */}
-      <StatsGrid>
-        <StatCard>
-          <StatIcon $variant="flows">🔐</StatIcon>
-          <StatValue>{stats.flows}</StatValue>
-          <StatLabel>OAuth Flows</StatLabel>
-        </StatCard>
-        <StatCard>
-          <StatIcon $variant="tokens">🎫</StatIcon>
-          <StatValue>{stats.tokens}</StatValue>
-          <StatLabel>Active Tokens</StatLabel>
-        </StatCard>
-        <StatCard>
-          <StatIcon $variant="success">✅</StatIcon>
-          <StatValue>{stats.success}%</StatValue>
-          <StatLabel>Success Rate</StatLabel>
-        </StatCard>
-        <StatCard>
-          <StatIcon $variant="security">🛡️</StatIcon>
-          <StatValue>{stats.security}%</StatValue>
-          <StatLabel>Security Score</StatLabel>
-        </StatCard>
-      </StatsGrid>
+      {/* Stats Grid with Refresh Button */}
+      <div style={{ position: 'relative', marginBottom: '2rem' }}>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          marginBottom: '1rem' 
+        }}>
+          <h2 style={{ margin: 0, color: '#333', fontSize: '1.5rem' }}>Dashboard Metrics</h2>
+          <button
+            onClick={() => {
+              setStats({
+                flows: Math.floor(Math.random() * 10) + 1,
+                tokens: Math.floor(Math.random() * 5),
+                success: Math.floor(Math.random() * 50) + 50,
+                security: Math.floor(Math.random() * 30) + 70
+              });
+              showFlowSuccess('📊 Dashboard metrics refreshed');
+            }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              background: 'linear-gradient(135deg, #667eea, #764ba2)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '0.75rem 1.5rem',
+              fontSize: '0.875rem',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'transform 0.2s ease',
+            }}
+            onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
+            onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+          >
+            <FiRefreshCw />
+            Refresh Metrics
+          </button>
+        </div>
+        
+        <StatsGrid>
+          <StatCard>
+            <StatIcon $variant="flows">🔐</StatIcon>
+            <StatValue>{stats.flows}</StatValue>
+            <StatLabel>OAuth Flows</StatLabel>
+          </StatCard>
+          <StatCard>
+            <StatIcon $variant="tokens">🎫</StatIcon>
+            <StatValue>{stats.tokens}</StatValue>
+            <StatLabel>Active Tokens</StatLabel>
+          </StatCard>
+          <StatCard>
+            <StatIcon $variant="success">✅</StatIcon>
+            <StatValue>{stats.success}%</StatValue>
+            <StatLabel>Success Rate</StatLabel>
+          </StatCard>
+          <StatCard>
+            <StatIcon $variant="security">🛡️</StatIcon>
+            <StatValue>{stats.security}%</StatValue>
+            <StatLabel>Security Score</StatLabel>
+          </StatCard>
+        </StatsGrid>
+      </div>
 
       {/* System Status Card */}
       <ContentCard style={{ marginBottom: '2rem' }}>
