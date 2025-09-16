@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import styled from 'styled-components';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import { Card, CardHeader, CardBody } from '../../components/Card';
 import { FiPlay, FiAlertCircle, FiMonitor, FiSmartphone } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
@@ -11,6 +12,7 @@ import TokenDisplayComponent from '../../components/TokenDisplay';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 import PageTitle from '../../components/PageTitle';
 import FlowCredentials from '../../components/FlowCredentials';
+import CentralizedSuccessMessage, { showDeviceCodeSuccess, showFlowError } from '../../components/CentralizedSuccessMessage';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -279,6 +281,9 @@ type Tokens = {
 };
 
 const DeviceFlow = () => {
+  // Centralized scroll management - ALL pages start at top
+  usePageScroll({ pageName: 'Device Code Flow', force: true });
+  
   const { config } = useAuth();
   const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [currentStep, setCurrentStep] = useState<number>(0);
@@ -572,6 +577,9 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
           const tokenData = await response.json();
           setTokensReceived(tokenData);
           setDemoStatus('success');
+          
+          // Show centralized success message
+          showDeviceCodeSuccess();
 
           setStepResults(prev => ({ ...prev, 5: { response: tokenData, status: response.status } }));
           setExecutedSteps(prev => new Set(prev).add(5));
@@ -595,6 +603,9 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
           const errorMessage = error instanceof Error ? error.message : 'Unknown error';
           setError(`Failed to receive tokens: ${errorMessage}`);
           console.error('❌ [DeviceCodeFlow] Token request error:', error);
+          
+          // Show centralized error message
+          showFlowError('❌ Device Code Failed', `Failed to receive tokens: ${errorMessage}`);
         }
       }
     }
@@ -715,6 +726,10 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
           
         </CardBody>
       </DemoSection>
+      
+      {/* Centralized Success/Error Messages */}
+      <CentralizedSuccessMessage position="top" />
+      <CentralizedSuccessMessage position="bottom" />
     </Container>
   );
 };

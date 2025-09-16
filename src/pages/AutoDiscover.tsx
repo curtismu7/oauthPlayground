@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { usePageScroll } from '../hooks/usePageScroll';
 import { FiSearch, FiGlobe, FiInfo, FiCheckCircle } from 'react-icons/fi';
 import DiscoveryPanel from '../components/DiscoveryPanel';
 import { OpenIDConfiguration } from '../services/discoveryService';
@@ -100,6 +101,9 @@ const SuccessMessage = styled.div`
 `;
 
 const AutoDiscover: React.FC = () => {
+  // Centralized scroll management - ALL pages start at top
+  usePageScroll({ pageName: 'OIDC Discovery', force: true });
+  
   const [showDiscoveryPanel, setShowDiscoveryPanel] = useState(false);
   const [lastDiscovered, setLastDiscovered] = useState<{
     environmentId: string;
@@ -144,7 +148,7 @@ const AutoDiscover: React.FC = () => {
       <Header>
         <h1>
           <FiSearch />
-          Auto-discover
+          OIDC wellknown Endpoint
         </h1>
         <p>
           Automatically discover OpenID Connect configuration for your PingOne environment. 
@@ -168,7 +172,7 @@ const AutoDiscover: React.FC = () => {
 
       <ActionButton onClick={() => setShowDiscoveryPanel(true)}>
         <FiGlobe />
-        Start Auto-discovery
+        Start OIDC Discovery
       </ActionButton>
 
       {lastDiscovered && (

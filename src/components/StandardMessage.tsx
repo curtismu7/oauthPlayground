@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { FiCheckCircle, FiAlertCircle, FiAlertTriangle, FiInfo } from 'react-icons/fi';
 
@@ -137,6 +137,20 @@ export const StandardMessage: React.FC<StandardMessageProps> = ({
   onDismiss,
   className
 }) => {
+  // Handle ESC key to dismiss message
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && onDismiss) {
+        onDismiss();
+      }
+    };
+
+    if (onDismiss) {
+      document.addEventListener('keydown', handleEscape);
+      return () => document.removeEventListener('keydown', handleEscape);
+    }
+  }, [onDismiss]);
+
   return (
     <MessageContainer $type={type} className={className} role="alert" aria-live="assertive">
       {getIcon(type)}
