@@ -1625,14 +1625,12 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           if (popup.closed) {
             clearInterval(checkClosed);
             window.removeEventListener('message', messageHandler);
-            setIsAuthorizing(false);
             if (!authCode) {
               logger.warn('EnhancedAuthorizationCodeFlowV2', 'Popup closed without authorization code');
             }
           }
         }, 1000);
       } else {
-        setIsAuthorizing(false);
         logger.error('EnhancedAuthorizationCodeFlowV2', 'Failed to open popup window');
       }
     } else {
@@ -2777,6 +2775,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           const generatedUrl = generateAuthUrl();
           console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Generated URL:', generatedUrl);
           setUrlGenerated(true);
+          showFlowSuccess('🌐 Authorization URL Generated Successfully');
           
           // Update step message for success
           updateStepMessage('build-auth-url', '✅ Authorization URL built successfully! Your URL is ready for user redirection.');
@@ -3401,6 +3400,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         setIsExchangingTokens(true);
         try {
         await exchangeCodeForTokens();
+        showFlowSuccess('🔑 Tokens Exchanged Successfully');
         return { success: true };
         } finally {
           setIsExchangingTokens(false);
@@ -3895,6 +3895,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         setIsGettingUserInfo(true);
         try {
         await getUserInfo();
+        showFlowSuccess('👤 User Information Retrieved Successfully');
         return { success: true };
         } finally {
           setIsGettingUserInfo(false);

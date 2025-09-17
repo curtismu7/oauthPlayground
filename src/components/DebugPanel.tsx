@@ -216,24 +216,60 @@ const DebugPanel: React.FC = () => {
         // Call the original method first
         originalMethod.apply(console, args);
         
-        // Capture the message for our debug panel
-        const message = args.map(arg => {
-          if (typeof arg === 'object' && arg !== null) {
-            try {
-              return JSON.stringify(arg, null, 2);
-            } catch (error) {
-              // Handle circular references
-              if (error instanceof TypeError && error.message.includes('circular')) {
-                return '[Circular Reference]';
-              }
-              return String(arg);
-            }
-          }
-          return String(arg);
-        }).join(' ');
+        // FILTER: Only capture flow-specific errors and critical events
+        const message = args.map(arg => String(arg)).join(' ');
         
-        // Add to logger history
-        logger.addEntry(level, 'CONSOLE', message, args.length > 1 ? args : undefined);
+        // Only log if it's flow-related, error-related, or critical
+        const shouldLog = 
+          level === 'ERROR' || // Always log errors
+          message.includes('❌') || // Error indicators
+          message.includes('✅') && (message.includes('Token') || message.includes('Auth') || message.includes('PKCE') || message.includes('Exchange') || message.includes('User') || message.includes('Flow')) || // Success indicators for flows
+          message.includes('⚠️') || // Warning indicators
+          message.includes('CRITICAL') || // Critical messages
+          message.includes('Failed') || // Failure messages
+          message.includes('Error:') || // Error messages
+          message.includes('OAuth') || // OAuth-specific
+          message.includes('OIDC') || // OIDC-specific
+          message.includes('PingOne') || // PingOne-specific
+          message.includes('Token exchange') || // Token exchange events
+          message.includes('ID token validation') || // ID token validation
+          message.includes('PKCE') || // PKCE events
+          message.includes('Nonce validation') || // Nonce validation
+          message.includes('Client authentication') || // Client auth events
+          message.includes('Authorization') || // Authorization flow events
+          message.includes('Redirect') || // Redirect events
+          message.includes('Callback') || // Callback events
+          message.includes('JWT') || // JWT events
+          message.includes('Bearer') || // Bearer token events
+          message.includes('Scope') || // Scope events
+          message.includes('UserInfo') || // UserInfo endpoint events
+          message.includes('Discovery') || // OIDC discovery events
+          message.includes('Credentials') || // Credential events
+          message.includes('Configuration') || // Configuration events
+          message.includes('Flow') || // General flow events
+          message.includes('Step') || // Step events
+          message.includes('Validation') || // Validation events
+          message.includes('Security') || // Security events
+          message.includes('Refresh token'); // Refresh token events
+        
+        if (shouldLog) {
+          const filteredMessage = args.map(arg => {
+            if (typeof arg === 'object' && arg !== null) {
+              try {
+                return JSON.stringify(arg, null, 2);
+              } catch (error) {
+                if (error instanceof TypeError && error.message.includes('circular')) {
+                  return '[Circular Reference]';
+                }
+                return String(arg);
+              }
+            }
+            return String(arg);
+          }).join(' ');
+          
+          // Add to logger history
+          logger.addEntry(level, 'FLOW', filteredMessage, args.length > 1 ? args : undefined);
+        }
       };
     };
 
@@ -391,7 +427,7 @@ const DebugPanel: React.FC = () => {
       <DebugHeader onClick={handleToggle}>
         <DebugTitle>
           <FiTerminal />
-          Debug Console ({logs.length}/500 logs)
+          Flow Debug Console - Filtered ({logs.length}/500 logs)
           {logs.length >= 500 && (
             <span style={{ 
               color: '#f59e0b', 
