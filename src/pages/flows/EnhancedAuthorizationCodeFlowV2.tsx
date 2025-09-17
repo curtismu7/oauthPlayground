@@ -984,6 +984,12 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       setAuthCode(code); // Set the authorization code from URL parameters
       setState(state || '');
       
+      console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Setting authCode from URL:', {
+        code: code?.substring(0, 10) + '...',
+        state: state,
+        currentCredentials: credentials
+      });
+      
       // Store authorization code in sessionStorage for persistence
       sessionStorage.setItem('oauth_auth_code', code);
       if (state) {
@@ -1000,8 +1006,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       setCurrentStepIndex(stepIndex);
       sessionStorage.setItem('enhanced-authz-code-v2-step', stepIndex.toString());
       
-      // Show success message for token exchange step
-      updateStepMessage('exchange-tokens', '✅ Authorization successful! You have been authenticated with PingOne. Ready to exchange authorization code for tokens.');
+      // Clear any old messages and set appropriate message for token exchange step
+      updateStepMessage('exchange-tokens', '🔄 Ready to exchange authorization code for tokens. Click the "Exchange Tokens" button below.');
       console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Authorization code received, user should proceed to step 5 manually');
       
       // Show centralized success message for full redirect
@@ -1264,8 +1270,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       
       // PRIORITY 2: If we have authorization code but no step, go to step 4 (handle callback)
       if (code && !step) {
-        console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Authorization code found in URL, going to step 4 (handle-callback)');
-        setCurrentStepIndex(4);
+        console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Authorization code found in URL, going to step 5 (exchange-tokens)');
+        setCurrentStepIndex(5);
         return;
       }
       
@@ -1575,10 +1581,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               popup.close();
               window.removeEventListener('message', messageHandler);
               
-              // Show success message
-              updateStepMessage('handle-callback', '✅ Authorization successful! You have been authenticated with PingOne. Proceeding to token exchange...');
-              
-              // Show centralized success message
+              // Show centralized success message (will appear on current page)
               showFlowSuccess('🎉 Authorization Successful! You have been authenticated with PingOne and can now exchange tokens.');
             }
           }
@@ -2879,19 +2882,6 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             </InfoBox>
           )}
 
-          {authCode && (
-            <InfoBox type="success" style={{ marginBottom: '2rem', textAlign: 'center' }}>
-              <FiCheckCircle size={48} style={{ marginBottom: '1rem' }} />
-              <div>
-                <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem' }}>
-                  🎉 Welcome Back from PingOne!
-                </h3>
-                <p style={{ margin: '0', fontSize: '1.1rem' }}>
-                  Your authorization was successful. You can now proceed with the token exchange.
-                </p>
-              </div>
-            </InfoBox>
-          )}
 
           {!callbackSuccess && !callbackError && !authCode && (
           <CallbackListener>
@@ -3371,7 +3361,18 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           setIsExchangingTokens(false);
       }
       },
-      canExecute: Boolean(authCode && credentials.environmentId && credentials.clientId)
+      canExecute: (() => {
+        const canExec = Boolean(authCode && credentials.environmentId && credentials.clientId);
+        console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Exchange tokens canExecute check:', {
+          authCode: !!authCode,
+          environmentId: !!credentials.environmentId,
+          clientId: !!credentials.clientId,
+          canExecute: canExec,
+          authCodeValue: authCode?.substring(0, 10) + '...',
+          credentialsState: credentials
+        });
+        return canExec;
+      })()
     },
     {
       id: 'validate-tokens',
