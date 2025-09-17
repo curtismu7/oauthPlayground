@@ -420,7 +420,7 @@ const Dashboard = () => {
     return () => {
       timeouts.forEach(timeout => clearTimeout(timeout));
     };
-  }, [location.pathname]); // Trigger on route changes
+  }, []); // Only on component mount
   const [tokens, setTokens] = useState<Record<string, unknown> | null>(null);
   const [recentActivity, setRecentActivity] = useState<Record<string, unknown>[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -862,28 +862,6 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* OAuth 2.0 Authorization Code */}
-            <div style={{ 
-              background: '#f8f9fa', 
-              border: '1px solid #e5e7eb', 
-              borderRadius: '8px', 
-              padding: '1rem' 
-            }}>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'space-between',
-                marginBottom: '0.5rem'
-              }}>
-                <span style={{ fontWeight: '500', color: '#333' }}>OAuth 2.0 Authorization Code</span>
-                <StatusBadge $status={getFlowStatus('oauth2-authorization-code').status}>
-                  {getFlowStatus('oauth2-authorization-code').status === 'active' ? 'Configured' : 'Not configured'}
-                </StatusBadge>
-              </div>
-              <div style={{ fontSize: '0.8rem', color: '#666' }}>
-                {getFlowStatus('oauth2-authorization-code').message}
-              </div>
-            </div>
 
             {/* OIDC Client Credentials */}
             <div style={{ 
@@ -931,28 +909,6 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Implicit Flow */}
-            <div style={{ 
-              background: '#f8f9fa', 
-              border: '1px solid #e5e7eb', 
-              borderRadius: '8px', 
-              padding: '1rem' 
-            }}>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'space-between',
-                marginBottom: '0.5rem'
-              }}>
-                <span style={{ fontWeight: '500', color: '#333' }}>Implicit Flow</span>
-                <StatusBadge $status={getFlowStatus('implicit').status}>
-                  {getFlowStatus('implicit').status === 'active' ? 'Configured' : 'Not configured'}
-                </StatusBadge>
-              </div>
-              <div style={{ fontSize: '0.8rem', color: '#666' }}>
-                {getFlowStatus('implicit').message}
-              </div>
-            </div>
 
             {/* Hybrid Flow */}
             <div style={{ 
@@ -974,6 +930,76 @@ const Dashboard = () => {
               </div>
               <div style={{ fontSize: '0.8rem', color: '#666' }}>
                 {getFlowStatus('hybrid').message}
+              </div>
+            </div>
+          </div>
+        </div>
+      </ContentCard>
+
+      {/* OAuth 2.0 Flow Status */}
+      <ContentCard>
+        <div style={{ padding: '1.5rem' }}>
+          <h3 style={{ 
+            fontSize: '1.1rem', 
+            fontWeight: '600', 
+            color: '#333', 
+            marginBottom: '1rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            <FiKey />
+            OAuth 2.0 Flow Status
+          </h3>
+          
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+            gap: '1rem' 
+          }}>
+            {/* OAuth 2.0 Authorization Code */}
+            <div style={{ 
+              background: '#f8f9fa', 
+              border: '1px solid #e5e7eb', 
+              borderRadius: '8px', 
+              padding: '1rem' 
+            }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'space-between',
+                marginBottom: '0.5rem'
+              }}>
+                <span style={{ fontWeight: '500', color: '#333' }}>OAuth 2.0 Authorization Code</span>
+                <StatusBadge $status={getFlowStatus('oauth2-authorization-code').status}>
+                  {getFlowStatus('oauth2-authorization-code').status === 'active' ? 'Configured' : 'Not configured'}
+                </StatusBadge>
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#666' }}>
+                {getFlowStatus('oauth2-authorization-code').message}
+              </div>
+            </div>
+
+            {/* Implicit Flow */}
+            <div style={{ 
+              background: '#f8f9fa', 
+              border: '1px solid #e5e7eb', 
+              borderRadius: '8px', 
+              padding: '1rem' 
+            }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'space-between',
+                marginBottom: '0.5rem'
+              }}>
+                <span style={{ fontWeight: '500', color: '#333' }}>Implicit Flow</span>
+                <StatusBadge $status={getFlowStatus('implicit').status}>
+                  {getFlowStatus('implicit').status === 'active' ? 'Configured' : 'Not configured'}
+                </StatusBadge>
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#666' }}>
+                {getFlowStatus('implicit').message}
               </div>
             </div>
           </div>
