@@ -558,7 +558,7 @@ const ModalButton = styled.button<{ $primary?: boolean; $loading?: boolean }>`
 `;
 
 // Main Component
-const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
+const OAuth2AuthorizationCodeFlow: React.FC = () => {
   const authContext = useAuth();
   const { config, user: authUser, tokens: authTokens, isAuthenticated } = authContext;
   
@@ -573,7 +573,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     tokenEndpoint: '',
     userInfoEndpoint: '',
     redirectUri: window.location.origin + '/authz-callback',
-    scopes: 'openid profile email',
+    scopes: 'profile email',
     responseType: 'code',
     codeChallengeMethod: 'S256'
   });
@@ -869,7 +869,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           tokenEndpoint: storedCredentials.tokenEndpoint || '',
           userInfoEndpoint: storedCredentials.userInfoEndpoint || '',
           redirectUri: storedCredentials.redirectUri,
-          scopes: Array.isArray(storedCredentials.scopes) ? storedCredentials.scopes.join(' ') : (storedCredentials.scopes || 'openid profile email'),
+          scopes: Array.isArray(storedCredentials.scopes) ? storedCredentials.scopes.join(' ') : (storedCredentials.scopes || 'profile email'),
           responseType: 'code',
           codeChallengeMethod: 'S256'
         };
@@ -1128,7 +1128,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                 authorizationEndpoint: envConfig.authEndpoint || `${envConfig.apiUrl}/${envConfig.environmentId}/as/authorize`,
                 tokenEndpoint: envConfig.tokenEndpoint || `${envConfig.apiUrl}/${envConfig.environmentId}/as/token`,
                 userInfoEndpoint: envConfig.userInfoEndpoint || `${envConfig.apiUrl}/${envConfig.environmentId}/as/userinfo`,
-                scopes: Array.isArray(envConfig.scopes) ? envConfig.scopes.join(' ') : (envConfig.scopes || 'openid profile email')
+                scopes: Array.isArray(envConfig.scopes) ? envConfig.scopes.join(' ') : (envConfig.scopes || 'profile email')
               }));
               
               console.log('✅ [EnhancedAuthorizationCodeFlowV2] Credentials loaded from environment variables');
@@ -1148,7 +1148,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           authorizationEndpoint: allCredentials.authEndpoint || '',
           tokenEndpoint: allCredentials.tokenEndpoint || '',
           userInfoEndpoint: allCredentials.userInfoEndpoint || '',
-          scopes: Array.isArray(allCredentials.scopes) ? allCredentials.scopes.join(' ') : (allCredentials.scopes || 'openid profile email')
+          scopes: Array.isArray(allCredentials.scopes) ? allCredentials.scopes.join(' ') : (allCredentials.scopes || 'profile email')
         }));
         
         console.log('✅ [EnhancedAuthorizationCodeFlowV2] Credentials loaded successfully:', {
@@ -1241,7 +1241,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                     tokenEndpoint: storedCredentials.tokenEndpoint || '',
                     userInfoEndpoint: storedCredentials.userInfoEndpoint || '',
                     redirectUri: storedCredentials.redirectUri,
-                    scopes: Array.isArray(storedCredentials.scopes) ? storedCredentials.scopes.join(' ') : (storedCredentials.scopes || 'openid profile email'),
+                    scopes: Array.isArray(storedCredentials.scopes) ? storedCredentials.scopes.join(' ') : (storedCredentials.scopes || 'profile email'),
                     responseType: 'code',
                     codeChallengeMethod: 'S256'
                   };
@@ -1341,7 +1341,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             authorizationEndpoint: allCredentials.authEndpoint || '',
             tokenEndpoint: allCredentials.tokenEndpoint || '',
             userInfoEndpoint: allCredentials.userInfoEndpoint || '',
-            scopes: Array.isArray(allCredentials.scopes) ? allCredentials.scopes.join(' ') : (allCredentials.scopes || 'openid profile email')
+            scopes: Array.isArray(allCredentials.scopes) ? allCredentials.scopes.join(' ') : (allCredentials.scopes || 'profile email')
           }));
           
           console.log('✅ [EnhancedAuthorizationCodeFlowV2] Credentials reloaded successfully');
@@ -1470,7 +1470,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Flow config:', flowConfig);
     
     // Use scopes from Flow Config or fallback to credentials
-    const scopes = flowConfig.scopes.length > 0 ? flowConfig.scopes.join(' ') : (credentials.scopes || 'openid profile email');
+    const scopes = flowConfig.scopes.length > 0 ? flowConfig.scopes.join(' ') : (credentials.scopes || 'profile email');
     console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Generating auth URL with scopes:', scopes);
     
     // Use the correct callback URL for authorization code flow
@@ -1570,23 +1570,13 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       
       console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Stored flow context for callback:', flowContext);
       
-      console.log('🪟 [EnhancedAuthorizationCodeFlowV2] Opening popup with URL:', authUrl);
       const popup = window.open(authUrl, 'oauth-popup', 'width=600,height=700');
       if (popup) {
-        console.log('✅ [EnhancedAuthorizationCodeFlowV2] Popup opened successfully');
         // Show message about what just happened
         updateStepMessage('user-authorization', '✅ Authorization URL opened in popup! Please complete the login process. You will be redirected back here automatically.');
         // Listen for messages from the popup
         const messageHandler = (event: MessageEvent) => {
-          console.log('📨 [EnhancedAuthorizationCodeFlowV2] Message received from popup:', {
-            origin: event.origin,
-            expectedOrigin: window.location.origin,
-            data: event.data
-          });
-          if (event.origin !== window.location.origin) {
-            console.log('❌ [EnhancedAuthorizationCodeFlowV2] Message origin mismatch, ignoring');
-            return;
-          }
+          if (event.origin !== window.location.origin) return;
           if (event.data.type === 'oauth-callback') {
             const { code: callbackCode, state: callbackState, error, error_description } = event.data;
             if (error) {
@@ -4028,7 +4018,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     <EnhancedStepFlowV2
       key={`enhanced-authz-${currentStepIndex}-${authCode ? 'with-code' : 'no-code'}`}
       steps={steps}
-      title="🚀 Enhanced Authorization Code Flow"
+      title="🔐 OAuth 2.0 Authorization Code Flow"
       persistKey="enhanced-authz-code"
       autoAdvance={false}
       showDebugInfo={true}
@@ -4166,4 +4156,4 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   );
 };
 
-export default EnhancedAuthorizationCodeFlowV2;
+export default OAuth2AuthorizationCodeFlow;
