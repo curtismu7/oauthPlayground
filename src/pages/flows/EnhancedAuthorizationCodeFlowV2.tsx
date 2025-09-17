@@ -1006,11 +1006,19 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       setCurrentStepIndex(stepIndex);
       sessionStorage.setItem('enhanced-authz-code-v2-step', stepIndex.toString());
       
-      // Force component re-render by clearing and setting step again
+      // Force component re-render by clearing and setting step again (multiple times to ensure it sticks)
       setTimeout(() => {
-        console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Force setting step to 5 again to override component initialization');
+        console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Force setting step to 5 again (1st attempt)');
         setCurrentStepIndex(5);
       }, 100);
+      setTimeout(() => {
+        console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Force setting step to 5 again (2nd attempt)');
+        setCurrentStepIndex(5);
+      }, 300);
+      setTimeout(() => {
+        console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Force setting step to 5 again (3rd attempt)');
+        setCurrentStepIndex(5);
+      }, 500);
       
       // Clear any old messages and set appropriate message for token exchange step
       updateStepMessage('exchange-tokens', '🔄 Ready to exchange authorization code for tokens. Click the "Exchange Tokens" button below.');
@@ -1029,15 +1037,15 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     }
   }, [location.search, authTokens, authUser]);
 
-  // Show success modal only when we have an authorization code and are on step 5 (exchange tokens)
+  // Show success modal when we have an authorization code and are on step 4 or 5
   useEffect(() => {
-    if (authCode && currentStepIndex === 5 && !showAuthSuccessModal) {
-      console.log('🔔 [EnhancedAuthorizationCodeFlowV2] AuthCode detected on step 5, forcing modal to show');
+    if (authCode && (currentStepIndex === 4 || currentStepIndex === 5) && !showAuthSuccessModal) {
+      console.log('🔔 [EnhancedAuthorizationCodeFlowV2] AuthCode detected on step', currentStepIndex, ', forcing modal to show');
       setTimeout(() => {
         setShowAuthSuccessModal(true);
       }, 200);
-    } else if (currentStepIndex !== 5) {
-      console.log('🔔 [EnhancedAuthorizationCodeFlowV2] Not on step 5, ensuring modal is hidden');
+    } else if (currentStepIndex < 4) {
+      console.log('🔔 [EnhancedAuthorizationCodeFlowV2] Before step 4, ensuring modal is hidden');
       setShowAuthSuccessModal(false);
     }
   }, [authCode, currentStepIndex, showAuthSuccessModal]);
@@ -1561,7 +1569,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       
       const flowContext = {
         flow: 'enhanced-authorization-code-v2',
-        step: 4,
+        step: 5,
         returnPath: returnPath,
         redirectUri: redirectUri, // Store the redirect URI used in authorization
         timestamp: Date.now()
@@ -1628,7 +1636,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       const currentPath = window.location.pathname;
       // Ensure we use the correct route path regardless of current path
       const correctPath = currentPath.includes('/oidc/') ? '/flows/enhanced-authorization-code-v2' : currentPath;
-      const returnPath = `${correctPath}?step=4`; // Return to step 4 (token exchange)
+      const returnPath = `${correctPath}?step=5`; // Return to step 5 (exchange tokens)
 
       console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Full redirect - Current path:', currentPath);
       console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Full redirect - Correct path:', correctPath);
@@ -1636,7 +1644,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       
       const flowContext = {
         flow: 'enhanced-authorization-code-v2',
-        step: 4,
+        step: 5,
         returnPath: returnPath,
         redirectUri: redirectUri, // Store the redirect URI used in authorization
         timestamp: Date.now()
