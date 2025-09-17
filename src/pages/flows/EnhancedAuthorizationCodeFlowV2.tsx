@@ -41,27 +41,6 @@ import { useAuthorizationFlowScroll } from '../../hooks/usePageScroll';
 import CentralizedSuccessMessage, { showFlowSuccess, showFlowError } from '../../components/CentralizedSuccessMessage';
 import '../../styles/enhanced-flow.css';
 
-// STANDARDIZATION: Design System Constants (Guide Lines 511-517)
-const DESIGN_COLORS = {
-  SUCCESS: '#10b981',      // 🟢 Green gradient
-  ERROR: '#dc2626',        // 🔴 Red gradient  
-  WARNING: '#f59e0b',      // 🟡 Amber
-  INFO: '#3b82f6',         // 🔵 Blue
-  NEUTRAL: '#6b7280'       // ⚪ Gray
-};
-
-// STANDARDIZATION: Icon Mapping System (Guide Lines 518-528)
-const FLOW_ICONS = {
-  SETUP: FiSettings,       // 🔧 Setup/Config
-  SECURITY: FiShield,      // 🛡️ Security/PKCE
-  AUTHORIZATION: FiGlobe,  // 🌐 Authorization
-  TOKENS: FiKey,          // 🔑 Tokens
-  USER: FiUser,           // 👤 User Info
-  SUCCESS: FiCheckCircle, // ✅ Success
-  ERROR: FiAlertTriangle, // ❌ Error
-  RESET: FiRefreshCw,     // 🔄 Reset
-  CODE: FiCode            // 📝 Code
-};
 
 // Styled Components for Enhanced UI
 const FormField = styled.div`
@@ -605,7 +584,6 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   const [credentialsLoaded, setCredentialsLoaded] = useState(false);
 
   // STANDARDIZATION: Enhanced step results system (Guide Lines 156-175)
-  const [stepResults, setStepResults] = useState<Record<string, unknown>>({});
   
   // Step messages (keeping simple for compatibility)
   const [stepMessages, setStepMessages] = useState<{[key: string]: string}>({});
@@ -621,26 +599,6 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     setStepMessages(prev => ({ ...prev, [stepId]: message }));
   }, []);
 
-  const clearStepMessage = useCallback((stepId: string) => {
-    setStepMessages(prev => {
-      const newMessages = { ...prev };
-      delete newMessages[stepId];
-      return newMessages;
-    });
-  }, []);
-
-  // STANDARDIZATION: Enhanced step results system (Guide Lines 88-105)
-  const saveStepResult = useCallback((stepId: string, result: unknown) => {
-    setStepResults(prev => ({ ...prev, [stepId]: result }));
-  }, []);
-
-  const hasStepResult = useCallback((stepId: string) => {
-    return stepId in stepResults;
-  }, [stepResults]);
-
-  const getStepResult = useCallback((stepId: string) => {
-    return stepResults[stepId];
-  }, [stepResults]);
 
   // Scroll to top helper function for Authorization flow
   const scrollToTop = useCallback(() => {
@@ -699,7 +657,6 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       setCallbackSuccess(false);
       setCallbackError(null);
       setStepMessages({});
-      setStepResults({});
       setCurrentStepIndex(0);
       setCompletedSteps(new Set());
       
