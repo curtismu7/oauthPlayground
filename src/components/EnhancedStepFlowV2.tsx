@@ -541,11 +541,12 @@ const CopyButton = styled.button`
 
 // JSON Display
 const JsonDisplay = styled.div`
-  background: #f9fafb;
-  color: #1f2937;
-  border: 1px solid #e5e7eb;
+  background: #f0fdf4;
+  color: #15803d;
+  border: 2px solid #16a34a;
   border-radius: 0.5rem;
   padding: 1rem;
+  box-shadow: 0 1px 3px rgba(22, 163, 74, 0.1);
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.875rem;
   line-height: 1.5;
