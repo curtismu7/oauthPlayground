@@ -79,6 +79,10 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
   const [userInfo, setUserInfo] = useState<any>(null);
   const [isExchangingTokens, setIsExchangingTokens] = useState(false);
   const [isGettingUserInfo, setIsGettingUserInfo] = useState(false);
+  
+  // Authorization handling state (V2 features)
+  const [isAuthorizing, setIsAuthorizing] = useState(false);
+  const [showAuthSuccessModal, setShowAuthSuccessModal] = useState(false);
 
   // Flow Configuration state - V2 feature integration
   const [flowConfig, setFlowConfig] = useState<FlowConfig>(() => getDefaultConfig('oidc-authorization-code'));
@@ -377,14 +381,149 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
     }
   }, [tokens, credentials]);
 
-  // Create steps using reusable components
-  const steps = [
-    createCredentialsStep(credentials, setCredentials, saveCredentials, 'OIDC Authorization Code Flow'),
-    createPKCEStep(pkceCodes, setPkceCodes, generatePKCE),
-    createAuthUrlStep(authUrl, generateAuthUrl, credentials, pkceCodes),
-    createTokenExchangeStep(authCode, tokens, exchangeTokens, credentials, isExchangingTokens),
-    createUserInfoStep(tokens, userInfo, getUserInfo, isGettingUserInfo)
-  ];
+  // Popup authorization handler (V2 feature)
+  const handlePopupAuthorization = useCallback(() => {
+    if (!authUrl) {
+      showFlowError('❌ Please generate authorization URL first');
+      return;
+    }
+
+    setIsAuthorizing(true);
+    console.log('🔧 [OIDC-V3] Opening popup with URL:', authUrl);
+    
+    const popup = window.open(authUrl, 'oauth-popup', 'width=600,height=700');
+    if (popup) {
+      console.log('✅ [OIDC-V3] Popup opened successfully');
+      
+      // Listen for messages from the popup
+      const messageHandler = (event: MessageEvent) => {
+        console.log('📨 [OIDC-V3] Message received from popup:', {
+          origin: event.origin,
+          expectedOrigin: window.location.origin,
+          data: event.data
+        });
+        
+        if (event.origin !== window.location.origin) {
+          console.log('❌ [OIDC-V3] Message origin mismatch, ignoring');
+          return;
+        }
+        
+        if (event.data.type === 'oauth-callback') {
+          const { code: callbackCode, state: callbackState, error, error_description } = event.data;
+          
+          if (error) {
+            console.error('❌ [OIDC-V3] Authorization error received:', error);
+            showFlowError(`❌ Authorization failed: ${error_description || error}`);
+            setIsAuthorizing(false);
+          } else if (callbackCode && callbackState) {
+            setAuthCode(callbackCode);
+            console.log('✅ [OIDC-V3] Authorization code received via popup:', callbackCode.substring(0, 10) + '...');
+            
+            // Authorization completed - close popup and cleanup
+            popup.close();
+            window.removeEventListener('message', messageHandler);
+            setIsAuthorizing(false);
+            setShowAuthSuccessModal(true);
+            
+            // Show centralized success message
+            showFlowSuccess('🎉 Authorization Successful! You have been authenticated with PingOne and can now exchange tokens.');
+            
+            // Auto-advance to token exchange step
+            stepManager.setStep(3, 'authorization completed');
+          }
+        }
+      };
+      
+      window.addEventListener('message', messageHandler);
+      
+      // Check if popup was closed without completing auth
+      const checkClosed = setInterval(() => {
+        if (popup.closed) {
+          clearInterval(checkClosed);
+          window.removeEventListener('message', messageHandler);
+          setIsAuthorizing(false);
+          
+          if (!authCode) {
+            console.warn('⚠️ [OIDC-V3] Popup closed without authorization code');
+            showFlowError('⚠️ Popup closed without authorization code');
+          }
+        }
+      }, 1000);
+    } else {
+      console.error('❌ [OIDC-V3] Failed to open popup window');
+      showFlowError('❌ Failed to open popup window. Please check your browser settings.');
+      setIsAuthorizing(false);
+    }
+  }, [authUrl, stepManager]);
+
+  // Full redirect authorization handler (V2 feature)
+  const handleFullRedirectAuthorization = useCallback(() => {
+    if (!authUrl) {
+      showFlowError('❌ Please generate authorization URL first');
+      return;
+    }
+
+    console.log('🔧 [OIDC-V3] Redirecting to authorization URL:', authUrl);
+    
+    // Store current flow state before redirect
+    sessionStorage.setItem('oidc-v3-flow-state', JSON.stringify({
+      credentials,
+      pkceCodes,
+      flowConfig,
+      step: 3, // Return to token exchange step
+      timestamp: Date.now()
+    }));
+    
+    // Redirect to authorization server
+    window.location.href = authUrl;
+  }, [authUrl, credentials, pkceCodes, flowConfig]);
+
+  // Create steps using reusable components with dynamic canExecute
+  const steps = React.useMemo(() => [
+    {
+      ...createCredentialsStep(credentials, setCredentials, saveCredentials, 'OIDC Authorization Code Flow'),
+      canExecute: Boolean(
+        credentials.environmentId &&
+        credentials.clientId &&
+        credentials.clientSecret &&
+        credentials.redirectUri
+      )
+    },
+    {
+      ...createPKCEStep(pkceCodes, setPkceCodes, generatePKCE),
+      canExecute: Boolean(credentials.environmentId && credentials.clientId)
+    },
+    {
+      ...createAuthUrlStep(authUrl, generateAuthUrl, credentials, pkceCodes, handlePopupAuthorization, handleFullRedirectAuthorization, isAuthorizing),
+      canExecute: Boolean(
+        credentials.environmentId &&
+        credentials.clientId &&
+        credentials.redirectUri &&
+        pkceCodes.codeVerifier &&
+        pkceCodes.codeChallenge
+      )
+    },
+    {
+      ...createTokenExchangeStep(authCode, tokens, exchangeTokens, credentials, isExchangingTokens),
+      canExecute: Boolean(authCode && credentials.environmentId && credentials.clientId)
+    },
+    {
+      ...createUserInfoStep(tokens, userInfo, getUserInfo, isGettingUserInfo),
+      canExecute: Boolean(tokens?.access_token)
+    }
+  ], [
+    credentials, 
+    pkceCodes, 
+    authUrl, 
+    authCode, 
+    tokens, 
+    userInfo, 
+    isExchangingTokens, 
+    isGettingUserInfo, 
+    isAuthorizing,
+    handlePopupAuthorization,
+    handleFullRedirectAuthorization
+  ]);
 
   return (
     <>
