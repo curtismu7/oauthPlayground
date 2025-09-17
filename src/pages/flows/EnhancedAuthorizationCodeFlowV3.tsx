@@ -33,6 +33,25 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
     enableAutoAdvance: true
   });
 
+  // Handle URL parameters for authorization code
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
+    
+    if (code) {
+      console.log('🔑 [OIDC-V3] Authorization code detected:', code);
+      setAuthCode(code);
+      
+      // Auto-advance to token exchange step (step 3 in our 5-step flow)
+      if (stepManager.currentStepIndex < 3) {
+        stepManager.setStep(3, 'authorization code detected');
+      }
+      
+      showFlowSuccess('🎉 Authorization successful! You can now exchange your authorization code for tokens.');
+    }
+  }, [stepManager]);
+
   // Flow state
   const [credentials, setCredentials] = useState<StepCredentials>({
     clientId: '',
@@ -147,12 +166,57 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 
   // Exchange tokens
   const exchangeTokens = useCallback(async () => {
+    if (!authCode) {
+      showFlowError('❌ No authorization code available');
+      return;
+    }
+
     setIsExchangingTokens(true);
     try {
-      // Token exchange logic here
+      const tokenEndpoint = credentials.tokenEndpoint || 
+        `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+
+      const body = new URLSearchParams({
+        grant_type: 'authorization_code',
+        client_id: credentials.clientId,
+        client_secret: credentials.clientSecret,
+        code: authCode,
+        redirect_uri: credentials.redirectUri,
+        code_verifier: pkceCodes.codeVerifier
+      });
+
+      console.log('🔄 [OIDC-V3] Exchanging tokens with:', {
+        endpoint: tokenEndpoint,
+        clientId: credentials.clientId,
+        hasCode: !!authCode,
+        hasVerifier: !!pkceCodes.codeVerifier
+      });
+
+      const response = await fetch(tokenEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: body.toString()
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Token exchange failed: ${response.status} ${errorText}`);
+      }
+
+      const tokenData = await response.json();
+      console.log('✅ [OIDC-V3] Token exchange successful:', tokenData);
+      
+      setTokens(tokenData);
+      
+      // Store tokens for other pages
+      localStorage.setItem('oauth_tokens', JSON.stringify(tokenData));
+      
       showFlowSuccess('🔑 Tokens Exchanged Successfully');
     } catch (error) {
-      showFlowError('❌ Token exchange failed');
+      console.error('❌ [OIDC-V3] Token exchange failed:', error);
+      showFlowError(`❌ Token exchange failed: ${error.message}`);
       throw error;
     } finally {
       setIsExchangingTokens(false);
