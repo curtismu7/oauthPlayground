@@ -504,7 +504,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
     } finally {
       setIsExchangingTokens(false);
     }
-  }, [authCode, credentials, pkceCodes, flowConfig, handleOAuthError]);
+  }, [authCode, credentials, pkceCodes, flowConfig]);
 
   // Get user info with proper access token
   const getUserInfo = useCallback(async () => {
