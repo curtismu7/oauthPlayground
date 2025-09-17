@@ -111,6 +111,36 @@ const TokenDisplay = styled.div`
   }
 `;
 
+const AuthButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  &:hover:not(:disabled) {
+    background: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
 // Common step creation functions
 export interface StepCredentials {
   clientId: string;
@@ -270,7 +300,10 @@ export const createAuthUrlStep = (
   authUrl: string,
   generateAuthUrl: () => void,
   credentials: StepCredentials,
-  pkceCodes?: PKCECodes
+  pkceCodes?: PKCECodes,
+  onPopupAuth?: () => void,
+  onRedirectAuth?: () => void,
+  isAuthorizing?: boolean
 ): EnhancedFlowStep => ({
   id: 'build-auth-url',
   title: 'Build Authorization URL',
@@ -288,24 +321,54 @@ export const createAuthUrlStep = (
         </div>
       </InfoBox>
       
+      {isAuthorizing && (
+        <InfoBox type="info">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div className="spinner" />
+            <strong>Opening authorization popup...</strong>
+          </div>
+        </InfoBox>
+      )}
+      
       {authUrl && (
-        <div>
-          <h4>Generated Authorization URL:</h4>
-          <FormField>
-            <textarea
-              value={authUrl}
-              readOnly
-              rows={4}
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                border: '1px solid #d1d5db',
-                borderRadius: '0.375rem',
-                fontSize: '0.75rem',
-                fontFamily: 'monospace'
-              }}
-            />
-          </FormField>
+        <FormField>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <FormLabel style={{ margin: 0, fontWeight: 'bold' }}>Generated Authorization URL:</FormLabel>
+            <CopyButton onClick={() => copyToClipboard(authUrl, 'Authorization URL')}>
+              <FiCopy /> Copy
+            </CopyButton>
+          </div>
+          <TokenDisplay style={{ backgroundColor: '#f8fafc' }}>{authUrl}</TokenDisplay>
+        </FormField>
+      )}
+      
+      {authUrl && (onPopupAuth || onRedirectAuth) && (
+        <div style={{ marginTop: '1rem' }}>
+          <h4 style={{ marginBottom: '1rem' }}>🔐 Authorization Methods:</h4>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            {onPopupAuth && (
+              <AuthButton 
+                onClick={onPopupAuth}
+                disabled={isAuthorizing}
+                style={{ backgroundColor: '#3b82f6' }}
+              >
+                <FiGlobe /> Popup Authorization
+              </AuthButton>
+            )}
+            {onRedirectAuth && (
+              <AuthButton 
+                onClick={onRedirectAuth}
+                disabled={isAuthorizing}
+                style={{ backgroundColor: '#10b981' }}
+              >
+                <FiRefreshCw /> Full Redirect
+              </AuthButton>
+            )}
+          </div>
+          <div style={{ marginTop: '0.5rem', fontSize: '0.85em', color: '#6b7280' }}>
+            <strong>Popup:</strong> Opens in new window, returns to this page automatically.<br/>
+            <strong>Redirect:</strong> Navigates away from this page, returns after authorization.
+          </div>
         </div>
       )}
     </div>
