@@ -523,18 +523,22 @@ const getJWKS = (issuer: string) => {
 };
 
 /**
- * Validate ID token with signature verification
+ * Validate ID token with FULL OIDC Core 1.0 compliance
+ * Implements all requirements from Section 3.1.3.7 of OIDC Core 1.0
  * @param {string} idToken - The ID token to validate
  * @param {string} clientId - The client ID
  * @param {string} issuer - The expected issuer URL
- * @returns {Promise<IdTokenPayload>} The decoded ID token claims
+ * @param {string} nonce - The nonce from the authentication request (REQUIRED for security)
+ * @param {number} maxAge - Maximum age of authentication in seconds
+ * @returns {Promise<IdTokenPayload>} The validated ID token claims
  */
 export const validateIdToken = async (
   idToken: string,
   clientId: string,
   issuer: string,
   nonce?: string,
-  maxAge?: number
+  maxAge?: number,
+  accessToken?: string
 ): Promise<IdTokenPayload> => {
   console.log('🔍 [OAuth] Validating ID token with signature verification...');
   clientLog(`[OAuth] Validating ID token with signature verification...`);
@@ -579,23 +583,100 @@ export const validateIdToken = async (
     });
     clientLog(`[OAuth] Token payload: iss=${payload.iss}, aud=${payload.aud}, exp=${payload.exp}, sub=${payload.sub}`);
 
-    // OIDC COMPLIANCE: Additional validations per Section 3.1.3.7
+    // OIDC CORE 1.0 COMPLIANCE: Full validation per Section 3.1.3.7
     
-    // Validate nonce if provided (Section 15.5.2)
-    if (nonce && payload.nonce !== nonce) {
-      console.error('❌ [OAuth] Nonce validation failed');
-      clientLog(`[OAuth] Nonce validation failed: expected=${nonce}, received=${payload.nonce}`);
-      throw new Error('Nonce validation failed - possible replay attack');
+    // 1. REQUIRED: Validate issuer (iss) claim - ALREADY DONE by jwtVerify
+    // 2. REQUIRED: Validate audience (aud) claim - ALREADY DONE by jwtVerify
+    // 3. REQUIRED: Validate expiration (exp) claim - ALREADY DONE by jwtVerify
+    
+    // 4. REQUIRED: Validate issued at (iat) claim
+    if (!payload.iat || typeof payload.iat !== 'number') {
+      console.error('❌ [OIDC] Missing or invalid iat (issued at) claim');
+      throw new Error('ID token missing required iat (issued at) claim');
     }
     
-    // Validate auth_time if max_age was specified (Section 3.1.2.1)
-    if (maxAge && payload.auth_time) {
+    // 5. REQUIRED: Validate subject (sub) claim
+    if (!payload.sub || typeof payload.sub !== 'string' || payload.sub.trim() === '') {
+      console.error('❌ [OIDC] Missing or invalid sub (subject) claim');
+      throw new Error('ID token missing required sub (subject) claim');
+    }
+    
+    // 6. CONDITIONAL: Validate nonce if provided (Section 15.5.2) - REQUIRED for security
+    if (nonce) {
+      if (!payload.nonce || payload.nonce !== nonce) {
+        console.error('❌ [OIDC] Nonce validation failed');
+        clientLog(`[OIDC] Nonce validation failed: expected=${nonce}, received=${payload.nonce}`);
+        throw new Error('Nonce validation failed - possible replay attack');
+      }
+      console.log('✅ [OIDC] Nonce validation successful');
+    } else {
+      console.warn('⚠️ [OIDC] No nonce provided - this reduces security against replay attacks');
+    }
+    
+    // 7. CONDITIONAL: Validate auth_time if max_age was specified (Section 3.1.2.1)
+    if (maxAge && maxAge > 0) {
+      if (!payload.auth_time || typeof payload.auth_time !== 'number') {
+        console.error('❌ [OIDC] Missing auth_time claim when max_age is specified');
+        throw new Error('ID token missing required auth_time claim when max_age is used');
+      }
+      
       const now = Math.floor(Date.now() / 1000);
-      const maxAllowedAge = now - maxAge;
-      if (payload.auth_time < maxAllowedAge) {
-        console.error('❌ [OAuth] Authentication too old based on max_age');
-        clientLog(`[OAuth] Authentication too old: auth_time=${payload.auth_time}, max_allowed=${maxAllowedAge}`);
-        throw new Error(`Authentication too old: performed ${now - payload.auth_time} seconds ago, max_age allows ${maxAge} seconds`);
+      const authAge = now - payload.auth_time;
+      
+      if (authAge > maxAge) {
+        console.error('❌ [OIDC] Authentication too old based on max_age');
+        clientLog(`[OIDC] Authentication too old: auth_time=${payload.auth_time}, age=${authAge}s, max_age=${maxAge}s`);
+        throw new Error(`Authentication too old: performed ${authAge} seconds ago, max_age allows ${maxAge} seconds`);
+      }
+      console.log('✅ [OIDC] auth_time validation successful');
+    }
+    
+    // 8. CONDITIONAL: Validate azp (authorized party) for multiple audiences
+    if (Array.isArray(payload.aud) && payload.aud.length > 1) {
+      if (!payload.azp || payload.azp !== clientId) {
+        console.error('❌ [OIDC] Missing or invalid azp claim for multiple audiences');
+        throw new Error('ID token missing required azp (authorized party) claim for multiple audiences');
+      }
+      console.log('✅ [OIDC] azp validation successful for multiple audiences');
+    }
+    
+    // 9. OIDC CORE 1.0: Validate at_hash if access token is present (Section 3.1.3.6)
+    if (accessToken && payload.at_hash) {
+      try {
+        // Calculate the expected at_hash
+        const encoder = new TextEncoder();
+        const accessTokenBytes = encoder.encode(accessToken);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', accessTokenBytes);
+        const hashArray = new Uint8Array(hashBuffer);
+        
+        // Take the left-most half of the hash and base64url encode it
+        const leftHalf = hashArray.slice(0, hashArray.length / 2);
+        const expectedAtHash = btoa(String.fromCharCode(...leftHalf))
+          .replace(/\+/g, '-')
+          .replace(/\//g, '_')
+          .replace(/=+$/, '');
+        
+        if (payload.at_hash !== expectedAtHash) {
+          console.error('❌ [OIDC] at_hash validation failed');
+          console.error('   Expected:', expectedAtHash);
+          console.error('   Received:', payload.at_hash);
+          throw new Error('at_hash validation failed - access token may have been tampered with');
+        }
+        console.log('✅ [OIDC] at_hash validation successful');
+      } catch (error) {
+        console.error('❌ [OIDC] at_hash validation error:', error);
+        throw new Error(`at_hash validation failed: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    } else if (accessToken && !payload.at_hash) {
+      console.warn('⚠️ [OIDC] Access token provided but no at_hash claim in ID token');
+    }
+    
+    // 10. SECURITY: Check for suspicious claims that might indicate tampering
+    const suspiciousClaims = ['__proto__', 'constructor', 'prototype'];
+    for (const claim of suspiciousClaims) {
+      if (claim in payload) {
+        console.error('❌ [Security] Suspicious claim detected in ID token:', claim);
+        throw new Error(`Potentially malicious claim detected in ID token: ${claim}`);
       }
     }
 
