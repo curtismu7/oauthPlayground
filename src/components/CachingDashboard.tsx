@@ -53,7 +53,7 @@ const StatusGrid = styled.div`
   margin-bottom: 2rem;
 `;
 
-const StatusCard = styled.div<{ status: 'active' | 'inactive' | 'error' }>`
+const StatusCard = styled.div<{ $status: 'active' | 'inactive' | 'error' }>`
   background: white;
   border-radius: 12px;
   box-shadow: ${({ theme }) => theme.shadows.sm};
@@ -82,22 +82,22 @@ const StatusLabel = styled.span`
   letter-spacing: 0.05em;
 `;
 
-const StatusIcon = styled.div<{ status: 'active' | 'inactive' | 'error' }>`
+const StatusIcon = styled.div<{ $status: 'active' | 'inactive' | 'error' }>`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: ${({ status }) => {
-    switch (status) {
+  background: ${({ $status }) => {
+    switch ($status) {
       case 'active': return '#dcfce7';
       case 'inactive': return '#f3f4f6';
       case 'error': return '#fee2e2';
     }
   }};
-  color: ${({ status }) => {
-    switch (status) {
+  color: ${({ $status }) => {
+    switch ($status) {
       case 'active': return '#16a34a';
       case 'inactive': return '#6b7280';
       case 'error': return '#dc2626';
@@ -417,10 +417,10 @@ export const CachingDashboard: React.FC = () => {
       </DashboardHeader>
 
       <StatusGrid>
-        <StatusCard status={getStatus()}>
+        <StatusCard $status={getStatus()}>
           <StatusHeader>
             <StatusLabel>Service Worker</StatusLabel>
-            <StatusIcon status={getStatus()}>
+            <StatusIcon $status={getStatus()}>
               {isActive ? <FiCheckCircle /> : <FiXCircle />}
             </StatusIcon>
           </StatusHeader>
@@ -435,10 +435,10 @@ export const CachingDashboard: React.FC = () => {
           </StatusDescription>
         </StatusCard>
 
-        <StatusCard status={cacheNames.length > 0 ? 'active' : 'inactive'}>
+        <StatusCard $status={cacheNames.length > 0 ? 'active' : 'inactive'}>
           <StatusHeader>
             <StatusLabel>Cache Storage</StatusLabel>
-            <StatusIcon status={cacheNames.length > 0 ? 'active' : 'inactive'}>
+            <StatusIcon $status={cacheNames.length > 0 ? 'active' : 'inactive'}>
               <FiDatabase />
             </StatusIcon>
           </StatusHeader>
@@ -453,10 +453,10 @@ export const CachingDashboard: React.FC = () => {
           </StatusDescription>
         </StatusCard>
 
-        <StatusCard status={cacheSize.totalSize > 0 ? 'active' : 'inactive'}>
+        <StatusCard $status={cacheSize.totalSize > 0 ? 'active' : 'inactive'}>
           <StatusHeader>
             <StatusLabel>Cache Size</StatusLabel>
-            <StatusIcon status={cacheSize.totalSize > 0 ? 'active' : 'inactive'}>
+            <StatusIcon $status={cacheSize.totalSize > 0 ? 'active' : 'inactive'}>
               <FiDownload />
             </StatusIcon>
           </StatusHeader>
@@ -468,10 +468,10 @@ export const CachingDashboard: React.FC = () => {
           </StatusDescription>
         </StatusCard>
 
-        <StatusCard status={updateAvailable ? 'active' : 'inactive'}>
+        <StatusCard $status={updateAvailable ? 'active' : 'inactive'}>
           <StatusHeader>
             <StatusLabel>Updates</StatusLabel>
-            <StatusIcon status={updateAvailable ? 'active' : 'inactive'}>
+            <StatusIcon $status={updateAvailable ? 'active' : 'inactive'}>
               <FiRefreshCw />
             </StatusIcon>
           </StatusHeader>
