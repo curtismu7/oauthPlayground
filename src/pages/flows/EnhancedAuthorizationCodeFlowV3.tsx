@@ -360,7 +360,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
     }
   }, [credentials, pkceCodes, flowConfig]);
 
-  // Exchange tokens with advanced client authentication and validation
+  // Exchange tokens using V2's proven backend API approach
   const exchangeTokens = useCallback(async () => {
     if (!authCode) {
       showFlowError('❌ No authorization code available');
@@ -369,69 +369,80 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 
     setIsExchangingTokens(true);
     try {
-      const tokenEndpoint = credentials.tokenEndpoint || 
-        `https://auth.pingone.com/${credentials.environmentId}/as/token`;
-
       // Use dynamic callback URL for token exchange (V2 feature)
       const redirectUri = getCallbackUrlForFlow('authorization-code');
       
-      // Base token request parameters
-      const tokenParams = {
+      // Use V2's backend API approach - EXACT SAME LOGIC
+      const backendUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://oauth-playground.vercel.app' 
+        : 'http://localhost:3001';
+
+      // Build request body exactly like V2
+      const baseBody = new URLSearchParams({
         grant_type: flowConfig.grantType || 'authorization_code',
-        client_id: credentials.clientId,
         code: authCode,
-        redirect_uri: redirectUri,
-        code_verifier: pkceCodes.codeVerifier
-      };
-
-      // Apply client authentication method (5 different methods from V2)
-      const authenticatedRequest = applyClientAuthentication(
-        tokenParams,
-        credentials.clientSecret,
-        flowConfig.clientAuthMethod || 'client_secret_post'
-      );
-
-      // Get security level information for current auth method
-      const securityInfo = getAuthMethodSecurityLevel(flowConfig.clientAuthMethod || 'client_secret_post');
-      
-      console.log('🔄 [OIDC-V3] Exchanging tokens with advanced auth:', {
-        endpoint: tokenEndpoint,
-        clientId: credentials.clientId,
-        grantType: flowConfig.grantType,
-        authMethod: flowConfig.clientAuthMethod,
-        securityLevel: `${securityInfo.level} - ${securityInfo.description}`,
-        hasCode: !!authCode,
-        hasVerifier: !!pkceCodes.codeVerifier
+        code_verifier: pkceCodes.codeVerifier,
+        environment_id: credentials.environmentId,
+        client_id: credentials.clientId,
+        client_secret: credentials.clientSecret || '',
+        redirectUri: redirectUri
       });
 
-      const response = await fetch(tokenEndpoint, {
+      // Convert URLSearchParams to object for backend compatibility (V2 approach)
+      const requestBody = {
+        grant_type: baseBody.get('grant_type'),
+        code: baseBody.get('code'),
+        code_verifier: baseBody.get('code_verifier'),
+        environment_id: baseBody.get('environment_id'),
+        client_id: baseBody.get('client_id'),
+        client_secret: baseBody.get('client_secret'),
+        redirectUri: baseBody.get('redirectUri')
+      };
+
+      // Apply client authentication using V2's method
+      const authConfig = {
+        method: flowConfig.clientAuthMethod || 'client_secret_post',
+        clientId: credentials.clientId,
+        clientSecret: credentials.clientSecret,
+        tokenEndpoint: credentials.tokenEndpoint || `https://auth.pingone.com/${credentials.environmentId}/as/token`
+      };
+      
+      const authenticatedRequest = await applyClientAuthentication(authConfig, baseBody);
+
+      console.log('🔄 [OIDC-V3] Using V2's backend API approach:', {
+        backendUrl: `${backendUrl}/api/token-exchange`,
+        grantType: requestBody.grant_type,
+        clientId: requestBody.client_id?.substring(0, 8) + '...',
+        hasCode: !!requestBody.code,
+        hasVerifier: !!requestBody.code_verifier,
+        authMethod: flowConfig.clientAuthMethod
+      });
+
+      // Use V2's exact backend API call
+      const response = await fetch(`${backendUrl}/api/token-exchange`, {
         method: 'POST',
-        headers: authenticatedRequest.headers,
-        body: authenticatedRequest.body
+        headers: {
+          'Content-Type': 'application/json',
+          ...authenticatedRequest.headers  // Include authentication headers
+        },
+        body: JSON.stringify(requestBody)
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
+        const errorData = await response.json().catch(() => ({}));
         console.error('❌ [OIDC-V3] Token exchange failed:', {
           status: response.status,
           statusText: response.statusText,
-          error: errorText
+          error: errorData
         });
         
-        // Provide more specific error messages (V2 feature)
-        if (errorText.includes('Invalid Grant') || errorText.includes('invalid_grant')) {
-          throw new Error('Authorization code has expired or been used already. Please start a new OAuth flow to get a fresh authorization code.');
-        } else if (errorText.includes('Client ID is required') || errorText.includes('invalid_client')) {
-          throw new Error('OAuth credentials are missing or invalid. Please check your client ID and secret.');
-        } else if (errorText.includes('invalid_request')) {
-          throw new Error('Invalid token request. Please check your OAuth configuration parameters.');
-        } else {
-          throw new Error(`Token exchange failed: ${response.status} ${errorText}`);
-        }
+        // Use enhanced error handling
+        handleOAuthError(errorData, 'token-exchange');
+        throw new Error(`Token exchange failed: ${response.status} ${errorData.message || response.statusText}`);
       }
 
       const tokenData = await response.json();
-      console.log('✅ [OIDC-V3] Token exchange successful:', tokenData);
+      console.log('✅ [OIDC-V3] Token exchange successful using V2 backend API:', tokenData);
 
       // Enhanced OIDC ID Token validation (V2 feature)
       if (tokenData.id_token) {
@@ -493,7 +504,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
     } finally {
       setIsExchangingTokens(false);
     }
-  }, [authCode, credentials, pkceCodes, flowConfig]);
+  }, [authCode, credentials, pkceCodes, flowConfig, handleOAuthError]);
 
   // Get user info with proper access token
   const getUserInfo = useCallback(async () => {
