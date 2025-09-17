@@ -25,6 +25,7 @@ import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
 import OAuthErrorHelper from '../../components/OAuthErrorHelper';
 import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
+import { safeJsonParse, safeLocalStorageParse } from '../../utils/secureJson';
 
 const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
   const authContext = useAuth();
@@ -582,10 +583,12 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
     const persistedResults = localStorage.getItem(persistKey);
     if (persistedResults) {
       try {
-        const results = JSON.parse(persistedResults);
-        setStepResults(results);
-        setCompletedSteps(new Set(Object.keys(results)));
-        console.log('📂 [OIDC-V3] Loaded persisted step results:', results);
+        const results = safeJsonParse<Record<string, unknown>>(persistedResults);
+        if (results) {
+          setStepResults(results);
+          setCompletedSteps(new Set(Object.keys(results)));
+          console.log('📂 [OIDC-V3] Loaded persisted step results:', results);
+        }
       } catch (error) {
         console.error('❌ [OIDC-V3] Failed to load persisted step results:', error);
       }
