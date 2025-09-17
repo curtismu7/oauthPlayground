@@ -28,10 +28,34 @@ import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
 import { safeJsonParse, safeLocalStorageParse } from '../../utils/secureJson';
 import { validateOIDCCompliance, generateComplianceReport, validateIdTokenCompliance } from '../../utils/oidcCompliance';
 import EnhancedErrorRecovery from '../../utils/errorRecovery';
+import { usePerformanceMonitor, useMemoizedComputation, useOptimizedCallback } from '../../utils/performance';
+import { enhancedDebugger } from '../../utils/enhancedDebug';
+import { fetchOIDCDiscovery } from '../../utils/advancedOIDC';
+import { InlineDocumentation, QuickReference, TroubleshootingGuide } from '../../components/InlineDocumentation';
 
 const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
   const authContext = useAuth();
   const { config } = authContext;
+  
+  // Performance monitoring
+  const performanceMonitor = usePerformanceMonitor('EnhancedAuthorizationCodeFlowV3');
+  
+  // Start debug session
+  React.useEffect(() => {
+    const sessionId = enhancedDebugger.startSession('oidc-authorization-code-v3');
+    console.log('🔍 [OIDC-V3] Debug session started:', sessionId);
+    
+    return () => {
+      const session = enhancedDebugger.endSession();
+      if (session) {
+        console.log('📊 [OIDC-V3] Debug session completed:', {
+          duration: session.performance.totalDuration,
+          steps: session.steps.length,
+          errors: session.errors.length
+        });
+      }
+    };
+  }, []);
   
   // Use centralized scroll management
   useAuthorizationFlowScroll('Enhanced Authorization Code Flow V3');
@@ -858,8 +882,8 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
     window.location.href = authUrl;
   }, [authUrl, credentials, pkceCodes, flowConfig]);
 
-  // Create steps using reusable components with dynamic canExecute and step tracking
-  const steps = React.useMemo(() => [
+  // Create steps using reusable components with performance optimization
+  const steps = useMemoizedComputation(() => [
     {
       ...createCredentialsStep(credentials, setCredentials, async () => {
         await saveCredentials();
@@ -927,7 +951,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
     getUserInfo,
     saveStepResult,
     hasStepResult
-  ]);
+  ], 'V3 Steps Creation');
 
   return (
     <>
@@ -1051,6 +1075,63 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
             </div>
           );
         })()}
+
+        {/* Enhanced Documentation - Inline Help */}
+        <div style={{ marginBottom: '2rem' }}>
+          <InlineDocumentation
+            title="OIDC Authorization Code Flow Guide"
+            type="oidc"
+            specLink="https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth"
+          >
+            <QuickReference
+              title="Key Concepts"
+              items={[
+                {
+                  term: "Authorization Code",
+                  definition: "Temporary code exchanged for tokens",
+                  example: "code=abc123..."
+                },
+                {
+                  term: "PKCE",
+                  definition: "Proof Key for Code Exchange - security extension",
+                  example: "code_challenge=xyz789..."
+                },
+                {
+                  term: "ID Token",
+                  definition: "JWT containing user identity information",
+                  example: "eyJhbGciOiJSUzI1NiIs..."
+                }
+              ]}
+            />
+            
+            <TroubleshootingGuide
+              issue="Token Exchange Failures"
+              symptoms={[
+                "415 Unsupported Media Type errors",
+                "Invalid grant errors",
+                "Client authentication failures"
+              ]}
+              solutions={[
+                {
+                  title: "Check Content Type",
+                  steps: [
+                    "Ensure using application/json for backend API",
+                    "Verify client authentication method",
+                    "Check authorization code hasn't expired"
+                  ]
+                },
+                {
+                  title: "Verify Configuration",
+                  steps: [
+                    "Confirm Client ID and Secret are correct",
+                    "Check redirect URI matches PingOne configuration",
+                    "Verify environment ID is valid"
+                  ]
+                }
+              ]}
+            />
+          </InlineDocumentation>
+        </div>
 
         {/* Callback URL Display - V2 Feature */}
         <div style={{ marginBottom: '2rem' }}>
