@@ -406,9 +406,18 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
     }
 
     setIsExchangingTokens(true);
+    enhancedDebugger.logStep('token-exchange', 'Exchange Authorization Code for Tokens', 'executing');
+    
     try {
       // Use dynamic callback URL for token exchange (V2 feature)
       const redirectUri = getCallbackUrlForFlow('authorization-code');
+      console.log('🔍 [OIDC-V3] Token exchange debug info:', {
+        authCode: authCode ? authCode.substring(0, 20) + '...' : 'MISSING',
+        codeVerifier: pkceCodes.codeVerifier ? pkceCodes.codeVerifier.substring(0, 20) + '...' : 'MISSING',
+        redirectUri,
+        environmentId: credentials.environmentId,
+        clientId: credentials.clientId ? credentials.clientId.substring(0, 20) + '...' : 'MISSING'
+      });
       
       // Use V2's backend API approach - EXACT SAME LOGIC
       const backendUrl = process.env.NODE_ENV === 'production' 
@@ -423,7 +432,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
         environment_id: credentials.environmentId,
         client_id: credentials.clientId,
         client_secret: credentials.clientSecret || '',
-        redirectUri: redirectUri
+        redirect_uri: redirectUri
       });
 
       // Convert URLSearchParams to object for backend compatibility (V2 approach)
@@ -434,7 +443,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
         environment_id: baseBody.get('environment_id'),
         client_id: baseBody.get('client_id'),
         client_secret: baseBody.get('client_secret'),
-        redirectUri: baseBody.get('redirectUri')
+        redirect_uri: redirectUri // Use redirect_uri (underscore) not redirectUri (camelCase)
       };
 
       // Apply client authentication using V2's method
@@ -543,6 +552,12 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
       // Store tokens for other pages
       localStorage.setItem('oauth_tokens', JSON.stringify(tokenData));
       
+      // Enhanced debugging - log successful completion
+      enhancedDebugger.logStep('token-exchange', 'Exchange Authorization Code for Tokens', 'completed', 
+        { authCode: authCode.substring(0, 10) + '...' }, 
+        { tokens: Object.keys(tokenData), tokenCount: Object.keys(tokenData).length }
+      );
+      
       // Enhanced success message with token details (V2 feature)
       const tokenSummary = [
         `✅ Access Token: ${tokenData.access_token ? 'Received' : 'Missing'}`,
@@ -556,6 +571,18 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
       showFlowSuccess(`🔑 Tokens Exchanged Successfully with Advanced Validation\n\n${tokenSummary}`);
     } catch (error) {
       console.error('❌ [OIDC-V3] Token exchange failed:', error);
+      
+      // Enhanced debugging - log failed completion
+      enhancedDebugger.logStep('token-exchange', 'Exchange Authorization Code for Tokens', 'failed');
+      enhancedDebugger.logError('token-exchange', error, {
+        authCode: authCode ? 'present' : 'missing',
+        codeVerifier: pkceCodes.codeVerifier ? 'present' : 'missing',
+        credentials: {
+          environmentId: !!credentials.environmentId,
+          clientId: !!credentials.clientId,
+          clientSecret: !!credentials.clientSecret
+        }
+      });
       
       // Use enhanced error handling with context
       // handleOAuthError(error, 'token-exchange'); // Temporarily commented to fix syntax
