@@ -591,16 +591,351 @@ const Configuration = () => {
   return (
     <ConfigurationContainer>
       <PageHeader>
-        <h1>PingOne Credentials Config</h1>
-        <p>Configure your PingOne environment and application settings to get started with the OAuth Playground.</p>
+        <h1>🔧 Flow-Specific Credential Configuration</h1>
+        <p>Configure credentials for each OIDC and OAuth 2.0 flow type. Each flow can have its own settings or use global configuration.</p>
       </PageHeader>
 
-      {/* Credential Status Panel */}
+      {/* Global Status Panel */}
       <CredentialStatusPanel />
 
-      {/* UI Settings - Moved to top, outside form */}
+      {/* Global Configuration Section */}
       <CollapsibleSection
-        title="UI Settings"
+        title="🌐 Global Configuration"
+        subtitle="Default credentials used by all flows (unless overridden)"
+        icon="🌐"
+        defaultCollapsed={false}
+      >
+          <form 
+            onSubmit={(e) => {
+              console.log('🔍 [Configuration] Form onSubmit triggered');
+              handleSubmit(e);
+            }} 
+            id="configForm" 
+            onKeyDown={(e) => console.log('🔍 [Configuration] Form keydown:', e.key)}
+          >
+            <FormGroup>
+              <label htmlFor="environmentId">Environment ID</label>
+              <input
+                type="text"
+                id="environmentId"
+                name="environmentId"
+                value={formData.environmentId}
+                onChange={handleChange}
+                placeholder="e.g., abc12345-6789-4abc-def0-1234567890ab"
+                className={errors.environmentId ? 'is-invalid' : ''}
+              />
+              {errors.environmentId && (
+                <div className="invalid-feedback">{errors.environmentId}</div>
+              )}
+              <div className="form-text">
+                Your PingOne Environment ID. You can find this in the PingOne Admin Console.
+              </div>
+            </FormGroup>
+            
+            <FormGroup>
+              <label htmlFor="clientId">Client ID</label>
+              <input
+                type="text"
+                id="clientId"
+                name="clientId"
+                value={formData.clientId}
+                onChange={handleChange}
+                placeholder="Enter your application's Client ID"
+                autoComplete="username"
+                className={errors.clientId ? 'is-invalid' : ''}
+              />
+              {errors.clientId && (
+                <div className="invalid-feedback">{errors.clientId}</div>
+              )}
+              <div className="form-text">
+                The Client ID of your application in PingOne.
+              </div>
+            </FormGroup>
+            
+            <FormGroup>
+              <label htmlFor="clientSecret">Client Secret (Optional)</label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showClientSecret ? 'text' : 'password'}
+                  id="clientSecret"
+                  name="clientSecret"
+                  autoComplete="current-password"
+                  value={formData.clientSecret}
+                  onChange={handleChange}
+                  placeholder="Enter your application's Client Secret"
+                  style={{ 
+                    paddingRight: '2.5rem',
+                    width: '100%',
+                    maxWidth: '800px',
+                    fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+                    fontSize: '0.875rem'
+                  }}
+                />
+                <button 
+                  type="button" 
+                  onClick={() => setShowClientSecret(!showClientSecret)}
+                  style={{
+                    position: 'absolute',
+                    right: '0.75rem',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#6c757d',
+                    padding: '0.25rem'
+                  }}
+                  aria-label={showClientSecret ? 'Hide client secret' : 'Show client secret'}
+                >
+                  {showClientSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                </button>
+              </div>
+              <div className="form-text">
+                Only required for confidential clients using flows that require client authentication.
+              </div>
+            </FormGroup>
+            
+            <FormGroup>
+              <label htmlFor="redirectUri">Redirect URI</label>
+              <input
+                type="url"
+                id="redirectUri"
+                name="redirectUri"
+                value={formData.redirectUri}
+                onChange={handleChange}
+                className={errors.redirectUri ? 'is-invalid' : ''}
+              />
+              {errors.redirectUri && (
+                <div className="invalid-feedback">{errors.redirectUri}</div>
+              )}
+              <div className="form-text">
+                The redirect URI registered in your PingOne application. Must match exactly.
+              </div>
+            </FormGroup>
+            
+            <FormGroup>
+              <label htmlFor="scopes">Scopes</label>
+              <input
+                type="text"
+                id="scopes"
+                name="scopes"
+                value={formData.scopes}
+                onChange={handleChange}
+                placeholder="openid profile email"
+              />
+              <div className="form-text">
+                Space-separated list of scopes to request. Common scopes: openid, profile, email, offline_access
+              </div>
+            </FormGroup>
+
+            <h3 style={{ 
+              margin: '2rem 0 1.5rem', 
+              fontSize: '1.25rem', 
+              fontWeight: '600',
+              color: '#1f2937',
+              borderBottom: '2px solid #e5e7eb',
+              paddingBottom: '0.5rem'
+            }}>OAuth Flow Settings</h3>
+            
+            <FormGroup>
+              <label htmlFor="responseType">Response Type</label>
+              <select
+                id="responseType"
+                name="responseType"
+                value={formData.responseType}
+                onChange={handleChange}
+              >
+                <option value="code">code (Authorization Code Flow)</option>
+                <option value="id_token">id_token (Implicit Flow)</option>
+                <option value="id_token token">id_token token (Implicit Flow with Access Token)</option>
+                <option value="code id_token">code id_token (Hybrid Flow)</option>
+                <option value="code token">code token (Hybrid Flow)</option>
+                <option value="code id_token token">code id_token token (Hybrid Flow)</option>
+              </select>
+              <div className="form-text">
+                The OAuth response type determines which tokens are returned in the authorization response.
+              </div>
+            </FormGroup>
+
+            <FormGroup>
+              <div className="checkbox-container">
+                <input
+                  type="checkbox"
+                  id="enablePKCE"
+                  name="enablePKCE"
+                  checked={formData.enablePKCE}
+                  onChange={(e) => setFormData(prev => ({ ...prev, enablePKCE: e.target.checked }))}
+                />
+                <label htmlFor="enablePKCE">
+                  Enable PKCE (Proof Key for Code Exchange)
+                </label>
+              </div>
+              <div className="form-text">
+                PKCE adds security by preventing authorization code interception attacks. Recommended for all flows.
+              </div>
+            </FormGroup>
+
+            {formData.enablePKCE && (
+              <FormGroup>
+                <label htmlFor="codeChallengeMethod">Code Challenge Method</label>
+                <select
+                  id="codeChallengeMethod"
+                  name="codeChallengeMethod"
+                  value={formData.codeChallengeMethod}
+                  onChange={handleChange}
+                >
+                  <option value="S256">S256 (SHA256 - Recommended)</option>
+                  <option value="plain">plain (Plain text - Less secure)</option>
+                </select>
+                <div className="form-text">
+                  The method used to generate the code challenge from the code verifier.
+                </div>
+              </FormGroup>
+            )}
+
+            <FormGroup>
+              <div className="checkbox-container">
+                <input
+                  type="checkbox"
+                  id="enableOIDC"
+                  name="enableOIDC"
+                  checked={formData.enableOIDC}
+                  onChange={(e) => setFormData(prev => ({ ...prev, enableOIDC: e.target.checked }))}
+                />
+                <label htmlFor="enableOIDC">
+                  Enable OpenID Connect (OIDC)
+                </label>
+              </div>
+              <div className="form-text">
+                Enable OpenID Connect features like ID tokens and user information endpoints.
+              </div>
+            </FormGroup>
+
+            <FormGroup>
+              <div className="checkbox-container">
+                <input
+                  type="checkbox"
+                  id="useGlobalConfig"
+                  name="useGlobalConfig"
+                  checked={formData.useGlobalConfig || false}
+                  onChange={(e) => setFormData(prev => ({ ...prev, useGlobalConfig: e.target.checked }))}
+                />
+                <label htmlFor="useGlobalConfig">
+                  Use global config for credentials
+                </label>
+              </div>
+              <div className="form-text">
+                When enabled, all OAuth flows will use these Dashboard credentials instead of their individual flow-specific credentials. This simplifies credential management across all flows.
+              </div>
+            </FormGroup>
+            
+            <h3 style={{ 
+              margin: '2rem 0 1.5rem', 
+              fontSize: '1.25rem', 
+              fontWeight: '600',
+              color: '#1f2937',
+              borderBottom: '2px solid #e5e7eb',
+              paddingBottom: '0.5rem'
+            }}>Advanced Settings</h3>
+            
+            <FormGroup>
+              <label htmlFor="authEndpoint">Authorization Endpoint</label>
+              <input
+                type="url"
+                id="authEndpoint"
+                name="authEndpoint"
+                value={formData.authEndpoint}
+                onChange={handleChange}
+              />
+              <div className="form-text">
+                The authorization endpoint URL. Use {'{envId}'} as a placeholder for the environment ID.
+              </div>
+            </FormGroup>
+            
+            <FormGroup>
+              <label htmlFor="tokenEndpoint">Token Endpoint</label>
+              <input
+                type="url"
+                id="tokenEndpoint"
+                name="tokenEndpoint"
+                value={formData.tokenEndpoint}
+                onChange={handleChange}
+              />
+              <div className="form-text">
+                The token endpoint URL. Use {'{envId}'} as a placeholder for the environment ID.
+              </div>
+            </FormGroup>
+            
+            <FormGroup>
+              <label htmlFor="userInfoEndpoint">UserInfo Endpoint</label>
+              <input
+                type="url"
+                id="userInfoEndpoint"
+                name="userInfoEndpoint"
+                value={formData.userInfoEndpoint}
+                onChange={handleChange}
+              />
+              <div className="form-text">
+                The UserInfo endpoint URL. Use {'{envId}'} as a placeholder for the environment ID.
+              </div>
+            </FormGroup>
+            
+            <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              <SaveButton 
+                type="submit" 
+                disabled={isLoading}
+                onClick={() => console.log('🔘 [Configuration] Save button clicked')}
+              >
+                {isLoading ? (
+                  <>
+                    <div className="spinner" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <FiSave size={18} style={{ marginRight: '8px' }} />
+                    Save Global Configuration
+                  </>
+                )}
+              </SaveButton>
+              
+              <button
+                type="button"
+                onClick={() => setShowDiscoveryPanel(true)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '0.625rem 1.25rem',
+                  fontSize: '1rem',
+                  fontWeight: '500',
+                  color: '#374151',
+                  backgroundColor: '#f9fafb',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.375rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease-in-out',
+                  minWidth: '120px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f3f4f6';
+                  e.currentTarget.style.borderColor = '#9ca3af';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f9fafb';
+                  e.currentTarget.style.borderColor = '#d1d5db';
+                }}
+              >
+                <FiGlobe size={18} style={{ marginRight: '8px' }} />
+                OIDC Discovery
+              </button>
+            </div>
+          </form>
+      </CollapsibleSection>
+
+      {/* UI Settings Section */}
+      <CollapsibleSection
+        title="🎛️ UI Settings"
         subtitle="Configure user interface behavior and modal display options"
         icon="🎛️"
         defaultCollapsed={true}
@@ -712,7 +1047,110 @@ const Configuration = () => {
             </p>
           </div>
       </CollapsibleSection>
-      
+
+      {/* OIDC Flow Configurations */}
+      <CollapsibleSection
+        title="🔑 OIDC Authorization Code Flow"
+        subtitle="Configure credentials for OpenID Connect Authorization Code Flow"
+        icon="🔑"
+        defaultCollapsed={true}
+      >
+        <div style={{ padding: '1rem', backgroundColor: '#f8f9fa', borderRadius: '0.5rem', marginBottom: '1rem' }}>
+          <p style={{ margin: '0', fontSize: '0.9rem', color: '#6c757d' }}>
+            <strong>Used by:</strong> Enhanced Authorization Code Flow V2, V3 • 
+            <strong>Features:</strong> ID tokens, UserInfo endpoint, PKCE security
+          </p>
+        </div>
+        {/* Placeholder for OIDC AuthZ Code credentials form */}
+        <div style={{ padding: '2rem', textAlign: 'center', color: '#6c757d', backgroundColor: '#f8f9fa', borderRadius: '0.5rem' }}>
+          🚧 Flow-specific credential configuration coming soon...
+        </div>
+      </CollapsibleSection>
+
+      <CollapsibleSection
+        title="🔒 OAuth 2.0 Authorization Code Flow" 
+        subtitle="Configure credentials for pure OAuth 2.0 Authorization Code Flow"
+        icon="🔒"
+        defaultCollapsed={true}
+      >
+        <div style={{ padding: '1rem', backgroundColor: '#f8f9fa', borderRadius: '0.5rem', marginBottom: '1rem' }}>
+          <p style={{ margin: '0', fontSize: '0.9rem', color: '#6c757d' }}>
+            <strong>Used by:</strong> OAuth 2.0 flows without OIDC features • 
+            <strong>Features:</strong> Access tokens only, no ID tokens
+          </p>
+        </div>
+        <div style={{ padding: '2rem', textAlign: 'center', color: '#6c757d', backgroundColor: '#f8f9fa', borderRadius: '0.5rem' }}>
+          🚧 Flow-specific credential configuration coming soon...
+        </div>
+      </CollapsibleSection>
+
+      <CollapsibleSection
+        title="🖥️ Client Credentials Flow"
+        subtitle="Configure credentials for service-to-service authentication"
+        icon="🖥️"
+        defaultCollapsed={true}
+      >
+        <div style={{ padding: '1rem', backgroundColor: '#f8f9fa', borderRadius: '0.5rem', marginBottom: '1rem' }}>
+          <p style={{ margin: '0', fontSize: '0.9rem', color: '#6c757d' }}>
+            <strong>Used by:</strong> Server-to-server API access • 
+            <strong>Features:</strong> No user context, machine-to-machine
+          </p>
+        </div>
+        <div style={{ padding: '2rem', textAlign: 'center', color: '#6c757d', backgroundColor: '#f8f9fa', borderRadius: '0.5rem' }}>
+          🚧 Flow-specific credential configuration coming soon...
+        </div>
+      </CollapsibleSection>
+
+      <CollapsibleSection
+        title="📱 Device Code Flow"
+        subtitle="Configure credentials for device authorization (smart TVs, IoT devices)"
+        icon="📱"
+        defaultCollapsed={true}
+      >
+        <div style={{ padding: '1rem', backgroundColor: '#f8f9fa', borderRadius: '0.5rem', marginBottom: '1rem' }}>
+          <p style={{ margin: '0', fontSize: '0.9rem', color: '#6c757d' }}>
+            <strong>Used by:</strong> Devices without browsers or limited input • 
+            <strong>Features:</strong> User code verification, polling for tokens
+          </p>
+        </div>
+        <div style={{ padding: '2rem', textAlign: 'center', color: '#6c757d', backgroundColor: '#f8f9fa', borderRadius: '0.5rem' }}>
+          🚧 Flow-specific credential configuration coming soon...
+        </div>
+      </CollapsibleSection>
+
+      <CollapsibleSection
+        title="⚡ Implicit Flow"
+        subtitle="Configure credentials for browser-based applications (legacy)"
+        icon="⚡"
+        defaultCollapsed={true}
+      >
+        <div style={{ padding: '1rem', backgroundColor: '#fff3cd', borderRadius: '0.5rem', marginBottom: '1rem', border: '1px solid #ffeaa7' }}>
+          <p style={{ margin: '0', fontSize: '0.9rem', color: '#856404' }}>
+            ⚠️ <strong>Legacy Flow:</strong> Not recommended for new applications. Use Authorization Code Flow with PKCE instead.
+          </p>
+        </div>
+        <div style={{ padding: '2rem', textAlign: 'center', color: '#6c757d', backgroundColor: '#f8f9fa', borderRadius: '0.5rem' }}>
+          🚧 Flow-specific credential configuration coming soon...
+        </div>
+      </CollapsibleSection>
+
+      <CollapsibleSection
+        title="💻 Hybrid Flow"
+        subtitle="Configure credentials for hybrid OpenID Connect flow"
+        icon="💻"
+        defaultCollapsed={true}
+      >
+        <div style={{ padding: '1rem', backgroundColor: '#f8f9fa', borderRadius: '0.5rem', marginBottom: '1rem' }}>
+          <p style={{ margin: '0', fontSize: '0.9rem', color: '#6c757d' }}>
+            <strong>Used by:</strong> Complex applications needing both front-end and back-end tokens • 
+            <strong>Features:</strong> Mixed response types, advanced use cases
+          </p>
+        </div>
+        <div style={{ padding: '2rem', textAlign: 'center', color: '#6c757d', backgroundColor: '#f8f9fa', borderRadius: '0.5rem' }}>
+          🚧 Flow-specific credential configuration coming soon...
+        </div>
+      </CollapsibleSection>
+
       {saveStatus && (
         <StandardMessage
           type={saveStatus.type === 'danger' ? 'error' : saveStatus.type}
@@ -722,41 +1160,115 @@ const Configuration = () => {
       )}
       
       <CollapsibleSection
-        title="Environment Settings"
-        subtitle="Configure your PingOne environment and application details"
+        title="❓ PingOne Configuration Help"
+        subtitle="Step-by-step guide to set up your PingOne application"
+        icon="❓"
         defaultCollapsed={true}
       >
-          <form 
-            onSubmit={(e) => {
-              console.log('🔍 [Configuration] Form onSubmit triggered');
-              handleSubmit(e);
-            }} 
-            id="configForm" 
-            onKeyDown={(e) => console.log('🔍 [Configuration] Form keydown:', e.key)}
-          >
-            <FormGroup>
-              <label htmlFor="environmentId">Environment ID</label>
-              <input
-                type="text"
-                id="environmentId"
-                name="environmentId"
-                value={formData.environmentId}
-                onChange={handleChange}
-                placeholder="e.g., abc12345-6789-4abc-def0-1234567890ab"
-                className={errors.environmentId ? 'is-invalid' : ''}
-              />
-              {errors.environmentId && (
-                <div className="invalid-feedback">{errors.environmentId}</div>
-              )}
-              <div className="form-text">
-                Your PingOne Environment ID. You can find this in the PingOne Admin Console.
-              </div>
-            </FormGroup>
-            
-            <FormGroup>
-              <label htmlFor="clientId">Client ID</label>
-              <input
-                type="text"
+          <div>
+            <h3 style={{ marginTop: 0 }}>🔧 PingOne Configuration Required</h3>
+            <p>To use this OAuth Playground, you need to configure your PingOne environment:</p>
+
+            <div>
+              <h4>1. Access PingOne Admin Console</h4>
+              <ul>
+                <li>Navigate to your <strong>PingOne Admin Console</strong></li>
+                <li>Go to <strong>Applications</strong> → <strong>Applications</strong></li>
+                <li>
+                  Click <strong style={{ fontSize: '1.1rem', fontWeight: 800, color: 'rgb(0, 112, 204)' }}>+ Add Application</strong>
+                </li>
+                <li>Select <strong>Web Application</strong></li>
+              </ul>
+
+              <h4>2. Configure Application Details</h4>
+              <ul>
+                <li>
+                  <strong>Application Type:</strong> OIDC Web App
+                </li>
+                <li>
+                  <strong>Application Name:</strong>
+                  <span style={{ fontWeight: 800, fontSize: '1rem', color: 'rgb(0, 112, 204)', marginLeft: '0.5rem' }}>
+                    PingOne OAuth/OIDC Playground v{packageJson.version}
+                  </span>
+                </li>
+                <li>
+                  <strong>Description:</strong> Interactive OAuth 2.0 testing application
+                </li>
+                <li><strong>Hit Save Button</strong></li>
+              </ul>
+
+              <h4>3. Configure Authentication</h4>
+              <ul>
+                <li><strong>Enable Application -</strong> Grey button on top right</li>
+                <li><strong>Hit Configuration tab</strong></li>
+                <li>
+                  <strong>Hit blue pencil</strong>
+                  <span
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: 20,
+                      height: 20,
+                      backgroundColor: 'rgb(0, 112, 204)',
+                      borderRadius: '50%',
+                      marginLeft: 8,
+                      color: 'white',
+                    }}
+                    aria-hidden
+                  >
+                    ✎
+                  </span>
+                </li>
+                <li><strong>Response Type:</strong> Code</li>
+                <li><strong>Grant Type:</strong> Authorization Code</li>
+                <li>
+                  <strong>Redirect URIs:</strong>
+                  <span style={{ fontWeight: 800, fontSize: '1rem', color: 'rgb(0, 112, 204)', marginLeft: '0.5rem' }}>
+                    {formData.redirectUri || 'https://localhost:3000/callback'}
+                  </span>
+                </li>
+                <li><strong>Token Endpoint Authentication Method:</strong> Client Secret Basic</li>
+                <li>
+                  Click <strong style={{ color: 'rgb(0, 112, 204)' }}>Save</strong> to create the application
+                </li>
+              </ul>
+
+              <h4>4. Save and Get Credentials</h4>
+              <ul>
+                <li>See the <strong>Environment ID (Issuer)</strong></li>
+                <li>See the <strong>Client ID</strong></li>
+                <li>
+                  See the <strong>Client Secret</strong>
+                  <span style={{ marginLeft: '0.375rem', color: 'rgb(108, 117, 125)' }}>(hidden by default)</span>
+                </li>
+              </ul>
+            </div>
+
+            <p style={{ marginTop: '1rem' }}>
+              <em>
+                💡 <strong>Need Help?</strong> Check the PingOne documentation or contact your PingOne administrator.
+              </em>
+            </p>
+          </div>
+      </CollapsibleSection>
+
+      {/* Discovery Panel */}
+      {showDiscoveryPanel && (
+        <DiscoveryPanel
+          onConfigurationDiscovered={handleConfigurationDiscovered}
+          onClose={() => setShowDiscoveryPanel(false)}
+        />
+      )}
+
+      {/* Centralized Success/Error Messages */}
+      <CentralizedSuccessMessage position="top" />
+      <CentralizedSuccessMessage position="bottom" />
+    </ConfigurationContainer>
+  );
+};
+
+export default Configuration;
                 id="clientId"
                 name="clientId"
                 value={formData.clientId}
