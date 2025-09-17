@@ -21,6 +21,8 @@ import { FlowConfiguration, FlowConfig } from '../../components/FlowConfiguratio
 import { getDefaultConfig } from '../../utils/flowConfigDefaults';
 import { validateIdToken } from '../../utils/oauth';
 import { applyClientAuthentication, getAuthMethodSecurityLevel } from '../../utils/clientAuthentication';
+import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
+import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
 
 const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
   const authContext = useAuth();
@@ -37,22 +39,94 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
     enableAutoAdvance: true
   });
 
-  // Handle URL parameters for authorization code
+  // Comprehensive URL parameter debugging and handling (V2 feature)
   React.useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    
+    // Log all URL parameters for debugging
+    console.log('🔍 [OIDC-V3] Comprehensive URL parameter analysis:');
+    console.log('   Current URL:', window.location.href);
+    console.log('   Search params:', Object.fromEntries(urlParams.entries()));
+    console.log('   Hash params:', Object.fromEntries(hashParams.entries()));
+    
+    // Check for authorization code in query parameters
     const code = urlParams.get('code');
     const state = urlParams.get('state');
+    const error = urlParams.get('error');
+    const errorDescription = urlParams.get('error_description');
     
+    // Check for tokens in hash parameters (for implicit flow compatibility)
+    const accessToken = hashParams.get('access_token');
+    const idToken = hashParams.get('id_token');
+    const tokenType = hashParams.get('token_type');
+    
+    console.log('🔍 [OIDC-V3] Parameter extraction results:', {
+      code: code ? `${code.substring(0, 10)}...` : null,
+      state: state ? `${state.substring(0, 10)}...` : null,
+      error: error,
+      errorDescription: errorDescription,
+      accessToken: accessToken ? `${accessToken.substring(0, 20)}...` : null,
+      idToken: idToken ? `${idToken.substring(0, 20)}...` : null,
+      tokenType: tokenType
+    });
+    
+    // Handle authorization errors
+    if (error) {
+      console.error('❌ [OIDC-V3] Authorization error received:', {
+        error,
+        errorDescription,
+        fullUrl: window.location.href
+      });
+      showFlowError(`❌ Authorization failed: ${errorDescription || error}`);
+      return;
+    }
+    
+    // Handle authorization code (standard flow)
     if (code) {
-      console.log('🔑 [OIDC-V3] Authorization code detected:', code);
+      console.log('✅ [OIDC-V3] Authorization code detected:', code);
+      
+      // Validate state parameter for CSRF protection
+      const storedState = sessionStorage.getItem('oauth_state');
+      if (state && storedState && state !== storedState) {
+        console.error('❌ [OIDC-V3] State parameter mismatch - possible CSRF attack:', {
+          received: state,
+          expected: storedState
+        });
+        showFlowError('❌ State parameter mismatch. Possible CSRF attack detected.');
+        return;
+      }
+      
       setAuthCode(code);
+      console.log('🔄 [OIDC-V3] Auto-advancing to token exchange step');
       
       // Auto-advance to token exchange step (step 3 in our 5-step flow)
       if (stepManager.currentStepIndex < 3) {
         stepManager.setStep(3, 'authorization code detected');
       }
       
+      // Clean up URL parameters
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+      console.log('🧹 [OIDC-V3] Cleaned URL parameters from address bar');
+      
       showFlowSuccess('🎉 Authorization successful! You can now exchange your authorization code for tokens.');
+    }
+    
+    // Handle implicit flow tokens (if present)
+    if (accessToken) {
+      console.log('🔑 [OIDC-V3] Implicit flow tokens detected');
+      const implicitTokens = {
+        access_token: accessToken,
+        id_token: idToken,
+        token_type: tokenType || 'Bearer',
+        expires_in: hashParams.get('expires_in'),
+        scope: hashParams.get('scope')
+      };
+      
+      setTokens(implicitTokens);
+      console.log('🔄 [OIDC-V3] Auto-advancing to user info step for implicit flow');
+      stepManager.setStep(4, 'implicit flow tokens received');
     }
   }, [stepManager]);
 
@@ -83,6 +157,14 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
   // Authorization handling state (V2 features)
   const [isAuthorizing, setIsAuthorizing] = useState(false);
   const [showAuthSuccessModal, setShowAuthSuccessModal] = useState(false);
+
+  // Step completion tracking and result persistence (V2 features)
+  const [stepResults, setStepResults] = useState<Record<string, any>>({});
+  const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
+  
+  // Reset functionality with confirmation modals (V2 features)
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [showClearCredentialsModal, setShowClearCredentialsModal] = useState(false);
 
   // Flow Configuration state - V2 feature integration
   const [flowConfig, setFlowConfig] = useState<FlowConfig>(() => getDefaultConfig('oidc-authorization-code'));
@@ -160,11 +242,15 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
       const generatedNonce = generateCodeVerifier().substring(0, 32);
       sessionStorage.setItem('oauth_nonce', generatedNonce);
 
+      // Use dynamic callback URL for the flow (V2 feature)
+      const redirectUri = getCallbackUrlForFlow('authorization-code');
+      console.log('🔧 [OIDC-V3] Using dynamic callback URL:', redirectUri);
+
       // Base parameters
       const params = new URLSearchParams({
         response_type: flowConfig.responseType || 'code',
         client_id: credentials.clientId,
-        redirect_uri: credentials.redirectUri,
+        redirect_uri: redirectUri,
         scope: flowConfig.scopes || credentials.scopes,
         state: flowConfig.state || generateCodeVerifier().substring(0, 32),
         code_challenge: pkceCodes.codeChallenge,
@@ -222,12 +308,15 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
       const tokenEndpoint = credentials.tokenEndpoint || 
         `https://auth.pingone.com/${credentials.environmentId}/as/token`;
 
+      // Use dynamic callback URL for token exchange (V2 feature)
+      const redirectUri = getCallbackUrlForFlow('authorization-code');
+      
       // Base token request parameters
       const tokenParams = {
         grant_type: flowConfig.grantType || 'authorization_code',
         client_id: credentials.clientId,
         code: authCode,
-        redirect_uri: credentials.redirectUri,
+        redirect_uri: redirectUri,
         code_verifier: pkceCodes.codeVerifier
       };
 
@@ -381,6 +470,101 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
     }
   }, [tokens, credentials]);
 
+  // Step result management functions (V2 features)
+  const saveStepResult = useCallback((stepId: string, result: any) => {
+    console.log('💾 [OIDC-V3] Saving step result:', { stepId, result });
+    setStepResults(prev => ({ ...prev, [stepId]: result }));
+    setCompletedSteps(prev => new Set([...prev, stepId]));
+    
+    // Persist to localStorage for session recovery
+    const persistKey = `oidc-v3-step-results`;
+    const persistData = { ...stepResults, [stepId]: result };
+    localStorage.setItem(persistKey, JSON.stringify(persistData));
+  }, [stepResults]);
+
+  const getStepResult = useCallback((stepId: string) => {
+    return stepResults[stepId];
+  }, [stepResults]);
+
+  const hasStepResult = useCallback((stepId: string) => {
+    return stepId in stepResults && completedSteps.has(stepId);
+  }, [stepResults, completedSteps]);
+
+  const clearStepResults = useCallback(() => {
+    console.log('🧹 [OIDC-V3] Clearing all step results');
+    setStepResults({});
+    setCompletedSteps(new Set());
+    localStorage.removeItem('oidc-v3-step-results');
+  }, []);
+
+  // Load persisted step results on mount
+  React.useEffect(() => {
+    const persistKey = `oidc-v3-step-results`;
+    const persistedResults = localStorage.getItem(persistKey);
+    if (persistedResults) {
+      try {
+        const results = JSON.parse(persistedResults);
+        setStepResults(results);
+        setCompletedSteps(new Set(Object.keys(results)));
+        console.log('📂 [OIDC-V3] Loaded persisted step results:', results);
+      } catch (error) {
+        console.error('❌ [OIDC-V3] Failed to load persisted step results:', error);
+      }
+    }
+  }, []);
+
+  // Reset functionality (V2 features)
+  const handleReset = useCallback(() => {
+    console.log('🔄 [OIDC-V3] Resetting entire flow');
+    
+    // Reset all state
+    setAuthCode('');
+    setTokens(null);
+    setUserInfo(null);
+    setAuthUrl('');
+    setPkceCodes({ codeVerifier: '', codeChallenge: '' });
+    setIsExchangingTokens(false);
+    setIsGettingUserInfo(false);
+    setIsAuthorizing(false);
+    
+    // Clear step results
+    clearStepResults();
+    
+    // Reset step manager
+    stepManager.setStep(0, 'flow reset');
+    
+    // Clear session storage
+    sessionStorage.removeItem('oauth_state');
+    sessionStorage.removeItem('oauth_nonce');
+    sessionStorage.removeItem('oidc-v3-flow-state');
+    
+    // Close modal
+    setShowResetModal(false);
+    
+    showFlowSuccess('🔄 Flow reset successfully');
+  }, [clearStepResults, stepManager, setPkceCodes]);
+
+  const handleClearCredentials = useCallback(() => {
+    console.log('🧹 [OIDC-V3] Clearing credentials');
+    
+    // Clear credentials
+    setCredentials({
+      clientId: '',
+      clientSecret: '',
+      environmentId: '',
+      redirectUri: '',
+      scopes: ''
+    });
+    
+    // Clear from storage
+    credentialManager.clearAuthzFlowCredentials();
+    
+    // Close modal
+    setShowClearCredentialsModal(false);
+    
+    showFlowSuccess('🧹 Credentials cleared successfully');
+  }, [setCredentials]);
+
   // Popup authorization handler (V2 feature)
   const handlePopupAuthorization = useCallback(() => {
     if (!authUrl) {
@@ -478,20 +662,28 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
     window.location.href = authUrl;
   }, [authUrl, credentials, pkceCodes, flowConfig]);
 
-  // Create steps using reusable components with dynamic canExecute
+  // Create steps using reusable components with dynamic canExecute and step tracking
   const steps = React.useMemo(() => [
     {
-      ...createCredentialsStep(credentials, setCredentials, saveCredentials, 'OIDC Authorization Code Flow'),
+      ...createCredentialsStep(credentials, setCredentials, async () => {
+        await saveCredentials();
+        saveStepResult('setup-credentials', { credentials, timestamp: Date.now() });
+      }, 'OIDC Authorization Code Flow'),
       canExecute: Boolean(
         credentials.environmentId &&
         credentials.clientId &&
         credentials.clientSecret &&
         credentials.redirectUri
-      )
+      ),
+      completed: hasStepResult('setup-credentials')
     },
     {
-      ...createPKCEStep(pkceCodes, setPkceCodes, generatePKCE),
-      canExecute: Boolean(credentials.environmentId && credentials.clientId)
+      ...createPKCEStep(pkceCodes, setPkceCodes, async () => {
+        await generatePKCE();
+        saveStepResult('generate-pkce', { pkceCodes, timestamp: Date.now() });
+      }),
+      canExecute: Boolean(credentials.environmentId && credentials.clientId),
+      completed: hasStepResult('generate-pkce')
     },
     {
       ...createAuthUrlStep(authUrl, generateAuthUrl, credentials, pkceCodes, handlePopupAuthorization, handleFullRedirectAuthorization, isAuthorizing),
@@ -501,15 +693,24 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
         credentials.redirectUri &&
         pkceCodes.codeVerifier &&
         pkceCodes.codeChallenge
-      )
+      ),
+      completed: hasStepResult('build-auth-url')
     },
     {
-      ...createTokenExchangeStep(authCode, tokens, exchangeTokens, credentials, isExchangingTokens),
-      canExecute: Boolean(authCode && credentials.environmentId && credentials.clientId)
+      ...createTokenExchangeStep(authCode, tokens, async () => {
+        await exchangeTokens();
+        saveStepResult('exchange-tokens', { tokens, authCode, timestamp: Date.now() });
+      }, credentials, isExchangingTokens),
+      canExecute: Boolean(authCode && credentials.environmentId && credentials.clientId),
+      completed: hasStepResult('exchange-tokens')
     },
     {
-      ...createUserInfoStep(tokens, userInfo, getUserInfo, isGettingUserInfo),
-      canExecute: Boolean(tokens?.access_token)
+      ...createUserInfoStep(tokens, userInfo, async () => {
+        await getUserInfo();
+        saveStepResult('get-user-info', { userInfo, timestamp: Date.now() });
+      }, isGettingUserInfo),
+      canExecute: Boolean(tokens?.access_token),
+      completed: hasStepResult('get-user-info')
     }
   ], [
     credentials, 
@@ -522,7 +723,14 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
     isGettingUserInfo, 
     isAuthorizing,
     handlePopupAuthorization,
-    handleFullRedirectAuthorization
+    handleFullRedirectAuthorization,
+    saveCredentials,
+    generatePKCE,
+    generateAuthUrl,
+    exchangeTokens,
+    getUserInfo,
+    saveStepResult,
+    hasStepResult
   ]);
 
   return (
@@ -587,6 +795,55 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
           );
         })()}
 
+        {/* Callback URL Display - V2 Feature */}
+        <div style={{ marginBottom: '2rem' }}>
+          <CallbackUrlDisplay 
+            flowType="authorization-code"
+            baseUrl={window.location.origin}
+            defaultExpanded={false}
+          />
+        </div>
+
+        {/* Reset and Clear Functionality - V2 Features */}
+        <div style={{ 
+          marginBottom: '2rem', 
+          display: 'flex', 
+          gap: '1rem', 
+          justifyContent: 'flex-end',
+          flexWrap: 'wrap'
+        }}>
+          <button
+            onClick={() => setShowClearCredentialsModal(true)}
+            style={{
+              padding: '0.5rem 1rem',
+              backgroundColor: '#f59e0b',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '0.875rem',
+              fontWeight: '500'
+            }}
+          >
+            🧹 Clear Credentials
+          </button>
+          <button
+            onClick={() => setShowResetModal(true)}
+            style={{
+              padding: '0.5rem 1rem',
+              backgroundColor: '#ef4444',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '0.875rem',
+              fontWeight: '500'
+            }}
+          >
+            🔄 Reset Flow
+          </button>
+        </div>
+
         <EnhancedStepFlowV2
           key={`oidc-authz-${stepManager.currentStepIndex}-${authCode ? 'with-code' : 'no-code'}`}
           steps={steps}
@@ -607,6 +864,127 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
       </div>
       
       <CentralizedSuccessMessage position="bottom" />
+
+      {/* Reset Confirmation Modal */}
+      {showResetModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '2rem',
+            borderRadius: '8px',
+            maxWidth: '400px',
+            width: '90%'
+          }}>
+            <h3 style={{ marginTop: 0, color: '#ef4444' }}>🔄 Reset Flow</h3>
+            <p>Are you sure you want to reset the entire flow? This will:</p>
+            <ul>
+              <li>Clear all step progress and results</li>
+              <li>Remove authorization codes and tokens</li>
+              <li>Reset to step 1</li>
+              <li>Keep your saved credentials</li>
+            </ul>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '2rem' }}>
+              <button
+                onClick={() => setShowResetModal(false)}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#6b7280',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleReset}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#ef4444',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                Reset Flow
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Clear Credentials Confirmation Modal */}
+      {showClearCredentialsModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '2rem',
+            borderRadius: '8px',
+            maxWidth: '400px',
+            width: '90%'
+          }}>
+            <h3 style={{ marginTop: 0, color: '#f59e0b' }}>🧹 Clear Credentials</h3>
+            <p>Are you sure you want to clear all saved credentials? This will:</p>
+            <ul>
+              <li>Remove Environment ID, Client ID, and Client Secret</li>
+              <li>Clear redirect URI and scopes</li>
+              <li>Require re-entering credentials for future use</li>
+            </ul>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '2rem' }}>
+              <button
+                onClick={() => setShowClearCredentialsModal(false)}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#6b7280',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleClearCredentials}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#f59e0b',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                Clear Credentials
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
