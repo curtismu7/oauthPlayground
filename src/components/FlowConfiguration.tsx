@@ -322,6 +322,7 @@ export interface FlowConfig {
   showSuccessModal: boolean;
   showAuthCodeInModal: boolean;
   showCredentialsModal: boolean;
+  enableErrorRecovery: boolean;
 }
 
 interface FlowConfigurationProps {
@@ -813,6 +814,21 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
               </label>
               <div id="success-modal-help" style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>
                 Display a modal with authorization success details when returning from PingOne
+              </div>
+            </ConfigField>
+            
+            <ConfigField>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={config.enableErrorRecovery || true}
+                  onChange={(e) => updateConfig({ enableErrorRecovery: e.target.checked })}
+                  aria-describedby="error-recovery-help"
+                />
+                Enable Error Recovery Suggestions
+              </label>
+              <div id="error-recovery-help" style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                Show detailed error recovery suggestions and troubleshooting steps when OAuth errors occur
               </div>
             </ConfigField>
             
