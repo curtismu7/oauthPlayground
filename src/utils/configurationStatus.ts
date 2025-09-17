@@ -41,15 +41,8 @@ export const checkSavedCredentials = (): boolean => {
       }
     }
 
-    // Check for any OAuth tokens as indicator
-    const tokens = localStorage.getItem('oauth_tokens');
-    if (tokens) {
-      const tokenData = JSON.parse(tokens);
-      if (tokenData?.access_token || tokenData?.id_token) {
-        return true;
-      }
-    }
-
+    // Don't use tokens as an indicator of configuration
+    // Tokens can exist without proper environment configuration
     return false;
   } catch (error) {
     console.error('Error checking saved credentials:', error);
