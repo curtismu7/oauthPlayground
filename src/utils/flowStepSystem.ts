@@ -124,9 +124,11 @@ const getTokenExchangeStep = (flowType: string): number => {
   switch (flowType) {
     case 'authorization-code':
     case 'enhanced-authorization-code-v2':
-      return 5; // Exchange Code for Tokens
+      return 5; // Exchange Code for Tokens (7-step flow)
+    case 'oidc-authorization-code':
+      return 3; // Exchange Code for Tokens (5-step flow: Creds, PKCE, AuthURL, TokenExchange, UserInfo)
     case 'client-credentials':
-      return 2; // Get Client Credentials Token
+      return 1; // Get Client Credentials Token (2-step flow)
     case 'device-code':
       return 3; // Exchange Device Code for Tokens
     case 'implicit':
