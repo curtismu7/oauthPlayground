@@ -130,7 +130,7 @@ const StepProgressWrapper = styled.div`
   position: relative;
 `;
 
-const StepIndicator = styled.div<{ status: 'completed' | 'active' | 'pending' | 'error' }>`
+const StepIndicator = styled.div<{ $status: 'completed' | 'active' | 'pending' | 'error' }>`
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
@@ -148,7 +148,7 @@ const StepIndicator = styled.div<{ status: 'completed' | 'active' | 'pending' | 
   z-index: 2;
   
   ${props => {
-    switch (props.status) {
+    switch (props.$status) {
       case 'completed':
         return `
           background: #10b981;
@@ -945,7 +945,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
               return (
                 <React.Fragment key={step.id}>
                   <StepIndicator
-                    status={status}
+                    $status={status}
                     onClick={() => goToStep(index)}
                     title={`Step ${index + 1}: ${step.title}`}
                   >
@@ -1178,7 +1178,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
               return (
                 <React.Fragment key={`bottom-${step.id}`}>
                   <StepIndicator
-                    status={status}
+                    $status={status}
                     onClick={() => goToStep(index)}
                     title={`Step ${index + 1}: ${step.title}`}
                   >

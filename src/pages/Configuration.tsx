@@ -211,6 +211,7 @@ const Configuration = () => {
     codeChallengeMethod: 'S256',
     responseType: 'code',
     enableOIDC: true,
+    useGlobalConfig: false,
     showCredentialsModal: false,
     showSuccessModal: true,
     showUrlDetailsInStep4: true,
@@ -930,6 +931,24 @@ const Configuration = () => {
                 Enable OpenID Connect features like ID tokens and user information endpoints.
               </div>
             </FormGroup>
+
+            <FormGroup>
+              <div className="checkbox-container">
+                <input
+                  type="checkbox"
+                  id="useGlobalConfig"
+                  name="useGlobalConfig"
+                  checked={formData.useGlobalConfig || false}
+                  onChange={(e) => setFormData(prev => ({ ...prev, useGlobalConfig: e.target.checked }))}
+                />
+                <label htmlFor="useGlobalConfig">
+                  Use global config for credentials
+                </label>
+              </div>
+              <div className="form-text">
+                When enabled, all OAuth flows will use these Dashboard credentials instead of their individual flow-specific credentials. This simplifies credential management across all flows.
+              </div>
+            </FormGroup>
             
             <h3 style={{ 
               margin: '2rem 0 1.5rem', 
@@ -1045,7 +1064,7 @@ const Configuration = () => {
       </CollapsibleSection>
       
       <CollapsibleSection
-        title="Configuration Help"
+        title="PingOne Configuration Help"
         subtitle="How to set up your PingOne application"
         icon="❓"
         defaultCollapsed={true}
