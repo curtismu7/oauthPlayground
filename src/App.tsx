@@ -73,7 +73,7 @@ const AppContainer = styled.div`
 const MainContent = styled.main`
   flex: 1;
   padding: 1.5rem;
-  margin-left: 250px;
+  margin-left: 320px;
   margin-top: 80px;
   overflow-y: auto;
   transition: margin 0.3s ease;
