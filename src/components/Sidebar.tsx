@@ -416,6 +416,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             </SubmenuItem>
             <SubmenuItem 
               as="a" 
+              href="/test-reusable-step-system.html" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              onClick={onClose}
+            >
+              🧪 Reusable Step System Test Suite
+            </SubmenuItem>
+            <SubmenuItem 
+              as="a" 
               href="https://developer.pingidentity.com/en/tools/jwt-decoder.html" 
               target="_blank" 
               rel="noopener noreferrer"
