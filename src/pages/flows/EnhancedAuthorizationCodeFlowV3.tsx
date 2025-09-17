@@ -20,7 +20,7 @@ import { credentialManager } from '../../utils/credentialManager';
 import { FlowConfiguration, FlowConfig } from '../../components/FlowConfiguration';
 import { getDefaultConfig } from '../../utils/flowConfigDefaults';
 import { validateIdToken } from '../../utils/oauth';
-import { applyClientAuthentication } from '../../utils/clientAuthentication';
+import { applyClientAuthentication, getAuthMethodSecurityLevel } from '../../utils/clientAuthentication';
 
 const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
   const authContext = useAuth();
@@ -234,11 +234,15 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
         flowConfig.clientAuthMethod || 'client_secret_post'
       );
 
+      // Get security level information for current auth method
+      const securityInfo = getAuthMethodSecurityLevel(flowConfig.clientAuthMethod || 'client_secret_post');
+      
       console.log('🔄 [OIDC-V3] Exchanging tokens with advanced auth:', {
         endpoint: tokenEndpoint,
         clientId: credentials.clientId,
         grantType: flowConfig.grantType,
         authMethod: flowConfig.clientAuthMethod,
+        securityLevel: `${securityInfo.level} - ${securityInfo.description}`,
         hasCode: !!authCode,
         hasVerifier: !!pkceCodes.codeVerifier
       });
@@ -251,27 +255,59 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`Token exchange failed: ${response.status} ${errorText}`);
+        console.error('❌ [OIDC-V3] Token exchange failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorText
+        });
+        
+        // Provide more specific error messages (V2 feature)
+        if (errorText.includes('Invalid Grant') || errorText.includes('invalid_grant')) {
+          throw new Error('Authorization code has expired or been used already. Please start a new OAuth flow to get a fresh authorization code.');
+        } else if (errorText.includes('Client ID is required') || errorText.includes('invalid_client')) {
+          throw new Error('OAuth credentials are missing or invalid. Please check your client ID and secret.');
+        } else if (errorText.includes('invalid_request')) {
+          throw new Error('Invalid token request. Please check your OAuth configuration parameters.');
+        } else {
+          throw new Error(`Token exchange failed: ${response.status} ${errorText}`);
+        }
       }
 
       const tokenData = await response.json();
       console.log('✅ [OIDC-V3] Token exchange successful:', tokenData);
 
-      // OIDC ID Token validation (V2 feature)
+      // Enhanced OIDC ID Token validation (V2 feature)
       if (tokenData.id_token) {
         try {
           const nonce = sessionStorage.getItem('oauth_nonce');
-          await validateIdToken(
+          const validatedPayload = await validateIdToken(
             tokenData.id_token,
             credentials.clientId,
             `https://auth.pingone.com/${credentials.environmentId}`,
             nonce || undefined,
             flowConfig.maxAge || undefined
           );
-          console.log('✅ [OIDC-V3] ID token validation successful');
+          
+          // Log detailed validation results (V2 feature)
+          console.log('✅ [OIDC-V3] ID token validation successful with details:', {
+            issuer: validatedPayload.iss,
+            subject: validatedPayload.sub,
+            audience: validatedPayload.aud,
+            nonce: validatedPayload.nonce ? '✅ Validated' : 'Not present',
+            authTime: validatedPayload.auth_time ? '✅ Present' : 'Not present',
+            expiry: new Date(validatedPayload.exp * 1000).toISOString()
+          });
+          
+          // Clear the nonce after successful validation (prevent reuse)
+          if (nonce) {
+            sessionStorage.removeItem('oauth_nonce');
+            console.log('🔐 [OIDC-V3] Nonce cleared after successful validation');
+          }
+          
         } catch (validationError) {
-          console.warn('⚠️ [OIDC-V3] ID token validation failed:', validationError);
-          showFlowError(`⚠️ ID token validation warning: ${validationError.message}`);
+          console.error('❌ [OIDC-V3] ID token validation failed:', validationError);
+          showFlowError(`❌ OIDC Compliance Error: ${validationError.message}`);
+          // Don't throw here - let the flow continue with a warning
         }
       }
       
@@ -280,7 +316,17 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
       // Store tokens for other pages
       localStorage.setItem('oauth_tokens', JSON.stringify(tokenData));
       
-      showFlowSuccess('🔑 Tokens Exchanged Successfully with Advanced Validation');
+      // Enhanced success message with token details (V2 feature)
+      const tokenSummary = [
+        `✅ Access Token: ${tokenData.access_token ? 'Received' : 'Missing'}`,
+        `✅ Refresh Token: ${tokenData.refresh_token ? 'Received' : 'Missing'}`,
+        `✅ ID Token: ${tokenData.id_token ? 'Received' : 'Missing'}`,
+        `⏱️ Expires In: ${tokenData.expires_in ? `${tokenData.expires_in} seconds` : 'Unknown'}`,
+        `🔐 Token Type: ${tokenData.token_type || 'Bearer'}`,
+        `🎯 Scope: ${tokenData.scope || 'Not specified'}`
+      ].join('\n');
+      
+      showFlowSuccess(`🔑 Tokens Exchanged Successfully with Advanced Validation\n\n${tokenSummary}`);
     } catch (error) {
       console.error('❌ [OIDC-V3] Token exchange failed:', error);
       showFlowError(`❌ Token exchange failed: ${error.message}`);
@@ -355,6 +401,52 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
             subtitle="Configure advanced OIDC parameters, client authentication, and custom options"
           />
         </div>
+
+        {/* Security Warning Panel - V2 Feature */}
+        {flowConfig.clientAuthMethod && (() => {
+          const securityInfo = getAuthMethodSecurityLevel(flowConfig.clientAuthMethod);
+          const isLowSecurity = securityInfo.level === 'Low' || securityInfo.level === 'Medium';
+          
+          return (
+            <div style={{ 
+              marginBottom: '2rem',
+              padding: '1rem',
+              borderRadius: '8px',
+              border: `2px solid ${isLowSecurity ? '#f59e0b' : '#10b981'}`,
+              backgroundColor: isLowSecurity ? '#fef3c7' : '#d1fae5'
+            }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '0.5rem',
+                marginBottom: '0.5rem',
+                fontWeight: 'bold',
+                color: isLowSecurity ? '#92400e' : '#065f46'
+              }}>
+                <span style={{ fontSize: '1.2em' }}>{securityInfo.icon}</span>
+                Security Level: {securityInfo.level}
+              </div>
+              <div style={{ 
+                color: isLowSecurity ? '#92400e' : '#065f46',
+                fontSize: '0.9em'
+              }}>
+                {securityInfo.description}
+              </div>
+              {isLowSecurity && (
+                <div style={{ 
+                  marginTop: '0.5rem',
+                  padding: '0.5rem',
+                  backgroundColor: '#fed7aa',
+                  borderRadius: '4px',
+                  fontSize: '0.85em',
+                  color: '#9a3412'
+                }}>
+                  ⚠️ <strong>Security Recommendation:</strong> Consider using 'client_secret_jwt' or 'private_key_jwt' for production environments.
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         <EnhancedStepFlowV2
           key={`oidc-authz-${stepManager.currentStepIndex}-${authCode ? 'with-code' : 'no-code'}`}
