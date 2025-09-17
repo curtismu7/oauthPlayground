@@ -272,13 +272,38 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
       const redirectUri = getCallbackUrlForFlow('authorization-code');
       console.log('🔧 [OIDC-V3] Using dynamic callback URL:', redirectUri);
 
+      // Handle scopes properly - V2 compatibility fix
+      const scopes = flowConfig.scopes && flowConfig.scopes.length > 0 
+        ? flowConfig.scopes.join(' ') 
+        : (credentials.scopes || 'openid profile email');
+      
+      console.log('🔧 [OIDC-V3] Using scopes:', scopes);
+      
+      // Validate required parameters BEFORE building URL (V2 feature)
+      if (!credentials.clientId) {
+        throw new Error('Client ID is required. Please configure your credentials first.');
+      }
+      if (!credentials.environmentId) {
+        throw new Error('Environment ID is required. Please configure your credentials first.');
+      }
+      if (!redirectUri) {
+        throw new Error('Redirect URI is required');
+      }
+      if (!scopes || scopes.trim() === '') {
+        throw new Error('At least one scope must be specified');
+      }
+
+      // Generate state for CSRF protection
+      const generatedState = flowConfig.state || generateCodeVerifier().substring(0, 32);
+      sessionStorage.setItem('oauth_state', generatedState);
+
       // Base parameters
       const params = new URLSearchParams({
         response_type: flowConfig.responseType || 'code',
         client_id: credentials.clientId,
         redirect_uri: redirectUri,
-        scope: flowConfig.scopes || credentials.scopes,
-        state: flowConfig.state || generateCodeVerifier().substring(0, 32),
+        scope: scopes,
+        state: generatedState,
         code_challenge: pkceCodes.codeChallenge,
         code_challenge_method: 'S256'
       });
@@ -314,6 +339,19 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
       }
 
       const url = `${authEndpoint}?${params.toString()}`;
+      
+      console.log('✅ [OIDC-V3] Generated authorization URL with advanced parameters:', url);
+      console.log('🔧 [OIDC-V3] URL parameters breakdown:', {
+        response_type: params.get('response_type'),
+        client_id: params.get('client_id'),
+        redirect_uri: params.get('redirect_uri'),
+        scope: params.get('scope'),
+        state: params.get('state'),
+        code_challenge: params.get('code_challenge'),
+        code_challenge_method: params.get('code_challenge_method'),
+        nonce: params.get('nonce')
+      });
+      
       setAuthUrl(url);
       showFlowSuccess('🌐 Authorization URL Generated Successfully with Advanced Parameters');
     } catch (error) {
