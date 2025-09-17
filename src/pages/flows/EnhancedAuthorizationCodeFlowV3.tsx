@@ -23,6 +23,8 @@ import { validateIdToken } from '../../utils/oauth';
 import { applyClientAuthentication, getAuthMethodSecurityLevel } from '../../utils/clientAuthentication';
 import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
+import OAuthErrorHelper from '../../components/OAuthErrorHelper';
+import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
 
 const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
   const authContext = useAuth();
@@ -71,14 +73,24 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
       tokenType: tokenType
     });
     
-    // Handle authorization errors
+    // Handle authorization errors with enhanced error interpretation
     if (error) {
       console.error('❌ [OIDC-V3] Authorization error received:', {
         error,
         errorDescription,
         fullUrl: window.location.href
       });
-      showFlowError(`❌ Authorization failed: ${errorDescription || error}`);
+      
+      // Use enhanced error handling with PingOneErrorInterpreter
+      handleOAuthError({
+        error: error,
+        error_description: errorDescription,
+        details: {
+          fullUrl: window.location.href,
+          searchParams: Object.fromEntries(urlParams.entries()),
+          hashParams: Object.fromEntries(hashParams.entries())
+        }
+      }, 'authorization');
       return;
     }
     
@@ -93,7 +105,17 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
           received: state,
           expected: storedState
         });
-        showFlowError('❌ State parameter mismatch. Possible CSRF attack detected.');
+        
+        // Use enhanced error handling for CSRF protection
+        handleOAuthError({
+          error: 'invalid_state',
+          error_description: 'State parameter mismatch - possible CSRF attack detected',
+          details: {
+            receivedState: state,
+            expectedState: storedState,
+            securityIssue: 'CSRF_PROTECTION'
+          }
+        }, 'authorization');
         return;
       }
       
@@ -165,6 +187,10 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
   // Reset functionality with confirmation modals (V2 features)
   const [showResetModal, setShowResetModal] = useState(false);
   const [showClearCredentialsModal, setShowClearCredentialsModal] = useState(false);
+  
+  // Error handling state (V2 features)
+  const [currentError, setCurrentError] = useState<any>(null);
+  const [showErrorHelper, setShowErrorHelper] = useState(false);
 
   // Flow Configuration state - V2 feature integration
   const [flowConfig, setFlowConfig] = useState<FlowConfig>(() => getDefaultConfig('oidc-authorization-code'));
@@ -422,7 +448,9 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
       showFlowSuccess(`🔑 Tokens Exchanged Successfully with Advanced Validation\n\n${tokenSummary}`);
     } catch (error) {
       console.error('❌ [OIDC-V3] Token exchange failed:', error);
-      showFlowError(`❌ Token exchange failed: ${error.message}`);
+      
+      // Use enhanced error handling with context
+      handleOAuthError(error, 'token-exchange');
       throw error;
     } finally {
       setIsExchangingTokens(false);
@@ -564,6 +592,60 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
     
     showFlowSuccess('🧹 Credentials cleared successfully');
   }, [setCredentials]);
+
+  // Enhanced error handling with PingOneErrorInterpreter (V2 features)
+  const handleOAuthError = useCallback((error: any, context?: string) => {
+    console.error('❌ [OIDC-V3] OAuth error occurred:', { error, context });
+    
+    // Interpret the error using PingOneErrorInterpreter
+    let interpretedError;
+    try {
+      interpretedError = PingOneErrorInterpreter.interpret(error);
+      console.log('🔍 [OIDC-V3] Error interpreted:', interpretedError);
+    } catch (interpreterError) {
+      console.error('❌ [OIDC-V3] Error interpreter failed:', interpreterError);
+      // Fallback error interpretation
+      interpretedError = {
+        title: 'OAuth Error',
+        message: error?.error_description || error?.message || String(error),
+        suggestion: 'Please check your configuration and try again.',
+        technicalDetails: JSON.stringify(error, null, 2),
+        severity: 'error' as const,
+        category: 'authentication' as const
+      };
+    }
+    
+    // Only show detailed error recovery if enabled in settings
+    if (flowConfig.enableErrorRecovery) {
+      // Set error state for OAuthErrorHelper display
+      setCurrentError({
+        ...interpretedError,
+        originalError: error,
+        context: context
+      });
+      setShowErrorHelper(true);
+    }
+    
+    // Always show basic error in centralized message system
+    showFlowError(`${interpretedError.title}: ${interpretedError.message}`);
+  }, []);
+
+  const dismissError = useCallback(() => {
+    setCurrentError(null);
+    setShowErrorHelper(false);
+  }, []);
+
+  const retryAfterError = useCallback(() => {
+    dismissError();
+    // Reset to appropriate step based on error context
+    if (currentError?.context === 'token-exchange') {
+      stepManager.setStep(3, 'retry after error');
+    } else if (currentError?.context === 'authorization') {
+      stepManager.setStep(2, 'retry after error');
+    } else {
+      stepManager.setStep(0, 'retry after error');
+    }
+  }, [currentError, stepManager, dismissError]);
 
   // Popup authorization handler (V2 feature)
   const handlePopupAuthorization = useCallback(() => {
@@ -982,6 +1064,44 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
                 Clear Credentials
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* OAuthErrorHelper - V2 Feature */}
+      {showErrorHelper && currentError && flowConfig.enableErrorRecovery && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '1rem'
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            maxWidth: '800px',
+            width: '100%',
+            maxHeight: '80vh',
+            overflow: 'auto'
+          }}>
+            <OAuthErrorHelper
+              error={currentError.originalError?.error || 'oauth_error'}
+              errorDescription={currentError.message}
+              correlationId={currentError.originalError?.correlation_id}
+              onRetry={retryAfterError}
+              onGoToConfig={() => {
+                dismissError();
+                window.location.href = '/configuration';
+              }}
+              onDismiss={dismissError}
+            />
           </div>
         </div>
       )}
