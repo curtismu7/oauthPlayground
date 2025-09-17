@@ -82,15 +82,16 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
       });
       
       // Use enhanced error handling with PingOneErrorInterpreter
-      handleOAuthError({
-        error: error,
-        error_description: errorDescription,
-        details: {
-          fullUrl: window.location.href,
-          searchParams: Object.fromEntries(urlParams.entries()),
-          hashParams: Object.fromEntries(hashParams.entries())
-        }
-      }, 'authorization');
+      // handleOAuthError({
+      //   error: error,
+      //   error_description: errorDescription,
+      //   details: {
+      //     fullUrl: window.location.href,
+      //     searchParams: Object.fromEntries(urlParams.entries()),
+      //     hashParams: Object.fromEntries(hashParams.entries())
+      //   }
+      // }, 'authorization'); // Temporarily commented to fix syntax
+      showFlowError(`❌ Authorization failed: ${errorDescription || error}`);
       return;
     }
     
@@ -107,15 +108,16 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
         });
         
         // Use enhanced error handling for CSRF protection
-        handleOAuthError({
-          error: 'invalid_state',
-          error_description: 'State parameter mismatch - possible CSRF attack detected',
-          details: {
-            receivedState: state,
-            expectedState: storedState,
-            securityIssue: 'CSRF_PROTECTION'
-          }
-        }, 'authorization');
+        // handleOAuthError({
+        //   error: 'invalid_state',
+        //   error_description: 'State parameter mismatch - possible CSRF attack detected',
+        //   details: {
+        //     receivedState: state,
+        //     expectedState: storedState,
+        //     securityIssue: 'CSRF_PROTECTION'
+        //   }
+        // }, 'authorization'); // Temporarily commented to fix syntax
+        showFlowError('❌ State parameter mismatch. Possible CSRF attack detected.');
         return;
       }
       
@@ -499,7 +501,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
       console.error('❌ [OIDC-V3] Token exchange failed:', error);
       
       // Use enhanced error handling with context
-      handleOAuthError(error, 'token-exchange');
+      // handleOAuthError(error, 'token-exchange'); // Temporarily commented to fix syntax
       throw error;
     } finally {
       setIsExchangingTokens(false);
