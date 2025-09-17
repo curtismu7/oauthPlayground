@@ -31,6 +31,7 @@ import HybridFlow from './pages/flows/HybridFlow';
 import AuthorizationCodeFlow from './pages/flows/AuthorizationCodeFlow';
 import EnhancedAuthorizationCodeFlow from './pages/flows/EnhancedAuthorizationCodeFlow';
 import EnhancedAuthorizationCodeFlowV2 from './pages/flows/EnhancedAuthorizationCodeFlowV2';
+import EnhancedAuthorizationCodeFlowV3 from './pages/flows/EnhancedAuthorizationCodeFlowV3';
 import JWTBearerFlow from './pages/flows/JWTBearerFlow';
 import UserInfoFlow from './pages/flows/UserInfoFlow';
 import IDTokensFlow from './pages/flows/IDTokensFlow';
@@ -221,6 +222,7 @@ const AppRoutes = () => {
             <Route path="/flows/authorization-code" element={<AuthorizationCodeFlow />} />
             <Route path="/flows/enhanced-authorization-code" element={<EnhancedAuthorizationCodeFlow />} />
             <Route path="/flows/enhanced-authorization-code-v2" element={<EnhancedAuthorizationCodeFlowV2 />} />
+            <Route path="/flows/enhanced-authorization-code-v3" element={<EnhancedAuthorizationCodeFlowV3 />} />
             <Route path="/flows/resource-owner-password" element={<ResourceOwnerPasswordFlow />} />
             
             <Route path="/flows-old" element={<Flows />}>
