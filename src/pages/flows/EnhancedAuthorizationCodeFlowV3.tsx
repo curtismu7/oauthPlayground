@@ -335,12 +335,12 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
       if (flowConfig.customParams) {
         Object.entries(flowConfig.customParams).forEach(([key, value]) => {
           if (value) {
-            params.set(key, value);
+            params.set(key, String(value));
           }
         });
       }
 
-      const url = `${authEndpoint}?${params.toString()}`;
+      const url = authEndpoint + '?' + params.toString();
       
       console.log('✅ [OIDC-V3] Generated authorization URL with advanced parameters:', url);
       console.log('🔧 [OIDC-V3] URL parameters breakdown:', {
@@ -411,17 +411,17 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
       
       const authenticatedRequest = await applyClientAuthentication(authConfig, baseBody);
 
-      console.log('🔄 [OIDC-V3] Using V2's backend API approach:', {
-        backendUrl: `${backendUrl}/api/token-exchange`,
+      console.log('🔄 [OIDC-V3] Using V2s backend API approach:', {
+        backendUrl: backendUrl + '/api/token-exchange',
         grantType: requestBody.grant_type,
-        clientId: requestBody.client_id?.substring(0, 8) + '...',
+        clientId: requestBody.client_id ? requestBody.client_id.substring(0, 8) + '...' : 'none',
         hasCode: !!requestBody.code,
         hasVerifier: !!requestBody.code_verifier,
         authMethod: flowConfig.clientAuthMethod
       });
 
       // Use V2's exact backend API call
-      const response = await fetch(`${backendUrl}/api/token-exchange`, {
+      const response = await fetch(backendUrl + '/api/token-exchange', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -636,7 +636,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
     });
     
     // Clear from storage
-    credentialManager.clearAuthzFlowCredentials();
+    credentialManager.clearAllCredentials();
     
     // Close modal
     setShowClearCredentialsModal(false);
