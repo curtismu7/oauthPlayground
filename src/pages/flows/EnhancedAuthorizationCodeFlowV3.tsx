@@ -27,6 +27,7 @@ import OAuthErrorHelper from '../../components/OAuthErrorHelper';
 import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
 import { safeJsonParse, safeLocalStorageParse } from '../../utils/secureJson';
 import { validateOIDCCompliance, generateComplianceReport, validateIdTokenCompliance } from '../../utils/oidcCompliance';
+import EnhancedErrorRecovery from '../../utils/errorRecovery';
 
 const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
   const authContext = useAuth();
@@ -195,6 +196,15 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
   // Error handling state (V2 features)
   const [currentError, setCurrentError] = useState<Record<string, unknown> | null>(null);
   const [showErrorHelper, setShowErrorHelper] = useState(false);
+  
+  // Enhanced error recovery system
+  const [errorRecovery] = useState(() => new EnhancedErrorRecovery({
+    maxRetries: 3,
+    baseDelay: 1000,
+    enableAutoRetry: true,
+    enableUserPrompts: true
+  }));
+  const [recoveryActions, setRecoveryActions] = useState<any[]>([]);
 
   // Flow Configuration state - V2 feature integration
   const [flowConfig, setFlowConfig] = useState<FlowConfig>(() => getDefaultConfig('oidc-authorization-code'));
@@ -440,8 +450,11 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
           error: errorData
         });
         
-        // Use enhanced error handling
-        handleOAuthError(errorData, 'token-exchange');
+        // Use enhanced error handling with retry capability
+        await handleOAuthError(errorData, 'token-exchange', async () => {
+          // Retry the token exchange
+          await exchangeTokens();
+        });
         throw new Error(`Token exchange failed: ${response.status} ${errorData.message || response.statusText}`);
       }
 
@@ -562,7 +575,12 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
       showFlowSuccess('👤 User Information Retrieved Successfully');
     } catch (error) {
       console.error('❌ [OIDC-V3] UserInfo request failed:', error);
-      showFlowError(`❌ Failed to get user information: ${error.message}`);
+      
+      // Use enhanced error handling with retry capability
+      await handleOAuthError(error, 'userinfo', async () => {
+        // Retry the UserInfo request
+        await getUserInfo();
+      });
       throw error;
     } finally {
       setIsGettingUserInfo(false);
@@ -666,9 +684,31 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
     showFlowSuccess('🧹 Credentials cleared successfully');
   }, [setCredentials]);
 
-  // Enhanced error handling with PingOneErrorInterpreter (V2 features)
-  const handleOAuthError = useCallback((error: unknown, context?: string) => {
+  // Enhanced error handling with PingOneErrorInterpreter and recovery system
+  const handleOAuthError = useCallback(async (error: unknown, context?: string, retryFunction?: () => Promise<void>) => {
     console.error('❌ [OIDC-V3] OAuth error occurred:', { error, context });
+    
+    // Create error context for recovery system
+    const errorContext = {
+      operation: context || 'unknown',
+      step: stepManager.currentStepIndex.toString(),
+      flow: 'oidc-authorization-code-v3',
+      timestamp: Date.now(),
+      userAgent: navigator.userAgent,
+      url: window.location.href,
+      credentials: {
+        hasClientId: !!credentials.clientId,
+        hasClientSecret: !!credentials.clientSecret,
+        hasEnvironmentId: !!credentials.environmentId
+      }
+    };
+
+    // Use enhanced error recovery system
+    await errorRecovery.handleError(error, errorContext, retryFunction);
+    
+    // Get recovery actions
+    const actions = errorRecovery.getRecoveryActions();
+    setRecoveryActions(actions);
     
     // Interpret the error using PingOneErrorInterpreter
     let interpretedError;
@@ -680,7 +720,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
       // Fallback error interpretation
       interpretedError = {
         title: 'OAuth Error',
-        message: error?.error_description || error?.message || String(error),
+        message: (error as any)?.error_description || (error as any)?.message || String(error),
         suggestion: 'Please check your configuration and try again.',
         technicalDetails: JSON.stringify(error, null, 2),
         severity: 'error' as const,
@@ -694,14 +734,15 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
       setCurrentError({
         ...interpretedError,
         originalError: error,
-        context: context
+        context: context,
+        recoveryActions: actions
       });
       setShowErrorHelper(true);
     }
     
     // Always show basic error in centralized message system
     showFlowError(`${interpretedError.title}: ${interpretedError.message}`);
-  }, []);
+  }, [stepManager, credentials, flowConfig.enableErrorRecovery, errorRecovery]);
 
   const dismissError = useCallback(() => {
     setCurrentError(null);
@@ -1059,6 +1100,68 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
             🔄 Reset Flow
           </button>
         </div>
+
+        {/* Enhanced Error Recovery Panel */}
+        {recoveryActions.length > 0 && (
+          <div style={{ 
+            marginBottom: '2rem',
+            padding: '1rem',
+            borderRadius: '8px',
+            border: '2px solid #f59e0b',
+            backgroundColor: '#fef3c7'
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.5rem',
+              marginBottom: '1rem',
+              fontWeight: 'bold',
+              color: '#92400e'
+            }}>
+              <span style={{ fontSize: '1.2em' }}>🛠️</span>
+              Error Recovery Actions Available
+            </div>
+            
+            <div style={{ display: 'grid', gap: '0.5rem' }}>
+              {recoveryActions.slice(0, 3).map((action) => (
+                <button
+                  key={action.id}
+                  onClick={action.action}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.75rem',
+                    backgroundColor: action.priority === 'high' ? '#ef4444' : action.priority === 'medium' ? '#f59e0b' : '#6b7280',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '0.875rem',
+                    fontWeight: '500'
+                  }}
+                >
+                  <span>{action.icon}</span>
+                  <div style={{ textAlign: 'left' }}>
+                    <div style={{ fontWeight: 'bold' }}>{action.label}</div>
+                    <div style={{ fontSize: '0.75rem', opacity: 0.9 }}>{action.description}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+            
+            {recoveryActions.length > 3 && (
+              <div style={{ 
+                marginTop: '0.5rem', 
+                fontSize: '0.75rem', 
+                color: '#92400e',
+                textAlign: 'center'
+              }}>
+                +{recoveryActions.length - 3} more recovery options available in error details
+              </div>
+            )}
+          </div>
+        )}
 
         <EnhancedStepFlowV2
           key={`oidc-authz-${stepManager.currentStepIndex}-${authCode ? 'with-code' : 'no-code'}`}
