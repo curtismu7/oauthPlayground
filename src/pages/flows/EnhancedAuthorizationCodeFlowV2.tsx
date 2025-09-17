@@ -613,6 +613,8 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
   const [isResetting, setIsResetting] = useState(false);
   const [showClearCredentialsModal, setShowClearCredentialsModal] = useState(false);
   const [isClearingCredentials, setIsClearingCredentials] = useState(false);
+  const [justReset, setJustReset] = useState(false);
+  const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
 
   // Update step message (keeping simple for compatibility)
   const updateStepMessage = useCallback((stepId: string, message: string) => {
@@ -718,14 +720,14 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       console.log('✅ [EnhancedAuthorizationCodeFlowV2] Flow reset completed (credentials preserved)');
       
       // Show centralized success message
-      showFlowSuccess('✅ Flow Reset', 'Flow has been reset successfully. Your credentials are preserved.');
+      showFlowSuccess('✅ Flow Reset - Flow has been reset successfully. Your credentials are preserved.');
       
       // Clear reset flag after short delay
       setTimeout(() => setJustReset(false), 1000);
       
     } catch (error) {
       console.error('❌ [EnhancedAuthorizationCodeFlowV2] Error resetting flow:', error);
-      showFlowError('❌ Reset Failed', 'Failed to reset flow. Please try again.');
+      showFlowError('❌ Reset Failed - Failed to reset flow. Please try again.');
     } finally {
       setIsResetting(false);
       setShowResetModal(false);
