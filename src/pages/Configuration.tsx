@@ -1061,9 +1061,97 @@ const Configuration = () => {
             <strong>Features:</strong> ID tokens, UserInfo endpoint, PKCE security
           </p>
         </div>
-        {/* Placeholder for OIDC AuthZ Code credentials form */}
-        <div style={{ padding: '2rem', textAlign: 'center', color: '#6c757d', backgroundColor: '#f8f9fa', borderRadius: '0.5rem' }}>
-          🚧 Flow-specific credential configuration coming soon...
+        {/* OIDC Authorization Code Flow Credentials */}
+        <FormGroup>
+          <label htmlFor="oidc-authz-environmentId">Environment ID (OIDC AuthZ)</label>
+          <input
+            type="text"
+            id="oidc-authz-environmentId"
+            name="oidc-authz-environmentId"
+            placeholder="Override global environment ID for OIDC Authorization Code Flow"
+            style={{ 
+              width: '100%',
+              padding: '0.5rem 0.75rem',
+              fontSize: '1rem',
+              border: '1px solid #e5e7eb',
+              borderRadius: '0.375rem'
+            }}
+          />
+          <div className="form-text">
+            Leave empty to use global configuration. Specific to Enhanced Authorization Code Flow V2 & V3.
+          </div>
+        </FormGroup>
+
+        <FormGroup>
+          <label htmlFor="oidc-authz-clientId">Client ID (OIDC AuthZ)</label>
+          <input
+            type="text"
+            id="oidc-authz-clientId"
+            name="oidc-authz-clientId"
+            placeholder="Override global client ID for OIDC Authorization Code Flow"
+            style={{ 
+              width: '100%',
+              padding: '0.5rem 0.75rem',
+              fontSize: '1rem',
+              border: '1px solid #e5e7eb',
+              borderRadius: '0.375rem'
+            }}
+          />
+          <div className="form-text">
+            Client ID specific to OIDC flows with ID token and UserInfo endpoint support.
+          </div>
+        </FormGroup>
+
+        <FormGroup>
+          <label htmlFor="oidc-authz-clientSecret">Client Secret (OIDC AuthZ)</label>
+          <input
+            type="password"
+            id="oidc-authz-clientSecret"
+            name="oidc-authz-clientSecret"
+            placeholder="Override global client secret for OIDC Authorization Code Flow"
+            style={{ 
+              width: '100%',
+              padding: '0.5rem 0.75rem',
+              fontSize: '1rem',
+              border: '1px solid #e5e7eb',
+              borderRadius: '0.375rem',
+              fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace'
+            }}
+          />
+          <div className="form-text">
+            Client secret for confidential OIDC clients. Leave empty for public clients or to use global config.
+          </div>
+        </FormGroup>
+
+        <FormGroup>
+          <label htmlFor="oidc-authz-scopes">Scopes (OIDC AuthZ)</label>
+          <input
+            type="text"
+            id="oidc-authz-scopes"
+            name="oidc-authz-scopes"
+            placeholder="openid profile email"
+            defaultValue="openid profile email"
+            style={{ 
+              width: '100%',
+              padding: '0.5rem 0.75rem',
+              fontSize: '1rem',
+              border: '1px solid #e5e7eb',
+              borderRadius: '0.375rem'
+            }}
+          />
+          <div className="form-text">
+            OIDC-specific scopes. Must include 'openid' for OpenID Connect features.
+          </div>
+        </FormGroup>
+
+        <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#e3f2fd', borderRadius: '0.5rem', border: '1px solid #bbdefb' }}>
+          <h4 style={{ margin: '0 0 0.5rem 0', color: '#1565c0' }}>💡 OIDC Flow Features</h4>
+          <ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem', fontSize: '0.9rem', color: '#1976d2' }}>
+            <li>ID Token validation and decoding</li>
+            <li>UserInfo endpoint integration</li>
+            <li>PKCE security by default</li>
+            <li>OpenID Connect Core 1.0 compliance</li>
+          </ul>
         </div>
       </CollapsibleSection>
 
@@ -1079,8 +1167,56 @@ const Configuration = () => {
             <strong>Features:</strong> Access tokens only, no ID tokens
           </p>
         </div>
-        <div style={{ padding: '2rem', textAlign: 'center', color: '#6c757d', backgroundColor: '#f8f9fa', borderRadius: '0.5rem' }}>
-          🚧 Flow-specific credential configuration coming soon...
+        {/* OAuth 2.0 Authorization Code Flow Credentials */}
+        <FormGroup>
+          <label htmlFor="oauth2-authz-clientId">Client ID (OAuth 2.0)</label>
+          <input
+            type="text"
+            id="oauth2-authz-clientId"
+            name="oauth2-authz-clientId"
+            placeholder="Client ID for pure OAuth 2.0 flows (no OIDC features)"
+            style={{ 
+              width: '100%',
+              padding: '0.5rem 0.75rem',
+              fontSize: '1rem',
+              border: '1px solid #e5e7eb',
+              borderRadius: '0.375rem'
+            }}
+          />
+          <div className="form-text">
+            OAuth 2.0 client ID for access token-only flows without ID tokens.
+          </div>
+        </FormGroup>
+
+        <FormGroup>
+          <label htmlFor="oauth2-authz-scopes">Scopes (OAuth 2.0)</label>
+          <input
+            type="text"
+            id="oauth2-authz-scopes"
+            name="oauth2-authz-scopes"
+            placeholder="profile email api:read"
+            defaultValue="profile email"
+            style={{ 
+              width: '100%',
+              padding: '0.5rem 0.75rem',
+              fontSize: '1rem',
+              border: '1px solid #e5e7eb',
+              borderRadius: '0.375rem'
+            }}
+          />
+          <div className="form-text">
+            OAuth 2.0 scopes (excludes 'openid' - no ID tokens in pure OAuth flows).
+          </div>
+        </FormGroup>
+
+        <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#f3e5f5', borderRadius: '0.5rem', border: '1px solid #ce93d8' }}>
+          <h4 style={{ margin: '0 0 0.5rem 0', color: '#7b1fa2' }}>🔒 OAuth 2.0 Features</h4>
+          <ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem', fontSize: '0.9rem', color: '#8e24aa' }}>
+            <li>Access tokens only (no ID tokens)</li>
+            <li>Resource server authorization</li>
+            <li>PKCE security support</li>
+            <li>Pure OAuth 2.0 specification compliance</li>
+          </ul>
         </div>
       </CollapsibleSection>
 
@@ -1096,8 +1232,77 @@ const Configuration = () => {
             <strong>Features:</strong> No user context, machine-to-machine
           </p>
         </div>
-        <div style={{ padding: '2rem', textAlign: 'center', color: '#6c757d', backgroundColor: '#f8f9fa', borderRadius: '0.5rem' }}>
-          🚧 Flow-specific credential configuration coming soon...
+        {/* Client Credentials Flow Configuration */}
+        <FormGroup>
+          <label htmlFor="client-creds-clientId">Client ID (Client Credentials)</label>
+          <input
+            type="text"
+            id="client-creds-clientId"
+            name="client-creds-clientId"
+            placeholder="Service account client ID for machine-to-machine authentication"
+            style={{ 
+              width: '100%',
+              padding: '0.5rem 0.75rem',
+              fontSize: '1rem',
+              border: '1px solid #e5e7eb',
+              borderRadius: '0.375rem'
+            }}
+          />
+          <div className="form-text">
+            Client ID for service-to-service authentication without user context.
+          </div>
+        </FormGroup>
+
+        <FormGroup>
+          <label htmlFor="client-creds-clientSecret">Client Secret (Required)</label>
+          <input
+            type="password"
+            id="client-creds-clientSecret"
+            name="client-creds-clientSecret"
+            placeholder="Service account client secret (required for client credentials flow)"
+            style={{ 
+              width: '100%',
+              padding: '0.5rem 0.75rem',
+              fontSize: '1rem',
+              border: '1px solid #e5e7eb',
+              borderRadius: '0.375rem',
+              fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace'
+            }}
+          />
+          <div className="form-text">
+            Client secret is required for Client Credentials flow - no user authentication involved.
+          </div>
+        </FormGroup>
+
+        <FormGroup>
+          <label htmlFor="client-creds-scopes">API Scopes</label>
+          <input
+            type="text"
+            id="client-creds-scopes"
+            name="client-creds-scopes"
+            placeholder="api:read api:write admin:users"
+            defaultValue="api:read api:write"
+            style={{ 
+              width: '100%',
+              padding: '0.5rem 0.75rem',
+              fontSize: '1rem',
+              border: '1px solid #e5e7eb',
+              borderRadius: '0.375rem'
+            }}
+          />
+          <div className="form-text">
+            API scopes for service access. No user-related scopes (profile, email, openid).
+          </div>
+        </FormGroup>
+
+        <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#e8f5e8', borderRadius: '0.5rem', border: '1px solid #a5d6a7' }}>
+          <h4 style={{ margin: '0 0 0.5rem 0', color: '#2e7d32' }}>🖥️ Service-to-Service Features</h4>
+          <ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem', fontSize: '0.9rem', color: '#388e3c' }}>
+            <li>No user interaction required</li>
+            <li>Machine-to-machine authentication</li>
+            <li>API access tokens only</li>
+            <li>Server-side applications and services</li>
+          </ul>
         </div>
       </CollapsibleSection>
 
