@@ -1006,19 +1006,11 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       setCurrentStepIndex(stepIndex);
       sessionStorage.setItem('enhanced-authz-code-v2-step', stepIndex.toString());
       
-      // Force component re-render by clearing and setting step again (multiple times to ensure it sticks)
+      // Force component re-render with a single timeout
       setTimeout(() => {
-        console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Force setting step to 5 again (1st attempt)');
+        console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Final step 5 setting after component initialization');
         setCurrentStepIndex(5);
-      }, 100);
-      setTimeout(() => {
-        console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Force setting step to 5 again (2nd attempt)');
-        setCurrentStepIndex(5);
-      }, 300);
-      setTimeout(() => {
-        console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Force setting step to 5 again (3rd attempt)');
-        setCurrentStepIndex(5);
-      }, 500);
+      }, 200);
       
       // Clear any old messages and set appropriate message for token exchange step
       updateStepMessage('exchange-tokens', '🔄 Ready to exchange authorization code for tokens. Click the "Exchange Tokens" button below.');
@@ -3179,8 +3171,16 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       </div>
     ),
       execute: async () => {
-        // This step just validates the callback and advances to token exchange
-        console.log('✅ [EnhancedAuthorizationCodeFlowV2] Handle Callback executed - advancing to token exchange');
+        // This step just validates the callback and automatically advances to token exchange
+        console.log('✅ [EnhancedAuthorizationCodeFlowV2] Handle Callback executed - auto-advancing to step 5');
+        
+        // Automatically advance to step 5
+        setTimeout(() => {
+          setCurrentStepIndex(5);
+          sessionStorage.setItem('enhanced-authz-code-v2-step', '5');
+          console.log('🚀 [EnhancedAuthorizationCodeFlowV2] Auto-advanced to step 5 (Exchange Tokens)');
+        }, 100);
+        
         return { success: true };
       },
       canExecute: (() => {
@@ -4044,8 +4044,15 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       initialStepIndex={currentStepIndex}
       onStepChange={useCallback((stepIndex) => {
         console.log('🔔 [EnhancedAuthorizationCodeFlowV2] Step changed to:', stepIndex);
+        
+        // Don't override if we just set step to 5 due to authorization code
+        if (authCode && stepIndex < 5) {
+          console.log('🚫 [EnhancedAuthorizationCodeFlowV2] Preventing step change to', stepIndex, '- have authCode, should stay on step 5');
+          return;
+        }
+        
         setCurrentStepIndex(stepIndex);
-      }, [])}
+      }, [authCode])}
       onStepComplete={useCallback((stepId, result) => {
         console.log('✅ [EnhancedAuthorizationCodeFlowV2] Step completed:', stepId, result);
         // The step completion is already handled by the EnhancedStepFlowV2 component
