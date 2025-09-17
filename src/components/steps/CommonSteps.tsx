@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { FiSettings, FiShield, FiGlobe, FiKey, FiUser, FiCheckCircle, FiCopy, FiRefreshCw } from 'react-icons/fi';
 import { EnhancedFlowStep } from '../EnhancedStepFlowV2';
 import { copyToClipboard } from '../../utils/clipboard';
+import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
 
 // Common styled components
 const FormField = styled.div`
