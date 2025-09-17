@@ -219,38 +219,25 @@ const DebugPanel: React.FC = () => {
         // FILTER: Only capture flow-specific errors and critical events
         const message = args.map(arg => String(arg)).join(' ');
         
-        // Only log if it's flow-related, error-related, or critical
+        // VERY STRICT FILTERING: Only show critical OAuth/OIDC flow events
         const shouldLog = 
           level === 'ERROR' || // Always log errors
-          message.includes('❌') || // Error indicators
-          message.includes('✅') && (message.includes('Token') || message.includes('Auth') || message.includes('PKCE') || message.includes('Exchange') || message.includes('User') || message.includes('Flow')) || // Success indicators for flows
-          message.includes('⚠️') || // Warning indicators
-          message.includes('CRITICAL') || // Critical messages
-          message.includes('Failed') || // Failure messages
-          message.includes('Error:') || // Error messages
-          message.includes('OAuth') || // OAuth-specific
-          message.includes('OIDC') || // OIDC-specific
-          message.includes('PingOne') || // PingOne-specific
+          message.includes('❌') && (message.includes('OAuth') || message.includes('OIDC') || message.includes('Token') || message.includes('Auth') || message.includes('PingOne')) || // OAuth/OIDC errors only
+          message.includes('✅') && (message.includes('Token') || message.includes('Auth') || message.includes('PKCE') || message.includes('Exchange') || message.includes('User')) || // Success indicators for flows only
+          message.includes('⚠️') && (message.includes('OAuth') || message.includes('OIDC') || message.includes('Token')) || // OAuth/OIDC warnings only
           message.includes('Token exchange') || // Token exchange events
           message.includes('ID token validation') || // ID token validation
-          message.includes('PKCE') || // PKCE events
-          message.includes('Nonce validation') || // Nonce validation
-          message.includes('Client authentication') || // Client auth events
-          message.includes('Authorization') || // Authorization flow events
-          message.includes('Redirect') || // Redirect events
-          message.includes('Callback') || // Callback events
-          message.includes('JWT') || // JWT events
-          message.includes('Bearer') || // Bearer token events
-          message.includes('Scope') || // Scope events
-          message.includes('UserInfo') || // UserInfo endpoint events
-          message.includes('Discovery') || // OIDC discovery events
-          message.includes('Credentials') || // Credential events
-          message.includes('Configuration') || // Configuration events
-          message.includes('Flow') || // General flow events
-          message.includes('Step') || // Step events
-          message.includes('Validation') || // Validation events
-          message.includes('Security') || // Security events
-          message.includes('Refresh token'); // Refresh token events
+          message.includes('Authorization code') || // Authorization code events
+          message.includes('Access token') || // Access token events
+          message.includes('Refresh token') || // Refresh token events
+          message.includes('UserInfo endpoint') || // UserInfo calls
+          message.includes('PingOne redirect') || // PingOne redirects
+          message.includes('PKCE codes') || // PKCE generation
+          message.includes('Client authentication') || // Client auth
+          message.includes('Popup closed without') || // Auth popup issues
+          message.includes('Authorization successful') || // Auth success
+          message.includes('Tokens exchanged') || // Token exchange success
+          message.includes('Failed to') && (message.includes('token') || message.includes('auth') || message.includes('OAuth')); // Specific failures
         
         if (shouldLog) {
           const filteredMessage = args.map(arg => {
