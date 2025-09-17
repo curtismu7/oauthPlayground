@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { 
   FiHome, FiCode, FiUser, FiSettings, FiSearch,
   FiChevronDown, FiBookOpen, FiEye, FiShield, FiUsers, FiDatabase, FiTool, FiCpu,
-  FiKey, FiZap, FiLock, FiSmartphone, FiServer, FiUnlock, FiPackage, FiGitBranch, FiBarChart3, FiExternalLink
+  FiKey, FiZap, FiLock, FiSmartphone, FiServer, FiUnlock, FiPackage, FiGitBranch, FiBarChart, FiExternalLink
 } from 'react-icons/fi';
 
 interface SidebarContainerProps {
@@ -29,7 +29,7 @@ const SidebarContainer = styled.aside<SidebarContainerProps>`
   top: 60px;
   left: 0;
   bottom: 0;
-  width: 250px;
+  width: 320px;
   background-color: white;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
   z-index: 900;
@@ -432,7 +432,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               Flow Comparison
             </SubmenuItem>
             <SubmenuItem to="/flows/diagrams" onClick={onClose}>
-              <FiBarChart3 />
+              <FiBarChart />
               Interactive Diagrams
             </SubmenuItem>
             <SubmenuItem 
