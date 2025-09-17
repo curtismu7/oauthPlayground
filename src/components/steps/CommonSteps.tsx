@@ -95,20 +95,23 @@ const CopyButton = styled.button`
 `;
 
 const TokenDisplay = styled.div`
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: #f0fdf4;
+  border: 2px solid #16a34a;
   border-radius: 6px;
   padding: 0.75rem;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.75rem;
   line-height: 1.4;
   word-break: break-all;
-  color: #374151;
+  color: #15803d;
   max-height: 120px;
   overflow-y: auto;
+  box-shadow: 0 1px 3px rgba(22, 163, 74, 0.1);
   
   &:hover {
-    border-color: #d1d5db;
+    border-color: #15803d;
+    background: #ecfdf5;
+    box-shadow: 0 2px 6px rgba(22, 163, 74, 0.15);
   }
 `;
 
@@ -339,7 +342,7 @@ export const createAuthUrlStep = (
               <FiCopy /> Copy
             </CopyButton>
           </div>
-          <TokenDisplay style={{ backgroundColor: '#f8fafc' }}>{authUrl}</TokenDisplay>
+          <TokenDisplay>{authUrl}</TokenDisplay>
         </FormField>
       )}
       
@@ -490,7 +493,7 @@ export const createTokenExchangeStep = (
             </CopyButton>
           </div>
           <FormField>
-            <TokenDisplay style={{ backgroundColor: '#f3f4f6' }}>{authCode}</TokenDisplay>
+            <TokenDisplay>{authCode}</TokenDisplay>
           </FormField>
         </div>
       )}
