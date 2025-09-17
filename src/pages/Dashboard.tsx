@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { Card, CardBody } from '../components/Card';
-import { FiCode, FiUser, FiSettings, FiInfo, FiCheckCircle, FiPlay, FiBook, FiShield, FiClock, FiActivity, FiRefreshCw, FiTool, FiKey, FiGlobe, FiEye, FiCopy } from 'react-icons/fi';
+import { FiCheckCircle, FiShield, FiClock, FiActivity, FiRefreshCw, FiKey, FiGlobe, FiCopy } from 'react-icons/fi';
 import { useAuth } from '../contexts/NewAuthContext';
 import { getRecentActivity } from '../utils/activityTracker';
-import { interpretPingOneError } from '../utils/pingoneErrorInterpreter';
-import { useTokenRefresh } from '../hooks/useTokenRefresh';
-import { TokenDebugger } from '../utils/tokenDebug';
 import { usePageScroll } from '../hooks/usePageScroll';
-import { checkSavedCredentials, getSharedConfigurationStatus } from '../utils/configurationStatus';
-import CentralizedSuccessMessage, { showFlowSuccess, showFlowError } from '../components/CentralizedSuccessMessage';
+import { useTokenRefresh } from '../hooks/useTokenRefresh';
+import { getSharedConfigurationStatus } from '../utils/configurationStatus';
+import CentralizedSuccessMessage, { showFlowSuccess } from '../components/CentralizedSuccessMessage';
 
 const DashboardContainer = styled.div`
   max-width: 1400px;
@@ -126,15 +123,7 @@ const StatLabel = styled.div`
   letter-spacing: 0.5px;
 `;
 
-const MainContent = styled.div`
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 2rem;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-`;
+// Removed unused MainContent styled component
 
 const ContentCard = styled.div<{ $shaded?: boolean }>`
   background: ${({ $shaded }) => $shaded ? 'linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%)' : '#ffffff'};
@@ -389,9 +378,8 @@ const Dashboard = () => {
   console.log('🔧 [Dashboard] Component rendering');
   
   // React hooks must be at the top
-  const { config, error, tokens: authTokens, isAuthenticated } = useAuth();
+  const { config, tokens: authTokens, isAuthenticated } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
   
   // Use centralized scroll management with aggressive scroll-to-top
   usePageScroll({ pageName: 'Dashboard', force: true, delay: 0 });
@@ -597,13 +585,23 @@ const Dashboard = () => {
     }
   };
 
-  // Calculate real stats
-  const stats = {
+  // Dashboard stats state
+  const [stats, setStats] = useState({
     flows: 6, // Actual OAuth flows available: OIDC Authorization Code, OAuth 2.0 Authorization Code, Implicit, Hybrid, OIDC Client Credentials, OIDC Device Code Flow
-    tokens: tokens ? (tokens.access_token ? 1 : 0) : 0, // Current active tokens
-    success: calculateSuccessRate(), // Real success rate based on recent activity
-    security: calculateSecurityScore() // Real security score based on configuration
-  };
+    tokens: 0, // Current active tokens
+    success: 0, // Success rate based on recent activity
+    security: 50 // Security score based on configuration
+  });
+
+  // Update stats when data changes
+  useEffect(() => {
+    setStats(prev => ({
+      ...prev,
+      tokens: tokens ? (tokens.access_token ? 1 : 0) : 0,
+      success: calculateSuccessRate(),
+      security: calculateSecurityScore()
+    }));
+  }, [tokens, recentActivity, configStatus]);
 
   // Calculate success rate based on recent activity
   function calculateSuccessRate(): number {
@@ -634,6 +632,37 @@ const Dashboard = () => {
     if (sessionStorage.getItem('oauth_state')) score += 25;
     
     return score;
+  }
+
+  // Get flow-specific status - simple configured vs not configured
+  function getFlowStatus(flowType: string): { status: 'active' | 'pending' | 'error', message: string } {
+    const baseConfigured = hasSavedCredentials;
+    
+    switch (flowType) {
+      case 'authorization-code':
+        // This is the main OIDC Enhanced Authorization Code flow - the only one actually configured
+        return {
+          status: baseConfigured ? 'active' : 'pending',
+          message: baseConfigured ? 'Configured' : 'Not configured'
+        };
+        
+      case 'oauth2-authorization-code':
+      case 'client-credentials':
+      case 'device-code':
+      case 'hybrid':
+      case 'implicit':
+        // All other flows are not configured yet
+        return {
+          status: 'error',
+          message: 'Not configured'
+        };
+        
+      default:
+        return {
+          status: 'error',
+          message: 'Not configured'
+        };
+    }
   }
 
   // Get recent activity items
@@ -824,12 +853,12 @@ const Dashboard = () => {
                 marginBottom: '0.5rem'
               }}>
                 <span style={{ fontWeight: '500', color: '#333' }}>Authorization Code</span>
-                <StatusBadge $status={hasSavedCredentials ? 'active' : 'pending'}>
-                  {hasSavedCredentials ? 'Ready' : 'Needs Config'}
+                <StatusBadge $status={getFlowStatus('authorization-code').status}>
+                  {getFlowStatus('authorization-code').status === 'active' ? 'Configured' : 'Not configured'}
                 </StatusBadge>
               </div>
               <div style={{ fontSize: '0.8rem', color: '#666' }}>
-                {hasSavedCredentials ? 'Environment configured' : 'Configure environment first'}
+                {getFlowStatus('authorization-code').message}
               </div>
             </div>
 
@@ -847,12 +876,12 @@ const Dashboard = () => {
                 marginBottom: '0.5rem'
               }}>
                 <span style={{ fontWeight: '500', color: '#333' }}>OAuth 2.0 Authorization Code</span>
-                <StatusBadge $status={hasSavedCredentials ? 'active' : 'pending'}>
-                  {hasSavedCredentials ? 'Ready' : 'Needs Config'}
+                <StatusBadge $status={getFlowStatus('oauth2-authorization-code').status}>
+                  {getFlowStatus('oauth2-authorization-code').status === 'active' ? 'Configured' : 'Not configured'}
                 </StatusBadge>
               </div>
               <div style={{ fontSize: '0.8rem', color: '#666' }}>
-                {hasSavedCredentials ? 'Environment configured' : 'Configure environment first'}
+                {getFlowStatus('oauth2-authorization-code').message}
               </div>
             </div>
 
@@ -870,12 +899,12 @@ const Dashboard = () => {
                 marginBottom: '0.5rem'
               }}>
                 <span style={{ fontWeight: '500', color: '#333' }}>OIDC Client Credentials</span>
-                <StatusBadge $status={hasSavedCredentials ? 'active' : 'pending'}>
-                  {hasSavedCredentials ? 'Ready' : 'Needs Config'}
+                <StatusBadge $status={getFlowStatus('client-credentials').status}>
+                  {getFlowStatus('client-credentials').status === 'active' ? 'Configured' : 'Not configured'}
                 </StatusBadge>
               </div>
               <div style={{ fontSize: '0.8rem', color: '#666' }}>
-                {hasSavedCredentials ? 'Environment configured' : 'Configure environment first'}
+                {getFlowStatus('client-credentials').message}
               </div>
             </div>
 
@@ -893,12 +922,12 @@ const Dashboard = () => {
                 marginBottom: '0.5rem'
               }}>
                 <span style={{ fontWeight: '500', color: '#333' }}>OIDC Device Code Flow</span>
-                <StatusBadge $status={hasSavedCredentials ? 'active' : 'pending'}>
-                  {hasSavedCredentials ? 'Ready' : 'Needs Config'}
+                <StatusBadge $status={getFlowStatus('device-code').status}>
+                  {getFlowStatus('device-code').status === 'active' ? 'Configured' : 'Not configured'}
                 </StatusBadge>
               </div>
               <div style={{ fontSize: '0.8rem', color: '#666' }}>
-                {hasSavedCredentials ? 'Environment configured' : 'Configure environment first'}
+                {getFlowStatus('device-code').message}
               </div>
             </div>
 
@@ -916,12 +945,12 @@ const Dashboard = () => {
                 marginBottom: '0.5rem'
               }}>
                 <span style={{ fontWeight: '500', color: '#333' }}>Implicit Flow</span>
-                <StatusBadge $status="error">
-                  Deprecated
+                <StatusBadge $status={getFlowStatus('implicit').status}>
+                  {getFlowStatus('implicit').status === 'active' ? 'Configured' : 'Not configured'}
                 </StatusBadge>
               </div>
               <div style={{ fontSize: '0.8rem', color: '#666' }}>
-                Not recommended for new applications
+                {getFlowStatus('implicit').message}
               </div>
             </div>
 
@@ -939,12 +968,12 @@ const Dashboard = () => {
                 marginBottom: '0.5rem'
               }}>
                 <span style={{ fontWeight: '500', color: '#333' }}>Hybrid Flow</span>
-                <StatusBadge $status={hasSavedCredentials ? 'active' : 'pending'}>
-                  {hasSavedCredentials ? 'Ready' : 'Needs Config'}
+                <StatusBadge $status={getFlowStatus('hybrid').status}>
+                  {getFlowStatus('hybrid').status === 'active' ? 'Configured' : 'Not configured'}
                 </StatusBadge>
               </div>
               <div style={{ fontSize: '0.8rem', color: '#666' }}>
-                {hasSavedCredentials ? 'Environment configured' : 'Configure environment first'}
+                {getFlowStatus('hybrid').message}
               </div>
             </div>
           </div>
