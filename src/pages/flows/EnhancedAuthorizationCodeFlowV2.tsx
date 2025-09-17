@@ -3160,6 +3160,11 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
 
       </div>
     ),
+      execute: async () => {
+        // This step just validates the callback and advances to token exchange
+        console.log('✅ [EnhancedAuthorizationCodeFlowV2] Handle Callback executed - advancing to token exchange');
+        return { success: true };
+      },
       canExecute: (() => {
         // Enable Next on Step 4 as soon as we have an auth code
         const canExec = Boolean(authCode);
