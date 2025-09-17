@@ -26,6 +26,7 @@ import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
 import OAuthErrorHelper from '../../components/OAuthErrorHelper';
 import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
 import { safeJsonParse, safeLocalStorageParse } from '../../utils/secureJson';
+import { validateOIDCCompliance, generateComplianceReport, validateIdTokenCompliance } from '../../utils/oidcCompliance';
 
 const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
   const authContext = useAuth();
@@ -456,7 +457,8 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
             credentials.clientId,
             `https://auth.pingone.com/${credentials.environmentId}`,
             nonce || undefined,
-            flowConfig.maxAge || undefined
+            flowConfig.maxAge || undefined,
+            tokenData.access_token // Pass access token for at_hash validation
           );
           
           // Log detailed validation results (V2 feature)
@@ -466,8 +468,25 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
             audience: validatedPayload.aud,
             nonce: validatedPayload.nonce ? '✅ Validated' : 'Not present',
             authTime: validatedPayload.auth_time ? '✅ Present' : 'Not present',
-            expiry: new Date(validatedPayload.exp * 1000).toISOString()
+            expiry: new Date((validatedPayload.exp as number) * 1000).toISOString()
           });
+          
+          // OIDC Core 1.0 Compliance validation for the received ID token
+          const tokenComplianceResult = validateIdTokenCompliance(validatedPayload, {
+            responseType: flowConfig.responseType || 'code',
+            scopes: flowConfig.scopes || ['openid', 'profile', 'email'],
+            clientAuthMethod: flowConfig.clientAuthMethod || 'client_secret_post',
+            enablePKCE: flowConfig.enablePKCE || true,
+            nonce: flowConfig.nonce,
+            maxAge: flowConfig.maxAge
+          });
+          
+          if (!tokenComplianceResult.isCompliant) {
+            console.warn('⚠️ [OIDC-V3] ID token compliance issues:', tokenComplianceResult.violations);
+            showFlowError(`⚠️ ID token compliance issues: ${tokenComplianceResult.violations.join(', ')}`);
+          } else {
+            console.log('✅ [OIDC-V3] ID token fully compliant with OIDC Core 1.0');
+          }
           
           // Clear the nonce after successful validation (prevent reuse)
           if (nonce) {
@@ -927,6 +946,67 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
                   ⚠️ <strong>Security Recommendation:</strong> Consider using 'client_secret_jwt' or 'private_key_jwt' for production environments.
                 </div>
               )}
+            </div>
+          );
+        })()}
+
+        {/* OIDC Core 1.0 Compliance Panel */}
+        {(() => {
+          const complianceResult = validateOIDCCompliance({
+            responseType: flowConfig.responseType || 'code',
+            scopes: flowConfig.scopes || ['openid', 'profile', 'email'],
+            clientAuthMethod: flowConfig.clientAuthMethod || 'client_secret_post',
+            enablePKCE: flowConfig.enablePKCE || true,
+            nonce: flowConfig.nonce,
+            maxAge: flowConfig.maxAge
+          });
+
+          return (
+            <div style={{ 
+              marginBottom: '2rem',
+              padding: '1rem',
+              borderRadius: '8px',
+              border: `2px solid ${complianceResult.isCompliant ? '#10b981' : '#f59e0b'}`,
+              backgroundColor: complianceResult.isCompliant ? '#d1fae5' : '#fef3c7'
+            }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '0.5rem',
+                marginBottom: '1rem',
+                fontWeight: 'bold',
+                color: complianceResult.isCompliant ? '#065f46' : '#92400e'
+              }}>
+                <span style={{ fontSize: '1.2em' }}>
+                  {complianceResult.isCompliant ? '✅' : '⚠️'}
+                </span>
+                OIDC Core 1.0 Compliance Status
+              </div>
+              
+              <details style={{ 
+                backgroundColor: 'white',
+                padding: '1rem',
+                borderRadius: '6px',
+                border: '1px solid #e5e7eb'
+              }}>
+                <summary style={{ 
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  marginBottom: '0.5rem',
+                  color: '#374151'
+                }}>
+                  📋 View Compliance Report
+                </summary>
+                <pre style={{ 
+                  fontSize: '0.875rem',
+                  lineHeight: '1.4',
+                  margin: '0.5rem 0 0 0',
+                  color: '#374151',
+                  whiteSpace: 'pre-wrap'
+                }}>
+                  {generateComplianceReport(complianceResult)}
+                </pre>
+              </details>
             </div>
           );
         })()}
