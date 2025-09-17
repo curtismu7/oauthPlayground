@@ -1035,14 +1035,14 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       setCallbackSuccess(true);
       setCallbackError(null);
       
-      // Set step to 4 (handle callback) and store it
-      const stepIndex = 4;
-      console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Setting step to 4 (handle callback)');
+      // Set step to 5 (exchange tokens) so buttons are enabled immediately
+      const stepIndex = 5;
+      console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Setting step to 5 (exchange tokens) - buttons will be enabled');
       setCurrentStepIndex(stepIndex);
       sessionStorage.setItem('enhanced-authz-code-v2-step', stepIndex.toString());
       
-      // Show success message for callback
-      updateStepMessage('handle-callback', '✅ Authorization successful! You have been authenticated with PingOne. Click "Next" to proceed to token exchange.');
+      // Show success message for token exchange step
+      updateStepMessage('exchange-tokens', '✅ Authorization successful! You have been authenticated with PingOne. Ready to exchange authorization code for tokens.');
       console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Authorization code received, user should proceed to step 5 manually');
       
       return;
@@ -1055,15 +1055,15 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     }
   }, [location.search, authTokens, authUser]);
 
-  // Show success modal only when we have an authorization code and are on step 4 (handle callback)
+  // Show success modal only when we have an authorization code and are on step 5 (exchange tokens)
   useEffect(() => {
-    if (authCode && currentStepIndex === 4 && !showAuthSuccessModal) {
-      console.log('🔔 [EnhancedAuthorizationCodeFlowV2] AuthCode detected on step 4, forcing modal to show');
+    if (authCode && currentStepIndex === 5 && !showAuthSuccessModal) {
+      console.log('🔔 [EnhancedAuthorizationCodeFlowV2] AuthCode detected on step 5, forcing modal to show');
       setTimeout(() => {
         setShowAuthSuccessModal(true);
       }, 200);
-    } else if (currentStepIndex !== 4) {
-      console.log('🔔 [EnhancedAuthorizationCodeFlowV2] Not on step 4, ensuring modal is hidden');
+    } else if (currentStepIndex !== 5) {
+      console.log('🔔 [EnhancedAuthorizationCodeFlowV2] Not on step 5, ensuring modal is hidden');
       setShowAuthSuccessModal(false);
     }
   }, [authCode, currentStepIndex, showAuthSuccessModal]);
