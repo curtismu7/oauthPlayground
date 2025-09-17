@@ -1004,6 +1004,9 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       updateStepMessage('exchange-tokens', '✅ Authorization successful! You have been authenticated with PingOne. Ready to exchange authorization code for tokens.');
       console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Authorization code received, user should proceed to step 5 manually');
       
+      // Show centralized success message for full redirect
+      showFlowSuccess('🎉 Welcome back from PingOne! Authorization successful - you can now exchange your authorization code for tokens.');
+      
       return;
     }
     
@@ -1574,6 +1577,9 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
               
               // Show success message
               updateStepMessage('handle-callback', '✅ Authorization successful! You have been authenticated with PingOne. Proceeding to token exchange...');
+              
+              // Show centralized success message
+              showFlowSuccess('🎉 Authorization Successful! You have been authenticated with PingOne and can now exchange tokens.');
             }
           }
         };
