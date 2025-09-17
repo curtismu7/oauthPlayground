@@ -8,6 +8,7 @@ import { validateAndParseCallbackUrl } from '../utils/urlValidation';
 import config from '../services/config';
 import { credentialManager } from '../utils/credentialManager';
 import { generateCodeChallenge } from '../utils/oauth';
+import { safeJsonParse, safeSessionStorageParse, sanitizePath } from '../utils/secureJson';
 
 // Define window interface for PingOne environment variables
 interface WindowWithPingOne extends Window {
@@ -623,7 +624,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const flowContextRawEarly = sessionStorage.getItem('flowContext');
         if (flowContextRawEarly) {
-          const parsedEarly = JSON.parse(flowContextRawEarly);
+          const parsedEarly = safeJsonParse(flowContextRawEarly);
           const isEnhancedV2Early = parsedEarly?.flow === 'enhanced-authorization-code-v2';
           if (isEnhancedV2Early) {
             // Persist auth code and state for the flow page to handle later
@@ -646,7 +647,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (flowContext) {
         try {
-          const parsedContext = JSON.parse(flowContext);
+          const parsedContext = safeJsonParse(flowContext);
           console.log('🔧 [NewAuthContext] Parsed flow context:', parsedContext);
           if (parsedContext.redirectUri) {
             redirectUri = parsedContext.redirectUri;
@@ -725,7 +726,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const flowContextRaw = sessionStorage.getItem('flowContext');
         if (flowContextRaw) {
-          const parsed = JSON.parse(flowContextRaw);
+          const parsed = safeJsonParse(flowContextRaw);
           const isEnhancedV2 = parsed?.flow === 'enhanced-authorization-code-v2';
           if (isEnhancedV2) {
             // Persist auth code and state for the flow page
@@ -900,17 +901,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (flowContext) {
         try {
-          const parsedContext = JSON.parse(flowContext);
-          console.log('🔍 [NewAuthContext] Parsed flow context:', parsedContext);
+          // SECURITY: Validate JSON input before parsing to prevent XSS
+          if (typeof flowContext !== 'string' || flowContext.length > 10000) {
+            console.warn('🚨 [Security] Invalid flow context format or size');
+            return { success: true, redirectUrl: '/dashboard' };
+          }
           
-          if (parsedContext.returnPath) {
-            redirectUrl = parsedContext.returnPath;
-            console.log('🔄 [NewAuthContext] Using flow context return path:', redirectUrl);
+          // Additional XSS protection - check for script tags or dangerous content
+          if (flowContext.includes('<script') || flowContext.includes('javascript:') || flowContext.includes('data:')) {
+            console.warn('🚨 [Security] Blocked potentially dangerous flow context content');
+            return { success: true, redirectUrl: '/dashboard' };
+          }
+          
+          const parsedContext = safeJsonParse(flowContext);
+          console.log('🔍 [NewAuthContext] Safely parsed flow context:', parsedContext);
+          
+          // Validate the parsed context structure
+          if (parsedContext && typeof parsedContext === 'object' && parsedContext.returnPath) {
+            // Use secure path sanitization
+            const sanitizedPath = sanitizePath(String(parsedContext.returnPath), '/dashboard');
+            redirectUrl = sanitizedPath;
+            console.log('🔄 [NewAuthContext] Using sanitized flow context return path:', redirectUrl);
           } else {
-            console.log('⚠️ [NewAuthContext] No returnPath in flow context');
+            console.log('⚠️ [NewAuthContext] No valid returnPath in flow context');
           }
         } catch (error) {
           console.warn('Failed to parse flow context:', error);
+          // Use safe default on parse error
+          redirectUrl = '/dashboard';
         }
       } else {
         console.log('⚠️ [NewAuthContext] No flow context found in sessionStorage');
