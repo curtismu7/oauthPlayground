@@ -3,7 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { 
   FiHome, FiCode, FiUser, FiSettings, FiSearch,
-  FiChevronDown, FiBookOpen, FiEye, FiShield, FiUsers, FiDatabase, FiTool, FiCpu
+  FiChevronDown, FiBookOpen, FiEye, FiShield, FiUsers, FiDatabase, FiTool, FiCpu,
+  FiKey, FiZap, FiLock, FiSmartphone, FiServer, FiUnlock, FiPackage, FiGitBranch, FiBarChart3, FiExternalLink
 } from 'react-icons/fi';
 
 interface SidebarContainerProps {
@@ -306,12 +307,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           
           <Submenu $isOpen={openMenus.oauth}>
             <SubmenuItem to="/oidc/authorization-code" onClick={onClose} $isActive={isActiveRoute('/oidc/authorization-code')}>
+              <FiLock />
               OAuth 2.0 Authorization Code
             </SubmenuItem>
             <SubmenuItem to="/oidc/client-credentials" onClick={onClose} $isActive={isActiveRoute('/oidc/client-credentials')}>
+              <FiServer />
               OAuth 2.0 Client Credentials
             </SubmenuItem>
             <SubmenuItem to="/flows/resource-owner-password" onClick={onClose} $isActive={isActiveRoute('/flows/resource-owner-password')}>
+              <FiUnlock />
               OAuth 2.0 Resource Owner Password
             </SubmenuItem>
           </Submenu>
@@ -331,24 +335,31 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           
           <Submenu $isOpen={openMenus.oidc}>
             <SubmenuItem to="/flows/enhanced-authorization-code-v2" onClick={onClose} $isActive={isActiveRoute('/flows/enhanced-authorization-code-v2')}>
+              <FiKey />
               OIDC Authorization Code
             </SubmenuItem>
             <SubmenuItem to="/oidc/implicit" onClick={onClose} $isActive={isActiveRoute('/oidc/implicit')}>
+              <FiZap />
               OIDC Implicit
             </SubmenuItem>
             <SubmenuItem to="/oidc/hybrid" onClick={onClose} $isActive={isActiveRoute('/oidc/hybrid')}>
+              <FiCode />
               OIDC Hybrid Flow
             </SubmenuItem>
             <SubmenuItem to="/oidc/client-credentials" onClick={onClose} $isActive={isActiveRoute('/oidc/client-credentials')}>
+              <FiServer />
               OIDC Client Credentials
             </SubmenuItem>
             <SubmenuItem to="/oidc/worker-token" onClick={onClose} $isActive={isActiveRoute('/oidc/worker-token')}>
+              <FiCpu />
               OIDC Worker Token
             </SubmenuItem>
             <SubmenuItem to="/oidc/device-code" onClick={onClose} $isActive={isActiveRoute('/oidc/device-code')}>
+              <FiSmartphone />
               OIDC Device Code
             </SubmenuItem>
             <SubmenuItem to="/flows/resource-owner-password" onClick={onClose} $isActive={isActiveRoute('/flows/resource-owner-password')}>
+              <FiUnlock />
               OIDC Resource Owner Password
             </SubmenuItem>
           </Submenu>
@@ -369,18 +380,23 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           
           <Submenu $isOpen={openMenus.docs}>
             <SubmenuItem to="/documentation" onClick={onClose}>
+              <FiBookOpen />
               Local Documentation
             </SubmenuItem>
             <SubmenuItem to="/docs/oidc-specs" onClick={onClose}>
+              <FiUser />
               OIDC Specs
             </SubmenuItem>
             <SubmenuItem to="/docs/oidc-for-ai" onClick={onClose}>
+              <FiCpu />
               OIDC for AI
             </SubmenuItem>
             <SubmenuItem to="/docs/oauth2-security-best-practices" onClick={onClose}>
+              <FiShield />
               OAuth 2.0 Security Best Practices
             </SubmenuItem>
             <SubmenuItem as="a" href="https://apidocs.pingidentity.com" target="_blank" rel="noopener noreferrer" onClick={onClose}>
+              <FiExternalLink />
               PingOne API Docs
             </SubmenuItem>
           </Submenu>
@@ -400,18 +416,23 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           
           <Submenu $isOpen={openMenus.resources}>
             <SubmenuItem to="/token-management" onClick={onClose}>
+              <FiPackage />
               Token Management
             </SubmenuItem>
             <SubmenuItem to="/auto-discover" onClick={onClose}>
+              <FiSearch />
               OIDC Discovery
             </SubmenuItem>
             <SubmenuItem to="/flows/par" onClick={onClose}>
+              <FiShield />
               Pushed Authorization
             </SubmenuItem>
             <SubmenuItem to="/flows/compare" onClick={onClose}>
+              <FiGitBranch />
               Flow Comparison
             </SubmenuItem>
             <SubmenuItem to="/flows/diagrams" onClick={onClose}>
+              <FiBarChart3 />
               Interactive Diagrams
             </SubmenuItem>
             <SubmenuItem 
@@ -430,6 +451,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               rel="noopener noreferrer"
               onClick={onClose}
             >
+              <FiExternalLink />
               Ping JWT Decoder ↗
             </SubmenuItem>
           </Submenu>
