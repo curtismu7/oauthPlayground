@@ -119,8 +119,14 @@ export const config = {
 // Type for the config object
 export type Config = typeof config;
 
-// Helper function to get a nested config value by path
+// Helper function to get a nested config value by path - SECURE VERSION
 export const getConfigValue = <T>(path: string, defaultValue: T): T => {
+  // Prevent prototype pollution by validating path
+  if (!path || typeof path !== 'string' || path.includes('__proto__') || path.includes('constructor') || path.includes('prototype')) {
+    console.warn('🚨 [Security] Blocked potentially dangerous config path:', path);
+    return defaultValue;
+  }
+  
   const keys = path.split('.');
   let result: unknown = config;
   
@@ -128,7 +134,19 @@ export const getConfigValue = <T>(path: string, defaultValue: T): T => {
     if (result === undefined || result === null) {
       return defaultValue;
     }
-    result = result[key as keyof typeof result];
+    
+    // Additional security check for each key
+    if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+      console.warn('🚨 [Security] Blocked prototype pollution attempt:', key);
+      return defaultValue;
+    }
+    
+    // Safe property access
+    if (typeof result === 'object' && result !== null && key in result) {
+      result = (result as Record<string, unknown>)[key];
+    } else {
+      return defaultValue;
+    }
   }
   
   return result !== undefined ? result as T : defaultValue;
