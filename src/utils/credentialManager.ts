@@ -184,10 +184,33 @@ class CredentialManager {
   }
 
   /**
+   * Check if global config is enabled for credentials
+   */
+  private isGlobalConfigEnabled(): boolean {
+    try {
+      const configData = localStorage.getItem('pingone_config');
+      if (configData) {
+        const config = JSON.parse(configData);
+        return config.useGlobalConfig === true;
+      }
+    } catch (error) {
+      console.log('🔧 [CredentialManager] Could not check global config setting:', error);
+    }
+    return false;
+  }
+
+  /**
    * Load authorization flow-specific credentials
+   * If global config is enabled, returns Dashboard config credentials instead
    */
   loadAuthzFlowCredentials(): PermanentCredentials {
     try {
+      // Check if global config is enabled - if so, use Dashboard credentials
+      if (this.isGlobalConfigEnabled()) {
+        console.log('🌐 [CredentialManager] Global config enabled - using Dashboard credentials for all flows');
+        return this.loadConfigCredentials();
+      }
+
       const stored = localStorage.getItem(this.AUTHZ_FLOW_CREDENTIALS_KEY);
       console.log('🔧 [CredentialManager] Loading authz flow credentials from localStorage:', {
         key: this.AUTHZ_FLOW_CREDENTIALS_KEY,

@@ -71,10 +71,33 @@ class PersistentCredentialsManager {
   }
 
   /**
+   * Check if global config is enabled for credentials
+   */
+  private isGlobalConfigEnabled(): boolean {
+    try {
+      const configData = localStorage.getItem('pingone_config');
+      if (configData) {
+        const config = JSON.parse(configData);
+        return config.useGlobalConfig === true;
+      }
+    } catch (error) {
+      console.log('🔧 [PersistentCredentials] Could not check global config setting:', error);
+    }
+    return false;
+  }
+
+  /**
    * Load credentials for a specific flow type
+   * If global config is enabled, always returns global credentials
    */
   loadFlowCredentials(flowType: string): FlowCredentials | null {
     try {
+      // Check if global config is enabled - if so, always use global credentials
+      if (this.isGlobalConfigEnabled()) {
+        console.log('🌐 [PersistentCredentials] Global config enabled - using global credentials for all flows');
+        return this.loadGlobalCredentials();
+      }
+
       const key = `${this.CREDENTIALS_PREFIX}${flowType}`;
       const stored = localStorage.getItem(key);
       
