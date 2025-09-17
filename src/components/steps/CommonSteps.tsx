@@ -4,6 +4,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { FiSettings, FiShield, FiGlobe, FiKey, FiUser, FiCheckCircle, FiCopy, FiRefreshCw } from 'react-icons/fi';
 import { EnhancedFlowStep } from '../EnhancedStepFlowV2';
+import { copyToClipboard } from '../../utils/clipboard';
 
 // Common styled components
 const FormField = styled.div`
@@ -67,6 +68,47 @@ const InfoBox = styled.div<{ type: 'success' | 'error' | 'warning' | 'info' }>`
         `;
     }
   }}
+`;
+
+const CopyButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  &:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
+const TokenDisplay = styled.div`
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 0.75rem;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  word-break: break-all;
+  color: #374151;
+  max-height: 120px;
+  overflow-y: auto;
+  
+  &:hover {
+    border-color: #d1d5db;
+  }
 `;
 
 // Common step creation functions
@@ -157,12 +199,22 @@ export const createCredentialsStep = (
     await saveCredentials();
     return { success: true };
   },
-  canExecute: Boolean(
-    credentials.environmentId &&
-    credentials.clientId &&
-    credentials.clientSecret &&
-    credentials.redirectUri
-  )
+  canExecute: (() => {
+    const canExec = Boolean(
+      credentials.environmentId &&
+      credentials.clientId &&
+      credentials.clientSecret &&
+      credentials.redirectUri
+    );
+    console.log('🔍 [CommonSteps] Credentials canExecute check:', {
+      environmentId: !!credentials.environmentId,
+      clientId: !!credentials.clientId,
+      clientSecret: !!credentials.clientSecret,
+      redirectUri: !!credentials.redirectUri,
+      canExecute: canExec
+    });
+    return canExec;
+  })()
 });
 
 /**
@@ -311,16 +363,70 @@ export const createTokenExchangeStep = (
           <div>
             <strong>✅ Tokens Received Successfully!</strong>
             <br />
-            Access token, refresh token received.
+            <div style={{ marginTop: '1rem', display: 'grid', gap: '0.5rem', fontSize: '0.9em' }}>
+              <div>✅ Access Token: <strong style={{ color: '#1e40af' }}>{tokens.access_token ? 'Received' : 'Missing'}</strong></div>
+              <div>✅ Refresh Token: <strong style={{ color: '#1e40af' }}>{tokens.refresh_token ? 'Received' : 'Missing'}</strong></div>
+              <div>✅ ID Token: <strong style={{ color: '#1e40af' }}>{tokens.id_token ? 'Received' : 'Missing'}</strong></div>
+              <div>⏱️ Expires In: <strong style={{ color: '#1e40af' }}>{tokens.expires_in ? `${tokens.expires_in} seconds` : 'Unknown'}</strong></div>
+              <div>🔐 Token Type: <strong style={{ color: '#1e40af' }}>{tokens.token_type || 'Bearer'}</strong></div>
+              <div>🎯 Scope: <strong style={{ color: '#1e40af' }}>{tokens.scope || 'Not specified'}</strong></div>
+            </div>
           </div>
         </InfoBox>
       )}
       
+      {tokens && (
+        <div style={{ marginTop: '1rem' }}>
+          <h4 style={{ marginBottom: '1rem' }}>Token Details:</h4>
+          
+          {tokens.access_token && (
+            <FormField>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <FormLabel style={{ margin: 0, fontWeight: 'bold' }}>Access Token:</FormLabel>
+                <CopyButton onClick={() => copyToClipboard(tokens.access_token, 'Access Token')}>
+                  <FiCopy /> Copy
+                </CopyButton>
+              </div>
+              <TokenDisplay>{tokens.access_token}</TokenDisplay>
+            </FormField>
+          )}
+          
+          {tokens.refresh_token && (
+            <FormField>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <FormLabel style={{ margin: 0, fontWeight: 'bold' }}>Refresh Token:</FormLabel>
+                <CopyButton onClick={() => copyToClipboard(tokens.refresh_token, 'Refresh Token')}>
+                  <FiCopy /> Copy
+                </CopyButton>
+              </div>
+              <TokenDisplay>{tokens.refresh_token}</TokenDisplay>
+            </FormField>
+          )}
+          
+          {tokens.id_token && (
+            <FormField>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <FormLabel style={{ margin: 0, fontWeight: 'bold' }}>ID Token:</FormLabel>
+                <CopyButton onClick={() => copyToClipboard(tokens.id_token, 'ID Token')}>
+                  <FiCopy /> Copy
+                </CopyButton>
+              </div>
+              <TokenDisplay>{tokens.id_token}</TokenDisplay>
+            </FormField>
+          )}
+        </div>
+      )}
+      
       {authCode && (
         <div>
-          <h4>Authorization Code:</h4>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <h4 style={{ margin: 0 }}>Authorization Code:</h4>
+            <CopyButton onClick={() => copyToClipboard(authCode, 'Authorization Code')}>
+              <FiCopy /> Copy
+            </CopyButton>
+          </div>
           <FormField>
-            <FormInput type="text" value={authCode} readOnly />
+            <TokenDisplay style={{ backgroundColor: '#f3f4f6' }}>{authCode}</TokenDisplay>
           </FormField>
         </div>
       )}
@@ -330,7 +436,17 @@ export const createTokenExchangeStep = (
     await exchangeTokens();
     return { success: true };
   },
-  canExecute: Boolean(authCode && credentials.environmentId && credentials.clientId)
+  canExecute: (() => {
+    const canExec = Boolean(authCode && credentials.environmentId && credentials.clientId);
+    console.log('🔍 [CommonSteps] Token exchange canExecute check:', {
+      authCode: !!authCode,
+      authCodeValue: authCode?.substring(0, 10) + '...',
+      environmentId: !!credentials.environmentId,
+      clientId: !!credentials.clientId,
+      canExecute: canExec
+    });
+    return canExec;
+  })()
 });
 
 /**
