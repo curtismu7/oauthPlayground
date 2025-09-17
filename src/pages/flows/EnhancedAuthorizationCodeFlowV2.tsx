@@ -4016,6 +4016,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       />
 
     <EnhancedStepFlowV2
+      key={`enhanced-authz-${currentStepIndex}-${authCode ? 'with-code' : 'no-code'}`}
       steps={steps}
       title="🚀 Enhanced Authorization Code Flow"
       persistKey="enhanced-authz-code"
@@ -4125,37 +4126,15 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                     // Close the modal first
                     setShowAuthSuccessModal(false);
                     
-                    // If we're already on step 5 (exchange-tokens), just close the modal
-                    if (currentStepIndex === 5) {
-                      console.log('✅ [EnhancedAuthorizationCodeFlowV2] Already on step 5, just closing modal');
-                      setIsModalLoading(false);
-                      return;
-                    }
-                    
-                    // Otherwise, advance to step 5
+                    // Simply advance to step 5 without hard redirect
                     console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Advancing to step 5 (exchange-tokens)');
+                    setCurrentStepIndex(5);
+                    sessionStorage.setItem('enhanced-authz-code-v2-step', '5');
                     
-                    // Clear any existing step storage
-                    sessionStorage.removeItem('enhanced-authz-code-v2-step');
-                    
-                    // Use URL redirect to force a fresh page load with the correct step
+                    // Clear URL parameters to avoid conflicts
                     const currentUrl = new URL(window.location.href);
-                    currentUrl.searchParams.set('step', '5');
-                    currentUrl.searchParams.set('action', 'exchange-tokens');
-                    // Preserve authorization code if it exists
-                    if (authCode) {
-                      currentUrl.searchParams.set('code', authCode);
-                    }
-                    if (state) {
-                      currentUrl.searchParams.set('state', state);
-                    }
-                    // Add cache-busting parameter
-                    currentUrl.searchParams.set('t', Date.now().toString());
-                    
-                    console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Redirecting to:', currentUrl.toString());
-                    
-                    // Force a hard redirect to ensure clean state
-                    window.location.href = currentUrl.toString();
+                    currentUrl.search = '';
+                    window.history.replaceState({}, '', currentUrl.toString());
                     
                   } catch (error) {
                     console.error('❌ [EnhancedAuthorizationCodeFlowV2] Error in modal button click:', error);
