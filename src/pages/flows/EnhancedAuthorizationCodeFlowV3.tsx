@@ -173,8 +173,8 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 
   const [authUrl, setAuthUrl] = useState('');
   const [authCode, setAuthCode] = useState('');
-  const [tokens, setTokens] = useState<any>(null);
-  const [userInfo, setUserInfo] = useState<any>(null);
+  const [tokens, setTokens] = useState<Record<string, unknown> | null>(null);
+  const [userInfo, setUserInfo] = useState<Record<string, unknown> | null>(null);
   const [isExchangingTokens, setIsExchangingTokens] = useState(false);
   const [isGettingUserInfo, setIsGettingUserInfo] = useState(false);
   
@@ -183,7 +183,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
   const [showAuthSuccessModal, setShowAuthSuccessModal] = useState(false);
 
   // Step completion tracking and result persistence (V2 features)
-  const [stepResults, setStepResults] = useState<Record<string, any>>({});
+  const [stepResults, setStepResults] = useState<Record<string, unknown>>({});
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
   
   // Reset functionality with confirmation modals (V2 features)
@@ -191,7 +191,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
   const [showClearCredentialsModal, setShowClearCredentialsModal] = useState(false);
   
   // Error handling state (V2 features)
-  const [currentError, setCurrentError] = useState<any>(null);
+  const [currentError, setCurrentError] = useState<Record<string, unknown> | null>(null);
   const [showErrorHelper, setShowErrorHelper] = useState(false);
 
   // Flow Configuration state - V2 feature integration
@@ -550,7 +550,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
   }, [tokens, credentials]);
 
   // Step result management functions (V2 features)
-  const saveStepResult = useCallback((stepId: string, result: any) => {
+  const saveStepResult = useCallback((stepId: string, result: unknown) => {
     console.log('💾 [OIDC-V3] Saving step result:', { stepId, result });
     setStepResults(prev => ({ ...prev, [stepId]: result }));
     setCompletedSteps(prev => new Set([...prev, stepId]));
@@ -645,7 +645,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
   }, [setCredentials]);
 
   // Enhanced error handling with PingOneErrorInterpreter (V2 features)
-  const handleOAuthError = useCallback((error: any, context?: string) => {
+  const handleOAuthError = useCallback((error: unknown, context?: string) => {
     console.error('❌ [OIDC-V3] OAuth error occurred:', { error, context });
     
     // Interpret the error using PingOneErrorInterpreter
