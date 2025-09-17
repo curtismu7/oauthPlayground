@@ -277,14 +277,26 @@ export const createPKCEStep = (
       
       {pkceCodes.codeVerifier && (
         <div>
-          <h4>Generated PKCE Codes:</h4>
+          <h4 style={{ marginBottom: '1rem' }}>Generated PKCE Codes:</h4>
+          
           <FormField>
-            <FormLabel>Code Verifier</FormLabel>
-            <FormInput type="text" value={pkceCodes.codeVerifier} readOnly />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+              <FormLabel style={{ margin: 0, fontWeight: 'bold' }}>Code Verifier:</FormLabel>
+              <CopyButton onClick={() => copyToClipboard(pkceCodes.codeVerifier, 'Code Verifier')}>
+                <FiCopy /> Copy
+              </CopyButton>
+            </div>
+            <TokenDisplay>{pkceCodes.codeVerifier}</TokenDisplay>
           </FormField>
+          
           <FormField>
-            <FormLabel>Code Challenge</FormLabel>
-            <FormInput type="text" value={pkceCodes.codeChallenge} readOnly />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+              <FormLabel style={{ margin: 0, fontWeight: 'bold' }}>Code Challenge:</FormLabel>
+              <CopyButton onClick={() => copyToClipboard(pkceCodes.codeChallenge, 'Code Challenge')}>
+                <FiCopy /> Copy
+              </CopyButton>
+            </div>
+            <TokenDisplay>{pkceCodes.codeChallenge}</TokenDisplay>
           </FormField>
         </div>
       )}
