@@ -1006,6 +1006,12 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       setCurrentStepIndex(stepIndex);
       sessionStorage.setItem('enhanced-authz-code-v2-step', stepIndex.toString());
       
+      // Force component re-render by clearing and setting step again
+      setTimeout(() => {
+        console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Force setting step to 5 again to override component initialization');
+        setCurrentStepIndex(5);
+      }, 100);
+      
       // Clear any old messages and set appropriate message for token exchange step
       updateStepMessage('exchange-tokens', '🔄 Ready to exchange authorization code for tokens. Click the "Exchange Tokens" button below.');
       console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Authorization code received, user should proceed to step 5 manually');
@@ -1272,6 +1278,12 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       if (code && !step) {
         console.log('🔍 [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Authorization code found in URL, going to step 5 (exchange-tokens)');
         setCurrentStepIndex(5);
+        
+        // Force step to 5 again to override component initialization
+        setTimeout(() => {
+          console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Force setting step to 5 (InitializeStepIndex path)');
+          setCurrentStepIndex(5);
+        }, 100);
         return;
       }
       
