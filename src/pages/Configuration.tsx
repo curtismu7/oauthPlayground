@@ -600,7 +600,7 @@ const Configuration = () => {
 
       {/* Global Configuration Section */}
       <CollapsibleSection
-        title="🌐 Global Configuration"
+        title="Global Configuration"
         subtitle="Default credentials used by all flows (unless overridden)"
         icon="🌐"
         defaultCollapsed={false}
@@ -935,7 +935,7 @@ const Configuration = () => {
 
       {/* UI Settings Section */}
       <CollapsibleSection
-        title="🎛️ UI Settings"
+        title="UI Settings"
         subtitle="Configure user interface behavior and modal display options"
         icon="🎛️"
         defaultCollapsed={true}
@@ -1050,7 +1050,7 @@ const Configuration = () => {
 
       {/* OIDC Flow Configurations */}
       <CollapsibleSection
-        title="🔑 OIDC Authorization Code Flow"
+        title="OIDC Authorization Code Flow"
         subtitle="Configure credentials for OpenID Connect Authorization Code Flow"
         icon="🔑"
         defaultCollapsed={true}
@@ -1156,7 +1156,7 @@ const Configuration = () => {
       </CollapsibleSection>
 
       <CollapsibleSection
-        title="🔒 OAuth 2.0 Authorization Code Flow" 
+        title="OAuth 2.0 Authorization Code Flow" 
         subtitle="Configure credentials for pure OAuth 2.0 Authorization Code Flow"
         icon="🔒"
         defaultCollapsed={true}
@@ -1221,7 +1221,7 @@ const Configuration = () => {
       </CollapsibleSection>
 
       <CollapsibleSection
-        title="🖥️ Client Credentials Flow"
+        title="Client Credentials Flow"
         subtitle="Configure credentials for service-to-service authentication"
         icon="🖥️"
         defaultCollapsed={true}
@@ -1307,7 +1307,7 @@ const Configuration = () => {
       </CollapsibleSection>
 
       <CollapsibleSection
-        title="📱 Device Code Flow"
+        title="Device Code Flow"
         subtitle="Configure credentials for device authorization (smart TVs, IoT devices)"
         icon="📱"
         defaultCollapsed={true}
@@ -1324,7 +1324,7 @@ const Configuration = () => {
       </CollapsibleSection>
 
       <CollapsibleSection
-        title="⚡ Implicit Flow"
+        title="Implicit Flow"
         subtitle="Configure credentials for browser-based applications (legacy)"
         icon="⚡"
         defaultCollapsed={true}
@@ -1340,7 +1340,7 @@ const Configuration = () => {
       </CollapsibleSection>
 
       <CollapsibleSection
-        title="💻 Hybrid Flow"
+        title="Hybrid Flow"
         subtitle="Configure credentials for hybrid OpenID Connect flow"
         icon="💻"
         defaultCollapsed={true}
