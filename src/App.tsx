@@ -85,7 +85,6 @@ const MainContent = styled.main`
   }
 `;
 
-import type { ReactNode } from 'react';
 
 
 const AppRoutes = () => {
