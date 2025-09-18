@@ -107,7 +107,7 @@ export class ErrorHandler {
   }
 
   // Handle any error and convert it to AppError
-  handleError = (error: any, context?: string, userId?: string, sessionId?: string): AppError => {
+  handleError = (error: unknown, context?: string, userId?: string, sessionId?: string): AppError => {
     const appError = this.convertToAppError(error, context, userId, sessionId);
     
     // Add to history
@@ -127,33 +127,36 @@ export class ErrorHandler {
   };
 
   // Convert any error to AppError
-  private convertToAppError = (error: any, context?: string, userId?: string, sessionId?: string): AppError => {
+  private convertToAppError = (error: unknown, context?: string, userId?: string, sessionId?: string): AppError => {
     let code = 'UNKNOWN_ERROR';
     let message = 'An unknown error occurred';
     let description = '';
     let stack = '';
 
-    if (error.response) {
+    if (error && typeof error === 'object' && 'response' in error) {
       // HTTP error response
-      const status = error.response.status;
-      const data = error.response.data;
+      const httpError = error as { response: { status: number; data?: { error?: string; error_description?: string; message?: string } }; stack?: string };
+      const status = httpError.response.status;
+      const data = httpError.response.data;
       
       code = `HTTP_${status}`;
       message = data?.error || `HTTP ${status} Error`;
       description = data?.error_description || data?.message || 'An HTTP error occurred';
-      stack = error.stack;
-    } else if (error.request) {
+      stack = httpError.stack;
+    } else if (error && typeof error === 'object' && 'request' in error) {
       // Network error
+      const networkError = error as { request: unknown; stack?: string };
       code = 'NETWORK_ERROR';
       message = 'Network Error';
       description = 'Unable to connect to the server. Please check your internet connection.';
-      stack = error.stack;
-    } else if (error.message) {
+      stack = networkError.stack;
+    } else if (error && typeof error === 'object' && 'message' in error) {
       // Generic error
-      code = error.code || 'GENERIC_ERROR';
-      message = error.message;
-      description = error.description || 'An unexpected error occurred';
-      stack = error.stack;
+      const genericError = error as { message: string; code?: string; stack?: string };
+      code = genericError.code || 'GENERIC_ERROR';
+      message = genericError.message;
+      description = (genericError as { description?: string }).description || 'An unexpected error occurred';
+      stack = genericError.stack;
     } else if (typeof error === 'string') {
       // String error
       message = error;
@@ -335,7 +338,7 @@ export class ErrorHandler {
     maxRetries: number = this.config.maxRetries,
     delay: number = this.config.retryDelay
   ): Promise<T> => {
-    let lastError: any;
+    let lastError: unknown;
     
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
@@ -400,7 +403,7 @@ export const handleSyncError = <T>(
   }
 };
 
-export const withErrorHandling = <T extends any[], R>(
+export const withErrorHandling = <T extends unknown[], R>(
   fn: (...args: T) => R,
   context: string,
   userId?: string,
@@ -415,7 +418,7 @@ export const withErrorHandling = <T extends any[], R>(
   };
 };
 
-export const withAsyncErrorHandling = <T extends any[], R>(
+export const withAsyncErrorHandling = <T extends unknown[], R>(
   fn: (...args: T) => Promise<R>,
   context: string,
   userId?: string,
