@@ -24,7 +24,7 @@ export interface PageView {
   referrer?: string;
   scrollDepth: number;
   timeOnPage?: number;
-  properties?: Record<string, any>;
+  properties?: Record<string, unknown>;
 }
 
 export interface UserAction {
@@ -34,7 +34,7 @@ export interface UserAction {
   timestamp: number;
   page: string;
   coordinates?: { x: number; y: number };
-  properties?: Record<string, any>;
+  properties?: Record<string, unknown>;
 }
 
 export interface FlowInteraction {
@@ -48,7 +48,7 @@ export interface FlowInteraction {
   errorMessage?: string;
   dropOffStep?: string;
   completionRate: number;
-  properties?: Record<string, any>;
+  properties?: Record<string, unknown>;
 }
 
 export interface FlowStep {
@@ -60,7 +60,7 @@ export interface FlowStep {
   success: boolean;
   errorMessage?: string;
   userActions: UserAction[];
-  properties?: Record<string, any>;
+  properties?: Record<string, unknown>;
 }
 
 export interface DeviceInfo {
@@ -249,7 +249,7 @@ export class UserBehaviorTracker {
   }
 
   // Track user action
-  public trackUserAction(action: string, element?: string, properties?: Record<string, any>): void {
+  public trackUserAction(action: string, element?: string, properties?: Record<string, unknown>): void {
     if (!this.currentSession || !this.trackingConfig.trackClicks) return;
 
     const userAction: UserAction = {
@@ -276,7 +276,7 @@ export class UserBehaviorTracker {
   }
 
   // Track flow interaction
-  public trackFlowStart(flowType: string, properties?: Record<string, any>): string {
+  public trackFlowStart(flowType: string, properties?: Record<string, unknown>): string {
     if (!this.currentSession || !this.trackingConfig.trackFlows) return '';
 
     const flowId = this.generateId();
@@ -304,7 +304,7 @@ export class UserBehaviorTracker {
   }
 
   // Track flow step
-  public trackFlowStep(flowId: string, stepName: string, properties?: Record<string, any>): string {
+  public trackFlowStep(flowId: string, stepName: string, properties?: Record<string, unknown>): string {
     if (!this.currentSession) return '';
 
     const flow = this.currentSession.flowInteractions.find(f => f.id === flowId);
@@ -773,15 +773,15 @@ export const trackPageView = (page: string, referrer?: string) => {
   userBehaviorTracker.trackPageView(page, referrer);
 };
 
-export const trackUserAction = (action: string, element?: string, properties?: Record<string, any>) => {
+export const trackUserAction = (action: string, element?: string, properties?: Record<string, unknown>) => {
   userBehaviorTracker.trackUserAction(action, element, properties);
 };
 
-export const trackFlowStart = (flowType: string, properties?: Record<string, any>) => {
+export const trackFlowStart = (flowType: string, properties?: Record<string, unknown>) => {
   return userBehaviorTracker.trackFlowStart(flowType, properties);
 };
 
-export const trackFlowStep = (flowId: string, stepName: string, properties?: Record<string, any>) => {
+export const trackFlowStep = (flowId: string, stepName: string, properties?: Record<string, unknown>) => {
   return userBehaviorTracker.trackFlowStep(flowId, stepName, properties);
 };
 

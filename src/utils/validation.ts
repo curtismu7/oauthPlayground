@@ -11,14 +11,14 @@ export interface ValidationError {
   field: string;
   code: string;
   message: string;
-  value?: any;
+  value?: unknown;
 }
 
 export interface ValidationWarning {
   field: string;
   code: string;
   message: string;
-  value?: any;
+  value?: unknown;
 }
 
 // Validation rules interface
@@ -29,9 +29,9 @@ export interface ValidationRule {
 
 export interface ValidationRuleConfig {
   type: 'required' | 'email' | 'url' | 'minLength' | 'maxLength' | 'pattern' | 'custom';
-  value?: any;
+  value?: unknown;
   message?: string;
-  validator?: (value: any) => boolean;
+  validator?: (value: unknown) => boolean;
 }
 
 // Common validation patterns
@@ -68,7 +68,7 @@ export const VALIDATION_MESSAGES = {
 // Main validation class
 export class Validator {
   private rules: ValidationRule[] = [];
-  private customValidators: Map<string, (value: any) => boolean> = new Map();
+  private customValidators: Map<string, (value: unknown) => boolean> = new Map();
 
   // Add validation rule
   addRule(rule: ValidationRule): Validator {
@@ -83,13 +83,13 @@ export class Validator {
   }
 
   // Add custom validator
-  addCustomValidator(name: string, validator: (value: any) => boolean): Validator {
+  addCustomValidator(name: string, validator: (value: unknown) => boolean): Validator {
     this.customValidators.set(name, validator);
     return this;
   }
 
   // Validate data
-  validate(data: Record<string, any>): ValidationResult {
+  validate(data: Record<string, unknown>): ValidationResult {
     const errors: ValidationError[] = [];
     const warnings: ValidationWarning[] = [];
 
@@ -118,7 +118,7 @@ export class Validator {
 
   // Validate single field
   private validateField(
-    value: any,
+    value: unknown,
     ruleConfig: ValidationRuleConfig,
     field: string
   ): { error?: ValidationError; warning?: ValidationWarning } {
@@ -139,7 +139,7 @@ export class Validator {
         break;
 
       case 'email':
-        if (!this.isEmpty(value) && !VALIDATION_PATTERNS.EMAIL.test(value)) {
+        if (!this.isEmpty(value) && typeof value === 'string' && !VALIDATION_PATTERNS.EMAIL.test(value)) {
           return {
             error: {
               field,
@@ -152,7 +152,7 @@ export class Validator {
         break;
 
       case 'url':
-        if (!this.isEmpty(value) && !VALIDATION_PATTERNS.URL.test(value)) {
+        if (!this.isEmpty(value) && typeof value === 'string' && !VALIDATION_PATTERNS.URL.test(value)) {
           return {
             error: {
               field,
@@ -165,7 +165,7 @@ export class Validator {
         break;
 
       case 'minLength':
-        if (!this.isEmpty(value) && value.length < ruleValue) {
+        if (!this.isEmpty(value) && typeof value === 'string' && value.length < (ruleValue as number)) {
           return {
             error: {
               field,
@@ -178,7 +178,7 @@ export class Validator {
         break;
 
       case 'maxLength':
-        if (!this.isEmpty(value) && value.length > ruleValue) {
+        if (!this.isEmpty(value) && typeof value === 'string' && value.length > (ruleValue as number)) {
           return {
             error: {
               field,
@@ -191,7 +191,7 @@ export class Validator {
         break;
 
       case 'pattern':
-        if (!this.isEmpty(value) && !ruleValue.test(value)) {
+        if (!this.isEmpty(value) && typeof value === 'string' && !(ruleValue as RegExp).test(value)) {
           return {
             error: {
               field,
@@ -221,7 +221,7 @@ export class Validator {
   }
 
   // Check if value is empty
-  private isEmpty(value: any): boolean {
+  private isEmpty(value: unknown): boolean {
     return value === null || value === undefined || value === '' || 
            (Array.isArray(value) && value.length === 0) ||
            (typeof value === 'object' && Object.keys(value).length === 0);
@@ -236,7 +236,7 @@ export class Validator {
 }
 
 // OAuth-specific validation functions
-export const validateOAuthConfig = (config: Record<string, any>): ValidationResult => {
+export const validateOAuthConfig = (config: Record<string, unknown>): ValidationResult => {
   const validator = new Validator();
   
   validator.addRules([
@@ -273,7 +273,7 @@ export const validateOAuthConfig = (config: Record<string, any>): ValidationResu
   return validator.validate(config);
 };
 
-export const validateTokenRequest = (request: Record<string, any>): ValidationResult => {
+export const validateTokenRequest = (request: Record<string, unknown>): ValidationResult => {
   const validator = new Validator();
   
   validator.addRules([
@@ -313,7 +313,7 @@ export const validateTokenRequest = (request: Record<string, any>): ValidationRe
   return validator.validate(request);
 };
 
-export const validateAuthorizationRequest = (request: Record<string, any>): ValidationResult => {
+export const validateAuthorizationRequest = (request: Record<string, unknown>): ValidationResult => {
   const validator = new Validator();
   
   validator.addRules([
@@ -381,7 +381,7 @@ export const validateAuthorizationRequest = (request: Record<string, any>): Vali
 };
 
 // Form validation utilities
-export const validateForm = (formData: Record<string, any>, rules: ValidationRule[]): ValidationResult => {
+export const validateForm = (formData: Record<string, unknown>, rules: ValidationRule[]): ValidationResult => {
   const validator = new Validator();
   validator.addRules(rules);
   return validator.validate(formData);
@@ -416,8 +416,8 @@ export const sanitizeUrl = (url: string): string => {
   }
 };
 
-export const sanitizeOAuthConfig = (config: Record<string, any>): Record<string, any> => {
-  const sanitized: Record<string, any> = {};
+export const sanitizeOAuthConfig = (config: Record<string, unknown>): Record<string, unknown> => {
+  const sanitized: Record<string, unknown> = {};
   
   for (const [key, value] of Object.entries(config)) {
     if (typeof value === 'string') {
@@ -437,7 +437,7 @@ export const validateWithErrorHandling = <T>(
   context: string
 ): ValidationResult => {
   try {
-    return validator.validate(data as any);
+    return validator.validate(data as Record<string, unknown>);
   } catch (error) {
     errorHandler.handleError(error, `Validation error in ${context}`);
     return {
