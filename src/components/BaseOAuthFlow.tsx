@@ -182,8 +182,6 @@ export const BaseOAuthFlow: React.FC<BaseOAuthFlowProps> = ({
   className
 }) => {
   const { user, isAuthenticated } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
-
   useEffect(() => {
     logger.info(`[${flowType}] Flow component mounted`);
     
@@ -192,11 +190,6 @@ export const BaseOAuthFlow: React.FC<BaseOAuthFlowProps> = ({
       logger.info(`[${flowType}] User ${user.email} accessed ${flowType} flow`);
     }
   }, [flowType, isAuthenticated, user]);
-
-  const handleError = (error: Error, context: string) => {
-    logger.error(`[${flowType}] ${context}:`, error);
-    setIsLoading(false);
-  };
 
   return (
     <Container className={className}>

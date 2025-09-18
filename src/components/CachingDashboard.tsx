@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FiDatabase, FiTrash2, FiDownload, FiRefreshCw, FiCheckCircle, FiXCircle, FiInfo } from 'react-icons/fi';
 import { useServiceWorker } from '../hooks/useServiceWorker';
@@ -285,10 +285,8 @@ const NotificationMessage = styled.span`
 // CachingDashboard component
 export const CachingDashboard: React.FC = () => {
   const {
-    isSupported,
     isRegistered,
     isActive,
-    state,
     cacheNames,
     cacheSize,
     updateAvailable,
@@ -340,7 +338,7 @@ export const CachingDashboard: React.FC = () => {
     try {
       await register();
       addNotification('success', 'Service worker registered successfully');
-    } catch (error) {
+    } catch (_error) {
       addNotification('error', 'Failed to register service worker');
     }
   };
@@ -350,7 +348,7 @@ export const CachingDashboard: React.FC = () => {
     try {
       await unregister();
       addNotification('success', 'Service worker unregistered successfully');
-    } catch (error) {
+    } catch (_error) {
       addNotification('error', 'Failed to unregister service worker');
     }
   };
@@ -360,7 +358,7 @@ export const CachingDashboard: React.FC = () => {
     try {
       await update();
       addNotification('success', 'Service worker update triggered');
-    } catch (error) {
+    } catch (_error) {
       addNotification('error', 'Failed to update service worker');
     }
   };
@@ -370,7 +368,7 @@ export const CachingDashboard: React.FC = () => {
     try {
       await skipWaiting();
       addNotification('success', 'Service worker updated and activated');
-    } catch (error) {
+    } catch (_error) {
       addNotification('error', 'Failed to activate new service worker');
     }
   };
@@ -380,7 +378,7 @@ export const CachingDashboard: React.FC = () => {
     try {
       await clearCaches();
       addNotification('success', 'All caches cleared successfully');
-    } catch (error) {
+    } catch (_error) {
       addNotification('error', 'Failed to clear caches');
     }
   };
@@ -390,7 +388,7 @@ export const CachingDashboard: React.FC = () => {
     try {
       await updateState();
       addNotification('info', 'Cache status refreshed');
-    } catch (error) {
+    } catch (_error) {
       addNotification('error', 'Failed to refresh cache status');
     }
   };
