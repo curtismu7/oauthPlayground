@@ -15,8 +15,19 @@ import { credentialManager } from '../utils/credentialManager';
 import { getCallbackUrlForFlow } from '../utils/callbackUrls';
 import { getSharedConfigurationStatus } from '../utils/configurationStatus';
 
+interface OAuthConfig {
+  environmentId?: string;
+  clientId?: string;
+  clientSecret?: string;
+  authEndpoint?: string;
+  tokenEndpoint?: string;
+  userInfoEndpoint?: string;
+  redirectUri?: string;
+  scopes?: string[];
+}
+
 interface ConfigurationStatusProps {
-  config: any;
+  config: OAuthConfig;
   onConfigure?: () => void;
   onViewDetails?: () => void;
   flowType?: string;
