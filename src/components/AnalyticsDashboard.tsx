@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { FiBarChart3, FiTrendingUp, FiUsers, FiClock, FiShield, FiAlertTriangle, FiEye, FiDownload, FiRefreshCw } from 'react-icons/fi';
+import { FiBarChart3, FiTrendingUp, FiUsers, FiClock, FiShield, FiAlertTriangle, FiDownload, FiRefreshCw } from 'react-icons/fi';
 import { useAnalytics } from '../hooks/useAnalytics';
 import { useAccessibility } from '../hooks/useAccessibility';
 
@@ -290,7 +290,7 @@ const mockEvents = [
 // Analytics Dashboard component
 export const AnalyticsDashboard: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [selectedTimeRange, setSelectedTimeRange] = useState('24h');
+  const [selectedTimeRange] = useState('24h');
   const { announceToScreenReader } = useAccessibility();
   const { getAnalyticsData, flush } = useAnalytics({ enabled: true, debug: true });
 
@@ -304,7 +304,7 @@ export const AnalyticsDashboard: React.FC = () => {
     
     try {
       await flush();
-      const data = getAnalyticsData();
+      getAnalyticsData();
       
       // In a real implementation, this would fetch from your analytics API
       setTimeout(() => {
