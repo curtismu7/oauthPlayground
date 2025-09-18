@@ -1,11 +1,11 @@
 // src/utils/performance.ts - Performance optimization utilities
 
-import { useCallback, useMemo, useRef, useEffect } from 'react';
+import React, { useCallback, useMemo, useRef, useEffect } from 'react';
 
 /**
  * Debounce hook for performance optimization
  */
-export const useDebounce = <T extends (...args: any[]) => void>(
+export const useDebounce = <T extends (...args: unknown[]) => void>(
   callback: T,
   delay: number
 ): T => {
@@ -25,7 +25,7 @@ export const useDebounce = <T extends (...args: any[]) => void>(
 /**
  * Throttle hook for performance optimization
  */
-export const useThrottle = <T extends (...args: any[]) => void>(
+export const useThrottle = <T extends (...args: unknown[]) => void>(
   callback: T,
   delay: number
 ): T => {
@@ -114,7 +114,7 @@ export const useLazyState = <T>(
 /**
  * Optimized event handler that prevents unnecessary re-renders
  */
-export const useOptimizedCallback = <T extends (...args: any[]) => any>(
+export const useOptimizedCallback = <T extends (...args: unknown[]) => unknown>(
   callback: T,
   dependencies: React.DependencyList
 ): T => {
