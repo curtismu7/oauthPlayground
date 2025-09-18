@@ -32,7 +32,22 @@ const DebugSection = styled.div`
 `;
 
 const DebugCredentials: React.FC = () => {
-  const [debugInfo, setDebugInfo] = useState<any>(null);
+  interface DebugInfo {
+    allLocalStorageKeys: string[];
+    pingoneKeys: string[];
+    pingone_permanent_credentials: string | null;
+    pingone_session_credentials: string | null;
+    pingone_config: string | null;
+    credentialManager: {
+      permanent: Record<string, unknown>;
+      session: Record<string, unknown>;
+      all: Record<string, unknown>;
+      arePermanentComplete: boolean;
+      areAllComplete: boolean;
+    };
+  }
+
+  const [debugInfo, setDebugInfo] = useState<DebugInfo | null>(null);
 
   useEffect(() => {
     const updateDebugInfo = () => {
