@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Card, CardHeader, CardBody } from './Card';
+import { Card, CardBody } from './Card';
 import { 
   FiHelpCircle, 
   FiCheckCircle, 
   FiAlertTriangle, 
   FiInfo, 
   FiShield, 
-  FiClock,
   FiChevronDown,
   FiChevronRight,
   FiExternalLink
