@@ -1,6 +1,6 @@
 import { useServerStatus } from '../components/ServerStatusProvider';
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   data?: T;
   error?: string;
   status: number;
@@ -19,7 +19,7 @@ export class ApiError extends Error {
 }
 
 export const apiClient = {
-  async request<T = any>(
+  async request<T = unknown>(
     url: string, 
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
@@ -51,7 +51,7 @@ export const apiClient = {
         } catch (jsonError) {
           // If response is ok but not JSON, return the text
           const text = await response.text();
-          result.data = text as any;
+          result.data = text as T;
         }
       } else {
         try {
@@ -74,11 +74,11 @@ export const apiClient = {
     }
   },
 
-  async get<T = any>(url: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
+  async get<T = unknown>(url: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
     return this.request<T>(url, { ...options, method: 'GET' });
   },
 
-  async post<T = any>(url: string, data?: any, options: RequestInit = {}): Promise<ApiResponse<T>> {
+  async post<T = unknown>(url: string, data?: unknown, options: RequestInit = {}): Promise<ApiResponse<T>> {
     return this.request<T>(url, {
       ...options,
       method: 'POST',
@@ -86,7 +86,7 @@ export const apiClient = {
     });
   },
 
-  async put<T = any>(url: string, data?: any, options: RequestInit = {}): Promise<ApiResponse<T>> {
+  async put<T = unknown>(url: string, data?: unknown, options: RequestInit = {}): Promise<ApiResponse<T>> {
     return this.request<T>(url, {
       ...options,
       method: 'PUT',
@@ -94,7 +94,7 @@ export const apiClient = {
     });
   },
 
-  async delete<T = any>(url: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
+  async delete<T = unknown>(url: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
     return this.request<T>(url, { ...options, method: 'DELETE' });
   },
 };
@@ -103,7 +103,7 @@ export const apiClient = {
 export const useApiCall = () => {
   const serverStatus = useServerStatus();
 
-  const callApi = async <T = any>(
+  const callApi = async <T = unknown>(
     apiCall: () => Promise<ApiResponse<T>>
   ): Promise<ApiResponse<T>> => {
     if (!serverStatus.isOnline) {
