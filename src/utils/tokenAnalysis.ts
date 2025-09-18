@@ -11,7 +11,7 @@ export interface TokenAnalysisResult {
   audience?: string[];
   subject?: string;
   scopes?: string[];
-  claims?: Record<string, any>;
+  claims?: Record<string, unknown>;
   securityIssues: SecurityIssue[];
   validationErrors: ValidationError[];
   recommendations: string[];
@@ -29,8 +29,8 @@ export interface SecurityIssue {
 export interface ValidationError {
   field: string;
   error: string;
-  expected?: any;
-  actual?: any;
+  expected?: unknown;
+  actual?: unknown;
   severity: 'low' | 'medium' | 'high' | 'critical';
 }
 
@@ -202,7 +202,7 @@ export class TokenAnalyzer {
   }
 
   // Analyze JWT header
-  private analyzeJWTHeader(header: any, result: TokenAnalysisResult): void {
+  private analyzeJWTHeader(header: Record<string, unknown>, result: TokenAnalysisResult): void {
     // Check algorithm
     if (!header.alg) {
       result.validationErrors.push({
@@ -247,11 +247,11 @@ export class TokenAnalyzer {
   }
 
   // Analyze JWT payload
-  private analyzeJWTPayload(payload: any, result: TokenAnalysisResult): void {
+  private analyzeJWTPayload(payload: Record<string, unknown>, result: TokenAnalysisResult): void {
     result.claims = payload;
 
     // Check expiration
-    if (payload.exp) {
+    if (payload.exp && typeof payload.exp === 'number') {
       const expiration = new Date(payload.exp * 1000);
       result.expiration = expiration;
       
@@ -328,7 +328,7 @@ export class TokenAnalyzer {
   }
 
   // Check for suspicious claims
-  private checkSuspiciousClaims(payload: any, result: TokenAnalysisResult): void {
+  private checkSuspiciousClaims(payload: Record<string, unknown>, result: TokenAnalysisResult): void {
     // Check for admin claims
     if (payload.admin === true || payload.role === 'admin') {
       result.securityIssues.push({
