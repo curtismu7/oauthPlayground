@@ -5,7 +5,6 @@ import { AuthProvider } from './contexts/NewAuthContext';
 import { PageStyleProvider } from './contexts/PageStyleContext';
 import { GlobalStyle, theme } from './styles/global';
 import { LazyLoadingFallback } from './components/LazyLoadingFallback';
-import { useLazyLoading } from './hooks/useLazyLoading';
 import { logger } from './utils/logger';
 
 // Lazy load all components

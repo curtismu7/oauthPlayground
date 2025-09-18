@@ -258,8 +258,6 @@ export const AccessibleButton: React.FC<AccessibleButtonProps> = ({
     onFocus,
     onBlur,
     announce,
-    announceError,
-    announceSuccess,
     isFocused,
     isKeyboardUser
   } = useAccessibility({
