@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { FiLock, FiAlertCircle, FiCheckCircle, FiEye, FiEyeOff, FiLoader } from 'react-icons/fi';
+import { FiLock, FiEye, FiEyeOff, FiLoader } from 'react-icons/fi';
 import { credentialManager } from '../utils/credentialManager';
 import StandardMessage from './StandardMessage';
 
@@ -237,10 +237,6 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
   const [isLoading, setIsLoading] = useState(false);
   const [showSecret, setShowSecret] = useState(false);
   const [saveStatus, setSaveStatus] = useState<{ type: 'success' | 'danger'; title: string; message: string } | null>(null);
-  const [storedCredentials, setStoredCredentials] = useState<{
-    pingone_config: Record<string, unknown>;
-    login_credentials: Record<string, unknown>;
-  } | null>(null);
 
   // Handle escape key to close modal
   useEffect(() => {
