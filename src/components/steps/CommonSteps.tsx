@@ -441,14 +441,14 @@ export const createAuthUrlStep = (
     generateAuthUrl();
     return { success: true };
   },
-    canExecute: Boolean(
-      credentials &&
-      (credentials.environmentId || credentials.issuerUrl) &&
-      credentials.clientId &&
-      credentials.redirectUri &&
-      (!pkceCodes || (pkceCodes.codeVerifier && pkceCodes.codeChallenge))
-    )
-  };
+  canExecute: Boolean(
+    credentials &&
+    (credentials.environmentId || credentials.issuerUrl) &&
+    credentials.clientId &&
+    credentials.redirectUri &&
+    (!pkceCodes || (pkceCodes.codeVerifier && pkceCodes.codeChallenge))
+  )
+};
 };
 
 /**
