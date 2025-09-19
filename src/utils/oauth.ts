@@ -11,16 +11,8 @@ import {
 
 // Client logging function for server.log
 const clientLog = async (message: string) => {
-  try {
-    await fetch('/__log', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message }),
-      keepalive: true,
-    });
-  } catch {
-    // no-op
-  }
+  // Disabled to prevent 404 errors - endpoint not implemented
+  // console.log('[ClientLog]', message);
 };
 
 /**
@@ -671,11 +663,11 @@ export const validateIdToken = async (
       console.warn('⚠️ [OIDC] Access token provided but no at_hash claim in ID token');
     }
     
-    // 10. SECURITY: Check for suspicious claims that might indicate tampering
+    // 10. SECURITY: Check for explicitly set suspicious claims (not inherited)
     const suspiciousClaims = ['__proto__', 'constructor', 'prototype'];
     for (const claim of suspiciousClaims) {
-      if (claim in payload) {
-        console.error('❌ [Security] Suspicious claim detected in ID token:', claim);
+      if (payload.hasOwnProperty(claim)) {
+        console.error('❌ [Security] Suspicious claim explicitly set in ID token:', claim);
         throw new Error(`Potentially malicious claim detected in ID token: ${claim}`);
       }
     }
