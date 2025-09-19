@@ -473,10 +473,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         oauth_redirect_after_login: redirectAfterLogin
       });
 
-      // Determine redirect URI based on callback type
+      // Determine redirect URI based on callback type - OIDC Spec Compliance
+      // Per OIDC Spec 3.1.2.1: redirect_uri in token request MUST match authorization request
       const redirectUri = callbackType === 'dashboard' 
         ? `${window.location.origin}/dashboard-callback`
-        : config.redirectUri;
+        : `${window.location.origin}/authz-callback`;
 
       console.log('🔗 [NewAuthContext] Redirect URI configuration:', {
         callbackType,
@@ -659,7 +660,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.warn('Failed to parse flow context for redirect URI:', error);
         }
       } else {
-        console.log('⚠️ [NewAuthContext] No flow context found in sessionStorage');
+        console.log('🚨 [NewAuthContext] NO FLOW CONTEXT FOUND - This means V3 redirect will go to dashboard!');
+        console.log('🚨 [NewAuthContext] This is the bug - V3 should have set flowContext in sessionStorage');
       }
       
       // Fallback to determining by callback URL if no flow context
@@ -672,8 +674,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       // Get code_verifier from sessionStorage for PKCE
-      const codeVerifier = sessionStorage.getItem('code_verifier');
-      console.log('🔧 [NewAuthContext] Retrieved code_verifier from sessionStorage:', codeVerifier ? 'present' : 'missing');
+      // Retrieve stored PKCE verifier - OIDC Spec Compliance  
+      // Per RFC 7636 (PKCE): code_verifier MUST be provided in token exchange
+      const codeVerifier = sessionStorage.getItem('code_verifier') || sessionStorage.getItem('oauth_code_verifier');
+      console.log('🔧 [NewAuthContext] Retrieved code_verifier from sessionStorage:', {
+        hasCodeVerifier: !!codeVerifier,
+        codeVerifierLength: codeVerifier?.length || 0,
+        codeVerifierPrefix: codeVerifier ? codeVerifier.substring(0, 10) + '...' : 'MISSING'
+      });
       
       // Fallback to credential manager if config is not loaded
       let clientId = config?.clientId || '';
@@ -721,14 +729,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('Redirect URI is required for token exchange. Please configure your OAuth credentials first.');
       }
 
-      // If this callback belongs to the Enhanced Authorization Code Flow V2,
+      // If this callback belongs to Enhanced Authorization Code Flow V2 or V3,
       // do NOT auto-exchange here. Defer token exchange to the flow page to avoid double-use of the code.
+      console.log('🚨 [NewAuthContext] FULL REDIRECT CALLBACK DEBUG - START');
+      console.log('🔍 [NewAuthContext] Checking for Enhanced flow context to defer token exchange...');
+      console.log('🔍 [NewAuthContext] Current URL:', url);
+      console.log('🔍 [NewAuthContext] URL contains authz-callback:', url.includes('authz-callback'));
+      console.log('🔍 [NewAuthContext] All sessionStorage contents:', 
+        Object.fromEntries(Object.keys(sessionStorage).map(key => [key, sessionStorage.getItem(key)])));
+      console.log('🔍 [NewAuthContext] Looking specifically for flowContext key...');
+      
       try {
         const flowContextRaw = sessionStorage.getItem('flowContext');
+        console.log('🔍 [NewAuthContext] Flow context raw from sessionStorage:', flowContextRaw);
+        
         if (flowContextRaw) {
           const parsed = safeJsonParse(flowContextRaw);
+          console.log('🔍 [NewAuthContext] Parsed flow context:', parsed);
+          
           const isEnhancedV2 = parsed?.flow === 'enhanced-authorization-code-v2';
-          if (isEnhancedV2) {
+          const isEnhancedV3 = parsed?.flow === 'enhanced-authorization-code-v3';
+          
+          console.log('🔍 [NewAuthContext] Flow type detection:', {
+            flowType: parsed?.flow,
+            isEnhancedV2,
+            isEnhancedV3,
+            hasReturnPath: !!parsed?.returnPath,
+            parsedReturnPath: parsed?.returnPath
+          });
+          
+          console.log('🚨 [NewAuthContext] ENHANCED FLOW DETECTED?', isEnhancedV2 || isEnhancedV3);
+          
+          if (isEnhancedV2 || isEnhancedV3) {
             // Persist auth code and state for the flow page
             if (code) {
               sessionStorage.setItem('oauth_auth_code', code);
@@ -736,8 +768,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (state) {
               sessionStorage.setItem('oauth_state', state);
             }
-            const returnPath = parsed?.returnPath || '/flows/enhanced-authorization-code-v2?step=4';
-            logger.auth('NewAuthContext', 'Deferring token exchange to Enhanced Auth Code Flow V2 page', { returnPath });
+            
+            // OIDC Compliance: Use the redirect URI from flow context if available
+            if (parsed?.redirectUri) {
+              console.log('🔧 [NewAuthContext] Using redirect URI from flow context for OIDC compliance:', parsed.redirectUri);
+              // Override the redirectUri with the one from flow context
+              redirectUri = parsed.redirectUri;
+            }
+            
+            // Determine correct return path based on flow version
+            let returnPath;
+            if (isEnhancedV3) {
+              returnPath = parsed?.returnPath || '/flows/enhanced-authorization-code-v3?step=4';
+              console.log('🎯 [NewAuthContext] V3 FLOW DETECTED - Returning to V3 page:', returnPath);
+              logger.auth('NewAuthContext', 'Deferring token exchange to Enhanced Auth Code Flow V3 page', { returnPath, redirectUri });
+            } else {
+              returnPath = parsed?.returnPath || '/flows/enhanced-authorization-code-v2?step=4';
+              console.log('🎯 [NewAuthContext] V2 FLOW DETECTED - Returning to V2 page:', returnPath);
+              logger.auth('NewAuthContext', 'Deferring token exchange to Enhanced Auth Code Flow V2 page', { returnPath, redirectUri });
+            }
+            
             return { success: true, redirectUrl: returnPath };
           }
         }
@@ -746,7 +796,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         logger.warn('NewAuthContext', 'Failed to inspect flowContext for enhanced flow gating', e as unknown as string);
       }
 
-      // Exchange code for tokens
+      // Exchange code for tokens - This should NOT happen for Enhanced V3 flows
+      console.log('🚨 [NewAuthContext] CRITICAL: About to do immediate token exchange!');
+      console.log('🚨 [NewAuthContext] If this is V3, the flow context detection FAILED!');
+      console.log('🚨 [NewAuthContext] Flow context should have deferred this to V3 page!');
+      
       const requestBody = {
         grant_type: 'authorization_code',
         code: code,
@@ -880,22 +934,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         error: null,
       });
       
-      // Clear session storage
+      // Clear session storage (but preserve nonce for Enhanced flows)
+      // Note: oauth_nonce will be cleared later if this is not an Enhanced flow
       sessionStorage.removeItem('oauth_state');
-      sessionStorage.removeItem('oauth_nonce');
       
-      // Clean up flow context after successful token exchange
-      if (flowContext) {
-        console.log('🧹 [NewAuthContext] Cleaning up flow context after successful token exchange');
-        sessionStorage.removeItem(flowContextKey);
-      }
-      
-      // Get redirect URL
+      // Get redirect URL first, then clean up
       let redirectUrl = sessionStorage.getItem('oauth_redirect_after_login') || '/';
       sessionStorage.removeItem('oauth_redirect_after_login');
       
-      // Check for flow context to continue to next step
-      console.log('🔍 [NewAuthContext] Checking flow context:', flowContext);
+      // Check for flow context to continue to next step BEFORE cleaning up
+      console.log('🔍 [NewAuthContext] Checking flow context for redirect:', flowContext);
       console.log('🔍 [NewAuthContext] All sessionStorage keys:', Object.keys(sessionStorage));
       console.log('🔍 [NewAuthContext] All sessionStorage contents:', Object.fromEntries(Object.keys(sessionStorage).map(key => [key, sessionStorage.getItem(key)])));
       
@@ -918,20 +966,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           
           // Validate the parsed context structure
           if (parsedContext && typeof parsedContext === 'object' && parsedContext.returnPath) {
-            // Use secure path sanitization
-            const sanitizedPath = sanitizePath(String(parsedContext.returnPath), '/dashboard');
-            redirectUrl = sanitizedPath;
-            console.log('🔄 [NewAuthContext] Using sanitized flow context return path:', redirectUrl);
+            // For Enhanced flows (V2/V3), trust the return path from flow context
+            const returnPath = String(parsedContext.returnPath);
+            if (returnPath.includes('/flows/enhanced-authorization-code')) {
+              redirectUrl = returnPath;
+              console.log('🔄 [NewAuthContext] Using Enhanced flow return path:', redirectUrl);
+            } else {
+              // For other flows, use basic path validation
+              redirectUrl = returnPath.startsWith('/') ? returnPath : '/dashboard';
+              console.log('🔄 [NewAuthContext] Using validated flow context return path:', redirectUrl);
+            }
           } else {
-            console.log('⚠️ [NewAuthContext] No valid returnPath in flow context');
+            console.log('⚠️ [NewAuthContext] No valid returnPath in flow context, using default');
+            redirectUrl = '/dashboard';
           }
         } catch (error) {
           console.warn('Failed to parse flow context:', error);
           // Use safe default on parse error
           redirectUrl = '/dashboard';
         }
+        
+        // Clean up flow context AFTER determining redirect URL
+        console.log('🧹 [NewAuthContext] Cleaning up flow context after determining redirect URL');
+        sessionStorage.removeItem('flowContext');
       } else {
         console.log('⚠️ [NewAuthContext] No flow context found in sessionStorage');
+        
+        // Clear nonce for non-Enhanced flows (Enhanced flows preserve nonce for validation)
+        console.log('🧹 [NewAuthContext] Clearing nonce for non-Enhanced flow');
+        sessionStorage.removeItem('oauth_nonce');
       }
       
       logger.auth('NewAuthContext', 'Authentication successful', { redirectUrl });

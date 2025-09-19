@@ -729,7 +729,36 @@ const TokenManagement = () => {
     
     // Load token history
     const history = getTokenHistory();
-    setTokenHistory(history.entries);
+    
+    // If no history exists and we have current tokens, create initial history entries
+    if (history.entries.length === 0 && tokens?.access_token) {
+      console.log('🔍 [TokenManagement] No history found, creating sample entries with current tokens');
+      
+      // Create a history entry for the current OAuth session
+      const { addTokenToHistory } = require('../utils/tokenHistory');
+      const success = addTokenToHistory(
+        'enhanced-authorization-code-v3',
+        'Enhanced Authorization Code Flow V3',
+        {
+          access_token: tokens.access_token,
+          id_token: tokens.id_token,
+          refresh_token: tokens.refresh_token,
+          token_type: tokens.token_type || 'Bearer',
+          expires_in: tokens.expires_in || 3600,
+          scope: tokens.scope || 'openid profile email'
+        }
+      );
+      
+      if (success) {
+        // Reload history after adding current tokens
+        const updatedHistory = getTokenHistory();
+        setTokenHistory(updatedHistory.entries);
+        console.log('✅ [TokenManagement] Added current tokens to history');
+      }
+    } else {
+      setTokenHistory(history.entries);
+      console.log('📋 [TokenManagement] Loaded existing token history:', history.entries.length, 'entries');
+    }
   }, [tokens]);
 
   const decodeJWT = (token: string) => {
@@ -1276,39 +1305,53 @@ const TokenManagement = () => {
         subtitle="Monitor and manage PingOne authentication tokens"
       />
 
-      {/* Current Token Status Section */}
-      {tokens && tokens.access_token && (
-        <TokenSection>
-          <CardHeader>
-            <h2>Current Access Token</h2>
-          </CardHeader>
-          <CardBody>
-            <TokenStatus className={tokenStatus}>
-              <div className="indicator"></div>
-              <div className="text">
-                <strong>Active Access Token Available</strong>
-                <br />
-                <small style={{ color: '#6b7280' }}>
-                  Token from your current OAuth session is automatically loaded and decoded below.
-                  You can also paste other tokens for analysis.
-                </small>
-              </div>
-            </TokenStatus>
-            
+      {/* Current Token Status Section - Merged */}
+      <TokenSection>
+        <CardHeader>
+          <h2>Current Token Status</h2>
+        </CardHeader>
+        <CardBody>
+          <TokenStatus className={tokenStatus}>
+            <div className={`indicator ${tokenStatus}`}></div>
+            <div className="text">
+              <strong>
+                {tokenStatus === 'valid' && 'Active Access Token Available'}
+                {tokenStatus === 'expired' && 'Token has expired'}
+                {tokenStatus === 'invalid' && 'Token is invalid'}
+                {tokenStatus === 'none' && 'No token available'}
+              </strong>
+              <br />
+              <small style={{ color: '#6b7280' }}>
+                {tokens && tokens.access_token 
+                  ? 'Token from your current OAuth session is automatically loaded and decoded below. You can also paste other tokens for analysis.'
+                  : 'No active token found. Complete an OAuth flow to get tokens, or paste a token below for analysis.'
+                }
+              </small>
+            </div>
+          </TokenStatus>
+
+          {(tokens && tokens.access_token) || tokenString ? (
             <TokenDetails>
               <div className="detail">
                 <span className="label">Token Type</span>
-                <span className="value">{tokens.token_type || 'Bearer'}</span>
+                <span className="value">
+                  {tokens?.token_type || 'Bearer'}
+                  {getTokenTypeInfo().type !== 'unknown' && ` (${getTokenTypeInfo().type === 'access' ? 'Access Token' : getTokenTypeInfo().type === 'id' ? 'ID Token' : getTokenTypeInfo().type === 'refresh' ? 'Refresh Token' : getTokenTypeInfo().type})`}
+                </span>
               </div>
               <div className="detail">
                 <span className="label">Scope</span>
-                <span className="value">{tokens.scope || 'Not specified'}</span>
+                <span className="value">
+                  {tokens?.scope || getTokenTypeInfo().scopes?.join(' ') || 'openid profile email'}
+                </span>
               </div>
               <div className="detail">
                 <span className="label">Expires</span>
                 <span className="value">
-                  {tokens.expires_at 
+                  {tokens?.expires_at 
                     ? new Date(tokens.expires_at).toLocaleString()
+                    : currentAnalysis?.expiresIn 
+                    ? `${Math.floor(currentAnalysis.expiresIn / 60)} minutes from now`
                     : 'Not specified'
                   }
                 </span>
@@ -1319,50 +1362,11 @@ const TokenManagement = () => {
                   color: tokenStatus === 'valid' ? '#22c55e' : tokenStatus === 'expired' ? '#ef4444' : '#6b7280',
                   fontWeight: '600'
                 }}>
-                  {tokenStatus === 'valid' ? 'Valid' : tokenStatus === 'expired' ? 'Expired' : 'Unknown'}
+                  {tokenStatus === 'valid' ? 'Valid' : tokenStatus === 'expired' ? 'Expired' : tokenStatus === 'invalid' ? 'Invalid' : 'Unknown'}
                 </span>
               </div>
             </TokenDetails>
-          </CardBody>
-        </TokenSection>
-      )}
-
-      {/* Token Status Section */}
-      <TokenSection>
-        <CardHeader>
-          <h2>Token Status</h2>
-        </CardHeader>
-        <CardBody>
-          <TokenStatus className={tokenStatus}>
-            <div className={`indicator ${tokenStatus}`}></div>
-            <span className="text">
-              {tokenStatus === 'valid' && 'Token is valid'}
-              {tokenStatus === 'expired' && 'Token has expired'}
-              {tokenStatus === 'invalid' && 'Token is invalid'}
-              {tokenStatus === 'none' && 'No token available'}
-            </span>
-          </TokenStatus>
-
-          <TokenDetails>
-            <div className="detail">
-              <div className="label">Token Type</div>
-              <div className="value">
-                Bearer {getTokenTypeInfo().type !== 'unknown' && `(${getTokenTypeInfo().type === 'access' ? 'Access Token' : getTokenTypeInfo().type === 'id' ? 'ID Token' : getTokenTypeInfo().type === 'refresh' ? 'Refresh Token' : getTokenTypeInfo().type})`}
-              </div>
-            </div>
-            <div className="detail">
-              <div className="label">Expires In</div>
-              <div className="value">
-                {currentAnalysis?.expiresIn ? `${Math.floor(currentAnalysis.expiresIn / 60)} minutes` : '1 hour'}
-              </div>
-            </div>
-            <div className="detail">
-              <div className="label">Scope</div>
-              <div className="value">
-                {getTokenTypeInfo().scopes?.join(' ') || 'openid profile email'}
-              </div>
-            </div>
-          </TokenDetails>
+          ) : null}
         </CardBody>
       </TokenSection>
 
@@ -1596,14 +1600,64 @@ const TokenManagement = () => {
             <ActionButton
               className="secondary"
               onClick={() => {
-                const sampleToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+                // Create a comprehensive sample token that matches real PingOne token structure
+                const now = Math.floor(Date.now() / 1000);
+                const samplePayload = {
+                  // Standard JWT claims
+                  iss: "https://auth.pingone.com/12345678-1234-1234-1234-123456789012",
+                  sub: "87654321-4321-4321-4321-210987654321",
+                  aud: "a1b2c3d4-5678-90ab-cdef-1234567890ab",
+                  exp: now + 3600, // Expires in 1 hour
+                  iat: now - 300,  // Issued 5 minutes ago
+                  auth_time: now - 300,
+                  jti: "jwt_" + Date.now(),
+                  
+                  // OIDC claims
+                  nonce: "abc123def456ghi789",
+                  at_hash: "sample_at_hash_value_123",
+                  
+                  // PingOne specific claims
+                  env: "12345678-1234-1234-1234-123456789012",
+                  org: "98765432-8765-4321-9876-543210987654",
+                  
+                  // User profile claims
+                  name: "John Doe",
+                  given_name: "John",
+                  family_name: "Doe", 
+                  email: "john.doe@example.com",
+                  email_verified: true,
+                  preferred_username: "john.doe",
+                  picture: "https://example.com/avatar/john.doe.jpg",
+                  
+                  // Additional standard claims
+                  locale: "en-US",
+                  zoneinfo: "America/New_York",
+                  updated_at: now - 86400, // Updated yesterday
+                  
+                  // OAuth scope-related claims
+                  scope: "openid profile email",
+                  client_id: "a1b2c3d4-5678-90ab-cdef-1234567890ab",
+                  
+                  // PingOne environment claims
+                  amr: ["pwd"], // Authentication method reference
+                  acr: "urn:pingone:loa:1", // Authentication context class reference
+                  sid: "session_" + Date.now()
+                };
+                
+                // Create a properly formatted JWT (header.payload.signature)
+                const header = { alg: "RS256", typ: "JWT", kid: "sample_key_id_123" };
+                const encodedHeader = btoa(JSON.stringify(header)).replace(/[+/=]/g, m => ({'+':'-','/':'_','=':''}[m]));
+                const encodedPayload = btoa(JSON.stringify(samplePayload)).replace(/[+/=]/g, m => ({'+':'-','/':'_','=':''}[m]));
+                const sampleSignature = "sample_signature_" + btoa("comprehensive_sample_token").replace(/[+/=]/g, m => ({'+':'-','/':'_','=':''}[m]));
+                const sampleToken = `${encodedHeader}.${encodedPayload}.${sampleSignature}`;
+                
                 setTokenString(sampleToken);
                 setTokenSource({
-                  source: 'Sample Token',
-                  description: 'JWT sample token for testing and demonstration',
+                  source: 'Comprehensive Sample',
+                  description: 'Realistic PingOne JWT sample with comprehensive claims including OIDC, profile, and PingOne-specific fields',
                   timestamp: new Date().toLocaleString()
                 });
-                console.log('🧪 [TokenManagement] Loaded sample token for testing');
+                console.log('🧪 [TokenManagement] Loaded comprehensive sample token with realistic PingOne structure');
                 
                 // Auto-decode the sample token
                 setTimeout(() => decodeJWT(sampleToken), 100);
@@ -1611,8 +1665,8 @@ const TokenManagement = () => {
                 // Show success message
                 setMessage({
                   type: 'success',
-                  title: 'Sample Token Loaded!',
-                  message: 'Loaded a sample JWT token for testing. The token has been automatically decoded.'
+                  title: 'Comprehensive Sample Token Loaded!',
+                  message: 'Loaded a realistic sample token with comprehensive claims matching real PingOne token structure. Perfect for testing and demonstration.'
                 });
               }}
             >
@@ -1711,65 +1765,6 @@ const TokenManagement = () => {
         </CardBody>
       </TokenSection>
 
-      {/* Token Controls Section */}
-      <TokenSection>
-        <CardHeader>
-          <h2>Token Actions</h2>
-        </CardHeader>
-        <CardBody>
-          <ButtonGroup>
-            <ActionButton
-              id="refresh-token-btn"
-              className="primary"
-              onClick={handleRefreshToken}
-              disabled={isLoading}
-            >
-              <FiRefreshCw />
-              {isLoading ? 'Refreshing...' : 'Refresh Token'}
-            </ActionButton>
-
-            <ActionButton
-              id="validate-token-btn"
-              className="secondary"
-              onClick={handleValidateToken}
-              disabled={!tokenString || isLoading}
-            >
-              <FiCheckCircle />
-              Validate Token
-            </ActionButton>
-
-            <ActionButton
-              id="test-connection-btn"
-              className="secondary"
-              onClick={handleTestConnection}
-              disabled={isLoading}
-            >
-              <FiPlus />
-              Test Connection
-            </ActionButton>
-
-            <ActionButton
-              id="revoke-token-btn"
-              className="danger"
-              onClick={handleRevokeToken}
-              disabled={!tokenString || isLoading}
-            >
-              <FiX />
-              Revoke Token
-            </ActionButton>
-
-            <ActionButton
-              id="clear-token-btn"
-              className="danger"
-              onClick={handleClearToken}
-              disabled={!tokenString || isLoading}
-            >
-              <FiTrash2 />
-              Clear Token
-            </ActionButton>
-          </ButtonGroup>
-        </CardBody>
-      </TokenSection>
 
       {/* Token History Section */}
       <TokenSection>
@@ -1817,20 +1812,39 @@ const TokenManagement = () => {
                     </HistoryTimestamp>
                   </HistoryHeader>
                   
+                  {/* Enhanced Token Details */}
+                  <div style={{ margin: '0.75rem 0', fontSize: '0.875rem', color: '#6b7280' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.5rem' }}>
+                      <div><strong>Scope:</strong> {entry.tokens.scope || 'openid profile email'}</div>
+                      <div><strong>Token Type:</strong> {entry.tokens.token_type || 'Bearer'}</div>
+                      <div><strong>Expires In:</strong> {entry.tokens.expires_in ? `${Math.floor(entry.tokens.expires_in / 60)} minutes` : '1 hour'}</div>
+                      <div><strong>Token Count:</strong> {entry.tokenCount} token{entry.tokenCount !== 1 ? 's' : ''}</div>
+                    </div>
+                  </div>
+                  
                   <HistoryTokens>
                     {entry.hasAccessToken && (
                       <TokenBadge $type="access">
                         🔐 Access Token
+                        <small style={{ marginLeft: '0.5rem', opacity: 0.8 }}>
+                          ({entry.tokens.access_token ? entry.tokens.access_token.substring(0, 10) + '...' : 'Available'})
+                        </small>
                       </TokenBadge>
                     )}
                     {entry.hasIdToken && (
                       <TokenBadge $type="id">
                         🎫 ID Token
+                        <small style={{ marginLeft: '0.5rem', opacity: 0.8 }}>
+                          ({entry.tokens.id_token ? entry.tokens.id_token.substring(0, 10) + '...' : 'Available'})
+                        </small>
                       </TokenBadge>
                     )}
                     {entry.hasRefreshToken && (
                       <TokenBadge $type="refresh">
                         🔄 Refresh Token
+                        <small style={{ marginLeft: '0.5rem', opacity: 0.8 }}>
+                          ({entry.tokens.refresh_token ? entry.tokens.refresh_token.substring(0, 10) + '...' : 'Available'})
+                        </small>
                       </TokenBadge>
                     )}
                   </HistoryTokens>
