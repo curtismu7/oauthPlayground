@@ -342,49 +342,52 @@ const EmptyState = styled.div`
 
 const availableFlows: FlowComparison[] = [
   {
-    id: 'authorization-code',
-    title: 'Authorization Code',
-    description: 'Most secure flow for web applications with backend',
+    id: 'oauth-v3',
+    title: 'OAuth 2.0 Authorization Code (V3)',
+    description: 'Pure OAuth 2.0 Authorization Code Flow for resource access',
     icon: <FiCode />,
     security: 'high',
     complexity: 'medium',
     implementationTime: '2-4 hours',
-    useCases: ['Web Apps', 'Mobile Apps', 'SPAs'],
+    useCases: ['Web Apps', 'Mobile Apps', 'SPAs', 'API Access'],
     pros: [
-      'Most secure OAuth flow',
-      'Supports refresh tokens',
-      'Client secret protection',
-      'Industry standard'
+      'Pure OAuth 2.0 implementation',
+      'PKCE security enhancement',
+      'Access and refresh tokens',
+      'No user identity information',
+      'Ideal for API access'
     ],
     cons: [
       'Requires secure backend',
-      'More complex than implicit',
+      'No user profile information',
       'Requires HTTPS'
     ],
-    route: '/flows/authorization-code',
+    route: '/flows/oauth-authorization-code-v3',
     recommended: true
   },
   {
-    id: 'pkce',
-    title: 'PKCE Flow',
-    description: 'Enhanced authorization code flow for public clients',
+    id: 'oidc-v3',
+    title: 'OIDC Authorization Code (V3)',
+    description: 'Complete OpenID Connect Authorization Code Flow',
     icon: <FiShield />,
     security: 'high',
     complexity: 'medium',
     implementationTime: '2-4 hours',
-    useCases: ['Mobile Apps', 'SPAs', 'Native Apps'],
+    useCases: ['Web Apps', 'Mobile Apps', 'SPAs', 'Authentication'],
     pros: [
-      'No client secret needed',
-      'Enhanced security for public clients',
-      'Supports refresh tokens',
-      'Recommended for mobile'
+      'Complete OIDC implementation',
+      'Authentication and authorization',
+      'PKCE security enhancement',
+      'Access, ID, and refresh tokens',
+      'User profile information',
+      'OIDC compliance'
     ],
     cons: [
-      'More complex than implicit',
-      'Requires code challenge generation',
-      'Newer standard'
+      'Requires secure backend',
+      'More complex than pure OAuth',
+      'Requires HTTPS'
     ],
-    route: '/flows/pkce',
+    route: '/flows/enhanced-authorization-code-v3',
     recommended: true
   },
   {
