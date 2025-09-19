@@ -16,6 +16,7 @@ import {
   FiExternalLink
 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
+import { credentialManager } from '../utils/credentialManager';
 
 interface FlowComparison {
   id: string;
@@ -502,6 +503,43 @@ const FlowComparisonTool: React.FC = () => {
 
   const selectedFlowData = getSelectedFlowData();
 
+  // Generate URL with credentials for a flow
+  const generateFlowUrl = (flow: FlowComparison): string => {
+    try {
+      // Get current credentials from credential manager
+      const credentials = credentialManager.loadAuthzFlowCredentials();
+      
+      // Only add credentials to URL if they exist
+      if (credentials.environmentId || credentials.clientId) {
+        const params = new URLSearchParams();
+        
+        if (credentials.environmentId) {
+          params.set('env', credentials.environmentId);
+        }
+        if (credentials.clientId) {
+          params.set('client', credentials.clientId);
+        }
+        if (credentials.scopes && credentials.scopes.length > 0) {
+          const scopeString = Array.isArray(credentials.scopes) 
+            ? credentials.scopes.join(' ') 
+            : credentials.scopes;
+          params.set('scope', scopeString);
+        }
+        if (credentials.redirectUri) {
+          params.set('redirect', credentials.redirectUri);
+        }
+        
+        const paramString = params.toString();
+        return paramString ? `${flow.route}?${paramString}` : flow.route;
+      }
+      
+      return flow.route;
+    } catch (error) {
+      console.error('Error generating flow URL with credentials:', error);
+      return flow.route;
+    }
+  };
+
   return (
     <ComparisonContainer>
       <PageHeader>
@@ -642,7 +680,7 @@ const FlowComparisonTool: React.FC = () => {
                   </UseCasesList>
                 </ComparisonSection>
 
-                <ActionButton to={flow.route}>
+                <ActionButton to={generateFlowUrl(flow)}>
                   <FiExternalLink />
                   Try This Flow
                 </ActionButton>
