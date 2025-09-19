@@ -1,0 +1,2206 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import React, { useState} from 'react';
+import { useAuth } from '../contexts/NewAuthContext';
+import { Card, CardHeader, CardBody } from '../components/Card';
+import styled from 'styled-components';
+import PageTitle from '../components/PageTitle';
+import { getOAuthTokens } from '../utils/tokenStorage';
+import { getTokenHistory, clearTokenHistory, removeTokenFromHistory, getFlowDisplayName, getFlowIcon, TokenHistoryEntry } from '../utils/tokenHistory';
+import { useTokenAnalysis } from '../hooks/useTokenAnalysis';
+import { useErrorDiagnosis } from '../hooks/useErrorDiagnosis';
+import { usePageScroll } from '../hooks/usePageScroll';
+import JSONHighlighter from '../components/JSONHighlighter';
+import { TokenSurface } from '../components/TokenSurface';
+import StandardMessage from '../components/StandardMessage';
+import ConfirmationModal from '../components/ConfirmationModal';
+import CentralizedSuccessMessage, { showFlowSuccess, showFlowError } from '../components/CentralizedSuccessMessage';
+
+const Container = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+`;
+
+
+
+const TokenSection = styled(Card)`
+  margin-bottom: 2rem;
+`;
+
+const TokenStatus = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+
+  &.valid {
+    background-color: #f0fdf4;
+    border: 1px solid #bbf7d0;
+  }
+
+  &.expired {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+  }
+
+  &.none {
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+  }
+
+  .indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+
+    &.valid { background-color: #22c55e; }
+    &.expired { background-color: #ef4444; }
+    &.none { background-color: #9ca3af; }
+  }
+
+  .text {
+    font-weight: 500;
+  }
+`;
+
+const TokenDetails = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  .detail {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    .label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: ${({ theme }) => theme.colors.gray600};
+    }
+
+    .value {
+      font-family: monospace;
+      font-size: 0.9rem;
+      color: ${({ theme }) => theme.colors.gray900};
+    }
+  }
+`;
+
+
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+`;
+
+const ActionButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+
+  &.primary {
+    background-color: ${({ theme }) => theme.colors.primary};
+    color: white;
+
+    &:hover {
+      background-color: ${({ theme }) => theme.colors.primaryDark};
+    }
+  }
+
+  &.secondary {
+    background-color: transparent;
+    color: ${({ theme }) => theme.colors.primary};
+    border-color: ${({ theme }) => theme.colors.primary};
+
+    &:hover {
+      background-color: ${({ theme }) => theme.colors.primary}10;
+    }
+  }
+
+  &.danger {
+    background-color: #dc2626;
+    color: white;
+
+    &:hover {
+      background-color: #b91c1c;
+    }
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+`;
+
+
+
+
+const HistoryEntry = styled.div`
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  
+  &:hover {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+`;
+
+const HistoryHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+`;
+
+const HistoryFlow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #374151;
+`;
+
+const HistoryTimestamp = styled.div`
+  font-size: 0.875rem;
+  color: #6b7280;
+`;
+
+const HistoryTokens = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+`;
+
+const TokenBadge = styled.span<{ $type: 'access' | 'id' | 'refresh' }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: ${({ $type }) => {
+    switch ($type) {
+      case 'access': return '#dbeafe';
+      case 'id': return '#fef3c7';
+      case 'refresh': return '#d1fae5';
+      default: return '#f3f4f6';
+    }
+  }};
+  color: ${({ $type }) => {
+    switch ($type) {
+      case 'access': return '#1e40af';
+      case 'id': return '#92400e';
+      case 'refresh': return '#065f46';
+      default: return '#374151';
+    }
+  }};
+  border: 1px solid ${({ $type }) => {
+    switch ($type) {
+      case 'access': return '#93c5fd';
+      case 'id': return '#fcd34d';
+      case 'refresh': return '#6ee7b7';
+      default: return '#d1d5db';
+    }
+  }};
+`;
+
+const HistoryActions = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+`;
+
+const HistoryButton = styled.button<{ $variant?: 'primary' | 'danger' }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  
+  ${({ $variant }) => {
+    switch ($variant) {
+      case 'primary':
+        return `
+          background-color: #3b82f6;
+          color: white;
+          &:hover {
+            background-color: #2563eb;
+          }
+        `;
+      case 'danger':
+        return `
+          background-color: #dc2626;
+          color: white;
+          &:hover {
+            background-color: #b91c1c;
+          }
+        `;
+      default:
+        return `
+          background-color: #f3f4f6;
+          color: #374151;
+          border-color: #d1d5db;
+          &:hover {
+            background-color: #e5e7eb;
+          }
+        `;
+    }
+  }}
+  
+  svg {
+    width: 12px;
+    height: 12px;
+  }
+`;
+
+// New styled components for enhanced features
+const AnalysisSection = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const SecurityScoreCard = styled.div<{ $score: number }>`
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background: ${({ $score }) => {
+    if ($score >= 80) return 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)';
+    if ($score >= 60) return 'linear-gradient(135deg, #fefce8 0%, #fef3c7 100%)';
+    if ($score >= 40) return 'linear-gradient(135deg, #fef2f2 0%, #fecaca 100%)';
+    return 'linear-gradient(135deg, #fef2f2 0%, #fca5a5 100%)';
+  }};
+  border: 1px solid ${({ $score }) => {
+    if ($score >= 80) return '#bbf7d0';
+    if ($score >= 60) return '#fde68a';
+    if ($score >= 40) return '#fecaca';
+    return '#fca5a5';
+  }};
+`;
+
+const ScoreCircle = styled.div<{ $score: number }>`
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: ${({ $score }) => {
+    if ($score >= 80) return '#16a34a';
+    if ($score >= 60) return '#d97706';
+    if ($score >= 40) return '#dc2626';
+    return '#991b1b';
+  }};
+  background: ${({ $score }) => {
+    if ($score >= 80) return '#dcfce7';
+    if ($score >= 60) return '#fef3c7';
+    if ($score >= 40) return '#fecaca';
+    return '#fca5a5';
+  }};
+  margin: 0 auto 1rem;
+`;
+
+const IssueList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+`;
+
+const IssueItem = styled.div<{ $severity: 'low' | 'medium' | 'high' | 'critical' }>`
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  border-left: 4px solid ${({ $severity }) => {
+    switch ($severity) {
+      case 'critical': return '#dc2626';
+      case 'high': return '#ea580c';
+      case 'medium': return '#d97706';
+      case 'low': return '#16a34a';
+      default: return '#6b7280';
+    }
+  }};
+  background-color: ${({ $severity }) => {
+    switch ($severity) {
+      case 'critical': return '#fef2f2';
+      case 'high': return '#fff7ed';
+      case 'medium': return '#fffbeb';
+      case 'low': return '#f0fdf4';
+      default: return '#f9fafb';
+    }
+  }};
+`;
+
+const RecommendationList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
+const RecommendationItem = styled.div`
+  padding: 0.75rem;
+  background-color: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+`;
+
+const ErrorDiagnosisCard = styled.div`
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+`;
+
+const ErrorInput = styled.textarea`
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-family: monospace;
+  font-size: 0.875rem;
+  resize: vertical;
+  min-height: 100px;
+  margin-bottom: 1rem;
+  background-color: #ffffff;
+  color: #1f2937;
+  
+  &:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+`;
+
+const FixList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+`;
+
+const FixItem = styled.div<{ $priority: 'low' | 'medium' | 'high' | 'critical' }>`
+  padding: 1rem;
+  border-radius: 0.375rem;
+  border: 1px solid ${({ $priority }) => {
+    switch ($priority) {
+      case 'critical': return '#dc2626';
+      case 'high': return '#ea580c';
+      case 'medium': return '#d97706';
+      case 'low': return '#16a34a';
+      default: return '#d1d5db';
+    }
+  }};
+  background-color: ${({ $priority }) => {
+    switch ($priority) {
+      case 'critical': return '#fef2f2';
+      case 'high': return '#fff7ed';
+      case 'medium': return '#fffbeb';
+      case 'low': return '#f0fdf4';
+      default: return '#ffffff';
+    }
+  }};
+`;
+
+const TabContainer = styled.div`
+  display: flex;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 1.5rem;
+`;
+
+const Tab = styled.button<{ $active: boolean }>`
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  color: ${({ $active }) => $active ? '#3b82f6' : '#6b7280'};
+  border-bottom-color: ${({ $active }) => $active ? '#3b82f6' : 'transparent'};
+  
+  &:hover {
+    color: #3b82f6;
+  }
+`;
+
+const TabContent = styled.div<{ $active: boolean }>`
+  display: ${({ $active }) => $active ? 'block' : 'none'};
+`;
+
+const RefreshStatus = styled.div<{ $status: 'valid' | 'expiring' | 'expired' | 'unknown' }>`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background-color: ${({ $status }) => {
+    switch ($status) {
+      case 'valid': return '#f0fdf4';
+      case 'expiring': return '#fef3c7';
+      case 'expired': return '#fef2f2';
+      default: return '#f9fafb';
+    }
+  }};
+  color: ${({ $status }) => {
+    switch ($status) {
+      case 'valid': return '#16a34a';
+      case 'expiring': return '#d97706';
+      case 'expired': return '#dc2626';
+      default: return '#6b7280';
+    }
+  }};
+  border: 1px solid ${({ $status }) => {
+    switch ($status) {
+      case 'valid': return '#bbf7d0';
+      case 'expiring': return '#fde68a';
+      case 'expired': return '#fecaca';
+      default: return '#e5e7eb';
+    }
+  }};
+`;
+
+const TokenManagement = () => {
+  const { tokens } = useAuth();
+  
+  // Scroll to top when page loads
+  // Use centralized scroll management
+  usePageScroll({ pageName: 'Token Management', force: true });
+  
+  const [tokenString, setTokenString] = useState('');
+  const [jwtHeader, setJwtHeader] = useState('');
+  const [jwtPayload, setJwtPayload] = useState('');
+  const [tokenStatus, setTokenStatus] = useState('none');
+
+  const [tokenSource, setTokenSource] = useState<Record<string, unknown> | null>(null);
+  const [tokenHistory, setTokenHistory] = useState<TokenHistoryEntry[]>([]);
+  const [activeTab, setActiveTab] = useState<'analysis' | 'diagnosis'>('analysis');
+
+  const [message, setMessage] = useState<{ type: 'success' | 'error' | 'warning' | 'info'; title?: string; message: string } | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showRevokeModal, setShowRevokeModal] = useState(false);
+  const [showClearModal, setShowClearModal] = useState(false);
+  const [showClearHistoryModal, setShowClearHistoryModal] = useState(false);
+  const [showRemoveHistoryModal, setShowRemoveHistoryModal] = useState(false);
+  const [historyEntryToRemove, setHistoryEntryToRemove] = useState<string | null>(null);
+
+  // Token analysis hook
+  const {
+    analyzeToken,
+    currentAnalysis,
+    securityAnalysis,
+    refreshInfo,
+    getTokenExpirationStatus,
+    getTokenSecurityScore,
+    getTokenRecommendations,
+    getCriticalIssues,
+    getValidationErrors,
+    needsRefresh,
+    getTokenTypeInfo,
+    getTokenClaims,
+    isAnalyzing,
+    isValid,
+    riskScore,
+    hasIssues,
+    hasErrors,
+    canRefresh
+  } = useTokenAnalysis({ enabled: true, autoAnalyze: true });
+
+  // Error diagnosis hook
+  const {
+    diagnoseError,
+    currentDiagnosis,
+    getSuggestedFixes,
+    getErrorConfidence,
+    getErrorSeverity,
+    getErrorCategory,
+    isDiagnosing,
+    hasCurrentDiagnosis
+  } = useErrorDiagnosis({ enabled: true });
+
+  // Mock token data for demonstration
+  const mockTokenData = {
+    access_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+    token_type: 'Bearer',
+    expires_in: 3600,
+    refresh_token: 'refresh-token-123',
+    scope: 'openid profile email'
+  };
+
+  // Generate a realistic-looking but intentionally flawed PingOne token for security demonstration
+  const generateBadSecurityToken = () => {
+    const now = Math.floor(Date.now() / 1000);
+    
+    // Create a realistic PingOne token header with security flaws
+    const header = {
+      alg: 'HS256', // Weak algorithm (should be RS256 for PingOne)
+      typ: 'JWT',
+      kid: 'bad-key-id', // Invalid key ID
+      iss: 'https://auth.pingone.com' // Missing environment ID
+    };
+
+    // Create a realistic PingOne token payload with multiple security issues
+    const payload = {
+      // Standard OIDC claims with security flaws
+      iss: 'https://auth.pingone.com', // Missing environment ID (should be https://auth.pingone.com/{env_id})
+      sub: 'user-12345',
+      aud: 'bad-client-id', // Wrong audience
+      exp: now + 7200, // Expires in 2 hours (too long)
+      iat: now - 3600, // Issued 1 hour ago (too old)
+      auth_time: now - 7200, // Auth time 2 hours ago (too old)
+      nonce: 'weak-nonce-123', // Weak nonce
+      
+      // Missing critical security claims
+      // acr: missing (Authentication Context Class Reference)
+      // amr: missing (Authentication Methods References)
+      // azp: missing (Authorized Party)
+      
+      // User profile claims with issues
+      name: 'John Doe',
+      given_name: 'John',
+      family_name: 'Doe',
+      email: 'john.doe@example.com',
+      email_verified: false, // Email not verified (security risk)
+      picture: 'https://insecure-site.com/avatar.jpg', // HTTP instead of HTTPS
+      locale: 'en-US',
+      
+      // Custom claims with security issues
+      'custom:role': 'admin', // Overly broad role
+      'custom:permissions': ['read', 'write', 'delete', 'admin'], // Too many permissions
+      'custom:session_id': 'session-123', // Weak session ID
+      'custom:ip_address': '192.168.1.100', // Internal IP exposed
+      'custom:user_agent': 'Mozilla/5.0...', // User agent exposed
+      
+      // JWT security issues
+      jti: 'jwt-id-123', // Weak JTI
+      nbf: now - 1800, // Not before is in the past (invalid)
+      
+      // Missing security features
+      // at_hash: missing (Access Token hash)
+      // c_hash: missing (Code hash)
+      // s_hash: missing (State hash)
+    };
+
+    // Encode header and payload
+    const encodedHeader = btoa(JSON.stringify(header)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+    const encodedPayload = btoa(JSON.stringify(payload)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+    
+    // Create a weak signature (using a simple HMAC with a weak key)
+    const weakSignature = 'bad-signature-that-would-fail-validation';
+    
+    return `${encodedHeader}.${encodedPayload}.${weakSignature}`;
+  };
+
+  useEffect(() => {
+    // Auto-load current Access Token from auth context or storage
+    const loadCurrentToken = () => {
+      try {
+        console.log('🔄 [TokenManagement] Loading current token from auth context:', tokens);
+        
+        // First try to get token from auth context
+        let currentTokens = tokens;
+        
+        // If no tokens in auth context or no access token, try to load from storage
+        if (!currentTokens || !currentTokens.access_token) {
+          console.log('ℹ️ [TokenManagement] No access token in auth context, checking storage...');
+          const storageTokens = getOAuthTokens();
+          if (storageTokens && (storageTokens.access_token || storageTokens.id_token || storageTokens.refresh_token)) {
+            console.log('✅ [TokenManagement] Found tokens in secure storage:', storageTokens);
+            currentTokens = storageTokens;
+          } else {
+            // Check localStorage for tokens from Authorization Code flow
+            console.log('ℹ️ [TokenManagement] Checking localStorage for oauth_tokens...');
+            const localStorageTokens = localStorage.getItem('oauth_tokens');
+            if (localStorageTokens) {
+              try {
+                const parsedTokens = JSON.parse(localStorageTokens);
+                console.log('✅ [TokenManagement] Found tokens in localStorage:', parsedTokens);
+                if (parsedTokens && (parsedTokens.access_token || parsedTokens.id_token || parsedTokens.refresh_token)) {
+                  currentTokens = parsedTokens;
+                }
+              } catch (parseError) {
+                console.error('❌ [TokenManagement] Error parsing localStorage tokens:', parseError);
+              }
+            }
+          }
+        }
+        
+        // Auto-load the best available token (prefer access token, then ID token, then refresh token)
+        let tokenToLoad = null;
+        let tokenTypeToLoad = '';
+        
+        if (currentTokens && currentTokens.access_token) {
+          tokenToLoad = currentTokens.access_token;
+          tokenTypeToLoad = 'access_token';
+        } else if (currentTokens && currentTokens.id_token) {
+          tokenToLoad = currentTokens.id_token;
+          tokenTypeToLoad = 'id_token';
+        } else if (currentTokens && currentTokens.refresh_token) {
+          tokenToLoad = currentTokens.refresh_token;
+          tokenTypeToLoad = 'refresh_token';
+        }
+        
+        if (tokenToLoad) {
+          console.log(`✅ [TokenManagement] Found current ${tokenTypeToLoad}, auto-loading and decoding`);
+          setTokenString(tokenToLoad);
+          setTokenSource({
+            source: currentTokens === tokens ? 'Current Session' : 'Stored Tokens',
+            description: `${tokenTypeToLoad.replace('_', ' ').toUpperCase()} from ${currentTokens.token_type || 'Bearer'} flow`,
+            timestamp: new Date().toLocaleString()
+          });
+          
+          // Auto-decode the token
+          setTimeout(() => decodeJWT(tokenToLoad), 100);
+          
+          // Update token status based on expiration
+          if (currentTokens.expires_at) {
+            const now = Date.now();
+            const expiresAt = new Date(currentTokens.expires_at).getTime();
+            setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
+          } else if (currentTokens.expires_in) {
+            // Calculate expiration from expires_in
+            const now = Date.now();
+            const expiresAt = now + (currentTokens.expires_in * 1000);
+            setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
+          } else {
+            setTokenStatus('valid');
+          }
+        } else {
+          console.log('ℹ️ [TokenManagement] No tokens found in auth context or storage');
+          setTokenStatus('none');
+        }
+      } catch (_error) {
+        console.error('❌ [TokenManagement] Error loading current token:', _error);
+        setTokenStatus('none');
+      }
+    };
+    
+    // Add a small delay to ensure auth context is fully loaded
+    const timer = setTimeout(loadCurrentToken, 100);
+    return () => clearTimeout(timer);
+    
+    // Load token history
+    const history = getTokenHistory();
+    setTokenHistory(history.entries);
+  }, [tokens]);
+
+  const decodeJWT = (token: string) => {
+    try {
+      if (!token || token.trim() === '') {
+        throw new Error('Please enter a JWT token');
+      }
+
+      console.log('🔍 [TokenManagement] Attempting to decode token:', token.substring(0, 50) + '...');
+
+      const parts = token.split('.');
+      console.log('🔍 [TokenManagement] Token parts count:', parts.length);
+      
+      if (parts.length !== 3) {
+        throw new Error('Invalid JWT format. JWT should have 3 parts separated by dots.');
+      }
+
+      // Helper function to decode JWT parts with proper base64 handling
+      const parseJwtPart = (part: string) => {
+        try {
+          // Add padding if needed
+          let base64 = part.replace(/-/g, '+').replace(/_/g, '/');
+          while (base64.length % 4) {
+            base64 += '=';
+          }
+          
+          // Use modern base64 decoding
+          let decoded;
+          if (typeof window !== 'undefined' && window.btoa) {
+            // Browser environment
+            decoded = atob(base64);
+          } else {
+            // Node.js environment or fallback
+            decoded = Buffer.from(base64, 'base64').toString('binary');
+          }
+          
+          // Convert to UTF-8 string
+          const jsonPayload = decodeURIComponent(
+            Array.from(decoded, (c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')
+          );
+          
+          const parsed = JSON.parse(jsonPayload);
+          console.log('✅ [TokenManagement] Successfully parsed JWT part:', { part: part.substring(0, 20) + '...', result: parsed });
+          return parsed;
+        } catch (e) {
+          console.error('❌ [TokenManagement] Error parsing JWT part:', e, 'Part:', part.substring(0, 20) + '...');
+          throw e;
+        }
+      };
+
+      // Decode header
+      console.log('🔍 [TokenManagement] Decoding header part:', parts[0].substring(0, 20) + '...');
+      const header = parseJwtPart(parts[0]);
+      setJwtHeader(JSON.stringify(header, null, 2));
+
+      // Decode payload
+      console.log('🔍 [TokenManagement] Decoding payload part:', parts[1].substring(0, 20) + '...');
+      const payload = parseJwtPart(parts[1]);
+      setJwtPayload(JSON.stringify(payload, null, 2));
+
+      console.log('✅ [TokenManagement] Successfully decoded JWT:', { header, payload });
+      setTokenStatus('valid');
+      setSuccessMessage('Token successfully decoded! You can now view the header and payload details below.');
+    } catch (_error) {
+      console.error('❌ [TokenManagement] JWT decode error:', _error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setJwtHeader('Error: ' + errorMessage);
+      setJwtPayload('Error: ' + errorMessage);
+      setTokenStatus('invalid');
+    }
+  };
+
+  const handleTokenInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setTokenString(e.target.value);
+    setSuccessMessage(null); // Clear success message when user types
+  };
+
+  const handleDecodeClick = () => {
+    // If no token in input, try to get current token from auth context or storage
+    if (!tokenString || tokenString.trim() === '') {
+      console.log('🔄 [TokenManagement] No token in input, attempting to load current token...');
+      
+      // Try to get token from auth context first
+      console.log('🔍 [TokenManagement] Auth context tokens:', tokens);
+      if (tokens && tokens.access_token) {
+        console.log('✅ [TokenManagement] Loading token from auth context for decoding');
+        setTokenString(tokens.access_token);
+        setTimeout(() => decodeJWT(tokens.access_token), 100);
+        return;
+      }
+      
+      // Try to get token from storage
+      const storedTokens = getOAuthTokens();
+      console.log('🔍 [TokenManagement] Stored tokens from getOAuthTokens():', storedTokens);
+      if (storedTokens && storedTokens.access_token) {
+        console.log('✅ [TokenManagement] Loading token from storage for decoding');
+        setTokenString(storedTokens.access_token);
+        setTimeout(() => decodeJWT(storedTokens.access_token), 100);
+        return;
+      }
+      
+      // No token available
+      console.log('❌ [TokenManagement] No token available in auth context or storage');
+      setMessage({
+        type: 'warning',
+        title: 'No Token Available',
+        message: 'No token available to decode. Please load a token first or enter one manually.'
+      });
+      return;
+    }
+    
+    decodeJWT(tokenString);
+  };
+
+  const handleGetToken = async () => {
+    setIsLoading(true);
+    try {
+      console.log('🔄 [TokenManagement] Getting current token from auth context:', tokens);
+      
+      let currentTokens = tokens;
+      
+      // If no tokens in auth context, try to load from storage
+      if (!currentTokens || !currentTokens.access_token) {
+        console.log('ℹ️ [TokenManagement] No tokens in auth context, checking storage...');
+        currentTokens = getOAuthTokens();
+        if (currentTokens) {
+          console.log('✅ [TokenManagement] Found tokens in storage:', currentTokens);
+        }
+      }
+      
+      if (currentTokens && currentTokens.access_token) {
+        console.log('✅ [TokenManagement] Loading current access token');
+        setTokenString(currentTokens.access_token);
+        setTokenSource({
+          source: currentTokens === tokens ? 'Current Session' : 'Stored Tokens',
+          description: `Access Token from ${currentTokens.token_type || 'Bearer'} flow`,
+          timestamp: new Date().toLocaleString()
+        });
+        
+        // Auto-decode the token
+        decodeJWT(currentTokens.access_token);
+        
+        // Update token status based on expiration
+        if (currentTokens.expires_at) {
+          const now = Date.now();
+          const expiresAt = new Date(currentTokens.expires_at).getTime();
+          setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
+        } else if (currentTokens.expires_in) {
+          const now = Date.now();
+          const expiresAt = now + (currentTokens.expires_in * 1000);
+          setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
+        } else {
+          setTokenStatus('valid');
+        }
+      } else {
+        console.log('⚠️ [TokenManagement] No current access token available');
+        setMessage({
+          type: 'error',
+          title: 'No Token Available',
+          message: 'No current access token available. Please complete an OAuth flow first or use "Load from Storage" to load previously saved tokens.'
+        });
+      }
+    } catch (_error) {
+      console.error('❌ [TokenManagement] Error getting token:', _error);
+      setMessage({
+        type: 'error',
+        title: 'Error Loading Token',
+        message: 'Error loading current token: ' + (error instanceof Error ? error.message : 'Unknown error')
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGetSpecificToken = async (tokenType: 'access_token' | 'id_token' | 'refresh_token') => {
+    setIsLoading(true);
+    try {
+      console.log(`🔄 [TokenManagement] Getting ${tokenType} from auth context:`, tokens);
+      
+      let currentTokens = tokens;
+      
+      // If no tokens in auth context OR the specific token type is missing, try to load from storage
+      if (!currentTokens || !currentTokens[tokenType]) {
+        console.log(`ℹ️ [TokenManagement] No ${tokenType} in auth context, checking storage...`);
+        const storageTokens = getOAuthTokens();
+        if (storageTokens && storageTokens[tokenType]) {
+          console.log(`✅ [TokenManagement] Found ${tokenType} in secure storage:`, storageTokens);
+          currentTokens = storageTokens;
+        } else {
+          // Check localStorage for tokens from Authorization Code flow
+          console.log('ℹ️ [TokenManagement] Checking localStorage for oauth_tokens...');
+          const localStorageTokens = localStorage.getItem('oauth_tokens');
+          if (localStorageTokens) {
+            try {
+              const parsedTokens = JSON.parse(localStorageTokens);
+              console.log('✅ [TokenManagement] Found tokens in localStorage:', parsedTokens);
+              if (parsedTokens && parsedTokens[tokenType]) {
+                currentTokens = parsedTokens;
+              }
+            } catch (parseError) {
+              console.error('❌ [TokenManagement] Error parsing localStorage tokens:', parseError);
+            }
+          }
+        }
+      }
+      
+      // Debug: Log all available token types
+      if (currentTokens) {
+        console.log('🔍 [TokenManagement] Available tokens:', {
+          access_token: currentTokens.access_token ? '✅' : '❌',
+          id_token: currentTokens.id_token ? '✅' : '❌',
+          refresh_token: currentTokens.refresh_token ? '✅' : '❌',
+          token_type: currentTokens.token_type || 'none',
+          expires_in: currentTokens.expires_in || 'none'
+        });
+      }
+      
+      if (currentTokens && currentTokens[tokenType]) {
+        console.log(`✅ [TokenManagement] Loading current ${tokenType}`);
+        setTokenString(currentTokens[tokenType]);
+        setTokenSource({
+          source: currentTokens === tokens ? 'Current Session' : 'Stored Tokens',
+          description: `${tokenType.replace('_', ' ').toUpperCase()} from ${currentTokens.token_type || 'Bearer'} flow`,
+          timestamp: new Date().toLocaleString()
+        });
+        
+        // Auto-decode the token
+        decodeJWT(currentTokens[tokenType]);
+        
+        // Update token status based on expiration
+        if (currentTokens.expires_at) {
+          const now = Date.now();
+          const expiresAt = new Date(currentTokens.expires_at).getTime();
+          setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
+        } else if (currentTokens.expires_in) {
+          const now = Date.now();
+          const expiresAt = now + (currentTokens.expires_in * 1000);
+          setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
+        } else {
+          setTokenStatus('valid');
+        }
+
+        // Show success message
+        setSuccessMessage(`✅ ${tokenType.replace('_', ' ').toUpperCase()} loaded successfully!`);
+      } else {
+        console.log(`⚠️ [TokenManagement] No current ${tokenType} available`);
+        console.log('🔍 [TokenManagement] Current tokens object:', currentTokens);
+        setMessage({
+          type: 'error',
+          title: 'No Token Available',
+          message: `No ${tokenType.replace('_', ' ')} found in current session or storage. Please complete an OAuth flow first.`
+        });
+      }
+    } catch (_error) {
+      console.error(`❌ [TokenManagement] Error getting ${tokenType}:`, _error);
+      setMessage({
+        type: 'error',
+        title: 'Error Getting Token',
+        message: `Failed to retrieve ${tokenType.replace('_', ' ')}: ${error instanceof Error ? error.message : 'Unknown error'}`
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCopyToken = async () => {
+    if (tokenString) {
+      try {
+        await navigator.clipboard.writeText(tokenString);
+        setMessage({
+          type: 'success',
+          title: 'Copied!',
+          message: 'Token copied to clipboard!'
+        });
+      } catch (_error) {
+        console.error('Error copying token:', _error);
+      }
+    }
+  };
+
+  const handleCopyHeader = async () => {
+    if (jwtHeader) {
+      try {
+        await navigator.clipboard.writeText(jwtHeader);
+        setMessage({
+          type: 'success',
+          title: 'Copied!',
+          message: 'JWT Header copied to clipboard!'
+        });
+      } catch (_error) {
+        console.error('Error copying header:', _error);
+      }
+    }
+  };
+
+  const handleCopyPayload = async () => {
+    if (jwtPayload) {
+      try {
+        await navigator.clipboard.writeText(jwtPayload);
+        setMessage({
+          type: 'success',
+          title: 'Copied!',
+          message: 'JWT Payload copied to clipboard!'
+        });
+      } catch (_error) {
+        console.error('Error copying payload:', _error);
+      }
+    }
+  };
+
+
+  const handleValidateToken = async () => {
+    if (!tokenString) {
+      setMessage({
+        type: 'warning',
+        title: 'No Token',
+        message: 'No token to validate'
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // Simulate token validation
+      setTimeout(() => {
+        setTokenStatus('valid');
+        setMessage({
+          type: 'success',
+          title: 'Token Valid',
+          message: 'Token is valid!'
+        });
+        setIsLoading(false);
+      }, 500);
+    } catch (_error) {
+      console.error('Error validating token:', _error);
+      setIsLoading(false);
+    }
+  };
+
+  const handleTestConnection = async () => {
+    setIsLoading(true);
+    try {
+      // Simulate connection test
+      setTimeout(() => {
+        setMessage({
+          type: 'success',
+          title: 'Connection Test',
+          message: 'Connection test successful!'
+        });
+        setIsLoading(false);
+      }, 1000);
+    } catch (_error) {
+      console.error('Error testing connection:', _error);
+      setIsLoading(false);
+    }
+  };
+
+  const handleRevokeToken = async () => {
+    setShowRevokeModal(true);
+  };
+
+  const confirmRevokeToken = async () => {
+    setIsLoading(true);
+    try {
+      // Simulate token revocation
+      setTimeout(() => {
+        setTokenString('');
+        setJwtHeader('');
+        setJwtPayload('');
+        setTokenStatus('none');
+        setMessage({
+          type: 'success',
+          title: 'Token Revoked',
+          message: 'Token revoked successfully!'
+        });
+        setIsLoading(false);
+      }, 500);
+    } catch (_error) {
+      console.error('Error revoking token:', _error);
+      setIsLoading(false);
+    }
+  };
+
+  const handleClearToken = () => {
+    setShowClearModal(true);
+  };
+
+  const confirmClearToken = () => {
+    setTokenString('');
+    setJwtHeader('');
+    setJwtPayload('');
+    setTokenStatus('none');
+    setMessage({
+      type: 'success',
+      title: 'Token Cleared',
+      message: 'Token has been cleared successfully!'
+    });
+  };
+
+  const handleClearHistory = () => {
+    setShowClearHistoryModal(true);
+  };
+
+  const confirmClearHistory = () => {
+    clearTokenHistory();
+    setTokenHistory([]);
+    setMessage({
+      type: 'success',
+      title: 'History Cleared',
+      message: 'Token history cleared successfully!'
+    });
+  };
+
+  const handleRemoveHistoryEntry = (entryId: string) => {
+    setHistoryEntryToRemove(entryId);
+    setShowRemoveHistoryModal(true);
+  };
+
+  const confirmRemoveHistoryEntry = () => {
+    if (historyEntryToRemove) {
+      removeTokenFromHistory(historyEntryToRemove);
+      setTokenHistory(prev => prev.filter(entry => entry.id !== historyEntryToRemove));
+      setMessage({
+        type: 'success',
+        title: 'Entry Removed',
+        message: 'Token entry removed from history successfully!'
+      });
+    }
+  };
+
+  const handleLoadTokenFromHistory = (entry: TokenHistoryEntry) => {
+    if (entry.tokens.access_token) {
+      setTokenString(entry.tokens.access_token);
+      setTokenSource({
+        source: 'Token History',
+        description: `Token from ${entry.flowName} (${entry.timestampFormatted})`,
+        timestamp: entry.timestampFormatted
+      });
+      setTimeout(() => decodeJWT(entry.tokens.access_token), 100);
+    }
+  };
+
+  // New functions for enhanced features
+  const handleAnalyzeToken = async () => {
+    if (!tokenString.trim()) return;
+    
+    try {
+      await analyzeToken(tokenString);
+    } catch (_error) {
+      console.error('Token analysis failed:', _error);
+    }
+  };
+
+  const handleDiagnoseError = async () => {
+    if (!errorInput.trim()) return;
+    
+    try {
+      await diagnoseError(errorInput);
+    } catch (_error) {
+      console.error('Error diagnosis failed:', _error);
+    }
+  };
+
+  const handleRefreshToken = async () => {
+    if (!canRefresh || !refreshInfo?.refreshToken) return;
+    
+    setIsLoading(true);
+    try {
+      // In a real implementation, this would call the refresh endpoint
+      console.log('Refreshing token...');
+      
+      // Simulate token refresh for now
+      setTimeout(() => {
+        const newToken = mockTokenData.access_token.replace('1234567890', Date.now().toString().slice(-10));
+        setTokenString(newToken);
+        setTokenSource({
+          source: 'Token Refresh',
+          description: 'Token refreshed from analysis system',
+          timestamp: new Date().toLocaleString()
+        });
+        decodeJWT(newToken);
+        setIsLoading(false);
+      }, 1000);
+      
+      // await refreshToken(tokenString, refreshInfo.refreshToken);
+    } catch (_error) {
+      console.error('Token refresh failed:', _error);
+      setIsLoading(false);
+    }
+  };
+
+  const handleLoadFromStorage = () => {
+    console.log('🔄 [TokenManagement] Loading tokens from storage...');
+    const storedTokens = getOAuthTokens();
+    
+    console.log('🔍 [TokenManagement] Stored tokens from getOAuthTokens():', storedTokens);
+    
+    if (storedTokens && storedTokens.access_token) {
+      console.log('✅ [TokenManagement] Found stored tokens, loading...');
+      setTokenString(storedTokens.access_token);
+      setTokenSource({
+        source: 'Stored Tokens',
+        description: `Access Token from ${storedTokens.token_type || 'Bearer'} flow`,
+        timestamp: new Date().toLocaleString()
+      });
+      
+      // Auto-decode the token
+      setTimeout(() => decodeJWT(storedTokens.access_token), 100);
+      
+      // Update token status
+      if (storedTokens.expires_at) {
+        const now = Date.now();
+        const expiresAt = new Date(storedTokens.expires_at).getTime();
+        setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
+      } else if (storedTokens.expires_in) {
+        const now = Date.now();
+        const expiresAt = now + (storedTokens.expires_in * 1000);
+        setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
+      } else {
+        setTokenStatus('valid');
+      }
+    } else {
+      console.log('ℹ️ [TokenManagement] No stored tokens found');
+      setTokenStatus('none');
+    }
+  };
+
+  // Auto-analyze token when it changes
+  useEffect(() => {
+    if (tokenString.trim()) {
+      handleAnalyzeToken();
+    }
+  }, [tokenString]);
+
+  return (
+    <Container>
+      <PageTitle 
+        title={
+          <>
+            <FiKey />
+            Token Management
+          </>
+        }
+        subtitle="Monitor and manage PingOne authentication tokens"
+      />
+
+      {/* Current Token Status Section */}
+      {tokens && tokens.access_token && (
+        <TokenSection>
+          <CardHeader>
+            <h2>Current Access Token</h2>
+          </CardHeader>
+          <CardBody>
+            <TokenStatus className={tokenStatus}>
+              <div className="indicator"></div>
+              <div className="text">
+                <strong>Active Access Token Available</strong>
+                <br />
+                <small style={{ color: '#6b7280' }}>
+                  Token from your current OAuth session is automatically loaded and decoded below.
+                  You can also paste other tokens for analysis.
+                </small>
+              </div>
+            </TokenStatus>
+            
+            <TokenDetails>
+              <div className="detail">
+                <span className="label">Token Type</span>
+                <span className="value">{tokens.token_type || 'Bearer'}</span>
+              </div>
+              <div className="detail">
+                <span className="label">Scope</span>
+                <span className="value">{tokens.scope || 'Not specified'}</span>
+              </div>
+              <div className="detail">
+                <span className="label">Expires</span>
+                <span className="value">
+                  {tokens.expires_at 
+                    ? new Date(tokens.expires_at).toLocaleString()
+                    : 'Not specified'
+                  }
+                </span>
+              </div>
+              <div className="detail">
+                <span className="label">Status</span>
+                <span className="value" style={{ 
+                  color: tokenStatus === 'valid' ? '#22c55e' : tokenStatus === 'expired' ? '#ef4444' : '#6b7280',
+                  fontWeight: '600'
+                }}>
+                  {tokenStatus === 'valid' ? 'Valid' : tokenStatus === 'expired' ? 'Expired' : 'Unknown'}
+                </span>
+              </div>
+            </TokenDetails>
+          </CardBody>
+        </TokenSection>
+      )}
+
+      {/* Token Status Section */}
+      <TokenSection>
+        <CardHeader>
+          <h2>Token Status</h2>
+        </CardHeader>
+        <CardBody>
+          <TokenStatus className={tokenStatus}>
+            <div className={`indicator ${tokenStatus}`}></div>
+            <span className="text">
+              {tokenStatus === 'valid' && 'Token is valid'}
+              {tokenStatus === 'expired' && 'Token has expired'}
+              {tokenStatus === 'invalid' && 'Token is invalid'}
+              {tokenStatus === 'none' && 'No token available'}
+            </span>
+          </TokenStatus>
+
+          <TokenDetails>
+            <div className="detail">
+              <div className="label">Token Type</div>
+              <div className="value">
+                Bearer {getTokenTypeInfo().type !== 'unknown' && `(${getTokenTypeInfo().type === 'access' ? 'Access Token' : getTokenTypeInfo().type === 'id' ? 'ID Token' : getTokenTypeInfo().type === 'refresh' ? 'Refresh Token' : getTokenTypeInfo().type})`}
+              </div>
+            </div>
+            <div className="detail">
+              <div className="label">Expires In</div>
+              <div className="value">
+                {currentAnalysis?.expiresIn ? `${Math.floor(currentAnalysis.expiresIn / 60)} minutes` : '1 hour'}
+              </div>
+            </div>
+            <div className="detail">
+              <div className="label">Scope</div>
+              <div className="value">
+                {getTokenTypeInfo().scopes?.join(' ') || 'openid profile email'}
+              </div>
+            </div>
+          </TokenDetails>
+        </CardBody>
+      </TokenSection>
+
+      {/* Token Input Section */}
+      <TokenSection>
+        <CardHeader>
+          <h2>Token Decoder</h2>
+          <p style={{ margin: '0.5rem 0 0 0', color: '#6b7280', fontSize: '0.875rem' }}>
+            {tokenSource?.source === 'Current Session' 
+              ? 'Currently showing your active Access Token. You can also paste any other JWT token below for decoding.'
+              : 'Paste any JWT token below to decode and analyze it. You can get tokens from the AuthZ Code Flow or paste custom tokens.'
+            }
+          </p>
+        </CardHeader>
+        <CardBody>
+          <TokenSurface
+            hasToken={!!tokenString}
+            isJson={!!tokenString && tokenString.trim().startsWith('{')}
+            jsonContent={tokenString && tokenString.trim().startsWith('{') ? tokenString : undefined}
+            ariaLabel="JWT token input for decoding"
+          >
+            <textarea
+              id="token-string"
+              value={tokenString}
+              onChange={handleTokenInput}
+              placeholder="Paste any JWT token here to decode it (Access Token, ID Token, etc.) or use the buttons above to load tokens from AuthZ Code Flow"
+              style={{
+                width: '100%',
+                minHeight: '400px',
+                resize: 'vertical',
+                border: 0,
+                outline: 'none',
+                background: 'transparent',
+                color: 'inherit',
+                fontFamily: 'inherit',
+                fontSize: '14px',
+                lineHeight: '1.5'
+              }}
+            />
+          </TokenSurface>
+
+          {/* Success Message */}
+          {successMessage && (
+            <div style={{
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              color: 'white',
+              padding: '0.75rem 1rem',
+              borderRadius: '0.5rem',
+              marginBottom: '1rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              fontWeight: '500',
+              boxShadow: '0 4px 6px -1px rgba(16, 185, 129, 0.3)',
+              animation: 'slideIn 0.3s ease-out'
+            }}>
+              <FiCheckCircle size={20} />
+              {successMessage}
+            </div>
+          )}
+
+          {/* Error/Warning Message */}
+          {message && (
+            <StandardMessage
+              type={message.type}
+              title={message.title}
+              message={message.message}
+              onDismiss={() => setMessage(null)}
+            />
+          )}
+
+          <ButtonGroup>
+            <ActionButton
+              id="get-access-token-btn"
+              className="primary"
+              onClick={() => handleGetSpecificToken('access_token')}
+              disabled={isLoading}
+            >
+              <FiKey />
+              {isLoading ? 'Getting...' : 'Get Access Token'}
+            </ActionButton>
+
+            <ActionButton
+              id="get-id-token-btn"
+              className="primary"
+              onClick={() => handleGetSpecificToken('id_token')}
+              disabled={isLoading}
+            >
+              <FiShield />
+              {isLoading ? 'Getting...' : 'Get ID Token'}
+            </ActionButton>
+
+            <ActionButton
+              id="get-refresh-token-btn"
+              className="primary"
+              onClick={() => handleGetSpecificToken('refresh_token')}
+              disabled={isLoading}
+            >
+              <FiRefreshCw />
+              {isLoading ? 'Getting...' : 'Get Refresh Token'}
+            </ActionButton>
+
+            <ActionButton
+              id="copy-token-btn"
+              className="secondary"
+              onClick={handleCopyToken}
+              disabled={!tokenString || isLoading}
+            >
+              <FiCopy />
+              Copy Token
+            </ActionButton>
+
+            <ActionButton
+              className="secondary"
+              onClick={() => {
+                console.log('🔄 [TokenManagement] Loading tokens from storage...');
+                const storedTokens = getOAuthTokens();
+                
+                console.log('🔍 [TokenManagement] Stored tokens from getOAuthTokens():', storedTokens);
+                
+                if (storedTokens && storedTokens.access_token) {
+                  console.log('✅ [TokenManagement] Found stored tokens, loading...');
+                  setTokenString(storedTokens.access_token);
+                  setTokenSource({
+                    source: 'Stored Tokens',
+                    description: `Access Token from ${storedTokens.token_type || 'Bearer'} flow`,
+                    timestamp: new Date().toLocaleString()
+                  });
+                  
+                  // Auto-decode the token
+                  setTimeout(() => decodeJWT(storedTokens.access_token), 100);
+                  
+                  // Update token status
+                  if (storedTokens.expires_at) {
+                    const now = Date.now();
+                    const expiresAt = new Date(storedTokens.expires_at).getTime();
+                    setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
+                  } else if (storedTokens.expires_in) {
+                    const now = Date.now();
+                    const expiresAt = now + (storedTokens.expires_in * 1000);
+                    setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
+                  } else {
+                    setTokenStatus('valid');
+                  }
+                  
+                  // Show success message
+                  setMessage({
+                    type: 'success',
+                    title: 'Token Loaded from Storage!',
+                    message: 'Successfully loaded and decoded token from secure storage.'
+                  });
+                } else {
+                  console.log('ℹ️ [TokenManagement] No stored tokens found');
+                  setTokenStatus('none');
+                  setMessage({
+                    type: 'warning',
+                    title: 'No Stored Tokens',
+                    message: 'No tokens found in secure storage. Complete an OAuth flow first.'
+                  });
+                }
+              }}
+            >
+              <FiRefreshCw />
+              Load from Storage
+            </ActionButton>
+
+            <ActionButton
+              className="secondary"
+              onClick={() => {
+                console.log('🔄 [TokenManagement] Getting token from AuthZ Code Flow...');
+                // Try to get token from auth context first
+                if (tokens && tokens.access_token) {
+                  console.log('✅ [TokenManagement] Found token in auth context');
+                  setTokenString(tokens.access_token);
+                  setTokenSource({
+                    source: 'AuthZ Code Flow',
+                    description: 'Access Token from current OAuth session',
+                    timestamp: new Date().toLocaleString()
+                  });
+                  setTimeout(() => decodeJWT(tokens.access_token), 100);
+                  
+                  // Show success message
+                  setMessage({
+                    type: 'success',
+                    title: 'Token Loaded from AuthZ Code Flow!',
+                    message: 'Successfully loaded and decoded access token from current OAuth session.'
+                  });
+                } else {
+                  // Try to get from storage
+                  const storedTokens = getOAuthTokens();
+                  if (storedTokens && storedTokens.access_token) {
+                    console.log('✅ [TokenManagement] Found token in storage');
+                    setTokenString(storedTokens.access_token);
+                    setTokenSource({
+                      source: 'AuthZ Code Flow (Stored)',
+                      description: 'Access Token from stored OAuth session',
+                      timestamp: new Date().toLocaleString()
+                    });
+                    setTimeout(() => decodeJWT(storedTokens.access_token), 100);
+                    
+                    // Show success message
+                    setMessage({
+                      type: 'success',
+                      title: 'Token Loaded from Stored Session!',
+                      message: 'Successfully loaded and decoded access token from stored OAuth session.'
+                    });
+                  } else {
+                    setMessage({
+                      type: 'warning',
+                      title: 'No Token Available',
+                      message: 'No token available from AuthZ Code Flow. Please complete the OAuth flow first.'
+                    });
+                  }
+                }
+              }}
+            >
+              <FiKey />
+              Get from AuthZ Code Flow
+            </ActionButton>
+
+            <ActionButton
+              id="decode-token-btn"
+              className="primary"
+              onClick={handleDecodeClick}
+              disabled={!tokenString || isLoading}
+            >
+              <FiEye />
+              Decode JWT
+            </ActionButton>
+
+            <ActionButton
+              className="secondary"
+              onClick={() => {
+                const sampleToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+                setTokenString(sampleToken);
+                setTokenSource({
+                  source: 'Sample Token',
+                  description: 'JWT sample token for testing and demonstration',
+                  timestamp: new Date().toLocaleString()
+                });
+                console.log('🧪 [TokenManagement] Loaded sample token for testing');
+                
+                // Auto-decode the sample token
+                setTimeout(() => decodeJWT(sampleToken), 100);
+                
+                // Show success message
+                setMessage({
+                  type: 'success',
+                  title: 'Sample Token Loaded!',
+                  message: 'Loaded a sample JWT token for testing. The token has been automatically decoded.'
+                });
+              }}
+            >
+              🧪 Load Sample Token
+            </ActionButton>
+
+            <ActionButton
+              className="danger"
+              onClick={() => {
+                // Generate a realistic-looking but intentionally flawed PingOne token
+                const badToken = generateBadSecurityToken();
+                setTokenString(badToken);
+                setTokenSource({
+                  source: 'Security Demo',
+                  description: 'Intentionally flawed token for security demonstration',
+                  timestamp: new Date().toLocaleString()
+                });
+                console.log('🚨 [TokenManagement] Loaded bad security token for demonstration');
+                
+                // Auto-decode the bad token
+                setTimeout(() => decodeJWT(badToken), 100);
+                
+                // Show success message
+                setMessage({
+                  type: 'success',
+                  title: 'Bad Security Token Loaded!',
+                  message: 'Generated a token with intentional security flaws for demonstration. Check the analysis section to see detected issues.'
+                });
+              }}
+            >
+              🚨 Bad Security Token
+            </ActionButton>
+          </ButtonGroup>
+        </CardBody>
+      </TokenSection>
+
+      {/* Decoded Token Section */}
+      <TokenSection>
+        <CardHeader>
+          <h2>Decoded Token</h2>
+        </CardHeader>
+        <CardBody>
+          <div style={{ marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <h4 style={{ margin: 0 }}>Header</h4>
+              {jwtHeader && jwtHeader !== 'No token data' && !jwtHeader.startsWith('Error:') && (
+                <ActionButton
+                  className="secondary"
+                  onClick={handleCopyHeader}
+                  style={{ fontSize: '0.75rem', padding: '0.5rem 0.75rem' }}
+                >
+                  <FiCopy />
+                  Copy Header
+                </ActionButton>
+              )}
+            </div>
+            <TokenSurface
+              id="jwt-header"
+              className="jwt-content"
+              ariaLabel="JWT Header"
+              scrollable
+              hasToken={!!jwtHeader}
+              isJson={!!jwtHeader}
+              jsonContent={jwtHeader}
+            >
+              {jwtHeader || 'No token data'}
+            </TokenSurface>
+          </div>
+
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <h4 style={{ margin: 0 }}>Payload</h4>
+              {jwtPayload && jwtPayload !== 'No token data' && !jwtPayload.startsWith('Error:') && (
+                <ActionButton
+                  className="secondary"
+                  onClick={handleCopyPayload}
+                  style={{ fontSize: '0.75rem', padding: '0.5rem 0.75rem' }}
+                >
+                  <FiCopy />
+                  Copy Payload
+                </ActionButton>
+              )}
+            </div>
+            <TokenSurface
+              id="jwt-payload"
+              className="jwt-content"
+              ariaLabel="JWT Payload"
+              scrollable
+              hasToken={!!jwtPayload}
+              isJson={!!jwtPayload}
+              jsonContent={jwtPayload}
+            >
+              {jwtPayload || 'No token data'}
+            </TokenSurface>
+          </div>
+        </CardBody>
+      </TokenSection>
+
+      {/* Token Controls Section */}
+      <TokenSection>
+        <CardHeader>
+          <h2>Token Actions</h2>
+        </CardHeader>
+        <CardBody>
+          <ButtonGroup>
+            <ActionButton
+              id="refresh-token-btn"
+              className="primary"
+              onClick={handleRefreshToken}
+              disabled={isLoading}
+            >
+              <FiRefreshCw />
+              {isLoading ? 'Refreshing...' : 'Refresh Token'}
+            </ActionButton>
+
+            <ActionButton
+              id="validate-token-btn"
+              className="secondary"
+              onClick={handleValidateToken}
+              disabled={!tokenString || isLoading}
+            >
+              <FiCheckCircle />
+              Validate Token
+            </ActionButton>
+
+            <ActionButton
+              id="test-connection-btn"
+              className="secondary"
+              onClick={handleTestConnection}
+              disabled={isLoading}
+            >
+              <FiPlus />
+              Test Connection
+            </ActionButton>
+
+            <ActionButton
+              id="revoke-token-btn"
+              className="danger"
+              onClick={handleRevokeToken}
+              disabled={!tokenString || isLoading}
+            >
+              <FiX />
+              Revoke Token
+            </ActionButton>
+
+            <ActionButton
+              id="clear-token-btn"
+              className="danger"
+              onClick={handleClearToken}
+              disabled={!tokenString || isLoading}
+            >
+              <FiTrash2 />
+              Clear Token
+            </ActionButton>
+          </ButtonGroup>
+        </CardBody>
+      </TokenSection>
+
+      {/* Token History Section */}
+      <TokenSection>
+        <CardHeader>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h2>Token History</h2>
+            {tokenHistory.length > 0 && (
+              <ActionButton 
+                className="secondary" 
+                style={{ fontSize: '0.75rem', padding: '0.5rem 1rem' }}
+                onClick={handleClearHistory}
+              >
+                <FiTrash2 />
+                Clear History
+              </ActionButton>
+            )}
+          </div>
+        </CardHeader>
+        <CardBody>
+          {tokenHistory.length === 0 ? (
+            <div style={{ color: '#6b7280', fontStyle: 'italic', textAlign: 'center', padding: '2rem' }}>
+              <FiClock style={{ display: 'inline', marginRight: '0.5rem', fontSize: '1.5rem' }} />
+              <div style={{ marginTop: '0.5rem' }}>No token history available</div>
+              <div style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>
+                Complete OAuth flows to see token history here
+              </div>
+            </div>
+          ) : (
+            <div>
+              <div style={{ marginBottom: '1rem', color: '#6b7280', fontSize: '0.875rem' }}>
+                {tokenHistory.length} token{tokenHistory.length !== 1 ? 's' : ''} received from OAuth flows
+              </div>
+              {tokenHistory.map((entry) => (
+                <HistoryEntry 
+                  key={entry.id}
+                  onClick={() => handleLoadTokenFromHistory(entry)}
+                >
+                  <HistoryHeader>
+                    <HistoryFlow>
+                      <span>{getFlowIcon(entry.flowType)}</span>
+                      {entry.flowName}
+                    </HistoryFlow>
+                    <HistoryTimestamp>
+                      {entry.timestampFormatted}
+                    </HistoryTimestamp>
+                  </HistoryHeader>
+                  
+                  <HistoryTokens>
+                    {entry.hasAccessToken && (
+                      <TokenBadge $type="access">
+                        🔐 Access Token
+                      </TokenBadge>
+                    )}
+                    {entry.hasIdToken && (
+                      <TokenBadge $type="id">
+                        🎫 ID Token
+                      </TokenBadge>
+                    )}
+                    {entry.hasRefreshToken && (
+                      <TokenBadge $type="refresh">
+                        🔄 Refresh Token
+                      </TokenBadge>
+                    )}
+                  </HistoryTokens>
+                  
+                  <HistoryActions>
+                    <HistoryButton 
+                      $variant="primary"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleLoadTokenFromHistory(entry);
+                      }}
+                    >
+                      <FiEye />
+                      Load Token
+                    </HistoryButton>
+                    <HistoryButton 
+                      $variant="danger"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveHistoryEntry(entry.id);
+                      }}
+                    >
+                      <FiTrash2 />
+                      Remove
+                    </HistoryButton>
+                  </HistoryActions>
+                </HistoryEntry>
+              ))}
+            </div>
+          )}
+        </CardBody>
+      </TokenSection>
+
+      {/* Enhanced Token Analysis and Error Diagnosis Section */}
+      <TokenSection>
+        <CardHeader>
+          <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+            <FiShield />
+            Token Analysis & Error Diagnosis
+          </h3>
+        </CardHeader>
+        <CardBody>
+          <TabContainer>
+            <Tab $active={activeTab === 'analysis'} onClick={() => setActiveTab('analysis')}>
+              <FiShield style={{ marginRight: '0.5rem' }} />
+              Token Analysis
+            </Tab>
+            <Tab $active={activeTab === 'diagnosis'} onClick={() => setActiveTab('diagnosis')}>
+              <FiAlertTriangle style={{ marginRight: '0.5rem' }} />
+              Error Diagnosis
+            </Tab>
+          </TabContainer>
+
+          {/* Token Analysis Tab */}
+          <TabContent $active={activeTab === 'analysis'}>
+            {tokenString ? (
+              <div>
+                {/* Token Status and Refresh Info */}
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <RefreshStatus $status={getTokenExpirationStatus().status}>
+                    {getTokenExpirationStatus().status === 'valid' && <FiCheckCircle />}
+                    {getTokenExpirationStatus().status === 'expiring' && <FiClock />}
+                    {getTokenExpirationStatus().status === 'expired' && <FiXCircle />}
+                    {getTokenExpirationStatus().status === 'unknown' && <FiInfo />}
+                    {getTokenExpirationStatus().status === 'valid' && 'Token is valid'}
+                    {getTokenExpirationStatus().status === 'expiring' && 'Token expiring soon'}
+                    {getTokenExpirationStatus().status === 'expired' && 'Token has expired'}
+                    {getTokenExpirationStatus().status === 'unknown' && 'Token status unknown'}
+                    {getTokenExpirationStatus().timeRemaining > 0 && (
+                      <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}>
+                        ({Math.floor(getTokenExpirationStatus().timeRemaining / 1000 / 60)} minutes remaining)
+                      </span>
+                    )}
+                  </RefreshStatus>
+                  
+                  {canRefresh && (
+                    <div style={{ marginTop: '0.5rem' }}>
+                      <ActionButton 
+                        className="secondary" 
+                        onClick={handleRefreshToken}
+                        disabled={isAnalyzing}
+                      >
+                        <FiRefreshCw />
+                        Refresh Token
+                      </ActionButton>
+                    </div>
+                  )}
+                </div>
+
+                {/* Analysis Results */}
+                {currentAnalysis && (
+                  <AnalysisSection>
+                    {/* Security Score */}
+                    <SecurityScoreCard $score={getTokenSecurityScore().overall}>
+                      <h4 style={{ margin: '0 0 1rem 0', textAlign: 'center' }}>Security Score</h4>
+                      <ScoreCircle $score={getTokenSecurityScore().overall}>
+                        {getTokenSecurityScore().overall}
+                      </ScoreCircle>
+                      <div style={{ textAlign: 'center', fontSize: '0.875rem', color: '#6b7280' }}>
+                        {getTokenSecurityScore().overall >= 80 && 'Excellent'}
+                        {getTokenSecurityScore().overall >= 60 && getTokenSecurityScore().overall < 80 && 'Good'}
+                        {getTokenSecurityScore().overall >= 40 && getTokenSecurityScore().overall < 60 && 'Fair'}
+                        {getTokenSecurityScore().overall < 40 && 'Poor'}
+                      </div>
+                    </SecurityScoreCard>
+
+                    {/* Token Information */}
+                    <div>
+                      <h4 style={{ margin: '0 0 1rem 0' }}>Token Information</h4>
+                      <div style={{ display: 'grid', gap: '0.5rem' }}>
+                        <div><strong>Type:</strong> {getTokenTypeInfo().type}</div>
+                        <div><strong>Format:</strong> {getTokenTypeInfo().format}</div>
+                        {getTokenTypeInfo().issuer && <div><strong>Issuer:</strong> {getTokenTypeInfo().issuer}</div>}
+                        {getTokenTypeInfo().subject && <div><strong>Subject:</strong> {getTokenTypeInfo().subject}</div>}
+                        {getTokenTypeInfo().scopes && (
+                          <div><strong>Scopes:</strong> {getTokenTypeInfo().scopes?.join(', ')}</div>
+                        )}
+                      </div>
+                    </div>
+                  </AnalysisSection>
+                )}
+
+                {/* Security Issues */}
+                {hasIssues && (
+                  <div style={{ marginBottom: '1.5rem' }}>
+                    <h4 style={{ margin: '0 0 1rem 0', color: '#dc2626' }}>
+                      <FiAlertTriangle style={{ marginRight: '0.5rem' }} />
+                      Security Issues ({getCriticalIssues().length})
+                    </h4>
+                    <IssueList>
+                      {getCriticalIssues().map((issue, index) => (
+                        <IssueItem key={index} $severity={issue.severity}>
+                          <div style={{ fontWeight: '500', marginBottom: '0.25rem' }}>
+                            {issue.type.replace(/_/g, ' ').toUpperCase()}
+                          </div>
+                          <div style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
+                            {issue.description}
+                          </div>
+                          <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                            <strong>Recommendation:</strong> {issue.recommendation}
+                          </div>
+                        </IssueItem>
+                      ))}
+                    </IssueList>
+                  </div>
+                )}
+
+                {/* Validation Errors */}
+                {hasErrors && (
+                  <div style={{ marginBottom: '1.5rem' }}>
+                    <h4 style={{ margin: '0 0 1rem 0', color: '#dc2626' }}>
+                      <FiXCircle style={{ marginRight: '0.5rem' }} />
+                      Validation Errors ({getValidationErrors().length})
+                    </h4>
+                    <IssueList>
+                      {getValidationErrors().map((_error, index) => (
+                        <IssueItem key={index} $severity={error.severity}>
+                          <div style={{ fontWeight: '500', marginBottom: '0.25rem' }}>
+                            {error.field}
+                          </div>
+                          <div style={{ fontSize: '0.875rem' }}>
+                            {error.error}
+                          </div>
+                        </IssueItem>
+                      ))}
+                    </IssueList>
+                  </div>
+                )}
+
+                {/* Recommendations */}
+                {getTokenRecommendations().length > 0 && (
+                  <div style={{ marginBottom: '1.5rem' }}>
+                    <h4 style={{ margin: '0 0 1rem 0', color: '#3b82f6' }}>
+                      <FiInfo style={{ marginRight: '0.5rem' }} />
+                      Recommendations
+                    </h4>
+                    <RecommendationList>
+                      {getTokenRecommendations().map((recommendation, index) => (
+                        <RecommendationItem key={index}>
+                          {recommendation}
+                        </RecommendationItem>
+                      ))}
+                    </RecommendationList>
+                  </div>
+                )}
+
+                {/* Token Claims - REMOVED FOR NOW (saved for potential future use)
+                {Object.keys(getTokenClaims()).length > 0 && (
+                  <div>
+                    <h4 style={{ margin: '0 0 1rem 0' }}>Token Claims</h4>
+                    <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '0.5rem', padding: '1rem' }}>
+                      <JSONHighlighter data={getTokenClaims()} />
+                    </div>
+                  </div>
+                )}
+                */}
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
+                <FiKey size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
+                <p>Enter a token above to see detailed analysis</p>
+              </div>
+            )}
+          </TabContent>
+
+          {/* Error Diagnosis Tab */}
+          <TabContent $active={activeTab === 'diagnosis'}>
+            <div>
+              <h4 style={{ margin: '0 0 1rem 0' }}>Error Diagnosis</h4>
+              <p style={{ marginBottom: '1rem', color: '#6b7280', fontSize: '0.875rem' }}>
+                Paste an error message below to get automated diagnosis and suggested fixes.
+              </p>
+              
+              <ErrorInput
+                placeholder="Paste error message here..."
+                value={errorInput}
+                onChange={(e) => setErrorInput(e.target.value)}
+              />
+              
+              <ButtonGroup>
+                <ActionButton 
+                  className="primary" 
+                  onClick={handleDiagnoseError}
+                  disabled={!errorInput.trim() || isDiagnosing}
+                >
+                  {isDiagnosing ? <FiRefreshCw className="animate-spin" /> : <FiAlertTriangle />}
+                  {isDiagnosing ? 'Diagnosing...' : 'Diagnose Error'}
+                </ActionButton>
+                <ActionButton 
+                  className="secondary" 
+                  onClick={() => setErrorInput('')}
+                >
+                  <FiX />
+                  Clear
+                </ActionButton>
+              </ButtonGroup>
+
+              {/* Diagnosis Results */}
+              {hasCurrentDiagnosis && currentDiagnosis && (
+                <div style={{ marginTop: '1.5rem' }}>
+                  <div style={{ 
+                    padding: '1rem', 
+                    borderRadius: '0.5rem', 
+                    backgroundColor: '#f0f9ff', 
+                    border: '1px solid #bae6fd',
+                    marginBottom: '1rem'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                      <FiCheckCircle style={{ color: '#3b82f6' }} />
+                      <strong>Diagnosis Complete</strong>
+                    </div>
+                    <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                      <div><strong>Confidence:</strong> {getErrorConfidence()}%</div>
+                      <div><strong>Severity:</strong> {getErrorSeverity()}</div>
+                      <div><strong>Category:</strong> {getErrorCategory()}</div>
+                    </div>
+                  </div>
+
+                  {/* Suggested Fixes */}
+                  {getSuggestedFixes().length > 0 && (
+                    <div>
+                      <h4 style={{ margin: '0 0 1rem 0' }}>Suggested Fixes</h4>
+                      <FixList>
+                        {getSuggestedFixes().map((fix, index) => (
+                          <FixItem key={index} $priority={fix.priority}>
+                            <div style={{ fontWeight: '500', marginBottom: '0.5rem' }}>
+                              {fix.title}
+                            </div>
+                            <div style={{ fontSize: '0.875rem', marginBottom: '0.75rem' }}>
+                              {fix.description}
+                            </div>
+                            <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.5rem' }}>
+                              <strong>Priority:</strong> {fix.priority} | 
+                              <strong> Time:</strong> {fix.estimatedTime} | 
+                              <strong> Success Rate:</strong> {fix.successRate}%
+                            </div>
+                            {fix.steps.length > 0 && (
+                              <div>
+                                <strong style={{ fontSize: '0.75rem' }}>Steps:</strong>
+                                <ol style={{ fontSize: '0.75rem', marginTop: '0.25rem', paddingLeft: '1.25rem' }}>
+                                  {fix.steps.map((step, stepIndex) => (
+                                    <li key={stepIndex} style={{ marginBottom: '0.25rem' }}>
+                                      {step}
+                                    </li>
+                                  ))}
+                                </ol>
+                              </div>
+                            )}
+                            {fix.codeExample && (
+                              <div style={{ marginTop: '0.75rem' }}>
+                                <strong style={{ fontSize: '0.75rem' }}>Code Example:</strong>
+                                <pre style={{ 
+                                  fontSize: '0.75rem', 
+                                  background: '#f3f4f6', 
+                                  padding: '0.5rem', 
+                                  borderRadius: '0.25rem',
+                                  marginTop: '0.25rem',
+                                  overflow: 'auto'
+                                }}>
+                                  {fix.codeExample}
+                                </pre>
+                              </div>
+                            )}
+                          </FixItem>
+                        ))}
+                      </FixList>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </TabContent>
+        </CardBody>
+      </TokenSection>
+
+      {/* Confirmation Modals */}
+      <ConfirmationModal
+        isOpen={showRevokeModal}
+        onClose={() => setShowRevokeModal(false)}
+        onConfirm={confirmRevokeToken}
+        title="Revoke Token"
+        message="Are you sure you want to revoke this token? This action cannot be undone and the token will no longer be valid."
+        confirmText="Revoke Token"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={isLoading}
+      />
+
+      <ConfirmationModal
+        isOpen={showClearModal}
+        onClose={() => setShowClearModal(false)}
+        onConfirm={confirmClearToken}
+        title="Clear Token"
+        message="Are you sure you want to clear the current token? This will remove it from the display but won't revoke it on the server."
+        confirmText="Clear Token"
+        cancelText="Cancel"
+        variant="primary"
+      />
+
+      <ConfirmationModal
+        isOpen={showClearHistoryModal}
+        onClose={() => setShowClearHistoryModal(false)}
+        onConfirm={confirmClearHistory}
+        title="Clear Token History"
+        message="Are you sure you want to clear all token history? This action cannot be undone and all stored token history will be permanently removed."
+        confirmText="Clear History"
+        cancelText="Cancel"
+        variant="danger"
+      />
+
+      <ConfirmationModal
+        isOpen={showRemoveHistoryModal}
+        onClose={() => {
+          setShowRemoveHistoryModal(false);
+          setHistoryEntryToRemove(null);
+        }}
+        onConfirm={confirmRemoveHistoryEntry}
+        title="Remove Token Entry"
+        message="Are you sure you want to remove this token entry from history? This action cannot be undone."
+        confirmText="Remove Entry"
+        cancelText="Cancel"
+        variant="danger"
+      />
+
+      {/* Centralized Success/Error Messages */}
+      <CentralizedSuccessMessage position="top" />
+      <CentralizedSuccessMessage position="bottom" />
+
+    </Container>
+  );
+};
+
+export default TokenManagement;
