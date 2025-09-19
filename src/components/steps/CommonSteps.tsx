@@ -2,7 +2,7 @@
 
 import React from 'react';
 import styled from 'styled-components';
-import { FiSettings, FiShield, FiGlobe, FiKey, FiUser, FiCheckCircle, FiCopy, FiRefreshCw } from 'react-icons/fi';
+import { FiSettings, FiShield, FiGlobe, FiKey, FiUser, FiCheckCircle, FiCopy, FiRefreshCw, FiExternalLink, FiArrowLeft, FiAlertCircle, FiRotateCcw } from 'react-icons/fi';
 import { EnhancedFlowStep } from '../EnhancedStepFlowV2';
 import { copyToClipboard } from '../../utils/clipboard';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
@@ -91,6 +91,31 @@ const CopyButton = styled.button`
   
   &:active {
     transform: translateY(0);
+  }
+`;
+
+const ActionButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  &:hover:not(:disabled) {
+    background: #059669;
+    transform: translateY(-1px);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `;
 
@@ -576,6 +601,284 @@ export const createUserInfoStep = (
   ),
   execute: async () => {
     await getUserInfo();
+    return { success: true };
+  },
+  canExecute: Boolean(tokens?.access_token)
+});
+
+/**
+ * Create user authorization step - handles redirecting user to authorization server
+ */
+export const createUserAuthorizationStep = (
+  authUrl: string,
+  onPopupAuth?: () => void,
+  onRedirectAuth?: () => void,
+  isAuthorizing: boolean = false,
+  authCode?: string
+): EnhancedFlowStep => ({
+  id: 'user-authorization',
+  title: 'Redirect User to Authorization Server',
+  description: 'Redirect the user to PingOne authorization server to authenticate and authorize your application.',
+  icon: <FiGlobe />,
+  category: 'authorization',
+  content: (
+    <div>
+      <InfoBox type="info">
+        <FiGlobe />
+        <div>
+          <strong>User Authorization</strong>
+          <br />
+          The user will be redirected to PingOne to authenticate and authorize your application.
+        </div>
+      </InfoBox>
+      
+      {isAuthorizing && (
+        <InfoBox type="info">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div className="spinner" />
+            <strong>Authorization in progress...</strong>
+          </div>
+        </InfoBox>
+      )}
+      
+      {authCode && (
+        <InfoBox type="success">
+          <FiCheckCircle />
+          <div>
+            <strong>✅ Authorization Successful!</strong>
+            <br />
+            User has been authenticated and authorization code received.
+          </div>
+        </InfoBox>
+      )}
+      
+      {authUrl && (onPopupAuth || onRedirectAuth) && (
+        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+          {onPopupAuth && (
+            <ActionButton 
+              onClick={onPopupAuth}
+              disabled={!authUrl || isAuthorizing}
+              style={{
+                backgroundColor: '#3b82f6',
+                opacity: (!authUrl || isAuthorizing) ? 0.5 : 1
+              }}
+            >
+              <FiExternalLink /> Open Popup
+            </ActionButton>
+          )}
+          {onRedirectAuth && (
+            <ActionButton 
+              onClick={onRedirectAuth}
+              disabled={!authUrl || isAuthorizing}
+              style={{
+                backgroundColor: '#10b981',
+                opacity: (!authUrl || isAuthorizing) ? 0.5 : 1
+              }}
+            >
+              <FiGlobe /> Full Redirect
+            </ActionButton>
+          )}
+        </div>
+      )}
+    </div>
+  ),
+  execute: async () => {
+    // This step is executed by the popup/redirect buttons
+    return { success: true };
+  },
+  canExecute: Boolean(authUrl)
+});
+
+/**
+ * Create callback handling step - processes authorization callback
+ */
+export const createCallbackHandlingStep = (
+  authCode: string,
+  onReset?: () => void
+): EnhancedFlowStep => ({
+  id: 'handle-callback',
+  title: 'Handle Authorization Callback',
+  description: 'Process the authorization server callback and extract the authorization code.',
+  icon: <FiArrowLeft />,
+  category: 'callback',
+  content: (
+    <div>
+      <InfoBox type="info">
+        <FiArrowLeft />
+        <div>
+          <strong>Authorization Callback</strong>
+          <br />
+          Processing the callback from PingOne authorization server.
+        </div>
+      </InfoBox>
+      
+      {authCode ? (
+        <InfoBox type="success">
+          <FiCheckCircle />
+          <div>
+            <strong>✅ Authorization Code Received!</strong>
+            <br />
+            Successfully extracted authorization code from callback.
+          </div>
+        </InfoBox>
+      ) : (
+        <InfoBox type="warning">
+          <FiAlertCircle />
+          <div>
+            <strong>⏳ Waiting for Authorization...</strong>
+            <br />
+            Complete the authorization step to receive the authorization code.
+          </div>
+        </InfoBox>
+      )}
+      
+      {authCode && (
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <h4 style={{ margin: 0 }}>Authorization Code:</h4>
+            <CopyButton onClick={() => copyToClipboard(authCode, 'Authorization Code')}>
+              <FiCopy /> Copy
+            </CopyButton>
+          </div>
+          <FormField>
+            <TokenDisplay>{authCode}</TokenDisplay>
+          </FormField>
+        </div>
+      )}
+      
+      {onReset && (
+        <div style={{ marginTop: '1rem' }}>
+          <ActionButton 
+            onClick={onReset}
+            style={{ backgroundColor: '#6b7280' }}
+          >
+            <FiRotateCcw /> Reset Flow
+          </ActionButton>
+        </div>
+      )}
+    </div>
+  ),
+  execute: async () => {
+    // This step just validates the callback was processed
+    return { success: true };
+  },
+  canExecute: Boolean(authCode)
+});
+
+/**
+ * Create token validation step - validates and inspects received tokens
+ */
+export const createTokenValidationStep = (
+  tokens: any,
+  userInfo: any,
+  onValidateTokens?: () => Promise<void>,
+  isValidating: boolean = false
+): EnhancedFlowStep => ({
+  id: 'validate-tokens',
+  title: 'Validate Tokens & Get User Info',
+  description: 'Validate the received tokens and call the UserInfo endpoint to retrieve user profile information.',
+  icon: <FiShield />,
+  category: 'validation',
+  content: (
+    <div>
+      <InfoBox type="info">
+        <FiShield />
+        <div>
+          <strong>Token Validation</strong>
+          <br />
+          Validate tokens and retrieve user information from UserInfo endpoint.
+        </div>
+      </InfoBox>
+      
+      {isValidating && (
+        <InfoBox type="info">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div className="spinner" />
+            <strong>Validating tokens and calling UserInfo...</strong>
+          </div>
+        </InfoBox>
+      )}
+      
+      {tokens && (
+        <InfoBox type="success">
+          <FiCheckCircle />
+          <div>
+            <strong>✅ Tokens Validated!</strong>
+            <br />
+            Access token, ID token, and refresh token are valid.
+          </div>
+        </InfoBox>
+      )}
+      
+      {userInfo && (
+        <InfoBox type="success">
+          <FiUser />
+          <div>
+            <strong>✅ User Information Retrieved!</strong>
+            <br />
+            Successfully retrieved user profile from UserInfo endpoint.
+          </div>
+        </InfoBox>
+      )}
+      
+      {tokens && (
+        <div>
+          <h4>Token Summary:</h4>
+          <div style={{ display: 'grid', gap: '0.5rem', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem', backgroundColor: '#f3f4f6', borderRadius: '0.25rem' }}>
+              <span><strong>Access Token:</strong></span>
+              <span>{tokens.access_token ? '✅ Present' : '❌ Missing'}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem', backgroundColor: '#f3f4f6', borderRadius: '0.25rem' }}>
+              <span><strong>ID Token:</strong></span>
+              <span>{tokens.id_token ? '✅ Present' : '❌ Missing'}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem', backgroundColor: '#f3f4f6', borderRadius: '0.25rem' }}>
+              <span><strong>Refresh Token:</strong></span>
+              <span>{tokens.refresh_token ? '✅ Present' : '❌ Missing'}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem', backgroundColor: '#f3f4f6', borderRadius: '0.25rem' }}>
+              <span><strong>Expires In:</strong></span>
+              <span>{tokens.expires_in ? `${tokens.expires_in}s` : 'N/A'}</span>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {userInfo && (
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <h4 style={{ margin: 0 }}>User Information:</h4>
+            <CopyButton onClick={() => copyToClipboard(JSON.stringify(userInfo, null, 2), 'User Info')}>
+              <FiCopy /> Copy
+            </CopyButton>
+          </div>
+          <FormField>
+            <TokenDisplay>{JSON.stringify(userInfo, null, 2)}</TokenDisplay>
+          </FormField>
+        </div>
+      )}
+      
+      {tokens && onValidateTokens && (
+        <div style={{ marginTop: '1rem' }}>
+          <ActionButton 
+            onClick={onValidateTokens}
+            disabled={isValidating}
+            style={{
+              backgroundColor: '#10b981',
+              opacity: isValidating ? 0.5 : 1
+            }}
+          >
+            <FiUser /> Get User Info
+          </ActionButton>
+        </div>
+      )}
+    </div>
+  ),
+  execute: async () => {
+    if (onValidateTokens) {
+      await onValidateTokens();
+    }
     return { success: true };
   },
   canExecute: Boolean(tokens?.access_token)
