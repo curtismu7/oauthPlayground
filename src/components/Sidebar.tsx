@@ -186,8 +186,29 @@ const NavItemHeader = styled.div<NavItemHeaderProps>`
   }
   
   svg:last-child {
-    transition: transform 0.2s;
+    transition: all 0.2s ease;
     transform: rotate(${({ $isOpen }) => $isOpen ? '0deg' : '-90deg'});
+    opacity: 1;
+    font-size: 1.5rem;
+    color: #3b82f6;
+    padding: 0.4rem;
+    border-radius: 6px;
+    background: #eff6ff;
+    border: 2px solid #3b82f6;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+    cursor: pointer;
+    
+    &:hover {
+      color: #1d4ed8;
+      background: #dbeafe;
+      border-color: #1d4ed8;
+      transform: rotate(${({ $isOpen }) => $isOpen ? '0deg' : '-90deg'}) scale(1.1);
+      box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+    }
+    
+    &:active {
+      transform: rotate(${({ $isOpen }) => $isOpen ? '0deg' : '-90deg'}) scale(1.05);
+    }
   }
 `;
 
@@ -235,7 +256,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         ...prev,
         // Auto-expand if current route matches (OAuth menu stays collapsed by default)
         oauth: prev.oauth, // Keep OAuth menu collapsed by default
-        oidc: path.startsWith('/oidc') || path.includes('enhanced-authorization-code-v2') || prev.oidc,
+        oidc: path.startsWith('/oidc') || prev.oidc,
         resources: (path.startsWith('/oidc/userinfo') || path.startsWith('/oidc/tokens') || 
                    path.startsWith('/token-management') || path.startsWith('/auto-discover') ||
                    path.startsWith('/documentation') || path.startsWith('/flows/compare') || 
@@ -306,9 +327,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </NavItemHeader>
           
           <Submenu $isOpen={openMenus.oauth}>
-            <SubmenuItem to="/oidc/authorization-code" onClick={onClose} $isActive={isActiveRoute('/oidc/authorization-code')}>
+            {/* Older OAuth Authorization Code Flow Hidden - keeping file but not showing in menu */}
+            {/* <SubmenuItem to="/oidc/authorization-code" onClick={onClose} $isActive={isActiveRoute('/oidc/authorization-code')}>
               <FiLock />
               OAuth 2.0 Authorization Code
+            </SubmenuItem> */}
+            <SubmenuItem to="/flows/oauth-authorization-code-v3" onClick={onClose} $isActive={isActiveRoute('/flows/oauth-authorization-code-v3')}>
+              🔐
+              OAuth 2.0 Authorization Code (V3)
             </SubmenuItem>
             <SubmenuItem to="/oidc/client-credentials" onClick={onClose} $isActive={isActiveRoute('/oidc/client-credentials')}>
               <FiServer />
@@ -334,10 +360,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </NavItemHeader>
           
           <Submenu $isOpen={openMenus.oidc}>
-            <SubmenuItem to="/flows/enhanced-authorization-code-v2" onClick={onClose} $isActive={isActiveRoute('/flows/enhanced-authorization-code-v2')}>
+            {/* V2 Flow Hidden - keeping file but not showing in menu */}
+            {/* <SubmenuItem to="/flows/enhanced-authorization-code-v2" onClick={onClose} $isActive={isActiveRoute('/flows/enhanced-authorization-code-v2')}>
               <FiKey />
               OIDC Authorization Code (V2)
-            </SubmenuItem>
+            </SubmenuItem> */}
             <SubmenuItem to="/flows/enhanced-authorization-code-v3" onClick={onClose} $isActive={isActiveRoute('/flows/enhanced-authorization-code-v3')}>
               🚀
               OIDC Authorization Code (V3)
