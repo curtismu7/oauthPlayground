@@ -471,6 +471,14 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         redirect_uri: credentials.redirectUri
       };
 
+      console.log(`🔍 [${flowType.toUpperCase()}-V3] Original request body:`, {
+        requestBody,
+        authCode,
+        codeVerifier,
+        clientId: credentials.clientId,
+        redirectUri: credentials.redirectUri
+      });
+
       // Apply client authentication
       const authMethod: ClientAuthMethod = credentials.clientSecret ? 'client_secret_post' : 'none';
       const authMethodInfo = getAuthMethodSecurityLevel(authMethod);
