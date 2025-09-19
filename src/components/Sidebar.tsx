@@ -456,7 +456,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             </SubmenuItem>
             <SubmenuItem to="/flows/par" onClick={onClose}>
               <FiShield />
-              Pushed Authorization
+              Pushed Authorization Request (PAR)
             </SubmenuItem>
             <SubmenuItem to="/flows/compare" onClick={onClose}>
               <FiGitBranch />
