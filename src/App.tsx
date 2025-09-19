@@ -228,6 +228,7 @@ const AppRoutes = () => {
             <Route path="/flows/enhanced-authorization-code-v3" element={<UnifiedAuthorizationCodeFlowV3 flowType="oidc" />} />
             <Route path="/flows/oauth-authorization-code-v3" element={<UnifiedAuthorizationCodeFlowV3 flowType="oauth" />} />
             <Route path="/flows/resource-owner-password" element={<ResourceOwnerPasswordFlow />} />
+            <Route path="/flows/par" element={<PARFlow />} />
             
             <Route path="/flows-old" element={<Flows />}>
               <Route path="authorization-code" element={<AuthorizationCodeFlow />} />
