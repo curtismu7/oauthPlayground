@@ -25,7 +25,7 @@ import { credentialManager } from '../../utils/credentialManager';
 import { FlowConfiguration, FlowConfig } from '../../components/FlowConfiguration';
 import { getDefaultConfig } from '../../utils/flowConfigDefaults';
 import { validateIdToken } from '../../utils/oauth';
-import { applyClientAuthentication, getAuthMethodSecurityLevel, ClientAuthMethod } from '../../utils/clientAuthentication';
+import { applyClientAuthentication, getAuthMethodSecurityLevel, ClientAuthMethod, ClientAuthConfig } from '../../utils/clientAuthentication';
 import PingOneConfigSection from '../../components/PingOneConfigSection';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
 import OAuthErrorHelper from '../../components/OAuthErrorHelper';
@@ -474,7 +474,16 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
       // Apply client authentication
       const authMethod: ClientAuthMethod = credentials.clientSecret ? 'client_secret_post' : 'none';
       const authMethodInfo = getAuthMethodSecurityLevel(authMethod);
-      const authenticatedRequest = applyClientAuthentication(requestBody, credentials, authMethod);
+      
+      // Create the auth config object
+      const authConfig: ClientAuthConfig = {
+        method: authMethod,
+        clientId: credentials.clientId,
+        clientSecret: credentials.clientSecret,
+        tokenEndpoint: tokenEndpoint
+      };
+      
+      const authenticatedRequest = await applyClientAuthentication(authConfig, new URLSearchParams(requestBody));
 
       console.log(`🔍 [${flowType.toUpperCase()}-V3] Exchanging tokens:`, {
         tokenEndpoint,
@@ -483,13 +492,20 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         authMethod: authMethodInfo.level
       });
 
+      // Convert URLSearchParams to object for JSON transmission
+      const requestParams: Record<string, string> = {};
+      authenticatedRequest.body.forEach((value, key) => {
+        requestParams[key] = value;
+      });
+
       const response = await fetch('/api/token-exchange', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...authenticatedRequest.headers
         },
         body: JSON.stringify({
-          ...authenticatedRequest,
+          ...requestParams,
           environment_id: credentials.environmentId,
           token_endpoint: tokenEndpoint
         })
