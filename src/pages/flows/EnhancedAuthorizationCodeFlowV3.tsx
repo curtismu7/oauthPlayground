@@ -26,7 +26,7 @@ import { FlowConfiguration, FlowConfig } from '../../components/FlowConfiguratio
 import { getDefaultConfig } from '../../utils/flowConfigDefaults';
 import { validateIdToken } from '../../utils/oauth';
 import { applyClientAuthentication, getAuthMethodSecurityLevel } from '../../utils/clientAuthentication';
-import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
+import PingOneConfigSection from '../../components/PingOneConfigSection';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
 import OAuthErrorHelper from '../../components/OAuthErrorHelper';
 import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
@@ -950,9 +950,19 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
     setIsAuthorizing(true);
     console.log('🔧 [OIDC-V3] Opening popup with URL:', authUrl);
     
+    // Set flow context for AuthzCallback to detect Enhanced V3 flow
+    sessionStorage.setItem('flowContext', JSON.stringify({
+      flow: 'enhanced-authorization-code-v3',
+      redirectUri: credentials.redirectUri
+    }));
+    console.log('🔧 [OIDC-V3] Set flowContext for popup callback handling');
+    
     const popup = window.open(authUrl, 'oauth-popup', 'width=600,height=700');
     if (popup) {
       console.log('✅ [OIDC-V3] Popup opened successfully');
+      
+      // Track authorization success to avoid race conditions
+      let authorizationSuccessful = false;
       
       // Listen for messages from the popup
       const messageHandler = (event: MessageEvent) => {
@@ -975,6 +985,9 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
             showFlowError(`❌ Authorization failed: ${error_description || error}`);
             setIsAuthorizing(false);
           } else if (callbackCode && callbackState) {
+            // Mark authorization as successful BEFORE closing popup
+            authorizationSuccessful = true;
+            
             setAuthCode(callbackCode);
             console.log('✅ [OIDC-V3] Authorization code received via popup:', callbackCode.substring(0, 10) + '...');
             
@@ -1002,9 +1015,10 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
           window.removeEventListener('message', messageHandler);
           setIsAuthorizing(false);
           
-          if (!authCode) {
+          // Only show error if authorization was not successful
+          if (!authorizationSuccessful) {
             console.warn('⚠️ [OIDC-V3] Popup closed without authorization code');
-            showFlowError('⚠️ Popup closed without authorization code');
+            showFlowError('⚠️ Authorization was cancelled or popup was closed before completion');
           }
         }
       }, 1000);
@@ -1312,9 +1326,26 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                 <h4 style={{ margin: 0 }}>User Information:</h4>
-                <CopyButton onClick={() => copyToClipboard(JSON.stringify(userInfo, null, 2), 'User Info')}>
+                <button 
+                  onClick={() => copyToClipboard(JSON.stringify(userInfo, null, 2), 'User Info')}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    padding: '0.25rem 0.5rem',
+                    background: '#3b82f6',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    fontSize: '0.75rem',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.target.style.background = '#2563eb'}
+                  onMouseLeave={(e) => e.target.style.background = '#3b82f6'}
+                >
                   <FiCopy /> Copy
-                </CopyButton>
+                </button>
               </div>
               <div style={{ 
                 background: '#f0fdf4', 
@@ -1611,14 +1642,13 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
           </InlineDocumentation>
         </div>
 
-        {/* Callback URL Display - V2 Feature */}
-        <div style={{ marginBottom: '2rem' }}>
-          <CallbackUrlDisplay 
-            flowType="authorization-code"
-            baseUrl={window.location.origin}
-            defaultExpanded={false}
-          />
-        </div>
+        {/* PingOne Configuration Section - Only show on step 1 */}
+        <PingOneConfigSection
+          callbackUrl={`${window.location.origin}/authz-callback`}
+          flowType="Enhanced Authorization Code Flow V3"
+          showOnlyOnStep={0}
+          currentStep={stepManager.currentStepIndex}
+        />
 
 
         {/* Enhanced Error Recovery Panel */}
