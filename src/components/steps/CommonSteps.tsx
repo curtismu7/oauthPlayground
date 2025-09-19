@@ -1,11 +1,12 @@
 // src/components/steps/CommonSteps.tsx - Reusable step components for OAuth flows
 
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { FiSettings, FiShield, FiGlobe, FiKey, FiUser, FiCheckCircle, FiCopy, FiRefreshCw, FiExternalLink, FiArrowLeft, FiAlertCircle, FiRotateCcw } from 'react-icons/fi';
+import { FiSettings, FiShield, FiGlobe, FiKey, FiUser, FiCheckCircle, FiCopy, FiRefreshCw, FiExternalLink, FiArrowLeft, FiAlertCircle, FiRotateCcw, FiInfo } from 'react-icons/fi';
 import { EnhancedFlowStep } from '../EnhancedStepFlowV2';
 import { copyToClipboard } from '../../utils/clipboard';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
+import AuthorizationUrlExplainer from '../AuthorizationUrlExplainer';
 
 // Common styled components
 const FormField = styled.div`
@@ -349,45 +350,63 @@ export const createAuthUrlStep = (
   onPopupAuth?: () => void,
   onRedirectAuth?: () => void,
   isAuthorizing?: boolean
-): EnhancedFlowStep => ({
-  id: 'build-auth-url',
-  title: 'Build Authorization URL',
-  description: 'Construct the complete authorization URL with all required OAuth parameters.',
-  icon: <FiGlobe />,
-  category: 'authorization',
-  content: (
-    <div>
-      <InfoBox type="info">
-        <FiGlobe />
-        <div>
-          <strong>Authorization URL Construction</strong>
-          <br />
-          Building the complete authorization URL with all required parameters.
-        </div>
-      </InfoBox>
-      
-      {isAuthorizing && (
+): EnhancedFlowStep => {
+  const [showExplainer, setShowExplainer] = useState(false);
+  
+  return {
+    id: 'build-auth-url',
+    title: 'Build Authorization URL',
+    description: 'Construct the complete authorization URL with all required OAuth parameters.',
+    icon: <FiGlobe />,
+    category: 'authorization',
+    content: (
+      <div>
         <InfoBox type="info">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <div className="spinner" />
-            <strong>Opening authorization popup...</strong>
+          <FiGlobe />
+          <div>
+            <strong>Authorization URL Construction</strong>
+            <br />
+            Building the complete authorization URL with all required parameters.
           </div>
         </InfoBox>
-      )}
-      
-      {authUrl && (
-        <FormField>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-            <FormLabel style={{ margin: 0, fontWeight: 'bold' }}>Generated Authorization URL:</FormLabel>
-            <CopyButton onClick={() => copyToClipboard(authUrl, 'Authorization URL')}>
-              <FiCopy /> Copy
-            </CopyButton>
-          </div>
-          <TokenDisplay>{authUrl}</TokenDisplay>
-        </FormField>
-      )}
-      
-      {authUrl && (onPopupAuth || onRedirectAuth) && (
+        
+        {isAuthorizing && (
+          <InfoBox type="info">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div className="spinner" />
+              <strong>Opening authorization popup...</strong>
+            </div>
+          </InfoBox>
+        )}
+        
+        {authUrl && (
+          <FormField>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+              <FormLabel style={{ margin: 0, fontWeight: 'bold' }}>Generated Authorization URL:</FormLabel>
+              <CopyButton onClick={() => copyToClipboard(authUrl, 'Authorization URL')}>
+                <FiCopy /> Copy
+              </CopyButton>
+              <CopyButton 
+                onClick={() => setShowExplainer(true)}
+                style={{ 
+                  background: '#8b5cf6',
+                  marginLeft: '0.5rem'
+                }}
+              >
+                <FiInfo /> Explain URL
+              </CopyButton>
+            </div>
+            <TokenDisplay>{authUrl}</TokenDisplay>
+          </FormField>
+        )}
+        
+        <AuthorizationUrlExplainer 
+          authUrl={authUrl}
+          isOpen={showExplainer}
+          onClose={() => setShowExplainer(false)}
+        />
+        
+        {authUrl && (onPopupAuth || onRedirectAuth) && (
         <div style={{ marginTop: '1rem' }}>
           <h4 style={{ marginBottom: '1rem' }}>🔐 Authorization Methods:</h4>
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
@@ -422,14 +441,15 @@ export const createAuthUrlStep = (
     generateAuthUrl();
     return { success: true };
   },
-  canExecute: Boolean(
-    credentials &&
-    (credentials.environmentId || credentials.issuerUrl) &&
-    credentials.clientId &&
-    credentials.redirectUri &&
-    (!pkceCodes || (pkceCodes.codeVerifier && pkceCodes.codeChallenge))
-  )
-});
+    canExecute: Boolean(
+      credentials &&
+      (credentials.environmentId || credentials.issuerUrl) &&
+      credentials.clientId &&
+      credentials.redirectUri &&
+      (!pkceCodes || (pkceCodes.codeVerifier && pkceCodes.codeChallenge))
+    )
+  };
+};
 
 /**
  * Create token exchange step - reusable for flows that exchange codes for tokens
