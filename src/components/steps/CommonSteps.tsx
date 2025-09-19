@@ -349,10 +349,10 @@ export const createAuthUrlStep = (
   pkceCodes?: PKCECodes,
   onPopupAuth?: () => void,
   onRedirectAuth?: () => void,
-  isAuthorizing?: boolean
+  isAuthorizing?: boolean,
+  showExplainer?: boolean,
+  setShowExplainer?: (show: boolean) => void
 ): EnhancedFlowStep => {
-  const [showExplainer, setShowExplainer] = useState(false);
-  
   return {
     id: 'build-auth-url',
     title: 'Build Authorization URL',
@@ -387,7 +387,7 @@ export const createAuthUrlStep = (
                 <FiCopy /> Copy
               </CopyButton>
               <CopyButton 
-                onClick={() => setShowExplainer(true)}
+                onClick={() => setShowExplainer?.(true)}
                 style={{ 
                   background: '#8b5cf6',
                   marginLeft: '0.5rem'
@@ -402,8 +402,8 @@ export const createAuthUrlStep = (
         
         <AuthorizationUrlExplainer 
           authUrl={authUrl}
-          isOpen={showExplainer}
-          onClose={() => setShowExplainer(false)}
+          isOpen={showExplainer || false}
+          onClose={() => setShowExplainer?.(false)}
         />
         
         {authUrl && (onPopupAuth || onRedirectAuth) && (
