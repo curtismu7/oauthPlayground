@@ -25,7 +25,7 @@ import { credentialManager } from '../../utils/credentialManager';
 import { FlowConfiguration, FlowConfig } from '../../components/FlowConfiguration';
 import { getDefaultConfig } from '../../utils/flowConfigDefaults';
 import { validateIdToken } from '../../utils/oauth';
-import { applyClientAuthentication, getAuthMethodSecurityLevel } from '../../utils/clientAuthentication';
+import { applyClientAuthentication, getAuthMethodSecurityLevel, ClientAuthMethod } from '../../utils/clientAuthentication';
 import PingOneConfigSection from '../../components/PingOneConfigSection';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
 import OAuthErrorHelper from '../../components/OAuthErrorHelper';
@@ -232,6 +232,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
   const [isExchangingTokens, setIsExchangingTokens] = useState(false);
   const [canExchangeTokens, setCanExchangeTokens] = useState(false);
   const [flowConfig, setFlowConfig] = useState<FlowConfig>(() => getDefaultConfig(flowType === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'));
+  const [showExplainer, setShowExplainer] = useState(false);
 
   // Step result management
   const [stepResults, setStepResults] = useState<{[key: string]: any}>(() => {
@@ -471,14 +472,15 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
       };
 
       // Apply client authentication
-      const authMethod = getAuthMethodSecurityLevel(credentials.clientSecret);
+      const authMethod: ClientAuthMethod = credentials.clientSecret ? 'client_secret_post' : 'none';
+      const authMethodInfo = getAuthMethodSecurityLevel(authMethod);
       const authenticatedRequest = applyClientAuthentication(requestBody, credentials, authMethod);
 
       console.log(`🔍 [${flowType.toUpperCase()}-V3] Exchanging tokens:`, {
         tokenEndpoint,
         clientId: `${credentials.clientId.substring(0, 8)}...`,
         hasCodeVerifier: Boolean(codeVerifier),
-        authMethod
+        authMethod: authMethodInfo.level
       });
 
       const response = await fetch('/api/token-exchange', {
@@ -687,7 +689,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         completed: hasStepResult('generate-pkce')
       },
       {
-        ...createAuthUrlStep(authUrl, generateAuthUrl, credentials, pkceCodes, handlePopupAuthorization, handleFullRedirectAuthorization),
+        ...createAuthUrlStep(authUrl, generateAuthUrl, credentials, pkceCodes, handlePopupAuthorization, handleFullRedirectAuthorization, isAuthorizing, showExplainer, setShowExplainer),
         canExecute: Boolean(
           credentials.environmentId &&
           credentials.clientId &&
