@@ -485,6 +485,13 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
       
       const authenticatedRequest = await applyClientAuthentication(authConfig, new URLSearchParams(requestBody));
 
+      console.log(`🔍 [${flowType.toUpperCase()}-V3] Authenticated request:`, {
+        headers: authenticatedRequest.headers,
+        bodyEntries: Array.from(authenticatedRequest.body.entries()),
+        authConfig,
+        originalRequestBody: requestBody
+      });
+
       console.log(`🔍 [${flowType.toUpperCase()}-V3] Exchanging tokens:`, {
         tokenEndpoint,
         clientId: `${credentials.clientId.substring(0, 8)}...`,
@@ -498,17 +505,26 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         requestParams[key] = value;
       });
 
+      const finalRequestBody = {
+        ...requestParams,
+        environment_id: credentials.environmentId,
+        token_endpoint: tokenEndpoint
+      };
+
+      console.log(`🔍 [${flowType.toUpperCase()}-V3] Final request body:`, {
+        requestParams,
+        environment_id: credentials.environmentId,
+        token_endpoint: tokenEndpoint,
+        finalRequestBody
+      });
+
       const response = await fetch('/api/token-exchange', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...authenticatedRequest.headers
         },
-        body: JSON.stringify({
-          ...requestParams,
-          environment_id: credentials.environmentId,
-          token_endpoint: tokenEndpoint
-        })
+        body: JSON.stringify(finalRequestBody)
       });
 
       if (!response.ok) {
