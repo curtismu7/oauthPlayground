@@ -139,11 +139,11 @@ try {
   
   // Check for required interfaces
   const interfaces = ['StepCredentials', 'PKCECodes'];
-  interfaces.forEach(interface => {
-    if (commonStepsContent.includes(interface)) {
-      console.log(`✅ Interface '${interface}' defined`);
+  interfaces.forEach(interfaceType => {
+    if (commonStepsContent.includes(interfaceType)) {
+      console.log(`✅ Interface '${interfaceType}' defined`);
     } else {
-      console.log(`❌ Interface '${interface}' missing`);
+      console.log(`❌ Interface '${interfaceType}' missing`);
     }
   });
   
