@@ -579,64 +579,63 @@ const TokenManagement = () => {
   const generateBadSecurityToken = () => {
     const now = Math.floor(Date.now() / 1000);
     
-    // Create a realistic PingOne token header with security flaws
+    // Create a token with MAJOR security flaws that will definitely get a low score
     const header = {
-      alg: 'HS256', // Weak algorithm (should be RS256 for PingOne)
-      typ: 'JWT',
-      kid: 'bad-key-id', // Invalid key ID
-      iss: 'https://auth.pingone.com' // Missing environment ID
+      alg: 'none', // CRITICAL: No signature algorithm (most dangerous)
+      typ: 'JWT'
+      // Missing kid, iss, etc.
     };
 
-    // Create a realistic PingOne token payload with multiple security issues
+    // Create a payload with multiple critical security issues
     const payload = {
-      // Standard OIDC claims with security flaws
-      iss: 'https://auth.pingone.com', // Missing environment ID (should be https://auth.pingone.com/{env_id})
-      sub: 'user-12345',
-      aud: 'bad-client-id', // Wrong audience
-      exp: now + 7200, // Expires in 2 hours (too long)
-      iat: now - 3600, // Issued 1 hour ago (too old)
-      auth_time: now - 7200, // Auth time 2 hours ago (too old)
-      nonce: 'weak-nonce-123', // Weak nonce
+      // CRITICAL ISSUES:
+      iss: 'https://evil-site.com', // Malicious issuer
+      sub: 'admin', // Weak subject
+      aud: 'all-apps', // Overly broad audience
+      exp: now + 86400 * 365, // Expires in 1 year (way too long)
+      iat: now - 86400 * 30, // Issued 30 days ago (way too old)
       
-      // Missing critical security claims
+      // HIGH RISK ISSUES:
+      auth_time: now - 86400 * 7, // Auth time 7 days ago (too old)
+      nonce: '123', // Extremely weak nonce
+      
+      // MISSING CRITICAL CLAIMS:
       // acr: missing (Authentication Context Class Reference)
-      // amr: missing (Authentication Methods References)
+      // amr: missing (Authentication Methods References)  
       // azp: missing (Authorized Party)
-      
-      // User profile claims with issues
-      name: 'John Doe',
-      given_name: 'John',
-      family_name: 'Doe',
-      email: 'john.doe@example.com',
-      email_verified: false, // Email not verified (security risk)
-      picture: 'https://insecure-site.com/avatar.jpg', // HTTP instead of HTTPS
-      locale: 'en-US',
-      
-      // Custom claims with security issues
-      'custom:role': 'admin', // Overly broad role
-      'custom:permissions': ['read', 'write', 'delete', 'admin'], // Too many permissions
-      'custom:session_id': 'session-123', // Weak session ID
-      'custom:ip_address': '192.168.1.100', // Internal IP exposed
-      'custom:user_agent': 'Mozilla/5.0...', // User agent exposed
-      
-      // JWT security issues
-      jti: 'jwt-id-123', // Weak JTI
-      nbf: now - 1800, // Not before is in the past (invalid)
-      
-      // Missing security features
       // at_hash: missing (Access Token hash)
       // c_hash: missing (Code hash)
-      // s_hash: missing (State hash)
+      
+      // SUSPICIOUS USER CLAIMS:
+      name: 'Administrator',
+      email: 'admin@evil.com',
+      email_verified: false, // Email not verified
+      picture: 'http://evil-site.com/avatar.jpg', // Insecure HTTP
+      
+      // DANGEROUS CUSTOM CLAIMS:
+      'custom:role': 'super-admin', // Overly broad role
+      'custom:permissions': ['*'], // All permissions
+      'custom:bypass_security': true, // Security bypass flag
+      'custom:internal_ip': '192.168.1.1', // Internal network info
+      'custom:admin_override': true, // Admin override
+      
+      // WEAK JWT CLAIMS:
+      jti: '1', // Extremely weak JTI
+      nbf: now - 86400, // Not before in past
+      
+      // MALICIOUS CLAIMS:
+      'malicious:inject': '<script>alert("xss")</script>', // XSS attempt
+      'malicious:sql': "'; DROP TABLE users; --", // SQL injection attempt
     };
 
     // Encode header and payload
     const encodedHeader = btoa(JSON.stringify(header)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
     const encodedPayload = btoa(JSON.stringify(payload)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
     
-    // Create a weak signature (using a simple HMAC with a weak key)
-    const weakSignature = 'bad-signature-that-would-fail-validation';
+    // CRITICAL: No signature for 'none' algorithm
+    const noSignature = '';
     
-    return `${encodedHeader}.${encodedPayload}.${weakSignature}`;
+    return `${encodedHeader}.${encodedPayload}.${noSignature}`;
   };
 
   useEffect(() => {

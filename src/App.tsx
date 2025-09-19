@@ -32,6 +32,8 @@ import AuthorizationCodeFlow from './pages/flows/AuthorizationCodeFlow';
 import EnhancedAuthorizationCodeFlow from './pages/flows/EnhancedAuthorizationCodeFlow';
 import EnhancedAuthorizationCodeFlowV2 from './pages/flows/EnhancedAuthorizationCodeFlowV2';
 import EnhancedAuthorizationCodeFlowV3 from './pages/flows/EnhancedAuthorizationCodeFlowV3';
+import OAuthAuthorizationCodeFlowV3 from './pages/flows/OAuthAuthorizationCodeFlowV3';
+import UnifiedAuthorizationCodeFlowV3 from './pages/flows/UnifiedAuthorizationCodeFlowV3';
 import JWTBearerFlow from './pages/flows/JWTBearerFlow';
 import UserInfoFlow from './pages/flows/UserInfoFlow';
 import IDTokensFlow from './pages/flows/IDTokensFlow';
@@ -58,6 +60,7 @@ import GlobalErrorDisplay from './components/GlobalErrorDisplay';
 
 // Import callback components
 import AuthzCallback from './components/callbacks/AuthzCallback';
+import OAuthV3Callback from './components/callbacks/OAuthV3Callback';
 import HybridCallback from './components/callbacks/HybridCallback';
 import ImplicitCallback from './components/callbacks/ImplicitCallback';
 import WorkerTokenCallback from './components/callbacks/WorkerTokenCallback';
@@ -205,6 +208,7 @@ const AppRoutes = () => {
             
             {/* Per-flow callback routes */}
             <Route path="/authz-callback" element={<AuthzCallback />} />
+            <Route path="/oauth-v3-callback" element={<OAuthV3Callback />} />
             <Route path="/hybrid-callback" element={<HybridCallback />} />
             <Route path="/implicit-callback" element={<ImplicitCallback />} />
             <Route path="/worker-token-callback" element={<WorkerTokenCallback />} />
@@ -221,7 +225,8 @@ const AppRoutes = () => {
             <Route path="/flows/authorization-code" element={<AuthorizationCodeFlow />} />
             <Route path="/flows/enhanced-authorization-code" element={<EnhancedAuthorizationCodeFlow />} />
             <Route path="/flows/enhanced-authorization-code-v2" element={<EnhancedAuthorizationCodeFlowV2 />} />
-            <Route path="/flows/enhanced-authorization-code-v3" element={<EnhancedAuthorizationCodeFlowV3 />} />
+            <Route path="/flows/enhanced-authorization-code-v3" element={<UnifiedAuthorizationCodeFlowV3 flowType="oidc" />} />
+            <Route path="/flows/oauth-authorization-code-v3" element={<UnifiedAuthorizationCodeFlowV3 flowType="oauth" />} />
             <Route path="/flows/resource-owner-password" element={<ResourceOwnerPasswordFlow />} />
             
             <Route path="/flows-old" element={<Flows />}>

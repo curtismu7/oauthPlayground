@@ -1,0 +1,235 @@
+import React, { useState } from 'react';
+import { FiChevronDown, FiChevronRight, FiCopy, FiCheck, FiExternalLink } from 'react-icons/fi';
+import styled from 'styled-components';
+import { copyToClipboard } from '../utils/clipboard';
+
+const Container = styled.div`
+  background: #fef3c7;
+  border: 2px solid #f59e0b;
+  border-radius: 12px;
+  margin: 2rem auto;
+  max-width: 1200px;
+  overflow: hidden;
+`;
+
+const Header = styled.div`
+  background: #fbbf24;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background: #f59e0b;
+  }
+`;
+
+const HeaderTitle = styled.h3`
+  color: #92400e;
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const ChevronIcon = styled.div`
+  color: #92400e;
+  font-size: 1.2rem;
+  transition: transform 0.2s ease;
+  
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+`;
+
+const Content = styled.div<{ $isExpanded: boolean }>`
+  max-height: ${({ $isExpanded }) => $isExpanded ? '1000px' : '0'};
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+`;
+
+const ContentInner = styled.div`
+  padding: 1.5rem;
+  background: white;
+`;
+
+const WarningText = styled.p`
+  color: #78350f;
+  margin: 0 0 1rem 0;
+  font-weight: 500;
+`;
+
+const UrlContainer = styled.div`
+  background: #f9fafb;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+  word-break: break-all;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+`;
+
+const UrlText = styled.span`
+  flex: 1;
+  min-width: 0;
+`;
+
+const ActionButtons = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+`;
+
+const ActionButton = styled.button<{ $variant?: 'copy' | 'external' }>`
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid ${({ $variant }) => 
+    $variant === 'copy' ? '#10b981' : '#3b82f6'
+  };
+  border-radius: 6px;
+  background: ${({ $variant }) => 
+    $variant === 'copy' ? '#ecfdf5' : '#eff6ff'
+  };
+  color: ${({ $variant }) => 
+    $variant === 'copy' ? '#059669' : '#2563eb'
+  };
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: ${({ $variant }) => 
+      $variant === 'copy' ? '#d1fae5' : '#dbeafe'
+    };
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+`;
+
+const Instructions = styled.div`
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #fef3c7;
+  border-radius: 8px;
+  border-left: 4px solid #f59e0b;
+`;
+
+const InstructionsTitle = styled.h4`
+  color: #92400e;
+  margin: 0 0 0.5rem 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+`;
+
+const InstructionsText = styled.p`
+  color: #78350f;
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+`;
+
+interface PingOneConfigSectionProps {
+  callbackUrl: string;
+  flowType: string;
+  showOnlyOnStep?: number;
+  currentStep?: number;
+}
+
+const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
+  callbackUrl,
+  flowType,
+  showOnlyOnStep,
+  currentStep
+}) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  // Only show on specified step (default: step 1)
+  const shouldShow = showOnlyOnStep === undefined || currentStep === showOnlyOnStep;
+  
+  if (!shouldShow) {
+    return null;
+  }
+
+  const handleCopy = async () => {
+    try {
+      await copyToClipboard(callbackUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy URL:', error);
+    }
+  };
+
+  const handleOpenInNewTab = () => {
+    window.open('https://console.pingidentity.com', '_blank', 'noopener,noreferrer');
+  };
+
+  return (
+    <Container>
+      <Header onClick={() => setIsExpanded(!isExpanded)}>
+        <HeaderTitle>
+          ⚠️ PingOne Configuration Required
+        </HeaderTitle>
+        <ChevronIcon>
+          {isExpanded ? <FiChevronDown /> : <FiChevronRight />}
+        </ChevronIcon>
+      </Header>
+      
+      <Content $isExpanded={isExpanded}>
+        <ContentInner>
+          <WarningText>
+            <strong>IMPORTANT:</strong> Add this redirect URI to your PingOne application before testing the {flowType}:
+          </WarningText>
+          
+          <UrlContainer>
+            <UrlText>{callbackUrl}</UrlText>
+            <ActionButtons>
+              <ActionButton $variant="copy" onClick={handleCopy} disabled={copied}>
+                {copied ? <FiCheck /> : <FiCopy />}
+                {copied ? 'Copied!' : 'Copy'}
+              </ActionButton>
+              <ActionButton $variant="external" onClick={handleOpenInNewTab}>
+                <FiExternalLink />
+                PingOne Console
+              </ActionButton>
+            </ActionButtons>
+          </UrlContainer>
+          
+          <Instructions>
+            <InstructionsTitle>Configuration Steps:</InstructionsTitle>
+            <InstructionsText>
+              Go to: <strong>PingOne Console → Applications → Your App → Configuration → Redirect URIs</strong><br/>
+              Add the redirect URI above to your application's allowed redirect URIs list.
+            </InstructionsText>
+          </Instructions>
+        </ContentInner>
+      </Content>
+    </Container>
+  );
+};
+
+export default PingOneConfigSection;

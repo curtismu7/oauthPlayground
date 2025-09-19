@@ -174,9 +174,13 @@ const AuthButton = styled.button`
 export interface StepCredentials {
   clientId: string;
   clientSecret: string;
-  environmentId: string;
+  environmentId?: string;  // Optional for OAuth flows
+  issuerUrl?: string;      // Used by OAuth flows instead of environmentId
   redirectUri: string;
-  scopes: string;
+  scopes?: string;         // Should be optional
+  scope?: string;          // Alternative scope format
+  responseType?: string;   // OAuth response type
+  grantType?: string;      // OAuth grant type
   authorizationEndpoint?: string;
   tokenEndpoint?: string;
   userInfoEndpoint?: string;
@@ -247,9 +251,9 @@ export const createCredentialsStep = (
         <FormLabel>Scopes</FormLabel>
         <FormInput
           type="text"
-          value={credentials.scopes}
-          onChange={(e) => setCredentials({ ...credentials, scopes: e.target.value })}
-          placeholder="profile email"
+          value={credentials.scope || credentials.scopes || ''}
+          onChange={(e) => setCredentials({ ...credentials, scope: e.target.value, scopes: e.target.value })}
+          placeholder="openid profile email"
         />
       </FormField>
     </div>
@@ -419,7 +423,8 @@ export const createAuthUrlStep = (
     return { success: true };
   },
   canExecute: Boolean(
-    credentials.environmentId &&
+    credentials &&
+    (credentials.environmentId || credentials.issuerUrl) &&
     credentials.clientId &&
     credentials.redirectUri &&
     (!pkceCodes || (pkceCodes.codeVerifier && pkceCodes.codeChallenge))
@@ -653,31 +658,62 @@ export const createUserAuthorizationStep = (
       )}
       
       {authUrl && (onPopupAuth || onRedirectAuth) && (
-        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', flexWrap: 'wrap' }}>
-          {onPopupAuth && (
-            <ActionButton 
-              onClick={onPopupAuth}
-              disabled={!authUrl || isAuthorizing}
-              style={{
-                backgroundColor: '#3b82f6',
-                opacity: (!authUrl || isAuthorizing) ? 0.5 : 1
-              }}
-            >
-              <FiExternalLink /> Open Popup
-            </ActionButton>
-          )}
-          {onRedirectAuth && (
-            <ActionButton 
-              onClick={onRedirectAuth}
-              disabled={!authUrl || isAuthorizing}
-              style={{
-                backgroundColor: '#10b981',
-                opacity: (!authUrl || isAuthorizing) ? 0.5 : 1
-              }}
-            >
-              <FiGlobe /> Full Redirect
-            </ActionButton>
-          )}
+        <div style={{ marginTop: '1.5rem' }}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '0.5rem', 
+            marginBottom: '1rem',
+            fontSize: '1.1rem',
+            fontWeight: '600',
+            color: '#374151'
+          }}>
+            🔒 Authorization Methods:
+          </div>
+          
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            {onPopupAuth && (
+              <ActionButton 
+                onClick={onPopupAuth}
+                disabled={!authUrl || isAuthorizing}
+                style={{
+                  backgroundColor: '#3b82f6',
+                  opacity: (!authUrl || isAuthorizing) ? 0.5 : 1,
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '8px',
+                  fontSize: '0.95rem',
+                  fontWeight: '500'
+                }}
+              >
+                🌐 Popup Authorization
+              </ActionButton>
+            )}
+            {onRedirectAuth && (
+              <ActionButton 
+                onClick={onRedirectAuth}
+                disabled={!authUrl || isAuthorizing}
+                style={{
+                  backgroundColor: '#10b981',
+                  opacity: (!authUrl || isAuthorizing) ? 0.5 : 1,
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '8px',
+                  fontSize: '0.95rem',
+                  fontWeight: '500'
+                }}
+              >
+                🔄 Full Redirect
+              </ActionButton>
+            )}
+          </div>
+          
+          <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
+            <div style={{ marginBottom: '0.5rem' }}>
+              <strong>Popup:</strong> Opens in new window, returns to this page automatically.
+            </div>
+            <div>
+              <strong>Redirect:</strong> Navigates away from this page, returns after authorization.
+            </div>
+          </div>
         </div>
       )}
     </div>
