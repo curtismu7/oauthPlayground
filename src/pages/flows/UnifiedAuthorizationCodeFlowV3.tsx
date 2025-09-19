@@ -156,10 +156,18 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
 
   // State management
   const [credentials, setCredentials] = useState<StepCredentials>(() => {
-    const stored = credentialManager.loadAuthzFlowCredentials();
-    const redirectUri = `${window.location.origin}/authz-callback`;
+    // Check for URL parameters first (from Flow Comparison tool)
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlEnv = urlParams.get('env');
+    const urlClient = urlParams.get('client');
+    const urlScope = urlParams.get('scope');
+    const urlRedirect = urlParams.get('redirect');
     
-    const environmentId = stored?.environmentId || '';
+    // Load stored credentials as fallback
+    const stored = credentialManager.loadAuthzFlowCredentials();
+    const redirectUri = urlRedirect || stored?.redirectUri || `${window.location.origin}/authz-callback`;
+    
+    const environmentId = urlEnv || stored?.environmentId || '';
     const issuerUrl = environmentId ? `https://auth.pingone.com/${environmentId}` : '';
     
     // Choose default scopes based on flow type
@@ -167,13 +175,25 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
       ? 'read write'  // OAuth 2.0 scopes
       : 'openid profile email';  // OIDC scopes
     
-    const savedScopes = stored?.scopes ? 
+    const savedScopes = urlScope || (stored?.scopes ? 
       (Array.isArray(stored.scopes) ? stored.scopes.join(' ') : stored.scopes) : 
-      defaultScopes;
+      defaultScopes);
     
-    return {
+    console.log(`🔍 [${flowType.toUpperCase()}-V3] Initializing credentials:`, {
+      hasUrlParams: !!(urlEnv || urlClient || urlScope),
+      hasStored: !!stored,
+      redirectUri,
+      urlClient: urlClient ? `${urlClient.substring(0, 8)}...` : null,
+      storedClientId: stored?.clientId ? `${stored.clientId.substring(0, 8)}...` : null,
+      urlScope,
+      storedScopes: stored?.scopes,
+      finalScope: savedScopes,
+      flowType
+    });
+    
+    const initialCredentials = {
       environmentId: environmentId,
-      clientId: stored?.clientId || '',
+      clientId: urlClient || stored?.clientId || '',
       clientSecret: stored?.clientSecret || '',
       redirectUri: redirectUri,
       scope: savedScopes,
@@ -182,6 +202,19 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
       grantType: 'authorization_code',
       issuerUrl: issuerUrl
     };
+
+    // If we got credentials from URL parameters, save them for future use
+    if (urlEnv || urlClient || urlScope) {
+      console.log(`🔧 [${flowType.toUpperCase()}-V3] Saving URL credentials to storage`);
+      credentialManager.saveAuthzFlowCredentials({
+        environmentId: initialCredentials.environmentId,
+        clientId: initialCredentials.clientId,
+        redirectUri: initialCredentials.redirectUri,
+        scopes: initialCredentials.scopes
+      });
+    }
+
+    return initialCredentials;
   });
 
   const [pkceCodes, setPkceCodes] = useState<PKCECodes>({
@@ -875,11 +908,16 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         {/* Main Step Flow */}
         <EnhancedStepFlowV2 
           steps={steps}
-          currentStep={stepManager.currentStepIndex}
+          title={flowTitle}
+          persistKey={`${flowType}-authz-v3`}
+          initialStepIndex={stepManager.currentStepIndex}
           onStepChange={stepManager.setStep}
-          flowType={`${flowType}-authorization-code`}
-          showStepNumbers={true}
-          enableStepNavigation={true}
+          autoAdvance={false}
+          showDebugInfo={true}
+          allowStepJumping={true}
+          onStepComplete={(stepId, result) => {
+            console.log(`✅ [${flowType.toUpperCase()}-V3] Step completed:`, stepId, result);
+          }}
         />
 
         {/* Flow Control Actions */}
