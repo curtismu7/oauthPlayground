@@ -330,6 +330,9 @@ interface FlowConfigurationProps {
   onConfigChange: (config: FlowConfig) => void;
   flowType: 'authorization-code' | 'pkce' | 'implicit' | 'client-credentials' | 'device-code' | 'refresh-token' | 'password-grant';
   isConfigured?: boolean; // Whether credentials are already saved
+  initialExpanded?: boolean; // Whether the panel should start expanded (default: true)
+  title?: string; // Custom title for the panel
+  subtitle?: string; // Custom subtitle for the panel
 }
 
 const availableScopes = [
@@ -353,12 +356,15 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
   config,
   onConfigChange,
   flowType,
-  isConfigured = false
+  isConfigured = false,
+  initialExpanded = true,
+  title = "Flow Config",
+  subtitle = "Customize OAuth parameters to see how they affect the flow"
 }) => {
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(initialExpanded);
   const { announce } = useAccessibility();
 
   const updateConfig = (updates: Partial<FlowConfig>) => {
@@ -495,11 +501,11 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
           <CollapsibleHeader onClick={() => setIsExpanded(!isExpanded)}>
             <h3>
               <FiSettings />
-              Flow Config
+              {title}
             </h3>
             {isExpanded ? <FiChevronDown className="collapse-icon" /> : <FiChevronRight className="collapse-icon" />}
           </CollapsibleHeader>
-          <p>Customize OAuth parameters to see how they affect the flow</p>
+          <p>{subtitle}</p>
         </CardHeader>
         <CardBody>
           <CollapsibleContent $isExpanded={isExpanded}>
