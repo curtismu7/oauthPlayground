@@ -88,6 +88,20 @@ const AuthzCallback: React.FC = () => {
         const currentUrl = getValidatedCurrentUrl('AuthzCallback');
         logger.auth('AuthzCallback', 'Processing authorization callback', { url: currentUrl });
         
+        // Check flow context first (needed for both popup and redirect flows)
+        const flowContext = sessionStorage.getItem('flowContext');
+        let isOAuthV3 = false;
+        let isEnhancedV3 = false;
+        try {
+          const context = flowContext ? JSON.parse(flowContext) : null;
+          isOAuthV3 = context?.flow === 'oauth-authorization-code-v3';
+          isEnhancedV3 = context?.flow === 'enhanced-authorization-code-v3';
+        } catch (e) {
+          // Ignore parsing errors
+        }
+        
+        console.log('🔍 [AuthzCallback] Flow detection:', { isOAuthV3, isEnhancedV3, flowContext });
+        
         // Check if this is a popup window
         const isPopup = window.opener && !window.opener.closed;
         
@@ -109,7 +123,7 @@ const AuthzCallback: React.FC = () => {
             
             // Send error to parent window
             window.opener.postMessage({
-              type: 'oauth-callback',
+              type: isOAuthV3 ? 'OAUTH_CALLBACK' : 'oauth-callback',
               error: error,
               error_description: errorDescription || error
             }, window.location.origin);
@@ -127,7 +141,7 @@ const AuthzCallback: React.FC = () => {
             
             // Send success with code and state to parent window
             window.opener.postMessage({
-              type: 'oauth-callback',
+              type: isOAuthV3 ? 'OAUTH_CALLBACK' : 'oauth-callback',
               code: code,
               state: state,
               success: true
@@ -144,7 +158,7 @@ const AuthzCallback: React.FC = () => {
             
             // Send error to parent window
             window.opener.postMessage({
-              type: 'oauth-callback',
+              type: isOAuthV3 ? 'OAUTH_CALLBACK' : 'oauth-callback',
               error: 'invalid_request',
               error_description: 'Missing authorization code or state'
             }, window.location.origin);
@@ -154,19 +168,61 @@ const AuthzCallback: React.FC = () => {
             }, 2000);
             return;
           }
+          
+          // For OAuth V3 flows, we should ONLY handle popups, not full redirects
+          // OAuth V3 full redirects should be handled by the OAuth V3 flow itself
+          if (isOAuthV3) {
+            console.log('❌ [AuthzCallback] OAuth V3 flow should only use popup authorization');
+            setStatus('error');
+            setMessage('OAuth V3 flow detected but not in popup mode. Please use popup authorization.');
+            return;
+          }
         }
         
-        // For non-popup flows, check if this is an Enhanced V3 flow that should defer token exchange
-        console.log('🔄 [AuthzCallback] Non-popup flow, checking for Enhanced flow context...');
+        // For non-popup flows, check if this is an Enhanced V3 or OAuth V3 flow that should defer token exchange
+        console.log('🔄 [AuthzCallback] Non-popup flow, checking for Enhanced/OAuth flow context...');
         
-        const flowContextRaw = sessionStorage.getItem('flowContext');
-        if (flowContextRaw) {
+        if (flowContext) {
           try {
-            const flowContext = JSON.parse(flowContextRaw);
-            const isEnhancedV3 = flowContext?.flow === 'enhanced-authorization-code-v3';
-            
             console.log('🔍 [AuthzCallback] Flow context found:', flowContext);
             console.log('🔍 [AuthzCallback] Is Enhanced V3:', isEnhancedV3);
+            console.log('🔍 [AuthzCallback] Is OAuth V3:', isOAuthV3);
+            
+            if (isOAuthV3) {
+            // For OAuth V3 full redirect, extract code and state, store them, then redirect to OAuth V3 page
+            const urlParams = new URL(currentUrl).searchParams;
+            const code = urlParams.get('code');
+            const state = urlParams.get('state');
+            const error = urlParams.get('error');
+            
+            if (error) {
+              console.error('❌ [AuthzCallback] OAuth V3 authorization error:', error);
+              setStatus('error');
+              setMessage(`Authorization failed: ${urlParams.get('error_description') || error}`);
+              // Redirect back to OAuth V3 flow with error
+              setTimeout(() => {
+                navigate('/flows/oauth-authorization-code-v3?error=' + encodeURIComponent(error));
+              }, 2000);
+              return;
+            }
+            
+            if (code && state) {
+              console.log('✅ [AuthzCallback] OAuth V3 authorization successful, storing code and redirecting');
+              
+              // Store the authorization code and state for OAuth V3 flow
+              sessionStorage.setItem('oauth_v3_auth_code', code);
+              sessionStorage.setItem('oauth_v3_state', state);
+              
+              setStatus('success');
+              setMessage('Authorization successful! Redirecting back to OAuth flow...');
+              
+              // Redirect back to OAuth V3 flow at step 5 (token exchange)
+              setTimeout(() => {
+                navigate('/flows/oauth-authorization-code-v3?step=5');
+              }, 1500);
+              return;
+            }
+          }
             
             if (isEnhancedV3) {
               // For V3 full redirect, extract code and state, then redirect to V3 page

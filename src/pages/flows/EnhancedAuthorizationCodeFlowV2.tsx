@@ -34,7 +34,7 @@ import { getDefaultConfig } from '../../utils/flowConfigDefaults';
 import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
 import ConfigurationStatus from '../../components/ConfigurationStatus';
 import ContextualHelp from '../../components/ContextualHelp';
-import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
+import PingOneConfigSection from '../../components/PingOneConfigSection';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { useAuthorizationFlowScroll } from '../../hooks/usePageScroll';
@@ -3975,20 +3975,13 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         </div>
       )}
 
-      {/* Callback URL Configuration - Collapsible with shaded background */}
-      <div style={{ 
-        marginBottom: '2rem', 
-        backgroundColor: '#f8fafc', 
-        border: '1px solid #e2e8f0', 
-        borderRadius: '0.75rem',
-        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
-      }}>
-        <CallbackUrlDisplay 
-          flowType="authorization-code" 
-          baseUrl={window.location.origin}
-          defaultExpanded={false}
-        />
-      </div>
+      {/* PingOne Configuration Section - Only show on step 1 */}
+      <PingOneConfigSection
+        callbackUrl={`${window.location.origin}/authz-callback`}
+        flowType="Enhanced Authorization Code Flow V2"
+        showOnlyOnStep={0}
+        currentStep={stepManager.currentStepIndex}
+      />
 
 
       {/* Authorization URL Display - Moved to bottom */}
