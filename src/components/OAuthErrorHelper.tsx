@@ -157,6 +157,25 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
   onDismiss
 }) => {
   const getErrorGuidance = (error: string) => {
+    if (!error || typeof error !== 'string') {
+      return {
+        title: 'Unknown Error',
+        description: 'An unknown error occurred during the OAuth flow.',
+        solutions: [
+          {
+            title: 'General Troubleshooting',
+            icon: <FiSettings />,
+            description: 'Check your configuration and try again.',
+            steps: [
+              'Verify your client credentials are correct',
+              'Check that redirect URI matches exactly',
+              'Ensure your PingOne application is properly configured'
+            ]
+          }
+        ]
+      };
+    }
+    
     switch (error.toLowerCase()) {
       case 'invalid_scope':
       case 'at least one scope must be granted':
@@ -333,7 +352,7 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
           Possible Solutions
         </SolutionsTitle>
         
-        {guidance.solutions.map((solution, index) => (
+        {guidance.solutions && guidance.solutions.length > 0 ? guidance.solutions.map((solution, index) => (
           <SolutionItem key={index}>
             <SolutionTitle>
               {solution.icon}
@@ -347,11 +366,13 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
               <div style={{ marginBottom: '0.75rem' }}>
                 <strong>Steps to resolve:</strong>
                 <ol style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
-                  {solution.steps.map((step, stepIndex) => (
+                  {solution.steps && solution.steps.length > 0 ? solution.steps.map((step, stepIndex) => (
                     <li key={stepIndex} style={{ marginBottom: '0.25rem' }}>
                       {step}
                     </li>
-                  ))}
+                  )) : (
+                    <li style={{ color: '#6b7280' }}>No specific steps available</li>
+                  )}
                 </ol>
               </div>
             )}
@@ -369,7 +390,11 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
               </div>
             )}
           </SolutionItem>
-        ))}
+        )) : (
+          <div style={{ padding: '1rem', color: '#6b7280', fontSize: '0.875rem' }}>
+            No specific solutions available for this error.
+          </div>
+        )}
       </SolutionsSection>
 
       <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>

@@ -22,23 +22,39 @@ export const safeJsonParse = <T = unknown>(
   }
 
   // XSS protection - check for dangerous content
-  const dangerousPatterns = [
+  // Check for XSS patterns (but be more specific about prototype pollution patterns)
+  const xssPatterns = [
     '<script',
     'javascript:',
     'data:text/html',
     'vbscript:',
     'onload=',
     'onerror=',
-    'onclick=',
-    '__proto__',
-    'constructor',
-    'prototype'
+    'onclick='
   ];
 
   const lowerJson = jsonString.toLowerCase();
-  for (const pattern of dangerousPatterns) {
+  for (const pattern of xssPatterns) {
     if (lowerJson.includes(pattern)) {
       console.warn('🚨 [Security] Blocked potentially dangerous JSON content:', pattern);
+      return null;
+    }
+  }
+
+  // Check for prototype pollution patterns more specifically
+  // Only block if these appear as JSON keys (with quotes and colons)
+  const prototypePatterns = [
+    '"__proto__":',
+    "'__proto__':",
+    '"constructor":',
+    "'constructor':",
+    '"prototype":',
+    "'prototype':"
+  ];
+
+  for (const pattern of prototypePatterns) {
+    if (lowerJson.includes(pattern)) {
+      console.warn('🚨 [Security] Blocked prototype pollution attempt in JSON string:', pattern);
       return null;
     }
   }
@@ -48,13 +64,14 @@ export const safeJsonParse = <T = unknown>(
     
     // Additional validation for parsed object
     if (parsed && typeof parsed === 'object') {
-      // Check for prototype pollution attempts (but allow flowContext objects)
-      if ('__proto__' in parsed || 'prototype' in parsed) {
+      // Check for prototype pollution attempts - only block if these are OWN properties
+      // Use hasOwnProperty to avoid false positives from inherited properties
+      if (parsed.hasOwnProperty('__proto__') || parsed.hasOwnProperty('prototype')) {
         console.warn('🚨 [Security] Blocked prototype pollution attempt in parsed JSON');
         return null;
       }
-      // Note: Temporarily allowing 'constructor' for flowContext objects
-      if ('constructor' in parsed && !parsed.flow) {
+      // Only block constructor if it's an own property and not a flowContext object
+      if (parsed.hasOwnProperty('constructor') && !parsed.flow) {
         console.warn('🚨 [Security] Blocked prototype pollution attempt in parsed JSON (constructor)');
         return null;
       }

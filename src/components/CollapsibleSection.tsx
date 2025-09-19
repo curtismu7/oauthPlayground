@@ -68,17 +68,34 @@ const ChevronIcon = styled.div.withConfig({
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 0.375rem;
-  background: white;
-  border: 1px solid #d1d5db;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 8px;
+  background: #eff6ff;
+  border: 2px solid #3b82f6;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
   transition: all 0.2s ease;
   transform: ${({ $collapsed }) => $collapsed ? 'rotate(0deg)' : 'rotate(90deg)'};
+  cursor: pointer;
+
+  svg {
+    font-size: 1.25rem;
+    color: #3b82f6;
+  }
 
   &:hover {
-    background: #f9fafb;
-    border-color: #9ca3af;
+    background: #dbeafe;
+    border-color: #1d4ed8;
+    transform: ${({ $collapsed }) => $collapsed ? 'rotate(0deg) scale(1.1)' : 'rotate(90deg) scale(1.1)'};
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+    
+    svg {
+      color: #1d4ed8;
+    }
+  }
+  
+  &:active {
+    transform: ${({ $collapsed }) => $collapsed ? 'rotate(0deg) scale(1.05)' : 'rotate(90deg) scale(1.05)'};
   }
 `;
 

@@ -32,6 +32,41 @@ const DocTitle = styled.h4`
   color: #374151;
 `;
 
+const DocChevron = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 8px;
+  background: #eff6ff;
+  border: 2px solid #3b82f6;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  margin-left: auto;
+
+  svg {
+    font-size: 1.25rem;
+    color: #3b82f6;
+  }
+
+  &:hover {
+    background: #dbeafe;
+    border-color: #1d4ed8;
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+    
+    svg {
+      color: #1d4ed8;
+    }
+  }
+  
+  &:active {
+    transform: scale(1.05);
+  }
+`;
+
 const DocContent = styled.div<{ $isExpanded: boolean }>`
   padding: ${({ $isExpanded }) => $isExpanded ? '1rem' : '0'};
   max-height: ${({ $isExpanded }) => $isExpanded ? '500px' : '0'};
@@ -120,9 +155,9 @@ export const InlineDocumentation: React.FC<InlineDocumentationProps> = ({
         <span style={{ fontSize: '1.1em' }}>{getTypeIcon()}</span>
         <FiInfo />
         <DocTitle>{title}</DocTitle>
-        <div style={{ marginLeft: 'auto' }}>
+        <DocChevron>
           {isExpanded ? <FiChevronDown /> : <FiChevronRight />}
-        </div>
+        </DocChevron>
       </DocHeader>
       
       <DocContent $isExpanded={isExpanded}>
@@ -191,29 +226,29 @@ export const TroubleshootingGuide: React.FC<TroubleshootingGuideProps> = ({
       <div style={{ marginBottom: '1rem' }}>
         <strong style={{ fontSize: '0.8rem', color: '#dc2626' }}>Symptoms:</strong>
         <ul style={{ margin: '0.25rem 0', paddingLeft: '1.5rem', fontSize: '0.8rem', color: '#6b7280' }}>
-          {symptoms.map((symptom, index) => (
+          {symptoms && symptoms.length > 0 ? symptoms.map((symptom, index) => (
             <li key={index}>{symptom}</li>
-          ))}
+          )) : <li>No specific symptoms identified</li>}
         </ul>
       </div>
 
       <div>
         <strong style={{ fontSize: '0.8rem', color: '#059669' }}>Solutions:</strong>
-        {solutions.map((solution, index) => (
+        {solutions && solutions.length > 0 ? solutions.map((solution, index) => (
           <div key={index} style={{ margin: '0.5rem 0' }}>
             <div style={{ fontWeight: 'bold', fontSize: '0.8rem', color: '#1f2937' }}>
               {solution.title}
             </div>
             <ol style={{ margin: '0.25rem 0', paddingLeft: '1.5rem', fontSize: '0.75rem', color: '#6b7280' }}>
-              {solution.steps.map((step, stepIndex) => (
+              {solution.steps && solution.steps.length > 0 ? solution.steps.map((step, stepIndex) => (
                 <li key={stepIndex}>{step}</li>
-              ))}
+              )) : <li>No specific steps available</li>}
             </ol>
             {solution.code && (
               <DocCode>{solution.code}</DocCode>
             )}
           </div>
-        ))}
+        )) : <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>No solutions available</div>}
       </div>
     </DocSection>
   );
