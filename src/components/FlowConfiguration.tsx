@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from './Card';
-import { FiSettings, FiCopy, FiCheck, FiSave, FiChevronDown, FiChevronRight } from 'react-icons/fi';
+import { FiSettings, FiCopy, FiCheck, FiSave, FiChevronDown, FiChevronRight, FiMinus, FiPlus, FiChevronUp } from 'react-icons/fi';
 import StandardMessage from './StandardMessage';
 import { useAccessibility } from '../hooks/useAccessibility';
 
@@ -69,9 +69,18 @@ const CollapsibleHeader = styled.div`
   cursor: pointer;
   user-select: none;
   transition: all 0.2s ease;
+  border-radius: 6px;
+  padding: 0.25rem;
+  margin: -0.25rem;
   
   &:hover {
     opacity: 0.8;
+    background: ${({ theme }) => theme.colors.gray50};
+  }
+  
+  &:focus {
+    outline: 2px solid ${({ theme }) => theme.colors.primary};
+    outline-offset: 2px;
   }
   
   h2 {
@@ -82,11 +91,27 @@ const CollapsibleHeader = styled.div`
   }
   
   .collapse-icon {
-    transition: transform 0.2s ease;
-    opacity: 0.7;
+    transition: all 0.2s ease;
+    opacity: 1;
+    font-size: 1.75rem;
+    color: #3b82f6;
+    padding: 0.5rem;
+    border-radius: 8px;
+    background: #eff6ff;
+    border: 2px solid #3b82f6;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+    cursor: pointer;
     
     &:hover {
-      opacity: 1;
+      color: #1d4ed8;
+      background: #dbeafe;
+      border-color: #1d4ed8;
+      transform: scale(1.15);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+    
+    &:active {
+      transform: scale(1.05);
     }
   }
 `;
@@ -498,12 +523,26 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
     <ConfigContainer>
       <Card>
         <CardHeader>
-          <CollapsibleHeader onClick={() => setIsExpanded(!isExpanded)}>
+          <CollapsibleHeader 
+            onClick={() => setIsExpanded(!isExpanded)}
+            aria-label={isExpanded ? "Collapse configuration" : "Expand configuration"}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setIsExpanded(!isExpanded);
+              }
+            }}
+          >
             <h3>
               <FiSettings />
               {title}
             </h3>
-            {isExpanded ? <FiChevronDown className="collapse-icon" /> : <FiChevronRight className="collapse-icon" />}
+            {isExpanded ? 
+              <FiChevronUp className="collapse-icon" title="Collapse" /> : 
+              <FiChevronDown className="collapse-icon" title="Expand" />
+            }
           </CollapsibleHeader>
           <p>{subtitle}</p>
         </CardHeader>
