@@ -1,215 +1,203 @@
 #!/usr/bin/env node
 
 /**
- * ESLint Cleanup Script - Week 1 Code Quality
- * 
- * This script systematically fixes common ESLint issues:
- * 1. Replace any types with proper types
- * 2. Remove unused imports
- * 3. Fix unused variables
- * 4. Clean up parsing errors
+ * ESLint Auto-Fix Script
+ * Systematically fixes the most common ESLint issues in the OAuth Playground
  */
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// Common unused imports to remove
-const UNUSED_IMPORTS = [
-  'useEffect',
-  'useMemo',
-  'useCallback',
-  'useState',
-  'React',
-  'FiSettings',
-  'FiEye',
-  'FiEyeOff',
-  'FiUser',
-  'CardHeader',
-  'CardFooter',
-  'FiClock',
-  'FiAlertCircle',
-  'FiCheckCircle'
-];
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// Common any type patterns to fix
-const ANY_TYPE_FIXES = [
+console.log('🔧 ESLint Auto-Fix Script Starting...\n');
+
+// Common fixes to apply
+const fixes = [
+  // Fix TypeScript any types
   {
+    name: 'Replace any with unknown',
+    pattern: /: any\b/g,
+    replacement: ': unknown',
+    files: ['**/*.ts', '**/*.tsx']
+  },
+  {
+    name: 'Replace any[] with unknown[]',
     pattern: /: any\[\]/g,
-    replacement: ': unknown[]'
+    replacement: ': unknown[]',
+    files: ['**/*.ts', '**/*.tsx']
   },
   {
-    pattern: /: any\s*=/g,
-    replacement: ': unknown ='
+    name: 'Replace Record<string, any>',
+    pattern: /Record<string, any>/g,
+    replacement: 'Record<string, unknown>',
+    files: ['**/*.ts', '**/*.tsx']
   },
   {
-    pattern: /\(.*?: any\)/g,
-    replacement: (match) => match.replace('any', 'unknown')
+    name: 'Replace function parameters any',
+    pattern: /\(([^)]*): any\)/g,
+    replacement: '($1: unknown)',
+    files: ['**/*.ts', '**/*.tsx']
   }
 ];
 
-function getSourceFiles() {
-  const srcDir = path.join(__dirname, 'src');
+// Files to process
+const srcDir = path.join(__dirname, 'src');
+
+function getAllFiles(dir, extensions = ['.ts', '.tsx']) {
   const files = [];
   
-  function walk(dir) {
-    const items = fs.readdirSync(dir);
+  function traverse(currentDir) {
+    const items = fs.readdirSync(currentDir);
+    
     for (const item of items) {
-      const fullPath = path.join(dir, item);
+      const fullPath = path.join(currentDir, item);
       const stat = fs.statSync(fullPath);
       
       if (stat.isDirectory()) {
-        walk(fullPath);
-      } else if (item.endsWith('.ts') || item.endsWith('.tsx')) {
+        traverse(fullPath);
+      } else if (extensions.some(ext => item.endsWith(ext))) {
         files.push(fullPath);
       }
     }
   }
   
-  walk(srcDir);
+  traverse(dir);
   return files;
 }
 
-function removeUnusedImports(content) {
-  const lines = content.split('\n');
-  const importLines = [];
-  const otherLines = [];
+function applyFixes() {
+  const files = getAllFiles(srcDir);
+  let totalFixes = 0;
   
-  for (const line of lines) {
-    if (line.trim().startsWith('import ')) {
-      importLines.push(line);
-    } else {
-      otherLines.push(line);
-    }
-  }
+  console.log(`📁 Processing ${files.length} TypeScript files...\n`);
   
-  // Check which imports are actually used
-  const bodyContent = otherLines.join('\n');
-  const filteredImports = importLines.filter(line => {
-    // Extract import names from the line
-    const matches = line.match(/import\s+{([^}]+)}/);
-    if (matches) {
-      const imports = matches[1].split(',').map(s => s.trim());
-      const usedImports = imports.filter(imp => {
-        const cleanImport = imp.replace(/\s+as\s+\w+/, ''); // Remove aliases
-        return bodyContent.includes(cleanImport);
-      });
+  for (const filePath of files) {
+    try {
+      let content = fs.readFileSync(filePath, 'utf8');
+      let fileFixCount = 0;
       
-      if (usedImports.length === 0) {
-        return false; // Remove entire import line
-      } else if (usedImports.length < imports.length) {
-        // Update the import line with only used imports
-        const newImportList = usedImports.join(', ');
-        line = line.replace(/import\s+{[^}]+}/, `import { ${newImportList} }`);
+      for (const fix of fixes) {
+        const matches = content.match(fix.pattern);
+        if (matches) {
+          content = content.replace(fix.pattern, fix.replacement);
+          fileFixCount += matches.length;
+          totalFixes += matches.length;
+        }
       }
+      
+      if (fileFixCount > 0) {
+        fs.writeFileSync(filePath, content, 'utf8');
+        const relativePath = path.relative(__dirname, filePath);
+        console.log(`✅ ${relativePath}: ${fileFixCount} fixes applied`);
+      }
+      
+    } catch (error) {
+      const relativePath = path.relative(__dirname, filePath);
+      console.log(`❌ ${relativePath}: Error - ${error.message}`);
     }
-    return true;
-  });
-  
-  return [...filteredImports, '', ...otherLines].join('\n');
-}
-
-function fixAnyTypes(content) {
-  let fixed = content;
-  
-  // Replace common any patterns
-  for (const fix of ANY_TYPE_FIXES) {
-    fixed = fixed.replace(fix.pattern, fix.replacement);
   }
   
-  return fixed;
+  console.log(`\n🎉 Total fixes applied: ${totalFixes}`);
 }
 
-function fixUnusedVariables(content) {
-  // Remove unused variable declarations
-  let fixed = content;
+// Remove unused imports function
+function removeUnusedImports() {
+  console.log('\n🧹 Removing unused imports...\n');
   
-  // Pattern for unused destructured variables
-  fixed = fixed.replace(/const\s+{\s*([^}]+)\s*}\s*=\s*([^;]+);/g, (match, vars, source) => {
-    const varList = vars.split(',').map(v => v.trim());
-    const usedVars = varList.filter(v => {
-      const varName = v.split(':')[0].trim(); // Handle typed destructuring
-      return content.includes(varName + ' ') || content.includes(varName + '(') || content.includes(varName + '.');
-    });
-    
-    if (usedVars.length === 0) {
-      return ''; // Remove entire destructuring
-    } else if (usedVars.length < varList.length) {
-      return `const { ${usedVars.join(', ')} } = ${source};`;
+  const files = getAllFiles(srcDir);
+  let removedImports = 0;
+  
+  for (const filePath of files) {
+    try {
+      let content = fs.readFileSync(filePath, 'utf8');
+      const originalContent = content;
+      
+      // Common unused imports to remove
+      const unusedImports = [
+        // React icons that are imported but not used
+        /import\s*{\s*[^}]*FiPlay[^}]*}\s*from\s*['"]react-icons\/fi['"];\s*\n/g,
+        /import\s*{\s*[^}]*FiUser[^}]*}\s*from\s*['"]react-icons\/fi['"];\s*\n/g,
+        /import\s*{\s*[^}]*FiSettings[^}]*}\s*from\s*['"]react-icons\/fi['"];\s*\n/g,
+        /import\s*{\s*[^}]*FiEye[^}]*}\s*from\s*['"]react-icons\/fi['"];\s*\n/g,
+        /import\s*{\s*[^}]*FiEyeOff[^}]*}\s*from\s*['"]react-icons\/fi['"];\s*\n/g,
+        
+        // Remove individual unused imports from multi-import lines
+        /,\s*FiPlay\s*(?=,|})/g,
+        /,\s*FiUser\s*(?=,|})/g,
+        /,\s*FiSettings\s*(?=,|})/g,
+        /,\s*FiEye\s*(?=,|})/g,
+        /,\s*FiEyeOff\s*(?=,|})/g,
+        
+        // Remove unused React hooks
+        /,\s*useEffect\s*(?=,|})/g,
+        /,\s*useState\s*(?=,|})/g,
+      ];
+      
+      for (const pattern of unusedImports) {
+        if (content.match(pattern)) {
+          content = content.replace(pattern, '');
+          removedImports++;
+        }
+      }
+      
+      if (content !== originalContent) {
+        fs.writeFileSync(filePath, content, 'utf8');
+        const relativePath = path.relative(__dirname, filePath);
+        console.log(`✅ ${relativePath}: Removed unused imports`);
+      }
+      
+    } catch (error) {
+      const relativePath = path.relative(__dirname, filePath);
+      console.log(`❌ ${relativePath}: Error - ${error.message}`);
     }
-    
-    return match;
-  });
+  }
   
-  return fixed;
+  console.log(`\n🧹 Removed ${removedImports} unused import references`);
 }
 
-function processFile(filePath) {
-  console.log(`Processing ${filePath}...`);
+// Fix parsing errors
+function fixParsingErrors() {
+  console.log('\n🔧 Fixing parsing errors...\n');
+  
+  // Fix the interface keyword issue in test file
+  const testFile = path.join(__dirname, 'test-step-system-functionality.js');
   
   try {
-    let content = fs.readFileSync(filePath, 'utf8');
+    let content = fs.readFileSync(testFile, 'utf8');
     
-    // Apply fixes
-    content = removeUnusedImports(content);
-    content = fixAnyTypes(content);
-    content = fixUnusedVariables(content);
+    // Replace 'interface' with 'interfaceType' or similar
+    content = content.replace(/interface\s+/g, 'interfaceType ');
     
-    // Write back
-    fs.writeFileSync(filePath, content);
+    fs.writeFileSync(testFile, content, 'utf8');
+    console.log('✅ Fixed interface keyword in test file');
     
-    console.log(`✅ Fixed ${filePath}`);
-    return true;
   } catch (error) {
-    console.error(`❌ Error processing ${filePath}:`, error.message);
-    return false;
+    console.log(`❌ Error fixing parsing errors: ${error.message}`);
   }
 }
 
-function main() {
-  console.log('🚀 Starting ESLint cleanup - Week 1 Code Quality');
+// Main execution
+async function main() {
+  console.log('🚀 Starting ESLint fixes...\n');
   
-  const sourceFiles = getSourceFiles();
-  console.log(`Found ${sourceFiles.length} source files to process`);
+  // Apply TypeScript any fixes
+  applyFixes();
   
-  let processed = 0;
-  let errors = 0;
+  // Remove unused imports
+  removeUnusedImports();
   
-  for (const file of sourceFiles) {
-    if (processFile(file)) {
-      processed++;
-    } else {
-      errors++;
-    }
-  }
+  // Fix parsing errors
+  fixParsingErrors();
   
-  console.log(`\n📊 Summary:`);
-  console.log(`✅ Processed: ${processed} files`);
-  console.log(`❌ Errors: ${errors} files`);
-  
-  // Run ESLint to see remaining issues
-  try {
-    console.log('\n🔍 Running ESLint to check remaining issues...');
-    const result = execSync('npx eslint src/ --ext .ts,.tsx --max-warnings 0', { encoding: 'utf8' });
-    console.log('🎉 No ESLint errors remaining!');
-  } catch (error) {
-    console.log('\n⚠️ Remaining ESLint issues:');
-    console.log(error.stdout);
-    
-    // Count remaining issues
-    const lines = error.stdout.split('\n');
-    const errorLines = lines.filter(line => line.includes('error') || line.includes('warning'));
-    console.log(`\n📊 Remaining issues: ${errorLines.length}`);
-  }
+  console.log('\n✅ ESLint auto-fix completed!');
+  console.log('\n📊 Next steps:');
+  console.log('   1. Run: npm run lint');
+  console.log('   2. Review remaining issues');
+  console.log('   3. Manual fixes for complex cases');
+  console.log('   4. Test the application');
 }
 
-if (require.main === module) {
-  main();
-}
-
-module.exports = {
-  removeUnusedImports,
-  fixAnyTypes,
-  fixUnusedVariables,
-  processFile
-};
+main().catch(console.error);
