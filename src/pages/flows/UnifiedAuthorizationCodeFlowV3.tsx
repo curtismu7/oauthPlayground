@@ -446,6 +446,19 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
 
   // Exchange tokens
   const exchangeTokens = useCallback(async () => {
+    console.log(`🔍 [${flowType.toUpperCase()}-V3] Starting token exchange validation:`, {
+      hasAuthCode: Boolean(authCode),
+      authCodeLength: authCode?.length || 0,
+      hasEnvironmentId: Boolean(credentials.environmentId),
+      environmentId: credentials.environmentId,
+      hasClientId: Boolean(credentials.clientId),
+      clientId: credentials.clientId,
+      hasClientSecret: Boolean(credentials.clientSecret),
+      clientSecretLength: credentials.clientSecret?.length || 0,
+      hasRedirectUri: Boolean(credentials.redirectUri),
+      redirectUri: credentials.redirectUri
+    });
+
     if (!authCode || !credentials.environmentId || !credentials.clientId) {
       throw new Error('Authorization code, environment ID, and client ID are required');
     }
