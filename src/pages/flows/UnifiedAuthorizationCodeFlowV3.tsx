@@ -669,8 +669,25 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
   }, [userInfo]);
 
   // Create steps based on flow type
-  const steps = useMemoizedComputation(() => {
+  const steps = React.useMemo(() => {
+    console.log(`🔍 [${flowType.toUpperCase()}-V3] Creating steps with credentials:`, {
+      hasEnvironmentId: !!credentials.environmentId,
+      hasClientId: !!credentials.clientId,
+      hasRedirectUri: !!credentials.redirectUri,
+      flowType
+    });
+    
     const baseSteps = [
+      // Test step to verify rendering works
+      {
+        id: 'test-step',
+        title: 'Test Step',
+        description: 'This is a test step to verify rendering works',
+        icon: <FiKey />,
+        content: <div><h3>Test Step Content</h3><p>If you can see this, the step rendering is working!</p></div>,
+        canExecute: true,
+        completed: false
+      },
       {
         ...createCredentialsStep(credentials, setCredentials, saveCredentials, `${flowType.toUpperCase()} Authorization Code Flow`),
         canExecute: Boolean(
@@ -876,6 +893,8 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
       );
     }
 
+    console.log(`🔍 [${flowType.toUpperCase()}-V3] Final steps created:`, baseSteps.length, 'steps');
+    console.log(`🔍 [${flowType.toUpperCase()}-V3] Step details:`, baseSteps.map(s => ({ id: s.id, title: s.title, canExecute: s.canExecute })));
     return baseSteps;
   }, [credentials, pkceCodes, authUrl, authCode, tokens, userInfo, isAuthorizing, isExchangingTokens, flowType, stepManager.currentStepIndex, hasStepResult, saveCredentials, generatePKCE, generateAuthUrl, handlePopupAuthorization, handleFullRedirectAuthorization, exchangeTokens, resetFlow, navigateToTokenManagement, copyUserInfo]);
 
@@ -906,6 +925,12 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         />
 
         {/* Main Step Flow */}
+        {console.log(`🔍 [${flowType.toUpperCase()}-V3] Rendering EnhancedStepFlowV2 with:`, {
+          stepsCount: steps.length,
+          title: flowTitle,
+          currentStep: stepManager.currentStepIndex,
+          steps: steps.map(s => ({ id: s.id, title: s.title }))
+        })}
         <EnhancedStepFlowV2 
           steps={steps}
           title={flowTitle}
