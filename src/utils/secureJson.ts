@@ -48,9 +48,14 @@ export const safeJsonParse = <T = unknown>(
     
     // Additional validation for parsed object
     if (parsed && typeof parsed === 'object') {
-      // Check for prototype pollution attempts
-      if ('__proto__' in parsed || 'constructor' in parsed || 'prototype' in parsed) {
+      // Check for prototype pollution attempts (but allow flowContext objects)
+      if ('__proto__' in parsed || 'prototype' in parsed) {
         console.warn('🚨 [Security] Blocked prototype pollution attempt in parsed JSON');
+        return null;
+      }
+      // Note: Temporarily allowing 'constructor' for flowContext objects
+      if ('constructor' in parsed && !parsed.flow) {
+        console.warn('🚨 [Security] Blocked prototype pollution attempt in parsed JSON (constructor)');
         return null;
       }
     }

@@ -88,12 +88,129 @@ const AuthzCallback: React.FC = () => {
         const currentUrl = getValidatedCurrentUrl('AuthzCallback');
         logger.auth('AuthzCallback', 'Processing authorization callback', { url: currentUrl });
         
-        // Check if this is a popup window and send message to parent
+        // Check if this is a popup window
         const isPopup = window.opener && !window.opener.closed;
+        
         if (isPopup) {
-          console.log('📤 [AuthzCallback] Popup detected, sending message to parent window');
+          console.log('📤 [AuthzCallback] Popup detected - extracting code/state and sending to parent');
+          
+          // For popups, extract the authorization code and state directly from URL
+          // DO NOT call handleCallback as that would do token exchange in the popup
+          const urlParams = new URL(currentUrl).searchParams;
+          const code = urlParams.get('code');
+          const state = urlParams.get('state');
+          const error = urlParams.get('error');
+          const errorDescription = urlParams.get('error_description');
+          
+          if (error) {
+            console.error('❌ [AuthzCallback] Authorization error in popup:', error);
+            setStatus('error');
+            setMessage(`Authorization failed: ${errorDescription || error}`);
+            
+            // Send error to parent window
+            window.opener.postMessage({
+              type: 'oauth-callback',
+              error: error,
+              error_description: errorDescription || error
+            }, window.location.origin);
+            
+            setTimeout(() => {
+              window.close();
+            }, 2000);
+            return;
+          }
+          
+          if (code && state) {
+            console.log('✅ [AuthzCallback] Authorization successful in popup, sending code to parent');
+            setStatus('success');
+            setMessage('Authorization successful! Closing popup...');
+            
+            // Send success with code and state to parent window
+            window.opener.postMessage({
+              type: 'oauth-callback',
+              code: code,
+              state: state,
+              success: true
+            }, window.location.origin);
+            
+            setTimeout(() => {
+              window.close();
+            }, 1000);
+            return;
+          } else {
+            console.error('❌ [AuthzCallback] Missing code or state in popup callback');
+            setStatus('error');
+            setMessage('Authorization failed: Missing authorization code');
+            
+            // Send error to parent window
+            window.opener.postMessage({
+              type: 'oauth-callback',
+              error: 'invalid_request',
+              error_description: 'Missing authorization code or state'
+            }, window.location.origin);
+            
+            setTimeout(() => {
+              window.close();
+            }, 2000);
+            return;
+          }
         }
         
+        // For non-popup flows, check if this is an Enhanced V3 flow that should defer token exchange
+        console.log('🔄 [AuthzCallback] Non-popup flow, checking for Enhanced flow context...');
+        
+        const flowContextRaw = sessionStorage.getItem('flowContext');
+        if (flowContextRaw) {
+          try {
+            const flowContext = JSON.parse(flowContextRaw);
+            const isEnhancedV3 = flowContext?.flow === 'enhanced-authorization-code-v3';
+            
+            console.log('🔍 [AuthzCallback] Flow context found:', flowContext);
+            console.log('🔍 [AuthzCallback] Is Enhanced V3:', isEnhancedV3);
+            
+            if (isEnhancedV3) {
+              // For V3 full redirect, extract code and state, then redirect to V3 page
+              const urlParams = new URL(currentUrl).searchParams;
+              const code = urlParams.get('code');
+              const state = urlParams.get('state');
+              const error = urlParams.get('error');
+              
+              if (error) {
+                console.error('❌ [AuthzCallback] Authorization error in V3 full redirect:', error);
+                setStatus('error');
+                setMessage(`Authorization failed: ${urlParams.get('error_description') || error}`);
+                return;
+              }
+              
+              if (code && state) {
+                // Store the authorization code for V3 to use
+                sessionStorage.setItem('oauth_auth_code', code);
+                sessionStorage.setItem('oauth_state', state);
+                
+                console.log('✅ [AuthzCallback] V3 full redirect - stored code and redirecting to V3 page');
+                setStatus('success');
+                setMessage('Authorization successful! Redirecting to V3 flow...');
+                
+                // Redirect to V3 page
+                const returnPath = flowContext.returnPath || '/flows/enhanced-authorization-code-v3?step=5';
+                setTimeout(() => {
+                  navigate(returnPath);
+                }, 1500);
+                return;
+              } else {
+                console.error('❌ [AuthzCallback] Missing code or state in V3 full redirect');
+                setStatus('error');
+                setMessage('Authorization failed: Missing authorization code');
+                return;
+              }
+            }
+          } catch (e) {
+            console.warn('Failed to parse flow context in AuthzCallback:', e);
+          }
+        }
+        
+        // For non-Enhanced flows, proceed with normal handleCallback
+        console.log('🔄 [AuthzCallback] Not an Enhanced V3 flow, proceeding with handleCallback');
         const result = await handleCallback(currentUrl);
         
         if (result.success) {
@@ -102,24 +219,12 @@ const AuthzCallback: React.FC = () => {
           logger.auth('AuthzCallback', 'Authorization successful', { redirectUrl: result.redirectUrl });
           
           console.log('🔍 [AuthzCallback] Redirect URL from result:', result.redirectUrl);
-          console.log('🔍 [AuthzCallback] Is popup:', isPopup);
           console.log('🔍 [AuthzCallback] Current URL:', window.location.href);
           console.log('🔍 [AuthzCallback] SessionStorage keys:', Object.keys(sessionStorage));
           console.log('🔍 [AuthzCallback] Flow context in sessionStorage:', sessionStorage.getItem('flowContext'));
           
-          // If this is a popup, send success message to parent and close
-          if (isPopup) {
-            console.log('📤 [AuthzCallback] Sending success message to parent window');
-            window.opener.postMessage({
-              type: 'oauth-callback',
-              code: new URL(currentUrl).searchParams.get('code'),
-              state: new URL(currentUrl).searchParams.get('state'),
-              success: true
-            }, window.location.origin);
-            setTimeout(() => {
-              window.close();
-            }, 1000);
-          } else {
+          // For non-popup flows, handle redirect with preserved parameters
+          {
             // For non-popup, preserve the authorization code and state in the redirect URL
             const urlParams = new URL(currentUrl).searchParams;
             const code = urlParams.get('code');
@@ -135,10 +240,12 @@ const AuthzCallback: React.FC = () => {
               hasFlows: redirectUrl.includes('/flows/')
             });
             
-            // For Enhanced Authorization Code Flow V2, we don't need to preserve code and state in the URL
+            // For Enhanced Authorization Code Flow V2 and V3, we don't need to preserve code and state in the URL
             // because the flow will handle them from the callback URL parameters
-            if (code && (redirectUrl.includes('enhanced-authorization-code-v2') || redirectUrl.includes('/flows/'))) {
-              console.log('🔧 [AuthzCallback] Enhanced flow detected, using return path as-is:', redirectUrl);
+            if (code && (redirectUrl.includes('enhanced-authorization-code-v2') || 
+                        redirectUrl.includes('enhanced-authorization-code-v3') || 
+                        redirectUrl.includes('/flows/'))) {
+              console.log('🔧 [AuthzCallback] Enhanced flow (V2/V3) detected, using return path as-is:', redirectUrl);
               // Don't modify the redirectUrl - let the flow handle the code and state from the callback
             }
             
@@ -154,18 +261,7 @@ const AuthzCallback: React.FC = () => {
           setError(result.error || 'Unknown error occurred');
           logger.error('AuthzCallback', 'Authorization failed', { error: result.error });
           
-          // If this is a popup, send error message to parent and close
-          if (isPopup) {
-            console.log('📤 [AuthzCallback] Sending error message to parent window');
-            window.opener.postMessage({
-              type: 'oauth-callback',
-              error: result.error || 'Authorization failed',
-              error_description: result.error || 'Unknown error occurred'
-            }, window.location.origin);
-            setTimeout(() => {
-              window.close();
-            }, 2000);
-          }
+          // For non-popup flows, the error is displayed in the UI
         }
       } catch (err) {
         setStatus('error');
@@ -173,18 +269,7 @@ const AuthzCallback: React.FC = () => {
         setError(err instanceof Error ? err.message : 'Unknown error occurred');
         logger.error('AuthzCallback', 'Error processing callback', err);
         
-        // If this is a popup, send error message to parent and close
-        if (window.opener && !window.opener.closed) {
-          console.log('📤 [AuthzCallback] Sending error message to parent window');
-          window.opener.postMessage({
-            type: 'oauth-callback',
-            error: 'callback_error',
-            error_description: err instanceof Error ? err.message : 'Unknown error occurred'
-          }, window.location.origin);
-          setTimeout(() => {
-            window.close();
-          }, 2000);
-        }
+        // For non-popup flows, the error is displayed in the UI
       }
     };
 

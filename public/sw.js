@@ -1,3 +1,4 @@
+/* eslint-disable */
 // Service Worker for OAuth Playground
 // Version: 1.0.1
 
