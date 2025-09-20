@@ -452,9 +452,52 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         code_challenge_method: pkceCodes.codeChallengeMethod
       });
 
+      // Add custom parameters from flow configuration
+      if (flowConfig.customParams && Object.keys(flowConfig.customParams).length > 0) {
+        console.log(`🔧 [${flowType.toUpperCase()}-V3] Adding custom parameters:`, flowConfig.customParams);
+        Object.entries(flowConfig.customParams).forEach(([key, value]) => {
+          if (key && value) {
+            params.set(key, value);
+          }
+        });
+      }
+
       // Add OIDC-specific parameters for OIDC flows
       if (flowType === 'oidc') {
-        params.append('nonce', nonce);
+        // Use configured nonce or generated nonce
+        const nonceValue = flowConfig.nonce || nonce;
+        params.set('nonce', nonceValue);
+        
+        // Add other OIDC parameters from flow configuration
+        if (flowConfig.maxAge && flowConfig.maxAge > 0) {
+          params.set('max_age', flowConfig.maxAge.toString());
+        }
+        
+        if (flowConfig.prompt && flowConfig.prompt !== 'none') {
+          params.set('prompt', flowConfig.prompt);
+        }
+        
+        if (flowConfig.loginHint) {
+          params.set('login_hint', flowConfig.loginHint);
+        }
+        
+        if (flowConfig.acrValues && flowConfig.acrValues.length > 0) {
+          params.set('acr_values', flowConfig.acrValues.join(' '));
+        }
+        
+        console.log(`🔧 [${flowType.toUpperCase()}-V3] Added OIDC parameters:`, {
+          nonce: nonceValue ? `${nonceValue.substring(0, 10)}...` : 'none',
+          maxAge: flowConfig.maxAge,
+          prompt: flowConfig.prompt,
+          loginHint: flowConfig.loginHint,
+          acrValues: flowConfig.acrValues
+        });
+      }
+      
+      // Use configured state if available
+      if (flowConfig.state) {
+        params.set('state', flowConfig.state);
+        console.log(`🔧 [${flowType.toUpperCase()}-V3] Using configured state parameter`);
       }
 
       const url = `${authEndpoint}?${params.toString()}`;
@@ -474,7 +517,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
       console.error(`❌ [${flowType.toUpperCase()}-V3] Authorization URL generation failed:`, error);
       showFlowError(`Authorization URL generation failed: ${error.message}`);
     }
-  }, [credentials, pkceCodes, flowType]);
+  }, [credentials, pkceCodes, flowType, flowConfig]);
 
   // Handle popup authorization
   const handlePopupAuthorization = useCallback(() => {
