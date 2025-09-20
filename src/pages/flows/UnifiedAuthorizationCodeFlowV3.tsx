@@ -505,6 +505,20 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
     }
   }, [stepManager.isInitialized, flowType]);
 
+  // Handle step navigation from authorization step
+  useEffect(() => {
+    const handleStepNext = () => {
+      console.log(`🔍 [${flowType.toUpperCase()}-V3] Step next event received, advancing to next step`);
+      stepManager.goToNextStep();
+    };
+
+    window.addEventListener('step:next', handleStepNext);
+    
+    return () => {
+      window.removeEventListener('step:next', handleStepNext);
+    };
+  }, [stepManager, flowType]);
+
   // Load credentials on component mount (additional safety net)
   useEffect(() => {
     const loadCredentialsOnMount = () => {
@@ -1477,7 +1491,7 @@ Original Error: ${errorData.error_description || errorData.error}
       },
       {
         ...createUserAuthorizationStep(authUrl, handlePopupAuthorizationWithModal, handleFullRedirectAuthorizationWithModal, isAuthorizing, authCode),
-        canExecute: Boolean(authUrl && !authCode), // Disable after successful authentication
+        canExecute: Boolean(authUrl && !authCode) || Boolean(authCode), // Allow execution when authenticated to enable Next button
         completed: hasStepResult('user-authorization') || Boolean(authCode)
       },
       {
