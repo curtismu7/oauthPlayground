@@ -239,10 +239,8 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
     const environmentId = urlEnv || allCredentials?.environmentId || '';
     const issuerUrl = environmentId ? `https://auth.pingone.com/${environmentId}` : '';
     
-    // Choose default scopes based on flow type
-    const defaultScopes = flowType === 'oauth' 
-      ? 'read write'  // OAuth 2.0 scopes
-      : 'openid profile email';  // OIDC scopes
+    // Always use OIDC scopes as default (both OAuth and OIDC V3 flows)
+    const defaultScopes = 'openid profile email';
     
     const savedScopes = urlScope || (allCredentials?.scopes ? 
       (Array.isArray(allCredentials.scopes) ? allCredentials.scopes.join(' ') : allCredentials.scopes) : 
@@ -790,7 +788,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         client_id: credentials.clientId,
         response_type: credentials.responseType || 'code',
         redirect_uri: credentials.redirectUri,
-        scope: credentials.scope || (flowType === 'oauth' ? 'read write' : 'openid profile email'),
+        scope: credentials.scope || 'openid profile email',
         state: stateValue,
         code_challenge: pkceCodes.codeChallenge,
         code_challenge_method: pkceCodes.codeChallengeMethod
@@ -859,7 +857,13 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
       showFlowSuccess('Authorization URL generated successfully');
     } catch (error) {
       console.error(`❌ [${flowType.toUpperCase()}-V3] Authorization URL generation failed:`, error);
-      showFlowError(`Authorization URL generation failed: ${error.message}`);
+      
+      // Provide helpful error message for scope issues
+      if (error.message.includes('scope')) {
+        showFlowError(`Scope configuration error: ${error.message}. Please ensure 'openid profile email' scopes are configured in your PingOne application.`);
+      } else {
+        showFlowError(`Authorization URL generation failed: ${error.message}`);
+      }
     }
   }, [credentials, pkceCodes, flowType, flowConfig]);
 
