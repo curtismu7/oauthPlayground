@@ -200,40 +200,7 @@ export const createCredentialsStep = (
   setCredentials: (creds: StepCredentials) => void,
   saveCredentials: () => Promise<void>,
   flowType: string
-): EnhancedFlowStep => {
-  // Add state management for save button
-  const [hasBeenSaved, setHasBeenSaved] = React.useState(false);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false);
-  const [originalCredentials, setOriginalCredentials] = React.useState<StepCredentials | null>(null);
-  const [isSaving, setIsSaving] = React.useState(false);
-
-  // Initialize original credentials on first render
-  React.useEffect(() => {
-    if (!originalCredentials) {
-      setOriginalCredentials({ ...credentials });
-      setHasUnsavedChanges(false);
-      setHasBeenSaved(false);
-    }
-  }, [credentials, originalCredentials]);
-
-  // Check for unsaved changes
-  const checkForChanges = React.useCallback((newCredentials: StepCredentials) => {
-    if (originalCredentials) {
-      const hasChanges = Object.keys(newCredentials).some(key => 
-        newCredentials[key as keyof StepCredentials] !== originalCredentials[key as keyof StepCredentials]
-      );
-      setHasUnsavedChanges(hasChanges);
-      console.log(`🔧 [CommonSteps] Credentials modified, unsaved changes: ${hasChanges}`);
-    }
-  }, [originalCredentials]);
-
-  // Enhanced setCredentials with change tracking
-  const handleCredentialsChange = React.useCallback((newCredentials: StepCredentials) => {
-    setCredentials(newCredentials);
-    checkForChanges(newCredentials);
-  }, [setCredentials, checkForChanges]);
-
-  return {
+): EnhancedFlowStep => ({
   id: 'setup-credentials',
   title: 'Setup OAuth Credentials',
   description: `Configure your PingOne OAuth application credentials for ${flowType}. These will be saved securely for future sessions.`,
@@ -246,7 +213,7 @@ export const createCredentialsStep = (
         <FormInput
           type="text"
           value={credentials.environmentId}
-          onChange={(e) => handleCredentialsChange({ ...credentials, environmentId: e.target.value })}
+          onChange={(e) => setCredentials({ ...credentials, environmentId: e.target.value })}
           placeholder="e.g., 12345678-1234-1234-1234-123456789012"
         />
       </FormField>
@@ -256,7 +223,7 @@ export const createCredentialsStep = (
         <FormInput
           type="text"
           value={credentials.clientId}
-          onChange={(e) => handleCredentialsChange({ ...credentials, clientId: e.target.value })}
+          onChange={(e) => setCredentials({ ...credentials, clientId: e.target.value })}
           placeholder="e.g., 87654321-4321-4321-4321-210987654321"
         />
       </FormField>
@@ -266,7 +233,7 @@ export const createCredentialsStep = (
         <FormInput
           type="password"
           value={credentials.clientSecret}
-          onChange={(e) => handleCredentialsChange({ ...credentials, clientSecret: e.target.value })}
+          onChange={(e) => setCredentials({ ...credentials, clientSecret: e.target.value })}
           placeholder="Your client secret"
         />
       </FormField>
@@ -276,7 +243,7 @@ export const createCredentialsStep = (
         <FormInput
           type="url"
           value={credentials.redirectUri}
-          onChange={(e) => handleCredentialsChange({ ...credentials, redirectUri: e.target.value })}
+          onChange={(e) => setCredentials({ ...credentials, redirectUri: e.target.value })}
           placeholder="https://localhost:3000/callback"
         />
       </FormField>
@@ -286,58 +253,33 @@ export const createCredentialsStep = (
         <FormInput
           type="text"
           value={credentials.scope || credentials.scopes || ''}
-          onChange={(e) => handleCredentialsChange({ ...credentials, scope: e.target.value, scopes: e.target.value })}
+          onChange={(e) => setCredentials({ ...credentials, scope: e.target.value, scopes: e.target.value })}
           placeholder="openid profile email"
         />
       </FormField>
     </div>
   ),
   execute: async () => {
-    setIsSaving(true);
-    try {
-      await saveCredentials();
-      
-      // Mark as saved and update original credentials
-      setHasBeenSaved(true);
-      setHasUnsavedChanges(false);
-      setOriginalCredentials({ ...credentials });
-      
-      console.log('✅ [CommonSteps] Credentials saved, Save button will be disabled');
-      return { success: true };
-    } finally {
-      setIsSaving(false);
-    }
+    await saveCredentials();
+    return { success: true };
   },
   canExecute: (() => {
-    const hasRequiredFields = Boolean(
+    const canExec = Boolean(
       credentials.environmentId &&
       credentials.clientId &&
       credentials.clientSecret &&
       credentials.redirectUri
     );
-    
-    // Can execute if has required fields AND (not saved yet OR has unsaved changes)
-    const canExec = hasRequiredFields && (!hasBeenSaved || hasUnsavedChanges);
-    
     console.log('🔍 [CommonSteps] Credentials canExecute check:', {
       environmentId: !!credentials.environmentId,
       clientId: !!credentials.clientId,
       clientSecret: !!credentials.clientSecret,
       redirectUri: !!credentials.redirectUri,
-      hasRequiredFields,
-      hasBeenSaved,
-      hasUnsavedChanges,
       canExecute: canExec
     });
     return canExec;
-  })(),
-  buttonText: (() => {
-    if (isSaving) return 'Saving...';
-    if (hasBeenSaved && !hasUnsavedChanges) return 'Saved';
-    return 'Save Configuration';
   })()
-  };
-};
+});
 
 /**
  * Create PKCE generation step - reusable for flows that support PKCE
