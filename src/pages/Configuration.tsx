@@ -214,6 +214,7 @@ const Configuration = () => {
     useGlobalConfig: false,
     showCredentialsModal: false,
     showSuccessModal: true,
+    showAuthRequestModal: false,
   });
   
   const [errors, setErrors] = useState<Record<string, string | null>>({});
@@ -327,12 +328,13 @@ const Configuration = () => {
       // Load UI settings from flow configuration
       const flowConfigKey = 'enhanced-flow-authorization-code';
       const flowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
-      if (flowConfig.showCredentialsModal !== undefined || flowConfig.showSuccessModal !== undefined) {
+      if (flowConfig.showCredentialsModal !== undefined || flowConfig.showSuccessModal !== undefined || flowConfig.showAuthRequestModal !== undefined) {
         console.log('✅ [Configuration] Loading UI settings from flow config:', flowConfig);
         setFormData(prev => ({
           ...prev,
           showCredentialsModal: flowConfig.showCredentialsModal !== undefined ? flowConfig.showCredentialsModal : prev.showCredentialsModal,
-          showSuccessModal: flowConfig.showSuccessModal !== undefined ? flowConfig.showSuccessModal : prev.showSuccessModal
+          showSuccessModal: flowConfig.showSuccessModal !== undefined ? flowConfig.showSuccessModal : prev.showSuccessModal,
+          showAuthRequestModal: flowConfig.showAuthRequestModal !== undefined ? flowConfig.showAuthRequestModal : prev.showAuthRequestModal
         }));
       }
     };
@@ -476,7 +478,8 @@ const Configuration = () => {
       const updatedFlowConfig = {
         ...existingFlowConfig,
         showCredentialsModal: formData.showCredentialsModal,
-        showSuccessModal: formData.showSuccessModal
+        showSuccessModal: formData.showSuccessModal,
+        showAuthRequestModal: formData.showAuthRequestModal
       };
       localStorage.setItem(flowConfigKey, JSON.stringify(updatedFlowConfig));
       console.log('💾 [Configuration] UI settings saved to flow config:', updatedFlowConfig);
@@ -1003,6 +1006,38 @@ const Configuration = () => {
             </div>
           </FormGroup>
 
+          <FormGroup>
+            <div className="checkbox-container">
+              <input
+                type="checkbox"
+                id="showAuthRequestModal"
+                name="showAuthRequestModal"
+                checked={formData.showAuthRequestModal || false}
+                onChange={(e) => {
+                  console.log('🔧 [Configuration] showAuthRequestModal changed:', e.target.checked);
+                  setFormData(prev => ({
+                    ...prev,
+                    showAuthRequestModal: e.target.checked
+                  }));
+                  // Auto-save UI settings immediately
+                  const flowConfigKey = 'enhanced-flow-authorization-code';
+                  const existingFlowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
+                  const updatedFlowConfig = {
+                    ...existingFlowConfig,
+                    showAuthRequestModal: e.target.checked
+                  };
+                  localStorage.setItem(flowConfigKey, JSON.stringify(updatedFlowConfig));
+                  console.log('💾 [Configuration] UI settings auto-saved:', updatedFlowConfig);
+                }}
+              />
+              <label htmlFor="showAuthRequestModal">
+                Show OAuth Authorization Request Modal
+                <div className="form-text">
+                  Display a debugging modal showing all OAuth parameters before redirecting to PingOne (useful for debugging)
+                </div>
+              </label>
+            </div>
+          </FormGroup>
 
           <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#e9ecef', borderRadius: '0.5rem', border: '1px solid #ced4da' }}>
             <h4 style={{ margin: '0 0 0.5rem 0', color: '#495057' }}>💡 UI Settings Info</h4>
