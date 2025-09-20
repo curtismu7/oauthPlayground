@@ -172,7 +172,7 @@ class CredentialManager {
       });
 
       // Dispatch event to notify other components
-      window.dispatchEvent(new CustomEvent('authz-flow-credentials-changed', {
+      window.dispatchEvent(new CustomEvent('authz-credentials-changed', {
         detail: { credentials: updated }
       }));
 
