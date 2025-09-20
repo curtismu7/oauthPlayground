@@ -155,8 +155,11 @@ const AppRoutes = () => {
           shouldShowCredentialsModal
         });
 
-        // Only show modal if no credentials are found AND credentials modal is enabled
-        if (!hasPermanentCredentials && !hasSessionCredentials && shouldShowCredentialsModal) {
+        // Check if user has chosen to skip startup credentials modal
+        const skipStartupModal = localStorage.getItem('skip_startup_credentials_modal') === 'true';
+        
+        // Only show modal if no credentials are found AND credentials modal is enabled AND user hasn't chosen to skip
+        if (!hasPermanentCredentials && !hasSessionCredentials && shouldShowCredentialsModal && !skipStartupModal) {
           console.log('⚠️ [App] No credentials found and credentials modal enabled, showing setup modal');
           console.log('🔍 [App] Modal will show because:', {
             hasPermanentCredentials,
@@ -166,7 +169,11 @@ const AppRoutes = () => {
           });
           setShowCredentialModal(true);
         } else {
-          console.log('✅ [App] Credentials found or credentials modal disabled, skipping setup modal');
+          if (skipStartupModal) {
+            console.log('⏭️ [App] Startup credentials modal skipped (user preference)');
+          } else {
+            console.log('✅ [App] Credentials found or credentials modal disabled, skipping setup modal');
+          }
           console.log('🔍 [App] Modal will NOT show because:', {
             hasPermanentCredentials,
             hasSessionCredentials,
@@ -285,7 +292,12 @@ const AppRoutes = () => {
 
       <CredentialSetupModal
         isOpen={showCredentialModal}
-        onComplete={handleCredentialSetupComplete}
+        onClose={handleCredentialSetupComplete}
+        onSave={(creds) => {
+          console.log('✅ [App] Credentials saved from startup modal:', creds);
+          // The modal will auto-close after save
+        }}
+        flowType="startup"
       />
 
       <AuthorizationRequestModal
