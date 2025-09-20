@@ -368,7 +368,6 @@ export const createCredentialsStep = (
     return canExec;
   })()
 });
-};
 
 /**
  * Create PKCE generation step - reusable for flows that support PKCE
