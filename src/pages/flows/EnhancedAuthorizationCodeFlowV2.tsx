@@ -39,6 +39,7 @@ import ConfirmationModal from '../../components/ConfirmationModal';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { useAuthorizationFlowScroll } from '../../hooks/usePageScroll';
 import CentralizedSuccessMessage, { showFlowSuccess, showFlowError } from '../../components/CentralizedSuccessMessage';
+import ColorCodedURL from '../../components/ColorCodedURL';
 import '../../styles/enhanced-flow.css';
 
 
@@ -2792,14 +2793,9 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                 borderRadius: '0.5rem',
                 marginBottom: '1rem'
               }}>
-                <code style={{ 
-                  flex: 1, 
-                  fontSize: '0.875rem', 
-                  color: '#495057', 
-                  wordBreak: 'break-all' 
-                }}>
-                  {authUrl}
-                </code>
+                <div style={{ flex: 1 }}>
+                  <ColorCodedURL url={authUrl} showInfoButton={false} />
+                </div>
                 <button
                   onClick={() => copyToClipboard(authUrl)}
                   style={{
