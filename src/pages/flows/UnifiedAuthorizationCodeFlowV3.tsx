@@ -987,21 +987,31 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
 
   // Create steps based on flow type
   const steps = React.useMemo(() => {
+    // Check if user has chosen to skip credentials step
+    const skipCredentialsStep = localStorage.getItem('skip_credentials_step') === 'true';
+    
+    if (skipCredentialsStep) {
+      console.log('⏭️ [UnifiedAuthorizationCodeFlowV3] Skipping credentials step (user preference)');
+    }
+    
+    const credentialsStep = {
+      ...createCredentialsStep(credentials, setCredentials, saveCredentials, `${flowType.toUpperCase()} Authorization Code Flow`, handleCloseCredentials),
+      canExecute: Boolean(
+        credentials.environmentId &&
+        credentials.clientId &&
+        credentials.clientSecret &&
+        credentials.redirectUri &&
+        (!hasCredentialsSaved || hasUnsavedCredentialChanges)
+      ),
+      buttonText: isSavingCredentials ? 'Saving...' : 
+                 (hasCredentialsSaved && !hasUnsavedCredentialChanges) ? 'Saved' : 
+                 'Save Configuration',
+      completed: hasStepResult('setup-credentials')
+    };
+    
     const baseSteps = [
-      {
-        ...createCredentialsStep(credentials, setCredentials, saveCredentials, `${flowType.toUpperCase()} Authorization Code Flow`, handleCloseCredentials),
-        canExecute: Boolean(
-          credentials.environmentId &&
-          credentials.clientId &&
-          credentials.clientSecret &&
-          credentials.redirectUri &&
-          (!hasCredentialsSaved || hasUnsavedCredentialChanges)
-        ),
-        buttonText: isSavingCredentials ? 'Saving...' : 
-                   (hasCredentialsSaved && !hasUnsavedCredentialChanges) ? 'Saved' : 
-                   'Save Configuration',
-        completed: hasStepResult('setup-credentials')
-      },
+      // Only include credentials step if user hasn't chosen to skip it
+      ...(skipCredentialsStep ? [] : [credentialsStep]),
       {
         ...createPKCEStep(pkceCodes, setPkceCodes, generatePKCE),
         canExecute: Boolean(credentials.environmentId && credentials.clientId),
@@ -1226,6 +1236,42 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
           title="Flow Configuration"
           subtitle="Configure OAuth 2.0 and OpenID Connect specific settings"
         />
+        
+        {/* Show credentials step reset option if user has hidden it */}
+        {localStorage.getItem('skip_credentials_step') === 'true' && (
+          <div style={{
+            marginTop: '1rem',
+            padding: '0.75rem',
+            backgroundColor: '#fef3c7',
+            border: '1px solid #f59e0b',
+            borderRadius: '0.5rem',
+            fontSize: '0.875rem'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ color: '#92400e' }}>
+                ℹ️ Credentials step is hidden (you chose "Do not show again")
+              </span>
+              <button
+                onClick={() => {
+                  localStorage.removeItem('skip_credentials_step');
+                  console.log('🔄 [UnifiedAuthorizationCodeFlowV3] Reset credentials step preference');
+                  window.location.reload(); // Refresh to show the step
+                }}
+                style={{
+                  padding: '0.25rem 0.5rem',
+                  fontSize: '0.75rem',
+                  backgroundColor: '#f59e0b',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '0.25rem',
+                  cursor: 'pointer'
+                }}
+              >
+                Show Again
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Main Step Flow */}
         <EnhancedStepFlowV2 
