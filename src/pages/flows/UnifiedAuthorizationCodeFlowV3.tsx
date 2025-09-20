@@ -1873,14 +1873,16 @@ Original Error: ${errorData.error_description || errorData.error}
           // For now, default to popup (can be enhanced later)
           handlePopupAuthorizationDirect();
         }}
-        authUrl={authUrl}
-        environmentId={credentials.environmentId}
-        clientId={credentials.clientId}
-        redirectUri={credentials.redirectUri}
-        scopes={credentials.scope}
-        state={state}
-        codeChallenge={pkceCodes.codeChallenge}
-        flowType={flowType}
+        authorizationUrl={authUrl || ''}
+        requestParams={{
+          environmentId: credentials.environmentId || '',
+          clientId: credentials.clientId || '',
+          redirectUri: credentials.redirectUri || '',
+          scopes: credentials.scope || '',
+          state: state || '',
+          codeChallenge: pkceCodes.codeChallenge || '',
+          flowType: flowType || ''
+        }}
       />
     </Container>
   );
