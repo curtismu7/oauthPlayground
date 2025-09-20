@@ -1713,6 +1713,23 @@ Original Error: ${errorData.error_description || errorData.error}
           <ActionButton onClick={clearCredentials}>
             🧹 Clear Credentials
           </ActionButton>
+          <ActionButton onClick={() => {
+            console.log('🔍 [DEBUG] Manual credential reload triggered');
+            console.log('🔍 [DEBUG] Current localStorage keys:', Object.keys(localStorage));
+            console.log('🔍 [DEBUG] Current credentials state:', credentials);
+            
+            // Try to reload credentials
+            const allCredentials = credentialManager.loadAuthzFlowCredentials();
+            console.log('🔍 [DEBUG] Loaded authz flow credentials:', allCredentials);
+            
+            const configCredentials = credentialManager.loadConfigCredentials();
+            console.log('🔍 [DEBUG] Loaded config credentials:', configCredentials);
+            
+            const permanentCredentials = credentialManager.loadPermanentCredentials();
+            console.log('🔍 [DEBUG] Loaded permanent credentials:', permanentCredentials);
+          }}>
+            🔍 Debug Credentials
+          </ActionButton>
           <ActionButton onClick={resetFlow}>
             <FiRotateCcw /> Reset Flow
           </ActionButton>
