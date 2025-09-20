@@ -392,12 +392,49 @@ export const createAuthUrlStep = (
     category: 'authorization',
     content: (
       <div>
-        <InfoBox type="info">
-          <FiGlobe />
+        {/* Authorization URL Description */}
+        <InfoBox type="info" style={{ marginBottom: '1.5rem' }}>
           <div>
-            <strong>Authorization URL Construction</strong>
-            <br />
-            Building the complete authorization URL with all required parameters.
+            <h4 style={{ margin: '0 0 1rem 0', color: '#1e40af', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <FiGlobe />
+              What is the Authorization URL?
+            </h4>
+            
+            <div style={{ marginBottom: '1rem' }}>
+              The <strong>Authorization URL</strong> is the complete URL that redirects users to PingOne for authentication and authorization. This URL contains all the necessary OAuth 2.0 and OpenID Connect parameters.
+            </div>
+            
+            <div style={{ marginBottom: '1rem' }}>
+              <strong>What this step does:</strong>
+            </div>
+            
+            <ul style={{ marginBottom: '1rem', paddingLeft: '1.5rem' }}>
+              <li><strong>Constructs the complete URL</strong> with all OAuth parameters (client_id, redirect_uri, scope, state, etc.)</li>
+              <li><strong>Includes PKCE parameters</strong> (code_challenge) for enhanced security</li>
+              <li><strong>Adds OIDC parameters</strong> (nonce, prompt, max_age) when using OpenID Connect</li>
+              <li><strong>Validates all required parameters</strong> before building the URL</li>
+            </ul>
+
+            <div style={{ marginBottom: '1rem' }}>
+              <strong>How it works:</strong>
+            </div>
+            
+            <ol style={{ marginBottom: '1rem', paddingLeft: '1.5rem' }}>
+              <li><strong>Parameter Assembly:</strong> Combines your credentials, scopes, and security parameters</li>
+              <li><strong>URL Construction:</strong> Builds the complete authorization endpoint URL</li>
+              <li><strong>Security Addition:</strong> Includes PKCE challenge and state for CSRF protection</li>
+              <li><strong>Validation:</strong> Ensures all required parameters are present and valid</li>
+            </ol>
+
+            <div style={{ padding: '1rem', backgroundColor: '#e0f2fe', borderRadius: '0.5rem', border: '1px solid #0284c7' }}>
+              <strong>🔗 URL Components:</strong>
+              <ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem' }}>
+                <li><strong>Base URL:</strong> PingOne authorization endpoint</li>
+                <li><strong>Query Parameters:</strong> All OAuth/OIDC parameters (client_id, redirect_uri, scope, state, nonce, etc.)</li>
+                <li><strong>Security Parameters:</strong> PKCE code_challenge and state for protection</li>
+                <li><strong>Custom Parameters:</strong> Any additional parameters you've configured</li>
+              </ul>
+            </div>
           </div>
         </InfoBox>
         
