@@ -505,6 +505,135 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
     }
   }, [stepManager.isInitialized, flowType]);
 
+  // Load credentials on component mount (additional safety net)
+  useEffect(() => {
+    const loadCredentialsOnMount = () => {
+      console.log(`🔍 [${flowType.toUpperCase()}-V3] Loading credentials on component mount...`);
+      
+      // Debug localStorage contents
+      credentialManager.debugLocalStorage();
+      
+      // COMPREHENSIVE FALLBACK CHAIN (same as initial state):
+      let allCredentials = null;
+      let source = 'none';
+      
+      // 1. Try authz flow credentials (dedicated storage for this flow)
+      allCredentials = credentialManager.loadAuthzFlowCredentials();
+      if (allCredentials.environmentId && allCredentials.clientId) {
+        source = 'authz-flow';
+        console.log(`✅ [${flowType.toUpperCase()}-V3] Found authz flow credentials`);
+      } else {
+        // 2. Try config page credentials
+        allCredentials = credentialManager.loadConfigCredentials();
+        if (allCredentials.environmentId && allCredentials.clientId) {
+          source = 'config-page';
+          console.log(`✅ [${flowType.toUpperCase()}-V3] Found config page credentials`);
+        } else {
+          // 3. Try permanent credentials
+          allCredentials = credentialManager.loadPermanentCredentials();
+          if (allCredentials.environmentId && allCredentials.clientId) {
+            source = 'permanent';
+            console.log(`✅ [${flowType.toUpperCase()}-V3] Found permanent credentials`);
+          } else {
+            // 4. Try legacy pingone_config
+            const pingoneConfig = localStorage.getItem('pingone_config');
+            if (pingoneConfig) {
+              try {
+                const parsed = JSON.parse(pingoneConfig);
+                if (parsed.environmentId && parsed.clientId) {
+                  allCredentials = parsed;
+                  source = 'legacy-pingone-config';
+                  console.log(`✅ [${flowType.toUpperCase()}-V3] Found legacy pingone_config credentials`);
+                }
+              } catch (e) {
+                console.warn(`⚠️ [${flowType.toUpperCase()}-V3] Failed to parse pingone_config:`, e);
+              }
+            }
+            
+            if (!allCredentials?.environmentId || !allCredentials?.clientId) {
+              // 5. Try legacy login_credentials
+              const loginCreds = localStorage.getItem('login_credentials');
+              if (loginCreds) {
+                try {
+                  const parsed = JSON.parse(loginCreds);
+                  if (parsed.environmentId && parsed.clientId) {
+                    allCredentials = parsed;
+                    source = 'legacy-login-credentials';
+                    console.log(`✅ [${flowType.toUpperCase()}-V3] Found legacy login_credentials`);
+                  }
+                } catch (e) {
+                  console.warn(`⚠️ [${flowType.toUpperCase()}-V3] Failed to parse login_credentials:`, e);
+                }
+              }
+            }
+          }
+        }
+      }
+      
+      if (allCredentials && allCredentials.environmentId && allCredentials.clientId) {
+        console.log(`🔧 [${flowType.toUpperCase()}-V3] Loading credentials from ${source}:`, {
+          environmentId: allCredentials.environmentId,
+          clientId: `${allCredentials.clientId.substring(0, 8)}...`,
+          hasClientSecret: !!allCredentials.clientSecret,
+          redirectUri: allCredentials.redirectUri
+        });
+        
+        // Update credentials state if different from current
+        const scopeString = Array.isArray(allCredentials.scopes) ? allCredentials.scopes.join(' ') : allCredentials.scopes;
+        const scopeArray = Array.isArray(allCredentials.scopes) ? allCredentials.scopes : (allCredentials.scopes ? allCredentials.scopes.split(' ') : []);
+        
+        setCredentials(prev => {
+          const newCredentials = {
+            ...prev,
+            environmentId: allCredentials.environmentId || prev.environmentId,
+            clientId: allCredentials.clientId || prev.clientId,
+            clientSecret: allCredentials.clientSecret || prev.clientSecret,
+            redirectUri: allCredentials.redirectUri || prev.redirectUri,
+            scope: scopeString || prev.scope,
+            scopes: scopeArray.length > 0 ? scopeArray : prev.scopes,
+            authEndpoint: allCredentials.authEndpoint || prev.authEndpoint || (allCredentials.environmentId ? `https://auth.pingone.com/${allCredentials.environmentId}/as/authorize` : ''),
+            tokenEndpoint: allCredentials.tokenEndpoint || prev.tokenEndpoint || (allCredentials.environmentId ? `https://auth.pingone.com/${allCredentials.environmentId}/as/token` : ''),
+            userInfoEndpoint: allCredentials.userInfoEndpoint || prev.userInfoEndpoint || (allCredentials.environmentId ? `https://auth.pingone.com/${allCredentials.environmentId}/as/userinfo` : '')
+          };
+          
+          // Only update if credentials actually changed
+          const hasChanged = Object.keys(newCredentials).some(key => 
+            newCredentials[key as keyof typeof newCredentials] !== prev[key as keyof typeof prev]
+          );
+          
+          if (hasChanged) {
+            console.log(`🔄 [${flowType.toUpperCase()}-V3] Credentials updated from ${source}`);
+            return newCredentials;
+          } else {
+            console.log(`✅ [${flowType.toUpperCase()}-V3] Credentials already up to date`);
+            return prev;
+          }
+        });
+        
+        // Migrate to preferred storage if found in legacy storage
+        if (source.startsWith('legacy-')) {
+          console.log(`🔄 [${flowType.toUpperCase()}-V3] Migrating ${source} credentials to authz flow storage`);
+          credentialManager.saveAuthzFlowCredentials({
+            environmentId: allCredentials.environmentId,
+            clientId: allCredentials.clientId,
+            clientSecret: allCredentials.clientSecret,
+            redirectUri: allCredentials.redirectUri || `${window.location.origin}/authz-callback`,
+            scopes: scopeArray.length > 0 ? scopeArray : ['openid', 'profile', 'email'],
+            authEndpoint: allCredentials.authEndpoint || `https://auth.pingone.com/${allCredentials.environmentId}/as/authorize`,
+            tokenEndpoint: allCredentials.tokenEndpoint || `https://auth.pingone.com/${allCredentials.environmentId}/as/token`,
+            userInfoEndpoint: allCredentials.userInfoEndpoint || `https://auth.pingone.com/${allCredentials.environmentId}/as/userinfo`
+          });
+        }
+      } else {
+        console.warn(`⚠️ [${flowType.toUpperCase()}-V3] No valid credentials found in any storage mechanism on mount`);
+        console.log(`🔍 [${flowType.toUpperCase()}-V3] Available localStorage keys:`, Object.keys(localStorage));
+      }
+    };
+    
+    // Load credentials on mount
+    loadCredentialsOnMount();
+  }, [flowType]); // Only run on mount and flowType change
+
   // Handle OAuth callback from PingOne redirect (URL parameters)
   React.useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -625,6 +754,13 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
       const authEndpoint = credentials.environmentId !== 'custom' 
         ? `https://auth.pingone.com/${credentials.environmentId}/as/authorize`
         : credentials.issuerUrl ? `${credentials.issuerUrl.replace(/\/$/, '')}/as/authorize` : '';
+
+      console.log(`🔍 [${flowType.toUpperCase()}-V3] Authorization URL redirect URI:`, {
+        credentialsRedirectUri: credentials.redirectUri,
+        willBeStoredAs: `${flowType}_v3_redirect_uri`,
+        authEndpoint,
+        environmentId: credentials.environmentId
+      });
 
       const params = new URLSearchParams({
         client_id: credentials.clientId,
@@ -815,12 +951,22 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         ? `https://auth.pingone.com/${credentials.environmentId}/as/token`
         : credentials.issuerUrl ? `${credentials.issuerUrl.replace(/\/$/, '')}/as/token` : '';
 
+      // CRITICAL: Use the EXACT same redirect URI that was used in authorization request
+      const storedRedirectUri = sessionStorage.getItem(`${flowType}_v3_redirect_uri`) || credentials.redirectUri;
+      
+      console.log(`🔍 [${flowType.toUpperCase()}-V3] Redirect URI validation:`, {
+        credentialsRedirectUri: credentials.redirectUri,
+        storedRedirectUri: storedRedirectUri,
+        usingStoredValue: storedRedirectUri !== credentials.redirectUri,
+        sessionStorageKey: `${flowType}_v3_redirect_uri`
+      });
+
       const requestBody = {
         grant_type: 'authorization_code',
         code: authCode,
         code_verifier: codeVerifier,
         client_id: credentials.clientId,
-        redirect_uri: credentials.redirectUri
+        redirect_uri: storedRedirectUri // Use stored redirect URI to ensure exact match
       };
 
       console.log(`🔍 [${flowType.toUpperCase()}-V3] Original request body:`, {
@@ -865,7 +1011,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         client_id: credentials.clientId,
         client_secret: credentials.clientSecret,
         code: authCode,
-        redirect_uri: redirectUri,
+        redirect_uri: storedRedirectUri, // Use the stored redirect URI to ensure exact match
         code_verifier: codeVerifier,
         environment_id: credentials.environmentId,
         scope: flowType === 'oidc' ? 'openid profile email' : 'read write'
@@ -879,6 +1025,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         hasCodeVerifier: !!finalRequestBody.code_verifier,
         hasClientSecret: !!finalRequestBody.client_secret,
         redirect_uri: finalRequestBody.redirect_uri,
+        redirect_uri_match: finalRequestBody.redirect_uri === credentials.redirectUri ? 'MATCH' : 'MISMATCH',
         scope: finalRequestBody.scope
       });
 
