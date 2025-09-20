@@ -514,6 +514,8 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
       console.log(`🔍 [${flowType.toUpperCase()}-V3] Loading credentials on component mount...`);
       
       // Debug localStorage contents
+      console.log(`🔍 [${flowType.toUpperCase()}-V3] All localStorage keys:`, Object.keys(localStorage));
+      console.log(`🔍 [${flowType.toUpperCase()}-V3] Current credentials state:`, credentials);
       credentialManager.debugLocalStorage();
       
       // COMPREHENSIVE FALLBACK CHAIN (same as initial state):
@@ -573,45 +575,59 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         }
       }
       
-      if (allCredentials && allCredentials.environmentId && allCredentials.clientId) {
-        console.log(`🔧 [${flowType.toUpperCase()}-V3] Loading credentials from ${source}:`, {
-          environmentId: allCredentials.environmentId,
-          clientId: `${allCredentials.clientId.substring(0, 8)}...`,
-          hasClientSecret: !!allCredentials.clientSecret,
-          redirectUri: allCredentials.redirectUri
-        });
-        
-        // Update credentials state if different from current
-        const scopeString = Array.isArray(allCredentials.scopes) ? allCredentials.scopes.join(' ') : allCredentials.scopes;
-        const scopeArray = Array.isArray(allCredentials.scopes) ? allCredentials.scopes : (allCredentials.scopes ? allCredentials.scopes.split(' ') : []);
-        
-        setCredentials(prev => {
-          const newCredentials = {
-            ...prev,
-            environmentId: allCredentials.environmentId || prev.environmentId,
-            clientId: allCredentials.clientId || prev.clientId,
-            clientSecret: allCredentials.clientSecret || prev.clientSecret,
-            redirectUri: allCredentials.redirectUri || prev.redirectUri,
-            scope: scopeString || prev.scope,
-            scopes: scopeArray.length > 0 ? scopeArray : prev.scopes,
-            authEndpoint: allCredentials.authEndpoint || prev.authEndpoint || (allCredentials.environmentId ? `https://auth.pingone.com/${allCredentials.environmentId}/as/authorize` : ''),
-            tokenEndpoint: allCredentials.tokenEndpoint || prev.tokenEndpoint || (allCredentials.environmentId ? `https://auth.pingone.com/${allCredentials.environmentId}/as/token` : ''),
-            userInfoEndpoint: allCredentials.userInfoEndpoint || prev.userInfoEndpoint || (allCredentials.environmentId ? `https://auth.pingone.com/${allCredentials.environmentId}/as/userinfo` : '')
-          };
-          
-          // Only update if credentials actually changed
-          const hasChanged = Object.keys(newCredentials).some(key => 
-            newCredentials[key as keyof typeof newCredentials] !== prev[key as keyof typeof prev]
-          );
-          
-          if (hasChanged) {
-            console.log(`🔄 [${flowType.toUpperCase()}-V3] Credentials updated from ${source}`);
-            return newCredentials;
-          } else {
-            console.log(`✅ [${flowType.toUpperCase()}-V3] Credentials already up to date`);
-            return prev;
-          }
-        });
+           if (allCredentials && allCredentials.environmentId && allCredentials.clientId) {
+             console.log(`🔧 [${flowType.toUpperCase()}-V3] Loading credentials from ${source}:`, {
+               environmentId: allCredentials.environmentId,
+               clientId: `${allCredentials.clientId.substring(0, 8)}...`,
+               hasClientSecret: !!allCredentials.clientSecret,
+               redirectUri: allCredentials.redirectUri
+             });
+             
+             // Update credentials state if different from current
+             const scopeString = Array.isArray(allCredentials.scopes) ? allCredentials.scopes.join(' ') : allCredentials.scopes;
+             const scopeArray = Array.isArray(allCredentials.scopes) ? allCredentials.scopes : (allCredentials.scopes ? allCredentials.scopes.split(' ') : []);
+             
+             setCredentials(prev => {
+               console.log(`🔍 [${flowType.toUpperCase()}-V3] setCredentials called - previous state:`, {
+                 environmentId: prev.environmentId,
+                 clientId: prev.clientId ? `${prev.clientId.substring(0, 8)}...` : 'none',
+                 hasClientSecret: !!prev.clientSecret,
+                 redirectUri: prev.redirectUri
+               });
+               
+               const newCredentials = {
+                 ...prev,
+                 environmentId: allCredentials.environmentId || prev.environmentId,
+                 clientId: allCredentials.clientId || prev.clientId,
+                 clientSecret: allCredentials.clientSecret || prev.clientSecret,
+                 redirectUri: allCredentials.redirectUri || prev.redirectUri,
+                 scope: scopeString || prev.scope,
+                 scopes: scopeArray.length > 0 ? scopeArray : prev.scopes,
+                 authEndpoint: allCredentials.authEndpoint || prev.authEndpoint || (allCredentials.environmentId ? `https://auth.pingone.com/${allCredentials.environmentId}/as/authorize` : ''),
+                 tokenEndpoint: allCredentials.tokenEndpoint || prev.tokenEndpoint || (allCredentials.environmentId ? `https://auth.pingone.com/${allCredentials.environmentId}/as/token` : ''),
+                 userInfoEndpoint: allCredentials.userInfoEndpoint || prev.userInfoEndpoint || (allCredentials.environmentId ? `https://auth.pingone.com/${allCredentials.environmentId}/as/userinfo` : '')
+               };
+               
+               console.log(`🔍 [${flowType.toUpperCase()}-V3] setCredentials - new credentials:`, {
+                 environmentId: newCredentials.environmentId,
+                 clientId: newCredentials.clientId ? `${newCredentials.clientId.substring(0, 8)}...` : 'none',
+                 hasClientSecret: !!newCredentials.clientSecret,
+                 redirectUri: newCredentials.redirectUri
+               });
+               
+               // Only update if credentials actually changed
+               const hasChanged = Object.keys(newCredentials).some(key => 
+                 newCredentials[key as keyof typeof newCredentials] !== prev[key as keyof typeof prev]
+               );
+               
+               if (hasChanged) {
+                 console.log(`🔄 [${flowType.toUpperCase()}-V3] Credentials updated from ${source}`);
+                 return newCredentials;
+               } else {
+                 console.log(`✅ [${flowType.toUpperCase()}-V3] Credentials already up to date`);
+                 return prev;
+               }
+             });
         
         // Migrate to preferred storage if found in legacy storage
         if (source.startsWith('legacy-')) {
