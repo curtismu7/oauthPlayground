@@ -156,12 +156,25 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
 
   // State management
   const [credentials, setCredentials] = useState<StepCredentials>(() => {
-    // Check for URL parameters first (from Flow Comparison tool)
+    // Check for URL parameters first (from Flow Comparison tool OR OAuth callback)
     const urlParams = new URLSearchParams(window.location.search);
     const urlEnv = urlParams.get('env');
     const urlClient = urlParams.get('client');
     const urlScope = urlParams.get('scope');
     const urlRedirect = urlParams.get('redirect');
+    
+    // Check for OAuth callback parameters
+    const authCode = urlParams.get('code');
+    const authState = urlParams.get('state');
+    const authError = urlParams.get('error');
+    
+    console.log(`🔍 [${flowType.toUpperCase()}-V3] URL parameter analysis:`, {
+      isCallback: !!(authCode || authError),
+      authCode: authCode ? `${authCode.substring(0, 10)}...` : null,
+      authState: authState ? `${authState.substring(0, 10)}...` : null,
+      authError,
+      urlParams: Object.fromEntries(urlParams.entries())
+    });
     
     // Load stored credentials as fallback
     const stored = credentialManager.loadAuthzFlowCredentials();
@@ -277,6 +290,64 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
       console.log(`✅ [${flowType.toUpperCase()}-V3] Authorization code loaded and ready for token exchange`);
     }
   }, [stepManager.isInitialized, flowType]);
+
+  // Handle OAuth callback from PingOne redirect (URL parameters)
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const authCode = urlParams.get('code');
+    const authState = urlParams.get('state');
+    const authError = urlParams.get('error');
+    const errorDescription = urlParams.get('error_description');
+    
+    // Only process if we have OAuth callback parameters
+    if (authCode || authError) {
+      console.log(`🔍 [${flowType.toUpperCase()}-V3] Processing OAuth callback from URL:`, {
+        hasCode: !!authCode,
+        hasError: !!authError,
+        authError,
+        errorDescription
+      });
+      
+      if (authError) {
+        console.error(`❌ [${flowType.toUpperCase()}-V3] Authorization error:`, authError, errorDescription);
+        showFlowError(`❌ Authorization failed: ${errorDescription || authError}`);
+        
+        // Clear URL parameters
+        window.history.replaceState({}, '', window.location.pathname);
+        return;
+      }
+      
+      if (authCode) {
+        console.log(`✅ [${flowType.toUpperCase()}-V3] Authorization code received from PingOne redirect!`);
+        
+        // Set the authorization code and state
+        setAuthCode(authCode);
+        setState(authState || '');
+        
+        // Store in session storage for persistence
+        sessionStorage.setItem(`${flowType}_v3_auth_code`, authCode);
+        if (authState) {
+          sessionStorage.setItem(`${flowType}_v3_state`, authState);
+        }
+        
+        // Mark callback handling as completed
+        saveStepResult('handle-callback', true);
+        
+        // Show success message to user
+        showFlowSuccess(`🎉 Successfully authenticated with PingOne! Authorization code received. You can now exchange it for tokens.`);
+        
+        // Auto-advance to token exchange step (step 4 in V3 flows)
+        if (stepManager.isInitialized) {
+          stepManager.setStep(4, 'callback completed');
+        }
+        
+        // Clear URL parameters to clean up the URL
+        window.history.replaceState({}, '', window.location.pathname);
+        
+        console.log(`✅ [${flowType.toUpperCase()}-V3] Callback processing completed, advanced to token exchange step`);
+      }
+    }
+  }, [flowType, stepManager, saveStepResult]);
 
   // Generate PKCE codes
   const generatePKCE = useCallback(async () => {
@@ -748,13 +819,14 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
           credentials.clientId &&
           credentials.redirectUri &&
           pkceCodes.codeVerifier &&
-          pkceCodes.codeChallenge
+          pkceCodes.codeChallenge &&
+          !authCode // Disable after successful authentication
         ),
         completed: hasStepResult('build-auth-url')
       },
       {
         ...createUserAuthorizationStep(authUrl, handlePopupAuthorization, handleFullRedirectAuthorization, isAuthorizing, authCode),
-        canExecute: Boolean(authUrl),
+        canExecute: Boolean(authUrl && !authCode), // Disable after successful authentication
         completed: hasStepResult('user-authorization') || Boolean(authCode)
       },
       {
