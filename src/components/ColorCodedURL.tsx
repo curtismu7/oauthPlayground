@@ -9,7 +9,7 @@ interface ColorCodedURLProps {
 }
 
 interface URLPartInfo {
-  type: 'base' | 'question' | 'ampersand' | 'param' | 'param2' | 'param3' | 'equals';
+  type: 'base' | 'question' | 'ampersand' | 'param' | 'param2' | 'param3' | 'equals' | 'dollar';
   content: string;
   description?: string;
 }
@@ -153,6 +153,11 @@ const URLPartDescriptionEquals = styled(URLPartDescription)`
   border-left-color: #475569;
 `;
 
+const URLPartDescriptionDollar = styled(URLPartDescription)`
+  background: #fef2f2;
+  border-left-color: #c2410c;
+`;
+
 
 
 const PartName = styled.strong`
@@ -167,7 +172,7 @@ const PartDescription = styled.p`
   line-height: 1.5;
 `;
 
-const URLPart = styled.span<{ type: 'base' | 'question' | 'ampersand' | 'param' | 'param2' | 'param3' | 'equals' }>`
+const URLPart = styled.span<{ type: 'base' | 'question' | 'ampersand' | 'param' | 'param2' | 'param3' | 'equals' | 'dollar' }>`
   ${({ type }) => {
     switch (type) {
       case 'base':
@@ -183,6 +188,11 @@ const URLPart = styled.span<{ type: 'base' | 'question' | 'ampersand' | 'param' 
       case 'ampersand':
         return `
           color: #ea580c; /* Orange for & */
+          font-weight: 600;
+        `;
+      case 'dollar':
+        return `
+          color: #c2410c; /* Dark orange for $ */
           font-weight: 600;
         `;
       case 'param':
@@ -243,69 +253,82 @@ export const ColorCodedURL: React.FC<ColorCodedURLProps> = ({ url, className, sh
     return <span className={className}>{url}</span>;
   }
 
-  // Split URL into base and query parts
-  const [basePart, queryPart] = url.split('?');
+  // Parse URL with color coding for special characters
   const urlParts: URLPartInfo[] = [];
-
-  // Add base URL part
-  if (basePart) {
-    urlParts.push({
-      type: 'base',
-      content: basePart,
-      description: 'The base URL of the authorization server endpoint. This is where the OAuth request is sent.'
-    });
-  }
-
-  // Add query part if it exists
-  if (queryPart) {
-    urlParts.push({
-      type: 'question',
-      content: '?',
-      description: 'Separates the base URL from the query parameters.'
-    });
-
-    // Split query parameters
-    const params = queryPart.split('&');
-    params.forEach((param, index) => {
-      if (index > 0) {
+  
+  // Split the URL by special characters while preserving them
+  const parts = url.split(/([?&$])/);
+  let paramIndex = 0;
+  
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i];
+    
+    if (part === '?') {
+      urlParts.push({
+        type: 'question',
+        content: '?',
+        description: 'Separates the base URL from the query parameters.'
+      });
+    } else if (part === '&') {
+      urlParts.push({
+        type: 'ampersand',
+        content: '&',
+        description: 'Separates multiple query parameters.'
+      });
+      paramIndex++;
+    } else if (part === '$') {
+      urlParts.push({
+        type: 'dollar',
+        content: '$',
+        description: 'Special character often used in URL patterns or templates.'
+      });
+    } else if (part && part.length > 0) {
+      // This is either the base URL or a parameter
+      if (i === 0) {
+        // First part is the base URL
         urlParts.push({
-          type: 'ampersand',
-          content: '&',
-          description: 'Separates multiple query parameters.'
+          type: 'base',
+          content: part,
+          description: 'The base URL of the authorization server endpoint. This is where the OAuth request is sent.'
         });
-      }
-
-      const [key, value] = param.split('=');
-      if (key) {
-        if (value) {
-          // Add parameter name and value as separate parts with alternating colors
-          const paramType = index % 3 === 0 ? 'param' : index % 3 === 1 ? 'param2' : 'param3';
-          urlParts.push({
-            type: paramType,
-            content: key,
-            description: getParameterDescription(key)
-          });
+      } else {
+        // This is a parameter, split it by = if it contains one
+        if (part.includes('=')) {
+          const [key, value] = part.split('=');
+          const paramType = paramIndex % 3 === 0 ? 'param' : paramIndex % 3 === 1 ? 'param2' : 'param3';
+          
+          if (key) {
+            urlParts.push({
+              type: paramType,
+              content: key,
+              description: getParameterDescription(key)
+            });
+          }
+          
           urlParts.push({
             type: 'equals',
             content: '=',
             description: 'Separates parameter name from its value.'
           });
-          urlParts.push({
-            type: paramType,
-            content: value,
-            description: `Value: ${decodeURIComponent(value)}`
-          });
+          
+          if (value) {
+            urlParts.push({
+              type: paramType,
+              content: value,
+              description: `Value: ${decodeURIComponent(value)}`
+            });
+          }
         } else {
-          // Parameter without value
-          const paramType = index % 3 === 0 ? 'param' : index % 3 === 1 ? 'param2' : 'param3';
+          // Parameter without equals sign
+          const paramType = paramIndex % 3 === 0 ? 'param' : paramIndex % 3 === 1 ? 'param2' : 'param3';
           urlParts.push({
             type: paramType,
-            content: key,
-            description: getParameterDescription(key)
+            content: part,
+            description: getParameterDescription(part)
           });
         }
       }
-    });
+    }
   }
 
   const renderURLPart = (part: URLPartInfo, index: number) => (
@@ -322,7 +345,8 @@ export const ColorCodedURL: React.FC<ColorCodedURLProps> = ({ url, className, sh
       'param': URLPartDescriptionParam,
       'param2': URLPartDescriptionParam2,
       'param3': URLPartDescriptionParam3,
-      'equals': URLPartDescriptionEquals
+      'equals': URLPartDescriptionEquals,
+      'dollar': URLPartDescriptionDollar
     }[part.type];
 
     return (
