@@ -37,6 +37,7 @@ import { usePerformanceMonitor, useMemoizedComputation, useOptimizedCallback } f
 import { enhancedDebugger } from '../../utils/enhancedDebug';
 import { fetchOIDCDiscovery } from '../../utils/advancedOIDC';
 import { InlineDocumentation, QuickReference, TroubleshootingGuide } from '../../components/InlineDocumentation';
+import CredentialSetupModal from '../../components/CredentialSetupModal';
 import styled from 'styled-components';
 
 // Styled Components
@@ -263,6 +264,10 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
     return defaultConfig;
   });
   const [showExplainer, setShowExplainer] = useState(false);
+  
+  // UI state based on flow configuration
+  const [showAuthSuccessModal, setShowAuthSuccessModal] = useState(false);
+  const [showCredentialsModalOnStartup, setShowCredentialsModalOnStartup] = useState(false);
 
   // Save flow configuration when it changes
   const handleFlowConfigChange = useCallback((newConfig: FlowConfig) => {
@@ -377,6 +382,11 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         // Show success message to user
         showFlowSuccess(`🎉 Successfully authenticated with PingOne! Authorization code received. You can now exchange it for tokens.`);
         
+        // Show success modal if configured
+        if (flowConfig.showSuccessModal) {
+          setShowAuthSuccessModal(true);
+        }
+        
         // Auto-advance to token exchange step (step 4 in V3 flows)
         if (stepManager.isInitialized) {
           stepManager.setStep(4, 'callback completed');
@@ -389,6 +399,14 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
       }
     }
   }, [flowType, stepManager, saveStepResult]);
+
+  // Show credentials modal on startup if configured
+  React.useEffect(() => {
+    if (flowConfig.showCredentialsModal && !credentials.clientId && !credentials.environmentId) {
+      console.log(`🔧 [${flowType.toUpperCase()}-V3] Showing credentials modal on startup (configured)`);
+      setShowCredentialsModalOnStartup(true);
+    }
+  }, [flowConfig.showCredentialsModal, credentials.clientId, credentials.environmentId, flowType]);
 
   // Generate PKCE codes
   const generatePKCE = useCallback(async () => {
@@ -725,6 +743,35 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
       sessionStorage.setItem(`${flowType}_v3_access_token`, tokenData.access_token || '');
       sessionStorage.setItem(`${flowType}_v3_refresh_token`, tokenData.refresh_token || '');
       sessionStorage.setItem(`${flowType}_v3_id_token`, tokenData.id_token || '');
+
+      // For OIDC flows, validate ID token and custom claims
+      if (flowType === 'oidc' && tokenData.id_token) {
+        try {
+          console.log(`🔍 [${flowType.toUpperCase()}-V3] Validating ID token and custom claims...`);
+          
+          // Validate ID token with custom claims
+          const idTokenValidation = await validateIdToken(tokenData.id_token, {
+            issuer: credentials.issuerUrl || `https://auth.pingone.com/${credentials.environmentId}`,
+            audience: credentials.clientId,
+            nonce: flowConfig.nonce || nonce,
+            customClaims: flowConfig.customClaims || {}
+          });
+          
+          console.log(`✅ [${flowType.toUpperCase()}-V3] ID token validation:`, {
+            isValid: idTokenValidation.isValid,
+            hasCustomClaims: Object.keys(flowConfig.customClaims || {}).length > 0,
+            customClaimsFound: idTokenValidation.customClaimsFound || [],
+            customClaimsValidation: idTokenValidation.customClaimsValidation || {}
+          });
+          
+          if (!idTokenValidation.isValid) {
+            console.warn(`⚠️ [${flowType.toUpperCase()}-V3] ID token validation failed:`, idTokenValidation.errors);
+          }
+          
+        } catch (idTokenError) {
+          console.warn(`⚠️ [${flowType.toUpperCase()}-V3] ID token validation error:`, idTokenError);
+        }
+      }
 
       // For OIDC flows, fetch user info if available
       if (flowType === 'oidc' && tokenData.access_token) {
@@ -1191,6 +1238,96 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
           ]}
         />
       </InlineDocumentation>
+
+      {/* Credentials Setup Modal - Show on startup if configured */}
+      {showCredentialsModalOnStartup && flowConfig.showCredentialsModal && (
+        <CredentialSetupModal
+          isOpen={showCredentialsModalOnStartup}
+          onClose={() => setShowCredentialsModalOnStartup(false)}
+          onSave={(creds) => {
+            setCredentials(prev => ({
+              ...prev,
+              ...creds
+            }));
+            setShowCredentialsModalOnStartup(false);
+            console.log(`✅ [${flowType.toUpperCase()}-V3] Credentials saved from startup modal`);
+          }}
+          flowType={flowType === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'}
+        />
+      )}
+
+      {/* Success Modal - Show after successful authentication if configured */}
+      {showAuthSuccessModal && flowConfig.showSuccessModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '0.5rem',
+            padding: '2rem',
+            maxWidth: '500px',
+            width: '90%',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+          }}>
+            <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎉</div>
+              <h3 style={{ margin: '0 0 0.5rem 0', color: '#059669' }}>Authentication Successful!</h3>
+              <p style={{ margin: 0, color: '#6b7280' }}>
+                You have been successfully authenticated with PingOne.
+              </p>
+            </div>
+
+            {authCode && flowConfig.showAuthCodeInModal && (
+              <div style={{ 
+                marginBottom: '1.5rem',
+                padding: '1rem',
+                backgroundColor: '#f0fdf4',
+                border: '1px solid #22c55e',
+                borderRadius: '0.5rem'
+              }}>
+                <h4 style={{ margin: '0 0 0.5rem 0', color: '#15803d' }}>Authorization Code Received:</h4>
+                <code style={{ 
+                  fontSize: '0.875rem', 
+                  color: '#374151',
+                  wordBreak: 'break-all',
+                  display: 'block',
+                  padding: '0.5rem',
+                  backgroundColor: 'white',
+                  borderRadius: '0.25rem'
+                }}>
+                  {authCode}
+                </code>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+              <button
+                onClick={() => setShowAuthSuccessModal(false)}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  backgroundColor: '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '0.375rem',
+                  cursor: 'pointer',
+                  fontWeight: '500'
+                }}
+              >
+                Continue with Flow
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Container>
   );
 };
