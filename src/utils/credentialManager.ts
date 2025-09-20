@@ -107,7 +107,7 @@ class CredentialManager {
         const result = {
           environmentId: credentials.environmentId || '',
           clientId: credentials.clientId || '',
-          redirectUri: credentials.redirectUri || window.location.origin + '/dashboard-callback',
+          redirectUri: credentials.redirectUri || window.location.origin + '/authz-callback',
           scopes: credentials.scopes || ['openid', 'profile', 'email'],
           authEndpoint: credentials.authEndpoint,
           tokenEndpoint: credentials.tokenEndpoint,
@@ -122,7 +122,7 @@ class CredentialManager {
         return {
           environmentId: '',
           clientId: '',
-          redirectUri: window.location.origin + '/dashboard-callback',
+          redirectUri: window.location.origin + '/authz-callback',
           scopes: ['openid', 'profile', 'email']
         };
       }
@@ -132,7 +132,7 @@ class CredentialManager {
       return {
         environmentId: '',
         clientId: '',
-        redirectUri: window.location.origin + '/dashboard-callback',
+        redirectUri: window.location.origin + '/authz-callback',
         scopes: ['openid', 'profile', 'email']
       };
     }
@@ -205,10 +205,15 @@ class CredentialManager {
    */
   loadAuthzFlowCredentials(): PermanentCredentials {
     try {
-      // Check if global config is enabled - if so, use Dashboard credentials
+      // Check if global config is enabled - if so, use Dashboard credentials but with correct redirect URI
       if (this.isGlobalConfigEnabled()) {
         console.log('🌐 [CredentialManager] Global config enabled - using Dashboard credentials for all flows');
-        return this.loadConfigCredentials();
+        const configCredentials = this.loadConfigCredentials();
+        // Override redirect URI to use authz-callback for authorization flows
+        return {
+          ...configCredentials,
+          redirectUri: window.location.origin + '/authz-callback'
+        };
       }
 
       const stored = localStorage.getItem(this.AUTHZ_FLOW_CREDENTIALS_KEY);
@@ -411,7 +416,7 @@ class CredentialManager {
         const result = {
           environmentId: credentials.environmentId || '',
           clientId: credentials.clientId || '',
-          redirectUri: credentials.redirectUri || window.location.origin + '/dashboard-callback',
+          redirectUri: credentials.redirectUri || window.location.origin + '/authz-callback',
           scopes: credentials.scopes || ['openid', 'profile', 'email'],
           authEndpoint: credentials.authEndpoint,
           tokenEndpoint: credentials.tokenEndpoint,
@@ -428,7 +433,7 @@ class CredentialManager {
         return {
           environmentId: '',
           clientId: '',
-          redirectUri: window.location.origin + '/dashboard-callback',
+          redirectUri: window.location.origin + '/authz-callback',
           scopes: ['openid', 'profile', 'email']
         };
       }
@@ -438,7 +443,7 @@ class CredentialManager {
       return {
         environmentId: '',
         clientId: '',
-        redirectUri: window.location.origin + '/dashboard-callback',
+        redirectUri: window.location.origin + '/authz-callback',
         scopes: ['openid', 'profile', 'email']
       };
     }
@@ -465,7 +470,7 @@ class CredentialManager {
         const result = {
           environmentId: credentials.environmentId || '',
           clientId: credentials.clientId || '',
-          redirectUri: credentials.redirectUri || window.location.origin + '/dashboard-callback',
+          redirectUri: credentials.redirectUri || window.location.origin + '/authz-callback',
           scopes: credentials.scopes || ['openid', 'profile', 'email'],
           authEndpoint: credentials.authEndpoint,
           tokenEndpoint: credentials.tokenEndpoint,
@@ -517,7 +522,7 @@ class CredentialManager {
       return {
         environmentId: envConfig.environmentId || '',
         clientId: envConfig.clientId || '',
-        redirectUri: envConfig.redirectUri || window.location.origin + '/dashboard-callback',
+        redirectUri: envConfig.redirectUri || window.location.origin + '/authz-callback',
         scopes: envConfig.scopes || ['openid', 'profile', 'email'],
         authEndpoint: envConfig.authEndpoint,
         tokenEndpoint: envConfig.tokenEndpoint,
@@ -529,7 +534,7 @@ class CredentialManager {
       return {
         environmentId: '',
         clientId: '',
-        redirectUri: window.location.origin + '/dashboard-callback',
+        redirectUri: window.location.origin + '/authz-callback',
         scopes: ['openid', 'profile', 'email']
       };
     }
