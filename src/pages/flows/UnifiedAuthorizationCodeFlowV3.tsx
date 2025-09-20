@@ -873,7 +873,18 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
       setOriginalCredentials({ ...credentials });
       console.log('✅ [UnifiedAuthorizationCodeFlowV3] Credentials saved, Save button will be disabled');
       
+      // Mark step as completed and advance to next step
+      saveStepResult('setup-credentials', true);
+      
       showFlowSuccess('Credentials saved successfully');
+      
+      // Auto-advance to next step after successful save
+      setTimeout(() => {
+        if (stepManager.isInitialized && stepManager.currentStepIndex === 0) {
+          stepManager.setStep(1, 'credentials saved, advancing to PKCE step');
+          console.log('🔄 [UnifiedAuthorizationCodeFlowV3] Auto-advancing to next step after credential save');
+        }
+      }, 1000); // Small delay to show success message
     } catch (error) {
       console.error(`❌ [${flowType.toUpperCase()}-V3] Save credentials failed:`, error);
       showFlowError('Failed to save credentials');
@@ -881,6 +892,16 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
       setIsSavingCredentials(false);
     }
   }, [credentials, flowType]);
+
+  // Handle closing credentials step
+  const handleCloseCredentials = useCallback(() => {
+    console.log('🔄 [UnifiedAuthorizationCodeFlowV3] Closing credentials step, advancing to next step');
+    // Mark step as completed (even though not saved) and advance
+    saveStepResult('setup-credentials', true);
+    if (stepManager.isInitialized && stepManager.currentStepIndex === 0) {
+      stepManager.setStep(1, 'credentials step closed, advancing to PKCE step');
+    }
+  }, [stepManager, saveStepResult]);
 
   // Clear credentials
   const clearCredentials = useCallback(() => {
@@ -968,7 +989,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
   const steps = React.useMemo(() => {
     const baseSteps = [
       {
-        ...createCredentialsStep(credentials, setCredentials, saveCredentials, `${flowType.toUpperCase()} Authorization Code Flow`),
+        ...createCredentialsStep(credentials, setCredentials, saveCredentials, `${flowType.toUpperCase()} Authorization Code Flow`, handleCloseCredentials),
         canExecute: Boolean(
           credentials.environmentId &&
           credentials.clientId &&
@@ -1178,7 +1199,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
     }
 
     return baseSteps;
-  }, [credentials, pkceCodes, authUrl, authCode, tokens, userInfo, isAuthorizing, isExchangingTokens, flowType, stepManager.currentStepIndex, hasStepResult, saveCredentials, generatePKCE, generateAuthUrl, handlePopupAuthorization, handleFullRedirectAuthorization, exchangeTokens, resetFlow, navigateToTokenManagement, copyUserInfo, hasCredentialsSaved, hasUnsavedCredentialChanges, isSavingCredentials]);
+  }, [credentials, pkceCodes, authUrl, authCode, tokens, userInfo, isAuthorizing, isExchangingTokens, flowType, stepManager.currentStepIndex, hasStepResult, saveCredentials, generatePKCE, generateAuthUrl, handlePopupAuthorization, handleFullRedirectAuthorization, exchangeTokens, resetFlow, navigateToTokenManagement, copyUserInfo, hasCredentialsSaved, hasUnsavedCredentialChanges, isSavingCredentials, handleCloseCredentials]);
 
   const flowTitle = flowType === 'oauth' 
     ? '🔐 OAuth 2.0 Authorization Code Flow (V3)' 
