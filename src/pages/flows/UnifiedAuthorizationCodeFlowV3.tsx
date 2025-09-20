@@ -1725,21 +1725,34 @@ Original Error: ${errorData.error_description || errorData.error}
           <ActionButton onClick={clearCredentials}>
             🧹 Clear Credentials
           </ActionButton>
-          <ActionButton onClick={() => {
-            console.log('🔍 [DEBUG] Manual credential reload triggered');
-            console.log('🔍 [DEBUG] Current localStorage keys:', Object.keys(localStorage));
-            console.log('🔍 [DEBUG] Current credentials state:', credentials);
-            
-            // Try to reload credentials
-            const allCredentials = credentialManager.loadAuthzFlowCredentials();
-            console.log('🔍 [DEBUG] Loaded authz flow credentials:', allCredentials);
-            
-            const configCredentials = credentialManager.loadConfigCredentials();
-            console.log('🔍 [DEBUG] Loaded config credentials:', configCredentials);
-            
-            const permanentCredentials = credentialManager.loadPermanentCredentials();
-            console.log('🔍 [DEBUG] Loaded permanent credentials:', permanentCredentials);
-          }}>
+          <ActionButton 
+            onClick={(e) => {
+              e.preventDefault();
+              console.log('🔍 [DEBUG] Manual credential reload triggered - button clicked!');
+              console.log('🔍 [DEBUG] Current localStorage keys:', Object.keys(localStorage));
+              console.log('🔍 [DEBUG] Current credentials state:', credentials);
+              console.log('🔍 [DEBUG] Flow type:', flowType);
+              
+              // Try to reload credentials
+              const allCredentials = credentialManager.loadAuthzFlowCredentials();
+              console.log('🔍 [DEBUG] Loaded authz flow credentials:', allCredentials);
+              
+              const configCredentials = credentialManager.loadConfigCredentials();
+              console.log('🔍 [DEBUG] Loaded config credentials:', configCredentials);
+              
+              const permanentCredentials = credentialManager.loadPermanentCredentials();
+              console.log('🔍 [DEBUG] Loaded permanent credentials:', permanentCredentials);
+              
+              // Show alert to confirm button click
+              alert('Debug credentials button clicked! Check console for details.');
+            }}
+            style={{ 
+              backgroundColor: '#f59e0b', 
+              color: 'white',
+              fontWeight: 'bold',
+              border: '2px solid #d97706'
+            }}
+          >
             🔍 Debug Credentials
           </ActionButton>
           <ActionButton onClick={resetFlow}>
