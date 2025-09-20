@@ -56,6 +56,7 @@ export interface EnhancedFlowStep {
   tips?: string[];
   securityNotes?: string[];
   content?: React.ReactNode; // Custom content for the step
+  buttonText?: string; // Custom text for the execute button
 }
 
 interface StepHistory {
@@ -1076,12 +1077,13 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
                 {isExecuting ? (
                   <>
                     <LoadingSpinner />
-                    {currentStep.id === 'setup-credentials' ? 'Saving...' :
-                     currentStep.id === 'generate-pkce' ? 'Generating...' :
-                     currentStep.id === 'build-auth-url' ? 'Building URL...' : 
-                     currentStep.id === 'exchange-tokens' ? 'Exchanging Tokens...' :
-                     currentStep.id === 'validate-tokens' ? 'Validating...' :
-                     'Executing...'}
+                    {(currentStep.buttonText && currentStep.buttonText.includes('...')) ? currentStep.buttonText :
+                     (currentStep.id === 'setup-credentials' ? 'Saving...' :
+                      currentStep.id === 'generate-pkce' ? 'Generating...' :
+                      currentStep.id === 'build-auth-url' ? 'Building URL...' : 
+                      currentStep.id === 'exchange-tokens' ? 'Exchanging Tokens...' :
+                      currentStep.id === 'validate-tokens' ? 'Validating...' :
+                      'Executing...')}
                   </>
                 ) : (
                   <>
@@ -1091,12 +1093,13 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
                      currentStep.id === 'exchange-tokens' ? <FiKey /> :
                      currentStep.id === 'validate-tokens' ? <FiUser /> :
                      <FiPlay />}
-                    {currentStep.id === 'setup-credentials' ? 'Save' :
-                     currentStep.id === 'generate-pkce' ? 'Generate' :
-                     currentStep.id === 'build-auth-url' ? 'Build URL' : 
-                     currentStep.id === 'exchange-tokens' ? 'Exchange Tokens' :
-                     currentStep.id === 'validate-tokens' ? 'Get User Info' :
-                     'Sign On'}
+                    {currentStep.buttonText ||
+                     (currentStep.id === 'setup-credentials' ? 'Save' :
+                      currentStep.id === 'generate-pkce' ? 'Generate' :
+                      currentStep.id === 'build-auth-url' ? 'Build URL' : 
+                      currentStep.id === 'exchange-tokens' ? 'Exchange Tokens' :
+                      currentStep.id === 'validate-tokens' ? 'Get User Info' :
+                      'Sign On')}
                   </>
                 )}
               </Button>

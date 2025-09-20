@@ -256,10 +256,76 @@ const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
           </UrlContainer>
           
           <Instructions>
-            <InstructionsTitle>Configuration Steps:</InstructionsTitle>
+            <InstructionsTitle>PingOne Application Configuration:</InstructionsTitle>
             <InstructionsText>
-              Go to: <strong>PingOne Console → Applications → Your App → Configuration → Redirect URIs</strong><br/>
-              Add the redirect URI above to your application's allowed redirect URIs list.
+              <div style={{ marginBottom: '1rem' }}>
+                <strong>1. Basic Application Settings:</strong>
+                <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
+                  <li><strong>Application Type:</strong> Web Application</li>
+                  <li><strong>Grant Type:</strong> Authorization Code</li>
+                  <li><strong>Response Type:</strong> Code</li>
+                  <li><strong>Token Endpoint Auth Method:</strong> client_secret_post</li>
+                </ul>
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <strong>2. Redirect URIs:</strong>
+                <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
+                  <li>Add the redirect URI above: <code>{callbackUrl}</code></li>
+                  <li>Ensure exact match including protocol (https) and port</li>
+                  <li>No trailing slashes or additional parameters</li>
+                </ul>
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <strong>3. Required Scopes:</strong>
+                <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
+                  <li><strong>openid</strong> - Required for OpenID Connect</li>
+                  <li><strong>profile</strong> - Access to user profile information</li>
+                  <li><strong>email</strong> - Access to user email address</li>
+                  <li>Enable any additional scopes your application needs</li>
+                </ul>
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <strong>4. Security Settings:</strong>
+                <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
+                  <li><strong>PKCE:</strong> Enable PKCE (Proof Key for Code Exchange)</li>
+                  <li><strong>PKCE Method:</strong> S256 (SHA256)</li>
+                  <li><strong>Require PKCE:</strong> Yes (recommended for security)</li>
+                  <li><strong>Token Endpoint Authentication:</strong> client_secret_post</li>
+                </ul>
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <strong>5. Token Settings:</strong>
+                <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
+                  <li><strong>Access Token Lifetime:</strong> 3600 seconds (1 hour) recommended</li>
+                  <li><strong>Refresh Token Lifetime:</strong> 30 days recommended</li>
+                  <li><strong>ID Token Lifetime:</strong> 3600 seconds (1 hour) recommended</li>
+                  <li><strong>Refresh Token Rotation:</strong> Enable for enhanced security</li>
+                </ul>
+              </div>
+
+              <div style={{ 
+                padding: '1rem', 
+                backgroundColor: '#fef3c7', 
+                borderRadius: '0.5rem', 
+                border: '1px solid #f59e0b',
+                marginTop: '1rem'
+              }}>
+                <strong style={{ color: '#92400e' }}>⚠️ Important:</strong>
+                <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem', color: '#92400e' }}>
+                  <li>Save all changes in PingOne console before testing</li>
+                  <li>Application must be <strong>enabled</strong> in PingOne</li>
+                  <li>Environment must be in <strong>production</strong> mode for external access</li>
+                  <li>Test the configuration after making changes</li>
+                </ul>
+              </div>
+
+              <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
+                <strong>Quick Path:</strong> PingOne Console → Applications → Your App → Configuration
+              </div>
             </InstructionsText>
           </Instructions>
         </ContentInner>
