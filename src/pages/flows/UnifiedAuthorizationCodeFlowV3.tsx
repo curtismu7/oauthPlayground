@@ -244,8 +244,49 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
   const [isAuthorizing, setIsAuthorizing] = useState(false);
   const [isExchangingTokens, setIsExchangingTokens] = useState(false);
   const [canExchangeTokens, setCanExchangeTokens] = useState(false);
-  const [flowConfig, setFlowConfig] = useState<FlowConfig>(() => getDefaultConfig(flowType === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'));
+  const [flowConfig, setFlowConfig] = useState<FlowConfig>(() => {
+    // Try to load saved flow configuration
+    try {
+      const savedConfig = localStorage.getItem(`${flowType}_v3_flow_config`);
+      if (savedConfig) {
+        const parsed = JSON.parse(savedConfig);
+        console.log(`🔧 [${flowType.toUpperCase()}-V3] Loaded saved flow configuration:`, parsed);
+        return { ...getDefaultConfig(flowType === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'), ...parsed };
+      }
+    } catch (error) {
+      console.warn(`⚠️ [${flowType.toUpperCase()}-V3] Failed to load saved flow configuration:`, error);
+    }
+    
+    // Return default configuration
+    const defaultConfig = getDefaultConfig(flowType === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code');
+    console.log(`🔧 [${flowType.toUpperCase()}-V3] Using default flow configuration:`, defaultConfig);
+    return defaultConfig;
+  });
   const [showExplainer, setShowExplainer] = useState(false);
+
+  // Save flow configuration when it changes
+  const handleFlowConfigChange = useCallback((newConfig: FlowConfig) => {
+    setFlowConfig(newConfig);
+    
+    // Persist the configuration
+    try {
+      localStorage.setItem(`${flowType}_v3_flow_config`, JSON.stringify(newConfig));
+      console.log(`💾 [${flowType.toUpperCase()}-V3] Saved flow configuration:`, {
+        scopes: newConfig.scopes,
+        nonce: newConfig.nonce ? `${newConfig.nonce.substring(0, 10)}...` : 'none',
+        state: newConfig.state ? `${newConfig.state.substring(0, 10)}...` : 'none',
+        maxAge: newConfig.maxAge,
+        prompt: newConfig.prompt,
+        loginHint: newConfig.loginHint,
+        acrValues: newConfig.acrValues,
+        clientAuthMethod: newConfig.clientAuthMethod,
+        enablePKCE: newConfig.enablePKCE,
+        enableOIDC: newConfig.enableOIDC
+      });
+    } catch (error) {
+      console.error(`❌ [${flowType.toUpperCase()}-V3] Failed to save flow configuration:`, error);
+    }
+  }, [flowType]);
 
   // Step result management
   const [stepResults, setStepResults] = useState<{[key: string]: any}>(() => {
@@ -1025,7 +1066,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         {/* Flow Configuration */}
         <FlowConfiguration
           config={flowConfig}
-          onConfigChange={setFlowConfig}
+          onConfigChange={handleFlowConfigChange}
           flowType={flowType === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'}
           initialExpanded={false}
           title="Flow Configuration"
