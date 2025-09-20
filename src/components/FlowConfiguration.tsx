@@ -924,7 +924,37 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
               
               {config.enableOIDC && (
                 <div style={{ marginBottom: '0.5rem' }}>
-                  <strong>OIDC:</strong> Nonce: {config.nonce}, <strong>State:</strong> {config.state}
+                  <strong>OIDC:</strong> Nonce: {config.nonce ? `${config.nonce.substring(0, 10)}...` : 'none'}, <strong>State:</strong> {config.state ? `${config.state.substring(0, 10)}...` : 'none'}
+                </div>
+              )}
+              
+              {config.maxAge > 0 && (
+                <div style={{ marginBottom: '0.5rem' }}>
+                  <strong>Max Age:</strong> {config.maxAge} seconds
+                </div>
+              )}
+              
+              {config.prompt && config.prompt !== '' && (
+                <div style={{ marginBottom: '0.5rem' }}>
+                  <strong>Prompt:</strong> {config.prompt}
+                </div>
+              )}
+              
+              {config.loginHint && config.loginHint !== '' && (
+                <div style={{ marginBottom: '0.5rem' }}>
+                  <strong>Login Hint:</strong> {config.loginHint}
+                </div>
+              )}
+              
+              {config.acrValues && config.acrValues.length > 0 && (
+                <div style={{ marginBottom: '0.5rem' }}>
+                  <strong>ACR Values:</strong> {config.acrValues.join(', ')}
+                </div>
+              )}
+              
+              {config.clientAuthMethod && config.clientAuthMethod !== 'client_secret_post' && (
+                <div style={{ marginBottom: '0.5rem' }}>
+                  <strong>Client Auth:</strong> {config.clientAuthMethod}
                 </div>
               )}
               
@@ -933,6 +963,28 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
                   <strong>Custom Params:</strong> {Object.entries(config.customParams).map(([k, v]) => `${k}=${v}`).join(', ')}
                 </div>
               )}
+              
+              {config.enableOIDC && Object.keys(config.customClaims).length > 0 && (
+                <div style={{ marginBottom: '0.5rem' }}>
+                  <strong>Custom Claims:</strong> {Object.entries(config.customClaims).map(([k, v]) => `${k}=${v}`).join(', ')}
+                </div>
+              )}
+              
+              {/* UI Settings Summary */}
+              <div style={{ 
+                marginTop: '1rem', 
+                paddingTop: '1rem', 
+                borderTop: '1px solid #cbd5e1',
+                fontSize: '0.85rem',
+                color: '#6b7280'
+              }}>
+                <strong style={{ color: '#374151' }}>UI Settings:</strong>
+                {config.showSuccessModal && ' Success Modal'}
+                {config.showAuthCodeInModal && ' • Auth Code in Modal'}
+                {config.showCredentialsModal && ' • Credentials Modal'}
+                {config.enableErrorRecovery && ' • Error Recovery'}
+                {!config.showSuccessModal && !config.showAuthCodeInModal && !config.showCredentialsModal && !config.enableErrorRecovery && ' None enabled'}
+              </div>
             </div>
           </ConfigSection>
           </CollapsibleContent>
