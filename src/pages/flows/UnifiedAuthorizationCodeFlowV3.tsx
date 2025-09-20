@@ -38,6 +38,7 @@ import { enhancedDebugger } from '../../utils/enhancedDebug';
 import { fetchOIDCDiscovery } from '../../utils/advancedOIDC';
 import { InlineDocumentation, QuickReference, TroubleshootingGuide } from '../../components/InlineDocumentation';
 import CredentialSetupModal from '../../components/CredentialSetupModal';
+import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
 import styled from 'styled-components';
 
 // Styled Components
@@ -322,6 +323,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
   
   // UI state based on flow configuration
   const [showAuthSuccessModal, setShowAuthSuccessModal] = useState(false);
+  const [showAuthRequestModal, setShowAuthRequestModal] = useState(false);
 
   // State for save button management
   const [hasCredentialsSaved, setHasCredentialsSaved] = useState(false);
@@ -844,8 +846,22 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
     }
   }, [credentials, pkceCodes, flowType, flowConfig]);
 
-  // Handle popup authorization
-  const handlePopupAuthorization = useCallback(() => {
+  // Handle popup authorization (with optional modal)
+  const handlePopupAuthorizationWithModal = useCallback(() => {
+    if (!authUrl) return;
+    
+    // Show modal first if enabled
+    if (flowConfig.showAuthRequestModal) {
+      setShowAuthRequestModal(true);
+      return;
+    }
+    
+    // Otherwise proceed directly
+    handlePopupAuthorizationDirect();
+  }, [authUrl, flowConfig.showAuthRequestModal]);
+
+  // Direct popup authorization (without modal)
+  const handlePopupAuthorizationDirect = useCallback(() => {
     if (!authUrl) return;
     
     setIsAuthorizing(true);
@@ -910,8 +926,22 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
     }, 300000); // 5 minutes timeout
   }, [authUrl, credentials.redirectUri, stepManager, flowType]);
 
-  // Handle full redirect authorization
-  const handleFullRedirectAuthorization = useCallback(() => {
+  // Handle full redirect authorization (with optional modal)
+  const handleFullRedirectAuthorizationWithModal = useCallback(() => {
+    if (!authUrl) return;
+    
+    // Show modal first if enabled
+    if (flowConfig.showAuthRequestModal) {
+      setShowAuthRequestModal(true);
+      return;
+    }
+    
+    // Otherwise proceed directly
+    handleFullRedirectAuthorizationDirect();
+  }, [authUrl, flowConfig.showAuthRequestModal]);
+
+  // Direct full redirect authorization (without modal)
+  const handleFullRedirectAuthorizationDirect = useCallback(() => {
     if (!authUrl) return;
     
     // Store flow context for redirect callback handling (flow-specific)
@@ -1382,7 +1412,7 @@ Original Error: ${errorData.error_description || errorData.error}
         completed: hasStepResult('build-auth-url')
       },
       {
-        ...createUserAuthorizationStep(authUrl, handlePopupAuthorization, handleFullRedirectAuthorization, isAuthorizing, authCode),
+        ...createUserAuthorizationStep(authUrl, handlePopupAuthorizationWithModal, handleFullRedirectAuthorizationWithModal, isAuthorizing, authCode),
         canExecute: Boolean(authUrl && !authCode), // Disable after successful authentication
         completed: hasStepResult('user-authorization') || Boolean(authCode)
       },
@@ -1565,7 +1595,7 @@ Original Error: ${errorData.error_description || errorData.error}
     }
 
     return baseSteps;
-  }, [credentials, pkceCodes, authUrl, authCode, tokens, userInfo, isAuthorizing, isExchangingTokens, flowType, stepManager.currentStepIndex, hasStepResult, saveCredentials, generatePKCE, generateAuthUrl, handlePopupAuthorization, handleFullRedirectAuthorization, exchangeTokens, resetFlow, navigateToTokenManagement, copyUserInfo, hasCredentialsSaved, hasUnsavedCredentialChanges, isSavingCredentials, handleCloseCredentials]);
+  }, [credentials, pkceCodes, authUrl, authCode, tokens, userInfo, isAuthorizing, isExchangingTokens, flowType, stepManager.currentStepIndex, hasStepResult, saveCredentials, generatePKCE, generateAuthUrl, handlePopupAuthorizationWithModal, handleFullRedirectAuthorizationWithModal, exchangeTokens, resetFlow, navigateToTokenManagement, copyUserInfo, hasCredentialsSaved, hasUnsavedCredentialChanges, isSavingCredentials, handleCloseCredentials]);
 
   const flowTitle = flowType === 'oauth' 
     ? '🔐 OAuth 2.0 Authorization Code Flow (V3)' 
@@ -1817,6 +1847,26 @@ Original Error: ${errorData.error_description || errorData.error}
           </div>
         </div>
       )}
+
+      {/* OAuth Authorization Request Modal - Show debugging info before redirect */}
+      <AuthorizationRequestModal
+        isOpen={showAuthRequestModal}
+        onClose={() => setShowAuthRequestModal(false)}
+        onProceed={() => {
+          setShowAuthRequestModal(false);
+          // Determine which authorization method to use based on the last clicked button
+          // For now, default to popup (can be enhanced later)
+          handlePopupAuthorizationDirect();
+        }}
+        authUrl={authUrl}
+        environmentId={credentials.environmentId}
+        clientId={credentials.clientId}
+        redirectUri={credentials.redirectUri}
+        scopes={credentials.scope}
+        state={state}
+        codeChallenge={pkceCodes.codeChallenge}
+        flowType={flowType}
+      />
     </Container>
   );
 };
