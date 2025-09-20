@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Redirect URI Debug Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .info { background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .error { background: #ffebee; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .success { background: #e8f5e8; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        code { background: #f5f5f5; padding: 2px 5px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 OAuth Playground - Redirect URI Debug</h1>
+    
+    <div class="info">
+        <h3>Current Application URLs:</h3>
+        <p><strong>Current Page:</strong> <code id="currentUrl"></code></p>
+        <p><strong>Origin:</strong> <code id="origin"></code></p>
+        <p><strong>Expected Callback:</strong> <code id="expectedCallback"></code></p>
+    </div>
+
+    <div class="info">
+        <h3>What You Need to Configure in PingOne:</h3>
+        <p><strong>Environment ID:</strong> <span id="envId">Check console logs or credentials</span></p>
+        <p><strong>Client ID:</strong> <span id="clientId">Check console logs or credentials</span></p>
+        <p><strong>Redirect URI to Add:</strong> <code id="redirectUri"></code></p>
+        <p><strong>PingOne Console:</strong> <a href="#" id="consoleLink" target="_blank">Open PingOne Console</a></p>
+    </div>
+
+    <div class="info">
+        <h3>Configuration Steps:</h3>
+        <ol>
+            <li>Click the PingOne Console link above</li>
+            <li>Navigate to: <strong>Applications → Your App → Configuration</strong></li>
+            <li><strong>VERIFY</strong> you're configuring the correct application with Client ID: <code id="clientIdToCopy"></code></li>
+            <li>Go to: <strong>Redirect URIs</strong> section</li>
+            <li>Add this exact URI: <code id="redirectUriToCopy"></code></li>
+            <li>Click <strong>Save</strong></li>
+        </ol>
+    </div>
+
+    <div class="error">
+        <h3>⚠️ Common Issues:</h3>
+        <ul>
+            <li><strong>Wrong Application:</strong> Make sure you're configuring the app with Client ID shown above</li>
+            <li><strong>Wrong Environment:</strong> Verify you're in the correct PingOne environment</li>
+            <li><strong>Exact Match Required:</strong> Redirect URI must be exactly: <code>https://localhost:3000/authz-callback</code></li>
+            <li><strong>No Trailing Slash:</strong> Don't add <code>/</code> at the end</li>
+            <li><strong>Protocol Matters:</strong> Must be <code>https://</code> not <code>http://</code></li>
+        </ul>
+    </div>
+
+    <div class="info">
+        <h3>Session Storage Debug:</h3>
+        <div id="sessionDebug"></div>
+    </div>
+
+    <div class="info">
+        <h3>Local Storage Debug:</h3>
+        <div id="localDebug"></div>
+    </div>
+
+    <script>
+        // Get current URL info
+        document.getElementById('currentUrl').textContent = window.location.href;
+        document.getElementById('origin').textContent = window.location.origin;
+        
+        const expectedCallback = window.location.origin + '/authz-callback';
+        document.getElementById('expectedCallback').textContent = expectedCallback;
+        document.getElementById('redirectUri').textContent = expectedCallback;
+        document.getElementById('redirectUriToCopy').textContent = expectedCallback;
+
+        // Check for environment ID and client ID in localStorage
+        let envId = 'NOT_FOUND';
+        let clientId = 'NOT_FOUND';
+        
+        try {
+            // Check various storage locations
+            const pingoneConfig = localStorage.getItem('pingone_config');
+            if (pingoneConfig) {
+                const parsed = JSON.parse(pingoneConfig);
+                if (parsed.environmentId) envId = parsed.environmentId;
+                if (parsed.clientId) clientId = parsed.clientId;
+            }
+            
+            const loginCreds = localStorage.getItem('login_credentials');
+            if (loginCreds && (envId === 'NOT_FOUND' || clientId === 'NOT_FOUND')) {
+                const parsed = JSON.parse(loginCreds);
+                if (parsed.environmentId && envId === 'NOT_FOUND') envId = parsed.environmentId;
+                if (parsed.clientId && clientId === 'NOT_FOUND') clientId = parsed.clientId;
+            }
+            
+            // Check credential manager storage
+            const permCreds = localStorage.getItem('pingone_permanent_credentials');
+            if (permCreds && (envId === 'NOT_FOUND' || clientId === 'NOT_FOUND')) {
+                const parsed = JSON.parse(permCreds);
+                if (parsed.environmentId && envId === 'NOT_FOUND') envId = parsed.environmentId;
+                if (parsed.clientId && clientId === 'NOT_FOUND') clientId = parsed.clientId;
+            }
+
+            // Check authz flow credentials
+            const authzCreds = localStorage.getItem('pingone_authz_flow_credentials');
+            if (authzCreds && (envId === 'NOT_FOUND' || clientId === 'NOT_FOUND')) {
+                const parsed = JSON.parse(authzCreds);
+                if (parsed.environmentId && envId === 'NOT_FOUND') envId = parsed.environmentId;
+                if (parsed.clientId && clientId === 'NOT_FOUND') clientId = parsed.clientId;
+            }
+
+            // Check config credentials
+            const configCreds = localStorage.getItem('pingone_config_credentials');
+            if (configCreds && (envId === 'NOT_FOUND' || clientId === 'NOT_FOUND')) {
+                const parsed = JSON.parse(configCreds);
+                if (parsed.environmentId && envId === 'NOT_FOUND') envId = parsed.environmentId;
+                if (parsed.clientId && clientId === 'NOT_FOUND') clientId = parsed.clientId;
+            }
+        } catch (e) {
+            console.error('Error checking credentials:', e);
+        }
+
+        document.getElementById('envId').textContent = envId;
+        document.getElementById('clientId').textContent = clientId;
+        document.getElementById('clientIdToCopy').textContent = clientId;
+        
+        // Set console link
+        if (envId !== 'NOT_FOUND') {
+            const consoleUrl = `https://console.pingone.com/index.html?env=${envId}`;
+            document.getElementById('consoleLink').href = consoleUrl;
+            document.getElementById('consoleLink').textContent = `Open PingOne Console (${envId})`;
+        } else {
+            document.getElementById('consoleLink').textContent = 'Environment ID not found - check credentials';
+        }
+
+        // Debug session storage
+        const sessionKeys = Object.keys(sessionStorage).filter(key => 
+            key.includes('redirect') || key.includes('oauth') || key.includes('oidc') || key.includes('v3')
+        );
+        
+        let sessionHtml = '<strong>Relevant Session Storage Keys:</strong><br>';
+        sessionKeys.forEach(key => {
+            const value = sessionStorage.getItem(key);
+            sessionHtml += `<code>${key}</code>: ${value}<br>`;
+        });
+        document.getElementById('sessionDebug').innerHTML = sessionHtml;
+
+        // Debug local storage
+        const localKeys = Object.keys(localStorage).filter(key => 
+            key.includes('pingone') || key.includes('credentials') || key.includes('config') || key.includes('skip')
+        );
+        
+        let localHtml = '<strong>Relevant Local Storage Keys:</strong><br>';
+        localKeys.forEach(key => {
+            const value = localStorage.getItem(key);
+            const shortValue = value && value.length > 100 ? value.substring(0, 100) + '...' : value;
+            localHtml += `<code>${key}</code>: ${shortValue}<br>`;
+        });
+        document.getElementById('localDebug').innerHTML = localHtml;
+
+        console.log('🔍 [Redirect URI Debug] Current URL:', window.location.href);
+        console.log('🔍 [Redirect URI Debug] Origin:', window.location.origin);
+        console.log('🔍 [Redirect URI Debug] Expected Callback:', expectedCallback);
+        console.log('🔍 [Redirect URI Debug] Environment ID:', envId);
+        console.log('🔍 [Redirect URI Debug] Client ID:', clientId);
+        console.log('🔍 [Redirect URI Debug] Session Storage:', sessionKeys.map(key => ({[key]: sessionStorage.getItem(key)})));
+        console.log('🔍 [Redirect URI Debug] Local Storage:', localKeys.map(key => ({[key]: localStorage.getItem(key)})));
+    </script>
+</body>
+</html>
