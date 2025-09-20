@@ -237,6 +237,9 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
   const [isLoading, setIsLoading] = useState(false);
   const [showSecret, setShowSecret] = useState(false);
   const [saveStatus, setSaveStatus] = useState<{ type: 'success' | 'danger'; title: string; message: string } | null>(null);
+  const [hasBeenSaved, setHasBeenSaved] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [originalFormData, setOriginalFormData] = useState<typeof formData | null>(null);
 
   // Handle escape key to close modal
   useEffect(() => {
@@ -342,6 +345,9 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
           console.log('🔧 [CredentialSetupModal] hasSessionCredentials:', hasSessionCredentials);
           console.log('🔧 [CredentialSetupModal] oldCredentials:', oldCredentials);
           setFormData(newFormData);
+          setOriginalFormData(newFormData);
+          setHasUnsavedChanges(false);
+          setHasBeenSaved(false);
         } else {
           console.log('⚠️ [CredentialSetupModal] No existing credentials found, loading from environment variables...');
           console.log('🔧 [CredentialSetupModal] hasPermanentCredentials:', hasPermanentCredentials);
@@ -350,6 +356,9 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
           
           // Load from environment variables as fallback
           loadFromEnvironmentVariables();
+          setOriginalFormData(formData);
+          setHasUnsavedChanges(false);
+          setHasBeenSaved(false);
         }
         
         console.log('✅ [CredentialSetupModal] Form pre-populated with:', {
@@ -378,10 +387,12 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
+    const newFormData = {
+      ...formData,
       [name]: value
-    }));
+    };
+    
+    setFormData(newFormData);
 
     // Clear error when field is edited
     if (errors[name]) {
@@ -389,6 +400,15 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
         ...prev,
         [name]: ''
       }));
+    }
+
+    // Check if form has been modified since last save
+    if (originalFormData) {
+      const hasChanges = Object.keys(newFormData).some(key => 
+        newFormData[key as keyof typeof newFormData] !== originalFormData[key as keyof typeof originalFormData]
+      );
+      setHasUnsavedChanges(hasChanges);
+      console.log('🔧 [CredentialSetupModal] Form modified, unsaved changes:', hasChanges);
     }
   };
 
@@ -470,6 +490,13 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
         title: 'Configuration saved!',
         message: 'Your PingOne credentials have been configured successfully.'
       });
+
+      // Mark as saved and update original form data
+      setHasBeenSaved(true);
+      setHasUnsavedChanges(false);
+      setOriginalFormData({ ...formData });
+      
+      console.log('✅ [CredentialSetupModal] Form marked as saved, Save button will be disabled');
 
       // Auto-close after success
       setTimeout(() => {
@@ -689,12 +716,21 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
           <CancelButton onClick={handleCancel} disabled={isLoading}>
             Cancel
           </CancelButton>
-          <SaveButton onClick={handleSubmit} disabled={isLoading}>
+          <SaveButton 
+            onClick={handleSubmit} 
+            disabled={isLoading || (hasBeenSaved && !hasUnsavedChanges)}
+            style={{
+              opacity: (hasBeenSaved && !hasUnsavedChanges) ? 0.5 : 1,
+              cursor: (hasBeenSaved && !hasUnsavedChanges) ? 'not-allowed' : 'pointer'
+            }}
+          >
             {isLoading ? (
               <>
                 <FiLoader className="animate-spin" />
                 Saving...
               </>
+            ) : hasBeenSaved && !hasUnsavedChanges ? (
+              'Saved'
             ) : (
               'Save Configuration'
             )}
