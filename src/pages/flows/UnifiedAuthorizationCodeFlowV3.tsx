@@ -267,7 +267,6 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
   
   // UI state based on flow configuration
   const [showAuthSuccessModal, setShowAuthSuccessModal] = useState(false);
-  const [showCredentialsModalOnStartup, setShowCredentialsModalOnStartup] = useState(false);
 
   // State for save button management
   const [hasCredentialsSaved, setHasCredentialsSaved] = useState(false);
@@ -429,13 +428,6 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
     }
   }, [flowType, stepManager, saveStepResult]);
 
-  // Show credentials modal on startup if configured
-  React.useEffect(() => {
-    if (flowConfig.showCredentialsModal && !credentials.clientId && !credentials.environmentId) {
-      console.log(`🔧 [${flowType.toUpperCase()}-V3] Showing credentials modal on startup (configured)`);
-      setShowCredentialsModalOnStartup(true);
-    }
-  }, [flowConfig.showCredentialsModal, credentials.clientId, credentials.environmentId, flowType]);
 
   // Generate PKCE codes
   const generatePKCE = useCallback(async () => {
@@ -1388,22 +1380,6 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         />
       </InlineDocumentation>
 
-      {/* Credentials Setup Modal - Show on startup if configured */}
-      {showCredentialsModalOnStartup && flowConfig.showCredentialsModal && (
-        <CredentialSetupModal
-          isOpen={showCredentialsModalOnStartup}
-          onClose={() => setShowCredentialsModalOnStartup(false)}
-          onSave={(creds) => {
-            setCredentials(prev => ({
-              ...prev,
-              ...creds
-            }));
-            setShowCredentialsModalOnStartup(false);
-            console.log(`✅ [${flowType.toUpperCase()}-V3] Credentials saved from startup modal`);
-          }}
-          flowType={flowType === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'}
-        />
-      )}
 
       {/* Success Modal - Show after successful authentication if configured */}
       {showAuthSuccessModal && flowConfig.showSuccessModal && (
