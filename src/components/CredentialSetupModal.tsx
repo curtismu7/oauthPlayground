@@ -247,7 +247,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && isOpen) {
-        onComplete();
+        onClose();
       }
     };
 
@@ -255,7 +255,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
       document.addEventListener('keydown', handleEscape);
       return () => document.removeEventListener('keydown', handleEscape);
     }
-  }, [isOpen, onComplete]);
+  }, [isOpen, onClose]);
 
   // Load credentials from environment variables
   const loadFromEnvironmentVariables = async () => {
