@@ -415,9 +415,14 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
           setShowAuthSuccessModal(true);
         }
         
-        // Auto-advance to token exchange step (step 4 in V3 flows)
+        // Auto-advance to token exchange step 
         if (stepManager.isInitialized) {
-          stepManager.setStep(4, 'callback completed');
+          // Check if credentials step is skipped to determine correct index
+          const skipCredentialsStep = localStorage.getItem('skip_credentials_step') === 'true';
+          const tokenExchangeStepIndex = skipCredentialsStep ? 3 : 4; // Adjust based on whether credentials step is present
+          
+          stepManager.setStep(tokenExchangeStepIndex, 'callback completed');
+          console.log(`🔄 [${flowType.toUpperCase()}-V3] Advanced to token exchange step at index ${tokenExchangeStepIndex} (credentials skipped: ${skipCredentialsStep})`);
         }
         
         // Clear URL parameters to clean up the URL
@@ -1010,7 +1015,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         completed: hasStepResult('generate-pkce')
       },
       {
-        ...createAuthUrlStep(authUrl, generateAuthUrl, credentials, pkceCodes, handlePopupAuthorization, handleFullRedirectAuthorization, isAuthorizing, showExplainer, setShowExplainer),
+        ...createAuthUrlStep(authUrl, generateAuthUrl, credentials, pkceCodes, undefined, undefined, isAuthorizing, showExplainer, setShowExplainer),
         canExecute: Boolean(
           credentials.environmentId &&
           credentials.clientId &&
