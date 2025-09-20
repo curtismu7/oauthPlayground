@@ -1223,7 +1223,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
           ]}
         />
         <TroubleshootingGuide 
-          title="Common Issues"
+          issue="OIDC 2.0 Authorization Code Flow"
           symptoms={[
             'Redirect URI mismatch error',
             'Invalid client credentials',
@@ -1231,10 +1231,49 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
             'Token exchange failed'
           ]}
           solutions={[
-            'Verify redirect URI matches exactly in PingOne console',
-            'Check client ID and secret are correct',
-            'Ensure authorization code is fresh (use within 10 minutes)',
-            'Verify PKCE code verifier matches challenge'
+            {
+              title: 'Fix Redirect URI Mismatch',
+              steps: [
+                'Go to PingOne Admin Console → Applications → Your App',
+                'Navigate to Configuration → Redirect URIs',
+                'Verify the redirect URI exactly matches: ' + (typeof window !== 'undefined' ? window.location.origin : 'https://localhost:3000') + '/authz-callback',
+                'Check protocol (http vs https) and port number match exactly',
+                'Save changes in PingOne console',
+                'Clear browser cache and try again'
+              ]
+            },
+            {
+              title: 'Fix Invalid Client Credentials',
+              steps: [
+                'Verify Client ID in PingOne Admin Console',
+                'Check Client Secret is correct (regenerate if needed)',
+                'Ensure credentials are properly copied without extra spaces',
+                'Verify the application is enabled in PingOne',
+                'Check that the application type is set to "Web Application"',
+                'Ensure the client is assigned to the correct environment'
+              ]
+            },
+            {
+              title: 'Fix Authorization Code Expired',
+              steps: [
+                'Authorization codes expire in 10 minutes - start flow again',
+                'Do not refresh the callback page after receiving the code',
+                'Complete token exchange immediately after receiving code',
+                'Check system clock is synchronized',
+                'Avoid delays between authorization and token exchange'
+              ]
+            },
+            {
+              title: 'Fix Token Exchange Failed',
+              steps: [
+                'Verify PKCE code verifier matches the original challenge',
+                'Check that client authentication method is correct',
+                'Ensure all required parameters are included in token request',
+                'Verify the authorization code has not been used already',
+                'Check token endpoint URL is correct for your environment',
+                'Validate that the redirect URI matches exactly'
+              ]
+            }
           ]}
         />
       </InlineDocumentation>
