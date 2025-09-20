@@ -1107,12 +1107,15 @@ Original Error: ${errorData.error_description || errorData.error}
       const tokenData = await response.json();
       
       console.log(`✅ [${flowType.toUpperCase()}-V3] Token exchange successful:`, {
+        flowType: flowType.toUpperCase(),
         hasAccessToken: Boolean(tokenData.access_token),
         hasRefreshToken: Boolean(tokenData.refresh_token),
         hasIdToken: Boolean(tokenData.id_token),
+        shouldHaveIdToken: flowType === 'oidc' ? 'YES (OIDC)' : 'NO (OAuth)',
         tokenType: tokenData.token_type,
         expiresIn: tokenData.expires_in,
-        scope: tokenData.scope
+        scope: tokenData.scope,
+        scopesRequested: finalRequestBody.scope
       });
 
       setTokens(tokenData);
@@ -1396,7 +1399,10 @@ Original Error: ${errorData.error_description || errorData.error}
     ];
 
     // Add flow-specific final steps
+    console.log(`🔍 [${flowType.toUpperCase()}-V3] Adding flow-specific steps for ${flowType} flow`);
+    
     if (flowType === 'oidc') {
+      console.log(`✅ [OIDC-V3] Adding OIDC-specific steps: Token Validation with ID Token and UserInfo`);
       // OIDC flow includes token validation and user info
       baseSteps.push(
         {
@@ -1519,6 +1525,7 @@ Original Error: ${errorData.error_description || errorData.error}
         }
       );
     } else {
+      console.log(`✅ [OAUTH-V3] Adding OAuth-specific steps: Token Analysis (NO ID Token, NO UserInfo)`);
       // OAuth flow has simpler final step
       baseSteps.push(
         {
