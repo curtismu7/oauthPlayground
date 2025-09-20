@@ -222,10 +222,12 @@ const SecretInputContainer = styled.div`
 
 interface CredentialSetupModalProps {
   isOpen: boolean;
-  onComplete: () => void;
+  onClose: () => void;
+  onSave?: (credentials: any) => void;
+  flowType?: string;
 }
 
-const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onComplete }) => {
+const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onClose, onSave, flowType }) => {
   const [formData, setFormData] = useState({
     environmentId: '',
     clientId: '',
@@ -498,11 +500,16 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
       
       console.log('✅ [CredentialSetupModal] Form marked as saved, Save button will be disabled');
 
+      // Call onSave callback if provided
+      if (onSave) {
+        onSave(formData);
+      }
+
       // Auto-close after success
       setTimeout(() => {
         console.log('🔄 [CredentialSetupModal] Auto-closing modal after successful save');
-        onComplete();
-      }, 2000);
+        onClose();
+      }, 1500);
 
     } catch (error) {
       console.error('Failed to save configuration:', error);
@@ -517,7 +524,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
   };
 
   const handleCancel = () => {
-    onComplete();
+    onClose();
   };
 
   if (!isOpen) {
@@ -713,9 +720,44 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
         </ModalBody>
 
         <ModalFooter>
-          <CancelButton onClick={handleCancel} disabled={isLoading}>
-            Cancel
-          </CancelButton>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between',
+            width: '100%'
+          }}>
+            <label style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.5rem',
+              fontSize: '0.875rem',
+              color: '#6b7280',
+              cursor: 'pointer'
+            }}>
+              <input
+                type="checkbox"
+                style={{
+                  margin: 0,
+                  cursor: 'pointer'
+                }}
+                onChange={(e) => {
+                  // Store the preference in localStorage
+                  if (e.target.checked) {
+                    localStorage.setItem('skip_startup_credentials_modal', 'true');
+                    console.log('✅ [CredentialSetupModal] User chose to skip startup credentials modal');
+                  } else {
+                    localStorage.removeItem('skip_startup_credentials_modal');
+                    console.log('🔄 [CredentialSetupModal] User will see startup credentials modal');
+                  }
+                }}
+              />
+              Do not show again
+            </label>
+            
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <CancelButton onClick={handleCancel} disabled={isLoading}>
+                Cancel
+              </CancelButton>
           <SaveButton 
             onClick={handleSubmit} 
             disabled={isLoading || (hasBeenSaved && !hasUnsavedChanges)}
@@ -735,6 +777,8 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
               'Save Configuration'
             )}
           </SaveButton>
+            </div>
+          </div>
         </ModalFooter>
       </ModalContent>
     </ModalOverlay>
