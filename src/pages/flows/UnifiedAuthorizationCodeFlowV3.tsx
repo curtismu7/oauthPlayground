@@ -859,30 +859,47 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         authMethod: authMethodInfo.level
       });
 
-      // Convert URLSearchParams to object for JSON transmission
-      const requestParams: Record<string, string> = {};
-      authenticatedRequest.body.forEach((value, key) => {
-        requestParams[key] = value;
-      });
-
+      // Use simplified request body format (like other working flows)
       const finalRequestBody = {
-        ...requestParams,
+        grant_type: 'authorization_code',
+        client_id: credentials.clientId,
+        client_secret: credentials.clientSecret,
+        code: authCode,
+        redirect_uri: redirectUri,
+        code_verifier: codeVerifier,
         environment_id: credentials.environmentId,
-        token_endpoint: tokenEndpoint
+        scope: flowType === 'oidc' ? 'openid profile email' : 'read write'
       };
 
-      console.log(`🔍 [${flowType.toUpperCase()}-V3] Final request body:`, {
-        requestParams,
-        environment_id: credentials.environmentId,
-        token_endpoint: tokenEndpoint,
-        finalRequestBody
+      console.log(`🔍 [${flowType.toUpperCase()}-V3] Simplified token exchange request:`, {
+        grant_type: finalRequestBody.grant_type,
+        client_id: finalRequestBody.client_id ? `${finalRequestBody.client_id.substring(0, 8)}...` : 'MISSING',
+        environment_id: finalRequestBody.environment_id || 'MISSING',
+        hasCode: !!finalRequestBody.code,
+        hasCodeVerifier: !!finalRequestBody.code_verifier,
+        hasClientSecret: !!finalRequestBody.client_secret,
+        redirect_uri: finalRequestBody.redirect_uri,
+        scope: finalRequestBody.scope
       });
+
+      // CRITICAL: Validate required parameters before sending
+      if (!finalRequestBody.client_id || finalRequestBody.client_id.trim() === '') {
+        throw new Error('Client ID is required for token exchange');
+      }
+      if (!finalRequestBody.environment_id || finalRequestBody.environment_id.trim() === '') {
+        throw new Error('Environment ID is required for token exchange');
+      }
+      if (!finalRequestBody.code || finalRequestBody.code.trim() === '') {
+        throw new Error('Authorization code is required for token exchange');
+      }
+      if (!finalRequestBody.code_verifier || finalRequestBody.code_verifier.trim() === '') {
+        throw new Error('Code verifier is required for PKCE token exchange');
+      }
 
       const response = await fetch('/api/token-exchange', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          ...authenticatedRequest.headers
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(finalRequestBody)
       });
