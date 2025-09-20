@@ -1765,8 +1765,20 @@ Original Error: ${errorData.error_description || errorData.error}
               const permanentCredentials = credentialManager.loadPermanentCredentials();
               console.log('🔍 [DEBUG] Loaded permanent credentials:', permanentCredentials);
               
-              // Show alert to confirm button click
-              alert('Debug credentials button clicked! Check console for details.');
+            // Show comprehensive redirect URI debugging
+            const debugInfo = {
+              currentUrl: window.location.href,
+              origin: window.location.origin,
+              expectedCallback: `${window.location.origin}/authz-callback`,
+              credentialsRedirectUri: credentials.redirectUri,
+              environmentId: credentials.environmentId,
+              clientId: credentials.clientId,
+              allLocalStorageKeys: Object.keys(localStorage),
+              allSessionStorageKeys: Object.keys(sessionStorage)
+            };
+            
+            console.log('🔍 [COMPREHENSIVE DEBUG] Full application state:', debugInfo);
+            alert(`Debug Info:\n\nCurrent URL: ${debugInfo.currentUrl}\nOrigin: ${debugInfo.origin}\nExpected Callback: ${debugInfo.expectedCallback}\nCredentials Redirect URI: ${debugInfo.credentialsRedirectUri}\n\nCheck console for full details.`);
             }}
             style={{ 
               backgroundColor: '#f59e0b', 
