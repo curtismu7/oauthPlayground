@@ -181,18 +181,32 @@ const AppRoutes = () => {
           savedCredsKeys: savedCreds ? Object.keys(JSON.parse(savedCreds)) : []
         });
 
-        // Only show modal if BOTH configuration and credentials are missing
-        if (!savedConfig && !savedCreds) {
+        // Check if user has chosen to skip startup credentials modal
+        const skipStartupModal = localStorage.getItem('skip_startup_credentials_modal') === 'true';
+        
+        // Only show modal if BOTH configuration and credentials are missing AND user hasn't chosen to skip
+        if (!savedConfig && !savedCreds && !skipStartupModal) {
           logger.warn('[AppLazy] No credentials found, showing setup modal');
           setShowCredentialModal(true);
         } else {
-          logger.info('[AppLazy] Credentials found, skipping setup modal');
+          if (skipStartupModal) {
+            logger.info('[AppLazy] Startup credentials modal skipped (user preference)');
+          } else {
+            logger.info('[AppLazy] Credentials found, skipping setup modal');
+          }
           setShowCredentialModal(false);
         }
       } catch (error) {
         logger.warn('[AppLazy] Error checking configuration:', error);
-        // Show modal on error to be safe
-        setShowCredentialModal(true);
+        // Check skip preference even on error
+        const skipStartupModal = localStorage.getItem('skip_startup_credentials_modal') === 'true';
+        if (!skipStartupModal) {
+          // Show modal on error to be safe (unless user chose to skip)
+          setShowCredentialModal(true);
+        } else {
+          logger.info('[AppLazy] Error occurred but startup modal skipped (user preference)');
+          setShowCredentialModal(false);
+        }
       }
     };
 
@@ -392,7 +406,12 @@ const AppRoutes = () => {
       <LazyRouteWrapper fallbackMessage="Loading credential setup...">
         <CredentialSetupModal
           isOpen={showCredentialModal}
-          onComplete={handleCredentialSetupComplete}
+          onClose={handleCredentialSetupComplete}
+          onSave={(creds) => {
+            console.log('✅ [AppLazy] Credentials saved from startup modal:', creds);
+            // The modal will auto-close after save
+          }}
+          flowType="startup"
         />
       </LazyRouteWrapper>
 
