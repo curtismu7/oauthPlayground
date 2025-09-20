@@ -199,7 +199,8 @@ export const createCredentialsStep = (
   credentials: StepCredentials,
   setCredentials: (creds: StepCredentials) => void,
   saveCredentials: () => Promise<void>,
-  flowType: string
+  flowType: string,
+  onClose?: () => void
 ): EnhancedFlowStep => ({
   id: 'setup-credentials',
   title: 'Setup OAuth Credentials',
@@ -257,6 +258,29 @@ export const createCredentialsStep = (
           placeholder="openid profile email"
         />
       </FormField>
+      
+      {onClose && (
+        <div style={{ marginTop: '1rem', textAlign: 'right' }}>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              padding: '0.5rem 1rem',
+              backgroundColor: '#6b7280',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.375rem',
+              cursor: 'pointer',
+              fontSize: '0.875rem',
+              fontWeight: '500'
+            }}
+            onMouseOver={(e) => e.target.style.backgroundColor = '#4b5563'}
+            onMouseOut={(e) => e.target.style.backgroundColor = '#6b7280'}
+          >
+            Close
+          </button>
+        </div>
+      )}
     </div>
   ),
   execute: async () => {
