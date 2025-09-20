@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { FiSettings, FiShield, FiGlobe, FiKey, FiUser, FiCheckCircle, FiCopy, FiRefreshCw, FiExternalLink, FiArrowLeft, FiAlertCircle, FiRotateCcw, FiInfo } from 'react-icons/fi';
+import { FiSettings, FiShield, FiGlobe, FiKey, FiUser, FiCheckCircle, FiCopy, FiRefreshCw, FiExternalLink, FiArrowLeft, FiAlertCircle, FiRotateCcw, FiInfo, FiEye, FiEyeOff } from 'react-icons/fi';
 import { EnhancedFlowStep } from '../EnhancedStepFlowV2';
 import { copyToClipboard } from '../../utils/clipboard';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
@@ -201,7 +201,9 @@ export const createCredentialsStep = (
   saveCredentials: () => Promise<void>,
   flowType: string,
   onClose?: () => void,
-  flowSpecificPrefix?: string
+  flowSpecificPrefix?: string,
+  showSecret?: boolean,
+  setShowSecret?: (show: boolean) => void
 ): EnhancedFlowStep => ({
   id: 'setup-credentials',
   title: 'Setup OAuth Credentials',
@@ -232,12 +234,38 @@ export const createCredentialsStep = (
       
       <FormField>
         <FormLabel>Client Secret</FormLabel>
-        <FormInput
-          type="password"
-          value={credentials.clientSecret}
-          onChange={(e) => setCredentials({ ...credentials, clientSecret: e.target.value })}
-          placeholder="Your client secret"
-        />
+        <div style={{ position: 'relative' }}>
+          <FormInput
+            type={showSecret ? "text" : "password"}
+            value={credentials.clientSecret}
+            onChange={(e) => setCredentials({ ...credentials, clientSecret: e.target.value })}
+            placeholder="Your client secret"
+            style={{ paddingRight: setShowSecret ? '2.5rem' : undefined }}
+          />
+          {setShowSecret && (
+            <button
+              type="button"
+              onClick={() => setShowSecret(!showSecret)}
+              style={{
+                position: 'absolute',
+                right: '0.5rem',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: '#6b7280',
+                padding: '0.25rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              title={showSecret ? 'Hide client secret' : 'Show client secret'}
+            >
+              {showSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+            </button>
+          )}
+        </div>
       </FormField>
       
       <FormField>
@@ -340,6 +368,7 @@ export const createCredentialsStep = (
     return canExec;
   })()
 });
+};
 
 /**
  * Create PKCE generation step - reusable for flows that support PKCE
