@@ -532,35 +532,6 @@ export const createAuthUrlStep = (
           onClose={() => setShowExplainer?.(false)}
         />
         
-        {authUrl && (onPopupAuth || onRedirectAuth) && (
-        <div style={{ marginTop: '1rem' }}>
-          <h4 style={{ marginBottom: '1rem' }}>🔐 Authorization Methods:</h4>
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            {onPopupAuth && (
-              <AuthButton 
-                onClick={onPopupAuth}
-                disabled={isAuthorizing}
-                style={{ backgroundColor: '#3b82f6' }}
-              >
-                <FiGlobe /> Popup Authorization
-              </AuthButton>
-            )}
-            {onRedirectAuth && (
-              <AuthButton 
-                onClick={onRedirectAuth}
-                disabled={isAuthorizing}
-                style={{ backgroundColor: '#10b981' }}
-              >
-                <FiRefreshCw /> Full Redirect
-              </AuthButton>
-            )}
-          </div>
-          <div style={{ marginTop: '0.5rem', fontSize: '0.85em', color: '#6b7280' }}>
-            <strong>Popup:</strong> Opens in new window, returns to this page automatically.<br/>
-            <strong>Redirect:</strong> Navigates away from this page, returns after authorization.
-          </div>
-        </div>
-      )}
     </div>
   ),
   execute: async () => {
