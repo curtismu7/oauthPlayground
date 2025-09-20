@@ -145,7 +145,7 @@ const InstructionsTitle = styled.h4`
   font-weight: 600;
 `;
 
-const InstructionsText = styled.p`
+const InstructionsText = styled.div`
   color: #78350f;
   margin: 0;
   font-size: 0.9rem;
