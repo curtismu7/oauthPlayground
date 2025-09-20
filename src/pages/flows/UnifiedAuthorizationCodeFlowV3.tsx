@@ -755,11 +755,16 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         ? `https://auth.pingone.com/${credentials.environmentId}/as/authorize`
         : credentials.issuerUrl ? `${credentials.issuerUrl.replace(/\/$/, '')}/as/authorize` : '';
 
-      console.log(`🔍 [${flowType.toUpperCase()}-V3] Authorization URL redirect URI:`, {
+      console.log(`🔍 [${flowType.toUpperCase()}-V3] COMPREHENSIVE REDIRECT URI DEBUG:`, {
         credentialsRedirectUri: credentials.redirectUri,
         willBeStoredAs: `${flowType}_v3_redirect_uri`,
         authEndpoint,
-        environmentId: credentials.environmentId
+        environmentId: credentials.environmentId,
+        currentUrl: window.location.href,
+        origin: window.location.origin,
+        expectedCallback: `${window.location.origin}/authz-callback`,
+        allSessionStorageKeys: Object.keys(sessionStorage).filter(key => key.includes('redirect')),
+        allLocalStorageKeys: Object.keys(localStorage).filter(key => key.includes('redirect') || key.includes('uri'))
       });
 
       const params = new URLSearchParams({
@@ -954,11 +959,20 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
       // CRITICAL: Use the EXACT same redirect URI that was used in authorization request
       const storedRedirectUri = sessionStorage.getItem(`${flowType}_v3_redirect_uri`) || credentials.redirectUri;
       
-      console.log(`🔍 [${flowType.toUpperCase()}-V3] Redirect URI validation:`, {
+      console.log(`🔍 [${flowType.toUpperCase()}-V3] COMPREHENSIVE REDIRECT URI DEBUG FOR TOKEN EXCHANGE:`, {
         credentialsRedirectUri: credentials.redirectUri,
         storedRedirectUri: storedRedirectUri,
         usingStoredValue: storedRedirectUri !== credentials.redirectUri,
-        sessionStorageKey: `${flowType}_v3_redirect_uri`
+        sessionStorageKey: `${flowType}_v3_redirect_uri`,
+        allRedirectKeys: Object.keys(sessionStorage).filter(key => key.includes('redirect')),
+        sessionValues: {
+          [`${flowType}_v3_redirect_uri`]: sessionStorage.getItem(`${flowType}_v3_redirect_uri`),
+          'oauth_redirect_uri': sessionStorage.getItem('oauth_redirect_uri'),
+          'oauth_redirect_uri_v3': sessionStorage.getItem('oauth_redirect_uri_v3')
+        },
+        currentUrl: window.location.href,
+        origin: window.location.origin,
+        expectedCallback: `${window.location.origin}/authz-callback`
       });
 
       const requestBody = {
@@ -1029,6 +1043,13 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         scope: finalRequestBody.scope
       });
 
+      // CRITICAL: Show user exactly what redirect URI should be configured in PingOne
+      console.log(`🚨 [${flowType.toUpperCase()}-V3] IMPORTANT - CONFIGURE THIS REDIRECT URI IN PINGONE:`);
+      console.log(`   Environment ID: ${finalRequestBody.environment_id}`);
+      console.log(`   Redirect URI: ${finalRequestBody.redirect_uri}`);
+      console.log(`   PingOne Console: https://console.pingone.com/index.html?env=${finalRequestBody.environment_id}`);
+      console.log(`   Path: Applications → Your App → Configuration → Redirect URIs → Add: ${finalRequestBody.redirect_uri}`);
+
       // CRITICAL: Validate required parameters before sending
       if (!finalRequestBody.client_id || finalRequestBody.client_id.trim() === '') {
         throw new Error('Client ID is required for token exchange');
@@ -1053,6 +1074,32 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        
+        // Special handling for redirect URI mismatch
+        if (errorData.error === 'invalid_grant' && errorData.error_description?.includes('redirect URI')) {
+          const helpfulError = `
+🚨 REDIRECT URI MISMATCH ERROR:
+
+The redirect URI in your token exchange request doesn't match what's configured in PingOne.
+
+Current Request:
+- Redirect URI: ${finalRequestBody.redirect_uri}
+- Environment ID: ${finalRequestBody.environment_id}
+
+SOLUTION: Add this redirect URI to your PingOne application:
+1. Go to: https://console.pingone.com/index.html?env=${finalRequestBody.environment_id}
+2. Navigate to: Applications → Your App → Configuration → Redirect URIs
+3. Add this exact URI: ${finalRequestBody.redirect_uri}
+4. Save your configuration
+
+Original Error: ${errorData.error_description || errorData.error}
+          `.trim();
+          
+          console.error('❌ [${flowType.toUpperCase()}-V3] Redirect URI mismatch error:', helpfulError);
+          showFlowError(helpfulError);
+          throw new Error(helpfulError);
+        }
+        
         throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
       }
 
