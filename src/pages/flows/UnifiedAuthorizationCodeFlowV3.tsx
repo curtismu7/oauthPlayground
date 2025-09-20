@@ -784,11 +784,19 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         allLocalStorageKeys: Object.keys(localStorage).filter(key => key.includes('redirect') || key.includes('uri'))
       });
 
+      const scopeToUse = credentials.scope || 'openid profile email';
+      console.log(`🔍 [${flowType.toUpperCase()}-V3] SCOPE DEBUG - Using scopes:`, {
+        credentialsScope: credentials.scope,
+        defaultScope: 'openid profile email',
+        finalScope: scopeToUse,
+        flowType: flowType
+      });
+
       const params = new URLSearchParams({
         client_id: credentials.clientId,
         response_type: credentials.responseType || 'code',
         redirect_uri: credentials.redirectUri,
-        scope: credentials.scope || 'openid profile email',
+        scope: scopeToUse,
         state: stateValue,
         code_challenge: pkceCodes.codeChallenge,
         code_challenge_method: pkceCodes.codeChallengeMethod
