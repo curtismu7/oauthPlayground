@@ -200,7 +200,8 @@ export const createCredentialsStep = (
   setCredentials: (creds: StepCredentials) => void,
   saveCredentials: () => Promise<void>,
   flowType: string,
-  onClose?: () => void
+  onClose?: () => void,
+  flowSpecificPrefix?: string
 ): EnhancedFlowStep => ({
   id: 'setup-credentials',
   title: 'Setup OAuth Credentials',
@@ -282,13 +283,14 @@ export const createCredentialsStep = (
                   cursor: 'pointer'
                 }}
                 onChange={(e) => {
-                  // Store the preference in localStorage
+                  // Store the preference in localStorage (flow-specific)
+                  const skipKey = flowSpecificPrefix ? `${flowSpecificPrefix}_skip_credentials_step` : 'skip_credentials_step';
                   if (e.target.checked) {
-                    localStorage.setItem('skip_credentials_step', 'true');
-                    console.log('✅ [CommonSteps] User chose to skip credentials step in future sessions');
+                    localStorage.setItem(skipKey, 'true');
+                    console.log(`✅ [CommonSteps] User chose to skip credentials step for ${flowSpecificPrefix || 'all flows'}`);
                   } else {
-                    localStorage.removeItem('skip_credentials_step');
-                    console.log('🔄 [CommonSteps] User will see credentials step in future sessions');
+                    localStorage.removeItem(skipKey);
+                    console.log(`🔄 [CommonSteps] User will see credentials step for ${flowSpecificPrefix || 'all flows'}`);
                   }
                 }}
               />
