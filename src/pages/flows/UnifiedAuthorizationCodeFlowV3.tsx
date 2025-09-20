@@ -151,7 +151,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
   // Use the new step management system
   const stepManager = useFlowStepManager({
     flowType: `${flowType}-authorization-code`,
-    persistKey: `${flowType}-authz-v3`,
+    persistKey: `${flowType}_v3_step_manager`,
     defaultStep: 0,
     enableAutoAdvance: true
   });
@@ -777,11 +777,13 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         willBeStoredAs: `${flowType}_v3_redirect_uri`,
         authEndpoint,
         environmentId: credentials.environmentId,
+        clientId: credentials.clientId,
         currentUrl: window.location.href,
         origin: window.location.origin,
         expectedCallback: `${window.location.origin}/authz-callback`,
         allSessionStorageKeys: Object.keys(sessionStorage).filter(key => key.includes('redirect')),
-        allLocalStorageKeys: Object.keys(localStorage).filter(key => key.includes('redirect') || key.includes('uri'))
+        allLocalStorageKeys: Object.keys(localStorage).filter(key => key.includes('redirect') || key.includes('uri')),
+        pingOneConfigRedirects: localStorage.getItem('pingone_config') ? JSON.parse(localStorage.getItem('pingone_config') || '{}') : null
       });
 
       const scopeToUse = credentials.scope || 'openid profile email';
@@ -853,13 +855,17 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
       const url = `${authEndpoint}?${params.toString()}`;
       setAuthUrl(url);
       
-      console.log(`🔍 [${flowType.toUpperCase()}-V3] Generated authorization URL:`, {
-        endpoint: authEndpoint,
-        clientId: `${credentials.clientId.substring(0, 8)}...`,
+      console.log(`🔍 [${flowType.toUpperCase()}-V3] FINAL AUTHORIZATION URL DEBUG:`, {
+        fullUrl: url,
+        authEndpoint: authEndpoint,
+        clientId: credentials.clientId,
         redirectUri: credentials.redirectUri,
-        scope: credentials.scope,
-        state: `${stateValue.substring(0, 8)}...`,
-        nonce: flowType === 'oidc' ? `${nonce.substring(0, 8)}...` : 'N/A'
+        scopes: scopeToUse,
+        state: stateValue,
+        codeChallenge: pkceCodes.codeChallenge,
+        environmentId: credentials.environmentId,
+        flowType: flowType,
+        allParams: Object.fromEntries(params.entries())
       });
 
       showFlowSuccess('Authorization URL generated successfully');
@@ -1350,6 +1356,22 @@ Original Error: ${errorData.error_description || errorData.error}
     console.log(`🔄 [${flowType.toUpperCase()}-V3] Reset flow initiated`);
     console.log(`🔍 [${flowType.toUpperCase()}-V3] Current step before reset:`, stepManager.currentStepIndex);
     
+    // Clear any shared step state that might be interfering
+    const sharedKeys = [
+      'oauth-authz-v3',
+      'oidc-authz-v3', 
+      'enhanced-authz-code-v2-step',
+      'oauth_v3_flow_steps',
+      'oidc_v3_flow_steps'
+    ];
+    
+    sharedKeys.forEach(key => {
+      localStorage.removeItem(key);
+      sessionStorage.removeItem(key);
+    });
+    
+    console.log(`🧹 [${flowType.toUpperCase()}-V3] Cleared shared step state keys:`, sharedKeys);
+    
     // Clear all state
     setPkceCodes({ codeVerifier: '', codeChallenge: '', codeChallengeMethod: 'S256' });
     setAuthUrl('');
@@ -1706,7 +1728,7 @@ Original Error: ${errorData.error_description || errorData.error}
         <EnhancedStepFlowV2 
           steps={steps}
           title={flowTitle}
-          persistKey={`${flowType}-authz-v3`}
+          persistKey={`${flowType}_v3_flow_steps`}
           initialStepIndex={stepManager.currentStepIndex}
           onStepChange={stepManager.setStep}
           autoAdvance={false}
