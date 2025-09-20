@@ -33,6 +33,7 @@ import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
 import ContextualHelp from '../../components/ContextualHelp';
 import ConfigurationStatus from '../../components/ConfigurationStatus';
 import { useAuth } from '../../contexts/NewAuthContext';
+import ColorCodedURL from '../../components/ColorCodedURL';
 import '../../styles/enhanced-flow.css';
 
 // Styled Components for Enhanced UI
@@ -1550,14 +1551,9 @@ const AuthorizationCodeFlow: React.FC = () => {
                 border: authUrl ? '1px solid #22c55e' : '1px solid #0ea5e9', 
                 borderRadius: '0.5rem' 
               }}>
-                <code style={{ 
-                  flex: 1, 
-                  fontSize: '0.875rem', 
-                  color: authUrl ? '#15803d' : '#0c4a6e', 
-                  wordBreak: 'break-all' 
-                }}>
-                  {authUrl}
-                </code>
+                <div style={{ flex: 1 }}>
+                  <ColorCodedURL url={authUrl} showInfoButton={false} />
+                </div>
                 <CopyButton onClick={() => copyToClipboard(authUrl)}>
                   {copiedText === authUrl ? <FiCheckCircle /> : <FiCopy />}
                 </CopyButton>
