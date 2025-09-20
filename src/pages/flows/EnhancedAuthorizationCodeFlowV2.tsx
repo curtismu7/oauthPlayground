@@ -1069,74 +1069,154 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         // Debug localStorage contents
         credentialManager.debugLocalStorage();
         
-        // PRIMARY: Load from authz flow credentials (dedicated storage for this flow)
-        let allCredentials = credentialManager.loadAuthzFlowCredentials();
-        console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Loading authz flow credentials:', allCredentials);
+        console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Starting credential loading process...');
         
-        // FALLBACK: Only if authz flow credentials are completely blank, try permanent credentials
-        if (!allCredentials || (!allCredentials.clientId && !allCredentials.environmentId)) {
-          console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Authz flow credentials are blank, falling back to permanent credentials');
-          allCredentials = credentialManager.loadPermanentCredentials();
-          console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Loading permanent credentials (fallback):', allCredentials);
+        // COMPREHENSIVE FALLBACK CHAIN:
+        let allCredentials = null;
+        let source = 'none';
+        
+        // 1. Try authz flow credentials (dedicated storage for this flow)
+        console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Step 1: Checking authz flow credentials...');
+        allCredentials = credentialManager.loadAuthzFlowCredentials();
+        if (allCredentials?.clientId && allCredentials?.environmentId) {
+          source = 'authz-flow';
+          console.log('✅ [EnhancedAuthorizationCodeFlowV2] Found valid authz flow credentials');
+        } else {
+          console.log('⚠️ [EnhancedAuthorizationCodeFlowV2] Authz flow credentials incomplete or missing');
+          
+          // 2. Try configuration credentials (from Configuration page)
+          console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Step 2: Checking configuration credentials...');
+          const configCredentials = credentialManager.loadConfigCredentials();
+          if (configCredentials?.clientId && configCredentials?.environmentId) {
+            allCredentials = configCredentials;
+            source = 'config-page';
+            console.log('✅ [EnhancedAuthorizationCodeFlowV2] Found valid configuration credentials');
+          } else {
+            console.log('⚠️ [EnhancedAuthorizationCodeFlowV2] Configuration credentials incomplete or missing');
+            
+            // 3. Try permanent credentials
+            console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Step 3: Checking permanent credentials...');
+            const permanentCredentials = credentialManager.loadPermanentCredentials();
+            if (permanentCredentials?.clientId && permanentCredentials?.environmentId) {
+              allCredentials = permanentCredentials;
+              source = 'permanent';
+              console.log('✅ [EnhancedAuthorizationCodeFlowV2] Found valid permanent credentials');
+            } else {
+              console.log('⚠️ [EnhancedAuthorizationCodeFlowV2] Permanent credentials incomplete or missing');
+              
+              // 4. Try legacy pingone_config
+              console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Step 4: Checking legacy pingone_config...');
+              const pingoneConfig = localStorage.getItem('pingone_config');
+              if (pingoneConfig) {
+                try {
+                  const parsedConfig = JSON.parse(pingoneConfig);
+                  if (parsedConfig?.clientId && parsedConfig?.environmentId) {
+                    allCredentials = {
+                      environmentId: parsedConfig.environmentId,
+                      clientId: parsedConfig.clientId,
+                      clientSecret: parsedConfig.clientSecret || '',
+                      redirectUri: parsedConfig.redirectUri || window.location.origin + '/authz-callback',
+                      scopes: parsedConfig.scopes || ['openid', 'profile', 'email'],
+                      authEndpoint: parsedConfig.authEndpoint,
+                      tokenEndpoint: parsedConfig.tokenEndpoint,
+                      userInfoEndpoint: parsedConfig.userInfoEndpoint,
+                      endSessionEndpoint: parsedConfig.endSessionEndpoint
+                    };
+                    source = 'legacy-pingone-config';
+                    console.log('✅ [EnhancedAuthorizationCodeFlowV2] Found valid legacy pingone_config credentials');
+                  }
+                } catch (error) {
+                  console.warn('⚠️ [EnhancedAuthorizationCodeFlowV2] Failed to parse legacy pingone_config:', error);
+                }
+              }
+              
+              // 5. Try legacy login_credentials
+              if (!allCredentials || (!allCredentials.clientId && !allCredentials.environmentId)) {
+                console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Step 5: Checking legacy login_credentials...');
+                const loginCredentials = localStorage.getItem('login_credentials');
+                if (loginCredentials) {
+                  try {
+                    const parsedLoginCreds = JSON.parse(loginCredentials);
+                    if (parsedLoginCreds?.clientId && parsedLoginCreds?.environmentId) {
+                      allCredentials = {
+                        environmentId: parsedLoginCreds.environmentId,
+                        clientId: parsedLoginCreds.clientId,
+                        clientSecret: parsedLoginCreds.clientSecret || '',
+                        redirectUri: parsedLoginCreds.redirectUri || window.location.origin + '/authz-callback',
+                        scopes: parsedLoginCreds.scopes || ['openid', 'profile', 'email'],
+                        authEndpoint: parsedLoginCreds.authEndpoint,
+                        tokenEndpoint: parsedLoginCreds.tokenEndpoint,
+                        userInfoEndpoint: parsedLoginCreds.userInfoEndpoint,
+                        endSessionEndpoint: parsedLoginCreds.endSessionEndpoint
+                      };
+                      source = 'legacy-login-credentials';
+                      console.log('✅ [EnhancedAuthorizationCodeFlowV2] Found valid legacy login_credentials');
+                    }
+                  } catch (error) {
+                    console.warn('⚠️ [EnhancedAuthorizationCodeFlowV2] Failed to parse legacy login_credentials:', error);
+                  }
+                }
+              }
+            }
+          }
         }
         
         // Debug what we found
         console.log('🔍 [EnhancedAuthorizationCodeFlowV2] Final credentials to load:', {
-          hasCredentials: !!allCredentials,
+          hasCredentials: !!(allCredentials?.clientId && allCredentials?.environmentId),
           environmentId: allCredentials?.environmentId ? `${allCredentials.environmentId.substring(0, 8)}...` : 'none',
           clientId: allCredentials?.clientId ? `${allCredentials.clientId.substring(0, 8)}...` : 'none',
           redirectUri: allCredentials?.redirectUri || 'none',
           hasClientSecret: !!allCredentials?.clientSecret,
-          source: allCredentials?.clientSecret ? 'authz-flow' : 'permanent-fallback'
+          source: source
         });
         
-        // Check for test values and clear them (only if BOTH are test values AND no other valid config exists)
-        if (allCredentials.clientId === 'test-client-123' && allCredentials.environmentId === 'test-env-123') {
-          console.log('🧹 [EnhancedAuthorizationCodeFlowV2] Found test values, checking if we should clear...');
-          
-          // Check if there are any other valid credentials in localStorage
-          const pingoneConfig = localStorage.getItem('pingone_config');
-          const loginCredentials = localStorage.getItem('login_credentials');
-          
-          if (!pingoneConfig && !loginCredentials) {
-            console.log('🧹 [EnhancedAuthorizationCodeFlowV2] No other credentials found, clearing test values');
-            credentialManager.clearAllCredentials();
-            console.log('✅ [EnhancedAuthorizationCodeFlowV2] Test credentials cleared');
-            return;
-          } else {
-            console.log('⚠️ [EnhancedAuthorizationCodeFlowV2] Other credentials exist, keeping test values for now');
-          }
+        // Check for test values and clear them ONLY if no valid credentials exist anywhere
+        if (allCredentials?.clientId === 'test-client-123' && allCredentials?.environmentId === 'test-env-123') {
+          console.log('🧹 [EnhancedAuthorizationCodeFlowV2] Found test values - this indicates no real credentials are configured');
+          // Don't clear test values automatically, just log the issue
+          console.log('⚠️ [EnhancedAuthorizationCodeFlowV2] Test values detected - please configure real credentials');
         }
         
-        // Check if we have any credentials
-        const hasCredentials = allCredentials.environmentId || allCredentials.clientId;
+        // Check if we have any valid credentials
+        const hasValidCredentials = allCredentials?.environmentId && allCredentials?.clientId && 
+                                   allCredentials.clientId !== 'test-client-123' && 
+                                   allCredentials.environmentId !== 'test-env-123';
         
-        if (!hasCredentials) {
-          console.log('⚠️ [EnhancedAuthorizationCodeFlowV2] No credentials found, loading from environment variables...');
+        if (!hasValidCredentials) {
+          console.log('⚠️ [EnhancedAuthorizationCodeFlowV2] No valid credentials found, trying environment variables...');
           try {
             const response = await fetch('/api/env-config');
             if (response.ok) {
               const envConfig = await response.json();
               console.log('✅ [EnhancedAuthorizationCodeFlowV2] Loaded from environment config:', envConfig);
               
-              setCredentials(prev => ({ 
-                ...prev, 
-                environmentId: envConfig.environmentId || '',
-                clientId: envConfig.clientId || '',
-                clientSecret: envConfig.clientSecret || '',
-                redirectUri: envConfig.redirectUri || window.location.origin + '/authz-callback',
-                authorizationEndpoint: envConfig.authEndpoint || `${envConfig.apiUrl}/${envConfig.environmentId}/as/authorize`,
-                tokenEndpoint: envConfig.tokenEndpoint || `${envConfig.apiUrl}/${envConfig.environmentId}/as/token`,
-                userInfoEndpoint: envConfig.userInfoEndpoint || `${envConfig.apiUrl}/${envConfig.environmentId}/as/userinfo`,
-                scopes: Array.isArray(envConfig.scopes) ? envConfig.scopes.join(' ') : (envConfig.scopes || 'openid profile email')
-              }));
-              
-              console.log('✅ [EnhancedAuthorizationCodeFlowV2] Credentials loaded from environment variables');
-              return;
+              if (envConfig.environmentId && envConfig.clientId) {
+                setCredentials(prev => ({ 
+                  ...prev, 
+                  environmentId: envConfig.environmentId || '',
+                  clientId: envConfig.clientId || '',
+                  clientSecret: envConfig.clientSecret || '',
+                  redirectUri: envConfig.redirectUri || window.location.origin + '/authz-callback',
+                  authorizationEndpoint: envConfig.authEndpoint || `${envConfig.apiUrl}/${envConfig.environmentId}/as/authorize`,
+                  tokenEndpoint: envConfig.tokenEndpoint || `${envConfig.apiUrl}/${envConfig.environmentId}/as/token`,
+                  userInfoEndpoint: envConfig.userInfoEndpoint || `${envConfig.apiUrl}/${envConfig.environmentId}/as/userinfo`,
+                  scopes: Array.isArray(envConfig.scopes) ? envConfig.scopes.join(' ') : (envConfig.scopes || 'openid profile email')
+                }));
+                
+                console.log('✅ [EnhancedAuthorizationCodeFlowV2] Credentials loaded from environment variables');
+                setCredentialsLoaded(true);
+                return;
+              }
             }
           } catch (envError) {
             console.warn('⚠️ [EnhancedAuthorizationCodeFlowV2] Failed to load from environment variables:', envError);
           }
+          
+          // No valid credentials found anywhere
+          console.log('❌ [EnhancedAuthorizationCodeFlowV2] No valid credentials found in any storage location');
+          setCredentialsLoaded(true);
+          return;
         }
         
         setCredentials(prev => ({ 
@@ -1151,11 +1231,38 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           scopes: Array.isArray(allCredentials.scopes) ? allCredentials.scopes.join(' ') : (allCredentials.scopes || 'openid profile email')
         }));
         
+        // If credentials were loaded from legacy storage, save them to the preferred authz flow storage
+        if (source === 'legacy-pingone-config' || source === 'legacy-login-credentials' || source === 'config-page' || source === 'permanent') {
+          console.log(`🔄 [EnhancedAuthorizationCodeFlowV2] Migrating credentials from ${source} to authz flow storage...`);
+          try {
+            const migrationSuccess = credentialManager.saveAuthzFlowCredentials({
+              environmentId: allCredentials.environmentId,
+              clientId: allCredentials.clientId,
+              clientSecret: allCredentials.clientSecret,
+              redirectUri: allCredentials.redirectUri,
+              scopes: allCredentials.scopes,
+              authEndpoint: allCredentials.authEndpoint,
+              tokenEndpoint: allCredentials.tokenEndpoint,
+              userInfoEndpoint: allCredentials.userInfoEndpoint,
+              endSessionEndpoint: allCredentials.endSessionEndpoint
+            });
+            
+            if (migrationSuccess) {
+              console.log('✅ [EnhancedAuthorizationCodeFlowV2] Credentials successfully migrated to authz flow storage');
+            } else {
+              console.warn('⚠️ [EnhancedAuthorizationCodeFlowV2] Failed to migrate credentials to authz flow storage');
+            }
+          } catch (migrationError) {
+            console.error('❌ [EnhancedAuthorizationCodeFlowV2] Error during credential migration:', migrationError);
+          }
+        }
+        
         console.log('✅ [EnhancedAuthorizationCodeFlowV2] Credentials loaded successfully:', {
           environmentId: allCredentials.environmentId ? `${allCredentials.environmentId.substring(0, 8)}...` : 'none',
           clientId: allCredentials.clientId ? `${allCredentials.clientId.substring(0, 8)}...` : 'none',
           redirectUri: allCredentials.redirectUri || 'none',
-          hasClientSecret: !!allCredentials.clientSecret
+          hasClientSecret: !!allCredentials.clientSecret,
+          source: source
         });
         
         // Mark credentials as loaded
@@ -1173,6 +1280,35 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       console.error('❌ [EnhancedAuthorizationCodeFlowV2] Failed to load credentials:', error);
     });
     console.log('🧹 [EnhancedAuthorizationCodeFlowV2] Cleared all flow states and loaded credentials on mount');
+    
+    // Listen for credential changes from other parts of the application
+    const handleCredentialChange = () => {
+      console.log('🔄 [EnhancedAuthorizationCodeFlowV2] Detected credential change, reloading...');
+      setTimeout(() => {
+        try {
+          loadCredentials().then(() => {
+            console.log('✅ [EnhancedAuthorizationCodeFlowV2] Credentials reloaded after change');
+          }).catch((error) => {
+            console.error('❌ [EnhancedAuthorizationCodeFlowV2] Failed to reload credentials after change:', error);
+          });
+        } catch (error) {
+          console.error('❌ [EnhancedAuthorizationCodeFlowV2] Failed to reload credentials after change:', error);
+        }
+      }, 100); // Small delay to allow storage to settle
+    };
+    
+    // Listen for various credential change events
+    window.addEventListener('permanent-credentials-changed', handleCredentialChange);
+    window.addEventListener('config-credentials-changed', handleCredentialChange);
+    window.addEventListener('authz-credentials-changed', handleCredentialChange);
+    window.addEventListener('storage', handleCredentialChange); // For localStorage changes from other tabs
+    
+    return () => {
+      window.removeEventListener('permanent-credentials-changed', handleCredentialChange);
+      window.removeEventListener('config-credentials-changed', handleCredentialChange);
+      window.removeEventListener('authz-credentials-changed', handleCredentialChange);
+      window.removeEventListener('storage', handleCredentialChange);
+    };
   }, []);
 
   // Initialize step index based on URL parameters and stored step
