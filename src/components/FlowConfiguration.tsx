@@ -348,6 +348,7 @@ export interface FlowConfig {
   showAuthCodeInModal: boolean;
   showCredentialsModal: boolean;
   enableErrorRecovery: boolean;
+  showAuthRequestModal: boolean;
 }
 
 interface FlowConfigurationProps {
@@ -891,6 +892,21 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
                 Display the raw authorization code in the success modal (disable for production security)
               </div>
             </ConfigField>
+            
+            <ConfigField>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={config.showAuthRequestModal || false}
+                  onChange={(e) => updateConfig({ showAuthRequestModal: e.target.checked })}
+                  aria-describedby="auth-request-modal-help"
+                />
+                Show OAuth Authorization Request Modal
+              </label>
+              <div id="auth-request-modal-help" style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                Display a debugging modal showing all OAuth parameters before redirecting to PingOne (useful for debugging redirect URI issues)
+              </div>
+            </ConfigField>
           </ConfigSection>
 
           {/* Configuration Summary */}
@@ -983,7 +999,8 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
                 {config.showAuthCodeInModal && ' • Auth Code in Modal'}
                 {config.showCredentialsModal && ' • Credentials Modal'}
                 {config.enableErrorRecovery && ' • Error Recovery'}
-                {!config.showSuccessModal && !config.showAuthCodeInModal && !config.showCredentialsModal && !config.enableErrorRecovery && ' None enabled'}
+                {config.showAuthRequestModal && ' • Auth Request Modal'}
+                {!config.showSuccessModal && !config.showAuthCodeInModal && !config.showCredentialsModal && !config.enableErrorRecovery && !config.showAuthRequestModal && ' None enabled'}
               </div>
             </div>
           </ConfigSection>
