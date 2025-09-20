@@ -317,6 +317,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
     // Return default configuration
     const defaultConfig = getDefaultConfig(flowType === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code');
     console.log(`🔧 [${flowType.toUpperCase()}-V3] Using default flow configuration:`, defaultConfig);
+    console.log(`🔍 [${flowType.toUpperCase()}-V3] Default showAuthRequestModal:`, defaultConfig.showAuthRequestModal);
     return defaultConfig;
   });
   const [showExplainer, setShowExplainer] = useState(false);
@@ -850,15 +851,22 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
   const handlePopupAuthorizationWithModal = useCallback(() => {
     if (!authUrl) return;
     
+    console.log(`🔍 [${flowType.toUpperCase()}-V3] Modal setting check:`, {
+      showAuthRequestModal: flowConfig.showAuthRequestModal,
+      flowConfig: flowConfig
+    });
+    
     // Show modal first if enabled
     if (flowConfig.showAuthRequestModal) {
+      console.log(`🔍 [${flowType.toUpperCase()}-V3] Showing OAuth Authorization Request Modal`);
       setShowAuthRequestModal(true);
       return;
     }
     
+    console.log(`🔍 [${flowType.toUpperCase()}-V3] Modal disabled, proceeding directly with authorization`);
     // Otherwise proceed directly
     handlePopupAuthorizationDirect();
-  }, [authUrl, flowConfig.showAuthRequestModal]);
+  }, [authUrl, flowConfig.showAuthRequestModal, flowType]);
 
   // Direct popup authorization (without modal)
   const handlePopupAuthorizationDirect = useCallback(() => {
@@ -930,15 +938,22 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
   const handleFullRedirectAuthorizationWithModal = useCallback(() => {
     if (!authUrl) return;
     
+    console.log(`🔍 [${flowType.toUpperCase()}-V3] Full redirect modal setting check:`, {
+      showAuthRequestModal: flowConfig.showAuthRequestModal,
+      flowConfig: flowConfig
+    });
+    
     // Show modal first if enabled
     if (flowConfig.showAuthRequestModal) {
+      console.log(`🔍 [${flowType.toUpperCase()}-V3] Showing OAuth Authorization Request Modal for redirect`);
       setShowAuthRequestModal(true);
       return;
     }
     
+    console.log(`🔍 [${flowType.toUpperCase()}-V3] Modal disabled, proceeding directly with full redirect`);
     // Otherwise proceed directly
     handleFullRedirectAuthorizationDirect();
-  }, [authUrl, flowConfig.showAuthRequestModal]);
+  }, [authUrl, flowConfig.showAuthRequestModal, flowType]);
 
   // Direct full redirect authorization (without modal)
   const handleFullRedirectAuthorizationDirect = useCallback(() => {
