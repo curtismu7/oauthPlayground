@@ -686,8 +686,8 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         
         // Auto-advance to token exchange step 
         if (stepManager.isInitialized) {
-          // Check if credentials step is skipped to determine correct index
-          const skipCredentialsStep = localStorage.getItem('skip_credentials_step') === 'true';
+          // Check if credentials step is skipped to determine correct index (flow-specific)
+          const skipCredentialsStep = localStorage.getItem(`${flowType}_v3_skip_credentials_step`) === 'true';
           const tokenExchangeStepIndex = skipCredentialsStep ? 3 : 4; // Adjust based on whether credentials step is present
           
           stepManager.setStep(tokenExchangeStepIndex, 'callback completed');
@@ -745,8 +745,8 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
       sessionStorage.setItem(`${flowType}_v3_nonce`, nonce);
       sessionStorage.setItem(`${flowType}_v3_redirect_uri`, credentials.redirectUri);
       
-      // Store flow context for callback handling
-      sessionStorage.setItem('flowContext', JSON.stringify({
+      // Store flow context for callback handling (flow-specific)
+      sessionStorage.setItem(`${flowType}_v3_flowContext`, JSON.stringify({
         flow: `${flowType}-authorization-code-v3`,
         redirectUri: credentials.redirectUri
       }));
@@ -850,8 +850,8 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
     
     setIsAuthorizing(true);
     
-    // Store flow context for popup callback handling
-    sessionStorage.setItem('flowContext', JSON.stringify({
+    // Store flow context for popup callback handling (flow-specific)
+    sessionStorage.setItem(`${flowType}_v3_flowContext`, JSON.stringify({
       flow: `${flowType}-authorization-code-v3`,
       redirectUri: credentials.redirectUri
     }));
@@ -914,8 +914,8 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
   const handleFullRedirectAuthorization = useCallback(() => {
     if (!authUrl) return;
     
-    // Store flow context for redirect callback handling
-    sessionStorage.setItem('flowContext', JSON.stringify({
+    // Store flow context for redirect callback handling (flow-specific)
+    sessionStorage.setItem(`${flowType}_v3_flowContext`, JSON.stringify({
       flow: `${flowType}-authorization-code-v3`,
       redirectUri: credentials.redirectUri
     }));
@@ -967,8 +967,9 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         allRedirectKeys: Object.keys(sessionStorage).filter(key => key.includes('redirect')),
         sessionValues: {
           [`${flowType}_v3_redirect_uri`]: sessionStorage.getItem(`${flowType}_v3_redirect_uri`),
-          'oauth_redirect_uri': sessionStorage.getItem('oauth_redirect_uri'),
-          'oauth_redirect_uri_v3': sessionStorage.getItem('oauth_redirect_uri_v3')
+          [`${flowType}_v3_state`]: sessionStorage.getItem(`${flowType}_v3_state`),
+          [`${flowType}_v3_nonce`]: sessionStorage.getItem(`${flowType}_v3_nonce`),
+          [`${flowType}_v3_code_verifier`]: sessionStorage.getItem(`${flowType}_v3_code_verifier`)
         },
         currentUrl: window.location.href,
         origin: window.location.origin,
@@ -1292,7 +1293,7 @@ Original Error: ${errorData.error_description || errorData.error}
     sessionStorage.removeItem(`${flowType}_v3_refresh_token`);
     sessionStorage.removeItem(`${flowType}_v3_id_token`);
     sessionStorage.removeItem(`${flowType}_v3_step_results`);
-    sessionStorage.removeItem('flowContext');
+    sessionStorage.removeItem(`${flowType}_v3_flowContext`);
     
     console.log(`🔍 [${flowType.toUpperCase()}-V3] Cleared session storage, resetting to step 0`);
     
@@ -1335,15 +1336,15 @@ Original Error: ${errorData.error_description || errorData.error}
 
   // Create steps based on flow type
   const steps = React.useMemo(() => {
-    // Check if user has chosen to skip credentials step
-    const skipCredentialsStep = localStorage.getItem('skip_credentials_step') === 'true';
+    // Check if user has chosen to skip credentials step (flow-specific)
+    const skipCredentialsStep = localStorage.getItem(`${flowType}_v3_skip_credentials_step`) === 'true';
     
     if (skipCredentialsStep) {
       console.log('⏭️ [UnifiedAuthorizationCodeFlowV3] Skipping credentials step (user preference)');
     }
     
     const credentialsStep = {
-      ...createCredentialsStep(credentials, setCredentials, saveCredentials, `${flowType.toUpperCase()} Authorization Code Flow`, handleCloseCredentials),
+        ...createCredentialsStep(credentials, setCredentials, saveCredentials, `${flowType.toUpperCase()} Authorization Code Flow`, handleCloseCredentials, `${flowType}_v3`),
       canExecute: Boolean(
         credentials.environmentId &&
         credentials.clientId &&
@@ -1586,7 +1587,7 @@ Original Error: ${errorData.error_description || errorData.error}
         />
         
         {/* Show credentials step reset option if user has hidden it */}
-        {localStorage.getItem('skip_credentials_step') === 'true' && (
+        {localStorage.getItem(`${flowType}_v3_skip_credentials_step`) === 'true' && (
           <div style={{
             marginTop: '1rem',
             padding: '0.75rem',
@@ -1601,8 +1602,8 @@ Original Error: ${errorData.error_description || errorData.error}
               </span>
               <button
                 onClick={() => {
-                  localStorage.removeItem('skip_credentials_step');
-                  console.log('🔄 [UnifiedAuthorizationCodeFlowV3] Reset credentials step preference');
+                  localStorage.removeItem(`${flowType}_v3_skip_credentials_step`);
+                  console.log(`🔄 [${flowType.toUpperCase()}-V3] Reset credentials step preference`);
                   window.location.reload(); // Refresh to show the step
                 }}
                 style={{
