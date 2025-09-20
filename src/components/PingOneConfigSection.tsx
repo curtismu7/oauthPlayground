@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FiChevronDown, FiChevronRight, FiCopy, FiCheck, FiExternalLink } from 'react-icons/fi';
 import styled from 'styled-components';
 import { copyToClipboard } from '../utils/clipboard';
+import { credentialManager } from '../utils/credentialManager';
 
 const Container = styled.div`
   background: #fef3c7;
@@ -166,6 +167,17 @@ const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
+  
+  // Check if we have a valid Environment ID for the console button
+  const credentials = credentialManager.getAllCredentials();
+  const hasValidEnvironmentId = credentials.environmentId && 
+                                credentials.environmentId.trim() !== '' && 
+                                credentials.environmentId !== 'test-env-123';
+  
+  console.log('🔍 [PingOneConfigSection] Environment ID check:', {
+    environmentId: credentials.environmentId,
+    hasValidEnvironmentId: hasValidEnvironmentId
+  });
 
   // Only show on specified step (default: step 1)
   const shouldShow = showOnlyOnStep === undefined || currentStep === showOnlyOnStep;
@@ -185,7 +197,19 @@ const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
   };
 
   const handleOpenInNewTab = () => {
-    window.open('https://console.pingidentity.com', '_blank', 'noopener,noreferrer');
+    // Don't proceed if no valid Environment ID
+    if (!hasValidEnvironmentId) {
+      console.log('❌ [PingOneConfigSection] Console button clicked but no valid Environment ID available');
+      return;
+    }
+    
+    // Create proper PingOne console URL with Environment ID
+    const consoleUrl = `https://console.pingone.com/index.html?env=${credentials.environmentId}`;
+    console.log('🌐 [PingOneConfigSection] Opening PingOne console with Environment ID:', {
+      environmentId: credentials.environmentId,
+      consoleUrl: consoleUrl
+    });
+    window.open(consoleUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -212,9 +236,21 @@ const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
                 {copied ? <FiCheck /> : <FiCopy />}
                 {copied ? 'Copied!' : 'Copy'}
               </ActionButton>
-              <ActionButton $variant="external" onClick={handleOpenInNewTab}>
+              <ActionButton 
+                $variant="external" 
+                onClick={handleOpenInNewTab}
+                disabled={!hasValidEnvironmentId}
+                title={hasValidEnvironmentId ? 
+                  `Open PingOne console for environment: ${credentials.environmentId}` : 
+                  'Environment ID required to open PingOne console'
+                }
+                style={{
+                  opacity: hasValidEnvironmentId ? 1 : 0.5,
+                  cursor: hasValidEnvironmentId ? 'pointer' : 'not-allowed'
+                }}
+              >
                 <FiExternalLink />
-                PingOne Console
+                {hasValidEnvironmentId ? 'PingOne Console' : 'Console (No Env ID)'}
               </ActionButton>
             </ActionButtons>
           </UrlContainer>
