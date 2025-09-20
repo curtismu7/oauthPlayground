@@ -260,25 +260,59 @@ export const createCredentialsStep = (
       </FormField>
       
       {onClose && (
-        <div style={{ marginTop: '1rem', textAlign: 'right' }}>
-          <button
-            type="button"
-            onClick={onClose}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: '#6b7280',
-              color: 'white',
-              border: 'none',
-              borderRadius: '0.375rem',
-              cursor: 'pointer',
+        <div style={{ marginTop: '1rem' }}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between',
+            gap: '1rem' 
+          }}>
+            <label style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.5rem',
               fontSize: '0.875rem',
-              fontWeight: '500'
-            }}
-            onMouseOver={(e) => e.target.style.backgroundColor = '#4b5563'}
-            onMouseOut={(e) => e.target.style.backgroundColor = '#6b7280'}
-          >
-            Close
-          </button>
+              color: '#6b7280',
+              cursor: 'pointer'
+            }}>
+              <input
+                type="checkbox"
+                style={{
+                  margin: 0,
+                  cursor: 'pointer'
+                }}
+                onChange={(e) => {
+                  // Store the preference in localStorage
+                  if (e.target.checked) {
+                    localStorage.setItem('skip_credentials_step', 'true');
+                    console.log('✅ [CommonSteps] User chose to skip credentials step in future sessions');
+                  } else {
+                    localStorage.removeItem('skip_credentials_step');
+                    console.log('🔄 [CommonSteps] User will see credentials step in future sessions');
+                  }
+                }}
+              />
+              Do not show again
+            </label>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: '#6b7280',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.375rem',
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: '500'
+              }}
+              onMouseOver={(e) => e.target.style.backgroundColor = '#4b5563'}
+              onMouseOut={(e) => e.target.style.backgroundColor = '#6b7280'}
+            >
+              Close
+            </button>
+          </div>
         </div>
       )}
     </div>
