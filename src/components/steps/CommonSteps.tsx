@@ -818,14 +818,14 @@ export const createUserAuthorizationStep = (
             🔒 Authorization Methods:
           </div>
           
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
             {onPopupAuth && (
               <ActionButton 
                 onClick={onPopupAuth}
-                disabled={!authUrl || isAuthorizing}
+                disabled={!authUrl || isAuthorizing || Boolean(authCode)}
                 style={{
                   backgroundColor: '#3b82f6',
-                  opacity: (!authUrl || isAuthorizing) ? 0.5 : 1,
+                  opacity: (!authUrl || isAuthorizing || Boolean(authCode)) ? 0.5 : 1,
                   padding: '0.75rem 1.5rem',
                   borderRadius: '8px',
                   fontSize: '0.95rem',
@@ -838,10 +838,10 @@ export const createUserAuthorizationStep = (
             {onRedirectAuth && (
               <ActionButton 
                 onClick={onRedirectAuth}
-                disabled={!authUrl || isAuthorizing}
+                disabled={!authUrl || isAuthorizing || Boolean(authCode)}
                 style={{
                   backgroundColor: '#10b981',
-                  opacity: (!authUrl || isAuthorizing) ? 0.5 : 1,
+                  opacity: (!authUrl || isAuthorizing || Boolean(authCode)) ? 0.5 : 1,
                   padding: '0.75rem 1.5rem',
                   borderRadius: '8px',
                   fontSize: '0.95rem',
@@ -849,6 +849,26 @@ export const createUserAuthorizationStep = (
                 }}
               >
                 🔄 Full Redirect
+              </ActionButton>
+            )}
+            
+            {/* Next button - only show when authenticated */}
+            {authCode && (
+              <ActionButton 
+                onClick={() => {
+                  // This will be handled by the step flow manager
+                  const event = new CustomEvent('step:next');
+                  window.dispatchEvent(event);
+                }}
+                style={{
+                  backgroundColor: '#10b981',
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '8px',
+                  fontSize: '0.95rem',
+                  fontWeight: '500'
+                }}
+              >
+                Next &gt;
               </ActionButton>
             )}
           </div>
