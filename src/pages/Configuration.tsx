@@ -214,7 +214,6 @@ const Configuration = () => {
     useGlobalConfig: false,
     showCredentialsModal: false,
     showSuccessModal: true,
-    showUrlDetailsInStep4: true,
   });
   
   const [errors, setErrors] = useState<Record<string, string | null>>({});
@@ -328,13 +327,12 @@ const Configuration = () => {
       // Load UI settings from flow configuration
       const flowConfigKey = 'enhanced-flow-authorization-code';
       const flowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
-      if (flowConfig.showCredentialsModal !== undefined || flowConfig.showSuccessModal !== undefined || flowConfig.showUrlDetailsInStep4 !== undefined) {
+      if (flowConfig.showCredentialsModal !== undefined || flowConfig.showSuccessModal !== undefined) {
         console.log('✅ [Configuration] Loading UI settings from flow config:', flowConfig);
         setFormData(prev => ({
           ...prev,
           showCredentialsModal: flowConfig.showCredentialsModal !== undefined ? flowConfig.showCredentialsModal : prev.showCredentialsModal,
-          showSuccessModal: flowConfig.showSuccessModal !== undefined ? flowConfig.showSuccessModal : prev.showSuccessModal,
-          showUrlDetailsInStep4: flowConfig.showUrlDetailsInStep4 !== undefined ? flowConfig.showUrlDetailsInStep4 : prev.showUrlDetailsInStep4
+          showSuccessModal: flowConfig.showSuccessModal !== undefined ? flowConfig.showSuccessModal : prev.showSuccessModal
         }));
       }
     };
@@ -478,8 +476,7 @@ const Configuration = () => {
       const updatedFlowConfig = {
         ...existingFlowConfig,
         showCredentialsModal: formData.showCredentialsModal,
-        showSuccessModal: formData.showSuccessModal,
-        showUrlDetailsInStep4: formData.showUrlDetailsInStep4
+        showSuccessModal: formData.showSuccessModal
       };
       localStorage.setItem(flowConfigKey, JSON.stringify(updatedFlowConfig));
       console.log('💾 [Configuration] UI settings saved to flow config:', updatedFlowConfig);
@@ -1006,38 +1003,6 @@ const Configuration = () => {
             </div>
           </FormGroup>
 
-          <FormGroup>
-            <div className="checkbox-container">
-              <input
-                type="checkbox"
-                id="showUrlDetailsInStep4"
-                name="showUrlDetailsInStep4"
-                checked={formData.showUrlDetailsInStep4}
-                onChange={(e) => {
-                  console.log('🔧 [Configuration] showUrlDetailsInStep4 changed:', e.target.checked);
-                  setFormData(prev => ({
-                    ...prev,
-                    showUrlDetailsInStep4: e.target.checked
-                  }));
-                  // Auto-save UI settings immediately
-                  const flowConfigKey = 'enhanced-flow-authorization-code';
-                  const existingFlowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
-                  const updatedFlowConfig = {
-                    ...existingFlowConfig,
-                    showUrlDetailsInStep4: e.target.checked
-                  };
-                  localStorage.setItem(flowConfigKey, JSON.stringify(updatedFlowConfig));
-                  console.log('💾 [Configuration] UI settings auto-saved:', updatedFlowConfig);
-                }}
-              />
-              <label htmlFor="showUrlDetailsInStep4">
-                Show URL Details in Step 4
-                <div className="form-text">
-                  Display detailed URL information and parameters in step 4 of the Enhanced Authorization Code Flow
-                </div>
-              </label>
-            </div>
-          </FormGroup>
 
           <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#e9ecef', borderRadius: '0.5rem', border: '1px solid #ced4da' }}>
             <h4 style={{ margin: '0 0 0.5rem 0', color: '#495057' }}>💡 UI Settings Info</h4>
