@@ -37,7 +37,6 @@ import { usePerformanceMonitor, useMemoizedComputation, useOptimizedCallback } f
 import { enhancedDebugger } from '../../utils/enhancedDebug';
 import { fetchOIDCDiscovery } from '../../utils/advancedOIDC';
 import { InlineDocumentation, QuickReference, TroubleshootingGuide } from '../../components/InlineDocumentation';
-import CredentialSetupModal from '../../components/CredentialSetupModal';
 import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
 import styled from 'styled-components';
 
