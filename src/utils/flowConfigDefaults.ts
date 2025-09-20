@@ -31,7 +31,8 @@ export const getAuthorizationCodeConfig = (): FlowConfig => ({
   showSuccessModal: true,
   showAuthCodeInModal: true,
   showCredentialsModal: true,
-  enableErrorRecovery: true
+  enableErrorRecovery: true,
+  showAuthRequestModal: false
 });
 
 // Default configuration for PKCE Flow
@@ -55,7 +56,8 @@ export const getPKCEConfig = (): FlowConfig => ({
   showSuccessModal: true,
   showAuthCodeInModal: true,
   showCredentialsModal: true,
-  enableErrorRecovery: true
+  enableErrorRecovery: true,
+  showAuthRequestModal: false
 });
 
 // Default configuration for Implicit Flow
@@ -79,7 +81,8 @@ export const getImplicitConfig = (): FlowConfig => ({
   showSuccessModal: true,
   showAuthCodeInModal: true,
   showCredentialsModal: true,
-  enableErrorRecovery: true
+  enableErrorRecovery: true,
+  showAuthRequestModal: false
 });
 
 // Default configuration for Client Credentials Flow
@@ -103,7 +106,8 @@ export const getClientCredentialsConfig = (): FlowConfig => ({
   showSuccessModal: true,
   showAuthCodeInModal: true,
   showCredentialsModal: true,
-  enableErrorRecovery: true
+  enableErrorRecovery: true,
+  showAuthRequestModal: false
 });
 
 // Default configuration for Device Code Flow
@@ -127,7 +131,8 @@ export const getDeviceCodeConfig = (): FlowConfig => ({
   showSuccessModal: true,
   showAuthCodeInModal: true,
   showCredentialsModal: true,
-  enableErrorRecovery: true
+  enableErrorRecovery: true,
+  showAuthRequestModal: false
 });
 
 // Default configuration for Refresh Token Flow
@@ -151,7 +156,8 @@ export const getRefreshTokenConfig = (): FlowConfig => ({
   showSuccessModal: true,
   showAuthCodeInModal: true,
   showCredentialsModal: true,
-  enableErrorRecovery: true
+  enableErrorRecovery: true,
+  showAuthRequestModal: false
 });
 
 // Default configuration for Password Grant Flow
@@ -175,7 +181,8 @@ export const getPasswordGrantConfig = (): FlowConfig => ({
   showSuccessModal: true,
   showAuthCodeInModal: true,
   showCredentialsModal: true,
-  enableErrorRecovery: true
+  enableErrorRecovery: true,
+  showAuthRequestModal: false
 });
 
 // Factory function to get default config based on flow type
