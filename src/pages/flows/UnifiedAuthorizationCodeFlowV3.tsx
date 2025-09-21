@@ -907,6 +907,9 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
 
   // Generate authorization URL
   const generateAuthUrl = useCallback(() => {
+    // Clear any previous callback processing flags to prevent loops
+    sessionStorage.removeItem('v3_callback_processed');
+    console.log(`🔧 [${flowType.toUpperCase()}-V3] Cleared callback processing flag for new authorization`);
     try {
       if (!credentials.environmentId || !credentials.clientId) {
         throw new Error('Environment ID and Client ID are required');
@@ -1588,6 +1591,7 @@ Original Error: ${errorData.error_description || errorData.error}
     sessionStorage.removeItem(`${flowType}_v3_step_results`);
     sessionStorage.removeItem(`${flowType}_v3_flowContext`);
     sessionStorage.removeItem('flowContext'); // Clear generic flowContext too
+    sessionStorage.removeItem('v3_callback_processed'); // Clear callback processing flag
     
     console.log(`🔍 [${flowType.toUpperCase()}-V3] Cleared session storage, resetting to step 0`);
     
