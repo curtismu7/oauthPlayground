@@ -515,6 +515,18 @@ const TokenManagement = () => {
   // Use centralized scroll management
   usePageScroll({ pageName: 'Token Management', force: true });
   
+  // Check flow source to determine if ID Token should be available
+  const flowSource = sessionStorage.getItem('flow_source') || '';
+  const isOAuthFlow = flowSource.includes('oauth') && !flowSource.includes('oidc');
+  const isOIDCFlow = flowSource.includes('oidc') || flowSource.includes('enhanced');
+  
+  console.log('🔍 [TokenManagement] Flow source detection:', {
+    flowSource,
+    isOAuthFlow,
+    isOIDCFlow,
+    shouldShowIdToken: isOIDCFlow
+  });
+  
   const [tokenString, setTokenString] = useState('');
   const [jwtHeader, setJwtHeader] = useState('');
   const [jwtPayload, setJwtPayload] = useState('');
@@ -1437,6 +1449,26 @@ const TokenManagement = () => {
             />
           )}
 
+          {isOAuthFlow && (
+            <div style={{
+              background: '#eff6ff',
+              border: '1px solid #bfdbfe',
+              borderRadius: '8px',
+              padding: '1rem',
+              marginBottom: '1rem',
+              color: '#1e40af'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: '600' }}>
+                <FiInfo />
+                OAuth 2.0 Flow Detected
+              </div>
+              <div style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>
+                ID Tokens are not available in pure OAuth 2.0 flows. ID Tokens are an OpenID Connect (OIDC) feature.
+                Only Access and Refresh tokens are available for analysis.
+              </div>
+            </div>
+          )}
+          
           <ButtonGroup>
             <ActionButton
               id="get-access-token-btn"
@@ -1450,12 +1482,13 @@ const TokenManagement = () => {
 
             <ActionButton
               id="get-id-token-btn"
-              className="primary"
+              className={isOAuthFlow ? "secondary" : "primary"}
               onClick={() => handleGetSpecificToken('id_token')}
-              disabled={isLoading}
+              disabled={isLoading || isOAuthFlow}
+              title={isOAuthFlow ? "ID Tokens are not available in OAuth 2.0 flows (only in OpenID Connect)" : "Get ID Token from current session"}
             >
               <FiShield />
-              {isLoading ? 'Getting...' : 'Get ID Token'}
+              {isLoading ? 'Getting...' : isOAuthFlow ? 'ID Token (OAuth N/A)' : 'Get ID Token'}
             </ActionButton>
 
             <ActionButton
