@@ -57,6 +57,7 @@ export interface EnhancedFlowStep {
   securityNotes?: string[];
   content?: React.ReactNode; // Custom content for the step
   buttonText?: string; // Custom text for the execute button
+  hideDefaultButton?: boolean; // Hide the default execute button
 }
 
 interface StepHistory {
@@ -1053,7 +1054,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
               )}
             </Button>
 
-            {currentStep.execute && (
+            {currentStep.execute && !currentStep.hideDefaultButton && (
               <Button
                 $variant="primary"
                 onClick={() => {
