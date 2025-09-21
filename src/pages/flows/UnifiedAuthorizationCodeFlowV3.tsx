@@ -509,7 +509,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
   useEffect(() => {
     const handleStepNext = () => {
       console.log(`🔍 [${flowType.toUpperCase()}-V3] Step next event received, advancing to next step`);
-      stepManager.goToNextStep();
+      stepManager.setStep(stepManager.currentStepIndex + 1);
     };
 
     window.addEventListener('step:next', handleStepNext);
@@ -780,6 +780,12 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         flow: `${flowType}-authorization-code-v3`,
         redirectUri: credentials.redirectUri
       }));
+      
+      // Also store generic flowContext for NewAuthContext compatibility
+      sessionStorage.setItem('flowContext', JSON.stringify({
+        flow: `${flowType}-authorization-code-v3`,
+        redirectUri: credentials.redirectUri
+      }));
 
       const authEndpoint = credentials.environmentId !== 'custom' 
         ? `https://auth.pingone.com/${credentials.environmentId}/as/authorize`
@@ -929,6 +935,12 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
       flow: `${flowType}-authorization-code-v3`,
       redirectUri: credentials.redirectUri
     }));
+    
+    // Also store generic flowContext for NewAuthContext compatibility
+    sessionStorage.setItem('flowContext', JSON.stringify({
+      flow: `${flowType}-authorization-code-v3`,
+      redirectUri: credentials.redirectUri
+    }));
 
     const popup = window.open(
       authUrl,
@@ -1014,6 +1026,12 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
     
     // Store flow context for redirect callback handling (flow-specific)
     sessionStorage.setItem(`${flowType}_v3_flowContext`, JSON.stringify({
+      flow: `${flowType}-authorization-code-v3`,
+      redirectUri: credentials.redirectUri
+    }));
+    
+    // Also store generic flowContext for NewAuthContext compatibility
+    sessionStorage.setItem('flowContext', JSON.stringify({
       flow: `${flowType}-authorization-code-v3`,
       redirectUri: credentials.redirectUri
     }));
@@ -1411,6 +1429,7 @@ Original Error: ${errorData.error_description || errorData.error}
     sessionStorage.removeItem(`${flowType}_v3_id_token`);
     sessionStorage.removeItem(`${flowType}_v3_step_results`);
     sessionStorage.removeItem(`${flowType}_v3_flowContext`);
+    sessionStorage.removeItem('flowContext'); // Clear generic flowContext too
     
     console.log(`🔍 [${flowType.toUpperCase()}-V3] Cleared session storage, resetting to step 0`);
     
