@@ -38,10 +38,15 @@ const DebugCredentials: React.FC = () => {
     pingone_permanent_credentials: string | null;
     pingone_session_credentials: string | null;
     pingone_config: string | null;
+    pingone_config_credentials: string | null;
+    pingone_authz_flow_credentials: string | null;
+    enhanced_flow_authorization_code: string | null;
     credentialManager: {
       permanent: Record<string, unknown>;
       session: Record<string, unknown>;
       all: Record<string, unknown>;
+      config: Record<string, unknown>;
+      authzFlow: Record<string, unknown>;
       arePermanentComplete: boolean;
       areAllComplete: boolean;
     };
@@ -63,10 +68,15 @@ const DebugCredentials: React.FC = () => {
           pingone_permanent_credentials: localStorage.getItem('pingone_permanent_credentials'),
           pingone_session_credentials: localStorage.getItem('pingone_session_credentials'),
           pingone_config: localStorage.getItem('pingone_config'),
+          pingone_config_credentials: localStorage.getItem('pingone_config_credentials'),
+          pingone_authz_flow_credentials: localStorage.getItem('pingone_authz_flow_credentials'),
+          enhanced_flow_authorization_code: localStorage.getItem('enhanced-flow-authorization-code'),
           credentialManager: {
             permanent: credentialManager.loadPermanentCredentials(),
             session: credentialManager.loadSessionCredentials(),
             all: credentialManager.getAllCredentials(),
+            config: credentialManager.loadConfigCredentials(),
+            authzFlow: credentialManager.loadAuthzFlowCredentials(),
             arePermanentComplete: credentialManager.arePermanentCredentialsComplete(),
             areAllComplete: credentialManager.areAllCredentialsComplete()
           }
@@ -82,10 +92,15 @@ const DebugCredentials: React.FC = () => {
           pingone_permanent_credentials: null,
           pingone_session_credentials: null,
           pingone_config: null,
+          pingone_config_credentials: null,
+          pingone_authz_flow_credentials: null,
+          enhanced_flow_authorization_code: null,
           credentialManager: {
             permanent: {},
             session: {},
             all: {},
+            config: {},
+            authzFlow: {},
             arePermanentComplete: false,
             areAllComplete: false
           }
@@ -137,6 +152,21 @@ const DebugCredentials: React.FC = () => {
       <DebugSection>
         <h4>pingone_config (raw):</h4>
         <pre>{debugInfo.pingone_config || 'null'}</pre>
+      </DebugSection>
+      
+      <DebugSection>
+        <h4>pingone_config_credentials (raw):</h4>
+        <pre>{debugInfo.pingone_config_credentials || 'null'}</pre>
+      </DebugSection>
+      
+      <DebugSection>
+        <h4>pingone_authz_flow_credentials (raw):</h4>
+        <pre>{debugInfo.pingone_authz_flow_credentials || 'null'}</pre>
+      </DebugSection>
+      
+      <DebugSection>
+        <h4>enhanced_flow_authorization_code (raw):</h4>
+        <pre>{debugInfo.enhanced_flow_authorization_code || 'null'}</pre>
       </DebugSection>
       
       <DebugSection>
