@@ -1137,3 +1137,6 @@ export const createTokenValidationStep = (
   },
   canExecute: Boolean(tokens?.access_token)
 });
+
+// Export styled components for use in other files
+export { InfoBox, ActionButton };
