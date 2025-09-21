@@ -183,27 +183,35 @@ const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
   
-  // Check if we have valid credentials for styling
+  // Check if we have valid credentials for styling - force fresh load
   const credentials = credentialManager.getAllCredentials();
-  const hasValidEnvironmentId = credentials.environmentId && 
-                                credentials.environmentId.trim() !== '' && 
-                                credentials.environmentId !== 'test-env-123';
+  
+  // If getAllCredentials returns empty, try authz flow credentials directly
+  const authzCredentials = credentialManager.loadAuthzFlowCredentials();
+  const finalCredentials = (credentials.environmentId && credentials.clientId) ? credentials : authzCredentials;
+  
+  const hasValidEnvironmentId = finalCredentials?.environmentId && 
+                                finalCredentials.environmentId.trim() !== '' && 
+                                finalCredentials.environmentId !== 'test-env-123';
   
   // Check if credentials are complete (for green vs yellow styling)
   const hasCompleteCredentials = hasValidEnvironmentId && 
-                                 credentials.clientId && 
-                                 credentials.clientId.trim() !== '' &&
-                                 credentials.clientId !== 'test-client-123' &&
-                                 credentials.clientSecret &&
-                                 credentials.clientSecret.trim() !== '';
+                                 finalCredentials?.clientId && 
+                                 finalCredentials.clientId.trim() !== '' &&
+                                 finalCredentials.clientId !== 'test-client-123' &&
+                                 finalCredentials?.clientSecret &&
+                                 finalCredentials.clientSecret.trim() !== '';
   
   console.log('🔍 [PingOneConfigSection] Credential check for styling:', {
-    environmentId: credentials.environmentId ? `${credentials.environmentId.substring(0, 10)}...` : 'MISSING',
-    clientId: credentials.clientId ? `${credentials.clientId.substring(0, 10)}...` : 'MISSING',
-    clientSecret: credentials.clientSecret ? 'PRESENT' : 'MISSING',
+    getAllCredentials: credentials,
+    authzCredentials: authzCredentials,
+    finalCredentials: finalCredentials,
+    environmentId: finalCredentials?.environmentId ? `${finalCredentials.environmentId.substring(0, 10)}...` : 'MISSING',
+    clientId: finalCredentials?.clientId ? `${finalCredentials.clientId.substring(0, 10)}...` : 'MISSING',
+    clientSecret: finalCredentials?.clientSecret ? 'PRESENT' : 'MISSING',
     hasValidEnvironmentId,
     hasCompleteCredentials,
-    allCredentials: credentials
+    shouldBeGreen: hasCompleteCredentials
   });
 
   // Only show on specified step (default: step 1)
