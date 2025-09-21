@@ -1598,15 +1598,20 @@ Original Error: ${errorData.error_description || errorData.error}
     
     showFlowSuccess(`${flowType.toUpperCase()} flow reset successfully`);
     
-    // Scroll to top of step 1 for better UX
+    // Scroll to top of step 1 for better UX - try immediate scroll first
+    console.log(`📜 [${flowType.toUpperCase()}-V3] IMMEDIATE SCROLL - scroll position before:`, window.pageYOffset);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    console.log(`📜 [${flowType.toUpperCase()}-V3] Immediate scroll attempted`);
+    
+    // Also try smooth scroll with delay
     setTimeout(() => {
-      console.log(`📜 [${flowType.toUpperCase()}-V3] SCROLLING TO TOP - scroll position before:`, window.pageYOffset);
+      console.log(`📜 [${flowType.toUpperCase()}-V3] DELAYED SMOOTH SCROLL - scroll position before:`, window.pageYOffset);
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      console.log(`📜 [${flowType.toUpperCase()}-V3] Scrolled to top after flow reset`);
+      console.log(`📜 [${flowType.toUpperCase()}-V3] Delayed smooth scroll attempted`);
       
       // Verify scroll after a brief delay
       setTimeout(() => {
-        console.log(`📜 [${flowType.toUpperCase()}-V3] Scroll position after reset:`, window.pageYOffset);
+        console.log(`📜 [${flowType.toUpperCase()}-V3] Final scroll position:`, window.pageYOffset);
       }, 500);
     }, 100);
   }, [stepManager, flowType]);
