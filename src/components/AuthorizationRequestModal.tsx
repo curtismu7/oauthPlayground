@@ -159,7 +159,7 @@ const ActionButtons = styled.div`
   border-top: 1px solid #e5e7eb;
 `;
 
-const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
+const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
   font-weight: 500;
@@ -171,8 +171,8 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
   align-items: center;
   gap: 0.5rem;
 
-  ${({ variant }) =>
-    variant === 'primary'
+  ${({ $variant }) =>
+    $variant === 'primary'
       ? `
         background-color: #3b82f6;
         color: white;
@@ -211,6 +211,31 @@ const InfoBox = styled.div`
   }
 `;
 
+const CheckboxContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+
+  input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    accent-color: #3b82f6;
+    cursor: pointer;
+  }
+
+  label {
+    font-size: 0.875rem;
+    color: #374151;
+    cursor: pointer;
+    user-select: none;
+  }
+`;
+
 const AuthorizationRequestModal: React.FC<AuthorizationRequestModalProps> = ({
   isOpen,
   onClose,
@@ -219,6 +244,7 @@ const AuthorizationRequestModal: React.FC<AuthorizationRequestModalProps> = ({
   requestParams,
 }) => {
   const [copied, setCopied] = React.useState(false);
+  const [dontShowAgain, setDontShowAgain] = React.useState(false);
 
   // Handle escape key to close modal
   useEffect(() => {
@@ -245,6 +271,12 @@ const AuthorizationRequestModal: React.FC<AuthorizationRequestModalProps> = ({
   };
 
   const handleProceed = () => {
+    // Save the "don't show again" preference if checked
+    if (dontShowAgain) {
+      localStorage.setItem('skip_oauth_authz_request_modal', 'true');
+      console.log('🔧 [AuthorizationRequestModal] User chose to skip this modal in future');
+    }
+    
     onProceed();
     onClose();
   };
@@ -298,11 +330,23 @@ const AuthorizationRequestModal: React.FC<AuthorizationRequestModalProps> = ({
             </AuthorizationUrlBox>
           </Section>
 
+          <CheckboxContainer>
+            <input
+              type="checkbox"
+              id="dontShowAgain"
+              checked={dontShowAgain}
+              onChange={(e) => setDontShowAgain(e.target.checked)}
+            />
+            <label htmlFor="dontShowAgain">
+              Do not show this modal again
+            </label>
+          </CheckboxContainer>
+
           <ActionButtons>
             <Button onClick={onClose}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={handleProceed}>
+            <Button $variant="primary" onClick={handleProceed}>
               <FiExternalLink size={16} />
               Proceed to PingOne
             </Button>
