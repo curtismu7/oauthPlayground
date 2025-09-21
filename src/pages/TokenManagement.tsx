@@ -1304,6 +1304,55 @@ const TokenManagement = () => {
     }
   }, [tokenString]);
 
+  // Determine token source display
+  const getTokenSourceInfo = () => {
+    if (flowSource.includes('oauth-v3')) {
+      return {
+        type: 'OAuth 2.0 V3',
+        description: 'Tokens from OAuth 2.0 Authorization Code Flow V3',
+        color: '#0369a1',
+        icon: <FiKey />
+      };
+    } else if (flowSource.includes('oidc-v3')) {
+      return {
+        type: 'OpenID Connect V3', 
+        description: 'Tokens from OIDC Authorization Code Flow V3',
+        color: '#059669',
+        icon: <FiShield />
+      };
+    } else if (flowSource.includes('enhanced')) {
+      return {
+        type: 'Enhanced Authorization Code',
+        description: 'Tokens from Enhanced Authorization Code Flow',
+        color: '#0891b2',
+        icon: <FiShield />
+      };
+    } else if (flowSource.includes('implicit')) {
+      return {
+        type: 'Implicit Grant',
+        description: 'Tokens from Implicit Grant Flow (deprecated)',
+        color: '#dc2626',
+        icon: <FiAlertTriangle />
+      };
+    } else if (tokens) {
+      return {
+        type: 'Dashboard Login',
+        description: 'Tokens from Dashboard login session',
+        color: '#0070cc',
+        icon: <FiKey />
+      };
+    } else {
+      return {
+        type: 'Storage/Manual',
+        description: 'Tokens loaded from storage or manually entered',
+        color: '#6b7280',
+        icon: <FiDownload />
+      };
+    }
+  };
+
+  const tokenSourceInfo = getTokenSourceInfo();
+
   return (
     <Container>
       <PageTitle 
@@ -1315,6 +1364,58 @@ const TokenManagement = () => {
         }
         subtitle="Monitor and manage PingOne authentication tokens"
       />
+
+      {/* Token Source Indicator */}
+      <div style={{
+        background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+        border: `2px solid ${tokenSourceInfo.color}`,
+        borderRadius: '12px',
+        padding: '1.5rem',
+        marginBottom: '2rem',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1rem',
+          marginBottom: '0.5rem'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '3rem',
+            height: '3rem',
+            borderRadius: '50%',
+            background: `${tokenSourceInfo.color}20`,
+            color: tokenSourceInfo.color,
+            fontSize: '1.5rem'
+          }}>
+            {tokenSourceInfo.icon}
+          </div>
+          <div>
+            <h3 style={{ margin: 0, color: tokenSourceInfo.color, fontSize: '1.25rem', fontWeight: '600' }}>
+              Token Source: {tokenSourceInfo.type}
+            </h3>
+            <p style={{ margin: 0, color: '#6b7280', fontSize: '0.875rem' }}>
+              {tokenSourceInfo.description}
+            </p>
+          </div>
+        </div>
+        {flowSource && (
+          <div style={{ 
+            fontSize: '0.75rem', 
+            color: '#9ca3af',
+            fontFamily: 'monospace',
+            background: '#f9fafb',
+            padding: '0.5rem',
+            borderRadius: '4px',
+            border: '1px solid #e5e7eb'
+          }}>
+            Flow Source ID: {flowSource}
+          </div>
+        )}
+      </div>
 
       {/* Current Token Status Section - Merged */}
       <TokenSection>
