@@ -748,7 +748,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.log('🔍 [NewAuthContext] Parsed flow context:', parsed);
           
           const isEnhancedV2 = parsed?.flow === 'enhanced-authorization-code-v2';
-          const isEnhancedV3 = parsed?.flow === 'enhanced-authorization-code-v3';
+          const isEnhancedV3 = parsed?.flow === 'enhanced-authorization-code-v3' || 
+                               parsed?.flow === 'oauth-authorization-code-v3' || 
+                               parsed?.flow === 'oidc-authorization-code-v3';
           
           console.log('🔍 [NewAuthContext] Flow type detection:', {
             flowType: parsed?.flow,
@@ -779,7 +781,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             // Determine correct return path based on flow version
             let returnPath;
             if (isEnhancedV3) {
-              returnPath = parsed?.returnPath || '/flows/enhanced-authorization-code-v3?step=4';
+              // Determine the correct V3 flow path based on the flow type
+              if (parsed?.flow === 'oauth-authorization-code-v3') {
+                returnPath = parsed?.returnPath || '/flows/oauth-authorization-code-v3?step=4';
+              } else if (parsed?.flow === 'oidc-authorization-code-v3') {
+                returnPath = parsed?.returnPath || '/flows/oidc-authorization-code-v3?step=4';
+              } else {
+                returnPath = parsed?.returnPath || '/flows/enhanced-authorization-code-v3?step=4';
+              }
               console.log('🎯 [NewAuthContext] V3 FLOW DETECTED - Returning to V3 page:', returnPath);
               logger.auth('NewAuthContext', 'Deferring token exchange to Enhanced Auth Code Flow V3 page', { returnPath, redirectUri });
             } else {
