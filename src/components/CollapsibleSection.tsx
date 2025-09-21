@@ -43,6 +43,7 @@ const SectionTitle = styled.div`
   align-items: center;
   gap: 0.75rem;
   flex: 1;
+  margin-left: 0.5rem;
 `;
 
 const TitleText = styled.h2`
@@ -127,6 +128,9 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   return (
     <SectionContainer $collapsed={collapsed} className={className}>
       <SectionHeader onClick={handleToggle}>
+        <ChevronIcon $collapsed={collapsed}>
+          {collapsed ? <FiChevronRight size={16} /> : <FiChevronDown size={16} />}
+        </ChevronIcon>
         <SectionTitle>
           <TitleText>
             {icon && <span>{icon}</span>}
@@ -134,9 +138,6 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
           </TitleText>
           {subtitle && <Subtitle>{subtitle}</Subtitle>}
         </SectionTitle>
-        <ChevronIcon $collapsed={collapsed}>
-          {collapsed ? <FiChevronRight size={16} /> : <FiChevronDown size={16} />}
-        </ChevronIcon>
       </SectionHeader>
       <SectionContent $collapsed={collapsed}>
         {children}
