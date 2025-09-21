@@ -940,7 +940,8 @@ export const createUserAuthorizationStep = (
     // This step is executed by the popup/redirect buttons
     return { success: true };
   },
-  canExecute: Boolean(authUrl)
+  canExecute: Boolean(authUrl),
+  hideDefaultButton: true // Hide the default "Sign On" button since we have custom authorization method buttons
 });
 
 /**
