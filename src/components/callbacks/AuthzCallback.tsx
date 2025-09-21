@@ -261,9 +261,22 @@ const AuthzCallback: React.FC = () => {
               const error = urlParams.get('error');
               
               if (error) {
-                console.error('❌ [AuthzCallback] Authorization error in V3 full redirect:', error);
+                const errorDescription = urlParams.get('error_description');
+                console.error('❌ [AuthzCallback] Authorization error in V3 full redirect:', {
+                  error,
+                  errorDescription,
+                  fullUrl: currentUrl,
+                  allParams: Object.fromEntries(urlParams.entries())
+                });
                 setStatus('error');
-                setMessage(`Authorization failed: ${urlParams.get('error_description') || error}`);
+                setMessage(`Authorization failed: ${errorDescription || error}`);
+                
+                // Show user-friendly error message based on error type
+                if (error === 'invalid_request') {
+                  console.log('🔍 [AuthzCallback] invalid_request error - likely authorization URL parameter issue');
+                  setMessage(`Authorization failed: Invalid request parameters. This usually means there's an issue with the authorization URL parameters sent to PingOne. Check your PingOne application configuration.`);
+                }
+                
                 return;
               }
               
