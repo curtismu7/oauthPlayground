@@ -197,9 +197,13 @@ const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
                                  credentials.clientSecret &&
                                  credentials.clientSecret.trim() !== '';
   
-  console.log('🔍 [PingOneConfigSection] Environment ID check:', {
-    environmentId: credentials.environmentId,
-    hasValidEnvironmentId: hasValidEnvironmentId
+  console.log('🔍 [PingOneConfigSection] Credential check for styling:', {
+    environmentId: credentials.environmentId ? `${credentials.environmentId.substring(0, 10)}...` : 'MISSING',
+    clientId: credentials.clientId ? `${credentials.clientId.substring(0, 10)}...` : 'MISSING',
+    clientSecret: credentials.clientSecret ? 'PRESENT' : 'MISSING',
+    hasValidEnvironmentId,
+    hasCompleteCredentials,
+    allCredentials: credentials
   });
 
   // Only show on specified step (default: step 1)
