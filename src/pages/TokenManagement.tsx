@@ -1304,6 +1304,79 @@ const TokenManagement = () => {
     }
   }, [tokenString]);
 
+  // Load token history on component mount and when tokens change
+  useEffect(() => {
+    console.log('🔄 [TokenManagement] Loading token history...');
+    const history = getTokenHistory();
+    
+    console.log('📋 [TokenManagement] Retrieved token history:', {
+      totalEntries: history.entries.length,
+      entries: history.entries.map(entry => ({
+        id: entry.id,
+        flowType: entry.flowType,
+        flowName: entry.flowName,
+        timestamp: entry.timestampFormatted,
+        hasAccessToken: entry.hasAccessToken,
+        hasIdToken: entry.hasIdToken,
+        hasRefreshToken: entry.hasRefreshToken
+      }))
+    });
+    
+    setTokenHistory(history.entries);
+    
+    // If no history exists and we have current tokens, create initial history entries
+    if (history.entries.length === 0 && tokens?.access_token) {
+      console.log('🔍 [TokenManagement] No history found, creating entry with current tokens');
+      
+      // Determine flow type from flow source
+      const currentFlowSource = sessionStorage.getItem('flow_source') || 'unknown';
+      const flowName = currentFlowSource.includes('oauth-v3') ? 'OAuth 2.0 Authorization Code Flow V3' :
+                       currentFlowSource.includes('oidc-v3') ? 'OpenID Connect Authorization Code Flow V3' :
+                       'Enhanced Authorization Code Flow V3';
+      
+      // Create a history entry for the current OAuth session
+      const { addTokenToHistory } = require('../utils/tokenHistory');
+      const success = addTokenToHistory(
+        currentFlowSource,
+        flowName,
+        {
+          access_token: tokens.access_token,
+          id_token: tokens.id_token,
+          refresh_token: tokens.refresh_token,
+          token_type: tokens.token_type || 'Bearer',
+          expires_in: tokens.expires_in || 3600,
+          scope: tokens.scope || 'openid profile email'
+        }
+      );
+      
+      if (success) {
+        // Reload history after adding current tokens
+        const updatedHistory = getTokenHistory();
+        setTokenHistory(updatedHistory.entries);
+        console.log('✅ [TokenManagement] Added current tokens to history');
+      }
+    }
+  }, [tokens]); // Re-run when tokens change
+
+  // Load token history on component mount (separate from tokens)
+  useEffect(() => {
+    console.log('🔄 [TokenManagement] Loading token history on mount...');
+    const history = getTokenHistory();
+    
+    console.log('📋 [TokenManagement] Mount - Retrieved token history:', {
+      totalEntries: history.entries.length,
+      storageKey: 'pingone_playground_token_history',
+      hasEntries: history.entries.length > 0
+    });
+    
+    if (history.entries.length > 0) {
+      setTokenHistory(history.entries);
+      console.log('✅ [TokenManagement] Loaded', history.entries.length, 'history entries on mount');
+    } else {
+      console.log('ℹ️ [TokenManagement] No token history found on mount');
+    }
+  }, []); // Run only on mount
+
   // Determine token source display
   const getTokenSourceInfo = () => {
     if (flowSource.includes('oauth-v3')) {
