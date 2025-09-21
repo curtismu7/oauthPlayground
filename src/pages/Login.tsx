@@ -9,7 +9,9 @@ import {
   FiEdit, 
   FiCheckCircle, 
   FiAlertCircle, 
-  FiLogIn 
+  FiLogIn,
+  FiChevronDown,
+  FiChevronRight 
 } from 'react-icons/fi';
 import { useAuth } from '../contexts/NewAuthContext';
 import { config } from '../services/config';
@@ -348,6 +350,7 @@ const Login = () => {
   const [showRedirectModal, setShowRedirectModal] = useState<boolean>(false);
   const [redirectUrl, setRedirectUrl] = useState<string>('');
   const [redirectParams, setRedirectParams] = useState<Record<string, string>>({});
+  const [isConfigSectionCollapsed, setIsConfigSectionCollapsed] = useState<boolean>(true);
   
   const { login } = useAuth();
   const location = useLocation();
@@ -654,8 +657,22 @@ const Login = () => {
             </DescriptionSection>
 
             <PingOneSetupSection>
-            <h3>🔧 PingOne Configuration Required</h3>
-            <p>To use this OAuth Playground, you need to configure your PingOne environment:</p>
+            <h3 
+              onClick={() => setIsConfigSectionCollapsed(!isConfigSectionCollapsed)}
+              style={{ 
+                cursor: 'pointer', 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '0.5rem',
+                userSelect: 'none'
+              }}
+            >
+              {isConfigSectionCollapsed ? <FiChevronRight /> : <FiChevronDown />}
+              🔧 PingOne Configuration Required
+            </h3>
+            {!isConfigSectionCollapsed && (
+              <>
+                <p>To use this OAuth Playground, you need to configure your PingOne environment:</p>
 
             <SetupSteps>
               <h4>1. Access PingOne Admin Console</h4>
@@ -1227,6 +1244,8 @@ const Login = () => {
             </CredentialsBox>
 
             <p><em>💡 <strong>Need Help?</strong> Check the PingOne documentation or contact your PingOne administrator.</em></p>
+              </>
+            )}
             </PingOneSetupSection>
           </SetupSection>
           
