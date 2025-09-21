@@ -95,7 +95,7 @@ const AuthzCallback: React.FC = () => {
         try {
           const context = flowContext ? JSON.parse(flowContext) : null;
           isOAuthV3 = context?.flow === 'oauth-authorization-code-v3';
-          isEnhancedV3 = context?.flow === 'enhanced-authorization-code-v3';
+          isEnhancedV3 = context?.flow === 'enhanced-authorization-code-v3' || context?.flow === 'oidc-authorization-code-v3';
         } catch (e) {
           // Ignore parsing errors
         }
