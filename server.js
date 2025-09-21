@@ -84,6 +84,7 @@ app.post('/api/token-exchange', async (req, res) => {
       redirect_uri, 
       code, 
       code_verifier,
+      refresh_token,
       scope,
       environment_id
     } = req.body;
@@ -101,6 +102,25 @@ app.post('/api/token-exchange', async (req, res) => {
         error: 'invalid_request',
         error_description: 'Missing required parameters: grant_type and client_id'
       });
+    }
+
+    // Validate grant type specific parameters
+    if (grant_type === 'refresh_token') {
+      if (!refresh_token || refresh_token.trim() === '') {
+        console.error('❌ [Server] Missing refresh_token for refresh_token grant');
+        return res.status(400).json({
+          error: 'invalid_request',
+          error_description: 'Missing required parameter: refresh_token'
+        });
+      }
+    } else if (grant_type === 'authorization_code') {
+      if (!code || code.trim() === '') {
+        console.error('❌ [Server] Missing authorization code for authorization_code grant');
+        return res.status(400).json({
+          error: 'invalid_request',
+          error_description: 'Missing required parameter: code'
+        });
+      }
     }
 
     // Get environment ID from client_id or request
@@ -131,15 +151,30 @@ app.post('/api/token-exchange', async (req, res) => {
       redirectUri: redirect_uri
     });
 
-    // Prepare request body
-    const tokenRequestBody = new URLSearchParams({
-      grant_type,
-      client_id: client_id,
-      redirect_uri: redirect_uri || '',
-      code: code || '',
-      code_verifier: code_verifier || '',
-      scope: scope || 'openid profile email'
-    });
+    // Prepare request body based on grant type
+    let tokenRequestBody;
+    
+    if (grant_type === 'refresh_token') {
+      // Refresh token grant - only include refresh_token, client_id, and scope
+      console.log('🔄 [Server] Building refresh token request body');
+      tokenRequestBody = new URLSearchParams({
+        grant_type: 'refresh_token',
+        client_id: client_id,
+        refresh_token: refresh_token,
+        scope: scope || 'openid profile email'
+      });
+    } else {
+      // Authorization code grant - include code, redirect_uri, code_verifier
+      console.log('🔐 [Server] Building authorization code request body');
+      tokenRequestBody = new URLSearchParams({
+        grant_type,
+        client_id: client_id,
+        redirect_uri: redirect_uri || '',
+        code: code || '',
+        code_verifier: code_verifier || '',
+        scope: scope || 'openid profile email'
+      });
+    }
 
     // Prepare headers
     const headers = {
