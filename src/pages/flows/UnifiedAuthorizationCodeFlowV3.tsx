@@ -1600,8 +1600,14 @@ Original Error: ${errorData.error_description || errorData.error}
     
     // Scroll to top of step 1 for better UX
     setTimeout(() => {
+      console.log(`📜 [${flowType.toUpperCase()}-V3] SCROLLING TO TOP - scroll position before:`, window.pageYOffset);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       console.log(`📜 [${flowType.toUpperCase()}-V3] Scrolled to top after flow reset`);
+      
+      // Verify scroll after a brief delay
+      setTimeout(() => {
+        console.log(`📜 [${flowType.toUpperCase()}-V3] Scroll position after reset:`, window.pageYOffset);
+      }, 500);
     }, 100);
   }, [stepManager, flowType]);
 
