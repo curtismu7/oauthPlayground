@@ -545,7 +545,7 @@ export const createAuthUrlStep = (
               <CopyButton 
                 onClick={() => setShowExplainer?.(true)}
                 style={{ 
-                  background: '#8b5cf6',
+                  background: '#0891b2',
                   marginLeft: '0.5rem'
                 }}
               >
