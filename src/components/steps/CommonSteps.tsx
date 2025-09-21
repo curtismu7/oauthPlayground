@@ -1227,9 +1227,21 @@ export const createRefreshTokenStep = (
             >
               📋 Copy Full Token
             </button>
-            <span style={{ fontSize: '0.875rem', color: '#2e7d32', fontWeight: '500' }}>
-              ← Click "Use Refresh Token" button below to exchange this for a new access token
-            </span>
+            <div style={{ 
+              fontSize: '0.875rem', 
+              color: '#2e7d32', 
+              fontWeight: '600',
+              background: '#f1f8e9',
+              padding: '0.5rem 0.75rem',
+              borderRadius: '6px',
+              border: '1px solid #c8e6c9',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}>
+              <span style={{ fontSize: '1.2rem' }}>👇</span>
+              <span>Click <strong>"Use Refresh Token"</strong> button below to exchange this for a new access token</span>
+            </div>
           </div>
         </div>
       )}
