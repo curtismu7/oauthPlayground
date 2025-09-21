@@ -1203,10 +1203,34 @@ export const createRefreshTokenStep = (
             borderRadius: '4px', 
             fontSize: '0.75rem', 
             wordBreak: 'break-all',
-            border: '1px solid #e8f5e8'
+            border: '1px solid #e8f5e8',
+            maxHeight: '200px',
+            overflowY: 'auto'
           }}>
-            {refreshToken.substring(0, 50)}...
+            {refreshToken}
           </code>
+          <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(refreshToken);
+                // Could add copy feedback here
+              }}
+              style={{
+                background: '#4caf50',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                padding: '0.25rem 0.5rem',
+                cursor: 'pointer',
+                fontSize: '0.875rem'
+              }}
+            >
+              📋 Copy Full Token
+            </button>
+            <span style={{ fontSize: '0.875rem', color: '#2e7d32', fontWeight: '500' }}>
+              ← Click "Use Refresh Token" button below to exchange this for a new access token
+            </span>
+          </div>
         </div>
       )}
       
@@ -1220,32 +1244,84 @@ export const createRefreshTokenStep = (
       )}
       
       {newTokens && (
-        <InfoBox type="success">
-          <FiCheckCircle />
-          <div>
-            <strong>✅ New Tokens Received!</strong>
-            <br />
-            <div style={{ marginTop: '1rem', display: 'grid', gap: '0.5rem', fontSize: '0.9em' }}>
-              <div>✅ New Access Token: <strong style={{ color: '#1e40af' }}>{newTokens.access_token ? 'Received' : 'Missing'}</strong></div>
-              {flowType === 'oidc' && (
-                <div>✅ New ID Token: <strong style={{ color: '#1e40af' }}>{newTokens.id_token ? 'Received' : 'Missing'}</strong></div>
-              )}
-              <div>⏱️ Expires In: <strong style={{ color: '#1e40af' }}>{newTokens.expires_in ? `${newTokens.expires_in} seconds` : 'Unknown'}</strong></div>
-              <div>🔐 Token Type: <strong style={{ color: '#1e40af' }}>{newTokens.token_type || 'Bearer'}</strong></div>
-              <div>🎯 Scope: <strong style={{ color: '#1e40af' }}>{newTokens.scope || 'Not specified'}</strong></div>
+        <div>
+          <InfoBox type="success">
+            <FiCheckCircle />
+            <div>
+              <strong>🎉 SUCCESS! You Now Have a New Access Token!</strong>
+              <br />
+              Your refresh token has been successfully exchanged for a fresh access token. 
+              Your application can continue accessing protected resources without user re-authentication.
+              <br /><br />
+              <div style={{ marginTop: '1rem', display: 'grid', gap: '0.5rem', fontSize: '0.9em' }}>
+                <div>✅ New Access Token: <strong style={{ color: '#1e40af' }}>{newTokens.access_token ? 'Received' : 'Missing'}</strong></div>
+                {flowType === 'oidc' && (
+                  <div>✅ New ID Token: <strong style={{ color: '#1e40af' }}>{newTokens.id_token ? 'Received' : 'Missing'}</strong></div>
+                )}
+                <div>⏱️ Expires In: <strong style={{ color: '#1e40af' }}>{newTokens.expires_in ? `${newTokens.expires_in} seconds` : 'Unknown'}</strong></div>
+                <div>🔐 Token Type: <strong style={{ color: '#1e40af' }}>{newTokens.token_type || 'Bearer'}</strong></div>
+                <div>🎯 Scope: <strong style={{ color: '#1e40af' }}>{newTokens.scope || 'Not specified'}</strong></div>
+              </div>
             </div>
-            <div style={{ marginTop: '1rem', padding: '0.75rem', background: '#e0f2fe', borderRadius: '4px', fontSize: '0.875rem' }}>
-              <strong>🔄 Token Rotation:</strong> Many OAuth providers issue a new refresh token with each refresh. 
-              Always use the latest refresh token for subsequent requests.
+          </InfoBox>
+
+          {/* Display the new access token */}
+          <div style={{ 
+            background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)', 
+            border: '1px solid #2196f3', 
+            borderRadius: '8px', 
+            padding: '1rem', 
+            marginTop: '1rem' 
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+              <h4 style={{ margin: 0, color: '#1565c0' }}>🆕 Your New Access Token</h4>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(newTokens.access_token);
+                }}
+                style={{
+                  background: '#2196f3',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  padding: '0.25rem 0.5rem',
+                  cursor: 'pointer',
+                  fontSize: '0.875rem'
+                }}
+              >
+                📋 Copy New Token
+              </button>
             </div>
+            <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', color: '#1565c0' }}>
+              This is your fresh access token that you can use to access protected resources:
+            </p>
+            <code style={{ 
+              display: 'block', 
+              background: 'white', 
+              padding: '0.5rem', 
+              borderRadius: '4px', 
+              fontSize: '0.75rem', 
+              wordBreak: 'break-all',
+              border: '1px solid #e3f2fd',
+              maxHeight: '200px',
+              overflowY: 'auto'
+            }}>
+              {newTokens.access_token}
+            </code>
           </div>
-        </InfoBox>
+
+          <div style={{ marginTop: '1rem', padding: '0.75rem', background: '#e0f2fe', borderRadius: '4px', fontSize: '0.875rem' }}>
+            <strong>🔄 Token Rotation:</strong> Many OAuth providers issue a new refresh token with each refresh. 
+            Always use the latest refresh token for subsequent requests.
+          </div>
+        </div>
       )}
     </div>
   ),
   execute: exchangeRefreshToken,
   canExecute: Boolean(refreshToken && !newTokens),
-  completed: Boolean(newTokens)
+  completed: Boolean(newTokens),
+  buttonText: 'Use Refresh Token'
 });
 
 // Export styled components for use in other files
