@@ -691,18 +691,63 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
     
     showFlowSuccess('OAuth flow reset successfully');
     
-    // Use centralized scroll management for consistent behavior
-    console.log('📜 [OAuth-V3] Using centralized scroll system for reset');
+    // AGGRESSIVE SCROLL TO TOP - try all methods
+    console.log('📜 [OAuth-V3] AGGRESSIVE SCROLL - position before:', window.pageYOffset);
+    
+    // Method 1: Immediate scroll
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    
+    // Method 2: Centralized system
     scrollToTopAfterAction();
     
-    // Also try direct scroll as backup
+    // Method 3: Force scroll all containers
+    const scrollAllContainers = () => {
+      // Scroll main window
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      
+      // Scroll all possible containers
+      const containers = [
+        document.documentElement,
+        document.body,
+        document.querySelector('main'),
+        document.querySelector('[data-scrollable]'),
+        document.querySelector('.app-container'),
+        document.querySelector('.page-container')
+      ];
+      
+      containers.forEach(container => {
+        if (container) {
+          container.scrollTop = 0;
+          if (container.scrollTo) {
+            container.scrollTo(0, 0);
+          }
+        }
+      });
+      
+      console.log('📜 [OAuth-V3] Force scrolled all containers');
+    };
+    
+    // Execute force scroll immediately and with delays
+    scrollAllContainers();
+    setTimeout(scrollAllContainers, 50);
+    setTimeout(scrollAllContainers, 200);
+    setTimeout(scrollAllContainers, 500);
+    
+    // Final verification
     setTimeout(() => {
-      console.log('📜 [OAuth-V3] Backup scroll - position before:', window.pageYOffset);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-      console.log('📜 [OAuth-V3] Backup scroll completed');
-    }, 100);
+      console.log('📜 [OAuth-V3] FINAL scroll position:', window.pageYOffset);
+      if (window.pageYOffset > 0) {
+        console.log('❌ [OAuth-V3] Scroll failed - still at position:', window.pageYOffset);
+        // One more desperate attempt
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+      } else {
+        console.log('✅ [OAuth-V3] Scroll successful - at top!');
+      }
+    }, 1000);
   }, [stepManager, scrollToTopAfterAction]);
 
   // Restart flow (for final step)
