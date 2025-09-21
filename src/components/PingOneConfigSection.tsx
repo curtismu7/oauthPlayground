@@ -13,8 +13,8 @@ const Container = styled.div`
   overflow: hidden;
 `;
 
-const Header = styled.div`
-  background: #fbbf24;
+const Header = styled.div<{ $hasCredentials: boolean }>`
+  background: ${({ $hasCredentials }) => $hasCredentials ? '#10b981' : '#fbbf24'};
   padding: 1rem 1.5rem;
   cursor: pointer;
   display: flex;
@@ -23,12 +23,12 @@ const Header = styled.div`
   transition: background-color 0.2s ease;
   
   &:hover {
-    background: #f59e0b;
+    background: ${({ $hasCredentials }) => $hasCredentials ? '#059669' : '#f59e0b'};
   }
 `;
 
-const HeaderTitle = styled.h3`
-  color: #92400e;
+const HeaderTitle = styled.h3<{ $hasCredentials: boolean }>`
+  color: ${({ $hasCredentials }) => $hasCredentials ? '#065f46' : '#92400e'};
   margin: 0;
   font-size: 1.1rem;
   font-weight: 600;
@@ -37,8 +37,8 @@ const HeaderTitle = styled.h3`
   gap: 0.5rem;
 `;
 
-const ChevronIcon = styled.div`
-  color: #92400e;
+const ChevronIcon = styled.div<{ $hasCredentials: boolean }>`
+  color: ${({ $hasCredentials }) => $hasCredentials ? '#065f46' : '#92400e'};
   font-size: 1.2rem;
   transition: transform 0.2s ease;
   
@@ -168,11 +168,19 @@ const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
   
-  // Check if we have a valid Environment ID for the console button
+  // Check if we have valid credentials for styling
   const credentials = credentialManager.getAllCredentials();
   const hasValidEnvironmentId = credentials.environmentId && 
                                 credentials.environmentId.trim() !== '' && 
                                 credentials.environmentId !== 'test-env-123';
+  
+  // Check if credentials are complete (for green vs yellow styling)
+  const hasCompleteCredentials = hasValidEnvironmentId && 
+                                 credentials.clientId && 
+                                 credentials.clientId.trim() !== '' &&
+                                 credentials.clientId !== 'test-client-123' &&
+                                 credentials.clientSecret &&
+                                 credentials.clientSecret.trim() !== '';
   
   console.log('🔍 [PingOneConfigSection] Environment ID check:', {
     environmentId: credentials.environmentId,
@@ -214,11 +222,11 @@ const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
 
   return (
     <Container>
-      <Header onClick={() => setIsExpanded(!isExpanded)}>
-        <HeaderTitle>
-          ⚠️ PingOne Configuration Required
+      <Header $hasCredentials={hasCompleteCredentials} onClick={() => setIsExpanded(!isExpanded)}>
+        <HeaderTitle $hasCredentials={hasCompleteCredentials}>
+          {hasCompleteCredentials ? '✅ PingOne Configuration Complete' : '⚠️ PingOne Configuration Required'}
         </HeaderTitle>
-        <ChevronIcon>
+        <ChevronIcon $hasCredentials={hasCompleteCredentials}>
           {isExpanded ? <FiChevronDown /> : <FiChevronRight />}
         </ChevronIcon>
       </Header>
