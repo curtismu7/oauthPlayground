@@ -23,8 +23,8 @@ const URLContainer = styled.div`
 
 const URLText = styled.span`
   font-family: 'SFMono-Regular', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', 'Courier New', monospace;
-  font-size: 0.875rem;
-  line-height: 1.5;
+  font-size: 1rem;
+  line-height: 1.6;
   word-break: break-all;
   white-space: pre-wrap;
   flex: 1;
@@ -162,14 +162,14 @@ const URLPartDescriptionDollar = styled(URLPartDescription)`
 
 const PartName = styled.strong`
   font-family: 'SFMono-Regular', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', 'Courier New', monospace;
-  font-size: 0.875rem;
+  font-size: 1rem;
 `;
 
 const PartDescription = styled.p`
   margin: 0.25rem 0 0 0;
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: #4b5563;
-  line-height: 1.5;
+  line-height: 1.6;
 `;
 
 const URLPart = styled.span<{ type: 'base' | 'question' | 'ampersand' | 'param' | 'param2' | 'param3' | 'equals' | 'dollar' }>`
