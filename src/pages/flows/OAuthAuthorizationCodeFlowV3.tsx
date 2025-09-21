@@ -691,8 +691,11 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
     
     showFlowSuccess('OAuth flow reset successfully');
     
-    // Scroll to top for better UX
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Scroll to top of step 1 for better UX
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      console.log('📜 [OAuth-V3] Scrolled to top after flow reset');
+    }, 100);
   }, [stepManager]);
 
   // Restart flow (for final step)
