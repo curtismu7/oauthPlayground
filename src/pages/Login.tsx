@@ -351,6 +351,7 @@ const Login = () => {
   const [redirectUrl, setRedirectUrl] = useState<string>('');
   const [redirectParams, setRedirectParams] = useState<Record<string, string>>({});
   const [isConfigSectionCollapsed, setIsConfigSectionCollapsed] = useState<boolean>(true);
+  const [isCredentialsSectionCollapsed, setIsCredentialsSectionCollapsed] = useState<boolean>(false);
   
   const { login } = useAuth();
   const location = useLocation();
@@ -783,8 +784,30 @@ const Login = () => {
               </ul>
             </SetupSteps>
 
+            <p><em>💡 <strong>Need Help?</strong> Check the PingOne documentation or contact your PingOne administrator.</em></p>
+              </>
+            )}
+            </PingOneSetupSection>
+
+            {/* Credentials Section - Separate Collapsible Section */}
+            <PingOneSetupSection style={{ marginTop: '1rem' }}>
+            <h3 
+              onClick={() => setIsCredentialsSectionCollapsed(!isCredentialsSectionCollapsed)}
+              style={{ 
+                cursor: 'pointer', 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '0.5rem',
+                userSelect: 'none'
+              }}
+            >
+              {isCredentialsSectionCollapsed ? <FiChevronRight /> : <FiChevronDown />}
+              📝 Enter Your Credentials
+            </h3>
+            {!isCredentialsSectionCollapsed && (
+              <>
             <CredentialsBox>
-              <h4>📝 Enter Your Credentials</h4>
+              <h4>Configure Your PingOne Application Credentials</h4>
               
               {redirectMessage && (
                 <div style={{
@@ -1242,8 +1265,6 @@ const Login = () => {
               
               </form>
             </CredentialsBox>
-
-            <p><em>💡 <strong>Need Help?</strong> Check the PingOne documentation or contact your PingOne administrator.</em></p>
               </>
             )}
             </PingOneSetupSection>
