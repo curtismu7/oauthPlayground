@@ -94,36 +94,6 @@ const FlowControlTitle = styled.h3`
   font-weight: 600;
 `;
 
-const ActionButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: #3b82f6;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-right: 1rem;
-  margin-bottom: 0.5rem;
-  
-  &:hover {
-    background: #2563eb;
-    transform: translateY(-1px);
-  }
-  
-  &:active {
-    transform: translateY(0);
-  }
-  
-  &:disabled {
-    background: #9ca3af;
-    cursor: not-allowed;
-    transform: none;
-  }
-`;
 
 interface UnifiedFlowProps {
   flowType: 'oauth' | 'oidc';
