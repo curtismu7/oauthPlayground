@@ -90,10 +90,69 @@ const FlowControlSection = styled.div`
 `;
 
 const FlowControlTitle = styled.h3`
-  margin: 0 0 1rem 0;
+  margin: 0 0 1.5rem 0;
   color: #374151;
   font-size: 1.1rem;
   font-weight: 600;
+`;
+
+const FlowControlButtons = styled.div`
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: center;
+`;
+
+const FlowControlButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 140px;
+  justify-content: center;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  &.clear {
+    background: #10b981;
+    color: white;
+    
+    &:hover {
+      background: #059669;
+    }
+  }
+  
+  &.debug {
+    background: #f59e0b;
+    color: white;
+    
+    &:hover {
+      background: #d97706;
+    }
+  }
+  
+  &.reset {
+    background: #6b7280;
+    color: white;
+    
+    &:hover {
+      background: #4b5563;
+    }
+  }
 `;
 
 
@@ -2037,54 +2096,51 @@ Original Error: ${errorData.error_description || errorData.error}
           <FlowControlTitle>
             ⚙️ Flow Control Actions
           </FlowControlTitle>
-          <ActionButton onClick={clearCredentials}>
-            🧹 Clear Credentials
-          </ActionButton>
-          <ActionButton 
-            onClick={(e) => {
-              e.preventDefault();
-              console.log('🔍 [DEBUG] Manual credential reload triggered - button clicked!');
-              console.log('🔍 [DEBUG] Current localStorage keys:', Object.keys(localStorage));
-              console.log('🔍 [DEBUG] Current credentials state:', credentials);
-              console.log('🔍 [DEBUG] Flow type:', flowType);
+          <FlowControlButtons>
+            <FlowControlButton className="clear" onClick={clearCredentials}>
+              🧹 Clear Credentials
+            </FlowControlButton>
+            <FlowControlButton 
+              className="debug"
+              onClick={(e) => {
+                e.preventDefault();
+                console.log('🔍 [DEBUG] Manual credential reload triggered - button clicked!');
+                console.log('🔍 [DEBUG] Current localStorage keys:', Object.keys(localStorage));
+                console.log('🔍 [DEBUG] Current credentials state:', credentials);
+                console.log('🔍 [DEBUG] Flow type:', flowType);
+                
+                // Try to reload credentials
+                const allCredentials = credentialManager.loadAuthzFlowCredentials();
+                console.log('🔍 [DEBUG] Loaded authz flow credentials:', allCredentials);
+                
+                const configCredentials = credentialManager.loadConfigCredentials();
+                console.log('🔍 [DEBUG] Loaded config credentials:', configCredentials);
+                
+                const permanentCredentials = credentialManager.loadPermanentCredentials();
+                console.log('🔍 [DEBUG] Loaded permanent credentials:', permanentCredentials);
+                
+              // Show comprehensive redirect URI debugging
+              const debugInfo = {
+                currentUrl: window.location.href,
+                origin: window.location.origin,
+                expectedCallback: `${window.location.origin}/authz-callback`,
+                credentialsRedirectUri: credentials.redirectUri,
+                environmentId: credentials.environmentId,
+                clientId: credentials.clientId,
+                allLocalStorageKeys: Object.keys(localStorage),
+                allSessionStorageKeys: Object.keys(sessionStorage)
+              };
               
-              // Try to reload credentials
-              const allCredentials = credentialManager.loadAuthzFlowCredentials();
-              console.log('🔍 [DEBUG] Loaded authz flow credentials:', allCredentials);
-              
-              const configCredentials = credentialManager.loadConfigCredentials();
-              console.log('🔍 [DEBUG] Loaded config credentials:', configCredentials);
-              
-              const permanentCredentials = credentialManager.loadPermanentCredentials();
-              console.log('🔍 [DEBUG] Loaded permanent credentials:', permanentCredentials);
-              
-            // Show comprehensive redirect URI debugging
-            const debugInfo = {
-              currentUrl: window.location.href,
-              origin: window.location.origin,
-              expectedCallback: `${window.location.origin}/authz-callback`,
-              credentialsRedirectUri: credentials.redirectUri,
-              environmentId: credentials.environmentId,
-              clientId: credentials.clientId,
-              allLocalStorageKeys: Object.keys(localStorage),
-              allSessionStorageKeys: Object.keys(sessionStorage)
-            };
-            
-            console.log('🔍 [COMPREHENSIVE DEBUG] Full application state:', debugInfo);
-            alert(`Debug Info:\n\nCurrent URL: ${debugInfo.currentUrl}\nOrigin: ${debugInfo.origin}\nExpected Callback: ${debugInfo.expectedCallback}\nCredentials Redirect URI: ${debugInfo.credentialsRedirectUri}\n\nCheck console for full details.`);
-            }}
-            style={{ 
-              backgroundColor: '#f59e0b', 
-              color: 'white',
-              fontWeight: 'bold',
-              border: '2px solid #d97706'
-            }}
-          >
-            🔍 Debug Credentials
-          </ActionButton>
-          <ActionButton onClick={resetFlow}>
-            <FiRotateCcw /> Reset Flow
-          </ActionButton>
+              console.log('🔍 [COMPREHENSIVE DEBUG] Full application state:', debugInfo);
+              alert(`Debug Info:\n\nCurrent URL: ${debugInfo.currentUrl}\nOrigin: ${debugInfo.origin}\nExpected Callback: ${debugInfo.expectedCallback}\nCredentials Redirect URI: ${debugInfo.credentialsRedirectUri}\n\nCheck console for full details.`);
+              }}
+            >
+              🔍 Debug Credentials
+            </FlowControlButton>
+            <FlowControlButton className="reset" onClick={resetFlow}>
+              <FiRotateCcw /> Reset Flow
+            </FlowControlButton>
+          </FlowControlButtons>
         </FlowControlSection>
       </FlowCard>
 
