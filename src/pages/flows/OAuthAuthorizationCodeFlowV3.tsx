@@ -204,7 +204,7 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
   }, []);
   
   // Use centralized scroll management
-  useAuthorizationFlowScroll('OAuth Authorization Code Flow V3');
+  const { scrollToTopAfterAction } = useAuthorizationFlowScroll('OAuth Authorization Code Flow V3');
 
   // Use the new step management system
   const stepManager = useFlowStepManager({
@@ -691,12 +691,19 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
     
     showFlowSuccess('OAuth flow reset successfully');
     
-    // Scroll to top of step 1 for better UX
+    // Use centralized scroll management for consistent behavior
+    console.log('📜 [OAuth-V3] Using centralized scroll system for reset');
+    scrollToTopAfterAction();
+    
+    // Also try direct scroll as backup
     setTimeout(() => {
+      console.log('📜 [OAuth-V3] Backup scroll - position before:', window.pageYOffset);
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      console.log('📜 [OAuth-V3] Scrolled to top after flow reset');
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      console.log('📜 [OAuth-V3] Backup scroll completed');
     }, 100);
-  }, [stepManager]);
+  }, [stepManager, scrollToTopAfterAction]);
 
   // Restart flow (for final step)
   const restartFlow = useCallback(() => {
