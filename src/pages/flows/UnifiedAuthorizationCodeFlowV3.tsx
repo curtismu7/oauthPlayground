@@ -13,6 +13,7 @@ import {
   createUserAuthorizationStep,
   createCallbackHandlingStep,
   createTokenExchangeStep, 
+  createRefreshTokenStep,
   createTokenValidationStep,
   createUserInfoStep,
   StepCredentials,
@@ -270,6 +271,8 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
   const [isAuthorizing, setIsAuthorizing] = useState(false);
   const [isExchangingTokens, setIsExchangingTokens] = useState(false);
   const [canExchangeTokens, setCanExchangeTokens] = useState(false);
+  const [newTokensFromRefresh, setNewTokensFromRefresh] = useState(null);
+  const [isRefreshingTokens, setIsRefreshingTokens] = useState(false);
   const [flowConfig, setFlowConfig] = useState<FlowConfig>(() => {
     // Try to load saved flow configuration
     try {
@@ -490,6 +493,73 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
       window.removeEventListener('step:next', handleStepNext);
     };
   }, [stepManager, flowType]);
+
+  // Exchange refresh token for new access token
+  const exchangeRefreshToken = useCallback(async () => {
+    if (!tokens?.refresh_token) {
+      showFlowError('No refresh token available');
+      return;
+    }
+
+    setIsRefreshingTokens(true);
+    
+    try {
+      console.log(`🔄 [${flowType.toUpperCase()}-V3] Starting refresh token exchange...`);
+      
+      const requestBody = {
+        grant_type: 'refresh_token',
+        refresh_token: tokens.refresh_token,
+        client_id: credentials.clientId,
+        client_secret: credentials.clientSecret,
+        environment_id: credentials.environmentId,
+        scope: flowType === 'oidc' ? 'openid profile email' : 'read write'
+      };
+
+      console.log(`🌐 [${flowType.toUpperCase()}-V3] Making refresh token request:`, {
+        grant_type: requestBody.grant_type,
+        client_id: requestBody.client_id ? `${requestBody.client_id.substring(0, 8)}...` : 'MISSING',
+        environment_id: requestBody.environment_id || 'MISSING',
+        hasRefreshToken: !!requestBody.refresh_token,
+        hasClientSecret: !!requestBody.client_secret,
+        scope: requestBody.scope
+      });
+
+      const response = await fetch('/api/token-exchange', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      const result = await response.json();
+      
+      if (response.ok && result.access_token) {
+        console.log(`✅ [${flowType.toUpperCase()}-V3] Refresh token exchange successful`);
+        setNewTokensFromRefresh(result);
+        
+        // Store the new tokens (optional - for demonstration)
+        sessionStorage.setItem(`${flowType}_v3_new_access_token`, result.access_token);
+        if (result.refresh_token) {
+          sessionStorage.setItem(`${flowType}_v3_new_refresh_token`, result.refresh_token);
+        }
+        if (result.id_token && flowType === 'oidc') {
+          sessionStorage.setItem(`${flowType}_v3_new_id_token`, result.id_token);
+        }
+        
+        showFlowSuccess('New access token obtained successfully using refresh token');
+        stepManager.updateStepMessage('refresh-token-exchange', 'New tokens received successfully');
+      } else {
+        console.error(`❌ [${flowType.toUpperCase()}-V3] Refresh token exchange failed:`, result);
+        showFlowError(`Refresh token exchange failed: ${result.error_description || result.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error(`❌ [${flowType.toUpperCase()}-V3] Refresh token exchange error:`, error);
+      showFlowError(`Refresh token exchange failed: ${String(error)}`);
+    } finally {
+      setIsRefreshingTokens(false);
+    }
+  }, [tokens?.refresh_token, credentials, flowType, stepManager]);
 
   // Load credentials on component mount (additional safety net)
   useEffect(() => {
@@ -1500,6 +1570,11 @@ Original Error: ${errorData.error_description || errorData.error}
         ...createTokenExchangeStep(authCode, tokens, exchangeTokens, credentials, isExchangingTokens, flowType),
         canExecute: Boolean(authCode && credentials.environmentId && credentials.clientId && !tokens?.access_token),
         completed: hasStepResult('exchange-tokens') || Boolean(tokens?.access_token)
+      },
+      {
+        ...createRefreshTokenStep(tokens?.refresh_token, newTokensFromRefresh, exchangeRefreshToken, credentials, isRefreshingTokens, flowType),
+        canExecute: Boolean(tokens?.refresh_token && !newTokensFromRefresh),
+        completed: hasStepResult('refresh-token-exchange') || Boolean(newTokensFromRefresh)
       }
     ];
 
@@ -1784,10 +1859,13 @@ Original Error: ${errorData.error_description || errorData.error}
     pkceCodes.codeChallenge,
     authUrl, 
     authCode, 
-    tokens?.access_token, 
+    tokens?.access_token,
+    tokens?.refresh_token,
+    newTokensFromRefresh,
     userInfo, 
     isAuthorizing, 
-    isExchangingTokens, 
+    isExchangingTokens,
+    isRefreshingTokens,
     flowType, 
     hasCredentialsSaved, 
     hasUnsavedCredentialChanges, 
