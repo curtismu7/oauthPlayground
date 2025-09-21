@@ -178,7 +178,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
   }, [flowType]);
   
   // Use centralized scroll management
-  useAuthorizationFlowScroll(`${flowType.toUpperCase()} Authorization Code Flow V3`);
+  const { scrollToTopAfterAction } = useAuthorizationFlowScroll(`${flowType.toUpperCase()} Authorization Code Flow V3`);
 
   // Use the new step management system
   const stepManager = useFlowStepManager({
@@ -1598,23 +1598,24 @@ Original Error: ${errorData.error_description || errorData.error}
     
     showFlowSuccess(`${flowType.toUpperCase()} flow reset successfully`);
     
-    // Scroll to top of step 1 for better UX - try immediate scroll first
-    console.log(`📜 [${flowType.toUpperCase()}-V3] IMMEDIATE SCROLL - scroll position before:`, window.pageYOffset);
-    window.scrollTo({ top: 0, behavior: 'instant' });
-    console.log(`📜 [${flowType.toUpperCase()}-V3] Immediate scroll attempted`);
+    // Use centralized scroll management for consistent behavior
+    console.log(`📜 [${flowType.toUpperCase()}-V3] Using centralized scroll system for reset`);
+    scrollToTopAfterAction();
     
-    // Also try smooth scroll with delay
+    // Also try direct scroll as backup
     setTimeout(() => {
-      console.log(`📜 [${flowType.toUpperCase()}-V3] DELAYED SMOOTH SCROLL - scroll position before:`, window.pageYOffset);
+      console.log(`📜 [${flowType.toUpperCase()}-V3] Backup scroll - position before:`, window.pageYOffset);
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      console.log(`📜 [${flowType.toUpperCase()}-V3] Delayed smooth scroll attempted`);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      console.log(`📜 [${flowType.toUpperCase()}-V3] Backup scroll completed`);
       
-      // Verify scroll after a brief delay
+      // Verify final position
       setTimeout(() => {
         console.log(`📜 [${flowType.toUpperCase()}-V3] Final scroll position:`, window.pageYOffset);
       }, 500);
     }, 100);
-  }, [stepManager, flowType]);
+  }, [stepManager, flowType, scrollToTopAfterAction]);
 
   // Navigate to Token Management
   const navigateToTokenManagement = useCallback((tokenType: 'access' | 'refresh' | 'id') => {
