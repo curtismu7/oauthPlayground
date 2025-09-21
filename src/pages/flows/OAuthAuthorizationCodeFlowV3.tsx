@@ -763,6 +763,9 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
       // Store the token for the Token Management page
       sessionStorage.setItem('token_to_analyze', token);
       sessionStorage.setItem('token_type', tokenType);
+      sessionStorage.setItem('flow_source', 'oauth-v3'); // Mark as OAuth V3 flow
+      
+      console.log('🔍 [OAuth-V3] Navigating to Token Management with OAuth flow source');
       window.open('/token-management', '_blank');
     }
   }, [tokens]);
