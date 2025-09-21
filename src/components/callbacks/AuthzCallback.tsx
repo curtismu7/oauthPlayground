@@ -262,19 +262,55 @@ const AuthzCallback: React.FC = () => {
               
               if (error) {
                 const errorDescription = urlParams.get('error_description');
+                const allParams = Object.fromEntries(urlParams.entries());
+                
                 console.error('❌ [AuthzCallback] Authorization error in V3 full redirect:', {
                   error,
                   errorDescription,
                   fullUrl: currentUrl,
-                  allParams: Object.fromEntries(urlParams.entries())
+                  allParams,
+                  flowContext: context,
+                  sessionStorageKeys: Object.keys(sessionStorage),
+                  relevantSessionData: {
+                    flowContext: sessionStorage.getItem('flowContext'),
+                    codeVerifier: sessionStorage.getItem('oidc_v3_code_verifier'),
+                    state: sessionStorage.getItem('oidc_v3_state'),
+                    redirectUri: sessionStorage.getItem('oidc_v3_redirect_uri')
+                  }
                 });
+                
                 setStatus('error');
                 setMessage(`Authorization failed: ${errorDescription || error}`);
                 
                 // Show user-friendly error message based on error type
                 if (error === 'invalid_request') {
-                  console.log('🔍 [AuthzCallback] invalid_request error - likely authorization URL parameter issue');
-                  setMessage(`Authorization failed: Invalid request parameters. This usually means there's an issue with the authorization URL parameters sent to PingOne. Check your PingOne application configuration.`);
+                  console.log('🔍 [AuthzCallback] invalid_request error details:', {
+                    possibleCauses: [
+                      'Invalid client_id',
+                      'Invalid redirect_uri',
+                      'Missing or invalid response_type',
+                      'Invalid scope parameters',
+                      'Missing PKCE parameters (code_challenge)',
+                      'Malformed authorization URL'
+                    ],
+                    checkThese: [
+                      'PingOne application configuration',
+                      'Redirect URI matches exactly',
+                      'Client ID is correct',
+                      'PKCE is enabled in PingOne',
+                      'Scopes are valid for your application'
+                    ]
+                  });
+                  
+                  setMessage(`Authorization failed: Invalid request parameters. This usually means there's an issue with the authorization URL parameters sent to PingOne. 
+
+Common causes:
+• Invalid Client ID or Redirect URI
+• PKCE not enabled in PingOne application  
+• Invalid scopes for your application
+• Malformed authorization URL parameters
+
+Check your PingOne application configuration and ensure all parameters match exactly.`);
                 }
                 
                 return;
