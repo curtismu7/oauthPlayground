@@ -1654,6 +1654,16 @@ Original Error: ${errorData.error_description || errorData.error}
 
   // Create steps based on flow type
   const steps = React.useMemo(() => {
+    console.log(`🔍 [${flowType.toUpperCase()}-V3] Creating steps with current state:`, {
+      authCode: authCode ? `${authCode.substring(0, 10)}...` : 'NONE',
+      hasCredentials: Boolean(credentials.environmentId && credentials.clientId),
+      credentials: {
+        environmentId: credentials.environmentId ? `${credentials.environmentId.substring(0, 10)}...` : 'MISSING',
+        clientId: credentials.clientId ? `${credentials.clientId.substring(0, 10)}...` : 'MISSING',
+        redirectUri: credentials.redirectUri || 'MISSING'
+      }
+    });
+    
     // Check if user has chosen to skip credentials step (flow-specific)
     const skipCredentialsStep = localStorage.getItem(`${flowType}_v3_skip_credentials_step`) === 'true';
     
@@ -1708,7 +1718,24 @@ Original Error: ${errorData.error_description || errorData.error}
       },
       {
         ...createTokenExchangeStep(authCode, tokens, exchangeTokens, credentials, isExchangingTokens, flowType),
-        canExecute: Boolean(authCode && credentials.environmentId && credentials.clientId && !hasStepResult('exchange-tokens')),
+        canExecute: (() => {
+          const hasAuthCode = Boolean(authCode);
+          const hasEnvironmentId = Boolean(credentials.environmentId);
+          const hasClientId = Boolean(credentials.clientId);
+          const stepNotCompleted = !hasStepResult('exchange-tokens');
+          const canExec = hasAuthCode && hasEnvironmentId && hasClientId && stepNotCompleted;
+          
+          console.log(`🔍 [${flowType.toUpperCase()}-V3] Token exchange canExecute check:`, {
+            authCode: hasAuthCode ? `${authCode.substring(0, 10)}...` : 'MISSING',
+            environmentId: hasEnvironmentId ? credentials.environmentId.substring(0, 10) + '...' : 'MISSING',
+            clientId: hasClientId ? credentials.clientId.substring(0, 10) + '...' : 'MISSING',
+            stepNotCompleted,
+            canExecute: canExec,
+            fullCredentials: credentials
+          });
+          
+          return canExec;
+        })(),
         completed: hasStepResult('exchange-tokens') || Boolean(tokens?.access_token)
       }
     ];
