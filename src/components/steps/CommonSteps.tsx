@@ -1139,5 +1139,114 @@ export const createTokenValidationStep = (
   canExecute: Boolean(tokens?.access_token)
 });
 
+/**
+ * Create refresh token step - demonstrates using refresh token to get new access token
+ */
+export const createRefreshTokenStep = (
+  refreshToken: string,
+  newTokens: any,
+  exchangeRefreshToken: () => Promise<void>,
+  credentials: StepCredentials,
+  isRefreshing: boolean = false,
+  flowType: 'oauth' | 'oidc' = 'oidc'
+): EnhancedFlowStep => ({
+  id: 'refresh-token-exchange',
+  title: 'Use Refresh Token',
+  description: 'Demonstrate how to use the refresh token to obtain a new access token without user re-authentication.',
+  icon: <FiKey />,
+  category: 'token-exchange',
+  content: (
+    <div>
+      <InfoBox type="info">
+        <FiKey />
+        <div>
+          <strong>Refresh Token Usage - Extending Token Lifetime</strong>
+          <br />
+          {flowType === 'oauth' ? (
+            <>
+              Use your <strong>refresh token</strong> to obtain a new access token without requiring user re-authentication. 
+              This is essential for maintaining OAuth 2.0 application access when access tokens expire.
+            </>
+          ) : (
+            <>
+              Use your <strong>refresh token</strong> to obtain new OIDC tokens (access token and optionally a new ID token) 
+              without requiring user re-authentication.
+            </>
+          )}
+          <br /><br />
+          <strong>Why Refresh Tokens?</strong>
+          <ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
+            <li>Access tokens are short-lived (typically 1 hour)</li>
+            <li>Refresh tokens are long-lived (typically 30 days)</li>
+            <li>Avoids frequent user login prompts</li>
+            <li>Maintains security with token rotation</li>
+          </ul>
+        </div>
+      </InfoBox>
+      
+      {refreshToken && (
+        <div style={{ 
+          background: 'linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%)', 
+          border: '1px solid #4caf50', 
+          borderRadius: '8px', 
+          padding: '1rem', 
+          marginBottom: '1rem' 
+        }}>
+          <h4 style={{ margin: '0 0 0.5rem 0', color: '#2e7d32' }}>🔄 Available Refresh Token</h4>
+          <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', color: '#2e7d32' }}>
+            This refresh token can be used to get a new access token:
+          </p>
+          <code style={{ 
+            display: 'block', 
+            background: 'white', 
+            padding: '0.5rem', 
+            borderRadius: '4px', 
+            fontSize: '0.75rem', 
+            wordBreak: 'break-all',
+            border: '1px solid #e8f5e8'
+          }}>
+            {refreshToken.substring(0, 50)}...
+          </code>
+        </div>
+      )}
+      
+      {isRefreshing && (
+        <InfoBox type="info">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div className="spinner" />
+            <strong>Exchanging refresh token for new access token...</strong>
+          </div>
+        </InfoBox>
+      )}
+      
+      {newTokens && (
+        <InfoBox type="success">
+          <FiCheckCircle />
+          <div>
+            <strong>✅ New Tokens Received!</strong>
+            <br />
+            <div style={{ marginTop: '1rem', display: 'grid', gap: '0.5rem', fontSize: '0.9em' }}>
+              <div>✅ New Access Token: <strong style={{ color: '#1e40af' }}>{newTokens.access_token ? 'Received' : 'Missing'}</strong></div>
+              {flowType === 'oidc' && (
+                <div>✅ New ID Token: <strong style={{ color: '#1e40af' }}>{newTokens.id_token ? 'Received' : 'Missing'}</strong></div>
+              )}
+              <div>⏱️ Expires In: <strong style={{ color: '#1e40af' }}>{newTokens.expires_in ? `${newTokens.expires_in} seconds` : 'Unknown'}</strong></div>
+              <div>🔐 Token Type: <strong style={{ color: '#1e40af' }}>{newTokens.token_type || 'Bearer'}</strong></div>
+              <div>🎯 Scope: <strong style={{ color: '#1e40af' }}>{newTokens.scope || 'Not specified'}</strong></div>
+            </div>
+            <div style={{ marginTop: '1rem', padding: '0.75rem', background: '#e0f2fe', borderRadius: '4px', fontSize: '0.875rem' }}>
+              <strong>🔄 Token Rotation:</strong> Many OAuth providers issue a new refresh token with each refresh. 
+              Always use the latest refresh token for subsequent requests.
+            </div>
+          </div>
+        </InfoBox>
+      )}
+    </div>
+  ),
+  execute: exchangeRefreshToken,
+  canExecute: Boolean(refreshToken && !newTokens),
+  completed: Boolean(newTokens)
+});
+
 // Export styled components for use in other files
 export { InfoBox, ActionButton };
