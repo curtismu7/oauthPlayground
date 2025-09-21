@@ -903,8 +903,11 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
       flowConfig: flowConfig
     });
     
-    // Show modal first if enabled
-    if (flowConfig.showAuthRequestModal) {
+    // Check if user has chosen to skip the modal
+    const skipModal = localStorage.getItem('skip_oauth_authz_request_modal') === 'true';
+    
+    // Show modal first if enabled and not skipped
+    if (flowConfig.showAuthRequestModal && !skipModal) {
       console.log(`🔍 [${flowType.toUpperCase()}-V3] Showing OAuth Authorization Request Modal`);
       setShowAuthRequestModal(true);
       return;
@@ -990,8 +993,11 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
       flowConfig: flowConfig
     });
     
-    // Show modal first if enabled
-    if (flowConfig.showAuthRequestModal) {
+    // Check if user has chosen to skip the modal
+    const skipModal = localStorage.getItem('skip_oauth_authz_request_modal') === 'true';
+    
+    // Show modal first if enabled and not skipped
+    if (flowConfig.showAuthRequestModal && !skipModal) {
       console.log(`🔍 [${flowType.toUpperCase()}-V3] Showing OAuth Authorization Request Modal for redirect`);
       setShowAuthRequestModal(true);
       return;
@@ -1673,7 +1679,24 @@ Original Error: ${errorData.error_description || errorData.error}
     }
 
     return baseSteps;
-  }, [credentials, pkceCodes, authUrl, authCode, tokens, userInfo, isAuthorizing, isExchangingTokens, flowType, stepManager.currentStepIndex, hasStepResult, saveCredentials, generatePKCE, generateAuthUrl, handlePopupAuthorizationWithModal, handleFullRedirectAuthorizationWithModal, exchangeTokens, resetFlow, navigateToTokenManagement, copyUserInfo, hasCredentialsSaved, hasUnsavedCredentialChanges, isSavingCredentials, handleCloseCredentials]);
+  }, [
+    credentials.environmentId, 
+    credentials.clientId, 
+    credentials.clientSecret, 
+    credentials.redirectUri,
+    pkceCodes.codeVerifier, 
+    pkceCodes.codeChallenge,
+    authUrl, 
+    authCode, 
+    tokens?.access_token, 
+    userInfo, 
+    isAuthorizing, 
+    isExchangingTokens, 
+    flowType, 
+    hasCredentialsSaved, 
+    hasUnsavedCredentialChanges, 
+    isSavingCredentials
+  ]);
 
   const flowTitle = flowType === 'oauth' 
     ? '🔐 OAuth 2.0 Authorization Code Flow (V3)' 
