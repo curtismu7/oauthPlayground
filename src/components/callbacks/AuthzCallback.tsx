@@ -239,9 +239,17 @@ const AuthzCallback: React.FC = () => {
               }
               
               if (code && state) {
-                // Store the authorization code for V3 to use
-                sessionStorage.setItem('oauth_auth_code', code);
-                sessionStorage.setItem('oauth_state', state);
+                // Store the authorization code for V3 to use - use flow-specific keys
+                const flowType = context?.flow === 'oidc-authorization-code-v3' ? 'oidc' : 'oidc'; // Both enhanced-authorization-code-v3 and oidc-authorization-code-v3 use 'oidc'
+                sessionStorage.setItem(`${flowType}_v3_auth_code`, code);
+                sessionStorage.setItem(`${flowType}_v3_state`, state);
+                
+                console.log(`🔍 [AuthzCallback] Stored authorization code with key: ${flowType}_v3_auth_code`, {
+                  flowContext: context?.flow,
+                  flowType,
+                  codeStored: true,
+                  stateStored: true
+                });
                 
                 console.log('✅ [AuthzCallback] V3 full redirect - stored code and redirecting to V3 page');
                 setStatus('success');
