@@ -1525,7 +1525,7 @@ Original Error: ${errorData.error_description || errorData.error}
         completed: hasStepResult('handle-callback') || Boolean(authCode)
       },
       {
-        ...createTokenExchangeStep(authCode, tokens, exchangeTokens, credentials, isExchangingTokens),
+        ...createTokenExchangeStep(authCode, tokens, exchangeTokens, credentials, isExchangingTokens, flowType),
         canExecute: Boolean(authCode && credentials.environmentId && credentials.clientId && !tokens?.access_token),
         completed: hasStepResult('exchange-tokens') || Boolean(tokens?.access_token)
       }
@@ -1672,25 +1672,130 @@ Original Error: ${errorData.error_description || errorData.error}
           isFinalStep: true,
           content: (
             <div>
-              <h4>OAuth Token Analysis</h4>
-              <p>Your OAuth flow is complete! Use the buttons below to analyze your tokens:</p>
+              <InfoBox type="info">
+                <FiCheckCircle />
+                <div>
+                  <strong>OAuth 2.0 Token Exchange Complete</strong>
+                  <br />
+                  Your authorization code has been successfully exchanged for OAuth tokens. 
+                  In OAuth 2.0 (unlike OIDC), you receive only <strong>Access Tokens</strong> and <strong>Refresh Tokens</strong> - no ID tokens.
+                </div>
+              </InfoBox>
               
               {tokens && (
-                <div style={{ margin: '1rem 0' }}>
-                  <ActionButton onClick={() => navigateToTokenManagement('access')}>
-                    🔍 Decode Access Token
-                  </ActionButton>
-                  <ActionButton onClick={() => navigateToTokenManagement('refresh')}>
-                    🔍 Decode Refresh Token
-                  </ActionButton>
+                <div style={{ margin: '1.5rem 0' }}>
+                  {/* Access Token Display */}
+                  <div style={{ 
+                    background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)', 
+                    border: '1px solid #2196f3', 
+                    borderRadius: '8px', 
+                    padding: '1rem', 
+                    marginBottom: '1rem' 
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                      <h4 style={{ margin: 0, color: '#1565c0' }}>🔑 Access Token</h4>
+                      <button
+                        onClick={() => copyToClipboard(tokens.access_token)}
+                        style={{
+                          background: '#2196f3',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          padding: '0.25rem 0.5rem',
+                          cursor: 'pointer',
+                          fontSize: '0.875rem'
+                        }}
+                      >
+                        📋 Copy
+                      </button>
+                    </div>
+                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', color: '#1565c0' }}>
+                      Used to access protected resources on behalf of the user. Short-lived (typically 1 hour).
+                    </p>
+                    <code style={{ 
+                      display: 'block', 
+                      background: 'white', 
+                      padding: '0.5rem', 
+                      borderRadius: '4px', 
+                      fontSize: '0.75rem', 
+                      wordBreak: 'break-all',
+                      border: '1px solid #e3f2fd'
+                    }}>
+                      {tokens.access_token}
+                    </code>
+                  </div>
+
+                  {/* Refresh Token Display */}
+                  {tokens.refresh_token && (
+                    <div style={{ 
+                      background: 'linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%)', 
+                      border: '1px solid #4caf50', 
+                      borderRadius: '8px', 
+                      padding: '1rem', 
+                      marginBottom: '1rem' 
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                        <h4 style={{ margin: 0, color: '#2e7d32' }}>🔄 Refresh Token</h4>
+                        <button
+                          onClick={() => copyToClipboard(tokens.refresh_token)}
+                          style={{
+                            background: '#4caf50',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            padding: '0.25rem 0.5rem',
+                            cursor: 'pointer',
+                            fontSize: '0.875rem'
+                          }}
+                        >
+                          📋 Copy
+                        </button>
+                      </div>
+                      <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', color: '#2e7d32' }}>
+                        <strong>Refresh Token Purpose:</strong> Used to obtain new access tokens when they expire, 
+                        without requiring user re-authentication. Long-lived (typically 30 days) and should be stored securely.
+                        <br /><br />
+                        <strong>How to use:</strong> Send a POST request to the token endpoint with grant_type=refresh_token 
+                        to get a new access token.
+                      </p>
+                      <code style={{ 
+                        display: 'block', 
+                        background: 'white', 
+                        padding: '0.5rem', 
+                        borderRadius: '4px', 
+                        fontSize: '0.75rem', 
+                        wordBreak: 'break-all',
+                        border: '1px solid #e8f5e8'
+                      }}>
+                        {tokens.refresh_token}
+                      </code>
+                    </div>
+                  )}
+
+                  {/* Action Buttons */}
+                  <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1.5rem' }}>
+                    <ActionButton onClick={() => navigateToTokenManagement('access')}>
+                      🔍 Decode Access Token
+                    </ActionButton>
+                    {tokens.refresh_token && (
+                      <ActionButton onClick={() => navigateToTokenManagement('refresh')}>
+                        🔍 Decode Refresh Token
+                      </ActionButton>
+                    )}
+                    
+                    <ActionButton 
+                      onClick={resetFlow}
+                      style={{ 
+                        backgroundColor: '#ffcdd2', 
+                        color: '#d32f2f',
+                        border: '1px solid #f44336'
+                      }}
+                    >
+                      🔄 Restart OAuth Flow
+                    </ActionButton>
+                  </div>
                 </div>
               )}
-              
-              <div style={{ marginTop: '2rem' }}>
-                <ActionButton onClick={resetFlow}>
-                  <FiRotateCcw /> Restart OAuth Flow
-                </ActionButton>
-              </div>
             </div>
           )
         }
