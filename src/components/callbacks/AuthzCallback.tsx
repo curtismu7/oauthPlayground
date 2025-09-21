@@ -92,12 +92,32 @@ const AuthzCallback: React.FC = () => {
         const flowContext = sessionStorage.getItem('flowContext');
         let isOAuthV3 = false;
         let isEnhancedV3 = false;
+        let context = null;
+        
         try {
-          const context = flowContext ? JSON.parse(flowContext) : null;
+          context = flowContext ? JSON.parse(flowContext) : null;
           isOAuthV3 = context?.flow === 'oauth-authorization-code-v3';
           isEnhancedV3 = context?.flow === 'enhanced-authorization-code-v3' || context?.flow === 'oidc-authorization-code-v3';
+          
+          console.log('🔍 [AuthzCallback] Flow context parsing successful:', {
+            flowContext: context?.flow,
+            isOAuthV3,
+            isEnhancedV3,
+            contextExists: !!context
+          });
         } catch (e) {
-          // Ignore parsing errors
+          console.error('❌ [AuthzCallback] Flow context parsing failed:', e);
+          console.log('🔍 [AuthzCallback] Raw flowContext string:', flowContext);
+          
+          // Try to detect flow type from URL or other means
+          const currentPath = window.location.pathname;
+          if (currentPath.includes('enhanced-authorization-code-v3') || currentPath.includes('oidc')) {
+            isEnhancedV3 = true;
+            console.log('🔧 [AuthzCallback] Detected OIDC V3 flow from URL path');
+          } else if (currentPath.includes('oauth-authorization-code-v3')) {
+            isOAuthV3 = true;
+            console.log('🔧 [AuthzCallback] Detected OAuth V3 flow from URL path');
+          }
         }
         
         console.log('🔍 [AuthzCallback] Flow detection:', { isOAuthV3, isEnhancedV3, flowContext });
@@ -225,6 +245,15 @@ const AuthzCallback: React.FC = () => {
           }
             
             if (isEnhancedV3) {
+              // Check if we've already processed this callback to prevent loops
+              const callbackProcessed = sessionStorage.getItem('v3_callback_processed');
+              if (callbackProcessed) {
+                console.log('🔄 [AuthzCallback] V3 callback already processed, preventing duplicate processing');
+                const returnPath = context?.returnPath || '/flows/enhanced-authorization-code-v3?step=5';
+                navigate(returnPath);
+                return;
+              }
+              
               // For V3 full redirect, extract code and state, then redirect to V3 page
               const urlParams = new URL(currentUrl).searchParams;
               const code = urlParams.get('code');
@@ -239,6 +268,9 @@ const AuthzCallback: React.FC = () => {
               }
               
               if (code && state) {
+                // Mark callback as processed to prevent loops
+                sessionStorage.setItem('v3_callback_processed', 'true');
+                
                 // Store the authorization code for V3 to use - use flow-specific keys
                 const flowType = context?.flow === 'oidc-authorization-code-v3' ? 'oidc' : 'oidc'; // Both enhanced-authorization-code-v3 and oidc-authorization-code-v3 use 'oidc'
                 sessionStorage.setItem(`${flowType}_v3_auth_code`, code);
@@ -248,7 +280,8 @@ const AuthzCallback: React.FC = () => {
                   flowContext: context?.flow,
                   flowType,
                   codeStored: true,
-                  stateStored: true
+                  stateStored: true,
+                  callbackMarkedProcessed: true
                 });
                 
                 console.log('✅ [AuthzCallback] V3 full redirect - stored code and redirecting to V3 page');
@@ -256,7 +289,7 @@ const AuthzCallback: React.FC = () => {
                 setMessage('Authorization successful! Redirecting to V3 flow...');
                 
                 // Redirect to V3 page
-                const returnPath = flowContext.returnPath || '/flows/enhanced-authorization-code-v3?step=5';
+                const returnPath = context?.returnPath || '/flows/enhanced-authorization-code-v3?step=5';
                 setTimeout(() => {
                   navigate(returnPath);
                 }, 1500);
