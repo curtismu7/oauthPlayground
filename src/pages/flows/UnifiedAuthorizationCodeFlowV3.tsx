@@ -1449,6 +1449,9 @@ Original Error: ${errorData.error_description || errorData.error}
         }
       }
 
+      // Save step result to prevent re-execution
+      saveStepResult('exchange-tokens', { tokens: tokenData, timestamp: Date.now() });
+      
       showFlowSuccess('Token exchange successful!');
       stepManager.setStep(6); // Move to token validation step
       
@@ -1595,8 +1598,11 @@ Original Error: ${errorData.error_description || errorData.error}
     
     showFlowSuccess(`${flowType.toUpperCase()} flow reset successfully`);
     
-    // Scroll to top for better UX
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Scroll to top of step 1 for better UX
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      console.log(`📜 [${flowType.toUpperCase()}-V3] Scrolled to top after flow reset`);
+    }, 100);
   }, [stepManager, flowType]);
 
   // Navigate to Token Management
@@ -1702,7 +1708,7 @@ Original Error: ${errorData.error_description || errorData.error}
       },
       {
         ...createTokenExchangeStep(authCode, tokens, exchangeTokens, credentials, isExchangingTokens, flowType),
-        canExecute: Boolean(authCode && credentials.environmentId && credentials.clientId && !tokens?.access_token),
+        canExecute: Boolean(authCode && credentials.environmentId && credentials.clientId && !hasStepResult('exchange-tokens')),
         completed: hasStepResult('exchange-tokens') || Boolean(tokens?.access_token)
       }
     ];
