@@ -488,9 +488,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       // Build authorization URL
-      const authUrl = new URL(`${config.authorizationEndpoint}`);
+      const authUrl = new URL(`${config.pingone.authEndpoint}`);
       authUrl.searchParams.set('response_type', 'code');
-      authUrl.searchParams.set('client_id', config.clientId);
+      authUrl.searchParams.set('client_id', config.pingone.clientId);
       authUrl.searchParams.set('redirect_uri', redirectUri);
       authUrl.searchParams.set('scope', 'openid profile email');
       authUrl.searchParams.set('state', state);
@@ -499,11 +499,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       authUrl.searchParams.set('code_challenge_method', 'S256');
 
       console.log('🌐 [NewAuthContext] Built authorization URL:', {
-        baseUrl: config.authorizationEndpoint,
+        baseUrl: config.pingone.authEndpoint,
         fullUrl: authUrl.toString(),
         params: {
           response_type: 'code',
-          client_id: config.clientId,
+          client_id: config.pingone.clientId,
           redirect_uri: redirectUri,
           scope: 'openid profile email',
           state: state.substring(0, 8) + '...',
