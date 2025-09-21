@@ -101,7 +101,7 @@ const Title = styled.h1`
   font-weight: 700;
   color: #1e293b;
   margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
