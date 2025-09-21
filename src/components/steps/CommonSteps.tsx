@@ -586,11 +586,14 @@ export const createTokenExchangeStep = (
   tokens: any,
   exchangeTokens: () => Promise<void>,
   credentials: StepCredentials,
-  isExchanging: boolean = false
+  isExchanging: boolean = false,
+  flowType: 'oauth' | 'oidc' = 'oidc'
 ): EnhancedFlowStep => ({
   id: 'exchange-tokens',
   title: 'Exchange Code for Tokens',
-  description: 'Make a secure POST request to exchange the authorization code for access and refresh tokens.',
+  description: flowType === 'oauth' 
+    ? 'Exchange the authorization code for OAuth access and refresh tokens (no ID token in pure OAuth 2.0).'
+    : 'Exchange the authorization code for OIDC tokens: access token, refresh token, and ID token.',
   icon: <FiKey />,
   category: 'token-exchange',
   content: (
@@ -598,9 +601,27 @@ export const createTokenExchangeStep = (
       <InfoBox type="info">
         <FiKey />
         <div>
-          <strong>Token Exchange</strong>
+          <strong>Token Exchange - Authorization Code Flow Step 4</strong>
           <br />
-          Exchange your authorization code for access tokens.
+          {flowType === 'oauth' ? (
+            <>
+              Exchange your authorization code for <strong>OAuth 2.0 tokens</strong>:
+              <ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
+                <li><strong>Access Token</strong> - Used to access protected resources</li>
+                <li><strong>Refresh Token</strong> - Used to obtain new access tokens when they expire</li>
+              </ul>
+              <em>Note: Pure OAuth 2.0 does not include ID tokens (that's an OpenID Connect feature).</em>
+            </>
+          ) : (
+            <>
+              Exchange your authorization code for <strong>OpenID Connect tokens</strong>:
+              <ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
+                <li><strong>Access Token</strong> - Used to access protected resources</li>
+                <li><strong>Refresh Token</strong> - Used to obtain new access tokens</li>
+                <li><strong>ID Token</strong> - Contains user identity information</li>
+              </ul>
+            </>
+          )}
         </div>
       </InfoBox>
       
@@ -617,16 +638,24 @@ export const createTokenExchangeStep = (
         <InfoBox type="success">
           <FiCheckCircle />
           <div>
-            <strong>✅ Tokens Received Successfully!</strong>
+            <strong>✅ Token Exchange Successful!</strong>
             <br />
             <div style={{ marginTop: '1rem', display: 'grid', gap: '0.5rem', fontSize: '0.9em' }}>
               <div>✅ Access Token: <strong style={{ color: '#1e40af' }}>{tokens.access_token ? 'Received' : 'Missing'}</strong></div>
               <div>✅ Refresh Token: <strong style={{ color: '#1e40af' }}>{tokens.refresh_token ? 'Received' : 'Missing'}</strong></div>
-              <div>✅ ID Token: <strong style={{ color: '#1e40af' }}>{tokens.id_token ? 'Received' : 'Missing'}</strong></div>
+              {flowType === 'oidc' && (
+                <div>✅ ID Token: <strong style={{ color: '#1e40af' }}>{tokens.id_token ? 'Received' : 'Missing'}</strong></div>
+              )}
               <div>⏱️ Expires In: <strong style={{ color: '#1e40af' }}>{tokens.expires_in ? `${tokens.expires_in} seconds` : 'Unknown'}</strong></div>
               <div>🔐 Token Type: <strong style={{ color: '#1e40af' }}>{tokens.token_type || 'Bearer'}</strong></div>
               <div>🎯 Scope: <strong style={{ color: '#1e40af' }}>{tokens.scope || 'Not specified'}</strong></div>
             </div>
+            {flowType === 'oauth' && (
+              <div style={{ marginTop: '1rem', padding: '0.75rem', background: '#fff3cd', borderRadius: '4px', fontSize: '0.875rem' }}>
+                <strong>📝 OAuth 2.0 Note:</strong> This is a pure OAuth 2.0 flow, so you only receive Access and Refresh tokens. 
+                ID tokens are part of OpenID Connect (OIDC), not OAuth 2.0.
+              </div>
+            )}
           </div>
         </InfoBox>
       )}
