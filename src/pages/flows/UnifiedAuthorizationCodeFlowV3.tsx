@@ -1608,11 +1608,6 @@ Original Error: ${errorData.error_description || errorData.error}
         ...createTokenExchangeStep(authCode, tokens, exchangeTokens, credentials, isExchangingTokens, flowType),
         canExecute: Boolean(authCode && credentials.environmentId && credentials.clientId && !tokens?.access_token),
         completed: hasStepResult('exchange-tokens') || Boolean(tokens?.access_token)
-      },
-      {
-        ...createRefreshTokenStep(tokens?.refresh_token, newTokensFromRefresh, exchangeRefreshToken, credentials, isRefreshingTokens, flowType),
-        canExecute: Boolean(tokens?.refresh_token && !newTokensFromRefresh),
-        completed: hasStepResult('refresh-token-exchange') || Boolean(newTokensFromRefresh)
       }
     ];
 
@@ -1738,7 +1733,13 @@ Original Error: ${errorData.error_description || errorData.error}
             </div>
           ),
           canExecute: Boolean(tokens?.access_token),
-          completed: Boolean(tokens?.access_token),
+          completed: Boolean(tokens?.access_token)
+        },
+        // Add refresh token step after OIDC token validation
+        {
+          ...createRefreshTokenStep(tokens?.refresh_token, newTokensFromRefresh, exchangeRefreshToken, credentials, isRefreshingTokens, flowType),
+          canExecute: Boolean(tokens?.refresh_token && !newTokensFromRefresh),
+          completed: hasStepResult('refresh-token-exchange') || Boolean(newTokensFromRefresh),
           isFinalStep: true
         }
       );
@@ -1883,6 +1884,13 @@ Original Error: ${errorData.error_description || errorData.error}
               )}
             </div>
           )
+        },
+        // Add refresh token step after OAuth token analysis
+        {
+          ...createRefreshTokenStep(tokens?.refresh_token, newTokensFromRefresh, exchangeRefreshToken, credentials, isRefreshingTokens, flowType),
+          canExecute: Boolean(tokens?.refresh_token && !newTokensFromRefresh),
+          completed: hasStepResult('refresh-token-exchange') || Boolean(newTokensFromRefresh),
+          isFinalStep: true
         }
       );
     }
