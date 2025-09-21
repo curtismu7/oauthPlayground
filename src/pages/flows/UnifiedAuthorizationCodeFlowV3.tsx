@@ -25,6 +25,7 @@ import { FiKey, FiShield, FiUser, FiCheckCircle, FiCopy, FiRotateCcw, FiSettings
 import { copyToClipboard } from '../../utils/clipboard';
 import { generateCodeVerifier, generateCodeChallenge } from '../../utils/oauth';
 import { credentialManager } from '../../utils/credentialManager';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
 import { FlowConfiguration, FlowConfig } from '../../components/FlowConfiguration';
 import { getDefaultConfig } from '../../utils/flowConfigDefaults';
 import { validateIdToken } from '../../utils/oauth';
@@ -538,7 +539,15 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         console.log(`✅ [${flowType.toUpperCase()}-V3] Refresh token exchange successful`);
         setNewTokensFromRefresh(result);
         
-        // Store the new tokens (optional - for demonstration)
+        // Store the new tokens using standardized storage for Token Management page
+        const refreshSuccess = storeOAuthTokens(result, `${flowType}-authorization-code-v3-refresh`, `${flowType.toUpperCase()} Refresh Token Exchange`);
+        if (refreshSuccess) {
+          console.log(`✅ [${flowType.toUpperCase()}-V3] New tokens stored successfully for Token Management page`);
+        } else {
+          console.warn(`⚠️ [${flowType.toUpperCase()}-V3] Failed to store new tokens for Token Management page`);
+        }
+        
+        // Store the new tokens in flow-specific sessionStorage for demonstration
         sessionStorage.setItem(`${flowType}_v3_new_access_token`, result.access_token);
         if (result.refresh_token) {
           sessionStorage.setItem(`${flowType}_v3_new_refresh_token`, result.refresh_token);
@@ -1278,7 +1287,15 @@ Original Error: ${errorData.error_description || errorData.error}
 
       setTokens(tokenData);
       
-      // Store tokens
+      // Store tokens using standardized storage for Token Management page compatibility
+      const success = storeOAuthTokens(tokenData, `${flowType}-authorization-code-v3`, `${flowType.toUpperCase()} Authorization Code Flow V3`);
+      if (success) {
+        console.log(`✅ [${flowType.toUpperCase()}-V3] Tokens stored successfully for Token Management page`);
+      } else {
+        console.warn(`⚠️ [${flowType.toUpperCase()}-V3] Failed to store tokens for Token Management page`);
+      }
+      
+      // Store tokens in flow-specific sessionStorage
       sessionStorage.setItem(`${flowType}_v3_access_token`, tokenData.access_token || '');
       sessionStorage.setItem(`${flowType}_v3_refresh_token`, tokenData.refresh_token || '');
       sessionStorage.setItem(`${flowType}_v3_id_token`, tokenData.id_token || '');
@@ -1488,17 +1505,38 @@ Original Error: ${errorData.error_description || errorData.error}
 
   // Navigate to Token Management
   const navigateToTokenManagement = useCallback((tokenType: 'access' | 'refresh' | 'id') => {
+    console.log(`🔍 [${flowType.toUpperCase()}-V3] Navigate to token management:`, {
+      tokenType,
+      tokens,
+      hasTokens: !!tokens,
+      hasAccessToken: !!tokens?.access_token,
+      hasRefreshToken: !!tokens?.refresh_token,
+      hasIdToken: !!tokens?.id_token
+    });
+    
     const token = tokenType === 'access' ? tokens?.access_token : 
                   tokenType === 'refresh' ? tokens?.refresh_token : 
                   tokens?.id_token;
     
     if (token) {
+      console.log(`✅ [${flowType.toUpperCase()}-V3] Token found, storing for analysis:`, {
+        tokenType,
+        tokenLength: token.length,
+        tokenPreview: token.substring(0, 20) + '...'
+      });
+      
       // Store the token for the Token Management page
       sessionStorage.setItem('token_to_analyze', token);
       sessionStorage.setItem('token_type', tokenType);
+      sessionStorage.setItem('flow_source', `${flowType}-v3`);
+      
+      console.log(`🔍 [${flowType.toUpperCase()}-V3] Navigating to token management page...`);
       window.location.href = '/token-management';
+    } else {
+      console.error(`❌ [${flowType.toUpperCase()}-V3] No ${tokenType} token available for analysis`);
+      showFlowError(`No ${tokenType} token available for analysis`);
     }
-  }, [tokens]);
+  }, [tokens, flowType]);
 
   // Copy UserInfo to clipboard
   const copyUserInfo = useCallback(async () => {
