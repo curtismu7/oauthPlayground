@@ -36,9 +36,9 @@ const pageStyles: Record<string, PageStyle> = {
     accentColor: '#b91c1c'
   },
   '/flows/client-credentials': {
-    titleBackgroundColor: '#7c3aed',
+    titleBackgroundColor: '#0369a1',
     titleTextColor: '#ffffff',
-    accentColor: '#6d28d9'
+    accentColor: '#075985'
   },
   '/flows/pkce': {
     titleBackgroundColor: '#0891b2',
@@ -56,9 +56,9 @@ const pageStyles: Record<string, PageStyle> = {
     accentColor: '#15803d'
   },
   '/oidc/id-tokens': {
-    titleBackgroundColor: '#9333ea',
+    titleBackgroundColor: '#059669',
     titleTextColor: '#ffffff',
-    accentColor: '#7c3aed'
+    accentColor: '#047857'
   },
   '/oauth-2-1': {
     titleBackgroundColor: '#1e40af',
@@ -71,9 +71,9 @@ const pageStyles: Record<string, PageStyle> = {
     accentColor: '#0d5a5a'
   },
   '/token-management': {
-    titleBackgroundColor: '#be185d',
+    titleBackgroundColor: '#0891b2',
     titleTextColor: '#ffffff',
-    accentColor: '#9d174d'
+    accentColor: '#0e7490'
   },
   '/configuration': {
     titleBackgroundColor: '#475569',
@@ -91,9 +91,9 @@ const pageStyles: Record<string, PageStyle> = {
     accentColor: '#9a3412'
   },
   '/advanced-config': {
-    titleBackgroundColor: '#581c87',
+    titleBackgroundColor: '#374151',
     titleTextColor: '#ffffff',
-    accentColor: '#4c1d95'
+    accentColor: '#1f2937'
   },
   '/tutorials': {
     titleBackgroundColor: '#166534',
