@@ -129,6 +129,43 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
     enableAutoAdvance: true
   });
 
+  // Force flow independence by clearing other flow's state on initialization
+  useEffect(() => {
+    console.log(`🔍 [${flowType.toUpperCase()}-V3] Ensuring flow independence...`);
+    
+    const otherFlowType = flowType === 'oauth' ? 'oidc' : 'oauth';
+    
+    // Clear any potential shared or conflicting keys
+    const keysToCheck = [
+      // Other flow's step management keys
+      `${otherFlowType}_v3_step_manager-step`,
+      `${otherFlowType}_v3_flow_steps`,
+      // Legacy shared keys
+      'oauth-authz-v3',
+      'oidc-authz-v3',
+      'enhanced-authz-code-v2-step',
+      // Any generic step keys
+      'step_manager',
+      'flow_steps'
+    ];
+    
+    keysToCheck.forEach(key => {
+      if (sessionStorage.getItem(key)) {
+        console.log(`🧹 [${flowType.toUpperCase()}-V3] Clearing potentially conflicting key: ${key}`);
+        sessionStorage.removeItem(key);
+      }
+    });
+    
+    // Debug current state
+    console.log(`🔍 [${flowType.toUpperCase()}-V3] Flow state after cleanup:`, {
+      flowType,
+      persistKey: `${flowType}_v3_step_manager`,
+      currentStep: stepManager.currentStepIndex,
+      isInitialized: stepManager.isInitialized,
+      sessionStorageKeys: Object.keys(sessionStorage).filter(key => key.includes('step') || key.includes('flow'))
+    });
+  }, [flowType]); // Only run when flowType changes
+
   // State management
   const [credentials, setCredentials] = useState<StepCredentials>(() => {
     // Check for URL parameters first (from Flow Comparison tool OR OAuth callback)
