@@ -769,8 +769,8 @@ export const createUserAuthorizationStep = (
   authCode?: string
 ): EnhancedFlowStep => ({
   id: 'user-authorization',
-  title: 'Redirect User to Authorization Server',
-  description: 'Redirect the user to PingOne authorization server to authenticate and authorize your application.',
+  title: 'User Authorization & Authorization Code',
+  description: 'Redirect the user to PingOne to authenticate and obtain an authorization code for secure token exchange.',
   icon: <FiGlobe />,
   category: 'authorization',
   content: (
@@ -778,9 +778,19 @@ export const createUserAuthorizationStep = (
       <InfoBox type="info">
         <FiGlobe />
         <div>
-          <strong>User Authorization</strong>
+          <strong>Authorization Code Flow - Step 3</strong>
           <br />
-          The user will be redirected to PingOne to authenticate and authorize your application.
+          The user will be redirected to PingOne to authenticate. Upon successful authentication and consent, 
+          PingOne will redirect back with an <strong>authorization code</strong> - a temporary, single-use credential 
+          that your application will exchange for access tokens.
+          <br /><br />
+          <strong>Why Authorization Code?</strong>
+          <ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
+            <li>Keeps tokens secure by never exposing them in the browser URL</li>
+            <li>Allows server-side token exchange with client authentication</li>
+            <li>Short-lived (typically 10 minutes) for security</li>
+            <li>Can only be used once to prevent replay attacks</li>
+          </ul>
         </div>
       </InfoBox>
       
@@ -797,9 +807,21 @@ export const createUserAuthorizationStep = (
         <InfoBox type="success">
           <FiCheckCircle />
           <div>
-            <strong>✅ Authorization Successful!</strong>
+            <strong>✅ Authorization Code Received!</strong>
             <br />
-            User has been authenticated and authorization code received.
+            PingOne has successfully authenticated the user and returned an authorization code: 
+            <code style={{ 
+              display: 'block', 
+              marginTop: '0.5rem', 
+              padding: '0.5rem', 
+              background: '#f3f4f6', 
+              borderRadius: '0.25rem',
+              fontSize: '0.875rem',
+              wordBreak: 'break-all'
+            }}>
+              {authCode.substring(0, 20)}...
+            </code>
+            This code will be exchanged for access tokens in the next step.
           </div>
         </InfoBox>
       )}
