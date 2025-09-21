@@ -163,48 +163,81 @@ const ActionButton = styled.button`
 
 
 
-const HistoryEntry = styled.div`
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  border: 1px solid #e2e8f0;
-  border-radius: 0.5rem;
+const HistoryTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+`;
+
+const HistoryTableHeader = styled.thead`
+  background: #f8fafc;
+  border-bottom: 2px solid #e2e8f0;
+`;
+
+const HistoryTableHeaderCell = styled.th`
   padding: 1rem;
-  margin-bottom: 0.75rem;
-  transition: all 0.2s ease;
-  cursor: pointer;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+  border-bottom: 1px solid #e2e8f0;
+`;
+
+const HistoryTableBody = styled.tbody`
+  tr:nth-child(even) {
+    background: #f9fafb;
+  }
   
-  &:hover {
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    border-color: #cbd5e1;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  tr:hover {
+    background: #f1f5f9;
+    cursor: pointer;
   }
 `;
 
-const HistoryHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
+const HistoryTableRow = styled.tr`
+  border-bottom: 1px solid #e2e8f0;
+  transition: background-color 0.2s ease;
 `;
 
-const HistoryFlow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 600;
+const HistoryTableCell = styled.td`
+  padding: 1rem;
+  vertical-align: middle;
+  font-size: 0.875rem;
   color: #374151;
 `;
 
-const HistoryTimestamp = styled.div`
-  font-size: 0.875rem;
-  color: #6b7280;
-`;
-
-const HistoryTokens = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-  flex-wrap: wrap;
+const FlowBadge = styled.span<{ $flowType: string }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: ${({ $flowType }) => {
+    if ($flowType.includes('oauth-v3')) return '#dbeafe';
+    if ($flowType.includes('oidc-v3')) return '#d1fae5';
+    if ($flowType.includes('enhanced')) return '#e0f2fe';
+    if ($flowType.includes('implicit')) return '#fee2e2';
+    return '#f3f4f6';
+  }};
+  color: ${({ $flowType }) => {
+    if ($flowType.includes('oauth-v3')) return '#1e40af';
+    if ($flowType.includes('oidc-v3')) return '#065f46';
+    if ($flowType.includes('enhanced')) return '#0369a1';
+    if ($flowType.includes('implicit')) return '#dc2626';
+    return '#374151';
+  }};
+  border: 1px solid ${({ $flowType }) => {
+    if ($flowType.includes('oauth-v3')) return '#93c5fd';
+    if ($flowType.includes('oidc-v3')) return '#6ee7b7';
+    if ($flowType.includes('enhanced')) return '#7dd3fc';
+    if ($flowType.includes('implicit')) return '#fecaca';
+    return '#d1d5db';
+  }};
 `;
 
 const TokenBadge = styled.span<{ $type: 'access' | 'id' | 'refresh' }>`
@@ -215,6 +248,7 @@ const TokenBadge = styled.span<{ $type: 'access' | 'id' | 'refresh' }>`
   border-radius: 0.25rem;
   font-size: 0.75rem;
   font-weight: 500;
+  margin-right: 0.5rem;
   background: ${({ $type }) => {
     switch ($type) {
       case 'access': return '#dbeafe';
@@ -244,7 +278,6 @@ const TokenBadge = styled.span<{ $type: 'access' | 'id' | 'refresh' }>`
 const HistoryActions = styled.div`
   display: flex;
   gap: 0.5rem;
-  margin-top: 0.5rem;
 `;
 
 const HistoryButton = styled.button<{ $variant?: 'primary' | 'danger' }>`
@@ -2003,82 +2036,92 @@ const TokenManagement = () => {
               <div style={{ marginBottom: '1rem', color: '#6b7280', fontSize: '0.875rem' }}>
                 {tokenHistory.length} token{tokenHistory.length !== 1 ? 's' : ''} received from OAuth flows
               </div>
-              {tokenHistory.map((entry) => (
-                <HistoryEntry 
-                  key={entry.id}
-                  onClick={() => handleLoadTokenFromHistory(entry)}
-                >
-                  <HistoryHeader>
-                    <HistoryFlow>
-                      <span>{getFlowIcon(entry.flowType)}</span>
-                      {entry.flowName}
-                    </HistoryFlow>
-                    <HistoryTimestamp>
-                      {entry.timestampFormatted}
-                    </HistoryTimestamp>
-                  </HistoryHeader>
-                  
-                  {/* Enhanced Token Details */}
-                  <div style={{ margin: '0.75rem 0', fontSize: '0.875rem', color: '#6b7280' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.5rem' }}>
-                      <div><strong>Scope:</strong> {entry.tokens.scope || 'openid profile email'}</div>
-                      <div><strong>Token Type:</strong> {entry.tokens.token_type || 'Bearer'}</div>
-                      <div><strong>Expires In:</strong> {entry.tokens.expires_in ? `${Math.floor(entry.tokens.expires_in / 60)} minutes` : '1 hour'}</div>
-                      <div><strong>Token Count:</strong> {entry.tokenCount} token{entry.tokenCount !== 1 ? 's' : ''}</div>
-                    </div>
-                  </div>
-                  
-                  <HistoryTokens>
-                    {entry.hasAccessToken && (
-                      <TokenBadge $type="access">
-                        🔐 Access Token
-                        <small style={{ marginLeft: '0.5rem', opacity: 0.8 }}>
-                          ({entry.tokens.access_token ? entry.tokens.access_token.substring(0, 10) + '...' : 'Available'})
-                        </small>
-                      </TokenBadge>
-                    )}
-                    {entry.hasIdToken && (
-                      <TokenBadge $type="id">
-                        🎫 ID Token
-                        <small style={{ marginLeft: '0.5rem', opacity: 0.8 }}>
-                          ({entry.tokens.id_token ? entry.tokens.id_token.substring(0, 10) + '...' : 'Available'})
-                        </small>
-                      </TokenBadge>
-                    )}
-                    {entry.hasRefreshToken && (
-                      <TokenBadge $type="refresh">
-                        🔄 Refresh Token
-                        <small style={{ marginLeft: '0.5rem', opacity: 0.8 }}>
-                          ({entry.tokens.refresh_token ? entry.tokens.refresh_token.substring(0, 10) + '...' : 'Available'})
-                        </small>
-                      </TokenBadge>
-                    )}
-                  </HistoryTokens>
-                  
-                  <HistoryActions>
-                    <HistoryButton 
-                      $variant="primary"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleLoadTokenFromHistory(entry);
-                      }}
+              
+              <HistoryTable>
+                <HistoryTableHeader>
+                  <tr>
+                    <HistoryTableHeaderCell>Flow Type</HistoryTableHeaderCell>
+                    <HistoryTableHeaderCell>Tokens Received</HistoryTableHeaderCell>
+                    <HistoryTableHeaderCell>Date & Time</HistoryTableHeaderCell>
+                    <HistoryTableHeaderCell>Actions</HistoryTableHeaderCell>
+                  </tr>
+                </HistoryTableHeader>
+                <HistoryTableBody>
+                  {tokenHistory.map((entry) => (
+                    <HistoryTableRow 
+                      key={entry.id}
+                      onClick={() => handleLoadTokenFromHistory(entry)}
                     >
-                      <FiEye />
-                      Load Token
-                    </HistoryButton>
-                    <HistoryButton 
-                      $variant="danger"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRemoveHistoryEntry(entry.id);
-                      }}
-                    >
-                      <FiTrash2 />
-                      Remove
-                    </HistoryButton>
-                  </HistoryActions>
-                </HistoryEntry>
-              ))}
+                      <HistoryTableCell>
+                        <FlowBadge $flowType={entry.flowType}>
+                          {getFlowIcon(entry.flowType)}
+                          {getFlowDisplayName(entry.flowType)}
+                        </FlowBadge>
+                        <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                          Scope: {entry.tokens.scope || 'openid profile email'}
+                        </div>
+                      </HistoryTableCell>
+                      
+                      <HistoryTableCell>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
+                          {entry.hasAccessToken && (
+                            <TokenBadge $type="access">
+                              🔐 Access
+                            </TokenBadge>
+                          )}
+                          {entry.hasIdToken && (
+                            <TokenBadge $type="id">
+                              🎫 ID
+                            </TokenBadge>
+                          )}
+                          {entry.hasRefreshToken && (
+                            <TokenBadge $type="refresh">
+                              🔄 Refresh
+                            </TokenBadge>
+                          )}
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                          {entry.tokenCount} token{entry.tokenCount !== 1 ? 's' : ''} • {entry.tokens.token_type || 'Bearer'}
+                        </div>
+                      </HistoryTableCell>
+                      
+                      <HistoryTableCell>
+                        <div style={{ color: '#374151', fontWeight: '500' }}>
+                          {entry.timestampFormatted}
+                        </div>
+                        <div style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+                          {entry.tokens.expires_in ? `Expires: ${Math.floor(entry.tokens.expires_in / 60)} min` : 'Expires: 1 hour'}
+                        </div>
+                      </HistoryTableCell>
+                      
+                      <HistoryTableCell>
+                        <HistoryActions>
+                          <HistoryButton 
+                            $variant="primary"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleLoadTokenFromHistory(entry);
+                            }}
+                          >
+                            <FiEye />
+                            Analyze
+                          </HistoryButton>
+                          <HistoryButton 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setHistoryEntryToRemove(entry.id);
+                              setShowRemoveHistoryModal(true);
+                            }}
+                          >
+                            <FiTrash2 />
+                            Remove
+                          </HistoryButton>
+                        </HistoryActions>
+                      </HistoryTableCell>
+                    </HistoryTableRow>
+                  ))}
+                </HistoryTableBody>
+              </HistoryTable>
             </div>
           )}
         </CardBody>
