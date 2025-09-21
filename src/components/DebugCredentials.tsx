@@ -51,25 +51,46 @@ const DebugCredentials: React.FC = () => {
 
   useEffect(() => {
     const updateDebugInfo = () => {
-      const allKeys = Object.keys(localStorage);
-      const pingoneKeys = allKeys.filter(key => key.includes('pingone'));
-      
-      const info = {
-        allLocalStorageKeys: allKeys,
-        pingoneKeys: pingoneKeys,
-        pingone_permanent_credentials: localStorage.getItem('pingone_permanent_credentials'),
-        pingone_session_credentials: localStorage.getItem('pingone_session_credentials'),
-        pingone_config: localStorage.getItem('pingone_config'),
-        credentialManager: {
-          permanent: credentialManager.loadPermanentCredentials(),
-          session: credentialManager.loadSessionCredentials(),
-          all: credentialManager.getAllCredentials(),
-          arePermanentComplete: credentialManager.arePermanentCredentialsComplete(),
-          areAllComplete: credentialManager.areAllCredentialsComplete()
-        }
-      };
-      
-      setDebugInfo(info);
+      try {
+        const allKeys = Object.keys(localStorage);
+        const pingoneKeys = allKeys.filter(key => key.includes('pingone'));
+        
+        console.log('🔍 [DebugCredentials] Updating debug info...', { allKeys, pingoneKeys });
+        
+        const info = {
+          allLocalStorageKeys: allKeys,
+          pingoneKeys: pingoneKeys,
+          pingone_permanent_credentials: localStorage.getItem('pingone_permanent_credentials'),
+          pingone_session_credentials: localStorage.getItem('pingone_session_credentials'),
+          pingone_config: localStorage.getItem('pingone_config'),
+          credentialManager: {
+            permanent: credentialManager.loadPermanentCredentials(),
+            session: credentialManager.loadSessionCredentials(),
+            all: credentialManager.getAllCredentials(),
+            arePermanentComplete: credentialManager.arePermanentCredentialsComplete(),
+            areAllComplete: credentialManager.areAllCredentialsComplete()
+          }
+        };
+        
+        console.log('🔍 [DebugCredentials] Debug info created:', info);
+        setDebugInfo(info);
+      } catch (error) {
+        console.error('❌ [DebugCredentials] Error updating debug info:', error);
+        setDebugInfo({
+          allLocalStorageKeys: ['Error loading'],
+          pingoneKeys: [],
+          pingone_permanent_credentials: null,
+          pingone_session_credentials: null,
+          pingone_config: null,
+          credentialManager: {
+            permanent: {},
+            session: {},
+            all: {},
+            arePermanentComplete: false,
+            areAllComplete: false
+          }
+        });
+      }
     };
 
     updateDebugInfo();
@@ -80,7 +101,14 @@ const DebugCredentials: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  if (!debugInfo) return null;
+  if (!debugInfo) {
+    return (
+      <DebugContainer>
+        <h3>🔍 Credential Debug Information</h3>
+        <p>Loading debug information...</p>
+      </DebugContainer>
+    );
+  }
 
   return (
     <DebugContainer>
