@@ -785,7 +785,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               if (parsed?.flow === 'oauth-authorization-code-v3') {
                 returnPath = parsed?.returnPath || '/flows/oauth-authorization-code-v3?step=4';
               } else if (parsed?.flow === 'oidc-authorization-code-v3') {
-                returnPath = parsed?.returnPath || '/flows/oidc-authorization-code-v3?step=4';
+                returnPath = parsed?.returnPath || '/flows/enhanced-authorization-code-v3?step=4';
               } else {
                 returnPath = parsed?.returnPath || '/flows/enhanced-authorization-code-v3?step=4';
               }
