@@ -30,21 +30,36 @@ const Header = styled.div<{ $hasCredentials: boolean }>`
 const HeaderTitle = styled.h3<{ $hasCredentials: boolean }>`
   color: ${({ $hasCredentials }) => $hasCredentials ? '#065f46' : '#92400e'};
   margin: 0;
+  margin-left: 0.75rem;
   font-size: 1.1rem;
   font-weight: 600;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex: 1;
 `;
 
 const ChevronIcon = styled.div<{ $hasCredentials: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 6px;
+  background: ${({ $hasCredentials }) => $hasCredentials ? 'rgba(6, 95, 70, 0.1)' : 'rgba(146, 64, 14, 0.1)'};
+  border: 1px solid ${({ $hasCredentials }) => $hasCredentials ? '#065f46' : '#92400e'};
   color: ${({ $hasCredentials }) => $hasCredentials ? '#065f46' : '#92400e'};
   font-size: 1.2rem;
-  transition: transform 0.2s ease;
+  transition: all 0.2s ease;
   
   svg {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
+  }
+  
+  &:hover {
+    background: ${({ $hasCredentials }) => $hasCredentials ? 'rgba(6, 95, 70, 0.2)' : 'rgba(146, 64, 14, 0.2)'};
+    transform: scale(1.05);
   }
 `;
 
@@ -223,12 +238,12 @@ const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
   return (
     <Container>
       <Header $hasCredentials={hasCompleteCredentials} onClick={() => setIsExpanded(!isExpanded)}>
-        <HeaderTitle $hasCredentials={hasCompleteCredentials}>
-          {hasCompleteCredentials ? '✅ PingOne Configuration Complete' : '⚠️ PingOne Configuration Required'}
-        </HeaderTitle>
         <ChevronIcon $hasCredentials={hasCompleteCredentials}>
           {isExpanded ? <FiChevronDown /> : <FiChevronRight />}
         </ChevronIcon>
+        <HeaderTitle $hasCredentials={hasCompleteCredentials}>
+          {hasCompleteCredentials ? '✅ PingOne Configuration Complete' : '⚠️ PingOne Configuration Required'}
+        </HeaderTitle>
       </Header>
       
       <Content $isExpanded={isExpanded}>
