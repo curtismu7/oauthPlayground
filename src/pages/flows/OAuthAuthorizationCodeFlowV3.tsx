@@ -108,18 +108,75 @@ const ActionButton = styled.button`
 `;
 
 const FlowControlSection = styled.div`
-  background: #f8f9fa;
-  border-top: 1px solid #e9ecef;
   padding: 2rem;
-  margin-top: 2rem;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
 `;
 
 const FlowControlTitle = styled.h3`
-  color: #495057;
-  margin-bottom: 1rem;
+  margin: 0 0 1.5rem 0;
+  color: #374151;
+  font-size: 1.1rem;
+  font-weight: 600;
+`;
+
+const FlowControlButtons = styled.div`
   display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: center;
+`;
+
+const FlowControlButton = styled.button`
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 140px;
+  justify-content: center;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  &.clear {
+    background: #10b981;
+    color: white;
+    
+    &:hover {
+      background: #059669;
+    }
+  }
+  
+  &.debug {
+    background: #f59e0b;
+    color: white;
+    
+    &:hover {
+      background: #d97706;
+    }
+  }
+  
+  &.reset {
+    background: #6b7280;
+    color: white;
+    
+    &:hover {
+      background: #4b5563;
+    }
+  }
 `;
 
 const OAuthAuthorizationCodeFlowV3: React.FC = () => {
@@ -787,12 +844,14 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
           <FlowControlTitle>
             ⚙️ Flow Control Actions
           </FlowControlTitle>
-          <ActionButton onClick={clearCredentials}>
-            🧹 Clear Credentials
-          </ActionButton>
-          <ActionButton onClick={resetFlow}>
-            <FiRotateCcw /> Reset Flow
-          </ActionButton>
+          <FlowControlButtons>
+            <FlowControlButton className="clear" onClick={clearCredentials}>
+              🧹 Clear Credentials
+            </FlowControlButton>
+            <FlowControlButton className="reset" onClick={resetFlow}>
+              <FiRotateCcw /> Reset Flow
+            </FlowControlButton>
+          </FlowControlButtons>
         </FlowControlSection>
       </FlowCard>
 
