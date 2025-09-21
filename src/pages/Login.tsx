@@ -352,9 +352,41 @@ const Login = () => {
   const [redirectParams, setRedirectParams] = useState<Record<string, string>>({});
   const [isConfigSectionCollapsed, setIsConfigSectionCollapsed] = useState<boolean>(true);
   const [isCredentialsSectionCollapsed, setIsCredentialsSectionCollapsed] = useState<boolean>(false);
+  const [hasExistingCredentials, setHasExistingCredentials] = useState<boolean>(false);
   
   const { login } = useAuth();
   const location = useLocation();
+
+  // Load existing credentials on component mount
+  useEffect(() => {
+    const loadExistingCredentials = () => {
+      console.log('🔍 [Login] Loading existing credentials...');
+      
+      // Try to load from credential manager
+      const allCredentials = credentialManager.getAllCredentials();
+      console.log('🔍 [Login] All credentials from manager:', allCredentials);
+      
+      if (allCredentials.environmentId && allCredentials.clientId) {
+        console.log('✅ [Login] Found existing credentials, pre-filling form');
+        setCredentials(prev => ({
+          ...prev,
+          environmentId: allCredentials.environmentId || '',
+          clientId: allCredentials.clientId || '',
+          clientSecret: allCredentials.clientSecret || '',
+          tokenAuthMethod: prev.tokenAuthMethod
+        }));
+        setHasExistingCredentials(true);
+        
+        // Collapse credentials section if they're already filled
+        setIsCredentialsSectionCollapsed(true);
+      } else {
+        console.log('❌ [Login] No existing credentials found');
+        setHasExistingCredentials(false);
+      }
+    };
+    
+    loadExistingCredentials();
+  }, []);
   
   // Modal handler functions
   const handleRedirectModalClose = () => {
@@ -803,6 +835,23 @@ const Login = () => {
             >
               {isCredentialsSectionCollapsed ? <FiChevronRight /> : <FiChevronDown />}
               📝 Enter Your Credentials
+              {hasExistingCredentials && (
+                <span style={{
+                  background: '#d4edda',
+                  color: '#155724',
+                  padding: '0.25rem 0.5rem',
+                  borderRadius: '12px',
+                  fontSize: '0.75rem',
+                  fontWeight: '500',
+                  marginLeft: '0.5rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.25rem'
+                }}>
+                  <FiCheckCircle size={12} />
+                  Configured
+                </span>
+              )}
             </h3>
             {!isCredentialsSectionCollapsed && (
               <>
