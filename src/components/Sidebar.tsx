@@ -336,6 +336,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               🔐
               OAuth 2.0 Authorization Code (V3)
             </SubmenuItem>
+            <SubmenuItem to="/flows/oauth2-implicit-v3" onClick={onClose} $isActive={isActiveRoute('/flows/oauth2-implicit-v3')}>
+              🚀
+              OAuth 2.0 Implicit V3
+            </SubmenuItem>
             <SubmenuItem to="/oidc/client-credentials" onClick={onClose} $isActive={isActiveRoute('/oidc/client-credentials')}>
               <FiServer />
               OAuth 2.0 Client Credentials
@@ -369,9 +373,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               🚀
               OIDC Authorization Code (V3)
             </SubmenuItem>
-            <SubmenuItem to="/oidc/implicit" onClick={onClose} $isActive={isActiveRoute('/oidc/implicit')}>
-              <FiZap />
-              OIDC Implicit
+            <SubmenuItem to="/flows/oidc-implicit-v3" onClick={onClose} $isActive={isActiveRoute('/flows/oidc-implicit-v3')}>
+              🚀
+              OIDC Implicit V3
             </SubmenuItem>
             <SubmenuItem to="/oidc/hybrid" onClick={onClose} $isActive={isActiveRoute('/oidc/hybrid')}>
               <FiCode />
