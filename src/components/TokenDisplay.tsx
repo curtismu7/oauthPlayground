@@ -295,6 +295,17 @@ const InfoValue = styled.span`
 `;
 
 const TokenDisplay: React.FC<TokenDisplayProps> = ({ tokens }) => {
+  // Early return if tokens is undefined or null
+  if (!tokens) {
+    return (
+      <TokenContainer role="region" aria-label="OAuth tokens display">
+        <TokenHeaderMain>
+          <h3>🔐 No Tokens Available</h3>
+          <p>No OAuth tokens have been received yet</p>
+        </TokenHeaderMain>
+      </TokenContainer>
+    );
+  }
   const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({});
   const [maskedStates, setMaskedStates] = useState<Record<string, boolean>>({});
   const { announceToScreenReader } = useAccessibility();

@@ -63,9 +63,14 @@ import AuthzCallback from './components/callbacks/AuthzCallback';
 import OAuthV3Callback from './components/callbacks/OAuthV3Callback';
 import HybridCallback from './components/callbacks/HybridCallback';
 import ImplicitCallback from './components/callbacks/ImplicitCallback';
+import ImplicitCallbackV3 from './components/callbacks/ImplicitCallbackV3';
 import WorkerTokenCallback from './components/callbacks/WorkerTokenCallback';
 import DeviceCodeStatus from './components/callbacks/DeviceCodeStatus';
 import DashboardCallback from './components/callbacks/DashboardCallback';
+
+// Import new V3 implicit flow components
+import OAuth2ImplicitFlowV3 from './pages/flows/OAuth2ImplicitFlowV3';
+import OIDCImplicitFlowV3 from './pages/flows/OIDCImplicitFlowV3';
 
 const AppContainer = styled.div`
   display: flex;
@@ -218,6 +223,7 @@ const AppRoutes = () => {
             <Route path="/oauth-v3-callback" element={<OAuthV3Callback />} />
             <Route path="/hybrid-callback" element={<HybridCallback />} />
             <Route path="/implicit-callback" element={<ImplicitCallback />} />
+            <Route path="/implicit-callback-v3" element={<ImplicitCallbackV3 />} />
             <Route path="/worker-token-callback" element={<WorkerTokenCallback />} />
             <Route path="/device-code-status" element={<DeviceCodeStatus />} />
             <Route path="/dashboard-callback" element={<DashboardCallback />} />
@@ -234,6 +240,8 @@ const AppRoutes = () => {
             <Route path="/flows/enhanced-authorization-code-v2" element={<EnhancedAuthorizationCodeFlowV2 />} />
             <Route path="/flows/enhanced-authorization-code-v3" element={<UnifiedAuthorizationCodeFlowV3 flowType="oidc" />} />
             <Route path="/flows/oauth-authorization-code-v3" element={<UnifiedAuthorizationCodeFlowV3 flowType="oauth" />} />
+            <Route path="/flows/oauth2-implicit-v3" element={<OAuth2ImplicitFlowV3 />} />
+            <Route path="/flows/oidc-implicit-v3" element={<OIDCImplicitFlowV3 />} />
             <Route path="/flows/resource-owner-password" element={<ResourceOwnerPasswordFlow />} />
             <Route path="/flows/par" element={<PARFlow />} />
             
