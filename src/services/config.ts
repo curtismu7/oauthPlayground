@@ -28,6 +28,10 @@ const envSchema = z.object({
     (val) => val === 'true' || val === true,
     z.boolean().default(false)
   ),
+  VITE_FEATURE_IMPLICIT_FLOWS: z.preprocess(
+    (val) => val === 'true' || val === true,
+    z.boolean().default(false)
+  ),
 });
 
 // Type for the validated environment variables
@@ -97,6 +101,7 @@ export const config = {
   // Feature flags
   features: {
     debugMode: env.VITE_FEATURE_DEBUG_MODE,
+    implicitFlows: env.VITE_FEATURE_IMPLICIT_FLOWS,
   },
   
   // Default OAuth scopes
@@ -113,6 +118,17 @@ export const config = {
     codeVerifierLength: 64,
     stateLength: 32,
     nonceLength: 32,
+  },
+  
+  // OIDC Implicit Flow configuration (deprecated - feature flagged)
+  oidc: {
+    implicit: {
+      enabled: env.VITE_FEATURE_IMPLICIT_FLOWS,
+      responseType: 'id_token token' as const,
+      scopes: ['openid', 'profile', 'email'],
+      nonceLength: 32,
+      stateLength: 32,
+    },
   },
 } as const;
 

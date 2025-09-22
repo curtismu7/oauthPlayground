@@ -150,6 +150,14 @@ class Logger {
     }
   }
 
+  security(component: string, message: string, data?: LogData) {
+    this.addToHistory('SECURITY', component, message, data);
+    // Only log to console if not called from DebugPanel to prevent circular references
+    if (component !== 'CONSOLE') {
+      console.log(`🔐 [${component}] ${message}`, data || '');
+    }
+  }
+
   auth(component: string, message: string, data?: LogData) {
     this.addToHistory('AUTH', component, message, data);
     // Only log to console if not called from DebugPanel to prevent circular references
