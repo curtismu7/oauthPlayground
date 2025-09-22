@@ -80,7 +80,7 @@ class DiscoveryService {
         
         // Return a fallback configuration based on known PingOne patterns
         const fallbackConfig: OpenIDConfiguration = {
-          issuer: `https://auth.pingone.com/${environmentId}`,
+          issuer: `https://auth.pingone.com/${environmentId}/as`,
           authorization_endpoint: `https://auth.pingone.com/${environmentId}/as/authorize`,
           token_endpoint: `https://auth.pingone.com/${environmentId}/as/token`,
           userinfo_endpoint: `https://auth.pingone.com/${environmentId}/as/userinfo`,
