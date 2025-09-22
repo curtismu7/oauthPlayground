@@ -372,10 +372,7 @@ const defaultAcrValues = [
   'urn:mace:incommon:iap:gold',
   'urn:pingone:loa:1',
   'urn:pingone:loa:2', 
-  'urn:pingone:loa:3',
-  '1',
-  '2',
-  '3'
+  'urn:pingone:loa:3'
 ];
 
 export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
@@ -734,13 +731,23 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
                     value={config.acrValues}
                     onChange={(e) => {
                       const selected = Array.from(e.target.selectedOptions, option => option.value);
-                      updateConfig({ acrValues: selected });
+                      // Filter out any invalid ACR values (empty strings, single digits, etc.)
+                      const validAcrValues = selected.filter(acr => 
+                        acr && 
+                        acr.trim() !== '' && 
+                        !/^[0-9]+$/.test(acr) && // Remove single digits like '1', '2', '3'
+                        (acr.startsWith('urn:') || acr.length > 3) // Must be URN or meaningful string
+                      );
+                      updateConfig({ acrValues: validAcrValues });
                     }}
                   >
                     {defaultAcrValues.map(acr => (
                       <option key={acr} value={acr}>{acr}</option>
                     ))}
                   </select>
+                  <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                    Select valid ACR values. Invalid values like '1', '2', '3' will be automatically filtered out.
+                  </div>
                 </ConfigField>
               </ConfigGrid>
             </ConfigSection>

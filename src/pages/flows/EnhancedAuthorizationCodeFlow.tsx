@@ -323,7 +323,20 @@ const EnhancedAuthorizationCodeFlow: React.FC = () => {
       params.append('login_hint', flowConfig.loginHint);
     }
     if (flowConfig.acrValues.length > 0) {
-      params.append('acr_values', flowConfig.acrValues.join(' '));
+      // Filter out invalid ACR values before adding to URL
+      const validAcrValues = flowConfig.acrValues.filter(acr => 
+        acr && 
+        acr.trim() !== '' && 
+        !/^[0-9]+$/.test(acr) && // Remove single digits like '1', '2', '3'
+        (acr.startsWith('urn:') || acr.length > 3) // Must be URN or meaningful string
+      );
+      
+      if (validAcrValues.length > 0) {
+        params.append('acr_values', validAcrValues.join(' '));
+        console.log('✅ [EnhancedAuthorizationCodeFlow] Added valid ACR values:', validAcrValues);
+      } else {
+        console.warn('⚠️ [EnhancedAuthorizationCodeFlow] No valid ACR values found, skipping acr_values parameter');
+      }
     }
 
     // Add custom parameters
