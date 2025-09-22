@@ -917,7 +917,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
   
   // Check if current step has been completed successfully
   const currentStepHistory = stepHistory.find(h => h.stepId === currentStep?.id);
-  const isCurrentStepCompleted = currentStepHistory && !currentStepHistory.error;
+  const isCurrentStepCompleted = (currentStepHistory && !currentStepHistory.error) || currentStep?.completed;
 
   if (!currentStep) {
     return (

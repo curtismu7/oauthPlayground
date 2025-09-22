@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/NewAuthContext';
 import { Card, CardHeader, CardBody } from '../components/Card';
 import { FiRefreshCw, FiCheckCircle, FiPlus, FiX, FiClock, FiKey, FiEye, FiTrash2, FiCopy, FiShield, FiAlertTriangle, FiXCircle, FiInfo, FiDownload, FiSettings } from 'react-icons/fi';
@@ -1337,12 +1337,12 @@ const TokenManagement = () => {
     }
   }, [tokenString]);
 
-  // Load token history on component mount and when tokens change
-  useEffect(() => {
-    console.log('🔄 [TokenManagement] Loading token history...');
+  // Function to refresh token history
+  const refreshTokenHistory = useCallback(() => {
+    console.log('🔄 [TokenManagement] Manually refreshing token history...');
     const history = getTokenHistory();
     
-    console.log('📋 [TokenManagement] Retrieved token history:', {
+    console.log('📋 [TokenManagement] Refreshed token history:', {
       totalEntries: history.entries.length,
       entries: history.entries.map(entry => ({
         id: entry.id,
@@ -1356,42 +1356,10 @@ const TokenManagement = () => {
     });
     
     setTokenHistory(history.entries);
-    
-    // If no history exists and we have current tokens, create initial history entries
-    if (history.entries.length === 0 && tokens?.access_token) {
-      console.log('🔍 [TokenManagement] No history found, creating entry with current tokens');
-      
-      // Determine flow type from flow source
-      const currentFlowSource = sessionStorage.getItem('flow_source') || 'unknown';
-      const flowName = currentFlowSource.includes('oauth-v3') ? 'OAuth 2.0 Authorization Code Flow V3' :
-                       currentFlowSource.includes('oidc-v3') ? 'OpenID Connect Authorization Code Flow V3' :
-                       'Enhanced Authorization Code Flow V3';
-      
-      // Create a history entry for the current OAuth session
-      const { addTokenToHistory } = require('../utils/tokenHistory');
-      const success = addTokenToHistory(
-        currentFlowSource,
-        flowName,
-        {
-          access_token: tokens.access_token,
-          id_token: tokens.id_token,
-          refresh_token: tokens.refresh_token,
-          token_type: tokens.token_type || 'Bearer',
-          expires_in: tokens.expires_in || 3600,
-          scope: tokens.scope || 'openid profile email'
-        }
-      );
-      
-      if (success) {
-        // Reload history after adding current tokens
-        const updatedHistory = getTokenHistory();
-        setTokenHistory(updatedHistory.entries);
-        console.log('✅ [TokenManagement] Added current tokens to history');
-      }
-    }
-  }, [tokens]); // Re-run when tokens change
+    return history.entries.length;
+  }, []);
 
-  // Load token history on component mount (separate from tokens)
+  // Load token history on component mount
   useEffect(() => {
     console.log('🔄 [TokenManagement] Loading token history on mount...');
     const history = getTokenHistory();
@@ -1399,16 +1367,73 @@ const TokenManagement = () => {
     console.log('📋 [TokenManagement] Mount - Retrieved token history:', {
       totalEntries: history.entries.length,
       storageKey: 'pingone_playground_token_history',
-      hasEntries: history.entries.length > 0
+      hasEntries: history.entries.length > 0,
+      entries: history.entries.map(entry => ({
+        id: entry.id,
+        flowType: entry.flowType,
+        flowName: entry.flowName,
+        timestamp: entry.timestampFormatted,
+        hasAccessToken: entry.hasAccessToken,
+        hasIdToken: entry.hasIdToken,
+        hasRefreshToken: entry.hasRefreshToken
+      }))
     });
     
+    setTokenHistory(history.entries);
+    
     if (history.entries.length > 0) {
-      setTokenHistory(history.entries);
       console.log('✅ [TokenManagement] Loaded', history.entries.length, 'history entries on mount');
     } else {
       console.log('ℹ️ [TokenManagement] No token history found on mount');
     }
   }, []); // Run only on mount
+
+  // Refresh token history when tokens change (but don't create duplicate entries)
+  useEffect(() => {
+    if (tokens?.access_token) {
+      console.log('🔄 [TokenManagement] Tokens changed, refreshing history...');
+      const history = getTokenHistory();
+      
+      // Only add to history if this token isn't already in history
+      const tokenAlreadyInHistory = history.entries.some(entry => 
+        entry.tokens?.access_token === tokens.access_token
+      );
+      
+      if (!tokenAlreadyInHistory) {
+        console.log('🔍 [TokenManagement] New token detected, adding to history');
+        
+        // Determine flow type from flow source
+        const currentFlowSource = sessionStorage.getItem('flow_source') || 'unknown';
+        const flowName = currentFlowSource.includes('oauth-v3') ? 'OAuth 2.0 Authorization Code Flow V3' :
+                         currentFlowSource.includes('oidc-v3') ? 'OpenID Connect Authorization Code Flow V3' :
+                         'Enhanced Authorization Code Flow V3';
+        
+        // Create a history entry for the current OAuth session
+        const { addTokenToHistory } = require('../utils/tokenHistory');
+        const success = addTokenToHistory(
+          currentFlowSource,
+          flowName,
+          {
+            access_token: tokens.access_token,
+            id_token: tokens.id_token,
+            refresh_token: tokens.refresh_token,
+            token_type: tokens.token_type || 'Bearer',
+            expires_in: tokens.expires_in || 3600,
+            scope: tokens.scope || 'openid profile email'
+          }
+        );
+        
+        if (success) {
+          // Reload history after adding current tokens
+          const updatedHistory = getTokenHistory();
+          setTokenHistory(updatedHistory.entries);
+          console.log('✅ [TokenManagement] Added new tokens to history, total entries:', updatedHistory.entries.length);
+        }
+      } else {
+        console.log('ℹ️ [TokenManagement] Token already exists in history, skipping');
+      }
+    }
+  }, [tokens]); // Re-run when tokens change
 
   // Determine token source display
   const getTokenSourceInfo = () => {
@@ -2010,19 +2035,53 @@ const TokenManagement = () => {
         <CardHeader>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h2>Token History</h2>
-            {tokenHistory.length > 0 && (
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
               <ActionButton 
                 className="secondary" 
                 style={{ fontSize: '0.75rem', padding: '0.5rem 1rem' }}
-                onClick={handleClearHistory}
+                onClick={() => {
+                  const count = refreshTokenHistory();
+                  showFlowSuccess(`Token history refreshed! Found ${count} entries.`);
+                }}
+                title="Refresh token history from storage"
               >
-                <FiTrash2 />
-                Clear History
+                <FiRefreshCw />
+                Refresh
               </ActionButton>
-            )}
+              {tokenHistory.length > 0 && (
+                <ActionButton 
+                  className="secondary" 
+                  style={{ fontSize: '0.75rem', padding: '0.5rem 1rem' }}
+                  onClick={handleClearHistory}
+                >
+                  <FiTrash2 />
+                  Clear History
+                </ActionButton>
+              )}
+            </div>
           </div>
         </CardHeader>
         <CardBody>
+          {/* Debug information */}
+          <div style={{ 
+            background: '#f8fafc', 
+            border: '1px solid #e2e8f0', 
+            borderRadius: '6px', 
+            padding: '0.75rem', 
+            marginBottom: '1rem',
+            fontSize: '0.875rem',
+            color: '#64748b'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <strong>Token History Status:</strong> {tokenHistory.length} entries stored
+              </div>
+              <div>
+                <strong>Storage Key:</strong> pingone_playground_token_history
+              </div>
+            </div>
+          </div>
+
           {tokenHistory.length === 0 ? (
             <div style={{ color: '#6b7280', fontStyle: 'italic', textAlign: 'center', padding: '2rem' }}>
               <FiClock style={{ display: 'inline', marginRight: '0.5rem', fontSize: '1.5rem' }} />
