@@ -291,6 +291,7 @@ const AuthzCallback: React.FC = () => {
                       'Missing or invalid response_type',
                       'Invalid scope parameters',
                       'Missing PKCE parameters (code_challenge)',
+                      'Invalid acr_values parameter',
                       'Malformed authorization URL'
                     ],
                     checkThese: [
@@ -298,19 +299,35 @@ const AuthzCallback: React.FC = () => {
                       'Redirect URI matches exactly',
                       'Client ID is correct',
                       'PKCE is enabled in PingOne',
-                      'Scopes are valid for your application'
+                      'Scopes are valid for your application',
+                      'ACR values are valid and supported by PingOne'
                     ]
                   });
                   
-                  setMessage(`Authorization failed: Invalid request parameters. This usually means there's an issue with the authorization URL parameters sent to PingOne. 
+                  let errorMessage = `Authorization failed: Invalid request parameters. This usually means there's an issue with the authorization URL parameters sent to PingOne. 
 
 Common causes:
 • Invalid Client ID or Redirect URI
 • PKCE not enabled in PingOne application  
 • Invalid scopes for your application
-• Malformed authorization URL parameters
+• Malformed authorization URL parameters`;
 
-Check your PingOne application configuration and ensure all parameters match exactly.`);
+                  // Check if this is specifically an ACR values error
+                  if (errorDescription && errorDescription.toLowerCase().includes('acr_values')) {
+                    errorMessage += `
+
+🔍 ACR Values Error Detected:
+• Invalid or unsupported acr_values parameter
+• Check your Flow Configuration ACR Values settings
+• Use only valid ACR values like 'urn:pingone:loa:1', 'urn:pingone:loa:2', etc.
+• Remove any invalid values like '1', '2', '3' or empty strings`;
+                  }
+
+                  errorMessage += `
+
+Check your PingOne application configuration and ensure all parameters match exactly.`;
+                  
+                  setMessage(errorMessage);
                 }
                 
                 return;
