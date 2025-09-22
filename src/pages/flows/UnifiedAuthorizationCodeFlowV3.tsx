@@ -1003,7 +1003,20 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         }
         
         if (flowConfig.acrValues && flowConfig.acrValues.length > 0) {
-          params.set('acr_values', flowConfig.acrValues.join(' '));
+          // Filter out invalid ACR values before adding to URL
+          const validAcrValues = flowConfig.acrValues.filter(acr => 
+            acr && 
+            acr.trim() !== '' && 
+            !/^[0-9]+$/.test(acr) && // Remove single digits like '1', '2', '3'
+            (acr.startsWith('urn:') || acr.length > 3) // Must be URN or meaningful string
+          );
+          
+          if (validAcrValues.length > 0) {
+            params.set('acr_values', validAcrValues.join(' '));
+            console.log(`✅ [${flowType.toUpperCase()}-V3] Added valid ACR values:`, validAcrValues);
+          } else {
+            console.warn(`⚠️ [${flowType.toUpperCase()}-V3] No valid ACR values found, skipping acr_values parameter`);
+          }
         }
         
         console.log(`🔧 [${flowType.toUpperCase()}-V3] Added OIDC parameters:`, {
@@ -1247,7 +1260,8 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         code: authCode,
         code_verifier: codeVerifier,
         client_id: credentials.clientId,
-        redirect_uri: storedRedirectUri // Use stored redirect URI to ensure exact match
+        redirect_uri: storedRedirectUri, // Use stored redirect URI to ensure exact match
+        environment_id: credentials.environmentId // Add environment_id for backend
       };
 
       console.log(`🔍 [${flowType.toUpperCase()}-V3] Original request body:`, {
@@ -1384,6 +1398,15 @@ Original Error: ${errorData.error_description || errorData.error}
         scopesRequested: finalRequestBody.scope
       });
 
+      console.log(`🔍 [${flowType.toUpperCase()}-V3] Setting tokens state:`, {
+        tokenData,
+        hasAccessToken: Boolean(tokenData.access_token),
+        hasRefreshToken: Boolean(tokenData.refresh_token),
+        hasIdToken: Boolean(tokenData.id_token),
+        tokenType: tokenData.token_type,
+        expiresIn: tokenData.expires_in
+      });
+      
       setTokens(tokenData);
       
       // Store tokens using standardized storage for Token Management page compatibility
@@ -1453,14 +1476,24 @@ Original Error: ${errorData.error_description || errorData.error}
       }
 
       // Save step result to prevent re-execution
-      saveStepResult('exchange-tokens', { tokens: tokenData, timestamp: Date.now() });
+      const stepResult = { tokens: tokenData, timestamp: Date.now() };
+      console.log(`🔍 [${flowType.toUpperCase()}-V3] Saving step result for exchange-tokens:`, stepResult);
+      saveStepResult('exchange-tokens', stepResult);
       
       showFlowSuccess('Token exchange successful!');
-      stepManager.setStep(6); // Move to token validation step
+      
+      // Force a re-render to ensure UI updates
+      setTimeout(() => {
+        stepManager.setStep(6); // Move to token validation step
+      }, 100);
+      
+      // Return success result for EnhancedStepFlowV2
+      return { success: true, tokens: tokenData, timestamp: Date.now() };
       
     } catch (error) {
       console.error(`❌ [${flowType.toUpperCase()}-V3] Token exchange failed:`, error);
       showFlowError(`Token exchange failed: ${error.message}`);
+      throw error; // Re-throw so EnhancedStepFlowV2 can handle it
     } finally {
       setIsExchangingTokens(false);
     }
@@ -1773,26 +1806,44 @@ Original Error: ${errorData.error_description || errorData.error}
         completed: hasStepResult('handle-callback') || Boolean(authCode)
       },
       {
-        ...createTokenExchangeStep(authCode, tokens, exchangeTokens, credentials, isExchangingTokens, flowType),
+        ...createTokenExchangeStep(authCode, tokens, async () => {
+          await exchangeTokens();
+        }, credentials, isExchangingTokens, flowType),
         canExecute: (() => {
           const hasAuthCode = Boolean(authCode);
           const hasEnvironmentId = Boolean(credentials.environmentId);
           const hasClientId = Boolean(credentials.clientId);
-          const stepNotCompleted = !hasStepResult('exchange-tokens');
-          const canExec = hasAuthCode && hasEnvironmentId && hasClientId && stepNotCompleted;
+          const canExec = hasAuthCode && hasEnvironmentId && hasClientId;
           
           console.log(`🔍 [${flowType.toUpperCase()}-V3] Token exchange canExecute check:`, {
             authCode: hasAuthCode ? `${authCode.substring(0, 10)}...` : 'MISSING',
             environmentId: hasEnvironmentId ? credentials.environmentId.substring(0, 10) + '...' : 'MISSING',
             clientId: hasClientId ? credentials.clientId.substring(0, 10) + '...' : 'MISSING',
-            stepNotCompleted,
+            hasTokens: Boolean(tokens?.access_token),
             canExecute: canExec,
             fullCredentials: credentials
           });
           
           return canExec;
         })(),
-        completed: hasStepResult('exchange-tokens') || Boolean(tokens?.access_token)
+        completed: (() => {
+          const hasResult = hasStepResult('exchange-tokens');
+          const hasTokens = Boolean(tokens?.access_token);
+          const completed = hasResult || hasTokens;
+          
+          console.log(`🔍 [${flowType.toUpperCase()}-V3] Token exchange step completion check:`, {
+            hasResult,
+            hasTokens,
+            tokensPresent: tokens ? 'YES' : 'NO',
+            accessTokenPresent: tokens?.access_token ? 'YES' : 'NO',
+            tokensKeys: tokens ? Object.keys(tokens) : 'NO_TOKENS',
+            completed,
+            stepResults: Object.keys(stepResults),
+            stepResultsValues: stepResults
+          });
+          
+          return completed;
+        })()
       }
     ];
 
@@ -1869,6 +1920,120 @@ Original Error: ${errorData.error_description || errorData.error}
                     <br />
                     User profile information has been fetched successfully.
                   </div>
+                </div>
+              )}
+              
+              {/* Token Display Section */}
+              {tokens && (
+                <div style={{ marginTop: '1.5rem' }}>
+                  <h4 style={{ margin: '0 0 1rem 0', color: '#1f2937', fontSize: '1.1rem', fontWeight: '600' }}>
+                    🔑 Received Tokens
+                  </h4>
+                  
+                  {/* Access Token Display */}
+                  {tokens.access_token && (
+                    <div style={{ 
+                      background: '#f8fafc', 
+                      border: '1px solid #e2e8f0', 
+                      borderRadius: '8px', 
+                      padding: '1rem',
+                      marginBottom: '1rem'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                        <strong style={{ color: '#1f2937', fontSize: '0.9rem' }}>Access Token:</strong>
+                        <ActionButton 
+                          onClick={() => copyToClipboard(tokens.access_token, 'Access Token')}
+                          style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+                        >
+                          <FiCopy />
+                          Copy
+                        </ActionButton>
+                      </div>
+                      <div style={{ 
+                        background: 'white',
+                        border: '1px solid #d1d5db', 
+                        borderRadius: '4px', 
+                        padding: '0.75rem',
+                        fontFamily: 'Monaco, Menlo, monospace',
+                        fontSize: '0.8rem',
+                        wordBreak: 'break-all',
+                        maxHeight: '100px',
+                        overflow: 'auto'
+                      }}>
+                        {tokens.access_token}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Refresh Token Display */}
+                  {tokens.refresh_token && (
+                    <div style={{ 
+                      background: '#f8fafc', 
+                      border: '1px solid #e2e8f0', 
+                      borderRadius: '8px', 
+                      padding: '1rem',
+                      marginBottom: '1rem'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                        <strong style={{ color: '#1f2937', fontSize: '0.9rem' }}>Refresh Token:</strong>
+                        <ActionButton 
+                          onClick={() => copyToClipboard(tokens.refresh_token, 'Refresh Token')}
+                          style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+                        >
+                          <FiCopy />
+                          Copy
+                        </ActionButton>
+                      </div>
+                      <div style={{ 
+                        background: 'white',
+                        border: '1px solid #d1d5db', 
+                        borderRadius: '4px', 
+                        padding: '0.75rem',
+                        fontFamily: 'Monaco, Menlo, monospace',
+                        fontSize: '0.8rem',
+                        wordBreak: 'break-all',
+                        maxHeight: '100px',
+                        overflow: 'auto'
+                      }}>
+                        {tokens.refresh_token}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* ID Token Display (for OIDC flows) */}
+                  {flowType === 'oidc' && tokens.id_token && (
+                    <div style={{ 
+                      background: '#f8fafc', 
+                      border: '1px solid #e2e8f0', 
+                      borderRadius: '8px', 
+                      padding: '1rem',
+                      marginBottom: '1rem'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                        <strong style={{ color: '#1f2937', fontSize: '0.9rem' }}>ID Token:</strong>
+                        <ActionButton 
+                          onClick={() => copyToClipboard(tokens.id_token, 'ID Token')}
+                          style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+                        >
+                          <FiCopy />
+                          Copy
+                        </ActionButton>
+                      </div>
+                      <div style={{ 
+                        background: 'white',
+                        border: '1px solid #d1d5db', 
+                        borderRadius: '4px', 
+                        padding: '0.75rem',
+                        fontFamily: 'Monaco, Menlo, monospace',
+                        fontSize: '0.8rem',
+                        wordBreak: 'break-all',
+                        maxHeight: '100px',
+                        overflow: 'auto'
+                      }}>
+                        {tokens.id_token}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
               

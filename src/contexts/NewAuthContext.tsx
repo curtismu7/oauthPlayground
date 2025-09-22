@@ -839,15 +839,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('CRITICAL ERROR: Request body contains empty client_id. This should never happen.');
       }
 
-      console.log('🌐 [NewAuthContext] Making token exchange request to /api/token-exchange');
+      // Use backend proxy to avoid CORS issues
+      const backendUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://oauth-playground.vercel.app' 
+        : 'http://localhost:3001';
+
+      console.log('🌐 [NewAuthContext] Making token exchange request to backend');
       console.log('📤 [NewAuthContext] Request details:', {
-        url: '/api/token-exchange',
+        url: `${backendUrl}/api/token-exchange`,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: requestBody
       });
 
-      const tokenResponse = await fetch('/api/token-exchange', {
+      const tokenResponse = await fetch(`${backendUrl}/api/token-exchange`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
