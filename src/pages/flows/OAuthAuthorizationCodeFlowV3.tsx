@@ -589,13 +589,19 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
         clientId: `${credentials.clientId.substring(0, 8)}...`
       });
 
+      // Use backend proxy to avoid CORS issues
+      const backendUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://oauth-playground.vercel.app' 
+        : 'http://localhost:3001';
+
       // Prepare token request
       const requestBody = {
         grant_type: 'authorization_code',
         client_id: credentials.clientId,
         code: authCode,
         redirect_uri: storedRedirectUri,
-        code_verifier: storedCodeVerifier
+        code_verifier: storedCodeVerifier,
+        environment_id: credentials.environmentId // Add environment_id for backend
       };
 
       // Add client secret if available (for confidential clients)
@@ -603,7 +609,7 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
         requestBody.client_secret = credentials.clientSecret;
       }
 
-      const response = await fetch('/api/token-exchange', {
+      const response = await fetch(`${backendUrl}/api/token-exchange`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
