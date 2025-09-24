@@ -742,6 +742,17 @@ const OIDCHybridFlowV3: React.FC = () => {
             </div>
           </div>
 
+          {/* Test Button */}
+          <div style={{ marginBottom: '1.5rem' }}>
+            <Button
+              variant="danger"
+              onClick={() => alert('TEST BUTTON WORKS!')}
+              style={{ marginBottom: '1rem' }}
+            >
+              🧪 TEST BUTTON
+            </Button>
+          </div>
+
           {/* Authorization Methods Section */}
           <div style={{ marginBottom: '1.5rem' }}>
             <h4 style={{ 
@@ -767,6 +778,7 @@ const OIDCHybridFlowV3: React.FC = () => {
                 variant={authorizationMethod === 'popup' ? 'primary' : 'secondary'}
                 onClick={() => {
                   console.log('🔧 [OIDC-HYBRID-V3] Setting authorization method to popup');
+                  alert('Popup Authorization button clicked!');
                   setAuthorizationMethod('popup');
                 }}
                 style={{ 
@@ -784,6 +796,7 @@ const OIDCHybridFlowV3: React.FC = () => {
                 variant={authorizationMethod === 'redirect' ? 'primary' : 'secondary'}
                 onClick={() => {
                   console.log('🔧 [OIDC-HYBRID-V3] Setting authorization method to redirect');
+                  alert('Full Redirect button clicked!');
                   setAuthorizationMethod('redirect');
                 }}
                 style={{ 
@@ -818,6 +831,7 @@ const OIDCHybridFlowV3: React.FC = () => {
                   authorizationMethod,
                   hasUrl: !!authorizationUrl
                 });
+                alert('Request Authorization button clicked!');
                 requestAuthorization();
               }}
               disabled={isRequestingAuthorization || !authorizationUrl}
