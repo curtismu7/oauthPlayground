@@ -231,24 +231,36 @@ const WorkerTokenFlowV3: React.FC = () => {
       
       const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
       
+      const requestPayload = {
+        client_id: credentials.clientId,
+        client_secret: credentials.clientSecret,
+        scope: credentials.scopes,
+        environment_id: credentials.environmentId
+      };
+
+      console.log('🔧 [WorkerTokenV3] Sending request to /api/client-credentials:', {
+        payload: { ...requestPayload, client_secret: '[REDACTED]' },
+        tokenEndpoint
+      });
+      
       const response = await fetch('/api/client-credentials', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          grant_type: 'client_credentials',
-          client_id: credentials.clientId,
-          client_secret: credentials.clientSecret,
-          scope: credentials.scopes,
-          environment_id: credentials.environmentId,
-          token_endpoint: tokenEndpoint
-        }),
+        body: JSON.stringify(requestPayload),
       });
+
+      console.log('🔧 [WorkerTokenV3] Response status:', response.status, response.statusText);
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+        console.error('❌ [WorkerTokenV3] Backend error response:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorData
+        });
+        throw new Error(errorData.error_description || errorData.error || `HTTP ${response.status}: ${response.statusText}`);
       }
 
       const tokenData = await response.json();
@@ -458,13 +470,53 @@ const WorkerTokenFlowV3: React.FC = () => {
         <Title>🚀 PingOne Worker Token V3</Title>
         <Subtitle>Machine-to-machine authentication using client credentials</Subtitle>
         <InfoBox>
-          <p>
-            <strong>No User Interaction Required</strong> - Worker Tokens are designed for automated systems, 
-            background services, and server-to-server communication.
-          </p>
-          <p>
-            Perfect for: API integrations, data synchronization, monitoring, and automated workflows.
-          </p>
+          <div style={{ marginBottom: '1rem' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#fff', fontSize: '1.2rem' }}>🤖 What is a Worker Token?</h3>
+            <p style={{ margin: '0 0 1rem 0', lineHeight: '1.5' }}>
+              A Worker Token is an OAuth 2.0 Client Credentials flow that allows your application to authenticate 
+              directly with PingOne APIs without any user interaction. It's perfect for server-to-server communication, 
+              background services, and automated processes.
+            </p>
+          </div>
+          
+          <div style={{ marginBottom: '1rem' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#fff', fontSize: '1.2rem' }}>🎯 When to Use Worker Tokens</h3>
+            <ul style={{ margin: '0', paddingLeft: '1.5rem', lineHeight: '1.6' }}>
+              <li><strong>Background Services:</strong> Automated data synchronization, ETL processes</li>
+              <li><strong>API Integration:</strong> Server-to-server communication between applications</li>
+              <li><strong>Monitoring & Alerting:</strong> Health checks, system monitoring, automated reports</li>
+              <li><strong>Workflow Automation:</strong> CI/CD pipelines, deployment automation</li>
+              <li><strong>Data Management:</strong> Bulk user operations, directory synchronization</li>
+            </ul>
+          </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#fff', fontSize: '1.2rem' }}>⚠️ Security Considerations</h3>
+            <ul style={{ margin: '0', paddingLeft: '1.5rem', lineHeight: '1.6' }}>
+              <li><strong>Broad Permissions:</strong> Worker Tokens can access all PingOne Management API endpoints</li>
+              <li><strong>Secret Storage:</strong> Client secrets must be stored securely (environment variables, key vaults)</li>
+              <li><strong>Limited Scope:</strong> Use only for trusted applications and services</li>
+              <li><strong>Rotation:</strong> Regularly rotate client secrets for enhanced security</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#fff', fontSize: '1.2rem' }}>📚 Documentation</h3>
+            <p style={{ margin: '0', lineHeight: '1.5' }}>
+              <a href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#authentication" 
+                 target="_blank" 
+                 rel="noopener noreferrer"
+                 style={{ color: '#fff', textDecoration: 'underline' }}>
+                PingOne Management API Documentation
+              </a> | 
+              <a href="https://docs.pingidentity.com/bundle/pingone-sso/page/authentication/client-credentials-flow.html" 
+                 target="_blank" 
+                 rel="noopener noreferrer"
+                 style={{ color: '#fff', textDecoration: 'underline' }}>
+                Client Credentials Flow Guide
+              </a>
+            </p>
+          </div>
         </InfoBox>
       </Header>
 
