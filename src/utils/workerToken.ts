@@ -10,16 +10,16 @@ export interface WorkerTokenResponse {
 }
 
 export interface ClientCredentials {
-  client_id: string;
-  client_secret: string;
-  environment_id: string;
+  clientId: string;
+  clientSecret: string;
+  environmentId: string;
   scopes: string[];
 }
 
 export interface TokenIntrospectionResponse {
   active: boolean;
   scope?: string;
-  client_id?: string;
+  clientId?: string;
   exp?: number;
   iat?: number;
   sub?: string;
@@ -92,7 +92,7 @@ export async function introspectToken(
     tokenType: token.substring(0, 8) + '...'
   });
 
-  const credentials = btoa(`${clientCredentials.client_id}:${clientCredentials.client_secret}`);
+  const credentials = btoa(`${clientCredentials.clientId}:${clientCredentials.clientSecret}`);
   const body = new URLSearchParams({
     token: token,
     token_type_hint: 'access_token'

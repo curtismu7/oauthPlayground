@@ -51,6 +51,7 @@ import AdvancedConfiguration from './pages/AdvancedConfiguration';
 import InteractiveTutorials from './pages/InteractiveTutorials';
 import OAuth21 from './pages/OAuth21';
 import OIDCSessionManagement from './pages/OIDCSessionManagement';
+import SDKSampleApp from './pages/SDKSampleApp';
 import OIDCSpecs from './pages/docs/OIDCSpecs';
 import OIDCForAI from './pages/docs/OIDCForAI';
 import OAuth2SecurityBestPractices from './pages/docs/OAuth2SecurityBestPractices';
@@ -309,6 +310,7 @@ const AppRoutes = () => {
 
             <Route path="/oauth-2-1" element={<OAuth21 />} />
             <Route path="/oidc-session-management" element={<OIDCSessionManagement />} />
+            <Route path="/sdk-sample-app" element={<SDKSampleApp />} />
 
             <Route path="*" element={<div>Not Found</div>} />
           </Routes>
