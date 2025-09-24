@@ -137,12 +137,12 @@ const ImplicitCallback: React.FC = () => {
             sessionStorage.setItem('implicit_tokens', JSON.stringify(tokens));
             
             setTimeout(() => {
-              // Return to the implicit flow page
+              // Return to the implicit flow page at step 4 (token processing)
               const currentPath = window.location.pathname;
               if (currentPath.includes('oidc')) {
-                navigate('/flows/oidc-implicit-v3');
+                navigate('/flows/oidc-implicit-v3?step=4');
               } else {
-                navigate('/flows/oauth2-implicit-v3');
+                navigate('/flows/oauth2-implicit-v3?step=4');
               }
             }, 2000);
           } else {
