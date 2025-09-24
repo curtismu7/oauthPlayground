@@ -19,6 +19,11 @@ const URLContainer = styled.div`
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
+  border: 1px solid #86efac;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 `;
 
 const URLText = styled.span`

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { FiSave, FiEye, FiEyeOff, FiGlobe } from 'react-icons/fi';
+import { FiSave, FiEye, FiEyeOff, FiGlobe, FiRefreshCw } from 'react-icons/fi';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { getSharedConfigurationStatus } from '../utils/configurationStatus';
 import DiscoveryPanel from '../components/DiscoveryPanel';
@@ -11,6 +11,7 @@ import StandardMessage from '../components/StandardMessage';
 import CollapsibleSection from '../components/CollapsibleSection';
 import CentralizedSuccessMessage, { showFlowSuccess, showFlowError } from '../components/CentralizedSuccessMessage';
 import CredentialStatusPanel from '../components/CredentialStatusPanel';
+import ServerStatusPanel from '../components/ServerStatusPanel';
 import packageJson from '../../package.json';
 
 const ConfigurationContainer = styled.div`
@@ -201,15 +202,6 @@ const Configuration = () => {
   const [flowCredentialStatuses, setFlowCredentialStatuses] = useState(getAllFlowCredentialStatuses());
   
   // Helper function to get status for a specific flow
-  const getFlowStatus = (flowType: string) => {
-    return flowCredentialStatuses.find(status => status.flowType === flowType);
-  };
-  
-  // Refresh flow credential statuses when form data changes
-  useEffect(() => {
-    setFlowCredentialStatuses(getAllFlowCredentialStatuses());
-  }, [formData]);
-  
   const [formData, setFormData] = useState({
     environmentId: '',
     clientId: '',
@@ -228,7 +220,18 @@ const Configuration = () => {
     showCredentialsModal: false,
     showSuccessModal: true,
     showAuthRequestModal: false,
+    showFlowDebugConsole: true,
   });
+
+  // Helper function to get status for a specific flow
+  const getFlowStatus = (flowType: string) => {
+    return flowCredentialStatuses.find(status => status.flowType === flowType);
+  };
+  
+  // Refresh flow credential statuses when form data changes
+  useEffect(() => {
+    setFlowCredentialStatuses(getAllFlowCredentialStatuses());
+  }, [formData]);
   
   const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -341,13 +344,14 @@ const Configuration = () => {
       // Load UI settings from flow configuration
       const flowConfigKey = 'enhanced-flow-authorization-code';
       const flowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
-      if (flowConfig.showCredentialsModal !== undefined || flowConfig.showSuccessModal !== undefined || flowConfig.showAuthRequestModal !== undefined) {
+      if (flowConfig.showCredentialsModal !== undefined || flowConfig.showSuccessModal !== undefined || flowConfig.showAuthRequestModal !== undefined || flowConfig.showFlowDebugConsole !== undefined) {
         console.log('✅ [Configuration] Loading UI settings from flow config:', flowConfig);
         setFormData(prev => ({
           ...prev,
           showCredentialsModal: flowConfig.showCredentialsModal !== undefined ? flowConfig.showCredentialsModal : prev.showCredentialsModal,
           showSuccessModal: flowConfig.showSuccessModal !== undefined ? flowConfig.showSuccessModal : prev.showSuccessModal,
-          showAuthRequestModal: flowConfig.showAuthRequestModal !== undefined ? flowConfig.showAuthRequestModal : prev.showAuthRequestModal
+          showAuthRequestModal: flowConfig.showAuthRequestModal !== undefined ? flowConfig.showAuthRequestModal : prev.showAuthRequestModal,
+          showFlowDebugConsole: flowConfig.showFlowDebugConsole !== undefined ? flowConfig.showFlowDebugConsole : prev.showFlowDebugConsole
         }));
       }
     };
@@ -394,10 +398,25 @@ const Configuration = () => {
     // Listen for credential change events
     window.addEventListener('permanent-credentials-changed', handleCredentialChange);
     window.addEventListener('pingone-config-changed', handleCredentialChange);
+    
+    // Listen for UI settings changes from other components
+    const handleUISettingsChange = (event: CustomEvent) => {
+      const { showAuthRequestModal } = event.detail || {};
+      if (showAuthRequestModal !== undefined) {
+        console.log('🔧 [Configuration] UI settings changed from external component:', { showAuthRequestModal });
+        setFormData(prev => ({
+          ...prev,
+          showAuthRequestModal
+        }));
+      }
+    };
+    
+    window.addEventListener('uiSettingsChanged', handleUISettingsChange as EventListener);
 
     return () => {
       window.removeEventListener('permanent-credentials-changed', handleCredentialChange);
       window.removeEventListener('pingone-config-changed', handleCredentialChange);
+      window.removeEventListener('uiSettingsChanged', handleUISettingsChange as EventListener);
     };
   }, []);
   
@@ -604,19 +623,54 @@ const Configuration = () => {
   return (
     <ConfigurationContainer>
       <PageHeader>
-        <h1>🔧 Flow-Specific Credential Configuration</h1>
+        <h1>Flow-Specific Credential Configuration</h1>
         <p>Configure credentials for each OIDC and OAuth 2.0 flow type. Each flow can have its own settings or use global configuration.</p>
       </PageHeader>
 
-      {/* Global Status Panel */}
-      <CredentialStatusPanel />
+      {/* Server Status Panel */}
+      <ServerStatusPanel />
 
       {/* Flow Credential Status Table */}
       <CollapsibleSection
         title="Flow Credential Status Overview"
         subtitle="Comprehensive view of all OAuth and OIDC flow credential status"
-        icon="📊"
         defaultCollapsed={false}
+        headerActions={
+          <button
+            onClick={() => {
+              setFlowCredentialStatuses(getAllFlowCredentialStatuses());
+              showFlowSuccess('🔄 Flow Status Refreshed', 'All flow credential statuses have been updated');
+            }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.5rem 1rem',
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.5rem',
+              fontSize: '0.875rem',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(135deg, #059669 0%, #047857 100%)';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+            }}
+          >
+            <FiRefreshCw size={16} />
+            Refresh
+          </button>
+        }
       >
         {/* OAuth 2.0 Flows Table */}
         <div style={{ marginBottom: '1.5rem' }}>
@@ -646,7 +700,7 @@ const Configuration = () => {
               <tbody>
                     <tr>
                       <td style={{ padding: '0.75rem', borderBottom: '1px solid #fecaca' }}>
-                        🔐 OAuth 2.0 Authorization Code (V3)
+                        OAuth 2.0 Authorization Code (V3)
                       </td>
                       <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #fecaca' }}>
                         <span style={{ 
@@ -675,7 +729,7 @@ const Configuration = () => {
                     </tr>
                 <tr>
                   <td style={{ padding: '0.75rem', borderBottom: '1px solid #fecaca' }}>
-                    🚀 OAuth 2.0 Implicit V3
+                    OAuth 2.0 Implicit V3
                   </td>
                   <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #fecaca' }}>
                     <span style={{ 
@@ -683,10 +737,10 @@ const Configuration = () => {
                       borderRadius: '0.375rem', 
                       fontSize: '0.75rem',
                       fontWeight: '500',
-                      backgroundColor: '#fef3c7',
-                      color: '#92400e'
+                      backgroundColor: '#f3f4f6',
+                      color: '#6b7280'
                     }}>
-                      Ready
+                      {getFlowStatus('oauth2-implicit-v3')?.lastExecutionTime || 'Never'}
                     </span>
                   </td>
                   <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #fecaca' }}>
@@ -695,16 +749,16 @@ const Configuration = () => {
                       borderRadius: '0.375rem', 
                       fontSize: '0.75rem',
                       fontWeight: '500',
-                      backgroundColor: '#fef3c7',
-                      color: '#92400e'
+                      backgroundColor: getFlowStatus('oauth2-implicit-v3')?.hasCredentials ? '#dcfce7' : '#fee2e2',
+                      color: getFlowStatus('oauth2-implicit-v3')?.hasCredentials ? '#166534' : '#dc2626'
                     }}>
-                      Configured
+                      {getFlowStatus('oauth2-implicit-v3')?.hasCredentials ? 'Configured' : 'Missing'}
                     </span>
                   </td>
                 </tr>
                 <tr>
                   <td style={{ padding: '0.75rem', borderBottom: '1px solid #fecaca' }}>
-                    🚀 OAuth2 Client Credentials V3
+                    OAuth2 Client Credentials V3
                   </td>
                   <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #fecaca' }}>
                     <span style={{ 
@@ -712,10 +766,10 @@ const Configuration = () => {
                       borderRadius: '0.375rem', 
                       fontSize: '0.75rem',
                       fontWeight: '500',
-                      backgroundColor: '#fef3c7',
-                      color: '#92400e'
+                      backgroundColor: '#f3f4f6',
+                      color: '#6b7280'
                     }}>
-                      Ready
+                      {getFlowStatus('oauth2-client-credentials-v3')?.lastExecutionTime || 'Never'}
                     </span>
                   </td>
                   <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #fecaca' }}>
@@ -724,16 +778,16 @@ const Configuration = () => {
                       borderRadius: '0.375rem', 
                       fontSize: '0.75rem',
                       fontWeight: '500',
-                      backgroundColor: '#fef3c7',
-                      color: '#92400e'
+                      backgroundColor: getFlowStatus('oauth2-client-credentials-v3')?.hasCredentials ? '#dcfce7' : '#fee2e2',
+                      color: getFlowStatus('oauth2-client-credentials-v3')?.hasCredentials ? '#166534' : '#dc2626'
                     }}>
-                      Configured
+                      {getFlowStatus('oauth2-client-credentials-v3')?.hasCredentials ? 'Configured' : 'Missing'}
                     </span>
                   </td>
                 </tr>
                 <tr>
                   <td style={{ padding: '0.75rem' }}>
-                    🚀 OAuth 2.0 Resource Owner Password
+                    OAuth 2.0 Resource Owner Password
                   </td>
                   <td style={{ padding: '0.75rem', textAlign: 'center' }}>
                     <span style={{ 
@@ -741,10 +795,10 @@ const Configuration = () => {
                       borderRadius: '0.375rem', 
                       fontSize: '0.75rem',
                       fontWeight: '500',
-                      backgroundColor: '#fef3c7',
-                      color: '#92400e'
+                      backgroundColor: '#f3f4f6',
+                      color: '#6b7280'
                     }}>
-                      Ready
+                      {getFlowStatus('oauth-resource-owner-password')?.lastExecutionTime || 'Never'}
                     </span>
                   </td>
                   <td style={{ padding: '0.75rem', textAlign: 'center' }}>
@@ -753,10 +807,10 @@ const Configuration = () => {
                       borderRadius: '0.375rem', 
                       fontSize: '0.75rem',
                       fontWeight: '500',
-                      backgroundColor: '#fef3c7',
-                      color: '#92400e'
+                      backgroundColor: getFlowStatus('oauth-resource-owner-password')?.hasCredentials ? '#dcfce7' : '#fee2e2',
+                      color: getFlowStatus('oauth-resource-owner-password')?.hasCredentials ? '#166534' : '#dc2626'
                     }}>
-                      Configured
+                      {getFlowStatus('oauth-resource-owner-password')?.hasCredentials ? 'Configured' : 'Missing'}
                     </span>
                   </td>
                 </tr>
@@ -783,7 +837,7 @@ const Configuration = () => {
                     Flow Type
                   </th>
                   <th style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #d8b4fe', fontWeight: '600' }}>
-                    Status
+                    Last Execution Time
                   </th>
                   <th style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #d8b4fe', fontWeight: '600' }}>
                     Credentials
@@ -793,7 +847,7 @@ const Configuration = () => {
               <tbody>
                 <tr>
                   <td style={{ padding: '0.75rem', borderBottom: '1px solid #d8b4fe' }}>
-                    🚀 OIDC Authorization Code (V3)
+                    OIDC Authorization Code (V3)
                   </td>
                   <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #d8b4fe' }}>
                     <span style={{ 
@@ -801,10 +855,10 @@ const Configuration = () => {
                       borderRadius: '0.375rem', 
                       fontSize: '0.75rem',
                       fontWeight: '500',
-                      backgroundColor: '#fef3c7',
-                      color: '#92400e'
+                      backgroundColor: '#f3f4f6',
+                      color: '#6b7280'
                     }}>
-                      Ready
+                      {getFlowStatus('enhanced-authorization-code-v3')?.lastExecutionTime || 'Never'}
                     </span>
                   </td>
                   <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #d8b4fe' }}>
@@ -813,45 +867,16 @@ const Configuration = () => {
                       borderRadius: '0.375rem', 
                       fontSize: '0.75rem',
                       fontWeight: '500',
-                      backgroundColor: '#fef3c7',
-                      color: '#92400e'
+                      backgroundColor: getFlowStatus('enhanced-authorization-code-v3')?.hasCredentials ? '#dcfce7' : '#fee2e2',
+                      color: getFlowStatus('enhanced-authorization-code-v3')?.hasCredentials ? '#166534' : '#dc2626'
                     }}>
-                      Configured
-                    </span>
-                  </td>
-                </tr>
-                <tr>
-                  <td style={{ padding: '0.75rem', borderBottom: '1px solid #d8b4fe' }}>
-                    🚀 OIDC Implicit V3
-                  </td>
-                  <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #d8b4fe' }}>
-                    <span style={{ 
-                      padding: '0.25rem 0.5rem', 
-                      borderRadius: '0.375rem', 
-                      fontSize: '0.75rem',
-                      fontWeight: '500',
-                      backgroundColor: '#fef3c7',
-                      color: '#92400e'
-                    }}>
-                      Ready
-                    </span>
-                  </td>
-                  <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #d8b4fe' }}>
-                    <span style={{ 
-                      padding: '0.25rem 0.5rem', 
-                      borderRadius: '0.375rem', 
-                      fontSize: '0.75rem',
-                      fontWeight: '500',
-                      backgroundColor: '#fef3c7',
-                      color: '#92400e'
-                    }}>
-                      Configured
+                      {getFlowStatus('enhanced-authorization-code-v3')?.hasCredentials ? 'Configured' : 'Missing'}
                     </span>
                   </td>
                 </tr>
                 <tr>
                   <td style={{ padding: '0.75rem', borderBottom: '1px solid #d8b4fe' }}>
-                    🚀 OIDC Hybrid V3
+                    OIDC Implicit V3
                   </td>
                   <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #d8b4fe' }}>
                     <span style={{ 
@@ -862,7 +887,7 @@ const Configuration = () => {
                       backgroundColor: '#fef3c7',
                       color: '#92400e'
                     }}>
-                      Ready
+                      {getFlowStatus('oidc-implicit-v3')?.lastExecutionTime || 'Never'}
                     </span>
                   </td>
                   <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #d8b4fe' }}>
@@ -871,45 +896,16 @@ const Configuration = () => {
                       borderRadius: '0.375rem', 
                       fontSize: '0.75rem',
                       fontWeight: '500',
-                      backgroundColor: '#fef3c7',
-                      color: '#92400e'
+                      backgroundColor: getFlowStatus('oidc-implicit-v3')?.hasCredentials ? '#dcfce7' : '#fee2e2',
+                      color: getFlowStatus('oidc-implicit-v3')?.hasCredentials ? '#166534' : '#dc2626'
                     }}>
-                      Configured
-                    </span>
-                  </td>
-                </tr>
-                <tr>
-                  <td style={{ padding: '0.75rem', borderBottom: '1px solid #d8b4fe' }}>
-                    🚀 OIDC Client Credentials V3
-                  </td>
-                  <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #d8b4fe' }}>
-                    <span style={{ 
-                      padding: '0.25rem 0.5rem', 
-                      borderRadius: '0.375rem', 
-                      fontSize: '0.75rem',
-                      fontWeight: '500',
-                      backgroundColor: '#fef3c7',
-                      color: '#92400e'
-                    }}>
-                      Ready
-                    </span>
-                  </td>
-                  <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #d8b4fe' }}>
-                    <span style={{ 
-                      padding: '0.25rem 0.5rem', 
-                      borderRadius: '0.375rem', 
-                      fontSize: '0.75rem',
-                      fontWeight: '500',
-                      backgroundColor: '#fef3c7',
-                      color: '#92400e'
-                    }}>
-                      Configured
+                      {getFlowStatus('oidc-implicit-v3')?.hasCredentials ? 'Configured' : 'Missing'}
                     </span>
                   </td>
                 </tr>
                 <tr>
                   <td style={{ padding: '0.75rem', borderBottom: '1px solid #d8b4fe' }}>
-                    🚀 OIDC Device Code V3
+                    OIDC Hybrid V3
                   </td>
                   <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #d8b4fe' }}>
                     <span style={{ 
@@ -917,10 +913,10 @@ const Configuration = () => {
                       borderRadius: '0.375rem', 
                       fontSize: '0.75rem',
                       fontWeight: '500',
-                      backgroundColor: '#fef3c7',
-                      color: '#92400e'
+                      backgroundColor: '#f3f4f6',
+                      color: '#6b7280'
                     }}>
-                      Ready
+                      {getFlowStatus('oidc-hybrid-v3')?.lastExecutionTime || 'Never'}
                     </span>
                   </td>
                   <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #d8b4fe' }}>
@@ -929,16 +925,74 @@ const Configuration = () => {
                       borderRadius: '0.375rem', 
                       fontSize: '0.75rem',
                       fontWeight: '500',
-                      backgroundColor: '#fef3c7',
-                      color: '#92400e'
+                      backgroundColor: getFlowStatus('oidc-hybrid-v3')?.hasCredentials ? '#dcfce7' : '#fee2e2',
+                      color: getFlowStatus('oidc-hybrid-v3')?.hasCredentials ? '#166534' : '#dc2626'
                     }}>
-                      Configured
+                      {getFlowStatus('oidc-hybrid-v3')?.hasCredentials ? 'Configured' : 'Missing'}
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ padding: '0.75rem', borderBottom: '1px solid #d8b4fe' }}>
+                    OIDC Client Credentials V3
+                  </td>
+                  <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #d8b4fe' }}>
+                    <span style={{ 
+                      padding: '0.25rem 0.5rem', 
+                      borderRadius: '0.375rem', 
+                      fontSize: '0.75rem',
+                      fontWeight: '500',
+                      backgroundColor: '#f3f4f6',
+                      color: '#6b7280'
+                    }}>
+                      {getFlowStatus('oidc-client-credentials-v3')?.lastExecutionTime || 'Never'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #d8b4fe' }}>
+                    <span style={{ 
+                      padding: '0.25rem 0.5rem', 
+                      borderRadius: '0.375rem', 
+                      fontSize: '0.75rem',
+                      fontWeight: '500',
+                      backgroundColor: getFlowStatus('oidc-client-credentials-v3')?.hasCredentials ? '#dcfce7' : '#fee2e2',
+                      color: getFlowStatus('oidc-client-credentials-v3')?.hasCredentials ? '#166534' : '#dc2626'
+                    }}>
+                      {getFlowStatus('oidc-client-credentials-v3')?.hasCredentials ? 'Configured' : 'Missing'}
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ padding: '0.75rem', borderBottom: '1px solid #d8b4fe' }}>
+                    OIDC Device Code V3
+                  </td>
+                  <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #d8b4fe' }}>
+                    <span style={{ 
+                      padding: '0.25rem 0.5rem', 
+                      borderRadius: '0.375rem', 
+                      fontSize: '0.75rem',
+                      fontWeight: '500',
+                      backgroundColor: '#f3f4f6',
+                      color: '#6b7280'
+                    }}>
+                      {getFlowStatus('device-code-oidc')?.lastExecutionTime || 'Never'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #d8b4fe' }}>
+                    <span style={{ 
+                      padding: '0.25rem 0.5rem', 
+                      borderRadius: '0.375rem', 
+                      fontSize: '0.75rem',
+                      fontWeight: '500',
+                      backgroundColor: getFlowStatus('device-code-oidc')?.hasCredentials ? '#dcfce7' : '#fee2e2',
+                      color: getFlowStatus('device-code-oidc')?.hasCredentials ? '#166534' : '#dc2626'
+                    }}>
+                      {getFlowStatus('device-code-oidc')?.hasCredentials ? 'Configured' : 'Missing'}
                     </span>
                   </td>
                 </tr>
                 <tr>
                   <td style={{ padding: '0.75rem' }}>
-                    🚀 OIDC Resource Owner Password
+                    OIDC Resource Owner Password
                   </td>
                   <td style={{ padding: '0.75rem', textAlign: 'center' }}>
                     <span style={{ 
@@ -946,10 +1000,10 @@ const Configuration = () => {
                       borderRadius: '0.375rem', 
                       fontSize: '0.75rem',
                       fontWeight: '500',
-                      backgroundColor: '#fef3c7',
-                      color: '#92400e'
+                      backgroundColor: '#f3f4f6',
+                      color: '#6b7280'
                     }}>
-                      Ready
+                      {getFlowStatus('oidc-resource-owner-password')?.lastExecutionTime || 'Never'}
                     </span>
                   </td>
                   <td style={{ padding: '0.75rem', textAlign: 'center' }}>
@@ -958,10 +1012,10 @@ const Configuration = () => {
                       borderRadius: '0.375rem', 
                       fontSize: '0.75rem',
                       fontWeight: '500',
-                      backgroundColor: '#fef3c7',
-                      color: '#92400e'
+                      backgroundColor: getFlowStatus('oidc-resource-owner-password')?.hasCredentials ? '#dcfce7' : '#fee2e2',
+                      color: getFlowStatus('oidc-resource-owner-password')?.hasCredentials ? '#166534' : '#dc2626'
                     }}>
-                      Configured
+                      {getFlowStatus('oidc-resource-owner-password')?.hasCredentials ? 'Configured' : 'Missing'}
                     </span>
                   </td>
                 </tr>
@@ -988,7 +1042,7 @@ const Configuration = () => {
                     Flow Type
                   </th>
                   <th style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #bbf7d0', fontWeight: '600' }}>
-                    Status
+                    Last Execution Time
                   </th>
                   <th style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #bbf7d0', fontWeight: '600' }}>
                     Credentials
@@ -998,7 +1052,7 @@ const Configuration = () => {
               <tbody>
                 <tr>
                   <td style={{ padding: '0.75rem' }}>
-                    🚀 PingOne Worker Token V3
+                    PingOne Worker Token V3
                   </td>
                   <td style={{ padding: '0.75rem', textAlign: 'center' }}>
                     <span style={{ 
@@ -1006,10 +1060,10 @@ const Configuration = () => {
                       borderRadius: '0.375rem', 
                       fontSize: '0.75rem',
                       fontWeight: '500',
-                      backgroundColor: '#fee2e2',
-                      color: '#dc2626'
+                      backgroundColor: '#f3f4f6',
+                      color: '#6b7280'
                     }}>
-                      Needs Fix
+                      {getFlowStatus('worker-token-v3')?.lastExecutionTime || 'Never'}
                     </span>
                   </td>
                   <td style={{ padding: '0.75rem', textAlign: 'center' }}>
@@ -1018,10 +1072,10 @@ const Configuration = () => {
                       borderRadius: '0.375rem', 
                       fontSize: '0.75rem',
                       fontWeight: '500',
-                      backgroundColor: '#fee2e2',
-                      color: '#dc2626'
+                      backgroundColor: getFlowStatus('worker-token-v3')?.hasCredentials ? '#dcfce7' : '#fee2e2',
+                      color: getFlowStatus('worker-token-v3')?.hasCredentials ? '#166534' : '#dc2626'
                     }}>
-                      Missing
+                      {getFlowStatus('worker-token-v3')?.hasCredentials ? 'Configured' : 'Missing'}
                     </span>
                   </td>
                 </tr>
@@ -1035,7 +1089,6 @@ const Configuration = () => {
       <CollapsibleSection
         title="Global Configuration"
         subtitle="Default credentials used by all flows (unless overridden)"
-        icon="🌐"
         defaultCollapsed={false}
       >
           <form 
@@ -1409,7 +1462,6 @@ const Configuration = () => {
       <CollapsibleSection
         title="UI Settings"
         subtitle="Configure user interface behavior and modal display options"
-        icon="🎛️"
         defaultCollapsed={true}
       >
           <FormGroup>
@@ -1532,216 +1584,62 @@ const Configuration = () => {
             </div>
           </FormGroup>
 
+          <FormGroup>
+            <div className="checkbox-container">
+              <input
+                type="checkbox"
+                id="showFlowDebugConsole"
+                name="showFlowDebugConsole"
+                checked={formData.showFlowDebugConsole}
+                onChange={(e) => {
+                  const isEnabled = e.target.checked;
+                  console.log('🔧 [Configuration] showFlowDebugConsole changed:', isEnabled);
+                  setFormData(prev => ({
+                    ...prev,
+                    showFlowDebugConsole: isEnabled
+                  }));
+                  // Auto-save UI settings immediately
+                  const flowConfigKey = 'enhanced-flow-authorization-code';
+                  const existingFlowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
+                  const updatedFlowConfig = {
+                    ...existingFlowConfig,
+                    showFlowDebugConsole: isEnabled
+                  };
+                  localStorage.setItem(flowConfigKey, JSON.stringify(updatedFlowConfig));
+                  console.log('💾 [Configuration] UI settings auto-saved:', updatedFlowConfig);
+                  
+                  // Dispatch custom event to notify other components of the change
+                  window.dispatchEvent(new CustomEvent('uiSettingsChanged', { 
+                    detail: { showFlowDebugConsole: isEnabled } 
+                  }));
+                  
+                  showFlowSuccess(
+                    isEnabled ? '🐛 Flow Debug Console Enabled' : '🚫 Flow Debug Console Disabled',
+                    isEnabled 
+                      ? 'The Flow Debug Console will be visible on all flow pages'
+                      : 'The Flow Debug Console will be hidden on all flow pages'
+                  );
+                }}
+              />
+              <label htmlFor="showFlowDebugConsole">
+                Show Flow Debug Console
+                <div className="form-text">
+                  Display the Flow Debug Console at the bottom of all OAuth flow pages for debugging and monitoring
+                </div>
+              </label>
+            </div>
+          </FormGroup>
+
           <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#e9ecef', borderRadius: '0.5rem', border: '1px solid #ced4da' }}>
             <h4 style={{ margin: '0 0 0.5rem 0', color: '#495057' }}>💡 UI Settings Info</h4>
             <p style={{ margin: '0', fontSize: '0.9rem', color: '#6c757d' }}>
-              These settings control the display of modals throughout the application. 
+              These settings control the display of modals and debug tools throughout the application. 
               Changes are saved automatically and will affect all OAuth flows.
             </p>
           </div>
       </CollapsibleSection>
 
 
-      <CollapsibleSection
-        title="OAuth 2.0 Authorization Code Flow" 
-        subtitle="Configure credentials for pure OAuth 2.0 Authorization Code Flow"
-        icon="🔒"
-        defaultCollapsed={true}
-      >
-        <div style={{ padding: '1rem', backgroundColor: '#f8f9fa', borderRadius: '0.5rem', marginBottom: '1rem' }}>
-          <p style={{ margin: '0', fontSize: '0.9rem', color: '#6c757d' }}>
-            <strong>Used by:</strong> OAuth 2.0 flows without OIDC features • 
-            <strong>Features:</strong> Access tokens only, no ID tokens
-          </p>
-        </div>
-        {/* OAuth 2.0 Authorization Code Flow Credentials */}
-        <FormGroup>
-          <label htmlFor="oauth2-authz-clientId">Client ID (OAuth 2.0)</label>
-          <input
-            type="text"
-            id="oauth2-authz-clientId"
-            name="oauth2-authz-clientId"
-            placeholder="Client ID for pure OAuth 2.0 flows (no OIDC features)"
-            style={{ 
-              width: '100%',
-              padding: '0.5rem 0.75rem',
-              fontSize: '1rem',
-              border: '1px solid #e5e7eb',
-              borderRadius: '0.375rem'
-            }}
-          />
-          <div className="form-text">
-            OAuth 2.0 client ID for access token-only flows without ID tokens.
-          </div>
-        </FormGroup>
-
-        <FormGroup>
-          <label htmlFor="oauth2-authz-scopes">Scopes (OAuth 2.0)</label>
-          <input
-            type="text"
-            id="oauth2-authz-scopes"
-            name="oauth2-authz-scopes"
-            placeholder="profile email api:read"
-            defaultValue="profile email"
-            style={{ 
-              width: '100%',
-              padding: '0.5rem 0.75rem',
-              fontSize: '1rem',
-              border: '1px solid #e5e7eb',
-              borderRadius: '0.375rem'
-            }}
-          />
-          <div className="form-text">
-            OAuth 2.0 scopes (excludes 'openid' - no ID tokens in pure OAuth flows).
-          </div>
-        </FormGroup>
-
-        <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#f3e5f5', borderRadius: '0.5rem', border: '1px solid #ce93d8' }}>
-          <h4 style={{ margin: '0 0 0.5rem 0', color: '#7b1fa2' }}>🔒 OAuth 2.0 Features</h4>
-          <ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem', fontSize: '0.9rem', color: '#8e24aa' }}>
-            <li>Access tokens only (no ID tokens)</li>
-            <li>Resource server authorization</li>
-            <li>PKCE security support</li>
-            <li>Pure OAuth 2.0 specification compliance</li>
-          </ul>
-        </div>
-      </CollapsibleSection>
-
-      <CollapsibleSection
-        title="Client Credentials Flow"
-        subtitle="Configure credentials for service-to-service authentication"
-        icon="🖥️"
-        defaultCollapsed={true}
-      >
-        <div style={{ padding: '1rem', backgroundColor: '#f8f9fa', borderRadius: '0.5rem', marginBottom: '1rem' }}>
-          <p style={{ margin: '0', fontSize: '0.9rem', color: '#6c757d' }}>
-            <strong>Used by:</strong> Server-to-server API access • 
-            <strong>Features:</strong> No user context, machine-to-machine
-          </p>
-        </div>
-        {/* Client Credentials Flow Configuration */}
-        <FormGroup>
-          <label htmlFor="client-creds-clientId">Client ID (Client Credentials)</label>
-          <input
-            type="text"
-            id="client-creds-clientId"
-            name="client-creds-clientId"
-            placeholder="Service account client ID for machine-to-machine authentication"
-            style={{ 
-              width: '100%',
-              padding: '0.5rem 0.75rem',
-              fontSize: '1rem',
-              border: '1px solid #e5e7eb',
-              borderRadius: '0.375rem'
-            }}
-          />
-          <div className="form-text">
-            Client ID for service-to-service authentication without user context.
-          </div>
-        </FormGroup>
-
-        <FormGroup>
-          <label htmlFor="client-creds-clientSecret">Client Secret (Required)</label>
-          <input
-            type="password"
-            id="client-creds-clientSecret"
-            name="client-creds-clientSecret"
-            placeholder="Service account client secret (required for client credentials flow)"
-            style={{ 
-              width: '100%',
-              padding: '0.5rem 0.75rem',
-              fontSize: '1rem',
-              border: '1px solid #e5e7eb',
-              borderRadius: '0.375rem',
-              fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace'
-            }}
-          />
-          <div className="form-text">
-            Client secret is required for Client Credentials flow - no user authentication involved.
-          </div>
-        </FormGroup>
-
-        <FormGroup>
-          <label htmlFor="client-creds-scopes">API Scopes</label>
-          <input
-            type="text"
-            id="client-creds-scopes"
-            name="client-creds-scopes"
-            placeholder="api:read api:write admin:users"
-            defaultValue="api:read api:write"
-            style={{ 
-              width: '100%',
-              padding: '0.5rem 0.75rem',
-              fontSize: '1rem',
-              border: '1px solid #e5e7eb',
-              borderRadius: '0.375rem'
-            }}
-          />
-          <div className="form-text">
-            API scopes for service access. No user-related scopes (profile, email, openid).
-          </div>
-        </FormGroup>
-
-        <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#e8f5e8', borderRadius: '0.5rem', border: '1px solid #a5d6a7' }}>
-          <h4 style={{ margin: '0 0 0.5rem 0', color: '#2e7d32' }}>🖥️ Service-to-Service Features</h4>
-          <ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem', fontSize: '0.9rem', color: '#388e3c' }}>
-            <li>No user interaction required</li>
-            <li>Machine-to-machine authentication</li>
-            <li>API access tokens only</li>
-            <li>Server-side applications and services</li>
-          </ul>
-        </div>
-      </CollapsibleSection>
-
-      <CollapsibleSection
-        title="Device Code Flow"
-        subtitle="Configure credentials for device authorization (smart TVs, IoT devices)"
-        icon="📱"
-        defaultCollapsed={true}
-      >
-        <div style={{ padding: '1rem', backgroundColor: '#f8f9fa', borderRadius: '0.5rem', marginBottom: '1rem' }}>
-          <p style={{ margin: '0', fontSize: '0.9rem', color: '#6c757d' }}>
-            <strong>Used by:</strong> Devices without browsers or limited input • 
-            <strong>Features:</strong> User code verification, polling for tokens
-          </p>
-        </div>
-        <div style={{ padding: '2rem', textAlign: 'center', color: '#6c757d', backgroundColor: '#f8f9fa', borderRadius: '0.5rem' }}>
-          🚧 Flow-specific credential configuration coming soon...
-        </div>
-      </CollapsibleSection>
-
-      <CollapsibleSection
-        title="Implicit Flow"
-        subtitle="Configure credentials for browser-based applications (legacy)"
-        icon="⚡"
-        defaultCollapsed={true}
-      >
-        <div style={{ padding: '1rem', backgroundColor: '#fff3cd', borderRadius: '0.5rem', marginBottom: '1rem', border: '1px solid #ffeaa7' }}>
-          <p style={{ margin: '0', fontSize: '0.9rem', color: '#856404' }}>
-            ⚠️ <strong>Legacy Flow:</strong> Not recommended for new applications. Use Authorization Code Flow with PKCE instead.
-          </p>
-        </div>
-        <div style={{ padding: '2rem', textAlign: 'center', color: '#6c757d', backgroundColor: '#f8f9fa', borderRadius: '0.5rem' }}>
-          🚧 Flow-specific credential configuration coming soon...
-        </div>
-      </CollapsibleSection>
-
-      <CollapsibleSection
-        title="Hybrid Flow"
-        subtitle="Configure credentials for hybrid OpenID Connect flow"
-        icon="💻"
-        defaultCollapsed={true}
-      >
-        <div style={{ padding: '1rem', backgroundColor: '#f8f9fa', borderRadius: '0.5rem', marginBottom: '1rem' }}>
-          <p style={{ margin: '0', fontSize: '0.9rem', color: '#6c757d' }}>
-            <strong>Used by:</strong> Complex applications needing both front-end and back-end tokens • 
-            <strong>Features:</strong> Mixed response types, advanced use cases
-          </p>
-        </div>
-        <div style={{ padding: '2rem', textAlign: 'center', color: '#6c757d', backgroundColor: '#f8f9fa', borderRadius: '0.5rem' }}>
-          🚧 Flow-specific credential configuration coming soon...
-        </div>
-      </CollapsibleSection>
 
       {saveStatus && (
         <StandardMessage
@@ -1752,13 +1650,12 @@ const Configuration = () => {
       )}
       
       <CollapsibleSection
-        title="❓ PingOne Configuration Help"
+        title="PingOne Configuration Help"
         subtitle="Step-by-step guide to set up your PingOne application"
-        icon="❓"
         defaultCollapsed={true}
       >
           <div>
-            <h3 style={{ marginTop: 0 }}>🔧 PingOne Configuration Required</h3>
+            <h3 style={{ marginTop: 0 }}>PingOne Configuration Required</h3>
             <p>To use this OAuth Playground, you need to configure your PingOne environment:</p>
 
             <div>

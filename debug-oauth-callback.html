@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth Callback Debug Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .debug-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .debug-section h2 {
+            color: #333;
+            border-bottom: 2px solid #0070cc;
+            padding-bottom: 10px;
+        }
+        .status-good {
+            color: #059669;
+            font-weight: bold;
+        }
+        .status-bad {
+            color: #dc2626;
+            font-weight: bold;
+        }
+        .status-warning {
+            color: #d97706;
+            font-weight: bold;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        .button {
+            background: #0070cc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .button.danger {
+            background: #dc2626;
+        }
+        .button.danger:hover {
+            background: #b91c1c;
+        }
+        .button.success {
+            background: #059669;
+        }
+        .button.success:hover {
+            background: #047857;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 OAuth Callback Debug Tool</h1>
+    <p>This tool helps diagnose issues with OAuth callbacks after PingOne authentication.</p>
+
+    <div class="grid">
+        <div class="debug-section">
+            <h2>🌐 Current URL Analysis</h2>
+            <div id="url-analysis"></div>
+            <button class="button" onclick="analyzeCurrentUrl()">Analyze Current URL</button>
+        </div>
+
+        <div class="debug-section">
+            <h2>📦 Session Storage</h2>
+            <div id="session-storage"></div>
+            <button class="button" onclick="analyzeSessionStorage()">Check Session Storage</button>
+            <button class="button danger" onclick="clearSessionStorage()">Clear Session Storage</button>
+        </div>
+    </div>
+
+    <div class="grid">
+        <div class="debug-section">
+            <h2>🍪 Local Storage</h2>
+            <div id="local-storage"></div>
+            <button class="button" onclick="analyzeLocalStorage()">Check Local Storage</button>
+        </div>
+
+        <div class="debug-section">
+            <h2>🔑 Flow Context</h2>
+            <div id="flow-context"></div>
+            <button class="button" onclick="analyzeFlowContext()">Check Flow Context</button>
+        </div>
+    </div>
+
+    <div class="debug-section">
+        <h2>🛠️ Common Fixes</h2>
+        <div id="fixes"></div>
+        <button class="button success" onclick="generateFixSuggestions()">Generate Fix Suggestions</button>
+    </div>
+
+    <div class="debug-section">
+        <h2>🧪 Test Actions</h2>
+        <button class="button" onclick="simulateCallback()">Simulate OAuth Callback</button>
+        <button class="button" onclick="testRedirectUri()">Test Redirect URI</button>
+        <button class="button" onclick="exportDebugInfo()">Export Debug Info</button>
+    </div>
+
+    <script>
+        function analyzeCurrentUrl() {
+            const url = new URL(window.location.href);
+            const params = new URLSearchParams(url.search);
+            const hash = new URLSearchParams(url.hash.substring(1));
+            
+            const analysis = {
+                fullUrl: window.location.href,
+                pathname: url.pathname,
+                search: url.search,
+                hash: url.hash,
+                queryParams: Object.fromEntries(params.entries()),
+                hashParams: Object.fromEntries(hash.entries()),
+                hasCode: params.has('code') || hash.has('code'),
+                hasState: params.has('state') || hash.has('state'),
+                hasError: params.has('error') || hash.has('error'),
+                isCallback: params.has('code') || params.has('error') || hash.has('code') || hash.has('error')
+            };
+
+            let html = `
+                <div class="code-block">
+Full URL: ${analysis.fullUrl}
+Pathname: ${analysis.pathname}
+Search: ${analysis.search}
+Hash: ${analysis.hash}
+                </div>
+                
+                <h3>Query Parameters:</h3>
+                <div class="code-block">${JSON.stringify(analysis.queryParams, null, 2)}</div>
+                
+                <h3>Hash Parameters:</h3>
+                <div class="code-block">${JSON.stringify(analysis.hashParams, null, 2)}</div>
+                
+                <h3>Status:</h3>
+                <ul>
+                    <li>Has Authorization Code: <span class="${analysis.hasCode ? 'status-good' : 'status-bad'}">${analysis.hasCode ? '✅ Yes' : '❌ No'}</span></li>
+                    <li>Has State: <span class="${analysis.hasState ? 'status-good' : 'status-bad'}">${analysis.hasState ? '✅ Yes' : '❌ No'}</span></li>
+                    <li>Has Error: <span class="${analysis.hasError ? 'status-bad' : 'status-good'}">${analysis.hasError ? '❌ Yes' : '✅ No'}</span></li>
+                    <li>Is OAuth Callback: <span class="${analysis.isCallback ? 'status-good' : 'status-warning'}">${analysis.isCallback ? '✅ Yes' : '⚠️ No'}</span></li>
+                </ul>
+            `;
+
+            if (analysis.hasError) {
+                const error = analysis.queryParams.error || analysis.hashParams.error;
+                const errorDesc = analysis.queryParams.error_description || analysis.hashParams.error_description;
+                html += `
+                    <div class="status-bad">
+                        <h3>❌ OAuth Error Detected:</h3>
+                        <div class="code-block">
+Error: ${error}
+Description: ${errorDesc || 'No description provided'}
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('url-analysis').innerHTML = html;
+        }
+
+        function analyzeSessionStorage() {
+            const sessionData = {};
+            for (let i = 0; i < sessionStorage.length; i++) {
+                const key = sessionStorage.key(i);
+                const value = sessionStorage.getItem(key);
+                sessionData[key] = value;
+            }
+
+            const html = `
+                <h3>Session Storage Contents (${Object.keys(sessionData).length} items):</h3>
+                <div class="code-block">${JSON.stringify(sessionData, null, 2)}</div>
+                
+                <h3>Key Analysis:</h3>
+                <ul>
+                    <li>OAuth State: <span class="${sessionData.oauth_state ? 'status-good' : 'status-bad'}">${sessionData.oauth_state ? '✅ Found' : '❌ Missing'}</span></li>
+                    <li>OAuth Nonce: <span class="${sessionData.oauth_nonce ? 'status-good' : 'status-bad'}">${sessionData.oauth_nonce ? '✅ Found' : '❌ Missing'}</span></li>
+                    <li>Flow Context: <span class="${sessionData.flowContext ? 'status-good' : 'status-bad'}">${sessionData.flowContext ? '✅ Found' : '❌ Missing'}</span></li>
+                    <li>Auth Code (any flow): <span class="${Object.keys(sessionData).some(k => k.includes('auth_code')) ? 'status-good' : 'status-bad'}">${Object.keys(sessionData).some(k => k.includes('auth_code')) ? '✅ Found' : '❌ Missing'}</span></li>
+                </ul>
+            `;
+
+            document.getElementById('session-storage').innerHTML = html;
+        }
+
+        function analyzeLocalStorage() {
+            const localData = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const value = localStorage.getItem(key);
+                localData[key] = value;
+            }
+
+            const html = `
+                <h3>Local Storage Contents (${Object.keys(localData).length} items):</h3>
+                <div class="code-block">${JSON.stringify(localData, null, 2)}</div>
+            `;
+
+            document.getElementById('local-storage').innerHTML = html;
+        }
+
+        function analyzeFlowContext() {
+            const flowContext = sessionStorage.getItem('flowContext');
+            const contextData = flowContext ? JSON.parse(flowContext) : null;
+
+            let html = `
+                <h3>Flow Context Status:</h3>
+                <div class="${contextData ? 'status-good' : 'status-bad'}">
+                    ${contextData ? '✅ Flow context found' : '❌ No flow context found'}
+                </div>
+            `;
+
+            if (contextData) {
+                html += `
+                    <div class="code-block">${JSON.stringify(contextData, null, 2)}</div>
+                    
+                    <h3>Flow Context Analysis:</h3>
+                    <ul>
+                        <li>Flow: <span class="status-good">${contextData.flow}</span></li>
+                        <li>Step: <span class="status-good">${contextData.step}</span></li>
+                        <li>Return Path: <span class="status-good">${contextData.returnPath}</span></li>
+                        <li>Timestamp: <span class="status-good">${new Date(contextData.timestamp).toLocaleString()}</span></li>
+                    </ul>
+                `;
+            }
+
+            document.getElementById('flow-context').innerHTML = html;
+        }
+
+        function generateFixSuggestions() {
+            const url = new URL(window.location.href);
+            const params = new URLSearchParams(url.search);
+            const hasCode = params.has('code');
+            const hasError = params.has('error');
+            const flowContext = sessionStorage.getItem('flowContext');
+
+            let fixes = [];
+
+            if (hasError) {
+                const error = params.get('error');
+                const errorDesc = params.get('error_description');
+                
+                if (error === 'access_denied') {
+                    fixes.push('❌ ACCESS DENIED: User cancelled the authorization. Try the flow again.');
+                } else if (error === 'invalid_request') {
+                    fixes.push('❌ INVALID REQUEST: Check your OAuth configuration. Possible redirect URI mismatch.');
+                } else if (error === 'unauthorized_client') {
+                    fixes.push('❌ UNAUTHORIZED CLIENT: Your client ID is not authorized for this flow.');
+                } else if (error === 'unsupported_response_type') {
+                    fixes.push('❌ UNSUPPORTED RESPONSE TYPE: Check your response_type parameter.');
+                } else if (error === 'invalid_scope') {
+                    fixes.push('❌ INVALID SCOPE: One or more requested scopes are invalid.');
+                } else if (error === 'server_error') {
+                    fixes.push('❌ SERVER ERROR: PingOne server error. Try again later.');
+                } else {
+                    fixes.push(`❌ OAUTH ERROR: ${error} - ${errorDesc || 'Unknown error'}`);
+                }
+            }
+
+            if (!hasCode && !hasError) {
+                fixes.push('⚠️ NO AUTHORIZATION CODE: The callback URL doesn\'t contain an authorization code.');
+                fixes.push('🔧 FIX: Check if the redirect URI in PingOne matches the callback URL being used.');
+            }
+
+            if (!flowContext) {
+                fixes.push('⚠️ NO FLOW CONTEXT: Session storage doesn\'t contain flow context.');
+                fixes.push('🔧 FIX: Clear browser data and try the flow again from the beginning.');
+            }
+
+            // Check for redirect URI issues
+            const currentPath = window.location.pathname;
+            const expectedCallbackPaths = [
+                '/dashboard-callback',
+                '/authz-callback', 
+                '/implicit-callback',
+                '/callback'
+            ];
+
+            if (!expectedCallbackPaths.some(path => currentPath.includes(path))) {
+                fixes.push('⚠️ UNEXPECTED CALLBACK PATH: You\'re on an unexpected callback path.');
+                fixes.push(`🔧 FIX: Expected to be on one of: ${expectedCallbackPaths.join(', ')}`);
+                fixes.push(`🔧 FIX: Currently on: ${currentPath}`);
+            }
+
+            // Common redirect URI fixes
+            fixes.push('🔧 COMMON FIXES:');
+            fixes.push('1. Check PingOne application redirect URIs match exactly');
+            fixes.push('2. Ensure redirect URI uses correct protocol (http vs https)');
+            fixes.push('3. Check for trailing slashes in redirect URI');
+            fixes.push('4. Verify environment ID and client ID are correct');
+            fixes.push('5. Clear browser cache and cookies');
+            fixes.push('6. Try the flow again from the beginning');
+
+            const html = `
+                <div class="code-block">${fixes.join('\n')}</div>
+            `;
+
+            document.getElementById('fixes').innerHTML = html;
+        }
+
+        function clearSessionStorage() {
+            if (confirm('Are you sure you want to clear all session storage? This will reset your OAuth flow state.')) {
+                sessionStorage.clear();
+                analyzeSessionStorage();
+                alert('Session storage cleared!');
+            }
+        }
+
+        function simulateCallback() {
+            const testCode = 'test_auth_code_12345';
+            const testState = 'test_state_67890';
+            
+            // Simulate a callback URL
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('code', testCode);
+            currentUrl.searchParams.set('state', testState);
+            
+            alert(`Simulated callback URL:\n${currentUrl.toString()}\n\nCopy this URL and navigate to it to test the callback handling.`);
+        }
+
+        function testRedirectUri() {
+            const currentOrigin = window.location.origin;
+            const commonCallbackPaths = [
+                '/dashboard-callback',
+                '/authz-callback',
+                '/implicit-callback', 
+                '/callback'
+            ];
+
+            let html = `
+                <h3>Common Redirect URIs for OAuth Playground:</h3>
+                <div class="code-block">${commonCallbackPaths.map(path => `${currentOrigin}${path}`).join('\n')}</div>
+                
+                <h3>Instructions:</h3>
+                <ol>
+                    <li>Copy one of the redirect URIs above</li>
+                    <li>Go to your PingOne Admin Console</li>
+                    <li>Navigate to Applications → Your App → Configuration</li>
+                    <li>Add the redirect URI to the "Redirect URIs" field</li>
+                    <li>Save your configuration</li>
+                    <li>Try the OAuth flow again</li>
+                </ol>
+            `;
+
+            document.getElementById('fixes').innerHTML = html;
+        }
+
+        function exportDebugInfo() {
+            const debugInfo = {
+                timestamp: new Date().toISOString(),
+                url: window.location.href,
+                userAgent: navigator.userAgent,
+                sessionStorage: Object.fromEntries(Object.keys(sessionStorage).map(k => [k, sessionStorage.getItem(k)])),
+                localStorage: Object.fromEntries(Object.keys(localStorage).map(k => [k, localStorage.getItem(k)])),
+                cookies: document.cookie
+            };
+
+            const blob = new Blob([JSON.stringify(debugInfo, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `oauth-debug-${new Date().toISOString().slice(0, 19)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Auto-run analysis on page load
+        window.addEventListener('load', function() {
+            analyzeCurrentUrl();
+            analyzeSessionStorage();
+            analyzeLocalStorage();
+            analyzeFlowContext();
+            generateFixSuggestions();
+        });
+    </script>
+</body>
+</html>

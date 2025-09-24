@@ -28,7 +28,7 @@ export interface WorkerTokenResponse {
 export interface TokenIntrospectionResponse {
   active: boolean;
   scope?: string;
-  client_id?: string;
+  clientId?: string;
   exp?: number;
   iat?: number;
   sub?: string;
@@ -83,12 +83,12 @@ export interface WorkerTokenStep {
 }
 
 export interface WorkerTokenCredentials {
-  client_id: string;
-  client_secret: string;
-  environment_id: string;
+  clientId: string;
+  clientSecret: string;
+  environmentId: string;
   scopes: string[];
-  token_endpoint?: string;
-  introspection_endpoint?: string;
+  tokenEndpoint?: string;
+  introspectionEndpoint?: string;
 }
 
 export interface WorkerTokenConfig {
