@@ -1268,6 +1268,13 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
     }
   ], [credentials, authUrl, tokens, isRedirecting, saveCredentials, buildAuthorizationUrl, handleAuthorization, handleAuthorizationWithModal, handleAuthorizationDirect, copyToClipboard, showParameterBreakdown, showClientIdTroubleshooting, showTokenDetails]);
 
+  console.log('🔍 [OAUTH2-IMPLICIT-V3] Component rendering', {
+    stepsLength: steps.length,
+    currentStep: stepManager.currentStepIndex,
+    hasTokens: !!tokens,
+    hasAuthUrl: !!authUrl
+  });
+
   return (
     <Container>
       <Header>
@@ -1275,6 +1282,16 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
         <Subtitle>
           OAuth 2.0 Implicit Flow implementation with comprehensive educational content
         </Subtitle>
+        <div style={{ 
+          background: 'red', 
+          color: 'white', 
+          padding: '1rem', 
+          margin: '1rem 0',
+          fontSize: '1.2rem',
+          fontWeight: 'bold'
+        }}>
+          🚨 DEBUG: Component is rendering! Steps: {steps.length}, Current Step: {stepManager.currentStepIndex}
+        </div>
       </Header>
 
       <FlowCard>
