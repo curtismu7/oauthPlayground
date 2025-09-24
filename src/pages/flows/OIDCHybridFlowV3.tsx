@@ -344,8 +344,23 @@ const OIDCHybridFlowV3: React.FC = () => {
 
   // Build authorization URL
   const buildAuthorizationUrl = useCallback(() => {
+    console.log('🔧 [OIDC-HYBRID-V3] Building authorization URL with credentials:', {
+      environmentId: credentials.environmentId,
+      clientId: credentials.clientId,
+      redirectUri: credentials.redirectUri,
+      responseType: credentials.responseType,
+      scopes: credentials.scopes,
+      state: credentials.state,
+      nonce: credentials.nonce,
+      codeChallenge: credentials.codeChallenge
+    });
+
     if (!credentials.environmentId || !credentials.clientId) {
       throw new Error('Missing required credentials. Please configure Environment ID and Client ID.');
+    }
+
+    if (!credentials.redirectUri) {
+      throw new Error('Missing redirect URI. Please configure the redirect URI in step 1.');
     }
 
     const baseUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
@@ -750,7 +765,10 @@ const OIDCHybridFlowV3: React.FC = () => {
             }}>
               <Button
                 variant={authorizationMethod === 'popup' ? 'primary' : 'secondary'}
-                onClick={() => setAuthorizationMethod('popup')}
+                onClick={() => {
+                  console.log('🔧 [OIDC-HYBRID-V3] Setting authorization method to popup');
+                  setAuthorizationMethod('popup');
+                }}
                 style={{ 
                   display: 'flex',
                   alignItems: 'center',
@@ -764,7 +782,10 @@ const OIDCHybridFlowV3: React.FC = () => {
               
               <Button
                 variant={authorizationMethod === 'redirect' ? 'primary' : 'secondary'}
-                onClick={() => setAuthorizationMethod('redirect')}
+                onClick={() => {
+                  console.log('🔧 [OIDC-HYBRID-V3] Setting authorization method to redirect');
+                  setAuthorizationMethod('redirect');
+                }}
                 style={{ 
                   display: 'flex',
                   alignItems: 'center',
@@ -791,7 +812,14 @@ const OIDCHybridFlowV3: React.FC = () => {
           <div style={{ marginBottom: '1.5rem' }}>
             <Button
               variant="primary"
-              onClick={requestAuthorization}
+              onClick={() => {
+                console.log('🔧 [OIDC-HYBRID-V3] Request Authorization clicked', {
+                  authorizationUrl,
+                  authorizationMethod,
+                  hasUrl: !!authorizationUrl
+                });
+                requestAuthorization();
+              }}
               disabled={isRequestingAuthorization || !authorizationUrl}
               style={{ 
                 display: 'flex',
