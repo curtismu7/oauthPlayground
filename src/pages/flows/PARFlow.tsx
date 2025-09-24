@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
 import FlowCredentials from '../../components/FlowCredentials';
@@ -240,6 +240,11 @@ interface PARFlowProps {
 }
 
 const PARFlow: React.FC<PARFlowProps> = ({ credentials }) => {
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const [currentStep, setCurrentStep] = useState(0);
   const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [activeAuthMethod, setActiveAuthMethod] = useState<PARAuthMethod['type']>('NONE');
@@ -581,6 +586,17 @@ if (tokenResponse.ok) {
           PAR enhances security by allowing clients to push sensitive parameters to the 
           authorization server in advance, reducing the risk of parameter tampering and 
           providing better control over the authorization process.
+        </p>
+        <p>
+          <strong>📚 Official Documentation:</strong> 
+          <a 
+            href="https://apidocs.pingidentity.com/pingone/auth/v1/api/#pushed-authorization-request" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style={{ color: '#1e40af', textDecoration: 'underline' }}
+          >
+            PingOne PAR API Documentation
+          </a>
         </p>
       </InfoContainer>
 

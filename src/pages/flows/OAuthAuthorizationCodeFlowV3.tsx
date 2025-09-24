@@ -37,26 +37,27 @@ import styled from 'styled-components';
 // Styled Components
 const Container = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: white;
   padding: 2rem 1rem;
 `;
 
 const Header = styled.div`
   text-align: center;
   margin-bottom: 3rem;
-  color: white;
+  color: #1f2937;
 `;
 
 const Title = styled.h1`
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 1rem;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  color: #1f2937;
+  text-shadow: none;
 `;
 
 const Subtitle = styled.p`
   font-size: 1.2rem;
-  opacity: 0.9;
+  color: #6b7280;
   margin-bottom: 2rem;
 `;
 
@@ -278,8 +279,8 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
   // State management
   const [credentials, setCredentials] = useState<StepCredentials>(() => {
     const stored = credentialManager.loadAuthzFlowCredentials();
-    // Use existing authz-callback for now to avoid PingOne config changes
-    const redirectUri = `${window.location.origin}/authz-callback`;
+    // Use saved redirect URI or default
+    const redirectUri = stored?.redirectUri || getCallbackUrlForFlow('oauth-authorization-code-v3');
     
     const environmentId = stored?.environmentId || '';
     const issuerUrl = environmentId ? `https://auth.pingone.com/${environmentId}` : '';
@@ -658,7 +659,7 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
       clientId: '',
       clientSecret: '',
       issuerUrl: '',
-      redirectUri: `${window.location.origin}/authz-callback`,
+      redirectUri: getCallbackUrlForFlow('oauth-authorization-code-v3'),
       scope: 'openid profile email',
       responseType: 'code',
       grantType: 'authorization_code'
@@ -948,7 +949,7 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 
       {/* PingOne Configuration Section - Only show on step 1 */}
       <PingOneConfigSection
-        callbackUrl={`${window.location.origin}/authz-callback`}
+        callbackUrl={getCallbackUrlForFlow('oauth-authorization-code-v3')}
         flowType="OAuth Authorization Code V3"
         showOnlyOnStep={0}
         currentStep={stepManager.currentStepIndex}

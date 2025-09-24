@@ -240,6 +240,20 @@ const ImplicitCallbackV3: React.FC = () => {
         
         console.log('🔍 [ImplicitCallbackV3] Hash parameters:', Object.fromEntries(hashParams.entries()));
 
+        // Early exit if there's no hash data at all (not a callback)
+        if (!hash || hash.trim() === '') {
+          console.log('🔍 [ImplicitCallbackV3] No hash parameters found - not a callback URL');
+          setStatus('error');
+          setMessage('Not a valid callback URL');
+          setError('No callback data found in URL hash');
+          // Don't log this as an error since it's likely not a callback attempt
+          logger.warn('ImplicitCallbackV3', 'No hash data found - possibly accessed directly', { 
+            currentPath: window.location.pathname,
+            currentUrl: window.location.href 
+          });
+          return;
+        }
+
         // Check for error in hash
         const error = hashParams.get('error');
         const errorDescription = hashParams.get('error_description');
@@ -338,10 +352,20 @@ const ImplicitCallbackV3: React.FC = () => {
 
         // Validate that we have at least one token
         if (!tokenData.access_token && !tokenData.id_token) {
-          setStatus('error');
-          setMessage('No tokens received');
-          setError('Expected access_token or id_token in callback URL hash');
-          logger.error('ImplicitCallbackV3', 'No tokens in callback hash', { hash });
+          // Check if this looks like a valid callback attempt (has other OAuth parameters)
+          const hasOAuthParams = hashParams.has('state') || hashParams.has('scope') || hashParams.has('token_type');
+          
+          if (hasOAuthParams) {
+            setStatus('error');
+            setMessage('No tokens received');
+            setError('Expected access_token or id_token in callback URL hash');
+            logger.error('ImplicitCallbackV3', 'No tokens in callback hash despite OAuth parameters', { hash, hasOAuthParams });
+          } else {
+            setStatus('error');
+            setMessage('Invalid callback URL');
+            setError('No OAuth tokens or parameters found in URL hash');
+            logger.warn('ImplicitCallbackV3', 'No OAuth parameters in hash - not a valid callback', { hash });
+          }
           return;
         }
 

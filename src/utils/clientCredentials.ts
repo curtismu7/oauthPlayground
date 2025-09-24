@@ -12,24 +12,24 @@ export async function secureStore(credentials: ClientCredentials): Promise<void>
   try {
     // Create a simplified storage object (in production, this should be encrypted)
     const storageData = {
-      client_id: credentials.client_id,
-      environment_id: credentials.environment_id,
+      clientId: credentials.clientId,
+      environmentId: credentials.environmentId,
       scopes: credentials.scopes,
-      // Never store client_secret in plain text
-      has_client_secret: !!credentials.client_secret,
-      stored_at: Date.now()
+      // Never store clientSecret in plain text
+      hasClientSecret: !!credentials.clientSecret,
+      storedAt: Date.now()
     };
 
     localStorage.setItem(CREDENTIALS_STORAGE_KEY, JSON.stringify(storageData));
     
     // Store client secret separately in session storage (temporary)
-    if (credentials.client_secret) {
-      sessionStorage.setItem(`${CREDENTIALS_STORAGE_KEY}_secret`, credentials.client_secret);
+    if (credentials.clientSecret) {
+      sessionStorage.setItem(`${CREDENTIALS_STORAGE_KEY}_secret`, credentials.clientSecret);
     }
 
     logger.success('CREDENTIALS', 'Credentials stored securely', {
-      clientId: credentials.client_id.substring(0, 8) + '...',
-      environmentId: credentials.environment_id,
+      clientId: credentials.clientId.substring(0, 8) + '...',
+      environmentId: credentials.environmentId,
       scopes: credentials.scopes.length
     });
   } catch (error) {
@@ -51,7 +51,7 @@ export async function secureRetrieve(clientId?: string): Promise<ClientCredentia
     const parsed = JSON.parse(storedData);
     
     // Check if we're looking for a specific client ID
-    if (clientId && parsed.client_id !== clientId) {
+    if (clientId && parsed.clientId !== clientId) {
       return null;
     }
 
@@ -61,24 +61,24 @@ export async function secureRetrieve(clientId?: string): Promise<ClientCredentia
     if (!clientSecret) {
       logger.warn('CREDENTIALS', 'Client secret not found in session storage');
       return {
-        client_id: parsed.client_id,
-        client_secret: '',
-        environment_id: parsed.environment_id,
+        clientId: parsed.clientId,
+        clientSecret: '',
+        environmentId: parsed.environmentId,
         scopes: parsed.scopes || []
       };
     }
 
     const credentials: ClientCredentials = {
-      client_id: parsed.client_id,
-      client_secret: clientSecret,
-      environment_id: parsed.environment_id,
+      clientId: parsed.clientId,
+      clientSecret: clientSecret,
+      environmentId: parsed.environmentId,
       scopes: parsed.scopes || []
     };
 
     logger.info('CREDENTIALS', 'Credentials retrieved securely', {
-      clientId: credentials.client_id.substring(0, 8) + '...',
-      environmentId: credentials.environment_id,
-      hasSecret: !!credentials.client_secret
+      clientId: credentials.clientId.substring(0, 8) + '...',
+      environmentId: credentials.environmentId,
+      hasSecret: !!credentials.clientSecret
     });
 
     return credentials;
@@ -148,10 +148,10 @@ export function hasStoredCredentials(): boolean {
  * Get stored credentials metadata (without secret)
  */
 export function getCredentialsMetadata(): {
-  client_id: string;
-  environment_id: string;
+  clientId: string;
+  environmentId: string;
   scopes: string[];
-  stored_at: number;
+  storedAt: number;
 } | null {
   try {
     const stored = localStorage.getItem(CREDENTIALS_STORAGE_KEY);
@@ -159,10 +159,10 @@ export function getCredentialsMetadata(): {
     
     const parsed = JSON.parse(stored);
     return {
-      client_id: parsed.client_id,
-      environment_id: parsed.environment_id,
+      clientId: parsed.clientId,
+      environmentId: parsed.environmentId,
       scopes: parsed.scopes || [],
-      stored_at: parsed.stored_at
+      storedAt: parsed.storedAt
     };
   } catch (error) {
     logger.error('CREDENTIALS', 'Failed to get credentials metadata', error);
@@ -183,16 +183,16 @@ export function loadCredentialsFromEnv(): Partial<ClientCredentials> {
   const envEnvironmentId = localStorage.getItem('ENV_PINGONE_ENVIRONMENT_ID');
   const envScopes = localStorage.getItem('ENV_PINGONE_SCOPES');
 
-  if (envClientId) credentials.client_id = envClientId;
-  if (envClientSecret) credentials.client_secret = envClientSecret;
-  if (envEnvironmentId) credentials.environment_id = envEnvironmentId;
+  if (envClientId) credentials.clientId = envClientId;
+  if (envClientSecret) credentials.clientSecret = envClientSecret;
+  if (envEnvironmentId) credentials.environmentId = envEnvironmentId;
   if (envScopes) credentials.scopes = envScopes.split(',').map(s => s.trim());
 
   if (Object.keys(credentials).length > 0) {
     logger.info('CREDENTIALS', 'Loaded credentials from environment', {
-      hasClientId: !!credentials.client_id,
-      hasSecret: !!credentials.client_secret,
-      hasEnvironmentId: !!credentials.environment_id,
+      hasClientId: !!credentials.clientId,
+      hasSecret: !!credentials.clientSecret,
+      hasEnvironmentId: !!credentials.environmentId,
       scopes: credentials.scopes?.length || 0
     });
   }
@@ -208,9 +208,9 @@ export function mergeCredentials(
   manualCredentials: Partial<ClientCredentials>
 ): ClientCredentials {
   return {
-    client_id: manualCredentials.client_id || envCredentials.client_id || '',
-    client_secret: manualCredentials.client_secret || envCredentials.client_secret || '',
-    environment_id: manualCredentials.environment_id || envCredentials.environment_id || '',
+    clientId: manualCredentials.clientId || envCredentials.clientId || '',
+    clientSecret: manualCredentials.clientSecret || envCredentials.clientSecret || '',
+    environmentId: manualCredentials.environmentId || envCredentials.environmentId || '',
     scopes: manualCredentials.scopes || envCredentials.scopes || []
   };
 }

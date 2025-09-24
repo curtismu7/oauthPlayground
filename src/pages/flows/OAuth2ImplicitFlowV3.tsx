@@ -33,7 +33,9 @@ import { generateSecurityParameters, storeSecurityParameters } from '../../utils
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 import { showFlowSuccess, showFlowError } from '../../components/CentralizedSuccessMessage';
 import ConfirmationModal from '../../components/ConfirmationModal';
+import { credentialManager } from '../../utils/credentialManager';
 import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
+import DefaultRedirectUriModal from '../../components/DefaultRedirectUriModal';
 import { InfoBox } from '../../components/steps/CommonSteps';
 import { FormField, FormLabel, FormInput } from '../../components/steps/CommonSteps';
 import TokenDisplay from '../../components/TokenDisplay';
@@ -298,12 +300,12 @@ const CredentialsSection = styled.div`
 `;
 
 const SecurityWarning = styled.div`
-  background: #fef3c7;
-  border: 1px solid #f59e0b;
+  background: #fef2f2;
+  border: 1px solid #f87171;
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1.5rem;
-  color: #92400e;
+  color: #dc2626;
 `;
 
 
@@ -341,9 +343,96 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
   const [credentials, setCredentials] = useState({
     environmentId: '',
     clientId: '',
-    redirectUri: `${window.location.origin}/implicit-callback-v3`,
-    scopes: 'read write'
+    redirectUri: '',
+    scopes: 'openid'
   });
+
+  // Validation state
+  const [validationErrors, setValidationErrors] = useState({
+    clientId: false,
+    environmentId: false
+  });
+
+  // Load credentials on mount
+  useEffect(() => {
+    const loadCredentials = () => {
+      try {
+        // Load implicit flow-specific credentials first
+        const implicitCredentials = credentialManager.loadImplicitFlowCredentials();
+        
+        // If implicit flow credentials exist and have values, use them
+        if (implicitCredentials.environmentId || implicitCredentials.clientId || implicitCredentials.redirectUri) {
+          setCredentials({
+            environmentId: implicitCredentials.environmentId || '',
+            clientId: implicitCredentials.clientId || '',
+            redirectUri: implicitCredentials.redirectUri || '',
+            scopes: Array.isArray(implicitCredentials.scopes) ? implicitCredentials.scopes.join(' ') : (implicitCredentials.scopes || 'openid')
+          });
+          console.log('✅ [OAuth2-IMPLICIT-V3] Loaded implicit flow credentials:', implicitCredentials);
+        } else {
+          // Fall back to global configuration
+          const configCredentials = credentialManager.loadConfigCredentials();
+          if (configCredentials.environmentId || configCredentials.clientId || configCredentials.redirectUri) {
+            setCredentials({
+              environmentId: configCredentials.environmentId || '',
+              clientId: configCredentials.clientId || '',
+              redirectUri: configCredentials.redirectUri || '',
+              scopes: Array.isArray(configCredentials.scopes) ? configCredentials.scopes.join(' ') : (configCredentials.scopes || 'openid')
+            });
+            console.log('✅ [OAuth2-IMPLICIT-V3] Loaded global config credentials:', configCredentials);
+          } else {
+            // Both are blank - show modal with default URI
+            const defaultUri = getCallbackUrlForFlow('oauth2-implicit-v3');
+            setDefaultRedirectUri(defaultUri);
+            setShowDefaultRedirectUriModal(true);
+            setCredentials({
+              environmentId: '',
+              clientId: '',
+              redirectUri: defaultUri,
+              scopes: 'openid'
+            });
+            console.log('⚠️ [OAuth2-IMPLICIT-V3] No credentials found, showing default redirect URI modal');
+          }
+        }
+      } catch (error) {
+        console.error('❌ [OAuth2-IMPLICIT-V3] Failed to load credentials:', error);
+        // Fall back to defaults
+        const defaultUri = getCallbackUrlForFlow('oauth2-implicit-v3');
+        setDefaultRedirectUri(defaultUri);
+        setShowDefaultRedirectUriModal(true);
+        setCredentials(prev => ({
+          ...prev,
+          redirectUri: defaultUri
+        }));
+      }
+    };
+
+    loadCredentials();
+  }, []);
+
+  // Client ID validation function
+  const validateClientId = (clientId: string): boolean => {
+    if (!clientId || clientId.trim() === '') return false;
+    // Basic validation - should be alphanumeric with hyphens/underscores
+    const isValid = /^[a-zA-Z0-9_-]+$/.test(clientId) && clientId.length >= 8;
+    return isValid;
+  };
+
+  // Environment ID validation function  
+  const validateEnvironmentId = (envId: string): boolean => {
+    if (!envId || envId.trim() === '') return false;
+    // Should be UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(envId);
+  };
+
+  // Update validation errors when credentials change
+  useEffect(() => {
+    setValidationErrors({
+      clientId: credentials.clientId ? !validateClientId(credentials.clientId) : false,
+      environmentId: credentials.environmentId ? !validateEnvironmentId(credentials.environmentId) : false
+    });
+  }, [credentials.clientId, credentials.environmentId]);
 
   const [authUrl, setAuthUrl] = useState('');
   const [tokens, setTokens] = useState<any>(null);
@@ -352,6 +441,8 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
   const [showAuthRequestModal, setShowAuthRequestModal] = useState(false);
   const [isClearingCredentials, setIsClearingCredentials] = useState(false);
   const [copiedText, setCopiedText] = useState<string | null>(null);
+  const [showDefaultRedirectUriModal, setShowDefaultRedirectUriModal] = useState(false);
+  const [defaultRedirectUri, setDefaultRedirectUri] = useState('');
   const [showEducationalContent, setShowEducationalContent] = useState(true);
   const [showClientIdTroubleshooting, setShowClientIdTroubleshooting] = useState(false);
   const [showParameterBreakdown, setShowParameterBreakdown] = useState(false);
@@ -406,7 +497,7 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
       setCredentials({
         environmentId: '',
         clientId: '',
-        redirectUri: `${window.location.origin}/implicit-callback-v3`,
+        redirectUri: getCallbackUrlForFlow('oauth2-implicit-v3'),
         scopes: 'read write'
       });
       showFlowSuccess('Credentials cleared successfully');
@@ -419,6 +510,11 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
       setShowClearCredentialsModal(false);
     }
   }, []);
+
+  const handleContinueWithDefaultUri = () => {
+    setShowDefaultRedirectUriModal(false);
+    showFlowSuccess('Using default redirect URI. Please configure it in your PingOne application.');
+  };
 
   // Build authorization URL
   const buildAuthorizationUrl = useCallback(async () => {
@@ -471,15 +567,17 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
       return;
     }
 
-    // Check if user has opted to skip the modal
-    const skipModal = localStorage.getItem('skip_oauth_authz_request_modal') === 'true';
+    // Check configuration setting for showing auth request modal
+    const flowConfigKey = 'enhanced-flow-authorization-code';
+    const flowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
+    const shouldShowModal = flowConfig.showAuthRequestModal === true;
     
-    if (skipModal) {
+    if (shouldShowModal) {
+      console.log('🔧 [OAUTH2-IMPLICIT-V3] Showing authorization request modal (user preference)');
+      setShowAuthRequestModal(true);
+    } else {
       console.log('🔧 [OAUTH2-IMPLICIT-V3] Skipping authorization modal (user preference)');
       handleAuthorizationDirect();
-    } else {
-      console.log('🔧 [OAUTH2-IMPLICIT-V3] Showing authorization request modal');
-      setShowAuthRequestModal(true);
     }
   }, [authUrl]);
 
@@ -601,18 +699,6 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
       category: 'preparation',
       content: (
         <div>
-          <SecurityWarning>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-              <FiAlertTriangle />
-              <strong>Security Warning: OAuth 2.0 Implicit Flow</strong>
-            </div>
-            <div style={{ fontSize: '0.875rem', lineHeight: '1.5' }}>
-              The OAuth 2.0 Implicit flow is <strong>deprecated</strong> due to security concerns. 
-              Access tokens are exposed in the URL fragment, making them vulnerable to theft. 
-              This flow is provided for legacy compatibility only. For new applications, 
-              use the Authorization Code flow with PKCE instead.
-            </div>
-          </SecurityWarning>
 
           <CredentialsSection>
             <FormField>
@@ -706,7 +792,14 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
                 justifyContent: 'space-between',
                 backgroundColor: '#f8fafc'
               }}
-              onClick={() => setShowParameterBreakdown(!showParameterBreakdown)}
+              onClick={() => {
+                const newState = !showParameterBreakdown;
+                setShowParameterBreakdown(newState);
+                showFlowSuccess(
+                  newState ? '🔧 Parameter Breakdown Expanded' : '📁 Parameter Breakdown Collapsed',
+                  newState ? 'Authorization URL parameters are now visible' : 'Parameter breakdown has been collapsed'
+                );
+              }}
             >
               <h4 style={{ margin: 0, color: '#374151', display: 'flex', alignItems: 'center' }}>
                 <FiGlobe style={{ marginRight: '0.5rem' }} />
@@ -797,7 +890,10 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
                   <ColorCodedURL url={authUrl} />
                 </div>
                 <button
-                  onClick={() => copyToClipboard(authUrl, 'Authorization URL')}
+                  onClick={() => {
+                    copyToClipboard(authUrl, 'Authorization URL');
+                    showFlowSuccess('📋 Authorization URL Copied', 'The authorization URL has been copied to your clipboard');
+                  }}
                   style={{
                     background: 'none',
                     border: '1px solid #007bff',
@@ -857,7 +953,10 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
                   <ColorCodedURL url={authUrl} />
                 </div>
                 <button
-                  onClick={() => copyToClipboard(authUrl, 'Authorization URL')}
+                  onClick={() => {
+                    copyToClipboard(authUrl, 'Authorization URL');
+                    showFlowSuccess('📋 Authorization URL Copied', 'The authorization URL has been copied to your clipboard');
+                  }}
                   style={{
                     background: 'none',
                     border: '1px solid #007bff',
@@ -877,7 +976,7 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
           )}
 
           {/* Client ID Validation Warning - Collapsible */}
-          {credentials.clientId && (
+          {credentials.clientId && validationErrors.clientId && (
             <div style={{ 
               marginTop: '1.5rem',
               background: '#fef2f2',
@@ -894,7 +993,14 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
                   justifyContent: 'space-between',
                   backgroundColor: '#fef2f2'
                 }}
-                onClick={() => setShowClientIdTroubleshooting(!showClientIdTroubleshooting)}
+                onClick={() => {
+                  const newState = !showClientIdTroubleshooting;
+                  setShowClientIdTroubleshooting(newState);
+                  showFlowSuccess(
+                    newState ? '🔧 Client ID Troubleshooting Expanded' : '📁 Client ID Troubleshooting Collapsed',
+                    newState ? 'Client ID troubleshooting steps are now visible' : 'Troubleshooting section has been collapsed'
+                  );
+                }}
               >
                 <h4 style={{ margin: 0, color: '#dc2626', display: 'flex', alignItems: 'center' }}>
                   <FiAlertTriangle style={{ marginRight: '0.5rem' }} />
@@ -985,7 +1091,10 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
                     <strong style={{ color: '#1f2937', fontSize: '0.9rem' }}>Access Token:</strong>
-                    <CopyButton onClick={() => copyToClipboard(tokens.access_token, 'Access Token')}>
+                    <CopyButton onClick={() => {
+                      copyToClipboard(tokens.access_token, 'Access Token');
+                      showFlowSuccess('📋 Access Token Copied', 'The access token has been copied to your clipboard');
+                    }}>
                       <FiCopy /> Copy
                     </CopyButton>
                   </div>
@@ -1010,7 +1119,14 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
                         justifyContent: 'space-between',
                         backgroundColor: '#f8fafc'
                       }}
-                      onClick={() => setShowTokenDetails(!showTokenDetails)}
+                      onClick={() => {
+                        const newState = !showTokenDetails;
+                        setShowTokenDetails(newState);
+                        showFlowSuccess(
+                          newState ? '🔍 Token Details Expanded' : '📁 Token Details Collapsed',
+                          newState ? 'Token details are now visible' : 'Token details have been collapsed'
+                        );
+                      }}
                     >
                       <h5 style={{ margin: 0, color: '#1f2937', display: 'flex', alignItems: 'center' }}>
                         <FiShield style={{ marginRight: '0.5rem' }} />
@@ -1152,7 +1268,14 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
                 cursor: 'pointer',
                 marginBottom: showEducationalContent ? '1.5rem' : '0'
               }}
-              onClick={() => setShowEducationalContent(!showEducationalContent)}
+              onClick={() => {
+                const newState = !showEducationalContent;
+                setShowEducationalContent(newState);
+                showFlowSuccess(
+                  newState ? '📚 Educational Content Expanded' : '📁 Educational Content Collapsed',
+                  newState ? 'Educational content about OAuth 2.0 Implicit Flow is now visible' : 'Educational content has been collapsed'
+                );
+              }}
             >
               <h2 style={{ margin: 0, color: '#1f2937', fontSize: '1.5rem' }}>
                 🔍 What is OAuth 2.0 Implicit Flow?
@@ -1320,6 +1443,15 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
           responseType: 'token',
           flowType: 'oauth2-implicit-v3'
         }}
+      />
+
+      {/* Default Redirect URI Modal */}
+      <DefaultRedirectUriModal
+        isOpen={showDefaultRedirectUriModal}
+        onClose={() => setShowDefaultRedirectUriModal(false)}
+        onContinue={handleContinueWithDefaultUri}
+        flowType="oauth2-implicit-v3"
+        defaultRedirectUri={defaultRedirectUri}
       />
     </Container>
   );

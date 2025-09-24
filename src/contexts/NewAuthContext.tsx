@@ -93,30 +93,50 @@ const getAllStoredTokens = (): OAuthTokens | null => {
         // Check sessionStorage first
         const sessionData = sessionStorage.getItem(key);
         if (sessionData) {
-          const parsedTokens = JSON.parse(sessionData);
-          if (parsedTokens?.access_token && isTokenValid(parsedTokens)) {
-            logger.info('NewAuthContext', `Found valid tokens in ${key}`, { 
+          try {
+            const parsedTokens = JSON.parse(sessionData);
+            if (parsedTokens?.access_token && isTokenValid(parsedTokens)) {
+              logger.info('NewAuthContext', `Found valid tokens in ${key}`, { 
+                key, 
+                hasAccessToken: !!parsedTokens.access_token,
+                hasIdToken: !!parsedTokens.id_token,
+                tokenType: parsedTokens.token_type 
+              });
+              return parsedTokens;
+            }
+          } catch (parseError) {
+            logger.warn('NewAuthContext', `Invalid JSON in sessionStorage ${key}, skipping`, { 
               key, 
-              hasAccessToken: !!parsedTokens.access_token,
-              hasIdToken: !!parsedTokens.id_token,
-              tokenType: parsedTokens.token_type 
+              error: parseError instanceof Error ? parseError.message : 'Unknown error',
+              dataPreview: sessionData.substring(0, 50) + '...'
             });
-            return parsedTokens;
+            // Clear invalid data to prevent future errors
+            sessionStorage.removeItem(key);
           }
         }
 
         // Check localStorage as well
         const localData = localStorage.getItem(key);
         if (localData) {
-          const parsedTokens = JSON.parse(localData);
-          if (parsedTokens?.access_token && isTokenValid(parsedTokens)) {
-            logger.info('NewAuthContext', `Found valid tokens in localStorage ${key}`, { 
+          try {
+            const parsedTokens = JSON.parse(localData);
+            if (parsedTokens?.access_token && isTokenValid(parsedTokens)) {
+              logger.info('NewAuthContext', `Found valid tokens in localStorage ${key}`, { 
+                key, 
+                hasAccessToken: !!parsedTokens.access_token,
+                hasIdToken: !!parsedTokens.id_token,
+                tokenType: parsedTokens.token_type 
+              });
+              return parsedTokens;
+            }
+          } catch (parseError) {
+            logger.warn('NewAuthContext', `Invalid JSON in localStorage ${key}, skipping`, { 
               key, 
-              hasAccessToken: !!parsedTokens.access_token,
-              hasIdToken: !!parsedTokens.id_token,
-              tokenType: parsedTokens.token_type 
+              error: parseError instanceof Error ? parseError.message : 'Unknown error',
+              dataPreview: localData.substring(0, 50) + '...'
             });
-            return parsedTokens;
+            // Clear invalid data to prevent future errors
+            localStorage.removeItem(key);
           }
         }
       } catch (error) {
@@ -160,7 +180,7 @@ async function loadConfiguration(): Promise<AppConfig> {
       disableLogin: false,
       clientId: (window as WindowWithPingOne).__PINGONE_CLIENT_ID__ || '',
       clientSecret: (window as WindowWithPingOne).__PINGONE_CLIENT_SECRET__ || '',
-      redirectUri: (window as WindowWithPingOne).__PINGONE_REDIRECT_URI__ || `${window.location.origin}/callback`,
+      redirectUri: (window as WindowWithPingOne).__PINGONE_REDIRECT_URI__ || `${window.location.origin}/authz-callback`,
       authorizationEndpoint: '',
       tokenEndpoint: '',
       userInfoEndpoint: '',
@@ -219,7 +239,7 @@ async function loadConfiguration(): Promise<AppConfig> {
       disableLogin: false,
       clientId: '',
       clientSecret: '',
-      redirectUri: `${window.location.origin}/callback`,
+      redirectUri: `${window.location.origin}/authz-callback`,
       authorizationEndpoint: '',
       tokenEndpoint: '',
       userInfoEndpoint: '',
@@ -233,7 +253,7 @@ async function loadConfiguration(): Promise<AppConfig> {
       disableLogin: false,
       clientId: '',
       clientSecret: '',
-      redirectUri: `${window.location.origin}/callback`,
+      redirectUri: `${window.location.origin}/authz-callback`,
       authorizationEndpoint: '',
       tokenEndpoint: '',
       userInfoEndpoint: '',
@@ -290,7 +310,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         disableLogin: false,
         clientId: '',
         clientSecret: '',
-        redirectUri: `${window.location.origin}/callback`,
+        redirectUri: `${window.location.origin}/authz-callback`,
         authorizationEndpoint: '',
         tokenEndpoint: '',
         userInfoEndpoint: '',

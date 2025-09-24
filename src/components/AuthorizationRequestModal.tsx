@@ -273,8 +273,21 @@ const AuthorizationRequestModal: React.FC<AuthorizationRequestModalProps> = ({
   const handleProceed = () => {
     // Save the "don't show again" preference if checked
     if (dontShowAgain) {
-      localStorage.setItem('skip_oauth_authz_request_modal', 'true');
-      console.log('🔧 [AuthorizationRequestModal] User chose to skip this modal in future');
+      // Update the configuration setting to disable the modal
+      const flowConfigKey = 'enhanced-flow-authorization-code';
+      const existingFlowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
+      const updatedFlowConfig = {
+        ...existingFlowConfig,
+        showAuthRequestModal: false // Set to false to disable the modal
+      };
+      localStorage.setItem(flowConfigKey, JSON.stringify(updatedFlowConfig));
+      
+      console.log('🔧 [AuthorizationRequestModal] User chose to skip this modal in future - updated configuration:', updatedFlowConfig);
+      
+      // Dispatch custom event to notify other components that config has changed
+      window.dispatchEvent(new CustomEvent('uiSettingsChanged', {
+        detail: { showAuthRequestModal: false }
+      }));
     }
     
     onProceed();

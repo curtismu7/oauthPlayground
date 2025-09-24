@@ -7,6 +7,7 @@ import { EnhancedFlowStep } from '../EnhancedStepFlowV2';
 import { copyToClipboard } from '../../utils/clipboard';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
 import AuthorizationUrlExplainer from '../AuthorizationUrlExplainer';
+import { ColorCodedURL } from '../ColorCodedURL';
 
 // Common styled components
 const FormField = styled.div`
@@ -552,7 +553,7 @@ export const createAuthUrlStep = (
                 <FiInfo /> Explain URL
               </CopyButton>
             </div>
-            <TokenDisplay>{authUrl}</TokenDisplay>
+            <ColorCodedURL url={authUrl} showInfoButton={false} />
           </FormField>
         )}
         
@@ -1148,7 +1149,10 @@ export const createRefreshTokenStep = (
   exchangeRefreshToken: () => Promise<void>,
   credentials: StepCredentials,
   isRefreshing: boolean = false,
-  flowType: 'oauth' | 'oidc' = 'oidc'
+  flowType: 'oauth' | 'oidc' = 'oidc',
+  navigateToTokenManagement?: (tokenType: 'access' | 'refresh' | 'id') => void,
+  resetFlow?: () => void,
+  tokens?: any
 ): EnhancedFlowStep => ({
   id: 'refresh-token-exchange',
   title: 'Use Refresh Token',
@@ -1327,6 +1331,47 @@ export const createRefreshTokenStep = (
           <div style={{ marginTop: '1rem', padding: '0.75rem', background: '#e0f2fe', borderRadius: '4px', fontSize: '0.875rem' }}>
             <strong>🔄 Token Rotation:</strong> Many OAuth providers issue a new refresh token with each refresh. 
             Always use the latest refresh token for subsequent requests.
+          </div>
+        </div>
+      )}
+
+      {/* Action Buttons - Same as step 6 */}
+      {navigateToTokenManagement && tokens && (
+        <div style={{ 
+          background: 'linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%)', 
+          border: '1px solid #9c27b0', 
+          borderRadius: '8px', 
+          padding: '1rem', 
+          marginTop: '1.5rem' 
+        }}>
+          <h4 style={{ margin: '0 0 1rem 0', color: '#7b1fa2' }}>🔧 Token Management Actions</h4>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <ActionButton onClick={() => navigateToTokenManagement('access')}>
+              🔍 Decode Access Token
+            </ActionButton>
+            {tokens.refresh_token && (
+              <ActionButton onClick={() => navigateToTokenManagement('refresh')}>
+                🔍 Decode Refresh Token
+              </ActionButton>
+            )}
+            {tokens.id_token && (
+              <ActionButton onClick={() => navigateToTokenManagement('id')}>
+                🔍 Decode ID Token
+              </ActionButton>
+            )}
+            
+            {resetFlow && (
+              <ActionButton 
+                onClick={resetFlow}
+                style={{ 
+                  backgroundColor: '#ffcdd2', 
+                  color: '#d32f2f',
+                  border: '1px solid #f44336'
+                }}
+              >
+                🔄 Restart OAuth Flow
+              </ActionButton>
+            )}
           </div>
         </div>
       )}
