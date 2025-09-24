@@ -6,11 +6,13 @@ import { FiSettings, FiKey, FiShield, FiServer, FiRefreshCw, FiCheckCircle, FiAl
 import { useAuth } from '../../contexts/NewAuthContext';
 import { logger } from '../../utils/logger';
 import { showFlowSuccess, showFlowError } from '../../components/CentralizedSuccessMessage';
+import { credentialManager } from '../../utils/credentialManager';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 import { EnhancedStepFlowV2 } from '../../components/EnhancedStepFlowV2';
 import { useFlowStepManager } from '../../utils/flowStepSystem';
 import { WorkerTokenDisplay } from '../../components/worker/WorkerTokenDisplay';
 import { createCredentialsStep, StepCredentials } from '../../components/steps/CommonSteps';
+import CollapsibleSection from '../../components/CollapsibleSection';
 import { 
   requestClientCredentialsToken,
   introspectToken,
@@ -128,24 +130,52 @@ const WorkerTokenFlowV3: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // Load initial credentials from environment or stored data
+  // Load initial credentials following proper priority: flow-specific > global > defaults
   useEffect(() => {
     const loadInitialCredentials = async () => {
       try {
-        // Load from environment variables
-        const envCredentials = loadCredentialsFromEnv();
+        // 1. Try worker flow-specific credentials first
+        const workerCredentials = credentialManager.loadFlowCredentials('worker-token-v3');
         
-        // Load from stored credentials
-        const storedCredentials = await secureRetrieve();
+        let initialCredentials: StepCredentials;
         
-        // Merge credentials (manual > stored > env)
-        const initialCredentials: StepCredentials = {
-          environmentId: envCredentials.environment_id || storedCredentials?.environment_id || '',
-          clientId: envCredentials.client_id || storedCredentials?.client_id || '',
-          clientSecret: envCredentials.client_secret || storedCredentials?.client_secret || '',
-          redirectUri: '', // Worker tokens don't need redirect URI
-          scopes: envCredentials.scopes || storedCredentials?.scopes || getDefaultWorkerScopes()
-        };
+        if (workerCredentials.environmentId || workerCredentials.clientId) {
+          // Use flow-specific credentials
+          initialCredentials = {
+            environmentId: workerCredentials.environmentId || '',
+            clientId: workerCredentials.clientId || '',
+            clientSecret: workerCredentials.clientSecret || '',
+            redirectUri: '', // Worker tokens don't need redirect URI
+            scopes: Array.isArray(workerCredentials.scopes) ? workerCredentials.scopes.join(' ') : (workerCredentials.scopes || getDefaultWorkerScopes())
+          };
+          logger.info('WORKER-FLOW-V3', 'Loaded worker flow-specific credentials');
+        } else {
+          // 2. Fall back to global configuration
+          const configCredentials = credentialManager.loadConfigCredentials();
+          if (configCredentials.environmentId || configCredentials.clientId) {
+            initialCredentials = {
+              environmentId: configCredentials.environmentId || '',
+              clientId: configCredentials.clientId || '',
+              clientSecret: configCredentials.clientSecret || '',
+              redirectUri: '', // Worker tokens don't need redirect URI
+              scopes: Array.isArray(configCredentials.scopes) ? configCredentials.scopes.join(' ') : (configCredentials.scopes || getDefaultWorkerScopes())
+            };
+            logger.info('WORKER-FLOW-V3', 'Loaded global config credentials');
+          } else {
+            // 3. Fall back to environment variables and legacy storage
+            const envCredentials = loadCredentialsFromEnv();
+            const storedCredentials = await secureRetrieve();
+            
+            initialCredentials = {
+              environmentId: envCredentials.environmentId || storedCredentials?.environmentId || '',
+              clientId: envCredentials.clientId || storedCredentials?.clientId || '',
+              clientSecret: envCredentials.clientSecret || storedCredentials?.clientSecret || '',
+              redirectUri: '', // Worker tokens don't need redirect URI
+              scopes: envCredentials.scopes || storedCredentials?.scopes || getDefaultWorkerScopes()
+            };
+            logger.info('WORKER-FLOW-V3', 'Loaded from environment/legacy storage');
+          }
+        }
 
         setCredentials(initialCredentials);
         
@@ -217,9 +247,9 @@ const WorkerTokenFlowV3: React.FC = () => {
 
       // Store credentials securely (convert to WorkerTokenCredentials format)
       const workerCredentials: WorkerTokenCredentials = {
-        client_id: credentials.clientId,
-        client_secret: credentials.clientSecret,
-        environment_id: credentials.environmentId,
+        clientId: credentials.clientId,
+        clientSecret: credentials.clientSecret,
+        environmentId: credentials.environmentId,
         scopes: credentials.scopes
       };
       await secureStore(workerCredentials);
@@ -340,9 +370,9 @@ const WorkerTokenFlowV3: React.FC = () => {
         flowState.config.introspectionEndpoint,
         flowState.tokens.access_token,
         {
-          client_id: credentials.clientId,
-          client_secret: credentials.clientSecret,
-          environment_id: credentials.environmentId,
+          clientId: credentials.clientId,
+          clientSecret: credentials.clientSecret,
+          environmentId: credentials.environmentId,
           scopes: credentials.scopes
         }
       );
@@ -364,7 +394,7 @@ const WorkerTokenFlowV3: React.FC = () => {
       logger.success('WORKER-FLOW-V3', 'Token introspection completed', {
         active: introspection.active,
         scopes: introspection.scope,
-        clientId: introspection.client_id
+        clientId: introspection.clientId
       });
 
     } catch (error) {
@@ -484,13 +514,20 @@ const WorkerTokenFlowV3: React.FC = () => {
       title: 'Setup Worker Credentials',
       description: `Configure your PingOne client credentials for worker token authentication.
 
-🤖 Worker Tokens are designed for machine-to-machine (M2M) communication - no user interaction required.
+🤖 **Purpose**: Worker Tokens are designed for machine-to-machine (M2M) communication - no user interaction required.
 
-🎯 Perfect for: Background services, server-to-server APIs, data synchronization, monitoring, and integration workflows.
+🎯 **Perfect for**: 
+• Background services
+• Server-to-server APIs  
+• Data synchronization
+• Monitoring
+• Integration workflows
 
-🔧 How it works: Your application authenticates using client credentials, receives an access token, and can call PingOne Management API endpoints.
+🔧 **How it works**: Your application authenticates using client credentials, receives an access token, and can call PingOne Management API endpoints.
 
-⚠️ Security: Worker Tokens have broad permissions - use only trusted applications and store secrets securely.`,
+⚠️ **Security**: Worker Tokens have broad permissions - use only trusted applications and store secrets securely.
+
+📚 **Documentation**: [PingOne API Documentation](https://apidocs.pingidentity.com/pingone/platform/v1/api/#authentication)`,
       category: 'preparation',
       canExecute: Boolean(
         credentials.environmentId &&
@@ -511,7 +548,7 @@ const WorkerTokenFlowV3: React.FC = () => {
       title: 'Request Worker Token',
       description: 'Obtain access token using client credentials grant',
       category: 'token-exchange',
-      canExecute: !!flowState.config.tokenEndpoint && !!credentials.client_id && !!credentials.client_secret,
+      canExecute: !!flowState.config.tokenEndpoint && !!credentials.clientId && !!credentials.clientSecret,
       completed: !!flowState.tokens,
       execute: requestAccessToken
     },
@@ -564,6 +601,127 @@ const WorkerTokenFlowV3: React.FC = () => {
           {success}
         </SuccessMessage>
       )}
+
+      <CollapsibleSection title="📋 PingOne Setup Instructions" defaultExpanded={false}>
+        <SetupInstructionsContainer>
+          <SetupStep>
+            <StepNumber>1</StepNumber>
+            <StepContent>
+              <StepTitle>Create a Worker Application in PingOne</StepTitle>
+              <StepDescription>
+                Worker applications are designed for machine-to-machine authentication and don't require user interaction.
+              </StepDescription>
+              <StepDetails>
+                <ol>
+                  <li>Log in to your <strong>PingOne Admin Console</strong></li>
+                  <li>Navigate to <strong>Applications</strong> → <strong>Applications</strong></li>
+                  <li>Click <strong>"Add Application"</strong></li>
+                  <li>Select <strong>"Worker Application"</strong> as the application type</li>
+                  <li>Enter a descriptive name (e.g., "OAuth Playground Worker")</li>
+                  <li>Click <strong>"Save"</strong></li>
+                </ol>
+              </StepDetails>
+            </StepContent>
+          </SetupStep>
+
+          <SetupStep>
+            <StepNumber>2</StepNumber>
+            <StepContent>
+              <StepTitle>Configure Client Credentials</StepTitle>
+              <StepDescription>
+                Worker applications use client credentials for authentication instead of user credentials.
+              </StepDescription>
+              <StepDetails>
+                <ol>
+                  <li>In your Worker Application, go to the <strong>"Configuration"</strong> tab</li>
+                  <li>Note down the <strong>Client ID</strong> (this will be your client_id)</li>
+                  <li>Generate a <strong>Client Secret</strong>:
+                    <ul>
+                      <li>Click <strong>"Generate Secret"</strong></li>
+                      <li>Copy the secret immediately (it won't be shown again)</li>
+                      <li>Store it securely</li>
+                    </ul>
+                  </li>
+                  <li>Note your <strong>Environment ID</strong> from the URL or environment settings</li>
+                </ol>
+              </StepDetails>
+            </StepContent>
+          </SetupStep>
+
+          <SetupStep>
+            <StepNumber>3</StepNumber>
+            <StepContent>
+              <StepTitle>Configure Scopes and Permissions</StepTitle>
+              <StepDescription>
+                Define what your worker application can access through OAuth scopes.
+              </StepDescription>
+              <StepDetails>
+                <ol>
+                  <li>In the <strong>"Scopes"</strong> tab, add the scopes your application needs:</li>
+                  <ul>
+                    <li><code>openid</code> - For OpenID Connect (if using OIDC)</li>
+                    <li><code>api:read</code> - For reading API data</li>
+                    <li><code>api:write</code> - For writing API data</li>
+                    <li><code>management:read</code> - For reading management data</li>
+                  </ul>
+                  <li>For this playground, use: <code>openid api:read</code></li>
+                </ol>
+              </StepDetails>
+            </StepContent>
+          </SetupStep>
+
+          <SetupStep>
+            <StepNumber>4</StepNumber>
+            <StepContent>
+              <StepTitle>Get Your Environment Information</StepTitle>
+              <StepDescription>
+                You'll need your Environment ID to construct the token endpoint URLs.
+              </StepDescription>
+              <StepDetails>
+                <ol>
+                  <li>Your <strong>Environment ID</strong> can be found in:</li>
+                  <ul>
+                    <li>The URL when logged into PingOne Admin Console</li>
+                    <li>Environment settings page</li>
+                  </ul>
+                  <li>Format: <code>https://auth.pingone.com/&#123;environment-id&#125;/as/token</code></li>
+                  <li>Example: <code>https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/token</code></li>
+                </ol>
+              </StepDetails>
+            </StepContent>
+          </SetupStep>
+
+          <SetupStep>
+            <StepNumber>5</StepNumber>
+            <StepContent>
+              <StepTitle>Test Your Configuration</StepTitle>
+              <StepDescription>
+                Use the credentials above to test your Worker Token flow in this playground.
+              </StepDescription>
+              <StepDetails>
+                <ol>
+                  <li>Enter your <strong>Environment ID</strong> in the field above</li>
+                  <li>Enter your <strong>Client ID</strong> from step 2</li>
+                  <li>Enter your <strong>Client Secret</strong> from step 2</li>
+                  <li>Click <strong>"Save Credentials"</strong></li>
+                  <li>Proceed to the next step to request a token</li>
+                </ol>
+              </StepDetails>
+            </StepContent>
+          </SetupStep>
+
+          <SecurityNote>
+            <strong>🔒 Security Best Practices:</strong>
+            <ul>
+              <li>Store client secrets securely (never in source code)</li>
+              <li>Use environment variables for production deployments</li>
+              <li>Rotate client secrets regularly</li>
+              <li>Monitor worker application usage</li>
+              <li>Limit scopes to only what's needed</li>
+            </ul>
+          </SecurityNote>
+        </SetupInstructionsContainer>
+      </CollapsibleSection>
 
       <EnhancedStepFlowV2
         steps={steps.map(step => ({
@@ -622,5 +780,113 @@ const WorkerTokenFlowV3: React.FC = () => {
     </Container>
   );
 };
+
+// Styled components for setup instructions
+const SetupInstructionsContainer = styled.div`
+  padding: 1rem 0;
+`;
+
+const SetupStep = styled.div`
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  border-left: 4px solid #3b82f6;
+`;
+
+const StepNumber = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+`;
+
+const StepContent = styled.div`
+  flex: 1;
+`;
+
+const StepTitle = styled.h4`
+  margin: 0 0 0.5rem 0;
+  color: #1f2937;
+  font-size: 1.2rem;
+  font-weight: 600;
+`;
+
+const StepDescription = styled.p`
+  margin: 0 0 1rem 0;
+  color: #6b7280;
+  font-size: 0.95rem;
+  line-height: 1.5;
+`;
+
+const StepDetails = styled.div`
+  color: #374151;
+  font-size: 0.9rem;
+  line-height: 1.6;
+
+  ol {
+    margin: 0;
+    padding-left: 1.5rem;
+  }
+
+  ul {
+    margin: 0.5rem 0;
+    padding-left: 1.5rem;
+  }
+
+  li {
+    margin-bottom: 0.5rem;
+  }
+
+  code {
+    background: #f1f5f9;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.85rem;
+    color: #e11d48;
+  }
+
+  strong {
+    color: #1f2937;
+    font-weight: 600;
+  }
+`;
+
+const SecurityNote = styled.div`
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 0.75rem;
+  border-left: 4px solid #f59e0b;
+
+  strong {
+    color: #92400e;
+    display: block;
+    margin-bottom: 1rem;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 1.5rem;
+    color: #92400e;
+  }
+
+  li {
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+  }
+`;
 
 export default WorkerTokenFlowV3;
