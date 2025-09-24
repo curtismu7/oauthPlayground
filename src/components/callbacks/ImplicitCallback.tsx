@@ -93,13 +93,17 @@ const ImplicitCallback: React.FC = () => {
   useEffect(() => {
     const processCallback = async () => {
       try {
-        logger.auth('ImplicitCallback', 'Processing implicit grant callback', { url: location.href });
+        logger.auth('ImplicitCallback', 'Processing implicit grant callback', { url: window.location.href });
         
-        const urlParams = new URLSearchParams(location.search);
-        const accessToken = urlParams.get('access_token');
-        const idToken = urlParams.get('id_token');
-        const error = urlParams.get('error');
-        const errorDescription = urlParams.get('error_description');
+        // Check both query parameters and hash parameters (implicit flows can use either)
+        const queryParams = new URLSearchParams(location.search);
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        
+        // Get tokens from either query params or hash params
+        const accessToken = queryParams.get('access_token') || hashParams.get('access_token');
+        const idToken = queryParams.get('id_token') || hashParams.get('id_token');
+        const error = queryParams.get('error') || hashParams.get('error');
+        const errorDescription = queryParams.get('error_description') || hashParams.get('error_description');
         
         if (error) {
           setStatus('error');
@@ -122,7 +126,7 @@ const ImplicitCallback: React.FC = () => {
           setStatus('error');
           setMessage('No tokens received');
           setError('Expected access_token or id_token in callback URL');
-          logger.error('ImplicitCallback', 'No tokens in callback', { url: location.href });
+          logger.error('ImplicitCallback', 'No tokens in callback', { url: window.location.href });
         }
       } catch (err) {
         setStatus('error');
