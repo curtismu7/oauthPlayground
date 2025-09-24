@@ -54,9 +54,10 @@ export function getCallbackUrlForFlow(flowType: string, baseUrl?: string): strin
       return urls.hybrid;
     case 'implicit':
     case 'implicit-grant':
+      return urls.implicit;
     case 'oidc-implicit-v3':
     case 'oauth2-implicit-v3':
-      return urls.implicit;
+      return `${base}/implicit-callback-v3`;
     case 'worker-token':
     case 'worker':
     case 'worker-token-v3':
