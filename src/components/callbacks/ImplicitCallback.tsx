@@ -93,7 +93,7 @@ const ImplicitCallback: React.FC = () => {
   useEffect(() => {
     const processCallback = async () => {
       try {
-        logger.oauth('ImplicitCallback', 'Processing implicit grant callback', { url: location.href });
+        logger.auth('ImplicitCallback', 'Processing implicit grant callback', { url: location.href });
         
         const urlParams = new URLSearchParams(location.search);
         const accessToken = urlParams.get('access_token');
@@ -112,7 +112,7 @@ const ImplicitCallback: React.FC = () => {
         if (accessToken || idToken) {
           setStatus('warning');
           setMessage('Implicit grant received (deprecated flow)');
-          logger.oauth('ImplicitCallback', 'Implicit grant received', { hasAccessToken: !!accessToken, hasIdToken: !!idToken });
+          logger.auth('ImplicitCallback', 'Implicit grant received', { hasAccessToken: !!accessToken, hasIdToken: !!idToken });
           
           // Redirect after showing warning
           setTimeout(() => {
