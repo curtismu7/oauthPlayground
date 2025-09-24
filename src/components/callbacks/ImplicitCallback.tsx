@@ -122,14 +122,39 @@ const ImplicitCallback: React.FC = () => {
         }
         
         if (accessToken || idToken) {
-          setStatus('warning');
-          setMessage('Implicit grant received (deprecated flow)');
-          logger.auth('ImplicitCallback', 'Implicit grant received', { hasAccessToken: !!accessToken, hasIdToken: !!idToken });
+          // Check if this is a V3 flow by looking for flow context
+          const flowContext = sessionStorage.getItem('oidc_implicit_v3_flow_context') || 
+                             sessionStorage.getItem('oauth2_implicit_v3_flow_context');
           
-          // Redirect after showing warning
-          setTimeout(() => {
-            navigate('/');
-          }, 3000);
+          if (flowContext) {
+            // This is a V3 flow - return to the flow page
+            setStatus('success');
+            setMessage('Implicit grant received - returning to flow');
+            logger.auth('ImplicitCallback', 'V3 implicit grant received, returning to flow', { hasAccessToken: !!accessToken, hasIdToken: !!idToken });
+            
+            // Store tokens and return to flow
+            const tokens = { access_token: accessToken, id_token: idToken };
+            sessionStorage.setItem('implicit_tokens', JSON.stringify(tokens));
+            
+            setTimeout(() => {
+              // Return to the implicit flow page
+              const currentPath = window.location.pathname;
+              if (currentPath.includes('oidc')) {
+                navigate('/flows/oidc-implicit-v3');
+              } else {
+                navigate('/flows/oauth2-implicit-v3');
+              }
+            }, 2000);
+          } else {
+            // Legacy flow - show warning and redirect to dashboard
+            setStatus('warning');
+            setMessage('Implicit grant received (deprecated flow)');
+            logger.auth('ImplicitCallback', 'Legacy implicit grant received', { hasAccessToken: !!accessToken, hasIdToken: !!idToken });
+            
+            setTimeout(() => {
+              navigate('/');
+            }, 3000);
+          }
         } else {
           setStatus('error');
           setMessage('No tokens received');
