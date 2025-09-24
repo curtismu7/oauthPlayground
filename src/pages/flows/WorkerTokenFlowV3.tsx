@@ -20,7 +20,7 @@ const Container = styled.div`
 `;
 
 const Header = styled.div`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
   color: white;
   padding: 2rem;
   border-radius: 12px;
@@ -295,6 +295,34 @@ const WorkerTokenFlowV3: React.FC = () => {
       setIsLoading(false);
     }
   }, [credentials]);
+
+  // Reset flow
+  const resetFlow = useCallback(async () => {
+    console.log('🔄 [WorkerTokenV3] Reset flow initiated');
+    
+    setIsLoading(true);
+    
+    try {
+      // Simulate a brief delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Clear tokens and error state
+      setTokens(null);
+      setError(null);
+      
+      // Reset step manager to first step
+      stepManager.resetFlow();
+      
+      showFlowSuccess('🔄 Flow Reset', 'Worker token flow has been reset successfully');
+      logger.auth('WorkerTokenFlowV3', 'Flow reset successfully');
+      
+    } catch (error) {
+      console.error('❌ [WorkerTokenV3] Reset flow failed:', error);
+      showFlowError('Failed to reset flow');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [stepManager]);
 
   // Introspect token
   const introspectToken = useCallback(async () => {
@@ -631,6 +659,57 @@ const WorkerTokenFlowV3: React.FC = () => {
           logger.auth('WorkerTokenFlowV3', 'Step completed', { stepId, result });
         }}
       />
+
+      {/* Flow Control Section */}
+      <div style={{
+        padding: '2rem',
+        borderTop: '1px solid #e5e7eb',
+        background: '#f9fafb',
+        marginTop: '2rem',
+        borderRadius: '0 0 12px 12px'
+      }}>
+        <h3 style={{
+          margin: '0 0 1.5rem 0',
+          color: '#374151',
+          fontSize: '1.1rem',
+          fontWeight: '600'
+        }}>
+          Flow Controls
+        </h3>
+        
+        <div style={{
+          display: 'flex',
+          gap: '1rem',
+          flexWrap: 'wrap',
+          justifyContent: 'flex-start',
+          alignItems: 'center'
+        }}>
+          <button
+            onClick={resetFlow}
+            disabled={isLoading}
+            style={{
+              padding: '0.75rem 1.5rem',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.5rem',
+              fontSize: '0.875rem',
+              fontWeight: '500',
+              cursor: isLoading ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              background: isLoading ? '#9ca3af' : '#f3f4f6',
+              color: '#374151',
+              transition: 'all 0.2s'
+            }}
+          >
+            <FiRefreshCw style={{ 
+              animation: isLoading ? 'spin 1s linear infinite' : 'none',
+              marginRight: '0.5rem'
+            }} />
+            {isLoading ? 'Resetting...' : 'Reset Flow'}
+          </button>
+        </div>
+      </div>
     </Container>
   );
 };
