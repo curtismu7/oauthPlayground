@@ -99,6 +99,14 @@ const ImplicitCallback: React.FC = () => {
         const queryParams = new URLSearchParams(location.search);
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
         
+        // Debug logging to see what we're parsing
+        console.log('🔍 [ImplicitCallback] Debug parsing:', {
+          hash: window.location.hash,
+          hashSubstring: window.location.hash.substring(1),
+          queryParams: Object.fromEntries(queryParams.entries()),
+          hashParams: Object.fromEntries(hashParams.entries())
+        });
+        
         // Get tokens from either query params or hash params
         const accessToken = queryParams.get('access_token') || hashParams.get('access_token');
         const idToken = queryParams.get('id_token') || hashParams.get('id_token');
@@ -137,7 +145,7 @@ const ImplicitCallback: React.FC = () => {
     };
 
     processCallback();
-  }, [location.href, location.search, navigate]);
+  }, [location.search, navigate]);
 
   const getStatusIcon = () => {
     switch (status) {
