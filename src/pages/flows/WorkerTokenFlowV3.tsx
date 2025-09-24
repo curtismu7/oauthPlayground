@@ -231,16 +231,21 @@ const WorkerTokenFlowV3: React.FC = () => {
       
       const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
       
+      // Ensure we have a valid scope - fallback to api:read if empty
+      const scopeValue = credentials.scopes?.trim() || 'api:read';
+      
       const requestPayload = {
         client_id: credentials.clientId,
         client_secret: credentials.clientSecret,
-        scope: credentials.scopes,
+        scope: scopeValue,
         environment_id: credentials.environmentId
       };
 
       console.log('🔧 [WorkerTokenV3] Sending request to /api/client-credentials:', {
         payload: { ...requestPayload, client_secret: '[REDACTED]' },
-        tokenEndpoint
+        tokenEndpoint,
+        scopeValue: credentials.scopes,
+        scopeType: typeof credentials.scopes
       });
       
       const response = await fetch('/api/client-credentials', {
@@ -260,7 +265,19 @@ const WorkerTokenFlowV3: React.FC = () => {
           statusText: response.statusText,
           errorData
         });
-        throw new Error(errorData.error_description || errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+        
+        // Provide helpful error message for scope issues
+        let errorMessage = errorData.error_description || errorData.error || `HTTP ${response.status}: ${response.statusText}`;
+        
+        if (errorMessage.includes('scope') || errorMessage.includes('granted')) {
+          errorMessage += '\n\n💡 Solution: Configure scopes in your PingOne application:\n' +
+                         '1. Go to PingOne Admin Console\n' +
+                         '2. Navigate to your Application\n' +
+                         '3. Add required scopes (e.g., api:read, api:write)\n' +
+                         '4. Ensure your client has the necessary permissions';
+        }
+        
+        throw new Error(errorMessage);
       }
 
       const tokenData = await response.json();
