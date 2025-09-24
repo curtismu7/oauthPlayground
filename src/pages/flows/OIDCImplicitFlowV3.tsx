@@ -33,7 +33,9 @@ import { generateSecurityParameters, storeSecurityParameters } from '../../utils
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 import { showFlowSuccess, showFlowError } from '../../components/CentralizedSuccessMessage';
 import ConfirmationModal from '../../components/ConfirmationModal';
+import { credentialManager } from '../../utils/credentialManager';
 import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
+import DefaultRedirectUriModal from '../../components/DefaultRedirectUriModal';
 import { InfoBox } from '../../components/steps/CommonSteps';
 import { FormField, FormLabel, FormInput } from '../../components/steps/CommonSteps';
 import TokenDisplay from '../../components/TokenDisplay';
@@ -321,12 +323,12 @@ const CredentialsSection = styled.div`
 `;
 
 const SecurityWarning = styled.div`
-  background: #fef3c7;
-  border: 1px solid #f59e0b;
+  background: #fef2f2;
+  border: 1px solid #f87171;
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1.5rem;
-  color: #92400e;
+  color: #dc2626;
 `;
 
 
@@ -364,9 +366,96 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
   const [credentials, setCredentials] = useState({
     environmentId: '',
     clientId: '',
-    redirectUri: `${window.location.origin}/implicit-callback-v3`,
+    redirectUri: '',
     scopes: 'openid profile email'
   });
+
+  // Validation state
+  const [validationErrors, setValidationErrors] = useState({
+    clientId: false,
+    environmentId: false
+  });
+
+  // Load credentials on mount
+  useEffect(() => {
+    const loadCredentials = () => {
+      try {
+        // Load implicit flow-specific credentials first
+        const implicitCredentials = credentialManager.loadImplicitFlowCredentials();
+        
+        // If implicit flow credentials exist and have values, use them
+        if (implicitCredentials.environmentId || implicitCredentials.clientId || implicitCredentials.redirectUri) {
+          setCredentials({
+            environmentId: implicitCredentials.environmentId || '',
+            clientId: implicitCredentials.clientId || '',
+            redirectUri: implicitCredentials.redirectUri || '',
+            scopes: Array.isArray(implicitCredentials.scopes) ? implicitCredentials.scopes.join(' ') : (implicitCredentials.scopes || 'openid profile email')
+          });
+          console.log('✅ [OIDC-IMPLICIT-V3] Loaded implicit flow credentials:', implicitCredentials);
+        } else {
+          // Fall back to global configuration
+          const configCredentials = credentialManager.loadConfigCredentials();
+          if (configCredentials.environmentId || configCredentials.clientId || configCredentials.redirectUri) {
+            setCredentials({
+              environmentId: configCredentials.environmentId || '',
+              clientId: configCredentials.clientId || '',
+              redirectUri: configCredentials.redirectUri || '',
+              scopes: Array.isArray(configCredentials.scopes) ? configCredentials.scopes.join(' ') : (configCredentials.scopes || 'openid profile email')
+            });
+            console.log('✅ [OIDC-IMPLICIT-V3] Loaded global config credentials:', configCredentials);
+          } else {
+            // Both are blank - show modal with default URI
+            const defaultUri = getCallbackUrlForFlow('oidc-implicit-v3');
+            setDefaultRedirectUri(defaultUri);
+            setShowDefaultRedirectUriModal(true);
+            setCredentials({
+              environmentId: '',
+              clientId: '',
+              redirectUri: defaultUri,
+              scopes: 'openid profile email'
+            });
+            console.log('⚠️ [OIDC-IMPLICIT-V3] No credentials found, showing default redirect URI modal');
+          }
+        }
+      } catch (error) {
+        console.error('❌ [OIDC-IMPLICIT-V3] Failed to load credentials:', error);
+        // Fall back to defaults
+        const defaultUri = getCallbackUrlForFlow('oidc-implicit-v3');
+        setDefaultRedirectUri(defaultUri);
+        setShowDefaultRedirectUriModal(true);
+        setCredentials(prev => ({
+          ...prev,
+          redirectUri: defaultUri
+        }));
+      }
+    };
+
+    loadCredentials();
+  }, []);
+
+  // Client ID validation function
+  const validateClientId = (clientId: string): boolean => {
+    if (!clientId || clientId.trim() === '') return false;
+    // Basic validation - should be alphanumeric with hyphens/underscores
+    const isValid = /^[a-zA-Z0-9_-]+$/.test(clientId) && clientId.length >= 8;
+    return isValid;
+  };
+
+  // Environment ID validation function  
+  const validateEnvironmentId = (envId: string): boolean => {
+    if (!envId || envId.trim() === '') return false;
+    // Should be UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(envId);
+  };
+
+  // Update validation errors when credentials change
+  useEffect(() => {
+    setValidationErrors({
+      clientId: credentials.clientId ? !validateClientId(credentials.clientId) : false,
+      environmentId: credentials.environmentId ? !validateEnvironmentId(credentials.environmentId) : false
+    });
+  }, [credentials.clientId, credentials.environmentId]);
 
   const [responseType, setResponseType] = useState<'id_token' | 'id_token token'>('id_token token');
   const [authUrl, setAuthUrl] = useState('');
@@ -378,6 +467,8 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
   const [showAuthRequestModal, setShowAuthRequestModal] = useState(false);
   const [isClearingCredentials, setIsClearingCredentials] = useState(false);
   const [copiedText, setCopiedText] = useState<string | null>(null);
+  const [showDefaultRedirectUriModal, setShowDefaultRedirectUriModal] = useState(false);
+  const [defaultRedirectUri, setDefaultRedirectUri] = useState('');
   const [showEducationalContent, setShowEducationalContent] = useState(true);
   const [showClientIdTroubleshooting, setShowClientIdTroubleshooting] = useState(false);
   const [isResettingFlow, setIsResettingFlow] = useState(false);
@@ -403,9 +494,23 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
   // Save credentials to storage
   const saveCredentials = useCallback(async () => {
     try {
+      // Save to credential manager for implicit flow
+      const success = credentialManager.saveImplicitFlowCredentials({
+        environmentId: credentials.environmentId,
+        clientId: credentials.clientId,
+        redirectUri: credentials.redirectUri,
+        scopes: credentials.scopes.split(' ')
+      });
+      
+      if (!success) {
+        throw new Error('Failed to save credentials to credential manager');
+      }
+      
+      // Also store in localStorage for backward compatibility
       localStorage.setItem('oidc_implicit_v3_credentials', JSON.stringify(credentials));
+      
       showFlowSuccess('Credentials saved successfully');
-      console.log('✅ [OIDC-IMPLICIT-V3] Credentials saved');
+      console.log('✅ [OIDC-IMPLICIT-V3] Credentials saved to credential manager and localStorage');
     } catch (error) {
       showFlowError('Failed to save credentials');
       console.error('❌ [OIDC-IMPLICIT-V3] Failed to save credentials:', error);
@@ -416,15 +521,26 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
   const clearCredentials = useCallback(async () => {
     setIsClearingCredentials(true);
     try {
+      // Clear from credential manager
+      credentialManager.saveImplicitFlowCredentials({
+        environmentId: '',
+        clientId: '',
+        redirectUri: '',
+        scopes: []
+      });
+      
+      // Clear from localStorage
       localStorage.removeItem('oidc_implicit_v3_credentials');
+      
       setCredentials({
         environmentId: '',
         clientId: '',
-        redirectUri: `${window.location.origin}/implicit-callback-v3`,
+        redirectUri: '',
         scopes: 'openid profile email'
       });
+      
       showFlowSuccess('Credentials cleared successfully');
-      console.log('✅ [OIDC-IMPLICIT-V3] Credentials cleared');
+      console.log('✅ [OIDC-IMPLICIT-V3] Credentials cleared from credential manager and localStorage');
     } catch (error) {
       showFlowError('Failed to clear credentials');
       console.error('❌ [OIDC-IMPLICIT-V3] Failed to clear credentials:', error);
@@ -433,6 +549,11 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
       setShowClearCredentialsModal(false);
     }
   }, []);
+
+  const handleContinueWithDefaultUri = () => {
+    setShowDefaultRedirectUriModal(false);
+    showFlowSuccess('Using default redirect URI. Please configure it in your PingOne application.');
+  };
 
   // Build authorization URL
   const buildAuthorizationUrl = useCallback(async () => {
@@ -494,15 +615,17 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
       return;
     }
 
-    // Check if user has opted to skip the modal
-    const skipModal = localStorage.getItem('skip_oauth_authz_request_modal') === 'true';
+    // Check configuration setting for showing auth request modal
+    const flowConfigKey = 'enhanced-flow-authorization-code';
+    const flowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
+    const shouldShowModal = flowConfig.showAuthRequestModal === true;
     
-    if (skipModal) {
+    if (shouldShowModal) {
+      console.log('🔧 [OIDC-IMPLICIT-V3] Showing authorization request modal (user preference)');
+      setShowAuthRequestModal(true);
+    } else {
       console.log('🔧 [OIDC-IMPLICIT-V3] Skipping authorization modal (user preference)');
       handleAuthorizationDirect();
-    } else {
-      console.log('🔧 [OIDC-IMPLICIT-V3] Showing authorization request modal');
-      setShowAuthRequestModal(true);
     }
   }, [authUrl]);
 
@@ -674,18 +797,6 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
       category: 'preparation',
       content: (
         <div>
-          <SecurityWarning>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-              <FiAlertTriangle />
-              <strong>Security Warning: OIDC Implicit Flow</strong>
-            </div>
-            <div style={{ fontSize: '0.875rem', lineHeight: '1.5' }}>
-              The OIDC Implicit flow is <strong>deprecated</strong> due to security concerns. 
-              ID tokens and access tokens are exposed in the URL fragment, making them vulnerable to theft. 
-              This flow is provided for legacy compatibility only. For new applications, 
-              use the Authorization Code flow with PKCE instead.
-            </div>
-          </SecurityWarning>
 
           <CredentialsSection>
             <FormField>
@@ -872,7 +983,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
           </div>
 
           {/* Client ID Validation Warning - Collapsible */}
-          {credentials.clientId && (
+          {credentials.clientId && validationErrors.clientId && (
             <div style={{ 
               marginTop: '1.5rem',
               background: '#fef2f2',
@@ -1631,6 +1742,15 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
           responseType: responseType || '',
           flowType: 'oidc-implicit-v3'
         }}
+      />
+
+      {/* Default Redirect URI Modal */}
+      <DefaultRedirectUriModal
+        isOpen={showDefaultRedirectUriModal}
+        onClose={() => setShowDefaultRedirectUriModal(false)}
+        onContinue={handleContinueWithDefaultUri}
+        flowType="oidc-implicit-v3"
+        defaultRedirectUri={defaultRedirectUri}
       />
     </Container>
   );
