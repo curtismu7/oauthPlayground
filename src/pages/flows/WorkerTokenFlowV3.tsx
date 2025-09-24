@@ -9,7 +9,7 @@ import { showFlowSuccess, showFlowError } from '../../components/CentralizedSucc
 import { credentialManager } from '../../utils/credentialManager';
 import { EnhancedStepFlowV2 } from '../../components/EnhancedStepFlowV2';
 import { useFlowStepManager } from '../../utils/flowStepSystem';
-import { createCredentialsStep, StepCredentials } from '../../components/steps/CommonSteps';
+import { createCredentialsStep, StepCredentials, FormField, FormLabel, FormInput } from '../../components/steps/CommonSteps';
 import CollapsibleSection from '../../components/CollapsibleSection';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
 

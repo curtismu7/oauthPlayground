@@ -293,7 +293,7 @@ app.post('/api/client-credentials', async (req, res) => {
       },
       body: new URLSearchParams({
         grant_type: 'client_credentials',
-        scope: scope || 'api:read'
+        scope: scope || 'openid'
       })
     });
 
