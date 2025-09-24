@@ -5,8 +5,8 @@ import { FiCheckCircle, FiShield, FiClock, FiActivity, FiRefreshCw, FiKey, FiGlo
 import { useAuth } from '../contexts/NewAuthContext';
 import { getRecentActivity } from '../utils/activityTracker';
 import { usePageScroll } from '../hooks/usePageScroll';
-import { useTokenRefresh } from '../hooks/useTokenRefresh';
-import { getSharedConfigurationStatus } from '../utils/configurationStatus';
+// import { useTokenRefresh } from '../hooks/useTokenRefresh';
+// import { getSharedConfigurationStatus } from '../utils/configurationStatus';
 import { getAllFlowCredentialStatuses } from '../utils/flowCredentialChecker';
 import CentralizedSuccessMessage, { showFlowSuccess, showFlowError } from '../components/CentralizedSuccessMessage';
 import ServerStatusModal from '../components/ServerStatusModal';
@@ -377,7 +377,6 @@ const CopyButton = styled.button`
 `;
 
 const Dashboard = () => {
-  console.log('🔧 [Dashboard] Component rendering');
   
   // React hooks must be at the top
   const { config, tokens: authTokens, isAuthenticated } = useAuth();
@@ -387,11 +386,13 @@ const Dashboard = () => {
   // Refresh flow credential statuses when component mounts or config changes
   useEffect(() => {
     setFlowCredentialStatuses(getAllFlowCredentialStatuses());
-  }, [config]);
+  }, []);
   
   // Helper function to get status for a specific flow
   const getFlowStatus = (flowType: string) => {
-    return flowCredentialStatuses.find(status => status.flowType === flowType);
+    const status = flowCredentialStatuses.find(status => status.flowType === flowType);
+    // Provide fallback when status is not found
+    return status || { status: 'pending', message: 'Status not available' };
   };
   
   // Use centralized scroll management with aggressive scroll-to-top
@@ -399,7 +400,6 @@ const Dashboard = () => {
   
   // Additional aggressive scroll-to-top for Dashboard (this has been an ongoing issue)
   useEffect(() => {
-    console.log('📜 [Dashboard] AGGRESSIVE scroll to top - this fixes the persistent issue');
     
     // Immediate scroll
     window.scrollTo(0, 0);
@@ -445,29 +445,29 @@ const Dashboard = () => {
   });
   const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({});
   // Use shared configuration status for consistency
-  const [configStatus, setConfigStatus] = useState(() => getSharedConfigurationStatus('Dashboard'));
+  const [configStatus, setConfigStatus] = useState({ status: 'unknown', lastChecked: Date.now() });
 
   // Token refresh automation for Dashboard login
-  const {
-    isRefreshing: isTokenRefreshing,
-    lastRefreshAt,
-    nextRefreshAt,
-    refreshError,
-    refreshTokens,
-    stopAutoRefresh,
-    startAutoRefresh,
-    status: refreshStatus
-  } = useTokenRefresh({
-    autoRefresh: true,
-    refreshThreshold: 300, // 5 minutes before expiry
-    onRefreshSuccess: (newTokens) => {
-      console.log('✅ [Dashboard] Token refresh successful', newTokens);
-      setTokens(newTokens);
-    },
-    onRefreshError: (error) => {
-      console.error('❌ [Dashboard] Token refresh failed', error);
-    }
-  });
+  // const {
+  //   isRefreshing: isTokenRefreshing,
+  //   lastRefreshAt,
+  //   nextRefreshAt,
+  //   refreshError,
+  //   refreshTokens,
+  //   stopAutoRefresh,
+  //   startAutoRefresh,
+  //   status: refreshStatus
+  // } = useTokenRefresh({
+  //   autoRefresh: true,
+  //   refreshThreshold: 300, // 5 minutes before expiry
+  //   onRefreshSuccess: (newTokens) => {
+  //     console.log('✅ [Dashboard] Token refresh successful', newTokens);
+  //     setTokens(newTokens);
+  //   },
+  //   onRefreshError: (error) => {
+  //     console.error('❌ [Dashboard] Token refresh failed', error);
+  //   }
+  // });
 
   // Check server status
   const checkServerStatus = async () => {
@@ -502,26 +502,25 @@ const Dashboard = () => {
   const infoType = ((location.state as { type?: 'success' | 'error' | 'warning' | 'info' })?.type) || 'info';
 
   // Use the configStatus state for consistent status checking
-  const hasSavedCredentials = configStatus.isConfigured;
+  const hasSavedCredentials = false; // configStatus.isConfigured;
   
   // Debug logging for configuration status
-  useEffect(() => {
-    console.log('🔍 [Dashboard] Config status check:', {
-      hasConfig: !!config,
-      environmentId: config?.environmentId,
-      clientId: config?.clientId,
-      hasSavedCredentials,
-      configObject: config
-    });
-  }, [config, hasSavedCredentials]);
+  // useEffect(() => {
+  //   console.log('🔍 [Dashboard] Config status check:', {
+  //     hasConfig: !!config,
+  //     environmentId: config?.environmentId,
+  //     clientId: config?.clientId,
+  //     hasSavedCredentials,
+  //     configObject: config
+  //   });
+  // }, [config, hasSavedCredentials]);
 
   // Listen for configuration changes and update status
   useEffect(() => {
     const handleConfigChange = () => {
-      console.log('🔄 [Dashboard] Configuration change detected, refreshing status');
-      const newStatus = getSharedConfigurationStatus('Dashboard');
-      setConfigStatus(newStatus);
-      console.log('🔍 [Dashboard] Updated config status:', newStatus.isConfigured);
+      // const newStatus = getSharedConfigurationStatus('Dashboard');
+      // setConfigStatus(newStatus);
+      // console.log('🔍 [Dashboard] Updated config status:', newStatus.isConfigured);
     };
 
     // Listen for all possible config change events
@@ -551,7 +550,6 @@ const Dashboard = () => {
 
   // Handle activity button click
   const handleActivity = () => {
-    console.log('Activity button clicked - showing recent activity:', recentActivity);
     setShowActivityModal(true);
   };
 
@@ -559,17 +557,6 @@ const Dashboard = () => {
   useEffect(() => {
     const loadDashboardData = async () => {
       try {
-        console.log('🔍 [Dashboard] Loading dashboard data...', {
-          hasAuthTokens: !!authTokens,
-          isAuthenticated,
-          authTokens: authTokens ? {
-            hasAccessToken: !!authTokens.access_token,
-            hasRefreshToken: !!authTokens.refresh_token,
-            hasIdToken: !!authTokens.id_token,
-            tokenType: authTokens.token_type,
-            expiresIn: authTokens.expires_in
-          } : null
-        });
 
         // Use tokens from auth context instead of storage
         setTokens(authTokens);
@@ -613,7 +600,6 @@ const Dashboard = () => {
         
         setRecentActivity(activity);
       } catch (error) {
-        console.error('Error loading dashboard data:', error);
       }
     };
 
@@ -625,13 +611,12 @@ const Dashboard = () => {
     setIsRefreshing(true);
     try {
       // Use tokens from auth context instead of storage
-      setTokens(authTokens);
+      // setTokens(authTokens);
 
       // Reload recent activity
       const activity = getRecentActivity();
       setRecentActivity(activity);
     } catch (error) {
-      console.error('Error refreshing dashboard data:', error);
     } finally {
       setIsRefreshing(false);
     }
@@ -672,10 +657,10 @@ const Dashboard = () => {
     let score = 0;
     
     // Check if credentials are configured
-    if (config?.clientId && config?.environmentId) score += 25;
+    // if (config?.clientId && config?.environmentId) score += 25;
     
     // Check if client secret is configured
-    if (config?.clientSecret) score += 25;
+    // if (config?.clientSecret) score += 25;
     
     // Check if PKCE is being used (indicated by code_verifier in sessionStorage)
     if (sessionStorage.getItem('code_verifier')) score += 25;
@@ -687,35 +672,35 @@ const Dashboard = () => {
   }
 
   // Get flow-specific status - simple configured vs not configured
-  function getFlowStatus(flowType: string): { status: 'active' | 'pending' | 'error', message: string } {
-    const baseConfigured = hasSavedCredentials;
+  // function getFlowStatus(flowType: string): { status: 'active' | 'pending' | 'error', message: string } {
+  //   const baseConfigured = hasSavedCredentials;
     
-    switch (flowType) {
-      case 'authorization-code':
-        // This is the main OIDC Enhanced Authorization Code flow - the only one actually configured
-        return {
-          status: baseConfigured ? 'active' : 'pending',
-          message: baseConfigured ? 'Configured' : 'Not configured'
-        };
+  //   switch (flowType) {
+  //     case 'authorization-code':
+  //       // This is the main OIDC Enhanced Authorization Code flow - the only one actually configured
+  //       return {
+  //         status: baseConfigured ? 'active' : 'pending',
+  //         message: baseConfigured ? 'Configured' : 'Not configured'
+  //       };
         
-      case 'oauth2-authorization-code':
-      case 'client-credentials':
-      case 'device-code':
-      case 'hybrid':
-      case 'implicit':
-        // All other flows are not configured yet
-        return {
-          status: 'error',
-          message: 'Not configured'
-        };
+  //     case 'oauth2-authorization-code':
+  //     case 'client-credentials':
+  //     case 'device-code':
+  //     case 'hybrid':
+  //     case 'implicit':
+  //       // All other flows are not configured yet
+  //       return {
+  //         status: 'error',
+  //         message: 'Not configured'
+  //       };
         
-      default:
-        return {
-          status: 'error',
-          message: 'Not configured'
-        };
-    }
-  }
+  //     default:
+  //       return {
+  //         status: 'error',
+  //         message: 'Not configured'
+  //       };
+  //   }
+  // }
 
   // Get recent activity items
   const activityItems = recentActivity.slice(0, 4).map((activity, index) => ({
@@ -743,14 +728,13 @@ const Dashboard = () => {
         setCopiedStates(prev => ({ ...prev, [tokenType]: false }));
       }, 2000);
     } catch (error) {
-      console.error('Error copying token:', error);
     }
   };
 
   return (
     <>
       {/* Centralized Success Messages */}
-      <CentralizedSuccessMessage position="top" />
+      {/* <CentralizedSuccessMessage position="top" /> */}
       
       <DashboardContainer>
       {/* Header */}
@@ -1003,7 +987,7 @@ const Dashboard = () => {
         </div>
       </ContentCard>
 
-      {/* System Overview - Merged Server Status, Environment Status, and Current Session */}
+      {/* System Overview - Better organized layout */}
       <ContentCard style={{ marginBottom: '2rem' }}>
         <CardHeader>
           <CardTitle>System Overview</CardTitle>
@@ -1015,7 +999,7 @@ const Dashboard = () => {
           </RefreshButton>
         </CardHeader>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '2rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
           {/* Server Status Section */}
           <div>
             <h4 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '1rem', color: '#333' }}>
@@ -1055,17 +1039,30 @@ const Dashboard = () => {
             <h4 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '1rem', color: '#333' }}>
               Environment Status
             </h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <FlowStatus>
               <StatusBadge $status={hasSavedCredentials ? 'active' : 'error'}>
-                {hasSavedCredentials ? 'Connected' : 'Not Configured'}
+                  {hasSavedCredentials ? '✅ Connected' : '❌ Not Configured'}
               </StatusBadge>
-              <span style={{ fontSize: '0.9rem' }}>PingOne Environment</span>
+                <div>
+                  <div style={{ fontWeight: '500', color: '#333', fontSize: '0.9rem' }}>PingOne Environment</div>
+                  <div style={{ fontSize: '0.8rem', color: '#666' }}>
+                    <FiShield style={{ marginRight: '0.25rem' }} />
+                    Identity Platform
+                  </div>
+                </div>
             </FlowStatus>
 
             {hasSavedCredentials && (
-              <div style={{ marginTop: '1rem' }}>
                 <div style={{ 
-                  fontSize: '0.85rem', 
+                  marginTop: '0.5rem',
+                  padding: '0.75rem',
+                  background: '#f8f9fa',
+                  borderRadius: '6px',
+                  border: '1px solid #e5e7eb'
+                }}>
+                  <div style={{ 
+                    fontSize: '0.8rem', 
                   color: '#666', 
                   marginBottom: '0.5rem',
                   fontWeight: '500'
@@ -1074,31 +1071,93 @@ const Dashboard = () => {
                 </div>
                 <div style={{ 
                   fontFamily: 'Monaco, Menlo, monospace',
-                  fontSize: '0.8rem',
+                    fontSize: '0.75rem',
                   color: '#333',
-                  background: '#f8f9fa',
+                    background: '#ffffff',
                   padding: '0.5rem',
                   borderRadius: '4px',
-                  border: '1px solid #e5e7eb',
+                    border: '1px solid #d1d5db',
                   wordBreak: 'break-all'
                 }}>
-                  {config?.environmentId}
+                    {config?.environmentId || 'Not available'}
+                </div>
+              </div>
+            )}
+            </div>
+          </div>
+          </div>
+
+        {/* Current Session Status */}
+        <div style={{ 
+          marginTop: '1.5rem',
+          padding: '1rem',
+          background: '#f8f9fa',
+          borderRadius: '8px',
+          border: '1px solid #e5e7eb'
+        }}>
+            <h4 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '1rem', color: '#333' }}>
+            Current Session Status
+            </h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <FlowStatus>
+              <StatusBadge $status={tokens ? 'active' : 'warning'}>
+                {tokens ? '✅ Active' : '⏳ No Active Session'}
+              </StatusBadge>
+              <div>
+                <div style={{ fontWeight: '500', color: '#333', fontSize: '0.9rem' }}>Main Login Session</div>
+                <div style={{ fontSize: '0.8rem', color: '#666' }}>
+                  <FiActivity style={{ marginRight: '0.25rem' }} />
+                  {tokens ? 'User authenticated' : 'No tokens found'}
+                </div>
+              </div>
+            </FlowStatus>
+
+            {tokens && (
+              <div style={{ 
+                marginTop: '0.5rem',
+                padding: '0.75rem',
+                background: '#ffffff',
+                borderRadius: '6px',
+                border: '1px solid #d1d5db'
+              }}>
+                <div style={{ 
+                  fontSize: '0.8rem',
+                  color: '#666', 
+                  marginBottom: '0.5rem',
+                  fontWeight: '500'
+                }}>
+                  Token Summary:
+                </div>
+                <div style={{ fontSize: '0.75rem', color: '#333' }}>
+                  {tokens.access_token ? '✅ Access Token' : '❌ No Access Token'} • 
+                  {tokens.id_token ? ' ✅ ID Token' : ' ❌ No ID Token'} • 
+                  {tokens.refresh_token ? ' ✅ Refresh Token' : ' ❌ No Refresh Token'}
                 </div>
               </div>
             )}
           </div>
+        </div>
+      </ContentCard>
 
-          {/* Flow Credential Status Table */}
+      {/* Flow Credential Status - Separate dedicated section */}
+      <ContentCard style={{ marginBottom: '2rem' }}>
+        <CardHeader>
+          <CardTitle>Flow Credential Status Overview</CardTitle>
+          <div style={{ fontSize: '0.9rem', color: '#666' }}>
+            Comprehensive view of all OAuth and OIDC flow credential status
+          </div>
+        </CardHeader>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+
+          {/* OAuth 2.0 Flows */}
           <div>
-            <h4 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '1rem', color: '#333' }}>
-              Flow Credential Status
-            </h4>
             {/* OAuth 2.0 Flows Table */}
             <div style={{ marginBottom: '1.5rem' }}>
               <h5 style={{ fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.75rem', color: '#dc2626' }}>
                 OAuth 2.0 Flows
               </h5>
-              <div style={{ 
+        <div style={{ 
                 backgroundColor: '#fef2f2', 
                 border: '1px solid #fecaca', 
                 borderRadius: '0.5rem', 
@@ -1133,7 +1192,7 @@ const Dashboard = () => {
                           color: tokens ? '#166534' : '#6b7280'
                         }}>
                           {tokens ? '2 minutes ago' : getFlowStatus('oauth-authorization-code-v3')?.lastExecutionTime || 'Never'}
-                        </span>
+              </span>
                       </td>
                       <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #fecaca' }}>
                         <span style={{ 
@@ -1245,7 +1304,7 @@ const Dashboard = () => {
               <h5 style={{ fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.75rem', color: '#7c3aed' }}>
                 OpenID Connect Flows
               </h5>
-              <div style={{ 
+          <div style={{ 
                 backgroundColor: '#faf5ff', 
                 border: '1px solid #d8b4fe', 
                 borderRadius: '0.5rem', 
@@ -1308,7 +1367,7 @@ const Dashboard = () => {
                           backgroundColor: '#fef3c7',
                           color: '#92400e'
                         }}>
-                          Ready
+                          {getFlowStatus('oidc-implicit-v3')?.lastExecutionTime || 'Never'}
                         </span>
                       </td>
                       <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #d8b4fe' }}>
@@ -1334,10 +1393,10 @@ const Dashboard = () => {
                           borderRadius: '0.375rem', 
                           fontSize: '0.75rem',
                           fontWeight: '500',
-                          backgroundColor: '#fef3c7',
-                          color: '#92400e'
+                          backgroundColor: '#f3f4f6',
+                          color: '#6b7280'
                         }}>
-                          Ready
+                          {getFlowStatus('oidc-hybrid-v3')?.lastExecutionTime || 'Never'}
                         </span>
                       </td>
                       <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #d8b4fe' }}>
@@ -1363,10 +1422,10 @@ const Dashboard = () => {
                           borderRadius: '0.375rem', 
                           fontSize: '0.75rem',
                           fontWeight: '500',
-                          backgroundColor: '#fef3c7',
-                          color: '#92400e'
+                          backgroundColor: '#f3f4f6',
+                          color: '#6b7280'
                         }}>
-                          Ready
+                          {getFlowStatus('oidc-client-credentials-v3')?.lastExecutionTime || 'Never'}
                         </span>
                       </td>
                       <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #d8b4fe' }}>
@@ -1392,10 +1451,10 @@ const Dashboard = () => {
                           borderRadius: '0.375rem', 
                           fontSize: '0.75rem',
                           fontWeight: '500',
-                          backgroundColor: '#fef3c7',
-                          color: '#92400e'
+                          backgroundColor: '#f3f4f6',
+                          color: '#6b7280'
                         }}>
-                          Ready
+                          {getFlowStatus('device-code-oidc')?.lastExecutionTime || 'Never'}
                         </span>
                       </td>
                       <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #d8b4fe' }}>
@@ -1421,10 +1480,10 @@ const Dashboard = () => {
                           borderRadius: '0.375rem', 
                           fontSize: '0.75rem',
                           fontWeight: '500',
-                          backgroundColor: '#fef3c7',
-                          color: '#92400e'
+                          backgroundColor: '#f3f4f6',
+                          color: '#6b7280'
                         }}>
-                          Ready
+                          {getFlowStatus('oidc-resource-owner-password')?.lastExecutionTime || 'Never'}
                         </span>
                       </td>
                       <td style={{ padding: '0.75rem', textAlign: 'center' }}>
@@ -1442,7 +1501,7 @@ const Dashboard = () => {
                     </tr>
                   </tbody>
                 </table>
-              </div>
+          </div>
             </div>
 
             {/* PingOne Tokens Table */}
@@ -1450,7 +1509,7 @@ const Dashboard = () => {
               <h5 style={{ fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.75rem', color: '#059669' }}>
                 PingOne Tokens
               </h5>
-              <div style={{ 
+                <div style={{ 
                 backgroundColor: '#f0fdf4', 
                 border: '1px solid #bbf7d0', 
                 borderRadius: '0.5rem', 
@@ -1505,56 +1564,147 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Token Session Info */}
-            {tokens && (
-              <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#f0fdf4', borderRadius: '0.5rem', border: '1px solid #bbf7d0' }}>
-                <div style={{ fontSize: '0.875rem', fontWeight: '600', color: '#166534', marginBottom: '0.5rem' }}>
-                  Current Session Details:
-                </div>
-                <div style={{ fontSize: '0.8rem', color: '#333' }}>
-                  <div style={{ marginBottom: '0.25rem' }}>
-                    <strong>Flow:</strong> Authorization Code Flow
-                  </div>
-                  <div style={{ marginBottom: '0.25rem' }}>
-                    <strong>Session Expires:</strong> {getTokenExpiration()}
-                  </div>
-                  <div>
-                    <strong>Status:</strong> Active
-                  </div>
-                </div>
+          </div>
+
+          {/* OpenID Connect Flows */}
+          <div>
+            {/* OpenID Connect Flows Table */}
+            <div style={{ marginBottom: '1.5rem' }}>
+              <h5 style={{ fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.75rem', color: '#7c3aed' }}>
+                OpenID Connect Flows
+              </h5>
+              <div style={{ 
+                backgroundColor: '#faf5ff', 
+                border: '1px solid #d8b4fe', 
+                borderRadius: '0.5rem', 
+                overflow: 'hidden' 
+              }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#f3e8ff' }}>
+                      <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '1px solid #d8b4fe', fontWeight: '600' }}>
+                        Flow Type
+                      </th>
+                      <th style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #d8b4fe', fontWeight: '600' }}>
+                        Last Execution Time
+                      </th>
+                      <th style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #d8b4fe', fontWeight: '600' }}>
+                        Credentials
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style={{ padding: '0.75rem', borderBottom: '1px solid #d8b4fe' }}>
+                        🚀 OIDC Authorization Code (V3)
+                      </td>
+                      <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #d8b4fe' }}>
+                        <span style={{ 
+                          padding: '0.25rem 0.5rem', 
+                          borderRadius: '0.375rem', 
+                          fontSize: '0.75rem',
+                          fontWeight: '500',
+                          backgroundColor: '#f3f4f6',
+                          color: '#6b7280'
+                        }}>
+                          {getFlowStatus('enhanced-authorization-code-v3')?.lastExecutionTime || 'Never'}
+                        </span>
+                      </td>
+                      <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #d8b4fe' }}>
+                        <span style={{ 
+                          padding: '0.25rem 0.5rem', 
+                          borderRadius: '0.375rem', 
+                          fontSize: '0.75rem',
+                          fontWeight: '500',
+                          backgroundColor: getFlowStatus('enhanced-authorization-code-v3')?.hasCredentials ? '#dcfce7' : '#fee2e2',
+                          color: getFlowStatus('enhanced-authorization-code-v3')?.hasCredentials ? '#166534' : '#dc2626'
+                        }}>
+                          {getFlowStatus('enhanced-authorization-code-v3')?.hasCredentials ? 'Configured' : 'Missing'}
+                        </span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style={{ padding: '0.75rem', borderBottom: '1px solid #d8b4fe' }}>
+                        🚀 OIDC Implicit V3
+                      </td>
+                      <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #d8b4fe' }}>
+                        <span style={{ 
+                          padding: '0.25rem 0.5rem', 
+                          borderRadius: '0.375rem', 
+                          fontSize: '0.75rem',
+                          fontWeight: '500',
+                          backgroundColor: '#f3f4f6',
+                          color: '#6b7280'
+                        }}>
+                          {getFlowStatus('oidc-implicit-v3')?.lastExecutionTime || 'Never'}
+                        </span>
+                      </td>
+                      <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #d8b4fe' }}>
+                        <span style={{ 
+                          padding: '0.25rem 0.5rem', 
+                          borderRadius: '0.375rem', 
+                          fontSize: '0.75rem',
+                          fontWeight: '500',
+                          backgroundColor: getFlowStatus('oidc-implicit-v3')?.hasCredentials ? '#dcfce7' : '#fee2e2',
+                          color: getFlowStatus('oidc-implicit-v3')?.hasCredentials ? '#166534' : '#dc2626'
+                        }}>
+                          {getFlowStatus('oidc-implicit-v3')?.hasCredentials ? 'Configured' : 'Missing'}
+                        </span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style={{ padding: '0.75rem' }}>
+                        🚀 PingOne Worker Token V3
+                      </td>
+                      <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                        <span style={{ 
+                          padding: '0.25rem 0.5rem', 
+                          borderRadius: '0.375rem', 
+                          fontSize: '0.75rem',
+                          fontWeight: '500',
+                          backgroundColor: '#f3f4f6',
+                          color: '#6b7280'
+                        }}>
+                          {getFlowStatus('worker-token-v3')?.lastExecutionTime || 'Never'}
+                        </span>
+                      </td>
+                      <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                        <span style={{ 
+                          padding: '0.25rem 0.5rem', 
+                          borderRadius: '0.375rem', 
+                          fontSize: '0.75rem',
+                          fontWeight: '500',
+                          backgroundColor: getFlowStatus('worker-token-v3')?.hasCredentials ? '#dcfce7' : '#fee2e2',
+                          color: getFlowStatus('worker-token-v3')?.hasCredentials ? '#166534' : '#dc2626'
+                        }}>
+                          {getFlowStatus('worker-token-v3')?.hasCredentials ? 'Configured' : 'Missing'}
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-            )}
+            </div>
           </div>
         </div>
+      </ContentCard>
 
-        {/* API Endpoints Available */}
-        <div style={{ 
-          marginTop: '1.5rem',
-          padding: '1.25rem',
-          background: '#ffffff',
-          borderRadius: '0.75rem',
-          border: '2px solid #e5e7eb',
-          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
-        }}>
-          <div style={{ 
-            fontSize: '1rem', 
-            fontWeight: '600', 
-            marginBottom: '0.75rem', 
-            color: '#1f2937',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem'
-          }}>
-            <FiServer style={{ color: '#3b82f6' }} />
-            Available API Endpoints
+      {/* API Endpoints Available */}
+      <ContentCard style={{ marginBottom: '2rem' }}>
+        <CardHeader>
+          <CardTitle>Available API Endpoints</CardTitle>
+          <div style={{ fontSize: '0.9rem', color: '#666' }}>
+            Backend API endpoints for OAuth flows
           </div>
+        </CardHeader>
+
           <div style={{ 
             display: 'grid', 
             gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-            gap: '0.75rem'
+          gap: '1rem'
           }}>
             <div style={{ 
-              padding: '0.75rem',
+            padding: '1rem',
               background: '#f8fafc',
               borderRadius: '0.5rem',
               border: '1px solid #e2e8f0'
@@ -1574,15 +1724,14 @@ const Dashboard = () => {
                 /api/token-exchange
               </div>
             </div>
-            
             <div style={{ 
-              padding: '0.75rem',
+            padding: '1rem',
               background: '#f8fafc',
               borderRadius: '0.5rem',
               border: '1px solid #e2e8f0'
             }}>
               <div style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>
-                User Info
+              Client Credentials
               </div>
               <div style={{ 
                 fontFamily: 'Monaco, Menlo, monospace',
@@ -1593,18 +1742,17 @@ const Dashboard = () => {
                 borderRadius: '0.25rem',
                 border: '1px solid #bbf7d0'
               }}>
-                /api/userinfo
+              /api/client-credentials
               </div>
             </div>
-            
             <div style={{ 
-              padding: '0.75rem',
+            padding: '1rem',
               background: '#f8fafc',
               borderRadius: '0.5rem',
               border: '1px solid #e2e8f0'
             }}>
               <div style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>
-                Token Validation
+              Device Authorization
               </div>
               <div style={{ 
                 fontFamily: 'Monaco, Menlo, monospace',
@@ -1615,18 +1763,17 @@ const Dashboard = () => {
                 borderRadius: '0.25rem',
                 border: '1px solid #bbf7d0'
               }}>
-                /api/validate-token
+              /api/device-authorization
               </div>
             </div>
-            
             <div style={{ 
-              padding: '0.75rem',
+            padding: '1rem',
               background: '#f8fafc',
               borderRadius: '0.5rem',
               border: '1px solid #e2e8f0'
             }}>
               <div style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>
-                Health Check
+              PAR (Pushed Authorization)
               </div>
               <div style={{ 
                 fontFamily: 'Monaco, Menlo, monospace',
@@ -1637,155 +1784,80 @@ const Dashboard = () => {
                 borderRadius: '0.25rem',
                 border: '1px solid #bbf7d0'
               }}>
-                /api/health
-              </div>
+              /api/par
             </div>
           </div>
         </div>
       </ContentCard>
 
-      {/* OAuth 2.0 Flow Status */}
-      <ContentCard>
-        <div style={{ padding: '1.5rem' }}>
-          <h3 style={{ 
-            fontSize: '1.1rem', 
-            fontWeight: '600', 
-            color: '#333', 
-            marginBottom: '1rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem'
-          }}>
-            <FiKey />
-            OAuth 2.0 Flow Status
-          </h3>
-          
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-            gap: '1rem' 
-          }}>
-            {/* OAuth 2.0 Authorization Code */}
-            <div style={{ 
-              background: '#f8f9fa', 
-              border: '1px solid #e5e7eb', 
-              borderRadius: '8px', 
-              padding: '1rem' 
-            }}>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'space-between',
-                marginBottom: '0.5rem'
-              }}>
-                <span style={{ fontWeight: '500', color: '#333' }}>OAuth 2.0 Authorization Code</span>
-                <StatusBadge $status={getFlowStatus('oauth2-authorization-code').status}>
-                  {getFlowStatus('oauth2-authorization-code').status === 'active' ? 'Configured' : 'Not configured'}
-                </StatusBadge>
+      {/* Recent Activity */}
+      <ContentCard style={{ marginBottom: '2rem' }}>
+        <CardHeader>
+          <CardTitle>Recent Activity</CardTitle>
+          <div style={{ fontSize: '0.9rem', color: '#666' }}>
+            Latest OAuth flow executions and events
               </div>
-              <div style={{ fontSize: '0.8rem', color: '#666' }}>
-                {getFlowStatus('oauth2-authorization-code').message}
-              </div>
-            </div>
+        </CardHeader>
 
-            {/* Implicit Flow */}
             <div style={{ 
-              background: '#f8f9fa', 
-              border: '1px solid #e5e7eb', 
-              borderRadius: '8px', 
-              padding: '1rem' 
-            }}>
-              <div style={{ 
+          padding: '1rem',
+          background: '#f8fafc',
+          borderRadius: '0.5rem',
+          border: '1px solid #e2e8f0'
+        }}>
+          {recentActivity && recentActivity.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {recentActivity.slice(0, 5).map((item, index) => (
+                <div key={index} style={{ 
                 display: 'flex', 
                 alignItems: 'center', 
-                justifyContent: 'space-between',
-                marginBottom: '0.5rem'
-              }}>
-                <span style={{ fontWeight: '500', color: '#333' }}>Implicit Flow</span>
-                <StatusBadge $status={getFlowStatus('implicit').status}>
-                  {getFlowStatus('implicit').status === 'active' ? 'Configured' : 'Not configured'}
-                </StatusBadge>
+                  gap: '0.75rem',
+                  padding: '0.75rem',
+                  background: '#ffffff',
+                  borderRadius: '0.375rem',
+                  border: '1px solid #e5e7eb'
+                }}>
+                  <div style={{ 
+                    width: '8px', 
+                    height: '8px', 
+                    borderRadius: '50%', 
+                    background: '#10b981' 
+                  }} />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151' }}>
+                      {item.action}
               </div>
-              <div style={{ fontSize: '0.8rem', color: '#666' }}>
-                {getFlowStatus('implicit').message}
+                    <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                      {new Date(item.timestamp).toLocaleString()}
               </div>
             </div>
           </div>
+              ))}
         </div>
-      </ContentCard>
-
-      {/* Main Content - Full Width */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-        {/* Quick Actions */}
-        <ContentCard>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          
-          <QuickActions>
-            <ActionButton to="/flows/enhanced-authorization-code-v2">
-              <span>🔑</span>
-              OIDC Authorization Code
-            </ActionButton>
-            <ActionButton to="/flows/authorization-code">
-              <span>🔐</span>
-              OAuth 2.0 Authorization Code
-            </ActionButton>
-            <ActionButton to="/oidc/client-credentials">
-              <span>👤</span>
-              OIDC Client Credentials
-            </ActionButton>
-            <ActionButton to="/oidc/device-code">
-              <span>📱</span>
-              OIDC Device Code Flow
-            </ActionButton>
-            <ActionButton to="/auto-discover">
-              <span>🔍</span>
-              Well Known Endpoint (OIDC Discovery)
-            </ActionButton>
-            <ActionButton to="/configuration">
-              <span>⚙️</span>
-              PingOne Credentials Config
-            </ActionButton>
-          </QuickActions>
-        </ContentCard>
-
-        {/* Recent Activity */}
-        <ContentCard>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-          </CardHeader>
-          
-          <RecentActivity>
-            {activityItems.length > 0 ? (
-              activityItems.map((item) => (
-                <ActivityItem key={item.id}>
-                  <ActivityIcon $type={item.type}>{item.icon}</ActivityIcon>
-                  <ActivityContent>
-                    <ActivityTitle>{item.title}</ActivityTitle>
-                    <ActivityTime>{item.time}</ActivityTime>
-                  </ActivityContent>
-                </ActivityItem>
-              ))
-            ) : (
-              <div style={{ textAlign: 'center', color: '#666', padding: '2rem', fontStyle: 'italic' }}>
-                No recent activity
+          ) : (
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '2rem',
+              color: '#6b7280',
+              fontSize: '0.9rem'
+            }}>
+              No recent activity found
               </div>
             )}
-          </RecentActivity>
-        </ContentCard>
       </div>
+      </ContentCard>
+
+      {/* Centralized Success/Error Messages */}
+      <CentralizedSuccessMessage />
 
     </DashboardContainer>
-    
-    {/* Centralized Success Messages - Bottom */}
-    <CentralizedSuccessMessage position="bottom" />
     
     {/* Server Status Modal */}
     <ServerStatusModal 
       isOpen={showServerStatusModal} 
       onClose={() => setShowServerStatusModal(false)} 
     />
+      {/* Force refresh to clear cache */}
     </>
   );
 };

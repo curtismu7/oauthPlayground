@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../components/Card';
-import { FiPlay, FiCheckCircle, FiArrowRight, FiBookOpen, FiCode, FiShield, FiUsers, FiSettings, FiChevronDown, FiChevronRight, FiStar, FiClock } from 'react-icons/fi';
+import { FiPlay, FiCheckCircle, FiArrowRight, FiBookOpen, FiCode, FiShield, FiUsers, FiSettings, FiChevronDown, FiChevronRight, FiStar, FiClock, FiKey, FiGlobe, FiServer, FiMonitor, FiUser } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 
 const Container = styled.div`
@@ -17,7 +17,7 @@ const Header = styled.div`
   h1 {
     font-size: 3rem;
     font-weight: 700;
-    color: ${({ theme }) => theme.colors.primary};
+    color: #4f46e5;
     margin-bottom: 1rem;
     display: flex;
     align-items: center;
@@ -27,7 +27,7 @@ const Header = styled.div`
 
   p {
     font-size: 1.25rem;
-    color: ${({ theme }) => theme.colors.gray600};
+    color: #6b7280;
     max-width: 800px;
     margin: 0 auto;
     line-height: 1.6;
@@ -92,7 +92,7 @@ const ProgressBar = styled.div`
   overflow: hidden;
 `;
 
-const ProgressFill = styled.div`
+const ProgressFill = styled.div<{ progress: number }>`
   height: 100%;
   background: linear-gradient(90deg, #3b82f6, #1d4ed8);
   border-radius: 4px;
@@ -272,6 +272,11 @@ const InteractiveTutorials = () => {
   const [selectedTutorial, setSelectedTutorial] = useState(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [completedTutorials, setCompletedTutorials] = useState(new Set());
+
+  // Debug selectedTutorial state changes
+  useEffect(() => {
+    console.log('📝 selectedTutorial state changed:', selectedTutorial?.title || 'null');
+  }, [selectedTutorial]);
 
   const tutorials = [
     {
@@ -490,7 +495,7 @@ const state = crypto.randomBytes(32).toString('hex');
 session.state = state;
 
 // Include in authorization request
-GET /authorize?client_id=...&state=${state}
+GET /authorize?client_id=...&state=\${state}
 
 // Validate on callback
 if (req.query.state !== session.state) {
@@ -511,10 +516,748 @@ if (req.query.state !== session.state) {
           type: 'validation'
         }
       ]
+    },
+    {
+      id: 'authorization-code-flow',
+      title: 'Authorization Code Flow',
+      description: 'Learn the most secure OAuth 2.0 flow with step-by-step examples',
+      difficulty: 'intermediate',
+      duration: '20 min',
+      icon: FiKey,
+      steps: [
+        {
+          title: 'What is Authorization Code Flow?',
+          content: 'The Authorization Code flow is the most secure OAuth 2.0 flow, designed for server-side applications that can securely store client credentials.',
+          code: `Key Benefits:
+✅ Most secure OAuth flow
+✅ Client secret never exposed to browser
+✅ Supports PKCE for additional security
+✅ Can refresh tokens securely
+✅ Recommended for web applications`,
+          type: 'info'
+        },
+        {
+          title: 'Step 1: Authorization Request',
+          content: 'The client redirects the user to the authorization server with the required parameters.',
+          code: `GET https://auth.pingone.com/{environmentId}/as/authorize?
+  response_type=code&
+  client_id={clientId}&
+  redirect_uri={redirectUri}&
+  scope=openid profile email&
+  state={randomString}&
+  code_challenge={codeChallenge}&
+  code_challenge_method=S256`,
+          type: 'code'
+        },
+        {
+          title: 'Step 2: User Authorization',
+          content: 'The user authenticates and grants permission to the client application.',
+          code: `User sees PingOne login page:
+┌─────────────────────────────────┐
+│  PingOne Identity Platform      │
+│                                 │
+│  Username: [____________]       │
+│  Password: [____________]       │
+│                                 │
+│  [ ] Remember me                │
+│  [     Sign In     ]            │
+│                                 │
+│  Grant access to: My App        │
+│  [Allow] [Deny]                 │
+└─────────────────────────────────┘`,
+          type: 'diagram'
+        },
+        {
+          title: 'Step 3: Authorization Code',
+          content: 'After successful authorization, the user is redirected back with an authorization code.',
+          code: `Redirect to: {redirectUri}?code=abc123&state=xyz789
+
+⚠️  Authorization codes are:
+- Short-lived (typically 10 minutes)
+- Single-use only
+- Must be exchanged immediately`,
+          type: 'security'
+        },
+        {
+          title: 'Step 4: Token Exchange',
+          content: 'The client exchanges the authorization code for access and refresh tokens.',
+          code: `POST https://auth.pingone.com/{environmentId}/as/token
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic {base64(clientId:clientSecret)}
+
+grant_type=authorization_code&
+code={authorizationCode}&
+redirect_uri={redirectUri}&
+code_verifier={codeVerifier}`,
+          type: 'code'
+        },
+        {
+          title: 'Step 5: Access Protected Resources',
+          content: 'Use the access token to make API calls to protected resources.',
+          code: `GET https://api.example.com/user/profile
+Authorization: Bearer {access_token}
+
+Response:
+{
+  "id": "user123",
+  "name": "John Doe",
+  "email": "john@example.com"
+}`,
+          type: 'code'
+        }
+      ]
+    },
+    {
+      id: 'implicit-flow',
+      title: 'Implicit Flow',
+      description: 'Understand the browser-based OAuth flow for single-page applications',
+      difficulty: 'intermediate',
+      duration: '15 min',
+      icon: FiGlobe,
+      steps: [
+        {
+          title: 'What is Implicit Flow?',
+          content: 'The Implicit flow is designed for browser-based applications that cannot securely store client credentials.',
+          code: `⚠️  Deprecated in OAuth 2.1
+✅ Still supported by PingOne
+✅ Good for SPAs and mobile apps
+❌ Less secure than Authorization Code
+❌ No refresh tokens`,
+          type: 'info'
+        },
+        {
+          title: 'Implicit Flow Steps',
+          content: 'The implicit flow is simpler but less secure than authorization code flow.',
+          code: `1. Client redirects to authorization server
+2. User authenticates and grants permission
+3. Authorization server redirects with access token
+4. Client uses token to access protected resources`,
+          type: 'diagram'
+        },
+        {
+          title: 'Authorization Request',
+          content: 'The client initiates the flow with response_type=token.',
+          code: `GET https://auth.pingone.com/{environmentId}/as/authorize?
+  response_type=token&
+  client_id={clientId}&
+  redirect_uri={redirectUri}&
+  scope=read write&
+  state={randomString}`,
+          type: 'code'
+        },
+        {
+          title: 'Token Response',
+          content: 'The access token is returned directly in the redirect URL fragment.',
+          code: `Redirect to: {redirectUri}#access_token=eyJhbGciOiJSUzI1NiIs...&
+token_type=Bearer&
+expires_in=3600&
+scope=read write&
+state={randomString}
+
+⚠️  Token is in URL fragment (after #)
+⚠️  Not accessible to server-side code
+⚠️  Must be handled by JavaScript`,
+          type: 'security'
+        },
+        {
+          title: 'Security Considerations',
+          content: 'Important security considerations for implicit flow.',
+          code: `❌ Access tokens exposed in browser history
+❌ No refresh token capability
+❌ Vulnerable to token theft
+❌ Cannot securely store client secret
+✅ Good for public clients (SPAs)
+✅ Simpler implementation`,
+          type: 'security'
+        }
+      ]
+    },
+    {
+      id: 'client-credentials-flow',
+      title: 'Client Credentials Flow',
+      description: 'Learn machine-to-machine authentication for service-to-service communication',
+      difficulty: 'intermediate',
+      duration: '12 min',
+      icon: FiServer,
+      steps: [
+        {
+          title: 'What is Client Credentials Flow?',
+          content: 'The Client Credentials flow is designed for machine-to-machine (M2M) authentication where no user interaction is required.',
+          code: `Use Cases:
+🔧 Service-to-service API calls
+🔧 Backend system integration
+🔧 Automated data synchronization
+🔧 Server-side batch processing
+🔧 Microservice communication`,
+          type: 'info'
+        },
+        {
+          title: 'Flow Overview',
+          content: 'The client authenticates directly with the authorization server using its credentials.',
+          code: `Client Application
+    ↓ (client_id + client_secret)
+Authorization Server
+    ↓ (access_token)
+Resource Server (API)
+
+No user involved in this flow!`,
+          type: 'diagram'
+        },
+        {
+          title: 'Token Request',
+          content: 'The client directly requests an access token using its credentials.',
+          code: `POST https://auth.pingone.com/{environmentId}/as/token
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic {base64(clientId:clientSecret)}
+
+grant_type=client_credentials&
+scope=api:read api:write`,
+          type: 'code'
+        },
+        {
+          title: 'Token Response',
+          content: 'The authorization server returns an access token for the client.',
+          code: `Response:
+{
+  "access_token": "eyJhbGciOiJSUzI1NiIs...",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "scope": "api:read api:write"
+}
+
+Note: No refresh token in client credentials flow`,
+          type: 'code'
+        },
+        {
+          title: 'Security Best Practices',
+          content: 'Important security considerations for client credentials flow.',
+          code: `✅ Store client secret securely
+✅ Use HTTPS for all requests
+✅ Validate token expiration
+✅ Implement proper error handling
+✅ Use least privilege scopes
+✅ Monitor token usage
+✅ Rotate credentials regularly`,
+          type: 'security'
+        }
+      ]
+    },
+    {
+      id: 'device-code-flow',
+      title: 'Device Code Flow',
+      description: 'Learn about OAuth for devices with limited input capabilities',
+      difficulty: 'advanced',
+      duration: '18 min',
+      icon: FiMonitor,
+      steps: [
+        {
+          title: 'What is Device Code Flow?',
+          content: 'The Device Code flow enables OAuth on devices with limited input capabilities, such as smart TVs, IoT devices, or command-line tools.',
+          code: `Perfect for:
+📺 Smart TVs and streaming devices
+🏠 IoT devices and smart home gadgets
+💻 Command-line tools and CLIs
+🎮 Gaming consoles
+📱 Devices with limited keyboards`,
+          type: 'info'
+        },
+        {
+          title: 'Flow Overview',
+          content: 'The device gets a user code and verification URL, while polling for the access token.',
+          code: `1. Device requests device code
+2. User visits verification URL
+3. User enters user code and authorizes
+4. Device polls for access token
+5. Device receives access token`,
+          type: 'diagram'
+        },
+        {
+          title: 'Step 1: Device Authorization Request',
+          content: 'The device requests a device code and user code from the authorization server.',
+          code: `POST https://auth.pingone.com/{environmentId}/as/device
+Content-Type: application/x-www-form-urlencoded
+
+client_id={clientId}&
+scope=openid profile email`,
+          type: 'code'
+        },
+        {
+          title: 'Step 2: Device Authorization Response',
+          content: 'The authorization server returns device and user codes with verification information.',
+          code: `Response:
+{
+  "device_code": "abc123...",
+  "user_code": "ABCD-EFGH",
+  "verification_uri": "https://auth.pingone.com/device",
+  "verification_uri_complete": "https://auth.pingone.com/device?user_code=ABCD-EFGH",
+  "expires_in": 1800,
+  "interval": 5
+}`,
+          type: 'code'
+        },
+        {
+          title: 'Step 3: User Authorization',
+          content: 'The user visits the verification URL and enters the user code.',
+          code: `User visits: https://auth.pingone.com/device
+User enters: ABCD-EFGH
+
+PingOne shows:
+┌─────────────────────────────────┐
+│  Device Authorization           │
+│                                 │
+│  Enter code: [ABCD-EFGH]        │
+│                                 │
+│  App: My Smart TV App           │
+│  Scopes: profile, email         │
+│                                 │
+│  [Authorize] [Deny]             │
+└─────────────────────────────────┘`,
+          type: 'diagram'
+        },
+        {
+          title: 'Step 4: Token Polling',
+          content: 'The device polls the token endpoint until the user completes authorization.',
+          code: `POST https://auth.pingone.com/{environmentId}/as/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=urn:ietf:params:oauth:grant-type:device_code&
+device_code={device_code}&
+client_id={clientId}
+
+Poll every 5 seconds until success or expiration`,
+          type: 'code'
+        },
+        {
+          title: 'Step 5: Token Response',
+          content: 'When the user authorizes, the device receives the access token.',
+          code: `Success Response:
+{
+  "access_token": "eyJhbGciOiJSUzI1NiIs...",
+  "refresh_token": "def456...",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "scope": "openid profile email"
+}
+
+Error Response (while waiting):
+{
+  "error": "authorization_pending"
+}`,
+          type: 'code'
+        }
+      ]
+    },
+    {
+      id: 'openid-connect',
+      title: 'OpenID Connect (OIDC)',
+      description: 'Learn about OIDC identity layer on top of OAuth 2.0',
+      difficulty: 'intermediate',
+      duration: '25 min',
+      icon: FiUser,
+      steps: [
+        {
+          title: 'What is OpenID Connect?',
+          content: 'OpenID Connect (OIDC) is an identity layer built on top of OAuth 2.0 that provides authentication and user information.',
+          code: `OIDC = OAuth 2.0 + Identity Layer
+
+Key Features:
+🔐 User authentication (not just authorization)
+👤 User identity information (ID tokens)
+📋 Standardized user profile data
+🔍 Discovery endpoints for configuration
+🚪 Standardized logout flows`,
+          type: 'info'
+        },
+        {
+          title: 'OIDC vs OAuth 2.0',
+          content: 'Understanding the difference between OAuth 2.0 and OpenID Connect.',
+          code: `OAuth 2.0:
+- Authorization framework
+- "Can this app access my data?"
+- Returns access tokens
+- Scopes like "read", "write"
+
+OpenID Connect:
+- Identity layer on OAuth 2.0
+- "Who is this user?"
+- Returns ID tokens (JWT)
+- Scopes like "openid", "profile"`,
+          type: 'diagram'
+        },
+        {
+          title: 'OIDC Flows',
+          content: 'OpenID Connect supports multiple flows for different use cases.',
+          code: `Supported OIDC Flows:
+
+1. Authorization Code Flow (Recommended)
+   - Most secure
+   - Server-side applications
+   - Returns both access and ID tokens
+
+2. Implicit Flow
+   - Browser-based applications
+   - Returns ID token directly
+   - Less secure
+
+3. Hybrid Flow
+   - Combination of code and implicit
+   - Returns ID token immediately
+   - Access token via code exchange`,
+          type: 'info'
+        },
+        {
+          title: 'ID Token Structure',
+          content: 'ID tokens are JWTs containing user identity information.',
+          code: `ID Token (JWT) Structure:
+
+Header:
+{
+  "alg": "RS256",
+  "kid": "key-id",
+  "typ": "JWT"
+}
+
+Payload:
+{
+  "iss": "https://auth.pingone.com/{envId}",
+  "sub": "user123",
+  "aud": "client-id",
+  "exp": 1640995200,
+  "iat": 1640991600,
+  "auth_time": 1640991600,
+  "nonce": "random-nonce",
+  "email": "user@example.com",
+  "name": "John Doe"
+}`,
+          type: 'code'
+        },
+        {
+          title: 'OIDC Scopes',
+          content: 'OpenID Connect defines standard scopes for requesting user information.',
+          code: `Standard OIDC Scopes:
+
+openid (Required)
+- Indicates this is an OIDC request
+- Must be included in all OIDC flows
+
+profile
+- User's basic profile information
+- name, family_name, given_name, etc.
+
+email
+- User's email address
+- email, email_verified
+
+address
+- User's address information
+
+phone
+- User's phone number information`,
+          type: 'info'
+        },
+        {
+          title: 'UserInfo Endpoint',
+          content: 'The UserInfo endpoint provides additional user information using the access token.',
+          code: `GET https://auth.pingone.com/{environmentId}/as/userinfo
+Authorization: Bearer {access_token}
+
+Response:
+{
+  "sub": "user123",
+  "name": "John Doe",
+  "given_name": "John",
+  "family_name": "Doe",
+  "email": "john@example.com",
+  "email_verified": true,
+  "picture": "https://example.com/avatar.jpg"
+}`,
+          type: 'code'
+        }
+      ]
+    },
+    {
+      id: 'oauth-security',
+      title: 'OAuth Security Best Practices',
+      description: 'Learn essential security practices for implementing OAuth flows',
+      difficulty: 'advanced',
+      duration: '30 min',
+      icon: FiShield,
+      steps: [
+        {
+          title: 'Common OAuth Vulnerabilities',
+          content: 'Understanding and preventing common OAuth security vulnerabilities.',
+          code: `🚨 Top OAuth Security Risks:
+
+1. Authorization Code Interception
+   - Attacker intercepts authorization code
+   - Mitigation: Use PKCE, HTTPS, short-lived codes
+
+2. Token Leakage
+   - Access tokens exposed in logs, URLs, or storage
+   - Mitigation: Secure storage, HTTPS, token binding
+
+3. CSRF Attacks
+   - Cross-site request forgery on authorization
+   - Mitigation: State parameter, SameSite cookies
+
+4. Redirect URI Manipulation
+   - Attacker redirects tokens to malicious site
+   - Mitigation: Strict redirect URI validation`,
+          type: 'security'
+        },
+        {
+          title: 'PKCE (Proof Key for Code Exchange)',
+          content: 'PKCE adds an extra layer of security to authorization code flow.',
+          code: `PKCE Flow:
+
+1. Generate code_verifier (random string)
+2. Create code_challenge = SHA256(code_verifier)
+3. Include code_challenge in authorization request
+4. Include code_verifier in token exchange
+
+Authorization Request:
+GET /authorize?...
+  &code_challenge={codeChallenge}
+  &code_challenge_method=S256
+
+Token Exchange:
+POST /token
+  grant_type=authorization_code
+  &code={authorization_code}
+  &code_verifier={codeVerifier}`,
+          type: 'code'
+        },
+        {
+          title: 'State Parameter Protection',
+          content: 'The state parameter prevents CSRF attacks by binding the authorization request to the callback.',
+          code: `// Generate cryptographically secure state
+const state = crypto.randomBytes(32).toString('hex');
+
+// Store state in session
+session.state = state;
+
+// Include in authorization request
+GET /authorize?client_id=...&state=\${state}
+
+// Validate on callback
+if (req.query.state !== session.state) {
+  throw new Error('Invalid state parameter');
+}`,
+          type: 'security'
+        },
+        {
+          title: 'Token Validation',
+          content: 'Properly validating JWT tokens is crucial for security.',
+          code: `✅ Verify signature using JWKS
+✅ Check expiration (exp claim)
+✅ Validate issuer (iss claim)
+✅ Check audience (aud claim)
+✅ Verify not before (nbf claim)
+✅ Validate nonce (if present)
+✅ Check token type and scope`,
+          type: 'validation'
+        },
+        {
+          title: 'Secure Token Storage',
+          content: 'Best practices for storing tokens securely in different environments.',
+          code: `Web Applications:
+✅ HTTP-only cookies for refresh tokens
+✅ Memory storage for access tokens
+❌ localStorage (XSS vulnerable)
+❌ sessionStorage (tab closure risk)
+
+Mobile Applications:
+✅ Keychain/Keystore for long-term storage
+✅ Memory for short-term tokens
+✅ Encrypted storage if needed
+
+Server Applications:
+✅ Secure environment variables
+✅ Encrypted database storage
+✅ Hardware security modules (HSMs)`,
+          type: 'security'
+        },
+        {
+          title: 'Scope Validation',
+          content: 'Properly validating and limiting token scopes is essential for security.',
+          code: `Scope Best Practices:
+
+✅ Use least privilege principle
+✅ Validate requested scopes
+✅ Check scope in every API call
+✅ Implement scope-based access control
+
+Example:
+// Validate scope before API access
+if (!token.scope.includes('read:users')) {
+  throw new Error('Insufficient scope');
+}
+
+// Check specific permissions
+const hasPermission = (token, resource, action) => {
+  const requiredScope = action + ':' + resource;
+  return token.scope.includes(requiredScope);
+};`,
+          type: 'validation'
+        }
+      ]
+    },
+    {
+      id: 'pushed-authorization-request',
+      title: 'Pushed Authorization Request (PAR)',
+      description: 'Learn about PAR for enhanced security in OAuth authorization requests',
+      difficulty: 'advanced',
+      duration: '20 min',
+      icon: FiShield,
+      steps: [
+        {
+          title: 'What is Pushed Authorization Request (PAR)?',
+          content: 'PAR is a security extension to OAuth 2.0 that pushes authorization request parameters to the authorization server before redirecting the user.',
+          code: `PAR Benefits:
+🔒 Enhanced security - request parameters protected
+🛡️ Prevents parameter tampering attacks
+📋 Centralized request validation
+⚡ Better error handling before redirect
+🎯 Improved user experience
+✅ RFC 9126 standard`,
+          type: 'info'
+        },
+        {
+          title: 'PAR vs Standard Authorization Flow',
+          content: 'Understanding the difference between standard OAuth and PAR flow.',
+          code: `Standard OAuth Flow:
+1. Client redirects user with parameters in URL
+2. User authorizes on authorization server
+3. Server redirects back with code/token
+
+PAR Flow:
+1. Client pushes request to authorization server
+2. Server validates and stores request
+3. Client redirects user with request_uri
+4. User authorizes on authorization server
+5. Server redirects back with code/token`,
+          type: 'diagram'
+        },
+        {
+          title: 'Step 1: Push Authorization Request',
+          content: 'The client sends authorization parameters to the PAR endpoint.',
+          code: `POST https://auth.pingone.com/{environmentId}/as/par
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic {base64(clientId:clientSecret)}
+
+response_type=code&
+client_id={clientId}&
+redirect_uri={redirectUri}&
+scope=openid profile email&
+state={randomString}&
+code_challenge={codeChallenge}&
+code_challenge_method=S256&
+nonce={randomString}`,
+          type: 'code'
+        },
+        {
+          title: 'Step 2: PAR Response',
+          content: 'The authorization server validates the request and returns a request URI.',
+          code: `Success Response:
+{
+  "request_uri": "urn:ietf:params:oauth:request_uri:{requestId}",
+  "expires_in": 90
+}
+
+Error Response:
+{
+  "error": "invalid_client",
+  "error_description": "Client authentication failed"
+}
+
+⚠️  Request URIs expire in 90 seconds
+⚠️  Must be used immediately after creation`,
+          type: 'code'
+        },
+        {
+          title: 'Step 3: Authorization with Request URI',
+          content: 'The client redirects the user using the request_uri instead of individual parameters.',
+          code: `GET https://auth.pingone.com/{environmentId}/as/authorize?
+  client_id={clientId}&
+  request_uri={requestUri}
+
+Note: Only client_id and request_uri are needed!
+All other parameters are retrieved from the stored request.`,
+          type: 'code'
+        },
+        {
+          title: 'Step 4: User Authorization',
+          content: 'The user sees the same authorization page as standard OAuth flow.',
+          code: `User sees PingOne login page:
+┌─────────────────────────────────┐
+│  PingOne Identity Platform      │
+│                                 │
+│  Username: [____________]       │
+│  Password: [____________]       │
+│                                 │
+│  [ ] Remember me                │
+│  [     Sign In     ]            │
+│                                 │
+│  Grant access to: My App        │
+│  [Allow] [Deny]                 │
+└─────────────────────────────────┘
+
+Same user experience as standard flow!`,
+          type: 'diagram'
+        },
+        {
+          title: 'Step 5: Authorization Response',
+          content: 'After authorization, the user is redirected back with the authorization code.',
+          code: `Redirect to: {redirectUri}?code=abc123&state=xyz789
+
+Same response as standard OAuth flow!
+The authorization code can be exchanged for tokens normally.`,
+          type: 'code'
+        },
+        {
+          title: 'PAR Security Benefits',
+          content: 'Key security advantages of using PAR over standard OAuth.',
+          code: `🔒 Parameter Protection:
+- Authorization parameters are encrypted in transit
+- Parameters cannot be tampered with by malicious actors
+- Request validation happens server-side
+
+🛡️ Attack Prevention:
+- Prevents parameter injection attacks
+- Reduces risk of authorization code interception
+- Eliminates URL length limitations
+
+📋 Better Error Handling:
+- Validation errors returned before redirect
+- No broken user experience from invalid requests
+- Centralized parameter validation`,
+          type: 'security'
+        },
+        {
+          title: 'PAR Implementation Best Practices',
+          content: 'Best practices for implementing PAR in your applications.',
+          code: `✅ Always use HTTPS for PAR requests
+✅ Implement proper error handling
+✅ Use short expiration times (90 seconds max)
+✅ Validate request_uri format
+✅ Handle PAR endpoint errors gracefully
+✅ Fall back to standard flow if PAR fails
+✅ Cache request URIs appropriately
+
+Example Error Handling:
+if (parResponse.error) {
+  // Log error and fall back to standard flow
+  console.error('PAR failed:', parResponse.error);
+  return standardAuthorizationFlow();
+}`,
+          type: 'validation'
+        }
+      ]
     }
   ];
 
   const startTutorial = (tutorial) => {
+    console.log('🚀 Starting tutorial:', tutorial.title);
     setSelectedTutorial(tutorial);
     setCurrentStep(0);
   };
@@ -533,7 +1276,7 @@ if (req.query.state !== session.state) {
 
   const completeTutorial = () => {
     if (selectedTutorial) {
-      setCompletedTutorials(prev => new Set([...prev, selectedTutorial.id]));
+      setCompletedTutorials(prev => new Set(Array.from(prev).concat(selectedTutorial.id)));
       setSelectedTutorial(null);
       setCurrentStep(0);
     }
@@ -596,6 +1339,22 @@ if (req.query.state !== session.state) {
             </div>
           </div>
         );
+      case 'validation':
+        return (
+          <div>
+            <p>{step.content}</p>
+            <div style={{
+              backgroundColor: '#dbeafe',
+              border: '1px solid #93c5fd',
+              borderRadius: '0.5rem',
+              padding: '1rem',
+              fontFamily: 'monospace',
+              color: '#1e40af'
+            }}>
+              {step.code}
+            </div>
+          </div>
+        );
       default:
         return (
           <div>
@@ -626,7 +1385,31 @@ if (req.query.state !== session.state) {
                           Math.round((currentStep / tutorial.steps.length) * 100) : 0;
 
           return (
-            <TutorialCard key={tutorial.id} onClick={() => startTutorial(tutorial)}>
+            <div 
+              key={tutorial.id} 
+              style={{
+                background: 'white',
+                borderRadius: '0.5rem',
+                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                padding: '1.5rem',
+                cursor: 'pointer',
+                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                height: 'fit-content'
+              }}
+              onClick={(e) => {
+                console.log('🖱️ Tutorial card clicked:', tutorial.title);
+                e.preventDefault();
+                startTutorial(tutorial);
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.boxShadow = '0 12px 30px rgba(0, 0, 0, 0.15)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1)';
+              }}
+            >
               <CardBody style={{ textAlign: 'center' }}>
                 <TutorialIcon className={tutorial.difficulty}>
                   <tutorial.icon size={32} />
@@ -669,7 +1452,7 @@ if (req.query.state !== session.state) {
                   {completedTutorials.has(tutorial.id) ? 'Review Tutorial' : 'Start Tutorial'}
                 </StartButton>
               </CardBody>
-            </TutorialCard>
+            </div>
           );
         })}
       </TutorialGrid>

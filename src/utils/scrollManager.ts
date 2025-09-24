@@ -19,7 +19,6 @@ export const scrollToTop = (options: ScrollOptions = {}) => {
   const { smooth = true, delay = 0, force = false } = options;
   
   const performScroll = () => {
-    console.log(`📜 [ScrollManager] Scrolling to top (force: ${force}, smooth: ${smooth})`);
     
     // Primary scroll method
     window.scrollTo({

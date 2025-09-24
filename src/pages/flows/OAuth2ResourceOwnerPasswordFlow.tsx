@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { FiAlertTriangle, FiInfo, FiShield, FiUser, FiLock, FiX } from 'react-icons/fi';
 
@@ -121,6 +121,11 @@ const SecurityListItem = styled.li`
 `;
 
 const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <PageContainer>
       <PageHeader>

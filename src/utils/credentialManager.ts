@@ -1,5 +1,6 @@
 // src/utils/credentialManager.ts
 import { logger } from './logger';
+import { getCallbackUrlForFlow } from './callbackUrls';
 
 export interface PermanentCredentials {
   environmentId: string;
@@ -33,6 +34,9 @@ class CredentialManager {
   private readonly CONFIG_CREDENTIALS_KEY = 'pingone_config_credentials';
   private readonly AUTHZ_FLOW_CREDENTIALS_KEY = 'pingone_authz_flow_credentials';
   private readonly IMPLICIT_FLOW_CREDENTIALS_KEY = 'pingone_implicit_flow_credentials';
+  private readonly HYBRID_FLOW_CREDENTIALS_KEY = 'pingone_hybrid_flow_credentials';
+  private readonly WORKER_FLOW_CREDENTIALS_KEY = 'pingone_worker_flow_credentials';
+  private readonly DEVICE_FLOW_CREDENTIALS_KEY = 'pingone_device_flow_credentials';
   private readonly DISCOVERY_PREFERENCES_KEY = 'pingone_discovery_preferences';
   private cache: { permanent?: PermanentCredentials; session?: SessionCredentials; all?: AllCredentials; timestamp?: number } = {};
   private readonly CACHE_DURATION = 5000; // 5 second cache
@@ -95,14 +99,9 @@ class CredentialManager {
   loadConfigCredentials(): PermanentCredentials {
     try {
       const stored = localStorage.getItem(this.CONFIG_CREDENTIALS_KEY);
-      console.log('🔧 [CredentialManager] Loading config credentials from localStorage:', {
-        key: this.CONFIG_CREDENTIALS_KEY,
-        stored: stored
-      });
       
       if (stored) {
         const credentials = JSON.parse(stored);
-        console.log('✅ [CredentialManager] Loaded config credentials from localStorage:', credentials);
         
         const result = {
           environmentId: credentials.environmentId || '',
@@ -115,10 +114,8 @@ class CredentialManager {
           endSessionEndpoint: credentials.endSessionEndpoint
         };
         
-        console.log('✅ [CredentialManager] Returning config credentials:', result);
         return result;
       } else {
-        console.log('❌ [CredentialManager] No config credentials found');
         return {
           environmentId: '',
           clientId: '',
@@ -209,28 +206,23 @@ class CredentialManager {
       if (this.isGlobalConfigEnabled()) {
         console.log('🌐 [CredentialManager] Global config enabled - using Dashboard credentials for all flows');
         const configCredentials = this.loadConfigCredentials();
-        // Override redirect URI to use authz-callback for authorization flows
+        // Override redirect URI to use flow-specific default for authorization flows
         return {
           ...configCredentials,
-          redirectUri: window.location.origin + '/authz-callback'
+          redirectUri: configCredentials.redirectUri || getCallbackUrlForFlow('authorization-code')
         };
       }
 
       const stored = localStorage.getItem(this.AUTHZ_FLOW_CREDENTIALS_KEY);
-      console.log('🔧 [CredentialManager] Loading authz flow credentials from localStorage:', {
-        key: this.AUTHZ_FLOW_CREDENTIALS_KEY,
-        stored: stored
-      });
       
       if (stored) {
         const credentials = JSON.parse(stored);
-        console.log('✅ [CredentialManager] Loaded authz flow credentials from localStorage:', credentials);
         
         const result = {
           environmentId: credentials.environmentId || '',
           clientId: credentials.clientId || '',
           clientSecret: credentials.clientSecret || '',
-          redirectUri: credentials.redirectUri || window.location.origin + '/authz-callback',
+          redirectUri: credentials.redirectUri || getCallbackUrlForFlow('authorization-code'),
           scopes: credentials.scopes || ['openid', 'profile', 'email'],
           authEndpoint: credentials.authEndpoint,
           tokenEndpoint: credentials.tokenEndpoint,
@@ -238,15 +230,13 @@ class CredentialManager {
           endSessionEndpoint: credentials.endSessionEndpoint
         };
         
-        console.log('✅ [CredentialManager] Returning authz flow credentials:', result);
         return result;
       } else {
-        console.log('❌ [CredentialManager] No authz flow credentials found');
         return {
           environmentId: '',
           clientId: '',
           clientSecret: '',
-          redirectUri: window.location.origin + '/authz-callback',
+          redirectUri: getCallbackUrlForFlow('authorization-code'),
           scopes: ['openid', 'profile', 'email']
         };
       }
@@ -257,7 +247,7 @@ class CredentialManager {
         environmentId: '',
         clientId: '',
         clientSecret: '',
-        redirectUri: window.location.origin + '/authz-callback',
+        redirectUri: getCallbackUrlForFlow('authorization-code'),
         scopes: ['openid', 'profile', 'email']
       };
     }
@@ -303,20 +293,15 @@ class CredentialManager {
   loadImplicitFlowCredentials(): PermanentCredentials {
     try {
       const stored = localStorage.getItem(this.IMPLICIT_FLOW_CREDENTIALS_KEY);
-      console.log('🔧 [CredentialManager] Loading implicit flow credentials from localStorage:', {
-        key: this.IMPLICIT_FLOW_CREDENTIALS_KEY,
-        stored: stored
-      });
       
       if (stored) {
         const credentials = JSON.parse(stored);
-        console.log('✅ [CredentialManager] Loaded implicit flow credentials from localStorage:', credentials);
         
         const result = {
           environmentId: credentials.environmentId || '',
           clientId: credentials.clientId || '',
           clientSecret: credentials.clientSecret || '',
-          redirectUri: credentials.redirectUri || window.location.origin + '/implicit-callback',
+          redirectUri: credentials.redirectUri || getCallbackUrlForFlow('oidc-implicit-v3'),
           scopes: credentials.scopes || ['openid', 'profile', 'email'],
           authEndpoint: credentials.authEndpoint,
           tokenEndpoint: credentials.tokenEndpoint,
@@ -324,15 +309,13 @@ class CredentialManager {
           endSessionEndpoint: credentials.endSessionEndpoint
         };
         
-        console.log('✅ [CredentialManager] Returning implicit flow credentials:', result);
         return result;
       } else {
-        console.log('❌ [CredentialManager] No implicit flow credentials found');
         return {
           environmentId: '',
           clientId: '',
           clientSecret: '',
-          redirectUri: window.location.origin + '/implicit-callback',
+          redirectUri: getCallbackUrlForFlow('oidc-implicit-v3'),
           scopes: ['openid', 'profile', 'email']
         };
       }
@@ -343,9 +326,285 @@ class CredentialManager {
         environmentId: '',
         clientId: '',
         clientSecret: '',
-        redirectUri: window.location.origin + '/implicit-callback',
+        redirectUri: getCallbackUrlForFlow('oidc-implicit-v3'),
         scopes: ['openid', 'profile', 'email']
       };
+    }
+  }
+
+  /**
+   * Save hybrid flow-specific credentials
+   */
+  saveHybridFlowCredentials(credentials: Partial<PermanentCredentials>): boolean {
+    try {
+      const existing = this.loadHybridFlowCredentials();
+      const updated = {
+        ...existing,
+        ...credentials,
+        lastUpdated: Date.now()
+      };
+
+      localStorage.setItem(this.HYBRID_FLOW_CREDENTIALS_KEY, JSON.stringify(updated));
+      this.invalidateCache();
+      
+      window.dispatchEvent(new CustomEvent('hybrid-flow-credentials-changed', { 
+        detail: { credentials: updated } 
+      }));
+      
+      return true;
+    } catch (error) {
+      console.error('❌ [CredentialManager] Error saving hybrid flow credentials:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Load hybrid flow-specific credentials
+   */
+  loadHybridFlowCredentials(): PermanentCredentials {
+    try {
+      const stored = localStorage.getItem(this.HYBRID_FLOW_CREDENTIALS_KEY);
+      
+      if (stored) {
+        const credentials = JSON.parse(stored);
+        
+        const result = {
+          environmentId: credentials.environmentId || '',
+          clientId: credentials.clientId || '',
+          clientSecret: credentials.clientSecret || '',
+          redirectUri: credentials.redirectUri || getCallbackUrlForFlow('oidc-hybrid-v3'),
+          scopes: credentials.scopes || ['openid', 'profile', 'email'],
+          authEndpoint: credentials.authEndpoint,
+          tokenEndpoint: credentials.tokenEndpoint,
+          userInfoEndpoint: credentials.userInfoEndpoint,
+          endSessionEndpoint: credentials.endSessionEndpoint
+        };
+        
+        return result;
+      } else {
+        return {
+          environmentId: '',
+          clientId: '',
+          clientSecret: '',
+          redirectUri: getCallbackUrlForFlow('oidc-hybrid-v3'),
+          scopes: ['openid', 'profile', 'email']
+        };
+      }
+    } catch (error) {
+      console.error('❌ [CredentialManager] Failed to load hybrid flow credentials:', error);
+      return {
+        environmentId: '',
+        clientId: '',
+        clientSecret: '',
+        redirectUri: getCallbackUrlForFlow('oidc-hybrid-v3'),
+        scopes: ['openid', 'profile', 'email']
+      };
+    }
+  }
+
+  /**
+   * Save worker flow-specific credentials
+   */
+  saveWorkerFlowCredentials(credentials: Partial<PermanentCredentials>): boolean {
+    try {
+      const existing = this.loadWorkerFlowCredentials();
+      const updated = {
+        ...existing,
+        ...credentials,
+        lastUpdated: Date.now()
+      };
+
+      localStorage.setItem(this.WORKER_FLOW_CREDENTIALS_KEY, JSON.stringify(updated));
+      this.invalidateCache();
+      
+      window.dispatchEvent(new CustomEvent('worker-flow-credentials-changed', { 
+        detail: { credentials: updated } 
+      }));
+      
+      return true;
+    } catch (error) {
+      console.error('❌ [CredentialManager] Error saving worker flow credentials:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Load worker flow-specific credentials
+   */
+  loadWorkerFlowCredentials(): PermanentCredentials {
+    try {
+      const stored = localStorage.getItem(this.WORKER_FLOW_CREDENTIALS_KEY);
+      
+      if (stored) {
+        const credentials = JSON.parse(stored);
+        
+        const result = {
+          environmentId: credentials.environmentId || '',
+          clientId: credentials.clientId || '',
+          clientSecret: credentials.clientSecret || '',
+          redirectUri: credentials.redirectUri || getCallbackUrlForFlow('worker-token-v3'),
+          scopes: credentials.scopes || ['openid'],
+          authEndpoint: credentials.authEndpoint,
+          tokenEndpoint: credentials.tokenEndpoint,
+          userInfoEndpoint: credentials.userInfoEndpoint,
+          endSessionEndpoint: credentials.endSessionEndpoint
+        };
+        
+        return result;
+      } else {
+        return {
+          environmentId: '',
+          clientId: '',
+          clientSecret: '',
+          redirectUri: getCallbackUrlForFlow('worker-token-v3'),
+          scopes: ['openid']
+        };
+      }
+    } catch (error) {
+      console.error('❌ [CredentialManager] Failed to load worker flow credentials:', error);
+      return {
+        environmentId: '',
+        clientId: '',
+        clientSecret: '',
+        redirectUri: getCallbackUrlForFlow('worker-token-v3'),
+        scopes: ['openid']
+      };
+    }
+  }
+
+  /**
+   * Save device flow-specific credentials
+   */
+  saveDeviceFlowCredentials(credentials: Partial<PermanentCredentials>): boolean {
+    try {
+      const existing = this.loadDeviceFlowCredentials();
+      const updated = {
+        ...existing,
+        ...credentials,
+        lastUpdated: Date.now()
+      };
+
+      localStorage.setItem(this.DEVICE_FLOW_CREDENTIALS_KEY, JSON.stringify(updated));
+      this.invalidateCache();
+      
+      window.dispatchEvent(new CustomEvent('device-flow-credentials-changed', { 
+        detail: { credentials: updated } 
+      }));
+      
+      return true;
+    } catch (error) {
+      console.error('❌ [CredentialManager] Error saving device flow credentials:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Load device flow-specific credentials
+   */
+  loadDeviceFlowCredentials(): PermanentCredentials {
+    try {
+      const stored = localStorage.getItem(this.DEVICE_FLOW_CREDENTIALS_KEY);
+      
+      if (stored) {
+        const credentials = JSON.parse(stored);
+        
+        const result = {
+          environmentId: credentials.environmentId || '',
+          clientId: credentials.clientId || '',
+          clientSecret: credentials.clientSecret || '',
+          redirectUri: credentials.redirectUri || getCallbackUrlForFlow('oidc-device-code-v3'),
+          scopes: credentials.scopes || ['openid', 'profile', 'email'],
+          authEndpoint: credentials.authEndpoint,
+          tokenEndpoint: credentials.tokenEndpoint,
+          userInfoEndpoint: credentials.userInfoEndpoint,
+          endSessionEndpoint: credentials.endSessionEndpoint
+        };
+        
+        return result;
+      } else {
+        return {
+          environmentId: '',
+          clientId: '',
+          clientSecret: '',
+          redirectUri: getCallbackUrlForFlow('oidc-device-code-v3'),
+          scopes: ['openid', 'profile', 'email']
+        };
+      }
+    } catch (error) {
+      console.error('❌ [CredentialManager] Failed to load device flow credentials:', error);
+      return {
+        environmentId: '',
+        clientId: '',
+        clientSecret: '',
+        redirectUri: getCallbackUrlForFlow('oidc-device-code-v3'),
+        scopes: ['openid', 'profile', 'email']
+      };
+    }
+  }
+
+  /**
+   * Generic method to load flow-specific credentials by flow type
+   */
+  loadFlowCredentials(flowType: string): PermanentCredentials {
+    switch (flowType.toLowerCase()) {
+      case 'authorization-code':
+      case 'authz':
+      case 'oauth-authorization-code-v3':
+      case 'oidc-authorization-code-v3':
+      case 'enhanced-authorization-code-v3':
+      case 'unified-authorization-code-v3':
+        return this.loadAuthzFlowCredentials();
+      case 'implicit':
+      case 'implicit-grant':
+      case 'oidc-implicit-v3':
+      case 'oauth2-implicit-v3':
+        return this.loadImplicitFlowCredentials();
+      case 'hybrid':
+      case 'oidc-hybrid-v3':
+        return this.loadHybridFlowCredentials();
+      case 'worker-token':
+      case 'worker':
+      case 'worker-token-v3':
+        return this.loadWorkerFlowCredentials();
+      case 'device-code':
+      case 'device':
+      case 'oidc-device-code-v3':
+        return this.loadDeviceFlowCredentials();
+      default:
+        return this.loadConfigCredentials();
+    }
+  }
+
+  /**
+   * Generic method to save flow-specific credentials by flow type
+   */
+  saveFlowCredentials(flowType: string, credentials: Partial<PermanentCredentials>): boolean {
+    switch (flowType.toLowerCase()) {
+      case 'authorization-code':
+      case 'authz':
+      case 'oauth-authorization-code-v3':
+      case 'oidc-authorization-code-v3':
+      case 'enhanced-authorization-code-v3':
+      case 'unified-authorization-code-v3':
+        return this.saveAuthzFlowCredentials(credentials);
+      case 'implicit':
+      case 'implicit-grant':
+      case 'oidc-implicit-v3':
+      case 'oauth2-implicit-v3':
+        return this.saveImplicitFlowCredentials(credentials);
+      case 'hybrid':
+      case 'oidc-hybrid-v3':
+        return this.saveHybridFlowCredentials(credentials);
+      case 'worker-token':
+      case 'worker':
+      case 'worker-token-v3':
+        return this.saveWorkerFlowCredentials(credentials);
+      case 'device-code':
+      case 'device':
+      case 'oidc-device-code-v3':
+        return this.saveDeviceFlowCredentials(credentials);
+      default:
+        return this.saveConfigCredentials(credentials);
     }
   }
 

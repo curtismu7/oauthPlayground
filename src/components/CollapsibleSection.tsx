@@ -10,6 +10,7 @@ interface CollapsibleSectionProps {
   defaultCollapsed?: boolean;
   icon?: string;
   className?: string;
+  headerActions?: React.ReactNode;
 }
 
 const SectionContainer = styled.div.withConfig({
@@ -36,6 +37,25 @@ const SectionHeader = styled.div`
 
   &:hover {
     background: #f1f3f4;
+  }
+`;
+
+const HeaderContent = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+`;
+
+const HeaderActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 10;
+  
+  /* Prevent click events from bubbling to the header */
+  * {
+    pointer-events: auto;
   }
 `;
 
@@ -118,7 +138,8 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   children,
   defaultCollapsed = true,
   icon,
-  className
+  className,
+  headerActions
 }) => {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
 
@@ -137,16 +158,23 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   return (
     <SectionContainer $collapsed={collapsed} className={className}>
       <SectionHeader onClick={handleToggle}>
-        <ChevronIcon $collapsed={collapsed}>
-          {collapsed ? <FiChevronRight size={16} /> : <FiChevronDown size={16} />}
-        </ChevronIcon>
-        <SectionTitle>
-          <TitleText>
-            {icon && <span>{icon}</span>}
-            {title}
-          </TitleText>
-          {subtitle && <Subtitle>{subtitle}</Subtitle>}
-        </SectionTitle>
+        <HeaderContent>
+          <ChevronIcon $collapsed={collapsed}>
+            {collapsed ? <FiChevronRight size={16} /> : <FiChevronDown size={16} />}
+          </ChevronIcon>
+          <SectionTitle>
+            <TitleText>
+              {icon && <span>{icon}</span>}
+              {title}
+            </TitleText>
+            {subtitle && <Subtitle>{subtitle}</Subtitle>}
+          </SectionTitle>
+        </HeaderContent>
+        {headerActions && (
+          <HeaderActions onClick={(e) => e.stopPropagation()}>
+            {headerActions}
+          </HeaderActions>
+        )}
       </SectionHeader>
       <SectionContent $collapsed={collapsed}>
         {children}

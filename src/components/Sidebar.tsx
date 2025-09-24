@@ -168,6 +168,31 @@ const NavItemWithSubmenu = styled.div`
   user-select: none;
 `;
 
+// Colored icon components for Resources menu
+const ColoredIcon = styled.span<{ color: string }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.25rem;
+  background: ${props => props.color};
+  color: white;
+  font-size: 0.75rem;
+  font-weight: bold;
+  flex-shrink: 0;
+`;
+
+const TokenIcon = () => <ColoredIcon color="#3b82f6">🔑</ColoredIcon>;
+const DiscoveryIcon = () => <ColoredIcon color="#10b981">🔍</ColoredIcon>;
+const PARIcon = () => <ColoredIcon color="#f59e0b">🛡️</ColoredIcon>;
+const CompareIcon = () => <ColoredIcon color="#8b5cf6">📊</ColoredIcon>;
+const DiagramsIcon = () => <ColoredIcon color="#ef4444">📈</ColoredIcon>;
+const TestIcon = () => <ColoredIcon color="#06b6d4">🧪</ColoredIcon>;
+const JWTIcon = () => <ColoredIcon color="#84cc16">🔓</ColoredIcon>;
+const SessionIcon = () => <ColoredIcon color="#f97316">👥</ColoredIcon>;
+const SDKIcon = () => <ColoredIcon color="#6366f1">💻</ColoredIcon>;
+
 const NavItemHeader = styled.div<NavItemHeaderProps>`
   display: flex;
   align-items: center;
@@ -431,6 +456,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
              🚀
              PingOne Worker Token V3
            </SubmenuItem>
+           <SubmenuItem 
+             as="a" 
+             href="https://decoder.pingidentity.cloud/" 
+             target="_blank" 
+             rel="noopener noreferrer"
+             onClick={onClose}
+           >
+             <FiExternalLink />
+             Facile Decoder
+           </SubmenuItem>
          </Submenu>
         </NavItemWithSubmenu>
 
@@ -441,7 +476,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           >
             <div>
               <FiBookOpen />
-              <span>Docs</span>
+              <span>Documentation</span>
             </div>
             <FiChevronDown />
           </NavItemHeader>
@@ -463,9 +498,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               🛡️
               OAuth 2.0 Security Best Practices
             </SubmenuItem>
-            <SubmenuItem as="a" href="https://apidocs.pingidentity.com" target="_blank" rel="noopener noreferrer" onClick={onClose}>
+            <SubmenuItem as="a" href="https://apidocs.pingidentity.com/pingone/auth/v1/api/#openid-connectoauth-2" target="_blank" rel="noopener noreferrer" onClick={onClose}>
               🔗
-              PingOne API Docs
+              PingOne API Docs for OAuth and OIDC
+            </SubmenuItem>
+            <SubmenuItem 
+              as="a" 
+              href="https://docs.pingidentity.com/sdks/latest/sdks/index.html" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              onClick={onClose}
+            >
+              <FiExternalLink />
+              Ping SDKs Documentation
             </SubmenuItem>
           </Submenu>
         </NavItemWithSubmenu>
@@ -484,23 +529,23 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           
           <Submenu $isOpen={openMenus.resources}>
             <SubmenuItem to="/token-management" onClick={onClose}>
-              <FiPackage />
+              <TokenIcon />
               Token Management
             </SubmenuItem>
             <SubmenuItem to="/auto-discover" onClick={onClose}>
-              <FiSearch />
+              <DiscoveryIcon />
               OIDC Discovery
             </SubmenuItem>
             <SubmenuItem to="/flows/par" onClick={onClose}>
-              <FiShield />
+              <PARIcon />
               Pushed Authorization Request (PAR)
             </SubmenuItem>
             <SubmenuItem to="/flows/compare" onClick={onClose}>
-              <FiGitBranch />
+              <CompareIcon />
               Flow Comparison
             </SubmenuItem>
             <SubmenuItem to="/flows/diagrams" onClick={onClose}>
-              <FiBarChart />
+              <DiagramsIcon />
               Interactive Diagrams
             </SubmenuItem>
             <SubmenuItem 
@@ -510,7 +555,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               rel="noopener noreferrer"
               onClick={onClose}
             >
-              🧪 Reusable Step System Test Suite
+              <TestIcon />
+              Reusable Step System Test Suite
             </SubmenuItem>
             <SubmenuItem 
               as="a" 
@@ -519,8 +565,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               rel="noopener noreferrer"
               onClick={onClose}
             >
-              <FiExternalLink />
+              <JWTIcon />
               Ping JWT Decoder ↗
+            </SubmenuItem>
+            <SubmenuItem to="/oidc-session-management" onClick={onClose}>
+              <SessionIcon />
+              Session Management
+            </SubmenuItem>
+            <SubmenuItem to="/sdk-sample-app" onClick={onClose}>
+              <SDKIcon />
+              SDK Sample App
             </SubmenuItem>
           </Submenu>
         </NavItemWithSubmenu>
@@ -528,11 +582,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         <NavItem to="/oauth-2-1" onClick={onClose}>
           <FiShield />
           <span>OAuth 2.1</span>
-        </NavItem>
-        
-        <NavItem to="/oidc-session-management" onClick={onClose}>
-          <FiUsers />
-          <span>Session Management</span>
         </NavItem>
       </NavSection>
       

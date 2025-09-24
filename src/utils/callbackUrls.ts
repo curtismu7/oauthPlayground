@@ -44,17 +44,26 @@ export function getCallbackUrlForFlow(flowType: string, baseUrl?: string): strin
     case 'authorization-code':
     case 'authz':
     case 'pkce':
+    case 'oauth-authorization-code-v3':
+    case 'oidc-authorization-code-v3':
+    case 'enhanced-authorization-code-v3':
+    case 'unified-authorization-code-v3':
       return urls.authz;
     case 'hybrid':
+    case 'oidc-hybrid-v3':
       return urls.hybrid;
     case 'implicit':
     case 'implicit-grant':
+    case 'oidc-implicit-v3':
+    case 'oauth2-implicit-v3':
       return urls.implicit;
     case 'worker-token':
     case 'worker':
+    case 'worker-token-v3':
       return urls.worker;
     case 'device-code':
     case 'device':
+    case 'oidc-device-code-v3':
       return urls.deviceCodeStatus;
     case 'jwt-bearer':
     case 'assertion':

@@ -29,7 +29,9 @@ import { generateRandomString, generateCodeVerifier, generateCodeChallenge } fro
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 import { showFlowSuccess, showFlowError } from '../../components/CentralizedSuccessMessage';
 import ConfirmationModal from '../../components/ConfirmationModal';
+import { credentialManager } from '../../utils/credentialManager';
 import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
+import DefaultRedirectUriModal from '../../components/DefaultRedirectUriModal';
 import { InfoBox, FormField, FormLabel, FormInput } from '../../components/steps/CommonSteps';
 import TokenDisplay from '../../components/TokenDisplay';
 import { ColorCodedURL } from '../../components/ColorCodedURL';
@@ -212,7 +214,7 @@ const OIDCHybridFlowV3: React.FC = () => {
   const [credentials, setCredentials] = useState<OIDCHybridCredentials>({
     environmentId: config?.environmentId || '',
     clientId: config?.clientId || '',
-    redirectUri: getCallbackUrlForFlow('oidc-hybrid-v3'),
+    redirectUri: '',
     scopes: 'openid profile email',
     responseType: 'code id_token',
     state: '',
@@ -230,24 +232,72 @@ const OIDCHybridFlowV3: React.FC = () => {
   const [showParameterBreakdown, setShowParameterBreakdown] = useState(false);
   const [copiedText, setCopiedText] = useState<string | null>(null);
   const [stepResults, setStepResults] = useState<Record<string, unknown>>({});
+  const [authorizationMethod, setAuthorizationMethod] = useState<'popup' | 'redirect'>('popup');
+  const [showDefaultRedirectUriModal, setShowDefaultRedirectUriModal] = useState(false);
+  const [defaultRedirectUri, setDefaultRedirectUri] = useState('');
 
   // Load credentials from storage on mount
   useEffect(() => {
     const loadStoredCredentials = async () => {
       try {
+        // Load hybrid flow-specific credentials first
+        const hybridCredentials = credentialManager.loadFlowCredentials('oidc-hybrid-v3');
+        
+        // If hybrid flow credentials exist and have values, use them
+        if (hybridCredentials.environmentId || hybridCredentials.clientId || hybridCredentials.redirectUri) {
+          setCredentials(prev => ({
+            ...prev,
+            environmentId: hybridCredentials.environmentId || prev.environmentId,
+            clientId: hybridCredentials.clientId || prev.clientId,
+            redirectUri: hybridCredentials.redirectUri || '',
+            scopes: Array.isArray(hybridCredentials.scopes) ? hybridCredentials.scopes.join(' ') : (hybridCredentials.scopes || prev.scopes)
+          }));
+          console.log('✅ [OIDC-HYBRID-V3] Loaded hybrid flow credentials:', hybridCredentials);
+        } else {
+          // Fall back to global configuration
+          const configCredentials = credentialManager.loadConfigCredentials();
+          if (configCredentials.environmentId || configCredentials.clientId || configCredentials.redirectUri) {
+            setCredentials(prev => ({
+              ...prev,
+              environmentId: configCredentials.environmentId || prev.environmentId,
+              clientId: configCredentials.clientId || prev.clientId,
+              redirectUri: configCredentials.redirectUri || '',
+              scopes: Array.isArray(configCredentials.scopes) ? configCredentials.scopes.join(' ') : (configCredentials.scopes || prev.scopes)
+            }));
+            console.log('✅ [OIDC-HYBRID-V3] Loaded global config credentials:', configCredentials);
+          } else {
+            // Both are blank - show modal with default URI
+            const defaultUri = getCallbackUrlForFlow('oidc-hybrid-v3');
+            setDefaultRedirectUri(defaultUri);
+            setShowDefaultRedirectUriModal(true);
+            setCredentials(prev => ({
+              ...prev,
+              redirectUri: defaultUri
+            }));
+            console.log('⚠️ [OIDC-HYBRID-V3] No credentials found, showing default redirect URI modal');
+          }
+        }
+        
+        // Also try to load from localStorage for backward compatibility
         const stored = localStorage.getItem('oidc_hybrid_v3_credentials');
         if (stored) {
           const parsed = JSON.parse(stored);
           setCredentials(prev => ({ ...prev, ...parsed }));
-          logger.info('OIDCHybridV3', '✅ Loaded stored credentials');
+          console.log('✅ [OIDC-HYBRID-V3] Loaded localStorage credentials');
         }
       } catch (error) {
+        console.error('❌ [OIDC-HYBRID-V3] Failed to load credentials:', error);
         logger.error('OIDCHybridV3', 'Failed to load stored credentials', error);
       }
     };
 
     loadStoredCredentials();
   }, []);
+
+  const handleContinueWithDefaultUri = () => {
+    setShowDefaultRedirectUriModal(false);
+    showFlowSuccess('Using default redirect URI. Please configure it in your PingOne application.');
+  };
 
   // Generate security parameters
   const generateSecurityParameters = useCallback(async () => {
@@ -333,6 +383,24 @@ const OIDCHybridFlowV3: React.FC = () => {
       throw new Error('Authorization URL not built. Please complete previous steps.');
     }
 
+    // Check configuration setting for showing auth request modal
+    const flowConfigKey = 'enhanced-flow-authorization-code';
+    const flowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
+    const shouldShowModal = flowConfig.showAuthRequestModal === true;
+    
+    if (shouldShowModal) {
+      console.log('🔧 [OIDC-HYBRID-V3] Showing authorization request modal (user preference)');
+      setShowAuthorizationModal(true);
+      return;
+    }
+
+    // Proceed directly if modal is disabled
+    console.log('🔧 [OIDC-HYBRID-V3] Skipping authorization modal (user preference)');
+    await requestAuthorizationDirect();
+  }, [authorizationUrl, credentials, authorizationMethod]);
+
+  // Direct authorization (without modal)
+  const requestAuthorizationDirect = useCallback(async () => {
     setIsRequestingAuthorization(true);
     try {
       // Store security parameters for callback validation
@@ -342,16 +410,22 @@ const OIDCHybridFlowV3: React.FC = () => {
         codeVerifier: credentials.codeVerifier
       }));
 
-      logger.info('OIDCHybridV3', '🚀 Opening authorization window', {
+      logger.info('OIDCHybridV3', '🚀 Starting authorization', {
         url: authorizationUrl,
+        method: authorizationMethod,
         responseType: credentials.responseType
       });
 
-      // Open authorization window
-      window.open(authorizationUrl, 'oidc_hybrid_authorization', 'width=800,height=600,scrollbars=yes,resizable=yes');
-      
-      // Show user feedback
-      showFlowSuccess('🚀 Authorization Window Opened', 'A new window has opened for user authentication. Complete the login process in the popup window.');
+      if (authorizationMethod === 'popup') {
+        // Open authorization window
+        window.open(authorizationUrl, 'oidc_hybrid_authorization', 'width=800,height=600,scrollbars=yes,resizable=yes');
+        
+        // Show user feedback
+        showFlowSuccess('🚀 Authorization Window Opened', 'A new window has opened for user authentication. Complete the login process in the popup window.');
+      } else {
+        // Full redirect
+        window.location.href = authorizationUrl;
+      }
       
       return { success: true };
     } catch (error) {
@@ -361,7 +435,7 @@ const OIDCHybridFlowV3: React.FC = () => {
     } finally {
       setIsRequestingAuthorization(false);
     }
-  }, [authorizationUrl, credentials]);
+  }, [authorizationUrl, credentials, authorizationMethod]);
 
   // Reset flow
   const resetFlow = useCallback(async () => {
@@ -593,50 +667,196 @@ const OIDCHybridFlowV3: React.FC = () => {
     },
     {
       id: 'request-authorization',
-      title: 'Request Authorization',
-      description: 'Open the authorization URL to authenticate the user',
-      icon: <FiUser />,
+      title: 'User Authorization & Hybrid Flow',
+      description: 'Redirect the user to PingOne to authenticate and obtain authorization code and ID token',
+      icon: <FiGlobe />,
       category: 'authorization',
       content: (
         <div>
-          <InfoBox type="info" style={{ marginBottom: '1.5rem' }}>
-            <div>
-              <h4 style={{ margin: '0 0 1rem 0', color: '#1e40af', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <FiUser />
-                User Authorization
-              </h4>
-              <p style={{ margin: '0 0 1rem 0', color: '#1e40af' }}>
-                Click the button below to open a new window where the user will authenticate and authorize your application.
-                The authorization server will return both an authorization code and an ID token.
-              </p>
-            </div>
-          </InfoBox>
-
-          <Button
-            variant="primary"
-            onClick={requestAuthorization}
-            disabled={isRequestingAuthorization || !authorizationUrl}
-          >
-            {isRequestingAuthorization ? (
-              <>
-                <FiRefreshCw className="animate-spin" />
-                Opening Authorization...
-              </>
-            ) : (
-              <>
-                <FiExternalLink />
-                Request Authorization
-              </>
-            )}
-          </Button>
-
-          {authorizationUrl && (
+          {/* Main Content Block */}
+          <div style={{
+            backgroundColor: '#f0f9ff',
+            border: '1px solid #bae6fd',
+            borderRadius: '0.75rem',
+            padding: '1.5rem',
+            marginBottom: '1.5rem'
+          }}>
+            <h3 style={{ 
+              margin: '0 0 1rem 0', 
+              color: '#1e40af', 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.5rem',
+              fontSize: '1.125rem',
+              fontWeight: '600'
+            }}>
+              <FiGlobe />
+              OIDC Hybrid Flow - Step 3
+            </h3>
+            <p style={{ 
+              margin: '0 0 1rem 0', 
+              color: '#1e40af',
+              lineHeight: '1.6'
+            }}>
+              The user will be redirected to PingOne to authenticate. Upon successful authentication and consent, 
+              PingOne will redirect back with an <strong>authorization code</strong> and <strong>ID token</strong> - 
+              providing both secure token exchange and immediate user identity information.
+            </p>
+            
+            {/* Why Hybrid Flow Section */}
             <div style={{ marginTop: '1.5rem' }}>
-              <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
-                Authorization URL is ready. Click the button above to start the authorization process.
+              <h4 style={{ 
+                margin: '0 0 0.75rem 0', 
+                color: '#1e40af',
+                fontSize: '1rem',
+                fontWeight: '600'
+              }}>
+                Why Hybrid Flow?
+              </h4>
+              <ul style={{ 
+                margin: '0', 
+                paddingLeft: '1.5rem', 
+                color: '#1e40af',
+                lineHeight: '1.6'
+              }}>
+                <li>Combines security of authorization code with immediate ID token access</li>
+                <li>Returns both authorization code and ID token in single response</li>
+                <li>Enables server-side token exchange with client authentication</li>
+                <li>Provides immediate user identity without additional API calls</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Authorization Methods Section */}
+          <div style={{ marginBottom: '1.5rem' }}>
+            <h4 style={{ 
+              margin: '0 0 1rem 0', 
+              color: '#1f2937',
+              fontSize: '1rem',
+              fontWeight: '600',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}>
+              <FiShield />
+              Authorization Methods:
+            </h4>
+            
+            <div style={{ 
+              display: 'flex', 
+              gap: '1rem', 
+              marginBottom: '0.75rem',
+              flexWrap: 'wrap'
+            }}>
+              <Button
+                variant={authorizationMethod === 'popup' ? 'primary' : 'secondary'}
+                onClick={() => setAuthorizationMethod('popup')}
+                style={{ 
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.75rem 1.5rem'
+                }}
+              >
+                <FiGlobe />
+                Popup Authorization
+              </Button>
+              
+              <Button
+                variant={authorizationMethod === 'redirect' ? 'primary' : 'secondary'}
+                onClick={() => setAuthorizationMethod('redirect')}
+                style={{ 
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.75rem 1.5rem'
+                }}
+              >
+                <FiExternalLink />
+                Full Redirect
+              </Button>
+            </div>
+            
+            <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+              <p style={{ margin: '0 0 0.25rem 0' }}>
+                <strong>Popup:</strong> Opens in new window, returns to this page automatically.
+              </p>
+              <p style={{ margin: '0' }}>
+                <strong>Redirect:</strong> Navigates away from this page, returns after authorization.
               </p>
             </div>
-          )}
+          </div>
+
+          {/* Action Button */}
+          <div style={{ marginBottom: '1.5rem' }}>
+            <Button
+              variant="primary"
+              onClick={requestAuthorization}
+              disabled={isRequestingAuthorization || !authorizationUrl}
+              style={{ 
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.75rem 2rem',
+                fontSize: '1rem',
+                fontWeight: '600'
+              }}
+            >
+              {isRequestingAuthorization ? (
+                <>
+                  <FiRefreshCw className="animate-spin" />
+                  Opening Authorization...
+                </>
+              ) : (
+                <>
+                  <FiGlobe />
+                  Request Authorization
+                </>
+              )}
+            </Button>
+          </div>
+
+          {/* Debug Information Section */}
+          <details style={{ 
+            backgroundColor: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '0.5rem',
+            padding: '0.75rem'
+          }}>
+            <summary style={{ 
+              cursor: 'pointer',
+              fontWeight: '600',
+              color: '#374151',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}>
+              <FiSettings />
+              Debug Information
+            </summary>
+            <div style={{ marginTop: '0.75rem', fontSize: '0.875rem' }}>
+              <p style={{ margin: '0 0 0.5rem 0', color: '#6b7280' }}>
+                <strong>Authorization URL:</strong>
+              </p>
+              {authorizationUrl ? (
+                <div style={{ 
+                  backgroundColor: '#f3f4f6',
+                  padding: '0.5rem',
+                  borderRadius: '0.25rem',
+                  fontFamily: 'monospace',
+                  fontSize: '0.75rem',
+                  wordBreak: 'break-all',
+                  color: '#374151'
+                }}>
+                  {authorizationUrl}
+                </div>
+              ) : (
+                <p style={{ margin: '0', color: '#9ca3af' }}>
+                  Authorization URL not yet generated
+                </p>
+              )}
+            </div>
+          </details>
         </div>
       ),
       canExecute: Boolean(authorizationUrl),
@@ -696,7 +916,7 @@ const OIDCHybridFlowV3: React.FC = () => {
       canExecute: false,
       completed: Boolean(tokens)
     }
-  ], [credentials, authorizationUrl, tokens, isRequestingAuthorization, showParameterBreakdown, saveCredentials, buildAuthorizationUrl, requestAuthorization, resetFlow]);
+  ], [credentials, authorizationUrl, tokens, isRequestingAuthorization, showParameterBreakdown, authorizationMethod, saveCredentials, buildAuthorizationUrl, requestAuthorization, resetFlow]);
 
   return (
     <Container>
@@ -728,11 +948,18 @@ const OIDCHybridFlowV3: React.FC = () => {
       <AuthorizationRequestModal
         isOpen={showAuthorizationModal}
         onClose={() => setShowAuthorizationModal(false)}
-        authorizationUrl={authorizationUrl}
-        onComplete={(receivedTokens) => {
-          setTokens(receivedTokens);
+        onProceed={() => {
           setShowAuthorizationModal(false);
-          showFlowSuccess('✅ Authorization Completed', 'Tokens received successfully from the authorization server.');
+          requestAuthorizationDirect();
+        }}
+        authorizationUrl={authorizationUrl}
+        requestParams={{
+          environmentId: credentials.environmentId || '',
+          clientId: credentials.clientId || '',
+          redirectUri: credentials.redirectUri || '',
+          scopes: credentials.scopes || '',
+          responseType: credentials.responseType || '',
+          flowType: 'oidc-hybrid-v3'
         }}
       />
 
@@ -745,6 +972,15 @@ const OIDCHybridFlowV3: React.FC = () => {
         confirmText="Reset Flow"
         cancelText="Cancel"
         variant="danger"
+      />
+
+      {/* Default Redirect URI Modal */}
+      <DefaultRedirectUriModal
+        isOpen={showDefaultRedirectUriModal}
+        onClose={() => setShowDefaultRedirectUriModal(false)}
+        onContinue={handleContinueWithDefaultUri}
+        flowType="oidc-hybrid-v3"
+        defaultRedirectUri={defaultRedirectUri}
       />
     </Container>
   );

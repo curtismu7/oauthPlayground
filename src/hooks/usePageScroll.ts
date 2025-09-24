@@ -20,7 +20,6 @@ export const usePageScroll = (options: PageScrollOptions = {}) => {
   const { pageName, force = true, delay = 0 } = options; // Default force = true
   
   useEffect(() => {
-    console.log(`📜 [PageScroll] UNIVERSAL scroll to top for: ${pageName || 'Unknown Page'}`);
     
     // Immediate scroll
     scrollToTop({ force, delay: 0, smooth: false });
@@ -40,12 +39,10 @@ export const usePageScroll = (options: PageScrollOptions = {}) => {
   }, [pageName, force, delay]);
 
   const scrollToTopAfterAction = useCallback(() => {
-    console.log(`📜 [PageScroll] Action scroll to top for: ${pageName || 'Unknown Page'}`);
     scrollToTop({ force: true, smooth: false });
   }, [pageName]);
 
   const scrollToBottomAfterAction = useCallback(() => {
-    console.log(`📜 [PageScroll] Action scroll to bottom for: ${pageName || 'Unknown Page'}`);
     scrollToBottom({ smooth: true });
   }, [pageName]);
 
@@ -61,17 +58,14 @@ export const usePageScroll = (options: PageScrollOptions = {}) => {
  */
 export const useAuthorizationFlowScroll = (flowName: string) => {
   useEffect(() => {
-    console.log(`🔐 [AuthFlowScroll] Starting at top for: ${flowName}`);
     scrollToTop({ force: true, delay: 100 });
   }, [flowName]);
 
   const scrollToTopAfterAction = useCallback(() => {
-    console.log(`🔐 [AuthFlowScroll] Action completed, returning to top for: ${flowName}`);
     scrollToTop({ force: true, delay: 50 });
   }, [flowName]);
 
   const scrollToBottomAfterAction = useCallback(() => {
-    console.log(`🔐 [AuthFlowScroll] Action completed, scrolling to bottom for: ${flowName}`);
     scrollToBottom({ delay: 50 });
   }, [flowName]);
 
@@ -87,7 +81,6 @@ export const useAuthorizationFlowScroll = (flowName: string) => {
  */
 export const useTokenPageScroll = (pageName: string) => {
   useEffect(() => {
-    console.log(`🎫 [TokenPageScroll] Starting at top for: ${pageName}`);
     // More aggressive scroll for token pages
     setTimeout(() => {
       scrollToTop({ force: true });
@@ -102,7 +95,6 @@ export const useTokenPageScroll = (pageName: string) => {
   }, [pageName]);
 
   const scrollToTopAfterAction = useCallback(() => {
-    console.log(`🎫 [TokenPageScroll] Action scroll to top for: ${pageName}`);
     scrollToTop({ force: true });
   }, [pageName]);
 

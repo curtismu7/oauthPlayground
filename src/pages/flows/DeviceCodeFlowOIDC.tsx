@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
-import { FiSettings, FiRefreshCw, FiServer, FiClock, FiCheckCircle, FiXCircle } from 'react-icons/fi';
+import { FiSettings, FiRefreshCw, FiServer, FiClock, FiCheckCircle, FiXCircle, FiShield, FiInfo, FiGlobe } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { showFlowSuccess, showFlowError } from '../../components/CentralizedSuccessMessage';
 import { logger } from '../../utils/logger';
+import { credentialManager } from '../../utils/credentialManager';
 import { requestDeviceAuthorization, validateDeviceAuthorizationResponse, DeviceAuthorizationResponse } from '../../utils/deviceCode';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 import { EnhancedStepFlowV2 } from '../../components/EnhancedStepFlowV2';
@@ -13,6 +14,7 @@ import { useFlowStepManager } from '../../utils/flowStepSystem';
 import DeviceVerification from '../../components/device/DeviceVerification';
 import DevicePolling from '../../components/device/DevicePolling';
 import { DeviceCodeFlowState, DeviceCodeTokens, DeviceCodeStep } from '../../types/deviceCode';
+import { InfoBox, FormField, FormLabel, FormInput } from '../../components/steps/CommonSteps';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -55,47 +57,7 @@ const CredentialsSection = styled.div`
   margin-bottom: 2rem;
 `;
 
-const FormField = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-`;
 
-const FormLabel = styled.label`
-  font-weight: 500;
-  color: #374151;
-  font-size: 0.875rem;
-`;
-
-const FormInput = styled.input`
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 1rem;
-  transition: border-color 0.2s ease;
-
-  &:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-
-  &:disabled {
-    background-color: #f9fafb;
-    color: #6b7280;
-    cursor: not-allowed;
-  }
-`;
-
-const InfoBox = styled.div`
-  padding: 1rem;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 8px;
-  color: #1e40af;
-  font-size: 0.875rem;
-  line-height: 1.5;
-`;
 
 const StatusSection = styled.div`
   display: flex;
@@ -135,6 +97,61 @@ const DeviceCodeFlowOIDC: React.FC = () => {
 
   const [isRequestingAuthorization, setIsRequestingAuthorization] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
+
+  // Load credentials following proper priority: flow-specific > global > defaults
+  useEffect(() => {
+    const loadCredentials = () => {
+      try {
+        // 1. Try device flow-specific credentials first
+        const deviceCredentials = credentialManager.loadFlowCredentials('oidc-device-code-v3');
+        
+        if (deviceCredentials.environmentId || deviceCredentials.clientId) {
+          setFlowState(prev => ({
+            ...prev,
+            config: {
+              ...prev.config,
+              environmentId: deviceCredentials.environmentId || prev.config.environmentId,
+              clientId: deviceCredentials.clientId || prev.config.clientId,
+              scope: Array.isArray(deviceCredentials.scopes) ? deviceCredentials.scopes : prev.config.scope
+            }
+          }));
+          logger.info('DEVICE-CODE-V3', 'Loaded device flow-specific credentials');
+        } else {
+          // 2. Fall back to global configuration
+          const configCredentials = credentialManager.loadConfigCredentials();
+          if (configCredentials.environmentId || configCredentials.clientId) {
+            setFlowState(prev => ({
+              ...prev,
+              config: {
+                ...prev.config,
+                environmentId: configCredentials.environmentId || prev.config.environmentId,
+                clientId: configCredentials.clientId || prev.config.clientId,
+                scope: Array.isArray(configCredentials.scopes) ? configCredentials.scopes : prev.config.scope
+              }
+            }));
+            logger.info('DEVICE-CODE-V3', 'Loaded global config credentials');
+          } else {
+            // 3. Fall back to auth context (existing behavior)
+            if (config?.environmentId || config?.clientId) {
+              setFlowState(prev => ({
+                ...prev,
+                config: {
+                  ...prev.config,
+                  environmentId: config?.environmentId || prev.config.environmentId,
+                  clientId: config?.clientId || prev.config.clientId
+                }
+              }));
+              logger.info('DEVICE-CODE-V3', 'Loaded from auth context');
+            }
+          }
+        }
+      } catch (error) {
+        logger.error('DEVICE-CODE-V3', 'Failed to load credentials', error);
+      }
+    };
+
+    loadCredentials();
+  }, [config]);
 
   // Auto-populate endpoints when environment ID changes
   useEffect(() => {
@@ -357,10 +374,110 @@ const DeviceCodeFlowOIDC: React.FC = () => {
             <div>
               {step.id === 'configure' && (
                 <CredentialsSection>
-                  <InfoBox>
-                    <strong>Device Code Flow:</strong> This flow is designed for devices with limited input capabilities. 
-                    Users will scan a QR code or enter a code manually to authorize the device.
-                  </InfoBox>
+                  {/* Main Content Block */}
+                  <div style={{
+                    backgroundColor: '#f0f9ff',
+                    border: '1px solid #bae6fd',
+                    borderRadius: '0.75rem',
+                    padding: '1.5rem',
+                    marginBottom: '1.5rem'
+                  }}>
+                    <h3 style={{ 
+                      margin: '0 0 1rem 0', 
+                      color: '#1e40af', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '0.5rem',
+                      fontSize: '1.125rem',
+                      fontWeight: '600'
+                    }}>
+                      <FiGlobe />
+                      OIDC Device Code Flow - Step 1
+                    </h3>
+                    <p style={{ 
+                      margin: '0 0 1rem 0', 
+                      color: '#1e40af',
+                      lineHeight: '1.6'
+                    }}>
+                      The Device Code Flow is designed for devices with limited input capabilities. 
+                      Users will scan a QR code or enter a user code manually to authorize the device on a separate device with full browser capabilities.
+                    </p>
+                    
+                    {/* Why Device Code Flow Section */}
+                    <div style={{ marginTop: '1.5rem' }}>
+                      <h4 style={{ 
+                        margin: '0 0 0.75rem 0', 
+                        color: '#1e40af',
+                        fontSize: '1rem',
+                        fontWeight: '600'
+                      }}>
+                        Why Device Code Flow?
+                      </h4>
+                      <ul style={{ 
+                        margin: '0', 
+                        paddingLeft: '1.5rem', 
+                        color: '#1e40af',
+                        lineHeight: '1.6'
+                      }}>
+                        <li>Perfect for devices with limited input capabilities (smart TVs, IoT devices, CLI tools)</li>
+                        <li>Eliminates the need to type complex credentials on constrained devices</li>
+                        <li>Uses a separate device (phone, computer) for authentication</li>
+                        <li>Provides secure authorization without storing credentials on the device</li>
+                      </ul>
+                    </div>
+
+                    {/* When to Use Section */}
+                    <div style={{ marginTop: '1.5rem' }}>
+                      <h4 style={{ 
+                        margin: '0 0 0.75rem 0', 
+                        color: '#1e40af',
+                        fontSize: '1rem',
+                        fontWeight: '600'
+                      }}>
+                        When to Use Device Code Flow?
+                      </h4>
+                      <ul style={{ 
+                        margin: '0', 
+                        paddingLeft: '1.5rem', 
+                        color: '#1e40af',
+                        lineHeight: '1.6'
+                      }}>
+                        <li>Smart TVs and streaming devices</li>
+                        <li>IoT devices and embedded systems</li>
+                        <li>Command-line tools and scripts</li>
+                        <li>Kiosks and public terminals</li>
+                        <li>Gaming consoles and media players</li>
+                      </ul>
+                    </div>
+
+                    {/* Security Considerations Section */}
+                    <div style={{ marginTop: '1.5rem' }}>
+                      <h4 style={{ 
+                        margin: '0 0 0.75rem 0', 
+                        color: '#1e40af',
+                        fontSize: '1rem',
+                        fontWeight: '600',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem'
+                      }}>
+                        <FiShield />
+                        Security Considerations
+                      </h4>
+                      <ul style={{ 
+                        margin: '0', 
+                        paddingLeft: '1.5rem', 
+                        color: '#1e40af',
+                        lineHeight: '1.6'
+                      }}>
+                        <li>User codes expire after a short time (typically 15 minutes)</li>
+                        <li>Device codes can only be used once</li>
+                        <li>Polling interval prevents brute force attacks</li>
+                        <li>No credentials are stored on the constrained device</li>
+                        <li>Authorization happens on a trusted device with full browser</li>
+                      </ul>
+                    </div>
+                  </div>
 
                   <FormField>
                     <FormLabel>Environment ID *</FormLabel>
@@ -434,7 +551,62 @@ const DeviceCodeFlowOIDC: React.FC = () => {
               )}
 
               {step.id === 'request-authorization' && (
-                <StatusSection>
+                <div>
+                  {/* Main Content Block */}
+                  <div style={{
+                    backgroundColor: '#f0f9ff',
+                    border: '1px solid #bae6fd',
+                    borderRadius: '0.75rem',
+                    padding: '1.5rem',
+                    marginBottom: '1.5rem'
+                  }}>
+                    <h3 style={{ 
+                      margin: '0 0 1rem 0', 
+                      color: '#1e40af', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '0.5rem',
+                      fontSize: '1.125rem',
+                      fontWeight: '600'
+                    }}>
+                      <FiRefreshCw />
+                      OIDC Device Code Flow - Step 2
+                    </h3>
+                    <p style={{ 
+                      margin: '0 0 1rem 0', 
+                      color: '#1e40af',
+                      lineHeight: '1.6'
+                    }}>
+                      Request a device authorization from PingOne. This will generate a user code and verification URL 
+                      that the user can use on their phone or computer to authorize the device.
+                    </p>
+                    
+                    {/* What Happens Next Section */}
+                    <div style={{ marginTop: '1.5rem' }}>
+                      <h4 style={{ 
+                        margin: '0 0 0.75rem 0', 
+                        color: '#1e40af',
+                        fontSize: '1rem',
+                        fontWeight: '600'
+                      }}>
+                        What Happens Next?
+                      </h4>
+                      <ul style={{ 
+                        margin: '0', 
+                        paddingLeft: '1.5rem', 
+                        color: '#1e40af',
+                        lineHeight: '1.6'
+                      }}>
+                        <li>PingOne generates a unique user code (e.g., "ABCD-EFGH")</li>
+                        <li>A QR code is created with the verification URL</li>
+                        <li>The device polls the token endpoint for authorization</li>
+                        <li>User scans QR code or visits URL on their phone/computer</li>
+                        <li>User enters the code and authorizes the device</li>
+                        <li>Device receives access tokens after successful authorization</li>
+                      </ul>
+                    </div>
+                  </div>
+
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
                     <FiClock size={24} color="#6b7280" />
                     <div>
@@ -444,11 +616,65 @@ const DeviceCodeFlowOIDC: React.FC = () => {
                       </p>
                     </div>
                   </div>
-                </StatusSection>
+                </div>
               )}
 
               {step.id === 'verify-device' && flowState.userCode && (
                 <div>
+                  {/* Main Content Block */}
+                  <div style={{
+                    backgroundColor: '#f0f9ff',
+                    border: '1px solid #bae6fd',
+                    borderRadius: '0.75rem',
+                    padding: '1.5rem',
+                    marginBottom: '1.5rem'
+                  }}>
+                    <h3 style={{ 
+                      margin: '0 0 1rem 0', 
+                      color: '#1e40af', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '0.5rem',
+                      fontSize: '1.125rem',
+                      fontWeight: '600'
+                    }}>
+                      <FiCheckCircle />
+                      OIDC Device Code Flow - Step 3
+                    </h3>
+                    <p style={{ 
+                      margin: '0 0 1rem 0', 
+                      color: '#1e40af',
+                      lineHeight: '1.6'
+                    }}>
+                      Complete device verification by having the user scan the QR code or enter the user code on their phone or computer. 
+                      The device will automatically poll for tokens once authorization is complete.
+                    </p>
+                    
+                    {/* User Instructions Section */}
+                    <div style={{ marginTop: '1.5rem' }}>
+                      <h4 style={{ 
+                        margin: '0 0 0.75rem 0', 
+                        color: '#1e40af',
+                        fontSize: '1rem',
+                        fontWeight: '600'
+                      }}>
+                        User Instructions
+                      </h4>
+                      <ul style={{ 
+                        margin: '0', 
+                        paddingLeft: '1.5rem', 
+                        color: '#1e40af',
+                        lineHeight: '1.6'
+                      }}>
+                        <li>Use your phone or computer to scan the QR code below</li>
+                        <li>Alternatively, visit the verification URL and enter the user code</li>
+                        <li>Log in with your PingOne credentials</li>
+                        <li>Grant permission to the application</li>
+                        <li>The device will automatically receive tokens after authorization</li>
+                      </ul>
+                    </div>
+                  </div>
+
                   <DeviceVerification
                     userCode={flowState.userCode}
                     verificationUri={flowState.verificationUri!}
