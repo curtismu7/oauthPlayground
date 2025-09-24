@@ -465,6 +465,31 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
     }
   }, []);
 
+  // Load tokens from sessionStorage when component mounts (from callback)
+  useEffect(() => {
+    const loadTokensFromCallback = () => {
+      try {
+        // Check for tokens stored by the callback
+        const storedTokens = sessionStorage.getItem('implicit_tokens');
+        if (storedTokens) {
+          const parsedTokens = JSON.parse(storedTokens);
+          setTokens(parsedTokens);
+          console.log('✅ [OAUTH2-IMPLICIT-V3] Loaded tokens from callback:', parsedTokens);
+          
+          // Clear the stored tokens after loading
+          sessionStorage.removeItem('implicit_tokens');
+          
+          // Show success message
+          showFlowSuccess('🎉 Tokens Received', 'Access token has been successfully obtained from the callback');
+        }
+      } catch (error) {
+        console.warn('⚠️ [OAUTH2-IMPLICIT-V3] Failed to load tokens from callback:', error);
+      }
+    };
+
+    loadTokensFromCallback();
+  }, []);
+
   // Save credentials to storage
   const saveCredentials = useCallback(async () => {
     console.log('🔧 [OAuth2ImplicitV3] Save credentials clicked', { credentials });
