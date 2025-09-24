@@ -4,6 +4,7 @@ import { FiTerminal, FiX, FiDownload, FiTrash2, FiEye, FiEyeOff, FiChevronDown, 
 import { logger } from '../utils/logger';
 import ErrorHelpPanel from './ErrorHelpPanel';
 import TokenExchangeDebugger from './TokenExchangeDebugger';
+import { shouldShowFlowDebugConsole } from '../utils/uiSettings';
 
 const DebugPanelContainer = styled.div<{ $isOpen: boolean }>`
   position: fixed;
@@ -187,6 +188,30 @@ const DebugPanel: React.FC = () => {
   const [errorHelpDismissed, setErrorHelpDismissed] = useState(false);
   const [newMessageCount, setNewMessageCount] = useState(0);
   const [lastLogCount, setLastLogCount] = useState(0);
+  const [isVisible, setIsVisible] = useState(shouldShowFlowDebugConsole());
+
+  useEffect(() => {
+    // Check visibility setting on mount and when localStorage changes
+    const checkVisibility = () => {
+      setIsVisible(shouldShowFlowDebugConsole());
+    };
+
+    // Check initially
+    checkVisibility();
+
+    // Listen for storage changes (when settings are updated in another tab)
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'enhanced-flow-authorization-code') {
+        checkVisibility();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
   useEffect(() => {
     // Get initial logs
@@ -408,6 +433,11 @@ const DebugPanel: React.FC = () => {
       return `[${typeof data}: ${String(data)}]`;
     }
   };
+
+  // Don't render if visibility is disabled
+  if (!isVisible) {
+    return null;
+  }
 
   return (
     <DebugPanelContainer $isOpen={isOpen}>

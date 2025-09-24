@@ -174,7 +174,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
     console.log(`🔍 [${flowType.toUpperCase()}-V3] Debug session started:`, sessionId);
     
     return () => {
-      enhancedDebugger.endSession(sessionId);
+      enhancedDebugger.endSession();
     };
   }, [flowType]);
   
@@ -252,13 +252,13 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
     let allCredentials = null;
     let source = 'none';
     
-    // 1. Try authz flow credentials (dedicated storage for this flow)
-    allCredentials = credentialManager.loadAuthzFlowCredentials();
+    // 1. Try flow-specific credentials first
+    allCredentials = credentialManager.loadFlowCredentials(flowType);
     if (allCredentials.environmentId && allCredentials.clientId) {
-      source = 'authz-flow';
-      console.log(`✅ [${flowType.toUpperCase()}-V3] Loaded credentials from authz flow storage`);
+      source = 'flow-specific';
+      console.log(`✅ [${flowType.toUpperCase()}-V3] Loaded credentials from flow-specific storage`);
     } else {
-      // 2. Try config page credentials
+      // 2. Try config page credentials (global fallback)
       allCredentials = credentialManager.loadConfigCredentials();
       if (allCredentials.environmentId && allCredentials.clientId) {
         source = 'config-page';
@@ -305,7 +305,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
       }
     }
     
-    const redirectUri = urlRedirect || allCredentials?.redirectUri || `${window.location.origin}/authz-callback`;
+    const redirectUri = urlRedirect || allCredentials?.redirectUri || getCallbackUrlForFlow('authorization-code');
     const environmentId = urlEnv || allCredentials?.environmentId || '';
     const issuerUrl = environmentId ? `https://auth.pingone.com/${environmentId}` : '';
     
@@ -797,7 +797,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
             environmentId: allCredentials.environmentId,
             clientId: allCredentials.clientId,
             clientSecret: allCredentials.clientSecret,
-            redirectUri: allCredentials.redirectUri || `${window.location.origin}/authz-callback`,
+            redirectUri: allCredentials.redirectUri || getCallbackUrlForFlow('authorization-code'),
             scopes: scopeArray.length > 0 ? scopeArray : ['openid', 'profile', 'email'],
             authEndpoint: allCredentials.authEndpoint || `https://auth.pingone.com/${allCredentials.environmentId}/as/authorize`,
             tokenEndpoint: allCredentials.tokenEndpoint || `https://auth.pingone.com/${allCredentials.environmentId}/as/token`,
@@ -952,7 +952,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         clientId: credentials.clientId,
         currentUrl: window.location.href,
         origin: window.location.origin,
-        expectedCallback: `${window.location.origin}/authz-callback`,
+        expectedCallback: getCallbackUrlForFlow('authorization-code'),
         allSessionStorageKeys: Object.keys(sessionStorage).filter(key => key.includes('redirect')),
         allLocalStorageKeys: Object.keys(localStorage).filter(key => key.includes('redirect') || key.includes('uri')),
         pingOneConfigRedirects: localStorage.getItem('pingone_config') ? JSON.parse(localStorage.getItem('pingone_config') || '{}') : null
@@ -1070,25 +1070,28 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
   const handlePopupAuthorizationWithModal = useCallback(() => {
     if (!authUrl) return;
     
+    // Check configuration setting for showing auth request modal (same key as Configuration screen)
+    const globalFlowConfigKey = 'enhanced-flow-authorization-code';
+    const globalFlowConfig = JSON.parse(localStorage.getItem(globalFlowConfigKey) || '{}');
+    const shouldShowModal = globalFlowConfig.showAuthRequestModal === true;
+    
     console.log(`🔍 [${flowType.toUpperCase()}-V3] Modal setting check:`, {
-      showAuthRequestModal: flowConfig.showAuthRequestModal,
-      flowConfig: flowConfig
+      shouldShowModal,
+      globalFlowConfig,
+      localFlowConfig: flowConfig
     });
     
-    // Check if user has chosen to skip the modal
-    const skipModal = localStorage.getItem('skip_oauth_authz_request_modal') === 'true';
-    
-    // Show modal first if enabled and not skipped
-    if (flowConfig.showAuthRequestModal && !skipModal) {
-      console.log(`🔍 [${flowType.toUpperCase()}-V3] Showing OAuth Authorization Request Modal`);
+    // Show modal first if enabled in configuration
+    if (shouldShowModal) {
+      console.log(`🔍 [${flowType.toUpperCase()}-V3] Showing OAuth Authorization Request Modal (user preference)`);
       setShowAuthRequestModal(true);
       return;
     }
     
-    console.log(`🔍 [${flowType.toUpperCase()}-V3] Modal disabled, proceeding directly with authorization`);
+    console.log(`🔍 [${flowType.toUpperCase()}-V3] Modal disabled, proceeding directly with authorization (user preference)`);
     // Otherwise proceed directly
     handlePopupAuthorizationDirect();
-  }, [authUrl, flowConfig.showAuthRequestModal, flowType]);
+  }, [authUrl, flowConfig, flowType]);
 
   // Direct popup authorization (without modal)
   const handlePopupAuthorizationDirect = useCallback(() => {
@@ -1166,25 +1169,28 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
   const handleFullRedirectAuthorizationWithModal = useCallback(() => {
     if (!authUrl) return;
     
+    // Check configuration setting for showing auth request modal (same key as Configuration screen)
+    const globalFlowConfigKey = 'enhanced-flow-authorization-code';
+    const globalFlowConfig = JSON.parse(localStorage.getItem(globalFlowConfigKey) || '{}');
+    const shouldShowModal = globalFlowConfig.showAuthRequestModal === true;
+    
     console.log(`🔍 [${flowType.toUpperCase()}-V3] Full redirect modal setting check:`, {
-      showAuthRequestModal: flowConfig.showAuthRequestModal,
-      flowConfig: flowConfig
+      shouldShowModal,
+      globalFlowConfig,
+      localFlowConfig: flowConfig
     });
     
-    // Check if user has chosen to skip the modal
-    const skipModal = localStorage.getItem('skip_oauth_authz_request_modal') === 'true';
-    
-    // Show modal first if enabled and not skipped
-    if (flowConfig.showAuthRequestModal && !skipModal) {
-      console.log(`🔍 [${flowType.toUpperCase()}-V3] Showing OAuth Authorization Request Modal for redirect`);
+    // Show modal first if enabled in configuration
+    if (shouldShowModal) {
+      console.log(`🔍 [${flowType.toUpperCase()}-V3] Showing OAuth Authorization Request Modal for redirect (user preference)`);
       setShowAuthRequestModal(true);
       return;
     }
     
-    console.log(`🔍 [${flowType.toUpperCase()}-V3] Modal disabled, proceeding directly with full redirect`);
+    console.log(`🔍 [${flowType.toUpperCase()}-V3] Modal disabled, proceeding directly with full redirect (user preference)`);
     // Otherwise proceed directly
     handleFullRedirectAuthorizationDirect();
-  }, [authUrl, flowConfig.showAuthRequestModal, flowType]);
+  }, [authUrl, flowConfig, flowType]);
 
   // Direct full redirect authorization (without modal)
   const handleFullRedirectAuthorizationDirect = useCallback(() => {
@@ -1255,7 +1261,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         },
         currentUrl: window.location.href,
         origin: window.location.origin,
-        expectedCallback: `${window.location.origin}/authz-callback`
+        expectedCallback: getCallbackUrlForFlow('authorization-code')
       });
 
       const requestBody = {
@@ -1575,7 +1581,7 @@ Original Error: ${errorData.error_description || errorData.error}
       environmentId: '',
       clientId: '',
       clientSecret: '',
-      redirectUri: `${window.location.origin}/authz-callback`,
+      redirectUri: getCallbackUrlForFlow('authorization-code'),
       scope: flowType === 'oauth' ? 'read write' : 'openid profile email',
       scopes: flowType === 'oauth' ? ['read', 'write'] : ['openid', 'profile', 'email'],
       responseType: 'code',
@@ -1967,15 +1973,16 @@ Original Error: ${errorData.error_description || errorData.error}
                         </ActionButton>
                       </div>
                       <div style={{ 
-                        background: 'white',
-                        border: '1px solid #d1d5db', 
-                        borderRadius: '4px', 
+                        background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%)',
+                        border: '1px solid #86efac', 
+                        borderRadius: '0.5rem', 
                         padding: '0.75rem',
                         fontFamily: 'Monaco, Menlo, monospace',
                         fontSize: '0.8rem',
                         wordBreak: 'break-all',
                         maxHeight: '100px',
-                        overflow: 'auto'
+                        overflow: 'auto',
+                        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
                       }}>
                         {tokens.access_token}
                       </div>
@@ -2002,15 +2009,16 @@ Original Error: ${errorData.error_description || errorData.error}
                         </ActionButton>
                       </div>
                       <div style={{ 
-                        background: 'white',
-                        border: '1px solid #d1d5db', 
-                        borderRadius: '4px', 
+                        background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%)',
+                        border: '1px solid #86efac', 
+                        borderRadius: '0.5rem', 
                         padding: '0.75rem',
                         fontFamily: 'Monaco, Menlo, monospace',
                         fontSize: '0.8rem',
                         wordBreak: 'break-all',
                         maxHeight: '100px',
-                        overflow: 'auto'
+                        overflow: 'auto',
+                        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
                       }}>
                         {tokens.refresh_token}
                       </div>
@@ -2109,7 +2117,17 @@ Original Error: ${errorData.error_description || errorData.error}
         },
         // Add refresh token step after OIDC token validation
         {
-          ...createRefreshTokenStep(tokens?.refresh_token, newTokensFromRefresh, exchangeRefreshToken, credentials, isRefreshingTokens, flowType),
+          ...createRefreshTokenStep(
+            tokens?.refresh_token, 
+            newTokensFromRefresh, 
+            exchangeRefreshToken, 
+            credentials, 
+            isRefreshingTokens, 
+            flowType,
+            navigateToTokenManagement,
+            resetFlow,
+            tokens
+          ),
           canExecute: Boolean(tokens?.refresh_token && !newTokensFromRefresh),
           completed: hasStepResult('refresh-token-exchange') || Boolean(newTokensFromRefresh),
           isFinalStep: true
@@ -2259,7 +2277,17 @@ Original Error: ${errorData.error_description || errorData.error}
         },
         // Add refresh token step after OAuth token analysis
         {
-          ...createRefreshTokenStep(tokens?.refresh_token, newTokensFromRefresh, exchangeRefreshToken, credentials, isRefreshingTokens, flowType),
+          ...createRefreshTokenStep(
+            tokens?.refresh_token, 
+            newTokensFromRefresh, 
+            exchangeRefreshToken, 
+            credentials, 
+            isRefreshingTokens, 
+            flowType,
+            navigateToTokenManagement,
+            resetFlow,
+            tokens
+          ),
           canExecute: Boolean(tokens?.refresh_token && !newTokensFromRefresh),
           completed: hasStepResult('refresh-token-exchange') || Boolean(newTokensFromRefresh),
           isFinalStep: true
@@ -2287,7 +2315,10 @@ Original Error: ${errorData.error_description || errorData.error}
     flowType, 
     hasCredentialsSaved, 
     hasUnsavedCredentialChanges, 
-    isSavingCredentials
+    isSavingCredentials,
+    navigateToTokenManagement,
+    resetFlow,
+    tokens
   ]);
 
   const flowTitle = flowType === 'oauth' 
@@ -2399,7 +2430,7 @@ Original Error: ${errorData.error_description || errorData.error}
               const debugInfo = {
                 currentUrl: window.location.href,
                 origin: window.location.origin,
-                expectedCallback: `${window.location.origin}/authz-callback`,
+                expectedCallback: getCallbackUrlForFlow('authorization-code'),
                 credentialsRedirectUri: credentials.redirectUri,
                 environmentId: credentials.environmentId,
                 clientId: credentials.clientId,
@@ -2434,7 +2465,7 @@ Original Error: ${errorData.error_description || errorData.error}
 
       {/* PingOne Configuration Section - Only show on step 1 */}
       <PingOneConfigSection
-        callbackUrl={`${window.location.origin}/authz-callback`}
+        callbackUrl={getCallbackUrlForFlow('authorization-code')}
         flowType={flowTitle}
         showOnlyOnStep={0}
         currentStep={stepManager.currentStepIndex}
@@ -2476,7 +2507,7 @@ Original Error: ${errorData.error_description || errorData.error}
               steps: [
                 'Go to PingOne Admin Console → Applications → Your App',
                 'Navigate to Configuration → Redirect URIs',
-                'Verify the redirect URI exactly matches: ' + (typeof window !== 'undefined' ? window.location.origin : 'https://localhost:3000') + '/authz-callback',
+                'Verify the redirect URI exactly matches: ' + getCallbackUrlForFlow('authorization-code'),
                 'Check protocol (http vs https) and port number match exactly',
                 'Save changes in PingOne console',
                 'Clear browser cache and try again'

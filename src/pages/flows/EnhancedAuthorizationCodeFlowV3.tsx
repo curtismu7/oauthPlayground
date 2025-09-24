@@ -156,9 +156,9 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
       setAuthCode(code);
       console.log('🔄 [OIDC-V3] Auto-advancing to token exchange step');
       
-      // Auto-advance to token exchange step (step 3 in our 5-step flow)
-      if (stepManager.currentStepIndex < 3) {
-        stepManager.setStep(3, 'authorization code detected');
+      // Auto-advance to token exchange step (step 5 in our 6-step flow)
+      if (stepManager.currentStepIndex < 5) {
+        stepManager.setStep(5, 'authorization code detected');
       }
       
       // Clean up URL parameters
@@ -216,7 +216,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
     clientId: '',
     clientSecret: '',
     environmentId: '',
-    redirectUri: getCallbackUrlForFlow('authorization-code'), // Always use consistent callback
+    redirectUri: '',
     scopes: 'openid profile email',
     authorizationEndpoint: '',
     tokenEndpoint: '',
@@ -273,7 +273,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
           clientId: saved.clientId || '',
           clientSecret: saved.clientSecret || '',
           environmentId: saved.environmentId || '',
-          redirectUri: getCallbackUrlForFlow('authorization-code'), // Always use consistent callback for V3
+          redirectUri: saved.redirectUri || getCallbackUrlForFlow('authorization-code'), // Use saved redirect URI or default
           scopes: Array.isArray(saved.scopes) ? saved.scopes.join(' ') : (saved.scopes || 'openid profile email'),
           authorizationEndpoint: saved.authEndpoint || '',
           tokenEndpoint: saved.tokenEndpoint || '',
@@ -1375,16 +1375,17 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
                 </button>
               </div>
               <div style={{ 
-                background: '#f0fdf4', 
-                border: '2px solid #16a34a', 
-                borderRadius: '6px', 
+                background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%)', 
+                border: '1px solid #86efac', 
+                borderRadius: '0.5rem', 
                 padding: '1rem', 
                 fontFamily: 'Monaco, Consolas, "Courier New", monospace', 
                 fontSize: '0.875rem', 
                 lineHeight: '1.5', 
                 whiteSpace: 'pre-wrap', 
                 wordBreak: 'break-all', 
-                overflowX: 'auto' 
+                overflowX: 'auto',
+                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)' 
               }}>
                 {JSON.stringify(userInfo, null, 2)}
               </div>
@@ -1671,7 +1672,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 
         {/* PingOne Configuration Section - Only show on step 1 */}
         <PingOneConfigSection
-          callbackUrl={`${window.location.origin}/authz-callback`}
+          callbackUrl={getCallbackUrlForFlow('authorization-code')}
           flowType="Enhanced Authorization Code Flow V3"
           showOnlyOnStep={0}
           currentStep={stepManager.currentStepIndex}
@@ -1745,7 +1746,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
           steps={steps}
           title="🔑 OIDC Authorization Code Flow (V3 - Clean)"
           persistKey="oidc-authz-v3"
-          autoAdvance={false}
+          autoAdvance={true}
           showDebugInfo={true}
           allowStepJumping={true}
           initialStepIndex={stepManager.currentStepIndex}
