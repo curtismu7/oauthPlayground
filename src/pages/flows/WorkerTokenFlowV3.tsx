@@ -398,20 +398,20 @@ const WorkerTokenFlowV3: React.FC = () => {
       title: 'Setup Worker Credentials',
       description: `Configure your PingOne client credentials for worker token authentication.
 
-**Purpose**: Worker Tokens are designed for machine-to-machine (M2M) communication with no user interaction required.
+Worker Tokens are designed for machine-to-machine (M2M) communication with no user interaction required.
 
-**Perfect for**:
+Perfect for:
 • Background services and automation
 • Server-to-server APIs  
 • Data synchronization and ETL processes
 • Monitoring and alerting systems
 • Integration workflows
 
-**How it works**: Your application authenticates using client credentials, receives an access token, and can call PingOne Management API endpoints.
+How it works: Your application authenticates using client credentials, receives an access token, and can call PingOne Management API endpoints.
 
-**Security**: Worker Tokens have broad permissions - use only for trusted applications and store secrets securely.
+Security: Worker Tokens have broad permissions - use only for trusted applications and store secrets securely.
 
-**Documentation**: [PingOne API Documentation](https://apidocs.pingidentity.com/pingone/platform/v1/api/#authentication)`,
+Documentation: [PingOne API Documentation](https://apidocs.pingidentity.com/pingone/platform/v1/api/#authentication)`,
       category: 'preparation' as const,
       canExecute: Boolean(
         credentials.environmentId &&
