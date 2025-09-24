@@ -125,7 +125,7 @@ const WorkerTokenFlowV3: React.FC = () => {
     clientId: '',
     clientSecret: '',
     redirectUri: '', // Worker tokens don't need redirect URI
-    scopes: 'openid api:read'
+    scopes: 'openid'
   });
 
   const [showSecret, setShowSecret] = useState(false);
@@ -150,7 +150,7 @@ const WorkerTokenFlowV3: React.FC = () => {
             clientId: workerCredentials.clientId || '',
             clientSecret: workerCredentials.clientSecret || '',
             redirectUri: '', // Worker tokens don't need redirect URI
-            scopes: Array.isArray(workerCredentials.scopes) ? workerCredentials.scopes.join(' ') : (workerCredentials.scopes || 'openid api:read')
+            scopes: Array.isArray(workerCredentials.scopes) ? workerCredentials.scopes.join(' ') : (workerCredentials.scopes || 'openid')
           };
           console.log('✅ [Worker-V3] Loaded flow-specific credentials:', workerCredentials);
         } else {
@@ -163,7 +163,7 @@ const WorkerTokenFlowV3: React.FC = () => {
               clientId: configCredentials.clientId || '',
               clientSecret: configCredentials.clientSecret || '',
               redirectUri: '', // Worker tokens don't need redirect URI
-              scopes: Array.isArray(configCredentials.scopes) ? configCredentials.scopes.join(' ') : (configCredentials.scopes || 'openid api:read')
+              scopes: Array.isArray(configCredentials.scopes) ? configCredentials.scopes.join(' ') : (configCredentials.scopes || 'openid')
             };
             console.log('✅ [Worker-V3] Loaded global config credentials:', configCredentials);
           } else {
@@ -173,7 +173,7 @@ const WorkerTokenFlowV3: React.FC = () => {
               clientId: config?.clientId || '',
               clientSecret: config?.clientSecret || '',
               redirectUri: '', // Worker tokens don't need redirect URI
-              scopes: 'openid api:read'
+              scopes: 'openid'
             };
             initialCredentials = envCredentials;
             console.log('✅ [Worker-V3] Loaded environment credentials:', envCredentials);
@@ -231,8 +231,8 @@ const WorkerTokenFlowV3: React.FC = () => {
       
       const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
       
-      // Ensure we have a valid scope - fallback to api:read if empty
-      const scopeValue = credentials.scopes?.trim() || 'api:read';
+      // Ensure we have a valid scope - fallback to openid if empty
+      const scopeValue = credentials.scopes?.trim() || 'openid';
       
       const requestPayload = {
         client_id: credentials.clientId,
@@ -273,7 +273,7 @@ const WorkerTokenFlowV3: React.FC = () => {
           errorMessage += '\n\n💡 Solution: Configure scopes in your PingOne application:\n' +
                          '1. Go to PingOne Admin Console\n' +
                          '2. Navigate to your Application\n' +
-                         '3. Add required scopes (e.g., api:read, api:write)\n' +
+                         '3. Add required scopes (e.g., openid, api:read, api:write)\n' +
                          '4. Ensure your client has the necessary permissions';
         }
         
@@ -384,16 +384,6 @@ const WorkerTokenFlowV3: React.FC = () => {
   // Define steps
   const steps = useMemo(() => [
     {
-      ...createCredentialsStep(
-        credentials,
-        setCredentials,
-        saveCredentials,
-        'PingOne Worker Token Flow',
-        undefined,
-        'worker_token_v3',
-        showSecret,
-        setShowSecret
-      ),
       id: 'setup-credentials',
       title: 'Setup Worker Credentials',
       description: `Configure your PingOne client credentials for worker token authentication.
@@ -413,6 +403,118 @@ Security: Worker Tokens have broad permissions - use only for trusted applicatio
 
 Documentation: [PingOne API Documentation](https://apidocs.pingidentity.com/pingone/platform/v1/api/#authentication)`,
       category: 'preparation' as const,
+      icon: <FiSettings />,
+      content: (
+        <div>
+          <FormField>
+            <FormLabel>Environment ID *</FormLabel>
+            <FormInput
+              type="text"
+              value={credentials.environmentId}
+              onChange={(e) => setCredentials({ ...credentials, environmentId: e.target.value })}
+              placeholder="e.g., 12345678-1234-1234-1234-123456789012"
+              required
+            />
+          </FormField>
+          
+          <FormField>
+            <FormLabel>Client ID *</FormLabel>
+            <FormInput
+              type="text"
+              value={credentials.clientId}
+              onChange={(e) => setCredentials({ ...credentials, clientId: e.target.value })}
+              placeholder="e.g., 87654321-4321-4321-4321-210987654321"
+              required
+            />
+          </FormField>
+          
+          <FormField>
+            <FormLabel>Client Secret *</FormLabel>
+            <div style={{ position: 'relative' }}>
+              <FormInput
+                type={showSecret ? "text" : "password"}
+                value={credentials.clientSecret}
+                onChange={(e) => setCredentials({ ...credentials, clientSecret: e.target.value })}
+                placeholder="Your client secret"
+                style={{ paddingRight: setShowSecret ? '2.5rem' : undefined }}
+                required
+              />
+              {setShowSecret && (
+                <button
+                  id="worker-token-show-secret-button"
+                  type="button"
+                  onClick={() => setShowSecret(!showSecret)}
+                  style={{
+                    position: 'absolute',
+                    right: '0.75rem',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#6b7280',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  {showSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+                </button>
+              )}
+            </div>
+          </FormField>
+
+          <FormField>
+            <FormLabel>Scopes</FormLabel>
+            <FormInput
+              type="text"
+              value={credentials.scopes}
+              onChange={(e) => setCredentials({ ...credentials, scopes: e.target.value })}
+              placeholder="openid (default if empty)"
+            />
+            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>
+              Space-separated list of scopes. Default: openid
+            </div>
+          </FormField>
+
+          <div style={{ marginTop: '1.5rem' }}>
+            <button
+              id="worker-token-save-credentials-button"
+              onClick={saveCredentials}
+              disabled={isLoading || !credentials.environmentId || !credentials.clientId || !credentials.clientSecret}
+              style={{
+                padding: '0.75rem 1.5rem',
+                backgroundColor: '#3b82f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.5rem',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                cursor: (isLoading || !credentials.environmentId || !credentials.clientId || !credentials.clientSecret) ? 'not-allowed' : 'pointer',
+                opacity: (isLoading || !credentials.environmentId || !credentials.clientId || !credentials.clientSecret) ? 0.5 : 1,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+            >
+              {isLoading ? (
+                <>
+                  <FiRefreshCw 
+                    id="worker-token-save-credentials-icon"
+                    style={{ animation: 'spin 1s linear infinite' }} 
+                  />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <FiSettings />
+                  Save Credentials
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      ),
       canExecute: Boolean(
         credentials.environmentId &&
         credentials.clientId &&
@@ -620,7 +722,7 @@ Documentation: [PingOne API Documentation](https://apidocs.pingidentity.com/ping
                   <li><code style={{ background: '#e9ecef', padding: '0.2rem 0.4rem', borderRadius: '3px' }}>api:read</code> - For reading API data</li>
                   <li><code style={{ background: '#e9ecef', padding: '0.2rem 0.4rem', borderRadius: '3px' }}>api:write</code> - For writing API data</li>
                 </ul>
-                <li>For this playground, use: <code style={{ background: '#e9ecef', padding: '0.2rem 0.4rem', borderRadius: '3px' }}>openid api:read</code></li>
+                <li>For this playground, use: <code style={{ background: '#e9ecef', padding: '0.2rem 0.4rem', borderRadius: '3px' }}>openid</code></li>
               </ol>
             </div>
           </div>
@@ -685,6 +787,7 @@ Documentation: [PingOne API Documentation](https://apidocs.pingidentity.com/ping
           alignItems: 'center'
         }}>
           <button
+            id="worker-token-reset-button"
             onClick={resetFlow}
             disabled={isLoading}
             style={{
@@ -702,10 +805,13 @@ Documentation: [PingOne API Documentation](https://apidocs.pingidentity.com/ping
               transition: 'all 0.2s'
             }}
           >
-            <FiRefreshCw style={{ 
-              animation: isLoading ? 'spin 1s linear infinite' : 'none',
-              marginRight: '0.5rem'
-            }} />
+            <FiRefreshCw 
+              id="worker-token-reset-icon"
+              style={{ 
+                animation: isLoading ? 'spin 1s linear infinite' : 'none',
+                marginRight: '0.5rem'
+              }} 
+            />
             {isLoading ? 'Resetting...' : 'Reset Flow'}
           </button>
         </div>
