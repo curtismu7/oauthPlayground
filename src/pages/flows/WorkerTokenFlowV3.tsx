@@ -470,7 +470,13 @@ const WorkerTokenFlowV3: React.FC = () => {
   }, [clientAuthMethod, useJwksEndpoint, resetKey, lastStepIndex]);
 
   // Load initial credentials following proper priority: flow-specific > global > defaults
+  const [hasLoadedInitialCredentials, setHasLoadedInitialCredentials] = useState(false);
   useEffect(() => {
+    // Only load initial credentials once, not on every render
+    if (hasLoadedInitialCredentials) {
+      console.log('🔥 [WorkerTokenV3] Skipping initial credential loading - already loaded');
+      return;
+    }
     const loadInitialCredentials = async () => {
       try {
         console.log('🔥 [WorkerTokenV3] ===== INITIAL CREDENTIAL LOADING START =====');
@@ -537,6 +543,8 @@ const WorkerTokenFlowV3: React.FC = () => {
         }
         
         setCredentials(initialCredentials);
+        setHasLoadedInitialCredentials(true);
+        console.log('🔥 [WorkerTokenV3] ===== INITIAL CREDENTIAL LOADING END =====');
       } catch (error) {
         console.error('❌ [Worker-V3] Failed to load credentials:', error);
         setError('Failed to load credentials');
@@ -544,7 +552,7 @@ const WorkerTokenFlowV3: React.FC = () => {
     };
 
     loadInitialCredentials();
-  }, [config]);
+  }, [config, hasLoadedInitialCredentials]);
 
   // Save credentials function
   const saveCredentials = useCallback(async () => {
