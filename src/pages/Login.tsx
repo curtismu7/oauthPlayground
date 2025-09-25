@@ -373,7 +373,7 @@ const Login = () => {
           environmentId: allCredentials.environmentId || '',
           clientId: allCredentials.clientId || '',
           clientSecret: allCredentials.clientSecret || '',
-          tokenAuthMethod: prev.tokenAuthMethod
+          tokenAuthMethod: allCredentials.tokenAuthMethod || 'client_secret_basic'
         }));
         setHasExistingCredentials(true);
         
