@@ -541,7 +541,7 @@ const AuthorizationCodeFlow: React.FC = () => {
     tokenEndpoint: '',
     userInfoEndpoint: '',
     redirectUri: window.location.origin + '/authz-callback',
-    scopes: 'openid profile email',
+    scopes: 'openid',
     responseType: 'code',
     codeChallengeMethod: 'S256',
     clientAuthMethod: 'client_secret_post' as ClientAuthMethod

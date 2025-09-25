@@ -574,7 +574,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     tokenEndpoint: '',
     userInfoEndpoint: '',
     redirectUri: window.location.origin + '/authz-callback',
-    scopes: 'openid profile email',
+    scopes: 'openid',
     responseType: 'code',
     codeChallengeMethod: 'S256'
   });
@@ -707,7 +707,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
         tokenEndpoint: '',
         userInfoEndpoint: '',
         redirectUri: window.location.origin + '/authz-callback',
-        scopes: 'openid profile email',
+        scopes: 'openid',
         responseType: 'code',
         codeChallengeMethod: 'S256'
       });
@@ -870,7 +870,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           tokenEndpoint: storedCredentials.tokenEndpoint || '',
           userInfoEndpoint: storedCredentials.userInfoEndpoint || '',
           redirectUri: storedCredentials.redirectUri,
-          scopes: Array.isArray(storedCredentials.scopes) ? storedCredentials.scopes.join(' ') : (storedCredentials.scopes || 'openid profile email'),
+          scopes: Array.isArray(storedCredentials.scopes) ? storedCredentials.scopes.join(' ') : (storedCredentials.scopes || 'openid'),
           responseType: 'code',
           codeChallengeMethod: 'S256'
         };
@@ -1117,7 +1117,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                       clientId: parsedConfig.clientId,
                       clientSecret: parsedConfig.clientSecret || '',
                       redirectUri: parsedConfig.redirectUri || window.location.origin + '/authz-callback',
-                      scopes: parsedConfig.scopes || ['openid', 'profile', 'email'],
+                      scopes: parsedConfig.scopes || ['openid'],
                       authEndpoint: parsedConfig.authEndpoint,
                       tokenEndpoint: parsedConfig.tokenEndpoint,
                       userInfoEndpoint: parsedConfig.userInfoEndpoint,
@@ -1144,7 +1144,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                         clientId: parsedLoginCreds.clientId,
                         clientSecret: parsedLoginCreds.clientSecret || '',
                         redirectUri: parsedLoginCreds.redirectUri || window.location.origin + '/authz-callback',
-                        scopes: parsedLoginCreds.scopes || ['openid', 'profile', 'email'],
+                        scopes: parsedLoginCreds.scopes || ['openid'],
                         authEndpoint: parsedLoginCreds.authEndpoint,
                         tokenEndpoint: parsedLoginCreds.tokenEndpoint,
                         userInfoEndpoint: parsedLoginCreds.userInfoEndpoint,
@@ -1202,7 +1202,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                   authorizationEndpoint: envConfig.authEndpoint || `${envConfig.apiUrl}/${envConfig.environmentId}/as/authorize`,
                   tokenEndpoint: envConfig.tokenEndpoint || `${envConfig.apiUrl}/${envConfig.environmentId}/as/token`,
                   userInfoEndpoint: envConfig.userInfoEndpoint || `${envConfig.apiUrl}/${envConfig.environmentId}/as/userinfo`,
-                  scopes: Array.isArray(envConfig.scopes) ? envConfig.scopes.join(' ') : (envConfig.scopes || 'openid profile email')
+                  scopes: Array.isArray(envConfig.scopes) ? envConfig.scopes.join(' ') : (envConfig.scopes || 'openid')
                 }));
                 
                 console.log('✅ [EnhancedAuthorizationCodeFlowV2] Credentials loaded from environment variables');
@@ -1229,7 +1229,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
           authorizationEndpoint: allCredentials.authEndpoint || '',
           tokenEndpoint: allCredentials.tokenEndpoint || '',
           userInfoEndpoint: allCredentials.userInfoEndpoint || '',
-          scopes: Array.isArray(allCredentials.scopes) ? allCredentials.scopes.join(' ') : (allCredentials.scopes || 'openid profile email')
+          scopes: Array.isArray(allCredentials.scopes) ? allCredentials.scopes.join(' ') : (allCredentials.scopes || 'openid')
         }));
         
         // If credentials were loaded from legacy storage, save them to the preferred authz flow storage
@@ -1378,7 +1378,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
                     tokenEndpoint: storedCredentials.tokenEndpoint || '',
                     userInfoEndpoint: storedCredentials.userInfoEndpoint || '',
                     redirectUri: storedCredentials.redirectUri,
-                    scopes: Array.isArray(storedCredentials.scopes) ? storedCredentials.scopes.join(' ') : (storedCredentials.scopes || 'openid profile email'),
+                    scopes: Array.isArray(storedCredentials.scopes) ? storedCredentials.scopes.join(' ') : (storedCredentials.scopes || 'openid'),
                     responseType: 'code',
                     codeChallengeMethod: 'S256'
                   };
@@ -1478,7 +1478,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
             authorizationEndpoint: allCredentials.authEndpoint || '',
             tokenEndpoint: allCredentials.tokenEndpoint || '',
             userInfoEndpoint: allCredentials.userInfoEndpoint || '',
-            scopes: Array.isArray(allCredentials.scopes) ? allCredentials.scopes.join(' ') : (allCredentials.scopes || 'openid profile email')
+            scopes: Array.isArray(allCredentials.scopes) ? allCredentials.scopes.join(' ') : (allCredentials.scopes || 'openid')
           }));
           
           console.log('✅ [EnhancedAuthorizationCodeFlowV2] Credentials reloaded successfully');
@@ -1607,7 +1607,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
     console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Flow config:', flowConfig);
     
     // Use scopes from Flow Config or fallback to credentials
-    const scopes = flowConfig.scopes.length > 0 ? flowConfig.scopes.join(' ') : (credentials.scopes || 'openid profile email');
+    const scopes = flowConfig.scopes.length > 0 ? flowConfig.scopes.join(' ') : (credentials.scopes || 'openid');
     console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Generating auth URL with scopes:', scopes);
     
     // Use the correct callback URL for authorization code flow
