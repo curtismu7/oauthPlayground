@@ -1711,8 +1711,8 @@ const TokenManagement = () => {
               </strong>
               <br />
               <small style={{ color: '#6b7280' }}>
-                {tokens && tokens.access_token 
-                  ? 'Token from your current OAuth session is automatically loaded and decoded below. You can also paste other tokens for analysis.'
+                {tokenString || (tokens && tokens.access_token)
+                  ? 'Token is loaded and decoded below. You can also paste other tokens for analysis.'
                   : 'No active token found. Complete an OAuth flow to get tokens, or paste a token below for analysis.'
                 }
               </small>
