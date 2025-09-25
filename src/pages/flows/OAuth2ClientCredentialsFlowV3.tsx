@@ -209,7 +209,12 @@ const OAuth2ClientCredentialsFlowV3: React.FC = () => {
   const { config } = authContext;
   
   // Flow state management
-  const stepManager = useFlowStepManager('oauth2-client-credentials-v3');
+  const stepManager = useFlowStepManager({
+    flowType: 'oauth2-client-credentials-v3',
+    persistKey: 'oauth2_client_credentials_v3_flow_steps',
+    defaultStep: 0,
+    enableAutoAdvance: false
+  });
   const { scrollToTopAfterAction } = useAuthorizationFlowScroll();
   const performanceTracking = usePerformanceTracking();
 
@@ -219,7 +224,7 @@ const OAuth2ClientCredentialsFlowV3: React.FC = () => {
     clientId: '',
     clientSecret: '',
     authMethod: 'client_secret_post',
-    scopes: '',
+    scopes: 'openid',
     audience: '',
     tokenEndpoint: '',
     privateKey: ''
@@ -251,8 +256,8 @@ const OAuth2ClientCredentialsFlowV3: React.FC = () => {
         
         // Migration: Update old scopes to new default scopes
         if (parsed.scopes === 'p1:read:users' || parsed.scopes === 'p1:read:users p1:write:users') {
-          parsed.scopes = '';
-          console.log('🔄 [OAuth2ClientCredentialsV3] Migrating old scopes to empty (no scopes)');
+          parsed.scopes = 'openid';
+          console.log('🔄 [OAuth2ClientCredentialsV3] Migrating old scopes to openid');
           
           // Save updated credentials back to storage
           localStorage.setItem('oauth2_client_credentials_v3_credentials', JSON.stringify(parsed));
@@ -289,7 +294,7 @@ const OAuth2ClientCredentialsFlowV3: React.FC = () => {
         clientId: '',
         clientSecret: '',
         authMethod: 'client_secret_post',
-        scopes: '',
+        scopes: 'openid',
         audience: '',
         tokenEndpoint: '',
         privateKey: ''
@@ -340,6 +345,9 @@ const OAuth2ClientCredentialsFlowV3: React.FC = () => {
       // Only add scope if it's not empty
       if (credentials.scopes && credentials.scopes.trim()) {
         baseBody.append('scope', credentials.scopes);
+        console.log('🔍 [OAuth2ClientCredentialsV3] Adding scope to request:', credentials.scopes);
+      } else {
+        console.log('⚠️ [OAuth2ClientCredentialsV3] No scope being sent - scopes value:', credentials.scopes);
       }
 
       if (credentials.audience) {
@@ -485,7 +493,7 @@ const OAuth2ClientCredentialsFlowV3: React.FC = () => {
       icon: <FiSettings />,
       category: 'preparation',
       content: (
-        <div>
+        <form>
           <InfoBox type="info">
             <FiKey />
             <div>
@@ -525,6 +533,7 @@ const OAuth2ClientCredentialsFlowV3: React.FC = () => {
                 onChange={(e) => setCredentials(prev => ({ ...prev, clientSecret: e.target.value }))}
                 placeholder="Your PingOne Client Secret"
                 style={{ paddingRight: '2.5rem' }}
+                autoComplete="current-password"
               />
               <button
                 type="button"
@@ -722,7 +731,7 @@ const OAuth2ClientCredentialsFlowV3: React.FC = () => {
               </div>
             )}
           </div>
-        </div>
+        </form>
       ),
       execute: saveCredentials,
       canExecute: Boolean(credentials.environmentId && credentials.clientId &&
