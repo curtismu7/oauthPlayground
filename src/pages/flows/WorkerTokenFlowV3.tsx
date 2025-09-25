@@ -195,7 +195,7 @@ const WorkerTokenFlowV3: React.FC = () => {
   const [privateKey, setPrivateKey] = useState<string>('');
   const [showSecret, setShowSecret] = useState(false);
   const [showPrivateKey, setShowPrivateKey] = useState(false);
-  const [jwksUrl, setJwksUrl] = useState<string>('http://localhost:3001/jwks');
+  const [jwksUrl, setJwksUrl] = useState<string>('https://oauth-playground.vercel.app/jwks');
   const [useJwksEndpoint, setUseJwksEndpoint] = useState<boolean>(true);
   
   // Track JWKS endpoint state changes
@@ -409,6 +409,11 @@ const WorkerTokenFlowV3: React.FC = () => {
         scope: scopeValue
       });
       
+      // Validate authentication method configuration
+      if (clientAuthMethod === 'private_key_jwt' && useJwksEndpoint && !privateKey) {
+        throw new Error('Configuration mismatch: You have selected "Private Key JWT" authentication method with "Use JWKS Endpoint" mode, but no private key is available. Either:\n\n1. Switch to "Upload Private Key" mode and generate/upload a private key, OR\n2. Change the authentication method to "Client Secret Post" or "Client Secret Basic" for JWKS endpoint mode');
+      }
+      
       // Apply client authentication method
       const authConfig = {
         method: clientAuthMethod,
@@ -553,7 +558,7 @@ const WorkerTokenFlowV3: React.FC = () => {
       setClientAuthMethod('client_secret_post');
       setPrivateKey('');
       setUseJwksEndpoint(true);
-      setJwksUrl('http://localhost:3001/jwks');
+      setJwksUrl('https://oauth-playground.vercel.app/jwks');
       setShowSecret(false);
       setShowPrivateKey(false);
       setShowAuthUrlModal(false);
@@ -1250,6 +1255,8 @@ Perfect for:
                   </label>
                   <p style={{ margin: '0.5rem 0 0 1.5rem', color: '#047857', fontSize: '0.875rem' }}>
                     PingOne will fetch the public key from your JWKS endpoint. No private key upload needed.
+                    <br/><br/>
+                    <strong>🌐 Public URL Required:</strong> PingOne needs to access your JWKS endpoint from their servers, so it must be publicly accessible (not localhost).
                   </p>
                 </div>
                 
@@ -1278,13 +1285,13 @@ Perfect for:
                           flex: 1,
                           marginRight: '0.5rem'
                         }}>
-                          http://localhost:3001/jwks
+                          https://oauth-playground.vercel.app/jwks
                         </code>
                         <button
                           type="button"
                           onClick={async () => {
                             try {
-                              await navigator.clipboard.writeText('http://localhost:3001/jwks');
+                              await navigator.clipboard.writeText('https://oauth-playground.vercel.app/jwks');
                               showFlowSuccess('📋 JWKS Endpoint URL copied to clipboard!');
                             } catch (error) {
                               console.error('Failed to copy JWKS URL:', error);
@@ -1324,11 +1331,43 @@ Perfect for:
                     }}>
                       <strong>💡 PingOne Configuration Steps:</strong><br/>
                       1. Set "Token Endpoint Authentication Method" to "Private Key JWT"<br/>
-                      2. Set "JWKS URL" to: <code style={{ background: 'rgba(255,255,255,0.8)', padding: '0.2rem 0.4rem', borderRadius: '3px' }}>http://localhost:3001/jwks</code><br/>
+                      2. Set "JWKS URL" to: <code style={{ background: 'rgba(255,255,255,0.8)', padding: '0.2rem 0.4rem', borderRadius: '3px' }}>https://oauth-playground.vercel.app/jwks</code><br/>
                       3. Leave "Private Key" field empty in PingOne<br/>
                       4. Save your PingOne application configuration<br/><br/>
                       <strong>🔧 Need to convert a private key to JWKS format?</strong><br/>
                       Use the <strong>JWT Generator → JWKS</strong> tab to convert your private key to the correct JWKS format for PingOne.
+                    </div>
+                  </div>
+                )}
+                
+                {/* Configuration Warning */}
+                {useJwksEndpoint && clientAuthMethod === 'private_key_jwt' && !privateKey && (
+                  <div style={{ 
+                    marginLeft: '1.5rem', 
+                    marginTop: '1rem',
+                    padding: '0.75rem',
+                    background: 'rgba(245, 158, 11, 0.1)',
+                    border: '1px solid rgba(245, 158, 11, 0.3)',
+                    borderRadius: '6px'
+                  }}>
+                    <div style={{ 
+                      color: '#92400e', 
+                      fontSize: '0.875rem',
+                      fontWeight: '600',
+                      marginBottom: '0.5rem'
+                    }}>
+                      ⚠️ Configuration Mismatch
+                    </div>
+                    <div style={{ 
+                      color: '#a16207', 
+                      fontSize: '0.8rem',
+                      lineHeight: '1.4'
+                    }}>
+                      You have selected "Private Key JWT" authentication method with "Use JWKS Endpoint" mode, but no private key is available for signing the JWT assertion.
+                      <br/><br/>
+                      <strong>To fix this:</strong><br/>
+                      • Switch to "Upload Private Key" mode and generate a private key, OR<br/>
+                      • Change authentication method to "Client Secret Post" or "Client Secret Basic"
                     </div>
                   </div>
                 )}
