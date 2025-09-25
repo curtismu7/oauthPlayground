@@ -59,7 +59,6 @@ import OIDCForAI from './pages/docs/OIDCForAI';
 import OAuth2SecurityBestPractices from './pages/docs/OAuth2SecurityBestPractices';
 import AuthorizationRequestModal from './components/AuthorizationRequestModal';
 import PageChangeSpinner from './components/PageChangeSpinner';
-import DebugPanel from './components/DebugPanel';
 import ErrorBoundary from './components/ErrorBoundary';
 import ServerStatusProvider from './components/ServerStatusProvider';
 import AuthErrorBoundary from './components/AuthErrorBoundary';
@@ -343,7 +342,6 @@ const AppRoutes = () => {
         message="Loading page..." 
       />
       
-      <DebugPanel />
     </>
   );
 };
