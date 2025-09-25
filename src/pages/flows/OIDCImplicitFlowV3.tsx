@@ -4,6 +4,7 @@ import {
 	FiAlertTriangle,
 	FiCheckCircle,
 	FiChevronDown,
+	FiChevronLeft,
 	FiChevronRight,
 	FiCopy,
 	FiGlobe,
@@ -19,6 +20,7 @@ import {
 	showFlowError,
 	showFlowSuccess,
 } from "../../components/CentralizedSuccessMessage";
+import { trackFlowCompletion } from "../../utils/flowCredentialChecker";
 import { ColorCodedURL } from "../../components/ColorCodedURL";
 import ConfirmationModal from "../../components/ConfirmationModal";
 import DefaultRedirectUriModal from "../../components/DefaultRedirectUriModal";
@@ -475,6 +477,9 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 
 					const tokenData = JSON.parse(storedTokens);
 					setTokens(tokenData);
+
+					// Track flow completion for dashboard status
+					trackFlowCompletion('oidc-implicit-v3');
 
 					// Auto-advance to step 4 (token validation & display)
 					stepManager.setStep(3, "callback return with tokens");
@@ -2044,6 +2049,21 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 													<FiCopy /> Copy UserInfo
 												</CopyButton>
 											</div>
+											
+											{/* Go Back to Start Button */}
+											<div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+												<CopyButton
+													onClick={resetFlow}
+													style={{ 
+														backgroundColor: '#6b7280', 
+														color: 'white',
+														padding: '0.75rem 2rem',
+														fontSize: '1rem'
+													}}
+												>
+													<FiChevronLeft /> Go Back to Start of Flow
+												</CopyButton>
+											</div>
 										</div>
 									)}
 								</div>
@@ -2062,7 +2082,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 						)}
 					</div>
 				),
-				canExecute: Boolean(tokens?.access_token),
+				canExecute: false,
 				completed: Boolean(userInfo),
 			},
 		],

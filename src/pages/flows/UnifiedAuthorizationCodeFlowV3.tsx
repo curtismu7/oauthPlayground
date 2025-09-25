@@ -3,6 +3,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { useAuthorizationFlowScroll } from '../../hooks/usePageScroll';
+import { trackFlowCompletion } from '../../utils/flowCredentialChecker';
 import CentralizedSuccessMessage, { showFlowSuccess, showFlowError } from '../../components/CentralizedSuccessMessage';
 import EnhancedStepFlowV2 from '../../components/EnhancedStepFlowV2';
 import { useFlowStepManager } from '../../utils/flowStepSystem';
@@ -1414,6 +1415,9 @@ Original Error: ${errorData.error_description || errorData.error}
       
       setTokens(tokenData);
       
+      // Track flow completion for dashboard status
+      trackFlowCompletion(`${flowType}-authorization-code-v3`);
+      
       // Store tokens using standardized storage for Token Management page compatibility
       const success = storeOAuthTokens(tokenData, `${flowType}-authorization-code-v3`, `${flowType.toUpperCase()} Authorization Code Flow V3`);
       if (success) {
@@ -2471,7 +2475,6 @@ Original Error: ${errorData.error_description || errorData.error}
       />
 
       {/* Centralized Success/Error Messages */}
-      <CentralizedSuccessMessage />
 
       {/* Documentation */}
       <InlineDocumentation>

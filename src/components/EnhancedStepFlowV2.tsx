@@ -919,8 +919,9 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
     }
   }, []);
 
-  // Get current step
-  const currentStep = steps[currentStepIndex];
+  // Get current step with bounds checking
+  const clampedStepIndex = Math.min(currentStepIndex, steps.length - 1);
+  const currentStep = steps[clampedStepIndex];
   const completedSteps = stepHistory.filter(h => !h.error).length;
   const progress = (completedSteps / steps.length) * 100;
   
@@ -1042,13 +1043,13 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
             <Button
               $variant="secondary"
               onClick={goToPreviousStep}
-              disabled={currentStepIndex === 0 || isExecuting}
+              disabled={clampedStepIndex === 0 || isExecuting}
               $loading={isExecuting}
               style={{ 
-                opacity: (currentStepIndex === 0 || isExecuting) ? 0.5 : 1,
-                cursor: (currentStepIndex === 0 || isExecuting) ? 'not-allowed' : 'pointer'
+                opacity: (clampedStepIndex === 0 || isExecuting) ? 0.5 : 1,
+                cursor: (clampedStepIndex === 0 || isExecuting) ? 'not-allowed' : 'pointer'
               }}
-              title={currentStepIndex === 0 ? 'No previous step' : isExecuting ? 'Please wait...' : ''}
+              title={clampedStepIndex === 0 ? 'No previous step' : isExecuting ? 'Please wait...' : ''}
             >
               {isExecuting ? (
                 <>
@@ -1145,13 +1146,13 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
             <Button
               $variant="success"
               onClick={goToNextStep}
-              disabled={currentStepIndex === steps.length - 1 || !isCurrentStepCompleted || isExecuting}
+              disabled={clampedStepIndex === steps.length - 1 || !isCurrentStepCompleted || isExecuting}
               $loading={isExecuting}
               style={{ 
-                opacity: (!isCurrentStepCompleted && currentStepIndex < steps.length - 1) || isExecuting ? 0.5 : 1,
-                cursor: (!isCurrentStepCompleted && currentStepIndex < steps.length - 1) || isExecuting ? 'not-allowed' : 'pointer'
+                opacity: (!isCurrentStepCompleted && clampedStepIndex < steps.length - 1) || isExecuting ? 0.5 : 1,
+                cursor: (!isCurrentStepCompleted && clampedStepIndex < steps.length - 1) || isExecuting ? 'not-allowed' : 'pointer'
               }}
-              title={(!isCurrentStepCompleted && currentStepIndex < steps.length - 1) ? 'Complete the current step first' : isExecuting ? 'Please wait...' : ''}
+              title={(!isCurrentStepCompleted && clampedStepIndex < steps.length - 1) ? 'Complete the current step first' : isExecuting ? 'Please wait...' : ''}
             >
               {isExecuting ? (
                 <>
