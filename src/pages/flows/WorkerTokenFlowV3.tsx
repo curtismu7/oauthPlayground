@@ -1492,13 +1492,14 @@ Perfect for:
 
               <div key={`jwks-mode-${useJwksEndpoint ? 'endpoint' : 'private'}-${resetKey}`}>
                 {(() => {
+                  const shouldShowEndpoint = useJwksEndpoint;
                   console.log('🎨 [WorkerTokenV3] RENDERING CONDITIONAL UI:', {
                     useJwksEndpoint,
                     resetKey,
-                    willShowEndpoint: useJwksEndpoint,
+                    shouldShowEndpoint,
                     timestamp: Date.now()
                   });
-                  return useJwksEndpoint;
+                  return shouldShowEndpoint;
                 })() ? (
                   <div style={{ display: 'grid', gap: '1rem' }}>
                     <div style={{
@@ -1581,6 +1582,7 @@ Perfect for:
                     console.log('🎨 [WorkerTokenV3] RENDERING UPLOAD SECTION:', {
                       useJwksEndpoint,
                       resetKey,
+                      shouldShowUpload: !useJwksEndpoint,
                       timestamp: Date.now()
                     });
                     return null;
