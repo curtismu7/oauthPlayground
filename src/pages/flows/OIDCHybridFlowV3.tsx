@@ -215,7 +215,7 @@ const OIDCHybridFlowV3: React.FC = () => {
     environmentId: config?.environmentId || '',
     clientId: config?.clientId || '',
     redirectUri: '',
-    scopes: 'openid profile email',
+    scopes: 'openid',
     responseType: 'code id_token',
     state: '',
     nonce: '',
