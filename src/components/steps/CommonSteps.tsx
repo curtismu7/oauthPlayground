@@ -8,6 +8,7 @@ import { copyToClipboard } from '../../utils/clipboard';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
 import AuthorizationUrlExplainer from '../AuthorizationUrlExplainer';
 import { ColorCodedURL } from '../ColorCodedURL';
+import { getAuthMethodSecurityLevel } from '../../utils/clientAuthentication';
 
 // Common styled components
 const FormField = styled.div`
@@ -27,6 +28,21 @@ const FormInput = styled.input`
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
   font-size: 0.875rem;
+  
+  &:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+`;
+
+const FormSelect = styled.select`
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  background-color: white;
   
   &:focus {
     outline: none;
@@ -186,6 +202,7 @@ export interface StepCredentials {
   authorizationEndpoint?: string;
   tokenEndpoint?: string;
   userInfoEndpoint?: string;
+  clientAuthMethod?: string; // Token endpoint authentication method
 }
 
 export interface PKCECodes {
@@ -287,6 +304,23 @@ export const createCredentialsStep = (
           onChange={(e) => setCredentials({ ...credentials, scope: e.target.value, scopes: e.target.value })}
           placeholder="openid profile email"
         />
+      </FormField>
+      
+      <FormField>
+        <FormLabel>Token Endpoint Authentication Method</FormLabel>
+        <FormSelect
+          value={credentials.clientAuthMethod || 'client_secret_post'}
+          onChange={(e) => setCredentials({ ...credentials, clientAuthMethod: e.target.value })}
+        >
+          <option value="client_secret_post">Client Secret Post (Default)</option>
+          <option value="client_secret_basic">Client Secret Basic</option>
+          <option value="client_secret_jwt">Client Secret JWT (HS256)</option>
+          <option value="private_key_jwt">Private Key JWT (RS256)</option>
+          <option value="none">None (PKCE Only)</option>
+        </FormSelect>
+        <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+          {getAuthMethodSecurityLevel(credentials.clientAuthMethod || 'client_secret_post').description}
+        </div>
       </FormField>
       
       {onClose && (
