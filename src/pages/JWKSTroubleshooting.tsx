@@ -7,7 +7,7 @@ const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   min-height: 100vh;
 `;
 
@@ -608,21 +608,76 @@ const JWKSTroubleshooting: React.FC = () => {
         
         <div style={{ display: 'grid', gap: '1rem' }}>
           <div style={{ padding: '1rem', background: '#f7fafc', borderRadius: '0.5rem' }}>
-            <h4 style={{ margin: '0 0 0.5rem 0', color: '#2d3748' }}>Online Validators:</h4>
-            <p style={{ margin: '0', color: '#4a5568' }}>
-              <Link href="https://jwt.io" target="_blank" rel="noopener noreferrer">
-                JWT.io Debugger
-              </Link> - Test your JWKS format
+            <h4 style={{ margin: '0 0 0.5rem 0', color: '#2d3748' }}>🔧 Ping JWT Decoder:</h4>
+            <p style={{ margin: '0 0 0.5rem 0', color: '#4a5568' }}>
+              <Link href="https://jwt-decoder.pingidentity.com/" target="_blank" rel="noopener noreferrer">
+                Ping JWT Decoder
+              </Link> - Decode and validate JWT tokens with PingOne keys
+            </p>
+            <p style={{ margin: '0', fontSize: '0.875rem', color: '#6b7280' }}>
+              Official Ping Identity tool for decoding JWT tokens and validating signatures using PingOne JWKS endpoints.
+            </p>
+          </div>
+
+          <div style={{ padding: '1rem', background: '#f7fafc', borderRadius: '0.5rem' }}>
+            <h4 style={{ margin: '0 0 0.5rem 0', color: '#2d3748' }}>📚 PingOne SSO Documentation:</h4>
+            <div style={{ display: 'grid', gap: '0.5rem' }}>
+              <p style={{ margin: '0', color: '#4a5568' }}>
+                <Link href="https://docs.pingidentity.com/bundle/pingone/page/zhc1564020488549.html" target="_blank" rel="noopener noreferrer">
+                  PingOne JWKS Configuration
+                </Link> - Configure JWKS endpoints in PingOne
+              </p>
+              <p style={{ margin: '0', color: '#4a5568' }}>
+                <Link href="https://docs.pingidentity.com/bundle/pingone/page/zhc1564020488549.html#zhc1564020488549__section_zhc1564020488549__section_zhc1564020488549" target="_blank" rel="noopener noreferrer">
+                  Private Key JWT Authentication
+                </Link> - Set up private key JWT authentication
+              </p>
+              <p style={{ margin: '0', color: '#4a5568' }}>
+                <Link href="https://docs.pingidentity.com/bundle/pingone/page/zhc1564020488549.html#zhc1564020488549__section_zhc1564020488549__section_zhc1564020488549" target="_blank" rel="noopener noreferrer">
+                  OIDC Discovery Endpoint
+                </Link> - Use OIDC discovery to find JWKS URI
+              </p>
+            </div>
+            <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem', color: '#6b7280' }}>
+              Official Ping Identity documentation for configuring and troubleshooting JWKS in PingOne SSO.
             </p>
           </div>
           
           <div style={{ padding: '1rem', background: '#f7fafc', borderRadius: '0.5rem' }}>
-            <h4 style={{ margin: '0 0 0.5rem 0', color: '#2d3748' }}>RFC Standards:</h4>
-            <p style={{ margin: '0', color: '#4a5568' }}>
-              <Link href="https://tools.ietf.org/html/rfc7517" target="_blank" rel="noopener noreferrer">
-                RFC 7517 - JSON Web Key (JWK)
-              </Link>
-            </p>
+            <h4 style={{ margin: '0 0 0.5rem 0', color: '#2d3748' }}>🌐 Online Validators:</h4>
+            <div style={{ display: 'grid', gap: '0.5rem' }}>
+              <p style={{ margin: '0', color: '#4a5568' }}>
+                <Link href="https://jwt.io" target="_blank" rel="noopener noreferrer">
+                  JWT.io Debugger
+                </Link> - Test your JWKS format and decode JWT tokens
+              </p>
+              <p style={{ margin: '0', color: '#4a5568' }}>
+                <Link href="https://mkjwk.org/" target="_blank" rel="noopener noreferrer">
+                  MKJWK Generator
+                </Link> - Generate test JWKS for development
+              </p>
+            </div>
+          </div>
+          
+          <div style={{ padding: '1rem', background: '#f7fafc', borderRadius: '0.5rem' }}>
+            <h4 style={{ margin: '0 0 0.5rem 0', color: '#2d3748' }}>📖 RFC Standards:</h4>
+            <div style={{ display: 'grid', gap: '0.5rem' }}>
+              <p style={{ margin: '0', color: '#4a5568' }}>
+                <Link href="https://tools.ietf.org/html/rfc7517" target="_blank" rel="noopener noreferrer">
+                  RFC 7517 - JSON Web Key (JWK)
+                </Link> - JWKS specification
+              </p>
+              <p style={{ margin: '0', color: '#4a5568' }}>
+                <Link href="https://tools.ietf.org/html/rfc7518" target="_blank" rel="noopener noreferrer">
+                  RFC 7518 - JSON Web Algorithms (JWA)
+                </Link> - JWT algorithms specification
+              </p>
+              <p style={{ margin: '0', color: '#4a5568' }}>
+                <Link href="https://openid.net/specs/openid-connect-discovery-1_0.html" target="_blank" rel="noopener noreferrer">
+                  OIDC Discovery
+                </Link> - OpenID Connect Discovery specification
+              </p>
+            </div>
           </div>
         </div>
       </Section>
