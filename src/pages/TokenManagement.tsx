@@ -1142,20 +1142,19 @@ const TokenManagement = () => {
     try {
       console.log('🔍 [TokenManagement] Starting token introspection...');
       
-      // Get environment ID from auth context or token source
-      let environmentId = '';
-      if (tokens?.environment_id) {
-        environmentId = tokens.environment_id;
-      } else if (tokenSource?.source === 'Flow Navigation') {
-        // Try to extract from token source or use a default
-        environmentId = 'b9817c16-9910-4415-b67e-4ac687da74d9'; // Default for demo
-      } else {
-        throw new Error('Environment ID not available for introspection');
+      // Get environment ID from credential manager
+      const { credentialManager } = await import('../utils/credentialManager');
+      const allCredentials = credentialManager.getAllCredentials();
+      
+      if (!allCredentials.environmentId) {
+        throw new Error('Environment ID not available for introspection. Please configure your credentials first.');
       }
+      
+      const environmentId = allCredentials.environmentId;
 
-      // Get client credentials from auth context
-      if (!tokens?.client_id || !tokens?.client_secret) {
-        throw new Error('Client credentials not available for introspection');
+      // Get client credentials from credential manager (already loaded above)
+      if (!allCredentials.clientId || !allCredentials.clientSecret) {
+        throw new Error('Client credentials not available for introspection. Please configure your credentials first.');
       }
 
       const introspectionEndpoint = `https://auth.pingone.com/${environmentId}/as/introspect`;
@@ -1169,8 +1168,8 @@ const TokenManagement = () => {
         },
         body: JSON.stringify({
           token: tokenString,
-          client_id: tokens.client_id,
-          client_secret: tokens.client_secret,
+          client_id: allCredentials.clientId,
+          client_secret: allCredentials.clientSecret,
           introspection_endpoint: introspectionEndpoint
         })
       });
