@@ -4,7 +4,7 @@ import { Card, CardHeader, CardBody } from '../components/Card';
 import { FiRefreshCw, FiCheckCircle, FiPlus, FiX, FiClock, FiKey, FiEye, FiTrash2, FiCopy, FiShield, FiAlertTriangle, FiXCircle, FiInfo, FiDownload, FiSettings } from 'react-icons/fi';
 import styled from 'styled-components';
 import PageTitle from '../components/PageTitle';
-import { getOAuthTokens } from '../utils/tokenStorage';
+import { getOAuthTokens, clearAllTokens } from '../utils/tokenStorage';
 import { getTokenHistory, clearTokenHistory, removeTokenFromHistory, getFlowDisplayName, getFlowIcon, TokenHistoryEntry } from '../utils/tokenHistory';
 import { useTokenAnalysis } from '../hooks/useTokenAnalysis';
 import { useErrorDiagnosis } from '../hooks/useErrorDiagnosis';
@@ -14,6 +14,15 @@ import { TokenSurface } from '../components/TokenSurface';
 import StandardMessage from '../components/StandardMessage';
 import ConfirmationModal from '../components/ConfirmationModal';
 import CentralizedSuccessMessage, { showFlowSuccess, showFlowError } from '../components/CentralizedSuccessMessage';
+import { decodeJWT } from '../utils/jwtDecode';
+import { secureTokenStorage } from '../utils/secureTokenStorage';
+import { analyzeToken, TokenAnalysisResults } from '../utils/tokenAnalysis';
+import { fetchDeviceAuthorization, pollTokenEndpoint } from '../utils/deviceCode';
+import { getScopesForFlow } from '../utils/flowCredentialChecker';
+import { CredentialStatusPanel } from '../components/CredentialStatusPanel';
+import { requestPushedAuthorization, checkPushedAuthorizationStatus } from '../utils/parService';
+import { getCallbackUrlForFlow } from '../utils/callbackUrls';
+import { applyClientAuthentication, getAuthMethodSecurityLevel } from '../utils/clientAuthentication';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -1641,6 +1650,26 @@ const TokenManagement = () => {
 
   const tokenSourceInfo = getTokenSourceInfo();
 
+  const formatDate = (timestamp: number): string => new Date(timestamp).toLocaleString();
+  const formatTimestamp = (seconds?: number) => {
+    if (!seconds) {
+      return undefined;
+    }
+    return new Date(seconds * 1000).toLocaleString();
+  };
+
+  const renderIntrospectionItem = (label: string, value?: string) => {
+    if (!value) {
+      return null;
+    }
+    return (
+      <div>
+        <div style={{ color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '0.25rem' }}>{label}</div>
+        <div style={{ color: '#0f172a', fontSize: '0.9rem', fontWeight: 500, wordBreak: 'break-all' }}>{value}</div>
+      </div>
+    );
+  };
+
   return (
     <Container>
       <PageTitle 
@@ -2200,154 +2229,94 @@ const TokenManagement = () => {
       {introspectionResults && (
         <TokenSection>
           <CardHeader>
-            <h2>🔍 Token Introspection Results</h2>
+            <h2>🔍 Token Introspection</h2>
           </CardHeader>
           <CardBody>
-            <div style={{ 
-              background: 'linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%)',
-              border: '1px solid #0ea5e9',
-              borderRadius: '8px',
-              padding: '1.5rem',
-              marginBottom: '1rem'
+            <div style={{
+              border: '1px solid #dbeafe',
+              borderRadius: '10px',
+              background: '#f8fbff',
+              padding: '1.75rem'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+                marginBottom: '1.5rem'
+              }}>
                 <div style={{
-                  background: '#0ea5e9',
+                  background: introspectionResults.active ? '#16a34a' : '#dc2626',
                   borderRadius: '50%',
                   width: '2.5rem',
                   height: '2.5rem',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 2px 8px rgba(14, 165, 233, 0.3)'
+                  boxShadow: `0 8px 20px ${introspectionResults.active ? 'rgba(22, 163, 74, 0.25)' : 'rgba(220, 38, 38, 0.25)'}`
                 }}>
-                  <FiShield size={18} color="white" />
+                  {introspectionResults.active ? <FiShield size={18} color="white" /> : '⚠️'}
                 </div>
                 <div>
-                  <h3 style={{
-                    margin: '0',
-                    color: '#0369a1',
+                  <div style={{
+                    margin: 0,
                     fontSize: '1.1rem',
-                    fontWeight: '700'
+                    fontWeight: 700,
+                    color: introspectionResults.active ? '#166534' : '#b91c1c'
                   }}>
-                    Token Status: {introspectionResults.active ? '✅ Active' : '❌ Inactive'}
-                  </h3>
+                    {introspectionResults.active ? 'Token is Active' : 'Token is Inactive'}
+                  </div>
                   <p style={{
-                    margin: '0.25rem 0 0 0',
-                    color: '#0369a1',
-                    fontSize: '0.875rem',
-                    fontWeight: '500'
+                    margin: '0.35rem 0 0 0',
+                    color: '#475569',
+                    fontSize: '0.875rem'
                   }}>
-                    Verified by PingOne Authorization Server
+                    PingOne {introspectionResults.active ? 'validated this token.' : 'reported this token as inactive.'}
                   </p>
                 </div>
               </div>
 
               <div style={{
-                background: 'rgba(255, 255, 255, 0.8)',
-                border: '1px solid rgba(3, 105, 161, 0.2)',
-                borderRadius: '6px',
-                padding: '1rem'
+                display: 'grid',
+                gap: '1rem',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))'
               }}>
-                <h4 style={{ margin: '0 0 1rem 0', color: '#0369a1', fontSize: '1rem', fontWeight: '600' }}>
-                  Introspection Details
-                </h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
-                  <div>
-                    <strong style={{ color: '#0369a1' }}>Token Type:</strong>
-                    <div style={{ color: '#374151', fontSize: '0.875rem' }}>
-                      {introspectionResults.token_type || 'N/A'}
-                    </div>
+                {renderIntrospectionItem('Client ID', introspectionResults.client_id || introspectionResults.sub)}
+                {renderIntrospectionItem('Audience', introspectionResults.aud)}
+                {renderIntrospectionItem('Issuer', introspectionResults.iss)}
+                {renderIntrospectionItem('Token Type', introspectionResults.token_type)}
+                {renderIntrospectionItem('Scope', introspectionResults.scope)}
+                {renderIntrospectionItem('JWT ID', introspectionResults.jti)}
+                {renderIntrospectionItem('Issued At', introspectionResults.iat ? formatTimestamp(introspectionResults.iat) : undefined)}
+                {renderIntrospectionItem('Expires At', introspectionResults.exp ? formatTimestamp(introspectionResults.exp) : undefined)}
+              </div>
+
+              {introspectionResults.username && (
+                <div style={{
+                  marginTop: '1.25rem',
+                  paddingTop: '1.25rem',
+                  borderTop: '1px solid #e2e8f0'
+                }}>
+                  <div style={{
+                    fontWeight: 600,
+                    fontSize: '0.95rem',
+                    color: '#2563eb',
+                    marginBottom: '0.75rem'
+                  }}>
+                    Subject Details
                   </div>
-                  <div>
-                    <strong style={{ color: '#0369a1' }}>Client ID:</strong>
-                    <div style={{ color: '#374151', fontSize: '0.875rem' }}>
-                      {introspectionResults.client_id || introspectionResults.sub || 'N/A'}
-                    </div>
-                  </div>
-                  <div>
-                    <strong style={{ color: '#0369a1' }}>Scope:</strong>
-                    <div style={{ color: '#374151', fontSize: '0.875rem' }}>
-                      {introspectionResults.scope || 'N/A'}
-                    </div>
-                  </div>
-                  <div>
-                    <strong style={{ color: '#0369a1' }}>Issuer:</strong>
-                    <div style={{ color: '#374151', fontSize: '0.875rem' }}>
-                      {introspectionResults.iss || 'N/A'}
-                    </div>
-                  </div>
-                  <div>
-                    <strong style={{ color: '#0369a1' }}>Audience:</strong>
-                    <div style={{ color: '#374151', fontSize: '0.875rem' }}>
-                      {introspectionResults.aud || 'N/A'}
-                    </div>
-                  </div>
-                  <div>
-                    <strong style={{ color: '#0369a1' }}>Expires:</strong>
-                    <div style={{ color: '#374151', fontSize: '0.875rem' }}>
-                      {introspectionResults.exp ? new Date(introspectionResults.exp * 1000).toLocaleString() : 'N/A'}
-                    </div>
+                  <div style={{
+                    display: 'grid',
+                    gap: '0.75rem',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))'
+                  }}>
+                    {renderIntrospectionItem('Username', introspectionResults.username)}
+                    {renderIntrospectionItem('Email', introspectionResults.email)}
+                    {renderIntrospectionItem('Given Name', introspectionResults.given_name)}
+                    {renderIntrospectionItem('Family Name', introspectionResults.family_name)}
                   </div>
                 </div>
-                
-                {introspectionResults.username && (
-                  <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid rgba(3, 105, 161, 0.2)' }}>
-                    <h5 style={{ margin: '0 0 0.5rem 0', color: '#0369a1', fontSize: '0.9rem', fontWeight: '600' }}>
-                      User Information
-                    </h5>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
-                      <div>
-                        <strong style={{ color: '#0369a1' }}>Username:</strong>
-                        <div style={{ color: '#374151', fontSize: '0.875rem' }}>
-                          {introspectionResults.username}
-                        </div>
-                      </div>
-                      {introspectionResults.given_name && (
-                        <div>
-                          <strong style={{ color: '#0369a1' }}>Given Name:</strong>
-                          <div style={{ color: '#374151', fontSize: '0.875rem' }}>
-                            {introspectionResults.given_name}
-                          </div>
-                        </div>
-                      )}
-                      {introspectionResults.family_name && (
-                        <div>
-                          <strong style={{ color: '#0369a1' }}>Family Name:</strong>
-                          <div style={{ color: '#374151', fontSize: '0.875rem' }}>
-                            {introspectionResults.family_name}
-                          </div>
-                        </div>
-                      )}
-                      {introspectionResults.email && (
-                        <div>
-                          <strong style={{ color: '#0369a1' }}>Email:</strong>
-                          <div style={{ color: '#374151', fontSize: '0.875rem' }}>
-                            {introspectionResults.email}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
+              )}
             </div>
-            
-            <details style={{ marginTop: '1rem' }}>
-              <summary style={{ cursor: 'pointer', fontWeight: '600', color: '#374151', fontSize: '0.9rem' }}>
-                View Complete Introspection Response (JSON)
-              </summary>
-              <TokenSurface
-                className="introspection-results"
-                ariaLabel="Introspection Results"
-                scrollable
-                hasToken={true}
-                isJson={true}
-                jsonContent={JSON.stringify(introspectionResults, null, 2)}
-              >
-                {JSON.stringify(introspectionResults, null, 2)}
-              </TokenSurface>
-            </details>
           </CardBody>
         </TokenSection>
       )}

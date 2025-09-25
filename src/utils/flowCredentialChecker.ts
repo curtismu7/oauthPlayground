@@ -36,9 +36,12 @@ export const checkFlowCredentials = (flowType: string): { hasCredentials: boolea
         break;
       case 'oauth2-client-credentials-v3':
       case 'oidc-client-credentials-v3':
-      case 'worker-token-v3':
         // Client credentials flows need environment ID, client ID, and client secret
         credentials = credentialManager.loadConfigCredentials();
+        break;
+      case 'worker-token-v3':
+        // Worker token flow has its own credential storage
+        credentials = credentialManager.loadWorkerFlowCredentials();
         break;
       case 'oidc-hybrid-v3':
         credentials = credentialManager.loadAuthzFlowCredentials();
