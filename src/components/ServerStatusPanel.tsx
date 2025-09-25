@@ -223,7 +223,7 @@ const ServerStatusPanel: React.FC = () => {
   const [servers, setServers] = useState<ServerStatus[]>([
     {
       name: 'Frontend Server',
-      url: 'https://localhost:3000',
+      url: window.location.origin,
       status: 'checking'
     },
     {
@@ -282,8 +282,6 @@ const ServerStatusPanel: React.FC = () => {
   const refreshAllServers = async () => {
     setIsRefreshing(true);
     try {
-      showFlowSuccess('🔄 Refreshing Server Status', 'Checking status of all servers...');
-      
       const updatedServers = await Promise.all(servers.map(server => checkServerStatus(server)));
       setServers(updatedServers);
       setLastRefresh(new Date());
@@ -292,9 +290,9 @@ const ServerStatusPanel: React.FC = () => {
       const totalCount = updatedServers.length;
       
       if (onlineCount === totalCount) {
-        showFlowSuccess('✅ All Servers Online', `All ${totalCount} servers are responding normally`);
+        showFlowSuccess('✅ All Servers Online', `All ${totalCount} servers are responding normally`, 5000);
       } else if (onlineCount > 0) {
-        showFlowSuccess('⚠️ Partial Server Status', `${onlineCount} of ${totalCount} servers are online`);
+        showFlowSuccess('⚠️ Partial Server Status', `${onlineCount} of ${totalCount} servers are online`, 5000);
       } else {
         showFlowError('❌ All Servers Offline', 'No servers are currently responding');
       }

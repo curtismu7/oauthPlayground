@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { FiSettings, FiKey, FiShield, FiRefreshCw, FiCheckCircle, FiDownload, FiEye, FiEyeOff, FiCopy } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { logger } from '../../utils/logger';
+import { trackFlowCompletion } from '../../utils/flowCredentialChecker';
 import { showFlowSuccess, showFlowError, showDetailedError } from '../../components/CentralizedSuccessMessage';
 import { credentialManager } from '../../utils/credentialManager';
 import { EnhancedStepFlowV2 } from '../../components/EnhancedStepFlowV2';
@@ -105,8 +106,6 @@ const FlowControlSection = styled.div`
   padding: 2rem;
   border-top: 1px solid #e5e7eb;
   background: #f9fafb;
-  margin-top: 2rem;
-  border-radius: 0 0 12px 12px;
 `;
 
 const FlowControlTitle = styled.h3`
@@ -114,9 +113,6 @@ const FlowControlTitle = styled.h3`
   color: #374151;
   font-size: 1.1rem;
   font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 `;
 
 const FlowControlButtons = styled.div`
@@ -142,8 +138,8 @@ const FlowControlButton = styled.button<{ className?: string }>`
   color: #374151;
 
   &:hover:not(:disabled) {
-    background: #f3f4f6;
-    border-color: #9ca3af;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
 
   &.clear {
@@ -153,23 +149,21 @@ const FlowControlButton = styled.button<{ className?: string }>`
     
     &:hover:not(:disabled) {
       background: #fde68a;
-      border-color: #d97706;
     }
   }
 
   &.reset {
-    background: #fef2f2;
-    border-color: #fecaca;
-    color: #dc2626;
+    background: #fee2e2;
+    border-color: #ef4444;
+    color: #991b1b;
     
     &:hover:not(:disabled) {
-      background: #fee2e2;
-      border-color: #fca5a5;
+      background: #fecaca;
     }
   }
 
   &:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
   }
 `;
@@ -410,6 +404,7 @@ const WorkerTokenFlowV3: React.FC = () => {
   const [introspection, setIntrospection] = useState<Record<string, unknown> | null>(null);
   const [showClearCredentialsModal, setShowClearCredentialsModal] = useState(false);
   const [isClearingCredentials, setIsClearingCredentials] = useState(false);
+  const [isResettingFlow, setIsResettingFlow] = useState(false);
   const [showAuthUrlModal, setShowAuthUrlModal] = useState(false);
   const [authUrl, setAuthUrl] = useState('');
   const [showIntrospectUrlModal, setShowIntrospectUrlModal] = useState(false);
@@ -712,6 +707,9 @@ const WorkerTokenFlowV3: React.FC = () => {
       const tokenData = await response.json();
       setTokens(tokenData);
       
+      // Track flow completion for dashboard status
+      trackFlowCompletion('worker-token-v3');
+      
       showFlowSuccess('🎉 Token Obtained', 'Worker token has been successfully obtained');
       logger.auth('WorkerTokenFlowV3', 'Worker token obtained successfully');
       
@@ -752,7 +750,7 @@ const WorkerTokenFlowV3: React.FC = () => {
   const resetFlow = useCallback(async () => {
     console.log('🔄 [WorkerTokenV3] Reset flow initiated');
     
-    setIsLoading(true);
+    setIsResettingFlow(true);
     
     try {
       // Simulate a brief delay for better UX
@@ -803,7 +801,7 @@ const WorkerTokenFlowV3: React.FC = () => {
       console.error('❌ [WorkerTokenV3] Reset flow failed:', error);
       showFlowError('Failed to reset flow');
     } finally {
-      setIsLoading(false);
+      setIsResettingFlow(false);
     }
   }, []);
 
@@ -814,8 +812,8 @@ const WorkerTokenFlowV3: React.FC = () => {
     setIsClearingCredentials(true);
     
     try {
-      // Clear flow-specific credentials
-      await credentialManager.clearWorkerFlowCredentials();
+      // Clear all credentials
+      credentialManager.clearAllCredentials();
       
       // Reset form state
       setCredentials({
@@ -2443,17 +2441,17 @@ Perfect for:
           <FlowControlButton 
             className="reset"
             onClick={resetFlow}
-            disabled={isLoading}
+            disabled={isResettingFlow}
             style={{
-              background: isLoading ? '#9ca3af' : undefined,
-              cursor: isLoading ? 'not-allowed' : 'pointer'
+              background: isResettingFlow ? '#9ca3af' : undefined,
+              cursor: isResettingFlow ? 'not-allowed' : 'pointer'
             }}
           >
             <FiRefreshCw style={{ 
-                animation: isLoading ? 'spin 1s linear infinite' : 'none',
+                animation: isResettingFlow ? 'spin 1s linear infinite' : 'none',
                 marginRight: '0.5rem'
             }} />
-            {isLoading ? 'Resetting...' : 'Reset Flow'}
+            {isResettingFlow ? 'Resetting...' : 'Reset Flow'}
           </FlowControlButton>
         </FlowControlButtons>
       </FlowControlSection>
