@@ -19,6 +19,7 @@ import Documentation from './pages/Documentation';
 import Login from './pages/Login';
 import Callback from './pages/Callback';
 import { useAuth } from './contexts/NewAuthContext';
+import CentralizedSuccessMessage from './components/CentralizedSuccessMessage';
 // Removed useScrollToBottom - using centralized scroll management per page
 
 // Import all the new OAuth and OIDC flow components
@@ -506,6 +507,7 @@ function App() {
             <AuthProvider>
               <PageStyleProvider>
                 <GlobalStyle />
+                <CentralizedSuccessMessage />
                 <AppRoutes />
               </PageStyleProvider>
             </AuthProvider>
