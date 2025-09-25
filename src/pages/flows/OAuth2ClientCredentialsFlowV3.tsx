@@ -19,16 +19,18 @@ import { InfoBox } from '../../components/steps/CommonSteps';
 import { FormField, FormLabel, FormInput } from '../../components/steps/CommonSteps';
 import TokenDisplay from '../../components/TokenDisplay';
 import ColorCodedURL from '../../components/ColorCodedURL';
+import { applyClientAuthentication, getAuthMethodSecurityLevel, ClientAuthMethod } from '../../utils/clientAuthentication';
 
 // Types
 interface ClientCredentialsCredentials {
   environmentId: string;
   clientId: string;
   clientSecret: string;
-  authMethod: 'client_secret_basic' | 'client_secret_post' | 'private_key_jwt';
+  authMethod: ClientAuthMethod;
   scopes: string;
   audience?: string;
   tokenEndpoint: string;
+  privateKey?: string;
 }
 
 interface TokenResponse {
@@ -216,10 +218,11 @@ const OAuth2ClientCredentialsFlowV3: React.FC = () => {
     environmentId: '',
     clientId: '',
     clientSecret: '',
-    authMethod: 'client_secret_basic',
+    authMethod: 'client_secret_post',
     scopes: '',
     audience: '',
-    tokenEndpoint: ''
+    tokenEndpoint: '',
+    privateKey: ''
   });
 
   // Flow state
@@ -227,6 +230,7 @@ const OAuth2ClientCredentialsFlowV3: React.FC = () => {
   const [isRequestingToken, setIsRequestingToken] = useState(false);
   const [showClearCredentialsModal, setShowClearCredentialsModal] = useState(false);
   const [isClearingCredentials, setIsClearingCredentials] = useState(false);
+  const [showPrivateKey, setShowPrivateKey] = useState(false);
   const [copiedText, setCopiedText] = useState<string | null>(null);
   const [showEducationalContent, setShowEducationalContent] = useState(false);
   const [isSavingCredentials, setIsSavingCredentials] = useState(false);
@@ -284,10 +288,11 @@ const OAuth2ClientCredentialsFlowV3: React.FC = () => {
         environmentId: '',
         clientId: '',
         clientSecret: '',
-        authMethod: 'client_secret_basic',
+        authMethod: 'client_secret_post',
         scopes: '',
         audience: '',
-        tokenEndpoint: ''
+        tokenEndpoint: '',
+        privateKey: ''
       });
       setTokens(null);
       showFlowSuccess('OAuth 2.0 Client Credentials credentials cleared successfully!');
@@ -302,8 +307,18 @@ const OAuth2ClientCredentialsFlowV3: React.FC = () => {
 
   // Request token
   const requestToken = useCallback(async () => {
-    if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret || !credentials.tokenEndpoint) {
-      throw new Error('Missing required credentials. Please configure Environment ID, Client ID, and Client Secret.');
+    // Validate required fields
+    if (!credentials.environmentId || !credentials.clientId || !credentials.tokenEndpoint) {
+      throw new Error('Missing required credentials. Please configure Environment ID, Client ID, and Token Endpoint.');
+    }
+    
+    // Validate authentication method specific requirements
+    if (credentials.authMethod === 'private_key_jwt' && !credentials.privateKey) {
+      throw new Error('Private key is required for Private Key JWT authentication method');
+    }
+    
+    if (credentials.authMethod !== 'none' && credentials.authMethod !== 'private_key_jwt' && !credentials.clientSecret) {
+      throw new Error('Client secret is required for the selected authentication method');
     }
 
     setIsRequestingToken(true);
@@ -317,37 +332,42 @@ const OAuth2ClientCredentialsFlowV3: React.FC = () => {
         audience: credentials.audience
       });
 
-    // Build request body - PingOne Client Credentials uses HTTP Basic Auth (per curl example)
-    const requestBody = new URLSearchParams({
-      grant_type: 'client_credentials'
-    });
-    
-    // Only add scope if it's not empty
-    if (credentials.scopes && credentials.scopes.trim()) {
-      requestBody.append('scope', credentials.scopes);
-    }
+      // Prepare base request body
+      const baseBody = new URLSearchParams({
+        grant_type: 'client_credentials'
+      });
+      
+      // Only add scope if it's not empty
+      if (credentials.scopes && credentials.scopes.trim()) {
+        baseBody.append('scope', credentials.scopes);
+      }
 
-    if (credentials.audience) {
-      requestBody.append('audience', credentials.audience);
-    }
+      if (credentials.audience) {
+        baseBody.append('audience', credentials.audience);
+      }
 
-    // Build headers with HTTP Basic Authentication (per curl example)
-    const credentials_b64 = btoa(`${credentials.clientId}:${credentials.clientSecret}`);
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': `Basic ${credentials_b64}`
-    };
+      // Apply client authentication method
+      const authConfig = {
+        method: credentials.authMethod,
+        clientId: credentials.clientId,
+        clientSecret: credentials.clientSecret,
+        privateKey: credentials.privateKey,
+        tokenEndpoint: credentials.tokenEndpoint
+      };
+      
+      const authenticatedRequest = await applyClientAuthentication(authConfig, baseBody);
 
       logger.info('OAuth2ClientCredentialsV3', '📤 CC POST /token', { 
         endpoint: credentials.tokenEndpoint,
-        authMethod: 'http_basic_auth'
+        authMethod: credentials.authMethod,
+        securityLevel: getAuthMethodSecurityLevel(credentials.authMethod)
       });
 
       // Make the request
       const response = await fetch(credentials.tokenEndpoint, {
         method: 'POST',
-        headers,
-        body: requestBody.toString(),
+        headers: authenticatedRequest.headers,
+        body: authenticatedRequest.body.toString(),
       });
 
       const responseData = await response.json();
@@ -545,11 +565,65 @@ const OAuth2ClientCredentialsFlowV3: React.FC = () => {
                 cursor: 'pointer'
               }}
             >
-              <option value="client_secret_basic">Client Secret Basic (HTTP Basic Auth)</option>
-              <option value="client_secret_post">Client Secret Post (Form Body)</option>
-              <option value="private_key_jwt">Private Key JWT (Recommended)</option>
+              <option value="client_secret_post">Client Secret Post</option>
+              <option value="client_secret_basic">Client Secret Basic</option>
+              <option value="client_secret_jwt">Client Secret JWT</option>
+              <option value="private_key_jwt">Private Key JWT</option>
+              <option value="none">None</option>
             </select>
+            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>
+              {(() => {
+                const securityInfo = getAuthMethodSecurityLevel(credentials.authMethod);
+                return `${securityInfo.icon} ${securityInfo.description}`;
+              })()}
+            </div>
           </FormField>
+
+          {credentials.authMethod === 'private_key_jwt' && (
+            <FormField>
+              <FormLabel>Private Key (PEM Format) *</FormLabel>
+              <div style={{ position: 'relative' }}>
+                <textarea
+                  value={credentials.privateKey || ''}
+                  onChange={(e) => setCredentials(prev => ({ ...prev, privateKey: e.target.value }))}
+                  placeholder="-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC..."
+                  style={{
+                    width: '100%',
+                    height: '120px',
+                    padding: '0.75rem',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '0.5rem',
+                    fontSize: '0.875rem',
+                    fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
+                    resize: 'vertical',
+                    paddingRight: showPrivateKey ? '2.5rem' : '0.75rem'
+                  }}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPrivateKey(!showPrivateKey)}
+                  style={{
+                    position: 'absolute',
+                    right: '0.75rem',
+                    top: '0.75rem',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#6b7280',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  {showPrivateKey ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+                </button>
+              </div>
+              <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                Private key in PEM format for RS256 JWT signing
+              </div>
+            </FormField>
+          )}
 
           <FormField>
             <FormLabel>Scopes</FormLabel>
@@ -651,8 +725,14 @@ const OAuth2ClientCredentialsFlowV3: React.FC = () => {
         </div>
       ),
       execute: saveCredentials,
-      canExecute: Boolean(credentials.environmentId && credentials.clientId && credentials.clientSecret),
-      completed: Boolean(credentials.environmentId && credentials.clientId && credentials.clientSecret)
+      canExecute: Boolean(credentials.environmentId && credentials.clientId &&
+        (credentials.authMethod === 'none' || 
+         credentials.authMethod === 'private_key_jwt' && credentials.privateKey ||
+         credentials.authMethod !== 'private_key_jwt' && credentials.clientSecret)),
+      completed: Boolean(credentials.environmentId && credentials.clientId &&
+        (credentials.authMethod === 'none' || 
+         credentials.authMethod === 'private_key_jwt' && credentials.privateKey ||
+         credentials.authMethod !== 'private_key_jwt' && credentials.clientSecret))
     },
     {
       id: 'request-token',
@@ -789,7 +869,10 @@ const OAuth2ClientCredentialsFlowV3: React.FC = () => {
         </div>
       ),
       execute: requestToken,
-      canExecute: Boolean(credentials.environmentId && credentials.clientId && credentials.clientSecret && credentials.tokenEndpoint && !isRequestingToken),
+      canExecute: Boolean(credentials.environmentId && credentials.clientId && credentials.tokenEndpoint && !isRequestingToken &&
+        (credentials.authMethod === 'none' || 
+         credentials.authMethod === 'private_key_jwt' && credentials.privateKey ||
+         credentials.authMethod !== 'private_key_jwt' && credentials.clientSecret)),
       completed: Boolean(tokens?.access_token)
     },
     {
@@ -1053,7 +1136,7 @@ const OAuth2ClientCredentialsFlowV3: React.FC = () => {
           initialStepIndex={stepManager.currentStepIndex}
           onStepChange={stepManager.setStep}
           autoAdvance={false}
-          showDebugInfo={true}
+          showDebugInfo={false}
           allowStepJumping={true}
           onStepComplete={(stepId, result) => {
             console.log('✅ [OAuth2ClientCredentialsV3] Step completed:', stepId, result);
