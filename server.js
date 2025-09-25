@@ -8,6 +8,9 @@ import fetch from 'node-fetch';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
+import https from 'https';
+import fs from 'fs';
+import { execSync } from 'child_process';
 
 dotenv.config();
 
@@ -148,7 +151,8 @@ app.post('/api/token-exchange', async (req, res) => {
       hasClientSecret: !!client_secret,
       hasCode: !!code,
       hasCodeVerifier: !!code_verifier,
-      redirectUri: redirect_uri
+      redirectUri: redirect_uri,
+      clientAuthMethod: req.body.client_auth_method || 'client_secret_post'
     });
 
     // Prepare request body based on grant type
@@ -182,23 +186,39 @@ app.post('/api/token-exchange', async (req, res) => {
       'Accept': 'application/json'
     };
 
-    // For confidential clients, use Basic Auth instead of client_secret in body
+    // Handle client authentication based on the specified method
+    const client_auth_method = req.body.client_auth_method || 'client_secret_post';
+    
     if (client_secret && client_secret.trim() !== '') {
-      const credentials = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
-      headers['Authorization'] = `Basic ${credentials}`;
-      console.log('🔐 [Server] Using Basic Auth for confidential client:', {
-        clientId: client_id?.substring(0, 8) + '...',
-        clientSecretLength: client_secret?.length || 0,
-        hasClientSecret: !!client_secret,
-        basicAuthHeader: `Basic ${credentials.substring(0, 20)}...`
-      });
-      // Don't add client_secret to body when using Basic Auth
+      if (client_auth_method === 'client_secret_basic') {
+        // Use Basic Auth
+        const credentials = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
+        headers['Authorization'] = `Basic ${credentials}`;
+        console.log('🔐 [Server] Using Basic Auth for confidential client:', {
+          clientId: client_id?.substring(0, 8) + '...',
+          clientSecretLength: client_secret?.length || 0,
+          hasClientSecret: !!client_secret,
+          basicAuthHeader: `Basic ${credentials.substring(0, 20)}...`,
+          authMethod: client_auth_method
+        });
+        // Don't add client_secret to body when using Basic Auth
+      } else {
+        // Use client_secret_post (default) - add client_secret to body
+        tokenRequestBody.append('client_secret', client_secret);
+        console.log('🔐 [Server] Using client_secret_post for confidential client:', {
+          clientId: client_id?.substring(0, 8) + '...',
+          clientSecretLength: client_secret?.length || 0,
+          hasClientSecret: !!client_secret,
+          authMethod: client_auth_method
+        });
+      }
     } else {
       // For public clients, client_id is already in the body
       console.log('🔓 [Server] Using public client authentication:', {
         clientId: client_id?.substring(0, 8) + '...',
         hasClientSecret: !!client_secret,
-        clientSecretLength: client_secret?.length || 0
+        clientSecretLength: client_secret?.length || 0,
+        authMethod: client_auth_method
       });
     }
 
@@ -956,14 +976,74 @@ app.use((error, req, res, next) => {
   });
 });
 
-// Start server
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 OAuth Playground Backend Server running on port ${PORT}`);
-  console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
-  console.log(`🔐 Token exchange: http://localhost:${PORT}/api/token-exchange`);
-  console.log(`👤 UserInfo: http://localhost:${PORT}/api/userinfo`);
-  console.log(`✅ Token validation: http://localhost:${PORT}/api/validate-token`);
-});
+// Generate self-signed certificates for HTTPS
+function generateSelfSignedCert() {
+  const certDir = path.join(__dirname, 'certs');
+  
+  // Create certs directory if it doesn't exist
+  if (!fs.existsSync(certDir)) {
+    fs.mkdirSync(certDir, { recursive: true });
+  }
+  
+  const keyPath = path.join(certDir, 'server.key');
+  const certPath = path.join(certDir, 'server.crt');
+  
+  // Check if certificates already exist
+  if (fs.existsSync(keyPath) && fs.existsSync(certPath)) {
+    console.log('🔐 Using existing self-signed certificates');
+    return { keyPath, certPath };
+  }
+  
+  try {
+    console.log('🔐 Generating self-signed certificates for HTTPS...');
+    execSync(`openssl req -x509 -newkey rsa:4096 -keyout "${keyPath}" -out "${certPath}" -days 365 -nodes -subj "/C=US/ST=State/L=City/O=Organization/CN=localhost"`, { stdio: 'inherit' });
+    console.log('✅ Self-signed certificates generated successfully');
+    return { keyPath, certPath };
+  } catch (error) {
+    console.error('❌ Failed to generate certificates:', error.message);
+    console.log('🔄 Falling back to HTTP server...');
+    return null;
+  }
+}
+
+// Start HTTPS server
+const certs = generateSelfSignedCert();
+let server;
+
+if (certs) {
+  try {
+    const options = {
+      key: fs.readFileSync(certs.keyPath),
+      cert: fs.readFileSync(certs.certPath)
+    };
+    
+    server = https.createServer(options, app).listen(PORT, '0.0.0.0', () => {
+      console.log(`🚀 OAuth Playground Backend Server running on port ${PORT} (HTTPS)`);
+      console.log(`📡 Health check: https://localhost:${PORT}/api/health`);
+      console.log(`🔐 Token exchange: https://localhost:${PORT}/api/token-exchange`);
+      console.log(`👤 UserInfo: https://localhost:${PORT}/api/userinfo`);
+      console.log(`✅ Token validation: https://localhost:${PORT}/api/validate-token`);
+    });
+  } catch (error) {
+    console.error('❌ Failed to start HTTPS server:', error.message);
+    console.log('🔄 Falling back to HTTP server...');
+    server = app.listen(PORT, '0.0.0.0', () => {
+      console.log(`🚀 OAuth Playground Backend Server running on port ${PORT} (HTTP)`);
+      console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
+      console.log(`🔐 Token exchange: http://localhost:${PORT}/api/token-exchange`);
+      console.log(`👤 UserInfo: http://localhost:${PORT}/api/userinfo`);
+      console.log(`✅ Token validation: http://localhost:${PORT}/api/validate-token`);
+    });
+  }
+} else {
+  server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 OAuth Playground Backend Server running on port ${PORT} (HTTP)`);
+    console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
+    console.log(`🔐 Token exchange: http://localhost:${PORT}/api/token-exchange`);
+    console.log(`👤 UserInfo: http://localhost:${PORT}/api/userinfo`);
+    console.log(`✅ Token validation: http://localhost:${PORT}/api/validate-token`);
+  });
+}
 
 // Add error handling
 server.on('error', (err) => {

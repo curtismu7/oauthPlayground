@@ -348,7 +348,8 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         environmentId: initialCredentials.environmentId,
         clientId: initialCredentials.clientId,
         redirectUri: initialCredentials.redirectUri,
-        scopes: initialCredentials.scopes
+        scopes: initialCredentials.scopes,
+        tokenAuthMethod: initialCredentials.clientAuthMethod
       });
     }
 
@@ -506,7 +507,8 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
           clientSecret: foundCredentials.clientSecret || prev.clientSecret,
           redirectUri: foundCredentials.redirectUri || prev.redirectUri,
           scope: Array.isArray(foundCredentials.scopes) ? foundCredentials.scopes.join(' ') : foundCredentials.scopes || prev.scope,
-          scopes: Array.isArray(foundCredentials.scopes) ? foundCredentials.scopes : (foundCredentials.scopes ? foundCredentials.scopes.split(' ') : prev.scopes)
+          scopes: Array.isArray(foundCredentials.scopes) ? foundCredentials.scopes : (foundCredentials.scopes ? foundCredentials.scopes.split(' ') : prev.scopes),
+          clientAuthMethod: foundCredentials.tokenAuthMethod || prev.clientAuthMethod
         }));
       } else {
         console.warn(`⚠️ [${flowType.toUpperCase()}-V3] No valid credentials found in any storage after reload`);
@@ -766,7 +768,8 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
                  scopes: scopeArray.length > 0 ? scopeArray : prev.scopes,
                  authEndpoint: allCredentials.authEndpoint || prev.authEndpoint || (allCredentials.environmentId ? `https://auth.pingone.com/${allCredentials.environmentId}/as/authorize` : ''),
                  tokenEndpoint: allCredentials.tokenEndpoint || prev.tokenEndpoint || (allCredentials.environmentId ? `https://auth.pingone.com/${allCredentials.environmentId}/as/token` : ''),
-                 userInfoEndpoint: allCredentials.userInfoEndpoint || prev.userInfoEndpoint || (allCredentials.environmentId ? `https://auth.pingone.com/${allCredentials.environmentId}/as/userinfo` : '')
+                 userInfoEndpoint: allCredentials.userInfoEndpoint || prev.userInfoEndpoint || (allCredentials.environmentId ? `https://auth.pingone.com/${allCredentials.environmentId}/as/userinfo` : ''),
+                 clientAuthMethod: allCredentials.tokenAuthMethod || prev.clientAuthMethod
                };
                
                console.log(`🔍 [${flowType.toUpperCase()}-V3] setCredentials - new credentials:`, {
@@ -801,7 +804,8 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
             scopes: scopeArray.length > 0 ? scopeArray : ['openid'],
             authEndpoint: allCredentials.authEndpoint || `https://auth.pingone.com/${allCredentials.environmentId}/as/authorize`,
             tokenEndpoint: allCredentials.tokenEndpoint || `https://auth.pingone.com/${allCredentials.environmentId}/as/token`,
-            userInfoEndpoint: allCredentials.userInfoEndpoint || `https://auth.pingone.com/${allCredentials.environmentId}/as/userinfo`
+            userInfoEndpoint: allCredentials.userInfoEndpoint || `https://auth.pingone.com/${allCredentials.environmentId}/as/userinfo`,
+            tokenAuthMethod: allCredentials.tokenAuthMethod
           });
         }
       } else {
@@ -1282,26 +1286,17 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
       });
 
       // Apply client authentication
-      const authMethod: ClientAuthMethod = credentials.clientSecret ? 'client_secret_post' : 'none';
+      const authMethod: ClientAuthMethod = credentials.clientAuthMethod || (credentials.clientSecret ? 'client_secret_post' : 'none');
       const authMethodInfo = getAuthMethodSecurityLevel(authMethod);
       
       // Create the auth config object
       const authConfig: ClientAuthConfig = {
-        method: authMethod,
+        method: credentials.clientAuthMethod || 'client_secret_post',
         clientId: credentials.clientId,
         clientSecret: credentials.clientSecret,
         tokenEndpoint: tokenEndpoint
       };
       
-      const authenticatedRequest = await applyClientAuthentication(authConfig, new URLSearchParams(requestBody));
-
-      console.log(`🔍 [${flowType.toUpperCase()}-V3] Authenticated request:`, {
-        headers: authenticatedRequest.headers,
-        bodyEntries: Array.from(authenticatedRequest.body.entries()),
-        authConfig,
-        originalRequestBody: requestBody
-      });
-
       console.log(`🔍 [${flowType.toUpperCase()}-V3] Exchanging tokens:`, {
         tokenEndpoint,
         clientId: `${credentials.clientId.substring(0, 8)}...`,
@@ -1309,7 +1304,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         authMethod: authMethodInfo.level
       });
 
-      // Use simplified request body format (like other working flows)
+      // Send the client authentication method to the backend
       const finalRequestBody = {
         grant_type: 'authorization_code',
         client_id: credentials.clientId,
@@ -1318,7 +1313,8 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
         redirect_uri: storedRedirectUri, // Use the stored redirect URI to ensure exact match
         code_verifier: codeVerifier,
         environment_id: credentials.environmentId,
-        scope: flowType === 'oidc' ? 'openid profile email' : 'read write'
+        scope: flowType === 'oidc' ? 'openid profile email' : 'read write',
+        client_auth_method: credentials.clientAuthMethod // Tell backend which auth method to use
       };
 
       console.log(`🔍 [${flowType.toUpperCase()}-V3] Simplified token exchange request:`, {
@@ -1437,12 +1433,14 @@ Original Error: ${errorData.error_description || errorData.error}
           console.log(`🔍 [${flowType.toUpperCase()}-V3] Validating ID token and custom claims...`);
           
           // Validate ID token with custom claims
-          const idTokenValidation = await validateIdToken(tokenData.id_token, {
-            issuer: credentials.issuerUrl || `https://auth.pingone.com/${credentials.environmentId}`,
-            audience: credentials.clientId,
-            nonce: flowConfig.nonce || nonce,
-            customClaims: flowConfig.customClaims || {}
-          });
+          const idTokenValidation = await validateIdToken(
+            tokenData.id_token,
+            credentials.clientId,
+            credentials.issuerUrl || `https://auth.pingone.com/${credentials.environmentId}`,
+            flowConfig.nonce || nonce,
+            flowConfig.maxAge || undefined,
+            tokenData.access_token
+          );
           
           console.log(`✅ [${flowType.toUpperCase()}-V3] ID token validation:`, {
             isValid: idTokenValidation.isValid,
@@ -1535,7 +1533,8 @@ Original Error: ${errorData.error_description || errorData.error}
         scopes: scopesToSave,
         authEndpoint: environmentId !== 'custom' ? 
           `https://auth.pingone.com/${environmentId}/as/authorize` :
-          credentials.issuerUrl ? `${credentials.issuerUrl.replace(/\/$/, '')}/as/authorize` : ''
+          credentials.issuerUrl ? `${credentials.issuerUrl.replace(/\/$/, '')}/as/authorize` : '',
+        tokenAuthMethod: credentials.clientAuthMethod
       });
       
       // Update save button state

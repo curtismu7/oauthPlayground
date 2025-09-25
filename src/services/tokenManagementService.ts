@@ -165,12 +165,8 @@ export class TokenManagementService {
     });
 
     try {
-      // Use backend proxy to avoid CORS issues
-      const backendUrl = process.env.NODE_ENV === 'production' 
-        ? 'https://oauth-playground.vercel.app' 
-        : 'http://localhost:3001';
-      
-      const tokenUrl = `${backendUrl}/api/token-exchange`;
+      // Use relative URL to go through Vite proxy (avoids certificate issues)
+      const tokenUrl = '/api/token-exchange';
       
       // Convert to JSON format for backend proxy
       const requestBody = this.buildTokenRequestBody(request, authMethod);
