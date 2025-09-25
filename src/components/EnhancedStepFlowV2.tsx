@@ -58,6 +58,15 @@ export interface EnhancedFlowStep {
   content?: React.ReactNode; // Custom content for the step
   buttonText?: string; // Custom text for the execute button
   hideDefaultButton?: boolean; // Hide the default execute button
+  customButtons?: Array<{
+    id: string;
+    label: string;
+    onClick: () => void;
+    disabled?: boolean;
+    loading?: boolean;
+    icon?: React.ReactNode;
+    variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'outline';
+  }>; // Custom buttons for the step
 }
 
 interface StepHistory {
@@ -1105,6 +1114,33 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
                 )}
               </Button>
             )}
+
+            {/* Render custom buttons */}
+            {currentStep.customButtons && currentStep.customButtons.map((button) => (
+              <Button
+                key={button.id}
+                $variant={button.variant || 'secondary'}
+                onClick={button.onClick}
+                disabled={button.disabled || isExecuting}
+                $loading={button.loading}
+                style={{ 
+                  opacity: (button.disabled || isExecuting) ? 0.5 : 1,
+                  cursor: (button.disabled || isExecuting) ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {button.loading ? (
+                  <>
+                    <LoadingSpinner />
+                    Loading...
+                  </>
+                ) : (
+                  <>
+                    {button.icon}
+                    {button.label}
+                  </>
+                )}
+              </Button>
+            ))}
 
             <Button
               $variant="success"

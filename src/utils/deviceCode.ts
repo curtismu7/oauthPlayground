@@ -85,27 +85,62 @@ export async function pollTokenEndpoint(
   tokenEndpoint: string,
   deviceCode: string,
   clientId: string,
-  interval: number = 5000
+  interval: number = 5000,
+  authConfig?: {
+    method: 'client_secret_post' | 'client_secret_basic' | 'client_secret_jwt' | 'private_key_jwt' | 'none';
+    clientSecret?: string;
+    privateKey?: string;
+  }
 ): Promise<DeviceTokenResponse> {
   logger.info('POLLING', 'Starting token polling', {
     endpoint: tokenEndpoint,
     deviceCode: deviceCode.substring(0, 8) + '...',
-    interval
+    interval,
+    authMethod: authConfig?.method || 'none'
   });
 
-  const body = new URLSearchParams({
+  const baseBody = new URLSearchParams({
     grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
-    device_code: deviceCode,
-    client_id: clientId
+    device_code: deviceCode
   });
+
+  let headers: Record<string, string> = {
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'Accept': 'application/json'
+  };
+
+  let body: URLSearchParams = baseBody;
+
+  // Apply client authentication if provided
+  if (authConfig && authConfig.method !== 'none') {
+    try {
+      const { applyClientAuthentication } = await import('./clientAuthentication');
+      
+      const authConfigForToken = {
+        method: authConfig.method,
+        clientId: clientId,
+        clientSecret: authConfig.clientSecret,
+        privateKey: authConfig.privateKey,
+        tokenEndpoint: tokenEndpoint
+      };
+      
+      const authenticatedRequest = await applyClientAuthentication(authConfigForToken, baseBody);
+      headers = { ...headers, ...authenticatedRequest.headers };
+      body = authenticatedRequest.body;
+    } catch (error) {
+      logger.error('POLLING', 'Failed to apply client authentication', { error });
+      // Fall back to basic client_id in body
+      body.append('client_id', clientId);
+    }
+  } else {
+    // No authentication - just add client_id to body
+    body.append('client_id', clientId);
+  }
 
   try {
     const response = await fetch(tokenEndpoint, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json'
-      },
+      headers: headers,
       body: body.toString()
     });
 
