@@ -334,11 +334,10 @@ const SecurityWarning = styled.div`
   color: #dc2626;
 `;
 
-type OIDCImplicitFlowV3Props = {};
+type OIDCImplicitFlowV3Props = Record<string, never>;
 
 const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 	const authContext = useAuth();
-	const { config } = authContext;
 
 	// Performance monitoring
 	const _performanceTracking = usePerformanceTracking();
@@ -511,21 +510,21 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 	}, [stepManager]);
 
 	// Client ID validation function
-	const validateClientId = (clientId: string): boolean => {
+	const validateClientId = useCallback((clientId: string): boolean => {
 		if (!clientId || clientId.trim() === "") return false;
 		// Basic validation - should be alphanumeric with hyphens/underscores
 		const isValid = /^[a-zA-Z0-9_-]+$/.test(clientId) && clientId.length >= 8;
 		return isValid;
-	};
+	}, []);
 
 	// Environment ID validation function
-	const validateEnvironmentId = (envId: string): boolean => {
+	const validateEnvironmentId = useCallback((envId: string): boolean => {
 		if (!envId || envId.trim() === "") return false;
 		// Should be UUID format
 		const uuidRegex =
 			/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 		return uuidRegex.test(envId);
-	};
+	}, []);
 
 	// Update validation errors when credentials change
 	useEffect(() => {
@@ -548,8 +547,10 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 		"id_token" | "id_token token"
 	>("id_token token");
 	const [authUrl, setAuthUrl] = useState("");
-	const [tokens, setTokens] = useState<any>(null);
-	const [userInfo, setUserInfo] = useState<any>(null);
+	const [tokens, setTokens] = useState<Record<string, unknown> | null>(null);
+	const [userInfo, setUserInfo] = useState<Record<string, unknown> | null>(
+		null,
+	);
 	const [isRedirecting, setIsRedirecting] = useState(false);
 	const [isGettingUserInfo, setIsGettingUserInfo] = useState(false);
 	const [showClearCredentialsModal, setShowClearCredentialsModal] =
@@ -732,31 +733,6 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 		}
 	}, [credentials, responseType]);
 
-	// Handle authorization redirect with modal option
-	const handleAuthorizationWithModal = useCallback(() => {
-		if (!authUrl) {
-			showFlowError("❌ Please generate authorization URL first");
-			return;
-		}
-
-		// Check configuration setting for showing auth request modal
-		const flowConfigKey = "enhanced-flow-authorization-code";
-		const flowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || "{}");
-		const shouldShowModal = flowConfig.showAuthRequestModal === true;
-
-		if (shouldShowModal) {
-			console.log(
-				"🔧 [OIDC-IMPLICIT-V3] Showing authorization request modal (user preference)",
-			);
-			setShowAuthRequestModal(true);
-		} else {
-			console.log(
-				"🔧 [OIDC-IMPLICIT-V3] Skipping authorization modal (user preference)",
-			);
-			handleAuthorizationDirect();
-		}
-	}, [authUrl, handleAuthorizationDirect]);
-
 	// Direct authorization redirect (without modal)
 	const handleAuthorizationDirect = useCallback(() => {
 		if (!authUrl) {
@@ -783,6 +759,31 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 		// Redirect to authorization server
 		window.location.href = authUrl;
 	}, [authUrl, credentials, responseType]);
+
+	// Handle authorization redirect with modal option
+	const handleAuthorizationWithModal = useCallback(() => {
+		if (!authUrl) {
+			showFlowError("❌ Please generate authorization URL first");
+			return;
+		}
+
+		// Check configuration setting for showing auth request modal
+		const flowConfigKey = "enhanced-flow-authorization-code";
+		const flowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || "{}");
+		const shouldShowModal = flowConfig.showAuthRequestModal === true;
+
+		if (shouldShowModal) {
+			console.log(
+				"🔧 [OIDC-IMPLICIT-V3] Showing authorization request modal (user preference)",
+			);
+			setShowAuthRequestModal(true);
+		} else {
+			console.log(
+				"🔧 [OIDC-IMPLICIT-V3] Skipping authorization modal (user preference)",
+			);
+			handleAuthorizationDirect();
+		}
+	}, [authUrl, handleAuthorizationDirect]);
 
 	// Handle authorization redirect (backwards compatibility)
 	const handleAuthorization = useCallback(() => {
