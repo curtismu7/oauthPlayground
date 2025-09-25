@@ -12,6 +12,7 @@ export interface PermanentCredentials {
   tokenEndpoint?: string;
   userInfoEndpoint?: string;
   endSessionEndpoint?: string;
+  tokenAuthMethod?: string;
 }
 
 export interface SessionCredentials {
