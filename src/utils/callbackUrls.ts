@@ -39,6 +39,7 @@ export function generateCallbackUrls(baseUrl?: string): CallbackUrls {
  */
 export function getCallbackUrlForFlow(flowType: string, baseUrl?: string): string {
   const urls = generateCallbackUrls(baseUrl);
+  const base = baseUrl || window.location.origin;
   
   switch (flowType.toLowerCase()) {
     case 'authorization-code':
