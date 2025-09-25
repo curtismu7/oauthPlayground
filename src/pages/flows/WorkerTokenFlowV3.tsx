@@ -1100,7 +1100,8 @@ Perfect for:
             </div>
           </CollapsibleSection>
 
-          <form onSubmit={(e) => e.preventDefault()}>
+          <form id="worker-token-form" onSubmit={(e) => e.preventDefault()} style={{ display: 'none' }}></form>
+
           <FormField>
             <FormLabel>Environment ID *</FormLabel>
             <FormInput
@@ -1139,6 +1140,7 @@ Perfect for:
                 placeholder="Your client secret"
                 style={{ paddingRight: showSecret ? '2.5rem' : undefined }}
                 required
+                form="worker-token-form"
               />
                 <button
                   id="worker-token-show-secret-button"
@@ -2411,7 +2413,6 @@ Perfect for:
           </div>
         </div>
       </CollapsibleSection>
-      </form>
 
       <EnhancedStepFlowV2
         steps={steps}
