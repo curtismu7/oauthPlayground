@@ -574,7 +574,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
     tokenEndpoint: '',
     userInfoEndpoint: '',
     redirectUri: window.location.origin + '/authz-callback',
-    scopes: 'profile email',
+    scopes: 'openid',
     responseType: 'code',
     codeChallengeMethod: 'S256'
   });
@@ -707,7 +707,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
         tokenEndpoint: '',
         userInfoEndpoint: '',
         redirectUri: window.location.origin + '/authz-callback',
-        scopes: 'openid profile email',
+        scopes: 'openid',
         responseType: 'code',
         codeChallengeMethod: 'S256'
       });
@@ -870,7 +870,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
           tokenEndpoint: storedCredentials.tokenEndpoint || '',
           userInfoEndpoint: storedCredentials.userInfoEndpoint || '',
           redirectUri: storedCredentials.redirectUri,
-          scopes: Array.isArray(storedCredentials.scopes) ? storedCredentials.scopes.join(' ') : (storedCredentials.scopes || 'profile email'),
+          scopes: Array.isArray(storedCredentials.scopes) ? storedCredentials.scopes.join(' ') : (storedCredentials.scopes || 'openid'),
           responseType: 'code',
           codeChallengeMethod: 'S256'
         };
@@ -1242,7 +1242,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
                     tokenEndpoint: storedCredentials.tokenEndpoint || '',
                     userInfoEndpoint: storedCredentials.userInfoEndpoint || '',
                     redirectUri: storedCredentials.redirectUri,
-                    scopes: Array.isArray(storedCredentials.scopes) ? storedCredentials.scopes.join(' ') : (storedCredentials.scopes || 'profile email'),
+                    scopes: Array.isArray(storedCredentials.scopes) ? storedCredentials.scopes.join(' ') : (storedCredentials.scopes || 'openid'),
                     responseType: 'code',
                     codeChallengeMethod: 'S256'
                   };
@@ -1342,7 +1342,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
             authorizationEndpoint: allCredentials.authEndpoint || '',
             tokenEndpoint: allCredentials.tokenEndpoint || '',
             userInfoEndpoint: allCredentials.userInfoEndpoint || '',
-            scopes: Array.isArray(allCredentials.scopes) ? allCredentials.scopes.join(' ') : (allCredentials.scopes || 'profile email')
+            scopes: Array.isArray(allCredentials.scopes) ? allCredentials.scopes.join(' ') : (allCredentials.scopes || 'openid')
           }));
           
           console.log('✅ [EnhancedAuthorizationCodeFlowV2] Credentials reloaded successfully');
@@ -1471,7 +1471,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
     console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Flow config:', flowConfig);
     
     // Use scopes from Flow Config or fallback to credentials
-    const scopes = flowConfig.scopes.length > 0 ? flowConfig.scopes.join(' ') : (credentials.scopes || 'profile email');
+    const scopes = flowConfig.scopes.length > 0 ? flowConfig.scopes.join(' ') : (credentials.scopes || 'openid');
     console.log('🔧 [EnhancedAuthorizationCodeFlowV2] Generating auth URL with scopes:', scopes);
     
     // Use the correct callback URL for authorization code flow
