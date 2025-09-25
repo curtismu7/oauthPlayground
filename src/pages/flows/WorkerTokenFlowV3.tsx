@@ -203,10 +203,6 @@ const WorkerTokenFlowV3: React.FC = () => {
     console.log('🔄 [WorkerTokenV3] useJwksEndpoint state changed to:', useJwksEndpoint);
   }, [useJwksEndpoint]);
   
-  // Track JWKS endpoint state changes
-  useEffect(() => {
-    // State change tracking can be added here if needed
-  }, [useJwksEndpoint]);
   const [isLoading, setIsLoading] = useState(false);
   const [, setError] = useState<string | null>(null);
   const [tokens, setTokens] = useState<any>(null);
@@ -1248,11 +1244,16 @@ Perfect for:
                 <div style={{ marginBottom: '1rem' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
                     <input
-                      type="checkbox"
+                      type="radio"
+                      name="worker-token-key-source-setting"
+                      value="jwks"
                       checked={useJwksEndpoint}
                       onChange={(e) => {
-                        console.log('🔄 [WorkerTokenV3] JWKS checkbox clicked, new value:', e.target.checked);
-                        setUseJwksEndpoint(e.target.checked);
+                        if (!e.target.checked) {
+                          return;
+                        }
+                        console.log('🔄 [WorkerTokenV3] JWKS option selected');
+                        setUseJwksEndpoint(true);
                       }}
                       style={{ margin: 0, cursor: 'pointer' }}
                     />
@@ -1383,11 +1384,16 @@ Perfect for:
                 <div style={{ marginBottom: '1rem' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
                     <input
-                      type="checkbox"
+                      type="radio"
+                      name="worker-token-key-source-setting"
+                      value="private-key"
                       checked={!useJwksEndpoint}
                       onChange={(e) => {
-                        console.log('🔄 [WorkerTokenV3] Private Key checkbox clicked, new value:', e.target.checked);
-                        setUseJwksEndpoint(!e.target.checked);
+                        if (!e.target.checked) {
+                          return;
+                        }
+                        console.log('🔄 [WorkerTokenV3] Private Key option selected');
+                        setUseJwksEndpoint(false);
                       }}
                       style={{ margin: 0, cursor: 'pointer' }}
                     />
