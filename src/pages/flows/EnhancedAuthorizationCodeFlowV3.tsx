@@ -217,7 +217,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
     clientSecret: '',
     environmentId: '',
     redirectUri: '',
-    scopes: 'openid profile email',
+    scopes: 'openid',
     authorizationEndpoint: '',
     tokenEndpoint: '',
     userInfoEndpoint: ''
@@ -274,7 +274,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
           clientSecret: saved.clientSecret || '',
           environmentId: saved.environmentId || '',
           redirectUri: saved.redirectUri || getCallbackUrlForFlow('authorization-code'), // Use saved redirect URI or default
-          scopes: Array.isArray(saved.scopes) ? saved.scopes.join(' ') : (saved.scopes || 'openid profile email'),
+          scopes: Array.isArray(saved.scopes) ? saved.scopes.join(' ') : (saved.scopes || 'openid'),
           authorizationEndpoint: saved.authEndpoint || '',
           tokenEndpoint: saved.tokenEndpoint || '',
           userInfoEndpoint: saved.userInfoEndpoint || ''
@@ -662,7 +662,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
           // OIDC Core 1.0 Compliance validation for the received ID token
           const tokenComplianceResult = validateIdTokenCompliance(validatedPayload, {
             responseType: flowConfig.responseType || 'code',
-            scopes: flowConfig.scopes || ['openid', 'profile', 'email'],
+            scopes: flowConfig.scopes || ['openid'],
             clientAuthMethod: flowConfig.clientAuthMethod || 'client_secret_post',
             enablePKCE: flowConfig.enablePKCE || true,
             nonce: flowConfig.nonce,
@@ -1556,7 +1556,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
         {(() => {
           const complianceResult = validateOIDCCompliance({
             responseType: flowConfig.responseType || 'code',
-            scopes: flowConfig.scopes || ['openid', 'profile', 'email'],
+            scopes: flowConfig.scopes || ['openid'],
             clientAuthMethod: flowConfig.clientAuthMethod || 'client_secret_post',
             enablePKCE: flowConfig.enablePKCE || true,
             nonce: flowConfig.nonce,

@@ -371,7 +371,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 		environmentId: "",
 		clientId: "",
 		redirectUri: "",
-		scopes: "openid profile email",
+		scopes: "openid",
 	});
 
 	// Validation state
@@ -400,7 +400,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 						redirectUri: implicitCredentials.redirectUri || "",
 						scopes: Array.isArray(implicitCredentials.scopes)
 							? implicitCredentials.scopes.join(" ")
-							: implicitCredentials.scopes || "openid profile email",
+							: implicitCredentials.scopes || "openid",
 					});
 					console.log(
 						"✅ [OIDC-IMPLICIT-V3] Loaded implicit flow credentials:",
@@ -420,7 +420,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 							redirectUri: configCredentials.redirectUri || "",
 							scopes: Array.isArray(configCredentials.scopes)
 								? configCredentials.scopes.join(" ")
-								: configCredentials.scopes || "openid profile email",
+								: configCredentials.scopes || "openid",
 						});
 						console.log(
 							"✅ [OIDC-IMPLICIT-V3] Loaded global config credentials:",
@@ -435,7 +435,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 							environmentId: "",
 							clientId: "",
 							redirectUri: defaultUri,
-							scopes: "openid profile email",
+							scopes: "openid",
 						});
 						console.log(
 							"⚠️ [OIDC-IMPLICIT-V3] No credentials found, showing default redirect URI modal",
@@ -641,7 +641,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 				environmentId: "",
 				clientId: "",
 				redirectUri: "",
-				scopes: "openid profile email",
+				scopes: "openid",
 			});
 
 			showFlowSuccess("Credentials cleared successfully");
