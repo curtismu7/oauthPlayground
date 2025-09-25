@@ -1249,7 +1249,6 @@ Perfect for:
                         setUseJwksEndpoint(e.target.checked);
                       }}
                       style={{ margin: 0, cursor: 'pointer' }}
-                      key={`jwks-endpoint-${useJwksEndpoint}`}
                     />
                     <span style={{ color: '#065f46', fontWeight: '600' }}>Use JWKS Endpoint (Recommended)</span>
                   </label>
@@ -1384,7 +1383,6 @@ Perfect for:
                         setUseJwksEndpoint(!e.target.checked);
                       }}
                       style={{ margin: 0, cursor: 'pointer' }}
-                      key={`upload-private-key-${!useJwksEndpoint}`}
                     />
                     <span style={{ color: '#065f46', fontWeight: '600' }}>Upload Private Key</span>
                   </label>
