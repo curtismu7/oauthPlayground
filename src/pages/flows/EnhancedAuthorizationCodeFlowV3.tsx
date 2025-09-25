@@ -220,7 +220,8 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
     scopes: 'openid',
     authorizationEndpoint: '',
     tokenEndpoint: '',
-    userInfoEndpoint: ''
+    userInfoEndpoint: '',
+    clientAuthMethod: 'client_secret_post'
   });
 
   const [pkceCodes, setPkceCodes] = useState<PKCECodes>({
@@ -277,7 +278,8 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
           scopes: Array.isArray(saved.scopes) ? saved.scopes.join(' ') : (saved.scopes || 'openid'),
           authorizationEndpoint: saved.authEndpoint || '',
           tokenEndpoint: saved.tokenEndpoint || '',
-          userInfoEndpoint: saved.userInfoEndpoint || ''
+          userInfoEndpoint: saved.userInfoEndpoint || '',
+          clientAuthMethod: saved.tokenAuthMethod || 'client_secret_post'
         });
       }
     };
@@ -295,7 +297,8 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
         scopes: credentials.scopes.split(' '),
         authEndpoint: credentials.authorizationEndpoint,
         tokenEndpoint: credentials.tokenEndpoint,
-        userInfoEndpoint: credentials.userInfoEndpoint
+        userInfoEndpoint: credentials.userInfoEndpoint,
+        tokenAuthMethod: flowConfig.clientAuthMethod
       });
 
       if (success) {
@@ -528,10 +531,10 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
         credentialsUri: credentials.redirectUri
       });
       
-      // Use V2's backend API approach - EXACT SAME LOGIC
+      // Use proxy for HTTPS support
       const backendUrl = process.env.NODE_ENV === 'production' 
         ? 'https://oauth-playground.vercel.app' 
-        : 'http://localhost:3001';
+        : '';
 
       // OIDC Spec Compliance: Ensure code_verifier is properly included per RFC 7636
       if (!pkceCodes.codeVerifier) {
@@ -878,7 +881,8 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
       clientSecret: '',
       environmentId: '',
       redirectUri: '',
-      scopes: ''
+      scopes: '',
+      clientAuthMethod: 'client_secret_post'
     });
     
     // Clear from storage

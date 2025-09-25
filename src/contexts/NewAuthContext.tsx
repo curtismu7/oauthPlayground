@@ -939,7 +939,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Use backend proxy to avoid CORS issues
       const backendUrl = process.env.NODE_ENV === 'production' 
         ? 'https://oauth-playground.vercel.app' 
-        : 'http://localhost:3001';
+        : 'https://localhost:3001';
 
       console.log('🌐 [NewAuthContext] Making token exchange request to backend');
       console.log('📤 [NewAuthContext] Request details:', {
@@ -1298,7 +1298,7 @@ async function getUserInfo(userInfoEndpoint: string, accessToken: string): Promi
   // Use backend proxy to avoid CORS issues
   const backendUrl = process.env.NODE_ENV === 'production' 
     ? 'https://oauth-playground.vercel.app' 
-    : 'http://localhost:3001';
+    : 'https://localhost:3001';
   
   // Extract environment ID from userInfoEndpoint
   const environmentId = userInfoEndpoint.match(/\/\/([^\/]+)\/([^\/]+)\/as\/userinfo/)?.[2];
