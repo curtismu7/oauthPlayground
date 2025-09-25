@@ -1238,26 +1238,43 @@ Perfect for:
                 </div>
               </div>
 
-              {/* JWKS Endpoint Option */}
+              {/* Authentication Method Selection */}
               <FormField>
                 <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={useJwksEndpoint}
-                      onChange={(e) => {
-                        setUseJwksEndpoint(e.target.checked);
-                      }}
-                      style={{ margin: 0, cursor: 'pointer' }}
-                    />
-                    <span style={{ color: '#065f46', fontWeight: '600' }}>Use JWKS Endpoint (Recommended)</span>
-                  </label>
-                  <p style={{ margin: '0.5rem 0 0 1.5rem', color: '#047857', fontSize: '0.875rem' }}>
-                    PingOne will fetch the public key from your JWKS endpoint. No private key upload needed.
-                    <br/><br/>
-                    <strong>🌐 Public URL Required:</strong> PingOne needs to access your JWKS endpoint from their servers, so it must be publicly accessible (not localhost).
-                  </p>
-                </div>
+                  <h4 style={{ margin: '0 0 1rem 0', color: '#065f46', fontSize: '1rem' }}>Authentication Method</h4>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {/* JWKS Endpoint Option */}
+                    <label style={{ 
+                      display: 'flex', 
+                      alignItems: 'flex-start', 
+                      gap: '0.75rem', 
+                      cursor: 'pointer',
+                      padding: '1rem',
+                      border: useJwksEndpoint ? '2px solid #059669' : '2px solid #e5e7eb',
+                      borderRadius: '0.5rem',
+                      backgroundColor: useJwksEndpoint ? '#f0fdf4' : 'white',
+                      transition: 'all 0.2s ease'
+                    }}>
+                      <input
+                        type="radio"
+                        name="authMethod"
+                        value="jwks"
+                        checked={useJwksEndpoint}
+                        onChange={() => setUseJwksEndpoint(true)}
+                        style={{ margin: 0, cursor: 'pointer', marginTop: '0.125rem' }}
+                      />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ color: '#065f46', fontWeight: '600', marginBottom: '0.5rem' }}>
+                          Use JWKS Endpoint (Recommended)
+                        </div>
+                        <div style={{ color: '#047857', fontSize: '0.875rem', lineHeight: '1.4' }}>
+                          PingOne will fetch the public key from your JWKS endpoint. No private key upload needed.
+                          <br/><br/>
+                          <strong>🌐 Public URL Required:</strong> PingOne needs to access your JWKS endpoint from their servers, so it must be publicly accessible (not localhost).
+                        </div>
+                      </div>
+                    </label>
                 
                 {useJwksEndpoint && (
                   <div style={{ marginLeft: '1.5rem', marginBottom: '1rem' }}>
@@ -1372,23 +1389,36 @@ Perfect for:
                 )}
               </FormField>
 
-              {/* Private Key Upload Option */}
-              <FormField>
-                <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={!useJwksEndpoint}
-                      onChange={(e) => {
-                        setUseJwksEndpoint(!e.target.checked);
-                      }}
-                      style={{ margin: 0, cursor: 'pointer' }}
-                    />
-                    <span style={{ color: '#065f46', fontWeight: '600' }}>Upload Private Key</span>
-                  </label>
-                  <p style={{ margin: '0.5rem 0 0 1.5rem', color: '#047857', fontSize: '0.875rem' }}>
-                    Upload the private key directly to PingOne. Copy the key from below.
-                  </p>
+                    {/* Private Key Upload Option */}
+                    <label style={{ 
+                      display: 'flex', 
+                      alignItems: 'flex-start', 
+                      gap: '0.75rem', 
+                      cursor: 'pointer',
+                      padding: '1rem',
+                      border: !useJwksEndpoint ? '2px solid #059669' : '2px solid #e5e7eb',
+                      borderRadius: '0.5rem',
+                      backgroundColor: !useJwksEndpoint ? '#f0fdf4' : 'white',
+                      transition: 'all 0.2s ease'
+                    }}>
+                      <input
+                        type="radio"
+                        name="authMethod"
+                        value="privateKey"
+                        checked={!useJwksEndpoint}
+                        onChange={() => setUseJwksEndpoint(false)}
+                        style={{ margin: 0, cursor: 'pointer', marginTop: '0.125rem' }}
+                      />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ color: '#065f46', fontWeight: '600', marginBottom: '0.5rem' }}>
+                          Upload Private Key
+                        </div>
+                        <div style={{ color: '#047857', fontSize: '0.875rem', lineHeight: '1.4' }}>
+                          Upload the private key directly to PingOne. Copy the key from below.
+                        </div>
+                      </div>
+                    </label>
+                  </div>
                 </div>
               </FormField>
 
