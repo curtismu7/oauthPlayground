@@ -174,7 +174,7 @@ export function getBaseUrl(region: string): string {
 export function getBackendUrl(): string {
   return process.env.NODE_ENV === 'production' 
     ? 'https://oauth-playground.vercel.app' 
-    : 'http://localhost:3001';
+    : ''; // Use relative URL in development to go through Vite proxy
 }
 
 /**
@@ -389,3 +389,4 @@ export function getSupportedFeatures(config: OIDCConfiguration): {
     revocation: !!config.revocation_endpoint
   };
 }
+

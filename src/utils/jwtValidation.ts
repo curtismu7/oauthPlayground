@@ -374,3 +374,4 @@ export function createStringPatternValidator(claim: string, pattern: RegExp): (p
     return null;
   };
 }
+
