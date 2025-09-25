@@ -2,18 +2,19 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import styled from 'styled-components';
-import { FiSettings, FiKey, FiShield, FiRefreshCw, FiCheckCircle, FiEye, FiEyeOff, FiCopy, FiDownload } from 'react-icons/fi';
+import { FiSettings, FiKey, FiShield, FiRefreshCw, FiCheckCircle, FiDownload } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { logger } from '../../utils/logger';
 import { showFlowSuccess, showFlowError, showDetailedError } from '../../components/CentralizedSuccessMessage';
 import { credentialManager } from '../../utils/credentialManager';
 import { EnhancedStepFlowV2 } from '../../components/EnhancedStepFlowV2';
 import { useFlowStepManager } from '../../utils/flowStepSystem';
-import { createCredentialsStep, StepCredentials, FormField, FormLabel, FormInput } from '../../components/steps/CommonSteps';
+import { StepCredentials, FormField, FormLabel, FormInput } from '../../components/steps/CommonSteps';
 import CollapsibleSection from '../../components/CollapsibleSection';
 import { TokenSurface } from '../../components/TokenSurface';
 import { applyClientAuthentication, getAuthMethodSecurityLevel } from '../../utils/clientAuthentication';
 import { keyStorageService } from '../../services/keyStorageService';
+import JwksKeySourceSelector, { JwksKeySource } from '../../components/JwksKeySourceSelector';
 
 // Worker Token specific authentication method type (excludes 'none')
 type WorkerTokenAuthMethod = 'client_secret_post' | 'client_secret_basic' | 'client_secret_jwt' | 'private_key_jwt';
@@ -1231,7 +1232,7 @@ Perfect for:
                   <p style={{
                     margin: '0.25rem 0 0 0',
                     color: '#047857',
-                fontSize: '0.875rem',
+                    fontSize: '0.875rem',
                     fontWeight: '500'
                   }}>
                     Required for Private Key JWT authentication
@@ -1239,348 +1240,89 @@ Perfect for:
                 </div>
               </div>
 
-              {/* JWKS Endpoint Option */}
-              <FormField>
-                <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                    <input
-                      type="radio"
-                      name="worker-token-key-source-setting"
-                      value="jwks"
-                      checked={useJwksEndpoint}
-                      onChange={() => {
-                        console.log('🔄 [WorkerTokenV3] JWKS option selected');
-                        setUseJwksEndpoint(true);
-                      }}
-                      style={{ margin: 0, cursor: 'pointer' }}
-                    />
-                    <span style={{ color: '#065f46', fontWeight: '600' }}>Use JWKS Endpoint (Recommended)</span>
-                  </label>
-                  <p style={{ margin: '0.5rem 0 0 1.5rem', color: '#047857', fontSize: '0.875rem' }}>
-                    PingOne will fetch the public key from your JWKS endpoint. No private key upload needed.
-                    <br/><br/>
-                    <strong>🌐 Public URL Required:</strong> PingOne needs to access your JWKS endpoint from their servers, so it must be publicly accessible (not localhost).
-                  </p>
-                </div>
-                
-                {useJwksEndpoint && (
-                  <div style={{ marginLeft: '1.5rem', marginBottom: '1rem' }}>
-                    {/* JWKS Endpoint URL Display */}
-                    <div style={{ marginBottom: '1rem' }}>
-                      <FormLabel style={{ color: '#065f46', fontWeight: '600', marginBottom: '0.5rem', display: 'block' }}>
-                        Your JWKS Endpoint URL:
-                      </FormLabel>
-                      <div style={{ 
-                        background: 'rgba(255, 255, 255, 0.9)', 
-                        border: '1px solid rgba(16, 185, 129, 0.3)', 
-                        borderRadius: '6px', 
-                        padding: '0.75rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        marginBottom: '0.5rem'
-                      }}>
-                        <code style={{ 
-                          color: '#047857', 
-                          fontSize: '0.875rem',
-                          fontWeight: '500',
-                          wordBreak: 'break-all',
-                          flex: 1,
-                          marginRight: '0.5rem'
-                        }}>
-                          https://oauth-playground.vercel.app/jwks
-                        </code>
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            try {
-                              await navigator.clipboard.writeText('https://oauth-playground.vercel.app/jwks');
-                              showFlowSuccess('📋 JWKS Endpoint URL copied to clipboard!');
-                            } catch (error) {
-                              console.error('Failed to copy JWKS URL:', error);
-                              showFlowError('Failed to copy JWKS URL to clipboard');
-                            }
-                          }}
-                          style={{
-                            background: '#3b82f6',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '6px',
-                            padding: '0.5rem 1rem',
-                            fontSize: '0.875rem',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            flexShrink: 0
-                          }}
-                          title="Copy JWKS Endpoint URL"
-                        >
-                          <FiCopy size={14} />
-                          Copy
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* PingOne Configuration Instructions */}
-                    <div style={{ 
-                      background: 'rgba(16, 185, 129, 0.1)', 
-                      border: '1px solid rgba(16, 185, 129, 0.3)', 
-                      borderRadius: '6px', 
-                      padding: '0.75rem',
-                      fontSize: '0.875rem',
-                      color: '#047857'
-                    }}>
-                      <strong>💡 PingOne Configuration Steps:</strong><br/>
-                      1. Set "Token Endpoint Authentication Method" to "Private Key JWT"<br/>
-                      2. Set "JWKS URL" to: <code style={{ background: 'rgba(255,255,255,0.8)', padding: '0.2rem 0.4rem', borderRadius: '3px' }}>https://oauth-playground.vercel.app/jwks</code><br/>
-                      3. Leave "Private Key" field empty in PingOne<br/>
-                      4. Save your PingOne application configuration<br/><br/>
-                      <strong>🔧 Need to convert a private key to JWKS format?</strong><br/>
-                      Use the <strong>JWT Generator → JWKS</strong> tab to convert your private key to the correct JWKS format for PingOne.
-                    </div>
-                  </div>
-                )}
-                
-                {/* Configuration Warning */}
-                {useJwksEndpoint && clientAuthMethod === 'private_key_jwt' && !privateKey && (
-                  <div style={{ 
-                    marginLeft: '1.5rem', 
-                    marginTop: '1rem',
+              <JwksKeySourceSelector
+                value={useJwksEndpoint ? 'jwks-endpoint' : 'private-key'}
+                onChange={(next) => {
+                  const useJwks = next === 'jwks-endpoint';
+                  console.log('🔄 [WorkerTokenV3] Key source changed to:', next);
+                  setUseJwksEndpoint(useJwks);
+                }}
+                environmentId={credentials.environmentId}
+                jwksUrl={jwksUrl}
+                onCopyJwksUrlSuccess={(url) => showFlowSuccess(`📋 JWKS Endpoint URL copied to clipboard!\n${url}`)}
+                onCopyJwksUrlError={(error) => {
+                  console.error('Failed to copy JWKS URL:', error);
+                  showFlowError('Failed to copy JWKS URL to clipboard');
+                }}
+                privateKey={privateKey}
+                onPrivateKeyChange={setPrivateKey}
+                onGenerateKey={generatePrivateKey}
+                isGeneratingKey={isGeneratingKey}
+                showPrivateKey={showPrivateKey}
+                onTogglePrivateKey={() => setShowPrivateKey(!showPrivateKey)}
+                onCopyPrivateKey={async () => {
+                  try {
+                    await navigator.clipboard.writeText(privateKey);
+                    showFlowSuccess('🔑 Private Key copied! Paste this into PingOne\'s "Private Key" field.');
+                  } catch (error) {
+                    console.error('Failed to copy private key:', error);
+                    showFlowError('Failed to copy private key to clipboard');
+                  }
+                }}
+                jwksInstructions={(
+                  <div style={{
+                    background: 'rgba(16, 185, 129, 0.1)',
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    borderRadius: '6px',
                     padding: '0.75rem',
-                    background: 'rgba(245, 158, 11, 0.1)',
-                    border: '1px solid rgba(245, 158, 11, 0.3)',
-                    borderRadius: '6px'
+                    fontSize: '0.875rem',
+                    color: '#047857'
                   }}>
-                    <div style={{ 
-                      color: '#92400e', 
-                      fontSize: '0.875rem',
-                      fontWeight: '600',
-                      marginBottom: '0.5rem'
-                    }}>
-                      ⚠️ Configuration Mismatch
-                    </div>
-                    <div style={{ 
-                      color: '#a16207', 
-                      fontSize: '0.8rem',
-                      lineHeight: '1.4'
-                    }}>
-                      You have selected "Private Key JWT" authentication method with "Use JWKS Endpoint" mode, but no private key is available for signing the JWT assertion.
-                      <br/><br/>
-                      <strong>To fix this:</strong><br/>
-                      • Switch to "Upload Private Key" mode and generate a private key, OR<br/>
-                      • Change authentication method to "Client Secret Post" or "Client Secret Basic"
-                    </div>
+                    <strong>💡 PingOne Configuration Steps:</strong>
+                    <br />
+                    1. Set "Token Endpoint Authentication Method" to "Private Key JWT"
+                    <br />
+                    2. Set "JWKS URL" to: <code style={{ background: 'rgba(255,255,255,0.8)', padding: '0.2rem 0.4rem', borderRadius: '3px' }}>https://oauth-playground.vercel.app/jwks</code>
+                    <br />
+                    3. Leave "Private Key" field empty in PingOne
+                    <br />
+                    4. Save your PingOne application configuration
+                    <br />
+                    <br />
+                    <strong>🔧 Need to convert a private key to JWKS format?</strong>
+                    <br />
+                    Use the <strong>JWT Generator → JWKS</strong> tab to convert your private key to the correct JWKS format for PingOne.
                   </div>
                 )}
-              </FormField>
-
-              {/* Private Key Upload Option */}
-              <FormField>
-                <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                    <input
-                      type="radio"
-                      name="worker-token-key-source-setting"
-                      value="private-key"
-                      checked={!useJwksEndpoint}
-                      onChange={() => {
-                        console.log('🔄 [WorkerTokenV3] Private Key option selected');
-                        setUseJwksEndpoint(false);
-                      }}
-                      style={{ margin: 0, cursor: 'pointer' }}
-                    />
-                    <span style={{ color: '#065f46', fontWeight: '600' }}>Upload Private Key</span>
-                  </label>
-                  <p style={{ margin: '0.5rem 0 0 1.5rem', color: '#047857', fontSize: '0.875rem' }}>
-                    Upload the private key directly to PingOne. Copy the key from below.
-                  </p>
-                </div>
-              </FormField>
-
-              {!useJwksEndpoint && (
-              <FormField>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                  <FormLabel style={{ color: '#065f46', fontWeight: '600' }}>Private Key (PEM Format) *</FormLabel>
-                  <button
-                    type="button"
-                    onClick={generatePrivateKey}
-                    disabled={isGeneratingKey}
-                    style={{
-                      background: isGeneratingKey ? '#9ca3af' : '#10b981',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      padding: '0.5rem 1rem',
-                      fontSize: '0.875rem',
-                      fontWeight: '600',
-                      cursor: isGeneratingKey ? 'not-allowed' : 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      transition: 'all 0.2s ease',
-                      boxShadow: '0 2px 4px rgba(16, 185, 129, 0.2)'
-                    }}
-                onMouseEnter={(e) => {
-                  if (!isGeneratingKey) {
-                    (e.target as HTMLButtonElement).style.background = '#059669';
-                    (e.target as HTMLButtonElement).style.transform = 'translateY(-1px)';
-                    (e.target as HTMLButtonElement).style.boxShadow = '0 4px 8px rgba(16, 185, 129, 0.3)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isGeneratingKey) {
-                    (e.target as HTMLButtonElement).style.background = '#10b981';
-                    (e.target as HTMLButtonElement).style.transform = 'translateY(0)';
-                    (e.target as HTMLButtonElement).style.boxShadow = '0 2px 4px rgba(16, 185, 129, 0.2)';
-                  }
-                }}
-                  >
-                    {isGeneratingKey ? (
-                      <>
-                        <div style={{
-                          width: '14px',
-                          height: '14px',
-                          border: '2px solid rgba(255, 255, 255, 0.3)',
-                          borderTop: '2px solid white',
-                          borderRadius: '50%',
-                          animation: 'spin 1s linear infinite'
-                        }} />
-                        Generating...
-                </>
-              ) : (
-                <>
-                        <FiKey size={14} />
-                        Generate Key
-                </>
-              )}
-            </button>
-          </div>
-                <div style={{ position: 'relative' }}>
-                  <textarea
-                    value={privateKey}
-                    onChange={(e) => setPrivateKey(e.target.value)}
-                    placeholder="-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC..."
-                    style={{
-                      width: '100%',
-                      height: '120px',
-                      padding: '1rem',
-                      border: '2px solid #10b981',
-                      borderRadius: '8px',
-                      fontSize: '0.9rem',
-                      fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
-                      resize: 'vertical',
-                      backgroundColor: 'white',
-                fontWeight: '500',
-                      color: '#065f46',
-                      boxShadow: '0 2px 8px rgba(16, 185, 129, 0.15)',
-                      transition: 'all 0.2s ease',
-                      paddingRight: showPrivateKey ? '6rem' : '4rem'
-                    }}
-                    onFocus={(e) => {
-                      e.target.style.borderColor = '#059669';
-                      e.target.style.boxShadow = '0 4px 12px rgba(5, 150, 105, 0.25)';
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.borderColor = '#10b981';
-                      e.target.style.boxShadow = '0 2px 8px rgba(16, 185, 129, 0.15)';
-                    }}
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPrivateKey(!showPrivateKey)}
-                    style={{
-                      position: 'absolute',
-                      right: '1rem',
-                      top: '1rem',
-                      background: '#10b981',
-                      border: 'none',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      color: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                      justifyContent: 'center',
-                      width: '2rem',
-                      height: '2rem',
-                      boxShadow: '0 2px 4px rgba(16, 185, 129, 0.3)',
-                      transition: 'all 0.2s ease'
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.background = '#059669';
-                      e.currentTarget.style.transform = 'scale(1.05)';
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.background = '#10b981';
-                      e.currentTarget.style.transform = 'scale(1)';
-                    }}
-                  >
-                    {showPrivateKey ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-                  </button>
-                  
-                  {/* Copy Private Key Button */}
-                  {privateKey && (
-                    <button
-                      type="button"
-                        onClick={async () => {
-                          try {
-                            await navigator.clipboard.writeText(privateKey);
-                            showFlowSuccess('🔑 Private Key copied! Paste this into PingOne\'s "Private Key" field.');
-                          } catch (error) {
-                            console.error('Failed to copy private key:', error);
-                            showFlowError('Failed to copy private key to clipboard');
-                          }
-                        }}
-                      style={{
-                        position: 'absolute',
-                        right: '3.5rem',
-                        top: '1rem',
-                        background: '#3b82f6',
-                        border: 'none',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        color: 'white',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: '2rem',
-                        height: '2rem',
-                        boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)',
-                        transition: 'all 0.2s ease'
-                      }}
-                      onMouseOver={(e) => {
-                        e.currentTarget.style.background = '#2563eb';
-                        e.currentTarget.style.transform = 'scale(1.05)';
-                      }}
-                      onMouseOut={(e) => {
-                        e.currentTarget.style.background = '#3b82f6';
-                        e.currentTarget.style.transform = 'scale(1)';
-                      }}
-                      title="Copy Private Key"
-                    >
-                      <FiCopy size={16} />
-                    </button>
-                  )}
-                </div>
-                <div style={{
-                  fontSize: '0.875rem',
-                  color: '#047857',
-                  marginTop: '0.75rem',
-                  fontWeight: '500',
-                  background: 'rgba(16, 185, 129, 0.1)',
-                  padding: '0.75rem',
-                  borderRadius: '6px',
-                  border: '1px solid rgba(16, 185, 129, 0.2)'
-                }}>
-                  <strong>💡 PEM Format Requirements:</strong><br/>
-                  • Must include <code style={{ background: 'rgba(16, 185, 129, 0.2)', padding: '0.1rem 0.3rem', borderRadius: '3px' }}>-----BEGIN PRIVATE KEY-----</code> header<br/>
-                  • Must include <code style={{ background: 'rgba(16, 185, 129, 0.2)', padding: '0.1rem 0.3rem', borderRadius: '3px' }}>-----END PRIVATE KEY-----</code> footer<br/>
-                  • Used for RS256 JWT signing
-                </div>
-              </FormField>
-              )}
+                showConfigurationWarning={useJwksEndpoint && clientAuthMethod === 'private_key_jwt' && !privateKey}
+                configurationWarning={(
+                  <div style={{
+                    color: '#a16207',
+                    fontSize: '0.8rem',
+                    lineHeight: '1.4'
+                  }}>
+                    You have selected "Private Key JWT" authentication method with "Use JWKS Endpoint" mode, but no private key is available for signing the JWT assertion.
+                    <br />
+                    <br />
+                    <strong>To fix this:</strong>
+                    <br />
+                    • Switch to "Upload Private Key" mode and generate a private key, OR
+                    <br />
+                    • Change authentication method to "Client Secret Post" or "Client Secret Basic"
+                  </div>
+                )}
+                privateKeyHelper={(
+                  <div>
+                    <strong>💡 PEM Format Requirements:</strong>
+                    <br />
+                    • Must include <code style={{ background: 'rgba(16, 185, 129, 0.2)', padding: '0.1rem 0.3rem', borderRadius: '3px' }}>-----BEGIN PRIVATE KEY-----</code> header
+                    <br />
+                    • Must include <code style={{ background: 'rgba(16, 185, 129, 0.2)', padding: '0.1rem 0.3rem', borderRadius: '3px' }}>-----END PRIVATE KEY-----</code> footer
+                    <br />
+                    • Used for RS256 JWT signing
+                  </div>
+                )}
+              />
             </div>
           )}
 
