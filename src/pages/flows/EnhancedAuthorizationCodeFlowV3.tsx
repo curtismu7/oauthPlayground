@@ -3,6 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { useAuthorizationFlowScroll } from '../../hooks/usePageScroll';
+import { trackFlowCompletion } from '../../utils/flowCredentialChecker';
 import CentralizedSuccessMessage, { showFlowSuccess, showFlowError } from '../../components/CentralizedSuccessMessage';
 import EnhancedStepFlowV2 from '../../components/EnhancedStepFlowV2';
 import { useFlowStepManager } from '../../utils/flowStepSystem';
@@ -693,6 +694,9 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
       }
       
       setTokens(tokenData);
+      
+      // Track flow completion for dashboard status
+      trackFlowCompletion('enhanced-authorization-code-v3');
       
       // Store tokens for other pages
       localStorage.setItem('oauth_tokens', JSON.stringify(tokenData));
@@ -1495,7 +1499,6 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 
   return (
     <>
-      <CentralizedSuccessMessage position="top" />
       
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1.5rem' }}>
         {/* Flow Configuration Panel - V2 Feature Integration */}
@@ -1832,7 +1835,6 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
         </div>
       </div>
       
-      <CentralizedSuccessMessage position="bottom" />
 
       {/* Reset Confirmation Modal */}
       {showResetModal && (

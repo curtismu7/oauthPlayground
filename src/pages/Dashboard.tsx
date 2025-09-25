@@ -813,15 +813,51 @@ const Dashboard = () => {
         <CardHeader>
           <CardTitle>System Status</CardTitle>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <RefreshButton onClick={() => {
-              showFlowSuccess('🔄 Refreshing Dashboard', 'Updating all dashboard metrics and status...');
-              handleRefresh();
-            }} disabled={isRefreshing}>
-              <FiRefreshCw style={{ 
-                animation: isRefreshing ? 'spin 1s linear infinite' : 'none'
-              }} />
+            <button
+              onClick={() => {
+                showFlowSuccess('🔄 Refreshing Dashboard', 'Updating all dashboard metrics and status...');
+                handleRefresh();
+              }}
+              disabled={isRefreshing}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.5rem 1rem',
+                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.5rem',
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                cursor: isRefreshing ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                opacity: isRefreshing ? 0.7 : 1
+              }}
+              onMouseEnter={(e) => {
+                if (!isRefreshing) {
+                  e.currentTarget.style.background = 'linear-gradient(135deg, #059669 0%, #047857 100%)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isRefreshing) {
+                  e.currentTarget.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                }
+              }}
+            >
+              <FiRefreshCw 
+                size={16} 
+                style={{ 
+                  animation: isRefreshing ? 'spin 1s linear infinite' : 'none'
+                }} 
+              />
               Refresh
-            </RefreshButton>
+            </button>
             <RefreshButton onClick={() => {
               showFlowSuccess('📊 Activity Panel Opened', 'Showing recent activity and flow history');
               handleActivity();
@@ -919,57 +955,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Environment Status Section */}
-          <div>
-            <h4 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '1rem', color: '#333' }}>
-              Environment Status
-            </h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <FlowStatus>
-              <StatusBadge $status={hasSavedCredentials ? 'active' : 'error'}>
-                  {hasSavedCredentials ? '✅ Connected' : '❌ Not Configured'}
-              </StatusBadge>
-                <div>
-                  <div style={{ fontWeight: '500', color: '#333', fontSize: '0.9rem' }}>PingOne Environment</div>
-                  <div style={{ fontSize: '0.8rem', color: '#666' }}>
-                    <FiShield style={{ marginRight: '0.25rem' }} />
-                    Identity Platform
-                  </div>
-                </div>
-            </FlowStatus>
-
-            {hasSavedCredentials && (
-                <div style={{ 
-                  marginTop: '0.5rem',
-                  padding: '0.75rem',
-                  background: '#f8f9fa',
-                  borderRadius: '6px',
-                  border: '1px solid #e5e7eb'
-                }}>
-                  <div style={{ 
-                    fontSize: '0.8rem', 
-                  color: '#666', 
-                  marginBottom: '0.5rem',
-                  fontWeight: '500'
-                }}>
-                  Environment ID:
-                </div>
-                <div style={{ 
-                  fontFamily: 'Monaco, Menlo, monospace',
-                    fontSize: '0.75rem',
-                  color: '#333',
-                    background: '#ffffff',
-                  padding: '0.5rem',
-                  borderRadius: '4px',
-                    border: '1px solid #d1d5db',
-                  wordBreak: 'break-all'
-                }}>
-                    {config?.environmentId || 'Not available'}
-                </div>
-              </div>
-            )}
-            </div>
-          </div>
           </div>
 
         {/* Current Session Status */}
@@ -1220,10 +1205,10 @@ const Dashboard = () => {
                           borderRadius: '0.375rem', 
                           fontSize: '0.75rem',
                           fontWeight: '500',
-                          backgroundColor: tokens ? '#dcfce7' : '#fee2e2',
-                          color: tokens ? '#166534' : '#dc2626'
+                          backgroundColor: getFlowStatus('enhanced-authorization-code-v3')?.lastExecutionTime && getFlowStatus('enhanced-authorization-code-v3')?.lastExecutionTime !== 'Never' ? '#dcfce7' : '#f3f4f6',
+                          color: getFlowStatus('enhanced-authorization-code-v3')?.lastExecutionTime && getFlowStatus('enhanced-authorization-code-v3')?.lastExecutionTime !== 'Never' ? '#166534' : '#6b7280'
                         }}>
-                          {tokens ? 'Active' : 'Inactive'}
+                          {getFlowStatus('enhanced-authorization-code-v3')?.lastExecutionTime || 'Never'}
                         </span>
                       </td>
                       <td style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #d8b4fe' }}>
@@ -1232,10 +1217,10 @@ const Dashboard = () => {
                           borderRadius: '0.375rem', 
                           fontSize: '0.75rem',
                           fontWeight: '500',
-                          backgroundColor: '#fef3c7',
-                          color: '#92400e'
+                          backgroundColor: getFlowStatus('enhanced-authorization-code-v3')?.hasCredentials ? '#dcfce7' : '#fee2e2',
+                          color: getFlowStatus('enhanced-authorization-code-v3')?.hasCredentials ? '#166534' : '#dc2626'
                         }}>
-                          Configured
+                          {getFlowStatus('enhanced-authorization-code-v3')?.hasCredentials ? 'Configured' : 'Missing'}
                         </span>
                       </td>
                     </tr>
@@ -1249,8 +1234,8 @@ const Dashboard = () => {
                           borderRadius: '0.375rem', 
                           fontSize: '0.75rem',
                           fontWeight: '500',
-                          backgroundColor: '#fef3c7',
-                          color: '#92400e'
+                          backgroundColor: getFlowStatus('oidc-implicit-v3')?.lastExecutionTime && getFlowStatus('oidc-implicit-v3')?.lastExecutionTime !== 'Never' ? '#dcfce7' : '#f3f4f6',
+                          color: getFlowStatus('oidc-implicit-v3')?.lastExecutionTime && getFlowStatus('oidc-implicit-v3')?.lastExecutionTime !== 'Never' ? '#166534' : '#6b7280'
                         }}>
                           {getFlowStatus('oidc-implicit-v3')?.lastExecutionTime || 'Never'}
                         </span>
@@ -1261,10 +1246,10 @@ const Dashboard = () => {
                           borderRadius: '0.375rem', 
                           fontSize: '0.75rem',
                           fontWeight: '500',
-                          backgroundColor: '#fef3c7',
-                          color: '#92400e'
+                          backgroundColor: getFlowStatus('oidc-implicit-v3')?.hasCredentials ? '#dcfce7' : '#fee2e2',
+                          color: getFlowStatus('oidc-implicit-v3')?.hasCredentials ? '#166534' : '#dc2626'
                         }}>
-                          Configured
+                          {getFlowStatus('oidc-implicit-v3')?.hasCredentials ? 'Configured' : 'Missing'}
                         </span>
                       </td>
                     </tr>
@@ -1278,8 +1263,8 @@ const Dashboard = () => {
                           borderRadius: '0.375rem', 
                           fontSize: '0.75rem',
                           fontWeight: '500',
-                          backgroundColor: '#f3f4f6',
-                          color: '#6b7280'
+                          backgroundColor: getFlowStatus('oidc-hybrid-v3')?.lastExecutionTime && getFlowStatus('oidc-hybrid-v3')?.lastExecutionTime !== 'Never' ? '#dcfce7' : '#f3f4f6',
+                          color: getFlowStatus('oidc-hybrid-v3')?.lastExecutionTime && getFlowStatus('oidc-hybrid-v3')?.lastExecutionTime !== 'Never' ? '#166534' : '#6b7280'
                         }}>
                           {getFlowStatus('oidc-hybrid-v3')?.lastExecutionTime || 'Never'}
                         </span>
@@ -1290,10 +1275,10 @@ const Dashboard = () => {
                           borderRadius: '0.375rem', 
                           fontSize: '0.75rem',
                           fontWeight: '500',
-                          backgroundColor: '#fef3c7',
-                          color: '#92400e'
+                          backgroundColor: getFlowStatus('oidc-hybrid-v3')?.hasCredentials ? '#dcfce7' : '#fee2e2',
+                          color: getFlowStatus('oidc-hybrid-v3')?.hasCredentials ? '#166534' : '#dc2626'
                         }}>
-                          Configured
+                          {getFlowStatus('oidc-hybrid-v3')?.hasCredentials ? 'Configured' : 'Missing'}
                         </span>
                       </td>
                     </tr>
@@ -1307,8 +1292,8 @@ const Dashboard = () => {
                           borderRadius: '0.375rem', 
                           fontSize: '0.75rem',
                           fontWeight: '500',
-                          backgroundColor: '#f3f4f6',
-                          color: '#6b7280'
+                          backgroundColor: getFlowStatus('oidc-client-credentials-v3')?.lastExecutionTime && getFlowStatus('oidc-client-credentials-v3')?.lastExecutionTime !== 'Never' ? '#dcfce7' : '#f3f4f6',
+                          color: getFlowStatus('oidc-client-credentials-v3')?.lastExecutionTime && getFlowStatus('oidc-client-credentials-v3')?.lastExecutionTime !== 'Never' ? '#166534' : '#6b7280'
                         }}>
                           {getFlowStatus('oidc-client-credentials-v3')?.lastExecutionTime || 'Never'}
                         </span>
@@ -1319,10 +1304,10 @@ const Dashboard = () => {
                           borderRadius: '0.375rem', 
                           fontSize: '0.75rem',
                           fontWeight: '500',
-                          backgroundColor: '#fef3c7',
-                          color: '#92400e'
+                          backgroundColor: getFlowStatus('oidc-client-credentials-v3')?.hasCredentials ? '#dcfce7' : '#fee2e2',
+                          color: getFlowStatus('oidc-client-credentials-v3')?.hasCredentials ? '#166534' : '#dc2626'
                         }}>
-                          Configured
+                          {getFlowStatus('oidc-client-credentials-v3')?.hasCredentials ? 'Configured' : 'Missing'}
                         </span>
                       </td>
                     </tr>
@@ -1336,8 +1321,8 @@ const Dashboard = () => {
                           borderRadius: '0.375rem', 
                           fontSize: '0.75rem',
                           fontWeight: '500',
-                          backgroundColor: '#f3f4f6',
-                          color: '#6b7280'
+                          backgroundColor: getFlowStatus('device-code-oidc')?.lastExecutionTime && getFlowStatus('device-code-oidc')?.lastExecutionTime !== 'Never' ? '#dcfce7' : '#f3f4f6',
+                          color: getFlowStatus('device-code-oidc')?.lastExecutionTime && getFlowStatus('device-code-oidc')?.lastExecutionTime !== 'Never' ? '#166534' : '#6b7280'
                         }}>
                           {getFlowStatus('device-code-oidc')?.lastExecutionTime || 'Never'}
                         </span>
@@ -1348,10 +1333,10 @@ const Dashboard = () => {
                           borderRadius: '0.375rem', 
                           fontSize: '0.75rem',
                           fontWeight: '500',
-                          backgroundColor: '#fef3c7',
-                          color: '#92400e'
+                          backgroundColor: getFlowStatus('device-code-oidc')?.hasCredentials ? '#dcfce7' : '#fee2e2',
+                          color: getFlowStatus('device-code-oidc')?.hasCredentials ? '#166534' : '#dc2626'
                         }}>
-                          Configured
+                          {getFlowStatus('device-code-oidc')?.hasCredentials ? 'Configured' : 'Missing'}
                         </span>
                       </td>
                     </tr>
@@ -1365,8 +1350,8 @@ const Dashboard = () => {
                           borderRadius: '0.375rem', 
                           fontSize: '0.75rem',
                           fontWeight: '500',
-                          backgroundColor: '#f3f4f6',
-                          color: '#6b7280'
+                          backgroundColor: getFlowStatus('oidc-resource-owner-password')?.lastExecutionTime && getFlowStatus('oidc-resource-owner-password')?.lastExecutionTime !== 'Never' ? '#dcfce7' : '#f3f4f6',
+                          color: getFlowStatus('oidc-resource-owner-password')?.lastExecutionTime && getFlowStatus('oidc-resource-owner-password')?.lastExecutionTime !== 'Never' ? '#166534' : '#6b7280'
                         }}>
                           {getFlowStatus('oidc-resource-owner-password')?.lastExecutionTime || 'Never'}
                         </span>
@@ -1377,76 +1362,16 @@ const Dashboard = () => {
                           borderRadius: '0.375rem', 
                           fontSize: '0.75rem',
                           fontWeight: '500',
-                          backgroundColor: '#fef3c7',
-                          color: '#92400e'
+                          backgroundColor: getFlowStatus('oidc-resource-owner-password')?.hasCredentials ? '#dcfce7' : '#fee2e2',
+                          color: getFlowStatus('oidc-resource-owner-password')?.hasCredentials ? '#166534' : '#dc2626'
                         }}>
-                          Configured
+                          {getFlowStatus('oidc-resource-owner-password')?.hasCredentials ? 'Configured' : 'Missing'}
                         </span>
                       </td>
                     </tr>
                   </tbody>
                 </table>
           </div>
-            </div>
-
-            {/* PingOne Tokens Table */}
-            <div style={{ marginBottom: '1.5rem' }}>
-              <h5 style={{ fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.75rem', color: '#059669' }}>
-                PingOne Tokens
-              </h5>
-                <div style={{ 
-                backgroundColor: '#f0fdf4', 
-                border: '1px solid #bbf7d0', 
-                borderRadius: '0.5rem', 
-                overflow: 'hidden' 
-              }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
-                  <thead>
-                    <tr style={{ backgroundColor: '#dcfce7' }}>
-                      <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '1px solid #bbf7d0', fontWeight: '600' }}>
-                        Flow Type
-                      </th>
-                      <th style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #bbf7d0', fontWeight: '600' }}>
-                        Last Execution Time
-                      </th>
-                      <th style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #bbf7d0', fontWeight: '600' }}>
-                        Credentials
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td style={{ padding: '0.75rem' }}>
-                        🚀 PingOne Worker Token V3
-                      </td>
-                      <td style={{ padding: '0.75rem', textAlign: 'center' }}>
-                        <span style={{ 
-                          padding: '0.25rem 0.5rem', 
-                          borderRadius: '0.375rem', 
-                          fontSize: '0.75rem',
-                          fontWeight: '500',
-                          backgroundColor: '#f3f4f6',
-                          color: '#6b7280'
-                        }}>
-                          {getFlowStatus('worker-token-v3')?.lastExecutionTime || 'Never'}
-                        </span>
-                      </td>
-                      <td style={{ padding: '0.75rem', textAlign: 'center' }}>
-                        <span style={{ 
-                          padding: '0.25rem 0.5rem', 
-                          borderRadius: '0.375rem', 
-                          fontSize: '0.75rem',
-                          fontWeight: '500',
-                          backgroundColor: getFlowStatus('worker-token-v3')?.hasCredentials ? '#dcfce7' : '#fee2e2',
-                          color: getFlowStatus('worker-token-v3')?.hasCredentials ? '#166534' : '#dc2626'
-                        }}>
-                          {getFlowStatus('worker-token-v3')?.hasCredentials ? 'Configured' : 'Missing'}
-                        </span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
             </div>
 
           </div>
@@ -1537,6 +1462,66 @@ const Dashboard = () => {
                         </span>
                       </td>
                     </tr>
+                    <tr>
+                      <td style={{ padding: '0.75rem' }}>
+                        🚀 PingOne Worker Token V3
+                      </td>
+                      <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                        <span style={{ 
+                          padding: '0.25rem 0.5rem', 
+                          borderRadius: '0.375rem', 
+                          fontSize: '0.75rem',
+                          fontWeight: '500',
+                          backgroundColor: '#f3f4f6',
+                          color: '#6b7280'
+                        }}>
+                          {getFlowStatus('worker-token-v3')?.lastExecutionTime || 'Never'}
+                        </span>
+                      </td>
+                      <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                        <span style={{ 
+                          padding: '0.25rem 0.5rem', 
+                          borderRadius: '0.375rem', 
+                          fontSize: '0.75rem',
+                          fontWeight: '500',
+                          backgroundColor: getFlowStatus('worker-token-v3')?.hasCredentials ? '#dcfce7' : '#fee2e2',
+                          color: getFlowStatus('worker-token-v3')?.hasCredentials ? '#166534' : '#dc2626'
+                        }}>
+                          {getFlowStatus('worker-token-v3')?.hasCredentials ? 'Configured' : 'Missing'}
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* PingOne Tokens Table */}
+            <div style={{ marginBottom: '1.5rem' }}>
+              <h5 style={{ fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.75rem', color: '#059669' }}>
+                PingOne Tokens
+              </h5>
+                <div style={{ 
+                backgroundColor: '#f0fdf4', 
+                border: '1px solid #bbf7d0', 
+                borderRadius: '0.5rem', 
+                overflow: 'hidden' 
+              }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#dcfce7' }}>
+                      <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '1px solid #bbf7d0', fontWeight: '600' }}>
+                        Flow Type
+                      </th>
+                      <th style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #bbf7d0', fontWeight: '600' }}>
+                        Last Execution Time
+                      </th>
+                      <th style={{ padding: '0.75rem', textAlign: 'center', borderBottom: '1px solid #bbf7d0', fontWeight: '600' }}>
+                        Credentials
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
                     <tr>
                       <td style={{ padding: '0.75rem' }}>
                         🚀 PingOne Worker Token V3
@@ -1670,8 +1655,176 @@ const Dashboard = () => {
                 border: '1px solid #bbf7d0'
               }}>
               /api/par
+              </div>
             </div>
-          </div>
+            <div style={{ 
+            padding: '1rem',
+              background: '#f8fafc',
+              borderRadius: '0.5rem',
+              border: '1px solid #e2e8f0'
+            }}>
+              <div style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>
+              Token Introspection
+              </div>
+              <div style={{ 
+                fontFamily: 'Monaco, Menlo, monospace',
+                fontSize: '0.8rem', 
+                color: '#059669',
+                background: '#f0fdf4',
+                padding: '0.25rem 0.5rem',
+                borderRadius: '0.25rem',
+                border: '1px solid #bbf7d0'
+              }}>
+              /api/introspect-token
+              </div>
+            </div>
+            <div style={{ 
+            padding: '1rem',
+              background: '#f8fafc',
+              borderRadius: '0.5rem',
+              border: '1px solid #e2e8f0'
+            }}>
+              <div style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>
+              User Info
+              </div>
+              <div style={{ 
+                fontFamily: 'Monaco, Menlo, monospace',
+                fontSize: '0.8rem', 
+                color: '#059669',
+                background: '#f0fdf4',
+                padding: '0.25rem 0.5rem',
+                borderRadius: '0.25rem',
+                border: '1px solid #bbf7d0'
+              }}>
+              /api/userinfo
+              </div>
+            </div>
+            <div style={{ 
+            padding: '1rem',
+              background: '#f8fafc',
+              borderRadius: '0.5rem',
+              border: '1px solid #e2e8f0'
+            }}>
+              <div style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>
+              Token Validation
+              </div>
+              <div style={{ 
+                fontFamily: 'Monaco, Menlo, monospace',
+                fontSize: '0.8rem', 
+                color: '#059669',
+                background: '#f0fdf4',
+                padding: '0.25rem 0.5rem',
+                borderRadius: '0.25rem',
+                border: '1px solid #bbf7d0'
+              }}>
+              /api/validate-token
+              </div>
+            </div>
+            <div style={{ 
+            padding: '1rem',
+              background: '#f8fafc',
+              borderRadius: '0.5rem',
+              border: '1px solid #e2e8f0'
+            }}>
+              <div style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>
+              JWKS Endpoint
+              </div>
+              <div style={{ 
+                fontFamily: 'Monaco, Menlo, monospace',
+                fontSize: '0.8rem', 
+                color: '#059669',
+                background: '#f0fdf4',
+                padding: '0.25rem 0.5rem',
+                borderRadius: '0.25rem',
+                border: '1px solid #bbf7d0'
+              }}>
+              /api/jwks
+              </div>
+            </div>
+            <div style={{ 
+            padding: '1rem',
+              background: '#f8fafc',
+              borderRadius: '0.5rem',
+              border: '1px solid #e2e8f0'
+            }}>
+              <div style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>
+              Playground JWKS
+              </div>
+              <div style={{ 
+                fontFamily: 'Monaco, Menlo, monospace',
+                fontSize: '0.8rem', 
+                color: '#059669',
+                background: '#f0fdf4',
+                padding: '0.25rem 0.5rem',
+                borderRadius: '0.25rem',
+                border: '1px solid #bbf7d0'
+              }}>
+              /api/playground-jwks
+              </div>
+            </div>
+            <div style={{ 
+            padding: '1rem',
+              background: '#f8fafc',
+              borderRadius: '0.5rem',
+              border: '1px solid #e2e8f0'
+            }}>
+              <div style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>
+              OIDC Discovery
+              </div>
+              <div style={{ 
+                fontFamily: 'Monaco, Menlo, monospace',
+                fontSize: '0.8rem', 
+                color: '#059669',
+                background: '#f0fdf4',
+                padding: '0.25rem 0.5rem',
+                borderRadius: '0.25rem',
+                border: '1px solid #bbf7d0'
+              }}>
+              /api/discovery
+              </div>
+            </div>
+            <div style={{ 
+            padding: '1rem',
+              background: '#f8fafc',
+              borderRadius: '0.5rem',
+              border: '1px solid #e2e8f0'
+            }}>
+              <div style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>
+              Health Check
+              </div>
+              <div style={{ 
+                fontFamily: 'Monaco, Menlo, monospace',
+                fontSize: '0.8rem', 
+                color: '#059669',
+                background: '#f0fdf4',
+                padding: '0.25rem 0.5rem',
+                borderRadius: '0.25rem',
+                border: '1px solid #bbf7d0'
+              }}>
+              /api/health
+              </div>
+            </div>
+            <div style={{ 
+            padding: '1rem',
+              background: '#f8fafc',
+              borderRadius: '0.5rem',
+              border: '1px solid #e2e8f0'
+            }}>
+              <div style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>
+              Environment Config
+              </div>
+              <div style={{ 
+                fontFamily: 'Monaco, Menlo, monospace',
+                fontSize: '0.8rem', 
+                color: '#059669',
+                background: '#f0fdf4',
+                padding: '0.25rem 0.5rem',
+                borderRadius: '0.25rem',
+                border: '1px solid #bbf7d0'
+              }}>
+              /api/env-config
+              </div>
+            </div>
         </div>
       </ContentCard>
 
@@ -1733,7 +1886,6 @@ const Dashboard = () => {
       </ContentCard>
 
       {/* Centralized Success/Error Messages */}
-      <CentralizedSuccessMessage />
 
     </DashboardContainer>
     
