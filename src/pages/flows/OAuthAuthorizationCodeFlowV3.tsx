@@ -306,7 +306,8 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
       redirectUri,
       scope: savedScopes, // Now properly loads saved scopes
       responseType: 'code',
-      grantType: 'authorization_code'
+      grantType: 'authorization_code',
+      clientAuthMethod: stored?.tokenAuthMethod || 'client_secret_post'
     };
   });
 
@@ -597,19 +598,30 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
         : 'http://localhost:3001';
 
       // Prepare token request
-      const requestBody = {
+      // Prepare base request body
+      const baseBody = new URLSearchParams({
         grant_type: 'authorization_code',
-        client_id: credentials.clientId,
         code: authCode,
         redirect_uri: storedRedirectUri,
         code_verifier: storedCodeVerifier,
-        environment_id: credentials.environmentId // Add environment_id for backend
+      });
+      
+      // Apply client authentication method
+      const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+      const authConfig = {
+        method: credentials.clientAuthMethod || 'client_secret_post',
+        clientId: credentials.clientId,
+        clientSecret: credentials.clientSecret,
+        tokenEndpoint: tokenEndpoint
       };
-
-      // Add client secret if available (for confidential clients)
-      if (credentials.clientSecret) {
-        requestBody.client_secret = credentials.clientSecret;
-      }
+      
+      const authenticatedRequest = await applyClientAuthentication(authConfig, baseBody);
+      
+      // Convert to object for backend compatibility
+      const requestBody = {
+        ...Object.fromEntries(authenticatedRequest.body),
+        environment_id: credentials.environmentId
+      };
 
       const response = await fetch(`${backendUrl}/api/token-exchange`, {
         method: 'POST',
