@@ -245,6 +245,38 @@ const ImplicitFlowV3: React.FC = () => {
     }
   }, []);
 
+  // Navigate to Token Management with token
+  const navigateToTokenManagement = useCallback((tokenType: 'access' | 'id') => {
+    console.log('🔍 [ImplicitFlowV3] Navigate to token management:', {
+      tokenType,
+      hasTokens: !!tokens,
+      hasAccessToken: !!tokens?.access_token,
+      hasIdToken: !!tokens?.id_token,
+      tokens
+    });
+    
+    const token = tokenType === 'access' ? tokens?.access_token : tokens?.id_token;
+    
+    if (token) {
+      console.log('✅ [ImplicitFlowV3] Token found, storing for analysis:', {
+        tokenType,
+        tokenLength: token.length,
+        tokenPreview: token.substring(0, 20) + '...'
+      });
+      
+      // Store the token for the Token Management page
+      sessionStorage.setItem('token_to_analyze', token);
+      sessionStorage.setItem('token_type', tokenType);
+      sessionStorage.setItem('flow_source', 'implicit-flow-v3');
+      
+      console.log('🔍 [ImplicitFlowV3] Navigating to token management page...');
+      window.location.href = '/token-management';
+    } else {
+      console.error(`❌ [ImplicitFlowV3] No ${tokenType} token available for analysis`);
+      showFlowError(`No ${tokenType} token available for analysis`);
+    }
+  }, [tokens]);
+
   // Reset flow
   const resetFlow = useCallback(() => {
     console.log('🔄 [ImplicitFlowV3] Resetting flow...');
@@ -639,6 +671,7 @@ const ImplicitFlowV3: React.FC = () => {
               onCopy={copyToClipboard}
               showIntrospection={false}
               showUserInfo={false}
+              onAnalyzeToken={navigateToTokenManagement}
             />
           ) : (
             <div style={{
@@ -656,7 +689,7 @@ const ImplicitFlowV3: React.FC = () => {
         </div>
       )
     }
-  ], [credentials, showSecret, authUrl, tokens, isLoading, saveCredentials, generateAuthUrl, handleAuthorization, copyToClipboard]);
+  ], [credentials, showSecret, authUrl, tokens, isLoading, saveCredentials, generateAuthUrl, handleAuthorization, copyToClipboard, navigateToTokenManagement]);
 
   return (
     <Container>
