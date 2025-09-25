@@ -1248,10 +1248,7 @@ Perfect for:
                       name="worker-token-key-source-setting"
                       value="jwks"
                       checked={useJwksEndpoint}
-                      onChange={(e) => {
-                        if (!e.target.checked) {
-                          return;
-                        }
+                      onChange={() => {
                         console.log('🔄 [WorkerTokenV3] JWKS option selected');
                         setUseJwksEndpoint(true);
                       }}
@@ -1388,10 +1385,7 @@ Perfect for:
                       name="worker-token-key-source-setting"
                       value="private-key"
                       checked={!useJwksEndpoint}
-                      onChange={(e) => {
-                        if (!e.target.checked) {
-                          return;
-                        }
+                      onChange={() => {
                         console.log('🔄 [WorkerTokenV3] Private Key option selected');
                         setUseJwksEndpoint(false);
                       }}
