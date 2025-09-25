@@ -247,6 +247,7 @@ const CopyPrivateKeyButton = styled.button`
 `;
 
 const WorkerTokenFlowV3: React.FC = () => {
+  console.log('🎨 [WorkerTokenV3] COMPONENT RENDER:', { timestamp: Date.now() });
   const authContext = useAuth();
   const { config } = authContext;
   
@@ -1491,10 +1492,7 @@ Perfect for:
               </div>
 
               <div key={`jwks-mode-${useJwksEndpoint}-${resetKey}`}>
-                {(() => {
-                  console.log('🎨 [WorkerTokenV3] RENDERING CONDITIONAL:', { useJwksEndpoint, resetKey, timestamp: Date.now() });
-                  return useJwksEndpoint;
-                })() ? (
+                {useJwksEndpoint ? (
                   <div style={{ display: 'grid', gap: '1rem' }}>
                     <div style={{
                       background: 'rgba(16, 185, 129, 0.1)',
