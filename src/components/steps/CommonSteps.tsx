@@ -302,7 +302,7 @@ export const createCredentialsStep = (
           type="text"
           value={credentials.scope || credentials.scopes || ''}
           onChange={(e) => setCredentials({ ...credentials, scope: e.target.value, scopes: e.target.value })}
-          placeholder="openid profile email"
+          placeholder="openid"
         />
       </FormField>
       

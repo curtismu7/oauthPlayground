@@ -812,7 +812,7 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
           (credentials.issuerUrl && credentials.issuerUrl.includes('pingone') ? 
             credentials.issuerUrl.split('/')[4] : 'custom');
         
-        const scopesToSave = credentials.scope ? credentials.scope.split(' ') : ['openid', 'profile', 'email'];
+        const scopesToSave = credentials.scope ? credentials.scope.split(' ') : ['openid'];
         
         console.log('🔍 [OAuth-V3] Saving credentials:', {
           environmentId: environmentId,

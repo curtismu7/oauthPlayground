@@ -399,7 +399,7 @@ const OIDCClientCredentialsFlowV3: React.FC<OIDCClientCredentialsFlowV3Props> = 
         environmentId: '',
         clientId: '',
         clientSecret: '',
-        scope: 'openid profile email',
+        scope: 'openid',
         audience: 'https://api.pingone.com',
         authMethod: 'client_secret_post',
         privateKey: ''
@@ -713,7 +713,7 @@ const OIDCClientCredentialsFlowV3: React.FC<OIDCClientCredentialsFlowV3Props> = 
                 type="text"
                 value={credentials.scope}
                 onChange={(e) => setCredentials(prev => ({ ...prev, scope: e.target.value }))}
-                placeholder="openid profile email"
+                placeholder="openid"
               />
               <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>
                 OIDC scopes: openid, profile, email, address, phone. Custom scopes: p1:read:users, etc.
