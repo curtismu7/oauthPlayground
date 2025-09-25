@@ -1,5 +1,5 @@
 // src/components/JwksKeySourceSelector.tsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { FiCopy, FiEye, FiEyeOff, FiKey } from 'react-icons/fi';
 import { buildJWKSUri } from '../utils/jwks';
@@ -10,8 +10,6 @@ export type JwksKeySource = 'jwks-endpoint' | 'private-key';
 interface JwksKeySourceSelectorProps {
   /** Currently selected key source */
   value: JwksKeySource;
-  /** Callback when the key source changes */
-  onChange: (next: JwksKeySource) => void;
   /** Explicit JWKS endpoint URL. If not provided we derive it from the issuer/environment */
   jwksUrl?: string;
   /** PingOne environment identifier (UUID) used to derive default JWKS URL */
@@ -36,12 +34,6 @@ interface JwksKeySourceSelectorProps {
   onTogglePrivateKey: () => void;
   /** Optional handler to copy private key value */
   onCopyPrivateKey?: () => void;
-  /** Called when JWKS endpoint radio selected */
-  onSelectJwksEndpoint?: () => void;
-  /** Called when private key radio selected */
-  onSelectPrivateKey?: () => void;
-  /** Called when validation state changes */
-  onValidationChange?: (isValid: boolean) => void;
   /** Optional helper shown below private key textarea */
   privateKeyHelper?: React.ReactNode;
   /** Optional instructions shown when JWKS endpoint mode is active */
@@ -53,8 +45,6 @@ interface JwksKeySourceSelectorProps {
   /** Optional label overrides */
   copyButtonLabel?: string;
   generateKeyLabel?: string;
-  jwksOptionLabel?: string;
-  privateKeyOptionLabel?: string;
   privateKeyLabel?: string;
 }
 
@@ -62,13 +52,6 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-`;
-
-const RadioRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
 `;
 
 const Instructions = styled.div`
@@ -264,8 +247,6 @@ const Spinner = styled.div`
 
 const DEFAULT_COPY_LABEL = 'Copy';
 const DEFAULT_GENERATE_LABEL = 'Generate Key';
-const DEFAULT_JWKS_OPTION_LABEL = 'Use JWKS Endpoint (Recommended)';
-const DEFAULT_PRIVATE_KEY_OPTION_LABEL = 'Upload Private Key';
 const DEFAULT_PRIVATE_KEY_LABEL = 'Private Key (PEM Format) *';
 
 const deriveIssuer = (issuer?: string, environmentId?: string): string | undefined => {
@@ -291,7 +272,6 @@ const resolveJwksUrl = (explicit?: string, issuer?: string, environmentId?: stri
 
 const JwksKeySourceSelector: React.FC<JwksKeySourceSelectorProps> = ({
   value,
-  onChange,
   jwksUrl,
   environmentId,
   issuer,
@@ -309,16 +289,17 @@ const JwksKeySourceSelector: React.FC<JwksKeySourceSelectorProps> = ({
   showConfigurationWarning,
   copyButtonLabel = DEFAULT_COPY_LABEL,
   generateKeyLabel = DEFAULT_GENERATE_LABEL,
-  jwksOptionLabel = DEFAULT_JWKS_OPTION_LABEL,
-  privateKeyOptionLabel = DEFAULT_PRIVATE_KEY_OPTION_LABEL,
   privateKeyLabel = DEFAULT_PRIVATE_KEY_LABEL,
   onCopyPrivateKey,
-  onSelectJwksEndpoint,
-  onSelectPrivateKey,
-  onValidationChange,
 }) => {
   const [validationError, setValidationError] = useState<string | null>(null);
   const resolvedJwksUrl = resolveJwksUrl(jwksUrl, issuer, environmentId);
+
+  useEffect(() => {
+    if (value === 'jwks-endpoint') {
+      setValidationError(null);
+    }
+  }, [value]);
 
   const handleCopyJwksUrl = async () => {
     if (!resolvedJwksUrl) {
@@ -333,64 +314,32 @@ const JwksKeySourceSelector: React.FC<JwksKeySourceSelectorProps> = ({
     }
   };
 
-  const handleRadioChange = (next: JwksKeySource) => {
-    if (next === 'jwks-endpoint') {
-      setValidationError(null);
-      onSelectJwksEndpoint?.();
-    } else {
-      if (!privateKey.trim()) {
-        const message = 'Private key required when using Upload Private Key.';
-        setValidationError(message);
-        onValidationChange?.(false);
-      } else if (!isPrivateKey(privateKey.trim())) {
-        const message = 'Private key must be valid PEM format.';
-        setValidationError(message);
-        onValidationChange?.(false);
-      } else {
-        setValidationError(null);
-        onValidationChange?.(true);
-      }
-      onSelectPrivateKey?.();
-    }
-    onChange(next);
-  };
-
   const handlePrivateKeyChange = (pem: string) => {
     onPrivateKeyChange(pem);
+
     if (!pem.trim()) {
       setValidationError('Private key required when using Upload Private Key.');
-      onValidationChange?.(false);
-    } else if (!isPrivateKey(pem.trim())) {
-      setValidationError('Private key must be valid PEM format.');
-      onValidationChange?.(false);
-    } else {
-      setValidationError(null);
-      onValidationChange?.(true);
+      return;
     }
+
+    if (!isPrivateKey(pem.trim())) {
+      setValidationError('Private key must be valid PEM format.');
+      return;
+    }
+
+    setValidationError(null);
   };
 
   return (
     <Container>
-      <div>
-        <RadioRow>
-          <input
-            type="radio"
-            name="jwks-key-source"
-            value="jwks-endpoint"
-            checked={value === 'jwks-endpoint'}
-            onChange={() => handleRadioChange('jwks-endpoint')}
-            style={{ margin: 0, cursor: 'pointer' }}
-          />
-          <span style={{ color: '#065f46', fontWeight: 600 }}>{jwksOptionLabel}</span>
-        </RadioRow>
-        <p style={{ margin: '0.5rem 0 0 1.5rem', color: '#047857', fontSize: '0.875rem' }}>
-          PingOne will fetch the public key from your JWKS endpoint. No private key upload needed.
-          <br />
-          <br />
-          <strong>🌐 Public URL Required:</strong> PingOne needs to access your JWKS endpoint from their servers, so it must be publicly accessible (not localhost).
-        </p>
-
-        {value === 'jwks-endpoint' && (
+      {value === 'jwks-endpoint' && (
+        <div>
+          <p style={{ margin: '0 0 0.75rem 0', color: '#047857', fontSize: '0.875rem' }}>
+            PingOne will fetch the public key from your JWKS endpoint. No private key upload needed.
+            <br />
+            <br />
+            <strong>🌐 Public URL Required:</strong> PingOne needs to access your JWKS endpoint from their servers, so it must be publicly accessible (not localhost).
+          </p>
           <Instructions>
             <Label style={{ marginBottom: '0.5rem', display: 'block' }}>Your JWKS Endpoint URL:</Label>
             <JwksUrlBox>
@@ -402,27 +351,9 @@ const JwksKeySourceSelector: React.FC<JwksKeySourceSelectorProps> = ({
             </JwksUrlBox>
             {jwksInstructions}
           </Instructions>
-        )}
-
-        {showConfigurationWarning && configurationWarning && <Warning>{configurationWarning}</Warning>}
-      </div>
-
-      <div>
-        <RadioRow>
-          <input
-            type="radio"
-            name="jwks-key-source"
-            value="private-key"
-            checked={value === 'private-key'}
-            onChange={() => handleRadioChange('private-key')}
-            style={{ margin: 0, cursor: 'pointer' }}
-          />
-          <span style={{ color: '#065f46', fontWeight: 600 }}>{privateKeyOptionLabel}</span>
-        </RadioRow>
-        <p style={{ margin: '0.5rem 0 0 1.5rem', color: '#047857', fontSize: '0.875rem' }}>
-          Upload the private key directly to PingOne. Copy the key from below.
-        </p>
-      </div>
+          {showConfigurationWarning && configurationWarning && <Warning>{configurationWarning}</Warning>}
+        </div>
+      )}
 
       {value === 'private-key' && (
         <PrivateKeyContainer>
@@ -442,6 +373,9 @@ const JwksKeySourceSelector: React.FC<JwksKeySourceSelectorProps> = ({
               )}
             </GenerateButton>
           </PrivateKeyHeader>
+          <p style={{ margin: '0 0 0.75rem 0', color: '#047857', fontSize: '0.875rem' }}>
+            Upload the private key directly to PingOne. Copy the key from below.
+          </p>
           <PrivateKeyWrapper>
             <PrivateKeyArea
               value={privateKey}
