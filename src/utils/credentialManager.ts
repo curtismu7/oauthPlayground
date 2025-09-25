@@ -112,7 +112,8 @@ class CredentialManager {
           authEndpoint: credentials.authEndpoint,
           tokenEndpoint: credentials.tokenEndpoint,
           userInfoEndpoint: credentials.userInfoEndpoint,
-          endSessionEndpoint: credentials.endSessionEndpoint
+          endSessionEndpoint: credentials.endSessionEndpoint,
+          tokenAuthMethod: credentials.tokenAuthMethod
         };
         
         return result;
@@ -228,7 +229,8 @@ class CredentialManager {
           authEndpoint: credentials.authEndpoint,
           tokenEndpoint: credentials.tokenEndpoint,
           userInfoEndpoint: credentials.userInfoEndpoint,
-          endSessionEndpoint: credentials.endSessionEndpoint
+          endSessionEndpoint: credentials.endSessionEndpoint,
+          tokenAuthMethod: credentials.tokenAuthMethod
         };
         
         return result;
@@ -307,7 +309,8 @@ class CredentialManager {
           authEndpoint: credentials.authEndpoint,
           tokenEndpoint: credentials.tokenEndpoint,
           userInfoEndpoint: credentials.userInfoEndpoint,
-          endSessionEndpoint: credentials.endSessionEndpoint
+          endSessionEndpoint: credentials.endSessionEndpoint,
+          tokenAuthMethod: credentials.tokenAuthMethod
         };
         
         return result;
@@ -378,7 +381,8 @@ class CredentialManager {
           authEndpoint: credentials.authEndpoint,
           tokenEndpoint: credentials.tokenEndpoint,
           userInfoEndpoint: credentials.userInfoEndpoint,
-          endSessionEndpoint: credentials.endSessionEndpoint
+          endSessionEndpoint: credentials.endSessionEndpoint,
+          tokenAuthMethod: credentials.tokenAuthMethod
         };
         
         return result;
@@ -448,7 +452,8 @@ class CredentialManager {
           authEndpoint: credentials.authEndpoint,
           tokenEndpoint: credentials.tokenEndpoint,
           userInfoEndpoint: credentials.userInfoEndpoint,
-          endSessionEndpoint: credentials.endSessionEndpoint
+          endSessionEndpoint: credentials.endSessionEndpoint,
+          tokenAuthMethod: credentials.tokenAuthMethod
         };
         
         return result;
@@ -518,7 +523,8 @@ class CredentialManager {
           authEndpoint: credentials.authEndpoint,
           tokenEndpoint: credentials.tokenEndpoint,
           userInfoEndpoint: credentials.userInfoEndpoint,
-          endSessionEndpoint: credentials.endSessionEndpoint
+          endSessionEndpoint: credentials.endSessionEndpoint,
+          tokenAuthMethod: credentials.tokenAuthMethod
         };
         
         return result;
@@ -681,7 +687,8 @@ class CredentialManager {
           authEndpoint: credentials.authEndpoint,
           tokenEndpoint: credentials.tokenEndpoint,
           userInfoEndpoint: credentials.userInfoEndpoint,
-          endSessionEndpoint: credentials.endSessionEndpoint
+          endSessionEndpoint: credentials.endSessionEndpoint,
+          tokenAuthMethod: credentials.tokenAuthMethod
         };
         
         console.log('✅ [CredentialManager] Returning credentials:', result);
@@ -735,7 +742,8 @@ class CredentialManager {
           authEndpoint: credentials.authEndpoint,
           tokenEndpoint: credentials.tokenEndpoint,
           userInfoEndpoint: credentials.userInfoEndpoint,
-          endSessionEndpoint: credentials.endSessionEndpoint
+          endSessionEndpoint: credentials.endSessionEndpoint,
+          tokenAuthMethod: credentials.tokenAuthMethod
         };
         
         console.log('✅ [CredentialManager] Returning credentials:', result);
@@ -910,7 +918,8 @@ class CredentialManager {
       authEndpoint: credentials.authEndpoint,
       tokenEndpoint: credentials.tokenEndpoint,
       userInfoEndpoint: credentials.userInfoEndpoint,
-      endSessionEndpoint: credentials.endSessionEndpoint
+      endSessionEndpoint: credentials.endSessionEndpoint,
+      tokenAuthMethod: credentials.tokenAuthMethod
     });
 
     const sessionSuccess = this.saveSessionCredentials({
