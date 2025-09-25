@@ -351,14 +351,8 @@ const WorkerTokenFlowV3: React.FC = () => {
         throw new Error('Please fill in all required fields: Environment ID and Client ID');
       }
       
-      // Validate authentication method specific requirements
-      if (clientAuthMethod === 'private_key_jwt' && !privateKey) {
-        throw new Error('Private key is required for Private Key JWT authentication method');
-      }
-      
-      if (clientAuthMethod !== 'none' && clientAuthMethod !== 'private_key_jwt' && !credentials.clientSecret) {
-        throw new Error('Client secret is required for the selected authentication method');
-      }
+      // Note: We allow saving the authentication method selection even if method-specific fields aren't filled yet
+      // This allows users to save their authentication method choice and fill in the specific fields later
 
       // Save to flow-specific storage
       credentialManager.saveFlowCredentials('worker-token-v3', {
@@ -371,7 +365,7 @@ const WorkerTokenFlowV3: React.FC = () => {
         privateKey: privateKey
       });
 
-      showFlowSuccess('✅ Credentials Saved', 'Worker token credentials have been saved successfully');
+      showFlowSuccess('✅ Credentials Saved', `Worker token credentials saved successfully. Authentication method: ${clientAuthMethod}`);
       logger.auth('WorkerTokenFlowV3', 'Credentials saved successfully');
       
     } catch (error) {
@@ -1573,9 +1567,7 @@ Perfect for:
           id: 'save-credentials',
           label: 'Save Credentials',
           onClick: saveCredentials,
-          disabled: isLoading || !credentials.environmentId || !credentials.clientId || 
-            (clientAuthMethod !== 'private_key_jwt' && !credentials.clientSecret) ||
-            (clientAuthMethod === 'private_key_jwt' && !privateKey),
+          disabled: isLoading || !credentials.environmentId || !credentials.clientId,
           loading: isLoading,
           icon: <FiSettings />,
           variant: 'primary' as const
