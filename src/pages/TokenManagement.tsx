@@ -1943,279 +1943,335 @@ const TokenManagement = () => {
             </div>
           )}
           
-          <ButtonGroup>
-            <ActionButton
-              id="get-access-token-btn"
-              className="primary"
-              onClick={() => handleGetSpecificToken('access_token')}
-              disabled={isLoading}
-            >
-              <FiKey />
-              {isLoading ? 'Getting...' : 'Get Access Token'}
-            </ActionButton>
+          {/* Group 1: Get Tokens */}
+          <div style={{ 
+            marginBottom: '1rem',
+            backgroundColor: '#fff7ed',
+            border: '1px solid #fed7aa',
+            borderRadius: '8px',
+            padding: '1rem'
+          }}>
+            <h4 style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', fontWeight: '600', color: '#c2410c' }}>🔑 Get Tokens</h4>
+            <ButtonGroup>
+              <ActionButton
+                id="get-access-token-btn"
+                className="primary"
+                onClick={() => handleGetSpecificToken('access_token')}
+                disabled={isLoading}
+                style={{ backgroundColor: '#3b82f6', borderColor: '#3b82f6' }}
+              >
+                <FiKey />
+                {isLoading ? 'Getting...' : 'Get Access Token'}
+              </ActionButton>
 
-            <ActionButton
-              id="get-id-token-btn"
-              className={isOAuthFlow ? "secondary" : "primary"}
-              onClick={() => handleGetSpecificToken('id_token')}
-              disabled={isLoading || isOAuthFlow}
-              title={isOAuthFlow ? "ID Tokens are not available in OAuth 2.0 flows (only in OpenID Connect)" : "Get ID Token from current session"}
-            >
-              <FiShield />
-              {isLoading ? 'Getting...' : isOAuthFlow ? 'ID Token (OAuth N/A)' : 'Get ID Token'}
-            </ActionButton>
+              <ActionButton
+                id="get-id-token-btn"
+                className={isOAuthFlow ? "secondary" : "primary"}
+                onClick={() => handleGetSpecificToken('id_token')}
+                disabled={isLoading || isOAuthFlow}
+                title={isOAuthFlow ? "ID Tokens are not available in OAuth 2.0 flows (only in OpenID Connect)" : "Get ID Token from current session"}
+                style={{ backgroundColor: isOAuthFlow ? '#6b7280' : '#3b82f6', borderColor: isOAuthFlow ? '#6b7280' : '#3b82f6' }}
+              >
+                <FiShield />
+                {isLoading ? 'Getting...' : isOAuthFlow ? 'Get ID Token (OAuth N/A)' : 'Get ID Token'}
+              </ActionButton>
 
-            <ActionButton
-              id="get-refresh-token-btn"
-              className="primary"
-              onClick={() => handleGetSpecificToken('refresh_token')}
-              disabled={isLoading}
-            >
-              <FiRefreshCw />
-              {isLoading ? 'Getting...' : 'Get Refresh Token'}
-            </ActionButton>
+              <ActionButton
+                id="get-refresh-token-btn"
+                className="primary"
+                onClick={() => handleGetSpecificToken('refresh_token')}
+                disabled={isLoading}
+                style={{ backgroundColor: '#3b82f6', borderColor: '#3b82f6' }}
+              >
+                <FiRefreshCw />
+                {isLoading ? 'Getting...' : 'Get Refresh Token'}
+              </ActionButton>
+            </ButtonGroup>
+          </div>
 
-            <ActionButton
-              id="copy-token-btn"
-              className="secondary"
-              onClick={handleCopyToken}
-              disabled={!tokenString || isLoading}
-            >
-              <FiCopy />
-              Copy Token
-            </ActionButton>
+          {/* Group 2: Token Actions */}
+          <div style={{ 
+            marginBottom: '1rem',
+            backgroundColor: '#f0fdf4',
+            border: '1px solid #bbf7d0',
+            borderRadius: '8px',
+            padding: '1rem'
+          }}>
+            <h4 style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', fontWeight: '600', color: '#166534' }}>⚙️ Token Actions</h4>
+            <ButtonGroup>
+              <ActionButton
+                id="copy-token-btn"
+                className="secondary"
+                onClick={handleCopyToken}
+                disabled={!tokenString || isLoading}
+                style={{ backgroundColor: '#3b82f6', borderColor: '#3b82f6', color: 'white' }}
+              >
+                <FiCopy />
+                Copy Token
+              </ActionButton>
 
-            <ActionButton
-              id="introspect-token-btn"
-              className="secondary"
-              onClick={handleIntrospectToken}
-              disabled={!tokenString || isLoading}
-            >
-              <FiShield />
-              Introspect {isAccessToken ? 'Access Token' : 'ID Token'}
-            </ActionButton>
+              <ActionButton
+                id="introspect-token-btn"
+                className="secondary"
+                onClick={handleIntrospectToken}
+                disabled={!tokenString || isLoading}
+                style={{ backgroundColor: '#3b82f6', borderColor: '#3b82f6', color: 'white' }}
+              >
+                <FiShield />
+                Introspect {isAccessToken ? 'Access Token' : 'ID Token'}
+              </ActionButton>
 
-            <ActionButton
-              className="secondary"
-              onClick={() => {
-                console.log('🔄 [TokenManagement] Loading tokens from storage...');
-                const storedTokens = getOAuthTokens();
-                
-                console.log('🔍 [TokenManagement] Stored tokens from getOAuthTokens():', storedTokens);
-                
-                if (storedTokens && storedTokens.access_token) {
-                  console.log('✅ [TokenManagement] Found stored tokens, loading...');
-                  setTokenString(storedTokens.access_token);
-                  setTokenSource({
-                    source: 'Stored Tokens',
-                    description: `Access Token from ${storedTokens.token_type || 'Bearer'} flow`,
-                    timestamp: new Date().toLocaleString()
-                  });
-                  
-                  // Auto-decode the token
-                  setTimeout(() => decodeJWT(storedTokens.access_token), 100);
-                  
-                  // Update token status
-                  if (storedTokens.expires_at) {
-                    const now = Date.now();
-                    const expiresAt = new Date(storedTokens.expires_at).getTime();
-                    setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
-                  } else if (storedTokens.expires_in) {
-                    const now = Date.now();
-                    const expiresAt = now + (storedTokens.expires_in * 1000);
-                    setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
-                  } else {
-                    setTokenStatus('valid');
-                  }
-                  
-                  // Show success message
-                  setMessage({
-                    type: 'success',
-                    title: 'Token Loaded from Storage!',
-                    message: 'Successfully loaded and decoded token from secure storage.'
-                  });
-                } else {
-                  console.log('ℹ️ [TokenManagement] No stored tokens found');
-                  setTokenStatus('none');
-                  setMessage({
-                    type: 'warning',
-                    title: 'No Stored Tokens',
-                    message: 'No tokens found in secure storage. Complete an OAuth flow first.'
-                  });
-                }
-              }}
-            >
-              <FiRefreshCw />
-              Load from Storage
-            </ActionButton>
+              <ActionButton
+                id="decode-token-btn"
+                className="primary"
+                onClick={handleDecodeClick}
+                disabled={!tokenString || isLoading}
+                style={{ backgroundColor: '#3b82f6', borderColor: '#3b82f6' }}
+              >
+                <FiEye />
+                Decode JWT
+              </ActionButton>
+            </ButtonGroup>
+          </div>
 
-            <ActionButton
-              className="secondary"
-              onClick={() => {
-                console.log('🔄 [TokenManagement] Getting token from AuthZ Code Flow...');
-                // Try to get token from auth context first
-                if (tokens && tokens.access_token) {
-                  console.log('✅ [TokenManagement] Found token in auth context');
-                  setTokenString(tokens.access_token);
-                  setTokenSource({
-                    source: 'AuthZ Code Flow',
-                    description: 'Access Token from current OAuth session',
-                    timestamp: new Date().toLocaleString()
-                  });
-                  setTimeout(() => decodeJWT(tokens.access_token), 100);
-                  
-                  // Show success message
-                  setMessage({
-                    type: 'success',
-                    title: 'Token Loaded from AuthZ Code Flow!',
-                    message: 'Successfully loaded and decoded access token from current OAuth session.'
-                  });
-                } else {
-                  // Try to get from storage
+          {/* Group 3: Load Tokens */}
+          <div style={{ 
+            marginBottom: '1rem',
+            backgroundColor: '#fefce8',
+            border: '1px solid #fde047',
+            borderRadius: '8px',
+            padding: '1rem'
+          }}>
+            <h4 style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', fontWeight: '600', color: '#a16207' }}>📂 Load Tokens</h4>
+            <ButtonGroup>
+              <ActionButton
+                className="secondary"
+                onClick={() => {
+                  console.log('🔄 [TokenManagement] Loading tokens from storage...');
                   const storedTokens = getOAuthTokens();
+                  
+                  console.log('🔍 [TokenManagement] Stored tokens from getOAuthTokens():', storedTokens);
+                  
                   if (storedTokens && storedTokens.access_token) {
-                    console.log('✅ [TokenManagement] Found token in storage');
+                    console.log('✅ [TokenManagement] Found stored tokens, loading...');
                     setTokenString(storedTokens.access_token);
                     setTokenSource({
-                      source: 'AuthZ Code Flow (Stored)',
-                      description: 'Access Token from stored OAuth session',
+                      source: 'Stored Tokens',
+                      description: `Access Token from ${storedTokens.token_type || 'Bearer'} flow`,
                       timestamp: new Date().toLocaleString()
                     });
+                    
+                    // Auto-decode the token
                     setTimeout(() => decodeJWT(storedTokens.access_token), 100);
+                    
+                    // Update token status
+                    if (storedTokens.expires_at) {
+                      const now = Date.now();
+                      const expiresAt = new Date(storedTokens.expires_at).getTime();
+                      setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
+                    } else if (storedTokens.expires_in) {
+                      const now = Date.now();
+                      const expiresAt = now + (storedTokens.expires_in * 1000);
+                      setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
+                    } else {
+                      setTokenStatus('valid');
+                    }
                     
                     // Show success message
                     setMessage({
                       type: 'success',
-                      title: 'Token Loaded from Stored Session!',
-                      message: 'Successfully loaded and decoded access token from stored OAuth session.'
+                      title: 'Token Loaded from Storage!',
+                      message: 'Successfully loaded and decoded token from secure storage.'
                     });
                   } else {
+                    console.log('ℹ️ [TokenManagement] No stored tokens found');
+                    setTokenStatus('none');
                     setMessage({
                       type: 'warning',
-                      title: 'No Token Available',
-                      message: 'No token available from AuthZ Code Flow. Please complete the OAuth flow first.'
+                      title: 'No Stored Tokens',
+                      message: 'No tokens found in secure storage. Complete an OAuth flow first.'
                     });
                   }
-                }
-              }}
-            >
-              <FiKey />
-              Get from AuthZ Code Flow
-            </ActionButton>
+                }}
+                style={{ backgroundColor: '#3b82f6', borderColor: '#3b82f6', color: 'white' }}
+              >
+                <FiRefreshCw />
+                Load from Storage
+              </ActionButton>
 
-            <ActionButton
-              id="decode-token-btn"
-              className="primary"
-              onClick={handleDecodeClick}
-              disabled={!tokenString || isLoading}
-            >
-              <FiEye />
-              Decode JWT
-            </ActionButton>
+              <ActionButton
+                className="secondary"
+                onClick={() => {
+                  console.log('🔄 [TokenManagement] Getting token from Dashboard Login...');
+                  // Try to get token from auth context first
+                  if (tokens && tokens.access_token) {
+                    console.log('✅ [TokenManagement] Found token in auth context');
+                    setTokenString(tokens.access_token);
+                    setTokenSource({
+                      source: 'Dashboard Login',
+                      description: 'Access Token from current OAuth session',
+                      timestamp: new Date().toLocaleString()
+                    });
+                    setTimeout(() => decodeJWT(tokens.access_token), 100);
+                    
+                    // Show success message
+                    setMessage({
+                      type: 'success',
+                      title: 'Token Loaded from Dashboard Login!',
+                      message: 'Successfully loaded and decoded access token from current OAuth session.'
+                    });
+                  } else {
+                    // Try to get from storage
+                    const storedTokens = getOAuthTokens();
+                    if (storedTokens && storedTokens.access_token) {
+                      console.log('✅ [TokenManagement] Found token in storage');
+                      setTokenString(storedTokens.access_token);
+                      setTokenSource({
+                        source: 'Dashboard Login (Stored)',
+                        description: 'Access Token from stored OAuth session',
+                        timestamp: new Date().toLocaleString()
+                      });
+                      setTimeout(() => decodeJWT(storedTokens.access_token), 100);
+                      
+                      // Show success message
+                      setMessage({
+                        type: 'success',
+                        title: 'Token Loaded from Stored Session!',
+                        message: 'Successfully loaded and decoded access token from stored OAuth session.'
+                      });
+                    } else {
+                      setMessage({
+                        type: 'warning',
+                        title: 'No Token Available',
+                        message: 'No token available from Dashboard Login. Please complete the OAuth flow first.'
+                      });
+                    }
+                  }
+                }}
+                style={{ backgroundColor: '#3b82f6', borderColor: '#3b82f6', color: 'white' }}
+              >
+                <FiKey />
+                Get from Dashboard Login
+              </ActionButton>
+            </ButtonGroup>
+          </div>
 
-            <ActionButton
-              className="secondary"
-              onClick={() => {
-                // Create a comprehensive sample token that matches real PingOne token structure
-                const now = Math.floor(Date.now() / 1000);
-                const samplePayload = {
-                  // Standard JWT claims
-                  iss: "https://auth.pingone.com/12345678-1234-1234-1234-123456789012",
-                  sub: "87654321-4321-4321-4321-210987654321",
-                  aud: "a1b2c3d4-5678-90ab-cdef-1234567890ab",
-                  exp: now + 3600, // Expires in 1 hour
-                  iat: now - 300,  // Issued 5 minutes ago
-                  auth_time: now - 300,
-                  jti: "jwt_" + Date.now(),
+          {/* Group 4: Sample & Demo Tokens */}
+          <div style={{ 
+            marginBottom: '1rem',
+            backgroundColor: '#fef2f2',
+            border: '1px solid #fecaca',
+            borderRadius: '8px',
+            padding: '1rem'
+          }}>
+            <h4 style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', fontWeight: '600', color: '#dc2626' }}>🧪 Sample & Demo Tokens</h4>
+            <ButtonGroup>
+              <ActionButton
+                className="secondary"
+                onClick={() => {
+                  // Create a comprehensive sample token that matches real PingOne token structure
+                  const now = Math.floor(Date.now() / 1000);
+                  const samplePayload = {
+                    // Standard JWT claims
+                    iss: "https://auth.pingone.com/12345678-1234-1234-1234-123456789012",
+                    sub: "87654321-4321-4321-4321-210987654321",
+                    aud: "a1b2c3d4-5678-90ab-cdef-1234567890ab",
+                    exp: now + 3600, // Expires in 1 hour
+                    iat: now - 300,  // Issued 5 minutes ago
+                    auth_time: now - 300,
+                    jti: "jwt_" + Date.now(),
+                    
+                    // OIDC claims
+                    nonce: "abc123def456ghi789",
+                    at_hash: "sample_at_hash_value_123",
+                    
+                    // PingOne specific claims
+                    env: "12345678-1234-1234-1234-123456789012",
+                    org: "98765432-8765-4321-9876-543210987654",
+                    
+                    // User profile claims
+                    name: "John Doe",
+                    given_name: "John",
+                    family_name: "Doe", 
+                    email: "john.doe@example.com",
+                    email_verified: true,
+                    preferred_username: "john.doe",
+                    picture: "https://example.com/avatar/john.doe.jpg",
+                    
+                    // Additional standard claims
+                    locale: "en-US",
+                    zoneinfo: "America/New_York",
+                    updated_at: now - 86400, // Updated yesterday
+                    
+                    // OAuth scope-related claims
+                    scope: "openid profile email",
+                    client_id: "a1b2c3d4-5678-90ab-cdef-1234567890ab",
+                    
+                    // PingOne environment claims
+                    amr: ["pwd"], // Authentication method reference
+                    acr: "urn:pingone:loa:1", // Authentication context class reference
+                    sid: "session_" + Date.now()
+                  };
                   
-                  // OIDC claims
-                  nonce: "abc123def456ghi789",
-                  at_hash: "sample_at_hash_value_123",
+                  // Create a properly formatted JWT (header.payload.signature)
+                  const header = { alg: "RS256", typ: "JWT", kid: "sample_key_id_123" };
+                  const encodedHeader = btoa(JSON.stringify(header)).replace(/[+/=]/g, m => ({'+':'-','/':'_','=':''}[m]));
+                  const encodedPayload = btoa(JSON.stringify(samplePayload)).replace(/[+/=]/g, m => ({'+':'-','/':'_','=':''}[m]));
+                  const sampleSignature = "sample_signature_" + btoa("comprehensive_sample_token").replace(/[+/=]/g, m => ({'+':'-','/':'_','=':''}[m]));
+                  const sampleToken = `${encodedHeader}.${encodedPayload}.${sampleSignature}`;
                   
-                  // PingOne specific claims
-                  env: "12345678-1234-1234-1234-123456789012",
-                  org: "98765432-8765-4321-9876-543210987654",
+                  setTokenString(sampleToken);
+                  setTokenSource({
+                    source: 'Comprehensive Sample',
+                    description: 'Realistic PingOne JWT sample with comprehensive claims including OIDC, profile, and PingOne-specific fields',
+                    timestamp: new Date().toLocaleString()
+                  });
+                  console.log('🧪 [TokenManagement] Loaded comprehensive sample token with realistic PingOne structure');
                   
-                  // User profile claims
-                  name: "John Doe",
-                  given_name: "John",
-                  family_name: "Doe", 
-                  email: "john.doe@example.com",
-                  email_verified: true,
-                  preferred_username: "john.doe",
-                  picture: "https://example.com/avatar/john.doe.jpg",
+                  // Auto-decode the sample token
+                  setTimeout(() => decodeJWT(sampleToken), 100);
                   
-                  // Additional standard claims
-                  locale: "en-US",
-                  zoneinfo: "America/New_York",
-                  updated_at: now - 86400, // Updated yesterday
-                  
-                  // OAuth scope-related claims
-                  scope: "openid profile email",
-                  client_id: "a1b2c3d4-5678-90ab-cdef-1234567890ab",
-                  
-                  // PingOne environment claims
-                  amr: ["pwd"], // Authentication method reference
-                  acr: "urn:pingone:loa:1", // Authentication context class reference
-                  sid: "session_" + Date.now()
-                };
-                
-                // Create a properly formatted JWT (header.payload.signature)
-                const header = { alg: "RS256", typ: "JWT", kid: "sample_key_id_123" };
-                const encodedHeader = btoa(JSON.stringify(header)).replace(/[+/=]/g, m => ({'+':'-','/':'_','=':''}[m]));
-                const encodedPayload = btoa(JSON.stringify(samplePayload)).replace(/[+/=]/g, m => ({'+':'-','/':'_','=':''}[m]));
-                const sampleSignature = "sample_signature_" + btoa("comprehensive_sample_token").replace(/[+/=]/g, m => ({'+':'-','/':'_','=':''}[m]));
-                const sampleToken = `${encodedHeader}.${encodedPayload}.${sampleSignature}`;
-                
-                setTokenString(sampleToken);
-                setTokenSource({
-                  source: 'Comprehensive Sample',
-                  description: 'Realistic PingOne JWT sample with comprehensive claims including OIDC, profile, and PingOne-specific fields',
-                  timestamp: new Date().toLocaleString()
-                });
-                console.log('🧪 [TokenManagement] Loaded comprehensive sample token with realistic PingOne structure');
-                
-                // Auto-decode the sample token
-                setTimeout(() => decodeJWT(sampleToken), 100);
-                
-                // Show success message
-                setMessage({
-                  type: 'success',
-                  title: 'Comprehensive Sample Token Loaded!',
-                  message: 'Loaded a realistic sample token with comprehensive claims matching real PingOne token structure. Perfect for testing and demonstration.'
-                });
-              }}
-            >
-              🧪 Load Sample Token
-            </ActionButton>
+                  // Show success message
+                  setMessage({
+                    type: 'success',
+                    title: 'Comprehensive Sample Token Loaded!',
+                    message: 'Loaded a realistic sample token with comprehensive claims matching real PingOne token structure. Perfect for testing and demonstration.'
+                  });
+                }}
+                style={{ backgroundColor: '#eab308', borderColor: '#eab308', color: 'white' }}
+              >
+                🧪 Load Sample Token
+              </ActionButton>
 
-            <ActionButton
-              className="danger"
-              onClick={() => {
-                // Generate a realistic-looking but intentionally flawed PingOne token
-                const badToken = generateBadSecurityToken();
-                setTokenString(badToken);
-                setTokenSource({
-                  source: 'Security Demo',
-                  description: 'Intentionally flawed token for security demonstration',
-                  timestamp: new Date().toLocaleString()
-                });
-                console.log('🚨 [TokenManagement] Loaded bad security token for demonstration');
-                
-                // Auto-decode the bad token
-                setTimeout(() => decodeJWT(badToken), 100);
-                
-                // Show success message
-                setMessage({
-                  type: 'success',
-                  title: 'Bad Security Token Loaded!',
-                  message: 'Generated a token with intentional security flaws for demonstration. Check the analysis section to see detected issues.'
-                });
-              }}
-            >
-              🚨 Bad Security Token
-            </ActionButton>
-          </ButtonGroup>
+              <ActionButton
+                className="danger"
+                onClick={() => {
+                  // Generate a realistic-looking but intentionally flawed PingOne token
+                  const badToken = generateBadSecurityToken();
+                  setTokenString(badToken);
+                  setTokenSource({
+                    source: 'Security Demo',
+                    description: 'Intentionally flawed token for security demonstration',
+                    timestamp: new Date().toLocaleString()
+                  });
+                  console.log('🚨 [TokenManagement] Loaded bad security token for demonstration');
+                  
+                  // Auto-decode the bad token
+                  setTimeout(() => decodeJWT(badToken), 100);
+                  
+                  // Show success message
+                  setMessage({
+                    type: 'success',
+                    title: 'Bad Security Token Loaded!',
+                    message: 'Generated a token with intentional security flaws for demonstration. Check the analysis section to see detected issues.'
+                  });
+                }}
+                style={{ backgroundColor: '#dc2626', borderColor: '#dc2626' }}
+              >
+                🚨 Bad Security Token
+              </ActionButton>
+            </ButtonGroup>
+          </div>
         </CardBody>
       </TokenSection>
 
@@ -2872,8 +2928,6 @@ const TokenManagement = () => {
       />
 
       {/* Centralized Success/Error Messages */}
-      <CentralizedSuccessMessage position="top" />
-      <CentralizedSuccessMessage position="bottom" />
 
     </Container>
   );

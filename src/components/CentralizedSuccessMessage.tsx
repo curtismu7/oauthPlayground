@@ -349,9 +349,9 @@ export const CentralizedSuccessMessage: React.FC = () => {
 };
 
 // Generic helper functions
-export const showFlowSuccess = (text: string, subtitle?: string) => {
+export const showFlowSuccess = (text: string, subtitle?: string, autoCloseMs?: number) => {
   const message = subtitle ? `${text}\n${subtitle}` : text;
-  addMessage({ text: message, isError: false });
+  addMessage({ text: message, isError: false, autoCloseMs });
 };
 
 export const showFlowError = (summary: string, details?: string) => {

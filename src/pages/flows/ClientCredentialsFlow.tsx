@@ -789,8 +789,6 @@ fetch('/api/protected-resource', {
       </DemoSection>
       
       {/* Centralized Success/Error Messages */}
-      <CentralizedSuccessMessage position="top" />
-      <CentralizedSuccessMessage position="bottom" />
     </Container>
   );
 };
