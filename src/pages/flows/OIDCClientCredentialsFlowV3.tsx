@@ -19,16 +19,14 @@ import { EnhancedStepFlowV2 } from '../../components/EnhancedStepFlowV2';
 import { useFlowStepManager } from '../../utils/flowStepSystem';
 import { enhancedDebugger } from '../../utils/enhancedDebug';
 import { usePerformanceTracking } from '../../hooks/useAnalytics';
-import { logger } from '../../utils/logger';
 import { copyToClipboard } from '../../utils/clipboard';
-import { generateRandomString } from '../../utils/oauth';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 import { showFlowSuccess, showFlowError } from '../../components/CentralizedSuccessMessage';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import { InfoBox } from '../../components/steps/CommonSteps';
 import { FormField, FormLabel, FormInput } from '../../components/steps/CommonSteps';
 import TokenDisplay from '../../components/TokenDisplay';
-import { ColorCodedURL } from '../../components/ColorCodedURL';
+import { applyClientAuthentication, getAuthMethodSecurityLevel, ClientAuthMethod } from '../../utils/clientAuthentication';
 
 // Styled components
 const Container = styled.div`
@@ -263,6 +261,8 @@ interface OIDCClientCredentialsFlowV3Credentials {
   clientSecret: string;
   scope: string;
   audience: string;
+  authMethod: ClientAuthMethod;
+  privateKey?: string;
 }
 
 interface OIDCClientCredentialsTokens {
@@ -308,20 +308,19 @@ const OIDCClientCredentialsFlowV3: React.FC<OIDCClientCredentialsFlowV3Props> = 
     clientId: '',
     clientSecret: '',
     scope: 'api:read',
-    audience: 'https://api.pingone.com'
+    audience: 'https://api.pingone.com',
+    authMethod: 'client_secret_post',
+    privateKey: ''
   });
 
   const [tokens, setTokens] = useState<OIDCClientCredentialsTokens | null>(null);
   const [isRequestingToken, setIsRequestingToken] = useState(false);
   const [showClearCredentialsModal, setShowClearCredentialsModal] = useState(false);
   const [isClearingCredentials, setIsClearingCredentials] = useState(false);
-  const [copiedText, setCopiedText] = useState<string | null>(null);
   const [showEducationalContent, setShowEducationalContent] = useState(true);
-  const [showTokenDetails, setShowTokenDetails] = useState(false);
-  const [isSavingCredentials, setIsSavingCredentials] = useState(false);
-  const [credentialsSavedSuccessfully, setCredentialsSavedSuccessfully] = useState(false);
   const [isResettingFlow, setIsResettingFlow] = useState(false);
   const [showClientSecret, setShowClientSecret] = useState(false);
+  const [showPrivateKey, setShowPrivateKey] = useState(false);
 
   // Populate credentials from config when available
   useEffect(() => {
@@ -401,7 +400,9 @@ const OIDCClientCredentialsFlowV3: React.FC<OIDCClientCredentialsFlowV3Props> = 
         clientId: '',
         clientSecret: '',
         scope: 'openid profile email',
-        audience: 'https://api.pingone.com'
+        audience: 'https://api.pingone.com',
+        authMethod: 'client_secret_post',
+        privateKey: ''
       });
       showFlowSuccess('🗑️ Credentials Cleared', 'All stored credentials have been removed successfully.');
       console.log('✅ [OIDC-CC-V3] Credentials cleared');
@@ -422,20 +423,52 @@ const OIDCClientCredentialsFlowV3: React.FC<OIDCClientCredentialsFlowV3Props> = 
       if (!credentials.environmentId || !credentials.clientId) {
         throw new Error('Environment ID and Client ID are required');
       }
-
-      if (!credentials.clientSecret) {
-        throw new Error('Client Secret is required');
+      
+      // Validate authentication method specific requirements
+      if (credentials.authMethod === 'private_key_jwt' && !credentials.privateKey) {
+        throw new Error('Private key is required for Private Key JWT authentication method');
+      }
+      
+      if (credentials.authMethod !== 'none' && credentials.authMethod !== 'private_key_jwt' && !credentials.clientSecret) {
+        throw new Error('Client secret is required for the selected authentication method');
       }
 
       console.log('🏗️ [OIDC-CC-V3] Building token request', { 
         clientId: credentials.clientId,
         scope: credentials.scope,
         audience: credentials.audience,
-        environmentId: credentials.environmentId
+        environmentId: credentials.environmentId,
+        authMethod: credentials.authMethod
       });
 
       setIsRequestingToken(true);
       showFlowSuccess('🚀 Requesting Access Token', 'Sending client credentials request to PingOne...');
+
+      // Prepare base request body
+      const baseBody = new URLSearchParams({
+        grant_type: 'client_credentials'
+      });
+      
+      // Only add scope if it's not empty
+      if (credentials.scope && credentials.scope.trim()) {
+        baseBody.append('scope', credentials.scope);
+      }
+
+      if (credentials.audience) {
+        baseBody.append('audience', credentials.audience);
+      }
+
+      // Apply client authentication method
+      const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+      const authConfig = {
+        method: credentials.authMethod,
+        clientId: credentials.clientId,
+        clientSecret: credentials.clientSecret,
+        privateKey: credentials.privateKey || '',
+        tokenEndpoint: tokenEndpoint
+      };
+      
+      const authenticatedRequest = await applyClientAuthentication(authConfig, baseBody);
 
       // Make request via backend proxy
       const backendUrl = process.env.NODE_ENV === 'production' 
@@ -448,10 +481,10 @@ const OIDCClientCredentialsFlowV3: React.FC<OIDCClientCredentialsFlowV3Props> = 
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          client_id: credentials.clientId,
-          client_secret: credentials.clientSecret,
           environment_id: credentials.environmentId,
-          scope: credentials.scope
+          auth_method: credentials.authMethod,
+          headers: authenticatedRequest.headers,
+          body: Object.fromEntries(authenticatedRequest.body.entries())
         })
       });
 
@@ -570,33 +603,109 @@ const OIDCClientCredentialsFlowV3: React.FC<OIDCClientCredentialsFlowV3Props> = 
             </FormField>
 
             <FormField>
-              <FormLabel>Client Secret *</FormLabel>
+              <FormLabel>Token Endpoint Authentication Method</FormLabel>
+              <select
+                value={credentials.authMethod}
+                onChange={(e) => setCredentials(prev => ({ ...prev, authMethod: e.target.value as ClientAuthMethod }))}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.5rem',
+                  fontSize: '0.875rem',
+                  backgroundColor: 'white'
+                }}
+              >
+                <option value="client_secret_post">Client Secret Post</option>
+                <option value="client_secret_basic">Client Secret Basic</option>
+                <option value="client_secret_jwt">Client Secret JWT</option>
+                <option value="private_key_jwt">Private Key JWT</option>
+                <option value="none">None</option>
+              </select>
+              <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                {(() => {
+                  const securityInfo = getAuthMethodSecurityLevel(credentials.authMethod);
+                  return `${securityInfo.icon} ${securityInfo.description}`;
+                })()}
+              </div>
+            </FormField>
+
+            {credentials.authMethod === 'private_key_jwt' && (
+              <FormField>
+                <FormLabel>Private Key (PEM Format) *</FormLabel>
                 <div style={{ position: 'relative' }}>
-                  <FormInput
-                    type={showClientSecret ? 'text' : 'password'}
-                    value={credentials.clientSecret}
-                    onChange={(e) => setCredentials(prev => ({ ...prev, clientSecret: e.target.value }))}
-                    placeholder="Enter your client secret"
+                  <textarea
+                    value={credentials.privateKey || ''}
+                    onChange={(e) => setCredentials(prev => ({ ...prev, privateKey: e.target.value }))}
+                    placeholder="-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC..."
+                    style={{
+                      width: '100%',
+                      height: '120px',
+                      padding: '0.75rem',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '0.5rem',
+                      fontSize: '0.875rem',
+                      fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
+                      resize: 'vertical',
+                      paddingRight: showPrivateKey ? '2.5rem' : '0.75rem'
+                    }}
                     required
                   />
                   <button
                     type="button"
-                    onClick={() => setShowClientSecret(!showClientSecret)}
+                    onClick={() => setShowPrivateKey(!showPrivateKey)}
                     style={{
                       position: 'absolute',
                       right: '0.75rem',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
+                      top: '0.75rem',
                       background: 'none',
                       border: 'none',
                       cursor: 'pointer',
-                      color: '#6b7280'
+                      color: '#6b7280',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
                     }}
                   >
-                    {showClientSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+                    {showPrivateKey ? <FiEyeOff size={16} /> : <FiEye size={16} />}
                   </button>
                 </div>
+                <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                  Private key in PEM format for RS256 JWT signing
+                </div>
               </FormField>
+            )}
+
+            {credentials.authMethod !== 'none' && credentials.authMethod !== 'private_key_jwt' && (
+              <FormField>
+                <FormLabel>Client Secret *</FormLabel>
+                  <div style={{ position: 'relative' }}>
+                    <FormInput
+                      type={showClientSecret ? 'text' : 'password'}
+                      value={credentials.clientSecret}
+                      onChange={(e) => setCredentials(prev => ({ ...prev, clientSecret: e.target.value }))}
+                      placeholder="Enter your client secret"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowClientSecret(!showClientSecret)}
+                      style={{
+                        position: 'absolute',
+                        right: '0.75rem',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        color: '#6b7280'
+                      }}
+                    >
+                      {showClientSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+                    </button>
+                  </div>
+                </FormField>
+            )}
 
             <FormField>
               <FormLabel>OIDC Scopes</FormLabel>
@@ -687,7 +796,10 @@ const OIDCClientCredentialsFlowV3: React.FC<OIDCClientCredentialsFlowV3Props> = 
         </div>
       ),
       execute: requestAccessToken,
-      canExecute: Boolean(credentials.environmentId && credentials.clientId && credentials.clientSecret && !isRequestingToken),
+      canExecute: Boolean(credentials.environmentId && credentials.clientId && !isRequestingToken &&
+        (credentials.authMethod === 'none' || 
+         credentials.authMethod === 'private_key_jwt' && credentials.privateKey ||
+         credentials.authMethod !== 'private_key_jwt' && credentials.clientSecret)),
       completed: Boolean(tokens)
     },
     {
@@ -862,7 +974,7 @@ const OIDCClientCredentialsFlowV3: React.FC<OIDCClientCredentialsFlowV3Props> = 
           initialStepIndex={stepManager.currentStepIndex}
           onStepChange={stepManager.setStep}
           autoAdvance={false}
-          showDebugInfo={true}
+          showDebugInfo={false}
           allowStepJumping={true}
           onStepComplete={(stepId, result) => {
             console.log('✅ [OIDC-CC-V3] Step completed:', stepId, result);
