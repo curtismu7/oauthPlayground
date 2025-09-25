@@ -303,6 +303,7 @@ const WorkerTokenFlowV3: React.FC = () => {
           // Load authentication method and private key
           setClientAuthMethod(((workerCredentials as any).clientAuthMethod as WorkerTokenAuthMethod) || 'client_secret_post');
           setPrivateKey((workerCredentials as any).privateKey || '');
+          setUseJwksEndpoint((workerCredentials as any).useJwksEndpoint !== false);
           
           console.log('✅ [Worker-V3] Loaded flow-specific credentials:', workerCredentials);
         } else {
@@ -317,6 +318,7 @@ const WorkerTokenFlowV3: React.FC = () => {
               redirectUri: '', // Worker tokens don't need redirect URI
               scopes: Array.isArray(configCredentials.scopes) ? configCredentials.scopes.join(' ') : (configCredentials.scopes || 'openid')
             };
+            setUseJwksEndpoint(configCredentials.tokenAuthMethod === 'private_key_jwt' ? true : true);
             console.log('✅ [Worker-V3] Loaded global config credentials:', configCredentials);
           } else {
             // 3. Use environment variables as final fallback
@@ -364,7 +366,8 @@ const WorkerTokenFlowV3: React.FC = () => {
         redirectUri: '', // Worker tokens don't need redirect URI
         scopes: credentials.scopes,
         clientAuthMethod: clientAuthMethod,
-        privateKey: privateKey
+        privateKey: privateKey,
+        useJwksEndpoint
       });
 
       showFlowSuccess('✅ Credentials Saved', `Worker token credentials saved successfully. Authentication method: ${clientAuthMethod}`);
@@ -1267,6 +1270,37 @@ Perfect for:
                   } catch (error) {
                     console.error('Failed to copy private key:', error);
                     showFlowError('Failed to copy private key to clipboard');
+                  }
+                }}
+                onSelectJwksEndpoint={() => {
+                  setUseJwksEndpoint(true);
+                  credentialManager.saveFlowCredentials('worker-token-v3', {
+                    environmentId: credentials.environmentId,
+                    clientId: credentials.clientId,
+                    clientSecret: credentials.clientSecret,
+                    redirectUri: '',
+                    scopes: credentials.scopes,
+                    clientAuthMethod,
+                    privateKey,
+                    useJwksEndpoint: true
+                  });
+                }}
+                onSelectPrivateKey={() => {
+                  setUseJwksEndpoint(false);
+                  credentialManager.saveFlowCredentials('worker-token-v3', {
+                    environmentId: credentials.environmentId,
+                    clientId: credentials.clientId,
+                    clientSecret: credentials.clientSecret,
+                    redirectUri: '',
+                    scopes: credentials.scopes,
+                    clientAuthMethod,
+                    privateKey,
+                    useJwksEndpoint: false
+                  });
+                }}
+                onValidationChange={(isValid) => {
+                  if (!isValid) {
+                    setUseJwksEndpoint(false);
                   }
                 }}
                 jwksInstructions={(
