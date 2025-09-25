@@ -55,12 +55,8 @@ export class PARService {
     });
 
     try {
-      // Use backend proxy to avoid CORS issues
-      const backendUrl = process.env.NODE_ENV === 'production' 
-        ? 'https://oauth-playground.vercel.app' 
-        : 'http://localhost:3001';
-      
-      const parUrl = `${backendUrl}/api/par`;
+      // Use relative URL to go through Vite proxy (avoids certificate issues)
+      const parUrl = '/api/par';
       
       // Convert to JSON format for backend proxy
       const requestBody = this.buildPARRequestBody(request, authMethod);

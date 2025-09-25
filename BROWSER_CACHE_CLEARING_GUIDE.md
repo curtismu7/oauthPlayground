@@ -125,3 +125,4 @@ If cache clearing doesn't work:
 3. Verify the application isn't using other storage mechanisms
 4. Try a different browser
 5. Restart the browser completely
+
