@@ -1418,4 +1418,4 @@ export const createRefreshTokenStep = (
 });
 
 // Export styled components for use in other files
-export { InfoBox, ActionButton, FormField, FormLabel, FormInput };
+export { InfoBox, ActionButton, FormField, FormLabel, FormInput, FormSelect };

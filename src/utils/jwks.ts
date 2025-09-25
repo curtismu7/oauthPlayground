@@ -464,3 +464,4 @@ export function normalizeIssuer(issuer: string): string[] {
   
   return [withoutAs, withAs, normalized];
 }
+

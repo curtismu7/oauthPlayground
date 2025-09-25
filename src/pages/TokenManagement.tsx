@@ -1142,11 +1142,11 @@ const TokenManagement = () => {
   };
 
   const handleIntrospectToken = async () => {
-    if (!tokenString || !isAccessToken) {
+    if (!tokenString) {
       setMessage({
         type: 'error',
         title: 'Invalid Token',
-        message: 'Only access tokens can be introspected'
+        message: 'No token available for introspection'
       });
       return;
     }
@@ -1154,10 +1154,51 @@ const TokenManagement = () => {
     setIsLoading(true);
     try {
       console.log('🔍 [TokenManagement] Starting token introspection...');
+      console.log('🔍 [TokenManagement] Token type:', isAccessToken ? 'Access Token' : 'ID Token');
       
-      // Get environment ID from credential manager
+      // Get credentials based on flow source
       const { credentialManager } = await import('../utils/credentialManager');
-      const allCredentials = credentialManager.getAllCredentials();
+      let allCredentials: any = {};
+      
+      // Load credentials based on the flow source
+      if (flowSourceState.includes('oidc-v3') || flowSourceState.includes('oauth-v3')) {
+        // For OIDC/OAuth V3 flows, use authz flow credentials
+        allCredentials = credentialManager.loadAuthzFlowCredentials();
+        console.log('🔍 [TokenManagement] Loaded authz flow credentials for OIDC/OAuth V3');
+      } else if (flowSourceState.includes('worker-token-v3')) {
+        // For Worker Token V3, use worker flow credentials
+        allCredentials = credentialManager.loadWorkerFlowCredentials();
+        console.log('🔍 [TokenManagement] Loaded worker flow credentials');
+      } else if (flowSourceState.includes('implicit')) {
+        // For Implicit flows, use implicit flow credentials
+        allCredentials = credentialManager.loadImplicitFlowCredentials();
+        console.log('🔍 [TokenManagement] Loaded implicit flow credentials');
+      } else {
+        // Fallback to all credentials
+        allCredentials = credentialManager.getAllCredentials();
+        console.log('🔍 [TokenManagement] Loaded all credentials as fallback');
+      }
+      
+      // If we still don't have credentials, try to load from config credentials as last resort
+      if (!allCredentials.environmentId || !allCredentials.clientId) {
+        console.log('⚠️ [TokenManagement] Flow-specific credentials incomplete, trying config credentials...');
+        const configCredentials = credentialManager.loadConfigCredentials();
+        if (configCredentials.environmentId && configCredentials.clientId) {
+          allCredentials = { ...allCredentials, ...configCredentials };
+          console.log('✅ [TokenManagement] Merged config credentials with flow credentials');
+        }
+      }
+      
+      console.log('🔍 [TokenManagement] Credentials loaded for introspection:', {
+        flowSource: flowSourceState,
+        hasEnvironmentId: !!allCredentials.environmentId,
+        hasClientId: !!allCredentials.clientId,
+        hasClientSecret: !!allCredentials.clientSecret,
+        hasTokenAuthMethod: !!allCredentials.tokenAuthMethod,
+        environmentId: allCredentials.environmentId,
+        clientId: allCredentials.clientId ? `${allCredentials.clientId.substring(0, 8)}...` : 'MISSING',
+        tokenAuthMethod: allCredentials.tokenAuthMethod || 'NOT_SET'
+      });
       
       if (!allCredentials.environmentId) {
         throw new Error('Environment ID not available for introspection. Please configure your credentials first.');
@@ -1171,7 +1212,7 @@ const TokenManagement = () => {
       }
 
       const introspectionEndpoint = `https://auth.pingone.com/${environmentId}/as/introspect`;
-      const tokenAuthMethod = allCredentials.tokenAuthMethod || 'client_secret_basic';
+      const tokenAuthMethod = allCredentials.tokenAuthMethod || 'client_secret_post';
       
       console.log('🔍 [TokenManagement] Introspection endpoint:', introspectionEndpoint);
       console.log('🔍 [TokenManagement] Token auth method:', tokenAuthMethod);
@@ -1194,14 +1235,29 @@ const TokenManagement = () => {
 
       // For JWT-based methods, we need to generate a client assertion
       if (tokenAuthMethod === 'client_secret_jwt' || tokenAuthMethod === 'private_key_jwt') {
-        // For now, we'll use client_secret_post as fallback for JWT methods
-        // In a full implementation, we'd generate the JWT assertion here
-        if (!allCredentials.clientSecret) {
-          throw new Error('Client secret not available for JWT introspection. Please configure your credentials first.');
+        if (tokenAuthMethod === 'private_key_jwt') {
+          // For private key JWT, we need the private key
+          if (!allCredentials.privateKey) {
+            throw new Error('Private key not available for private_key_jwt introspection. Please configure your credentials first.');
+          }
+          // TODO: Generate JWT assertion with private key
+          // For now, fall back to client_secret_post if available
+          if (allCredentials.clientSecret) {
+            console.log('⚠️ [TokenManagement] Private key JWT not fully implemented, falling back to client_secret_post');
+            introspectionBody.client_secret = allCredentials.clientSecret;
+          } else {
+            throw new Error('Neither private key nor client secret available for JWT introspection.');
+          }
+        } else {
+          // For client_secret_jwt, we need the client secret
+          if (!allCredentials.clientSecret) {
+            throw new Error('Client secret not available for client_secret_jwt introspection. Please configure your credentials first.');
+          }
+          // TODO: Generate JWT assertion with client secret
+          // For now, fall back to client_secret_post
+          console.log('⚠️ [TokenManagement] Client secret JWT not fully implemented, falling back to client_secret_post');
+          introspectionBody.client_secret = allCredentials.clientSecret;
         }
-        introspectionBody.client_secret = allCredentials.clientSecret;
-        introspectionBody.client_assertion_type = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
-        // TODO: Generate actual JWT assertion for proper JWT-based introspection
       }
 
       const response = await fetch('/api/introspect-token', {
@@ -1223,7 +1279,7 @@ const TokenManagement = () => {
       
       setMessage({
         type: 'success',
-        title: 'Token Introspected',
+        title: `${isAccessToken ? 'Access Token' : 'ID Token'} Introspected`,
         message: `Token is ${data.active ? 'active' : 'inactive'}. Check the decoded token section for details.`
       });
 
@@ -1933,10 +1989,10 @@ const TokenManagement = () => {
               id="introspect-token-btn"
               className="secondary"
               onClick={handleIntrospectToken}
-              disabled={!tokenString || isLoading || !isAccessToken}
+              disabled={!tokenString || isLoading}
             >
               <FiShield />
-              Introspect Token
+              Introspect {isAccessToken ? 'Access Token' : 'ID Token'}
             </ActionButton>
 
             <ActionButton
@@ -2288,6 +2344,13 @@ const TokenManagement = () => {
                 {renderIntrospectionItem('JWT ID', introspectionResults.jti)}
                 {renderIntrospectionItem('Issued At', introspectionResults.iat ? formatTimestamp(introspectionResults.iat) : undefined)}
                 {renderIntrospectionItem('Expires At', introspectionResults.exp ? formatTimestamp(introspectionResults.exp) : undefined)}
+                {/* ID Token specific fields */}
+                {!isAccessToken && introspectionResults.auth_time && renderIntrospectionItem('Auth Time', formatTimestamp(introspectionResults.auth_time))}
+                {!isAccessToken && introspectionResults.nonce && renderIntrospectionItem('Nonce', introspectionResults.nonce)}
+                {!isAccessToken && introspectionResults.acr && renderIntrospectionItem('ACR', introspectionResults.acr)}
+                {!isAccessToken && introspectionResults.amr && renderIntrospectionItem('AMR', Array.isArray(introspectionResults.amr) ? introspectionResults.amr.join(', ') : introspectionResults.amr)}
+                {!isAccessToken && introspectionResults.at_hash && renderIntrospectionItem('AT Hash', introspectionResults.at_hash)}
+                {!isAccessToken && introspectionResults.c_hash && renderIntrospectionItem('C Hash', introspectionResults.c_hash)}
               </div>
 
               {introspectionResults.username && (
