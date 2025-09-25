@@ -1491,7 +1491,15 @@ Perfect for:
               </div>
 
               <div key={`jwks-mode-${useJwksEndpoint ? 'endpoint' : 'private'}-${resetKey}`}>
-                {useJwksEndpoint ? (
+                {(() => {
+                  console.log('🎨 [WorkerTokenV3] RENDERING CONDITIONAL UI:', {
+                    useJwksEndpoint,
+                    resetKey,
+                    willShowEndpoint: useJwksEndpoint,
+                    timestamp: Date.now()
+                  });
+                  return useJwksEndpoint;
+                })() ? (
                   <div style={{ display: 'grid', gap: '1rem' }}>
                     <div style={{
                       background: 'rgba(16, 185, 129, 0.1)',
@@ -1569,6 +1577,14 @@ Perfect for:
                     </button>
                   </div>
                 ) : (
+                  (() => {
+                    console.log('🎨 [WorkerTokenV3] RENDERING UPLOAD SECTION:', {
+                      useJwksEndpoint,
+                      resetKey,
+                      timestamp: Date.now()
+                    });
+                    return null;
+                  })(),
                   <div style={{ display: 'grid', gap: '1rem' }}>
                     <div>
                       <SectionLabel>Private Key (PEM Format)</SectionLabel>
