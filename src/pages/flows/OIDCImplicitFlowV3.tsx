@@ -433,6 +433,44 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
     loadCredentials();
   }, []);
 
+  // Handle callback return with tokens
+  useEffect(() => {
+    const handleCallbackReturn = () => {
+      try {
+        // Check for tokens in sessionStorage (set by callback handler)
+        const storedTokens = sessionStorage.getItem('implicit_tokens');
+        if (storedTokens) {
+          console.log('🔑 [OIDC-IMPLICIT-V3] Found tokens from callback:', storedTokens);
+          
+          const tokenData = JSON.parse(storedTokens);
+          setTokens(tokenData);
+          
+          // Auto-advance to step 4 (token validation & display)
+          stepManager.setStep(3, 'callback return with tokens');
+          console.log('🔄 [OIDC-IMPLICIT-V3] Auto-advancing to step 4 (token validation) after callback return');
+          
+          // Show success message
+          showFlowSuccess('🎉 Authorization Successful!', 'Tokens received from PingOne. You can now view and validate the tokens.');
+          
+          // Clean up sessionStorage
+          sessionStorage.removeItem('implicit_tokens');
+          
+          // Clean up flow context
+          sessionStorage.removeItem('oidc_implicit_v3_flow_context');
+          
+          // Clean up URL hash if present
+          if (window.location.hash) {
+            window.history.replaceState({}, '', window.location.pathname);
+          }
+        }
+      } catch (error) {
+        console.error('❌ [OIDC-IMPLICIT-V3] Failed to handle callback return:', error);
+      }
+    };
+
+    handleCallbackReturn();
+  }, [stepManager]);
+
   // Client ID validation function
   const validateClientId = (clientId: string): boolean => {
     if (!clientId || clientId.trim() === '') return false;
