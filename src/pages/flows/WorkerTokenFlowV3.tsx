@@ -13,7 +13,7 @@ import { StepCredentials, FormField, FormLabel, FormInput } from '../../componen
 import CollapsibleSection from '../../components/CollapsibleSection';
 import { TokenSurface } from '../../components/TokenSurface';
 import { applyClientAuthentication, getAuthMethodSecurityLevel } from '../../utils/clientAuthentication';
-import { keyStorageService } from '../../services/keyStorageService';
+// import { keyStorageService } from '../../services/keyStorageService';
 import { buildJWKSUri } from '../../utils/jwks';
 import { isPrivateKey } from '../../utils/jwksConverter';
 
@@ -174,6 +174,78 @@ const FlowControlButton = styled.button<{ className?: string }>`
   }
 `;
 
+const SectionLabel = styled(FormLabel)`
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #065f46;
+  font-weight: 600;
+`;
+
+const JwksCopyButton = styled.button`
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+
+  &:hover {
+    background: #2563eb;
+  }
+`;
+
+const TogglePrivateKeyButton = styled.button`
+  position: absolute;
+  right: 0.75rem;
+  top: 0.75rem;
+  background: #10b981;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #059669;
+    transform: scale(1.05);
+  }
+`;
+
+const CopyPrivateKeyButton = styled.button`
+  position: absolute;
+  right: 3.75rem;
+  top: 0.75rem;
+  background: #3b82f6;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #2563eb;
+    transform: scale(1.05);
+  }
+`;
+
 const WorkerTokenFlowV3: React.FC = () => {
   const authContext = useAuth();
   const { config } = authContext;
@@ -224,124 +296,183 @@ const WorkerTokenFlowV3: React.FC = () => {
     setPrivateKeyValidationError(validatePrivateKeyValue(value));
   }, [validatePrivateKeyValue]);
   const resolvedAuthSelection = useMemo(() => {
-    if (clientAuthMethod === 'private_key_jwt') {
-      return useJwksEndpoint ? 'private_key_jwt_jwks' : 'private_key_jwt_upload';
-    }
-    return clientAuthMethod;
+    const result = clientAuthMethod === 'private_key_jwt' 
+      ? (useJwksEndpoint ? 'private_key_jwt_jwks' : 'private_key_jwt_upload')
+      : clientAuthMethod;
+    console.log('🧮 [WorkerTokenV3] resolvedAuthSelection computed:', {
+      clientAuthMethod,
+      useJwksEndpoint,
+      result,
+      timestamp: Date.now()
+    });
+    return result;
   }, [clientAuthMethod, useJwksEndpoint]);
 
   const handleAuthSelectionChange = (value: string) => {
+    console.log('🔥 [WorkerTokenV3] ===== AUTH SELECTION CHANGE START =====');
+    console.log('🔥 [WorkerTokenV3] FROM:', resolvedAuthSelection, 'TO:', value);
+    console.log('🔥 [WorkerTokenV3] Current state BEFORE change:', {
+      clientAuthMethod,
+      useJwksEndpoint,
+      resetKey,
+      timestamp: Date.now()
+    });
+    
     if (value === 'private_key_jwt_jwks') {
+      console.log('🔥 [WorkerTokenV3] CASE: Switching to JWKS endpoint mode');
+      console.log('🔥 [WorkerTokenV3] Setting clientAuthMethod to private_key_jwt');
       setClientAuthMethod('private_key_jwt');
+      console.log('🔥 [WorkerTokenV3] Setting useJwksEndpoint to true');
       setUseJwksEndpoint(true);
+      console.log('🔥 [WorkerTokenV3] Clearing validation error');
       setPrivateKeyValidationError(null);
+      console.log('🔥 [WorkerTokenV3] Incrementing resetKey');
+      setResetKey(prev => {
+        console.log('🔥 [WorkerTokenV3] resetKey changing from', prev, 'to', prev + 1);
+        return prev + 1;
+      });
+      
+      // Save immediately to prevent state conflicts
+      const savedData = {
+        ...credentialManager.loadFlowCredentials('worker-token-v3'),
+        clientAuthMethod: 'private_key_jwt',
+        useJwksEndpoint: true
+      };
+      console.log('🔥 [WorkerTokenV3] Saving to storage:', savedData);
+      credentialManager.saveFlowCredentials('worker-token-v3', savedData);
+      console.log('🔥 [WorkerTokenV3] ===== AUTH SELECTION CHANGE END (JWKS) =====');
       return;
     }
 
     if (value === 'private_key_jwt_upload') {
+      console.log('🔥 [WorkerTokenV3] CASE: Switching to private key upload mode');
+      console.log('🔥 [WorkerTokenV3] Setting clientAuthMethod to private_key_jwt');
       setClientAuthMethod('private_key_jwt');
+      console.log('🔥 [WorkerTokenV3] Setting useJwksEndpoint to false');
       setUseJwksEndpoint(false);
+      console.log('🔥 [WorkerTokenV3] Setting validation error');
       setPrivateKeyValidationError(validatePrivateKeyValue(privateKey));
+      console.log('🔥 [WorkerTokenV3] Incrementing resetKey');
+      setResetKey(prev => {
+        console.log('🔥 [WorkerTokenV3] resetKey changing from', prev, 'to', prev + 1);
+        return prev + 1;
+      });
+      
+      // Save immediately to prevent state conflicts
+      const savedData = {
+        ...credentialManager.loadFlowCredentials('worker-token-v3'),
+        clientAuthMethod: 'private_key_jwt',
+        useJwksEndpoint: false
+      };
+      console.log('🔥 [WorkerTokenV3] Saving to storage:', savedData);
+      credentialManager.saveFlowCredentials('worker-token-v3', savedData);
+      console.log('🔥 [WorkerTokenV3] ===== AUTH SELECTION CHANGE END (UPLOAD) =====');
       return;
     }
 
+    console.log('🔥 [WorkerTokenV3] CASE: Setting other auth method to:', value);
     setClientAuthMethod(value as WorkerTokenAuthMethod);
     setPrivateKeyValidationError(null);
+    setResetKey(prev => {
+      console.log('🔥 [WorkerTokenV3] resetKey changing from', prev, 'to', prev + 1);
+      return prev + 1;
+    });
+    
+    // Save immediately to prevent state conflicts
+    const savedData = {
+      ...credentialManager.loadFlowCredentials('worker-token-v3'),
+      clientAuthMethod: value as WorkerTokenAuthMethod,
+      useJwksEndpoint: true // Default for non-private-key-jwt methods
+    };
+    console.log('🔥 [WorkerTokenV3] Saving to storage:', savedData);
+    credentialManager.saveFlowCredentials('worker-token-v3', savedData);
+    console.log('🔥 [WorkerTokenV3] ===== AUTH SELECTION CHANGE END (OTHER) =====');
   };
 
   
   // Debug: Log state changes
   useEffect(() => {
-    console.log('🔄 [WorkerTokenV3] useJwksEndpoint state changed to:', useJwksEndpoint);
+    console.log('🔥🔥 [WorkerTokenV3] useJwksEndpoint state CHANGED to:', useJwksEndpoint, 'at', Date.now());
   }, [useJwksEndpoint]);
+
+  useEffect(() => {
+    console.log('🔥🔥 [WorkerTokenV3] clientAuthMethod state CHANGED to:', clientAuthMethod, 'at', Date.now());
+  }, [clientAuthMethod]);
+
+  useEffect(() => {
+    console.log('🔥🔥 [WorkerTokenV3] resolvedAuthSelection CHANGED to:', resolvedAuthSelection, 'at', Date.now());
+  }, [resolvedAuthSelection]);
   
   const [isLoading, setIsLoading] = useState(false);
   const [, setError] = useState<string | null>(null);
-  const [tokens, setTokens] = useState<any>(null);
-  const [introspection, setIntrospection] = useState<any>(null);
+  const [tokens, setTokens] = useState<Record<string, unknown> | null>(null);
+  const [introspection, setIntrospection] = useState<Record<string, unknown> | null>(null);
   const [showClearCredentialsModal, setShowClearCredentialsModal] = useState(false);
   const [isClearingCredentials, setIsClearingCredentials] = useState(false);
   const [showAuthUrlModal, setShowAuthUrlModal] = useState(false);
   const [authUrl, setAuthUrl] = useState('');
   const [showIntrospectUrlModal, setShowIntrospectUrlModal] = useState(false);
   const [introspectUrl, setIntrospectUrl] = useState('');
-  const [, setResetKey] = useState(0); // Key to force re-render after reset
-  const [isGeneratingKey, setIsGeneratingKey] = useState(false);
+  const [resetKey, setResetKey] = useState(0); // Key to force re-render after reset
+  // const [, setIsGeneratingKey] = useState(false);
 
-  // Generate RSA private key for Private Key JWT authentication
-  const generatePrivateKey = useCallback(async () => {
-    try {
-      setIsGeneratingKey(true);
-      console.log('🔑 [WorkerTokenV3] Generating RSA private key...');
-      
-      // Generate RSA key pair using Web Crypto API
-      const keyPair = await window.crypto.subtle.generateKey(
-        {
-          name: 'RSASSA-PKCS1-v1_5',
-          modulusLength: 2048,
-          publicExponent: new Uint8Array([1, 0, 1]),
-          hash: 'SHA-256',
-        },
-        true, // extractable
-        ['sign', 'verify']
-      );
-      
-      // Export private key in PKCS#8 format
-      const privateKeyPkcs8 = await window.crypto.subtle.exportKey('pkcs8', keyPair.privateKey);
-      const privateKeyPem = `-----BEGIN PRIVATE KEY-----\n${btoa(String.fromCharCode(...new Uint8Array(privateKeyPkcs8))).match(/.{1,64}/g)?.join('\n')}\n-----END PRIVATE KEY-----`;
-      
-      // Export public key in SPKI format
-      const publicKeySpki = await window.crypto.subtle.exportKey('spki', keyPair.publicKey);
-      const publicKeyPem = `-----BEGIN PUBLIC KEY-----\n${btoa(String.fromCharCode(...new Uint8Array(publicKeySpki))).match(/.{1,64}/g)?.join('\n')}\n-----END PUBLIC KEY-----`;
-      
-      // Store both keys with the key storage service
-      const kid = await keyStorageService.storeKeyPairWithPublicKey(privateKeyPem, publicKeyPem);
-      
-      setPrivateKey(privateKeyPem);
-      // Switch to upload mode since we generated a private key
-      setUseJwksEndpoint(false);
-      showFlowSuccess(`🔑 RSA Private Key generated and stored with ID: ${kid}`);
-      
-      console.log('🔑 [WorkerTokenV3] Private key generated, stored, and set - switched to upload mode');
-    } catch (error) {
-      console.error('❌ [WorkerTokenV3] Failed to generate private key:', error);
-      showFlowError(`Failed to generate private key: ${error instanceof Error ? error.message : String(error)}`);
-    } finally {
-      setIsGeneratingKey(false);
-    }
-  }, []);
+  // Debug: Log resetKey changes after it's declared
+  useEffect(() => {
+    console.log('🔥🔥 [WorkerTokenV3] resetKey CHANGED to:', resetKey, 'at', Date.now());
+  }, [resetKey]);
+
 
   // Load credentials when step changes to ensure we have the latest stored values
   const handleStepChange = useCallback((stepIndex: number) => {
-    console.log('🔄 [WorkerTokenV3] Step changed to:', stepIndex);
+    console.log('🔥 [WorkerTokenV3] ===== STEP CHANGE START =====');
+    console.log('🔥 [WorkerTokenV3] Step changed to:', stepIndex);
+    console.log('🔥 [WorkerTokenV3] Current state BEFORE step change:', {
+      clientAuthMethod,
+      useJwksEndpoint,
+      resetKey,
+      timestamp: Date.now()
+    });
     
     // Reload credentials when moving to step 2 (token request)
     if (stepIndex === 1) {
       const workerCredentials = credentialManager.loadFlowCredentials('worker-token-v3');
-      if ((workerCredentials as any).clientAuthMethod) {
-        console.log('🔄 [WorkerTokenV3] Reloading stored auth method:', (workerCredentials as any).clientAuthMethod);
-        setClientAuthMethod((workerCredentials as any).clientAuthMethod as WorkerTokenAuthMethod);
-        setPrivateKey((workerCredentials as any).privateKey || '');
+      console.log('🔥 [WorkerTokenV3] Loaded credentials from storage:', workerCredentials);
+      
+      const extendedCredentials = workerCredentials as Record<string, unknown>;
+      if (extendedCredentials.clientAuthMethod) {
+        console.log('🔥 [WorkerTokenV3] Found stored auth method, applying:', extendedCredentials.clientAuthMethod);
+        console.log('🔥 [WorkerTokenV3] Setting clientAuthMethod from storage');
+        setClientAuthMethod(extendedCredentials.clientAuthMethod as WorkerTokenAuthMethod);
+        console.log('🔥 [WorkerTokenV3] Setting privateKey from storage');
+        setPrivateKey((extendedCredentials.privateKey as string) || '');
+        console.log('🔥 [WorkerTokenV3] Setting useJwksEndpoint from storage:', extendedCredentials.useJwksEndpoint);
+        setUseJwksEndpoint((extendedCredentials.useJwksEndpoint as boolean) !== false);
         
         // Update credentials state with stored values
         setCredentials(prev => ({
           ...prev,
           clientSecret: workerCredentials.clientSecret || prev.clientSecret
         }));
+      } else {
+        console.log('🔥 [WorkerTokenV3] No stored auth method found');
       }
     }
-  }, []);
+    console.log('🔥 [WorkerTokenV3] ===== STEP CHANGE END =====');
+  }, [clientAuthMethod, useJwksEndpoint, resetKey]);
 
   // Load initial credentials following proper priority: flow-specific > global > defaults
   useEffect(() => {
     const loadInitialCredentials = async () => {
       try {
+        console.log('🔥 [WorkerTokenV3] ===== INITIAL CREDENTIAL LOADING START =====');
         // 1. Try worker flow-specific credentials first
         const workerCredentials = credentialManager.loadFlowCredentials('worker-token-v3');
+        console.log('🔥 [WorkerTokenV3] Raw worker credentials from storage:', workerCredentials);
         
         let initialCredentials: StepCredentials;
         
         if (workerCredentials.environmentId || workerCredentials.clientId) {
+          console.log('🔥 [WorkerTokenV3] Using flow-specific credentials');
           // Use flow-specific credentials
           initialCredentials = {
             environmentId: workerCredentials.environmentId || '',
@@ -352,9 +483,20 @@ const WorkerTokenFlowV3: React.FC = () => {
           };
           
           // Load authentication method and private key
-          setClientAuthMethod(((workerCredentials as any).clientAuthMethod as WorkerTokenAuthMethod) || 'client_secret_post');
-          setPrivateKey((workerCredentials as any).privateKey || '');
-          setUseJwksEndpoint((workerCredentials as any).useJwksEndpoint !== false);
+          const extendedCredentials = workerCredentials as Record<string, unknown>;
+          const authMethod = (extendedCredentials.clientAuthMethod as WorkerTokenAuthMethod) || 'client_secret_post';
+          const privateKeyValue = (extendedCredentials.privateKey as string) || '';
+          const useJwksValue = (extendedCredentials.useJwksEndpoint as boolean) !== false;
+          
+          console.log('🔥 [WorkerTokenV3] Setting initial auth values:', {
+            authMethod,
+            privateKeyValue: privateKeyValue ? '[PRIVATE_KEY_PRESENT]' : '[NO_PRIVATE_KEY]',
+            useJwksValue
+          });
+          
+          setClientAuthMethod(authMethod);
+          setPrivateKey(privateKeyValue);
+          setUseJwksEndpoint(useJwksValue);
           
           console.log('✅ [Worker-V3] Loaded flow-specific credentials:', workerCredentials);
         } else {
@@ -703,6 +845,30 @@ const WorkerTokenFlowV3: React.FC = () => {
       
       const introspectionEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/introspect`;
       
+      console.log('🔍 [WorkerTokenV3] Starting token introspection with auth method:', clientAuthMethod);
+      
+      // Use the same authentication method as the token request
+      const baseBody = new URLSearchParams({
+        token: tokens.access_token
+      });
+      
+      const authConfig = {
+        method: clientAuthMethod,
+        clientId: credentials.clientId,
+        clientSecret: credentials.clientSecret,
+        privateKey: privateKey,
+        tokenEndpoint: introspectionEndpoint
+      };
+      
+      const authenticatedRequest = await applyClientAuthentication(authConfig, baseBody);
+      
+      console.log('🔍 [WorkerTokenV3] Introspection request prepared:', {
+        authMethod: clientAuthMethod,
+        hasClientAssertion: authenticatedRequest.body.has('client_assertion'),
+        hasClientSecret: authenticatedRequest.body.has('client_secret'),
+        bodyKeys: Array.from(authenticatedRequest.body.keys())
+      });
+      
       const response = await fetch('/api/introspect-token', {
         method: 'POST',
         headers: {
@@ -712,7 +878,10 @@ const WorkerTokenFlowV3: React.FC = () => {
           token: tokens.access_token,
           client_id: credentials.clientId,
           client_secret: credentials.clientSecret,
-          introspection_endpoint: introspectionEndpoint
+          introspection_endpoint: introspectionEndpoint,
+          token_auth_method: clientAuthMethod,
+          client_assertion_type: authenticatedRequest.body.get('client_assertion_type'),
+          client_assertion: authenticatedRequest.body.get('client_assertion')
         }),
       });
 
@@ -735,14 +904,14 @@ const WorkerTokenFlowV3: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [tokens, credentials]);
+  }, [tokens, credentials, clientAuthMethod, privateKey]);
 
   // Copy to clipboard function
   const copyToClipboard = useCallback(async (text: string, label: string) => {
     try {
       await navigator.clipboard.writeText(text);
       showFlowSuccess('📋 Copied', `${label} copied to clipboard`);
-    } catch (error) {
+    } catch {
       showFlowError('❌ Copy Failed', `Failed to copy ${label.toLowerCase()}`);
     }
   }, []);
@@ -752,7 +921,7 @@ const WorkerTokenFlowV3: React.FC = () => {
     try {
       await navigator.clipboard.writeText(token);
       showFlowSuccess(`📋 ${tokenType} copied to clipboard!`);
-    } catch (error) {
+    } catch {
       showFlowError(`Failed to copy ${tokenType} to clipboard`);
     }
   }, []);
@@ -1044,7 +1213,14 @@ Perfect for:
             <FormField>
               <select
                 value={resolvedAuthSelection}
-                onChange={(e) => handleAuthSelectionChange(e.target.value)}
+                onChange={(e) => {
+                  console.log('🔥 [WorkerTokenV3] DROPDOWN onChange fired:', {
+                    oldValue: resolvedAuthSelection,
+                    newValue: e.target.value,
+                    timestamp: Date.now()
+                  });
+                  handleAuthSelectionChange(e.target.value);
+                }}
                 style={{
                   width: '100%',
                   padding: '1rem',
@@ -1253,14 +1429,16 @@ Perfect for:
           </div>
 
           {clientAuthMethod === 'private_key_jwt' && (
-            <div style={{
-              background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
-              border: '2px solid #10b981',
-              borderRadius: '12px',
-              padding: '1.5rem',
-              marginTop: '1rem',
-              boxShadow: '0 4px 15px rgba(16, 185, 129, 0.2)'
-            }}>
+            <div 
+              key={`private-key-jwt-section-${resetKey}-${useJwksEndpoint}`}
+              style={{
+                background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
+                border: '2px solid #10b981',
+                borderRadius: '12px',
+                padding: '1.5rem',
+                marginTop: '1rem',
+                boxShadow: '0 4px 15px rgba(16, 185, 129, 0.2)'
+              }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
                 <div style={{
                   background: '#10b981',
@@ -1322,7 +1500,7 @@ Perfect for:
                       Use the <strong>JWT Generator → JWKS</strong> tab to convert your private key to the correct JWKS format for PingOne.
                     </div>
                     <div>
-                      <Label style={{ display: 'block', marginBottom: '0.5rem' }}>Your JWKS Endpoint URL</Label>
+                      <SectionLabel>Your JWKS Endpoint URL</SectionLabel>
                       <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                         <code style={{
                           flex: 1,
@@ -1336,7 +1514,7 @@ Perfect for:
                         }}>
                           {resolvedJwksDisplayUrl || 'Provide environment details to compute JWKS URL'}
                         </code>
-                        <CopyButton type="button" onClick={async () => {
+                        <JwksCopyButton onClick={async () => {
                           try {
                             await navigator.clipboard.writeText(resolvedJwksDisplayUrl);
                             showFlowSuccess(`📋 JWKS Endpoint URL copied to clipboard!\n${resolvedJwksDisplayUrl}`);
@@ -1347,12 +1525,15 @@ Perfect for:
                         }}>
                           <FiCopy size={14} />
                           Copy
-                        </CopyButton>
+                        </JwksCopyButton>
                       </div>
                     </div>
                     <button
                       type="button"
-                      onClick={() => handleAuthSelectionChange('private_key_jwt_upload')}
+                      onClick={() => {
+                        console.log('🔥 [WorkerTokenV3] BUTTON CLICKED: Switch to Upload Private Key');
+                        handleAuthSelectionChange('private_key_jwt_upload');
+                      }}
                       style={{
                         alignSelf: 'flex-start',
                         display: 'inline-flex',
@@ -1373,7 +1554,7 @@ Perfect for:
                 ) : (
                   <div style={{ display: 'grid', gap: '1rem' }}>
                     <div>
-                      <Label style={{ display: 'block', marginBottom: '0.5rem' }}>Private Key (PEM Format)</Label>
+                      <SectionLabel>Private Key (PEM Format)</SectionLabel>
                       <div style={{ fontSize: '0.85rem', color: '#047857', marginBottom: '0.5rem' }}>
                         Upload the private key directly to PingOne. Copy the key from below.
                       </div>
@@ -1397,9 +1578,9 @@ Perfect for:
                             color: '#065f46'
                           }}
                         />
-                        <ToggleSecretButton type="button" onClick={() => setShowPrivateKey(!showPrivateKey)}>
+                        <TogglePrivateKeyButton type="button" onClick={() => setShowPrivateKey(!showPrivateKey)}>
                           {showPrivateKey ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-                        </ToggleSecretButton>
+                        </TogglePrivateKeyButton>
                         <CopyPrivateKeyButton type="button" onClick={async () => {
                           try {
                             await navigator.clipboard.writeText(privateKey);
@@ -1437,7 +1618,10 @@ Perfect for:
                     </div>
                     <button
                       type="button"
-                      onClick={() => handleAuthSelectionChange('private_key_jwt_jwks')}
+                      onClick={() => {
+                        console.log('🔥 [WorkerTokenV3] BUTTON CLICKED: Switch to JWKS Endpoint');
+                        handleAuthSelectionChange('private_key_jwt_jwks');
+                      }}
                       style={{
                         alignSelf: 'flex-start',
                         display: 'inline-flex',
