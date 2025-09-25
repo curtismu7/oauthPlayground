@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { FiSettings, FiKey, FiShield, FiRefreshCw, FiCheckCircle, FiDownload, FiEye, FiEyeOff, FiCopy, FiAlertTriangle } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { logger } from '../../utils/logger';
+import { trackFlowCompletion } from '../../utils/flowCredentialChecker';
 import { showFlowSuccess, showFlowError, showDetailedError } from '../../components/CentralizedSuccessMessage';
 import { credentialManager } from '../../utils/credentialManager';
 import { EnhancedStepFlowV2 } from '../../components/EnhancedStepFlowV2';
@@ -154,6 +155,9 @@ const ImplicitFlowV3: React.FC = () => {
 
           const tokenData = JSON.parse(storedTokens);
           setTokens(tokenData);
+
+          // Track flow completion for dashboard status
+          trackFlowCompletion('oauth2-implicit-v3');
 
           // Auto-advance to step 2 (token parsing & display)
           stepManager.setStep(1, "callback return with tokens");
