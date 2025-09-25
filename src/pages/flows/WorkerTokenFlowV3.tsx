@@ -423,9 +423,10 @@ const WorkerTokenFlowV3: React.FC = () => {
 
 
   // Load credentials when step changes to ensure we have the latest stored values
+  const [lastStepIndex, setLastStepIndex] = useState<number | null>(null);
   const handleStepChange = useCallback((stepIndex: number) => {
     console.log('🔥 [WorkerTokenV3] ===== STEP CHANGE START =====');
-    console.log('🔥 [WorkerTokenV3] Step changed to:', stepIndex);
+    console.log('🔥 [WorkerTokenV3] Step changed to:', stepIndex, 'from:', lastStepIndex);
     console.log('🔥 [WorkerTokenV3] Current state BEFORE step change:', {
       clientAuthMethod,
       useJwksEndpoint,
@@ -433,32 +434,40 @@ const WorkerTokenFlowV3: React.FC = () => {
       timestamp: Date.now()
     });
     
-    // Reload credentials when moving to step 2 (token request)
-    if (stepIndex === 1) {
-      const workerCredentials = credentialManager.loadFlowCredentials('worker-token-v3');
-      console.log('🔥 [WorkerTokenV3] Loaded credentials from storage:', workerCredentials);
+    // Only reload credentials when the step actually changes, not on every call
+    if (stepIndex !== lastStepIndex) {
+      console.log('🔥 [WorkerTokenV3] Step actually changed, reloading credentials');
+      setLastStepIndex(stepIndex);
       
-      const extendedCredentials = workerCredentials as Record<string, unknown>;
-      if (extendedCredentials.clientAuthMethod) {
-        console.log('🔥 [WorkerTokenV3] Found stored auth method, applying:', extendedCredentials.clientAuthMethod);
-        console.log('🔥 [WorkerTokenV3] Setting clientAuthMethod from storage');
-        setClientAuthMethod(extendedCredentials.clientAuthMethod as WorkerTokenAuthMethod);
-        console.log('🔥 [WorkerTokenV3] Setting privateKey from storage');
-        setPrivateKey((extendedCredentials.privateKey as string) || '');
-        console.log('🔥 [WorkerTokenV3] Setting useJwksEndpoint from storage:', extendedCredentials.useJwksEndpoint);
-        setUseJwksEndpoint((extendedCredentials.useJwksEndpoint as boolean) !== false);
+      // Reload credentials when moving to step 2 (token request)
+      if (stepIndex === 1) {
+        const workerCredentials = credentialManager.loadFlowCredentials('worker-token-v3');
+        console.log('🔥 [WorkerTokenV3] Loaded credentials from storage:', workerCredentials);
         
-        // Update credentials state with stored values
-        setCredentials(prev => ({
-          ...prev,
-          clientSecret: workerCredentials.clientSecret || prev.clientSecret
-        }));
-      } else {
-        console.log('🔥 [WorkerTokenV3] No stored auth method found');
+        const extendedCredentials = workerCredentials as Record<string, unknown>;
+        if (extendedCredentials.clientAuthMethod) {
+          console.log('🔥 [WorkerTokenV3] Found stored auth method, applying:', extendedCredentials.clientAuthMethod);
+          console.log('🔥 [WorkerTokenV3] Setting clientAuthMethod from storage');
+          setClientAuthMethod(extendedCredentials.clientAuthMethod as WorkerTokenAuthMethod);
+          console.log('🔥 [WorkerTokenV3] Setting privateKey from storage');
+          setPrivateKey((extendedCredentials.privateKey as string) || '');
+          console.log('🔥 [WorkerTokenV3] Setting useJwksEndpoint from storage:', extendedCredentials.useJwksEndpoint);
+          setUseJwksEndpoint((extendedCredentials.useJwksEndpoint as boolean) !== false);
+          
+          // Update credentials state with stored values
+          setCredentials(prev => ({
+            ...prev,
+            clientSecret: workerCredentials.clientSecret || prev.clientSecret
+          }));
+        } else {
+          console.log('🔥 [WorkerTokenV3] No stored auth method found');
+        }
       }
+    } else {
+      console.log('🔥 [WorkerTokenV3] Step did not change, skipping credential reload');
     }
     console.log('🔥 [WorkerTokenV3] ===== STEP CHANGE END =====');
-  }, [clientAuthMethod, useJwksEndpoint, resetKey]);
+  }, [clientAuthMethod, useJwksEndpoint, resetKey, lastStepIndex]);
 
   // Load initial credentials following proper priority: flow-specific > global > defaults
   useEffect(() => {
@@ -1210,7 +1219,7 @@ Perfect for:
               </div>
             </div>
 
-            <FormField>
+            <FormField key={`auth-method-dropdown-${resetKey}-${useJwksEndpoint}`}>
               <select
                 value={resolvedAuthSelection}
                 onChange={(e) => {
@@ -1473,7 +1482,7 @@ Perfect for:
                 </div>
               </div>
 
-              <div key={`jwks-mode-${useJwksEndpoint ? 'endpoint' : 'private'}`}>
+              <div key={`jwks-mode-${useJwksEndpoint ? 'endpoint' : 'private'}-${resetKey}`}>
                 {useJwksEndpoint ? (
                   <div style={{ display: 'grid', gap: '1rem' }}>
                     <div style={{
