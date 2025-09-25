@@ -310,7 +310,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
     const issuerUrl = environmentId ? `https://auth.pingone.com/${environmentId}` : '';
     
     // Always use OIDC scopes as default (both OAuth and OIDC V3 flows)
-    const defaultScopes = 'openid profile email';
+    const defaultScopes = 'openid';
     
     const savedScopes = urlScope || (allCredentials?.scopes ? 
       (Array.isArray(allCredentials.scopes) ? allCredentials.scopes.join(' ') : allCredentials.scopes) : 
@@ -798,7 +798,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
             clientId: allCredentials.clientId,
             clientSecret: allCredentials.clientSecret,
             redirectUri: allCredentials.redirectUri || getCallbackUrlForFlow('authorization-code'),
-            scopes: scopeArray.length > 0 ? scopeArray : ['openid', 'profile', 'email'],
+            scopes: scopeArray.length > 0 ? scopeArray : ['openid'],
             authEndpoint: allCredentials.authEndpoint || `https://auth.pingone.com/${allCredentials.environmentId}/as/authorize`,
             tokenEndpoint: allCredentials.tokenEndpoint || `https://auth.pingone.com/${allCredentials.environmentId}/as/token`,
             userInfoEndpoint: allCredentials.userInfoEndpoint || `https://auth.pingone.com/${allCredentials.environmentId}/as/userinfo`
@@ -1582,8 +1582,8 @@ Original Error: ${errorData.error_description || errorData.error}
       clientId: '',
       clientSecret: '',
       redirectUri: getCallbackUrlForFlow('authorization-code'),
-      scope: flowType === 'oauth' ? 'read write' : 'openid profile email',
-      scopes: flowType === 'oauth' ? ['read', 'write'] : ['openid', 'profile', 'email'],
+      scope: flowType === 'oauth' ? 'read write' : 'openid',
+      scopes: flowType === 'oauth' ? ['read', 'write'] : ['openid'],
       responseType: 'code',
       grantType: 'authorization_code',
       issuerUrl: ''

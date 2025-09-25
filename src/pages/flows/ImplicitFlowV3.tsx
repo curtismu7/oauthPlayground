@@ -98,7 +98,7 @@ const ImplicitFlowV3: React.FC = () => {
     environmentId: '',
     clientId: '',
     clientSecret: '', // Not used in implicit flow but kept for consistency
-    scopes: 'openid profile email',
+    scopes: 'openid',
     redirectUri: getCallbackUrlForFlow('implicit'),
     responseType: 'id_token token' as 'id_token' | 'id_token token' | 'token',
     state: '',
