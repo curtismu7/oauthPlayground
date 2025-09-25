@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { 
   FiHome, FiCode, FiUser, FiSettings, FiSearch,
   FiChevronDown, FiBookOpen, FiEye, FiShield, FiUsers, FiDatabase, FiTool, FiCpu,
-  FiKey, FiZap, FiLock, FiSmartphone, FiServer, FiUnlock, FiPackage, FiGitBranch, FiBarChart, FiExternalLink
+  FiKey, FiZap, FiLock, FiSmartphone, FiServer, FiUnlock, FiPackage, FiGitBranch, FiBarChart, FiExternalLink, FiGlobe
 } from 'react-icons/fi';
 
 interface SidebarContainerProps {
@@ -287,7 +287,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         'pingone-tokens': path.startsWith('/oidc/worker-token') || prev['pingone-tokens'],
         resources: (path.startsWith('/oidc/userinfo') || path.startsWith('/oidc/tokens') || 
                    path.startsWith('/token-management') || path.startsWith('/auto-discover') || path.startsWith('/jwks-troubleshooting') ||
-                   path.startsWith('/documentation') || path.startsWith('/flows/compare') || 
+                   path.startsWith('/url-decoder') || path.startsWith('/documentation') || path.startsWith('/flows/compare') || 
                    path.startsWith('/flows/diagrams') || path.startsWith('/flows/par')) || prev.resources,
         docs: path.startsWith('/docs') || prev.docs,
       };
@@ -539,6 +539,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             <SubmenuItem to="/jwks-troubleshooting" onClick={onClose}>
               <FiKey />
               JWKS Troubleshooting
+            </SubmenuItem>
+            <SubmenuItem to="/url-decoder" onClick={onClose}>
+              <FiGlobe />
+              URL Decoder
             </SubmenuItem>
             <SubmenuItem to="/flows/par" onClick={onClose}>
               <PARIcon />

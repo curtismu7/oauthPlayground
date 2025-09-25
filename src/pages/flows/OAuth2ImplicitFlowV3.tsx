@@ -17,7 +17,8 @@ import {
   FiChevronLeft,
   FiChevronDown,
   FiChevronUp,
-  FiExternalLink
+  FiExternalLink,
+  FiSearch
 } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { EnhancedStepFlowV2 } from '../../components/EnhancedStepFlowV2';
@@ -27,6 +28,7 @@ import { enhancedDebugger } from '../../utils/enhancedDebug';
 import { usePerformanceTracking } from '../../hooks/useAnalytics';
 import { logger } from '../../utils/logger';
 import { copyToClipboard } from '../../utils/clipboard';
+import { trackFlowCompletion } from '../../utils/flowCredentialChecker';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
 import { generateRandomString } from '../../utils/oauth';
 import { generateSecurityParameters, storeSecurityParameters } from '../../utils/implicitFlowSecurity';
@@ -476,6 +478,13 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
           setTokens(parsedTokens);
           console.log('✅ [OAUTH2-IMPLICIT-V3] Loaded tokens from callback:', parsedTokens);
           
+          // Track flow completion for dashboard status
+          trackFlowCompletion('oauth2-implicit-v3');
+          
+          // Auto-advance to the final step (token display)
+          stepManager.setStep(3, 'callback return with tokens');
+          console.log('🔄 [OAUTH2-IMPLICIT-V3] Auto-advancing to final step after callback return');
+          
           // Clear the stored tokens after loading
           sessionStorage.removeItem('implicit_tokens');
           
@@ -633,6 +642,30 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
   const handleAuthorization = useCallback(() => {
     handleAuthorizationWithModal();
   }, [handleAuthorizationWithModal]);
+
+  // Navigate to Token Management with token
+  const navigateToTokenManagement = useCallback((tokenType: 'access') => {
+    console.log('🔍 [OAUTH2-IMPLICIT-V3] Navigate to token management:', {
+      tokenType,
+      hasTokens: !!tokens,
+      hasAccessToken: !!tokens?.access_token,
+      tokens
+    });
+    
+    const token = tokens?.access_token;
+    
+    if (token) {
+      // Store token and flow source for Token Management page
+      sessionStorage.setItem('token_to_analyze', token);
+      sessionStorage.setItem('token_type', tokenType);
+      sessionStorage.setItem('flow_source', 'oauth2-implicit-v3');
+      
+      // Navigate to Token Management page
+      window.location.href = '/token-management';
+    } else {
+      showFlowError(`No ${tokenType} token available for analysis`);
+    }
+  }, [tokens]);
 
   // Reset flow
   const resetFlow = useCallback(async () => {
@@ -1123,7 +1156,7 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
                       <FiCopy /> Copy
                     </CopyButton>
                   </div>
-                  <TokenDisplay>{tokens.access_token}</TokenDisplay>
+                  <TokenDisplay tokens={tokens} />
                 </div>
 
                 {/* Token Details - Collapsible */}
@@ -1249,6 +1282,102 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
                   Your access token is ready to use for API calls. Remember that implicit flow tokens are typically short-lived
                   and cannot be refreshed - you'll need to re-authenticate when they expire.
                 </div>
+
+                {/* Token Management Section */}
+                <div style={{ 
+                  marginTop: '2rem', 
+                  padding: '1.5rem', 
+                  background: '#f8fafc', 
+                  border: '1px solid #e2e8f0', 
+                  borderRadius: '0.75rem' 
+                }}>
+                  <h4 style={{ 
+                    margin: '0 0 1rem 0', 
+                    color: '#1f2937', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '0.5rem' 
+                  }}>
+                    <FiKey />
+                    Token Management
+                  </h4>
+                  <p style={{ margin: '0 0 1.5rem 0', color: '#6b7280', fontSize: '0.9rem' }}>
+                    Analyze and decode your access token to see its contents and claims.
+                  </p>
+                  
+                  <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                    <CopyButton
+                      onClick={() => navigateToTokenManagement('access')}
+                      disabled={!tokens?.access_token}
+                      style={{ 
+                        backgroundColor: tokens?.access_token ? '#3b82f6' : '#9ca3af',
+                        color: 'white',
+                        padding: '0.75rem 1.5rem',
+                        fontSize: '0.9rem'
+                      }}
+                    >
+                      <FiSearch /> Analyze Access Token
+                    </CopyButton>
+                    
+                    <CopyButton
+                      onClick={() => {
+                        if (tokens?.access_token) {
+                          // Store token for analysis
+                          sessionStorage.setItem('token_to_analyze', tokens.access_token);
+                          sessionStorage.setItem('token_type', 'access');
+                          sessionStorage.setItem('flow_source', 'oauth2-implicit-v3');
+                          window.open('/token-management', '_blank');
+                        }
+                      }}
+                      disabled={!tokens?.access_token}
+                      style={{ 
+                        backgroundColor: tokens?.access_token ? '#8b5cf6' : '#9ca3af',
+                        color: 'white',
+                        padding: '0.75rem 1.5rem',
+                        fontSize: '0.9rem'
+                      }}
+                    >
+                      <FiShield /> Decode Token
+                    </CopyButton>
+                    
+                    <CopyButton
+                      onClick={() => {
+                        if (tokens?.access_token) {
+                          // Store token for introspection
+                          sessionStorage.setItem('token_to_analyze', tokens.access_token);
+                          sessionStorage.setItem('token_type', 'access');
+                          sessionStorage.setItem('flow_source', 'oauth2-implicit-v3');
+                          // Navigate to token management with introspection tab
+                          window.location.href = '/token-management?tab=introspect';
+                        }
+                      }}
+                      disabled={!tokens?.access_token}
+                      style={{ 
+                        backgroundColor: tokens?.access_token ? '#059669' : '#9ca3af',
+                        color: 'white',
+                        padding: '0.75rem 1.5rem',
+                        fontSize: '0.9rem'
+                      }}
+                    >
+                      <FiSearch /> Introspect Token
+                    </CopyButton>
+                  </div>
+                </div>
+
+                {/* Go Back to Start Button */}
+                <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+                  <CopyButton
+                    onClick={resetFlow}
+                    style={{ 
+                      backgroundColor: '#6b7280', 
+                      color: 'white',
+                      padding: '0.75rem 2rem',
+                      fontSize: '1rem'
+                    }}
+                  >
+                    <FiChevronLeft /> Go Back to Start of Flow
+                  </CopyButton>
+                </div>
               </div>
             </div>
           ) : (
@@ -1282,16 +1411,6 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
         <Subtitle>
           OAuth 2.0 Implicit Flow implementation with comprehensive educational content
         </Subtitle>
-        <div style={{ 
-          background: 'red', 
-          color: 'white', 
-          padding: '1rem', 
-          margin: '1rem 0',
-          fontSize: '1.2rem',
-          fontWeight: 'bold'
-        }}>
-          🚨 DEBUG: Component is rendering! Steps: {steps.length}, Current Step: {stepManager.currentStepIndex}
-        </div>
       </Header>
 
       <FlowCard>
@@ -1396,18 +1515,20 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
           </div>
         )}
 
-        {/* Security Warning */}
-        <SecurityWarning>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-            <FiAlertTriangle />
-            <strong>OAuth 2.0 Implicit Flow (Deprecated)</strong>
-          </div>
-          <div style={{ fontSize: '0.875rem', lineHeight: '1.5' }}>
-            This flow is <strong>deprecated</strong> due to security concerns. Access tokens are exposed in the URL fragment,
-            making them vulnerable to theft. This implementation is provided for legacy compatibility and educational purposes only.
-            For new applications, use the Authorization Code flow with PKCE instead.
-          </div>
-        </SecurityWarning>
+        {/* Security Warning - Only show on first step */}
+        {stepManager.currentStepIndex === 0 && (
+          <SecurityWarning>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+              <FiAlertTriangle />
+              <strong>OAuth 2.0 Implicit Flow (Deprecated)</strong>
+            </div>
+            <div style={{ fontSize: '0.875rem', lineHeight: '1.5' }}>
+              This flow is <strong>deprecated</strong> due to security concerns. Access tokens are exposed in the URL fragment,
+              making them vulnerable to theft. This implementation is provided for legacy compatibility and educational purposes only.
+              For new applications, use the Authorization Code flow with PKCE instead.
+            </div>
+          </SecurityWarning>
+        )}
 
         {/* Main Step Flow */}
         <EnhancedStepFlowV2 

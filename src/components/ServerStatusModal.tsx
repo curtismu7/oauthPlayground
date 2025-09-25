@@ -212,7 +212,7 @@ const ServerStatusModal: React.FC<ServerStatusModalProps> = ({ isOpen, onClose }
   const [servers, setServers] = useState<ServerStatus[]>([
     {
       name: 'Frontend Server',
-      url: 'https://localhost:3000',
+      url: window.location.origin,
       status: 'checking'
     },
     {
