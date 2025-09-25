@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { jwtGenerator, LoginHintTokenPayload, RequestObjectPayload, ClientSecretJWTPayload, PrivateKeyJWTPayload } from '../utils/jwtGenerator';
+import JWKSConverter from './JWKSConverter';
 
 const GeneratorContainer = styled.div`
   background: white;
@@ -766,18 +767,9 @@ const JWTGenerator: React.FC = () => {
   );
 
   const renderJWKSForm = () => (
-    <FormContainer>
-      <FormSection style={{ gridColumn: '1 / -1' }}>
-        <FormGroup>
-          <Label>JWKS Keys (JSON)</Label>
-          <TextArea
-            value={jwksForm.keys}
-            onChange={(e) => setJwksForm(prev => ({ ...prev, keys: e.target.value }))}
-            placeholder="Enter JWKS keys in JSON format"
-          />
-        </FormGroup>
-      </FormSection>
-    </FormContainer>
+    <div>
+      <JWKSConverter />
+    </div>
   );
 
   const renderForm = () => {
