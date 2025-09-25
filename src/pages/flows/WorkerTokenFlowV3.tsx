@@ -1243,6 +1243,7 @@ Perfect for:
                 </div>
               </div>
 
+              <div key={`jwks-mode-${useJwksEndpoint ? 'endpoint' : 'private'}`}>
               <JwksKeySourceSelector
                 value={useJwksEndpoint ? 'jwks-endpoint' : 'private-key'}
                 onChange={(next) => {
@@ -1357,6 +1358,7 @@ Perfect for:
                   </div>
                 )}
               />
+              </div>
             </div>
           )}
 
