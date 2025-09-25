@@ -1,8 +1,9 @@
 // src/components/JwksKeySourceSelector.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FiCopy, FiEye, FiEyeOff, FiKey } from 'react-icons/fi';
 import { buildJWKSUri } from '../utils/jwks';
+import { isPrivateKey } from '../utils/jwksConverter';
 
 export type JwksKeySource = 'jwks-endpoint' | 'private-key';
 
@@ -35,6 +36,12 @@ interface JwksKeySourceSelectorProps {
   onTogglePrivateKey: () => void;
   /** Optional handler to copy private key value */
   onCopyPrivateKey?: () => void;
+  /** Called when JWKS endpoint radio selected */
+  onSelectJwksEndpoint?: () => void;
+  /** Called when private key radio selected */
+  onSelectPrivateKey?: () => void;
+  /** Called when validation state changes */
+  onValidationChange?: (isValid: boolean) => void;
   /** Optional helper shown below private key textarea */
   privateKeyHelper?: React.ReactNode;
   /** Optional instructions shown when JWKS endpoint mode is active */
@@ -229,6 +236,12 @@ const Helper = styled.div`
   border: 1px solid rgba(16, 185, 129, 0.2);
 `;
 
+const ErrorText = styled.div`
+  font-size: 0.85rem;
+  color: #b91c1c;
+  margin-top: -0.5rem;
+`;
+
 const Label = styled.label`
   color: #065f46;
   font-weight: 600;
@@ -300,7 +313,11 @@ const JwksKeySourceSelector: React.FC<JwksKeySourceSelectorProps> = ({
   privateKeyOptionLabel = DEFAULT_PRIVATE_KEY_OPTION_LABEL,
   privateKeyLabel = DEFAULT_PRIVATE_KEY_LABEL,
   onCopyPrivateKey,
+  onSelectJwksEndpoint,
+  onSelectPrivateKey,
+  onValidationChange,
 }) => {
+  const [validationError, setValidationError] = useState<string | null>(null);
   const resolvedJwksUrl = resolveJwksUrl(jwksUrl, issuer, environmentId);
 
   const handleCopyJwksUrl = async () => {
@@ -316,6 +333,42 @@ const JwksKeySourceSelector: React.FC<JwksKeySourceSelectorProps> = ({
     }
   };
 
+  const handleRadioChange = (next: JwksKeySource) => {
+    if (next === 'jwks-endpoint') {
+      setValidationError(null);
+      onSelectJwksEndpoint?.();
+    } else {
+      if (!privateKey.trim()) {
+        const message = 'Private key required when using Upload Private Key.';
+        setValidationError(message);
+        onValidationChange?.(false);
+      } else if (!isPrivateKey(privateKey.trim())) {
+        const message = 'Private key must be valid PEM format.';
+        setValidationError(message);
+        onValidationChange?.(false);
+      } else {
+        setValidationError(null);
+        onValidationChange?.(true);
+      }
+      onSelectPrivateKey?.();
+    }
+    onChange(next);
+  };
+
+  const handlePrivateKeyChange = (pem: string) => {
+    onPrivateKeyChange(pem);
+    if (!pem.trim()) {
+      setValidationError('Private key required when using Upload Private Key.');
+      onValidationChange?.(false);
+    } else if (!isPrivateKey(pem.trim())) {
+      setValidationError('Private key must be valid PEM format.');
+      onValidationChange?.(false);
+    } else {
+      setValidationError(null);
+      onValidationChange?.(true);
+    }
+  };
+
   return (
     <Container>
       <div>
@@ -325,7 +378,7 @@ const JwksKeySourceSelector: React.FC<JwksKeySourceSelectorProps> = ({
             name="jwks-key-source"
             value="jwks-endpoint"
             checked={value === 'jwks-endpoint'}
-            onChange={() => onChange('jwks-endpoint')}
+            onChange={() => handleRadioChange('jwks-endpoint')}
             style={{ margin: 0, cursor: 'pointer' }}
           />
           <span style={{ color: '#065f46', fontWeight: 600 }}>{jwksOptionLabel}</span>
@@ -361,7 +414,7 @@ const JwksKeySourceSelector: React.FC<JwksKeySourceSelectorProps> = ({
             name="jwks-key-source"
             value="private-key"
             checked={value === 'private-key'}
-            onChange={() => onChange('private-key')}
+            onChange={() => handleRadioChange('private-key')}
             style={{ margin: 0, cursor: 'pointer' }}
           />
           <span style={{ color: '#065f46', fontWeight: 600 }}>{privateKeyOptionLabel}</span>
@@ -392,7 +445,7 @@ const JwksKeySourceSelector: React.FC<JwksKeySourceSelectorProps> = ({
           <PrivateKeyWrapper>
             <PrivateKeyArea
               value={privateKey}
-              onChange={(event) => onPrivateKeyChange(event.target.value)}
+              onChange={(event) => handlePrivateKeyChange(event.target.value)}
               placeholder={'-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC...'}
               style={{ paddingRight: showPrivateKey ? '6rem' : '4rem' }}
             />
@@ -405,6 +458,7 @@ const JwksKeySourceSelector: React.FC<JwksKeySourceSelectorProps> = ({
               </CopyPrivateKeyButton>
             )}
           </PrivateKeyWrapper>
+          {validationError && <ErrorText>{validationError}</ErrorText>}
           {privateKeyHelper && <Helper>{privateKeyHelper}</Helper>}
         </PrivateKeyContainer>
       )}
