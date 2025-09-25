@@ -548,13 +548,14 @@ const TokenManagement = () => {
   // Use centralized scroll management
   usePageScroll({ pageName: 'Token Management', force: true });
   
-  // Check flow source to determine if ID Token should be available
-  const flowSource = sessionStorage.getItem('flow_source') || '';
-  const isOAuthFlow = flowSource.includes('oauth') && !flowSource.includes('oidc');
-  const isOIDCFlow = flowSource.includes('oidc') || flowSource.includes('enhanced');
+  // Track flow source so tokens passed from other flows persist after sessionStorage is cleared
+  const [flowSourceState, setFlowSourceState] = useState(sessionStorage.getItem('flow_source') || '');
+  
+  const isOAuthFlow = flowSourceState.includes('oauth') && !flowSourceState.includes('oidc');
+  const isOIDCFlow = flowSourceState.includes('oidc') || flowSourceState.includes('enhanced');
   
   console.log('🔍 [TokenManagement] Flow source detection:', {
-    flowSource,
+    flowSource: flowSourceState,
     isOAuthFlow,
     isOIDCFlow,
     shouldShowIdToken: isOIDCFlow
@@ -709,6 +710,7 @@ const TokenManagement = () => {
           description: `${tokenType.replace('_', ' ').toUpperCase()} from ${flowSource}`,
           timestamp: new Date().toLocaleString()
         });
+        setFlowSourceState(flowSource);
         
         // Auto-decode the passed token
         setTimeout(() => decodeJWT(tokenToAnalyze), 100);
@@ -744,6 +746,7 @@ const TokenManagement = () => {
           if (storageTokens && (storageTokens.access_token || storageTokens.id_token || storageTokens.refresh_token)) {
             console.log('✅ [TokenManagement] Found tokens in secure storage:', storageTokens);
             currentTokens = storageTokens;
+            setFlowSourceState('storage/manual');
           } else {
             // Check localStorage for tokens from Authorization Code flow
             console.log('ℹ️ [TokenManagement] Checking localStorage for oauth_tokens...');
@@ -754,6 +757,7 @@ const TokenManagement = () => {
                 console.log('✅ [TokenManagement] Found tokens in localStorage:', parsedTokens);
                 if (parsedTokens && (parsedTokens.access_token || parsedTokens.id_token || parsedTokens.refresh_token)) {
                   currentTokens = parsedTokens;
+                  setFlowSourceState('storage/manual');
                 }
               } catch (parseError) {
                 console.error('❌ [TokenManagement] Error parsing localStorage tokens:', parseError);
@@ -1583,35 +1587,35 @@ const TokenManagement = () => {
 
   // Determine token source display
   const getTokenSourceInfo = () => {
-    if (flowSource.includes('worker-token-v3')) {
+    if (flowSourceState.includes('worker-token-v3')) {
       return {
         type: 'Worker Token Flow V3',
         description: 'Tokens from Worker Token Flow V3',
         color: '#7c3aed',
         icon: <FiKey />
       };
-    } else if (flowSource.includes('oauth-v3')) {
+    } else if (flowSourceState.includes('oauth-v3')) {
       return {
         type: 'OAuth 2.0 V3',
         description: 'Tokens from OAuth 2.0 Authorization Code Flow V3',
         color: '#0369a1',
         icon: <FiKey />
       };
-    } else if (flowSource.includes('oidc-v3')) {
+    } else if (flowSourceState.includes('oidc-v3')) {
       return {
         type: 'OpenID Connect V3', 
         description: 'Tokens from OIDC Authorization Code Flow V3',
         color: '#059669',
         icon: <FiShield />
       };
-    } else if (flowSource.includes('enhanced')) {
+    } else if (flowSourceState.includes('enhanced')) {
       return {
         type: 'Enhanced Authorization Code',
         description: 'Tokens from Enhanced Authorization Code Flow',
         color: '#0891b2',
         icon: <FiShield />
       };
-    } else if (flowSource.includes('implicit')) {
+    } else if (flowSourceState.includes('implicit')) {
       return {
         type: 'Implicit Grant',
         description: 'Tokens from Implicit Grant Flow (deprecated)',
@@ -1686,7 +1690,7 @@ const TokenManagement = () => {
             </p>
           </div>
         </div>
-        {flowSource && (
+        {flowSourceState && (
           <div style={{ 
             fontSize: '0.75rem', 
             color: '#9ca3af',
@@ -1696,7 +1700,7 @@ const TokenManagement = () => {
             borderRadius: '4px',
             border: '1px solid #e5e7eb'
           }}>
-            Flow Source ID: {flowSource}
+            Flow Source ID: {flowSourceState}
           </div>
         )}
       </div>
