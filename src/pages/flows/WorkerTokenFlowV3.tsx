@@ -245,9 +245,11 @@ const WorkerTokenFlowV3: React.FC = () => {
       const kid = await keyStorageService.storeKeyPairWithPublicKey(privateKeyPem, publicKeyPem);
       
       setPrivateKey(privateKeyPem);
+      // Switch to upload mode since we generated a private key
+      setUseJwksEndpoint(false);
       showFlowSuccess(`🔑 RSA Private Key generated and stored with ID: ${kid}`);
       
-      console.log('🔑 [WorkerTokenV3] Private key generated, stored, and set');
+      console.log('🔑 [WorkerTokenV3] Private key generated, stored, and set - switched to upload mode');
     } catch (error) {
       console.error('❌ [WorkerTokenV3] Failed to generate private key:', error);
       showFlowError(`Failed to generate private key: ${error instanceof Error ? error.message : String(error)}`);
@@ -1246,7 +1248,9 @@ Perfect for:
                       checked={useJwksEndpoint}
                       onChange={(e) => {
                         console.log('JWKS Endpoint checkbox changed:', e.target.checked);
+                        console.log('Current useJwksEndpoint state:', useJwksEndpoint);
                         setUseJwksEndpoint(e.target.checked);
+                        console.log('Set useJwksEndpoint to:', e.target.checked);
                       }}
                       style={{ margin: 0, cursor: 'pointer' }}
                     />
@@ -1347,7 +1351,9 @@ Perfect for:
                       checked={!useJwksEndpoint}
                       onChange={(e) => {
                         console.log('Upload Private Key checkbox changed:', e.target.checked);
+                        console.log('Current useJwksEndpoint state:', useJwksEndpoint);
                         setUseJwksEndpoint(!e.target.checked);
+                        console.log('Set useJwksEndpoint to:', !e.target.checked);
                       }}
                       style={{ margin: 0, cursor: 'pointer' }}
                     />
