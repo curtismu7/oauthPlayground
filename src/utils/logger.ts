@@ -94,7 +94,7 @@ class Logger {
 
   error(component: string, message: string, data?: LogData, error?: Error) {
     this.addToHistory('ERROR', component, message, data, error);
-    // Only log to console if not called from DebugPanel to prevent circular references
+    // Log to console
     if (component !== 'CONSOLE') {
       console.error(`❌ [${component}] ${message}`, data || '', error || '');
     }
@@ -102,7 +102,7 @@ class Logger {
 
   warn(component: string, message: string, data?: LogData) {
     this.addToHistory('WARN', component, message, data);
-    // Only log to console if not called from DebugPanel to prevent circular references
+    // Log to console
     if (component !== 'CONSOLE') {
       console.warn(`⚠️ [${component}] ${message}`, data || '');
     }
@@ -115,7 +115,7 @@ class Logger {
     }
     
     this.addToHistory('INFO', component, message, data);
-    // Only log to console if not called from DebugPanel to prevent circular references
+    // Log to console
     if (component !== 'CONSOLE') {
       console.log(`ℹ️ [${component}] ${message}`, data || '');
     }
@@ -128,7 +128,7 @@ class Logger {
     }
     
     this.addToHistory('DEBUG', component, message, data);
-    // Only log to console if not called from DebugPanel to prevent circular references
+    // Log to console
     if (component !== 'CONSOLE') {
       console.debug(`🐛 [${component}] ${message}`, data || '');
     }
@@ -136,7 +136,7 @@ class Logger {
 
   success(component: string, message: string, data?: LogData) {
     this.addToHistory('SUCCESS', component, message, data);
-    // Only log to console if not called from DebugPanel to prevent circular references
+    // Log to console
     if (component !== 'CONSOLE') {
       console.log(`✅ [${component}] ${message}`, data || '');
     }
@@ -144,7 +144,7 @@ class Logger {
 
   flow(component: string, message: string, data?: LogData) {
     this.addToHistory('FLOW', component, message, data);
-    // Only log to console if not called from DebugPanel to prevent circular references
+    // Log to console
     if (component !== 'CONSOLE') {
       console.log(`🔄 [${component}] ${message}`, data || '');
     }
@@ -152,7 +152,7 @@ class Logger {
 
   security(component: string, message: string, data?: LogData) {
     this.addToHistory('SECURITY', component, message, data);
-    // Only log to console if not called from DebugPanel to prevent circular references
+    // Log to console
     if (component !== 'CONSOLE') {
       console.log(`🔐 [${component}] ${message}`, data || '');
     }
@@ -160,7 +160,7 @@ class Logger {
 
   auth(component: string, message: string, data?: LogData) {
     this.addToHistory('AUTH', component, message, data);
-    // Only log to console if not called from DebugPanel to prevent circular references
+    // Log to console
     if (component !== 'CONSOLE') {
       console.log(`🔐 [${component}] ${message}`, data || '');
     }
@@ -168,7 +168,7 @@ class Logger {
 
   config(component: string, message: string, data?: LogData) {
     this.addToHistory('CONFIG', component, message, data);
-    // Only log to console if not called from DebugPanel to prevent circular references
+    // Log to console
     if (component !== 'CONSOLE') {
       console.log(`⚙️ [${component}] ${message}`, data || '');
     }
@@ -176,7 +176,7 @@ class Logger {
 
   api(component: string, message: string, data?: LogData) {
     this.addToHistory('API', component, message, data);
-    // Only log to console if not called from DebugPanel to prevent circular references
+    // Log to console
     if (component !== 'CONSOLE') {
       console.log(`🌐 [${component}] ${message}`, data || '');
     }
@@ -184,7 +184,7 @@ class Logger {
 
   storage(component: string, message: string, data?: LogData) {
     this.addToHistory('STORAGE', component, message, data);
-    // Only log to console if not called from DebugPanel to prevent circular references
+    // Log to console
     if (component !== 'CONSOLE') {
       console.log(`💾 [${component}] ${message}`, data || '');
     }
@@ -192,7 +192,7 @@ class Logger {
 
   ui(component: string, message: string, data?: LogData) {
     this.addToHistory('UI', component, message, data);
-    // Only log to console if not called from DebugPanel to prevent circular references
+    // Log to console
     if (component !== 'CONSOLE') {
       console.log(`🎨 [${component}] ${message}`, data || '');
     }
@@ -200,7 +200,7 @@ class Logger {
 
   discovery(component: string, message: string, data?: LogData) {
     this.addToHistory('DISCOVERY', component, message, data);
-    // Only log to console if not called from DebugPanel to prevent circular references
+    // Log to console
     if (component !== 'CONSOLE') {
       console.log(`🔍 [${component}] ${message}`, data || '');
     }
