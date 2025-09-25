@@ -149,9 +149,20 @@ export const setLastExecutionTime = (flowType: string): void => {
   try {
     const executionKey = `flow_execution_${flowType}`;
     localStorage.setItem(executionKey, Date.now().toString());
+    logger.info('flowCredentialChecker', `Flow execution time recorded for ${flowType}`);
   } catch (error) {
     logger.error('flowCredentialChecker', `Error setting execution time for ${flowType}`, error);
   }
+};
+
+/**
+ * Track flow completion - call this when a flow completes successfully
+ */
+export const trackFlowCompletion = (flowType: string, success: boolean = true): void => {
+  if (success) {
+    setLastExecutionTime(flowType);
+  }
+  logger.info('flowCredentialChecker', `Flow completion tracked: ${flowType}, success: ${success}`);
 };
 
 /**

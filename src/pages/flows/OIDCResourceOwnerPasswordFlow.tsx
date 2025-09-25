@@ -9,12 +9,12 @@ const PageContainer = styled.div`
 `;
 
 const PageHeader = styled.div`
-  background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
-  color: white;
+  background: #f8fafc;
+  color: #1f2937;
   padding: 2rem;
   border-radius: 0.75rem;
   margin-bottom: 2rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
 `;
 
 const PageTitle = styled.h1`
@@ -172,16 +172,16 @@ const OIDCResourceOwnerPasswordFlow: React.FC = () => {
       </WarningCard>
 
       <OIDCCard>
-        <FiCheckCircle size={24} color="#7c3aed" />
+        <FiCheckCircle size={24} color="#059669" />
         <CardContent>
-          <CardTitle style={{ color: '#6b21a8' }}>
+          <CardTitle style={{ color: '#1f2937' }}>
             <FiCheckCircle />
             OpenID Connect Extension
           </CardTitle>
-          <CardText style={{ color: '#6b21a8' }}>
+          <CardText style={{ color: '#374151' }}>
             This is the OIDC version of the Resource Owner Password flow, which includes additional OpenID Connect features:
           </CardText>
-          <CardList style={{ color: '#6b21a8' }}>
+          <CardList style={{ color: '#374151' }}>
             <CardListItem><strong>ID Token:</strong> Contains user identity information (JWT)</CardListItem>
             <CardListItem><strong>User Info:</strong> Additional user profile data available</CardListItem>
             <CardListItem><strong>Standardized Claims:</strong> Consistent user information format</CardListItem>

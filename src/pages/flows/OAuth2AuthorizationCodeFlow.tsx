@@ -3950,7 +3950,6 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
   return (
     <>
       {/* Centralized Success Messages */}
-      <CentralizedSuccessMessage position="top" />
       
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1.5rem' }}>
       {/* Success Banner - Always visible when authCode is present */}
@@ -4200,7 +4199,6 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
     </div>
     
     {/* Centralized Success Messages - Bottom */}
-    <CentralizedSuccessMessage position="bottom" />
     </>
   );
 };
