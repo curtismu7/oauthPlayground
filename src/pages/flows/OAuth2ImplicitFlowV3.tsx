@@ -1417,7 +1417,7 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
           initialStepIndex={stepManager.currentStepIndex}
           onStepChange={stepManager.setStep}
           autoAdvance={false}
-          showDebugInfo={true}
+          showDebugInfo={false}
           allowStepJumping={true}
           onStepComplete={(stepId, result) => {
             console.log('✅ [OAUTH2-IMPLICIT-V3] Step completed:', stepId, result);

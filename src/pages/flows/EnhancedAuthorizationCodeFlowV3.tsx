@@ -1747,7 +1747,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
           title="🔑 OIDC Authorization Code Flow (V3 - Clean)"
           persistKey="oidc-authz-v3"
           autoAdvance={true}
-          showDebugInfo={true}
+          showDebugInfo={false}
           allowStepJumping={true}
           initialStepIndex={stepManager.currentStepIndex}
           onStepChange={(stepIndex) => {

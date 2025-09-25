@@ -2391,7 +2391,7 @@ Original Error: ${errorData.error_description || errorData.error}
           initialStepIndex={stepManager.currentStepIndex}
           onStepChange={stepManager.setStep}
           autoAdvance={false}
-          showDebugInfo={true}
+          showDebugInfo={false}
           allowStepJumping={true}
           onStepComplete={(stepId, result) => {
             console.log(`✅ [${flowType.toUpperCase()}-V3] Step completed:`, stepId, result);
