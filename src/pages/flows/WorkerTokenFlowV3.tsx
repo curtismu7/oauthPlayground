@@ -14,7 +14,8 @@ import CollapsibleSection from '../../components/CollapsibleSection';
 import { TokenSurface } from '../../components/TokenSurface';
 import { applyClientAuthentication, getAuthMethodSecurityLevel } from '../../utils/clientAuthentication';
 import { keyStorageService } from '../../services/keyStorageService';
-import JwksKeySourceSelector, { JwksKeySource } from '../../components/JwksKeySourceSelector';
+import { buildJWKSUri } from '../../utils/jwks';
+import { isPrivateKey } from '../../utils/jwksConverter';
 
 // Worker Token specific authentication method type (excludes 'none')
 type WorkerTokenAuthMethod = 'client_secret_post' | 'client_secret_basic' | 'client_secret_jwt' | 'private_key_jwt';
@@ -198,6 +199,56 @@ const WorkerTokenFlowV3: React.FC = () => {
   const [showPrivateKey, setShowPrivateKey] = useState(false);
   const [jwksUrl, setJwksUrl] = useState<string>('https://oauth-playground.vercel.app/jwks');
   const [useJwksEndpoint, setUseJwksEndpoint] = useState<boolean>(true);
+  const [privateKeyValidationError, setPrivateKeyValidationError] = useState<string | null>(null);
+  const resolvedJwksDisplayUrl = useMemo(() => {
+    if (jwksUrl && jwksUrl.trim()) {
+      return jwksUrl.trim();
+    }
+    if (!credentials.environmentId) {
+      return '';
+    }
+    return buildJWKSUri(`https://auth.pingone.com/${credentials.environmentId}/as`);
+  }, [jwksUrl, credentials.environmentId]);
+  const validatePrivateKeyValue = useCallback((value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return 'Private key required when using Upload Private Key.';
+    }
+    if (!isPrivateKey(trimmed)) {
+      return 'Private key must be valid PEM format.';
+    }
+    return null;
+  }, []);
+  const handlePrivateKeyInputChange = useCallback((value: string) => {
+    setPrivateKey(value);
+    setPrivateKeyValidationError(validatePrivateKeyValue(value));
+  }, [validatePrivateKeyValue]);
+  const resolvedAuthSelection = useMemo(() => {
+    if (clientAuthMethod === 'private_key_jwt') {
+      return useJwksEndpoint ? 'private_key_jwt_jwks' : 'private_key_jwt_upload';
+    }
+    return clientAuthMethod;
+  }, [clientAuthMethod, useJwksEndpoint]);
+
+  const handleAuthSelectionChange = (value: string) => {
+    if (value === 'private_key_jwt_jwks') {
+      setClientAuthMethod('private_key_jwt');
+      setUseJwksEndpoint(true);
+      setPrivateKeyValidationError(null);
+      return;
+    }
+
+    if (value === 'private_key_jwt_upload') {
+      setClientAuthMethod('private_key_jwt');
+      setUseJwksEndpoint(false);
+      setPrivateKeyValidationError(validatePrivateKeyValue(privateKey));
+      return;
+    }
+
+    setClientAuthMethod(value as WorkerTokenAuthMethod);
+    setPrivateKeyValidationError(null);
+  };
+
   
   // Debug: Log state changes
   useEffect(() => {
@@ -992,9 +1043,9 @@ Perfect for:
 
             <FormField>
               <select
-                value={clientAuthMethod}
-                onChange={(e) => setClientAuthMethod(e.target.value as WorkerTokenAuthMethod)}
-              style={{
+                value={resolvedAuthSelection}
+                onChange={(e) => handleAuthSelectionChange(e.target.value)}
+                style={{
                   width: '100%',
                   padding: '1rem',
                   border: '2px solid #f59e0b',
@@ -1016,11 +1067,12 @@ Perfect for:
                   e.target.style.boxShadow = '0 2px 8px rgba(245, 158, 11, 0.15)';
                 }}
               >
-              <option value="client_secret_post">Client Secret Post</option>
-              <option value="client_secret_basic">Client Secret Basic</option>
-              <option value="client_secret_jwt">Client Secret JWT</option>
-              <option value="private_key_jwt">Private Key JWT</option>
-            </select>
+                <option value="client_secret_post">Client Secret Post</option>
+                <option value="client_secret_basic">Client Secret Basic</option>
+                <option value="client_secret_jwt">Client Secret JWT</option>
+                <option value="private_key_jwt_jwks">Private Key JWT - JWKS Endpoint</option>
+                <option value="private_key_jwt_upload">Private Key JWT - JWKS Upload to PingOne</option>
+              </select>
               <div style={{
                 background: 'rgba(255, 255, 255, 0.8)',
                 border: '1px solid rgba(245, 158, 11, 0.3)',
@@ -1244,120 +1296,166 @@ Perfect for:
               </div>
 
               <div key={`jwks-mode-${useJwksEndpoint ? 'endpoint' : 'private'}`}>
-              <JwksKeySourceSelector
-                value={useJwksEndpoint ? 'jwks-endpoint' : 'private-key'}
-                onChange={(next) => {
-                  const useJwks = next === 'jwks-endpoint';
-                  console.log('🔄 [WorkerTokenV3] Key source changed to:', next);
-                  setUseJwksEndpoint(useJwks);
-                }}
-                environmentId={credentials.environmentId}
-                jwksUrl={jwksUrl}
-                onCopyJwksUrlSuccess={(url) => showFlowSuccess(`📋 JWKS Endpoint URL copied to clipboard!\n${url}`)}
-                onCopyJwksUrlError={(error) => {
-                  console.error('Failed to copy JWKS URL:', error);
-                  showFlowError('Failed to copy JWKS URL to clipboard');
-                }}
-                privateKey={privateKey}
-                onPrivateKeyChange={setPrivateKey}
-                onGenerateKey={generatePrivateKey}
-                isGeneratingKey={isGeneratingKey}
-                showPrivateKey={showPrivateKey}
-                onTogglePrivateKey={() => setShowPrivateKey(!showPrivateKey)}
-                onCopyPrivateKey={async () => {
-                  try {
-                    await navigator.clipboard.writeText(privateKey);
-                    showFlowSuccess('🔑 Private Key copied! Paste this into PingOne\'s "Private Key" field.');
-                  } catch (error) {
-                    console.error('Failed to copy private key:', error);
-                    showFlowError('Failed to copy private key to clipboard');
-                  }
-                }}
-                onSelectJwksEndpoint={() => {
-                  setUseJwksEndpoint(true);
-                  credentialManager.saveFlowCredentials('worker-token-v3', {
-                    environmentId: credentials.environmentId,
-                    clientId: credentials.clientId,
-                    clientSecret: credentials.clientSecret,
-                    redirectUri: '',
-                    scopes: credentials.scopes,
-                    clientAuthMethod,
-                    privateKey,
-                    useJwksEndpoint: true
-                  });
-                }}
-                onSelectPrivateKey={() => {
-                  setUseJwksEndpoint(false);
-                  credentialManager.saveFlowCredentials('worker-token-v3', {
-                    environmentId: credentials.environmentId,
-                    clientId: credentials.clientId,
-                    clientSecret: credentials.clientSecret,
-                    redirectUri: '',
-                    scopes: credentials.scopes,
-                    clientAuthMethod,
-                    privateKey,
-                    useJwksEndpoint: false
-                  });
-                }}
-                onValidationChange={(isValid) => {
-                  if (!isValid) {
-                    setUseJwksEndpoint(false);
-                  }
-                }}
-                jwksInstructions={(
-                  <div style={{
-                    background: 'rgba(16, 185, 129, 0.1)',
-                    border: '1px solid rgba(16, 185, 129, 0.3)',
-                    borderRadius: '6px',
-                    padding: '0.75rem',
-                    fontSize: '0.875rem',
-                    color: '#047857'
-                  }}>
-                    <strong>💡 PingOne Configuration Steps:</strong>
-                    <br />
-                    1. Set "Token Endpoint Authentication Method" to "Private Key JWT"
-                    <br />
-                    2. Set "JWKS URL" to: <code style={{ background: 'rgba(255,255,255,0.8)', padding: '0.2rem 0.4rem', borderRadius: '3px' }}>https://oauth-playground.vercel.app/jwks</code>
-                    <br />
-                    3. Leave "Private Key" field empty in PingOne
-                    <br />
-                    4. Save your PingOne application configuration
-                    <br />
-                    <br />
-                    <strong>🔧 Need to convert a private key to JWKS format?</strong>
-                    <br />
-                    Use the <strong>JWT Generator → JWKS</strong> tab to convert your private key to the correct JWKS format for PingOne.
+                {useJwksEndpoint ? (
+                  <div style={{ display: 'grid', gap: '1rem' }}>
+                    <div style={{
+                      background: 'rgba(16, 185, 129, 0.1)',
+                      border: '1px solid rgba(16, 185, 129, 0.3)',
+                      borderRadius: '6px',
+                      padding: '0.75rem',
+                      fontSize: '0.875rem',
+                      color: '#047857'
+                    }}>
+                      <strong>💡 PingOne Configuration Steps:</strong>
+                      <br />
+                      1. Set "Token Endpoint Authentication Method" to "Private Key JWT"
+                      <br />
+                      2. Set "JWKS URL" to: <code style={{ background: 'rgba(255,255,255,0.8)', padding: '0.2rem 0.4rem', borderRadius: '3px' }}>{resolvedJwksDisplayUrl || 'https://oauth-playground.vercel.app/jwks'}</code>
+                      <br />
+                      3. Leave "Private Key" field empty in PingOne
+                      <br />
+                      4. Save your PingOne application configuration
+                      <br />
+                      <br />
+                      <strong>🔧 Need to convert a private key to JWKS format?</strong>
+                      <br />
+                      Use the <strong>JWT Generator → JWKS</strong> tab to convert your private key to the correct JWKS format for PingOne.
+                    </div>
+                    <div>
+                      <Label style={{ display: 'block', marginBottom: '0.5rem' }}>Your JWKS Endpoint URL</Label>
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <code style={{
+                          flex: 1,
+                          background: '#ffffff',
+                          border: '1px solid rgba(16, 185, 129, 0.3)',
+                          borderRadius: '6px',
+                          padding: '0.6rem',
+                          color: '#047857',
+                          fontSize: '0.875rem',
+                          wordBreak: 'break-all'
+                        }}>
+                          {resolvedJwksDisplayUrl || 'Provide environment details to compute JWKS URL'}
+                        </code>
+                        <CopyButton type="button" onClick={async () => {
+                          try {
+                            await navigator.clipboard.writeText(resolvedJwksDisplayUrl);
+                            showFlowSuccess(`📋 JWKS Endpoint URL copied to clipboard!\n${resolvedJwksDisplayUrl}`);
+                          } catch (error) {
+                            console.error('Failed to copy JWKS URL:', error);
+                            showFlowError('Failed to copy JWKS URL to clipboard');
+                          }
+                        }}>
+                          <FiCopy size={14} />
+                          Copy
+                        </CopyButton>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleAuthSelectionChange('private_key_jwt_upload')}
+                      style={{
+                        alignSelf: 'flex-start',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.4rem',
+                        padding: '0.6rem 1rem',
+                        borderRadius: '6px',
+                        border: '1px solid rgba(16, 185, 129, 0.3)',
+                        background: 'white',
+                        color: '#047857',
+                        fontWeight: 600,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Switch to Upload Private Key
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ display: 'grid', gap: '1rem' }}>
+                    <div>
+                      <Label style={{ display: 'block', marginBottom: '0.5rem' }}>Private Key (PEM Format)</Label>
+                      <div style={{ fontSize: '0.85rem', color: '#047857', marginBottom: '0.5rem' }}>
+                        Upload the private key directly to PingOne. Copy the key from below.
+                      </div>
+                      <div style={{ position: 'relative' }}>
+                        <textarea
+                          value={privateKey}
+                          onChange={(event) => handlePrivateKeyInputChange(event.target.value)}
+                          placeholder={'-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC...'}
+                          style={{
+                            width: '100%',
+                            height: '120px',
+                            padding: '1rem',
+                            paddingRight: showPrivateKey ? '6rem' : '4rem',
+                            border: `2px solid ${privateKeyValidationError ? '#f97316' : '#10b981'}`,
+                            borderRadius: '8px',
+                            fontSize: '0.9rem',
+                            fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
+                            resize: 'vertical',
+                            backgroundColor: 'white',
+                            fontWeight: 500,
+                            color: '#065f46'
+                          }}
+                        />
+                        <ToggleSecretButton type="button" onClick={() => setShowPrivateKey(!showPrivateKey)}>
+                          {showPrivateKey ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+                        </ToggleSecretButton>
+                        <CopyPrivateKeyButton type="button" onClick={async () => {
+                          try {
+                            await navigator.clipboard.writeText(privateKey);
+                            showFlowSuccess('🔑 Private Key copied! Paste this into PingOne\'s "Private Key" field.');
+                          } catch (error) {
+                            console.error('Failed to copy private key:', error);
+                            showFlowError('Failed to copy private key to clipboard');
+                          }
+                        }}>
+                          <FiCopy size={16} />
+                        </CopyPrivateKeyButton>
+                      </div>
+                      {privateKeyValidationError && (
+                        <div style={{ color: '#b45309', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+                          {privateKeyValidationError}
+                        </div>
+                      )}
+                      <div style={{
+                        fontSize: '0.875rem',
+                        color: '#047857',
+                        background: 'rgba(16, 185, 129, 0.1)',
+                        padding: '0.75rem',
+                        borderRadius: '6px',
+                        border: '1px solid rgba(16, 185, 129, 0.2)',
+                        marginTop: '0.75rem'
+                      }}>
+                        <strong>💡 PEM Format Requirements:</strong>
+                        <br />
+                        • Must include <code style={{ background: 'rgba(16, 185, 129, 0.2)', padding: '0.1rem 0.3rem', borderRadius: '3px' }}>-----BEGIN PRIVATE KEY-----</code> header
+                        <br />
+                        • Must include <code style={{ background: 'rgba(16, 185, 129, 0.2)', padding: '0.1rem 0.3rem', borderRadius: '3px' }}>-----END PRIVATE KEY-----</code> footer
+                        <br />
+                        • Used for RS256 JWT signing
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleAuthSelectionChange('private_key_jwt_jwks')}
+                      style={{
+                        alignSelf: 'flex-start',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.4rem',
+                        padding: '0.6rem 1rem',
+                        borderRadius: '6px',
+                        border: '1px solid rgba(16, 185, 129, 0.3)',
+                        background: 'white',
+                        color: '#047857',
+                        fontWeight: 600,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Switch to JWKS Endpoint
+                    </button>
                   </div>
                 )}
-                showConfigurationWarning={useJwksEndpoint && clientAuthMethod === 'private_key_jwt' && !privateKey}
-                configurationWarning={(
-                  <div style={{
-                    color: '#a16207',
-                    fontSize: '0.8rem',
-                    lineHeight: '1.4'
-                  }}>
-                    You have selected "Private Key JWT" authentication method with "Use JWKS Endpoint" mode, but no private key is available for signing the JWT assertion.
-                    <br />
-                    <br />
-                    <strong>To fix this:</strong>
-                    <br />
-                    • Switch to "Upload Private Key" mode and generate a private key, OR
-                    <br />
-                    • Change authentication method to "Client Secret Post" or "Client Secret Basic"
-                  </div>
-                )}
-                privateKeyHelper={(
-                  <div>
-                    <strong>💡 PEM Format Requirements:</strong>
-                    <br />
-                    • Must include <code style={{ background: 'rgba(16, 185, 129, 0.2)', padding: '0.1rem 0.3rem', borderRadius: '3px' }}>-----BEGIN PRIVATE KEY-----</code> header
-                    <br />
-                    • Must include <code style={{ background: 'rgba(16, 185, 129, 0.2)', padding: '0.1rem 0.3rem', borderRadius: '3px' }}>-----END PRIVATE KEY-----</code> footer
-                    <br />
-                    • Used for RS256 JWT signing
-                  </div>
-                )}
-              />
               </div>
             </div>
           )}
