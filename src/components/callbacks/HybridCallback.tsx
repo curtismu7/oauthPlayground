@@ -87,22 +87,77 @@ const HybridCallback: React.FC = () => {
         const currentUrl = getValidatedCurrentUrl('HybridCallback');
         logger.info('HybridCallback', 'Processing hybrid flow callback', { url: currentUrl });
         
-        const result = await handleCallback(currentUrl);
-        
-        if (result.success) {
-          setStatus('success');
-          setMessage('Hybrid flow successful! Redirecting...');
-          logger.success('HybridCallback', 'Hybrid flow successful', { redirectUrl: result.redirectUrl });
+        // Parse URL parameters for hybrid flow
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const idToken = urlParams.get('id_token');
+        const state = urlParams.get('state');
+        const error = urlParams.get('error');
+        const errorDescription = urlParams.get('error_description');
+
+        if (error) {
+          setStatus('error');
+          setMessage('Hybrid flow failed');
+          setError(errorDescription || error);
+          logger.error('HybridCallback', 'OAuth error in hybrid callback', { error, errorDescription });
+          return;
+        }
+
+        if (code && idToken) {
+          // Store tokens in sessionStorage for the hybrid flow component to pick up
+          const tokens = {
+            authorization_code: code,
+            id_token: idToken,
+            state: state
+          };
           
-          // Redirect after a short delay
+          sessionStorage.setItem('hybrid_tokens', JSON.stringify(tokens));
+          sessionStorage.setItem('oidc_hybrid_v3_callback_data', JSON.stringify({
+            code,
+            id_token: idToken,
+            state,
+            timestamp: Date.now()
+          }));
+          
+          setStatus('success');
+          setMessage('Hybrid flow successful! Redirecting to flow...');
+          logger.success('HybridCallback', 'Hybrid flow successful, stored tokens', { hasCode: !!code, hasIdToken: !!idToken });
+          
+          // Redirect to the hybrid flow page
           setTimeout(() => {
-            navigate(result.redirectUrl || '/');
+            navigate('/flows/oidc-hybrid-v3');
+          }, 1500);
+        } else if (code) {
+          // Store authorization code only
+          const tokens = {
+            authorization_code: code,
+            state: state
+          };
+          
+          sessionStorage.setItem('hybrid_tokens', JSON.stringify(tokens));
+          sessionStorage.setItem('oidc_hybrid_v3_callback_data', JSON.stringify({
+            code,
+            state,
+            timestamp: Date.now()
+          }));
+          
+          setStatus('success');
+          setMessage('Authorization code received! Redirecting to flow...');
+          logger.success('HybridCallback', 'Authorization code received', { hasCode: !!code });
+          
+          // Redirect to the hybrid flow page
+          setTimeout(() => {
+            navigate('/flows/oidc-hybrid-v3');
           }, 1500);
         } else {
           setStatus('error');
-          setMessage('Hybrid flow failed');
-          setError(result.error || 'Unknown error occurred');
-          logger.error('HybridCallback', 'Hybrid flow failed', { error: result.error });
+          setMessage('No authorization code or ID token found');
+          setError('Expected authorization code and/or ID token in callback URL');
+          logger.error('HybridCallback', 'No code or id_token in hybrid callback', { 
+            hasCode: !!code, 
+            hasIdToken: !!idToken,
+            url: currentUrl 
+          });
         }
       } catch (err) {
         setStatus('error');
@@ -113,7 +168,7 @@ const HybridCallback: React.FC = () => {
     };
 
     processCallback();
-  }, [location.href, handleCallback, navigate]);
+  }, [location.href, navigate]);
 
   const getStatusIcon = () => {
     switch (status) {
