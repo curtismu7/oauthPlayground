@@ -13,6 +13,7 @@ export interface PermanentCredentials {
   userInfoEndpoint?: string;
   endSessionEndpoint?: string;
   tokenAuthMethod?: string;
+  useJwksEndpoint?: boolean;
 }
 
 export interface SessionCredentials {
@@ -21,6 +22,11 @@ export interface SessionCredentials {
 
 export interface AllCredentials extends PermanentCredentials {
   clientSecret: string; // Required in AllCredentials
+}
+
+export interface WorkerFlowCredentials extends PermanentCredentials {
+  privateKey?: string;
+  clientAuthMethod?: string;
 }
 
 export interface DiscoveryPreferences {
@@ -447,13 +453,14 @@ class CredentialManager {
           environmentId: credentials.environmentId || '',
           clientId: credentials.clientId || '',
           clientSecret: credentials.clientSecret || '',
-          redirectUri: credentials.redirectUri || getCallbackUrlForFlow('worker-token-v3'),
-          scopes: credentials.scopes || ['openid'],
+          redirectUri: credentials.redirectUri || getCallbackUrlForFlow('authorization-code'),
+          scopes: credentials.scopes || ['openid', 'profile', 'email'],
           authEndpoint: credentials.authEndpoint,
           tokenEndpoint: credentials.tokenEndpoint,
           userInfoEndpoint: credentials.userInfoEndpoint,
           endSessionEndpoint: credentials.endSessionEndpoint,
-          tokenAuthMethod: credentials.tokenAuthMethod
+          tokenAuthMethod: credentials.tokenAuthMethod,
+          useJwksEndpoint: credentials.useJwksEndpoint
         };
         
         return result;
@@ -462,8 +469,10 @@ class CredentialManager {
           environmentId: '',
           clientId: '',
           clientSecret: '',
-          redirectUri: getCallbackUrlForFlow('worker-token-v3'),
-          scopes: ['openid']
+          redirectUri: getCallbackUrlForFlow('authorization-code'),
+          scopes: ['openid', 'profile', 'email'],
+          tokenAuthMethod: 'client_secret_post',
+          useJwksEndpoint: true
         };
       }
     } catch (error) {
@@ -472,8 +481,10 @@ class CredentialManager {
         environmentId: '',
         clientId: '',
         clientSecret: '',
-        redirectUri: getCallbackUrlForFlow('worker-token-v3'),
-        scopes: ['openid']
+        redirectUri: '',
+        scopes: ['openid'],
+        tokenAuthMethod: 'client_secret_post',
+        useJwksEndpoint: true
       };
     }
   }
@@ -533,8 +544,10 @@ class CredentialManager {
           environmentId: '',
           clientId: '',
           clientSecret: '',
-          redirectUri: getCallbackUrlForFlow('oidc-device-code-v3'),
-          scopes: ['openid', 'profile', 'email']
+          redirectUri: '',
+          scopes: ['openid'],
+          tokenAuthMethod: 'client_secret_post',
+          useJwksEndpoint: true
         };
       }
     } catch (error) {
@@ -543,8 +556,10 @@ class CredentialManager {
         environmentId: '',
         clientId: '',
         clientSecret: '',
-        redirectUri: getCallbackUrlForFlow('oidc-device-code-v3'),
-        scopes: ['openid', 'profile', 'email']
+        redirectUri: '',
+        scopes: ['openid'],
+        tokenAuthMethod: 'client_secret_post',
+        useJwksEndpoint: true
       };
     }
   }
@@ -585,7 +600,7 @@ class CredentialManager {
   /**
    * Generic method to save flow-specific credentials by flow type
    */
-  saveFlowCredentials(flowType: string, credentials: Partial<PermanentCredentials>): boolean {
+  saveFlowCredentials(flowType: string, credentials: Partial<PermanentCredentials> & { clientAuthMethod?: string; privateKey?: string; useJwksEndpoint?: boolean }): boolean {
     switch (flowType.toLowerCase()) {
       case 'authorization-code':
       case 'authz':
