@@ -1674,7 +1674,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
           initialStepIndex={stepManager.currentStepIndex}
           onStepChange={stepManager.setStep}
           autoAdvance={false}
-          showDebugInfo={true}
+          showDebugInfo={false}
           allowStepJumping={true}
           onStepComplete={(stepId, result) => {
             console.log('✅ [OIDC-IMPLICIT-V3] Step completed:', stepId, result);

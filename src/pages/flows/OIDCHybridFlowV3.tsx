@@ -976,6 +976,7 @@ const OIDCHybridFlowV3: React.FC = () => {
           stepManager={stepManager}
           flowId="oidc_hybrid_v3"
           flowTitle="OIDC Hybrid Flow V3"
+          showDebugInfo={false}
           onStepComplete={(stepId, result) => {
             logger.info('OIDCHybridV3', `✅ Step completed: ${stepId}`, result);
             setStepResults(prev => ({ ...prev, [stepId]: result }));

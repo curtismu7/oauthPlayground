@@ -917,6 +917,7 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
           flowType="oauth-authorization-code"
           showStepNumbers={true}
           enableStepNavigation={true}
+          showDebugInfo={false}
         />
 
         {/* Flow Control Actions */}
