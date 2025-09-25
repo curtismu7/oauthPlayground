@@ -728,8 +728,6 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
       </DemoSection>
       
       {/* Centralized Success/Error Messages */}
-      <CentralizedSuccessMessage position="top" />
-      <CentralizedSuccessMessage position="bottom" />
     </Container>
   );
 };
