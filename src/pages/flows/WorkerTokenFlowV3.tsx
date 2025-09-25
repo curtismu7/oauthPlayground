@@ -1100,6 +1100,7 @@ Perfect for:
             </div>
           </CollapsibleSection>
 
+          <form onSubmit={(e) => e.preventDefault()}>
           <FormField>
             <FormLabel>Environment ID *</FormLabel>
             <FormInput
@@ -2410,6 +2411,7 @@ Perfect for:
           </div>
         </div>
       </CollapsibleSection>
+      </form>
 
       <EnhancedStepFlowV2
         steps={steps}
