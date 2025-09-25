@@ -1490,9 +1490,11 @@ Perfect for:
                 </div>
               </div>
 
-              <div key={`jwks-mode-${useJwksEndpoint ? 'endpoint' : 'private'}-${resetKey}`}>
-                {console.log('🎨 [WorkerTokenV3] RENDERING CONDITIONAL:', { useJwksEndpoint, resetKey, timestamp: Date.now() })}
-                {useJwksEndpoint ? (
+              <div key={`jwks-mode-${useJwksEndpoint}-${resetKey}`}>
+                {(() => {
+                  console.log('🎨 [WorkerTokenV3] RENDERING CONDITIONAL:', { useJwksEndpoint, resetKey, timestamp: Date.now() });
+                  return useJwksEndpoint;
+                })() ? (
                   <div style={{ display: 'grid', gap: '1rem' }}>
                     <div style={{
                       background: 'rgba(16, 185, 129, 0.1)',
