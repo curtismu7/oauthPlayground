@@ -54,12 +54,8 @@ class DiscoveryService {
         };
       }
 
-      // Use backend proxy to avoid CORS issues
-      const backendUrl = process.env.NODE_ENV === 'production' 
-        ? 'https://oauth-playground.vercel.app' 
-        : 'http://localhost:3001';
-      
-      const discoveryUrl = `${backendUrl}/api/discovery?environment_id=${environmentId}&region=${region}`;
+      // Use relative URL to go through Vite proxy (avoids certificate issues)
+      const discoveryUrl = `/api/discovery?environment_id=${environmentId}&region=${region}`;
 
       logger.discovery('DiscoveryService', 'Fetching configuration via backend proxy', { discoveryUrl });
 

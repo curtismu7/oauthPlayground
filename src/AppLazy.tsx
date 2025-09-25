@@ -13,7 +13,6 @@ const Sidebar = React.lazy(() => import('./components/Sidebar'));
 const CredentialSetupModal = React.lazy(() => import('./components/CredentialSetupModal'));
 const AuthorizationRequestModal = React.lazy(() => import('./components/AuthorizationRequestModal'));
 const PageChangeSpinner = React.lazy(() => import('./components/PageChangeSpinner'));
-const DebugPanel = React.lazy(() => import('./components/DebugPanel'));
 
 // Lazy load pages
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -432,9 +431,6 @@ const AppRoutes = () => {
         />
       </LazyRouteWrapper>
       
-      <LazyRouteWrapper fallbackMessage="Loading debug panel...">
-        <DebugPanel />
-      </LazyRouteWrapper>
     </>
   );
 };

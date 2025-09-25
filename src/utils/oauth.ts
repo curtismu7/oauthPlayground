@@ -510,6 +510,9 @@ export const exchangeCodeForTokens = async ({
  */
 const getJWKS = (issuer: string) => {
   // For PingOne, JWKS is typically at /as/jwks
+  if (!issuer) {
+    throw new Error('Issuer URL is required for JWKS retrieval');
+  }
   const jwksUrl = `${issuer.replace(/\/$/, '')}/as/jwks`;
   return createRemoteJWKSet(new URL(jwksUrl));
 };

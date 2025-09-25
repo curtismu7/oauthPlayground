@@ -68,12 +68,8 @@ class DeviceFlowService {
     request: DeviceAuthorizationRequest
   ): Promise<DeviceAuthorizationResponse> {
     try {
-      // Use backend proxy to avoid CORS issues
-      const backendUrl = process.env.NODE_ENV === 'production' 
-        ? 'https://oauth-playground.vercel.app' 
-        : 'http://localhost:3001';
-      
-      const deviceEndpoint = `${backendUrl}/api/device-authorization`;
+      // Use relative URL to go through Vite proxy (avoids certificate issues)
+      const deviceEndpoint = '/api/device-authorization';
       
       logger.info('DeviceFlowService', 'Starting device authorization flow', {
         environmentId,
