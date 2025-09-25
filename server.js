@@ -393,10 +393,14 @@ app.post('/api/introspect-token', async (req, res) => {
       }
       introspectionBody.append('client_secret', client_secret);
     } else if (authMethod === 'client_secret_jwt' || authMethod === 'private_key_jwt') {
-      if (client_assertion_type) {
-        introspectionBody.append('client_assertion_type', client_assertion_type);
-        // For now, fall back to client_secret_post for JWT methods
-        // In a full implementation, we'd generate the JWT assertion here
+      const { client_assertion_type: assertionType, client_assertion } = req.body;
+      
+      if (assertionType && client_assertion) {
+        console.log(`[Introspect Token] Using JWT assertion for ${authMethod}`);
+        introspectionBody.append('client_assertion_type', assertionType);
+        introspectionBody.append('client_assertion', client_assertion);
+      } else {
+        console.log(`[Introspect Token] Missing JWT assertion, falling back to client_secret for ${authMethod}`);
         if (client_secret) {
           introspectionBody.append('client_secret', client_secret);
         }
