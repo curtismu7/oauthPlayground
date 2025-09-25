@@ -34,6 +34,7 @@ import ContextualHelp from '../../components/ContextualHelp';
 import ConfigurationStatus from '../../components/ConfigurationStatus';
 import { useAuth } from '../../contexts/NewAuthContext';
 import ColorCodedURL from '../../components/ColorCodedURL';
+import { applyClientAuthentication, getAuthMethodSecurityLevel, type ClientAuthMethod } from '../../utils/clientAuthentication';
 import '../../styles/enhanced-flow.css';
 
 // Styled Components for Enhanced UI
@@ -542,7 +543,8 @@ const AuthorizationCodeFlow: React.FC = () => {
     redirectUri: window.location.origin + '/authz-callback',
     scopes: 'openid profile email',
     responseType: 'code',
-    codeChallengeMethod: 'S256'
+    codeChallengeMethod: 'S256',
+    clientAuthMethod: 'client_secret_post' as ClientAuthMethod
   });
 
   const [pkceCodes, setPkceCodes] = useState({
@@ -608,7 +610,8 @@ const AuthorizationCodeFlow: React.FC = () => {
           scopes: Array.isArray(allCredentials.scopes) ? allCredentials.scopes.join(' ') : allCredentials.scopes || prev.scopes,
           authorizationEndpoint: allCredentials.authEndpoint || prev.authorizationEndpoint,
           tokenEndpoint: allCredentials.tokenEndpoint || prev.tokenEndpoint,
-          userInfoEndpoint: allCredentials.userInfoEndpoint || prev.userInfoEndpoint
+          userInfoEndpoint: allCredentials.userInfoEndpoint || prev.userInfoEndpoint,
+          clientAuthMethod: allCredentials.tokenAuthMethod || prev.clientAuthMethod
         }));
         
         logger.info('Loaded credentials from credential manager', JSON.stringify({
@@ -642,7 +645,8 @@ const AuthorizationCodeFlow: React.FC = () => {
             scopes: Array.isArray(allCredentials.scopes) ? allCredentials.scopes.join(' ') : allCredentials.scopes || prev.scopes,
             authorizationEndpoint: allCredentials.authEndpoint || prev.authorizationEndpoint,
             tokenEndpoint: allCredentials.tokenEndpoint || prev.tokenEndpoint,
-            userInfoEndpoint: allCredentials.userInfoEndpoint || prev.userInfoEndpoint
+            userInfoEndpoint: allCredentials.userInfoEndpoint || prev.userInfoEndpoint,
+            clientAuthMethod: allCredentials.tokenAuthMethod || prev.clientAuthMethod
           }));
         } catch (error) {
           logger.warn('Failed to reload credentials from credential manager', String(error));
@@ -671,7 +675,8 @@ const AuthorizationCodeFlow: React.FC = () => {
         scopes: credentials.scopes.split(' ').filter(s => s.trim()),
         authEndpoint: credentials.authorizationEndpoint,
         tokenEndpoint: credentials.tokenEndpoint,
-        userInfoEndpoint: credentials.userInfoEndpoint
+        userInfoEndpoint: credentials.userInfoEndpoint,
+        tokenAuthMethod: credentials.clientAuthMethod
       };
       
       console.log('🔧 [AuthorizationCodeFlow] Saving permanent credentials:', permanentCreds);
@@ -719,7 +724,8 @@ const AuthorizationCodeFlow: React.FC = () => {
         scopes: Array.isArray(allCredentials.scopes) ? allCredentials.scopes.join(' ') : allCredentials.scopes || prev.scopes,
         authorizationEndpoint: allCredentials.authEndpoint || prev.authorizationEndpoint,
         tokenEndpoint: allCredentials.tokenEndpoint || prev.tokenEndpoint,
-        userInfoEndpoint: allCredentials.userInfoEndpoint || prev.userInfoEndpoint
+        userInfoEndpoint: allCredentials.userInfoEndpoint || prev.userInfoEndpoint,
+        clientAuthMethod: allCredentials.tokenAuthMethod || prev.clientAuthMethod
       }));
       
       console.log('✅ [AuthorizationCodeFlow] Credentials loaded successfully');
@@ -846,19 +852,38 @@ const AuthorizationCodeFlow: React.FC = () => {
   const exchangeCodeForTokens = useCallback(async () => {
     try {
       setIsExchangingTokens(true);
+      
+      console.log('🔐 [AuthorizationCodeFlow] Using client authentication method:', credentials.clientAuthMethod);
+      
+      // Prepare base request body
+      const baseBody = new URLSearchParams({
+        grant_type: 'authorization_code',
+        code: authCode,
+        redirect_uri: credentials.redirectUri,
+        code_verifier: pkceCodes.codeVerifier,
+      });
+      
+      // Apply client authentication method
+      const authConfig = {
+        method: credentials.clientAuthMethod,
+        clientId: credentials.clientId,
+        clientSecret: credentials.clientSecret,
+        tokenEndpoint: credentials.tokenEndpoint
+      };
+      
+      const authenticatedRequest = await applyClientAuthentication(authConfig, baseBody);
+      
+      console.log('🔍 [AuthorizationCodeFlow] Token exchange request:', {
+        endpoint: credentials.tokenEndpoint,
+        authMethod: credentials.clientAuthMethod,
+        headers: authenticatedRequest.headers,
+        bodyEntries: Array.from(authenticatedRequest.body.entries())
+      });
+
       const response = await fetch(credentials.tokenEndpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          grant_type: 'authorization_code',
-          code: authCode,
-          redirect_uri: credentials.redirectUri,
-          client_id: credentials.clientId,
-          code_verifier: pkceCodes.codeVerifier,
-          ...(credentials.clientSecret && { client_secret: credentials.clientSecret })
-        })
+        headers: authenticatedRequest.headers,
+        body: authenticatedRequest.body
       });
 
       if (!response.ok) {
@@ -1162,6 +1187,24 @@ const AuthorizationCodeFlow: React.FC = () => {
               onChange={(e) => setCredentials(prev => ({ ...prev, scopes: e.target.value }))}
               placeholder="openid profile email"
             />
+          </FormField>
+
+          <FormField>
+            <FormLabel>Token Endpoint Authentication Method</FormLabel>
+            <FormSelect
+              value={credentials.clientAuthMethod}
+              onChange={(e) => setCredentials(prev => ({ ...prev, clientAuthMethod: e.target.value as ClientAuthMethod }))}
+            >
+              <option value="client_secret_post">Client Secret Post (Default)</option>
+              <option value="client_secret_basic">Client Secret Basic</option>
+              <option value="client_secret_jwt">Client Secret JWT (HS256)</option>
+              <option value="private_key_jwt">Private Key JWT (RS256)</option>
+              <option value="none">None (PKCE Only)</option>
+            </FormSelect>
+            <ValidationIndicator $valid={true}>
+              <FiInfo />
+              {getAuthMethodSecurityLevel(credentials.clientAuthMethod).description}
+            </ValidationIndicator>
           </FormField>
 
           <FormField>
