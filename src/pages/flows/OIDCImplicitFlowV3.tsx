@@ -547,10 +547,10 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 		"id_token" | "id_token token"
 	>("id_token token");
 	const [authUrl, setAuthUrl] = useState("");
-	const [tokens, setTokens] = useState<Record<string, unknown> | null>(null);
 	const [userInfo, setUserInfo] = useState<Record<string, unknown> | null>(
 		null,
 	);
+	const [tokens, setTokens] = useState<Record<string, unknown> | null>(null);
 	const [isRedirecting, setIsRedirecting] = useState(false);
 	const [isGettingUserInfo, setIsGettingUserInfo] = useState(false);
 	const [showClearCredentialsModal, setShowClearCredentialsModal] =
