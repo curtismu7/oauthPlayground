@@ -315,6 +315,7 @@ const OIDCClientCredentialsFlowV3: React.FC<OIDCClientCredentialsFlowV3Props> = 
 
   const [tokens, setTokens] = useState<OIDCClientCredentialsTokens | null>(null);
   const [isRequestingToken, setIsRequestingToken] = useState(false);
+  const [isSavingCredentials, setIsSavingCredentials] = useState(false);
   const [showClearCredentialsModal, setShowClearCredentialsModal] = useState(false);
   const [isClearingCredentials, setIsClearingCredentials] = useState(false);
   const [showEducationalContent, setShowEducationalContent] = useState(true);
@@ -449,10 +450,11 @@ const OIDCClientCredentialsFlowV3: React.FC<OIDCClientCredentialsFlowV3Props> = 
         grant_type: 'client_credentials'
       });
       
-      // Only add scope if it's not empty
-      if (credentials.scope && credentials.scope.trim()) {
-        baseBody.append('scope', credentials.scope);
-      }
+      // Always add scope - PingOne requires at least one scope
+      const scopeToUse = credentials.scope && credentials.scope.trim() ? credentials.scope : 'openid';
+      baseBody.append('scope', scopeToUse);
+      
+      console.log('🔍 [OIDC-CC-V3] Using scope:', scopeToUse, 'from credentials.scope:', credentials.scope);
 
       if (credentials.audience) {
         baseBody.append('audience', credentials.audience);
@@ -566,7 +568,7 @@ const OIDCClientCredentialsFlowV3: React.FC<OIDCClientCredentialsFlowV3Props> = 
       icon: <FiSettings />,
       category: 'preparation' as const,
       content: (
-        <div>
+        <form>
           <SecurityWarning>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
               <FiShield />
@@ -733,7 +735,7 @@ const OIDCClientCredentialsFlowV3: React.FC<OIDCClientCredentialsFlowV3Props> = 
               </div>
             </FormField>
           </CredentialsSection>
-        </div>
+        </form>
       ),
       execute: saveCredentials,
       canExecute: Boolean(credentials.environmentId && credentials.clientId && credentials.clientSecret),

@@ -49,6 +49,7 @@ import TokenManagement from './pages/TokenManagement';
 import AutoDiscover from './pages/AutoDiscover';
 import AIOpenIDConnectOverview from './pages/AIOpenIDConnectOverview';
 import JWKSTroubleshooting from './pages/JWKSTroubleshooting';
+import URLDecoder from './pages/URLDecoder';
 import AdvancedConfiguration from './pages/AdvancedConfiguration';
 import InteractiveTutorials from './pages/InteractiveTutorials';
 import OAuth21 from './pages/OAuth21';
@@ -303,6 +304,7 @@ const AppRoutes = () => {
             <Route path="/auto-discover" element={<AutoDiscover />} />
             <Route path="/token-management" element={<TokenManagement />} />
             <Route path="/jwks-troubleshooting" element={<JWKSTroubleshooting />} />
+            <Route path="/url-decoder" element={<URLDecoder />} />
 
             <Route path="/ai-overview" element={<AIOpenIDConnectOverview />} />
 

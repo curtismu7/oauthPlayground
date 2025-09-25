@@ -1089,7 +1089,7 @@ const Configuration = () => {
       <CollapsibleSection
         title="Global Configuration"
         subtitle="Default credentials used by all flows (unless overridden)"
-        defaultCollapsed={false}
+        defaultCollapsed={true}
       >
           <form 
             onSubmit={(e) => {
@@ -1751,8 +1751,6 @@ const Configuration = () => {
       )}
 
       {/* Centralized Success/Error Messages */}
-      <CentralizedSuccessMessage position="top" />
-      <CentralizedSuccessMessage position="bottom" />
     </ConfigurationContainer>
   );
 };

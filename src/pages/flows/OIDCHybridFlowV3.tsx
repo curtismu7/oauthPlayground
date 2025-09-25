@@ -7,6 +7,8 @@ import {
 	FiCode,
 	FiCopy,
 	FiExternalLink,
+	FiEye,
+	FiEyeOff,
 	FiGlobe,
 	FiInfo,
 	FiKey,
@@ -44,6 +46,7 @@ import { copyToClipboard } from "../../utils/clipboard";
 import { credentialManager } from "../../utils/credentialManager";
 import { useFlowStepManager } from "../../utils/flowStepSystem";
 import { logger } from "../../utils/logger";
+import { trackFlowCompletion } from "../../utils/flowCredentialChecker";
 import {
 	generateCodeChallenge,
 	generateCodeVerifier,
@@ -192,6 +195,70 @@ const ParameterValue = styled.span`
   white-space: nowrap;
 `;
 
+const FlowControlSection = styled.div`
+  padding: 2rem;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+`;
+
+const FlowControlTitle = styled.h3`
+  margin: 0 0 1.5rem 0;
+  color: #374151;
+  font-size: 1.1rem;
+  font-weight: 600;
+`;
+
+const FlowControlButtons = styled.div`
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: center;
+`;
+
+const FlowControlButton = styled.button<{ className?: string }>`
+  padding: 0.75rem 1.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  &.clear {
+    background: #fef3c7;
+    border-color: #f59e0b;
+    color: #92400e;
+    
+    &:hover {
+      background: #fde68a;
+    }
+  }
+  
+  &.reset {
+    background: #fee2e2;
+    border-color: #ef4444;
+    color: #991b1b;
+    
+    &:hover {
+      background: #fecaca;
+    }
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
 // Types
 interface OIDCHybridCredentials {
 	environmentId: string;
@@ -253,6 +320,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 	const [isRequestingAuthorization, setIsRequestingAuthorization] =
 		useState(false);
 	const [showParameterBreakdown, setShowParameterBreakdown] = useState(false);
+	const [showClientSecret, setShowClientSecret] = useState(false);
 	const [_copiedText, _setCopiedText] = useState<string | null>(null);
 	const [_stepResults, setStepResults] = useState<Record<string, unknown>>({});
 	const [authorizationMethod, setAuthorizationMethod] = useState<
@@ -261,12 +329,54 @@ const OIDCHybridFlowV3: React.FC = () => {
 	const [showDefaultRedirectUriModal, setShowDefaultRedirectUriModal] =
 		useState(false);
 	const [defaultRedirectUri, setDefaultRedirectUri] = useState("");
+	const [showClearCredentialsModal, setShowClearCredentialsModal] = useState(false);
+	const [isClearingCredentials, setIsClearingCredentials] = useState(false);
+	const [isResettingFlow, setIsResettingFlow] = useState(false);
 
 	// Handle callback return with authorization code and ID token
 	useEffect(() => {
 		const handleCallbackReturn = () => {
 			try {
-				// Check for authorization code in URL parameters
+				// First check sessionStorage for callback data from HybridCallback component
+				const callbackData = sessionStorage.getItem('oidc_hybrid_v3_callback_data');
+				if (callbackData) {
+					const parsed = JSON.parse(callbackData);
+					const { code, id_token, state } = parsed;
+					
+					console.log("🔑 [OIDC-HYBRID-V3] Found callback data in sessionStorage:", {
+						hasCode: !!code,
+						hasIdToken: !!id_token,
+						timestamp: parsed.timestamp
+					});
+
+					if (code && id_token) {
+						setAuthorizationCode(code);
+						setTokens((prev) => ({
+							...prev,
+							id_token: id_token,
+						}));
+
+						// Auto-advance to step 3 (display hybrid flow results)
+						stepManager.setStep(2, "callback return with hybrid flow results");
+						console.log("🔄 [OIDC-HYBRID-V3] Auto-advancing to step 3 after sessionStorage callback");
+
+						showFlowSuccess(
+							"🎉 Hybrid Flow Successful!",
+							"Received both authorization code and ID token simultaneously. You can now exchange the code for access token.",
+						);
+					} else if (code) {
+						setAuthorizationCode(code);
+						stepManager.setStep(2, "callback return with authorization code only");
+						showFlowSuccess("🎉 Authorization Code Received", "Authorization code received from callback.");
+					}
+
+					// Clean up sessionStorage
+					sessionStorage.removeItem('oidc_hybrid_v3_callback_data');
+					sessionStorage.removeItem('hybrid_tokens');
+					return;
+				}
+
+				// Fallback: Check for authorization code in URL parameters
 				const urlParams = new URLSearchParams(window.location.search);
 				const code = urlParams.get("code");
 				const idToken = urlParams.get("id_token");
@@ -527,6 +637,8 @@ const OIDCHybridFlowV3: React.FC = () => {
 			);
 		}
 
+		console.log("🔍 [OIDC-HYBRID-V3] Building authorization URL with redirect URI:", credentials.redirectUri);
+
 		const baseUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
 		const params = new URLSearchParams({
 			client_id: credentials.clientId,
@@ -545,11 +657,36 @@ const OIDCHybridFlowV3: React.FC = () => {
 		const url = `${baseUrl}?${params.toString()}`;
 		setAuthorizationUrl(url);
 
+		// Enhanced debugging for PingOne URL
+		console.log("🚀 [OIDC-HYBRID-V3] COMPLETE PINGONE AUTHORIZATION URL:");
+		console.log("=" .repeat(80));
+		console.log(url);
+		console.log("=" .repeat(80));
+		
+		console.log("🔍 [OIDC-HYBRID-V3] URL BREAKDOWN:");
+		console.log("Base URL:", baseUrl);
+		console.log("Query Parameters:");
+		for (const [key, value] of params.entries()) {
+			console.log(`  ${key}: ${value}`);
+		}
+		
+		console.log("🔍 [OIDC-HYBRID-V3] PARAMETER VALIDATION:");
+		console.log("  Environment ID:", credentials.environmentId);
+		console.log("  Client ID:", credentials.clientId);
+		console.log("  Redirect URI:", credentials.redirectUri);
+		console.log("  Response Type:", credentials.responseType, "(should be 'code id_token' for hybrid flow)");
+		console.log("  Scopes:", credentials.scopes);
+		console.log("  State:", credentials.state, "(length:", credentials.state?.length, ")");
+		console.log("  Nonce:", credentials.nonce, "(length:", credentials.nonce?.length, ")");
+		console.log("  Code Challenge:", credentials.codeChallenge ? `${credentials.codeChallenge.substring(0, 20)}...` : "NONE");
+		console.log("  Code Challenge Method:", credentials.codeChallengeMethod);
+
 		logger.info("OIDCHybridV3", "🔗 Built authorization URL", {
 			baseUrl,
 			responseType: credentials.responseType,
 			scopes: credentials.scopes,
 			hasPKCE: !!credentials.codeChallenge,
+			fullUrl: url,
 		});
 
 		showFlowSuccess(
@@ -602,6 +739,31 @@ const OIDCHybridFlowV3: React.FC = () => {
 				method: authorizationMethod,
 				responseType: credentials.responseType,
 			});
+
+			// Enhanced debugging before sending to PingOne
+			console.log("🎯 [OIDC-HYBRID-V3] SENDING TO PINGONE:");
+			console.log("=" .repeat(80));
+			console.log("Authorization Method:", authorizationMethod);
+			console.log("Full URL being sent to PingOne:");
+			console.log(authorizationUrl);
+			console.log("=" .repeat(80));
+			
+			// Parse and display the URL components one more time for verification
+			try {
+				const urlObj = new URL(authorizationUrl);
+				console.log("🔍 [OIDC-HYBRID-V3] URL VERIFICATION:");
+				console.log("  Protocol:", urlObj.protocol);
+				console.log("  Host:", urlObj.host);
+				console.log("  Pathname:", urlObj.pathname);
+				console.log("  Search Params:");
+				const searchParams = new URLSearchParams(urlObj.search);
+				for (const [key, value] of searchParams.entries()) {
+					console.log(`    ${key}: ${value}`);
+				}
+				console.log("  Total URL Length:", authorizationUrl.length, "characters");
+			} catch (error) {
+				console.error("❌ [OIDC-HYBRID-V3] Failed to parse URL for verification:", error);
+			}
 
 			if (authorizationMethod === "popup") {
 				// Open authorization window
@@ -742,6 +904,10 @@ const OIDCHybridFlowV3: React.FC = () => {
 			};
 
 			setTokens(hybridTokens);
+			
+			// Track flow completion for dashboard status
+			trackFlowCompletion('oidc-hybrid-v3');
+			
 			showFlowSuccess(
 				"🎉 Hybrid Flow Token Exchange Successful!",
 				"Authorization code exchanged for access and refresh tokens. Now we have both ID token (from hybrid flow) and access token (from exchange) for complete functionality.",
@@ -813,6 +979,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 
 	// Reset flow
 	const resetFlow = useCallback(async () => {
+		setIsResettingFlow(true);
 		try {
 			// Clear tokens and authorization URL
 			setTokens(null);
@@ -834,13 +1001,53 @@ const OIDCHybridFlowV3: React.FC = () => {
 				"Flow has been reset successfully. Ready to start over.",
 			);
 
-			return { success: true };
-		} catch (error) {
-			logger.error("OIDCHybridV3", "Failed to reset flow", error);
-			showFlowError("Failed to reset flow. Please try again.");
-			throw error;
-		}
-	}, [stepManager, scrollToTopAfterAction, generateSecurityParameters]);
+		return { success: true };
+	} catch (error) {
+		logger.error("OIDCHybridV3", "Failed to reset flow", error);
+		showFlowError("Failed to reset flow. Please try again.");
+		throw error;
+	} finally {
+		setIsResettingFlow(false);
+	}
+}, [stepManager, scrollToTopAfterAction, generateSecurityParameters]);
+
+// Clear credentials
+const clearCredentials = useCallback(async () => {
+	setIsClearingCredentials(true);
+	try {
+		// Clear credentials from storage
+		credentialManager.clearFlowCredentials("oidc-hybrid-v3");
+		
+		// Reset form to default values
+		setCredentials({
+			environmentId: "",
+			clientId: "",
+			clientSecret: "",
+			redirectUri: "",
+			scopes: "openid",
+			responseType: "code id_token",
+			tokenAuthMethod: "client_secret_post",
+			state: "",
+			nonce: "",
+			codeChallenge: "",
+			codeChallengeMethod: "S256",
+		});
+		
+		// Close modal
+		setShowClearCredentialsModal(false);
+		
+		// Show success message
+		showFlowSuccess(
+			"🧹 Credentials Cleared",
+			"All saved credentials have been cleared successfully."
+		);
+	} catch (error) {
+		logger.error("OIDCHybridV3", "Failed to clear credentials", error);
+		showFlowError("Failed to clear credentials. Please try again.");
+	} finally {
+		setIsClearingCredentials(false);
+	}
+}, []);
 
 	// Define flow steps
 	const steps = useMemo(
@@ -913,17 +1120,74 @@ const OIDCHybridFlowV3: React.FC = () => {
 
 						<FormField>
 							<FormLabel>Client Secret</FormLabel>
-							<FormInput
-								type="password"
-								value={credentials.clientSecret}
+							<div style={{ position: 'relative' }}>
+								<FormInput
+									type={showClientSecret ? 'text' : 'password'}
+									value={credentials.clientSecret}
+									onChange={(e) =>
+										setCredentials((prev) => ({
+											...prev,
+											clientSecret: e.target.value,
+										}))
+									}
+									placeholder="Enter your client secret"
+									style={{
+										paddingRight: '2.5rem'
+									}}
+								/>
+								<button
+									type="button"
+									onClick={() => setShowClientSecret(!showClientSecret)}
+									style={{
+										position: 'absolute',
+										right: '0.75rem',
+										top: '50%',
+										transform: 'translateY(-50%)',
+										background: 'none',
+										border: 'none',
+										cursor: 'pointer',
+										color: '#6b7280',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+										padding: '0.25rem'
+									}}
+								>
+									{showClientSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+								</button>
+							</div>
+						</FormField>
+
+						<FormField>
+							<FormLabel>Token Endpoint Authentication Method</FormLabel>
+							<FormSelect
+								value={credentials.clientAuthMethod}
 								onChange={(e) =>
 									setCredentials((prev) => ({
 										...prev,
-										clientSecret: e.target.value,
+										clientAuthMethod: e.target.value,
 									}))
 								}
-								placeholder="Enter your client secret"
-							/>
+							>
+								<option value="client_secret_post">Client Secret Post</option>
+								<option value="client_secret_basic">Client Secret Basic</option>
+								<option value="client_secret_jwt">Client Secret JWT</option>
+								<option value="private_key_jwt">Private Key JWT</option>
+								<option value="none">None</option>
+							</FormSelect>
+							<div
+								style={{
+									fontSize: "0.875rem",
+									color: "#6b7280",
+									marginTop: "0.25rem",
+								}}
+							>
+								Security Level:{" "}
+								{(() => {
+									const securityInfo = getAuthMethodSecurityLevel(credentials.clientAuthMethod);
+									return `${securityInfo.icon} ${securityInfo.description}`;
+								})()}
+							</div>
 						</FormField>
 
 						<FormField>
@@ -957,38 +1221,8 @@ const OIDCHybridFlowV3: React.FC = () => {
 						</FormField>
 
 						<FormField>
-							<FormLabel>Token Endpoint Authentication Method</FormLabel>
-							<FormSelect
-								value={credentials.clientAuthMethod}
-								onChange={(e) =>
-									setCredentials((prev) => ({
-										...prev,
-										clientAuthMethod: e.target.value,
-									}))
-								}
-							>
-								<option value="client_secret_post">Client Secret Post</option>
-								<option value="client_secret_basic">Client Secret Basic</option>
-								<option value="client_secret_jwt">Client Secret JWT</option>
-								<option value="private_key_jwt">Private Key JWT</option>
-								<option value="none">None</option>
-							</FormSelect>
-							<div
-								style={{
-									fontSize: "0.875rem",
-									color: "#6b7280",
-									marginTop: "0.25rem",
-								}}
-							>
-								Security Level:{" "}
-								{getAuthMethodSecurityLevel(credentials.clientAuthMethod)}
-							</div>
-						</FormField>
-
-						<FormField>
 							<FormLabel>Response Type</FormLabel>
-							<FormInput
-								type="text"
+							<FormSelect
 								value={credentials.responseType}
 								onChange={(e) =>
 									setCredentials((prev) => ({
@@ -996,8 +1230,16 @@ const OIDCHybridFlowV3: React.FC = () => {
 										responseType: e.target.value,
 									}))
 								}
-								placeholder="code id_token"
-							/>
+							>
+								<option value="code id_token">code id_token (Hybrid Flow)</option>
+								<option value="code">code (Authorization Code Flow)</option>
+							</FormSelect>
+							<div style={{ fontSize: "0.875rem", color: "#6b7280", marginTop: "0.25rem" }}>
+								{credentials.responseType === "code id_token" 
+									? "🎯 Hybrid Flow: Returns both authorization code and ID token simultaneously"
+									: "🔐 Authorization Code: Returns only authorization code for secure token exchange"
+								}
+							</div>
 						</FormField>
 
 						<div style={{ marginTop: "1.5rem" }}>
@@ -1047,14 +1289,93 @@ const OIDCHybridFlowV3: React.FC = () => {
 									}}
 								>
 									<FiGlobe />
-									Authorization URL Construction
+									OIDC Hybrid Flow Authorization URL Construction
 								</h4>
 								<p style={{ margin: "0 0 1rem 0", color: "#1e40af" }}>
-									This step generates security parameters (PKCE, state, nonce)
-									and constructs the complete authorization URL.
+									This step constructs the authorization URL for the OIDC Hybrid Flow, which requests both an <strong>authorization code</strong> and <strong>ID token</strong> simultaneously.
+								</p>
+								<p style={{ margin: "0 0 1rem 0", color: "#1e40af" }}>
+									The hybrid flow combines the security of authorization code flow with immediate access to user identity information through the ID token.
 								</p>
 							</div>
 						</InfoBox>
+
+						{/* Security Parameters Explanation */}
+						<div style={{ 
+							marginBottom: "1.5rem", 
+							padding: "1rem", 
+							backgroundColor: "#f0fdf4", 
+							border: "1px solid #bbf7d0", 
+							borderRadius: "8px" 
+						}}>
+							<h4 style={{ 
+								margin: "0 0 1rem 0", 
+								color: "#166534", 
+								display: "flex", 
+								alignItems: "center", 
+								gap: "0.5rem" 
+							}}>
+								<FiShield />
+								Security Parameters Generated
+							</h4>
+							<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+								<div>
+									<h5 style={{ margin: "0 0 0.5rem 0", color: "#166534", fontSize: "0.875rem" }}>
+										🔐 PKCE (Proof Key for Code Exchange)
+									</h5>
+									<p style={{ margin: "0 0 0.5rem 0", fontSize: "0.8rem", color: "#166534" }}>
+										<strong>Code Verifier:</strong> Cryptographically random string (43-128 characters)
+									</p>
+									<p style={{ margin: "0", fontSize: "0.8rem", color: "#166534" }}>
+										<strong>Code Challenge:</strong> SHA256 hash of the verifier, Base64URL encoded
+									</p>
+								</div>
+								<div>
+									<h5 style={{ margin: "0 0 0.5rem 0", color: "#166534", fontSize: "0.875rem" }}>
+										🛡️ Additional Security
+									</h5>
+									<p style={{ margin: "0 0 0.5rem 0", fontSize: "0.8rem", color: "#166534" }}>
+										<strong>State:</strong> Random string to prevent CSRF attacks
+									</p>
+									<p style={{ margin: "0", fontSize: "0.8rem", color: "#166534" }}>
+										<strong>Nonce:</strong> Random string to prevent replay attacks in ID token
+									</p>
+								</div>
+							</div>
+						</div>
+
+						{/* Hybrid Flow Response Type Explanation */}
+						<div style={{ 
+							marginBottom: "1.5rem", 
+							padding: "1rem", 
+							backgroundColor: "#fefce8", 
+							border: "1px solid #fde047", 
+							borderRadius: "8px" 
+						}}>
+							<h4 style={{ 
+								margin: "0 0 1rem 0", 
+								color: "#a16207", 
+								display: "flex", 
+								alignItems: "center", 
+								gap: "0.5rem" 
+							}}>
+								<FiCode />
+								Hybrid Flow Response Type
+							</h4>
+							<p style={{ margin: "0 0 0.5rem 0", fontSize: "0.875rem", color: "#a16207" }}>
+								<strong>Response Type:</strong> <code>code id_token</code>
+							</p>
+							<p style={{ margin: "0 0 0.5rem 0", fontSize: "0.875rem", color: "#a16207" }}>
+								This tells the authorization server to return both:
+							</p>
+							<ul style={{ margin: "0 0 0.5rem 0", paddingLeft: "1.5rem", fontSize: "0.875rem", color: "#a16207" }}>
+								<li><strong>Authorization Code:</strong> For secure server-side token exchange</li>
+								<li><strong>ID Token:</strong> For immediate user identity information</li>
+							</ul>
+							<p style={{ margin: "0", fontSize: "0.875rem", color: "#a16207" }}>
+								<strong>Benefits:</strong> Immediate user info + secure token exchange + enhanced security
+							</p>
+						</div>
 
 						<div style={{ marginBottom: "1.5rem" }}>
 							<Button
@@ -1266,16 +1587,6 @@ const OIDCHybridFlowV3: React.FC = () => {
 							</div>
 						</div>
 
-						{/* Test Button */}
-						<div style={{ marginBottom: "1.5rem" }}>
-							<Button
-								variant="danger"
-								onClick={() => alert("TEST BUTTON WORKS!")}
-								style={{ marginBottom: "1rem" }}
-							>
-								🧪 TEST BUTTON
-							</Button>
-						</div>
 
 						{/* Authorization Methods Section */}
 						<div style={{ marginBottom: "1.5rem" }}>
@@ -1308,11 +1619,12 @@ const OIDCHybridFlowV3: React.FC = () => {
 									}
 									onClick={() => {
 										console.log(
-											"🔧 [OIDC-HYBRID-V3] Setting authorization method to popup",
+											"🔧 [OIDC-HYBRID-V3] Popup Authorization clicked",
 										);
-										alert("Popup Authorization button clicked!");
 										setAuthorizationMethod("popup");
+										requestAuthorization();
 									}}
+									disabled={!authorizationUrl}
 									style={{
 										display: "flex",
 										alignItems: "center",
@@ -1330,11 +1642,12 @@ const OIDCHybridFlowV3: React.FC = () => {
 									}
 									onClick={() => {
 										console.log(
-											"🔧 [OIDC-HYBRID-V3] Setting authorization method to redirect",
+											"🔧 [OIDC-HYBRID-V3] Redirect Authorization clicked",
 										);
-										alert("Full Redirect button clicked!");
 										setAuthorizationMethod("redirect");
+										requestAuthorization();
 									}}
+									disabled={!authorizationUrl}
 									style={{
 										display: "flex",
 										alignItems: "center",
@@ -1343,7 +1656,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 									}}
 								>
 									<FiExternalLink />
-									Full Redirect
+									Redirect Authorization
 								</Button>
 							</div>
 
@@ -1360,92 +1673,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 						</div>
 
 						{/* Action Button */}
-						<div style={{ marginBottom: "1.5rem" }}>
-							<Button
-								variant="primary"
-								onClick={() => {
-									console.log(
-										"🔧 [OIDC-HYBRID-V3] Request Authorization clicked",
-										{
-											authorizationUrl,
-											authorizationMethod,
-											hasUrl: !!authorizationUrl,
-										},
-									);
-									alert("Request Authorization button clicked!");
-									requestAuthorization();
-								}}
-								disabled={isRequestingAuthorization || !authorizationUrl}
-								style={{
-									display: "flex",
-									alignItems: "center",
-									gap: "0.5rem",
-									padding: "0.75rem 2rem",
-									fontSize: "1rem",
-									fontWeight: "600",
-								}}
-							>
-								{isRequestingAuthorization ? (
-									<>
-										<FiRefreshCw className="animate-spin" />
-										Opening Authorization...
-									</>
-								) : (
-									<>
-										<FiGlobe />
-										Request Authorization
-									</>
-								)}
-							</Button>
-						</div>
 
-						{/* Debug Information Section */}
-						<details
-							style={{
-								backgroundColor: "#f8fafc",
-								border: "1px solid #e2e8f0",
-								borderRadius: "0.5rem",
-								padding: "0.75rem",
-							}}
-						>
-							<summary
-								style={{
-									cursor: "pointer",
-									fontWeight: "600",
-									color: "#374151",
-									display: "flex",
-									alignItems: "center",
-									gap: "0.5rem",
-								}}
-							>
-								<FiSettings />
-								Debug Information
-							</summary>
-							<div style={{ marginTop: "0.75rem", fontSize: "0.875rem" }}>
-								<p style={{ margin: "0 0 0.5rem 0", color: "#6b7280" }}>
-									<strong>Authorization URL:</strong>
-								</p>
-								{authorizationUrl ? (
-									<div
-										style={{
-											backgroundColor: "#f3f4f6",
-											padding: "0.5rem",
-											borderRadius: "0.25rem",
-											fontFamily: "monospace",
-											fontSize: "0.75rem",
-											wordBreak: "break-all",
-											color: "#374151",
-										}}
-									>
-										{authorizationUrl}
-									</div>
-								) : (
-									<p style={{ margin: "0", color: "#9ca3af" }}>
-										Authorization URL not yet generated
-									</p>
-								)}
-							</div>
-						</details>
 					</div>
 				),
 				canExecute: Boolean(authorizationUrl),
@@ -2023,6 +2251,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 			exchangeCodeForTokens,
 			getUserInfo,
 			resetFlow,
+			clearCredentials,
 		],
 	);
 
@@ -2054,6 +2283,38 @@ const OIDCHybridFlowV3: React.FC = () => {
 						logger.error("OIDCHybridV3", `❌ Step failed: ${stepId}`, error);
 					}}
 				/>
+
+				{/* Flow Control Actions */}
+				<FlowControlSection>
+					<FlowControlTitle>⚙️ Flow Control Actions</FlowControlTitle>
+					<FlowControlButtons>
+						<FlowControlButton
+							className="clear"
+							onClick={() => setShowClearCredentialsModal(true)}
+						>
+							🧹 Clear Credentials
+						</FlowControlButton>
+						<FlowControlButton
+							className="reset"
+							onClick={resetFlow}
+							disabled={isResettingFlow}
+							style={{
+								background: isResettingFlow ? "#9ca3af" : undefined,
+								cursor: isResettingFlow ? "not-allowed" : "pointer",
+							}}
+						>
+							<FiRefreshCw
+								style={{
+									animation: isResettingFlow
+										? "spin 1s linear infinite"
+										: "none",
+									marginRight: "0.5rem",
+								}}
+							/>
+							{isResettingFlow ? "Resetting..." : "Reset Flow"}
+						</FlowControlButton>
+					</FlowControlButtons>
+				</FlowControlSection>
 			</FlowCard>
 
 			{/* Modals */}
@@ -2084,6 +2345,18 @@ const OIDCHybridFlowV3: React.FC = () => {
 				confirmText="Reset Flow"
 				cancelText="Cancel"
 				variant="danger"
+			/>
+
+			<ConfirmationModal
+				isOpen={showClearCredentialsModal}
+				onClose={() => setShowClearCredentialsModal(false)}
+				onConfirm={clearCredentials}
+				title="Clear OIDC Hybrid Credentials"
+				message="Are you sure you want to clear all saved credentials? This will remove your Environment ID, Client ID, and other configuration data."
+				confirmText="Clear Credentials"
+				cancelText="Cancel"
+				variant="danger"
+				isLoading={isClearingCredentials}
 			/>
 
 			{/* Default Redirect URI Modal */}
