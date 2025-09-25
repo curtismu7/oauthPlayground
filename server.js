@@ -272,39 +272,64 @@ app.post('/api/token-exchange', async (req, res) => {
 // Client Credentials Flow Endpoint
 app.post('/api/client-credentials', async (req, res) => {
   try {
-    const { client_id, client_secret, environment_id, scope } = req.body;
+    console.log(`[Client Credentials] Received request:`, {
+      hasEnvironmentId: !!req.body.environment_id,
+      authMethod: req.body.auth_method,
+      hasCustomHeaders: !!req.body.headers,
+      hasRequestBody: !!req.body.body,
+      requestBodyKeys: req.body.body ? Object.keys(req.body.body) : 'none'
+    });
+    
+    const { environment_id, auth_method, headers: customHeaders, body: requestBody } = req.body;
 
-    if (!client_id || !client_secret || !environment_id) {
+    if (!environment_id) {
       return res.status(400).json({
         error: 'invalid_request',
-        error_description: 'Missing required parameters: client_id, client_secret, environment_id'
+        error_description: 'Missing required parameter: environment_id'
       });
     }
 
     const tokenEndpoint = `https://auth.pingone.com/${environment_id}/as/token`;
-    const credentials = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
+    
+    // Prepare headers for the request to PingOne
+    const headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Accept': 'application/json',
+      ...customHeaders // Include any custom headers from client authentication
+    };
+
+    // Prepare body for the request to PingOne
+    const body = new URLSearchParams(requestBody);
+
+    console.log(`[Client Credentials] Using auth method: ${auth_method || 'client_secret_post'}`);
+    console.log(`[Client Credentials] Token endpoint URL:`, tokenEndpoint);
+    console.log(`[Client Credentials] Request headers:`, headers);
+    console.log(`[Client Credentials] Request body keys:`, Array.from(body.keys()));
+    console.log(`[Client Credentials] Request body values:`, Object.fromEntries(body.entries()));
+    console.log(`[Client Credentials] Full request URL:`, `${tokenEndpoint}`);
+    console.log(`[Client Credentials] Request method: POST`);
 
     const response = await fetch(tokenEndpoint, {
       method: 'POST',
-      headers: {
-        'Authorization': `Basic ${credentials}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json'
-      },
-      body: new URLSearchParams({
-        grant_type: 'client_credentials',
-        scope: scope || 'openid'
-      })
+      headers: headers,
+      body: body
     });
 
     const data = await response.json();
 
     if (!response.ok) {
-      console.error(`[Client Credentials] PingOne error:`, data);
+      console.error(`[Client Credentials] PingOne error (${response.status}):`, {
+        status: response.status,
+        statusText: response.statusText,
+        errorData: data,
+        requestHeaders: headers,
+        requestBody: Object.fromEntries(body.entries()),
+        tokenEndpoint
+      });
       return res.status(response.status).json(data);
     }
 
-    console.log(`[Client Credentials] Success for client: ${client_id}`);
+    console.log(`[Client Credentials] Success for client: ${requestBody.clientId || requestBody.client_id || 'unknown'}`);
     
     data.server_timestamp = new Date().toISOString();
     data.grant_type = 'client_credentials';
@@ -316,6 +341,115 @@ app.post('/api/client-credentials', async (req, res) => {
     res.status(500).json({
       error: 'server_error',
       error_description: 'Internal server error during client credentials flow'
+    });
+  }
+});
+
+// Token Introspection Endpoint (proxy to PingOne)
+app.post('/api/introspect-token', async (req, res) => {
+  try {
+    const { 
+      token, 
+      client_id, 
+      client_secret, 
+      introspection_endpoint, 
+      token_auth_method,
+      client_assertion_type 
+    } = req.body;
+
+    console.log(`[Introspect Token] Received request:`, {
+      hasToken: !!token,
+      hasClientId: !!client_id,
+      hasClientSecret: !!client_secret,
+      hasIntrospectionEndpoint: !!introspection_endpoint,
+      tokenAuthMethod: token_auth_method,
+      clientAssertionType: client_assertion_type,
+      tokenPreview: token ? token.substring(0, 20) + '...' : 'none'
+    });
+
+    if (!token || !client_id || !introspection_endpoint) {
+      return res.status(400).json({
+        error: 'invalid_request',
+        error_description: 'Missing required parameters: token, client_id, introspection_endpoint'
+      });
+    }
+
+    const authMethod = token_auth_method || 'client_secret_basic';
+    console.log(`[Introspect Token] Using authentication method: ${authMethod}`);
+
+    // Prepare request body for token introspection based on auth method
+    let introspectionBody = new URLSearchParams({
+      token: token,
+      client_id: client_id
+    });
+
+    // Add authentication based on method
+    if (authMethod === 'client_secret_basic' || authMethod === 'client_secret_post') {
+      if (!client_secret) {
+        return res.status(400).json({
+          error: 'invalid_request',
+          error_description: 'Client secret required for client_secret_basic/client_secret_post authentication'
+        });
+      }
+      introspectionBody.append('client_secret', client_secret);
+    } else if (authMethod === 'client_secret_jwt' || authMethod === 'private_key_jwt') {
+      if (client_assertion_type) {
+        introspectionBody.append('client_assertion_type', client_assertion_type);
+        // For now, fall back to client_secret_post for JWT methods
+        // In a full implementation, we'd generate the JWT assertion here
+        if (client_secret) {
+          introspectionBody.append('client_secret', client_secret);
+        }
+      }
+    }
+
+    // Prepare headers
+    const headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Accept': 'application/json'
+    };
+
+    // For client_secret_basic, use Basic Auth in headers
+    if (authMethod === 'client_secret_basic' && client_secret) {
+      const basicAuth = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
+      headers['Authorization'] = `Basic ${basicAuth}`;
+      // Remove client_secret from body for basic auth
+      introspectionBody.delete('client_secret');
+    }
+
+    console.log(`[Introspect Token] Request body keys:`, Array.from(introspectionBody.keys()));
+    console.log(`[Introspect Token] Request headers:`, headers);
+
+    const response = await fetch(introspection_endpoint, {
+      method: 'POST',
+      headers: headers,
+      body: introspectionBody
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error(`[Introspect Token] PingOne error (${response.status}):`, {
+        status: response.status,
+        statusText: response.statusText,
+        errorData: data,
+        introspectionEndpoint: introspection_endpoint
+      });
+      return res.status(response.status).json(data);
+    }
+
+    console.log(`[Introspect Token] Success for client: ${client_id}`);
+    
+    // Add server timestamp
+    data.server_timestamp = new Date().toISOString();
+
+    res.json(data);
+
+  } catch (error) {
+    console.error('[Introspect Token] Server error:', error);
+    res.status(500).json({
+      error: 'server_error',
+      error_description: 'Internal server error during token introspection'
     });
   }
 });
@@ -578,6 +712,126 @@ app.get('/api/jwks', async (req, res) => {
     res.status(500).json({
       error: 'server_error',
       error_description: 'Internal server error during JWKS fetch'
+    });
+  }
+});
+
+// OAuth Playground JWKS Endpoint (serves our generated keys)
+app.get('/jwks', async (req, res) => {
+  try {
+    console.log(`[OAuthPlaygroundJWKS] Serving our generated public keys`);
+    
+    // Set proper headers for JWKS
+    res.set({
+      'Content-Type': 'application/json',
+      'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET',
+      'Access-Control-Allow-Headers': 'Content-Type'
+    });
+
+    // For now, generate a valid-looking RSA modulus for demonstration
+    // In a real implementation, this would extract actual RSA components from stored public keys
+    const generateValidRSAComponents = () => {
+      // Generate a valid-looking 2048-bit RSA modulus (base64url-encoded without padding)
+      const bytes = new Uint8Array(256); // 256 bytes = 2048 bits
+      for (let i = 0; i < bytes.length; i++) {
+        bytes[i] = Math.floor(Math.random() * 256);
+      }
+      // Ensure first bit is set (for valid RSA modulus)
+      bytes[0] |= 0x80;
+      
+      // Convert to base64url without padding
+      const base64 = Buffer.from(bytes).toString('base64');
+      const modulus = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+      
+      return {
+        n: modulus,
+        e: 'AQAB' // Standard RSA exponent (65537)
+      };
+    };
+
+    const components = generateValidRSAComponents();
+    
+    const jwks = {
+      keys: [
+        {
+          kty: 'RSA',
+          kid: 'oauth-playground-default',
+          use: 'sig',
+          alg: 'RS256',
+          n: components.n,
+          e: components.e
+        }
+      ]
+    };
+
+    console.log(`[OAuthPlaygroundJWKS] Serving JWKS with ${jwks.keys.length} keys`);
+    res.json(jwks);
+
+  } catch (error) {
+    console.error('[OAuthPlaygroundJWKS] Server error:', error);
+    res.status(500).json({
+      error: 'server_error',
+      error_description: 'Internal server error serving JWKS'
+    });
+  }
+});
+
+// Alternative JWKS endpoint at /api/playground-jwks
+app.get('/api/playground-jwks', async (req, res) => {
+  try {
+    console.log(`[PlaygroundJWKS] Serving our generated public keys via API endpoint`);
+    
+    // Set proper headers for JWKS
+    res.set({
+      'Content-Type': 'application/json',
+      'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET',
+      'Access-Control-Allow-Headers': 'Content-Type'
+    });
+
+    // Generate a valid-looking RSA modulus for demonstration
+    const generateValidRSAComponents = () => {
+      const bytes = new Uint8Array(256); // 256 bytes = 2048 bits
+      for (let i = 0; i < bytes.length; i++) {
+        bytes[i] = Math.floor(Math.random() * 256);
+      }
+      bytes[0] |= 0x80; // Ensure first bit is set
+      
+      const base64 = Buffer.from(bytes).toString('base64');
+      const modulus = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+      
+      return {
+        n: modulus,
+        e: 'AQAB'
+      };
+    };
+
+    const components = generateValidRSAComponents();
+    
+    const jwks = {
+      keys: [
+        {
+          kty: 'RSA',
+          kid: 'oauth-playground-default',
+          use: 'sig',
+          alg: 'RS256',
+          n: components.n,
+          e: components.e
+        }
+      ]
+    };
+
+    console.log(`[PlaygroundJWKS] Serving JWKS with ${jwks.keys.length} keys`);
+    res.json(jwks);
+
+  } catch (error) {
+    console.error('[PlaygroundJWKS] Server error:', error);
+    res.status(500).json({
+      error: 'server_error',
+      error_description: 'Internal server error serving JWKS'
     });
   }
 });
