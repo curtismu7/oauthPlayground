@@ -425,7 +425,7 @@ const Login = () => {
         environmentId: allCredentials.environmentId,
         clientId: allCredentials.clientId,
         clientSecret: allCredentials.clientSecret || '',
-        tokenAuthMethod: 'client_secret_basic',
+        tokenAuthMethod: allCredentials.tokenAuthMethod || 'client_secret_basic',
         clientAssertion: {
           hmacAlg: 'HS256',
           signAlg: 'RS256',
@@ -515,7 +515,8 @@ const Login = () => {
         scopes: credentials.advanced?.resourceScopes?.split(' ') || ['openid', 'profile', 'email'],
         authEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/authorize`,
         tokenEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/token`,
-        userInfoEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/userinfo`
+        userInfoEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/userinfo`,
+        tokenAuthMethod: credentials.tokenAuthMethod
       });
 
       // Save session credentials (Client Secret)
