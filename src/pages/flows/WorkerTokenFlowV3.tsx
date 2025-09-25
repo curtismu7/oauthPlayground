@@ -198,6 +198,11 @@ const WorkerTokenFlowV3: React.FC = () => {
   const [jwksUrl, setJwksUrl] = useState<string>('https://oauth-playground.vercel.app/jwks');
   const [useJwksEndpoint, setUseJwksEndpoint] = useState<boolean>(true);
   
+  // Debug: Log state changes
+  useEffect(() => {
+    console.log('🔄 [WorkerTokenV3] useJwksEndpoint state changed to:', useJwksEndpoint);
+  }, [useJwksEndpoint]);
+  
   // Track JWKS endpoint state changes
   useEffect(() => {
     // State change tracking can be added here if needed
@@ -1246,6 +1251,7 @@ Perfect for:
                       type="checkbox"
                       checked={useJwksEndpoint}
                       onChange={(e) => {
+                        console.log('🔄 [WorkerTokenV3] JWKS checkbox clicked, new value:', e.target.checked);
                         setUseJwksEndpoint(e.target.checked);
                       }}
                       style={{ margin: 0, cursor: 'pointer' }}
@@ -1380,6 +1386,7 @@ Perfect for:
                       type="checkbox"
                       checked={!useJwksEndpoint}
                       onChange={(e) => {
+                        console.log('🔄 [WorkerTokenV3] Private Key checkbox clicked, new value:', e.target.checked);
                         setUseJwksEndpoint(!e.target.checked);
                       }}
                       style={{ margin: 0, cursor: 'pointer' }}
