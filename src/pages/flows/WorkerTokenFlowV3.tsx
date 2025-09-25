@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import styled from 'styled-components';
-import { FiSettings, FiKey, FiShield, FiRefreshCw, FiCheckCircle, FiDownload } from 'react-icons/fi';
+import { FiSettings, FiKey, FiShield, FiRefreshCw, FiCheckCircle, FiDownload, FiEye, FiEyeOff } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { logger } from '../../utils/logger';
 import { showFlowSuccess, showFlowError, showDetailedError } from '../../components/CentralizedSuccessMessage';
