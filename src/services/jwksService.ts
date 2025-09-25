@@ -37,12 +37,8 @@ class JWKSService {
    */
   async fetchJWKS(environmentId: string): Promise<JWKSResponse> {
     try {
-      // Use backend proxy to avoid CORS issues
-      const backendUrl = process.env.NODE_ENV === 'production' 
-        ? 'https://oauth-playground.vercel.app' 
-        : 'http://localhost:3001';
-      
-      const jwksUri = `${backendUrl}/api/jwks?environment_id=${environmentId}`;
+      // Use relative URL to go through Vite proxy (avoids certificate issues)
+      const jwksUri = `/api/jwks?environment_id=${environmentId}`;
       
       // Check cache first
       const cached = this.getCachedJWKS(environmentId);

@@ -140,6 +140,55 @@ const ImplicitFlowV3: React.FC = () => {
     loadInitialCredentials();
   }, [loadInitialCredentials]);
 
+  // Handle callback return with tokens
+  useEffect(() => {
+    const handleCallbackReturn = () => {
+      try {
+        // Check for tokens in sessionStorage (set by callback handler)
+        const storedTokens = sessionStorage.getItem("implicit_tokens");
+        if (storedTokens) {
+          console.log(
+            "🔑 [ImplicitFlowV3] Found tokens from callback:",
+            storedTokens,
+          );
+
+          const tokenData = JSON.parse(storedTokens);
+          setTokens(tokenData);
+
+          // Auto-advance to step 2 (token parsing & display)
+          stepManager.setStep(1, "callback return with tokens");
+          console.log(
+            "🔄 [ImplicitFlowV3] Auto-advancing to step 2 (token parsing) after callback return",
+          );
+
+          // Show success message
+          showFlowSuccess(
+            "🎉 Authorization Successful!",
+            "Tokens received from PingOne. You can now view and validate the tokens.",
+          );
+
+          // Clean up sessionStorage
+          sessionStorage.removeItem("implicit_tokens");
+
+          // Clean up flow context
+          sessionStorage.removeItem("implicit_flow_v3_context");
+
+          // Clean up URL hash if present
+          if (window.location.hash) {
+            window.history.replaceState({}, "", window.location.pathname);
+          }
+        }
+      } catch (error) {
+        console.error(
+          "❌ [ImplicitFlowV3] Failed to handle callback return:",
+          error,
+        );
+      }
+    };
+
+    handleCallbackReturn();
+  }, [stepManager]);
+
   // Save credentials
   const saveCredentials = useCallback(async () => {
     try {
@@ -212,6 +261,17 @@ const ImplicitFlowV3: React.FC = () => {
 
     console.log('🚀 [ImplicitFlowV3] Starting authorization redirect...');
     
+    // Store flow context for callback handling
+    const flowContext = {
+      flowType: 'implicit',
+      environmentId: credentials.environmentId,
+      clientId: credentials.clientId,
+      redirectUri: credentials.redirectUri,
+      timestamp: Date.now()
+    };
+    sessionStorage.setItem('implicit_flow_v3_context', JSON.stringify(flowContext));
+    console.log('💾 [ImplicitFlowV3] Stored flow context for callback handling');
+    
     // Open in new window for better UX
     const authWindow = window.open(
       authUrl,
@@ -233,7 +293,7 @@ const ImplicitFlowV3: React.FC = () => {
     }, 1000);
 
     showFlowSuccess('🚀 Authorization Started', 'Authorization window opened. Complete the login process.');
-  }, [authUrl]);
+  }, [authUrl, credentials]);
 
   // Copy to clipboard utility
   const copyToClipboard = useCallback(async (text: string, label: string) => {

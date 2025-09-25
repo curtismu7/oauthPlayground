@@ -592,10 +592,10 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
         clientId: `${credentials.clientId.substring(0, 8)}...`
       });
 
-      // Use backend proxy to avoid CORS issues
+      // Use proxy for HTTPS support
       const backendUrl = process.env.NODE_ENV === 'production' 
         ? 'https://oauth-playground.vercel.app' 
-        : 'http://localhost:3001';
+        : '';
 
       // Prepare token request
       // Prepare base request body
@@ -830,7 +830,8 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
           scopes: scopesToSave,
           authEndpoint: environmentId !== 'custom' ? 
             `https://auth.pingone.com/${environmentId}/as/authorize` :
-            credentials.issuerUrl ? `${credentials.issuerUrl.replace(/\/$/, '')}/as/authorize` : ''
+            credentials.issuerUrl ? `${credentials.issuerUrl.replace(/\/$/, '')}/as/authorize` : '',
+          tokenAuthMethod: credentials.clientAuthMethod
         });
         showFlowSuccess('Credentials saved successfully');
       }, 'OAuth 2.0 Authorization Code Flow'),

@@ -470,10 +470,10 @@ const OIDCClientCredentialsFlowV3: React.FC<OIDCClientCredentialsFlowV3Props> = 
       
       const authenticatedRequest = await applyClientAuthentication(authConfig, baseBody);
 
-      // Make request via backend proxy
+      // Use proxy for HTTPS support
       const backendUrl = process.env.NODE_ENV === 'production' 
         ? 'https://oauth-playground.vercel.app' 
-        : 'http://localhost:3001';
+        : '';
       
       const response = await fetch(`${backendUrl}/api/client-credentials`, {
         method: 'POST',
