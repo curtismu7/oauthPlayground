@@ -286,7 +286,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         oidc: path.startsWith('/oidc') || prev.oidc,
         'pingone-tokens': path.startsWith('/oidc/worker-token') || prev['pingone-tokens'],
         resources: (path.startsWith('/oidc/userinfo') || path.startsWith('/oidc/tokens') || 
-                   path.startsWith('/token-management') || path.startsWith('/auto-discover') ||
+                   path.startsWith('/token-management') || path.startsWith('/auto-discover') || path.startsWith('/jwks-troubleshooting') ||
                    path.startsWith('/documentation') || path.startsWith('/flows/compare') || 
                    path.startsWith('/flows/diagrams') || path.startsWith('/flows/par')) || prev.resources,
         docs: path.startsWith('/docs') || prev.docs,
@@ -535,6 +535,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             <SubmenuItem to="/auto-discover" onClick={onClose}>
               <DiscoveryIcon />
               OIDC Discovery
+            </SubmenuItem>
+            <SubmenuItem to="/jwks-troubleshooting" onClick={onClose}>
+              <FiKey />
+              JWKS Troubleshooting
             </SubmenuItem>
             <SubmenuItem to="/flows/par" onClick={onClose}>
               <PARIcon />
