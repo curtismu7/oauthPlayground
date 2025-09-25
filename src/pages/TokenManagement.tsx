@@ -1152,26 +1152,51 @@ const TokenManagement = () => {
       
       const environmentId = allCredentials.environmentId;
 
-      // Get client credentials from credential manager (already loaded above)
-      if (!allCredentials.clientId || !allCredentials.clientSecret) {
-        throw new Error('Client credentials not available for introspection. Please configure your credentials first.');
+      // Get client credentials and authentication method from credential manager
+      if (!allCredentials.clientId) {
+        throw new Error('Client ID not available for introspection. Please configure your credentials first.');
       }
 
       const introspectionEndpoint = `https://auth.pingone.com/${environmentId}/as/introspect`;
+      const tokenAuthMethod = allCredentials.tokenAuthMethod || 'client_secret_basic';
       
       console.log('🔍 [TokenManagement] Introspection endpoint:', introspectionEndpoint);
+      console.log('🔍 [TokenManagement] Token auth method:', tokenAuthMethod);
+
+      // Prepare introspection request based on authentication method
+      let introspectionBody: any = {
+        token: tokenString,
+        client_id: allCredentials.clientId,
+        introspection_endpoint: introspectionEndpoint,
+        token_auth_method: tokenAuthMethod
+      };
+
+      // Add client secret for methods that require it
+      if (tokenAuthMethod === 'client_secret_basic' || tokenAuthMethod === 'client_secret_post') {
+        if (!allCredentials.clientSecret) {
+          throw new Error('Client secret not available for introspection. Please configure your credentials first.');
+        }
+        introspectionBody.client_secret = allCredentials.clientSecret;
+      }
+
+      // For JWT-based methods, we need to generate a client assertion
+      if (tokenAuthMethod === 'client_secret_jwt' || tokenAuthMethod === 'private_key_jwt') {
+        // For now, we'll use client_secret_post as fallback for JWT methods
+        // In a full implementation, we'd generate the JWT assertion here
+        if (!allCredentials.clientSecret) {
+          throw new Error('Client secret not available for JWT introspection. Please configure your credentials first.');
+        }
+        introspectionBody.client_secret = allCredentials.clientSecret;
+        introspectionBody.client_assertion_type = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
+        // TODO: Generate actual JWT assertion for proper JWT-based introspection
+      }
 
       const response = await fetch('/api/introspect-token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          token: tokenString,
-          client_id: allCredentials.clientId,
-          client_secret: allCredentials.clientSecret,
-          introspection_endpoint: introspectionEndpoint
-        })
+        body: JSON.stringify(introspectionBody)
       });
 
       const data = await response.json();
