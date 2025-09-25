@@ -569,6 +569,10 @@ const TokenManagement = () => {
   const [tokenHistory, setTokenHistory] = useState<TokenHistoryEntry[]>([]);
   const [activeTab, setActiveTab] = useState<'analysis' | 'diagnosis'>('analysis');
   const [errorInput, setErrorInput] = useState('');
+
+  // Determine if current token is an access token based on token source
+  const isAccessToken = tokenSource?.description && 
+    (tokenSource.description as string).toLowerCase().includes('access token');
   const [message, setMessage] = useState<{ type: 'success' | 'error' | 'warning' | 'info'; title?: string; message: string } | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showRevokeModal, setShowRevokeModal] = useState(false);
@@ -576,6 +580,7 @@ const TokenManagement = () => {
   const [showClearHistoryModal, setShowClearHistoryModal] = useState(false);
   const [showRemoveHistoryModal, setShowRemoveHistoryModal] = useState(false);
   const [historyEntryToRemove, setHistoryEntryToRemove] = useState<string | null>(null);
+  const [introspectionResults, setIntrospectionResults] = useState<any>(null);
 
   // Token analysis hook
   const {
@@ -684,10 +689,50 @@ const TokenManagement = () => {
   };
 
   useEffect(() => {
+    // Check for token passed from other flows via sessionStorage
+    const checkForPassedToken = () => {
+      const tokenToAnalyze = sessionStorage.getItem('token_to_analyze');
+      const tokenType = sessionStorage.getItem('token_type') || 'access';
+      const flowSource = sessionStorage.getItem('flow_source') || 'unknown';
+      
+      if (tokenToAnalyze) {
+        console.log('🔍 [TokenManagement] Found token passed from flow:', {
+          tokenType,
+          flowSource,
+          tokenLength: tokenToAnalyze.length,
+          tokenPreview: tokenToAnalyze.substring(0, 20) + '...'
+        });
+        
+        setTokenString(tokenToAnalyze);
+        setTokenSource({
+          source: 'Flow Navigation',
+          description: `${tokenType.replace('_', ' ').toUpperCase()} from ${flowSource}`,
+          timestamp: new Date().toLocaleString()
+        });
+        
+        // Auto-decode the passed token
+        setTimeout(() => decodeJWT(tokenToAnalyze), 100);
+        setTokenStatus('valid');
+        
+        // Clear the sessionStorage after loading
+        sessionStorage.removeItem('token_to_analyze');
+        sessionStorage.removeItem('token_type');
+        sessionStorage.removeItem('flow_source');
+        
+        return true; // Token was loaded from sessionStorage
+      }
+      return false; // No token in sessionStorage
+    };
+
     // Auto-load current Access Token from auth context or storage
     const loadCurrentToken = () => {
       try {
         console.log('🔄 [TokenManagement] Loading current token from auth context:', tokens);
+        
+        // First check for token passed from other flows
+        if (checkForPassedToken()) {
+          return; // Token was loaded from sessionStorage, skip other loading
+        }
         
         // First try to get token from auth context
         let currentTokens = tokens;
@@ -1080,6 +1125,83 @@ const TokenManagement = () => {
       } catch (error) {
         console.error('Error copying token:', error);
       }
+    }
+  };
+
+  const handleIntrospectToken = async () => {
+    if (!tokenString || !isAccessToken) {
+      setMessage({
+        type: 'error',
+        title: 'Invalid Token',
+        message: 'Only access tokens can be introspected'
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      console.log('🔍 [TokenManagement] Starting token introspection...');
+      
+      // Get environment ID from auth context or token source
+      let environmentId = '';
+      if (tokens?.environment_id) {
+        environmentId = tokens.environment_id;
+      } else if (tokenSource?.source === 'Flow Navigation') {
+        // Try to extract from token source or use a default
+        environmentId = 'b9817c16-9910-4415-b67e-4ac687da74d9'; // Default for demo
+      } else {
+        throw new Error('Environment ID not available for introspection');
+      }
+
+      // Get client credentials from auth context
+      if (!tokens?.client_id || !tokens?.client_secret) {
+        throw new Error('Client credentials not available for introspection');
+      }
+
+      const introspectionEndpoint = `https://auth.pingone.com/${environmentId}/as/introspect`;
+      
+      console.log('🔍 [TokenManagement] Introspection endpoint:', introspectionEndpoint);
+
+      const response = await fetch('/api/introspect-token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          token: tokenString,
+          client_id: tokens.client_id,
+          client_secret: tokens.client_secret,
+          introspection_endpoint: introspectionEndpoint
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error('❌ [TokenManagement] Introspection failed:', data);
+        throw new Error(data.error_description || data.error || 'Introspection failed');
+      }
+
+      console.log('✅ [TokenManagement] Introspection successful:', data);
+      
+      setMessage({
+        type: 'success',
+        title: 'Token Introspected',
+        message: `Token is ${data.active ? 'active' : 'inactive'}. Check the decoded token section for details.`
+      });
+
+      // Store introspection results for display
+      setIntrospectionResults(data);
+
+    } catch (error) {
+      console.error('❌ [TokenManagement] Token introspection error:', error);
+      setMessage({
+        type: 'error',
+        title: 'Introspection Failed',
+        message: error instanceof Error ? error.message : 'Failed to introspect token'
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -1744,6 +1866,16 @@ const TokenManagement = () => {
             </ActionButton>
 
             <ActionButton
+              id="introspect-token-btn"
+              className="secondary"
+              onClick={handleIntrospectToken}
+              disabled={!tokenString || isLoading || !isAccessToken}
+            >
+              <FiShield />
+              Introspect Token
+            </ActionButton>
+
+            <ActionButton
               className="secondary"
               onClick={() => {
                 console.log('🔄 [TokenManagement] Loading tokens from storage...');
@@ -2029,6 +2161,161 @@ const TokenManagement = () => {
         </CardBody>
       </TokenSection>
 
+      {/* Token Introspection Results Section */}
+      {introspectionResults && (
+        <TokenSection>
+          <CardHeader>
+            <h2>🔍 Token Introspection Results</h2>
+          </CardHeader>
+          <CardBody>
+            <div style={{ 
+              background: 'linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%)',
+              border: '1px solid #0ea5e9',
+              borderRadius: '8px',
+              padding: '1.5rem',
+              marginBottom: '1rem'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+                <div style={{
+                  background: '#0ea5e9',
+                  borderRadius: '50%',
+                  width: '2.5rem',
+                  height: '2.5rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 2px 8px rgba(14, 165, 233, 0.3)'
+                }}>
+                  <FiShield size={18} color="white" />
+                </div>
+                <div>
+                  <h3 style={{
+                    margin: '0',
+                    color: '#0369a1',
+                    fontSize: '1.1rem',
+                    fontWeight: '700'
+                  }}>
+                    Token Status: {introspectionResults.active ? '✅ Active' : '❌ Inactive'}
+                  </h3>
+                  <p style={{
+                    margin: '0.25rem 0 0 0',
+                    color: '#0369a1',
+                    fontSize: '0.875rem',
+                    fontWeight: '500'
+                  }}>
+                    Verified by PingOne Authorization Server
+                  </p>
+                </div>
+              </div>
+
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.8)',
+                border: '1px solid rgba(3, 105, 161, 0.2)',
+                borderRadius: '6px',
+                padding: '1rem'
+              }}>
+                <h4 style={{ margin: '0 0 1rem 0', color: '#0369a1', fontSize: '1rem', fontWeight: '600' }}>
+                  Introspection Details
+                </h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
+                  <div>
+                    <strong style={{ color: '#0369a1' }}>Token Type:</strong>
+                    <div style={{ color: '#374151', fontSize: '0.875rem' }}>
+                      {introspectionResults.token_type || 'N/A'}
+                    </div>
+                  </div>
+                  <div>
+                    <strong style={{ color: '#0369a1' }}>Client ID:</strong>
+                    <div style={{ color: '#374151', fontSize: '0.875rem' }}>
+                      {introspectionResults.client_id || introspectionResults.sub || 'N/A'}
+                    </div>
+                  </div>
+                  <div>
+                    <strong style={{ color: '#0369a1' }}>Scope:</strong>
+                    <div style={{ color: '#374151', fontSize: '0.875rem' }}>
+                      {introspectionResults.scope || 'N/A'}
+                    </div>
+                  </div>
+                  <div>
+                    <strong style={{ color: '#0369a1' }}>Issuer:</strong>
+                    <div style={{ color: '#374151', fontSize: '0.875rem' }}>
+                      {introspectionResults.iss || 'N/A'}
+                    </div>
+                  </div>
+                  <div>
+                    <strong style={{ color: '#0369a1' }}>Audience:</strong>
+                    <div style={{ color: '#374151', fontSize: '0.875rem' }}>
+                      {introspectionResults.aud || 'N/A'}
+                    </div>
+                  </div>
+                  <div>
+                    <strong style={{ color: '#0369a1' }}>Expires:</strong>
+                    <div style={{ color: '#374151', fontSize: '0.875rem' }}>
+                      {introspectionResults.exp ? new Date(introspectionResults.exp * 1000).toLocaleString() : 'N/A'}
+                    </div>
+                  </div>
+                </div>
+                
+                {introspectionResults.username && (
+                  <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid rgba(3, 105, 161, 0.2)' }}>
+                    <h5 style={{ margin: '0 0 0.5rem 0', color: '#0369a1', fontSize: '0.9rem', fontWeight: '600' }}>
+                      User Information
+                    </h5>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
+                      <div>
+                        <strong style={{ color: '#0369a1' }}>Username:</strong>
+                        <div style={{ color: '#374151', fontSize: '0.875rem' }}>
+                          {introspectionResults.username}
+                        </div>
+                      </div>
+                      {introspectionResults.given_name && (
+                        <div>
+                          <strong style={{ color: '#0369a1' }}>Given Name:</strong>
+                          <div style={{ color: '#374151', fontSize: '0.875rem' }}>
+                            {introspectionResults.given_name}
+                          </div>
+                        </div>
+                      )}
+                      {introspectionResults.family_name && (
+                        <div>
+                          <strong style={{ color: '#0369a1' }}>Family Name:</strong>
+                          <div style={{ color: '#374151', fontSize: '0.875rem' }}>
+                            {introspectionResults.family_name}
+                          </div>
+                        </div>
+                      )}
+                      {introspectionResults.email && (
+                        <div>
+                          <strong style={{ color: '#0369a1' }}>Email:</strong>
+                          <div style={{ color: '#374151', fontSize: '0.875rem' }}>
+                            {introspectionResults.email}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <details style={{ marginTop: '1rem' }}>
+              <summary style={{ cursor: 'pointer', fontWeight: '600', color: '#374151', fontSize: '0.9rem' }}>
+                View Complete Introspection Response (JSON)
+              </summary>
+              <TokenSurface
+                className="introspection-results"
+                ariaLabel="Introspection Results"
+                scrollable
+                hasToken={true}
+                isJson={true}
+                jsonContent={JSON.stringify(introspectionResults, null, 2)}
+              >
+                {JSON.stringify(introspectionResults, null, 2)}
+              </TokenSurface>
+            </details>
+          </CardBody>
+        </TokenSection>
+      )}
 
       {/* Token History Section */}
       <TokenSection>
