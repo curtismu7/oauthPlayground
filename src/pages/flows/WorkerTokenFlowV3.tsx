@@ -196,11 +196,11 @@ const WorkerTokenFlowV3: React.FC = () => {
   const [showSecret, setShowSecret] = useState(false);
   const [showPrivateKey, setShowPrivateKey] = useState(false);
   const [jwksUrl, setJwksUrl] = useState<string>('http://localhost:3001/jwks');
-  const [useJwksEndpoint, setUseJwksEndpoint] = useState<boolean>(false);
+  const [useJwksEndpoint, setUseJwksEndpoint] = useState<boolean>(true);
   
-  // Debug logging for radio button state
+  // Track JWKS endpoint state changes
   useEffect(() => {
-    console.log('useJwksEndpoint state changed:', useJwksEndpoint);
+    // State change tracking can be added here if needed
   }, [useJwksEndpoint]);
   const [isLoading, setIsLoading] = useState(false);
   const [, setError] = useState<string | null>(null);
@@ -552,7 +552,7 @@ const WorkerTokenFlowV3: React.FC = () => {
       });
       setClientAuthMethod('client_secret_post');
       setPrivateKey('');
-      setUseJwksEndpoint(false);
+      setUseJwksEndpoint(true);
       setJwksUrl('http://localhost:3001/jwks');
       setShowSecret(false);
       setShowPrivateKey(false);
@@ -1241,12 +1241,10 @@ Perfect for:
                       type="checkbox"
                       checked={useJwksEndpoint}
                       onChange={(e) => {
-                        console.log('JWKS Endpoint checkbox changed:', e.target.checked);
-                        console.log('Current useJwksEndpoint state:', useJwksEndpoint);
                         setUseJwksEndpoint(e.target.checked);
-                        console.log('Set useJwksEndpoint to:', e.target.checked);
                       }}
                       style={{ margin: 0, cursor: 'pointer' }}
+                      key={`jwks-endpoint-${useJwksEndpoint}`}
                     />
                     <span style={{ color: '#065f46', fontWeight: '600' }}>Use JWKS Endpoint (Recommended)</span>
                   </label>
@@ -1344,12 +1342,10 @@ Perfect for:
                       type="checkbox"
                       checked={!useJwksEndpoint}
                       onChange={(e) => {
-                        console.log('Upload Private Key checkbox changed:', e.target.checked);
-                        console.log('Current useJwksEndpoint state:', useJwksEndpoint);
                         setUseJwksEndpoint(!e.target.checked);
-                        console.log('Set useJwksEndpoint to:', !e.target.checked);
                       }}
                       style={{ margin: 0, cursor: 'pointer' }}
+                      key={`upload-private-key-${!useJwksEndpoint}`}
                     />
                     <span style={{ color: '#065f46', fontWeight: '600' }}>Upload Private Key</span>
                   </label>
