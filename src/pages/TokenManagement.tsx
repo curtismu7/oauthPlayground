@@ -1583,7 +1583,14 @@ const TokenManagement = () => {
 
   // Determine token source display
   const getTokenSourceInfo = () => {
-    if (flowSource.includes('oauth-v3')) {
+    if (flowSource.includes('worker-token-v3')) {
+      return {
+        type: 'Worker Token Flow V3',
+        description: 'Tokens from Worker Token Flow V3',
+        color: '#7c3aed',
+        icon: <FiKey />
+      };
+    } else if (flowSource.includes('oauth-v3')) {
       return {
         type: 'OAuth 2.0 V3',
         description: 'Tokens from OAuth 2.0 Authorization Code Flow V3',
