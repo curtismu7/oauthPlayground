@@ -1,10 +1,16 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import styled from 'styled-components';
-import { StepByStepFlow } from '../../components/StepByStepFlow';
-import FlowCredentials from '../../components/FlowCredentials';
-import { storeOAuthTokens } from '../../utils/tokenStorage';
-import { logger } from '../../utils/logger';
-import { PARService, PARRequest, PARAuthMethod, PARResponse } from '../../services/parService';
+import type React from "react";
+import { useCallback, useEffect, useState } from "react";
+import styled from "styled-components";
+import FlowCredentials from "../../components/FlowCredentials";
+import { StepByStepFlow } from "../../components/StepByStepFlow";
+import {
+  type PARAuthMethod,
+  type PARRequest,
+  type PARResponse,
+  PARService,
+} from "../../services/parService";
+import { logger } from "../../utils/logger";
+import { storeOAuthTokens } from "../../utils/tokenStorage";
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -91,7 +97,7 @@ const Select = styled.select`
   }
 `;
 
-const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' | 'danger' }>`
+const Button = styled.button<{ $variant: "primary" | "secondary" | "success" | "danger" }>`
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 0.375rem;
@@ -104,25 +110,25 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' | '
   
   ${({ $variant }) => {
     switch ($variant) {
-      case 'primary':
+      case "primary":
         return `
           background-color: #3b82f6;
           color: white;
           &:hover { background-color: #2563eb; }
         `;
-      case 'secondary':
+      case "secondary":
         return `
           background-color: #6b7280;
           color: white;
           &:hover { background-color: #4b5563; }
         `;
-      case 'success':
+      case "success":
         return `
           background-color: #10b981;
           color: white;
           &:hover { background-color: #059669; }
         `;
-      case 'danger':
+      case "danger":
         return `
           background-color: #ef4444;
           color: white;
@@ -223,8 +229,8 @@ const Tab = styled.button<{ $active: boolean }>`
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  border-bottom: 2px solid ${({ $active }) => $active ? '#3b82f6' : 'transparent'};
-  color: ${({ $active }) => $active ? '#3b82f6' : '#6b7280'};
+  border-bottom: 2px solid ${({ $active }) => ($active ? "#3b82f6" : "transparent")};
+  color: ${({ $active }) => ($active ? "#3b82f6" : "#6b7280")};
   
   &:hover {
     color: #3b82f6;
@@ -246,27 +252,27 @@ const PARFlow: React.FC<PARFlowProps> = ({ credentials }) => {
   }, []);
 
   const [currentStep, setCurrentStep] = useState(0);
-  const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [activeAuthMethod, setActiveAuthMethod] = useState<PARAuthMethod['type']>('NONE');
+  const [demoStatus, setDemoStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [activeAuthMethod, setActiveAuthMethod] = useState<PARAuthMethod["type"]>("NONE");
   const [formData, setFormData] = useState({
-    clientId: credentials?.clientId || '',
-    clientSecret: credentials?.clientSecret || '',
-    environmentId: credentials?.environmentId || '',
-    responseType: 'code',
-    redirectUri: 'http://localhost:3000/callback',
-    scope: 'openid profile email',
-    state: '',
-    nonce: '',
-    codeChallenge: '',
-    codeChallengeMethod: 'S256',
-    acrValues: '',
-    prompt: 'consent',
-    maxAge: '3600',
-    uiLocales: 'en',
+    clientId: credentials?.clientId || "",
+    clientSecret: credentials?.clientSecret || "",
+    environmentId: credentials?.environmentId || "",
+    responseType: "code",
+    redirectUri: "http://localhost:3000/callback",
+    scope: "openid profile email",
+    state: "",
+    nonce: "",
+    codeChallenge: "",
+    codeChallengeMethod: "S256",
+    acrValues: "",
+    prompt: "consent",
+    maxAge: "3600",
+    uiLocales: "en",
     claims: '{"userinfo": {"email": null, "phone_number": null}}',
-    privateKey: '',
-    keyId: '',
-    jwksUri: ''
+    privateKey: "",
+    keyId: "",
+    jwksUri: "",
   });
   const [response, setResponse] = useState<Record<string, unknown> | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -274,29 +280,35 @@ const PARFlow: React.FC<PARFlowProps> = ({ credentials }) => {
   const [parService] = useState(() => new PARService(formData.environmentId));
 
   const generateState = useCallback(() => {
-    const state = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    setFormData(prev => ({ ...prev, state }));
+    const state =
+      Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    setFormData((prev) => ({ ...prev, state }));
     return state;
   }, []);
 
   const generateNonce = useCallback(() => {
-    const nonce = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    setFormData(prev => ({ ...prev, nonce }));
+    const nonce =
+      Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    setFormData((prev) => ({ ...prev, nonce }));
     return nonce;
   }, []);
 
   const generateCodeChallenge = useCallback(() => {
-    const codeVerifier = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    const codeChallenge = btoa(codeVerifier).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-    setFormData(prev => ({ ...prev, codeChallenge }));
+    const codeVerifier =
+      Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    const codeChallenge = btoa(codeVerifier)
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=/g, "");
+    setFormData((prev) => ({ ...prev, codeChallenge }));
     return { codeVerifier, codeChallenge };
   }, []);
 
   const steps = [
     {
-      id: 'step-1',
-      title: 'Configure PAR Settings',
-      description: 'Set up your OAuth client for Pushed Authorization Request.',
+      id: "step-1",
+      title: "Configure PAR Settings",
+      description: "Set up your OAuth client for Pushed Authorization Request.",
       code: `// PAR Configuration
 const parConfig = {
   clientId: '${formData.clientId}',
@@ -319,14 +331,14 @@ const parConfig = {
 
 console.log('PAR configured:', parConfig);`,
       execute: async () => {
-        logger.info('PARFlow', 'Configuring PAR settings');
+        logger.info("PARFlow", "Configuring PAR settings");
         generateState();
         generateNonce();
         generateCodeChallenge();
-      }
+      },
     },
     {
-      id: 'step-2',
+      id: "step-2",
       title: `Generate PAR Request (${activeAuthMethod})`,
       description: `Generate a Pushed Authorization Request using ${activeAuthMethod} authentication.`,
       code: `// Generate PAR Request
@@ -361,11 +373,11 @@ const parService = new PARService('${formData.environmentId}');
 const parResponse = await parService.generatePARRequest(parRequest, authMethod);
 console.log('PAR Response:', parResponse);`,
       execute: async () => {
-        logger.info('PARFlow', 'Generating PAR request', { authMethod: activeAuthMethod });
-        setDemoStatus('loading');
-        
+        logger.info("PARFlow", "Generating PAR request", { authMethod: activeAuthMethod });
+        setDemoStatus("loading");
+
         try {
-          const parRequest: PARRequest = {
+          const _parRequest: PARRequest = {
             clientId: formData.clientId,
             clientSecret: formData.clientSecret,
             environmentId: formData.environmentId,
@@ -380,48 +392,48 @@ console.log('PAR Response:', parResponse);`,
             prompt: formData.prompt,
             maxAge: formData.maxAge,
             uiLocales: formData.uiLocales,
-            claims: formData.claims
+            claims: formData.claims,
           };
 
-          const authMethod: PARAuthMethod = {
+          const _authMethod: PARAuthMethod = {
             type: activeAuthMethod,
             clientId: formData.clientId,
             clientSecret: formData.clientSecret,
             privateKey: formData.privateKey,
             keyId: formData.keyId,
-            jwksUri: formData.jwksUri
+            jwksUri: formData.jwksUri,
           };
 
           // Simulate PAR request
           const mockParResponse: PARResponse = {
             requestUri: `urn:ietf:params:oauth:request_uri:${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
             expiresIn: 600,
-            expiresAt: Date.now() + 600000
+            expiresAt: Date.now() + 600000,
           };
 
           setParResponse(mockParResponse);
           setResponse({
             success: true,
-            message: 'PAR request generated successfully',
+            message: "PAR request generated successfully",
             parResponse: mockParResponse,
-            authMethod: activeAuthMethod
+            authMethod: activeAuthMethod,
           });
-          setDemoStatus('success');
+          setDemoStatus("success");
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          const errorMessage = error instanceof Error ? error.message : "Unknown error";
           setError(errorMessage);
-          setDemoStatus('error');
+          setDemoStatus("error");
           throw error;
         }
-      }
+      },
     },
     {
-      id: 'step-3',
-      title: 'Generate Authorization URL',
-      description: 'Generate the authorization URL using the request URI from PAR.',
+      id: "step-3",
+      title: "Generate Authorization URL",
+      description: "Generate the authorization URL using the request URI from PAR.",
       code: `// Generate Authorization URL with Request URI
 const authorizationUrl = parService.generateAuthorizationURL(
-  '${parResponse?.requestUri || 'urn:ietf:params:oauth:request_uri:example'}',
+  '${parResponse?.requestUri || "urn:ietf:params:oauth:request_uri:example"}',
   {
     // Additional parameters can be added here
     // client_id: '${formData.clientId}',
@@ -434,22 +446,22 @@ console.log('Authorization URL:', authorizationUrl);
 // Redirect to authorization URL
 window.location.href = authorizationUrl;`,
       execute: async () => {
-        logger.info('PARFlow', 'Generating authorization URL');
-        
+        logger.info("PARFlow", "Generating authorization URL");
+
         if (parResponse) {
           const authUrl = parService.generateAuthorizationURL(parResponse.requestUri);
-          setResponse(prev => ({ 
-            ...prev, 
+          setResponse((prev) => ({
+            ...prev,
             authorizationUrl: authUrl,
-            message: 'Authorization URL generated successfully'
+            message: "Authorization URL generated successfully",
           }));
         }
-      }
+      },
     },
     {
-      id: 'step-4',
-      title: 'Handle Authorization Response',
-      description: 'Process the response from the authorization endpoint.',
+      id: "step-4",
+      title: "Handle Authorization Response",
+      description: "Process the response from the authorization endpoint.",
       code: `// Handle Authorization Response
 const urlParams = new URLSearchParams(window.location.search);
 const code = urlParams.get('code');
@@ -471,13 +483,13 @@ if (error) {
 console.log('Authorization successful, code:', code);
 console.log('State validated:', state === storedState);`,
       execute: async () => {
-        logger.info('PARFlow', 'Handling authorization response');
-      }
+        logger.info("PARFlow", "Handling authorization response");
+      },
     },
     {
-      id: 'step-5',
-      title: 'Exchange Code for Tokens',
-      description: 'Exchange the authorization code for access and ID tokens.',
+      id: "step-5",
+      title: "Exchange Code for Tokens",
+      description: "Exchange the authorization code for access and ID tokens.",
       code: `// Exchange authorization code for tokens
 const tokenUrl = \`https://auth.pingone.com/\${environmentId}/as/token\`;
 
@@ -501,72 +513,72 @@ if (tokenResponse.ok) {
   localStorage.setItem('oauth_tokens', JSON.stringify(tokens));
 }`,
       execute: async () => {
-        logger.info('PARFlow', 'Exchanging code for tokens');
-        
+        logger.info("PARFlow", "Exchanging code for tokens");
+
         try {
           // Simulate token exchange
           const mockTokens = {
-            access_token: 'mock_access_token_' + Date.now(),
-            id_token: 'mock_id_token_' + Date.now(),
-            token_type: 'Bearer',
+            access_token: `mock_access_token_${Date.now()}`,
+            id_token: `mock_id_token_${Date.now()}`,
+            token_type: "Bearer",
             expires_in: 3600,
             scope: formData.scope,
-            refresh_token: 'mock_refresh_token_' + Date.now(),
+            refresh_token: `mock_refresh_token_${Date.now()}`,
             par_used: true,
-            auth_method: activeAuthMethod
+            auth_method: activeAuthMethod,
           };
 
           // Store tokens using the standardized method
-          const success = storeOAuthTokens(mockTokens, 'par', `PAR Flow (${activeAuthMethod})`);
-          
+          const success = storeOAuthTokens(mockTokens, "par", `PAR Flow (${activeAuthMethod})`);
+
           if (success) {
-            setResponse(prev => ({ ...prev, tokens: mockTokens }));
+            setResponse((prev) => ({ ...prev, tokens: mockTokens }));
           } else {
-            throw new Error('Failed to store tokens');
+            throw new Error("Failed to store tokens");
           }
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          const errorMessage = error instanceof Error ? error.message : "Unknown error";
           setError(errorMessage);
           throw error;
         }
-      }
-    }
+      },
+    },
   ];
 
   const handleStepChange = useCallback((step: number) => {
     setCurrentStep(step);
-    setDemoStatus('idle');
+    setDemoStatus("idle");
     setResponse(null);
     setError(null);
   }, []);
 
   const handleStepResult = useCallback((step: number, result: unknown) => {
-    logger.info('PARFlow', `Step ${step + 1} completed`, result);
+    logger.info("PARFlow", `Step ${step + 1} completed`, result);
   }, []);
 
   const handlePARStart = async () => {
     try {
-      setDemoStatus('loading');
+      setDemoStatus("loading");
       setError(null);
-      
+
       const mockParResponse: PARResponse = {
         requestUri: `urn:ietf:params:oauth:request_uri:${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
         expiresIn: 600,
-        expiresAt: Date.now() + 600000
+        expiresAt: Date.now() + 600000,
       };
 
       setParResponse(mockParResponse);
       setResponse({
         success: true,
-        message: 'PAR request generated successfully',
+        message: "PAR request generated successfully",
         parResponse: mockParResponse,
-        authMethod: activeAuthMethod
+        authMethod: activeAuthMethod,
       });
-      setDemoStatus('success');
+      setDemoStatus("success");
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       setError(errorMessage);
-      setDemoStatus('error');
+      setDemoStatus("error");
     }
   };
 
@@ -574,26 +586,26 @@ if (tokenResponse.ok) {
     <FlowContainer>
       <FlowTitle>Pushed Authorization Request (PAR) Flow</FlowTitle>
       <FlowDescription>
-        The Pushed Authorization Request (PAR) flow allows clients to push authorization 
-        request parameters to the authorization server in advance, receiving a request URI 
-        that can be used in the authorization request. This enhances security and reduces 
-        the risk of parameter tampering.
+        The Pushed Authorization Request (PAR) flow allows clients to push authorization request
+        parameters to the authorization server in advance, receiving a request URI that can be used
+        in the authorization request. This enhances security and reduces the risk of parameter
+        tampering.
       </FlowDescription>
 
       <InfoContainer>
         <h4>🔒 PAR Security Benefits</h4>
         <p>
-          PAR enhances security by allowing clients to push sensitive parameters to the 
-          authorization server in advance, reducing the risk of parameter tampering and 
-          providing better control over the authorization process.
+          PAR enhances security by allowing clients to push sensitive parameters to the
+          authorization server in advance, reducing the risk of parameter tampering and providing
+          better control over the authorization process.
         </p>
         <p>
-          <strong>📚 Official Documentation:</strong> 
-          <a 
-            href="https://apidocs.pingidentity.com/pingone/auth/v1/api/#pushed-authorization-request" 
-            target="_blank" 
+          <strong>📚 Official Documentation:</strong>
+          <a
+            href="https://apidocs.pingidentity.com/pingone/auth/v1/api/#pushed-authorization-request"
+            target="_blank"
             rel="noopener noreferrer"
-            style={{ color: '#1e40af', textDecoration: 'underline' }}
+            style={{ color: "#1e40af", textDecoration: "underline" }}
           >
             PingOne PAR API Documentation
           </a>
@@ -603,29 +615,41 @@ if (tokenResponse.ok) {
       <FlowCredentials
         flowType="par"
         onCredentialsChange={(newCredentials) => {
-          setFormData(prev => ({
+          setFormData((prev) => ({
             ...prev,
             clientId: newCredentials.clientId || prev.clientId,
             clientSecret: newCredentials.clientSecret || prev.clientSecret,
-            environmentId: newCredentials.environmentId || prev.environmentId
+            environmentId: newCredentials.environmentId || prev.environmentId,
           }));
         }}
       />
 
       <TabContainer>
-        <Tab $active={activeAuthMethod === 'NONE'} onClick={() => setActiveAuthMethod('NONE')}>
+        <Tab $active={activeAuthMethod === "NONE"} onClick={() => setActiveAuthMethod("NONE")}>
           NONE
         </Tab>
-        <Tab $active={activeAuthMethod === 'CLIENT_SECRET_POST'} onClick={() => setActiveAuthMethod('CLIENT_SECRET_POST')}>
+        <Tab
+          $active={activeAuthMethod === "CLIENT_SECRET_POST"}
+          onClick={() => setActiveAuthMethod("CLIENT_SECRET_POST")}
+        >
           CLIENT_SECRET_POST
         </Tab>
-        <Tab $active={activeAuthMethod === 'CLIENT_SECRET_BASIC'} onClick={() => setActiveAuthMethod('CLIENT_SECRET_BASIC')}>
+        <Tab
+          $active={activeAuthMethod === "CLIENT_SECRET_BASIC"}
+          onClick={() => setActiveAuthMethod("CLIENT_SECRET_BASIC")}
+        >
           CLIENT_SECRET_BASIC
         </Tab>
-        <Tab $active={activeAuthMethod === 'CLIENT_SECRET_JWT'} onClick={() => setActiveAuthMethod('CLIENT_SECRET_JWT')}>
+        <Tab
+          $active={activeAuthMethod === "CLIENT_SECRET_JWT"}
+          onClick={() => setActiveAuthMethod("CLIENT_SECRET_JWT")}
+        >
           CLIENT_SECRET_JWT
         </Tab>
-        <Tab $active={activeAuthMethod === 'PRIVATE_KEY_JWT'} onClick={() => setActiveAuthMethod('PRIVATE_KEY_JWT')}>
+        <Tab
+          $active={activeAuthMethod === "PRIVATE_KEY_JWT"}
+          onClick={() => setActiveAuthMethod("PRIVATE_KEY_JWT")}
+        >
           PRIVATE_KEY_JWT
         </Tab>
       </TabContainer>
@@ -635,23 +659,23 @@ if (tokenResponse.ok) {
         currentStep={currentStep}
         onStepChange={handleStepChange}
         onStepResult={handleStepResult}
-        onStart={() => setDemoStatus('loading')}
+        onStart={() => setDemoStatus("loading")}
         onReset={() => {
           setCurrentStep(0);
-          setDemoStatus('idle');
+          setDemoStatus("idle");
           setResponse(null);
           setError(null);
           setParResponse(null);
         }}
         status={demoStatus}
-        disabled={demoStatus === 'loading'}
+        disabled={demoStatus === "loading"}
         title={`PAR Flow Steps (${activeAuthMethod})`}
       />
 
       {parResponse && (
         <PARContainer>
           <PARTitle>PAR Response Details</PARTitle>
-          
+
           <PARDetails>
             <PARDetail>
               <PARLabel>Request URI</PARLabel>
@@ -670,7 +694,7 @@ if (tokenResponse.ok) {
               <PARValue>{activeAuthMethod}</PARValue>
             </PARDetail>
           </PARDetails>
-          
+
           <Button $variant="primary" onClick={handlePARStart}>
             Generate New PAR Request
           </Button>
@@ -694,13 +718,20 @@ if (tokenResponse.ok) {
       <FormContainer>
         <h3>Manual PAR Configuration</h3>
         <p>You can also manually configure the PAR flow:</p>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "1rem",
+            marginBottom: "1rem",
+          }}
+        >
           <FormGroup>
             <Label>Response Type</Label>
             <Select
               value={formData.responseType}
-              onChange={(e) => setFormData(prev => ({ ...prev, responseType: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, responseType: e.target.value }))}
             >
               <option value="code">code</option>
               <option value="token">token</option>
@@ -711,30 +742,30 @@ if (tokenResponse.ok) {
               <option value="code token id_token">code token id_token</option>
             </Select>
           </FormGroup>
-          
+
           <FormGroup>
             <Label>Scope</Label>
             <Input
               type="text"
               value={formData.scope}
-              onChange={(e) => setFormData(prev => ({ ...prev, scope: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, scope: e.target.value }))}
             />
           </FormGroup>
-          
+
           <FormGroup>
             <Label>ACR Values</Label>
             <Input
               type="text"
               value={formData.acrValues}
-              onChange={(e) => setFormData(prev => ({ ...prev, acrValues: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, acrValues: e.target.value }))}
             />
           </FormGroup>
-          
+
           <FormGroup>
             <Label>Prompt</Label>
             <Select
               value={formData.prompt}
-              onChange={(e) => setFormData(prev => ({ ...prev, prompt: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, prompt: e.target.value }))}
             >
               <option value="consent">consent</option>
               <option value="login">login</option>
@@ -742,35 +773,42 @@ if (tokenResponse.ok) {
             </Select>
           </FormGroup>
         </div>
-        
-        {activeAuthMethod === 'PRIVATE_KEY_JWT' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+
+        {activeAuthMethod === "PRIVATE_KEY_JWT" && (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "1rem",
+              marginBottom: "1rem",
+            }}
+          >
             <FormGroup>
               <Label>Private Key</Label>
               <TextArea
                 value={formData.privateKey}
-                onChange={(e) => setFormData(prev => ({ ...prev, privateKey: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, privateKey: e.target.value }))}
                 placeholder="Enter private key in PEM format"
               />
             </FormGroup>
-            
+
             <FormGroup>
               <Label>Key ID</Label>
               <Input
                 type="text"
                 value={formData.keyId}
-                onChange={(e) => setFormData(prev => ({ ...prev, keyId: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, keyId: e.target.value }))}
                 placeholder="Enter key ID"
               />
             </FormGroup>
           </div>
         )}
-        
+
         <FormGroup>
           <Label>Claims (JSON)</Label>
           <TextArea
             value={formData.claims}
-            onChange={(e) => setFormData(prev => ({ ...prev, claims: e.target.value }))}
+            onChange={(e) => setFormData((prev) => ({ ...prev, claims: e.target.value }))}
             placeholder='{"userinfo": {"email": null, "phone_number": null}}'
           />
         </FormGroup>

@@ -1,10 +1,10 @@
-import React, { useState, useCallback } from 'react';
-import styled from 'styled-components';
-import { StepByStepFlow } from '../../components/StepByStepFlow';
-import FlowCredentials from '../../components/FlowCredentials';
-import { storeOAuthTokens } from '../../utils/tokenStorage';
-import { logger } from '../../utils/logger';
-import JSONHighlighter from '../../components/JSONHighlighter';
+import type React from "react";
+import { useCallback, useState } from "react";
+import styled from "styled-components";
+import FlowCredentials from "../../components/FlowCredentials";
+import JSONHighlighter from "../../components/JSONHighlighter";
+import { StepByStepFlow } from "../../components/StepByStepFlow";
+import { logger } from "../../utils/logger";
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -76,7 +76,7 @@ const TextArea = styled.textarea`
   }
 `;
 
-const Select = styled.select`
+const _Select = styled.select`
   width: 100%;
   padding: 0.5rem;
   border: 1px solid #d1d5db;
@@ -91,7 +91,7 @@ const Select = styled.select`
   }
 `;
 
-const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' | 'danger' }>`
+const Button = styled.button<{ $variant: "primary" | "secondary" | "success" | "danger" }>`
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 0.375rem;
@@ -104,25 +104,25 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' | '
   
   ${({ $variant }) => {
     switch ($variant) {
-      case 'primary':
+      case "primary":
         return `
           background-color: #3b82f6;
           color: white;
           &:hover { background-color: #2563eb; }
         `;
-      case 'secondary':
+      case "secondary":
         return `
           background-color: #6b7280;
           color: white;
           &:hover { background-color: #4b5563; }
         `;
-      case 'success':
+      case "success":
         return `
           background-color: #10b981;
           color: white;
           &:hover { background-color: #059669; }
         `;
-      case 'danger':
+      case "danger":
         return `
           background-color: #ef4444;
           color: white;
@@ -220,16 +220,16 @@ interface UserInfoPostFlowProps {
 
 const UserInfoPostFlow: React.FC<UserInfoPostFlowProps> = ({ credentials }) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [demoStatus, setDemoStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [formData, setFormData] = useState({
-    clientId: credentials?.clientId || '',
-    clientSecret: credentials?.clientSecret || '',
-    environmentId: credentials?.environmentId || '',
-    accessToken: '',
-    scope: 'openid profile email',
+    clientId: credentials?.clientId || "",
+    clientSecret: credentials?.clientSecret || "",
+    environmentId: credentials?.environmentId || "",
+    accessToken: "",
+    scope: "openid profile email",
     claims: '{"userinfo": {"email": null, "phone_number": null, "address": null}}',
-    uiLocales: 'en',
-    includeClaims: true
+    uiLocales: "en",
+    includeClaims: true,
   });
   const [response, setResponse] = useState<Record<string, unknown> | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -237,9 +237,9 @@ const UserInfoPostFlow: React.FC<UserInfoPostFlowProps> = ({ credentials }) => {
 
   const steps = [
     {
-      id: 'step-1',
-      title: 'Configure UserInfo POST Settings',
-      description: 'Set up your OAuth client for UserInfo POST requests.',
+      id: "step-1",
+      title: "Configure UserInfo POST Settings",
+      description: "Set up your OAuth client for UserInfo POST requests.",
       code: `// UserInfo POST Configuration
 const userInfoConfig = {
   clientId: '${formData.clientId}',
@@ -254,13 +254,13 @@ const userInfoConfig = {
 
 console.log('UserInfo POST configured:', userInfoConfig);`,
       execute: async () => {
-        logger.info('UserInfoPostFlow', 'Configuring UserInfo POST settings');
-      }
+        logger.info("UserInfoPostFlow", "Configuring UserInfo POST settings");
+      },
     },
     {
-      id: 'step-2',
-      title: 'Prepare UserInfo POST Request',
-      description: 'Build the POST request for UserInfo endpoint.',
+      id: "step-2",
+      title: "Prepare UserInfo POST Request",
+      description: "Build the POST request for UserInfo endpoint.",
       code: `// Prepare UserInfo POST Request
 const userInfoUrl = \`https://auth.pingone.com/\${environmentId}/as/userinfo\`;
 
@@ -275,13 +275,13 @@ formData.append('ui_locales', '${formData.uiLocales}');
 console.log('UserInfo POST URL:', userInfoUrl);
 console.log('Form data prepared for POST request');`,
       execute: async () => {
-        logger.info('UserInfoPostFlow', 'Preparing UserInfo POST request');
-      }
+        logger.info("UserInfoPostFlow", "Preparing UserInfo POST request");
+      },
     },
     {
-      id: 'step-3',
-      title: 'Submit UserInfo POST Request',
-      description: 'Submit the POST request to the UserInfo endpoint.',
+      id: "step-3",
+      title: "Submit UserInfo POST Request",
+      description: "Submit the POST request to the UserInfo endpoint.",
       code: `// Submit UserInfo POST Request
 try {
   const response = await fetch(userInfoUrl, {
@@ -308,54 +308,54 @@ try {
   throw error;
 }`,
       execute: async () => {
-        logger.info('UserInfoPostFlow', 'Submitting UserInfo POST request');
-        setDemoStatus('loading');
-        
+        logger.info("UserInfoPostFlow", "Submitting UserInfo POST request");
+        setDemoStatus("loading");
+
         try {
           // Simulate UserInfo POST request
           const mockUserInfo = {
-            sub: 'user_123456789',
-            name: 'John Doe',
-            given_name: 'John',
-            family_name: 'Doe',
-            email: 'john.doe@example.com',
+            sub: "user_123456789",
+            name: "John Doe",
+            given_name: "John",
+            family_name: "Doe",
+            email: "john.doe@example.com",
             email_verified: true,
-            phone_number: '+1-555-123-4567',
+            phone_number: "+1-555-123-4567",
             phone_number_verified: true,
             address: {
-              street_address: '123 Main St',
-              locality: 'Anytown',
-              region: 'CA',
-              postal_code: '12345',
-              country: 'US'
+              street_address: "123 Main St",
+              locality: "Anytown",
+              region: "CA",
+              postal_code: "12345",
+              country: "US",
             },
-            locale: 'en-US',
-            updated_at: Math.floor(Date.now() / 1000)
+            locale: "en-US",
+            updated_at: Math.floor(Date.now() / 1000),
           };
 
           const mockResponse = {
             success: true,
-            message: 'UserInfo retrieved successfully',
+            message: "UserInfo retrieved successfully",
             userInfo: mockUserInfo,
-            method: 'POST',
-            endpoint: `https://auth.pingone.com/${formData.environmentId}/as/userinfo`
+            method: "POST",
+            endpoint: `https://auth.pingone.com/${formData.environmentId}/as/userinfo`,
           };
 
           setResponse(mockResponse);
           setUserInfo(mockUserInfo);
-          setDemoStatus('success');
+          setDemoStatus("success");
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          const errorMessage = error instanceof Error ? error.message : "Unknown error";
           setError(errorMessage);
-          setDemoStatus('error');
+          setDemoStatus("error");
           throw error;
         }
-      }
+      },
     },
     {
-      id: 'step-4',
-      title: 'Process UserInfo Response',
-      description: 'Process and validate the UserInfo response.',
+      id: "step-4",
+      title: "Process UserInfo Response",
+      description: "Process and validate the UserInfo response.",
       code: `// Process UserInfo Response
 if (userInfo) {
   // Validate required claims
@@ -385,8 +385,8 @@ if (userInfo) {
   localStorage.setItem('user_data', JSON.stringify(userData));
 }`,
       execute: async () => {
-        logger.info('UserInfoPostFlow', 'Processing UserInfo response');
-        
+        logger.info("UserInfoPostFlow", "Processing UserInfo response");
+
         if (userInfo) {
           const processedUserData = {
             id: userInfo.sub,
@@ -397,17 +397,17 @@ if (userInfo) {
             phoneVerified: userInfo.phone_number_verified,
             address: userInfo.address,
             locale: userInfo.locale,
-            lastUpdated: new Date(userInfo.updated_at * 1000)
+            lastUpdated: new Date(userInfo.updated_at * 1000),
           };
 
-          setResponse(prev => ({ ...prev, processedUserData }));
+          setResponse((prev) => ({ ...prev, processedUserData }));
         }
-      }
+      },
     },
     {
-      id: 'step-5',
-      title: 'Handle UserInfo Errors',
-      description: 'Handle common UserInfo request errors and edge cases.',
+      id: "step-5",
+      title: "Handle UserInfo Errors",
+      description: "Handle common UserInfo request errors and edge cases.",
       code: `// Handle UserInfo Errors
 const handleUserInfoError = (error) => {
   if (error.status === 401) {
@@ -447,64 +447,64 @@ const retryUserInfoRequest = async (retryCount = 0) => {
   }
 };`,
       execute: async () => {
-        logger.info('UserInfoPostFlow', 'UserInfo error handling implemented');
-      }
-    }
+        logger.info("UserInfoPostFlow", "UserInfo error handling implemented");
+      },
+    },
   ];
 
   const handleStepChange = useCallback((step: number) => {
     setCurrentStep(step);
-    setDemoStatus('idle');
+    setDemoStatus("idle");
     setResponse(null);
     setError(null);
   }, []);
 
   const handleStepResult = useCallback((step: number, result: unknown) => {
-    logger.info('UserInfoPostFlow', `Step ${step + 1} completed`, result);
+    logger.info("UserInfoPostFlow", `Step ${step + 1} completed`, result);
   }, []);
 
   const handleUserInfoRequest = async () => {
     try {
-      setDemoStatus('loading');
+      setDemoStatus("loading");
       setError(null);
-      
+
       const userInfoUrl = `https://auth.pingone.com/${formData.environmentId}/as/userinfo`;
-      
+
       const mockUserInfo = {
-        sub: 'user_123456789',
-        name: 'John Doe',
-        given_name: 'John',
-        family_name: 'Doe',
-        email: 'john.doe@example.com',
+        sub: "user_123456789",
+        name: "John Doe",
+        given_name: "John",
+        family_name: "Doe",
+        email: "john.doe@example.com",
         email_verified: true,
-        phone_number: '+1-555-123-4567',
+        phone_number: "+1-555-123-4567",
         phone_number_verified: true,
         address: {
-          street_address: '123 Main St',
-          locality: 'Anytown',
-          region: 'CA',
-          postal_code: '12345',
-          country: 'US'
+          street_address: "123 Main St",
+          locality: "Anytown",
+          region: "CA",
+          postal_code: "12345",
+          country: "US",
         },
-        locale: 'en-US',
-        updated_at: Math.floor(Date.now() / 1000)
+        locale: "en-US",
+        updated_at: Math.floor(Date.now() / 1000),
       };
 
       const mockResponse = {
         success: true,
-        message: 'UserInfo retrieved successfully',
+        message: "UserInfo retrieved successfully",
         userInfo: mockUserInfo,
-        method: 'POST',
-        endpoint: userInfoUrl
+        method: "POST",
+        endpoint: userInfoUrl,
       };
 
       setResponse(mockResponse);
       setUserInfo(mockUserInfo);
-      setDemoStatus('success');
+      setDemoStatus("success");
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       setError(errorMessage);
-      setDemoStatus('error');
+      setDemoStatus("error");
     }
   };
 
@@ -512,29 +512,29 @@ const retryUserInfoRequest = async (retryCount = 0) => {
     <FlowContainer>
       <FlowTitle>UserInfo POST Flow</FlowTitle>
       <FlowDescription>
-        This flow demonstrates the UserInfo endpoint using POST requests. The UserInfo 
-        endpoint allows clients to retrieve information about the authenticated user 
-        using their access token.
+        This flow demonstrates the UserInfo endpoint using POST requests. The UserInfo endpoint
+        allows clients to retrieve information about the authenticated user using their access
+        token.
       </FlowDescription>
 
       <InfoContainer>
         <h4>👤 UserInfo POST Benefits</h4>
         <p>
-          The UserInfo POST method allows for more complex requests with larger payloads, 
-          including custom claims and additional parameters. It's particularly useful 
-          when you need to request specific user information or when dealing with 
-          sensitive data that shouldn't be exposed in URL parameters.
+          The UserInfo POST method allows for more complex requests with larger payloads, including
+          custom claims and additional parameters. It's particularly useful when you need to request
+          specific user information or when dealing with sensitive data that shouldn't be exposed in
+          URL parameters.
         </p>
       </InfoContainer>
 
       <FlowCredentials
         flowType="userinfo-post"
         onCredentialsChange={(newCredentials) => {
-          setFormData(prev => ({
+          setFormData((prev) => ({
             ...prev,
             clientId: newCredentials.clientId || prev.clientId,
             clientSecret: newCredentials.clientSecret || prev.clientSecret,
-            environmentId: newCredentials.environmentId || prev.environmentId
+            environmentId: newCredentials.environmentId || prev.environmentId,
           }));
         }}
       />
@@ -544,23 +544,23 @@ const retryUserInfoRequest = async (retryCount = 0) => {
         currentStep={currentStep}
         onStepChange={handleStepChange}
         onStepResult={handleStepResult}
-        onStart={() => setDemoStatus('loading')}
+        onStart={() => setDemoStatus("loading")}
         onReset={() => {
           setCurrentStep(0);
-          setDemoStatus('idle');
+          setDemoStatus("idle");
           setResponse(null);
           setError(null);
           setUserInfo(null);
         }}
         status={demoStatus}
-        disabled={demoStatus === 'loading'}
+        disabled={demoStatus === "loading"}
         title="UserInfo POST Flow Steps"
       />
 
       {userInfo && (
         <UserInfoContainer>
           <UserInfoTitle>User Information</UserInfoTitle>
-          
+
           <UserInfoDetails>
             <UserInfoDetail>
               <UserInfoLabel>User ID</UserInfoLabel>
@@ -576,15 +576,15 @@ const retryUserInfoRequest = async (retryCount = 0) => {
             </UserInfoDetail>
             <UserInfoDetail>
               <UserInfoLabel>Email Verified</UserInfoLabel>
-              <UserInfoValue>{userInfo.email_verified ? 'Yes' : 'No'}</UserInfoValue>
+              <UserInfoValue>{userInfo.email_verified ? "Yes" : "No"}</UserInfoValue>
             </UserInfoDetail>
             <UserInfoDetail>
               <UserInfoLabel>Phone</UserInfoLabel>
-              <UserInfoValue>{userInfo.phone_number || 'Not provided'}</UserInfoValue>
+              <UserInfoValue>{userInfo.phone_number || "Not provided"}</UserInfoValue>
             </UserInfoDetail>
             <UserInfoDetail>
               <UserInfoLabel>Phone Verified</UserInfoLabel>
-              <UserInfoValue>{userInfo.phone_number_verified ? 'Yes' : 'No'}</UserInfoValue>
+              <UserInfoValue>{userInfo.phone_number_verified ? "Yes" : "No"}</UserInfoValue>
             </UserInfoDetail>
             <UserInfoDetail>
               <UserInfoLabel>Locale</UserInfoLabel>
@@ -617,55 +617,62 @@ const retryUserInfoRequest = async (retryCount = 0) => {
       <FormContainer>
         <h3>Manual UserInfo Configuration</h3>
         <p>You can also manually configure the UserInfo POST request:</p>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "1rem",
+            marginBottom: "1rem",
+          }}
+        >
           <FormGroup>
             <Label>Access Token</Label>
             <Input
               type="text"
               value={formData.accessToken}
-              onChange={(e) => setFormData(prev => ({ ...prev, accessToken: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, accessToken: e.target.value }))}
               placeholder="Enter access token"
             />
           </FormGroup>
-          
+
           <FormGroup>
             <Label>Client ID</Label>
             <Input
               type="text"
               value={formData.clientId}
-              onChange={(e) => setFormData(prev => ({ ...prev, clientId: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, clientId: e.target.value }))}
             />
           </FormGroup>
-          
+
           <FormGroup>
             <Label>Scope</Label>
             <Input
               type="text"
               value={formData.scope}
-              onChange={(e) => setFormData(prev => ({ ...prev, scope: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, scope: e.target.value }))}
             />
           </FormGroup>
-          
+
           <FormGroup>
             <Label>UI Locales</Label>
             <Input
               type="text"
               value={formData.uiLocales}
-              onChange={(e) => setFormData(prev => ({ ...prev, uiLocales: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, uiLocales: e.target.value }))}
             />
           </FormGroup>
         </div>
-        
+
         <FormGroup>
           <Label>Claims (JSON)</Label>
           <TextArea
             value={formData.claims}
-            onChange={(e) => setFormData(prev => ({ ...prev, claims: e.target.value }))}
+            onChange={(e) => setFormData((prev) => ({ ...prev, claims: e.target.value }))}
             placeholder='{"userinfo": {"email": null, "phone_number": null}}'
           />
         </FormGroup>
-        
+
         <Button $variant="primary" onClick={handleUserInfoRequest}>
           Request UserInfo
         </Button>
