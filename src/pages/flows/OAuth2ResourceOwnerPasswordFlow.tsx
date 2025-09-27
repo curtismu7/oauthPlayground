@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
-import styled from 'styled-components';
-import { FiAlertTriangle, FiInfo, FiShield, FiUser, FiLock, FiX } from 'react-icons/fi';
+import type React from "react";
+import { useEffect } from "react";
+import { FiAlertTriangle, FiInfo, FiLock, FiShield, FiUser, FiX } from "react-icons/fi";
+import styled from "styled-components";
 
 const PageContainer = styled.div`
   max-width: 1200px;
@@ -141,16 +142,16 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
       <WarningCard>
         <FiAlertTriangle size={24} color="#dc2626" />
         <CardContent>
-          <CardTitle style={{ color: '#dc2626' }}>
+          <CardTitle style={{ color: "#dc2626" }}>
             <FiAlertTriangle />
             Security Warning
           </CardTitle>
-          <CardText style={{ color: '#991b1b' }}>
-            The Resource Owner Password Credentials flow is <strong>deprecated</strong> and should be avoided 
-            in most cases due to significant security risks. This flow requires the application to collect 
-            and handle user credentials directly.
+          <CardText style={{ color: "#991b1b" }}>
+            The Resource Owner Password Credentials flow is <strong>deprecated</strong> and should
+            be avoided in most cases due to significant security risks. This flow requires the
+            application to collect and handle user credentials directly.
           </CardText>
-          <CardList style={{ color: '#991b1b' }}>
+          <CardList style={{ color: "#991b1b" }}>
             <CardListItem>Applications must handle passwords securely</CardListItem>
             <CardListItem>No delegation of authentication to authorization server</CardListItem>
             <CardListItem>Phishing attacks become easier</CardListItem>
@@ -162,18 +163,20 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
       <InfoCard>
         <FiInfo size={24} color="#0ea5e9" />
         <CardContent>
-          <CardTitle style={{ color: '#0c4a6e' }}>
+          <CardTitle style={{ color: "#0c4a6e" }}>
             <FiInfo />
             When to Use (Rare Cases)
           </CardTitle>
-          <CardText style={{ color: '#0c4a6e' }}>
+          <CardText style={{ color: "#0c4a6e" }}>
             This flow should only be used in very specific, high-trust scenarios:
           </CardText>
-          <CardList style={{ color: '#0c4a6e' }}>
+          <CardList style={{ color: "#0c4a6e" }}>
             <CardListItem>Legacy system migration where other flows are impossible</CardListItem>
             <CardListItem>Highly trusted first-party applications</CardListItem>
             <CardListItem>Server-to-server communication with shared credentials</CardListItem>
-            <CardListItem>Internal enterprise applications with strong security controls</CardListItem>
+            <CardListItem>
+              Internal enterprise applications with strong security controls
+            </CardListItem>
           </CardList>
         </CardContent>
       </InfoCard>
@@ -181,29 +184,28 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
       <InfoCard>
         <FiShield size={24} color="#0ea5e9" />
         <CardContent>
-          <CardTitle style={{ color: '#0c4a6e' }}>
+          <CardTitle style={{ color: "#0c4a6e" }}>
             <FiShield />
             OAuth 2.0 Resource Owner Password Flow
           </CardTitle>
-          <CardText style={{ color: '#0c4a6e' }}>
-            The application collects the user's credentials and exchanges them directly for an access token.
+          <CardText style={{ color: "#0c4a6e" }}>
+            The application collects the user's credentials and exchanges them directly for an
+            access token.
           </CardText>
-          
-          <CardTitle style={{ color: '#0c4a6e', marginTop: '1.5rem' }}>
-            Flow Steps:
-          </CardTitle>
-          <CardList style={{ color: '#0c4a6e' }}>
+
+          <CardTitle style={{ color: "#0c4a6e", marginTop: "1.5rem" }}>Flow Steps:</CardTitle>
+          <CardList style={{ color: "#0c4a6e" }}>
             <CardListItem>Application collects username and password</CardListItem>
             <CardListItem>Application sends credentials to token endpoint</CardListItem>
             <CardListItem>Authorization server validates credentials</CardListItem>
             <CardListItem>Server returns access token (and optionally refresh token)</CardListItem>
           </CardList>
 
-          <CardTitle style={{ color: '#0c4a6e', marginTop: '1.5rem' }}>
+          <CardTitle style={{ color: "#0c4a6e", marginTop: "1.5rem" }}>
             Token Request Example:
           </CardTitle>
           <CodeBlock>
-{`POST /as/token HTTP/1.1
+            {`POST /as/token HTTP/1.1
 Host: auth.pingone.com
 Content-Type: application/x-www-form-urlencoded
 
@@ -250,14 +252,14 @@ grant_type=password
       <InfoCard>
         <FiUser size={24} color="#0ea5e9" />
         <CardContent>
-          <CardTitle style={{ color: '#0c4a6e' }}>
+          <CardTitle style={{ color: "#0c4a6e" }}>
             <FiUser />
             Recommended Alternatives
           </CardTitle>
-          <CardText style={{ color: '#0c4a6e' }}>
+          <CardText style={{ color: "#0c4a6e" }}>
             Instead of the Resource Owner Password flow, consider these more secure alternatives:
           </CardText>
-          <CardList style={{ color: '#0c4a6e' }}>
+          <CardList style={{ color: "#0c4a6e" }}>
             <CardListItem>
               <strong>Authorization Code Flow:</strong> Most secure for web applications
             </CardListItem>
@@ -279,10 +281,10 @@ grant_type=password
           <FiX />
           Implementation Status
         </SecurityTitle>
-        <CardText style={{ color: '#92400e' }}>
-          This OAuth 2.0 Resource Owner Password flow is currently <strong>not implemented</strong> in this playground 
-          due to security concerns. If you need to test this flow, please use a dedicated, isolated environment 
-          with proper security controls in place.
+        <CardText style={{ color: "#92400e" }}>
+          This OAuth 2.0 Resource Owner Password flow is currently <strong>not implemented</strong>{" "}
+          in this playground due to security concerns. If you need to test this flow, please use a
+          dedicated, isolated environment with proper security controls in place.
         </CardText>
       </SecurityNotice>
     </PageContainer>

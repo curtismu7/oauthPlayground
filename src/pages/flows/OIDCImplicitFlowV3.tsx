@@ -16,11 +16,6 @@ import {
 } from "react-icons/fi";
 import styled from "styled-components";
 import AuthorizationRequestModal from "../../components/AuthorizationRequestModal";
-import {
-	showFlowError,
-	showFlowSuccess,
-} from "../../components/CentralizedSuccessMessage";
-import { trackFlowCompletion } from "../../utils/flowCredentialChecker";
 import { ColorCodedURL } from "../../components/ColorCodedURL";
 import ConfirmationModal from "../../components/ConfirmationModal";
 import DefaultRedirectUriModal from "../../components/DefaultRedirectUriModal";
@@ -35,11 +30,16 @@ import {
 import TokenDisplay from "../../components/TokenDisplay";
 import { useAuth } from "../../contexts/NewAuthContext";
 import { usePerformanceTracking } from "../../hooks/useAnalytics";
+import {
+	showGlobalError,
+	showGlobalSuccess,
+} from "../../hooks/useNotifications";
 import { useAuthorizationFlowScroll } from "../../hooks/usePageScroll";
 import { getCallbackUrlForFlow } from "../../utils/callbackUrls";
 import { copyToClipboard } from "../../utils/clipboard";
 import { credentialManager } from "../../utils/credentialManager";
 import { enhancedDebugger } from "../../utils/enhancedDebug";
+import { trackFlowCompletion } from "../../utils/flowCredentialChecker";
 import { useFlowStepManager } from "../../utils/flowStepSystem";
 import {
 	generateSecurityParameters,
@@ -340,7 +340,7 @@ const SecurityWarning = styled.div`
 type OIDCImplicitFlowV3Props = Record<string, never>;
 
 const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
-	const authContext = useAuth();
+	const _authContext = useAuth();
 
 	// Performance monitoring
 	const _performanceTracking = usePerformanceTracking();
@@ -479,7 +479,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 					setTokens(tokenData);
 
 					// Track flow completion for dashboard status
-					trackFlowCompletion('oidc-implicit-v3');
+					trackFlowCompletion("oidc-implicit-v3");
 
 					// Auto-advance to step 4 (token validation & display)
 					stepManager.setStep(3, "callback return with tokens");
@@ -488,7 +488,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 					);
 
 					// Show success message
-					showFlowSuccess(
+					showGlobalSuccess(
 						"🎉 Authorization Successful!",
 						"Tokens received from PingOne. You can now view and validate the tokens.",
 					);
@@ -617,12 +617,12 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 				JSON.stringify(credentials),
 			);
 
-			showFlowSuccess("Credentials saved successfully");
+			showGlobalSuccess("Credentials saved successfully");
 			console.log(
 				"✅ [OIDC-IMPLICIT-V3] Credentials saved to credential manager and localStorage",
 			);
 		} catch (error) {
-			showFlowError("Failed to save credentials");
+			showGlobalError("Failed to save credentials");
 			console.error("❌ [OIDC-IMPLICIT-V3] Failed to save credentials:", error);
 		}
 	}, [credentials]);
@@ -649,12 +649,12 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 				scopes: "openid",
 			});
 
-			showFlowSuccess("Credentials cleared successfully");
+			showGlobalSuccess("Credentials cleared successfully");
 			console.log(
 				"✅ [OIDC-IMPLICIT-V3] Credentials cleared from credential manager and localStorage",
 			);
 		} catch (error) {
-			showFlowError("Failed to clear credentials");
+			showGlobalError("Failed to clear credentials");
 			console.error(
 				"❌ [OIDC-IMPLICIT-V3] Failed to clear credentials:",
 				error,
@@ -667,7 +667,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 
 	const handleContinueWithDefaultUri = () => {
 		setShowDefaultRedirectUriModal(false);
-		showFlowSuccess(
+		showGlobalSuccess(
 			"Using default redirect URI. Please configure it in your PingOne application.",
 		);
 	};
@@ -727,14 +727,14 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 				"   Path: Applications → Your App → Configuration → Redirect URIs",
 			);
 
-			showFlowSuccess("Authorization URL built successfully!");
+			showGlobalSuccess("Authorization URL built successfully!");
 			return fullUrl;
 		} catch (error) {
 			console.error(
 				"❌ [OIDC-IMPLICIT-V3] Failed to build authorization URL:",
 				error,
 			);
-			showFlowError(`Failed to build authorization URL: ${error.message}`);
+			showGlobalError(`Failed to build authorization URL: ${error.message}`);
 			throw error;
 		}
 	}, [credentials, responseType]);
@@ -742,7 +742,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 	// Direct authorization redirect (without modal)
 	const handleAuthorizationDirect = useCallback(() => {
 		if (!authUrl) {
-			showFlowError("Please build authorization URL first");
+			showGlobalError("Please build authorization URL first");
 			return;
 		}
 
@@ -769,7 +769,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 	// Handle authorization redirect with modal option
 	const handleAuthorizationWithModal = useCallback(() => {
 		if (!authUrl) {
-			showFlowError("❌ Please generate authorization URL first");
+			showGlobalError("❌ Please generate authorization URL first");
 			return;
 		}
 
@@ -799,7 +799,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 	// Get user info
 	const getUserInfo = useCallback(async () => {
 		if (!tokens?.access_token) {
-			showFlowError("No access token available for UserInfo request");
+			showGlobalError("No access token available for UserInfo request");
 			return;
 		}
 
@@ -822,12 +822,12 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 
 			const userInfoData = await response.json();
 			setUserInfo(userInfoData);
-			showFlowSuccess("User info retrieved successfully");
+			showGlobalSuccess("User info retrieved successfully");
 
 			console.log("✅ [OIDC-IMPLICIT-V3] User info retrieved:", userInfoData);
 		} catch (error) {
 			console.error("❌ [OIDC-IMPLICIT-V3] Failed to get user info:", error);
-			showFlowError(`Failed to get user info: ${error.message}`);
+			showGlobalError(`Failed to get user info: ${error.message}`);
 		} finally {
 			setIsGettingUserInfo(false);
 		}
@@ -838,44 +838,55 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 		if (userInfo) {
 			try {
 				await copyToClipboard(JSON.stringify(userInfo, null, 2));
-				showFlowSuccess("UserInfo copied to clipboard");
+				showGlobalSuccess("UserInfo copied to clipboard");
 			} catch (_error) {
-				showFlowError("Failed to copy UserInfo");
+				showGlobalError("Failed to copy UserInfo");
 			}
 		}
 	}, [userInfo]);
 
 	// Navigate to Token Management with token
-	const navigateToTokenManagement = useCallback((tokenType: 'access' | 'id') => {
-		console.log('🔍 [OIDCImplicitFlowV3] Navigate to token management:', {
-			tokenType,
-			hasTokens: !!tokens,
-			hasAccessToken: !!tokens?.access_token,
-			hasIdToken: !!tokens?.id_token,
-			tokens
-		});
-		
-		const token = tokenType === 'access' ? tokens?.access_token : tokens?.id_token;
-		
-		if (token) {
-			console.log('✅ [OIDCImplicitFlowV3] Token found, storing for analysis:', {
+	const navigateToTokenManagement = useCallback(
+		(tokenType: "access" | "id") => {
+			console.log("🔍 [OIDCImplicitFlowV3] Navigate to token management:", {
 				tokenType,
-				tokenLength: token.length,
-				tokenPreview: token.substring(0, 20) + '...'
+				hasTokens: !!tokens,
+				hasAccessToken: !!tokens?.access_token,
+				hasIdToken: !!tokens?.id_token,
+				tokens,
 			});
-			
-			// Store the token for the Token Management page
-			sessionStorage.setItem('token_to_analyze', token);
-			sessionStorage.setItem('token_type', tokenType);
-			sessionStorage.setItem('flow_source', 'oidc-implicit-v3');
-			
-			console.log('🔍 [OIDCImplicitFlowV3] Navigating to token management page...');
-			window.location.href = '/token-management';
-		} else {
-			console.error(`❌ [OIDCImplicitFlowV3] No ${tokenType} token available for analysis`);
-			showFlowError(`No ${tokenType} token available for analysis`);
-		}
-	}, [tokens]);
+
+			const token =
+				tokenType === "access" ? tokens?.access_token : tokens?.id_token;
+
+			if (token) {
+				console.log(
+					"✅ [OIDCImplicitFlowV3] Token found, storing for analysis:",
+					{
+						tokenType,
+						tokenLength: token.length,
+						tokenPreview: `${token.substring(0, 20)}...`,
+					},
+				);
+
+				// Store the token for the Token Management page
+				sessionStorage.setItem("token_to_analyze", token);
+				sessionStorage.setItem("token_type", tokenType);
+				sessionStorage.setItem("flow_source", "oidc-implicit-v3");
+
+				console.log(
+					"🔍 [OIDCImplicitFlowV3] Navigating to token management page...",
+				);
+				window.location.href = "/token-management";
+			} else {
+				console.error(
+					`❌ [OIDCImplicitFlowV3] No ${tokenType} token available for analysis`,
+				);
+				showGlobalError(`No ${tokenType} token available for analysis`);
+			}
+		},
+		[tokens],
+	);
 
 	// Reset flow
 	const resetFlow = useCallback(async () => {
@@ -907,7 +918,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 			console.log(
 				"🎉 [OIDC-IMPLICIT-V3] About to show success message for reset",
 			);
-			showFlowSuccess(
+			showGlobalSuccess(
 				"🔄 OIDC Implicit Flow reset successfully! You can now begin a new flow.",
 			);
 			console.log("✅ [OIDC-IMPLICIT-V3] Success message shown for reset");
@@ -962,7 +973,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 			console.log("✅ [OIDC-IMPLICIT-V3] Flow reset complete");
 		} catch (error) {
 			console.error("❌ [OIDC-IMPLICIT-V3] Reset flow failed:", error);
-			showFlowError("Failed to reset flow");
+			showGlobalError("Failed to reset flow");
 		} finally {
 			setIsResettingFlow(false);
 		}
@@ -1150,7 +1161,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 								onClick={() => {
 									const newState = !showParameterBreakdown;
 									setShowParameterBreakdown(newState);
-									showFlowSuccess(
+									showGlobalSuccess(
 										newState
 											? "📂 Parameter Breakdown Expanded"
 											: "📁 Parameter Breakdown Collapsed",
@@ -1278,7 +1289,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 									onClick={() => {
 										const newState = !showClientIdTroubleshooting;
 										setShowClientIdTroubleshooting(newState);
-										showFlowSuccess(
+										showGlobalSuccess(
 											newState
 												? "🔧 Client ID Troubleshooting Expanded"
 												: "📁 Client ID Troubleshooting Collapsed",
@@ -1439,7 +1450,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 								onClick={() => {
 									const newState = !showGeneralTroubleshooting;
 									setShowGeneralTroubleshooting(newState);
-									showFlowSuccess(
+									showGlobalSuccess(
 										newState
 											? "🔧 General Troubleshooting Expanded"
 											: "📁 General Troubleshooting Collapsed",
@@ -1547,7 +1558,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 									<button
 										onClick={() => {
 											copyToClipboard(authUrl, "Authorization URL");
-											showFlowSuccess(
+											showGlobalSuccess(
 												"📋 Authorization URL Copied",
 												"The authorization URL has been copied to your clipboard",
 											);
@@ -1626,7 +1637,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 									<button
 										onClick={() => {
 											copyToClipboard(authUrl, "Authorization URL");
-											showFlowSuccess(
+											showGlobalSuccess(
 												"📋 Authorization URL Copied",
 												"The authorization URL has been copied to your clipboard",
 											);
@@ -1727,8 +1738,11 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 														<FiCopy /> Copy
 													</CopyButton>
 													<CopyButton
-														onClick={() => navigateToTokenManagement('id')}
-														style={{ backgroundColor: '#3b82f6', color: 'white' }}
+														onClick={() => navigateToTokenManagement("id")}
+														style={{
+															backgroundColor: "#3b82f6",
+															color: "white",
+														}}
 													>
 														<FiSearch /> Analyze
 													</CopyButton>
@@ -1773,8 +1787,8 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 													<FiCopy /> Copy
 												</CopyButton>
 												<CopyButton
-													onClick={() => navigateToTokenManagement('access')}
-													style={{ backgroundColor: '#3b82f6', color: 'white' }}
+													onClick={() => navigateToTokenManagement("access")}
+													style={{ backgroundColor: "#3b82f6", color: "white" }}
 												>
 													<FiSearch /> Analyze
 												</CopyButton>
@@ -2049,16 +2063,16 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 													<FiCopy /> Copy UserInfo
 												</CopyButton>
 											</div>
-											
+
 											{/* Go Back to Start Button */}
-											<div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+											<div style={{ marginTop: "1.5rem", textAlign: "center" }}>
 												<CopyButton
 													onClick={resetFlow}
-													style={{ 
-														backgroundColor: '#6b7280', 
-														color: 'white',
-														padding: '0.75rem 2rem',
-														fontSize: '1rem'
+													style={{
+														backgroundColor: "#6b7280",
+														color: "white",
+														padding: "0.75rem 2rem",
+														fontSize: "1rem",
 													}}
 												>
 													<FiChevronLeft /> Go Back to Start of Flow
@@ -2105,6 +2119,8 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 			showTokenDetails,
 			showUserInfoDetails,
 			validationErrors.clientId,
+			navigateToTokenManagement,
+			resetFlow,
 		],
 	);
 
