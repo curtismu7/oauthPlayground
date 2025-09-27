@@ -1,10 +1,11 @@
-import React, { useState, useCallback } from 'react';
-import styled from 'styled-components';
-import { StepByStepFlow } from '../../components/StepByStepFlow';
-import FlowCredentials from '../../components/FlowCredentials';
-import { storeOAuthTokens } from '../../utils/tokenStorage';
-import { logger } from '../../utils/logger';
-import JSONHighlighter from '../../components/JSONHighlighter';
+import type React from "react";
+import { useCallback, useState } from "react";
+import styled from "styled-components";
+import FlowCredentials from "../../components/FlowCredentials";
+import JSONHighlighter from "../../components/JSONHighlighter";
+import { StepByStepFlow } from "../../components/StepByStepFlow";
+import { logger } from "../../utils/logger";
+import { storeOAuthTokens } from "../../utils/tokenStorage";
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -74,7 +75,7 @@ const Select = styled.select`
   }
 `;
 
-const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' | 'danger' }>`
+const Button = styled.button<{ $variant: "primary" | "secondary" | "success" | "danger" }>`
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 0.375rem;
@@ -87,25 +88,25 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' | '
   
   ${({ $variant }) => {
     switch ($variant) {
-      case 'primary':
+      case "primary":
         return `
           background-color: #3b82f6;
           color: white;
           &:hover { background-color: #2563eb; }
         `;
-      case 'secondary':
+      case "secondary":
         return `
           background-color: #6b7280;
           color: white;
           &:hover { background-color: #4b5563; }
         `;
-      case 'success':
+      case "success":
         return `
           background-color: #10b981;
           color: white;
           &:hover { background-color: #059669; }
         `;
-      case 'danger':
+      case "danger":
         return `
           background-color: #ef4444;
           color: white;
@@ -142,7 +143,7 @@ const ErrorContainer = styled.div`
   color: #991b1b;
 `;
 
-const InfoContainer = styled.div`
+const _InfoContainer = styled.div`
   background: #dbeafe;
   border: 1px solid #93c5fd;
   border-radius: 0.375rem;
@@ -218,39 +219,39 @@ interface MFAFlowProps {
 
 const MFAFlow: React.FC<MFAFlowProps> = ({ credentials }) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [demoStatus, setDemoStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [formData, setFormData] = useState({
-    clientId: credentials?.clientId || '',
-    clientSecret: credentials?.clientSecret || '',
-    redirectUri: credentials?.redirectUri || 'http://localhost:3000/callback',
-    environmentId: credentials?.environmentId || '',
-    scope: 'openid profile email',
-    acrValues: 'urn:mace:pingidentity.com:loc:1',
-    prompt: 'consent',
-    maxAge: '3600',
-    uiLocales: 'en',
+    clientId: credentials?.clientId || "",
+    clientSecret: credentials?.clientSecret || "",
+    redirectUri: credentials?.redirectUri || "http://localhost:3000/callback",
+    environmentId: credentials?.environmentId || "",
+    scope: "openid profile email",
+    acrValues: "urn:mace:pingidentity.com:loc:1",
+    prompt: "consent",
+    maxAge: "3600",
+    uiLocales: "en",
     claims: '{"userinfo": {"email": null, "phone_number": null}}',
     mfaRequired: true,
-    selectedMFA: 'sms'
+    selectedMFA: "sms",
   });
   const [response, setResponse] = useState<Record<string, unknown> | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [mfaStep, setMfaStep] = useState<'select' | 'verify' | 'complete'>('select');
-  const [mfaCode, setMfaCode] = useState('');
+  const [mfaStep, setMfaStep] = useState<"select" | "verify" | "complete">("select");
+  const [mfaCode, setMfaCode] = useState("");
 
   const mfaOptions = [
-    { id: 'sms', label: 'SMS Verification', description: 'Receive a code via SMS' },
-    { id: 'email', label: 'Email Verification', description: 'Receive a code via email' },
-    { id: 'totp', label: 'TOTP Authenticator', description: 'Use your authenticator app' },
-    { id: 'push', label: 'Push Notification', description: 'Approve via mobile app' },
-    { id: 'voice', label: 'Voice Call', description: 'Receive a call with verification code' }
+    { id: "sms", label: "SMS Verification", description: "Receive a code via SMS" },
+    { id: "email", label: "Email Verification", description: "Receive a code via email" },
+    { id: "totp", label: "TOTP Authenticator", description: "Use your authenticator app" },
+    { id: "push", label: "Push Notification", description: "Approve via mobile app" },
+    { id: "voice", label: "Voice Call", description: "Receive a call with verification code" },
   ];
 
   const steps = [
     {
-      id: 'step-1',
-      title: 'Configure MFA Settings',
-      description: 'Set up your OAuth client for MFA-enabled authorization flow.',
+      id: "step-1",
+      title: "Configure MFA Settings",
+      description: "Set up your OAuth client for MFA-enabled authorization flow.",
       code: `// MFA Flow Configuration
 const mfaConfig = {
   clientId: '${formData.clientId}',
@@ -268,13 +269,13 @@ const mfaConfig = {
 
 console.log('MFA flow configured:', mfaConfig);`,
       execute: async () => {
-        logger.info('MFAFlow', 'Configuring MFA flow settings');
-      }
+        logger.info("MFAFlow", "Configuring MFA flow settings");
+      },
     },
     {
-      id: 'step-2',
-      title: 'Start MFA Authorization',
-      description: 'Initiate the MFA-enabled authorization flow.',
+      id: "step-2",
+      title: "Start MFA Authorization",
+      description: "Initiate the MFA-enabled authorization flow.",
       code: `// Start MFA Authorization
 const authUrl = \`https://auth.pingone.com/\${environmentId}/as/authorize\`;
 
@@ -295,34 +296,34 @@ const authParams = new URLSearchParams({
 const fullAuthUrl = \`\${authUrl}?\${authParams.toString()}\`;
 console.log('MFA Authorization URL:', fullAuthUrl);`,
       execute: async () => {
-        logger.info('MFAFlow', 'Starting MFA authorization');
-        setDemoStatus('loading');
-        
+        logger.info("MFAFlow", "Starting MFA authorization");
+        setDemoStatus("loading");
+
         try {
           // Simulate MFA authorization start
           const mockResponse = {
             success: true,
-            message: 'MFA authorization initiated',
+            message: "MFA authorization initiated",
             authUrl: `https://auth.pingone.com/${formData.environmentId}/as/authorize`,
             requiresMFA: true,
-            mfaOptions: mfaOptions.map(opt => opt.id)
+            mfaOptions: mfaOptions.map((opt) => opt.id),
           };
 
           setResponse(mockResponse);
-          setDemoStatus('success');
-          setMfaStep('select');
+          setDemoStatus("success");
+          setMfaStep("select");
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          const errorMessage = error instanceof Error ? error.message : "Unknown error";
           setError(errorMessage);
-          setDemoStatus('error');
+          setDemoStatus("error");
           throw error;
         }
-      }
+      },
     },
     {
-      id: 'step-3',
-      title: 'Select MFA Method',
-      description: 'Choose the preferred multi-factor authentication method.',
+      id: "step-3",
+      title: "Select MFA Method",
+      description: "Choose the preferred multi-factor authentication method.",
       code: `// MFA Method Selection
 const mfaMethods = [
   { id: 'sms', name: 'SMS Verification' },
@@ -342,13 +343,13 @@ const mfaSelectionResponse = await fetch('/mfa/select', {
   body: JSON.stringify({ method: selectedMethod })
 });`,
       execute: async () => {
-        logger.info('MFAFlow', 'Selecting MFA method', { method: formData.selectedMFA });
-      }
+        logger.info("MFAFlow", "Selecting MFA method", { method: formData.selectedMFA });
+      },
     },
     {
-      id: 'step-4',
-      title: 'Verify MFA Code',
-      description: 'Enter and verify the MFA code received.',
+      id: "step-4",
+      title: "Verify MFA Code",
+      description: "Enter and verify the MFA code received.",
       code: `// MFA Code Verification
 const mfaCode = '${mfaCode}';
 const selectedMethod = '${formData.selectedMFA}';
@@ -370,30 +371,30 @@ if (verificationResponse.ok) {
   console.error('MFA verification failed');
 }`,
       execute: async () => {
-        logger.info('MFAFlow', 'Verifying MFA code', { method: formData.selectedMFA });
-        
+        logger.info("MFAFlow", "Verifying MFA code", { method: formData.selectedMFA });
+
         try {
           // Simulate MFA verification
           const mockResponse = {
             success: true,
-            message: 'MFA verification successful',
+            message: "MFA verification successful",
             method: formData.selectedMFA,
-            verified: true
+            verified: true,
           };
 
-          setResponse(prev => ({ ...prev, mfaVerification: mockResponse }));
-          setMfaStep('complete');
+          setResponse((prev) => ({ ...prev, mfaVerification: mockResponse }));
+          setMfaStep("complete");
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          const errorMessage = error instanceof Error ? error.message : "Unknown error";
           setError(errorMessage);
           throw error;
         }
-      }
+      },
     },
     {
-      id: 'step-5',
-      title: 'Exchange Code for Tokens',
-      description: 'Exchange the authorization code for access and ID tokens.',
+      id: "step-5",
+      title: "Exchange Code for Tokens",
+      description: "Exchange the authorization code for access and ID tokens.",
       code: `// Exchange authorization code for tokens
 const tokenUrl = \`https://auth.pingone.com/\${environmentId}/as/token\`;
 
@@ -417,67 +418,67 @@ if (tokenResponse.ok) {
   localStorage.setItem('oauth_tokens', JSON.stringify(tokens));
 }`,
       execute: async () => {
-        logger.info('MFAFlow', 'Exchanging code for tokens');
-        
+        logger.info("MFAFlow", "Exchanging code for tokens");
+
         try {
           // Simulate token exchange
           const mockTokens = {
-            access_token: 'mock_access_token_' + Date.now(),
-            id_token: 'mock_id_token_' + Date.now(),
-            token_type: 'Bearer',
+            access_token: `mock_access_token_${Date.now()}`,
+            id_token: `mock_id_token_${Date.now()}`,
+            token_type: "Bearer",
             expires_in: 3600,
             scope: formData.scope,
-            refresh_token: 'mock_refresh_token_' + Date.now(),
+            refresh_token: `mock_refresh_token_${Date.now()}`,
             mfa_verified: true,
-            mfa_method: formData.selectedMFA
+            mfa_method: formData.selectedMFA,
           };
 
           // Store tokens using the standardized method
-          const success = storeOAuthTokens(mockTokens, 'mfa', 'MFA Flow');
-          
+          const success = storeOAuthTokens(mockTokens, "mfa", "MFA Flow");
+
           if (success) {
-            setResponse(prev => ({ ...prev, tokens: mockTokens }));
+            setResponse((prev) => ({ ...prev, tokens: mockTokens }));
           } else {
-            throw new Error('Failed to store tokens');
+            throw new Error("Failed to store tokens");
           }
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          const errorMessage = error instanceof Error ? error.message : "Unknown error";
           setError(errorMessage);
           throw error;
         }
-      }
-    }
+      },
+    },
   ];
 
   const handleStepChange = useCallback((step: number) => {
     setCurrentStep(step);
-    setDemoStatus('idle');
+    setDemoStatus("idle");
     setResponse(null);
     setError(null);
   }, []);
 
   const handleStepResult = useCallback((step: number, result: unknown) => {
-    logger.info('MFAFlow', `Step ${step + 1} completed`, result);
+    logger.info("MFAFlow", `Step ${step + 1} completed`, result);
   }, []);
 
   const handleMFAStart = () => {
-    setMfaStep('verify');
-    logger.info('MFAFlow', 'MFA verification started', { method: formData.selectedMFA });
+    setMfaStep("verify");
+    logger.info("MFAFlow", "MFA verification started", { method: formData.selectedMFA });
   };
 
   const handleMFAVerify = () => {
     if (!mfaCode.trim()) {
-      setError('Please enter the MFA code');
+      setError("Please enter the MFA code");
       return;
     }
-    
-    setMfaStep('complete');
-    logger.info('MFAFlow', 'MFA code submitted', { method: formData.selectedMFA });
+
+    setMfaStep("complete");
+    logger.info("MFAFlow", "MFA code submitted", { method: formData.selectedMFA });
   };
 
   const handleMFAComplete = () => {
-    setMfaStep('select');
-    setMfaCode('');
+    setMfaStep("select");
+    setMfaCode("");
     setResponse(null);
     setError(null);
   };
@@ -486,29 +487,29 @@ if (tokenResponse.ok) {
     <FlowContainer>
       <FlowTitle>MFA-Only Authorization Flow</FlowTitle>
       <FlowDescription>
-        This flow demonstrates Multi-Factor Authentication (MFA) specific authorization. 
-        It requires users to complete MFA before receiving tokens, ensuring enhanced security 
-        for sensitive operations.
+        This flow demonstrates Multi-Factor Authentication (MFA) specific authorization. It requires
+        users to complete MFA before receiving tokens, ensuring enhanced security for sensitive
+        operations.
       </FlowDescription>
 
       <WarningContainer>
         <h4>🔐 MFA Security Features</h4>
         <p>
-          This flow enforces MFA completion before token issuance. Users must select and 
-          verify their preferred MFA method (SMS, Email, TOTP, Push, or Voice) before 
-          receiving access tokens.
+          This flow enforces MFA completion before token issuance. Users must select and verify
+          their preferred MFA method (SMS, Email, TOTP, Push, or Voice) before receiving access
+          tokens.
         </p>
       </WarningContainer>
 
       <FlowCredentials
         flowType="mfa"
         onCredentialsChange={(newCredentials) => {
-          setFormData(prev => ({
+          setFormData((prev) => ({
             ...prev,
             clientId: newCredentials.clientId || prev.clientId,
             clientSecret: newCredentials.clientSecret || prev.clientSecret,
             redirectUri: newCredentials.redirectUri || prev.redirectUri,
-            environmentId: newCredentials.environmentId || prev.environmentId
+            environmentId: newCredentials.environmentId || prev.environmentId,
           }));
         }}
       />
@@ -518,27 +519,27 @@ if (tokenResponse.ok) {
         currentStep={currentStep}
         onStepChange={handleStepChange}
         onStepResult={handleStepResult}
-        onStart={() => setDemoStatus('loading')}
+        onStart={() => setDemoStatus("loading")}
         onReset={() => {
           setCurrentStep(0);
-          setDemoStatus('idle');
+          setDemoStatus("idle");
           setResponse(null);
           setError(null);
-          setMfaStep('select');
-          setMfaCode('');
+          setMfaStep("select");
+          setMfaCode("");
         }}
         status={demoStatus}
-        disabled={demoStatus === 'loading'}
+        disabled={demoStatus === "loading"}
         title="MFA Flow Steps"
       />
 
-      {mfaStep === 'select' && response && (
+      {mfaStep === "select" && response && (
         <MFAStepContainer>
           <MFAStepTitle>Select MFA Method</MFAStepTitle>
           <MFAStepDescription>
             Choose your preferred multi-factor authentication method:
           </MFAStepDescription>
-          
+
           {mfaOptions.map((option) => (
             <MFAOption key={option.id}>
               <MFAOptionInput
@@ -547,28 +548,29 @@ if (tokenResponse.ok) {
                 name="mfaMethod"
                 value={option.id}
                 checked={formData.selectedMFA === option.id}
-                onChange={(e) => setFormData(prev => ({ ...prev, selectedMFA: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, selectedMFA: e.target.value }))}
               />
               <MFAOptionLabel htmlFor={option.id}>
-                <div style={{ fontWeight: '500' }}>{option.label}</div>
-                <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>{option.description}</div>
+                <div style={{ fontWeight: "500" }}>{option.label}</div>
+                <div style={{ fontSize: "0.75rem", color: "#6b7280" }}>{option.description}</div>
               </MFAOptionLabel>
             </MFAOption>
           ))}
-          
+
           <Button $variant="primary" onClick={handleMFAStart}>
             Start MFA Verification
           </Button>
         </MFAStepContainer>
       )}
 
-      {mfaStep === 'verify' && (
+      {mfaStep === "verify" && (
         <MFAStepContainer>
           <MFAStepTitle>Verify MFA Code</MFAStepTitle>
           <MFAStepDescription>
-            Enter the verification code sent to your {mfaOptions.find(opt => opt.id === formData.selectedMFA)?.label.toLowerCase()}:
+            Enter the verification code sent to your{" "}
+            {mfaOptions.find((opt) => opt.id === formData.selectedMFA)?.label.toLowerCase()}:
           </MFAStepDescription>
-          
+
           <FormGroup>
             <Label>Verification Code</Label>
             <Input
@@ -579,25 +581,25 @@ if (tokenResponse.ok) {
               maxLength={6}
             />
           </FormGroup>
-          
+
           <div>
             <Button $variant="primary" onClick={handleMFAVerify}>
               Verify Code
             </Button>
-            <Button $variant="secondary" onClick={() => setMfaStep('select')}>
+            <Button $variant="secondary" onClick={() => setMfaStep("select")}>
               Back to Method Selection
             </Button>
           </div>
         </MFAStepContainer>
       )}
 
-      {mfaStep === 'complete' && (
+      {mfaStep === "complete" && (
         <MFAStepContainer>
           <MFAStepTitle>MFA Verification Complete</MFAStepTitle>
           <MFAStepDescription>
             Your MFA verification was successful. You can now proceed with the authorization flow.
           </MFAStepDescription>
-          
+
           <Button $variant="success" onClick={handleMFAComplete}>
             Continue to Token Exchange
           </Button>
@@ -623,40 +625,47 @@ if (tokenResponse.ok) {
       <FormContainer>
         <h3>Manual MFA Configuration</h3>
         <p>You can also manually configure the MFA flow:</p>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "1rem",
+            marginBottom: "1rem",
+          }}
+        >
           <FormGroup>
             <Label>Client ID</Label>
             <Input
               type="text"
               value={formData.clientId}
-              onChange={(e) => setFormData(prev => ({ ...prev, clientId: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, clientId: e.target.value }))}
             />
           </FormGroup>
-          
+
           <FormGroup>
             <Label>Environment ID</Label>
             <Input
               type="text"
               value={formData.environmentId}
-              onChange={(e) => setFormData(prev => ({ ...prev, environmentId: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, environmentId: e.target.value }))}
             />
           </FormGroup>
-          
+
           <FormGroup>
             <Label>ACR Values</Label>
             <Input
               type="text"
               value={formData.acrValues}
-              onChange={(e) => setFormData(prev => ({ ...prev, acrValues: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, acrValues: e.target.value }))}
             />
           </FormGroup>
-          
+
           <FormGroup>
             <Label>Prompt</Label>
             <Select
               value={formData.prompt}
-              onChange={(e) => setFormData(prev => ({ ...prev, prompt: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, prompt: e.target.value }))}
             >
               <option value="consent">consent</option>
               <option value="login">login</option>
