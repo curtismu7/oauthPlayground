@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
-import styled from 'styled-components';
-import { FiAlertTriangle, FiInfo, FiShield, FiUser, FiLock, FiX, FiCheckCircle } from 'react-icons/fi';
+import type React from "react";
+import { useEffect } from "react";
+import { FiAlertTriangle, FiCheckCircle, FiInfo, FiShield, FiUser, FiX } from "react-icons/fi";
+import styled from "styled-components";
 
 const PageContainer = styled.div`
   max-width: 1200px;
@@ -144,24 +145,22 @@ const OIDCResourceOwnerPasswordFlow: React.FC = () => {
           <FiCheckCircle />
           OIDC Resource Owner Password Flow
         </PageTitle>
-        <PageSubtitle>
-          OpenID Connect extension with username/password authentication
-        </PageSubtitle>
+        <PageSubtitle>OpenID Connect extension with username/password authentication</PageSubtitle>
       </PageHeader>
 
       <WarningCard>
         <FiAlertTriangle size={24} color="#dc2626" />
         <CardContent>
-          <CardTitle style={{ color: '#dc2626' }}>
+          <CardTitle style={{ color: "#dc2626" }}>
             <FiAlertTriangle />
             Security Warning
           </CardTitle>
-          <CardText style={{ color: '#991b1b' }}>
-            The OIDC Resource Owner Password Credentials flow is <strong>deprecated</strong> and should be avoided 
-            in most cases due to significant security risks. This flow requires the application to collect 
-            and handle user credentials directly.
+          <CardText style={{ color: "#991b1b" }}>
+            The OIDC Resource Owner Password Credentials flow is <strong>deprecated</strong> and
+            should be avoided in most cases due to significant security risks. This flow requires
+            the application to collect and handle user credentials directly.
           </CardText>
-          <CardList style={{ color: '#991b1b' }}>
+          <CardList style={{ color: "#991b1b" }}>
             <CardListItem>Applications must handle passwords securely</CardListItem>
             <CardListItem>No delegation of authentication to authorization server</CardListItem>
             <CardListItem>Phishing attacks become easier</CardListItem>
@@ -174,19 +173,30 @@ const OIDCResourceOwnerPasswordFlow: React.FC = () => {
       <OIDCCard>
         <FiCheckCircle size={24} color="#059669" />
         <CardContent>
-          <CardTitle style={{ color: '#1f2937' }}>
+          <CardTitle style={{ color: "#1f2937" }}>
             <FiCheckCircle />
             OpenID Connect Extension
           </CardTitle>
-          <CardText style={{ color: '#374151' }}>
-            This is the OIDC version of the Resource Owner Password flow, which includes additional OpenID Connect features:
+          <CardText style={{ color: "#374151" }}>
+            This is the OIDC version of the Resource Owner Password flow, which includes additional
+            OpenID Connect features:
           </CardText>
-          <CardList style={{ color: '#374151' }}>
-            <CardListItem><strong>ID Token:</strong> Contains user identity information (JWT)</CardListItem>
-            <CardListItem><strong>User Info:</strong> Additional user profile data available</CardListItem>
-            <CardListItem><strong>Standardized Claims:</strong> Consistent user information format</CardListItem>
-            <CardListItem><strong>Session Management:</strong> OIDC session handling capabilities</CardListItem>
-            <CardListItem><strong>Discovery:</strong> Automatic endpoint discovery via .well-known</CardListItem>
+          <CardList style={{ color: "#374151" }}>
+            <CardListItem>
+              <strong>ID Token:</strong> Contains user identity information (JWT)
+            </CardListItem>
+            <CardListItem>
+              <strong>User Info:</strong> Additional user profile data available
+            </CardListItem>
+            <CardListItem>
+              <strong>Standardized Claims:</strong> Consistent user information format
+            </CardListItem>
+            <CardListItem>
+              <strong>Session Management:</strong> OIDC session handling capabilities
+            </CardListItem>
+            <CardListItem>
+              <strong>Discovery:</strong> Automatic endpoint discovery via .well-known
+            </CardListItem>
           </CardList>
         </CardContent>
       </OIDCCard>
@@ -194,17 +204,21 @@ const OIDCResourceOwnerPasswordFlow: React.FC = () => {
       <InfoCard>
         <FiInfo size={24} color="#0ea5e9" />
         <CardContent>
-          <CardTitle style={{ color: '#0c4a6e' }}>
+          <CardTitle style={{ color: "#0c4a6e" }}>
             <FiInfo />
             When to Use (Rare Cases)
           </CardTitle>
-          <CardText style={{ color: '#0c4a6e' }}>
+          <CardText style={{ color: "#0c4a6e" }}>
             This OIDC flow should only be used in very specific, high-trust scenarios:
           </CardText>
-          <CardList style={{ color: '#0c4a6e' }}>
+          <CardList style={{ color: "#0c4a6e" }}>
             <CardListItem>Legacy system migration where other flows are impossible</CardListItem>
-            <CardListItem>Highly trusted first-party applications requiring user identity</CardListItem>
-            <CardListItem>Internal enterprise applications with strong security controls</CardListItem>
+            <CardListItem>
+              Highly trusted first-party applications requiring user identity
+            </CardListItem>
+            <CardListItem>
+              Internal enterprise applications with strong security controls
+            </CardListItem>
             <CardListItem>Server-to-server communication with shared user credentials</CardListItem>
             <CardListItem>When ID token and user claims are specifically needed</CardListItem>
           </CardList>
@@ -214,32 +228,34 @@ const OIDCResourceOwnerPasswordFlow: React.FC = () => {
       <InfoCard>
         <FiShield size={24} color="#0ea5e9" />
         <CardContent>
-          <CardTitle style={{ color: '#0c4a6e' }}>
+          <CardTitle style={{ color: "#0c4a6e" }}>
             <FiShield />
             OIDC Resource Owner Password Flow
           </CardTitle>
-          <CardText style={{ color: '#0c4a6e' }}>
-            The application collects the user's credentials and exchanges them directly for both an access token 
-            and an ID token containing user identity information.
+          <CardText style={{ color: "#0c4a6e" }}>
+            The application collects the user's credentials and exchanges them directly for both an
+            access token and an ID token containing user identity information.
           </CardText>
-          
-          <CardTitle style={{ color: '#0c4a6e', marginTop: '1.5rem' }}>
-            Flow Steps:
-          </CardTitle>
-          <CardList style={{ color: '#0c4a6e' }}>
+
+          <CardTitle style={{ color: "#0c4a6e", marginTop: "1.5rem" }}>Flow Steps:</CardTitle>
+          <CardList style={{ color: "#0c4a6e" }}>
             <CardListItem>Application collects username and password</CardListItem>
-            <CardListItem>Application sends credentials to token endpoint with openid scope</CardListItem>
+            <CardListItem>
+              Application sends credentials to token endpoint with openid scope
+            </CardListItem>
             <CardListItem>Authorization server validates credentials</CardListItem>
-            <CardListItem>Server returns access token, ID token, and optionally refresh token</CardListItem>
+            <CardListItem>
+              Server returns access token, ID token, and optionally refresh token
+            </CardListItem>
             <CardListItem>Application can use ID token for user identity</CardListItem>
             <CardListItem>Optional: Call UserInfo endpoint for additional claims</CardListItem>
           </CardList>
 
-          <CardTitle style={{ color: '#0c4a6e', marginTop: '1.5rem' }}>
+          <CardTitle style={{ color: "#0c4a6e", marginTop: "1.5rem" }}>
             Token Request Example:
           </CardTitle>
           <CodeBlock>
-{`POST /as/token HTTP/1.1
+            {`POST /as/token HTTP/1.1
 Host: auth.pingone.com
 Content-Type: application/x-www-form-urlencoded
 
@@ -251,11 +267,11 @@ grant_type=password
 &scope=openid profile email read write`}
           </CodeBlock>
 
-          <CardTitle style={{ color: '#0c4a6e', marginTop: '1.5rem' }}>
+          <CardTitle style={{ color: "#0c4a6e", marginTop: "1.5rem" }}>
             Token Response Example:
           </CardTitle>
           <CodeBlock>
-{`{
+            {`{
   "access_token": "eyJhbGciOiJSUzI1NiIs...",
   "token_type": "Bearer",
   "expires_in": 3600,
@@ -279,7 +295,8 @@ grant_type=password
             <strong>Validate ID tokens:</strong> Always verify ID token signature and claims
           </SecurityListItem>
           <SecurityListItem>
-            <strong>Minimal scope:</strong> Request only the minimum required permissions and OIDC scopes
+            <strong>Minimal scope:</strong> Request only the minimum required permissions and OIDC
+            scopes
           </SecurityListItem>
           <SecurityListItem>
             <strong>Secure storage:</strong> Never store passwords in plain text or client-side
@@ -305,22 +322,26 @@ grant_type=password
       <InfoCard>
         <FiUser size={24} color="#0ea5e9" />
         <CardContent>
-          <CardTitle style={{ color: '#0c4a6e' }}>
+          <CardTitle style={{ color: "#0c4a6e" }}>
             <FiUser />
             Recommended OIDC Alternatives
           </CardTitle>
-          <CardText style={{ color: '#0c4a6e' }}>
-            Instead of the OIDC Resource Owner Password flow, consider these more secure alternatives:
+          <CardText style={{ color: "#0c4a6e" }}>
+            Instead of the OIDC Resource Owner Password flow, consider these more secure
+            alternatives:
           </CardText>
-          <CardList style={{ color: '#0c4a6e' }}>
+          <CardList style={{ color: "#0c4a6e" }}>
             <CardListItem>
-              <strong>OIDC Authorization Code Flow:</strong> Most secure for web applications with SSO
+              <strong>OIDC Authorization Code Flow:</strong> Most secure for web applications with
+              SSO
             </CardListItem>
             <CardListItem>
-              <strong>OIDC Authorization Code with PKCE:</strong> Best for mobile and SPA applications
+              <strong>OIDC Authorization Code with PKCE:</strong> Best for mobile and SPA
+              applications
             </CardListItem>
             <CardListItem>
-              <strong>OIDC Implicit Flow:</strong> For legacy applications (deprecated, use PKCE instead)
+              <strong>OIDC Implicit Flow:</strong> For legacy applications (deprecated, use PKCE
+              instead)
             </CardListItem>
             <CardListItem>
               <strong>OIDC Hybrid Flow:</strong> When you need both ID token and authorization code
@@ -340,10 +361,10 @@ grant_type=password
           <FiX />
           Implementation Status
         </SecurityTitle>
-        <CardText style={{ color: '#92400e' }}>
-          This OIDC Resource Owner Password flow is currently <strong>not implemented</strong> in this playground 
-          due to security concerns. If you need to test this flow, please use a dedicated, isolated environment 
-          with proper security controls in place.
+        <CardText style={{ color: "#92400e" }}>
+          This OIDC Resource Owner Password flow is currently <strong>not implemented</strong> in
+          this playground due to security concerns. If you need to test this flow, please use a
+          dedicated, isolated environment with proper security controls in place.
         </CardText>
       </SecurityNotice>
     </PageContainer>
