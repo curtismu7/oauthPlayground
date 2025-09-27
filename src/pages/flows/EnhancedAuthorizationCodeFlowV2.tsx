@@ -678,7 +678,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
       console.log('✅ [EnhancedAuthorizationCodeFlowV2] Flow reset completed (credentials preserved)');
       
       // Show centralized success message
-      showFlowSuccess('✅ Flow Reset - Flow has been reset successfully. Your credentials are preserved.');
+		showFlowSuccess('✅ Flow Reset - Flow has been reset successfully. Your credentials are preserved.');
       
       // Clear reset flag after short delay
       setTimeout(() => setJustReset(false), 1000);
