@@ -1,13 +1,11 @@
-import React, { useState, useCallback } from 'react';
-import styled from 'styled-components';
-import { StepByStepFlow } from '../../components/StepByStepFlow';
-import FlowCredentials from '../../components/FlowCredentials';
-import { logger } from '../../utils/logger';
-import JSONHighlighter from '../../components/JSONHighlighter';
-import { 
-  TokenManagementService, 
-  TokenRevocationRequest
-} from '../../services/tokenManagementService';
+import type React from "react";
+import { useCallback, useState } from "react";
+import styled from "styled-components";
+import FlowCredentials from "../../components/FlowCredentials";
+import JSONHighlighter from "../../components/JSONHighlighter";
+import { StepByStepFlow } from "../../components/StepByStepFlow";
+import { TokenManagementService } from "../../services/tokenManagementService";
+import { logger } from "../../utils/logger";
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -94,7 +92,7 @@ const Select = styled.select`
   }
 `;
 
-const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' | 'danger' }>`
+const Button = styled.button<{ $variant: "primary" | "secondary" | "success" | "danger" }>`
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 0.375rem;
@@ -107,25 +105,25 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' | '
   
   ${({ $variant }) => {
     switch ($variant) {
-      case 'primary':
+      case "primary":
         return `
           background-color: #3b82f6;
           color: white;
           &:hover { background-color: #2563eb; }
         `;
-      case 'secondary':
+      case "secondary":
         return `
           background-color: #6b7280;
           color: white;
           &:hover { background-color: #4b5563; }
         `;
-      case 'success':
+      case "success":
         return `
           background-color: #10b981;
           color: white;
           &:hover { background-color: #059669; }
         `;
-      case 'danger':
+      case "danger":
         return `
           background-color: #ef4444;
           color: white;
@@ -162,7 +160,7 @@ const ErrorContainer = styled.div`
   color: #991b1b;
 `;
 
-const InfoContainer = styled.div`
+const _InfoContainer = styled.div`
   background: #dbeafe;
   border: 1px solid #93c5fd;
   border-radius: 0.375rem;
@@ -229,8 +227,8 @@ const StatusBadge = styled.span<{ $success: boolean }>`
   font-size: 0.75rem;
   font-weight: 500;
   text-transform: uppercase;
-  background-color: ${({ $success }) => $success ? '#dcfce7' : '#fef2f2'};
-  color: ${({ $success }) => $success ? '#166534' : '#991b1b'};
+  background-color: ${({ $success }) => ($success ? "#dcfce7" : "#fef2f2")};
+  color: ${({ $success }) => ($success ? "#166534" : "#991b1b")};
 `;
 
 const TabContainer = styled.div`
@@ -246,8 +244,8 @@ const Tab = styled.button<{ $active: boolean }>`
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  border-bottom: 2px solid ${({ $active }) => $active ? '#3b82f6' : 'transparent'};
-  color: ${({ $active }) => $active ? '#3b82f6' : '#6b7280'};
+  border-bottom: 2px solid ${({ $active }) => ($active ? "#3b82f6" : "transparent")};
+  color: ${({ $active }) => ($active ? "#3b82f6" : "#6b7280")};
   
   &:hover {
     color: #3b82f6;
@@ -264,27 +262,29 @@ interface TokenRevocationFlowProps {
 
 const TokenRevocationFlow: React.FC<TokenRevocationFlowProps> = ({ credentials }) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [activeTab, setActiveTab] = useState<'access_token' | 'refresh_token' | 'bulk_revocation'>('access_token');
+  const [demoStatus, setDemoStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [activeTab, setActiveTab] = useState<"access_token" | "refresh_token" | "bulk_revocation">(
+    "access_token",
+  );
   const [formData, setFormData] = useState({
-    clientId: credentials?.clientId || '',
-    clientSecret: credentials?.clientSecret || '',
-    environmentId: credentials?.environmentId || '',
-    tokenToRevoke: '',
-    tokenTypeHint: 'access_token' as 'access_token' | 'refresh_token',
-    bulkTokens: '',
-    revocationReason: 'user_logout'
+    clientId: credentials?.clientId || "",
+    clientSecret: credentials?.clientSecret || "",
+    environmentId: credentials?.environmentId || "",
+    tokenToRevoke: "",
+    tokenTypeHint: "access_token" as "access_token" | "refresh_token",
+    bulkTokens: "",
+    revocationReason: "user_logout",
   });
   const [response, setResponse] = useState<Record<string, unknown> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [revocationResult, setRevocationResult] = useState<Record<string, unknown> | null>(null);
-  const [tokenService] = useState(() => new TokenManagementService(formData.environmentId));
+  const [_tokenService] = useState(() => new TokenManagementService(formData.environmentId));
 
   const steps = [
     {
-      id: 'step-1',
-      title: 'Configure Token Revocation Settings',
-      description: 'Set up your OAuth client for token revocation operations.',
+      id: "step-1",
+      title: "Configure Token Revocation Settings",
+      description: "Set up your OAuth client for token revocation operations.",
       code: `// Token Revocation Configuration
 const revocationConfig = {
   clientId: '${formData.clientId}',
@@ -296,17 +296,22 @@ const revocationConfig = {
 
 console.log('Token revocation configured:', revocationConfig);`,
       execute: async () => {
-        logger.info('TokenRevocationFlow', 'Configuring token revocation settings');
-      }
+        logger.info("TokenRevocationFlow", "Configuring token revocation settings");
+      },
     },
     {
-      id: 'step-2',
-      title: activeTab === 'bulk_revocation' ? 'Revoke Multiple Tokens' : `Revoke ${activeTab.toUpperCase()}`,
-      description: activeTab === 'bulk_revocation' ? 
-        'Revoke multiple tokens in a single operation.' : 
-        `Revoke the specified ${activeTab}.`,
-      code: activeTab === 'bulk_revocation' ? 
-        `// Bulk Token Revocation
+      id: "step-2",
+      title:
+        activeTab === "bulk_revocation"
+          ? "Revoke Multiple Tokens"
+          : `Revoke ${activeTab.toUpperCase()}`,
+      description:
+        activeTab === "bulk_revocation"
+          ? "Revoke multiple tokens in a single operation."
+          : `Revoke the specified ${activeTab}.`,
+      code:
+        activeTab === "bulk_revocation"
+          ? `// Bulk Token Revocation
 const tokens = '${formData.bulkTokens}'.split('\\n').filter(token => token.trim());
 const revocationPromises = tokens.map(token => {
   const revocationRequest: TokenRevocationRequest = {
@@ -324,8 +329,8 @@ const results = await Promise.allSettled(revocationPromises);
 const successful = results.filter(result => result.status === 'fulfilled').length;
 const failed = results.filter(result => result.status === 'rejected').length;
 
-console.log(\`Bulk revocation completed: \${successful} successful, \${failed} failed\`);` :
-        `// Single Token Revocation
+console.log(\`Bulk revocation completed: \${successful} successful, \${failed} failed\`);`
+          : `// Single Token Revocation
 const revocationRequest: TokenRevocationRequest = {
   token: '${formData.tokenToRevoke}',
   token_type_hint: '${formData.tokenTypeHint}',
@@ -343,66 +348,69 @@ if (revoked) {
   console.log('Token revocation failed');
 }`,
       execute: async () => {
-        logger.info('TokenRevocationFlow', 'Revoking token(s)', { 
+        logger.info("TokenRevocationFlow", "Revoking token(s)", {
           type: activeTab,
-          tokenCount: activeTab === 'bulk_revocation' ? formData.bulkTokens.split('\n').filter(t => t.trim()).length : 1
+          tokenCount:
+            activeTab === "bulk_revocation"
+              ? formData.bulkTokens.split("\n").filter((t) => t.trim()).length
+              : 1,
         });
-        setDemoStatus('loading');
-        
+        setDemoStatus("loading");
+
         try {
           let result: unknown;
-          
-          if (activeTab === 'bulk_revocation') {
+
+          if (activeTab === "bulk_revocation") {
             // Simulate bulk revocation
-            const tokens = formData.bulkTokens.split('\n').filter(token => token.trim());
-            const mockResults = tokens.map((token, index) => ({
+            const tokens = formData.bulkTokens.split("\n").filter((token) => token.trim());
+            const mockResults = tokens.map((token, _index) => ({
               token: token.trim(),
               success: Math.random() > 0.1, // 90% success rate
-              error: Math.random() > 0.9 ? 'Token not found' : null
+              error: Math.random() > 0.9 ? "Token not found" : null,
             }));
-            
-            const successful = mockResults.filter(r => r.success).length;
-            const failed = mockResults.filter(r => !r.success).length;
-            
+
+            const successful = mockResults.filter((r) => r.success).length;
+            const failed = mockResults.filter((r) => !r.success).length;
+
             result = {
-              type: 'bulk',
+              type: "bulk",
               total: tokens.length,
               successful,
               failed,
-              results: mockResults
+              results: mockResults,
             };
           } else {
             // Simulate single token revocation
             result = {
-              type: 'single',
+              type: "single",
               success: true,
               token: formData.tokenToRevoke,
               tokenType: formData.tokenTypeHint,
               revokedAt: new Date().toISOString(),
-              reason: formData.revocationReason
+              reason: formData.revocationReason,
             };
           }
 
           setRevocationResult(result);
           setResponse({
             success: true,
-            message: 'Token revocation completed successfully',
+            message: "Token revocation completed successfully",
             result: result,
-            type: activeTab
+            type: activeTab,
           });
-          setDemoStatus('success');
+          setDemoStatus("success");
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          const errorMessage = error instanceof Error ? error.message : "Unknown error";
           setError(errorMessage);
-          setDemoStatus('error');
+          setDemoStatus("error");
           throw error;
         }
-      }
+      },
     },
     {
-      id: 'step-3',
-      title: 'Verify Revocation',
-      description: 'Verify that the token has been successfully revoked.',
+      id: "step-3",
+      title: "Verify Revocation",
+      description: "Verify that the token has been successfully revoked.",
       code: `// Verify Token Revocation
 const verifyRevocation = async (token) => {
   try {
@@ -439,28 +447,28 @@ if (revocationResult.type === 'bulk') {
   console.log('Single verification result:', verification);
 }`,
       execute: async () => {
-        logger.info('TokenRevocationFlow', 'Verifying token revocation');
-        
+        logger.info("TokenRevocationFlow", "Verifying token revocation");
+
         if (revocationResult) {
           const verification = {
             verified: true,
-            method: 'simulation',
+            method: "simulation",
             timestamp: new Date().toISOString(),
-            note: 'In a real implementation, you would verify by attempting to use the token'
+            note: "In a real implementation, you would verify by attempting to use the token",
           };
 
-          setResponse(prev => ({ 
-            ...prev, 
+          setResponse((prev) => ({
+            ...prev,
             verification: verification,
-            message: 'Token revocation verification completed'
+            message: "Token revocation verification completed",
           }));
         }
-      }
+      },
     },
     {
-      id: 'step-4',
-      title: 'Handle Revocation Cleanup',
-      description: 'Clean up local storage and handle post-revocation tasks.',
+      id: "step-4",
+      title: "Handle Revocation Cleanup",
+      description: "Clean up local storage and handle post-revocation tasks.",
       code: `// Handle Revocation Cleanup
 const cleanupAfterRevocation = (revocationResult) => {
   if (revocationResult.type === 'single') {
@@ -507,83 +515,83 @@ const cleanupAfterRevocation = (revocationResult) => {
 
 cleanupAfterRevocation(revocationResult);`,
       execute: async () => {
-        logger.info('TokenRevocationFlow', 'Handling revocation cleanup');
-        
+        logger.info("TokenRevocationFlow", "Handling revocation cleanup");
+
         const cleanup = {
           localStorageCleared: true,
           userDataCleared: true,
           redirectRequired: false,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         };
 
-        setResponse(prev => ({ 
-          ...prev, 
+        setResponse((prev) => ({
+          ...prev,
           cleanup: cleanup,
-          message: 'Revocation cleanup completed'
+          message: "Revocation cleanup completed",
         }));
-      }
-    }
+      },
+    },
   ];
 
   const handleStepChange = useCallback((step: number) => {
     setCurrentStep(step);
-    setDemoStatus('idle');
+    setDemoStatus("idle");
     setResponse(null);
     setError(null);
   }, []);
 
   const handleStepResult = useCallback((step: number, result: unknown) => {
-    logger.info('TokenRevocationFlow', `Step ${step + 1} completed`, result);
+    logger.info("TokenRevocationFlow", `Step ${step + 1} completed`, result);
   }, []);
 
   const handleRevocationStart = async () => {
     try {
-      setDemoStatus('loading');
+      setDemoStatus("loading");
       setError(null);
-      
+
       let result: unknown;
-      
-      if (activeTab === 'bulk_revocation') {
-        const tokens = formData.bulkTokens.split('\n').filter(token => token.trim());
-        const mockResults = tokens.map((token, index) => ({
+
+      if (activeTab === "bulk_revocation") {
+        const tokens = formData.bulkTokens.split("\n").filter((token) => token.trim());
+        const mockResults = tokens.map((token, _index) => ({
           token: token.trim(),
           success: Math.random() > 0.1,
-          error: Math.random() > 0.9 ? 'Token not found' : null
+          error: Math.random() > 0.9 ? "Token not found" : null,
         }));
-        
-        const successful = mockResults.filter(r => r.success).length;
-        const failed = mockResults.filter(r => !r.success).length;
-        
+
+        const successful = mockResults.filter((r) => r.success).length;
+        const failed = mockResults.filter((r) => !r.success).length;
+
         result = {
-          type: 'bulk',
+          type: "bulk",
           total: tokens.length,
           successful,
           failed,
-          results: mockResults
+          results: mockResults,
         };
       } else {
         result = {
-          type: 'single',
+          type: "single",
           success: true,
           token: formData.tokenToRevoke,
           tokenType: formData.tokenTypeHint,
           revokedAt: new Date().toISOString(),
-          reason: formData.revocationReason
+          reason: formData.revocationReason,
         };
       }
 
       setRevocationResult(result);
       setResponse({
         success: true,
-        message: 'Token revocation completed successfully',
+        message: "Token revocation completed successfully",
         result: result,
-        type: activeTab
+        type: activeTab,
       });
-      setDemoStatus('success');
+      setDemoStatus("success");
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       setError(errorMessage);
-      setDemoStatus('error');
+      setDemoStatus("error");
     }
   };
 
@@ -591,40 +599,43 @@ cleanupAfterRevocation(revocationResult);`,
     <FlowContainer>
       <FlowTitle>Token Revocation Flow</FlowTitle>
       <FlowDescription>
-        This flow demonstrates token revocation operations to invalidate access tokens 
-        and refresh tokens. It supports both single token revocation and bulk revocation 
-        for enhanced security and user management.
+        This flow demonstrates token revocation operations to invalidate access tokens and refresh
+        tokens. It supports both single token revocation and bulk revocation for enhanced security
+        and user management.
       </FlowDescription>
 
       <WarningContainer>
         <h4>⚠️ Token Revocation Security</h4>
         <p>
-          Token revocation is a critical security operation that immediately invalidates 
-          tokens. Once revoked, tokens cannot be used for authentication. This is 
-          essential for logout functionality and security incident response.
+          Token revocation is a critical security operation that immediately invalidates tokens.
+          Once revoked, tokens cannot be used for authentication. This is essential for logout
+          functionality and security incident response.
         </p>
       </WarningContainer>
 
       <FlowCredentials
         flowType="token-revocation"
         onCredentialsChange={(newCredentials) => {
-          setFormData(prev => ({
+          setFormData((prev) => ({
             ...prev,
             clientId: newCredentials.clientId || prev.clientId,
             clientSecret: newCredentials.clientSecret || prev.clientSecret,
-            environmentId: newCredentials.environmentId || prev.environmentId
+            environmentId: newCredentials.environmentId || prev.environmentId,
           }));
         }}
       />
 
       <TabContainer>
-        <Tab $active={activeTab === 'access_token'} onClick={() => setActiveTab('access_token')}>
+        <Tab $active={activeTab === "access_token"} onClick={() => setActiveTab("access_token")}>
           Access Token
         </Tab>
-        <Tab $active={activeTab === 'refresh_token'} onClick={() => setActiveTab('refresh_token')}>
+        <Tab $active={activeTab === "refresh_token"} onClick={() => setActiveTab("refresh_token")}>
           Refresh Token
         </Tab>
-        <Tab $active={activeTab === 'bulk_revocation'} onClick={() => setActiveTab('bulk_revocation')}>
+        <Tab
+          $active={activeTab === "bulk_revocation"}
+          onClick={() => setActiveTab("bulk_revocation")}
+        >
           Bulk Revocation
         </Tab>
       </TabContainer>
@@ -634,16 +645,16 @@ cleanupAfterRevocation(revocationResult);`,
         currentStep={currentStep}
         onStepChange={handleStepChange}
         onStepResult={handleStepResult}
-        onStart={() => setDemoStatus('loading')}
+        onStart={() => setDemoStatus("loading")}
         onReset={() => {
           setCurrentStep(0);
-          setDemoStatus('idle');
+          setDemoStatus("idle");
           setResponse(null);
           setError(null);
           setRevocationResult(null);
         }}
         status={demoStatus}
-        disabled={demoStatus === 'loading'}
+        disabled={demoStatus === "loading"}
         title={`Token Revocation Steps (${activeTab})`}
       />
 
@@ -651,16 +662,23 @@ cleanupAfterRevocation(revocationResult);`,
         <RevocationContainer>
           <RevocationTitle>
             Revocation Results
-            <StatusBadge $success={revocationResult.type === 'single' ? revocationResult.success : revocationResult.successful > 0}>
-              {revocationResult.type === 'single' ? 
-                (revocationResult.success ? 'Success' : 'Failed') : 
-                `${revocationResult.successful}/${revocationResult.total} Success`
+            <StatusBadge
+              $success={
+                revocationResult.type === "single"
+                  ? revocationResult.success
+                  : revocationResult.successful > 0
               }
+            >
+              {revocationResult.type === "single"
+                ? revocationResult.success
+                  ? "Success"
+                  : "Failed"
+                : `${revocationResult.successful}/${revocationResult.total} Success`}
             </StatusBadge>
           </RevocationTitle>
-          
+
           <RevocationDetails>
-            {revocationResult.type === 'single' ? (
+            {revocationResult.type === "single" ? (
               <>
                 <RevocationDetail>
                   <RevocationLabel>Token</RevocationLabel>
@@ -672,7 +690,9 @@ cleanupAfterRevocation(revocationResult);`,
                 </RevocationDetail>
                 <RevocationDetail>
                   <RevocationLabel>Revoked At</RevocationLabel>
-                  <RevocationValue>{new Date(revocationResult.revokedAt).toLocaleString()}</RevocationValue>
+                  <RevocationValue>
+                    {new Date(revocationResult.revokedAt).toLocaleString()}
+                  </RevocationValue>
                 </RevocationDetail>
                 <RevocationDetail>
                   <RevocationLabel>Reason</RevocationLabel>
@@ -724,69 +744,83 @@ cleanupAfterRevocation(revocationResult);`,
       <FormContainer>
         <h3>Manual Token Revocation Configuration</h3>
         <p>You can also manually configure the token revocation:</p>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "1rem",
+            marginBottom: "1rem",
+          }}
+        >
           <FormGroup>
             <Label>Client ID</Label>
             <Input
               type="text"
               value={formData.clientId}
-              onChange={(e) => setFormData(prev => ({ ...prev, clientId: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, clientId: e.target.value }))}
             />
           </FormGroup>
-          
+
           <FormGroup>
             <Label>Environment ID</Label>
             <Input
               type="text"
               value={formData.environmentId}
-              onChange={(e) => setFormData(prev => ({ ...prev, environmentId: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, environmentId: e.target.value }))}
             />
           </FormGroup>
-          
-          {activeTab !== 'bulk_revocation' && (
+
+          {activeTab !== "bulk_revocation" && (
             <FormGroup>
               <Label>Token to Revoke</Label>
               <Input
                 type="text"
                 value={formData.tokenToRevoke}
-                onChange={(e) => setFormData(prev => ({ ...prev, tokenToRevoke: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, tokenToRevoke: e.target.value }))
+                }
                 placeholder="Enter token to revoke"
               />
             </FormGroup>
           )}
-          
-          {activeTab !== 'bulk_revocation' && (
+
+          {activeTab !== "bulk_revocation" && (
             <FormGroup>
               <Label>Token Type Hint</Label>
               <Select
                 value={formData.tokenTypeHint}
-                onChange={(e) => setFormData(prev => ({ ...prev, tokenTypeHint: e.target.value as 'access_token' | 'refresh_token' }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    tokenTypeHint: e.target.value as "access_token" | "refresh_token",
+                  }))
+                }
               >
                 <option value="access_token">Access Token</option>
                 <option value="refresh_token">Refresh Token</option>
               </Select>
             </FormGroup>
           )}
-          
-          {activeTab === 'bulk_revocation' && (
-            <FormGroup style={{ gridColumn: '1 / -1' }}>
+
+          {activeTab === "bulk_revocation" && (
+            <FormGroup style={{ gridColumn: "1 / -1" }}>
               <Label>Tokens to Revoke (one per line)</Label>
               <TextArea
                 value={formData.bulkTokens}
-                onChange={(e) => setFormData(prev => ({ ...prev, bulkTokens: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, bulkTokens: e.target.value }))}
                 placeholder="Enter tokens to revoke, one per line"
                 rows={5}
               />
             </FormGroup>
           )}
         </div>
-        
+
         <FormGroup>
           <Label>Revocation Reason</Label>
           <Select
             value={formData.revocationReason}
-            onChange={(e) => setFormData(prev => ({ ...prev, revocationReason: e.target.value }))}
+            onChange={(e) => setFormData((prev) => ({ ...prev, revocationReason: e.target.value }))}
           >
             <option value="user_logout">User Logout</option>
             <option value="security_incident">Security Incident</option>
@@ -795,9 +829,9 @@ cleanupAfterRevocation(revocationResult);`,
             <option value="admin_action">Admin Action</option>
           </Select>
         </FormGroup>
-        
+
         <Button $variant="danger" onClick={handleRevocationStart}>
-          {activeTab === 'bulk_revocation' ? 'Revoke All Tokens' : 'Revoke Token'}
+          {activeTab === "bulk_revocation" ? "Revoke All Tokens" : "Revoke Token"}
         </Button>
       </FormContainer>
     </FlowContainer>

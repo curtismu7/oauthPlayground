@@ -1,6 +1,6 @@
-import React from 'react';
-import styled from 'styled-components';
-import { FiAlertTriangle, FiInfo, FiShield, FiUser, FiLock, FiX } from 'react-icons/fi';
+import type React from "react";
+import { FiInfo, FiLock, FiShield, FiUser, FiX } from "react-icons/fi";
+import styled from "styled-components";
 
 const PageContainer = styled.div`
   max-width: 1200px;
@@ -181,7 +181,7 @@ const CodeKeyword = styled.span`
   color: #f59e0b;
 `;
 
-const CodeNumber = styled.span`
+const _CodeNumber = styled.span`
   color: #8b5cf6;
 `;
 
@@ -203,9 +203,7 @@ const ResourceOwnerPasswordFlow: React.FC = () => {
           <FiShield />
           Resource Owner Password Credentials Flow
         </PageTitle>
-        <PageSubtitle>
-          OAuth 2.0 Grant Type - Not Supported by PingOne
-        </PageSubtitle>
+        <PageSubtitle>OAuth 2.0 Grant Type - Not Supported by PingOne</PageSubtitle>
       </PageHeader>
 
       <WarningCard>
@@ -215,9 +213,9 @@ const ResourceOwnerPasswordFlow: React.FC = () => {
         <CardContent>
           <CardTitle>⚠️ Not Supported by PingOne</CardTitle>
           <CardText>
-            The Resource Owner Password Credentials flow is <strong>not supported</strong> by PingOne Identity Platform. 
-            This page is provided for educational purposes and to help you understand why this flow is generally 
-            not recommended for modern applications.
+            The Resource Owner Password Credentials flow is <strong>not supported</strong> by
+            PingOne Identity Platform. This page is provided for educational purposes and to help
+            you understand why this flow is generally not recommended for modern applications.
           </CardText>
         </CardContent>
       </WarningCard>
@@ -229,15 +227,26 @@ const ResourceOwnerPasswordFlow: React.FC = () => {
         <CardContent>
           <CardTitle>Why is this flow not recommended?</CardTitle>
           <CardText>
-            The Resource Owner Password Credentials flow is considered insecure and is generally not recommended 
-            for modern applications. Here's why:
+            The Resource Owner Password Credentials flow is considered insecure and is generally not
+            recommended for modern applications. Here's why:
           </CardText>
           <CardList>
-            <CardListItem><strong>Security Risk:</strong> Applications must handle user credentials directly</CardListItem>
-            <CardListItem><strong>Password Exposure:</strong> Passwords are transmitted to the client application</CardListItem>
-            <CardListItem><strong>Limited Scope:</strong> Cannot support modern security features like MFA</CardListItem>
-            <CardListItem><strong>User Experience:</strong> Poor UX compared to modern authentication flows</CardListItem>
-            <CardListItem><strong>Compliance Issues:</strong> May violate security standards and regulations</CardListItem>
+            <CardListItem>
+              <strong>Security Risk:</strong> Applications must handle user credentials directly
+            </CardListItem>
+            <CardListItem>
+              <strong>Password Exposure:</strong> Passwords are transmitted to the client
+              application
+            </CardListItem>
+            <CardListItem>
+              <strong>Limited Scope:</strong> Cannot support modern security features like MFA
+            </CardListItem>
+            <CardListItem>
+              <strong>User Experience:</strong> Poor UX compared to modern authentication flows
+            </CardListItem>
+            <CardListItem>
+              <strong>Compliance Issues:</strong> May violate security standards and regulations
+            </CardListItem>
           </CardList>
         </CardContent>
       </InfoCard>
@@ -247,13 +256,13 @@ const ResourceOwnerPasswordFlow: React.FC = () => {
           <FiUser />
           How Resource Owner Password Credentials Flow Works
         </SectionTitle>
-        
+
         <StepContainer>
           <StepNumber>1</StepNumber>
           <StepTitle>User Provides Credentials</StepTitle>
           <StepDescription>
-            The user enters their username and password directly into the client application. 
-            The application collects these credentials through a form or similar interface.
+            The user enters their username and password directly into the client application. The
+            application collects these credentials through a form or similar interface.
           </StepDescription>
         </StepContainer>
 
@@ -261,13 +270,15 @@ const ResourceOwnerPasswordFlow: React.FC = () => {
           <StepNumber>2</StepNumber>
           <StepTitle>Client Sends Credentials to Authorization Server</StepTitle>
           <StepDescription>
-            The client application sends the user's credentials directly to the authorization server's token endpoint.
+            The client application sends the user's credentials directly to the authorization
+            server's token endpoint.
           </StepDescription>
           <CodeBlock>
             <CodeComment>POST /as/token</CodeComment>
             <br />
             <CodeComment>Content-Type: application/x-www-form-urlencoded</CodeComment>
-            <br /><br />
+            <br />
+            <br />
             <CodeKeyword>grant_type</CodeKeyword>=<CodeString>password</CodeString>&
             <CodeKeyword>username</CodeKeyword>=<CodeString>user@example.com</CodeString>&
             <CodeKeyword>password</CodeKeyword>=<CodeString>userpassword</CodeString>&
@@ -281,8 +292,8 @@ const ResourceOwnerPasswordFlow: React.FC = () => {
           <StepNumber>3</StepNumber>
           <StepTitle>Authorization Server Validates Credentials</StepTitle>
           <StepDescription>
-            The authorization server validates the user's credentials against its user store. 
-            If valid, it issues an access token (and optionally a refresh token).
+            The authorization server validates the user's credentials against its user store. If
+            valid, it issues an access token (and optionally a refresh token).
           </StepDescription>
         </StepContainer>
 
@@ -290,7 +301,8 @@ const ResourceOwnerPasswordFlow: React.FC = () => {
           <StepNumber>4</StepNumber>
           <StepTitle>Client Receives Tokens</StepTitle>
           <StepDescription>
-            The client application receives the access token and can now make API calls on behalf of the user.
+            The client application receives the access token and can now make API calls on behalf of
+            the user.
           </StepDescription>
           <CodeBlock>
             <CodeComment>Response:</CodeComment>
@@ -311,26 +323,26 @@ const ResourceOwnerPasswordFlow: React.FC = () => {
           <FiLock />
           Security Considerations
         </SectionTitle>
-        
+
         <CardList>
           <CardListItem>
-            <strong>Credential Storage:</strong> The application must securely store user credentials, 
-            which increases the attack surface and security risk.
+            <strong>Credential Storage:</strong> The application must securely store user
+            credentials, which increases the attack surface and security risk.
           </CardListItem>
           <CardListItem>
-            <strong>Password Transmission:</strong> Passwords are transmitted over the network, 
+            <strong>Password Transmission:</strong> Passwords are transmitted over the network,
             requiring additional security measures like HTTPS and proper encryption.
           </CardListItem>
           <CardListItem>
-            <strong>No MFA Support:</strong> This flow cannot support modern multi-factor authentication 
-            methods that are essential for security.
+            <strong>No MFA Support:</strong> This flow cannot support modern multi-factor
+            authentication methods that are essential for security.
           </CardListItem>
           <CardListItem>
-            <strong>Phishing Vulnerability:</strong> Users may be more susceptible to phishing attacks 
-            as they're trained to enter credentials into applications.
+            <strong>Phishing Vulnerability:</strong> Users may be more susceptible to phishing
+            attacks as they're trained to enter credentials into applications.
           </CardListItem>
           <CardListItem>
-            <strong>Compliance Issues:</strong> Many security standards and regulations discourage 
+            <strong>Compliance Issues:</strong> Many security standards and regulations discourage
             or prohibit this flow due to its inherent security risks.
           </CardListItem>
         </CardList>
@@ -341,27 +353,28 @@ const ResourceOwnerPasswordFlow: React.FC = () => {
           <FiShield />
           Recommended Alternatives
         </SectionTitle>
-        
+
         <CardText>
-          Instead of the Resource Owner Password Credentials flow, consider these more secure alternatives:
+          Instead of the Resource Owner Password Credentials flow, consider these more secure
+          alternatives:
         </CardText>
-        
+
         <CardList>
           <CardListItem>
-            <strong>Authorization Code Flow with PKCE:</strong> The most secure and recommended flow 
+            <strong>Authorization Code Flow with PKCE:</strong> The most secure and recommended flow
             for modern applications. Supports MFA, SSO, and other advanced security features.
           </CardListItem>
           <CardListItem>
-            <strong>Device Authorization Flow:</strong> For devices with limited input capabilities, 
+            <strong>Device Authorization Flow:</strong> For devices with limited input capabilities,
             this flow provides a secure way to authenticate without direct credential handling.
           </CardListItem>
           <CardListItem>
-            <strong>Client Credentials Flow:</strong> For machine-to-machine authentication where 
-            no user interaction is required.
+            <strong>Client Credentials Flow:</strong> For machine-to-machine authentication where no
+            user interaction is required.
           </CardListItem>
           <CardListItem>
-            <strong>Hybrid Flow:</strong> Combines the security of the Authorization Code flow 
-            with immediate access to ID tokens for better user experience.
+            <strong>Hybrid Flow:</strong> Combines the security of the Authorization Code flow with
+            immediate access to ID tokens for better user experience.
           </CardListItem>
         </CardList>
       </FlowSection>
@@ -371,29 +384,43 @@ const ResourceOwnerPasswordFlow: React.FC = () => {
           <FiInfo />
           References
         </SectionTitle>
-        
-        <CardText>
-          Learn more about OAuth 2.0 flows and security best practices:
-        </CardText>
-        
+
+        <CardText>Learn more about OAuth 2.0 flows and security best practices:</CardText>
+
         <CardList>
           <CardListItem>
-            <ReferenceLink href="https://frontegg.com/blog/oauth-flows" target="_blank" rel="noopener noreferrer">
+            <ReferenceLink
+              href="https://frontegg.com/blog/oauth-flows"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               OAuth Flows Explained - Frontegg Blog
             </ReferenceLink>
           </CardListItem>
           <CardListItem>
-            <ReferenceLink href="https://tools.ietf.org/html/rfc6749#section-4.3" target="_blank" rel="noopener noreferrer">
+            <ReferenceLink
+              href="https://tools.ietf.org/html/rfc6749#section-4.3"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               RFC 6749 - OAuth 2.0 Authorization Framework (Section 4.3)
             </ReferenceLink>
           </CardListItem>
           <CardListItem>
-            <ReferenceLink href="https://tools.ietf.org/html/draft-ietf-oauth-security-topics" target="_blank" rel="noopener noreferrer">
+            <ReferenceLink
+              href="https://tools.ietf.org/html/draft-ietf-oauth-security-topics"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               OAuth 2.0 Security Best Current Practice
             </ReferenceLink>
           </CardListItem>
           <CardListItem>
-            <ReferenceLink href="https://apidocs.pingidentity.com" target="_blank" rel="noopener noreferrer">
+            <ReferenceLink
+              href="https://apidocs.pingidentity.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               PingOne API Documentation
             </ReferenceLink>
           </CardListItem>

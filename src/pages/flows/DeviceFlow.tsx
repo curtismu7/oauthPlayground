@@ -1,11 +1,16 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import styled from 'styled-components';
-import { StepByStepFlow } from '../../components/StepByStepFlow';
-import FlowCredentials from '../../components/FlowCredentials';
-import DeviceFlowDisplay from '../../components/DeviceFlowDisplay';
-import { deviceFlowService, DeviceFlowState, DeviceAuthorizationRequest } from '../../services/deviceFlowService';
-import { storeOAuthTokens } from '../../utils/tokenStorage';
-import { logger } from '../../utils/logger';
+import type React from "react";
+import { useCallback, useEffect, useState } from "react";
+import styled from "styled-components";
+import DeviceFlowDisplay from "../../components/DeviceFlowDisplay";
+import FlowCredentials from "../../components/FlowCredentials";
+import { StepByStepFlow } from "../../components/StepByStepFlow";
+import {
+  type DeviceAuthorizationRequest,
+  type DeviceFlowState,
+  deviceFlowService,
+} from "../../services/deviceFlowService";
+import { logger } from "../../utils/logger";
+import { storeOAuthTokens } from "../../utils/tokenStorage";
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -92,7 +97,7 @@ const Select = styled.select`
   }
 `;
 
-const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' | 'danger' }>`
+const Button = styled.button<{ $variant: "primary" | "secondary" | "success" | "danger" }>`
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 0.375rem;
@@ -105,25 +110,25 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' | '
   
   ${({ $variant }) => {
     switch ($variant) {
-      case 'primary':
+      case "primary":
         return `
           background-color: #3b82f6;
           color: white;
           &:hover { background-color: #2563eb; }
         `;
-      case 'secondary':
+      case "secondary":
         return `
           background-color: #6b7280;
           color: white;
           &:hover { background-color: #4b5563; }
         `;
-      case 'success':
+      case "success":
         return `
           background-color: #10b981;
           color: white;
           &:hover { background-color: #059669; }
         `;
-      case 'danger':
+      case "danger":
         return `
           background-color: #ef4444;
           color: white;
@@ -179,19 +184,19 @@ interface DeviceFlowProps {
 
 const DeviceFlow: React.FC<DeviceFlowProps> = ({ credentials }) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [demoStatus, setDemoStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [formData, setFormData] = useState({
-    clientId: credentials?.clientId || '',
-    clientSecret: credentials?.clientSecret || '',
-    environmentId: credentials?.environmentId || '',
-    scope: 'openid profile email',
-    audience: '',
-    acrValues: '',
-    prompt: '',
-    maxAge: '',
-    uiLocales: '',
-    claims: '',
-    appIdentifier: ''
+    clientId: credentials?.clientId || "",
+    clientSecret: credentials?.clientSecret || "",
+    environmentId: credentials?.environmentId || "",
+    scope: "openid profile email",
+    audience: "",
+    acrValues: "",
+    prompt: "",
+    maxAge: "",
+    uiLocales: "",
+    claims: "",
+    appIdentifier: "",
   });
   const [deviceState, setDeviceState] = useState<DeviceFlowState | null>(null);
   const [response, setResponse] = useState<Record<string, unknown> | null>(null);
@@ -202,39 +207,39 @@ const DeviceFlow: React.FC<DeviceFlowProps> = ({ credentials }) => {
     const existingState = deviceFlowService.getDeviceFlowState();
     if (existingState) {
       setDeviceState(existingState);
-      logger.info('DeviceFlow', 'Loaded existing device flow state', existingState);
+      logger.info("DeviceFlow", "Loaded existing device flow state", existingState);
     }
   }, []);
 
   const steps = [
     {
-      id: 'step-1',
-      title: 'Configure Device Flow Settings',
-      description: 'Set up your OAuth client for device authorization flow.',
+      id: "step-1",
+      title: "Configure Device Flow Settings",
+      description: "Set up your OAuth client for device authorization flow.",
       code: `// Device Flow Configuration
 const deviceConfig = {
   clientId: '${formData.clientId}',
   clientSecret: '${formData.clientSecret}',
   environmentId: '${formData.environmentId}',
   scope: '${formData.scope}',
-  audience: '${formData.audience || 'default'}',
-  acrValues: '${formData.acrValues || 'default'}',
-  prompt: '${formData.prompt || 'consent'}',
+  audience: '${formData.audience || "default"}',
+  acrValues: '${formData.acrValues || "default"}',
+  prompt: '${formData.prompt || "consent"}',
   maxAge: ${formData.maxAge || 3600},
-  uiLocales: '${formData.uiLocales || 'en'}',
-  claims: '${formData.claims || '{}'}',
-  appIdentifier: '${formData.appIdentifier || ''}'
+  uiLocales: '${formData.uiLocales || "en"}',
+  claims: '${formData.claims || "{}"}',
+  appIdentifier: '${formData.appIdentifier || ""}'
 };
 
 console.log('Device flow configured:', deviceConfig);`,
       execute: async () => {
-        logger.info('DeviceFlow', 'Configuring device flow settings');
-      }
+        logger.info("DeviceFlow", "Configuring device flow settings");
+      },
     },
     {
-      id: 'step-2',
-      title: 'Start Device Authorization',
-      description: 'Initiate the device authorization flow by requesting device and user codes.',
+      id: "step-2",
+      title: "Start Device Authorization",
+      description: "Initiate the device authorization flow by requesting device and user codes.",
       code: `// Start Device Authorization
 const deviceRequest = {
   client_id: '${formData.clientId}',
@@ -242,7 +247,7 @@ const deviceRequest = {
   audience: '${formData.audience || undefined}',
   acr_values: '${formData.acrValues || undefined}',
   prompt: '${formData.prompt || undefined}',
-  max_age: ${formData.maxAge ? parseInt(formData.maxAge) : undefined},
+  max_age: ${formData.maxAge ? parseInt(formData.maxAge, 10) : undefined},
   ui_locales: '${formData.uiLocales || undefined}',
   claims: '${formData.claims || undefined}',
   app_identifier: '${formData.appIdentifier || undefined}'
@@ -257,9 +262,9 @@ console.log('Device authorization started:', deviceResponse);
 console.log('User Code:', deviceResponse.user_code);
 console.log('Verification URI:', deviceResponse.verification_uri);`,
       execute: async () => {
-        logger.info('DeviceFlow', 'Starting device authorization');
-        setDemoStatus('loading');
-        
+        logger.info("DeviceFlow", "Starting device authorization");
+        setDemoStatus("loading");
+
         try {
           const deviceRequest: DeviceAuthorizationRequest = {
             client_id: formData.clientId,
@@ -267,34 +272,34 @@ console.log('Verification URI:', deviceResponse.verification_uri);`,
             audience: formData.audience || undefined,
             acr_values: formData.acrValues || undefined,
             prompt: formData.prompt || undefined,
-            max_age: formData.maxAge ? parseInt(formData.maxAge) : undefined,
+            max_age: formData.maxAge ? parseInt(formData.maxAge, 10) : undefined,
             ui_locales: formData.uiLocales || undefined,
             claims: formData.claims || undefined,
-            app_identifier: formData.appIdentifier || undefined
+            app_identifier: formData.appIdentifier || undefined,
           };
 
           const deviceResponse = await deviceFlowService.startDeviceFlow(
             formData.environmentId,
-            deviceRequest
+            deviceRequest,
           );
 
           // Update device state
           const newState = deviceFlowService.getDeviceFlowState();
           setDeviceState(newState);
           setResponse(deviceResponse);
-          setDemoStatus('success');
+          setDemoStatus("success");
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          const errorMessage = error instanceof Error ? error.message : "Unknown error";
           setError(errorMessage);
-          setDemoStatus('error');
+          setDemoStatus("error");
           throw error;
         }
-      }
+      },
     },
     {
-      id: 'step-3',
-      title: 'Display User Code and Verification URI',
-      description: 'Show the user code and verification URI to the user for authorization.',
+      id: "step-3",
+      title: "Display User Code and Verification URI",
+      description: "Show the user code and verification URI to the user for authorization.",
       code: `// Display device authorization information
 console.log('User Code:', deviceResponse.user_code);
 console.log('Verification URI:', deviceResponse.verification_uri);
@@ -306,13 +311,14 @@ console.log('Poll interval:', deviceResponse.interval, 'seconds');
 const formattedUserCode = deviceResponse.user_code.replace(/(.{4})/g, '$1-').slice(0, -1);
 console.log('Formatted User Code:', formattedUserCode);`,
       execute: async () => {
-        logger.info('DeviceFlow', 'Displaying user code and verification URI');
-      }
+        logger.info("DeviceFlow", "Displaying user code and verification URI");
+      },
     },
     {
-      id: 'step-4',
-      title: 'Poll for Authorization',
-      description: 'Continuously poll the token endpoint to check if the user has authorized the device.',
+      id: "step-4",
+      title: "Poll for Authorization",
+      description:
+        "Continuously poll the token endpoint to check if the user has authorized the device.",
       code: `// Poll for device authorization
 const pollForTokens = async () => {
   try {
@@ -343,13 +349,13 @@ const pollForTokens = async () => {
 // Start polling
 pollForTokens();`,
       execute: async () => {
-        logger.info('DeviceFlow', 'Starting polling for authorization');
-      }
+        logger.info("DeviceFlow", "Starting polling for authorization");
+      },
     },
     {
-      id: 'step-5',
-      title: 'Handle Token Response',
-      description: 'Process the received tokens and store them for future use.',
+      id: "step-5",
+      title: "Handle Token Response",
+      description: "Process the received tokens and store them for future use.",
       code: `// Handle successful token response
 if (tokenResponse.access_token) {
   const tokens = {
@@ -373,91 +379,91 @@ if (tokenResponse.access_token) {
   });
 }`,
       execute: async () => {
-        logger.info('DeviceFlow', 'Handling token response');
-        
+        logger.info("DeviceFlow", "Handling token response");
+
         try {
           // Simulate token storage
           const mockTokens = {
-            access_token: 'mock_access_token_' + Date.now(),
-            id_token: 'mock_id_token_' + Date.now(),
-            token_type: 'Bearer',
+            access_token: `mock_access_token_${Date.now()}`,
+            id_token: `mock_id_token_${Date.now()}`,
+            token_type: "Bearer",
             expires_in: 3600,
-            scope: formData.scope
+            scope: formData.scope,
           };
 
           // Store tokens using the standardized method
-          const success = storeOAuthTokens(mockTokens, 'device', 'Device Flow');
-          
+          const success = storeOAuthTokens(mockTokens, "device", "Device Flow");
+
           if (success) {
-            setResponse({ tokens: mockTokens, message: 'Tokens stored successfully' });
+            setResponse({ tokens: mockTokens, message: "Tokens stored successfully" });
           } else {
-            throw new Error('Failed to store tokens');
+            throw new Error("Failed to store tokens");
           }
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          const errorMessage = error instanceof Error ? error.message : "Unknown error";
           setError(errorMessage);
           throw error;
         }
-      }
-    }
+      },
+    },
   ];
 
   const handleStepChange = useCallback((step: number) => {
     setCurrentStep(step);
-    setDemoStatus('idle');
+    setDemoStatus("idle");
     setResponse(null);
     setError(null);
   }, []);
 
   const handleStepResult = useCallback((step: number, result: unknown) => {
-    logger.info('DeviceFlow', `Step ${step + 1} completed`, result);
+    logger.info("DeviceFlow", `Step ${step + 1} completed`, result);
   }, []);
 
   const handleDeviceStateUpdate = useCallback((newState: DeviceFlowState) => {
     setDeviceState(newState);
-    logger.info('DeviceFlow', 'Device state updated', newState);
+    logger.info("DeviceFlow", "Device state updated", newState);
   }, []);
 
   const handleDeviceComplete = useCallback((tokens: Record<string, unknown>) => {
-    logger.success('DeviceFlow', 'Device authorization completed', tokens);
-    setResponse({ tokens, message: 'Device authorization completed successfully' });
+    logger.success("DeviceFlow", "Device authorization completed", tokens);
+    setResponse({ tokens, message: "Device authorization completed successfully" });
   }, []);
 
   const handleDeviceError = useCallback((error: Error) => {
-    logger.error('DeviceFlow', 'Device authorization error', error);
+    logger.error("DeviceFlow", "Device authorization error", error);
     setError(error.message);
   }, []);
 
   const handleStartDeviceFlow = async () => {
     try {
-      setDemoStatus('loading');
+      setDemoStatus("loading");
       setError(null);
-      
+
       const deviceRequest: DeviceAuthorizationRequest = {
         client_id: formData.clientId,
         scope: formData.scope,
         audience: formData.audience || undefined,
         acr_values: formData.acrValues || undefined,
         prompt: formData.prompt || undefined,
-        max_age: formData.maxAge ? parseInt(formData.maxAge) : undefined,
+        max_age: formData.maxAge ? parseInt(formData.maxAge, 10) : undefined,
         ui_locales: formData.uiLocales || undefined,
         claims: formData.claims || undefined,
-        app_identifier: formData.appIdentifier || undefined
+        app_identifier: formData.appIdentifier || undefined,
       };
 
       const deviceResponse = await deviceFlowService.startDeviceFlow(
         formData.environmentId,
-        deviceRequest
+        deviceRequest,
       );
 
       const newState = deviceFlowService.getDeviceFlowState();
       setDeviceState(newState);
       setResponse(deviceResponse);
-      setDemoStatus('success');
+      setDemoStatus("success");
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       setError(errorMessage);
-      setDemoStatus('error');
+      setDemoStatus("error");
     }
   };
 
@@ -465,16 +471,16 @@ if (tokenResponse.access_token) {
     <FlowContainer>
       <FlowTitle>Device Authorization Grant Flow</FlowTitle>
       <FlowDescription>
-        The Device Authorization Grant flow is designed for devices that either lack a browser 
-        or are input-constrained. It allows users to authorize the application on a separate device 
-        by entering a user code or scanning a QR code.
+        The Device Authorization Grant flow is designed for devices that either lack a browser or
+        are input-constrained. It allows users to authorize the application on a separate device by
+        entering a user code or scanning a QR code.
       </FlowDescription>
 
       <InfoContainer>
         <h4>ℹ️ Device Flow Benefits</h4>
         <p>
-          The Device Flow is perfect for smart TVs, IoT devices, command-line tools, and other 
-          applications where traditional OAuth flows are not feasible. Users can authorize the 
+          The Device Flow is perfect for smart TVs, IoT devices, command-line tools, and other
+          applications where traditional OAuth flows are not feasible. Users can authorize the
           application using their smartphone or computer.
         </p>
       </InfoContainer>
@@ -482,11 +488,11 @@ if (tokenResponse.access_token) {
       <FlowCredentials
         flowType="device"
         onCredentialsChange={(newCredentials) => {
-          setFormData(prev => ({
+          setFormData((prev) => ({
             ...prev,
             clientId: newCredentials.clientId || prev.clientId,
             clientSecret: newCredentials.clientSecret || prev.clientSecret,
-            environmentId: newCredentials.environmentId || prev.environmentId
+            environmentId: newCredentials.environmentId || prev.environmentId,
           }));
         }}
       />
@@ -496,15 +502,15 @@ if (tokenResponse.access_token) {
         currentStep={currentStep}
         onStepChange={handleStepChange}
         onStepResult={handleStepResult}
-        onStart={() => setDemoStatus('loading')}
+        onStart={() => setDemoStatus("loading")}
         onReset={() => {
           setCurrentStep(0);
-          setDemoStatus('idle');
+          setDemoStatus("idle");
           setResponse(null);
           setError(null);
         }}
         status={demoStatus}
-        disabled={demoStatus === 'loading'}
+        disabled={demoStatus === "loading"}
         title="Device Flow Steps"
       />
 
@@ -534,58 +540,65 @@ if (tokenResponse.access_token) {
       <FormContainer>
         <h3>Manual Device Flow Configuration</h3>
         <p>You can also manually configure and start the device flow:</p>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "1rem",
+            marginBottom: "1rem",
+          }}
+        >
           <FormGroup>
             <Label>Client ID</Label>
             <Input
               type="text"
               value={formData.clientId}
-              onChange={(e) => setFormData(prev => ({ ...prev, clientId: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, clientId: e.target.value }))}
             />
           </FormGroup>
-          
+
           <FormGroup>
             <Label>Environment ID</Label>
             <Input
               type="text"
               value={formData.environmentId}
-              onChange={(e) => setFormData(prev => ({ ...prev, environmentId: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, environmentId: e.target.value }))}
             />
           </FormGroup>
-          
+
           <FormGroup>
             <Label>Scope</Label>
             <Input
               type="text"
               value={formData.scope}
-              onChange={(e) => setFormData(prev => ({ ...prev, scope: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, scope: e.target.value }))}
             />
           </FormGroup>
-          
+
           <FormGroup>
             <Label>Audience</Label>
             <Input
               type="text"
               value={formData.audience}
-              onChange={(e) => setFormData(prev => ({ ...prev, audience: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, audience: e.target.value }))}
             />
           </FormGroup>
-          
+
           <FormGroup>
             <Label>ACR Values</Label>
             <Input
               type="text"
               value={formData.acrValues}
-              onChange={(e) => setFormData(prev => ({ ...prev, acrValues: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, acrValues: e.target.value }))}
             />
           </FormGroup>
-          
+
           <FormGroup>
             <Label>Prompt</Label>
             <Select
               value={formData.prompt}
-              onChange={(e) => setFormData(prev => ({ ...prev, prompt: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, prompt: e.target.value }))}
             >
               <option value="">None</option>
               <option value="none">none</option>
@@ -594,44 +607,44 @@ if (tokenResponse.access_token) {
               <option value="select_account">select_account</option>
             </Select>
           </FormGroup>
-          
+
           <FormGroup>
             <Label>Max Age (seconds)</Label>
             <Input
               type="number"
               value={formData.maxAge}
-              onChange={(e) => setFormData(prev => ({ ...prev, maxAge: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, maxAge: e.target.value }))}
             />
           </FormGroup>
-          
+
           <FormGroup>
             <Label>UI Locales</Label>
             <Input
               type="text"
               value={formData.uiLocales}
-              onChange={(e) => setFormData(prev => ({ ...prev, uiLocales: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, uiLocales: e.target.value }))}
             />
           </FormGroup>
-          
+
           <FormGroup>
             <Label>Claims (JSON)</Label>
             <TextArea
               value={formData.claims}
-              onChange={(e) => setFormData(prev => ({ ...prev, claims: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, claims: e.target.value }))}
               placeholder='{"userinfo": {"email": null}}'
             />
           </FormGroup>
-          
+
           <FormGroup>
             <Label>App Identifier</Label>
             <Input
               type="text"
               value={formData.appIdentifier}
-              onChange={(e) => setFormData(prev => ({ ...prev, appIdentifier: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, appIdentifier: e.target.value }))}
             />
           </FormGroup>
         </div>
-        
+
         <Button $variant="primary" onClick={handleStartDeviceFlow}>
           Start Device Flow
         </Button>

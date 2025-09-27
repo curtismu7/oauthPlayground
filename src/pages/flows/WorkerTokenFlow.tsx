@@ -1,15 +1,13 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import styled from 'styled-components';
-import { FiSettings, FiKey, FiShield, FiServer, FiRefreshCw } from 'react-icons/fi';
-import { useAuth } from '../../contexts/NewAuthContext';
-import { logger } from '../../utils/logger';
-import { storeOAuthTokens } from '../../utils/tokenStorage';
-import { EnhancedStepFlowV2 } from '../../components/EnhancedStepFlowV2';
-import { useFlowStepManager } from '../../utils/flowStepSystem';
-import Card from '../../components/Card';
+import { useState } from "react";
+import { FiKey, FiRefreshCw, FiServer } from "react-icons/fi";
+import styled from "styled-components";
+import Card from "../../components/Card";
+import { useAuth } from "../../contexts/NewAuthContext";
+import { logger } from "../../utils/logger";
+import { storeOAuthTokens } from "../../utils/tokenStorage";
 
 // Default scope for Worker Token flow
-const DEFAULT_WORKER_TOKEN_SCOPE = 'openid';
+const DEFAULT_WORKER_TOKEN_SCOPE = "openid";
 
 const Container = styled.div`
   max-width: 1200px;
@@ -212,23 +210,23 @@ type ApiCall = {
 
 const WorkerTokenFlow = () => {
   const { config } = useAuth();
-  const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [demoStatus, setDemoStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [tokensReceived, setTokensReceived] = useState<Tokens | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [apiCall, setApiCall] = useState<ApiCall | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [_isLoading, setIsLoading] = useState<boolean>(false);
   const [showRedirectModal, setShowRedirectModal] = useState(false);
-  const [redirectUrl, setRedirectUrl] = useState('');
+  const [redirectUrl, setRedirectUrl] = useState("");
   const [redirectParams, setRedirectParams] = useState<Record<string, string>>({});
 
   // Track execution results for each step
-  const [stepResults, setStepResults] = useState<Record<number, unknown>>({});
-  const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
-  const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
+  const [_stepResults, setStepResults] = useState<Record<number, unknown>>({});
+  const [_executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
+  const [_stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
 
   const startWorkerTokenFlow = async () => {
-    setDemoStatus('loading');
+    setDemoStatus("loading");
     setCurrentStep(0);
     setError(null);
     setTokensReceived(null);
@@ -237,7 +235,7 @@ const WorkerTokenFlow = () => {
     setExecutedSteps(new Set());
     setStepsWithResults([]);
     setStepsWithResults([...steps]); // Initialize with copy of steps
-    logger.flow('WorkerTokenFlow', 'Starting worker token flow...');
+    logger.flow("WorkerTokenFlow", "Starting worker token flow...");
   };
 
   const makeAuthenticatedAPICall = async () => {
@@ -247,12 +245,12 @@ const WorkerTokenFlow = () => {
       setCurrentStep(5);
 
       const apiRequest: ApiCall = {
-        method: 'GET',
+        method: "GET",
         url: `${config?.apiUrl}/environments/${config?.environmentId}/populations`,
         headers: {
-          'Authorization': `Bearer ${tokensReceived.access_token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${tokensReceived.access_token}`,
+          "Content-Type": "application/json",
+        },
       };
 
       setApiCall(apiRequest);
@@ -262,26 +260,25 @@ const WorkerTokenFlow = () => {
         const apiResponse = {
           status: 200,
           data: {
-            message: 'Successfully accessed PingOne Management API',
+            message: "Successfully accessed PingOne Management API",
             timestamp: new Date().toISOString(),
             scope: tokensReceived.scope,
-            environment_id: config?.environmentId
-          }
+            environment_id: config?.environmentId,
+          },
         };
 
         setApiCall({ ...apiRequest, response: apiResponse });
         setCurrentStep(6);
       }, 1500);
-
     } catch (err) {
-      console.error('API call failed:', err);
-      setError('Failed to make authenticated API call.');
-      setDemoStatus('error');
+      console.error("API call failed:", err);
+      setError("Failed to make authenticated API call.");
+      setDemoStatus("error");
     }
   };
 
   const resetDemo = () => {
-    setDemoStatus('idle');
+    setDemoStatus("idle");
     setCurrentStep(0);
     setTokensReceived(null);
     setError(null);
@@ -289,12 +286,12 @@ const WorkerTokenFlow = () => {
     setStepResults({});
     setExecutedSteps(new Set());
     setStepsWithResults([]);
-    logger.success('WorkerTokenFlow', 'Demo reset completed');
+    logger.success("WorkerTokenFlow", "Demo reset completed");
   };
 
   const handleStepResult = (stepIndex: number, result: unknown) => {
-    setStepResults(prev => ({ ...prev, [stepIndex]: result }));
-    setStepsWithResults(prev => {
+    setStepResults((prev) => ({ ...prev, [stepIndex]: result }));
+    setStepsWithResults((prev) => {
       const newSteps = [...prev];
       if (newSteps[stepIndex]) {
         newSteps[stepIndex] = { ...newSteps[stepIndex], result };
@@ -305,41 +302,44 @@ const WorkerTokenFlow = () => {
 
   const handleRedirectModalClose = () => {
     setShowRedirectModal(false);
-    setRedirectUrl('');
+    setRedirectUrl("");
     setRedirectParams({});
   };
 
   const handleRedirectModalProceed = () => {
-    logger.flow('WorkerTokenFlow', 'Proceeding with redirect to PingOne', { url: redirectUrl });
-    
+    logger.flow("WorkerTokenFlow", "Proceeding with redirect to PingOne", { url: redirectUrl });
+
     // Store the return path for after callback
     const currentPath = window.location.pathname;
     // Ensure we use the correct route path regardless of current path
-    const correctPath = currentPath.includes('/oidc/') ? '/flows-old/worker-token' : currentPath;
+    const correctPath = currentPath.includes("/oidc/") ? "/flows-old/worker-token" : currentPath;
     const returnPath = `${correctPath}?step=1`; // Return to step 1 (token request)
-    sessionStorage.setItem('redirect_after_login', returnPath);
-    
+    sessionStorage.setItem("redirect_after_login", returnPath);
+
     // Store flow context in state parameter
-    const stateParam = new URLSearchParams(redirectUrl.split('?')[1]?.split('#')[0] || '').get('state');
+    const stateParam = new URLSearchParams(redirectUrl.split("?")[1]?.split("#")[0] || "").get(
+      "state",
+    );
     if (stateParam) {
       // Encode flow context in the state parameter
       const flowContext = {
-        flow: 'worker-token',
+        flow: "worker-token",
         step: 1,
         returnPath: returnPath,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
       sessionStorage.setItem(`flow_context_${stateParam}`, JSON.stringify(flowContext));
     }
-    
-    console.log('🔄 [WorkerTokenFlow] Stored return path:', returnPath);
+
+    console.log("🔄 [WorkerTokenFlow] Stored return path:", returnPath);
     window.location.href = redirectUrl;
   };
 
   const steps: FlowStep[] = [
     {
-      title: 'Prepare Worker Token Request',
-      description: 'Create the token request with Worker app credentials using Basic authentication',
+      title: "Prepare Worker Token Request",
+      description:
+        "Create the token request with Worker app credentials using Basic authentication",
       code: `// Worker Token Request
 const credentials = btoa(\`\${clientId}:\${clientSecret}\`);
 const tokenRequest = {
@@ -353,44 +353,44 @@ const tokenRequest = {
 };`,
       execute: () => {
         if (!config || !config.pingone) {
-          setError('Configuration required. Please configure your PingOne settings first.');
-          return { error: 'Configuration required' };
+          setError("Configuration required. Please configure your PingOne settings first.");
+          return { error: "Configuration required" };
         }
 
         const credentials = btoa(`${config.pingone.clientId}:${config.pingone.clientSecret}`);
         const tokenRequest: ApiCall = {
-          method: 'POST',
+          method: "POST",
           url: `${config.pingone.tokenEndpoint}`,
           headers: {
-            'Authorization': `Basic ${credentials}`,
-            'Content-Type': 'application/x-www-form-urlencoded'
+            Authorization: `Basic ${credentials}`,
+            "Content-Type": "application/x-www-form-urlencoded",
           },
-          body: `grant_type=client_credentials&scope=${DEFAULT_WORKER_TOKEN_SCOPE}`
+          body: `grant_type=client_credentials&scope=${DEFAULT_WORKER_TOKEN_SCOPE}`,
         };
 
         const mockResponse = {
-          status: 'Token request prepared successfully',
+          status: "Token request prepared successfully",
           endpoint: config.pingone.tokenEndpoint,
-          method: 'POST',
+          method: "POST",
           authorization: `Basic ${credentials.substring(0, 20)}...`,
-          body: `grant_type=client_credentials&scope=${DEFAULT_WORKER_TOKEN_SCOPE}`
+          body: `grant_type=client_credentials&scope=${DEFAULT_WORKER_TOKEN_SCOPE}`,
         };
 
         setApiCall(tokenRequest);
-        const result = { 
+        const result = {
           request: tokenRequest,
           response: mockResponse,
-          message: 'Worker token request prepared and ready to send'
+          message: "Worker token request prepared and ready to send",
         };
-        setStepResults(prev => ({ ...prev, 0: result }));
-        setExecutedSteps(prev => new Set(prev).add(0));
-        logger.flow('WorkerTokenFlow', 'Worker token request prepared');
+        setStepResults((prev) => ({ ...prev, 0: result }));
+        setExecutedSteps((prev) => new Set(prev).add(0));
+        logger.flow("WorkerTokenFlow", "Worker token request prepared");
         return result;
-      }
+      },
     },
     {
-      title: 'Send Token Request to PingOne',
-      description: 'Send the token request to PingOne authorization server',
+      title: "Send Token Request to PingOne",
+      description: "Send the token request to PingOne authorization server",
       code: `// Send request to PingOne
 const response = await fetch(tokenEndpoint, {
   method: 'POST',
@@ -404,8 +404,8 @@ const response = await fetch(tokenEndpoint, {
 const tokenData = await response.json();`,
       execute: async () => {
         if (!config || !config.pingone) {
-          setError('Configuration required. Please configure your PingOne settings first.');
-          return { error: 'Configuration required' };
+          setError("Configuration required. Please configure your PingOne settings first.");
+          return { error: "Configuration required" };
         }
 
         try {
@@ -413,21 +413,25 @@ const tokenData = await response.json();`,
           setIsLoading(true);
 
           // Validate configuration
-          if (!config.pingone.clientId || !config.pingone.clientSecret || !config.pingone.tokenEndpoint) {
+          if (
+            !config.pingone.clientId ||
+            !config.pingone.clientSecret ||
+            !config.pingone.tokenEndpoint
+          ) {
             const missingFields = [];
-            if (!config.pingone.clientId) missingFields.push('clientId');
-            if (!config.pingone.clientSecret) missingFields.push('clientSecret');
-            if (!config.pingone.tokenEndpoint) missingFields.push('tokenEndpoint');
-            
-            const errorMsg = `Missing required configuration: ${missingFields.join(', ')}. Please configure your PingOne settings first.`;
-            logger.error('WorkerTokenFlow', 'Configuration validation failed', {
+            if (!config.pingone.clientId) missingFields.push("clientId");
+            if (!config.pingone.clientSecret) missingFields.push("clientSecret");
+            if (!config.pingone.tokenEndpoint) missingFields.push("tokenEndpoint");
+
+            const errorMsg = `Missing required configuration: ${missingFields.join(", ")}. Please configure your PingOne settings first.`;
+            logger.error("WorkerTokenFlow", "Configuration validation failed", {
               missingFields,
               config: {
                 hasClientId: !!config.pingone.clientId,
                 hasClientSecret: !!config.pingone.clientSecret,
                 hasTokenEndpoint: !!config.pingone.tokenEndpoint,
-                tokenEndpoint: config.pingone.tokenEndpoint
-              }
+                tokenEndpoint: config.pingone.tokenEndpoint,
+              },
             });
             throw new Error(errorMsg);
           }
@@ -437,122 +441,123 @@ const tokenData = await response.json();`,
             new URL(config.pingone.tokenEndpoint);
           } catch (urlError) {
             const errorMsg = `Invalid token endpoint URL: ${config.pingone.tokenEndpoint}. Please check your PingOne configuration.`;
-            logger.error('WorkerTokenFlow', 'Invalid token endpoint', {
+            logger.error("WorkerTokenFlow", "Invalid token endpoint", {
               tokenEndpoint: config.pingone.tokenEndpoint,
-              error: urlError
+              error: urlError,
             });
             throw new Error(errorMsg);
           }
 
-          const credentials = btoa(`${config.pingone.clientId}:${config.pingone.clientSecret}`);
-          
-          logger.flow('WorkerTokenFlow', 'Making real API call to PingOne', {
+          const _credentials = btoa(`${config.pingone.clientId}:${config.pingone.clientSecret}`);
+
+          logger.flow("WorkerTokenFlow", "Making real API call to PingOne", {
             tokenEndpoint: config.pingone.tokenEndpoint,
             clientId: config.pingone.clientId,
-            hasClientSecret: !!config.pingone.clientSecret
+            hasClientSecret: !!config.pingone.clientSecret,
           });
-          
+
           // Make actual request to PingOne via backend proxy
-          const backendUrl = process.env.NODE_ENV === 'production' 
-            ? 'https://oauth-playground.vercel.app' 
-            : 'http://localhost:3001';
-          
+          const backendUrl =
+            process.env.NODE_ENV === "production"
+              ? "https://oauth-playground.vercel.app"
+              : "http://localhost:3001";
+
           const response = await fetch(`${backendUrl}/api/token-exchange`, {
-            method: 'POST',
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json'
+              "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              grant_type: 'client_credentials',
+              grant_type: "client_credentials",
               client_id: config.pingone.clientId,
               client_secret: config.pingone.clientSecret,
               environment_id: config.pingone.environmentId,
-              scope: DEFAULT_WORKER_TOKEN_SCOPE
-            })
+              scope: DEFAULT_WORKER_TOKEN_SCOPE,
+            }),
           });
 
           if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            logger.error('WorkerTokenFlow', 'PingOne API call failed', {
+            logger.error("WorkerTokenFlow", "PingOne API call failed", {
               status: response.status,
               statusText: response.statusText,
               error: errorData,
               tokenEndpoint: config.pingone.tokenEndpoint,
-              clientId: config.pingone.clientId
+              clientId: config.pingone.clientId,
             });
-            
+
             let errorMessage = `PingOne API call failed: ${response.status} ${response.statusText}`;
-            
+
             if (response.status === 401) {
-              errorMessage += '. Authentication failed. Please check:';
-              errorMessage += '\n1. Client ID is correct';
-              errorMessage += '\n2. Client Secret is correct';
-              errorMessage += '\n3. Environment ID is correct';
-              errorMessage += '\n4. Token endpoint URL is correct';
+              errorMessage += ". Authentication failed. Please check:";
+              errorMessage += "\n1. Client ID is correct";
+              errorMessage += "\n2. Client Secret is correct";
+              errorMessage += "\n3. Environment ID is correct";
+              errorMessage += "\n4. Token endpoint URL is correct";
               errorMessage += `\n\nCurrent configuration:`;
               errorMessage += `\n- Client ID: ${config.pingone.clientId}`;
               errorMessage += `\n- Token Endpoint: ${config.pingone.tokenEndpoint}`;
               errorMessage += `\n- Environment ID: ${config.pingone.environmentId}`;
             } else if (response.status === 400) {
-              errorMessage += '. Bad request. Please check:';
-              errorMessage += '\n1. Grant type is correct (client_credentials)';
-              errorMessage += '\n2. Scope is valid for your application';
-              errorMessage += '\n3. Request format is correct';
+              errorMessage += ". Bad request. Please check:";
+              errorMessage += "\n1. Grant type is correct (client_credentials)";
+              errorMessage += "\n2. Scope is valid for your application";
+              errorMessage += "\n3. Request format is correct";
             } else if (response.status === 403) {
-              errorMessage += '. Access forbidden. Please check:';
-              errorMessage += '\n1. Application has proper permissions';
-              errorMessage += '\n2. Scope is authorized for your application';
+              errorMessage += ". Access forbidden. Please check:";
+              errorMessage += "\n1. Application has proper permissions";
+              errorMessage += "\n2. Scope is authorized for your application";
             }
-            
+
             if (errorData.error_description) {
               errorMessage += `\n\nPingOne Error: ${errorData.error_description}`;
             }
             if (errorData.error) {
               errorMessage += `\n\nError Code: ${errorData.error}`;
             }
-            
+
             throw new Error(errorMessage);
           }
 
           const tokenData = await response.json();
-          
+
           // Store tokens
           setTokensReceived(tokenData);
-          await storeOAuthTokens('worker_token', tokenData);
-          
-          const result = { 
+          await storeOAuthTokens("worker_token", tokenData);
+
+          const result = {
             tokens: tokenData,
-            message: 'Worker token obtained successfully',
+            message: "Worker token obtained successfully",
             expires_in: tokenData.expires_in,
-            scope: tokenData.scope
+            scope: tokenData.scope,
           };
-          
-          setStepResults(prev => ({ ...prev, 1: result }));
-          setExecutedSteps(prev => new Set(prev).add(1));
-          setDemoStatus('success');
+
+          setStepResults((prev) => ({ ...prev, 1: result }));
+          setExecutedSteps((prev) => new Set(prev).add(1));
+          setDemoStatus("success");
           setCurrentStep(2);
-          
-          logger.success('WorkerTokenFlow', 'Worker token obtained successfully', { 
+
+          logger.success("WorkerTokenFlow", "Worker token obtained successfully", {
             token_type: tokenData.token_type,
             expires_in: tokenData.expires_in,
-            scope: tokenData.scope
+            scope: tokenData.scope,
           });
-          
+
           return result;
         } catch (error: unknown) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          const errorMessage = error instanceof Error ? error.message : "Unknown error";
           setError(`Failed to get worker token: ${errorMessage}`);
-          setDemoStatus('error');
-          logger.error('WorkerTokenFlow', 'Failed to get worker token', { error: error.message });
+          setDemoStatus("error");
+          logger.error("WorkerTokenFlow", "Failed to get worker token", { error: error.message });
           return { error: error.message };
         } finally {
           setIsLoading(false);
         }
-      }
+      },
     },
     {
-      title: 'Use Token for API Calls',
-      description: 'Use the worker token to make authenticated calls to PingOne Management API',
+      title: "Use Token for API Calls",
+      description: "Use the worker token to make authenticated calls to PingOne Management API",
       code: `// Make authenticated API call
 const apiResponse = await fetch('https://api.pingone.com/v1/environments/{{environmentId}}/populations', {
   method: 'GET',
@@ -565,29 +570,29 @@ const apiResponse = await fetch('https://api.pingone.com/v1/environments/{{envir
 const data = await apiResponse.json();`,
       execute: () => {
         if (!tokensReceived?.access_token) {
-          setError('No access token available. Please complete previous steps first.');
-          return { error: 'No access token available' };
+          setError("No access token available. Please complete previous steps first.");
+          return { error: "No access token available" };
         }
 
         makeAuthenticatedAPICall();
-        
-        const result = { 
-          message: 'API call initiated with worker token',
+
+        const result = {
+          message: "API call initiated with worker token",
           token_type: tokensReceived.token_type,
-          scope: tokensReceived.scope
+          scope: tokensReceived.scope,
         };
-        
-        setStepResults(prev => ({ ...prev, 2: result }));
-        setExecutedSteps(prev => new Set(prev).add(2));
-        logger.flow('WorkerTokenFlow', 'API call initiated with worker token');
+
+        setStepResults((prev) => ({ ...prev, 2: result }));
+        setExecutedSteps((prev) => new Set(prev).add(2));
+        logger.flow("WorkerTokenFlow", "API call initiated with worker token");
         return result;
-      }
-    }
+      },
+    },
   ];
 
   return (
     <Container>
-      <PageTitle 
+      <PageTitle
         title={
           <>
             <FiServer />
@@ -600,7 +605,7 @@ const data = await apiResponse.json();`,
       <FlowCredentials
         flowType="worker_token"
         onCredentialsChange={(credentials) => {
-          logger.config('WorkerTokenFlow', 'Worker credentials updated', credentials);
+          logger.config("WorkerTokenFlow", "Worker credentials updated", credentials);
         }}
       />
 
@@ -614,14 +619,15 @@ const data = await apiResponse.json();`,
           <FlowDescription>
             <h2>What is a Worker Token?</h2>
             <p>
-              A Worker Token is an admin-level access token obtained from a PingOne Worker app. 
-              Worker apps are designed for machine-to-machine authentication and have admin-level 
+              A Worker Token is an admin-level access token obtained from a PingOne Worker app.
+              Worker apps are designed for machine-to-machine authentication and have admin-level
               permissions to access PingOne Management APIs.
             </p>
             <p>
-              <strong>How it works:</strong> The Worker app sends its credentials (Client ID and Secret) 
-              to PingOne's token endpoint using Basic authentication. PingOne validates the credentials 
-              and returns an access token that can be used to make authenticated calls to the Management API.
+              <strong>How it works:</strong> The Worker app sends its credentials (Client ID and
+              Secret) to PingOne's token endpoint using Basic authentication. PingOne validates the
+              credentials and returns an access token that can be used to make authenticated calls
+              to the Management API.
             </p>
           </FlowDescription>
 
@@ -630,7 +636,7 @@ const data = await apiResponse.json();`,
             <div>
               <h3>Perfect For</h3>
               <p>
-                Admin operations, environment management, user provisioning, application management, 
+                Admin operations, environment management, user provisioning, application management,
                 and any scenario requiring elevated permissions in PingOne.
               </p>
             </div>
@@ -643,33 +649,33 @@ const data = await apiResponse.json();`,
           <h2>Interactive Demo</h2>
         </CardHeader>
         <CardBody>
-          <div style={{ marginBottom: '1.5rem' }}>
+          <div style={{ marginBottom: "1.5rem" }}>
             <StatusIndicator className={demoStatus}>
-              {demoStatus === 'idle' && <FiPlay size={16} />}
-              {demoStatus === 'loading' && <Spinner size={16} />}
-              {demoStatus === 'success' && <FiCheckCircle size={16} />}
-              {demoStatus === 'error' && <FiAlertCircle size={16} />}
-              {demoStatus === 'idle' && 'Ready to start Worker Token flow'}
-              {demoStatus === 'loading' && 'Processing...'}
-              {demoStatus === 'success' && 'Worker token obtained successfully!'}
-              {demoStatus === 'error' && 'Error occurred'}
+              {demoStatus === "idle" && <FiPlay size={16} />}
+              {demoStatus === "loading" && <Spinner size={16} />}
+              {demoStatus === "success" && <FiCheckCircle size={16} />}
+              {demoStatus === "error" && <FiAlertCircle size={16} />}
+              {demoStatus === "idle" && "Ready to start Worker Token flow"}
+              {demoStatus === "loading" && "Processing..."}
+              {demoStatus === "success" && "Worker token obtained successfully!"}
+              {demoStatus === "error" && "Error occurred"}
             </StatusIndicator>
           </div>
 
-          <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+          <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
             <DemoButton
               className="primary"
               onClick={startWorkerTokenFlow}
-              disabled={!config || demoStatus === 'loading'}
+              disabled={!config || demoStatus === "loading"}
             >
               <FiPlay />
               Start Worker Token Flow
             </DemoButton>
-            
+
             <DemoButton
               className="secondary"
               onClick={resetDemo}
-              disabled={demoStatus === 'loading'}
+              disabled={demoStatus === "loading"}
             >
               <FiRefreshCw />
               Reset Demo
@@ -700,13 +706,11 @@ const data = await apiResponse.json();`,
             onStepResult={handleStepResult}
             disabled={!config}
             title="Worker Token Flow"
-            configurationButton={
-              <ConfigurationButton flowType="worker_token" />
-            }
+            configurationButton={<ConfigurationButton flowType="worker_token" />}
           />
 
           {tokensReceived && (
-            <div style={{ marginTop: '2rem' }}>
+            <div style={{ marginTop: "2rem" }}>
               <h3>Received Tokens</h3>
               <TokenDisplayComponent tokens={tokensReceived} />
             </div>
@@ -716,15 +720,24 @@ const data = await apiResponse.json();`,
             <APICallDemo>
               <h4>API Call Details:</h4>
               <div className="request">
-                <strong>{apiCall.method}</strong> {apiCall.url}<br />
+                <strong>{apiCall.method}</strong> {apiCall.url}
+                <br />
                 {Object.entries(apiCall.headers).map(([key, value]) => (
-                  <div key={key}>{key}: {key === 'Authorization' ? value.substring(0, 20) + '...' : value}</div>
+                  <div key={key}>
+                    {key}: {key === "Authorization" ? `${value.substring(0, 20)}...` : value}
+                  </div>
                 ))}
-                {apiCall.body && <div><br />{apiCall.body}</div>}
+                {apiCall.body && (
+                  <div>
+                    <br />
+                    {apiCall.body}
+                  </div>
+                )}
               </div>
               {apiCall.response && (
                 <div className="response">
-                  Status: {apiCall.response.status}<br />
+                  Status: {apiCall.response.status}
+                  <br />
                   <JSONHighlighter data={apiCall.response.data} />
                 </div>
               )}
@@ -746,5 +759,3 @@ const data = await apiResponse.json();`,
 };
 
 export default WorkerTokenFlow;
-
-
