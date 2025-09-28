@@ -344,6 +344,69 @@ const GeneratedUrlDisplay = styled.div`
 	color: #065f46;
 `;
 
+const Modal = styled.div`
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 9999;
+`;
+
+const ModalContent = styled.div<{ type?: 'info' | 'success' }>`
+	background-color: white;
+	border-radius: 0.75rem;
+	padding: 2rem;
+	box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+	max-width: 400px;
+	text-align: center;
+	border: 3px solid;
+	
+	${props => {
+		if (props.type === 'success') {
+			return `
+				border-color: #10b981;
+				background: linear-gradient(135deg, #d1fae5 0%, #ffffff 100%);
+			`;
+		} else {
+			return `
+				border-color: #3b82f6;
+				background: linear-gradient(135deg, #dbeafe 0%, #ffffff 100%);
+			`;
+		}
+	}}
+`;
+
+const ModalTitle = styled.h3`
+	font-size: 1.25rem;
+	font-weight: 600;
+	margin-bottom: 1rem;
+	color: #111827;
+`;
+
+const ModalText = styled.p`
+	color: #6b7280;
+	margin-bottom: 1.5rem;
+	line-height: 1.5;
+`;
+
+const ModalIcon = styled.div<{ type?: 'info' | 'success' }>`
+	font-size: 3rem;
+	margin-bottom: 1rem;
+	
+	${props => {
+		if (props.type === 'success') {
+			return `color: #10b981;`;
+		} else {
+			return `color: #3b82f6;`;
+		}
+	}}
+`;
+
 
 interface StepCredentials {
 	environmentId: string;
@@ -389,6 +452,10 @@ const AuthorizationCodeFlowV4 = () => {
 	// Authorization URL state
 	const [authorizationUrl, setAuthorizationUrl] = useState<string | null>(null);
 
+	// Modal states
+	const [showRedirectModal, setShowRedirectModal] = useState(false);
+	const [showSuccessModal, setShowSuccessModal] = useState(false);
+
 	const totalSteps = 7;
 
 	// Initialize PKCE codes and check for authorization code
@@ -414,7 +481,12 @@ const AuthorizationCodeFlowV4 = () => {
 		
 		if (code) {
 			setAuthCode(code);
-			showGlobalSuccess("Authorization code received from PingOne!");
+			// Show success modal
+			setShowSuccessModal(true);
+			// Auto dismiss modal after 2 seconds
+			setTimeout(() => {
+				setShowSuccessModal(false);
+			}, 2000);
 			// Auto advance to Step 4 (Token Exchange) if we have the code
 			setCurrentStep(3); // Step 4 is index 3
 		} else if (error) {
@@ -470,15 +542,18 @@ const AuthorizationCodeFlowV4 = () => {
 
 	const handleOpenAuthUrl = () => {
 		if (authorizationUrl) {
-			window.open(authorizationUrl, '_blank');
-			showGlobalSuccess("Opening authorization URL in new window...");
-			// Auto advance to next step after opening URL
+			// Show redirect modal
+			setShowRedirectModal(true);
+			// Auto dismiss modal after 2 seconds and open URL
 			setTimeout(() => {
+				setShowRedirectModal(false);
+				window.open(authorizationUrl, '_blank');
+				// Auto advance to next step after opening URL
 				if (currentStep < totalSteps - 1) {
 					setCurrentStep(currentStep + 1);
 					showGlobalSuccess("Advanced to Step 3: Authorization Response");
 				}
-			}, 1000);
+			}, 2000);
 		} else {
 			showGlobalWarning("Please generate the authorization URL first");
 		}
@@ -1332,6 +1407,32 @@ const AuthorizationCodeFlowV4 = () => {
 					</NavButton>
 				</NavigationButtons>
 			</StepNavigation>
+
+			{/* Redirect Modal */}
+			{showRedirectModal && (
+				<Modal>
+					<ModalContent type="info">
+						<ModalIcon type="info">🔐</ModalIcon>
+						<ModalTitle>Redirecting to PingOne</ModalTitle>
+						<ModalText>
+							You are being redirected to PingOne Identity Provider to authenticate and authorize this application.
+						</ModalText>
+					</ModalContent>
+				</Modal>
+			)}
+
+			{/* Success Modal */}
+			{showSuccessModal && (
+				<Modal>
+					<ModalContent type="success">
+						<ModalIcon type="success">✅</ModalIcon>
+						<ModalTitle>Authorization Successful!</ModalTitle>
+						<ModalText>
+							You have successfully authorized this application. The authorization code has been captured and you can now proceed to exchange it for tokens.
+						</ModalText>
+					</ModalContent>
+				</Modal>
+			)}
 		</Container>
 	);
 };
