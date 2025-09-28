@@ -710,7 +710,9 @@ const WorkerTokenFlowV3: React.FC = () => {
 				);
 			} catch (error) {
 				console.error(" [Worker-V3] Failed to load credentials:", error);
-				setError("Failed to load credentials");
+				const errorMessage = error instanceof Error ? error.message : "Failed to load credentials";
+				setError(errorMessage);
+				showFlowError("Failed to load credentials", errorMessage);
 			}
 		};
 
@@ -1053,7 +1055,8 @@ const WorkerTokenFlowV3: React.FC = () => {
 			logger.auth("WorkerTokenFlowV3", "Flow reset successfully");
 		} catch (error) {
 			console.error(" [WorkerTokenV3] Reset flow failed:", error);
-			showFlowError("Failed to reset flow");
+			const errorMessage = error instanceof Error ? error.message : "Failed to reset flow";
+			showFlowError("Failed to reset flow", errorMessage);
 		} finally {
 			setIsResettingFlow(false);
 		}
@@ -1097,7 +1100,8 @@ const WorkerTokenFlowV3: React.FC = () => {
 			logger.auth("WorkerTokenFlowV3", "Credentials cleared successfully");
 		} catch (error) {
 			console.error(" [WorkerTokenV3] Clear credentials failed:", error);
-			showFlowError("Failed to clear credentials");
+			const errorMessage = error instanceof Error ? error.message : "Failed to clear credentials";
+			showFlowError("Failed to clear credentials", errorMessage);
 		} finally {
 			setIsClearingCredentials(false);
 			setShowClearCredentialsModal(false);
@@ -1244,7 +1248,7 @@ const WorkerTokenFlowV3: React.FC = () => {
 			console.error(
 				" [WorkerTokenV3] No access token available for analysis",
 			);
-			showFlowError("No access token available for analysis");
+			showFlowError("No access token available for analysis", "Please obtain a token first before analyzing it.");
 		}
 	}, [tokens]);
 
@@ -1780,6 +1784,7 @@ const WorkerTokenFlowV3: React.FC = () => {
 											"0 2px 8px rgba(245, 158, 11, 0.15)";
 									}}
 								>
+									<option value="none">None</option>
 									<option value="client_secret_post">Client Secret Post</option>
 									<option value="client_secret_basic">
 										Client Secret Basic
