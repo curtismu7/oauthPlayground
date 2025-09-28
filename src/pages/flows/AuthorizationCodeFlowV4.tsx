@@ -458,22 +458,8 @@ const AuthorizationCodeFlowV4 = () => {
 
 	const totalSteps = 7;
 
-	// Initialize PKCE codes and check for authorization code
+	// Check for authorization code in URL parameters (when returning from PingOne)
 	useEffect(() => {
-		const initializePKCE = async () => {
-			try {
-				const codeVerifier = generateCodeVerifier();
-				const codeChallenge = await generateCodeChallenge(codeVerifier);
-				setPkceCodes({
-					codeVerifier,
-					codeChallenge,
-					codeChallengeMethod: "S256"
-				});
-			} catch (error) {
-				console.error("Failed to initialize PKCE:", error);
-			}
-		};
-
 		// Check for authorization code in URL parameters (when returning from PingOne)
 		const urlParams = new URLSearchParams(window.location.search);
 		const code = urlParams.get('code');
@@ -492,8 +478,6 @@ const AuthorizationCodeFlowV4 = () => {
 		} else if (error) {
 			showGlobalError(`Authorization failed: ${error}`);
 		}
-
-		initializePKCE();
 	}, []);
 
 	const handleSaveConfiguration = async () => {
@@ -910,9 +894,18 @@ const AuthorizationCodeFlowV4 = () => {
 						) : (
 							<MainCard>
 								<div style={{ textAlign: 'center', padding: '2rem' }}>
-									<p style={{ color: '#6b7280', marginBottom: '1rem' }}>
-										Click the button below to generate PKCE parameters
+									<div style={{ fontSize: '3rem', marginBottom: '1rem', color: '#d1d5db' }}>🔐</div>
+									<h4 style={{ fontWeight: '600', marginBottom: '0.5rem', color: '#374151' }}>
+										PKCE Parameters Not Generated
+									</h4>
+									<p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
+										Click the button below to generate secure PKCE parameters for your OAuth flow.
 									</p>
+									<div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', fontSize: '0.875rem', color: '#9ca3af' }}>
+										<span>Code Verifier: Not generated</span>
+										<span>•</span>
+										<span>Code Challenge: Not generated</span>
+									</div>
 								</div>
 							</MainCard>
 						)}
