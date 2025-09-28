@@ -574,18 +574,18 @@ const AuthorizationCodeFlowV4 = () => {
 	const handleClearConfiguration = () => {
 		localStorage.removeItem('oauth-v4-test-config');
 		setCredentials({
-			environmentId: "b9817c16-9910-4415-b67e-4ac687da74d9",
+			environmentId: "", // Clear environment ID
 			clientId: "", // Clear client ID
 			clientSecret: "", // Clear client secret
-			redirectUri: "https://localhost:3000/authz-callback",
+			redirectUri: "", // Clear redirect URI
 			scopes: "openid profile email",
 			authMethod: "client_secret_post"
 		});
 		
-		// Mark client ID and client secret as empty required fields
-		setEmptyRequiredFields(new Set(['clientId', 'clientSecret']));
+		// Mark all required fields as empty
+		setEmptyRequiredFields(new Set(['environmentId', 'clientId', 'clientSecret', 'redirectUri']));
 		
-		showGlobalSuccess("Configuration cleared! Client ID and Client Secret removed. Please enter your production credentials.");
+		showGlobalSuccess("Configuration cleared! All required fields cleared. Please enter your production credentials.");
 	};
 
 	// Helper function to handle field changes and remove from empty required fields
@@ -921,13 +921,14 @@ const AuthorizationCodeFlowV4 = () => {
 								{/* Environment ID */}
 								<FormField>
 									<FormLabel>
-										Environment ID
+										Environment ID <span style={{ color: '#ef4444' }}>*</span>
 									</FormLabel>
 									<FormInput
 										type="text"
 										value={credentials.environmentId}
-										onChange={(e) => setCredentials(prev => ({ ...prev, environmentId: e.target.value }))}
-										placeholder="b9817c16-9910-4415-b67e-4ac687da74d9"
+										onChange={(e) => handleFieldChange('environmentId', e.target.value)}
+										placeholder={emptyRequiredFields.has('environmentId') ? "Required: Enter your Environment ID" : "b9817c16-9910-4415-b67e-4ac687da74d9"}
+										$hasError={emptyRequiredFields.has('environmentId')}
 									/>
 								</FormField>
 
@@ -962,13 +963,14 @@ const AuthorizationCodeFlowV4 = () => {
 								{/* Redirect URI */}
 								<FormField>
 									<FormLabel>
-										Redirect URI
+										Redirect URI <span style={{ color: '#ef4444' }}>*</span>
 									</FormLabel>
 									<FormInput
 										type="text"
 										value={credentials.redirectUri}
-										onChange={(e) => setCredentials(prev => ({ ...prev, redirectUri: e.target.value }))}
-										placeholder="https://localhost:3000/authz-callback"
+										onChange={(e) => handleFieldChange('redirectUri', e.target.value)}
+										placeholder={emptyRequiredFields.has('redirectUri') ? "Required: Enter your Redirect URI" : "https://localhost:3000/authz-callback"}
+										$hasError={emptyRequiredFields.has('redirectUri')}
 									/>
 								</FormField>
 							</FormGrid>
