@@ -141,11 +141,11 @@ export const InlineDocumentation: React.FC<InlineDocumentationProps> = ({
 
   const getTypeIcon = () => {
     switch (type) {
-      case 'oauth': return '🔐';
-      case 'oidc': return '🆔';
-      case 'security': return '🛡️';
-      case 'troubleshooting': return '🔧';
-      default: return '📚';
+      case 'oauth': return '';
+      case 'oidc': return '';
+      case 'security': return '';
+      case 'troubleshooting': return '';
+      default: return '';
     }
   };
 
@@ -221,7 +221,7 @@ export const TroubleshootingGuide: React.FC<TroubleshootingGuideProps> = ({
 }) => {
   return (
     <DocSection>
-      <DocSectionTitle>🔧 Troubleshooting: {issue}</DocSectionTitle>
+      <DocSectionTitle> Troubleshooting: {issue}</DocSectionTitle>
       
       <div style={{ marginBottom: '1rem' }}>
         <strong style={{ fontSize: '0.8rem', color: '#dc2626' }}>Symptoms:</strong>

@@ -55,7 +55,7 @@ export const useMemoizedComputation = <T>(
     const end = performance.now();
     
     if (debugLabel) {
-      console.log(`⚡ [Performance] ${debugLabel} computed in ${(end - start).toFixed(2)}ms`);
+      console.log(` [Performance] ${debugLabel} computed in ${(end - start).toFixed(2)}ms`);
     }
     
     return result;
@@ -74,13 +74,13 @@ export const usePerformanceMonitor = (componentName: string) => {
     
     return () => {
       const unmountTime = performance.now();
-      console.log(`📊 [Performance] ${componentName} lifecycle: ${(unmountTime - mountTime.current).toFixed(2)}ms`);
+      console.log(` [Performance] ${componentName} lifecycle: ${(unmountTime - mountTime.current).toFixed(2)}ms`);
     };
   }, [componentName]);
 
   useEffect(() => {
     renderCount.current++;
-    console.log(`🔄 [Performance] ${componentName} render #${renderCount.current}`);
+    console.log(` [Performance] ${componentName} render #${renderCount.current}`);
   });
 
   return {
@@ -102,7 +102,7 @@ export const useLazyState = <T>(
     const end = performance.now();
     
     if (debugLabel) {
-      console.log(`⚡ [Performance] ${debugLabel} lazy state initialized in ${(end - start).toFixed(2)}ms`);
+      console.log(` [Performance] ${debugLabel} lazy state initialized in ${(end - start).toFixed(2)}ms`);
     }
     
     return result;
@@ -136,7 +136,7 @@ export const useMemoryMonitor = (componentName: string) => {
   useEffect(() => {
     if ('memory' in performance) {
       const memory = (performance as any).memory;
-      console.log(`🧠 [Memory] ${componentName} - Used: ${(memory.usedJSHeapSize / 1024 / 1024).toFixed(2)}MB`);
+      console.log(` [Memory] ${componentName} - Used: ${(memory.usedJSHeapSize / 1024 / 1024).toFixed(2)}MB`);
     }
   });
 };
@@ -154,7 +154,7 @@ export const lazyImport = <T extends React.ComponentType<any>>(
     const end = performance.now();
     
     if (componentName) {
-      console.log(`📦 [Performance] ${componentName} loaded in ${(end - start).toFixed(2)}ms`);
+      console.log(` [Performance] ${componentName} loaded in ${(end - start).toFixed(2)}ms`);
     }
     
     return module;
@@ -193,7 +193,7 @@ export const useOptimizedFetch = () => {
       });
       const end = performance.now();
 
-      console.log(`🌐 [Performance] Request to ${url} completed in ${(end - start).toFixed(2)}ms`);
+      console.log(` [Performance] Request to ${url} completed in ${(end - start).toFixed(2)}ms`);
       clearTimeout(timeoutId);
       
       return response;

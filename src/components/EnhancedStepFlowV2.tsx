@@ -698,25 +698,25 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
           setStepHistory(data.stepHistory || []);
           
           if (initialStepIndex !== undefined) {
-            console.log('🔍 [EnhancedStepFlowV2] Using initialStepIndex:', initialStepIndex);
+            console.log(' [EnhancedStepFlowV2] Using initialStepIndex:', initialStepIndex);
           }
         } else if (initialStepIndex !== undefined) {
           // If no persisted state but initialStepIndex is provided, use it
           setCurrentStepIndex(initialStepIndex);
-          console.log('🔍 [EnhancedStepFlowV2] Using initialStepIndex (no persisted state):', initialStepIndex);
+          console.log(' [EnhancedStepFlowV2] Using initialStepIndex (no persisted state):', initialStepIndex);
         }
       } catch (error) {
         logger.warn('Failed to load persisted flow state', `error: ${error}`);
         // Fallback to initialStepIndex if provided
         if (initialStepIndex !== undefined) {
           setCurrentStepIndex(initialStepIndex);
-          console.log('🔍 [EnhancedStepFlowV2] Using initialStepIndex (fallback):', initialStepIndex);
+          console.log(' [EnhancedStepFlowV2] Using initialStepIndex (fallback):', initialStepIndex);
         }
       }
     } else if (initialStepIndex !== undefined) {
       // If no persistKey but initialStepIndex is provided, use it
       setCurrentStepIndex(initialStepIndex);
-      console.log('🔍 [EnhancedStepFlowV2] Using initialStepIndex (no persistKey):', initialStepIndex);
+      console.log(' [EnhancedStepFlowV2] Using initialStepIndex (no persistKey):', initialStepIndex);
     }
   }, [persistKey, initialStepIndex]);
 
@@ -724,7 +724,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
   useEffect(() => {
     const handleAdvanceToStep = (event: CustomEvent) => {
       const { stepIndex, stepName } = event.detail;
-      console.log('🔔 [EnhancedStepFlowV2] Received advance-to-step event:', { stepIndex, stepName });
+      console.log(' [EnhancedStepFlowV2] Received advance-to-step event:', { stepIndex, stepName });
       setCurrentStepIndex(stepIndex);
     };
 
@@ -784,12 +784,12 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 
   // Execute step
   const executeStep = useCallback(async (stepIndex: number) => {
-    console.log('🔧 [EnhancedStepFlowV2] executeStep called', { stepIndex, totalSteps: steps.length });
+    console.log(' [EnhancedStepFlowV2] executeStep called', { stepIndex, totalSteps: steps.length });
     const step = steps[stepIndex];
-    console.log('🔧 [EnhancedStepFlowV2] Current step:', { step: step?.title, hasExecute: !!step?.execute });
+    console.log(' [EnhancedStepFlowV2] Current step:', { step: step?.title, hasExecute: !!step?.execute });
     
     if (!step || !step.execute) {
-      console.log('❌ [EnhancedStepFlowV2] No step or execute function found');
+      console.log(' [EnhancedStepFlowV2] No step or execute function found');
       return;
     }
 
@@ -797,11 +797,11 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
     const startTime = Date.now();
 
     try {
-      console.log('🚀 [EnhancedStepFlowV2] Starting execution of step:', step.title);
+      console.log(' [EnhancedStepFlowV2] Starting execution of step:', step.title);
       logger.info(`Executing step: ${step.title}`, `stepId: ${step.id}`);
       const result = await step.execute();
       const duration = Date.now() - startTime;
-      console.log('✅ [EnhancedStepFlowV2] Step execution completed:', { result, duration });
+      console.log(' [EnhancedStepFlowV2] Step execution completed:', { result, duration });
 
       const historyEntry: StepHistory = {
         stepId: step.id,
@@ -814,7 +814,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
       onStepComplete?.(step.id, result);
 
       // Show success feedback
-      console.log('✅ [EnhancedStepFlowV2] Step completed successfully:', step.title);
+      console.log(' [EnhancedStepFlowV2] Step completed successfully:', step.title);
       
       // Auto-advance if enabled and not the last step
       if (autoAdvance && stepIndex < steps.length - 1) {
@@ -1068,7 +1068,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
               <Button
                 $variant="primary"
                 onClick={() => {
-                  console.log('🔧 [EnhancedStepFlowV2] Execute button clicked', { 
+                  console.log(' [EnhancedStepFlowV2] Execute button clicked', { 
                     currentStepIndex, 
                     stepTitle: currentStep.title,
                     hasExecute: !!currentStep.execute,

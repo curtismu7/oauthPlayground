@@ -505,7 +505,7 @@ const InteractiveHelpSystem: React.FC = () => {
             <StepHeader>
               <StepTitle>{step.title}</StepTitle>
               <StepNumber $active={false} $completed={step.completed}>
-                {step.completed ? '✓' : index + 1}
+                {step.completed ? '' : index + 1}
               </StepNumber>
             </StepHeader>
             <StepDescription>{step.description}</StepDescription>
@@ -532,7 +532,7 @@ const InteractiveHelpSystem: React.FC = () => {
         <FAQItem key={item.id}>
           <FAQQuestion onClick={() => handleFAQToggle(item.id)}>
             {item.question}
-            <span>{expandedFAQ === item.id ? '−' : '+'}</span>
+            <span>{expandedFAQ === item.id ? '' : '+'}</span>
           </FAQQuestion>
           <FAQAnswer $expanded={expandedFAQ === item.id}>
             {item.answer}

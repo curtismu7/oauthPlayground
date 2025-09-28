@@ -230,9 +230,9 @@ const SDKSampleApp: React.FC = () => {
         const parsed = JSON.parse(savedConfig);
         setConfig(parsed);
         setConfigSaved(true);
-        console.log('✅ [SDK] Loaded saved configuration');
+        console.log(' [SDK] Loaded saved configuration');
       } catch (error) {
-        console.error('❌ [SDK] Failed to parse saved configuration:', error);
+        console.error(' [SDK] Failed to parse saved configuration:', error);
       }
     } else {
       // Try to load from global configuration
@@ -248,7 +248,7 @@ const SDKSampleApp: React.FC = () => {
             usePopup: false
           };
           setConfig(newConfig);
-          console.log('✅ [SDK] Loaded configuration from global settings');
+          console.log(' [SDK] Loaded configuration from global settings');
         }
       } catch (error) {
         console.log('Could not load global configuration for SDK sample');
@@ -262,10 +262,10 @@ const SDKSampleApp: React.FC = () => {
       localStorage.setItem('sdk-sample-config', JSON.stringify(config));
       setConfigSaved(true);
       setSuccess('Configuration saved successfully! It will persist across browser restarts.');
-      console.log('✅ [SDK] Configuration saved to localStorage');
+      console.log(' [SDK] Configuration saved to localStorage');
     } catch (error) {
       setError('Failed to save configuration. Please check your browser settings.');
-      console.error('❌ [SDK] Failed to save configuration:', error);
+      console.error(' [SDK] Failed to save configuration:', error);
     }
   };
 
@@ -275,10 +275,10 @@ const SDKSampleApp: React.FC = () => {
       localStorage.removeItem('sdk-sample-config');
       setConfigSaved(false);
       setSuccess('Configuration cleared. You can now enter new settings.');
-      console.log('✅ [SDK] Configuration cleared from localStorage');
+      console.log(' [SDK] Configuration cleared from localStorage');
     } catch (error) {
       setError('Failed to clear configuration.');
-      console.error('❌ [SDK] Failed to clear configuration:', error);
+      console.error(' [SDK] Failed to clear configuration:', error);
     }
   };
 
@@ -299,7 +299,7 @@ const SDKSampleApp: React.FC = () => {
 
       const wellKnownUrl = `https://auth.pingone.com/${config.environmentId}/as/.well-known/openid_configuration`;
       
-      console.log('🔧 [SDK] Initializing client with:', {
+      console.log(' [SDK] Initializing client with:', {
         clientId: config.clientId,
         environmentId: config.environmentId,
         redirectUri: config.redirectUri,
@@ -326,7 +326,7 @@ const SDKSampleApp: React.FC = () => {
       }
       
     } catch (err: any) {
-      console.error('❌ [SDK] Initialization error:', err);
+      console.error(' [SDK] Initialization error:', err);
       let errorMessage = 'Failed to initialize SDK: ';
       
       if (err.message) {
@@ -373,7 +373,7 @@ const SDKSampleApp: React.FC = () => {
       setSuccess('Login successful!');
       
     } catch (err: any) {
-      console.error('❌ [SDK] Login error:', err);
+      console.error(' [SDK] Login error:', err);
       let errorMessage = 'Login failed: ';
       
       if (err.message) {
@@ -488,21 +488,21 @@ const SDKSampleApp: React.FC = () => {
   return (
     <Container>
       <Header>
-        <Title>🚀 PingOne OIDC SDK Sample App</Title>
+        <Title> PingOne OIDC SDK Sample App</Title>
         <Subtitle>
           Interactive demonstration of the PingOne OIDC Client SDK with real authentication flows
         </Subtitle>
       </Header>
 
       <InfoBox>
-        <strong>📚 About this Sample App:</strong>
+        <strong> About this Sample App:</strong>
         <p>
           This sample application demonstrates how to use the PingOne OIDC Client SDK in a real web application. 
           It includes authentication, token management, user info fetching, and logout functionality.
         </p>
         
         <div style={{ marginTop: '1rem' }}>
-          <strong>🔗 Related Resources:</strong>
+          <strong> Related Resources:</strong>
           <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
             <li>
               <a href="https://github.com/ForgeRock/sdk-sample-apps" target="_blank" rel="noopener noreferrer">
@@ -532,10 +532,10 @@ const SDKSampleApp: React.FC = () => {
         </div>
         
         <div style={{ marginTop: '1rem', padding: '0.75rem', backgroundColor: '#fef3c7', borderRadius: '6px', border: '1px solid #f59e0b' }}>
-          <strong>💡 Need Credentials?</strong>
+          <strong> Need Credentials?</strong>
           <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
             If you have configured the OAuth Playground with your PingOne credentials, they will be automatically loaded. 
-            Otherwise, you can find your Environment ID and Client ID in the PingOne Admin Console under Applications → Your App → Configuration.
+            Otherwise, you can find your Environment ID and Client ID in the PingOne Admin Console under Applications  Your App  Configuration.
           </p>
         </div>
       </InfoBox>
@@ -628,7 +628,7 @@ const SDKSampleApp: React.FC = () => {
               marginBottom: '1rem' 
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#065f46' }}>
-                <span style={{ fontSize: '1.25rem' }}>✅</span>
+                <span style={{ fontSize: '1.25rem' }}></span>
                 <strong>Configuration Saved</strong>
               </div>
               <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem', color: '#047857' }}>
@@ -639,11 +639,11 @@ const SDKSampleApp: React.FC = () => {
 
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
             <Button onClick={saveConfiguration} variant="primary">
-              💾 Save Configuration
+               Save Configuration
             </Button>
             
             <Button onClick={clearConfiguration} variant="secondary">
-              🗑️ Clear Saved Config
+               Clear Saved Config
             </Button>
             
             <Button onClick={initializeClient} disabled={loading}>
@@ -667,7 +667,7 @@ const SDKSampleApp: React.FC = () => {
                   if (response.ok) {
                     const config = await response.json();
                     setSuccess(`Well-known configuration loaded successfully! Found ${Object.keys(config).length} endpoints.`);
-                    console.log('🔍 [SDK] Well-known config:', config);
+                    console.log(' [SDK] Well-known config:', config);
                   } else {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                   }
@@ -784,28 +784,28 @@ const SDKSampleApp: React.FC = () => {
         <div style={{ fontSize: '0.9rem', lineHeight: '1.6', color: '#374151' }}>
           <p><strong>Key Features Demonstrated:</strong></p>
           <ul>
-            <li>✅ SDK initialization from OpenID Connect configuration</li>
-            <li>✅ PKCE (Proof Key for Code Exchange) for enhanced security</li>
-            <li>✅ Both popup and redirect authentication methods</li>
-            <li>✅ Token management and refresh</li>
-            <li>✅ User info endpoint integration</li>
-            <li>✅ Proper logout with session termination</li>
-            <li>✅ Error handling and user feedback</li>
+            <li> SDK initialization from OpenID Connect configuration</li>
+            <li> PKCE (Proof Key for Code Exchange) for enhanced security</li>
+            <li> Both popup and redirect authentication methods</li>
+            <li> Token management and refresh</li>
+            <li> User info endpoint integration</li>
+            <li> Proper logout with session termination</li>
+            <li> Error handling and user feedback</li>
           </ul>
           
           <p><strong>Security Features:</strong></p>
           <ul>
-            <li>🔒 PKCE is enabled by default for enhanced security</li>
-            <li>🔒 Tokens are stored securely by the SDK</li>
-            <li>🔒 Automatic token refresh when needed</li>
-            <li>🔒 Proper state parameter handling</li>
+            <li> PKCE is enabled by default for enhanced security</li>
+            <li> Tokens are stored securely by the SDK</li>
+            <li> Automatic token refresh when needed</li>
+            <li> Proper state parameter handling</li>
           </ul>
           
           <p><strong>Browser Compatibility:</strong></p>
           <ul>
-            <li>📱 Mobile devices will use redirect (popups not supported)</li>
-            <li>🖥️ Desktop browsers support both popup and redirect</li>
-            <li>🔒 HTTPS required for production use</li>
+            <li> Mobile devices will use redirect (popups not supported)</li>
+            <li> Desktop browsers support both popup and redirect</li>
+            <li> HTTPS required for production use</li>
           </ul>
         </div>
       </ContentCard>

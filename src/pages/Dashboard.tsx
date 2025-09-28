@@ -426,11 +426,11 @@ const Dashboard = () => {
 	//   autoRefresh: true,
 	//   refreshThreshold: 300, // 5 minutes before expiry
 	//   onRefreshSuccess: (newTokens) => {
-	//     console.log('✅ [Dashboard] Token refresh successful', newTokens);
+	//     console.log(' [Dashboard] Token refresh successful', newTokens);
 	//     setTokens(newTokens);
 	//   },
 	//   onRefreshError: (error) => {
-	//     console.error('❌ [Dashboard] Token refresh failed', error);
+	//     console.error(' [Dashboard] Token refresh failed', error);
 	//   }
 	// });
 
@@ -473,7 +473,7 @@ const Dashboard = () => {
 
 	// Debug logging for configuration status
 	// useEffect(() => {
-	//   console.log('🔍 [Dashboard] Config status check:', {
+	//   console.log(' [Dashboard] Config status check:', {
 	//     hasConfig: !!config,
 	//     environmentId: config?.environmentId,
 	//     clientId: config?.clientId,
@@ -487,7 +487,7 @@ const Dashboard = () => {
 		const handleConfigChange = () => {
 			// const newStatus = getSharedConfigurationStatus('Dashboard');
 			// setConfigStatus(newStatus);
-			// console.log('🔍 [Dashboard] Updated config status:', newStatus.isConfigured);
+			// console.log(' [Dashboard] Updated config status:', newStatus.isConfigured);
 		};
 
 		// Listen for all possible config change events
@@ -519,13 +519,13 @@ const Dashboard = () => {
 		try {
 			await refreshDashboard();
 			showGlobalSuccess(
-				"✅ Dashboard Refreshed",
-				"All metrics and status information has been updated",
+				"Access refreshed",
+				"Dashboard metrics are up to date.",
 			);
 		} catch (_error) {
 			showGlobalError(
-				"❌ Refresh Failed",
-				"Failed to refresh dashboard data. Please try again.",
+				"Connection error",
+				"We couldn't refresh the dashboard. Please try again.",
 			);
 		}
 	};
@@ -691,7 +691,7 @@ const Dashboard = () => {
 			: ("warning" as "success" | "warning" | "info"),
 		title: activity.action,
 		time: new Date(activity.timestamp).toLocaleString(),
-		icon: activity.success ? "✅" : "⚠️",
+		icon: activity.success ? "" : "",
 	}));
 
 	// Get token expiration time
@@ -757,7 +757,10 @@ const Dashboard = () => {
 									success: Math.floor(Math.random() * 50) + 50,
 									security: Math.floor(Math.random() * 30) + 70,
 								});
-								showGlobalSuccess("📊 Dashboard metrics refreshed");
+								showGlobalSuccess(
+									"Access refreshed",
+									"Dashboard metrics have been updated.",
+								);
 							}}
 							style={{
 								display: "flex",
@@ -793,22 +796,22 @@ const Dashboard = () => {
 
 					<StatsGrid>
 						<StatCard>
-							<StatIcon $variant="flows">🔐</StatIcon>
+							<StatIcon $variant="flows"></StatIcon>
 							<StatValue>{stats.flows}</StatValue>
 							<StatLabel>OAuth Flows</StatLabel>
 						</StatCard>
 						<StatCard>
-							<StatIcon $variant="tokens">🎫</StatIcon>
+							<StatIcon $variant="tokens"></StatIcon>
 							<StatValue>{stats.tokens}</StatValue>
 							<StatLabel>Active Tokens</StatLabel>
 						</StatCard>
 						<StatCard>
-							<StatIcon $variant="success">✅</StatIcon>
+							<StatIcon $variant="success"></StatIcon>
 							<StatValue>{stats.success}%</StatValue>
 							<StatLabel>Success Rate</StatLabel>
 						</StatCard>
 						<StatCard>
-							<StatIcon $variant="security">🛡️</StatIcon>
+							<StatIcon $variant="security"></StatIcon>
 							<StatValue>{stats.security}%</StatValue>
 							<StatLabel>Security Score</StatLabel>
 						</StatCard>
@@ -823,9 +826,9 @@ const Dashboard = () => {
 							<button
 								type="button"
 								onClick={() => {
-									showGlobalSuccess(
-										"🔄 Refreshing Dashboard",
-										"Updating all dashboard metrics and status...",
+									showGlobalWarning(
+										"Refresh requested",
+										"Updating dashboard metrics now.",
 									);
 									handleRefresh();
 								}}
@@ -879,8 +882,8 @@ const Dashboard = () => {
 							<RefreshButton
 								onClick={() => {
 									showGlobalSuccess(
-										"📊 Activity Panel Opened",
-										"Showing recent activity and flow history",
+										"Activity feed ready",
+										"Recent flow history is now visible.",
 									);
 									handleActivity();
 								}}
@@ -897,8 +900,8 @@ const Dashboard = () => {
 								onClick={() => {
 									setShowServerStatusModal(true);
 									showGlobalSuccess(
-										"🖥️ Server Status Modal Opened",
-										"Checking status of frontend and backend servers",
+										"Status panel open",
+										"Monitoring frontend and backend availability.",
 									);
 								}}
 								style={{
@@ -960,9 +963,9 @@ const Dashboard = () => {
 						<CardTitle>System Overview</CardTitle>
 						<RefreshButton
 							onClick={() => {
-								showGlobalSuccess(
-									"🔄 Checking System Status",
-									"Refreshing server status and system information...",
+								showGlobalWarning(
+									"System check in progress",
+									"Refreshing server status and metrics.",
 								);
 								checkServerStatus();
 							}}
@@ -1014,10 +1017,10 @@ const Dashboard = () => {
 										}
 									>
 										{serverStatus.frontend === "online"
-											? "✅ Online"
+											? " Online"
 											: serverStatus.frontend === "checking"
-												? "⏳ Checking..."
-												: "❌ Offline"}
+												? " Checking..."
+												: " Offline"}
 									</StatusBadge>
 									<div>
 										<div
@@ -1047,10 +1050,10 @@ const Dashboard = () => {
 										}
 									>
 										{serverStatus.backend === "online"
-											? "✅ Online"
+											? " Online"
 											: serverStatus.backend === "checking"
-												? "⏳ Checking..."
-												: "❌ Offline"}
+												? " Checking..."
+												: " Offline"}
 									</StatusBadge>
 									<div>
 										<div
@@ -1101,7 +1104,7 @@ const Dashboard = () => {
 						>
 							<FlowStatus>
 								<StatusBadge $status={tokens ? "active" : "warning"}>
-									{tokens ? "✅ Active" : "⏳ No Active Session"}
+									{tokens ? " Active" : " No Active Session"}
 								</StatusBadge>
 								<div>
 									<div
@@ -1141,13 +1144,11 @@ const Dashboard = () => {
 										Token Summary:
 									</div>
 									<div style={{ fontSize: "0.75rem", color: "#333" }}>
-										{tokens.access_token
-											? "✅ Access Token"
-											: "❌ No Access Token"}{" "}
-										•{tokens.id_token ? " ✅ ID Token" : " ❌ No ID Token"} •
+										{tokens.access_token ? " Access Token" : " No Access Token"}{" "}
+										{tokens.id_token ? "  ID Token" : "  No ID Token"}
 										{tokens.refresh_token
-											? " ✅ Refresh Token"
-											: " ❌ No Refresh Token"}
+											? "  Refresh Token"
+											: "  No Refresh Token"}
 									</div>
 								</div>
 							)}
@@ -1242,7 +1243,7 @@ const Dashboard = () => {
 														borderBottom: "1px solid #fecaca",
 													}}
 												>
-													🔐 OAuth 2.0 Authorization Code (V3)
+													OAuth 2.0 Authorization Code (V3)
 												</td>
 												<td
 													style={{
@@ -1306,7 +1307,7 @@ const Dashboard = () => {
 														borderBottom: "1px solid #fecaca",
 													}}
 												>
-													🚀 OAuth 2.0 Implicit V3
+													OAuth 2.0 Implicit V3
 												</td>
 												<td
 													style={{
@@ -1366,7 +1367,7 @@ const Dashboard = () => {
 														borderBottom: "1px solid #fecaca",
 													}}
 												>
-													🚀 OAuth2 Client Credentials V3
+													OAuth2 Client Credentials V3
 												</td>
 												<td
 													style={{
@@ -1423,7 +1424,7 @@ const Dashboard = () => {
 											</tr>
 											<tr>
 												<td style={{ padding: "0.75rem" }}>
-													🚀 OAuth 2.0 Resource Owner Password
+													OAuth 2.0 Resource Owner Password
 												</td>
 												<td style={{ padding: "0.75rem", textAlign: "center" }}>
 													<span
@@ -1540,7 +1541,7 @@ const Dashboard = () => {
 														borderBottom: "1px solid #d8b4fe",
 													}}
 												>
-													🚀 OIDC Authorization Code (V3)
+													OIDC Authorization Code (V3)
 												</td>
 												<td
 													style={{
@@ -1614,7 +1615,7 @@ const Dashboard = () => {
 														borderBottom: "1px solid #d8b4fe",
 													}}
 												>
-													🚀 OIDC Implicit V3
+													OIDC Implicit V3
 												</td>
 												<td
 													style={{
@@ -1685,7 +1686,7 @@ const Dashboard = () => {
 														borderBottom: "1px solid #d8b4fe",
 													}}
 												>
-													🚀 OIDC Hybrid V3
+													OIDC Hybrid V3
 												</td>
 												<td
 													style={{
@@ -1756,7 +1757,7 @@ const Dashboard = () => {
 														borderBottom: "1px solid #d8b4fe",
 													}}
 												>
-													🚀 OIDC Client Credentials V3
+													OIDC Client Credentials V3
 												</td>
 												<td
 													style={{
@@ -1829,7 +1830,7 @@ const Dashboard = () => {
 														borderBottom: "1px solid #d8b4fe",
 													}}
 												>
-													🚀 OIDC Device Code V3
+													OIDC Device Code V3
 												</td>
 												<td
 													style={{
@@ -1895,7 +1896,7 @@ const Dashboard = () => {
 											</tr>
 											<tr>
 												<td style={{ padding: "0.75rem" }}>
-													🚀 OIDC Resource Owner Password
+													OIDC Resource Owner Password
 												</td>
 												<td style={{ padding: "0.75rem", textAlign: "center" }}>
 													<span
@@ -2027,7 +2028,7 @@ const Dashboard = () => {
 														borderBottom: "1px solid #d8b4fe",
 													}}
 												>
-													🚀 OIDC Authorization Code (V3)
+													OIDC Authorization Code (V3)
 												</td>
 												<td
 													style={{
@@ -2089,7 +2090,7 @@ const Dashboard = () => {
 														borderBottom: "1px solid #d8b4fe",
 													}}
 												>
-													🚀 OIDC Implicit V3
+													OIDC Implicit V3
 												</td>
 												<td
 													style={{
@@ -2143,7 +2144,7 @@ const Dashboard = () => {
 											</tr>
 											<tr>
 												<td style={{ padding: "0.75rem" }}>
-													🚀 PingOne Worker Token V3
+													PingOne Worker Token V3
 												</td>
 												<td style={{ padding: "0.75rem", textAlign: "center" }}>
 													<span
@@ -2252,7 +2253,7 @@ const Dashboard = () => {
 										<tbody>
 											<tr>
 												<td style={{ padding: "0.75rem" }}>
-													🚀 PingOne Worker Token V3
+													PingOne Worker Token V3
 												</td>
 												<td style={{ padding: "0.75rem", textAlign: "center" }}>
 													<span

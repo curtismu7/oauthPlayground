@@ -294,7 +294,7 @@ const RecommendationItem = styled.li`
   color: #1f2937;
   
   &::before {
-    content: '💡';
+    content: '';
     margin-right: 0.5rem;
   }
 `;
@@ -369,11 +369,11 @@ const SecurityAuditDashboard: React.FC = () => {
 
   const getSeverityIcon = (severity: string) => {
     switch (severity) {
-      case 'critical': return '🚨';
-      case 'high': return '⚠️';
-      case 'medium': return '⚡';
-      case 'low': return 'ℹ️';
-      default: return '📋';
+      case 'critical': return '';
+      case 'high': return '';
+      case 'medium': return '';
+      case 'low': return '';
+      default: return '';
     }
   };
 
@@ -453,7 +453,7 @@ const SecurityAuditDashboard: React.FC = () => {
             <VulnerabilityList>
               {currentReport.vulnerabilities.length === 0 ? (
                 <div style={{ textAlign: 'center', color: '#6b7280', padding: '2rem' }}>
-                  No vulnerabilities found! 🎉
+                  No vulnerabilities found! 
                 </div>
               ) : (
                 currentReport.vulnerabilities.map((vulnerability) => (
