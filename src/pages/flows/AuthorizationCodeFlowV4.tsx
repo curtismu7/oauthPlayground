@@ -391,7 +391,7 @@ const AuthorizationCodeFlowV4 = () => {
 
 	const totalSteps = 7;
 
-	// Initialize PKCE codes
+	// Initialize PKCE codes and check for authorization code
 	useEffect(() => {
 		const initializePKCE = async () => {
 			try {
@@ -406,6 +406,21 @@ const AuthorizationCodeFlowV4 = () => {
 				console.error("Failed to initialize PKCE:", error);
 			}
 		};
+
+		// Check for authorization code in URL parameters (when returning from PingOne)
+		const urlParams = new URLSearchParams(window.location.search);
+		const code = urlParams.get('code');
+		const error = urlParams.get('error');
+		
+		if (code) {
+			setAuthCode(code);
+			showGlobalSuccess("Authorization code received from PingOne!");
+			// Auto advance to Step 4 (Token Exchange) if we have the code
+			setCurrentStep(3); // Step 4 is index 3
+		} else if (error) {
+			showGlobalError(`Authorization failed: ${error}`);
+		}
+
 		initializePKCE();
 	}, []);
 
@@ -457,6 +472,13 @@ const AuthorizationCodeFlowV4 = () => {
 		if (authorizationUrl) {
 			window.open(authorizationUrl, '_blank');
 			showGlobalSuccess("Opening authorization URL in new window...");
+			// Auto advance to next step after opening URL
+			setTimeout(() => {
+				if (currentStep < totalSteps - 1) {
+					setCurrentStep(currentStep + 1);
+					showGlobalSuccess("Advanced to Step 3: Authorization Response");
+				}
+			}, 1000);
 		} else {
 			showGlobalWarning("Please generate the authorization URL first");
 		}
@@ -931,27 +953,60 @@ const AuthorizationCodeFlowV4 = () => {
 							</InfoText>
 						</InfoBox>
 
-						<MainCard>
-							<h4 style={{ fontWeight: '600', marginBottom: '1rem', fontSize: '1.125rem' }}>Authorization Code</h4>
-							<p style={{ color: '#6b7280', marginBottom: '1rem' }}>
-								Enter the authorization code you received from the redirect:
-							</p>
-							<FormInput
-								type="text"
-								value={authCode}
-								onChange={(e) => setAuthCode(e.target.value)}
-								placeholder="Enter authorization code here..."
-								style={{ marginBottom: '1rem' }}
-							/>
-							<Button
-								onClick={() => handleCopy(authCode, "Authorization code")}
-								variant="primary"
-								size="sm"
-							>
-								<FiCopy style={{ marginRight: '0.5rem' }} />
-								Copy Code
-							</Button>
-						</MainCard>
+						{authCode ? (
+							<GeneratedContentBox>
+								<h4 style={{ fontWeight: '600', marginBottom: '1rem', color: '#065f46', display: 'flex', alignItems: 'center' }}>
+									<FiCheckCircle style={{ marginRight: '0.5rem' }} />
+									Authorization Code Received!
+								</h4>
+								<p style={{ color: '#065f46', marginBottom: '1rem', fontSize: '0.875rem' }}>
+									The authorization code was automatically captured from PingOne.
+								</p>
+								<GeneratedUrlDisplay>
+									{authCode}
+								</GeneratedUrlDisplay>
+								<div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+									<Button
+										onClick={() => handleCopy(authCode, "Authorization code")}
+										variant="primary"
+										size="sm"
+									>
+										<FiCopy style={{ marginRight: '0.5rem' }} />
+										Copy Code
+									</Button>
+									<Button
+										onClick={nextStep}
+										variant="success"
+										size="sm"
+									>
+										<FiChevronRight style={{ marginRight: '0.5rem' }} />
+										Continue to Token Exchange
+									</Button>
+								</div>
+							</GeneratedContentBox>
+						) : (
+							<MainCard>
+								<h4 style={{ fontWeight: '600', marginBottom: '1rem', fontSize: '1.125rem' }}>Authorization Code</h4>
+								<p style={{ color: '#6b7280', marginBottom: '1rem' }}>
+									Enter the authorization code you received from the redirect:
+								</p>
+								<FormInput
+									type="text"
+									value={authCode}
+									onChange={(e) => setAuthCode(e.target.value)}
+									placeholder="Enter authorization code here..."
+									style={{ marginBottom: '1rem' }}
+								/>
+								<Button
+									onClick={() => handleCopy(authCode, "Authorization code")}
+									variant="primary"
+									size="sm"
+								>
+									<FiCopy style={{ marginRight: '0.5rem' }} />
+									Copy Code
+								</Button>
+							</MainCard>
+						)}
 
 						<InfoBox type="info">
 							<h5 style={{ fontWeight: '600', marginBottom: '0.5rem', color: '#1e40af' }}>Important Security Notes:</h5>
