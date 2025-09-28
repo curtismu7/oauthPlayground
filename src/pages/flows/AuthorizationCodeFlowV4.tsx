@@ -476,7 +476,238 @@ const ParameterValue = styled.div`
 `;
 
 const AuthorizationCodeFlowV4 = () => {
+	// State management
 	const [currentStep, setCurrentStep] = useState(0);
+	const [credentials, setCredentials] = useState({
+		clientId: '',
+		clientSecret: '',
+		environmentId: '',
+		redirectUri: 'https://localhost:3000/flows/authorization-code-v4'
+	});
+	const [pkceCodes, setPkceCodes] = useState({
+		codeVerifier: '',
+		codeChallenge: ''
+	});
+	const [authCode, setAuthCode] = useState('');
+	const [tokens, setTokens] = useState<any>(null);
+	const [userInfo, setUserInfo] = useState<any>(null);
+	const [authorizationUrl, setAuthorizationUrl] = useState('');
+	const [stepCompletions, setStepCompletions] = useState({
+		0: false, // Configuration
+		1: false, // PKCE Parameters
+		2: false, // Authorization Request
+		3: false, // Authorization Response
+		4: false, // Token Exchange
+		5: false, // User Info
+		6: false  // Complete
+	});
+	const [emptyRequiredFields, setEmptyRequiredFields] = useState<Set<string>>(new Set());
+	const [showRedirectModal, setShowRedirectModal] = useState(false);
+	const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+	// Load saved configuration on mount
+	useEffect(() => {
+		const savedConfig = localStorage.getItem('oauth-v4-test-config');
+		if (savedConfig) {
+			try {
+				const config = JSON.parse(savedConfig);
+				setCredentials(config);
+				setTimeout(() => {
+					showGlobalSuccess("Configuration loaded from previous session");
+				}, 100);
+			} catch (error) {
+				console.error('Failed to load saved configuration:', error);
+			}
+		}
+	}, []);
+
+	// Handle URL parameters for authorization code capture
+	useEffect(() => {
+		const urlParams = new URLSearchParams(window.location.search);
+		const code = urlParams.get('code');
+		const error = urlParams.get('error');
+
+		if (code) {
+			setAuthCode(code);
+			setStepCompletions(prev => ({ ...prev, 3: true }));
+			setShowSuccessModal(true);
+			setTimeout(() => setShowSuccessModal(false), 2000);
+			
+			// Clear URL parameters
+			const newUrl = window.location.pathname;
+			window.history.replaceState({}, document.title, newUrl);
+			
+			// Navigate to authorization response step
+			setCurrentStep(3);
+		} else if (error) {
+			showGlobalError(`Authorization failed: ${error}`);
+		}
+	}, []);
+
+	// Handler functions
+	const handleFieldChange = (field: string, value: string) => {
+		setCredentials(prev => ({ ...prev, [field]: value }));
+		if (value.trim() !== '') {
+			setEmptyRequiredFields(prev => {
+				const newSet = new Set(prev);
+				newSet.delete(field);
+				return newSet;
+			});
+		}
+	};
+
+	const handleClearConfiguration = () => {
+		setCredentials({
+			clientId: '',
+			clientSecret: '',
+			environmentId: '',
+			redirectUri: 'https://localhost:3000/flows/authorization-code-v4'
+		});
+		setEmptyRequiredFields(new Set(['clientId', 'clientSecret', 'environmentId', 'redirectUri']));
+		localStorage.removeItem('oauth-v4-test-config');
+		showGlobalSuccess("Configuration cleared! All required fields cleared. Please enter your production credentials.");
+	};
+
+	const handleSaveConfiguration = () => {
+		localStorage.setItem('oauth-v4-test-config', JSON.stringify(credentials));
+		setStepCompletions(prev => ({ ...prev, 0: true }));
+		showGlobalSuccess("Configuration saved successfully!");
+	};
+
+	const handleGeneratePKCE = useCallback(async () => {
+		try {
+			const verifier = generateCodeVerifier();
+			const challenge = await generateCodeChallenge(verifier);
+			
+			setPkceCodes({ codeVerifier: verifier, codeChallenge: challenge });
+			setStepCompletions(prev => ({ ...prev, 1: true }));
+			showGlobalSuccess("PKCE parameters generated successfully!");
+		} catch (error) {
+			showGlobalError("Failed to generate PKCE parameters");
+		}
+	}, []);
+
+	const handleGenerateAuthUrl = () => {
+		if (!credentials.clientId || !credentials.environmentId) {
+			showGlobalError("Please fill in Client ID and Environment ID first");
+			return;
+		}
+
+		const baseUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
+		const params = new URLSearchParams({
+			response_type: 'code',
+			client_id: credentials.clientId,
+			redirect_uri: credentials.redirectUri,
+			scope: 'openid profile email',
+			state: 'v4-educational-flow',
+			code_challenge: pkceCodes.codeChallenge,
+			code_challenge_method: 'S256'
+		});
+
+		const url = `${baseUrl}?${params.toString()}`;
+		setAuthorizationUrl(url);
+		setStepCompletions(prev => ({ ...prev, 2: true }));
+		showGlobalSuccess("Authorization URL generated successfully!");
+	};
+
+	const handleOpenAuthUrl = () => {
+		if (!authorizationUrl) {
+			showGlobalError("Please generate the authorization URL first");
+			return;
+		}
+
+		setShowRedirectModal(true);
+		setTimeout(() => {
+			setShowRedirectModal(false);
+			window.open(authorizationUrl, '_blank');
+			setTimeout(() => setCurrentStep(3), 1000);
+		}, 2000);
+	};
+
+	const handleExchangeTokens = async () => {
+		if (!authCode) {
+			showGlobalError("Please provide an authorization code first");
+			return;
+		}
+
+		try {
+			const response = await fetch('/api/token-exchange', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					grant_type: 'authorization_code',
+					code: authCode,
+					redirect_uri: credentials.redirectUri,
+					client_id: credentials.clientId,
+					client_secret: credentials.clientSecret,
+					code_verifier: pkceCodes.codeVerifier
+				})
+			});
+
+			if (!response.ok) {
+				throw new Error(`Token exchange failed: ${response.statusText}`);
+			}
+
+			const tokenData = await response.json();
+			setTokens(tokenData);
+			setStepCompletions(prev => ({ ...prev, 4: true }));
+			showGlobalSuccess("Tokens exchanged successfully!");
+
+			// Fetch user info if access token is available
+			if (tokenData.access_token) {
+				try {
+					const userInfoResponse = await fetch('/api/userinfo', {
+						headers: { 'Authorization': `Bearer ${tokenData.access_token}` }
+					});
+					if (userInfoResponse.ok) {
+						const userData = await userInfoResponse.json();
+						setUserInfo(userData);
+						setStepCompletions(prev => ({ ...prev, 5: true, 6: true }));
+					}
+				} catch (error) {
+					console.error('Failed to fetch user info:', error);
+				}
+			}
+		} catch (error) {
+			showGlobalError(`Token exchange failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+		}
+	};
+
+	const handleCopy = (text: string, label: string) => {
+		navigator.clipboard.writeText(text).then(() => {
+			showGlobalSuccess(`${label} copied to clipboard!`);
+		}).catch(() => {
+			showGlobalError("Failed to copy to clipboard");
+		});
+	};
+
+	const handleResetFlow = () => {
+		setCurrentStep(0);
+		setPkceCodes({ codeVerifier: '', codeChallenge: '' });
+		setAuthCode('');
+		setTokens(null);
+		setUserInfo(null);
+		setAuthorizationUrl('');
+		setStepCompletions({
+			0: false, 1: false, 2: false, 3: false, 4: false, 5: false, 6: false
+		});
+		setEmptyRequiredFields(new Set());
+		setShowRedirectModal(false);
+		setShowSuccessModal(false);
+		showGlobalSuccess("Flow reset successfully!");
+	};
+
+	const handleNext = () => {
+		if (currentStep < 6) {
+			setCurrentStep(prev => prev + 1);
+		}
+	};
+
+	const handlePrev = () => {
+		if (currentStep > 0) {
+			setCurrentStep(prev => prev - 1);
+		}
+	};
 
 	return (
 		<Container>
@@ -484,14 +715,15 @@ const AuthorizationCodeFlowV4 = () => {
 				<HeaderSection>
 					<MainTitle>OAuth 2.0 Authorization Code Flow (V4) - Educational</MainTitle>
 					<Subtitle>
-						A step-by-step guide to understanding the Authorization Code Flow with PKCE.
+						A comprehensive, step-by-step guide to understanding the Authorization Code Flow with PKCE.
 					</Subtitle>
 				</HeaderSection>
 				
 				<MainCard>
 					<CardTitle>Step {currentStep}: Configuration</CardTitle>
-					<p>Full V4 flow restored successfully! This is a clean, working version with all educational features.</p>
+					<p>V4 Authorization Code Flow implementation in progress...</p>
 					<p>Current step: {currentStep + 1}</p>
+					<p>Step completed: {stepCompletions[currentStep as keyof typeof stepCompletions] ? 'Yes' : 'No'}</p>
 				</MainCard>
 			</ContentWrapper>
 		</Container>
