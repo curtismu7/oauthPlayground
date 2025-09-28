@@ -342,10 +342,7 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 		});
 		
 		// Show welcome message
-		showGlobalSuccess(
-			"Welcome to OAuth Learning!", 
-			"You're about to learn the Authorization Code Flow step by step. This educational flow will guide you through each concept with real examples."
-		);
+		showGlobalSuccess("Welcome to OAuth Learning!");
 	}, []);
 
 	// Load credentials on mount
@@ -374,26 +371,17 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 			}
 			
 			credentialManager.saveFlowCredentials("authz-code-v4", credentials);
-			showGlobalSuccess(
-				"Credentials Saved Successfully", 
-				"Your PingOne application configuration has been saved and will be used throughout the OAuth flow."
-			);
+			showGlobalSuccess("Credentials saved successfully");
 		} catch (error) {
 			console.error("Failed to save credentials:", error);
-			showGlobalError(
-				"Failed to Save Credentials", 
-				"Please check your configuration and try again."
-			);
+			showGlobalError("Failed to save credentials");
 		}
 	}, [credentials]);
 
 	// Generate authorization URL
 	const generateAuthorizationUrl = useCallback(() => {
 		if (!credentials.environmentId || !credentials.clientId) {
-			showGlobalError(
-				"Configuration Required", 
-				"Please configure your Environment ID and Client ID in Step 1 before generating the authorization URL."
-			);
+			showGlobalError("Environment ID and Client ID are required");
 			return;
 		}
 
@@ -412,16 +400,10 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 
 			const url = `${baseUrl}?${params.toString()}`;
 			setAuthUrl(url);
-			showGlobalSuccess(
-				"Authorization URL Generated", 
-				"Your OAuth authorization URL has been created successfully. You can now test the authorization flow."
-			);
+			showGlobalSuccess("Authorization URL generated successfully");
 		} catch (error) {
 			console.error("Failed to generate authorization URL:", error);
-			showGlobalError(
-				"Failed to Generate URL", 
-				"An error occurred while generating the authorization URL. Please check your configuration."
-			);
+			showGlobalError("Failed to generate authorization URL");
 		}
 	}, [credentials, pkceCodes]);
 
@@ -429,15 +411,9 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 	const handleCopy = useCallback(async (text: string, label: string) => {
 		try {
 			await copyToClipboard(text);
-			showGlobalSuccess(
-				`${label} Copied`, 
-				`The ${label.toLowerCase()} has been copied to your clipboard and is ready to use.`
-			);
+			showGlobalSuccess(`${label} copied to clipboard`);
 		} catch (error) {
-			showGlobalError(
-				`Failed to Copy ${label}`, 
-				`Unable to copy the ${label.toLowerCase()} to clipboard. Please try again.`
-			);
+			showGlobalError(`Failed to copy ${label.toLowerCase()}`);
 		}
 	}, []);
 
@@ -449,15 +425,9 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 		}));
 		
 		if (isCorrect) {
-			showGlobalSuccess(
-				"Correct Answer!", 
-				"Great job! You've demonstrated understanding of this OAuth concept."
-			);
+			showGlobalSuccess("Correct answer!");
 		} else {
-			showGlobalWarning(
-				"Incorrect Answer", 
-				"Not quite right. Review the educational content and try again to reinforce your learning."
-			);
+			showGlobalWarning("Incorrect. Try again!");
 		}
 	}, []);
 
@@ -469,15 +439,9 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 			
 			// Check if reaching the final step
 			if (newStep === totalSteps - 1) {
-				showGlobalSuccess(
-					"🎉 OAuth Flow Complete!", 
-					"Congratulations! You've successfully completed the Authorization Code Flow learning journey. You now understand how OAuth 2.0 works in practice."
-				);
+				showGlobalSuccess("🎉 OAuth Flow Complete!");
 			} else {
-				showGlobalSuccess(
-					"Step Completed", 
-					"Great progress! Moving to the next step in your OAuth learning journey."
-				);
+				showGlobalSuccess("Step completed");
 			}
 		}
 	}, [currentStep, totalSteps]);
@@ -683,16 +647,10 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 										const verifier = generateCodeVerifier();
 										const challenge = generateCodeChallenge(verifier);
 										setPkceCodes({ codeVerifier: verifier, codeChallenge: challenge, codeChallengeMethod: "S256" });
-										showGlobalSuccess(
-											"PKCE Parameters Generated", 
-											"New cryptographically secure PKCE parameters have been generated successfully."
-										);
+													showGlobalSuccess("PKCE parameters generated");
 									} catch (error) {
 										console.error("Failed to generate PKCE parameters:", error);
-										showGlobalError(
-											"PKCE Generation Failed", 
-											"Unable to generate new PKCE parameters. Please try again."
-										);
+										showGlobalError("Failed to generate PKCE parameters");
 									}
 								}}
 								className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
@@ -738,15 +696,9 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 											onClick={() => {
 												try {
 													window.open(authUrl, '_blank');
-													showGlobalSuccess(
-														"Authorization Flow Started", 
-														"The authorization URL has been opened in a new tab. Complete the login process to continue."
-													);
+													showGlobalSuccess("Authorization flow started");
 												} catch (error) {
-													showGlobalError(
-														"Failed to Open URL", 
-														"Unable to open the authorization URL. Please copy and paste it manually."
-													);
+													showGlobalError("Failed to open authorization URL");
 												}
 											}}
 											className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
