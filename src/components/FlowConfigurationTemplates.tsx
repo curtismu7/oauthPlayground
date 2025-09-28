@@ -69,7 +69,7 @@ const FeatureItem = styled.li`
   margin-bottom: 0.25rem;
   
   &::before {
-    content: '✓';
+    content: '';
     color: #10b981;
     font-weight: bold;
     margin-right: 0.5rem;

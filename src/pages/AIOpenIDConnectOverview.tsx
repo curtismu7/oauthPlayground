@@ -217,7 +217,7 @@ const AIOpenIDConnectOverview = () => {
       description: 'Most secure flow for applications that can maintain a client secret securely',
       icon: FiShield,
       color: 'auth-code',
-      details: 'User authenticates → Authorization Code → Token Exchange → ID Token + Access Token',
+      details: 'User authenticates  Authorization Code  Token Exchange  ID Token + Access Token',
       security: 'High',
       useCase: 'Web applications, mobile apps with secure backend'
     },
@@ -227,7 +227,7 @@ const AIOpenIDConnectOverview = () => {
       description: 'Legacy flow for browser-based applications without secure backend',
       icon: FiAlertTriangle,
       color: 'implicit',
-      details: 'User authenticates → ID Token + Access Token directly in redirect',
+      details: 'User authenticates  ID Token + Access Token directly in redirect',
       security: 'Low (Deprecated)',
       useCase: 'Legacy browser applications (not recommended for new apps)'
     },
@@ -237,7 +237,7 @@ const AIOpenIDConnectOverview = () => {
       description: 'Combines Authorization Code and Implicit flows for flexibility',
       icon: FiCode,
       color: 'hybrid',
-      details: 'User authenticates → ID Token + Authorization Code → Token Exchange',
+      details: 'User authenticates  ID Token + Authorization Code  Token Exchange',
       security: 'Medium-High',
       useCase: 'Applications needing immediate ID token and flexible token management'
     },
@@ -324,7 +324,7 @@ const AIOpenIDConnectOverview = () => {
       <Header>
         <div>
           <AIGeneratedBadge>
-            🤖 AI-Generated Overview
+             AI-Generated Overview
           </AIGeneratedBadge>
           <h1>
             <FiBookOpen />
@@ -492,13 +492,13 @@ const AIOpenIDConnectOverview = () => {
         <FlowDiagram>
           <h3 style={{ marginBottom: '1rem', color: '#1f2937' }}>Authorization Code Flow</h3>
           <pre style={{ textAlign: 'left', margin: '0 auto', maxWidth: '600px' }}>
-{`User Agent → Authorization Server: GET /authorize?client_id=...&response_type=code&redirect_uri=...
-Authorization Server → User Agent: 302 Redirect to Login
-User → Authorization Server: Login & Consent
-Authorization Server → User Agent: 302 Redirect with code=...
-User Agent → Client: Redirect with authorization code
-Client → Authorization Server: POST /token (code, client_secret)
-Authorization Server → Client: 200 OK {id_token, access_token, refresh_token}`}
+{`User Agent  Authorization Server: GET /authorize?client_id=...&response_type=code&redirect_uri=...
+Authorization Server  User Agent: 302 Redirect to Login
+User  Authorization Server: Login & Consent
+Authorization Server  User Agent: 302 Redirect with code=...
+User Agent  Client: Redirect with authorization code
+Client  Authorization Server: POST /token (code, client_secret)
+Authorization Server  Client: 200 OK {id_token, access_token, refresh_token}`}
           </pre>
         </FlowDiagram>
 
@@ -506,10 +506,10 @@ Authorization Server → Client: 200 OK {id_token, access_token, refresh_token}`
           <h3 style={{ marginBottom: '1rem', color: '#1f2937' }}>PKCE Enhanced Flow</h3>
           <pre style={{ textAlign: 'left', margin: '0 auto', maxWidth: '600px' }}>
 {`Client: Generate code_verifier & code_challenge
-User Agent → AS: GET /authorize?client_id=...&response_type=code&code_challenge=...
-AS → User Agent: 302 Redirect with code=...
-Client → AS: POST /token {code, code_verifier}
-AS → Client: Validate PKCE & return tokens`}
+User Agent  AS: GET /authorize?client_id=...&response_type=code&code_challenge=...
+AS  User Agent: 302 Redirect with code=...
+Client  AS: POST /token {code, code_verifier}
+AS  Client: Validate PKCE & return tokens`}
           </pre>
         </FlowDiagram>
       </section>

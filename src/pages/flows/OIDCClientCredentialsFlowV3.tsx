@@ -303,7 +303,7 @@ const OIDCClientCredentialsFlowV3: React.FC<
 		const sessionId = enhancedDebugger.startSession(
 			"oidc-client-credentials-v3",
 		);
-		console.log("🔍 [OIDC-CC-V3] Debug session started:", sessionId);
+		console.log(" [OIDC-CC-V3] Debug session started:", sessionId);
 
 		return () => {
 			enhancedDebugger.endSession(sessionId);
@@ -363,10 +363,10 @@ const OIDCClientCredentialsFlowV3: React.FC<
 			try {
 				const parsed = JSON.parse(savedCredentials);
 				setCredentials((prev) => ({ ...prev, ...parsed }));
-				console.log("✅ [OIDC-CC-V3] Loaded saved credentials");
+				console.log(" [OIDC-CC-V3] Loaded saved credentials");
 			} catch (error) {
 				console.warn(
-					"⚠️ [OIDC-CC-V3] Failed to parse saved credentials:",
+					" [OIDC-CC-V3] Failed to parse saved credentials:",
 					error,
 				);
 			}
@@ -378,7 +378,7 @@ const OIDCClientCredentialsFlowV3: React.FC<
 		if (credentials.environmentId && !credentials.environmentId.includes("{")) {
 			const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
 			console.log(
-				"🔗 [OIDC-CC-V3] Auto-generated token endpoint:",
+				" [OIDC-CC-V3] Auto-generated token endpoint:",
 				tokenEndpoint,
 			);
 		}
@@ -386,7 +386,7 @@ const OIDCClientCredentialsFlowV3: React.FC<
 
 	// Save credentials to storage
 	const saveCredentials = useCallback(async () => {
-		console.log("🔧 [OIDC-CC-V3] Save credentials clicked", { credentials });
+		console.log(" [OIDC-CC-V3] Save credentials clicked", { credentials });
 		setIsSavingCredentials(true);
 
 		try {
@@ -409,18 +409,18 @@ const OIDCClientCredentialsFlowV3: React.FC<
 
 			// Show success message
 			showGlobalSuccess(
-				"✅ OIDC Client Credentials Saved",
+				" OIDC Client Credentials Saved",
 				"Configuration saved successfully. Ready to request access token.",
 			);
 			setCredentialsSavedSuccessfully(true);
-			console.log("✅ [OIDC-CC-V3] Credentials saved successfully");
+			console.log(" [OIDC-CC-V3] Credentials saved successfully");
 
 			return { success: true };
 		} catch (error) {
 			showGlobalError(
 				`Failed to save credentials: ${error instanceof Error ? error.message : "Unknown error"}`,
 			);
-			console.error("❌ [OIDC-CC-V3] Failed to save credentials:", error);
+			console.error(" [OIDC-CC-V3] Failed to save credentials:", error);
 			throw error;
 		} finally {
 			setIsSavingCredentials(false);
@@ -442,15 +442,15 @@ const OIDCClientCredentialsFlowV3: React.FC<
 				privateKey: "",
 			});
 			showGlobalSuccess(
-				"🗑️ Credentials Cleared",
+				" Credentials Cleared",
 				"All stored credentials have been removed successfully.",
 			);
-			console.log("✅ [OIDC-CC-V3] Credentials cleared");
+			console.log(" [OIDC-CC-V3] Credentials cleared");
 		} catch (error) {
 			showGlobalError(
 				`Failed to clear credentials: ${error instanceof Error ? error.message : "Unknown error"}`,
 			);
-			console.error("❌ [OIDC-CC-V3] Failed to clear credentials:", error);
+			console.error(" [OIDC-CC-V3] Failed to clear credentials:", error);
 		} finally {
 			setIsClearingCredentials(false);
 			setShowClearCredentialsModal(false);
@@ -485,7 +485,7 @@ const OIDCClientCredentialsFlowV3: React.FC<
 				);
 			}
 
-			console.log("🏗️ [OIDC-CC-V3] Building token request", {
+			console.log(" [OIDC-CC-V3] Building token request", {
 				clientId: credentials.clientId,
 				scope: credentials.scope,
 				audience: credentials.audience,
@@ -495,7 +495,7 @@ const OIDCClientCredentialsFlowV3: React.FC<
 
 			setIsRequestingToken(true);
 			showGlobalSuccess(
-				"🚀 Requesting Access Token",
+				" Requesting Access Token",
 				"Sending client credentials request to PingOne...",
 			);
 
@@ -511,7 +511,7 @@ const OIDCClientCredentialsFlowV3: React.FC<
 			baseBody.append("scope", scopeToUse);
 
 			console.log(
-				"🔍 [OIDC-CC-V3] Using scope:",
+				" [OIDC-CC-V3] Using scope:",
 				scopeToUse,
 				"from credentials.scope:",
 				credentials.scope,
@@ -577,11 +577,11 @@ const OIDCClientCredentialsFlowV3: React.FC<
 			await storeOAuthTokens(tokensToStore, "oidc_client_credentials");
 
 			showGlobalSuccess(
-				"✅ Access Token Received",
+				" Access Token Received",
 				`Successfully obtained access token. Token type: ${tokenData.token_type || "Bearer"}, Expires in: ${tokenData.expires_in || "N/A"} seconds`,
 			);
 
-			console.log("✅ [OIDC-CC-V3] Token acquired", {
+			console.log(" [OIDC-CC-V3] Token acquired", {
 				exp: tokenData.expires_in,
 				scope: tokenData.scope,
 				token_type: tokenData.token_type,
@@ -589,7 +589,7 @@ const OIDCClientCredentialsFlowV3: React.FC<
 
 			return tokenData;
 		} catch (error) {
-			console.error("⛔ [OIDC-CC-V3] Token request failed:", error);
+			console.error(" [OIDC-CC-V3] Token request failed:", error);
 			showGlobalError(
 				`Failed to obtain access token: ${error instanceof Error ? error.message : "Unknown error"}`,
 			);
@@ -601,7 +601,7 @@ const OIDCClientCredentialsFlowV3: React.FC<
 
 	// Reset flow
 	const resetFlow = useCallback(async () => {
-		console.log("🔄 [OIDC-CC-V3] Reset flow initiated");
+		console.log(" [OIDC-CC-V3] Reset flow initiated");
 
 		setIsResettingFlow(true);
 
@@ -617,15 +617,15 @@ const OIDCClientCredentialsFlowV3: React.FC<
 
 			// Show success message to user
 			showGlobalSuccess(
-				"🔄 OIDC Client Credentials Flow reset successfully! You can now begin a new flow.",
+				" OIDC Client Credentials Flow reset successfully! You can now begin a new flow.",
 			);
 
 			// Scroll to top
 			window.scrollTo(0, 0);
 
-			console.log("✅ [OIDC-CC-V3] Flow reset complete");
+			console.log(" [OIDC-CC-V3] Flow reset complete");
 		} catch (error) {
-			console.error("❌ [OIDC-CC-V3] Reset flow failed:", error);
+			console.error(" [OIDC-CC-V3] Reset flow failed:", error);
 			showGlobalError("Failed to reset flow");
 		} finally {
 			setIsResettingFlow(false);
@@ -1001,7 +1001,7 @@ const OIDCClientCredentialsFlowV3: React.FC<
 								<InfoBox type="success">
 									<FiCheckCircle />
 									<div>
-										<strong>✅ OIDC Client Credentials Flow Successful!</strong>
+										<strong> OIDC Client Credentials Flow Successful!</strong>
 										<br />
 										OIDC access token received and validated successfully.
 									</div>
@@ -1023,7 +1023,7 @@ const OIDCClientCredentialsFlowV3: React.FC<
 										color: "#15803d",
 									}}
 								>
-									<strong>✅ OIDC Token Ready for Use!</strong>
+									<strong> OIDC Token Ready for Use!</strong>
 									<br />
 									Your OIDC access token is ready to use for API calls. This
 									token includes OpenID Connect context and can be used for
@@ -1078,7 +1078,11 @@ const OIDCClientCredentialsFlowV3: React.FC<
 						style={{
 							padding: "2rem",
 							borderBottom: "1px solid #e5e7eb",
-							background: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)",
+							background: "#f8fafc",
+							border: "1px solid #e2e8f0",
+							padding: "1.25rem",
+							borderRadius: "0.75rem",
+							boxShadow: "0 4px 12px rgba(148, 163, 184, 0.2)",
 						}}
 					>
 						<div
@@ -1092,7 +1096,7 @@ const OIDCClientCredentialsFlowV3: React.FC<
 							onClick={() => setShowEducationalContent(!showEducationalContent)}
 						>
 							<h2 style={{ margin: 0, color: "#1f2937", fontSize: "1.5rem" }}>
-								🔍 What is OIDC Client Credentials Flow?
+								 What is OIDC Client Credentials Flow?
 							</h2>
 							<div
 								style={{
@@ -1214,15 +1218,15 @@ const OIDCClientCredentialsFlowV3: React.FC<
 										}}
 									>
 										<p style={{ margin: "0 0 0.5rem 0" }}>
-											<strong>✅ Use Strong Authentication:</strong> Prefer
+											<strong> Use Strong Authentication:</strong> Prefer
 											private_key_jwt over shared secrets when possible.
 										</p>
 										<p style={{ margin: "0 0 0.5rem 0" }}>
-											<strong>🔒 Secure Storage:</strong> Store credentials
+											<strong> Secure Storage:</strong> Store credentials
 											securely and never expose them in client-side code.
 										</p>
 										<p style={{ margin: "0" }}>
-											<strong>🎯 Scope Management:</strong> Use appropriate OIDC
+											<strong> Scope Management:</strong> Use appropriate OIDC
 											scopes for your use case.
 										</p>
 									</div>
@@ -1235,7 +1239,7 @@ const OIDCClientCredentialsFlowV3: React.FC<
 				{/* Main Step Flow */}
 				<EnhancedStepFlowV2
 					steps={steps}
-					title="🔐 OIDC Client Credentials Flow V3"
+					title=" OIDC Client Credentials Flow V3"
 					persistKey="oidc_client_credentials_v3_flow_steps"
 					initialStepIndex={stepManager.currentStepIndex}
 					onStepChange={stepManager.setStep}
@@ -1243,19 +1247,19 @@ const OIDCClientCredentialsFlowV3: React.FC<
 					showDebugInfo={false}
 					allowStepJumping={true}
 					onStepComplete={(stepId, result) => {
-						console.log("✅ [OIDC-CC-V3] Step completed:", stepId, result);
+						console.log(" [OIDC-CC-V3] Step completed:", stepId, result);
 					}}
 				/>
 
 				{/* Flow Control Actions */}
 				<FlowControlSection>
-					<FlowControlTitle>⚙️ Flow Control Actions</FlowControlTitle>
+					<FlowControlTitle> Flow Control Actions</FlowControlTitle>
 					<FlowControlButtons>
 						<FlowControlButton
 							className="clear"
 							onClick={() => setShowClearCredentialsModal(true)}
 						>
-							🧹 Clear Credentials
+							 Clear Credentials
 						</FlowControlButton>
 						<FlowControlButton
 							className="reset"

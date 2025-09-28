@@ -1,13 +1,13 @@
 // src/pages/flows/UnifiedAuthorizationCodeFlowV3.tsx - Unified OAuth 2.0 and OIDC Authorization Code Flow
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
 	FiCheckCircle,
 	FiCopy,
 	FiRotateCcw,
+	FiSettings,
 	FiShield,
 	FiUser,
-	FiSettings,
 } from "react-icons/fi";
 import styled from "styled-components";
 import AuthorizationRequestModal from "../../components/AuthorizationRequestModal";
@@ -71,12 +71,17 @@ const Container = styled.div`
   padding: 2rem;
 `;
 
-const HeroSection = styled.section`
+const HeroSection = styled.section<{ $variant: "oidc" | "oauth" }>`
   margin-bottom: 2rem;
+  border-radius: 16px;
+  padding: 2.5rem;
+  color: white;
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.2);
+  background: #f8fafc;
 `;
 
 const ConfigCard = styled.div`
-  background: linear-gradient(135deg, #f8fbff 0%, #e8efff 100%);
+  background: #f8fafc;
   border: 1px solid #d4e4ff;
   border-radius: 16px;
   padding: 2rem;
@@ -185,7 +190,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 			`${flowType}-authorization-code-v3`,
 		);
 		console.log(
-			`🔍 [${flowType.toUpperCase()}-V3] Debug session started:`,
+			` [${flowType.toUpperCase()}-V3] Debug session started:`,
 			sessionId,
 		);
 
@@ -210,7 +215,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 	// Force flow independence by clearing other flow's state on initialization
 	useEffect(() => {
 		console.log(
-			`🔍 [${flowType.toUpperCase()}-V3] Ensuring flow independence...`,
+			` [${flowType.toUpperCase()}-V3] Ensuring flow independence...`,
 		);
 
 		const otherFlowType = flowType === "oauth" ? "oidc" : "oauth";
@@ -232,14 +237,14 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 		keysToCheck.forEach((key) => {
 			if (sessionStorage.getItem(key)) {
 				console.log(
-					`🧹 [${flowType.toUpperCase()}-V3] Clearing potentially conflicting key: ${key}`,
+					` [${flowType.toUpperCase()}-V3] Clearing potentially conflicting key: ${key}`,
 				);
 				sessionStorage.removeItem(key);
 			}
 		});
 
 		// Debug current state
-		console.log(`🔍 [${flowType.toUpperCase()}-V3] Flow state after cleanup:`, {
+		console.log(` [${flowType.toUpperCase()}-V3] Flow state after cleanup:`, {
 			flowType,
 			persistKey: `${flowType}_v3_step_manager`,
 			currentStep: stepManager.currentStepIndex,
@@ -264,7 +269,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 		const authState = urlParams.get("state");
 		const authError = urlParams.get("error");
 
-		console.log(`🔍 [${flowType.toUpperCase()}-V3] URL parameter analysis:`, {
+		console.log(` [${flowType.toUpperCase()}-V3] URL parameter analysis:`, {
 			isCallback: !!(authCode || authError),
 			authCode: authCode ? `${authCode.substring(0, 10)}...` : null,
 			authState: authState ? `${authState.substring(0, 10)}...` : null,
@@ -281,7 +286,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 		if (allCredentials.environmentId && allCredentials.clientId) {
 			source = "flow-specific";
 			console.log(
-				`✅ [${flowType.toUpperCase()}-V3] Loaded credentials from flow-specific storage`,
+				` [${flowType.toUpperCase()}-V3] Loaded credentials from flow-specific storage`,
 			);
 		} else {
 			// 2. Try config page credentials (global fallback)
@@ -289,7 +294,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 			if (allCredentials.environmentId && allCredentials.clientId) {
 				source = "config-page";
 				console.log(
-					`✅ [${flowType.toUpperCase()}-V3] Loaded credentials from config page storage`,
+					` [${flowType.toUpperCase()}-V3] Loaded credentials from config page storage`,
 				);
 			} else {
 				// 3. Try permanent credentials
@@ -297,7 +302,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 				if (allCredentials.environmentId && allCredentials.clientId) {
 					source = "permanent";
 					console.log(
-						`✅ [${flowType.toUpperCase()}-V3] Loaded credentials from permanent storage`,
+						` [${flowType.toUpperCase()}-V3] Loaded credentials from permanent storage`,
 					);
 				} else {
 					// 4. Try legacy pingone_config
@@ -309,7 +314,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 								allCredentials = parsed;
 								source = "legacy-pingone-config";
 								console.log(
-									`✅ [${flowType.toUpperCase()}-V3] Loaded credentials from legacy pingone_config`,
+									` [${flowType.toUpperCase()}-V3] Loaded credentials from legacy pingone_config`,
 								);
 							}
 						} catch (e) {
@@ -330,7 +335,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 									allCredentials = parsed;
 									source = "legacy-login-credentials";
 									console.log(
-										`✅ [${flowType.toUpperCase()}-V3] Loaded credentials from legacy login_credentials`,
+										` [${flowType.toUpperCase()}-V3] Loaded credentials from legacy login_credentials`,
 									);
 								}
 							} catch (e) {
@@ -366,7 +371,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 				: defaultScopes);
 
 		console.log(
-			`🔍 [${flowType.toUpperCase()}-V3] Comprehensive credential loading:`,
+			` [${flowType.toUpperCase()}-V3] Comprehensive credential loading:`,
 			{
 				source,
 				hasUrlParams: !!(urlEnv || urlClient || urlScope),
@@ -400,7 +405,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 		// If we got credentials from URL parameters, save them for future use
 		if (urlEnv || urlClient || urlScope) {
 			console.log(
-				`🔧 [${flowType.toUpperCase()}-V3] Saving URL credentials to storage`,
+				` [${flowType.toUpperCase()}-V3] Saving URL credentials to storage`,
 			);
 			credentialManager.saveAuthzFlowCredentials({
 				environmentId: initialCredentials.environmentId,
@@ -446,7 +451,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 			if (savedConfig) {
 				const parsed = JSON.parse(savedConfig);
 				console.log(
-					`🔧 [${flowType.toUpperCase()}-V3] Loaded saved flow configuration:`,
+					` [${flowType.toUpperCase()}-V3] Loaded saved flow configuration:`,
 					parsed,
 				);
 				return {
@@ -472,11 +477,11 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 				: "oauth-authorization-code",
 		);
 		console.log(
-			`🔧 [${flowType.toUpperCase()}-V3] Using default flow configuration:`,
+			` [${flowType.toUpperCase()}-V3] Using default flow configuration:`,
 			defaultConfig,
 		);
 		console.log(
-			`🔍 [${flowType.toUpperCase()}-V3] Default showAuthRequestModal:`,
+			` [${flowType.toUpperCase()}-V3] Default showAuthRequestModal:`,
 			defaultConfig.showAuthRequestModal,
 		);
 		return defaultConfig;
@@ -509,7 +514,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 					JSON.stringify(newConfig),
 				);
 				console.log(
-					`💾 [${flowType.toUpperCase()}-V3] Saved flow configuration:`,
+					` [${flowType.toUpperCase()}-V3] Saved flow configuration:`,
 					{
 						scopes: newConfig.scopes,
 						nonce: newConfig.nonce
@@ -529,7 +534,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 				);
 			} catch (error) {
 				console.error(
-					`❌ [${flowType.toUpperCase()}-V3] Failed to save flow configuration:`,
+					` [${flowType.toUpperCase()}-V3] Failed to save flow configuration:`,
 					error,
 				);
 			}
@@ -544,7 +549,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 			(credentials.environmentId || credentials.clientId)
 		) {
 			console.log(
-				"🔧 [UnifiedAuthorizationCodeFlowV3] Initializing original credentials:",
+				" [UnifiedAuthorizationCodeFlowV3] Initializing original credentials:",
 				credentials,
 			);
 			setOriginalCredentials({ ...credentials });
@@ -564,7 +569,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 			if (hasChanges !== hasUnsavedCredentialChanges) {
 				setHasUnsavedCredentialChanges(hasChanges);
 				console.log(
-					`🔧 [UnifiedAuthorizationCodeFlowV3] Credentials changed, unsaved changes: ${hasChanges}`,
+					` [UnifiedAuthorizationCodeFlowV3] Credentials changed, unsaved changes: ${hasChanges}`,
 				);
 			}
 		}
@@ -574,7 +579,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 	useEffect(() => {
 		const reloadCredentials = () => {
 			console.log(
-				`🔄 [${flowType.toUpperCase()}-V3] Reloading credentials after storage change...`,
+				` [${flowType.toUpperCase()}-V3] Reloading credentials after storage change...`,
 			);
 
 			// Try all storage mechanisms
@@ -618,7 +623,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 
 			if (foundCredentials?.environmentId && foundCredentials.clientId) {
 				console.log(
-					`🔧 [${flowType.toUpperCase()}-V3] Reloading credentials from ${source}:`,
+					` [${flowType.toUpperCase()}-V3] Reloading credentials from ${source}:`,
 					{
 						environmentId: foundCredentials.environmentId,
 						clientId: `${foundCredentials.clientId.substring(0, 8)}...`,
@@ -630,7 +635,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 					const previous = credentialsRef.current ?? prev;
 
 					console.log(
-						`🔍 [${flowType.toUpperCase()}-V3] setCredentials called - previous state:`,
+						` [${flowType.toUpperCase()}-V3] setCredentials called - previous state:`,
 						{
 							environmentId: previous.environmentId,
 							clientId: previous.clientId
@@ -644,36 +649,38 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 					const newCredentials = {
 						...previous,
 						environmentId:
-							allCredentials.environmentId || previous.environmentId,
-						clientId: allCredentials.clientId || previous.clientId,
-						clientSecret: allCredentials.clientSecret || previous.clientSecret,
-						redirectUri: allCredentials.redirectUri || previous.redirectUri,
-						scope: scopeString || previous.scope,
+							foundCredentials.environmentId ?? previous.environmentId,
+						clientId: foundCredentials.clientId ?? previous.clientId,
+						clientSecret:
+							foundCredentials.clientSecret ?? previous.clientSecret,
+						redirectUri:
+							foundCredentials.redirectUri ?? previous.redirectUri,
+						scope: scopeString ?? previous.scope,
 						scopes: scopeArray.length > 0 ? scopeArray : previous.scopes,
 						authEndpoint:
-							allCredentials.authEndpoint ||
-							previous.authEndpoint ||
-							(allCredentials.environmentId
-								? `https://auth.pingone.com/${allCredentials.environmentId}/as/authorize`
+							foundCredentials.authEndpoint ??
+							previous.authEndpoint ??
+							(foundCredentials.environmentId
+								? `https://auth.pingone.com/${foundCredentials.environmentId}/as/authorize`
 								: ""),
 						tokenEndpoint:
-							allCredentials.tokenEndpoint ||
-							previous.tokenEndpoint ||
-							(allCredentials.environmentId
-								? `https://auth.pingone.com/${allCredentials.environmentId}/as/token`
+							foundCredentials.tokenEndpoint ??
+							previous.tokenEndpoint ??
+							(foundCredentials.environmentId
+								? `https://auth.pingone.com/${foundCredentials.environmentId}/as/token`
 								: ""),
 						userInfoEndpoint:
-							allCredentials.userInfoEndpoint ||
-							previous.userInfoEndpoint ||
-							(allCredentials.environmentId
-								? `https://auth.pingone.com/${allCredentials.environmentId}/as/userinfo`
+							foundCredentials.userInfoEndpoint ??
+							previous.userInfoEndpoint ??
+							(foundCredentials.environmentId
+								? `https://auth.pingone.com/${foundCredentials.environmentId}/as/userinfo`
 								: ""),
 						clientAuthMethod:
-							allCredentials.tokenAuthMethod || previous.clientAuthMethod,
+							foundCredentials.tokenAuthMethod ?? previous.clientAuthMethod,
 					};
 
 					console.log(
-						`🔍 [${flowType.toUpperCase()}-V3] setCredentials - new credentials:`,
+						` [${flowType.toUpperCase()}-V3] setCredentials - new credentials:`,
 						{
 							environmentId: newCredentials.environmentId,
 							clientId: newCredentials.clientId
@@ -692,13 +699,13 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 
 					if (hasChanged) {
 						console.log(
-							`🔄 [${flowType.toUpperCase()}-V3] Credentials updated from ${source}`,
+							` [${flowType.toUpperCase()}-V3] Credentials updated from ${source}`,
 						);
 						return newCredentials;
 					}
 
 					console.log(
-						`✅ [${flowType.toUpperCase()}-V3] Credentials already up to date`,
+						` [${flowType.toUpperCase()}-V3] Credentials already up to date`,
 					);
 					return previous;
 				});
@@ -707,7 +714,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 					`! [${flowType.toUpperCase()}-V3] No valid credentials found in any storage mechanism on mount`,
 				);
 				console.log(
-					`🔍 [${flowType.toUpperCase()}-V3] Available localStorage keys:`,
+					` [${flowType.toUpperCase()}-V3] Available localStorage keys:`,
 					Object.keys(localStorage),
 				);
 			}
@@ -722,7 +729,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 					e.key.includes("config"))
 			) {
 				console.log(
-					`🔄 [${flowType.toUpperCase()}-V3] Storage change detected for key:`,
+					` [${flowType.toUpperCase()}-V3] Storage change detected for key:`,
 					e.key,
 				);
 				reloadCredentials();
@@ -732,7 +739,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 		// Listen for custom credential change events
 		const handleCredentialChange = (e: CustomEvent) => {
 			console.log(
-				`🔄 [${flowType.toUpperCase()}-V3] Credential change event received:`,
+				` [${flowType.toUpperCase()}-V3] Credential change event received:`,
 				e.detail,
 			);
 			reloadCredentials();
@@ -794,7 +801,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 
 		if (storedCode) {
 			console.log(
-				`🔍 [${flowType.toUpperCase()}-V3] Found stored authorization code from callback`,
+				` [${flowType.toUpperCase()}-V3] Found stored authorization code from callback`,
 			);
 			setAuthCode(storedCode);
 			setState(storedState || "");
@@ -807,7 +814,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 			sessionStorage.removeItem(`${flowType}_v3_state`);
 
 			console.log(
-				`✅ [${flowType.toUpperCase()}-V3] Authorization code loaded and ready for token exchange`,
+				` [${flowType.toUpperCase()}-V3] Authorization code loaded and ready for token exchange`,
 			);
 		}
 	}, [stepManager.isInitialized, flowType]);
@@ -816,7 +823,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 	useEffect(() => {
 		const handleStepNext = () => {
 			console.log(
-				`🔍 [${flowType.toUpperCase()}-V3] Step next event received, advancing to next step`,
+				` [${flowType.toUpperCase()}-V3] Step next event received, advancing to next step`,
 			);
 			stepManager.setStep(stepManager.currentStepIndex + 1);
 		};
@@ -839,7 +846,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 
 		try {
 			console.log(
-				`🔄 [${flowType.toUpperCase()}-V3] Starting refresh token exchange...`,
+				` [${flowType.toUpperCase()}-V3] Starting refresh token exchange...`,
 			);
 
 			const requestBody = {
@@ -852,7 +859,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 			};
 
 			console.log(
-				`🌐 [${flowType.toUpperCase()}-V3] Making refresh token request:`,
+				` [${flowType.toUpperCase()}-V3] Making refresh token request:`,
 				{
 					grant_type: requestBody.grant_type,
 					client_id: requestBody.client_id
@@ -877,7 +884,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 
 			if (response.ok && result.access_token) {
 				console.log(
-					`✅ [${flowType.toUpperCase()}-V3] Refresh token exchange successful`,
+					` [${flowType.toUpperCase()}-V3] Refresh token exchange successful`,
 				);
 				setNewTokensFromRefresh(result);
 
@@ -889,7 +896,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 				);
 				if (refreshSuccess) {
 					console.log(
-						`✅ [${flowType.toUpperCase()}-V3] New tokens stored successfully for Token Management page`,
+						` [${flowType.toUpperCase()}-V3] New tokens stored successfully for Token Management page`,
 					);
 				} else {
 					console.warn(
@@ -916,7 +923,8 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 				}
 
 				showGlobalSuccess(
-					"New access token obtained successfully using refresh token",
+					"Tokens refreshed",
+					"PingOne returned a new access token from your refresh token.",
 				);
 				stepManager.updateStepMessage(
 					"refresh-token-exchange",
@@ -924,7 +932,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 				);
 			} else {
 				console.error(
-					`❌ [${flowType.toUpperCase()}-V3] Refresh token exchange failed:`,
+					` [${flowType.toUpperCase()}-V3] Refresh token exchange failed:`,
 					result,
 				);
 				showGlobalError(
@@ -933,10 +941,13 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 			}
 		} catch (error) {
 			console.error(
-				`❌ [${flowType.toUpperCase()}-V3] Refresh token exchange error:`,
+				` [${flowType.toUpperCase()}-V3] Refresh token exchange error:`,
 				error,
 			);
-			showGlobalError(`Refresh token exchange failed: ${String(error)}`);
+			showGlobalError(
+				"Refresh failed",
+				`We couldn't obtain a new access token: ${String(error)}.`,
+			);
 		} finally {
 			setIsRefreshingTokens(false);
 		}
@@ -945,15 +956,15 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 	// Load credentials on mount
 	const loadCredentialsOnMount = useCallback(() => {
 		console.log(
-			`🔍 [${flowType.toUpperCase()}-V3] Loading credentials on component mount...`,
+			` [${flowType.toUpperCase()}-V3] Loading credentials on component mount...`,
 		);
 
 		console.log(
-			`🔍 [${flowType.toUpperCase()}-V3] All localStorage keys:`,
+			` [${flowType.toUpperCase()}-V3] All localStorage keys:`,
 			Object.keys(localStorage),
 		);
 		console.log(
-			`🔍 [${flowType.toUpperCase()}-V3] Current credentials state:`,
+			` [${flowType.toUpperCase()}-V3] Current credentials state:`,
 			credentialsRef.current,
 		);
 		credentialManager.debugLocalStorage();
@@ -966,7 +977,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 		if (allCredentials.environmentId && allCredentials.clientId) {
 			source = "authz-flow";
 			console.log(
-				`✅ [${flowType.toUpperCase()}-V3] Found authz flow credentials`,
+				` [${flowType.toUpperCase()}-V3] Found authz flow credentials`,
 			);
 		} else {
 			// 2. Try config page credentials
@@ -974,7 +985,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 			if (allCredentials.environmentId && allCredentials.clientId) {
 				source = "config-page";
 				console.log(
-					`✅ [${flowType.toUpperCase()}-V3] Found config page credentials`,
+					` [${flowType.toUpperCase()}-V3] Found config page credentials`,
 				);
 			} else {
 				// 3. Try permanent credentials
@@ -982,7 +993,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 				if (allCredentials.environmentId && allCredentials.clientId) {
 					source = "permanent";
 					console.log(
-						`✅ [${flowType.toUpperCase()}-V3] Found permanent credentials`,
+						` [${flowType.toUpperCase()}-V3] Found permanent credentials`,
 					);
 				} else {
 					// 4. Try legacy pingone_config
@@ -994,7 +1005,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 								allCredentials = parsed;
 								source = "legacy-pingone-config";
 								console.log(
-									`✅ [${flowType.toUpperCase()}-V3] Found legacy pingone_config credentials`,
+									` [${flowType.toUpperCase()}-V3] Found legacy pingone_config credentials`,
 								);
 							}
 						} catch (e) {
@@ -1015,7 +1026,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 									allCredentials = parsed;
 									source = "legacy-login-credentials";
 									console.log(
-										`✅ [${flowType.toUpperCase()}-V3] Found legacy login_credentials`,
+										` [${flowType.toUpperCase()}-V3] Found legacy login_credentials`,
 									);
 								}
 							} catch (e) {
@@ -1032,7 +1043,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 
 		if (allCredentials?.environmentId && allCredentials.clientId) {
 			console.log(
-				`🔧 [${flowType.toUpperCase()}-V3] Loading credentials from ${source}:`,
+				` [${flowType.toUpperCase()}-V3] Loading credentials from ${source}:`,
 				{
 					environmentId: allCredentials.environmentId,
 					clientId: `${allCredentials.clientId.substring(0, 8)}...`,
@@ -1055,7 +1066,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 				const previous = credentialsRef.current ?? prev;
 
 				console.log(
-					`🔍 [${flowType.toUpperCase()}-V3] setCredentials called - previous state:`,
+					` [${flowType.toUpperCase()}-V3] setCredentials called - previous state:`,
 					{
 						environmentId: previous.environmentId,
 						clientId: previous.clientId
@@ -1068,36 +1079,36 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 
 				const newCredentials = {
 					...previous,
-					environmentId: allCredentials.environmentId || previous.environmentId,
-					clientId: allCredentials.clientId || previous.clientId,
-					clientSecret: allCredentials.clientSecret || previous.clientSecret,
-					redirectUri: allCredentials.redirectUri || previous.redirectUri,
-					scope: scopeString || previous.scope,
+					environmentId: allCredentials.environmentId ?? previous.environmentId,
+					clientId: allCredentials.clientId ?? previous.clientId,
+					clientSecret: allCredentials.clientSecret ?? previous.clientSecret,
+					redirectUri: allCredentials.redirectUri ?? previous.redirectUri,
+					scope: scopeString ?? previous.scope,
 					scopes: scopeArray.length > 0 ? scopeArray : previous.scopes,
 					authEndpoint:
-						allCredentials.authEndpoint ||
-						previous.authEndpoint ||
+						allCredentials.authEndpoint ??
+						previous.authEndpoint ??
 						(allCredentials.environmentId
 							? `https://auth.pingone.com/${allCredentials.environmentId}/as/authorize`
 							: ""),
 					tokenEndpoint:
-						allCredentials.tokenEndpoint ||
-						previous.tokenEndpoint ||
+						allCredentials.tokenEndpoint ??
+						previous.tokenEndpoint ??
 						(allCredentials.environmentId
 							? `https://auth.pingone.com/${allCredentials.environmentId}/as/token`
 							: ""),
 					userInfoEndpoint:
-						allCredentials.userInfoEndpoint ||
-						previous.userInfoEndpoint ||
+						allCredentials.userInfoEndpoint ??
+						previous.userInfoEndpoint ??
 						(allCredentials.environmentId
 							? `https://auth.pingone.com/${allCredentials.environmentId}/as/userinfo`
 							: ""),
 					clientAuthMethod:
-						allCredentials.tokenAuthMethod || previous.clientAuthMethod,
+						allCredentials.tokenAuthMethod ?? previous.clientAuthMethod,
 				};
 
 				console.log(
-					`🔍 [${flowType.toUpperCase()}-V3] setCredentials - new credentials:`,
+					` [${flowType.toUpperCase()}-V3] setCredentials - new credentials:`,
 					{
 						environmentId: newCredentials.environmentId,
 						clientId: newCredentials.clientId
@@ -1116,13 +1127,13 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 
 				if (hasChanged) {
 					console.log(
-						`🔄 [${flowType.toUpperCase()}-V3] Credentials updated from ${source}`,
+						` [${flowType.toUpperCase()}-V3] Credentials updated from ${source}`,
 					);
 					return newCredentials;
 				}
 
 				console.log(
-					`✅ [${flowType.toUpperCase()}-V3] Credentials already up to date`,
+					` [${flowType.toUpperCase()}-V3] Credentials already up to date`,
 				);
 				return previous;
 			});
@@ -1130,7 +1141,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 			// Migrate to preferred storage if found in legacy storage
 			if (source.startsWith("legacy-")) {
 				console.log(
-					`🔄 [${flowType.toUpperCase()}-V3] Migrating ${source} credentials to authz flow storage`,
+					` [${flowType.toUpperCase()}-V3] Migrating ${source} credentials to authz flow storage`,
 				);
 				credentialManager.saveAuthzFlowCredentials({
 					environmentId: allCredentials.environmentId,
@@ -1157,7 +1168,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 				`! [${flowType.toUpperCase()}-V3] No valid credentials found in any storage mechanism on mount`,
 			);
 			console.log(
-				`🔍 [${flowType.toUpperCase()}-V3] Available localStorage keys:`,
+				` [${flowType.toUpperCase()}-V3] Available localStorage keys:`,
 				Object.keys(localStorage),
 			);
 		}
@@ -1185,7 +1196,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 		// Only process if we have OAuth callback parameters
 		if (authCode || authError) {
 			console.log(
-				`🔍 [${flowType.toUpperCase()}-V3] Processing OAuth callback from URL:`,
+				` [${flowType.toUpperCase()}-V3] Processing OAuth callback from URL:`,
 				{
 					hasCode: !!authCode,
 					hasError: !!authError,
@@ -1196,12 +1207,13 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 
 			if (authError) {
 				console.error(
-					`❌ [${flowType.toUpperCase()}-V3] Authorization error:`,
+					` [${flowType.toUpperCase()}-V3] Authorization error:`,
 					authError,
 					errorDescription,
 				);
 				showGlobalError(
-					`❌ Authorization failed: ${errorDescription || authError}`,
+					"Authorization failed",
+					`${errorDescription || authError}`,
 				);
 
 				// Clear URL parameters
@@ -1211,7 +1223,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 
 			if (authCode) {
 				console.log(
-					`✅ [${flowType.toUpperCase()}-V3] Authorization code received from PingOne redirect!`,
+					` [${flowType.toUpperCase()}-V3] Authorization code received from PingOne redirect!`,
 				);
 
 				// Set the authorization code and state
@@ -1229,7 +1241,8 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 
 				// Show success message to user
 				showGlobalSuccess(
-					`🎉 Successfully authenticated with PingOne! Authorization code received. You can now exchange it for tokens.`,
+					"Authorization code received",
+					"PingOne redirected back with a code. Continue to the token exchange step.",
 				);
 
 				// Show success modal if configured
@@ -1247,7 +1260,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 
 					stepManager.setStep(tokenExchangeStepIndex, "callback completed");
 					console.log(
-						`🔄 [${flowType.toUpperCase()}-V3] Advanced to token exchange step at index ${tokenExchangeStepIndex} (credentials skipped: ${skipCredentialsStep})`,
+						` [${flowType.toUpperCase()}-V3] Advanced to token exchange step at index ${tokenExchangeStepIndex} (credentials skipped: ${skipCredentialsStep})`,
 					);
 				}
 
@@ -1255,7 +1268,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 				window.history.replaceState({}, "", window.location.pathname);
 
 				console.log(
-					`✅ [${flowType.toUpperCase()}-V3] Callback processing completed, advanced to token exchange step`,
+					` [${flowType.toUpperCase()}-V3] Callback processing completed, advanced to token exchange step`,
 				);
 			}
 		}
@@ -1278,11 +1291,14 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 			// Store code verifier for token exchange
 			sessionStorage.setItem(`${flowType}_v3_code_verifier`, codeVerifier);
 
-			console.log(`🔍 [${flowType.toUpperCase()}-V3] Generated PKCE codes`);
-			showGlobalSuccess("PKCE codes generated successfully");
+			console.log(` [${flowType.toUpperCase()}-V3] Generated PKCE codes`);
+			showGlobalSuccess(
+				"PKCE ready",
+				"Verifier and challenge generated. You can now build the authorization request.",
+			);
 		} catch (error) {
 			console.error(
-				`❌ [${flowType.toUpperCase()}-V3] PKCE generation failed:`,
+				` [${flowType.toUpperCase()}-V3] PKCE generation failed:`,
 				error,
 			);
 			showGlobalError("Failed to generate PKCE codes");
@@ -1294,7 +1310,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 		// Clear any previous callback processing flags to prevent loops
 		sessionStorage.removeItem("v3_callback_processed");
 		console.log(
-			`🔧 [${flowType.toUpperCase()}-V3] Cleared callback processing flag for new authorization`,
+			` [${flowType.toUpperCase()}-V3] Cleared callback processing flag for new authorization`,
 		);
 		try {
 			if (!credentials.environmentId || !credentials.clientId) {
@@ -1340,7 +1356,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 						: "";
 
 			console.log(
-				`🔍 [${flowType.toUpperCase()}-V3] COMPREHENSIVE REDIRECT URI DEBUG:`,
+				` [${flowType.toUpperCase()}-V3] COMPREHENSIVE REDIRECT URI DEBUG:`,
 				{
 					credentialsRedirectUri: credentials.redirectUri,
 					willBeStoredAs: `${flowType}_v3_redirect_uri`,
@@ -1364,7 +1380,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 
 			const scopeToUse = credentials.scope || "openid profile email";
 			console.log(
-				`🔍 [${flowType.toUpperCase()}-V3] SCOPE DEBUG - Using scopes:`,
+				` [${flowType.toUpperCase()}-V3] SCOPE DEBUG - Using scopes:`,
 				{
 					credentialsScope: credentials.scope,
 					defaultScope: "openid profile email",
@@ -1389,7 +1405,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 				Object.keys(flowConfig.customParams).length > 0
 			) {
 				console.log(
-					`🔧 [${flowType.toUpperCase()}-V3] Adding custom parameters:`,
+					` [${flowType.toUpperCase()}-V3] Adding custom parameters:`,
 					flowConfig.customParams,
 				);
 				Object.entries(flowConfig.customParams).forEach(([key, value]) => {
@@ -1431,7 +1447,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 					if (validAcrValues.length > 0) {
 						params.set("acr_values", validAcrValues.join(" "));
 						console.log(
-							`✅ [${flowType.toUpperCase()}-V3] Added valid ACR values:`,
+							` [${flowType.toUpperCase()}-V3] Added valid ACR values:`,
 							validAcrValues,
 						);
 					} else {
@@ -1441,23 +1457,20 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 					}
 				}
 
-				console.log(
-					`🔧 [${flowType.toUpperCase()}-V3] Added OIDC parameters:`,
-					{
-						nonce: nonceValue ? `${nonceValue.substring(0, 10)}...` : "none",
-						maxAge: flowConfig.maxAge,
-						prompt: flowConfig.prompt,
-						loginHint: flowConfig.loginHint,
-						acrValues: flowConfig.acrValues,
-					},
-				);
+				console.log(` [${flowType.toUpperCase()}-V3] Added OIDC parameters:`, {
+					nonce: nonceValue ? `${nonceValue.substring(0, 10)}...` : "none",
+					maxAge: flowConfig.maxAge,
+					prompt: flowConfig.prompt,
+					loginHint: flowConfig.loginHint,
+					acrValues: flowConfig.acrValues,
+				});
 			}
 
 			// Use configured state if available
 			if (flowConfig.state) {
 				params.set("state", flowConfig.state);
 				console.log(
-					`🔧 [${flowType.toUpperCase()}-V3] Using configured state parameter`,
+					` [${flowType.toUpperCase()}-V3] Using configured state parameter`,
 				);
 			}
 
@@ -1465,7 +1478,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 			setAuthUrl(url);
 
 			console.log(
-				`🔍 [${flowType.toUpperCase()}-V3] FINAL AUTHORIZATION URL DEBUG:`,
+				` [${flowType.toUpperCase()}-V3] FINAL AUTHORIZATION URL DEBUG:`,
 				{
 					fullUrl: url,
 					authEndpoint: authEndpoint,
@@ -1480,10 +1493,13 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 				},
 			);
 
-			showGlobalSuccess("Authorization URL generated successfully");
+			showGlobalSuccess(
+				"Authorization URL ready",
+				"PingOne authorize endpoint prepared with your parameters.",
+			);
 		} catch (error) {
 			console.error(
-				`❌ [${flowType.toUpperCase()}-V3] Authorization URL generation failed:`,
+				` [${flowType.toUpperCase()}-V3] Authorization URL generation failed:`,
 				error,
 			);
 
@@ -1540,7 +1556,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 			if (popup.closed) {
 				clearInterval(checkClosed);
 				setIsAuthorizing(false);
-				console.log(`🔍 [${flowType.toUpperCase()}-V3] Popup closed`);
+				console.log(` [${flowType.toUpperCase()}-V3] Popup closed`);
 			}
 		}, 1000);
 
@@ -1561,10 +1577,11 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 					clearInterval(checkClosed);
 
 					console.log(
-						`✅ [${flowType.toUpperCase()}-V3] Authorization successful via popup`,
+						` [${flowType.toUpperCase()}-V3] Authorization successful via popup`,
 					);
 					showGlobalSuccess(
-						"Authorization successful! Ready for token exchange.",
+						"Popup complete",
+						"PingOne returned an authorization code. You can now exchange it for tokens.",
 					);
 
 					// Auto-advance to token exchange step
@@ -1593,7 +1610,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 		);
 		const shouldShowModal = globalFlowConfig.showAuthRequestModal === true;
 
-		console.log(`🔍 [${flowType.toUpperCase()}-V3] Modal setting check:`, {
+		console.log(` [${flowType.toUpperCase()}-V3] Modal setting check:`, {
 			shouldShowModal,
 			globalFlowConfig,
 			localFlowConfig: flowConfig,
@@ -1602,14 +1619,14 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 		// Show modal first if enabled in configuration
 		if (shouldShowModal) {
 			console.log(
-				`🔍 [${flowType.toUpperCase()}-V3] Showing OAuth Authorization Request Modal (user preference)`,
+				` [${flowType.toUpperCase()}-V3] Showing OAuth Authorization Request Modal (user preference)`,
 			);
 			setShowAuthRequestModal(true);
 			return;
 		}
 
 		console.log(
-			`🔍 [${flowType.toUpperCase()}-V3] Modal disabled, proceeding directly with authorization (user preference)`,
+			` [${flowType.toUpperCase()}-V3] Modal disabled, proceeding directly with authorization (user preference)`,
 		);
 		// Otherwise proceed directly
 		handlePopupAuthorizationDirect();
@@ -1638,7 +1655,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 		);
 
 		console.log(
-			`🔍 [${flowType.toUpperCase()}-V3] Redirecting to authorization URL`,
+			` [${flowType.toUpperCase()}-V3] Redirecting to authorization URL`,
 		);
 		window.location.href = authUrl;
 	}, [authUrl, credentials.redirectUri, flowType]);
@@ -1654,7 +1671,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 		const shouldShowModal = globalFlowConfig.showAuthRequestModal === true;
 
 		console.log(
-			`🔍 [${flowType.toUpperCase()}-V3] Full redirect modal setting check:`,
+			` [${flowType.toUpperCase()}-V3] Full redirect modal setting check:`,
 			{
 				shouldShowModal,
 				globalFlowConfig,
@@ -1665,14 +1682,14 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 		// Show modal first if enabled in configuration
 		if (shouldShowModal) {
 			console.log(
-				`🔍 [${flowType.toUpperCase()}-V3] Showing OAuth Authorization Request Modal for redirect (user preference)`,
+				` [${flowType.toUpperCase()}-V3] Showing OAuth Authorization Request Modal for redirect (user preference)`,
 			);
 			setShowAuthRequestModal(true);
 			return;
 		}
 
 		console.log(
-			`🔍 [${flowType.toUpperCase()}-V3] Modal disabled, proceeding directly with full redirect (user preference)`,
+			` [${flowType.toUpperCase()}-V3] Modal disabled, proceeding directly with full redirect (user preference)`,
 		);
 		// Otherwise proceed directly
 		handleFullRedirectAuthorizationDirect();
@@ -1681,7 +1698,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 	// Exchange tokens
 	const exchangeTokens = useCallback(async () => {
 		console.log(
-			`🔍 [${flowType.toUpperCase()}-V3] Starting token exchange validation:`,
+			` [${flowType.toUpperCase()}-V3] Starting token exchange validation:`,
 			{
 				hasAuthCode: Boolean(authCode),
 				authCodeLength: authCode?.length || 0,
@@ -1726,7 +1743,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 				credentials.redirectUri;
 
 			console.log(
-				`🔍 [${flowType.toUpperCase()}-V3] COMPREHENSIVE REDIRECT URI DEBUG FOR TOKEN EXCHANGE:`,
+				` [${flowType.toUpperCase()}-V3] COMPREHENSIVE REDIRECT URI DEBUG FOR TOKEN EXCHANGE:`,
 				{
 					credentialsRedirectUri: credentials.redirectUri,
 					storedRedirectUri: storedRedirectUri,
@@ -1764,7 +1781,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 				environment_id: credentials.environmentId, // Add environment_id for backend
 			};
 
-			console.log(`🔍 [${flowType.toUpperCase()}-V3] Original request body:`, {
+			console.log(` [${flowType.toUpperCase()}-V3] Original request body:`, {
 				requestBody,
 				authCode,
 				codeVerifier,
@@ -1786,7 +1803,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 				tokenEndpoint: tokenEndpoint,
 			};
 
-			console.log(`🔍 [${flowType.toUpperCase()}-V3] Exchanging tokens:`, {
+			console.log(` [${flowType.toUpperCase()}-V3] Exchanging tokens:`, {
 				tokenEndpoint,
 				clientId: `${credentials.clientId.substring(0, 8)}...`,
 				hasCodeVerifier: Boolean(codeVerifier),
@@ -1807,7 +1824,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 			};
 
 			console.log(
-				`🔍 [${flowType.toUpperCase()}-V3] Simplified token exchange request:`,
+				` [${flowType.toUpperCase()}-V3] Simplified token exchange request:`,
 				{
 					grant_type: finalRequestBody.grant_type,
 					client_id: finalRequestBody.client_id
@@ -1828,7 +1845,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 
 			// CRITICAL: Show user exactly what redirect URI should be configured in PingOne
 			console.log(
-				`🚨 [${flowType.toUpperCase()}-V3] IMPORTANT - CONFIGURE THIS REDIRECT URI IN PINGONE:`,
+				` [${flowType.toUpperCase()}-V3] IMPORTANT - CONFIGURE THIS REDIRECT URI IN PINGONE:`,
 			);
 			console.log(`   Environment ID: ${finalRequestBody.environment_id}`);
 			console.log(`   Redirect URI: ${finalRequestBody.redirect_uri}`);
@@ -1836,7 +1853,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 				`   PingOne Console: https://console.pingone.com/index.html?env=${finalRequestBody.environment_id}`,
 			);
 			console.log(
-				`   Path: Applications → Your App → Configuration → Redirect URIs → Add: ${finalRequestBody.redirect_uri}`,
+				`   Path: Applications  Your App  Configuration  Redirect URIs  Add: ${finalRequestBody.redirect_uri}`,
 			);
 
 			// CRITICAL: Validate required parameters before sending
@@ -1879,7 +1896,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({
 					errorData.error_description?.includes("redirect URI")
 				) {
 					const helpfulError = `
-🚨 REDIRECT URI MISMATCH ERROR:
+ REDIRECT URI MISMATCH ERROR:
 
 The redirect URI in your token exchange request doesn't match what's configured in PingOne.
 
@@ -1889,7 +1906,7 @@ Current Request:
 
 SOLUTION: Add this redirect URI to your PingOne application:
 1. Go to: https://console.pingone.com/index.html?env=${finalRequestBody.environment_id}
-2. Navigate to: Applications → Your App → Configuration → Redirect URIs
+2. Navigate to: Applications  Your App  Configuration  Redirect URIs
 3. Add this exact URI: ${finalRequestBody.redirect_uri}
 4. Save your configuration
 
@@ -1897,7 +1914,7 @@ Original Error: ${errorData.error_description || errorData.error}
           `.trim();
 
 					console.error(
-						`❌ [${flowType.toUpperCase()}-V3] Redirect URI mismatch error:`,
+						` [${flowType.toUpperCase()}-V3] Redirect URI mismatch error:`,
 						helpfulError,
 					);
 					showGlobalError(helpfulError);
@@ -1912,7 +1929,7 @@ Original Error: ${errorData.error_description || errorData.error}
 			const tokenData = await response.json();
 
 			console.log(
-				`✅ [${flowType.toUpperCase()}-V3] Token exchange successful:`,
+				` [${flowType.toUpperCase()}-V3] Token exchange successful:`,
 				{
 					flowType: flowType.toUpperCase(),
 					hasAccessToken: Boolean(tokenData.access_token),
@@ -1926,7 +1943,7 @@ Original Error: ${errorData.error_description || errorData.error}
 				},
 			);
 
-			console.log(`🔍 [${flowType.toUpperCase()}-V3] Setting tokens state:`, {
+			console.log(` [${flowType.toUpperCase()}-V3] Setting tokens state:`, {
 				tokenData,
 				hasAccessToken: Boolean(tokenData.access_token),
 				hasRefreshToken: Boolean(tokenData.refresh_token),
@@ -1948,7 +1965,7 @@ Original Error: ${errorData.error_description || errorData.error}
 			);
 			if (success) {
 				console.log(
-					`✅ [${flowType.toUpperCase()}-V3] Tokens stored successfully for Token Management page`,
+					` [${flowType.toUpperCase()}-V3] Tokens stored successfully for Token Management page`,
 				);
 			} else {
 				console.warn(
@@ -1974,7 +1991,7 @@ Original Error: ${errorData.error_description || errorData.error}
 			if (flowType === "oidc" && tokenData.id_token) {
 				try {
 					console.log(
-						`🔍 [${flowType.toUpperCase()}-V3] Validating ID token and custom claims...`,
+						` [${flowType.toUpperCase()}-V3] Validating ID token and custom claims...`,
 					);
 
 					// Validate ID token with custom claims
@@ -1988,17 +2005,14 @@ Original Error: ${errorData.error_description || errorData.error}
 						tokenData.access_token,
 					);
 
-					console.log(
-						`✅ [${flowType.toUpperCase()}-V3] ID token validation:`,
-						{
-							isValid: idTokenValidation.isValid,
-							hasCustomClaims:
-								Object.keys(flowConfig.customClaims || {}).length > 0,
-							customClaimsFound: idTokenValidation.customClaimsFound || [],
-							customClaimsValidation:
-								idTokenValidation.customClaimsValidation || {},
-						},
-					);
+					console.log(` [${flowType.toUpperCase()}-V3] ID token validation:`, {
+						isValid: idTokenValidation.isValid,
+						hasCustomClaims:
+							Object.keys(flowConfig.customClaims || {}).length > 0,
+						customClaimsFound: idTokenValidation.customClaimsFound || [],
+						customClaimsValidation:
+							idTokenValidation.customClaimsValidation || {},
+					});
 
 					if (!idTokenValidation.isValid) {
 						console.warn(
@@ -2032,7 +2046,7 @@ Original Error: ${errorData.error_description || errorData.error}
 						const userInfoData = await userInfoResponse.json();
 						setUserInfo(userInfoData);
 						console.log(
-							`✅ [${flowType.toUpperCase()}-V3] User info fetched successfully`,
+							` [${flowType.toUpperCase()}-V3] User info fetched successfully`,
 						);
 					}
 				} catch (userInfoError) {
@@ -2046,12 +2060,15 @@ Original Error: ${errorData.error_description || errorData.error}
 			// Save step result to prevent re-execution
 			const stepResult = { tokens: tokenData, timestamp: Date.now() };
 			console.log(
-				`🔍 [${flowType.toUpperCase()}-V3] Saving step result for exchange-tokens:`,
+				` [${flowType.toUpperCase()}-V3] Saving step result for exchange-tokens:`,
 				stepResult,
 			);
 			saveStepResult("exchange-tokens", stepResult);
 
-			showGlobalSuccess("Token exchange successful!");
+			showGlobalSuccess(
+				"Token exchange successful",
+				"PingOne returned tokens for this authorization code.",
+			);
 
 			// Force a re-render to ensure UI updates
 			setTimeout(() => {
@@ -2062,7 +2079,7 @@ Original Error: ${errorData.error_description || errorData.error}
 			return { success: true, tokens: tokenData, timestamp: Date.now() };
 		} catch (error) {
 			console.error(
-				`❌ [${flowType.toUpperCase()}-V3] Token exchange failed:`,
+				` [${flowType.toUpperCase()}-V3] Token exchange failed:`,
 				error,
 			);
 			showGlobalError(`Token exchange failed: ${error.message}`);
@@ -2097,7 +2114,7 @@ Original Error: ${errorData.error_description || errorData.error}
 					? ["read", "write"]
 					: ["openid", "profile", "email"];
 
-			console.log(`🔍 [${flowType.toUpperCase()}-V3] Saving credentials:`, {
+			console.log(` [${flowType.toUpperCase()}-V3] Saving credentials:`, {
 				environmentId: environmentId,
 				clientId: `${credentials.clientId.substring(0, 8)}...`,
 				redirectUri: credentials.redirectUri,
@@ -2125,29 +2142,35 @@ Original Error: ${errorData.error_description || errorData.error}
 			setHasUnsavedCredentialChanges(false);
 			setOriginalCredentials({ ...credentials });
 			console.log(
-				"✅ [UnifiedAuthorizationCodeFlowV3] Credentials saved, Save button will be disabled",
+				" [UnifiedAuthorizationCodeFlowV3] Credentials saved, Save button will be disabled",
 			);
 
 			// Mark step as completed and advance to next step
 			saveStepResult("setup-credentials", true);
 
-			showGlobalSuccess("Credentials saved successfully");
+			showGlobalSuccess(
+				"Credentials saved",
+				"Flow configuration stored for quick re-use.",
+			);
 
 			// Auto-advance to next step after successful save
 			setTimeout(() => {
 				if (stepManager.isInitialized && stepManager.currentStepIndex === 0) {
 					stepManager.setStep(1, "credentials saved, advancing to PKCE step");
 					console.log(
-						"🔄 [UnifiedAuthorizationCodeFlowV3] Auto-advancing to next step after credential save",
+						" [UnifiedAuthorizationCodeFlowV3] Auto-advancing to next step after credential save",
 					);
 				}
 			}, 1000); // Small delay to show success message
 		} catch (error) {
 			console.error(
-				`❌ [${flowType.toUpperCase()}-V3] Save credentials failed:`,
+				` [${flowType.toUpperCase()}-V3] Save credentials failed:`,
 				error,
 			);
-			showGlobalError("Failed to save credentials");
+			showGlobalError(
+				"Save failed",
+				"We couldn't persist the flow credentials. Please try again.",
+			);
 		} finally {
 			setIsSavingCredentials(false);
 		}
@@ -2163,7 +2186,7 @@ Original Error: ${errorData.error_description || errorData.error}
 	// Handle closing credentials step
 	const handleCloseCredentials = useCallback(() => {
 		console.log(
-			"🔄 [UnifiedAuthorizationCodeFlowV3] Closing credentials step, advancing to next step",
+			" [UnifiedAuthorizationCodeFlowV3] Closing credentials step, advancing to next step",
 		);
 		// Mark step as completed (even though not saved) and advance
 		saveStepResult("setup-credentials", true);
@@ -2186,12 +2209,15 @@ Original Error: ${errorData.error_description || errorData.error}
 			grantType: "authorization_code",
 			issuerUrl: "",
 		});
-		showGlobalSuccess("Credentials cleared successfully");
+		showGlobalSuccess(
+			"Credentials cleared",
+			"Flow settings have been reset to defaults.",
+		);
 	}, [flowType]);
 
 	// Reset flow
 	const resetFlow = useCallback(async () => {
-		console.log(`🔄 [${flowType.toUpperCase()}-V3] Reset flow initiated`);
+		console.log(` [${flowType.toUpperCase()}-V3] Reset flow initiated`);
 
 		setIsResettingFlow(true);
 
@@ -2200,7 +2226,7 @@ Original Error: ${errorData.error_description || errorData.error}
 			await new Promise((resolve) => setTimeout(resolve, 500));
 
 			console.log(
-				`🔍 [${flowType.toUpperCase()}-V3] Current step before reset:`,
+				` [${flowType.toUpperCase()}-V3] Current step before reset:`,
 				stepManager.currentStepIndex,
 			);
 
@@ -2219,7 +2245,7 @@ Original Error: ${errorData.error_description || errorData.error}
 			});
 
 			console.log(
-				`🧹 [${flowType.toUpperCase()}-V3] Cleared shared step state keys:`,
+				` [${flowType.toUpperCase()}-V3] Cleared shared step state keys:`,
 				sharedKeys,
 			);
 
@@ -2251,22 +2277,27 @@ Original Error: ${errorData.error_description || errorData.error}
 			sessionStorage.removeItem("v3_callback_processed"); // Clear callback processing flag
 
 			console.log(
-				`🔍 [${flowType.toUpperCase()}-V3] Cleared session storage, resetting to step 0`,
+				` [${flowType.toUpperCase()}-V3] Cleared session storage, resetting to step 0`,
 			);
 
 			// Reset to first step
 			stepManager.setStep(0);
 
 			console.log(
-				`🔍 [${flowType.toUpperCase()}-V3] Step after reset:`,
+				` [${flowType.toUpperCase()}-V3] Step after reset:`,
 				stepManager.currentStepIndex,
 			);
 
-			showGlobalSuccess(`${flowType.toUpperCase()} flow reset successfully`);
+			showGlobalSuccess(
+				"Flow reset",
+				`Cleared ${flowType.toUpperCase()} state so you can restart from step one.`,
+			);
 
 			// AGGRESSIVE SCROLL TO TOP - try all methods
 			console.log(
-				`📜 [${flowType.toUpperCase()}-V3] AGGRESSIVE SCROLL - position before:`,
+				"[" +
+					flowType.toUpperCase() +
+					"-V3] AGGRESSIVE SCROLL - position before:",
 				window.pageYOffset,
 			);
 
@@ -2303,7 +2334,7 @@ Original Error: ${errorData.error_description || errorData.error}
 				});
 
 				console.log(
-					`📜 [${flowType.toUpperCase()}-V3] Force scrolled all containers`,
+					`[${flowType.toUpperCase()}-V3] Force scrolled all containers`,
 				);
 			};
 
@@ -2316,12 +2347,12 @@ Original Error: ${errorData.error_description || errorData.error}
 			// Final verification
 			setTimeout(() => {
 				console.log(
-					`📜 [${flowType.toUpperCase()}-V3] FINAL scroll position:`,
+					`[${flowType.toUpperCase()}-V3] FINAL scroll position:`,
 					window.pageYOffset,
 				);
 				if (window.pageYOffset > 0) {
 					console.log(
-						`❌ [${flowType.toUpperCase()}-V3] Scroll failed - still at position:`,
+						`[${flowType.toUpperCase()}-V3] Scroll failed - still at position:`,
 						window.pageYOffset,
 					);
 					// One more desperate attempt
@@ -2330,16 +2361,19 @@ Original Error: ${errorData.error_description || errorData.error}
 					document.body.scrollTop = 0;
 				} else {
 					console.log(
-						`✅ [${flowType.toUpperCase()}-V3] Scroll successful - at top!`,
+						`[${flowType.toUpperCase()}-V3] Scroll successful - at top!`,
 					);
 				}
 			}, 1000);
 		} catch (error) {
 			console.error(
-				`❌ [${flowType.toUpperCase()}-V3] Reset flow failed:`,
+				` [${flowType.toUpperCase()}-V3] Reset flow failed:`,
 				error,
 			);
-			showGlobalError("Failed to reset flow");
+			showGlobalError(
+				"Reset failed",
+				"We couldn't clear the flow state. Please try again.",
+			);
 		} finally {
 			setIsResettingFlow(false);
 		}
@@ -2349,7 +2383,7 @@ Original Error: ${errorData.error_description || errorData.error}
 	const navigateToTokenManagement = useCallback(
 		(tokenType: "access" | "refresh" | "id") => {
 			console.log(
-				`🔍 [${flowType.toUpperCase()}-V3] Navigate to token management:`,
+				` [${flowType.toUpperCase()}-V3] Navigate to token management:`,
 				{
 					tokenType,
 					tokens,
@@ -2369,7 +2403,7 @@ Original Error: ${errorData.error_description || errorData.error}
 
 			if (token) {
 				console.log(
-					`✅ [${flowType.toUpperCase()}-V3] Token found, storing for analysis:`,
+					` [${flowType.toUpperCase()}-V3] Token found, storing for analysis:`,
 					{
 						tokenType,
 						tokenLength: token.length,
@@ -2383,12 +2417,12 @@ Original Error: ${errorData.error_description || errorData.error}
 				sessionStorage.setItem("flow_source", `${flowType}-v3`);
 
 				console.log(
-					`🔍 [${flowType.toUpperCase()}-V3] Navigating to token management page...`,
+					` [${flowType.toUpperCase()}-V3] Navigating to token management page...`,
 				);
 				window.location.href = "/token-management";
 			} else {
 				console.error(
-					`❌ [${flowType.toUpperCase()}-V3] No ${tokenType} token available for analysis`,
+					` [${flowType.toUpperCase()}-V3] No ${tokenType} token available for analysis`,
 				);
 				showGlobalError(`No ${tokenType} token available for analysis`);
 			}
@@ -2401,17 +2435,80 @@ Original Error: ${errorData.error_description || errorData.error}
 		if (userInfo) {
 			try {
 				await copyToClipboard(JSON.stringify(userInfo, null, 2));
-				showGlobalSuccess("UserInfo copied to clipboard");
+				showGlobalSuccess(
+					"UserInfo copied",
+					"OIDC user information saved to your clipboard.",
+				);
 			} catch (_error) {
-				showGlobalError("Failed to copy UserInfo");
+				showGlobalError(
+					"Copy failed",
+					"We couldn't copy the PingOne user information to your clipboard.",
+				);
 			}
 		}
 	}, [userInfo]);
 
+	const getUserInfo = useCallback(async () => {
+		if (!tokens?.access_token) {
+			showGlobalError(
+				"No access token available",
+				"Generate tokens before requesting UserInfo.",
+			);
+			return;
+		}
+
+		setIsGettingUserInfo(true);
+		try {
+			const userInfoEndpoint =
+				credentials.userInfoEndpoint ||
+				(credentials.environmentId
+					? `https://auth.pingone.com/${credentials.environmentId}/as/userinfo`
+					: "");
+
+			if (!userInfoEndpoint) {
+				showGlobalError(
+					"UserInfo endpoint missing",
+					"Set an environment ID or explicit UserInfo endpoint to continue.",
+				);
+				return;
+			}
+
+			const response = await fetch(userInfoEndpoint, {
+				headers: {
+					Authorization: `Bearer ${tokens.access_token}`,
+					"Content-Type": "application/json",
+				},
+			});
+
+			if (!response.ok) {
+				const errorText = await response.text();
+				throw new Error(
+					`UserInfo request failed: ${response.status} ${errorText}`,
+				);
+			}
+
+			const userInfoData = await response.json();
+			setUserInfo(userInfoData);
+
+			showGlobalSuccess(
+				"UserInfo Retrieved",
+				"Successfully fetched user information from PingOne.",
+			);
+		} catch (error) {
+			console.error("[OIDC-V3] UserInfo request failed:", error);
+			showGlobalError(
+				"UserInfo Request Failed",
+				error instanceof Error ? error.message : "Unknown error occurred.",
+			);
+		} finally {
+			setIsGettingUserInfo(false);
+		}
+	}, [tokens?.access_token, credentials.userInfoEndpoint, credentials.environmentId]);
+
 	// Create steps based on flow type
 	const steps = React.useMemo(() => {
 		console.log(
-			`🔍 [${flowType.toUpperCase()}-V3] Creating steps with current state:`,
+			` [${flowType.toUpperCase()}-V3] Creating steps with current state:`,
 			{
 				authCode: authCode ? `${authCode.substring(0, 10)}...` : "NONE",
 				hasCredentials: Boolean(
@@ -2435,7 +2532,7 @@ Original Error: ${errorData.error_description || errorData.error}
 
 		if (skipCredentialsStep) {
 			console.log(
-				"⏭ [UnifiedAuthorizationCodeFlowV3] Skipping credentials step (user preference)",
+				" [UnifiedAuthorizationCodeFlowV3] Skipping credentials step (user preference)",
 			);
 		}
 
@@ -2529,7 +2626,7 @@ Original Error: ${errorData.error_description || errorData.error}
 					const canExec = hasAuthCode && hasEnvironmentId && hasClientId;
 
 					console.log(
-						`🔍 [${flowType.toUpperCase()}-V3] Token exchange canExecute check:`,
+						` [${flowType.toUpperCase()}-V3] Token exchange canExecute check:`,
 						{
 							authCode: hasAuthCode
 								? `${authCode.substring(0, 10)}...`
@@ -2554,7 +2651,7 @@ Original Error: ${errorData.error_description || errorData.error}
 					const completed = hasResult || hasTokens;
 
 					console.log(
-						`🔍 [${flowType.toUpperCase()}-V3] Token exchange step completion check:`,
+						` [${flowType.toUpperCase()}-V3] Token exchange step completion check:`,
 						{
 							hasResult,
 							hasTokens,
@@ -2574,12 +2671,12 @@ Original Error: ${errorData.error_description || errorData.error}
 
 		// Add flow-specific final steps
 		console.log(
-			`🔍 [${flowType.toUpperCase()}-V3] Adding flow-specific steps for ${flowType} flow`,
+			` [${flowType.toUpperCase()}-V3] Adding flow-specific steps for ${flowType} flow`,
 		);
 
 		if (flowType === "oidc") {
 			console.log(
-				`✅ [OIDC-V3] Adding OIDC-specific steps: Token Validation with ID Token and UserInfo`,
+				` [OIDC-V3] Adding OIDC-specific steps: Token Validation with ID Token and UserInfo`,
 			);
 			// OIDC flow includes token validation and user info
 			baseSteps.push(
@@ -2630,7 +2727,7 @@ Original Error: ${errorData.error_description || errorData.error}
 								>
 									<FiCheckCircle />
 									<div>
-										<strong>✅ Tokens Received Successfully!</strong>
+										<strong> Tokens Received Successfully!</strong>
 										<br />
 										Access token, ID token, and refresh token are ready for use.
 									</div>
@@ -2653,7 +2750,7 @@ Original Error: ${errorData.error_description || errorData.error}
 								>
 									<FiUser />
 									<div>
-										<strong>👤 User Info Retrieved</strong>
+										<strong> User Info Retrieved</strong>
 										<br />
 										User profile information has been fetched successfully.
 									</div>
@@ -2671,7 +2768,7 @@ Original Error: ${errorData.error_description || errorData.error}
 											fontWeight: "600",
 										}}
 									>
-										🔑 Received Tokens
+										Received Tokens
 									</h4>
 
 									{/* Access Token Display */}
@@ -2714,7 +2811,7 @@ Original Error: ${errorData.error_description || errorData.error}
 											<div
 												style={{
 													background:
-														"linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%)",
+														"#f8fafc",
 													border: "1px solid #86efac",
 													borderRadius: "0.5rem",
 													padding: "0.75rem",
@@ -2775,7 +2872,7 @@ Original Error: ${errorData.error_description || errorData.error}
 											<div
 												style={{
 													background:
-														"linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%)",
+														"#f8fafc",
 													border: "1px solid #86efac",
 													borderRadius: "0.5rem",
 													padding: "0.75rem",
@@ -2866,15 +2963,15 @@ Original Error: ${errorData.error_description || errorData.error}
 								<ActionButton
 									onClick={() => navigateToTokenManagement("access")}
 								>
-									🔍 Decode Access Token
+									Decode Access Token
 								</ActionButton>
 								<ActionButton onClick={() => navigateToTokenManagement("id")}>
-									🔍 Decode ID Token
+									Decode ID Token
 								</ActionButton>
 								<ActionButton
 									onClick={() => navigateToTokenManagement("refresh")}
 								>
-									🔍 Decode Refresh Token
+									Decode Refresh Token
 								</ActionButton>
 							</div>
 
@@ -2908,7 +3005,7 @@ Original Error: ${errorData.error_description || errorData.error}
 											cursor: "pointer",
 										}}
 									>
-										📋 Copy UserInfo
+										Copy UserInfo
 									</button>
 								</div>
 							)}
@@ -2920,15 +3017,15 @@ Original Error: ${errorData.error_description || errorData.error}
 				// Add refresh token step after OIDC token validation
 				{
 					...createRefreshTokenStep(
-						tokens?.refresh_token,
+						tokens?.refresh_token ?? "",
 						newTokensFromRefresh,
 						exchangeRefreshToken,
 						credentials,
+						getUserInfo,
+						navigateToTokenManagement,
+						tokens,
 						isRefreshingTokens,
 						flowType,
-						navigateToTokenManagement,
-						resetFlow,
-						tokens,
 					),
 					canExecute: Boolean(tokens?.refresh_token && !newTokensFromRefresh),
 					completed:
@@ -2939,7 +3036,7 @@ Original Error: ${errorData.error_description || errorData.error}
 			);
 		} else {
 			console.log(
-				`✅ [OAUTH-V3] Adding OAuth-specific steps: Token Analysis (NO ID Token, NO UserInfo)`,
+				` [OAUTH-V3] Adding OAuth-specific steps: Token Analysis (NO ID Token, NO UserInfo)`,
 			);
 			// OAuth flow has simpler final step
 			baseSteps.push(
@@ -2972,7 +3069,7 @@ Original Error: ${errorData.error_description || errorData.error}
 									<div
 										style={{
 											background:
-												"linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)",
+												"#f8fafc",
 											border: "1px solid #2196f3",
 											borderRadius: "8px",
 											padding: "1rem",
@@ -2988,7 +3085,7 @@ Original Error: ${errorData.error_description || errorData.error}
 											}}
 										>
 											<h4 style={{ margin: 0, color: "#1565c0" }}>
-												🔑 Access Token
+												Access Token
 											</h4>
 											<button
 												type="button"
@@ -3003,7 +3100,7 @@ Original Error: ${errorData.error_description || errorData.error}
 													fontSize: "0.875rem",
 												}}
 											>
-												📋 Copy
+												Copy
 											</button>
 										</div>
 										<p
@@ -3036,7 +3133,7 @@ Original Error: ${errorData.error_description || errorData.error}
 										<div
 											style={{
 												background:
-													"linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%)",
+													"#f8fafc",
 												border: "1px solid #4caf50",
 												borderRadius: "8px",
 												padding: "1rem",
@@ -3052,7 +3149,7 @@ Original Error: ${errorData.error_description || errorData.error}
 												}}
 											>
 												<h4 style={{ margin: 0, color: "#2e7d32" }}>
-													🔄 Refresh Token
+													Refresh Token
 												</h4>
 												<button
 													type="button"
@@ -3067,7 +3164,7 @@ Original Error: ${errorData.error_description || errorData.error}
 														fontSize: "0.875rem",
 													}}
 												>
-													📋 Copy
+													Copy
 												</button>
 											</div>
 											<p
@@ -3115,13 +3212,13 @@ Original Error: ${errorData.error_description || errorData.error}
 										<ActionButton
 											onClick={() => navigateToTokenManagement("access")}
 										>
-											🔍 Decode Access Token
+											Decode Access Token
 										</ActionButton>
 										{tokens.refresh_token && (
 											<ActionButton
 												onClick={() => navigateToTokenManagement("refresh")}
 											>
-												🔍 Decode Refresh Token
+												Decode Refresh Token
 											</ActionButton>
 										)}
 
@@ -3133,7 +3230,7 @@ Original Error: ${errorData.error_description || errorData.error}
 												border: "1px solid #f44336",
 											}}
 										>
-											🔄 Restart OAuth Flow
+											Restart OAuth Flow
 										</ActionButton>
 									</div>
 								</div>
@@ -3144,15 +3241,15 @@ Original Error: ${errorData.error_description || errorData.error}
 				// Add refresh token step after OAuth token analysis
 				{
 					...createRefreshTokenStep(
-						tokens?.refresh_token,
+						tokens?.refresh_token ?? "",
 						newTokensFromRefresh,
 						exchangeRefreshToken,
 						credentials,
+						getUserInfo,
+						navigateToTokenManagement,
+						tokens,
 						isRefreshingTokens,
 						flowType,
-						navigateToTokenManagement,
-						resetFlow,
-						tokens,
 					),
 					canExecute: Boolean(tokens?.refresh_token && !newTokensFromRefresh),
 					completed:
@@ -3176,8 +3273,6 @@ Original Error: ${errorData.error_description || errorData.error}
 		tokens?.access_token,
 		tokens?.refresh_token,
 		newTokensFromRefresh,
-		userInfo,
-		isAuthorizing,
 		isExchangingTokens,
 		isRefreshingTokens,
 		flowType,
@@ -3202,34 +3297,67 @@ Original Error: ${errorData.error_description || errorData.error}
 		exchangeRefreshToken,
 		credentials,
 		copyUserInfo,
+		isAuthorizing,
+		userInfo,
 	]);
 
 	const flowTitle =
 		flowType === "oauth"
-			? "🔐 OAuth 2.0 Authorization Code Flow (V3)"
-			: "🚀 OIDC Authorization Code Flow (V3)";
+			? " OAuth 2.0 Authorization Code Flow (V3)"
+			: " OIDC Authorization Code Flow (V3)";
 
 	const flowDescription =
 		flowType === "oauth"
 			? "A pure OAuth 2.0 Authorization Code Flow for resource access. This flow focuses solely on obtaining an Access Token for API access."
-			: "A comprehensive OpenID Connect Authorization Code Flow. This flow provides authentication, authorization, and user profile information.";
+			: "A comprehensive OpenID Connect authorization code journey tailored for apps that require user authentication, profile data, and secure API access.";
+
+	const flowIntroCopy =
+		flowType === "oauth" ? undefined : (
+			<p>
+				The OIDC authorization code flow extends OAuth by returning ID tokens
+				and standard user claims. It is the recommended option for web apps that
+				need to authenticate users, build profiles, and call backend APIs with
+				access tokens.
+			</p>
+		);
+
+	const flowBullets =
+		flowType === "oauth"
+			? [
+					"Focuses on secure API access with authorization codes",
+					"PKCE optional for confidential clients, required for public clients",
+					"Supports state and advanced OAuth parameters",
+				]
+			: [
+					"Handles login, token issuance, and user profile retrieval",
+					"PKCE optional for confidential clients, required for public clients",
+					"Supports state, nonce, and advanced OIDC parameters",
+				];
+
+	const flowWarning =
+		flowType === "oauth"
+			? {
+					title: "Setup Tip",
+					body: "Populate the configuration below before starting the flow. Saved values persist so you can rerun without re-entering credentials.",
+					icon: <FiSettings />,
+				}
+			: {
+					title: "Security Reminder",
+					body: "Validate the state parameter, generate unique nonce values, and safeguard client secrets to maintain OIDC security.",
+					icon: <FiShield />,
+				};
 
 	return (
 		<Container>
-			<HeroSection>
+			<HeroSection $variant={flowType === "oidc" ? "oidc" : "oauth"}>
 				<FlowIntro
 					title={flowTitle}
 					description={flowDescription}
-					bullets={[
-						flowType === "oidc"
-							? "Handles login, token issuance, and user profile retrieval"
-							: "Focuses on secure API access with authorization codes",
-						"PKCE optional for confidential clients, required for public clients",
-						"Supports state, nonce, and advanced OIDC parameters",
-					]}
-					warningTitle="Setup Tip"
-					warningBody="Populate the configuration below before starting the flow. Saved values persist so you can rerun without re-entering credentials."
-					warningIcon={<FiSettings />}
+					introCopy={flowIntroCopy}
+					bullets={flowBullets}
+					warningTitle={flowWarning.title}
+					warningBody={flowWarning.body}
+					warningIcon={flowWarning.icon}
 					illustration={
 						flowType === "oidc"
 							? "/images/flows/oidc-auth-code-flow.svg"
@@ -3285,7 +3413,7 @@ Original Error: ${errorData.error_description || errorData.error}
 										`${flowType}_v3_skip_credentials_step`,
 									);
 									console.log(
-										`🔄 [${flowType.toUpperCase()}-V3] Reset credentials step preference`,
+										` [${flowType.toUpperCase()}-V3] Reset credentials step preference`,
 									);
 									window.location.reload(); // Refresh to show the step
 								}}
@@ -3317,7 +3445,7 @@ Original Error: ${errorData.error_description || errorData.error}
 					allowStepJumping={true}
 					onStepComplete={(stepId, result) => {
 						console.log(
-							`✅ [${flowType.toUpperCase()}-V3] Step completed:`,
+							` [${flowType.toUpperCase()}-V3] Step completed:`,
 							stepId,
 							result,
 						);
@@ -3326,47 +3454,44 @@ Original Error: ${errorData.error_description || errorData.error}
 
 				{/* Flow Control Actions */}
 				<FlowControlSection>
-					<FlowControlTitle>⚙ Flow Control Actions</FlowControlTitle>
+					<FlowControlTitle> Flow Control Actions</FlowControlTitle>
 					<FlowControlButtons>
 						<FlowControlButton className="clear" onClick={clearCredentials}>
-							🧹 Clear Credentials
+							Clear Credentials
 						</FlowControlButton>
 						<FlowControlButton
 							className="debug"
 							onClick={(e) => {
 								e.preventDefault();
 								console.log(
-									"🔍 [DEBUG] Manual credential reload triggered - button clicked!",
+									" [DEBUG] Manual credential reload triggered - button clicked!",
 								);
 								console.log(
-									"🔍 [DEBUG] Current localStorage keys:",
+									" [DEBUG] Current localStorage keys:",
 									Object.keys(localStorage),
 								);
-								console.log(
-									"🔍 [DEBUG] Current credentials state:",
-									credentials,
-								);
-								console.log("🔍 [DEBUG] Flow type:", flowType);
+								console.log(" [DEBUG] Current credentials state:", credentials);
+								console.log(" [DEBUG] Flow type:", flowType);
 
 								// Try to reload credentials
 								const allCredentials =
 									credentialManager.loadAuthzFlowCredentials();
 								console.log(
-									"🔍 [DEBUG] Loaded authz flow credentials:",
+									" [DEBUG] Loaded authz flow credentials:",
 									allCredentials,
 								);
 
 								const configCredentials =
 									credentialManager.loadConfigCredentials();
 								console.log(
-									"🔍 [DEBUG] Loaded config credentials:",
+									" [DEBUG] Loaded config credentials:",
 									configCredentials,
 								);
 
 								const permanentCredentials =
 									credentialManager.loadPermanentCredentials();
 								console.log(
-									"🔍 [DEBUG] Loaded permanent credentials:",
+									" [DEBUG] Loaded permanent credentials:",
 									permanentCredentials,
 								);
 
@@ -3383,7 +3508,7 @@ Original Error: ${errorData.error_description || errorData.error}
 								};
 
 								console.log(
-									"🔍 [COMPREHENSIVE DEBUG] Full application state:",
+									" [COMPREHENSIVE DEBUG] Full application state:",
 									debugInfo,
 								);
 								alert(
@@ -3391,7 +3516,7 @@ Original Error: ${errorData.error_description || errorData.error}
 								);
 							}}
 						>
-							🔍 Debug Credentials
+							Debug Credentials
 						</FlowControlButton>
 						<FlowControlButton
 							className="reset"
@@ -3461,8 +3586,8 @@ Original Error: ${errorData.error_description || errorData.error}
 						{
 							title: "Fix Redirect URI Mismatch",
 							steps: [
-								"Go to PingOne Admin Console → Applications → Your App",
-								"Navigate to Configuration → Redirect URIs",
+								"Go to PingOne Admin Console  Applications  Your App",
+								"Navigate to Configuration  Redirect URIs",
 								`Verify the redirect URI exactly matches: ${getCallbackUrlForFlow("authorization-code")}`,
 								"Check protocol (http vs https) and port number match exactly",
 								"Save changes in PingOne console",
@@ -3532,7 +3657,7 @@ Original Error: ${errorData.error_description || errorData.error}
 						}}
 					>
 						<div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
-							<div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🎉</div>
+							<div style={{ fontSize: "3rem", marginBottom: "1rem" }}></div>
 							<h3 style={{ margin: "0 0 0.5rem 0", color: "#059669" }}>
 								Authentication Successful!
 							</h3>
