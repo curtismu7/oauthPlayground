@@ -1053,15 +1053,75 @@ const AuthorizationCodeFlowV4 = () => {
 					<div>
 						<StepTitle>Authorization Request</StepTitle>
 						
-						<InfoBox type="warning">
+						<InfoBox type="info">
 							<InfoTitle>
 								<FiBook style={{ marginRight: '0.5rem' }} />
-								Step 2: Authorization Request
+								What is an Authorization Request?
 							</InfoTitle>
 							<InfoText>
 								The authorization request is the first step where your application redirects the user 
-								to the authorization server (PingOne) to obtain their consent and authorization.
+								to the authorization server (PingOne) to obtain their consent and authorization. 
+								This is where the user authenticates and grants permission for your application 
+								to access their resources.
 							</InfoText>
+						</InfoBox>
+
+						<InfoBox type="warning">
+							<InfoTitle>
+								<FiBook style={{ marginRight: '0.5rem' }} />
+								Authorization Request Process
+							</InfoTitle>
+							<InfoText>
+								The authorization request follows a specific flow defined in OAuth 2.0 and OpenID Connect:
+							</InfoText>
+							<InfoList>
+								<li><strong>User Initiation:</strong> User clicks a "Login" or "Authorize" button in your application</li>
+								<li><strong>Redirect Construction:</strong> Your app builds the authorization URL with required parameters</li>
+								<li><strong>User Agent Redirect:</strong> Browser redirects user to PingOne authorization server</li>
+								<li><strong>Authentication:</strong> User logs in with their PingOne credentials</li>
+								<li><strong>Consent:</strong> User reviews and grants requested permissions (scopes)</li>
+								<li><strong>Authorization Response:</strong> PingOne redirects back with authorization code or error</li>
+							</InfoList>
+						</InfoBox>
+
+						<InfoBox type="success">
+							<InfoTitle>
+								<FiBook style={{ marginRight: '0.5rem' }} />
+								Required Authorization Parameters
+							</InfoTitle>
+							<InfoText>
+								Every authorization request must include these mandatory parameters:
+							</InfoText>
+							<InfoList>
+								<li><strong>response_type:</strong> Must be "code" for Authorization Code Flow</li>
+								<li><strong>client_id:</strong> Your application's unique identifier from PingOne</li>
+								<li><strong>redirect_uri:</strong> Where PingOne sends the user after authorization</li>
+								<li><strong>scope:</strong> Permissions your application is requesting (e.g., "openid profile email")</li>
+								<li><strong>state:</strong> Random value to prevent CSRF attacks (recommended)</li>
+								<li><strong>code_challenge:</strong> PKCE challenge for additional security</li>
+								<li><strong>code_challenge_method:</strong> Hash method used (typically "S256")</li>
+							</InfoList>
+						</InfoBox>
+
+						<InfoBox type="error">
+							<InfoTitle>
+								<FiBook style={{ marginRight: '0.5rem' }} />
+								PingOne Authorization URL Format
+							</InfoTitle>
+							<InfoText>
+								PingOne uses a specific URL structure for authorization requests:
+							</InfoText>
+							<div style={{ backgroundColor: 'white', padding: '1rem', borderRadius: '0.375rem', border: '1px solid #ef4444', marginTop: '1rem' }}>
+								<h4 style={{ fontWeight: '600', marginBottom: '0.5rem', color: '#991b1b' }}>URL Structure:</h4>
+								<code style={{ display: 'block', fontSize: '0.875rem', color: '#991b1b', wordBreak: 'break-all' }}>
+									https://auth.pingone.com/[environment-id]/as/authorize?response_type=code&client_id=[client-id]&redirect_uri=[redirect-uri]&scope=[scopes]&state=[state]&code_challenge=[challenge]&code_challenge_method=S256
+								</code>
+								<div style={{ marginTop: '0.75rem', fontSize: '0.875rem', color: '#991b1b' }}>
+									<p><strong>Environment ID:</strong> Your PingOne environment identifier</p>
+									<p><strong>Parameters:</strong> All values must be URL-encoded</p>
+									<p><strong>HTTPS Required:</strong> All authorization requests must use secure connections</p>
+								</div>
+							</div>
 						</InfoBox>
 
 						<MainCard>
