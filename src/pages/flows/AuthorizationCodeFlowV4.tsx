@@ -303,6 +303,13 @@ const InfoList = styled.ul`
 	}
 `;
 
+const StepTitle = styled.h2`
+	font-size: 1.5rem;
+	font-weight: bold;
+	color: #111827;
+	margin-bottom: 1.5rem;
+`;
+
 
 interface StepCredentials {
 	environmentId: string;
@@ -706,55 +713,61 @@ const AuthorizationCodeFlowV4 = () => {
 			case 1:
 				return (
 					<div>
-						<h2 className="text-2xl font-bold text-gray-900 mb-6">PKCE Parameters</h2>
+						<StepTitle>PKCE Parameters</StepTitle>
 						
-						<div className="bg-blue-50 p-6 rounded-lg border border-blue-200 mb-6">
-							<h3 className="text-lg font-semibold text-blue-900 mb-3">What is PKCE?</h3>
-							<p className="text-blue-800">
+						<InfoBox type="info">
+							<InfoTitle>
+								<FiBook style={{ marginRight: '0.5rem' }} />
+								What is PKCE?
+							</InfoTitle>
+							<InfoText>
 								PKCE (Proof Key for Code Exchange) is a security extension for OAuth 2.0 that adds 
 								an extra layer of security, especially important for public clients like mobile apps 
 								and SPAs that cannot securely store a client secret.
-							</p>
-						</div>
+							</InfoText>
+						</InfoBox>
 
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-							<div className="bg-white p-6 rounded-lg border border-gray-200">
-								<h4 className="font-semibold mb-4">Code Verifier</h4>
-								<div className="bg-gray-100 p-3 rounded font-mono text-sm break-all mb-3">
+						<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+							<MainCard>
+								<h4 style={{ fontWeight: '600', marginBottom: '1rem', fontSize: '1.125rem' }}>Code Verifier</h4>
+								<div style={{ backgroundColor: '#f3f4f6', padding: '0.75rem', borderRadius: '0.375rem', fontFamily: 'monospace', fontSize: '0.875rem', wordBreak: 'break-all', marginBottom: '0.75rem' }}>
 									{pkceCodes.codeVerifier || "Generating..."}
 								</div>
-								<button
+								<Button
 									onClick={() => handleCopy(pkceCodes.codeVerifier, "Code verifier")}
-									className="flex items-center px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+									variant="primary"
+									size="sm"
 								>
-									<FiCopy className="mr-2" />
+									<FiCopy style={{ marginRight: '0.5rem' }} />
 									Copy
-								</button>
-							</div>
+								</Button>
+							</MainCard>
 
-							<div className="bg-white p-6 rounded-lg border border-gray-200">
-								<h4 className="font-semibold mb-4">Code Challenge</h4>
-								<div className="bg-gray-100 p-3 rounded font-mono text-sm break-all mb-3">
+							<MainCard>
+								<h4 style={{ fontWeight: '600', marginBottom: '1rem', fontSize: '1.125rem' }}>Code Challenge</h4>
+								<div style={{ backgroundColor: '#f3f4f6', padding: '0.75rem', borderRadius: '0.375rem', fontFamily: 'monospace', fontSize: '0.875rem', wordBreak: 'break-all', marginBottom: '0.75rem' }}>
 									{pkceCodes.codeChallenge || "Generating..."}
 								</div>
-								<button
+								<Button
 									onClick={() => handleCopy(pkceCodes.codeChallenge, "Code challenge")}
-									className="flex items-center px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+									variant="primary"
+									size="sm"
 								>
-									<FiCopy className="mr-2" />
+									<FiCopy style={{ marginRight: '0.5rem' }} />
 									Copy
-								</button>
-							</div>
+								</Button>
+							</MainCard>
 						</div>
 
-						<div className="mt-6">
-							<button
+						<div style={{ textAlign: 'center' }}>
+							<Button
 								onClick={handleGeneratePKCE}
-								className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center"
+								variant="success"
+								size="md"
 							>
-								<FiSettings className="mr-2" />
+								<FiSettings style={{ marginRight: '0.5rem' }} />
 								Generate New PKCE Parameters
-							</button>
+							</Button>
 						</div>
 					</div>
 				);
@@ -762,61 +775,54 @@ const AuthorizationCodeFlowV4 = () => {
 			case 2:
 				return (
 					<div>
-						<h2 className="text-2xl font-bold text-gray-900 mb-6">Authorization Request</h2>
+						<StepTitle>Authorization Request</StepTitle>
 						
-						<div className="bg-yellow-50 p-6 rounded-lg border border-yellow-200 mb-6">
-							<h3 className="text-lg font-semibold text-yellow-900 mb-3">Step 2: Authorization Request</h3>
-							<p className="text-yellow-800">
+						<InfoBox type="warning">
+							<InfoTitle>
+								<FiBook style={{ marginRight: '0.5rem' }} />
+								Step 2: Authorization Request
+							</InfoTitle>
+							<InfoText>
 								The authorization request is the first step where your application redirects the user 
 								to the authorization server (PingOne) to obtain their consent and authorization.
-							</p>
-						</div>
+							</InfoText>
+						</InfoBox>
 
-						<div className="bg-white p-6 rounded-lg border border-gray-200 mb-6">
-							<h4 className="font-semibold mb-4">Authorization URL Parameters</h4>
-							<div className="space-y-2 text-sm">
-								<div className="flex justify-between">
-									<span className="font-medium">response_type:</span>
-									<span className="font-mono">code</span>
-								</div>
-								<div className="flex justify-between">
-									<span className="font-medium">client_id:</span>
-									<span className="font-mono">{credentials.clientId}</span>
-								</div>
-								<div className="flex justify-between">
-									<span className="font-medium">redirect_uri:</span>
-									<span className="font-mono">{credentials.redirectUri}</span>
-								</div>
-								<div className="flex justify-between">
-									<span className="font-medium">scope:</span>
-									<span className="font-mono">{credentials.scopes}</span>
-								</div>
-								<div className="flex justify-between">
-									<span className="font-medium">code_challenge:</span>
-									<span className="font-mono">{pkceCodes.codeChallenge}</span>
-								</div>
-								<div className="flex justify-between">
-									<span className="font-medium">code_challenge_method:</span>
-									<span className="font-mono">{pkceCodes.codeChallengeMethod}</span>
-								</div>
+						<MainCard>
+							<h4 style={{ fontWeight: '600', marginBottom: '1rem', fontSize: '1.125rem' }}>Authorization URL Parameters</h4>
+							<div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.5rem', fontSize: '0.875rem' }}>
+								<span style={{ fontWeight: '500' }}>response_type:</span>
+								<span style={{ fontFamily: 'monospace' }}>code</span>
+								<span style={{ fontWeight: '500' }}>client_id:</span>
+								<span style={{ fontFamily: 'monospace' }}>{credentials.clientId}</span>
+								<span style={{ fontWeight: '500' }}>redirect_uri:</span>
+								<span style={{ fontFamily: 'monospace' }}>{credentials.redirectUri}</span>
+								<span style={{ fontWeight: '500' }}>scope:</span>
+								<span style={{ fontFamily: 'monospace' }}>{credentials.scopes}</span>
+								<span style={{ fontWeight: '500' }}>code_challenge:</span>
+								<span style={{ fontFamily: 'monospace' }}>{pkceCodes.codeChallenge}</span>
+								<span style={{ fontWeight: '500' }}>code_challenge_method:</span>
+								<span style={{ fontFamily: 'monospace' }}>{pkceCodes.codeChallengeMethod}</span>
 							</div>
-						</div>
+						</MainCard>
 
-						<div className="flex space-x-4">
-							<button
+						<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+							<Button
 								onClick={handleGenerateAuthUrl}
-								className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
+								variant="primary"
+								size="md"
 							>
-								<FiExternalLink className="mr-2" />
+								<FiExternalLink style={{ marginRight: '0.5rem' }} />
 								Generate Authorization URL
-							</button>
-							<button
+							</Button>
+							<Button
 								onClick={() => showGlobalSuccess("Opening authorization URL in new window...")}
-								className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center"
+								variant="success"
+								size="md"
 							>
-								<FiExternalLink className="mr-2" />
+								<FiExternalLink style={{ marginRight: '0.5rem' }} />
 								Open Authorization URL
-							</button>
+							</Button>
 						</div>
 					</div>
 				);
@@ -824,136 +830,124 @@ const AuthorizationCodeFlowV4 = () => {
 			case 3:
 				return (
 					<div>
-						<h2 className="text-2xl font-bold text-gray-900 mb-6">Authorization Response</h2>
+						<StepTitle>Authorization Response</StepTitle>
 						
-						<div className="bg-green-50 p-6 rounded-lg border border-green-200 mb-6">
-							<h3 className="text-lg font-semibold text-green-900 mb-3">Step 3: Authorization Response</h3>
-							<p className="text-green-800">
+						<InfoBox type="success">
+							<InfoTitle>
+								<FiBook style={{ marginRight: '0.5rem' }} />
+								Step 3: Authorization Response
+							</InfoTitle>
+							<InfoText>
 								After the user grants consent, the authorization server redirects back to your 
 								application with an authorization code.
-							</p>
-						</div>
+							</InfoText>
+						</InfoBox>
 
-						<div className="bg-white p-6 rounded-lg border border-gray-200 mb-6">
-							<h4 className="font-semibold mb-4">Authorization Code</h4>
-							<p className="text-gray-600 mb-4">
+						<MainCard>
+							<h4 style={{ fontWeight: '600', marginBottom: '1rem', fontSize: '1.125rem' }}>Authorization Code</h4>
+							<p style={{ color: '#6b7280', marginBottom: '1rem' }}>
 								Enter the authorization code you received from the redirect:
 							</p>
-							<input
+							<FormInput
 								type="text"
 								value={authCode}
 								onChange={(e) => setAuthCode(e.target.value)}
-								className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
 								placeholder="Enter authorization code here..."
+								style={{ marginBottom: '1rem' }}
 							/>
-							<button
+							<Button
 								onClick={() => handleCopy(authCode, "Authorization code")}
-								className="flex items-center px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+								variant="primary"
+								size="sm"
 							>
-								<FiCopy className="mr-2" />
+								<FiCopy style={{ marginRight: '0.5rem' }} />
 								Copy Code
-							</button>
-						</div>
+							</Button>
+						</MainCard>
 
-						<div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-							<h5 className="font-semibold text-blue-900 mb-2">Important Security Notes:</h5>
-							<ul className="list-disc list-inside space-y-1 text-blue-800 text-sm">
+						<InfoBox type="info">
+							<h5 style={{ fontWeight: '600', marginBottom: '0.5rem', color: '#1e40af' }}>Important Security Notes:</h5>
+							<InfoList>
 								<li>Authorization codes are short-lived (typically 10 minutes)</li>
 								<li>They can only be used once</li>
 								<li>Always validate the state parameter to prevent CSRF attacks</li>
 								<li>The code must be exchanged for tokens immediately</li>
-							</ul>
-						</div>
+							</InfoList>
+						</InfoBox>
 					</div>
 				);
 
 			case 4:
 				return (
 					<div>
-						<h2 className="text-2xl font-bold text-gray-900 mb-6">Token Exchange</h2>
+						<StepTitle>Token Exchange</StepTitle>
 						
-						<div className="bg-purple-50 p-6 rounded-lg border border-purple-200 mb-6">
-							<h3 className="text-lg font-semibold text-purple-900 mb-3">Step 4: Token Exchange</h3>
-							<p className="text-purple-800">
+						<InfoBox type="warning">
+							<InfoTitle>
+								<FiBook style={{ marginRight: '0.5rem' }} />
+								Step 4: Token Exchange
+							</InfoTitle>
+							<InfoText>
 								Exchange the authorization code for access tokens. This is where PKCE provides 
 								additional security by proving that the same client that initiated the flow 
 								is completing it.
-							</p>
-						</div>
+							</InfoText>
+						</InfoBox>
 
-						<div className="bg-white p-6 rounded-lg border border-gray-200 mb-6">
-							<h4 className="font-semibold mb-4">Token Request</h4>
-							<div className="space-y-2 text-sm">
-								<div className="flex justify-between">
-									<span className="font-medium">grant_type:</span>
-									<span className="font-mono">authorization_code</span>
-								</div>
-								<div className="flex justify-between">
-									<span className="font-medium">code:</span>
-									<span className="font-mono">{authCode || "Enter code above"}</span>
-								</div>
-								<div className="flex justify-between">
-									<span className="font-medium">redirect_uri:</span>
-									<span className="font-mono">{credentials.redirectUri}</span>
-								</div>
-								<div className="flex justify-between">
-									<span className="font-medium">client_id:</span>
-									<span className="font-mono">{credentials.clientId}</span>
-								</div>
-								<div className="flex justify-between">
-									<span className="font-medium">code_verifier:</span>
-									<span className="font-mono">{pkceCodes.codeVerifier}</span>
-								</div>
+						<MainCard>
+							<h4 style={{ fontWeight: '600', marginBottom: '1rem', fontSize: '1.125rem' }}>Token Request</h4>
+							<div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.5rem', fontSize: '0.875rem' }}>
+								<span style={{ fontWeight: '500' }}>grant_type:</span>
+								<span style={{ fontFamily: 'monospace' }}>authorization_code</span>
+								<span style={{ fontWeight: '500' }}>code:</span>
+								<span style={{ fontFamily: 'monospace' }}>{authCode || "Enter code above"}</span>
+								<span style={{ fontWeight: '500' }}>redirect_uri:</span>
+								<span style={{ fontFamily: 'monospace' }}>{credentials.redirectUri}</span>
+								<span style={{ fontWeight: '500' }}>client_id:</span>
+								<span style={{ fontFamily: 'monospace' }}>{credentials.clientId}</span>
+								<span style={{ fontWeight: '500' }}>code_verifier:</span>
+								<span style={{ fontFamily: 'monospace' }}>{pkceCodes.codeVerifier}</span>
 							</div>
-						</div>
+						</MainCard>
 
-						<button
-							onClick={handleExchangeTokens}
-							disabled={isLoading || !authCode}
-							className={`px-6 py-3 rounded-lg font-semibold flex items-center ${
-								isLoading || !authCode
-									? 'bg-gray-400 cursor-not-allowed text-white'
-									: 'bg-blue-600 hover:bg-blue-700 text-white'
-							}`}
-						>
-							{isLoading ? (
-								<>
-									<FiLoader className="mr-2 animate-spin" />
-									Exchanging Tokens...
-								</>
-							) : (
-								<>
-									<FiSettings className="mr-2" />
-									Exchange for Tokens
-								</>
-							)}
-						</button>
+						<div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+							<Button
+								onClick={handleExchangeTokens}
+								disabled={isLoading || !authCode}
+								variant="primary"
+								size="lg"
+							>
+								{isLoading ? (
+									<>
+										<FiLoader style={{ marginRight: '0.5rem', animation: 'spin 1s linear infinite' }} />
+										Exchanging Tokens...
+									</>
+								) : (
+									<>
+										<FiSettings style={{ marginRight: '0.5rem' }} />
+										Exchange for Tokens
+									</>
+								)}
+							</Button>
+						</div>
 
 						{tokens && (
-							<div className="mt-6 bg-green-50 p-6 rounded-lg border border-green-200">
-								<h4 className="font-semibold text-green-900 mb-4 flex items-center">
-									<FiCheckCircle className="mr-2" />
+							<InfoBox type="success">
+								<h4 style={{ fontWeight: '600', marginBottom: '1rem', color: '#065f46', display: 'flex', alignItems: 'center' }}>
+									<FiCheckCircle style={{ marginRight: '0.5rem' }} />
 									Tokens Received Successfully!
 								</h4>
-								<div className="space-y-2 text-sm">
-									<div className="flex justify-between">
-										<span className="font-medium">Access Token:</span>
-										<span className="font-mono text-xs">{tokens.access_token.substring(0, 20)}...</span>
-									</div>
-									<div className="flex justify-between">
-										<span className="font-medium">ID Token:</span>
-										<span className="font-mono text-xs">{tokens.id_token.substring(0, 20)}...</span>
-									</div>
-									<div className="flex justify-between">
-										<span className="font-medium">Refresh Token:</span>
-										<span className="font-mono text-xs">{tokens.refresh_token}</span>
-									</div>
-									<div className="flex justify-between">
-										<span className="font-medium">Expires In:</span>
-										<span className="font-mono">{tokens.expires_in} seconds</span>
-									</div>
+								<div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.5rem', fontSize: '0.875rem' }}>
+									<span style={{ fontWeight: '500' }}>Access Token:</span>
+									<span style={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>{tokens.access_token.substring(0, 20)}...</span>
+									<span style={{ fontWeight: '500' }}>ID Token:</span>
+									<span style={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>{tokens.id_token.substring(0, 20)}...</span>
+									<span style={{ fontWeight: '500' }}>Refresh Token:</span>
+									<span style={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>{tokens.refresh_token}</span>
+									<span style={{ fontWeight: '500' }}>Expires In:</span>
+									<span style={{ fontFamily: 'monospace' }}>{tokens.expires_in} seconds</span>
 								</div>
-							</div>
+							</InfoBox>
 						)}
 					</div>
 				);
@@ -961,84 +955,72 @@ const AuthorizationCodeFlowV4 = () => {
 			case 5:
 				return (
 					<div>
-						<h2 className="text-2xl font-bold text-gray-900 mb-6">User Information</h2>
+						<StepTitle>User Information</StepTitle>
 						
-						<div className="bg-indigo-50 p-6 rounded-lg border border-indigo-200 mb-6">
-							<h3 className="text-lg font-semibold text-indigo-900 mb-3">Step 5: Fetch User Information</h3>
-							<p className="text-indigo-800">
+						<InfoBox type="info">
+							<InfoTitle>
+								<FiBook style={{ marginRight: '0.5rem' }} />
+								Step 5: Fetch User Information
+							</InfoTitle>
+							<InfoText>
 								Use the access token to fetch user information from the UserInfo endpoint. 
 								This step is optional but commonly used in OpenID Connect flows.
-							</p>
-						</div>
+							</InfoText>
+						</InfoBox>
 
-						<div className="bg-white p-6 rounded-lg border border-gray-200 mb-6">
-							<h4 className="font-semibold mb-4">UserInfo Request</h4>
-							<div className="space-y-2 text-sm">
-								<div className="flex justify-between">
-									<span className="font-medium">Endpoint:</span>
-									<span className="font-mono">https://auth.pingone.com/{credentials.environmentId}/as/userinfo</span>
-								</div>
-								<div className="flex justify-between">
-									<span className="font-medium">Method:</span>
-									<span className="font-mono">GET</span>
-								</div>
-								<div className="flex justify-between">
-									<span className="font-medium">Authorization:</span>
-									<span className="font-mono">Bearer {tokens?.access_token.substring(0, 20)}...</span>
-								</div>
+						<MainCard>
+							<h4 style={{ fontWeight: '600', marginBottom: '1rem', fontSize: '1.125rem' }}>UserInfo Request</h4>
+							<div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.5rem', fontSize: '0.875rem' }}>
+								<span style={{ fontWeight: '500' }}>Endpoint:</span>
+								<span style={{ fontFamily: 'monospace' }}>https://auth.pingone.com/{credentials.environmentId}/as/userinfo</span>
+								<span style={{ fontWeight: '500' }}>Method:</span>
+								<span style={{ fontFamily: 'monospace' }}>GET</span>
+								<span style={{ fontWeight: '500' }}>Authorization:</span>
+								<span style={{ fontFamily: 'monospace' }}>Bearer {tokens?.access_token.substring(0, 20)}...</span>
 							</div>
-						</div>
+						</MainCard>
 
-						<button
-							onClick={() => {
-								// Simulate user info fetch
-								const mockUserInfo = {
-									sub: "user123",
-									name: "John Doe",
-									email: "john.doe@example.com",
-									given_name: "John",
-									family_name: "Doe",
-									preferred_username: "johndoe"
-								};
-								setUserInfo(mockUserInfo);
-								showGlobalSuccess("User information retrieved successfully!");
-							}}
-							disabled={!tokens}
-							className={`px-6 py-3 rounded-lg font-semibold flex items-center ${
-								!tokens
-									? 'bg-gray-400 cursor-not-allowed text-white'
-									: 'bg-indigo-600 hover:bg-indigo-700 text-white'
-							}`}
-						>
-							<FiExternalLink className="mr-2" />
-							Fetch User Information
-						</button>
+						<div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+							<Button
+								onClick={() => {
+									// Simulate user info fetch
+									const mockUserInfo = {
+										sub: "user123",
+										name: "John Doe",
+										email: "john.doe@example.com",
+										given_name: "John",
+										family_name: "Doe",
+										preferred_username: "johndoe"
+									};
+									setUserInfo(mockUserInfo);
+									showGlobalSuccess("User information retrieved successfully!");
+								}}
+								disabled={!tokens}
+								variant="primary"
+								size="lg"
+							>
+								<FiExternalLink style={{ marginRight: '0.5rem' }} />
+								Fetch User Information
+							</Button>
+						</div>
 
 						{userInfo && (
-							<div className="mt-6 bg-green-50 p-6 rounded-lg border border-green-200">
-								<h4 className="font-semibold text-green-900 mb-4 flex items-center">
-									<FiCheckCircle className="mr-2" />
+							<InfoBox type="success">
+								<h4 style={{ fontWeight: '600', marginBottom: '1rem', color: '#065f46', display: 'flex', alignItems: 'center' }}>
+									<FiCheckCircle style={{ marginRight: '0.5rem' }} />
 									User Information Retrieved
 								</h4>
-								<div className="space-y-2 text-sm">
-									<div className="flex justify-between">
-										<span className="font-medium">Subject:</span>
-										<span className="font-mono">{userInfo.sub}</span>
-									</div>
-									<div className="flex justify-between">
-										<span className="font-medium">Name:</span>
-										<span className="font-mono">{userInfo.name}</span>
-									</div>
-									<div className="flex justify-between">
-										<span className="font-medium">Email:</span>
-										<span className="font-mono">{userInfo.email}</span>
-									</div>
-									<div className="flex justify-between">
-										<span className="font-medium">Username:</span>
-										<span className="font-mono">{userInfo.preferred_username}</span>
-									</div>
+								<div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.5rem', fontSize: '0.875rem' }}>
+									<span style={{ fontWeight: '500' }}>Subject:</span>
+									<span style={{ fontFamily: 'monospace' }}>{userInfo.sub}</span>
+									<span style={{ fontWeight: '500' }}>Name:</span>
+									<span style={{ fontFamily: 'monospace' }}>{userInfo.name}</span>
+									<span style={{ fontWeight: '500' }}>Email:</span>
+									<span style={{ fontFamily: 'monospace' }}>{userInfo.email}</span>
+									<span style={{ fontWeight: '500' }}>Username:</span>
+									<span style={{ fontFamily: 'monospace' }}>{userInfo.preferred_username}</span>
 								</div>
-							</div>
+							</InfoBox>
 						)}
 					</div>
 				);
@@ -1046,71 +1028,71 @@ const AuthorizationCodeFlowV4 = () => {
 			case 6:
 				return (
 					<div>
-						<h2 className="text-2xl font-bold text-gray-900 mb-6">Flow Complete!</h2>
+						<StepTitle>Flow Complete!</StepTitle>
 						
-						<div className="bg-green-50 p-6 rounded-lg border border-green-200 mb-6">
-							<h3 className="text-lg font-semibold text-green-900 mb-3 flex items-center">
-								<FiCheckCircle className="mr-2" />
+						<InfoBox type="success">
+							<InfoTitle>
+								<FiCheckCircle style={{ marginRight: '0.5rem' }} />
 								Authorization Code Flow Completed Successfully
-							</h3>
-							<p className="text-green-800">
+							</InfoTitle>
+							<InfoText>
 								Congratulations! You have successfully completed the Authorization Code Flow with PKCE. 
 								You now have secure access tokens and user information.
-							</p>
-						</div>
+							</InfoText>
+						</InfoBox>
 
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-							<div className="bg-white p-6 rounded-lg border border-gray-200">
-								<h4 className="font-semibold mb-4">Tokens Obtained</h4>
-								<ul className="space-y-2 text-sm">
-									<li className="flex items-center">
-										<FiCheckCircle className="mr-2 text-green-500" />
+						<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+							<MainCard>
+								<h4 style={{ fontWeight: '600', marginBottom: '1rem', fontSize: '1.125rem' }}>Tokens Obtained</h4>
+								<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+									<li style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem', fontSize: '0.875rem' }}>
+										<FiCheckCircle style={{ marginRight: '0.5rem', color: '#10b981' }} />
 										Access Token
 									</li>
-									<li className="flex items-center">
-										<FiCheckCircle className="mr-2 text-green-500" />
+									<li style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem', fontSize: '0.875rem' }}>
+										<FiCheckCircle style={{ marginRight: '0.5rem', color: '#10b981' }} />
 										ID Token (OpenID Connect)
 									</li>
-									<li className="flex items-center">
-										<FiCheckCircle className="mr-2 text-green-500" />
+									<li style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem', fontSize: '0.875rem' }}>
+										<FiCheckCircle style={{ marginRight: '0.5rem', color: '#10b981' }} />
 										Refresh Token
 									</li>
 								</ul>
-							</div>
+							</MainCard>
 
-							<div className="bg-white p-6 rounded-lg border border-gray-200">
-								<h4 className="font-semibold mb-4">Security Features Used</h4>
-								<ul className="space-y-2 text-sm">
-									<li className="flex items-center">
-										<FiCheckCircle className="mr-2 text-green-500" />
+							<MainCard>
+								<h4 style={{ fontWeight: '600', marginBottom: '1rem', fontSize: '1.125rem' }}>Security Features Used</h4>
+								<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+									<li style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem', fontSize: '0.875rem' }}>
+										<FiCheckCircle style={{ marginRight: '0.5rem', color: '#10b981' }} />
 										PKCE (Code Challenge/Verifier)
 									</li>
-									<li className="flex items-center">
-										<FiCheckCircle className="mr-2 text-green-500" />
+									<li style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem', fontSize: '0.875rem' }}>
+										<FiCheckCircle style={{ marginRight: '0.5rem', color: '#10b981' }} />
 										State Parameter
 									</li>
-									<li className="flex items-center">
-										<FiCheckCircle className="mr-2 text-green-500" />
+									<li style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem', fontSize: '0.875rem' }}>
+										<FiCheckCircle style={{ marginRight: '0.5rem', color: '#10b981' }} />
 										Client Authentication
 									</li>
-									<li className="flex items-center">
-										<FiCheckCircle className="mr-2 text-green-500" />
+									<li style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem', fontSize: '0.875rem' }}>
+										<FiCheckCircle style={{ marginRight: '0.5rem', color: '#10b981' }} />
 										HTTPS/TLS
 									</li>
 								</ul>
-							</div>
+							</MainCard>
 						</div>
 
-						<div className="mt-6 bg-blue-50 p-6 rounded-lg border border-blue-200">
-							<h4 className="font-semibold text-blue-900 mb-3">Next Steps</h4>
-							<ul className="list-disc list-inside space-y-1 text-blue-800">
+						<InfoBox type="info">
+							<h4 style={{ fontWeight: '600', marginBottom: '0.75rem', color: '#1e40af' }}>Next Steps</h4>
+							<InfoList>
 								<li>Use the access token to make API calls</li>
 								<li>Store tokens securely (consider refresh token rotation)</li>
 								<li>Implement proper error handling and token refresh</li>
 								<li>Consider implementing logout functionality</li>
 								<li>Review and implement additional security measures</li>
-							</ul>
-						</div>
+							</InfoList>
+						</InfoBox>
 					</div>
 				);
 
