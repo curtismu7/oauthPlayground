@@ -290,7 +290,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       const newState = {
         ...prev,
         // Auto-expand if current route matches
-        oauth: path.startsWith('/flows/') || prev.oauth,
+        oauth: path.startsWith('/flows/') || prev.oauth,,
         oidc: path.startsWith('/oidc') || prev.oidc,
         'pingone-tokens': path.startsWith('/oidc/worker-token') || prev['pingone-tokens'],
         resources: (path.startsWith('/oidc/userinfo') || path.startsWith('/oidc/tokens') || 
