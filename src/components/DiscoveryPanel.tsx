@@ -11,7 +11,11 @@ import {
 	FiX,
 } from "react-icons/fi";
 import styled from "styled-components";
-import { showGlobalError, showGlobalSuccess } from "../hooks/useNotifications";
+import {
+	showGlobalError,
+	showGlobalSuccess,
+	showGlobalWarning,
+} from "../hooks/useNotifications";
 import {
 	discoveryService,
 	type OpenIDConfiguration,
@@ -312,7 +316,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({
 						}
 					} catch (error) {
 						console.log(
-							"🔍 [DiscoveryPanel] Fallback getAllCredentials() failed:",
+							" [DiscoveryPanel] Fallback getAllCredentials() failed:",
 							error,
 						);
 					}
@@ -367,8 +371,8 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({
 		if (!environmentId.trim()) {
 			setStatus({ type: "error", message: "Please enter an Environment ID" });
 			showGlobalError(
-				"❌ Environment ID Required",
-				"Please enter your PingOne Environment ID to discover configuration",
+				"Authorization failed",
+				"Enter your PingOne environment ID to discover configuration.",
 			);
 			return;
 		}
@@ -379,8 +383,8 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({
 				message: "Invalid Environment ID format. Please enter a valid UUID.",
 			});
 			showGlobalError(
-				"❌ Invalid Environment ID",
-				"Please enter a valid UUID format for your PingOne Environment ID",
+				"Authorization failed",
+				"Provide a valid PingOne environment ID (UUID format).",
 			);
 			return;
 		}
@@ -394,6 +398,10 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({
 		setIsLoading(true);
 		setStatus(null);
 		setDiscoveredConfig(null);
+		showGlobalWarning(
+			"Discovery in progress",
+			"Requesting OIDC metadata from PingOne.",
+		);
 
 		try {
 			const result = await discoveryService.discoverConfiguration(
@@ -405,11 +413,11 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({
 				setDiscoveredConfig(result.configuration);
 				setStatus({
 					type: "success",
-					message: `Successfully discovered configuration for environment ${environmentId}`,
+					message: "Configuration discovered successfully",
 				});
 				showGlobalSuccess(
-					"🔍 Configuration Discovered Successfully!",
-					`Found ${Object.keys(result.configuration).length} endpoints for environment ${environmentId}`,
+					"Discovery complete",
+					"PingOne discovery finished. Review the metadata below.",
 				);
 				logger.success(
 					"DiscoveryPanel",
@@ -425,22 +433,22 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({
 					message: result.error || "Failed to discover configuration",
 				});
 				showGlobalError(
-					"❌ Discovery Failed",
+					"Authorization failed",
 					result.error ||
-						"Failed to discover configuration. Please check your Environment ID and try again.",
+						"We couldn't discover configuration. Verify your environment ID and try again.",
 				);
 			}
 		} catch (error) {
+			console.error(" [DiscoveryPanel] Discovery failed:", error);
+			showGlobalError(
+				"Discovery failed",
+				"PingOne discovery was not successful. Check the environment ID and try again.",
+			);
 			setStatus({
 				type: "error",
-				message: error instanceof Error ? error.message : "Discovery failed",
+				message:
+					"Failed to discover configuration. Please verify your Environment ID and try again.",
 			});
-			showGlobalError(
-				"❌ Discovery Error",
-				error instanceof Error
-					? error.message
-					: "Discovery failed. Please check your connection and try again.",
-			);
 		} finally {
 			setIsLoading(false);
 		}
@@ -451,21 +459,21 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({
 			try {
 				onConfigurationDiscovered(discoveredConfig, environmentId);
 				showGlobalSuccess(
-					"✅ Configuration Applied Successfully!",
-					"Your PingOne endpoints have been automatically configured",
+					"Access granted",
+					"PingOne discovery endpoints have been applied to your configuration.",
 				);
 				onClose();
 			} catch (error) {
 				showGlobalError(
-					"❌ Failed to Apply Configuration",
+					" Failed to Apply Configuration",
 					"There was an error applying the discovered configuration. Please try again.",
 				);
 				logger.error("DiscoveryPanel", "Failed to apply configuration", error);
 			}
 		} else {
 			showGlobalError(
-				"❌ No Configuration to Apply",
-				"Please discover configuration first before applying it.",
+				"Authorization failed",
+				"Discover configuration before applying it.",
 			);
 		}
 	};
@@ -474,16 +482,13 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({
 		try {
 			await navigator.clipboard.writeText(text);
 			setCopiedField(field);
-			showGlobalSuccess(
-				`📋 ${field} Copied to Clipboard`,
-				`The ${field} endpoint has been copied successfully`,
-			);
+			showGlobalSuccess("Copied", `${field} endpoint copied to the clipboard.`);
 			setTimeout(() => setCopiedField(null), 2000);
 		} catch (error) {
 			console.error("Failed to copy:", error);
 			showGlobalError(
-				"❌ Copy Failed",
-				`Failed to copy ${field} to clipboard. Please try again.`,
+				"Copy failed",
+				`We couldn't copy the ${field} endpoint. Try again.`,
 			);
 		}
 	};
@@ -689,7 +694,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({
 										onClick={() => {
 											setDiscoveredConfig(null);
 											showGlobalSuccess(
-												"🧹 Configuration Cleared",
+												" Configuration Cleared",
 												"The discovered configuration has been cleared",
 											);
 										}}
@@ -702,7 +707,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({
 									variant="secondary"
 									onClick={() => {
 										showGlobalSuccess(
-											"👋 Discovery Panel Closed",
+											" Discovery Panel Closed",
 											"You can reopen it anytime from the Configuration page",
 										);
 										onClose();

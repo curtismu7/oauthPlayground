@@ -339,7 +339,7 @@ const TokenAnalyticsDashboard: React.FC = () => {
                     {activity.action.replace('_', ' ').toUpperCase()}
                   </ActivityAction>
                   <ActivityDetails>
-                    {activity.flowType} • Token: {activity.tokenId.substring(0, 8)}...
+                    {activity.flowType}  Token: {activity.tokenId.substring(0, 8)}...
                   </ActivityDetails>
                 </ActivityInfo>
                 <ActivityTime>

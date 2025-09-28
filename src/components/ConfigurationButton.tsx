@@ -162,7 +162,7 @@ const ConfigurationButton: React.FC<ConfigurationButtonProps> = ({
             <ModalHeader>
               <ModalTitle>{getFlowSpecificTitle(flowType)}</ModalTitle>
               <CloseButton onClick={() => setShowModal(false)}>
-                ×
+                
               </CloseButton>
             </ModalHeader>
             <ModalBody>

@@ -109,7 +109,7 @@ const FormSelect = styled.select`
 `;
 
 const ParameterBreakdown = styled.div`
-  background: linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%);
+  background: #f8fafc;
   border: 1px solid #d1e7ff;
   padding: 1rem;
   border-radius: 0.5rem;
@@ -146,7 +146,7 @@ const CopyButton = styled.button`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: #f8fafc;
   border: none;
   color: white;
   padding: 0.5rem 1rem;
@@ -158,7 +158,7 @@ const CopyButton = styled.button`
   box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
   
   &:hover {
-    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+    background: #f8fafc;
     box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
     transform: translateY(-1px);
   }
@@ -177,7 +177,7 @@ const CopyButton = styled.button`
 `;
 
 const JsonDisplay = styled.div`
-  background: linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%);
+  background: #f8fafc;
   color: #1f2937;
   border: 1px solid #d1e7ff;
   border-radius: 0.5rem;
@@ -2141,7 +2141,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 						style={{
 							padding: "2rem",
 							borderBottom: "1px solid #e5e7eb",
-							background: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)",
+							background: "#f8fafc",
 						}}
 					>
 						<div

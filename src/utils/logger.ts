@@ -96,7 +96,7 @@ class Logger {
     this.addToHistory('ERROR', component, message, data, error);
     // Log to console
     if (component !== 'CONSOLE') {
-      console.error(`❌ [${component}] ${message}`, data || '', error || '');
+      console.error(` [${component}] ${message}`, data || '', error || '');
     }
   }
 
@@ -104,7 +104,7 @@ class Logger {
     this.addToHistory('WARN', component, message, data);
     // Log to console
     if (component !== 'CONSOLE') {
-      console.warn(`⚠️ [${component}] ${message}`, data || '');
+      console.warn(` [${component}] ${message}`, data || '');
     }
   }
 
@@ -117,7 +117,7 @@ class Logger {
     this.addToHistory('INFO', component, message, data);
     // Log to console
     if (component !== 'CONSOLE') {
-      console.log(`ℹ️ [${component}] ${message}`, data || '');
+      console.log(` [${component}] ${message}`, data || '');
     }
   }
 
@@ -130,7 +130,7 @@ class Logger {
     this.addToHistory('DEBUG', component, message, data);
     // Log to console
     if (component !== 'CONSOLE') {
-      console.debug(`🐛 [${component}] ${message}`, data || '');
+      console.debug(` [${component}] ${message}`, data || '');
     }
   }
 
@@ -138,7 +138,7 @@ class Logger {
     this.addToHistory('SUCCESS', component, message, data);
     // Log to console
     if (component !== 'CONSOLE') {
-      console.log(`✅ [${component}] ${message}`, data || '');
+      console.log(` [${component}] ${message}`, data || '');
     }
   }
 
@@ -146,7 +146,7 @@ class Logger {
     this.addToHistory('FLOW', component, message, data);
     // Log to console
     if (component !== 'CONSOLE') {
-      console.log(`🔄 [${component}] ${message}`, data || '');
+      console.log(` [${component}] ${message}`, data || '');
     }
   }
 
@@ -154,7 +154,7 @@ class Logger {
     this.addToHistory('SECURITY', component, message, data);
     // Log to console
     if (component !== 'CONSOLE') {
-      console.log(`🔐 [${component}] ${message}`, data || '');
+      console.log(` [${component}] ${message}`, data || '');
     }
   }
 
@@ -162,7 +162,7 @@ class Logger {
     this.addToHistory('AUTH', component, message, data);
     // Log to console
     if (component !== 'CONSOLE') {
-      console.log(`🔐 [${component}] ${message}`, data || '');
+      console.log(` [${component}] ${message}`, data || '');
     }
   }
 
@@ -170,7 +170,7 @@ class Logger {
     this.addToHistory('CONFIG', component, message, data);
     // Log to console
     if (component !== 'CONSOLE') {
-      console.log(`⚙️ [${component}] ${message}`, data || '');
+      console.log(` [${component}] ${message}`, data || '');
     }
   }
 
@@ -178,7 +178,7 @@ class Logger {
     this.addToHistory('API', component, message, data);
     // Log to console
     if (component !== 'CONSOLE') {
-      console.log(`🌐 [${component}] ${message}`, data || '');
+      console.log(` [${component}] ${message}`, data || '');
     }
   }
 
@@ -186,7 +186,7 @@ class Logger {
     this.addToHistory('STORAGE', component, message, data);
     // Log to console
     if (component !== 'CONSOLE') {
-      console.log(`💾 [${component}] ${message}`, data || '');
+      console.log(` [${component}] ${message}`, data || '');
     }
   }
 
@@ -194,7 +194,7 @@ class Logger {
     this.addToHistory('UI', component, message, data);
     // Log to console
     if (component !== 'CONSOLE') {
-      console.log(`🎨 [${component}] ${message}`, data || '');
+      console.log(` [${component}] ${message}`, data || '');
     }
   }
 
@@ -202,7 +202,7 @@ class Logger {
     this.addToHistory('DISCOVERY', component, message, data);
     // Log to console
     if (component !== 'CONSOLE') {
-      console.log(`🔍 [${component}] ${message}`, data || '');
+      console.log(` [${component}] ${message}`, data || '');
     }
   }
 

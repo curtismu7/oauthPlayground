@@ -407,7 +407,7 @@ const AppRoutes = () => {
           isOpen={showCredentialModal}
           onClose={handleCredentialSetupComplete}
           onSave={(creds) => {
-            console.log('✅ [AppLazy] Credentials saved from startup modal:', creds);
+            console.log(' [AppLazy] Credentials saved from startup modal:', creds);
             // The modal will auto-close after save
           }}
           flowType="startup"

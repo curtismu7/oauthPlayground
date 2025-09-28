@@ -60,7 +60,7 @@ const DebugCredentials: React.FC = () => {
         const allKeys = Object.keys(localStorage);
         const pingoneKeys = allKeys.filter(key => key.includes('pingone'));
         
-        console.log('🔍 [DebugCredentials] Updating debug info...', { allKeys, pingoneKeys });
+        console.log(' [DebugCredentials] Updating debug info...', { allKeys, pingoneKeys });
         
         const info = {
           allLocalStorageKeys: allKeys,
@@ -82,10 +82,10 @@ const DebugCredentials: React.FC = () => {
           }
         };
         
-        console.log('🔍 [DebugCredentials] Debug info created:', info);
+        console.log(' [DebugCredentials] Debug info created:', info);
         setDebugInfo(info);
       } catch (error) {
-        console.error('❌ [DebugCredentials] Error updating debug info:', error);
+        console.error(' [DebugCredentials] Error updating debug info:', error);
         setDebugInfo({
           allLocalStorageKeys: ['Error loading'],
           pingoneKeys: [],
@@ -119,7 +119,7 @@ const DebugCredentials: React.FC = () => {
   if (!debugInfo) {
     return (
       <DebugContainer>
-        <h3>🔍 Credential Debug Information</h3>
+        <h3> Credential Debug Information</h3>
         <p>Loading debug information...</p>
       </DebugContainer>
     );
@@ -127,7 +127,7 @@ const DebugCredentials: React.FC = () => {
 
   return (
     <DebugContainer>
-      <h3>🔍 Credential Debug Information</h3>
+      <h3> Credential Debug Information</h3>
       
       <DebugSection>
         <h4>All localStorage Keys:</h4>

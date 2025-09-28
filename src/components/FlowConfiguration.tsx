@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import type React from 'react';
+import { useId, useState } from 'react';
 import styled from 'styled-components';
-import { Card, CardHeader, CardBody } from './Card';
-import { FiSettings, FiCopy, FiCheck, FiSave, FiChevronDown, FiChevronRight, FiMinus, FiPlus, FiChevronUp } from 'react-icons/fi';
-import StandardMessage from './StandardMessage';
+import { FiCheck, FiChevronDown, FiChevronRight, FiChevronUp, FiCopy, FiMinus, FiPlus, FiSave, FiSettings } from 'react-icons/fi';
 import { useAccessibility } from '../hooks/useAccessibility';
+import { Card, CardBody, CardHeader } from './Card';
+import StandardMessage from './StandardMessage';
 
 const ConfigContainer = styled.div`
   margin-bottom: 2rem;
@@ -221,24 +222,26 @@ const ScopeContainer = styled.div`
   margin-top: 0.5rem;
 `;
 
-const ScopeChip = styled.div<{ $selected: boolean }>`
+const ScopeChip = styled.div<{ $selected: boolean; $disabled?: boolean }>`
   display: flex;
   align-items: center;
   gap: 0.25rem;
   padding: 0.25rem 0.75rem;
   border-radius: 1rem;
   font-size: 0.8rem;
-  cursor: pointer;
+  cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
   transition: all 0.2s;
-  border: 1px solid ${({ theme, $selected }) => 
+  border: 1px solid ${({ theme, $selected }) =>
     $selected ? theme.colors.primary : theme.colors.gray300};
-  background-color: ${({ theme, $selected }) => 
+  background-color: ${({ theme, $selected }) =>
     $selected ? theme.colors.primary : 'transparent'};
-  color: ${({ theme, $selected }) => 
+  color: ${({ theme, $selected }) =>
     $selected ? 'white' : theme.colors.gray700};
-  
+  opacity: ${({ $disabled }) => ($disabled ? 0.7 : 1)};
+
   &:hover {
-    border-color: ${({ theme }) => theme.colors.primary};
+    border-color: ${({ theme, $disabled }) =>
+      $disabled ? theme.colors.gray300 : theme.colors.primary};
   }
 `;
 
@@ -375,6 +378,18 @@ const defaultAcrValues = [
   'urn:pingone:loa:3'
 ];
 
+const mandatoryScopes = ["openid"];
+
+const ensureMandatoryScopes = (scopes: string[] = []) => {
+  const sanitized = scopes.filter(Boolean);
+  mandatoryScopes.forEach((requiredScope) => {
+    if (!sanitized.includes(requiredScope)) {
+      sanitized.unshift(requiredScope);
+    }
+  });
+  return sanitized;
+};
+
 export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
   config,
   onConfigChange,
@@ -389,56 +404,77 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [isExpanded, setIsExpanded] = useState(initialExpanded);
   const { announce } = useAccessibility();
+  const responseTypeId = useId();
+  const responseHelpId = useId();
+  const grantTypeId = useId();
+  const grantHelpId = useId();
+  const scopesHelpId = useId();
+  const codeChallengeId = useId();
+  const nonceId = useId();
+  const stateId = useId();
+  const maxAgeId = useId();
+  const promptId = useId();
+  const loginHintId = useId();
+  const acrId = useId();
+  const clientAuthId = useId();
 
-  const updateConfig = (updates: Partial<FlowConfig>) => {
-    onConfigChange({ ...config, ...updates });
+  const normalizedConfig = {
+    ...config,
+    scopes: ensureMandatoryScopes(config.scopes),
   };
 
+  const updateConfig = (updates: Partial<FlowConfig>) => {
+    onConfigChange({ ...config, ...updates, scopes: ensureMandatoryScopes(updates.scopes ?? config.scopes) });
+  };
+
+  const isMandatoryScope = (scope: string) => mandatoryScopes.includes(scope);
+
   const toggleScope = (scope: string) => {
-    const newScopes = config.scopes.includes(scope)
-      ? config.scopes.filter(s => s !== scope)
-      : [...config.scopes, scope];
-    updateConfig({ scopes: newScopes });
-    announce(`${scope} scope ${config.scopes.includes(scope) ? 'removed' : 'added'}`);
+    if (isMandatoryScope(scope)) {
+      return;
+    }
+
+    const newScopes = normalizedConfig.scopes.includes(scope)
+      ? normalizedConfig.scopes.filter((s) => s !== scope)
+      : [...normalizedConfig.scopes, scope];
+
+    onConfigChange({ ...normalizedConfig, scopes: newScopes });
+    announce(`${scope} scope ${normalizedConfig.scopes.includes(scope) ? "removed" : "added"}`);
   };
 
   const addCustomParam = () => {
-    const newParams = { ...config.customParams, '': '' };
+    const newParams = { ...normalizedConfig.customParams, "": "" };
     updateConfig({ customParams: newParams });
   };
 
   const updateCustomParam = (oldKey: string, newKey: string, value: string) => {
-    const newParams = { ...config.customParams };
+    const newParams = { ...normalizedConfig.customParams };
     if (oldKey !== newKey) {
       delete newParams[oldKey];
     }
-    if (newKey && value) {
-      newParams[newKey] = value;
-    } else if (newKey) {
+    if (newKey) {
       newParams[newKey] = value;
     }
     updateConfig({ customParams: newParams });
   };
 
   const removeCustomParam = (key: string) => {
-    const newParams = { ...config.customParams };
+    const newParams = { ...normalizedConfig.customParams };
     delete newParams[key];
     updateConfig({ customParams: newParams });
   };
 
   const addCustomClaim = () => {
-    const newClaims = { ...config.customClaims, '': '' };
+    const newClaims = { ...normalizedConfig.customClaims, "": "" };
     updateConfig({ customClaims: newClaims });
   };
 
   const updateCustomClaim = (oldKey: string, newKey: string, value: string) => {
-    const newClaims = { ...config.customClaims };
+    const newClaims = { ...normalizedConfig.customClaims };
     if (oldKey !== newKey) {
       delete newClaims[oldKey];
     }
-    if (newKey && value) {
-      newClaims[newKey] = value;
-    } else if (newKey) {
+    if (newKey) {
       newClaims[newKey] = value;
     }
     updateConfig({ customClaims: newClaims });
@@ -447,7 +483,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
   const updateCustomClaimKey = (oldKey: string, newKey: string) => {
     if (oldKey === newKey) return;
     
-    const newClaims = { ...config.customClaims };
+    const newClaims = { ...normalizedConfig.customClaims };
     const value = newClaims[oldKey];
     
     if (value !== undefined) {
@@ -460,7 +496,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
   };
 
   const removeCustomClaim = (key: string) => {
-    const newClaims = { ...config.customClaims };
+    const newClaims = { ...normalizedConfig.customClaims };
     delete newClaims[key];
     updateConfig({ customClaims: newClaims });
   };
@@ -554,12 +590,12 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
             </h4>
             <ConfigGrid>
               <ConfigField>
-                <label htmlFor="response-type-select">Response Type</label>
+                <label htmlFor={responseTypeId}>Response Type</label>
                 <select
-                  id="response-type-select"
-                  value={config.responseType}
+                  id={responseTypeId}
+                  value={normalizedConfig.responseType}
                   onChange={(e) => updateConfig({ responseType: e.target.value })}
-                  aria-describedby="response-type-help"
+                  aria-describedby={responseHelpId}
                 >
                   <option value="code">code (Authorization Code)</option>
                   <option value="token">token (Implicit)</option>
@@ -567,18 +603,18 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
                   <option value="code token">code token (Hybrid)</option>
                   <option value="code id_token">code id_token (Hybrid)</option>
                 </select>
-                <div id="response-type-help" className="sr-only">
+                <div id={responseHelpId} className="sr-only">
                   Select the OAuth response type for this flow
                 </div>
               </ConfigField>
               
               <ConfigField>
-                <label htmlFor="grant-type-select">Grant Type</label>
+                <label htmlFor={grantTypeId}>Grant Type</label>
                 <select
-                  id="grant-type-select"
-                  value={config.grantType}
+                  id={grantTypeId}
+                  value={normalizedConfig.grantType}
                   onChange={(e) => updateConfig({ grantType: e.target.value })}
-                  aria-describedby="grant-type-help"
+                  aria-describedby={grantHelpId}
                 >
                   <option value="authorization_code">authorization_code</option>
                   <option value="implicit">implicit</option>
@@ -587,7 +623,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
                   <option value="refresh_token">refresh_token</option>
                   <option value="urn:ietf:params:oauth:grant-type:device_code">device_code</option>
                 </select>
-                <div id="grant-type-help" className="sr-only">
+                <div id={grantHelpId} className="sr-only">
                   Select the OAuth grant type for this flow
                 </div>
               </ConfigField>
@@ -600,29 +636,47 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
             <ScopeContainer 
               role="group" 
               aria-label="OAuth scopes selection"
-              aria-describedby="scopes-help"
+              aria-describedby={scopesHelpId}
             >
-              {availableScopes.map(scope => (
-                <ScopeChip
-                  key={scope}
-                  $selected={config.scopes.includes(scope)}
-                  onClick={() => toggleScope(scope)}
-                  role="checkbox"
-                  aria-checked={config.scopes.includes(scope)}
-                  aria-label={`${scope} scope`}
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      toggleScope(scope);
-                    }
-                  }}
-                >
-                  {scope}
-                </ScopeChip>
-              ))}
+              {availableScopes.map((scope) => {
+                const isMandatory = isMandatoryScope(scope);
+                const isSelected = normalizedConfig.scopes.includes(scope);
+                return (
+                  <ScopeChip
+                    key={scope}
+                    $selected={isSelected}
+                    $disabled={isMandatory}
+                    onClick={() => toggleScope(scope)}
+                    role="checkbox"
+                    aria-checked={isSelected}
+                    aria-label={`${scope} scope`}
+                    tabIndex={isMandatory ? -1 : 0}
+                    onKeyDown={(e) => {
+                      if (isMandatory) {
+                        return;
+                      }
+
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleScope(scope);
+                      }
+                    }}
+                    title={isMandatory ? 'PingOne requires openid' : undefined}
+                  >
+                    {scope}
+                    {isMandatory && (
+                      <span
+                        style={{ fontStyle: 'italic', fontSize: '0.7rem' }}
+                        aria-hidden="true"
+                      >
+                        required
+                      </span>
+                    )}
+                  </ScopeChip>
+                );
+              })}
             </ScopeContainer>
-            <div id="scopes-help" className="sr-only">
+            <div id={scopesHelpId} className="sr-only">
               Select the OAuth scopes for this flow. Use Enter or Space to toggle selection.
             </div>
           </ConfigSection>
@@ -634,19 +688,29 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
               <ConfigGrid>
                 <ToggleContainer>
                   <div
-                    className={`toggle-switch ${config.enablePKCE ? 'active' : ''}`}
-                    onClick={() => updateConfig({ enablePKCE: !config.enablePKCE })}
+                    role="switch"
+                    aria-checked={normalizedConfig.enablePKCE}
+                    className={`toggle-switch ${normalizedConfig.enablePKCE ? 'active' : ''}`}
+                    tabIndex={0}
+                    onClick={() => updateConfig({ enablePKCE: !normalizedConfig.enablePKCE })}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        updateConfig({ enablePKCE: !normalizedConfig.enablePKCE });
+                      }
+                    }}
                   >
-                    <div className={`toggle-slider ${config.enablePKCE ? 'active' : ''}`} />
+                    <div className={`toggle-slider ${normalizedConfig.enablePKCE ? 'active' : ''}`} />
                   </div>
                   <span className="toggle-label">Enable PKCE</span>
                 </ToggleContainer>
                 
-                {config.enablePKCE && (
+                {normalizedConfig.enablePKCE && (
                   <ConfigField>
-                    <label>Code Challenge Method</label>
+                    <label htmlFor={codeChallengeId}>Code Challenge Method</label>
                     <select
-                      value={config.codeChallengeMethod}
+                      id={codeChallengeId}
+                      value={normalizedConfig.codeChallengeMethod}
                       onChange={(e) => updateConfig({ 
                         codeChallengeMethod: e.target.value as 'S256' | 'plain' 
                       })}
@@ -661,16 +725,17 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
           )}
 
           {/* OIDC Settings */}
-          {config.enableOIDC && (
+          {normalizedConfig.enableOIDC && (
             <ConfigSection>
               <h4>OpenID Connect Settings</h4>
               <ConfigGrid>
                 <ConfigField>
-                  <label>Nonce</label>
+                  <label htmlFor={nonceId}>Nonce</label>
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
                     <input
                       type="text"
-                      value={config.nonce}
+                      id={nonceId}
+                      value={normalizedConfig.nonce}
                       onChange={(e) => updateConfig({ nonce: e.target.value })}
                       placeholder="Random string for replay protection"
                     />
@@ -679,11 +744,12 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
                 </ConfigField>
                 
                 <ConfigField>
-                  <label>State</label>
+                  <label htmlFor={stateId}>State</label>
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
                     <input
                       type="text"
-                      value={config.state}
+                      id={stateId}
+                      value={normalizedConfig.state}
                       onChange={(e) => updateConfig({ state: e.target.value })}
                       placeholder="Random string for CSRF protection"
                     />
@@ -692,19 +758,21 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
                 </ConfigField>
                 
                 <ConfigField>
-                  <label>Max Age (seconds)</label>
+                  <label htmlFor={maxAgeId}>Max Age (seconds)</label>
                   <input
                     type="number"
-                    value={config.maxAge}
-                    onChange={(e) => updateConfig({ maxAge: parseInt(e.target.value) || 0 })}
+                    id={maxAgeId}
+                    value={normalizedConfig.maxAge}
+                    onChange={(e) => updateConfig({ maxAge: parseInt(e.target.value, 10) || 0 })}
                     placeholder="0 = no limit"
                   />
                 </ConfigField>
                 
                 <ConfigField>
-                  <label>Prompt</label>
+                  <label htmlFor={promptId}>Prompt</label>
                   <select
-                    value={config.prompt}
+                    id={promptId}
+                    value={normalizedConfig.prompt}
                     onChange={(e) => updateConfig({ prompt: e.target.value })}
                   >
                     <option value="">None (default)</option>
@@ -715,20 +783,22 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
                 </ConfigField>
                 
                 <ConfigField>
-                  <label>Login Hint</label>
+                  <label htmlFor={loginHintId}>Login Hint</label>
                   <input
                     type="text"
-                    value={config.loginHint}
+                    id={loginHintId}
+                    value={normalizedConfig.loginHint}
                     onChange={(e) => updateConfig({ loginHint: e.target.value })}
                     placeholder="username@domain.com"
                   />
                 </ConfigField>
                 
                 <ConfigField>
-                  <label>ACR Values</label>
+                  <label htmlFor={acrId}>ACR Values</label>
                   <select
                     multiple
-                    value={config.acrValues}
+                    id={acrId}
+                    value={normalizedConfig.acrValues}
                     onChange={(e) => {
                       const selected = Array.from(e.target.selectedOptions, option => option.value);
                       // Filter out any invalid ACR values (empty strings, single digits, etc.)
@@ -760,9 +830,10 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
               Choose how the client authenticates with the authorization server during token exchange.
             </p>
             <ConfigField>
-              <label>Authentication Method</label>
+              <label htmlFor={clientAuthId}>Authentication Method</label>
               <select
-                value={config.clientAuthMethod}
+                id={clientAuthId}
+                value={normalizedConfig.clientAuthMethod}
                 onChange={(e) => updateConfig({ clientAuthMethod: e.target.value as FlowConfig['clientAuthMethod'] })}
               >
                 <option value="client_secret_post">client_secret_post (Secret in POST body) - Current</option>
@@ -772,11 +843,11 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
                 <option value="none">none (Public client, PKCE required) - For SPAs/Mobile</option>
               </select>
               <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.5rem' }}>
-                {config.clientAuthMethod === 'client_secret_post' && '📤 Client secret sent in request body (current implementation)'}
-                {config.clientAuthMethod === 'client_secret_basic' && '🔐 Client secret sent via HTTP Basic Authentication header'}
-                {config.clientAuthMethod === 'client_secret_jwt' && '🏆 Client creates JWT signed with client secret (HS256)'}
-                {config.clientAuthMethod === 'private_key_jwt' && '🔒 Client creates JWT signed with private key (RS256) - Enterprise grade'}
-                {config.clientAuthMethod === 'none' && '⚠️ No client authentication - PKCE required for security'}
+                {normalizedConfig.clientAuthMethod === 'client_secret_post' && ' Client secret sent in request body (current implementation)'}
+                {normalizedConfig.clientAuthMethod === 'client_secret_basic' && ' Client secret sent via HTTP Basic Authentication header'}
+                {normalizedConfig.clientAuthMethod === 'client_secret_jwt' && ' Client creates JWT signed with client secret (HS256)'}
+                {normalizedConfig.clientAuthMethod === 'private_key_jwt' && ' Client creates JWT signed with private key (RS256) - Enterprise grade'}
+                {normalizedConfig.clientAuthMethod === 'none' && ' No client authentication - PKCE required for security'}
               </div>
             </ConfigField>
           </ConfigSection>
@@ -785,7 +856,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
           <ConfigSection>
             <h4>Custom Parameters</h4>
             <CustomClaimContainer>
-              {Object.entries(config.customParams).map(([key, value], index) => (
+              {Object.entries(normalizedConfig.customParams).map(([key, value], index) => (
                 <ClaimRow key={`param-${index}`}>
                   <input
                     type="text"
@@ -809,11 +880,11 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
           </ConfigSection>
 
           {/* Custom Claims for ID Tokens */}
-          {config.enableOIDC && (
+          {normalizedConfig.enableOIDC && (
             <ConfigSection>
               <h4>Custom Claims for ID Token</h4>
               <CustomClaimContainer>
-                {Object.entries(config.customClaims).map(([key, value], index) => (
+                {Object.entries(normalizedConfig.customClaims).map(([key, value], index) => (
                   <ClaimRow key={`claim-${index}`}>
                     <input
                       type="text"
@@ -844,7 +915,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
                 <input
                   type="checkbox"
-                  checked={config.showCredentialsModal}
+                  checked={normalizedConfig.showCredentialsModal}
                   onChange={(e) => updateConfig({ showCredentialsModal: e.target.checked })}
                   aria-describedby="credentials-modal-help"
                 />
@@ -859,7 +930,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
                 <input
                   type="checkbox"
-                  checked={config.showSuccessModal}
+                  checked={normalizedConfig.showSuccessModal}
                   onChange={(e) => updateConfig({ showSuccessModal: e.target.checked })}
                   aria-describedby="success-modal-help"
                 />
@@ -874,7 +945,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
                 <input
                   type="checkbox"
-                  checked={config.enableErrorRecovery || true}
+                  checked={normalizedConfig.enableErrorRecovery || true}
                   onChange={(e) => updateConfig({ enableErrorRecovery: e.target.checked })}
                   aria-describedby="error-recovery-help"
                 />
@@ -889,7 +960,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
                 <input
                   type="checkbox"
-                  checked={config.showAuthCodeInModal}
+                  checked={normalizedConfig.showAuthCodeInModal}
                   onChange={(e) => updateConfig({ showAuthCodeInModal: e.target.checked })}
                   aria-describedby="auth-code-display-help"
                 />
@@ -904,7 +975,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
                 <input
                   type="checkbox"
-                  checked={config.showAuthRequestModal || false}
+                  checked={normalizedConfig.showAuthRequestModal || false}
                   onChange={(e) => updateConfig({ showAuthRequestModal: e.target.checked })}
                   aria-describedby="auth-request-modal-help"
                 />
@@ -929,67 +1000,67 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
               position: 'relative'
             }}>
               <div style={{ marginBottom: '0.5rem' }}>
-                <strong>Scopes:</strong> {config.scopes.join(' ')}
+                <strong>Scopes:</strong> {normalizedConfig.scopes.join(' ')}
                 <CopyButton
                   $copied={copiedField === 'scopes'}
-                  onClick={() => copyToClipboard(config.scopes.join(' '), 'scopes')}
+                  onClick={() => copyToClipboard(normalizedConfig.scopes.join(' '), 'scopes')}
                 >
                   {copiedField === 'scopes' ? <FiCheck /> : <FiCopy />}
                   {copiedField === 'scopes' ? 'Copied!' : 'Copy'}
                 </CopyButton>
               </div>
               
-              {config.enablePKCE && (
+              {normalizedConfig.enablePKCE && (
                 <div style={{ marginBottom: '0.5rem' }}>
-                  <strong>PKCE:</strong> Enabled ({config.codeChallengeMethod})
+                  <strong>PKCE:</strong> Enabled ({normalizedConfig.codeChallengeMethod})
                 </div>
               )}
               
-              {config.enableOIDC && (
+              {normalizedConfig.enableOIDC && (
                 <div style={{ marginBottom: '0.5rem' }}>
-                  <strong>OIDC:</strong> Nonce: {config.nonce ? `${config.nonce.substring(0, 10)}...` : 'none'}, <strong>State:</strong> {config.state ? `${config.state.substring(0, 10)}...` : 'none'}
+                  <strong>OIDC:</strong> Nonce: {normalizedConfig.nonce ? `${normalizedConfig.nonce.substring(0, 10)}...` : 'none'}, <strong>State:</strong> {normalizedConfig.state ? `${normalizedConfig.state.substring(0, 10)}...` : 'none'}
                 </div>
               )}
               
-              {config.maxAge > 0 && (
+              {normalizedConfig.maxAge > 0 && (
                 <div style={{ marginBottom: '0.5rem' }}>
-                  <strong>Max Age:</strong> {config.maxAge} seconds
+                  <strong>Max Age:</strong> {normalizedConfig.maxAge} seconds
                 </div>
               )}
               
-              {config.prompt && config.prompt !== '' && (
+              {normalizedConfig.prompt && normalizedConfig.prompt !== '' && (
                 <div style={{ marginBottom: '0.5rem' }}>
-                  <strong>Prompt:</strong> {config.prompt}
+                  <strong>Prompt:</strong> {normalizedConfig.prompt}
                 </div>
               )}
               
-              {config.loginHint && config.loginHint !== '' && (
+              {normalizedConfig.loginHint && normalizedConfig.loginHint !== '' && (
                 <div style={{ marginBottom: '0.5rem' }}>
-                  <strong>Login Hint:</strong> {config.loginHint}
+                  <strong>Login Hint:</strong> {normalizedConfig.loginHint}
                 </div>
               )}
               
-              {config.acrValues && config.acrValues.length > 0 && (
+              {normalizedConfig.acrValues && normalizedConfig.acrValues.length > 0 && (
                 <div style={{ marginBottom: '0.5rem' }}>
-                  <strong>ACR Values:</strong> {config.acrValues.join(', ')}
+                  <strong>ACR Values:</strong> {normalizedConfig.acrValues.join(', ')}
                 </div>
               )}
               
-              {config.clientAuthMethod && config.clientAuthMethod !== 'client_secret_post' && (
+              {normalizedConfig.clientAuthMethod && normalizedConfig.clientAuthMethod !== 'client_secret_post' && (
                 <div style={{ marginBottom: '0.5rem' }}>
-                  <strong>Client Auth:</strong> {config.clientAuthMethod}
+                  <strong>Client Auth:</strong> {normalizedConfig.clientAuthMethod}
                 </div>
               )}
               
-              {Object.keys(config.customParams).length > 0 && (
+              {Object.keys(normalizedConfig.customParams).length > 0 && (
                 <div style={{ marginBottom: '0.5rem' }}>
-                  <strong>Custom Params:</strong> {Object.entries(config.customParams).map(([k, v]) => `${k}=${v}`).join(', ')}
+                  <strong>Custom Params:</strong> {Object.entries(normalizedConfig.customParams).map(([k, v]) => `${k}=${v}`).join(', ')}
                 </div>
               )}
               
-              {config.enableOIDC && Object.keys(config.customClaims).length > 0 && (
+              {normalizedConfig.enableOIDC && Object.keys(normalizedConfig.customClaims).length > 0 && (
                 <div style={{ marginBottom: '0.5rem' }}>
-                  <strong>Custom Claims:</strong> {Object.entries(config.customClaims).map(([k, v]) => `${k}=${v}`).join(', ')}
+                  <strong>Custom Claims:</strong> {Object.entries(normalizedConfig.customClaims).map(([k, v]) => `${k}=${v}`).join(', ')}
                 </div>
               )}
               
@@ -1002,12 +1073,12 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
                 color: '#6b7280'
               }}>
                 <strong style={{ color: '#374151' }}>UI Settings:</strong>
-                {config.showSuccessModal && ' Success Modal'}
-                {config.showAuthCodeInModal && ' • Auth Code in Modal'}
-                {config.showCredentialsModal && ' • Credentials Modal'}
-                {config.enableErrorRecovery && ' • Error Recovery'}
-                {config.showAuthRequestModal && ' • Auth Request Modal'}
-                {!config.showSuccessModal && !config.showAuthCodeInModal && !config.showCredentialsModal && !config.enableErrorRecovery && !config.showAuthRequestModal && ' None enabled'}
+                {normalizedConfig.showSuccessModal && ' Success Modal'}
+                {normalizedConfig.showAuthCodeInModal && '  Auth Code in Modal'}
+                {normalizedConfig.showCredentialsModal && '  Credentials Modal'}
+                {normalizedConfig.enableErrorRecovery && '  Error Recovery'}
+                {normalizedConfig.showAuthRequestModal && '  Auth Request Modal'}
+                {!normalizedConfig.showSuccessModal && !normalizedConfig.showAuthCodeInModal && !normalizedConfig.showCredentialsModal && !normalizedConfig.enableErrorRecovery && !normalizedConfig.showAuthRequestModal && ' None enabled'}
               </div>
             </div>
           </ConfigSection>

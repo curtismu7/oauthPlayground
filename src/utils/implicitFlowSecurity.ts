@@ -34,7 +34,7 @@ export async function validateIdToken(
   options: ImplicitFlowSecurityOptions
 ): Promise<TokenValidationResult> {
   try {
-    console.log('🔐 [ImplicitFlowSecurity] Starting ID token validation...');
+    console.log(' [ImplicitFlowSecurity] Starting ID token validation...');
     logger.security('ImplicitFlowSecurity', 'Starting ID token validation', {
       environmentId: options.environmentId,
       clientId: options.clientId,
@@ -52,7 +52,7 @@ export async function validateIdToken(
     }
 
     const config = discoveryResult.configuration;
-    console.log('✅ [ImplicitFlowSecurity] OpenID configuration discovered:', {
+    console.log(' [ImplicitFlowSecurity] OpenID configuration discovered:', {
       issuer: config.issuer,
       jwksUri: config.jwks_uri
     });
@@ -66,7 +66,7 @@ export async function validateIdToken(
     const expectedIssuerWithAs = expectedIssuer.endsWith('/as') ? expectedIssuer : `${expectedIssuer}/as`;
     const expectedIssuerBase = expectedIssuer.endsWith('/as') ? expectedIssuer.replace('/as', '') : expectedIssuer;
     
-    console.log('🔍 [ImplicitFlowSecurity] Issuer validation options:', {
+    console.log(' [ImplicitFlowSecurity] Issuer validation options:', {
       expectedBase: expectedIssuerBase,
       expectedWithAs: expectedIssuerWithAs,
       configIssuer: config.issuer
@@ -78,7 +78,7 @@ export async function validateIdToken(
       clockTolerance: 300 // 5 minutes tolerance for clock skew
     });
 
-    console.log('✅ [ImplicitFlowSecurity] JWT signature verified successfully');
+    console.log(' [ImplicitFlowSecurity] JWT signature verified successfully');
     logger.security('ImplicitFlowSecurity', 'JWT signature verified', {
       kid: payload.kid,
       issuer: payload.iss,
@@ -148,7 +148,7 @@ export async function validateIdToken(
       return { success: false, error };
     }
 
-    console.log('✅ [ImplicitFlowSecurity] ID token validation successful');
+    console.log(' [ImplicitFlowSecurity] ID token validation successful');
     logger.security('ImplicitFlowSecurity', 'ID token validation successful', {
       subject: payload.sub,
       issuer: payload.iss,
@@ -172,7 +172,7 @@ export async function validateIdToken(
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown validation error';
-    console.error('❌ [ImplicitFlowSecurity] ID token validation error:', errorMessage);
+    console.error(' [ImplicitFlowSecurity] ID token validation error:', errorMessage);
     logger.error('ImplicitFlowSecurity', 'ID token validation error', { error: errorMessage });
     
     return { success: false, error: errorMessage };
@@ -201,7 +201,7 @@ export function validateStateParameter(
     };
   }
 
-  console.log('✅ [ImplicitFlowSecurity] State parameter validated successfully');
+  console.log(' [ImplicitFlowSecurity] State parameter validated successfully');
   logger.security('ImplicitFlowSecurity', 'State parameter validated', {
     receivedLength: receivedState.length,
     expectedLength: expectedState.length
@@ -222,7 +222,7 @@ export function clearSecurityData(flowType: 'oauth2' | 'oidc'): void {
   sessionStorage.removeItem(nonceKey);
   sessionStorage.removeItem(flowContextKey);
 
-  console.log('🧹 [ImplicitFlowSecurity] Security data cleared from session storage');
+  console.log(' [ImplicitFlowSecurity] Security data cleared from session storage');
   logger.security('ImplicitFlowSecurity', 'Security data cleared', { flowType });
 }
 
@@ -236,7 +236,7 @@ export function generateSecurityParameters(length: number = 32): {
   const state = generateRandomString(length);
   const nonce = generateRandomString(length);
 
-  console.log('🔐 [ImplicitFlowSecurity] Generated security parameters:', {
+  console.log(' [ImplicitFlowSecurity] Generated security parameters:', {
     stateLength: state.length,
     nonceLength: nonce.length
   });
@@ -278,7 +278,7 @@ export function storeSecurityParameters(
     sessionStorage.setItem(nonceKey, nonce);
   }
 
-  console.log('💾 [ImplicitFlowSecurity] Security parameters stored:', {
+  console.log(' [ImplicitFlowSecurity] Security parameters stored:', {
     flowType,
     stateLength: state.length,
     nonceLength: nonce?.length || 0

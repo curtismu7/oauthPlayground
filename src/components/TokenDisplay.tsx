@@ -26,10 +26,11 @@ const TokenHeaderMain = styled.div`
   text-align: center;
   margin-bottom: 1rem;
   padding: 1rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #f8fafc;
   border-radius: 1rem;
-  color: white;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  color: #1f2937;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
 
   h3 {
     margin: 0;
@@ -37,53 +38,36 @@ const TokenHeaderMain = styled.div`
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
+    color: #0f172a;
   }
 
   p {
     margin: 0.5rem 0 0 0;
-    opacity: 0.9;
     font-size: 0.9rem;
+    color: #475569;
   }
 `;
 
+const tokenBackgrounds: Record<'access' | 'id' | 'refresh' | 'info' | 'default', string> = {
+  access: '#f1f5f9',
+  id: '#fefce8',
+  refresh: '#ecfdf5',
+  info: '#f8fafc',
+  default: '#ffffff',
+};
+
 const TokenSection = styled.div<{ $type?: 'access' | 'id' | 'refresh' | 'info' }>`
-  background: ${({ $type }) => {
-    switch ($type) {
-      case 'access':
-        return 'linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%)';
-      case 'id':
-        return 'linear-gradient(135deg, #fef3c7 0%, #fefce8 100%)';
-      case 'refresh':
-        return 'linear-gradient(135deg, #d1fae5 0%, #ecfdf5 100%)';
-      case 'info':
-        return 'linear-gradient(135deg, #f3e8ff 0%, #faf5ff 100%)';
-      default:
-        return 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)';
-    }
-  }};
-  border: 2px solid ${({ $type }) => {
-    switch ($type) {
-      case 'access':
-        return '#3b82f6';
-      case 'id':
-        return '#f59e0b';
-      case 'refresh':
-        return '#10b981';
-      case 'info':
-        return '#8b5cf6';
-      default:
-        return '#e2e8f0';
-    }
-  }};
+  background: ${({ $type }) => tokenBackgrounds[$type ?? 'default']};
+  border: 2px solid #e2e8f0;
   border-radius: 0.75rem;
   padding: 1.5rem;
   position: relative;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px rgba(15, 23, 42, 0.08);
   transition: all 0.3s ease;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 18px rgba(15, 23, 42, 0.12);
   }
 `;
 
@@ -300,7 +284,7 @@ const TokenDisplay: React.FC<TokenDisplayProps> = ({ tokens }) => {
     return (
       <TokenContainer role="region" aria-label="OAuth tokens display">
         <TokenHeaderMain>
-          <h3>🔐 No Tokens Available</h3>
+          <h3> No Tokens Available</h3>
           <p>No OAuth tokens have been received yet</p>
         </TokenHeaderMain>
       </TokenContainer>
@@ -402,7 +386,7 @@ const TokenDisplay: React.FC<TokenDisplayProps> = ({ tokens }) => {
   return (
     <TokenContainer role="region" aria-label="OAuth tokens display">
       <TokenHeaderMain>
-        <h3>🔐 OAuth Tokens Received</h3>
+        <h3> OAuth Tokens Received</h3>
         <p>Your authentication tokens are displayed below with enhanced security features</p>
       </TokenHeaderMain>
       

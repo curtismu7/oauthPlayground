@@ -210,7 +210,7 @@ export const LazyLoadingFallback: React.FC<LazyLoadingFallbackProps> = ({
                 completed={step.completed}
                 active={step.active}
               >
-                {step.completed ? '✓' : step.icon}
+                {step.completed ? '' : step.icon}
               </StepIcon>
               <StepText
                 completed={step.completed}
@@ -290,7 +290,7 @@ export const LazyLoadingErrorFallback: React.FC<{
           color: '#dc2626',
           fontSize: '24px'
         }}>
-          ⚠️
+          
         </div>
         
         <LoadingTitle style={{ color: '#dc2626' }}>

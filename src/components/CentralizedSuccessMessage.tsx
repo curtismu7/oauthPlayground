@@ -328,7 +328,7 @@ export const CentralizedSuccessMessage: React.FC = () => {
               <div>
                 <ErrorTitle id={`error-modal-${modalContent.id}`}>We hit an issue</ErrorTitle>
                 <p style={{ margin: '0.35rem 0 0', color: '#4b5563', fontSize: '0.95rem' }}>
-                  Something didn’t go as planned. Review the details below to get back on track.
+                  Something didnt go as planned. Review the details below to get back on track.
                 </p>
               </div>
             </ErrorHeader>
@@ -370,77 +370,77 @@ export const showDetailedError = (summary: string, details?: string, durationMs?
 
 // Authorization Flow specific functions
 export const showAuthorizationSuccess = () => {
-  addMessage({ text: '🎉 Authorization successful! You have been redirected back from PingOne.', isError: false });
+  addMessage({ text: ' Authorization successful! You have been redirected back from PingOne.', isError: false });
 };
 
 export const showCredentialsSaved = () => {
-  addMessage({ text: '✅ OAuth credentials saved successfully!', isError: false });
+  addMessage({ text: ' OAuth credentials saved successfully!', isError: false });
 };
 
 export const showPKCESuccess = () => {
-  addMessage({ text: '🔐 PKCE codes generated successfully!', isError: false });
+  addMessage({ text: ' PKCE codes generated successfully!', isError: false });
 };
 
 export const showAuthUrlBuilt = () => {
-  addMessage({ text: '🔗 Authorization URL built successfully!', isError: false });
+  addMessage({ text: ' Authorization URL built successfully!', isError: false });
 };
 
 export const showTokenExchangeSuccess = () => {
-  addMessage({ text: '🎫 Tokens exchanged successfully!', isError: false });
+  addMessage({ text: ' Tokens exchanged successfully!', isError: false });
 };
 
 export const showUserInfoSuccess = () => {
-  addMessage({ text: '👤 User information retrieved successfully!', isError: false });
+  addMessage({ text: ' User information retrieved successfully!', isError: false });
 };
 
 // Error functions
 export const showCredentialsError = () => {
-  addMessage({ text: '❌ Failed to save OAuth credentials. Please check your inputs.', isError: true });
+  addMessage({ text: ' Failed to save OAuth credentials. Please check your inputs.', isError: true });
 };
 
 export const showPKCEError = () => {
-  addMessage({ text: '❌ Failed to generate PKCE codes. Please try again.', isError: true });
+  addMessage({ text: ' Failed to generate PKCE codes. Please try again.', isError: true });
 };
 
 export const showAuthUrlError = () => {
-  addMessage({ text: '❌ Failed to build authorization URL. Please check your configuration.', isError: true });
+  addMessage({ text: ' Failed to build authorization URL. Please check your configuration.', isError: true });
 };
 
 export const showTokenExchangeError = () => {
-  addMessage({ text: '❌ Token exchange failed. Please check your authorization code and try again.', isError: true });
+  addMessage({ text: ' Token exchange failed. Please check your authorization code and try again.', isError: true });
 };
 
 export const showUserInfoError = () => {
-  addMessage({ text: '❌ Failed to retrieve user information. Please check your access token.', isError: true });
+  addMessage({ text: ' Failed to retrieve user information. Please check your access token.', isError: true });
 };
 
 // Flow-specific success functions
 export const showClientCredentialsSuccess = () => {
-  addMessage({ text: '🔑 Client Credentials flow completed successfully!', isError: false });
+  addMessage({ text: ' Client Credentials flow completed successfully!', isError: false });
 };
 
 export const showDeviceCodeSuccess = () => {
-  addMessage({ text: '📱 Device Code flow completed successfully!', isError: false });
+  addMessage({ text: ' Device Code flow completed successfully!', isError: false });
 };
 
 export const showImplicitFlowSuccess = () => {
-  addMessage({ text: '⚡ Implicit flow completed successfully!', isError: false });
+  addMessage({ text: ' Implicit flow completed successfully!', isError: false });
 };
 
 export const showHybridFlowSuccess = () => {
-  addMessage({ text: '🔄 Hybrid flow completed successfully!', isError: false });
+  addMessage({ text: ' Hybrid flow completed successfully!', isError: false });
 };
 
 export const showJWTBearerSuccess = () => {
-  addMessage({ text: '🎫 JWT Bearer flow completed successfully!', isError: false });
+  addMessage({ text: ' JWT Bearer flow completed successfully!', isError: false });
 };
 
 export const showTokenRevocationSuccess = () => {
-  addMessage({ text: '🗑️ Token revocation completed successfully!', isError: false });
+  addMessage({ text: ' Token revocation completed successfully!', isError: false });
 };
 
 export const showTokenIntrospectionSuccess = () => {
-  addMessage({ text: '🔍 Token introspection completed successfully!', isError: false });
+  addMessage({ text: ' Token introspection completed successfully!', isError: false });
 };
 
 export default CentralizedSuccessMessage;

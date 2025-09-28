@@ -18,6 +18,8 @@ import {
 import styled from "styled-components";
 import { Card, CardBody, CardHeader } from "../components/Card";
 import ConfirmationModal from "../components/ConfirmationModal";
+import PageTitle from "../components/PageTitle";
+import StandardMessage from "../components/StandardMessage";
 import { TokenSurface } from "../components/TokenSurface";
 import { useAuth } from "../contexts/NewAuthContext";
 import { useErrorDiagnosis } from "../hooks/useErrorDiagnosis";
@@ -611,6 +613,9 @@ const RefreshStatus = styled.div<{
 const TokenManagement = () => {
 	const { tokens } = useAuth();
 
+	// Token analysis hooks
+	const { getTokenAnalysis, getTokenTypeInfo } = useTokenAnalysis();
+
 	// Scroll to top when page loads
 	// Use centralized scroll management
 	usePageScroll({ pageName: "Token Management", force: true });
@@ -625,7 +630,7 @@ const TokenManagement = () => {
 	const isOIDCFlow =
 		flowSourceState.includes("oidc") || flowSourceState.includes("enhanced");
 
-	console.log("🔍 [TokenManagement] Flow source detection:", {
+	console.log(" [TokenManagement] Flow source detection:", {
 		flowSource: flowSourceState,
 		isOAuthFlow,
 		isOIDCFlow,
@@ -780,7 +785,7 @@ const TokenManagement = () => {
 			const flowSource = sessionStorage.getItem("flow_source") || "unknown";
 
 			if (tokenToAnalyze) {
-				console.log("🔍 [TokenManagement] Found token passed from flow:", {
+				console.log(" [TokenManagement] Found token passed from flow:", {
 					tokenType,
 					flowSource,
 					tokenLength: tokenToAnalyze.length,
@@ -813,7 +818,7 @@ const TokenManagement = () => {
 		const loadCurrentToken = () => {
 			try {
 				console.log(
-					"🔄 [TokenManagement] Loading current token from auth context:",
+					" [TokenManagement] Loading current token from auth context:",
 					tokens,
 				);
 
@@ -828,7 +833,7 @@ const TokenManagement = () => {
 				// If no tokens in auth context or no access token, try to load from storage
 				if (!currentTokens || !currentTokens.access_token) {
 					console.log(
-						"ℹ️ [TokenManagement] No access token in auth context, checking storage...",
+						" [TokenManagement] No access token in auth context, checking storage...",
 					);
 					const storageTokens = getOAuthTokens();
 					if (
@@ -838,7 +843,7 @@ const TokenManagement = () => {
 							storageTokens.refresh_token)
 					) {
 						console.log(
-							"✅ [TokenManagement] Found tokens in secure storage:",
+							" [TokenManagement] Found tokens in secure storage:",
 							storageTokens,
 						);
 						currentTokens = storageTokens;
@@ -846,14 +851,14 @@ const TokenManagement = () => {
 					} else {
 						// Check localStorage for tokens from Authorization Code flow
 						console.log(
-							"ℹ️ [TokenManagement] Checking localStorage for oauth_tokens...",
+							" [TokenManagement] Checking localStorage for oauth_tokens...",
 						);
 						const localStorageTokens = localStorage.getItem("oauth_tokens");
 						if (localStorageTokens) {
 							try {
 								const parsedTokens = JSON.parse(localStorageTokens);
 								console.log(
-									"✅ [TokenManagement] Found tokens in localStorage:",
+									" [TokenManagement] Found tokens in localStorage:",
 									parsedTokens,
 								);
 								if (
@@ -867,7 +872,7 @@ const TokenManagement = () => {
 								}
 							} catch (parseError) {
 								console.error(
-									"❌ [TokenManagement] Error parsing localStorage tokens:",
+									" [TokenManagement] Error parsing localStorage tokens:",
 									parseError,
 								);
 							}
@@ -892,7 +897,7 @@ const TokenManagement = () => {
 
 				if (tokenToLoad) {
 					console.log(
-						`✅ [TokenManagement] Found current ${tokenTypeToLoad}, auto-loading and decoding`,
+						` [TokenManagement] Found current ${tokenTypeToLoad}, auto-loading and decoding`,
 					);
 					setTokenString(tokenToLoad);
 					setTokenSource({
@@ -920,15 +925,12 @@ const TokenManagement = () => {
 					}
 				} else {
 					console.log(
-						"ℹ️ [TokenManagement] No tokens found in auth context or storage",
+						" [TokenManagement] No tokens found in auth context or storage",
 					);
 					setTokenStatus("none");
 				}
 			} catch (error) {
-				console.error(
-					"❌ [TokenManagement] Error loading current token:",
-					error,
-				);
+				console.error(" [TokenManagement] Error loading current token:", error);
 				setTokenStatus("none");
 			}
 		};
@@ -939,7 +941,7 @@ const TokenManagement = () => {
 
 		if (history.entries.length === 0 && tokens?.access_token) {
 			console.log(
-				"🔍 [TokenManagement] No history found, creating sample entries with current tokens",
+				" [TokenManagement] No history found, creating sample entries with current tokens",
 			);
 
 			// Create a history entry for the current OAuth session
@@ -961,12 +963,12 @@ const TokenManagement = () => {
 				// Reload history after adding current tokens
 				const updatedHistory = getTokenHistory();
 				setTokenHistory(updatedHistory.entries);
-				console.log("✅ [TokenManagement] Added current tokens to history");
+				console.log(" [TokenManagement] Added current tokens to history");
 			}
 		} else {
 			setTokenHistory(history.entries);
 			console.log(
-				"📋 [TokenManagement] Loaded existing token history:",
+				" [TokenManagement] Loaded existing token history:",
 				history.entries.length,
 				"entries",
 			);
@@ -982,12 +984,12 @@ const TokenManagement = () => {
 			}
 
 			console.log(
-				"🔍 [TokenManagement] Attempting to decode token:",
+				" [TokenManagement] Attempting to decode token:",
 				`${token.substring(0, 50)}...`,
 			);
 
 			const parts = token.split(".");
-			console.log("🔍 [TokenManagement] Token parts count:", parts.length);
+			console.log(" [TokenManagement] Token parts count:", parts.length);
 
 			if (parts.length !== 3) {
 				throw new Error(
@@ -1023,14 +1025,14 @@ const TokenManagement = () => {
 					);
 
 					const parsed = JSON.parse(jsonPayload);
-					console.log("✅ [TokenManagement] Successfully parsed JWT part:", {
+					console.log(" [TokenManagement] Successfully parsed JWT part:", {
 						part: `${part.substring(0, 20)}...`,
 						result: parsed,
 					});
 					return parsed;
 				} catch (e) {
 					console.error(
-						"❌ [TokenManagement] Error parsing JWT part:",
+						" [TokenManagement] Error parsing JWT part:",
 						e,
 						"Part:",
 						`${part.substring(0, 20)}...`,
@@ -1041,7 +1043,7 @@ const TokenManagement = () => {
 
 			// Decode header
 			console.log(
-				"🔍 [TokenManagement] Decoding header part:",
+				" [TokenManagement] Decoding header part:",
 				`${parts[0].substring(0, 20)}...`,
 			);
 			const header = parseJwtPart(parts[0]);
@@ -1049,13 +1051,13 @@ const TokenManagement = () => {
 
 			// Decode payload
 			console.log(
-				"🔍 [TokenManagement] Decoding payload part:",
+				" [TokenManagement] Decoding payload part:",
 				`${parts[1].substring(0, 20)}...`,
 			);
 			const payload = parseJwtPart(parts[1]);
 			setJwtPayload(JSON.stringify(payload, null, 2));
 
-			console.log("✅ [TokenManagement] Successfully decoded JWT:", {
+			console.log(" [TokenManagement] Successfully decoded JWT:", {
 				header,
 				payload,
 			});
@@ -1064,7 +1066,7 @@ const TokenManagement = () => {
 				"Token successfully decoded! You can now view the header and payload details below.",
 			);
 		} catch (error) {
-			console.error("❌ [TokenManagement] JWT decode error:", error);
+			console.error(" [TokenManagement] JWT decode error:", error);
 			const errorMessage =
 				error instanceof Error ? error.message : "Unknown error occurred";
 			setJwtHeader(`Error: ${errorMessage}`);
@@ -1082,14 +1084,14 @@ const TokenManagement = () => {
 		// If no token in input, try to get current token from auth context or storage
 		if (!tokenString || tokenString.trim() === "") {
 			console.log(
-				"🔄 [TokenManagement] No token in input, attempting to load current token...",
+				" [TokenManagement] No token in input, attempting to load current token...",
 			);
 
 			// Try to get token from auth context first
-			console.log("🔍 [TokenManagement] Auth context tokens:", tokens);
+			console.log(" [TokenManagement] Auth context tokens:", tokens);
 			if (tokens?.access_token) {
 				console.log(
-					"✅ [TokenManagement] Loading token from auth context for decoding",
+					" [TokenManagement] Loading token from auth context for decoding",
 				);
 				setTokenString(tokens.access_token);
 				setTimeout(() => decodeJWT(tokens.access_token), 100);
@@ -1099,12 +1101,12 @@ const TokenManagement = () => {
 			// Try to get token from storage
 			const storedTokens = getOAuthTokens();
 			console.log(
-				"🔍 [TokenManagement] Stored tokens from getOAuthTokens():",
+				" [TokenManagement] Stored tokens from getOAuthTokens():",
 				storedTokens,
 			);
 			if (storedTokens?.access_token) {
 				console.log(
-					"✅ [TokenManagement] Loading token from storage for decoding",
+					" [TokenManagement] Loading token from storage for decoding",
 				);
 				setTokenString(storedTokens.access_token);
 				setTimeout(() => decodeJWT(storedTokens.access_token), 100);
@@ -1113,7 +1115,7 @@ const TokenManagement = () => {
 
 			// No token available
 			console.log(
-				"❌ [TokenManagement] No token available in auth context or storage",
+				" [TokenManagement] No token available in auth context or storage",
 			);
 			setMessage({
 				type: "warning",
@@ -1131,7 +1133,7 @@ const TokenManagement = () => {
 		setIsLoading(true);
 		try {
 			console.log(
-				"🔄 [TokenManagement] Getting current token from auth context:",
+				" [TokenManagement] Getting current token from auth context:",
 				tokens,
 			);
 
@@ -1140,19 +1142,19 @@ const TokenManagement = () => {
 			// If no tokens in auth context, try to load from storage
 			if (!currentTokens || !currentTokens.access_token) {
 				console.log(
-					"ℹ️ [TokenManagement] No tokens in auth context, checking storage...",
+					" [TokenManagement] No tokens in auth context, checking storage...",
 				);
 				currentTokens = getOAuthTokens();
 				if (currentTokens) {
 					console.log(
-						"✅ [TokenManagement] Found tokens in storage:",
+						" [TokenManagement] Found tokens in storage:",
 						currentTokens,
 					);
 				}
 			}
 
 			if (currentTokens?.access_token) {
-				console.log("✅ [TokenManagement] Loading current access token");
+				console.log(" [TokenManagement] Loading current access token");
 				setTokenString(currentTokens.access_token);
 				setTokenSource({
 					source:
@@ -1177,7 +1179,7 @@ const TokenManagement = () => {
 					setTokenStatus("valid");
 				}
 			} else {
-				console.log("⚠️ [TokenManagement] No current access token available");
+				console.log(" [TokenManagement] No current access token available");
 				setMessage({
 					type: "error",
 					title: "No Token Available",
@@ -1186,7 +1188,7 @@ const TokenManagement = () => {
 				});
 			}
 		} catch (error) {
-			console.error("❌ [TokenManagement] Error getting token:", error);
+			console.error(" [TokenManagement] Error getting token:", error);
 			setMessage({
 				type: "error",
 				title: "Error Loading Token",
@@ -1205,7 +1207,7 @@ const TokenManagement = () => {
 		setIsLoading(true);
 		try {
 			console.log(
-				`🔄 [TokenManagement] Getting ${tokenType} from auth context:`,
+				` [TokenManagement] Getting ${tokenType} from auth context:`,
 				tokens,
 			);
 
@@ -1214,26 +1216,26 @@ const TokenManagement = () => {
 			// If no tokens in auth context OR the specific token type is missing, try to load from storage
 			if (!currentTokens || !currentTokens[tokenType]) {
 				console.log(
-					`ℹ️ [TokenManagement] No ${tokenType} in auth context, checking storage...`,
+					` [TokenManagement] No ${tokenType} in auth context, checking storage...`,
 				);
 				const storageTokens = getOAuthTokens();
 				if (storageTokens?.[tokenType]) {
 					console.log(
-						`✅ [TokenManagement] Found ${tokenType} in secure storage:`,
+						` [TokenManagement] Found ${tokenType} in secure storage:`,
 						storageTokens,
 					);
 					currentTokens = storageTokens;
 				} else {
 					// Check localStorage for tokens from Authorization Code flow
 					console.log(
-						"ℹ️ [TokenManagement] Checking localStorage for oauth_tokens...",
+						" [TokenManagement] Checking localStorage for oauth_tokens...",
 					);
 					const localStorageTokens = localStorage.getItem("oauth_tokens");
 					if (localStorageTokens) {
 						try {
 							const parsedTokens = JSON.parse(localStorageTokens);
 							console.log(
-								"✅ [TokenManagement] Found tokens in localStorage:",
+								" [TokenManagement] Found tokens in localStorage:",
 								parsedTokens,
 							);
 							if (parsedTokens?.[tokenType]) {
@@ -1241,7 +1243,7 @@ const TokenManagement = () => {
 							}
 						} catch (parseError) {
 							console.error(
-								"❌ [TokenManagement] Error parsing localStorage tokens:",
+								" [TokenManagement] Error parsing localStorage tokens:",
 								parseError,
 							);
 						}
@@ -1251,17 +1253,17 @@ const TokenManagement = () => {
 
 			// Debug: Log all available token types
 			if (currentTokens) {
-				console.log("🔍 [TokenManagement] Available tokens:", {
-					access_token: currentTokens.access_token ? "✅" : "❌",
-					id_token: currentTokens.id_token ? "✅" : "❌",
-					refresh_token: currentTokens.refresh_token ? "✅" : "❌",
+				console.log(" [TokenManagement] Available tokens:", {
+					access_token: currentTokens.access_token ? "" : "",
+					id_token: currentTokens.id_token ? "" : "",
+					refresh_token: currentTokens.refresh_token ? "" : "",
 					token_type: currentTokens.token_type || "none",
 					expires_in: currentTokens.expires_in || "none",
 				});
 			}
 
 			if (currentTokens?.[tokenType]) {
-				console.log(`✅ [TokenManagement] Loading current ${tokenType}`);
+				console.log(` [TokenManagement] Loading current ${tokenType}`);
 				setTokenString(currentTokens[tokenType]);
 				setTokenSource({
 					source:
@@ -1288,14 +1290,11 @@ const TokenManagement = () => {
 
 				// Show success message
 				setSuccessMessage(
-					`✅ ${tokenType.replace("_", " ").toUpperCase()} loaded successfully!`,
+					` ${tokenType.replace("_", " ").toUpperCase()} loaded successfully!`,
 				);
 			} else {
-				console.log(`⚠️ [TokenManagement] No current ${tokenType} available`);
-				console.log(
-					"🔍 [TokenManagement] Current tokens object:",
-					currentTokens,
-				);
+				console.log(` [TokenManagement] No current ${tokenType} available`);
+				console.log(" [TokenManagement] Current tokens object:", currentTokens);
 				setMessage({
 					type: "error",
 					title: "No Token Available",
@@ -1303,7 +1302,7 @@ const TokenManagement = () => {
 				});
 			}
 		} catch (error) {
-			console.error(`❌ [TokenManagement] Error getting ${tokenType}:`, error);
+			console.error(` [TokenManagement] Error getting ${tokenType}:`, error);
 			setMessage({
 				type: "error",
 				title: "Error Getting Token",
@@ -1341,9 +1340,9 @@ const TokenManagement = () => {
 
 		setIsLoading(true);
 		try {
-			console.log("🔍 [TokenManagement] Starting token introspection...");
+			console.log(" [TokenManagement] Starting token introspection...");
 			console.log(
-				"🔍 [TokenManagement] Token type:",
+				" [TokenManagement] Token type:",
 				isAccessToken ? "Access Token" : "ID Token",
 			);
 
@@ -1359,51 +1358,48 @@ const TokenManagement = () => {
 				// For OIDC/OAuth V3 flows, use authz flow credentials
 				allCredentials = credentialManager.loadAuthzFlowCredentials();
 				console.log(
-					"🔍 [TokenManagement] Loaded authz flow credentials for OIDC/OAuth V3",
+					" [TokenManagement] Loaded authz flow credentials for OIDC/OAuth V3",
 				);
 			} else if (flowSourceState.includes("worker-token-v3")) {
 				// For Worker Token V3, use worker flow credentials
 				allCredentials = credentialManager.loadWorkerFlowCredentials();
-				console.log("🔍 [TokenManagement] Loaded worker flow credentials");
+				console.log(" [TokenManagement] Loaded worker flow credentials");
 			} else if (flowSourceState.includes("implicit")) {
 				// For Implicit flows, use implicit flow credentials
 				allCredentials = credentialManager.loadImplicitFlowCredentials();
-				console.log("🔍 [TokenManagement] Loaded implicit flow credentials");
+				console.log(" [TokenManagement] Loaded implicit flow credentials");
 			} else {
 				// Fallback to all credentials
 				allCredentials = credentialManager.getAllCredentials();
-				console.log("🔍 [TokenManagement] Loaded all credentials as fallback");
+				console.log(" [TokenManagement] Loaded all credentials as fallback");
 			}
 
 			// If we still don't have credentials, try to load from config credentials as last resort
 			if (!allCredentials.environmentId || !allCredentials.clientId) {
 				console.log(
-					"⚠️ [TokenManagement] Flow-specific credentials incomplete, trying config credentials...",
+					" [TokenManagement] Flow-specific credentials incomplete, trying config credentials...",
 				);
 				const configCredentials = credentialManager.loadConfigCredentials();
 				if (configCredentials.environmentId && configCredentials.clientId) {
 					allCredentials = { ...allCredentials, ...configCredentials };
 					console.log(
-						"✅ [TokenManagement] Merged config credentials with flow credentials",
+						" [TokenManagement] Merged config credentials with flow credentials",
 					);
 				}
 			}
 
-			console.log(
-				"🔍 [TokenManagement] Credentials loaded for introspection:",
-				{
-					flowSource: flowSourceState,
-					hasEnvironmentId: !!allCredentials.environmentId,
-					hasClientId: !!allCredentials.clientId,
-					hasClientSecret: !!allCredentials.clientSecret,
-					hasTokenAuthMethod: !!allCredentials.tokenAuthMethod,
-					environmentId: allCredentials.environmentId,
-					clientId: allCredentials.clientId
-						? `${allCredentials.clientId.substring(0, 8)}...`
-						: "MISSING",
-					tokenAuthMethod: allCredentials.tokenAuthMethod || "NOT_SET",
-				},
-			);
+			console.log(" [TokenManagement] Credentials loaded for introspection:", {
+				flowSource: flowSourceState,
+				hasEnvironmentId: !!allCredentials.environmentId,
+				hasClientId: !!allCredentials.clientId,
+				hasClientSecret: !!allCredentials.clientSecret,
+				hasTokenAuthMethod: !!allCredentials.tokenAuthMethod,
+				environmentId: allCredentials.environmentId,
+				clientId: allCredentials.clientId
+					? `${allCredentials.clientId.substring(0, 8)}...`
+					: "MISSING",
+				tokenAuthMethod: allCredentials.tokenAuthMethod || "NOT_SET",
+			});
 
 			if (!allCredentials.environmentId) {
 				throw new Error(
@@ -1425,10 +1421,10 @@ const TokenManagement = () => {
 				allCredentials.tokenAuthMethod || "client_secret_post";
 
 			console.log(
-				"🔍 [TokenManagement] Introspection endpoint:",
+				" [TokenManagement] Introspection endpoint:",
 				introspectionEndpoint,
 			);
-			console.log("🔍 [TokenManagement] Token auth method:", tokenAuthMethod);
+			console.log(" [TokenManagement] Token auth method:", tokenAuthMethod);
 
 			// Prepare introspection request based on authentication method
 			const introspectionBody: IntrospectionRequestBody = {
@@ -1467,7 +1463,7 @@ const TokenManagement = () => {
 					// For now, fall back to client_secret_post if available
 					if (allCredentials.clientSecret) {
 						console.log(
-							"⚠️ [TokenManagement] Private key JWT not fully implemented, falling back to client_secret_post",
+							" [TokenManagement] Private key JWT not fully implemented, falling back to client_secret_post",
 						);
 						introspectionBody.client_secret = allCredentials.clientSecret;
 					} else {
@@ -1485,7 +1481,7 @@ const TokenManagement = () => {
 					// TODO: Generate JWT assertion with client secret
 					// For now, fall back to client_secret_post
 					console.log(
-						"⚠️ [TokenManagement] Client secret JWT not fully implemented, falling back to client_secret_post",
+						" [TokenManagement] Client secret JWT not fully implemented, falling back to client_secret_post",
 					);
 					introspectionBody.client_secret = allCredentials.clientSecret;
 				}
@@ -1502,13 +1498,13 @@ const TokenManagement = () => {
 			const data = await response.json();
 
 			if (!response.ok) {
-				console.error("❌ [TokenManagement] Introspection failed:", data);
+				console.error(" [TokenManagement] Introspection failed:", data);
 				throw new Error(
 					data.error_description || data.error || "Introspection failed",
 				);
 			}
 
-			console.log("✅ [TokenManagement] Introspection successful:", data);
+			console.log(" [TokenManagement] Introspection successful:", data);
 
 			setMessage({
 				type: "success",
@@ -1519,7 +1515,7 @@ const TokenManagement = () => {
 			// Store introspection results for display
 			setIntrospectionResults(data);
 		} catch (error) {
-			console.error("❌ [TokenManagement] Token introspection error:", error);
+			console.error(" [TokenManagement] Token introspection error:", error);
 			setMessage({
 				type: "error",
 				title: "Introspection Failed",
@@ -1747,16 +1743,16 @@ const TokenManagement = () => {
 	};
 
 	const _handleLoadFromStorage = () => {
-		console.log("🔄 [TokenManagement] Loading tokens from storage...");
+		console.log(" [TokenManagement] Loading tokens from storage...");
 		const storedTokens = getOAuthTokens();
 
 		console.log(
-			"🔍 [TokenManagement] Stored tokens from getOAuthTokens():",
+			" [TokenManagement] Stored tokens from getOAuthTokens():",
 			storedTokens,
 		);
 
 		if (storedTokens?.access_token) {
-			console.log("✅ [TokenManagement] Found stored tokens, loading...");
+			console.log(" [TokenManagement] Found stored tokens, loading...");
 			setTokenString(storedTokens.access_token);
 			setTokenSource({
 				source: "Stored Tokens",
@@ -1780,7 +1776,7 @@ const TokenManagement = () => {
 				setTokenStatus("valid");
 			}
 		} else {
-			console.log("ℹ️ [TokenManagement] No stored tokens found");
+			console.log(" [TokenManagement] No stored tokens found");
 			setTokenStatus("none");
 		}
 	};
@@ -1794,10 +1790,10 @@ const TokenManagement = () => {
 
 	// Function to refresh token history
 	const refreshTokenHistory = useCallback(() => {
-		console.log("🔄 [TokenManagement] Manually refreshing token history...");
+		console.log(" [TokenManagement] Manually refreshing token history...");
 		const history = getTokenHistory();
 
-		console.log("📋 [TokenManagement] Refreshed token history:", {
+		console.log(" [TokenManagement] Refreshed token history:", {
 			totalEntries: history.entries.length,
 			entries: history.entries.map((entry) => ({
 				id: entry.id,
@@ -1816,10 +1812,10 @@ const TokenManagement = () => {
 
 	// Load token history on component mount
 	useEffect(() => {
-		console.log("🔄 [TokenManagement] Loading token history on mount...");
+		console.log(" [TokenManagement] Loading token history on mount...");
 		const history = getTokenHistory();
 
-		console.log("📋 [TokenManagement] Mount - Retrieved token history:", {
+		console.log(" [TokenManagement] Mount - Retrieved token history:", {
 			totalEntries: history.entries.length,
 			storageKey: "pingone_playground_token_history",
 			hasEntries: history.entries.length > 0,
@@ -1838,19 +1834,19 @@ const TokenManagement = () => {
 
 		if (history.entries.length > 0) {
 			console.log(
-				"✅ [TokenManagement] Loaded",
+				" [TokenManagement] Loaded",
 				history.entries.length,
 				"history entries on mount",
 			);
 		} else {
-			console.log("ℹ️ [TokenManagement] No token history found on mount");
+			console.log(" [TokenManagement] No token history found on mount");
 		}
 	}, []); // Run only on mount
 
 	// Refresh token history when tokens change (but don't create duplicate entries)
 	useEffect(() => {
 		if (tokens?.access_token) {
-			console.log("🔄 [TokenManagement] Tokens changed, refreshing history...");
+			console.log(" [TokenManagement] Tokens changed, refreshing history...");
 			const history = getTokenHistory();
 
 			// Only add to history if this token isn't already in history
@@ -1859,9 +1855,7 @@ const TokenManagement = () => {
 			);
 
 			if (!tokenAlreadyInHistory) {
-				console.log(
-					"🔍 [TokenManagement] New token detected, adding to history",
-				);
+				console.log(" [TokenManagement] New token detected, adding to history");
 
 				// Determine flow type from flow source
 				const currentFlowSource =
@@ -1888,13 +1882,13 @@ const TokenManagement = () => {
 					const updatedHistory = getTokenHistory();
 					setTokenHistory(updatedHistory.entries);
 					console.log(
-						"✅ [TokenManagement] Added new tokens to history, total entries:",
+						" [TokenManagement] Added new tokens to history, total entries:",
 						updatedHistory.entries.length,
 					);
 				}
 			} else {
 				console.log(
-					"ℹ️ [TokenManagement] Token already exists in history, skipping",
+					" [TokenManagement] Token already exists in history, skipping",
 				);
 			}
 		}
@@ -1954,7 +1948,7 @@ const TokenManagement = () => {
 		}
 	};
 
-	const tokenTypeInfo = getTokenTypeInfo();
+	const tokenTypeInfo = getTokenTypeInfo;
 	const tokenSourceInfo = getTokenSourceInfo();
 	const tokenTextareaId = useId();
 	const getAccessTokenButtonId = useId();
@@ -2118,8 +2112,8 @@ const TokenManagement = () => {
 								<span className="label">Token Type</span>
 								<span className="value">
 									{tokens?.token_type || "Bearer"}
-									{tokenTypeInfo?.type !== "unknown" &&
-										` (${tokenTypeInfo?.type === "access" ? "Access Token" : tokenTypeInfo?.type === "id" ? "ID Token" : tokenTypeInfo?.type === "refresh" ? "Refresh Token" : tokenTypeInfo?.type})`}
+									{tokenTypeInfo()?.type !== "unknown" &&
+										` (${tokenTypeInfo()?.type === "access" ? "Access Token" : tokenTypeInfo()?.type === "id" ? "ID Token" : tokenTypeInfo()?.type === "refresh" ? "Refresh Token" : tokenTypeInfo()?.type})`}
 								</span>
 							</div>
 							<div className="detail">
@@ -2293,7 +2287,7 @@ const TokenManagement = () => {
 								color: "#c2410c",
 							}}
 						>
-							🔑 Get Tokens
+							Get Tokens
 						</h4>
 						<ButtonGroup>
 							<ActionButton
@@ -2361,7 +2355,7 @@ const TokenManagement = () => {
 								color: "#166534",
 							}}
 						>
-							⚙️ Token Actions
+							Token Actions
 						</h4>
 						<ButtonGroup>
 							<ActionButton
@@ -2425,25 +2419,25 @@ const TokenManagement = () => {
 								color: "#a16207",
 							}}
 						>
-							📂 Load Tokens
+							Load Tokens
 						</h4>
 						<ButtonGroup>
 							<ActionButton
 								className="secondary"
 								onClick={() => {
 									console.log(
-										"🔄 [TokenManagement] Loading tokens from storage...",
+										" [TokenManagement] Loading tokens from storage...",
 									);
 									const storedTokens = getOAuthTokens();
 
 									console.log(
-										"🔍 [TokenManagement] Stored tokens from getOAuthTokens():",
+										" [TokenManagement] Stored tokens from getOAuthTokens():",
 										storedTokens,
 									);
 
 									if (storedTokens?.access_token) {
 										console.log(
-											"✅ [TokenManagement] Found stored tokens, loading...",
+											" [TokenManagement] Found stored tokens, loading...",
 										);
 										setTokenString(storedTokens.access_token);
 										setTokenSource({
@@ -2478,7 +2472,7 @@ const TokenManagement = () => {
 												"Successfully loaded and decoded token from secure storage.",
 										});
 									} else {
-										console.log("ℹ️ [TokenManagement] No stored tokens found");
+										console.log(" [TokenManagement] No stored tokens found");
 										setTokenStatus("none");
 										setMessage({
 											type: "warning",
@@ -2502,12 +2496,12 @@ const TokenManagement = () => {
 								className="secondary"
 								onClick={() => {
 									console.log(
-										"🔄 [TokenManagement] Getting token from Dashboard Login...",
+										" [TokenManagement] Getting token from Dashboard Login...",
 									);
 									// Try to get token from auth context first
 									if (tokens?.access_token) {
 										console.log(
-											"✅ [TokenManagement] Found token in auth context",
+											" [TokenManagement] Found token in auth context",
 										);
 										setTokenString(tokens.access_token);
 										setTokenSource({
@@ -2528,9 +2522,7 @@ const TokenManagement = () => {
 										// Try to get from storage
 										const storedTokens = getOAuthTokens();
 										if (storedTokens?.access_token) {
-											console.log(
-												"✅ [TokenManagement] Found token in storage",
-											);
+											console.log(" [TokenManagement] Found token in storage");
 											setTokenString(storedTokens.access_token);
 											setTokenSource({
 												source: "Dashboard Login (Stored)",
@@ -2589,7 +2581,7 @@ const TokenManagement = () => {
 								color: "#dc2626",
 							}}
 						>
-							🧪 Sample & Demo Tokens
+							Sample & Demo Tokens
 						</h4>
 						<ButtonGroup>
 							<ActionButton
@@ -2671,7 +2663,7 @@ const TokenManagement = () => {
 										timestamp: new Date().toLocaleString(),
 									});
 									console.log(
-										"🧪 [TokenManagement] Loaded comprehensive sample token with realistic PingOne structure",
+										" [TokenManagement] Loaded comprehensive sample token with realistic PingOne structure",
 									);
 
 									// Auto-decode the sample token
@@ -2691,7 +2683,7 @@ const TokenManagement = () => {
 									color: "white",
 								}}
 							>
-								🧪 Load Sample Token
+								Load Sample Token
 							</ActionButton>
 
 							<ActionButton
@@ -2707,7 +2699,7 @@ const TokenManagement = () => {
 										timestamp: new Date().toLocaleString(),
 									});
 									console.log(
-										"🚨 [TokenManagement] Loaded bad security token for demonstration",
+										" [TokenManagement] Loaded bad security token for demonstration",
 									);
 
 									// Auto-decode the bad token
@@ -2723,7 +2715,7 @@ const TokenManagement = () => {
 								}}
 								style={{ backgroundColor: "#dc2626", borderColor: "#dc2626" }}
 							>
-								🚨 Bad Security Token
+								Bad Security Token
 							</ActionButton>
 						</ButtonGroup>
 					</div>
@@ -2814,7 +2806,7 @@ const TokenManagement = () => {
 			{introspectionResults && (
 				<TokenSection>
 					<CardHeader>
-						<h2>🔍 Token Introspection</h2>
+						<h2> Token Introspection</h2>
 					</CardHeader>
 					<CardBody>
 						<div
@@ -2850,7 +2842,7 @@ const TokenManagement = () => {
 									{introspectionResults.active ? (
 										<FiShield size={18} color="white" />
 									) : (
-										"⚠️"
+										""
 									)}
 								</div>
 								<div>
@@ -3146,13 +3138,13 @@ const TokenManagement = () => {
 													}}
 												>
 													{entry.hasAccessToken && (
-														<TokenBadge $type="access">🔐 Access</TokenBadge>
+														<TokenBadge $type="access"> Access</TokenBadge>
 													)}
 													{entry.hasIdToken && (
-														<TokenBadge $type="id">🎫 ID</TokenBadge>
+														<TokenBadge $type="id"> ID</TokenBadge>
 													)}
 													{entry.hasRefreshToken && (
-														<TokenBadge $type="refresh">🔄 Refresh</TokenBadge>
+														<TokenBadge $type="refresh"> Refresh</TokenBadge>
 													)}
 												</div>
 												<div
@@ -3163,7 +3155,7 @@ const TokenManagement = () => {
 													}}
 												>
 													{entry.tokenCount} token
-													{entry.tokenCount !== 1 ? "s" : ""} •{" "}
+													{entry.tokenCount !== 1 ? "s" : ""}{" "}
 													{entry.tokens.token_type || "Bearer"}
 												</div>
 											</HistoryTableCell>
@@ -3341,25 +3333,25 @@ const TokenManagement = () => {
 											</h4>
 											<div style={{ display: "grid", gap: "0.5rem" }}>
 												<div>
-													<strong>Type:</strong> {tokenTypeInfo?.type}
+													<strong>Type:</strong> {tokenTypeInfo()?.type}
 												</div>
 												<div>
-													<strong>Format:</strong> {tokenTypeInfo?.format}
+													<strong>Format:</strong> {tokenTypeInfo()?.format}
 												</div>
-												{tokenTypeInfo?.issuer && (
+												{tokenTypeInfo()?.issuer && (
 													<div>
-														<strong>Issuer:</strong> {tokenTypeInfo?.issuer}
+														<strong>Issuer:</strong> {tokenTypeInfo()?.issuer}
 													</div>
 												)}
-												{tokenTypeInfo?.subject && (
+												{tokenTypeInfo()?.subject && (
 													<div>
-														<strong>Subject:</strong> {tokenTypeInfo?.subject}
+														<strong>Subject:</strong> {tokenTypeInfo()?.subject}
 													</div>
 												)}
-												{tokenTypeInfo?.scopes && (
+												{tokenTypeInfo()?.scopes && (
 													<div>
 														<strong>Scopes:</strong>{" "}
-														{tokenTypeInfo?.scopes?.join(", ")}
+														{tokenTypeInfo()?.scopes?.join(", ")}
 													</div>
 												)}
 											</div>
@@ -3474,10 +3466,19 @@ const TokenManagement = () => {
 								suggested fixes.
 							</p>
 
-							<ErrorInput
+							<textarea
 								placeholder="Paste error message here..."
 								value={errorInput}
 								onChange={(e) => setErrorInput(e.target.value)}
+								style={{
+									width: "100%",
+									minHeight: "100px",
+									padding: "0.75rem",
+									border: "1px solid #d1d5db",
+									borderRadius: "0.375rem",
+									fontSize: "0.875rem",
+									resize: "vertical",
+								}}
 							/>
 
 							<ButtonGroup>

@@ -82,7 +82,7 @@ export const URLParamExplainer: React.FC<URLParamExplainerProps> = ({ url }) => 
             <code className="name">{name}</code>
             {': '}
             <code className="value">{value}</code>
-            {KNOWN_PARAM_DESCRIPTIONS[name] ? ` — ${KNOWN_PARAM_DESCRIPTIONS[name]}` : ''}
+            {KNOWN_PARAM_DESCRIPTIONS[name] ? `  ${KNOWN_PARAM_DESCRIPTIONS[name]}` : ''}
           </ParamItem>
         ))}
       </ParamList>

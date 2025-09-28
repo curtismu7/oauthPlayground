@@ -196,238 +196,267 @@ const ReferenceLink = styled.a`
 `;
 
 const ResourceOwnerPasswordFlow: React.FC = () => {
-  return (
-    <PageContainer>
-      <PageHeader>
-        <PageTitle>
-          <FiShield />
-          Resource Owner Password Credentials Flow
-        </PageTitle>
-        <PageSubtitle>OAuth 2.0 Grant Type - Not Supported by PingOne</PageSubtitle>
-      </PageHeader>
+	return (
+		<PageContainer>
+			<PageHeader>
+				<PageTitle>
+					<FiShield />
+					Resource Owner Password Credentials Flow
+				</PageTitle>
+				<PageSubtitle>
+					OAuth 2.0 Grant Type - Not Supported by PingOne
+				</PageSubtitle>
+			</PageHeader>
 
-      <WarningCard>
-        <WarningIcon>
-          <FiX />
-        </WarningIcon>
-        <CardContent>
-          <CardTitle>⚠️ Not Supported by PingOne</CardTitle>
-          <CardText>
-            The Resource Owner Password Credentials flow is <strong>not supported</strong> by
-            PingOne Identity Platform. This page is provided for educational purposes and to help
-            you understand why this flow is generally not recommended for modern applications.
-          </CardText>
-        </CardContent>
-      </WarningCard>
+			<WarningCard>
+				<WarningIcon>
+					<FiX />
+				</WarningIcon>
+				<CardContent>
+					<CardTitle> Not Supported by PingOne</CardTitle>
+					<CardText>
+						The Resource Owner Password Credentials flow is{" "}
+						<strong>not supported</strong> by PingOne Identity Platform. This
+						page is provided for educational purposes and to help you understand
+						why this flow is generally not recommended for modern applications.
+					</CardText>
+				</CardContent>
+			</WarningCard>
 
-      <InfoCard>
-        <InfoIcon>
-          <FiInfo />
-        </InfoIcon>
-        <CardContent>
-          <CardTitle>Why is this flow not recommended?</CardTitle>
-          <CardText>
-            The Resource Owner Password Credentials flow is considered insecure and is generally not
-            recommended for modern applications. Here's why:
-          </CardText>
-          <CardList>
-            <CardListItem>
-              <strong>Security Risk:</strong> Applications must handle user credentials directly
-            </CardListItem>
-            <CardListItem>
-              <strong>Password Exposure:</strong> Passwords are transmitted to the client
-              application
-            </CardListItem>
-            <CardListItem>
-              <strong>Limited Scope:</strong> Cannot support modern security features like MFA
-            </CardListItem>
-            <CardListItem>
-              <strong>User Experience:</strong> Poor UX compared to modern authentication flows
-            </CardListItem>
-            <CardListItem>
-              <strong>Compliance Issues:</strong> May violate security standards and regulations
-            </CardListItem>
-          </CardList>
-        </CardContent>
-      </InfoCard>
+			<InfoCard>
+				<InfoIcon>
+					<FiInfo />
+				</InfoIcon>
+				<CardContent>
+					<CardTitle>Why is this flow not recommended?</CardTitle>
+					<CardText>
+						The Resource Owner Password Credentials flow is considered insecure
+						and is generally not recommended for modern applications. Here's
+						why:
+					</CardText>
+					<CardList>
+						<CardListItem>
+							<strong>Security Risk:</strong> Applications must handle user
+							credentials directly
+						</CardListItem>
+						<CardListItem>
+							<strong>Password Exposure:</strong> Passwords are transmitted to
+							the client application
+						</CardListItem>
+						<CardListItem>
+							<strong>Limited Scope:</strong> Cannot support modern security
+							features like MFA
+						</CardListItem>
+						<CardListItem>
+							<strong>User Experience:</strong> Poor UX compared to modern
+							authentication flows
+						</CardListItem>
+						<CardListItem>
+							<strong>Compliance Issues:</strong> May violate security standards
+							and regulations
+						</CardListItem>
+					</CardList>
+				</CardContent>
+			</InfoCard>
 
-      <FlowSection>
-        <SectionTitle>
-          <FiUser />
-          How Resource Owner Password Credentials Flow Works
-        </SectionTitle>
+			<FlowSection>
+				<SectionTitle>
+					<FiUser />
+					How Resource Owner Password Credentials Flow Works
+				</SectionTitle>
 
-        <StepContainer>
-          <StepNumber>1</StepNumber>
-          <StepTitle>User Provides Credentials</StepTitle>
-          <StepDescription>
-            The user enters their username and password directly into the client application. The
-            application collects these credentials through a form or similar interface.
-          </StepDescription>
-        </StepContainer>
+				<StepContainer>
+					<StepNumber>1</StepNumber>
+					<StepTitle>User Provides Credentials</StepTitle>
+					<StepDescription>
+						The user enters their username and password directly into the client
+						application. The application collects these credentials through a
+						form or similar interface.
+					</StepDescription>
+				</StepContainer>
 
-        <StepContainer>
-          <StepNumber>2</StepNumber>
-          <StepTitle>Client Sends Credentials to Authorization Server</StepTitle>
-          <StepDescription>
-            The client application sends the user's credentials directly to the authorization
-            server's token endpoint.
-          </StepDescription>
-          <CodeBlock>
-            <CodeComment>POST /as/token</CodeComment>
-            <br />
-            <CodeComment>Content-Type: application/x-www-form-urlencoded</CodeComment>
-            <br />
-            <br />
-            <CodeKeyword>grant_type</CodeKeyword>=<CodeString>password</CodeString>&
-            <CodeKeyword>username</CodeKeyword>=<CodeString>user@example.com</CodeString>&
-            <CodeKeyword>password</CodeKeyword>=<CodeString>userpassword</CodeString>&
-            <CodeKeyword>client_id</CodeKeyword>=<CodeString>your_client_id</CodeString>&
-            <CodeKeyword>client_secret</CodeKeyword>=<CodeString>your_client_secret</CodeString>&
-            <CodeKeyword>scope</CodeKeyword>=<CodeString>openid profile email</CodeString>
-          </CodeBlock>
-        </StepContainer>
+				<StepContainer>
+					<StepNumber>2</StepNumber>
+					<StepTitle>
+						Client Sends Credentials to Authorization Server
+					</StepTitle>
+					<StepDescription>
+						The client application sends the user's credentials directly to the
+						authorization server's token endpoint.
+					</StepDescription>
+					<CodeBlock>
+						<CodeComment>POST /as/token</CodeComment>
+						<br />
+						<CodeComment>
+							Content-Type: application/x-www-form-urlencoded
+						</CodeComment>
+						<br />
+						<br />
+						<CodeKeyword>grant_type</CodeKeyword>=
+						<CodeString>password</CodeString>&
+						<CodeKeyword>username</CodeKeyword>=
+						<CodeString>user@example.com</CodeString>&
+						<CodeKeyword>password</CodeKeyword>=
+						<CodeString>userpassword</CodeString>&
+						<CodeKeyword>client_id</CodeKeyword>=
+						<CodeString>your_client_id</CodeString>&
+						<CodeKeyword>client_secret</CodeKeyword>=
+						<CodeString>your_client_secret</CodeString>&
+						<CodeKeyword>scope</CodeKeyword>=
+						<CodeString>openid profile email</CodeString>
+					</CodeBlock>
+				</StepContainer>
 
-        <StepContainer>
-          <StepNumber>3</StepNumber>
-          <StepTitle>Authorization Server Validates Credentials</StepTitle>
-          <StepDescription>
-            The authorization server validates the user's credentials against its user store. If
-            valid, it issues an access token (and optionally a refresh token).
-          </StepDescription>
-        </StepContainer>
+				<StepContainer>
+					<StepNumber>3</StepNumber>
+					<StepTitle>Authorization Server Validates Credentials</StepTitle>
+					<StepDescription>
+						The authorization server validates the user's credentials against
+						its user store. If valid, it issues an access token (and optionally
+						a refresh token).
+					</StepDescription>
+				</StepContainer>
 
-        <StepContainer>
-          <StepNumber>4</StepNumber>
-          <StepTitle>Client Receives Tokens</StepTitle>
-          <StepDescription>
-            The client application receives the access token and can now make API calls on behalf of
-            the user.
-          </StepDescription>
-          <CodeBlock>
-            <CodeComment>Response:</CodeComment>
-            <br />
-            {`{
+				<StepContainer>
+					<StepNumber>4</StepNumber>
+					<StepTitle>Client Receives Tokens</StepTitle>
+					<StepDescription>
+						The client application receives the access token and can now make
+						API calls on behalf of the user.
+					</StepDescription>
+					<CodeBlock>
+						<CodeComment>Response:</CodeComment>
+						<br />
+						{`{
   "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
   "token_type": "Bearer",
   "expires_in": 3600,
   "refresh_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
   "scope": "openid profile email"
 }`}
-          </CodeBlock>
-        </StepContainer>
-      </FlowSection>
+					</CodeBlock>
+				</StepContainer>
+			</FlowSection>
 
-      <FlowSection>
-        <SectionTitle>
-          <FiLock />
-          Security Considerations
-        </SectionTitle>
+			<FlowSection>
+				<SectionTitle>
+					<FiLock />
+					Security Considerations
+				</SectionTitle>
 
-        <CardList>
-          <CardListItem>
-            <strong>Credential Storage:</strong> The application must securely store user
-            credentials, which increases the attack surface and security risk.
-          </CardListItem>
-          <CardListItem>
-            <strong>Password Transmission:</strong> Passwords are transmitted over the network,
-            requiring additional security measures like HTTPS and proper encryption.
-          </CardListItem>
-          <CardListItem>
-            <strong>No MFA Support:</strong> This flow cannot support modern multi-factor
-            authentication methods that are essential for security.
-          </CardListItem>
-          <CardListItem>
-            <strong>Phishing Vulnerability:</strong> Users may be more susceptible to phishing
-            attacks as they're trained to enter credentials into applications.
-          </CardListItem>
-          <CardListItem>
-            <strong>Compliance Issues:</strong> Many security standards and regulations discourage
-            or prohibit this flow due to its inherent security risks.
-          </CardListItem>
-        </CardList>
-      </FlowSection>
+				<CardList>
+					<CardListItem>
+						<strong>Credential Storage:</strong> The application must securely
+						store user credentials, which increases the attack surface and
+						security risk.
+					</CardListItem>
+					<CardListItem>
+						<strong>Password Transmission:</strong> Passwords are transmitted
+						over the network, requiring additional security measures like HTTPS
+						and proper encryption.
+					</CardListItem>
+					<CardListItem>
+						<strong>No MFA Support:</strong> This flow cannot support modern
+						multi-factor authentication methods that are essential for security.
+					</CardListItem>
+					<CardListItem>
+						<strong>Phishing Vulnerability:</strong> Users may be more
+						susceptible to phishing attacks as they're trained to enter
+						credentials into applications.
+					</CardListItem>
+					<CardListItem>
+						<strong>Compliance Issues:</strong> Many security standards and
+						regulations discourage or prohibit this flow due to its inherent
+						security risks.
+					</CardListItem>
+				</CardList>
+			</FlowSection>
 
-      <FlowSection>
-        <SectionTitle>
-          <FiShield />
-          Recommended Alternatives
-        </SectionTitle>
+			<FlowSection>
+				<SectionTitle>
+					<FiShield />
+					Recommended Alternatives
+				</SectionTitle>
 
-        <CardText>
-          Instead of the Resource Owner Password Credentials flow, consider these more secure
-          alternatives:
-        </CardText>
+				<CardText>
+					Instead of the Resource Owner Password Credentials flow, consider
+					these more secure alternatives:
+				</CardText>
 
-        <CardList>
-          <CardListItem>
-            <strong>Authorization Code Flow with PKCE:</strong> The most secure and recommended flow
-            for modern applications. Supports MFA, SSO, and other advanced security features.
-          </CardListItem>
-          <CardListItem>
-            <strong>Device Authorization Flow:</strong> For devices with limited input capabilities,
-            this flow provides a secure way to authenticate without direct credential handling.
-          </CardListItem>
-          <CardListItem>
-            <strong>Client Credentials Flow:</strong> For machine-to-machine authentication where no
-            user interaction is required.
-          </CardListItem>
-          <CardListItem>
-            <strong>Hybrid Flow:</strong> Combines the security of the Authorization Code flow with
-            immediate access to ID tokens for better user experience.
-          </CardListItem>
-        </CardList>
-      </FlowSection>
+				<CardList>
+					<CardListItem>
+						<strong>Authorization Code Flow with PKCE:</strong> The most secure
+						and recommended flow for modern applications. Supports MFA, SSO, and
+						other advanced security features.
+					</CardListItem>
+					<CardListItem>
+						<strong>Device Authorization Flow:</strong> For devices with limited
+						input capabilities, this flow provides a secure way to authenticate
+						without direct credential handling.
+					</CardListItem>
+					<CardListItem>
+						<strong>Client Credentials Flow:</strong> For machine-to-machine
+						authentication where no user interaction is required.
+					</CardListItem>
+					<CardListItem>
+						<strong>Hybrid Flow:</strong> Combines the security of the
+						Authorization Code flow with immediate access to ID tokens for
+						better user experience.
+					</CardListItem>
+				</CardList>
+			</FlowSection>
 
-      <FlowSection>
-        <SectionTitle>
-          <FiInfo />
-          References
-        </SectionTitle>
+			<FlowSection>
+				<SectionTitle>
+					<FiInfo />
+					References
+				</SectionTitle>
 
-        <CardText>Learn more about OAuth 2.0 flows and security best practices:</CardText>
+				<CardText>
+					Learn more about OAuth 2.0 flows and security best practices:
+				</CardText>
 
-        <CardList>
-          <CardListItem>
-            <ReferenceLink
-              href="https://frontegg.com/blog/oauth-flows"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              OAuth Flows Explained - Frontegg Blog
-            </ReferenceLink>
-          </CardListItem>
-          <CardListItem>
-            <ReferenceLink
-              href="https://tools.ietf.org/html/rfc6749#section-4.3"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              RFC 6749 - OAuth 2.0 Authorization Framework (Section 4.3)
-            </ReferenceLink>
-          </CardListItem>
-          <CardListItem>
-            <ReferenceLink
-              href="https://tools.ietf.org/html/draft-ietf-oauth-security-topics"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              OAuth 2.0 Security Best Current Practice
-            </ReferenceLink>
-          </CardListItem>
-          <CardListItem>
-            <ReferenceLink
-              href="https://apidocs.pingidentity.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              PingOne API Documentation
-            </ReferenceLink>
-          </CardListItem>
-        </CardList>
-      </FlowSection>
-    </PageContainer>
-  );
+				<CardList>
+					<CardListItem>
+						<ReferenceLink
+							href="https://frontegg.com/blog/oauth-flows"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							OAuth Flows Explained - Frontegg Blog
+						</ReferenceLink>
+					</CardListItem>
+					<CardListItem>
+						<ReferenceLink
+							href="https://tools.ietf.org/html/rfc6749#section-4.3"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							RFC 6749 - OAuth 2.0 Authorization Framework (Section 4.3)
+						</ReferenceLink>
+					</CardListItem>
+					<CardListItem>
+						<ReferenceLink
+							href="https://tools.ietf.org/html/draft-ietf-oauth-security-topics"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							OAuth 2.0 Security Best Current Practice
+						</ReferenceLink>
+					</CardListItem>
+					<CardListItem>
+						<ReferenceLink
+							href="https://apidocs.pingidentity.com"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							PingOne API Documentation
+						</ReferenceLink>
+					</CardListItem>
+				</CardList>
+			</FlowSection>
+		</PageContainer>
+	);
 };
 
 export default ResourceOwnerPasswordFlow;

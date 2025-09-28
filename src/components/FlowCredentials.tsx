@@ -507,7 +507,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
   return (
     <>
       <SaveIndicator $isVisible={isSaved}>
-        <SaveIcon>💾</SaveIcon>
+        <SaveIcon></SaveIcon>
         {saveMessage}
       </SaveIndicator>
       

@@ -766,7 +766,7 @@ const OAuthFlows = () => {
           marginTop: '1rem',
           fontSize: '0.9rem'
         }}>
-          <strong>🔐 PingOne Support:</strong> All flows shown below are fully supported by PingOne's OAuth 2.0 and OpenID Connect implementation. 
+          <strong> PingOne Support:</strong> All flows shown below are fully supported by PingOne's OAuth 2.0 and OpenID Connect implementation. 
           PingOne follows OAuth 2.0 RFC 6749 and OpenID Connect Core 1.0 specifications, ensuring industry-standard compliance and security.
         </div>
       </PageHeader>

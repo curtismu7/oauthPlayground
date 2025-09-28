@@ -368,17 +368,17 @@ const CredentialStatusPanel: React.FC = () => {
 
 	const refreshStatuses = useCallback(async () => {
 		console.log(
-			"🔄 [CredentialStatusPanel] Refreshing statuses - button clicked",
+			" [CredentialStatusPanel] Refreshing statuses - button clicked",
 		);
 		setIsLoading(true);
 		try {
-			console.log("🔄 [CredentialStatusPanel] Loading credentials...");
+			console.log(" [CredentialStatusPanel] Loading credentials...");
 			const configCredentials = credentialManager.loadConfigCredentials();
 			const authzFlowCredentials = credentialManager.loadAuthzFlowCredentials();
 			const implicitFlowCredentials =
 				credentialManager.loadImplicitFlowCredentials();
 
-			console.log("🔄 [CredentialStatusPanel] Loaded credentials:", {
+			console.log(" [CredentialStatusPanel] Loaded credentials:", {
 				config: configCredentials,
 				authz: authzFlowCredentials,
 				implicit: implicitFlowCredentials,
@@ -414,20 +414,20 @@ const CredentialStatusPanel: React.FC = () => {
 				},
 			];
 
-			console.log("🔄 [CredentialStatusPanel] Setting new statuses:", statuses);
+			console.log(" [CredentialStatusPanel] Setting new statuses:", statuses);
 			setFlowStatuses(statuses);
 			setLastRefresh(new Date());
 
-			console.log("🔄 [CredentialStatusPanel] Statuses updated successfully");
+			console.log(" [CredentialStatusPanel] Statuses updated successfully");
 			logger.debug("CredentialStatusPanel", "Statuses updated", statuses);
 			showGlobalSuccess(
-				"🔄 System Status Refreshed",
+				" System Status Refreshed",
 				"All credential statuses have been updated successfully",
 			);
 		} catch (error) {
 			logger.error("CredentialStatusPanel", "Error refreshing statuses", error);
 			showGlobalError(
-				"❌ Refresh Failed",
+				" Refresh Failed",
 				"Failed to refresh system status. Please try again.",
 			);
 		} finally {
@@ -483,11 +483,11 @@ const CredentialStatusPanel: React.FC = () => {
 					<RefreshButton
 						onClick={(e) => {
 							console.log(
-								"🔄 [CredentialStatusPanel] Refresh button clicked!",
+								" [CredentialStatusPanel] Refresh button clicked!",
 								e,
 							);
 							showFlowSuccess(
-								"🔄 Refreshing System Status",
+								" Refreshing System Status",
 								"Loading all credential statuses...",
 							);
 							refreshStatuses();
@@ -504,7 +504,7 @@ const CredentialStatusPanel: React.FC = () => {
 						onClick={() => {
 							setShowServerStatusModal(true);
 							showFlowSuccess(
-								"🖥️ Server Status Modal Opened",
+								" Server Status Modal Opened",
 								"Checking status of frontend and backend servers",
 							);
 						}}
@@ -528,7 +528,7 @@ const CredentialStatusPanel: React.FC = () => {
 
 			{flowStatuses.length === 0 ? (
 				<EmptyState>
-					<div className="icon">🔍</div>
+					<div className="icon"></div>
 					<p>No credential information available</p>
 				</EmptyState>
 			) : (

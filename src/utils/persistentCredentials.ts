@@ -81,7 +81,7 @@ class PersistentCredentialsManager {
         return config.useGlobalConfig === true;
       }
     } catch (error) {
-      console.log('🔧 [PersistentCredentials] Could not check global config setting:', error);
+      console.log(' [PersistentCredentials] Could not check global config setting:', error);
     }
     return false;
   }
@@ -94,7 +94,7 @@ class PersistentCredentialsManager {
     try {
       // Check if global config is enabled - if so, always use global credentials
       if (this.isGlobalConfigEnabled()) {
-        console.log('🌐 [PersistentCredentials] Global config enabled - using global credentials for all flows');
+        console.log(' [PersistentCredentials] Global config enabled - using global credentials for all flows');
         return this.loadGlobalCredentials();
       }
 
@@ -196,7 +196,11 @@ class PersistentCredentialsManager {
       
       // Normalize scopes
       if (typeof credentials.scopes === 'string') {
-        credentials.scopes = credentials.scopes.split(' ').filter(Boolean);
+        const scopedList = credentials.scopes.split(' ').filter(Boolean);
+        if (!scopedList.includes('openid')) {
+          scopedList.unshift('openid');
+        }
+        credentials.scopes = scopedList;
       }
 
       logger.info('PersistentCredentials', 'Loaded global credentials', {
