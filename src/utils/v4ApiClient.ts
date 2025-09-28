@@ -72,7 +72,7 @@ export class V4ApiClient {
 						'Content-Type': 'application/json',
 						...headers
 					},
-					body: body ? JSON.stringify(body) : undefined,
+					body: body ? JSON.stringify(body) : null,
 					signal: controller.signal
 				});
 
