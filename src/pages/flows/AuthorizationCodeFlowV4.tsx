@@ -126,6 +126,7 @@ const StepHeader = styled.div<{ $isActive: boolean }>`
 
 const StepContent = styled.div`
 	padding: 2rem;
+	padding-bottom: 6rem; /* Extra space for navigation */
 `;
 
 const ProgressBar = styled.div`
@@ -147,10 +148,12 @@ const StepNavigation = styled.div`
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-top: 2rem;
-	padding: 1rem;
+	margin-top: 3rem;
+	padding: 1.5rem;
 	background: #f8fafc;
 	border-radius: 12px;
+	position: relative;
+	z-index: 10;
 `;
 
 const NavigationButton = styled.button<{ $variant: "primary" | "secondary" }>`
@@ -223,7 +226,7 @@ const InfoBox = styled.div`
 	border: 1px solid #3b82f6;
 	border-radius: 8px;
 	padding: 1rem;
-	margin: 1rem 0;
+	margin: 1rem 0 3rem 0; /* Extra bottom margin for navigation clearance */
 `;
 
 const WarningBox = styled.div`
@@ -231,7 +234,7 @@ const WarningBox = styled.div`
 	border: 1px solid #ef4444;
 	border-radius: 8px;
 	padding: 1rem;
-	margin: 1rem 0;
+	margin: 1rem 0 3rem 0; /* Extra bottom margin for navigation clearance */
 `;
 
 const SuccessBox = styled.div`
@@ -239,7 +242,7 @@ const SuccessBox = styled.div`
 	border: 1px solid #10b981;
 	border-radius: 8px;
 	padding: 1rem;
-	margin: 1rem 0;
+	margin: 1rem 0 3rem 0; /* Extra bottom margin for navigation clearance */
 `;
 
 const QuizSection = styled.div`
