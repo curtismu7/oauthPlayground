@@ -1018,12 +1018,12 @@ const AuthorizationCodeFlowV4 = () => {
 							</GeneratedContentBox>
 						) : (
 							<MainCard>
-								<div style={{ textAlign: 'center', padding: '2rem' }}>
-									<div style={{ fontSize: '3rem', marginBottom: '1rem', color: '#d1d5db' }}>🔐</div>
+								<div style={{ textAlign: 'center', padding: '1.5rem 1rem' }}>
+									<div style={{ fontSize: '2.5rem', marginBottom: '0.75rem', color: '#d1d5db' }}>🔐</div>
 									<h4 style={{ fontWeight: '600', marginBottom: '0.5rem', color: '#374151' }}>
 										PKCE Parameters Not Generated
 									</h4>
-									<p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
+									<p style={{ color: '#6b7280', marginBottom: '1rem', fontSize: '0.95rem' }}>
 										Click the button below to generate secure PKCE parameters for your OAuth flow.
 									</p>
 									<div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', fontSize: '0.875rem', color: '#9ca3af' }}>
@@ -1181,12 +1181,12 @@ const AuthorizationCodeFlowV4 = () => {
 							</GeneratedContentBox>
 						) : (
 							<MainCard>
-								<div style={{ textAlign: 'center', padding: '2rem' }}>
-									<div style={{ fontSize: '3rem', marginBottom: '1rem', color: '#d1d5db' }}>🔑</div>
+								<div style={{ textAlign: 'center', padding: '1.5rem 1rem' }}>
+									<div style={{ fontSize: '2.5rem', marginBottom: '0.75rem', color: '#d1d5db' }}>🔑</div>
 									<h4 style={{ fontWeight: '600', marginBottom: '0.5rem', color: '#374151' }}>
 										Authorization Code Not Received
 									</h4>
-									<p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
+									<p style={{ color: '#6b7280', marginBottom: '1rem', fontSize: '0.95rem' }}>
 										Complete the authorization process on PingOne to receive your authorization code.
 									</p>
 									<div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', fontSize: '0.875rem', color: '#9ca3af' }}>
