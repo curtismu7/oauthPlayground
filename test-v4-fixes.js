@@ -78,10 +78,12 @@ async function testV4Fixes() {
         console.log('\n📋 Test 3: Test Next button styling');
         
         // Check initial state (Step 1 should have green Next button)
-        const nextButton = await page.$('button:has-text("Next")');
-        if (nextButton) {
-            const buttonClasses = await nextButton.evaluate(el => el.className);
-            console.log('✅ Next button found, classes:', buttonClasses);
+        const nextButton = await page.$('button');
+        const nextButtonText = await page.$$eval('button', buttons => 
+            buttons.find(btn => btn.textContent.includes('Next'))?.className || null
+        );
+        if (nextButtonText) {
+            console.log('✅ Next button found, classes:', nextButtonText);
         }
 
         // Test 4: Test PKCE generation
@@ -92,17 +94,20 @@ async function testV4Fixes() {
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         // Click Generate PKCE button
-        const generateButton = await page.$('button:has-text("Generate New PKCE Parameters")');
+        const generateButton = await page.$$eval('button', buttons => 
+            buttons.find(btn => btn.textContent.includes('Generate New PKCE Parameters'))
+        );
         if (generateButton) {
             await generateButton.click();
             await new Promise(resolve => setTimeout(resolve, 1000));
             console.log('✅ PKCE generation button clicked');
             
             // Check if Next button turns green
-            const nextButtonAfterPKCE = await page.$('button:has-text("Next")');
-            if (nextButtonAfterPKCE) {
-                const buttonClasses = await nextButtonAfterPKCE.evaluate(el => el.className);
-                console.log('✅ Next button after PKCE generation, classes:', buttonClasses);
+            const nextButtonClasses = await page.$$eval('button', buttons => 
+                buttons.find(btn => btn.textContent.includes('Next'))?.className || null
+            );
+            if (nextButtonClasses) {
+                console.log('✅ Next button after PKCE generation, classes:', nextButtonClasses);
             }
         }
 
@@ -114,17 +119,18 @@ async function testV4Fixes() {
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         // Click Generate Authorization URL button
-        const generateUrlButton = await page.$('button:has-text("Generate Authorization URL")');
-        if (generateUrlButton) {
-            await generateUrlButton.click();
+        const generateUrlButton = await page.$x('//button[contains(text(), "Generate Authorization URL")]');
+        if (generateUrlButton.length > 0) {
+            await generateUrlButton[0].click();
             await new Promise(resolve => setTimeout(resolve, 1000));
             console.log('✅ Authorization URL generation button clicked');
             
             // Check if Next button turns green
-            const nextButtonAfterURL = await page.$('button:has-text("Next")');
-            if (nextButtonAfterURL) {
-                const buttonClasses = await nextButtonAfterURL.evaluate(el => el.className);
-                console.log('✅ Next button after URL generation, classes:', buttonClasses);
+            const nextButtonClasses = await page.$$eval('button', buttons => 
+                buttons.find(btn => btn.textContent.includes('Next'))?.className || null
+            );
+            if (nextButtonClasses) {
+                console.log('✅ Next button after URL generation, classes:', nextButtonClasses);
             }
         }
 
@@ -143,10 +149,11 @@ async function testV4Fixes() {
             console.log('✅ Test authorization code entered');
             
             // Check if Next button turns green
-            const nextButtonAfterCode = await page.$('button:has-text("Next")');
-            if (nextButtonAfterCode) {
-                const buttonClasses = await nextButtonAfterCode.evaluate(el => el.className);
-                console.log('✅ Next button after code entry, classes:', buttonClasses);
+            const nextButtonClasses = await page.$$eval('button', buttons => 
+                buttons.find(btn => btn.textContent.includes('Next'))?.className || null
+            );
+            if (nextButtonClasses) {
+                console.log('✅ Next button after code entry, classes:', nextButtonClasses);
             }
         }
 
@@ -167,8 +174,8 @@ async function testV4Fixes() {
         console.log('✅ Navigated with test URL parameters, current URL:', currentUrl);
         
         // Look for the authorization code display
-        const codeDisplay = await page.$('div:has-text("Authorization Code Received!")');
-        if (codeDisplay) {
+        const codeDisplay = await page.$x('//div[contains(text(), "Authorization Code Received!")]');
+        if (codeDisplay.length > 0) {
             console.log('✅ Authorization code successfully captured and displayed');
         } else {
             console.log('❌ Authorization code not displayed - checking manual entry section');
