@@ -33,6 +33,7 @@ import { PageStyleProvider } from "../../contexts/PageStyleContext";
 import {
 	showGlobalError,
 	showGlobalSuccess,
+	showGlobalWarning,
 } from "../../hooks/useNotifications";
 import { useAuthorizationFlowScroll } from "../../hooks/usePageScroll";
 import type { OAuthTokenResponse } from "../../types/storage";
@@ -182,12 +183,12 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 		const sessionId = enhancedDebugger.startSession(
 			"oauth-authorization-code-v3",
 		);
-		console.log("🔍 [OAuth-V3] Debug session started:", sessionId);
+		console.log(" [OAuth-V3] Debug session started:", sessionId);
 
 		return () => {
 			const session = enhancedDebugger.endSession();
 			if (session) {
-				console.log("📊 [OAuth-V3] Debug session completed:", {
+				console.log(" [OAuth-V3] Debug session completed:", {
 					duration: session.performance.totalDuration,
 					steps: session.steps.length,
 					errors: session.errors.length,
@@ -214,7 +215,7 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 		const urlParams = new URLSearchParams(window.location.search);
 
 		// Log all URL parameters for debugging
-		console.log("🔍 [OAuth-V3] URL parameter analysis:");
+		console.log(" [OAuth-V3] URL parameter analysis:");
 		console.log("   Current URL:", window.location.href);
 		console.log("   Search params:", Object.fromEntries(urlParams.entries()));
 
@@ -224,7 +225,7 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 		const error = urlParams.get("error");
 		const errorDescription = urlParams.get("error_description");
 
-		console.log("🔍 [OAuth-V3] Parameter extraction results:", {
+		console.log(" [OAuth-V3] Parameter extraction results:", {
 			code: code ? `${code.substring(0, 10)}...` : null,
 			state: state ? `${state.substring(0, 10)}...` : null,
 			error,
@@ -233,17 +234,20 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 
 		// Handle authorization errors
 		if (error) {
-			console.error("❌ [OAuth-V3] Authorization error:", {
+			console.error(" [OAuth-V3] Authorization error:", {
 				error,
 				errorDescription,
 			});
-			showGlobalError(`Authorization failed: ${error} - ${errorDescription}`);
+			showGlobalError(
+				"Authorization failed",
+				`PingOne returned ${errorDescription ?? error}.`,
+			);
 			return;
 		}
 
 		// Handle authorization success
 		if (code) {
-			console.log("✅ [OAuth-V3] Authorization code received from URL");
+			console.log(" [OAuth-V3] Authorization code received from URL");
 			setAuthCode(code);
 			setState(state || "");
 			setCanExchangeTokens(true);
@@ -256,7 +260,7 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 
 		if (storedCode && !code) {
 			console.log(
-				"🔍 [OAuth-V3] Found stored authorization code from OAuth V3 callback",
+				" [OAuth-V3] Found stored authorization code from OAuth V3 callback",
 			);
 			setAuthCode(storedCode);
 			setState(storedState || "");
@@ -269,7 +273,7 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 			sessionStorage.removeItem("oauth_v3_state");
 
 			console.log(
-				"✅ [OAuth-V3] Authorization code loaded and ready for token exchange",
+				" [OAuth-V3] Authorization code loaded and ready for token exchange",
 			);
 		}
 
@@ -297,7 +301,7 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 				: stored.scopes
 			: "openid profile email";
 
-		console.log("🔍 [OAuth-V3] Initializing credentials:", {
+		console.log(" [OAuth-V3] Initializing credentials:", {
 			hasStored: !!stored,
 			redirectUri,
 			storedClientId: stored?.clientId
@@ -356,18 +360,19 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 			errorDescription: string | null,
 		) => {
 			if (error) {
-				console.error("❌ [OAuth-V3] Authorization error received:", {
+				console.error(" [OAuth-V3] Authorization error received:", {
 					error,
 					errorDescription,
 				});
 				showGlobalError(
-					`OAuth authorization failed: ${error} - ${errorDescription}`,
+					"Authorization failed",
+					`PingOne returned ${errorDescription ?? error}.`,
 				);
 				return;
 			}
 
 			if (code) {
-				console.log("✅ [OAuth-V3] Authorization code received");
+				console.log(" [OAuth-V3] Authorization code received");
 				setAuthCode(code);
 				setState(state || "");
 				setCanExchangeTokens(true);
@@ -375,7 +380,8 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 				// Auto-advance to token exchange step
 				stepManager.setStep(4);
 				showGlobalSuccess(
-					"Authorization code received! Ready for token exchange.",
+					"Access granted",
+					"Authorization code received. Ready for token exchange.",
 				);
 			}
 		},
@@ -399,17 +405,23 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 			// Store code verifier for token exchange
 			sessionStorage.setItem("oauth_v3_code_verifier", codeVerifier);
 
-			console.log("🔐 [OAuth-V3] PKCE codes generated:", {
+			console.log(" [OAuth-V3] PKCE codes generated:", {
 				codeVerifier: `${codeVerifier.substring(0, 10)}...`,
 				codeChallenge: `${codeChallenge.substring(0, 10)}...`,
 				codeChallengeMethod: "S256",
 			});
 
-			showGlobalSuccess("PKCE codes generated successfully");
+			showGlobalSuccess(
+				"Access refreshed",
+				"PKCE verifier and challenge are ready for authorization.",
+			);
 			return newPkceCodes;
 		} catch (error) {
-			console.error("❌ [OAuth-V3] PKCE generation failed:", error);
-			showGlobalError("Failed to generate PKCE codes");
+			console.error(" [OAuth-V3] PKCE generation failed:", error);
+			showGlobalError(
+				"Authorization failed",
+				"We couldn't generate PKCE codes. Please try again.",
+			);
 			throw error;
 		}
 	}, []);
@@ -418,7 +430,7 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 	const generateAuthUrl = useCallback(async () => {
 		try {
 			console.log(
-				"🔍 [OAuth-V3] Validating credentials for auth URL generation:",
+				" [OAuth-V3] Validating credentials for auth URL generation:",
 				{
 					hasClientId: !!credentials.clientId,
 					hasIssuerUrl: !!credentials.issuerUrl,
@@ -459,7 +471,7 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 			// Store redirect URI for consistency
 			sessionStorage.setItem("oauth_v3_redirect_uri", credentials.redirectUri);
 
-			console.log("🔍 [OAuth-V3] Storing session data:", {
+			console.log(" [OAuth-V3] Storing session data:", {
 				state: `${stateValue.substring(0, 8)}...`,
 				nonce: `${nonce.substring(0, 8)}...`,
 				redirectUri: credentials.redirectUri,
@@ -479,7 +491,7 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 			const fullAuthUrl = `${authEndpoint}?${params.toString()}`;
 			setAuthUrl(fullAuthUrl);
 
-			console.log("🔗 [OAuth-V3] Authorization URL generated:", {
+			console.log(" [OAuth-V3] Authorization URL generated:", {
 				endpoint: authEndpoint,
 				environmentId: credentials.environmentId,
 				issuerUrl: credentials.issuerUrl,
@@ -492,23 +504,24 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 			});
 
 			console.log(
-				"🚨 [OAuth-V3] IMPORTANT: Add this redirect URI to your PingOne application:",
+				" [OAuth-V3] IMPORTANT: Add this redirect URI to your PingOne application:",
 			);
 			console.log(`   Redirect URI: ${credentials.redirectUri}`);
 			console.log("   Environment: b9817c16-9910-4415-b67e-4ac687da74d9");
 			console.log(
-				"   Path: Applications → Your App → Configuration → Redirect URIs",
+				"   Path: Applications  Your App  Configuration  Redirect URIs",
 			);
 
-			showGlobalSuccess("Authorization URL generated successfully");
+			showGlobalSuccess(
+				"Authorization URL ready",
+				"PingOne authorize endpoint prepared with your parameters.",
+			);
 			return fullAuthUrl;
 		} catch (error) {
-			console.error(
-				"❌ [OAuth-V3] Authorization URL generation failed:",
-				error,
-			);
+			console.error(" [OAuth-V3] Authorization URL generation failed:", error);
 			showGlobalError(
-				`Failed to generate authorization URL: ${error instanceof Error ? error.message : "Unknown error"}`,
+				"URL generation failed",
+				`We couldn't build the authorization request: ${error instanceof Error ? error.message : "Unknown error"}.`,
 			);
 			throw error;
 		}
@@ -517,12 +530,15 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 	// Handle popup authorization
 	const handlePopupAuthorization = useCallback(async () => {
 		if (!authUrl) {
-			showGlobalError("Authorization URL must be generated first");
+			showGlobalError(
+				"Authorization URL missing",
+				"Generate the authorization request before continuing.",
+			);
 			return;
 		}
 
 		try {
-			console.log("🔍 [OAuth-V3] Starting popup authorization");
+			console.log(" [OAuth-V3] Starting popup authorization");
 
 			// Set flow context for callback handling
 			const flowContext = {
@@ -547,7 +563,7 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 				if (event.origin !== window.location.origin) return;
 
 				if (event.data.type === "OAUTH_CALLBACK") {
-					console.log("✅ [OAuth-V3] Popup callback received:", event.data);
+					console.log(" [OAuth-V3] Popup callback received:", event.data);
 
 					popup.close();
 					window.removeEventListener("message", handleMessage);
@@ -561,20 +577,24 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 			};
 
 			window.addEventListener("message", handleMessage);
-			showGlobalSuccess("Popup authorization window opened");
+			showGlobalWarning(
+				"Browser popup opened",
+				"Finish sign-in in the PingOne window to receive a code.",
+			);
 
 			// Check if popup was closed manually
 			const checkClosed = setInterval(() => {
 				if (popup.closed) {
 					clearInterval(checkClosed);
 					window.removeEventListener("message", handleMessage);
-					console.log("🔍 [OAuth-V3] Popup closed manually");
+					console.log(" [OAuth-V3] Popup closed manually");
 				}
 			}, 1000);
 		} catch (error) {
-			console.error("❌ [OAuth-V3] Popup authorization failed:", error);
+			console.error(" [OAuth-V3] Popup authorization failed:", error);
 			showGlobalError(
-				`Popup authorization failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+				"Popup failed",
+				`We couldn't complete popup authorization: ${error instanceof Error ? error.message : "Unknown error"}.`,
 			);
 		}
 	}, [authUrl, credentials.redirectUri, handleOAuthCallback]);
@@ -582,12 +602,15 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 	// Handle full redirect authorization
 	const handleFullRedirectAuthorization = useCallback(async () => {
 		if (!authUrl) {
-			showGlobalError("Authorization URL must be generated first");
+			showGlobalError(
+				"Authorization URL missing",
+				"Generate the authorization request before continuing.",
+			);
 			return;
 		}
 
 		try {
-			console.log("🔍 [OAuth-V3] Starting full redirect authorization");
+			console.log(" [OAuth-V3] Starting full redirect authorization");
 
 			// Set flow context for callback handling
 			const flowContext = {
@@ -597,15 +620,16 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 			};
 			sessionStorage.setItem("flowContext", JSON.stringify(flowContext));
 
-			console.log("🔍 [OAuth-V3] Flow context set:", flowContext);
+			console.log(" [OAuth-V3] Flow context set:", flowContext);
 
 			// Redirect directly to the generated authorization URL
-			console.log("🔍 [OAuth-V3] Redirecting to authorization URL:", authUrl);
+			console.log(" [OAuth-V3] Redirecting to authorization URL:", authUrl);
 			window.location.href = authUrl;
 		} catch (error) {
-			console.error("❌ [OAuth-V3] Full redirect authorization failed:", error);
+			console.error(" [OAuth-V3] Full redirect authorization failed:", error);
 			showGlobalError(
-				`Full redirect authorization failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+				"Redirect failed",
+				`We couldn't redirect to PingOne: ${error instanceof Error ? error.message : "Unknown error"}.`,
 			);
 		}
 	}, [authUrl, credentials.redirectUri]);
@@ -621,7 +645,7 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 				"oauth_v3_code_verifier",
 			);
 
-			console.log("🔍 [OAuth-V3] Token exchange preparation:", {
+			console.log(" [OAuth-V3] Token exchange preparation:", {
 				authCode: authCode ? `${authCode.substring(0, 10)}...` : "MISSING",
 				storedCodeVerifier: storedCodeVerifier
 					? `${storedCodeVerifier.substring(0, 10)}...`
@@ -642,7 +666,7 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 				sessionStorage.getItem("oauth_v3_redirect_uri") ||
 				credentials.redirectUri;
 
-			console.log("🔍 [OAuth-V3] Token exchange request:", {
+			console.log(" [OAuth-V3] Token exchange request:", {
 				code: `${authCode.substring(0, 10)}...`,
 				codeVerifier: `${storedCodeVerifier.substring(0, 10)}...`,
 				redirectUri: storedRedirectUri,
@@ -700,7 +724,7 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 			}
 
 			const tokenData = await response.json();
-			console.log("✅ [OAuth-V3] Token exchange successful:", {
+			console.log(" [OAuth-V3] Token exchange successful:", {
 				tokenType: tokenData.token_type,
 				expiresIn: tokenData.expires_in,
 				scope: tokenData.scope,
@@ -724,9 +748,10 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 
 			return tokenData;
 		} catch (error) {
-			console.error("❌ [OAuth-V3] Token exchange failed:", error);
+			console.error(" [OAuth-V3] Token exchange failed:", error);
 			showGlobalError(
-				`Token exchange failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+				"Token exchange failed",
+				`We couldn't trade the authorization code for tokens: ${error instanceof Error ? error.message : "Unknown error"}.`,
 			);
 			throw error;
 		}
@@ -744,12 +769,15 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 			responseType: "code",
 			grantType: "authorization_code",
 		});
-		showGlobalSuccess("Credentials cleared");
+		showGlobalSuccess(
+			"Credentials cleared",
+			"Authorization flow settings reset to defaults.",
+		);
 	}, []);
 
 	// Reset flow
 	const resetFlow = useCallback(async () => {
-		console.log("🔄 [OAuth-V3] Reset flow initiated");
+		console.log(" [OAuth-V3] Reset flow initiated");
 
 		setIsResettingFlow(true);
 
@@ -758,7 +786,7 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 			await new Promise((resolve) => setTimeout(resolve, 500));
 
 			console.log(
-				"🔍 [OAuth-V3] Current step before reset:",
+				" [OAuth-V3] Current step before reset:",
 				stepManager.currentStepIndex,
 			);
 
@@ -784,21 +812,24 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 			sessionStorage.removeItem("oauth_v3_refresh_token");
 			sessionStorage.removeItem("flowContext"); // Also clear flow context
 
-			console.log("🔍 [OAuth-V3] Cleared session storage, resetting to step 0");
+			console.log(" [OAuth-V3] Cleared session storage, resetting to step 0");
 
 			// Reset to first step
 			stepManager.setStep(0);
 
 			console.log(
-				"🔍 [OAuth-V3] Step after reset:",
+				" [OAuth-V3] Step after reset:",
 				stepManager.currentStepIndex,
 			);
 
-			showGlobalSuccess("OAuth flow reset successfully");
+			showGlobalSuccess(
+				"Flow reset",
+				"State cleared. Start again whenever you're ready.",
+			);
 
 			// AGGRESSIVE SCROLL TO TOP - try all methods
 			console.log(
-				"📜 [OAuth-V3] AGGRESSIVE SCROLL - position before:",
+				"[OAuth-V3] AGGRESSIVE SCROLL - position before:",
 				window.pageYOffset,
 			);
 
@@ -834,7 +865,7 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 					}
 				});
 
-				console.log("📜 [OAuth-V3] Force scrolled all containers");
+				console.log("[OAuth-V3] Force scrolled all containers");
 			};
 
 			// Execute force scroll immediately and with delays
@@ -845,10 +876,10 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 
 			// Final verification
 			setTimeout(() => {
-				console.log("📜 [OAuth-V3] FINAL scroll position:", window.pageYOffset);
+				console.log("[OAuth-V3] FINAL scroll position:", window.pageYOffset);
 				if (window.pageYOffset > 0) {
 					console.log(
-						"❌ [OAuth-V3] Scroll failed - still at position:",
+						" [OAuth-V3] Scroll failed - still at position:",
 						window.pageYOffset,
 					);
 					// One more desperate attempt
@@ -856,11 +887,11 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 					document.documentElement.scrollTop = 0;
 					document.body.scrollTop = 0;
 				} else {
-					console.log("✅ [OAuth-V3] Scroll successful - at top!");
+					console.log(" [OAuth-V3] Scroll successful - at top!");
 				}
 			}, 1000);
 		} catch (error) {
-			console.error("❌ [OAuth-V3] Reset flow failed:", error);
+			console.error(" [OAuth-V3] Reset flow failed:", error);
 			showGlobalError("Failed to reset flow");
 		} finally {
 			setIsResettingFlow(false);
@@ -884,7 +915,7 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 				sessionStorage.setItem("flow_source", "oauth-v3");
 
 				console.log(
-					"🔍 [OAuth-V3] Navigating to Token Management with OAuth flow source",
+					" [OAuth-V3] Navigating to Token Management with OAuth flow source",
 				);
 				window.open("/token-management", "_blank");
 			}
@@ -909,7 +940,7 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 						? credentials.scope.split(" ")
 						: ["openid"];
 
-					console.log("🔍 [OAuth-V3] Saving credentials:", {
+					console.log(" [OAuth-V3] Saving credentials:", {
 						environmentId,
 						clientId: `${credentials.clientId.substring(0, 8)}...`,
 						redirectUri: credentials.redirectUri,
@@ -997,19 +1028,19 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 							{tokens ? (
 								<ul>
 									<li>
-										✅ Access Token:{" "}
+										Access Token:{" "}
 										{tokens.access_token ? "Received" : "Not received"}
 									</li>
-									<li>✅ Token Type: {tokens.token_type || "Bearer"}</li>
+									<li> Token Type: {tokens.token_type || "Bearer"}</li>
 									<li>
-										✅ Expires In:{" "}
+										Expires In:{" "}
 										{tokens.expires_in
 											? `${tokens.expires_in} seconds`
 											: "Not specified"}
 									</li>
-									<li>✅ Scope: {tokens.scope || "Not specified"}</li>
+									<li> Scope: {tokens.scope || "Not specified"}</li>
 									<li>
-										✅ Refresh Token:{" "}
+										Refresh Token:{" "}
 										{tokens.refresh_token ? "Received" : "Not received"}
 									</li>
 								</ul>
@@ -1055,10 +1086,11 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 						description="Exchange an authorization code for tokens through PingOne's OAuth 2.0 authorization code grant with PKCE and token management built in."
 						introCopy={
 							<p>
-								This flow is ideal for web and native applications that can securely
-								handle a client secret or leverage PKCE. The browser is redirected to
-								PingOne, the user authenticates, and PingOne returns an authorization code
-								that we exchange for tokens server-side.
+								This flow is ideal for web and native applications that can
+								securely handle a client secret or leverage PKCE. The browser is
+								redirected to PingOne, the user authenticates, and PingOne
+								returns an authorization code that we exchange for tokens
+								server-side.
 							</p>
 						}
 						bullets={[
@@ -1100,10 +1132,10 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 
 					{/* Flow Control Actions */}
 					<FlowControlSection>
-						<FlowControlTitle>⚙️ Flow Control Actions</FlowControlTitle>
+						<FlowControlTitle> Flow Control Actions</FlowControlTitle>
 						<FlowControlButtons>
 							<FlowControlButton className="clear" onClick={clearCredentials}>
-								🧹 Clear Credentials
+								Clear Credentials
 							</FlowControlButton>
 							<FlowControlButton
 								className="reset"
@@ -1130,7 +1162,7 @@ const OAuthAuthorizationCodeFlowV3: React.FC = () => {
 
 				{tokens && (
 					<CollapsibleSection
-						title="🔐 OAuth Token Response"
+						title=" OAuth Token Response"
 						subtitle="Tokens returned from PingOne during the OAuth flow"
 						defaultCollapsed={false}
 					>

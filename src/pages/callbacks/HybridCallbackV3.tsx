@@ -167,7 +167,7 @@ const HybridCallbackV3: React.FC = () => {
 
 	const processCallback = async () => {
 		try {
-			logger.info("HybridCallbackV3", "📥 HYBRID parsed query+fragment", {
+			logger.info("HybridCallbackV3", " HYBRID parsed query+fragment", {
 				url: window.location.href,
 				hash: window.location.hash,
 				search: window.location.search,
@@ -238,7 +238,7 @@ const HybridCallbackV3: React.FC = () => {
 			// Verify ID token if present
 			if (response.id_token) {
 				try {
-					logger.info("HybridCallbackV3", "🔍 Verifying ID token", {
+					logger.info("HybridCallbackV3", " Verifying ID token", {
 						hasIdToken: !!response.id_token,
 						hasNonce: !!security.nonce,
 					});
@@ -264,7 +264,7 @@ const HybridCallbackV3: React.FC = () => {
 						throw new Error("Nonce mismatch in ID token");
 					}
 
-					logger.info("HybridCallbackV3", "✅ HYBRID id_token verified", {
+					logger.info("HybridCallbackV3", " HYBRID id_token verified", {
 						subject: decodedToken.sub,
 						issuer: decodedToken.iss,
 						audience: decodedToken.aud,
@@ -274,7 +274,7 @@ const HybridCallbackV3: React.FC = () => {
 				} catch (idTokenError) {
 					logger.error(
 						"HybridCallbackV3",
-						"❌ ID token verification failed",
+						" ID token verification failed",
 						idTokenError,
 					);
 					throw new Error(`ID token verification failed: ${idTokenError}`);
@@ -286,7 +286,7 @@ const HybridCallbackV3: React.FC = () => {
 
 			if (response.code) {
 				try {
-					logger.info("HybridCallbackV3", "📤 HYBRID code exchanged", {
+					logger.info("HybridCallbackV3", " HYBRID code exchanged", {
 						hasCode: !!response.code,
 						codeLength: response.code.length,
 					});
@@ -303,7 +303,7 @@ const HybridCallbackV3: React.FC = () => {
 				} catch (exchangeError) {
 					logger.error(
 						"HybridCallbackV3",
-						"❌ Token exchange failed",
+						" Token exchange failed",
 						exchangeError,
 					);
 					throw new Error(`Token exchange failed: ${exchangeError}`);
@@ -323,7 +323,7 @@ const HybridCallbackV3: React.FC = () => {
 			// Store tokens
 			await storeOAuthTokens(finalTokens, "hybrid");
 
-			logger.info("HybridCallbackV3", "📦 HYBRID tokens stored", {
+			logger.info("HybridCallbackV3", " HYBRID tokens stored", {
 				hasAccessToken: !!finalTokens.access_token,
 				hasIdToken: !!finalTokens.id_token,
 				tokenType: finalTokens.token_type,
@@ -344,7 +344,7 @@ const HybridCallbackV3: React.FC = () => {
 		} catch (error) {
 			logger.error(
 				"HybridCallbackV3",
-				"❌ Hybrid callback processing failed",
+				" Hybrid callback processing failed",
 				error,
 			);
 

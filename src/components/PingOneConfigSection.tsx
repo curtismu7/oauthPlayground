@@ -202,7 +202,7 @@ const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
                                  finalCredentials?.clientSecret &&
                                  finalCredentials.clientSecret.trim() !== '';
   
-  console.log('🔍 [PingOneConfigSection] Credential check for styling:', {
+  console.log(' [PingOneConfigSection] Credential check for styling:', {
     getAllCredentials: credentials,
     authzCredentials: authzCredentials,
     finalCredentials: finalCredentials,
@@ -234,13 +234,13 @@ const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
   const handleOpenInNewTab = () => {
     // Don't proceed if no valid Environment ID
     if (!hasValidEnvironmentId) {
-      console.log('❌ [PingOneConfigSection] Console button clicked but no valid Environment ID available');
+      console.log(' [PingOneConfigSection] Console button clicked but no valid Environment ID available');
       return;
     }
     
     // Create proper PingOne console URL with Environment ID
     const consoleUrl = `https://console.pingone.com/index.html?env=${credentials.environmentId}`;
-    console.log('🌐 [PingOneConfigSection] Opening PingOne console with Environment ID:', {
+    console.log(' [PingOneConfigSection] Opening PingOne console with Environment ID:', {
       environmentId: credentials.environmentId,
       consoleUrl: consoleUrl
     });
@@ -254,7 +254,7 @@ const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
           {isExpanded ? <FiChevronDown /> : <FiChevronRight />}
         </ChevronIcon>
         <HeaderTitle $hasCredentials={hasCompleteCredentials}>
-          {hasCompleteCredentials ? '✅ PingOne Configuration Complete' : '⚠️ PingOne Configuration Required'}
+          {hasCompleteCredentials ? ' PingOne Configuration Complete' : ' PingOne Configuration Required'}
         </HeaderTitle>
       </Header>
       
@@ -349,7 +349,7 @@ const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
                 border: '1px solid #f59e0b',
                 marginTop: '1rem'
               }}>
-                <strong style={{ color: '#92400e' }}>⚠️ Important:</strong>
+                <strong style={{ color: '#92400e' }}> Important:</strong>
                 <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem', color: '#92400e' }}>
                   <li>Save all changes in PingOne console before testing</li>
                   <li>Application must be <strong>enabled</strong> in PingOne</li>
@@ -359,7 +359,7 @@ const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
               </div>
 
               <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
-                <strong>Quick Path:</strong> PingOne Console → Applications → Your App → Configuration
+                <strong>Quick Path:</strong> PingOne Console  Applications  Your App  Configuration
               </div>
             </InstructionsText>
           </Instructions>

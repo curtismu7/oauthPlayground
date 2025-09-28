@@ -151,7 +151,7 @@ const SubmenuItem = styled(Link)<{ $isActive?: boolean }>`
   }
   
   &:before {
-    content: '•';
+    content: '';
     margin-right: 0.75rem;
     font-size: 1.5rem;
     line-height: 0;
@@ -183,15 +183,15 @@ const ColoredIcon = styled.span<{ color: string }>`
   flex-shrink: 0;
 `;
 
-const TokenIcon = () => <ColoredIcon color="#3b82f6">🔑</ColoredIcon>;
-const DiscoveryIcon = () => <ColoredIcon color="#10b981">🔍</ColoredIcon>;
-const PARIcon = () => <ColoredIcon color="#f59e0b">🛡️</ColoredIcon>;
-const CompareIcon = () => <ColoredIcon color="#8b5cf6">📊</ColoredIcon>;
-const DiagramsIcon = () => <ColoredIcon color="#ef4444">📈</ColoredIcon>;
-const TestIcon = () => <ColoredIcon color="#06b6d4">🧪</ColoredIcon>;
-const JWTIcon = () => <ColoredIcon color="#84cc16">🔓</ColoredIcon>;
-const SessionIcon = () => <ColoredIcon color="#f97316">👥</ColoredIcon>;
-const SDKIcon = () => <ColoredIcon color="#6366f1">💻</ColoredIcon>;
+const TokenIcon = () => <ColoredIcon color="#3b82f6"></ColoredIcon>;
+const DiscoveryIcon = () => <ColoredIcon color="#10b981"></ColoredIcon>;
+const PARIcon = () => <ColoredIcon color="#f59e0b"></ColoredIcon>;
+const CompareIcon = () => <ColoredIcon color="#8b5cf6"></ColoredIcon>;
+const DiagramsIcon = () => <ColoredIcon color="#ef4444"></ColoredIcon>;
+const TestIcon = () => <ColoredIcon color="#06b6d4"></ColoredIcon>;
+const JWTIcon = () => <ColoredIcon color="#84cc16"></ColoredIcon>;
+const SessionIcon = () => <ColoredIcon color="#f97316"></ColoredIcon>;
+const SDKIcon = () => <ColoredIcon color="#6366f1"></ColoredIcon>;
 
 const NavItemHeader = styled.div<NavItemHeaderProps>`
   display: flex;
@@ -313,7 +313,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       // Persist to localStorage
       try {
         localStorage.setItem('nav.openSections', JSON.stringify(newState));
-        console.log(`[📂 MENU] ${menu} toggled to ${newState[menu] ? 'expanded' : 'collapsed'}`);
+        console.log(`[ MENU] ${menu} toggled to ${newState[menu] ? 'expanded' : 'collapsed'}`);
       } catch (error) {
         console.warn('Failed to save navigation state to localStorage:', error);
       }
@@ -361,15 +361,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               OAuth 2.0 Authorization Code
             </SubmenuItem> */}
             <SubmenuItem to="/flows/oauth-authorization-code-v3" onClick={onClose} $isActive={isActiveRoute('/flows/oauth-authorization-code-v3')}>
-              🔐
+              
               OAuth 2.0 Authorization Code (V3)
             </SubmenuItem>
             <SubmenuItem to="/flows/oauth2-implicit-v3" onClick={onClose} $isActive={isActiveRoute('/flows/oauth2-implicit-v3')}>
-              🚀
+              
               OAuth 2.0 Implicit V3
             </SubmenuItem>
             <SubmenuItem to="/flows/oauth2-client-credentials-v3" onClick={onClose} $isActive={isActiveRoute('/flows/oauth2-client-credentials-v3')}>
-              🚀
+              
               OAuth2 Client Credentials V3
             </SubmenuItem>
             {/* Old OAuth 2.0 Client Credentials Flow - Hidden */}
@@ -378,7 +378,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               OAuth 2.0 Client Credentials
             </SubmenuItem> */}
             <SubmenuItem to="/oauth/resource-owner-password" onClick={onClose} $isActive={isActiveRoute('/oauth/resource-owner-password')}>
-              🚀
+              
               OAuth 2.0 Resource Owner Password
             </SubmenuItem>
           </Submenu>
@@ -403,19 +403,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               OIDC Authorization Code (V2)
             </SubmenuItem> */}
             <SubmenuItem to="/flows/enhanced-authorization-code-v3" onClick={onClose} $isActive={isActiveRoute('/flows/enhanced-authorization-code-v3')}>
-              🚀
+              
               OIDC Authorization Code (V3)
             </SubmenuItem>
             <SubmenuItem to="/flows/oidc-implicit-v3" onClick={onClose} $isActive={isActiveRoute('/flows/oidc-implicit-v3')}>
-              🚀
+              
               OIDC Implicit V3
             </SubmenuItem>
             <SubmenuItem to="/flows/oidc-hybrid-v3" onClick={onClose} $isActive={isActiveRoute('/flows/oidc-hybrid-v3')}>
-              🚀
+              
               OIDC Hybrid V3
             </SubmenuItem>
             <SubmenuItem to="/flows/oidc-client-credentials-v3" onClick={onClose} $isActive={isActiveRoute('/flows/oidc-client-credentials-v3')}>
-              🚀
+              
               OIDC Client Credentials V3
             </SubmenuItem>
             {/* Old Hybrid Flow - Hidden */}
@@ -424,11 +424,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               OIDC Hybrid Flow
             </SubmenuItem> */}
             <SubmenuItem to="/flows/device-code-oidc" onClick={onClose} $isActive={isActiveRoute('/flows/device-code-oidc')}>
-              🚀
+              
               OIDC Device Code V3
             </SubmenuItem>
             <SubmenuItem to="/oidc/resource-owner-password" onClick={onClose} $isActive={isActiveRoute('/oidc/resource-owner-password')}>
-              🚀
+              
               OIDC Resource Owner Password
             </SubmenuItem>
           </Submenu>
@@ -449,11 +449,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
          <Submenu $isOpen={openMenus['pingone-tokens']}>
            {/* Old Worker Token Flow - Hidden */}
            {/* <SubmenuItem to="/oidc/worker-token" onClick={onClose} $isActive={isActiveRoute('/oidc/worker-token')}>
-             🔧
+             
              PingOne Worker Token
            </SubmenuItem> */}
            <SubmenuItem to="/flows/worker-token-v3" onClick={onClose} $isActive={isActiveRoute('/flows/worker-token-v3')}>
-             🚀
+             
              PingOne Worker Token V3
            </SubmenuItem>
            <SubmenuItem 
@@ -483,23 +483,23 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           
           <Submenu $isOpen={openMenus.docs}>
             <SubmenuItem to="/documentation" onClick={onClose}>
-              📚
+              
               Local Documentation
             </SubmenuItem>
             <SubmenuItem to="/docs/oidc-specs" onClick={onClose}>
-              📖
+              
               OIDC Specs
             </SubmenuItem>
             <SubmenuItem to="/docs/oidc-for-ai" onClick={onClose}>
-              🤖
+              
               OIDC for AI
             </SubmenuItem>
             <SubmenuItem to="/docs/oauth2-security-best-practices" onClick={onClose}>
-              🛡️
+              
               OAuth 2.0 Security Best Practices
             </SubmenuItem>
             <SubmenuItem as="a" href="https://apidocs.pingidentity.com/pingone/auth/v1/api/#openid-connectoauth-2" target="_blank" rel="noopener noreferrer" onClick={onClose}>
-              🔗
+              
               PingOne API Docs for OAuth and OIDC
             </SubmenuItem>
             <SubmenuItem 
@@ -574,7 +574,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               onClick={onClose}
             >
               <JWTIcon />
-              Ping JWT Decoder ↗
+              Ping JWT Decoder 
             </SubmenuItem>
             <SubmenuItem to="/oidc-session-management" onClick={onClose}>
               <SessionIcon />

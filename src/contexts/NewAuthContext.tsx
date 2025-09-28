@@ -173,7 +173,7 @@ const getStoredUser = (): UserInfo | null => {
   // Function to load configuration from environment variables or localStorage
 async function loadConfiguration(): Promise<AppConfig> {
   try {
-    console.log('🔧 [NewAuthContext] Loading configuration...');
+    console.log(' [NewAuthContext] Loading configuration...');
     
     // Try to get from environment variables first
     const envConfig = {
@@ -189,32 +189,32 @@ async function loadConfiguration(): Promise<AppConfig> {
       environmentId: (window as WindowWithPingOne).__PINGONE_ENVIRONMENT_ID__ || '',
     };
 
-    console.log('🔧 [NewAuthContext] Environment config:', envConfig);
+    console.log(' [NewAuthContext] Environment config:', envConfig);
 
     // If we have environment variables, use them
     if (envConfig.clientId && envConfig.environmentId) {
-      console.log('✅ [NewAuthContext] Using environment variables');
+      console.log(' [NewAuthContext] Using environment variables');
       return envConfig;
     }
 
     // Otherwise, try to get from credential manager
-    console.log('🔧 [NewAuthContext] Loading from credential manager...');
+    console.log(' [NewAuthContext] Loading from credential manager...');
     // Try to load from config credentials first, then fall back to authz flow credentials
     let configCredentials = credentialManager.loadConfigCredentials();
-    console.log('🔧 [NewAuthContext] Config credentials result:', configCredentials);
+    console.log(' [NewAuthContext] Config credentials result:', configCredentials);
     
     let authzCredentials = credentialManager.loadAuthzFlowCredentials();
-    console.log('🔧 [NewAuthContext] Authz credentials result:', authzCredentials);
+    console.log(' [NewAuthContext] Authz credentials result:', authzCredentials);
     
     // Use config credentials if available, otherwise use authz credentials
     let allCredentials = configCredentials;
     if (!allCredentials.environmentId && !allCredentials.clientId) {
       allCredentials = authzCredentials;
-      console.log('🔧 [NewAuthContext] Using authz credentials as fallback');
+      console.log(' [NewAuthContext] Using authz credentials as fallback');
     } else {
-      console.log('🔧 [NewAuthContext] Using config credentials');
+      console.log(' [NewAuthContext] Using config credentials');
     }
-    console.log('🔧 [NewAuthContext] Final credential manager result:', allCredentials);
+    console.log(' [NewAuthContext] Final credential manager result:', allCredentials);
     
     if (allCredentials.environmentId && allCredentials.clientId) {
       const configFromCredentials = {
@@ -230,7 +230,7 @@ async function loadConfiguration(): Promise<AppConfig> {
         environmentId: allCredentials.environmentId,
         hasConfigError: false,
       };
-      console.log('✅ [NewAuthContext] Using credentials from credential manager:', configFromCredentials);
+      console.log(' [NewAuthContext] Using credentials from credential manager:', configFromCredentials);
       return configFromCredentials;
     }
 
@@ -514,7 +514,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Login function
   const login = useCallback(async (redirectAfterLogin = '/', callbackType: 'dashboard' | 'oauth' = 'oauth'): Promise<LoginResult> => {
-    console.log('🚀 [NewAuthContext] Starting login process...', {
+    console.log(' [NewAuthContext] Starting login process...', {
       redirectAfterLogin,
       callbackType,
       hasConfig: !!config,
@@ -526,7 +526,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       if (!config?.clientId || !config?.environmentId) {
         const errorMessage = 'Configuration required. Please configure your PingOne settings first.';
-        console.error('❌ [NewAuthContext] Missing configuration:', {
+        console.error(' [NewAuthContext] Missing configuration:', {
           hasClientId: !!config?.clientId,
           hasEnvironmentId: !!config?.environmentId,
           config
@@ -535,13 +535,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: false, error: errorMessage };
       }
 
-      console.log('✅ [NewAuthContext] Configuration validated');
+      console.log(' [NewAuthContext] Configuration validated');
 
       // Generate state and nonce for security
       const state = Math.random().toString(36).substring(2, 15);
       const nonce = Math.random().toString(36).substring(2, 15);
       
-      console.log('🔐 [NewAuthContext] Generated security parameters:', {
+      console.log(' [NewAuthContext] Generated security parameters:', {
         state: state.substring(0, 8) + '...',
         nonce: nonce.substring(0, 8) + '...'
       });
@@ -550,7 +550,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const codeVerifier = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
       const codeChallenge = await generateCodeChallenge(codeVerifier);
       
-      console.log('🔧 [NewAuthContext] PKCE generation successful:', { 
+      console.log(' [NewAuthContext] PKCE generation successful:', { 
         codeVerifier: codeVerifier.substring(0, 20) + '...', 
         codeChallenge: codeChallenge.substring(0, 20) + '...',
         codeVerifierLength: codeVerifier.length,
@@ -563,7 +563,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       sessionStorage.setItem('code_verifier', codeVerifier);
       sessionStorage.setItem('oauth_redirect_after_login', redirectAfterLogin);
       
-      console.log('💾 [NewAuthContext] Stored in sessionStorage:', {
+      console.log(' [NewAuthContext] Stored in sessionStorage:', {
         oauth_state: state.substring(0, 8) + '...',
         oauth_nonce: nonce.substring(0, 8) + '...',
         code_verifier: codeVerifier.substring(0, 20) + '...',
@@ -576,7 +576,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ? `${window.location.origin}/dashboard-callback`
         : `${window.location.origin}/authz-callback`;
 
-      console.log('🔗 [NewAuthContext] Redirect URI configuration:', {
+      console.log(' [NewAuthContext] Redirect URI configuration:', {
         callbackType,
         redirectUri,
         windowOrigin: window.location.origin,
@@ -595,7 +595,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       authUrl.searchParams.set('code_challenge', codeChallenge);
       authUrl.searchParams.set('code_challenge_method', 'S256');
 
-      console.log('🌐 [NewAuthContext] Built authorization URL:', {
+      console.log(' [NewAuthContext] Built authorization URL:', {
         baseUrl: config.pingone.authEndpoint,
         fullUrl: authUrl.toString(),
         params: {
@@ -612,13 +612,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       logger.auth('NewAuthContext', 'Prepared authorization URL for modal display', { authUrl: authUrl.toString() });
       
-      console.log('🚀 [NewAuthContext] Authorization URL prepared, returning for modal display...');
+      console.log(' [NewAuthContext] Authorization URL prepared, returning for modal display...');
       
       // Return the URL for modal display instead of direct redirect
       return { success: true, redirectUrl: authUrl.toString() };
     } catch (error) {
-      console.error('❌ [NewAuthContext] Login error:', error);
-      console.error('❌ [NewAuthContext] Error details:', {
+      console.error(' [NewAuthContext] Login error:', error);
+      console.error(' [NewAuthContext] Error details:', {
         message: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : undefined,
         error
@@ -675,7 +675,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Validate state parameter (more lenient for development)
       const storedState = sessionStorage.getItem('oauth_state');
-      console.log('🔍 [NewAuthContext] State validation:', { 
+      console.log(' [NewAuthContext] State validation:', { 
         received: state, 
         stored: storedState, 
         match: state === storedState,
@@ -746,19 +746,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (flowContext) {
         try {
           const parsedContext = safeJsonParse(flowContext);
-          console.log('🔧 [NewAuthContext] Parsed flow context:', parsedContext);
+          console.log(' [NewAuthContext] Parsed flow context:', parsedContext);
           if (parsedContext.redirectUri) {
             redirectUri = parsedContext.redirectUri;
-            console.log('🔧 [NewAuthContext] Using redirect URI from flow context:', redirectUri);
+            console.log(' [NewAuthContext] Using redirect URI from flow context:', redirectUri);
           } else {
-            console.log('⚠️ [NewAuthContext] No redirectUri in flow context');
+            console.log(' [NewAuthContext] No redirectUri in flow context');
           }
         } catch (error) {
           console.warn('Failed to parse flow context for redirect URI:', error);
         }
       } else {
-        console.log('🚨 [NewAuthContext] NO FLOW CONTEXT FOUND - This means V3 redirect will go to dashboard!');
-        console.log('🚨 [NewAuthContext] This is the bug - V3 should have set flowContext in sessionStorage');
+        console.log(' [NewAuthContext] NO FLOW CONTEXT FOUND - This means V3 redirect will go to dashboard!');
+        console.log(' [NewAuthContext] This is the bug - V3 should have set flowContext in sessionStorage');
       }
       
       // Fallback to determining by callback URL if no flow context
@@ -767,14 +767,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         redirectUri = isDashboardCallback 
           ? `${window.location.origin}/dashboard-callback`
           : config?.redirectUri || '';
-        console.log('🔧 [NewAuthContext] Using fallback redirect URI:', redirectUri);
+        console.log(' [NewAuthContext] Using fallback redirect URI:', redirectUri);
       }
 
       // Get code_verifier from sessionStorage for PKCE
       // Retrieve stored PKCE verifier - OIDC Spec Compliance  
       // Per RFC 7636 (PKCE): code_verifier MUST be provided in token exchange
       const codeVerifier = sessionStorage.getItem('code_verifier') || sessionStorage.getItem('oauth_code_verifier');
-      console.log('🔧 [NewAuthContext] Retrieved code_verifier from sessionStorage:', {
+      console.log(' [NewAuthContext] Retrieved code_verifier from sessionStorage:', {
         hasCodeVerifier: !!codeVerifier,
         codeVerifierLength: codeVerifier?.length || 0,
         codeVerifierPrefix: codeVerifier ? codeVerifier.substring(0, 10) + '...' : 'MISSING'
@@ -786,7 +786,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       let environmentId = config?.environmentId || '';
       
       if (!clientId || !environmentId) {
-        console.log('⚠️ [NewAuthContext] Config not loaded, trying credential manager fallback...');
+        console.log(' [NewAuthContext] Config not loaded, trying credential manager fallback...');
         try {
           // Import credential manager dynamically to avoid circular dependency
           const { credentialManager } = await import('../utils/credentialManager');
@@ -800,56 +800,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           clientSecret = clientSecret || credentials.clientSecret || '';
           environmentId = environmentId || credentials.environmentId || '';
 
-          console.log('🔧 [NewAuthContext] Fallback credentials loaded (preferring AuthZ):', {
+          console.log(' [NewAuthContext] Fallback credentials loaded (preferring AuthZ):', {
             hasClientId: !!clientId,
             hasClientSecret: !!clientSecret,
             hasEnvironmentId: !!environmentId
           });
         } catch (error) {
-          console.error('❌ [NewAuthContext] Failed to load fallback credentials:', error);
+          console.error(' [NewAuthContext] Failed to load fallback credentials:', error);
         }
       }
       
       // CRITICAL VALIDATION - Ensure we have valid credentials
       if (!clientId || clientId.trim() === '') {
-        console.error('❌ [NewAuthContext] CRITICAL: clientId is empty!', { clientId, environmentId, redirectUri });
+        console.error(' [NewAuthContext] CRITICAL: clientId is empty!', { clientId, environmentId, redirectUri });
         throw new Error('Client ID is required for token exchange. Please configure your OAuth credentials first.');
       }
       
       if (!environmentId || environmentId.trim() === '') {
-        console.error('❌ [NewAuthContext] CRITICAL: environmentId is empty!', { clientId, environmentId, redirectUri });
+        console.error(' [NewAuthContext] CRITICAL: environmentId is empty!', { clientId, environmentId, redirectUri });
         throw new Error('Environment ID is required for token exchange. Please configure your OAuth credentials first.');
       }
       
       if (!redirectUri || redirectUri.trim() === '') {
-        console.error('❌ [NewAuthContext] CRITICAL: redirectUri is empty!', { clientId, environmentId, redirectUri });
+        console.error(' [NewAuthContext] CRITICAL: redirectUri is empty!', { clientId, environmentId, redirectUri });
         throw new Error('Redirect URI is required for token exchange. Please configure your OAuth credentials first.');
       }
 
       // If this callback belongs to Enhanced Authorization Code Flow V2 or V3,
       // do NOT auto-exchange here. Defer token exchange to the flow page to avoid double-use of the code.
-      console.log('🚨 [NewAuthContext] FULL REDIRECT CALLBACK DEBUG - START');
-      console.log('🔍 [NewAuthContext] Checking for Enhanced flow context to defer token exchange...');
-      console.log('🔍 [NewAuthContext] Current URL:', url);
-      console.log('🔍 [NewAuthContext] URL contains authz-callback:', url.includes('authz-callback'));
-      console.log('🔍 [NewAuthContext] All sessionStorage contents:', 
+      console.log(' [NewAuthContext] FULL REDIRECT CALLBACK DEBUG - START');
+      console.log(' [NewAuthContext] Checking for Enhanced flow context to defer token exchange...');
+      console.log(' [NewAuthContext] Current URL:', url);
+      console.log(' [NewAuthContext] URL contains authz-callback:', url.includes('authz-callback'));
+      console.log(' [NewAuthContext] All sessionStorage contents:', 
         Object.fromEntries(Object.keys(sessionStorage).map(key => [key, sessionStorage.getItem(key)])));
-      console.log('🔍 [NewAuthContext] Looking specifically for flowContext key...');
+      console.log(' [NewAuthContext] Looking specifically for flowContext key...');
       
       try {
         const flowContextRaw = sessionStorage.getItem('flowContext');
-        console.log('🔍 [NewAuthContext] Flow context raw from sessionStorage:', flowContextRaw);
+        console.log(' [NewAuthContext] Flow context raw from sessionStorage:', flowContextRaw);
         
         if (flowContextRaw) {
           const parsed = safeJsonParse(flowContextRaw);
-          console.log('🔍 [NewAuthContext] Parsed flow context:', parsed);
+          console.log(' [NewAuthContext] Parsed flow context:', parsed);
           
           const isEnhancedV2 = parsed?.flow === 'enhanced-authorization-code-v2';
           const isEnhancedV3 = parsed?.flow === 'enhanced-authorization-code-v3' || 
                                parsed?.flow === 'oauth-authorization-code-v3' || 
                                parsed?.flow === 'oidc-authorization-code-v3';
           
-          console.log('🔍 [NewAuthContext] Flow type detection:', {
+          console.log(' [NewAuthContext] Flow type detection:', {
             flowType: parsed?.flow,
             isEnhancedV2,
             isEnhancedV3,
@@ -857,7 +857,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             parsedReturnPath: parsed?.returnPath
           });
           
-          console.log('🚨 [NewAuthContext] ENHANCED FLOW DETECTED?', isEnhancedV2 || isEnhancedV3);
+          console.log(' [NewAuthContext] ENHANCED FLOW DETECTED?', isEnhancedV2 || isEnhancedV3);
           
           if (isEnhancedV2 || isEnhancedV3) {
             // Persist auth code and state for the flow page
@@ -870,7 +870,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             
             // OIDC Compliance: Use the redirect URI from flow context if available
             if (parsed?.redirectUri) {
-              console.log('🔧 [NewAuthContext] Using redirect URI from flow context for OIDC compliance:', parsed.redirectUri);
+              console.log(' [NewAuthContext] Using redirect URI from flow context for OIDC compliance:', parsed.redirectUri);
               // Override the redirectUri with the one from flow context
               redirectUri = parsed.redirectUri;
             }
@@ -886,11 +886,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               } else {
                 returnPath = parsed?.returnPath || '/flows/enhanced-authorization-code-v3?step=4';
               }
-              console.log('🎯 [NewAuthContext] V3 FLOW DETECTED - Returning to V3 page:', returnPath);
+              console.log(' [NewAuthContext] V3 FLOW DETECTED - Returning to V3 page:', returnPath);
               logger.auth('NewAuthContext', 'Deferring token exchange to Enhanced Auth Code Flow V3 page', { returnPath, redirectUri });
             } else {
               returnPath = parsed?.returnPath || '/flows/enhanced-authorization-code-v2?step=4';
-              console.log('🎯 [NewAuthContext] V2 FLOW DETECTED - Returning to V2 page:', returnPath);
+              console.log(' [NewAuthContext] V2 FLOW DETECTED - Returning to V2 page:', returnPath);
               logger.auth('NewAuthContext', 'Deferring token exchange to Enhanced Auth Code Flow V2 page', { returnPath, redirectUri });
             }
             
@@ -903,9 +903,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       // Exchange code for tokens - This should NOT happen for Enhanced V3 flows
-      console.log('🚨 [NewAuthContext] CRITICAL: About to do immediate token exchange!');
-      console.log('🚨 [NewAuthContext] If this is V3, the flow context detection FAILED!');
-      console.log('🚨 [NewAuthContext] Flow context should have deferred this to V3 page!');
+      console.log(' [NewAuthContext] CRITICAL: About to do immediate token exchange!');
+      console.log(' [NewAuthContext] If this is V3, the flow context detection FAILED!');
+      console.log(' [NewAuthContext] Flow context should have deferred this to V3 page!');
       
       const requestBody = {
         grant_type: 'authorization_code',
@@ -917,10 +917,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ...(codeVerifier && { code_verifier: codeVerifier })
       };
       
-      console.log('🔧 [NewAuthContext] Token exchange request:', requestBody);
-      console.log('🔧 [NewAuthContext] Config object:', config);
-      console.log('🔧 [NewAuthContext] PingOne config:', config?.pingone);
-      console.log('🔧 [NewAuthContext] Request body validation:', {
+      console.log(' [NewAuthContext] Token exchange request:', requestBody);
+      console.log(' [NewAuthContext] Config object:', config);
+      console.log(' [NewAuthContext] PingOne config:', config?.pingone);
+      console.log(' [NewAuthContext] Request body validation:', {
         hasGrantType: !!requestBody.grant_type,
         hasCode: !!requestBody.code,
         hasRedirectUri: !!requestBody.redirect_uri,
@@ -932,7 +932,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // FINAL VALIDATION - Last chance to catch empty values
       if (requestBody.client_id === '' || !requestBody.client_id) {
-        console.error('❌ [NewAuthContext] CRITICAL: Request body has empty client_id!', requestBody);
+        console.error(' [NewAuthContext] CRITICAL: Request body has empty client_id!', requestBody);
         throw new Error('CRITICAL ERROR: Request body contains empty client_id. This should never happen.');
       }
 
@@ -941,8 +941,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ? 'https://oauth-playground.vercel.app' 
         : 'https://localhost:3001';
 
-      console.log('🌐 [NewAuthContext] Making token exchange request to backend');
-      console.log('📤 [NewAuthContext] Request details:', {
+      console.log(' [NewAuthContext] Making token exchange request to backend');
+      console.log(' [NewAuthContext] Request details:', {
         url: `${backendUrl}/api/token-exchange`,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -957,7 +957,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body: JSON.stringify(requestBody),
       });
       
-      console.log('📥 [NewAuthContext] Token exchange response:', {
+      console.log(' [NewAuthContext] Token exchange response:', {
         status: tokenResponse.status,
         statusText: tokenResponse.statusText,
         ok: tokenResponse.ok,
@@ -967,7 +967,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!tokenResponse.ok) {
         const errorText = await tokenResponse.text();
         const errorMessage = `Token exchange failed: ${errorText}`;
-        console.error('❌ [NewAuthContext] Token exchange failed:', {
+        console.error(' [NewAuthContext] Token exchange failed:', {
           status: tokenResponse.status,
           statusText: tokenResponse.statusText,
           errorText,
@@ -979,7 +979,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       const tokenData: OAuthTokenResponse = await tokenResponse.json();
-      console.log('✅ [NewAuthContext] Token exchange successful:', {
+      console.log(' [NewAuthContext] Token exchange successful:', {
         hasAccessToken: !!tokenData.access_token,
         hasRefreshToken: !!tokenData.refresh_token,
         hasIdToken: !!tokenData.id_token,
@@ -1002,7 +1002,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         scope: tokenData.scope,
       };
       
-      console.log('💾 [NewAuthContext] Storing tokens in oauthStorage:', {
+      console.log(' [NewAuthContext] Storing tokens in oauthStorage:', {
         hasAccessToken: !!tokens.access_token,
         hasRefreshToken: !!tokens.refresh_token,
         hasIdToken: !!tokens.id_token,
@@ -1012,7 +1012,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       oauthStorage.setTokens(tokens);
       
-      console.log('✅ [NewAuthContext] Tokens stored successfully');
+      console.log(' [NewAuthContext] Tokens stored successfully');
       
       // Get user info if available
       let userInfo: UserInfo | null = null;
@@ -1026,7 +1026,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       // Update state
-      console.log('🔄 [NewAuthContext] Updating auth state with tokens:', {
+      console.log(' [NewAuthContext] Updating auth state with tokens:', {
         isAuthenticated: true,
         hasTokens: !!tokens,
         hasUser: !!userInfo,
@@ -1054,26 +1054,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       sessionStorage.removeItem('oauth_redirect_after_login');
       
       // Check for flow context to continue to next step BEFORE cleaning up
-      console.log('🔍 [NewAuthContext] Checking flow context for redirect:', flowContext);
-      console.log('🔍 [NewAuthContext] All sessionStorage keys:', Object.keys(sessionStorage));
-      console.log('🔍 [NewAuthContext] All sessionStorage contents:', Object.fromEntries(Object.keys(sessionStorage).map(key => [key, sessionStorage.getItem(key)])));
+      console.log(' [NewAuthContext] Checking flow context for redirect:', flowContext);
+      console.log(' [NewAuthContext] All sessionStorage keys:', Object.keys(sessionStorage));
+      console.log(' [NewAuthContext] All sessionStorage contents:', Object.fromEntries(Object.keys(sessionStorage).map(key => [key, sessionStorage.getItem(key)])));
       
       if (flowContext) {
         try {
           // SECURITY: Validate JSON input before parsing to prevent XSS
           if (typeof flowContext !== 'string' || flowContext.length > 10000) {
-            console.warn('🚨 [Security] Invalid flow context format or size');
+            console.warn(' [Security] Invalid flow context format or size');
             return { success: true, redirectUrl: '/dashboard' };
           }
           
           // Additional XSS protection - check for script tags or dangerous content
           if (flowContext.includes('<script') || flowContext.includes('javascript:') || flowContext.includes('data:')) {
-            console.warn('🚨 [Security] Blocked potentially dangerous flow context content');
+            console.warn(' [Security] Blocked potentially dangerous flow context content');
             return { success: true, redirectUrl: '/dashboard' };
           }
           
           const parsedContext = safeJsonParse(flowContext);
-          console.log('🔍 [NewAuthContext] Safely parsed flow context:', parsedContext);
+          console.log(' [NewAuthContext] Safely parsed flow context:', parsedContext);
           
           // Validate the parsed context structure
           if (parsedContext && typeof parsedContext === 'object' && parsedContext.returnPath) {
@@ -1081,14 +1081,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const returnPath = String(parsedContext.returnPath);
             if (returnPath.includes('/flows/enhanced-authorization-code')) {
               redirectUrl = returnPath;
-              console.log('🔄 [NewAuthContext] Using Enhanced flow return path:', redirectUrl);
+              console.log(' [NewAuthContext] Using Enhanced flow return path:', redirectUrl);
             } else {
               // For other flows, use basic path validation
               redirectUrl = returnPath.startsWith('/') ? returnPath : '/dashboard';
-              console.log('🔄 [NewAuthContext] Using validated flow context return path:', redirectUrl);
+              console.log(' [NewAuthContext] Using validated flow context return path:', redirectUrl);
             }
           } else {
-            console.log('⚠️ [NewAuthContext] No valid returnPath in flow context, using default');
+            console.log(' [NewAuthContext] No valid returnPath in flow context, using default');
             redirectUrl = '/dashboard';
           }
         } catch (error) {
@@ -1098,13 +1098,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         
         // Clean up flow context AFTER determining redirect URL
-        console.log('🧹 [NewAuthContext] Cleaning up flow context after determining redirect URL');
+        console.log(' [NewAuthContext] Cleaning up flow context after determining redirect URL');
         sessionStorage.removeItem('flowContext');
       } else {
-        console.log('⚠️ [NewAuthContext] No flow context found in sessionStorage');
+        console.log(' [NewAuthContext] No flow context found in sessionStorage');
         
         // Clear nonce for non-Enhanced flows (Enhanced flows preserve nonce for validation)
-        console.log('🧹 [NewAuthContext] Clearing nonce for non-Enhanced flow');
+        console.log(' [NewAuthContext] Clearing nonce for non-Enhanced flow');
         sessionStorage.removeItem('oauth_nonce');
       }
       
@@ -1285,7 +1285,7 @@ export const useAuth = (): AuthContextType => {
       updateTokens: () => {},
       dismissError: () => {
         // Clear the error by reloading the page to reset context
-        console.log('🔄 [useAuth] Dismissing error by reloading page');
+        console.log(' [useAuth] Dismissing error by reloading page');
         window.location.reload();
       },
     };

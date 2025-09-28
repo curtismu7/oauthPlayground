@@ -284,7 +284,7 @@ const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
         <Card>
           <CardBody style={{ textAlign: 'center', padding: '2rem' }}>
             <FiCheckCircle size={48} style={{ color: '#28a745', marginBottom: '1rem' }} />
-            <h2>Tutorial Completed! 🎉</h2>
+            <h2>Tutorial Completed! </h2>
             <p style={{ color: '#6c757d', marginBottom: '1.5rem' }}>
               Great job! You've successfully completed the {tutorial.title} tutorial.
               You now have hands-on experience with this OAuth flow.

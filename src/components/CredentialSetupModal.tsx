@@ -260,7 +260,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
   // Load credentials from environment variables
   const loadFromEnvironmentVariables = async () => {
     try {
-      console.log('🔄 [CredentialSetupModal] Loading credentials from environment variables...');
+      console.log(' [CredentialSetupModal] Loading credentials from environment variables...');
       
       const response = await fetch('/api/env-config');
       if (!response.ok) {
@@ -268,7 +268,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
       }
       
       const envConfig = await response.json();
-      console.log('✅ [CredentialSetupModal] Loaded from environment config:', envConfig);
+      console.log(' [CredentialSetupModal] Loaded from environment config:', envConfig);
       
       // Pre-populate form with environment variables
       const newFormData = {
@@ -278,11 +278,11 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
         redirectUri: envConfig.redirectUri || window.location.origin + '/dashboard-callback'
       };
       
-      console.log('🔧 [CredentialSetupModal] Setting form data from environment variables:', newFormData);
+      console.log(' [CredentialSetupModal] Setting form data from environment variables:', newFormData);
       setFormData(newFormData);
       
     } catch (error) {
-      console.error('❌ [CredentialSetupModal] Failed to load from environment variables:', error);
+      console.error(' [CredentialSetupModal] Failed to load from environment variables:', error);
       // Keep the default form data if environment loading fails
     }
   };
@@ -290,13 +290,13 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
   // Load existing credentials from localStorage when modal opens
   useEffect(() => {
     if (isOpen) {
-      console.log('🔍 [CredentialSetupModal] Loading existing credentials from credential manager...');
+      console.log(' [CredentialSetupModal] Loading existing credentials from credential manager...');
       
       // Debug: Check all localStorage keys
-      console.log('🔍 [CredentialSetupModal] All localStorage keys:', Object.keys(localStorage));
-      console.log('🔍 [CredentialSetupModal] pingone_permanent_credentials:', localStorage.getItem('pingone_permanent_credentials'));
-      console.log('🔍 [CredentialSetupModal] pingone_session_credentials:', localStorage.getItem('pingone_session_credentials'));
-      console.log('🔍 [CredentialSetupModal] pingone_config:', localStorage.getItem('pingone_config'));
+      console.log(' [CredentialSetupModal] All localStorage keys:', Object.keys(localStorage));
+      console.log(' [CredentialSetupModal] pingone_permanent_credentials:', localStorage.getItem('pingone_permanent_credentials'));
+      console.log(' [CredentialSetupModal] pingone_session_credentials:', localStorage.getItem('pingone_session_credentials'));
+      console.log(' [CredentialSetupModal] pingone_config:', localStorage.getItem('pingone_config'));
       
       try {
         // Load credentials using the credential manager
@@ -308,13 +308,13 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
         if (oldConfig) {
           try {
             oldCredentials = JSON.parse(oldConfig);
-            console.log('🔍 [CredentialSetupModal] Found old config:', oldCredentials);
+            console.log(' [CredentialSetupModal] Found old config:', oldCredentials);
           } catch (e) {
-            console.log('❌ [CredentialSetupModal] Failed to parse old config:', e);
+            console.log(' [CredentialSetupModal] Failed to parse old config:', e);
           }
         }
         
-        console.log('🔍 [CredentialSetupModal] Loaded credentials:', allCredentials);
+        console.log(' [CredentialSetupModal] Loaded credentials:', allCredentials);
         
         // Check if we have permanent credentials
         const hasPermanentCredentials = credentialManager.arePermanentCredentialsComplete();
@@ -335,26 +335,26 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
         
         // Pre-populate form with existing credentials
         if (hasPermanentCredentials || hasSessionCredentials || oldCredentials) {
-          console.log('✅ [CredentialSetupModal] Pre-populating form with existing credentials');
+          console.log(' [CredentialSetupModal] Pre-populating form with existing credentials');
           const newFormData = {
             environmentId: allCredentials.environmentId || oldCredentials?.environmentId || '',
             clientId: allCredentials.clientId || oldCredentials?.clientId || '',
             clientSecret: allCredentials.clientSecret || oldCredentials?.clientSecret || '',
             redirectUri: allCredentials.redirectUri || oldCredentials?.redirectUri || window.location.origin + '/dashboard-callback'
           };
-          console.log('🔧 [CredentialSetupModal] Setting form data to:', newFormData);
-          console.log('🔧 [CredentialSetupModal] hasPermanentCredentials:', hasPermanentCredentials);
-          console.log('🔧 [CredentialSetupModal] hasSessionCredentials:', hasSessionCredentials);
-          console.log('🔧 [CredentialSetupModal] oldCredentials:', oldCredentials);
+          console.log(' [CredentialSetupModal] Setting form data to:', newFormData);
+          console.log(' [CredentialSetupModal] hasPermanentCredentials:', hasPermanentCredentials);
+          console.log(' [CredentialSetupModal] hasSessionCredentials:', hasSessionCredentials);
+          console.log(' [CredentialSetupModal] oldCredentials:', oldCredentials);
           setFormData(newFormData);
           setOriginalFormData(newFormData);
           setHasUnsavedChanges(false);
           setHasBeenSaved(false);
         } else {
-          console.log('⚠️ [CredentialSetupModal] No existing credentials found, loading from environment variables...');
-          console.log('🔧 [CredentialSetupModal] hasPermanentCredentials:', hasPermanentCredentials);
-          console.log('🔧 [CredentialSetupModal] hasSessionCredentials:', hasSessionCredentials);
-          console.log('🔧 [CredentialSetupModal] oldCredentials:', oldCredentials);
+          console.log(' [CredentialSetupModal] No existing credentials found, loading from environment variables...');
+          console.log(' [CredentialSetupModal] hasPermanentCredentials:', hasPermanentCredentials);
+          console.log(' [CredentialSetupModal] hasSessionCredentials:', hasSessionCredentials);
+          console.log(' [CredentialSetupModal] oldCredentials:', oldCredentials);
           
           // Load from environment variables as fallback
           loadFromEnvironmentVariables();
@@ -363,21 +363,21 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
           setHasBeenSaved(false);
         }
         
-        console.log('✅ [CredentialSetupModal] Form pre-populated with:', {
+        console.log(' [CredentialSetupModal] Form pre-populated with:', {
           environmentId: allCredentials.environmentId,
           hasClientId: !!allCredentials.clientId,
           hasClientSecret: !!allCredentials.clientSecret
         });
         
       } catch (error) {
-        console.error('❌ [CredentialSetupModal] Error loading existing credentials:', error);
+        console.error(' [CredentialSetupModal] Error loading existing credentials:', error);
       }
     }
   }, [isOpen]);
 
   // Debug form data changes
   useEffect(() => {
-    console.log('🔧 [CredentialSetupModal] Form data changed:', formData);
+    console.log(' [CredentialSetupModal] Form data changed:', formData);
   }, [formData]);
 
   // Validate Environment ID format (more flexible for PingOne)
@@ -410,14 +410,14 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
         newFormData[key as keyof typeof newFormData] !== originalFormData[key as keyof typeof originalFormData]
       );
       setHasUnsavedChanges(hasChanges);
-      console.log('🔧 [CredentialSetupModal] Form modified, unsaved changes:', hasChanges);
+      console.log(' [CredentialSetupModal] Form modified, unsaved changes:', hasChanges);
     }
   };
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    console.log('🔧 [CredentialSetupModal] Validating form data:', formData);
+    console.log(' [CredentialSetupModal] Validating form data:', formData);
 
     if (!formData.environmentId) {
       newErrors.environmentId = 'Environment ID is required';
@@ -437,20 +437,20 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
 
     setErrors(newErrors);
     const isValid = Object.keys(newErrors).length === 0;
-    console.log('🔧 [CredentialSetupModal] Validation result:', { isValid, errors: newErrors });
+    console.log(' [CredentialSetupModal] Validation result:', { isValid, errors: newErrors });
     return isValid;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('🔧 [CredentialSetupModal] Save button clicked', { formData, errors });
+    console.log(' [CredentialSetupModal] Save button clicked', { formData, errors });
 
     if (!validateForm()) {
-      console.log('❌ [CredentialSetupModal] Form validation failed', { errors });
+      console.log(' [CredentialSetupModal] Form validation failed', { errors });
       return;
     }
 
-    console.log('✅ [CredentialSetupModal] Form validation passed, starting save...');
+    console.log(' [CredentialSetupModal] Form validation passed, starting save...');
     setIsLoading(true);
     setSaveStatus(null);
 
@@ -485,7 +485,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
       // Wait for minimum delay to ensure spinner is visible
       await minDelay;
 
-      console.log('✅ [CredentialSetupModal] Configuration saved successfully to localStorage and events dispatched');
+      console.log(' [CredentialSetupModal] Configuration saved successfully to localStorage and events dispatched');
 
       setSaveStatus({
         type: 'success',
@@ -498,7 +498,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
       setHasUnsavedChanges(false);
       setOriginalFormData({ ...formData });
       
-      console.log('✅ [CredentialSetupModal] Form marked as saved, Save button will be disabled');
+      console.log(' [CredentialSetupModal] Form marked as saved, Save button will be disabled');
 
       // Call onSave callback if provided
       if (onSave) {
@@ -507,7 +507,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
 
       // Auto-close after success
       setTimeout(() => {
-        console.log('🔄 [CredentialSetupModal] Auto-closing modal after successful save');
+        console.log(' [CredentialSetupModal] Auto-closing modal after successful save');
         onClose();
       }, 1500);
 
@@ -554,18 +554,18 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
           {/* Current localStorage Status */}
           <div style={{ marginBottom: '2rem', padding: '1rem', backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #dee2e6' }}>
             <h4 style={{ marginTop: 0, marginBottom: '0.5rem', fontSize: '0.9rem', color: '#495057' }}>
-              📦 Current Stored Credentials
+               Current Stored Credentials
             </h4>
             <div style={{ fontSize: '0.85rem', color: '#6c757d' }}>
               <div style={{ marginBottom: '0.25rem' }}>
                 <strong>Permanent Credentials:</strong> {credentialManager.arePermanentCredentialsComplete() ? 
-                  <span style={{ color: '#28a745' }}>✅ Complete</span> : 
-                  <span style={{ color: '#dc3545' }}>❌ Missing</span>}
+                  <span style={{ color: '#28a745' }}> Complete</span> : 
+                  <span style={{ color: '#dc3545' }}> Missing</span>}
               </div>
               <div style={{ marginBottom: '0.25rem' }}>
                 <strong>Session Credentials:</strong> {credentialManager.getAllCredentials().clientSecret ? 
-                  <span style={{ color: '#28a745' }}>✅ Present</span> : 
-                  <span style={{ color: '#dc3545' }}>❌ Missing</span>}
+                  <span style={{ color: '#28a745' }}> Present</span> : 
+                  <span style={{ color: '#dc3545' }}> Missing</span>}
               </div>
               <div style={{ marginBottom: '0.25rem', fontSize: '0.8rem', color: '#6c757d' }}>
                 <strong>Status:</strong> {credentialManager.getCredentialsStatus().overall}
@@ -574,7 +574,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
                 <div style={{ marginTop: '0.5rem', padding: '0.5rem', backgroundColor: 'white', borderRadius: '4px', border: '1px solid #dee2e6' }}>
                   <div><strong>Environment ID:</strong> {credentialManager.getAllCredentials().environmentId || 'Not set'}</div>
                   <div><strong>Client ID:</strong> {credentialManager.getAllCredentials().clientId ? `${credentialManager.getAllCredentials().clientId.substring(0, 12)}...` : 'Not set'}</div>
-                  <div><strong>Client Secret:</strong> {credentialManager.getAllCredentials().clientSecret ? '••••••••' : 'Not set'}</div>
+                  <div><strong>Client Secret:</strong> {credentialManager.getAllCredentials().clientSecret ? '' : 'Not set'}</div>
                 </div>
               )}
             </div>
@@ -744,10 +744,10 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({ isOpen, onC
                   // Store the preference in localStorage
                   if (e.target.checked) {
                     localStorage.setItem('skip_startup_credentials_modal', 'true');
-                    console.log('✅ [CredentialSetupModal] User chose to skip startup credentials modal');
+                    console.log(' [CredentialSetupModal] User chose to skip startup credentials modal');
                   } else {
                     localStorage.removeItem('skip_startup_credentials_modal');
-                    console.log('🔄 [CredentialSetupModal] User will see startup credentials modal');
+                    console.log(' [CredentialSetupModal] User will see startup credentials modal');
                   }
                 }}
               />

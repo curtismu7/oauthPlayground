@@ -188,7 +188,7 @@ const JWKSConverter: React.FC = () => {
 			const formattedJWKS = formatJWKS(jwks);
 			setJwksOutput(formattedJWKS);
 			setSuccess("Private key successfully converted to JWKS format!");
-			showGlobalSuccess("🔑 Private key converted to JWKS format");
+			showGlobalSuccess(" Private key converted to JWKS format");
 		} catch (err) {
 			const errorMessage =
 				err instanceof Error ? err.message : "Failed to convert private key";
@@ -202,7 +202,7 @@ const JWKSConverter: React.FC = () => {
 	const handleCopyJWKS = async () => {
 		try {
 			await navigator.clipboard.writeText(jwksOutput);
-			showGlobalSuccess("📋 JWKS copied to clipboard");
+			showGlobalSuccess(" JWKS copied to clipboard");
 		} catch (_err) {
 			showGlobalError("Failed to copy JWKS to clipboard");
 		}
@@ -218,7 +218,7 @@ const JWKSConverter: React.FC = () => {
 		a.click();
 		document.body.removeChild(a);
 		URL.revokeObjectURL(url);
-		showGlobalSuccess("💾 JWKS downloaded");
+		showGlobalSuccess(" JWKS downloaded");
 	};
 
 	const handleClear = () => {
@@ -230,7 +230,7 @@ const JWKSConverter: React.FC = () => {
 
 	return (
 		<Container>
-			<Title>🔑 Private Key to JWKS Converter</Title>
+			<Title> Private Key to JWKS Converter</Title>
 
 			<FormGroup>
 				<Label htmlFor={privateKeyId}>Private Key *</Label>
