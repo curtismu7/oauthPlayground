@@ -44,18 +44,9 @@
 #### **⚡ Performance Issues**
 1. **No Caching**
    - Repeated JWKS/Discovery requests
-   - No connection pooling
    - Inefficient resource usage
 
-2. **Synchronous Processing**
-   - Blocking operations
-   - No background jobs
-   - Poor scalability
 
-3. **No Metrics**
-   - No performance monitoring
-   - No bottleneck identification
-   - No capacity planning
 
 ### **✅ What Works Well**
 
@@ -210,37 +201,7 @@ const middlewareChain = [
 ];
 ```
 
-### **3. Performance & Scalability**
 
-#### **Multi-Layer Caching**
-```typescript
-// Intelligent caching strategy
-interface CacheConfig {
-  jwks: { 
-    ttl: 3600, 
-    strategy: 'redis',
-    keyPrefix: 'jwks:',
-    invalidateOnError: true
-  };
-  discovery: { 
-    ttl: 1800, 
-    strategy: 'redis',
-    keyPrefix: 'discovery:',
-    fallback: true
-  };
-  tokens: { 
-    ttl: 300, 
-    strategy: 'memory',
-    maxSize: 10000,
-    evictionPolicy: 'lru'
-  };
-  userInfo: { 
-    ttl: 600, 
-    strategy: 'redis',
-    keyPrefix: 'userinfo:',
-    personalData: true
-  };
-}
 ```
 
 #### **Connection Pooling & Retry Logic**
