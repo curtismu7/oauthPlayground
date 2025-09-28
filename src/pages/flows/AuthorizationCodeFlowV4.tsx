@@ -85,17 +85,22 @@ const FormLabel = styled.label`
 	margin-bottom: 0.5rem;
 `;
 
-const FormInput = styled.input`
+const FormInput = styled.input<{ $hasError?: boolean }>`
 	width: 100%;
 	padding: 0.5rem 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid ${props => props.$hasError ? '#ef4444' : '#d1d5db'};
 	border-radius: 0.5rem;
 	font-size: 1rem;
-	
+	background-color: ${props => props.$hasError ? '#fef2f2' : 'white'};
+
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
-		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+		border-color: ${props => props.$hasError ? '#ef4444' : '#3b82f6'};
+		box-shadow: 0 0 0 3px ${props => props.$hasError ? 'rgba(239, 68, 68, 0.1)' : 'rgba(59, 130, 246, 0.1)'};
+	}
+
+	&::placeholder {
+		color: ${props => props.$hasError ? '#dc2626' : '#9ca3af'};
 	}
 `;
 
@@ -462,6 +467,9 @@ const AuthorizationCodeFlowV4 = () => {
 	const [showRedirectModal, setShowRedirectModal] = useState(false);
 	const [showSuccessModal, setShowSuccessModal] = useState(false);
 
+	// Track empty required fields for validation styling
+	const [emptyRequiredFields, setEmptyRequiredFields] = useState<Set<string>>(new Set());
+
 	// Step completion tracking
 	const [stepCompletions, setStepCompletions] = useState<Record<number, boolean>>({
 		0: true, // Step 1 (Understanding) - always complete
@@ -567,13 +575,31 @@ const AuthorizationCodeFlowV4 = () => {
 		localStorage.removeItem('oauth-v4-test-config');
 		setCredentials({
 			environmentId: "b9817c16-9910-4415-b67e-4ac687da74d9",
-			clientId: "a4f963ea-0736-456a-be72-b1fa4f63f81f",
-			clientSecret: "",
+			clientId: "", // Clear client ID
+			clientSecret: "", // Clear client secret
 			redirectUri: "https://localhost:3000/authz-callback",
 			scopes: "openid profile email",
 			authMethod: "client_secret_post"
 		});
-		showGlobalSuccess("Configuration cleared! Ready for production cleanup.");
+		
+		// Mark client ID and client secret as empty required fields
+		setEmptyRequiredFields(new Set(['clientId', 'clientSecret']));
+		
+		showGlobalSuccess("Configuration cleared! Client ID and Client Secret removed. Please enter your production credentials.");
+	};
+
+	// Helper function to handle field changes and remove from empty required fields
+	const handleFieldChange = (field: keyof StepCredentials, value: string) => {
+		setCredentials(prev => ({ ...prev, [field]: value }));
+		
+		// If field has value, remove it from empty required fields
+		if (value.trim() && emptyRequiredFields.has(field)) {
+			setEmptyRequiredFields(prev => {
+				const newSet = new Set(prev);
+				newSet.delete(field);
+				return newSet;
+			});
+		}
 	};
 
 	const handleResetFlow = () => {
@@ -614,6 +640,9 @@ const AuthorizationCodeFlowV4 = () => {
 			scopes: "openid profile email",
 			authMethod: "client_secret_post"
 		});
+		
+		// Clear empty required fields state
+		setEmptyRequiredFields(new Set());
 		
 		showGlobalSuccess("Flow reset! Starting fresh from Step 1.");
 	};
@@ -905,26 +934,28 @@ const AuthorizationCodeFlowV4 = () => {
 								{/* Client ID */}
 								<FormField>
 									<FormLabel>
-										Client ID
+										Client ID <span style={{ color: '#ef4444' }}>*</span>
 									</FormLabel>
 									<FormInput
 										type="text"
 										value={credentials.clientId}
-										onChange={(e) => setCredentials(prev => ({ ...prev, clientId: e.target.value }))}
-										placeholder="a4f963ea-0736-456a-be72-b1fa4f63f81f"
+										onChange={(e) => handleFieldChange('clientId', e.target.value)}
+										placeholder={emptyRequiredFields.has('clientId') ? "Required: Enter your Client ID" : "a4f963ea-0736-456a-be72-b1fa4f63f81f"}
+										$hasError={emptyRequiredFields.has('clientId')}
 									/>
 								</FormField>
 
 								{/* Client Secret */}
 								<FormField>
 									<FormLabel>
-										Client Secret
+										Client Secret <span style={{ color: '#ef4444' }}>*</span>
 									</FormLabel>
 									<FormInput
 										type="password"
 										value={credentials.clientSecret}
-										onChange={(e) => setCredentials(prev => ({ ...prev, clientSecret: e.target.value }))}
-										placeholder="Your client secret"
+										onChange={(e) => handleFieldChange('clientSecret', e.target.value)}
+										placeholder={emptyRequiredFields.has('clientSecret') ? "Required: Enter your Client Secret" : "Your client secret"}
+										$hasError={emptyRequiredFields.has('clientSecret')}
 									/>
 								</FormField>
 
