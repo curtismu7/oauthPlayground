@@ -151,7 +151,7 @@ const GlobalErrorDisplay: React.FC = () => {
       
       {interpretedError.suggestion && (
         <ErrorSuggestion>
-          <SuggestionLabel>💡 Suggestion:</SuggestionLabel>
+          <SuggestionLabel> Suggestion:</SuggestionLabel>
           <SuggestionText>{interpretedError.suggestion}</SuggestionText>
         </ErrorSuggestion>
       )}

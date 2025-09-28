@@ -58,11 +58,11 @@ class KeyStorageService {
       // Store updated keys
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(existingKeys));
       
-      console.log(`🔑 [KeyStorage] Stored new key pair with kid: ${keyId}`);
+      console.log(` [KeyStorage] Stored new key pair with kid: ${keyId}`);
       return keyId;
       
     } catch (error) {
-      console.error('❌ [KeyStorage] Failed to store key pair:', error);
+      console.error(' [KeyStorage] Failed to store key pair:', error);
       throw new Error(`Failed to store key pair: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
@@ -102,11 +102,11 @@ class KeyStorageService {
       // Store updated keys
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(existingKeys));
       
-      console.log(`🔑 [KeyStorage] Stored new key pair with kid: ${keyId}`);
+      console.log(` [KeyStorage] Stored new key pair with kid: ${keyId}`);
       return keyId;
       
     } catch (error) {
-      console.error('❌ [KeyStorage] Failed to store key pair:', error);
+      console.error(' [KeyStorage] Failed to store key pair:', error);
       throw new Error(`Failed to store key pair: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
@@ -126,7 +126,7 @@ class KeyStorageService {
         lastUsed: key.lastUsed ? new Date(key.lastUsed) : undefined
       }));
     } catch (error) {
-      console.error('❌ [KeyStorage] Failed to get stored key pairs:', error);
+      console.error(' [KeyStorage] Failed to get stored key pairs:', error);
       return [];
     }
   }
@@ -152,7 +152,7 @@ class KeyStorageService {
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(keys));
       }
     } catch (error) {
-      console.error('❌ [KeyStorage] Failed to update key usage:', error);
+      console.error(' [KeyStorage] Failed to update key usage:', error);
     }
   }
 
@@ -184,7 +184,7 @@ class KeyStorageService {
    */
   clearAllKeys(): void {
     localStorage.removeItem(this.STORAGE_KEY);
-    console.log('🔑 [KeyStorage] Cleared all stored key pairs');
+    console.log(' [KeyStorage] Cleared all stored key pairs');
   }
 
   /**
@@ -197,13 +197,13 @@ class KeyStorageService {
       
       if (filteredKeys.length !== keys.length) {
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(filteredKeys));
-        console.log(`🔑 [KeyStorage] Removed key pair with kid: ${kid}`);
+        console.log(` [KeyStorage] Removed key pair with kid: ${kid}`);
         return true;
       }
       
       return false;
     } catch (error) {
-      console.error('❌ [KeyStorage] Failed to remove key pair:', error);
+      console.error(' [KeyStorage] Failed to remove key pair:', error);
       return false;
     }
   }
