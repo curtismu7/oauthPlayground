@@ -8,7 +8,7 @@ export const useScrollToTop = () => {
   const location = useLocation();
 
   useEffect(() => {
-    console.log('🔄 [useScrollToTop] Route changed, scrolling to top:', location.pathname);
+    console.log(' [useScrollToTop] Route changed, scrolling to top:', location.pathname);
     
     // Function to scroll all containers to top
     const scrollAllToTop = (useSmooth = true) => {
@@ -20,7 +20,7 @@ export const useScrollToTop = () => {
       // Scroll main content container (this is likely the main scrollable area)
       const mainContent = document.querySelector('main');
       if (mainContent) {
-        console.log('🔄 [useScrollToTop] Scrolling main content to top');
+        console.log(' [useScrollToTop] Scrolling main content to top');
         mainContent.scrollTo(scrollOptions);
       }
       
@@ -28,7 +28,7 @@ export const useScrollToTop = () => {
       const scrollableContainers = document.querySelectorAll('[data-scrollable]');
       scrollableContainers.forEach(container => {
         if (container instanceof HTMLElement) {
-          console.log('🔄 [useScrollToTop] Scrolling container to top');
+          console.log(' [useScrollToTop] Scrolling container to top');
           container.scrollTo(scrollOptions);
         }
       });
@@ -39,7 +39,7 @@ export const useScrollToTop = () => {
         if (element instanceof HTMLElement) {
           const style = window.getComputedStyle(element);
           if (style.overflowY === 'auto' || style.overflowY === 'scroll') {
-            console.log('🔄 [useScrollToTop] Scrolling overflow container to top');
+            console.log(' [useScrollToTop] Scrolling overflow container to top');
             element.scrollTo(scrollOptions);
           }
         }
@@ -51,13 +51,13 @@ export const useScrollToTop = () => {
     
     // Also scroll with smooth behavior after a small delay
     const delayedScroll = setTimeout(() => {
-      console.log('🔄 [useScrollToTop] Delayed smooth scroll to top');
+      console.log(' [useScrollToTop] Delayed smooth scroll to top');
       scrollAllToTop(true);
     }, 50);
     
     // And one more time after a longer delay to ensure it works (instant)
     const finalScroll = setTimeout(() => {
-      console.log('🔄 [useScrollToTop] Final instant scroll to top');
+      console.log(' [useScrollToTop] Final instant scroll to top');
       scrollAllToTop(false);
     }, 200);
     

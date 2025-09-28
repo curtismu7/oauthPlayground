@@ -440,15 +440,15 @@ const OAuth2SecurityBestPractices: React.FC = () => {
           <CodeBlock>
             <CodeComment>// Good: Exact URI matching</CodeComment>
             <br />
-            <CodeString>'https://myapp.com/callback'</CodeString> <CodeComment>// ✅ Allowed</CodeComment>
+            <CodeString>'https://myapp.com/callback'</CodeString> <CodeComment>//  Allowed</CodeComment>
             <br />
-            <CodeString>'https://myapp.com/callback?param=value'</CodeString> <CodeComment>// ✅ Allowed</CodeComment>
+            <CodeString>'https://myapp.com/callback?param=value'</CodeString> <CodeComment>//  Allowed</CodeComment>
             <br /><br />
             <CodeComment>// Bad: Wildcard matching (security risk)</CodeComment>
             <br />
-            <CodeString>'https://*.myapp.com/callback'</CodeString> <CodeComment>// ❌ Dangerous</CodeComment>
+            <CodeString>'https://*.myapp.com/callback'</CodeString> <CodeComment>//  Dangerous</CodeComment>
             <br />
-            <CodeString>'https://myapp.com/callback#'</CodeString> <CodeComment>// ❌ Invalid (fragment)</CodeComment>
+            <CodeString>'https://myapp.com/callback#'</CodeString> <CodeComment>//  Invalid (fragment)</CodeComment>
           </CodeBlock>
         </Subsection>
       </Section>
@@ -793,16 +793,16 @@ const OAuth2SecurityBestPractices: React.FC = () => {
               Essential security measures to implement before going live.
             </PracticeDescription>
             <PracticeList>
-              <PracticeListItem>✅ Use HTTPS for all communications</PracticeListItem>
-              <PracticeListItem>✅ Implement PKCE for all clients</PracticeListItem>
-              <PracticeListItem>✅ Use state parameter for CSRF protection</PracticeListItem>
-              <PracticeListItem>✅ Validate redirect URIs strictly</PracticeListItem>
-              <PracticeListItem>✅ Secure client secret storage</PracticeListItem>
-              <PracticeListItem>✅ Implement proper token storage</PracticeListItem>
-              <PracticeListItem>✅ Use least privilege scopes</PracticeListItem>
-              <PracticeListItem>✅ Implement security headers</PracticeListItem>
-              <PracticeListItem>✅ Regular security audits</PracticeListItem>
-              <PracticeListItem>✅ Monitor for suspicious activity</PracticeListItem>
+              <PracticeListItem> Use HTTPS for all communications</PracticeListItem>
+              <PracticeListItem> Implement PKCE for all clients</PracticeListItem>
+              <PracticeListItem> Use state parameter for CSRF protection</PracticeListItem>
+              <PracticeListItem> Validate redirect URIs strictly</PracticeListItem>
+              <PracticeListItem> Secure client secret storage</PracticeListItem>
+              <PracticeListItem> Implement proper token storage</PracticeListItem>
+              <PracticeListItem> Use least privilege scopes</PracticeListItem>
+              <PracticeListItem> Implement security headers</PracticeListItem>
+              <PracticeListItem> Regular security audits</PracticeListItem>
+              <PracticeListItem> Monitor for suspicious activity</PracticeListItem>
             </PracticeList>
           </PracticeContent>
         </BestPracticeCard>

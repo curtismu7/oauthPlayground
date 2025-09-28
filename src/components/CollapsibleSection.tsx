@@ -151,12 +151,12 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
 		// Provide user feedback
 		if (newCollapsed) {
 			showGlobalInfo(
-				"📁 Section Collapsed",
+				" Section Collapsed",
 				`"${title}" section has been collapsed`,
 			);
 		} else {
 			showGlobalInfo(
-				"📂 Section Expanded",
+				" Section Expanded",
 				`"${title}" section has been expanded`,
 			);
 		}

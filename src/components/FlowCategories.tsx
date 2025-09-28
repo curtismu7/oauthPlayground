@@ -357,7 +357,7 @@ const flowCategories: FlowCategory[] = [
       },
         {
           id: 'enhanced-authorization-code',
-          title: '🚀 Enhanced Authorization Code Flow',
+          title: ' Enhanced Authorization Code Flow',
           description: 'Redesigned with better UX, persistent credentials, and step-by-step debugging',
           icon: <FiZap />,
           security: 'high',
@@ -369,7 +369,7 @@ const flowCategories: FlowCategory[] = [
         },
         {
           id: 'enhanced-authorization-code-v2',
-          title: '🎨 Enhanced Authorization Code Flow V2',
+          title: ' Enhanced Authorization Code Flow V2',
           description: 'Complete UI design implementation with visual design system, responsive layout, and accessibility features',
           icon: <FiZap />,
           security: 'high',
@@ -550,7 +550,7 @@ const FlowCategories: React.FC = () => {
       </PageHeader>
 
       <QuickStartSection>
-        <h2>🚀 Quick Start</h2>
+        <h2> Quick Start</h2>
         <p>
           New to OAuth? Start with the Authorization Code Flow with PKCE - 
           it's the most secure and widely supported flow for modern applications.
@@ -631,7 +631,7 @@ const FlowCategories: React.FC = () => {
                           <h4 className="flow-title">{flow.title}</h4>
                           <div className="flow-meta">
                             <span>{flow.implementationTime}</span>
-                            <span>•</span>
+                            <span></span>
                             <span>{flow.complexity} complexity</span>
                           </div>
                         </div>

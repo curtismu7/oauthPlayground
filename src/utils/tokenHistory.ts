@@ -40,11 +40,11 @@ export const getTokenHistory = (): TokenHistory => {
     const stored = localStorage.getItem(HISTORY_STORAGE_KEY);
     if (stored) {
       const history = JSON.parse(stored);
-      console.log('✅ [TokenHistory] Retrieved token history:', history);
+      console.log(' [TokenHistory] Retrieved token history:', history);
       return history;
     }
   } catch (error) {
-    console.error('❌ [TokenHistory] Error retrieving token history:', error);
+    console.error(' [TokenHistory] Error retrieving token history:', error);
   }
   
   return {
@@ -63,7 +63,7 @@ export const addTokenToHistory = (
   tokens: Record<string, unknown>
 ): boolean => {
   try {
-    console.log('🔍 [TokenHistory] addTokenToHistory called with:', { flowType, flowName, hasAccessToken: !!tokens.access_token });
+    console.log(' [TokenHistory] addTokenToHistory called with:', { flowType, flowName, hasAccessToken: !!tokens.access_token });
     
     const history = getTokenHistory();
     const now = Date.now();
@@ -91,7 +91,7 @@ export const addTokenToHistory = (
       hasRefreshToken: !!tokens.refresh_token
     };
     
-    console.log('📝 [TokenHistory] Created history entry:', newEntry);
+    console.log(' [TokenHistory] Created history entry:', newEntry);
     
     // Add to beginning of array (most recent first)
     history.entries.unshift(newEntry);
@@ -108,7 +108,7 @@ export const addTokenToHistory = (
     // Save to localStorage
     localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
     
-    console.log('✅ [TokenHistory] Added token to history:', {
+    console.log(' [TokenHistory] Added token to history:', {
       flowType,
       flowName,
       tokenCount: newEntry.tokenCount,
@@ -118,7 +118,7 @@ export const addTokenToHistory = (
     
     return true;
   } catch (error) {
-    console.error('❌ [TokenHistory] Error adding token to history:', error);
+    console.error(' [TokenHistory] Error adding token to history:', error);
     return false;
   }
 };
@@ -129,10 +129,10 @@ export const addTokenToHistory = (
 export const clearTokenHistory = (): boolean => {
   try {
     localStorage.removeItem(HISTORY_STORAGE_KEY);
-    console.log('✅ [TokenHistory] Cleared all token history');
+    console.log(' [TokenHistory] Cleared all token history');
     return true;
   } catch (error) {
-    console.error('❌ [TokenHistory] Error clearing token history:', error);
+    console.error(' [TokenHistory] Error clearing token history:', error);
     return false;
   }
 };
@@ -155,13 +155,13 @@ export const removeTokenFromHistory = (entryId: string): boolean => {
       // Save updated history
       localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
       
-      console.log('✅ [TokenHistory] Removed token entry:', entryId);
+      console.log(' [TokenHistory] Removed token entry:', entryId);
       return true;
     }
     
     return false;
   } catch (error) {
-    console.error('❌ [TokenHistory] Error removing token from history:', error);
+    console.error(' [TokenHistory] Error removing token from history:', error);
     return false;
   }
 };
@@ -191,17 +191,17 @@ export const getFlowDisplayName = (flowType: string): string => {
  */
 export const getFlowIcon = (flowType: string): string => {
   const flowIcons: Record<string, string> = {
-    'authorization_code': '🔐',
-    'implicit': '⚡',
-    'implicit_oidc': '🔑',
-    'pkce': '🛡️',
-    'client_credentials': '🏢',
-    'device_code': '📱',
-    'hybrid': '🔄',
-    'userinfo': '👤',
-    'id_tokens': '🎫',
-    'session_management': '🔒'
+    'authorization_code': '',
+    'implicit': '',
+    'implicit_oidc': '',
+    'pkce': '',
+    'client_credentials': '',
+    'device_code': '',
+    'hybrid': '',
+    'userinfo': '',
+    'id_tokens': '',
+    'session_management': ''
   };
   
-  return flowIcons[flowType] || '🔑';
+  return flowIcons[flowType] || '';
 };

@@ -68,7 +68,7 @@ const OAuthV3Callback: React.FC = () => {
         const error = urlParams.get('error');
         const errorDescription = urlParams.get('error_description');
 
-        console.log('🔍 [OAuth-V3-Callback] Processing callback:', {
+        console.log(' [OAuth-V3-Callback] Processing callback:', {
           hasCode: !!code,
           hasState: !!state,
           error,
@@ -78,7 +78,7 @@ const OAuthV3Callback: React.FC = () => {
         if (error) {
           setStatus('error');
           setMessage(`Authorization failed: ${error} - ${errorDescription}`);
-          console.error('❌ [OAuth-V3-Callback] Authorization error:', { error, errorDescription });
+          console.error(' [OAuth-V3-Callback] Authorization error:', { error, errorDescription });
           
           // Redirect back to OAuth V3 flow with error
           setTimeout(() => {
@@ -92,7 +92,7 @@ const OAuthV3Callback: React.FC = () => {
           sessionStorage.setItem('oauth_v3_auth_code', code);
           sessionStorage.setItem('oauth_v3_state', state || '');
           
-          console.log('✅ [OAuth-V3-Callback] Authorization code received and stored');
+          console.log(' [OAuth-V3-Callback] Authorization code received and stored');
           
           setStatus('success');
           setMessage('Authorization successful! Redirecting back to OAuth flow...');
@@ -110,7 +110,7 @@ const OAuthV3Callback: React.FC = () => {
           }, 3000);
         }
       } catch (error) {
-        console.error('❌ [OAuth-V3-Callback] Callback processing failed:', error);
+        console.error(' [OAuth-V3-Callback] Callback processing failed:', error);
         setStatus('error');
         setMessage('Failed to process authorization callback.');
         

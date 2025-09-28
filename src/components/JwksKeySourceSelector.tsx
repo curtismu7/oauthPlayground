@@ -338,7 +338,7 @@ const JwksKeySourceSelector: React.FC<JwksKeySourceSelectorProps> = ({
             PingOne will fetch the public key from your JWKS endpoint. No private key upload needed.
             <br />
             <br />
-            <strong>🌐 Public URL Required:</strong> PingOne needs to access your JWKS endpoint from their servers, so it must be publicly accessible (not localhost).
+            <strong> Public URL Required:</strong> PingOne needs to access your JWKS endpoint from their servers, so it must be publicly accessible (not localhost).
           </p>
           <Instructions>
             <Label style={{ marginBottom: '0.5rem', display: 'block' }}>Your JWKS Endpoint URL:</Label>

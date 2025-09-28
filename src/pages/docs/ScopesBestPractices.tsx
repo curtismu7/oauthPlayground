@@ -366,9 +366,9 @@ const ScopesBestPractices: React.FC = () => {
             <DiagramTitle>Example Business Scenario: API Scopes and Clients</DiagramTitle>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '1rem' }}>
               <FlowStep $isActive>Customer App</FlowStep>
-              <FlowArrow>→</FlowArrow>
+              <FlowArrow></FlowArrow>
               <FlowStep>Orders API</FlowStep>
-              <FlowArrow>→</FlowArrow>
+              <FlowArrow></FlowArrow>
               <FlowStep>Inventory API</FlowStep>
             </div>
             <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
@@ -386,7 +386,7 @@ const ScopesBestPractices: React.FC = () => {
             <BestPracticeCard type="do">
               <BestPracticeHeader type="do">
                 <FiCheckCircle />
-                ✅ Do: Configure Scopes by Business Area
+                 Do: Configure Scopes by Business Area
               </BestPracticeHeader>
               <BestPracticeContent>
                 <strong>Example:</strong> Use business-focused scopes like <InlineCode>orders</InlineCode>, 
@@ -398,7 +398,7 @@ const ScopesBestPractices: React.FC = () => {
             <BestPracticeCard type="dont">
               <BestPracticeHeader type="dont">
                 <FiXCircle />
-                ❌ Don't: Use Technical API Names
+                 Don't: Use Technical API Names
               </BestPracticeHeader>
               <BestPracticeContent>
                 <strong>Avoid:</strong> Technical scope names that tie to specific API implementations 
@@ -445,11 +445,11 @@ const ScopesBestPractices: React.FC = () => {
             <DiagramTitle>High-Privilege Scope Flow</DiagramTitle>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '1rem' }}>
               <FlowStep>User Action</FlowStep>
-              <FlowArrow>→</FlowArrow>
+              <FlowArrow></FlowArrow>
               <FlowStep>Request High-Privilege Scope</FlowStep>
-              <FlowArrow>→</FlowArrow>
+              <FlowArrow></FlowArrow>
               <FlowStep $isActive>User Consent</FlowStep>
-              <FlowArrow>→</FlowArrow>
+              <FlowArrow></FlowArrow>
               <FlowStep>Access Token with Elevated Permissions</FlowStep>
             </div>
             <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
@@ -510,9 +510,9 @@ transaction-12345`}</CodeBlock>
             <DiagramTitle>Token Forwarding Approach</DiagramTitle>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '1rem' }}>
               <FlowStep>Client</FlowStep>
-              <FlowArrow>→</FlowArrow>
+              <FlowArrow></FlowArrow>
               <FlowStep>Orders API</FlowStep>
-              <FlowArrow>→</FlowArrow>
+              <FlowArrow></FlowArrow>
               <FlowStep>Inventory API</FlowStep>
             </div>
             <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
@@ -530,9 +530,9 @@ transaction-12345`}</CodeBlock>
             <DiagramTitle>Token Exchange Flow</DiagramTitle>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '1rem' }}>
               <FlowStep>Orders API</FlowStep>
-              <FlowArrow>→</FlowArrow>
+              <FlowArrow></FlowArrow>
               <FlowStep $isActive>Token Exchange</FlowStep>
-              <FlowArrow>→</FlowArrow>
+              <FlowArrow></FlowArrow>
               <FlowStep>Shipping API</FlowStep>
             </div>
             <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
@@ -566,7 +566,7 @@ transaction-12345`}</CodeBlock>
             <BestPracticeCard type="do">
               <BestPracticeHeader type="do">
                 <FiCheckCircle />
-                ✅ Always Use Scopes
+                 Always Use Scopes
               </BestPracticeHeader>
               <BestPracticeContent>
                 Always use scopes in APIs and enforce them at every API endpoint. 
@@ -577,7 +577,7 @@ transaction-12345`}</CodeBlock>
             <BestPracticeCard type="do">
               <BestPracticeHeader type="do">
                 <FiCheckCircle />
-                ✅ Enable User Consent
+                 Enable User Consent
               </BestPracticeHeader>
               <BestPracticeContent>
                 Enable user consent when users need to grant scope-based access to third-party clients. 
@@ -588,7 +588,7 @@ transaction-12345`}</CodeBlock>
             <BestPracticeCard type="do">
               <BestPracticeHeader type="do">
                 <FiCheckCircle />
-                ✅ Use Business Areas
+                 Use Business Areas
               </BestPracticeHeader>
               <BestPracticeContent>
                 Consider using API business areas as scopes rather than technical implementation details. 
@@ -599,7 +599,7 @@ transaction-12345`}</CodeBlock>
             <BestPracticeCard type="do">
               <BestPracticeHeader type="do">
                 <FiCheckCircle />
-                ✅ Keep Scopes Stable
+                 Keep Scopes Stable
               </BestPracticeHeader>
               <BestPracticeContent>
                 Keep scopes stable to avoid scope explosion. Only add new scopes when adding new 
@@ -610,7 +610,7 @@ transaction-12345`}</CodeBlock>
             <BestPracticeCard type="do">
               <BestPracticeHeader type="do">
                 <FiCheckCircle />
-                ✅ Design for End-to-End Flows
+                 Design for End-to-End Flows
               </BestPracticeHeader>
               <BestPracticeContent>
                 Design scopes so they work for end-to-end flows using multiple APIs. Consider 
@@ -621,7 +621,7 @@ transaction-12345`}</CodeBlock>
             <BestPracticeCard type="do">
               <BestPracticeHeader type="do">
                 <FiCheckCircle />
-                ✅ Use Token Exchange
+                 Use Token Exchange
               </BestPracticeHeader>
               <BestPracticeContent>
                 Use token exchange to downgrade scopes when calling less trusted upstream APIs. 

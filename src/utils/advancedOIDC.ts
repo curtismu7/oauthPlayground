@@ -74,7 +74,7 @@ export interface ClaimsRequest {
 export const fetchOIDCDiscovery = async (issuer: string): Promise<OIDCDiscoveryDocument> => {
   const discoveryUrl = `${issuer.replace(/\/$/, '')}/.well-known/openid_configuration`;
   
-  console.log('🔍 [AdvancedOIDC] Fetching discovery document:', discoveryUrl);
+  console.log(' [AdvancedOIDC] Fetching discovery document:', discoveryUrl);
   
   try {
     const response = await fetch(discoveryUrl);
@@ -83,11 +83,11 @@ export const fetchOIDCDiscovery = async (issuer: string): Promise<OIDCDiscoveryD
     }
     
     const discovery = await response.json() as OIDCDiscoveryDocument;
-    console.log('✅ [AdvancedOIDC] Discovery document retrieved:', discovery);
+    console.log(' [AdvancedOIDC] Discovery document retrieved:', discovery);
     
     return discovery;
   } catch (error) {
-    console.error('❌ [AdvancedOIDC] Discovery failed:', error);
+    console.error(' [AdvancedOIDC] Discovery failed:', error);
     throw new Error(`Failed to fetch OIDC discovery document: ${error instanceof Error ? error.message : String(error)}`);
   }
 };
@@ -183,7 +183,7 @@ export const checkSessionStatus = async (
       document.body.appendChild(iframe);
     });
   } catch (error) {
-    console.error('❌ [AdvancedOIDC] Session check failed:', error);
+    console.error(' [AdvancedOIDC] Session check failed:', error);
     return 'error';
   }
 };
@@ -212,7 +212,7 @@ export const performOIDCLogout = async (
   }
 
   const logoutUrl = `${endSessionEndpoint}?${params.toString()}`;
-  console.log('🚪 [AdvancedOIDC] Performing OIDC logout:', logoutUrl);
+  console.log(' [AdvancedOIDC] Performing OIDC logout:', logoutUrl);
   
   window.location.href = logoutUrl;
 };

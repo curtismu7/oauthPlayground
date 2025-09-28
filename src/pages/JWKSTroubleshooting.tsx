@@ -347,10 +347,10 @@ const JWKSTroubleshooting: React.FC = () => {
 	const copyToClipboard = useCallback(async (text: string, label: string) => {
 		try {
 			await navigator.clipboard.writeText(text);
-			showGlobalSuccess("📋 Copied", `${label} copied to clipboard`);
+			showGlobalSuccess(" Copied", `${label} copied to clipboard`);
 		} catch {
 			showGlobalError(
-				"❌ Copy Failed",
+				" Copy Failed",
 				`Failed to copy ${label.toLowerCase()}`,
 			);
 		}
@@ -403,12 +403,12 @@ const JWKSTroubleshooting: React.FC = () => {
 
 				if (status === "success") {
 					showGlobalSuccess(
-						"✅ Request Successful",
+						" Request Successful",
 						`${description} completed successfully`,
 					);
 				} else {
 					showGlobalError(
-						"❌ Request Failed",
+						" Request Failed",
 						`${description} failed with HTTP ${response.status}`,
 					);
 				}
@@ -422,7 +422,7 @@ const JWKSTroubleshooting: React.FC = () => {
 
 				setCommandResults((prev) => [newResult, ...prev]);
 				showGlobalError(
-					"❌ Request Failed",
+					" Request Failed",
 					`Failed to execute ${description.toLowerCase()}`,
 				);
 			} finally {
@@ -706,7 +706,7 @@ const JWKSTroubleshooting: React.FC = () => {
 						}}
 					>
 						<h4 style={{ margin: "0 0 0.5rem 0", color: "#2d3748" }}>
-							🔧 Ping JWT Decoder:
+							 Ping JWT Decoder:
 						</h4>
 						<p style={{ margin: "0 0 0.5rem 0", color: "#4a5568" }}>
 							<Link
@@ -732,7 +732,7 @@ const JWKSTroubleshooting: React.FC = () => {
 						}}
 					>
 						<h4 style={{ margin: "0 0 0.5rem 0", color: "#2d3748" }}>
-							📚 PingOne SSO Documentation:
+							 PingOne SSO Documentation:
 						</h4>
 						<div style={{ display: "grid", gap: "0.5rem" }}>
 							<p style={{ margin: "0", color: "#4a5568" }}>
@@ -786,7 +786,7 @@ const JWKSTroubleshooting: React.FC = () => {
 						}}
 					>
 						<h4 style={{ margin: "0 0 0.5rem 0", color: "#2d3748" }}>
-							🌐 Online Validators:
+							 Online Validators:
 						</h4>
 						<div style={{ display: "grid", gap: "0.5rem" }}>
 							<p style={{ margin: "0", color: "#4a5568" }}>
@@ -820,7 +820,7 @@ const JWKSTroubleshooting: React.FC = () => {
 						}}
 					>
 						<h4 style={{ margin: "0 0 0.5rem 0", color: "#2d3748" }}>
-							📖 RFC Standards:
+							 RFC Standards:
 						</h4>
 						<div style={{ display: "grid", gap: "0.5rem" }}>
 							<p style={{ margin: "0", color: "#4a5568" }}>

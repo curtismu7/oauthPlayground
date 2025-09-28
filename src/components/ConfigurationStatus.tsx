@@ -204,7 +204,7 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
   // Update status when credentials change
   useEffect(() => {
     const handleCredentialChange = () => {
-      console.log('🔄 [ConfigurationStatus] Credential change detected, refreshing status');
+      console.log(' [ConfigurationStatus] Credential change detected, refreshing status');
       setStatusData(getSharedConfigurationStatus(flowType));
     };
 
@@ -227,7 +227,7 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
 
   const handleConfigure = (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log('🔧 [ConfigurationStatus] Configure button clicked', { status, config });
+    console.log(' [ConfigurationStatus] Configure button clicked', { status, config });
     if (onConfigure) {
       onConfigure();
     }
@@ -235,7 +235,7 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
 
   const handleViewDetails = (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log('👁️ [ConfigurationStatus] View Details button clicked', { status, isExpanded });
+    console.log(' [ConfigurationStatus] View Details button clicked', { status, isExpanded });
     if (onViewDetails) {
       onViewDetails();
     } else {
@@ -245,7 +245,7 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
 
   const handleRefresh = (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log('🔄 [ConfigurationStatus] Manual refresh button clicked');
+    console.log(' [ConfigurationStatus] Manual refresh button clicked');
     setStatusData(getSharedConfigurationStatus(flowType));
   };
 

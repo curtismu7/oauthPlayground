@@ -43,14 +43,14 @@ export const useFlowStepManager = (config: FlowStepConfig) => {
 
   // Set step with persistence
   const setStep = useCallback((stepIndex: number, reason?: string) => {
-    console.log(`🔄 [${config.flowType}] Setting step to ${stepIndex}${reason ? ` - ${reason}` : ''}`);
+    console.log(` [${config.flowType}] Setting step to ${stepIndex}${reason ? ` - ${reason}` : ''}`);
     setCurrentStepIndex(stepIndex);
     sessionStorage.setItem(`${config.persistKey}-step`, stepIndex.toString());
   }, [config.flowType, config.persistKey]);
 
   // Reset flow to beginning
   const resetFlow = useCallback(() => {
-    console.log(`🔄 [${config.flowType}] Resetting flow to step 0`);
+    console.log(` [${config.flowType}] Resetting flow to step 0`);
     setCurrentStepIndex(0);
     setStepMessages({});
     sessionStorage.removeItem(`${config.persistKey}-step`);
@@ -65,7 +65,7 @@ export const useFlowStepManager = (config: FlowStepConfig) => {
     const urlCode = urlParams.get('code');
     const storedStep = sessionStorage.getItem(`${config.persistKey}-step`);
 
-    console.log(`🔍 [${config.flowType}] Initializing step manager:`, {
+    console.log(` [${config.flowType}] Initializing step manager:`, {
       urlStep,
       hasCode: !!urlCode,
       storedStep,

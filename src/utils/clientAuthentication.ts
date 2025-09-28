@@ -166,31 +166,31 @@ export const getAuthMethodSecurityLevel = (method: ClientAuthMethod): {
       return {
         level: 'Low',
         description: 'No client authentication. Relies on PKCE for security. Suitable for public clients that cannot store secrets.',
-        icon: '⚠️'
+        icon: ''
       };
     case 'client_secret_post':
       return {
         level: 'Medium',
         description: 'Client secret sent in POST body. Simple but secret is visible in request body.',
-        icon: '📤'
+        icon: ''
       };
     case 'client_secret_basic':
       return {
         level: 'Medium',
         description: 'Client secret sent via HTTP Basic Authentication. More secure than POST method.',
-        icon: '🔐'
+        icon: ''
       };
     case 'client_secret_jwt':
       return {
         level: 'High',
         description: 'JWT signed with client secret (HS256). Prevents secret exposure and includes timing protection.',
-        icon: '🏆'
+        icon: ''
       };
     case 'private_key_jwt':
       return {
         level: 'Highest',
         description: 'JWT signed with private key (RS256). No shared secrets, asymmetric cryptography. Enterprise grade.',
-        icon: '🔒'
+        icon: ''
       };
   }
 };

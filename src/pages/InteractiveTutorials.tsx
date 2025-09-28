@@ -275,7 +275,7 @@ const InteractiveTutorials = () => {
 
   // Debug selectedTutorial state changes
   useEffect(() => {
-    console.log('📝 selectedTutorial state changed:', selectedTutorial?.title || 'null');
+    console.log(' selectedTutorial state changed:', selectedTutorial?.title || 'null');
   }, [selectedTutorial]);
 
   const tutorials = [
@@ -301,11 +301,11 @@ const InteractiveTutorials = () => {
           title: 'OAuth Roles',
           content: 'Understanding the four main roles in OAuth 2.0 ecosystem.',
           code: `Resource Owner (User)
-    ↓ grants permission to
+     grants permission to
 Client Application
-    ↓ requests access from
+     requests access from
 Authorization Server
-    ↓ issues tokens to
+     issues tokens to
 Resource Server (API)`,
           type: 'diagram'
         },
@@ -377,11 +377,11 @@ grant_type=authorization_code
         {
           title: 'Security Features',
           content: 'Built-in security measures of the Authorization Code flow.',
-          code: `✅ Client authentication required
-✅ Authorization code is short-lived
-✅ Tokens never exposed to user agent
-✅ Supports refresh tokens
-✅ PKCE support for enhanced security`,
+          code: ` Client authentication required
+ Authorization code is short-lived
+ Tokens never exposed to user agent
+ Supports refresh tokens
+ PKCE support for enhanced security`,
           type: 'security'
         }
       ]
@@ -398,15 +398,15 @@ grant_type=authorization_code
           title: 'OIDC vs OAuth',
           content: 'Understanding the relationship between OpenID Connect and OAuth 2.0.',
           code: `OAuth 2.0: Authorization framework
-  ↓
+  
 OpenID Connect: Identity layer on OAuth 2.0
 
 OIDC adds:
-• ID Tokens (JWT with user identity)
-• UserInfo endpoint
-• Standard claims
-• Discovery document
-• Dynamic client registration`,
+ ID Tokens (JWT with user identity)
+ UserInfo endpoint
+ Standard claims
+ Discovery document
+ Dynamic client registration`,
           type: 'comparison'
         },
         {
@@ -445,13 +445,13 @@ zoneinfo: Time zone`,
           code: `GET /.well-known/openid-configuration
 
 Response includes:
-• authorization_endpoint
-• token_endpoint
-• userinfo_endpoint
-• jwks_uri (JSON Web Key Set)
-• issuer
-• supported scopes
-• supported response types`,
+ authorization_endpoint
+ token_endpoint
+ userinfo_endpoint
+ jwks_uri (JSON Web Key Set)
+ issuer
+ supported scopes
+ supported response types`,
           type: 'discovery'
         }
       ]
@@ -467,11 +467,11 @@ Response includes:
         {
           title: 'Secure Token Storage',
           content: 'Best practices for storing access tokens and refresh tokens.',
-          code: `✅ Use HttpOnly, Secure, SameSite cookies
-✅ Store tokens in secure storage (not localStorage)
-✅ Implement token rotation
-✅ Use short-lived access tokens
-✅ Validate tokens on every request`,
+          code: ` Use HttpOnly, Secure, SameSite cookies
+ Store tokens in secure storage (not localStorage)
+ Implement token rotation
+ Use short-lived access tokens
+ Validate tokens on every request`,
           type: 'security'
         },
         {
@@ -506,13 +506,13 @@ if (req.query.state !== session.state) {
         {
           title: 'Token Validation',
           content: 'Properly validating JWT tokens.',
-          code: `✅ Verify signature using JWKS
-✅ Check expiration (exp claim)
-✅ Validate issuer (iss claim)
-✅ Check audience (aud claim)
-✅ Verify not before (nbf claim)
-✅ Validate nonce (if present)
-✅ Check token type and scope`,
+          code: ` Verify signature using JWKS
+ Check expiration (exp claim)
+ Validate issuer (iss claim)
+ Check audience (aud claim)
+ Verify not before (nbf claim)
+ Validate nonce (if present)
+ Check token type and scope`,
           type: 'validation'
         }
       ]
@@ -529,11 +529,11 @@ if (req.query.state !== session.state) {
           title: 'What is Authorization Code Flow?',
           content: 'The Authorization Code flow is the most secure OAuth 2.0 flow, designed for server-side applications that can securely store client credentials.',
           code: `Key Benefits:
-✅ Most secure OAuth flow
-✅ Client secret never exposed to browser
-✅ Supports PKCE for additional security
-✅ Can refresh tokens securely
-✅ Recommended for web applications`,
+ Most secure OAuth flow
+ Client secret never exposed to browser
+ Supports PKCE for additional security
+ Can refresh tokens securely
+ Recommended for web applications`,
           type: 'info'
         },
         {
@@ -553,18 +553,18 @@ if (req.query.state !== session.state) {
           title: 'Step 2: User Authorization',
           content: 'The user authenticates and grants permission to the client application.',
           code: `User sees PingOne login page:
-┌─────────────────────────────────┐
-│  PingOne Identity Platform      │
-│                                 │
-│  Username: [____________]       │
-│  Password: [____________]       │
-│                                 │
-│  [ ] Remember me                │
-│  [     Sign In     ]            │
-│                                 │
-│  Grant access to: My App        │
-│  [Allow] [Deny]                 │
-└─────────────────────────────────┘`,
+
+  PingOne Identity Platform      
+                                 
+  Username: [____________]       
+  Password: [____________]       
+                                 
+  [ ] Remember me                
+  [     Sign In     ]            
+                                 
+  Grant access to: My App        
+  [Allow] [Deny]                 
+`,
           type: 'diagram'
         },
         {
@@ -572,7 +572,7 @@ if (req.query.state !== session.state) {
           content: 'After successful authorization, the user is redirected back with an authorization code.',
           code: `Redirect to: {redirectUri}?code=abc123&state=xyz789
 
-⚠️  Authorization codes are:
+  Authorization codes are:
 - Short-lived (typically 10 minutes)
 - Single-use only
 - Must be exchanged immediately`,
@@ -618,11 +618,11 @@ Response:
         {
           title: 'What is Implicit Flow?',
           content: 'The Implicit flow is designed for browser-based applications that cannot securely store client credentials.',
-          code: `⚠️  Deprecated in OAuth 2.1
-✅ Still supported by PingOne
-✅ Good for SPAs and mobile apps
-❌ Less secure than Authorization Code
-❌ No refresh tokens`,
+          code: `  Deprecated in OAuth 2.1
+ Still supported by PingOne
+ Good for SPAs and mobile apps
+ Less secure than Authorization Code
+ No refresh tokens`,
           type: 'info'
         },
         {
@@ -654,20 +654,20 @@ expires_in=3600&
 scope=read write&
 state={randomString}
 
-⚠️  Token is in URL fragment (after #)
-⚠️  Not accessible to server-side code
-⚠️  Must be handled by JavaScript`,
+  Token is in URL fragment (after #)
+  Not accessible to server-side code
+  Must be handled by JavaScript`,
           type: 'security'
         },
         {
           title: 'Security Considerations',
           content: 'Important security considerations for implicit flow.',
-          code: `❌ Access tokens exposed in browser history
-❌ No refresh token capability
-❌ Vulnerable to token theft
-❌ Cannot securely store client secret
-✅ Good for public clients (SPAs)
-✅ Simpler implementation`,
+          code: ` Access tokens exposed in browser history
+ No refresh token capability
+ Vulnerable to token theft
+ Cannot securely store client secret
+ Good for public clients (SPAs)
+ Simpler implementation`,
           type: 'security'
         }
       ]
@@ -684,20 +684,20 @@ state={randomString}
           title: 'What is Client Credentials Flow?',
           content: 'The Client Credentials flow is designed for machine-to-machine (M2M) authentication where no user interaction is required.',
           code: `Use Cases:
-🔧 Service-to-service API calls
-🔧 Backend system integration
-🔧 Automated data synchronization
-🔧 Server-side batch processing
-🔧 Microservice communication`,
+ Service-to-service API calls
+ Backend system integration
+ Automated data synchronization
+ Server-side batch processing
+ Microservice communication`,
           type: 'info'
         },
         {
           title: 'Flow Overview',
           content: 'The client authenticates directly with the authorization server using its credentials.',
           code: `Client Application
-    ↓ (client_id + client_secret)
+     (client_id + client_secret)
 Authorization Server
-    ↓ (access_token)
+     (access_token)
 Resource Server (API)
 
 No user involved in this flow!`,
@@ -731,13 +731,13 @@ Note: No refresh token in client credentials flow`,
         {
           title: 'Security Best Practices',
           content: 'Important security considerations for client credentials flow.',
-          code: `✅ Store client secret securely
-✅ Use HTTPS for all requests
-✅ Validate token expiration
-✅ Implement proper error handling
-✅ Use least privilege scopes
-✅ Monitor token usage
-✅ Rotate credentials regularly`,
+          code: ` Store client secret securely
+ Use HTTPS for all requests
+ Validate token expiration
+ Implement proper error handling
+ Use least privilege scopes
+ Monitor token usage
+ Rotate credentials regularly`,
           type: 'security'
         }
       ]
@@ -754,11 +754,11 @@ Note: No refresh token in client credentials flow`,
           title: 'What is Device Code Flow?',
           content: 'The Device Code flow enables OAuth on devices with limited input capabilities, such as smart TVs, IoT devices, or command-line tools.',
           code: `Perfect for:
-📺 Smart TVs and streaming devices
-🏠 IoT devices and smart home gadgets
-💻 Command-line tools and CLIs
-🎮 Gaming consoles
-📱 Devices with limited keyboards`,
+ Smart TVs and streaming devices
+ IoT devices and smart home gadgets
+ Command-line tools and CLIs
+ Gaming consoles
+ Devices with limited keyboards`,
           type: 'info'
         },
         {
@@ -802,16 +802,16 @@ scope=openid profile email`,
 User enters: ABCD-EFGH
 
 PingOne shows:
-┌─────────────────────────────────┐
-│  Device Authorization           │
-│                                 │
-│  Enter code: [ABCD-EFGH]        │
-│                                 │
-│  App: My Smart TV App           │
-│  Scopes: profile, email         │
-│                                 │
-│  [Authorize] [Deny]             │
-└─────────────────────────────────┘`,
+
+  Device Authorization           
+                                 
+  Enter code: [ABCD-EFGH]        
+                                 
+  App: My Smart TV App           
+  Scopes: profile, email         
+                                 
+  [Authorize] [Deny]             
+`,
           type: 'diagram'
         },
         {
@@ -861,11 +861,11 @@ Error Response (while waiting):
           code: `OIDC = OAuth 2.0 + Identity Layer
 
 Key Features:
-🔐 User authentication (not just authorization)
-👤 User identity information (ID tokens)
-📋 Standardized user profile data
-🔍 Discovery endpoints for configuration
-🚪 Standardized logout flows`,
+ User authentication (not just authorization)
+ User identity information (ID tokens)
+ Standardized user profile data
+ Discovery endpoints for configuration
+ Standardized logout flows`,
           type: 'info'
         },
         {
@@ -986,7 +986,7 @@ Response:
         {
           title: 'Common OAuth Vulnerabilities',
           content: 'Understanding and preventing common OAuth security vulnerabilities.',
-          code: `🚨 Top OAuth Security Risks:
+          code: ` Top OAuth Security Risks:
 
 1. Authorization Code Interception
    - Attacker intercepts authorization code
@@ -1048,33 +1048,33 @@ if (req.query.state !== session.state) {
         {
           title: 'Token Validation',
           content: 'Properly validating JWT tokens is crucial for security.',
-          code: `✅ Verify signature using JWKS
-✅ Check expiration (exp claim)
-✅ Validate issuer (iss claim)
-✅ Check audience (aud claim)
-✅ Verify not before (nbf claim)
-✅ Validate nonce (if present)
-✅ Check token type and scope`,
+          code: ` Verify signature using JWKS
+ Check expiration (exp claim)
+ Validate issuer (iss claim)
+ Check audience (aud claim)
+ Verify not before (nbf claim)
+ Validate nonce (if present)
+ Check token type and scope`,
           type: 'validation'
         },
         {
           title: 'Secure Token Storage',
           content: 'Best practices for storing tokens securely in different environments.',
           code: `Web Applications:
-✅ HTTP-only cookies for refresh tokens
-✅ Memory storage for access tokens
-❌ localStorage (XSS vulnerable)
-❌ sessionStorage (tab closure risk)
+ HTTP-only cookies for refresh tokens
+ Memory storage for access tokens
+ localStorage (XSS vulnerable)
+ sessionStorage (tab closure risk)
 
 Mobile Applications:
-✅ Keychain/Keystore for long-term storage
-✅ Memory for short-term tokens
-✅ Encrypted storage if needed
+ Keychain/Keystore for long-term storage
+ Memory for short-term tokens
+ Encrypted storage if needed
 
 Server Applications:
-✅ Secure environment variables
-✅ Encrypted database storage
-✅ Hardware security modules (HSMs)`,
+ Secure environment variables
+ Encrypted database storage
+ Hardware security modules (HSMs)`,
           type: 'security'
         },
         {
@@ -1082,10 +1082,10 @@ Server Applications:
           content: 'Properly validating and limiting token scopes is essential for security.',
           code: `Scope Best Practices:
 
-✅ Use least privilege principle
-✅ Validate requested scopes
-✅ Check scope in every API call
-✅ Implement scope-based access control
+ Use least privilege principle
+ Validate requested scopes
+ Check scope in every API call
+ Implement scope-based access control
 
 Example:
 // Validate scope before API access
@@ -1114,12 +1114,12 @@ const hasPermission = (token, resource, action) => {
           title: 'What is Pushed Authorization Request (PAR)?',
           content: 'PAR is a security extension to OAuth 2.0 that pushes authorization request parameters to the authorization server before redirecting the user.',
           code: `PAR Benefits:
-🔒 Enhanced security - request parameters protected
-🛡️ Prevents parameter tampering attacks
-📋 Centralized request validation
-⚡ Better error handling before redirect
-🎯 Improved user experience
-✅ RFC 9126 standard`,
+ Enhanced security - request parameters protected
+ Prevents parameter tampering attacks
+ Centralized request validation
+ Better error handling before redirect
+ Improved user experience
+ RFC 9126 standard`,
           type: 'info'
         },
         {
@@ -1170,8 +1170,8 @@ Error Response:
   "error_description": "Client authentication failed"
 }
 
-⚠️  Request URIs expire in 90 seconds
-⚠️  Must be used immediately after creation`,
+  Request URIs expire in 90 seconds
+  Must be used immediately after creation`,
           type: 'code'
         },
         {
@@ -1189,18 +1189,18 @@ All other parameters are retrieved from the stored request.`,
           title: 'Step 4: User Authorization',
           content: 'The user sees the same authorization page as standard OAuth flow.',
           code: `User sees PingOne login page:
-┌─────────────────────────────────┐
-│  PingOne Identity Platform      │
-│                                 │
-│  Username: [____________]       │
-│  Password: [____________]       │
-│                                 │
-│  [ ] Remember me                │
-│  [     Sign In     ]            │
-│                                 │
-│  Grant access to: My App        │
-│  [Allow] [Deny]                 │
-└─────────────────────────────────┘
+
+  PingOne Identity Platform      
+                                 
+  Username: [____________]       
+  Password: [____________]       
+                                 
+  [ ] Remember me                
+  [     Sign In     ]            
+                                 
+  Grant access to: My App        
+  [Allow] [Deny]                 
+
 
 Same user experience as standard flow!`,
           type: 'diagram'
@@ -1217,17 +1217,17 @@ The authorization code can be exchanged for tokens normally.`,
         {
           title: 'PAR Security Benefits',
           content: 'Key security advantages of using PAR over standard OAuth.',
-          code: `🔒 Parameter Protection:
+          code: ` Parameter Protection:
 - Authorization parameters are encrypted in transit
 - Parameters cannot be tampered with by malicious actors
 - Request validation happens server-side
 
-🛡️ Attack Prevention:
+ Attack Prevention:
 - Prevents parameter injection attacks
 - Reduces risk of authorization code interception
 - Eliminates URL length limitations
 
-📋 Better Error Handling:
+ Better Error Handling:
 - Validation errors returned before redirect
 - No broken user experience from invalid requests
 - Centralized parameter validation`,
@@ -1236,13 +1236,13 @@ The authorization code can be exchanged for tokens normally.`,
         {
           title: 'PAR Implementation Best Practices',
           content: 'Best practices for implementing PAR in your applications.',
-          code: `✅ Always use HTTPS for PAR requests
-✅ Implement proper error handling
-✅ Use short expiration times (90 seconds max)
-✅ Validate request_uri format
-✅ Handle PAR endpoint errors gracefully
-✅ Fall back to standard flow if PAR fails
-✅ Cache request URIs appropriately
+          code: ` Always use HTTPS for PAR requests
+ Implement proper error handling
+ Use short expiration times (90 seconds max)
+ Validate request_uri format
+ Handle PAR endpoint errors gracefully
+ Fall back to standard flow if PAR fails
+ Cache request URIs appropriately
 
 Example Error Handling:
 if (parResponse.error) {
@@ -1257,7 +1257,7 @@ if (parResponse.error) {
   ];
 
   const startTutorial = (tutorial) => {
-    console.log('🚀 Starting tutorial:', tutorial.title);
+    console.log(' Starting tutorial:', tutorial.title);
     setSelectedTutorial(tutorial);
     setCurrentStep(0);
   };
@@ -1397,7 +1397,7 @@ if (parResponse.error) {
                 height: 'fit-content'
               }}
               onClick={(e) => {
-                console.log('🖱️ Tutorial card clicked:', tutorial.title);
+                console.log(' Tutorial card clicked:', tutorial.title);
                 e.preventDefault();
                 startTutorial(tutorial);
               }}
@@ -1463,7 +1463,7 @@ if (parResponse.error) {
           <ModalContent>
             <ModalHeader>
               <h2>{selectedTutorial.title}</h2>
-              <CloseButton onClick={() => setSelectedTutorial(null)}>×</CloseButton>
+              <CloseButton onClick={() => setSelectedTutorial(null)}></CloseButton>
             </ModalHeader>
 
             <StepContainer>

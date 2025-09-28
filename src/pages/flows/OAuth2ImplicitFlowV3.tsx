@@ -33,6 +33,7 @@ import { usePerformanceTracking } from "../../hooks/useAnalytics";
 import {
 	showGlobalError,
 	showGlobalSuccess,
+	showGlobalWarning,
 } from "../../hooks/useNotifications";
 import { useAuthorizationFlowScroll } from "../../hooks/usePageScroll";
 import { getCallbackUrlForFlow } from "../../utils/callbackUrls";
@@ -350,7 +351,7 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 	// Start debug session
 	React.useEffect(() => {
 		const sessionId = enhancedDebugger.startSession("oauth2-implicit-v3");
-		console.log("🔍 [OAUTH2-IMPLICIT-V3] Debug session started:", sessionId);
+		console.log(" [OAUTH2-IMPLICIT-V3] Debug session started:", sessionId);
 
 		return () => {
 			enhancedDebugger.endSession(sessionId);
@@ -406,8 +407,12 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 							? implicitCredentials.scopes.join(" ")
 							: implicitCredentials.scopes || "openid",
 					});
+					showGlobalSuccess(
+						"Credentials loaded",
+						"Using saved implicit flow configuration from storage.",
+					);
 					console.log(
-						"✅ [OAuth2-IMPLICIT-V3] Loaded implicit flow credentials:",
+						" [OAuth2-IMPLICIT-V3] Loaded implicit flow credentials:",
 						implicitCredentials,
 					);
 				} else {
@@ -427,7 +432,7 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 								: configCredentials.scopes || "openid",
 						});
 						console.log(
-							"✅ [OAuth2-IMPLICIT-V3] Loaded global config credentials:",
+							" [OAuth2-IMPLICIT-V3] Loaded global config credentials:",
 							configCredentials,
 						);
 					} else {
@@ -442,13 +447,13 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 							scopes: "openid",
 						});
 						console.log(
-							"⚠️ [OAuth2-IMPLICIT-V3] No credentials found, showing default redirect URI modal",
+							" [OAuth2-IMPLICIT-V3] No credentials found, showing default redirect URI modal",
 						);
 					}
 				}
 			} catch (error) {
 				console.error(
-					"❌ [OAuth2-IMPLICIT-V3] Failed to load credentials:",
+					" [OAuth2-IMPLICIT-V3] Failed to load credentials:",
 					error,
 				);
 				// Fall back to defaults
@@ -529,10 +534,10 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 			try {
 				const parsed = JSON.parse(savedCredentials);
 				setCredentials((prev) => ({ ...prev, ...parsed }));
-				console.log("✅ [OAUTH2-IMPLICIT-V3] Loaded saved credentials");
+				console.log(" [OAUTH2-IMPLICIT-V3] Loaded saved credentials");
 			} catch (error) {
 				console.warn(
-					"⚠️ [OAUTH2-IMPLICIT-V3] Failed to parse saved credentials:",
+					" [OAUTH2-IMPLICIT-V3] Failed to parse saved credentials:",
 					error,
 				);
 			}
@@ -549,7 +554,7 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 					const parsedTokens = JSON.parse(storedTokens);
 					setTokens(parsedTokens);
 					console.log(
-						"✅ [OAUTH2-IMPLICIT-V3] Loaded tokens from callback:",
+						" [OAUTH2-IMPLICIT-V3] Loaded tokens from callback:",
 						parsedTokens,
 					);
 
@@ -559,7 +564,7 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 					// Auto-advance to the final step (token display)
 					stepManager.setStep(3, "callback return with tokens");
 					console.log(
-						"🔄 [OAUTH2-IMPLICIT-V3] Auto-advancing to final step after callback return",
+						" [OAUTH2-IMPLICIT-V3] Auto-advancing to final step after callback return",
 					);
 
 					// Clear the stored tokens after loading
@@ -567,13 +572,13 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 
 					// Show success message
 					showGlobalSuccess(
-						"🎉 Tokens Received",
-						"Access token has been successfully obtained from the callback",
+						"Tokens received",
+						"Tokens parsed from the implicit flow response.",
 					);
 				}
 			} catch (error) {
 				console.warn(
-					"⚠️ [OAUTH2-IMPLICIT-V3] Failed to load tokens from callback:",
+					" [OAUTH2-IMPLICIT-V3] Failed to load tokens from callback:",
 					error,
 				);
 			}
@@ -587,7 +592,7 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 
 	// Save credentials to storage
 	const saveCredentials = useCallback(async () => {
-		console.log("🔧 [OAuth2ImplicitV3] Save credentials clicked", {
+		console.log(" [OAuth2ImplicitV3] Save credentials clicked", {
 			credentials,
 		});
 		setIsSavingCredentials(true);
@@ -602,12 +607,18 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 			);
 
 			// Show multiple forms of feedback
-			showGlobalSuccess("Credentials saved successfully");
+			showGlobalSuccess(
+				"Access granted",
+				"Implicit flow credentials saved successfully.",
+			);
 			setCredentialsSavedSuccessfully(true);
-			console.log("✅ [OAuth2ImplicitV3] Credentials saved successfully");
+			console.log(" [OAuth2ImplicitV3] Credentials saved successfully");
 		} catch (error) {
-			showGlobalError("Failed to save credentials");
-			console.error("❌ [OAuth2ImplicitV3] Failed to save credentials:", error);
+			showGlobalError(
+				"Save failed",
+				"We couldn't save your credentials. Please try again.",
+			);
+			console.error(" [OAuth2ImplicitV3] Failed to save credentials:", error);
 		} finally {
 			setIsSavingCredentials(false);
 		}
@@ -624,12 +635,18 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 				redirectUri: getCallbackUrlForFlow("oauth2-implicit-v3"),
 				scopes: "read write",
 			});
-			showGlobalSuccess("Credentials cleared successfully");
-			console.log("✅ [OAUTH2-IMPLICIT-V3] Credentials cleared");
+			showGlobalSuccess(
+				"Access refreshed",
+				"Credentials cleared successfully.",
+			);
+			console.log(" [OAUTH2-IMPLICIT-V3] Credentials cleared");
 		} catch (error) {
-			showGlobalError("Failed to clear credentials");
+			showGlobalError(
+				"Save failed",
+				"We couldn't clear your credentials. Please try again.",
+			);
 			console.error(
-				"❌ [OAUTH2-IMPLICIT-V3] Failed to clear credentials:",
+				" [OAUTH2-IMPLICIT-V3] Failed to clear credentials:",
 				error,
 			);
 		} finally {
@@ -640,8 +657,9 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 
 	const handleContinueWithDefaultUri = () => {
 		setShowDefaultRedirectUriModal(false);
-		showGlobalSuccess(
-			"Using default redirect URI. Please configure it in your PingOne application.",
+		showGlobalWarning(
+			"Verification required",
+			"Using the sample redirect URI. Update it in PingOne for production.",
 		);
 	};
 
@@ -666,7 +684,7 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 			const fullUrl = `${authEndpoint}?${params.toString()}`;
 			setAuthUrl(fullUrl);
 
-			console.log("✅ [OAUTH2-IMPLICIT-V3] Authorization URL built:", {
+			console.log(" [OAUTH2-IMPLICIT-V3] Authorization URL built:", {
 				endpoint: authEndpoint,
 				clientId: credentials.clientId,
 				redirectUri: credentials.redirectUri,
@@ -676,22 +694,28 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 			});
 
 			console.log(
-				"🚨 [OAUTH2-IMPLICIT-V3] IMPORTANT: Add this redirect URI to your PingOne application:",
+				" [OAUTH2-IMPLICIT-V3] IMPORTANT: Add this redirect URI to your PingOne application:",
 			);
 			console.log(`   Redirect URI: ${credentials.redirectUri}`);
 			console.log(`   Environment: ${credentials.environmentId}`);
 			console.log(
-				"   Path: Applications → Your App → Configuration → Redirect URIs",
+				"   Path: Applications  Your App  Configuration  Redirect URIs",
 			);
 
-			showGlobalSuccess("Authorization URL built successfully!");
+			showGlobalSuccess(
+				"Authorization URL ready",
+				"PingOne authorize endpoint prepared with the current parameters.",
+			);
 			return fullUrl;
 		} catch (error) {
 			console.error(
-				"❌ [OAUTH2-IMPLICIT-V3] Failed to build authorization URL:",
+				" [OAUTH2-IMPLICIT-V3] Failed to build authorization URL:",
 				error,
 			);
-			showGlobalError("Failed to build authorization URL");
+			showGlobalError(
+				"URL generation failed",
+				`We couldn't build the authorization request: ${error instanceof Error ? error.message : "Unknown error"}.`,
+			);
 			throw error;
 		}
 	}, [credentials]);
@@ -699,7 +723,10 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 	// Handle authorization redirect with modal option
 	const handleAuthorizationWithModal = useCallback(() => {
 		if (!authUrl) {
-			showGlobalError("❌ Please generate authorization URL first");
+			showGlobalError(
+				"Authorization failed",
+				"Generate the authorization URL before starting the flow.",
+			);
 			return;
 		}
 
@@ -709,12 +736,12 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 
 		if (shouldShowModal) {
 			console.log(
-				"🔧 [OAUTH2-IMPLICIT-V3] Showing authorization request modal (user preference)",
+				" [OAUTH2-IMPLICIT-V3] Showing authorization request modal (user preference)",
 			);
 			setShowAuthRequestModal(true);
 		} else {
 			console.log(
-				"🔧 [OAUTH2-IMPLICIT-V3] Skipping authorization modal (user preference)",
+				" [OAUTH2-IMPLICIT-V3] Skipping authorization modal (user preference)",
 			);
 			// This part of the logic was removed from the original file, so it's not included here.
 			// The original code had a call to handleAuthorizationDirect() here, which was not defined.
@@ -730,7 +757,7 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 	// Navigate to Token Management with token
 	const navigateToTokenManagement = useCallback(
 		(tokenType: "access") => {
-			console.log("🔍 [OAUTH2-IMPLICIT-V3] Navigate to token management:", {
+			console.log(" [OAUTH2-IMPLICIT-V3] Navigate to token management:", {
 				tokenType,
 				hasTokens: !!tokens,
 				hasAccessToken: !!tokens?.access_token,
@@ -748,7 +775,10 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 				// Navigate to Token Management page
 				window.location.href = "/token-management";
 			} else {
-				showGlobalError(`No ${tokenType} token available for analysis`);
+				showGlobalError(
+					"Authorization failed",
+					`No ${tokenType} token available for analysis.`,
+				);
 			}
 		},
 		[tokens],
@@ -756,7 +786,7 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 
 	// Reset flow
 	const resetFlow = useCallback(async () => {
-		console.log("🔄 [OAUTH2-IMPLICIT-V3] Reset flow initiated");
+		console.log(" [OAUTH2-IMPLICIT-V3] Reset flow initiated");
 
 		setIsResettingFlow(true);
 
@@ -765,7 +795,7 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 			await new Promise((resolve) => setTimeout(resolve, 500));
 
 			console.log(
-				"🔍 [OAUTH2-IMPLICIT-V3] Current step before reset:",
+				" [OAUTH2-IMPLICIT-V3] Current step before reset:",
 				stepManager.currentStepIndex,
 			);
 
@@ -780,16 +810,17 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 
 			// Show success message to user
 			console.log(
-				"🎉 [OAUTH2-IMPLICIT-V3] About to show success message for reset",
+				" [OAUTH2-IMPLICIT-V3] About to show success message for reset",
 			);
 			showGlobalSuccess(
-				"🔄 OAuth2 Implicit Flow reset successfully! You can now begin a new flow.",
+				"Flow reset",
+				"Implicit flow state cleared. Start again whenever you're ready.",
 			);
-			console.log("✅ [OAUTH2-IMPLICIT-V3] Success message shown for reset");
+			console.log(" [OAUTH2-IMPLICIT-V3] Success message shown for reset");
 
 			// AGGRESSIVE SCROLL TO TOP - try all methods
 			console.log(
-				"📜 [OAUTH2-IMPLICIT-V3] AGGRESSIVE SCROLL - position before:",
+				"[OAUTH2-IMPLICIT-V3] AGGRESSIVE SCROLL - position before:",
 				window.pageYOffset,
 			);
 
@@ -825,7 +856,7 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 					}
 				});
 
-				console.log("📜 [OAUTH2-IMPLICIT-V3] Force scrolled all containers");
+				console.log("[OAUTH2-IMPLICIT-V3] Force scrolled all containers");
 			};
 
 			// Execute force scroll immediately and with delays
@@ -834,10 +865,13 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 			setTimeout(scrollAllContainers, 300);
 			setTimeout(scrollAllContainers, 500);
 
-			console.log("✅ [OAUTH2-IMPLICIT-V3] Flow reset complete");
+			console.log(" [OAUTH2-IMPLICIT-V3] Flow reset complete");
 		} catch (error) {
-			console.error("❌ [OAUTH2-IMPLICIT-V3] Reset flow failed:", error);
-			showGlobalError("Failed to reset flow");
+			console.error(" [OAUTH2-IMPLICIT-V3] Reset flow failed:", error);
+			showGlobalError(
+				"Reset failed",
+				"We couldn't clear the flow state. Please try again.",
+			);
 		} finally {
 			setIsResettingFlow(false);
 		}
@@ -982,12 +1016,8 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 								setShowParameterBreakdown((prev) => {
 									const next = !prev;
 									showGlobalSuccess(
-										next
-											? "🔧 Parameter Breakdown Expanded"
-											: "📁 Parameter Breakdown Collapsed",
-										next
-											? "Authorization URL parameters are now visible"
-											: "Parameter breakdown has been collapsed",
+										"Parameter breakdown ready",
+										"Authorization URL is ready for review by parameter.",
 									);
 									return next;
 								});
@@ -1138,8 +1168,8 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 										onClick={() => {
 											copyToClipboard(authUrl, "Authorization URL");
 											showGlobalSuccess(
-												"📋 Authorization URL Copied",
-												"The authorization URL has been copied to your clipboard",
+												"Authorization URL copied",
+												"Authorization URL copied to the clipboard.",
 											);
 										}}
 										type="button"
@@ -1218,8 +1248,8 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 										onClick={() => {
 											copyToClipboard(authUrl, "Authorization URL");
 											showGlobalSuccess(
-												"📋 Authorization URL Copied",
-												"The authorization URL has been copied to your clipboard",
+												"Authorization URL copied",
+												"Authorization URL copied to the clipboard.",
 											);
 										}}
 										type="button"
@@ -1257,12 +1287,10 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 										setShowClientIdTroubleshooting((prev) => {
 											const next = !prev;
 											showGlobalSuccess(
+												"Access refreshed",
 												next
-													? "🔧 Client ID Troubleshooting Expanded"
-													: "📁 Client ID Troubleshooting Collapsed",
-												next
-													? "Client ID troubleshooting steps are now visible"
-													: "Troubleshooting section has been collapsed",
+													? "Client ID troubleshooting guidance is now visible."
+													: "Client ID troubleshooting collapsed.",
 											);
 											return next;
 										});
@@ -1325,7 +1353,7 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 										}}
 									>
 										<p style={{ margin: "0 0 0.5rem 0" }}>
-											<strong>⚠️ NOT_FOUND Error = Client ID Issue</strong>
+											<strong> NOT_FOUND Error = Client ID Issue</strong>
 										</p>
 										<p style={{ margin: "0 0 0.5rem 0" }}>
 											If you get a "NOT_FOUND" error, PingOne cannot find your
@@ -1370,8 +1398,8 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 								color: "#92400e",
 							}}
 						>
-							<strong>⚠️ Important:</strong> After authorization, the user will
-							be redirected back with tokens in the URL fragment. The callback
+							<strong> Important:</strong> After authorization, the user will be
+							redirected back with tokens in the URL fragment. The callback
 							handler will extract and validate these tokens automatically.
 						</div>
 					</div>
@@ -1393,7 +1421,7 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 								<InfoBox type="success">
 									<FiCheckCircle />
 									<div>
-										<strong>✅ OAuth 2.0 Implicit Flow Successful!</strong>
+										<strong> OAuth 2.0 Implicit Flow Successful!</strong>
 										<br />
 										Access token received and validated successfully.
 									</div>
@@ -1426,8 +1454,8 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 												onClick={() => {
 													copyToClipboard(tokens.access_token, "Access Token");
 													showGlobalSuccess(
-														"📋 Access Token Copied",
-														"The access token has been copied to your clipboard",
+														"Tokens copied",
+														"Implicit flow tokens copied to the clipboard.",
 													);
 												}}
 											>
@@ -1453,12 +1481,8 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 													setShowTokenDetails((prev) => {
 														const next = !prev;
 														showGlobalSuccess(
-															next
-																? "🔍 Token Details Expanded"
-																: "📁 Token Details Collapsed",
-															next
-																? "Token details are now visible"
-																: "Token details have been collapsed",
+															"Token analysis available",
+															"Token analysis view is now visible.",
 														);
 														return next;
 													});
@@ -1633,7 +1657,7 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 											color: "#15803d",
 										}}
 									>
-										<strong>✅ Token Validation Complete!</strong>
+										<strong> Token Validation Complete!</strong>
 										<br />
 										Your access token is ready to use for API calls. Remember
 										that implicit flow tokens are typically short-lived and
@@ -1804,7 +1828,7 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 		],
 	);
 
-	console.log("🔍 [OAUTH2-IMPLICIT-V3] Component rendering", {
+	console.log(" [OAUTH2-IMPLICIT-V3] Component rendering", {
 		stepsLength: steps.length,
 		currentStep: stepManager.currentStepIndex,
 		hasTokens: !!tokens,
@@ -1836,12 +1860,10 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 								setShowEducationalContent((prev) => {
 									const next = !prev;
 									showGlobalSuccess(
+										"Access refreshed",
 										next
-											? "📚 Educational Content Expanded"
-											: "📁 Educational Content Collapsed",
-										next
-											? "Educational content about OAuth 2.0 Implicit Flow is now visible"
-											: "Educational content has been collapsed",
+											? "Educational content is now visible."
+											: "Educational content collapsed.",
 									);
 									return next;
 								});
@@ -1857,7 +1879,7 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 								}}
 							>
 								<h2 style={{ margin: 0, color: "#1f2937", fontSize: "1.5rem" }}>
-									🔍 What is OAuth 2.0 Implicit Flow?
+									What is OAuth 2.0 Implicit Flow?
 								</h2>
 								<div
 									style={{
@@ -1982,17 +2004,17 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 										}}
 									>
 										<p style={{ margin: "0 0 0.5rem 0" }}>
-											<strong>⚠️ Deprecated:</strong> OAuth 2.0 Security Best
+											<strong> Deprecated:</strong> OAuth 2.0 Security Best
 											Practices recommends against Implicit Flow for new
 											applications.
 										</p>
 										<p style={{ margin: "0 0 0.5rem 0" }}>
-											<strong>🔓 Token Exposure:</strong> Access tokens are
+											<strong> Token Exposure:</strong> Access tokens are
 											exposed in the URL fragment, making them visible in
 											browser history, server logs, and referrer headers.
 										</p>
 										<p style={{ margin: "0" }}>
-											<strong>✅ Modern Alternative:</strong> Use Authorization
+											<strong> Modern Alternative:</strong> Use Authorization
 											Code flow with PKCE for better security.
 										</p>
 									</div>
@@ -2029,7 +2051,7 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 				{/* Main Step Flow */}
 				<EnhancedStepFlowV2
 					steps={steps}
-					title="🔐 OAuth 2.0 Implicit Flow V3"
+					title=" OAuth 2.0 Implicit Flow V3"
 					persistKey="oauth2_implicit_v3_flow_steps"
 					initialStepIndex={stepManager.currentStepIndex}
 					onStepChange={stepManager.setStep}
@@ -2038,7 +2060,7 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 					allowStepJumping={true}
 					onStepComplete={(stepId, result) => {
 						console.log(
-							"✅ [OAUTH2-IMPLICIT-V3] Step completed:",
+							" [OAUTH2-IMPLICIT-V3] Step completed:",
 							stepId,
 							result,
 						);
@@ -2047,13 +2069,13 @@ const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 
 				{/* Flow Control Actions */}
 				<FlowControlSection>
-					<FlowControlTitle>⚙️ Flow Control Actions</FlowControlTitle>
+					<FlowControlTitle> Flow Control Actions</FlowControlTitle>
 					<FlowControlButtons>
 						<FlowControlButton
 							className="clear"
 							onClick={() => setShowClearCredentialsModal(true)}
 						>
-							🧹 Clear Credentials
+							Clear Credentials
 						</FlowControlButton>
 						<FlowControlButton
 							className="reset"

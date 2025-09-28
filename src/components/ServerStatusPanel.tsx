@@ -346,25 +346,25 @@ const ServerStatusPanel: React.FC = () => {
 
 			if (onlineCount === totalCount) {
 				showGlobalSuccess(
-					"✅ All Servers Online",
+					" All Servers Online",
 					`All ${totalCount} servers are responding normally`,
 					5000,
 				);
 			} else if (onlineCount > 0) {
 				showGlobalSuccess(
-					"⚠️ Partial Server Status",
+					" Partial Server Status",
 					`${onlineCount} of ${totalCount} servers are online`,
 					5000,
 				);
 			} else {
 				showGlobalError(
-					"❌ All Servers Offline",
+					" All Servers Offline",
 					"No servers are currently responding",
 				);
 			}
 		} catch (_error) {
 			showGlobalError(
-				"❌ Server Status Check Failed",
+				" Server Status Check Failed",
 				"Failed to check server status. Please try again.",
 			);
 		} finally {

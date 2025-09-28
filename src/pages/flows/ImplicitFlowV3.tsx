@@ -19,6 +19,8 @@ import CollapsibleSection from "../../components/CollapsibleSection";
 import ConfirmationModal from "../../components/ConfirmationModal";
 import { EnhancedStepFlowV2 } from "../../components/EnhancedStepFlowV2";
 import FlowIntro from "../../components/flow/FlowIntro";
+import type { FlowConfig } from "../../components/FlowConfiguration";
+import ImplicitSafetySummary from "../../components/flow/ImplicitSafetySummary";
 import {
 	FormField,
 	FormInput,
@@ -30,12 +32,15 @@ import { PageStyleProvider } from "../../contexts/PageStyleContext";
 import {
 	showGlobalError,
 	showGlobalSuccess,
+	showGlobalWarning,
 } from "../../hooks/useNotifications";
 import { getCallbackUrlForFlow } from "../../utils/callbackUrls";
 import { credentialManager } from "../../utils/credentialManager";
 import { trackFlowCompletion } from "../../utils/flowCredentialChecker";
 import { useFlowStepManager } from "../../utils/flowStepSystem";
 import { logger } from "../../utils/logger";
+import ConfigurationStatus from "../../components/ConfigurationStatus";
+import ContextualHelp from "../../components/ContextualHelp";
 
 const Container = styled.div`
   max-width: 1200px;
@@ -76,8 +81,63 @@ const WarningContent = styled.div`
   }
 `;
 
+const FlowOverviewCard = styled.div`
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 2rem;
+  margin: 2rem 0;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+`;
+
+const FlowOverviewGrid = styled.div`
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+`;
+
+const OverviewBlock = styled.div`
+  h3 {
+    margin: 0 0 0.75rem;
+    font-size: 1.1rem;
+    color: #111827;
+  }
+
+  p {
+    margin: 0 0 0.5rem;
+    color: #475569;
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+`;
+
+const HighlightCallout = styled.div`
+  display: flex;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border-radius: 12px;
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  background: rgba(165, 180, 252, 0.12);
+  color: #3730a3;
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  h4 {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+`;
+
 const ImplicitFlowV3: React.FC = () => {
-	console.log("🎨 [ImplicitFlowV3] COMPONENT RENDER:", {
+	console.log(" [ImplicitFlowV3] COMPONENT RENDER:", {
 		timestamp: Date.now(),
 	});
 
@@ -109,7 +169,7 @@ const ImplicitFlowV3: React.FC = () => {
 	// Load initial credentials
 	const loadInitialCredentials = useCallback(async () => {
 		try {
-			console.log("🔧 [ImplicitFlowV3] Loading initial credentials...");
+			console.log(" [ImplicitFlowV3] Loading initial credentials...");
 			const allCredentials = credentialManager.getAllCredentials();
 
 			if (allCredentials.environmentId && allCredentials.clientId) {
@@ -121,10 +181,10 @@ const ImplicitFlowV3: React.FC = () => {
 					scopes: allCredentials.scopes || prev.scopes,
 					redirectUri: allCredentials.redirectUri || prev.redirectUri,
 				}));
-				console.log("✅ [ImplicitFlowV3] Credentials loaded successfully");
+				console.log(" [ImplicitFlowV3] Credentials loaded successfully");
 			}
 		} catch (error) {
-			console.error("❌ [ImplicitFlowV3] Failed to load credentials:", error);
+			console.error(" [ImplicitFlowV3] Failed to load credentials:", error);
 		}
 	}, []);
 
@@ -141,7 +201,7 @@ const ImplicitFlowV3: React.FC = () => {
 				const storedTokens = sessionStorage.getItem("implicit_tokens");
 				if (storedTokens) {
 					console.log(
-						"🔑 [ImplicitFlowV3] Found tokens from callback:",
+						" [ImplicitFlowV3] Found tokens from callback:",
 						storedTokens,
 					);
 
@@ -154,13 +214,13 @@ const ImplicitFlowV3: React.FC = () => {
 					// Auto-advance to step 2 (token parsing & display)
 					stepManager.setStep(1, "callback return with tokens");
 					console.log(
-						"🔄 [ImplicitFlowV3] Auto-advancing to step 2 (token parsing) after callback return",
+						" [ImplicitFlowV3] Auto-advancing to step 2 (token parsing) after callback return",
 					);
 
 					// Show success message
 					showGlobalSuccess(
-						"🎉 Authorization Successful!",
-						"Tokens received from PingOne. You can now view and validate the tokens.",
+						"Access granted",
+						"Tokens received from PingOne. You can now view and validate them.",
 					);
 
 					// Clean up sessionStorage
@@ -176,7 +236,7 @@ const ImplicitFlowV3: React.FC = () => {
 				}
 			} catch (error) {
 				console.error(
-					"❌ [ImplicitFlowV3] Failed to handle callback return:",
+					" [ImplicitFlowV3] Failed to handle callback return:",
 					error,
 				);
 			}
@@ -189,7 +249,7 @@ const ImplicitFlowV3: React.FC = () => {
 	const saveCredentials = useCallback(async () => {
 		try {
 			setIsLoading(true);
-			console.log("💾 [ImplicitFlowV3] Saving credentials...");
+			console.log(" [ImplicitFlowV3] Saving credentials...");
 
 			await credentialManager.saveAllCredentials({
 				environmentId: credentials.environmentId,
@@ -200,15 +260,15 @@ const ImplicitFlowV3: React.FC = () => {
 			});
 
 			showGlobalSuccess(
-				"✅ Credentials Saved",
-				"Your Implicit Flow credentials have been saved successfully!",
+				"Access granted",
+				"Implicit flow credentials saved successfully.",
 			);
-			console.log("✅ [ImplicitFlowV3] Credentials saved successfully");
+			console.log(" [ImplicitFlowV3] Credentials saved successfully");
 		} catch (error) {
-			console.error("❌ [ImplicitFlowV3] Failed to save credentials:", error);
+			console.error(" [ImplicitFlowV3] Failed to save credentials:", error);
 			showGlobalError(
-				"❌ Save Failed",
-				"Failed to save credentials. Please try again.",
+				"Save failed",
+				"We couldn't save your credentials. Please try again.",
 			);
 		} finally {
 			setIsLoading(false);
@@ -218,7 +278,7 @@ const ImplicitFlowV3: React.FC = () => {
 	// Generate authorization URL
 	const generateAuthUrl = useCallback(() => {
 		try {
-			console.log("🔗 [ImplicitFlowV3] Generating authorization URL...");
+			console.log(" [ImplicitFlowV3] Generating authorization URL...");
 
 			if (!credentials.environmentId || !credentials.clientId) {
 				throw new Error("Environment ID and Client ID are required");
@@ -248,22 +308,20 @@ const ImplicitFlowV3: React.FC = () => {
 
 			setAuthUrl(url);
 			showGlobalSuccess(
-				"🔗 Authorization URL Generated",
-				"Your authorization URL has been generated successfully!",
+				"Authorization URL ready",
+				"PingOne authorize endpoint prepared for the implicit flow.",
 			);
-			console.log("✅ [ImplicitFlowV3] Authorization URL generated:", url);
+			console.log(" [ImplicitFlowV3] Authorization URL generated:", url);
 
 			return url;
 		} catch (error) {
 			console.error(
-				"❌ [ImplicitFlowV3] Failed to generate authorization URL:",
+				" [ImplicitFlowV3] Failed to generate authorization URL:",
 				error,
 			);
 			showGlobalError(
-				"❌ URL Generation Failed",
-				error instanceof Error
-					? error.message
-					: "Failed to generate authorization URL",
+				"URL generation failed",
+				`We couldn't build the authorization request: ${error instanceof Error ? error.message : "Unknown error"}.`,
 			);
 			return null;
 		}
@@ -273,13 +331,13 @@ const ImplicitFlowV3: React.FC = () => {
 	const handleAuthorization = useCallback(() => {
 		if (!authUrl) {
 			showGlobalError(
-				"❌ No Authorization URL",
-				"Please generate the authorization URL first",
+				"Authorization failed",
+				"Generate the authorization URL before starting the flow.",
 			);
 			return;
 		}
 
-		console.log("🚀 [ImplicitFlowV3] Starting authorization redirect...");
+		console.log(" [ImplicitFlowV3] Starting authorization redirect...");
 
 		// Store flow context for callback handling
 		const flowContext = {
@@ -294,7 +352,7 @@ const ImplicitFlowV3: React.FC = () => {
 			JSON.stringify(flowContext),
 		);
 		console.log(
-			"💾 [ImplicitFlowV3] Stored flow context for callback handling",
+			" [ImplicitFlowV3] Stored flow context for callback handling",
 		);
 
 		// Open in new window for better UX
@@ -306,8 +364,8 @@ const ImplicitFlowV3: React.FC = () => {
 
 		if (!authWindow) {
 			showGlobalError(
-				"❌ Popup Blocked",
-				"Please allow popups for this site and try again",
+				"Popup blocked",
+				"Allow popups for this site and try the authorization step again.",
 			);
 			return;
 		}
@@ -316,13 +374,13 @@ const ImplicitFlowV3: React.FC = () => {
 		const checkClosed = setInterval(() => {
 			if (authWindow.closed) {
 				clearInterval(checkClosed);
-				console.log("🔒 [ImplicitFlowV3] Authorization window closed");
+				console.log(" [ImplicitFlowV3] Authorization window closed");
 			}
 		}, 1000);
 
-		showGlobalSuccess(
-			"🚀 Authorization Started",
-			"Authorization window opened. Complete the login process.",
+		showGlobalWarning(
+			"Browser popup opened",
+			"Finish sign-in in the PingOne window to receive tokens.",
 		);
 	}, [authUrl, credentials]);
 
@@ -330,11 +388,11 @@ const ImplicitFlowV3: React.FC = () => {
 	const copyToClipboard = useCallback(async (text: string, label: string) => {
 		try {
 			await navigator.clipboard.writeText(text);
-			showGlobalSuccess("📋 Copied", `${label} copied to clipboard!`);
+			showGlobalSuccess("Copied", `${label} copied to the clipboard.`);
 		} catch {
 			showGlobalError(
-				"❌ Copy Failed",
-				`Failed to copy ${label.toLowerCase()}`,
+				"Copy failed",
+				`We couldn't copy ${label} to the clipboard: ${error instanceof Error ? error.message : "Unknown error"}.`,
 			);
 		}
 	}, []);
@@ -342,7 +400,7 @@ const ImplicitFlowV3: React.FC = () => {
 	// Navigate to Token Management with token
 	const navigateToTokenManagement = useCallback(
 		(tokenType: "access" | "id") => {
-			console.log("🔍 [ImplicitFlowV3] Navigate to token management:", {
+			console.log(" [ImplicitFlowV3] Navigate to token management:", {
 				tokenType,
 				hasTokens: !!tokens,
 				hasAccessToken: !!tokens?.access_token,
@@ -354,7 +412,7 @@ const ImplicitFlowV3: React.FC = () => {
 				tokenType === "access" ? tokens?.access_token : tokens?.id_token;
 
 			if (token) {
-				console.log("✅ [ImplicitFlowV3] Token found, storing for analysis:", {
+				console.log(" [ImplicitFlowV3] Token found, storing for analysis:", {
 					tokenType,
 					tokenLength: token.length,
 					tokenPreview: `${token.substring(0, 20)}...`,
@@ -366,14 +424,17 @@ const ImplicitFlowV3: React.FC = () => {
 				sessionStorage.setItem("flow_source", "implicit-flow-v3");
 
 				console.log(
-					"🔍 [ImplicitFlowV3] Navigating to token management page...",
+					" [ImplicitFlowV3] Navigating to token management page...",
 				);
 				window.location.href = "/token-management";
 			} else {
 				console.error(
-					`❌ [ImplicitFlowV3] No ${tokenType} token available for analysis`,
+					` [ImplicitFlowV3] No ${tokenType} token available for analysis`,
 				);
-				showGlobalError(`No ${tokenType} token available for analysis`);
+				showGlobalError(
+					"Authorization failed",
+					`No ${tokenType} token available for analysis.`,
+				);
 			}
 		},
 		[tokens],
@@ -381,7 +442,7 @@ const ImplicitFlowV3: React.FC = () => {
 
 	// Reset flow
 	const resetFlow = useCallback(() => {
-		console.log("🔄 [ImplicitFlowV3] Resetting flow...");
+		console.log(" [ImplicitFlowV3] Resetting flow...");
 		setTokens(null);
 		setUserInfo(null);
 		setAuthUrl("");
@@ -393,8 +454,8 @@ const ImplicitFlowV3: React.FC = () => {
 		}));
 		stepManager.reset();
 		showGlobalSuccess(
-			"🔄 Flow Reset",
-			"Implicit flow has been reset successfully!",
+			"Flow reset",
+			"Implicit flow state cleared. Start again whenever you are ready.",
 		);
 	}, [stepManager]);
 
@@ -404,7 +465,7 @@ const ImplicitFlowV3: React.FC = () => {
 			stepIndex: number,
 			reason: "user navigation" | "auto-advance" | "reset",
 		) => {
-			console.log("📝 [ImplicitFlowV3] Step changed:", { stepIndex, reason });
+			console.log(" [ImplicitFlowV3] Step changed:", { stepIndex, reason });
 			stepManager.setStep(stepIndex, reason);
 		},
 		[stepManager],
@@ -425,7 +486,7 @@ const ImplicitFlowV3: React.FC = () => {
 								<FiAlertTriangle size={20} />
 							</WarningIcon>
 							<WarningContent>
-								<h3>⚠️ Security Warning</h3>
+								<h3> Security Warning</h3>
 								<p>
 									The Implicit Flow is <strong>deprecated</strong> and should
 									not be used in production. It's included here for educational
@@ -435,7 +496,7 @@ const ImplicitFlowV3: React.FC = () => {
 						</WarningBox>
 
 						<CollapsibleSection
-							title="📚 Implicit Flow Details"
+							title=" Implicit Flow Details"
 							isExpanded={true}
 							onToggle={() => {}}
 							icon={<FiSettings />}
@@ -448,7 +509,7 @@ const ImplicitFlowV3: React.FC = () => {
 										fontSize: "1.2rem",
 									}}
 								>
-									🔓 What is the Implicit Flow?
+									 What is the Implicit Flow?
 								</h3>
 								<p style={{ margin: "0 0 1rem 0", lineHeight: "1.5" }}>
 									The Implicit Flow is a simplified OAuth 2.0 flow where tokens
@@ -466,7 +527,7 @@ const ImplicitFlowV3: React.FC = () => {
 										fontSize: "1.2rem",
 									}}
 								>
-									⚠️ Why is it Deprecated?
+									 Why is it Deprecated?
 								</h3>
 								<ul
 									style={{
@@ -502,7 +563,7 @@ const ImplicitFlowV3: React.FC = () => {
 										fontSize: "1.2rem",
 									}}
 								>
-									✅ Modern Alternative
+									 Modern Alternative
 								</h3>
 								<p style={{ margin: "0", lineHeight: "1.5" }}>
 									Use <strong>Authorization Code Flow with PKCE</strong> for
@@ -757,7 +818,7 @@ const ImplicitFlowV3: React.FC = () => {
 									fontSize: "1rem",
 								}}
 							>
-								🔗 Authorization URL Generation
+								 Authorization URL Generation
 							</h3>
 							<p
 								style={{
@@ -888,7 +949,7 @@ const ImplicitFlowV3: React.FC = () => {
 									fontSize: "1rem",
 								}}
 							>
-								🚀 User Authorization Step
+								 User Authorization Step
 							</h3>
 							<p
 								style={{
@@ -979,7 +1040,7 @@ const ImplicitFlowV3: React.FC = () => {
 									fontSize: "1rem",
 								}}
 							>
-								🔍 Token Parsing
+								 Token Parsing
 							</h3>
 							<p
 								style={{
@@ -1051,13 +1112,13 @@ const ImplicitFlowV3: React.FC = () => {
 					introCopy={
 						<p>
 							The implicit grant returns tokens directly in the redirect URI
-							fragment. Use it only for educational purposes—tokens are exposed
+							fragment. Use it only for educational purposestokens are exposed
 							to the front end and lack refresh token support.
 						</p>
 					}
 					bullets={[
 						"Tokens delivered via redirect fragment",
-						"No refresh tokens—expires quickly",
+						"No refresh tokensexpires quickly",
 						"Highly discouraged for production apps",
 					]}
 					warningTitle="Security Warning"
@@ -1066,10 +1127,62 @@ const ImplicitFlowV3: React.FC = () => {
 					illustration="/images/flows/implicit-flow.svg"
 					illustrationAlt="Legacy implicit flow"
 				/>
+				<ConfigurationStatus flowType="implicit" />
+				<ContextualHelp flowId="oidc-implicit" />
+				<ImplicitSafetySummary />
+				<FlowOverviewCard>
+					<h2 style={{ margin: "0 0 1rem", color: "#0f172a" }}>
+						How the Implicit Flow Works
+					</h2>
+					<FlowOverviewGrid>
+						<OverviewBlock>
+							<h3>PingOne Endpoints</h3>
+							<p>
+								Authorize: <strong>https://auth.pingone.com/&lt;env-id&gt;/as/authorize</strong>
+							</p>
+							<p>
+								Tokens return in the browser fragment (<code>#access_token=...</code>) instead of calling the token endpoint.
+							</p>
+						</OverviewBlock>
+						<OverviewBlock>
+							<h3>AI & Debug Insights</h3>
+							<p>
+								Use the Token Analyzer AI on the token management page to verify scopes, expirations, and potential risks before trusting the token response.
+							</p>
+							<p>
+								Enhanced debug logging records each authorization redirect, making it easy to replay the flow and inspect returned fragments.
+							</p>
+						</OverviewBlock>
+						<OverviewBlock>
+							<h3>Recommended Replacement</h3>
+							<p>
+								Use Authorization Code + PKCE or Hybrid flows to keep tokens off the front channel and leverage refresh tokens securely.
+							</p>
+							<p>
+								Device and Worker Token flows provide modern alternatives when you need browserless or detached authorization paths.
+							</p>
+						</OverviewBlock>
+					</FlowOverviewGrid>
+					<HighlightCallout>
+						<FiAlertTriangle size={18} />
+						<div>
+							<h4>Security Snapshot</h4>
+							<p>
+								Tokens can leak via browser history, referrers, or malicious extensions. Always validate nonce, enforce HTTPS, and clear fragments after use.
+							</p>
+						</div>
+					</HighlightCallout>
+				</FlowOverviewCard>
+				<FlowConfiguration
+					initialExpanded={false}
+					title="Flow Configuration"
+					subtitle="Configure OAuth 2.0 and OpenID Connect specific settings"
+					flowType={FlowType.OIDC_IMPLICIT}
+				/>
 
 				<EnhancedStepFlowV2
 					steps={steps}
-					title="🔓 Implicit Flow (V3)"
+					title=" Implicit Flow (V3)"
 					persistKey="implicit-flow-v3"
 					autoAdvance={false}
 					showDebugInfo={false}
@@ -1077,11 +1190,7 @@ const ImplicitFlowV3: React.FC = () => {
 					initialStepIndex={stepManager.currentStepIndex}
 					onStepChange={handleStepChange}
 					onStepComplete={(stepId, result) => {
-						logger.info(
-							"ImplicitFlowV3",
-							`✅ Step completed: ${stepId}`,
-							result,
-						);
+						logger.info("ImplicitFlowV3", "Step completed", { stepId, result });
 						if (
 							stepId === "parse-tokens" &&
 							result &&
@@ -1092,7 +1201,7 @@ const ImplicitFlowV3: React.FC = () => {
 						}
 					}}
 					onStepError={(stepId, error) => {
-						logger.error("ImplicitFlowV3", `❌ Step failed: ${stepId}`, error);
+						logger.error("ImplicitFlowV3", "Step failed", { stepId, error });
 						setError(error instanceof Error ? error.message : String(error));
 						showGlobalError(
 							"Flow Error",

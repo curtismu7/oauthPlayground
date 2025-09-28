@@ -227,7 +227,7 @@ const Documentation = () => {
       />
 
       <QuickStartBanner>
-        <h2>🚀 Ready to Get Started?</h2>
+        <h2> Ready to Get Started?</h2>
         <p>
           Jump into our interactive tutorials and start learning OAuth 2.0 with hands-on examples
         </p>
@@ -386,7 +386,7 @@ const Documentation = () => {
           marginBottom: '1.5rem' 
         }}>
           <p style={{ margin: 0, color: '#dc2626', fontWeight: '500' }}>
-            <strong>⚠️ Security Warning:</strong> OAuth 2.0 and OpenID Connect handle sensitive authentication data. 
+            <strong> Security Warning:</strong> OAuth 2.0 and OpenID Connect handle sensitive authentication data. 
             Always follow these security guidelines to protect your users and applications.
           </p>
         </div>
@@ -446,7 +446,7 @@ const validateIdToken = (idToken, clientId, issuer) => {
           marginBottom: '1.5rem' 
         }}>
           <p style={{ margin: 0, color: '#0369a1', fontWeight: '500' }}>
-            <strong>💡 Pro Tip:</strong> Most OAuth 2.0 errors are related to configuration issues. Double-check your 
+            <strong> Pro Tip:</strong> Most OAuth 2.0 errors are related to configuration issues. Double-check your 
             client settings, redirect URIs, and scopes before diving into complex debugging.
           </p>
         </div>

@@ -335,7 +335,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 					const { code, id_token } = parsed;
 
 					console.log(
-						"🔑 [OIDC-HYBRID-V3] Found callback data in sessionStorage:",
+						" [OIDC-HYBRID-V3] Found callback data in sessionStorage:",
 						{
 							hasCode: !!code,
 							hasIdToken: !!id_token,
@@ -353,12 +353,12 @@ const OIDCHybridFlowV3: React.FC = () => {
 						// Auto-advance to step 3 (display hybrid flow results)
 						stepManager.setStep(2, "callback return with hybrid flow results");
 						console.log(
-							"🔄 [OIDC-HYBRID-V3] Auto-advancing to step 3 after sessionStorage callback",
+							" [OIDC-HYBRID-V3] Auto-advancing to step 3 after sessionStorage callback",
 						);
 
 						showGlobalSuccess(
-							"🎉 Hybrid Flow Successful!",
-							"Received both authorization code and ID token simultaneously. You can now exchange the code for access token.",
+							"Access granted",
+							"Authorization code and ID token received. Ready for token exchange.",
 						);
 					} else if (code) {
 						setAuthorizationCode(code);
@@ -367,8 +367,8 @@ const OIDCHybridFlowV3: React.FC = () => {
 							"callback return with authorization code only",
 						);
 						showGlobalSuccess(
-							"🎉 Authorization Code Received",
-							"Authorization code received from callback.",
+							"Access granted",
+							"Authorization code received. Ready for token exchange.",
 						);
 					}
 
@@ -388,17 +388,17 @@ const OIDCHybridFlowV3: React.FC = () => {
 
 				if (error) {
 					console.error(
-						"❌ [OIDC-HYBRID-V3] Authorization error:",
+						" [OIDC-HYBRID-V3] Authorization error:",
 						error,
 						errorDescription,
 					);
-					showGlobalError("❌ Authorization Failed", errorDescription || error);
+					showGlobalError(" Authorization Failed", errorDescription || error);
 					return;
 				}
 
 				if (code && idToken) {
 					console.log(
-						"🔑 [OIDC-HYBRID-V3] Found authorization code and ID token from hybrid flow:",
+						" [OIDC-HYBRID-V3] Found authorization code and ID token from hybrid flow:",
 						{ code: `${code.substring(0, 20)}...`, hasIdToken: !!idToken },
 					);
 
@@ -412,12 +412,12 @@ const OIDCHybridFlowV3: React.FC = () => {
 					// Auto-advance to step 3 (display hybrid flow results)
 					stepManager.setStep(2, "callback return with hybrid flow results");
 					console.log(
-						"🔄 [OIDC-HYBRID-V3] Auto-advancing to step 3 (display hybrid flow results) after callback return",
+						" [OIDC-HYBRID-V3] Auto-advancing to step 3 (display hybrid flow results) after callback return",
 					);
 
 					// Show success message
 					showGlobalSuccess(
-						"🎉 Hybrid Flow Successful!",
+						" Hybrid Flow Successful!",
 						"Received both authorization code and ID token simultaneously. You can now exchange the code for access token.",
 					);
 
@@ -428,7 +428,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 				} else if (code) {
 					// Fallback: only authorization code (shouldn't happen in proper hybrid flow)
 					console.log(
-						"🔑 [OIDC-HYBRID-V3] Found authorization code only (not full hybrid flow):",
+						" [OIDC-HYBRID-V3] Found authorization code only (not full hybrid flow):",
 						`${code.substring(0, 20)}...`,
 					);
 					setAuthorizationCode(code);
@@ -437,13 +437,13 @@ const OIDCHybridFlowV3: React.FC = () => {
 						"callback return with authorization code only",
 					);
 					showGlobalSuccess(
-						"🎉 Authorization Code Received",
+						" Authorization Code Received",
 						"Authorization code received. ID token missing from hybrid flow response.",
 					);
 				}
 			} catch (error) {
 				console.error(
-					"❌ [OIDC-HYBRID-V3] Failed to handle callback return:",
+					" [OIDC-HYBRID-V3] Failed to handle callback return:",
 					error,
 				);
 			}
@@ -480,7 +480,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 							hybridCredentials.tokenAuthMethod || prev.clientAuthMethod,
 					}));
 					console.log(
-						"✅ [OIDC-HYBRID-V3] Loaded hybrid flow credentials:",
+						" [OIDC-HYBRID-V3] Loaded hybrid flow credentials:",
 						hybridCredentials,
 					);
 				} else {
@@ -505,7 +505,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 								configCredentials.tokenAuthMethod || prev.clientAuthMethod,
 						}));
 						console.log(
-							"✅ [OIDC-HYBRID-V3] Loaded global config credentials:",
+							" [OIDC-HYBRID-V3] Loaded global config credentials:",
 							configCredentials,
 						);
 					} else {
@@ -518,7 +518,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 							redirectUri: defaultUri,
 						}));
 						console.log(
-							"⚠️ [OIDC-HYBRID-V3] No credentials found, showing default redirect URI modal",
+							" [OIDC-HYBRID-V3] No credentials found, showing default redirect URI modal",
 						);
 					}
 				}
@@ -528,10 +528,10 @@ const OIDCHybridFlowV3: React.FC = () => {
 				if (stored) {
 					const parsed = JSON.parse(stored);
 					setCredentials((prev) => ({ ...prev, ...parsed }));
-					console.log("✅ [OIDC-HYBRID-V3] Loaded localStorage credentials");
+					console.log(" [OIDC-HYBRID-V3] Loaded localStorage credentials");
 				}
 			} catch (error) {
-				console.error("❌ [OIDC-HYBRID-V3] Failed to load credentials:", error);
+				console.error(" [OIDC-HYBRID-V3] Failed to load credentials:", error);
 				logger.error(
 					"OIDCHybridV3",
 					"Failed to load stored credentials",
@@ -565,7 +565,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 			codeChallenge,
 		}));
 
-		logger.info("OIDCHybridV3", "🔐 Generated security parameters", {
+		logger.info("OIDCHybridV3", " Generated security parameters", {
 			stateLength: state.length,
 			nonceLength: nonce.length,
 			codeVerifierLength: codeVerifier.length,
@@ -594,9 +594,9 @@ const OIDCHybridFlowV3: React.FC = () => {
 				JSON.stringify(credentials),
 			);
 
-			logger.info("OIDCHybridV3", "✅ Credentials saved successfully");
+			logger.info("OIDCHybridV3", " Credentials saved successfully");
 			showGlobalSuccess(
-				"✅ OIDC Hybrid Flow Credentials Saved",
+				" OIDC Hybrid Flow Credentials Saved",
 				"Configuration saved successfully.",
 			);
 
@@ -614,7 +614,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 	// Build authorization URL
 	const buildAuthorizationUrl = useCallback(() => {
 		console.log(
-			"🔧 [OIDC-HYBRID-V3] Building authorization URL with credentials:",
+			" [OIDC-HYBRID-V3] Building authorization URL with credentials:",
 			{
 				environmentId: credentials.environmentId,
 				clientId: credentials.clientId,
@@ -640,7 +640,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 		}
 
 		console.log(
-			"🔍 [OIDC-HYBRID-V3] Building authorization URL with redirect URI:",
+			" [OIDC-HYBRID-V3] Building authorization URL with redirect URI:",
 			credentials.redirectUri,
 		);
 
@@ -663,19 +663,19 @@ const OIDCHybridFlowV3: React.FC = () => {
 		setAuthorizationUrl(url);
 
 		// Enhanced debugging for PingOne URL
-		console.log("🚀 [OIDC-HYBRID-V3] COMPLETE PINGONE AUTHORIZATION URL:");
+		console.log(" [OIDC-HYBRID-V3] COMPLETE PINGONE AUTHORIZATION URL:");
 		console.log("=".repeat(80));
 		console.log(url);
 		console.log("=".repeat(80));
 
-		console.log("🔍 [OIDC-HYBRID-V3] URL BREAKDOWN:");
+		console.log(" [OIDC-HYBRID-V3] URL BREAKDOWN:");
 		console.log("Base URL:", baseUrl);
 		console.log("Query Parameters:");
 		for (const [key, value] of params.entries()) {
 			console.log(`  ${key}: ${value}`);
 		}
 
-		console.log("🔍 [OIDC-HYBRID-V3] PARAMETER VALIDATION:");
+		console.log(" [OIDC-HYBRID-V3] PARAMETER VALIDATION:");
 		console.log("  Environment ID:", credentials.environmentId);
 		console.log("  Client ID:", credentials.clientId);
 		console.log("  Redirect URI:", credentials.redirectUri);
@@ -707,7 +707,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 		);
 		console.log("  Code Challenge Method:", credentials.codeChallengeMethod);
 
-		logger.info("OIDCHybridV3", "🔗 Built authorization URL", {
+		logger.info("OIDCHybridV3", " Built authorization URL", {
 			baseUrl,
 			responseType: credentials.responseType,
 			scopes: credentials.scopes,
@@ -716,7 +716,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 		});
 
 		showGlobalSuccess(
-			"🔗 Authorization URL Built",
+			" Authorization URL Built",
 			"Security parameters generated and authorization URL created successfully.",
 		);
 		return url;
@@ -737,7 +737,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 
 		if (shouldShowModal) {
 			console.log(
-				"🔧 [OIDC-HYBRID-V3] Showing authorization request modal (user preference)",
+				" [OIDC-HYBRID-V3] Showing authorization request modal (user preference)",
 			);
 			setShowAuthorizationModal(true);
 			return;
@@ -745,7 +745,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 
 		// Proceed directly if modal is disabled
 		console.log(
-			"🔧 [OIDC-HYBRID-V3] Skipping authorization modal (user preference)",
+			" [OIDC-HYBRID-V3] Skipping authorization modal (user preference)",
 		);
 		// Call the direct authorization function inline
 		setIsRequestingAuthorization(true);
@@ -760,14 +760,14 @@ const OIDCHybridFlowV3: React.FC = () => {
 				}),
 			);
 
-			logger.info("OIDCHybridV3", "🚀 Starting authorization", {
+			logger.info("OIDCHybridV3", " Starting authorization", {
 				url: authorizationUrl,
 				method: authorizationMethod,
 				responseType: credentials.responseType,
 			});
 
 			// Enhanced debugging before sending to PingOne
-			console.log("🎯 [OIDC-HYBRID-V3] SENDING TO PINGONE:");
+			console.log(" [OIDC-HYBRID-V3] SENDING TO PINGONE:");
 			console.log("=".repeat(80));
 			console.log("Authorization Method:", authorizationMethod);
 			console.log("Full URL being sent to PingOne:");
@@ -777,7 +777,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 			// Parse and display the URL components one more time for verification
 			try {
 				const urlObj = new URL(authorizationUrl);
-				console.log("🔍 [OIDC-HYBRID-V3] URL VERIFICATION:");
+				console.log(" [OIDC-HYBRID-V3] URL VERIFICATION:");
 				console.log("  Protocol:", urlObj.protocol);
 				console.log("  Host:", urlObj.host);
 				console.log("  Pathname:", urlObj.pathname);
@@ -793,7 +793,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 				);
 			} catch (error) {
 				console.error(
-					"❌ [OIDC-HYBRID-V3] Failed to parse URL for verification:",
+					" [OIDC-HYBRID-V3] Failed to parse URL for verification:",
 					error,
 				);
 			}
@@ -808,7 +808,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 
 				// Show user feedback
 				showGlobalSuccess(
-					"🚀 Authorization Window Opened",
+					" Authorization Window Opened",
 					"Please complete authentication in the popup window.",
 				);
 			} else {
@@ -816,9 +816,9 @@ const OIDCHybridFlowV3: React.FC = () => {
 				window.location.href = authorizationUrl;
 			}
 		} catch (error) {
-			console.error("❌ [OIDC-HYBRID-V3] Authorization failed:", error);
+			console.error(" [OIDC-HYBRID-V3] Authorization failed:", error);
 			showGlobalError(
-				"❌ Authorization Failed",
+				" Authorization Failed",
 				error instanceof Error
 					? error.message
 					: "Failed to start authorization",
@@ -842,7 +842,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 				}),
 			);
 
-			logger.info("OIDCHybridV3", "🚀 Starting authorization", {
+			logger.info("OIDCHybridV3", " Starting authorization", {
 				url: authorizationUrl,
 				method: authorizationMethod,
 				responseType: credentials.responseType,
@@ -858,7 +858,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 
 				// Show user feedback
 				showGlobalSuccess(
-					"🚀 Authorization Window Opened",
+					" Authorization Window Opened",
 					"A new window has opened for user authentication. Complete the login process in the popup window.",
 				);
 			} else {
@@ -884,7 +884,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 
 		try {
 			console.log(
-				"🔄 [OIDC-HYBRID-V3] Exchanging authorization code for tokens...",
+				" [OIDC-HYBRID-V3] Exchanging authorization code for tokens...",
 			);
 
 			const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
@@ -928,7 +928,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 			}
 
 			const tokenData = await response.json();
-			console.log("✅ [OIDC-HYBRID-V3] Token exchange successful:", tokenData);
+			console.log(" [OIDC-HYBRID-V3] Token exchange successful:", tokenData);
 
 			// Preserve the ID token from the hybrid flow and merge with new tokens
 			const hybridTokens = {
@@ -942,15 +942,15 @@ const OIDCHybridFlowV3: React.FC = () => {
 			trackFlowCompletion("oidc-hybrid-v3");
 
 			showGlobalSuccess(
-				"🎉 Hybrid Flow Token Exchange Successful!",
+				" Hybrid Flow Token Exchange Successful!",
 				"Authorization code exchanged for access and refresh tokens. Now we have both ID token (from hybrid flow) and access token (from exchange) for complete functionality.",
 			);
 
 			return tokenData;
 		} catch (error) {
-			console.error("❌ [OIDC-HYBRID-V3] Token exchange failed:", error);
+			console.error(" [OIDC-HYBRID-V3] Token exchange failed:", error);
 			showGlobalError(
-				"❌ Token Exchange Failed",
+				" Token Exchange Failed",
 				error instanceof Error
 					? error.message
 					: "Failed to exchange authorization code for tokens",
@@ -966,7 +966,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 		}
 
 		try {
-			console.log("👤 [OIDC-HYBRID-V3] Fetching user info...");
+			console.log(" [OIDC-HYBRID-V3] Fetching user info...");
 
 			const userInfoEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/userinfo`;
 
@@ -989,19 +989,19 @@ const OIDCHybridFlowV3: React.FC = () => {
 			}
 
 			const userInfoData = await response.json();
-			console.log("✅ [OIDC-HYBRID-V3] User info retrieved:", userInfoData);
+			console.log(" [OIDC-HYBRID-V3] User info retrieved:", userInfoData);
 
 			setUserInfo(userInfoData);
 			showGlobalSuccess(
-				"✅ User Info Retrieved",
+				" User Info Retrieved",
 				"User information retrieved successfully.",
 			);
 
 			return userInfoData;
 		} catch (error) {
-			console.error("❌ [OIDC-HYBRID-V3] User info request failed:", error);
+			console.error(" [OIDC-HYBRID-V3] User info request failed:", error);
 			showGlobalError(
-				"❌ User Info Failed",
+				" User Info Failed",
 				error instanceof Error
 					? error.message
 					: "Failed to retrieve user information",
@@ -1030,7 +1030,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 
 			// Show user feedback
 			showGlobalSuccess(
-				"🔄 OIDC Hybrid Flow Reset",
+				" OIDC Hybrid Flow Reset",
 				"Flow has been reset successfully. Ready to start over.",
 			);
 
@@ -1071,7 +1071,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 
 			// Show success message
 			showGlobalSuccess(
-				"🧹 Credentials Cleared",
+				" Credentials Cleared",
 				"All saved credentials have been cleared successfully.",
 			);
 		} catch (error) {
@@ -1282,8 +1282,8 @@ const OIDCHybridFlowV3: React.FC = () => {
 								}}
 							>
 								{credentials.responseType === "code id_token"
-									? "🎯 Hybrid Flow: Returns both authorization code and ID token simultaneously"
-									: "🔐 Authorization Code: Returns only authorization code for secure token exchange"}
+									? " Hybrid Flow: Returns both authorization code and ID token simultaneously"
+									: " Authorization Code: Returns only authorization code for secure token exchange"}
 							</div>
 						</FormField>
 
@@ -1387,7 +1387,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 											fontSize: "0.875rem",
 										}}
 									>
-										🔐 PKCE (Proof Key for Code Exchange)
+										 PKCE (Proof Key for Code Exchange)
 									</h5>
 									<p
 										style={{
@@ -1418,7 +1418,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 											fontSize: "0.875rem",
 										}}
 									>
-										🛡️ Additional Security
+										 Additional Security
 									</h5>
 									<p
 										style={{
@@ -1553,7 +1553,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 										onClick={() => {
 											copyToClipboard(authorizationUrl, "Authorization URL");
 											showGlobalSuccess(
-												"📋 Authorization URL Copied",
+												" Authorization URL Copied",
 												"The authorization URL has been copied to your clipboard.",
 											);
 										}}
@@ -1750,7 +1750,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 									}
 									onClick={() => {
 										console.log(
-											"🔧 [OIDC-HYBRID-V3] Popup Authorization clicked",
+											" [OIDC-HYBRID-V3] Popup Authorization clicked",
 										);
 										setAuthorizationMethod("popup");
 										requestAuthorization();
@@ -1773,7 +1773,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 									}
 									onClick={() => {
 										console.log(
-											"🔧 [OIDC-HYBRID-V3] Redirect Authorization clicked",
+											" [OIDC-HYBRID-V3] Redirect Authorization clicked",
 										);
 										setAuthorizationMethod("redirect");
 										requestAuthorization();
@@ -2164,7 +2164,7 @@ const OIDCHybridFlowV3: React.FC = () => {
 									API calls.
 								</p>
 								<p style={{ margin: "0 0 1rem 0", color: "#1e40af" }}>
-									<strong>What we have:</strong> ID Token (user identity) ✅
+									<strong>What we have:</strong> ID Token (user identity) 
 									<br />
 									<strong>What we need:</strong> Access Token (API access) +
 									Refresh Token (token renewal)
@@ -2424,25 +2424,25 @@ const OIDCHybridFlowV3: React.FC = () => {
 						onStepComplete={(stepId, result) => {
 							logger.info(
 								"OIDCHybridV3",
-								`✅ Step completed: ${stepId}`,
+								` Step completed: ${stepId}`,
 								result,
 							);
 							setStepResults((prev) => ({ ...prev, [stepId]: result }));
 						}}
 						onStepError={(stepId, error) => {
-							logger.error("OIDCHybridV3", `❌ Step failed: ${stepId}`, error);
+							logger.error("OIDCHybridV3", ` Step failed: ${stepId}`, error);
 						}}
 					/>
 
 					{/* Flow Control Actions */}
 					<FlowControlSection>
-						<FlowControlTitle>⚙️ Flow Control Actions</FlowControlTitle>
+						<FlowControlTitle> Flow Control Actions</FlowControlTitle>
 						<FlowControlButtons>
 							<FlowControlButton
 								className="clear"
 								onClick={() => setShowClearCredentialsModal(true)}
 							>
-								🧹 Clear Credentials
+								 Clear Credentials
 							</FlowControlButton>
 							<FlowControlButton
 								className="reset"

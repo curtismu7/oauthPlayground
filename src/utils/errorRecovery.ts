@@ -52,7 +52,7 @@ export class EnhancedErrorRecovery {
     retryFunction?: () => Promise<void>
   ): Promise<void> {
     const errorInfo = this.categorizeError(error);
-    console.error('🚨 [ErrorRecovery] Error occurred:', {
+    console.error(' [ErrorRecovery] Error occurred:', {
       error: errorInfo,
       context,
       retryCount: this.retryCount
@@ -163,7 +163,7 @@ export class EnhancedErrorRecovery {
           id: 'check-connection',
           label: 'Check Network Connection',
           description: 'Verify your internet connection and try again',
-          icon: '🌐',
+          icon: '',
           action: () => window.location.reload(),
           priority: 'high'
         });
@@ -174,7 +174,7 @@ export class EnhancedErrorRecovery {
           id: 'restart-flow',
           label: 'Restart OAuth Flow',
           description: 'Start a new authorization flow with fresh credentials',
-          icon: '🔄',
+          icon: '',
           action: () => {
             sessionStorage.clear();
             window.location.href = window.location.pathname;
@@ -188,10 +188,10 @@ export class EnhancedErrorRecovery {
           id: 'refresh-tokens',
           label: 'Refresh Tokens',
           description: 'Attempt to refresh expired tokens',
-          icon: '🔑',
+          icon: '',
           action: async () => {
             // Implement token refresh logic
-            console.log('🔄 Attempting token refresh...');
+            console.log(' Attempting token refresh...');
           },
           priority: 'high'
         });
@@ -202,7 +202,7 @@ export class EnhancedErrorRecovery {
           id: 'check-config',
           label: 'Check Configuration',
           description: 'Review your PingOne application settings',
-          icon: '⚙️',
+          icon: '',
           action: () => window.location.href = '/configuration',
           priority: 'high'
         });
@@ -213,7 +213,7 @@ export class EnhancedErrorRecovery {
           id: 'wait-retry',
           label: 'Wait and Retry',
           description: 'Server may be temporarily unavailable',
-          icon: '⏳',
+          icon: '',
           action: () => setTimeout(() => window.location.reload(), 5000),
           priority: 'medium'
         });
@@ -225,10 +225,10 @@ export class EnhancedErrorRecovery {
       id: 'view-logs',
       label: 'View Debug Logs',
       description: 'Check console logs for detailed error information',
-      icon: '🔍',
+      icon: '',
       action: () => {
-        console.log('📋 Error Context:', context);
-        console.log('📋 Error Info:', errorInfo);
+        console.log(' Error Context:', context);
+        console.log(' Error Info:', errorInfo);
       },
       priority: 'low'
     });
@@ -237,7 +237,7 @@ export class EnhancedErrorRecovery {
       id: 'contact-support',
       label: 'Contact Support',
       description: 'Get help with this specific error',
-      icon: '💬',
+      icon: '',
       action: () => {
         const errorReport = `Error: ${errorInfo.message}\nContext: ${JSON.stringify(context, null, 2)}`;
         navigator.clipboard?.writeText(errorReport);
@@ -276,17 +276,17 @@ export class EnhancedErrorRecovery {
       this.config.maxDelay
     );
 
-    console.log(`🔄 [ErrorRecovery] Attempting retry ${this.retryCount}/${this.config.maxRetries} after ${delay}ms delay`);
+    console.log(` [ErrorRecovery] Attempting retry ${this.retryCount}/${this.config.maxRetries} after ${delay}ms delay`);
 
     return new Promise((resolve) => {
       setTimeout(async () => {
         try {
           await retryFunction();
-          console.log('✅ [ErrorRecovery] Retry successful');
+          console.log(' [ErrorRecovery] Retry successful');
           this.retryCount = 0; // Reset on success
           resolve();
         } catch (retryError) {
-          console.error('❌ [ErrorRecovery] Retry failed:', retryError);
+          console.error(' [ErrorRecovery] Retry failed:', retryError);
           if (this.retryCount < this.config.maxRetries) {
             await this.attemptRetry(retryFunction, errorInfo);
           }
@@ -316,7 +316,7 @@ export class EnhancedErrorRecovery {
       url: context.url
     };
 
-    console.log('📊 [ErrorRecovery] Analytics data:', analyticsData);
+    console.log(' [ErrorRecovery] Analytics data:', analyticsData);
     
     // Store for later analysis
     const errorHistory = JSON.parse(localStorage.getItem('error_history') || '[]');
