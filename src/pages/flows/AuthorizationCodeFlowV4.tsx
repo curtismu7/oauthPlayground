@@ -458,8 +458,27 @@ const AuthorizationCodeFlowV4 = () => {
 
 	const totalSteps = 7;
 
-	// Check for authorization code in URL parameters (when returning from PingOne)
+	// Load saved configuration and check for authorization code
 	useEffect(() => {
+		// Load saved configuration from localStorage
+		try {
+			const savedConfig = localStorage.getItem('oauth-v4-test-config');
+			if (savedConfig) {
+				const configData = JSON.parse(savedConfig);
+				setCredentials({
+					environmentId: configData.environmentId || credentials.environmentId,
+					clientId: configData.clientId || credentials.clientId,
+					clientSecret: configData.clientSecret || credentials.clientSecret,
+					redirectUri: configData.redirectUri || credentials.redirectUri,
+					scopes: configData.scopes || credentials.scopes,
+					authMethod: configData.authMethod || credentials.authMethod
+				});
+				showGlobalSuccess("Configuration loaded from previous session");
+			}
+		} catch (error) {
+			console.warn("Failed to load saved configuration:", error);
+		}
+
 		// Check for authorization code in URL parameters (when returning from PingOne)
 		const urlParams = new URLSearchParams(window.location.search);
 		const code = urlParams.get('code');
@@ -483,14 +502,40 @@ const AuthorizationCodeFlowV4 = () => {
 	const handleSaveConfiguration = async () => {
 		setIsLoading(true);
 		try {
+			// Save configuration to localStorage for testing
+			const configData = {
+				environmentId: credentials.environmentId,
+				clientId: credentials.clientId,
+				clientSecret: credentials.clientSecret,
+				redirectUri: credentials.redirectUri,
+				scopes: credentials.scopes,
+				authMethod: credentials.authMethod,
+				timestamp: new Date().toISOString()
+			};
+			
+			localStorage.setItem('oauth-v4-test-config', JSON.stringify(configData));
+			
 			// Simulate API call
 			await new Promise(resolve => setTimeout(resolve, 1000));
-			showGlobalSuccess("Configuration saved successfully!");
+			showGlobalSuccess("Configuration saved successfully! (Including client secret for testing)");
 		} catch (error) {
 			showGlobalError("Failed to save configuration");
 		} finally {
 			setIsLoading(false);
 		}
+	};
+
+	const handleClearConfiguration = () => {
+		localStorage.removeItem('oauth-v4-test-config');
+		setCredentials({
+			environmentId: "b9817c16-9910-4415-b67e-4ac687da74d9",
+			clientId: "a4f963ea-0736-456a-be72-b1fa4f63f81f",
+			clientSecret: "",
+			redirectUri: "https://localhost:3000/authz-callback",
+			scopes: "openid profile email",
+			authMethod: "client_secret_post"
+		});
+		showGlobalSuccess("Configuration cleared! Ready for production cleanup.");
 	};
 
 	const handleGeneratePKCE = async () => {
@@ -811,26 +856,39 @@ const AuthorizationCodeFlowV4 = () => {
 								</FormField>
 							</FormGrid>
 
-							{/* Save Configuration Button */}
+							{/* Save Configuration Buttons */}
 							<div style={{ textAlign: 'center', marginTop: '2rem' }}>
-								<Button
-									onClick={handleSaveConfiguration}
-									disabled={isLoading}
-									variant="primary"
-									size="lg"
-								>
-									{isLoading ? (
-										<>
-											<FiLoader style={{ marginRight: '0.5rem', animation: 'spin 1s linear infinite' }} />
-											Saving...
-										</>
-									) : (
-										<>
-											<FiSettings style={{ marginRight: '0.5rem' }} />
-											Save Configuration
-										</>
-									)}
-								</Button>
+								<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+									<Button
+										onClick={handleSaveConfiguration}
+										disabled={isLoading}
+										variant="primary"
+										size="lg"
+									>
+										{isLoading ? (
+											<>
+												<FiLoader style={{ marginRight: '0.5rem', animation: 'spin 1s linear infinite' }} />
+												Saving...
+											</>
+										) : (
+											<>
+												<FiSettings style={{ marginRight: '0.5rem' }} />
+												Save Configuration
+											</>
+										)}
+									</Button>
+									<Button
+										onClick={handleClearConfiguration}
+										variant="danger"
+										size="lg"
+									>
+										<FiSettings style={{ marginRight: '0.5rem' }} />
+										Clear Configuration
+									</Button>
+								</div>
+								<p style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '0.5rem' }}>
+									Configuration is saved locally for testing. Use "Clear Configuration" before production.
+								</p>
 							</div>
 						</MainCard>
 					</div>
