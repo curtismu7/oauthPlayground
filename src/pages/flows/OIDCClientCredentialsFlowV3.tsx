@@ -1076,11 +1076,10 @@ const OIDCClientCredentialsFlowV3: React.FC<
 				{stepManager.currentStepIndex === 0 && (
 					<div
 						style={{
-							padding: "2rem",
+							padding: "1.25rem",
 							borderBottom: "1px solid #e5e7eb",
 							background: "#f8fafc",
 							border: "1px solid #e2e8f0",
-							padding: "1.25rem",
 							borderRadius: "0.75rem",
 							boxShadow: "0 4px 12px rgba(148, 163, 184, 0.2)",
 						}}
