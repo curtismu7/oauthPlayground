@@ -321,7 +321,7 @@ const AdvancedConfiguration = () => {
                     justifyContent: 'center'
                   }}>
                     {selectedScopes.has(scope.id) && (
-                      <div style={{ color: 'white', fontSize: '12px' }}>✓</div>
+                      <div style={{ color: 'white', fontSize: '12px' }}></div>
                     )}
                   </div>
                 </ScopeItem>

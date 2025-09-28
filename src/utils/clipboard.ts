@@ -7,7 +7,7 @@
 const showCopySuccess = (label: string) => {
   // Create a temporary success message
   const successMsg = document.createElement('div');
-  successMsg.textContent = `✅ ${label} copied to clipboard!`;
+  successMsg.textContent = ` ${label} copied to clipboard!`;
   successMsg.style.cssText = `
     position: fixed;
     top: 20px;
@@ -61,13 +61,13 @@ const showCopySuccess = (label: string) => {
 export const copyToClipboard = async (text: string, label?: string): Promise<void> => {
   try {
     await navigator.clipboard.writeText(text);
-    console.log(`✅ [Clipboard] Copied ${label || 'text'} to clipboard`);
+    console.log(` [Clipboard] Copied ${label || 'text'} to clipboard`);
     
     // Show visual success feedback
     const labelText = label || 'Text';
     showCopySuccess(labelText);
   } catch (error) {
-    console.error('❌ [Clipboard] Failed to copy to clipboard:', error);
+    console.error(' [Clipboard] Failed to copy to clipboard:', error);
     
     // Fallback for older browsers
     try {
@@ -82,10 +82,10 @@ export const copyToClipboard = async (text: string, label?: string): Promise<voi
       document.execCommand('copy');
       textArea.remove();
       
-      console.log(`✅ [Clipboard] Copied ${label || 'text'} using fallback method`);
+      console.log(` [Clipboard] Copied ${label || 'text'} using fallback method`);
       showCopySuccess(label || 'Text');
     } catch (fallbackError) {
-      console.error('❌ [Clipboard] Fallback copy failed:', fallbackError);
+      console.error(' [Clipboard] Fallback copy failed:', fallbackError);
       throw new Error(`Failed to copy ${label || 'text'} to clipboard`);
     }
   }

@@ -24,8 +24,8 @@ import {
 import { useAuth } from "../../contexts/NewAuthContext";
 import {
 	showGlobalError,
-	showGlobalInfo,
 	showGlobalSuccess,
+	showGlobalWarning,
 } from "../../hooks/useNotifications";
 import type {
 	DeviceCodeFlowState,
@@ -45,6 +45,15 @@ const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
+`;
+
+const HeroSection = styled.section`
+  margin-bottom: 2rem;
+  padding: 2.5rem;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #38bdf8 100%);
+  color: white;
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.18);
 `;
 
 const CredentialsSection = styled.div`
@@ -194,9 +203,9 @@ const DeviceCodeFlowOIDC: React.FC = () => {
 		});
 
 		setIsRequestingAuthorization(true);
-		showGlobalInfo(
-			"🎯 Requesting Device Authorization",
-			"Sending device authorization request to PingOne...",
+		showGlobalWarning(
+			"Device authorization pending",
+			"Contacting PingOne to obtain device and user codes.",
 		);
 
 		try {
@@ -233,9 +242,9 @@ const DeviceCodeFlowOIDC: React.FC = () => {
 				error: undefined,
 			}));
 
-			showGlobalSuccess(
-				"📱 Device Authorization Received",
-				"User code and verification URL generated successfully. Please complete verification on your device.",
+			showGlobalWarning(
+				"Device verification needed",
+				"Use the provided user code to authorize this device.",
 			);
 
 			logger.success("DeviceCodeFlow", "Device authorization successful", {
@@ -248,7 +257,10 @@ const DeviceCodeFlowOIDC: React.FC = () => {
 		} catch (error) {
 			logger.error("DeviceCodeFlow", "Device authorization failed", error);
 			showGlobalError(
-				`Failed to request device authorization: ${error instanceof Error ? error.message : "Unknown error"}`,
+				"Authorization failed",
+				`We couldn't request device authorization: ${
+					error instanceof Error ? error.message : "Unknown error"
+				}`,
 			);
 			throw error;
 		} finally {
@@ -274,8 +286,8 @@ const DeviceCodeFlowOIDC: React.FC = () => {
 		await storeOAuthTokens(tokens, "device-code");
 
 		showGlobalSuccess(
-			"✅ Device Authorization Complete",
-			"Access token received successfully! Your device is now authorized.",
+			"Device authorized",
+			"PingOne approved the device code and returned tokens.",
 		);
 	}, []);
 
@@ -287,7 +299,10 @@ const DeviceCodeFlowOIDC: React.FC = () => {
 			status: "error",
 			error: error.message,
 		}));
-		showGlobalError(`Device authorization failed: ${error.message}`);
+		showGlobalError(
+			"Authorization failed",
+			`Device authorization failed: ${error.message}.`,
+		);
 	}, []);
 
 	// Handle polling progress
@@ -309,7 +324,10 @@ const DeviceCodeFlowOIDC: React.FC = () => {
 			!flowState.config.clientId ||
 			!flowState.config.tokenEndpoint
 		) {
-			showGlobalError("Missing required data for polling");
+			showGlobalError(
+				"Authorization failed",
+				"Polling can't continue. Required device data is missing.",
+			);
 			return;
 		}
 
@@ -403,27 +421,29 @@ const DeviceCodeFlowOIDC: React.FC = () => {
 
 	return (
 		<Container>
-			<FlowIntro
-				title="OIDC Device Code Flow"
-				description="Authorize devices without browsers or limited input using PingOne's device code OAuth flow."
-				introCopy={
-					<p>
-						The device presents a user code and verification URL. The user
-						switches to a secondary device to authorize, while this application
-						polls PingOne until the device is approved.
-					</p>
-				}
-				bullets={[
-					"Great for TVs, kiosks, IoT hardware, and CLI utilities",
-					"No credentials are stored on the constrained device",
-					"Polling interval balances user experience and security",
-				]}
-				warningTitle="Security Considerations"
-				warningBody="User codes and device codes expire quickly. Always validate the device status before granting access."
-				warningIcon={<FiShield />}
-				illustration="/images/flows/device-code.svg"
-				illustrationAlt="Device code flow"
-			/>
+			<HeroSection>
+				<FlowIntro
+					title="OIDC Device Code Flow"
+					description="Authorize devices without browsers or limited input using PingOne's device code OAuth flow."
+					introCopy={
+						<p>
+							The device presents a user code and verification URL. The user
+							switches to a secondary device to authorize, while this
+							application polls PingOne until the device is approved.
+						</p>
+					}
+					bullets={[
+						"Great for TVs, kiosks, IoT hardware, and CLI utilities",
+						"No credentials are stored on the constrained device",
+						"Polling interval balances user experience and security",
+					]}
+					warningTitle="Security Considerations"
+					warningBody="User codes and device codes expire quickly. Always validate the device status before granting access."
+					warningIcon={<FiShield />}
+					illustration="/images/flows/device-code.svg"
+					illustrationAlt="Device code flow"
+				/>
+			</HeroSection>
 
 			<EnhancedStepFlowV2
 				steps={steps.map((step) => ({

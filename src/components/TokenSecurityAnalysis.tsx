@@ -140,10 +140,10 @@ const ListItem = styled.li<{ type: 'strength' | 'warning' | 'vulnerability' | 'r
   &::before {
     content: '${({ type }) => {
       switch (type) {
-        case 'strength': return '✅';
-        case 'warning': return '⚠️';
-        case 'vulnerability': return '🚨';
-        case 'recommendation': return '💡';
+        case 'strength': return '';
+        case 'warning': return '';
+        case 'vulnerability': return '';
+        case 'recommendation': return '';
       }
     }}';
     margin-right: 0.5rem;

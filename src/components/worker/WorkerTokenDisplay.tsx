@@ -455,7 +455,7 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
             <ModalHeader>
               <h4>JWT Token Payload</h4>
               <CloseButton onClick={() => setShowJWTModal(false)}>
-                ×
+                
               </CloseButton>
             </ModalHeader>
             <JsonDisplay>

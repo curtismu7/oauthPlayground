@@ -35,9 +35,9 @@ class TokenSourceTracker {
 
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(existing));
       
-      console.log('🔍 [TokenSourceTracker] Stored token source:', source.source, source.description);
+      console.log(' [TokenSourceTracker] Stored token source:', source.source, source.description);
     } catch (error) {
-      console.error('❌ [TokenSourceTracker] Error storing token source:', error);
+      console.error(' [TokenSourceTracker] Error storing token source:', error);
     }
   }
 
@@ -47,7 +47,7 @@ class TokenSourceTracker {
       const stored = localStorage.getItem(this.STORAGE_KEY);
       return stored ? JSON.parse(stored) : [];
     } catch (error) {
-      console.error('❌ [TokenSourceTracker] Error getting token sources:', error);
+      console.error(' [TokenSourceTracker] Error getting token sources:', error);
       return [];
     }
   }
@@ -68,9 +68,9 @@ class TokenSourceTracker {
   clearTokenSources(): void {
     try {
       localStorage.removeItem(this.STORAGE_KEY);
-      console.log('🔍 [TokenSourceTracker] Cleared all token sources');
+      console.log(' [TokenSourceTracker] Cleared all token sources');
     } catch (error) {
-      console.error('❌ [TokenSourceTracker] Error clearing token sources:', error);
+      console.error(' [TokenSourceTracker] Error clearing token sources:', error);
     }
   }
 

@@ -5,9 +5,9 @@ import FlowCredentials from "../../components/FlowCredentials";
 import JSONHighlighter from "../../components/JSONHighlighter";
 import { StepByStepFlow } from "../../components/StepByStepFlow";
 import {
-  type TokenAuthMethod,
-  type TokenIntrospectionResponse,
-  TokenManagementService,
+	type TokenAuthMethod,
+	type TokenIntrospectionResponse,
+	TokenManagementService,
 } from "../../services/tokenManagementService";
 import { logger } from "../../utils/logger";
 
@@ -96,7 +96,9 @@ const Select = styled.select`
   }
 `;
 
-const Button = styled.button<{ $variant: "primary" | "secondary" | "success" | "danger" }>`
+const Button = styled.button<{
+	$variant: "primary" | "secondary" | "success" | "danger";
+}>`
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 0.375rem;
@@ -108,33 +110,33 @@ const Button = styled.button<{ $variant: "primary" | "secondary" | "success" | "
   margin-bottom: 0.5rem;
   
   ${({ $variant }) => {
-    switch ($variant) {
-      case "primary":
-        return `
+		switch ($variant) {
+			case "primary":
+				return `
           background-color: #3b82f6;
           color: white;
           &:hover { background-color: #2563eb; }
         `;
-      case "secondary":
-        return `
+			case "secondary":
+				return `
           background-color: #6b7280;
           color: white;
           &:hover { background-color: #4b5563; }
         `;
-      case "success":
-        return `
+			case "success":
+				return `
           background-color: #10b981;
           color: white;
           &:hover { background-color: #059669; }
         `;
-      case "danger":
-        return `
+			case "danger":
+				return `
           background-color: #ef4444;
           color: white;
           &:hover { background-color: #dc2626; }
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const CodeBlock = styled.pre`
@@ -248,45 +250,58 @@ const Tab = styled.button<{ $active: boolean }>`
 `;
 
 interface TokenIntrospectionFlowProps {
-  credentials?: {
-    clientId: string;
-    clientSecret: string;
-    environmentId: string;
-  };
+	credentials?: {
+		clientId: string;
+		clientSecret: string;
+		environmentId: string;
+	};
 }
 
-const TokenIntrospectionFlow: React.FC<TokenIntrospectionFlowProps> = ({ credentials }) => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [demoStatus, setDemoStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-  const [activeTab, setActiveTab] = useState<
-    "access_token" | "id_token" | "refresh_token" | "resource_based"
-  >("access_token");
-  const [activeAuthMethod, setActiveAuthMethod] =
-    useState<TokenAuthMethod["type"]>("CLIENT_SECRET_BASIC");
-  const [formData, setFormData] = useState({
-    clientId: credentials?.clientId || "",
-    clientSecret: credentials?.clientSecret || "",
-    environmentId: credentials?.environmentId || "",
-    tokenToIntrospect: "",
-    tokenTypeHint: "access_token" as "access_token" | "id_token" | "refresh_token",
-    resourceId: "",
-    resourceSecret: "",
-    privateKey: "",
-    keyId: "",
-    jwksUri: "",
-  });
-  const [response, setResponse] = useState<Record<string, unknown> | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [introspectionResponse, setIntrospectionResponse] =
-    useState<TokenIntrospectionResponse | null>(null);
-  const [_tokenService] = useState(() => new TokenManagementService(formData.environmentId));
+const TokenIntrospectionFlow: React.FC<TokenIntrospectionFlowProps> = ({
+	credentials,
+}) => {
+	const [currentStep, setCurrentStep] = useState(0);
+	const [demoStatus, setDemoStatus] = useState<
+		"idle" | "loading" | "success" | "error"
+	>("idle");
+	const [activeTab, setActiveTab] = useState<
+		"access_token" | "id_token" | "refresh_token" | "resource_based"
+	>("access_token");
+	const [activeAuthMethod, setActiveAuthMethod] = useState<
+		TokenAuthMethod["type"]
+	>("CLIENT_SECRET_BASIC");
+	const [formData, setFormData] = useState({
+		clientId: credentials?.clientId || "",
+		clientSecret: credentials?.clientSecret || "",
+		environmentId: credentials?.environmentId || "",
+		tokenToIntrospect: "",
+		tokenTypeHint: "access_token" as
+			| "access_token"
+			| "id_token"
+			| "refresh_token",
+		resourceId: "",
+		resourceSecret: "",
+		privateKey: "",
+		keyId: "",
+		jwksUri: "",
+	});
+	const [response, setResponse] = useState<Record<string, unknown> | null>(
+		null,
+	);
+	const [error, setError] = useState<string | null>(null);
+	const [introspectionResponse, setIntrospectionResponse] =
+		useState<TokenIntrospectionResponse | null>(null);
+	const [_tokenService] = useState(
+		() => new TokenManagementService(formData.environmentId),
+	);
 
-  const steps = [
-    {
-      id: "step-1",
-      title: "Configure Token Introspection Settings",
-      description: "Set up your OAuth client for token introspection operations.",
-      code: `// Token Introspection Configuration
+	const steps = [
+		{
+			id: "step-1",
+			title: "Configure Token Introspection Settings",
+			description:
+				"Set up your OAuth client for token introspection operations.",
+			code: `// Token Introspection Configuration
 const introspectionConfig = {
   clientId: '${formData.clientId}',
   clientSecret: '${formData.clientSecret}',
@@ -298,15 +313,18 @@ const introspectionConfig = {
 };
 
 console.log('Token introspection configured:', introspectionConfig);`,
-      execute: async () => {
-        logger.info("TokenIntrospectionFlow", "Configuring token introspection settings");
-      },
-    },
-    {
-      id: "step-2",
-      title: `Introspect ${activeTab === "resource_based" ? "Token (Resource-based)" : activeTab.toUpperCase()}`,
-      description: `Get detailed information about the ${activeTab === "resource_based" ? "token using resource-based authentication" : activeTab}.`,
-      code: `// Token Introspection
+			execute: async () => {
+				logger.info(
+					"TokenIntrospectionFlow",
+					"Configuring token introspection settings",
+				);
+			},
+		},
+		{
+			id: "step-2",
+			title: `Introspect ${activeTab === "resource_based" ? "Token (Resource-based)" : activeTab.toUpperCase()}`,
+			description: `Get detailed information about the ${activeTab === "resource_based" ? "token using resource-based authentication" : activeTab}.`,
+			code: `// Token Introspection
 const tokenService = new TokenManagementService('${formData.environmentId}');
 
 const authMethod: TokenAuthMethod = {
@@ -330,167 +348,172 @@ console.log('Token introspection response:', introspectionResponse);
 console.log('Token active:', introspectionResponse.active);
 console.log('Token scope:', introspectionResponse.scope);
 console.log('Token expires at:', new Date(introspectionResponse.exp! * 1000));`,
-      execute: async () => {
-        logger.info("TokenIntrospectionFlow", "Introspecting token", {
-          tokenType: activeTab,
-          authMethod: activeAuthMethod,
-        });
-        setDemoStatus("loading");
+			execute: async () => {
+				logger.info("TokenIntrospectionFlow", "Introspecting token", {
+					tokenType: activeTab,
+					authMethod: activeAuthMethod,
+				});
+				setDemoStatus("loading");
 
-        try {
-          // Simulate token introspection based on token type
-          let mockIntrospectionResponse: TokenIntrospectionResponse;
+				try {
+					// Simulate token introspection based on token type
+					let mockIntrospectionResponse: TokenIntrospectionResponse;
 
-          if (activeTab === "access_token") {
-            mockIntrospectionResponse = {
-              active: true,
-              scope: "openid profile email",
-              client_id: formData.clientId,
-              token_type: "Bearer",
-              exp: Math.floor(Date.now() / 1000) + 3600,
-              iat: Math.floor(Date.now() / 1000) - 300,
-              sub: "user_123456789",
-              aud: formData.clientId,
-              iss: `https://auth.pingone.com/${formData.environmentId}`,
-              jti: `jti_${Date.now()}`,
-              username: "john.doe@example.com",
-              auth_time: Math.floor(Date.now() / 1000) - 600,
-            };
-          } else if (activeTab === "id_token") {
-            mockIntrospectionResponse = {
-              active: true,
-              scope: "openid profile email",
-              client_id: formData.clientId,
-              token_type: "Bearer",
-              exp: Math.floor(Date.now() / 1000) + 3600,
-              iat: Math.floor(Date.now() / 1000) - 300,
-              sub: "user_123456789",
-              aud: formData.clientId,
-              iss: `https://auth.pingone.com/${formData.environmentId}`,
-              jti: `jti_${Date.now()}`,
-              username: "john.doe@example.com",
-              auth_time: Math.floor(Date.now() / 1000) - 600,
-              nonce: `nonce_${Date.now()}`,
-              at_hash: `at_hash_${Date.now()}`,
-            };
-          } else if (activeTab === "refresh_token") {
-            mockIntrospectionResponse = {
-              active: true,
-              scope: "openid profile email",
-              client_id: formData.clientId,
-              token_type: "Bearer",
-              exp: Math.floor(Date.now() / 1000) + 86400, // 24 hours
-              iat: Math.floor(Date.now() / 1000) - 3600,
-              sub: "user_123456789",
-              aud: formData.clientId,
-              iss: `https://auth.pingone.com/${formData.environmentId}`,
-              jti: `jti_${Date.now()}`,
-              username: "john.doe@example.com",
-              auth_time: Math.floor(Date.now() / 1000) - 3600,
-            };
-          } else {
-            // Resource-based introspection
-            mockIntrospectionResponse = {
-              active: true,
-              scope: "openid profile email",
-              client_id: formData.clientId,
-              token_type: "Bearer",
-              exp: Math.floor(Date.now() / 1000) + 3600,
-              iat: Math.floor(Date.now() / 1000) - 300,
-              sub: "user_123456789",
-              aud: formData.clientId,
-              iss: `https://auth.pingone.com/${formData.environmentId}`,
-              jti: `jti_${Date.now()}`,
-              username: "john.doe@example.com",
-              auth_time: Math.floor(Date.now() / 1000) - 600,
-              resource: formData.resourceId,
-            };
-          }
+					if (activeTab === "access_token") {
+						mockIntrospectionResponse = {
+							active: true,
+							scope: "openid profile email",
+							client_id: formData.clientId,
+							token_type: "Bearer",
+							exp: Math.floor(Date.now() / 1000) + 3600,
+							iat: Math.floor(Date.now() / 1000) - 300,
+							sub: "user_123456789",
+							aud: formData.clientId,
+							iss: `https://auth.pingone.com/${formData.environmentId}`,
+							jti: `jti_${Date.now()}`,
+							username: "john.doe@example.com",
+							auth_time: Math.floor(Date.now() / 1000) - 600,
+						};
+					} else if (activeTab === "id_token") {
+						mockIntrospectionResponse = {
+							active: true,
+							scope: "openid profile email",
+							client_id: formData.clientId,
+							token_type: "Bearer",
+							exp: Math.floor(Date.now() / 1000) + 3600,
+							iat: Math.floor(Date.now() / 1000) - 300,
+							sub: "user_123456789",
+							aud: formData.clientId,
+							iss: `https://auth.pingone.com/${formData.environmentId}`,
+							jti: `jti_${Date.now()}`,
+							username: "john.doe@example.com",
+							auth_time: Math.floor(Date.now() / 1000) - 600,
+							nonce: `nonce_${Date.now()}`,
+							at_hash: `at_hash_${Date.now()}`,
+						};
+					} else if (activeTab === "refresh_token") {
+						mockIntrospectionResponse = {
+							active: true,
+							scope: "openid profile email",
+							client_id: formData.clientId,
+							token_type: "Bearer",
+							exp: Math.floor(Date.now() / 1000) + 86400, // 24 hours
+							iat: Math.floor(Date.now() / 1000) - 3600,
+							sub: "user_123456789",
+							aud: formData.clientId,
+							iss: `https://auth.pingone.com/${formData.environmentId}`,
+							jti: `jti_${Date.now()}`,
+							username: "john.doe@example.com",
+							auth_time: Math.floor(Date.now() / 1000) - 3600,
+						};
+					} else {
+						// Resource-based introspection
+						mockIntrospectionResponse = {
+							active: true,
+							scope: "openid profile email",
+							client_id: formData.clientId,
+							token_type: "Bearer",
+							exp: Math.floor(Date.now() / 1000) + 3600,
+							iat: Math.floor(Date.now() / 1000) - 300,
+							sub: "user_123456789",
+							aud: formData.clientId,
+							iss: `https://auth.pingone.com/${formData.environmentId}`,
+							jti: `jti_${Date.now()}`,
+							username: "john.doe@example.com",
+							auth_time: Math.floor(Date.now() / 1000) - 600,
+							resource: formData.resourceId,
+						};
+					}
 
-          setIntrospectionResponse(mockIntrospectionResponse);
-          setResponse({
-            success: true,
-            message: "Token introspection completed successfully",
-            introspection: mockIntrospectionResponse,
-            authMethod: activeAuthMethod,
-            tokenType: activeTab,
-          });
-          setDemoStatus("success");
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : "Unknown error";
-          setError(errorMessage);
-          setDemoStatus("error");
-          throw error;
-        }
-      },
-    },
-    {
-      id: "step-3",
-      title: "Analyze Token Information",
-      description: "Analyze the token information and validate its properties.",
-      code: `// Analyze Token Information
+					setIntrospectionResponse(mockIntrospectionResponse);
+					setResponse({
+						success: true,
+						message: "Token introspection completed successfully",
+						introspection: mockIntrospectionResponse,
+						authMethod: activeAuthMethod,
+						tokenType: activeTab,
+					});
+					setDemoStatus("success");
+				} catch (error) {
+					const errorMessage =
+						error instanceof Error ? error.message : "Unknown error";
+					setError(errorMessage);
+					setDemoStatus("error");
+					throw error;
+				}
+			},
+		},
+		{
+			id: "step-3",
+			title: "Analyze Token Information",
+			description: "Analyze the token information and validate its properties.",
+			code: `// Analyze Token Information
 if (introspectionResponse.active) {
-  console.log('✅ Token is active and valid');
+  console.log(' Token is active and valid');
   
   // Check expiration
   const now = Math.floor(Date.now() / 1000);
   if (introspectionResponse.exp && introspectionResponse.exp > now) {
     const timeLeft = introspectionResponse.exp - now;
-    console.log(\`⏰ Token expires in \${timeLeft} seconds\`);
+    console.log(\` Token expires in \${timeLeft} seconds\`);
   } else {
-    console.log('⚠️ Token has expired');
+    console.log(' Token has expired');
   }
   
   // Check scope
   if (introspectionResponse.scope) {
     const scopes = introspectionResponse.scope.split(' ');
-    console.log(\`🔐 Token has \${scopes.length} scopes:\`, scopes);
+    console.log(\` Token has \${scopes.length} scopes:\`, scopes);
   }
   
   // Check audience
   if (introspectionResponse.aud) {
-    console.log('🎯 Token audience:', introspectionResponse.aud);
+    console.log(' Token audience:', introspectionResponse.aud);
   }
   
   // Check issuer
   if (introspectionResponse.iss) {
-    console.log('🏢 Token issuer:', introspectionResponse.iss);
+    console.log(' Token issuer:', introspectionResponse.iss);
   }
 } else {
-  console.log('❌ Token is inactive or invalid');
+  console.log(' Token is inactive or invalid');
 }`,
-      execute: async () => {
-        logger.info("TokenIntrospectionFlow", "Analyzing token information");
+			execute: async () => {
+				logger.info("TokenIntrospectionFlow", "Analyzing token information");
 
-        if (introspectionResponse) {
-          const analysis = {
-            isActive: introspectionResponse.active,
-            isExpired: introspectionResponse.exp
-              ? introspectionResponse.exp < Math.floor(Date.now() / 1000)
-              : false,
-            timeLeft: introspectionResponse.exp
-              ? Math.max(0, introspectionResponse.exp - Math.floor(Date.now() / 1000))
-              : 0,
-            scopeCount: introspectionResponse.scope
-              ? introspectionResponse.scope.split(" ").length
-              : 0,
-            hasAudience: !!introspectionResponse.aud,
-            hasIssuer: !!introspectionResponse.iss,
-          };
+				if (introspectionResponse) {
+					const analysis = {
+						isActive: introspectionResponse.active,
+						isExpired: introspectionResponse.exp
+							? introspectionResponse.exp < Math.floor(Date.now() / 1000)
+							: false,
+						timeLeft: introspectionResponse.exp
+							? Math.max(
+									0,
+									introspectionResponse.exp - Math.floor(Date.now() / 1000),
+								)
+							: 0,
+						scopeCount: introspectionResponse.scope
+							? introspectionResponse.scope.split(" ").length
+							: 0,
+						hasAudience: !!introspectionResponse.aud,
+						hasIssuer: !!introspectionResponse.iss,
+					};
 
-          setResponse((prev) => ({
-            ...prev,
-            analysis: analysis,
-            message: "Token analysis completed",
-          }));
-        }
-      },
-    },
-    {
-      id: "step-4",
-      title: "Handle Token Validation",
-      description: "Validate the token and handle different validation scenarios.",
-      code: `// Handle Token Validation
+					setResponse((prev) => ({
+						...prev,
+						analysis: analysis,
+						message: "Token analysis completed",
+					}));
+				}
+			},
+		},
+		{
+			id: "step-4",
+			title: "Handle Token Validation",
+			description:
+				"Validate the token and handle different validation scenarios.",
+			code: `// Handle Token Validation
 const validateToken = (introspectionResponse) => {
   const validations = [];
   
@@ -534,428 +557,475 @@ const validateToken = (introspectionResponse) => {
 
 const validation = validateToken(introspectionResponse);
 console.log('Token validation result:', validation);`,
-      execute: async () => {
-        logger.info("TokenIntrospectionFlow", "Validating token");
+			execute: async () => {
+				logger.info("TokenIntrospectionFlow", "Validating token");
 
-        if (introspectionResponse) {
-          const validations = [];
+				if (introspectionResponse) {
+					const validations = [];
 
-          if (!introspectionResponse.active) {
-            validations.push({ type: "error", message: "Token is inactive" });
-          } else {
-            const now = Math.floor(Date.now() / 1000);
-            if (introspectionResponse.exp && introspectionResponse.exp <= now) {
-              validations.push({ type: "error", message: "Token has expired" });
-            } else {
-              validations.push({ type: "success", message: "Token validation passed" });
-            }
-          }
+					if (!introspectionResponse.active) {
+						validations.push({ type: "error", message: "Token is inactive" });
+					} else {
+						const now = Math.floor(Date.now() / 1000);
+						if (introspectionResponse.exp && introspectionResponse.exp <= now) {
+							validations.push({ type: "error", message: "Token has expired" });
+						} else {
+							validations.push({
+								type: "success",
+								message: "Token validation passed",
+							});
+						}
+					}
 
-          setResponse((prev) => ({
-            ...prev,
-            validation: { valid: validations.every((v) => v.type !== "error"), validations },
-            message: "Token validation completed",
-          }));
-        }
-      },
-    },
-  ];
+					setResponse((prev) => ({
+						...prev,
+						validation: {
+							valid: validations.every((v) => v.type !== "error"),
+							validations,
+						},
+						message: "Token validation completed",
+					}));
+				}
+			},
+		},
+	];
 
-  const handleStepChange = useCallback((step: number) => {
-    setCurrentStep(step);
-    setDemoStatus("idle");
-    setResponse(null);
-    setError(null);
-  }, []);
+	const handleStepChange = useCallback((step: number) => {
+		setCurrentStep(step);
+		setDemoStatus("idle");
+		setResponse(null);
+		setError(null);
+	}, []);
 
-  const handleStepResult = useCallback((step: number, result: unknown) => {
-    logger.info("TokenIntrospectionFlow", `Step ${step + 1} completed`, result);
-  }, []);
+	const handleStepResult = useCallback((step: number, result: unknown) => {
+		logger.info("TokenIntrospectionFlow", `Step ${step + 1} completed`, result);
+	}, []);
 
-  const handleIntrospectionStart = async () => {
-    try {
-      setDemoStatus("loading");
-      setError(null);
+	const handleIntrospectionStart = async () => {
+		try {
+			setDemoStatus("loading");
+			setError(null);
 
-      // Simulate token introspection
-      let mockIntrospectionResponse: TokenIntrospectionResponse;
+			// Simulate token introspection
+			let mockIntrospectionResponse: TokenIntrospectionResponse;
 
-      if (activeTab === "access_token") {
-        mockIntrospectionResponse = {
-          active: true,
-          scope: "openid profile email",
-          client_id: formData.clientId,
-          token_type: "Bearer",
-          exp: Math.floor(Date.now() / 1000) + 3600,
-          iat: Math.floor(Date.now() / 1000) - 300,
-          sub: "user_123456789",
-          aud: formData.clientId,
-          iss: `https://auth.pingone.com/${formData.environmentId}`,
-          jti: `jti_${Date.now()}`,
-          username: "john.doe@example.com",
-          auth_time: Math.floor(Date.now() / 1000) - 600,
-        };
-      } else if (activeTab === "id_token") {
-        mockIntrospectionResponse = {
-          active: true,
-          scope: "openid profile email",
-          client_id: formData.clientId,
-          token_type: "Bearer",
-          exp: Math.floor(Date.now() / 1000) + 3600,
-          iat: Math.floor(Date.now() / 1000) - 300,
-          sub: "user_123456789",
-          aud: formData.clientId,
-          iss: `https://auth.pingone.com/${formData.environmentId}`,
-          jti: `jti_${Date.now()}`,
-          username: "john.doe@example.com",
-          auth_time: Math.floor(Date.now() / 1000) - 600,
-          nonce: `nonce_${Date.now()}`,
-          at_hash: `at_hash_${Date.now()}`,
-        };
-      } else if (activeTab === "refresh_token") {
-        mockIntrospectionResponse = {
-          active: true,
-          scope: "openid profile email",
-          client_id: formData.clientId,
-          token_type: "Bearer",
-          exp: Math.floor(Date.now() / 1000) + 86400,
-          iat: Math.floor(Date.now() / 1000) - 3600,
-          sub: "user_123456789",
-          aud: formData.clientId,
-          iss: `https://auth.pingone.com/${formData.environmentId}`,
-          jti: `jti_${Date.now()}`,
-          username: "john.doe@example.com",
-          auth_time: Math.floor(Date.now() / 1000) - 3600,
-        };
-      } else {
-        mockIntrospectionResponse = {
-          active: true,
-          scope: "openid profile email",
-          client_id: formData.clientId,
-          token_type: "Bearer",
-          exp: Math.floor(Date.now() / 1000) + 3600,
-          iat: Math.floor(Date.now() / 1000) - 300,
-          sub: "user_123456789",
-          aud: formData.clientId,
-          iss: `https://auth.pingone.com/${formData.environmentId}`,
-          jti: `jti_${Date.now()}`,
-          username: "john.doe@example.com",
-          auth_time: Math.floor(Date.now() / 1000) - 600,
-          resource: formData.resourceId,
-        };
-      }
+			if (activeTab === "access_token") {
+				mockIntrospectionResponse = {
+					active: true,
+					scope: "openid profile email",
+					client_id: formData.clientId,
+					token_type: "Bearer",
+					exp: Math.floor(Date.now() / 1000) + 3600,
+					iat: Math.floor(Date.now() / 1000) - 300,
+					sub: "user_123456789",
+					aud: formData.clientId,
+					iss: `https://auth.pingone.com/${formData.environmentId}`,
+					jti: `jti_${Date.now()}`,
+					username: "john.doe@example.com",
+					auth_time: Math.floor(Date.now() / 1000) - 600,
+				};
+			} else if (activeTab === "id_token") {
+				mockIntrospectionResponse = {
+					active: true,
+					scope: "openid profile email",
+					client_id: formData.clientId,
+					token_type: "Bearer",
+					exp: Math.floor(Date.now() / 1000) + 3600,
+					iat: Math.floor(Date.now() / 1000) - 300,
+					sub: "user_123456789",
+					aud: formData.clientId,
+					iss: `https://auth.pingone.com/${formData.environmentId}`,
+					jti: `jti_${Date.now()}`,
+					username: "john.doe@example.com",
+					auth_time: Math.floor(Date.now() / 1000) - 600,
+					nonce: `nonce_${Date.now()}`,
+					at_hash: `at_hash_${Date.now()}`,
+				};
+			} else if (activeTab === "refresh_token") {
+				mockIntrospectionResponse = {
+					active: true,
+					scope: "openid profile email",
+					client_id: formData.clientId,
+					token_type: "Bearer",
+					exp: Math.floor(Date.now() / 1000) + 86400,
+					iat: Math.floor(Date.now() / 1000) - 3600,
+					sub: "user_123456789",
+					aud: formData.clientId,
+					iss: `https://auth.pingone.com/${formData.environmentId}`,
+					jti: `jti_${Date.now()}`,
+					username: "john.doe@example.com",
+					auth_time: Math.floor(Date.now() / 1000) - 3600,
+				};
+			} else {
+				mockIntrospectionResponse = {
+					active: true,
+					scope: "openid profile email",
+					client_id: formData.clientId,
+					token_type: "Bearer",
+					exp: Math.floor(Date.now() / 1000) + 3600,
+					iat: Math.floor(Date.now() / 1000) - 300,
+					sub: "user_123456789",
+					aud: formData.clientId,
+					iss: `https://auth.pingone.com/${formData.environmentId}`,
+					jti: `jti_${Date.now()}`,
+					username: "john.doe@example.com",
+					auth_time: Math.floor(Date.now() / 1000) - 600,
+					resource: formData.resourceId,
+				};
+			}
 
-      setIntrospectionResponse(mockIntrospectionResponse);
-      setResponse({
-        success: true,
-        message: "Token introspection completed successfully",
-        introspection: mockIntrospectionResponse,
-        authMethod: activeAuthMethod,
-        tokenType: activeTab,
-      });
-      setDemoStatus("success");
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
-      setError(errorMessage);
-      setDemoStatus("error");
-    }
-  };
+			setIntrospectionResponse(mockIntrospectionResponse);
+			setResponse({
+				success: true,
+				message: "Token introspection completed successfully",
+				introspection: mockIntrospectionResponse,
+				authMethod: activeAuthMethod,
+				tokenType: activeTab,
+			});
+			setDemoStatus("success");
+		} catch (error) {
+			const errorMessage =
+				error instanceof Error ? error.message : "Unknown error";
+			setError(errorMessage);
+			setDemoStatus("error");
+		}
+	};
 
-  return (
-    <FlowContainer>
-      <FlowTitle>Token Introspection Flow</FlowTitle>
-      <FlowDescription>
-        This flow demonstrates token introspection operations to get detailed information about
-        access tokens, ID tokens, and refresh tokens. It supports both client-based and
-        resource-based introspection.
-      </FlowDescription>
+	return (
+		<FlowContainer>
+			<FlowTitle>Token Introspection Flow</FlowTitle>
+			<FlowDescription>
+				This flow demonstrates token introspection operations to get detailed
+				information about access tokens, ID tokens, and refresh tokens. It
+				supports both client-based and resource-based introspection.
+			</FlowDescription>
 
-      <InfoContainer>
-        <h4>🔍 Token Introspection Features</h4>
-        <p>
-          Token introspection allows you to get detailed information about tokens including their
-          validity, expiration, scope, and other claims. This is essential for token validation and
-          security analysis.
-        </p>
-      </InfoContainer>
+			<InfoContainer>
+				<h4> Token Introspection Features</h4>
+				<p>
+					Token introspection allows you to get detailed information about
+					tokens including their validity, expiration, scope, and other claims.
+					This is essential for token validation and security analysis.
+				</p>
+			</InfoContainer>
 
-      <FlowCredentials
-        flowType="token-introspection"
-        onCredentialsChange={(newCredentials) => {
-          setFormData((prev) => ({
-            ...prev,
-            clientId: newCredentials.clientId || prev.clientId,
-            clientSecret: newCredentials.clientSecret || prev.clientSecret,
-            environmentId: newCredentials.environmentId || prev.environmentId,
-          }));
-        }}
-      />
+			<FlowCredentials
+				flowType="token-introspection"
+				onCredentialsChange={(newCredentials) => {
+					setFormData((prev) => ({
+						...prev,
+						clientId: newCredentials.clientId || prev.clientId,
+						clientSecret: newCredentials.clientSecret || prev.clientSecret,
+						environmentId: newCredentials.environmentId || prev.environmentId,
+					}));
+				}}
+			/>
 
-      <TabContainer>
-        <Tab $active={activeTab === "access_token"} onClick={() => setActiveTab("access_token")}>
-          Access Token
-        </Tab>
-        <Tab $active={activeTab === "id_token"} onClick={() => setActiveTab("id_token")}>
-          ID Token
-        </Tab>
-        <Tab $active={activeTab === "refresh_token"} onClick={() => setActiveTab("refresh_token")}>
-          Refresh Token
-        </Tab>
-        <Tab
-          $active={activeTab === "resource_based"}
-          onClick={() => setActiveTab("resource_based")}
-        >
-          Resource-based
-        </Tab>
-      </TabContainer>
+			<TabContainer>
+				<Tab
+					$active={activeTab === "access_token"}
+					onClick={() => setActiveTab("access_token")}
+				>
+					Access Token
+				</Tab>
+				<Tab
+					$active={activeTab === "id_token"}
+					onClick={() => setActiveTab("id_token")}
+				>
+					ID Token
+				</Tab>
+				<Tab
+					$active={activeTab === "refresh_token"}
+					onClick={() => setActiveTab("refresh_token")}
+				>
+					Refresh Token
+				</Tab>
+				<Tab
+					$active={activeTab === "resource_based"}
+					onClick={() => setActiveTab("resource_based")}
+				>
+					Resource-based
+				</Tab>
+			</TabContainer>
 
-      <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
-        <div style={{ flex: 1 }}>
-          <Label>Authentication Method</Label>
-          <Select
-            value={activeAuthMethod}
-            onChange={(e) => setActiveAuthMethod(e.target.value as TokenAuthMethod["type"])}
-          >
-            <option value="CLIENT_SECRET_BASIC">CLIENT_SECRET_BASIC</option>
-            <option value="CLIENT_SECRET_POST">CLIENT_SECRET_POST</option>
-            <option value="CLIENT_SECRET_JWT">CLIENT_SECRET_JWT</option>
-            <option value="PRIVATE_KEY_JWT">PRIVATE_KEY_JWT</option>
-          </Select>
-        </div>
-      </div>
+			<div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
+				<div style={{ flex: 1 }}>
+					<Label>Authentication Method</Label>
+					<Select
+						value={activeAuthMethod}
+						onChange={(e) =>
+							setActiveAuthMethod(e.target.value as TokenAuthMethod["type"])
+						}
+					>
+						<option value="CLIENT_SECRET_BASIC">CLIENT_SECRET_BASIC</option>
+						<option value="CLIENT_SECRET_POST">CLIENT_SECRET_POST</option>
+						<option value="CLIENT_SECRET_JWT">CLIENT_SECRET_JWT</option>
+						<option value="PRIVATE_KEY_JWT">PRIVATE_KEY_JWT</option>
+					</Select>
+				</div>
+			</div>
 
-      <StepByStepFlow
-        steps={steps}
-        currentStep={currentStep}
-        onStepChange={handleStepChange}
-        onStepResult={handleStepResult}
-        onStart={() => setDemoStatus("loading")}
-        onReset={() => {
-          setCurrentStep(0);
-          setDemoStatus("idle");
-          setResponse(null);
-          setError(null);
-          setIntrospectionResponse(null);
-        }}
-        status={demoStatus}
-        disabled={demoStatus === "loading"}
-        title={`Token Introspection Steps (${activeTab})`}
-      />
+			<StepByStepFlow
+				steps={steps}
+				currentStep={currentStep}
+				onStepChange={handleStepChange}
+				onStepResult={handleStepResult}
+				onStart={() => setDemoStatus("loading")}
+				onReset={() => {
+					setCurrentStep(0);
+					setDemoStatus("idle");
+					setResponse(null);
+					setError(null);
+					setIntrospectionResponse(null);
+				}}
+				status={demoStatus}
+				disabled={demoStatus === "loading"}
+				title={`Token Introspection Steps (${activeTab})`}
+			/>
 
-      {introspectionResponse && (
-        <IntrospectionContainer>
-          <IntrospectionTitle>
-            Token Introspection Results
-            <StatusBadge $active={introspectionResponse.active}>
-              {introspectionResponse.active ? "Active" : "Inactive"}
-            </StatusBadge>
-          </IntrospectionTitle>
+			{introspectionResponse && (
+				<IntrospectionContainer>
+					<IntrospectionTitle>
+						Token Introspection Results
+						<StatusBadge $active={introspectionResponse.active}>
+							{introspectionResponse.active ? "Active" : "Inactive"}
+						</StatusBadge>
+					</IntrospectionTitle>
 
-          <IntrospectionDetails>
-            <IntrospectionDetail>
-              <IntrospectionLabel>Token Type</IntrospectionLabel>
-              <IntrospectionValue>
-                {introspectionResponse.token_type || "Not specified"}
-              </IntrospectionValue>
-            </IntrospectionDetail>
-            <IntrospectionDetail>
-              <IntrospectionLabel>Scope</IntrospectionLabel>
-              <IntrospectionValue>
-                {introspectionResponse.scope || "Not specified"}
-              </IntrospectionValue>
-            </IntrospectionDetail>
-            <IntrospectionDetail>
-              <IntrospectionLabel>Client ID</IntrospectionLabel>
-              <IntrospectionValue>
-                {introspectionResponse.client_id || "Not specified"}
-              </IntrospectionValue>
-            </IntrospectionDetail>
-            <IntrospectionDetail>
-              <IntrospectionLabel>Subject</IntrospectionLabel>
-              <IntrospectionValue>
-                {introspectionResponse.sub || "Not specified"}
-              </IntrospectionValue>
-            </IntrospectionDetail>
-            <IntrospectionDetail>
-              <IntrospectionLabel>Username</IntrospectionLabel>
-              <IntrospectionValue>
-                {introspectionResponse.username || "Not specified"}
-              </IntrospectionValue>
-            </IntrospectionDetail>
-            <IntrospectionDetail>
-              <IntrospectionLabel>Audience</IntrospectionLabel>
-              <IntrospectionValue>
-                {Array.isArray(introspectionResponse.aud)
-                  ? introspectionResponse.aud.join(", ")
-                  : introspectionResponse.aud || "Not specified"}
-              </IntrospectionValue>
-            </IntrospectionDetail>
-            <IntrospectionDetail>
-              <IntrospectionLabel>Issuer</IntrospectionLabel>
-              <IntrospectionValue>
-                {introspectionResponse.iss || "Not specified"}
-              </IntrospectionValue>
-            </IntrospectionDetail>
-            <IntrospectionDetail>
-              <IntrospectionLabel>JTI</IntrospectionLabel>
-              <IntrospectionValue>
-                {introspectionResponse.jti || "Not specified"}
-              </IntrospectionValue>
-            </IntrospectionDetail>
-            <IntrospectionDetail>
-              <IntrospectionLabel>Issued At</IntrospectionLabel>
-              <IntrospectionValue>
-                {introspectionResponse.iat
-                  ? new Date(introspectionResponse.iat * 1000).toLocaleString()
-                  : "Not specified"}
-              </IntrospectionValue>
-            </IntrospectionDetail>
-            <IntrospectionDetail>
-              <IntrospectionLabel>Expires At</IntrospectionLabel>
-              <IntrospectionValue>
-                {introspectionResponse.exp
-                  ? new Date(introspectionResponse.exp * 1000).toLocaleString()
-                  : "Not specified"}
-              </IntrospectionValue>
-            </IntrospectionDetail>
-            <IntrospectionDetail>
-              <IntrospectionLabel>Auth Time</IntrospectionLabel>
-              <IntrospectionValue>
-                {introspectionResponse.auth_time
-                  ? new Date(introspectionResponse.auth_time * 1000).toLocaleString()
-                  : "Not specified"}
-              </IntrospectionValue>
-            </IntrospectionDetail>
-            {introspectionResponse.nonce && (
-              <IntrospectionDetail>
-                <IntrospectionLabel>Nonce</IntrospectionLabel>
-                <IntrospectionValue>{introspectionResponse.nonce}</IntrospectionValue>
-              </IntrospectionDetail>
-            )}
-            {introspectionResponse.at_hash && (
-              <IntrospectionDetail>
-                <IntrospectionLabel>AT Hash</IntrospectionLabel>
-                <IntrospectionValue>{introspectionResponse.at_hash}</IntrospectionValue>
-              </IntrospectionDetail>
-            )}
-            {introspectionResponse.resource && (
-              <IntrospectionDetail>
-                <IntrospectionLabel>Resource</IntrospectionLabel>
-                <IntrospectionValue>{introspectionResponse.resource}</IntrospectionValue>
-              </IntrospectionDetail>
-            )}
-          </IntrospectionDetails>
-        </IntrospectionContainer>
-      )}
+					<IntrospectionDetails>
+						<IntrospectionDetail>
+							<IntrospectionLabel>Token Type</IntrospectionLabel>
+							<IntrospectionValue>
+								{introspectionResponse.token_type || "Not specified"}
+							</IntrospectionValue>
+						</IntrospectionDetail>
+						<IntrospectionDetail>
+							<IntrospectionLabel>Scope</IntrospectionLabel>
+							<IntrospectionValue>
+								{introspectionResponse.scope || "Not specified"}
+							</IntrospectionValue>
+						</IntrospectionDetail>
+						<IntrospectionDetail>
+							<IntrospectionLabel>Client ID</IntrospectionLabel>
+							<IntrospectionValue>
+								{introspectionResponse.client_id || "Not specified"}
+							</IntrospectionValue>
+						</IntrospectionDetail>
+						<IntrospectionDetail>
+							<IntrospectionLabel>Subject</IntrospectionLabel>
+							<IntrospectionValue>
+								{introspectionResponse.sub || "Not specified"}
+							</IntrospectionValue>
+						</IntrospectionDetail>
+						<IntrospectionDetail>
+							<IntrospectionLabel>Username</IntrospectionLabel>
+							<IntrospectionValue>
+								{introspectionResponse.username || "Not specified"}
+							</IntrospectionValue>
+						</IntrospectionDetail>
+						<IntrospectionDetail>
+							<IntrospectionLabel>Audience</IntrospectionLabel>
+							<IntrospectionValue>
+								{Array.isArray(introspectionResponse.aud)
+									? introspectionResponse.aud.join(", ")
+									: introspectionResponse.aud || "Not specified"}
+							</IntrospectionValue>
+						</IntrospectionDetail>
+						<IntrospectionDetail>
+							<IntrospectionLabel>Issuer</IntrospectionLabel>
+							<IntrospectionValue>
+								{introspectionResponse.iss || "Not specified"}
+							</IntrospectionValue>
+						</IntrospectionDetail>
+						<IntrospectionDetail>
+							<IntrospectionLabel>JTI</IntrospectionLabel>
+							<IntrospectionValue>
+								{introspectionResponse.jti || "Not specified"}
+							</IntrospectionValue>
+						</IntrospectionDetail>
+						<IntrospectionDetail>
+							<IntrospectionLabel>Issued At</IntrospectionLabel>
+							<IntrospectionValue>
+								{introspectionResponse.iat
+									? new Date(introspectionResponse.iat * 1000).toLocaleString()
+									: "Not specified"}
+							</IntrospectionValue>
+						</IntrospectionDetail>
+						<IntrospectionDetail>
+							<IntrospectionLabel>Expires At</IntrospectionLabel>
+							<IntrospectionValue>
+								{introspectionResponse.exp
+									? new Date(introspectionResponse.exp * 1000).toLocaleString()
+									: "Not specified"}
+							</IntrospectionValue>
+						</IntrospectionDetail>
+						<IntrospectionDetail>
+							<IntrospectionLabel>Auth Time</IntrospectionLabel>
+							<IntrospectionValue>
+								{introspectionResponse.auth_time
+									? new Date(
+											introspectionResponse.auth_time * 1000,
+										).toLocaleString()
+									: "Not specified"}
+							</IntrospectionValue>
+						</IntrospectionDetail>
+						{introspectionResponse.nonce && (
+							<IntrospectionDetail>
+								<IntrospectionLabel>Nonce</IntrospectionLabel>
+								<IntrospectionValue>
+									{introspectionResponse.nonce}
+								</IntrospectionValue>
+							</IntrospectionDetail>
+						)}
+						{introspectionResponse.at_hash && (
+							<IntrospectionDetail>
+								<IntrospectionLabel>AT Hash</IntrospectionLabel>
+								<IntrospectionValue>
+									{introspectionResponse.at_hash}
+								</IntrospectionValue>
+							</IntrospectionDetail>
+						)}
+						{introspectionResponse.resource && (
+							<IntrospectionDetail>
+								<IntrospectionLabel>Resource</IntrospectionLabel>
+								<IntrospectionValue>
+									{introspectionResponse.resource}
+								</IntrospectionValue>
+							</IntrospectionDetail>
+						)}
+					</IntrospectionDetails>
+				</IntrospectionContainer>
+			)}
 
-      {response && (
-        <ResponseContainer>
-          <h4>Response:</h4>
-          <CodeBlock>
-            <JSONHighlighter data={response} />
-          </CodeBlock>
-        </ResponseContainer>
-      )}
+			{response && (
+				<ResponseContainer>
+					<h4>Response:</h4>
+					<CodeBlock>
+						<JSONHighlighter data={response} />
+					</CodeBlock>
+				</ResponseContainer>
+			)}
 
-      {error && (
-        <ErrorContainer>
-          <h4>Error:</h4>
-          <p>{error}</p>
-        </ErrorContainer>
-      )}
+			{error && (
+				<ErrorContainer>
+					<h4>Error:</h4>
+					<p>{error}</p>
+				</ErrorContainer>
+			)}
 
-      <FormContainer>
-        <h3>Manual Token Introspection Configuration</h3>
-        <p>You can also manually configure the token introspection:</p>
+			<FormContainer>
+				<h3>Manual Token Introspection Configuration</h3>
+				<p>You can also manually configure the token introspection:</p>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "1rem",
-            marginBottom: "1rem",
-          }}
-        >
-          <FormGroup>
-            <Label>Client ID</Label>
-            <Input
-              type="text"
-              value={formData.clientId}
-              onChange={(e) => setFormData((prev) => ({ ...prev, clientId: e.target.value }))}
-            />
-          </FormGroup>
+				<div
+					style={{
+						display: "grid",
+						gridTemplateColumns: "1fr 1fr",
+						gap: "1rem",
+						marginBottom: "1rem",
+					}}
+				>
+					<FormGroup>
+						<Label>Client ID</Label>
+						<Input
+							type="text"
+							value={formData.clientId}
+							onChange={(e) =>
+								setFormData((prev) => ({ ...prev, clientId: e.target.value }))
+							}
+						/>
+					</FormGroup>
 
-          <FormGroup>
-            <Label>Environment ID</Label>
-            <Input
-              type="text"
-              value={formData.environmentId}
-              onChange={(e) => setFormData((prev) => ({ ...prev, environmentId: e.target.value }))}
-            />
-          </FormGroup>
+					<FormGroup>
+						<Label>Environment ID</Label>
+						<Input
+							type="text"
+							value={formData.environmentId}
+							onChange={(e) =>
+								setFormData((prev) => ({
+									...prev,
+									environmentId: e.target.value,
+								}))
+							}
+						/>
+					</FormGroup>
 
-          <FormGroup>
-            <Label>Token to Introspect</Label>
-            <Input
-              type="text"
-              value={formData.tokenToIntrospect}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, tokenToIntrospect: e.target.value }))
-              }
-              placeholder="Enter token to introspect"
-            />
-          </FormGroup>
+					<FormGroup>
+						<Label>Token to Introspect</Label>
+						<Input
+							type="text"
+							value={formData.tokenToIntrospect}
+							onChange={(e) =>
+								setFormData((prev) => ({
+									...prev,
+									tokenToIntrospect: e.target.value,
+								}))
+							}
+							placeholder="Enter token to introspect"
+						/>
+					</FormGroup>
 
-          <FormGroup>
-            <Label>Token Type Hint</Label>
-            <Select
-              value={formData.tokenTypeHint}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  tokenTypeHint: e.target.value as "access_token" | "id_token" | "refresh_token",
-                }))
-              }
-            >
-              <option value="access_token">Access Token</option>
-              <option value="id_token">ID Token</option>
-              <option value="refresh_token">Refresh Token</option>
-            </Select>
-          </FormGroup>
+					<FormGroup>
+						<Label>Token Type Hint</Label>
+						<Select
+							value={formData.tokenTypeHint}
+							onChange={(e) =>
+								setFormData((prev) => ({
+									...prev,
+									tokenTypeHint: e.target.value as
+										| "access_token"
+										| "id_token"
+										| "refresh_token",
+								}))
+							}
+						>
+							<option value="access_token">Access Token</option>
+							<option value="id_token">ID Token</option>
+							<option value="refresh_token">Refresh Token</option>
+						</Select>
+					</FormGroup>
 
-          {activeTab === "resource_based" && (
-            <>
-              <FormGroup>
-                <Label>Resource ID</Label>
-                <Input
-                  type="text"
-                  value={formData.resourceId}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, resourceId: e.target.value }))}
-                  placeholder="Enter resource ID"
-                />
-              </FormGroup>
+					{activeTab === "resource_based" && (
+						<>
+							<FormGroup>
+								<Label>Resource ID</Label>
+								<Input
+									type="text"
+									value={formData.resourceId}
+									onChange={(e) =>
+										setFormData((prev) => ({
+											...prev,
+											resourceId: e.target.value,
+										}))
+									}
+									placeholder="Enter resource ID"
+								/>
+							</FormGroup>
 
-              <FormGroup>
-                <Label>Resource Secret</Label>
-                <Input
-                  type="password"
-                  value={formData.resourceSecret}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, resourceSecret: e.target.value }))
-                  }
-                  placeholder="Enter resource secret"
-                />
-              </FormGroup>
-            </>
-          )}
-        </div>
+							<FormGroup>
+								<Label>Resource Secret</Label>
+								<Input
+									type="password"
+									value={formData.resourceSecret}
+									onChange={(e) =>
+										setFormData((prev) => ({
+											...prev,
+											resourceSecret: e.target.value,
+										}))
+									}
+									placeholder="Enter resource secret"
+								/>
+							</FormGroup>
+						</>
+					)}
+				</div>
 
-        <Button $variant="primary" onClick={handleIntrospectionStart}>
-          Introspect Token
-        </Button>
-      </FormContainer>
-    </FlowContainer>
-  );
+				<Button $variant="primary" onClick={handleIntrospectionStart}>
+					Introspect Token
+				</Button>
+			</FormContainer>
+		</FlowContainer>
+	);
 };
 
 export default TokenIntrospectionFlow;

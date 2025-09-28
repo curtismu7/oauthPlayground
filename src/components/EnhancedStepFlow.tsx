@@ -719,7 +719,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
             {/* Step Result */}
             {stepResults[currentStep.id] && (
               <StepResult>
-                <h4 style={{ margin: '0 0 0.5rem 0', color: '#059669' }}>✅ Result:</h4>
+                <h4 style={{ margin: '0 0 0.5rem 0', color: '#059669' }}> Result:</h4>
                 <pre style={{ margin: 0, fontSize: '0.875rem' }}>
                   {typeof stepResults[currentStep.id] === 'string' 
                     ? stepResults[currentStep.id] 
@@ -732,7 +732,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
             {/* Step Error */}
             {stepErrors[currentStep.id] && (
               <StepResult $hasError>
-                <h4 style={{ margin: '0 0 0.5rem 0', color: '#DC2626' }}>❌ Error:</h4>
+                <h4 style={{ margin: '0 0 0.5rem 0', color: '#DC2626' }}> Error:</h4>
                 <pre style={{ margin: 0, fontSize: '0.875rem' }}>
                   {stepErrors[currentStep.id]}
                 </pre>
@@ -782,7 +782,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
             {/* Debug Panel */}
             {showDebugPanel && (
               <DebugPanel>
-                <DebugTitle>🔍 Debug Information</DebugTitle>
+                <DebugTitle> Debug Information</DebugTitle>
                 <DebugContent>
                   {JSON.stringify({
                     stepId: currentStep.id,
@@ -805,7 +805,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
       {isFlowComplete && (
         <StepResult>
           <h3 style={{ margin: '0 0 1rem 0', color: '#059669' }}>
-            🎉 Flow Complete!
+             Flow Complete!
           </h3>
           <p>All steps have been successfully executed. You can review the results above or start over.</p>
           <ActionButton $variant="primary" onClick={resetFlow}>

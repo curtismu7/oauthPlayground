@@ -360,7 +360,7 @@ const OIDCSessionManagement = () => {
             <ActorName>{actor.name}</ActorName>
             <ActorRole>{actor.role}</ActorRole>
           </FlowActor>
-          {index < actors.length - 1 && <FlowArrow>→</FlowArrow>}
+          {index < actors.length - 1 && <FlowArrow></FlowArrow>}
         </React.Fragment>
       ))}
     </FlowDiagram>
@@ -390,7 +390,7 @@ const OIDCSessionManagement = () => {
           </p>
           
           <InteractiveSection>
-            <h3>🎯 Key Benefits</h3>
+            <h3> Key Benefits</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
               <div style={{ padding: '1rem', background: 'white', borderRadius: '0.5rem', border: '2px solid #e2e8f0' }}>
                 <FiShield style={{ color: '#10b981', fontSize: '1.5rem', marginBottom: '0.5rem' }} />
@@ -435,7 +435,7 @@ const OIDCSessionManagement = () => {
         </CardBody>
       </OverviewCard>
 
-      <CollapsibleSection title="🔄 Session Management Flows" defaultOpen={true}>
+      <CollapsibleSection title=" Session Management Flows" defaultOpen={true}>
         <div style={{ marginTop: '1rem' }}>
           <p style={{ marginBottom: '2rem', color: '#64748b', lineHeight: '1.6' }}>
             Explore the different session management flows available in OpenID Connect. Each flow serves a specific purpose 
@@ -1217,7 +1217,7 @@ if (sessionState !== expectedSessionState) {
         </div>
       </CollapsibleSection>
 
-      <CollapsibleSection title="⚙️ Implementation Considerations" defaultOpen={false}>
+      <CollapsibleSection title=" Implementation Considerations" defaultOpen={false}>
         <div style={{ marginTop: '1rem' }}>
           <p style={{ marginBottom: '2rem', color: '#64748b', lineHeight: '1.6' }}>
             Understanding the technical details and best practices for implementing OIDC session management in your applications.
@@ -1225,7 +1225,7 @@ if (sessionState !== expectedSessionState) {
 
           <ImplementationCard>
             <CardHeader>
-              <h3>🔐 Session State Calculation</h3>
+              <h3> Session State Calculation</h3>
             </CardHeader>
             <CardBody>
               <p>
@@ -1272,7 +1272,7 @@ console.log('Calculated session state:', sessionState);`,
 
           <WarningCard>
             <CardHeader>
-              <h3>⚠️ Iframe Communication Limitations</h3>
+              <h3> Iframe Communication Limitations</h3>
             </CardHeader>
             <CardBody>
               <p>
@@ -1301,7 +1301,7 @@ console.log('Calculated session state:', sessionState);`,
 
           <ImplementationCard>
             <CardHeader>
-              <h3>🔄 Alternative Approaches</h3>
+              <h3> Alternative Approaches</h3>
             </CardHeader>
             <CardBody>
               <p>
@@ -1382,7 +1382,7 @@ sessionMonitor.startPolling();`,
         </div>
       </CollapsibleSection>
 
-      <CollapsibleSection title="🏢 PingOne Session Management Features" defaultOpen={true}>
+      <CollapsibleSection title=" PingOne Session Management Features" defaultOpen={true}>
         <div style={{ marginTop: '1rem' }}>
           <p style={{ marginBottom: '2rem', color: '#64748b', lineHeight: '1.6' }}>
             PingOne provides comprehensive session management capabilities aligned with OpenID Connect standards.
@@ -1390,7 +1390,7 @@ sessionMonitor.startPolling();`,
 
           <ImplementationCard>
             <CardHeader>
-              <h3>✅ Supported Logout Flows</h3>
+              <h3> Supported Logout Flows</h3>
             </CardHeader>
             <CardBody>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', margin: '1.5rem 0' }}>
@@ -1420,7 +1420,7 @@ sessionMonitor.startPolling();`,
 
           <ImplementationCard>
             <CardHeader>
-              <h3>⚙️ Configuration Options</h3>
+              <h3> Configuration Options</h3>
             </CardHeader>
             <CardBody>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', margin: '1.5rem 0' }}>
@@ -1458,7 +1458,7 @@ sessionMonitor.startPolling();`,
         </div>
       </CollapsibleSection>
 
-      <CollapsibleSection title="🔒 Security Best Practices" defaultOpen={false}>
+      <CollapsibleSection title=" Security Best Practices" defaultOpen={false}>
         <div style={{ marginTop: '1rem' }}>
           <p style={{ marginBottom: '2rem', color: '#64748b', lineHeight: '1.6' }}>
             Essential security considerations and best practices for implementing OIDC session management securely.
@@ -1466,7 +1466,7 @@ sessionMonitor.startPolling();`,
 
           <WarningCard>
             <CardHeader>
-              <h3>🛡️ Session Security</h3>
+              <h3> Session Security</h3>
             </CardHeader>
             <CardBody>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', margin: '1.5rem 0' }}>
@@ -1496,7 +1496,7 @@ sessionMonitor.startPolling();`,
 
           <WarningCard>
             <CardHeader>
-              <h3>🔧 Implementation Security</h3>
+              <h3> Implementation Security</h3>
             </CardHeader>
             <CardBody>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', margin: '1.5rem 0' }}>
