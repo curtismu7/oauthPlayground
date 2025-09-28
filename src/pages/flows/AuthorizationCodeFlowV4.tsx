@@ -327,8 +327,10 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 	});
 
 	const [authUrl, setAuthUrl] = useState<string>("");
+	const [authCode, setAuthCode] = useState<string>("");
 	const [tokens, setTokens] = useState<any>(null);
 	const [userInfo, setUserInfo] = useState<any>(null);
+	const [isExchangingTokens, setIsExchangingTokens] = useState(false);
 	const [currentStep, setCurrentStep] = useState(0);
 	const [quizAnswers, setQuizAnswers] = useState<{ [key: string]: any }>({});
 
@@ -336,16 +338,25 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 
 	// Initialize PKCE codes
 	useEffect(() => {
-		const verifier = generateCodeVerifier();
-		const challenge = generateCodeChallenge(verifier);
-		setPkceCodes({
-			codeVerifier: verifier,
-			codeChallenge: challenge,
-			codeChallengeMethod: "S256",
-		});
+		const initializePKCE = async () => {
+			try {
+				const verifier = generateCodeVerifier();
+				const challenge = await generateCodeChallenge(verifier);
+				setPkceCodes({
+					codeVerifier: verifier,
+					codeChallenge: challenge,
+					codeChallengeMethod: "S256",
+				});
+				
+				// Show welcome message
+				showGlobalSuccess("Welcome to OAuth Learning!");
+			} catch (error) {
+				console.error("Failed to initialize PKCE:", error);
+				showGlobalError("Failed to initialize PKCE parameters");
+			}
+		};
 		
-		// Show welcome message
-		showGlobalSuccess("Welcome to OAuth Learning!");
+		initializePKCE();
 	}, []);
 
 	// Load credentials on mount
@@ -409,6 +420,85 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 			showGlobalError("Failed to generate authorization URL");
 		}
 	}, [credentials, pkceCodes]);
+
+	// Exchange authorization code for tokens
+	const exchangeTokens = useCallback(async () => {
+		if (!authCode || !credentials.environmentId || !credentials.clientId) {
+			showGlobalError("Authorization code and credentials are required");
+			return;
+		}
+
+		setIsExchangingTokens(true);
+		
+		try {
+			const requestBody = {
+				grant_type: "authorization_code",
+				code: authCode,
+				redirect_uri: credentials.redirectUri,
+				client_id: credentials.clientId,
+				client_secret: credentials.clientSecret,
+				code_verifier: pkceCodes.codeVerifier,
+			};
+
+			console.log("Exchanging authorization code for tokens...", {
+				environmentId: credentials.environmentId,
+				clientId: credentials.clientId,
+				hasCode: !!authCode,
+				hasCodeVerifier: !!pkceCodes.codeVerifier,
+			});
+
+			const response = await fetch("/api/token-exchange", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(requestBody),
+			});
+
+			const result = await response.json();
+
+			if (response.ok && result.access_token) {
+				console.log("Token exchange successful:", result);
+				setTokens(result);
+				
+				// Store tokens
+				await storeOAuthTokens(result, "authz-code-v4");
+				
+				// For OIDC flows, fetch user info
+				if (result.id_token) {
+					try {
+						const userInfoResponse = await fetch("/api/userinfo", {
+							method: "POST",
+							headers: {
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify({
+								access_token: result.access_token,
+								environment_id: credentials.environmentId,
+							}),
+						});
+
+						if (userInfoResponse.ok) {
+							const userInfoData = await userInfoResponse.json();
+							setUserInfo(userInfoData);
+							console.log("User info fetched successfully:", userInfoData);
+						}
+					} catch (userInfoError) {
+						console.warn("Failed to fetch user info:", userInfoError);
+					}
+				}
+				
+				showGlobalSuccess("Tokens exchanged successfully");
+			} else {
+				throw new Error(result.error_description || result.error || "Token exchange failed");
+			}
+		} catch (error) {
+			console.error("Token exchange failed:", error);
+			showGlobalError(`Token exchange failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+		} finally {
+			setIsExchangingTokens(false);
+		}
+	}, [authCode, credentials, pkceCodes]);
 
 	// Copy to clipboard
 	const handleCopy = useCallback(async (text: string, label: string) => {
@@ -645,12 +735,12 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 								</div>
 							</div>
 							<button
-								onClick={() => {
+								onClick={async () => {
 									try {
 										const verifier = generateCodeVerifier();
-										const challenge = generateCodeChallenge(verifier);
+										const challenge = await generateCodeChallenge(verifier);
 										setPkceCodes({ codeVerifier: verifier, codeChallenge: challenge, codeChallengeMethod: "S256" });
-													showGlobalSuccess("PKCE parameters generated");
+										showGlobalSuccess("PKCE parameters generated");
 									} catch (error) {
 										console.error("Failed to generate PKCE parameters:", error);
 										showGlobalError("Failed to generate PKCE parameters");
@@ -802,13 +892,58 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 							</ul>
 						</InfoBox>
 
-						<div className="text-center py-8">
-							<div className="text-6xl mb-4">⚡</div>
-							<h3 className="text-xl font-semibold mb-2">Ready for Token Exchange</h3>
-							<p className="text-gray-600">
-								When you receive the authorization code, this step will automatically exchange it 
-								for access tokens and display the results.
-							</p>
+						<div className="bg-white p-6 rounded-lg border">
+							<h4 className="text-lg font-semibold mb-4">Authorization Code</h4>
+							<div className="mb-4">
+								<FormField>
+									<FormLabel>Authorization Code</FormLabel>
+									<FormInput
+										type="text"
+										placeholder="Enter the authorization code from the callback"
+										value={authCode}
+										onChange={(e) => setAuthCode(e.target.value)}
+									/>
+								</FormField>
+							</div>
+
+							<div className="flex gap-3">
+								<button
+									onClick={exchangeTokens}
+									disabled={!authCode || isExchangingTokens}
+									className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+								>
+									{isExchangingTokens ? (
+										<>
+											<FiRefreshCw className="mr-2 inline animate-spin" />
+											Exchanging Tokens...
+										</>
+									) : (
+										<>
+											<FiShield className="mr-2 inline" />
+											Exchange for Tokens
+										</>
+									)}
+								</button>
+								<button
+									onClick={() => handleCopy(authCode, "Authorization Code")}
+									disabled={!authCode}
+									className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+								>
+									<FiCopy className="mr-2 inline" />
+									Copy Code
+								</button>
+							</div>
+
+							{tokens && (
+								<div className="mt-6">
+									<SuccessBox>
+										<h4 className="font-semibold mb-2">✅ Tokens Received Successfully!</h4>
+										<p className="text-sm">
+											Your access tokens have been exchanged and are ready to use.
+										</p>
+									</SuccessBox>
+								</div>
+							)}
 						</div>
 					</div>
 				);
