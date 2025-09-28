@@ -7,7 +7,7 @@ import {
 	FiChevronRight,
 	FiCopy,
 	FiExternalLink,
-	FiGraduationCap,
+	FiBook,
 	FiRefreshCw,
 	FiSettings,
 	FiShield,
@@ -438,7 +438,7 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 					<div>
 						<EducationalSection>
 							<h3 className="text-xl font-semibold mb-3 flex items-center">
-								<FiGraduationCap className="mr-2" />
+								<FiBook className="mr-2" />
 								What is the Authorization Code Flow?
 							</h3>
 							<p className="text-gray-700 mb-4">
