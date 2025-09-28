@@ -99,7 +99,7 @@ const FormInput = styled.input`
 	}
 `;
 
-const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' | 'danger'; size?: 'sm' | 'md' | 'lg'; disabled?: boolean }>`
+const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' | 'danger'; size?: 'sm' | 'md' | 'lg'; disabled?: boolean }>`
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -118,7 +118,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' | '
 	transition: all 0.2s;
 	margin: 0 auto;
 	
-	${props => {
+		${props => {
 		if (props.disabled) {
 			return `
 				background-color: #9ca3af;
@@ -126,8 +126,8 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' | '
 				cursor: not-allowed;
 			`;
 		}
-		
-		switch (props.variant) {
+
+		switch (props.$variant) {
 			case 'secondary':
 				return `
 					background-color: #4b5563;
@@ -210,7 +210,7 @@ const NavigationButtons = styled.div`
 	gap: 0.5rem;
 `;
 
-const NavButton = styled.button<{ variant?: 'primary' | 'secondary'; disabled?: boolean }>`
+const NavButton = styled.button<{ $variant?: 'primary' | 'secondary'; disabled?: boolean }>`
 	padding: 0.5rem 1rem;
 	border-radius: 0.5rem;
 	border: none;
@@ -230,7 +230,7 @@ const NavButton = styled.button<{ variant?: 'primary' | 'secondary'; disabled?: 
 			`;
 		}
 		
-		if (props.variant === 'primary') {
+		if (props.$variant === 'primary') {
 			return `
 				background-color: #3b82f6;
 				color: white;
@@ -485,6 +485,7 @@ const AuthorizationCodeFlowV4 = () => {
 		const error = urlParams.get('error');
 		
 		if (code) {
+			console.log("Authorization code captured:", code);
 			setAuthCode(code);
 			// Show success modal
 			setShowSuccessModal(true);
@@ -494,7 +495,9 @@ const AuthorizationCodeFlowV4 = () => {
 			}, 2000);
 			// Navigate to Step 3 (Authorization Response) to show the captured code
 			setCurrentStep(2); // Step 3 is index 2
+			console.log("Navigated to Step 3, authCode state:", code);
 		} else if (error) {
+			console.log("Authorization error:", error);
 			showGlobalError(`Authorization failed: ${error}`);
 		}
 	}, []);
@@ -893,7 +896,7 @@ const AuthorizationCodeFlowV4 = () => {
 									<Button
 										onClick={handleSaveConfiguration}
 										disabled={isLoading}
-										variant="primary"
+										$variant="primary"
 										size="lg"
 									>
 										{isLoading ? (
@@ -910,7 +913,7 @@ const AuthorizationCodeFlowV4 = () => {
 									</Button>
 									<Button
 										onClick={handleClearConfiguration}
-										variant="danger"
+										$variant="danger"
 										size="lg"
 									>
 										<FiSettings style={{ marginRight: '0.5rem' }} />
@@ -1000,7 +1003,7 @@ const AuthorizationCodeFlowV4 = () => {
 								<div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
 									<Button
 										onClick={() => handleCopy(pkceCodes.codeVerifier, "Code verifier")}
-										variant="primary"
+										$variant="primary"
 										size="sm"
 									>
 										<FiCopy style={{ marginRight: '0.5rem' }} />
@@ -1008,7 +1011,7 @@ const AuthorizationCodeFlowV4 = () => {
 									</Button>
 									<Button
 										onClick={() => handleCopy(pkceCodes.codeChallenge, "Code challenge")}
-										variant="primary"
+										$variant="primary"
 										size="sm"
 									>
 										<FiCopy style={{ marginRight: '0.5rem' }} />
@@ -1038,7 +1041,7 @@ const AuthorizationCodeFlowV4 = () => {
 						<div style={{ textAlign: 'center' }}>
 							<Button
 								onClick={handleGeneratePKCE}
-								variant="success"
+								$variant="success"
 								size="md"
 							>
 								<FiSettings style={{ marginRight: '0.5rem' }} />
@@ -1155,7 +1158,7 @@ const AuthorizationCodeFlowV4 = () => {
 								<Button
 									onClick={handleOpenAuthUrl}
 									disabled={!authorizationUrl}
-									variant="success"
+									$variant="success"
 									size="md"
 								>
 									<FiExternalLink style={{ marginRight: '0.5rem' }} />
@@ -1178,7 +1181,7 @@ const AuthorizationCodeFlowV4 = () => {
 								<div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
 									<Button
 										onClick={() => handleCopy(authorizationUrl, "Authorization URL")}
-										variant="primary"
+										$variant="primary"
 										size="sm"
 									>
 										<FiCopy style={{ marginRight: '0.5rem' }} />
@@ -1220,10 +1223,11 @@ const AuthorizationCodeFlowV4 = () => {
 								<GeneratedUrlDisplay>
 									{authCode}
 								</GeneratedUrlDisplay>
+								{console.log("Rendering authCode in UI:", authCode)}
 								<div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
 									<Button
 										onClick={() => handleCopy(authCode, "Authorization code")}
-										variant="primary"
+										$variant="primary"
 										size="sm"
 									>
 										<FiCopy style={{ marginRight: '0.5rem' }} />
@@ -1231,7 +1235,7 @@ const AuthorizationCodeFlowV4 = () => {
 									</Button>
 									<Button
 										onClick={nextStep}
-										variant="success"
+										$variant="success"
 										size="sm"
 									>
 										<FiChevronRight style={{ marginRight: '0.5rem' }} />
@@ -1269,7 +1273,7 @@ const AuthorizationCodeFlowV4 = () => {
 									<Button
 										onClick={() => handleCopy(authCode, "Authorization code")}
 										disabled={!authCode}
-										variant="primary"
+										$variant="primary"
 										size="sm"
 									>
 										<FiCopy style={{ marginRight: '0.5rem' }} />
@@ -1370,7 +1374,7 @@ const AuthorizationCodeFlowV4 = () => {
 								<div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
 									<Button
 										onClick={() => handleCopy(tokens.access_token, "Access token")}
-										variant="primary"
+										$variant="primary"
 										size="sm"
 									>
 										<FiCopy style={{ marginRight: '0.5rem' }} />
@@ -1378,7 +1382,7 @@ const AuthorizationCodeFlowV4 = () => {
 									</Button>
 									<Button
 										onClick={() => handleCopy(tokens.id_token, "ID token")}
-										variant="primary"
+										$variant="primary"
 										size="sm"
 									>
 										<FiCopy style={{ marginRight: '0.5rem' }} />
@@ -1469,7 +1473,7 @@ const AuthorizationCodeFlowV4 = () => {
 								<div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
 									<Button
 										onClick={() => handleCopy(JSON.stringify(userInfo, null, 2), "User information")}
-										variant="primary"
+										$variant="primary"
 										size="sm"
 									>
 										<FiCopy style={{ marginRight: '0.5rem' }} />
@@ -1584,7 +1588,7 @@ const AuthorizationCodeFlowV4 = () => {
 				<NavigationButtons>
 					<NavButton
 						onClick={handleResetFlow}
-						variant="danger"
+						$variant="danger"
 						style={{ marginRight: '1rem' }}
 					>
 						<FiSettings style={{ marginRight: '0.5rem' }} />
@@ -1594,7 +1598,7 @@ const AuthorizationCodeFlowV4 = () => {
 					<NavButton
 						onClick={prevStep}
 						disabled={currentStep === 0}
-						variant="secondary"
+									$variant="secondary"
 					>
 						<FiChevronLeft />
 						Previous
