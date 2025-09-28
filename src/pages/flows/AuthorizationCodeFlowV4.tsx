@@ -177,7 +177,7 @@ const StepIndicator = styled.div`
 	align-items: center;
 `;
 
-const StepDot = styled.button<{ active?: boolean; completed?: boolean }>`
+const StepDot = styled.button<{ $active?: boolean; $completed?: boolean }>`
 	width: 12px;
 	height: 12px;
 	border-radius: 50%;
@@ -185,21 +185,21 @@ const StepDot = styled.button<{ active?: boolean; completed?: boolean }>`
 	cursor: pointer;
 	transition: all 0.3s ease;
 	background: #e5e7eb;
-	
+
 	${props => {
-		if (props.active) {
+		if (props.$active) {
 			return `
 				background: #3b82f6;
 				transform: scale(1.2);
 			`;
-		} else if (props.completed) {
+		} else if (props.$completed) {
 			return `
 				background: #10b981;
 			`;
 		}
 		return '';
 	}}
-	
+
 	&:hover {
 		transform: scale(1.1);
 	}
@@ -1514,8 +1514,8 @@ const AuthorizationCodeFlowV4 = () => {
 						<StepDot
 							key={i}
 							onClick={() => goToStep(i)}
-							active={i === currentStep}
-							completed={i < currentStep}
+							$active={i === currentStep}
+							$completed={i < currentStep}
 							aria-label={`Go to step ${i + 1}`}
 						/>
 					))}
