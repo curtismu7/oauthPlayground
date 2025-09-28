@@ -490,7 +490,10 @@ const AuthorizationCodeFlowV4 = () => {
 					scopes: configData.scopes || credentials.scopes,
 					authMethod: configData.authMethod || credentials.authMethod
 				});
-				showGlobalSuccess("Configuration loaded from previous session");
+				// Delay notification to ensure provider is mounted
+				setTimeout(() => {
+					showGlobalSuccess("Configuration loaded from previous session");
+				}, 100);
 			}
 		} catch (error) {
 			console.warn("Failed to load saved configuration:", error);
@@ -500,9 +503,12 @@ const AuthorizationCodeFlowV4 = () => {
 		const urlParams = new URLSearchParams(window.location.search);
 		const code = urlParams.get('code');
 		const error = urlParams.get('error');
+		const state = urlParams.get('state');
+		
+		console.log("URL parameters check:", { code, error, state, fullUrl: window.location.href });
 		
 		if (code) {
-			console.log("Authorization code captured:", code);
+			console.log("✅ Authorization code captured:", code);
 			setAuthCode(code);
 			// Mark step 3 (Authorization Response) as complete
 			setStepCompletions(prev => ({ ...prev, 3: true }));
@@ -514,10 +520,20 @@ const AuthorizationCodeFlowV4 = () => {
 			}, 2000);
 			// Navigate to Step 3 (Authorization Response) to show the captured code
 			setCurrentStep(2); // Step 3 is index 2
-			console.log("Navigated to Step 3, authCode state:", code);
+			console.log("✅ Navigated to Step 3, authCode state:", code);
+			
+			// Clear URL parameters to prevent re-processing
+			const newUrl = window.location.pathname;
+			window.history.replaceState({}, document.title, newUrl);
 		} else if (error) {
-			console.log("Authorization error:", error);
+			console.log("❌ Authorization error:", error);
 			showGlobalError(`Authorization failed: ${error}`);
+			
+			// Clear URL parameters
+			const newUrl = window.location.pathname;
+			window.history.replaceState({}, document.title, newUrl);
+		} else {
+			console.log("ℹ️ No authorization code or error found in URL parameters");
 		}
 	}, []);
 
@@ -1259,7 +1275,7 @@ const AuthorizationCodeFlowV4 = () => {
 								<GeneratedUrlDisplay>
 									{authCode}
 								</GeneratedUrlDisplay>
-								{console.log("Rendering authCode in UI:", authCode)}
+								{console.log("🎯 Rendering authCode in UI:", authCode, "Type:", typeof authCode, "Length:", authCode?.length)}
 								<div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
 									<Button
 										onClick={() => handleCopy(authCode, "Authorization code")}
@@ -1302,19 +1318,39 @@ const AuthorizationCodeFlowV4 = () => {
 									<FormInput
 										type="text"
 										value={authCode}
-										onChange={(e) => setAuthCode(e.target.value)}
+										onChange={(e) => {
+											const code = e.target.value.trim();
+											setAuthCode(code);
+											if (code) {
+												// Mark step as complete when code is entered
+												setStepCompletions(prev => ({ ...prev, 3: true }));
+												console.log("📝 Manual authorization code entered:", code);
+											}
+										}}
 										placeholder="Enter authorization code here..."
 										style={{ marginBottom: '1rem' }}
 									/>
-									<Button
-										onClick={() => handleCopy(authCode, "Authorization code")}
-										disabled={!authCode}
-										$variant="primary"
-										size="sm"
-									>
-										<FiCopy style={{ marginRight: '0.5rem' }} />
-										Copy Code
-									</Button>
+									<div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+										<Button
+											onClick={() => handleCopy(authCode, "Authorization code")}
+											disabled={!authCode}
+											$variant="primary"
+											size="sm"
+										>
+											<FiCopy style={{ marginRight: '0.5rem' }} />
+											Copy Code
+										</Button>
+										{authCode && (
+											<Button
+												onClick={nextStep}
+												$variant="success"
+												size="sm"
+											>
+												<FiChevronRight style={{ marginRight: '0.5rem' }} />
+												Continue to Token Exchange
+											</Button>
+										)}
+									</div>
 								</div>
 							</MainCard>
 						)}
