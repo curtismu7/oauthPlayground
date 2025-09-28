@@ -364,6 +364,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               
               OAuth 2.0 Authorization Code (V3)
             </SubmenuItem>
+            <SubmenuItem to="/flows/authorization-code-v4" onClick={onClose} $isActive={isActiveRoute('/flows/authorization-code-v4')}>
+              
+              OAuth 2.0 Authorization Code (V4) - Educational
+            </SubmenuItem>
             <SubmenuItem to="/flows/oauth2-implicit-v3" onClick={onClose} $isActive={isActiveRoute('/flows/oauth2-implicit-v3')}>
               
               OAuth 2.0 Implicit V3
