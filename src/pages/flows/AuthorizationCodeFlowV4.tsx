@@ -210,7 +210,7 @@ const NavigationButtons = styled.div`
 	gap: 0.5rem;
 `;
 
-const NavButton = styled.button<{ $variant?: 'primary' | 'secondary'; disabled?: boolean }>`
+const NavButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'success'; disabled?: boolean }>`
 	padding: 0.5rem 1rem;
 	border-radius: 0.5rem;
 	border: none;
@@ -235,6 +235,12 @@ const NavButton = styled.button<{ $variant?: 'primary' | 'secondary'; disabled?:
 				background-color: #3b82f6;
 				color: white;
 				&:hover { background-color: #2563eb; }
+			`;
+		} else if (props.$variant === 'success') {
+			return `
+				background-color: #10b981;
+				color: white;
+				&:hover { background-color: #059669; }
 			`;
 		} else {
 			return `
@@ -456,6 +462,17 @@ const AuthorizationCodeFlowV4 = () => {
 	const [showRedirectModal, setShowRedirectModal] = useState(false);
 	const [showSuccessModal, setShowSuccessModal] = useState(false);
 
+	// Step completion tracking
+	const [stepCompletions, setStepCompletions] = useState<Record<number, boolean>>({
+		0: true, // Step 1 (Understanding) - always complete
+		1: false, // Step 2 (PKCE) - complete when PKCE generated
+		2: false, // Step 3 (Authorization Request) - complete when URL generated
+		3: false, // Step 4 (Authorization Response) - complete when code received
+		4: false, // Step 5 (Token Exchange) - complete when tokens exchanged
+		5: false, // Step 6 (User Info) - complete when user info fetched
+		6: false  // Step 7 (Complete) - always complete when reached
+	});
+
 	const totalSteps = 7;
 
 	// Load saved configuration and check for authorization code
@@ -487,6 +504,8 @@ const AuthorizationCodeFlowV4 = () => {
 		if (code) {
 			console.log("Authorization code captured:", code);
 			setAuthCode(code);
+			// Mark step 3 (Authorization Response) as complete
+			setStepCompletions(prev => ({ ...prev, 3: true }));
 			// Show success modal
 			setShowSuccessModal(true);
 			// Auto dismiss modal after 2 seconds
@@ -556,6 +575,17 @@ const AuthorizationCodeFlowV4 = () => {
 		setShowRedirectModal(false);
 		setShowSuccessModal(false);
 		
+		// Reset step completions
+		setStepCompletions({
+			0: true, // Step 1 (Understanding) - always complete
+			1: false, // Step 2 (PKCE) - complete when PKCE generated
+			2: false, // Step 3 (Authorization Request) - complete when URL generated
+			3: false, // Step 4 (Authorization Response) - complete when code received
+			4: false, // Step 5 (Token Exchange) - complete when tokens exchanged
+			5: false, // Step 6 (User Info) - complete when user info fetched
+			6: false  // Step 7 (Complete) - always complete when reached
+		});
+		
 		// Clear saved configuration
 		localStorage.removeItem('oauth-v4-test-config');
 		
@@ -581,6 +611,8 @@ const AuthorizationCodeFlowV4 = () => {
 				codeChallenge,
 				codeChallengeMethod: "S256"
 			});
+			// Mark step 1 (PKCE) as complete
+			setStepCompletions(prev => ({ ...prev, 1: true }));
 			showGlobalSuccess("PKCE parameters generated successfully!");
 		} catch (error) {
 			showGlobalError("Failed to generate PKCE parameters");
@@ -597,9 +629,11 @@ const AuthorizationCodeFlowV4 = () => {
 			code_challenge: pkceCodes.codeChallenge,
 			code_challenge_method: pkceCodes.codeChallengeMethod
 		});
-		
+
 		const authUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize?${params.toString()}`;
 		setAuthorizationUrl(authUrl);
+		// Mark step 2 (Authorization Request) as complete
+		setStepCompletions(prev => ({ ...prev, 2: true }));
 		showGlobalSuccess("Authorization URL generated successfully!");
 	};
 
@@ -643,6 +677,8 @@ const AuthorizationCodeFlowV4 = () => {
 			};
 			
 			setTokens(mockTokens);
+			// Mark step 4 (Token Exchange) as complete
+			setStepCompletions(prev => ({ ...prev, 4: true }));
 			showGlobalSuccess("Tokens exchanged successfully!");
 		} catch (error) {
 			showGlobalError("Failed to exchange tokens");
@@ -1435,6 +1471,8 @@ const AuthorizationCodeFlowV4 = () => {
 										preferred_username: "johndoe"
 									};
 									setUserInfo(mockUserInfo);
+									// Mark step 5 (User Info) as complete
+									setStepCompletions(prev => ({ ...prev, 5: true }));
 									showGlobalSuccess("User information retrieved successfully!");
 								}}
 								disabled={!tokens}
@@ -1607,7 +1645,7 @@ const AuthorizationCodeFlowV4 = () => {
 					<NavButton
 						onClick={nextStep}
 						disabled={currentStep === totalSteps - 1}
-						variant="primary"
+						$variant={stepCompletions[currentStep] ? "success" : "primary"}
 					>
 						Next
 						<FiChevronRight />
