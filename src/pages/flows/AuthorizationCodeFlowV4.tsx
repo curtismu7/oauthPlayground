@@ -310,6 +310,40 @@ const StepTitle = styled.h2`
 	margin-bottom: 1.5rem;
 `;
 
+const GeneratedContentBox = styled.div`
+	background-color: #d1fae5;
+	border: 2px solid #10b981;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	margin: 1rem 0;
+	position: relative;
+	
+	&::before {
+		content: "✓ Generated";
+		position: absolute;
+		top: -10px;
+		left: 1rem;
+		background-color: #10b981;
+		color: white;
+		padding: 0.25rem 0.5rem;
+		border-radius: 0.25rem;
+		font-size: 0.75rem;
+		font-weight: 600;
+	}
+`;
+
+const GeneratedUrlDisplay = styled.div`
+	background-color: white;
+	border: 1px solid #10b981;
+	border-radius: 0.375rem;
+	padding: 0.75rem;
+	font-family: monospace;
+	font-size: 0.875rem;
+	word-break: break-all;
+	margin-top: 1rem;
+	color: #065f46;
+`;
+
 
 interface StepCredentials {
 	environmentId: string;
@@ -351,6 +385,9 @@ const AuthorizationCodeFlowV4 = () => {
 	const [authCode, setAuthCode] = useState("");
 	const [tokens, setTokens] = useState<any>(null);
 	const [userInfo, setUserInfo] = useState<any>(null);
+
+	// Authorization URL state
+	const [authorizationUrl, setAuthorizationUrl] = useState<string | null>(null);
 
 	const totalSteps = 7;
 
@@ -412,9 +449,17 @@ const AuthorizationCodeFlowV4 = () => {
 		});
 		
 		const authUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize?${params.toString()}`;
-		// Store the URL for potential future use
-		console.log("Generated Authorization URL:", authUrl);
+		setAuthorizationUrl(authUrl);
 		showGlobalSuccess("Authorization URL generated successfully!");
+	};
+
+	const handleOpenAuthUrl = () => {
+		if (authorizationUrl) {
+			window.open(authorizationUrl, '_blank');
+			showGlobalSuccess("Opening authorization URL in new window...");
+		} else {
+			showGlobalWarning("Please generate the authorization URL first");
+		}
 	};
 
 	const handleExchangeTokens = async () => {
@@ -727,37 +772,53 @@ const AuthorizationCodeFlowV4 = () => {
 							</InfoText>
 						</InfoBox>
 
-						<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
-							<MainCard>
-								<h4 style={{ fontWeight: '600', marginBottom: '1rem', fontSize: '1.125rem' }}>Code Verifier</h4>
-								<div style={{ backgroundColor: '#f3f4f6', padding: '0.75rem', borderRadius: '0.375rem', fontFamily: 'monospace', fontSize: '0.875rem', wordBreak: 'break-all', marginBottom: '0.75rem' }}>
-									{pkceCodes.codeVerifier || "Generating..."}
+						{pkceCodes.codeVerifier && pkceCodes.codeChallenge ? (
+							<GeneratedContentBox>
+								<h4 style={{ fontWeight: '600', marginBottom: '1rem', color: '#065f46' }}>
+									Generated PKCE Parameters
+								</h4>
+								<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+									<div>
+										<h5 style={{ fontWeight: '500', marginBottom: '0.5rem', fontSize: '0.875rem' }}>Code Verifier</h5>
+										<GeneratedUrlDisplay style={{ fontSize: '0.75rem' }}>
+											{pkceCodes.codeVerifier}
+										</GeneratedUrlDisplay>
+									</div>
+									<div>
+										<h5 style={{ fontWeight: '500', marginBottom: '0.5rem', fontSize: '0.875rem' }}>Code Challenge</h5>
+										<GeneratedUrlDisplay style={{ fontSize: '0.75rem' }}>
+											{pkceCodes.codeChallenge}
+										</GeneratedUrlDisplay>
+									</div>
 								</div>
-								<Button
-									onClick={() => handleCopy(pkceCodes.codeVerifier, "Code verifier")}
-									variant="primary"
-									size="sm"
-								>
-									<FiCopy style={{ marginRight: '0.5rem' }} />
-									Copy
-								</Button>
-							</MainCard>
-
-							<MainCard>
-								<h4 style={{ fontWeight: '600', marginBottom: '1rem', fontSize: '1.125rem' }}>Code Challenge</h4>
-								<div style={{ backgroundColor: '#f3f4f6', padding: '0.75rem', borderRadius: '0.375rem', fontFamily: 'monospace', fontSize: '0.875rem', wordBreak: 'break-all', marginBottom: '0.75rem' }}>
-									{pkceCodes.codeChallenge || "Generating..."}
+								<div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+									<Button
+										onClick={() => handleCopy(pkceCodes.codeVerifier, "Code verifier")}
+										variant="primary"
+										size="sm"
+									>
+										<FiCopy style={{ marginRight: '0.5rem' }} />
+										Copy Verifier
+									</Button>
+									<Button
+										onClick={() => handleCopy(pkceCodes.codeChallenge, "Code challenge")}
+										variant="primary"
+										size="sm"
+									>
+										<FiCopy style={{ marginRight: '0.5rem' }} />
+										Copy Challenge
+									</Button>
 								</div>
-								<Button
-									onClick={() => handleCopy(pkceCodes.codeChallenge, "Code challenge")}
-									variant="primary"
-									size="sm"
-								>
-									<FiCopy style={{ marginRight: '0.5rem' }} />
-									Copy
-								</Button>
+							</GeneratedContentBox>
+						) : (
+							<MainCard>
+								<div style={{ textAlign: 'center', padding: '2rem' }}>
+									<p style={{ color: '#6b7280', marginBottom: '1rem' }}>
+										Click the button below to generate PKCE parameters
+									</p>
+								</div>
 							</MainCard>
-						</div>
+						)}
 
 						<div style={{ textAlign: 'center' }}>
 							<Button
@@ -806,7 +867,7 @@ const AuthorizationCodeFlowV4 = () => {
 							</div>
 						</MainCard>
 
-						<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+						<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginBottom: '1.5rem' }}>
 							<Button
 								onClick={handleGenerateAuthUrl}
 								variant="primary"
@@ -816,7 +877,8 @@ const AuthorizationCodeFlowV4 = () => {
 								Generate Authorization URL
 							</Button>
 							<Button
-								onClick={() => showGlobalSuccess("Opening authorization URL in new window...")}
+								onClick={handleOpenAuthUrl}
+								disabled={!authorizationUrl}
 								variant="success"
 								size="md"
 							>
@@ -824,6 +886,27 @@ const AuthorizationCodeFlowV4 = () => {
 								Open Authorization URL
 							</Button>
 						</div>
+
+						{authorizationUrl && (
+							<GeneratedContentBox>
+								<h4 style={{ fontWeight: '600', marginBottom: '0.5rem', color: '#065f46' }}>
+									Generated Authorization URL
+								</h4>
+								<GeneratedUrlDisplay>
+									{authorizationUrl}
+								</GeneratedUrlDisplay>
+								<div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+									<Button
+										onClick={() => handleCopy(authorizationUrl, "Authorization URL")}
+										variant="primary"
+										size="sm"
+									>
+										<FiCopy style={{ marginRight: '0.5rem' }} />
+										Copy URL
+									</Button>
+								</div>
+							</GeneratedContentBox>
+						)}
 					</div>
 				);
 
@@ -932,22 +1015,46 @@ const AuthorizationCodeFlowV4 = () => {
 						</div>
 
 						{tokens && (
-							<InfoBox type="success">
+							<GeneratedContentBox>
 								<h4 style={{ fontWeight: '600', marginBottom: '1rem', color: '#065f46', display: 'flex', alignItems: 'center' }}>
 									<FiCheckCircle style={{ marginRight: '0.5rem' }} />
-									Tokens Received Successfully!
+									Tokens Exchanged Successfully!
 								</h4>
 								<div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.5rem', fontSize: '0.875rem' }}>
 									<span style={{ fontWeight: '500' }}>Access Token:</span>
-									<span style={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>{tokens.access_token.substring(0, 20)}...</span>
+									<GeneratedUrlDisplay style={{ fontSize: '0.75rem', margin: '0', padding: '0.25rem' }}>
+										{tokens.access_token.substring(0, 30)}...
+									</GeneratedUrlDisplay>
 									<span style={{ fontWeight: '500' }}>ID Token:</span>
-									<span style={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>{tokens.id_token.substring(0, 20)}...</span>
+									<GeneratedUrlDisplay style={{ fontSize: '0.75rem', margin: '0', padding: '0.25rem' }}>
+										{tokens.id_token.substring(0, 30)}...
+									</GeneratedUrlDisplay>
 									<span style={{ fontWeight: '500' }}>Refresh Token:</span>
-									<span style={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>{tokens.refresh_token}</span>
+									<GeneratedUrlDisplay style={{ fontSize: '0.75rem', margin: '0', padding: '0.25rem' }}>
+										{tokens.refresh_token}
+									</GeneratedUrlDisplay>
 									<span style={{ fontWeight: '500' }}>Expires In:</span>
-									<span style={{ fontFamily: 'monospace' }}>{tokens.expires_in} seconds</span>
+									<span style={{ fontFamily: 'monospace', color: '#065f46' }}>{tokens.expires_in} seconds</span>
 								</div>
-							</InfoBox>
+								<div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+									<Button
+										onClick={() => handleCopy(tokens.access_token, "Access token")}
+										variant="primary"
+										size="sm"
+									>
+										<FiCopy style={{ marginRight: '0.5rem' }} />
+										Copy Access Token
+									</Button>
+									<Button
+										onClick={() => handleCopy(tokens.id_token, "ID token")}
+										variant="primary"
+										size="sm"
+									>
+										<FiCopy style={{ marginRight: '0.5rem' }} />
+										Copy ID Token
+									</Button>
+								</div>
+							</GeneratedContentBox>
 						)}
 					</div>
 				);
@@ -1005,22 +1112,40 @@ const AuthorizationCodeFlowV4 = () => {
 						</div>
 
 						{userInfo && (
-							<InfoBox type="success">
+							<GeneratedContentBox>
 								<h4 style={{ fontWeight: '600', marginBottom: '1rem', color: '#065f46', display: 'flex', alignItems: 'center' }}>
 									<FiCheckCircle style={{ marginRight: '0.5rem' }} />
-									User Information Retrieved
+									User Information Retrieved Successfully!
 								</h4>
 								<div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.5rem', fontSize: '0.875rem' }}>
 									<span style={{ fontWeight: '500' }}>Subject:</span>
-									<span style={{ fontFamily: 'monospace' }}>{userInfo.sub}</span>
+									<GeneratedUrlDisplay style={{ fontSize: '0.75rem', margin: '0', padding: '0.25rem' }}>
+										{userInfo.sub}
+									</GeneratedUrlDisplay>
 									<span style={{ fontWeight: '500' }}>Name:</span>
-									<span style={{ fontFamily: 'monospace' }}>{userInfo.name}</span>
+									<GeneratedUrlDisplay style={{ fontSize: '0.75rem', margin: '0', padding: '0.25rem' }}>
+										{userInfo.name}
+									</GeneratedUrlDisplay>
 									<span style={{ fontWeight: '500' }}>Email:</span>
-									<span style={{ fontFamily: 'monospace' }}>{userInfo.email}</span>
+									<GeneratedUrlDisplay style={{ fontSize: '0.75rem', margin: '0', padding: '0.25rem' }}>
+										{userInfo.email}
+									</GeneratedUrlDisplay>
 									<span style={{ fontWeight: '500' }}>Username:</span>
-									<span style={{ fontFamily: 'monospace' }}>{userInfo.preferred_username}</span>
+									<GeneratedUrlDisplay style={{ fontSize: '0.75rem', margin: '0', padding: '0.25rem' }}>
+										{userInfo.preferred_username}
+									</GeneratedUrlDisplay>
 								</div>
-							</InfoBox>
+								<div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+									<Button
+										onClick={() => handleCopy(JSON.stringify(userInfo, null, 2), "User information")}
+										variant="primary"
+										size="sm"
+									>
+										<FiCopy style={{ marginRight: '0.5rem' }} />
+										Copy User Info
+									</Button>
+								</div>
+							</GeneratedContentBox>
 						)}
 					</div>
 				);
