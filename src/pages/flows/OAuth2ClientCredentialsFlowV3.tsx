@@ -358,11 +358,17 @@ const OAuth2ClientCredentialsFlowV3: React.FC = () => {
 	}, []);
 
 	const sanitizeScopes = useCallback((rawScopes: string) => {
-		return rawScopes
+		const cleanedScopes = rawScopes
 			.split(/[\s,]+/)
 			.map((scope) => scope.trim())
-			.filter(Boolean)
-			.join(" ");
+			.filter(Boolean);
+		
+		// Ensure openid scope is always included for OIDC Client Credentials
+		if (!cleanedScopes.includes("openid")) {
+			cleanedScopes.unshift("openid");
+		}
+		
+		return cleanedScopes.join(" ");
 	}, []);
 
 	// Request token
@@ -421,6 +427,14 @@ const OAuth2ClientCredentialsFlowV3: React.FC = () => {
 					" [OAuth2ClientCredentialsV3] Adding sanitized scope to request:",
 					sanitizedScopes,
 				);
+				
+				// Show warning if openid scope was automatically added
+				if (!credentials.scopes?.includes("openid") && sanitizedScopes.includes("openid")) {
+					showGlobalWarning(
+						"OpenID scope added",
+						"The 'openid' scope has been automatically added as required by PingOne for OIDC Client Credentials flow.",
+					);
+				}
 			} else if (credentials.scopes && credentials.scopes.trim()) {
 				showGlobalWarning(
 					"Scopes removed",
