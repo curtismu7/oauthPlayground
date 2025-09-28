@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth Educational Flow - Step-by-Step Learning</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .step-page {
+            min-height: 100vh;
+            background: #f8fafc;
+        }
+        
+        .educational-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .step-header {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            padding: 2rem;
+        }
+        
+        .step-content {
+            padding: 2rem;
+        }
+        
+        .explanation-section {
+            background: #f1f5f9;
+            border-left: 4px solid #3b82f6;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+        
+        .highlight-box {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .warning-box {
+            background: #fee2e2;
+            border: 1px solid #ef4444;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .success-box {
+            background: #d1fae5;
+            border: 1px solid #10b981;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .info-box {
+            background: #dbeafe;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .step-navigation {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border-radius: 50px;
+            padding: 1rem 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .step-indicator {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .step-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        
+        .step-dot.active {
+            background: #3b82f6;
+            transform: scale(1.2);
+        }
+        
+        .step-dot.completed {
+            background: #10b981;
+        }
+        
+        .interactive-demo {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+        
+        .url-display {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.875rem;
+            word-break: break-all;
+            margin: 1rem 0;
+        }
+        
+        .token-display {
+            background: #1e293b;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            margin: 1rem 0;
+        }
+        
+        .parameter-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        
+        .parameter-table th,
+        .parameter-table td {
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        
+        .parameter-table th {
+            background: #f9fafb;
+            font-weight: 600;
+        }
+        
+        .parameter-table .required {
+            color: #ef4444;
+            font-weight: 600;
+        }
+        
+        .parameter-table .optional {
+            color: #6b7280;
+        }
+        
+        .flow-diagram {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .flow-step {
+            display: flex;
+            align-items: center;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .flow-step-number {
+            background: #3b82f6;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 1rem;
+        }
+        
+        .copy-button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .copy-button:hover {
+            background: #2563eb;
+        }
+        
+        .copy-button.copied {
+            background: #10b981;
+        }
+        
+        .quiz-section {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .quiz-question {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #92400e;
+        }
+        
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .quiz-option {
+            padding: 0.75rem;
+            border: 2px solid #f59e0b;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .quiz-option:hover {
+            background: #fbbf24;
+        }
+        
+        .quiz-option.selected {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .quiz-option.correct {
+            background: #10b981;
+            border-color: #10b981;
+            color: white;
+        }
+        
+        .quiz-option.incorrect {
+            background: #ef4444;
+            border-color: #ef4444;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Step 1: Introduction & Setup -->
+    <div class="step-page" id="step-1">
+        <div class="max-w-4xl mx-auto p-6">
+            <div class="educational-card">
+                <div class="step-header">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-3xl font-bold mb-2">Step 1: Introduction & Setup</h1>
+                            <p class="text-blue-100">Understanding OAuth 2.0 Authorization Code Flow</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-4xl font-bold">01</div>
+                            <div class="text-sm text-blue-100">of 07</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="step-content">
+                    <div class="explanation-section">
+                        <h3 class="text-xl font-semibold mb-3 flex items-center">
+                            <i class="fas fa-graduation-cap mr-2"></i>
+                            What is the Authorization Code Flow?
+                        </h3>
+                        <p class="text-gray-700 mb-4">
+                            The Authorization Code Flow is the most secure OAuth 2.0 flow for web applications. 
+                            It's designed for applications that can securely store a client secret and can 
+                            make server-to-server requests.
+                        </p>
+                        
+                        <div class="info-box">
+                            <h4 class="font-semibold mb-2 flex items-center">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                Key Benefits:
+                            </h4>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>Most secure OAuth flow</li>
+                                <li>Client secret never exposed to user agent</li>
+                                <li>Supports PKCE for additional security</li>
+                                <li>Can obtain refresh tokens for long-lived access</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="flow-diagram">
+                        <h3 class="text-lg font-semibold mb-4">Authorization Code Flow Overview</h3>
+                        <div class="flow-step">
+                            <div class="flow-step-number">1</div>
+                            <div>
+                                <strong>User clicks "Login"</strong>
+                                <p class="text-sm text-gray-600">User initiates authentication process</p>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="flow-step-number">2</div>
+                            <div>
+                                <strong>Redirect to Authorization Server</strong>
+                                <p class="text-sm text-gray-600">User is redirected to PingOne with authorization request</p>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="flow-step-number">3</div>
+                            <div>
+                                <strong>User Authenticates</strong>
+                                <p class="text-sm text-gray-600">User logs in and grants permissions</p>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="flow-step-number">4</div>
+                            <div>
+                                <strong>Authorization Code Returned</strong>
+                                <p class="text-sm text-gray-600">Server returns code to your application</p>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="flow-step-number">5</div>
+                            <div>
+                                <strong>Exchange Code for Tokens</strong>
+                                <p class="text-sm text-gray-600">Your server exchanges code for access token</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="quiz-section">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center">
+                            <i class="fas fa-question-circle mr-2"></i>
+                            Knowledge Check
+                        </h3>
+                        <div class="quiz-question">
+                            Why is the Authorization Code Flow considered the most secure OAuth flow?
+                        </div>
+                        <div class="quiz-options">
+                            <div class="quiz-option" onclick="selectAnswer(this, false)">
+                                Because it's the fastest
+                            </div>
+                            <div class="quiz-option" onclick="selectAnswer(this, true)">
+                                Because the client secret is never exposed to the user agent
+                            </div>
+                            <div class="quiz-option" onclick="selectAnswer(this, false)">
+                                Because it doesn't require a redirect URI
+                            </div>
+                            <div class="quiz-option" onclick="selectAnswer(this, false)">
+                                Because it works without HTTPS
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="interactive-demo">
+                        <h3 class="text-lg font-semibold mb-4">Let's Start Your Configuration</h3>
+                        <p class="text-gray-600 mb-4">
+                            First, we need to configure your PingOne application settings. 
+                            This information will be used throughout the flow.
+                        </p>
+                        
+                        <div class="bg-white p-6 rounded-lg border">
+                            <h4 class="font-semibold mb-4">PingOne Application Configuration</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Environment ID</label>
+                                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md" 
+                                           placeholder="b9817c16-9910-4415-b67e-4ac687da74d9">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Client ID</label>
+                                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md" 
+                                           placeholder="a4f963ea-0736-456a-be72-b1fa4f63f81f">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Client Secret</label>
+                                    <input type="password" class="w-full px-3 py-2 border border-gray-300 rounded-md" 
+                                           placeholder="Your client secret">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Redirect URI</label>
+                                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md" 
+                                           placeholder="https://localhost:3000/authz-callback">
+                                </div>
+                            </div>
+                            <button class="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                                Save Configuration
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 2: Flow Configuration -->
+    <div class="step-page hidden" id="step-2">
+        <div class="max-w-4xl mx-auto p-6">
+            <div class="educational-card">
+                <div class="step-header">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-3xl font-bold mb-2">Step 2: Flow Configuration</h1>
+                            <p class="text-blue-100">Setting up OAuth parameters and security settings</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-4xl font-bold">02</div>
+                            <div class="text-sm text-blue-100">of 07</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="step-content">
+                    <div class="explanation-section">
+                        <h3 class="text-xl font-semibold mb-3 flex items-center">
+                            <i class="fas fa-cogs mr-2"></i>
+                            Understanding OAuth Parameters
+                        </h3>
+                        <p class="text-gray-700 mb-4">
+                            Before we can start the authorization flow, we need to configure several parameters 
+                            that define how the authentication will work. Each parameter has a specific purpose 
+                            in the OAuth 2.0 specification.
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg border mb-6">
+                        <h4 class="text-lg font-semibold mb-4">Required OAuth Parameters</h4>
+                        <table class="parameter-table">
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Description</th>
+                                    <th>Example Value</th>
+                                    <th>Required</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>response_type</code></td>
+                                    <td>Type of response expected from authorization server</td>
+                                    <td><code>code</code></td>
+                                    <td><span class="required">Required</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>client_id</code></td>
+                                    <td>Public identifier for your application</td>
+                                    <td><code>a4f963ea-0736-456a-be72-b1fa4f63f81f</code></td>
+                                    <td><span class="required">Required</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>redirect_uri</code></td>
+                                    <td>Where to send user after authorization</td>
+                                    <td><code>https://localhost:3000/authz-callback</code></td>
+                                    <td><span class="required">Required</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>scope</code></td>
+                                    <td>Permissions requested from user</td>
+                                    <td><code>openid profile email</code></td>
+                                    <td><span class="optional">Optional</span></td>
+                                </tr>
+                                <tr>
+                                    <td><code>state</code></td>
+                                    <td>Random value to prevent CSRF attacks</td>
+                                    <td><code>61BhuYluNjap2L5DgDnBMw4rptbIYek9</code></td>
+                                    <td><span class="optional">Optional</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="highlight-box">
+                        <h4 class="font-semibold mb-2 flex items-center">
+                            <i class="fas fa-lightbulb mr-2"></i>
+                            Pro Tip: Understanding Scopes
+                        </h4>
+                        <p class="text-gray-700">
+                            Scopes define what permissions your application is requesting. In OpenID Connect, 
+                            <code>openid</code> is always required. Common scopes include:
+                        </p>
+                        <ul class="list-disc list-inside mt-2 space-y-1">
+                            <li><strong>openid</strong> - Required for OpenID Connect</li>
+                            <li><strong>profile</strong> - Access to basic profile information</li>
+                            <li><strong>email</strong> - Access to email address</li>
+                            <li><strong>offline_access</strong> - Ability to get refresh tokens</li>
+                        </ul>
+                    </div>
+
+                    <div class="interactive-demo">
+                        <h3 class="text-lg font-semibold mb-4">Configure Your Flow Parameters</h3>
+                        
+                        <div class="bg-white p-6 rounded-lg border">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h5 class="font-medium mb-3">Response Type</h5>
+                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                        <option value="code">code (Authorization Code)</option>
+                                        <option value="token">token (Implicit)</option>
+                                        <option value="id_token">id_token (OIDC)</option>
+                                    </select>
+                                    <p class="text-sm text-gray-600 mt-1">For Authorization Code Flow, use "code"</p>
+                                </div>
+                                
+                                <div>
+                                    <h5 class="font-medium mb-3">Grant Type</h5>
+                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                        <option value="authorization_code">authorization_code</option>
+                                        <option value="implicit">implicit</option>
+                                        <option value="client_credentials">client_credentials</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6">
+                                <h5 class="font-medium mb-3">OAuth Scopes</h5>
+                                <div class="flex flex-wrap gap-2">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" checked class="mr-2">
+                                        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">openid</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" checked class="mr-2">
+                                        <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">profile</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" checked class="mr-2">
+                                        <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">email</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="mr-2">
+                                        <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">address</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="mr-2">
+                                        <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">offline_access</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <h5 class="font-medium mb-2">State Parameter</h5>
+                                    <div class="flex gap-2">
+                                        <input type="text" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" 
+                                               value="61BhuYluNjap2L5DgDnBMw4rptbIYek9">
+                                        <button class="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                            <i class="fas fa-sync"></i>
+                                        </button>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-1">Random string for CSRF protection</p>
+                                </div>
+                                
+                                <div>
+                                    <h5 class="font-medium mb-2">Nonce (OIDC)</h5>
+                                    <div class="flex gap-2">
+                                        <input type="text" class="flex-1 px-3 py-2 border border-gray-300 rounded-md" 
+                                               value="QMpXqCIKeXt3IZzjqrXJGLEFjXjxlorT">
+                                        <button class="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                            <i class="fas fa-sync"></i>
+                                        </button>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-1">Random string for replay protection</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 3: PKCE Implementation -->
+    <div class="step-page hidden" id="step-3">
+        <div class="max-w-4xl mx-auto p-6">
+            <div class="educational-card">
+                <div class="step-header">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-3xl font-bold mb-2">Step 3: PKCE Implementation</h1>
+                            <p class="text-blue-100">Proof Key for Code Exchange - Enhanced Security</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-4xl font-bold">03</div>
+                            <div class="text-sm text-blue-100">of 07</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="step-content">
+                    <div class="explanation-section">
+                        <h3 class="text-xl font-semibold mb-3 flex items-center">
+                            <i class="fas fa-shield-alt mr-2"></i>
+                            What is PKCE?
+                        </h3>
+                        <p class="text-gray-700 mb-4">
+                            PKCE (Proof Key for Code Exchange) is a security extension to OAuth 2.0 that provides 
+                            additional protection for public clients and mobile applications. It prevents 
+                            authorization code interception attacks.
+                        </p>
+                        
+                        <div class="info-box">
+                            <h4 class="font-semibold mb-2">PKCE Flow:</h4>
+                            <ol class="list-decimal list-inside space-y-1">
+                                <li>Client generates a random <code>code_verifier</code></li>
+                                <li>Client creates a <code>code_challenge</code> from the verifier</li>
+                                <li>Client sends challenge with authorization request</li>
+                                <li>Client sends verifier when exchanging code for token</li>
+                                <li>Server verifies the challenge matches the verifier</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <div class="interactive-demo">
+                        <h3 class="text-lg font-semibold mb-4">Generate PKCE Parameters</h3>
+                        
+                        <div class="bg-white p-6 rounded-lg border">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h5 class="font-medium mb-3">Code Verifier</h5>
+                                    <div class="code-block mb-2">
+                                        7a2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6
+                                    </div>
+                                    <button class="copy-button" onclick="copyToClipboard(this, '7a2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6')">
+                                        <i class="fas fa-copy mr-1"></i>
+                                        Copy Verifier
+                                    </button>
+                                    <p class="text-sm text-gray-600 mt-2">
+                                        Random string, 43-128 characters, URL-safe
+                                    </p>
+                                </div>
+                                
+                                <div>
+                                    <h5 class="font-medium mb-3">Code Challenge</h5>
+                                    <div class="code-block mb-2">
+                                        E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM
+                                    </div>
+                                    <button class="copy-button" onclick="copyToClipboard(this, 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM')">
+                                        <i class="fas fa-copy mr-1"></i>
+                                        Copy Challenge
+                                    </button>
+                                    <p class="text-sm text-gray-600 mt-2">
+                                        SHA256 hash of verifier, base64url encoded
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6">
+                                <h5 class="font-medium mb-3">Challenge Method</h5>
+                                <select class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                    <option value="S256">S256 (SHA256)</option>
+                                    <option value="plain">plain</option>
+                                </select>
+                                <p class="text-sm text-gray-600 mt-1">
+                                    S256 is recommended for better security
+                                </p>
+                            </div>
+                            
+                            <button class="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                                <i class="fas fa-sync mr-2"></i>
+                                Generate New PKCE Parameters
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4 class="font-semibold mb-2 flex items-center">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            Security Considerations
+                        </h4>
+                        <ul class="list-disc list-inside space-y-1">
+                            <li>Always use S256 challenge method when possible</li>
+                            <li>Store code_verifier securely (never in URL parameters)</li>
+                            <li>Use cryptographically secure random generators</li>
+                            <li>PKCE is especially important for mobile and SPA applications</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 4: Authorization URL Generation -->
+    <div class="step-page hidden" id="step-4">
+        <div class="max-w-4xl mx-auto p-6">
+            <div class="educational-card">
+                <div class="step-header">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-3xl font-bold mb-2">Step 4: Authorization URL</h1>
+                            <p class="text-blue-100">Building the authorization request URL</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-4xl font-bold">04</div>
+                            <div class="text-sm text-blue-100">of 07</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="step-content">
+                    <div class="explanation-section">
+                        <h3 class="text-xl font-semibold mb-3 flex items-center">
+                            <i class="fas fa-link mr-2"></i>
+                            Building the Authorization URL
+                        </h3>
+                        <p class="text-gray-700 mb-4">
+                            The authorization URL is the starting point of the OAuth flow. It contains all the 
+                            parameters we configured in the previous steps and tells the authorization server 
+                            what permissions we're requesting.
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg border mb-6">
+                        <h4 class="text-lg font-semibold mb-4">Authorization URL Components</h4>
+                        <div class="url-display">
+                            https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/authorize
+                            <span style="color: #3b82f6;">?</span>
+                            response_type
+                            <span style="color: #ef4444;">=</span>
+                            <span style="color: #10b981;">code</span>
+                            <span style="color: #3b82f6;">&</span>
+                            client_id
+                            <span style="color: #ef4444;">=</span>
+                            <span style="color: #10b981;">a4f963ea-0736-456a-be72-b1fa4f63f81f</span>
+                            <span style="color: #3b82f6;">&</span>
+                            redirect_uri
+                            <span style="color: #ef4444;">=</span>
+                            <span style="color: #10b981;">https%3A//localhost%3A3000/authz-callback</span>
+                            <span style="color: #3b82f6;">&</span>
+                            scope
+                            <span style="color: #ef4444;">=</span>
+                            <span style="color: #10b981;">openid%20profile%20email</span>
+                            <span style="color: #3b82f6;">&</span>
+                            state
+                            <span style="color: #ef4444;">=</span>
+                            <span style="color: #10b981;">61BhuYluNjap2L5DgDnBMw4rptbIYek9</span>
+                            <span style="color: #3b82f6;">&</span>
+                            nonce
+                            <span style="color: #ef4444;">=</span>
+                            <span style="color: #10b981;">QMpXqCIKeXt3IZzjqrXJGLEFjXjxlorT</span>
+                            <span style="color: #3b82f6;">&</span>
+                            code_challenge
+                            <span style="color: #ef4444;">=</span>
+                            <span style="color: #10b981;">E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM</span>
+                            <span style="color: #3b82f6;">&</span>
+                            code_challenge_method
+                            <span style="color: #ef4444;">=</span>
+                            <span style="color: #10b981;">S256</span>
+                        </div>
+                        
+                        <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="text-center">
+                                <div class="w-4 h-4 bg-blue-600 rounded inline-block mr-2"></div>
+                                <span class="text-sm">URL Separators</span>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-4 h-4 bg-red-600 rounded inline-block mr-2"></div>
+                                <span class="text-sm">Parameter Names</span>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-4 h-4 bg-green-600 rounded inline-block mr-2"></div>
+                                <span class="text-sm">Parameter Values</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="interactive-demo">
+                        <h3 class="text-lg font-semibold mb-4">Your Generated Authorization URL</h3>
+                        
+                        <div class="bg-white p-6 rounded-lg border">
+                            <div class="url-display mb-4">
+                                https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/authorize?response_type=code&client_id=a4f963ea-0736-456a-be72-b1fa4f63f81f&redirect_uri=https%3A//localhost%3A3000/authz-callback&scope=openid%20profile%20email&state=61BhuYluNjap2L5DgDnBMw4rptbIYek9&nonce=QMpXqCIKeXt3IZzjqrXJGLEFjXjxlorT&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256
+                            </div>
+                            
+                            <div class="flex gap-3">
+                                <button class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                                    <i class="fas fa-external-link-alt mr-2"></i>
+                                    Open Authorization URL
+                                </button>
+                                <button class="flex-1 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
+                                    <i class="fas fa-copy mr-2"></i>
+                                    Copy URL
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="success-box">
+                        <h4 class="font-semibold mb-2 flex items-center">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            What Happens Next?
+                        </h4>
+                        <p class="text-gray-700">
+                            When you click the authorization URL, the user will be redirected to PingOne where they'll:
+                        </p>
+                        <ol class="list-decimal list-inside mt-2 space-y-1">
+                            <li>See your application requesting permission</li>
+                            <li>Log in with their credentials</li>
+                            <li>Review and approve the requested scopes</li>
+                            <li>Be redirected back to your application with an authorization code</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step Navigation -->
+    <div class="step-navigation">
+        <div class="step-indicator">
+            <div class="step-dot completed"></div>
+            <div class="step-dot completed"></div>
+            <div class="step-dot completed"></div>
+            <div class="step-dot active"></div>
+            <div class="step-dot"></div>
+            <div class="step-dot"></div>
+            <div class="step-dot"></div>
+        </div>
+        <div class="flex gap-2">
+            <button class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400" onclick="previousStep()">
+                <i class="fas fa-chevron-left mr-1"></i>
+                Previous
+            </button>
+            <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" onclick="nextStep()">
+                Next
+                <i class="fas fa-chevron-right ml-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 7;
+
+        function showStep(stepNumber) {
+            // Hide all steps
+            document.querySelectorAll('.step-page').forEach(page => {
+                page.classList.add('hidden');
+            });
+            
+            // Show current step
+            document.getElementById(`step-${stepNumber}`).classList.remove('hidden');
+            
+            // Update navigation dots
+            document.querySelectorAll('.step-dot').forEach((dot, index) => {
+                dot.classList.remove('active', 'completed');
+                if (index + 1 < stepNumber) {
+                    dot.classList.add('completed');
+                } else if (index + 1 === stepNumber) {
+                    dot.classList.add('active');
+                }
+            });
+            
+            currentStep = stepNumber;
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                showStep(currentStep + 1);
+            }
+        }
+
+        function previousStep() {
+            if (currentStep > 1) {
+                showStep(currentStep - 1);
+            }
+        }
+
+        function selectAnswer(element, isCorrect) {
+            // Remove previous selections
+            element.parentElement.querySelectorAll('.quiz-option').forEach(option => {
+                option.classList.remove('selected', 'correct', 'incorrect');
+            });
+            
+            // Mark selected
+            element.classList.add('selected');
+            
+            // Show result after delay
+            setTimeout(() => {
+                element.classList.remove('selected');
+                if (isCorrect) {
+                    element.classList.add('correct');
+                } else {
+                    element.classList.add('incorrect');
+                    // Find and highlight correct answer
+                    element.parentElement.querySelectorAll('.quiz-option').forEach(option => {
+                        if (option.onclick.toString().includes('true')) {
+                            option.classList.add('correct');
+                        }
+                    });
+                }
+            }, 500);
+        }
+
+        function copyToClipboard(button, text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check mr-1"></i>Copied!';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        // Initialize
+        showStep(1);
+    </script>
+</body>
+</html>

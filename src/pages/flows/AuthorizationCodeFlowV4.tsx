@@ -1,8 +1,7 @@
-// src/pages/flows/AuthorizationCodeFlowV4.tsx - Educational Authorization Code Flow V4
+// src/pages/flows/AuthorizationCodeFlowV4.tsx - Enhanced Educational Authorization Code Flow V4
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-	FiCheckCircle,
 	FiChevronLeft,
 	FiChevronRight,
 	FiCopy,
@@ -12,41 +11,32 @@ import {
 	FiSettings,
 	FiShield,
 	FiUser,
+	FiLoader,
 } from "react-icons/fi";
 import styled from "styled-components";
-import AuthorizationRequestModal from "../../components/AuthorizationRequestModal";
-import EnhancedStepFlowV2 from "../../components/EnhancedStepFlowV2";
 import {
 	FormField,
 	FormInput,
 	FormLabel,
-	InfoBox,
 } from "../../components/steps/CommonSteps";
 import TokenDisplay from "../../components/TokenDisplay";
-import { useAuth } from "../../contexts/NewAuthContext";
 import {
 	showGlobalError,
 	showGlobalSuccess,
-	showGlobalWarning,
 } from "../../hooks/useNotifications";
-import { getCallbackUrlForFlow } from "../../utils/callbackUrls";
-import {
-	type ClientAuthConfig,
-	type ClientAuthMethod,
-	applyClientAuthentication,
-	getAuthMethodSecurityLevel,
-} from "../../utils/clientAuthentication";
 import { copyToClipboard } from "../../utils/clipboard";
 import { credentialManager } from "../../utils/credentialManager";
-import { enhancedDebugger } from "../../utils/enhancedDebug";
 import { useFlowStepManager } from "../../utils/flowStepSystem";
 import {
 	generateCodeChallenge,
 	generateCodeVerifier,
-	validateIdToken,
 } from "../../utils/oauth";
-import { logger } from "../../utils/logger";
 import { storeOAuthTokens } from "../../utils/tokenStorage";
+import { StepCredentials as V4StepCredentials } from "../../types/v4FlowTemplate";
+import { v4ApiClient } from "../../utils/v4ApiClient";
+import { createSaveHandler } from "../../utils/v4SaveHandler";
+import { v4ButtonStates } from "../../utils/v4ButtonStates";
+import { v4ToastManager } from "../../utils/v4ToastMessages";
 
 // Types
 interface StepCredentials {
@@ -55,22 +45,13 @@ interface StepCredentials {
 	clientSecret: string;
 	redirectUri: string;
 	scopes: string;
-	authMethod: ClientAuthMethod;
+	authMethod: string;
 }
 
 interface PKCECodes {
 	codeVerifier: string;
 	codeChallenge: string;
 	codeChallengeMethod: string;
-}
-
-interface FlowStep {
-	id: string;
-	title: string;
-	description: string;
-	component: React.ReactNode;
-	completed: boolean;
-	active: boolean;
 }
 
 // Styled Components
@@ -221,7 +202,7 @@ const CodeBlock = styled.div`
 	margin: 1rem 0;
 `;
 
-const InfoBox = styled.div`
+const InfoBoxStyled = styled.div`
 	background: #dbeafe;
 	border: 1px solid #3b82f6;
 	border-radius: 8px;
@@ -301,16 +282,15 @@ const UrlDisplay = styled.div`
 
 // Main Component
 const AuthorizationCodeFlowV4: React.FC = () => {
-	const authContext = useAuth();
-	const { config } = authContext;
-
-	const stepManager = useFlowStepManager({
+	// Initialize step manager for potential future use
+	useFlowStepManager({
 		flowType: "authz-code-v4",
 		persistKey: "authz_code_v4_step_manager",
 		defaultStep: 0,
 		enableAutoAdvance: false,
 	});
 
+	// Enhanced state management
 	const [credentials, setCredentials] = useState<StepCredentials>({
 		environmentId: "",
 		clientId: "",
@@ -330,9 +310,13 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 	const [authCode, setAuthCode] = useState<string>("");
 	const [tokens, setTokens] = useState<any>(null);
 	const [userInfo, setUserInfo] = useState<any>(null);
-	const [isExchangingTokens, setIsExchangingTokens] = useState(false);
 	const [currentStep, setCurrentStep] = useState(0);
 	const [quizAnswers, setQuizAnswers] = useState<{ [key: string]: any }>({});
+
+	// Enhanced managers
+	const saveHandler = useMemo(() => createSaveHandler("authz-code-v4"), []);
+	const buttonStates = useMemo(() => v4ButtonStates, []);
+	const toastManager = useMemo(() => v4ToastManager, []);
 
 	const totalSteps = 7;
 
@@ -365,7 +349,17 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 			try {
 				const savedCredentials = credentialManager.loadFlowCredentials("authz-code-v4");
 				if (savedCredentials) {
-					setCredentials(savedCredentials);
+					// Convert to local StepCredentials format
+					setCredentials({
+						environmentId: savedCredentials.environmentId || "",
+						clientId: savedCredentials.clientId || "",
+						clientSecret: savedCredentials.clientSecret || "",
+						redirectUri: savedCredentials.redirectUri || "https://localhost:3000/authz-callback",
+						scopes: Array.isArray(savedCredentials.scopes) 
+							? savedCredentials.scopes.join(' ') 
+							: savedCredentials.scopes || "openid profile email",
+						authMethod: "client_secret_post", // Default value
+					});
 				}
 			} catch (error) {
 				console.error("Failed to load credentials:", error);
@@ -375,31 +369,59 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 		loadCredentials();
 	}, []);
 
-	// Save credentials
+	// Initialize navigation button states
+	useEffect(() => {
+		buttonStates.updateNavigationForStep(currentStep, totalSteps);
+	}, [currentStep, totalSteps, buttonStates]);
+
+	// Enhanced save credentials with validation and loading states
 	const saveCredentials = useCallback(async () => {
 		try {
-			// Validate required fields
-			if (!credentials.environmentId || !credentials.clientId) {
-				showGlobalError("Environment ID and Client ID are required");
-				return;
+			// Set loading state
+			buttonStates.setLoading('saveConfiguration', true);
+			toastManager.showSaveStart();
+
+			// Convert to V4 format for save handler
+			const v4Credentials: V4StepCredentials = {
+				environmentId: credentials.environmentId,
+				clientId: credentials.clientId,
+				clientSecret: credentials.clientSecret,
+				redirectUri: credentials.redirectUri,
+				scopes: credentials.scopes,
+				authMethod: {
+					value: credentials.authMethod,
+					label: credentials.authMethod.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+					description: `Client authentication using ${credentials.authMethod}`,
+					securityLevel: 'medium' as const
+				}
+			};
+
+			// Save using enhanced handler
+			const result = await saveHandler.saveConfiguration(v4Credentials);
+
+			if (result.success) {
+				saveHandler.handleSaveSuccess(result);
+			} else {
+				saveHandler.handleSaveError(new Error(result.message));
 			}
-			
-			credentialManager.saveFlowCredentials("authz-code-v4", credentials);
-			showGlobalSuccess("Credentials saved successfully");
 		} catch (error) {
 			console.error("Failed to save credentials:", error);
-			showGlobalError("Failed to save credentials");
+			saveHandler.handleSaveError(error as Error);
+		} finally {
+			buttonStates.setLoading('saveConfiguration', false);
 		}
-	}, [credentials]);
+	}, [credentials, saveHandler, buttonStates, toastManager]);
 
-	// Generate authorization URL
+	// Enhanced generate authorization URL with loading states
 	const generateAuthorizationUrl = useCallback(() => {
 		if (!credentials.environmentId || !credentials.clientId) {
-			showGlobalError("Environment ID and Client ID are required");
+			toastManager.showError('authUrlGenerationError', { error: 'Environment ID and Client ID are required' });
 			return;
 		}
 
 		try {
+			buttonStates.setLoading('generateAuthUrl', true);
+
 			const baseUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
 			const params = new URLSearchParams({
 				response_type: "code",
@@ -414,23 +436,30 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 
 			const url = `${baseUrl}?${params.toString()}`;
 			setAuthUrl(url);
-			showGlobalSuccess("Authorization URL generated successfully");
+			
+			// Update button states
+			buttonStates.updateGenerateAuthUrl({ hasUrl: true });
+			toastManager.showAuthUrlGenerated();
 		} catch (error) {
 			console.error("Failed to generate authorization URL:", error);
-			showGlobalError("Failed to generate authorization URL");
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			toastManager.showAuthUrlError(errorMessage);
+		} finally {
+			buttonStates.setLoading('generateAuthUrl', false);
 		}
-	}, [credentials, pkceCodes]);
+	}, [credentials, pkceCodes, buttonStates, toastManager]);
 
-	// Exchange authorization code for tokens
+	// Enhanced token exchange with better error handling
 	const exchangeTokens = useCallback(async () => {
 		if (!authCode || !credentials.environmentId || !credentials.clientId) {
-			showGlobalError("Authorization code and credentials are required");
+			toastManager.showError('tokenExchangeError', { error: 'Authorization code and credentials are required' });
 			return;
 		}
 
-		setIsExchangingTokens(true);
-		
 		try {
+			buttonStates.setLoading('exchangeTokens', true);
+			toastManager.showTokenExchangeStart();
+
 			const requestBody = {
 				grant_type: "authorization_code",
 				code: authCode,
@@ -438,6 +467,7 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 				client_id: credentials.clientId,
 				client_secret: credentials.clientSecret,
 				code_verifier: pkceCodes.codeVerifier,
+				environment_id: credentials.environmentId,
 			};
 
 			console.log("Exchanging authorization code for tokens...", {
@@ -447,70 +477,63 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 				hasCodeVerifier: !!pkceCodes.codeVerifier,
 			});
 
-			const response = await fetch("/api/token-exchange", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(requestBody),
-			});
+			// Use enhanced API client
+			const result = await v4ApiClient.exchangeTokens(requestBody);
 
-			const result = await response.json();
-
-			if (response.ok && result.access_token) {
+			if (result.access_token) {
 				console.log("Token exchange successful:", result);
 				setTokens(result);
 				
 				// Store tokens
 				await storeOAuthTokens(result, "authz-code-v4");
 				
+				// Update button states
+				buttonStates.updateExchangeTokens({ hasTokens: true });
+				toastManager.showTokenExchangeSuccess();
+				
 				// For OIDC flows, fetch user info
 				if (result.id_token) {
 					try {
-						const userInfoResponse = await fetch("/api/userinfo", {
-							method: "POST",
-							headers: {
-								"Content-Type": "application/json",
-							},
-							body: JSON.stringify({
-								access_token: result.access_token,
-								environment_id: credentials.environmentId,
-							}),
+						const userInfoData = await v4ApiClient.getUserInfo({
+							access_token: result.access_token,
+							environment_id: credentials.environmentId,
 						});
-
-						if (userInfoResponse.ok) {
-							const userInfoData = await userInfoResponse.json();
-							setUserInfo(userInfoData);
-							console.log("User info fetched successfully:", userInfoData);
-						}
+						
+						setUserInfo(userInfoData);
+						toastManager.showUserInfoFetched();
+						console.log("User info fetched successfully:", userInfoData);
 					} catch (userInfoError) {
 						console.warn("Failed to fetch user info:", userInfoError);
+						toastManager.showUserInfoError(userInfoError instanceof Error ? userInfoError.message : 'Unknown error');
 					}
 				}
-				
-				showGlobalSuccess("Tokens exchanged successfully");
 			} else {
-				throw new Error(result.error_description || result.error || "Token exchange failed");
+				throw new Error("No access token received from server");
 			}
 		} catch (error) {
 			console.error("Token exchange failed:", error);
-			showGlobalError(`Token exchange failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			toastManager.showTokenExchangeError(errorMessage);
 		} finally {
-			setIsExchangingTokens(false);
+			buttonStates.setLoading('exchangeTokens', false);
 		}
-	}, [authCode, credentials, pkceCodes]);
+	}, [authCode, credentials, pkceCodes, buttonStates, toastManager]);
 
-	// Copy to clipboard
+	// Enhanced copy to clipboard with loading states
 	const handleCopy = useCallback(async (text: string, label: string) => {
 		try {
+			buttonStates.setLoading('copyToClipboard', true);
 			await copyToClipboard(text);
-			showGlobalSuccess(`${label} copied to clipboard`);
+			toastManager.showCopySuccess(label);
 		} catch (error) {
-			showGlobalError(`Failed to copy ${label.toLowerCase()}`);
+			console.error(`Failed to copy ${label}:`, error);
+			toastManager.showCopyError(label);
+		} finally {
+			buttonStates.setLoading('copyToClipboard', false);
 		}
-	}, []);
+	}, [buttonStates, toastManager]);
 
-	// Quiz handling
+	// Enhanced quiz handling with toast feedback
 	const handleQuizAnswer = useCallback((stepId: string, answer: any, isCorrect: boolean) => {
 		setQuizAnswers(prev => ({
 			...prev,
@@ -518,32 +541,39 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 		}));
 		
 		if (isCorrect) {
-			showGlobalSuccess("Correct answer!");
+			toastManager.showQuizCorrect();
 		} else {
-			showGlobalWarning("Incorrect. Try again!");
+			toastManager.showQuizIncorrect();
 		}
-	}, []);
+	}, [toastManager]);
 
-	// Navigation
+	// Enhanced navigation with button state management
 	const nextStep = useCallback(() => {
 		if (currentStep < totalSteps - 1) {
 			const newStep = currentStep + 1;
 			setCurrentStep(newStep);
 			
+			// Update navigation button states
+			buttonStates.updateNavigationForStep(newStep, totalSteps);
+			
 			// Check if reaching the final step
 			if (newStep === totalSteps - 1) {
-				showGlobalSuccess("🎉 OAuth Flow Complete!");
+				toastManager.showFlowCompleted();
 			} else {
-				showGlobalSuccess("Step completed");
+				toastManager.showStepCompleted(newStep + 1);
 			}
 		}
-	}, [currentStep, totalSteps]);
+	}, [currentStep, totalSteps, buttonStates, toastManager]);
 
 	const prevStep = useCallback(() => {
 		if (currentStep > 0) {
-			setCurrentStep(currentStep - 1);
+			const newStep = currentStep - 1;
+			setCurrentStep(newStep);
+			
+			// Update navigation button states
+			buttonStates.updateNavigationForStep(newStep, totalSteps);
 		}
-	}, [currentStep]);
+	}, [currentStep, buttonStates]);
 
 	// Step components
 	const renderStepContent = useCallback((step: number) => {
@@ -562,7 +592,7 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 								make server-to-server requests.
 							</p>
 							
-							<InfoBox>
+							<InfoBoxStyled>
 								<h4 className="font-semibold mb-2">Key Benefits:</h4>
 								<ul className="list-disc list-inside space-y-1">
 									<li>Most secure OAuth flow</li>
@@ -570,7 +600,7 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 									<li>Supports PKCE for additional security</li>
 									<li>Can obtain refresh tokens for long-lived access</li>
 								</ul>
-							</InfoBox>
+							</InfoBoxStyled>
 						</EducationalSection>
 
 						<QuizSection>
@@ -637,10 +667,24 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 							</div>
 							<button
 								onClick={saveCredentials}
-								className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+								disabled={buttonStates.getStates().saveConfiguration.loading || buttonStates.getStates().saveConfiguration.disabled}
+								className={`mt-4 px-6 py-2 rounded-lg transition-all ${
+									buttonStates.getStates().saveConfiguration.loading
+										? 'bg-gray-400 cursor-not-allowed'
+										: 'bg-blue-600 hover:bg-blue-700 text-white'
+								}`}
 							>
-								<FiSettings className="mr-2 inline" />
-								Save Configuration
+								{buttonStates.getStates().saveConfiguration.loading ? (
+									<>
+										<FiLoader className="mr-2 inline animate-spin" />
+										Saving...
+									</>
+								) : (
+									<>
+										<FiSettings className="mr-2 inline" />
+										Save Configuration
+									</>
+								)}
 							</button>
 						</div>
 					</div>
@@ -737,19 +781,37 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 							<button
 								onClick={async () => {
 									try {
+										buttonStates.setLoading('generatePKCE', true);
 										const verifier = generateCodeVerifier();
 										const challenge = await generateCodeChallenge(verifier);
 										setPkceCodes({ codeVerifier: verifier, codeChallenge: challenge, codeChallengeMethod: "S256" });
-										showGlobalSuccess("PKCE parameters generated");
+										toastManager.showPKCEGenerated();
 									} catch (error) {
 										console.error("Failed to generate PKCE parameters:", error);
-										showGlobalError("Failed to generate PKCE parameters");
+										const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+										toastManager.showPKCEError(errorMessage);
+									} finally {
+										buttonStates.setLoading('generatePKCE', false);
 									}
 								}}
-								className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+								disabled={buttonStates.getStates().generatePKCE.loading || buttonStates.getStates().generatePKCE.disabled}
+								className={`mt-4 px-6 py-2 rounded-lg transition-all ${
+									buttonStates.getStates().generatePKCE.loading
+										? 'bg-gray-400 cursor-not-allowed'
+										: 'bg-blue-600 hover:bg-blue-700 text-white'
+								}`}
 							>
-								<FiRefreshCw className="mr-2 inline" />
-								Generate New PKCE Parameters
+								{buttonStates.getStates().generatePKCE.loading ? (
+									<>
+										<FiLoader className="mr-2 inline animate-spin" />
+										Generating...
+									</>
+								) : (
+									<>
+										<FiRefreshCw className="mr-2 inline" />
+										Generate New PKCE Parameters
+									</>
+								)}
 							</button>
 						</div>
 
@@ -789,22 +851,37 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 											onClick={() => {
 												try {
 													window.open(authUrl, '_blank');
-													showGlobalSuccess("Authorization flow started");
+													toastManager.showAuthUrlOpened();
 												} catch (error) {
-													showGlobalError("Failed to open authorization URL");
+													console.error("Failed to open authorization URL:", error);
+													toastManager.showError('authUrlGenerationError', { error: 'Failed to open authorization URL' });
 												}
 											}}
-											className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+											className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
 										>
 											<FiExternalLink className="mr-2 inline" />
 											Open Authorization URL
 										</button>
 										<button
 											onClick={() => handleCopy(authUrl, "Authorization URL")}
-											className="flex-1 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+											disabled={buttonStates.getStates().copyToClipboard.loading || buttonStates.getStates().copyToClipboard.disabled}
+											className={`flex-1 px-4 py-2 rounded-lg transition-all ${
+												buttonStates.getStates().copyToClipboard.loading
+													? 'bg-gray-400 cursor-not-allowed'
+													: 'bg-gray-600 hover:bg-gray-700 text-white'
+											}`}
 										>
-											<FiCopy className="mr-2 inline" />
-											Copy URL
+											{buttonStates.getStates().copyToClipboard.loading ? (
+												<>
+													<FiLoader className="mr-2 inline animate-spin" />
+													Copying...
+												</>
+											) : (
+												<>
+													<FiCopy className="mr-2 inline" />
+													Copy URL
+												</>
+											)}
 										</button>
 									</div>
 								</>
@@ -813,9 +890,21 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 									<p className="text-gray-600 mb-4">Click the button below to generate your authorization URL</p>
 									<button
 										onClick={generateAuthorizationUrl}
-										className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+										disabled={buttonStates.getStates().generateAuthUrl.loading || buttonStates.getStates().generateAuthUrl.disabled}
+										className={`px-6 py-2 rounded-lg transition-all ${
+											buttonStates.getStates().generateAuthUrl.loading
+												? 'bg-gray-400 cursor-not-allowed'
+												: 'bg-blue-600 hover:bg-blue-700 text-white'
+										}`}
 									>
-										Generate Authorization URL
+										{buttonStates.getStates().generateAuthUrl.loading ? (
+											<>
+												<FiLoader className="mr-2 inline animate-spin" />
+												Generating...
+											</>
+										) : (
+											'Generate Authorization URL'
+										)}
 									</button>
 								</div>
 							)}
@@ -850,7 +939,7 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 							</p>
 						</EducationalSection>
 
-						<InfoBox>
+						<InfoBoxStyled>
 							<h4 className="font-semibold mb-2">What the user sees:</h4>
 							<ul className="list-disc list-inside space-y-1">
 								<li>PingOne login page</li>
@@ -858,7 +947,7 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 								<li>Your application name and logo</li>
 								<li>List of scopes being requested</li>
 							</ul>
-						</InfoBox>
+						</InfoBoxStyled>
 
 						<div className="text-center py-8">
 							<div className="text-6xl mb-4">🔄</div>
@@ -882,7 +971,7 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 							</p>
 						</EducationalSection>
 
-						<InfoBox>
+						<InfoBoxStyled>
 							<h4 className="font-semibold mb-2">Token Exchange Request:</h4>
 							<ul className="list-disc list-inside space-y-1">
 								<li>Authorization code from the redirect</li>
@@ -890,7 +979,7 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 								<li>PKCE code verifier</li>
 								<li>Redirect URI (must match)</li>
 							</ul>
-						</InfoBox>
+						</InfoBoxStyled>
 
 						<div className="bg-white p-6 rounded-lg border">
 							<h4 className="text-lg font-semibold mb-4">Authorization Code</h4>
@@ -909,12 +998,16 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 							<div className="flex gap-3">
 								<button
 									onClick={exchangeTokens}
-									disabled={!authCode || isExchangingTokens}
-									className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+									disabled={!authCode || buttonStates.getStates().exchangeTokens.loading || buttonStates.getStates().exchangeTokens.disabled}
+									className={`flex-1 px-4 py-2 rounded-lg transition-all ${
+										!authCode || buttonStates.getStates().exchangeTokens.loading || buttonStates.getStates().exchangeTokens.disabled
+											? 'bg-gray-400 cursor-not-allowed'
+											: 'bg-blue-600 hover:bg-blue-700 text-white'
+									}`}
 								>
-									{isExchangingTokens ? (
+									{buttonStates.getStates().exchangeTokens.loading ? (
 										<>
-											<FiRefreshCw className="mr-2 inline animate-spin" />
+											<FiLoader className="mr-2 inline animate-spin" />
 											Exchanging Tokens...
 										</>
 									) : (
@@ -926,11 +1019,24 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 								</button>
 								<button
 									onClick={() => handleCopy(authCode, "Authorization Code")}
-									disabled={!authCode}
-									className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+									disabled={!authCode || buttonStates.getStates().copyToClipboard.loading || buttonStates.getStates().copyToClipboard.disabled}
+									className={`px-4 py-2 rounded-lg transition-all ${
+										!authCode || buttonStates.getStates().copyToClipboard.loading || buttonStates.getStates().copyToClipboard.disabled
+											? 'bg-gray-400 cursor-not-allowed'
+											: 'bg-gray-600 hover:bg-gray-700 text-white'
+									}`}
 								>
-									<FiCopy className="mr-2 inline" />
-									Copy Code
+									{buttonStates.getStates().copyToClipboard.loading ? (
+										<>
+											<FiLoader className="mr-2 inline animate-spin" />
+											Copying...
+										</>
+									) : (
+										<>
+											<FiCopy className="mr-2 inline" />
+											Copy Code
+										</>
+									)}
 								</button>
 							</div>
 
@@ -961,11 +1067,6 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 						{tokens ? (
 							<TokenDisplay
 								tokens={tokens}
-								userInfo={userInfo}
-								onAnalyzeToken={() => {
-									// Navigate to token management
-									window.location.href = "/token-management";
-								}}
 							/>
 						) : (
 							<div className="text-center py-8">
@@ -1043,7 +1144,7 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 							<NavigationButton
 								$variant="secondary"
 								onClick={prevStep}
-								disabled={currentStep === 0}
+								disabled={!buttonStates.getStates().navigation.canGoPrevious}
 							>
 								<FiChevronLeft />
 								Previous
@@ -1051,7 +1152,7 @@ const AuthorizationCodeFlowV4: React.FC = () => {
 							<NavigationButton
 								$variant="primary"
 								onClick={nextStep}
-								disabled={currentStep === totalSteps - 1}
+								disabled={!buttonStates.getStates().navigation.canGoNext}
 							>
 								Next
 								<FiChevronRight />
