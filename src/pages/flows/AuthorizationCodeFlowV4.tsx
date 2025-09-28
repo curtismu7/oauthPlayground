@@ -1184,7 +1184,7 @@ const AuthorizationCodeFlowV4 = () => {
 						<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginBottom: '1.5rem', alignItems: 'center' }}>
 							<Button
 								onClick={handleGenerateAuthUrl}
-								variant="primary"
+								$variant="primary"
 								size="md"
 							>
 								<FiExternalLink style={{ marginRight: '0.5rem' }} />
@@ -1368,7 +1368,7 @@ const AuthorizationCodeFlowV4 = () => {
 							<Button
 								onClick={handleExchangeTokens}
 								disabled={isLoading || !authCode}
-								variant="primary"
+								$variant="primary"
 								size="lg"
 							>
 								{isLoading ? (
@@ -1476,7 +1476,7 @@ const AuthorizationCodeFlowV4 = () => {
 									showGlobalSuccess("User information retrieved successfully!");
 								}}
 								disabled={!tokens}
-								variant="primary"
+								$variant="primary"
 								size="lg"
 							>
 								<FiExternalLink style={{ marginRight: '0.5rem' }} />
