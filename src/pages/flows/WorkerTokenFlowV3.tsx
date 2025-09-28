@@ -448,13 +448,13 @@ const WorkerTokenFlowV3: React.FC = () => {
 			return prev + 1;
 		});
 
-		// Save immediately to prevent state conflicts
+		// Save the authentication method change immediately
 		const savedData = {
 			...credentialManager.loadFlowCredentials("worker-token-v3"),
 			clientAuthMethod: value as WorkerTokenAuthMethod,
 			useJwksEndpoint: true, // Default for non-private-key-jwt methods
 		};
-		console.log(" [WorkerTokenV3] Saving to storage:", savedData);
+		console.log(" [WorkerTokenV3] Saving auth method to storage:", savedData);
 		credentialManager.saveFlowCredentials("worker-token-v3", savedData);
 		console.log(
 			" [WorkerTokenV3] ===== AUTH SELECTION CHANGE END (OTHER) =====",
