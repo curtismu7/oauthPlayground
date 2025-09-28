@@ -473,8 +473,8 @@ const AuthorizationCodeFlowV4 = () => {
 			setTimeout(() => {
 				setShowSuccessModal(false);
 			}, 2000);
-			// Auto advance to Step 4 (Token Exchange) if we have the code
-			setCurrentStep(3); // Step 4 is index 3
+			// Navigate to Step 3 (Authorization Response) to show the captured code
+			setCurrentStep(2); // Step 3 is index 2
 		} else if (error) {
 			showGlobalError(`Authorization failed: ${error}`);
 		}
@@ -1056,25 +1056,41 @@ const AuthorizationCodeFlowV4 = () => {
 							</GeneratedContentBox>
 						) : (
 							<MainCard>
-								<h4 style={{ fontWeight: '600', marginBottom: '1rem', fontSize: '1.125rem' }}>Authorization Code</h4>
-								<p style={{ color: '#6b7280', marginBottom: '1rem' }}>
-									Enter the authorization code you received from the redirect:
-								</p>
-								<FormInput
-									type="text"
-									value={authCode}
-									onChange={(e) => setAuthCode(e.target.value)}
-									placeholder="Enter authorization code here..."
-									style={{ marginBottom: '1rem' }}
-								/>
-								<Button
-									onClick={() => handleCopy(authCode, "Authorization code")}
-									variant="primary"
-									size="sm"
-								>
-									<FiCopy style={{ marginRight: '0.5rem' }} />
-									Copy Code
-								</Button>
+								<div style={{ textAlign: 'center', padding: '2rem' }}>
+									<div style={{ fontSize: '3rem', marginBottom: '1rem', color: '#d1d5db' }}>🔑</div>
+									<h4 style={{ fontWeight: '600', marginBottom: '0.5rem', color: '#374151' }}>
+										Authorization Code Not Received
+									</h4>
+									<p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
+										Complete the authorization process on PingOne to receive your authorization code.
+									</p>
+									<div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', fontSize: '0.875rem', color: '#9ca3af' }}>
+										<span>Status: Waiting for authorization code</span>
+									</div>
+								</div>
+								
+								<div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '1.5rem', marginTop: '1.5rem' }}>
+									<h5 style={{ fontWeight: '600', marginBottom: '1rem', fontSize: '1rem' }}>Manual Entry (Optional)</h5>
+									<p style={{ color: '#6b7280', marginBottom: '1rem', fontSize: '0.875rem' }}>
+										If you have the authorization code, you can enter it manually:
+									</p>
+									<FormInput
+										type="text"
+										value={authCode}
+										onChange={(e) => setAuthCode(e.target.value)}
+										placeholder="Enter authorization code here..."
+										style={{ marginBottom: '1rem' }}
+									/>
+									<Button
+										onClick={() => handleCopy(authCode, "Authorization code")}
+										disabled={!authCode}
+										variant="primary"
+										size="sm"
+									>
+										<FiCopy style={{ marginRight: '0.5rem' }} />
+										Copy Code
+									</Button>
+								</div>
 							</MainCard>
 						)}
 
