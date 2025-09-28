@@ -113,18 +113,20 @@ const Submenu = styled.div<SubmenuProps>`
   transition: max-height 0.3s ease-in-out;
 `;
 
-const SubmenuItem = styled(Link)<{ $isActive?: boolean }>`
+const SubmenuItem = styled(Link)<{ $isActive?: boolean; $isV4?: boolean }>`
   display: flex;
   align-items: center;
   padding: 0.5rem 1.5rem 0.5rem 3.5rem;
-  color: ${({ $isActive, theme }) => 
+  color: ${({ $isActive, $isV4, theme }) => 
     $isActive 
       ? '#ffffff'
+      : $isV4
+      ? '#dc2626'  // Red color for V4
       : (theme.colors?.gray700 || '#374151')
   };
   text-decoration: none;
   font-size: 0.9rem;
-  font-weight: ${({ $isActive }) => $isActive ? '600' : '400'};
+  font-weight: ${({ $isActive, $isV4 }) => $isActive || $isV4 ? '700' : '400'}; // Bold for V4
   transition: all 0.2s;
   background-color: ${({ $isActive, theme }) => 
     $isActive 
@@ -138,14 +140,18 @@ const SubmenuItem = styled(Link)<{ $isActive?: boolean }>`
   };
   
   &:hover {
-    background-color: ${({ $isActive, theme }) => 
+    background-color: ${({ $isActive, $isV4, theme }) => 
       $isActive 
         ? (theme.colors?.primaryDark || '#0056b3')
+        : $isV4
+        ? '#fef2f2'  // Light red background on hover for V4
         : (theme.colors?.gray50 || '#f9fafb')
     };
-    color: ${({ $isActive, theme }) => 
+    color: ${({ $isActive, $isV4, theme }) => 
       $isActive 
         ? '#ffffff'
+        : $isV4
+        ? '#b91c1c'  // Darker red on hover for V4
         : (theme.colors?.primary || '#0070cc')
     };
   }
@@ -155,9 +161,11 @@ const SubmenuItem = styled(Link)<{ $isActive?: boolean }>`
     margin-right: 0.75rem;
     font-size: 1.5rem;
     line-height: 0;
-    color: ${({ $isActive, theme }) => 
+    color: ${({ $isActive, $isV4, theme }) => 
       $isActive 
         ? '#ffffff'
+        : $isV4
+        ? '#dc2626'  // Red color for V4
         : (theme.colors?.gray400 || '#9ca3af')
     };
   }
@@ -364,7 +372,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               
               OAuth 2.0 Authorization Code (V3)
             </SubmenuItem>
-            <SubmenuItem to="/flows/authorization-code-v4" onClick={onClose} $isActive={isActiveRoute('/flows/authorization-code-v4')}>
+            <SubmenuItem to="/flows/authorization-code-v4" onClick={onClose} $isActive={isActiveRoute('/flows/authorization-code-v4')} $isV4={true}>
               
               OAuth 2.0 Authorization Code (V4) - Educational
             </SubmenuItem>
