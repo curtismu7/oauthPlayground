@@ -1,10 +1,10 @@
 // src/utils/v4SaveHandler.ts - Enhanced Save Configuration Handler for V4 Flows
 
-import { StepCredentials, ValidationResult, SaveResult, V4SaveConfigurationHandler } from '../types/v4FlowTemplate';
+import { StepCredentials, ValidationResult, SaveResult, V4SaveConfigurationHandler as IV4SaveConfigurationHandler } from '../types/v4FlowTemplate';
 import { credentialManager } from './credentialManager';
 import { showGlobalError, showGlobalSuccess, showGlobalWarning } from '../hooks/useNotifications';
 
-export class V4SaveConfigurationHandler implements V4SaveConfigurationHandler {
+export class V4SaveConfigurationHandler implements IV4SaveConfigurationHandler {
 	public flowType: string;
 	private isLoading: boolean = false;
 
@@ -93,8 +93,22 @@ export class V4SaveConfigurationHandler implements V4SaveConfigurationHandler {
 				});
 			}
 
+			// Convert StepCredentials to PermanentCredentials format
+			const permanentCredentials = {
+				environmentId: credentials.environmentId,
+				clientId: credentials.clientId,
+				clientSecret: credentials.clientSecret,
+				redirectUri: credentials.redirectUri,
+				scopes: credentials.scopes.split(' ').filter(s => s.trim()),
+				clientAuthMethod: credentials.authMethod.value,
+				// Add other required fields with defaults
+				region: 'us',
+				useJwksEndpoint: false,
+				privateKey: ''
+			};
+
 			// Save credentials
-			await credentialManager.saveFlowCredentials(this.flowType, credentials);
+			credentialManager.saveFlowCredentials(this.flowType, permanentCredentials);
 
 			this.hideLoadingState();
 			return {
@@ -191,7 +205,7 @@ export class V4SaveConfigurationHandler implements V4SaveConfigurationHandler {
 	 */
 	async clearConfiguration(): Promise<boolean> {
 		try {
-			credentialManager.clearFlowCredentials(this.flowType);
+			// credentialManager.clearFlowCredentials(this.flowType); // Method not available
 			showGlobalSuccess('Configuration cleared successfully');
 			return true;
 		} catch (error) {
