@@ -867,7 +867,7 @@ const AuthorizationCodeFlowV4 = () => {
 							</div>
 						</MainCard>
 
-						<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginBottom: '1.5rem' }}>
+						<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginBottom: '1.5rem', alignItems: 'center' }}>
 							<Button
 								onClick={handleGenerateAuthUrl}
 								variant="primary"
@@ -876,15 +876,20 @@ const AuthorizationCodeFlowV4 = () => {
 								<FiExternalLink style={{ marginRight: '0.5rem' }} />
 								Generate Authorization URL
 							</Button>
-							<Button
-								onClick={handleOpenAuthUrl}
-								disabled={!authorizationUrl}
-								variant="success"
-								size="md"
-							>
-								<FiExternalLink style={{ marginRight: '0.5rem' }} />
-								Open Authorization URL
-							</Button>
+							<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+								<Button
+									onClick={handleOpenAuthUrl}
+									disabled={!authorizationUrl}
+									variant="success"
+									size="md"
+								>
+									<FiExternalLink style={{ marginRight: '0.5rem' }} />
+									Open Authorization URL
+								</Button>
+								<span style={{ fontSize: '0.875rem', color: '#6b7280', fontStyle: 'italic' }}>
+									(Login to PingOne)
+								</span>
+							</div>
 						</div>
 
 						{authorizationUrl && (
