@@ -143,7 +143,7 @@ export interface ApiCallHandler {
 
 export interface V4SaveConfigurationHandler {
 	flowType: string;
-	validateConfiguration(): ValidationResult;
+	validateConfiguration(config: StepCredentials): ValidationResult;
 	saveConfiguration(config: StepCredentials): Promise<SaveResult>;
 	handleSaveSuccess(result: SaveResult): void;
 	handleSaveError(error: Error): void;
