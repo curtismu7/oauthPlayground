@@ -949,7 +949,9 @@ const AuthorizationCodeFlowV4 = () => {
 							</InfoTitle>
 							<InfoText>
 								After the user grants consent, the authorization server redirects back to your 
-								application with an authorization code.
+								application with an authorization code. This code is a temporary credential that 
+								proves the user authorized your application. It will be exchanged for access tokens 
+								in the next step.
 							</InfoText>
 						</InfoBox>
 
