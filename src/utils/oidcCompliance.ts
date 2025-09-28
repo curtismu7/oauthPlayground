@@ -92,28 +92,28 @@ export const generateComplianceReport = (result: OIDCComplianceResult): string =
   const sections = [];
 
   if (result.isCompliant) {
-    sections.push('✅ OIDC Core 1.0 Compliant');
+    sections.push(' OIDC Core 1.0 Compliant');
   } else {
-    sections.push('❌ OIDC Core 1.0 Violations Detected');
+    sections.push(' OIDC Core 1.0 Violations Detected');
   }
 
   if (result.violations.length > 0) {
-    sections.push('\n🚨 Compliance Violations:');
+    sections.push('\n Compliance Violations:');
     result.violations.forEach(violation => {
-      sections.push(`   • ${violation}`);
+      sections.push(`    ${violation}`);
     });
   }
 
   if (result.warnings.length > 0) {
-    sections.push('\n⚠️ Security Recommendations:');
+    sections.push('\n Security Recommendations:');
     result.warnings.forEach(warning => {
-      sections.push(`   • ${warning}`);
+      sections.push(`    ${warning}`);
     });
   }
 
-  sections.push('\n📊 Compliance Details:');
+  sections.push('\n Compliance Details:');
   Object.entries(result.details).forEach(([key, value]) => {
-    const icon = value === true ? '✅' : value === false ? '❌' : '📋';
+    const icon = value === true ? '' : value === false ? '' : '';
     sections.push(`   ${icon} ${key}: ${value}`);
   });
 

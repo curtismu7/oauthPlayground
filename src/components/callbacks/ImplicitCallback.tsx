@@ -100,7 +100,7 @@ const ImplicitCallback: React.FC = () => {
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
         
         // Debug logging to see what we're parsing
-        console.log('🔍 [ImplicitCallback] Debug parsing:', {
+        console.log(' [ImplicitCallback] Debug parsing:', {
           hash: window.location.hash,
           hashSubstring: window.location.hash.substring(1),
           queryParams: Object.fromEntries(queryParams.entries()),

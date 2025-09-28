@@ -22,7 +22,7 @@ const Analytics: React.FC = () => {
         <PageTitle
           title="Analytics Dashboard"
           subtitle="Monitor user behavior, performance metrics, and security events across your OAuth flows"
-          icon="📊"
+          icon=""
         />
         <AnalyticsDashboard />
       </ContentContainer>

@@ -381,7 +381,7 @@ const MemoizedStep = React.memo<{
             $variant="success"
             disabled
           >
-            ✓ Complete
+             Complete
           </StepButton>
         )}
       </StepActions>
@@ -492,7 +492,7 @@ const StepByStepFlowComponent: React.FC<StepByStepFlowProps> = ({
             <FlowButton
               $variant="secondary"
               onClick={() => {
-                console.log('🔄 [StepByStepFlow] Next Step button clicked');
+                console.log(' [StepByStepFlow] Next Step button clicked');
                 goToNextStep();
               }}
               disabled={currentStep >= steps.length - 1}

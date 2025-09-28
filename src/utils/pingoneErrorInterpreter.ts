@@ -36,14 +36,14 @@ export class PingOneErrorInterpreter {
     'unsupported_grant_type': {
       title: 'Unsupported Grant Type',
       message: 'The requested OAuth grant type is not supported for this client.',
-      suggestion: '1. Go to PingOne Admin → Applications → Your App → OAuth 2.0\n2. Check which grant types are enabled (Authorization Code, Implicit, etc.)\n3. Enable the grant type you\'re trying to use\n4. Save the configuration and try again',
+      suggestion: '1. Go to PingOne Admin  Applications  Your App  OAuth 2.0\n2. Check which grant types are enabled (Authorization Code, Implicit, etc.)\n3. Enable the grant type you\'re trying to use\n4. Save the configuration and try again',
       category: 'configuration' as const,
       severity: 'error' as const
     },
     'invalid_redirect_uri': {
       title: 'Invalid Redirect URI',
       message: 'The redirect URI does not match what is configured in PingOne.',
-      suggestion: '1. Go to PingOne Admin → Applications → Your App → OAuth 2.0\n2. Check the Redirect URIs section\n3. Add or update the redirect URI to match exactly: {redirect_uri}\n4. Ensure there are no trailing slashes or extra characters\n5. Save the configuration and try again',
+      suggestion: '1. Go to PingOne Admin  Applications  Your App  OAuth 2.0\n2. Check the Redirect URIs section\n3. Add or update the redirect URI to match exactly: {redirect_uri}\n4. Ensure there are no trailing slashes or extra characters\n5. Save the configuration and try again',
       category: 'configuration' as const,
       severity: 'error' as const
     },
@@ -64,7 +64,7 @@ export class PingOneErrorInterpreter {
     'invalid_client_id': {
       title: 'Invalid Client ID',
       message: 'The provided Client ID is not valid or does not exist in your PingOne environment.',
-      suggestion: '1. Go to PingOne Admin → Applications\n2. Find your application and copy the exact Client ID\n3. Update the Client ID in the Configuration page\n4. Ensure there are no extra spaces or characters\n5. Verify you\'re using the correct environment',
+      suggestion: '1. Go to PingOne Admin  Applications\n2. Find your application and copy the exact Client ID\n3. Update the Client ID in the Configuration page\n4. Ensure there are no extra spaces or characters\n5. Verify you\'re using the correct environment',
       category: 'configuration' as const,
       severity: 'error' as const
     },
@@ -255,12 +255,12 @@ export class PingOneErrorInterpreter {
 
   static getErrorIcon(category: string): string {
     switch (category) {
-      case 'configuration': return '⚙️';
-      case 'authentication': return '🔐';
-      case 'authorization': return '🚫';
-      case 'network': return '🌐';
-      case 'validation': return '✅';
-      default: return '❓';
+      case 'configuration': return '';
+      case 'authentication': return '';
+      case 'authorization': return '';
+      case 'network': return '';
+      case 'validation': return '';
+      default: return '';
     }
   }
 

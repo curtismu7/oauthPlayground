@@ -253,27 +253,27 @@ const ImplicitCallbackV3: React.FC = () => {
 		const processCallback = async () => {
 			try {
 				console.log(
-					"🚀 [ImplicitCallbackV3] Processing implicit grant callback...",
+					" [ImplicitCallbackV3] Processing implicit grant callback...",
 				);
 				console.log(
-					"🔍 [ImplicitCallbackV3] Current URL:",
+					" [ImplicitCallbackV3] Current URL:",
 					window.location.href,
 				);
-				console.log("🔍 [ImplicitCallbackV3] Hash:", window.location.hash);
+				console.log(" [ImplicitCallbackV3] Hash:", window.location.hash);
 
 				// Parse hash parameters (implicit flow uses hash, not query params)
 				const hash = window.location.hash.substring(1); // Remove the # symbol
 				const hashParams = new URLSearchParams(hash);
 
 				console.log(
-					"🔍 [ImplicitCallbackV3] Hash parameters:",
+					" [ImplicitCallbackV3] Hash parameters:",
 					Object.fromEntries(hashParams.entries()),
 				);
 
 				// Early exit if there's no hash data at all (not a callback)
 				if (!hash || hash.trim() === "") {
 					console.log(
-						"🔍 [ImplicitCallbackV3] No hash parameters found - not a callback URL",
+						" [ImplicitCallbackV3] No hash parameters found - not a callback URL",
 					);
 					setStatus("error");
 					setMessage("Not a valid callback URL");
@@ -364,7 +364,7 @@ const ImplicitCallbackV3: React.FC = () => {
 					});
 
 					console.log(
-						"🔧 [ImplicitCallbackV3] Troubleshooting Steps:",
+						" [ImplicitCallbackV3] Troubleshooting Steps:",
 						troubleshootingSteps,
 					);
 					return;
@@ -382,7 +382,7 @@ const ImplicitCallbackV3: React.FC = () => {
 					state: hashParams.get("state") || undefined,
 				};
 
-				console.log("🔍 [ImplicitCallbackV3] Extracted token data:", {
+				console.log(" [ImplicitCallbackV3] Extracted token data:", {
 					hasAccessToken: !!tokenData.access_token,
 					hasIdToken: !!tokenData.id_token,
 					tokenType: tokenData.token_type,
@@ -479,7 +479,7 @@ const ImplicitCallbackV3: React.FC = () => {
 				}
 
 				console.log(
-					"✅ [ImplicitCallbackV3] State parameter validated successfully",
+					" [ImplicitCallbackV3] State parameter validated successfully",
 				);
 
 				// For OIDC flows, validate ID token and nonce if present
@@ -494,9 +494,9 @@ const ImplicitCallbackV3: React.FC = () => {
 						expectedNonce: expectedNonce || undefined,
 					};
 
-					console.log("🔐 [ImplicitCallbackV3] Validating OIDC ID token...");
+					console.log(" [ImplicitCallbackV3] Validating OIDC ID token...");
 					console.log(
-						"🔍 [ImplicitCallbackV3] Security options for validation:",
+						" [ImplicitCallbackV3] Security options for validation:",
 						{
 							environmentId: securityOptions.environmentId,
 							clientId: securityOptions.clientId,
@@ -522,7 +522,7 @@ const ImplicitCallbackV3: React.FC = () => {
 					}
 
 					console.log(
-						"✅ [ImplicitCallbackV3] OIDC ID token validated successfully",
+						" [ImplicitCallbackV3] OIDC ID token validated successfully",
 					);
 					logger.security(
 						"ImplicitCallbackV3",
@@ -550,13 +550,13 @@ const ImplicitCallbackV3: React.FC = () => {
 					const success = storeOAuthTokens(tokenData, flowKey, flowName);
 
 					if (success) {
-						console.log("✅ [ImplicitCallbackV3] Tokens stored successfully");
+						console.log(" [ImplicitCallbackV3] Tokens stored successfully");
 					} else {
-						console.warn("⚠️ [ImplicitCallbackV3] Failed to store tokens");
+						console.warn(" [ImplicitCallbackV3] Failed to store tokens");
 					}
 				} catch (storageError) {
 					console.error(
-						"❌ [ImplicitCallbackV3] Token storage error:",
+						" [ImplicitCallbackV3] Token storage error:",
 						storageError,
 					);
 				} finally {
@@ -570,7 +570,7 @@ const ImplicitCallbackV3: React.FC = () => {
 					window.location.pathname + window.location.search,
 				);
 				console.log(
-					"🔒 [ImplicitCallbackV3] Hash cleared from URL for security",
+					" [ImplicitCallbackV3] Hash cleared from URL for security",
 				);
 
 				// Clear security-sensitive data from session storage
@@ -592,7 +592,7 @@ const ImplicitCallbackV3: React.FC = () => {
 				});
 			} catch (error) {
 				console.error(
-					"❌ [ImplicitCallbackV3] Callback processing failed:",
+					" [ImplicitCallbackV3] Callback processing failed:",
 					error,
 				);
 				setStatus("error");
@@ -735,12 +735,12 @@ const ImplicitCallbackV3: React.FC = () => {
 
 			<NavigationSection>
 				<ActionButton onClick={handleNavigateToFlow}>
-					🔄 Return to Flow
+					 Return to Flow
 				</ActionButton>
 				<ActionButton onClick={handleNavigateToTokenManagement}>
-					🔍 Token Management
+					 Token Management
 				</ActionButton>
-				<ActionButton onClick={handleNavigateHome}>🏠 Home</ActionButton>
+				<ActionButton onClick={handleNavigateHome}> Home</ActionButton>
 			</NavigationSection>
 		</CallbackContainer>
 	);

@@ -233,7 +233,7 @@ const PingOneErrorDisplay: React.FC<PingOneErrorDisplayProps> = ({
       </ErrorMessage>
 
       <ErrorSuggestion>
-        <SuggestionLabel>💡 Suggestion:</SuggestionLabel>
+        <SuggestionLabel> Suggestion:</SuggestionLabel>
         <SuggestionText>{interpretedError.suggestion}</SuggestionText>
       </ErrorSuggestion>
 
