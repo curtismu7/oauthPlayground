@@ -282,7 +282,7 @@ const AuthorizationRequestModal: React.FC<AuthorizationRequestModalProps> = ({
       };
       localStorage.setItem(flowConfigKey, JSON.stringify(updatedFlowConfig));
       
-      console.log('🔧 [AuthorizationRequestModal] User chose to skip this modal in future - updated configuration:', updatedFlowConfig);
+      console.log(' [AuthorizationRequestModal] User chose to skip this modal in future - updated configuration:', updatedFlowConfig);
       
       // Dispatch custom event to notify other components that config has changed
       window.dispatchEvent(new CustomEvent('uiSettingsChanged', {
@@ -301,7 +301,7 @@ const AuthorizationRequestModal: React.FC<AuthorizationRequestModalProps> = ({
       <ModalContent>
         <ModalHeader>
           <h2>
-            🔐 OAuth Authorization Request
+             OAuth Authorization Request
           </h2>
           <button className="close-button" onClick={onClose}>
             <FiX />
@@ -319,7 +319,7 @@ const AuthorizationRequestModal: React.FC<AuthorizationRequestModalProps> = ({
           </InfoBox>
 
           <Section>
-            <h3>📋 Request Parameters</h3>
+            <h3> Request Parameters</h3>
             <ParameterGrid>
               {Object.entries(requestParams).map(([key, value]) => (
                 <React.Fragment key={key}>
@@ -331,7 +331,7 @@ const AuthorizationRequestModal: React.FC<AuthorizationRequestModalProps> = ({
           </Section>
 
           <Section>
-            <h3>🔗 Authorization URL</h3>
+            <h3> Authorization URL</h3>
             <AuthorizationUrlBox>
               <AuthorizationUrl>
                 <ColorCodedURL url={authorizationUrl} />

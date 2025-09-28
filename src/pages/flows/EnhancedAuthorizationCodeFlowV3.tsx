@@ -1,7 +1,9 @@
 // src/pages/flows/EnhancedAuthorizationCodeFlowV3.tsx - Clean reusable implementation
 
 import React, { useCallback, useState } from "react";
+import styled from "styled-components";
 import {
+	FiAlertTriangle,
 	FiCheckCircle,
 	FiCopy,
 	FiKey,
@@ -21,6 +23,7 @@ import {
 } from "../../components/InlineDocumentation";
 import OAuthErrorHelper from "../../components/OAuthErrorHelper";
 import PingOneConfigSection from "../../components/PingOneConfigSection";
+import FlowIntro from "../../components/flow/FlowIntro";
 import {
 	createAuthUrlStep,
 	createCallbackHandlingStep,
@@ -28,6 +31,7 @@ import {
 	createPKCEStep,
 	createTokenExchangeStep,
 	createUserAuthorizationStep,
+	InfoBox,
 } from "../../components/steps/CommonSteps";
 import { useAuth } from "../../contexts/NewAuthContext";
 import {
@@ -78,12 +82,12 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 		const sessionId = enhancedDebugger.startSession(
 			"oidc-authorization-code-v3",
 		);
-		console.log("🔍 [OIDC-V3] Debug session started:", sessionId);
+		console.log(" [OIDC-V3] Debug session started:", sessionId);
 
 		return () => {
 			const session = enhancedDebugger.endSession();
 			if (session) {
-				console.log("📊 [OIDC-V3] Debug session completed:", {
+				console.log(" [OIDC-V3] Debug session completed:", {
 					duration: session.performance.totalDuration,
 					steps: session.steps.length,
 					errors: session.errors.length,
@@ -109,7 +113,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 		const hashParams = new URLSearchParams(window.location.hash.substring(1));
 
 		// Log all URL parameters for debugging
-		console.log("🔍 [OIDC-V3] Comprehensive URL parameter analysis:");
+		console.log(" [OIDC-V3] Comprehensive URL parameter analysis:");
 		console.log("   Current URL:", window.location.href);
 		console.log("   Search params:", Object.fromEntries(urlParams.entries()));
 		console.log("   Hash params:", Object.fromEntries(hashParams.entries()));
@@ -125,7 +129,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 		const idToken = hashParams.get("id_token");
 		const tokenType = hashParams.get("token_type");
 
-		console.log("🔍 [OIDC-V3] Parameter extraction results:", {
+		console.log(" [OIDC-V3] Parameter extraction results:", {
 			code: code ? `${code.substring(0, 10)}...` : null,
 			state: state ? `${state.substring(0, 10)}...` : null,
 			error: error,
@@ -137,7 +141,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 
 		// Handle authorization errors with enhanced error interpretation
 		if (error) {
-			console.error("❌ [OIDC-V3] Authorization error received:", {
+			console.error(" [OIDC-V3] Authorization error received:", {
 				error,
 				errorDescription,
 				fullUrl: window.location.href,
@@ -153,19 +157,19 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 			//     hashParams: Object.fromEntries(hashParams.entries())
 			//   }
 			// }, 'authorization'); // Temporarily commented to fix syntax
-			showGlobalError(`❌ Authorization failed: ${errorDescription || error}`);
+			showGlobalError(` Authorization failed: ${errorDescription || error}`);
 			return;
 		}
 
 		// Handle authorization code from URL parameters (standard flow)
 		if (code) {
-			console.log("✅ [OIDC-V3] Authorization code detected in URL:", code);
+			console.log(" [OIDC-V3] Authorization code detected in URL:", code);
 
 			// Validate state parameter for CSRF protection
 			const storedState = sessionStorage.getItem("oauth_state");
 			if (state && storedState && state !== storedState) {
 				console.error(
-					"❌ [OIDC-V3] State parameter mismatch - possible CSRF attack:",
+					" [OIDC-V3] State parameter mismatch - possible CSRF attack:",
 					{
 						received: state,
 						expected: storedState,
@@ -183,13 +187,13 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 				//   }
 				// }, 'authorization'); // Temporarily commented to fix syntax
 				showGlobalError(
-					"❌ State parameter mismatch. Possible CSRF attack detected.",
+					" State parameter mismatch. Possible CSRF attack detected.",
 				);
 				return;
 			}
 
 			setAuthCode(code);
-			console.log("🔄 [OIDC-V3] Auto-advancing to token exchange step");
+			console.log(" [OIDC-V3] Auto-advancing to token exchange step");
 
 			// Auto-advance to token exchange step (step 5 in our 6-step flow)
 			if (stepManager.currentStepIndex < 5) {
@@ -199,10 +203,10 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 			// Clean up URL parameters
 			const cleanUrl = window.location.pathname;
 			window.history.replaceState({}, document.title, cleanUrl);
-			console.log("🧹 [OIDC-V3] Cleaned URL parameters from address bar");
+			console.log(" [OIDC-V3] Cleaned URL parameters from address bar");
 
 			showGlobalSuccess(
-				"🎉 Authorization successful! You can now exchange your authorization code for tokens.",
+				" Authorization successful! You can now exchange your authorization code for tokens.",
 			);
 		}
 
@@ -213,7 +217,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 
 			if (storedCode) {
 				console.log(
-					"✅ [OIDC-V3] Authorization code detected in sessionStorage (full redirect):",
+					" [OIDC-V3] Authorization code detected in sessionStorage (full redirect):",
 					storedCode,
 				);
 				setAuthCode(storedCode);
@@ -222,7 +226,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 				if (stepManager.currentStepIndex < 5) {
 					stepManager.setStep(5, "authorization code from full redirect");
 					console.log(
-						"🔄 [OIDC-V3] Auto-advancing to step 5 (token exchange) after full redirect",
+						" [OIDC-V3] Auto-advancing to step 5 (token exchange) after full redirect",
 					);
 				}
 
@@ -233,14 +237,14 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 				}
 
 				showGlobalSuccess(
-					"🎉 Authorization successful via full redirect! You can now exchange your authorization code for tokens.",
+					" Authorization successful via full redirect! You can now exchange your authorization code for tokens.",
 				);
 			}
 		}
 
 		// Handle implicit flow tokens (if present)
 		if (accessToken) {
-			console.log("🔑 [OIDC-V3] Implicit flow tokens detected");
+			console.log(" [OIDC-V3] Implicit flow tokens detected");
 			const implicitTokens = {
 				access_token: accessToken,
 				id_token: idToken,
@@ -251,7 +255,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 
 			setTokens(implicitTokens);
 			console.log(
-				"🔄 [OIDC-V3] Auto-advancing to user info step for implicit flow",
+				" [OIDC-V3] Auto-advancing to user info step for implicit flow",
 			);
 			stepManager.setStep(4, "implicit flow tokens received");
 		}
@@ -326,7 +330,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 
 	// Step result management functions (V2 features)
 	const saveStepResult = useCallback((stepId: string, result: unknown) => {
-		console.log("💾 [OIDC-V3] Saving step result:", { stepId, result });
+		console.log(" [OIDC-V3] Saving step result:", { stepId, result });
 		const updated = { ...stepResultsRef.current, [stepId]: result };
 		stepResultsRef.current = updated;
 		localStorage.setItem("oidc-v3-step-results", JSON.stringify(updated));
@@ -342,7 +346,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 	);
 
 	const clearStepResults = useCallback(() => {
-		console.log("🧹 [OIDC-V3] Clearing all step results");
+		console.log(" [OIDC-V3] Clearing all step results");
 		stepResultsRef.current = {};
 		localStorage.removeItem("oidc-v3-step-results");
 	}, []);
@@ -387,12 +391,12 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 			});
 
 			if (success) {
-				showGlobalSuccess("✅ Credentials Saved Successfully");
+				showGlobalSuccess(" Credentials Saved Successfully");
 			} else {
 				throw new Error("Failed to save credentials");
 			}
 		} catch (error) {
-			showGlobalError("❌ Failed to save credentials");
+			showGlobalError(" Failed to save credentials");
 			throw error;
 		}
 	}, [credentials, flowConfig.clientAuthMethod]);
@@ -413,7 +417,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 			sessionStorage.setItem("oauth_code_verifier", verifier); // Backup storage key
 
 			console.log(
-				"✅ [OIDC-V3] PKCE codes generated and stored per OIDC specifications:",
+				" [OIDC-V3] PKCE codes generated and stored per OIDC specifications:",
 				{
 					codeVerifierLength: verifier.length,
 					codeChallengeLength: challenge.length,
@@ -421,9 +425,9 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 				},
 			);
 
-			showGlobalSuccess("🛡️ PKCE Codes Generated Successfully");
+			showGlobalSuccess(" PKCE Codes Generated Successfully");
 		} catch (error) {
-			showGlobalError("❌ Failed to generate PKCE codes");
+			showGlobalError(" Failed to generate PKCE codes");
 			throw error;
 		}
 	}, []);
@@ -440,7 +444,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 			sessionStorage.setItem("oauth_nonce", generatedNonce);
 
 			console.log(
-				"🔧 [OIDC-V3] Generated and stored nonce for ID token validation:",
+				" [OIDC-V3] Generated and stored nonce for ID token validation:",
 				{
 					nonce: `${generatedNonce.substring(0, 10)}...`,
 					storedInSessionStorage: true,
@@ -453,7 +457,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 			const redirectUri = getCallbackUrlForFlow("authorization-code");
 
 			// Verify it's the expected V3 callback URL
-			console.log("🔧 [OIDC-V3] Authorization redirect URI verified:", {
+			console.log(" [OIDC-V3] Authorization redirect URI verified:", {
 				redirectUri,
 				isAuthzCallback: redirectUri.endsWith("/authz-callback"),
 				origin: window.location.origin,
@@ -474,7 +478,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 			sessionStorage.setItem("flowContext", JSON.stringify(flowContext));
 
 			console.log(
-				"🔧 [OIDC-V3] Using OIDC-compliant redirect URI and flow context:",
+				" [OIDC-V3] Using OIDC-compliant redirect URI and flow context:",
 				{
 					redirectUri,
 					flowContext,
@@ -489,7 +493,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 					? flowConfig.scopes.join(" ")
 					: credentials.scopes || "openid profile email";
 
-			console.log("🔧 [OIDC-V3] Using scopes:", scopes);
+			console.log(" [OIDC-V3] Using scopes:", scopes);
 
 			// Validate required parameters BEFORE building URL (V2 feature)
 			if (!credentials.clientId) {
@@ -554,10 +558,10 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 
 				if (validAcrValues.length > 0) {
 					params.set("acr_values", validAcrValues.join(" "));
-					console.log("✅ [OIDC-V3] Added valid ACR values:", validAcrValues);
+					console.log(" [OIDC-V3] Added valid ACR values:", validAcrValues);
 				} else {
 					console.warn(
-						"⚠️ [OIDC-V3] No valid ACR values found, skipping acr_values parameter",
+						" [OIDC-V3] No valid ACR values found, skipping acr_values parameter",
 					);
 				}
 			}
@@ -574,10 +578,10 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 			const url = `${authEndpoint}?${params.toString()}`;
 
 			console.log(
-				"✅ [OIDC-V3] Generated authorization URL with advanced parameters:",
+				" [OIDC-V3] Generated authorization URL with advanced parameters:",
 				url,
 			);
-			console.log("🔧 [OIDC-V3] URL parameters breakdown:", {
+			console.log(" [OIDC-V3] URL parameters breakdown:", {
 				response_type: params.get("response_type"),
 				client_id: params.get("client_id"),
 				redirect_uri: params.get("redirect_uri"),
@@ -590,10 +594,10 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 
 			setAuthUrl(url);
 			showGlobalSuccess(
-				"🌐 Authorization URL Generated Successfully with Advanced Parameters",
+				" Authorization URL Generated Successfully with Advanced Parameters",
 			);
 		} catch (error) {
-			showGlobalError("❌ Failed to generate authorization URL");
+			showGlobalError(" Failed to generate authorization URL");
 			throw error;
 		}
 	}, [credentials, pkceCodes, flowConfig]);
@@ -605,7 +609,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 			context?: string,
 			retryFunction?: () => Promise<void>,
 		) => {
-			console.error("❌ [OIDC-V3] OAuth error occurred:", { error, context });
+			console.error(" [OIDC-V3] OAuth error occurred:", { error, context });
 
 			// Create error context for recovery system
 			const errorContext = {
@@ -633,10 +637,10 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 			let interpretedError: InterpretedError | null;
 			try {
 				interpretedError = PingOneErrorInterpreter.interpret(error);
-				console.log("🔍 [OIDC-V3] Error interpreted:", interpretedError);
+				console.log(" [OIDC-V3] Error interpreted:", interpretedError);
 			} catch (interpreterError) {
 				console.error(
-					"❌ [OIDC-V3] Error interpreter failed:",
+					" [OIDC-V3] Error interpreter failed:",
 					interpreterError,
 				);
 				// Fallback error interpretation
@@ -699,7 +703,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 
 	const exchangeTokens = useCallback(async () => {
 		if (!authCode) {
-			showGlobalError("❌ No authorization code available");
+			showGlobalError(" No authorization code available");
 			return;
 		}
 
@@ -731,7 +735,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 			}
 
 			const tokenData = await response.json();
-			console.log("🔑 [OIDC-V3] Tokens received:", tokenData);
+			console.log(" [OIDC-V3] Tokens received:", tokenData);
 
 			setTokens(tokenData);
 			saveStepResult("token-exchange", { tokenData, timestamp: Date.now() });
@@ -747,20 +751,20 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 				});
 
 				console.log(
-					"🧪 [OIDC-V3] ID Token validation result:",
+					" [OIDC-V3] ID Token validation result:",
 					validationResult,
 				);
 
 				if (!validationResult.isValid) {
 					showGlobalError(
-						`❌ ID Token validation failed: ${validationResult.errors?.join(", ") || "Unknown error"}`,
+						` ID Token validation failed: ${validationResult.errors?.join(", ") || "Unknown error"}`,
 					);
 				}
 			}
 
-			showGlobalSuccess("🎉 Tokens exchanged successfully");
+			showGlobalSuccess(" Tokens exchanged successfully");
 		} catch (error) {
-			console.error("❌ [OIDC-V3] Token exchange failed:", error);
+			console.error(" [OIDC-V3] Token exchange failed:", error);
 			await handleOAuthError(error, "token-exchange", async () => {
 				await exchangeTokens();
 			});
@@ -785,7 +789,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 	// Get user info with proper access token
 	const getUserInfo = useCallback(async () => {
 		if (!tokens?.access_token) {
-			showGlobalError("❌ No access token available for UserInfo request");
+			showGlobalError(" No access token available for UserInfo request");
 			return;
 		}
 
@@ -795,7 +799,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 				credentials.userInfoEndpoint ||
 				`https://auth.pingone.com/${credentials.environmentId}/as/userinfo`;
 
-			console.log("🔄 [OIDC-V3] Calling UserInfo endpoint:", userInfoEndpoint);
+			console.log(" [OIDC-V3] Calling UserInfo endpoint:", userInfoEndpoint);
 
 			const response = await fetch(userInfoEndpoint, {
 				method: "GET",
@@ -813,12 +817,12 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 			}
 
 			const userData = await response.json();
-			console.log("✅ [OIDC-V3] UserInfo retrieved:", userData);
+			console.log(" [OIDC-V3] UserInfo retrieved:", userData);
 
 			setUserInfo(userData);
-			showGlobalSuccess("👤 User Information Retrieved Successfully");
+			showGlobalSuccess(" User Information Retrieved Successfully");
 		} catch (error) {
-			console.error("❌ [OIDC-V3] UserInfo request failed:", error);
+			console.error(" [OIDC-V3] UserInfo request failed:", error);
 
 			// Use enhanced error handling with retry capability
 			await handleOAuthError(error, "userinfo", async () => {
@@ -841,11 +845,11 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 					safeJsonParse<Record<string, unknown>>(persistedResults);
 				if (results) {
 					stepResultsRef.current = results;
-					console.log("📂 [OIDC-V3] Loaded persisted step results:", results);
+					console.log(" [OIDC-V3] Loaded persisted step results:", results);
 				}
 			} catch (error) {
 				console.error(
-					"❌ [OIDC-V3] Failed to load persisted step results:",
+					" [OIDC-V3] Failed to load persisted step results:",
 					error,
 				);
 			}
@@ -854,7 +858,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 
 	// Reset functionality (V2 features)
 	const handleReset = useCallback(async () => {
-		console.log("🔄 [OIDC-V3] Resetting entire flow");
+		console.log(" [OIDC-V3] Resetting entire flow");
 
 		setIsResettingFlow(true);
 
@@ -886,9 +890,9 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 			// Close modal
 			setShowResetModal(false);
 
-			showGlobalSuccess("🔄 Flow reset successfully");
+			showGlobalSuccess(" Flow reset successfully");
 		} catch (error) {
-			console.error("❌ [OIDC-V3] Reset flow failed:", error);
+			console.error(" [OIDC-V3] Reset flow failed:", error);
 			showGlobalError("Failed to reset flow");
 		} finally {
 			setIsResettingFlow(false);
@@ -896,7 +900,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 	}, [clearStepResults, stepManager]);
 
 	const handleClearCredentials = useCallback(() => {
-		console.log("🧹 [OIDC-V3] Clearing credentials");
+		console.log(" [OIDC-V3] Clearing credentials");
 
 		// Clear credentials
 		setCredentials({
@@ -914,18 +918,18 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 		// Close modal
 		setShowClearCredentialsModal(false);
 
-		showGlobalSuccess("🧹 Credentials cleared successfully");
+		showGlobalSuccess(" Credentials cleared successfully");
 	}, []);
 
 	// Popup authorization handler (V2 feature)
 	const handlePopupAuthorization = useCallback(() => {
 		if (!authUrl) {
-			showGlobalError("❌ Please generate authorization URL first");
+			showGlobalError(" Please generate authorization URL first");
 			return;
 		}
 
 		setIsAuthorizing(true);
-		console.log("🔧 [OIDC-V3] Opening popup with URL:", authUrl);
+		console.log(" [OIDC-V3] Opening popup with URL:", authUrl);
 
 		// Set flow context for AuthzCallback to detect Enhanced V3 flow
 		sessionStorage.setItem(
@@ -935,25 +939,25 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 				redirectUri: credentials.redirectUri,
 			}),
 		);
-		console.log("🔧 [OIDC-V3] Set flowContext for popup callback handling");
+		console.log(" [OIDC-V3] Set flowContext for popup callback handling");
 
 		const popup = window.open(authUrl, "oauth-popup", "width=600,height=700");
 		if (popup) {
-			console.log("✅ [OIDC-V3] Popup opened successfully");
+			console.log(" [OIDC-V3] Popup opened successfully");
 
 			// Track authorization success to avoid race conditions
 			let authorizationSuccessful = false;
 
 			// Listen for messages from the popup
 			const messageHandler = (event: MessageEvent) => {
-				console.log("📨 [OIDC-V3] Message received from popup:", {
+				console.log(" [OIDC-V3] Message received from popup:", {
 					origin: event.origin,
 					expectedOrigin: window.location.origin,
 					data: event.data,
 				});
 
 				if (event.origin !== window.location.origin) {
-					console.log("❌ [OIDC-V3] Message origin mismatch, ignoring");
+					console.log(" [OIDC-V3] Message origin mismatch, ignoring");
 					return;
 				}
 
@@ -966,9 +970,9 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 					} = event.data;
 
 					if (error) {
-						console.error("❌ [OIDC-V3] Authorization error received:", error);
+						console.error(" [OIDC-V3] Authorization error received:", error);
 						showGlobalError(
-							`❌ Authorization failed: ${error_description || error}`,
+							` Authorization failed: ${error_description || error}`,
 						);
 						setIsAuthorizing(false);
 					} else if (callbackCode && callbackState) {
@@ -977,7 +981,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 
 						setAuthCode(callbackCode);
 						console.log(
-							"✅ [OIDC-V3] Authorization code received via popup:",
+							" [OIDC-V3] Authorization code received via popup:",
 							`${callbackCode.substring(0, 10)}...`,
 						);
 
@@ -989,7 +993,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 
 						// Show centralized success message
 						showGlobalSuccess(
-							"🎉 Authorization Successful! You have been authenticated with PingOne and can now exchange tokens.",
+							" Authorization Successful! You have been authenticated with PingOne and can now exchange tokens.",
 						);
 
 						// Auto-advance to token exchange step
@@ -1009,17 +1013,17 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 
 					// Only show error if authorization was not successful
 					if (!authorizationSuccessful) {
-						console.warn("⚠️ [OIDC-V3] Popup closed without authorization code");
+						console.warn(" [OIDC-V3] Popup closed without authorization code");
 						showGlobalError(
-							"⚠️ Authorization was cancelled or popup was closed before completion",
+							" Authorization was cancelled or popup was closed before completion",
 						);
 					}
 				}
 			}, 1000);
 		} else {
-			console.error("❌ [OIDC-V3] Failed to open popup window");
+			console.error(" [OIDC-V3] Failed to open popup window");
 			showGlobalError(
-				"❌ Failed to open popup window. Please check your browser settings.",
+				" Failed to open popup window. Please check your browser settings.",
 			);
 			setIsAuthorizing(false);
 		}
@@ -1028,11 +1032,11 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 	// Full redirect authorization handler (V2 feature)
 	const handleFullRedirectAuthorization = useCallback(() => {
 		if (!authUrl) {
-			showGlobalError("❌ Please generate authorization URL first");
+			showGlobalError(" Please generate authorization URL first");
 			return;
 		}
 
-		console.log("🔧 [OIDC-V3] Redirecting to authorization URL:", authUrl);
+		console.log(" [OIDC-V3] Redirecting to authorization URL:", authUrl);
 
 		// Store current flow state before redirect
 		const v3FlowState = {
@@ -1043,7 +1047,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 			timestamp: Date.now(),
 		};
 		sessionStorage.setItem("oidc-v3-flow-state", JSON.stringify(v3FlowState));
-		console.log("🔧 [OIDC-V3] Stored V3 flow state:", v3FlowState);
+		console.log(" [OIDC-V3] Stored V3 flow state:", v3FlowState);
 
 		// CRITICAL: Set flow context for callback handler (like V2)
 		// Use the SAME flowContext that was set in generateAuthUrl to avoid conflicts
@@ -1061,7 +1065,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 				flowContext.returnPath = returnPath; // Update return path for full redirect
 				flowContext.step = 5; // Update step for 7-step flow
 				console.log(
-					"🔄 [OIDC-V3] Updating existing flowContext for full redirect:",
+					" [OIDC-V3] Updating existing flowContext for full redirect:",
 					flowContext,
 				);
 			} catch (_e) {
@@ -1085,19 +1089,19 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 		}
 
 		console.log(
-			"🚨 [OIDC-V3] CRITICAL - About to store flowContext for callback detection...",
+			" [OIDC-V3] CRITICAL - About to store flowContext for callback detection...",
 		);
 		sessionStorage.setItem("flowContext", JSON.stringify(flowContext));
-		console.log("🚨 [OIDC-V3] flowContext stored successfully:", flowContext);
+		console.log(" [OIDC-V3] flowContext stored successfully:", flowContext);
 		console.log(
-			"🚨 [OIDC-V3] Verifying storage - reading back flowContext:",
+			" [OIDC-V3] Verifying storage - reading back flowContext:",
 			sessionStorage.getItem("flowContext"),
 		);
-		console.log("🔄 [OIDC-V3] Return path set to:", returnPath);
+		console.log(" [OIDC-V3] Return path set to:", returnPath);
 
 		// Redirect to authorization server using proper OAuth flow
 		console.log(
-			"🚀 [OIDC-V3] Redirecting to PingOne authorization server with OIDC-compliant URL",
+			" [OIDC-V3] Redirecting to PingOne authorization server with OIDC-compliant URL",
 		);
 		window.location.href = authUrl;
 	}, [authUrl, credentials, pkceCodes, flowConfig]);
@@ -1240,7 +1244,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 							>
 								<FiCheckCircle />
 								<div>
-									<strong>✅ Tokens Received Successfully!</strong>
+									<strong> Tokens Received Successfully!</strong>
 									<br />
 									Access token, ID token, and refresh token are ready for use.
 								</div>
@@ -1263,7 +1267,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 							>
 								<FiUser />
 								<div>
-									<strong>✅ User Information Retrieved!</strong>
+									<strong> User Information Retrieved!</strong>
 									<br />
 									Successfully retrieved user profile from UserInfo endpoint.
 								</div>
@@ -1329,7 +1333,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 											gap: "0.5rem",
 											padding: "0.75rem 1.5rem",
 											background: tokens.access_token
-												? "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)"
+												? "#f8fafc"
 												: "#9ca3af",
 											color: "white",
 											border: "none",
@@ -1373,7 +1377,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 											gap: "0.5rem",
 											padding: "0.75rem 1.5rem",
 											background:
-												"linear-gradient(135deg, #10b981 0%, #047857 100%)",
+												"#f8fafc",
 											color: "white",
 											border: "none",
 											borderRadius: "0.5rem",
@@ -1415,7 +1419,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 											<strong>Access Token:</strong>
 										</span>
 										<span>
-											{tokens.access_token ? "✅ Present" : "❌ Missing"}
+											{tokens.access_token ? " Present" : " Missing"}
 										</span>
 									</div>
 									<div
@@ -1430,7 +1434,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 										<span>
 											<strong>ID Token:</strong>
 										</span>
-										<span>{tokens.id_token ? "✅ Present" : "❌ Missing"}</span>
+										<span>{tokens.id_token ? " Present" : " Missing"}</span>
 									</div>
 									<div
 										style={{
@@ -1445,7 +1449,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 											<strong>Refresh Token:</strong>
 										</span>
 										<span>
-											{tokens.refresh_token ? "✅ Present" : "❌ Missing"}
+											{tokens.refresh_token ? " Present" : " Missing"}
 										</span>
 									</div>
 									<div
@@ -1511,7 +1515,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 								<div
 									style={{
 										background:
-											"linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%)",
+											"#f8fafc",
 										border: "1px solid #86efac",
 										borderRadius: "0.5rem",
 										padding: "1rem",
@@ -1543,7 +1547,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 								}}
 							>
 								<h4 style={{ margin: "0 0 0.5rem 0", color: "#1f2937" }}>
-									🎉 OAuth Flow Complete!
+									 OAuth Flow Complete!
 								</h4>
 								<p
 									style={{
@@ -1560,7 +1564,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 									type="button"
 									onClick={() => {
 										// Reset the entire flow
-										console.log("🔄 [OIDC-V3] Restarting flow from step 1");
+										console.log(" [OIDC-V3] Restarting flow from step 1");
 
 										// Clear all flow state
 										setAuthCode("");
@@ -1588,7 +1592,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 										window.scrollTo({ top: 0, behavior: "smooth" });
 
 										showGlobalSuccess(
-											"🔄 Flow restarted successfully! You can now begin a new OAuth flow.",
+											" Flow restarted successfully! You can now begin a new OAuth flow.",
 										);
 									}}
 									style={{
@@ -1597,7 +1601,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 										gap: "0.5rem",
 										padding: "0.75rem 2rem",
 										background:
-											"linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
+											"#f8fafc",
 										color: "white",
 										border: "none",
 										borderRadius: "0.5rem",
@@ -1667,7 +1671,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 						onConfigChange={setFlowConfig}
 						flowType="oidc-authorization-code"
 						initialExpanded={false}
-						title="🔧 Advanced Flow Configuration"
+						title=" Advanced Flow Configuration"
 						subtitle="Configure advanced OIDC parameters, client authentication, and custom options"
 					/>
 				</div>
@@ -1723,7 +1727,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 											color: "#9a3412",
 										}}
 									>
-										⚠️ <strong>Security Recommendation:</strong> Consider using
+										 <strong>Security Recommendation:</strong> Consider using
 										'client_secret_jwt' or 'private_key_jwt' for production
 										environments.
 									</div>
@@ -1767,7 +1771,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 								}}
 							>
 								<span style={{ fontSize: "1.2em" }}>
-									{complianceResult.isCompliant ? "✅" : "⚠️"}
+									{complianceResult.isCompliant ? "" : ""}
 								</span>
 								OIDC Core 1.0 Compliance Status
 							</div>
@@ -1788,7 +1792,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 										color: "#374151",
 									}}
 								>
-									📋 View Compliance Report
+									 View Compliance Report
 								</summary>
 								<pre
 									style={{
@@ -1893,7 +1897,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 								color: "#92400e",
 							}}
 						>
-							<span style={{ fontSize: "1.2em" }}>🛠️</span>
+							<span style={{ fontSize: "1.2em" }}></span>
 							Error Recovery Actions Available
 						</div>
 
@@ -1952,18 +1956,18 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 				<EnhancedStepFlowV2
 					key={`oidc-authz-${stepManager.currentStepIndex}-${authCode ? "with-code" : "no-code"}`}
 					steps={steps}
-					title="🔑 OIDC Authorization Code Flow (V3 - Clean)"
+					title=" OIDC Authorization Code Flow (V3 - Clean)"
 					persistKey="oidc-authz-v3"
 					autoAdvance={true}
 					showDebugInfo={false}
 					allowStepJumping={true}
 					initialStepIndex={stepManager.currentStepIndex}
 					onStepChange={(stepIndex) => {
-						console.log("🔔 [OIDC-V3] Step changed to:", stepIndex);
+						console.log(" [OIDC-V3] Step changed to:", stepIndex);
 						stepManager.setStep(stepIndex, "user navigation");
 					}}
 					onStepComplete={(stepId, result) => {
-						console.log("✅ [OIDC-V3] Step completed:", stepId, result);
+						console.log(" [OIDC-V3] Step completed:", stepId, result);
 					}}
 				/>
 
@@ -1986,7 +1990,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 							fontWeight: "600",
 						}}
 					>
-						<span style={{ marginRight: "0.5rem" }}>⚙️</span>
+						<span style={{ marginRight: "0.5rem" }}></span>
 						Flow Control Actions
 					</h4>
 
@@ -2021,7 +2025,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 								minWidth: "160px",
 							}}
 						>
-							<span>🧹</span>
+							<span></span>
 							Clear Credentials
 						</button>
 
@@ -2091,7 +2095,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 							width: "90%",
 						}}
 					>
-						<h3 style={{ marginTop: 0, color: "#ef4444" }}>🔄 Reset Flow</h3>
+						<h3 style={{ marginTop: 0, color: "#ef4444" }}> Reset Flow</h3>
 						<p>Are you sure you want to reset the entire flow? This will:</p>
 						<ul>
 							<li>Clear all step progress and results</li>
@@ -2167,7 +2171,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 						}}
 					>
 						<h3 style={{ marginTop: 0, color: "#f59e0b" }}>
-							🧹 Clear Credentials
+							 Clear Credentials
 						</h3>
 						<p>
 							Are you sure you want to clear all saved credentials? This will:

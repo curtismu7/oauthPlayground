@@ -22,7 +22,7 @@ const SecurityAnalytics: React.FC = () => {
         <PageTitle
           title="Security Analytics"
           subtitle="Monitor security events, compliance status, and threat intelligence across your OAuth flows"
-          icon="🛡️"
+          icon=""
         />
         <SecurityAnalyticsDashboard />
       </ContentContainer>

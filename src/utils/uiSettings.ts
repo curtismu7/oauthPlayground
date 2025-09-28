@@ -44,7 +44,7 @@ export const updateUISetting = (key: keyof UISettings, value: boolean): void => 
       [key]: value
     };
     localStorage.setItem(flowConfigKey, JSON.stringify(updatedFlowConfig));
-    console.log(`💾 [UISettings] Updated ${key} to ${value}`);
+    console.log(` [UISettings] Updated ${key} to ${value}`);
   } catch (error) {
     console.error('Failed to update UI setting:', error);
   }

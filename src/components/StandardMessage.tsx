@@ -165,7 +165,7 @@ export const StandardMessage: React.FC<StandardMessageProps> = ({
           aria-label="Dismiss message"
           type="button"
         >
-          ×
+          
         </button>
       )}
     </MessageContainer>

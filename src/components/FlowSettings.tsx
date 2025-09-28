@@ -365,7 +365,7 @@ const FlowSettings = ({
           transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
           transition: 'transform 0.3s'
         }}>
-          ▼
+          
         </div>
       </SettingsHeader>
 
@@ -429,13 +429,13 @@ const FlowSettings = ({
             fontSize: '0.875rem'
           }}>
             <div><strong>Flow Type:</strong> {flowType}</div>
-            <div><strong>PKCE:</strong> {settings.pkce ? '✅ Enabled' : '❌ Disabled'}</div>
-            <div><strong>State:</strong> {settings.state ? '✅ Enabled' : '❌ Disabled'}</div>
-            <div><strong>Nonce:</strong> {settings.nonce ? '✅ Enabled' : '❌ Disabled'}</div>
-            <div><strong>Scope:</strong> {settings.scope ? '✅ Enabled' : '❌ Disabled'}</div>
-            <div><strong>Redirect URI:</strong> {settings.redirectUri ? '✅ Enabled' : '❌ Disabled'}</div>
-            <div><strong>Client Secret:</strong> {settings.clientSecret ? '✅ Enabled' : '❌ Disabled'}</div>
-            <div><strong>HTTPS:</strong> {settings.https ? '✅ Enabled' : '❌ Disabled'}</div>
+            <div><strong>PKCE:</strong> {settings.pkce ? ' Enabled' : ' Disabled'}</div>
+            <div><strong>State:</strong> {settings.state ? ' Enabled' : ' Disabled'}</div>
+            <div><strong>Nonce:</strong> {settings.nonce ? ' Enabled' : ' Disabled'}</div>
+            <div><strong>Scope:</strong> {settings.scope ? ' Enabled' : ' Disabled'}</div>
+            <div><strong>Redirect URI:</strong> {settings.redirectUri ? ' Enabled' : ' Disabled'}</div>
+            <div><strong>Client Secret:</strong> {settings.clientSecret ? ' Enabled' : ' Disabled'}</div>
+            <div><strong>HTTPS:</strong> {settings.https ? ' Enabled' : ' Disabled'}</div>
           </div>
         </SettingGroup>
       </SettingsContent>

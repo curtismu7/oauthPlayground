@@ -340,7 +340,7 @@ export const StatusMessage: React.FC<StatusMessageProps> = ({
             borderRadius: '4px'
           }}
         >
-          ×
+          
         </button>
       )}
     </StatusContainer>
