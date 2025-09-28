@@ -48,6 +48,7 @@ import OAuth2SecurityBestPractices from "./pages/docs/OAuth2SecurityBestPractice
 import OIDCForAI from "./pages/docs/OIDCForAI";
 import OIDCSpecs from "./pages/docs/OIDCSpecs";
 import AuthorizationCodeFlow from "./pages/flows/AuthorizationCodeFlow";
+import AuthorizationCodeFlowV4 from "./pages/flows/AuthorizationCodeFlowV4";
 import ClientCredentialsFlow from "./pages/flows/ClientCredentialsFlow";
 import DeviceCodeFlow from "./pages/flows/DeviceCodeFlow";
 import DeviceCodeFlowOIDC from "./pages/flows/DeviceCodeFlowOIDC";
@@ -306,6 +307,10 @@ const AppRoutes = () => {
 						<Route
 							path="/flows/oauth-authorization-code-v3"
 							element={<UnifiedAuthorizationCodeFlowV3 flowType="oauth" />}
+						/>
+						<Route
+							path="/flows/authorization-code-v4"
+							element={<AuthorizationCodeFlowV4 />}
 						/>
 						<Route
 							path="/flows/oauth2-implicit-v3"
