@@ -264,7 +264,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       if (saved) {
         const parsed = JSON.parse(saved);
         return {
-          oauth: false,  // Always start with OAuth menu collapsed
+          oauth: parsed.oauth ?? true,  // Default to expanded
           oidc: parsed.oidc ?? true,  // Default to expanded
           'pingone-tokens': parsed['pingone-tokens'] ?? true, // Default to expanded
           resources: parsed.resources ?? true, // Default to expanded
@@ -275,7 +275,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       console.warn('Failed to load navigation state from localStorage:', error);
     }
     return {
-      oauth: false,  // Default to collapsed
+      oauth: true,  // Default to expanded
       oidc: true,  // Default to expanded
       'pingone-tokens': true, // Default to expanded
       resources: true, // Default to expanded
@@ -289,8 +289,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     setOpenMenus(prev => {
       const newState = {
         ...prev,
-        // Auto-expand if current route matches (OAuth menu stays collapsed by default)
-        oauth: prev.oauth, // Keep OAuth menu collapsed by default
+        // Auto-expand if current route matches
+        oauth: path.startsWith('/flows/') || prev.oauth,
         oidc: path.startsWith('/oidc') || prev.oidc,
         'pingone-tokens': path.startsWith('/oidc/worker-token') || prev['pingone-tokens'],
         resources: (path.startsWith('/oidc/userinfo') || path.startsWith('/oidc/tokens') || 
