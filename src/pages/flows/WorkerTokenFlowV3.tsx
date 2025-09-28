@@ -290,7 +290,7 @@ const WorkerTokenFlowV3: React.FC = () => {
 	});
 
 	const [clientAuthMethod, setClientAuthMethod] =
-		useState<WorkerTokenAuthMethod>("client_secret_post");
+		useState<WorkerTokenAuthMethod>("client_secret_basic");
 	const [privateKey, setPrivateKey] = useState<string>("");
 	const [showSecret, setShowSecret] = useState(false);
 	const [showPrivateKey, setShowPrivateKey] = useState(false);
@@ -927,6 +927,23 @@ const WorkerTokenFlowV3: React.FC = () => {
 						"    openid - For OpenID Connect (if needed)\n" +
 						"5. Save the configuration and try again\n\n" +
 						"Note: Worker Applications need PingOne Management API scopes, not user scopes.";
+				} else if (
+					errorMessage.includes("authentication method") ||
+					errorMessage.includes("Unsupported authentication") ||
+					errorData.error === "invalid_client"
+				) {
+					errorMessage +=
+						"\n\n Solution: Check your PingOne Worker Application authentication method:\n" +
+						"1. Go to PingOne Admin Console\n" +
+						"2. Navigate to Applications  Your Worker Application\n" +
+						'3. Go to the "Authentication" or "Client Authentication" tab\n' +
+						"4. Verify the authentication method matches your configuration\n" +
+						"5. Try different authentication methods:\n" +
+						"    client_secret_post - Send secret in POST body\n" +
+						"    client_secret_basic - Send secret in Authorization header\n" +
+						"    client_secret_jwt - Use JWT with shared secret\n" +
+						"    private_key_jwt - Use JWT with private key\n" +
+						"6. Save the configuration and try again";
 				}
 
 				throw new Error(errorMessage);
@@ -1002,7 +1019,7 @@ const WorkerTokenFlowV3: React.FC = () => {
 				redirectUri: "",
 				scopes: "openid",
 			});
-			setClientAuthMethod("client_secret_post");
+			setClientAuthMethod("client_secret_basic");
 			setPrivateKey("");
 			setUseJwksEndpoint(true);
 			setJwksUrl("https://oauth-playground.vercel.app/jwks");
@@ -1060,7 +1077,7 @@ const WorkerTokenFlowV3: React.FC = () => {
 				redirectUri: "",
 				scopes: "openid",
 			});
-			setClientAuthMethod("client_secret_post");
+			setClientAuthMethod("client_secret_basic");
 			setPrivateKey("");
 			setShowSecret(false);
 			setShowPrivateKey(false);
