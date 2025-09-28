@@ -300,11 +300,11 @@ const Dashboard = () => {
     autoRefresh: true,
     refreshThreshold: 300, // 5 minutes before expiry
     onRefreshSuccess: (newTokens) => {
-      console.log('✅ [Dashboard] Token refresh successful', newTokens);
+      console.log(' [Dashboard] Token refresh successful', newTokens);
       setTokens(newTokens);
     },
     onRefreshError: (error) => {
-      console.error('❌ [Dashboard] Token refresh failed', error);
+      console.error(' [Dashboard] Token refresh failed', error);
     }
   });
   
@@ -316,7 +316,7 @@ const Dashboard = () => {
   
   // Debug logging for configuration status
   useEffect(() => {
-    console.log('🔍 [Dashboard] Config status check:', {
+    console.log(' [Dashboard] Config status check:', {
       hasConfig: !!config,
       environmentId: config?.environmentId,
       clientId: config?.clientId,
@@ -359,7 +359,7 @@ const Dashboard = () => {
       const storedTokens = getOAuthTokens();
       if (storedTokens && (!tokens || storedTokens.access_token !== tokens.access_token)) {
         setTokens(storedTokens);
-        console.log('🔄 [Dashboard] New tokens detected:', storedTokens);
+        console.log(' [Dashboard] New tokens detected:', storedTokens);
       }
     }, 2000);
 
@@ -514,7 +514,7 @@ const Dashboard = () => {
                       margin: '0 0 0.5rem 0',
                       color: errorInfo.severity === 'error' ? '#991b1b' : errorInfo.severity === 'warning' ? '#92400e' : '#1e40af'
                     }}>
-                      💡 How to Fix:
+                       How to Fix:
                     </h4>
                     <div style={{ 
                       margin: 0, 
@@ -722,14 +722,14 @@ const Dashboard = () => {
                         try {
                           const result = await TokenDebugger.clearAllTokens();
                           if (result.success) {
-                            console.log('✅ [Dashboard] Cleared all tokens from storage');
+                            console.log(' [Dashboard] Cleared all tokens from storage');
                             window.location.reload(); // Reload to refresh status
                           } else {
-                            console.error('❌ [Dashboard] Failed to clear tokens:', result.error);
+                            console.error(' [Dashboard] Failed to clear tokens:', result.error);
                             alert(`Failed to clear tokens: ${result.error}`);
                           }
                         } catch (error) {
-                          console.error('❌ [Dashboard] Failed to clear tokens:', error);
+                          console.error(' [Dashboard] Failed to clear tokens:', error);
                           alert(`Failed to clear tokens: ${error}`);
                         }
                       }}
@@ -816,7 +816,7 @@ const Dashboard = () => {
                     <div className="activity-title">{activity.action || 'OAuth Flow Executed'}</div>
                     <p className="activity-time">
                       {new Date(activity.timestamp).toLocaleString()}
-                      {activity.flowType && ` • ${activity.flowType}`}
+                      {activity.flowType && `  ${activity.flowType}`}
                     </p>
                   </div>
                 </div>
@@ -875,7 +875,7 @@ const Dashboard = () => {
             <ModalHeader>
               <h2>Recent Activity</h2>
               <CloseButton onClick={() => setShowActivityModal(false)}>
-                ×
+                
               </CloseButton>
             </ModalHeader>
             <ActivityList>

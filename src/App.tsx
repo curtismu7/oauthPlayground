@@ -131,9 +131,9 @@ const AppRoutes = () => {
 
 	// Check for existing PingOne configuration on app load
 	useEffect(() => {
-		console.log("🔍 [App] useEffect triggered - checking configuration...");
+		console.log(" [App] useEffect triggered - checking configuration...");
 		const checkConfiguration = () => {
-			console.log("🔍 [App] Checking for existing configuration...");
+			console.log(" [App] Checking for existing configuration...");
 			try {
 				// Check if credentials modal should be shown based on flow config
 				const flowConfig = JSON.parse(
@@ -143,30 +143,30 @@ const AppRoutes = () => {
 					flowConfig.showCredentialsModal === true; // Only show if explicitly enabled
 
 				console.log(
-					"🔍 [App] Flow config showCredentialsModal:",
+					" [App] Flow config showCredentialsModal:",
 					shouldShowCredentialsModal,
 				);
 				console.log(
-					"🔍 [App] Flow config raw value:",
+					" [App] Flow config raw value:",
 					flowConfig.showCredentialsModal,
 				);
-				console.log("🔍 [App] Full flow config:", flowConfig);
+				console.log(" [App] Full flow config:", flowConfig);
 
 				// Debug: Check all localStorage keys
 				console.log(
-					"🔍 [App] All localStorage keys:",
+					" [App] All localStorage keys:",
 					Object.keys(localStorage),
 				);
 				console.log(
-					"🔍 [App] pingone_permanent_credentials:",
+					" [App] pingone_permanent_credentials:",
 					localStorage.getItem("pingone_permanent_credentials"),
 				);
 				console.log(
-					"🔍 [App] pingone_session_credentials:",
+					" [App] pingone_session_credentials:",
 					localStorage.getItem("pingone_session_credentials"),
 				);
 				console.log(
-					"🔍 [App] pingone_config:",
+					" [App] pingone_config:",
 					localStorage.getItem("pingone_config"),
 				);
 
@@ -176,14 +176,14 @@ const AppRoutes = () => {
 				if (!allCredentials.environmentId && !allCredentials.clientId) {
 					allCredentials = credentialManager.loadAuthzFlowCredentials();
 				}
-				console.log("🔍 [App] All credentials from manager:", allCredentials);
+				console.log(" [App] All credentials from manager:", allCredentials);
 
 				const hasPermanentCredentials = !!(
 					allCredentials.environmentId && allCredentials.clientId
 				);
 				const hasSessionCredentials = !!allCredentials.clientSecret;
 
-				console.log("🔍 [App] Configuration check:", {
+				console.log(" [App] Configuration check:", {
 					hasPermanentCredentials,
 					hasSessionCredentials,
 					overallStatus: credentialManager.getCredentialsStatus(),
@@ -203,9 +203,9 @@ const AppRoutes = () => {
 					!skipStartupModal
 				) {
 					console.log(
-						"⚠️ [App] No credentials found and credentials modal enabled, showing setup modal",
+						" [App] No credentials found and credentials modal enabled, showing setup modal",
 					);
-					console.log("🔍 [App] Modal will show because:", {
+					console.log(" [App] Modal will show because:", {
 						hasPermanentCredentials,
 						hasSessionCredentials,
 						shouldShowCredentialsModal,
@@ -215,14 +215,14 @@ const AppRoutes = () => {
 				} else {
 					if (skipStartupModal) {
 						console.log(
-							"⏭️ [App] Startup credentials modal skipped (user preference)",
+							" [App] Startup credentials modal skipped (user preference)",
 						);
 					} else {
 						console.log(
-							"✅ [App] Credentials found or credentials modal disabled, skipping setup modal",
+							" [App] Credentials found or credentials modal disabled, skipping setup modal",
 						);
 					}
-					console.log("🔍 [App] Modal will NOT show because:", {
+					console.log(" [App] Modal will NOT show because:", {
 						hasPermanentCredentials,
 						hasSessionCredentials,
 						shouldShowCredentialsModal,
@@ -231,7 +231,7 @@ const AppRoutes = () => {
 					setShowCredentialModal(false);
 				}
 			} catch (error) {
-				console.warn("❌ [App] Error checking configuration:", error);
+				console.warn(" [App] Error checking configuration:", error);
 				// Show modal on error to be safe
 				setShowCredentialModal(true);
 			}
@@ -442,7 +442,7 @@ const AppRoutes = () => {
 				isOpen={showCredentialModal}
 				onClose={handleCredentialSetupComplete}
 				onSave={(creds) => {
-					console.log("✅ [App] Credentials saved from startup modal:", creds);
+					console.log(" [App] Credentials saved from startup modal:", creds);
 					// The modal will auto-close after save
 				}}
 				flowType="startup"

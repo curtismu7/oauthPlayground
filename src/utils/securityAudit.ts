@@ -408,31 +408,31 @@ class SecurityAuditor {
     const highVulns = vulnerabilities.filter(v => v.severity === 'high');
     
     if (criticalVulns.length > 0) {
-      recommendations.push('🚨 URGENT: Address critical vulnerabilities immediately');
+      recommendations.push(' URGENT: Address critical vulnerabilities immediately');
     }
     
     if (highVulns.length > 0) {
-      recommendations.push('⚠️ HIGH PRIORITY: Fix high-severity vulnerabilities');
+      recommendations.push(' HIGH PRIORITY: Fix high-severity vulnerabilities');
     }
     
     if (vulnerabilities.some(v => v.category === 'storage')) {
-      recommendations.push('💾 Implement secure token storage mechanisms');
+      recommendations.push(' Implement secure token storage mechanisms');
     }
     
     if (vulnerabilities.some(v => v.category === 'transmission')) {
-      recommendations.push('🔒 Ensure all token transmission uses HTTPS');
+      recommendations.push(' Ensure all token transmission uses HTTPS');
     }
     
     if (vulnerabilities.some(v => v.category === 'validation')) {
-      recommendations.push('🛡️ Implement comprehensive input validation and sanitization');
+      recommendations.push(' Implement comprehensive input validation and sanitization');
     }
     
     if (vulnerabilities.some(v => v.category === 'configuration')) {
-      recommendations.push('⚙️ Review and secure application configuration');
+      recommendations.push(' Review and secure application configuration');
     }
     
     if (vulnerabilities.length === 0) {
-      recommendations.push('✅ No security vulnerabilities detected');
+      recommendations.push(' No security vulnerabilities detected');
     }
 
     return recommendations;

@@ -68,7 +68,7 @@ class CredentialManager {
         lastUpdated: Date.now()
       };
 
-      console.log('🔧 [CredentialManager] Saving config credentials to localStorage:', {
+      console.log(' [CredentialManager] Saving config credentials to localStorage:', {
         key: this.CONFIG_CREDENTIALS_KEY,
         data: updated
       });
@@ -80,7 +80,7 @@ class CredentialManager {
       
       // Verify it was saved
       const saved = localStorage.getItem(this.CONFIG_CREDENTIALS_KEY);
-      console.log('✅ [CredentialManager] Verified config credentials save:', saved);
+      console.log(' [CredentialManager] Verified config credentials save:', saved);
       
       logger.success('CredentialManager', 'Saved config credentials', {
         hasEnvironmentId: !!updated.environmentId,
@@ -132,7 +132,7 @@ class CredentialManager {
         };
       }
     } catch (error) {
-      console.error('❌ [CredentialManager] Failed to load config credentials:', error);
+      console.error(' [CredentialManager] Failed to load config credentials:', error);
       logger.error('CredentialManager', 'Failed to load config credentials', String(error));
       return {
         environmentId: '',
@@ -156,7 +156,7 @@ class CredentialManager {
         lastUpdated: Date.now()
       };
 
-      console.log('🔧 [CredentialManager] Saving authz flow credentials to localStorage:', {
+      console.log(' [CredentialManager] Saving authz flow credentials to localStorage:', {
         key: this.AUTHZ_FLOW_CREDENTIALS_KEY,
         data: updated
       });
@@ -168,7 +168,7 @@ class CredentialManager {
       
       // Verify it was saved
       const saved = localStorage.getItem(this.AUTHZ_FLOW_CREDENTIALS_KEY);
-      console.log('✅ [CredentialManager] Verified authz flow credentials save:', saved);
+      console.log(' [CredentialManager] Verified authz flow credentials save:', saved);
       
       logger.success('CredentialManager', 'Saved authz flow credentials', {
         hasEnvironmentId: !!updated.environmentId,
@@ -199,7 +199,7 @@ class CredentialManager {
         return config.useGlobalConfig === true;
       }
     } catch (error) {
-      console.log('🔧 [CredentialManager] Could not check global config setting:', error);
+      console.log(' [CredentialManager] Could not check global config setting:', error);
     }
     return false;
   }
@@ -212,7 +212,7 @@ class CredentialManager {
     try {
       // Check if global config is enabled - if so, use Dashboard credentials but with correct redirect URI
       if (this.isGlobalConfigEnabled()) {
-        console.log('🌐 [CredentialManager] Global config enabled - using Dashboard credentials for all flows');
+        console.log(' [CredentialManager] Global config enabled - using Dashboard credentials for all flows');
         const configCredentials = this.loadConfigCredentials();
         // Override redirect URI to use flow-specific default for authorization flows
         return {
@@ -250,7 +250,7 @@ class CredentialManager {
         };
       }
     } catch (error) {
-      console.error('❌ [CredentialManager] Failed to load authz flow credentials:', error);
+      console.error(' [CredentialManager] Failed to load authz flow credentials:', error);
       logger.error('CredentialManager', 'Failed to load authz flow credentials', String(error));
       return {
         environmentId: '',
@@ -275,7 +275,7 @@ class CredentialManager {
         lastUpdated: Date.now()
       };
 
-      console.log('🔧 [CredentialManager] Saving implicit flow credentials to localStorage:', {
+      console.log(' [CredentialManager] Saving implicit flow credentials to localStorage:', {
         key: this.IMPLICIT_FLOW_CREDENTIALS_KEY,
         data: updated
       });
@@ -288,10 +288,10 @@ class CredentialManager {
         detail: { credentials: updated } 
       }));
       
-      console.log('✅ [CredentialManager] Successfully saved implicit flow credentials to localStorage');
+      console.log(' [CredentialManager] Successfully saved implicit flow credentials to localStorage');
       return true;
     } catch (error) {
-      console.error('❌ [CredentialManager] Error saving implicit flow credentials to localStorage:', error);
+      console.error(' [CredentialManager] Error saving implicit flow credentials to localStorage:', error);
       return false;
     }
   }
@@ -330,7 +330,7 @@ class CredentialManager {
         };
       }
     } catch (error) {
-      console.error('❌ [CredentialManager] Failed to load implicit flow credentials:', error);
+      console.error(' [CredentialManager] Failed to load implicit flow credentials:', error);
       logger.error('CredentialManager', 'Failed to load implicit flow credentials', String(error));
       return {
         environmentId: '',
@@ -363,7 +363,7 @@ class CredentialManager {
       
       return true;
     } catch (error) {
-      console.error('❌ [CredentialManager] Error saving hybrid flow credentials:', error);
+      console.error(' [CredentialManager] Error saving hybrid flow credentials:', error);
       return false;
     }
   }
@@ -402,7 +402,7 @@ class CredentialManager {
         };
       }
     } catch (error) {
-      console.error('❌ [CredentialManager] Failed to load hybrid flow credentials:', error);
+      console.error(' [CredentialManager] Failed to load hybrid flow credentials:', error);
       return {
         environmentId: '',
         clientId: '',
@@ -434,7 +434,7 @@ class CredentialManager {
       
       return true;
     } catch (error) {
-      console.error('❌ [CredentialManager] Error saving worker flow credentials:', error);
+      console.error(' [CredentialManager] Error saving worker flow credentials:', error);
       return false;
     }
   }
@@ -476,7 +476,7 @@ class CredentialManager {
         };
       }
     } catch (error) {
-      console.error('❌ [CredentialManager] Failed to load worker flow credentials:', error);
+      console.error(' [CredentialManager] Failed to load worker flow credentials:', error);
       return {
         environmentId: '',
         clientId: '',
@@ -510,7 +510,7 @@ class CredentialManager {
       
       return true;
     } catch (error) {
-      console.error('❌ [CredentialManager] Error saving device flow credentials:', error);
+      console.error(' [CredentialManager] Error saving device flow credentials:', error);
       return false;
     }
   }
@@ -551,7 +551,7 @@ class CredentialManager {
         };
       }
     } catch (error) {
-      console.error('❌ [CredentialManager] Failed to load device flow credentials:', error);
+      console.error(' [CredentialManager] Failed to load device flow credentials:', error);
       return {
         environmentId: '',
         clientId: '',
@@ -644,7 +644,7 @@ class CredentialManager {
         lastUpdated: Date.now()
       };
 
-      console.log('🔧 [CredentialManager] Saving to localStorage:', {
+      console.log(' [CredentialManager] Saving to localStorage:', {
         key: this.PERMANENT_CREDENTIALS_KEY,
         data: updated
       });
@@ -656,7 +656,7 @@ class CredentialManager {
       
       // Verify it was saved
       const saved = localStorage.getItem(this.PERMANENT_CREDENTIALS_KEY);
-      console.log('✅ [CredentialManager] Verified save:', saved);
+      console.log(' [CredentialManager] Verified save:', saved);
       
       logger.success('CredentialManager', 'Saved permanent credentials', {
         hasEnvironmentId: !!updated.environmentId,
@@ -682,7 +682,7 @@ class CredentialManager {
   loadPermanentCredentials(): PermanentCredentials {
     try {
       const stored = localStorage.getItem(this.PERMANENT_CREDENTIALS_KEY);
-      console.log('🔧 [CredentialManager] Loading from localStorage:', {
+      console.log(' [CredentialManager] Loading from localStorage:', {
         key: this.PERMANENT_CREDENTIALS_KEY,
         stored: stored,
         allKeys: Object.keys(localStorage).filter(key => key.includes('pingone'))
@@ -691,7 +691,7 @@ class CredentialManager {
       if (stored) {
         // Load from localStorage if available
         const credentials = JSON.parse(stored);
-        console.log('✅ [CredentialManager] Loaded from localStorage:', credentials);
+        console.log(' [CredentialManager] Loaded from localStorage:', credentials);
         
         // Ensure required fields have defaults
         const result = {
@@ -706,12 +706,12 @@ class CredentialManager {
           tokenAuthMethod: credentials.tokenAuthMethod
         };
         
-        console.log('✅ [CredentialManager] Returning credentials:', result);
+        console.log(' [CredentialManager] Returning credentials:', result);
         return result;
       } else {
         // No localStorage found, return empty credentials
         // The async loading will be handled by loadPermanentCredentialsAsync
-        console.log('❌ [CredentialManager] No stored credentials found');
+        console.log(' [CredentialManager] No stored credentials found');
         return {
           environmentId: '',
           clientId: '',
@@ -720,7 +720,7 @@ class CredentialManager {
         };
       }
     } catch (error) {
-      console.error('❌ [CredentialManager] Failed to load permanent credentials:', error);
+      console.error(' [CredentialManager] Failed to load permanent credentials:', error);
       logger.error('CredentialManager', 'Failed to load permanent credentials', error);
       return {
         environmentId: '',
@@ -737,7 +737,7 @@ class CredentialManager {
   async loadPermanentCredentialsAsync(): Promise<PermanentCredentials> {
     try {
       const stored = localStorage.getItem(this.PERMANENT_CREDENTIALS_KEY);
-      console.log('🔧 [CredentialManager] Loading from localStorage (async):', {
+      console.log(' [CredentialManager] Loading from localStorage (async):', {
         key: this.PERMANENT_CREDENTIALS_KEY,
         stored: stored,
         allKeys: Object.keys(localStorage).filter(key => key.includes('pingone'))
@@ -746,7 +746,7 @@ class CredentialManager {
       if (stored) {
         // Load from localStorage if available
         const credentials = JSON.parse(stored);
-        console.log('✅ [CredentialManager] Loaded from localStorage:', credentials);
+        console.log(' [CredentialManager] Loaded from localStorage:', credentials);
         
         // Ensure required fields have defaults
         const result = {
@@ -761,25 +761,25 @@ class CredentialManager {
           tokenAuthMethod: credentials.tokenAuthMethod
         };
         
-        console.log('✅ [CredentialManager] Returning credentials:', result);
+        console.log(' [CredentialManager] Returning credentials:', result);
         return result;
       } else {
         // Fallback to environment variables
-        console.log('🔄 [CredentialManager] No localStorage found, checking environment variables...');
+        console.log(' [CredentialManager] No localStorage found, checking environment variables...');
         const credentials = await this.loadFromEnvironmentVariables();
         
         if (credentials.environmentId && credentials.clientId) {
-          console.log('✅ [CredentialManager] Loaded from environment variables:', credentials);
+          console.log(' [CredentialManager] Loaded from environment variables:', credentials);
           // Auto-save to localStorage for future use
           this.savePermanentCredentials(credentials);
         } else {
-          console.log('❌ [CredentialManager] No credentials found in localStorage or environment');
+          console.log(' [CredentialManager] No credentials found in localStorage or environment');
         }
         
         return credentials;
       }
     } catch (error) {
-      console.error('❌ [CredentialManager] Failed to load permanent credentials:', error);
+      console.error(' [CredentialManager] Failed to load permanent credentials:', error);
       logger.error('CredentialManager', 'Failed to load permanent credentials', error);
       
       // Final fallback to environment variables
@@ -792,7 +792,7 @@ class CredentialManager {
    */
   private async loadFromEnvironmentVariables(): Promise<PermanentCredentials> {
     try {
-      console.log('🔄 [CredentialManager] Fetching environment config from server...');
+      console.log(' [CredentialManager] Fetching environment config from server...');
       
       const response = await fetch('/api/env-config');
       if (!response.ok) {
@@ -800,7 +800,7 @@ class CredentialManager {
       }
       
       const envConfig = await response.json();
-      console.log('✅ [CredentialManager] Loaded from environment config:', envConfig);
+      console.log(' [CredentialManager] Loaded from environment config:', envConfig);
       
       return {
         environmentId: envConfig.environmentId || '',
@@ -813,7 +813,7 @@ class CredentialManager {
         endSessionEndpoint: envConfig.endSessionEndpoint
       };
     } catch (error) {
-      console.error('❌ [CredentialManager] Failed to load from environment variables:', error);
+      console.error(' [CredentialManager] Failed to load from environment variables:', error);
       return {
         environmentId: '',
         clientId: '',
@@ -879,15 +879,15 @@ class CredentialManager {
     // Check cache first
     const now = Date.now();
     if (this.cache.all && this.cache.timestamp && (now - this.cache.timestamp) < this.CACHE_DURATION) {
-      console.log('🔧 [CredentialManager] getAllCredentials - using cache');
+      console.log(' [CredentialManager] getAllCredentials - using cache');
       return this.cache.all;
     }
 
     const permanent = this.loadPermanentCredentials();
     const session = this.loadSessionCredentials();
     
-    console.log('🔧 [CredentialManager] getAllCredentials - permanent:', permanent);
-    console.log('🔧 [CredentialManager] getAllCredentials - session:', session);
+    console.log(' [CredentialManager] getAllCredentials - permanent:', permanent);
+    console.log(' [CredentialManager] getAllCredentials - session:', session);
     
     const result = {
       ...permanent,
@@ -898,7 +898,7 @@ class CredentialManager {
     this.cache.all = result;
     this.cache.timestamp = now;
     
-    console.log('🔧 [CredentialManager] getAllCredentials - result:', result);
+    console.log(' [CredentialManager] getAllCredentials - result:', result);
     return result;
   }
 
@@ -909,15 +909,15 @@ class CredentialManager {
     const permanent = await this.loadPermanentCredentialsAsync();
     const session = this.loadSessionCredentials();
     
-    console.log('🔧 [CredentialManager] getAllCredentialsAsync - permanent:', permanent);
-    console.log('🔧 [CredentialManager] getAllCredentialsAsync - session:', session);
+    console.log(' [CredentialManager] getAllCredentialsAsync - permanent:', permanent);
+    console.log(' [CredentialManager] getAllCredentialsAsync - session:', session);
     
     const result = {
       ...permanent,
       ...session
     };
     
-    console.log('🔧 [CredentialManager] getAllCredentialsAsync - result:', result);
+    console.log(' [CredentialManager] getAllCredentialsAsync - result:', result);
     return result;
   }
 
@@ -1066,14 +1066,14 @@ class CredentialManager {
    * Debug method to check localStorage contents
    */
   debugLocalStorage(): void {
-    console.log('🔍 [CredentialManager] Debug localStorage contents:');
-    console.log('🔍 [CredentialManager] All localStorage keys:', Object.keys(localStorage));
-    console.log('🔍 [CredentialManager] pingone_permanent_credentials:', localStorage.getItem('pingone_permanent_credentials'));
-    console.log('🔍 [CredentialManager] pingone_session_credentials:', localStorage.getItem('pingone_session_credentials'));
-    console.log('🔍 [CredentialManager] pingone_config_credentials:', localStorage.getItem('pingone_config_credentials'));
-    console.log('🔍 [CredentialManager] pingone_authz_flow_credentials:', localStorage.getItem('pingone_authz_flow_credentials'));
-    console.log('🔍 [CredentialManager] pingone_config:', localStorage.getItem('pingone_config'));
-    console.log('🔍 [CredentialManager] login_credentials:', localStorage.getItem('login_credentials'));
+    console.log(' [CredentialManager] Debug localStorage contents:');
+    console.log(' [CredentialManager] All localStorage keys:', Object.keys(localStorage));
+    console.log(' [CredentialManager] pingone_permanent_credentials:', localStorage.getItem('pingone_permanent_credentials'));
+    console.log(' [CredentialManager] pingone_session_credentials:', localStorage.getItem('pingone_session_credentials'));
+    console.log(' [CredentialManager] pingone_config_credentials:', localStorage.getItem('pingone_config_credentials'));
+    console.log(' [CredentialManager] pingone_authz_flow_credentials:', localStorage.getItem('pingone_authz_flow_credentials'));
+    console.log(' [CredentialManager] pingone_config:', localStorage.getItem('pingone_config'));
+    console.log(' [CredentialManager] login_credentials:', localStorage.getItem('login_credentials'));
   }
 
   /**
@@ -1086,7 +1086,7 @@ class CredentialManager {
       all: null,
       timestamp: null
     };
-    console.log('🧹 [CredentialManager] Cache cleared');
+    console.log(' [CredentialManager] Cache cleared');
   }
 }
 

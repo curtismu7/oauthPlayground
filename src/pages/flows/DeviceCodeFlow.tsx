@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { Card, CardBody, CardHeader } from "../../components/Card";
 import ConfigurationButton from "../../components/ConfigurationButton";
 import FlowCredentials from "../../components/FlowCredentials";
+import FlowIntro from "../../components/flow/FlowIntro";
 import PageTitle from "../../components/PageTitle";
 import { type FlowStep, StepByStepFlow } from "../../components/StepByStepFlow";
 import TokenDisplayComponent from "../../components/TokenDisplay";
@@ -19,6 +20,15 @@ const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 1.5rem;
+`;
+
+const HeroSection = styled.section`
+  margin-bottom: 2rem;
+  padding: 2.5rem;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #111827 0%, #1f2937 50%, #374151 100%);
+  color: white;
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.22);
 `;
 
 const FlowOverview = styled(Card)`
@@ -314,7 +324,7 @@ const DeviceFlow = () => {
 		setExecutedSteps(new Set());
 		setStepsWithResults([]);
 		setStepsWithResults([...steps]); // Initialize with copy of steps
-		console.log("🚀 [DeviceCodeFlow] Starting device code flow...");
+		console.log(" [DeviceCodeFlow] Starting device code flow...");
 	};
 
 	const resetDemo = () => {
@@ -377,9 +387,7 @@ client_id=${config?.clientId || "your_client_id"}&scope=read write
 				setStepResults((prev) => ({ ...prev, 0: { request: requestData } }));
 				setExecutedSteps((prev) => new Set(prev).add(0));
 
-				console.log(
-					"✅ [DeviceCodeFlow] Device authorization request prepared",
-				);
+				console.log(" [DeviceCodeFlow] Device authorization request prepared");
 			},
 		},
 		{
@@ -445,18 +453,12 @@ const userCode = generateUserFriendlyCode(); // e.g., "WDJB-MJHT"
 					}));
 					setExecutedSteps((prev) => new Set(prev).add(1));
 
-					console.log(
-						"✅ [DeviceCodeFlow] Device codes received:",
-						deviceCodes,
-					);
+					console.log(" [DeviceCodeFlow] Device codes received:", deviceCodes);
 				} catch (error: unknown) {
 					const errorMessage =
 						error instanceof Error ? error.message : "Unknown error";
 					setError(`Failed to get device codes: ${errorMessage}`);
-					console.error(
-						"❌ [DeviceCodeFlow] Device code request error:",
-						error,
-					);
+					console.error(" [DeviceCodeFlow] Device code request error:", error);
 				}
 			},
 		},
@@ -490,9 +492,7 @@ console.log('Enter code: WDJB-MJHT');
 				}));
 				setExecutedSteps((prev) => new Set(prev).add(2));
 
-				console.log(
-					"✅ [DeviceCodeFlow] User code displayed for authentication",
-				);
+				console.log(" [DeviceCodeFlow] User code displayed for authentication");
 			},
 		},
 		{
@@ -540,7 +540,7 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
 				setExecutedSteps((prev) => new Set(prev).add(3));
 
 				console.log(
-					"✅ [DeviceCodeFlow] Device started polling for authorization",
+					" [DeviceCodeFlow] Device started polling for authorization",
 				);
 			},
 		},
@@ -575,7 +575,7 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
 				}));
 				setExecutedSteps((prev) => new Set(prev).add(4));
 
-				console.log("✅ [DeviceCodeFlow] User authentication completed");
+				console.log(" [DeviceCodeFlow] User authentication completed");
 			},
 		},
 		{
@@ -633,7 +633,10 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
 					setDemoStatus("success");
 
 					// Show centralized success message
-					showGlobalSuccess("📱 Device Code flow completed successfully!");
+					showGlobalSuccess(
+						"Tokens copied",
+						"Device flow tokens copied to the clipboard.",
+					);
 
 					setStepResults((prev) => ({
 						...prev,
@@ -657,21 +660,21 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
 					);
 					if (success) {
 						console.log(
-							"✅ [DeviceCodeFlow] Tokens received and stored successfully",
+							" [DeviceCodeFlow] Tokens received and stored successfully",
 						);
 					} else {
-						console.error("❌ [DeviceCodeFlow] Failed to store tokens");
+						console.error(" [DeviceCodeFlow] Failed to store tokens");
 					}
 				} catch (error: unknown) {
 					const errorMessage =
 						error instanceof Error ? error.message : "Unknown error";
 					setError(`Failed to receive tokens: ${errorMessage}`);
-					console.error("❌ [DeviceCodeFlow] Token request error:", error);
+					console.error(" [DeviceCodeFlow] Token request error:", error);
 
 					// Show centralized error message
 					showGlobalError(
-						"❌ Device Code Failed",
-						`Failed to receive tokens: ${errorMessage}`,
+						"Authorization failed",
+						`We couldn't complete the device flow: ${errorMessage}`,
 					);
 				}
 			},
@@ -680,6 +683,30 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
 
 	return (
 		<Container>
+			<HeroSection>
+				<FlowIntro
+					title="Device Code Flow"
+					description="Authenticate constrained or shared-input devices by delegating sign-in to a secondary device while PingOne coordinates authorization."
+					introCopy={
+						<p>
+							Present the user with a code and verification URL on the
+							limited-input device. The user completes authentication on another
+							device while this client polls PingOne until approval.
+						</p>
+					}
+					bullets={[
+						"Ideal for TVs, kiosks, IoT hardware, and CLI utilities",
+						"No secrets ever live on the constrained device",
+						"Polling cadence balances UX and security",
+					]}
+					warningTitle="Security Considerations"
+					warningBody="Device and user codes expire quicklyalways confirm device status with PingOne before granting access."
+					warningIcon={<FiAlertCircle />}
+					illustration="/images/flows/device-code.svg"
+					illustrationAlt="Device code flow"
+				/>
+			</HeroSection>
+
 			<PageTitle
 				title={
 					<>

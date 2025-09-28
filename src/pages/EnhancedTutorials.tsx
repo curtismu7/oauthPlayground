@@ -289,7 +289,7 @@ const decodedPayload = JSON.parse(atob(payload));`
               cursor: 'pointer'
             }}
           >
-            ← Back to Tutorials
+             Back to Tutorials
           </button>
         </div>
       </Container>

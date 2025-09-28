@@ -569,7 +569,7 @@ const FlowComparisonTool: React.FC = () => {
 
       {selectedFlowData.length === 0 ? (
         <EmptyState>
-          <div className="empty-icon">🔍</div>
+          <div className="empty-icon"></div>
           <h3>Select Flows to Compare</h3>
           <p>
             Choose up to 4 OAuth flows from the options above to see a detailed comparison 
