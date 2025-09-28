@@ -426,7 +426,7 @@ export const AuthorizationUrlExplainer: React.FC<AuthorizationUrlExplainerProps>
             color: '#0c4a6e'
           }}>
             <h4 style={{ margin: '0 0 0.5rem 0', color: '#0c4a6e' }}>
-              💡 Educational Note:
+               Educational Note:
             </h4>
             <p style={{ margin: 0, lineHeight: 1.5 }}>
               This authorization URL contains all the necessary parameters for a secure OAuth 2.0 Authorization Code Flow with PKCE. 

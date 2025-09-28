@@ -378,7 +378,7 @@ const flowDiagrams: FlowDiagram[] = [
         explanation: 'The user is presented with PingOne\'s login form. They enter their username and password, which PingOne validates against their identity store.',
         actor: 'auth-server',
         action: 'Validates user credentials',
-        data: 'Username: user@example.com, Password: ••••••••',
+        data: 'Username: user@example.com, Password: ',
         duration: 1500,
         status: 'pending'
       },
@@ -451,7 +451,7 @@ const flowDiagrams: FlowDiagram[] = [
         explanation: 'The user enters their credentials on PingOne\'s login form. This is the same authentication step as the Authorization Code flow.',
         actor: 'auth-server',
         action: 'Validates user credentials',
-        data: 'Username: user@example.com, Password: ••••••••',
+        data: 'Username: user@example.com, Password: ',
         duration: 1500,
         status: 'pending'
       },
@@ -502,7 +502,7 @@ const flowDiagrams: FlowDiagram[] = [
         explanation: 'PingOne validates the client_id and client_secret against its client registry. If valid, it proceeds to issue a token.',
         actor: 'auth-server',
         action: 'Validates client_id and client_secret',
-        data: 'Client ID: abc123\nClient Secret: ••••••••••••••••\nStatus: Valid',
+        data: 'Client ID: abc123\nClient Secret: \nStatus: Valid',
         duration: 1500,
         status: 'pending'
       },
@@ -626,7 +626,7 @@ const flowDiagrams: FlowDiagram[] = [
         explanation: 'The user enters their credentials directly into the client application. This is less secure as credentials are exposed to the client.',
         actor: 'user',
         action: 'Enters username and password',
-        data: 'Username: user@example.com\nPassword: ••••••••',
+        data: 'Username: user@example.com\nPassword: ',
         duration: 1000,
         status: 'pending'
       },
@@ -637,7 +637,7 @@ const flowDiagrams: FlowDiagram[] = [
         explanation: 'The client makes a direct request to the token endpoint with the user credentials. This bypasses the authorization server UI.',
         actor: 'client',
         action: 'POST /token with credentials',
-        data: 'POST /oauth/token\nBody: grant_type=password&username=user@example.com&password=••••••••',
+        data: 'POST /oauth/token\nBody: grant_type=password&username=user@example.com&password=',
         duration: 1500,
         status: 'pending'
       },
@@ -648,7 +648,7 @@ const flowDiagrams: FlowDiagram[] = [
         explanation: 'The authorization server validates the username and password against its user store. This is a direct authentication without redirects.',
         actor: 'auth-server',
         action: 'Validates username and password',
-        data: 'Username: user@example.com\nPassword: ••••••••\nStatus: Valid',
+        data: 'Username: user@example.com\nPassword: \nStatus: Valid',
         duration: 1500,
         status: 'pending'
       },
@@ -721,7 +721,7 @@ const flowDiagrams: FlowDiagram[] = [
         explanation: 'The user is presented with PingOne\'s login form. They enter their username and password, which PingOne validates against their identity store.',
         actor: 'auth-server',
         action: 'Validates user credentials',
-        data: 'Username: user@example.com, Password: ••••••••',
+        data: 'Username: user@example.com, Password: ',
         duration: 1500,
         status: 'pending'
       },

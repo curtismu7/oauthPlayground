@@ -237,7 +237,7 @@ const URLDecoder: React.FC = () => {
   // Decode URL function
   const decodeUrl = useCallback(() => {
     if (!inputUrl.trim()) {
-      showFlowError('❌ Input Required', 'Please enter a URL to decode.');
+      showFlowError(' Input Required', 'Please enter a URL to decode.');
       return;
     }
 
@@ -279,11 +279,11 @@ const URLDecoder: React.FC = () => {
       }
       
       setDecodedResult(decoded);
-      showFlowSuccess('✅ URL Decoded Successfully', 'The URL has been decoded and formatted for easy reading.');
+      showFlowSuccess(' URL Decoded Successfully', 'The URL has been decoded and formatted for easy reading.');
       
     } catch (error) {
-      console.error('❌ [URLDecoder] Failed to decode URL:', error);
-      showFlowError('❌ Decode Failed', error instanceof Error ? error.message : 'Failed to decode the URL. Please check the format.');
+      console.error(' [URLDecoder] Failed to decode URL:', error);
+      showFlowError(' Decode Failed', error instanceof Error ? error.message : 'Failed to decode the URL. Please check the format.');
     } finally {
       setIsDecoding(false);
     }
@@ -293,25 +293,25 @@ const URLDecoder: React.FC = () => {
   const clearAll = useCallback(() => {
     setInputUrl('');
     setDecodedResult('');
-    showFlowSuccess('🗑️ Cleared', 'All inputs and results have been cleared.');
+    showFlowSuccess(' Cleared', 'All inputs and results have been cleared.');
   }, []);
 
   // Copy decoded result to clipboard
   const copyResult = useCallback(() => {
     if (!decodedResult) {
-      showFlowError('❌ Nothing to Copy', 'Please decode a URL first.');
+      showFlowError(' Nothing to Copy', 'Please decode a URL first.');
       return;
     }
     
     copyToClipboard(decodedResult, 'Decoded URL');
-    showFlowSuccess('📋 Copied to Clipboard', 'The decoded URL has been copied to your clipboard.');
+    showFlowSuccess(' Copied to Clipboard', 'The decoded URL has been copied to your clipboard.');
   }, [decodedResult]);
 
   // Load sample URL
   const loadSample = useCallback(() => {
     const sampleUrl = 'https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/authorize?client_id=a4f963ea-0736-456a-be72-b1fa4f63f81f&redirect_uri=https%3A%2F%2Flocalhost%3A3000%2Fcallback&response_type=code&scope=openid%20profile%20email&state=abc123&nonce=xyz789&code_challenge=dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk&code_challenge_method=S256';
     setInputUrl(sampleUrl);
-    showFlowSuccess('📝 Sample Loaded', 'A sample OAuth authorization URL has been loaded.');
+    showFlowSuccess(' Sample Loaded', 'A sample OAuth authorization URL has been loaded.');
   }, []);
 
   return (

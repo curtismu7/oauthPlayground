@@ -304,7 +304,7 @@ const DefaultRedirectUriModal: React.FC<DefaultRedirectUriModalProps> = ({
             <InstructionStep>
               <StepNumber>2</StepNumber>
               <StepText>
-                Go to your PingOne Admin Console → Applications → Your Application → Configuration
+                Go to your PingOne Admin Console  Applications  Your Application  Configuration
               </StepText>
             </InstructionStep>
             

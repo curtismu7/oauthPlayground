@@ -147,7 +147,7 @@ const OAuth21 = () => {
           <p>
             <strong>Status:</strong> Currently in draft (draft-ietf-oauth-v2-1-13) - 
             <a href="https://oauth.net/2.1/" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', marginLeft: '0.5rem' }}>
-              View on oauth.net →
+              View on oauth.net 
             </a>
           </p>
         </CardBody>
@@ -204,10 +204,10 @@ GET /authorize?
                 substring matching behavior that could lead to security vulnerabilities.
               </p>
               <pre>{`// OAuth 2.1: Exact string matching required
-// ✅ Correct - exact match
+//  Correct - exact match
 redirect_uri=https://app.example.com/callback
 
-// ❌ OAuth 2.0 allowed substring matching
+//  OAuth 2.0 allowed substring matching
 // This is no longer permitted in OAuth 2.1`}</pre>
               <div style={{ 
                 background: '#eff6ff', 
@@ -237,10 +237,10 @@ redirect_uri=https://app.example.com/callback
                 The Implicit grant (`response_type=token`) is omitted from OAuth 2.1 specification 
                 due to security concerns. Use Authorization Code flow with PKCE instead.
               </p>
-              <pre>{`// ❌ OAuth 2.1: Implicit flow deprecated
+              <pre>{`//  OAuth 2.1: Implicit flow deprecated
 // response_type=token is no longer supported
 
-// ✅ OAuth 2.1: Use Authorization Code + PKCE
+//  OAuth 2.1: Use Authorization Code + PKCE
 response_type=code
 &code_challenge=YOUR_CODE_CHALLENGE
 &code_challenge_method=S256`}</pre>
@@ -272,10 +272,10 @@ response_type=code
                 The Password grant is omitted from OAuth 2.1 specification. Use Authorization Code flow 
                 for user authentication scenarios.
               </p>
-              <pre>{`// ❌ OAuth 2.1: Password grant deprecated
+              <pre>{`//  OAuth 2.1: Password grant deprecated
 // grant_type=password is no longer supported
 
-// ✅ OAuth 2.1: Use Authorization Code flow
+//  OAuth 2.1: Use Authorization Code flow
 // Let the authorization server handle authentication`}</pre>
               <div style={{ 
                 background: '#eff6ff', 
@@ -305,10 +305,10 @@ response_type=code
                 Bearer token usage omits the use of bearer tokens in the query string of URIs, 
                 improving security by preventing token leakage in logs and referrer headers.
               </p>
-              <pre>{`// ❌ OAuth 2.1: No tokens in query strings
+              <pre>{`//  OAuth 2.1: No tokens in query strings
 // https://api.example.com/data?access_token=TOKEN
 
-// ✅ OAuth 2.1: Use Authorization header
+//  OAuth 2.1: Use Authorization header
 Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
               <div style={{ 
                 background: '#eff6ff', 

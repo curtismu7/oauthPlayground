@@ -83,7 +83,7 @@ export class EnhancedDebugger {
     this.sessions.set(sessionId, session);
     this.currentSession = session;
     
-    console.log('🔍 [EnhancedDebug] Debug session started:', sessionId);
+    console.log(' [EnhancedDebug] Debug session started:', sessionId);
     
     // Start network monitoring
     this.startNetworkMonitoring();
@@ -101,7 +101,7 @@ export class EnhancedDebugger {
     this.currentSession.performance.totalDuration = 
       this.currentSession.endTime - this.currentSession.startTime;
 
-    console.log('✅ [EnhancedDebug] Debug session completed:', {
+    console.log(' [EnhancedDebug] Debug session completed:', {
       sessionId: this.currentSession.id,
       duration: this.currentSession.performance.totalDuration,
       steps: this.currentSession.steps.length,
@@ -154,7 +154,7 @@ export class EnhancedDebugger {
       this.currentSession.steps.push(step);
     }
 
-    console.log(`🔍 [EnhancedDebug] Step logged: ${stepName} (${status})`);
+    console.log(` [EnhancedDebug] Step logged: ${stepName} (${status})`);
   }
 
   /**
@@ -178,7 +178,7 @@ export class EnhancedDebugger {
     };
 
     this.currentSession.errors.push(debugError);
-    console.error('❌ [EnhancedDebug] Error logged:', debugError);
+    console.error(' [EnhancedDebug] Error logged:', debugError);
   }
 
   /**
@@ -202,7 +202,7 @@ export class EnhancedDebugger {
     };
 
     this.currentSession.networkRequests.push(networkRequest);
-    console.log('🌐 [EnhancedDebug] Network request logged:', {
+    console.log(' [EnhancedDebug] Network request logged:', {
       method: networkRequest.method,
       url: networkRequest.url,
       status: networkRequest.responseStatus,
@@ -299,7 +299,7 @@ export class EnhancedDebugger {
   clearDebugData(): void {
     this.sessions.clear();
     this.currentSession = null;
-    console.log('🧹 [EnhancedDebug] All debug data cleared');
+    console.log(' [EnhancedDebug] All debug data cleared');
   }
 
   /**

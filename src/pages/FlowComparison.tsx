@@ -22,7 +22,7 @@ const FlowComparison: React.FC = () => {
         <PageTitle
           title="OAuth Flow Comparison"
           subtitle="Compare OAuth 2.0 and OpenID Connect flows to understand their differences, security implications, and use cases"
-          icon="🔍"
+          icon=""
         />
         <FlowComparisonTools />
       </ContentContainer>
