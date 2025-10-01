@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
+import { FiCheck, FiCopy, FiEye, FiEyeOff } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiCopy, FiCheck, FiEye, FiEyeOff } from 'react-icons/fi';
 import { useAccessibility } from '../hooks/useAccessibility';
 
 interface TokenDisplayProps {
@@ -316,7 +316,7 @@ const TokenDisplay: React.FC<TokenDisplayProps> = ({ tokens }) => {
 
 	const maskToken = (token: string) => {
 		if (token.length <= 20) return token;
-		return token.substring(0, 10) + '...' + token.substring(token.length - 10);
+		return `${token.substring(0, 10)}...${token.substring(token.length - 10)}`;
 	};
 
 	const formatExpiresIn = (seconds: number) => {

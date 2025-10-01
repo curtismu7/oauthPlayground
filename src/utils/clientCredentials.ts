@@ -28,7 +28,7 @@ export async function secureStore(credentials: ClientCredentials): Promise<void>
 		}
 
 		logger.success('CREDENTIALS', 'Credentials stored securely', {
-			clientId: credentials.clientId.substring(0, 8) + '...',
+			clientId: `${credentials.clientId.substring(0, 8)}...`,
 			environmentId: credentials.environmentId,
 			scopes: credentials.scopes.length,
 		});
@@ -76,7 +76,7 @@ export async function secureRetrieve(clientId?: string): Promise<ClientCredentia
 		};
 
 		logger.info('CREDENTIALS', 'Credentials retrieved securely', {
-			clientId: credentials.clientId.substring(0, 8) + '...',
+			clientId: `${credentials.clientId.substring(0, 8)}...`,
 			environmentId: credentials.environmentId,
 			hasSecret: !!credentials.clientSecret,
 		});

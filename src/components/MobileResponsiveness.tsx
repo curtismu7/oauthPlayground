@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiMenu, FiX, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import { useAccessibility } from '../hooks/useAccessibility';
 
 // Styled components
@@ -16,7 +16,7 @@ const MobileContainer = styled.div<{ $isMobile: boolean }>`
   `}
 `;
 
-const MobileHeader = styled.div<{ $isMobile: boolean }>`
+const _MobileHeader = styled.div<{ $isMobile: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -36,14 +36,14 @@ const MobileHeader = styled.div<{ $isMobile: boolean }>`
   `}
 `;
 
-const MobileTitle = styled.h1`
+const _MobileTitle = styled.h1`
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
   color: ${({ theme }) => theme.colors.gray900};
 `;
 
-const MobileMenuButton = styled.button`
+const _MobileMenuButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -66,7 +66,7 @@ const MobileMenuButton = styled.button`
   }
 `;
 
-const MobileSidebar = styled.div<{ $isOpen: boolean; $isMobile: boolean }>`
+const _MobileSidebar = styled.div<{ $isOpen: boolean; $isMobile: boolean }>`
   position: ${({ $isMobile }) => ($isMobile ? 'fixed' : 'relative')};
   top: ${({ $isMobile }) => ($isMobile ? '80px' : '0')};
   left: 0;
@@ -87,7 +87,7 @@ const MobileSidebar = styled.div<{ $isOpen: boolean; $isMobile: boolean }>`
   `}
 `;
 
-const MobileOverlay = styled.div<{ $isOpen: boolean }>`
+const _MobileOverlay = styled.div<{ $isOpen: boolean }>`
   position: fixed;
   top: 0;
   left: 0;
@@ -100,7 +100,7 @@ const MobileOverlay = styled.div<{ $isOpen: boolean }>`
   transition: all 0.3s ease;
 `;
 
-const MobileContent = styled.div<{ $isMobile: boolean }>`
+const _MobileContent = styled.div<{ $isMobile: boolean }>`
   flex: 1;
   padding: ${({ $isMobile }) => ($isMobile ? '1rem' : '2rem')};
   overflow-x: auto;

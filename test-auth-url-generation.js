@@ -1,6 +1,7 @@
 // Test script to verify authorization URL generation and API calls
+
+import crypto from 'node:crypto';
 import fetch from 'node-fetch';
-import crypto from 'crypto';
 
 // Test credentials (using the real values from the user's configuration)
 const testCredentials = {
@@ -31,8 +32,8 @@ async function testAuthorizationURL() {
 		// Generate PKCE codes
 		const pkceCodes = await generatePKCECodes();
 		console.log('✅ PKCE codes generated');
-		console.log('   Code Verifier:', pkceCodes.codeVerifier.substring(0, 20) + '...');
-		console.log('   Code Challenge:', pkceCodes.codeChallenge.substring(0, 20) + '...');
+		console.log('   Code Verifier:', `${pkceCodes.codeVerifier.substring(0, 20)}...`);
+		console.log('   Code Challenge:', `${pkceCodes.codeChallenge.substring(0, 20)}...`);
 
 		// Generate state
 		const state = Math.random().toString(36).substring(2, 15);
@@ -61,7 +62,7 @@ async function testAuthorizationURL() {
 		console.log('   redirect_uri:', testCredentials.redirectUri);
 		console.log('   scope:', testCredentials.scopes);
 		console.log('   state:', state);
-		console.log('   code_challenge:', pkceCodes.codeChallenge.substring(0, 20) + '...');
+		console.log('   code_challenge:', `${pkceCodes.codeChallenge.substring(0, 20)}...`);
 		console.log('   code_challenge_method:', 'S256');
 
 		// Validate URL structure
@@ -133,7 +134,7 @@ async function testAPIEndpoints() {
 				'⚠️ Token exchange endpoint returned error (expected with mock data):',
 				tokenResponse.status
 			);
-			console.log('   Error:', errorText.substring(0, 100) + '...');
+			console.log('   Error:', `${errorText.substring(0, 100)}...`);
 		}
 	} catch (error) {
 		console.error('❌ Error testing API endpoints:', error);

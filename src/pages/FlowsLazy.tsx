@@ -1,8 +1,8 @@
 import React, { Suspense } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
+import { LazyLoadingFallback } from '../components/LazyLoadingFallback';
 import { useLazyLoading, usePreloadFlows } from '../hooks/useLazyLoading';
-import { LazyLoadingFallback, CompactLoadingFallback } from '../components/LazyLoadingFallback';
 import { logger } from '../utils/logger';
 
 const Page = styled.div`
@@ -177,7 +177,7 @@ const FlowsLazy: React.FC = () => {
 		onLoadStart: () => {
 			logger.info(`[FlowsLazy] Starting to load flow: ${currentFlowType}`);
 		},
-		onLoadComplete: (loadedComponent) => {
+		onLoadComplete: (_loadedComponent) => {
 			logger.info(`[FlowsLazy] Successfully loaded flow: ${currentFlowType}`);
 		},
 		onLoadError: (error) => {

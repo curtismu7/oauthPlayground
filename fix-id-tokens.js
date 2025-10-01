@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import fs from 'fs';
+import fs from 'node:fs';
 
 // Fix IDTokensFlow.tsx
 const idTokensContent = fs.readFileSync('src/pages/flows/IDTokensFlow.tsx', 'utf8');

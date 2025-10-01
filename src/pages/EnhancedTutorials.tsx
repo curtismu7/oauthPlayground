@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
-import { useAuth } from '../contexts/NewAuthContext';
+import { useState } from 'react';
+import { FiCode, FiPlay } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiPlay, FiBook, FiCode, FiLock, FiSettings, FiEye, FiCheckCircle } from 'react-icons/fi';
+import { Card, CardBody, CardHeader } from '../components/Card';
 import InteractiveTutorial from '../components/InteractiveTutorial';
 import OAuthUtilities from '../components/OAuthUtilities';
-import { Card, CardHeader, CardBody } from '../components/Card';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -94,11 +93,11 @@ const DifficultyBadge = styled.span<{ $difficulty: string }>`
   background-color: ${({ $difficulty, theme }) => {
 		switch ($difficulty) {
 			case 'Beginner':
-				return theme.colors.success + '20';
+				return `${theme.colors.success}20`;
 			case 'Intermediate':
-				return theme.colors.warning + '20';
+				return `${theme.colors.warning}20`;
 			case 'Advanced':
-				return theme.colors.danger + '20';
+				return `${theme.colors.danger}20`;
 			default:
 				return theme.colors.gray200;
 		}

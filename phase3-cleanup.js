@@ -7,8 +7,8 @@
  */
 
 import fs from 'node:fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -38,10 +38,10 @@ function isFileImported(filePath) {
 
 	const importPatterns = [
 		relativePath.replace(/\.(ts|tsx)$/, ''),
-		'./' + relativePath.replace(/\.(ts|tsx)$/, ''),
-		'../' + relativePath.replace(/\.(ts|tsx)$/, ''),
-		'../../' + relativePath.replace(/\.(ts|tsx)$/, ''),
-		'../../../' + relativePath.replace(/\.(ts|tsx)$/, ''),
+		`./${relativePath.replace(/\.(ts|tsx)$/, '')}`,
+		`../${relativePath.replace(/\.(ts|tsx)$/, '')}`,
+		`../../${relativePath.replace(/\.(ts|tsx)$/, '')}`,
+		`../../../${relativePath.replace(/\.(ts|tsx)$/, '')}`,
 		baseName,
 	];
 
@@ -102,7 +102,7 @@ function getAllSourceFiles(dir) {
 let removedCount = 0;
 let totalSizeRemoved = 0;
 let skippedCount = 0;
-let errors = [];
+const errors = [];
 
 console.log('📋 Phase 3 files to process:');
 phase3Files.forEach((file, index) => {
@@ -144,7 +144,7 @@ for (const file of phase3Files) {
 // Test build after removal
 console.log('\n🔍 Testing build after Phase 3 cleanup...');
 
-import { spawn } from 'child_process';
+import { spawn } from 'node:child_process';
 
 const buildProcess = spawn('npm', ['run', 'build'], { stdio: 'pipe' });
 
@@ -159,7 +159,7 @@ buildProcess.stderr.on('data', (data) => {
 });
 
 buildProcess.on('close', (code) => {
-	console.log('\n' + '='.repeat(60));
+	console.log(`\n${'='.repeat(60)}`);
 	console.log('📊 PHASE 3 CLEANUP SUMMARY');
 	console.log('='.repeat(60));
 	console.log(`✅ Files successfully removed: ${removedCount}`);

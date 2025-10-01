@@ -2,22 +2,17 @@
 // Reusable controller hook for Implicit Flow (OAuth and OIDC variants)
 // Based on useAuthorizationCodeFlowController but simplified for Implicit flow
 
-import {
-	useCallback,
-	useEffect,
-	useRef,
-	useState,
-} from 'react';
-import { showGlobalError, showGlobalSuccess } from './useNotifications';
-import { credentialManager } from '../utils/credentialManager';
-import { getCallbackUrlForFlow } from '../utils/callbackUrls';
-import { useFlowStepManager } from '../utils/flowStepSystem';
-import { useAuthorizationFlowScroll } from './usePageScroll';
-import { storeOAuthTokens } from '../utils/tokenStorage';
-import { trackTokenOperation } from '../utils/activityTracker';
-import { enhancedDebugger } from '../utils/enhancedDebug';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { StepCredentials } from '../components/steps/CommonSteps';
+import { trackTokenOperation } from '../utils/activityTracker';
+import { getCallbackUrlForFlow } from '../utils/callbackUrls';
+import { credentialManager } from '../utils/credentialManager';
+import { enhancedDebugger } from '../utils/enhancedDebug';
+import { useFlowStepManager } from '../utils/flowStepSystem';
 import { safeJsonParse } from '../utils/secureJson';
+import { storeOAuthTokens } from '../utils/tokenStorage';
+import { showGlobalError, showGlobalSuccess } from './useNotifications';
+import { useAuthorizationFlowScroll } from './usePageScroll';
 
 // FlowConfig type (simplified for Implicit flow)
 interface FlowConfig {
@@ -178,9 +173,7 @@ const loadInitialCredentials = (variant: FlowVariant): StepCredentials => {
 		scopes: mergedScopes,
 		responseType: variant === 'oidc' ? 'id_token token' : 'token',
 		grantType: '',
-		issuerUrl: loaded.environmentId
-			? `https://auth.pingone.com/${loaded.environmentId}`
-			: '',
+		issuerUrl: loaded.environmentId ? `https://auth.pingone.com/${loaded.environmentId}` : '',
 		authorizationEndpoint: resolveAuthEndpoint({
 			environmentId: urlEnv || loaded.environmentId || '',
 			authorizationEndpoint: loaded.authEndpoint,
@@ -304,7 +297,8 @@ export const useImplicitFlowController = (
 
 	// Generate nonce
 	const generateNonce = useCallback(() => {
-		const newNonce = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+		const newNonce =
+			Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 		setNonce(newNonce);
 		console.log('🔐 [useImplicitFlowController] Nonce generated');
 		saveStepResult('generate-nonce', { nonce: newNonce, timestamp: Date.now() });
@@ -313,7 +307,8 @@ export const useImplicitFlowController = (
 
 	// Generate state
 	const generateState = useCallback(() => {
-		const newState = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+		const newState =
+			Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 		setState(newState);
 		console.log('🔐 [useImplicitFlowController] State generated');
 		saveStepResult('generate-state', { state: newState, timestamp: Date.now() });
@@ -325,13 +320,19 @@ export const useImplicitFlowController = (
 		const authEndpoint = resolveAuthEndpoint(credentials);
 
 		if (!authEndpoint) {
-			showGlobalError('Authorization endpoint not configured. Please configure your environment ID');
+			showGlobalError(
+				'Authorization endpoint not configured. Please configure your environment ID'
+			);
 			return;
 		}
 
 		// Generate nonce and state if not already set
-		const finalNonce = nonce || Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-		const finalState = state || Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+		const finalNonce =
+			nonce ||
+			Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+		const finalState =
+			state ||
+			Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
 		if (!nonce) setNonce(finalNonce);
 		if (!state) setState(finalState);
@@ -339,7 +340,10 @@ export const useImplicitFlowController = (
 		const params = new URLSearchParams();
 		params.set('client_id', credentials.clientId);
 		params.set('redirect_uri', credentials.redirectUri);
-		params.set('response_type', credentials.responseType || (flowVariant === 'oidc' ? 'id_token token' : 'token'));
+		params.set(
+			'response_type',
+			credentials.responseType || (flowVariant === 'oidc' ? 'id_token token' : 'token')
+		);
 		params.set('scope', credentials.scope || credentials.scopes || 'openid');
 		params.set('state', finalState);
 		params.set('nonce', finalNonce);
@@ -379,7 +383,9 @@ export const useImplicitFlowController = (
 
 	const handlePopupAuthorization = useCallback(() => {
 		if (!authUrl) {
-			showGlobalError('Authorization URL missing. Generate the authorization URL before starting the flow.');
+			showGlobalError(
+				'Authorization URL missing. Generate the authorization URL before starting the flow.'
+			);
 			return;
 		}
 
@@ -399,7 +405,9 @@ export const useImplicitFlowController = (
 
 	const handleRedirectAuthorization = useCallback(() => {
 		if (!authUrl) {
-			showGlobalError('Authorization URL missing. Generate the authorization URL before starting the flow.');
+			showGlobalError(
+				'Authorization URL missing. Generate the authorization URL before starting the flow.'
+			);
 			return;
 		}
 
@@ -423,47 +431,57 @@ export const useImplicitFlowController = (
 	}, [authUrl, flowKey, saveStepResult]);
 
 	// Parse tokens from URL fragment
-	const setTokensFromFragment = useCallback((fragment: string) => {
-		try {
-			const params = new URLSearchParams(fragment.replace('#', ''));
-			const tokenData: AuthorizationTokens = {
-				access_token: params.get('access_token') || '',
-			};
+	const setTokensFromFragment = useCallback(
+		(fragment: string) => {
+			try {
+				const params = new URLSearchParams(fragment.replace('#', ''));
+				const tokenData: AuthorizationTokens = {
+					access_token: params.get('access_token') || '',
+				};
 
-			if (params.get('id_token')) {
-				tokenData.id_token = params.get('id_token') || undefined;
-			}
-			if (params.get('token_type')) {
-				tokenData.token_type = params.get('token_type') || undefined;
-			}
-			if (params.get('expires_in')) {
-				tokenData.expires_in = parseInt(params.get('expires_in') || '0', 10);
-			}
-			if (params.get('scope')) {
-				tokenData.scope = params.get('scope') || undefined;
-			}
+				if (params.get('id_token')) {
+					tokenData.id_token = params.get('id_token') || undefined;
+				}
+				if (params.get('token_type')) {
+					tokenData.token_type = params.get('token_type') || undefined;
+				}
+				if (params.get('expires_in')) {
+					tokenData.expires_in = parseInt(params.get('expires_in') || '0', 10);
+				}
+				if (params.get('scope')) {
+					tokenData.scope = params.get('scope') || undefined;
+				}
 
-			setTokens(tokenData);
-			
-			// Store tokens (cast to compatible type)
-			storeOAuthTokens({
-				...tokenData,
-				token_type: tokenData.token_type || 'Bearer',
-			} as any);
-			
-			saveStepResult('receive-tokens', {
-				...tokenData,
-				timestamp: Date.now(),
-			});
+				setTokens(tokenData);
 
-			trackTokenOperation('Implicit Flow', true, `${flowVariant === 'oidc' ? 'OIDC' : 'OAuth'} Implicit - Tokens received`);
+				// Store tokens (cast to compatible type)
+				storeOAuthTokens({
+					...tokenData,
+					token_type: tokenData.token_type || 'Bearer',
+				} as any);
 
-			console.log('✅ [useImplicitFlowController] Tokens parsed from fragment');
-		} catch (error) {
-			console.error('[useImplicitFlowController] Failed to parse tokens from fragment:', error);
-			showGlobalError('Failed to parse tokens from URL', error instanceof Error ? error.message : 'Unknown error');
-		}
-	}, [flowVariant, flowKey, saveStepResult]);
+				saveStepResult('receive-tokens', {
+					...tokenData,
+					timestamp: Date.now(),
+				});
+
+				trackTokenOperation(
+					'Implicit Flow',
+					true,
+					`${flowVariant === 'oidc' ? 'OIDC' : 'OAuth'} Implicit - Tokens received`
+				);
+
+				console.log('✅ [useImplicitFlowController] Tokens parsed from fragment');
+			} catch (error) {
+				console.error('[useImplicitFlowController] Failed to parse tokens from fragment:', error);
+				showGlobalError(
+					'Failed to parse tokens from URL',
+					error instanceof Error ? error.message : 'Unknown error'
+				);
+			}
+		},
+		[flowVariant, saveStepResult]
+	);
 
 	// Fetch user information
 	const fetchUserInfo = useCallback(async () => {
@@ -489,7 +507,9 @@ export const useImplicitFlowController = (
 			if (!response.ok) {
 				const errorData = await response.json().catch(() => ({}));
 				throw new Error(
-					errorData.error_description || errorData.error || `UserInfo request failed: ${response.status}`
+					errorData.error_description ||
+						errorData.error ||
+						`UserInfo request failed: ${response.status}`
 				);
 			}
 
@@ -503,29 +523,34 @@ export const useImplicitFlowController = (
 		} catch (error) {
 			console.error('[useImplicitFlowController] Fetch user info failed:', error);
 			enhancedDebugger.logError('fetch-userinfo', error as Error);
-			
-			const errorMessage = error instanceof Error ? error.message : 'Failed to fetch user information';
+
+			const errorMessage =
+				error instanceof Error ? error.message : 'Failed to fetch user information';
 			showGlobalError(`UserInfo request failed: ${errorMessage}`);
-			
+
 			trackTokenOperation('UserInfo', false, errorMessage);
 		} finally {
 			setIsFetchingUserInfo(false);
 		}
-	}, [tokens, credentials, flowVariant, saveStepResult]);
+	}, [tokens, credentials, saveStepResult]);
 
 	// Save credentials
 	const saveCredentials = useCallback(async () => {
 		console.log('💾 [useImplicitFlowController] Saving credentials...');
-		console.log('📋 [useImplicitFlowController] Credentials:', JSON.stringify(credentials, null, 2));
+		console.log(
+			'📋 [useImplicitFlowController] Credentials:',
+			JSON.stringify(credentials, null, 2)
+		);
 		setIsSavingCredentials(true);
 
 		try {
 			// Convert credentials to format expected by credentialManager
 			const credsToSave = {
 				...credentials,
-				scopes: typeof credentials.scopes === 'string' 
-					? credentials.scopes.split(' ').filter(Boolean)
-					: credentials.scopes || ['openid'],
+				scopes:
+					typeof credentials.scopes === 'string'
+						? credentials.scopes.split(' ').filter(Boolean)
+						: credentials.scopes || ['openid'],
 			};
 			console.log('📤 [useImplicitFlowController] Saving to credentialManager:', credsToSave);
 			await credentialManager.saveImplicitFlowCredentials(credsToSave as any);
@@ -585,7 +610,8 @@ export const useImplicitFlowController = (
 			return;
 		}
 
-		const hasChanges = JSON.stringify(credentials) !== JSON.stringify(originalCredentialsRef.current);
+		const hasChanges =
+			JSON.stringify(credentials) !== JSON.stringify(originalCredentialsRef.current);
 		setHasUnsavedCredentialChanges(hasChanges);
 	}, [credentials]);
 
@@ -596,7 +622,7 @@ export const useImplicitFlowController = (
 			if (saved.environmentId && saved.clientId) {
 				setHasCredentialsSaved(true);
 			}
-		} catch (error) {
+		} catch (_error) {
 			setHasCredentialsSaved(false);
 		}
 	}, []);

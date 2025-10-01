@@ -43,7 +43,7 @@ async function testV4Flow() {
 				waitUntil: 'networkidle0',
 				ignoreHTTPSErrors: true,
 			});
-		} catch (error) {
+		} catch (_error) {
 			console.log('⚠️  HTTPS failed, trying HTTP...');
 			await page.goto('http://localhost:3000/flows/authorization-code-v4', {
 				waitUntil: 'networkidle0',
@@ -62,7 +62,7 @@ async function testV4Flow() {
 		const stepDots = await page.$$('[aria-label*="Go to step"]');
 		console.log(`✅ Found ${stepDots.length} step navigation dots`);
 
-		const navigationButtons = await page.$$('button');
+		const _navigationButtons = await page.$$('button');
 		const prevButton = await page.$$('button').then((buttons) =>
 			buttons.filter(async (btn) => {
 				const text = await btn.evaluate((el) => el.textContent);

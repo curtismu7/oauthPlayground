@@ -1,23 +1,22 @@
 // src/pages/flows/AuthzV4NewWindsurfFlow.tsx - Educational OAuth 2.0 Authorization Code Flow V4
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-	FiPlay,
-	FiShield,
+	FiCheckCircle,
+	FiChevronDown,
 	FiChevronLeft,
 	FiChevronRight,
-	FiChevronDown,
 	FiChevronUp,
-	FiKey,
 	FiCopy,
-	FiCheckCircle,
-	FiUser,
+	FiKey,
+	FiPlay,
+	FiShield,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import PingOneAppConfig, { PingOneConfig } from '../../components/PingOneAppConfig';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { generateCodeVerifier, generateCodeChallenge } from '../../utils/oauth';
 import { copyToClipboard as utilCopyToClipboard } from '../../utils/clipboard';
+import { generateCodeChallenge, generateCodeVerifier } from '../../utils/oauth';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Educational Notes:
 // This flow demonstrates the OAuth 2.0 Authorization Code grant type
@@ -27,14 +26,14 @@ import { copyToClipboard as utilCopyToClipboard } from '../../utils/clipboard';
 // 3. Tokens are exchanged server-side to prevent exposure
 // 4. Integrates with PingOne using dynamic environment configuration
 
-const Container = styled.div`
+const _Container = styled.div`
   max-width: 800px;
   margin: 0 auto;
   padding: 2rem;
   font-family: 'Inter', sans-serif;
 `;
 
-const Header = styled.div`
+const _Header = styled.div`
   text-align: center;
   margin-bottom: 2rem;
   padding: 2rem;
@@ -44,19 +43,19 @@ const Header = styled.div`
   box-shadow: 0 20px 40px rgba(0,0,0,0.1);
 `;
 
-const Title = styled.h1`
+const _Title = styled.h1`
   font-size: 2rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
 `;
 
-const Subtitle = styled.p`
+const _Subtitle = styled.p`
   font-size: 1.1rem;
   opacity: 0.9;
   margin: 0;
 `;
 
-const FlowSection = styled.div`
+const _FlowSection = styled.div`
   background: white;
   border-radius: 12px;
   padding: 2rem;
@@ -64,7 +63,7 @@ const FlowSection = styled.div`
   box-shadow: 0 8px 24px rgba(0,0,0,0.1);
 `;
 
-const SectionTitle = styled.h2`
+const _SectionTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
   margin: 0 0 1rem 0;
@@ -108,7 +107,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
 	}}
 `;
 
-const StatusBox = styled.div<{ type: 'info' | 'success' | 'error' | 'loading' }>`
+const _StatusBox = styled.div<{ type: 'info' | 'success' | 'error' | 'loading' }>`
   padding: 1rem;
   border-radius: 8px;
   margin: 1rem 0;
@@ -130,7 +129,7 @@ const StatusBox = styled.div<{ type: 'info' | 'success' | 'error' | 'loading' }>
 	}}
 `;
 
-const TokenDisplay = styled.div`
+const _TokenDisplay = styled.div`
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
@@ -141,7 +140,7 @@ const TokenDisplay = styled.div`
   word-break: break-all;
 `;
 
-const EducationalNote = styled.div`
+const _EducationalNote = styled.div`
   background: #f0f9ff;
   border-left: 4px solid #3b82f6;
   padding: 1rem;
@@ -316,7 +315,7 @@ const SectionContent = styled.div<{ $collapsed?: boolean }>`
 const AuthzV4NewWindsurfFlow: React.FC = () => {
 	// Educational state for multi-step flow
 	const [currentEducationalStep, setCurrentEducationalStep] = useState(1);
-	const [copiedText, setCopiedText] = useState<string | null>(null);
+	const [_copiedText, setCopiedText] = useState<string | null>(null);
 
 	// PingOne configuration state
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneConfig | null>(null);
@@ -335,10 +334,10 @@ const AuthzV4NewWindsurfFlow: React.FC = () => {
 		token_type?: string;
 		expires_in?: number;
 	} | null>(null);
-	const [userInfo, setUserInfo] = useState<any>(null);
+	const [_userInfo, setUserInfo] = useState<any>(null);
 	const [isGeneratingPKCE, setIsGeneratingPKCE] = useState(false);
-	const [isExchangingTokens, setIsExchangingTokens] = useState(false);
-	const [isFetchingUserInfo, setIsFetchingUserInfo] = useState(false);
+	const [_isExchangingTokens, setIsExchangingTokens] = useState(false);
+	const [_isFetchingUserInfo, setIsFetchingUserInfo] = useState(false);
 
 	// Collapsible sections state
 	const [collapsedSections, setCollapsedSections] = useState<{ [key: string]: boolean }>({});
@@ -411,7 +410,7 @@ const AuthzV4NewWindsurfFlow: React.FC = () => {
 	}, [pingOneConfig, pkceCodes, currentEducationalStep]);
 
 	// Handle authorization (redirect)
-	const handleAuthorization = useCallback(() => {
+	const _handleAuthorization = useCallback(() => {
 		if (!authUrl) {
 			v4ToastManager.showError('stepError');
 			return;
@@ -422,7 +421,7 @@ const AuthzV4NewWindsurfFlow: React.FC = () => {
 	}, [authUrl]);
 
 	// Exchange authorization code for tokens
-	const exchangeTokens = useCallback(async () => {
+	const _exchangeTokens = useCallback(async () => {
 		if (!pingOneConfig || !authCode || !pkceCodes) {
 			v4ToastManager.showError('stepError');
 			return;
@@ -477,7 +476,7 @@ const AuthzV4NewWindsurfFlow: React.FC = () => {
 	}, [pingOneConfig, authCode, pkceCodes, currentEducationalStep]);
 
 	// Fetch user info
-	const fetchUserInfo = useCallback(async () => {
+	const _fetchUserInfo = useCallback(async () => {
 		if (!pingOneConfig || !tokens?.access_token) {
 			v4ToastManager.showError('stepError');
 			return;

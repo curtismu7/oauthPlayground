@@ -1,10 +1,10 @@
 // src/hooks/useClientCredentialsFlow.ts
 // Client Credentials Flow state management and logic (OAuth 2.0 & OIDC-compatible)
-import { useState, useCallback, useRef, useEffect } from 'react';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { safeJsonParse } from '../utils/secureJson';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
-export type ClientAuthMethod = 
+export type ClientAuthMethod =
 	| 'client_secret_post'
 	| 'client_secret_basic'
 	| 'client_secret_jwt'
@@ -21,17 +21,17 @@ export interface ClientCredentialsConfig {
 	audience?: string;
 	resource?: string;
 	tokenEndpoint?: string;
-	
+
 	// JWT assertion settings
 	jwtSigningAlg?: string;
 	jwtSigningKid?: string;
 	jwtPrivateKey?: string;
-	
+
 	// mTLS settings
 	enableMtls?: boolean;
 	mtlsCert?: string;
 	mtlsKey?: string;
-	
+
 	// Token lifetime settings
 	accessTokenLifetime?: number;
 	refreshTokenLifetime?: number;
@@ -75,13 +75,13 @@ interface UseClientCredentialsFlowReturn {
 	decodedToken: DecodedJWT | null;
 	isRequesting: boolean;
 	error: string | null;
-	
+
 	// Actions
 	setConfig: (config: ClientCredentialsConfig) => void;
 	requestToken: () => Promise<void>;
 	introspectToken: () => Promise<void>;
 	reset: () => void;
-	
+
 	// Utilities
 	formatExpiry: (expiresIn: number) => string;
 	isTokenExpired: () => boolean;
@@ -142,11 +142,17 @@ const generateJWTAssertion = async (
 	// For production: use proper JWT library (jose, jsonwebtoken)
 	// For demo: create unsigned or minimally signed JWT
 	console.warn(`${LOG_PREFIX} [WARN] JWT assertion generation requires backend implementation`);
-	
+
 	// Placeholder implementation - in production this should use proper crypto
-	const headerB64 = btoa(JSON.stringify(header)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
-	const payloadB64 = btoa(JSON.stringify(payload)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
-	
+	const headerB64 = btoa(JSON.stringify(header))
+		.replace(/=/g, '')
+		.replace(/\+/g, '-')
+		.replace(/\//g, '_');
+	const payloadB64 = btoa(JSON.stringify(payload))
+		.replace(/=/g, '')
+		.replace(/\+/g, '-')
+		.replace(/\//g, '_');
+
 	return `${headerB64}.${payloadB64}.placeholder-signature`;
 };
 
@@ -156,7 +162,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 	const [decodedToken, setDecodedToken] = useState<DecodedJWT | null>(null);
 	const [isRequesting, setIsRequesting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	
+
 	const requestAbortController = useRef<AbortController | null>(null);
 
 	// Load config from localStorage on mount
@@ -183,13 +189,13 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 				const tokens = safeJsonParse<ClientCredentialsTokens>(savedTokens);
 				if (tokens) {
 					setTokens(tokens);
-					
+
 					// Decode JWT if it's a JWT
 					if (tokens.access_token && tokens.access_token.split('.').length === 3) {
 						const decoded = decodeJWT(tokens.access_token);
 						setDecodedToken(decoded);
 					}
-					
+
 					console.log(`${LOG_PREFIX} [INFO] Loaded tokens from localStorage`);
 				}
 			}
@@ -260,15 +266,15 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 			// Build request body
 			const body = new URLSearchParams();
 			body.append('grant_type', 'client_credentials');
-			
+
 			if (config.scopes) {
 				body.append('scope', config.scopes);
 			}
-			
+
 			if (config.audience) {
 				body.append('audience', config.audience);
 			}
-			
+
 			if (config.resource) {
 				body.append('resource', config.resource);
 			}
@@ -286,31 +292,34 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 					console.log(`${LOG_PREFIX} [INFO] Using Basic authentication`);
 					break;
 				}
-				
+
 				case 'client_secret_post': {
 					body.append('client_id', config.clientId);
 					body.append('client_secret', config.clientSecret || '');
 					console.log(`${LOG_PREFIX} [INFO] Using POST body authentication`);
 					break;
 				}
-				
+
 				case 'client_secret_jwt':
 				case 'private_key_jwt': {
 					const assertion = await generateJWTAssertion(config, tokenEndpoint);
 					body.append('client_id', config.clientId);
-					body.append('client_assertion_type', 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer');
+					body.append(
+						'client_assertion_type',
+						'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
+					);
 					body.append('client_assertion', assertion);
 					console.log(`${LOG_PREFIX} [INFO] Using JWT assertion authentication`);
 					break;
 				}
-				
+
 				case 'tls_client_auth': {
 					body.append('client_id', config.clientId);
 					console.log(`${LOG_PREFIX} [INFO] Using mTLS authentication`);
 					console.warn(`${LOG_PREFIX} [WARN] mTLS requires proper certificate configuration`);
 					break;
 				}
-				
+
 				case 'none': {
 					body.append('client_id', config.clientId);
 					console.log(`${LOG_PREFIX} [INFO] Using no authentication (public client)`);
@@ -330,7 +339,8 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 			const responseData = await response.json();
 
 			if (!response.ok) {
-				const errorMsg = responseData.error_description || responseData.error || `HTTP ${response.status}`;
+				const errorMsg =
+					responseData.error_description || responseData.error || `HTTP ${response.status}`;
 				console.error(`${LOG_PREFIX} [ERROR] Token request failed:`, errorMsg);
 				console.error(`${LOG_PREFIX} [ERROR] Response:`, responseData);
 				setError(errorMsg);
@@ -343,9 +353,9 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 				...responseData,
 				issued_at: Date.now(),
 			};
-			
+
 			setTokens(tokenData);
-			
+
 			// Decode JWT if it's a JWT
 			if (tokenData.access_token && tokenData.access_token.split('.').length === 3) {
 				const decoded = decodeJWT(tokenData.access_token);
@@ -354,7 +364,9 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 				console.log(`${LOG_PREFIX} [INFO] Issuer: ${decoded?.payload.iss || 'N/A'}`);
 				console.log(`${LOG_PREFIX} [INFO] Subject: ${decoded?.payload.sub || 'N/A'}`);
 				console.log(`${LOG_PREFIX} [INFO] Audience: ${decoded?.payload.aud || 'N/A'}`);
-				console.log(`${LOG_PREFIX} [INFO] Expiry: ${decoded?.payload.exp ? new Date(decoded.payload.exp * 1000).toISOString() : 'N/A'}`);
+				console.log(
+					`${LOG_PREFIX} [INFO] Expiry: ${decoded?.payload.exp ? new Date(decoded.payload.exp * 1000).toISOString() : 'N/A'}`
+				);
 			} else {
 				setDecodedToken(null);
 				console.log(`${LOG_PREFIX} [INFO] Access token is opaque (not a JWT)`);
@@ -373,7 +385,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 				localStorage.setItem('oauth_tokens', JSON.stringify(tokenData));
 				localStorage.setItem('flow_source', 'client-credentials-v5');
 				sessionStorage.setItem('flow_source', 'client-credentials-v5');
-				
+
 				// Store comprehensive flow context
 				const flowContext = {
 					flow: 'client-credentials-v5',
@@ -382,7 +394,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 					timestamp: Date.now(),
 				};
 				sessionStorage.setItem('tokenManagementFlowContext', JSON.stringify(flowContext));
-				
+
 				console.log(`${LOG_PREFIX} [INFO] Flow source and context saved for Token Management`);
 			} catch (e) {
 				console.warn(`${LOG_PREFIX} [WARN] Failed to save flow context:`, e);
@@ -392,9 +404,8 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 			console.log(`${LOG_PREFIX} [INFO] Token type: ${tokenData.token_type}`);
 			console.log(`${LOG_PREFIX} [INFO] Expires in: ${tokenData.expires_in || 'N/A'} seconds`);
 			console.log(`${LOG_PREFIX} [INFO] Scope: ${tokenData.scope || 'N/A'}`);
-			
-			v4ToastManager.showSuccess('Access token received successfully!');
 
+			v4ToastManager.showSuccess('Access token received successfully!');
 		} catch (error) {
 			if (error instanceof Error) {
 				if (error.name === 'AbortError') {
@@ -430,14 +441,14 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 		setTokens(null);
 		setDecodedToken(null);
 		setError(null);
-		
+
 		try {
 			localStorage.removeItem('client_credentials_tokens');
 			console.log(`${LOG_PREFIX} [INFO] Tokens cleared from localStorage`);
 		} catch (e) {
 			console.warn(`${LOG_PREFIX} [WARN] Failed to clear tokens from localStorage:`, e);
 		}
-		
+
 		v4ToastManager.showSuccess('Flow reset');
 	}, []);
 
@@ -457,8 +468,8 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 		if (!tokens || !tokens.issued_at || !tokens.expires_in) {
 			return false;
 		}
-		
-		const expiryTime = tokens.issued_at + (tokens.expires_in * 1000);
+
+		const expiryTime = tokens.issued_at + tokens.expires_in * 1000;
 		return Date.now() >= expiryTime;
 	}, [tokens]);
 
@@ -476,4 +487,3 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 		isTokenExpired,
 	};
 };
-

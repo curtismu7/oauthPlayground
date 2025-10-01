@@ -1,6 +1,7 @@
 // Security Audit Utility for OAuth Playground
-import { getOAuthTokens } from './tokenStorage';
+
 import { tokenLifecycleManager } from './tokenLifecycle';
+import { getOAuthTokens } from './tokenStorage';
 
 export interface SecurityVulnerability {
 	id: string;
@@ -88,7 +89,7 @@ class SecurityAuditor {
 
 			if (tokens) {
 				// Check for token exposure in localStorage
-				if (typeof window !== 'undefined' && window.localStorage) {
+				if (window?.localStorage) {
 					const localStorageKeys = Object.keys(window.localStorage);
 					const tokenKeys = localStorageKeys.filter(
 						(key) => key.includes('token') || key.includes('auth') || key.includes('oauth')
@@ -104,7 +105,7 @@ class SecurityAuditor {
 								'OAuth tokens are stored in browser localStorage, which can be accessed by any script on the domain',
 							recommendation:
 								'Consider using httpOnly cookies or secure session storage for sensitive tokens',
-							affectedTokens: [tokens.access_token?.substring(0, 8) + '...'],
+							affectedTokens: [`${tokens.access_token?.substring(0, 8)}...`],
 						});
 					}
 				}
@@ -123,7 +124,7 @@ class SecurityAuditor {
 							title: 'Expired tokens in storage',
 							description: 'Expired tokens are still stored and could be used for replay attacks',
 							recommendation: 'Implement automatic token cleanup for expired tokens',
-							affectedTokens: [tokens.access_token?.substring(0, 8) + '...'],
+							affectedTokens: [`${tokens.access_token?.substring(0, 8)}...`],
 						});
 					} else if (timeUntilExpiry < 300000) {
 						// Less than 5 minutes
@@ -136,7 +137,7 @@ class SecurityAuditor {
 								'Tokens will expire within 5 minutes, which may cause authentication failures',
 							recommendation:
 								'Implement token refresh mechanism or warn users about impending expiration',
-							affectedTokens: [tokens.access_token?.substring(0, 8) + '...'],
+							affectedTokens: [`${tokens.access_token?.substring(0, 8)}...`],
 						});
 					}
 				}
@@ -150,11 +151,11 @@ class SecurityAuditor {
 						title: 'Non-standard token type',
 						description: `Token type '${tokens.token_type}' is not the standard 'Bearer' type`,
 						recommendation: 'Use standard Bearer token type for better compatibility and security',
-						affectedTokens: [tokens.access_token?.substring(0, 8) + '...'],
+						affectedTokens: [`${tokens.access_token?.substring(0, 8)}...`],
 					});
 				}
 			}
-		} catch (error) {
+		} catch (_error) {
 			vulnerabilities.push({
 				id: 'token-storage-error',
 				severity: 'medium',
@@ -271,7 +272,7 @@ class SecurityAuditor {
 		const vulnerabilities: SecurityVulnerability[] = [];
 
 		// Check for hardcoded secrets in localStorage
-		if (typeof window !== 'undefined' && window.localStorage) {
+		if (window?.localStorage) {
 			const localStorageKeys = Object.keys(window.localStorage);
 			const secretKeys = localStorageKeys.filter(
 				(key) =>
@@ -356,7 +357,7 @@ class SecurityAuditor {
 					recommendation: 'Implement automatic cleanup of expired tokens',
 				});
 			}
-		} catch (error) {
+		} catch (_error) {
 			vulnerabilities.push({
 				id: 'lifecycle-audit-error',
 				severity: 'low',

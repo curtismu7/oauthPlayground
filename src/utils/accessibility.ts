@@ -102,7 +102,6 @@ export const KEYBOARD_KEYS = {
 // Focus management class
 export class FocusManager {
 	private focusHistory: HTMLElement[] = [];
-	private currentFocusIndex = -1;
 	private trapElements: HTMLElement[] = [];
 
 	// Set focus to element
@@ -282,7 +281,7 @@ export class ScreenReaderAnnouncer {
 
 	// Destroy announcer
 	destroy(): void {
-		if (this.announcerElement && this.announcerElement.parentNode) {
+		if (this.announcerElement?.parentNode) {
 			this.announcerElement.parentNode.removeChild(this.announcerElement);
 			this.announcerElement = null;
 		}
@@ -295,7 +294,7 @@ export class ColorContrastChecker {
 	private getLuminance(r: number, g: number, b: number): number {
 		const [rs, gs, bs] = [r, g, b].map((c) => {
 			c = c / 255;
-			return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+			return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
 		});
 		return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
 	}

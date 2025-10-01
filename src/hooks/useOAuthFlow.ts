@@ -1,8 +1,8 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useAuth } from '../contexts/NewAuthContext';
 import { useNotifications } from '../contexts/NotificationContext';
-import { generateRandomString, sha256 } from '../utils/crypto';
 import { config } from '../services/config';
+import { generateRandomString, sha256 } from '../utils/crypto';
 
 // Types
 export interface OAuthTokens {
@@ -77,14 +77,7 @@ const useOAuthFlow = (flowType = 'authorization_code'): OAuthFlowReturn => {
 			redirectUri: config.pingone.redirectUri,
 			scopes: config.defaultScopes,
 		}),
-		[
-			config.pingone.authEndpoint,
-			config.pingone.tokenEndpoint,
-			config.pingone.userInfoEndpoint,
-			config.pingone.clientId,
-			config.pingone.redirectUri,
-			config.defaultScopes,
-		]
+		[]
 	);
 
 	// Generate PKCE code verifier and challenge
@@ -101,7 +94,7 @@ const useOAuthFlow = (flowType = 'authorization_code'): OAuthFlowReturn => {
 			.replace(/=+$/, '');
 
 		return { codeVerifier, codeChallenge };
-	}, [config.pkce.codeVerifierLength]);
+	}, []);
 
 	// Initialize the OAuth flow
 	const initFlow = useCallback(async (): Promise<string | null> => {
@@ -330,7 +323,13 @@ const useOAuthFlow = (flowType = 'authorization_code'): OAuthFlowReturn => {
 				return;
 			}
 		},
-		[flowType, oauthConfig, state.flowState]
+		[
+			flowType,
+			oauthConfig,
+			state.flowState,
+			notify, // Update auth context
+			setAuthState,
+		]
 	);
 
 	// Logout

@@ -1,27 +1,27 @@
 // src/hooks/useAuthorizationCodeFlowController.ts
 
 import {
+	type Dispatch,
+	type SetStateAction,
 	useCallback,
 	useEffect,
 	useRef,
 	useState,
-	type Dispatch,
-	type SetStateAction,
 } from 'react';
 import type { FlowConfig } from '../components/FlowConfiguration';
 import type { PKCECodes, StepCredentials } from '../components/steps/CommonSteps';
+import { trackTokenOperation } from '../utils/activityTracker';
 import { getCallbackUrlForFlow } from '../utils/callbackUrls';
+import { applyClientAuthentication } from '../utils/clientAuthentication';
 import { credentialManager } from '../utils/credentialManager';
 import { enhancedDebugger } from '../utils/enhancedDebug';
 import { getDefaultConfig } from '../utils/flowConfigDefaults';
 import { useFlowStepManager } from '../utils/flowStepSystem';
 import { generateCodeChallenge, generateCodeVerifier } from '../utils/oauth';
 import { safeJsonParse } from '../utils/secureJson';
-import { trackOAuthFlow, trackTokenOperation } from '../utils/activityTracker';
 import { storeOAuthTokens } from '../utils/tokenStorage';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
-import { applyClientAuthentication } from '../utils/clientAuthentication';
 
 type FlowVariant = 'oauth' | 'oidc';
 
@@ -123,22 +123,30 @@ const resolveTokenEndpoint = (creds: StepCredentials): string => {
 
 const loadStoredConfig = (storageKey: string, variant: FlowVariant): FlowConfig => {
 	if (typeof window === 'undefined') {
-		return getDefaultConfig(variant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code');
+		return getDefaultConfig(
+			variant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'
+		);
 	}
 
 	const stored = sessionStorage.getItem(storageKey);
 	if (!stored) {
-		return getDefaultConfig(variant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code');
+		return getDefaultConfig(
+			variant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'
+		);
 	}
 
 	try {
 		const parsed = safeJsonParse<FlowConfig>(stored, getDefaultConfig('oauth-authorization-code'));
 		return {
-			...getDefaultConfig(variant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'),
+			...getDefaultConfig(
+				variant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'
+			),
 			...parsed,
 		};
 	} catch {
-		return getDefaultConfig(variant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code');
+		return getDefaultConfig(
+			variant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'
+		);
 	}
 };
 
@@ -224,10 +232,15 @@ export const useAuthorizationCodeFlowController = (
 		if (stored) {
 			try {
 				const parsed = JSON.parse(stored);
-				console.log('🔄 [useAuthorizationCodeFlowController] Loaded PKCE codes from sessionStorage');
+				console.log(
+					'🔄 [useAuthorizationCodeFlowController] Loaded PKCE codes from sessionStorage'
+				);
 				return parsed;
 			} catch (error) {
-				console.warn('[useAuthorizationCodeFlowController] Failed to parse stored PKCE codes:', error);
+				console.warn(
+					'[useAuthorizationCodeFlowController] Failed to parse stored PKCE codes:',
+					error
+				);
 			}
 		}
 		// Fallback to empty PKCE codes if none stored
@@ -383,7 +396,14 @@ export const useAuthorizationCodeFlowController = (
 			return credentials[typedKey] !== originalCredentialsRef.current?.[typedKey];
 		});
 		setHasUnsavedCredentialChanges(hasChanges);
-	}, [credentials.environmentId, credentials.clientId, credentials.clientSecret, credentials.scopes, credentials.redirectUri]);
+	}, [
+		credentials.environmentId,
+		credentials.clientId,
+		credentials.clientSecret,
+		credentials.scopes,
+		credentials.redirectUri,
+		credentials[typedKey],
+	]);
 
 	const generatePkceCodes = useCallback(async () => {
 		try {
@@ -430,7 +450,8 @@ export const useAuthorizationCodeFlowController = (
 			throw new Error('PKCE parameters not generated. Please generate PKCE codes first.');
 		}
 
-		const state = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+		const state =
+			Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 		// Build response_type based on configuration
 		const responseTypes = [];
 		if (credentials.responseTypeCode !== false) responseTypes.push('code'); // Default to true if not specified
@@ -482,7 +503,7 @@ export const useAuthorizationCodeFlowController = (
 			codeChallengeMethod: pkceCodes.codeChallengeMethod,
 			timestamp: Date.now(),
 		});
-	}, [credentials, pkceCodes, flowVariant, generatePkceCodes, saveStepResult]);
+	}, [credentials, pkceCodes, flowVariant, saveStepResult]);
 
 	const clearPopupInterval = useRef<number | null>(null);
 
@@ -540,7 +561,10 @@ export const useAuthorizationCodeFlowController = (
 			timestamp: Date.now(),
 		};
 		sessionStorage.setItem('flowContext', JSON.stringify(flowContext));
-		console.log('🔧 [useAuthorizationCodeFlowController] Stored flow context for V5 callback:', flowContext);
+		console.log(
+			'🔧 [useAuthorizationCodeFlowController] Stored flow context for V5 callback:',
+			flowContext
+		);
 		console.log('🔧 [useAuthorizationCodeFlowController] About to redirect to:', authUrl);
 
 		saveStepResult('user-authorization', {
@@ -548,7 +572,7 @@ export const useAuthorizationCodeFlowController = (
 			timestamp: Date.now(),
 		});
 		window.location.assign(authUrl);
-	}, [authUrl, saveStepResult, credentials.redirectUri]);
+	}, [authUrl, saveStepResult, credentials.redirectUri, flowKey]);
 
 	const persistConfig = useCallback(
 		(nextConfig: FlowConfig) => {
@@ -603,76 +627,83 @@ export const useAuthorizationCodeFlowController = (
 				throw new Error('PKCE code verifier is missing. Please generate PKCE parameters first.');
 			}
 
-		// Use backend proxy to avoid CORS issues
-		const backendUrl = process.env.NODE_ENV === 'production'
-			? 'https://oauth-playground.vercel.app'
-			: ''; // Use relative URL to go through Vite proxy
+			// Use backend proxy to avoid CORS issues
+			const backendUrl =
+				process.env.NODE_ENV === 'production' ? 'https://oauth-playground.vercel.app' : ''; // Use relative URL to go through Vite proxy
 
-		const requestBody: any = {
-			grant_type: 'authorization_code',
-			code: authCode.trim(),
-			redirect_uri: credentials.redirectUri.trim(),
-			client_id: credentials.clientId.trim(),
-			environment_id: credentials.environmentId.trim(),
-			code_verifier: pkceCodes.codeVerifier.trim(),
-			client_auth_method: credentials.clientAuthMethod || 'client_secret_post',
-		};
+			const requestBody: any = {
+				grant_type: 'authorization_code',
+				code: authCode.trim(),
+				redirect_uri: credentials.redirectUri.trim(),
+				client_id: credentials.clientId.trim(),
+				environment_id: credentials.environmentId.trim(),
+				code_verifier: pkceCodes.codeVerifier.trim(),
+				client_auth_method: credentials.clientAuthMethod || 'client_secret_post',
+			};
 
-		// Handle JWT-based authentication methods
-		const authMethod = credentials.clientAuthMethod || 'client_secret_post';
-		if (authMethod === 'client_secret_jwt' || authMethod === 'private_key_jwt') {
-			console.log(`🔐 [useAuthorizationCodeFlowController] Using ${authMethod} authentication`);
-			
-			try {
-				const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
-				const baseParams = new URLSearchParams();
-				
-				const authResult = await applyClientAuthentication({
-					method: authMethod as any,
-					clientId: credentials.clientId,
-					clientSecret: authMethod === 'client_secret_jwt' ? credentials.clientSecret : undefined,
-					privateKey: authMethod === 'private_key_jwt' ? credentials.privateKey : undefined,
-					keyId: credentials.keyId,
-					tokenEndpoint,
-				}, baseParams);
-				
-				// Add JWT assertion to request body
-				requestBody.client_assertion_type = authResult.body.get('client_assertion_type');
-				requestBody.client_assertion = authResult.body.get('client_assertion');
-				
-				console.log('✅ [useAuthorizationCodeFlowController] JWT assertion generated:', {
-					assertionType: requestBody.client_assertion_type,
-					assertionLength: requestBody.client_assertion?.length || 0,
-				});
-			} catch (error) {
-				console.error('❌ [useAuthorizationCodeFlowController] JWT generation failed:', error);
-				throw new Error(`JWT generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+			// Handle JWT-based authentication methods
+			const authMethod = credentials.clientAuthMethod || 'client_secret_post';
+			if (authMethod === 'client_secret_jwt' || authMethod === 'private_key_jwt') {
+				console.log(`🔐 [useAuthorizationCodeFlowController] Using ${authMethod} authentication`);
+
+				try {
+					const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+					const baseParams = new URLSearchParams();
+
+					const authResult = await applyClientAuthentication(
+						{
+							method: authMethod as any,
+							clientId: credentials.clientId,
+							clientSecret:
+								authMethod === 'client_secret_jwt' ? credentials.clientSecret : undefined,
+							privateKey: authMethod === 'private_key_jwt' ? credentials.privateKey : undefined,
+							keyId: credentials.keyId,
+							tokenEndpoint,
+						},
+						baseParams
+					);
+
+					// Add JWT assertion to request body
+					requestBody.client_assertion_type = authResult.body.get('client_assertion_type');
+					requestBody.client_assertion = authResult.body.get('client_assertion');
+
+					console.log('✅ [useAuthorizationCodeFlowController] JWT assertion generated:', {
+						assertionType: requestBody.client_assertion_type,
+						assertionLength: requestBody.client_assertion?.length || 0,
+					});
+				} catch (error) {
+					console.error('❌ [useAuthorizationCodeFlowController] JWT generation failed:', error);
+					throw new Error(
+						`JWT generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+					);
+				}
+			} else {
+				// For client_secret_basic and client_secret_post, include client_secret
+				requestBody.client_secret = credentials.clientSecret.trim();
 			}
-		} else {
-			// For client_secret_basic and client_secret_post, include client_secret
-			requestBody.client_secret = credentials.clientSecret.trim();
-		}
 
-		console.log('🔍 [useAuthorizationCodeFlowController] Token exchange request:', {
-			url: `${backendUrl}/api/token-exchange`,
-			grant_type: 'authorization_code',
-			code: authCode ? authCode.substring(0, 10) + '...' : 'MISSING',
-			redirect_uri: credentials.redirectUri,
-			client_id: credentials.clientId,
-			environment_id: credentials.environmentId,
-			client_auth_method: authMethod,
-			code_verifier: pkceCodes.codeVerifier ? pkceCodes.codeVerifier.substring(0, 10) + '...' : 'MISSING',
-			has_jwt_assertion: !!(requestBody.client_assertion),
-		});
+			console.log('🔍 [useAuthorizationCodeFlowController] Token exchange request:', {
+				url: `${backendUrl}/api/token-exchange`,
+				grant_type: 'authorization_code',
+				code: authCode ? `${authCode.substring(0, 10)}...` : 'MISSING',
+				redirect_uri: credentials.redirectUri,
+				client_id: credentials.clientId,
+				environment_id: credentials.environmentId,
+				client_auth_method: authMethod,
+				code_verifier: pkceCodes.codeVerifier
+					? `${pkceCodes.codeVerifier.substring(0, 10)}...`
+					: 'MISSING',
+				has_jwt_assertion: !!requestBody.client_assertion,
+			});
 
-		const response = await fetch(`${backendUrl}/api/token-exchange`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				Accept: 'application/json',
-			},
-			body: JSON.stringify(requestBody),
-		});
+			const response = await fetch(`${backendUrl}/api/token-exchange`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Accept: 'application/json',
+				},
+				body: JSON.stringify(requestBody),
+			});
 
 			if (!response.ok) {
 				const errorText = await response.text();
@@ -685,10 +716,13 @@ export const useAuthorizationCodeFlowController = (
 
 			// Store tokens for persistence
 			storeOAuthTokens(tokenData, 'authorization_code', 'Authorization Code Flow V5');
-			
+
 			// Also store in localStorage for cross-tab communication (Token Management page)
 			localStorage.setItem('oauth_tokens', JSON.stringify(tokenData));
-			localStorage.setItem('flow_source', flowVariant === 'oidc' ? 'oidc-authorization-code-v5' : 'oauth-authorization-code-v5');
+			localStorage.setItem(
+				'flow_source',
+				flowVariant === 'oidc' ? 'oidc-authorization-code-v5' : 'oauth-authorization-code-v5'
+			);
 
 			saveStepResult('exchange-tokens', {
 				...tokenData,
@@ -696,19 +730,27 @@ export const useAuthorizationCodeFlowController = (
 			});
 
 			// Track successful token exchange
-			trackTokenOperation('Exchange', true, `${flowVariant === 'oidc' ? 'OIDC' : 'OAuth'} Authorization Code`);
-			
+			trackTokenOperation(
+				'Exchange',
+				true,
+				`${flowVariant === 'oidc' ? 'OIDC' : 'OAuth'} Authorization Code`
+			);
+
 			// Don't show success message here - let the calling component handle it
 			// showGlobalSuccess('Tokens received', 'Authorization code exchanged for tokens successfully.');
-			
+
 			// Return the token data for immediate use
 			return tokenData;
 		} catch (error) {
 			console.error('[useAuthorizationCodeFlowController] Token exchange failed:', error);
-			
+
 			// Track failed token exchange
-			trackTokenOperation('Exchange', false, `${flowVariant === 'oidc' ? 'OIDC' : 'OAuth'} Authorization Code - ${error instanceof Error ? error.message : 'Unknown error'}`);
-			
+			trackTokenOperation(
+				'Exchange',
+				false,
+				`${flowVariant === 'oidc' ? 'OIDC' : 'OAuth'} Authorization Code - ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
+
 			// Don't show error message here - let the calling component handle it
 			// showGlobalError('Token exchange failed', error instanceof Error ? error.message : 'Unknown error');
 			// Re-throw the error so the calling component can handle it
@@ -716,7 +758,7 @@ export const useAuthorizationCodeFlowController = (
 		} finally {
 			setIsExchangingTokens(false);
 		}
-	}, [authCode, credentials, pkceCodes, saveStepResult]);
+	}, [authCode, credentials, pkceCodes, saveStepResult, flowVariant]);
 
 	const fetchUserInfo = async () => {
 		if (!tokens?.access_token) {
@@ -785,9 +827,8 @@ export const useAuthorizationCodeFlowController = (
 
 		try {
 			// Use backend proxy to avoid CORS issues
-			const backendUrl = process.env.NODE_ENV === 'production'
-				? 'https://oauth-playground.vercel.app'
-				: ''; // Use relative URL to go through Vite proxy
+			const backendUrl =
+				process.env.NODE_ENV === 'production' ? 'https://oauth-playground.vercel.app' : ''; // Use relative URL to go through Vite proxy
 
 			const requestBody: any = {
 				grant_type: 'refresh_token',
@@ -801,24 +842,30 @@ export const useAuthorizationCodeFlowController = (
 			const authMethod = credentials.clientAuthMethod || 'client_secret_post';
 			if (authMethod === 'client_secret_jwt' || authMethod === 'private_key_jwt') {
 				console.log(`🔐 [useAuthorizationCodeFlowController] Using ${authMethod} for refresh`);
-				
+
 				try {
 					const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
 					const baseParams = new URLSearchParams();
-					
-					const authResult = await applyClientAuthentication({
-						method: authMethod as any,
-						clientId: credentials.clientId,
-						clientSecret: authMethod === 'client_secret_jwt' ? credentials.clientSecret : undefined,
-						privateKey: authMethod === 'private_key_jwt' ? credentials.privateKey : undefined,
-						keyId: credentials.keyId,
-						tokenEndpoint,
-					}, baseParams);
-					
+
+					const authResult = await applyClientAuthentication(
+						{
+							method: authMethod as any,
+							clientId: credentials.clientId,
+							clientSecret:
+								authMethod === 'client_secret_jwt' ? credentials.clientSecret : undefined,
+							privateKey: authMethod === 'private_key_jwt' ? credentials.privateKey : undefined,
+							keyId: credentials.keyId,
+							tokenEndpoint,
+						},
+						baseParams
+					);
+
 					requestBody.client_assertion_type = authResult.body.get('client_assertion_type');
 					requestBody.client_assertion = authResult.body.get('client_assertion');
 				} catch (error) {
-					throw new Error(`JWT generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+					throw new Error(
+						`JWT generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+					);
 				}
 			} else {
 				// For client_secret_basic and client_secret_post
@@ -828,11 +875,11 @@ export const useAuthorizationCodeFlowController = (
 			console.log('🔍 [useAuthorizationCodeFlowController] Refresh token request:', {
 				url: `${backendUrl}/api/token-exchange`,
 				grant_type: 'refresh_token',
-				refresh_token: refreshToken ? refreshToken.substring(0, 10) + '...' : 'MISSING',
+				refresh_token: refreshToken ? `${refreshToken.substring(0, 10)}...` : 'MISSING',
 				client_id: credentials.clientId,
 				environment_id: credentials.environmentId,
 				client_auth_method: authMethod,
-				has_jwt_assertion: !!(requestBody.client_assertion),
+				has_jwt_assertion: !!requestBody.client_assertion,
 			});
 
 			const response = await fetch(`${backendUrl}/api/token-exchange`, {
@@ -859,16 +906,24 @@ export const useAuthorizationCodeFlowController = (
 			});
 
 			// Track successful token refresh
-			trackTokenOperation('Refresh', true, `${flowVariant === 'oidc' ? 'OIDC' : 'OAuth'} Authorization Code`);
+			trackTokenOperation(
+				'Refresh',
+				true,
+				`${flowVariant === 'oidc' ? 'OIDC' : 'OAuth'} Authorization Code`
+			);
 
 			// Don't show success message here - let the calling component handle it
 			// showGlobalSuccess('Tokens refreshed', 'Access token refreshed successfully.');
 		} catch (error) {
 			console.error('[useAuthorizationCodeFlowController] Token refresh failed:', error);
-			
+
 			// Track failed token refresh
-			trackTokenOperation('Refresh', false, `${flowVariant === 'oidc' ? 'OIDC' : 'OAuth'} Authorization Code - ${error instanceof Error ? error.message : 'Unknown error'}`);
-			
+			trackTokenOperation(
+				'Refresh',
+				false,
+				`${flowVariant === 'oidc' ? 'OIDC' : 'OAuth'} Authorization Code - ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
+
 			// Don't show error message here - let the calling component handle it
 			// showGlobalError('Token refresh failed', error instanceof Error ? error.message : 'Unknown error');
 			// Re-throw the error so the calling component can handle it
@@ -876,7 +931,7 @@ export const useAuthorizationCodeFlowController = (
 		} finally {
 			setIsRefreshingTokens(false);
 		}
-	}, [refreshToken, credentials, saveStepResult]);
+	}, [refreshToken, credentials, saveStepResult, flowVariant]);
 
 	const saveCredentials = useCallback(async () => {
 		setIsSavingCredentials(true);

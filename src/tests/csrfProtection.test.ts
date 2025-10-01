@@ -1,12 +1,12 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
 	CSRFProtection,
-	csrfProtection,
-	getCSRFToken,
-	validateCSRFToken,
-	validateCSRFRequest,
 	csrfMiddleware,
+	csrfProtection,
 	csrfValidationMiddleware,
+	getCSRFToken,
+	validateCSRFRequest,
+	validateCSRFToken,
 } from '../utils/csrfProtection';
 
 // Mock the logger
@@ -111,7 +111,7 @@ describe('CSRFProtection', () => {
 		});
 
 		it('should update meta tag when enabled', () => {
-			const token = protection.generateToken();
+			const _token = protection.generateToken();
 			// Meta tag should be created and updated
 			expect(document.head.appendChild).toHaveBeenCalled();
 		});
@@ -244,7 +244,7 @@ describe('CSRFProtection', () => {
 	describe('token lifecycle', () => {
 		it('should clean up expired tokens', () => {
 			const token1 = protection.generateToken();
-			const token2 = protection.generateToken();
+			const _token2 = protection.generateToken();
 
 			// Manually expire first token
 			const tokenData1 = (protection as any).tokens.get(token1);

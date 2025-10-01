@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { FiCheckCircle, FiEye, FiPlay, FiRefreshCw, FiSettings } from 'react-icons/fi';
 import styled from 'styled-components';
-import { useAuth } from '../contexts/NewAuthContext';
-import { FiPlay, FiRefreshCw, FiCheckCircle, FiCode, FiEye, FiSettings } from 'react-icons/fi';
+import { Card, CardBody, CardHeader } from './Card';
 import TutorialStep from './TutorialStep';
-import { Card, CardHeader, CardBody } from './Card';
 
 interface TutorialData {
 	id: string;
@@ -65,11 +64,11 @@ const DifficultyBadge = styled.span<{ $difficulty: string }>`
   background-color: ${({ $difficulty, theme }) => {
 		switch ($difficulty) {
 			case 'Beginner':
-				return theme.colors.success + '20';
+				return `${theme.colors.success}20`;
 			case 'Intermediate':
-				return theme.colors.warning + '20';
+				return `${theme.colors.warning}20`;
 			case 'Advanced':
-				return theme.colors.danger + '20';
+				return `${theme.colors.danger}20`;
 			default:
 				return theme.colors.gray200;
 		}

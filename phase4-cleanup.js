@@ -40,10 +40,10 @@ function isFileImported(filePath) {
 
 	const importPatterns = [
 		relativePath.replace(/\.(ts|tsx)$/, ''),
-		'./' + relativePath.replace(/\.(ts|tsx)$/, ''),
-		'../' + relativePath.replace(/\.(ts|tsx)$/, ''),
-		'../../' + relativePath.replace(/\.(ts|tsx)$/, ''),
-		'../../../' + relativePath.replace(/\.(ts|tsx)$/, ''),
+		`./${relativePath.replace(/\.(ts|tsx)$/, '')}`,
+		`../${relativePath.replace(/\.(ts|tsx)$/, '')}`,
+		`../../${relativePath.replace(/\.(ts|tsx)$/, '')}`,
+		`../../../${relativePath.replace(/\.(ts|tsx)$/, '')}`,
 		baseName,
 	];
 
@@ -104,7 +104,7 @@ function getAllSourceFiles(dir) {
 let removedCount = 0;
 let totalSizeRemoved = 0;
 let skippedCount = 0;
-let errors = [];
+const errors = [];
 
 console.log('📋 Phase 4 files to process:');
 phase4Files.forEach((file, index) => {
@@ -146,7 +146,7 @@ for (const file of phase4Files) {
 // Test build after removal
 console.log('\n🔍 Testing build after Phase 4 cleanup...');
 
-import { spawn } from 'child_process';
+import { spawn } from 'node:child_process';
 
 const buildProcess = spawn('npm', ['run', 'build'], { stdio: 'pipe' });
 
@@ -161,7 +161,7 @@ buildProcess.stderr.on('data', (data) => {
 });
 
 buildProcess.on('close', (code) => {
-	console.log('\n' + '='.repeat(60));
+	console.log(`\n${'='.repeat(60)}`);
 	console.log('📊 PHASE 4 CLEANUP SUMMARY (FINAL)');
 	console.log('='.repeat(60));
 	console.log(`✅ Files successfully removed: ${removedCount}`);

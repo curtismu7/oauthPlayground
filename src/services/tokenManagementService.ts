@@ -173,7 +173,7 @@ export class TokenManagementService {
 
 			// Convert to JSON format for backend proxy
 			const requestBody = this.buildTokenRequestBody(request, authMethod);
-			const headers = this.buildTokenHeaders(authMethod);
+			const _headers = this.buildTokenHeaders(authMethod);
 
 			// Convert FormData to JSON if needed
 			let jsonBody: any = {};
@@ -488,7 +488,7 @@ export class TokenManagementService {
 	/**
 	 * Generate client secret JWT for authentication
 	 */
-	private generateClientSecretJWT(request: TokenRequest, authMethod: TokenAuthMethod): string {
+	private generateClientSecretJWT(request: TokenRequest, _authMethod: TokenAuthMethod): string {
 		const now = Math.floor(Date.now() / 1000);
 		const header = {
 			alg: 'HS256',
@@ -506,8 +506,7 @@ export class TokenManagementService {
 
 		// In a real implementation, you would use a JWT library
 		// For demo purposes, we'll return a mock JWT
-		const mockJWT =
-			btoa(JSON.stringify(header)) + '.' + btoa(JSON.stringify(payload)) + '.' + 'mock_signature';
+		const mockJWT = `${btoa(JSON.stringify(header))}.${btoa(JSON.stringify(payload))}.mock_signature`;
 
 		logger.info('TokenManagementService', 'Generated client secret JWT', { jti: payload.jti });
 		return mockJWT;
@@ -553,7 +552,7 @@ export class TokenManagementService {
 	 * Generate a unique JTI (JWT ID)
 	 */
 	private generateJTI(): string {
-		return 'jti_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+		return `jti_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
 	}
 
 	/**

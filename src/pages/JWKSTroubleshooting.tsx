@@ -350,7 +350,7 @@ const JWKSTroubleshooting: React.FC = () => {
 	}, []);
 
 	const executeRequest = useCallback(
-		async (url: string, description: string) => {
+		async (url: string, _description: string) => {
 			if (runningCommands.has(url)) return;
 
 			setRunningCommands((prev) => new Set(prev).add(url));
@@ -391,7 +391,6 @@ const JWKSTroubleshooting: React.FC = () => {
 					status,
 					timestamp: new Date(),
 				};
-;
 				setCommandResults((prev) => [newResult, ...prev]);
 
 				if (status === 'success') {

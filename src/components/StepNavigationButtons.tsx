@@ -1,6 +1,7 @@
 // src/components/StepNavigationButtons.tsx
-import styled from 'styled-components';
+
 import { FiArrowLeft, FiArrowRight, FiRefreshCw } from 'react-icons/fi';
+import styled from 'styled-components';
 
 export interface StepNavigationButtonsProps {
 	currentStep: number;
@@ -164,7 +165,11 @@ export const StepNavigationButtons = ({
 					onClick={onNext}
 					$variant="success"
 					disabled={!canNavigateNext}
-					title={!canNavigateNext ? disabledMessage || 'Complete the action above to continue' : 'Proceed to next step'}
+					title={
+						!canNavigateNext
+							? disabledMessage || 'Complete the action above to continue'
+							: 'Proceed to next step'
+					}
 				>
 					{nextButtonText || (canNavigateNext ? 'Next' : 'Complete above action')} <FiArrowRight />
 				</NavButton>

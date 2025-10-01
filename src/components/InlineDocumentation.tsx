@@ -1,15 +1,15 @@
 // src/components/InlineDocumentation.tsx - Enhanced inline documentation
 
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import {
-	FiInfo,
-	FiExternalLink,
 	FiBook,
-	FiCode,
 	FiChevronDown,
 	FiChevronRight,
+	FiCode,
+	FiExternalLink,
+	FiInfo,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 
 const DocContainer = styled.div`
   margin: 1rem 0;

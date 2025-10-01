@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
 
 // Files to fix based on highest error counts
 const filesToFix = [
@@ -25,9 +24,9 @@ function fixSyntaxErrors(content) {
 	fixed = fixed.replace(/{\s*,\s*([a-zA-Z])/g, '{\n    $1');
 
 	// Fix missing closing braces in object literals
-	fixed = fixed.replace(/{\s*([a-zA-Z][^}]*)\s*$/gm, (match, content) => {
+	fixed = fixed.replace(/{\s*([a-zA-Z][^}]*)\s*$/gm, (match, _content) => {
 		if (!match.includes('}')) {
-			return match + '\n  }';
+			return `${match}\n  }`;
 		}
 		return match;
 	});
@@ -39,9 +38,9 @@ function fixSyntaxErrors(content) {
 	fixed = fixed.replace(/}\s*catch\s*\(\s*_error\s*\)\s*{/g, '    } catch (_error) {');
 
 	// Fix missing closing parentheses in function calls
-	fixed = fixed.replace(/\(\s*([^)]*)\s*$/gm, (match, params) => {
+	fixed = fixed.replace(/\(\s*([^)]*)\s*$/gm, (match, _params) => {
 		if (!match.includes(')')) {
-			return match + ')';
+			return `${match})`;
 		}
 		return match;
 	});

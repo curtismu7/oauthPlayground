@@ -1,18 +1,18 @@
 // src/components/AuthorizationUrlExplainer.tsx - Interactive popup explaining authorization URL parameters
 
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import React from 'react';
 import {
-	FiX,
-	FiInfo,
 	FiCopy,
 	FiExternalLink,
-	FiShield,
-	FiKey,
 	FiGlobe,
-	FiUser,
+	FiInfo,
+	FiKey,
 	FiLock,
+	FiShield,
+	FiUser,
+	FiX,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 
 interface AuthorizationUrlExplainerProps {
 	authUrl: string;

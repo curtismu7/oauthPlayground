@@ -85,7 +85,6 @@ export class ErrorDiagnosisManager {
 	private static instance: ErrorDiagnosisManager;
 	private errorPatterns: Map<string, ErrorPattern> = new Map();
 	private errorHistory: ErrorDiagnosis[] = [];
-	private isInitialized: boolean = false;
 
 	private constructor() {
 		this.initializeErrorPatterns();

@@ -41,16 +41,19 @@ import GlobalErrorDisplay from './components/GlobalErrorDisplay';
 import PageChangeSpinner from './components/PageChangeSpinner';
 import ServerStatusProvider from './components/ServerStatusProvider';
 import AdvancedConfiguration from './pages/AdvancedConfiguration';
-import OIDCOverview from './pages/docs/OIDCOverview';
-import AIGlossary from './pages/AIGlossary';
-import ComprehensiveOAuthEducation from './pages/ComprehensiveOAuthEducation';
 import AIAgentOverview from './pages/AIAgentOverview';
+import AIGlossary from './pages/AIGlossary';
 import AutoDiscover from './pages/AutoDiscover';
+import ComprehensiveOAuthEducation from './pages/ComprehensiveOAuthEducation';
 import OAuth2SecurityBestPractices from './pages/docs/OAuth2SecurityBestPractices';
 import OIDCForAI from './pages/docs/OIDCForAI';
+import OIDCOverview from './pages/docs/OIDCOverview';
 import OIDCSpecs from './pages/docs/OIDCSpecs';
 import AuthorizationCodeFlow from './pages/flows/AuthorizationCodeFlow';
+import AuthzV4NewWindsurfFlow from './pages/flows/AuthzV4NewWindsurfFlow';
 import ClientCredentialsFlow from './pages/flows/ClientCredentialsFlow';
+import ClientCredentialsFlowV5 from './pages/flows/ClientCredentialsFlowV5';
+import DeviceAuthorizationFlowV5 from './pages/flows/DeviceAuthorizationFlowV5';
 import DeviceCodeFlow from './pages/flows/DeviceCodeFlow';
 import DeviceCodeFlowOIDC from './pages/flows/DeviceCodeFlowOIDC';
 import EnhancedAuthorizationCodeFlow from './pages/flows/EnhancedAuthorizationCodeFlow';
@@ -64,32 +67,28 @@ import OAuth2ClientCredentialsFlowV3 from './pages/flows/OAuth2ClientCredentials
 // Import new V3 implicit flow components
 import OAuth2ImplicitFlowV3 from './pages/flows/OAuth2ImplicitFlowV3';
 import OAuth2ResourceOwnerPasswordFlow from './pages/flows/OAuth2ResourceOwnerPasswordFlow';
+import OAuthAuthorizationCodeFlowV5 from './pages/flows/OAuthAuthorizationCodeFlowV5';
+import OAuthImplicitFlowV5 from './pages/flows/OAuthImplicitFlowV5';
+import OIDCAuthorizationCodeFlowV5 from './pages/flows/OIDCAuthorizationCodeFlowV5';
 import OIDCClientCredentialsFlowV3 from './pages/flows/OIDCClientCredentialsFlowV3';
+import OIDCClientCredentialsFlowV5 from './pages/flows/OIDCClientCredentialsFlowV5';
+import OIDCDeviceAuthorizationFlowV5 from './pages/flows/OIDCDeviceAuthorizationFlowV5';
 import OIDCHybridFlowV3 from './pages/flows/OIDCHybridFlowV3';
+import OIDCHybridFlowV5 from './pages/flows/OIDCHybridFlowV5';
 import OIDCImplicitFlowV3 from './pages/flows/OIDCImplicitFlowV3';
+import OIDCImplicitFlowV5 from './pages/flows/OIDCImplicitFlowV5';
 import OIDCResourceOwnerPasswordFlow from './pages/flows/OIDCResourceOwnerPasswordFlow';
 import PARFlow from './pages/flows/PARFlow';
-import ResourceOwnerPasswordFlow from './pages/flows/ResourceOwnerPasswordFlow';
-import UnifiedAuthorizationCodeFlowV3 from './pages/flows/UnifiedAuthorizationCodeFlowV3';
-import AuthzV4NewWindsurfFlow from './pages/flows/AuthzV4NewWindsurfFlow';
-import OAuthAuthorizationCodeFlowV5 from './pages/flows/OAuthAuthorizationCodeFlowV5';
-import OIDCAuthorizationCodeFlowV5 from './pages/flows/OIDCAuthorizationCodeFlowV5';
-import WorkerTokenFlowV5 from './pages/flows/WorkerTokenFlowV5';
-import UserInfoFlow from './pages/flows/UserInfoFlow';
-import WorkerTokenFlow from './pages/flows/WorkerTokenFlow';
 import PingOnePARFlow from './pages/flows/PingOnePARFlow';
 import PingOnePARFlowV5 from './pages/flows/PingOnePARFlowV5';
-import WorkerTokenFlowV3 from './pages/flows/WorkerTokenFlowV3';
-import OAuthImplicitFlowV5 from './pages/flows/OAuthImplicitFlowV5';
-import OIDCImplicitFlowV5 from './pages/flows/OIDCImplicitFlowV5';
-import DeviceAuthorizationFlowV5 from './pages/flows/DeviceAuthorizationFlowV5';
-import OIDCDeviceAuthorizationFlowV5 from './pages/flows/OIDCDeviceAuthorizationFlowV5';
 import RedirectlessFlowV5 from './pages/flows/RedirectlessFlowV5';
 import RedirectlessFlowV5Real from './pages/flows/RedirectlessFlowV5_Real';
-import ClientCredentialsFlowV5 from './pages/flows/ClientCredentialsFlowV5';
-import OIDCClientCredentialsFlowV5 from './pages/flows/OIDCClientCredentialsFlowV5';
-import OIDCHybridFlowV5 from './pages/flows/OIDCHybridFlowV5';
-import HybridCallbackV5 from './pages/HybridCallback';
+import ResourceOwnerPasswordFlow from './pages/flows/ResourceOwnerPasswordFlow';
+import UserInfoFlow from './pages/flows/UserInfoFlow';
+import WorkerTokenFlow from './pages/flows/WorkerTokenFlow';
+import WorkerTokenFlowV3 from './pages/flows/WorkerTokenFlowV3';
+import WorkerTokenFlowV5 from './pages/flows/WorkerTokenFlowV5';
+
 import InteractiveTutorials from './pages/InteractiveTutorials';
 import JWKSTroubleshooting from './pages/JWKSTroubleshooting';
 import OAuth21 from './pages/OAuth21';
@@ -286,17 +285,29 @@ const AppRoutes = () => {
 							path="/flows/enhanced-authorization-code-v2"
 							element={<EnhancedAuthorizationCodeFlowV2 />}
 						/>
-					<Route path="/flows/oauth-authorization-code-v5" element={<OAuthAuthorizationCodeFlowV5 />} />
-					<Route path="/flows/oidc-authorization-code-v5" element={<OIDCAuthorizationCodeFlowV5 />} />
-					<Route path="/flows/oauth-implicit-v5" element={<OAuthImplicitFlowV5 />} />
-					<Route path="/flows/oidc-implicit-v5" element={<OIDCImplicitFlowV5 />} />
-					<Route path="/flows/device-authorization-v5" element={<DeviceAuthorizationFlowV5 />} />
-					<Route path="/flows/oidc-device-authorization-v5" element={<OIDCDeviceAuthorizationFlowV5 />} />
-					<Route path="/flows/worker-token-v5" element={<WorkerTokenFlowV5 />} />
-					<Route path="/flows/client-credentials-v5" element={<ClientCredentialsFlowV5 />} />
-					<Route path="/flows/oidc-client-credentials-v5" element={<OIDCClientCredentialsFlowV5 />} />
-					<Route path="/flows/hybrid-v5" element={<OIDCHybridFlowV5 />} />
-					<Route path="/hybrid-callback" element={<HybridCallbackV5 />} />
+						<Route
+							path="/flows/oauth-authorization-code-v5"
+							element={<OAuthAuthorizationCodeFlowV5 />}
+						/>
+						<Route
+							path="/flows/oidc-authorization-code-v5"
+							element={<OIDCAuthorizationCodeFlowV5 />}
+						/>
+						<Route path="/flows/oauth-implicit-v5" element={<OAuthImplicitFlowV5 />} />
+						<Route path="/flows/oidc-implicit-v5" element={<OIDCImplicitFlowV5 />} />
+						<Route path="/flows/device-authorization-v5" element={<DeviceAuthorizationFlowV5 />} />
+						<Route
+							path="/flows/oidc-device-authorization-v5"
+							element={<OIDCDeviceAuthorizationFlowV5 />}
+						/>
+						<Route path="/flows/worker-token-v5" element={<WorkerTokenFlowV5 />} />
+						<Route path="/flows/client-credentials-v5" element={<ClientCredentialsFlowV5 />} />
+						<Route
+							path="/flows/oidc-client-credentials-v5"
+							element={<OIDCClientCredentialsFlowV5 />}
+						/>
+						<Route path="/flows/hybrid-v5" element={<OIDCHybridFlowV5 />} />
+						<Route path="/hybrid-callback" element={<HybridCallbackV5 />} />
 						<Route path="/flows/redirectless-flow-mock" element={<RedirectlessFlowV5 />} />
 						<Route path="/flows/redirectless-flow-v5" element={<RedirectlessFlowV5Real />} />
 						<Route path="/flows/authz-v4-new-windsurf" element={<AuthzV4NewWindsurfFlow />} />
@@ -327,13 +338,13 @@ const AppRoutes = () => {
 
 							<Route path="device-code" element={<DeviceCodeFlow />} />
 							<Route path="device-code-oidc" element={<DeviceCodeFlowOIDC />} />
-					</Route>
+						</Route>
 
-					{/* Unsupported by PingOne flows - TokenExchangeMockFlow removed as file doesn't exist */}
-					
-		{/* PingOne PAR Flow */}
-			<Route path="/flows/pingone-par" element={<PingOnePARFlow />} />
-			<Route path="/flows/pingone-par-v5" element={<PingOnePARFlowV5 />} />
+						{/* Unsupported by PingOne flows - TokenExchangeMockFlow removed as file doesn't exist */}
+
+						{/* PingOne PAR Flow */}
+						<Route path="/flows/pingone-par" element={<PingOnePARFlow />} />
+						<Route path="/flows/pingone-par-v5" element={<PingOnePARFlowV5 />} />
 
 						<Route path="/oauth/client-credentials" element={<ClientCredentialsFlow />} />
 						<Route
@@ -375,9 +386,12 @@ const AppRoutes = () => {
 						<Route path="/url-decoder" element={<URLDecoder />} />
 
 						<Route path="/documentation/oidc-overview" element={<OIDCOverview />} />
-<Route path="/ai-glossary" element={<AIGlossary />} />
-					<Route path="/ai-agent-overview" element={<AIAgentOverview />} />
-<Route path="/comprehensive-oauth-education" element={<ComprehensiveOAuthEducation />} />
+						<Route path="/ai-glossary" element={<AIGlossary />} />
+						<Route path="/ai-agent-overview" element={<AIAgentOverview />} />
+						<Route
+							path="/comprehensive-oauth-education"
+							element={<ComprehensiveOAuthEducation />}
+						/>
 
 						<Route path="/advanced-config" element={<AdvancedConfiguration />} />
 

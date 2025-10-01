@@ -52,7 +52,15 @@ const ImplicitSafetySummary: React.FC = () => (
 		<h2 style={headingStyle}>What is OIDC Implicit Flow?</h2>
 		<div style={gridStyle}>
 			<div style={blockStyle}>
-				<h3 style={{ margin: '0 0 10px', fontSize: '1.1rem', color: 'var(--color-text-primary, #111827)' }}>How It Works</h3>
+				<h3
+					style={{
+						margin: '0 0 10px',
+						fontSize: '1.1rem',
+						color: 'var(--color-text-primary, #111827)',
+					}}
+				>
+					How It Works
+				</h3>
 				<ul style={listStyle}>
 					<li>Client redirects user to authorization server</li>
 					<li>User authenticates and authorizes the application</li>
@@ -62,7 +70,15 @@ const ImplicitSafetySummary: React.FC = () => (
 				</ul>
 			</div>
 			<div style={blockStyle}>
-				<h3 style={{ margin: '0 0 10px', fontSize: '1.1rem', color: 'var(--color-text-primary, #111827)' }}>When to Use</h3>
+				<h3
+					style={{
+						margin: '0 0 10px',
+						fontSize: '1.1rem',
+						color: 'var(--color-text-primary, #111827)',
+					}}
+				>
+					When to Use
+				</h3>
 				<ul style={listStyle}>
 					<li>
 						<strong>Single Page Applications (SPAs)</strong> – React, Vue, Angular

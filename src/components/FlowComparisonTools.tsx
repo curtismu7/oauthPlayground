@@ -1,16 +1,15 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import styled from 'styled-components';
+import React, { useMemo, useState } from 'react';
 import {
-	FiGitCompare,
-	FiTrendingUp,
-	FiShield,
 	FiClock,
-	FiUsers,
-	FiKey,
-	FiEye,
 	FiDownload,
+	FiEye,
+	FiGitCompare,
 	FiShare2,
+	FiShield,
+	FiTrendingUp,
+	FiUsers,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 
 // Styled components

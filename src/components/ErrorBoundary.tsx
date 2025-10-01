@@ -1,6 +1,6 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { Component, ErrorInfo, ReactNode } from 'react';
+import { FiAlertTriangle, FiHome, FiRefreshCw } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiAlertTriangle, FiRefreshCw, FiHome } from 'react-icons/fi';
 
 const ErrorContainer = styled.div`
   display: flex;

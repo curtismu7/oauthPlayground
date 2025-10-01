@@ -1,14 +1,12 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
-import { oauthStorage } from '../utils/storage';
-import type { OAuthTokens, UserInfo, OAuthTokenResponse } from '../types/storage';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { AuthContextType, AuthState, LoginResult } from '../types/auth';
-import { logger } from '../utils/logger';
-import { PingOneErrorInterpreter } from '../utils/pingoneErrorInterpreter';
-import { validateAndParseCallbackUrl } from '../utils/urlValidation';
-import config from '../services/config';
+import type { OAuthTokenResponse, OAuthTokens, UserInfo } from '../types/storage';
 import { credentialManager } from '../utils/credentialManager';
+import { logger } from '../utils/logger';
 import { generateCodeChallenge } from '../utils/oauth';
-import { safeJsonParse, safeSessionStorageParse, sanitizePath } from '../utils/secureJson';
+import { safeJsonParse } from '../utils/secureJson';
+import { oauthStorage } from '../utils/storage';
+import { validateAndParseCallbackUrl } from '../utils/urlValidation';
 
 // Define window interface for PingOne environment variables
 interface WindowWithPingOne extends Window {
@@ -108,7 +106,7 @@ const getAllStoredTokens = (): OAuthTokens | null => {
 						logger.warn('NewAuthContext', `Invalid JSON in sessionStorage ${key}, skipping`, {
 							key,
 							error: parseError instanceof Error ? parseError.message : 'Unknown error',
-							dataPreview: sessionData.substring(0, 50) + '...',
+							dataPreview: `${sessionData.substring(0, 50)}...`,
 						});
 						// Clear invalid data to prevent future errors
 						sessionStorage.removeItem(key);
@@ -133,7 +131,7 @@ const getAllStoredTokens = (): OAuthTokens | null => {
 						logger.warn('NewAuthContext', `Invalid JSON in localStorage ${key}, skipping`, {
 							key,
 							error: parseError instanceof Error ? parseError.message : 'Unknown error',
-							dataPreview: localData.substring(0, 50) + '...',
+							dataPreview: `${localData.substring(0, 50)}...`,
 						});
 						// Clear invalid data to prevent future errors
 						localStorage.removeItem(key);
@@ -202,10 +200,10 @@ async function loadConfiguration(): Promise<AppConfig> {
 		// Otherwise, try to get from credential manager
 		console.log(' [NewAuthContext] Loading from credential manager...');
 		// Try to load from config credentials first, then fall back to authz flow credentials
-		let configCredentials = credentialManager.loadConfigCredentials();
+		const configCredentials = credentialManager.loadConfigCredentials();
 		console.log(' [NewAuthContext] Config credentials result:', configCredentials);
 
-		let authzCredentials = credentialManager.loadAuthzFlowCredentials();
+		const authzCredentials = credentialManager.loadAuthzFlowCredentials();
 		console.log(' [NewAuthContext] Authz credentials result:', authzCredentials);
 
 		// Use config credentials if available, otherwise use authz credentials
@@ -556,8 +554,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 				const nonce = Math.random().toString(36).substring(2, 15);
 
 				console.log(' [NewAuthContext] Generated security parameters:', {
-					state: state.substring(0, 8) + '...',
-					nonce: nonce.substring(0, 8) + '...',
+					state: `${state.substring(0, 8)}...`,
+					nonce: `${nonce.substring(0, 8)}...`,
 				});
 
 				// Generate PKCE codes for enhanced security
@@ -569,8 +567,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 				const codeChallenge = await generateCodeChallenge(codeVerifier);
 
 				console.log(' [NewAuthContext] PKCE generation successful:', {
-					codeVerifier: codeVerifier.substring(0, 20) + '...',
-					codeChallenge: codeChallenge.substring(0, 20) + '...',
+					codeVerifier: `${codeVerifier.substring(0, 20)}...`,
+					codeChallenge: `${codeChallenge.substring(0, 20)}...`,
 					codeVerifierLength: codeVerifier.length,
 					codeChallengeLength: codeChallenge.length,
 				});
@@ -582,9 +580,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 				sessionStorage.setItem('oauth_redirect_after_login', redirectAfterLogin);
 
 				console.log(' [NewAuthContext] Stored in sessionStorage:', {
-					oauth_state: state.substring(0, 8) + '...',
-					oauth_nonce: nonce.substring(0, 8) + '...',
-					code_verifier: codeVerifier.substring(0, 20) + '...',
+					oauth_state: `${state.substring(0, 8)}...`,
+					oauth_nonce: `${nonce.substring(0, 8)}...`,
+					code_verifier: `${codeVerifier.substring(0, 20)}...`,
 					oauth_redirect_after_login: redirectAfterLogin,
 				});
 
@@ -622,9 +620,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 						client_id: config.pingone.clientId,
 						redirect_uri: redirectUri,
 						scope: 'openid profile email',
-						state: state.substring(0, 8) + '...',
-						nonce: nonce.substring(0, 8) + '...',
-						code_challenge: codeChallenge.substring(0, 20) + '...',
+						state: `${state.substring(0, 8)}...`,
+						nonce: `${nonce.substring(0, 8)}...`,
+						code_challenge: `${codeChallenge.substring(0, 20)}...`,
 						code_challenge_method: 'S256',
 					},
 				});
@@ -828,13 +826,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 				// Retrieve stored PKCE verifier - OIDC Spec Compliance
 				// Per RFC 7636 (PKCE): code_verifier MUST be provided in token exchange
 				let codeVerifier =
-					sessionStorage.getItem('code_verifier') || sessionStorage.getItem('oauth_code_verifier') || '';
+					sessionStorage.getItem('code_verifier') ||
+					sessionStorage.getItem('oauth_code_verifier') ||
+					'';
 				// Trim and ensure it's not empty
 				codeVerifier = codeVerifier.trim();
 				console.log(' [NewAuthContext] Retrieved code_verifier from sessionStorage:', {
 					hasCodeVerifier: !!codeVerifier,
 					codeVerifierLength: codeVerifier?.length || 0,
-					codeVerifierPrefix: codeVerifier ? codeVerifier.substring(0, 10) + '...' : 'MISSING',
+					codeVerifierPrefix: codeVerifier ? `${codeVerifier.substring(0, 10)}...` : 'MISSING',
 				});
 
 				// Fallback to credential manager if config is not loaded
@@ -933,7 +933,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 							parsed?.flow === 'enhanced-authorization-code-v3' ||
 							parsed?.flow === 'oauth-authorization-code-v3' ||
 							parsed?.flow === 'oidc-authorization-code-v3' ||
-							parsed?.flow === 'authorization-code-v5' || parsed?.flow === 'oidc-authorization-code-v5' || parsed?.flow === 'oauth-authorization-code-v5';
+							parsed?.flow === 'authorization-code-v5' ||
+							parsed?.flow === 'oidc-authorization-code-v5' ||
+							parsed?.flow === 'oauth-authorization-code-v5';
 
 						console.log(' [NewAuthContext] Flow type detection:', {
 							flowType: parsed?.flow,
@@ -1027,7 +1029,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 				console.log(' [NewAuthContext] Token exchange request:', requestBody);
 				console.log(' [NewAuthContext] Config object:', config);
 				console.log(' [NewAuthContext] PingOne config:', config?.pingone);
-				
+
 				console.log(' [NewAuthContext] Request body validation:', {
 					hasGrantType: !!requestBody.grant_type,
 					hasCode: !!requestBody.code,
@@ -1454,7 +1456,7 @@ async function getUserInfo(userInfoEndpoint: string, accessToken: string): Promi
 			: 'https://localhost:3001';
 
 	// Extract environment ID from userInfoEndpoint
-	const environmentId = userInfoEndpoint.match(/\/\/([^\/]+)\/([^\/]+)\/as\/userinfo/)?.[2];
+	const environmentId = userInfoEndpoint.match(/\/\/([^/]+)\/([^/]+)\/as\/userinfo/)?.[2];
 
 	const response = await fetch(
 		`${backendUrl}/api/userinfo?access_token=${accessToken}&environment_id=${environmentId}`,

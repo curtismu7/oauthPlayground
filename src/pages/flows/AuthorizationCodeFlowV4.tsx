@@ -1005,7 +1005,7 @@ const AuthorizationCodeFlowV4 = () => {
 					console.error('Failed to fetch user info:', error);
 				}
 			}
-		} catch (error) {
+		} catch (_error) {
 			v4ToastManager.showError('networkError');
 		}
 	};

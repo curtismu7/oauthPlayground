@@ -1,19 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/NewAuthContext';
-import { usePageScroll } from '../hooks/usePageScroll';
-import { useUISettings } from '../contexts/UISettingsContext';
-import { Card, CardHeader, CardBody } from '../components/Card';
+import { useState } from 'react';
 import {
-	FiPlus,
+	FiEdit,
+	FiEye,
 	FiMinus,
-	FiSave,
+	FiPlus,
 	FiRotateCcw,
+	FiSave,
 	FiSettings,
 	FiShield,
-	FiEye,
-	FiEdit,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import { Card, CardBody, CardHeader } from '../components/Card';
+import { useUISettings } from '../contexts/UISettingsContext';
+import { usePageScroll } from '../hooks/usePageScroll';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -176,7 +175,7 @@ const PreviewCode = styled.pre`
 const AdvancedConfiguration = () => {
 	// Centralized scroll management
 	usePageScroll({ pageName: 'Advanced Configuration', force: true });
-	
+
 	// UI Settings integration
 	const { settings: uiSettings } = useUISettings();
 

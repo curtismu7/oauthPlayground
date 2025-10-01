@@ -2,15 +2,15 @@
 // OAuth Playground Backend Server
 // Provides secure server-side OAuth flow implementations
 
-import express from 'express';
-import cors from 'cors';
-import fetch from 'node-fetch';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import dotenv from 'dotenv';
-import https from 'https';
+import { execSync } from 'node:child_process';
 import fs from 'node:fs';
-import { execSync } from 'child_process';
+import https from 'node:https';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import express from 'express';
+import fetch from 'node-fetch';
 
 dotenv.config();
 
@@ -22,28 +22,34 @@ const PORT = process.env.PORT || 3001;
 
 // Middleware with enhanced CORS and CSP
 app.use(
-  cors({
-    origin: process.env.FRONTEND_URL || ['http://localhost:3000', 'https://localhost:3000', 'http://localhost:3001', 'https://localhost:3001'],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    exposedHeaders: ['Content-Length', 'X-Foo', 'X-Bar']
-  })
+	cors({
+		origin: process.env.FRONTEND_URL || [
+			'http://localhost:3000',
+			'https://localhost:3000',
+			'http://localhost:3001',
+			'https://localhost:3001',
+		],
+		credentials: true,
+		methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+		allowedHeaders: ['Content-Type', 'Authorization'],
+		exposedHeaders: ['Content-Length', 'X-Foo', 'X-Bar'],
+	})
 );
 
 // Add CSP headers
-app.use((req, res, next) => {
-  res.setHeader('Content-Security-Policy', 
-    "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
-    "style-src 'self' 'unsafe-inline'; " +
-    "font-src 'self' data:; " +
-    "img-src 'self' data:; " +
-    "connect-src 'self' http://localhost:3000 http://localhost:3001 https://localhost:3000 https://localhost:3001 wss://localhost:3000 wss://localhost:3001; " +
-    "frame-ancestors 'none'; " +
-    "base-uri 'self'"
-  );
-  next();
+app.use((_req, res, next) => {
+	res.setHeader(
+		'Content-Security-Policy',
+		"default-src 'self'; " +
+			"script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+			"style-src 'self' 'unsafe-inline'; " +
+			"font-src 'self' data:; " +
+			"img-src 'self' data:; " +
+			"connect-src 'self' http://localhost:3000 http://localhost:3001 https://localhost:3000 https://localhost:3001 wss://localhost:3000 wss://localhost:3001; " +
+			"frame-ancestors 'none'; " +
+			"base-uri 'self'"
+	);
+	next();
 });
 
 app.use(express.json());
@@ -53,7 +59,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'dist')));
 
 // Health check endpoint
-app.get('/api/health', (req, res) => {
+app.get('/api/health', (_req, res) => {
 	res.json({
 		status: 'ok',
 		timestamp: new Date().toISOString(),
@@ -62,7 +68,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // Environment variables endpoint (for frontend to load default credentials)
-app.get('/api/env-config', (req, res) => {
+app.get('/api/env-config', (_req, res) => {
 	console.log('🔧 [Server] Environment config requested');
 
 	const envConfig = {
@@ -99,9 +105,9 @@ app.post('/api/token-exchange', async (req, res) => {
 		hasCodeVerifier: !!req.body.code_verifier,
 		hasClientSecret: !!req.body.client_secret,
 		hasEnvironmentId: !!req.body.environment_id,
-		code: req.body.code?.substring(0, 20) + '...',
-		codeVerifier: req.body.code_verifier?.substring(0, 20) + '...',
-		clientId: req.body.client_id?.substring(0, 8) + '...',
+		code: `${req.body.code?.substring(0, 20)}...`,
+		codeVerifier: `${req.body.code_verifier?.substring(0, 20)}...`,
+		clientId: `${req.body.client_id?.substring(0, 8)}...`,
 		fullBody: req.body,
 	});
 
@@ -173,7 +179,7 @@ app.post('/api/token-exchange', async (req, res) => {
 			environmentId,
 			tokenEndpoint,
 			grantType: grant_type,
-			clientId: client_id?.substring(0, 8) + '...',
+			clientId: `${client_id?.substring(0, 8)}...`,
 			hasClientSecret: !!client_secret,
 			hasCode: !!code,
 			hasCodeVerifier: !!code_verifier,
@@ -203,7 +209,7 @@ app.post('/api/token-exchange', async (req, res) => {
 				code: code || '',
 				scope: scope || 'openid profile email',
 			};
-			
+
 			// Only include code_verifier if it has a valid value (PKCE is being used)
 			if (code_verifier && code_verifier.trim() !== '') {
 				params.code_verifier = code_verifier;
@@ -211,7 +217,7 @@ app.post('/api/token-exchange', async (req, res) => {
 			} else {
 				console.log('🔐 [Server] PKCE not used - omitting code_verifier parameter');
 			}
-			
+
 			tokenRequestBody = new URLSearchParams(params);
 		}
 
@@ -221,57 +227,57 @@ app.post('/api/token-exchange', async (req, res) => {
 			Accept: 'application/json',
 		};
 
-	// Handle client authentication based on the specified method
-	const client_auth_method = req.body.client_auth_method || 'client_secret_post';
+		// Handle client authentication based on the specified method
+		const client_auth_method = req.body.client_auth_method || 'client_secret_post';
 
-	if (client_auth_method === 'client_secret_jwt' || client_auth_method === 'private_key_jwt') {
-		// JWT-based authentication methods
-		const { client_assertion_type, client_assertion } = req.body;
-		
-		if (client_assertion_type && client_assertion) {
-			console.log(`🔐 [Server] Using JWT assertion for ${client_auth_method}:`, {
-				clientId: client_id?.substring(0, 8) + '...',
-				assertionType: client_assertion_type,
-				assertionLength: client_assertion?.length || 0,
-			});
-			
-			tokenRequestBody.append('client_assertion_type', client_assertion_type);
-			tokenRequestBody.append('client_assertion', client_assertion);
-			// Don't add client_secret for JWT methods
+		if (client_auth_method === 'client_secret_jwt' || client_auth_method === 'private_key_jwt') {
+			// JWT-based authentication methods
+			const { client_assertion_type, client_assertion } = req.body;
+
+			if (client_assertion_type && client_assertion) {
+				console.log(`🔐 [Server] Using JWT assertion for ${client_auth_method}:`, {
+					clientId: `${client_id?.substring(0, 8)}...`,
+					assertionType: client_assertion_type,
+					assertionLength: client_assertion?.length || 0,
+				});
+
+				tokenRequestBody.append('client_assertion_type', client_assertion_type);
+				tokenRequestBody.append('client_assertion', client_assertion);
+				// Don't add client_secret for JWT methods
+			} else {
+				console.error(`❌ [Server] Missing JWT assertion for ${client_auth_method}`);
+				return res.status(400).json({
+					error: 'invalid_request',
+					error_description: `client_assertion and client_assertion_type are required for ${client_auth_method} authentication`,
+				});
+			}
+		} else if (client_secret && client_secret.trim() !== '') {
+			if (client_auth_method === 'client_secret_basic') {
+				// Use Basic Auth
+				const credentials = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
+				headers['Authorization'] = `Basic ${credentials}`;
+				console.log('🔐 [Server] Using Basic Auth for confidential client:', {
+					clientId: `${client_id?.substring(0, 8)}...`,
+					clientSecretLength: client_secret?.length || 0,
+					hasClientSecret: !!client_secret,
+					basicAuthHeader: `Basic ${credentials.substring(0, 20)}...`,
+					authMethod: client_auth_method,
+				});
+				// Don't add client_secret to body when using Basic Auth
+			} else {
+				// Use client_secret_post (default) - add client_secret to body
+				tokenRequestBody.append('client_secret', client_secret);
+				console.log('🔐 [Server] Using client_secret_post for confidential client:', {
+					clientId: `${client_id?.substring(0, 8)}...`,
+					clientSecretLength: client_secret?.length || 0,
+					hasClientSecret: !!client_secret,
+					authMethod: client_auth_method,
+				});
+			}
 		} else {
-			console.error(`❌ [Server] Missing JWT assertion for ${client_auth_method}`);
-			return res.status(400).json({
-				error: 'invalid_request',
-				error_description: `client_assertion and client_assertion_type are required for ${client_auth_method} authentication`,
-			});
-		}
-	} else if (client_secret && client_secret.trim() !== '') {
-		if (client_auth_method === 'client_secret_basic') {
-			// Use Basic Auth
-			const credentials = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
-			headers['Authorization'] = `Basic ${credentials}`;
-			console.log('🔐 [Server] Using Basic Auth for confidential client:', {
-				clientId: client_id?.substring(0, 8) + '...',
-				clientSecretLength: client_secret?.length || 0,
-				hasClientSecret: !!client_secret,
-				basicAuthHeader: `Basic ${credentials.substring(0, 20)}...`,
-				authMethod: client_auth_method,
-			});
-			// Don't add client_secret to body when using Basic Auth
-		} else {
-			// Use client_secret_post (default) - add client_secret to body
-			tokenRequestBody.append('client_secret', client_secret);
-			console.log('🔐 [Server] Using client_secret_post for confidential client:', {
-				clientId: client_id?.substring(0, 8) + '...',
-				clientSecretLength: client_secret?.length || 0,
-				hasClientSecret: !!client_secret,
-				authMethod: client_auth_method,
-			});
-		}
-	} else {
 			// For public clients, client_id is already in the body
 			console.log('🔓 [Server] Using public client authentication:', {
-				clientId: client_id?.substring(0, 8) + '...',
+				clientId: `${client_id?.substring(0, 8)}...`,
 				hasClientSecret: !!client_secret,
 				clientSecretLength: client_secret?.length || 0,
 				authMethod: client_auth_method,
@@ -322,7 +328,7 @@ app.post('/api/token-exchange', async (req, res) => {
 			tokenType: responseData.token_type,
 			expiresIn: responseData.expires_in,
 			scope: responseData.scope,
-			clientId: client_id?.substring(0, 8) + '...',
+			clientId: `${client_id?.substring(0, 8)}...`,
 		});
 
 		// Add server-side metadata
@@ -440,7 +446,7 @@ app.post('/api/introspect-token', async (req, res) => {
 			hasIntrospectionEndpoint: !!introspection_endpoint,
 			tokenAuthMethod: token_auth_method,
 			clientAssertionType: client_assertion_type,
-			tokenPreview: token ? token.substring(0, 20) + '...' : 'none',
+			tokenPreview: token ? `${token.substring(0, 20)}...` : 'none',
 		});
 
 		if (!token || !client_id || !introspection_endpoint) {
@@ -454,7 +460,7 @@ app.post('/api/introspect-token', async (req, res) => {
 		console.log(`[Introspect Token] Using authentication method: ${authMethod}`);
 
 		// Prepare request body for token introspection based on auth method
-		let introspectionBody = new URLSearchParams({
+		const introspectionBody = new URLSearchParams({
 			token: token,
 			client_id: client_id,
 		});
@@ -473,25 +479,25 @@ app.post('/api/introspect-token', async (req, res) => {
 				});
 			}
 			introspectionBody.append('client_secret', client_secret);
-	} else if (authMethod === 'client_secret_jwt' || authMethod === 'private_key_jwt') {
-		const { client_assertion_type: assertionType, client_assertion } = req.body;
+		} else if (authMethod === 'client_secret_jwt' || authMethod === 'private_key_jwt') {
+			const { client_assertion_type: assertionType, client_assertion } = req.body;
 
-		if (assertionType && client_assertion) {
-			console.log(`[Introspect Token] Using JWT assertion for ${authMethod}:`, {
-				assertionType,
-				assertionLength: client_assertion.length,
-			});
-			introspectionBody.append('client_assertion_type', assertionType);
-			introspectionBody.append('client_assertion', client_assertion);
-			// Don't add client_secret for JWT methods
-		} else {
-			console.error(`[Introspect Token] Missing JWT assertion for ${authMethod}`);
-			return res.status(400).json({
-				error: 'invalid_request',
-				error_description: `client_assertion and client_assertion_type are required for ${authMethod} authentication`,
-			});
+			if (assertionType && client_assertion) {
+				console.log(`[Introspect Token] Using JWT assertion for ${authMethod}:`, {
+					assertionType,
+					assertionLength: client_assertion.length,
+				});
+				introspectionBody.append('client_assertion_type', assertionType);
+				introspectionBody.append('client_assertion', client_assertion);
+				// Don't add client_secret for JWT methods
+			} else {
+				console.error(`[Introspect Token] Missing JWT assertion for ${authMethod}`);
+				return res.status(400).json({
+					error: 'invalid_request',
+					error_description: `client_assertion and client_assertion_type are required for ${authMethod} authentication`,
+				});
+			}
 		}
-	}
 
 		// Prepare headers
 		const headers = {
@@ -815,26 +821,26 @@ app.get('/api/jwks', async (req, res) => {
 app.post('/api/user-jwks', async (req, res) => {
 	try {
 		const { privateKey, keyId = 'oauth-playground-user-key' } = req.body;
-		
+
 		if (!privateKey) {
 			return res.status(400).json({
 				error: 'invalid_request',
 				error_description: 'Missing private key - cannot generate JWKS',
 			});
 		}
-		
+
 		console.log(`[UserJWKS] Generating JWKS from user's private key`);
-		
+
 		// Import jose library to extract public key from private key
 		const jose = await import('jose');
-		
+
 		try {
 			// Import the private key
 			const privateKeyObj = await jose.importPKCS8(privateKey, 'RS256');
-			
+
 			// Export as JWK to get the public key components
 			const jwk = await jose.exportJWK(privateKeyObj);
-			
+
 			// Build JWKS response with public key components
 			const jwks = {
 				keys: [
@@ -843,12 +849,12 @@ app.post('/api/user-jwks', async (req, res) => {
 						kid: keyId,
 						use: 'sig',
 						alg: 'RS256',
-						n: jwk.n,  // Modulus (public key component)
-						e: jwk.e,  // Exponent (public key component)
+						n: jwk.n, // Modulus (public key component)
+						e: jwk.e, // Exponent (public key component)
 					},
 				],
 			};
-			
+
 			console.log(`[UserJWKS] JWKS generated successfully with kid: ${keyId}`);
 			res.json(jwks);
 		} catch (error) {
@@ -869,17 +875,17 @@ app.post('/api/user-jwks', async (req, res) => {
 
 // User's Public JWKS Endpoint - Static public key for private_key_jwt
 // This endpoint serves the public key that corresponds to the private key configured in the UI
-app.get('/.well-known/jwks.json', async (req, res) => {
+app.get('/.well-known/jwks.json', async (_req, res) => {
 	try {
 		console.log(`[UserJWKS] Serving user's configured public JWKS`);
-		
+
 		// Set proper headers for JWKS
 		res.set({
 			'Content-Type': 'application/json',
 			'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
 			'Access-Control-Allow-Origin': '*', // Allow PingOne to fetch
 		});
-		
+
 		// For now, return an empty JWKS - users need to configure via UI
 		// This will be updated when we implement JWKS management
 		const jwks = {
@@ -888,10 +894,12 @@ app.get('/.well-known/jwks.json', async (req, res) => {
 				// For now, include a placeholder message
 			],
 		};
-		
+
 		console.log(`[UserJWKS] Serving JWKS with ${jwks.keys.length} keys`);
-		console.log(`[UserJWKS] Note: To use private_key_jwt, configure your private key in the UI first`);
-		
+		console.log(
+			`[UserJWKS] Note: To use private_key_jwt, configure your private key in the UI first`
+		);
+
 		res.json(jwks);
 	} catch (error) {
 		console.error('[UserJWKS] Server error:', error);
@@ -903,7 +911,7 @@ app.get('/.well-known/jwks.json', async (req, res) => {
 });
 
 // OAuth Playground JWKS Endpoint (serves our generated keys)
-app.get('/jwks', async (req, res) => {
+app.get('/jwks', async (_req, res) => {
 	try {
 		console.log(`[OAuthPlaygroundJWKS] Serving our generated public keys`);
 
@@ -964,7 +972,7 @@ app.get('/jwks', async (req, res) => {
 });
 
 // Alternative JWKS endpoint at /api/playground-jwks
-app.get('/api/playground-jwks', async (req, res) => {
+app.get('/api/playground-jwks', async (_req, res) => {
 	try {
 		console.log(`[PlaygroundJWKS] Serving our generated public keys via API endpoint`);
 
@@ -1172,7 +1180,7 @@ app.use((req, res, next) => {
 });
 
 // Error handling middleware
-app.use((error, req, res, next) => {
+app.use((error, _req, res, _next) => {
 	console.error('[Server] Unhandled error:', error);
 	res.status(500).json({
 		error: 'server_error',

@@ -28,6 +28,8 @@ import {
 } from 'react-icons/fi';
 import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
+import { themeService } from '../services/themeService';
+
 interface SidebarContainerProps {
 	$isOpen?: boolean;
 }
@@ -115,7 +117,12 @@ const Submenu = styled.div<SubmenuProps>`
   transition: max-height 0.3s ease-in-out;
 `;
 
-const SubmenuItem = styled(Link)<{ $isActive?: boolean; $isV4?: boolean; $isV5?: boolean; $isWarning?: boolean }>`
+const SubmenuItem = styled(Link)<{
+	$isActive?: boolean;
+	$isV4?: boolean;
+	$isV5?: boolean;
+	$isWarning?: boolean;
+}>`
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -241,24 +248,11 @@ const NavItemHeader = styled.div<NavItemHeaderProps & { $color?: string }>`
   }
   
   svg:last-child {
-    transition: all 0.2s ease;
+    ${() => themeService.getSidebarCollapseIconStyles()}
     transform: rotate(${({ $isOpen }) => ($isOpen ? '0deg' : '-90deg')});
-    opacity: 1;
-    font-size: 1.5rem;
-    color: white;
-    padding: 0.4rem;
-    border-radius: 6px;
-    background: ${({ $color }) => $color || '#3b82f6'};
-    border: 2px solid ${({ $color }) => $color || '#3b82f6'};
-    box-shadow: 0 2px 4px ${({ $color }) => $color ? `${$color}33` : 'rgba(59, 130, 246, 0.2)'};
-    cursor: pointer;
     
     &:hover {
-      color: ${({ $color }) => $color || '#1d4ed8'};
-      background: ${({ $color }) => $color ? `${$color}22` : '#dbeafe'};
-      border-color: ${({ $color }) => $color || '#1d4ed8'};
       transform: rotate(${({ $isOpen }) => ($isOpen ? '0deg' : '-90deg')}) scale(1.1);
-      box-shadow: 0 4px 8px ${({ $color }) => $color ? `${$color}4D` : 'rgba(59, 130, 246, 0.3)'};
     }
     
     &:active {
@@ -315,7 +309,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 				// Auto-expand if current route matches
 				oauth: path.startsWith('/flows/') || prev.oauth,
 				oidc: path.startsWith('/oidc') || prev.oidc,
-				unsupported: path.startsWith('/flows/unsupported') || path.startsWith('/oauth/resource-owner-password') || prev.unsupported,
+				unsupported:
+					path.startsWith('/flows/unsupported') ||
+					path.startsWith('/oauth/resource-owner-password') ||
+					prev.unsupported,
 				'pingone-tokens': path.startsWith('/oidc/worker-token') || prev['pingone-tokens'],
 				resources:
 					path.startsWith('/oidc/userinfo') ||
@@ -346,34 +343,39 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 	// Scroll active menu item into view when sidebar opens or route changes
 	useEffect(() => {
 		// Wait for menu to render (whether sidebar is open or not)
-		setTimeout(() => {
-			const activeItem = document.querySelector('a[data-active="true"]') as HTMLElement;
-			const sidebarContainer = document.querySelector('aside') as HTMLElement;
-			
-			if (activeItem && sidebarContainer) {
-				// Get positions
-				const itemTop = activeItem.offsetTop;
-				const sidebarHeight = sidebarContainer.clientHeight;
-				const itemHeight = activeItem.clientHeight;
-				
-				// Calculate scroll position to center the item
-				const scrollPosition = itemTop - (sidebarHeight / 2) + (itemHeight / 2);
-				
-				// Scroll the sidebar container
-				sidebarContainer.scrollTo({
-					top: scrollPosition,
-					behavior: 'smooth',
-				});
-				
-				console.log('📍 [Sidebar] Scrolled to active menu item:', location.pathname, {
-					itemTop,
-					scrollPosition,
-				});
-			}
-		}, isOpen ? 200 : 100); // Longer delay if sidebar is opening
+		setTimeout(
+			() => {
+				const activeItem = document.querySelector('a[data-active="true"]') as HTMLElement;
+				const sidebarContainer = document.querySelector('aside') as HTMLElement;
+
+				if (activeItem && sidebarContainer) {
+					// Get positions
+					const itemTop = activeItem.offsetTop;
+					const sidebarHeight = sidebarContainer.clientHeight;
+					const itemHeight = activeItem.clientHeight;
+
+					// Calculate scroll position to center the item
+					const scrollPosition = itemTop - sidebarHeight / 2 + itemHeight / 2;
+
+					// Scroll the sidebar container
+					sidebarContainer.scrollTo({
+						top: scrollPosition,
+						behavior: 'smooth',
+					});
+
+					console.log('📍 [Sidebar] Scrolled to active menu item:', location.pathname, {
+						itemTop,
+						scrollPosition,
+					});
+				}
+			},
+			isOpen ? 200 : 100
+		); // Longer delay if sidebar is opening
 	}, [location.pathname, isOpen]);
 
-	const toggleMenu = (menu: 'oauth' | 'oidc' | 'unsupported' | 'pingone-tokens' | 'resources' | 'docs') => {
+	const toggleMenu = (
+		menu: 'oauth' | 'oidc' | 'unsupported' | 'pingone-tokens' | 'resources' | 'docs'
+	) => {
 		setOpenMenus((prev) => {
 			const newState = {
 				...prev,
@@ -408,28 +410,44 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					<FiShield />
 					<span>OAuth 2.1</span>
 				</NavItem>
-			<NavItem to="/documentation/oidc-overview" onClick={onClose} $isActive={isActiveRoute('/documentation/oidc-overview')}>
-				<FiBookOpen />
-				<span>OIDC Overview</span>
-			</NavItem>
-			<NavItem to="/ai-glossary" onClick={onClose} $isActive={isActiveRoute('/ai-glossary')}>
-				<FiBookOpen />
-				<span>AI Glossary</span>
-			</NavItem>
-				<NavItem to="/ai-agent-overview" onClick={onClose} $isActive={isActiveRoute('/ai-agent-overview')}>
+				<NavItem
+					to="/documentation/oidc-overview"
+					onClick={onClose}
+					$isActive={isActiveRoute('/documentation/oidc-overview')}
+				>
+					<FiBookOpen />
+					<span>OIDC Overview</span>
+				</NavItem>
+				<NavItem to="/ai-glossary" onClick={onClose} $isActive={isActiveRoute('/ai-glossary')}>
+					<FiBookOpen />
+					<span>AI Glossary</span>
+				</NavItem>
+				<NavItem
+					to="/ai-agent-overview"
+					onClick={onClose}
+					$isActive={isActiveRoute('/ai-agent-overview')}
+				>
 					<FiCpu />
 					<span>AI Agent Overview for PingOne</span>
 				</NavItem>
-			<NavItem to="/comprehensive-oauth-education" onClick={onClose} $isActive={isActiveRoute('/comprehensive-oauth-education')}>
-				<FiBookOpen />
-				<span>Comprehensive OAuth AI Education</span>
-			</NavItem>
+				<NavItem
+					to="/comprehensive-oauth-education"
+					onClick={onClose}
+					$isActive={isActiveRoute('/comprehensive-oauth-education')}
+				>
+					<FiBookOpen />
+					<span>Comprehensive OAuth AI Education</span>
+				</NavItem>
 			</NavSection>
 
 			<NavSection>
 				<NavSectionTitle>OAuth & OpenID Connect</NavSectionTitle>
 				<NavItemWithSubmenu>
-					<NavItemHeader onClick={() => toggleMenu('oauth')} $isOpen={openMenus.oauth} $color="#3b82f6">
+					<NavItemHeader
+						onClick={() => toggleMenu('oauth')}
+						$isOpen={openMenus.oauth}
+						$color="#3b82f6"
+					>
 						<div>
 							<FiShield />
 							<span>OAuth 2.0 Flows</span>
@@ -524,7 +542,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 				</NavItemWithSubmenu>
 
 				<NavItemWithSubmenu>
-					<NavItemHeader onClick={() => toggleMenu('oidc')} $isOpen={openMenus.oidc} $color="#10b981">
+					<NavItemHeader
+						onClick={() => toggleMenu('oidc')}
+						$isOpen={openMenus.oidc}
+						$color="#10b981"
+					>
 						<div>
 							<FiUser />
 							<span>OpenID Connect</span>
@@ -593,7 +615,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							<FiZap style={{ marginRight: '0.5rem' }} />
 							<span>OIDC Hybrid V5</span>
 						</SubmenuItem>
-						
+
 						{/* V3 Hybrid Flow */}
 						<SubmenuItem
 							to="/flows/oidc-hybrid-v3"
@@ -628,7 +650,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
 				{/* Unsupported by PingOne Section */}
 				<NavItemWithSubmenu>
-					<NavItemHeader onClick={() => toggleMenu('unsupported')} $isOpen={openMenus.unsupported} $color="#ef4444">
+					<NavItemHeader
+						onClick={() => toggleMenu('unsupported')}
+						$isOpen={openMenus.unsupported}
+						$color="#ef4444"
+					>
 						<div>
 							<FiAlertTriangle />
 							<span>Unsupported by PingOne</span>
@@ -732,7 +758,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 				</NavItemWithSubmenu>
 
 				<NavItemWithSubmenu>
-					<NavItemHeader onClick={() => toggleMenu('docs')} $isOpen={openMenus.docs} $color="#f59e0b">
+					<NavItemHeader
+						onClick={() => toggleMenu('docs')}
+						$isOpen={openMenus.docs}
+						$color="#f59e0b"
+					>
 						<div>
 							<FiBookOpen />
 							<span>Documentation</span>
@@ -781,7 +811,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 				</NavItemWithSubmenu>
 
 				<NavItemWithSubmenu>
-					<NavItemHeader onClick={() => toggleMenu('resources')} $isOpen={openMenus.resources} $color="#06b6d4">
+					<NavItemHeader
+						onClick={() => toggleMenu('resources')}
+						$isOpen={openMenus.resources}
+						$color="#06b6d4"
+					>
 						<div>
 							<FiTool />
 							<span>Resources</span>
@@ -858,7 +892,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						</SubmenuItem>
 					</Submenu>
 				</NavItemWithSubmenu>
-
 			</NavSection>
 		</SidebarContainer>
 	);

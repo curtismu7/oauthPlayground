@@ -1,13 +1,13 @@
-import { useState, useEffect, useCallback } from 'react';
-import {
-	serviceWorkerManager,
-	getCacheStatus,
-	getCacheSize,
-	clearAllCaches,
-	preloadResources,
-	isResourceCached,
-} from '../utils/serviceWorkerManager';
+import { useCallback, useEffect, useState } from 'react';
 import { logger } from '../utils/logger';
+import {
+	clearAllCaches,
+	getCacheSize,
+	getCacheStatus,
+	isResourceCached,
+	preloadResources,
+	serviceWorkerManager,
+} from '../utils/serviceWorkerManager';
 
 // Service worker state interface
 export interface ServiceWorkerState {
@@ -278,7 +278,7 @@ export const useServiceWorker = (config: UseServiceWorkerConfig = {}) => {
 			const k = 1024;
 			const sizes = ['B', 'KB', 'MB', 'GB'];
 			const i = Math.floor(Math.log(bytes) / Math.log(k));
-			return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+			return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
 		},
 
 		getCacheSizeFormatted: () => {

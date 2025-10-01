@@ -1,6 +1,5 @@
 // src/components/flow/createMockOIDCResourceOwnerPasswordSteps.tsx
 
-import React from 'react';
 import { FiAlertTriangle, FiKey, FiLock, FiRefreshCw, FiShield, FiUser } from 'react-icons/fi';
 import type { MockOIDCResourceOwnerPasswordController } from '../../hooks/useMockOIDCResourceOwnerPasswordController';
 import type { EnhancedFlowStep } from '../EnhancedStepFlowV2';

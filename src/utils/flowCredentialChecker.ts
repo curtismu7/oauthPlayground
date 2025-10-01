@@ -141,7 +141,7 @@ export const getLastExecutionTime = (flowType: string): string => {
 			return 'Never';
 		}
 
-		const timestamp = parseInt(lastExecution);
+		const timestamp = parseInt(lastExecution, 10);
 		const now = Date.now();
 		const diffMs = now - timestamp;
 		const diffMinutes = Math.floor(diffMs / (1000 * 60));

@@ -1,6 +1,7 @@
 // src/utils/jwksCache.ts - JWKS caching utilities for multi-flow reuse
+
+import { JWKS } from './jwks';
 import { logger } from './logger';
-import { JWKS, JWK } from './jwks';
 
 /**
  * Cache entry structure

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, ReactNode, useCallback, useContext, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 
 type NotificationType = 'success' | 'error' | 'info' | 'warning';
@@ -101,7 +101,6 @@ const NotificationItem = styled.div<{ type: NotificationType }>`
 				return theme.colors.danger || '#ef4444';
 			case 'warning':
 				return theme.colors.warning || '#f59e0b';
-			case 'info':
 			default:
 				return theme.colors.primary || '#3b82f6';
 		}

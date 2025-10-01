@@ -1,12 +1,11 @@
 {
   "name": "pingone-oauth-playground",
-  "version": "5.8.2",
+  "version": "5.8.3",
   "description": "Interactive playground for PingOne OAuth 2.0 and OpenID Connect",
   "main": "src/main.tsx",
   "type": "module",
   "scripts": {
     "start": "./start-full-stack.sh",
-    "start:simple": "./start-simple.sh",
     "start:frontend": "vite",
     "start:backend": "node server.js",
     "start:interactive": "./start-interactive.sh",

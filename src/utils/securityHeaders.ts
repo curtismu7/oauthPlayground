@@ -46,7 +46,6 @@ const defaultConfig: SecurityHeadersConfig = {
 		microphone: ['none'],
 		geolocation: ['none'],
 		payment: ['none'],
-		usb: ['none'],
 		magnetometer: ['none'],
 		gyroscope: ['none'],
 		accelerometer: ['none'],
