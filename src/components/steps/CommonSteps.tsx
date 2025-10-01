@@ -16,11 +16,11 @@ import {
 	FiUser,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import type { OAuthTokenResponse } from '../../types/storage';
 import { getAuthMethodSecurityLevel } from '../../utils/clientAuthentication';
 import { copyToClipboard } from '../../utils/clipboard';
 import { ColorCodedURL } from '../ColorCodedURL';
 import type { EnhancedFlowStep } from '../EnhancedStepFlowV2';
-import type { OAuthTokenResponse } from '../../types/storage';
 import type { WorkerTokenResponse } from '../worker/WorkerTokenDisplay';
 
 // Common styled components
@@ -215,32 +215,32 @@ export interface StepCredentials {
 	responseType?: string; // OAuth response type
 	grantType?: string; // OAuth grant type
 	authorizationEndpoint?: string;
-	
+
 	// JWT Authentication Settings
 	privateKey?: string; // For private_key_jwt authentication
 	keyId?: string; // Key ID for JWKS (optional)
-	
+
 	// Response Types (from OIDC Settings)
 	responseTypeCode?: boolean;
 	responseTypeToken?: boolean;
 	responseTypeIdToken?: boolean;
-	
+
 	// Advanced OIDC Parameters
 	initiateLoginUri?: string;
 	targetLinkUri?: string;
 	signoffUrls?: string[];
 	loginHint?: string; // OIDC login_hint parameter
-	
+
 	// Request Parameter Signature
 	requestParameterSignatureRequirement?: 'DEFAULT' | 'REQUIRE_SIGNED' | 'ALLOW_UNSIGNED';
-	
+
 	// Advanced Security Settings
 	additionalRefreshTokenReplayProtection?: boolean;
 	includeX5tParameter?: boolean;
 	oidcSessionManagement?: boolean;
 	requestScopesForMultipleResources?: boolean;
 	terminateUserSessionByIdToken?: boolean;
-	
+
 	// CORS Settings
 	corsOrigins?: string[];
 	corsAllowAnyOrigin?: boolean;
@@ -1062,7 +1062,7 @@ export const createUserInfoStep = (
 	_tokenAudience: string | null,
 	getUserInfo: () => Promise<void>,
 	isGettingUserInfo: boolean = false,
-	navigateToTokenManagement?: (tokenType: 'access' | 'id') => void
+	_navigateToTokenManagement?: (tokenType: 'access' | 'id') => void
 ) => ({
 	id: 'validate-tokens',
 	title: 'Validate Tokens',
@@ -1367,7 +1367,7 @@ export const createTokenValidationStep = (
 	userInfo: UserInfoBundle,
 	onValidateTokens?: () => Promise<void>,
 	isValidating: boolean = false,
-	navigateToTokenManagement?: (tokenType: 'access' | 'id') => void
+	_navigateToTokenManagement?: (tokenType: 'access' | 'id') => void
 ): EnhancedFlowStep => ({
 	id: 'validate-tokens',
 	title: 'Validate Tokens & Get User Info',
@@ -1537,7 +1537,7 @@ export const createRefreshTokenStep = (
 	newTokens: TokenBundle,
 	exchangeRefreshToken: () => Promise<void>,
 	_credentials: StepCredentials,
-	getUserInfo?: () => Promise<void>,
+	_getUserInfo?: () => Promise<void>,
 	navigateToTokenManagement?: (tokenType: 'access' | 'refresh' | 'id') => void,
 	tokens?: TokenBundle,
 	isRefreshing?: boolean,

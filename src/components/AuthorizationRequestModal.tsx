@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
+import { FiCheck, FiCopy, FiExternalLink, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiExternalLink, FiCopy, FiCheck, FiX } from 'react-icons/fi';
 import ColorCodedURL from './ColorCodedURL';
 
 interface AuthorizationRequestModalProps {
@@ -306,7 +306,7 @@ const AuthorizationRequestModal: React.FC<AuthorizationRequestModalProps> = ({
 			<ModalContent>
 				<ModalHeader>
 					<h2>OAuth Authorization Request</h2>
-					<button className="close-button" onClick={onClose}>
+					<button type="button" className="close-button" onClick={onClose}>
 						<FiX />
 					</button>
 				</ModalHeader>

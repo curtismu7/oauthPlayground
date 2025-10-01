@@ -1,28 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { usePageScroll } from '../hooks/usePageScroll';
-import { useUISettings } from '../contexts/UISettingsContext';
-import { Card, CardHeader, CardBody } from '../components/Card';
+import { useEffect, useState } from 'react';
 import {
-	FiPlay,
-	FiCheckCircle,
-	FiArrowRight,
 	FiBookOpen,
-	FiCode,
-	FiShield,
-	FiUsers,
-	FiSettings,
-	FiChevronDown,
+	FiCheckCircle,
 	FiChevronRight,
-	FiStar,
 	FiClock,
-	FiKey,
+	FiCode,
 	FiGlobe,
-	FiServer,
+	FiKey,
 	FiMonitor,
+	FiPlay,
+	FiServer,
+	FiShield,
+	FiStar,
 	FiUser,
+	FiUsers,
 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+import { Card, CardBody } from '../components/Card';
+import { useUISettings } from '../contexts/UISettingsContext';
+import { usePageScroll } from '../hooks/usePageScroll';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -61,7 +58,7 @@ const TutorialGrid = styled.div`
   margin-bottom: 3rem;
 `;
 
-const TutorialCard = styled(Card)`
+const _TutorialCard = styled(Card)`
   height: fit-content;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
@@ -290,11 +287,11 @@ const NavButton = styled.button`
 const InteractiveTutorials = () => {
 	// Centralized scroll management
 	usePageScroll({ pageName: 'Interactive Tutorials', force: true });
-	
+
 	// UI Settings integration
 	const { settings: uiSettings } = useUISettings();
 
-	const navigate = useNavigate();
+	const _navigate = useNavigate();
 	const [selectedTutorial, setSelectedTutorial] = useState(null);
 	const [currentStep, setCurrentStep] = useState(0);
 	const [completedTutorials, setCompletedTutorials] = useState(new Set());
@@ -1324,7 +1321,7 @@ if (parResponse.error) {
 		}
 	};
 
-	const getDifficultyColor = (difficulty) => {
+	const _getDifficultyColor = (difficulty) => {
 		switch (difficulty) {
 			case 'beginner':
 				return '#10b981';

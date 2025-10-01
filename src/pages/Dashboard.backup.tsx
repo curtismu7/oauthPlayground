@@ -1,28 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { Card, CardBody } from '../components/Card';
+import { useEffect, useState } from 'react';
 import {
-	FiCode,
-	FiUser,
-	FiSettings,
-	FiInfo,
-	FiCheckCircle,
-	FiPlay,
-	FiBook,
-	FiShield,
-	FiClock,
 	FiActivity,
+	FiBook,
+	FiCheckCircle,
+	FiClock,
+	FiCode,
+	FiInfo,
+	FiPlay,
 	FiRefreshCw,
+	FiSettings,
+	FiShield,
 	FiTool,
+	FiUser,
 } from 'react-icons/fi';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+import { Card, CardBody } from '../components/Card';
 import { useAuth } from '../contexts/NewAuthContext';
-import { v4ToastManager } from '../utils/v4ToastMessages';
-import { getOAuthTokens } from '../utils/tokenStorage';
+import { useTokenRefresh } from '../hooks/useTokenRefresh';
 import { getRecentActivity } from '../utils/activityTracker';
 import { interpretPingOneError } from '../utils/pingoneErrorInterpreter';
-import { useTokenRefresh } from '../hooks/useTokenRefresh';
 import { TokenDebugger } from '../utils/tokenDebug';
+import { getOAuthTokens } from '../utils/tokenStorage';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 const DashboardContainer = styled.div`
   max-width: 1200px;
@@ -322,7 +322,7 @@ const Dashboard = () => {
 		(location.state as { type?: 'success' | 'error' | 'warning' | 'info' })?.type || 'info';
 
 	// Check if there are saved credentials
-	const hasSavedCredentials = config && config.environmentId && config.clientId;
+	const hasSavedCredentials = config?.environmentId && config.clientId;
 
 	// Debug logging for configuration status
 	useEffect(() => {

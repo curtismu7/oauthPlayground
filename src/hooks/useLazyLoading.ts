@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { lazyLoadingManager, lazyLoadingMetrics } from '../utils/codeSplitting';
 import { logger } from '../utils/logger';
 
@@ -24,7 +24,7 @@ export interface UseLazyLoadingConfig {
 }
 
 // Default configuration
-const defaultConfig: Partial<UseLazyLoadingConfig> = {
+const _defaultConfig: Partial<UseLazyLoadingConfig> = {
 	preload: false,
 	retryOnError: true,
 	maxRetries: 3,
@@ -174,7 +174,7 @@ export const useLazyLoading = (config: UseLazyLoadingConfig) => {
 		return () => {
 			stopProgressSimulation();
 		};
-	}, [config.flowType, preload, loadComponent, stopProgressSimulation]);
+	}, [config.flowType, preload, loadComponent, stopProgressSimulation, config]);
 
 	// Auto-retry on error
 	useEffect(() => {
@@ -186,7 +186,7 @@ export const useLazyLoading = (config: UseLazyLoadingConfig) => {
 	// Reset retry count when flow type changes
 	useEffect(() => {
 		retryCountRef.current = 0;
-	}, [config.flowType]);
+	}, []);
 
 	return {
 		...state,

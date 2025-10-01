@@ -1,22 +1,22 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Card, CardHeader, CardBody } from '../components/Card';
 import {
-	FiUsers,
-	FiLogOut,
-	FiMonitor,
-	FiShield,
-	FiRefreshCw,
-	FiInfo,
-	FiCheck,
-	FiPlay,
-	FiCode,
 	FiArrowRight,
+	FiCheck,
+	FiCode,
 	FiCopy,
 	FiExternalLink,
+	FiInfo,
+	FiLogOut,
+	FiMonitor,
+	FiPlay,
+	FiRefreshCw,
+	FiShield,
+	FiUsers,
 } from 'react-icons/fi';
-import PageTitle from '../components/PageTitle';
+import styled from 'styled-components';
+import { Card, CardBody, CardHeader } from '../components/Card';
 import CollapsibleSection from '../components/CollapsibleSection';
+import PageTitle from '../components/PageTitle';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -346,7 +346,7 @@ const OIDCSessionManagement = () => {
 		}
 	};
 
-	const renderCodeExample = (title: string, code: string, id: string, language = 'javascript') => (
+	const renderCodeExample = (title: string, code: string, id: string, _language = 'javascript') => (
 		<CodeExample>
 			<CodeHeader>
 				<CodeTitle>
@@ -1400,8 +1400,8 @@ function checkSessionStatus() {
 function base64url(buffer) {
   return buffer
     .toString('base64')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
+    .replace(/+/g, '-')
+    .replace(///g, '_')
     .replace(/=/g, '');
 }`,
 											'session-validation'
