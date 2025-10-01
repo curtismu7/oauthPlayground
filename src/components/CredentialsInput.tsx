@@ -21,6 +21,7 @@ export interface CredentialsInputProps {
 	copiedField?: string | null;
 	showRedirectUri?: boolean;
 	showLoginHint?: boolean;
+	showClientSecret?: boolean;
 }
 
 const FormGrid = styled.div`
@@ -121,26 +122,15 @@ export const CredentialsInput = ({
 	copiedField = null,
 	showRedirectUri = true,
 	showLoginHint = true,
+	showClientSecret = true,
 }: CredentialsInputProps) => {
-	const [showClientSecret, setShowClientSecret] = useState(false);
+	const [showClientSecretValue, setShowClientSecretValue] = useState(false);
 
-	// Handle scopes change - ensure openid is always present
+	// Handle scopes change - just pass through the value
 	const handleScopesChange = (value: string) => {
-		// Split scopes and filter out empty strings
-		const scopesList = value.split(' ').filter(s => s.trim());
-		
-		// Remove any duplicate "openid" entries
-		const filteredScopes = scopesList.filter((scope, index) => 
-			scope !== 'openid' || index === 0
-		);
-		
-		// Ensure openid is first if it exists, or add it if it doesn't
-		if (filteredScopes.length === 0 || filteredScopes[0] !== 'openid') {
-			filteredScopes.unshift('openid');
-		}
-		
-		// Join back and call parent handler
-		onScopesChange?.(filteredScopes.join(' '));
+		// Clean up multiple spaces and trim
+		const cleanedValue = value.replace(/\s+/g, ' ').trim();
+		onScopesChange?.(cleanedValue);
 	};
 
 	return (
@@ -211,50 +201,52 @@ export const CredentialsInput = ({
 				</div>
 			</FormField>
 
-			<FormField style={{ gridColumn: '1 / -1' }}>
-				<FormLabel>
-					Client Secret <span style={{ color: '#ef4444' }}>*</span>
-				</FormLabel>
-				<div style={{ position: 'relative' }}>
-					<FormInput
-						type={showClientSecret ? 'text' : 'password'}
-						placeholder={
-							emptyRequiredFields.has('clientSecret')
-								? 'Required: Enter your PingOne Client Secret'
-								: 'Enter your PingOne Client Secret'
-						}
-						value={clientSecret}
-						onChange={(e) => onClientSecretChange(e.target.value)}
-						$hasError={emptyRequiredFields.has('clientSecret')}
-						style={{ paddingRight: '5rem' }}
-					/>
-					<IconButton
-						type="button"
-						onClick={() => onCopy(clientSecret, 'Client Secret')}
-						style={{
-							right: '2.25rem',
-							top: '50%',
-							transform: copiedField === 'Client Secret' ? 'translateY(-50%) scale(1.2)' : 'translateY(-50%) scale(1)',
-							color: copiedField === 'Client Secret' ? '#10b981' : '#6b7280',
-						}}
-						title="Copy Client Secret"
-					>
-						<FiCopy size={16} />
-					</IconButton>
-					<IconButton
-						type="button"
-						onClick={() => setShowClientSecret(!showClientSecret)}
-						style={{
-							right: '0.5rem',
-							top: '50%',
-							transform: 'translateY(-50%)',
-						}}
-						title={showClientSecret ? 'Hide client secret' : 'Show client secret'}
-					>
-						{showClientSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-					</IconButton>
-				</div>
-			</FormField>
+			{showClientSecret && (
+				<FormField style={{ gridColumn: '1 / -1' }}>
+					<FormLabel>
+						Client Secret <span style={{ color: '#ef4444' }}>*</span>
+					</FormLabel>
+					<div style={{ position: 'relative' }}>
+						<FormInput
+							type={showClientSecretValue ? 'text' : 'password'}
+							placeholder={
+								emptyRequiredFields.has('clientSecret')
+									? 'Required: Enter your PingOne Client Secret'
+									: 'Enter your PingOne Client Secret'
+							}
+							value={clientSecret}
+							onChange={(e) => onClientSecretChange(e.target.value)}
+							$hasError={emptyRequiredFields.has('clientSecret')}
+							style={{ paddingRight: '5rem' }}
+						/>
+						<IconButton
+							type="button"
+							onClick={() => onCopy(clientSecret, 'Client Secret')}
+							style={{
+								right: '2.25rem',
+								top: '50%',
+								transform: copiedField === 'Client Secret' ? 'translateY(-50%) scale(1.2)' : 'translateY(-50%) scale(1)',
+								color: copiedField === 'Client Secret' ? '#10b981' : '#6b7280',
+							}}
+							title="Copy Client Secret"
+						>
+							<FiCopy size={16} />
+						</IconButton>
+						<IconButton
+							type="button"
+							onClick={() => setShowClientSecretValue(!showClientSecretValue)}
+							style={{
+								right: '0.5rem',
+								top: '50%',
+								transform: 'translateY(-50%)',
+							}}
+							title={showClientSecretValue ? 'Hide client secret' : 'Show client secret'}
+						>
+							{showClientSecretValue ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+						</IconButton>
+					</div>
+				</FormField>
+			)}
 
 			{showRedirectUri && (
 				<FormField style={{ gridColumn: '1 / -1' }}>

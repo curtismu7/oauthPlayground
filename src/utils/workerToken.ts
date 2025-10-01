@@ -34,28 +34,51 @@ export async function requestClientCredentialsToken(
 	endpoint: string,
 	clientId: string,
 	clientSecret: string,
-	scopes: string[]
+	scopes: string[],
+	authMethod: string = 'client_secret_post'
 ): Promise<WorkerTokenResponse> {
 	logger.info('WORKER', 'Requesting client credentials token', {
 		endpoint,
 		clientId: clientId.substring(0, 8) + '...',
 		scopes: scopes.join(' '),
+		authMethod,
 	});
 
-	const credentials = btoa(`${clientId}:${clientSecret}`);
 	const body = new URLSearchParams({
 		grant_type: 'client_credentials',
 		scope: scopes.join(' '),
 	});
 
+	const headers: Record<string, string> = {
+		'Content-Type': 'application/x-www-form-urlencoded',
+		Accept: 'application/json',
+	};
+
+	// Apply authentication method
+	if (authMethod === 'client_secret_basic') {
+		// HTTP Basic Authentication
+		const credentials = btoa(`${clientId}:${clientSecret}`);
+		headers.Authorization = `Basic ${credentials}`;
+		// Still need client_id in body for token endpoint
+		body.append('client_id', clientId);
+	} else if (authMethod === 'client_secret_post') {
+		// client_secret_post - send credentials in body
+		body.append('client_id', clientId);
+		body.append('client_secret', clientSecret);
+	} else if (authMethod === 'none') {
+		// Public client - no authentication
+		body.append('client_id', clientId);
+	} else {
+		// For JWT methods or unknown, just add client_id
+		// JWT assertion should be added by caller if needed
+		body.append('client_id', clientId);
+		logger.warn('WORKER', `Unsupported auth method: ${authMethod}. Add client_id only.`);
+	}
+
 	try {
 		const response = await fetch(endpoint, {
 			method: 'POST',
-			headers: {
-				Authorization: `Basic ${credentials}`,
-				'Content-Type': 'application/x-www-form-urlencoded',
-				Accept: 'application/json',
-			},
+			headers,
 			body: body.toString(),
 		});
 
