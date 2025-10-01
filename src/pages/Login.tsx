@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiCheck,
@@ -10,32 +10,22 @@ import {
 	FiEye,
 	FiEyeOff,
 	FiLogIn,
-} from "react-icons/fi";
-import { useLocation } from "react-router-dom";
-import styled from "styled-components";
-import packageJson from "../../package.json";
-import AuthorizationRequestModal from "../components/AuthorizationRequestModal";
-import DebugCredentials from "../components/DebugCredentials";
-import Spinner from "../components/Spinner";
-import { useAuth } from "../contexts/NewAuthContext";
-import {
-	showGlobalError,
-	showGlobalSuccess,
-} from "../hooks/useNotifications";
-import { getCallbackUrlForFlow } from "../utils/callbackUrls";
-import { credentialManager } from "../utils/credentialManager";
+} from 'react-icons/fi';
+import { useLocation } from 'react-router-dom';
+import styled from 'styled-components';
+import packageJson from '../../package.json';
+import AuthorizationRequestModal from '../components/AuthorizationRequestModal';
+import DebugCredentials from '../components/DebugCredentials';
+import Spinner from '../components/Spinner';
+import { useAuth } from '../contexts/NewAuthContext';
+import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
+import { getCallbackUrlForFlow } from '../utils/callbackUrls';
+import { credentialManager } from '../utils/credentialManager';
 
 // Define specific types for HMAC and signing algorithms
-type HMACAlgorithm = "HS256" | "HS384" | "HS512";
-type SigningAlgorithm =
-	| "RS256"
-	| "ES256"
-	| "PS256"
-	| "RS384"
-	| "ES384"
-	| "RS512"
-	| "ES512";
-type RequestObjectPolicy = "default" | "require" | "allow_unsigned";
+type HMACAlgorithm = 'HS256' | 'HS384' | 'HS512';
+type SigningAlgorithm = 'RS256' | 'ES256' | 'PS256' | 'RS384' | 'ES384' | 'RS512' | 'ES512';
+type RequestObjectPolicy = 'default' | 'require' | 'allow_unsigned';
 
 interface ClientAssertion {
 	hmacAlg: HMACAlgorithm;
@@ -68,7 +58,7 @@ const LoginContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0070CC 0%, #0056A3 100%);
+  background: var(--color-primary, linear-gradient(135deg, #0070CC 0%, #0056A3 100%));
   padding: 0.5rem;
 `;
 
@@ -87,8 +77,8 @@ const SetupSection = styled.div`
 `;
 
 const DescriptionSection = styled.div`
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
+  background-color: var(--color-surface, #f8f9fa);
+  border: 1px solid var(--color-border, #e9ecef);
   border-radius: 8px;
   padding: 1.5rem;
   margin-bottom: 1rem;
@@ -98,7 +88,7 @@ const DescriptionSection = styled.div`
     margin: 0;
     font-size: 1.1rem;
     font-weight: 700;
-    color: #0070CC;
+    color: var(--color-primary, #0070CC);
     letter-spacing: -0.3px;
     display: flex;
     align-items: center;
@@ -121,7 +111,7 @@ const SubmitButton = styled.button`
   font-size: 1rem;
   font-weight: 500;
   color: white;
-  background-color: #007bff;
+  background-color: var(--color-primary, #007bff);
   border: none;
   border-radius: 0.375rem;
   cursor: pointer;
@@ -131,7 +121,7 @@ const SubmitButton = styled.button`
   transition: background-color 0.2s;
   
   &:hover {
-    background-color: #0056b3;
+    background-color: var(--color-primary-dark, #0056b3);
   }
   
   &:disabled {
@@ -150,9 +140,9 @@ const Alert = styled.div`
   border-radius: 0.375rem;
   display: flex;
   align-items: flex-start;
-  background-color: rgba(220, 53, 69, 0.1);
-  border: 1px solid rgba(220, 53, 69, 0.2);
-  color: #dc3545;
+  background-color: var(--color-error-bg, rgba(220, 53, 69, 0.1));
+  border: 1px solid var(--color-error-border, rgba(220, 53, 69, 0.2));
+  color: var(--color-error, #dc3545);
   
   svg {
     margin-right: 0.75rem;
@@ -166,15 +156,15 @@ const Alert = styled.div`
 `;
 
 const PingOneSetupSection = styled.div`
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
+  background-color: var(--color-surface, #f8f9fa);
+  border: 1px solid var(--color-border, #e9ecef);
   border-radius: 8px;
   padding: 1.5rem;
   text-align: left;
   height: fit-content;
 
   h3 {
-    color: #495057;
+    color: var(--color-text-primary, #495057);
     margin-top: 0;
     margin-bottom: 1rem;
     font-size: 1.1rem;
@@ -182,7 +172,7 @@ const PingOneSetupSection = styled.div`
   }
 
   p {
-    color: #6c757d;
+    color: var(--color-text-secondary, #6c757d);
     margin-bottom: 1rem;
     line-height: 1.4;
     font-size: 0.9rem;
@@ -190,7 +180,7 @@ const PingOneSetupSection = styled.div`
 
   em {
     font-style: italic;
-    color: #6c757d;
+    color: var(--color-text-secondary, #6c757d);
     font-size: 0.85rem;
   }
 `;
@@ -199,7 +189,7 @@ const SetupSteps = styled.div`
   margin-bottom: 1.5rem;
 
   h4 {
-    color: #343a40;
+    color: var(--color-text-primary, #343a40);
     margin-top: 1rem;
     margin-bottom: 0.5rem;
     font-size: 0.9rem;
@@ -213,34 +203,34 @@ const SetupSteps = styled.div`
 
   li {
     margin-bottom: 0.25rem;
-    color: #495057;
+    color: var(--color-text-secondary, #495057);
     line-height: 1.3;
     font-size: 0.85rem;
 
     strong {
-      color: #212529;
+      color: var(--color-text-primary, #212529);
     }
 
     code {
-      background-color: #e9ecef;
+      background-color: var(--color-surface, #e9ecef);
       padding: 0.1rem 0.3rem;
       border-radius: 3px;
       font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
       font-size: 0.75em;
-      color: #495057;
+      color: var(--color-text-secondary, #495057);
     }
   }
 `;
 
 const CredentialsBox = styled.div`
-  background-color: #ffffff;
-  border: 1px solid #dee2e6;
+  background-color: var(--color-background, #ffffff);
+  border: 1px solid var(--color-border, #dee2e6);
   border-radius: 6px;
   padding: 1rem;
   margin-bottom: 0.5rem;
 
   h4 {
-    color: #343a40;
+    color: var(--color-text-primary, #343a40);
     margin-top: 0;
     margin-bottom: 0.75rem;
     font-size: 0.9rem;
@@ -249,27 +239,27 @@ const CredentialsBox = styled.div`
 
   p {
     margin-bottom: 0.5rem;
-    color: #495057;
+    color: var(--color-text-secondary, #495057);
     font-size: 0.8rem;
 
     strong {
-      color: #212529;
+      color: var(--color-text-primary, #212529);
       font-weight: 600;
     }
 
     code {
-      background-color: #f8f9fa;
+      background-color: var(--color-surface, #f8f9fa);
       padding: 0.2rem 0.4rem;
       border-radius: 4px;
       font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
       font-size: 0.9rem;
       font-weight: 700;
-      color: #0070CC;
+      color: var(--color-primary, #0070CC);
       letter-spacing: 0.5px;
       word-break: break-all;
       display: inline-block;
       margin-top: 0.25rem;
-      border: 1px solid #e9ecef;
+      border: 1px solid var(--color-border, #e9ecef);
     }
   }
 `;
@@ -284,7 +274,7 @@ const CredentialRow = styled.div`
     margin: 0;
     min-width: 120px;
     font-weight: 600;
-    color: #495057;
+    color: var(--color-text-secondary, #495057);
   }
 `;
 
@@ -306,7 +296,7 @@ const CopyButton = styled.button`
   cursor: pointer;
   padding: 0.25rem;
   border-radius: 4px;
-  color: #6c757d;
+  color: var(--color-text-secondary, #6c757d);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -314,8 +304,8 @@ const CopyButton = styled.button`
   flex-shrink: 0;
 
   &:hover {
-    background-color: #f8f9fa;
-    color: #0070CC;
+    background-color: var(--color-surface, #f8f9fa);
+    color: var(--color-primary, #0070CC);
   }
 
   &:active {
@@ -328,32 +318,31 @@ const CopyButton = styled.button`
 `;
 
 const Login = () => {
-	const [error, setError] = useState("");
+	const [error, setError] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 	const [copiedId, setCopiedId] = useState<string | null>(null);
 	const [credentials, setCredentials] = useState<Credentials>({
-		environmentId: "",
-		clientId: "",
-		clientSecret: "",
-		tokenAuthMethod: "client_secret_basic",
+		environmentId: '',
+		clientId: '',
+		clientSecret: '',
+		tokenAuthMethod: 'client_secret_basic',
 		clientAssertion: {
-			hmacAlg: "HS256",
-			signAlg: "RS256",
-			privateKeyPEM: "",
-			kid: "",
-			audience: "",
-			x5t: "",
+			hmacAlg: 'HS256',
+			signAlg: 'RS256',
+			privateKeyPEM: '',
+			kid: '',
+			audience: '',
+			x5t: '',
 		},
 		advanced: {
-			requestObjectPolicy: "default",
+			requestObjectPolicy: 'default',
 			oidcSessionManagement: false,
-			resourceScopes: "openid profile email",
+			resourceScopes: 'openid profile email',
 			terminateByIdToken: true,
 		},
 	});
 	const [showClientSecret, setShowClientSecret] = useState(false);
-	const toggleClientSecretVisibility = () =>
-		setShowClientSecret(!showClientSecret);
+	const toggleClientSecretVisibility = () => setShowClientSecret(!showClientSecret);
 	const [saveStatus, setSaveStatus] = useState<{
 		type: string;
 		title: string;
@@ -363,16 +352,12 @@ const Login = () => {
 
 	// Modal state for URL preview
 	const [showRedirectModal, setShowRedirectModal] = useState<boolean>(false);
-	const [redirectUrl, setRedirectUrl] = useState<string>("");
-	const [redirectParams, setRedirectParams] = useState<Record<string, string>>(
-		{},
-	);
-	const [isConfigSectionCollapsed, setIsConfigSectionCollapsed] =
-		useState<boolean>(true);
+	const [redirectUrl, setRedirectUrl] = useState<string>('');
+	const [redirectParams, setRedirectParams] = useState<Record<string, string>>({});
+	const [isConfigSectionCollapsed, setIsConfigSectionCollapsed] = useState<boolean>(true);
 	const [isCredentialsSectionCollapsed, setIsCredentialsSectionCollapsed] =
 		useState<boolean>(false);
-	const [hasExistingCredentials, setHasExistingCredentials] =
-		useState<boolean>(false);
+	const [hasExistingCredentials, setHasExistingCredentials] = useState<boolean>(false);
 
 	const { login } = useAuth();
 	const location = useLocation();
@@ -380,28 +365,27 @@ const Login = () => {
 	// Load existing credentials on component mount
 	useEffect(() => {
 		const loadExistingCredentials = () => {
-			console.log(" [Login] Loading existing credentials...");
+			console.log(' [Login] Loading existing credentials...');
 
 			// Try to load from credential manager
 			const allCredentials = credentialManager.getAllCredentials();
-			console.log(" [Login] All credentials from manager:", allCredentials);
+			console.log(' [Login] All credentials from manager:', allCredentials);
 
 			if (allCredentials.environmentId && allCredentials.clientId) {
-				console.log(" [Login] Found existing credentials, pre-filling form");
+				console.log(' [Login] Found existing credentials, pre-filling form');
 				setCredentials((prev) => ({
 					...prev,
-					environmentId: allCredentials.environmentId || "",
-					clientId: allCredentials.clientId || "",
-					clientSecret: allCredentials.clientSecret || "",
-					tokenAuthMethod:
-						allCredentials.tokenAuthMethod || "client_secret_basic",
+					environmentId: allCredentials.environmentId || '',
+					clientId: allCredentials.clientId || '',
+					clientSecret: allCredentials.clientSecret || '',
+					tokenAuthMethod: allCredentials.tokenAuthMethod || 'client_secret_basic',
 				}));
 				setHasExistingCredentials(true);
 
 				// Collapse credentials section if they're already filled
 				setIsCredentialsSectionCollapsed(true);
 			} else {
-				console.log(" [Login] No existing credentials found");
+				console.log(' [Login] No existing credentials found');
 				setHasExistingCredentials(false);
 			}
 		};
@@ -416,7 +400,7 @@ const Login = () => {
 	};
 
 	const handleRedirectModalProceed = () => {
-		console.log(" [Login] Proceeding with redirect to PingOne:", redirectUrl);
+		console.log(' [Login] Proceeding with redirect to PingOne:', redirectUrl);
 		window.location.href = redirectUrl;
 	};
 
@@ -424,44 +408,41 @@ const Login = () => {
 
 	// Check for redirect messages
 	const redirectMessage = location.state?.message;
-	const redirectType = location.state?.type || "info";
+	const redirectType = location.state?.type || 'info';
 
 	// Load saved credentials on component mount
 	useEffect(() => {
-		console.log(
-			" [Login] Loading credentials from localStorage and credential manager...",
-		);
+		console.log(' [Login] Loading credentials from localStorage and credential manager...');
 
 		// First try to load from credential manager (newer approach)
 		const allCredentials = credentialManager.getAllCredentials();
-		console.log(" [Login] Credential manager result:", allCredentials);
+		console.log(' [Login] Credential manager result:', allCredentials);
 
 		if (allCredentials.environmentId && allCredentials.clientId) {
-			console.log(" [Login] Found credentials from credential manager:", {
+			console.log(' [Login] Found credentials from credential manager:', {
 				hasEnvironmentId: !!allCredentials.environmentId,
 				hasClientId: !!allCredentials.clientId,
 				hasClientSecret: !!allCredentials.clientSecret,
-				clientIdPrefix: allCredentials.clientId?.substring(0, 8) + "...",
+				clientIdPrefix: allCredentials.clientId?.substring(0, 8) + '...',
 			});
 
 			setCredentials({
 				environmentId: allCredentials.environmentId,
 				clientId: allCredentials.clientId,
-				clientSecret: allCredentials.clientSecret || "",
-				tokenAuthMethod:
-					allCredentials.tokenAuthMethod || "client_secret_basic",
+				clientSecret: allCredentials.clientSecret || '',
+				tokenAuthMethod: allCredentials.tokenAuthMethod || 'client_secret_basic',
 				clientAssertion: {
-					hmacAlg: "HS256",
-					signAlg: "RS256",
-					privateKeyPEM: "",
-					kid: "",
-					audience: "",
-					x5t: "",
+					hmacAlg: 'HS256',
+					signAlg: 'RS256',
+					privateKeyPEM: '',
+					kid: '',
+					audience: '',
+					x5t: '',
 				},
 				advanced: {
-					requestObjectPolicy: "default",
+					requestObjectPolicy: 'default',
 					oidcSessionManagement: false,
-					resourceScopes: "openid profile email",
+					resourceScopes: 'openid profile email',
 					terminateByIdToken: true,
 				},
 			});
@@ -469,7 +450,7 @@ const Login = () => {
 		}
 
 		// Fallback to old localStorage approach
-		const savedCredentials = localStorage.getItem("login_credentials");
+		const savedCredentials = localStorage.getItem('login_credentials');
 		if (savedCredentials) {
 			try {
 				const parsedCredentials = JSON.parse(savedCredentials);
@@ -477,31 +458,26 @@ const Login = () => {
 				// Check if the client secret is the problematic hardcoded one
 				if (
 					parsedCredentials.clientSecret ===
-					"0mClRqd3fif2vh4WJCO6B-8OZuOokzsh5gLw1V3GHbeGJYCMLk_zPfrptWzfYJ.a"
+					'0mClRqd3fif2vh4WJCO6B-8OZuOokzsh5gLw1V3GHbeGJYCMLk_zPfrptWzfYJ.a'
 				) {
-					console.log(" [Login] Clearing problematic hardcoded client secret");
-					parsedCredentials.clientSecret = "";
+					console.log(' [Login] Clearing problematic hardcoded client secret');
+					parsedCredentials.clientSecret = '';
 					// Update localStorage with cleared secret
-					localStorage.setItem(
-						"login_credentials",
-						JSON.stringify(parsedCredentials),
-					);
+					localStorage.setItem('login_credentials', JSON.stringify(parsedCredentials));
 				}
 
-				console.log(" [Login] Found saved credentials from localStorage:", {
+				console.log(' [Login] Found saved credentials from localStorage:', {
 					hasEnvironmentId: !!parsedCredentials.environmentId,
 					hasClientId: !!parsedCredentials.clientId,
 					hasClientSecret: !!parsedCredentials.clientSecret,
-					clientIdPrefix: parsedCredentials.clientId?.substring(0, 8) + "...",
+					clientIdPrefix: parsedCredentials.clientId?.substring(0, 8) + '...',
 				});
 				setCredentials(parsedCredentials);
 			} catch (error) {
-				console.error(" [Login] Failed to parse saved credentials:", error);
+				console.error(' [Login] Failed to parse saved credentials:', error);
 			}
 		} else {
-			console.log(
-				" [Login] No saved credentials found in localStorage or credential manager",
-			);
+			console.log(' [Login] No saved credentials found in localStorage or credential manager');
 		}
 	}, []);
 
@@ -511,21 +487,20 @@ const Login = () => {
 			setCopiedId(id);
 			setTimeout(() => setCopiedId(null), 2000);
 		} catch (err) {
-			console.error("Failed to copy text: ", err);
+			console.error('Failed to copy text: ', err);
 		}
 	};
 
-	const tokenEndpointForEnv = (envId: string) =>
-		`https://auth.pingone.com/${envId}/as/token`;
+	const tokenEndpointForEnv = (envId: string) => `https://auth.pingone.com/${envId}/as/token`;
 
 	const handleCredentialChange = (field: string, value: string) => {
 		setCredentials((prev) => {
 			const next: Credentials = { ...prev, [field]: value };
 			// If environment changes, refresh default audience if it was empty or matched previous default
-			if (field === "environmentId") {
+			if (field === 'environmentId') {
 				const oldDefault = tokenEndpointForEnv(prev.environmentId);
 				const newDefault = tokenEndpointForEnv(value);
-				const curAud = prev.clientAssertion?.audience || "";
+				const curAud = prev.clientAssertion?.audience || '';
 				if (!curAud || curAud === oldDefault) {
 					next.clientAssertion = {
 						...(prev.clientAssertion || {}),
@@ -538,7 +513,7 @@ const Login = () => {
 	};
 
 	const handleCredentialSave = () => {
-		console.log(" [Login] Saving credentials...");
+		console.log(' [Login] Saving credentials...');
 		setSaveStatus(null);
 		setIsSavingCredentials(true);
 
@@ -547,12 +522,8 @@ const Login = () => {
 			const permanentSuccess = credentialManager.saveConfigCredentials({
 				environmentId: credentials.environmentId,
 				clientId: credentials.clientId,
-				redirectUri: getCallbackUrlForFlow("dashboard"),
-				scopes: credentials.advanced?.resourceScopes?.split(" ") || [
-					"openid",
-					"profile",
-					"email",
-				],
+				redirectUri: getCallbackUrlForFlow('dashboard'),
+				scopes: credentials.advanced?.resourceScopes?.split(' ') || ['openid', 'profile', 'email'],
 				authEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/authorize`,
 				tokenEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/token`,
 				userInfoEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/userinfo`,
@@ -565,23 +536,23 @@ const Login = () => {
 			});
 
 			if (!permanentSuccess || !sessionSuccess) {
-				throw new Error("Failed to save credentials to credential manager");
+				throw new Error('Failed to save credentials to credential manager');
 			}
 
 			// Debug localStorage after saving
-			console.log(" [Login] After saving credentials:");
+			console.log(' [Login] After saving credentials:');
 			credentialManager.debugLocalStorage();
 
 			// Also save to legacy localStorage for backward compatibility
-			localStorage.setItem("login_credentials", JSON.stringify(credentials));
+			localStorage.setItem('login_credentials', JSON.stringify(credentials));
 
 			// Also save as pingone_config for consistency with other parts of the app
 			const configToSave = {
 				environmentId: credentials.environmentId,
 				clientId: credentials.clientId,
 				clientSecret: credentials.clientSecret,
-				redirectUri: getCallbackUrlForFlow("dashboard"),
-				scopes: credentials.advanced?.resourceScopes || "openid profile email",
+				redirectUri: getCallbackUrlForFlow('dashboard'),
+				scopes: credentials.advanced?.resourceScopes || 'openid profile email',
 				authEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/authorize`,
 				tokenEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/token`,
 				userInfoEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/userinfo`,
@@ -589,48 +560,42 @@ const Login = () => {
 				clientAssertion: credentials.clientAssertion,
 				advanced: credentials.advanced,
 			};
-			localStorage.setItem("pingone_config", JSON.stringify(configToSave));
+			localStorage.setItem('pingone_config', JSON.stringify(configToSave));
 
-			console.log(" [Login] Credentials saved successfully:", {
+			console.log(' [Login] Credentials saved successfully:', {
 				hasEnvironmentId: !!credentials.environmentId,
 				hasClientId: !!credentials.clientId,
 				hasClientSecret: !!credentials.clientSecret,
-				clientIdPrefix: credentials.clientId?.substring(0, 8) + "...",
+				clientIdPrefix: credentials.clientId?.substring(0, 8) + '...',
 			});
 
 			// Dispatch events to notify other components of config change
 			window.dispatchEvent(
-				new CustomEvent("pingone_config_changed", {
+				new CustomEvent('pingone_config_changed', {
 					detail: { config: configToSave },
-				}),
+				})
 			);
-			window.dispatchEvent(new CustomEvent("pingone-config-changed"));
-			window.dispatchEvent(new CustomEvent("permanent-credentials-changed"));
+			window.dispatchEvent(new CustomEvent('pingone-config-changed'));
+			window.dispatchEvent(new CustomEvent('permanent-credentials-changed'));
 
 			setSaveStatus({
-				type: "success",
-				title: "Credentials saved",
+				type: 'success',
+				title: 'Credentials saved',
 				message:
-					"Your login credentials have been saved successfully. The Configuration page has been updated with these same values.",
+					'Your login credentials have been saved successfully. The Configuration page has been updated with these same values.',
 			});
-			showGlobalSuccess(
-				"Credentials saved",
-				"Login credentials have been saved successfully.",
-			);
+			showGlobalSuccess('Credentials saved', 'Login credentials have been saved successfully.');
 
 			// Force a re-render to update the display with new values
 			setCredentials((prev) => ({ ...prev }));
 		} catch (error) {
-			console.error(" [Login] Failed to save credentials:", error);
+			console.error(' [Login] Failed to save credentials:', error);
 			setSaveStatus({
-				type: "danger",
-				title: "Error",
-				message: "Failed to save credentials. Please try again.",
+				type: 'danger',
+				title: 'Error',
+				message: 'Failed to save credentials. Please try again.',
 			});
-			showGlobalError(
-				"Save failed",
-				"Failed to save login credentials. Please try again.",
-			);
+			showGlobalError('Save failed', 'Failed to save login credentials. Please try again.');
 		} finally {
 			// Add a small delay to show the spinner effect
 			setTimeout(() => {
@@ -645,30 +610,30 @@ const Login = () => {
 	};
 
 	const handleLogin = async () => {
-		console.log(" [Login] Starting login process...");
-		setError("");
+		console.log(' [Login] Starting login process...');
+		setError('');
 		setIsLoading(true);
 
 		try {
-			console.log(" [Login] Saving credentials before login:", {
+			console.log(' [Login] Saving credentials before login:', {
 				hasEnvironmentId: !!credentials.environmentId,
 				hasClientId: !!credentials.clientId,
 				hasClientSecret: !!credentials.clientSecret,
 				environmentId: credentials.environmentId,
-				clientId: credentials.clientId?.substring(0, 8) + "...",
+				clientId: credentials.clientId?.substring(0, 8) + '...',
 			});
 
 			// Save current form credentials to localStorage before login
 			// This ensures the OAuth redirect uses the correct credentials
-			localStorage.setItem("login_credentials", JSON.stringify(credentials));
+			localStorage.setItem('login_credentials', JSON.stringify(credentials));
 
 			// Also save as pingone_config for consistency
 			const configToSave = {
 				environmentId: credentials.environmentId,
 				clientId: credentials.clientId,
 				clientSecret: credentials.clientSecret,
-				redirectUri: getCallbackUrlForFlow("dashboard"),
-				scopes: credentials.advanced?.resourceScopes || "openid profile email",
+				redirectUri: getCallbackUrlForFlow('dashboard'),
+				scopes: credentials.advanced?.resourceScopes || 'openid profile email',
 				authEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/authorize`,
 				tokenEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/token`,
 				userInfoEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/userinfo`,
@@ -676,9 +641,9 @@ const Login = () => {
 				clientAssertion: credentials.clientAssertion,
 				advanced: credentials.advanced,
 			};
-			localStorage.setItem("pingone_config", JSON.stringify(configToSave));
+			localStorage.setItem('pingone_config', JSON.stringify(configToSave));
 
-			console.log(" [Login] Credentials saved, config prepared:", {
+			console.log(' [Login] Credentials saved, config prepared:', {
 				redirectUri: configToSave.redirectUri,
 				authEndpoint: configToSave.authEndpoint,
 				tokenEndpoint: configToSave.tokenEndpoint,
@@ -687,41 +652,33 @@ const Login = () => {
 
 			// Dispatch event to notify other components of config change
 			window.dispatchEvent(
-				new CustomEvent("pingone_config_changed", {
+				new CustomEvent('pingone_config_changed', {
 					detail: { config: configToSave },
-				}),
+				})
 			);
 
-			console.log(
-				" [Login] Calling login function with dashboard callback type...",
-			);
+			console.log(' [Login] Calling login function with dashboard callback type...');
 
 			// Redirect to PingOne for authentication
-			const result = await login("/", "dashboard");
+			const result = await login('/', 'dashboard');
 
-			console.log(" [Login] Login function result:", result);
+			console.log(' [Login] Login function result:', result);
 
 			if (!result.success) {
-				console.error(" [Login] Login failed:", result.error);
-				setError(result.error || "Login failed");
+				console.error(' [Login] Login failed:', result.error);
+				setError(result.error || 'Login failed');
 				showGlobalError(
-					"Authentication failed",
-					result.error ||
-						"Login failed. Please check your credentials and try again.",
+					'Authentication failed',
+					result.error || 'Login failed. Please check your credentials and try again.'
 				);
 				setIsLoading(false);
 				return;
 			}
 
 			// Show success message for successful login initiation
-			showGlobalSuccess(
-				"Authentication initiated",
-				"Redirecting to PingOne for authentication...",
-			);
+			showGlobalSuccess('Authentication initiated', 'Redirecting to PingOne for authentication...');
 
-			console.log(
-				" [Login] Login initiated successfully, showing URL preview modal",
-			);
+			console.log(' [Login] Login initiated successfully, showing URL preview modal');
 
 			// Parse URL to extract parameters for modal display
 			if (result.redirectUrl) {
@@ -731,22 +688,19 @@ const Login = () => {
 					params[key] = value;
 				});
 
-				console.log(
-					" [Login] Opening redirect modal with URL:",
-					result.redirectUrl,
-				);
+				console.log(' [Login] Opening redirect modal with URL:', result.redirectUrl);
 				setRedirectUrl(result.redirectUrl);
 				setRedirectParams(params);
 				setShowRedirectModal(true);
 			}
 		} catch (err) {
-			console.error(" [Login] Login error:", err);
-			console.error(" [Login] Error details:", {
-				message: err instanceof Error ? err.message : "Unknown error",
+			console.error(' [Login] Login error:', err);
+			console.error(' [Login] Error details:', {
+				message: err instanceof Error ? err.message : 'Unknown error',
 				stack: err instanceof Error ? err.stack : undefined,
 				error: err,
 			});
-			setError("An error occurred during login. Please try again.");
+			setError('An error occurred during login. Please try again.');
 			setIsLoading(false);
 		}
 	};
@@ -757,40 +711,27 @@ const Login = () => {
 				<SetupSection>
 					<DescriptionSection>
 						<p>
-							<span>
-								{" "}
-								Interactive playground for OAuth 2.0 and OpenID Connect with
-								PingOne
-							</span>
+							<span> Interactive playground for OAuth 2.0 and OpenID Connect with PingOne</span>
 						</p>
 					</DescriptionSection>
 
 					<PingOneSetupSection>
 						<h3
-							onClick={() =>
-								setIsConfigSectionCollapsed(!isConfigSectionCollapsed)
-							}
+							onClick={() => setIsConfigSectionCollapsed(!isConfigSectionCollapsed)}
 							style={{
-								cursor: "pointer",
-								display: "flex",
-								alignItems: "center",
-								gap: "0.5rem",
-								userSelect: "none",
+								cursor: 'pointer',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+								userSelect: 'none',
 							}}
 						>
-							{isConfigSectionCollapsed ? (
-								<FiChevronRight />
-							) : (
-								<FiChevronDown />
-							)}
+							{isConfigSectionCollapsed ? <FiChevronRight /> : <FiChevronDown />}
 							PingOne Configuration Required
 						</h3>
 						{!isConfigSectionCollapsed && (
 							<>
-								<p>
-									To use this OAuth Playground, you need to configure your
-									PingOne environment:
-								</p>
+								<p>To use this OAuth Playground, you need to configure your PingOne environment:</p>
 
 								<SetupSteps>
 									<h4>1. Access PingOne Admin Console</h4>
@@ -799,16 +740,15 @@ const Login = () => {
 											Navigate to your <strong>PingOne Admin Console</strong>
 										</li>
 										<li>
-											Go to <strong>Applications</strong>{" "}
-											<strong>Applications</strong>
+											Go to <strong>Applications</strong> <strong>Applications</strong>
 										</li>
 										<li>
-											Click{" "}
+											Click{' '}
 											<strong
 												style={{
-													fontSize: "1.1rem",
-													fontWeight: "800",
-													color: "#0070CC",
+													fontSize: '1.1rem',
+													fontWeight: '800',
+													color: '#0070CC',
 												}}
 											>
 												+ Add Application
@@ -828,10 +768,10 @@ const Login = () => {
 											<strong>Application Name:</strong>
 											<span
 												style={{
-													fontWeight: "800",
-													fontSize: "1rem",
-													color: "#0070CC",
-													marginLeft: "0.5rem",
+													fontWeight: '800',
+													fontSize: '1rem',
+													color: '#0070CC',
+													marginLeft: '0.5rem',
 												}}
 											>
 												PingOne OAuth/OIDC Playground v{packageJson.version}
@@ -839,27 +779,27 @@ const Login = () => {
 													onClick={() =>
 														copyToClipboard(
 															`PingOne OAuth/OIDC Playground v${packageJson.version}`,
-															"setup-app-name",
+															'setup-app-name'
 														)
 													}
 													style={{
-														background: "none",
-														border: "1px solid #0070CC",
-														color: "#0070CC",
-														cursor: "pointer",
-														padding: "0.125rem 0.25rem",
-														borderRadius: "3px",
-														fontSize: "0.7rem",
-														fontWeight: "600",
-														marginLeft: "0.5rem",
-														display: "inline-flex",
-														alignItems: "center",
-														gap: "0.125rem",
-														transition: "all 0.2s",
+														background: 'none',
+														border: '1px solid #0070CC',
+														color: '#0070CC',
+														cursor: 'pointer',
+														padding: '0.125rem 0.25rem',
+														borderRadius: '3px',
+														fontSize: '0.7rem',
+														fontWeight: '600',
+														marginLeft: '0.5rem',
+														display: 'inline-flex',
+														alignItems: 'center',
+														gap: '0.125rem',
+														transition: 'all 0.2s',
 													}}
 													title="Copy Application Name"
 												>
-													{copiedId === "setup-app-name" ? (
+													{copiedId === 'setup-app-name' ? (
 														<FiCheck size={10} />
 													) : (
 														<FiCopy size={10} />
@@ -868,8 +808,7 @@ const Login = () => {
 											</span>
 										</li>
 										<li>
-											<strong>Description:</strong> Interactive OAuth 2.0
-											testing application
+											<strong>Description:</strong> Interactive OAuth 2.0 testing application
 										</li>
 										<li>
 											<strong>Hit Save Button</strong>
@@ -879,9 +818,7 @@ const Login = () => {
 									<h4>3. Configure Authentication</h4>
 									<ul>
 										<li>
-											<strong>
-												Enable Application - Grey button on top Right
-											</strong>
+											<strong>Enable Application - Grey button on top Right</strong>
 										</li>
 										<li>
 											<strong>Hit Configuration tab</strong>
@@ -890,15 +827,15 @@ const Login = () => {
 											<strong>Hit blue pencil</strong>
 											<span
 												style={{
-													display: "inline-flex",
-													alignItems: "center",
-													justifyContent: "center",
-													width: "20px",
-													height: "20px",
-													backgroundColor: "#0070CC",
-													borderRadius: "50%",
-													marginLeft: "8px",
-													color: "white",
+													display: 'inline-flex',
+													alignItems: 'center',
+													justifyContent: 'center',
+													width: '20px',
+													height: '20px',
+													backgroundColor: '#0070CC',
+													borderRadius: '50%',
+													marginLeft: '8px',
+													color: 'white',
 												}}
 											>
 												<FiEdit size={12} />
@@ -914,38 +851,38 @@ const Login = () => {
 											<strong>Redirect URIs:</strong>
 											<span
 												style={{
-													fontWeight: "800",
-													fontSize: "1rem",
-													color: "#0070CC",
-													marginLeft: "0.5rem",
+													fontWeight: '800',
+													fontSize: '1rem',
+													color: '#0070CC',
+													marginLeft: '0.5rem',
 												}}
 											>
-												{getCallbackUrlForFlow("dashboard")}
+												{getCallbackUrlForFlow('dashboard')}
 												<button
 													onClick={() =>
 														copyToClipboard(
-															getCallbackUrlForFlow("dashboard"),
-															"setup-redirect-uri",
+															getCallbackUrlForFlow('dashboard'),
+															'setup-redirect-uri'
 														)
 													}
 													style={{
-														background: "none",
-														border: "1px solid #0070CC",
-														color: "#0070CC",
-														cursor: "pointer",
-														padding: "0.125rem 0.25rem",
-														borderRadius: "3px",
-														fontSize: "0.7rem",
-														fontWeight: "600",
-														marginLeft: "0.5rem",
-														display: "inline-flex",
-														alignItems: "center",
-														gap: "0.125rem",
-														transition: "all 0.2s",
+														background: 'none',
+														border: '1px solid #0070CC',
+														color: '#0070CC',
+														cursor: 'pointer',
+														padding: '0.125rem 0.25rem',
+														borderRadius: '3px',
+														fontSize: '0.7rem',
+														fontWeight: '600',
+														marginLeft: '0.5rem',
+														display: 'inline-flex',
+														alignItems: 'center',
+														gap: '0.125rem',
+														transition: 'all 0.2s',
 													}}
 													title="Copy Redirect URI"
 												>
-													{copiedId === "setup-redirect-uri" ? (
+													{copiedId === 'setup-redirect-uri' ? (
 														<FiCheck size={10} />
 													) : (
 														<FiCopy size={10} />
@@ -954,12 +891,11 @@ const Login = () => {
 											</span>
 										</li>
 										<li>
-											<strong>Token Endpoint Authentication Method:</strong>{" "}
-											Client Secret Basic
+											<strong>Token Endpoint Authentication Method:</strong> Client Secret Basic
 										</li>
 										<li>
-											Click <strong style={{ color: "#0070CC" }}>Save</strong>{" "}
-											to create the application
+											Click <strong style={{ color: '#0070CC' }}>Save</strong> to create the
+											application
 										</li>
 									</ul>
 
@@ -975,11 +911,11 @@ const Login = () => {
 											See the <strong>Client Secret</strong>
 											<span
 												style={{
-													marginLeft: "0.375rem",
-													color: "#6c757d",
-													display: "inline-flex",
-													alignItems: "center",
-													gap: "0.25rem",
+													marginLeft: '0.375rem',
+													color: '#6c757d',
+													display: 'inline-flex',
+													alignItems: 'center',
+													gap: '0.25rem',
 												}}
 											>
 												(<FiEye size={12} /> show/hide)
@@ -990,9 +926,9 @@ const Login = () => {
 
 								<p>
 									<em>
-										{" "}
-										<strong>Need Help?</strong> Check the PingOne documentation
-										or contact your PingOne administrator.
+										{' '}
+										<strong>Need Help?</strong> Check the PingOne documentation or contact your
+										PingOne administrator.
 									</em>
 								</p>
 							</>
@@ -1000,38 +936,32 @@ const Login = () => {
 					</PingOneSetupSection>
 
 					{/* Credentials Section - Separate Collapsible Section */}
-					<PingOneSetupSection style={{ marginTop: "1rem" }}>
+					<PingOneSetupSection style={{ marginTop: '1rem' }}>
 						<h3
-							onClick={() =>
-								setIsCredentialsSectionCollapsed(!isCredentialsSectionCollapsed)
-							}
+							onClick={() => setIsCredentialsSectionCollapsed(!isCredentialsSectionCollapsed)}
 							style={{
-								cursor: "pointer",
-								display: "flex",
-								alignItems: "center",
-								gap: "0.5rem",
-								userSelect: "none",
+								cursor: 'pointer',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+								userSelect: 'none',
 							}}
 						>
-							{isCredentialsSectionCollapsed ? (
-								<FiChevronRight />
-							) : (
-								<FiChevronDown />
-							)}
+							{isCredentialsSectionCollapsed ? <FiChevronRight /> : <FiChevronDown />}
 							Enter Your Credentials
 							{hasExistingCredentials && (
 								<span
 									style={{
-										background: "#d4edda",
-										color: "#155724",
-										padding: "0.25rem 0.5rem",
-										borderRadius: "12px",
-										fontSize: "0.75rem",
-										fontWeight: "500",
-										marginLeft: "0.5rem",
-										display: "flex",
-										alignItems: "center",
-										gap: "0.25rem",
+										background: '#d4edda',
+										color: '#155724',
+										padding: '0.25rem 0.5rem',
+										borderRadius: '12px',
+										fontSize: '0.75rem',
+										fontWeight: '500',
+										marginLeft: '0.5rem',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.25rem',
 									}}
 								>
 									<FiCheckCircle size={12} />
@@ -1047,54 +977,54 @@ const Login = () => {
 									{redirectMessage && (
 										<div
 											style={{
-												padding: "1rem",
-												marginBottom: "1.5rem",
-												borderRadius: "0.375rem",
+												padding: '1rem',
+												marginBottom: '1.5rem',
+												borderRadius: '0.375rem',
 												backgroundColor:
-													redirectType === "success"
-														? "#f0fdf4"
-														: redirectType === "error"
-															? "#fef2f2"
-															: redirectType === "warning"
-																? "#fffbeb"
-																: "#eff6ff",
-												border: `1px solid ${redirectType === "success" ? "#bbf7d0" : redirectType === "error" ? "#fecaca" : redirectType === "warning" ? "#fde68a" : "#bfdbfe"}`,
+													redirectType === 'success'
+														? '#f0fdf4'
+														: redirectType === 'error'
+															? '#fef2f2'
+															: redirectType === 'warning'
+																? '#fffbeb'
+																: '#eff6ff',
+												border: `1px solid ${redirectType === 'success' ? '#bbf7d0' : redirectType === 'error' ? '#fecaca' : redirectType === 'warning' ? '#fde68a' : '#bfdbfe'}`,
 												color:
-													redirectType === "success"
-														? "#166534"
-														: redirectType === "error"
-															? "#991b1b"
-															: redirectType === "warning"
-																? "#92400e"
-																: "#1e40af",
-												display: "flex",
-												alignItems: "flex-start",
+													redirectType === 'success'
+														? '#166534'
+														: redirectType === 'error'
+															? '#991b1b'
+															: redirectType === 'warning'
+																? '#92400e'
+																: '#1e40af',
+												display: 'flex',
+												alignItems: 'flex-start',
 											}}
 										>
-											{redirectType === "success" ? (
+											{redirectType === 'success' ? (
 												<FiCheckCircle
 													size={20}
 													style={{
-														marginRight: "0.75rem",
-														marginTop: "0.2rem",
+														marginRight: '0.75rem',
+														marginTop: '0.2rem',
 														flexShrink: 0,
 													}}
 												/>
-											) : redirectType === "error" ? (
+											) : redirectType === 'error' ? (
 												<FiAlertCircle
 													size={20}
 													style={{
-														marginRight: "0.75rem",
-														marginTop: "0.2rem",
+														marginRight: '0.75rem',
+														marginTop: '0.2rem',
 														flexShrink: 0,
 													}}
 												/>
-											) : redirectType === "warning" ? (
+											) : redirectType === 'warning' ? (
 												<FiAlertCircle
 													size={20}
 													style={{
-														marginRight: "0.75rem",
-														marginTop: "0.2rem",
+														marginRight: '0.75rem',
+														marginTop: '0.2rem',
 														flexShrink: 0,
 													}}
 												/>
@@ -1102,8 +1032,8 @@ const Login = () => {
 												<FiAlertCircle
 													size={20}
 													style={{
-														marginRight: "0.75rem",
-														marginTop: "0.2rem",
+														marginRight: '0.75rem',
+														marginTop: '0.2rem',
 														flexShrink: 0,
 													}}
 												/>
@@ -1112,21 +1042,19 @@ const Login = () => {
 												<h4
 													style={{
 														marginTop: 0,
-														marginBottom: "0.5rem",
+														marginBottom: '0.5rem',
 														fontWeight: 600,
 													}}
 												>
-													{redirectType === "success"
-														? "Success"
-														: redirectType === "error"
-															? "Error"
-															: redirectType === "warning"
-																? "Warning"
-																: "Information"}
+													{redirectType === 'success'
+														? 'Success'
+														: redirectType === 'error'
+															? 'Error'
+															: redirectType === 'warning'
+																? 'Warning'
+																: 'Information'}
 												</h4>
-												<p style={{ margin: 0, fontSize: "0.9375rem" }}>
-													{redirectMessage}
-												</p>
+												<p style={{ margin: 0, fontSize: '0.9375rem' }}>{redirectMessage}</p>
 											</div>
 										</div>
 									)}
@@ -1147,28 +1075,22 @@ const Login = () => {
 										{saveStatus && (
 											<div
 												style={{
-													padding: "1rem",
-													marginBottom: "1.5rem",
-													borderRadius: "0.375rem",
-													backgroundColor:
-														saveStatus.type === "success"
-															? "#f0fdf4"
-															: "#fef2f2",
-													border: `1px solid ${saveStatus.type === "success" ? "#bbf7d0" : "#fecaca"}`,
-													color:
-														saveStatus.type === "success"
-															? "#166534"
-															: "#991b1b",
-													display: "flex",
-													alignItems: "flex-start",
+													padding: '1rem',
+													marginBottom: '1.5rem',
+													borderRadius: '0.375rem',
+													backgroundColor: saveStatus.type === 'success' ? '#f0fdf4' : '#fef2f2',
+													border: `1px solid ${saveStatus.type === 'success' ? '#bbf7d0' : '#fecaca'}`,
+													color: saveStatus.type === 'success' ? '#166534' : '#991b1b',
+													display: 'flex',
+													alignItems: 'flex-start',
 												}}
 											>
-												{saveStatus.type === "success" ? (
+												{saveStatus.type === 'success' ? (
 													<FiCheckCircle
 														size={20}
 														style={{
-															marginRight: "0.75rem",
-															marginTop: "0.2rem",
+															marginRight: '0.75rem',
+															marginTop: '0.2rem',
 															flexShrink: 0,
 														}}
 													/>
@@ -1176,8 +1098,8 @@ const Login = () => {
 													<FiAlertCircle
 														size={20}
 														style={{
-															marginRight: "0.75rem",
-															marginTop: "0.2rem",
+															marginRight: '0.75rem',
+															marginTop: '0.2rem',
 															flexShrink: 0,
 														}}
 													/>
@@ -1186,15 +1108,13 @@ const Login = () => {
 													<h4
 														style={{
 															marginTop: 0,
-															marginBottom: "0.5rem",
+															marginBottom: '0.5rem',
 															fontWeight: 600,
 														}}
 													>
 														{saveStatus.title}
 													</h4>
-													<p style={{ margin: 0, fontSize: "0.9375rem" }}>
-														{saveStatus.message}
-													</p>
+													<p style={{ margin: 0, fontSize: '0.9375rem' }}>{saveStatus.message}</p>
 												</div>
 											</div>
 										)}
@@ -1207,34 +1127,23 @@ const Login = () => {
 												<input
 													type="text"
 													value={credentials.environmentId}
-													onChange={(e) =>
-														handleCredentialChange(
-															"environmentId",
-															e.target.value,
-														)
-													}
+													onChange={(e) => handleCredentialChange('environmentId', e.target.value)}
 													style={{
-														width: "100%",
-														padding: "0.5rem",
-														border: "1px solid #dee2e6",
-														borderRadius: "4px",
-														fontFamily: "Monaco, Menlo, Ubuntu Mono, monospace",
-														fontSize: "0.85rem",
-														backgroundColor: "#f8f9fa",
+														width: '100%',
+														padding: '0.5rem',
+														border: '1px solid #dee2e6',
+														borderRadius: '4px',
+														fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
+														fontSize: '0.85rem',
+														backgroundColor: '#f8f9fa',
 													}}
 													placeholder="e.g., abc12345-6789-4abc-def0-1234567890ab"
 												/>
 												<CopyButton
-													onClick={() =>
-														copyToClipboard(credentials.environmentId, "env-id")
-													}
+													onClick={() => copyToClipboard(credentials.environmentId, 'env-id')}
 													title="Copy Environment ID"
 												>
-													{copiedId === "env-id" ? (
-														<FiCheck size={16} />
-													) : (
-														<FiCopy size={16} />
-													)}
+													{copiedId === 'env-id' ? <FiCheck size={16} /> : <FiCopy size={16} />}
 												</CopyButton>
 											</CredentialWrapper>
 										</CredentialRow>
@@ -1247,31 +1156,23 @@ const Login = () => {
 												<input
 													type="text"
 													value={credentials.clientId}
-													onChange={(e) =>
-														handleCredentialChange("clientId", e.target.value)
-													}
+													onChange={(e) => handleCredentialChange('clientId', e.target.value)}
 													style={{
-														width: "100%",
-														padding: "0.5rem",
-														border: "1px solid #dee2e6",
-														borderRadius: "4px",
-														fontFamily: "Monaco, Menlo, Ubuntu Mono, monospace",
-														fontSize: "0.85rem",
-														backgroundColor: "#f8f9fa",
+														width: '100%',
+														padding: '0.5rem',
+														border: '1px solid #dee2e6',
+														borderRadius: '4px',
+														fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
+														fontSize: '0.85rem',
+														backgroundColor: '#f8f9fa',
 													}}
 													placeholder="Enter your application's Client ID"
 												/>
 												<CopyButton
-													onClick={() =>
-														copyToClipboard(credentials.clientId, "client-id")
-													}
+													onClick={() => copyToClipboard(credentials.clientId, 'client-id')}
 													title="Copy Client ID"
 												>
-													{copiedId === "client-id" ? (
-														<FiCheck size={16} />
-													) : (
-														<FiCopy size={16} />
-													)}
+													{copiedId === 'client-id' ? <FiCheck size={16} /> : <FiCopy size={16} />}
 												</CopyButton>
 											</CredentialWrapper>
 										</CredentialRow>
@@ -1281,27 +1182,21 @@ const Login = () => {
 												<strong>Client Secret:</strong>
 											</p>
 											<CredentialWrapper>
-												<div style={{ position: "relative", width: "100%" }}>
+												<div style={{ position: 'relative', width: '100%' }}>
 													<input
-														type={showClientSecret ? "text" : "password"}
+														type={showClientSecret ? 'text' : 'password'}
 														value={credentials.clientSecret}
-														onChange={(e) =>
-															handleCredentialChange(
-																"clientSecret",
-																e.target.value,
-															)
-														}
+														onChange={(e) => handleCredentialChange('clientSecret', e.target.value)}
 														autoComplete="current-password"
 														style={{
-															width: "100%",
-															maxWidth: "610px",
-															padding: "0.5rem 3.25rem 0.5rem 0.75rem",
-															border: "1px solid #dee2e6",
-															fontFamily:
-																'Monaco, Menlo, "Ubuntu Mono", monospace',
-															fontSize: "0.875rem",
-															borderRadius: "4px",
-															backgroundColor: "#f8f9fa",
+															width: '100%',
+															maxWidth: '610px',
+															padding: '0.5rem 3.25rem 0.5rem 0.75rem',
+															border: '1px solid #dee2e6',
+															fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+															fontSize: '0.875rem',
+															borderRadius: '4px',
+															backgroundColor: '#f8f9fa',
 														}}
 														placeholder="Enter your application's Client Secret"
 													/>
@@ -1309,43 +1204,32 @@ const Login = () => {
 														onClick={toggleClientSecretVisibility}
 														type="button"
 														style={{
-															position: "absolute",
-															right: "0.5rem",
-															top: "50%",
-															transform: "translateY(-50%)",
-															background: "none",
-															border: "none",
-															cursor: "pointer",
-															color: "#6c757d",
-															padding: "0.25rem",
-															display: "flex",
-															alignItems: "center",
-															justifyContent: "center",
+															position: 'absolute',
+															right: '0.5rem',
+															top: '50%',
+															transform: 'translateY(-50%)',
+															background: 'none',
+															border: 'none',
+															cursor: 'pointer',
+															color: '#6c757d',
+															padding: '0.25rem',
+															display: 'flex',
+															alignItems: 'center',
+															justifyContent: 'center',
 														}}
 														aria-label={
-															showClientSecret
-																? "Hide client secret"
-																: "Show client secret"
+															showClientSecret ? 'Hide client secret' : 'Show client secret'
 														}
 													>
-														{showClientSecret ? (
-															<FiEyeOff size={18} />
-														) : (
-															<FiEye size={18} />
-														)}
+														{showClientSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
 													</button>
 												</div>
 												<CopyButton
-													onClick={() =>
-														copyToClipboard(
-															credentials.clientSecret,
-															"client-secret",
-														)
-													}
+													onClick={() => copyToClipboard(credentials.clientSecret, 'client-secret')}
 													title="Copy Client Secret"
-													style={{ marginLeft: "0.5rem" }}
+													style={{ marginLeft: '0.5rem' }}
 												>
-													{copiedId === "client-secret" ? (
+													{copiedId === 'client-secret' ? (
 														<FiCheck size={16} />
 													) : (
 														<FiCopy size={16} />
@@ -1364,10 +1248,10 @@ const Login = () => {
 													value={credentials.tokenAuthMethod}
 													onChange={(e) => {
 														const method = e.target.value as
-															| "client_secret_basic"
-															| "client_secret_post"
-															| "client_secret_jwt"
-															| "private_key_jwt";
+															| 'client_secret_basic'
+															| 'client_secret_post'
+															| 'client_secret_jwt'
+															| 'private_key_jwt';
 
 														setCredentials((prev) => {
 															const updated = {
@@ -1375,15 +1259,9 @@ const Login = () => {
 																tokenAuthMethod: method,
 															};
 
-															if (
-																method === "client_secret_jwt" ||
-																method === "private_key_jwt"
-															) {
-																const defAud = tokenEndpointForEnv(
-																	prev.environmentId,
-																);
-																const curAud =
-																	prev.clientAssertion?.audience || "";
+															if (method === 'client_secret_jwt' || method === 'private_key_jwt') {
+																const defAud = tokenEndpointForEnv(prev.environmentId);
+																const curAud = prev.clientAssertion?.audience || '';
 
 																if (!curAud) {
 																	updated.clientAssertion = {
@@ -1397,28 +1275,22 @@ const Login = () => {
 														});
 													}}
 													style={{
-														width: "100%",
-														padding: "0.5rem",
-														border: "1px solid #dee2e6",
-														borderRadius: "4px",
-														backgroundColor: "#f8f9fa",
+														width: '100%',
+														padding: '0.5rem',
+														border: '1px solid #dee2e6',
+														borderRadius: '4px',
+														backgroundColor: '#f8f9fa',
 													}}
 												>
-													<option value="client_secret_post">
-														client_secret_post
-													</option>
-													<option value="client_secret_jwt">
-														client_secret_jwt (HS256)
-													</option>
-													<option value="private_key_jwt">
-														private_key_jwt (RS256/ES256)
-													</option>
+													<option value="client_secret_post">client_secret_post</option>
+													<option value="client_secret_jwt">client_secret_jwt (HS256)</option>
+													<option value="private_key_jwt">private_key_jwt (RS256/ES256)</option>
 												</select>
 											</CredentialWrapper>
 										</CredentialRow>
 
 										{/* Client Assertion Options - HMAC */}
-										{credentials.tokenAuthMethod === "client_secret_jwt" && (
+										{credentials.tokenAuthMethod === 'client_secret_jwt' && (
 											<>
 												<CredentialRow>
 													<p>
@@ -1426,9 +1298,7 @@ const Login = () => {
 													</p>
 													<CredentialWrapper>
 														<select
-															value={
-																credentials.clientAssertion?.hmacAlg || "HS256"
-															}
+															value={credentials.clientAssertion?.hmacAlg || 'HS256'}
 															onChange={(e) =>
 																setCredentials((prev) => ({
 																	...prev,
@@ -1439,11 +1309,11 @@ const Login = () => {
 																}))
 															}
 															style={{
-																width: "100%",
-																padding: "0.5rem",
-																border: "1px solid #dee2e6",
+																width: '100%',
+																padding: '0.5rem',
+																border: '1px solid #dee2e6',
 																borderRadius: 4,
-																backgroundColor: "#f8f9fa",
+																backgroundColor: '#f8f9fa',
 															}}
 														>
 															<option value="HS256">HS256</option>
@@ -1460,9 +1330,7 @@ const Login = () => {
 														<input
 															type="text"
 															placeholder="Defaults to token endpoint"
-															value={
-																credentials.clientAssertion?.audience || ""
-															}
+															value={credentials.clientAssertion?.audience || ''}
 															onChange={(e) =>
 																setCredentials((prev) => ({
 																	...prev,
@@ -1473,11 +1341,11 @@ const Login = () => {
 																}))
 															}
 															style={{
-																width: "100%",
-																padding: "0.5rem",
-																border: "1px solid #dee2e6",
+																width: '100%',
+																padding: '0.5rem',
+																border: '1px solid #dee2e6',
 																borderRadius: 4,
-																backgroundColor: "#f8f9fa",
+																backgroundColor: '#f8f9fa',
 															}}
 														/>
 													</CredentialWrapper>
@@ -1486,7 +1354,7 @@ const Login = () => {
 										)}
 
 										{/* Client Assertion Options - Private Key */}
-										{credentials.tokenAuthMethod === "private_key_jwt" && (
+										{credentials.tokenAuthMethod === 'private_key_jwt' && (
 											<>
 												<CredentialRow>
 													<p>
@@ -1494,9 +1362,7 @@ const Login = () => {
 													</p>
 													<CredentialWrapper>
 														<select
-															value={
-																credentials.clientAssertion?.signAlg || "RS256"
-															}
+															value={credentials.clientAssertion?.signAlg || 'RS256'}
 															onChange={(e) =>
 																setCredentials((prev) => ({
 																	...prev,
@@ -1507,11 +1373,11 @@ const Login = () => {
 																}))
 															}
 															style={{
-																width: "100%",
-																padding: "0.5rem",
-																border: "1px solid #dee2e6",
+																width: '100%',
+																padding: '0.5rem',
+																border: '1px solid #dee2e6',
 																borderRadius: 4,
-																backgroundColor: "#f8f9fa",
+																backgroundColor: '#f8f9fa',
 															}}
 														>
 															<option value="RS256">RS256</option>
@@ -1527,7 +1393,7 @@ const Login = () => {
 														<input
 															type="text"
 															placeholder="Key ID registered in PingOne"
-															value={credentials.clientAssertion?.kid || ""}
+															value={credentials.clientAssertion?.kid || ''}
 															onChange={(e) =>
 																setCredentials((prev) => ({
 																	...prev,
@@ -1538,11 +1404,11 @@ const Login = () => {
 																}))
 															}
 															style={{
-																width: "100%",
-																padding: "0.5rem",
-																border: "1px solid #dee2e6",
+																width: '100%',
+																padding: '0.5rem',
+																border: '1px solid #dee2e6',
 																borderRadius: 4,
-																backgroundColor: "#f8f9fa",
+																backgroundColor: '#f8f9fa',
 															}}
 														/>
 													</CredentialWrapper>
@@ -1554,9 +1420,7 @@ const Login = () => {
 													<CredentialWrapper>
 														<textarea
 															placeholder={`-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----`}
-															value={
-																credentials.clientAssertion?.privateKeyPEM || ""
-															}
+															value={credentials.clientAssertion?.privateKeyPEM || ''}
 															onChange={(e) =>
 																setCredentials((prev) => ({
 																	...prev,
@@ -1567,13 +1431,13 @@ const Login = () => {
 																}))
 															}
 															style={{
-																width: "100%",
-																minHeight: "120px",
-																padding: "0.5rem",
-																border: "1px solid #dee2e6",
+																width: '100%',
+																minHeight: '120px',
+																padding: '0.5rem',
+																border: '1px solid #dee2e6',
 																borderRadius: 4,
-																backgroundColor: "#f8f9fa",
-																fontFamily: "monospace",
+																backgroundColor: '#f8f9fa',
+																fontFamily: 'monospace',
 															}}
 														/>
 													</CredentialWrapper>
@@ -1586,9 +1450,7 @@ const Login = () => {
 														<input
 															type="text"
 															placeholder="Defaults to token endpoint"
-															value={
-																credentials.clientAssertion?.audience || ""
-															}
+															value={credentials.clientAssertion?.audience || ''}
 															onChange={(e) =>
 																setCredentials((prev) => ({
 																	...prev,
@@ -1599,11 +1461,11 @@ const Login = () => {
 																}))
 															}
 															style={{
-																width: "100%",
-																padding: "0.5rem",
-																border: "1px solid #dee2e6",
+																width: '100%',
+																padding: '0.5rem',
+																border: '1px solid #dee2e6',
 																borderRadius: 4,
-																backgroundColor: "#f8f9fa",
+																backgroundColor: '#f8f9fa',
 															}}
 														/>
 													</CredentialWrapper>
@@ -1616,17 +1478,14 @@ const Login = () => {
 												<strong>Redirect URI:</strong>
 											</p>
 											<CredentialWrapper>
-												<code>{getCallbackUrlForFlow("dashboard")}</code>
+												<code>{getCallbackUrlForFlow('dashboard')}</code>
 												<CopyButton
 													onClick={() =>
-														copyToClipboard(
-															getCallbackUrlForFlow("dashboard"),
-															"redirect-uri",
-														)
+														copyToClipboard(getCallbackUrlForFlow('dashboard'), 'redirect-uri')
 													}
 													title="Copy Redirect URI"
 												>
-													{copiedId === "redirect-uri" ? (
+													{copiedId === 'redirect-uri' ? (
 														<FiCheck size={16} />
 													) : (
 														<FiCopy size={16} />
@@ -1638,18 +1497,18 @@ const Login = () => {
 										{/* Advanced Configuration */}
 										<div
 											style={{
-												backgroundColor: "#f8f9fa",
-												border: "1px solid #e9ecef",
+												backgroundColor: '#f8f9fa',
+												border: '1px solid #e9ecef',
 												borderRadius: 8,
-												padding: "1rem",
-												marginTop: "1rem",
+												padding: '1rem',
+												marginTop: '1rem',
 											}}
 										>
 											<h4
 												style={{
 													marginTop: 0,
-													marginBottom: "0.75rem",
-													color: "#343a40",
+													marginBottom: '0.75rem',
+													color: '#343a40',
 												}}
 											>
 												Advanced Configuration
@@ -1661,33 +1520,27 @@ const Login = () => {
 												</p>
 												<CredentialWrapper>
 													<select
-														value={
-															credentials.advanced?.requestObjectPolicy ||
-															"default"
-														}
+														value={credentials.advanced?.requestObjectPolicy || 'default'}
 														onChange={(e) =>
 															setCredentials((prev) => ({
 																...prev,
 																advanced: {
 																	...(prev.advanced || {}),
-																	requestObjectPolicy: e.target
-																		.value as RequestObjectPolicy,
+																	requestObjectPolicy: e.target.value as RequestObjectPolicy,
 																},
 															}))
 														}
 														style={{
-															width: "100%",
-															padding: "0.5rem",
-															border: "1px solid #dee2e6",
+															width: '100%',
+															padding: '0.5rem',
+															border: '1px solid #dee2e6',
 															borderRadius: 4,
-															backgroundColor: "#ffffff",
+															backgroundColor: '#ffffff',
 														}}
 													>
 														<option value="default">default</option>
 														<option value="require">require</option>
-														<option value="allow_unsigned">
-															allow_unsigned
-														</option>
+														<option value="allow_unsigned">allow_unsigned</option>
 													</select>
 												</CredentialWrapper>
 											</CredentialRow>
@@ -1700,7 +1553,7 @@ const Login = () => {
 													<input
 														type="text"
 														placeholder="Base64URL thumbprint"
-														value={credentials.clientAssertion?.x5t || ""}
+														value={credentials.clientAssertion?.x5t || ''}
 														onChange={(e) =>
 															setCredentials((prev) => ({
 																...prev,
@@ -1711,11 +1564,11 @@ const Login = () => {
 															}))
 														}
 														style={{
-															width: "100%",
-															padding: "0.5rem",
-															border: "1px solid #dee2e6",
+															width: '100%',
+															padding: '0.5rem',
+															border: '1px solid #dee2e6',
 															borderRadius: 4,
-															backgroundColor: "#ffffff",
+															backgroundColor: '#ffffff',
 														}}
 													/>
 												</CredentialWrapper>
@@ -1728,16 +1581,14 @@ const Login = () => {
 												<CredentialWrapper>
 													<label
 														style={{
-															display: "inline-flex",
-															alignItems: "center",
-															gap: "0.5rem",
+															display: 'inline-flex',
+															alignItems: 'center',
+															gap: '0.5rem',
 														}}
 													>
 														<input
 															type="checkbox"
-															checked={
-																!!credentials.advanced?.oidcSessionManagement
-															}
+															checked={!!credentials.advanced?.oidcSessionManagement}
 															onChange={(e) =>
 																setCredentials((prev) => ({
 																	...prev,
@@ -1761,7 +1612,7 @@ const Login = () => {
 													<input
 														type="text"
 														placeholder="openid profile email api://resource1 scope1 scope2"
-														value={credentials.advanced?.resourceScopes || ""}
+														value={credentials.advanced?.resourceScopes || ''}
 														onChange={(e) =>
 															setCredentials((prev) => ({
 																...prev,
@@ -1772,11 +1623,11 @@ const Login = () => {
 															}))
 														}
 														style={{
-															width: "100%",
-															padding: "0.5rem",
-															border: "1px solid #dee2e6",
+															width: '100%',
+															padding: '0.5rem',
+															border: '1px solid #dee2e6',
 															borderRadius: 4,
-															backgroundColor: "#ffffff",
+															backgroundColor: '#ffffff',
 														}}
 													/>
 												</CredentialWrapper>
@@ -1789,16 +1640,14 @@ const Login = () => {
 												<CredentialWrapper>
 													<label
 														style={{
-															display: "inline-flex",
-															alignItems: "center",
-															gap: "0.5rem",
+															display: 'inline-flex',
+															alignItems: 'center',
+															gap: '0.5rem',
 														}}
 													>
 														<input
 															type="checkbox"
-															checked={
-																!!credentials.advanced?.terminateByIdToken
-															}
+															checked={!!credentials.advanced?.terminateByIdToken}
 															onChange={(e) =>
 																setCredentials((prev) => ({
 																	...prev,
@@ -1817,18 +1666,18 @@ const Login = () => {
 
 										<div
 											style={{
-												marginTop: "1.5rem",
-												textAlign: "center",
-												display: "flex",
-												gap: "1rem",
-												justifyContent: "center",
-												flexWrap: "wrap",
+												marginTop: '1.5rem',
+												textAlign: 'center',
+												display: 'flex',
+												gap: '1rem',
+												justifyContent: 'center',
+												flexWrap: 'wrap',
 											}}
 										>
 											<SubmitButton
 												type="submit"
 												disabled={isSavingCredentials}
-												style={{ width: "auto", padding: "0.75rem 2rem" }}
+												style={{ width: 'auto', padding: '0.75rem 2rem' }}
 											>
 												{isSavingCredentials ? (
 													<>
@@ -1846,7 +1695,7 @@ const Login = () => {
 											<SubmitButton
 												onClick={handleLogin}
 												disabled={isLoading}
-												style={{ width: "auto", padding: "0.6rem 1.5rem" }}
+												style={{ width: 'auto', padding: '0.6rem 1.5rem' }}
 											>
 												{isLoading ? (
 													<>
