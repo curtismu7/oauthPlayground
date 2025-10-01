@@ -1,7 +1,6 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { BaseOAuthFlow, useOAuthFlowBase, getPingOneEnvVars } from '../components/BaseOAuthFlow';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { BaseOAuthFlow, getPingOneEnvVars, useOAuthFlowBase } from '../components/BaseOAuthFlow';
 
 // Mock the auth context
 vi.mock('../contexts/NewAuthContext', () => ({

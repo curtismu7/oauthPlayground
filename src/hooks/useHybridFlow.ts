@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { credentialManager } from '../utils/credentialManager';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
@@ -76,11 +76,11 @@ export interface HybridFlowState {
 const generateRandomString = (length: number = 32): string => {
 	const array = new Uint8Array(length);
 	crypto.getRandomValues(array);
-	return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+	return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
 };
 
 // Generate PKCE code verifier and challenge
-const generatePKCE = async () => {
+const _generatePKCE = async () => {
 	const codeVerifier = generateRandomString(64);
 	const encoder = new TextEncoder();
 	const data = encoder.encode(codeVerifier);
@@ -90,7 +90,7 @@ const generatePKCE = async () => {
 		.replace(/\+/g, '-')
 		.replace(/\//g, '_')
 		.replace(/=/g, '');
-	
+
 	return { codeVerifier, codeChallenge };
 };
 
@@ -121,9 +121,9 @@ export const useHybridFlow = (): HybridFlowState => {
 
 	const setCredentials = useCallback((creds: HybridFlowCredentials) => {
 		setCredentialsState(creds);
-		log.info('Credentials updated', { 
+		log.info('Credentials updated', {
 			environmentId: creds.environmentId,
-			clientId: creds.clientId.substring(0, 8) + '...',
+			clientId: `${creds.clientId.substring(0, 8)}...`,
 			responseType: creds.responseType,
 		});
 	}, []);
@@ -150,7 +150,7 @@ export const useHybridFlow = (): HybridFlowState => {
 			// Generate state and nonce
 			const newState = generateRandomString(32);
 			const newNonce = generateRandomString(32);
-			
+
 			setState(newState);
 			setNonce(newNonce);
 
@@ -161,7 +161,7 @@ export const useHybridFlow = (): HybridFlowState => {
 			// Build authorization URL
 			const baseUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
 			const redirectUri = `${window.location.origin}/hybrid-callback`;
-			
+
 			const params = new URLSearchParams({
 				client_id: credentials.clientId,
 				response_type: credentials.responseType,
@@ -190,73 +190,80 @@ export const useHybridFlow = (): HybridFlowState => {
 		}
 	}, [credentials]);
 
-	const exchangeCodeForTokens = useCallback(async (code: string) => {
-		if (!credentials) {
-			const errorMsg = 'Cannot exchange code: credentials not set';
-			log.error(errorMsg);
-			setError(errorMsg);
-			throw new Error(errorMsg);
-		}
-
-		setIsExchangingCode(true);
-		setError(null);
-
-		try {
-			log.info('Exchanging authorization code for tokens...');
-
-			const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
-			const redirectUri = `${window.location.origin}/hybrid-callback`;
-
-			const body = new URLSearchParams({
-				grant_type: 'authorization_code',
-				code,
-				redirect_uri: redirectUri,
-				client_id: credentials.clientId,
-			});
-
-			// Add client_secret if provided (confidential client)
-			if (credentials.clientSecret) {
-				body.append('client_secret', credentials.clientSecret);
+	const exchangeCodeForTokens = useCallback(
+		async (code: string) => {
+			if (!credentials) {
+				const errorMsg = 'Cannot exchange code: credentials not set';
+				log.error(errorMsg);
+				setError(errorMsg);
+				throw new Error(errorMsg);
 			}
 
-			const response = await fetch(tokenEndpoint, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
-				},
-				body: body.toString(),
-			});
+			setIsExchangingCode(true);
+			setError(null);
 
-			if (!response.ok) {
-				const errorData = await response.json().catch(() => ({}));
-				throw new Error(errorData.error_description || errorData.error || `Token exchange failed: ${response.status}`);
+			try {
+				log.info('Exchanging authorization code for tokens...');
+
+				const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+				const redirectUri = `${window.location.origin}/hybrid-callback`;
+
+				const body = new URLSearchParams({
+					grant_type: 'authorization_code',
+					code,
+					redirect_uri: redirectUri,
+					client_id: credentials.clientId,
+				});
+
+				// Add client_secret if provided (confidential client)
+				if (credentials.clientSecret) {
+					body.append('client_secret', credentials.clientSecret);
+				}
+
+				const response = await fetch(tokenEndpoint, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded',
+					},
+					body: body.toString(),
+				});
+
+				if (!response.ok) {
+					const errorData = await response.json().catch(() => ({}));
+					throw new Error(
+						errorData.error_description ||
+							errorData.error ||
+							`Token exchange failed: ${response.status}`
+					);
+				}
+
+				const tokenData = await response.json();
+
+				log.success('Code exchanged successfully', {
+					hasAccessToken: !!tokenData.access_token,
+					hasIdToken: !!tokenData.id_token,
+					hasRefreshToken: !!tokenData.refresh_token,
+				});
+
+				// Merge with existing tokens (from fragment)
+				setTokensState((prev) => ({
+					...prev,
+					...tokenData,
+				}));
+
+				v4ToastManager.showSuccess('Authorization code exchanged successfully!');
+			} catch (err: any) {
+				const errorMsg = err.message || 'Failed to exchange authorization code';
+				log.error('Code exchange failed', err);
+				setError(errorMsg);
+				v4ToastManager.showError(errorMsg);
+				throw err;
+			} finally {
+				setIsExchangingCode(false);
 			}
-
-			const tokenData = await response.json();
-
-			log.success('Code exchanged successfully', {
-				hasAccessToken: !!tokenData.access_token,
-				hasIdToken: !!tokenData.id_token,
-				hasRefreshToken: !!tokenData.refresh_token,
-			});
-
-			// Merge with existing tokens (from fragment)
-			setTokensState(prev => ({
-				...prev,
-				...tokenData,
-			}));
-
-			v4ToastManager.showSuccess('Authorization code exchanged successfully!');
-		} catch (err: any) {
-			const errorMsg = err.message || 'Failed to exchange authorization code';
-			log.error('Code exchange failed', err);
-			setError(errorMsg);
-			v4ToastManager.showError(errorMsg);
-			throw err;
-		} finally {
-			setIsExchangingCode(false);
-		}
-	}, [credentials]);
+		},
+		[credentials]
+	);
 
 	const reset = useCallback(() => {
 		log.info('Resetting hybrid flow state');

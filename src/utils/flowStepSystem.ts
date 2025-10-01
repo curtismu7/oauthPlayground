@@ -1,6 +1,6 @@
 // src/utils/flowStepSystem.ts - Reusable step management system for OAuth flows
 
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
 export interface FlowStepConfig {
@@ -80,7 +80,7 @@ export const useFlowStepManager = (config: FlowStepConfig) => {
 		// Priority 1: URL step parameter (highest priority)
 		if (urlStep) {
 			const stepIndex = parseInt(urlStep, 10);
-			if (!isNaN(stepIndex)) {
+			if (!Number.isNaN(stepIndex)) {
 				setStep(stepIndex, 'from URL parameter');
 				setIsInitialized(true);
 				return;
@@ -99,7 +99,7 @@ export const useFlowStepManager = (config: FlowStepConfig) => {
 		// Priority 3: Stored step from session
 		if (storedStep) {
 			const stepIndex = parseInt(storedStep, 10);
-			if (!isNaN(stepIndex)) {
+			if (!Number.isNaN(stepIndex)) {
 				setStep(stepIndex, 'from session storage');
 				setIsInitialized(true);
 				return;
@@ -109,7 +109,7 @@ export const useFlowStepManager = (config: FlowStepConfig) => {
 		// Default: Start from beginning
 		setStep(config.defaultStep || 0, 'default initialization');
 		setIsInitialized(true);
-	}, [location.search, isInitialized, config, setStep]);
+	}, [location.search, isInitialized, config, setStep, currentStepIndex]);
 
 	return {
 		currentStepIndex,

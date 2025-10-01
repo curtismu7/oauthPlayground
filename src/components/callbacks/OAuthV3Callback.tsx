@@ -1,9 +1,9 @@
 // src/components/callbacks/OAuthV3Callback.tsx - OAuth V3 specific callback handler
 
 import React, { useEffect } from 'react';
+import { FiAlertCircle, FiCheckCircle, FiLoader } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiCheckCircle, FiAlertCircle, FiLoader } from 'react-icons/fi';
 
 const CallbackContainer = styled.div`
   min-height: 100vh;
@@ -87,7 +87,7 @@ const OAuthV3Callback: React.FC = () => {
 
 					// Redirect back to OAuth V3 flow with error
 					setTimeout(() => {
-						navigate('/flows/oauth-authorization-code-v3?error=' + encodeURIComponent(error));
+						navigate(`/flows/oauth-authorization-code-v3?error=${encodeURIComponent(error)}`);
 					}, 3000);
 					return;
 				}

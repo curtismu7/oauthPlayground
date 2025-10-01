@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
-	tokenLifecycleManager,
-	TokenSecurityAnalysis,
 	TokenLifecycleInfo,
+	TokenSecurityAnalysis,
+	tokenLifecycleManager,
 } from '../utils/tokenLifecycle';
 
 const SecurityContainer = styled.div`
@@ -235,7 +235,7 @@ const TokenSecurityAnalysisComponent: React.FC<TokenSecurityAnalysisProps> = ({
 						recommendations: ['This token is invalid or malformed'],
 						warnings: ['Token validation failed'],
 						strengths: [],
-						vulnerabilities: ['Invalid token format or signature']
+						vulnerabilities: ['Invalid token format or signature'],
 					});
 					setLoading(false);
 					return;
@@ -246,7 +246,7 @@ const TokenSecurityAnalysisComponent: React.FC<TokenSecurityAnalysisProps> = ({
 				try {
 					const securityAnalysis = tokenLifecycleManager.analyzeTokenSecurity(tokenId);
 					setAnalysis(securityAnalysis);
-				} catch (analysisError) {
+				} catch (_analysisError) {
 					// If analysis fails, create a failed analysis result
 					setAnalysis({
 						tokenId,
@@ -254,7 +254,7 @@ const TokenSecurityAnalysisComponent: React.FC<TokenSecurityAnalysisProps> = ({
 						recommendations: ['This token could not be analyzed'],
 						warnings: ['Token analysis failed'],
 						strengths: [],
-						vulnerabilities: ['Token validation failed']
+						vulnerabilities: ['Token validation failed'],
 					});
 				}
 			} catch (err) {

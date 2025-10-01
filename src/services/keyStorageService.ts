@@ -1,8 +1,6 @@
 // Key Storage Service for OAuth Playground
 // Manages storage and retrieval of generated RSA key pairs and their JWKS representation
 
-import { jwtGenerator } from '../utils/jwtGenerator';
-
 export interface StoredKeyPair {
 	kid: string;
 	privateKey: string;
