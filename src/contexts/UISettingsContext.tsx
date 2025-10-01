@@ -20,6 +20,7 @@ export interface UISettings {
 	defaultPageOnLoad: 'dashboard' | 'authorization-code-v5' | 'token-management' | 'configuration';
 	hideCompletedFlows: boolean;
 	quickActionsVisibility: boolean;
+	showPollingPrompt: boolean; // Device Authorization Code flow polling prompt
 }
 
 const DEFAULT_UI_SETTINGS: UISettings = {
@@ -42,6 +43,7 @@ const DEFAULT_UI_SETTINGS: UISettings = {
 	defaultPageOnLoad: 'dashboard',
 	hideCompletedFlows: false,
 	quickActionsVisibility: true,
+	showPollingPrompt: true, // Show polling prompt modal by default
 };
 
 interface UISettingsContextType {
