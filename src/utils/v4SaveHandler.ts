@@ -1,6 +1,11 @@
 // src/utils/v4SaveHandler.ts - Enhanced Save Configuration Handler for V4 Flows
 
-import { StepCredentials, ValidationResult, SaveResult, V4SaveConfigurationHandler as IV4SaveConfigurationHandler } from '../types/v4FlowTemplate';
+import {
+	StepCredentials,
+	ValidationResult,
+	SaveResult,
+	V4SaveConfigurationHandler as IV4SaveConfigurationHandler,
+} from '../types/v4FlowTemplate';
 import { credentialManager } from './credentialManager';
 import { showGlobalError, showGlobalSuccess, showGlobalWarning } from '../hooks/useNotifications';
 
@@ -42,7 +47,7 @@ export class V4SaveConfigurationHandler implements IV4SaveConfigurationHandler {
 		if (!credentials.scopes?.trim()) {
 			warnings.push('No scopes selected - consider adding at least "openid"');
 		} else {
-			const scopes = credentials.scopes.split(' ').filter(s => s.trim());
+			const scopes = credentials.scopes.split(' ').filter((s) => s.trim());
 			if (!scopes.includes('openid')) {
 				warnings.push('Consider including "openid" scope for OpenID Connect flows');
 			}
@@ -56,7 +61,7 @@ export class V4SaveConfigurationHandler implements IV4SaveConfigurationHandler {
 		return {
 			isValid: errors.length === 0,
 			errors,
-			warnings
+			warnings,
 		};
 	}
 
@@ -67,7 +72,7 @@ export class V4SaveConfigurationHandler implements IV4SaveConfigurationHandler {
 		if (this.isLoading) {
 			return {
 				success: false,
-				message: 'Save operation already in progress'
+				message: 'Save operation already in progress',
 			};
 		}
 
@@ -76,19 +81,19 @@ export class V4SaveConfigurationHandler implements IV4SaveConfigurationHandler {
 		try {
 			// Validate configuration first
 			const validation = this.validateConfiguration(credentials);
-			
+
 			if (!validation.isValid) {
 				this.hideLoadingState();
 				return {
 					success: false,
 					message: 'Configuration validation failed',
-					data: validation
+					data: validation,
 				};
 			}
 
 			// Show warnings if any
 			if (validation.warnings.length > 0) {
-				validation.warnings.forEach(warning => {
+				validation.warnings.forEach((warning) => {
 					showGlobalWarning(warning);
 				});
 			}
@@ -99,12 +104,12 @@ export class V4SaveConfigurationHandler implements IV4SaveConfigurationHandler {
 				clientId: credentials.clientId,
 				clientSecret: credentials.clientSecret,
 				redirectUri: credentials.redirectUri,
-				scopes: credentials.scopes.split(' ').filter(s => s.trim()),
+				scopes: credentials.scopes.split(' ').filter((s) => s.trim()),
 				clientAuthMethod: credentials.authMethod.value,
 				// Add other required fields with defaults
 				region: 'us',
 				useJwksEndpoint: false,
-				privateKey: ''
+				privateKey: '',
 			};
 
 			// Save credentials
@@ -114,17 +119,16 @@ export class V4SaveConfigurationHandler implements IV4SaveConfigurationHandler {
 			return {
 				success: true,
 				message: 'Configuration saved successfully',
-				data: credentials
+				data: credentials,
 			};
-
 		} catch (error) {
 			this.hideLoadingState();
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-			
+
 			return {
 				success: false,
 				message: `Failed to save configuration: ${errorMessage}`,
-				data: { error: errorMessage }
+				data: { error: errorMessage },
 			};
 		}
 	}
@@ -134,7 +138,10 @@ export class V4SaveConfigurationHandler implements IV4SaveConfigurationHandler {
 	 */
 	handleSaveSuccess(result: SaveResult): void {
 		showGlobalSuccess(result.message);
-		console.log(`[V4SaveHandler] Configuration saved successfully for ${this.flowType}:`, result.data);
+		console.log(
+			`[V4SaveHandler] Configuration saved successfully for ${this.flowType}:`,
+			result.data
+		);
 	}
 
 	/**

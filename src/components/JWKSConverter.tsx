@@ -1,20 +1,10 @@
 // src/components/JWKSConverter.tsx
-import type React from "react";
-import { useId, useState } from "react";
-import {
-	FiAlertCircle,
-	FiCheckCircle,
-	FiCopy,
-	FiDownload,
-	FiRefreshCw,
-} from "react-icons/fi";
-import styled from "styled-components";
-import { showGlobalError, showGlobalSuccess } from "../hooks/useNotifications";
-import {
-	convertPrivateKeyToJWKS,
-	formatJWKS,
-	isPrivateKey,
-} from "../utils/jwksConverter";
+import type React from 'react';
+import { useId, useState } from 'react';
+import { FiAlertCircle, FiCheckCircle, FiCopy, FiDownload, FiRefreshCw } from 'react-icons/fi';
+import styled from 'styled-components';
+import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
+import { convertPrivateKeyToJWKS, formatJWKS, isPrivateKey } from '../utils/jwksConverter';
 
 const Container = styled.div`
   background: white;
@@ -79,7 +69,7 @@ const Input = styled.input`
   }
 `;
 
-const Button = styled.button<{ variant?: "primary" | "secondary" }>`
+const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -91,8 +81,8 @@ const Button = styled.button<{ variant?: "primary" | "secondary" }>`
   cursor: pointer;
   transition: all 0.2s ease;
   
-  ${({ variant = "primary" }) =>
-		variant === "primary"
+  ${({ variant = 'primary' }) =>
+		variant === 'primary'
 			? `
     background: #3b82f6;
     color: white;
@@ -156,9 +146,9 @@ const HelpText = styled.div`
 `;
 
 const JWKSConverter: React.FC = () => {
-	const [privateKey, setPrivateKey] = useState("");
-	const [keyId, setKeyId] = useState("default");
-	const [jwksOutput, setJwksOutput] = useState("");
+	const [privateKey, setPrivateKey] = useState('');
+	const [keyId, setKeyId] = useState('default');
+	const [jwksOutput, setJwksOutput] = useState('');
 	const [isConverting, setIsConverting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [success, setSuccess] = useState<string | null>(null);
@@ -168,13 +158,13 @@ const JWKSConverter: React.FC = () => {
 
 	const handleConvert = async () => {
 		if (!privateKey.trim()) {
-			setError("Please enter a private key");
+			setError('Please enter a private key');
 			return;
 		}
 
 		if (!isPrivateKey(privateKey)) {
 			setError(
-				'The input does not appear to be a valid private key. Please ensure it starts with "-----BEGIN PRIVATE KEY-----" or "-----BEGIN RSA PRIVATE KEY-----"',
+				'The input does not appear to be a valid private key. Please ensure it starts with "-----BEGIN PRIVATE KEY-----" or "-----BEGIN RSA PRIVATE KEY-----"'
 			);
 			return;
 		}
@@ -187,11 +177,10 @@ const JWKSConverter: React.FC = () => {
 			const jwks = await convertPrivateKeyToJWKS(privateKey, keyId);
 			const formattedJWKS = formatJWKS(jwks);
 			setJwksOutput(formattedJWKS);
-			setSuccess("Private key successfully converted to JWKS format!");
-			showGlobalSuccess(" Private key converted to JWKS format");
+			setSuccess('Private key successfully converted to JWKS format!');
+			showGlobalSuccess(' Private key converted to JWKS format');
 		} catch (err) {
-			const errorMessage =
-				err instanceof Error ? err.message : "Failed to convert private key";
+			const errorMessage = err instanceof Error ? err.message : 'Failed to convert private key';
 			setError(errorMessage);
 			showGlobalError(`Failed to convert private key: ${errorMessage}`);
 		} finally {
@@ -202,28 +191,28 @@ const JWKSConverter: React.FC = () => {
 	const handleCopyJWKS = async () => {
 		try {
 			await navigator.clipboard.writeText(jwksOutput);
-			showGlobalSuccess(" JWKS copied to clipboard");
+			showGlobalSuccess(' JWKS copied to clipboard');
 		} catch (_err) {
-			showGlobalError("Failed to copy JWKS to clipboard");
+			showGlobalError('Failed to copy JWKS to clipboard');
 		}
 	};
 
 	const handleDownloadJWKS = () => {
-		const blob = new Blob([jwksOutput], { type: "application/json" });
+		const blob = new Blob([jwksOutput], { type: 'application/json' });
 		const url = URL.createObjectURL(blob);
-		const a = document.createElement("a");
+		const a = document.createElement('a');
 		a.href = url;
-		a.download = `jwks-${keyId}-${new Date().toISOString().split("T")[0]}.json`;
+		a.download = `jwks-${keyId}-${new Date().toISOString().split('T')[0]}.json`;
 		document.body.appendChild(a);
 		a.click();
 		document.body.removeChild(a);
 		URL.revokeObjectURL(url);
-		showGlobalSuccess(" JWKS downloaded");
+		showGlobalSuccess(' JWKS downloaded');
 	};
 
 	const handleClear = () => {
-		setPrivateKey("");
-		setJwksOutput("");
+		setPrivateKey('');
+		setJwksOutput('');
 		setError(null);
 		setSuccess(null);
 	};
@@ -241,11 +230,11 @@ const JWKSConverter: React.FC = () => {
 					placeholder="-----BEGIN PRIVATE KEY-----
 MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC...
 -----END PRIVATE KEY-----"
-					className={error && !isPrivateKey(privateKey) ? "error" : ""}
+					className={error && !isPrivateKey(privateKey) ? 'error' : ''}
 				/>
 				<HelpText>
-					Paste your RSA private key in PEM format. The key should start with
-					"-----BEGIN PRIVATE KEY-----" or "-----BEGIN RSA PRIVATE KEY-----"
+					Paste your RSA private key in PEM format. The key should start with "-----BEGIN PRIVATE
+					KEY-----" or "-----BEGIN RSA PRIVATE KEY-----"
 				</HelpText>
 			</FormGroup>
 
@@ -259,16 +248,13 @@ MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC...
 					placeholder="default"
 				/>
 				<HelpText>
-					The key ID (kid) that will be used in the JWKS. This should match the
-					kid in your JWT header.
+					The key ID (kid) that will be used in the JWKS. This should match the kid in your JWT
+					header.
 				</HelpText>
 			</FormGroup>
 
 			<ButtonGroup>
-				<Button
-					onClick={handleConvert}
-					disabled={isConverting || !privateKey.trim()}
-				>
+				<Button onClick={handleConvert} disabled={isConverting || !privateKey.trim()}>
 					{isConverting ? (
 						<>
 							<FiRefreshCw className="animate-spin" />
@@ -304,11 +290,7 @@ MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC...
 			{jwksOutput && (
 				<FormGroup>
 					<Label>Generated JWKS</Label>
-					<TextArea
-						value={jwksOutput}
-						readOnly
-						style={{ minHeight: "200px" }}
-					/>
+					<TextArea value={jwksOutput} readOnly style={{ minHeight: '200px' }} />
 					<ButtonGroup>
 						<Button variant="secondary" onClick={handleCopyJWKS}>
 							<FiCopy />
@@ -320,9 +302,8 @@ MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC...
 						</Button>
 					</ButtonGroup>
 					<HelpText>
-						Copy this JWKS and paste it into your PingOne application's JWKS
-						field. Make sure to set the "Token Endpoint Authentication Method"
-						to "Private Key JWT" in PingOne.
+						Copy this JWKS and paste it into your PingOne application's JWKS field. Make sure to set
+						the "Token Endpoint Authentication Method" to "Private Key JWT" in PingOne.
 					</HelpText>
 				</FormGroup>
 			)}

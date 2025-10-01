@@ -25,21 +25,21 @@ const StatusCard = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
   width: 100%;
   
   ${({ $status }) => {
-    switch ($status) {
-      case 'success':
-        return `
+		switch ($status) {
+			case 'success':
+				return `
           border-left: 4px solid #10b981;
         `;
-      case 'error':
-        return `
+			case 'error':
+				return `
           border-left: 4px solid #ef4444;
         `;
-      default:
-        return `
+			default:
+				return `
           border-left: 4px solid #3b82f6;
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const StatusIcon = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
@@ -50,25 +50,25 @@ const StatusIcon = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
   
   svg {
     ${({ $status }) => {
-      switch ($status) {
-        case 'success':
-          return `
+			switch ($status) {
+				case 'success':
+					return `
             color: #10b981;
             font-size: 3rem;
           `;
-        case 'error':
-          return `
+				case 'error':
+					return `
             color: #ef4444;
             font-size: 3rem;
           `;
-        default:
-          return `
+				default:
+					return `
             color: #3b82f6;
             font-size: 3rem;
             animation: spin 1s linear infinite;
           `;
-      }
-    }}
+			}
+		}}
   }
   
   @keyframes spin {
@@ -104,75 +104,75 @@ const ErrorDetails = styled.pre`
 `;
 
 const DashboardCallback: React.FC = () => {
-  const navigate = useNavigate();
-  const { handleCallback } = useAuth();
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-  const [message, setMessage] = useState('Processing dashboard login...');
-  const [error, setError] = useState<string | null>(null);
+	const navigate = useNavigate();
+	const { handleCallback } = useAuth();
+	const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+	const [message, setMessage] = useState('Processing dashboard login...');
+	const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const processCallback = async () => {
-      try {
-        const currentUrl = getValidatedCurrentUrl('DashboardCallback');
-        logger.auth('DashboardCallback', 'Processing dashboard login callback', { url: currentUrl });
-        
-        const result = await handleCallback(currentUrl);
-        
-        if (result.success) {
-          setStatus('success');
-          setMessage('Dashboard login successful! Redirecting to dashboard...');
-          logger.auth('DashboardCallback', 'Dashboard login successful', { redirectUrl: '/dashboard' });
-          
-          // Always redirect to dashboard for dashboard login
-          setTimeout(() => {
-            navigate('/dashboard', { replace: true });
-          }, 1500);
-        } else {
-          setStatus('error');
-          setMessage('Dashboard login failed');
-          setError(result.error || 'Unknown error occurred');
-          logger.error('DashboardCallback', 'Dashboard login failed', { error: result.error });
-        }
-      } catch (err) {
-        setStatus('error');
-        setMessage('Dashboard login failed');
-        setError(err instanceof Error ? err.message : 'Unknown error occurred');
-        logger.error('DashboardCallback', 'Error processing dashboard callback', err);
-      }
-    };
+	useEffect(() => {
+		const processCallback = async () => {
+			try {
+				const currentUrl = getValidatedCurrentUrl('DashboardCallback');
+				logger.auth('DashboardCallback', 'Processing dashboard login callback', {
+					url: currentUrl,
+				});
 
-    processCallback();
-  }, [handleCallback, navigate]);
+				const result = await handleCallback(currentUrl);
 
-  const getStatusIcon = () => {
-    switch (status) {
-      case 'success':
-        return <FiCheckCircle />;
-      case 'error':
-        return <FiXCircle />;
-      default:
-        return <FiLoader className="animate-spin" />;
-    }
-  };
+				if (result.success) {
+					setStatus('success');
+					setMessage('Dashboard login successful! Redirecting to dashboard...');
+					logger.auth('DashboardCallback', 'Dashboard login successful', {
+						redirectUrl: '/dashboard',
+					});
 
-  return (
-    <CallbackContainer>
-      <StatusCard $status={status}>
-        <StatusIcon $status={status}>
-          {getStatusIcon()}
-        </StatusIcon>
-        <StatusTitle>
-          {status === 'loading' && 'Completing Dashboard Login'}
-          {status === 'success' && 'Dashboard Login Successful'}
-          {status === 'error' && 'Dashboard Login Failed'}
-        </StatusTitle>
-        <StatusMessage>{message}</StatusMessage>
-        {error && (
-          <ErrorDetails>{error}</ErrorDetails>
-        )}
-      </StatusCard>
-    </CallbackContainer>
-  );
+					// Always redirect to dashboard for dashboard login
+					setTimeout(() => {
+						navigate('/dashboard', { replace: true });
+					}, 1500);
+				} else {
+					setStatus('error');
+					setMessage('Dashboard login failed');
+					setError(result.error || 'Unknown error occurred');
+					logger.error('DashboardCallback', 'Dashboard login failed', { error: result.error });
+				}
+			} catch (err) {
+				setStatus('error');
+				setMessage('Dashboard login failed');
+				setError(err instanceof Error ? err.message : 'Unknown error occurred');
+				logger.error('DashboardCallback', 'Error processing dashboard callback', err);
+			}
+		};
+
+		processCallback();
+	}, [handleCallback, navigate]);
+
+	const getStatusIcon = () => {
+		switch (status) {
+			case 'success':
+				return <FiCheckCircle />;
+			case 'error':
+				return <FiXCircle />;
+			default:
+				return <FiLoader className="animate-spin" />;
+		}
+	};
+
+	return (
+		<CallbackContainer>
+			<StatusCard $status={status}>
+				<StatusIcon $status={status}>{getStatusIcon()}</StatusIcon>
+				<StatusTitle>
+					{status === 'loading' && 'Completing Dashboard Login'}
+					{status === 'success' && 'Dashboard Login Successful'}
+					{status === 'error' && 'Dashboard Login Failed'}
+				</StatusTitle>
+				<StatusMessage>{message}</StatusMessage>
+				{error && <ErrorDetails>{error}</ErrorDetails>}
+			</StatusCard>
+		</CallbackContainer>
+	);
 };
 
 export default DashboardCallback;

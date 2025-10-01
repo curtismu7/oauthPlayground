@@ -1,25 +1,19 @@
 // src/components/callbacks/ImplicitCallbackV3.tsx - Enhanced Implicit Flow Callback Handler V3
-import type React from "react";
-import { useEffect, useState } from "react";
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiShield,
-	FiUser,
-	FiXCircle,
-} from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
-import styled from "styled-components";
+import type React from 'react';
+import { useEffect, useState } from 'react';
+import { FiAlertTriangle, FiCheckCircle, FiShield, FiUser, FiXCircle } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 import {
 	clearSecurityData,
 	type ImplicitFlowSecurityOptions,
 	validateIdToken,
 	validateStateParameter,
-} from "../../utils/implicitFlowSecurity";
-import { logger } from "../../utils/logger";
-import { storeOAuthTokens } from "../../utils/tokenStorage";
-import { InfoBox } from "../steps/CommonSteps";
-import TokenDisplay from "../TokenDisplay";
+} from '../../utils/implicitFlowSecurity';
+import { logger } from '../../utils/logger';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
+import { InfoBox } from '../steps/CommonSteps';
+import TokenDisplay from '../TokenDisplay';
 
 // Styled components
 const JsonDisplay = styled.div`
@@ -78,34 +72,34 @@ const CallbackContainer = styled.div`
 `;
 
 const StatusCard = styled.div<{
-	type: "success" | "error" | "warning" | "info";
+	type: 'success' | 'error' | 'warning' | 'info';
 }>`
   background: ${(props) => {
 		switch (props.type) {
-			case "success":
-				return "#f0fdf4";
-			case "error":
-				return "#fef2f2";
-			case "warning":
-				return "#fef3c7";
-			case "info":
-				return "#eff6ff";
+			case 'success':
+				return '#f0fdf4';
+			case 'error':
+				return '#fef2f2';
+			case 'warning':
+				return '#fef3c7';
+			case 'info':
+				return '#eff6ff';
 			default:
-				return "#f8fafc";
+				return '#f8fafc';
 		}
 	}};
   border: 1px solid ${(props) => {
 		switch (props.type) {
-			case "success":
-				return "#bbf7d0";
-			case "error":
-				return "#fecaca";
-			case "warning":
-				return "#fcd34d";
-			case "info":
-				return "#bfdbfe";
+			case 'success':
+				return '#bbf7d0';
+			case 'error':
+				return '#fecaca';
+			case 'warning':
+				return '#fcd34d';
+			case 'info':
+				return '#bfdbfe';
 			default:
-				return "#e2e8f0";
+				return '#e2e8f0';
 		}
 	}};
   border-radius: 8px;
@@ -114,7 +108,7 @@ const StatusCard = styled.div<{
 `;
 
 const StatusHeader = styled.div<{
-	type: "success" | "error" | "warning" | "info";
+	type: 'success' | 'error' | 'warning' | 'info';
 }>`
   display: flex;
   align-items: center;
@@ -122,16 +116,16 @@ const StatusHeader = styled.div<{
   margin-bottom: 1rem;
   color: ${(props) => {
 		switch (props.type) {
-			case "success":
-				return "#15803d";
-			case "error":
-				return "#dc2626";
-			case "warning":
-				return "#92400e";
-			case "info":
-				return "#1e40af";
+			case 'success':
+				return '#15803d';
+			case 'error':
+				return '#dc2626';
+			case 'warning':
+				return '#92400e';
+			case 'info':
+				return '#1e40af';
 			default:
-				return "#1f2937";
+				return '#1f2937';
 		}
 	}};
 `;
@@ -235,127 +229,110 @@ interface FlowContext {
 
 const ImplicitCallbackV3: React.FC = () => {
 	const navigate = useNavigate();
-	const [status, setStatus] = useState<
-		"loading" | "success" | "error" | "warning"
-	>("loading");
-	const [message, setMessage] = useState(
-		"Processing implicit grant callback...",
-	);
+	const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'warning'>('loading');
+	const [message, setMessage] = useState('Processing implicit grant callback...');
 	const [error, setError] = useState<string | null>(null);
 	const [tokens, setTokens] = useState<TokenData | null>(null);
-	const [flowType, setFlowType] = useState<"oauth2" | "oidc">("oauth2");
+	const [flowType, setFlowType] = useState<'oauth2' | 'oidc'>('oauth2');
 	const [_isStoringTokens, setIsStoringTokens] = useState(false);
-	const [troubleshootingSteps, setTroubleshootingSteps] = useState<string[]>(
-		[],
-	);
+	const [troubleshootingSteps, setTroubleshootingSteps] = useState<string[]>([]);
 
 	useEffect(() => {
 		const processCallback = async () => {
 			try {
-				console.log(
-					" [ImplicitCallbackV3] Processing implicit grant callback...",
-				);
-				console.log(
-					" [ImplicitCallbackV3] Current URL:",
-					window.location.href,
-				);
-				console.log(" [ImplicitCallbackV3] Hash:", window.location.hash);
+				console.log(' [ImplicitCallbackV3] Processing implicit grant callback...');
+				console.log(' [ImplicitCallbackV3] Current URL:', window.location.href);
+				console.log(' [ImplicitCallbackV3] Hash:', window.location.hash);
 
 				// Parse hash parameters (implicit flow uses hash, not query params)
 				const hash = window.location.hash.substring(1); // Remove the # symbol
 				const hashParams = new URLSearchParams(hash);
 
 				console.log(
-					" [ImplicitCallbackV3] Hash parameters:",
-					Object.fromEntries(hashParams.entries()),
+					' [ImplicitCallbackV3] Hash parameters:',
+					Object.fromEntries(hashParams.entries())
 				);
 
 				// Early exit if there's no hash data at all (not a callback)
-				if (!hash || hash.trim() === "") {
-					console.log(
-						" [ImplicitCallbackV3] No hash parameters found - not a callback URL",
-					);
-					setStatus("error");
-					setMessage("Not a valid callback URL");
-					setError("No callback data found in URL hash");
+				if (!hash || hash.trim() === '') {
+					console.log(' [ImplicitCallbackV3] No hash parameters found - not a callback URL');
+					setStatus('error');
+					setMessage('Not a valid callback URL');
+					setError('No callback data found in URL hash');
 					// Don't log this as an error since it's likely not a callback attempt
-					logger.warn(
-						"ImplicitCallbackV3",
-						"No hash data found - possibly accessed directly",
-						{
-							currentPath: window.location.pathname,
-							currentUrl: window.location.href,
-						},
-					);
+					logger.warn('ImplicitCallbackV3', 'No hash data found - possibly accessed directly', {
+						currentPath: window.location.pathname,
+						currentUrl: window.location.href,
+					});
 					return;
 				}
 
 				// Check for error in hash
-				const error = hashParams.get("error");
-				const errorDescription = hashParams.get("error_description");
+				const error = hashParams.get('error');
+				const errorDescription = hashParams.get('error_description');
 
 				if (error) {
-					setStatus("error");
-					setMessage("Implicit grant failed");
+					setStatus('error');
+					setMessage('Implicit grant failed');
 
 					// Provide specific error guidance based on the error type
 					let detailedError = errorDescription || error;
 					let troubleshootingSteps: string[] = [];
 
 					switch (error) {
-						case "invalid_request":
-							detailedError = `Invalid Request: ${errorDescription || "The authorization request was malformed"}`;
+						case 'invalid_request':
+							detailedError = `Invalid Request: ${errorDescription || 'The authorization request was malformed'}`;
 							troubleshootingSteps = [
-								"Check that your Client ID is correct in PingOne Admin Console",
-								"Verify the Redirect URI matches exactly (including protocol and port)",
-								"Ensure the application is configured for Implicit Flow",
-								"Check that the requested scopes are valid",
+								'Check that your Client ID is correct in PingOne Admin Console',
+								'Verify the Redirect URI matches exactly (including protocol and port)',
+								'Ensure the application is configured for Implicit Flow',
+								'Check that the requested scopes are valid',
 							];
 							break;
-						case "unauthorized_client":
-							detailedError = `Unauthorized Client: ${errorDescription || "The client is not authorized to use this flow"}`;
+						case 'unauthorized_client':
+							detailedError = `Unauthorized Client: ${errorDescription || 'The client is not authorized to use this flow'}`;
 							troubleshootingSteps = [
-								"Verify your Client ID exists in PingOne",
-								"Check that Implicit Flow is enabled for this application",
-								"Ensure the application is in the correct environment",
+								'Verify your Client ID exists in PingOne',
+								'Check that Implicit Flow is enabled for this application',
+								'Ensure the application is in the correct environment',
 							];
 							break;
-						case "access_denied":
-							detailedError = `Access Denied: ${errorDescription || "The user denied the authorization request"}`;
+						case 'access_denied':
+							detailedError = `Access Denied: ${errorDescription || 'The user denied the authorization request'}`;
 							troubleshootingSteps = [
 								'The user clicked "Deny" on the authorization page',
 								'Try the authorization flow again and click "Allow"',
-								"Check if the user has the necessary permissions",
+								'Check if the user has the necessary permissions',
 							];
 							break;
-						case "unsupported_response_type":
-							detailedError = `Unsupported Response Type: ${errorDescription || "The response type is not supported"}`;
+						case 'unsupported_response_type':
+							detailedError = `Unsupported Response Type: ${errorDescription || 'The response type is not supported'}`;
 							troubleshootingSteps = [
-								"Verify that Implicit Flow is enabled in PingOne",
-								"Check that the response_type parameter is correct",
-								"Ensure the application supports the requested response type",
+								'Verify that Implicit Flow is enabled in PingOne',
+								'Check that the response_type parameter is correct',
+								'Ensure the application supports the requested response type',
 							];
 							break;
-						case "invalid_scope":
-							detailedError = `Invalid Scope: ${errorDescription || "The requested scope is invalid"}`;
+						case 'invalid_scope':
+							detailedError = `Invalid Scope: ${errorDescription || 'The requested scope is invalid'}`;
 							troubleshootingSteps = [
-								"Check that the requested scopes are valid for your application",
-								"Verify scopes are properly configured in PingOne",
+								'Check that the requested scopes are valid for your application',
+								'Verify scopes are properly configured in PingOne',
 								'Use standard OAuth scopes like "openid", "profile", "email"',
 							];
 							break;
 						default:
 							troubleshootingSteps = [
-								"Check your PingOne application configuration",
-								"Verify the Client ID and Environment ID are correct",
-								"Ensure the Redirect URI matches exactly",
-								"Check that Implicit Flow is enabled for your application",
+								'Check your PingOne application configuration',
+								'Verify the Client ID and Environment ID are correct',
+								'Ensure the Redirect URI matches exactly',
+								'Check that Implicit Flow is enabled for your application',
 							];
 					}
 
 					setError(detailedError);
 					setTroubleshootingSteps(troubleshootingSteps);
-					logger.error("ImplicitCallbackV3", "Implicit grant error", {
+					logger.error('ImplicitCallbackV3', 'Implicit grant error', {
 						error,
 						errorDescription,
 						troubleshootingSteps,
@@ -363,80 +340,75 @@ const ImplicitCallbackV3: React.FC = () => {
 						hash: window.location.hash,
 					});
 
-					console.log(
-						" [ImplicitCallbackV3] Troubleshooting Steps:",
-						troubleshootingSteps,
-					);
+					console.log(' [ImplicitCallbackV3] Troubleshooting Steps:', troubleshootingSteps);
 					return;
 				}
 
 				// Extract tokens from hash
 				const tokenData: TokenData = {
-					access_token: hashParams.get("access_token") || undefined,
-					id_token: hashParams.get("id_token") || undefined,
-					token_type: hashParams.get("token_type") || undefined,
-					expires_in: hashParams.get("expires_in")
-						? parseInt(hashParams.get("expires_in")!, 10)
+					access_token: hashParams.get('access_token') || undefined,
+					id_token: hashParams.get('id_token') || undefined,
+					token_type: hashParams.get('token_type') || undefined,
+					expires_in: hashParams.get('expires_in')
+						? parseInt(hashParams.get('expires_in')!, 10)
 						: undefined,
-					scope: hashParams.get("scope") || undefined,
-					state: hashParams.get("state") || undefined,
+					scope: hashParams.get('scope') || undefined,
+					state: hashParams.get('state') || undefined,
 				};
 
-				console.log(" [ImplicitCallbackV3] Extracted token data:", {
+				console.log(' [ImplicitCallbackV3] Extracted token data:', {
 					hasAccessToken: !!tokenData.access_token,
 					hasIdToken: !!tokenData.id_token,
 					tokenType: tokenData.token_type,
 					expiresIn: tokenData.expires_in,
 					scope: tokenData.scope,
-					state: tokenData.state ? "present" : "missing",
+					state: tokenData.state ? 'present' : 'missing',
 				});
 
 				// Validate that we have at least one token
 				if (!tokenData.access_token && !tokenData.id_token) {
 					// Check if this looks like a valid callback attempt (has other OAuth parameters)
 					const hasOAuthParams =
-						hashParams.has("state") ||
-						hashParams.has("scope") ||
-						hashParams.has("token_type");
+						hashParams.has('state') || hashParams.has('scope') || hashParams.has('token_type');
 
 					if (hasOAuthParams) {
-						setStatus("error");
-						setMessage("No tokens received");
-						setError("Expected access_token or id_token in callback URL hash");
+						setStatus('error');
+						setMessage('No tokens received');
+						setError('Expected access_token or id_token in callback URL hash');
 						logger.error(
-							"ImplicitCallbackV3",
-							"No tokens in callback hash despite OAuth parameters",
-							{ hash, hasOAuthParams },
+							'ImplicitCallbackV3',
+							'No tokens in callback hash despite OAuth parameters',
+							{ hash, hasOAuthParams }
 						);
 					} else {
-						setStatus("error");
-						setMessage("Invalid callback URL");
-						setError("No OAuth tokens or parameters found in URL hash");
+						setStatus('error');
+						setMessage('Invalid callback URL');
+						setError('No OAuth tokens or parameters found in URL hash');
 						logger.warn(
-							"ImplicitCallbackV3",
-							"No OAuth parameters in hash - not a valid callback",
-							{ hash },
+							'ImplicitCallbackV3',
+							'No OAuth parameters in hash - not a valid callback',
+							{ hash }
 						);
 					}
 					return;
 				}
 
 				// Determine flow type based on tokens received
-				const detectedFlowType = tokenData.id_token ? "oidc" : "oauth2";
+				const detectedFlowType = tokenData.id_token ? 'oidc' : 'oauth2';
 				setFlowType(detectedFlowType);
 
 				// Load flow context from session storage
 				const flowContextKey =
-					detectedFlowType === "oidc"
-						? "oidc_implicit_v3_flow_context"
-						: "oauth2_implicit_v3_flow_context";
+					detectedFlowType === 'oidc'
+						? 'oidc_implicit_v3_flow_context'
+						: 'oauth2_implicit_v3_flow_context';
 				const storedContext = sessionStorage.getItem(flowContextKey);
 
 				if (!storedContext) {
-					setStatus("warning");
-					setMessage("Flow context not found");
-					setError("Unable to validate state parameter - flow context missing");
-					logger.warn("ImplicitCallbackV3", "Flow context missing", {
+					setStatus('warning');
+					setMessage('Flow context not found');
+					setError('Unable to validate state parameter - flow context missing');
+					logger.warn('ImplicitCallbackV3', 'Flow context missing', {
 						flowContextKey,
 					});
 					setTokens(tokenData);
@@ -447,10 +419,10 @@ const ImplicitCallbackV3: React.FC = () => {
 				try {
 					flowContext = JSON.parse(storedContext);
 				} catch (parseError) {
-					setStatus("error");
-					setMessage("Invalid flow context");
-					setError("Failed to parse stored flow context");
-					logger.error("ImplicitCallbackV3", "Failed to parse flow context", {
+					setStatus('error');
+					setMessage('Invalid flow context');
+					setError('Failed to parse stored flow context');
+					logger.error('ImplicitCallbackV3', 'Failed to parse flow context', {
 						parseError,
 					});
 					return;
@@ -460,33 +432,25 @@ const ImplicitCallbackV3: React.FC = () => {
 				const stateValidation = validateStateParameter(
 					tokenData.state,
 					sessionStorage.getItem(
-						detectedFlowType === "oidc"
-							? "oidc_implicit_v3_state"
-							: "oauth2_implicit_v3_state",
-					),
+						detectedFlowType === 'oidc' ? 'oidc_implicit_v3_state' : 'oauth2_implicit_v3_state'
+					)
 				);
 
 				if (!stateValidation.success) {
-					setStatus("error");
-					setMessage("Invalid state parameter");
-					setError(
-						stateValidation.error || "State parameter validation failed",
-					);
-					logger.error("ImplicitCallbackV3", "State validation failed", {
+					setStatus('error');
+					setMessage('Invalid state parameter');
+					setError(stateValidation.error || 'State parameter validation failed');
+					logger.error('ImplicitCallbackV3', 'State validation failed', {
 						error: stateValidation.error,
 					});
 					return;
 				}
 
-				console.log(
-					" [ImplicitCallbackV3] State parameter validated successfully",
-				);
+				console.log(' [ImplicitCallbackV3] State parameter validated successfully');
 
 				// For OIDC flows, validate ID token and nonce if present
-				if (detectedFlowType === "oidc" && tokenData.id_token) {
-					const expectedNonce = sessionStorage.getItem(
-						"oidc_implicit_v3_nonce",
-					);
+				if (detectedFlowType === 'oidc' && tokenData.id_token) {
+					const expectedNonce = sessionStorage.getItem('oidc_implicit_v3_nonce');
 
 					const securityOptions: ImplicitFlowSecurityOptions = {
 						environmentId: flowContext.environmentId,
@@ -494,96 +458,68 @@ const ImplicitCallbackV3: React.FC = () => {
 						expectedNonce: expectedNonce || undefined,
 					};
 
-					console.log(" [ImplicitCallbackV3] Validating OIDC ID token...");
-					console.log(
-						" [ImplicitCallbackV3] Security options for validation:",
-						{
-							environmentId: securityOptions.environmentId,
-							clientId: securityOptions.clientId,
-							hasExpectedNonce: !!securityOptions.expectedNonce,
-							expectedNonce: securityOptions.expectedNonce
-								? `${securityOptions.expectedNonce.substring(0, 10)}...`
-								: "none",
-						},
-					);
-					const idTokenValidation = await validateIdToken(
-						tokenData.id_token,
-						securityOptions,
-					);
+					console.log(' [ImplicitCallbackV3] Validating OIDC ID token...');
+					console.log(' [ImplicitCallbackV3] Security options for validation:', {
+						environmentId: securityOptions.environmentId,
+						clientId: securityOptions.clientId,
+						hasExpectedNonce: !!securityOptions.expectedNonce,
+						expectedNonce: securityOptions.expectedNonce
+							? `${securityOptions.expectedNonce.substring(0, 10)}...`
+							: 'none',
+					});
+					const idTokenValidation = await validateIdToken(tokenData.id_token, securityOptions);
 
 					if (!idTokenValidation.success) {
-						setStatus("error");
-						setMessage("ID token validation failed");
-						setError(idTokenValidation.error || "Invalid ID token");
-						logger.error("ImplicitCallbackV3", "ID token validation failed", {
+						setStatus('error');
+						setMessage('ID token validation failed');
+						setError(idTokenValidation.error || 'Invalid ID token');
+						logger.error('ImplicitCallbackV3', 'ID token validation failed', {
 							error: idTokenValidation.error,
 						});
 						return;
 					}
 
-					console.log(
-						" [ImplicitCallbackV3] OIDC ID token validated successfully",
-					);
-					logger.security(
-						"ImplicitCallbackV3",
-						"ID token validation successful",
-						{
-							subject: idTokenValidation.validatedClaims?.sub,
-							issuer: idTokenValidation.validatedClaims?.iss,
-							audience: idTokenValidation.validatedClaims?.aud,
-						},
-					);
+					console.log(' [ImplicitCallbackV3] OIDC ID token validated successfully');
+					logger.security('ImplicitCallbackV3', 'ID token validation successful', {
+						subject: idTokenValidation.validatedClaims?.sub,
+						issuer: idTokenValidation.validatedClaims?.iss,
+						audience: idTokenValidation.validatedClaims?.aud,
+					});
 				}
 
 				// Store tokens using the token storage system
 				setIsStoringTokens(true);
 				try {
 					const flowName =
-						detectedFlowType === "oidc"
-							? "OIDC Implicit Flow V3"
-							: "OAuth 2.0 Implicit Flow V3";
-					const flowKey =
-						detectedFlowType === "oidc"
-							? "oidc-implicit-v3"
-							: "oauth2-implicit-v3";
+						detectedFlowType === 'oidc' ? 'OIDC Implicit Flow V3' : 'OAuth 2.0 Implicit Flow V3';
+					const flowKey = detectedFlowType === 'oidc' ? 'oidc-implicit-v3' : 'oauth2-implicit-v3';
 
 					const success = storeOAuthTokens(tokenData, flowKey, flowName);
 
 					if (success) {
-						console.log(" [ImplicitCallbackV3] Tokens stored successfully");
+						console.log(' [ImplicitCallbackV3] Tokens stored successfully');
 					} else {
-						console.warn(" [ImplicitCallbackV3] Failed to store tokens");
+						console.warn(' [ImplicitCallbackV3] Failed to store tokens');
 					}
 				} catch (storageError) {
-					console.error(
-						" [ImplicitCallbackV3] Token storage error:",
-						storageError,
-					);
+					console.error(' [ImplicitCallbackV3] Token storage error:', storageError);
 				} finally {
 					setIsStoringTokens(false);
 				}
 
 				// Clear hash from URL for security
-				window.history.replaceState(
-					null,
-					"",
-					window.location.pathname + window.location.search,
-				);
-				console.log(
-					" [ImplicitCallbackV3] Hash cleared from URL for security",
-				);
+				window.history.replaceState(null, '', window.location.pathname + window.location.search);
+				console.log(' [ImplicitCallbackV3] Hash cleared from URL for security');
 
 				// Clear security-sensitive data from session storage
 				clearSecurityData(detectedFlowType);
 
 				// Set success status
-				setStatus("success");
-				setMessage(
-					`${detectedFlowType.toUpperCase()} Implicit Flow completed successfully`,
-				);
+				setStatus('success');
+				setMessage(`${detectedFlowType.toUpperCase()} Implicit Flow completed successfully`);
 				setTokens(tokenData);
 
-				logger.success("ImplicitCallbackV3", "Implicit grant successful", {
+				logger.success('ImplicitCallbackV3', 'Implicit grant successful', {
 					flowType: detectedFlowType,
 					hasAccessToken: !!tokenData.access_token,
 					hasIdToken: !!tokenData.id_token,
@@ -591,16 +527,11 @@ const ImplicitCallbackV3: React.FC = () => {
 					expiresIn: tokenData.expires_in,
 				});
 			} catch (error) {
-				console.error(
-					" [ImplicitCallbackV3] Callback processing failed:",
-					error,
-				);
-				setStatus("error");
-				setMessage("Callback processing failed");
-				setError(
-					error instanceof Error ? error.message : "Unknown error occurred",
-				);
-				logger.error("ImplicitCallbackV3", "Callback processing error", {
+				console.error(' [ImplicitCallbackV3] Callback processing failed:', error);
+				setStatus('error');
+				setMessage('Callback processing failed');
+				setError(error instanceof Error ? error.message : 'Unknown error occurred');
+				logger.error('ImplicitCallbackV3', 'Callback processing error', {
 					error,
 				});
 			}
@@ -610,61 +541,56 @@ const ImplicitCallbackV3: React.FC = () => {
 	}, []);
 
 	const handleNavigateToFlow = () => {
-		const flowPath =
-			flowType === "oidc"
-				? "/flows/oidc-implicit-v3"
-				: "/flows/oauth2-implicit-v3";
+		const flowPath = flowType === 'oidc' ? '/flows/oidc-implicit-v3' : '/flows/oauth2-implicit-v3';
 		navigate(flowPath);
 	};
 
 	const handleNavigateToTokenManagement = () => {
-		navigate("/token-management");
+		navigate('/token-management');
 	};
 
 	const handleNavigateHome = () => {
-		navigate("/");
+		navigate('/');
 	};
 
 	return (
 		<CallbackContainer>
 			<StatusCard type={status}>
 				<StatusHeader type={status}>
-					{status === "success" && <FiCheckCircle size={24} />}
-					{status === "error" && <FiXCircle size={24} />}
-					{status === "warning" && <FiAlertTriangle size={24} />}
-					{status === "loading" && <FiShield size={24} />}
+					{status === 'success' && <FiCheckCircle size={24} />}
+					{status === 'error' && <FiXCircle size={24} />}
+					{status === 'warning' && <FiAlertTriangle size={24} />}
+					{status === 'loading' && <FiShield size={24} />}
 					<StatusTitle>{message}</StatusTitle>
 				</StatusHeader>
 
 				<StatusMessage>
-					{status === "loading" &&
-						"Please wait while we process your callback..."}
-					{status === "success" &&
+					{status === 'loading' && 'Please wait while we process your callback...'}
+					{status === 'success' &&
 						`Your ${flowType.toUpperCase()} implicit flow has completed successfully. Tokens have been received and stored.`}
-					{status === "error" &&
-						"An error occurred during the implicit grant flow."}
-					{status === "warning" && "The flow completed but with some warnings."}
+					{status === 'error' && 'An error occurred during the implicit grant flow.'}
+					{status === 'warning' && 'The flow completed but with some warnings.'}
 				</StatusMessage>
 
 				{error && <ErrorDetails>Error: {error}</ErrorDetails>}
 
-				{status === "error" && troubleshootingSteps.length > 0 && (
+				{status === 'error' && troubleshootingSteps.length > 0 && (
 					<div
 						style={{
-							marginTop: "1.5rem",
-							padding: "1rem",
-							background: "#fef3c7",
-							border: "1px solid #f59e0b",
-							borderRadius: "8px",
+							marginTop: '1.5rem',
+							padding: '1rem',
+							background: '#fef3c7',
+							border: '1px solid #f59e0b',
+							borderRadius: '8px',
 						}}
 					>
 						<h4
 							style={{
-								margin: "0 0 1rem 0",
-								color: "#92400e",
-								display: "flex",
-								alignItems: "center",
-								gap: "0.5rem",
+								margin: '0 0 1rem 0',
+								color: '#92400e',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
 							}}
 						>
 							<FiAlertTriangle />
@@ -673,14 +599,14 @@ const ImplicitCallbackV3: React.FC = () => {
 						<ul
 							style={{
 								margin: 0,
-								paddingLeft: "1.5rem",
-								color: "#92400e",
-								fontSize: "0.875rem",
-								lineHeight: "1.6",
+								paddingLeft: '1.5rem',
+								color: '#92400e',
+								fontSize: '0.875rem',
+								lineHeight: '1.6',
 							}}
 						>
 							{troubleshootingSteps.map((step, index) => (
-								<li key={index} style={{ marginBottom: "0.5rem" }}>
+								<li key={index} style={{ marginBottom: '0.5rem' }}>
 									{step}
 								</li>
 							))}
@@ -691,9 +617,7 @@ const ImplicitCallbackV3: React.FC = () => {
 
 			{tokens && (
 				<div>
-					<h3 style={{ marginBottom: "1rem", color: "#1f2937" }}>
-						Received Tokens:
-					</h3>
+					<h3 style={{ marginBottom: '1rem', color: '#1f2937' }}>Received Tokens:</h3>
 					<TokenDisplay tokens={tokens} />
 
 					{/* Token Details */}
@@ -709,10 +633,10 @@ const ImplicitCallbackV3: React.FC = () => {
 										token_type: tokens.token_type,
 										expires_in: tokens.expires_in,
 										scope: tokens.scope,
-										state: tokens.state ? "validated" : "not provided",
+										state: tokens.state ? 'validated' : 'not provided',
 									},
 									null,
-									2,
+									2
 								)}
 							</pre>
 						</JsonDisplay>
@@ -724,22 +648,17 @@ const ImplicitCallbackV3: React.FC = () => {
 						<div>
 							<strong>Security Notice</strong>
 							<br />
-							Implicit flow tokens are exposed in the URL fragment and should be
-							handled with care. The hash has been cleared from the URL for
-							security. Consider migrating to Authorization Code flow with PKCE
-							for better security.
+							Implicit flow tokens are exposed in the URL fragment and should be handled with care.
+							The hash has been cleared from the URL for security. Consider migrating to
+							Authorization Code flow with PKCE for better security.
 						</div>
 					</InfoBox>
 				</div>
 			)}
 
 			<NavigationSection>
-				<ActionButton onClick={handleNavigateToFlow}>
-					 Return to Flow
-				</ActionButton>
-				<ActionButton onClick={handleNavigateToTokenManagement}>
-					 Token Management
-				</ActionButton>
+				<ActionButton onClick={handleNavigateToFlow}>Return to Flow</ActionButton>
+				<ActionButton onClick={handleNavigateToTokenManagement}>Token Management</ActionButton>
 				<ActionButton onClick={handleNavigateHome}> Home</ActionButton>
 			</NavigationSection>
 		</CallbackContainer>

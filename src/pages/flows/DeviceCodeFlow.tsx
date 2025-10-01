@@ -1,20 +1,17 @@
-import { useState } from "react";
-import { FiAlertCircle, FiMonitor, FiSmartphone } from "react-icons/fi";
-import styled from "styled-components";
-import { Card, CardBody, CardHeader } from "../../components/Card";
-import ConfigurationButton from "../../components/ConfigurationButton";
-import FlowCredentials from "../../components/FlowCredentials";
-import FlowIntro from "../../components/flow/FlowIntro";
-import PageTitle from "../../components/PageTitle";
-import { type FlowStep, StepByStepFlow } from "../../components/StepByStepFlow";
-import TokenDisplayComponent from "../../components/TokenDisplay";
-import { useAuth } from "../../contexts/NewAuthContext";
-import {
-	showGlobalError,
-	showGlobalSuccess,
-} from "../../hooks/useNotifications";
-import { usePageScroll } from "../../hooks/usePageScroll";
-import { storeOAuthTokens } from "../../utils/tokenStorage";
+import { useState } from 'react';
+import { FiAlertCircle, FiMonitor, FiSmartphone } from 'react-icons/fi';
+import styled from 'styled-components';
+import { Card, CardBody, CardHeader } from '../../components/Card';
+import ConfigurationButton from '../../components/ConfigurationButton';
+import FlowCredentials from '../../components/FlowCredentials';
+import FlowIntro from '../../components/flow/FlowIntro';
+import PageTitle from '../../components/PageTitle';
+import { type FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
+import TokenDisplayComponent from '../../components/TokenDisplay';
+import { useAuth } from '../../contexts/NewAuthContext';
+import { showGlobalError, showGlobalSuccess } from '../../hooks/useNotifications';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -178,7 +175,7 @@ const _CodeBlock = styled.pre`
 `;
 
 const _TokenDisplay = styled.div`
-  background-color: #000000;
+  background-color: var(--color-surface, #000000);
   border: 2px solid #374151;
   border-radius: 0.375rem;
   padding: 1rem;
@@ -241,8 +238,8 @@ const _ResponseBox = styled.div<{
   margin: 1rem 0;
   padding: 1rem;
   border-radius: 0.5rem;
-  border: 1px solid ${({ $borderColor }) => $borderColor || "#374151"};
-  background-color: ${({ $backgroundColor }) => $backgroundColor || "#1f2937"};
+  border: 1px solid ${({ $borderColor }) => $borderColor || '#374151'};
+  background-color: ${({ $backgroundColor }) => $backgroundColor || '#1f2937'};
   font-family: monospace;
   font-size: 0.875rem;
   line-height: 1.4;
@@ -292,22 +289,18 @@ type Tokens = {
 
 const DeviceFlow = () => {
 	// Centralized scroll management - ALL pages start at top
-	usePageScroll({ pageName: "Device Code Flow", force: true });
+	usePageScroll({ pageName: 'Device Code Flow', force: true });
 
 	const { config } = useAuth();
-	const [demoStatus, setDemoStatus] = useState<
-		"idle" | "loading" | "success" | "error"
-	>("idle");
+	const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 	const [currentStep, setCurrentStep] = useState<number>(0);
 	const [tokensReceived, setTokensReceived] = useState<Tokens | null>(null);
 	const [error, setError] = useState<string | null>(null);
-	const [deviceCodeData, setDeviceCodeData] = useState<DeviceCodeData | null>(
-		null,
-	);
+	const [deviceCodeData, setDeviceCodeData] = useState<DeviceCodeData | null>(null);
 	const [_isLoading, _setIsLoading] = useState<boolean>(false);
-	const [pollingInterval, setPollingInterval] = useState<ReturnType<
-		typeof setInterval
-	> | null>(null);
+	const [pollingInterval, setPollingInterval] = useState<ReturnType<typeof setInterval> | null>(
+		null
+	);
 
 	// Track execution results for each step
 	const [_stepResults, setStepResults] = useState<Record<number, unknown>>({});
@@ -315,7 +308,7 @@ const DeviceFlow = () => {
 	const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
 
 	const startDeviceCodeFlow = async () => {
-		setDemoStatus("loading");
+		setDemoStatus('loading');
 		setCurrentStep(0);
 		setError(null);
 		setTokensReceived(null);
@@ -324,11 +317,11 @@ const DeviceFlow = () => {
 		setExecutedSteps(new Set());
 		setStepsWithResults([]);
 		setStepsWithResults([...steps]); // Initialize with copy of steps
-		console.log(" [DeviceCodeFlow] Starting device code flow...");
+		console.log(' [DeviceCodeFlow] Starting device code flow...');
 	};
 
 	const resetDemo = () => {
-		setDemoStatus("idle");
+		setDemoStatus('idle');
 		setCurrentStep(0);
 		setTokensReceived(null);
 		setError(null);
@@ -354,32 +347,29 @@ const DeviceFlow = () => {
 
 	const steps: FlowStep[] = [
 		{
-			title: "Device Initiates Flow",
-			description:
-				"Device requests device and user codes from authorization server",
+			title: 'Device Initiates Flow',
+			description: 'Device requests device and user codes from authorization server',
 			code: `// POST to device authorization endpoint
-POST https://auth.pingone.com/${config?.environmentId || "YOUR_ENV_ID"}/as/device_authorization
+POST https://auth.pingone.com/${config?.environmentId || 'YOUR_ENV_ID'}/as/device_authorization
 Content-Type: application/x-www-form-urlencoded
 
-client_id=${config?.clientId || "your_client_id"}&scope=read write
+client_id=${config?.clientId || 'your_client_id'}&scope=read write
 
 // Device sends minimal information:
 // - client_id: identifies the device/app
 // - scope: requested permissions`,
 			execute: async () => {
 				if (!config || !config.pingone) {
-					setError(
-						"Configuration required. Please configure your PingOne settings first.",
-					);
+					setError('Configuration required. Please configure your PingOne settings first.');
 					return;
 				}
 
 				// Simulate device authorization request
 				const requestData = {
-					method: "POST",
+					method: 'POST',
 					url: `${config.pingone.deviceAuthorizationEndpoint}?client_id=${config.pingone.clientId}&scope=read write`,
 					headers: {
-						"Content-Type": "application/x-www-form-urlencoded",
+						'Content-Type': 'application/x-www-form-urlencoded',
 					},
 					body: `client_id=${config.pingone.clientId}&scope=read write`,
 				};
@@ -387,13 +377,12 @@ client_id=${config?.clientId || "your_client_id"}&scope=read write
 				setStepResults((prev) => ({ ...prev, 0: { request: requestData } }));
 				setExecutedSteps((prev) => new Set(prev).add(0));
 
-				console.log(" [DeviceCodeFlow] Device authorization request prepared");
+				console.log(' [DeviceCodeFlow] Device authorization request prepared');
 			},
 		},
 		{
-			title: "Server Generates Device & User Codes",
-			description:
-				"Authorization server creates unique codes for device and user authentication",
+			title: 'Server Generates Device & User Codes',
+			description: 'Authorization server creates unique codes for device and user authentication',
 			code: `// Server generates and stores device codes
 const deviceCode = generateSecureRandomString();
 const userCode = generateUserFriendlyCode(); // e.g., "WDJB-MJHT"
@@ -409,38 +398,33 @@ const userCode = generateUserFriendlyCode(); // e.g., "WDJB-MJHT"
 }`,
 			execute: async () => {
 				if (!config || !config.pingone) {
-					setError(
-						"Configuration required. Please configure your PingOne settings first.",
-					);
+					setError('Configuration required. Please configure your PingOne settings first.');
 					return;
 				}
 
 				try {
 					// Make real device authorization request via backend proxy
 					const backendUrl =
-						process.env.NODE_ENV === "production"
-							? "https://oauth-playground.vercel.app"
-							: "http://localhost:3001";
+						process.env.NODE_ENV === 'production'
+							? 'https://oauth-playground.vercel.app'
+							: 'https://localhost:3001';
 
-					const response = await fetch(
-						`${backendUrl}/api/device-authorization`,
-						{
-							method: "POST",
-							headers: {
-								"Content-Type": "application/json",
-								Accept: "application/json",
-							},
-							body: JSON.stringify({
-								environment_id: config.pingone.environmentId,
-								client_id: config.pingone.clientId,
-								scope: "read write",
-							}),
+					const response = await fetch(`${backendUrl}/api/device-authorization`, {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							Accept: 'application/json',
 						},
-					);
+						body: JSON.stringify({
+							environment_id: config.pingone.environmentId,
+							client_id: config.pingone.clientId,
+							scope: 'read write',
+						}),
+					});
 
 					if (!response.ok) {
 						throw new Error(
-							`Device authorization failed: ${response.status} ${response.statusText}`,
+							`Device authorization failed: ${response.status} ${response.statusText}`
 						);
 					}
 
@@ -453,18 +437,17 @@ const userCode = generateUserFriendlyCode(); // e.g., "WDJB-MJHT"
 					}));
 					setExecutedSteps((prev) => new Set(prev).add(1));
 
-					console.log(" [DeviceCodeFlow] Device codes received:", deviceCodes);
+					console.log(' [DeviceCodeFlow] Device codes received:', deviceCodes);
 				} catch (error: unknown) {
-					const errorMessage =
-						error instanceof Error ? error.message : "Unknown error";
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 					setError(`Failed to get device codes: ${errorMessage}`);
-					console.error(" [DeviceCodeFlow] Device code request error:", error);
+					console.error(' [DeviceCodeFlow] Device code request error:', error);
 				}
 			},
 		},
 		{
-			title: "Device Displays User Code",
-			description: "Device shows user-friendly code and verification URL",
+			title: 'Device Displays User Code',
+			description: 'Device shows user-friendly code and verification URL',
 			code: `// Device displays to user:
 console.log('Go to: https://pingone.com/device');
 console.log('Enter code: WDJB-MJHT');
@@ -476,36 +459,33 @@ console.log('Enter code: WDJB-MJHT');
 // - Instructions for user`,
 			execute: () => {
 				if (!deviceCodeData) {
-					setError(
-						"Device codes not available. Please complete previous step first.",
-					);
+					setError('Device codes not available. Please complete previous step first.');
 					return;
 				}
 
 				setStepResults((prev) => ({
 					...prev,
 					2: {
-						message: "User code displayed for authentication",
+						message: 'User code displayed for authentication',
 						userCode: deviceCodeData.user_code,
 						verificationUri: deviceCodeData.verification_uri,
 					},
 				}));
 				setExecutedSteps((prev) => new Set(prev).add(2));
 
-				console.log(" [DeviceCodeFlow] User code displayed for authentication");
+				console.log(' [DeviceCodeFlow] User code displayed for authentication');
 			},
 		},
 		{
-			title: "Device Polls for Authorization",
-			description:
-				"Device repeatedly polls token endpoint until user completes authentication",
+			title: 'Device Polls for Authorization',
+			description: 'Device repeatedly polls token endpoint until user completes authentication',
 			code: `// Device polls token endpoint
-POST https://auth.pingone.com/${config?.environmentId || "YOUR_ENV_ID"}/as/token
+POST https://auth.pingone.com/${config?.environmentId || 'YOUR_ENV_ID'}/as/token
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=urn:ietf:params:oauth:grant-type:device_code
 &device_code=GmRhmhcxhwAzkoEqiMEg_DnyE-oqGpZC9yIwBhLJrRgI
-&client_id=${config?.clientId || "your_client_id"}
+&client_id=${config?.clientId || 'your_client_id'}
 
 // Poll every 5 seconds (interval from device authorization)
 // Continue polling until:
@@ -514,40 +494,35 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
 // - Error occurs`,
 			execute: () => {
 				if (!deviceCodeData) {
-					setError(
-						"Device codes not available. Please complete previous step first.",
-					);
+					setError('Device codes not available. Please complete previous step first.');
 					return;
 				}
 
 				// Start polling simulation
 				const pollRequest = {
-					method: "POST",
-					url: config?.tokenEndpoint || "https://auth.pingone.com/token",
+					method: 'POST',
+					url: config?.tokenEndpoint || 'https://auth.pingone.com/token',
 					headers: {
-						"Content-Type": "application/x-www-form-urlencoded",
+						'Content-Type': 'application/x-www-form-urlencoded',
 					},
-					body: `grant_type=urn:ietf:params:oauth:grant-type:device_code&device_code=${deviceCodeData.device_code}&client_id=${config?.clientId || "your_client_id"}`,
+					body: `grant_type=urn:ietf:params:oauth:grant-type:device_code&device_code=${deviceCodeData.device_code}&client_id=${config?.clientId || 'your_client_id'}`,
 				};
 
 				setStepResults((prev) => ({
 					...prev,
 					3: {
 						request: pollRequest,
-						message: "Device started polling for tokens",
+						message: 'Device started polling for tokens',
 					},
 				}));
 				setExecutedSteps((prev) => new Set(prev).add(3));
 
-				console.log(
-					" [DeviceCodeFlow] Device started polling for authorization",
-				);
+				console.log(' [DeviceCodeFlow] Device started polling for authorization');
 			},
 		},
 		{
-			title: "User Authenticates on Separate Device",
-			description:
-				"User visits verification URL and enters the code on a different device",
+			title: 'User Authenticates on Separate Device',
+			description: 'User visits verification URL and enters the code on a different device',
 			code: `// User workflow:
 // 1. Visit verification_uri
 // 2. Enter user_code
@@ -559,29 +534,26 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
 // Marks device as authorized for token issuance`,
 			execute: () => {
 				if (!deviceCodeData) {
-					setError(
-						"Device codes not available. Please complete previous step first.",
-					);
+					setError('Device codes not available. Please complete previous step first.');
 					return;
 				}
 
 				setStepResults((prev) => ({
 					...prev,
 					4: {
-						message: "User completed authentication on separate device",
+						message: 'User completed authentication on separate device',
 						userCode: deviceCodeData.user_code,
 						verificationUri: deviceCodeData.verification_uri,
 					},
 				}));
 				setExecutedSteps((prev) => new Set(prev).add(4));
 
-				console.log(" [DeviceCodeFlow] User authentication completed");
+				console.log(' [DeviceCodeFlow] User authentication completed');
 			},
 		},
 		{
-			title: "Device Receives Tokens",
-			description:
-				"Once user completes authentication, device receives access tokens",
+			title: 'Device Receives Tokens',
+			description: 'Once user completes authentication, device receives access tokens',
 			code: `// Server returns tokens to device
 {
   "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -597,7 +569,7 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
 			execute: async () => {
 				if (!config || !config.pingone || !deviceCodeData) {
 					setError(
-						"Configuration or device codes not available. Please complete previous steps first.",
+						'Configuration or device codes not available. Please complete previous steps first.'
 					);
 					return;
 				}
@@ -605,17 +577,17 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
 				try {
 					// Make real token request via backend proxy
 					const backendUrl =
-						process.env.NODE_ENV === "production"
-							? "https://oauth-playground.vercel.app"
-							: "http://localhost:3001";
+						process.env.NODE_ENV === 'production'
+							? 'https://oauth-playground.vercel.app'
+							: 'https://localhost:3001';
 
 					const response = await fetch(`${backendUrl}/api/token-exchange`, {
-						method: "POST",
+						method: 'POST',
 						headers: {
-							"Content-Type": "application/json",
+							'Content-Type': 'application/json',
 						},
 						body: JSON.stringify({
-							grant_type: "urn:ietf:params:oauth:grant-type:device_code",
+							grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
 							device_code: deviceCodeData.device_code,
 							client_id: config.pingone.clientId,
 							environment_id: config.pingone.environmentId,
@@ -623,20 +595,15 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
 					});
 
 					if (!response.ok) {
-						throw new Error(
-							`Token exchange failed: ${response.status} ${response.statusText}`,
-						);
+						throw new Error(`Token exchange failed: ${response.status} ${response.statusText}`);
 					}
 
 					const tokenData = await response.json();
 					setTokensReceived(tokenData);
-					setDemoStatus("success");
+					setDemoStatus('success');
 
 					// Show centralized success message
-					showGlobalSuccess(
-						"Tokens copied",
-						"Device flow tokens copied to the clipboard.",
-					);
+					showGlobalSuccess('Tokens copied', 'Device flow tokens copied to the clipboard.');
 
 					setStepResults((prev) => ({
 						...prev,
@@ -650,31 +617,24 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
 						refresh_token: tokenData.refresh_token,
 						token_type: tokenData.token_type,
 						expires_in: tokenData.expires_in,
-						scope: tokenData.scope || "read write",
+						scope: tokenData.scope || 'read write',
 					};
 
-					const success = storeOAuthTokens(
-						tokensForStorage,
-						"device_code",
-						"Device Code Flow",
-					);
+					const success = storeOAuthTokens(tokensForStorage, 'device_code', 'Device Code Flow');
 					if (success) {
-						console.log(
-							" [DeviceCodeFlow] Tokens received and stored successfully",
-						);
+						console.log(' [DeviceCodeFlow] Tokens received and stored successfully');
 					} else {
-						console.error(" [DeviceCodeFlow] Failed to store tokens");
+						console.error(' [DeviceCodeFlow] Failed to store tokens');
 					}
 				} catch (error: unknown) {
-					const errorMessage =
-						error instanceof Error ? error.message : "Unknown error";
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 					setError(`Failed to receive tokens: ${errorMessage}`);
-					console.error(" [DeviceCodeFlow] Token request error:", error);
+					console.error(' [DeviceCodeFlow] Token request error:', error);
 
 					// Show centralized error message
 					showGlobalError(
-						"Authorization failed",
-						`We couldn't complete the device flow: ${errorMessage}`,
+						'Authorization failed',
+						`We couldn't complete the device flow: ${errorMessage}`
 					);
 				}
 			},
@@ -689,15 +649,15 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
 					description="Authenticate constrained or shared-input devices by delegating sign-in to a secondary device while PingOne coordinates authorization."
 					introCopy={
 						<p>
-							Present the user with a code and verification URL on the
-							limited-input device. The user completes authentication on another
-							device while this client polls PingOne until approval.
+							Present the user with a code and verification URL on the limited-input device. The
+							user completes authentication on another device while this client polls PingOne until
+							approval.
 						</p>
 					}
 					bullets={[
-						"Ideal for TVs, kiosks, IoT hardware, and CLI utilities",
-						"No secrets ever live on the constrained device",
-						"Polling cadence balances UX and security",
+						'Ideal for TVs, kiosks, IoT hardware, and CLI utilities',
+						'No secrets ever live on the constrained device',
+						'Polling cadence balances UX and security',
 					]}
 					warningTitle="Security Considerations"
 					warningBody="Device and user codes expire quicklyalways confirm device status with PingOne before granting access."
@@ -720,7 +680,7 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
 			<FlowCredentials
 				flowType="device_code"
 				onCredentialsChange={(credentials) => {
-					console.log("Device Code flow credentials updated:", credentials);
+					console.log('Device Code flow credentials updated:', credentials);
 				}}
 			/>
 
@@ -732,17 +692,16 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
 					<FlowDescription>
 						<h2>What is Device Code Flow?</h2>
 						<p>
-							The Device Code flow is designed for devices that have limited
-							input capabilities (like smart TVs, gaming consoles, or IoT
-							devices). Instead of entering credentials directly on the device,
-							users authenticate on a separate device (like a smartphone or
+							The Device Code flow is designed for devices that have limited input capabilities
+							(like smart TVs, gaming consoles, or IoT devices). Instead of entering credentials
+							directly on the device, users authenticate on a separate device (like a smartphone or
 							computer) using a user-friendly code.
 						</p>
 						<p>
-							<strong>How it works:</strong> The device requests codes from the
-							authorization server, displays a user-friendly code to the user,
-							who then authenticates on a different device using that code. The
-							device polls for tokens until authentication is complete.
+							<strong>How it works:</strong> The device requests codes from the authorization
+							server, displays a user-friendly code to the user, who then authenticates on a
+							different device using that code. The device polls for tokens until authentication is
+							complete.
 						</p>
 					</FlowDescription>
 
@@ -751,8 +710,8 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
 						<div>
 							<h3>Perfect For</h3>
 							<p>
-								Smart TVs, gaming consoles, IoT devices, printers, and any
-								device without a proper keyboard or secure input method.
+								Smart TVs, gaming consoles, IoT devices, printers, and any device without a proper
+								keyboard or secure input method.
 							</p>
 						</div>
 					</UseCaseHighlight>
@@ -780,9 +739,8 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
 					{!config && (
 						<ErrorMessage>
 							<FiAlertCircle />
-							<strong>Configuration Required:</strong> Please configure your
-							PingOne settings in the Configuration page before running this
-							demo.
+							<strong>Configuration Required:</strong> Please configure your PingOne settings in the
+							Configuration page before running this demo.
 						</ErrorMessage>
 					)}
 
@@ -804,9 +762,9 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
 							</div>
 							<div
 								style={{
-									marginTop: "0.5rem",
-									fontSize: "0.8rem",
-									color: "#6b7280",
+									marginTop: '0.5rem',
+									fontSize: '0.8rem',
+									color: '#6b7280',
 								}}
 							>
 								Device Code: {deviceCodeData.device_code}

@@ -1,6 +1,17 @@
 import React from 'react';
 import styled from 'styled-components';
-import { FiBookOpen, FiShield, FiUsers, FiDatabase, FiKey, FiRefreshCw, FiArrowRight, FiAlertTriangle, FiCheckCircle, FiXCircle } from 'react-icons/fi';
+import {
+	FiBookOpen,
+	FiShield,
+	FiUsers,
+	FiDatabase,
+	FiKey,
+	FiRefreshCw,
+	FiArrowRight,
+	FiAlertTriangle,
+	FiCheckCircle,
+	FiXCircle,
+} from 'react-icons/fi';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -80,24 +91,34 @@ const InfoBox = styled.div<{ type: 'info' | 'warning' | 'success' | 'error' }>`
   border-radius: 8px;
   margin: 1.5rem 0;
   border-left: 4px solid;
-  background: ${props => {
-    switch (props.type) {
-      case 'info': return '#eff6ff';
-      case 'warning': return '#fffbeb';
-      case 'success': return '#f0fdf4';
-      case 'error': return '#fef2f2';
-      default: return '#f9fafb';
-    }
-  }};
-  border-color: ${props => {
-    switch (props.type) {
-      case 'info': return '#3b82f6';
-      case 'warning': return '#f59e0b';
-      case 'success': return '#10b981';
-      case 'error': return '#ef4444';
-      default: return '#6b7280';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.type) {
+			case 'info':
+				return '#eff6ff';
+			case 'warning':
+				return '#fffbeb';
+			case 'success':
+				return '#f0fdf4';
+			case 'error':
+				return '#fef2f2';
+			default:
+				return '#f9fafb';
+		}
+	}};
+  border-color: ${(props) => {
+		switch (props.type) {
+			case 'info':
+				return '#3b82f6';
+			case 'warning':
+				return '#f59e0b';
+			case 'success':
+				return '#10b981';
+			case 'error':
+				return '#ef4444';
+			default:
+				return '#6b7280';
+		}
+	}};
 `;
 
 const InfoBoxContent = styled.div`
@@ -107,15 +128,20 @@ const InfoBoxContent = styled.div`
 `;
 
 const InfoBoxIcon = styled.div<{ type: 'info' | 'warning' | 'success' | 'error' }>`
-  color: ${props => {
-    switch (props.type) {
-      case 'info': return '#3b82f6';
-      case 'warning': return '#f59e0b';
-      case 'success': return '#10b981';
-      case 'error': return '#ef4444';
-      default: return '#6b7280';
-    }
-  }};
+  color: ${(props) => {
+		switch (props.type) {
+			case 'info':
+				return '#3b82f6';
+			case 'warning':
+				return '#f59e0b';
+			case 'success':
+				return '#10b981';
+			case 'error':
+				return '#ef4444';
+			default:
+				return '#6b7280';
+		}
+	}};
   font-size: 1.25rem;
   margin-top: 0.125rem;
 `;
@@ -217,13 +243,13 @@ const DiagramTitle = styled.h4`
 `;
 
 const FlowStep = styled.div<{ $isActive?: boolean }>`
-  background: ${props => props.$isActive ? '#3b82f6' : 'white'};
-  color: ${props => props.$isActive ? 'white' : '#374151'};
+  background: ${(props) => (props.$isActive ? '#3b82f6' : 'white')};
+  color: ${(props) => (props.$isActive ? 'white' : '#374151')};
   padding: 1rem 1.5rem;
   border-radius: 8px;
   margin: 0.5rem;
   display: inline-block;
-  border: 2px solid ${props => props.$isActive ? '#3b82f6' : '#e5e7eb'};
+  border: 2px solid ${(props) => (props.$isActive ? '#3b82f6' : '#e5e7eb')};
   font-weight: 500;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
@@ -247,8 +273,8 @@ const BestPracticeCard = styled.div<{ type: 'do' | 'dont' }>`
   padding: 1.5rem;
   border-radius: 8px;
   border: 2px solid;
-  background: ${props => props.type === 'do' ? '#f0fdf4' : '#fef2f2'};
-  border-color: ${props => props.type === 'do' ? '#10b981' : '#ef4444'};
+  background: ${(props) => (props.type === 'do' ? '#f0fdf4' : '#fef2f2')};
+  border-color: ${(props) => (props.type === 'do' ? '#10b981' : '#ef4444')};
 `;
 
 const BestPracticeHeader = styled.div<{ type: 'do' | 'dont' }>`
@@ -256,7 +282,7 @@ const BestPracticeHeader = styled.div<{ type: 'do' | 'dont' }>`
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 1rem;
-  color: ${props => props.type === 'do' ? '#059669' : '#dc2626'};
+  color: ${(props) => (props.type === 'do' ? '#059669' : '#dc2626')};
   font-weight: 600;
   font-size: 1.1rem;
 `;
@@ -267,203 +293,251 @@ const BestPracticeContent = styled.div`
 `;
 
 const ScopesBestPractices: React.FC = () => {
-  return (
-    <Container>
-      <Header>
-        <Title>
-          <FiShield />
-          Best Practices on Scopes
-        </Title>
-        <Subtitle>
-          Comprehensive guide to designing, implementing, and managing OAuth 2.0 scopes at scale
-        </Subtitle>
-      </Header>
+	return (
+		<Container>
+			<Header>
+				<Title>
+					<FiShield />
+					Best Practices on Scopes
+				</Title>
+				<Subtitle>
+					Comprehensive guide to designing, implementing, and managing OAuth 2.0 scopes at scale
+				</Subtitle>
+			</Header>
 
-      <Content>
-        <Section>
-          <SectionTitle>
-            <FiBookOpen />
-            What are OAuth 2.0 Scopes?
-          </SectionTitle>
-          
-          <Paragraph>
-            OAuth 2.0 scopes are strings issued to access tokens that define the specific permissions 
-            a client application has when accessing protected resources. They act as a high-level 
-            authorization mechanism, restricting what APIs and operations a client can perform.
-          </Paragraph>
+			<Content>
+				<Section>
+					<SectionTitle>
+						<FiBookOpen />
+						What are OAuth 2.0 Scopes?
+					</SectionTitle>
 
-          <InfoBox type="info">
-            <InfoBoxContent>
-              <InfoBoxIcon type="info">
-                <FiKey />
-              </InfoBoxIcon>
-              <InfoBoxText>
-                <InfoBoxTitle>Scope Purpose</InfoBoxTitle>
-                <InfoBoxDescription>
-                  Scopes provide granular access control by defining both the type of resource and 
-                  the operations allowed on that resource. They are essential for API security and 
-                  user privacy protection.
-                </InfoBoxDescription>
-              </InfoBoxText>
-            </InfoBoxContent>
-          </InfoBox>
+					<Paragraph>
+						OAuth 2.0 scopes are strings issued to access tokens that define the specific
+						permissions a client application has when accessing protected resources. They act as a
+						high-level authorization mechanism, restricting what APIs and operations a client can
+						perform.
+					</Paragraph>
 
-          <SectionSubtitle>Basic Scope Structure</SectionSubtitle>
-          <Paragraph>
-            A common approach to scope design combines the resource type with the access level required:
-          </Paragraph>
+					<InfoBox type="info">
+						<InfoBoxContent>
+							<InfoBoxIcon type="info">
+								<FiKey />
+							</InfoBoxIcon>
+							<InfoBoxText>
+								<InfoBoxTitle>Scope Purpose</InfoBoxTitle>
+								<InfoBoxDescription>
+									Scopes provide granular access control by defining both the type of resource and
+									the operations allowed on that resource. They are essential for API security and
+									user privacy protection.
+								</InfoBoxDescription>
+							</InfoBoxText>
+						</InfoBoxContent>
+					</InfoBox>
 
-          <Table>
-            <thead>
-              <tr>
-                <TableHeader>Resource Type</TableHeader>
-                <TableHeader>Access Level</TableHeader>
-                <TableHeader>Scope Value</TableHeader>
-                <TableHeader>Example Use Case</TableHeader>
-              </tr>
-            </thead>
-            <tbody>
-              <TableRow>
-                <TableCell><InlineCode>order</InlineCode></TableCell>
-                <TableCell><InlineCode>read</InlineCode></TableCell>
-                <TableCell><InlineCode>order:read</InlineCode></TableCell>
-                <TableCell>View customer orders</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell><InlineCode>user</InlineCode></TableCell>
-                <TableCell><InlineCode>write</InlineCode></TableCell>
-                <TableCell><InlineCode>user:write</InlineCode></TableCell>
-                <TableCell>Update user profile</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell><InlineCode>payment</InlineCode></TableCell>
-                <TableCell><InlineCode>process</InlineCode></TableCell>
-                <TableCell><InlineCode>payment:process</InlineCode></TableCell>
-                <TableCell>Process transactions</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell><InlineCode>inventory</InlineCode></TableCell>
-                <TableCell><InlineCode>manage</InlineCode></TableCell>
-                <TableCell><InlineCode>inventory:manage</InlineCode></TableCell>
-                <TableCell>Full inventory control</TableCell>
-              </TableRow>
-            </tbody>
-          </Table>
-        </Section>
+					<SectionSubtitle>Basic Scope Structure</SectionSubtitle>
+					<Paragraph>
+						A common approach to scope design combines the resource type with the access level
+						required:
+					</Paragraph>
 
-        <Section>
-          <SectionTitle>
-            <FiUsers />
-            Scopes in Real-World Systems
-          </SectionTitle>
+					<Table>
+						<thead>
+							<tr>
+								<TableHeader>Resource Type</TableHeader>
+								<TableHeader>Access Level</TableHeader>
+								<TableHeader>Scope Value</TableHeader>
+								<TableHeader>Example Use Case</TableHeader>
+							</tr>
+						</thead>
+						<tbody>
+							<TableRow>
+								<TableCell>
+									<InlineCode>order</InlineCode>
+								</TableCell>
+								<TableCell>
+									<InlineCode>read</InlineCode>
+								</TableCell>
+								<TableCell>
+									<InlineCode>order:read</InlineCode>
+								</TableCell>
+								<TableCell>View customer orders</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell>
+									<InlineCode>user</InlineCode>
+								</TableCell>
+								<TableCell>
+									<InlineCode>write</InlineCode>
+								</TableCell>
+								<TableCell>
+									<InlineCode>user:write</InlineCode>
+								</TableCell>
+								<TableCell>Update user profile</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell>
+									<InlineCode>payment</InlineCode>
+								</TableCell>
+								<TableCell>
+									<InlineCode>process</InlineCode>
+								</TableCell>
+								<TableCell>
+									<InlineCode>payment:process</InlineCode>
+								</TableCell>
+								<TableCell>Process transactions</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell>
+									<InlineCode>inventory</InlineCode>
+								</TableCell>
+								<TableCell>
+									<InlineCode>manage</InlineCode>
+								</TableCell>
+								<TableCell>
+									<InlineCode>inventory:manage</InlineCode>
+								</TableCell>
+								<TableCell>Full inventory control</TableCell>
+							</TableRow>
+						</tbody>
+					</Table>
+				</Section>
 
-          <Paragraph>
-            Modern organizations typically develop multiple APIs and clients across different business areas. 
-            Each component needs proper scope configuration to ensure secure access control.
-          </Paragraph>
+				<Section>
+					<SectionTitle>
+						<FiUsers />
+						Scopes in Real-World Systems
+					</SectionTitle>
 
-          <DiagramContainer>
-            <DiagramTitle>Example Business Scenario: API Scopes and Clients</DiagramTitle>
-            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '1rem' }}>
-              <FlowStep $isActive>Customer App</FlowStep>
-              <FlowArrow></FlowArrow>
-              <FlowStep>Orders API</FlowStep>
-              <FlowArrow></FlowArrow>
-              <FlowStep>Inventory API</FlowStep>
-            </div>
-            <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
-              <strong>Scopes:</strong> <InlineCode>orders:read</InlineCode>, <InlineCode>orders:write</InlineCode>, <InlineCode>inventory:read</InlineCode>
-            </div>
-          </DiagramContainer>
+					<Paragraph>
+						Modern organizations typically develop multiple APIs and clients across different
+						business areas. Each component needs proper scope configuration to ensure secure access
+						control.
+					</Paragraph>
 
-          <SectionSubtitle>Client Configuration</SectionSubtitle>
-          <Paragraph>
-            Each client must be configured with appropriate scopes to restrict its API privileges. 
-            The scopes in an access token represent the current API privileges available to the client.
-          </Paragraph>
+					<DiagramContainer>
+						<DiagramTitle>Example Business Scenario: API Scopes and Clients</DiagramTitle>
+						<div
+							style={{
+								display: 'flex',
+								flexWrap: 'wrap',
+								justifyContent: 'center',
+								alignItems: 'center',
+								gap: '1rem',
+							}}
+						>
+							<FlowStep $isActive>Customer App</FlowStep>
+							<FlowArrow></FlowArrow>
+							<FlowStep>Orders API</FlowStep>
+							<FlowArrow></FlowArrow>
+							<FlowStep>Inventory API</FlowStep>
+						</div>
+						<div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
+							<strong>Scopes:</strong> <InlineCode>orders:read</InlineCode>,{' '}
+							<InlineCode>orders:write</InlineCode>, <InlineCode>inventory:read</InlineCode>
+						</div>
+					</DiagramContainer>
 
-          <BestPracticeGrid>
-            <BestPracticeCard type="do">
-              <BestPracticeHeader type="do">
-                <FiCheckCircle />
-                 Do: Configure Scopes by Business Area
-              </BestPracticeHeader>
-              <BestPracticeContent>
-                <strong>Example:</strong> Use business-focused scopes like <InlineCode>orders</InlineCode>, 
-                <InlineCode>payments</InlineCode>, <InlineCode>inventory</InlineCode> rather than technical 
-                scopes like <InlineCode>api1</InlineCode>, <InlineCode>api2</InlineCode>.
-              </BestPracticeContent>
-            </BestPracticeCard>
+					<SectionSubtitle>Client Configuration</SectionSubtitle>
+					<Paragraph>
+						Each client must be configured with appropriate scopes to restrict its API privileges.
+						The scopes in an access token represent the current API privileges available to the
+						client.
+					</Paragraph>
 
-            <BestPracticeCard type="dont">
-              <BestPracticeHeader type="dont">
-                <FiXCircle />
-                 Don't: Use Technical API Names
-              </BestPracticeHeader>
-              <BestPracticeContent>
-                <strong>Avoid:</strong> Technical scope names that tie to specific API implementations 
-                or microservice architectures. This creates tight coupling and reduces flexibility.
-              </BestPracticeContent>
-            </BestPracticeCard>
-          </BestPracticeGrid>
-        </Section>
+					<BestPracticeGrid>
+						<BestPracticeCard type="do">
+							<BestPracticeHeader type="do">
+								<FiCheckCircle />
+								Do: Configure Scopes by Business Area
+							</BestPracticeHeader>
+							<BestPracticeContent>
+								<strong>Example:</strong> Use business-focused scopes like{' '}
+								<InlineCode>orders</InlineCode>,<InlineCode>payments</InlineCode>,{' '}
+								<InlineCode>inventory</InlineCode> rather than technical scopes like{' '}
+								<InlineCode>api1</InlineCode>, <InlineCode>api2</InlineCode>.
+							</BestPracticeContent>
+						</BestPracticeCard>
 
-        <Section>
-          <SectionTitle>
-            <FiShield />
-            Scope Design Principles
-          </SectionTitle>
+						<BestPracticeCard type="dont">
+							<BestPracticeHeader type="dont">
+								<FiXCircle />
+								Don't: Use Technical API Names
+							</BestPracticeHeader>
+							<BestPracticeContent>
+								<strong>Avoid:</strong> Technical scope names that tie to specific API
+								implementations or microservice architectures. This creates tight coupling and
+								reduces flexibility.
+							</BestPracticeContent>
+						</BestPracticeCard>
+					</BestPracticeGrid>
+				</Section>
 
-          <SectionSubtitle>1. Stability Over Flexibility</SectionSubtitle>
-          <Paragraph>
-            Scopes should remain stable to avoid "scope explosion" - the rapid proliferation of 
-            new scopes as systems evolve. Design scopes to be business-oriented and long-lasting.
-          </Paragraph>
+				<Section>
+					<SectionTitle>
+						<FiShield />
+						Scope Design Principles
+					</SectionTitle>
 
-          <InfoBox type="warning">
-            <InfoBoxContent>
-              <InfoBoxIcon type="warning">
-                <FiAlertTriangle />
-              </InfoBoxIcon>
-              <InfoBoxText>
-                <InfoBoxTitle>Scope Explosion Anti-Pattern</InfoBoxTitle>
-                <InfoBoxDescription>
-                  Avoid creating new scopes for every small API change. Instead, design scopes 
-                  that can accommodate multiple related operations within a business domain.
-                </InfoBoxDescription>
-              </InfoBoxText>
-            </InfoBoxContent>
-          </InfoBox>
+					<SectionSubtitle>1. Stability Over Flexibility</SectionSubtitle>
+					<Paragraph>
+						Scopes should remain stable to avoid "scope explosion" - the rapid proliferation of new
+						scopes as systems evolve. Design scopes to be business-oriented and long-lasting.
+					</Paragraph>
 
-          <SectionSubtitle>2. High-Privilege Scopes</SectionSubtitle>
-          <Paragraph>
-            Some operations require elevated permissions that should only be granted temporarily. 
-            Use high-privilege scopes with appropriate time-to-live configurations.
-          </Paragraph>
+					<InfoBox type="warning">
+						<InfoBoxContent>
+							<InfoBoxIcon type="warning">
+								<FiAlertTriangle />
+							</InfoBoxIcon>
+							<InfoBoxText>
+								<InfoBoxTitle>Scope Explosion Anti-Pattern</InfoBoxTitle>
+								<InfoBoxDescription>
+									Avoid creating new scopes for every small API change. Instead, design scopes that
+									can accommodate multiple related operations within a business domain.
+								</InfoBoxDescription>
+							</InfoBoxText>
+						</InfoBoxContent>
+					</InfoBox>
 
-          <DiagramContainer>
-            <DiagramTitle>High-Privilege Scope Flow</DiagramTitle>
-            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '1rem' }}>
-              <FlowStep>User Action</FlowStep>
-              <FlowArrow></FlowArrow>
-              <FlowStep>Request High-Privilege Scope</FlowStep>
-              <FlowArrow></FlowArrow>
-              <FlowStep $isActive>User Consent</FlowStep>
-              <FlowArrow></FlowArrow>
-              <FlowStep>Access Token with Elevated Permissions</FlowStep>
-            </div>
-            <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
-              <strong>Example:</strong> <InlineCode>payment:process</InlineCode> scope for payment operations
-            </div>
-          </DiagramContainer>
+					<SectionSubtitle>2. High-Privilege Scopes</SectionSubtitle>
+					<Paragraph>
+						Some operations require elevated permissions that should only be granted temporarily.
+						Use high-privilege scopes with appropriate time-to-live configurations.
+					</Paragraph>
 
-          <SectionSubtitle>3. Prefix Scopes for Dynamic Resources</SectionSubtitle>
-          <Paragraph>
-            For advanced scenarios where resource IDs are determined at runtime, use prefix scopes 
-            with a trailing hyphen convention.
-          </Paragraph>
+					<DiagramContainer>
+						<DiagramTitle>High-Privilege Scope Flow</DiagramTitle>
+						<div
+							style={{
+								display: 'flex',
+								flexWrap: 'wrap',
+								justifyContent: 'center',
+								alignItems: 'center',
+								gap: '1rem',
+							}}
+						>
+							<FlowStep>User Action</FlowStep>
+							<FlowArrow></FlowArrow>
+							<FlowStep>Request High-Privilege Scope</FlowStep>
+							<FlowArrow></FlowArrow>
+							<FlowStep $isActive>User Consent</FlowStep>
+							<FlowArrow></FlowArrow>
+							<FlowStep>Access Token with Elevated Permissions</FlowStep>
+						</div>
+						<div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
+							<strong>Example:</strong> <InlineCode>payment:process</InlineCode> scope for payment
+							operations
+						</div>
+					</DiagramContainer>
 
-          <CodeBlock>{`// Configuration in authorization server
+					<SectionSubtitle>3. Prefix Scopes for Dynamic Resources</SectionSubtitle>
+					<Paragraph>
+						For advanced scenarios where resource IDs are determined at runtime, use prefix scopes
+						with a trailing hyphen convention.
+					</Paragraph>
+
+					<CodeBlock>{`// Configuration in authorization server
 transaction-
 
 // Client request at runtime
@@ -473,75 +547,93 @@ transaction-67890
 // Granted scope (always concrete)
 transaction-12345`}</CodeBlock>
 
-          <InfoBox type="info">
-            <InfoBoxContent>
-              <InfoBoxIcon type="info">
-                <FiKey />
-              </InfoBoxIcon>
-              <InfoBoxText>
-                <InfoBoxTitle>Prefix Scope Use Cases</InfoBoxTitle>
-                <InfoBoxDescription>
-                  Useful for Financial-grade scenarios where specific transaction or account IDs 
-                  need to be authorized dynamically. Always results in concrete, specific scopes.
-                </InfoBoxDescription>
-              </InfoBoxText>
-            </InfoBoxContent>
-          </InfoBox>
-        </Section>
+					<InfoBox type="info">
+						<InfoBoxContent>
+							<InfoBoxIcon type="info">
+								<FiKey />
+							</InfoBoxIcon>
+							<InfoBoxText>
+								<InfoBoxTitle>Prefix Scope Use Cases</InfoBoxTitle>
+								<InfoBoxDescription>
+									Useful for Financial-grade scenarios where specific transaction or account IDs
+									need to be authorized dynamically. Always results in concrete, specific scopes.
+								</InfoBoxDescription>
+							</InfoBoxText>
+						</InfoBoxContent>
+					</InfoBox>
+				</Section>
 
-        <Section>
-          <SectionTitle>
-            <FiRefreshCw />
-            Token Exchange and Scope Management
-          </SectionTitle>
+				<Section>
+					<SectionTitle>
+						<FiRefreshCw />
+						Token Exchange and Scope Management
+					</SectionTitle>
 
-          <Paragraph>
-            When APIs need to call other APIs, you have two main approaches: forwarding tokens 
-            or using token exchange to obtain new tokens with different scopes.
-          </Paragraph>
+					<Paragraph>
+						When APIs need to call other APIs, you have two main approaches: forwarding tokens or
+						using token exchange to obtain new tokens with different scopes.
+					</Paragraph>
 
-          <SectionSubtitle>Simple Token Forwarding</SectionSubtitle>
-          <Paragraph>
-            For small microservices setups, forwarding the original access token works well when 
-            each API checks for its required scopes.
-          </Paragraph>
+					<SectionSubtitle>Simple Token Forwarding</SectionSubtitle>
+					<Paragraph>
+						For small microservices setups, forwarding the original access token works well when
+						each API checks for its required scopes.
+					</Paragraph>
 
-          <DiagramContainer>
-            <DiagramTitle>Token Forwarding Approach</DiagramTitle>
-            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '1rem' }}>
-              <FlowStep>Client</FlowStep>
-              <FlowArrow></FlowArrow>
-              <FlowStep>Orders API</FlowStep>
-              <FlowArrow></FlowArrow>
-              <FlowStep>Inventory API</FlowStep>
-            </div>
-            <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
-              <strong>Same Token:</strong> <InlineCode>orders:read</InlineCode>, <InlineCode>inventory:read</InlineCode>
-            </div>
-          </DiagramContainer>
+					<DiagramContainer>
+						<DiagramTitle>Token Forwarding Approach</DiagramTitle>
+						<div
+							style={{
+								display: 'flex',
+								flexWrap: 'wrap',
+								justifyContent: 'center',
+								alignItems: 'center',
+								gap: '1rem',
+							}}
+						>
+							<FlowStep>Client</FlowStep>
+							<FlowArrow></FlowArrow>
+							<FlowStep>Orders API</FlowStep>
+							<FlowArrow></FlowArrow>
+							<FlowStep>Inventory API</FlowStep>
+						</div>
+						<div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
+							<strong>Same Token:</strong> <InlineCode>orders:read</InlineCode>,{' '}
+							<InlineCode>inventory:read</InlineCode>
+						</div>
+					</DiagramContainer>
 
-          <SectionSubtitle>Token Exchange for Downscoping</SectionSubtitle>
-          <Paragraph>
-            For enhanced security, use OAuth token exchange to obtain new tokens with reduced scopes 
-            when calling less trusted upstream APIs.
-          </Paragraph>
+					<SectionSubtitle>Token Exchange for Downscoping</SectionSubtitle>
+					<Paragraph>
+						For enhanced security, use OAuth token exchange to obtain new tokens with reduced scopes
+						when calling less trusted upstream APIs.
+					</Paragraph>
 
-          <DiagramContainer>
-            <DiagramTitle>Token Exchange Flow</DiagramTitle>
-            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '1rem' }}>
-              <FlowStep>Orders API</FlowStep>
-              <FlowArrow></FlowArrow>
-              <FlowStep $isActive>Token Exchange</FlowStep>
-              <FlowArrow></FlowArrow>
-              <FlowStep>Shipping API</FlowStep>
-            </div>
-            <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
-              <strong>Original:</strong> <InlineCode>orders:read orders:write</InlineCode><br/>
-              <strong>Exchanged:</strong> <InlineCode>shipping:write</InlineCode>
-            </div>
-          </DiagramContainer>
+					<DiagramContainer>
+						<DiagramTitle>Token Exchange Flow</DiagramTitle>
+						<div
+							style={{
+								display: 'flex',
+								flexWrap: 'wrap',
+								justifyContent: 'center',
+								alignItems: 'center',
+								gap: '1rem',
+							}}
+						>
+							<FlowStep>Orders API</FlowStep>
+							<FlowArrow></FlowArrow>
+							<FlowStep $isActive>Token Exchange</FlowStep>
+							<FlowArrow></FlowArrow>
+							<FlowStep>Shipping API</FlowStep>
+						</div>
+						<div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
+							<strong>Original:</strong> <InlineCode>orders:read orders:write</InlineCode>
+							<br />
+							<strong>Exchanged:</strong> <InlineCode>shipping:write</InlineCode>
+						</div>
+					</DiagramContainer>
 
-          <CodeBlock>{`curl -X POST https://auth.pingone.com/{env-id}/as/token \\
+					<CodeBlock>{`curl -X POST https://auth.pingone.com/{env-id}/as/token \\
   -H 'Content-Type: application/x-www-form-urlencoded' \\
   -d 'grant_type=urn:ietf:params:oauth:grant-type:token-exchange' \\
   -d 'client_id=forwarding-api' \\
@@ -550,140 +642,157 @@ transaction-12345`}</CodeBlock>
   -d 'subject_token_type=urn:ietf:params:oauth:token-type:access_token' \\
   -d 'scope=shipping.write' \\
   -d 'audience=shipping-api'`}</CodeBlock>
-        </Section>
+				</Section>
 
-        <Section>
-          <SectionTitle>
-            <FiDatabase />
-            Scope Best Practices Summary
-          </SectionTitle>
+				<Section>
+					<SectionTitle>
+						<FiDatabase />
+						Scope Best Practices Summary
+					</SectionTitle>
 
-          <Paragraph>
-            Follow these essential guidelines when designing and implementing scopes in your OAuth 2.0 system:
-          </Paragraph>
+					<Paragraph>
+						Follow these essential guidelines when designing and implementing scopes in your OAuth
+						2.0 system:
+					</Paragraph>
 
-          <BestPracticeGrid>
-            <BestPracticeCard type="do">
-              <BestPracticeHeader type="do">
-                <FiCheckCircle />
-                 Always Use Scopes
-              </BestPracticeHeader>
-              <BestPracticeContent>
-                Always use scopes in APIs and enforce them at every API endpoint. 
-                Return 403 Forbidden when access tokens have insufficient scope.
-              </BestPracticeContent>
-            </BestPracticeCard>
+					<BestPracticeGrid>
+						<BestPracticeCard type="do">
+							<BestPracticeHeader type="do">
+								<FiCheckCircle />
+								Always Use Scopes
+							</BestPracticeHeader>
+							<BestPracticeContent>
+								Always use scopes in APIs and enforce them at every API endpoint. Return 403
+								Forbidden when access tokens have insufficient scope.
+							</BestPracticeContent>
+						</BestPracticeCard>
 
-            <BestPracticeCard type="do">
-              <BestPracticeHeader type="do">
-                <FiCheckCircle />
-                 Enable User Consent
-              </BestPracticeHeader>
-              <BestPracticeContent>
-                Enable user consent when users need to grant scope-based access to third-party clients. 
-                This ensures transparency and user control over data sharing.
-              </BestPracticeContent>
-            </BestPracticeCard>
+						<BestPracticeCard type="do">
+							<BestPracticeHeader type="do">
+								<FiCheckCircle />
+								Enable User Consent
+							</BestPracticeHeader>
+							<BestPracticeContent>
+								Enable user consent when users need to grant scope-based access to third-party
+								clients. This ensures transparency and user control over data sharing.
+							</BestPracticeContent>
+						</BestPracticeCard>
 
-            <BestPracticeCard type="do">
-              <BestPracticeHeader type="do">
-                <FiCheckCircle />
-                 Use Business Areas
-              </BestPracticeHeader>
-              <BestPracticeContent>
-                Consider using API business areas as scopes rather than technical implementation details. 
-                This creates more maintainable and understandable authorization policies.
-              </BestPracticeContent>
-            </BestPracticeCard>
+						<BestPracticeCard type="do">
+							<BestPracticeHeader type="do">
+								<FiCheckCircle />
+								Use Business Areas
+							</BestPracticeHeader>
+							<BestPracticeContent>
+								Consider using API business areas as scopes rather than technical implementation
+								details. This creates more maintainable and understandable authorization policies.
+							</BestPracticeContent>
+						</BestPracticeCard>
 
-            <BestPracticeCard type="do">
-              <BestPracticeHeader type="do">
-                <FiCheckCircle />
-                 Keep Scopes Stable
-              </BestPracticeHeader>
-              <BestPracticeContent>
-                Keep scopes stable to avoid scope explosion. Only add new scopes when adding new 
-                API business areas, not for technical changes.
-              </BestPracticeContent>
-            </BestPracticeCard>
+						<BestPracticeCard type="do">
+							<BestPracticeHeader type="do">
+								<FiCheckCircle />
+								Keep Scopes Stable
+							</BestPracticeHeader>
+							<BestPracticeContent>
+								Keep scopes stable to avoid scope explosion. Only add new scopes when adding new API
+								business areas, not for technical changes.
+							</BestPracticeContent>
+						</BestPracticeCard>
 
-            <BestPracticeCard type="do">
-              <BestPracticeHeader type="do">
-                <FiCheckCircle />
-                 Design for End-to-End Flows
-              </BestPracticeHeader>
-              <BestPracticeContent>
-                Design scopes so they work for end-to-end flows using multiple APIs. Consider 
-                how tokens will be shared or exchanged between services.
-              </BestPracticeContent>
-            </BestPracticeCard>
+						<BestPracticeCard type="do">
+							<BestPracticeHeader type="do">
+								<FiCheckCircle />
+								Design for End-to-End Flows
+							</BestPracticeHeader>
+							<BestPracticeContent>
+								Design scopes so they work for end-to-end flows using multiple APIs. Consider how
+								tokens will be shared or exchanged between services.
+							</BestPracticeContent>
+						</BestPracticeCard>
 
-            <BestPracticeCard type="do">
-              <BestPracticeHeader type="do">
-                <FiCheckCircle />
-                 Use Token Exchange
-              </BestPracticeHeader>
-              <BestPracticeContent>
-                Use token exchange to downgrade scopes when calling less trusted upstream APIs. 
-                This follows the principle of least privilege.
-              </BestPracticeContent>
-            </BestPracticeCard>
-          </BestPracticeGrid>
+						<BestPracticeCard type="do">
+							<BestPracticeHeader type="do">
+								<FiCheckCircle />
+								Use Token Exchange
+							</BestPracticeHeader>
+							<BestPracticeContent>
+								Use token exchange to downgrade scopes when calling less trusted upstream APIs. This
+								follows the principle of least privilege.
+							</BestPracticeContent>
+						</BestPracticeCard>
+					</BestPracticeGrid>
 
-          <InfoBox type="success">
-            <InfoBoxContent>
-              <InfoBoxIcon type="success">
-                <FiShield />
-              </InfoBoxIcon>
-              <InfoBoxText>
-                <InfoBoxTitle>Complete Authorization Solution</InfoBoxTitle>
-                <InfoBoxDescription>
-                  Remember that scopes provide high-level access control but do not provide a complete 
-                  API authorization solution. Combine scopes with claims and other authorization mechanisms 
-                  for comprehensive security.
-                </InfoBoxDescription>
-              </InfoBoxText>
-            </InfoBoxContent>
-          </InfoBox>
-        </Section>
+					<InfoBox type="success">
+						<InfoBoxContent>
+							<InfoBoxIcon type="success">
+								<FiShield />
+							</InfoBoxIcon>
+							<InfoBoxText>
+								<InfoBoxTitle>Complete Authorization Solution</InfoBoxTitle>
+								<InfoBoxDescription>
+									Remember that scopes provide high-level access control but do not provide a
+									complete API authorization solution. Combine scopes with claims and other
+									authorization mechanisms for comprehensive security.
+								</InfoBoxDescription>
+							</InfoBoxText>
+						</InfoBoxContent>
+					</InfoBox>
+				</Section>
 
-        <Section>
-          <SectionTitle>
-            <FiArrowRight />
-            Next Steps
-          </SectionTitle>
+				<Section>
+					<SectionTitle>
+						<FiArrowRight />
+						Next Steps
+					</SectionTitle>
 
-          <Paragraph>
-            Now that you understand scope best practices, consider these next steps for your OAuth 2.0 implementation:
-          </Paragraph>
+					<Paragraph>
+						Now that you understand scope best practices, consider these next steps for your OAuth
+						2.0 implementation:
+					</Paragraph>
 
-          <List>
-            <ListItem><strong>Implement Claims Best Practices:</strong> Learn how to use claims for detailed API authorization alongside scopes.</ListItem>
-            <ListItem><strong>Review Your Current Scopes:</strong> Audit existing scope implementations against these best practices.</ListItem>
-            <ListItem><strong>Plan Token Exchange:</strong> Design token exchange flows for multi-API scenarios.</ListItem>
-            <ListItem><strong>Configure Scope Time-to-Live:</strong> Set appropriate expiration times for high-privilege scopes.</ListItem>
-            <ListItem><strong>Test Scope Enforcement:</strong> Ensure all API endpoints properly validate and enforce scope requirements.</ListItem>
-          </List>
+					<List>
+						<ListItem>
+							<strong>Implement Claims Best Practices:</strong> Learn how to use claims for detailed
+							API authorization alongside scopes.
+						</ListItem>
+						<ListItem>
+							<strong>Review Your Current Scopes:</strong> Audit existing scope implementations
+							against these best practices.
+						</ListItem>
+						<ListItem>
+							<strong>Plan Token Exchange:</strong> Design token exchange flows for multi-API
+							scenarios.
+						</ListItem>
+						<ListItem>
+							<strong>Configure Scope Time-to-Live:</strong> Set appropriate expiration times for
+							high-privilege scopes.
+						</ListItem>
+						<ListItem>
+							<strong>Test Scope Enforcement:</strong> Ensure all API endpoints properly validate
+							and enforce scope requirements.
+						</ListItem>
+					</List>
 
-          <InfoBox type="info">
-            <InfoBoxContent>
-              <InfoBoxIcon type="info">
-                <FiBookOpen />
-              </InfoBoxIcon>
-              <InfoBoxText>
-                <InfoBoxTitle>Additional Resources</InfoBoxTitle>
-                <InfoBoxDescription>
-                  For more detailed information on OAuth 2.0 and OpenID Connect implementation, 
-                  explore the other documentation pages in this playground, including OIDC Specs, 
-                  Security Best Practices, and OIDC for AI applications.
-                </InfoBoxDescription>
-              </InfoBoxText>
-            </InfoBoxContent>
-          </InfoBox>
-        </Section>
-      </Content>
-    </Container>
-  );
+					<InfoBox type="info">
+						<InfoBoxContent>
+							<InfoBoxIcon type="info">
+								<FiBookOpen />
+							</InfoBoxIcon>
+							<InfoBoxText>
+								<InfoBoxTitle>Additional Resources</InfoBoxTitle>
+								<InfoBoxDescription>
+									For more detailed information on OAuth 2.0 and OpenID Connect implementation,
+									explore the other documentation pages in this playground, including OIDC Specs,
+									Security Best Practices, and OIDC for AI applications.
+								</InfoBoxDescription>
+							</InfoBoxText>
+						</InfoBoxContent>
+					</InfoBox>
+				</Section>
+			</Content>
+		</Container>
+	);
 };
 
 export default ScopesBestPractices;

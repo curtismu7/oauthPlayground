@@ -72,7 +72,7 @@ const TitleText = styled.h2`
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text-primary, #111827);
   display: flex;
   align-items: center;
   gap: 0.5rem;
