@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useId } from 'react';
 import { FiCheck, FiCopy, FiExternalLink, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 import ColorCodedURL from './ColorCodedURL';
@@ -243,6 +243,7 @@ const AuthorizationRequestModal: React.FC<AuthorizationRequestModalProps> = ({
 	authorizationUrl,
 	requestParams,
 }) => {
+	const checkboxId = useId();
 	const [copied, setCopied] = React.useState(false);
 	const [dontShowAgain, setDontShowAgain] = React.useState(false);
 
@@ -349,11 +350,11 @@ const AuthorizationRequestModal: React.FC<AuthorizationRequestModalProps> = ({
 					<CheckboxContainer>
 						<input
 							type="checkbox"
-							id="dontShowAgain"
+							id={checkboxId}
 							checked={dontShowAgain}
 							onChange={(e) => setDontShowAgain(e.target.checked)}
 						/>
-						<label htmlFor="dontShowAgain">Do not show this modal again</label>
+						<label htmlFor={checkboxId}>Do not show this modal again</label>
 					</CheckboxContainer>
 
 					<ActionButtons>
