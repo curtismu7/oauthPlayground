@@ -19,7 +19,7 @@ export interface QRCodeOptions {
 export async function generateQRCode(url: string, options: QRCodeOptions = {}): Promise<string> {
 	const { size = 200, margin = 4 } = options;
 
-	logger.info('QR-CODE', 'Generating QR code', { url: url.substring(0, 50) + '...', size });
+	logger.info('QR-CODE', 'Generating QR code', { url: `${url.substring(0, 50)}...`, size });
 
 	try {
 		// For now, we'll create a placeholder QR code using a simple canvas

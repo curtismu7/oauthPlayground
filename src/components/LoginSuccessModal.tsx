@@ -1,7 +1,7 @@
 // src/components/LoginSuccessModal.tsx
 import React from 'react';
-import styled from 'styled-components';
 import { FiCheckCircle, FiX } from 'react-icons/fi';
+import styled from 'styled-components';
 
 interface LoginSuccessModalProps {
 	isOpen: boolean;
@@ -182,17 +182,15 @@ const LoginSuccessModal: React.FC<LoginSuccessModalProps> = ({
 				<CloseButton onClick={handleClose} aria-label="Close modal">
 					<FiX size={20} />
 				</CloseButton>
-				
+
 				<SuccessIcon>
 					<FiCheckCircle />
 				</SuccessIcon>
-				
+
 				<ModalTitle>{title}</ModalTitle>
 				<ModalMessage>{message}</ModalMessage>
-				
-				<ActionButton onClick={handleClose}>
-					Continue
-				</ActionButton>
+
+				<ActionButton onClick={handleClose}>Continue</ActionButton>
 			</ModalContainer>
 		</ModalOverlay>
 	);

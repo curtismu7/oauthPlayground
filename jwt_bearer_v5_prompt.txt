@@ -1,0 +1,78 @@
+
+# AI Prompt — OAuth 2.0 JWT Bearer Flow → V5 Parity
+**Version:** 5.0.0 • **Date:** 2025-10-01
+
+## Goal
+Implement the JWT Bearer grant using the V5 shell, styling, components, routing, logging, and security hardening. UX must match Authorize V5. 
+All user messages must use V5 toasts. When tokens are received, push them into the shared Token Management page. 
+**No purple** in any component or accent.
+
+---
+
+## Scope & Deliverables
+- New V5 JWT Bearer module (routes, services, hooks, screens, docs, tests).
+- Support `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer` + `assertion=<signed JWT>`.
+- Token Management integration: emit token data to Token Management page.
+- UI/UX parity with V5; toasts for feedback; no purple theme.
+
+---
+
+## Configuration
+- OIDC_ISSUER
+- JWTB_TOKEN_ENDPOINT (default derived from issuer)
+- JWTB_CLIENT_ID
+- JWTB_SIGNING_ALG (RS256/ES256)
+- JWTB_SIGNING_KID
+- JWTB_PRIVATE_KEY_PEM
+- JWTB_SCOPES
+- JWTB_AUDIENCE
+- Optional: client auth with private_key_jwt
+
+---
+
+## UX Requirements
+- Form with inputs for issuer, client_id, scopes, audience, key details.
+- Submit button triggers build+request flow.
+- Toasts for all feedback:
+  - Info: Building assertion
+  - Success: Token issued
+  - Warn: Token lifetime long
+  - Error: invalid_client, invalid_grant
+- Tokens shown in token bar + decoded JWT view.
+
+---
+
+## Services
+1. Build assertion JWT (iss=sub=client_id, aud=token endpoint, iat/exp, jti).
+2. POST /as/token with grant_type=jwt-bearer and assertion.
+3. Normalize response { accessToken, tokenType, expiresIn, scope }.
+
+---
+
+## Hook
+- useJwtBearer(): state machine idle→building→requesting→success|error.
+- Emit logs + toasts at transitions.
+- On success: push tokens to TokenStore, emit event, navigate('/token-management').
+
+---
+
+## Security & Hardening
+- exp ≤ 180s, enforce jti uniqueness.
+- HTTPS only, CSP, no secret/token logging.
+- Validate JWT access tokens if returned (iss,aud,exp,iat,nbf,alg,kid).
+
+---
+
+## Logging
+- Tag: [🏷️ JWT-BEARER]
+- Example: [INFO] Requesting token at /as/token
+- No secrets in logs.
+
+---
+
+## Acceptance Criteria
+- Pixel parity with V5, no purple used.
+- All feedback uses toasts.
+- Tokens flow into Token Management page.
+- Tokens masked by default, decoded JWT shown if applicable.
+- Tests green, docs updated.

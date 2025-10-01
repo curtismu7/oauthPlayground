@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { FiCheckCircle, FiClock, FiInfo, FiXCircle } from 'react-icons/fi';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiInfo, FiClock, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import { logger } from '../../utils/logger';
 
 const StatusContainer = styled.div`
@@ -64,7 +64,7 @@ const InfoText = styled.p`
 `;
 
 const DeviceCodeStatus: React.FC = () => {
-	const navigate = useNavigate();
+	const _navigate = useNavigate();
 	const location = useLocation();
 	const [status, setStatus] = useState<'info' | 'pending' | 'success' | 'error'>('info');
 	const [message, setMessage] = useState('Device Code Flow Status');

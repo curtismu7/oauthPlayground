@@ -62,7 +62,7 @@ export class PARService {
 
 			// Convert to JSON format for backend proxy
 			const requestBody = this.buildPARRequestBody(request, authMethod);
-			const headers = this.buildPARHeaders(authMethod);
+			const _headers = this.buildPARHeaders(authMethod);
 
 			// Convert FormData to JSON if needed
 			let jsonBody: any = {};
@@ -202,7 +202,7 @@ export class PARService {
 	/**
 	 * Generate client secret JWT for authentication
 	 */
-	private generateClientSecretJWT(request: PARRequest, authMethod: PARAuthMethod): string {
+	private generateClientSecretJWT(request: PARRequest, _authMethod: PARAuthMethod): string {
 		const now = Math.floor(Date.now() / 1000);
 		const header = {
 			alg: 'HS256',
@@ -220,8 +220,7 @@ export class PARService {
 
 		// In a real implementation, you would use a JWT library
 		// For demo purposes, we'll return a mock JWT
-		const mockJWT =
-			btoa(JSON.stringify(header)) + '.' + btoa(JSON.stringify(payload)) + '.' + 'mock_signature';
+		const mockJWT = `${btoa(JSON.stringify(header))}.${btoa(JSON.stringify(payload))}.mock_signature`;
 
 		logger.info('PARService', 'Generated client secret JWT', { jti: payload.jti });
 		return mockJWT;
@@ -267,7 +266,7 @@ export class PARService {
 	 * Generate a unique JTI (JWT ID)
 	 */
 	private generateJTI(): string {
-		return 'jti_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+		return `jti_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
 	}
 
 	/**

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts/NewAuthContext';
+import { FiCheckCircle, FiLoader, FiXCircle } from 'react-icons/fi';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiCheckCircle, FiXCircle, FiLoader } from 'react-icons/fi';
+import { useAuth } from '../../contexts/NewAuthContext';
 import { logger } from '../../utils/logger';
 import { getValidatedCurrentUrl } from '../../utils/urlValidation';
 import OAuthErrorHelper from '../OAuthErrorHelper';
@@ -71,7 +71,7 @@ const StatusMessage = styled.p`
   margin-bottom: 1rem;
 `;
 
-const ErrorDetails = styled.pre`
+const _ErrorDetails = styled.pre`
   background: #f3f4f6;
   color: #1f2937;
   border: 1px solid #d1d5db;
@@ -115,7 +115,9 @@ const AuthzCallback: React.FC = () => {
 					isEnhancedV3 =
 						context?.flow === 'enhanced-authorization-code-v3' ||
 						context?.flow === 'oidc-authorization-code-v3';
-					const isV5 = context?.flow === 'oauth-authorization-code-v5' || context?.flow === 'oidc-authorization-code-v5';
+					const isV5 =
+						context?.flow === 'oauth-authorization-code-v5' ||
+						context?.flow === 'oidc-authorization-code-v5';
 
 					console.log(' [AuthzCallback] Flow context parsing successful:', {
 						flowContext: context?.flow,
@@ -259,7 +261,7 @@ const AuthzCallback: React.FC = () => {
 								setMessage(`Authorization failed: ${urlParams.get('error_description') || error}`);
 								// Redirect back to OAuth V3 flow with error
 								setTimeout(() => {
-									navigate('/flows/oauth-authorization-code-v3?error=' + encodeURIComponent(error));
+									navigate(`/flows/oauth-authorization-code-v3?error=${encodeURIComponent(error)}`);
 								}, 2000);
 								return;
 							}
@@ -296,9 +298,9 @@ const AuthzCallback: React.FC = () => {
 								setStatus('error');
 								// Determine correct V5 flow based on context
 								const isOIDCFlow = context?.flow === 'oidc-authorization-code-v5';
-								const errorPath = isOIDCFlow 
-									? '/flows/oidc-authorization-code-v5?error=' + encodeURIComponent(error)
-									: '/flows/oauth-authorization-code-v5?error=' + encodeURIComponent(error);
+								const errorPath = isOIDCFlow
+									? `/flows/oidc-authorization-code-v5?error=${encodeURIComponent(error)}`
+									: `/flows/oauth-authorization-code-v5?error=${encodeURIComponent(error)}`;
 								setTimeout(() => {
 									navigate(errorPath);
 								}, 2000);
@@ -311,19 +313,21 @@ const AuthzCallback: React.FC = () => {
 								);
 
 								setStatus('success');
-								
+
 								// Determine correct V5 flow based on context
 								const isOIDCFlow = context?.flow === 'oidc-authorization-code-v5';
 								const flowName = isOIDCFlow ? 'OIDC V5' : 'OAuth V5';
 								setMessage(`Authorization successful! Redirecting back to ${flowName} flow...`);
 
 								// Redirect back to correct V5 flow at step 4 (token exchange) with code and state as URL parameters
-								const returnPath = context?.returnPath || (isOIDCFlow 
-									? '/flows/oidc-authorization-code-v5?step=4'
-									: '/flows/oauth-authorization-code-v5?step=4');
+								const returnPath =
+									context?.returnPath ||
+									(isOIDCFlow
+										? '/flows/oidc-authorization-code-v5?step=4'
+										: '/flows/oauth-authorization-code-v5?step=4');
 								const separator = returnPath.includes('?') ? '&' : '?';
 								const fullReturnPath = `${returnPath}${separator}code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
-								
+
 								setTimeout(() => {
 									navigate(fullReturnPath);
 								}, 1500);
@@ -403,7 +407,7 @@ Common causes:
  Malformed authorization URL parameters`;
 
 									// Check if this is specifically an ACR values error
-									if (errorDescription && errorDescription.toLowerCase().includes('acr_values')) {
+									if (errorDescription?.toLowerCase().includes('acr_values')) {
 										errorMessage += `
 
  ACR Values Error Detected:
@@ -494,7 +498,7 @@ Check your PingOne application configuration and ensure all parameters match exa
 						const code = urlParams.get('code');
 						const state = urlParams.get('state');
 
-						let redirectUrl = result.redirectUrl || '/';
+						const redirectUrl = result.redirectUrl || '/';
 
 						console.log(' [AuthzCallback] Debug redirect info:', {
 							code: code ? `${code.substring(0, 10)}...` : 'none',
@@ -544,7 +548,7 @@ Check your PingOne application configuration and ensure all parameters match exa
 		};
 
 		processCallback();
-	}, [location.href, handleCallback, navigate]);
+	}, [handleCallback, navigate]);
 
 	const getStatusIcon = () => {
 		switch (status) {

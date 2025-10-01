@@ -1,17 +1,16 @@
 import React from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
-import styled from 'styled-components';
 import {
-	FiUser,
-	FiKey,
-	FiExternalLink,
 	FiCode,
-	FiShield,
+	FiExternalLink,
+	FiKey,
+	FiLayers,
 	FiLock,
 	FiSmartphone,
+	FiUser,
 	FiZap,
-	FiLayers,
 } from 'react-icons/fi';
+import { Link, Outlet, useLocation } from 'react-router-dom';
+import styled from 'styled-components';
 
 const OIDCContainer = styled.div`
   max-width: 1200px;

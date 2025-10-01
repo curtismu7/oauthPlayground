@@ -43,7 +43,7 @@ export async function requestDeviceAuthorization(
 ): Promise<DeviceAuthorizationResponse> {
 	logger.info('DEVICE-CODE', 'Requesting device authorization', {
 		endpoint,
-		clientId: clientId.substring(0, 8) + '...',
+		clientId: `${clientId.substring(0, 8)}...`,
 		scopes: scope,
 	});
 
@@ -106,7 +106,7 @@ export async function pollTokenEndpoint(
 ): Promise<DeviceTokenResponse> {
 	logger.info('POLLING', 'Starting token polling', {
 		endpoint: tokenEndpoint,
-		deviceCode: deviceCode.substring(0, 8) + '...',
+		deviceCode: `${deviceCode.substring(0, 8)}...`,
 		interval,
 		authMethod: authConfig?.method || 'none',
 	});
@@ -225,7 +225,7 @@ export function validateDeviceAuthorizationResponse(
  * Check if a token response is an error (polling state)
  */
 export function isDeviceTokenError(response: any): response is DeviceTokenError {
-	return response && response.error && typeof response.error === 'string';
+	return response?.error && typeof response.error === 'string';
 }
 
 /**

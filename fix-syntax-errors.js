@@ -4,9 +4,9 @@
  * Fix specific syntax and parsing errors
  */
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -191,7 +191,7 @@ function addMassESLintDisables() {
 
 			// Add file-level disable for no-unused-vars if not already present
 			if (!content.includes('eslint-disable @typescript-eslint/no-unused-vars')) {
-				content = '/* eslint-disable @typescript-eslint/no-unused-vars */\n' + content;
+				content = `/* eslint-disable @typescript-eslint/no-unused-vars */\n${content}`;
 				fs.writeFileSync(fullPath, content, 'utf8');
 				totalFixes++;
 			}

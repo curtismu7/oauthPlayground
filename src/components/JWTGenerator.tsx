@@ -1,13 +1,7 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
-import {
-	jwtGenerator,
-	LoginHintTokenPayload,
-	RequestObjectPayload,
-	ClientSecretJWTPayload,
-	PrivateKeyJWTPayload,
-} from '../utils/jwtGenerator';
+import styled from 'styled-components';
+import { jwtGenerator } from '../utils/jwtGenerator';
 import JWKSConverter from './JWKSConverter';
 
 const GeneratorContainer = styled.div`
@@ -282,7 +276,7 @@ const JWTGenerator: React.FC = () => {
 		expiryMinutes: '5',
 	});
 
-	const [jwksForm, setJwksForm] = useState({
+	const [jwksForm, _setJwksForm] = useState({
 		keys: JSON.stringify(
 			[
 				{
@@ -312,8 +306,8 @@ const JWTGenerator: React.FC = () => {
 				subject: loginHintForm.subject,
 				acrValues: loginHintForm.acrValues || undefined,
 				prompt: loginHintForm.prompt || undefined,
-				maxAge: loginHintForm.maxAge ? parseInt(loginHintForm.maxAge) : undefined,
-				expiryMinutes: parseInt(loginHintForm.expiryMinutes),
+				maxAge: loginHintForm.maxAge ? parseInt(loginHintForm.maxAge, 10) : undefined,
+				expiryMinutes: parseInt(loginHintForm.expiryMinutes, 10),
 			});
 
 			setGeneratedJWT(jwt);
@@ -355,9 +349,9 @@ const JWTGenerator: React.FC = () => {
 					codeChallengeMethod: requestObjectForm.codeChallengeMethod || undefined,
 					acrValues: requestObjectForm.acrValues || undefined,
 					prompt: requestObjectForm.prompt || undefined,
-					maxAge: requestObjectForm.maxAge ? parseInt(requestObjectForm.maxAge) : undefined,
+					maxAge: requestObjectForm.maxAge ? parseInt(requestObjectForm.maxAge, 10) : undefined,
 					uiLocales: requestObjectForm.uiLocales || undefined,
-					expiryMinutes: parseInt(requestObjectForm.expiryMinutes),
+					expiryMinutes: parseInt(requestObjectForm.expiryMinutes, 10),
 				}
 			);
 
@@ -392,7 +386,7 @@ const JWTGenerator: React.FC = () => {
 				{
 					issuer: clientSecretForm.issuer || clientSecretForm.clientId,
 					subject: clientSecretForm.subject || clientSecretForm.clientId,
-					expiryMinutes: parseInt(clientSecretForm.expiryMinutes),
+					expiryMinutes: parseInt(clientSecretForm.expiryMinutes, 10),
 				}
 			);
 
@@ -424,7 +418,7 @@ const JWTGenerator: React.FC = () => {
 					issuer: privateKeyForm.issuer || privateKeyForm.clientId,
 					subject: privateKeyForm.subject || privateKeyForm.clientId,
 					keyId: privateKeyForm.keyId,
-					expiryMinutes: parseInt(privateKeyForm.expiryMinutes),
+					expiryMinutes: parseInt(privateKeyForm.expiryMinutes, 10),
 				}
 			);
 
@@ -456,7 +450,7 @@ const JWTGenerator: React.FC = () => {
 		try {
 			await navigator.clipboard.writeText(generatedJWT);
 			setMessage({ type: 'success', text: 'JWT copied to clipboard' });
-		} catch (error) {
+		} catch (_error) {
 			setMessage({ type: 'error', text: 'Failed to copy to clipboard' });
 		}
 	};
