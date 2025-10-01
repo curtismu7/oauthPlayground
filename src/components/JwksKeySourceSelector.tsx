@@ -8,44 +8,44 @@ import { isPrivateKey } from '../utils/jwksConverter';
 export type JwksKeySource = 'jwks-endpoint' | 'private-key';
 
 interface JwksKeySourceSelectorProps {
-  /** Currently selected key source */
-  value: JwksKeySource;
-  /** Explicit JWKS endpoint URL. If not provided we derive it from the issuer/environment */
-  jwksUrl?: string;
-  /** PingOne environment identifier (UUID) used to derive default JWKS URL */
-  environmentId?: string;
-  /** Optional issuer URL if already known */
-  issuer?: string;
-  /** Fired after JWKS URL copy succeeds */
-  onCopyJwksUrlSuccess?: (url: string) => void;
-  /** Fired after JWKS URL copy fails */
-  onCopyJwksUrlError?: (error: unknown) => void;
-  /** Current PEM private key string */
-  privateKey: string;
-  /** Callback when private key textarea changes */
-  onPrivateKeyChange: (pem: string) => void;
-  /** Generate key button handler */
-  onGenerateKey: () => void;
-  /** Spinner state for generate button */
-  isGeneratingKey?: boolean;
-  /** Whether private key textarea content is currently masked */
-  showPrivateKey: boolean;
-  /** Toggle private key visibility */
-  onTogglePrivateKey: () => void;
-  /** Optional handler to copy private key value */
-  onCopyPrivateKey?: () => void;
-  /** Optional helper shown below private key textarea */
-  privateKeyHelper?: React.ReactNode;
-  /** Optional instructions shown when JWKS endpoint mode is active */
-  jwksInstructions?: React.ReactNode;
-  /** Optional warning banner when configuration is mismatched */
-  configurationWarning?: React.ReactNode;
-  /** Whether to render the configuration warning */
-  showConfigurationWarning?: boolean;
-  /** Optional label overrides */
-  copyButtonLabel?: string;
-  generateKeyLabel?: string;
-  privateKeyLabel?: string;
+	/** Currently selected key source */
+	value: JwksKeySource;
+	/** Explicit JWKS endpoint URL. If not provided we derive it from the issuer/environment */
+	jwksUrl?: string;
+	/** PingOne environment identifier (UUID) used to derive default JWKS URL */
+	environmentId?: string;
+	/** Optional issuer URL if already known */
+	issuer?: string;
+	/** Fired after JWKS URL copy succeeds */
+	onCopyJwksUrlSuccess?: (url: string) => void;
+	/** Fired after JWKS URL copy fails */
+	onCopyJwksUrlError?: (error: unknown) => void;
+	/** Current PEM private key string */
+	privateKey: string;
+	/** Callback when private key textarea changes */
+	onPrivateKeyChange: (pem: string) => void;
+	/** Generate key button handler */
+	onGenerateKey: () => void;
+	/** Spinner state for generate button */
+	isGeneratingKey?: boolean;
+	/** Whether private key textarea content is currently masked */
+	showPrivateKey: boolean;
+	/** Toggle private key visibility */
+	onTogglePrivateKey: () => void;
+	/** Optional handler to copy private key value */
+	onCopyPrivateKey?: () => void;
+	/** Optional helper shown below private key textarea */
+	privateKeyHelper?: React.ReactNode;
+	/** Optional instructions shown when JWKS endpoint mode is active */
+	jwksInstructions?: React.ReactNode;
+	/** Optional warning banner when configuration is mismatched */
+	configurationWarning?: React.ReactNode;
+	/** Whether to render the configuration warning */
+	showConfigurationWarning?: boolean;
+	/** Optional label overrides */
+	copyButtonLabel?: string;
+	generateKeyLabel?: string;
+	privateKeyLabel?: string;
 }
 
 const Container = styled.div`
@@ -250,156 +250,172 @@ const DEFAULT_GENERATE_LABEL = 'Generate Key';
 const DEFAULT_PRIVATE_KEY_LABEL = 'Private Key (PEM Format) *';
 
 const deriveIssuer = (issuer?: string, environmentId?: string): string | undefined => {
-  if (issuer) {
-    return issuer;
-  }
-  if (environmentId) {
-    return `https://auth.pingone.com/${environmentId}/as`;
-  }
-  return undefined;
+	if (issuer) {
+		return issuer;
+	}
+	if (environmentId) {
+		return `https://auth.pingone.com/${environmentId}/as`;
+	}
+	return undefined;
 };
 
 const resolveJwksUrl = (explicit?: string, issuer?: string, environmentId?: string) => {
-  if (explicit) {
-    return explicit;
-  }
-  const derivedIssuer = deriveIssuer(issuer, environmentId);
-  if (!derivedIssuer) {
-    return '';
-  }
-  return buildJWKSUri(derivedIssuer);
+	if (explicit) {
+		return explicit;
+	}
+	const derivedIssuer = deriveIssuer(issuer, environmentId);
+	if (!derivedIssuer) {
+		return '';
+	}
+	return buildJWKSUri(derivedIssuer);
 };
 
 const JwksKeySourceSelector: React.FC<JwksKeySourceSelectorProps> = ({
-  value,
-  jwksUrl,
-  environmentId,
-  issuer,
-  onCopyJwksUrlSuccess,
-  onCopyJwksUrlError,
-  privateKey,
-  onPrivateKeyChange,
-  onGenerateKey,
-  isGeneratingKey,
-  showPrivateKey,
-  onTogglePrivateKey,
-  privateKeyHelper,
-  jwksInstructions,
-  configurationWarning,
-  showConfigurationWarning,
-  copyButtonLabel = DEFAULT_COPY_LABEL,
-  generateKeyLabel = DEFAULT_GENERATE_LABEL,
-  privateKeyLabel = DEFAULT_PRIVATE_KEY_LABEL,
-  onCopyPrivateKey,
+	value,
+	jwksUrl,
+	environmentId,
+	issuer,
+	onCopyJwksUrlSuccess,
+	onCopyJwksUrlError,
+	privateKey,
+	onPrivateKeyChange,
+	onGenerateKey,
+	isGeneratingKey,
+	showPrivateKey,
+	onTogglePrivateKey,
+	privateKeyHelper,
+	jwksInstructions,
+	configurationWarning,
+	showConfigurationWarning,
+	copyButtonLabel = DEFAULT_COPY_LABEL,
+	generateKeyLabel = DEFAULT_GENERATE_LABEL,
+	privateKeyLabel = DEFAULT_PRIVATE_KEY_LABEL,
+	onCopyPrivateKey,
 }) => {
-  const [validationError, setValidationError] = useState<string | null>(null);
-  const resolvedJwksUrl = resolveJwksUrl(jwksUrl, issuer, environmentId);
+	const [validationError, setValidationError] = useState<string | null>(null);
+	const resolvedJwksUrl = resolveJwksUrl(jwksUrl, issuer, environmentId);
 
-  useEffect(() => {
-    if (value === 'jwks-endpoint') {
-      setValidationError(null);
-    }
-  }, [value]);
+	useEffect(() => {
+		if (value === 'jwks-endpoint') {
+			setValidationError(null);
+		}
+	}, [value]);
 
-  const handleCopyJwksUrl = async () => {
-    if (!resolvedJwksUrl) {
-      onCopyJwksUrlError?.(new Error('No JWKS URL available to copy.'));
-      return;
-    }
-    try {
-      await navigator.clipboard.writeText(resolvedJwksUrl);
-      onCopyJwksUrlSuccess?.(resolvedJwksUrl);
-    } catch (error) {
-      onCopyJwksUrlError?.(error);
-    }
-  };
+	const handleCopyJwksUrl = async () => {
+		if (!resolvedJwksUrl) {
+			onCopyJwksUrlError?.(new Error('No JWKS URL available to copy.'));
+			return;
+		}
+		try {
+			await navigator.clipboard.writeText(resolvedJwksUrl);
+			onCopyJwksUrlSuccess?.(resolvedJwksUrl);
+		} catch (error) {
+			onCopyJwksUrlError?.(error);
+		}
+	};
 
-  const handlePrivateKeyChange = (pem: string) => {
-    onPrivateKeyChange(pem);
+	const handlePrivateKeyChange = (pem: string) => {
+		onPrivateKeyChange(pem);
 
-    if (!pem.trim()) {
-      setValidationError('Private key required when using Upload Private Key.');
-      return;
-    }
+		if (!pem.trim()) {
+			setValidationError('Private key required when using Upload Private Key.');
+			return;
+		}
 
-    if (!isPrivateKey(pem.trim())) {
-      setValidationError('Private key must be valid PEM format.');
-      return;
-    }
+		if (!isPrivateKey(pem.trim())) {
+			setValidationError('Private key must be valid PEM format.');
+			return;
+		}
 
-    setValidationError(null);
-  };
+		setValidationError(null);
+	};
 
-  return (
-    <Container>
-      {value === 'jwks-endpoint' && (
-        <div>
-          <p style={{ margin: '0 0 0.75rem 0', color: '#047857', fontSize: '0.875rem' }}>
-            PingOne will fetch the public key from your JWKS endpoint. No private key upload needed.
-            <br />
-            <br />
-            <strong> Public URL Required:</strong> PingOne needs to access your JWKS endpoint from their servers, so it must be publicly accessible (not localhost).
-          </p>
-          <Instructions>
-            <Label style={{ marginBottom: '0.5rem', display: 'block' }}>Your JWKS Endpoint URL:</Label>
-            <JwksUrlBox>
-              <UrlCode>{resolvedJwksUrl || 'Provide environment details to compute JWKS URL'}</UrlCode>
-              <CopyButton type="button" onClick={handleCopyJwksUrl} title="Copy JWKS Endpoint URL">
-                <FiCopy size={14} />
-                {copyButtonLabel}
-              </CopyButton>
-            </JwksUrlBox>
-            {jwksInstructions}
-          </Instructions>
-          {showConfigurationWarning && configurationWarning && <Warning>{configurationWarning}</Warning>}
-        </div>
-      )}
+	return (
+		<Container>
+			{value === 'jwks-endpoint' && (
+				<div>
+					<p style={{ margin: '0 0 0.75rem 0', color: '#047857', fontSize: '0.875rem' }}>
+						PingOne will fetch the public key from your JWKS endpoint. No private key upload needed.
+						<br />
+						<br />
+						<strong> Public URL Required:</strong> PingOne needs to access your JWKS endpoint from
+						their servers, so it must be publicly accessible (not localhost).
+					</p>
+					<Instructions>
+						<Label style={{ marginBottom: '0.5rem', display: 'block' }}>
+							Your JWKS Endpoint URL:
+						</Label>
+						<JwksUrlBox>
+							<UrlCode>
+								{resolvedJwksUrl || 'Provide environment details to compute JWKS URL'}
+							</UrlCode>
+							<CopyButton type="button" onClick={handleCopyJwksUrl} title="Copy JWKS Endpoint URL">
+								<FiCopy size={14} />
+								{copyButtonLabel}
+							</CopyButton>
+						</JwksUrlBox>
+						{jwksInstructions}
+					</Instructions>
+					{showConfigurationWarning && configurationWarning && (
+						<Warning>{configurationWarning}</Warning>
+					)}
+				</div>
+			)}
 
-      {value === 'private-key' && (
-        <PrivateKeyContainer>
-          <PrivateKeyHeader>
-            <Label>{privateKeyLabel}</Label>
-            <GenerateButton type="button" onClick={onGenerateKey} disabled={isGeneratingKey}>
-              {isGeneratingKey ? (
-                <>
-                  <Spinner />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <FiKey size={14} />
-                  {generateKeyLabel}
-                </>
-              )}
-            </GenerateButton>
-          </PrivateKeyHeader>
-          <p style={{ margin: '0 0 0.75rem 0', color: '#047857', fontSize: '0.875rem' }}>
-            Upload the private key directly to PingOne. Copy the key from below.
-          </p>
-          <PrivateKeyWrapper>
-            <PrivateKeyArea
-              value={privateKey}
-              onChange={(event) => handlePrivateKeyChange(event.target.value)}
-              placeholder={'-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC...'}
-              style={{ paddingRight: showPrivateKey ? '6rem' : '4rem' }}
-            />
-            <ToggleSecretButton type="button" onClick={onTogglePrivateKey} title={showPrivateKey ? 'Hide private key' : 'Show private key'}>
-              {showPrivateKey ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-            </ToggleSecretButton>
-            {onCopyPrivateKey && privateKey && (
-              <CopyPrivateKeyButton type="button" onClick={onCopyPrivateKey} title="Copy Private Key">
-                <FiCopy size={16} />
-              </CopyPrivateKeyButton>
-            )}
-          </PrivateKeyWrapper>
-          {validationError && <ErrorText>{validationError}</ErrorText>}
-          {privateKeyHelper && <Helper>{privateKeyHelper}</Helper>}
-        </PrivateKeyContainer>
-      )}
-    </Container>
-  );
+			{value === 'private-key' && (
+				<PrivateKeyContainer>
+					<PrivateKeyHeader>
+						<Label>{privateKeyLabel}</Label>
+						<GenerateButton type="button" onClick={onGenerateKey} disabled={isGeneratingKey}>
+							{isGeneratingKey ? (
+								<>
+									<Spinner />
+									Generating...
+								</>
+							) : (
+								<>
+									<FiKey size={14} />
+									{generateKeyLabel}
+								</>
+							)}
+						</GenerateButton>
+					</PrivateKeyHeader>
+					<p style={{ margin: '0 0 0.75rem 0', color: '#047857', fontSize: '0.875rem' }}>
+						Upload the private key directly to PingOne. Copy the key from below.
+					</p>
+					<PrivateKeyWrapper>
+						<PrivateKeyArea
+							value={privateKey}
+							onChange={(event) => handlePrivateKeyChange(event.target.value)}
+							placeholder={
+								'-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC...'
+							}
+							style={{ paddingRight: showPrivateKey ? '6rem' : '4rem' }}
+						/>
+						<ToggleSecretButton
+							type="button"
+							onClick={onTogglePrivateKey}
+							title={showPrivateKey ? 'Hide private key' : 'Show private key'}
+						>
+							{showPrivateKey ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+						</ToggleSecretButton>
+						{onCopyPrivateKey && privateKey && (
+							<CopyPrivateKeyButton
+								type="button"
+								onClick={onCopyPrivateKey}
+								title="Copy Private Key"
+							>
+								<FiCopy size={16} />
+							</CopyPrivateKeyButton>
+						)}
+					</PrivateKeyWrapper>
+					{validationError && <ErrorText>{validationError}</ErrorText>}
+					{privateKeyHelper && <Helper>{privateKeyHelper}</Helper>}
+				</PrivateKeyContainer>
+			)}
+		</Container>
+	);
 };
 
 // TODO: Validate pasted JWKS/private key using jwks utilities before export
 export default JwksKeySourceSelector;
-

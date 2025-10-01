@@ -4,153 +4,153 @@
  * Detailed analysis of unused code with recommendations for cleanup
  */
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 console.log('🔍 DETAILED UNUSED CODE ANALYSIS\n');
-console.log('=' .repeat(60));
+console.log('='.repeat(60));
 
 // Categories of unused files
 const unusedFileCategories = {
-  'Completely Unused Pages': [
-    'src/pages/Flows.tsx',
-    'src/pages/OIDC.tsx', 
-    'src/pages/TokenInspector.new.tsx',
-    'src/pages/docs/OAuth2SecurityBestPractices.tsx',
-    'src/pages/flows/ResourceOwnerPasswordFlow.tsx'
-  ],
-  
-  'Unused Type Definitions': [
-    'src/types/flowTypes.ts',
-    'src/types/oauth.ts',
-    'src/types/oauthErrors.ts',
-    'src/types/oauthFlows.ts',
-    'src/types/storage.ts',
-    'src/types/token-inspector.ts',
-    'src/types/url.ts'
-  ],
-  
-  'Unused Utility Modules': [
-    'src/utils/activityTracker.ts',
-    'src/utils/callbackUrls.ts',
-    'src/utils/clientAuthentication.ts',
-    'src/utils/clientLogger.ts',
-    'src/utils/clipboard.ts',
-    'src/utils/crypto.ts',
-    'src/utils/enhancedDebug.ts',
-    'src/utils/errorRecovery.ts',
-    'src/utils/flowConfiguration.ts',
-    'src/utils/flowStepSystem.ts',
-    'src/utils/jwt.ts',
-    'src/utils/jwtGenerator.ts',
-    'src/utils/logger.ts',
-    'src/utils/oidcCompliance.ts',
-    'src/utils/performance.ts',
-    'src/utils/pingoneErrorInterpreter.ts',
-    'src/utils/scrollManager.ts',
-    'src/utils/secureJson.ts',
-    'src/utils/tokenHistory.ts',
-    'src/utils/tokenSourceTracker.ts'
-  ],
-  
-  'Unused Style/Config Files': [
-    'src/services/config.ts',
-    'src/styles/global.ts',
-    'src/styles/styled.d.ts',
-    'src/theme.d.ts',
-    'src/vite-env.d.ts'
-  ]
+	'Completely Unused Pages': [
+		'src/pages/Flows.tsx',
+		'src/pages/OIDC.tsx',
+		'src/pages/TokenInspector.new.tsx',
+		'src/pages/docs/OAuth2SecurityBestPractices.tsx',
+		'src/pages/flows/ResourceOwnerPasswordFlow.tsx',
+	],
+
+	'Unused Type Definitions': [
+		'src/types/flowTypes.ts',
+		'src/types/oauth.ts',
+		'src/types/oauthErrors.ts',
+		'src/types/oauthFlows.ts',
+		'src/types/storage.ts',
+		'src/types/token-inspector.ts',
+		'src/types/url.ts',
+	],
+
+	'Unused Utility Modules': [
+		'src/utils/activityTracker.ts',
+		'src/utils/callbackUrls.ts',
+		'src/utils/clientAuthentication.ts',
+		'src/utils/clientLogger.ts',
+		'src/utils/clipboard.ts',
+		'src/utils/crypto.ts',
+		'src/utils/enhancedDebug.ts',
+		'src/utils/errorRecovery.ts',
+		'src/utils/flowConfiguration.ts',
+		'src/utils/flowStepSystem.ts',
+		'src/utils/jwt.ts',
+		'src/utils/jwtGenerator.ts',
+		'src/utils/logger.ts',
+		'src/utils/oidcCompliance.ts',
+		'src/utils/performance.ts',
+		'src/utils/pingoneErrorInterpreter.ts',
+		'src/utils/scrollManager.ts',
+		'src/utils/secureJson.ts',
+		'src/utils/tokenHistory.ts',
+		'src/utils/tokenSourceTracker.ts',
+	],
+
+	'Unused Style/Config Files': [
+		'src/services/config.ts',
+		'src/styles/global.ts',
+		'src/styles/styled.d.ts',
+		'src/theme.d.ts',
+		'src/vite-env.d.ts',
+	],
 };
 
 // High-impact unused components
 const highImpactUnusedComponents = [
-  'src/components/CachingDashboard.tsx',
-  'src/components/EnhancedStepFlowV2.tsx',
-  'src/components/FlowBadge.tsx',
-  'src/components/LazyLoadingFallback.tsx',
-  'src/components/LoadingSpinner.tsx',
-  'src/components/MessageExamples.tsx',
-  'src/components/MobileResponsiveness.tsx',
-  'src/components/OAuthErrorHelper.tsx',
-  'src/components/ServerStatusProvider.tsx',
-  'src/components/StandardMessage.tsx',
-  'src/components/UXEnhancements.tsx',
-  'src/components/UserFriendlyError.tsx'
+	'src/components/CachingDashboard.tsx',
+	'src/components/EnhancedStepFlowV2.tsx',
+	'src/components/FlowBadge.tsx',
+	'src/components/LazyLoadingFallback.tsx',
+	'src/components/LoadingSpinner.tsx',
+	'src/components/MessageExamples.tsx',
+	'src/components/MobileResponsiveness.tsx',
+	'src/components/OAuthErrorHelper.tsx',
+	'src/components/ServerStatusProvider.tsx',
+	'src/components/StandardMessage.tsx',
+	'src/components/UXEnhancements.tsx',
+	'src/components/UserFriendlyError.tsx',
 ];
 
 // Unused hooks that could be removed
 const unusedHooks = [
-  'src/hooks/useAccessibility.ts',
-  'src/hooks/useAnalytics.ts',
-  'src/hooks/useCSRFProtection.tsx',
-  'src/hooks/useErrorDiagnosis.ts',
-  'src/hooks/useFlowAnalysis.ts',
-  'src/hooks/useLazyLoading.ts',
-  'src/hooks/usePageScroll.ts',
-  'src/hooks/useScrollToTop.ts',
-  'src/hooks/useSecurityAnalytics.ts',
-  'src/hooks/useServiceWorker.ts',
-  'src/hooks/useTokenAnalysis.ts',
-  'src/hooks/useTokenRefresh.ts',
-  'src/hooks/useUserBehaviorTracking.ts'
+	'src/hooks/useAccessibility.ts',
+	'src/hooks/useAnalytics.ts',
+	'src/hooks/useCSRFProtection.tsx',
+	'src/hooks/useErrorDiagnosis.ts',
+	'src/hooks/useFlowAnalysis.ts',
+	'src/hooks/useLazyLoading.ts',
+	'src/hooks/usePageScroll.ts',
+	'src/hooks/useScrollToTop.ts',
+	'src/hooks/useSecurityAnalytics.ts',
+	'src/hooks/useServiceWorker.ts',
+	'src/hooks/useTokenAnalysis.ts',
+	'src/hooks/useTokenRefresh.ts',
+	'src/hooks/useUserBehaviorTracking.ts',
 ];
 
 function analyzeFileSize(filePath) {
-  try {
-    const stats = fs.statSync(filePath);
-    return stats.size;
-  } catch {
-    return 0;
-  }
+	try {
+		const stats = fs.statSync(filePath);
+		return stats.size;
+	} catch {
+		return 0;
+	}
 }
 
 function calculatePotentialSavings() {
-  let totalSize = 0;
-  let fileCount = 0;
-  
-  const allUnusedFiles = [
-    ...unusedFileCategories['Completely Unused Pages'],
-    ...unusedFileCategories['Unused Type Definitions'],
-    ...unusedFileCategories['Unused Utility Modules'],
-    ...unusedFileCategories['Unused Style/Config Files'],
-    ...highImpactUnusedComponents,
-    ...unusedHooks
-  ];
-  
-  for (const file of allUnusedFiles) {
-    const fullPath = path.join(__dirname, file);
-    const size = analyzeFileSize(fullPath);
-    if (size > 0) {
-      totalSize += size;
-      fileCount++;
-    }
-  }
-  
-  return { totalSize, fileCount };
+	let totalSize = 0;
+	let fileCount = 0;
+
+	const allUnusedFiles = [
+		...unusedFileCategories['Completely Unused Pages'],
+		...unusedFileCategories['Unused Type Definitions'],
+		...unusedFileCategories['Unused Utility Modules'],
+		...unusedFileCategories['Unused Style/Config Files'],
+		...highImpactUnusedComponents,
+		...unusedHooks,
+	];
+
+	for (const file of allUnusedFiles) {
+		const fullPath = path.join(__dirname, file);
+		const size = analyzeFileSize(fullPath);
+		if (size > 0) {
+			totalSize += size;
+			fileCount++;
+		}
+	}
+
+	return { totalSize, fileCount };
 }
 
 function generateCleanupScript() {
-  const allUnusedFiles = [
-    ...unusedFileCategories['Completely Unused Pages'],
-    ...unusedFileCategories['Unused Type Definitions'],
-    ...unusedFileCategories['Unused Utility Modules'],
-    ...unusedFileCategories['Unused Style/Config Files'],
-    ...highImpactUnusedComponents,
-    ...unusedHooks
-  ];
-  
-  let script = `#!/usr/bin/env node
+	const allUnusedFiles = [
+		...unusedFileCategories['Completely Unused Pages'],
+		...unusedFileCategories['Unused Type Definitions'],
+		...unusedFileCategories['Unused Utility Modules'],
+		...unusedFileCategories['Unused Style/Config Files'],
+		...highImpactUnusedComponents,
+		...unusedHooks,
+	];
+
+	let script = `#!/usr/bin/env node
 
 /**
  * Automated cleanup script for unused files
  * Generated by detailed unused code analysis
  */
 
-import fs from 'fs';
+import fs from 'node:fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -162,11 +162,11 @@ console.log('🧹 Starting automated cleanup of unused files...\\n');
 const filesToRemove = [
 `;
 
-  allUnusedFiles.forEach(file => {
-    script += `  '${file}',\n`;
-  });
-  
-  script += `];
+	allUnusedFiles.forEach((file) => {
+		script += `  '${file}',\n`;
+	});
+
+	script += `];
 
 let removedCount = 0;
 let totalSize = 0;
@@ -195,37 +195,37 @@ console.log(\`📊 Removed \${removedCount} files\`);
 console.log(\`💾 Freed up \${(totalSize / 1024).toFixed(2)} KB\`);
 `;
 
-  return script;
+	return script;
 }
 
 // Main analysis
 console.log('\n📊 UNUSED FILE CATEGORIES:\n');
 
 for (const [category, files] of Object.entries(unusedFileCategories)) {
-  console.log(`\n🗂️  ${category} (${files.length} files):`);
-  console.log('-'.repeat(40));
-  
-  files.forEach(file => {
-    const size = analyzeFileSize(path.join(__dirname, file));
-    const sizeKB = (size / 1024).toFixed(1);
-    console.log(`   ❌ ${file} (${sizeKB} KB)`);
-  });
+	console.log(`\n🗂️  ${category} (${files.length} files):`);
+	console.log('-'.repeat(40));
+
+	files.forEach((file) => {
+		const size = analyzeFileSize(path.join(__dirname, file));
+		const sizeKB = (size / 1024).toFixed(1);
+		console.log(`   ❌ ${file} (${sizeKB} KB)`);
+	});
 }
 
 console.log('\n🔧 HIGH-IMPACT UNUSED COMPONENTS:\n');
 console.log('-'.repeat(40));
-highImpactUnusedComponents.forEach(file => {
-  const size = analyzeFileSize(path.join(__dirname, file));
-  const sizeKB = (size / 1024).toFixed(1);
-  console.log(`   ❌ ${file} (${sizeKB} KB)`);
+highImpactUnusedComponents.forEach((file) => {
+	const size = analyzeFileSize(path.join(__dirname, file));
+	const sizeKB = (size / 1024).toFixed(1);
+	console.log(`   ❌ ${file} (${sizeKB} KB)`);
 });
 
 console.log('\n🪝 UNUSED HOOKS:\n');
 console.log('-'.repeat(40));
-unusedHooks.forEach(file => {
-  const size = analyzeFileSize(path.join(__dirname, file));
-  const sizeKB = (size / 1024).toFixed(1);
-  console.log(`   ❌ ${file} (${sizeKB} KB)`);
+unusedHooks.forEach((file) => {
+	const size = analyzeFileSize(path.join(__dirname, file));
+	const sizeKB = (size / 1024).toFixed(1);
+	console.log(`   ❌ ${file} (${sizeKB} KB)`);
 });
 
 const { totalSize, fileCount } = calculatePotentialSavings();

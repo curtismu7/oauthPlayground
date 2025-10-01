@@ -1,6 +1,6 @@
 // src/contexts/NotificationSystem.tsx
 
-import type { ReactNode } from "react";
+import type { ReactNode } from 'react';
 import {
 	createContext,
 	useCallback,
@@ -9,18 +9,12 @@ import {
 	useMemo,
 	useRef,
 	useState,
-} from "react";
-import {
-	FiAlertOctagon,
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiInfo,
-	FiX,
-} from "react-icons/fi";
-import styled, { css, keyframes } from "styled-components";
+} from 'react';
+import { FiAlertOctagon, FiAlertTriangle, FiCheckCircle, FiInfo, FiX } from 'react-icons/fi';
+import styled, { css, keyframes } from 'styled-components';
 
-export type NotificationTone = "success" | "error" | "warning" | "info";
-export type NotificationActionVariant = "primary" | "secondary";
+export type NotificationTone = 'success' | 'error' | 'warning' | 'info';
+export type NotificationActionVariant = 'primary' | 'secondary';
 
 export interface NotificationAction {
 	label: string;
@@ -59,45 +53,38 @@ interface NotificationContextValue {
 	dismiss: (id: string) => void;
 	showSuccess: (
 		message: string,
-		options?: Partial<Omit<NotificationOptions, "message" | "type">>,
+		options?: Partial<Omit<NotificationOptions, 'message' | 'type'>>
 	) => string;
 	showError: (
 		message: string,
-		options?: Partial<Omit<NotificationOptions, "message" | "type">>,
+		options?: Partial<Omit<NotificationOptions, 'message' | 'type'>>
 	) => string;
 	showWarning: (
 		message: string,
-		options?: Partial<Omit<NotificationOptions, "message" | "type">>,
+		options?: Partial<Omit<NotificationOptions, 'message' | 'type'>>
 	) => string;
 	showInfo: (
 		message: string,
-		options?: Partial<Omit<NotificationOptions, "message" | "type">>,
+		options?: Partial<Omit<NotificationOptions, 'message' | 'type'>>
 	) => string;
 	showApiError: (error: unknown, fallbackMessage?: string) => string;
 	showSaveSuccess: (resource: string) => string;
 	showRetryableError: (
 		message: string,
 		onRetry: () => void,
-		options?: Partial<Omit<NotificationOptions, "message" | "type">>,
+		options?: Partial<Omit<NotificationOptions, 'message' | 'type'>>
 	) => string;
-	notify: (
-		message: string,
-		type?: NotificationTone,
-		duration?: number,
-	) => string;
+	notify: (message: string, type?: NotificationTone, duration?: number) => string;
 }
 
-const NotificationContext = createContext<NotificationContextValue | null>(
-	null,
-);
+const NotificationContext = createContext<NotificationContextValue | null>(null);
 
-export const DEFAULT_NOTIFICATION_DURATIONS: Record<NotificationTone, number> =
-	{
-		success: 2000,
-		warning: 4000,
-		error: 6000,
-		info: 4000,
-	};
+export const DEFAULT_NOTIFICATION_DURATIONS: Record<NotificationTone, number> = {
+	success: 2000,
+	warning: 4000,
+	error: 6000,
+	info: 4000,
+};
 
 const toneIcons: Record<NotificationTone, JSX.Element> = {
 	success: <FiCheckCircle aria-hidden="true" />,
@@ -117,40 +104,32 @@ const toneStyles: Record<
 	}
 > = {
 	success: {
-		background:
-			"linear-gradient(135deg, rgba(34,197,94,0.95) 0%, rgba(22,163,74,0.95) 100%)",
-		border: "rgba(187,247,208,0.45)",
-		shadow: "0 18px 40px rgba(22,163,74,0.3)",
-		progress:
-			"linear-gradient(90deg, rgba(187,247,208,1) 0%, rgba(74,222,128,1) 100%)",
-		iconAccent: "rgba(220,252,231,0.45)",
+		background: 'linear-gradient(135deg, rgba(34,197,94,0.95) 0%, rgba(22,163,74,0.95) 100%)',
+		border: 'rgba(187,247,208,0.45)',
+		shadow: '0 18px 40px rgba(22,163,74,0.3)',
+		progress: 'linear-gradient(90deg, rgba(187,247,208,1) 0%, rgba(74,222,128,1) 100%)',
+		iconAccent: 'rgba(220,252,231,0.45)',
 	},
 	error: {
-		background:
-			"linear-gradient(135deg, rgba(248,113,113,0.95) 0%, rgba(185,28,28,0.95) 100%)",
-		border: "rgba(248,113,113,0.55)",
-		shadow: "0 20px 48px rgba(185,28,28,0.3)",
-		progress:
-			"linear-gradient(90deg, rgba(252,165,165,1) 0%, rgba(248,113,113,1) 100%)",
-		iconAccent: "rgba(254,202,202,0.45)",
+		background: 'linear-gradient(135deg, rgba(248,113,113,0.95) 0%, rgba(185,28,28,0.95) 100%)',
+		border: 'rgba(248,113,113,0.55)',
+		shadow: '0 20px 48px rgba(185,28,28,0.3)',
+		progress: 'linear-gradient(90deg, rgba(252,165,165,1) 0%, rgba(248,113,113,1) 100%)',
+		iconAccent: 'rgba(254,202,202,0.45)',
 	},
 	warning: {
-		background:
-			"linear-gradient(135deg, rgba(250,204,21,0.95) 0%, rgba(217,119,6,0.95) 100%)",
-		border: "rgba(253,224,71,0.55)",
-		shadow: "0 20px 44px rgba(202,138,4,0.3)",
-		progress:
-			"linear-gradient(90deg, rgba(254,240,138,1) 0%, rgba(250,204,21,1) 100%)",
-		iconAccent: "rgba(254,240,138,0.45)",
+		background: 'linear-gradient(135deg, rgba(250,204,21,0.95) 0%, rgba(217,119,6,0.95) 100%)',
+		border: 'rgba(253,224,71,0.55)',
+		shadow: '0 20px 44px rgba(202,138,4,0.3)',
+		progress: 'linear-gradient(90deg, rgba(254,240,138,1) 0%, rgba(250,204,21,1) 100%)',
+		iconAccent: 'rgba(254,240,138,0.45)',
 	},
 	info: {
-		background:
-			"linear-gradient(135deg, rgba(96,165,250,0.95) 0%, rgba(14,116,144,0.95) 100%)",
-		border: "rgba(147,197,253,0.5)",
-		shadow: "0 18px 42px rgba(37,99,235,0.3)",
-		progress:
-			"linear-gradient(90deg, rgba(191,219,254,1) 0%, rgba(59,130,246,1) 100%)",
-		iconAccent: "rgba(191,219,254,0.45)",
+		background: 'linear-gradient(135deg, rgba(96,165,250,0.95) 0%, rgba(14,116,144,0.95) 100%)',
+		border: 'rgba(147,197,253,0.5)',
+		shadow: '0 18px 42px rgba(37,99,235,0.3)',
+		progress: 'linear-gradient(90deg, rgba(191,219,254,1) 0%, rgba(59,130,246,1) 100%)',
+		iconAccent: 'rgba(191,219,254,0.45)',
 	},
 };
 
@@ -305,8 +284,8 @@ const ActionButton = styled.button`
   cursor: pointer;
   transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease;
 
-  ${({ "data-variant": variant }) => {
-		if (variant === "primary") {
+  ${({ 'data-variant': variant }) => {
+		if (variant === 'primary') {
 			return css`
         background: rgba(255, 255, 255, 0.25);
         color: #ffffff;
@@ -362,10 +341,7 @@ const ProgressIndicator = styled.div<{
 `;
 
 const generateId = (): string => {
-	if (
-		typeof crypto !== "undefined" &&
-		typeof crypto.randomUUID === "function"
-	) {
+	if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
 		return crypto.randomUUID();
 	}
 
@@ -377,15 +353,12 @@ interface ParsedApiError {
 	description?: string;
 }
 
-const parseApiError = (
-	error: unknown,
-	fallback = "Request failed",
-): ParsedApiError => {
+const parseApiError = (error: unknown, fallback = 'Request failed'): ParsedApiError => {
 	if (!error) {
 		return { message: fallback };
 	}
 
-	if (typeof error === "string") {
+	if (typeof error === 'string') {
 		return { message: error };
 	}
 
@@ -417,12 +390,12 @@ const parseApiError = (
 		const status = possibleAxios?.response?.status;
 		const statusText = possibleAxios?.response?.statusText;
 		return {
-			message: status ? `${status}: ${statusText ?? "Error"}` : fallback,
+			message: status ? `${status}: ${statusText ?? 'Error'}` : fallback,
 			description: detail,
 		};
 	}
 
-	if (typeof Response !== "undefined" && error instanceof Response) {
+	if (typeof Response !== 'undefined' && error instanceof Response) {
 		return {
 			message: `${error.status}: ${error.statusText}`,
 			description: fallback,
@@ -434,14 +407,14 @@ const parseApiError = (
 
 type NotificationBridge = Pick<
 	NotificationContextValue,
-	| "show"
-	| "showSuccess"
-	| "showError"
-	| "showWarning"
-	| "showInfo"
-	| "showApiError"
-	| "showSaveSuccess"
-	| "showRetryableError"
+	| 'show'
+	| 'showSuccess'
+	| 'showError'
+	| 'showWarning'
+	| 'showInfo'
+	| 'showApiError'
+	| 'showSaveSuccess'
+	| 'showRetryableError'
 >;
 
 let globalBridge: NotificationBridge | null = null;
@@ -451,16 +424,12 @@ const setGlobalBridge = (bridge: NotificationBridge | null) => {
 };
 
 const warnMissingProvider = () => {
-	if (!globalBridge && typeof console !== "undefined") {
-		console.warn(
-			"[Notification] NotificationProvider is not mounted. Notification skipped.",
-		);
+	if (!globalBridge && typeof console !== 'undefined') {
+		console.warn('[Notification] NotificationProvider is not mounted. Notification skipped.');
 	}
 };
 
-export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
-	children,
-}) => {
+export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 	const [notifications, setNotifications] = useState<NotificationItem[]>([]);
 	const autoDismissTimers = useRef<Map<string, number>>(new Map());
 	const duplicateMap = useRef<Map<string, string>>(new Map());
@@ -493,13 +462,11 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
 		(id: string) => {
 			clearTimer(id);
 			setNotifications((prev) =>
-				prev.map((entry) =>
-					entry.id === id ? { ...entry, isExiting: true } : entry,
-				),
+				prev.map((entry) => (entry.id === id ? { ...entry, isExiting: true } : entry))
 			);
 			window.setTimeout(() => finalizeDismiss(id), 240);
 		},
-		[clearTimer, finalizeDismiss],
+		[clearTimer, finalizeDismiss]
 	);
 
 	const scheduleAutoDismiss = useCallback(
@@ -512,15 +479,14 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
 			const timer = window.setTimeout(() => dismiss(item.id), item.duration);
 			autoDismissTimers.current.set(item.id, timer);
 		},
-		[dismiss, clearTimer],
+		[dismiss, clearTimer]
 	);
 
 	const show = useCallback(
 		(options: NotificationOptions) => {
-			const tone: NotificationTone = options.type ?? "info";
+			const tone: NotificationTone = options.type ?? 'info';
 			const messageKey = `${tone}:${options.message.trim()}`;
-			const focusOnRender =
-				options.focusOnRender ?? (tone === "error" || tone === "warning");
+			const focusOnRender = options.focusOnRender ?? (tone === 'error' || tone === 'warning');
 			const duration = options.persistent
 				? 0
 				: (options.duration ?? DEFAULT_NOTIFICATION_DURATIONS[tone]);
@@ -548,7 +514,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
 								meta: options.meta,
 							};
 							return updated;
-						}),
+						})
 					);
 
 					if (updated) {
@@ -575,57 +541,46 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
 			scheduleAutoDismiss(notification);
 			return id;
 		},
-		[scheduleAutoDismiss],
+		[scheduleAutoDismiss]
 	);
 
 	const showSuccess = useCallback(
-		(
-			message: string,
-			options?: Partial<Omit<NotificationOptions, "message" | "type">>,
-		) => show({ message, type: "success", ...options }),
-		[show],
+		(message: string, options?: Partial<Omit<NotificationOptions, 'message' | 'type'>>) =>
+			show({ message, type: 'success', ...options }),
+		[show]
 	);
 
 	const showError = useCallback(
-		(
-			message: string,
-			options?: Partial<Omit<NotificationOptions, "message" | "type">>,
-		) =>
+		(message: string, options?: Partial<Omit<NotificationOptions, 'message' | 'type'>>) =>
 			show({
 				message,
-				type: "error",
+				type: 'error',
 				duration: options?.duration ?? DEFAULT_NOTIFICATION_DURATIONS.error,
 				...options,
 			}),
-		[show],
+		[show]
 	);
 
 	const showWarning = useCallback(
-		(
-			message: string,
-			options?: Partial<Omit<NotificationOptions, "message" | "type">>,
-		) =>
+		(message: string, options?: Partial<Omit<NotificationOptions, 'message' | 'type'>>) =>
 			show({
 				message,
-				type: "warning",
+				type: 'warning',
 				duration: options?.duration ?? DEFAULT_NOTIFICATION_DURATIONS.warning,
 				...options,
 			}),
-		[show],
+		[show]
 	);
 
 	const showInfo = useCallback(
-		(
-			message: string,
-			options?: Partial<Omit<NotificationOptions, "message" | "type">>,
-		) =>
+		(message: string, options?: Partial<Omit<NotificationOptions, 'message' | 'type'>>) =>
 			show({
 				message,
-				type: "info",
+				type: 'info',
 				duration: options?.duration ?? DEFAULT_NOTIFICATION_DURATIONS.info,
 				...options,
 			}),
-		[show],
+		[show]
 	);
 
 	const showApiError = useCallback(
@@ -636,35 +591,33 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
 				duration: DEFAULT_NOTIFICATION_DURATIONS.error,
 			});
 		},
-		[showError],
+		[showError]
 	);
 
 	const showSaveSuccess = useCallback(
 		(resource: string) =>
 			showSuccess(`${resource} saved successfully`, {
-				description: "All changes are now up to date.",
+				description: 'All changes are now up to date.',
 				duration: DEFAULT_NOTIFICATION_DURATIONS.success,
 			}),
-		[showSuccess],
+		[showSuccess]
 	);
 
 	const showRetryableError = useCallback(
 		(
 			message: string,
 			onRetry: () => void,
-			options?: Partial<Omit<NotificationOptions, "message" | "type">>,
+			options?: Partial<Omit<NotificationOptions, 'message' | 'type'>>
 		) => {
-			let id = "";
+			let id = '';
 			id = showError(message, {
 				duration: 0,
 				persistent: true,
-				description:
-					options?.description ??
-					"Double-check your configuration, then try again.",
+				description: options?.description ?? 'Double-check your configuration, then try again.',
 				actions: [
 					{
-						label: options?.actions?.[0]?.label ?? "Retry",
-						variant: "primary",
+						label: options?.actions?.[0]?.label ?? 'Retry',
+						variant: 'primary',
 						onClick: () => {
 							dismiss(id);
 							onRetry();
@@ -672,8 +625,8 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
 						autoClose: false,
 					},
 					{
-						label: options?.actions?.[1]?.label ?? "Dismiss",
-						variant: "secondary",
+						label: options?.actions?.[1]?.label ?? 'Dismiss',
+						variant: 'secondary',
 						onClick: () => dismiss(id),
 						autoClose: false,
 					},
@@ -682,13 +635,13 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
 			});
 			return id;
 		},
-		[showError, dismiss],
+		[showError, dismiss]
 	);
 
 	const notify = useCallback(
-		(message: string, type: NotificationTone = "info", duration?: number) =>
+		(message: string, type: NotificationTone = 'info', duration?: number) =>
 			show({ message, type, duration }),
-		[show],
+		[show]
 	);
 
 	useEffect(
@@ -698,7 +651,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
 			});
 			autoDismissTimers.current.clear();
 		},
-		[],
+		[]
 	);
 
 	useEffect(() => {
@@ -753,22 +706,16 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
 			showSaveSuccess,
 			showRetryableError,
 			notify,
-		],
+		]
 	);
 
-	return (
-		<NotificationContext.Provider value={value}>
-			{children}
-		</NotificationContext.Provider>
-	);
+	return <NotificationContext.Provider value={value}>{children}</NotificationContext.Provider>;
 };
 
 export const useNotifications = (): NotificationContextValue => {
 	const context = useContext(NotificationContext);
 	if (!context) {
-		throw new Error(
-			"useNotifications must be used within a NotificationProvider",
-		);
+		throw new Error('useNotifications must be used within a NotificationProvider');
 	}
 	return context;
 };
@@ -799,14 +746,10 @@ export const NotificationContainer: React.FC = () => {
 	return (
 		<ToastStack>
 			{notifications.map((notification) => {
-				const role: "alert" | "status" =
-					notification.type === "error" || notification.type === "warning"
-						? "alert"
-						: "status";
-				const ariaLive: "assertive" | "polite" =
-					notification.type === "error" || notification.type === "warning"
-						? "assertive"
-						: "polite";
+				const role: 'alert' | 'status' =
+					notification.type === 'error' || notification.type === 'warning' ? 'alert' : 'status';
+				const ariaLive: 'assertive' | 'polite' =
+					notification.type === 'error' || notification.type === 'warning' ? 'assertive' : 'polite';
 
 				return (
 					<Toast
@@ -817,7 +760,7 @@ export const NotificationContainer: React.FC = () => {
 						aria-live={ariaLive}
 						tabIndex={0}
 						onKeyDown={(event) => {
-							if (event.key === "Escape") {
+							if (event.key === 'Escape') {
 								event.preventDefault();
 								dismiss(notification.id);
 							}
@@ -835,7 +778,7 @@ export const NotificationContainer: React.FC = () => {
 							</TextGroup>
 							<CloseButton
 								type="button"
-								aria-label={notification.ariaLabel ?? "Dismiss notification"}
+								aria-label={notification.ariaLabel ?? 'Dismiss notification'}
 								onClick={() => dismiss(notification.id)}
 								ref={(node) => {
 									if (node) {
@@ -855,7 +798,7 @@ export const NotificationContainer: React.FC = () => {
 									<ActionButton
 										key={`${notification.id}-action-${index}`}
 										type="button"
-										data-variant={action.variant ?? "secondary"}
+										data-variant={action.variant ?? 'secondary'}
 										onClick={() => {
 											action.onClick();
 											if (action.autoClose !== false) {
@@ -871,10 +814,7 @@ export const NotificationContainer: React.FC = () => {
 
 						{notification.duration > 0 ? (
 							<ProgressTrack aria-hidden="true">
-								<ProgressIndicator
-									$tone={notification.type}
-									$duration={notification.duration}
-								/>
+								<ProgressIndicator $tone={notification.type} $duration={notification.duration} />
 							</ProgressTrack>
 						) : null}
 					</Toast>
@@ -884,13 +824,10 @@ export const NotificationContainer: React.FC = () => {
 	);
 };
 
-const callBridge = <T,>(
-	fn: ((...args: never[]) => T) | undefined,
-	...args: never[]
-): T | "" => {
+const callBridge = <T,>(fn: ((...args: never[]) => T) | undefined, ...args: never[]): T | '' => {
 	if (!globalBridge || !fn) {
 		warnMissingProvider();
-		return "";
+		return '';
 	}
 	return fn(...args);
 };
@@ -900,28 +837,25 @@ export const showGlobalNotification = (options: NotificationOptions): string =>
 
 export const showGlobalSuccess = (
 	message: string,
-	options?: Partial<Omit<NotificationOptions, "message" | "type">>,
+	options?: Partial<Omit<NotificationOptions, 'message' | 'type'>>
 ): string => callBridge(globalBridge?.showSuccess, message, options) as string;
 
 export const showGlobalError = (
 	message: string,
-	options?: Partial<Omit<NotificationOptions, "message" | "type">>,
+	options?: Partial<Omit<NotificationOptions, 'message' | 'type'>>
 ): string => callBridge(globalBridge?.showError, message, options) as string;
 
 export const showGlobalWarning = (
 	message: string,
-	options?: Partial<Omit<NotificationOptions, "message" | "type">>,
+	options?: Partial<Omit<NotificationOptions, 'message' | 'type'>>
 ): string => callBridge(globalBridge?.showWarning, message, options) as string;
 
 export const showGlobalInfo = (
 	message: string,
-	options?: Partial<Omit<NotificationOptions, "message" | "type">>,
+	options?: Partial<Omit<NotificationOptions, 'message' | 'type'>>
 ): string => callBridge(globalBridge?.showInfo, message, options) as string;
 
-export const showGlobalApiError = (
-	error: unknown,
-	fallbackMessage?: string,
-): string =>
+export const showGlobalApiError = (error: unknown, fallbackMessage?: string): string =>
 	callBridge(globalBridge?.showApiError, error, fallbackMessage) as string;
 
 export const showGlobalSaveSuccess = (resource: string): string =>
@@ -930,18 +864,11 @@ export const showGlobalSaveSuccess = (resource: string): string =>
 export const showGlobalRetryableError = (
 	message: string,
 	onRetry: () => void,
-	options?: Partial<Omit<NotificationOptions, "message" | "type">>,
-): string =>
-	callBridge(
-		globalBridge?.showRetryableError,
-		message,
-		onRetry,
-		options,
-	) as string;
+	options?: Partial<Omit<NotificationOptions, 'message' | 'type'>>
+): string => callBridge(globalBridge?.showRetryableError, message, onRetry, options) as string;
 
 export const showGlobalNotify = (
 	message: string,
-	type: NotificationTone = "info",
-	duration?: number,
-): string =>
-	callBridge(globalBridge?.show, { message, type, duration }) as string;
+	type: NotificationTone = 'info',
+	duration?: number
+): string => callBridge(globalBridge?.show, { message, type, duration }) as string;

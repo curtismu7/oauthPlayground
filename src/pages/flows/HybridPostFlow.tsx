@@ -1,10 +1,10 @@
-import type React from "react";
-import { useCallback, useState } from "react";
-import styled from "styled-components";
-import FlowCredentials from "../../components/FlowCredentials";
-import { StepByStepFlow } from "../../components/StepByStepFlow";
-import { logger } from "../../utils/logger";
-import { storeOAuthTokens } from "../../utils/tokenStorage";
+import type React from 'react';
+import { useCallback, useState } from 'react';
+import styled from 'styled-components';
+import FlowCredentials from '../../components/FlowCredentials';
+import { StepByStepFlow } from '../../components/StepByStepFlow';
+import { logger } from '../../utils/logger';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -74,7 +74,7 @@ const Select = styled.select`
   }
 `;
 
-const Button = styled.button<{ $variant: "primary" | "secondary" | "success" }>`
+const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' }>`
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 0.375rem;
@@ -87,19 +87,19 @@ const Button = styled.button<{ $variant: "primary" | "secondary" | "success" }>`
   
   ${({ $variant }) => {
 		switch ($variant) {
-			case "primary":
+			case 'primary':
 				return `
           background-color: #3b82f6;
           color: white;
           &:hover { background-color: #2563eb; }
         `;
-			case "secondary":
+			case 'secondary':
 				return `
           background-color: #6b7280;
           color: white;
           &:hover { background-color: #4b5563; }
         `;
-			case "success":
+			case 'success':
 				return `
           background-color: #10b981;
           color: white;
@@ -156,65 +156,57 @@ interface HybridPostFlowProps {
 
 const HybridPostFlow: React.FC<HybridPostFlowProps> = ({ credentials }) => {
 	const [currentStep, setCurrentStep] = useState(0);
-	const [demoStatus, setDemoStatus] = useState<
-		"idle" | "loading" | "success" | "error"
-	>("idle");
+	const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 	const [formData, setFormData] = useState({
-		clientId: credentials?.clientId || "",
-		clientSecret: credentials?.clientSecret || "",
-		redirectUri: credentials?.redirectUri || "http://localhost:3000/callback",
-		environmentId: credentials?.environmentId || "",
-		responseType: "code id_token",
-		scope: "openid profile email",
-		state: "",
-		nonce: "",
-		codeChallenge: "",
-		codeChallengeMethod: "S256",
-		acrValues: "",
-		prompt: "",
-		maxAge: "",
-		uiLocales: "",
-		claims: "",
+		clientId: credentials?.clientId || '',
+		clientSecret: credentials?.clientSecret || '',
+		redirectUri: credentials?.redirectUri || 'http://localhost:3000/callback',
+		environmentId: credentials?.environmentId || '',
+		responseType: 'code id_token',
+		scope: 'openid profile email',
+		state: '',
+		nonce: '',
+		codeChallenge: '',
+		codeChallengeMethod: 'S256',
+		acrValues: '',
+		prompt: '',
+		maxAge: '',
+		uiLocales: '',
+		claims: '',
 	});
-	const [response, setResponse] = useState<Record<string, unknown> | null>(
-		null,
-	);
+	const [response, setResponse] = useState<Record<string, unknown> | null>(null);
 	const [error, setError] = useState<string | null>(null);
 
 	const generateState = useCallback(() => {
 		const state =
-			Math.random().toString(36).substring(2, 15) +
-			Math.random().toString(36).substring(2, 15);
+			Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 		setFormData((prev) => ({ ...prev, state }));
 		return state;
 	}, []);
 
 	const generateNonce = useCallback(() => {
 		const nonce =
-			Math.random().toString(36).substring(2, 15) +
-			Math.random().toString(36).substring(2, 15);
+			Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 		setFormData((prev) => ({ ...prev, nonce }));
 		return nonce;
 	}, []);
 
 	const generateCodeChallenge = useCallback(() => {
 		const codeVerifier =
-			Math.random().toString(36).substring(2, 15) +
-			Math.random().toString(36).substring(2, 15);
+			Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 		const codeChallenge = btoa(codeVerifier)
-			.replace(/\+/g, "-")
-			.replace(/\//g, "_")
-			.replace(/=/g, "");
+			.replace(/\+/g, '-')
+			.replace(/\//g, '_')
+			.replace(/=/g, '');
 		setFormData((prev) => ({ ...prev, codeChallenge }));
 		return { codeVerifier, codeChallenge };
 	}, []);
 
 	const steps = [
 		{
-			id: "step-1",
-			title: "Configure Client Settings",
-			description:
-				"Set up your OAuth client for hybrid flow with POST requests.",
+			id: 'step-1',
+			title: 'Configure Client Settings',
+			description: 'Set up your OAuth client for hybrid flow with POST requests.',
 			code: `// Client Configuration for Hybrid Flow
 const clientConfig = {
   clientId: '${formData.clientId}',
@@ -227,14 +219,14 @@ const clientConfig = {
 
 console.log('Client configured for hybrid flow');`,
 			execute: async () => {
-				logger.info("HybridPostFlow", "Configuring client settings");
+				logger.info('HybridPostFlow', 'Configuring client settings');
 			},
 		},
 		{
-			id: "step-2",
-			title: "Generate PKCE Parameters",
+			id: 'step-2',
+			title: 'Generate PKCE Parameters',
 			description:
-				"Generate code verifier and code challenge for PKCE (Proof Key for Code Exchange).",
+				'Generate code verifier and code challenge for PKCE (Proof Key for Code Exchange).',
 			code: `// Generate PKCE parameters
 const codeVerifier = generateCodeVerifier();
 const codeChallenge = generateCodeChallenge(codeVerifier);
@@ -245,15 +237,15 @@ localStorage.setItem('pkce_code_verifier', codeVerifier);
 console.log('Code Verifier:', codeVerifier);
 console.log('Code Challenge:', codeChallenge);`,
 			execute: async () => {
-				logger.info("HybridPostFlow", "Generating PKCE parameters");
+				logger.info('HybridPostFlow', 'Generating PKCE parameters');
 				generateCodeChallenge();
 			},
 		},
 		{
-			id: "step-3",
-			title: "Generate State and Nonce",
+			id: 'step-3',
+			title: 'Generate State and Nonce',
 			description:
-				"Generate state parameter for CSRF protection and nonce for ID token validation.",
+				'Generate state parameter for CSRF protection and nonce for ID token validation.',
 			code: `// Generate state and nonce
 const state = generateState();
 const nonce = generateNonce();
@@ -265,16 +257,15 @@ localStorage.setItem('oauth_nonce', nonce);
 console.log('State:', state);
 console.log('Nonce:', nonce);`,
 			execute: async () => {
-				logger.info("HybridPostFlow", "Generating state and nonce");
+				logger.info('HybridPostFlow', 'Generating state and nonce');
 				generateState();
 				generateNonce();
 			},
 		},
 		{
-			id: "step-4",
-			title: "Create Authorization Request Form",
-			description:
-				"Build the POST form data for the hybrid authorization request.",
+			id: 'step-4',
+			title: 'Create Authorization Request Form',
+			description: 'Build the POST form data for the hybrid authorization request.',
 			code: `// Create form data for POST request
 const formData = new FormData();
 formData.append('client_id', '${formData.clientId}');
@@ -285,19 +276,19 @@ formData.append('state', '${formData.state}');
 formData.append('nonce', '${formData.nonce}');
 formData.append('code_challenge', '${formData.codeChallenge}');
 formData.append('code_challenge_method', '${formData.codeChallengeMethod}');
-${formData.acrValues ? `formData.append('acr_values', '${formData.acrValues}');` : ""}
-${formData.prompt ? `formData.append('prompt', '${formData.prompt}');` : ""}
-${formData.maxAge ? `formData.append('max_age', '${formData.maxAge}');` : ""}
-${formData.uiLocales ? `formData.append('ui_locales', '${formData.uiLocales}');` : ""}
-${formData.claims ? `formData.append('claims', '${formData.claims}');` : ""}`,
+${formData.acrValues ? `formData.append('acr_values', '${formData.acrValues}');` : ''}
+${formData.prompt ? `formData.append('prompt', '${formData.prompt}');` : ''}
+${formData.maxAge ? `formData.append('max_age', '${formData.maxAge}');` : ''}
+${formData.uiLocales ? `formData.append('ui_locales', '${formData.uiLocales}');` : ''}
+${formData.claims ? `formData.append('claims', '${formData.claims}');` : ''}`,
 			execute: async () => {
-				logger.info("HybridPostFlow", "Creating authorization request form");
+				logger.info('HybridPostFlow', 'Creating authorization request form');
 			},
 		},
 		{
-			id: "step-5",
-			title: "Submit Authorization Request",
-			description: "Submit the POST request to the authorization endpoint.",
+			id: 'step-5',
+			title: 'Submit Authorization Request',
+			description: 'Submit the POST request to the authorization endpoint.',
 			code: `// Submit authorization request
 const authUrl = \`https://auth.pingone.com/\${environmentId}/as/authorize\`;
 
@@ -318,58 +309,51 @@ try {
   console.error('Authorization error:', error);
 }`,
 			execute: async () => {
-				logger.info("HybridPostFlow", "Submitting authorization request");
-				setDemoStatus("loading");
+				logger.info('HybridPostFlow', 'Submitting authorization request');
+				setDemoStatus('loading');
 
 				try {
 					// Simulate POST request to authorization endpoint
 					const authUrl = `https://auth.pingone.com/${formData.environmentId}/as/authorize`;
 
 					const formDataObj = new FormData();
-					formDataObj.append("client_id", formData.clientId);
-					formDataObj.append("response_type", formData.responseType);
-					formDataObj.append("redirect_uri", formData.redirectUri);
-					formDataObj.append("scope", formData.scope);
-					formDataObj.append("state", formData.state);
-					formDataObj.append("nonce", formData.nonce);
-					formDataObj.append("code_challenge", formData.codeChallenge);
-					formDataObj.append(
-						"code_challenge_method",
-						formData.codeChallengeMethod,
-					);
+					formDataObj.append('client_id', formData.clientId);
+					formDataObj.append('response_type', formData.responseType);
+					formDataObj.append('redirect_uri', formData.redirectUri);
+					formDataObj.append('scope', formData.scope);
+					formDataObj.append('state', formData.state);
+					formDataObj.append('nonce', formData.nonce);
+					formDataObj.append('code_challenge', formData.codeChallenge);
+					formDataObj.append('code_challenge_method', formData.codeChallengeMethod);
 
-					if (formData.acrValues)
-						formDataObj.append("acr_values", formData.acrValues);
-					if (formData.prompt) formDataObj.append("prompt", formData.prompt);
-					if (formData.maxAge) formDataObj.append("max_age", formData.maxAge);
-					if (formData.uiLocales)
-						formDataObj.append("ui_locales", formData.uiLocales);
-					if (formData.claims) formDataObj.append("claims", formData.claims);
+					if (formData.acrValues) formDataObj.append('acr_values', formData.acrValues);
+					if (formData.prompt) formDataObj.append('prompt', formData.prompt);
+					if (formData.maxAge) formDataObj.append('max_age', formData.maxAge);
+					if (formData.uiLocales) formDataObj.append('ui_locales', formData.uiLocales);
+					if (formData.claims) formDataObj.append('claims', formData.claims);
 
 					// For demo purposes, simulate a successful response
 					const mockResponse = {
 						success: true,
-						message: "Authorization request submitted successfully",
+						message: 'Authorization request submitted successfully',
 						authUrl: authUrl,
 						formData: Object.fromEntries(formDataObj.entries()),
 					};
 
 					setResponse(mockResponse);
-					setDemoStatus("success");
+					setDemoStatus('success');
 				} catch (error) {
-					const errorMessage =
-						error instanceof Error ? error.message : "Unknown error";
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 					setError(errorMessage);
-					setDemoStatus("error");
+					setDemoStatus('error');
 					throw error;
 				}
 			},
 		},
 		{
-			id: "step-6",
-			title: "Handle Hybrid Response",
-			description:
-				"Process both the authorization code and ID token from the callback.",
+			id: 'step-6',
+			title: 'Handle Hybrid Response',
+			description: 'Process both the authorization code and ID token from the callback.',
 			code: `// Handle hybrid response
 const urlParams = new URLSearchParams(window.location.search);
 const hashParams = new URLSearchParams(window.location.hash.substring(1));
@@ -394,14 +378,13 @@ console.log('ID Token:', idToken);
 console.log('Access Token:', accessToken);
 console.log('State validated:', state === storedState);`,
 			execute: async () => {
-				logger.info("HybridPostFlow", "Handling hybrid response");
+				logger.info('HybridPostFlow', 'Handling hybrid response');
 			},
 		},
 		{
-			id: "step-7",
-			title: "Exchange Code for Tokens",
-			description:
-				"Exchange the authorization code for additional tokens if needed.",
+			id: 'step-7',
+			title: 'Exchange Code for Tokens',
+			description: 'Exchange the authorization code for additional tokens if needed.',
 			code: `// Exchange code for additional tokens (if needed)
 const tokenUrl = \`https://auth.pingone.com/\${environmentId}/as/token\`;
 const codeVerifier = localStorage.getItem('pkce_code_verifier');
@@ -430,14 +413,13 @@ try {
   console.error('Token exchange error:', error);
 }`,
 			execute: async () => {
-				logger.info("HybridPostFlow", "Exchanging code for tokens");
+				logger.info('HybridPostFlow', 'Exchanging code for tokens');
 			},
 		},
 		{
-			id: "step-8",
-			title: "Store All Tokens",
-			description:
-				"Store all received tokens (ID token, access token, and any additional tokens).",
+			id: 'step-8',
+			title: 'Store All Tokens',
+			description: 'Store all received tokens (ID token, access token, and any additional tokens).',
 			code: `// Store all tokens
 const tokens = {
   access_token: accessToken || 'received_from_token_exchange',
@@ -453,37 +435,32 @@ localStorage.setItem('oauth_tokens', JSON.stringify(tokens));
 
 console.log('All tokens stored successfully:', tokens);`,
 			execute: async () => {
-				logger.info("HybridPostFlow", "Storing all tokens");
+				logger.info('HybridPostFlow', 'Storing all tokens');
 
 				try {
 					// Simulate token storage
 					const mockTokens = {
 						access_token: `mock_access_token_${Date.now()}`,
 						id_token: `mock_id_token_${Date.now()}`,
-						token_type: "Bearer",
+						token_type: 'Bearer',
 						expires_in: 3600,
 						scope: formData.scope,
 						refresh_token: `mock_refresh_token_${Date.now()}`,
 					};
 
 					// Store tokens using the standardized method
-					const success = storeOAuthTokens(
-						mockTokens,
-						"hybrid",
-						"Hybrid POST Flow",
-					);
+					const success = storeOAuthTokens(mockTokens, 'hybrid', 'Hybrid POST Flow');
 
 					if (success) {
 						setResponse({
 							tokens: mockTokens,
-							message: "All tokens stored successfully",
+							message: 'All tokens stored successfully',
 						});
 					} else {
-						throw new Error("Failed to store tokens");
+						throw new Error('Failed to store tokens');
 					}
 				} catch (error) {
-					const errorMessage =
-						error instanceof Error ? error.message : "Unknown error";
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 					setError(errorMessage);
 					throw error;
 				}
@@ -493,34 +470,31 @@ console.log('All tokens stored successfully:', tokens);`,
 
 	const handleStepChange = useCallback((step: number) => {
 		setCurrentStep(step);
-		setDemoStatus("idle");
+		setDemoStatus('idle');
 		setResponse(null);
 		setError(null);
 	}, []);
 
 	const handleStepResult = useCallback((step: number, result: unknown) => {
-		logger.info("HybridPostFlow", `Step ${step + 1} completed`, result as any);
+		logger.info('HybridPostFlow', `Step ${step + 1} completed`, result as any);
 	}, []);
 
 	return (
 		<FlowContainer>
 			<FlowTitle>Hybrid Flow (POST)</FlowTitle>
 			<FlowDescription>
-				This flow demonstrates the Hybrid flow using POST requests. The Hybrid
-				flow combines elements of both Authorization Code and Implicit flows,
-				allowing you to receive both an authorization code and an ID token in
-				the initial response.
+				This flow demonstrates the Hybrid flow using POST requests. The Hybrid flow combines
+				elements of both Authorization Code and Implicit flows, allowing you to receive both an
+				authorization code and an ID token in the initial response.
 			</FlowDescription>
 
 			<InfoContainer>
 				<h4> Hybrid Flow Benefits</h4>
 				<p>
-					The Hybrid flow provides the best of both worlds: you get an ID token
-					immediately (like Implicit flow) and an authorization code for
-					additional token requests (like Authorization Code flow). This is
-					particularly useful for applications that need immediate user
-					information while maintaining the ability to request additional
-					tokens.
+					The Hybrid flow provides the best of both worlds: you get an ID token immediately (like
+					Implicit flow) and an authorization code for additional token requests (like Authorization
+					Code flow). This is particularly useful for applications that need immediate user
+					information while maintaining the ability to request additional tokens.
 				</p>
 			</InfoContainer>
 
@@ -542,15 +516,15 @@ console.log('All tokens stored successfully:', tokens);`,
 				currentStep={currentStep}
 				onStepChange={handleStepChange}
 				onStepResult={handleStepResult}
-				onStart={() => setDemoStatus("loading")}
+				onStart={() => setDemoStatus('loading')}
 				onReset={() => {
 					setCurrentStep(0);
-					setDemoStatus("idle");
+					setDemoStatus('idle');
 					setResponse(null);
 					setError(null);
 				}}
 				status={demoStatus}
-				disabled={demoStatus === "loading"}
+				disabled={demoStatus === 'loading'}
 				title="Hybrid POST Flow Steps"
 			/>
 
@@ -570,19 +544,14 @@ console.log('All tokens stored successfully:', tokens);`,
 
 			<PostForm>
 				<h3>Manual Form Submission</h3>
-				<p>
-					You can also manually submit the authorization request using the form
-					below:
-				</p>
+				<p>You can also manually submit the authorization request using the form below:</p>
 
 				<FormGroup>
 					<Label>Client ID</Label>
 					<Input
 						type="text"
 						value={formData.clientId}
-						onChange={(e) =>
-							setFormData((prev) => ({ ...prev, clientId: e.target.value }))
-						}
+						onChange={(e) => setFormData((prev) => ({ ...prev, clientId: e.target.value }))}
 					/>
 				</FormGroup>
 
@@ -590,9 +559,7 @@ console.log('All tokens stored successfully:', tokens);`,
 					<Label>Response Type</Label>
 					<Select
 						value={formData.responseType}
-						onChange={(e) =>
-							setFormData((prev) => ({ ...prev, responseType: e.target.value }))
-						}
+						onChange={(e) => setFormData((prev) => ({ ...prev, responseType: e.target.value }))}
 					>
 						<option value="code id_token">code id_token</option>
 						<option value="code token">code token</option>
@@ -605,9 +572,7 @@ console.log('All tokens stored successfully:', tokens);`,
 					<Input
 						type="url"
 						value={formData.redirectUri}
-						onChange={(e) =>
-							setFormData((prev) => ({ ...prev, redirectUri: e.target.value }))
-						}
+						onChange={(e) => setFormData((prev) => ({ ...prev, redirectUri: e.target.value }))}
 					/>
 				</FormGroup>
 
@@ -616,9 +581,7 @@ console.log('All tokens stored successfully:', tokens);`,
 					<Input
 						type="text"
 						value={formData.scope}
-						onChange={(e) =>
-							setFormData((prev) => ({ ...prev, scope: e.target.value }))
-						}
+						onChange={(e) => setFormData((prev) => ({ ...prev, scope: e.target.value }))}
 					/>
 				</FormGroup>
 
@@ -627,9 +590,7 @@ console.log('All tokens stored successfully:', tokens);`,
 					<Input
 						type="text"
 						value={formData.state}
-						onChange={(e) =>
-							setFormData((prev) => ({ ...prev, state: e.target.value }))
-						}
+						onChange={(e) => setFormData((prev) => ({ ...prev, state: e.target.value }))}
 					/>
 				</FormGroup>
 

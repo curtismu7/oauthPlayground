@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { securityAuditor, SecurityAuditReport, SecurityVulnerability } from '../utils/securityAudit';
+import {
+	securityAuditor,
+	SecurityAuditReport,
+	SecurityVulnerability,
+} from '../utils/securityAudit';
 
 const DashboardContainer = styled.div`
   background: white;
@@ -33,32 +37,32 @@ const SecurityScore = styled.div<{ score: number }>`
   font-size: 1.25rem;
   
   ${({ score }) => {
-    if (score >= 90) {
-      return `
+		if (score >= 90) {
+			return `
         background-color: #dcfce7;
         color: #166534;
         border: 2px solid #22c55e;
       `;
-    } else if (score >= 70) {
-      return `
+		} else if (score >= 70) {
+			return `
         background-color: #fef3c7;
         color: #92400e;
         border: 2px solid #f59e0b;
       `;
-    } else if (score >= 50) {
-      return `
+		} else if (score >= 50) {
+			return `
         background-color: #fed7aa;
         color: #9a3412;
         border: 2px solid #fb923c;
       `;
-    } else {
-      return `
+		} else {
+			return `
         background-color: #fecaca;
         color: #991b1b;
         border: 2px solid #ef4444;
       `;
-    }
-  }}
+		}
+	}}
 `;
 
 const ScoreCircle = styled.div<{ score: number }>`
@@ -72,28 +76,28 @@ const ScoreCircle = styled.div<{ score: number }>`
   font-size: 1.25rem;
   
   ${({ score }) => {
-    if (score >= 90) {
-      return `
+		if (score >= 90) {
+			return `
         background-color: #22c55e;
         color: white;
       `;
-    } else if (score >= 70) {
-      return `
+		} else if (score >= 70) {
+			return `
         background-color: #f59e0b;
         color: white;
       `;
-    } else if (score >= 50) {
-      return `
+		} else if (score >= 50) {
+			return `
         background-color: #fb923c;
         color: white;
       `;
-    } else {
-      return `
+		} else {
+			return `
         background-color: #ef4444;
         color: white;
       `;
-    }
-  }}
+		}
+	}}
 `;
 
 const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' | 'danger' }>`
@@ -108,33 +112,33 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' | '
   margin-bottom: 0.5rem;
   
   ${({ $variant }) => {
-    switch ($variant) {
-      case 'primary':
-        return `
+		switch ($variant) {
+			case 'primary':
+				return `
           background-color: #3b82f6;
           color: white;
           &:hover { background-color: #2563eb; }
         `;
-      case 'secondary':
-        return `
+			case 'secondary':
+				return `
           background-color: #6b7280;
           color: white;
           &:hover { background-color: #4b5563; }
         `;
-      case 'success':
-        return `
+			case 'success':
+				return `
           background-color: #10b981;
           color: white;
           &:hover { background-color: #059669; }
         `;
-      case 'danger':
-        return `
+			case 'danger':
+				return `
           background-color: #ef4444;
           color: white;
           &:hover { background-color: #dc2626; }
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const StatsGrid = styled.div`
@@ -146,25 +150,35 @@ const StatsGrid = styled.div`
 
 const StatCard = styled.div<{ $severity?: 'critical' | 'high' | 'medium' | 'low' }>`
   background: ${({ $severity }) => {
-    switch ($severity) {
-      case 'critical': return '#fecaca';
-      case 'high': return '#fed7aa';
-      case 'medium': return '#fef3c7';
-      case 'low': return '#dcfce7';
-      default: return '#f9fafb';
-    }
-  }};
+		switch ($severity) {
+			case 'critical':
+				return '#fecaca';
+			case 'high':
+				return '#fed7aa';
+			case 'medium':
+				return '#fef3c7';
+			case 'low':
+				return '#dcfce7';
+			default:
+				return '#f9fafb';
+		}
+	}};
   padding: 1.5rem;
   border-radius: 0.5rem;
   border: 1px solid ${({ $severity }) => {
-    switch ($severity) {
-      case 'critical': return '#fca5a5';
-      case 'high': return '#fdba74';
-      case 'medium': return '#fde68a';
-      case 'low': return '#86efac';
-      default: return '#e5e7eb';
-    }
-  }};
+		switch ($severity) {
+			case 'critical':
+				return '#fca5a5';
+			case 'high':
+				return '#fdba74';
+			case 'medium':
+				return '#fde68a';
+			case 'low':
+				return '#86efac';
+			default:
+				return '#e5e7eb';
+		}
+	}};
 `;
 
 const StatValue = styled.div`
@@ -198,24 +212,32 @@ const VulnerabilityList = styled.div`
 
 const VulnerabilityItem = styled.div<{ $severity: 'critical' | 'high' | 'medium' | 'low' }>`
   border: 1px solid ${({ $severity }) => {
-    switch ($severity) {
-      case 'critical': return '#fca5a5';
-      case 'high': return '#fdba74';
-      case 'medium': return '#fde68a';
-      case 'low': return '#86efac';
-    }
-  }};
+		switch ($severity) {
+			case 'critical':
+				return '#fca5a5';
+			case 'high':
+				return '#fdba74';
+			case 'medium':
+				return '#fde68a';
+			case 'low':
+				return '#86efac';
+		}
+	}};
   border-radius: 0.375rem;
   padding: 1rem;
   margin-bottom: 0.75rem;
   background: ${({ $severity }) => {
-    switch ($severity) {
-      case 'critical': return '#fef2f2';
-      case 'high': return '#fff7ed';
-      case 'medium': return '#fffbeb';
-      case 'low': return '#f0fdf4';
-    }
-  }};
+		switch ($severity) {
+			case 'critical':
+				return '#fef2f2';
+			case 'high':
+				return '#fff7ed';
+			case 'medium':
+				return '#fffbeb';
+			case 'low':
+				return '#f0fdf4';
+		}
+	}};
 `;
 
 const VulnerabilityHeader = styled.div`
@@ -240,29 +262,29 @@ const SeverityBadge = styled.span<{ $severity: 'critical' | 'high' | 'medium' | 
   text-transform: uppercase;
   
   ${({ $severity }) => {
-    switch ($severity) {
-      case 'critical':
-        return `
+		switch ($severity) {
+			case 'critical':
+				return `
           background-color: #fecaca;
           color: #991b1b;
         `;
-      case 'high':
-        return `
+			case 'high':
+				return `
           background-color: #fed7aa;
           color: #9a3412;
         `;
-      case 'medium':
-        return `
+			case 'medium':
+				return `
           background-color: #fef3c7;
           color: #92400e;
         `;
-      case 'low':
-        return `
+			case 'low':
+				return `
           background-color: #dcfce7;
           color: #166534;
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const VulnerabilityDescription = styled.p`
@@ -317,180 +339,177 @@ const ErrorMessage = styled.div`
 `;
 
 const SecurityAuditDashboard: React.FC = () => {
-  const [currentReport, setCurrentReport] = useState<SecurityAuditReport | null>(null);
-  const [auditHistory, setAuditHistory] = useState<SecurityAuditReport[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+	const [currentReport, setCurrentReport] = useState<SecurityAuditReport | null>(null);
+	const [auditHistory, setAuditHistory] = useState<SecurityAuditReport[]>([]);
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadAuditHistory();
-  }, []);
+	useEffect(() => {
+		loadAuditHistory();
+	}, []);
 
-  const loadAuditHistory = () => {
-    try {
-      const history = securityAuditor.getAuditHistory();
-      setAuditHistory(history);
-      if (history.length > 0) {
-        setCurrentReport(history[history.length - 1]);
-      }
-    } catch (err) {
-      setError('Failed to load audit history');
-    }
-  };
+	const loadAuditHistory = () => {
+		try {
+			const history = securityAuditor.getAuditHistory();
+			setAuditHistory(history);
+			if (history.length > 0) {
+				setCurrentReport(history[history.length - 1]);
+			}
+		} catch (err) {
+			setError('Failed to load audit history');
+		}
+	};
 
-  const handleRunAudit = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const report = await securityAuditor.performSecurityAudit();
-      setCurrentReport(report);
-      loadAuditHistory();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Audit failed');
-    } finally {
-      setLoading(false);
-    }
-  };
+	const handleRunAudit = async () => {
+		try {
+			setLoading(true);
+			setError(null);
 
-  const handleExportReport = () => {
-    if (!currentReport) return;
+			const report = await securityAuditor.performSecurityAudit();
+			setCurrentReport(report);
+			loadAuditHistory();
+		} catch (err) {
+			setError(err instanceof Error ? err.message : 'Audit failed');
+		} finally {
+			setLoading(false);
+		}
+	};
 
-    const blob = new Blob([JSON.stringify(currentReport, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `security-audit-${currentReport.auditId}-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
+	const handleExportReport = () => {
+		if (!currentReport) return;
 
-  const getSeverityIcon = (severity: string) => {
-    switch (severity) {
-      case 'critical': return '';
-      case 'high': return '';
-      case 'medium': return '';
-      case 'low': return '';
-      default: return '';
-    }
-  };
+		const blob = new Blob([JSON.stringify(currentReport, null, 2)], { type: 'application/json' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `security-audit-${currentReport.auditId}-${new Date().toISOString().split('T')[0]}.json`;
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+		URL.revokeObjectURL(url);
+	};
 
-  if (loading) {
-    return (
-      <DashboardContainer>
-        <LoadingSpinner>Running security audit...</LoadingSpinner>
-      </DashboardContainer>
-    );
-  }
+	const getSeverityIcon = (severity: string) => {
+		switch (severity) {
+			case 'critical':
+				return '';
+			case 'high':
+				return '';
+			case 'medium':
+				return '';
+			case 'low':
+				return '';
+			default:
+				return '';
+		}
+	};
 
-  return (
-    <DashboardContainer>
-      <DashboardHeader>
-        <DashboardTitle>Security Audit Dashboard</DashboardTitle>
-        <div>
-          <Button $variant="secondary" onClick={loadAuditHistory}>
-            Refresh History
-          </Button>
-          <Button $variant="primary" onClick={handleRunAudit}>
-            Run New Audit
-          </Button>
-        </div>
-      </DashboardHeader>
+	if (loading) {
+		return (
+			<DashboardContainer>
+				<LoadingSpinner>Running security audit...</LoadingSpinner>
+			</DashboardContainer>
+		);
+	}
 
-      {error && (
-        <ErrorMessage>
-          {error}
-        </ErrorMessage>
-      )}
+	return (
+		<DashboardContainer>
+			<DashboardHeader>
+				<DashboardTitle>Security Audit Dashboard</DashboardTitle>
+				<div>
+					<Button $variant="secondary" onClick={loadAuditHistory}>
+						Refresh History
+					</Button>
+					<Button $variant="primary" onClick={handleRunAudit}>
+						Run New Audit
+					</Button>
+				</div>
+			</DashboardHeader>
 
-      {currentReport ? (
-        <>
-          <SecurityScore score={currentReport.overallScore}>
-            <ScoreCircle score={currentReport.overallScore}>
-              {currentReport.overallScore}
-            </ScoreCircle>
-            Security Score
-          </SecurityScore>
+			{error && <ErrorMessage>{error}</ErrorMessage>}
 
-          <StatsGrid>
-            <StatCard>
-              <StatValue>{currentReport.summary.totalVulnerabilities}</StatValue>
-              <StatLabel>Total Issues</StatLabel>
-            </StatCard>
-            <StatCard $severity="critical">
-              <StatValue>{currentReport.summary.criticalCount}</StatValue>
-              <StatLabel>Critical</StatLabel>
-            </StatCard>
-            <StatCard $severity="high">
-              <StatValue>{currentReport.summary.highCount}</StatValue>
-              <StatLabel>High</StatLabel>
-            </StatCard>
-            <StatCard $severity="medium">
-              <StatValue>{currentReport.summary.mediumCount}</StatValue>
-              <StatLabel>Medium</StatLabel>
-            </StatCard>
-            <StatCard $severity="low">
-              <StatValue>{currentReport.summary.lowCount}</StatValue>
-              <StatLabel>Low</StatLabel>
-            </StatCard>
-          </StatsGrid>
+			{currentReport ? (
+				<>
+					<SecurityScore score={currentReport.overallScore}>
+						<ScoreCircle score={currentReport.overallScore}>
+							{currentReport.overallScore}
+						</ScoreCircle>
+						Security Score
+					</SecurityScore>
 
-          <Section>
-            <SectionTitle>Security Recommendations</SectionTitle>
-            <RecommendationsList>
-              {currentReport.recommendations.map((recommendation, index) => (
-                <RecommendationItem key={index}>
-                  {recommendation}
-                </RecommendationItem>
-              ))}
-            </RecommendationsList>
-          </Section>
+					<StatsGrid>
+						<StatCard>
+							<StatValue>{currentReport.summary.totalVulnerabilities}</StatValue>
+							<StatLabel>Total Issues</StatLabel>
+						</StatCard>
+						<StatCard $severity="critical">
+							<StatValue>{currentReport.summary.criticalCount}</StatValue>
+							<StatLabel>Critical</StatLabel>
+						</StatCard>
+						<StatCard $severity="high">
+							<StatValue>{currentReport.summary.highCount}</StatValue>
+							<StatLabel>High</StatLabel>
+						</StatCard>
+						<StatCard $severity="medium">
+							<StatValue>{currentReport.summary.mediumCount}</StatValue>
+							<StatLabel>Medium</StatLabel>
+						</StatCard>
+						<StatCard $severity="low">
+							<StatValue>{currentReport.summary.lowCount}</StatValue>
+							<StatLabel>Low</StatLabel>
+						</StatCard>
+					</StatsGrid>
 
-          <Section>
-            <SectionTitle>Vulnerabilities</SectionTitle>
-            <VulnerabilityList>
-              {currentReport.vulnerabilities.length === 0 ? (
-                <div style={{ textAlign: 'center', color: '#6b7280', padding: '2rem' }}>
-                  No vulnerabilities found! 
-                </div>
-              ) : (
-                currentReport.vulnerabilities.map((vulnerability) => (
-                  <VulnerabilityItem key={vulnerability.id} $severity={vulnerability.severity}>
-                    <VulnerabilityHeader>
-                      <VulnerabilityTitle>
-                        {getSeverityIcon(vulnerability.severity)} {vulnerability.title}
-                      </VulnerabilityTitle>
-                      <SeverityBadge $severity={vulnerability.severity}>
-                        {vulnerability.severity}
-                      </SeverityBadge>
-                    </VulnerabilityHeader>
-                    <VulnerabilityDescription>
-                      {vulnerability.description}
-                    </VulnerabilityDescription>
-                    <VulnerabilityRecommendation>
-                      <strong>Recommendation:</strong> {vulnerability.recommendation}
-                    </VulnerabilityRecommendation>
-                  </VulnerabilityItem>
-                ))
-              )}
-            </VulnerabilityList>
-          </Section>
+					<Section>
+						<SectionTitle>Security Recommendations</SectionTitle>
+						<RecommendationsList>
+							{currentReport.recommendations.map((recommendation, index) => (
+								<RecommendationItem key={index}>{recommendation}</RecommendationItem>
+							))}
+						</RecommendationsList>
+					</Section>
 
-          <div style={{ marginTop: '2rem', textAlign: 'right' }}>
-            <Button $variant="success" onClick={handleExportReport}>
-              Export Report
-            </Button>
-          </div>
-        </>
-      ) : (
-        <div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
-          No security audit has been run yet. Click "Run New Audit" to get started.
-        </div>
-      )}
-    </DashboardContainer>
-  );
+					<Section>
+						<SectionTitle>Vulnerabilities</SectionTitle>
+						<VulnerabilityList>
+							{currentReport.vulnerabilities.length === 0 ? (
+								<div style={{ textAlign: 'center', color: '#6b7280', padding: '2rem' }}>
+									No vulnerabilities found!
+								</div>
+							) : (
+								currentReport.vulnerabilities.map((vulnerability) => (
+									<VulnerabilityItem key={vulnerability.id} $severity={vulnerability.severity}>
+										<VulnerabilityHeader>
+											<VulnerabilityTitle>
+												{getSeverityIcon(vulnerability.severity)} {vulnerability.title}
+											</VulnerabilityTitle>
+											<SeverityBadge $severity={vulnerability.severity}>
+												{vulnerability.severity}
+											</SeverityBadge>
+										</VulnerabilityHeader>
+										<VulnerabilityDescription>{vulnerability.description}</VulnerabilityDescription>
+										<VulnerabilityRecommendation>
+											<strong>Recommendation:</strong> {vulnerability.recommendation}
+										</VulnerabilityRecommendation>
+									</VulnerabilityItem>
+								))
+							)}
+						</VulnerabilityList>
+					</Section>
+
+					<div style={{ marginTop: '2rem', textAlign: 'right' }}>
+						<Button $variant="success" onClick={handleExportReport}>
+							Export Report
+						</Button>
+					</div>
+				</>
+			) : (
+				<div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
+					No security audit has been run yet. Click "Run New Audit" to get started.
+				</div>
+			)}
+		</DashboardContainer>
+	);
 };
 
 export default SecurityAuditDashboard;

@@ -1,18 +1,13 @@
 // src/pages/callbacks/HybridCallbackV3.tsx - OIDC Hybrid Flow Callback Handler V3
-import type React from "react";
-import { useEffect, useState } from "react";
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiRefreshCw,
-	FiShield,
-} from "react-icons/fi";
-import styled from "styled-components";
-import { ColorCodedURL } from "../../components/ColorCodedURL";
-import TokenDisplay from "../../components/TokenDisplay";
-import { decodeJwt, validateToken } from "../../utils/jwt";
-import { logger } from "../../utils/logger";
-import { storeOAuthTokens } from "../../utils/tokenStorage";
+import type React from 'react';
+import { useEffect, useState } from 'react';
+import { FiAlertTriangle, FiCheckCircle, FiRefreshCw, FiShield } from 'react-icons/fi';
+import styled from 'styled-components';
+import { ColorCodedURL } from '../../components/ColorCodedURL';
+import TokenDisplay from '../../components/TokenDisplay';
+import { decodeJwt, validateToken } from '../../utils/jwt';
+import { logger } from '../../utils/logger';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
 
 // Styled components
 const Container = styled.div`
@@ -57,7 +52,7 @@ const Subtitle = styled.p`
   line-height: 1.6;
 `;
 
-const StatusCard = styled.div<{ variant: "success" | "error" | "info" }>`
+const StatusCard = styled.div<{ variant: 'success' | 'error' | 'info' }>`
   padding: 1.5rem;
   border-radius: 12px;
   margin-bottom: 1.5rem;
@@ -65,13 +60,13 @@ const StatusCard = styled.div<{ variant: "success" | "error" | "info" }>`
   
   ${(props) => {
 		switch (props.variant) {
-			case "success":
+			case 'success':
 				return `
           background: #f0fdf4;
           border-color: #bbf7d0;
           color: #166534;
         `;
-			case "error":
+			case 'error':
 				return `
           background: #fef2f2;
           border-color: #fecaca;
@@ -150,16 +145,12 @@ interface HybridTokens {
 }
 
 const HybridCallbackV3: React.FC = () => {
-	const [status, setStatus] = useState<"processing" | "success" | "error">(
-		"processing",
-	);
-	const [message, setMessage] = useState<string>("");
+	const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
+	const [message, setMessage] = useState<string>('');
 	const [tokens, setTokens] = useState<HybridTokens | null>(null);
 	const [response, setResponse] = useState<HybridCallbackResponse | null>(null);
-	const [error, setError] = useState<string>("");
-	const [troubleshootingSteps, setTroubleshootingSteps] = useState<string[]>(
-		[],
-	);
+	const [error, setError] = useState<string>('');
+	const [troubleshootingSteps, setTroubleshootingSteps] = useState<string[]>([]);
 
 	useEffect(() => {
 		processCallback();
@@ -167,7 +158,7 @@ const HybridCallbackV3: React.FC = () => {
 
 	const processCallback = async () => {
 		try {
-			logger.info("HybridCallbackV3", " HYBRID parsed query+fragment", {
+			logger.info('HybridCallbackV3', ' HYBRID parsed query+fragment', {
 				url: window.location.href,
 				hash: window.location.hash,
 				search: window.location.search,
@@ -191,17 +182,17 @@ const HybridCallbackV3: React.FC = () => {
 			}
 
 			const response: HybridCallbackResponse = {
-				code: allParams.get("code") || undefined,
-				id_token: allParams.get("id_token") || undefined,
-				access_token: allParams.get("access_token") || undefined,
-				token_type: allParams.get("token_type") || undefined,
-				expires_in: allParams.get("expires_in")
-					? parseInt(allParams.get("expires_in")!, 10)
+				code: allParams.get('code') || undefined,
+				id_token: allParams.get('id_token') || undefined,
+				access_token: allParams.get('access_token') || undefined,
+				token_type: allParams.get('token_type') || undefined,
+				expires_in: allParams.get('expires_in')
+					? parseInt(allParams.get('expires_in')!, 10)
 					: undefined,
-				scope: allParams.get("scope") || undefined,
-				state: allParams.get("state") || undefined,
-				error: allParams.get("error") || undefined,
-				error_description: allParams.get("error_description") || undefined,
+				scope: allParams.get('scope') || undefined,
+				state: allParams.get('state') || undefined,
+				error: allParams.get('error') || undefined,
+				error_description: allParams.get('error_description') || undefined,
 			};
 
 			setResponse(response);
@@ -209,36 +200,32 @@ const HybridCallbackV3: React.FC = () => {
 			// Check for errors
 			if (response.error) {
 				throw new Error(
-					`OIDC Hybrid Flow error: ${response.error}${response.error_description ? ` - ${response.error_description}` : ""}`,
+					`OIDC Hybrid Flow error: ${response.error}${response.error_description ? ` - ${response.error_description}` : ''}`
 				);
 			}
 
 			// Validate required parameters
 			if (!response.code && !response.id_token && !response.access_token) {
-				throw new Error(
-					"No tokens or authorization code received from authorization server",
-				);
+				throw new Error('No tokens or authorization code received from authorization server');
 			}
 
 			// Load stored security parameters
-			const storedSecurity = localStorage.getItem("oidc_hybrid_v3_security");
+			const storedSecurity = localStorage.getItem('oidc_hybrid_v3_security');
 			if (!storedSecurity) {
-				throw new Error(
-					"Security parameters not found. Please restart the flow.",
-				);
+				throw new Error('Security parameters not found. Please restart the flow.');
 			}
 
 			const security = JSON.parse(storedSecurity);
 
 			// Validate state parameter
 			if (response.state && response.state !== security.state) {
-				throw new Error("State parameter mismatch. Possible CSRF attack.");
+				throw new Error('State parameter mismatch. Possible CSRF attack.');
 			}
 
 			// Verify ID token if present
 			if (response.id_token) {
 				try {
-					logger.info("HybridCallbackV3", " Verifying ID token", {
+					logger.info('HybridCallbackV3', ' Verifying ID token', {
 						hasIdToken: !!response.id_token,
 						hasNonce: !!security.nonce,
 					});
@@ -246,12 +233,12 @@ const HybridCallbackV3: React.FC = () => {
 					// Decode the ID token to check basic structure and claims
 					const decodedToken = decodeJwt(response.id_token);
 					if (!decodedToken) {
-						throw new Error("Failed to decode ID token");
+						throw new Error('Failed to decode ID token');
 					}
 
 					// Basic validation of ID token claims
 					const validation = validateToken(response.id_token, {
-						requiredClaims: ["iss", "sub", "aud", "exp", "iat"],
+						requiredClaims: ['iss', 'sub', 'aud', 'exp', 'iat'],
 						leeway: 300, // 5 minutes leeway for clock skew
 					});
 
@@ -261,22 +248,17 @@ const HybridCallbackV3: React.FC = () => {
 
 					// Check nonce if provided
 					if (security.nonce && decodedToken.nonce !== security.nonce) {
-						throw new Error("Nonce mismatch in ID token");
+						throw new Error('Nonce mismatch in ID token');
 					}
 
-					logger.info("HybridCallbackV3", " HYBRID id_token verified", {
+					logger.info('HybridCallbackV3', ' HYBRID id_token verified', {
 						subject: decodedToken.sub,
 						issuer: decodedToken.iss,
 						audience: decodedToken.aud,
-						nonceMatch:
-							!security.nonce || decodedToken.nonce === security.nonce,
+						nonceMatch: !security.nonce || decodedToken.nonce === security.nonce,
 					});
 				} catch (idTokenError) {
-					logger.error(
-						"HybridCallbackV3",
-						" ID token verification failed",
-						idTokenError,
-					);
+					logger.error('HybridCallbackV3', ' ID token verification failed', idTokenError);
 					throw new Error(`ID token verification failed: ${idTokenError}`);
 				}
 			}
@@ -286,7 +268,7 @@ const HybridCallbackV3: React.FC = () => {
 
 			if (response.code) {
 				try {
-					logger.info("HybridCallbackV3", " HYBRID code exchanged", {
+					logger.info('HybridCallbackV3', ' HYBRID code exchanged', {
 						hasCode: !!response.code,
 						codeLength: response.code.length,
 					});
@@ -301,11 +283,7 @@ const HybridCallbackV3: React.FC = () => {
 						scope: response.scope,
 					};
 				} catch (exchangeError) {
-					logger.error(
-						"HybridCallbackV3",
-						" Token exchange failed",
-						exchangeError,
-					);
+					logger.error('HybridCallbackV3', ' Token exchange failed', exchangeError);
 					throw new Error(`Token exchange failed: ${exchangeError}`);
 				}
 			}
@@ -321,9 +299,9 @@ const HybridCallbackV3: React.FC = () => {
 			};
 
 			// Store tokens
-			await storeOAuthTokens(finalTokens, "hybrid");
+			await storeOAuthTokens(finalTokens, 'hybrid');
 
-			logger.info("HybridCallbackV3", " HYBRID tokens stored", {
+			logger.info('HybridCallbackV3', ' HYBRID tokens stored', {
 				hasAccessToken: !!finalTokens.access_token,
 				hasIdToken: !!finalTokens.id_token,
 				tokenType: finalTokens.token_type,
@@ -331,61 +309,51 @@ const HybridCallbackV3: React.FC = () => {
 			});
 
 			setTokens(finalTokens);
-			setStatus("success");
-			setMessage(
-				"OIDC Hybrid Flow completed successfully! Tokens have been received and stored.",
-			);
+			setStatus('success');
+			setMessage('OIDC Hybrid Flow completed successfully! Tokens have been received and stored.');
 
 			// Clear URL parameters for security
 			window.history.replaceState({}, document.title, window.location.pathname);
 
 			// Clear stored security parameters
-			localStorage.removeItem("oidc_hybrid_v3_security");
+			localStorage.removeItem('oidc_hybrid_v3_security');
 		} catch (error) {
-			logger.error(
-				"HybridCallbackV3",
-				" Hybrid callback processing failed",
-				error,
-			);
+			logger.error('HybridCallbackV3', ' Hybrid callback processing failed', error);
 
-			setStatus("error");
-			setError(
-				error instanceof Error ? error.message : "Unknown error occurred",
-			);
+			setStatus('error');
+			setError(error instanceof Error ? error.message : 'Unknown error occurred');
 
 			// Generate troubleshooting steps
 			const steps = [];
 			if (error instanceof Error) {
-				if (error.message.includes("state")) {
+				if (error.message.includes('state')) {
 					steps.push(
-						"Check if the state parameter matches the one sent in the authorization request",
+						'Check if the state parameter matches the one sent in the authorization request'
 					);
 					steps.push(
-						"Ensure the authorization request was initiated from the same browser session",
+						'Ensure the authorization request was initiated from the same browser session'
 					);
 				}
-				if (error.message.includes("nonce")) {
+				if (error.message.includes('nonce')) {
 					steps.push(
-						"Verify the nonce parameter matches the one sent in the authorization request",
+						'Verify the nonce parameter matches the one sent in the authorization request'
 					);
-					steps.push("Check if the ID token is valid and not expired");
+					steps.push('Check if the ID token is valid and not expired');
 				}
-				if (error.message.includes("verification")) {
+				if (error.message.includes('verification')) {
 					steps.push("Verify the ID token signature with the issuer's JWKS");
-					steps.push("Check if the issuer URL is correct and accessible");
+					steps.push('Check if the issuer URL is correct and accessible');
 				}
-				if (error.message.includes("exchange")) {
-					steps.push("Ensure the authorization code is valid and not expired");
-					steps.push("Verify the token endpoint URL and client credentials");
+				if (error.message.includes('exchange')) {
+					steps.push('Ensure the authorization code is valid and not expired');
+					steps.push('Verify the token endpoint URL and client credentials');
 				}
 			}
 
 			if (steps.length === 0) {
-				steps.push("Check the browser console for detailed error information");
-				steps.push("Verify your PingOne configuration and client settings");
-				steps.push(
-					"Ensure the redirect URI matches exactly in your PingOne application",
-				);
+				steps.push('Check the browser console for detailed error information');
+				steps.push('Verify your PingOne configuration and client settings');
+				steps.push('Ensure the redirect URI matches exactly in your PingOne application');
 			}
 
 			setTroubleshootingSteps(steps);
@@ -398,7 +366,7 @@ const HybridCallbackV3: React.FC = () => {
 			window.close();
 		} else {
 			// Redirect to the main application
-			window.location.href = "/flows/oidc-hybrid-v3";
+			window.location.href = '/flows/oidc-hybrid-v3';
 		}
 	};
 
@@ -407,53 +375,48 @@ const HybridCallbackV3: React.FC = () => {
 			<CallbackCard>
 				<Header>
 					<Title>
-						{status === "processing" && (
+						{status === 'processing' && (
 							<Spinner>
 								<FiRefreshCw />
 							</Spinner>
 						)}
-						{status === "success" && <FiCheckCircle />}
-						{status === "error" && <FiAlertTriangle />}
+						{status === 'success' && <FiCheckCircle />}
+						{status === 'error' && <FiAlertTriangle />}
 						OIDC Hybrid Flow Callback
 					</Title>
 					<Subtitle>
-						{status === "processing" &&
-							"Processing OIDC Hybrid Flow response..."}
-						{status === "success" && "Authorization completed successfully!"}
-						{status === "error" &&
-							"Authorization failed. Please check the details below."}
+						{status === 'processing' && 'Processing OIDC Hybrid Flow response...'}
+						{status === 'success' && 'Authorization completed successfully!'}
+						{status === 'error' && 'Authorization failed. Please check the details below.'}
 					</Subtitle>
 				</Header>
 
-				{status === "processing" && (
+				{status === 'processing' && (
 					<StatusCard variant="info">
 						<div
 							style={{
-								display: "flex",
-								alignItems: "center",
-								gap: "0.5rem",
-								marginBottom: "1rem",
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+								marginBottom: '1rem',
 							}}
 						>
 							<FiRefreshCw className="animate-spin" />
 							<strong>Processing Response</strong>
 						</div>
-						<p>
-							Validating security parameters, verifying tokens, and storing
-							credentials...
-						</p>
+						<p>Validating security parameters, verifying tokens, and storing credentials...</p>
 					</StatusCard>
 				)}
 
-				{status === "success" && (
+				{status === 'success' && (
 					<>
 						<StatusCard variant="success">
 							<div
 								style={{
-									display: "flex",
-									alignItems: "center",
-									gap: "0.5rem",
-									marginBottom: "1rem",
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+									marginBottom: '1rem',
 								}}
 							>
 								<FiCheckCircle />
@@ -463,14 +426,14 @@ const HybridCallbackV3: React.FC = () => {
 						</StatusCard>
 
 						{tokens && (
-							<div style={{ marginTop: "1.5rem" }}>
+							<div style={{ marginTop: '1.5rem' }}>
 								<h3
 									style={{
-										color: "#1f2937",
-										marginBottom: "1rem",
-										display: "flex",
-										alignItems: "center",
-										gap: "0.5rem",
+										color: '#1f2937',
+										marginBottom: '1rem',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
 									}}
 								>
 									<FiShield />
@@ -480,7 +443,7 @@ const HybridCallbackV3: React.FC = () => {
 							</div>
 						)}
 
-						<div style={{ marginTop: "1.5rem", textAlign: "center" }}>
+						<div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
 							<Button onClick={handleClose}>
 								<FiCheckCircle />
 								Continue
@@ -489,15 +452,15 @@ const HybridCallbackV3: React.FC = () => {
 					</>
 				)}
 
-				{status === "error" && (
+				{status === 'error' && (
 					<>
 						<StatusCard variant="error">
 							<div
 								style={{
-									display: "flex",
-									alignItems: "center",
-									gap: "0.5rem",
-									marginBottom: "1rem",
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+									marginBottom: '1rem',
 								}}
 							>
 								<FiAlertTriangle />
@@ -511,9 +474,9 @@ const HybridCallbackV3: React.FC = () => {
 						{troubleshootingSteps.length > 0 && (
 							<InfoBox>
 								<strong>Troubleshooting Steps:</strong>
-								<ol style={{ margin: "0.5rem 0 0 1rem" }}>
+								<ol style={{ margin: '0.5rem 0 0 1rem' }}>
 									{troubleshootingSteps.map((step, index) => (
-										<li key={index} style={{ marginBottom: "0.25rem" }}>
+										<li key={index} style={{ marginBottom: '0.25rem' }}>
 											{step}
 										</li>
 									))}
@@ -526,12 +489,12 @@ const HybridCallbackV3: React.FC = () => {
 								<strong>Response Details:</strong>
 								<pre
 									style={{
-										background: "#f3f4f6",
-										padding: "0.75rem",
-										borderRadius: "4px",
-										marginTop: "0.5rem",
-										fontSize: "0.875rem",
-										overflow: "auto",
+										background: '#f3f4f6',
+										padding: '0.75rem',
+										borderRadius: '4px',
+										marginTop: '0.5rem',
+										fontSize: '0.875rem',
+										overflow: 'auto',
 									}}
 								>
 									{JSON.stringify(response, null, 2)}
@@ -539,7 +502,7 @@ const HybridCallbackV3: React.FC = () => {
 							</InfoBox>
 						)}
 
-						<div style={{ marginTop: "1.5rem", textAlign: "center" }}>
+						<div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
 							<Button onClick={handleClose}>
 								<FiAlertTriangle />
 								Close
@@ -549,9 +512,9 @@ const HybridCallbackV3: React.FC = () => {
 				)}
 
 				{response && (
-					<InfoBox style={{ marginTop: "1.5rem" }}>
+					<InfoBox style={{ marginTop: '1.5rem' }}>
 						<strong>Callback URL:</strong>
-						<div style={{ marginTop: "0.5rem" }}>
+						<div style={{ marginTop: '0.5rem' }}>
 							<ColorCodedURL url={window.location.href} />
 						</div>
 					</InfoBox>

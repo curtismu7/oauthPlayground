@@ -16,18 +16,18 @@ const ContentContainer = styled.div`
 `;
 
 const Analytics: React.FC = () => {
-  return (
-    <PageContainer>
-      <ContentContainer>
-        <PageTitle
-          title="Analytics Dashboard"
-          subtitle="Monitor user behavior, performance metrics, and security events across your OAuth flows"
-          icon=""
-        />
-        <AnalyticsDashboard />
-      </ContentContainer>
-    </PageContainer>
-  );
+	return (
+		<PageContainer>
+			<ContentContainer>
+				<PageTitle
+					title="Analytics Dashboard"
+					subtitle="Monitor user behavior, performance metrics, and security events across your OAuth flows"
+					icon=""
+				/>
+				<AnalyticsDashboard />
+			</ContentContainer>
+		</PageContainer>
+	);
 };
 
 export default Analytics;

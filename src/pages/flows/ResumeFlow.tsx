@@ -1,11 +1,11 @@
-import type React from "react";
-import { useCallback, useState } from "react";
-import styled from "styled-components";
-import FlowCredentials from "../../components/FlowCredentials";
-import JSONHighlighter from "../../components/JSONHighlighter";
-import { StepByStepFlow } from "../../components/StepByStepFlow";
-import { logger } from "../../utils/logger";
-import { storeOAuthTokens } from "../../utils/tokenStorage";
+import type React from 'react';
+import { useCallback, useState } from 'react';
+import styled from 'styled-components';
+import FlowCredentials from '../../components/FlowCredentials';
+import JSONHighlighter from '../../components/JSONHighlighter';
+import { StepByStepFlow } from '../../components/StepByStepFlow';
+import { logger } from '../../utils/logger';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -93,7 +93,7 @@ const _Select = styled.select`
 `;
 
 const Button = styled.button<{
-	$variant: "primary" | "secondary" | "success" | "danger";
+	$variant: 'primary' | 'secondary' | 'success' | 'danger';
 }>`
   padding: 0.75rem 1.5rem;
   border: none;
@@ -107,25 +107,25 @@ const Button = styled.button<{
   
   ${({ $variant }) => {
 		switch ($variant) {
-			case "primary":
+			case 'primary':
 				return `
           background-color: #3b82f6;
           color: white;
           &:hover { background-color: #2563eb; }
         `;
-			case "secondary":
+			case 'secondary':
 				return `
           background-color: #6b7280;
           color: white;
           &:hover { background-color: #4b5563; }
         `;
-			case "success":
+			case 'success':
 				return `
           background-color: #10b981;
           color: white;
           &:hover { background-color: #059669; }
         `;
-			case "danger":
+			case 'danger':
 				return `
           background-color: #ef4444;
           color: white;
@@ -225,8 +225,8 @@ const Tab = styled.button<{ $active: boolean }>`
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  border-bottom: 2px solid ${({ $active }) => ($active ? "#3b82f6" : "transparent")};
-  color: ${({ $active }) => ($active ? "#3b82f6" : "#6b7280")};
+  border-bottom: 2px solid ${({ $active }) => ($active ? '#3b82f6' : 'transparent')};
+  color: ${({ $active }) => ($active ? '#3b82f6' : '#6b7280')};
   
   &:hover {
     color: #3b82f6;
@@ -244,42 +244,36 @@ interface ResumeFlowProps {
 
 const ResumeFlow: React.FC<ResumeFlowProps> = ({ credentials }) => {
 	const [currentStep, setCurrentStep] = useState(0);
-	const [demoStatus, setDemoStatus] = useState<
-		"idle" | "loading" | "success" | "error"
-	>("idle");
-	const [activeTab, setActiveTab] = useState<"get" | "post">("get");
+	const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+	const [activeTab, setActiveTab] = useState<'get' | 'post'>('get');
 	const [formData, setFormData] = useState({
-		clientId: credentials?.clientId || "",
-		clientSecret: credentials?.clientSecret || "",
-		redirectUri: credentials?.redirectUri || "http://localhost:3000/callback",
-		environmentId: credentials?.environmentId || "",
-		scope: "openid profile email",
-		resumeToken: "",
-		state: "",
-		nonce: "",
-		acrValues: "",
-		prompt: "",
-		maxAge: "",
-		uiLocales: "",
-		claims: "",
+		clientId: credentials?.clientId || '',
+		clientSecret: credentials?.clientSecret || '',
+		redirectUri: credentials?.redirectUri || 'http://localhost:3000/callback',
+		environmentId: credentials?.environmentId || '',
+		scope: 'openid profile email',
+		resumeToken: '',
+		state: '',
+		nonce: '',
+		acrValues: '',
+		prompt: '',
+		maxAge: '',
+		uiLocales: '',
+		claims: '',
 	});
-	const [response, setResponse] = useState<Record<string, unknown> | null>(
-		null,
-	);
+	const [response, setResponse] = useState<Record<string, unknown> | null>(null);
 	const [error, setError] = useState<string | null>(null);
 
 	const generateState = useCallback(() => {
 		const state =
-			Math.random().toString(36).substring(2, 15) +
-			Math.random().toString(36).substring(2, 15);
+			Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 		setFormData((prev) => ({ ...prev, state }));
 		return state;
 	}, []);
 
 	const generateNonce = useCallback(() => {
 		const nonce =
-			Math.random().toString(36).substring(2, 15) +
-			Math.random().toString(36).substring(2, 15);
+			Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 		setFormData((prev) => ({ ...prev, nonce }));
 		return nonce;
 	}, []);
@@ -292,9 +286,9 @@ const ResumeFlow: React.FC<ResumeFlowProps> = ({ credentials }) => {
 
 	const steps = [
 		{
-			id: "step-1",
-			title: "Configure Resume Flow Settings",
-			description: "Set up your OAuth client for resume flow.",
+			id: 'step-1',
+			title: 'Configure Resume Flow Settings',
+			description: 'Set up your OAuth client for resume flow.',
 			code: `// Resume Flow Configuration
 const resumeConfig = {
   clientId: '${formData.clientId}',
@@ -312,17 +306,16 @@ const resumeConfig = {
 
 console.log('Resume flow configured:', resumeConfig);`,
 			execute: async () => {
-				logger.info("ResumeFlow", "Configuring resume flow settings");
+				logger.info('ResumeFlow', 'Configuring resume flow settings');
 				generateResumeToken();
 				generateState();
 				generateNonce();
 			},
 		},
 		{
-			id: "step-2",
-			title: "Generate Resume Token",
-			description:
-				"Create a resume token for continuing the authorization flow.",
+			id: 'step-2',
+			title: 'Generate Resume Token',
+			description: 'Create a resume token for continuing the authorization flow.',
 			code: `// Generate Resume Token
 const resumeToken = generateResumeToken();
 const state = generateState();
@@ -337,7 +330,7 @@ console.log('Resume Token:', resumeToken);
 console.log('State:', state);
 console.log('Nonce:', nonce);`,
 			execute: async () => {
-				logger.info("ResumeFlow", "Generating resume token");
+				logger.info('ResumeFlow', 'Generating resume token');
 				const resumeToken = generateResumeToken();
 				const state = generateState();
 				const nonce = generateNonce();
@@ -346,17 +339,14 @@ console.log('Nonce:', nonce);`,
 			},
 		},
 		{
-			id: "step-3",
-			title:
-				activeTab === "get"
-					? "Resume Authorization (GET)"
-					: "Resume Authorization (POST)",
+			id: 'step-3',
+			title: activeTab === 'get' ? 'Resume Authorization (GET)' : 'Resume Authorization (POST)',
 			description:
-				activeTab === "get"
-					? "Resume the authorization flow using GET request with resume token."
-					: "Resume the authorization flow using POST request with resume token.",
+				activeTab === 'get'
+					? 'Resume the authorization flow using GET request with resume token.'
+					: 'Resume the authorization flow using POST request with resume token.',
 			code:
-				activeTab === "get"
+				activeTab === 'get'
 					? `// Resume Authorization (GET)
 const resumeUrl = \`https://auth.pingone.com/\${environmentId}/as/resume\`;
 
@@ -406,11 +396,8 @@ if (response.ok) {
   throw new Error(\`Resume failed: \${response.status}\`);
 }`,
 			execute: async () => {
-				logger.info(
-					"ResumeFlow",
-					`Resuming authorization using ${activeTab.toUpperCase()}`,
-				);
-				setDemoStatus("loading");
+				logger.info('ResumeFlow', `Resuming authorization using ${activeTab.toUpperCase()}`);
+				setDemoStatus('loading');
 
 				try {
 					const resumeUrl = `https://auth.pingone.com/${formData.environmentId}/as/resume`;
@@ -424,20 +411,19 @@ if (response.ok) {
 					};
 
 					setResponse(mockResponse);
-					setDemoStatus("success");
+					setDemoStatus('success');
 				} catch (error) {
-					const errorMessage =
-						error instanceof Error ? error.message : "Unknown error";
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 					setError(errorMessage);
-					setDemoStatus("error");
+					setDemoStatus('error');
 					throw error;
 				}
 			},
 		},
 		{
-			id: "step-4",
-			title: "Handle Resume Response",
-			description: "Process the response from the resume endpoint.",
+			id: 'step-4',
+			title: 'Handle Resume Response',
+			description: 'Process the response from the resume endpoint.',
 			code: `// Handle Resume Response
 const urlParams = new URLSearchParams(window.location.search);
 const code = urlParams.get('code');
@@ -459,13 +445,13 @@ if (error) {
 console.log('Resume successful, authorization code:', code);
 console.log('State validated:', state === storedState);`,
 			execute: async () => {
-				logger.info("ResumeFlow", "Handling resume response");
+				logger.info('ResumeFlow', 'Handling resume response');
 			},
 		},
 		{
-			id: "step-5",
-			title: "Exchange Code for Tokens",
-			description: "Exchange the authorization code for access and ID tokens.",
+			id: 'step-5',
+			title: 'Exchange Code for Tokens',
+			description: 'Exchange the authorization code for access and ID tokens.',
 			code: `// Exchange authorization code for tokens
 const tokenUrl = \`https://auth.pingone.com/\${environmentId}/as/token\`;
 
@@ -492,14 +478,14 @@ if (tokenResponse.ok) {
   localStorage.removeItem('resume_token');
 }`,
 			execute: async () => {
-				logger.info("ResumeFlow", "Exchanging code for tokens");
+				logger.info('ResumeFlow', 'Exchanging code for tokens');
 
 				try {
 					// Simulate token exchange
 					const mockTokens = {
 						access_token: `mock_access_token_${Date.now()}`,
 						id_token: `mock_id_token_${Date.now()}`,
-						token_type: "Bearer",
+						token_type: 'Bearer',
 						expires_in: 3600,
 						scope: formData.scope,
 						refresh_token: `mock_refresh_token_${Date.now()}`,
@@ -508,16 +494,15 @@ if (tokenResponse.ok) {
 					};
 
 					// Store tokens using the standardized method
-					const success = storeOAuthTokens(mockTokens, "resume", "Resume Flow");
+					const success = storeOAuthTokens(mockTokens, 'resume', 'Resume Flow');
 
 					if (success) {
 						setResponse((prev) => ({ ...prev, tokens: mockTokens }));
 					} else {
-						throw new Error("Failed to store tokens");
+						throw new Error('Failed to store tokens');
 					}
 				} catch (error) {
-					const errorMessage =
-						error instanceof Error ? error.message : "Unknown error";
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 					setError(errorMessage);
 					throw error;
 				}
@@ -527,18 +512,18 @@ if (tokenResponse.ok) {
 
 	const handleStepChange = useCallback((step: number) => {
 		setCurrentStep(step);
-		setDemoStatus("idle");
+		setDemoStatus('idle');
 		setResponse(null);
 		setError(null);
 	}, []);
 
 	const handleStepResult = useCallback((step: number, result: unknown) => {
-		logger.info("ResumeFlow", `Step ${step + 1} completed`, result);
+		logger.info('ResumeFlow', `Step ${step + 1} completed`, result);
 	}, []);
 
 	const handleResumeStart = async () => {
 		try {
-			setDemoStatus("loading");
+			setDemoStatus('loading');
 			setError(null);
 
 			const resumeUrl = `https://auth.pingone.com/${formData.environmentId}/as/resume`;
@@ -552,12 +537,11 @@ if (tokenResponse.ok) {
 			};
 
 			setResponse(mockResponse);
-			setDemoStatus("success");
+			setDemoStatus('success');
 		} catch (error) {
-			const errorMessage =
-				error instanceof Error ? error.message : "Unknown error";
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			setError(errorMessage);
-			setDemoStatus("error");
+			setDemoStatus('error');
 		}
 	};
 
@@ -565,18 +549,17 @@ if (tokenResponse.ok) {
 		<FlowContainer>
 			<FlowTitle>Resume Authorization Flow</FlowTitle>
 			<FlowDescription>
-				The Resume flow allows users to continue an interrupted authorization
-				process using a resume token. This is useful when users need to complete
-				authorization on a different device or after a session timeout.
+				The Resume flow allows users to continue an interrupted authorization process using a resume
+				token. This is useful when users need to complete authorization on a different device or
+				after a session timeout.
 			</FlowDescription>
 
 			<InfoContainer>
 				<h4> Resume Flow Benefits</h4>
 				<p>
-					The Resume flow enables users to continue interrupted authorization
-					processes across devices or after timeouts. It supports both GET and
-					POST methods, providing flexibility for different use cases and
-					security requirements.
+					The Resume flow enables users to continue interrupted authorization processes across
+					devices or after timeouts. It supports both GET and POST methods, providing flexibility
+					for different use cases and security requirements.
 				</p>
 			</InfoContainer>
 
@@ -594,13 +577,10 @@ if (tokenResponse.ok) {
 			/>
 
 			<TabContainer>
-				<Tab $active={activeTab === "get"} onClick={() => setActiveTab("get")}>
+				<Tab $active={activeTab === 'get'} onClick={() => setActiveTab('get')}>
 					Resume (GET)
 				</Tab>
-				<Tab
-					$active={activeTab === "post"}
-					onClick={() => setActiveTab("post")}
-				>
+				<Tab $active={activeTab === 'post'} onClick={() => setActiveTab('post')}>
 					Resume (POST)
 				</Tab>
 			</TabContainer>
@@ -610,15 +590,15 @@ if (tokenResponse.ok) {
 				currentStep={currentStep}
 				onStepChange={handleStepChange}
 				onStepResult={handleStepResult}
-				onStart={() => setDemoStatus("loading")}
+				onStart={() => setDemoStatus('loading')}
 				onReset={() => {
 					setCurrentStep(0);
-					setDemoStatus("idle");
+					setDemoStatus('idle');
 					setResponse(null);
 					setError(null);
 				}}
 				status={demoStatus}
-				disabled={demoStatus === "loading"}
+				disabled={demoStatus === 'loading'}
 				title={`Resume Flow Steps (${activeTab.toUpperCase()})`}
 			/>
 
@@ -644,17 +624,15 @@ if (tokenResponse.ok) {
 				<ResumeDetails>
 					<ResumeDetail>
 						<ResumeLabel>Resume Token</ResumeLabel>
-						<ResumeValue>
-							{formData.resumeToken || "Not generated yet"}
-						</ResumeValue>
+						<ResumeValue>{formData.resumeToken || 'Not generated yet'}</ResumeValue>
 					</ResumeDetail>
 					<ResumeDetail>
 						<ResumeLabel>State</ResumeLabel>
-						<ResumeValue>{formData.state || "Not generated yet"}</ResumeValue>
+						<ResumeValue>{formData.state || 'Not generated yet'}</ResumeValue>
 					</ResumeDetail>
 					<ResumeDetail>
 						<ResumeLabel>Nonce</ResumeLabel>
-						<ResumeValue>{formData.nonce || "Not generated yet"}</ResumeValue>
+						<ResumeValue>{formData.nonce || 'Not generated yet'}</ResumeValue>
 					</ResumeDetail>
 					<ResumeDetail>
 						<ResumeLabel>Method</ResumeLabel>
@@ -673,10 +651,10 @@ if (tokenResponse.ok) {
 
 				<div
 					style={{
-						display: "grid",
-						gridTemplateColumns: "1fr 1fr",
-						gap: "1rem",
-						marginBottom: "1rem",
+						display: 'grid',
+						gridTemplateColumns: '1fr 1fr',
+						gap: '1rem',
+						marginBottom: '1rem',
 					}}
 				>
 					<FormGroup>
@@ -684,9 +662,7 @@ if (tokenResponse.ok) {
 						<Input
 							type="text"
 							value={formData.clientId}
-							onChange={(e) =>
-								setFormData((prev) => ({ ...prev, clientId: e.target.value }))
-							}
+							onChange={(e) => setFormData((prev) => ({ ...prev, clientId: e.target.value }))}
 						/>
 					</FormGroup>
 
@@ -724,9 +700,7 @@ if (tokenResponse.ok) {
 						<Input
 							type="text"
 							value={formData.scope}
-							onChange={(e) =>
-								setFormData((prev) => ({ ...prev, scope: e.target.value }))
-							}
+							onChange={(e) => setFormData((prev) => ({ ...prev, scope: e.target.value }))}
 						/>
 					</FormGroup>
 				</div>

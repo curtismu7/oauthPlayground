@@ -3,16 +3,16 @@ import styled from 'styled-components';
 import { FiX, FiCheckCircle, FiXCircle, FiRefreshCw, FiServer, FiGlobe } from 'react-icons/fi';
 
 interface ServerStatusModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+	isOpen: boolean;
+	onClose: () => void;
 }
 
 interface ServerStatus {
-  name: string;
-  url: string;
-  status: 'checking' | 'online' | 'offline';
-  responseTime?: number;
-  error?: string;
+	name: string;
+	url: string;
+	status: 'checking' | 'online' | 'offline';
+	responseTime?: number;
+	error?: string;
 }
 
 const ModalOverlay = styled.div`
@@ -86,21 +86,29 @@ const ModalBody = styled.div`
 
 const ServerCard = styled.div<{ $status: 'checking' | 'online' | 'offline' }>`
   background: ${({ $status }) => {
-    switch ($status) {
-      case 'online': return '#f0fdf4';
-      case 'offline': return '#fef2f2';
-      case 'checking': return '#f9fafb';
-      default: return '#f9fafb';
-    }
-  }};
+		switch ($status) {
+			case 'online':
+				return '#f0fdf4';
+			case 'offline':
+				return '#fef2f2';
+			case 'checking':
+				return '#f9fafb';
+			default:
+				return '#f9fafb';
+		}
+	}};
   border: 2px solid ${({ $status }) => {
-    switch ($status) {
-      case 'online': return '#bbf7d0';
-      case 'offline': return '#fecaca';
-      case 'checking': return '#e5e7eb';
-      default: return '#e5e7eb';
-    }
-  }};
+		switch ($status) {
+			case 'online':
+				return '#bbf7d0';
+			case 'offline':
+				return '#fecaca';
+			case 'checking':
+				return '#e5e7eb';
+			default:
+				return '#e5e7eb';
+		}
+	}};
   border-radius: 0.75rem;
   padding: 1.5rem;
   margin-bottom: 1rem;
@@ -134,13 +142,17 @@ const StatusIndicator = styled.div<{ $status: 'checking' | 'online' | 'offline' 
   font-size: 0.875rem;
   font-weight: 500;
   color: ${({ $status }) => {
-    switch ($status) {
-      case 'online': return '#059669';
-      case 'offline': return '#dc2626';
-      case 'checking': return '#6b7280';
-      default: return '#6b7280';
-    }
-  }};
+		switch ($status) {
+			case 'online':
+				return '#059669';
+			case 'offline':
+				return '#dc2626';
+			case 'checking':
+				return '#6b7280';
+			default:
+				return '#6b7280';
+		}
+	}};
 `;
 
 const ServerDetails = styled.div`
@@ -190,14 +202,17 @@ const FooterButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   transition: all 0.2s;
   border: none;
 
-  ${({ $variant = 'secondary' }) => $variant === 'primary' ? `
+  ${({ $variant = 'secondary' }) =>
+		$variant === 'primary'
+			? `
     background: #3b82f6;
     color: white;
 
     &:hover {
       background: #2563eb;
     }
-  ` : `
+  `
+			: `
     background: #f3f4f6;
     color: #374151;
     border: 1px solid #d1d5db;
@@ -209,173 +224,194 @@ const FooterButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 `;
 
 const ServerStatusModal: React.FC<ServerStatusModalProps> = ({ isOpen, onClose }) => {
-  const [servers, setServers] = useState<ServerStatus[]>([
-    {
-      name: 'Frontend Server',
-      url: window.location.origin,
-      status: 'checking'
-    },
-    {
-      name: 'Backend Server',
-      url: '/api/health',
-      status: 'checking'
-    }
-  ]);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+	const [servers, setServers] = useState<ServerStatus[]>([
+		{
+			name: 'Frontend Server',
+			url: window.location.origin,
+			status: 'checking',
+		},
+		{
+			name: 'Backend Server',
+			url: '/api/health',
+			status: 'checking',
+		},
+	]);
+	const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const checkServerStatus = async (server: ServerStatus): Promise<ServerStatus> => {
-    try {
-      const startTime = Date.now();
-      
-      // Different headers for frontend vs backend
-      const headers: HeadersInit = server.name === 'Frontend Server' 
-        ? {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-          }
-        : {
-            'Accept': 'application/json',
-          };
-      
-      const response = await fetch(server.url, {
-        method: 'GET',
-        mode: 'cors',
-        headers,
-      });
-      const endTime = Date.now();
-      const responseTime = endTime - startTime;
+	const checkServerStatus = async (server: ServerStatus): Promise<ServerStatus> => {
+		try {
+			const startTime = Date.now();
 
-      if (response.ok) {
-        return {
-          ...server,
-          status: 'online',
-          responseTime,
-          error: undefined
-        };
-      } else {
-        return {
-          ...server,
-          status: 'offline',
-          error: `HTTP ${response.status}: ${response.statusText}`
-        };
-      }
-    } catch (error) {
-      return {
-        ...server,
-        status: 'offline',
-        error: error instanceof Error ? error.message : 'Connection failed'
-      };
-    }
-  };
+			// Different headers for frontend vs backend
+			const headers: HeadersInit =
+				server.name === 'Frontend Server'
+					? {
+							Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+						}
+					: {
+							Accept: 'application/json',
+						};
 
-  const refreshAllServers = async () => {
-    setIsRefreshing(true);
-    const updatedServers = await Promise.all(servers.map(server => checkServerStatus(server)));
-    setServers(updatedServers);
-    setIsRefreshing(false);
-  };
+			const response = await fetch(server.url, {
+				method: 'GET',
+				mode: 'cors',
+				headers,
+				signal: AbortSignal.timeout(5000), // 5 second timeout
+			});
+			const endTime = Date.now();
+			const responseTime = endTime - startTime;
 
-  useEffect(() => {
-    if (isOpen) {
-      refreshAllServers();
-    }
-  }, [isOpen]);
+			if (response.ok) {
+				return {
+					...server,
+					status: 'online',
+					responseTime,
+				};
+			} else {
+				return {
+					...server,
+					status: 'offline',
+					error: `HTTP ${response.status}: ${response.statusText}`,
+				};
+			}
+		} catch (error) {
+			return {
+				...server,
+				status: 'offline',
+				error: error instanceof Error ? error.message : 'Connection failed',
+			};
+		}
+	};
 
-  if (!isOpen) return null;
+	const refreshAllServers = async () => {
+		setIsRefreshing(true);
+		try {
+			const updatedServers = await Promise.all(servers.map((server) => checkServerStatus(server)));
+			setServers(updatedServers);
+		} catch (error) {
+			console.error('Error refreshing servers:', error);
+		} finally {
+			setIsRefreshing(false);
+		}
+	};
 
-  const getStatusIcon = (status: 'checking' | 'online' | 'offline') => {
-    switch (status) {
-      case 'online':
-        return <FiCheckCircle size={20} color="#059669" />;
-      case 'offline':
-        return <FiXCircle size={20} color="#dc2626" />;
-      case 'checking':
-        return <FiRefreshCw size={20} color="#6b7280" className="animate-spin" />;
-      default:
-        return <FiXCircle size={20} color="#dc2626" />;
-    }
-  };
+	useEffect(() => {
+		if (isOpen) {
+			refreshAllServers();
+		}
+	}, [isOpen]);
 
-  const getStatusText = (status: 'checking' | 'online' | 'offline') => {
-    switch (status) {
-      case 'online':
-        return 'Online';
-      case 'offline':
-        return 'Offline';
-      case 'checking':
-        return 'Checking...';
-      default:
-        return 'Unknown';
-    }
-  };
+	if (!isOpen) return null;
 
-  return (
-    <ModalOverlay onClick={onClose}>
-      <ModalContent onClick={(e) => e.stopPropagation()}>
-        <ModalHeader>
-          <ModalTitle>
-            <FiServer size={24} />
-            Server Status
-          </ModalTitle>
-          <CloseButton onClick={onClose}>
-            <FiX />
-          </CloseButton>
-        </ModalHeader>
+	const getStatusIcon = (status: 'checking' | 'online' | 'offline') => {
+		switch (status) {
+			case 'online':
+				return <FiCheckCircle size={20} color="#059669" />;
+			case 'offline':
+				return <FiXCircle size={20} color="#dc2626" />;
+			case 'checking':
+				return <FiRefreshCw size={20} color="#6b7280" className="animate-spin" />;
+			default:
+				return <FiXCircle size={20} color="#dc2626" />;
+		}
+	};
 
-        <ModalBody>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <p style={{ margin: 0, color: '#6b7280', fontSize: '0.875rem' }}>
-              Check the status of frontend and backend servers
-            </p>
-            <RefreshButton onClick={refreshAllServers} disabled={isRefreshing}>
-              <FiRefreshCw className={isRefreshing ? 'animate-spin' : ''} />
-              {isRefreshing ? 'Refreshing...' : 'Refresh'}
-            </RefreshButton>
-          </div>
+	const getStatusText = (status: 'checking' | 'online' | 'offline') => {
+		switch (status) {
+			case 'online':
+				return 'Online';
+			case 'offline':
+				return 'Offline';
+			case 'checking':
+				return 'Checking...';
+			default:
+				return 'Unknown';
+		}
+	};
 
-          {servers.map((server, index) => (
-            <ServerCard key={index} $status={server.status}>
-              <ServerHeader>
-                <ServerName>
-                  {server.name === 'Frontend Server' ? <FiGlobe size={20} /> : <FiServer size={20} />}
-                  {server.name}
-                </ServerName>
-                <StatusIndicator $status={server.status}>
-                  {getStatusIcon(server.status)}
-                  {getStatusText(server.status)}
-                </StatusIndicator>
-              </ServerHeader>
-              
-              <ServerDetails>
-                <div><strong>URL:</strong> {server.url}</div>
-                {server.responseTime && (
-                  <div><strong>Response Time:</strong> {server.responseTime}ms</div>
-                )}
-                {server.error && (
-                  <div style={{ color: '#dc2626', marginTop: '0.5rem' }}>
-                    <strong>Error:</strong> {server.error}
-                  </div>
-                )}
-                {server.status === 'online' && (
-                  <div style={{ color: '#059669', marginTop: '0.5rem' }}>
-                    <strong>Status:</strong> Server is responding normally
-                  </div>
-                )}
-              </ServerDetails>
-            </ServerCard>
-          ))}
-        </ModalBody>
+	return (
+		<ModalOverlay onClick={onClose}>
+			<ModalContent onClick={(e) => e.stopPropagation()}>
+				<ModalHeader>
+					<ModalTitle>
+						<FiServer size={24} />
+						Server Status
+					</ModalTitle>
+					<CloseButton onClick={onClose}>
+						<FiX />
+					</CloseButton>
+				</ModalHeader>
 
-        <ModalFooter>
-          <FooterButton $variant="secondary" onClick={onClose}>
-            Close
-          </FooterButton>
-          <FooterButton $variant="primary" onClick={onClose}>
-            OK
-          </FooterButton>
-        </ModalFooter>
-      </ModalContent>
-    </ModalOverlay>
-  );
+				<ModalBody>
+					<div
+						style={{
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'center',
+							marginBottom: '1rem',
+						}}
+					>
+						<p style={{ margin: 0, color: '#6b7280', fontSize: '0.875rem' }}>
+							Check the status of frontend and backend servers
+						</p>
+						<RefreshButton onClick={refreshAllServers} disabled={isRefreshing}>
+							<FiRefreshCw className={isRefreshing ? 'animate-spin' : ''} />
+							{isRefreshing ? 'Refreshing...' : 'Refresh'}
+						</RefreshButton>
+					</div>
+
+					{servers.map((server, index) => (
+						<ServerCard key={index} $status={server.status}>
+							<ServerHeader>
+								<ServerName>
+									{server.name === 'Frontend Server' ? (
+										<FiGlobe size={20} />
+									) : (
+										<FiServer size={20} />
+									)}
+									{server.name}
+								</ServerName>
+								<StatusIndicator $status={server.status}>
+									{getStatusIcon(server.status)}
+									{getStatusText(server.status)}
+								</StatusIndicator>
+							</ServerHeader>
+
+							<ServerDetails>
+								<div>
+									<strong>URL:</strong> {server.url}
+								</div>
+								{server.responseTime && (
+									<div>
+										<strong>Response Time:</strong> {server.responseTime}ms
+									</div>
+								)}
+								{server.error && (
+									<div style={{ color: '#dc2626', marginTop: '0.5rem' }}>
+										<strong>Error:</strong> {server.error}
+									</div>
+								)}
+								{server.status === 'online' && (
+									<div style={{ color: '#059669', marginTop: '0.5rem' }}>
+										<strong>Status:</strong> Server is responding normally
+									</div>
+								)}
+							</ServerDetails>
+						</ServerCard>
+					))}
+				</ModalBody>
+
+				<ModalFooter>
+					<FooterButton $variant="secondary" onClick={onClose}>
+						Close
+					</FooterButton>
+					<FooterButton $variant="primary" onClick={onClose}>
+						OK
+					</FooterButton>
+				</ModalFooter>
+			</ModalContent>
+		</ModalOverlay>
+	);
 };
 
 export default ServerStatusModal;

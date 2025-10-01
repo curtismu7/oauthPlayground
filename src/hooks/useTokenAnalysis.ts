@@ -1,342 +1,414 @@
 import { useState, useCallback, useEffect } from 'react';
-import { 
-  tokenAnalyzer,
-  analyzeToken,
-  getTokenRefreshInfo,
-  performSecurityAnalysis,
-  TokenAnalysisResult,
-  TokenRefreshInfo,
-  TokenSecurityAnalysis
+import {
+	tokenAnalyzer,
+	analyzeToken,
+	getTokenRefreshInfo,
+	performSecurityAnalysis,
+	TokenAnalysisResult,
+	TokenRefreshInfo,
+	TokenSecurityAnalysis,
 } from '../utils/tokenAnalysis';
 import { logger } from '../utils/logger';
 
 // Token analysis hook configuration
 export interface UseTokenAnalysisConfig {
-  enabled?: boolean;
-  autoAnalyze?: boolean;
-  debug?: boolean;
+	enabled?: boolean;
+	autoAnalyze?: boolean;
+	debug?: boolean;
 }
 
 // Token analysis state
 export interface TokenAnalysisState {
-  isAnalyzing: boolean;
-  currentAnalysis: TokenAnalysisResult | null;
-  refreshInfo: TokenRefreshInfo | null;
-  securityAnalysis: TokenSecurityAnalysis | null;
-  analysisHistory: TokenAnalysisResult[];
-  error: Error | null;
+	isAnalyzing: boolean;
+	currentAnalysis: TokenAnalysisResult | null;
+	refreshInfo: TokenRefreshInfo | null;
+	securityAnalysis: TokenSecurityAnalysis | null;
+	analysisHistory: TokenAnalysisResult[];
+	error: Error | null;
 }
 
 // useTokenAnalysis hook
 export const useTokenAnalysis = (config: UseTokenAnalysisConfig = {}) => {
-  const {
-    enabled = true,
-    autoAnalyze = false,
-    debug = false
-  } = config;
+	const { enabled = true, autoAnalyze = false, debug = false } = config;
 
-  const [state, setState] = useState<TokenAnalysisState>({
-    isAnalyzing: false,
-    currentAnalysis: null,
-    refreshInfo: null,
-    securityAnalysis: null,
-    analysisHistory: [],
-    error: null
-  });
+	const [state, setState] = useState<TokenAnalysisState>({
+		isAnalyzing: false,
+		currentAnalysis: null,
+		refreshInfo: null,
+		securityAnalysis: null,
+		analysisHistory: [],
+		error: null,
+	});
 
-  // Analyze a token
-  const analyzeTokenValue = useCallback(async (token: string, refreshToken?: string) => {
-    if (!enabled || !token) return null;
+	// Analyze a token
+	const analyzeTokenValue = useCallback(
+		async (token: string, refreshToken?: string) => {
+			if (!enabled || !token) return null;
 
-    setState(prev => ({ ...prev, isAnalyzing: true, error: null }));
+			setState((prev) => ({ ...prev, isAnalyzing: true, error: null }));
 
-    try {
-      const analysis = analyzeToken(token);
-      const refreshInfo = getTokenRefreshInfo(token, refreshToken);
-      const securityAnalysis = performSecurityAnalysis(token);
+			try {
+				let analysis: TokenAnalysisResult;
+				let securityAnalysis: TokenSecurityAnalysis;
 
-      setState(prev => ({
-        ...prev,
-        currentAnalysis: analysis,
-        refreshInfo,
-        securityAnalysis,
-        analysisHistory: [analysis, ...prev.analysisHistory.slice(0, 9)], // Keep last 10
-        isAnalyzing: false
-      }));
+				try {
+					analysis = analyzeToken(token);
+					securityAnalysis = performSecurityAnalysis(token);
+				} catch (error) {
+					// For bad tokens, create a minimal analysis
+					analysis = {
+						isValid: false,
+						tokenType: 'unknown',
+						format: 'unknown',
+						securityIssues: [{
+							type: 'invalid_signature',
+							severity: 'critical',
+							description: 'Invalid or malformed token',
+							recommendation: 'Please check the token and try again',
+						}],
+						validationErrors: [],
+						recommendations: ['The token is invalid or malformed'],
+						riskScore: 100,
+					};
 
-      if (debug) {
-        logger.info('[useTokenAnalysis] Token analysis completed', { 
-          isValid: analysis.isValid, 
-          riskScore: analysis.riskScore 
-        });
-      }
+					securityAnalysis = {
+						overallScore: 0,
+						algorithmSecurity: 0,
+						keySecurity: 0,
+						claimSecurity: 0,
+						transportSecurity: 0,
+						lifecycleSecurity: 0,
+						issues: [{
+							type: 'invalid_signature',
+							severity: 'critical',
+							description: 'Invalid or malformed token',
+							recommendation: 'Please check the token and try again',
+						}],
+						recommendations: ['The token is invalid or malformed'],
+					};
+				}
 
-      return analysis;
-    } catch (error) {
-      const err = error as Error;
-      setState(prev => ({
-        ...prev,
-        error: err,
-        isAnalyzing: false
-      }));
+				const refreshInfo = refreshToken ? getTokenRefreshInfo(token, refreshToken) : null;
 
-      if (debug) {
-        logger.error('[useTokenAnalysis] Token analysis failed:', err);
-      }
+				setState((prev) => ({
+					...prev,
+					currentAnalysis: analysis,
+					refreshInfo,
+					securityAnalysis,
+					analysisHistory: [analysis, ...prev.analysisHistory.slice(0, 9)], // Keep last 10
+					isAnalyzing: false,
+				}));
 
-      throw err;
-    }
-  }, [enabled, debug]);
+				if (debug) {
+					logger.info('[useTokenAnalysis] Token analysis completed', {
+						isValid: analysis.isValid,
+						riskScore: analysis.riskScore,
+					});
+				}
 
-  // Get token expiration status
-  const getTokenExpirationStatus = useCallback(() => {
-    if (!state.currentAnalysis?.expiration) {
-      return { status: 'unknown', timeRemaining: 0, isExpired: false };
-    }
+				return analysis;
+			} catch (error) {
+				const err = error as Error;
+				const errorAnalysis: TokenAnalysisResult = {
+					isValid: false,
+					tokenType: 'unknown',
+					format: 'unknown',
+					securityIssues: [{
+						type: 'invalid_signature',
+						severity: 'critical',
+						description: 'Token analysis failed',
+						recommendation: 'Please check the token and try again',
+					}],
+					validationErrors: [],
+					recommendations: ['Failed to analyze token: ' + err.message],
+					riskScore: 100,
+				};
 
-    const now = new Date();
-    const expiration = state.currentAnalysis.expiration;
-    const timeRemaining = expiration.getTime() - now.getTime();
-    const isExpired = timeRemaining <= 0;
+				setState((prev) => ({
+					...prev,
+					error: err,
+					currentAnalysis: errorAnalysis,
+					securityAnalysis: {
+						overallScore: 0,
+						algorithmSecurity: 0,
+						keySecurity: 0,
+						claimSecurity: 0,
+						transportSecurity: 0,
+						lifecycleSecurity: 0,
+						issues: [{
+							type: 'invalid_signature',
+							severity: 'critical',
+							description: 'Token analysis failed',
+							recommendation: 'Please check the token and try again',
+						}],
+						recommendations: ['Failed to analyze token: ' + err.message],
+					},
+					isAnalyzing: false,
+				}));
 
-    let status: 'valid' | 'expiring' | 'expired' | 'unknown' = 'unknown';
-    if (isExpired) {
-      status = 'expired';
-    } else if (timeRemaining < 5 * 60 * 1000) { // Less than 5 minutes
-      status = 'expiring';
-    } else {
-      status = 'valid';
-    }
+				if (debug) {
+					logger.error('[useTokenAnalysis] Token analysis failed:', err);
+				}
 
-    return {
-      status,
-      timeRemaining: Math.max(0, timeRemaining),
-      isExpired,
-      expiration
-    };
-  }, [state.currentAnalysis]);
+				return errorAnalysis;
+			}
+		},
+		[enabled, debug]
+	);
 
-  // Get token security score
-  const getTokenSecurityScore = useCallback(() => {
-    if (!state.securityAnalysis) {
-      return { overall: 0, breakdown: {} };
-    }
+	// Get token expiration status
+	const getTokenExpirationStatus = useCallback(() => {
+		if (!state.currentAnalysis?.expiration) {
+			return { status: 'unknown', timeRemaining: 0, isExpired: false };
+		}
 
-    return {
-      overall: state.securityAnalysis.overallScore,
-      breakdown: {
-        algorithm: state.securityAnalysis.algorithmSecurity,
-        key: state.securityAnalysis.keySecurity,
-        claims: state.securityAnalysis.claimSecurity,
-        transport: state.securityAnalysis.transportSecurity,
-        lifecycle: state.securityAnalysis.lifecycleSecurity
-      }
-    };
-  }, [state.securityAnalysis]);
+		const now = new Date();
+		const expiration = state.currentAnalysis.expiration;
+		const timeRemaining = expiration.getTime() - now.getTime();
+		const isExpired = timeRemaining <= 0;
 
-  // Get token recommendations
-  const getTokenRecommendations = useCallback(() => {
-    if (!state.currentAnalysis) {
-      return [];
-    }
+		let status: 'valid' | 'expiring' | 'expired' | 'unknown' = 'unknown';
+		if (isExpired) {
+			status = 'expired';
+		} else if (timeRemaining < 5 * 60 * 1000) {
+			// Less than 5 minutes
+			status = 'expiring';
+		} else {
+			status = 'valid';
+		}
 
-    const recommendations = [...state.currentAnalysis.recommendations];
+		return {
+			status,
+			timeRemaining: Math.max(0, timeRemaining),
+			isExpired,
+			expiration,
+		};
+	}, [state.currentAnalysis]);
 
-    // Add expiration-specific recommendations
-    const expirationStatus = getTokenExpirationStatus();
-    if (expirationStatus.status === 'expired') {
-      recommendations.unshift('Token has expired - refresh or obtain a new token');
-    } else if (expirationStatus.status === 'expiring') {
-      recommendations.unshift('Token is expiring soon - consider refreshing');
-    }
+	// Get token security score
+	const getTokenSecurityScore = useCallback(() => {
+		if (!state.securityAnalysis) {
+			return { overall: 0, breakdown: {} };
+		}
 
-    // Add security-specific recommendations
-    if (state.securityAnalysis) {
-      recommendations.push(...state.securityAnalysis.recommendations);
-    }
+		return {
+			overall: state.securityAnalysis.overallScore,
+			breakdown: {
+				algorithm: state.securityAnalysis.algorithmSecurity,
+				key: state.securityAnalysis.keySecurity,
+				claims: state.securityAnalysis.claimSecurity,
+				transport: state.securityAnalysis.transportSecurity,
+				lifecycle: state.securityAnalysis.lifecycleSecurity,
+			},
+		};
+	}, [state.securityAnalysis]);
 
-    return [...new Set(recommendations)]; // Remove duplicates
-  }, [state.currentAnalysis, state.securityAnalysis, getTokenExpirationStatus]);
+	// Get token recommendations
+	const getTokenRecommendations = useCallback(() => {
+		if (!state.currentAnalysis) {
+			return [];
+		}
 
-  // Get critical issues
-  const getCriticalIssues = useCallback(() => {
-    if (!state.currentAnalysis) {
-      return [];
-    }
+		const recommendations = [...state.currentAnalysis.recommendations];
 
-    return state.currentAnalysis.securityIssues.filter(issue => 
-      issue.severity === 'critical' || issue.severity === 'high'
-    );
-  }, [state.currentAnalysis]);
+		// Add expiration-specific recommendations
+		const expirationStatus = getTokenExpirationStatus();
+		if (expirationStatus.status === 'expired') {
+			recommendations.unshift('Token has expired - refresh or obtain a new token');
+		} else if (expirationStatus.status === 'expiring') {
+			recommendations.unshift('Token is expiring soon - consider refreshing');
+		}
 
-  // Get validation errors
-  const getValidationErrors = useCallback(() => {
-    if (!state.currentAnalysis) {
-      return [];
-    }
+		// Add security-specific recommendations
+		if (state.securityAnalysis) {
+			recommendations.push(...state.securityAnalysis.recommendations);
+		}
 
-    return state.currentAnalysis.validationErrors.filter(error => 
-      error.severity === 'critical' || error.severity === 'high'
-    );
-  }, [state.currentAnalysis]);
+		return [...new Set(recommendations)]; // Remove duplicates
+	}, [state.currentAnalysis, state.securityAnalysis, getTokenExpirationStatus]);
 
-  // Check if token needs refresh
-  const needsRefresh = useCallback(() => {
-    const expirationStatus = getTokenExpirationStatus();
-    return expirationStatus.status === 'expired' || expirationStatus.status === 'expiring';
-  }, [getTokenExpirationStatus]);
+	// Get critical issues
+	const getCriticalIssues = useCallback(() => {
+		if (!state.currentAnalysis) {
+			return [];
+		}
 
-  // Get token type information
-  const getTokenTypeInfo = useCallback(() => {
-    if (!state.currentAnalysis) {
-      return { type: 'unknown', format: 'unknown' };
-    }
+		return state.currentAnalysis.securityIssues.filter(
+			(issue) => issue.severity === 'critical' || issue.severity === 'high'
+		);
+	}, [state.currentAnalysis]);
 
-    return {
-      type: state.currentAnalysis.tokenType,
-      format: state.currentAnalysis.format,
-      issuer: state.currentAnalysis.issuer,
-      audience: state.currentAnalysis.audience,
-      subject: state.currentAnalysis.subject,
-      scopes: state.currentAnalysis.scopes
-    };
-  }, [state.currentAnalysis]);
+	// Get validation errors
+	const getValidationErrors = useCallback(() => {
+		if (!state.currentAnalysis) {
+			return [];
+		}
 
-  // Get token claims
-  const getTokenClaims = useCallback(() => {
-    return state.currentAnalysis?.claims || {};
-  }, [state.currentAnalysis]);
+		return state.currentAnalysis.validationErrors.filter(
+			(error) => error.severity === 'critical' || error.severity === 'high'
+		);
+	}, [state.currentAnalysis]);
 
-  // Clear analysis history
-  const clearAnalysisHistory = useCallback(() => {
-    setState(prev => ({
-      ...prev,
-      analysisHistory: []
-    }));
-  }, []);
+	// Check if token needs refresh
+	const needsRefresh = useCallback(() => {
+		const expirationStatus = getTokenExpirationStatus();
+		return expirationStatus.status === 'expired' || expirationStatus.status === 'expiring';
+	}, [getTokenExpirationStatus]);
 
-  // Export analysis data
-  const exportAnalysisData = useCallback(() => {
-    const exportData = {
-      timestamp: new Date().toISOString(),
-      currentAnalysis: state.currentAnalysis,
-      refreshInfo: state.refreshInfo,
-      securityAnalysis: state.securityAnalysis,
-      analysisHistory: state.analysisHistory
-    };
+	// Get token type information
+	const getTokenTypeInfo = useCallback(() => {
+		if (!state.currentAnalysis) {
+			return { type: 'unknown', format: 'unknown' };
+		}
 
-    const dataStr = JSON.stringify(exportData, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `token-analysis-${Date.now()}.json`;
-    link.click();
-    
-    URL.revokeObjectURL(url);
-  }, [state.currentAnalysis, state.refreshInfo, state.securityAnalysis, state.analysisHistory]);
+		return {
+			type: state.currentAnalysis.tokenType,
+			format: state.currentAnalysis.format,
+			issuer: state.currentAnalysis.issuer,
+			audience: state.currentAnalysis.audience,
+			subject: state.currentAnalysis.subject,
+			scopes: state.currentAnalysis.scopes,
+		};
+	}, [state.currentAnalysis]);
 
-  return {
-    // State
-    ...state,
-    
-    // Actions
-    analyzeToken: analyzeTokenValue,
-    clearAnalysisHistory,
-    exportAnalysisData,
-    
-    // Getters
-    getTokenExpirationStatus,
-    getTokenSecurityScore,
-    getTokenRecommendations,
-    getCriticalIssues,
-    getValidationErrors,
-    needsRefresh,
-    getTokenTypeInfo,
-    getTokenClaims,
-    
-    // Computed values
-    isValid: state.currentAnalysis?.isValid || false,
-    riskScore: state.currentAnalysis?.riskScore || 0,
-    hasIssues: (state.currentAnalysis?.securityIssues.length || 0) > 0,
-    hasErrors: (state.currentAnalysis?.validationErrors.length || 0) > 0,
-    canRefresh: state.refreshInfo?.canRefresh || false
-  };
+	// Get token claims
+	const getTokenClaims = useCallback(() => {
+		return state.currentAnalysis?.claims || {};
+	}, [state.currentAnalysis]);
+
+	// Clear analysis history
+	const clearAnalysisHistory = useCallback(() => {
+		setState((prev) => ({
+			...prev,
+			analysisHistory: [],
+		}));
+	}, []);
+
+	// Export analysis data
+	const exportAnalysisData = useCallback(() => {
+		const exportData = {
+			timestamp: new Date().toISOString(),
+			currentAnalysis: state.currentAnalysis,
+			refreshInfo: state.refreshInfo,
+			securityAnalysis: state.securityAnalysis,
+			analysisHistory: state.analysisHistory,
+		};
+
+		const dataStr = JSON.stringify(exportData, null, 2);
+		const dataBlob = new Blob([dataStr], { type: 'application/json' });
+		const url = URL.createObjectURL(dataBlob);
+
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = `token-analysis-${Date.now()}.json`;
+		link.click();
+
+		URL.revokeObjectURL(url);
+	}, [state.currentAnalysis, state.refreshInfo, state.securityAnalysis, state.analysisHistory]);
+
+	return {
+		// State
+		...state,
+
+		// Actions
+		analyzeToken: analyzeTokenValue,
+		clearAnalysisHistory,
+		exportAnalysisData,
+
+		// Getters
+		getTokenExpirationStatus,
+		getTokenSecurityScore,
+		getTokenRecommendations,
+		getCriticalIssues,
+		getValidationErrors,
+		needsRefresh,
+		getTokenTypeInfo,
+		getTokenClaims,
+
+		// Computed values
+		isValid: state.currentAnalysis?.isValid || false,
+		riskScore: state.currentAnalysis?.riskScore || 0,
+		hasIssues: (state.currentAnalysis?.securityIssues.length || 0) > 0,
+		hasErrors: (state.currentAnalysis?.validationErrors.length || 0) > 0,
+		canRefresh: state.refreshInfo?.canRefresh || false,
+	};
 };
 
 // Hook for token refresh monitoring
 export const useTokenRefreshMonitoring = (enabled: boolean = true) => {
-  const { refreshInfo, analyzeToken } = useTokenAnalysis({ enabled });
+	const { refreshInfo, analyzeToken } = useTokenAnalysis({ enabled });
 
-  const [refreshStatus, setRefreshStatus] = useState<{
-    isRefreshing: boolean;
-    lastRefresh: Date | null;
-    refreshCount: number;
-    refreshErrors: any[];
-  }>({
-    isRefreshing: false,
-    lastRefresh: null,
-    refreshCount: 0,
-    refreshErrors: []
-  });
+	const [refreshStatus, setRefreshStatus] = useState<{
+		isRefreshing: boolean;
+		lastRefresh: Date | null;
+		refreshCount: number;
+		refreshErrors: any[];
+	}>({
+		isRefreshing: false,
+		lastRefresh: null,
+		refreshCount: 0,
+		refreshErrors: [],
+	});
 
-  const refreshToken = useCallback(async (token: string, refreshTokenValue: string) => {
-    if (!enabled || !refreshInfo?.canRefresh) {
-      throw new Error('Token refresh not available');
-    }
+	const refreshToken = useCallback(
+		async (token: string, refreshTokenValue: string) => {
+			if (!enabled || !refreshInfo?.canRefresh) {
+				throw new Error('Token refresh not available');
+			}
 
-    setRefreshStatus(prev => ({ ...prev, isRefreshing: true }));
+			setRefreshStatus((prev) => ({ ...prev, isRefreshing: true }));
 
-    try {
-      // In a real implementation, this would call the refresh endpoint
-      const response = await fetch(refreshInfo.refreshEndpoint || '/oauth/token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          grant_type: 'refresh_token',
-          refresh_token: refreshTokenValue,
-          client_id: 'your-client-id' // This would come from config
-        })
-      });
+			try {
+				// In a real implementation, this would call the refresh endpoint
+				const response = await fetch(refreshInfo.refreshEndpoint || '/oauth/token', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded',
+					},
+					body: new URLSearchParams({
+						grant_type: 'refresh_token',
+						refresh_token: refreshTokenValue,
+						client_id: 'your-client-id', // This would come from config
+					}),
+				});
 
-      if (!response.ok) {
-        throw new Error(`Token refresh failed: ${response.statusText}`);
-      }
+				if (!response.ok) {
+					throw new Error(`Token refresh failed: ${response.statusText}`);
+				}
 
-      const data = await response.json();
-      
-      setRefreshStatus(prev => ({
-        ...prev,
-        isRefreshing: false,
-        lastRefresh: new Date(),
-        refreshCount: prev.refreshCount + 1
-      }));
+				const data = await response.json();
 
-      // Re-analyze the new token
-      if (data.access_token) {
-        await analyzeToken(data.access_token, data.refresh_token);
-      }
+				setRefreshStatus((prev) => ({
+					...prev,
+					isRefreshing: false,
+					lastRefresh: new Date(),
+					refreshCount: prev.refreshCount + 1,
+				}));
 
-      return data;
-    } catch (error) {
-      setRefreshStatus(prev => ({
-        ...prev,
-        isRefreshing: false,
-        refreshErrors: [...prev.refreshErrors, { timestamp: new Date(), error }]
-      }));
-      throw error;
-    }
-  }, [enabled, refreshInfo, analyzeToken]);
+				// Re-analyze the new token
+				if (data.access_token) {
+					await analyzeToken(data.access_token, data.refresh_token);
+				}
 
-  return {
-    ...refreshStatus,
-    refreshToken,
-    canRefresh: refreshInfo?.canRefresh || false,
-    maxRefreshAttempts: refreshInfo?.maxRefreshAttempts || 3
-  };
+				return data;
+			} catch (error) {
+				setRefreshStatus((prev) => ({
+					...prev,
+					isRefreshing: false,
+					refreshErrors: [...prev.refreshErrors, { timestamp: new Date(), error }],
+				}));
+				throw error;
+			}
+		},
+		[enabled, refreshInfo, analyzeToken]
+	);
+
+	return {
+		...refreshStatus,
+		refreshToken,
+		canRefresh: refreshInfo?.canRefresh || false,
+		maxRefreshAttempts: refreshInfo?.maxRefreshAttempts || 3,
+	};
 };
 
 export default useTokenAnalysis;

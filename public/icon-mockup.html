@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collapse/Expand Icon Mockup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f8f9fa;
+            padding: 3rem;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 3rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+        }
+        
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+        
+        .option-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 2rem;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        
+        .option-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+        }
+        
+        .option-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #1f2937;
+        }
+        
+        .icon-demo {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .icon-state {
+            text-align: center;
+        }
+        
+        .icon-label {
+            font-size: 0.875rem;
+            color: #666;
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+        
+        /* Option 1: Gradient Circle */
+        .icon-option1 {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .icon-option1:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* Option 2: Rounded Square */
+        .icon-option2 {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+        }
+        
+        .icon-option2:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
+        }
+        
+        /* Option 3: Gradient Pill */
+        .icon-option3 {
+            width: 48px;
+            height: 36px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3), 0 0 20px rgba(168, 85, 247, 0.2);
+        }
+        
+        .icon-option3:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4), 0 0 30px rgba(168, 85, 247, 0.3);
+        }
+        
+        /* Option 4: Neumorphic */
+        .icon-option4 {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #f0f4f8, #e2e8f0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667eea;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                6px 6px 12px rgba(163, 177, 198, 0.6),
+                -6px -6px 12px rgba(255, 255, 255, 0.8);
+        }
+        
+        .icon-option4:hover {
+            box-shadow: 
+                4px 4px 8px rgba(163, 177, 198, 0.6),
+                -4px -4px 8px rgba(255, 255, 255, 0.8),
+                inset 2px 2px 4px rgba(163, 177, 198, 0.2);
+        }
+        
+        /* Option 5: Modern Flat with Border */
+        .icon-option5 {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: white;
+            border: 2px solid #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667eea;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+        }
+        
+        .icon-option5:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+        }
+        
+        /* Option 6: Soft Shadow Circle */
+        .icon-option6 {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667eea;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 4px 12px rgba(102, 126, 234, 0.2),
+                0 0 0 1px rgba(102, 126, 234, 0.1);
+        }
+        
+        .icon-option6:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: scale(1.08);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.35);
+        }
+        
+        .features {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .features ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .features li {
+            padding: 0.25rem 0;
+            color: #4b5563;
+            font-size: 0.9rem;
+        }
+        
+        .features li:before {
+            content: "✓ ";
+            color: #10b981;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+        
+        .recommended {
+            display: inline-block;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .demo-section {
+            margin-top: 3rem;
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+        
+        .demo-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #1f2937;
+        }
+        
+        .collapsible-demo {
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .collapsible-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .collapsible-header:hover {
+            background: #f9fafb;
+        }
+        
+        .collapsible-content {
+            padding: 0 1.5rem 1.5rem;
+            color: #4b5563;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 768px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Collapse/Expand Icon Options</h1>
+        <p class="subtitle">Modern, colorful icons for collapsible sections - Click to see hover effects!</p>
+        
+        <div class="options-grid">
+            <!-- Option 1 -->
+            <div class="option-card">
+                <div class="option-title">
+                    Option 1: Gradient Circle
+                    <span class="recommended">Recommended</span>
+                </div>
+                <div class="icon-demo">
+                    <div class="icon-state">
+                        <div class="icon-option1">›</div>
+                        <div class="icon-label">Collapsed</div>
+                    </div>
+                    <div class="icon-state">
+                        <div class="icon-option1">∨</div>
+                        <div class="icon-label">Expanded</div>
+                    </div>
+                </div>
+                <div class="features">
+                    <ul>
+                        <li>Matches app's purple gradient theme</li>
+                        <li>Smooth scale animation on hover</li>
+                        <li>Soft shadow for depth</li>
+                        <li>High contrast (white on gradient)</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Option 2 -->
+            <div class="option-card">
+                <div class="option-title">Option 2: Rounded Square (Teal/Blue)</div>
+                <div class="icon-demo">
+                    <div class="icon-state">
+                        <div class="icon-option2">›</div>
+                        <div class="icon-label">Collapsed</div>
+                    </div>
+                    <div class="icon-state">
+                        <div class="icon-option2">∨</div>
+                        <div class="icon-label">Expanded</div>
+                    </div>
+                </div>
+                <div class="features">
+                    <ul>
+                        <li>Fresh teal to blue gradient</li>
+                        <li>Lift animation on hover</li>
+                        <li>Rounded corners for modern look</li>
+                        <li>Good for info/data sections</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Option 3 -->
+            <div class="option-card">
+                <div class="option-title">Option 3: Gradient Pill (Indigo/Purple)</div>
+                <div class="icon-demo">
+                    <div class="icon-state">
+                        <div class="icon-option3">›</div>
+                        <div class="icon-label">Collapsed</div>
+                    </div>
+                    <div class="icon-state">
+                        <div class="icon-option3">∨</div>
+                        <div class="icon-label">Expanded</div>
+                    </div>
+                </div>
+                <div class="features">
+                    <ul>
+                        <li>Unique pill shape stands out</li>
+                        <li>Soft glow effect</li>
+                        <li>Vibrant indigo to purple</li>
+                        <li>Great for premium features</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Option 4 -->
+            <div class="option-card">
+                <div class="option-title">Option 4: Neumorphic Style</div>
+                <div class="icon-demo">
+                    <div class="icon-state">
+                        <div class="icon-option4">›</div>
+                        <div class="icon-label">Collapsed</div>
+                    </div>
+                    <div class="icon-state">
+                        <div class="icon-option4">∨</div>
+                        <div class="icon-label">Expanded</div>
+                    </div>
+                </div>
+                <div class="features">
+                    <ul>
+                        <li>Subtle 3D embossed effect</li>
+                        <li>Soft, modern aesthetic</li>
+                        <li>Colored icon on light background</li>
+                        <li>Minimalist and elegant</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Option 5 -->
+            <div class="option-card">
+                <div class="option-title">Option 5: Modern Flat with Border</div>
+                <div class="icon-demo">
+                    <div class="icon-state">
+                        <div class="icon-option5">›</div>
+                        <div class="icon-label">Collapsed</div>
+                    </div>
+                    <div class="icon-state">
+                        <div class="icon-option5">∨</div>
+                        <div class="icon-label">Expanded</div>
+                    </div>
+                </div>
+                <div class="features">
+                    <ul>
+                        <li>Clean white background</li>
+                        <li>Fills with gradient on hover</li>
+                        <li>Subtle border accent</li>
+                        <li>Professional appearance</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Option 6 -->
+            <div class="option-card">
+                <div class="option-title">Option 6: Soft Shadow Circle</div>
+                <div class="icon-demo">
+                    <div class="icon-state">
+                        <div class="icon-option6">›</div>
+                        <div class="icon-label">Collapsed</div>
+                    </div>
+                    <div class="icon-state">
+                        <div class="icon-option6">∨</div>
+                        <div class="icon-label">Expanded</div>
+                    </div>
+                </div>
+                <div class="features">
+                    <ul>
+                        <li>White with colored icon</li>
+                        <li>Transforms to gradient on hover</li>
+                        <li>Soft shadow for depth</li>
+                        <li>Versatile and clean</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Live Demo Section -->
+        <div class="demo-section">
+            <div class="demo-title">📋 Live Demo: Collapsible Sections</div>
+            
+            <div class="collapsible-demo">
+                <div class="collapsible-header" onclick="toggleDemo(this)">
+                    <span style="font-weight: 600; color: #1f2937;">Section 1: Configuration Settings</span>
+                    <div class="icon-option1">›</div>
+                </div>
+                <div class="collapsible-content" style="display: none;">
+                    This is where your configuration content would go. The icon changes from right-pointing (collapsed) to down-pointing (expanded) when you click the header.
+                </div>
+            </div>
+            
+            <div class="collapsible-demo">
+                <div class="collapsible-header" onclick="toggleDemo(this)">
+                    <span style="font-weight: 600; color: #1f2937;">Section 2: Advanced Options</span>
+                    <div class="icon-option1">›</div>
+                </div>
+                <div class="collapsible-content" style="display: none;">
+                    Click the header to expand or collapse this section. The gradient circle icon provides clear visual feedback about the section's state.
+                </div>
+            </div>
+            
+            <div class="collapsible-demo">
+                <div class="collapsible-header" onclick="toggleDemo(this)">
+                    <span style="font-weight: 600; color: #1f2937;">Section 3: Token Information</span>
+                    <div class="icon-option1">›</div>
+                </div>
+                <div class="collapsible-content" style="display: none;">
+                    The hover effect gives immediate feedback, and the smooth animation makes the interaction feel polished and professional.
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function toggleDemo(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('[class^="icon-option"]');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.textContent = '∨';
+            } else {
+                content.style.display = 'none';
+                icon.textContent = '›';
+            }
+        }
+    </script>
+</body>
+</html>

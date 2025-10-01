@@ -5,11 +5,11 @@ import { FiCheckCircle, FiAlertCircle, FiAlertTriangle, FiInfo } from 'react-ico
 export type MessageType = 'success' | 'error' | 'warning' | 'info';
 
 interface StandardMessageProps {
-  type: MessageType;
-  title?: string;
-  message: string;
-  onDismiss?: () => void;
-  className?: string;
+	type: MessageType;
+	title?: string;
+	message: string;
+	onDismiss?: () => void;
+	className?: string;
 }
 
 const MessageContainer = styled.div<{ $type: MessageType }>`
@@ -70,9 +70,9 @@ const MessageContainer = styled.div<{ $type: MessageType }>`
   }
 
   ${({ $type }) => {
-    switch ($type) {
-      case 'success':
-        return `
+		switch ($type) {
+			case 'success':
+				return `
           background-color: #f0fdf4;
           border-color: #bbf7d0;
           color: #166534;
@@ -81,8 +81,8 @@ const MessageContainer = styled.div<{ $type: MessageType }>`
             color: #22c55e;
           }
         `;
-      case 'error':
-        return `
+			case 'error':
+				return `
           background-color: #fef2f2;
           border-color: #fecaca;
           color: #991b1b;
@@ -91,8 +91,8 @@ const MessageContainer = styled.div<{ $type: MessageType }>`
             color: #ef4444;
           }
         `;
-      case 'warning':
-        return `
+			case 'warning':
+				return `
           background-color: #fffbeb;
           border-color: #fed7aa;
           color: #92400e;
@@ -101,9 +101,9 @@ const MessageContainer = styled.div<{ $type: MessageType }>`
             color: #f59e0b;
           }
         `;
-      case 'info':
-      default:
-        return `
+			case 'info':
+			default:
+				return `
           background-color: #eff6ff;
           border-color: #bfdbfe;
           color: #1e40af;
@@ -112,64 +112,62 @@ const MessageContainer = styled.div<{ $type: MessageType }>`
             color: #3b82f6;
           }
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const getIcon = (type: MessageType) => {
-  switch (type) {
-    case 'success':
-      return <FiCheckCircle />;
-    case 'error':
-      return <FiAlertCircle />;
-    case 'warning':
-      return <FiAlertTriangle />;
-    case 'info':
-    default:
-      return <FiInfo />;
-  }
+	switch (type) {
+		case 'success':
+			return <FiCheckCircle />;
+		case 'error':
+			return <FiAlertCircle />;
+		case 'warning':
+			return <FiAlertTriangle />;
+		case 'info':
+		default:
+			return <FiInfo />;
+	}
 };
 
 export const StandardMessage: React.FC<StandardMessageProps> = ({
-  type,
-  title,
-  message,
-  onDismiss,
-  className
+	type,
+	title,
+	message,
+	onDismiss,
+	className,
 }) => {
-  // Handle ESC key to dismiss message
-  useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && onDismiss) {
-        onDismiss();
-      }
-    };
+	// Handle ESC key to dismiss message
+	useEffect(() => {
+		const handleEscape = (event: KeyboardEvent) => {
+			if (event.key === 'Escape' && onDismiss) {
+				onDismiss();
+			}
+		};
 
-    if (onDismiss) {
-      document.addEventListener('keydown', handleEscape);
-      return () => document.removeEventListener('keydown', handleEscape);
-    }
-  }, [onDismiss]);
+		if (onDismiss) {
+			document.addEventListener('keydown', handleEscape);
+			return () => document.removeEventListener('keydown', handleEscape);
+		}
+	}, [onDismiss]);
 
-  return (
-    <MessageContainer $type={type} className={className} role="alert" aria-live="assertive">
-      {getIcon(type)}
-      <div className="message-content">
-        {title && <h4 className="message-title">{title}</h4>}
-        <p className="message-text">{message}</p>
-      </div>
-      {onDismiss && (
-        <button
-          className="dismiss-button"
-          onClick={onDismiss}
-          aria-label="Dismiss message"
-          type="button"
-        >
-          
-        </button>
-      )}
-    </MessageContainer>
-  );
+	return (
+		<MessageContainer $type={type} className={className} role="alert" aria-live="assertive">
+			{getIcon(type)}
+			<div className="message-content">
+				{title && <h4 className="message-title">{title}</h4>}
+				<p className="message-text">{message}</p>
+			</div>
+			{onDismiss && (
+				<button
+					className="dismiss-button"
+					onClick={onDismiss}
+					aria-label="Dismiss message"
+					type="button"
+				></button>
+			)}
+		</MessageContainer>
+	);
 };
 
 export default StandardMessage;

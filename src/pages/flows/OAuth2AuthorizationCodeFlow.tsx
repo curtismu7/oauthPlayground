@@ -1,6 +1,6 @@
 // src/pages/flows/EnhancedAuthorizationCodeFlowV2.tsx - Enhanced with complete UI design implementation
-import type React from "react";
-import { useCallback, useEffect, useState } from "react";
+import type React from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -19,44 +19,35 @@ import {
 	FiSettings,
 	FiShield,
 	FiUser,
-} from "react-icons/fi";
-import { useLocation } from "react-router-dom";
-import styled from "styled-components";
-import AuthorizationRequestModal from "../../components/AuthorizationRequestModal";
-import CallbackUrlDisplay from "../../components/CallbackUrlDisplay";
+} from 'react-icons/fi';
+import { useLocation } from 'react-router-dom';
+import styled from 'styled-components';
+import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
+import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
 import CentralizedSuccessMessage, {
 	showFlowError,
 	showFlowSuccess,
-} from "../../components/CentralizedSuccessMessage";
-import ColorCodedURL from "../../components/ColorCodedURL";
-import ConfigurationStatus from "../../components/ConfigurationStatus";
-import ConfirmationModal from "../../components/ConfirmationModal";
-import ContextualHelp from "../../components/ContextualHelp";
-import EnhancedStepFlowV2, {
-	type EnhancedFlowStep,
-} from "../../components/EnhancedStepFlowV2";
-import {
-	type FlowConfig,
-	FlowConfiguration,
-} from "../../components/FlowConfiguration";
-import OAuthErrorHelper from "../../components/OAuthErrorHelper";
-import { useAuth } from "../../contexts/NewAuthContext";
-import { useAuthorizationFlowScroll } from "../../hooks/usePageScroll";
-import { getCallbackUrlForFlow } from "../../utils/callbackUrls";
+} from '../../components/CentralizedSuccessMessage';
+import ColorCodedURL from '../../components/ColorCodedURL';
+import ConfigurationStatus from '../../components/ConfigurationStatus';
+import ConfirmationModal from '../../components/ConfirmationModal';
+import ContextualHelp from '../../components/ContextualHelp';
+import EnhancedStepFlowV2, { type EnhancedFlowStep } from '../../components/EnhancedStepFlowV2';
+import { type FlowConfig, FlowConfiguration } from '../../components/FlowConfiguration';
+import OAuthErrorHelper from '../../components/OAuthErrorHelper';
+import { useAuth } from '../../contexts/NewAuthContext';
+import { useAuthorizationFlowScroll } from '../../hooks/usePageScroll';
+import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
 import {
 	applyClientAuthentication,
 	getAuthMethodSecurityLevel,
-} from "../../utils/clientAuthentication";
-import { credentialManager } from "../../utils/credentialManager";
-import { getDefaultConfig } from "../../utils/flowConfigDefaults";
-import { logger } from "../../utils/logger";
-import {
-	generateCodeChallenge,
-	generateCodeVerifier,
-	validateIdToken,
-} from "../../utils/oauth";
-import { PingOneErrorInterpreter } from "../../utils/pingoneErrorInterpreter";
-import "../../styles/enhanced-flow.css";
+} from '../../utils/clientAuthentication';
+import { credentialManager } from '../../utils/credentialManager';
+import { getDefaultConfig } from '../../utils/flowConfigDefaults';
+import { logger } from '../../utils/logger';
+import { generateCodeChallenge, generateCodeVerifier, validateIdToken } from '../../utils/oauth';
+import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
+import '../../styles/enhanced-flow.css';
 
 // Styled Components for Enhanced UI
 const FormField = styled.div`
@@ -95,11 +86,11 @@ const FormLabel = styled.label<{ $highlight?: boolean }>`
 const FormInput = styled.input<{ $generated?: boolean }>`
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid ${({ $generated }) => ($generated ? "#10b981" : "#d1d5db")};
+  border: 1px solid ${({ $generated }) => ($generated ? '#10b981' : '#d1d5db')};
   border-radius: 0.5rem;
   font-size: 1rem;
   transition: all 0.2s ease;
-  background: ${({ $generated }) => ($generated ? "#f0fdf4" : "white")};
+  background: ${({ $generated }) => ($generated ? '#f0fdf4' : 'white')};
   color: #1f2937;
   cursor: text;
   
@@ -178,10 +169,10 @@ const ValidationIndicator = styled.div<{ $valid: boolean }>`
   gap: 0.5rem;
   margin-top: 0.5rem;
   font-size: 0.875rem;
-  color: ${(props) => (props.$valid ? "#10b981" : "#ef4444")};
+  color: ${(props) => (props.$valid ? '#10b981' : '#ef4444')};
 `;
 
-const InfoBox = styled.div<{ type: "info" | "warning" | "success" | "error" }>`
+const InfoBox = styled.div<{ type: 'info' | 'warning' | 'success' | 'error' }>`
   padding: 1rem;
   border-radius: 0.5rem;
   margin: 1rem 0;
@@ -191,26 +182,26 @@ const InfoBox = styled.div<{ type: "info" | "warning" | "success" | "error" }>`
   
   ${(props) => {
 		switch (props.type) {
-			case "info":
+			case 'info':
 				return `
           background: #eff6ff;
           border-left: 4px solid #3b82f6;
           color: #1e40af;
         `;
-			case "warning":
+			case 'warning':
 				return `
           background: #fffbeb;
           border-left: 4px solid #f59e0b;
           color: #92400e;
         `;
-			case "success":
+			case 'success':
 				return `
           background: linear-gradient(135deg, #10b981 0%, #059669 100%);
           border-left: 4px solid #047857;
           color: #ffffff;
           box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
         `;
-			case "error":
+			case 'error':
 				return `
           background: #fef2f2;
           border-left: 4px solid #ef4444;
@@ -317,13 +308,13 @@ const JsonDisplay = styled.div`
 `;
 
 const TestingMethodCard = styled.div<{ $selected: boolean }>`
-  border: 2px solid ${(props) => (props.$selected ? "#3b82f6" : "#e5e7eb")};
+  border: 2px solid ${(props) => (props.$selected ? '#3b82f6' : '#e5e7eb')};
   border-radius: 0.75rem;
   padding: 1.5rem;
   margin: 1rem 0;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: ${(props) => (props.$selected ? "#eff6ff" : "white")};
+  background: ${(props) => (props.$selected ? '#eff6ff' : 'white')};
   
   &:hover {
     border-color: #3b82f6;
@@ -583,32 +574,27 @@ const ModalButton = styled.button<{ $primary?: boolean; $loading?: boolean }>`
 // Main Component
 const OAuth2AuthorizationCodeFlow: React.FC = () => {
 	const authContext = useAuth();
-	const {
-		config,
-		user: authUser,
-		tokens: authTokens,
-		isAuthenticated,
-	} = authContext;
+	const { config, user: authUser, tokens: authTokens, isAuthenticated } = authContext;
 
 	// Use centralized scroll management for Authorization flow
-	useAuthorizationFlowScroll("Enhanced Authorization Code Flow V2");
+	useAuthorizationFlowScroll('Enhanced Authorization Code Flow V2');
 	const location = useLocation();
 	const [credentials, setCredentials] = useState({
-		clientId: "",
-		clientSecret: "",
-		environmentId: "",
-		authorizationEndpoint: "",
-		tokenEndpoint: "",
-		userInfoEndpoint: "",
-		redirectUri: window.location.origin + "/authz-callback",
-		scopes: "openid",
-		responseType: "code",
-		codeChallengeMethod: "S256",
+		clientId: '',
+		clientSecret: '',
+		environmentId: '',
+		authorizationEndpoint: '',
+		tokenEndpoint: '',
+		userInfoEndpoint: '',
+		redirectUri: window.location.origin + '/authz-callback',
+		scopes: 'openid',
+		responseType: 'code',
+		codeChallengeMethod: 'S256',
 	});
 
 	// Flow Configuration state - integrates with the Flow Config UI
 	const [flowConfig, setFlowConfig] = useState<FlowConfig>(() =>
-		getDefaultConfig("authorization-code"),
+		getDefaultConfig('authorization-code')
 	);
 
 	const [credentialsLoaded, setCredentialsLoaded] = useState(false);
@@ -616,13 +602,10 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 	// STANDARDIZATION: Enhanced step results system (Guide Lines 156-175)
 
 	// Step messages (keeping simple for compatibility)
-	const [stepMessages, setStepMessages] = useState<{ [key: string]: string }>(
-		{},
-	);
+	const [stepMessages, setStepMessages] = useState<{ [key: string]: string }>({});
 	const [showResetModal, setShowResetModal] = useState(false);
 	const [isResetting, setIsResetting] = useState(false);
-	const [showClearCredentialsModal, setShowClearCredentialsModal] =
-		useState(false);
+	const [showClearCredentialsModal, setShowClearCredentialsModal] = useState(false);
 	const [isClearingCredentials, setIsClearingCredentials] = useState(false);
 	const [justReset, setJustReset] = useState(false);
 	const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
@@ -637,7 +620,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 		setTimeout(() => {
 			window.scrollTo({
 				top: 0,
-				behavior: "smooth",
+				behavior: 'smooth',
 			});
 		}, 100);
 	}, []);
@@ -653,21 +636,21 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 
 			if (stepProgressElement) {
 				console.log(
-					" [EnhancedAuthorizationCodeFlowV2] Scrolling to BOTTOM step progress indicator",
+					' [EnhancedAuthorizationCodeFlowV2] Scrolling to BOTTOM step progress indicator'
 				);
 				stepProgressElement.scrollIntoView({
-					behavior: "smooth",
-					block: "center",
-					inline: "nearest",
+					behavior: 'smooth',
+					block: 'center',
+					inline: 'nearest',
 				});
 			} else {
 				// Fallback to scrolling to bottom if step progress not found
 				console.log(
-					" [EnhancedAuthorizationCodeFlowV2] Bottom step progress not found, scrolling to bottom",
+					' [EnhancedAuthorizationCodeFlowV2] Bottom step progress not found, scrolling to bottom'
 				);
 				window.scrollTo({
 					top: document.documentElement.scrollHeight,
-					behavior: "smooth",
+					behavior: 'smooth',
 				});
 			}
 		}, 100);
@@ -677,22 +660,20 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 	const handleResetFlow = useCallback(async () => {
 		setIsResetting(true);
 		try {
-			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] Resetting flow (preserving credentials)...",
-			);
+			console.log(' [EnhancedAuthorizationCodeFlowV2] Resetting flow (preserving credentials)...');
 
 			// Set reset flag to prevent restoration logic
 			setJustReset(true);
 
 			// Clear all flow state but preserve credentials
-			setAuthCode("");
+			setAuthCode('');
 			setTokens(null);
 			setUserInfo(null);
 			setAuthError(null);
 			setErrorDescription(null);
-			setPkceCodes({ codeVerifier: "", codeChallenge: "" });
-			setAuthUrl("");
-			setCustomToken("");
+			setPkceCodes({ codeVerifier: '', codeChallenge: '' });
+			setAuthUrl('');
+			setCustomToken('');
 			setCallbackSuccess(false);
 			setCallbackError(null);
 			setStepMessages({});
@@ -700,38 +681,33 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 			setCompletedSteps(new Set());
 
 			// Clear sessionStorage flow data
-			sessionStorage.removeItem("oauth_tokens");
-			sessionStorage.removeItem("oauth_auth_code");
-			sessionStorage.removeItem("code_verifier");
-			sessionStorage.removeItem("code_challenge");
-			sessionStorage.removeItem("oauth_state");
-			sessionStorage.removeItem("oauth_nonce");
-			sessionStorage.removeItem("enhanced-authz-code-v2-step");
+			sessionStorage.removeItem('oauth_tokens');
+			sessionStorage.removeItem('oauth_auth_code');
+			sessionStorage.removeItem('code_verifier');
+			sessionStorage.removeItem('code_challenge');
+			sessionStorage.removeItem('oauth_state');
+			sessionStorage.removeItem('oauth_nonce');
+			sessionStorage.removeItem('enhanced-authz-code-v2-step');
 
 			// Clear URL parameters
 			const currentUrl = new URL(window.location.href);
-			currentUrl.search = "";
-			window.history.replaceState({}, "", currentUrl.toString());
+			currentUrl.search = '';
+			window.history.replaceState({}, '', currentUrl.toString());
 
 			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] Flow reset completed (credentials preserved)",
+				' [EnhancedAuthorizationCodeFlowV2] Flow reset completed (credentials preserved)'
 			);
 
 			// Show centralized success message
 			showFlowSuccess(
-				" Flow Reset - Flow has been reset successfully. Your credentials are preserved.",
+				' Flow Reset - Flow has been reset successfully. Your credentials are preserved.'
 			);
 
 			// Clear reset flag after short delay
 			setTimeout(() => setJustReset(false), 1000);
 		} catch (error) {
-			console.error(
-				" [EnhancedAuthorizationCodeFlowV2] Error resetting flow:",
-				error,
-			);
-			showFlowError(
-				" Reset Failed - Failed to reset flow. Please try again.",
-			);
+			console.error(' [EnhancedAuthorizationCodeFlowV2] Error resetting flow:', error);
+			showFlowError(' Reset Failed - Failed to reset flow. Please try again.');
 		} finally {
 			setIsResetting(false);
 			setShowResetModal(false);
@@ -742,59 +718,52 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 	const handleClearCredentials = useCallback(async () => {
 		setIsClearingCredentials(true);
 		try {
-			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] Clearing all credentials...",
-			);
+			console.log(' [EnhancedAuthorizationCodeFlowV2] Clearing all credentials...');
 
 			// Clear credentials state
 			setCredentials({
-				clientId: "",
-				clientSecret: "",
-				environmentId: "",
-				authorizationEndpoint: "",
-				tokenEndpoint: "",
-				userInfoEndpoint: "",
-				redirectUri: window.location.origin + "/authz-callback",
-				scopes: "openid",
-				responseType: "code",
-				codeChallengeMethod: "S256",
+				clientId: '',
+				clientSecret: '',
+				environmentId: '',
+				authorizationEndpoint: '',
+				tokenEndpoint: '',
+				userInfoEndpoint: '',
+				redirectUri: window.location.origin + '/authz-callback',
+				scopes: 'openid',
+				responseType: 'code',
+				codeChallengeMethod: 'S256',
 			});
 
 			// Clear all flow state
-			setAuthCode("");
+			setAuthCode('');
 			setTokens(null);
 			setUserInfo(null);
 			setAuthError(null);
 			setErrorDescription(null);
-			setPkceCodes({ codeVerifier: "", codeChallenge: "" });
-			setAuthUrl("");
-			setCustomToken("");
+			setPkceCodes({ codeVerifier: '', codeChallenge: '' });
+			setAuthUrl('');
+			setCustomToken('');
 			setCallbackSuccess(false);
 			setCallbackError(null);
 			setStepMessages({});
 			setCurrentStepIndex(0);
 
 			// Clear all stored data
-			localStorage.removeItem("oauth_tokens");
+			localStorage.removeItem('oauth_tokens');
 			sessionStorage.clear();
 
 			// Clear credential manager data
 			await credentialManager.clearAllCredentials();
 
-			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] All credentials cleared",
-			);
+			console.log(' [EnhancedAuthorizationCodeFlowV2] All credentials cleared');
 
 			// Show success message
 			updateStepMessage(
-				"clear-credentials",
-				"All credentials have been cleared. Please configure your PingOne settings again.",
+				'clear-credentials',
+				'All credentials have been cleared. Please configure your PingOne settings again.'
 			);
 		} catch (error) {
-			console.error(
-				" [EnhancedAuthorizationCodeFlowV2] Error clearing credentials:",
-				error,
-			);
+			console.error(' [EnhancedAuthorizationCodeFlowV2] Error clearing credentials:', error);
 		} finally {
 			setIsClearingCredentials(false);
 			setShowClearCredentialsModal(false);
@@ -802,75 +771,56 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 	}, [updateStepMessage]);
 
 	// Debug credentials state
-	console.log(
-		" [EnhancedAuthorizationCodeFlowV2] Current credentials state:",
-		{
-			environmentId: credentials.environmentId
-				? `${credentials.environmentId.substring(0, 8)}...`
-				: "none",
-			clientId: credentials.clientId
-				? `${credentials.clientId.substring(0, 8)}...`
-				: "none",
-			redirectUri: credentials.redirectUri || "none",
-			hasClientSecret: !!credentials.clientSecret,
-			canExecutePKCE: Boolean(
-				credentials.environmentId &&
-					credentials.clientId &&
-					credentials.redirectUri,
-			),
-			credentialsLoaded: credentialsLoaded,
-		},
-	);
+	console.log(' [EnhancedAuthorizationCodeFlowV2] Current credentials state:', {
+		environmentId: credentials.environmentId
+			? `${credentials.environmentId.substring(0, 8)}...`
+			: 'none',
+		clientId: credentials.clientId ? `${credentials.clientId.substring(0, 8)}...` : 'none',
+		redirectUri: credentials.redirectUri || 'none',
+		hasClientSecret: !!credentials.clientSecret,
+		canExecutePKCE: Boolean(
+			credentials.environmentId && credentials.clientId && credentials.redirectUri
+		),
+		credentialsLoaded: credentialsLoaded,
+	});
 
 	// Monitor credentials changes
 	useEffect(() => {
-		console.log(" [EnhancedAuthorizationCodeFlowV2] Credentials changed:", {
+		console.log(' [EnhancedAuthorizationCodeFlowV2] Credentials changed:', {
 			environmentId: credentials.environmentId
 				? `${credentials.environmentId.substring(0, 8)}...`
-				: "none",
-			clientId: credentials.clientId
-				? `${credentials.clientId.substring(0, 8)}...`
-				: "none",
-			redirectUri: credentials.redirectUri || "none",
+				: 'none',
+			clientId: credentials.clientId ? `${credentials.clientId.substring(0, 8)}...` : 'none',
+			redirectUri: credentials.redirectUri || 'none',
 			canExecutePKCE: Boolean(
-				credentials.environmentId &&
-					credentials.clientId &&
-					credentials.redirectUri,
+				credentials.environmentId && credentials.clientId && credentials.redirectUri
 			),
 		});
-	}, [
-		credentials.environmentId,
-		credentials.clientId,
-		credentials.redirectUri,
-	]);
+	}, [credentials.environmentId, credentials.clientId, credentials.redirectUri]);
 
 	// Monitor credentials loaded state
 	useEffect(() => {
 		console.log(
-			" [EnhancedAuthorizationCodeFlowV2] Credentials loaded state changed:",
-			credentialsLoaded,
+			' [EnhancedAuthorizationCodeFlowV2] Credentials loaded state changed:',
+			credentialsLoaded
 		);
 	}, [credentialsLoaded]);
 
 	const [pkceCodes, setPkceCodes] = useState({
-		codeVerifier: "",
-		codeChallenge: "",
+		codeVerifier: '',
+		codeChallenge: '',
 	});
 
-	const [authUrl, setAuthUrl] = useState("");
-	const [authCode, setAuthCode] = useState("");
-	const [state, setState] = useState("");
+	const [authUrl, setAuthUrl] = useState('');
+	const [authCode, setAuthCode] = useState('');
+	const [state, setState] = useState('');
 	const [tokens, setTokens] = useState<Record<string, unknown> | null>(null);
-	const [userInfo, setUserInfo] = useState<Record<string, unknown> | null>(
-		null,
-	);
+	const [userInfo, setUserInfo] = useState<Record<string, unknown> | null>(null);
 	const [callbackSuccess, setCallbackSuccess] = useState(false);
 	const [callbackError, setCallbackError] = useState<string | null>(null);
-	const [testingMethod, setTestingMethod] = useState<"popup" | "redirect">(
-		"popup",
-	);
+	const [testingMethod, setTestingMethod] = useState<'popup' | 'redirect'>('popup');
 	const [copiedText, setCopiedText] = useState<string | null>(null);
-	const [customToken, setCustomToken] = useState<string>("");
+	const [customToken, setCustomToken] = useState<string>('');
 	// Removed unused isAuthorizing state
 	const [isExchangingTokens, setIsExchangingTokens] = useState<boolean>(false);
 	const [showSecret, setShowSecret] = useState<boolean>(false);
@@ -882,35 +832,31 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 	// Removed unused redirect state variables
 	const [isGeneratingPKCE, setIsGeneratingPKCE] = useState<boolean>(false);
 	const [pkceGenerated, setPkceGenerated] = useState<boolean>(false);
-	const [isSavingCredentials, setIsSavingCredentials] =
-		useState<boolean>(false);
+	const [isSavingCredentials, setIsSavingCredentials] = useState<boolean>(false);
 	const [isBuildingUrl, setIsBuildingUrl] = useState<boolean>(false);
 	const [isGettingUserInfo, setIsGettingUserInfo] = useState<boolean>(false);
 	const [credentialsSaved, setCredentialsSaved] = useState<boolean>(false);
 	const [urlGenerated, setUrlGenerated] = useState<boolean>(false);
 	const [authError, setAuthError] = useState<string | null>(null);
 	const [errorDescription, setErrorDescription] = useState<string | null>(null);
-	const [collapsedSections, setCollapsedSections] = useState<
-		Record<string, boolean>
-	>({
-		"setup-credentials": false,
-		"exchange-tokens": false,
+	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
+		'setup-credentials': false,
+		'exchange-tokens': false,
 		userinfo: false,
-		"refresh-tokens": false,
+		'refresh-tokens': false,
 	});
 	const [usedAuthCode, setUsedAuthCode] = useState<string | null>(null);
-	const [showUrlDetailsInStep4, setShowUrlDetailsInStep4] =
-		useState<boolean>(true);
+	const [showUrlDetailsInStep4, setShowUrlDetailsInStep4] = useState<boolean>(true);
 
 	// Load UI configuration
 	useEffect(() => {
-		const flowConfigKey = "enhanced-flow-authorization-code";
-		const flowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || "{}");
+		const flowConfigKey = 'enhanced-flow-authorization-code';
+		const flowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
 		if (flowConfig.showUrlDetailsInStep4 !== undefined) {
 			setShowUrlDetailsInStep4(flowConfig.showUrlDetailsInStep4);
 			console.log(
-				" [EnhancedAuthCodeFlowV2] Loaded showUrlDetailsInStep4 setting:",
-				flowConfig.showUrlDetailsInStep4,
+				' [EnhancedAuthCodeFlowV2] Loaded showUrlDetailsInStep4 setting:',
+				flowConfig.showUrlDetailsInStep4
 			);
 		}
 	}, []);
@@ -922,90 +868,70 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 
 	// Load credentials on component mount
 	useEffect(() => {
-		console.log(
-			" [EnhancedAuthCodeFlowV2] Component mounted with credentials:",
-			{
-				hasClientId: !!credentials.clientId,
-				hasEnvironmentId: !!credentials.environmentId,
-				hasRedirectUri: !!credentials.redirectUri,
-				clientId: credentials.clientId
-					? `${credentials.clientId.substring(0, 8)}...`
-					: "none",
-			},
-		);
+		console.log(' [EnhancedAuthCodeFlowV2] Component mounted with credentials:', {
+			hasClientId: !!credentials.clientId,
+			hasEnvironmentId: !!credentials.environmentId,
+			hasRedirectUri: !!credentials.redirectUri,
+			clientId: credentials.clientId ? `${credentials.clientId.substring(0, 8)}...` : 'none',
+		});
 
 		// Clear any old authorization codes to prevent auto-exchange with expired codes
-		const oldAuthCode = sessionStorage.getItem("oauth_auth_code");
+		const oldAuthCode = sessionStorage.getItem('oauth_auth_code');
 		if (oldAuthCode) {
 			console.log(
-				" [EnhancedAuthCodeFlowV2] Clearing old authorization code to prevent auto-exchange with expired code",
+				' [EnhancedAuthCodeFlowV2] Clearing old authorization code to prevent auto-exchange with expired code'
 			);
-			sessionStorage.removeItem("oauth_auth_code");
+			sessionStorage.removeItem('oauth_auth_code');
 			// Don't clear PKCE codes - they can be reused for multiple authorization attempts
-			console.log(
-				" [EnhancedAuthCodeFlowV2] Preserving PKCE codes for reuse",
-			);
+			console.log(' [EnhancedAuthCodeFlowV2] Preserving PKCE codes for reuse');
 		}
 
 		// If credentials are empty, try to load them from storage
 		if (!credentials.clientId || !credentials.environmentId) {
-			console.log(
-				" [EnhancedAuthCodeFlowV2] Loading credentials from storage on mount",
-			);
+			console.log(' [EnhancedAuthCodeFlowV2] Loading credentials from storage on mount');
 
 			// PRIMARY: Load from authz flow credentials (dedicated storage for this flow)
 			let storedCredentials = credentialManager.loadAuthzFlowCredentials();
-			console.log(
-				" [EnhancedAuthCodeFlowV2] Authz flow credentials:",
-				storedCredentials,
-			);
+			console.log(' [EnhancedAuthCodeFlowV2] Authz flow credentials:', storedCredentials);
 
 			// FALLBACK: Only if authz flow credentials are completely blank, try permanent credentials
-			if (
-				!storedCredentials ||
-				(!storedCredentials.clientId && !storedCredentials.environmentId)
-			) {
+			if (!storedCredentials || (!storedCredentials.clientId && !storedCredentials.environmentId)) {
 				console.log(
-					" [EnhancedAuthCodeFlowV2] Authz flow credentials are blank, falling back to permanent credentials",
+					' [EnhancedAuthCodeFlowV2] Authz flow credentials are blank, falling back to permanent credentials'
 				);
 				storedCredentials = credentialManager.loadPermanentCredentials();
 				console.log(
-					" [EnhancedAuthCodeFlowV2] Permanent credentials (fallback):",
-					storedCredentials,
+					' [EnhancedAuthCodeFlowV2] Permanent credentials (fallback):',
+					storedCredentials
 				);
 			}
 
 			if (storedCredentials && storedCredentials.clientId) {
 				const convertedCredentials = {
 					clientId: storedCredentials.clientId,
-					clientSecret: storedCredentials.clientSecret || "",
+					clientSecret: storedCredentials.clientSecret || '',
 					environmentId: storedCredentials.environmentId,
-					authorizationEndpoint: storedCredentials.authEndpoint || "",
-					tokenEndpoint: storedCredentials.tokenEndpoint || "",
-					userInfoEndpoint: storedCredentials.userInfoEndpoint || "",
+					authorizationEndpoint: storedCredentials.authEndpoint || '',
+					tokenEndpoint: storedCredentials.tokenEndpoint || '',
+					userInfoEndpoint: storedCredentials.userInfoEndpoint || '',
 					redirectUri: storedCredentials.redirectUri,
 					scopes: Array.isArray(storedCredentials.scopes)
-						? storedCredentials.scopes.join(" ")
-						: storedCredentials.scopes || "openid",
-					responseType: "code",
-					codeChallengeMethod: "S256",
+						? storedCredentials.scopes.join(' ')
+						: storedCredentials.scopes || 'openid',
+					responseType: 'code',
+					codeChallengeMethod: 'S256',
 				};
 				setCredentials(convertedCredentials);
-				console.log(
-					" [EnhancedAuthCodeFlowV2] Loaded credentials from storage:",
-					{
-						clientId: storedCredentials.clientId
-							? `${storedCredentials.clientId.substring(0, 8)}...`
-							: "none",
-						environmentId: storedCredentials.environmentId,
-						source: storedCredentials.clientSecret
-							? "authz-flow"
-							: "permanent-fallback",
-					},
-				);
+				console.log(' [EnhancedAuthCodeFlowV2] Loaded credentials from storage:', {
+					clientId: storedCredentials.clientId
+						? `${storedCredentials.clientId.substring(0, 8)}...`
+						: 'none',
+					environmentId: storedCredentials.environmentId,
+					source: storedCredentials.clientSecret ? 'authz-flow' : 'permanent-fallback',
+				});
 			} else {
 				console.log(
-					" [EnhancedAuthCodeFlowV2] No stored credentials found - user needs to configure",
+					' [EnhancedAuthCodeFlowV2] No stored credentials found - user needs to configure'
 				);
 			}
 		}
@@ -1022,25 +948,22 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 	// Handle URL parameters to restore correct step
 	useEffect(() => {
 		const urlParams = new URLSearchParams(location.search);
-		const stepParam = urlParams.get("step");
-		const code = urlParams.get("code");
-		const state = urlParams.get("state");
+		const stepParam = urlParams.get('step');
+		const code = urlParams.get('code');
+		const state = urlParams.get('state');
 
-		console.log(" [EnhancedAuthorizationCodeFlowV2] URL params:", {
+		console.log(' [EnhancedAuthorizationCodeFlowV2] URL params:', {
 			stepParam,
 			code,
 			state,
 		});
-		console.log(
-			" [EnhancedAuthorizationCodeFlowV2] Current location:",
-			location,
-		);
-		console.log(" [EnhancedAuthorizationCodeFlowV2] Auth context state:", {
+		console.log(' [EnhancedAuthorizationCodeFlowV2] Current location:', location);
+		console.log(' [EnhancedAuthorizationCodeFlowV2] Auth context state:', {
 			isAuthenticated,
 			user: authUser,
 			tokens: authTokens,
 		});
-		console.log(" [EnhancedAuthorizationCodeFlowV2] Current state values:", {
+		console.log(' [EnhancedAuthorizationCodeFlowV2] Current state values:', {
 			authCode,
 			callbackSuccess,
 			callbackError,
@@ -1057,29 +980,26 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 		if (stepParam) {
 			const stepIndex = parseInt(stepParam, 10) - 1; // Convert to 0-based index
 			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] URL step parameter detected:",
+				' [EnhancedAuthorizationCodeFlowV2] URL step parameter detected:',
 				stepParam,
-				"-> step index:",
-				stepIndex,
+				'-> step index:',
+				stepIndex
 			);
-			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] Setting stored step to:",
-				stepIndex,
-			);
+			console.log(' [EnhancedAuthorizationCodeFlowV2] Setting stored step to:', stepIndex);
 
 			// If we also have an authorization code in the URL, set it
 			if (code) {
 				console.log(
-					" [EnhancedAuthorizationCodeFlowV2] Setting authCode from URL (with step param):",
-					code,
+					' [EnhancedAuthorizationCodeFlowV2] Setting authCode from URL (with step param):',
+					code
 				);
 				setAuthCode(code);
-				setState(state || "");
+				setState(state || '');
 
 				// Store authorization code in sessionStorage for persistence
-				sessionStorage.setItem("oauth_auth_code", code);
+				sessionStorage.setItem('oauth_auth_code', code);
 				if (state) {
-					sessionStorage.setItem("oauth_state", state);
+					sessionStorage.setItem('oauth_state', state);
 				}
 
 				// Mark callback as successful and check for tokens
@@ -1088,17 +1008,15 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 
 				// Show success modal to user - use setTimeout to ensure it shows
 				setTimeout(() => {
-					console.log(
-						" [EnhancedAuthorizationCodeFlowV2] Forcing modal to show after redirect",
-					);
+					console.log(' [EnhancedAuthorizationCodeFlowV2] Forcing modal to show after redirect');
 					setShowAuthSuccessModal(true);
 				}, 100);
 
 				// Check if we have tokens from the auth context
 				if (authTokens) {
 					console.log(
-						" [EnhancedAuthorizationCodeFlowV2] Tokens found in auth context:",
-						authTokens,
+						' [EnhancedAuthorizationCodeFlowV2] Tokens found in auth context:',
+						authTokens
 					);
 					setTokens(authTokens);
 				}
@@ -1106,30 +1024,24 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 				// Check if we have user info from the auth context
 				if (authUser) {
 					console.log(
-						" [EnhancedAuthorizationCodeFlowV2] User info found in auth context:",
-						authUser,
+						' [EnhancedAuthorizationCodeFlowV2] User info found in auth context:',
+						authUser
 					);
 					setUserInfo(authUser);
 				}
 			} else {
 				console.log(
-					" [EnhancedAuthorizationCodeFlowV2] Step parameter found but no authorization code in URL",
+					' [EnhancedAuthorizationCodeFlowV2] Step parameter found but no authorization code in URL'
 				);
-				console.log(
-					" [EnhancedAuthorizationCodeFlowV2] Full URL:",
-					window.location.href,
-				);
-				console.log(
-					" [EnhancedAuthorizationCodeFlowV2] URL search params:",
-					location.search,
-				);
+				console.log(' [EnhancedAuthorizationCodeFlowV2] Full URL:', window.location.href);
+				console.log(' [EnhancedAuthorizationCodeFlowV2] URL search params:', location.search);
 
 				// Check if we have a stored authorization code
-				const storedCode = sessionStorage.getItem("oauth_auth_code");
+				const storedCode = sessionStorage.getItem('oauth_auth_code');
 				if (storedCode) {
 					console.log(
-						" [EnhancedAuthorizationCodeFlowV2] Found stored authorization code:",
-						storedCode,
+						' [EnhancedAuthorizationCodeFlowV2] Found stored authorization code:',
+						storedCode
 					);
 					setAuthCode(storedCode);
 					setCallbackSuccess(true);
@@ -1137,43 +1049,34 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 
 					// Don't auto-exchange stored codes - let the user manually proceed to step 5
 					console.log(
-						" [EnhancedAuthorizationCodeFlowV2] Stored authorization code found, user should proceed to step 5 manually",
+						' [EnhancedAuthorizationCodeFlowV2] Stored authorization code found, user should proceed to step 5 manually'
 					);
 				}
 			}
 
-			sessionStorage.setItem(
-				"enhanced-authz-code-v2-step",
-				stepIndex.toString(),
-			);
+			sessionStorage.setItem('enhanced-authz-code-v2-step', stepIndex.toString());
 			return;
 		}
 
 		// If we have authorization code, we should go to step 5 (exchange tokens) and exchange immediately
 		if (code) {
 			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] Authorization code detected, going to step 5 (exchange tokens)",
+				' [EnhancedAuthorizationCodeFlowV2] Authorization code detected, going to step 5 (exchange tokens)'
 			);
-			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] Setting authCode from URL:",
-				code,
-			);
+			console.log(' [EnhancedAuthorizationCodeFlowV2] Setting authCode from URL:', code);
 			setAuthCode(code); // Set the authorization code from URL parameters
-			setState(state || "");
+			setState(state || '');
 
-			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] Setting authCode from URL:",
-				{
-					code: code?.substring(0, 10) + "...",
-					state: state,
-					currentCredentials: credentials,
-				},
-			);
+			console.log(' [EnhancedAuthorizationCodeFlowV2] Setting authCode from URL:', {
+				code: code?.substring(0, 10) + '...',
+				state: state,
+				currentCredentials: credentials,
+			});
 
 			// Store authorization code in sessionStorage for persistence
-			sessionStorage.setItem("oauth_auth_code", code);
+			sessionStorage.setItem('oauth_auth_code', code);
 			if (state) {
-				sessionStorage.setItem("oauth_state", state);
+				sessionStorage.setItem('oauth_state', state);
 			}
 
 			// Mark callback as successful
@@ -1183,46 +1086,40 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 			// Set step to 5 (exchange tokens) so buttons are enabled immediately
 			const stepIndex = 5;
 			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] Setting step to 5 (exchange tokens) - buttons will be enabled",
+				' [EnhancedAuthorizationCodeFlowV2] Setting step to 5 (exchange tokens) - buttons will be enabled'
 			);
 			setCurrentStepIndex(stepIndex);
-			sessionStorage.setItem(
-				"enhanced-authz-code-v2-step",
-				stepIndex.toString(),
-			);
+			sessionStorage.setItem('enhanced-authz-code-v2-step', stepIndex.toString());
 
 			// Force component re-render by clearing and setting step again
 			setTimeout(() => {
 				console.log(
-					" [EnhancedAuthorizationCodeFlowV2] Force setting step to 5 again to override component initialization",
+					' [EnhancedAuthorizationCodeFlowV2] Force setting step to 5 again to override component initialization'
 				);
 				setCurrentStepIndex(5);
 			}, 100);
 
 			// Clear any old messages and set appropriate message for token exchange step
 			updateStepMessage(
-				"exchange-tokens",
-				' Ready to exchange authorization code for tokens. Click the "Exchange Tokens" button below.',
+				'exchange-tokens',
+				' Ready to exchange authorization code for tokens. Click the "Exchange Tokens" button below.'
 			);
 			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] Authorization code received, user should proceed to step 5 manually",
+				' [EnhancedAuthorizationCodeFlowV2] Authorization code received, user should proceed to step 5 manually'
 			);
 
 			// Show centralized success message for full redirect
 			showFlowSuccess(
-				" Welcome back from PingOne! Authorization successful - you can now exchange your authorization code for tokens.",
+				' Welcome back from PingOne! Authorization successful - you can now exchange your authorization code for tokens.'
 			);
 
 			return;
 		}
 
 		// Check if we're coming back from a redirect and should restore to a specific step
-		const storedStep = sessionStorage.getItem("enhanced-authz-code-v2-step");
+		const storedStep = sessionStorage.getItem('enhanced-authz-code-v2-step');
 		if (storedStep) {
-			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] Restoring from stored step:",
-				storedStep,
-			);
+			console.log(' [EnhancedAuthorizationCodeFlowV2] Restoring from stored step:', storedStep);
 		}
 	}, [location.search, authTokens, authUser]);
 
@@ -1230,15 +1127,13 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 	useEffect(() => {
 		if (authCode && currentStepIndex === 5 && !showAuthSuccessModal) {
 			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] AuthCode detected on step 5, forcing modal to show",
+				' [EnhancedAuthorizationCodeFlowV2] AuthCode detected on step 5, forcing modal to show'
 			);
 			setTimeout(() => {
 				setShowAuthSuccessModal(true);
 			}, 200);
 		} else if (currentStepIndex !== 5) {
-			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] Not on step 5, ensuring modal is hidden",
-			);
+			console.log(' [EnhancedAuthorizationCodeFlowV2] Not on step 5, ensuring modal is hidden');
 			setShowAuthSuccessModal(false);
 		}
 	}, [authCode, currentStepIndex, showAuthSuccessModal]);
@@ -1247,7 +1142,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 
 	// Debug effect to track state changes
 	useEffect(() => {
-		console.log(" [EnhancedAuthorizationCodeFlowV2] State change detected:", {
+		console.log(' [EnhancedAuthorizationCodeFlowV2] State change detected:', {
 			authCode: !!authCode,
 			authCodeValue: authCode,
 			callbackSuccess,
@@ -1282,98 +1177,85 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 				// PRIMARY: Load from authz flow credentials (dedicated storage for this flow)
 				let allCredentials = credentialManager.loadAuthzFlowCredentials();
 				console.log(
-					" [EnhancedAuthorizationCodeFlowV2] Loading authz flow credentials:",
-					allCredentials,
+					' [EnhancedAuthorizationCodeFlowV2] Loading authz flow credentials:',
+					allCredentials
 				);
 
 				// FALLBACK: Only if authz flow credentials are completely blank, try permanent credentials
-				if (
-					!allCredentials ||
-					(!allCredentials.clientId && !allCredentials.environmentId)
-				) {
+				if (!allCredentials || (!allCredentials.clientId && !allCredentials.environmentId)) {
 					console.log(
-						" [EnhancedAuthorizationCodeFlowV2] Authz flow credentials are blank, falling back to permanent credentials",
+						' [EnhancedAuthorizationCodeFlowV2] Authz flow credentials are blank, falling back to permanent credentials'
 					);
 					allCredentials = credentialManager.loadPermanentCredentials();
 					console.log(
-						" [EnhancedAuthorizationCodeFlowV2] Loading permanent credentials (fallback):",
-						allCredentials,
+						' [EnhancedAuthorizationCodeFlowV2] Loading permanent credentials (fallback):',
+						allCredentials
 					);
 				}
 
 				// Debug what we found
-				console.log(
-					" [EnhancedAuthorizationCodeFlowV2] Final credentials to load:",
-					{
-						hasCredentials: !!allCredentials,
-						environmentId: allCredentials?.environmentId
-							? `${allCredentials.environmentId.substring(0, 8)}...`
-							: "none",
-						clientId: allCredentials?.clientId
-							? `${allCredentials.clientId.substring(0, 8)}...`
-							: "none",
-						redirectUri: allCredentials?.redirectUri || "none",
-						hasClientSecret: !!allCredentials?.clientSecret,
-						source: allCredentials?.clientSecret
-							? "authz-flow"
-							: "permanent-fallback",
-					},
-				);
+				console.log(' [EnhancedAuthorizationCodeFlowV2] Final credentials to load:', {
+					hasCredentials: !!allCredentials,
+					environmentId: allCredentials?.environmentId
+						? `${allCredentials.environmentId.substring(0, 8)}...`
+						: 'none',
+					clientId: allCredentials?.clientId
+						? `${allCredentials.clientId.substring(0, 8)}...`
+						: 'none',
+					redirectUri: allCredentials?.redirectUri || 'none',
+					hasClientSecret: !!allCredentials?.clientSecret,
+					source: allCredentials?.clientSecret ? 'authz-flow' : 'permanent-fallback',
+				});
 
 				// Check for test values and clear them (only if BOTH are test values AND no other valid config exists)
 				if (
-					allCredentials.clientId === "test-client-123" &&
-					allCredentials.environmentId === "test-env-123"
+					allCredentials.clientId === 'test-client-123' &&
+					allCredentials.environmentId === 'test-env-123'
 				) {
 					console.log(
-						" [EnhancedAuthorizationCodeFlowV2] Found test values, checking if we should clear...",
+						' [EnhancedAuthorizationCodeFlowV2] Found test values, checking if we should clear...'
 					);
 
 					// Check if there are any other valid credentials in localStorage
-					const pingoneConfig = localStorage.getItem("pingone_config");
-					const loginCredentials = localStorage.getItem("login_credentials");
+					const pingoneConfig = localStorage.getItem('pingone_config');
+					const loginCredentials = localStorage.getItem('login_credentials');
 
 					if (!pingoneConfig && !loginCredentials) {
 						console.log(
-							" [EnhancedAuthorizationCodeFlowV2] No other credentials found, clearing test values",
+							' [EnhancedAuthorizationCodeFlowV2] No other credentials found, clearing test values'
 						);
 						credentialManager.clearAllCredentials();
-						console.log(
-							" [EnhancedAuthorizationCodeFlowV2] Test credentials cleared",
-						);
+						console.log(' [EnhancedAuthorizationCodeFlowV2] Test credentials cleared');
 						return;
 					} else {
 						console.log(
-							" [EnhancedAuthorizationCodeFlowV2] Other credentials exist, keeping test values for now",
+							' [EnhancedAuthorizationCodeFlowV2] Other credentials exist, keeping test values for now'
 						);
 					}
 				}
 
 				// Check if we have any credentials
-				const hasCredentials =
-					allCredentials.environmentId || allCredentials.clientId;
+				const hasCredentials = allCredentials.environmentId || allCredentials.clientId;
 
 				if (!hasCredentials) {
 					console.log(
-						" [EnhancedAuthorizationCodeFlowV2] No credentials found, loading from environment variables...",
+						' [EnhancedAuthorizationCodeFlowV2] No credentials found, loading from environment variables...'
 					);
 					try {
-						const response = await fetch("/api/env-config");
+						const response = await fetch('/api/env-config');
 						if (response.ok) {
 							const envConfig = await response.json();
 							console.log(
-								" [EnhancedAuthorizationCodeFlowV2] Loaded from environment config:",
-								envConfig,
+								' [EnhancedAuthorizationCodeFlowV2] Loaded from environment config:',
+								envConfig
 							);
 
 							setCredentials((prev) => ({
 								...prev,
-								environmentId: envConfig.environmentId || "",
-								clientId: envConfig.clientId || "",
-								clientSecret: envConfig.clientSecret || "",
-								redirectUri:
-									envConfig.redirectUri ||
-									window.location.origin + "/authz-callback",
+								environmentId: envConfig.environmentId || '',
+								clientId: envConfig.clientId || '',
+								clientSecret: envConfig.clientSecret || '',
+								redirectUri: envConfig.redirectUri || window.location.origin + '/authz-callback',
 								authorizationEndpoint:
 									envConfig.authEndpoint ||
 									`${envConfig.apiUrl}/${envConfig.environmentId}/as/authorize`,
@@ -1384,64 +1266,56 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 									envConfig.userInfoEndpoint ||
 									`${envConfig.apiUrl}/${envConfig.environmentId}/as/userinfo`,
 								scopes: Array.isArray(envConfig.scopes)
-									? envConfig.scopes.join(" ")
-									: envConfig.scopes || "profile email",
+									? envConfig.scopes.join(' ')
+									: envConfig.scopes || 'profile email',
 							}));
 
 							console.log(
-								" [EnhancedAuthorizationCodeFlowV2] Credentials loaded from environment variables",
+								' [EnhancedAuthorizationCodeFlowV2] Credentials loaded from environment variables'
 							);
 							return;
 						}
 					} catch (envError) {
 						console.warn(
-							" [EnhancedAuthorizationCodeFlowV2] Failed to load from environment variables:",
-							envError,
+							' [EnhancedAuthorizationCodeFlowV2] Failed to load from environment variables:',
+							envError
 						);
 					}
 				}
 
 				setCredentials((prev) => ({
 					...prev,
-					environmentId: allCredentials.environmentId || "",
-					clientId: allCredentials.clientId || "",
-					clientSecret: allCredentials.clientSecret || "",
-					redirectUri:
-						allCredentials.redirectUri ||
-						window.location.origin + "/authz-callback",
-					authorizationEndpoint: allCredentials.authEndpoint || "",
-					tokenEndpoint: allCredentials.tokenEndpoint || "",
-					userInfoEndpoint: allCredentials.userInfoEndpoint || "",
+					environmentId: allCredentials.environmentId || '',
+					clientId: allCredentials.clientId || '',
+					clientSecret: allCredentials.clientSecret || '',
+					redirectUri: allCredentials.redirectUri || window.location.origin + '/authz-callback',
+					authorizationEndpoint: allCredentials.authEndpoint || '',
+					tokenEndpoint: allCredentials.tokenEndpoint || '',
+					userInfoEndpoint: allCredentials.userInfoEndpoint || '',
 					scopes: Array.isArray(allCredentials.scopes)
-						? allCredentials.scopes.join(" ")
-						: allCredentials.scopes || "profile email",
+						? allCredentials.scopes.join(' ')
+						: allCredentials.scopes || 'profile email',
 				}));
 
-				console.log(
-					" [EnhancedAuthorizationCodeFlowV2] Credentials loaded successfully:",
-					{
-						environmentId: allCredentials.environmentId
-							? `${allCredentials.environmentId.substring(0, 8)}...`
-							: "none",
-						clientId: allCredentials.clientId
-							? `${allCredentials.clientId.substring(0, 8)}...`
-							: "none",
-						redirectUri: allCredentials.redirectUri || "none",
-						hasClientSecret: !!allCredentials.clientSecret,
-					},
-				);
+				console.log(' [EnhancedAuthorizationCodeFlowV2] Credentials loaded successfully:', {
+					environmentId: allCredentials.environmentId
+						? `${allCredentials.environmentId.substring(0, 8)}...`
+						: 'none',
+					clientId: allCredentials.clientId
+						? `${allCredentials.clientId.substring(0, 8)}...`
+						: 'none',
+					redirectUri: allCredentials.redirectUri || 'none',
+					hasClientSecret: !!allCredentials.clientSecret,
+				});
 
 				// Mark credentials as loaded
 				setCredentialsLoaded(true);
 			} catch (error) {
-				console.error(
-					" [EnhancedAuthorizationCodeFlowV2] Failed to load credentials:",
-					error,
-				);
+				console.error(' [EnhancedAuthorizationCodeFlowV2] Failed to load credentials:', error);
 				logger.error(
-					"EnhancedAuthorizationCodeFlowV2",
-					"Failed to load credentials",
-					String(error),
+					'EnhancedAuthorizationCodeFlowV2',
+					'Failed to load credentials',
+					String(error)
 				);
 			}
 		};
@@ -1449,18 +1323,13 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 		// Load credentials asynchronously
 		loadCredentials()
 			.then(() => {
-				console.log(
-					" [EnhancedAuthorizationCodeFlowV2] Credentials loading completed",
-				);
+				console.log(' [EnhancedAuthorizationCodeFlowV2] Credentials loading completed');
 			})
 			.catch((error) => {
-				console.error(
-					" [EnhancedAuthorizationCodeFlowV2] Failed to load credentials:",
-					error,
-				);
+				console.error(' [EnhancedAuthorizationCodeFlowV2] Failed to load credentials:', error);
 			});
 		console.log(
-			" [EnhancedAuthorizationCodeFlowV2] Cleared all flow states and loaded credentials on mount",
+			' [EnhancedAuthorizationCodeFlowV2] Cleared all flow states and loaded credentials on mount'
 		);
 	}, []);
 
@@ -1471,48 +1340,50 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 		const initializeStepIndex = () => {
 			if (hasInitialized) {
 				console.log(
-					" [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Already initialized, skipping",
+					' [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Already initialized, skipping'
 				);
 				return;
 			}
 			hasInitialized = true;
-			const storedStep = sessionStorage.getItem("enhanced-authz-code-v2-step");
+			const storedStep = sessionStorage.getItem('enhanced-authz-code-v2-step');
 			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Checking for stored step:",
-				storedStep,
+				' [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Checking for stored step:',
+				storedStep
 			);
 			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Current URL:",
-				window.location.href,
+				' [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Current URL:',
+				window.location.href
 			);
 
 			// Check if we have an authorization code in the URL
 			const urlParams = new URLSearchParams(window.location.search);
-			const code = urlParams.get("code");
-			const state = urlParams.get("state");
-			const step = urlParams.get("step");
-			const action = urlParams.get("action");
+			const code = urlParams.get('code');
+			const state = urlParams.get('state');
+			const step = urlParams.get('step');
+			const action = urlParams.get('action');
 
-			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - URL params:",
-				{ code, state, step, action },
-			);
+			console.log(' [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - URL params:', {
+				code,
+				state,
+				step,
+				action,
+			});
 
 			// PRIORITY 1: If we have both code and step=5, go directly to step 5 and exchange tokens
-			if (code && step === "5") {
+			if (code && step === '5') {
 				console.log(
-					" [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Authorization code with step=5, going directly to step 5",
+					' [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Authorization code with step=5, going directly to step 5'
 				);
 				setCurrentStepIndex(5);
 				setAuthCode(code);
-				setState(state || "");
+				setState(state || '');
 				setCallbackSuccess(true);
 				setCallbackError(null);
 
 				// Show message about what's happening
 				updateStepMessage(
-					"exchange-tokens",
-					' Ready to exchange authorization code for tokens. Click the "Exchange Token" button to proceed with token exchange.',
+					'exchange-tokens',
+					' Ready to exchange authorization code for tokens. Click the "Exchange Token" button to proceed with token exchange.'
 				);
 
 				// Auto-exchange tokens immediately (only if not already exchanging and on correct step)
@@ -1520,60 +1391,55 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 				if (false) {
 					// Disabled auto-exchange - user must manually execute
 					// Check if this is a fresh authorization code (not an old one from sessionStorage)
-					const isFreshCode = !sessionStorage.getItem("oauth_auth_code");
+					const isFreshCode = !sessionStorage.getItem('oauth_auth_code');
 					if (isFreshCode) {
 						setTimeout(async () => {
 							try {
 								console.log(
-									" [EnhancedAuthorizationCodeFlowV2] Auto-exchanging fresh authorization code for tokens",
+									' [EnhancedAuthorizationCodeFlowV2] Auto-exchanging fresh authorization code for tokens'
 								);
 
 								// CRITICAL: Ensure credentials are loaded before auto-exchange
 								if (!credentials.clientId || !credentials.environmentId) {
 									console.log(
-										" [EnhancedAuthorizationCodeFlowV2] Loading credentials before auto-exchange",
+										' [EnhancedAuthorizationCodeFlowV2] Loading credentials before auto-exchange'
 									);
 									// PRIMARY: Load from authz flow credentials (dedicated storage for this flow)
-									let storedCredentials =
-										credentialManager.loadAuthzFlowCredentials();
+									let storedCredentials = credentialManager.loadAuthzFlowCredentials();
 
 									// FALLBACK: Only if authz flow credentials are completely blank, try permanent credentials
 									if (
 										!storedCredentials ||
-										(!storedCredentials.clientId &&
-											!storedCredentials.environmentId)
+										(!storedCredentials.clientId && !storedCredentials.environmentId)
 									) {
 										console.log(
-											" [EnhancedAuthorizationCodeFlowV2] Authz flow credentials are blank, falling back to permanent credentials",
+											' [EnhancedAuthorizationCodeFlowV2] Authz flow credentials are blank, falling back to permanent credentials'
 										);
-										storedCredentials =
-											credentialManager.loadPermanentCredentials();
+										storedCredentials = credentialManager.loadPermanentCredentials();
 									}
 
 									if (storedCredentials && storedCredentials.clientId) {
 										const convertedCredentials = {
 											clientId: storedCredentials.clientId,
-											clientSecret: storedCredentials.clientSecret || "",
+											clientSecret: storedCredentials.clientSecret || '',
 											environmentId: storedCredentials.environmentId,
-											authorizationEndpoint:
-												storedCredentials.authEndpoint || "",
-											tokenEndpoint: storedCredentials.tokenEndpoint || "",
-											userInfoEndpoint:
-												storedCredentials.userInfoEndpoint || "",
+											authorizationEndpoint: storedCredentials.authEndpoint || '',
+											tokenEndpoint: storedCredentials.tokenEndpoint || '',
+											userInfoEndpoint: storedCredentials.userInfoEndpoint || '',
 											redirectUri: storedCredentials.redirectUri,
 											scopes: Array.isArray(storedCredentials.scopes)
-												? storedCredentials.scopes.join(" ")
-												: storedCredentials.scopes || "openid",
-											responseType: "code",
-											codeChallengeMethod: "S256",
+												? storedCredentials.scopes.join(' ')
+												: storedCredentials.scopes || 'openid',
+											responseType: 'code',
+											codeChallengeMethod: 'S256',
 										};
 										setCredentials(convertedCredentials);
 										console.log(
-											" [EnhancedAuthorizationCodeFlowV2] Loaded credentials for auto-exchange",
+											' [EnhancedAuthorizationCodeFlowV2] Loaded credentials for auto-exchange'
 										);
 									} else {
 										console.error(
-											" [EnhancedAuthorizationCodeFlowV2] No credentials found for auto-exchange",
+											' [EnhancedAuthorizationCodeFlowV2] No credentials found for auto-exchange'
 										);
 										return;
 									}
@@ -1582,30 +1448,28 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 								// Ensure PKCE codes are generated before exchange
 								if (!pkceCodes.codeVerifier) {
 									console.log(
-										" [EnhancedAuthorizationCodeFlowV2] Generating PKCE codes before exchange",
+										' [EnhancedAuthorizationCodeFlowV2] Generating PKCE codes before exchange'
 									);
 									await generatePKCECodes();
 								}
 
 								await exchangeCodeForTokens();
-								console.log(
-									" [EnhancedAuthorizationCodeFlowV2] Auto token exchange successful",
-								);
+								console.log(' [EnhancedAuthorizationCodeFlowV2] Auto token exchange successful');
 							} catch (error) {
 								console.error(
-									" [EnhancedAuthorizationCodeFlowV2] Auto token exchange failed:",
-									error,
+									' [EnhancedAuthorizationCodeFlowV2] Auto token exchange failed:',
+									error
 								);
 							}
 						}, 500); // Increased delay to ensure credentials are loaded
 					} else {
 						console.log(
-							" [EnhancedAuthorizationCodeFlowV2] Skipping auto-exchange - using old authorization code, user should start fresh flow",
+							' [EnhancedAuthorizationCodeFlowV2] Skipping auto-exchange - using old authorization code, user should start fresh flow'
 						);
 					}
 				} else {
 					console.log(
-						" [EnhancedAuthorizationCodeFlowV2] Skipping auto-exchange - already in progress, tokens exist, or not on correct step",
+						' [EnhancedAuthorizationCodeFlowV2] Skipping auto-exchange - already in progress, tokens exist, or not on correct step'
 					);
 				}
 				return;
@@ -1614,14 +1478,14 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 			// PRIORITY 2: If we have authorization code but no step, go to step 4 (handle callback)
 			if (code && !step) {
 				console.log(
-					" [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Authorization code found in URL, going to step 5 (exchange-tokens)",
+					' [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Authorization code found in URL, going to step 5 (exchange-tokens)'
 				);
 				setCurrentStepIndex(5);
 
 				// Force step to 5 again to override component initialization
 				setTimeout(() => {
 					console.log(
-						" [EnhancedAuthorizationCodeFlowV2] Force setting step to 5 (InitializeStepIndex path)",
+						' [EnhancedAuthorizationCodeFlowV2] Force setting step to 5 (InitializeStepIndex path)'
 					);
 					setCurrentStepIndex(5);
 				}, 100);
@@ -1631,30 +1495,30 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 			if (step) {
 				const stepIndex = parseInt(step, 10);
 				console.log(
-					" [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Step from URL:",
-					stepIndex,
+					' [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Step from URL:',
+					stepIndex
 				);
 				setCurrentStepIndex(stepIndex);
 				// Clean up URL parameters after using them
 				const newUrl = new URL(window.location.href);
-				newUrl.searchParams.delete("step");
-				newUrl.searchParams.delete("action");
-				window.history.replaceState({}, "", newUrl.toString());
+				newUrl.searchParams.delete('step');
+				newUrl.searchParams.delete('action');
+				window.history.replaceState({}, '', newUrl.toString());
 				return;
 			}
 
 			if (storedStep) {
 				const stepIndex = parseInt(storedStep, 10);
 				console.log(
-					" [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Restoring step from stored value:",
-					stepIndex,
+					' [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Restoring step from stored value:',
+					stepIndex
 				);
 				setCurrentStepIndex(stepIndex);
 				return;
 			}
 
 			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - No step to restore, starting from beginning",
+				' [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - No step to restore, starting from beginning'
 			);
 			setCurrentStepIndex(0);
 		};
@@ -1673,69 +1537,53 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 					// Use the same loading logic as the main loadCredentials function
 					let allCredentials = credentialManager.loadAuthzFlowCredentials();
 					console.log(
-						" [EnhancedAuthorizationCodeFlowV2] Reloading authz flow credentials after change:",
-						allCredentials,
+						' [EnhancedAuthorizationCodeFlowV2] Reloading authz flow credentials after change:',
+						allCredentials
 					);
 
 					// FALLBACK: Only if authz flow credentials are completely blank, try permanent credentials
-					if (
-						!allCredentials ||
-						(!allCredentials.clientId && !allCredentials.environmentId)
-					) {
+					if (!allCredentials || (!allCredentials.clientId && !allCredentials.environmentId)) {
 						console.log(
-							" [EnhancedAuthorizationCodeFlowV2] Authz flow credentials are blank, falling back to permanent credentials",
+							' [EnhancedAuthorizationCodeFlowV2] Authz flow credentials are blank, falling back to permanent credentials'
 						);
 						allCredentials = credentialManager.loadPermanentCredentials();
 						console.log(
-							" [EnhancedAuthorizationCodeFlowV2] Reloading permanent credentials (fallback):",
-							allCredentials,
+							' [EnhancedAuthorizationCodeFlowV2] Reloading permanent credentials (fallback):',
+							allCredentials
 						);
 					}
 
 					setCredentials((prev) => ({
 						...prev,
-						environmentId: allCredentials.environmentId || "",
-						clientId: allCredentials.clientId || "",
-						clientSecret: allCredentials.clientSecret || "",
-						redirectUri:
-							allCredentials.redirectUri ||
-							window.location.origin + "/authz-callback",
-						authorizationEndpoint: allCredentials.authEndpoint || "",
-						tokenEndpoint: allCredentials.tokenEndpoint || "",
-						userInfoEndpoint: allCredentials.userInfoEndpoint || "",
+						environmentId: allCredentials.environmentId || '',
+						clientId: allCredentials.clientId || '',
+						clientSecret: allCredentials.clientSecret || '',
+						redirectUri: allCredentials.redirectUri || window.location.origin + '/authz-callback',
+						authorizationEndpoint: allCredentials.authEndpoint || '',
+						tokenEndpoint: allCredentials.tokenEndpoint || '',
+						userInfoEndpoint: allCredentials.userInfoEndpoint || '',
 						scopes: Array.isArray(allCredentials.scopes)
-							? allCredentials.scopes.join(" ")
-							: allCredentials.scopes || "openid",
+							? allCredentials.scopes.join(' ')
+							: allCredentials.scopes || 'openid',
 					}));
 
-					console.log(
-						" [EnhancedAuthorizationCodeFlowV2] Credentials reloaded successfully",
-					);
+					console.log(' [EnhancedAuthorizationCodeFlowV2] Credentials reloaded successfully');
 				} catch (error) {
-					console.error(
-						" [EnhancedAuthorizationCodeFlowV2] Failed to reload credentials:",
-						error,
-					);
+					console.error(' [EnhancedAuthorizationCodeFlowV2] Failed to reload credentials:', error);
 					logger.error(
-						"EnhancedAuthorizationCodeFlowV2",
-						"Failed to reload credentials",
-						String(error),
+						'EnhancedAuthorizationCodeFlowV2',
+						'Failed to reload credentials',
+						String(error)
 					);
 				}
 			}, 100); // Debounce by 100ms
 		};
 
-		window.addEventListener(
-			"permanent-credentials-changed",
-			handleCredentialChange,
-		);
+		window.addEventListener('permanent-credentials-changed', handleCredentialChange);
 
 		return () => {
 			clearTimeout(timeoutId);
-			window.removeEventListener(
-				"permanent-credentials-changed",
-				handleCredentialChange,
-			);
+			window.removeEventListener('permanent-credentials-changed', handleCredentialChange);
 		};
 	}, []);
 
@@ -1743,10 +1591,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 	const saveCredentials = useCallback(async () => {
 		setIsSavingCredentials(true);
 		try {
-			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] Saving credentials:",
-				credentials,
-			);
+			console.log(' [EnhancedAuthorizationCodeFlowV2] Saving credentials:', credentials);
 
 			// Prepare authz flow credentials (Environment ID, Client ID, etc.)
 			const authzFlowCreds = {
@@ -1755,8 +1600,8 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 				clientSecret: credentials.clientSecret, // Include client secret in authz flow storage
 				redirectUri: credentials.redirectUri,
 				scopes:
-					typeof credentials.scopes === "string"
-						? credentials.scopes.split(" ").filter(Boolean)
+					typeof credentials.scopes === 'string'
+						? credentials.scopes.split(' ').filter(Boolean)
 						: credentials.scopes,
 				authEndpoint: credentials.authorizationEndpoint,
 				tokenEndpoint: credentials.tokenEndpoint,
@@ -1764,56 +1609,41 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 			};
 
 			// Save to authz flow credentials (dedicated storage for this flow)
-			const authzFlowSuccess =
-				credentialManager.saveAuthzFlowCredentials(authzFlowCreds);
+			const authzFlowSuccess = credentialManager.saveAuthzFlowCredentials(authzFlowCreds);
 
 			if (authzFlowSuccess) {
-				logger.info(
-					"Authz flow credentials saved successfully to credential manager",
-					"",
-				);
+				logger.info('Authz flow credentials saved successfully to credential manager', '');
 
 				// Clear cache to ensure fresh data is loaded
 				credentialManager.clearCache();
 
 				// Dispatch events to notify other components that config has changed
-				window.dispatchEvent(new CustomEvent("pingone-config-changed"));
-				window.dispatchEvent(new CustomEvent("permanent-credentials-changed"));
+				window.dispatchEvent(new CustomEvent('pingone-config-changed'));
+				window.dispatchEvent(new CustomEvent('permanent-credentials-changed'));
 
 				console.log(
-					" [EnhancedAuthorizationCodeFlowV2] Authz flow credentials saved successfully to localStorage and events dispatched",
+					' [EnhancedAuthorizationCodeFlowV2] Authz flow credentials saved successfully to localStorage and events dispatched'
 				);
 
 				// Keep the form values - don't clear them after saving
-				console.log(
-					" [EnhancedAuthorizationCodeFlowV2] Form values preserved after save",
-				);
+				console.log(' [EnhancedAuthorizationCodeFlowV2] Form values preserved after save');
 
 				// Show success message
 				updateStepMessage(
-					"setup-credentials",
-					" Credentials saved successfully! You can now proceed to Step 2 to generate PKCE codes.",
+					'setup-credentials',
+					' Credentials saved successfully! You can now proceed to Step 2 to generate PKCE codes.'
 				);
 
 				// Scroll to step progress to show the success message and next step
 				scrollToStepProgress();
 
-				return { success: true, message: "Credentials saved successfully" };
+				return { success: true, message: 'Credentials saved successfully' };
 			} else {
-				throw new Error(
-					"Failed to save authz flow credentials to credential manager",
-				);
+				throw new Error('Failed to save authz flow credentials to credential manager');
 			}
 		} catch (error) {
-			console.error(
-				" [EnhancedAuthorizationCodeFlowV2] Failed to save credentials:",
-				error,
-			);
-			logger.error(
-				"EnhancedAuthorizationCodeFlowV2",
-				"Failed to save credentials",
-				String(error),
-			);
+			console.error(' [EnhancedAuthorizationCodeFlowV2] Failed to save credentials:', error);
+			logger.error('EnhancedAuthorizationCodeFlowV2', 'Failed to save credentials', String(error));
 			throw error; // Re-throw to let the step execution handle the error
 		} finally {
 			setIsSavingCredentials(false);
@@ -1824,32 +1654,25 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 	// Generate PKCE codes
 	const generatePKCECodes = useCallback(async () => {
 		try {
-			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] Starting PKCE generation...",
-			);
+			console.log(' [EnhancedAuthorizationCodeFlowV2] Starting PKCE generation...');
 			const verifier = generateCodeVerifier();
 			const challenge = await generateCodeChallenge(verifier);
-			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] PKCE codes generated:",
-				{
-					verifier: verifier.substring(0, 20) + "...",
-					challenge: challenge.substring(0, 20) + "...",
-				},
-			);
+			console.log(' [EnhancedAuthorizationCodeFlowV2] PKCE codes generated:', {
+				verifier: verifier.substring(0, 20) + '...',
+				challenge: challenge.substring(0, 20) + '...',
+			});
 			setPkceCodes({ codeVerifier: verifier, codeChallenge: challenge });
 
 			// Store code_verifier in sessionStorage for token exchange
-			sessionStorage.setItem("code_verifier", verifier);
-			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] Stored code_verifier in sessionStorage",
-			);
+			sessionStorage.setItem('code_verifier', verifier);
+			console.log(' [EnhancedAuthorizationCodeFlowV2] Stored code_verifier in sessionStorage');
 
-			logger.info("PKCE codes generated", "");
+			logger.info('PKCE codes generated', '');
 
 			// Show success message
 			updateStepMessage(
-				"generate-pkce",
-				" PKCE codes generated successfully! These codes add security to your OAuth flow. You can now proceed to Step 3 to build the authorization URL.",
+				'generate-pkce',
+				' PKCE codes generated successfully! These codes add security to your OAuth flow. You can now proceed to Step 3 to build the authorization URL.'
 			);
 
 			// Scroll to step progress to show the generated codes and next step
@@ -1857,11 +1680,8 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 
 			return { verifier, challenge };
 		} catch (error) {
-			console.error(
-				" [EnhancedAuthorizationCodeFlowV2] Failed to generate PKCE codes:",
-				error,
-			);
-			logger.error("Failed to generate PKCE codes", String(error));
+			console.error(' [EnhancedAuthorizationCodeFlowV2] Failed to generate PKCE codes:', error);
+			logger.error('Failed to generate PKCE codes', String(error));
 			throw error;
 		}
 	}, []);
@@ -1869,82 +1689,64 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 	// Generate authorization URL with Flow Config integration
 	const generateAuthUrl = useCallback(() => {
 		// Use state from Flow Config or generate new one
-		const generatedState =
-			flowConfig.state || Math.random().toString(36).substring(2, 15);
+		const generatedState = flowConfig.state || Math.random().toString(36).substring(2, 15);
 		setState(generatedState);
 
 		// OIDC COMPLIANCE: Store state and nonce for validation (Section 15.5.2)
-		sessionStorage.setItem("oauth_state", generatedState);
+		sessionStorage.setItem('oauth_state', generatedState);
 		console.log(
-			" [EnhancedAuthorizationCodeFlowV2] Stored state for CSRF protection:",
-			generatedState,
+			' [EnhancedAuthorizationCodeFlowV2] Stored state for CSRF protection:',
+			generatedState
 		);
 
 		// Store nonce for ID token validation (OIDC Section 15.5.2)
-		const generatedNonce =
-			flowConfig.nonce || Math.random().toString(36).substring(2, 15);
-		sessionStorage.setItem("oauth_nonce", generatedNonce);
+		const generatedNonce = flowConfig.nonce || Math.random().toString(36).substring(2, 15);
+		sessionStorage.setItem('oauth_nonce', generatedNonce);
 		console.log(
-			" [EnhancedAuthorizationCodeFlowV2] Stored nonce for ID token validation:",
-			generatedNonce,
+			' [EnhancedAuthorizationCodeFlowV2] Stored nonce for ID token validation:',
+			generatedNonce
 		);
 
 		// Debug: Log all credential values and flow config
-		console.log(" [EnhancedAuthorizationCodeFlowV2] Current credentials:", {
+		console.log(' [EnhancedAuthorizationCodeFlowV2] Current credentials:', {
 			clientId: credentials.clientId,
 			environmentId: credentials.environmentId,
 			authorizationEndpoint: credentials.authorizationEndpoint,
 			scopes: credentials.scopes,
 		});
-		console.log(
-			" [EnhancedAuthorizationCodeFlowV2] Flow config:",
-			flowConfig,
-		);
+		console.log(' [EnhancedAuthorizationCodeFlowV2] Flow config:', flowConfig);
 
 		// Use scopes from Flow Config or fallback to credentials
 		const scopes =
-			flowConfig.scopes.length > 0
-				? flowConfig.scopes.join(" ")
-				: credentials.scopes || "openid";
-		console.log(
-			" [EnhancedAuthorizationCodeFlowV2] Generating auth URL with scopes:",
-			scopes,
-		);
+			flowConfig.scopes.length > 0 ? flowConfig.scopes.join(' ') : credentials.scopes || 'openid';
+		console.log(' [EnhancedAuthorizationCodeFlowV2] Generating auth URL with scopes:', scopes);
 
 		// Use the correct callback URL for authorization code flow
-		const redirectUri = getCallbackUrlForFlow("authorization-code");
-		console.log(
-			" [EnhancedAuthorizationCodeFlowV2] Using redirect URI:",
-			redirectUri,
-		);
+		const redirectUri = getCallbackUrlForFlow('authorization-code');
+		console.log(' [EnhancedAuthorizationCodeFlowV2] Using redirect URI:', redirectUri);
 
 		// Validate required parameters BEFORE building URL
 		if (!credentials.clientId) {
-			throw new Error(
-				"Client ID is required. Please configure your credentials first.",
-			);
+			throw new Error('Client ID is required. Please configure your credentials first.');
 		}
 		if (!credentials.environmentId) {
-			throw new Error(
-				"Environment ID is required. Please configure your credentials first.",
-			);
+			throw new Error('Environment ID is required. Please configure your credentials first.');
 		}
 		if (!credentials.authorizationEndpoint) {
 			throw new Error(
-				"Authorization endpoint is required. Please configure your credentials first.",
+				'Authorization endpoint is required. Please configure your credentials first.'
 			);
 		}
 		if (!redirectUri) {
-			throw new Error("Redirect URI is required");
+			throw new Error('Redirect URI is required');
 		}
-		if (!scopes || scopes.trim() === "") {
-			throw new Error("At least one scope must be specified");
+		if (!scopes || scopes.trim() === '') {
+			throw new Error('At least one scope must be specified');
 		}
 
 		// Build basic parameters
 		const params = new URLSearchParams({
-			response_type:
-				flowConfig.responseType || credentials.responseType || "code",
+			response_type: flowConfig.responseType || credentials.responseType || 'code',
 			client_id: credentials.clientId,
 			redirect_uri: redirectUri,
 			scope: scopes,
@@ -1954,42 +1756,36 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 
 		// Add PKCE parameters if enabled
 		if (flowConfig.enablePKCE && pkceCodes.codeChallenge) {
-			params.append("code_challenge", pkceCodes.codeChallenge);
-			params.append(
-				"code_challenge_method",
-				flowConfig.codeChallengeMethod || "S256",
-			);
+			params.append('code_challenge', pkceCodes.codeChallenge);
+			params.append('code_challenge_method', flowConfig.codeChallengeMethod || 'S256');
 		}
 
 		// Add optional Flow Config parameters
 		if (flowConfig.maxAge > 0) {
-			params.append("max_age", flowConfig.maxAge.toString());
+			params.append('max_age', flowConfig.maxAge.toString());
 		}
 		if (flowConfig.prompt) {
-			params.append("prompt", flowConfig.prompt);
+			params.append('prompt', flowConfig.prompt);
 		}
 		if (flowConfig.loginHint) {
-			params.append("login_hint", flowConfig.loginHint);
+			params.append('login_hint', flowConfig.loginHint);
 		}
 		if (flowConfig.acrValues.length > 0) {
 			// Filter out invalid ACR values before adding to URL
 			const validAcrValues = flowConfig.acrValues.filter(
 				(acr) =>
 					acr &&
-					acr.trim() !== "" &&
+					acr.trim() !== '' &&
 					!/^[0-9]+$/.test(acr) && // Remove single digits like '1', '2', '3'
-					(acr.startsWith("urn:") || acr.length > 3), // Must be URN or meaningful string
+					(acr.startsWith('urn:') || acr.length > 3) // Must be URN or meaningful string
 			);
 
 			if (validAcrValues.length > 0) {
-				params.append("acr_values", validAcrValues.join(" "));
-				console.log(
-					" [EnhancedAuthorizationCodeFlowV2] Added valid ACR values:",
-					validAcrValues,
-				);
+				params.append('acr_values', validAcrValues.join(' '));
+				console.log(' [EnhancedAuthorizationCodeFlowV2] Added valid ACR values:', validAcrValues);
 			} else {
 				console.warn(
-					" [EnhancedAuthorizationCodeFlowV2] No valid ACR values found, skipping acr_values parameter",
+					' [EnhancedAuthorizationCodeFlowV2] No valid ACR values found, skipping acr_values parameter'
 				);
 			}
 		}
@@ -2003,19 +1799,16 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 
 		const url = `${credentials.authorizationEndpoint}?${params.toString()}`;
 		console.log(
-			" [EnhancedAuthorizationCodeFlowV2] Generated authorization URL with Flow Config:",
-			url,
+			' [EnhancedAuthorizationCodeFlowV2] Generated authorization URL with Flow Config:',
+			url
 		);
-		console.log(
-			" [EnhancedAuthorizationCodeFlowV2] URL parameters:",
-			Object.fromEntries(params),
-		);
+		console.log(' [EnhancedAuthorizationCodeFlowV2] URL parameters:', Object.fromEntries(params));
 		setAuthUrl(url);
-		logger.info(
-			"EnhancedAuthorizationCodeFlowV2",
-			"Authorization URL generated with Flow Config",
-			{ url, scopes, flowConfig },
-		);
+		logger.info('EnhancedAuthorizationCodeFlowV2', 'Authorization URL generated with Flow Config', {
+			url,
+			scopes,
+			flowConfig,
+		});
 
 		// Scroll to step progress to show the generated URL and next step
 		scrollToStepProgress();
@@ -2024,57 +1817,48 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 	// Handle authorization
 	const handleAuthorization = useCallback(async () => {
 		// Use the same redirect URI logic as in generateAuthUrl
-		const redirectUri = getCallbackUrlForFlow("authorization-code");
+		const redirectUri = getCallbackUrlForFlow('authorization-code');
 
-		if (testingMethod === "popup") {
+		if (testingMethod === 'popup') {
 			// Authorization starting
 
 			// Set up flow context for popup callback
 			const currentPath = window.location.pathname;
 			// Ensure we use the correct route path regardless of current path
-			const correctPath = currentPath.includes("/oidc/")
-				? "/flows/enhanced-authorization-code-v2"
+			const correctPath = currentPath.includes('/oidc/')
+				? '/flows/enhanced-authorization-code-v2'
 				: currentPath;
 			const returnPath = `${correctPath}?step=4`; // Return to step 4 (token exchange)
 
-			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] Popup - Current path:",
-				currentPath,
-			);
-			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] Popup - Correct path:",
-				correctPath,
-			);
-			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] Popup - Return path:",
-				returnPath,
-			);
+			console.log(' [EnhancedAuthorizationCodeFlowV2] Popup - Current path:', currentPath);
+			console.log(' [EnhancedAuthorizationCodeFlowV2] Popup - Correct path:', correctPath);
+			console.log(' [EnhancedAuthorizationCodeFlowV2] Popup - Return path:', returnPath);
 
 			const flowContext = {
-				flow: "enhanced-authorization-code-v2",
+				flow: 'enhanced-authorization-code-v2',
 				step: 4,
 				returnPath: returnPath,
 				redirectUri: redirectUri, // Store the redirect URI used in authorization
 				timestamp: Date.now(),
 			};
-			sessionStorage.setItem("flowContext", JSON.stringify(flowContext));
+			sessionStorage.setItem('flowContext', JSON.stringify(flowContext));
 
 			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] Stored flow context for callback:",
-				flowContext,
+				' [EnhancedAuthorizationCodeFlowV2] Stored flow context for callback:',
+				flowContext
 			);
 
-			const popup = window.open(authUrl, "oauth-popup", "width=600,height=700");
+			const popup = window.open(authUrl, 'oauth-popup', 'width=600,height=700');
 			if (popup) {
 				// Show message about what just happened
 				updateStepMessage(
-					"user-authorization",
-					" Authorization URL opened in popup! Please complete the login process. You will be redirected back here automatically.",
+					'user-authorization',
+					' Authorization URL opened in popup! Please complete the login process. You will be redirected back here automatically.'
 				);
 				// Listen for messages from the popup
 				const messageHandler = (event: MessageEvent) => {
 					if (event.origin !== window.location.origin) return;
-					if (event.data.type === "oauth-callback") {
+					if (event.data.type === 'oauth-callback') {
 						const {
 							code: callbackCode,
 							state: callbackState,
@@ -2082,7 +1866,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 							error_description,
 						} = event.data;
 						if (error) {
-							logger.error("Authorization error received", error);
+							logger.error('Authorization error received', error);
 							setAuthError(error);
 							setErrorDescription(error_description || error);
 							// Authorization completed
@@ -2091,89 +1875,77 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 							setAuthError(null);
 							setErrorDescription(null);
 							logger.info(
-								"EnhancedAuthorizationCodeFlowV2",
-								"Authorization code received via message",
-								`code: ${callbackCode.substring(0, 10)}...`,
+								'EnhancedAuthorizationCodeFlowV2',
+								'Authorization code received via message',
+								`code: ${callbackCode.substring(0, 10)}...`
 							);
 							// Authorization completed
 							popup.close();
-							window.removeEventListener("message", messageHandler);
+							window.removeEventListener('message', messageHandler);
 
 							// Show centralized success message (will appear on current page)
 							showFlowSuccess(
-								" Authorization Successful! You have been authenticated with PingOne and can now exchange tokens.",
+								' Authorization Successful! You have been authenticated with PingOne and can now exchange tokens.'
 							);
 						}
 					}
 				};
-				window.addEventListener("message", messageHandler);
+				window.addEventListener('message', messageHandler);
 
 				// Check if popup was closed without completing auth
 				const checkClosed = setInterval(() => {
 					if (popup.closed) {
 						clearInterval(checkClosed);
-						window.removeEventListener("message", messageHandler);
+						window.removeEventListener('message', messageHandler);
 						if (!authCode) {
 							logger.warn(
-								"EnhancedAuthorizationCodeFlowV2",
-								"Popup closed without authorization code",
+								'EnhancedAuthorizationCodeFlowV2',
+								'Popup closed without authorization code'
 							);
 						}
 					}
 				}, 1000);
 			} else {
-				logger.error(
-					"EnhancedAuthorizationCodeFlowV2",
-					"Failed to open popup window",
-				);
+				logger.error('EnhancedAuthorizationCodeFlowV2', 'Failed to open popup window');
 			}
 		} else {
 			// Full redirect - set up flow context to return to correct step
 			const currentPath = window.location.pathname;
 			// Ensure we use the correct route path regardless of current path
-			const correctPath = currentPath.includes("/oidc/")
-				? "/flows/enhanced-authorization-code-v2"
+			const correctPath = currentPath.includes('/oidc/')
+				? '/flows/enhanced-authorization-code-v2'
 				: currentPath;
 			const returnPath = `${correctPath}?step=4`; // Return to step 4 (token exchange)
 
-			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] Full redirect - Current path:",
-				currentPath,
-			);
-			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] Full redirect - Correct path:",
-				correctPath,
-			);
-			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] Full redirect - Return path:",
-				returnPath,
-			);
+			console.log(' [EnhancedAuthorizationCodeFlowV2] Full redirect - Current path:', currentPath);
+			console.log(' [EnhancedAuthorizationCodeFlowV2] Full redirect - Correct path:', correctPath);
+			console.log(' [EnhancedAuthorizationCodeFlowV2] Full redirect - Return path:', returnPath);
 
 			const flowContext = {
-				flow: "enhanced-authorization-code-v2",
+				flow: 'enhanced-authorization-code-v2',
 				step: 4,
 				returnPath: returnPath,
 				redirectUri: redirectUri, // Store the redirect URI used in authorization
 				timestamp: Date.now(),
 			};
-			sessionStorage.setItem("flowContext", JSON.stringify(flowContext));
+			sessionStorage.setItem('flowContext', JSON.stringify(flowContext));
 
 			console.log(
-				" [EnhancedAuthorizationCodeFlowV2] Stored flow context for callback:",
-				flowContext,
+				' [EnhancedAuthorizationCodeFlowV2] Stored flow context for callback:',
+				flowContext
 			);
 
 			// Show message about what just happened
 			updateStepMessage(
-				"user-authorization",
-				" Redirecting to PingOne for authentication. You will be redirected back here after login.",
+				'user-authorization',
+				' Redirecting to PingOne for authentication. You will be redirected back here after login.'
 			);
 
 			// Full redirect
 			logger.info(
-				"EnhancedAuthorizationCodeFlowV2",
-				"Redirecting to authorization server",
-				`url: ${authUrl}`,
+				'EnhancedAuthorizationCodeFlowV2',
+				'Redirecting to authorization server',
+				`url: ${authUrl}`
 			);
 			window.location.href = authUrl;
 		}
@@ -2183,120 +1955,86 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 	const exchangeCodeForTokens = useCallback(async () => {
 		// Prevent multiple simultaneous exchanges
 		if (isExchangingTokens) {
-			console.log(
-				" [EnhancedAuthCodeFlowV2] Token exchange already in progress, skipping",
-			);
+			console.log(' [EnhancedAuthCodeFlowV2] Token exchange already in progress, skipping');
 			return;
 		}
 
 		// Check if we already have tokens
 		if (tokens?.access_token) {
-			console.log(
-				" [EnhancedAuthCodeFlowV2] Tokens already exist, skipping exchange",
-			);
+			console.log(' [EnhancedAuthCodeFlowV2] Tokens already exist, skipping exchange');
 			return;
 		}
 
 		// Check if we've already used this authorization code
 		if (usedAuthCode && usedAuthCode === authCode) {
-			console.log(
-				" [EnhancedAuthCodeFlowV2] Authorization code already used, skipping exchange",
-			);
+			console.log(' [EnhancedAuthCodeFlowV2] Authorization code already used, skipping exchange');
 			return;
 		}
 
 		// Additional check: if authCode is empty, don't proceed
-		if (!authCode || authCode.trim() === "") {
-			throw new Error(
-				"No authorization code available. Please complete the OAuth flow first.",
-			);
+		if (!authCode || authCode.trim() === '') {
+			throw new Error('No authorization code available. Please complete the OAuth flow first.');
 		}
 
 		// CRITICAL: Load credentials if they're missing
-		console.log(
-			" [EnhancedAuthCodeFlowV2] Checking credentials before token exchange...",
-		);
+		console.log(' [EnhancedAuthCodeFlowV2] Checking credentials before token exchange...');
 		let currentCredentials = credentials;
 
 		// If credentials are empty, try to load them from storage
 		if (!currentCredentials.clientId || !currentCredentials.environmentId) {
 			console.log(
-				" [EnhancedAuthCodeFlowV2] Loading credentials from storage before token exchange",
+				' [EnhancedAuthCodeFlowV2] Loading credentials from storage before token exchange'
 			);
 			const storedCredentials = credentialManager.loadAuthzFlowCredentials();
 			if (storedCredentials) {
 				const convertedCredentials = {
 					clientId: storedCredentials.clientId,
-					clientSecret: storedCredentials.clientSecret || "",
+					clientSecret: storedCredentials.clientSecret || '',
 					environmentId: storedCredentials.environmentId,
-					authorizationEndpoint: storedCredentials.authEndpoint || "",
-					tokenEndpoint: storedCredentials.tokenEndpoint || "",
-					userInfoEndpoint: storedCredentials.userInfoEndpoint || "",
+					authorizationEndpoint: storedCredentials.authEndpoint || '',
+					tokenEndpoint: storedCredentials.tokenEndpoint || '',
+					userInfoEndpoint: storedCredentials.userInfoEndpoint || '',
 					redirectUri: storedCredentials.redirectUri,
-					scopes: storedCredentials.scopes.join(" "),
-					responseType: "code",
-					codeChallengeMethod: "S256",
+					scopes: storedCredentials.scopes.join(' '),
+					responseType: 'code',
+					codeChallengeMethod: 'S256',
 				};
 				setCredentials(convertedCredentials);
 				currentCredentials = convertedCredentials;
-				console.log(
-					" [EnhancedAuthCodeFlowV2] Loaded credentials from storage:",
-					{
-						clientId: storedCredentials.clientId
-							? `${storedCredentials.clientId.substring(0, 8)}...`
-							: "none",
-						environmentId: storedCredentials.environmentId,
-					},
-				);
+				console.log(' [EnhancedAuthCodeFlowV2] Loaded credentials from storage:', {
+					clientId: storedCredentials.clientId
+						? `${storedCredentials.clientId.substring(0, 8)}...`
+						: 'none',
+					environmentId: storedCredentials.environmentId,
+				});
 			}
 		}
 
 		// MANDATORY CREDENTIAL VALIDATION - This is the key fix
-		console.log(
-			" [EnhancedAuthCodeFlowV2] Validating credentials before token exchange...",
-		);
+		console.log(' [EnhancedAuthCodeFlowV2] Validating credentials before token exchange...');
 
 		// Check if we have valid credentials in state
-		if (
-			!currentCredentials.clientId ||
-			currentCredentials.clientId.trim() === ""
-		) {
-			console.error(
-				" [EnhancedAuthCodeFlowV2] No valid client ID found in credentials state",
-			);
+		if (!currentCredentials.clientId || currentCredentials.clientId.trim() === '') {
+			console.error(' [EnhancedAuthCodeFlowV2] No valid client ID found in credentials state');
 			throw new Error(
-				"Client ID is required for token exchange. Please configure your OAuth credentials first.",
+				'Client ID is required for token exchange. Please configure your OAuth credentials first.'
 			);
 		}
 
-		if (
-			!currentCredentials.environmentId ||
-			currentCredentials.environmentId.trim() === ""
-		) {
-			console.error(
-				" [EnhancedAuthCodeFlowV2] No valid environment ID found in credentials state",
-			);
-			throw new Error(
-				"Environment ID is missing. Please configure your OAuth credentials first.",
-			);
+		if (!currentCredentials.environmentId || currentCredentials.environmentId.trim() === '') {
+			console.error(' [EnhancedAuthCodeFlowV2] No valid environment ID found in credentials state');
+			throw new Error('Environment ID is missing. Please configure your OAuth credentials first.');
 		}
 
-		if (
-			!currentCredentials.redirectUri ||
-			currentCredentials.redirectUri.trim() === ""
-		) {
-			console.error(
-				" [EnhancedAuthCodeFlowV2] No valid redirect URI found in credentials state",
-			);
-			throw new Error(
-				"Redirect URI is missing. Please configure your OAuth credentials first.",
-			);
+		if (!currentCredentials.redirectUri || currentCredentials.redirectUri.trim() === '') {
+			console.error(' [EnhancedAuthCodeFlowV2] No valid redirect URI found in credentials state');
+			throw new Error('Redirect URI is missing. Please configure your OAuth credentials first.');
 		}
 
-		console.log(" [EnhancedAuthCodeFlowV2] Credentials validation passed:", {
+		console.log(' [EnhancedAuthCodeFlowV2] Credentials validation passed:', {
 			clientId: currentCredentials.clientId
 				? `${currentCredentials.clientId.substring(0, 8)}...`
-				: "none",
+				: 'none',
 			environmentId: currentCredentials.environmentId,
 			redirectUri: currentCredentials.redirectUri,
 		});
@@ -2307,11 +2045,9 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 		// Check if we have authorization code, if not try to load from sessionStorage
 		let currentAuthCode = authCode;
 		if (!currentAuthCode) {
-			const storedCode = sessionStorage.getItem("oauth_auth_code");
+			const storedCode = sessionStorage.getItem('oauth_auth_code');
 			if (storedCode) {
-				console.log(
-					" [EnhancedAuthCodeFlowV2] Loading authorization code from sessionStorage",
-				);
+				console.log(' [EnhancedAuthCodeFlowV2] Loading authorization code from sessionStorage');
 				currentAuthCode = storedCode;
 				// Update the state
 				setAuthCode(storedCode);
@@ -2319,62 +2055,55 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 		}
 
 		// Final validation with detailed error messages
-		console.log(
-			" [EnhancedAuthCodeFlowV2] Final validation before exchange:",
-			{
-				hasAuthCode: !!currentAuthCode,
-				hasClientId: !!currentCredentials.clientId,
-				hasEnvironmentId: !!currentCredentials.environmentId,
-				hasRedirectUri: !!currentCredentials.redirectUri,
-				clientId: currentCredentials.clientId
-					? `${currentCredentials.clientId.substring(0, 8)}...`
-					: "none",
-			},
-		);
+		console.log(' [EnhancedAuthCodeFlowV2] Final validation before exchange:', {
+			hasAuthCode: !!currentAuthCode,
+			hasClientId: !!currentCredentials.clientId,
+			hasEnvironmentId: !!currentCredentials.environmentId,
+			hasRedirectUri: !!currentCredentials.redirectUri,
+			clientId: currentCredentials.clientId
+				? `${currentCredentials.clientId.substring(0, 8)}...`
+				: 'none',
+		});
 
 		if (!currentAuthCode) {
-			throw new Error("No authorization code available for token exchange");
+			throw new Error('No authorization code available for token exchange');
 		}
 		if (!currentCredentials.clientId) {
 			throw new Error(
-				"OAuth credentials are missing. Please go back to Step 1 and save your credentials first, then restart the OAuth flow.",
+				'OAuth credentials are missing. Please go back to Step 1 and save your credentials first, then restart the OAuth flow.'
 			);
 		}
 		if (!currentCredentials.environmentId) {
 			throw new Error(
-				"Environment ID is missing. Please go back to Step 1 and save your credentials first, then restart the OAuth flow.",
+				'Environment ID is missing. Please go back to Step 1 and save your credentials first, then restart the OAuth flow.'
 			);
 		}
 		if (!currentCredentials.redirectUri) {
 			throw new Error(
-				"Redirect URI is missing. Please go back to Step 1 and save your credentials first, then restart the OAuth flow.",
+				'Redirect URI is missing. Please go back to Step 1 and save your credentials first, then restart the OAuth flow.'
 			);
 		}
 
 		// Check if we've already used this authorization code
 		if (usedAuthCode === currentAuthCode) {
 			throw new Error(
-				"This authorization code has already been used. Please start a new OAuth flow.",
+				'This authorization code has already been used. Please start a new OAuth flow.'
 			);
 		}
 
 		// Check if we have PKCE codes, if not try to load from sessionStorage
 		let codeVerifier = pkceCodes.codeVerifier;
-		console.log(" [EnhancedAuthCodeFlowV2] PKCE code verifier check:", {
-			fromState: pkceCodes.codeVerifier
-				? `${pkceCodes.codeVerifier.substring(0, 10)}...`
-				: "none",
-			fromSessionStorage: sessionStorage.getItem("code_verifier")
-				? `${sessionStorage.getItem("code_verifier")?.substring(0, 10)}...`
-				: "none",
+		console.log(' [EnhancedAuthCodeFlowV2] PKCE code verifier check:', {
+			fromState: pkceCodes.codeVerifier ? `${pkceCodes.codeVerifier.substring(0, 10)}...` : 'none',
+			fromSessionStorage: sessionStorage.getItem('code_verifier')
+				? `${sessionStorage.getItem('code_verifier')?.substring(0, 10)}...`
+				: 'none',
 		});
 
 		if (!codeVerifier) {
-			const storedVerifier = sessionStorage.getItem("code_verifier");
+			const storedVerifier = sessionStorage.getItem('code_verifier');
 			if (storedVerifier) {
-				console.log(
-					" [EnhancedAuthCodeFlowV2] Loading code verifier from sessionStorage",
-				);
+				console.log(' [EnhancedAuthCodeFlowV2] Loading code verifier from sessionStorage');
 				codeVerifier = storedVerifier;
 				// Update the state
 				setPkceCodes((prev) => ({ ...prev, codeVerifier: storedVerifier }));
@@ -2382,11 +2111,9 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 		}
 
 		if (!codeVerifier) {
-			console.error(
-				" [EnhancedAuthCodeFlowV2] No code verifier found in state or sessionStorage",
-			);
+			console.error(' [EnhancedAuthCodeFlowV2] No code verifier found in state or sessionStorage');
 			throw new Error(
-				"Code verifier is required for PKCE token exchange. Please go back to Step 2 and generate PKCE codes first.",
+				'Code verifier is required for PKCE token exchange. Please go back to Step 2 and generate PKCE codes first.'
 			);
 		}
 
@@ -2396,73 +2123,61 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 			// Store the auth code for validation but don't clear it yet
 			setUsedAuthCode(currentAuthCode);
 			console.log(
-				" [EnhancedAuthCodeFlowV2] Using authorization code for token exchange:",
-				currentAuthCode.substring(0, 10) + "...",
+				' [EnhancedAuthCodeFlowV2] Using authorization code for token exchange:',
+				currentAuthCode.substring(0, 10) + '...'
 			);
 
 			// FINAL VALIDATION - This is the last chance to catch empty values
-			console.log(
-				" [EnhancedAuthCodeFlowV2] Final validation before request body construction:",
-				{
-					clientId: currentCredentials.clientId,
-					clientIdLength: currentCredentials.clientId?.length || 0,
-					environmentId: currentCredentials.environmentId,
-					redirectUri: currentCredentials.redirectUri,
-				},
-			);
+			console.log(' [EnhancedAuthCodeFlowV2] Final validation before request body construction:', {
+				clientId: currentCredentials.clientId,
+				clientIdLength: currentCredentials.clientId?.length || 0,
+				environmentId: currentCredentials.environmentId,
+				redirectUri: currentCredentials.redirectUri,
+			});
 
-			if (
-				!currentCredentials.clientId ||
-				currentCredentials.clientId.trim() === ""
-			) {
+			if (!currentCredentials.clientId || currentCredentials.clientId.trim() === '') {
 				console.error(
-					" [EnhancedAuthCodeFlowV2] CRITICAL: clientId is empty in request body construction!",
+					' [EnhancedAuthCodeFlowV2] CRITICAL: clientId is empty in request body construction!'
 				);
 				throw new Error(
-					"CRITICAL ERROR: Client ID is empty. This should not happen after validation.",
+					'CRITICAL ERROR: Client ID is empty. This should not happen after validation.'
 				);
 			}
 
-			if (
-				!currentCredentials.environmentId ||
-				currentCredentials.environmentId.trim() === ""
-			) {
+			if (!currentCredentials.environmentId || currentCredentials.environmentId.trim() === '') {
 				console.error(
-					" [EnhancedAuthCodeFlowV2] CRITICAL: environmentId is empty in request body construction!",
+					' [EnhancedAuthCodeFlowV2] CRITICAL: environmentId is empty in request body construction!'
 				);
 				throw new Error(
-					"CRITICAL ERROR: Environment ID is empty. This should not happen after validation.",
+					'CRITICAL ERROR: Environment ID is empty. This should not happen after validation.'
 				);
 			}
 
-			if (
-				!currentCredentials.redirectUri ||
-				currentCredentials.redirectUri.trim() === ""
-			) {
+			if (!currentCredentials.redirectUri || currentCredentials.redirectUri.trim() === '') {
 				console.error(
-					" [EnhancedAuthCodeFlowV2] CRITICAL: redirectUri is empty in request body construction!",
+					' [EnhancedAuthCodeFlowV2] CRITICAL: redirectUri is empty in request body construction!'
 				);
 				throw new Error(
-					"CRITICAL ERROR: Redirect URI is empty. This should not happen after validation.",
+					'CRITICAL ERROR: Redirect URI is empty. This should not happen after validation.'
 				);
 			}
 
 			// OIDC COMPLIANCE: Use selected client authentication method (Section 9)
 			console.log(
-				" [EnhancedAuthCodeFlowV2] Using client authentication method:",
-				flowConfig.clientAuthMethod,
+				' [EnhancedAuthCodeFlowV2] Using client authentication method:',
+				flowConfig.clientAuthMethod
 			);
 
 			// Prepare base request body
 			const baseBody = new URLSearchParams({
-				grant_type: flowConfig.grantType || "authorization_code",
+				grant_type: flowConfig.grantType || 'authorization_code',
 				code: currentAuthCode,
 				redirect_uri: currentCredentials.redirectUri.trim(),
 			});
 
 			// Add PKCE code verifier if available
 			if (codeVerifier) {
-				baseBody.append("code_verifier", codeVerifier);
+				baseBody.append('code_verifier', codeVerifier);
 			}
 
 			// Apply client authentication method
@@ -2473,10 +2188,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 				tokenEndpoint: currentCredentials.tokenEndpoint,
 			};
 
-			const authenticatedRequest = await applyClientAuthentication(
-				authConfig,
-				baseBody,
-			);
+			const authenticatedRequest = await applyClientAuthentication(authConfig, baseBody);
 
 			// Convert URLSearchParams to object for backend compatibility
 			const requestBody = {
@@ -2486,77 +2198,66 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 
 			// Use backend proxy for secure token exchange
 			const backendUrl =
-				process.env.NODE_ENV === "production"
-					? "https://oauth-playground.vercel.app"
-					: "http://localhost:3001";
+				process.env.NODE_ENV === 'production'
+					? 'https://oauth-playground.vercel.app'
+					: 'https://localhost:3001';
 
-			console.log(
-				" [EnhancedAuthCodeFlowV2] Token exchange via backend proxy:",
-				{
-					backendUrl,
-					clientId: currentCredentials.clientId,
-					code: currentAuthCode.substring(0, 10) + "...",
-					redirectUri: currentCredentials.redirectUri,
-				},
-			);
+			console.log(' [EnhancedAuthCodeFlowV2] Token exchange via backend proxy:', {
+				backendUrl,
+				clientId: currentCredentials.clientId,
+				code: currentAuthCode.substring(0, 10) + '...',
+				redirectUri: currentCredentials.redirectUri,
+			});
 
-			console.log(" [EnhancedAuthCodeFlowV2] Request body being sent:", {
+			console.log(' [EnhancedAuthCodeFlowV2] Request body being sent:', {
 				grant_type: requestBody.grant_type,
-				grant_type_source: flowConfig.grantType ? "Flow Config" : "Default",
-				client_id: requestBody.client_id
-					? `${requestBody.client_id.substring(0, 8)}...`
-					: "none",
+				grant_type_source: flowConfig.grantType ? 'Flow Config' : 'Default',
+				client_id: requestBody.client_id ? `${requestBody.client_id.substring(0, 8)}...` : 'none',
 				client_id_length: requestBody.client_id?.length || 0,
-				client_id_empty: requestBody.client_id === "",
+				client_id_empty: requestBody.client_id === '',
 				has_client_secret: !!requestBody.client_secret,
-				code: requestBody.code
-					? `${requestBody.code.substring(0, 10)}...`
-					: "none",
+				code: requestBody.code ? `${requestBody.code.substring(0, 10)}...` : 'none',
 				redirect_uri: requestBody.redirect_uri,
 				environment_id: requestBody.environment_id,
 				has_code_verifier: !!requestBody.code_verifier,
 			});
 
 			console.log(
-				" [EnhancedAuthCodeFlowV2] Full request body for debugging:",
-				JSON.stringify(requestBody, null, 2),
+				' [EnhancedAuthCodeFlowV2] Full request body for debugging:',
+				JSON.stringify(requestBody, null, 2)
 			);
 
 			// CRITICAL: Final check before sending
-			if (requestBody.client_id === "" || !requestBody.client_id) {
+			if (requestBody.client_id === '' || !requestBody.client_id) {
 				console.error(
-					" [EnhancedAuthCodeFlowV2] CRITICAL: Request body has empty client_id!",
-					requestBody,
+					' [EnhancedAuthCodeFlowV2] CRITICAL: Request body has empty client_id!',
+					requestBody
 				);
 				throw new Error(
-					"CRITICAL ERROR: Request body contains empty client_id. This should never happen.",
+					'CRITICAL ERROR: Request body contains empty client_id. This should never happen.'
 				);
 			}
 
 			console.log(
-				" [EnhancedAuthCodeFlowV2] Sending request to:",
-				`${backendUrl}/api/token-exchange`,
+				' [EnhancedAuthCodeFlowV2] Sending request to:',
+				`${backendUrl}/api/token-exchange`
 			);
-			console.log(
-				" [EnhancedAuthCodeFlowV2] Authentication method details:",
-				{
-					method: flowConfig.clientAuthMethod,
-					security: getAuthMethodSecurityLevel(flowConfig.clientAuthMethod),
-					hasCustomHeaders:
-						Object.keys(authenticatedRequest.headers).length > 1,
-				},
-			);
+			console.log(' [EnhancedAuthCodeFlowV2] Authentication method details:', {
+				method: flowConfig.clientAuthMethod,
+				security: getAuthMethodSecurityLevel(flowConfig.clientAuthMethod),
+				hasCustomHeaders: Object.keys(authenticatedRequest.headers).length > 1,
+			});
 
 			const response = await fetch(`${backendUrl}/api/token-exchange`, {
-				method: "POST",
+				method: 'POST',
 				headers: {
-					"Content-Type": "application/json",
+					'Content-Type': 'application/json',
 					...authenticatedRequest.headers, // Include authentication headers
 				},
 				body: JSON.stringify(requestBody),
 			});
 
-			console.log(" [EnhancedAuthCodeFlowV2] Response received:", {
+			console.log(' [EnhancedAuthCodeFlowV2] Response received:', {
 				status: response.status,
 				statusText: response.statusText,
 				ok: response.ok,
@@ -2564,15 +2265,14 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 
 			if (!response.ok) {
 				const errorData = await response.json().catch(() => ({}));
-				logger.error(
-					"EnhancedAuthorizationCodeFlowV2",
-					"Token exchange failed",
-					{ status: response.status, error: errorData },
-				);
+				logger.error('EnhancedAuthorizationCodeFlowV2', 'Token exchange failed', {
+					status: response.status,
+					error: errorData,
+				});
 
 				// Use PingOne error interpreter for friendly messages
 				const interpretedError = PingOneErrorInterpreter.interpret({
-					error: errorData.error || "token_exchange_failed",
+					error: errorData.error || 'token_exchange_failed',
 					error_description:
 						errorData.error_description ||
 						errorData.details ||
@@ -2581,71 +2281,57 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 				});
 
 				throw new Error(
-					`${interpretedError.title}: ${interpretedError.message}${interpretedError.suggestion ? `\n\nSuggestion: ${interpretedError.suggestion}` : ""}`,
+					`${interpretedError.title}: ${interpretedError.message}${interpretedError.suggestion ? `\n\nSuggestion: ${interpretedError.suggestion}` : ''}`
 				);
 			}
 
 			const tokenData = await response.json();
 			setTokens(tokenData);
-			logger.info(
-				"EnhancedAuthorizationCodeFlowV2",
-				"Tokens received",
-				tokenData,
-			);
+			logger.info('EnhancedAuthorizationCodeFlowV2', 'Tokens received', tokenData);
 
 			// OIDC COMPLIANCE: Validate ID token if present (Section 3.1.3.7)
 			if (tokenData.id_token) {
 				try {
-					console.log(
-						" [EnhancedAuthorizationCodeFlowV2] Validating ID token per OIDC spec...",
-					);
+					console.log(' [EnhancedAuthorizationCodeFlowV2] Validating ID token per OIDC spec...');
 
 					// Get stored nonce for validation
-					const storedNonce = sessionStorage.getItem("oauth_nonce");
+					const storedNonce = sessionStorage.getItem('oauth_nonce');
 
 					// Validate ID token with signature verification, issuer, audience, nonce, and max_age
 					const validatedPayload = await validateIdToken(
 						tokenData.id_token,
 						currentCredentials.clientId,
-						currentCredentials.authorizationEndpoint.replace(
-							"/as/authorize",
-							"",
-						),
+						currentCredentials.authorizationEndpoint.replace('/as/authorize', ''),
 						storedNonce || undefined,
-						flowConfig.maxAge > 0 ? flowConfig.maxAge : undefined,
+						flowConfig.maxAge > 0 ? flowConfig.maxAge : undefined
 					);
 
-					console.log(
-						" [EnhancedAuthorizationCodeFlowV2] ID token validation successful:",
-						{
-							subject: validatedPayload.sub,
-							issuer: validatedPayload.iss,
-							audience: validatedPayload.aud,
-							nonce: validatedPayload.nonce ? " Validated" : "Not present",
-							authTime: validatedPayload.auth_time
-								? " Present"
-								: "Not present",
-						},
-					);
+					console.log(' [EnhancedAuthorizationCodeFlowV2] ID token validation successful:', {
+						subject: validatedPayload.sub,
+						issuer: validatedPayload.iss,
+						audience: validatedPayload.aud,
+						nonce: validatedPayload.nonce ? ' Validated' : 'Not present',
+						authTime: validatedPayload.auth_time ? ' Present' : 'Not present',
+					});
 
 					// Clear the nonce after successful validation (prevent reuse)
-					sessionStorage.removeItem("oauth_nonce");
+					sessionStorage.removeItem('oauth_nonce');
 				} catch (validationError) {
 					console.error(
-						" [EnhancedAuthorizationCodeFlowV2] ID token validation failed:",
-						validationError,
+						' [EnhancedAuthorizationCodeFlowV2] ID token validation failed:',
+						validationError
 					);
 					// Don't fail the entire flow, but log the validation error
 					logger.error(
-						"EnhancedAuthorizationCodeFlowV2",
-						"ID token validation failed",
-						String(validationError),
+						'EnhancedAuthorizationCodeFlowV2',
+						'ID token validation failed',
+						String(validationError)
 					);
 
 					// Show warning but continue (for educational purposes)
 					updateStepMessage(
-						"exchange-tokens",
-						` SECURITY WARNING: ID token validation failed: ${validationError instanceof Error ? validationError.message : String(validationError)}. Tokens received but ID token is not OIDC-compliant.`,
+						'exchange-tokens',
+						` SECURITY WARNING: ID token validation failed: ${validationError instanceof Error ? validationError.message : String(validationError)}. Tokens received but ID token is not OIDC-compliant.`
 					);
 				}
 			}
@@ -2654,51 +2340,47 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 
 			// Show success message with strong instruction to scroll up
 			updateStepMessage(
-				"exchange-tokens",
-				" SUCCESS! Tokens received and ID token validated per OIDC spec! Scroll up to see your new access and refresh tokens in the green boxes above. The OAuth flow is complete!",
+				'exchange-tokens',
+				' SUCCESS! Tokens received and ID token validated per OIDC spec! Scroll up to see your new access and refresh tokens in the green boxes above. The OAuth flow is complete!'
 			);
 
 			// Scroll to step progress to show the tokens and next steps
 			scrollToStepProgress();
 
 			// Clear the authorization code and state after successful exchange to prevent reuse
-			setAuthCode("");
-			sessionStorage.removeItem("oauth_auth_code");
-			sessionStorage.removeItem("oauth_state");
+			setAuthCode('');
+			sessionStorage.removeItem('oauth_auth_code');
+			sessionStorage.removeItem('oauth_state');
 			console.log(
-				" [EnhancedAuthCodeFlowV2] Cleared authorization code and state after successful exchange",
+				' [EnhancedAuthCodeFlowV2] Cleared authorization code and state after successful exchange'
 			);
 		} catch (error) {
-			logger.error(
-				"EnhancedAuthorizationCodeFlowV2",
-				"Token exchange failed",
-				String(error),
-			);
+			logger.error('EnhancedAuthorizationCodeFlowV2', 'Token exchange failed', String(error));
 			setIsExchangingTokens(false);
 
 			// Show error message
 			updateStepMessage(
-				"exchange-tokens",
-				` Token exchange failed: ${error instanceof Error ? error.message : String(error)}`,
+				'exchange-tokens',
+				` Token exchange failed: ${error instanceof Error ? error.message : String(error)}`
 			);
 
 			// Provide more specific error messages
-			if (String(error).includes("Invalid Grant")) {
+			if (String(error).includes('Invalid Grant')) {
 				// Show a more helpful message for Invalid Grant errors
 				updateStepMessage(
-					"exchange-tokens",
-					' Authorization code has expired or been used already. Click "Clear & Start Fresh" below to begin a new OAuth flow.',
+					'exchange-tokens',
+					' Authorization code has expired or been used already. Click "Clear & Start Fresh" below to begin a new OAuth flow.'
 				);
 				throw new Error(
-					"Authorization code has expired or been used already. Please start a new OAuth flow to get a fresh authorization code.",
+					'Authorization code has expired or been used already. Please start a new OAuth flow to get a fresh authorization code.'
 				);
-			} else if (String(error).includes("Client ID is required")) {
+			} else if (String(error).includes('Client ID is required')) {
 				throw new Error(
-					"OAuth credentials are missing. Please go back to Step 1 and save your credentials first.",
+					'OAuth credentials are missing. Please go back to Step 1 and save your credentials first.'
 				);
-			} else if (String(error).includes("Code verifier is required")) {
+			} else if (String(error).includes('Code verifier is required')) {
 				throw new Error(
-					"PKCE codes are missing. Please go back to Step 2 and generate PKCE codes first.",
+					'PKCE codes are missing. Please go back to Step 2 and generate PKCE codes first.'
 				);
 			} else {
 				throw error;
@@ -2709,7 +2391,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 	// Get user info
 	const getUserInfo = useCallback(async () => {
 		if (!tokens?.access_token) {
-			throw new Error("No access token available");
+			throw new Error('No access token available');
 		}
 
 		setIsGettingUserInfo(true);
@@ -2722,15 +2404,14 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 
 			if (!response.ok) {
 				const errorData = await response.json().catch(() => ({}));
-				logger.error(
-					"EnhancedAuthorizationCodeFlowV2",
-					"UserInfo request failed",
-					{ status: response.status, error: errorData },
-				);
+				logger.error('EnhancedAuthorizationCodeFlowV2', 'UserInfo request failed', {
+					status: response.status,
+					error: errorData,
+				});
 
 				// Use PingOne error interpreter for friendly messages
 				const interpretedError = PingOneErrorInterpreter.interpret({
-					error: errorData.error || "userinfo_request_failed",
+					error: errorData.error || 'userinfo_request_failed',
 					error_description:
 						errorData.error_description ||
 						errorData.details ||
@@ -2739,26 +2420,18 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 				});
 
 				throw new Error(
-					`${interpretedError.title}: ${interpretedError.message}${interpretedError.suggestion ? `\n\nSuggestion: ${interpretedError.suggestion}` : ""}`,
+					`${interpretedError.title}: ${interpretedError.message}${interpretedError.suggestion ? `\n\nSuggestion: ${interpretedError.suggestion}` : ''}`
 				);
 			}
 
 			const userData = await response.json();
 			setUserInfo(userData);
-			logger.info(
-				"EnhancedAuthorizationCodeFlowV2",
-				"User info retrieved",
-				userData,
-			);
+			logger.info('EnhancedAuthorizationCodeFlowV2', 'User info retrieved', userData);
 
 			// Scroll to step progress to show the user info
 			scrollToStepProgress();
 		} catch (error) {
-			logger.error(
-				"EnhancedAuthorizationCodeFlowV2",
-				"UserInfo request failed",
-				String(error),
-			);
+			logger.error('EnhancedAuthorizationCodeFlowV2', 'UserInfo request failed', String(error));
 			throw error;
 		} finally {
 			setIsGettingUserInfo(false);
@@ -2772,11 +2445,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 			setCopiedText(text);
 			setTimeout(() => setCopiedText(null), 2000);
 		} catch (error) {
-			logger.error(
-				"EnhancedAuthorizationCodeFlowV2",
-				"Failed to copy to clipboard",
-				String(error),
-			);
+			logger.error('EnhancedAuthorizationCodeFlowV2', 'Failed to copy to clipboard', String(error));
 		}
 	}, []);
 
@@ -2799,47 +2468,43 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 	// Define steps
 	const steps: EnhancedFlowStep[] = [
 		{
-			id: "setup-credentials",
-			title: "Setup OAuth Credentials",
+			id: 'setup-credentials',
+			title: 'Setup OAuth Credentials',
 			description:
-				"Configure your PingOne OAuth application credentials. These will be saved securely for future sessions.",
+				'Configure your PingOne OAuth application credentials. These will be saved securely for future sessions.',
 			icon: <FiSettings />,
-			category: "preparation",
+			category: 'preparation',
 			content: (
 				<div>
 					<div
 						style={{
-							display: "flex",
-							alignItems: "center",
-							justifyContent: "space-between",
-							cursor: "pointer",
-							padding: "0.5rem 0",
-							borderBottom: "1px solid #e5e7eb",
-							marginBottom: "1rem",
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'space-between',
+							cursor: 'pointer',
+							padding: '0.5rem 0',
+							borderBottom: '1px solid #e5e7eb',
+							marginBottom: '1rem',
 						}}
-						onClick={() => toggleSection("setup-credentials")}
+						onClick={() => toggleSection('setup-credentials')}
 					>
 						<h4
 							style={{
 								margin: 0,
-								display: "flex",
-								alignItems: "center",
-								gap: "0.5rem",
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
 							}}
 						>
 							OAuth Credentials Configuration
 						</h4>
-						{collapsedSections["setup-credentials"] ? (
-							<FiChevronRight />
-						) : (
-							<FiChevronDown />
-						)}
+						{collapsedSections['setup-credentials'] ? <FiChevronRight /> : <FiChevronDown />}
 					</div>
-					{!collapsedSections["setup-credentials"] && (
+					{!collapsedSections['setup-credentials'] && (
 						<div>
-							{stepMessages["setup-credentials"] && (
+							{stepMessages['setup-credentials'] && (
 								<InfoBox type="success">
-									<div>{stepMessages["setup-credentials"]}</div>
+									<div>{stepMessages['setup-credentials']}</div>
 								</InfoBox>
 							)}
 							<FormField>
@@ -2857,14 +2522,10 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 									required
 								/>
 								<ValidationIndicator $valid={!!credentials.environmentId}>
-									{credentials.environmentId ? (
-										<FiCheckCircle />
-									) : (
-										<FiAlertTriangle />
-									)}
+									{credentials.environmentId ? <FiCheckCircle /> : <FiAlertTriangle />}
 									{credentials.environmentId
-										? "Valid Environment ID"
-										: "Environment ID is required"}
+										? 'Valid Environment ID'
+										: 'Environment ID is required'}
 								</ValidationIndicator>
 							</FormField>
 
@@ -2883,23 +2544,17 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 									required
 								/>
 								<ValidationIndicator $valid={!!credentials.clientId}>
-									{credentials.clientId ? (
-										<FiCheckCircle />
-									) : (
-										<FiAlertTriangle />
-									)}
-									{credentials.clientId
-										? "Valid Client ID"
-										: "Client ID is required"}
+									{credentials.clientId ? <FiCheckCircle /> : <FiAlertTriangle />}
+									{credentials.clientId ? 'Valid Client ID' : 'Client ID is required'}
 								</ValidationIndicator>
 							</FormField>
 
 							<FormField>
 								<FormLabel>Client Secret</FormLabel>
-								<div style={{ position: "relative" }}>
+								<div style={{ position: 'relative' }}>
 									<FormInput
-										type={showSecret ? "text" : "password"}
-										value={credentials.clientSecret || ""}
+										type={showSecret ? 'text' : 'password'}
+										value={credentials.clientSecret || ''}
 										onChange={(e) =>
 											setCredentials((prev) => ({
 												...prev,
@@ -2907,32 +2562,28 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 											}))
 										}
 										placeholder="your-client-secret (optional for PKCE)"
-										style={{ paddingRight: "3rem" }}
+										style={{ paddingRight: '3rem' }}
 										autoComplete="new-password"
 									/>
 									<button
 										type="button"
 										onClick={() => setShowSecret(!showSecret)}
 										style={{
-											position: "absolute",
-											right: "0.75rem",
-											top: "50%",
-											transform: "translateY(-50%)",
-											background: "none",
-											border: "none",
-											cursor: "pointer",
-											color: "#6c757d",
-											padding: "0.25rem",
-											display: "flex",
-											alignItems: "center",
-											justifyContent: "center",
+											position: 'absolute',
+											right: '0.75rem',
+											top: '50%',
+											transform: 'translateY(-50%)',
+											background: 'none',
+											border: 'none',
+											cursor: 'pointer',
+											color: '#6c757d',
+											padding: '0.25rem',
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
 										}}
-										aria-label={
-											showSecret ? "Hide client secret" : "Show client secret"
-										}
-										title={
-											showSecret ? "Hide client secret" : "Show client secret"
-										}
+										aria-label={showSecret ? 'Hide client secret' : 'Show client secret'}
+										title={showSecret ? 'Hide client secret' : 'Show client secret'}
 									>
 										{showSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
 									</button>
@@ -2945,7 +2596,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 
 							<FormField>
 								<FormLabel className="required">Callback URL</FormLabel>
-								<div style={{ position: "relative" }}>
+								<div style={{ position: 'relative' }}>
 									<FormInput
 										type="url"
 										value={credentials.redirectUri}
@@ -2958,47 +2609,33 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 										placeholder="https://localhost:3000/authz-callback"
 										required
 										style={{
-											paddingRight: "2.5rem",
-											fontFamily: "monospace",
-											fontSize: "0.875rem",
+											paddingRight: '2.5rem',
+											fontFamily: 'monospace',
+											fontSize: '0.875rem',
 										}}
 									/>
 									<div
 										style={{
-											position: "absolute",
-											right: "0.75rem",
-											top: "50%",
-											transform: "translateY(-50%)",
-											color: "#6b7280",
-											fontSize: "0.75rem",
-											pointerEvents: "none",
+											position: 'absolute',
+											right: '0.75rem',
+											top: '50%',
+											transform: 'translateY(-50%)',
+											color: '#6b7280',
+											fontSize: '0.75rem',
+											pointerEvents: 'none',
 										}}
-									>
-										
-									</div>
+									></div>
 								</div>
 								<ValidationIndicator $valid={!!credentials.redirectUri}>
-									{credentials.redirectUri ? (
-										<FiCheckCircle />
-									) : (
-										<FiAlertTriangle />
-									)}
-									{credentials.redirectUri
-										? "Valid Callback URL"
-										: "Callback URL is required"}
+									{credentials.redirectUri ? <FiCheckCircle /> : <FiAlertTriangle />}
+									{credentials.redirectUri ? 'Valid Callback URL' : 'Callback URL is required'}
 								</ValidationIndicator>
 							</FormField>
 
 							<FormField>
 								<FormLabel>Authorization Endpoint</FormLabel>
-								<FormInput
-									type="text"
-									value={credentials.authorizationEndpoint}
-									readOnly
-								/>
-								<ValidationIndicator
-									$valid={!!credentials.authorizationEndpoint}
-								>
+								<FormInput type="text" value={credentials.authorizationEndpoint} readOnly />
+								<ValidationIndicator $valid={!!credentials.authorizationEndpoint}>
 									<FiInfo />
 									Auto-generated from Environment ID
 								</ValidationIndicator>
@@ -3037,9 +2674,8 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 							<InfoBox type="info">
 								<FiInfo />
 								<div>
-									<strong>Security Note:</strong> Your credentials will be saved
-									locally in your browser and are not transmitted to any
-									external servers.
+									<strong>Security Note:</strong> Your credentials will be saved locally in your
+									browser and are not transmitted to any external servers.
 								</div>
 							</InfoBox>
 
@@ -3049,8 +2685,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 									<div>
 										<strong> Saving Credentials...</strong>
 										<br />
-										Securely storing your OAuth credentials for future
-										sessions...
+										Securely storing your OAuth credentials for future sessions...
 									</div>
 								</InfoBox>
 							)}
@@ -3061,8 +2696,8 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 									<div>
 										<strong> Credentials Saved Successfully!</strong>
 										<br />
-										Your OAuth credentials have been saved and are ready to use.
-										You can now proceed to the next step.
+										Your OAuth credentials have been saved and are ready to use. You can now proceed
+										to the next step.
 									</div>
 								</InfoBox>
 							)}
@@ -3070,58 +2705,54 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 							{/* Flow Control Actions - Combined Box */}
 							<div
 								style={{
-									marginTop: "2rem",
-									padding: "1.5rem",
-									backgroundColor: "#fef2f2",
-									border: "1px solid #fecaca",
-									borderRadius: "0.5rem",
-									textAlign: "center",
+									marginTop: '2rem',
+									padding: '1.5rem',
+									backgroundColor: '#fef2f2',
+									border: '1px solid #fecaca',
+									borderRadius: '0.5rem',
+									textAlign: 'center',
 								}}
 							>
 								<h4
 									style={{
-										margin: "0 0 1rem 0",
-										color: "#dc2626",
-										fontSize: "1rem",
-										fontWeight: "600",
+										margin: '0 0 1rem 0',
+										color: '#dc2626',
+										fontSize: '1rem',
+										fontWeight: '600',
 									}}
 								>
-									<FiSettings style={{ marginRight: "0.5rem" }} />
+									<FiSettings style={{ marginRight: '0.5rem' }} />
 									Flow Control Actions
 								</h4>
 
 								<div
 									style={{
-										display: "flex",
-										gap: "1rem",
-										justifyContent: "center",
-										flexWrap: "wrap",
+										display: 'flex',
+										gap: '1rem',
+										justifyContent: 'center',
+										flexWrap: 'wrap',
 									}}
 								>
 									{/* Clear Credentials Button */}
 									<button
 										onClick={() => setShowClearCredentialsModal(true)}
 										style={{
-											padding: "0.75rem 1.25rem",
-											backgroundColor: "#dc2626",
-											color: "white",
-											border: "none",
-											borderRadius: "0.375rem",
-											fontSize: "0.875rem",
-											fontWeight: "500",
-											cursor: "pointer",
-											display: "inline-flex",
-											alignItems: "center",
-											gap: "0.5rem",
-											transition: "background-color 0.2s",
-											minWidth: "160px",
+											padding: '0.75rem 1.25rem',
+											backgroundColor: '#dc2626',
+											color: 'white',
+											border: 'none',
+											borderRadius: '0.375rem',
+											fontSize: '0.875rem',
+											fontWeight: '500',
+											cursor: 'pointer',
+											display: 'inline-flex',
+											alignItems: 'center',
+											gap: '0.5rem',
+											transition: 'background-color 0.2s',
+											minWidth: '160px',
 										}}
-										onMouseOver={(e) =>
-											(e.currentTarget.style.backgroundColor = "#b91c1c")
-										}
-										onMouseOut={(e) =>
-											(e.currentTarget.style.backgroundColor = "#dc2626")
-										}
+										onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#b91c1c')}
+										onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#dc2626')}
 									>
 										<FiSettings />
 										Clear Credentials
@@ -3131,26 +2762,22 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 									<button
 										onClick={() => setShowResetModal(true)}
 										style={{
-											padding: "0.75rem 1.25rem",
-											backgroundColor: "#dc2626",
-											color: "white",
-											border: "none",
-											borderRadius: "0.375rem",
-											fontSize: "0.875rem",
-											fontWeight: "500",
-											cursor: "pointer",
-											display: "inline-flex",
-											alignItems: "center",
-											gap: "0.5rem",
-											transition: "background-color 0.2s",
-											minWidth: "160px",
+											padding: '0.75rem 1.25rem',
+											backgroundColor: '#dc2626',
+											color: 'white',
+											border: 'none',
+											borderRadius: '0.375rem',
+											fontSize: '0.875rem',
+											fontWeight: '500',
+											cursor: 'pointer',
+											display: 'inline-flex',
+											alignItems: 'center',
+											gap: '0.5rem',
+											transition: 'background-color 0.2s',
+											minWidth: '160px',
 										}}
-										onMouseOver={(e) =>
-											(e.currentTarget.style.backgroundColor = "#b91c1c")
-										}
-										onMouseOut={(e) =>
-											(e.currentTarget.style.backgroundColor = "#dc2626")
-										}
+										onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#b91c1c')}
+										onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#dc2626')}
 									>
 										<FiRefreshCw />
 										Reset Flow
@@ -3159,17 +2786,17 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 
 								<div
 									style={{
-										marginTop: "1rem",
-										fontSize: "0.8rem",
-										color: "#6b7280",
-										lineHeight: "1.4",
+										marginTop: '1rem',
+										fontSize: '0.8rem',
+										color: '#6b7280',
+										lineHeight: '1.4',
 									}}
 								>
-									<strong>Clear Credentials:</strong> Remove all saved PingOne
-									credentials and start fresh
+									<strong>Clear Credentials:</strong> Remove all saved PingOne credentials and start
+									fresh
 									<br />
-									<strong>Reset Flow:</strong> Clear flow progress and tokens
-									(credentials preserved)
+									<strong>Reset Flow:</strong> Clear flow progress and tokens (credentials
+									preserved)
 								</div>
 							</div>
 						</div>
@@ -3180,119 +2807,114 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 				setIsSavingCredentials(true);
 				try {
 					await saveCredentials();
-					showFlowSuccess(" Credentials Saved Successfully");
+					showFlowSuccess(' Credentials Saved Successfully');
 					return { success: true };
 				} finally {
 					setIsSavingCredentials(false);
 				}
 			},
 			canExecute: Boolean(
-				credentials.environmentId &&
-					credentials.clientId &&
-					credentials.redirectUri,
+				credentials.environmentId && credentials.clientId && credentials.redirectUri
 			),
 		},
 		{
-			id: "generate-pkce",
-			title: "Generate PKCE Codes",
+			id: 'generate-pkce',
+			title: 'Generate PKCE Codes',
 			description:
-				"PKCE adds security by preventing authorization code interception attacks. This step is optional but recommended for enhanced security.",
+				'PKCE adds security by preventing authorization code interception attacks. This step is optional but recommended for enhanced security.',
 			icon: <FiShield />,
-			category: "preparation",
+			category: 'preparation',
 			isOptional: true,
 			content: (
 				<div>
 					{/* PKCE Security Information */}
-					<InfoBox type="info" style={{ marginBottom: "1.5rem" }}>
+					<InfoBox type="info" style={{ marginBottom: '1.5rem' }}>
 						<div>
 							<h4
 								style={{
-									margin: "0 0 1rem 0",
-									color: "#1e40af",
-									display: "flex",
-									alignItems: "center",
-									gap: "0.5rem",
+									margin: '0 0 1rem 0',
+									color: '#1e40af',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
 								}}
 							>
 								<FiShield />
 								What is PKCE and Why Use It?
 							</h4>
 
-							<div style={{ marginBottom: "1rem" }}>
-								<strong>PKCE (Proof Key for Code Exchange)</strong> is a
-								security extension to OAuth 2.0 that prevents authorization code
-								interception attacks. It's especially important for:
+							<div style={{ marginBottom: '1rem' }}>
+								<strong>PKCE (Proof Key for Code Exchange)</strong> is a security extension to OAuth
+								2.0 that prevents authorization code interception attacks. It's especially important
+								for:
 							</div>
 
-							<ul style={{ marginBottom: "1rem", paddingLeft: "1.5rem" }}>
+							<ul style={{ marginBottom: '1rem', paddingLeft: '1.5rem' }}>
 								<li>
-									<strong>Public clients</strong> (mobile apps, SPAs) that can't
-									securely store secrets
+									<strong>Public clients</strong> (mobile apps, SPAs) that can't securely store
+									secrets
 								</li>
 								<li>
-									<strong>Native applications</strong> where redirect URIs can
-									be compromised
+									<strong>Native applications</strong> where redirect URIs can be compromised
 								</li>
 								<li>
-									<strong>Enhanced security</strong> for any OAuth flow, even
-									with confidential clients
+									<strong>Enhanced security</strong> for any OAuth flow, even with confidential
+									clients
 								</li>
 							</ul>
 
-							<div style={{ marginBottom: "1rem" }}>
+							<div style={{ marginBottom: '1rem' }}>
 								<strong>How PKCE Works:</strong>
 							</div>
 
-							<ol style={{ marginBottom: "1rem", paddingLeft: "1.5rem" }}>
+							<ol style={{ marginBottom: '1rem', paddingLeft: '1.5rem' }}>
 								<li>
-									<strong>Code Verifier:</strong> A cryptographically random
-									string (43-128 characters) generated by your application
+									<strong>Code Verifier:</strong> A cryptographically random string (43-128
+									characters) generated by your application
 								</li>
 								<li>
-									<strong>Code Challenge:</strong> SHA256 hash of the code
-									verifier, sent with the authorization request
+									<strong>Code Challenge:</strong> SHA256 hash of the code verifier, sent with the
+									authorization request
 								</li>
 								<li>
-									<strong>Verification:</strong> During token exchange, the
-									original code verifier is sent to prove you initiated the flow
+									<strong>Verification:</strong> During token exchange, the original code verifier
+									is sent to prove you initiated the flow
 								</li>
 							</ol>
 
 							<div
 								style={{
-									padding: "1rem",
-									backgroundColor: "#fef3c7",
-									borderRadius: "0.5rem",
-									border: "1px solid #f59e0b",
+									padding: '1rem',
+									backgroundColor: '#fef3c7',
+									borderRadius: '0.5rem',
+									border: '1px solid #f59e0b',
 								}}
 							>
 								<strong> Security Benefits:</strong>
-								<ul style={{ margin: "0.5rem 0 0 0", paddingLeft: "1.5rem" }}>
+								<ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem' }}>
 									<li>
-										<strong>Prevents code interception:</strong> Even if an
-										attacker intercepts the authorization code, they can't
-										exchange it for tokens without the code verifier
+										<strong>Prevents code interception:</strong> Even if an attacker intercepts the
+										authorization code, they can't exchange it for tokens without the code verifier
 									</li>
 									<li>
-										<strong>No client secret required:</strong> Eliminates the
-										need to store sensitive client secrets in public clients
+										<strong>No client secret required:</strong> Eliminates the need to store
+										sensitive client secrets in public clients
 									</li>
 									<li>
-										<strong>Dynamic security:</strong> Each flow uses unique,
-										randomly generated values
+										<strong>Dynamic security:</strong> Each flow uses unique, randomly generated
+										values
 									</li>
 									<li>
-										<strong>RFC 7636 compliant:</strong> Industry standard
-										security extension
+										<strong>RFC 7636 compliant:</strong> Industry standard security extension
 									</li>
 								</ul>
 							</div>
 						</div>
 					</InfoBox>
 
-					{stepMessages["generate-pkce"] && (
+					{stepMessages['generate-pkce'] && (
 						<InfoBox type="success">
-							<div>{stepMessages["generate-pkce"]}</div>
+							<div>{stepMessages['generate-pkce']}</div>
 						</InfoBox>
 					)}
 
@@ -3302,40 +2924,30 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 							<div>
 								<strong> PKCE Codes Generated Successfully!</strong>
 								<br />
-								Your PKCE codes have been generated and are ready to use. These
-								will be included in the authorization request for enhanced
-								security.
+								Your PKCE codes have been generated and are ready to use. These will be included in
+								the authorization request for enhanced security.
 							</div>
 						</InfoBox>
 					)}
 
 					<CodeBlock>
 						<CodeComment>// How PKCE Codes Are Used in OAuth Flow</CodeComment>
-						<CodeComment>
-							// Step 1: Authorization Request (with code_challenge)
-						</CodeComment>
+						<CodeComment>// Step 1: Authorization Request (with code_challenge)</CodeComment>
 						<CodeLine>
 							GET /as/authorize?response_type=code&client_id=...&code_challenge=
-							{pkceCodes.codeChallenge || "[CODE_CHALLENGE]"}
+							{pkceCodes.codeChallenge || '[CODE_CHALLENGE]'}
 							&code_challenge_method=S256
 						</CodeLine>
-						<CodeComment>
-							// Step 2: Authorization Server returns authorization code
-						</CodeComment>
-						<CodeLine>
-							redirect_uri?code=[AUTHORIZATION_CODE]&state=[STATE]
-						</CodeLine>
-						<CodeComment>
-							// Step 3: Token Exchange (with code_verifier)
-						</CodeComment>
+						<CodeComment>// Step 2: Authorization Server returns authorization code</CodeComment>
+						<CodeLine>redirect_uri?code=[AUTHORIZATION_CODE]&state=[STATE]</CodeLine>
+						<CodeComment>// Step 3: Token Exchange (with code_verifier)</CodeComment>
 						<CodeLine>POST /as/token</CodeLine>
 						<CodeLine>
 							grant_type=authorization_code&code=[AUTHORIZATION_CODE]&code_verifier=
-							{pkceCodes.codeVerifier || "[CODE_VERIFIER]"}
+							{pkceCodes.codeVerifier || '[CODE_VERIFIER]'}
 						</CodeLine>
 						<CodeComment>
-							// Step 4: Server validates: SHA256(code_verifier) ===
-							code_challenge
+							// Step 4: Server validates: SHA256(code_verifier) === code_challenge
 						</CodeComment>
 					</CodeBlock>
 
@@ -3345,33 +2957,28 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 							<strong>How PKCE Codes Are Used (OIDC Specification):</strong>
 							<br />
 							<br />
-							<strong>1. Authorization Request:</strong> The{" "}
-							<code>code_challenge</code> is sent to the authorization server in
-							the initial request.
+							<strong>1. Authorization Request:</strong> The <code>code_challenge</code> is sent to
+							the authorization server in the initial request.
 							<br />
 							<br />
-							<strong>2. Token Exchange:</strong> The <code>code_verifier</code>{" "}
-							is sent back to the token endpoint to prove you initiated the
-							request.
+							<strong>2. Token Exchange:</strong> The <code>code_verifier</code> is sent back to the
+							token endpoint to prove you initiated the request.
 							<br />
 							<br />
-							<strong>3. Security Benefit:</strong> Even if an attacker
-							intercepts the authorization code, they cannot exchange it for
-							tokens without the code verifier.
+							<strong>3. Security Benefit:</strong> Even if an attacker intercepts the authorization
+							code, they cannot exchange it for tokens without the code verifier.
 							<br />
 							<br />
-							<strong>OIDC Compliance:</strong> PKCE is required for public
-							clients (mobile apps, SPAs) and recommended for all clients per
-							RFC 7636.
+							<strong>OIDC Compliance:</strong> PKCE is required for public clients (mobile apps,
+							SPAs) and recommended for all clients per RFC 7636.
 						</div>
 					</InfoBox>
 
 					<InfoBox type="info">
 						<FiShield />
 						<div>
-							<strong>Security Note:</strong> PKCE codes are automatically
-							generated and will be used in the authorization request to enhance
-							security.
+							<strong>Security Note:</strong> PKCE codes are automatically generated and will be
+							used in the authorization request to enhance security.
 						</div>
 					</InfoBox>
 
@@ -3381,8 +2988,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 							<div>
 								<strong> Generating PKCE Codes...</strong>
 								<br />
-								Creating secure code verifier and challenge for enhanced OAuth
-								security...
+								Creating secure code verifier and challenge for enhanced OAuth security...
 							</div>
 						</InfoBox>
 					)}
@@ -3402,16 +3008,14 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 					{pkceGenerated && pkceCodes.codeVerifier && (
 						<div
 							style={{
-								marginTop: "2rem",
-								padding: "1.5rem",
-								background: "#f0fdf4",
-								border: "1px solid #10b981",
-								borderRadius: "0.5rem",
+								marginTop: '2rem',
+								padding: '1.5rem',
+								background: '#f0fdf4',
+								border: '1px solid #10b981',
+								borderRadius: '0.5rem',
 							}}
 						>
-							<h4 style={{ margin: "0 0 1rem 0", color: "#065f46" }}>
-								Generated PKCE Codes
-							</h4>
+							<h4 style={{ margin: '0 0 1rem 0', color: '#065f46' }}>Generated PKCE Codes</h4>
 
 							<FormField>
 								<FormLabel>Code Verifier (Generated)</FormLabel>
@@ -3421,14 +3025,8 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 									readOnly
 									$generated={!!pkceCodes.codeVerifier}
 								/>
-								<CopyButton
-									onClick={() => copyToClipboard(pkceCodes.codeVerifier)}
-								>
-									{copiedText === pkceCodes.codeVerifier ? (
-										<FiCheckCircle />
-									) : (
-										<FiCopy />
-									)}
+								<CopyButton onClick={() => copyToClipboard(pkceCodes.codeVerifier)}>
+									{copiedText === pkceCodes.codeVerifier ? <FiCheckCircle /> : <FiCopy />}
 								</CopyButton>
 							</FormField>
 
@@ -3440,14 +3038,8 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 									readOnly
 									$generated={!!pkceCodes.codeChallenge}
 								/>
-								<CopyButton
-									onClick={() => copyToClipboard(pkceCodes.codeChallenge)}
-								>
-									{copiedText === pkceCodes.codeChallenge ? (
-										<FiCheckCircle />
-									) : (
-										<FiCopy />
-									)}
+								<CopyButton onClick={() => copyToClipboard(pkceCodes.codeChallenge)}>
+									{copiedText === pkceCodes.codeChallenge ? <FiCheckCircle /> : <FiCopy />}
 								</CopyButton>
 							</FormField>
 						</div>
@@ -3456,58 +3048,54 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 					{/* Reset Flow Button - Standardized Style */}
 					<div
 						style={{
-							marginTop: "2rem",
-							padding: "1.5rem",
-							backgroundColor: "#fef2f2",
-							border: "1px solid #fecaca",
-							borderRadius: "0.5rem",
-							textAlign: "center",
+							marginTop: '2rem',
+							padding: '1.5rem',
+							backgroundColor: '#fef2f2',
+							border: '1px solid #fecaca',
+							borderRadius: '0.5rem',
+							textAlign: 'center',
 						}}
 					>
 						<h4
 							style={{
-								margin: "0 0 1rem 0",
-								color: "#dc2626",
-								fontSize: "1rem",
-								fontWeight: "600",
+								margin: '0 0 1rem 0',
+								color: '#dc2626',
+								fontSize: '1rem',
+								fontWeight: '600',
 							}}
 						>
-							<FiRefreshCw style={{ marginRight: "0.5rem" }} />
+							<FiRefreshCw style={{ marginRight: '0.5rem' }} />
 							Need to Start Over?
 						</h4>
 						<button
 							onClick={() => setShowResetModal(true)}
 							style={{
-								padding: "0.75rem 1.25rem",
-								backgroundColor: "#dc2626",
-								color: "white",
-								border: "none",
-								borderRadius: "0.375rem",
-								fontSize: "0.875rem",
-								fontWeight: "500",
-								cursor: "pointer",
-								display: "inline-flex",
-								alignItems: "center",
-								gap: "0.5rem",
-								transition: "background-color 0.2s",
-								minWidth: "160px",
+								padding: '0.75rem 1.25rem',
+								backgroundColor: '#dc2626',
+								color: 'white',
+								border: 'none',
+								borderRadius: '0.375rem',
+								fontSize: '0.875rem',
+								fontWeight: '500',
+								cursor: 'pointer',
+								display: 'inline-flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+								transition: 'background-color 0.2s',
+								minWidth: '160px',
 							}}
-							onMouseOver={(e) =>
-								(e.currentTarget.style.backgroundColor = "#b91c1c")
-							}
-							onMouseOut={(e) =>
-								(e.currentTarget.style.backgroundColor = "#dc2626")
-							}
+							onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#b91c1c')}
+							onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#dc2626')}
 						>
 							<FiRefreshCw />
 							Reset Flow
 						</button>
 						<div
 							style={{
-								marginTop: "1rem",
-								fontSize: "0.8rem",
-								color: "#6b7280",
-								lineHeight: "1.4",
+								marginTop: '1rem',
+								fontSize: '0.8rem',
+								color: '#6b7280',
+								lineHeight: '1.4',
 							}}
 						>
 							Clear flow progress and tokens (credentials preserved)
@@ -3520,14 +3108,14 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 				try {
 					await generatePKCECodes();
 					setPkceGenerated(true);
-					showFlowSuccess(" PKCE Codes Generated Successfully");
+					showFlowSuccess(' PKCE Codes Generated Successfully');
 					// Regenerate authorization URL with PKCE codes
 					generateAuthUrl();
 
 					// Update step message for success
 					updateStepMessage(
-						"generate-pkce",
-						" PKCE codes generated successfully! Your codes are ready to use for enhanced security.",
+						'generate-pkce',
+						' PKCE codes generated successfully! Your codes are ready to use for enhanced security.'
 					);
 
 					return { success: true };
@@ -3536,23 +3124,20 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 				}
 			},
 			canExecute: Boolean(
-				credentials.environmentId &&
-					credentials.clientId &&
-					credentials.redirectUri,
+				credentials.environmentId && credentials.clientId && credentials.redirectUri
 			),
 		},
 		{
-			id: "build-auth-url",
-			title: "Build Authorization URL",
-			description:
-				"Construct the complete authorization URL with all required OAuth parameters.",
+			id: 'build-auth-url',
+			title: 'Build Authorization URL',
+			description: 'Construct the complete authorization URL with all required OAuth parameters.',
 			icon: <FiGlobe />,
-			category: "authorization",
+			category: 'authorization',
 			content: (
 				<div>
-					{stepMessages["build-auth-url"] && (
+					{stepMessages['build-auth-url'] && (
 						<InfoBox type="success">
-							<div>{stepMessages["build-auth-url"]}</div>
+							<div>{stepMessages['build-auth-url']}</div>
 						</InfoBox>
 					)}
 
@@ -3562,20 +3147,16 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 							<div>
 								<strong> Authorization URL Generated Successfully!</strong>
 								<br />
-								Your authorization URL has been built with all required OAuth
-								parameters. You can now proceed to redirect the user to PingOne
-								for authentication.
+								Your authorization URL has been built with all required OAuth parameters. You can
+								now proceed to redirect the user to PingOne for authentication.
 							</div>
 						</InfoBox>
 					)}
 
 					<CodeBlock>
-						<CodeComment>
-							// Authorization URL for Authorization Code Flow
-						</CodeComment>
+						<CodeComment>// Authorization URL for Authorization Code Flow</CodeComment>
 						<CodeLine>
-							const authUrl = '
-							{authUrl || 'Click "Build URL" to generate the authorization URL'}
+							const authUrl = '{authUrl || 'Click "Build URL" to generate the authorization URL'}
 							';
 						</CodeLine>
 						<CodeComment>// Parameters:</CodeComment>
@@ -3585,9 +3166,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 						<CodeLine>scope: '{credentials.scopes}'</CodeLine>
 						<CodeLine>state: '{state}'</CodeLine>
 						<CodeLine>code_challenge: '{pkceCodes.codeChallenge}'</CodeLine>
-						<CodeLine>
-							code_challenge_method: '{credentials.codeChallengeMethod}'
-						</CodeLine>
+						<CodeLine>code_challenge_method: '{credentials.codeChallengeMethod}'</CodeLine>
 					</CodeBlock>
 
 					{isBuildingUrl && (
@@ -3596,8 +3175,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 							<div>
 								<strong> Building Authorization URL...</strong>
 								<br />
-								Constructing the complete authorization URL with all required
-								parameters.
+								Constructing the complete authorization URL with all required parameters.
 							</div>
 						</InfoBox>
 					)}
@@ -3606,27 +3184,27 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 					{urlGenerated && authUrl && (
 						<div
 							style={{
-								marginTop: "2rem",
-								padding: "1.5rem",
-								background: "#f0fdf4",
-								border: "1px solid #22c55e",
-								borderRadius: "0.5rem",
+								marginTop: '2rem',
+								padding: '1.5rem',
+								background: '#f0fdf4',
+								border: '1px solid #22c55e',
+								borderRadius: '0.5rem',
 							}}
 						>
-							<h4 style={{ margin: "0 0 1rem 0", color: "#15803d" }}>
+							<h4 style={{ margin: '0 0 1rem 0', color: '#15803d' }}>
 								Generated Authorization URL
 							</h4>
 
 							<div
 								style={{
-									display: "flex",
-									alignItems: "center",
-									gap: "0.5rem",
-									padding: "0.75rem",
-									backgroundColor: "#f0fdf4",
-									border: "1px solid #22c55e",
-									borderRadius: "0.5rem",
-									marginBottom: "1rem",
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+									padding: '0.75rem',
+									backgroundColor: '#f0fdf4',
+									border: '1px solid #22c55e',
+									borderRadius: '0.5rem',
+									marginBottom: '1rem',
 								}}
 							>
 								<div style={{ flex: 1 }}>
@@ -3635,22 +3213,18 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 								<button
 									onClick={() => copyToClipboard(authUrl)}
 									style={{
-										background: "none",
-										border: "1px solid #007bff",
-										color: "#007bff",
-										cursor: "pointer",
-										padding: "0.25rem 0.5rem",
-										borderRadius: "4px",
-										display: "flex",
-										alignItems: "center",
-										gap: "0.25rem",
+										background: 'none',
+										border: '1px solid #007bff',
+										color: '#007bff',
+										cursor: 'pointer',
+										padding: '0.25rem 0.5rem',
+										borderRadius: '4px',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.25rem',
 									}}
 								>
-									{copiedText === authUrl ? (
-										<FiCheckCircle size={16} />
-									) : (
-										<FiCopy size={16} />
-									)}
+									{copiedText === authUrl ? <FiCheckCircle size={16} /> : <FiCopy size={16} />}
 								</button>
 							</div>
 
@@ -3669,7 +3243,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 											code_challenge_method: credentials.codeChallengeMethod,
 										},
 										null,
-										2,
+										2
 									)}
 									<CopyButton
 										onClick={() =>
@@ -3683,12 +3257,11 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 														scope: credentials.scopes,
 														state: state,
 														code_challenge: pkceCodes.codeChallenge,
-														code_challenge_method:
-															credentials.codeChallengeMethod,
+														code_challenge_method: credentials.codeChallengeMethod,
 													},
 													null,
-													2,
-												),
+													2
+												)
 											)
 										}
 									>
@@ -3705,7 +3278,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 												code_challenge_method: credentials.codeChallengeMethod,
 											},
 											null,
-											2,
+											2
 										) ? (
 											<FiCheckCircle />
 										) : (
@@ -3719,9 +3292,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 								<h4>Parameter Breakdown:</h4>
 								<ParameterItem>
 									<ParameterName>response_type</ParameterName>
-									<ParameterValue>
-										code (Authorization Code Flow)
-									</ParameterValue>
+									<ParameterValue>code (Authorization Code Flow)</ParameterValue>
 								</ParameterItem>
 								<ParameterItem>
 									<ParameterName>client_id</ParameterName>
@@ -3745,9 +3316,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 								</ParameterItem>
 								<ParameterItem>
 									<ParameterName>code_challenge_method</ParameterName>
-									<ParameterValue>
-										{credentials.codeChallengeMethod}
-									</ParameterValue>
+									<ParameterValue>{credentials.codeChallengeMethod}</ParameterValue>
 								</ParameterItem>
 							</ParameterBreakdown>
 						</div>
@@ -3756,58 +3325,54 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 					{/* Reset Flow Button - Standardized Style */}
 					<div
 						style={{
-							marginTop: "2rem",
-							padding: "1.5rem",
-							backgroundColor: "#fef2f2",
-							border: "1px solid #fecaca",
-							borderRadius: "0.5rem",
-							textAlign: "center",
+							marginTop: '2rem',
+							padding: '1.5rem',
+							backgroundColor: '#fef2f2',
+							border: '1px solid #fecaca',
+							borderRadius: '0.5rem',
+							textAlign: 'center',
 						}}
 					>
 						<h4
 							style={{
-								margin: "0 0 1rem 0",
-								color: "#dc2626",
-								fontSize: "1rem",
-								fontWeight: "600",
+								margin: '0 0 1rem 0',
+								color: '#dc2626',
+								fontSize: '1rem',
+								fontWeight: '600',
 							}}
 						>
-							<FiRefreshCw style={{ marginRight: "0.5rem" }} />
+							<FiRefreshCw style={{ marginRight: '0.5rem' }} />
 							Need to Start Over?
 						</h4>
 						<button
 							onClick={() => setShowResetModal(true)}
 							style={{
-								padding: "0.75rem 1.25rem",
-								backgroundColor: "#dc2626",
-								color: "white",
-								border: "none",
-								borderRadius: "0.375rem",
-								fontSize: "0.875rem",
-								fontWeight: "500",
-								cursor: "pointer",
-								display: "inline-flex",
-								alignItems: "center",
-								gap: "0.5rem",
-								transition: "background-color 0.2s",
-								minWidth: "160px",
+								padding: '0.75rem 1.25rem',
+								backgroundColor: '#dc2626',
+								color: 'white',
+								border: 'none',
+								borderRadius: '0.375rem',
+								fontSize: '0.875rem',
+								fontWeight: '500',
+								cursor: 'pointer',
+								display: 'inline-flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+								transition: 'background-color 0.2s',
+								minWidth: '160px',
 							}}
-							onMouseOver={(e) =>
-								(e.currentTarget.style.backgroundColor = "#b91c1c")
-							}
-							onMouseOut={(e) =>
-								(e.currentTarget.style.backgroundColor = "#dc2626")
-							}
+							onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#b91c1c')}
+							onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#dc2626')}
 						>
 							<FiRefreshCw />
 							Reset Flow
 						</button>
 						<div
 							style={{
-								marginTop: "1rem",
-								fontSize: "0.8rem",
-								color: "#6b7280",
-								lineHeight: "1.4",
+								marginTop: '1rem',
+								fontSize: '0.8rem',
+								color: '#6b7280',
+								lineHeight: '1.4',
 							}}
 						>
 							Clear flow progress and tokens (credentials preserved)
@@ -3819,29 +3384,20 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 				setIsBuildingUrl(true);
 				try {
 					console.log(
-						" [EnhancedAuthorizationCodeFlowV2] Build Authorization URL step executing...",
+						' [EnhancedAuthorizationCodeFlowV2] Build Authorization URL step executing...'
 					);
-					console.log(
-						" [EnhancedAuthorizationCodeFlowV2] Current credentials:",
-						credentials,
-					);
-					console.log(
-						" [EnhancedAuthorizationCodeFlowV2] Current PKCE codes:",
-						pkceCodes,
-					);
+					console.log(' [EnhancedAuthorizationCodeFlowV2] Current credentials:', credentials);
+					console.log(' [EnhancedAuthorizationCodeFlowV2] Current PKCE codes:', pkceCodes);
 
 					const generatedUrl = generateAuthUrl();
-					console.log(
-						" [EnhancedAuthorizationCodeFlowV2] Generated URL:",
-						generatedUrl,
-					);
+					console.log(' [EnhancedAuthorizationCodeFlowV2] Generated URL:', generatedUrl);
 					setUrlGenerated(true);
-					showFlowSuccess(" Authorization URL Generated Successfully");
+					showFlowSuccess(' Authorization URL Generated Successfully');
 
 					// Update step message for success
 					updateStepMessage(
-						"build-auth-url",
-						" Authorization URL built successfully! Your URL is ready for user redirection.",
+						'build-auth-url',
+						' Authorization URL built successfully! Your URL is ready for user redirection.'
 					);
 
 					return { success: true };
@@ -3850,38 +3406,34 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 				}
 			},
 			canExecute: Boolean(
-				credentials.environmentId &&
-					credentials.clientId &&
-					credentials.redirectUri,
+				credentials.environmentId && credentials.clientId && credentials.redirectUri
 			),
 		},
 		{
-			id: "user-authorization",
-			title: "Redirect User to Authorization Server",
+			id: 'user-authorization',
+			title: 'Redirect User to Authorization Server',
 			description:
-				"The user will be redirected to PingOne to authenticate and authorize your application.",
+				'The user will be redirected to PingOne to authenticate and authorize your application.',
 			icon: <FiUser />,
-			category: "authorization",
+			category: 'authorization',
 			content: (
 				<div>
 					<h4>Choose your testing method:</h4>
 
 					<TestingMethodCard
-						$selected={testingMethod === "popup"}
-						onClick={() => setTestingMethod("popup")}
+						$selected={testingMethod === 'popup'}
+						onClick={() => setTestingMethod('popup')}
 					>
 						<MethodIcon></MethodIcon>
-						<MethodTitle>
-							Open in Popup Window (Recommended for testing)
-						</MethodTitle>
+						<MethodTitle>Open in Popup Window (Recommended for testing)</MethodTitle>
 						<MethodDescription>
 							Easier to handle callback and continue with the flow
 						</MethodDescription>
 					</TestingMethodCard>
 
 					<TestingMethodCard
-						$selected={testingMethod === "redirect"}
-						onClick={() => setTestingMethod("redirect")}
+						$selected={testingMethod === 'redirect'}
+						onClick={() => setTestingMethod('redirect')}
 					>
 						<MethodIcon></MethodIcon>
 						<MethodTitle>Full Redirect (Production-like behavior)</MethodTitle>
@@ -3900,40 +3452,33 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 					</InfoBox>
 
 					{/* Clear User Guidance Message */}
-					<InfoBox
-						type="info"
-						style={{ marginTop: "2rem", marginBottom: "1rem" }}
-					>
+					<InfoBox type="info" style={{ marginTop: '2rem', marginBottom: '1rem' }}>
 						<FiUser />
 						<div>
 							<strong> What to do next:</strong>
 							<br />
 							<br />
-							1. <strong>Choose your testing method</strong> above (popup
-							recommended for testing)
+							1. <strong>Choose your testing method</strong> above (popup recommended for testing)
 							<br />
-							2. <strong>Click the "Sign On" button</strong> below to redirect
-							to PingOne
+							2. <strong>Click the "Sign On" button</strong> below to redirect to PingOne
 							<br />
-							3. <strong>Log in with your PingOne credentials</strong> in the
-							popup/redirect
+							3. <strong>Log in with your PingOne credentials</strong> in the popup/redirect
 							<br />
 							4. <strong>Authorize the application</strong> when prompted
 							<br />
-							5. <strong>You'll be redirected back</strong> automatically with
-							an authorization code
+							5. <strong>You'll be redirected back</strong> automatically with an authorization code
 							<br />
 							<br />
-							<strong> Tip:</strong> The popup method is easier for testing -
-							you can see the callback happen in real-time!
+							<strong> Tip:</strong> The popup method is easier for testing - you can see the
+							callback happen in real-time!
 						</div>
 					</InfoBox>
 
 					{/* Success Message at Bottom */}
-					{stepMessages["user-authorization"] && (
-						<div style={{ marginTop: "2rem", marginBottom: "1rem" }}>
+					{stepMessages['user-authorization'] && (
+						<div style={{ marginTop: '2rem', marginBottom: '1rem' }}>
 							<InfoBox type="success">
-								<div>{stepMessages["user-authorization"]}</div>
+								<div>{stepMessages['user-authorization']}</div>
 							</InfoBox>
 						</div>
 					)}
@@ -3941,58 +3486,54 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 					{/* Reset Flow Button - Standardized Style */}
 					<div
 						style={{
-							marginTop: "2rem",
-							padding: "1.5rem",
-							backgroundColor: "#fef2f2",
-							border: "1px solid #fecaca",
-							borderRadius: "0.5rem",
-							textAlign: "center",
+							marginTop: '2rem',
+							padding: '1.5rem',
+							backgroundColor: '#fef2f2',
+							border: '1px solid #fecaca',
+							borderRadius: '0.5rem',
+							textAlign: 'center',
 						}}
 					>
 						<h4
 							style={{
-								margin: "0 0 1rem 0",
-								color: "#dc2626",
-								fontSize: "1rem",
-								fontWeight: "600",
+								margin: '0 0 1rem 0',
+								color: '#dc2626',
+								fontSize: '1rem',
+								fontWeight: '600',
 							}}
 						>
-							<FiRefreshCw style={{ marginRight: "0.5rem" }} />
+							<FiRefreshCw style={{ marginRight: '0.5rem' }} />
 							Need to Start Over?
 						</h4>
 						<button
 							onClick={() => setShowResetModal(true)}
 							style={{
-								padding: "0.75rem 1.25rem",
-								backgroundColor: "#dc2626",
-								color: "white",
-								border: "none",
-								borderRadius: "0.375rem",
-								fontSize: "0.875rem",
-								fontWeight: "500",
-								cursor: "pointer",
-								display: "inline-flex",
-								alignItems: "center",
-								gap: "0.5rem",
-								transition: "background-color 0.2s",
-								minWidth: "160px",
+								padding: '0.75rem 1.25rem',
+								backgroundColor: '#dc2626',
+								color: 'white',
+								border: 'none',
+								borderRadius: '0.375rem',
+								fontSize: '0.875rem',
+								fontWeight: '500',
+								cursor: 'pointer',
+								display: 'inline-flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+								transition: 'background-color 0.2s',
+								minWidth: '160px',
 							}}
-							onMouseOver={(e) =>
-								(e.currentTarget.style.backgroundColor = "#b91c1c")
-							}
-							onMouseOut={(e) =>
-								(e.currentTarget.style.backgroundColor = "#dc2626")
-							}
+							onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#b91c1c')}
+							onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#dc2626')}
 						>
 							<FiRefreshCw />
 							Reset Flow
 						</button>
 						<div
 							style={{
-								marginTop: "1rem",
-								fontSize: "0.8rem",
-								color: "#6b7280",
-								lineHeight: "1.4",
+								marginTop: '1rem',
+								fontSize: '0.8rem',
+								color: '#6b7280',
+								lineHeight: '1.4',
 							}}
 						>
 							Clear flow progress and tokens (credentials preserved)
@@ -4002,33 +3543,27 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 			),
 			execute: handleAuthorization,
 			canExecute: Boolean(
-				authUrl &&
-					credentials.environmentId &&
-					credentials.clientId &&
-					credentials.redirectUri,
+				authUrl && credentials.environmentId && credentials.clientId && credentials.redirectUri
 			),
 		},
 		{
-			id: "handle-callback",
-			title: "Handle Authorization Callback",
+			id: 'handle-callback',
+			title: 'Handle Authorization Callback',
 			description:
-				"Process the authorization code returned from PingOne and validate the state parameter.",
+				'Process the authorization code returned from PingOne and validate the state parameter.',
 			icon: <FiCode />,
-			category: "authorization",
+			category: 'authorization',
 			content: (
 				<div>
-					{stepMessages["handle-callback"] && (
+					{stepMessages['handle-callback'] && (
 						<InfoBox type="success">
-							<div>{stepMessages["handle-callback"]}</div>
+							<div>{stepMessages['handle-callback']}</div>
 						</InfoBox>
 					)}
 
 					{!callbackSuccess && !callbackError && !authCode && (
 						<CallbackListener>
-							<FiClock
-								size={48}
-								style={{ marginBottom: "1rem", color: "#6b7280" }}
-							/>
+							<FiClock size={48} style={{ marginBottom: '1rem', color: '#6b7280' }} />
 							<h4>Waiting for authorization callback...</h4>
 							<p>Expected format:</p>
 							<code>
@@ -4040,29 +3575,29 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 					{(callbackSuccess || authCode) && (
 						<div
 							style={{
-								marginTop: "2rem",
-								padding: "1.5rem",
-								background: "#f0fdf4",
-								border: "1px solid #22c55e",
-								borderRadius: "0.5rem",
+								marginTop: '2rem',
+								padding: '1.5rem',
+								background: '#f0fdf4',
+								border: '1px solid #22c55e',
+								borderRadius: '0.5rem',
 							}}
 						>
-							<h4 style={{ margin: "0 0 1rem 0", color: "#15803d" }}>
-								<FiCheckCircle style={{ marginRight: "0.5rem" }} />
+							<h4 style={{ margin: '0 0 1rem 0', color: '#15803d' }}>
+								<FiCheckCircle style={{ marginRight: '0.5rem' }} />
 								Authorization Callback Successful!
 							</h4>
 
-							<div style={{ marginBottom: "1rem" }}>
+							<div style={{ marginBottom: '1rem' }}>
 								<strong>Authorization Code:</strong>
 								<code
 									style={{
-										display: "block",
-										marginTop: "0.5rem",
-										padding: "0.5rem",
-										background: "white",
-										border: "1px solid #22c55e",
-										borderRadius: "0.25rem",
-										wordBreak: "break-all",
+										display: 'block',
+										marginTop: '0.5rem',
+										padding: '0.5rem',
+										background: 'white',
+										border: '1px solid #22c55e',
+										borderRadius: '0.25rem',
+										wordBreak: 'break-all',
 									}}
 								>
 									{authCode}
@@ -4072,20 +3607,20 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 							{showUrlDetailsInStep4 && (
 								<div
 									style={{
-										marginBottom: "1rem",
-										padding: "1.5rem",
-										background: "#f8fafc",
-										border: "1px solid #e2e8f0",
-										borderRadius: "0.5rem",
+										marginBottom: '1rem',
+										padding: '1.5rem',
+										background: '#f8fafc',
+										border: '1px solid #e2e8f0',
+										borderRadius: '0.5rem',
 									}}
 								>
 									<h4
 										style={{
-											margin: "0 0 1rem 0",
-											color: "#1e40af",
-											display: "flex",
-											alignItems: "center",
-											gap: "0.5rem",
+											margin: '0 0 1rem 0',
+											color: '#1e40af',
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.5rem',
 										}}
 									>
 										<FiInfo />
@@ -4103,7 +3638,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 										</ParameterItem>
 										<ParameterItem>
 											<ParameterName>State Parameter</ParameterName>
-											<ParameterValue>{state || "Not provided"}</ParameterValue>
+											<ParameterValue>{state || 'Not provided'}</ParameterValue>
 										</ParameterItem>
 										<ParameterItem>
 											<ParameterName>Client ID</ParameterName>
@@ -4111,9 +3646,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 										</ParameterItem>
 										<ParameterItem>
 											<ParameterName>Environment ID</ParameterName>
-											<ParameterValue>
-												{credentials.environmentId}
-											</ParameterValue>
+											<ParameterValue>{credentials.environmentId}</ParameterValue>
 										</ParameterItem>
 										<ParameterItem>
 											<ParameterName>Scopes</ParameterName>
@@ -4123,25 +3656,25 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 
 									<div
 										style={{
-											marginTop: "1rem",
-											padding: "1rem",
-											background: "#e0f2fe",
-											border: "1px solid #0ea5e9",
-											borderRadius: "0.5rem",
+											marginTop: '1rem',
+											padding: '1rem',
+											background: '#e0f2fe',
+											border: '1px solid #0ea5e9',
+											borderRadius: '0.5rem',
 										}}
 									>
-										<h5 style={{ margin: "0 0 0.5rem 0", color: "#0c4a6e" }}>
+										<h5 style={{ margin: '0 0 0.5rem 0', color: '#0c4a6e' }}>
 											Complete Callback URL:
 										</h5>
 										<code
 											style={{
-												display: "block",
-												padding: "0.5rem",
-												background: "white",
-												border: "1px solid #0ea5e9",
-												borderRadius: "0.25rem",
-												wordBreak: "break-all",
-												fontSize: "0.9rem",
+												display: 'block',
+												padding: '0.5rem',
+												background: 'white',
+												border: '1px solid #0ea5e9',
+												borderRadius: '0.25rem',
+												wordBreak: 'break-all',
+												fontSize: '0.9rem',
 											}}
 										>
 											{credentials.redirectUri}?code={authCode}&state={state}
@@ -4153,53 +3686,47 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 							{tokens && (
 								<div
 									style={{
-										marginBottom: "1rem",
-										padding: "1rem",
-										background: "#ecfdf5",
-										border: "1px solid #10b981",
-										borderRadius: "0.5rem",
+										marginBottom: '1rem',
+										padding: '1rem',
+										background: '#ecfdf5',
+										border: '1px solid #10b981',
+										borderRadius: '0.5rem',
 									}}
 								>
-									<strong style={{ color: "#065f46" }}>
-										 Tokens Successfully Exchanged!
-									</strong>
-									<ul style={{ margin: "0.5rem 0", paddingLeft: "1.5rem" }}>
+									<strong style={{ color: '#065f46' }}>Tokens Successfully Exchanged!</strong>
+									<ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
 										<li>
-											 Access Token:{" "}
-											<strong style={{ color: "#1e40af" }}>
-												{tokens.access_token ? "Received" : "Missing"}
+											Access Token:{' '}
+											<strong style={{ color: '#1e40af' }}>
+												{tokens.access_token ? 'Received' : 'Missing'}
 											</strong>
 										</li>
 										<li>
-											 Refresh Token:{" "}
-											<strong style={{ color: "#1e40af" }}>
-												{tokens.refresh_token ? "Received" : "Missing"}
+											Refresh Token:{' '}
+											<strong style={{ color: '#1e40af' }}>
+												{tokens.refresh_token ? 'Received' : 'Missing'}
 											</strong>
 										</li>
 										<li>
-											 ID Token:{" "}
-											<strong style={{ color: "#1e40af" }}>
-												{tokens.id_token ? "Received" : "Missing"}
+											ID Token:{' '}
+											<strong style={{ color: '#1e40af' }}>
+												{tokens.id_token ? 'Received' : 'Missing'}
 											</strong>
 										</li>
 										<li>
-											Token Type:{" "}
-											<strong style={{ color: "#1e40af" }}>
-												{tokens.token_type || "Bearer"}
+											Token Type:{' '}
+											<strong style={{ color: '#1e40af' }}>{tokens.token_type || 'Bearer'}</strong>
+										</li>
+										<li>
+											Expires In:{' '}
+											<strong style={{ color: '#1e40af' }}>
+												{tokens.expires_in ? `${tokens.expires_in} seconds` : 'Unknown'}
 											</strong>
 										</li>
 										<li>
-											Expires In:{" "}
-											<strong style={{ color: "#1e40af" }}>
-												{tokens.expires_in
-													? `${tokens.expires_in} seconds`
-													: "Unknown"}
-											</strong>
-										</li>
-										<li>
-											Scope:{" "}
-											<strong style={{ color: "#1e40af" }}>
-												{tokens.scope || "Not specified"}
+											Scope:{' '}
+											<strong style={{ color: '#1e40af' }}>
+												{tokens.scope || 'Not specified'}
 											</strong>
 										</li>
 									</ul>
@@ -4209,39 +3736,35 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 							{userInfo && (
 								<div
 									style={{
-										marginBottom: "1rem",
-										padding: "1rem",
-										background: "#fef3c7",
-										border: "1px solid #f59e0b",
-										borderRadius: "0.5rem",
+										marginBottom: '1rem',
+										padding: '1rem',
+										background: '#fef3c7',
+										border: '1px solid #f59e0b',
+										borderRadius: '0.5rem',
 									}}
 								>
-									<strong style={{ color: "#92400e" }}>
-										 User Information Retrieved!
-									</strong>
+									<strong style={{ color: '#92400e' }}>User Information Retrieved!</strong>
 									<div
 										style={{
-											marginTop: "0.5rem",
-											padding: "0.5rem",
-											background: "white",
-											border: "1px solid #22c55e",
-											borderRadius: "0.25rem",
+											marginTop: '0.5rem',
+											padding: '0.5rem',
+											background: 'white',
+											border: '1px solid #22c55e',
+											borderRadius: '0.25rem',
 										}}
 									>
 										<p>
-											<strong>Subject (sub):</strong>{" "}
-											{userInfo.sub || "Not available"}
+											<strong>Subject (sub):</strong> {userInfo.sub || 'Not available'}
 										</p>
 										<p>
-											<strong>Name:</strong> {userInfo.name || "Not available"}
+											<strong>Name:</strong> {userInfo.name || 'Not available'}
 										</p>
 										<p>
-											<strong>Email:</strong>{" "}
-											{userInfo.email || "Not available"}
+											<strong>Email:</strong> {userInfo.email || 'Not available'}
 										</p>
 										<p>
-											<strong>Preferred Username:</strong>{" "}
-											{userInfo.preferred_username || "Not available"}
+											<strong>Preferred Username:</strong>{' '}
+											{userInfo.preferred_username || 'Not available'}
 										</p>
 									</div>
 								</div>
@@ -4249,14 +3772,14 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 
 							<div
 								style={{
-									padding: "0.75rem",
-									background: "#dcfce7",
-									border: "1px solid #16a34a",
-									borderRadius: "0.25rem",
-									color: "#15803d",
+									padding: '0.75rem',
+									background: '#dcfce7',
+									border: '1px solid #16a34a',
+									borderRadius: '0.25rem',
+									color: '#15803d',
 								}}
 							>
-								<FiCheckCircle style={{ marginRight: "0.5rem" }} />
+								<FiCheckCircle style={{ marginRight: '0.5rem' }} />
 								Ready to proceed to Step 5: Exchange Code for Tokens
 							</div>
 						</div>
@@ -4265,45 +3788,45 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 					{callbackError && (
 						<div
 							style={{
-								marginTop: "2rem",
-								padding: "1.5rem",
-								background: "#fef2f2",
-								border: "1px solid #ef4444",
-								borderRadius: "0.5rem",
+								marginTop: '2rem',
+								padding: '1.5rem',
+								background: '#fef2f2',
+								border: '1px solid #ef4444',
+								borderRadius: '0.5rem',
 							}}
 						>
-							<h4 style={{ margin: "0 0 1rem 0", color: "#dc2626" }}>
-								<FiAlertTriangle style={{ marginRight: "0.5rem" }} />
+							<h4 style={{ margin: '0 0 1rem 0', color: '#dc2626' }}>
+								<FiAlertTriangle style={{ marginRight: '0.5rem' }} />
 								Authorization Callback Error
 							</h4>
-							<p style={{ color: "#dc2626" }}>{callbackError}</p>
+							<p style={{ color: '#dc2626' }}>{callbackError}</p>
 							<button
 								onClick={() => {
 									// Clear all OAuth state and start fresh
-									sessionStorage.removeItem("oauth_auth_code");
-									sessionStorage.removeItem("code_verifier");
-									sessionStorage.removeItem("code_challenge");
-									sessionStorage.removeItem("oauth_state");
-									setAuthCode("");
+									sessionStorage.removeItem('oauth_auth_code');
+									sessionStorage.removeItem('code_verifier');
+									sessionStorage.removeItem('code_challenge');
+									sessionStorage.removeItem('oauth_state');
+									setAuthCode('');
 									setCallbackError(null);
 									setCallbackSuccess(false);
 									setCurrentStepIndex(0);
-									sessionStorage.removeItem("enhanced-authz-code-v2-step");
+									sessionStorage.removeItem('enhanced-authz-code-v2-step');
 									console.log(
-										" [EnhancedAuthorizationCodeFlowV2] Cleared all OAuth state, starting fresh",
+										' [EnhancedAuthorizationCodeFlowV2] Cleared all OAuth state, starting fresh'
 									);
 								}}
 								style={{
-									marginTop: "1rem",
-									padding: "0.5rem 1rem",
-									backgroundColor: "#dc2626",
-									color: "white",
-									border: "none",
-									borderRadius: "0.25rem",
-									cursor: "pointer",
+									marginTop: '1rem',
+									padding: '0.5rem 1rem',
+									backgroundColor: '#dc2626',
+									color: 'white',
+									border: 'none',
+									borderRadius: '0.25rem',
+									cursor: 'pointer',
 								}}
 							>
-								 Clear & Start Fresh
+								Clear & Start Fresh
 							</button>
 						</div>
 					)}
@@ -4319,9 +3842,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 						/>
 						<ValidationIndicator $valid={!!authCode}>
 							{authCode ? <FiCheckCircle /> : <FiAlertTriangle />}
-							{authCode
-								? "Authorization code received"
-								: "Waiting for authorization code"}
+							{authCode ? 'Authorization code received' : 'Waiting for authorization code'}
 						</ValidationIndicator>
 					</FormField>
 
@@ -4337,29 +3858,29 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 					{/* Reset Flow Button */}
 					<div
 						style={{
-							marginTop: "2rem",
-							padding: "1rem",
-							backgroundColor: "#fef2f2",
-							border: "1px solid #fecaca",
-							borderRadius: "0.5rem",
-							textAlign: "center",
+							marginTop: '2rem',
+							padding: '1rem',
+							backgroundColor: '#fef2f2',
+							border: '1px solid #fecaca',
+							borderRadius: '0.5rem',
+							textAlign: 'center',
 						}}
 					>
 						<h4
 							style={{
-								margin: "0 0 0.5rem 0",
-								color: "#dc2626",
-								fontSize: "0.875rem",
+								margin: '0 0 0.5rem 0',
+								color: '#dc2626',
+								fontSize: '0.875rem',
 							}}
 						>
-							<FiRefreshCw style={{ marginRight: "0.5rem" }} />
+							<FiRefreshCw style={{ marginRight: '0.5rem' }} />
 							Need to Start Over?
 						</h4>
 						<p
 							style={{
-								margin: "0 0 1rem 0",
-								color: "#6b7280",
-								fontSize: "0.8rem",
+								margin: '0 0 1rem 0',
+								color: '#6b7280',
+								fontSize: '0.8rem',
 							}}
 						>
 							Clear all data and reset the entire flow
@@ -4367,25 +3888,21 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 						<button
 							onClick={() => setShowResetModal(true)}
 							style={{
-								padding: "0.5rem 1rem",
-								backgroundColor: "#dc2626",
-								color: "white",
-								border: "none",
-								borderRadius: "0.375rem",
-								fontSize: "0.8rem",
-								fontWeight: "500",
-								cursor: "pointer",
-								display: "inline-flex",
-								alignItems: "center",
-								gap: "0.5rem",
-								transition: "background-color 0.2s",
+								padding: '0.5rem 1rem',
+								backgroundColor: '#dc2626',
+								color: 'white',
+								border: 'none',
+								borderRadius: '0.375rem',
+								fontSize: '0.8rem',
+								fontWeight: '500',
+								cursor: 'pointer',
+								display: 'inline-flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+								transition: 'background-color 0.2s',
 							}}
-							onMouseOver={(e) =>
-								(e.currentTarget.style.backgroundColor = "#b91c1c")
-							}
-							onMouseOut={(e) =>
-								(e.currentTarget.style.backgroundColor = "#dc2626")
-							}
+							onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#b91c1c')}
+							onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#dc2626')}
 						>
 							<FiRefreshCw />
 							Reset Flow
@@ -4396,31 +3913,28 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 			execute: async () => {
 				// This step just validates the callback and advances to token exchange
 				console.log(
-					" [EnhancedAuthorizationCodeFlowV2] Handle Callback executed - advancing to token exchange",
+					' [EnhancedAuthorizationCodeFlowV2] Handle Callback executed - advancing to token exchange'
 				);
 				return { success: true };
 			},
 			canExecute: (() => {
 				// Enable Next on Step 4 as soon as we have an auth code
 				const canExec = Boolean(authCode);
-				console.log(
-					" [EnhancedAuthorizationCodeFlowV2] Handle Callback canExecute check:",
-					{
-						authCode: !!authCode,
-						authCodeValue: authCode,
-						canExecute: canExec,
-					},
-				);
+				console.log(' [EnhancedAuthorizationCodeFlowV2] Handle Callback canExecute check:', {
+					authCode: !!authCode,
+					authCodeValue: authCode,
+					canExecute: canExec,
+				});
 				return canExec;
 			})(),
 		},
 		{
-			id: "exchange-tokens",
-			title: "Exchange Code for Tokens",
+			id: 'exchange-tokens',
+			title: 'Exchange Code for Tokens',
 			description:
-				"Make a secure POST request to exchange the authorization code for access and refresh tokens.",
+				'Make a secure POST request to exchange the authorization code for access and refresh tokens.',
 			icon: <FiKey />,
-			category: "token-exchange",
+			category: 'token-exchange',
 			content: (
 				<div>
 					<h4>Token Request Details:</h4>
@@ -4447,9 +3961,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 						</ParameterItem>
 						<ParameterItem>
 							<ParameterName>code</ParameterName>
-							<ParameterValue>
-								{authCode || "[AUTHORIZATION_CODE]"}
-							</ParameterValue>
+							<ParameterValue>{authCode || '[AUTHORIZATION_CODE]'}</ParameterValue>
 						</ParameterItem>
 						<ParameterItem>
 							<ParameterName>redirect_uri</ParameterName>
@@ -4461,9 +3973,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 						</ParameterItem>
 						<ParameterItem>
 							<ParameterName>code_verifier</ParameterName>
-							<ParameterValue>
-								{pkceCodes.codeVerifier || "[CODE_VERIFIER]"}
-							</ParameterValue>
+							<ParameterValue>{pkceCodes.codeVerifier || '[CODE_VERIFIER]'}</ParameterValue>
 						</ParameterItem>
 					</ParameterBreakdown>
 
@@ -4482,50 +3992,40 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 						<div>
 							<h4
 								style={{
-									color: "#16a34a",
-									display: "flex",
-									alignItems: "center",
-									gap: "0.5rem",
+									color: '#16a34a',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
 								}}
 							>
 								<FiCheckCircle /> Token Response (JSON) - SUCCESS!
 							</h4>
 							<JsonDisplay
 								style={{
-									background:
-										"linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)",
-									border: "2px solid #16a34a",
-									boxShadow: "0 4px 6px -1px rgba(22, 163, 74, 0.3)",
-									animation: "pulse 2s ease-in-out",
+									background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+									border: '2px solid #16a34a',
+									boxShadow: '0 4px 6px -1px rgba(22, 163, 74, 0.3)',
+									animation: 'pulse 2s ease-in-out',
 								}}
 							>
 								{JSON.stringify(tokens, null, 2)}
-								<CopyButton
-									onClick={() =>
-										copyToClipboard(JSON.stringify(tokens, null, 2))
-									}
-								>
-									{copiedText === JSON.stringify(tokens, null, 2) ? (
-										<FiCheckCircle />
-									) : (
-										<FiCopy />
-									)}
+								<CopyButton onClick={() => copyToClipboard(JSON.stringify(tokens, null, 2))}>
+									{copiedText === JSON.stringify(tokens, null, 2) ? <FiCheckCircle /> : <FiCopy />}
 								</CopyButton>
 							</JsonDisplay>
 							<div
 								style={{
-									marginTop: "1rem",
-									padding: "1rem",
-									background: "#f0fdf4",
-									border: "1px solid #16a34a",
-									borderRadius: "0.5rem",
-									color: "#15803d",
-									fontWeight: "600",
-									textAlign: "center",
+									marginTop: '1rem',
+									padding: '1rem',
+									background: '#f0fdf4',
+									border: '1px solid #16a34a',
+									borderRadius: '0.5rem',
+									color: '#15803d',
+									fontWeight: '600',
+									textAlign: 'center',
 								}}
 							>
-								 NEW TOKENS RECEIVED! Scroll up to see all your tokens in the
-								green boxes above!
+								NEW TOKENS RECEIVED! Scroll up to see all your tokens in the green boxes above!
 							</div>
 						</div>
 					)}
@@ -4536,23 +4036,23 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 							{JSON.stringify(
 								{
 									endpoint: credentials.tokenEndpoint,
-									method: "POST",
+									method: 'POST',
 									headers: {
-										"Content-Type": "application/x-www-form-urlencoded",
+										'Content-Type': 'application/x-www-form-urlencoded',
 									},
 									body: {
-										grant_type: "authorization_code",
-										code: authCode || "[AUTHORIZATION_CODE]",
+										grant_type: 'authorization_code',
+										code: authCode || '[AUTHORIZATION_CODE]',
 										redirect_uri: credentials.redirectUri,
 										client_id: credentials.clientId,
-										code_verifier: pkceCodes.codeVerifier || "[CODE_VERIFIER]",
+										code_verifier: pkceCodes.codeVerifier || '[CODE_VERIFIER]',
 										...(credentials.clientSecret && {
 											client_secret: credentials.clientSecret,
 										}),
 									},
 								},
 								null,
-								2,
+								2
 							)}
 							<CopyButton
 								onClick={() =>
@@ -4560,25 +4060,24 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 										JSON.stringify(
 											{
 												endpoint: credentials.tokenEndpoint,
-												method: "POST",
+												method: 'POST',
 												headers: {
-													"Content-Type": "application/x-www-form-urlencoded",
+													'Content-Type': 'application/x-www-form-urlencoded',
 												},
 												body: {
-													grant_type: "authorization_code",
-													code: authCode || "[AUTHORIZATION_CODE]",
+													grant_type: 'authorization_code',
+													code: authCode || '[AUTHORIZATION_CODE]',
 													redirect_uri: credentials.redirectUri,
 													client_id: credentials.clientId,
-													code_verifier:
-														pkceCodes.codeVerifier || "[CODE_VERIFIER]",
+													code_verifier: pkceCodes.codeVerifier || '[CODE_VERIFIER]',
 													...(credentials.clientSecret && {
 														client_secret: credentials.clientSecret,
 													}),
 												},
 											},
 											null,
-											2,
-										),
+											2
+										)
 									)
 								}
 							>
@@ -4586,21 +4085,20 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 								JSON.stringify(
 									{
 										endpoint: credentials.tokenEndpoint,
-										method: "POST",
+										method: 'POST',
 										headers: {
-											"Content-Type": "application/x-www-form-urlencoded",
+											'Content-Type': 'application/x-www-form-urlencoded',
 										},
 										body: {
-											grant_type: "authorization_code",
-											code: authCode || "[AUTHORIZATION_CODE]",
+											grant_type: 'authorization_code',
+											code: authCode || '[AUTHORIZATION_CODE]',
 											redirect_uri: credentials.redirectUri,
 											client_id: credentials.clientId,
-											code_verifier:
-												pkceCodes.codeVerifier || "[CODE_VERIFIER]",
+											code_verifier: pkceCodes.codeVerifier || '[CODE_VERIFIER]',
 										},
 									},
 									null,
-									2,
+									2
 								) ? (
 									<FiCheckCircle />
 								) : (
@@ -4613,58 +4111,54 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 					{/* Reset Flow Button - Standardized Style */}
 					<div
 						style={{
-							marginTop: "2rem",
-							padding: "1.5rem",
-							backgroundColor: "#fef2f2",
-							border: "1px solid #fecaca",
-							borderRadius: "0.5rem",
-							textAlign: "center",
+							marginTop: '2rem',
+							padding: '1.5rem',
+							backgroundColor: '#fef2f2',
+							border: '1px solid #fecaca',
+							borderRadius: '0.5rem',
+							textAlign: 'center',
 						}}
 					>
 						<h4
 							style={{
-								margin: "0 0 1rem 0",
-								color: "#dc2626",
-								fontSize: "1rem",
-								fontWeight: "600",
+								margin: '0 0 1rem 0',
+								color: '#dc2626',
+								fontSize: '1rem',
+								fontWeight: '600',
 							}}
 						>
-							<FiRefreshCw style={{ marginRight: "0.5rem" }} />
+							<FiRefreshCw style={{ marginRight: '0.5rem' }} />
 							Need to Start Over?
 						</h4>
 						<button
 							onClick={() => setShowResetModal(true)}
 							style={{
-								padding: "0.75rem 1.25rem",
-								backgroundColor: "#dc2626",
-								color: "white",
-								border: "none",
-								borderRadius: "0.375rem",
-								fontSize: "0.875rem",
-								fontWeight: "500",
-								cursor: "pointer",
-								display: "inline-flex",
-								alignItems: "center",
-								gap: "0.5rem",
-								transition: "background-color 0.2s",
-								minWidth: "160px",
+								padding: '0.75rem 1.25rem',
+								backgroundColor: '#dc2626',
+								color: 'white',
+								border: 'none',
+								borderRadius: '0.375rem',
+								fontSize: '0.875rem',
+								fontWeight: '500',
+								cursor: 'pointer',
+								display: 'inline-flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+								transition: 'background-color 0.2s',
+								minWidth: '160px',
 							}}
-							onMouseOver={(e) =>
-								(e.currentTarget.style.backgroundColor = "#b91c1c")
-							}
-							onMouseOut={(e) =>
-								(e.currentTarget.style.backgroundColor = "#dc2626")
-							}
+							onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#b91c1c')}
+							onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#dc2626')}
 						>
 							<FiRefreshCw />
 							Reset Flow
 						</button>
 						<div
 							style={{
-								marginTop: "1rem",
-								fontSize: "0.8rem",
-								color: "#6b7280",
-								lineHeight: "1.4",
+								marginTop: '1rem',
+								fontSize: '0.8rem',
+								color: '#6b7280',
+								lineHeight: '1.4',
 							}}
 						>
 							Clear flow progress and tokens (credentials preserved)
@@ -4672,12 +4166,9 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 					</div>
 
 					{/* Success message at bottom above buttons */}
-					{stepMessages["exchange-tokens"] && (
-						<InfoBox
-							type="success"
-							style={{ marginTop: "2rem", marginBottom: "1rem" }}
-						>
-							<div>{stepMessages["exchange-tokens"]}</div>
+					{stepMessages['exchange-tokens'] && (
+						<InfoBox type="success" style={{ marginTop: '2rem', marginBottom: '1rem' }}>
+							<div>{stepMessages['exchange-tokens']}</div>
 						</InfoBox>
 					)}
 				</div>
@@ -4686,42 +4177,37 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 				setIsExchangingTokens(true);
 				try {
 					await exchangeCodeForTokens();
-					showFlowSuccess(" Tokens Exchanged Successfully");
+					showFlowSuccess(' Tokens Exchanged Successfully');
 					return { success: true };
 				} finally {
 					setIsExchangingTokens(false);
 				}
 			},
 			canExecute: (() => {
-				const canExec = Boolean(
-					authCode && credentials.environmentId && credentials.clientId,
-				);
-				console.log(
-					" [EnhancedAuthorizationCodeFlowV2] Exchange tokens canExecute check:",
-					{
-						authCode: !!authCode,
-						environmentId: !!credentials.environmentId,
-						clientId: !!credentials.clientId,
-						canExecute: canExec,
-						authCodeValue: authCode?.substring(0, 10) + "...",
-						credentialsState: credentials,
-					},
-				);
+				const canExec = Boolean(authCode && credentials.environmentId && credentials.clientId);
+				console.log(' [EnhancedAuthorizationCodeFlowV2] Exchange tokens canExecute check:', {
+					authCode: !!authCode,
+					environmentId: !!credentials.environmentId,
+					clientId: !!credentials.clientId,
+					canExecute: canExec,
+					authCodeValue: authCode?.substring(0, 10) + '...',
+					credentialsState: credentials,
+				});
 				return canExec;
 			})(),
 		},
 		{
-			id: "validate-tokens",
-			title: "Validate Tokens & Retrieve User Information",
+			id: 'validate-tokens',
+			title: 'Validate Tokens & Retrieve User Information',
 			description:
 				"Use the access token to call the UserInfo endpoint and retrieve the authenticated user's profile.",
 			icon: <FiUser />,
-			category: "validation",
+			category: 'validation',
 			content: (
 				<div>
-					{stepMessages["validate-tokens"] && (
+					{stepMessages['validate-tokens'] && (
 						<InfoBox type="success">
-							<div>{stepMessages["validate-tokens"]}</div>
+							<div>{stepMessages['validate-tokens']}</div>
 						</InfoBox>
 					)}
 
@@ -4731,8 +4217,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 							<div>
 								<strong> OAuth Flow Complete!</strong>
 								<br />
-								All tokens are valid and user information retrieved
-								successfully.
+								All tokens are valid and user information retrieved successfully.
 							</div>
 						</InfoBox>
 					)}
@@ -4746,10 +4231,10 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 						<ParameterItem>
 							<ParameterName>Authorization</ParameterName>
 							<ParameterValue>
-								Bearer{" "}
+								Bearer{' '}
 								{tokens?.access_token
-									? tokens.access_token.substring(0, 20) + "..."
-									: "[ACCESS_TOKEN]"}
+									? tokens.access_token.substring(0, 20) + '...'
+									: '[ACCESS_TOKEN]'}
 							</ParameterValue>
 						</ParameterItem>
 					</ParameterBreakdown>
@@ -4771,13 +4256,13 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 							{JSON.stringify(
 								{
 									endpoint: credentials.userInfoEndpoint,
-									method: "GET",
+									method: 'GET',
 									headers: {
-										Authorization: `Bearer ${tokens?.access_token ? tokens.access_token.substring(0, 20) + "..." : "[ACCESS_TOKEN]"}`,
+										Authorization: `Bearer ${tokens?.access_token ? tokens.access_token.substring(0, 20) + '...' : '[ACCESS_TOKEN]'}`,
 									},
 								},
 								null,
-								2,
+								2
 							)}
 							<CopyButton
 								onClick={() =>
@@ -4785,14 +4270,14 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 										JSON.stringify(
 											{
 												endpoint: credentials.userInfoEndpoint,
-												method: "GET",
+												method: 'GET',
 												headers: {
-													Authorization: `Bearer ${tokens?.access_token ? tokens.access_token.substring(0, 20) + "..." : "[ACCESS_TOKEN]"}`,
+													Authorization: `Bearer ${tokens?.access_token ? tokens.access_token.substring(0, 20) + '...' : '[ACCESS_TOKEN]'}`,
 												},
 											},
 											null,
-											2,
-										),
+											2
+										)
 									)
 								}
 							>
@@ -4800,13 +4285,13 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 								JSON.stringify(
 									{
 										endpoint: credentials.userInfoEndpoint,
-										method: "GET",
+										method: 'GET',
 										headers: {
-											Authorization: `Bearer ${tokens?.access_token ? tokens.access_token.substring(0, 20) + "..." : "[ACCESS_TOKEN]"}`,
+											Authorization: `Bearer ${tokens?.access_token ? tokens.access_token.substring(0, 20) + '...' : '[ACCESS_TOKEN]'}`,
 										},
 									},
 									null,
-									2,
+									2
 								) ? (
 									<FiCheckCircle />
 								) : (
@@ -4825,10 +4310,8 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 										<FiUser />
 									</ProfileAvatar>
 									<ProfileInfo>
-										<ProfileName>{userInfo.name || "User"}</ProfileName>
-										<ProfileEmail>
-											{userInfo.email || "No email provided"}
-										</ProfileEmail>
+										<ProfileName>{userInfo.name || 'User'}</ProfileName>
+										<ProfileEmail>{userInfo.email || 'No email provided'}</ProfileEmail>
 									</ProfileInfo>
 								</ProfileHeader>
 
@@ -4839,8 +4322,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 									</DetailItem>
 									<DetailItem>
 										<FiCheckCircle />
-										<strong>Email Verified:</strong>{" "}
-										{userInfo.email_verified ? "Yes" : "No"}
+										<strong>Email Verified:</strong> {userInfo.email_verified ? 'Yes' : 'No'}
 									</DetailItem>
 									{userInfo.given_name && (
 										<DetailItem>
@@ -4860,11 +4342,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 							<h4>Raw Response (JSON):</h4>
 							<JsonDisplay>
 								{JSON.stringify(userInfo, null, 2)}
-								<CopyButton
-									onClick={() =>
-										copyToClipboard(JSON.stringify(userInfo, null, 2))
-									}
-								>
+								<CopyButton onClick={() => copyToClipboard(JSON.stringify(userInfo, null, 2))}>
 									{copiedText === JSON.stringify(userInfo, null, 2) ? (
 										<FiCheckCircle />
 									) : (
@@ -4888,18 +4366,18 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 
 					{/* Token Display Section */}
 					{tokens && (
-						<div style={{ marginTop: "2rem" }}>
+						<div style={{ marginTop: '2rem' }}>
 							<h4>Received Tokens:</h4>
 
 							{/* Access Token */}
 							{tokens.access_token && (
-								<div style={{ marginBottom: "1.5rem" }}>
+								<div style={{ marginBottom: '1.5rem' }}>
 									<h5
 										style={{
-											margin: "0 0 0.5rem 0",
-											color: "#1f2937",
-											fontSize: "0.9rem",
-											fontWeight: "600",
+											margin: '0 0 0.5rem 0',
+											color: '#1f2937',
+											fontSize: '0.9rem',
+											fontWeight: '600',
 										}}
 									>
 										Access Token
@@ -4909,11 +4387,11 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 											<ParameterName>Token</ParameterName>
 											<ParameterValue
 												style={{
-													fontFamily: "Monaco, Menlo, monospace",
-													fontSize: "0.8rem",
-													wordBreak: "break-all",
-													fontWeight: "bold",
-													color: "#1e40af",
+													fontFamily: 'Monaco, Menlo, monospace',
+													fontSize: '0.8rem',
+													wordBreak: 'break-all',
+													fontWeight: 'bold',
+													color: '#1e40af',
 												}}
 											>
 												{tokens.access_token}
@@ -4921,46 +4399,32 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 										</ParameterItem>
 										<ParameterItem>
 											<ParameterName>Type</ParameterName>
-											<ParameterValue
-												style={{ fontWeight: "bold", color: "#1e40af" }}
-											>
-												{tokens.token_type || "Bearer"}
+											<ParameterValue style={{ fontWeight: 'bold', color: '#1e40af' }}>
+												{tokens.token_type || 'Bearer'}
 											</ParameterValue>
 										</ParameterItem>
 										<ParameterItem>
 											<ParameterName>Expires In</ParameterName>
-											<ParameterValue
-												style={{ fontWeight: "bold", color: "#1e40af" }}
-											>
-												{tokens.expires_in
-													? `${tokens.expires_in} seconds`
-													: "Unknown"}
+											<ParameterValue style={{ fontWeight: 'bold', color: '#1e40af' }}>
+												{tokens.expires_in ? `${tokens.expires_in} seconds` : 'Unknown'}
 											</ParameterValue>
 										</ParameterItem>
 										<ParameterItem>
 											<ParameterName>Scope</ParameterName>
-											<ParameterValue
-												style={{ fontWeight: "bold", color: "#1e40af" }}
-											>
-												{tokens.scope || "Not specified"}
+											<ParameterValue style={{ fontWeight: 'bold', color: '#1e40af' }}>
+												{tokens.scope || 'Not specified'}
 											</ParameterValue>
 										</ParameterItem>
 									</ParameterBreakdown>
 									<div
 										style={{
-											marginTop: "0.5rem",
-											display: "flex",
-											justifyContent: "flex-end",
+											marginTop: '0.5rem',
+											display: 'flex',
+											justifyContent: 'flex-end',
 										}}
 									>
-										<CopyButton
-											onClick={() => copyToClipboard(tokens.access_token)}
-										>
-											{copiedText === tokens.access_token ? (
-												<FiCheckCircle />
-											) : (
-												<FiCopy />
-											)}
+										<CopyButton onClick={() => copyToClipboard(tokens.access_token)}>
+											{copiedText === tokens.access_token ? <FiCheckCircle /> : <FiCopy />}
 											Copy Access Token
 										</CopyButton>
 									</div>
@@ -4969,13 +4433,13 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 
 							{/* Refresh Token */}
 							{tokens.refresh_token && (
-								<div style={{ marginBottom: "1.5rem" }}>
+								<div style={{ marginBottom: '1.5rem' }}>
 									<h5
 										style={{
-											margin: "0 0 0.5rem 0",
-											color: "#1f2937",
-											fontSize: "0.9rem",
-											fontWeight: "600",
+											margin: '0 0 0.5rem 0',
+											color: '#1f2937',
+											fontSize: '0.9rem',
+											fontWeight: '600',
 										}}
 									>
 										Refresh Token
@@ -4985,11 +4449,11 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 											<ParameterName>Token</ParameterName>
 											<ParameterValue
 												style={{
-													fontFamily: "Monaco, Menlo, monospace",
-													fontSize: "0.8rem",
-													wordBreak: "break-all",
-													fontWeight: "bold",
-													color: "#1e40af",
+													fontFamily: 'Monaco, Menlo, monospace',
+													fontSize: '0.8rem',
+													wordBreak: 'break-all',
+													fontWeight: 'bold',
+													color: '#1e40af',
 												}}
 											>
 												{tokens.refresh_token}
@@ -4997,28 +4461,20 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 										</ParameterItem>
 										<ParameterItem>
 											<ParameterName>Purpose</ParameterName>
-											<ParameterValue
-												style={{ fontWeight: "bold", color: "#1e40af" }}
-											>
+											<ParameterValue style={{ fontWeight: 'bold', color: '#1e40af' }}>
 												Used to obtain new access tokens
 											</ParameterValue>
 										</ParameterItem>
 									</ParameterBreakdown>
 									<div
 										style={{
-											marginTop: "0.5rem",
-											display: "flex",
-											justifyContent: "flex-end",
+											marginTop: '0.5rem',
+											display: 'flex',
+											justifyContent: 'flex-end',
 										}}
 									>
-										<CopyButton
-											onClick={() => copyToClipboard(tokens.refresh_token)}
-										>
-											{copiedText === tokens.refresh_token ? (
-												<FiCheckCircle />
-											) : (
-												<FiCopy />
-											)}
+										<CopyButton onClick={() => copyToClipboard(tokens.refresh_token)}>
+											{copiedText === tokens.refresh_token ? <FiCheckCircle /> : <FiCopy />}
 											Copy Refresh Token
 										</CopyButton>
 									</div>
@@ -5027,13 +4483,13 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 
 							{/* ID Token */}
 							{tokens.id_token && (
-								<div style={{ marginBottom: "1.5rem" }}>
+								<div style={{ marginBottom: '1.5rem' }}>
 									<h5
 										style={{
-											margin: "0 0 0.5rem 0",
-											color: "#1f2937",
-											fontSize: "0.9rem",
-											fontWeight: "600",
+											margin: '0 0 0.5rem 0',
+											color: '#1f2937',
+											fontSize: '0.9rem',
+											fontWeight: '600',
 										}}
 									>
 										ID Token (JWT)
@@ -5043,11 +4499,11 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 											<ParameterName>Token</ParameterName>
 											<ParameterValue
 												style={{
-													fontFamily: "Monaco, Menlo, monospace",
-													fontSize: "0.8rem",
-													wordBreak: "break-all",
-													fontWeight: "bold",
-													color: "#1e40af",
+													fontFamily: 'Monaco, Menlo, monospace',
+													fontSize: '0.8rem',
+													wordBreak: 'break-all',
+													fontWeight: 'bold',
+													color: '#1e40af',
 												}}
 											>
 												{tokens.id_token}
@@ -5055,36 +4511,26 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 										</ParameterItem>
 										<ParameterItem>
 											<ParameterName>Type</ParameterName>
-											<ParameterValue
-												style={{ fontWeight: "bold", color: "#1e40af" }}
-											>
+											<ParameterValue style={{ fontWeight: 'bold', color: '#1e40af' }}>
 												JWT (JSON Web Token)
 											</ParameterValue>
 										</ParameterItem>
 										<ParameterItem>
 											<ParameterName>Purpose</ParameterName>
-											<ParameterValue
-												style={{ fontWeight: "bold", color: "#1e40af" }}
-											>
+											<ParameterValue style={{ fontWeight: 'bold', color: '#1e40af' }}>
 												Contains user identity information
 											</ParameterValue>
 										</ParameterItem>
 									</ParameterBreakdown>
 									<div
 										style={{
-											marginTop: "0.5rem",
-											display: "flex",
-											justifyContent: "flex-end",
+											marginTop: '0.5rem',
+											display: 'flex',
+											justifyContent: 'flex-end',
 										}}
 									>
-										<CopyButton
-											onClick={() => copyToClipboard(tokens.id_token)}
-										>
-											{copiedText === tokens.id_token ? (
-												<FiCheckCircle />
-											) : (
-												<FiCopy />
-											)}
+										<CopyButton onClick={() => copyToClipboard(tokens.id_token)}>
+											{copiedText === tokens.id_token ? <FiCheckCircle /> : <FiCopy />}
 											Copy ID Token
 										</CopyButton>
 									</div>
@@ -5092,13 +4538,13 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 							)}
 
 							{/* All Tokens JSON */}
-							<div style={{ marginBottom: "1.5rem" }}>
+							<div style={{ marginBottom: '1.5rem' }}>
 								<h5
 									style={{
-										margin: "0 0 0.5rem 0",
-										color: "#1f2937",
-										fontSize: "0.9rem",
-										fontWeight: "600",
+										margin: '0 0 0.5rem 0',
+										color: '#1f2937',
+										fontSize: '0.9rem',
+										fontWeight: '600',
 									}}
 								>
 									Complete Token Response
@@ -5106,16 +4552,12 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 								<JsonDisplay>{JSON.stringify(tokens, null, 2)}</JsonDisplay>
 								<div
 									style={{
-										marginTop: "0.5rem",
-										display: "flex",
-										justifyContent: "flex-end",
+										marginTop: '0.5rem',
+										display: 'flex',
+										justifyContent: 'flex-end',
 									}}
 								>
-									<CopyButton
-										onClick={() =>
-											copyToClipboard(JSON.stringify(tokens, null, 2))
-										}
-									>
+									<CopyButton onClick={() => copyToClipboard(JSON.stringify(tokens, null, 2))}>
 										{copiedText === JSON.stringify(tokens, null, 2) ? (
 											<FiCheckCircle />
 										) : (
@@ -5132,20 +4574,20 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 					{tokens && (
 						<div
 							style={{
-								marginTop: "2rem",
-								padding: "1.5rem",
-								background: "#f8fafc",
-								border: "1px solid #e2e8f0",
-								borderRadius: "0.75rem",
+								marginTop: '2rem',
+								padding: '1.5rem',
+								background: '#f8fafc',
+								border: '1px solid #e2e8f0',
+								borderRadius: '0.75rem',
 							}}
 						>
 							<h4
 								style={{
-									margin: "0 0 1rem 0",
-									color: "#1f2937",
-									display: "flex",
-									alignItems: "center",
-									gap: "0.5rem",
+									margin: '0 0 1rem 0',
+									color: '#1f2937',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
 								}}
 							>
 								<FiKey />
@@ -5153,31 +4595,31 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 							</h4>
 							<p
 								style={{
-									margin: "0 0 1.5rem 0",
-									color: "#6b7280",
-									fontSize: "0.9rem",
+									margin: '0 0 1.5rem 0',
+									color: '#6b7280',
+									fontSize: '0.9rem',
 								}}
 							>
 								Decode and inspect your tokens to see their contents and claims.
 							</p>
 
 							{/* Token Paste Area */}
-							<div style={{ marginBottom: "1.5rem" }}>
+							<div style={{ marginBottom: '1.5rem' }}>
 								<h5
 									style={{
-										margin: "0 0 0.5rem 0",
-										color: "#1f2937",
-										fontSize: "0.9rem",
-										fontWeight: "600",
+										margin: '0 0 0.5rem 0',
+										color: '#1f2937',
+										fontSize: '0.9rem',
+										fontWeight: '600',
 									}}
 								>
 									Decode Custom Token
 								</h5>
 								<p
 									style={{
-										margin: "0 0 0.75rem 0",
-										color: "#6b7280",
-										fontSize: "0.8rem",
+										margin: '0 0 0.75rem 0',
+										color: '#6b7280',
+										fontSize: '0.8rem',
 									}}
 								>
 									Paste any JWT token below to decode and inspect its contents.
@@ -5187,16 +4629,16 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 									value={customToken}
 									onChange={(e) => setCustomToken(e.target.value)}
 									style={{
-										minHeight: "4rem",
-										fontFamily: "Monaco, Menlo, monospace",
-										fontSize: "0.8rem",
+										minHeight: '4rem',
+										fontFamily: 'Monaco, Menlo, monospace',
+										fontSize: '0.8rem',
 									}}
 								/>
 								<div
 									style={{
-										marginTop: "0.5rem",
-										display: "flex",
-										justifyContent: "flex-end",
+										marginTop: '0.5rem',
+										display: 'flex',
+										justifyContent: 'flex-end',
 									}}
 								>
 									<CopyButton
@@ -5205,41 +4647,32 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 												// Store the custom token in localStorage for the token management page
 												const tokenData = {
 													access_token: customToken.trim(),
-													token_type: "Bearer",
+													token_type: 'Bearer',
 													custom: true,
 												};
 
 												// Store in localStorage for token management page
-												localStorage.setItem(
-													"oauth_tokens",
-													JSON.stringify(tokenData),
-												);
-												console.log(
-													" Custom token stored for token management page",
-												);
+												localStorage.setItem('oauth_tokens', JSON.stringify(tokenData));
+												console.log(' Custom token stored for token management page');
 
 												// Copy custom token to clipboard
 												navigator.clipboard.writeText(customToken).then(() => {
-													console.log(" Custom token copied to clipboard");
+													console.log(' Custom token copied to clipboard');
 												});
 
 												// Navigate to token management page
-												window.location.href = "/token-management";
+												window.location.href = '/token-management';
 											}
 										}}
 										disabled={!customToken.trim()}
 									>
-										{copiedText === customToken ? (
-											<FiCheckCircle />
-										) : (
-											<FiCopy />
-										)}
+										{copiedText === customToken ? <FiCheckCircle /> : <FiCopy />}
 										Decode Custom Token
 									</CopyButton>
 								</div>
 							</div>
 
-							<div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+							<div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
 								<button
 									onClick={() => {
 										if (tokens.access_token) {
@@ -5248,61 +4681,51 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 												access_token: tokens.access_token,
 												id_token: tokens.id_token,
 												refresh_token: tokens.refresh_token,
-												token_type: tokens.token_type || "Bearer",
+												token_type: tokens.token_type || 'Bearer',
 												expires_in: tokens.expires_in,
 												scope: tokens.scope,
 											};
 
 											// Store in localStorage for token management page
-											localStorage.setItem(
-												"oauth_tokens",
-												JSON.stringify(tokenData),
-											);
-											console.log(
-												" Access token stored for token management page",
-											);
+											localStorage.setItem('oauth_tokens', JSON.stringify(tokenData));
+											console.log(' Access token stored for token management page');
 
 											// Copy access token to clipboard
-											navigator.clipboard
-												.writeText(tokens.access_token)
-												.then(() => {
-													console.log(" Access token copied to clipboard");
-												});
+											navigator.clipboard.writeText(tokens.access_token).then(() => {
+												console.log(' Access token copied to clipboard');
+											});
 
 											// Navigate to token management page
-											window.location.href = "/token-management";
+											window.location.href = '/token-management';
 										}
 									}}
 									disabled={!tokens.access_token}
 									style={{
-										display: "flex",
-										alignItems: "center",
-										gap: "0.5rem",
-										padding: "0.75rem 1.5rem",
-										background:
-											"linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
-										color: "white",
-										border: "none",
-										borderRadius: "0.5rem",
-										fontSize: "0.875rem",
-										fontWeight: "600",
-										cursor: tokens.access_token ? "pointer" : "not-allowed",
-										transition: "all 0.2s ease",
-										boxShadow: "0 2px 4px rgba(59, 130, 246, 0.3)",
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+										padding: '0.75rem 1.5rem',
+										background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+										color: 'white',
+										border: 'none',
+										borderRadius: '0.5rem',
+										fontSize: '0.875rem',
+										fontWeight: '600',
+										cursor: tokens.access_token ? 'pointer' : 'not-allowed',
+										transition: 'all 0.2s ease',
+										boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)',
 										opacity: tokens.access_token ? 1 : 0.5,
 									}}
 									onMouseOver={(e) => {
 										if (tokens.access_token) {
-											e.currentTarget.style.transform = "translateY(-1px)";
-											e.currentTarget.style.boxShadow =
-												"0 4px 8px rgba(59, 130, 246, 0.4)";
+											e.currentTarget.style.transform = 'translateY(-1px)';
+											e.currentTarget.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.4)';
 										}
 									}}
 									onMouseOut={(e) => {
 										if (tokens.access_token) {
-											e.currentTarget.style.transform = "translateY(0)";
-											e.currentTarget.style.boxShadow =
-												"0 2px 4px rgba(59, 130, 246, 0.3)";
+											e.currentTarget.style.transform = 'translateY(0)';
+											e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.3)';
 										}
 									}}
 								>
@@ -5318,61 +4741,51 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 												access_token: tokens.access_token,
 												id_token: tokens.id_token,
 												refresh_token: tokens.refresh_token,
-												token_type: tokens.token_type || "Bearer",
+												token_type: tokens.token_type || 'Bearer',
 												expires_in: tokens.expires_in,
 												scope: tokens.scope,
 											};
 
 											// Store in localStorage for token management page
-											localStorage.setItem(
-												"oauth_tokens",
-												JSON.stringify(tokenData),
-											);
-											console.log(
-												" ID token stored for token management page",
-											);
+											localStorage.setItem('oauth_tokens', JSON.stringify(tokenData));
+											console.log(' ID token stored for token management page');
 
 											// Copy ID token to clipboard
-											navigator.clipboard
-												.writeText(tokens.id_token)
-												.then(() => {
-													console.log(" ID token copied to clipboard");
-												});
+											navigator.clipboard.writeText(tokens.id_token).then(() => {
+												console.log(' ID token copied to clipboard');
+											});
 
 											// Navigate to token management page
-											window.location.href = "/token-management";
+											window.location.href = '/token-management';
 										}
 									}}
 									disabled={!tokens.id_token}
 									style={{
-										display: "flex",
-										alignItems: "center",
-										gap: "0.5rem",
-										padding: "0.75rem 1.5rem",
-										background:
-											"linear-gradient(135deg, #10b981 0%, #059669 100%)",
-										color: "white",
-										border: "none",
-										borderRadius: "0.5rem",
-										fontSize: "0.875rem",
-										fontWeight: "600",
-										cursor: tokens.id_token ? "pointer" : "not-allowed",
-										transition: "all 0.2s ease",
-										boxShadow: "0 2px 4px rgba(16, 185, 129, 0.3)",
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+										padding: '0.75rem 1.5rem',
+										background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+										color: 'white',
+										border: 'none',
+										borderRadius: '0.5rem',
+										fontSize: '0.875rem',
+										fontWeight: '600',
+										cursor: tokens.id_token ? 'pointer' : 'not-allowed',
+										transition: 'all 0.2s ease',
+										boxShadow: '0 2px 4px rgba(16, 185, 129, 0.3)',
 										opacity: tokens.id_token ? 1 : 0.5,
 									}}
 									onMouseOver={(e) => {
 										if (tokens.id_token) {
-											e.currentTarget.style.transform = "translateY(-1px)";
-											e.currentTarget.style.boxShadow =
-												"0 4px 8px rgba(16, 185, 129, 0.4)";
+											e.currentTarget.style.transform = 'translateY(-1px)';
+											e.currentTarget.style.boxShadow = '0 4px 8px rgba(16, 185, 129, 0.4)';
 										}
 									}}
 									onMouseOut={(e) => {
 										if (tokens.id_token) {
-											e.currentTarget.style.transform = "translateY(0)";
-											e.currentTarget.style.boxShadow =
-												"0 2px 4px rgba(16, 185, 129, 0.3)";
+											e.currentTarget.style.transform = 'translateY(0)';
+											e.currentTarget.style.boxShadow = '0 2px 4px rgba(16, 185, 129, 0.3)';
 										}
 									}}
 								>
@@ -5383,21 +4796,21 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 
 							<div
 								style={{
-									marginTop: "1rem",
-									fontSize: "0.8rem",
-									color: "#6b7280",
+									marginTop: '1rem',
+									fontSize: '0.8rem',
+									color: '#6b7280',
 								}}
 							>
-								<p style={{ margin: "0 0 0.5rem 0" }}>
-									<strong>Access Token:</strong>{" "}
-									<strong style={{ color: "#1e40af" }}>
-										{tokens.access_token ? "Available" : "Not available"}
+								<p style={{ margin: '0 0 0.5rem 0' }}>
+									<strong>Access Token:</strong>{' '}
+									<strong style={{ color: '#1e40af' }}>
+										{tokens.access_token ? 'Available' : 'Not available'}
 									</strong>
 								</p>
-								<p style={{ margin: "0" }}>
-									<strong>ID Token:</strong>{" "}
-									<strong style={{ color: "#1e40af" }}>
-										{tokens.id_token ? "Available" : "Not available"}
+								<p style={{ margin: '0' }}>
+									<strong>ID Token:</strong>{' '}
+									<strong style={{ color: '#1e40af' }}>
+										{tokens.id_token ? 'Available' : 'Not available'}
 									</strong>
 								</p>
 							</div>
@@ -5407,58 +4820,54 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 					{/* Reset Flow Button - Standardized Style */}
 					<div
 						style={{
-							marginTop: "2rem",
-							padding: "1.5rem",
-							backgroundColor: "#fef2f2",
-							border: "1px solid #fecaca",
-							borderRadius: "0.5rem",
-							textAlign: "center",
+							marginTop: '2rem',
+							padding: '1.5rem',
+							backgroundColor: '#fef2f2',
+							border: '1px solid #fecaca',
+							borderRadius: '0.5rem',
+							textAlign: 'center',
 						}}
 					>
 						<h4
 							style={{
-								margin: "0 0 1rem 0",
-								color: "#dc2626",
-								fontSize: "1rem",
-								fontWeight: "600",
+								margin: '0 0 1rem 0',
+								color: '#dc2626',
+								fontSize: '1rem',
+								fontWeight: '600',
 							}}
 						>
-							<FiRefreshCw style={{ marginRight: "0.5rem" }} />
+							<FiRefreshCw style={{ marginRight: '0.5rem' }} />
 							Need to Start Over?
 						</h4>
 						<button
 							onClick={() => setShowResetModal(true)}
 							style={{
-								padding: "0.75rem 1.25rem",
-								backgroundColor: "#dc2626",
-								color: "white",
-								border: "none",
-								borderRadius: "0.375rem",
-								fontSize: "0.875rem",
-								fontWeight: "500",
-								cursor: "pointer",
-								display: "inline-flex",
-								alignItems: "center",
-								gap: "0.5rem",
-								transition: "background-color 0.2s",
-								minWidth: "160px",
+								padding: '0.75rem 1.25rem',
+								backgroundColor: '#dc2626',
+								color: 'white',
+								border: 'none',
+								borderRadius: '0.375rem',
+								fontSize: '0.875rem',
+								fontWeight: '500',
+								cursor: 'pointer',
+								display: 'inline-flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+								transition: 'background-color 0.2s',
+								minWidth: '160px',
 							}}
-							onMouseOver={(e) =>
-								(e.currentTarget.style.backgroundColor = "#b91c1c")
-							}
-							onMouseOut={(e) =>
-								(e.currentTarget.style.backgroundColor = "#dc2626")
-							}
+							onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#b91c1c')}
+							onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#dc2626')}
 						>
 							<FiRefreshCw />
 							Reset Flow
 						</button>
 						<div
 							style={{
-								marginTop: "1rem",
-								fontSize: "0.8rem",
-								color: "#6b7280",
-								lineHeight: "1.4",
+								marginTop: '1rem',
+								fontSize: '0.8rem',
+								color: '#6b7280',
+								lineHeight: '1.4',
 							}}
 						>
 							Clear flow progress and tokens (credentials preserved)
@@ -5470,16 +4879,14 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 				setIsGettingUserInfo(true);
 				try {
 					await getUserInfo();
-					showFlowSuccess(" User Information Retrieved Successfully");
+					showFlowSuccess(' User Information Retrieved Successfully');
 					return { success: true };
 				} finally {
 					setIsGettingUserInfo(false);
 				}
 			},
 			canExecute: Boolean(
-				tokens?.access_token &&
-					credentials.environmentId &&
-					credentials.clientId,
+				tokens?.access_token && credentials.environmentId && credentials.clientId
 			),
 		},
 	];
@@ -5498,62 +4905,61 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 		<>
 			{/* Centralized Success Messages */}
 
-			<div style={{ maxWidth: "1200px", margin: "0 auto", padding: "1.5rem" }}>
+			<div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1.5rem' }}>
 				{/* Success Banner - Always visible when authCode is present */}
 				{authCode && (
 					<div
 						style={{
-							background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-							color: "white",
-							padding: "1rem 1.5rem",
-							borderRadius: "0.75rem",
-							marginBottom: "2rem",
-							boxShadow: "0 10px 25px -5px rgba(16, 185, 129, 0.3)",
-							border: "1px solid #059669",
+							background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+							color: 'white',
+							padding: '1rem 1.5rem',
+							borderRadius: '0.75rem',
+							marginBottom: '2rem',
+							boxShadow: '0 10px 25px -5px rgba(16, 185, 129, 0.3)',
+							border: '1px solid #059669',
 						}}
 					>
 						<div
 							style={{
-								display: "flex",
-								alignItems: "center",
-								gap: "1rem",
-								marginBottom: "0.5rem",
+								display: 'flex',
+								alignItems: 'center',
+								gap: '1rem',
+								marginBottom: '0.5rem',
 							}}
 						>
 							<FiCheckCircle size={32} />
-							<h3 style={{ margin: 0, fontSize: "1.5rem", fontWeight: "bold" }}>
-								 Authorization Successful!
+							<h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold' }}>
+								Authorization Successful!
 							</h3>
 						</div>
-						<p style={{ margin: 0, fontSize: "1.1rem", opacity: 0.9 }}>
-							You've successfully returned from PingOne authentication. Your
-							authorization code has been received and you can now proceed with
-							the token exchange.
+						<p style={{ margin: 0, fontSize: '1.1rem', opacity: 0.9 }}>
+							You've successfully returned from PingOne authentication. Your authorization code has
+							been received and you can now proceed with the token exchange.
 						</p>
 						{tokens && (
 							<div
 								style={{
-									marginTop: "1rem",
-									padding: "0.75rem",
-									background: "rgba(255,255,255,0.2)",
-									borderRadius: "0.5rem",
+									marginTop: '1rem',
+									padding: '0.75rem',
+									background: 'rgba(255,255,255,0.2)',
+									borderRadius: '0.5rem',
 								}}
 							>
-								<strong> Tokens Exchanged Successfully!</strong> - Access
-								token, refresh token, and ID token have been received.
+								<strong> Tokens Exchanged Successfully!</strong> - Access token, refresh token, and
+								ID token have been received.
 							</div>
 						)}
 						{userInfo && (
 							<div
 								style={{
-									marginTop: "0.5rem",
-									padding: "0.75rem",
-									background: "rgba(255,255,255,0.2)",
-									borderRadius: "0.5rem",
+									marginTop: '0.5rem',
+									padding: '0.75rem',
+									background: 'rgba(255,255,255,0.2)',
+									borderRadius: '0.5rem',
 								}}
 							>
-								<strong> User Information Retrieved!</strong> - User profile
-								data has been successfully fetched.
+								<strong> User Information Retrieved!</strong> - User profile data has been
+								successfully fetched.
 							</div>
 						)}
 					</div>
@@ -5569,14 +4975,12 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 				<ContextualHelp flowId="authorization-code" />
 
 				{showConfig && (
-					<div style={{ marginBottom: "2rem" }}>
+					<div style={{ marginBottom: '2rem' }}>
 						<FlowConfiguration
 							config={flowConfig}
 							onConfigChange={setFlowConfig}
 							flowType="authorization-code"
-							isConfigured={
-								!!(credentials.clientId && credentials.environmentId)
-							}
+							isConfigured={!!(credentials.clientId && credentials.environmentId)}
 						/>
 					</div>
 				)}
@@ -5584,12 +4988,11 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 				{/* Callback URL Configuration - Collapsible with shaded background */}
 				<div
 					style={{
-						marginBottom: "2rem",
-						backgroundColor: "#f8fafc",
-						border: "1px solid #e2e8f0",
-						borderRadius: "0.75rem",
-						boxShadow:
-							"0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+						marginBottom: '2rem',
+						backgroundColor: '#f8fafc',
+						border: '1px solid #e2e8f0',
+						borderRadius: '0.75rem',
+						boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
 					}}
 				>
 					<CallbackUrlDisplay
@@ -5605,13 +5008,13 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 				{authError && (
 					<OAuthErrorHelper
 						error={authError}
-						errorDescription={errorDescription || ""}
+						errorDescription={errorDescription || ''}
 						onRetry={() => {
 							setAuthError(null);
 							setErrorDescription(null);
 							handleAuthorization();
 						}}
-						onGoToConfig={() => (window.location.href = "/configuration")}
+						onGoToConfig={() => (window.location.href = '/configuration')}
 					/>
 				)}
 
@@ -5642,7 +5045,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 				/>
 
 				<EnhancedStepFlowV2
-					key={`enhanced-authz-${currentStepIndex}-${authCode ? "with-code" : "no-code"}`}
+					key={`enhanced-authz-${currentStepIndex}-${authCode ? 'with-code' : 'no-code'}`}
 					steps={steps}
 					title=" OAuth 2.0 Authorization Code Flow"
 					persistKey="enhanced-authz-code"
@@ -5651,18 +5054,11 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 					allowStepJumping={true}
 					initialStepIndex={currentStepIndex}
 					onStepChange={useCallback((stepIndex) => {
-						console.log(
-							" [EnhancedAuthorizationCodeFlowV2] Step changed to:",
-							stepIndex,
-						);
+						console.log(' [EnhancedAuthorizationCodeFlowV2] Step changed to:', stepIndex);
 						setCurrentStepIndex(stepIndex);
 					}, [])}
 					onStepComplete={useCallback((stepId, result) => {
-						console.log(
-							" [EnhancedAuthorizationCodeFlowV2] Step completed:",
-							stepId,
-							result,
-						);
+						console.log(' [EnhancedAuthorizationCodeFlowV2] Step completed:', stepId, result);
 						// The step completion is already handled by the EnhancedStepFlowV2 component
 						// This callback is for any additional logic we might need
 					}, [])}
@@ -5682,10 +5078,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 					<ModalOverlay onClick={() => setShowAuthSuccessModal(false)}>
 						<ModalContent onClick={(e) => e.stopPropagation()}>
 							<ModalHeader>
-								<FiCheckCircle
-									size={48}
-									style={{ color: "#22c55e", marginBottom: "1rem" }}
-								/>
+								<FiCheckCircle size={48} style={{ color: '#22c55e', marginBottom: '1rem' }} />
 								<ModalTitle> Authorization Successful!</ModalTitle>
 								<ModalSubtitle>
 									You've successfully returned from PingOne authentication
@@ -5707,43 +5100,41 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 											<FiKey />
 											Tokens Exchanged Successfully
 										</SuccessTitle>
-										<div style={{ fontSize: "0.875rem" }}>
+										<div style={{ fontSize: '0.875rem' }}>
 											<div>
-												 Access Token:{" "}
-												<strong style={{ color: "#1e40af" }}>
-													{tokens.access_token ? "Received" : "Missing"}
+												Access Token:{' '}
+												<strong style={{ color: '#1e40af' }}>
+													{tokens.access_token ? 'Received' : 'Missing'}
 												</strong>
 											</div>
 											<div>
-												 Refresh Token:{" "}
-												<strong style={{ color: "#1e40af" }}>
-													{tokens.refresh_token ? "Received" : "Missing"}
+												Refresh Token:{' '}
+												<strong style={{ color: '#1e40af' }}>
+													{tokens.refresh_token ? 'Received' : 'Missing'}
 												</strong>
 											</div>
 											<div>
-												 ID Token:{" "}
-												<strong style={{ color: "#1e40af" }}>
-													{tokens.id_token ? "Received" : "Missing"}
+												ID Token:{' '}
+												<strong style={{ color: '#1e40af' }}>
+													{tokens.id_token ? 'Received' : 'Missing'}
 												</strong>
 											</div>
 											<div>
-												Token Type:{" "}
-												<strong style={{ color: "#1e40af" }}>
-													{tokens.token_type || "Bearer"}
+												Token Type:{' '}
+												<strong style={{ color: '#1e40af' }}>
+													{tokens.token_type || 'Bearer'}
 												</strong>
 											</div>
 											<div>
-												Expires In:{" "}
-												<strong style={{ color: "#1e40af" }}>
-													{tokens.expires_in
-														? `${tokens.expires_in} seconds`
-														: "Unknown"}
+												Expires In:{' '}
+												<strong style={{ color: '#1e40af' }}>
+													{tokens.expires_in ? `${tokens.expires_in} seconds` : 'Unknown'}
 												</strong>
 											</div>
 											<div>
-												Scope:{" "}
-												<strong style={{ color: "#1e40af" }}>
-													{tokens.scope || "Not specified"}
+												Scope:{' '}
+												<strong style={{ color: '#1e40af' }}>
+													{tokens.scope || 'Not specified'}
 												</strong>
 											</div>
 										</div>
@@ -5756,10 +5147,10 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 											<FiUser />
 											User Information Retrieved
 										</SuccessTitle>
-										<div style={{ fontSize: "0.875rem" }}>
-											<div>Name: {userInfo.name || "Not provided"}</div>
-											<div>Email: {userInfo.email || "Not provided"}</div>
-											<div>Subject: {userInfo.sub || "Not provided"}</div>
+										<div style={{ fontSize: '0.875rem' }}>
+											<div>Name: {userInfo.name || 'Not provided'}</div>
+											<div>Email: {userInfo.email || 'Not provided'}</div>
+											<div>Subject: {userInfo.sub || 'Not provided'}</div>
 										</div>
 									</SuccessSection>
 								)}
@@ -5767,16 +5158,16 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 								{!tokens && (
 									<div
 										style={{
-											background: "#fef3c7",
-											border: "1px solid #f59e0b",
-											borderRadius: "0.5rem",
-											padding: "1rem",
-											textAlign: "center",
+											background: '#fef3c7',
+											border: '1px solid #f59e0b',
+											borderRadius: '0.5rem',
+											padding: '1rem',
+											textAlign: 'center',
 										}}
 									>
-										<FiClock style={{ marginRight: "0.5rem" }} />
-										<strong>Next Step:</strong> Proceed to exchange your
-										authorization code for tokens
+										<FiClock style={{ marginRight: '0.5rem' }} />
+										<strong>Next Step:</strong> Proceed to exchange your authorization code for
+										tokens
 									</div>
 								)}
 							</ModalBody>
@@ -5793,8 +5184,8 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 											await new Promise((resolve) => setTimeout(resolve, 500));
 
 											console.log(
-												" [EnhancedAuthorizationCodeFlowV2] Modal button clicked - current step:",
-												currentStepIndex,
+												' [EnhancedAuthorizationCodeFlowV2] Modal button clicked - current step:',
+												currentStepIndex
 											);
 
 											// Close the modal first
@@ -5802,32 +5193,25 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 
 											// Simply advance to step 5 without hard redirect
 											console.log(
-												" [EnhancedAuthorizationCodeFlowV2] Advancing to step 5 (exchange-tokens)",
+												' [EnhancedAuthorizationCodeFlowV2] Advancing to step 5 (exchange-tokens)'
 											);
 											setCurrentStepIndex(5);
-											sessionStorage.setItem(
-												"enhanced-authz-code-v2-step",
-												"5",
-											);
+											sessionStorage.setItem('enhanced-authz-code-v2-step', '5');
 
 											// Clear URL parameters to avoid conflicts
 											const currentUrl = new URL(window.location.href);
-											currentUrl.search = "";
-											window.history.replaceState(
-												{},
-												"",
-												currentUrl.toString(),
-											);
+											currentUrl.search = '';
+											window.history.replaceState({}, '', currentUrl.toString());
 										} catch (error) {
 											console.error(
-												" [EnhancedAuthorizationCodeFlowV2] Error in modal button click:",
-												error,
+												' [EnhancedAuthorizationCodeFlowV2] Error in modal button click:',
+												error
 											);
 											setIsModalLoading(false);
 										}
 									}}
 								>
-									{isModalLoading ? "Processing..." : "Continue with Flow"}
+									{isModalLoading ? 'Processing...' : 'Continue with Flow'}
 								</ModalButton>
 							</ModalFooter>
 						</ModalContent>

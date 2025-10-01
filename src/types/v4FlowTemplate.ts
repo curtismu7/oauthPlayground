@@ -23,7 +23,12 @@ export interface PKCECodes {
 }
 
 export interface FlowConfiguration {
-	flowType: 'authorization_code_pkce' | 'implicit' | 'client_credentials' | 'device_code' | 'worker_token';
+	flowType:
+		| 'authorization_code_pkce'
+		| 'implicit'
+		| 'client_credentials'
+		| 'device_code'
+		| 'worker_token';
 	flowName: string;
 	description: string;
 	steps: FlowStep[];
@@ -181,46 +186,59 @@ export interface ButtonToastScenarios {
 	saveConfigurationSuccess: string;
 	saveConfigurationError: string;
 	saveConfigurationValidationError: string;
-	
+
 	// PKCE Buttons
 	pkceGenerated: string;
 	pkceGenerationError: string;
 	pkceVerifierCopied: string;
 	pkceChallengeCopied: string;
-	
+
 	// Authorization URL Buttons
 	authUrlGenerated: string;
 	authUrlGenerationError: string;
 	authUrlCopied: string;
 	authUrlOpened: string;
-	
+
 	// Token Exchange Button
 	tokenExchangeStart: string;
 	tokenExchangeSuccess: string;
 	tokenExchangeError: string;
 	authCodeCopied: string;
-	
+
 	// User Info
 	userInfoFetched: string;
 	userInfoError: string;
-	
+
 	// Navigation Buttons
 	stepCompleted: string;
 	stepError: string;
 	flowCompleted: string;
-	
+
 	// Quiz Buttons
 	quizCorrect: string;
 	quizIncorrect: string;
-	
+
 	// Scope Selection
 	scopeUpdated: string;
 	scopeRequired: string;
-	
+
 	// Copy Functionality
 	copySuccess: string;
 	copyError: string;
-	
+
+	// Token Loading
+	tokenLoadedFromStorage: string;
+	tokenLoadedFromDashboard: string;
+	sampleTokenLoaded: string;
+	badTokenLoaded: string;
+	noTokensInStorage: string;
+	noTokensInSession: string;
+
+	// Token Introspection
+	introspectionNotSupported: string;
+	introspectionCredentialsRequired: string;
+	introspectionSuccess: string;
+
 	// Network/Server Errors
 	networkError: string;
 	serverError: string;
@@ -239,12 +257,12 @@ export interface NodeServerErrorHandling {
 	502: string;
 	503: string;
 	504: string;
-	
+
 	// Network Errors
 	NETWORK_ERROR: string;
 	TIMEOUT_ERROR: string;
 	PARSE_ERROR: string;
-	
+
 	// PingOne Specific Errors
 	INVALID_CLIENT: string;
 	INVALID_GRANT: string;
