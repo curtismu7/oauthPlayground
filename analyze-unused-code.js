@@ -105,7 +105,7 @@ function analyzeFile(filePath) {
 	}
 }
 
-function findUnusedVariables(filePath, content) {
+function findUnusedVariables(_filePath, content) {
 	const unusedVars = [];
 
 	// Find variable declarations
@@ -309,7 +309,7 @@ function findDuplicateFiles() {
 			} else {
 				contentHashes.set(normalizedContent, relativePath);
 			}
-		} catch (error) {
+		} catch (_error) {
 			// Skip files that can't be read
 		}
 	}

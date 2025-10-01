@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // test-oauth-flow-comprehensive.js - Comprehensive OAuth Flow Testing
 
-const https = require('https');
-const http = require('http');
+const https = require('node:https');
+const http = require('node:http');
 
 // Test configuration
 const FRONTEND_URL = 'https://localhost:3000';

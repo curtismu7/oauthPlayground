@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import styled from 'styled-components';
 import { FiAlertTriangle, FiX } from 'react-icons/fi';
+import styled from 'styled-components';
 
 const ModalOverlay = styled.div`
   position: fixed;

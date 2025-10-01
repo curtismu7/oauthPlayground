@@ -391,7 +391,7 @@ export class ErrorHandler {
 				this.handleError(error, `${context} (attempt ${attempt})`);
 
 				// Exponential backoff
-				const waitTime = delay * Math.pow(2, attempt - 1);
+				const waitTime = delay * 2 ** (attempt - 1);
 				await new Promise((resolve) => setTimeout(resolve, waitTime));
 			}
 		}

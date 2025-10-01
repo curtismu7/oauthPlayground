@@ -327,7 +327,7 @@ const FlowConfigurationTemplates: React.FC = () => {
 				type: 'success',
 				text: `Template "${selectedTemplate.name}" applied successfully. You can now use this configuration in your OAuth flows.`,
 			});
-		} catch (error) {
+		} catch (_error) {
 			setMessage({
 				type: 'warning',
 				text: 'Failed to save template configuration',

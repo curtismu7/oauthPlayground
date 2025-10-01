@@ -1,18 +1,9 @@
 import type React from 'react';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { FiCheck, FiChevronDown, FiChevronUp, FiCopy, FiSave, FiSettings } from 'react-icons/fi';
 import styled from 'styled-components';
-import {
-	FiCheck,
-	FiChevronDown,
-	FiChevronRight,
-	FiChevronUp,
-	FiCopy,
-	FiMinus,
-	FiPlus,
-	FiSave,
-	FiSettings,
-} from 'react-icons/fi';
 import { useAccessibility } from '../hooks/useAccessibility';
+import { themeService } from '../services/themeService';
 import { Card, CardBody, CardHeader } from './Card';
 import StandardMessage from './StandardMessage';
 
@@ -103,23 +94,13 @@ const CollapsibleHeader = styled.div`
   }
   
   .collapse-icon {
-    transition: all 0.2s ease;
-    opacity: 1;
+    ${() => themeService.getCollapseIconStyles()}
     font-size: 1.75rem;
-    color: #3b82f6;
     padding: 0.5rem;
     border-radius: 8px;
-    background: #eff6ff;
-    border: 2px solid #3b82f6;
-    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
-    cursor: pointer;
     
     &:hover {
-      color: #1d4ed8;
-      background: #dbeafe;
-      border-color: #1d4ed8;
       transform: scale(1.15);
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
     }
     
     &:active {
@@ -478,7 +459,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 			onConfigChange({ ...normalizedConfig, scopes: newScopes });
 			announce(`${scope} scope ${hasScope ? 'removed' : 'added'}`);
 		},
-		[announce, normalizedConfig, onConfigChange]
+		[announce, normalizedConfig, onConfigChange, isMandatoryScope]
 	);
 
 	const addCustomParam = useCallback(() => {

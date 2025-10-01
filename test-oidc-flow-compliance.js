@@ -7,9 +7,9 @@
  * Based on Auth0 documentation and OIDC Core 1.0 specification
  */
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -133,7 +133,7 @@ console.log('============================');
 
 try {
   // Test backend health
-  const { execSync } = await import('child_process');
+  const { execSync } = await import('node:child_process');
   
   try {
     const backendTest = execSync('curl -s http://localhost:3001/api/health', { timeout: 5000 });

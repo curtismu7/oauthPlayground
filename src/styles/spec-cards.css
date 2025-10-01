@@ -26,8 +26,8 @@
 
 /* Base Spec Card Class */
 .spec-card {
-	background: var(--card-bg) !important;
-	color: var(--card-fg) !important;
+	background: var(--card-bg);
+	color: var(--card-fg);
 	border: 1px solid var(--card-border);
 	border-radius: var(--card-radius);
 	padding: var(--card-padding);
@@ -38,31 +38,31 @@
 /* Force text color for all elements inside spec-card */
 .spec-card,
 .spec-card * {
-	color: var(--card-fg) !important;
+	color: var(--card-fg);
 }
 
 /* Override any theme-based text colors */
 .spec-card p,
 .spec-card div,
 .spec-card span {
-	color: var(--card-fg) !important;
+	color: var(--card-fg);
 }
 
 /* Specific styling for SpecCard content */
 .spec-card-title {
-	color: var(--card-fg) !important;
-	font-weight: 700 !important;
-	margin: 0 0 8px 0 !important;
+	color: var(--card-fg);
+	font-weight: 700;
+	margin: 0 0 8px 0;
 }
 
 .spec-card-content {
-	color: var(--card-fg) !important;
+	color: var(--card-fg);
 }
 
 .spec-card-content p {
-	color: var(--card-muted) !important;
-	margin: 0 0 8px 0 !important;
-	line-height: 1.5 !important;
+	color: var(--card-muted);
+	margin: 0 0 8px 0;
+	line-height: 1.5;
 }
 
 .spec-card h1,
@@ -73,7 +73,7 @@
 .spec-card h6 {
 	margin: 0 0 8px 0;
 	font-weight: 700;
-	color: var(--card-fg) !important;
+	color: var(--card-fg);
 }
 
 .spec-card p {
@@ -84,8 +84,8 @@
 
 .spec-card pre,
 .spec-card code {
-	background: var(--code-bg) !important;
-	color: var(--code-fg) !important;
+	background: var(--code-bg);
+	color: var(--code-fg);
 	border-radius: 8px;
 	padding: 10px 12px;
 	overflow: auto;
@@ -121,8 +121,8 @@
 
 /* Token Display Specific Styling */
 .token-surface {
-	background: var(--card-bg) !important;
-	color: var(--card-fg) !important;
+	background: var(--card-bg);
+	color: var(--card-fg);
 	border: 1px solid var(--card-border);
 	border-radius: var(--card-radius);
 	padding: var(--card-padding);
@@ -136,8 +136,8 @@
 .token-surface pre,
 .token-surface code,
 .token-surface textarea {
-	background: transparent !important;
-	color: inherit !important;
+	background: transparent;
+	color: inherit;
 	font-family: inherit;
 	font-size: inherit;
 	line-height: inherit;
@@ -149,8 +149,8 @@
 	resize: vertical;
 	border: 0;
 	outline: none;
-	background: transparent !important;
-	color: inherit !important;
+	background: transparent;
+	color: inherit;
 }
 
 .token-surface--scroll {
@@ -162,13 +162,13 @@
 .token-section-title {
 	font-weight: 700;
 	margin: 12px 0 8px;
-	color: var(--card-fg) !important;
+	color: var(--card-fg);
 }
 
 /* Security Warning Content Styling */
 .security-warning-content {
-	background: var(--card-bg) !important;
-	color: var(--card-fg) !important;
+	background: var(--card-bg);
+	color: var(--card-fg);
 	border: 1px solid var(--card-border);
 	border-radius: var(--card-radius);
 	padding: var(--card-padding);
@@ -177,8 +177,8 @@
 
 /* OAuth 2.1 Panel Styling */
 .oauth21-panel {
-	background: var(--card-bg) !important;
-	color: var(--card-fg) !important;
+	background: var(--card-bg);
+	color: var(--card-fg);
 	border: 1px solid var(--card-border);
 	border-radius: var(--card-radius);
 	padding: var(--card-padding);
@@ -188,7 +188,7 @@
 .oauth21-panel h3 {
 	margin: 0 0 12px 0;
 	font-weight: 700;
-	color: var(--card-fg) !important;
+	color: var(--card-fg);
 }
 
 .oauth21-panel p {
@@ -233,8 +233,8 @@
 /* Print Styles */
 @media print {
 	.spec-card {
-		background: white !important;
-		color: black !important;
+		background: white;
+		color: black;
 		border: 1px solid #ccc;
 		box-shadow: none;
 	}

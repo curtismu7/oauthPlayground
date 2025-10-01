@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 
 /**
  * JWT (JSON Web Token) utility functions

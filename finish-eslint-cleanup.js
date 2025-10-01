@@ -49,7 +49,7 @@ function removeUnusedVariables() {
 			const originalContent = content;
 
 			// Remove unused variable declarations by commenting them out
-            const _unusedPatterns = [
+			const _unusedPatterns = [
 				// Unused const declarations
 				{
 					from: /^\s*const\s+(\w+)\s*=\s*[^;]+;\s*$/gm,
@@ -134,11 +134,11 @@ function addESLintDisableComments() {
 	for (const filePath of files) {
 		try {
 			let content = fs.readFileSync(filePath, 'utf8');
-			let fileFixCount = 0;
+			let _fileFixCount = 0;
 			const originalContent = content;
 
 			// Add ESLint disable comments for common patterns
-            const _disablePatterns = [
+			const _disablePatterns = [
 				// Disable unused vars for specific patterns
 				{
 					from: /const\s+(_\w+)\s*=/g,
@@ -158,8 +158,8 @@ function addESLintDisableComments() {
 				unusedVarCount > 5 &&
 				!content.includes('eslint-disable @typescript-eslint/no-unused-vars')
 			) {
-				content = '/* eslint-disable @typescript-eslint/no-unused-vars */\n' + content;
-				fileFixCount++;
+				content = `/* eslint-disable @typescript-eslint/no-unused-vars */\n${content}`;
+				_fileFixCount++;
 				totalFixes++;
 			}
 

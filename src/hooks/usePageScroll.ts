@@ -1,6 +1,6 @@
 // src/hooks/usePageScroll.ts
-import { useEffect, useCallback } from 'react';
-import { scrollToTop, scrollToBottom } from '../utils/scrollManager';
+import { useCallback, useEffect } from 'react';
+import { scrollToBottom, scrollToTop } from '../utils/scrollManager';
 
 /**
  * Page scroll management hooks for consistent behavior
@@ -34,15 +34,15 @@ export const usePageScroll = (options: PageScrollOptions = {}) => {
 		setTimeout(() => {
 			scrollToTop({ force, delay: 0, smooth: false });
 		}, 100);
-	}, [pageName, force, delay]);
+	}, [force, delay]);
 
 	const scrollToTopAfterAction = useCallback(() => {
 		scrollToTop({ force: true, smooth: false });
-	}, [pageName]);
+	}, []);
 
 	const scrollToBottomAfterAction = useCallback(() => {
 		scrollToBottom({ smooth: true });
-	}, [pageName]);
+	}, []);
 
 	return {
 		scrollToTopAfterAction,
@@ -54,18 +54,18 @@ export const usePageScroll = (options: PageScrollOptions = {}) => {
  * Hook specifically for Authorization flow pages
  * Always returns to top after any action
  */
-export const useAuthorizationFlowScroll = (flowName: string) => {
+export const useAuthorizationFlowScroll = (_flowName: string) => {
 	useEffect(() => {
 		scrollToTop({ force: true, delay: 100 });
-	}, [flowName]);
+	}, []);
 
 	const scrollToTopAfterAction = useCallback(() => {
 		scrollToTop({ force: true, delay: 50 });
-	}, [flowName]);
+	}, []);
 
 	const scrollToBottomAfterAction = useCallback(() => {
 		scrollToBottom({ delay: 50 });
-	}, [flowName]);
+	}, []);
 
 	return {
 		scrollToTopAfterAction,
@@ -77,7 +77,7 @@ export const useAuthorizationFlowScroll = (flowName: string) => {
  * Hook for Token Management and similar pages
  * Always starts at top, provides action callbacks
  */
-export const useTokenPageScroll = (pageName: string) => {
+export const useTokenPageScroll = (_pageName: string) => {
 	useEffect(() => {
 		// More aggressive scroll for token pages
 		setTimeout(() => {
@@ -90,11 +90,11 @@ export const useTokenPageScroll = (pageName: string) => {
 		setTimeout(() => {
 			window.scrollTo(0, 0);
 		}, 100);
-	}, [pageName]);
+	}, []);
 
 	const scrollToTopAfterAction = useCallback(() => {
 		scrollToTop({ force: true });
-	}, [pageName]);
+	}, []);
 
 	return {
 		scrollToTopAfterAction,

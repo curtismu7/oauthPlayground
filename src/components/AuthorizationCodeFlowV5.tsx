@@ -1,61 +1,40 @@
 // src/components/AuthorizationCodeFlowV5.tsx
-import { useCallback, useEffect, useId, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiArrowRight,
-	FiCheckCircle,
 	FiChevronDown,
 	FiCopy,
 	FiExternalLink,
-	FiEye,
-	FiEyeOff,
 	FiGlobe,
 	FiInfo,
 	FiKey,
-	FiRefreshCw,
-	FiSettings,
 	FiShield,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import { useFlowBehaviorSettings } from '../contexts/UISettingsContext';
+import { useAuthorizationCodeFlowController } from '../hooks/useAuthorizationCodeFlowController';
+import { trackOAuthFlow } from '../utils/activityTracker';
+import { getFlowInfo } from '../utils/flowInfoConfig';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 import ConfigurationSummaryCard from './ConfigurationSummaryCard';
 import { CredentialsInput } from './CredentialsInput';
 import FlowInfoCard from './FlowInfoCard';
-import { getFlowInfo } from '../utils/flowInfoConfig';
-import { FlowWalkthrough } from './FlowWalkthrough';
-import {
-	ExplanationHeading,
-	ExplanationSection,
-	FlowDiagram,
-	FlowStep,
-	FlowStepContent,
-	FlowStepNumber,
-} from './InfoBlocks';
+import { FlowDiagram, FlowStep, FlowStepContent, FlowStepNumber } from './InfoBlocks';
 import LoginSuccessModal from './LoginSuccessModal';
-import PingOneApplicationConfig, {
-	type PingOneApplicationState,
-} from './PingOneApplicationConfig';
-import {
-	HelperText,
-	ResultsHeading,
-	ResultsSection,
-	SectionDivider,
-} from './ResultsPanel';
+import PingOneApplicationConfig from './PingOneApplicationConfig';
+import { ResultsHeading, ResultsSection, SectionDivider } from './ResultsPanel';
 import SecurityFeaturesDemo from './SecurityFeaturesDemo';
 import { StepNavigationButtons } from './StepNavigationButtons';
-import type { StepCredentials } from './steps/CommonSteps';
 import TokenIntrospect from './TokenIntrospect';
-import UserInformationStep from './UserInformationStep';
-import { useAuthorizationCodeFlowController } from '../hooks/useAuthorizationCodeFlowController';
-import { decodeJWTHeader } from '../utils/jwks';
-import { v4ToastManager } from '../utils/v4ToastMessages';
-import { pingOneConfigService } from '../services/pingoneConfigService';
-import { trackOAuthFlow } from '../utils/activityTracker';
-import { useFlowBehaviorSettings } from '../contexts/UISettingsContext';
 
 const STEP_METADATA = [
 	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the Authorization Code Flow' },
 	{ title: 'Step 1: PKCE Parameters', subtitle: 'Generate secure verifier and challenge' },
-	{ title: 'Step 2: PAR Request (Optional)', subtitle: 'Push authorization request to PingOne PAR endpoint' },
+	{
+		title: 'Step 2: PAR Request (Optional)',
+		subtitle: 'Push authorization request to PingOne PAR endpoint',
+	},
 	{
 		title: 'Step 3: Authorization Request',
 		subtitle: 'Build and launch the PingOne authorization URL',
@@ -227,7 +206,6 @@ const CollapsibleContent = styled.div`
 		}
 	}
 `;
-
 
 const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' }>`
 	display: flex;
@@ -419,31 +397,30 @@ export const AuthorizationCodeFlowV5: React.FC<AuthorizationCodeFlowV5Props> = (
 		flowConfig,
 		handleFlowConfigChange,
 		resetFlow: resetControllerFlow,
-		isRequestingToken,
-		requestToken,
 		tokens,
 		userInfo,
 		isFetchingUserInfo,
 		fetchUserInfo,
-		isIntrospecting,
-		introspectToken,
-		introspectionResults,
-		isSavingCredentials,
-		hasCredentialsSaved,
-		hasUnsavedCredentialChanges,
+		isSavingCredentials: _isSavingCredentials,
+		hasCredentialsSaved: _hasCredentialsSaved,
+		hasUnsavedCredentialChanges: _hasUnsavedCredentialChanges,
 		saveCredentials,
-		stepManager,
-		saveStepResult,
-		hasStepResult,
-		clearStepResults,
+		stepManager: _stepManager,
+		saveStepResult: _saveStepResult,
+		hasStepResult: _hasStepResult,
+		clearStepResults: _clearStepResults,
 		pkceCodes,
 		authUrl,
 		authCode,
-		handleGenerateAuthUrl,
-		handleExchangeTokens,
-		handleFetchUserInfo,
-		handleIntrospectToken,
+		generateAuthorizationUrl,
 	} = controller;
+
+	// Wrapper functions for consistency with component naming
+	const handleGenerateAuthUrl = generateAuthorizationUrl;
+	const handleIntrospectToken = () => {
+		// Introspection functionality to be implemented
+		console.log('Introspect token clicked');
+	};
 
 	// Get UI settings for collapsible default state
 	const { collapsibleDefaultState } = useFlowBehaviorSettings();
@@ -467,7 +444,7 @@ export const AuthorizationCodeFlowV5: React.FC<AuthorizationCodeFlowV5Props> = (
 	});
 
 	const toggleSection = useCallback((section: IntroSectionKey) => {
-		setCollapsedSections(prev => ({
+		setCollapsedSections((prev) => ({
 			...prev,
 			[section]: !prev[section],
 		}));
@@ -534,28 +511,33 @@ export const AuthorizationCodeFlowV5: React.FC<AuthorizationCodeFlowV5Props> = (
 	);
 
 	// Check if current step is valid
-	const isStepValid = useCallback((step: number): boolean => {
-		switch (step) {
-			case 0: // Introduction & Setup
-				return Boolean(credentials.environmentId && credentials.clientId && credentials.clientSecret);
-			case 1: // PKCE Parameters
-				return Boolean(pkceCodes.codeVerifier && pkceCodes.codeChallenge);
-			case 2: // PAR Request (Optional)
-				return Boolean(parRequestUri || authUrl); // Either PAR URI or regular auth URL
-			case 3: // Authorization Request
-				return Boolean(authUrl);
-			case 4: // Authorization Response
-				return Boolean(authCode);
-			case 5: // Token Exchange
-				return Boolean(tokens?.access_token);
-			case 6: // Flow Complete (includes introspection)
-				return Boolean(tokens?.access_token);
-			case 7: // Security Features
-				return true; // Always valid as it's informational
-			default:
-				return false;
-		}
-	}, [credentials, pkceCodes, parRequestUri, authUrl, authCode, tokens, introspectionResults, userInfo]);
+	const isStepValid = useCallback(
+		(step: number): boolean => {
+			switch (step) {
+				case 0: // Introduction & Setup
+					return Boolean(
+						credentials.environmentId && credentials.clientId && credentials.clientSecret
+					);
+				case 1: // PKCE Parameters
+					return Boolean(pkceCodes.codeVerifier && pkceCodes.codeChallenge);
+				case 2: // PAR Request (Optional)
+					return Boolean(parRequestUri || authUrl); // Either PAR URI or regular auth URL
+				case 3: // Authorization Request
+					return Boolean(authUrl);
+				case 4: // Authorization Response
+					return Boolean(authCode);
+				case 5: // Token Exchange
+					return Boolean(tokens?.access_token);
+				case 6: // Flow Complete (includes introspection)
+					return Boolean(tokens?.access_token);
+				case 7: // Security Features
+					return true; // Always valid as it's informational
+				default:
+					return false;
+			}
+		},
+		[credentials, pkceCodes, parRequestUri, authUrl, authCode, tokens]
+	);
 
 	const canNavigateNext = useMemo(() => {
 		// Step 0 (introduction) is always valid
@@ -609,532 +591,543 @@ export const AuthorizationCodeFlowV5: React.FC<AuthorizationCodeFlowV5Props> = (
 	const { autoAdvanceSteps } = useFlowBehaviorSettings();
 	useEffect(() => {
 		if (!autoAdvanceSteps) return;
-		
+
 		// Don't auto-advance on the last step
 		if (currentStep >= STEP_METADATA.length - 1) return;
-		
+
 		// Don't auto-advance on step 3 (Authorization Request) - user needs to click the button
 		if (currentStep === 3) return;
-		
+
 		// Don't auto-advance on step 4 (Authorization Response) - waiting for callback
 		if (currentStep === 4) return;
-		
+
 		// Check if current step is completed
 		if (stepCompletions[currentStep]) {
 			const timer = setTimeout(() => {
 				console.log(`[Auto-Advance] Moving from step ${currentStep} to ${currentStep + 1}`);
 				setCurrentStep(currentStep + 1);
 			}, 2000); // 2 second delay
-			
+
 			return () => clearTimeout(timer);
 		}
 	}, [autoAdvanceSteps, currentStep, stepCompletions]);
 
-	const renderStepContent = useCallback((stepIndex: number) => {
-		switch (stepIndex) {
-			case 0:
-				return (
-					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('overview')}
-								aria-expanded={!collapsedSections.overview}
-							>
-								<CollapsibleTitle>
-									<FiInfo /> Flow Overview
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.overview && (
-								<CollapsibleContent>
-									<InfoBox $variant="info">
-										<FiInfo size={20} />
-										<div>
-											<InfoTitle>What is the Authorization Code Flow?</InfoTitle>
-											<InfoText>
-												The Authorization Code Flow is the most secure OAuth 2.0 flow for web applications.
-												It uses a server-to-server exchange of an authorization code for tokens, keeping
-												client secrets secure on the server side.
-											</InfoText>
-										</div>
-									</InfoBox>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
-
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('credentials')}
-								aria-expanded={!collapsedSections.credentials}
-							>
-								<CollapsibleTitle>
-									<FiKey /> Configure Credentials
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.credentials}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.credentials && (
-								<CollapsibleContent>
-									<CredentialsInput
-										credentials={credentials}
-										onCredentialsChange={setCredentials}
-										showAdvancedOptions={true}
-										showLoginHint={flowType === 'oidc'}
-									/>
-									<PingOneApplicationConfig value={flowConfig} onChange={handleFlowConfigChange} />
-									
-									<SectionDivider />
-									<ConfigurationSummaryCard
-										configuration={credentials}
-										onSaveConfiguration={saveCredentials}
-										onLoadConfiguration={(config) => {
-											if (config) {
-												setCredentials(config);
-											}
-										}}
-										primaryColor="#3b82f6"
-									/>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
-
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('flowDiagram')}
-								aria-expanded={!collapsedSections.flowDiagram}
-							>
-								<CollapsibleTitle>
-									<FiGlobe /> Authorization Flow Walkthrough
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.flowDiagram}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.flowDiagram && (
-								<CollapsibleContent>
-									<FlowDiagram>
-										{[
-											'User clicks login to start the flow',
-											'App redirects to PingOne with an authorization request',
-											'User authenticates and approves scopes',
-											'PingOne returns an authorization code to the redirect URI',
-											'Backend exchanges the code for tokens securely',
-										].map((description, index) => (
-											<FlowStep key={description}>
-												<FlowStepNumber>{index + 1}</FlowStepNumber>
-												<FlowStepContent>
-													<strong>{description}</strong>
-												</FlowStepContent>
-											</FlowStep>
-										))}
-									</FlowDiagram>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
-					</>
-				);
-
-			case 1:
-				return (
-					<>
-						<InfoBox $variant="info">
-							<FiKey size={20} />
-							<div>
-								<InfoTitle>PKCE (Proof Key for Code Exchange)</InfoTitle>
-								<InfoText>
-									PKCE adds an extra layer of security by using a dynamically generated code verifier
-									and challenge. This prevents authorization code interception attacks.
-								</InfoText>
-							</div>
-						</InfoBox>
-
-						<ActionRow>
-							<Button
-								onClick={handleGenerateAuthUrl}
-								disabled={!credentials.environmentId || !credentials.clientId}
-								$variant="primary"
-							>
-								<FiKey /> Generate PKCE Parameters & Auth URL
-							</Button>
-						</ActionRow>
-
-						{pkceCodes.codeVerifier && (
-							<GeneratedContentBox>
-								<GeneratedLabel>PKCE Parameters</GeneratedLabel>
-								<ParameterGrid>
-									<ParameterLabel>Code Verifier</ParameterLabel>
-									<ParameterValue>{pkceCodes.codeVerifier}</ParameterValue>
-									<ParameterLabel>Code Challenge</ParameterLabel>
-									<ParameterValue>{pkceCodes.codeChallenge}</ParameterValue>
-									<ParameterLabel>Code Challenge Method</ParameterLabel>
-									<ParameterValue>S256</ParameterValue>
-								</ParameterGrid>
-								<ActionRow>
-									<Button
-										onClick={() => handleCopy(pkceCodes.codeVerifier, 'Code Verifier')}
-										$variant="outline"
-									>
-										<FiCopy /> Copy Code Verifier
-									</Button>
-									<Button
-										onClick={() => handleCopy(pkceCodes.codeChallenge, 'Code Challenge')}
-										$variant="outline"
-									>
-										<FiCopy /> Copy Code Challenge
-									</Button>
-								</ActionRow>
-							</GeneratedContentBox>
-						)}
-
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('pkceDetails')}
-								aria-expanded={!collapsedSections.pkceDetails}
-							>
-								<CollapsibleTitle>
-									<FiKey /> Understanding Code Verifier & Code Challenge
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.pkceDetails}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.pkceDetails && (
-								<CollapsibleContent>
-									<ParameterGrid>
-										<InfoBox $variant="success">
-											<FiKey size={20} />
-											<div>
-												<InfoTitle>Code Verifier</InfoTitle>
-												<InfoText>
-													A high-entropy cryptographic random string (43-128 chars) that stays
-													secret in your app. Think of it as a temporary password that proves you're
-													the same client that started the OAuth flow.
-												</InfoText>
-												<InfoList>
-													<li>Generated fresh for each OAuth request</li>
-													<li>Uses characters: A-Z, a-z, 0-9, -, ., _, ~</li>
-													<li>Never sent in the authorization request</li>
-													<li>Only revealed during token exchange</li>
-												</InfoList>
-											</div>
-										</InfoBox>
-
+	const renderStepContent = useCallback(
+		(stepIndex: number) => {
+			switch (stepIndex) {
+				case 0:
+					return (
+						<>
+							<CollapsibleSection>
+								<CollapsibleHeaderButton
+									onClick={() => toggleSection('overview')}
+									aria-expanded={!collapsedSections.overview}
+								>
+									<CollapsibleTitle>
+										<FiInfo /> Flow Overview
+									</CollapsibleTitle>
+									<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
+										<FiChevronDown />
+									</CollapsibleToggleIcon>
+								</CollapsibleHeaderButton>
+								{!collapsedSections.overview && (
+									<CollapsibleContent>
 										<InfoBox $variant="info">
-											<FiShield size={20} />
+											<FiInfo size={20} />
 											<div>
-												<InfoTitle>Code Challenge</InfoTitle>
+												<InfoTitle>What is the Authorization Code Flow?</InfoTitle>
 												<InfoText>
-													A SHA256 hash of the code verifier, encoded in base64url format. This is
-													sent publicly in the authorization URL but can't be reversed to get the
-													original verifier.
+													The Authorization Code Flow is the most secure OAuth 2.0 flow for web
+													applications. It uses a server-to-server exchange of an authorization code
+													for tokens, keeping client secrets secure on the server side.
 												</InfoText>
+											</div>
+										</InfoBox>
+									</CollapsibleContent>
+								)}
+							</CollapsibleSection>
+
+							<CollapsibleSection>
+								<CollapsibleHeaderButton
+									onClick={() => toggleSection('credentials')}
+									aria-expanded={!collapsedSections.credentials}
+								>
+									<CollapsibleTitle>
+										<FiKey /> Configure Credentials
+									</CollapsibleTitle>
+									<CollapsibleToggleIcon $collapsed={collapsedSections.credentials}>
+										<FiChevronDown />
+									</CollapsibleToggleIcon>
+								</CollapsibleHeaderButton>
+								{!collapsedSections.credentials && (
+									<CollapsibleContent>
+										<CredentialsInput
+											credentials={credentials}
+											onCredentialsChange={setCredentials}
+											showAdvancedOptions={true}
+											showLoginHint={flowType === 'oidc'}
+										/>
+										<PingOneApplicationConfig
+											value={flowConfig}
+											onChange={handleFlowConfigChange}
+										/>
+
+										<SectionDivider />
+										<ConfigurationSummaryCard
+											configuration={credentials}
+											onSaveConfiguration={saveCredentials}
+											onLoadConfiguration={(config) => {
+												if (config) {
+													setCredentials(config);
+												}
+											}}
+											primaryColor="#3b82f6"
+										/>
+									</CollapsibleContent>
+								)}
+							</CollapsibleSection>
+
+							<CollapsibleSection>
+								<CollapsibleHeaderButton
+									onClick={() => toggleSection('flowDiagram')}
+									aria-expanded={!collapsedSections.flowDiagram}
+								>
+									<CollapsibleTitle>
+										<FiGlobe /> Authorization Flow Walkthrough
+									</CollapsibleTitle>
+									<CollapsibleToggleIcon $collapsed={collapsedSections.flowDiagram}>
+										<FiChevronDown />
+									</CollapsibleToggleIcon>
+								</CollapsibleHeaderButton>
+								{!collapsedSections.flowDiagram && (
+									<CollapsibleContent>
+										<FlowDiagram>
+											{[
+												'User clicks login to start the flow',
+												'App redirects to PingOne with an authorization request',
+												'User authenticates and approves scopes',
+												'PingOne returns an authorization code to the redirect URI',
+												'Backend exchanges the code for tokens securely',
+											].map((description, index) => (
+												<FlowStep key={description}>
+													<FlowStepNumber>{index + 1}</FlowStepNumber>
+													<FlowStepContent>
+														<strong>{description}</strong>
+													</FlowStepContent>
+												</FlowStep>
+											))}
+										</FlowDiagram>
+									</CollapsibleContent>
+								)}
+							</CollapsibleSection>
+						</>
+					);
+
+				case 1:
+					return (
+						<>
+							<InfoBox $variant="info">
+								<FiKey size={20} />
+								<div>
+									<InfoTitle>PKCE (Proof Key for Code Exchange)</InfoTitle>
+									<InfoText>
+										PKCE adds an extra layer of security by using a dynamically generated code
+										verifier and challenge. This prevents authorization code interception attacks.
+									</InfoText>
+								</div>
+							</InfoBox>
+
+							<ActionRow>
+								<Button
+									onClick={handleGenerateAuthUrl}
+									disabled={!credentials.environmentId || !credentials.clientId}
+									$variant="primary"
+								>
+									<FiKey /> Generate PKCE Parameters & Auth URL
+								</Button>
+							</ActionRow>
+
+							{pkceCodes.codeVerifier && (
+								<GeneratedContentBox>
+									<GeneratedLabel>PKCE Parameters</GeneratedLabel>
+									<ParameterGrid>
+										<ParameterLabel>Code Verifier</ParameterLabel>
+										<ParameterValue>{pkceCodes.codeVerifier}</ParameterValue>
+										<ParameterLabel>Code Challenge</ParameterLabel>
+										<ParameterValue>{pkceCodes.codeChallenge}</ParameterValue>
+										<ParameterLabel>Code Challenge Method</ParameterLabel>
+										<ParameterValue>S256</ParameterValue>
+									</ParameterGrid>
+									<ActionRow>
+										<Button
+											onClick={() => handleCopy(pkceCodes.codeVerifier, 'Code Verifier')}
+											$variant="outline"
+										>
+											<FiCopy /> Copy Code Verifier
+										</Button>
+										<Button
+											onClick={() => handleCopy(pkceCodes.codeChallenge, 'Code Challenge')}
+											$variant="outline"
+										>
+											<FiCopy /> Copy Code Challenge
+										</Button>
+									</ActionRow>
+								</GeneratedContentBox>
+							)}
+
+							<CollapsibleSection>
+								<CollapsibleHeaderButton
+									onClick={() => toggleSection('pkceDetails')}
+									aria-expanded={!collapsedSections.pkceDetails}
+								>
+									<CollapsibleTitle>
+										<FiKey /> Understanding Code Verifier & Code Challenge
+									</CollapsibleTitle>
+									<CollapsibleToggleIcon $collapsed={collapsedSections.pkceDetails}>
+										<FiChevronDown />
+									</CollapsibleToggleIcon>
+								</CollapsibleHeaderButton>
+								{!collapsedSections.pkceDetails && (
+									<CollapsibleContent>
+										<ParameterGrid>
+											<InfoBox $variant="success">
+												<FiKey size={20} />
+												<div>
+													<InfoTitle>Code Verifier</InfoTitle>
+													<InfoText>
+														A high-entropy cryptographic random string (43-128 chars) that stays
+														secret in your app. Think of it as a temporary password that proves
+														you're the same client that started the OAuth flow.
+													</InfoText>
+													<InfoList>
+														<li>Generated fresh for each OAuth request</li>
+														<li>Uses characters: A-Z, a-z, 0-9, -, ., _, ~</li>
+														<li>Never sent in the authorization request</li>
+														<li>Only revealed during token exchange</li>
+													</InfoList>
+												</div>
+											</InfoBox>
+
+											<InfoBox $variant="info">
+												<FiShield size={20} />
+												<div>
+													<InfoTitle>Code Challenge</InfoTitle>
+													<InfoText>
+														A SHA256 hash of the code verifier, encoded in base64url format. This is
+														sent publicly in the authorization URL but can't be reversed to get the
+														original verifier.
+													</InfoText>
+													<InfoList>
+														<li>Derived from: SHA256(code_verifier)</li>
+														<li>Encoded in base64url (URL-safe)</li>
+														<li>Safe to include in authorization URLs</li>
+														<li>Used by PingOne to verify the verifier later</li>
+													</InfoList>
+												</div>
+											</InfoBox>
+										</ParameterGrid>
+
+										<InfoBox $variant="warning">
+											<FiAlertCircle size={20} />
+											<div>
+												<InfoTitle>Security Best Practices</InfoTitle>
 												<InfoList>
-													<li>Derived from: SHA256(code_verifier)</li>
-													<li>Encoded in base64url (URL-safe)</li>
-													<li>Safe to include in authorization URLs</li>
-													<li>Used by PingOne to verify the verifier later</li>
+													<li>Always use PKCE for public clients (mobile apps, SPAs)</li>
+													<li>Generate cryptographically secure random code verifiers</li>
+													<li>Use S256 (SHA256) method for code challenge</li>
+													<li>Store code verifier securely during the flow</li>
+													<li>Never log or expose the code verifier</li>
 												</InfoList>
 											</div>
 										</InfoBox>
-									</ParameterGrid>
+									</CollapsibleContent>
+								)}
+							</CollapsibleSection>
+						</>
+					);
 
-									<InfoBox $variant="warning">
-										<FiAlertCircle size={20} />
-										<div>
-											<InfoTitle>Security Best Practices</InfoTitle>
-											<InfoList>
-												<li>Always use PKCE for public clients (mobile apps, SPAs)</li>
-												<li>Generate cryptographically secure random code verifiers</li>
-												<li>Use S256 (SHA256) method for code challenge</li>
-												<li>Store code verifier securely during the flow</li>
-												<li>Never log or expose the code verifier</li>
-											</InfoList>
-										</div>
-									</InfoBox>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
-					</>
-				);
+				case 2:
+					return (
+						<>
+							<InfoBox $variant="info">
+								<FiShield size={20} />
+								<div>
+									<InfoTitle>PAR (Pushed Authorization Request)</InfoTitle>
+									<InfoText>
+										PAR allows you to push the authorization request to the authorization server
+										before redirecting the user, improving security and reducing URL length.
+									</InfoText>
+								</div>
+							</InfoBox>
 
-			case 2:
-				return (
-					<>
-						<InfoBox $variant="info">
-							<FiShield size={20} />
-							<div>
-								<InfoTitle>PAR (Pushed Authorization Request)</InfoTitle>
-								<InfoText>
-									PAR allows you to push the authorization request to the authorization server
-									before redirecting the user, improving security and reducing URL length.
-								</InfoText>
-							</div>
-						</InfoBox>
-
-						<ActionRow>
-							<Button
-								onClick={async () => {
-									try {
-										const response = await fetch('/api/par', {
-											method: 'POST',
-											headers: { 'Content-Type': 'application/json' },
-											body: JSON.stringify({
-												environmentId: credentials.environmentId,
-												clientId: credentials.clientId,
-												redirectUri: credentials.redirectUri,
-												scopes: credentials.scopes,
-											}),
-										});
-										const data = await response.json();
-										if (data.requestUri) {
-											setParRequestUri(data.requestUri);
-											v4ToastManager.showSuccess('PAR request successful!');
+							<ActionRow>
+								<Button
+									onClick={async () => {
+										try {
+											const response = await fetch('/api/par', {
+												method: 'POST',
+												headers: { 'Content-Type': 'application/json' },
+												body: JSON.stringify({
+													environmentId: credentials.environmentId,
+													clientId: credentials.clientId,
+													redirectUri: credentials.redirectUri,
+													scopes: credentials.scopes,
+												}),
+											});
+											const data = await response.json();
+											if (data.requestUri) {
+												setParRequestUri(data.requestUri);
+												v4ToastManager.showSuccess('PAR request successful!');
+											}
+										} catch (_error) {
+											v4ToastManager.showError('PAR request failed');
 										}
-									} catch (error) {
-										v4ToastManager.showError('PAR request failed');
-									}
+									}}
+									disabled={!credentials.environmentId || !credentials.clientId}
+									$variant="primary"
+								>
+									<FiShield /> Push Authorization Request
+								</Button>
+							</ActionRow>
+
+							{parRequestUri && (
+								<GeneratedContentBox>
+									<GeneratedLabel>PAR Request URI</GeneratedLabel>
+									<ParameterValue>{parRequestUri}</ParameterValue>
+									<ActionRow>
+										<Button
+											onClick={() => handleCopy(parRequestUri, 'Request URI')}
+											$variant="outline"
+										>
+											<FiCopy /> Copy Request URI
+										</Button>
+									</ActionRow>
+								</GeneratedContentBox>
+							)}
+						</>
+					);
+
+				case 3:
+					return (
+						<>
+							<InfoBox $variant="info">
+								<FiGlobe size={20} />
+								<div>
+									<InfoTitle>Authorization Request</InfoTitle>
+									<InfoText>
+										This is the authorization URL that will redirect the user to PingOne for
+										authentication. The URL includes all necessary parameters for the authorization
+										code flow.
+									</InfoText>
+								</div>
+							</InfoBox>
+
+							<ActionRow>
+								<Button
+									onClick={() => {
+										if (authUrl) {
+											window.open(authUrl, '_blank');
+										}
+									}}
+									disabled={!authUrl}
+									$variant="primary"
+								>
+									<FiGlobe /> Launch Authorization URL
+								</Button>
+							</ActionRow>
+
+							{authUrl && (
+								<GeneratedContentBox>
+									<GeneratedLabel>Authorization URL</GeneratedLabel>
+									<ParameterValue style={{ wordBreak: 'break-all' }}>{authUrl}</ParameterValue>
+									<ActionRow>
+										<Button
+											onClick={() => handleCopy(authUrl, 'Authorization URL')}
+											$variant="outline"
+										>
+											<FiCopy /> Copy Authorization URL
+										</Button>
+									</ActionRow>
+								</GeneratedContentBox>
+							)}
+						</>
+					);
+
+				case 4:
+					return (
+						<>
+							<InfoBox $variant="info">
+								<FiArrowRight size={20} />
+								<div>
+									<InfoTitle>Authorization Response</InfoTitle>
+									<InfoText>
+										After the user authenticates, PingOne will redirect back to your application
+										with an authorization code. This code is then exchanged for tokens.
+									</InfoText>
+								</div>
+							</InfoBox>
+
+							{localAuthCode && (
+								<GeneratedContentBox>
+									<GeneratedLabel>Authorization Code</GeneratedLabel>
+									<ParameterValue>{localAuthCode}</ParameterValue>
+									<ActionRow>
+										<Button
+											onClick={() => handleCopy(localAuthCode, 'Authorization Code')}
+											$variant="outline"
+										>
+											<FiCopy /> Copy Authorization Code
+										</Button>
+									</ActionRow>
+								</GeneratedContentBox>
+							)}
+
+							<LoginSuccessModal
+								isOpen={showLoginSuccessModal}
+								onClose={() => setShowLoginSuccessModal(false)}
+								authCode={localAuthCode}
+								onProceed={() => {
+									setShowLoginSuccessModal(false);
+									setCurrentStep(5);
 								}}
-								disabled={!credentials.environmentId || !credentials.clientId}
-								$variant="primary"
-							>
-								<FiShield /> Push Authorization Request
-							</Button>
-						</ActionRow>
+							/>
+						</>
+					);
 
-						{parRequestUri && (
-							<GeneratedContentBox>
-								<GeneratedLabel>PAR Request URI</GeneratedLabel>
-								<ParameterValue>{parRequestUri}</ParameterValue>
-								<ActionRow>
-									<Button
-										onClick={() => handleCopy(parRequestUri, 'Request URI')}
-										$variant="outline"
-									>
-										<FiCopy /> Copy Request URI
-									</Button>
-								</ActionRow>
-							</GeneratedContentBox>
-						)}
-					</>
-				);
+				case 5:
+					return (
+						<>
+							<ResultsSection>
+								<ResultsHeading>{flowName} Complete!</ResultsHeading>
+								<p>
+									You have successfully completed the {flowName}. Your application now has access
+									tokens and can make authenticated requests to protected APIs.
+								</p>
+							</ResultsSection>
 
-			case 3:
-				return (
-					<>
-						<InfoBox $variant="info">
-							<FiGlobe size={20} />
-							<div>
-								<InfoTitle>Authorization Request</InfoTitle>
-								<InfoText>
-									This is the authorization URL that will redirect the user to PingOne for authentication.
-									The URL includes all necessary parameters for the authorization code flow.
-								</InfoText>
-							</div>
-						</InfoBox>
+							{tokens && (
+								<GeneratedContentBox>
+									<ParameterLabel>Flow Summary</ParameterLabel>
+									<ParameterGrid>
+										<ParameterLabel>Flow Type</ParameterLabel>
+										<ParameterValue>Authorization Code Grant with PKCE</ParameterValue>
+										<ParameterLabel>Tokens Received</ParameterLabel>
+										<ParameterValue style={{ color: '#10b981' }}>✓ Access Token</ParameterValue>
+										{tokens.refresh_token && (
+											<>
+												<ParameterLabel>Refresh Token</ParameterLabel>
+												<ParameterValue style={{ color: '#10b981' }}>✓ Available</ParameterValue>
+											</>
+										)}
+										<ParameterLabel>Token Type</ParameterLabel>
+										<ParameterValue>{tokens.token_type || 'Bearer'}</ParameterValue>
+										<ParameterLabel>Expires In</ParameterLabel>
+										<ParameterValue>
+											{tokens.expires_in ? `${tokens.expires_in} seconds` : 'N/A'}
+										</ParameterValue>
+									</ParameterGrid>
+								</GeneratedContentBox>
+							)}
 
-						<ActionRow>
-							<Button
-								onClick={() => {
-									if (authUrl) {
-										window.open(authUrl, '_blank');
-									}
-								}}
-								disabled={!authUrl}
-								$variant="primary"
-							>
-								<FiGlobe /> Launch Authorization URL
-							</Button>
-						</ActionRow>
+							<ActionRow>
+								<Button
+									onClick={() => window.open('/token-management', '_blank')}
+									$variant="primary"
+								>
+									<FiExternalLink /> View in Token Management
+								</Button>
+							</ActionRow>
+						</>
+					);
 
-						{authUrl && (
-							<GeneratedContentBox>
-								<GeneratedLabel>Authorization URL</GeneratedLabel>
-								<ParameterValue style={{ wordBreak: 'break-all' }}>{authUrl}</ParameterValue>
-								<ActionRow>
-									<Button
-										onClick={() => handleCopy(authUrl, 'Authorization URL')}
-										$variant="outline"
-									>
-										<FiCopy /> Copy Authorization URL
-									</Button>
-								</ActionRow>
-							</GeneratedContentBox>
-						)}
-					</>
-				);
-
-			case 4:
-				return (
-					<>
-						<InfoBox $variant="info">
-							<FiArrowRight size={20} />
-							<div>
-								<InfoTitle>Authorization Response</InfoTitle>
-								<InfoText>
-									After the user authenticates, PingOne will redirect back to your application with
-									an authorization code. This code is then exchanged for tokens.
-								</InfoText>
-							</div>
-						</InfoBox>
-
-						{localAuthCode && (
-							<GeneratedContentBox>
-								<GeneratedLabel>Authorization Code</GeneratedLabel>
-								<ParameterValue>{localAuthCode}</ParameterValue>
-								<ActionRow>
-									<Button
-										onClick={() => handleCopy(localAuthCode, 'Authorization Code')}
-										$variant="outline"
-									>
-										<FiCopy /> Copy Authorization Code
-									</Button>
-								</ActionRow>
-							</GeneratedContentBox>
-						)}
-
-						<LoginSuccessModal
-							isOpen={showLoginSuccessModal}
-							onClose={() => setShowLoginSuccessModal(false)}
-							authCode={localAuthCode}
-							onProceed={() => {
-								setShowLoginSuccessModal(false);
-								setCurrentStep(5);
-							}}
-						/>
-					</>
-				);
-
-			case 5:
-				return (
-					<>
-						<ResultsSection>
-							<ResultsHeading>{flowName} Complete!</ResultsHeading>
-							<p>
-								You have successfully completed the {flowName}. 
-								Your application now has access tokens and can make authenticated requests to protected APIs.
-							</p>
-						</ResultsSection>
-
-						{tokens && (
-							<GeneratedContentBox>
-								<ParameterLabel>Flow Summary</ParameterLabel>
-								<ParameterGrid>
-									<ParameterLabel>Flow Type</ParameterLabel>
-									<ParameterValue>Authorization Code Grant with PKCE</ParameterValue>
-									<ParameterLabel>Tokens Received</ParameterLabel>
-									<ParameterValue style={{ color: '#10b981' }}>✓ Access Token</ParameterValue>
-									{tokens.refresh_token && (
-										<>
-											<ParameterLabel>Refresh Token</ParameterLabel>
-											<ParameterValue style={{ color: '#10b981' }}>✓ Available</ParameterValue>
-										</>
-									)}
-									<ParameterLabel>Token Type</ParameterLabel>
-									<ParameterValue>{tokens.token_type || 'Bearer'}</ParameterValue>
-									<ParameterLabel>Expires In</ParameterLabel>
-									<ParameterValue>
-										{tokens.expires_in ? `${tokens.expires_in} seconds` : 'N/A'}
-									</ParameterValue>
-								</ParameterGrid>
-							</GeneratedContentBox>
-						)}
-
-						<ActionRow>
-							<Button
-								onClick={() => window.open('/token-management', '_blank')}
-								$variant="primary"
-							>
-								<FiExternalLink /> View in Token Management
-							</Button>
-						</ActionRow>
-					</>
-				);
-
-			case 6:
-				return (
-					<TokenIntrospect
-						flowName={flowName}
-						flowVersion={flowVersion}
-						{...(controller.tokens && {
-							tokens: {
-								access_token: controller.tokens.access_token,
-								refresh_token: controller.tokens.refresh_token,
-							} as { [key: string]: unknown; access_token?: string; refresh_token?: string; }
-						})}
-						credentials={controller.credentials as unknown as { [key: string]: unknown; environmentId?: string; clientId?: string; clientSecret?: string; }}
-						userInfo={controller.userInfo}
-						onFetchUserInfo={controller.fetchUserInfo}
-						isFetchingUserInfo={controller.isFetchingUserInfo}
-						onResetFlow={handleResetFlow}
-						onNavigateToTokenManagement={navigateToTokenManagement}
-						onIntrospectToken={handleIntrospectToken}
-						collapsedSections={{
-							completionOverview: collapsedSections.completionOverview,
-							completionDetails: collapsedSections.completionDetails,
-							introspectionDetails: collapsedSections.introspectionDetails,
-							rawJson: collapsedSections.rawJson || true, // Default to collapsed
-							userInfo: collapsedSections.userInfo || false, // Default to expanded
-						}}
-						onToggleSection={(section) => {
-							if (section === 'completionOverview' || section === 'completionDetails') {
-								toggleSection(section as IntroSectionKey);
+				case 6:
+					return (
+						<TokenIntrospect
+							flowName={flowName}
+							flowVersion={flowVersion}
+							{...(controller.tokens && {
+								tokens: {
+									access_token: controller.tokens.access_token,
+									refresh_token: controller.tokens.refresh_token,
+								} as { [key: string]: unknown; access_token?: string; refresh_token?: string },
+							})}
+							credentials={
+								controller.credentials as unknown as {
+									[key: string]: unknown;
+									environmentId?: string;
+									clientId?: string;
+									clientSecret?: string;
+								}
 							}
-						}}
-						completionMessage={completionMessage}
-						nextSteps={nextSteps}
-					/>
-				);
+							userInfo={controller.userInfo}
+							onFetchUserInfo={controller.fetchUserInfo}
+							isFetchingUserInfo={controller.isFetchingUserInfo}
+							onResetFlow={handleResetFlow}
+							onNavigateToTokenManagement={navigateToTokenManagement}
+							onIntrospectToken={handleIntrospectToken}
+							collapsedSections={{
+								completionOverview: collapsedSections.completionOverview,
+								completionDetails: collapsedSections.completionDetails,
+								introspectionDetails: collapsedSections.introspectionDetails,
+								rawJson: collapsedSections.rawJson || true, // Default to collapsed
+								userInfo: collapsedSections.userInfo || false, // Default to expanded
+							}}
+							onToggleSection={(section) => {
+								if (section === 'completionOverview' || section === 'completionDetails') {
+									toggleSection(section as IntroSectionKey);
+								}
+							}}
+							completionMessage={completionMessage}
+							nextSteps={nextSteps}
+						/>
+					);
 
-			case 7:
-				return (
-					<SecurityFeaturesDemo
-						flowName={flowName}
-						flowVersion={flowVersion}
-						completionMessage={completionMessage}
-						nextSteps={nextSteps}
-					/>
-				);
+				case 7:
+					return (
+						<SecurityFeaturesDemo
+							flowName={flowName}
+							flowVersion={flowVersion}
+							completionMessage={completionMessage}
+							nextSteps={nextSteps}
+						/>
+					);
 
-			default:
-				return null;
-		}
-	}, [
-		collapsedSections,
-		controller.authUrl,
-		controller.authCode,
-		controller.credentials,
-		controller.pkceCodes,
-		controller.tokens,
-		controller.userInfo,
-		currentStep,
-		handleCopy,
-		handleExchangeTokens,
-		handleFetchUserInfo,
-		handleGenerateAuthUrl,
-		handleIntrospectToken,
-		handleResetFlow,
-		handleFlowConfigChange,
-		flowConfig,
-		credentials,
-		setCredentials,
-		tokens,
-		userInfo,
-		isFetchingUserInfo,
-		parRequestUri,
-		setParRequestUri,
-		showLoginSuccessModal,
-		setShowLoginSuccessModal,
-		localAuthCode,
-		toggleSection,
-		flowName,
-		flowVersion,
-		completionMessage,
-		nextSteps,
-		flowType,
-	]);
+				default:
+					return null;
+			}
+		},
+		[
+			collapsedSections,
+			controller.credentials,
+			controller.tokens,
+			controller.userInfo,
+			handleCopy,
+			handleGenerateAuthUrl,
+			handleIntrospectToken,
+			handleResetFlow,
+			handleFlowConfigChange,
+			flowConfig,
+			credentials,
+			setCredentials,
+			tokens,
+			parRequestUri,
+			showLoginSuccessModal,
+			localAuthCode,
+			toggleSection,
+			flowName,
+			flowVersion,
+			completionMessage,
+			nextSteps,
+			flowType,
+			authUrl,
+			controller.fetchUserInfo,
+			controller.isFetchingUserInfo,
+			navigateToTokenManagement,
+			pkceCodes.codeChallenge,
+			pkceCodes.codeVerifier,
+			saveCredentials,
+		]
+	);
 
 	return (
 		<Container>
@@ -1147,11 +1140,15 @@ export const AuthorizationCodeFlowV5: React.FC<AuthorizationCodeFlowV5Props> = (
 					Interactive demonstration of the {flowType === 'oidc' ? 'OpenID Connect ' : 'OAuth 2.0 '}
 					Authorization Code Flow with PKCE using PingOne
 				</p>
-		</Header>
+			</Header>
 
-		<FlowInfoCard flowInfo={getFlowInfo(flowType === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code')!} />
+			<FlowInfoCard
+				flowInfo={
+					getFlowInfo(flowType === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code')!
+				}
+			/>
 
-		<StepHeader>
+			<StepHeader>
 				<StepHeaderLeft>
 					<VersionBadge>{flowVersion}</VersionBadge>
 					<StepHeaderTitle>{STEP_METADATA[currentStep].title}</StepHeaderTitle>
@@ -1159,9 +1156,7 @@ export const AuthorizationCodeFlowV5: React.FC<AuthorizationCodeFlowV5Props> = (
 				</StepHeaderLeft>
 			</StepHeader>
 
-			<StepContent>
-				{renderStepContent(currentStep)}
-			</StepContent>
+			<StepContent>{renderStepContent(currentStep)}</StepContent>
 
 			<StepNavigationButtons
 				currentStep={currentStep}

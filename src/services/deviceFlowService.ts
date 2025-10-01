@@ -147,7 +147,7 @@ class DeviceFlowService {
 			const tokenEndpoint = `https://auth.pingone.com/${environmentId}/as/token`;
 
 			logger.info('DeviceFlowService', 'Polling for device tokens', {
-				deviceCode: deviceCode.substring(0, 8) + '...',
+				deviceCode: `${deviceCode.substring(0, 8)}...`,
 				clientId,
 			});
 

@@ -1,5 +1,5 @@
-import { logger } from './logger';
 import { analyticsManager } from './analytics';
+import { logger } from './logger';
 
 // Security analytics types
 export type SecurityEventType =
@@ -156,7 +156,6 @@ export class SecurityAnalyticsManager {
 	private threatIntelligence: ThreatIntelligence[] = [];
 	private complianceReports: Map<ComplianceStandard, ComplianceReport> = new Map();
 	private riskAssessments: RiskAssessment[] = [];
-	private isMonitoring: boolean = false;
 	private monitoringConfig: {
 		enableRealTimeMonitoring: boolean;
 		enableThreatDetection: boolean;
