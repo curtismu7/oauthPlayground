@@ -17,6 +17,8 @@ import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../../components/Card';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
+import FlowInfoCard from '../../components/FlowInfoCard';
+import { getFlowInfo } from '../../utils/flowInfoConfig';
 import {
 	ExplanationHeading,
 	ExplanationSection,
@@ -1025,9 +1027,11 @@ const PingOnePARFlowV5: React.FC = () => {
 					<Subtitle>
 						Pushed Authorization Request (RFC 9126) with PingOne Integration
 					</Subtitle>
-				</HeaderSection>
+			</HeaderSection>
 
-				<MainCard>
+			<FlowInfoCard flowInfo={getFlowInfo('par')!} />
+
+			<MainCard>
 					<StepHeader>
 						<StepHeaderLeft>
 							<VersionBadge>V5</VersionBadge>
