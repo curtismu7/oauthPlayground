@@ -690,7 +690,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							$isV5={true}
 						>
 							<FiLock style={{ marginRight: '0.5rem' }} />
-							<span>Client Credentials V5</span>
+							<span>OAuth Client Credentials V5</span>
+						</SubmenuItem>
+						<SubmenuItem
+							to="/flows/oidc-client-credentials-v5"
+							onClick={onClose}
+							$isActive={isActiveRoute('/flows/oidc-client-credentials-v5')}
+							$isV5={true}
+						>
+							<FiShield style={{ marginRight: '0.5rem' }} />
+							<span>OIDC Client Credentials V5</span>
 						</SubmenuItem>
 						<SubmenuItem
 							to="/flows/pingone-par-v5"
