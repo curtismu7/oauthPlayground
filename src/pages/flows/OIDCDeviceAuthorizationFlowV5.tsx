@@ -1,5 +1,5 @@
-// src/pages/flows/DeviceAuthorizationFlowV5.tsx
-// OAuth Device Authorization Grant (RFC 8628) - V5 Implementation
+// src/pages/flows/OIDCDeviceAuthorizationFlowV5.tsx
+// OIDC Device Authorization Code Grant (RFC 8628) - V5 Implementation with ID Token
 import React, { useState, useCallback } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { 
@@ -18,8 +18,6 @@ import {
 	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import FlowInfoCard from '../../components/FlowInfoCard';
-import { getFlowInfo } from '../../utils/flowInfoConfig';
 import {
 	ExplanationHeading,
 	ExplanationSection,
@@ -327,11 +325,11 @@ const Button = styled.button<{
 `;
 
 const STEP_METADATA = [
-	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the Device Authorization Code Flow' },
+	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the OIDC Device Authorization Code Flow' },
 	{ title: 'Step 1: Request Device Code', subtitle: 'Initiate device authorization' },
 	{ title: 'Step 2: User Authorization', subtitle: 'Display user code and verification URL' },
 	{ title: 'Step 3: Poll for Tokens', subtitle: 'Wait for user authorization' },
-	{ title: 'Step 4: Tokens Received', subtitle: 'View and analyze tokens' },
+	{ title: 'Step 4: Tokens Received', subtitle: 'View Access Token, ID Token, and Refresh Token' },
 	{ title: 'Step 5: User Information', subtitle: 'Fetch user profile data' },
 	{ title: 'Step 6: Token Introspection', subtitle: 'Validate and inspect tokens' },
 	{ title: 'Step 7: Flow Complete', subtitle: 'Summary and next steps' },
@@ -540,7 +538,7 @@ const VerificationBox = styled.div`
 	text-align: center;
 `;
 
-const DeviceAuthorizationFlowV5: React.FC = () => {
+const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 	const deviceFlow = useDeviceAuthorizationFlow();
 	const [currentStep, setCurrentStep] = useState(0);
 	const [collapsedSections, setCollapsedSections] = useState<Record<SectionKey, boolean>>({
@@ -1329,8 +1327,35 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 									</GeneratedContentBox>
 								</ResultsSection>
 
-								{/* OAuth 2.0 Device Authorization Flow does not include ID tokens */}
-								{/* ID tokens are only available in the OIDC Device Authorization Flow */}
+								{deviceFlow.tokens.id_token && (
+									<ResultsSection>
+										<ResultsHeading>
+											<FiShield size={18} /> ID Token
+										</ResultsHeading>
+										<GeneratedContentBox>
+											<ParameterGrid>
+												<div style={{ gridColumn: '1 / -1' }}>
+													<ParameterLabel>ID Token (JWT)</ParameterLabel>
+													<ParameterValue style={{ 
+														wordBreak: 'break-all',
+														fontFamily: 'monospace',
+														fontSize: '0.75rem'
+													}}>
+														{deviceFlow.tokens.id_token}
+													</ParameterValue>
+												</div>
+											</ParameterGrid>
+											<ActionRow>
+												<Button
+													onClick={() => handleCopy(deviceFlow.tokens!.id_token!, 'ID Token')}
+													$variant="outline"
+												>
+													<FiCopy /> Copy ID Token
+												</Button>
+											</ActionRow>
+										</GeneratedContentBox>
+									</ResultsSection>
+								)}
 
 								{deviceFlow.tokens.refresh_token && (
 									<ResultsSection>
@@ -1510,11 +1535,9 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 
 	return (
 		<FlowContainer>
-			<FlowInfoCard flowInfo={getFlowInfo('device-code')!} />
-			
 			<FlowHeader>
 				<div>
-					<StepBadge>DEVICE AUTHORIZATION CODE • V5 API</StepBadge>
+					<StepBadge>OIDC DEVICE AUTHORIZATION CODE • V5 API</StepBadge>
 					<FlowTitle>{STEP_METADATA[currentStep].title}</FlowTitle>
 					<FlowSubtitle>{STEP_METADATA[currentStep].subtitle}</FlowSubtitle>
 				</div>
@@ -1543,4 +1566,4 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 	);
 };
 
-export default DeviceAuthorizationFlowV5;
+export default OIDCDeviceAuthorizationFlowV5;
