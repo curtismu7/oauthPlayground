@@ -93,7 +93,8 @@ const EmptyState = styled.div`
 `;
 
 interface ConfigurationSummaryCardProps {
-	configuration?: any; // Accept the credentials object directly
+	// biome-ignore lint/suspicious/noExplicitAny: Configuration can be various credential types
+	configuration?: any;
 	hasConfiguration?: boolean;
 	configurationDetails?: {
 		environmentId?: string;
@@ -105,7 +106,8 @@ interface ConfigurationSummaryCardProps {
 		grantType?: string;
 	};
 	onSaveConfiguration?: () => void;
-	onLoadConfiguration?: (config?: any) => void; // Allow passing config data
+	// biome-ignore lint/suspicious/noExplicitAny: Configuration can be various credential types
+	onLoadConfiguration?: (config?: any) => void;
 	primaryColor?: string;
 }
 
@@ -118,7 +120,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 	primaryColor = '#0070cc',
 }) => {
 	const { settings } = useUISettings();
-	const computedPrimaryColor = primaryColor || (settings.colorScheme === 'blue' ? '#0070cc' : 
+	const _computedPrimaryColor = primaryColor || (settings.colorScheme === 'blue' ? '#0070cc' : 
 		settings.colorScheme === 'green' ? '#10b981' :
 		settings.colorScheme === 'purple' ? '#8b5cf6' :
 		settings.colorScheme === 'orange' ? '#f97316' :
@@ -129,7 +131,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 		onSaveConfiguration?.();
 	};
 
-	const handleLoadConfiguration = () => {
+	const _handleLoadConfiguration = () => {
 		onLoadConfiguration?.();
 	};
 
