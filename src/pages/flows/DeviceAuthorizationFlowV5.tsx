@@ -29,9 +29,11 @@ import {
 	ResultsSection,
 } from '../../components/ResultsPanel';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import TokenIntrospect from '../../components/TokenIntrospect';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { useDeviceAuthorizationFlow } from '../../hooks/useDeviceAuthorizationFlow';
 import { credentialManager } from '../../utils/credentialManager';
+import { useUISettings } from '../../contexts/UISettingsContext';
 
 // Styled Components (V5 Parity)
 const FlowContainer = styled.div`
@@ -329,11 +331,10 @@ const Button = styled.button<{
 const STEP_METADATA = [
 	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the Device Authorization Code Flow' },
 	{ title: 'Step 1: Request Device Code', subtitle: 'Initiate device authorization' },
-	{ title: 'Step 2: User Authorization', subtitle: 'Display user code and verification URL' },
-	{ title: 'Step 3: Poll for Tokens', subtitle: 'Wait for user authorization' },
-	{ title: 'Step 4: Tokens Received', subtitle: 'View and analyze tokens' },
-	{ title: 'Step 5: Token Introspection', subtitle: 'Validate and inspect tokens' },
-	{ title: 'Step 6: Flow Complete', subtitle: 'Summary and next steps' },
+	{ title: 'Step 2: User Authorization & Polling', subtitle: 'Scan QR code and watch TV update' },
+	{ title: 'Step 3: Tokens Received', subtitle: 'View and analyze tokens' },
+	{ title: 'Step 4: Token Introspection', subtitle: 'Validate and inspect tokens' },
+	{ title: 'Step 5: Flow Complete', subtitle: 'Summary and next steps' },
 ] as const;
 
 type SectionKey =
@@ -438,25 +439,23 @@ const QRCodeContainer = styled.div`
 
 const SmartTVContainer = styled.div`
 	display: flex;
+	flex-direction: column;
 	gap: 2rem;
-	align-items: flex-start;
 	margin: 2rem 0;
-
-	@media (max-width: 768px) {
-		flex-direction: column;
-	}
 `;
 
 const SmartTV = styled.div<{ $isWaiting: boolean }>`
-	flex: 1;
+	width: 100%;
+	max-width: 900px;
+	margin: 0 auto;
 	background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
 	border-radius: 1rem;
-	padding: 1.5rem;
+	padding: 2rem;
 	color: #ffffff;
 	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 	position: relative;
-	overflow: hidden;
-	border: 8px solid #0f172a;
+	overflow: visible;
+	border: 12px solid #0f172a;
 
 	&::before {
 		content: '';
@@ -476,13 +475,14 @@ const SmartTV = styled.div<{ $isWaiting: boolean }>`
 	&::after {
 		content: '';
 		position: absolute;
-		bottom: -20px;
+		bottom: -30px;
 		left: 50%;
 		transform: translateX(-50%);
-		width: 80px;
-		height: 20px;
-		background: #0f172a;
-		border-radius: 0 0 8px 8px;
+		width: 120px;
+		height: 30px;
+		background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+		border-radius: 0 0 12px 12px;
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 	}
 
 	@keyframes shimmer {
@@ -491,19 +491,24 @@ const SmartTV = styled.div<{ $isWaiting: boolean }>`
 	}
 `;
 
-const TVScreen = styled.div`
-	background-color: #000000;
+const TVScreen = styled.div<{ $showContent?: boolean }>`
+	background: ${({ $showContent }) => 
+		$showContent 
+			? 'linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%)'
+			: '#000000'};
 	border: 2px solid #1e293b;
 	border-radius: 0.5rem;
-	padding: 2rem;
+	padding: ${({ $showContent }) => $showContent ? '2rem' : '3rem'};
 	margin-bottom: 1rem;
-	min-height: 250px;
+	min-height: 350px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
 	text-align: center;
 	box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+	position: relative;
+	overflow: hidden;
 `;
 
 const TVDisplay = styled.div`
@@ -533,8 +538,113 @@ const TVStatusIndicator = styled.div<{ $active?: boolean }>`
 	}
 `;
 
+const AppGrid = styled.div`
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 0.75rem;
+	width: 100%;
+	padding: 0.5rem;
+`;
+
+const AppIcon = styled.div<{ $color: string }>`
+	aspect-ratio: 1;
+	background: ${({ $color }) => $color};
+	border-radius: 0.5rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 0.75rem;
+	font-weight: bold;
+	color: white;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+	cursor: pointer;
+	transition: transform 0.2s ease;
+
+	&:hover {
+		transform: scale(1.05);
+	}
+`;
+
+const WelcomeMessage = styled.div`
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: #ffffff;
+	margin-bottom: 1rem;
+	text-align: center;
+`;
+
+const ModalOverlay = styled.div<{ $isOpen: boolean }>`
+	display: ${({ $isOpen }) => ($isOpen ? 'flex' : 'none')};
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.7);
+	z-index: 1000;
+	align-items: center;
+	justify-content: center;
+	padding: 1rem;
+	animation: fadeIn 0.2s ease;
+
+	@keyframes fadeIn {
+		from { opacity: 0; }
+		to { opacity: 1; }
+	}
+`;
+
+const ModalContent = styled.div`
+	background: white;
+	border-radius: 1rem;
+	padding: 2rem;
+	max-width: 500px;
+	width: 100%;
+	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+	animation: slideUp 0.3s ease;
+
+	@keyframes slideUp {
+		from {
+			transform: translateY(20px);
+			opacity: 0;
+		}
+		to {
+			transform: translateY(0);
+			opacity: 1;
+		}
+	}
+`;
+
+const ModalHeader = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-bottom: 1rem;
+	color: #1e293b;
+`;
+
+const ModalTitle = styled.h3`
+	margin: 0;
+	font-size: 1.5rem;
+	font-weight: 600;
+`;
+
+const ModalBody = styled.div`
+	color: #475569;
+	font-size: 1rem;
+	line-height: 1.6;
+	margin-bottom: 1.5rem;
+`;
+
+const ModalActions = styled.div`
+	display: flex;
+	gap: 0.75rem;
+	justify-content: flex-end;
+`;
+
 const QRSection = styled.div`
-	flex: 1;
+	width: 100%;
+	max-width: 500px;
+	margin: 0 auto;
 	background-color: #ffffff;
 	border: 2px solid #e2e8f0;
 	border-radius: 1rem;
@@ -576,6 +686,15 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 	const [copiedField, setCopiedField] = useState<string | null>(null);
 	const [userInfo, setUserInfo] = useState<any>(null);
 	const [introspectionResult, setIntrospectionResult] = useState<any>(null);
+	const [showPollingModal, setShowPollingModal] = useState(false);
+	const { settings } = useUISettings();
+
+	// Show polling prompt modal when device code is received
+	React.useEffect(() => {
+		if (deviceFlow.deviceCodeData && !deviceFlow.pollingStatus.isPolling && !deviceFlow.tokens && settings.showPollingPrompt) {
+			setShowPollingModal(true);
+		}
+	}, [deviceFlow.deviceCodeData, deviceFlow.pollingStatus.isPolling, deviceFlow.tokens, settings.showPollingPrompt]);
 
 	const toggleSection = useCallback((section: SectionKey) => {
 		setCollapsedSections(prev => ({
@@ -626,6 +745,54 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 		console.log('[📺 OAUTH-DEVICE] [INFO] Credentials saved to credential manager');
 	}, [deviceFlow.credentials]);
 
+	const navigateToTokenManagement = useCallback(() => {
+		// Set flow source for Token Management page
+		sessionStorage.setItem('flow_source', 'device-authorization-v5');
+
+		// Store comprehensive flow context for Token Management page
+		const flowContext = {
+			flow: 'device-authorization-v5',
+			tokens: deviceFlow.tokens,
+			credentials: deviceFlow.credentials,
+		};
+		sessionStorage.setItem('tokenManagementFlowContext', JSON.stringify(flowContext));
+
+		// If we have tokens, pass them to Token Management
+		if (deviceFlow.tokens?.access_token) {
+			// Use localStorage for cross-tab communication
+			localStorage.setItem('token_to_analyze', deviceFlow.tokens.access_token);
+			localStorage.setItem('token_type', 'access');
+			localStorage.setItem('flow_source', 'device-authorization-v5');
+			console.log('🔍 [DeviceAuthorizationFlowV5] Passing access token to Token Management via localStorage');
+		}
+
+		window.location.href = '/token-management';
+	}, [deviceFlow.tokens, deviceFlow.credentials]);
+
+	const navigateToTokenManagementWithRefreshToken = useCallback(() => {
+		// Set flow source for Token Management page
+		sessionStorage.setItem('flow_source', 'device-authorization-v5');
+
+		// Store comprehensive flow context for Token Management page
+		const flowContext = {
+			flow: 'device-authorization-v5',
+			tokens: deviceFlow.tokens,
+			credentials: deviceFlow.credentials,
+		};
+		sessionStorage.setItem('tokenManagementFlowContext', JSON.stringify(flowContext));
+
+		// If we have refresh token, pass it to Token Management
+		if (deviceFlow.tokens?.refresh_token) {
+			// Use localStorage for cross-tab communication
+			localStorage.setItem('token_to_analyze', deviceFlow.tokens.refresh_token);
+			localStorage.setItem('token_type', 'refresh');
+			localStorage.setItem('flow_source', 'device-authorization-v5');
+			console.log('🔍 [DeviceAuthorizationFlowV5] Passing refresh token to Token Management via localStorage');
+		}
+
+		window.location.href = '/token-management';
+	}, [deviceFlow.tokens, deviceFlow.credentials]);
+
 	const handleRequestDeviceCode = useCallback(async () => {
 		try {
 			await deviceFlow.requestDeviceCode();
@@ -636,13 +803,20 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 	}, [deviceFlow]);
 
 	const handleStartPolling = useCallback(() => {
+		setShowPollingModal(false);
 		deviceFlow.startPolling();
-		setCurrentStep(3); // Move to polling step
+		// Stay on current step (User Authorization - step 2) so user can see Smart TV update
+		// Don't advance to step 3 - let user see the real-time polling results on the TV display
 	}, [deviceFlow]);
+
+	const handleDismissModal = useCallback(() => {
+		setShowPollingModal(false);
+	}, []);
 
 	const handleReset = useCallback(() => {
 		deviceFlow.reset();
 		setCurrentStep(0);
+		setShowPollingModal(false);
 		setUserInfo(null);
 		setIntrospectionResult(null);
 	}, [deviceFlow]);
@@ -661,12 +835,15 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 		}
 	}, [deviceFlow.credentials, deviceFlow.deviceCodeData, deviceFlow.tokens]);
 
-	// Auto-advance when tokens received
+	// Don't auto-advance - let user see the TV update and click Next manually
+	// This provides better educational experience to see the full authorization flow
+	
+	// Show toast when tokens received to draw attention to TV update
 	React.useEffect(() => {
-		if (deviceFlow.pollingStatus.status === 'success' && deviceFlow.tokens) {
-			setCurrentStep(4);
+		if (deviceFlow.tokens && currentStep === 2) {
+			v4ToastManager.showSuccess('🎉 Authorization successful! Check out your StreamFlix TV screen above!');
 		}
-	}, [deviceFlow.pollingStatus.status, deviceFlow.tokens]);
+	}, [deviceFlow.tokens, currentStep]);
 
 	const renderStepContent = () => {
 		switch (currentStep) {
@@ -714,6 +891,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 								devices to obtain user authorization without a browser. Perfect for smart TVs, IoT devices,
 								CLI tools, and gaming consoles.
 							</InfoText>
+
 							<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
 								<FiSmartphone size={20} />
 								<div>
@@ -724,6 +902,33 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 										<li>IoT devices without keyboards</li>
 										<li>Gaming consoles</li>
 										<li>Devices with limited input capabilities</li>
+									</ul>
+								</div>
+							</InfoBox>
+
+							<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
+								<FiShield size={20} />
+								<div>
+									<InfoTitle>RFC 8628 Specification:</InfoTitle>
+									<ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
+										<li><strong>Device Code</strong>: Short-lived code displayed to user</li>
+										<li><strong>User Code</strong>: Human-readable code for user verification</li>
+										<li><strong>Verification URI</strong>: URL where user completes authorization</li>
+										<li><strong>Polling</strong>: Client polls token endpoint until authorized</li>
+										<li><strong>Timeout</strong>: Codes expire after 10-15 minutes</li>
+									</ul>
+								</div>
+							</InfoBox>
+
+							<InfoBox $variant="warning" style={{ marginTop: '1rem' }}>
+								<FiAlertCircle size={20} />
+								<div>
+									<InfoTitle>Security Considerations:</InfoTitle>
+									<ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
+										<li><strong>Short-lived codes</strong>: Device/user codes expire quickly</li>
+										<li><strong>Polling frequency</strong>: Follow server rate limits (typically 5-10 seconds)</li>
+										<li><strong>User verification</strong>: Ensure codes are displayed securely</li>
+										<li><strong>Transport security</strong>: Always use HTTPS for all requests</li>
 									</ul>
 								</div>
 							</InfoBox>
@@ -747,24 +952,44 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 				{!collapsedSections.flowDiagram && (
 					<CollapsibleContent>
 						<ExplanationSection>
-							<div style={{ 
-								backgroundColor: '#f8fafc', 
-								padding: '2rem', 
+							<div style={{
+								backgroundColor: '#f8fafc',
+								padding: '2rem',
 								borderRadius: '0.75rem',
 								border: '2px solid #e2e8f0'
 							}}>
+								<ExplanationHeading style={{ fontSize: '1.25rem', marginBottom: '1.5rem' }}>
+									<FiZap /> Complete Flow Sequence
+								</ExplanationHeading>
+
 								<ol style={{ margin: 0, paddingLeft: '1.5rem', lineHeight: '2' }}>
-									<li style={{ marginBottom: '1rem' }}>
-										<strong>Device requests device code</strong> - Device calls the device authorization endpoint
+									<li style={{ marginBottom: '1.5rem' }}>
+										<strong>1. Device requests device code</strong> - Device calls the device authorization endpoint
 										with client_id and scopes
+										<br />
+										<code style={{ background: '#e2e8f0', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.85em' }}>
+											POST /device_authorization
+										</code>
+										<br />
+										<small style={{ color: '#64748b' }}>
+											Server responds with: device_code, user_code, verification_uri, expires_in, interval
+										</small>
 									</li>
-									<li style={{ marginBottom: '1rem' }}>
-										<strong>Display user code</strong> - Device shows user_code and verification_uri to user
+									<li style={{ marginBottom: '1.5rem' }}>
+										<strong>2. Display user code</strong> - Device shows user_code and verification_uri to user
 										on screen (e.g., "Visit example.com and enter code: ABCD-1234")
+										<br />
+										<small style={{ color: '#64748b' }}>
+											Example display: "Go to https://auth.pingone.com/activate and enter: WDJB-MJHT"
+										</small>
 									</li>
-									<li style={{ marginBottom: '1rem' }}>
-										<strong>User authorizes on secondary device</strong> - User visits URL on phone/computer,
+									<li style={{ marginBottom: '1.5rem' }}>
+										<strong>3. User authorizes on secondary device</strong> - User visits URL on phone/computer,
 										enters code, and authorizes the application
+										<br />
+										<small style={{ color: '#64748b' }}>
+											User sees: "Authorize 'Smart TV App' to access your account?"
+										</small>
 									</li>
 									<li style={{ marginBottom: '1rem' }}>
 										<strong>Device polls for tokens</strong> - Device continuously polls token endpoint
@@ -1029,64 +1254,13 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 								</InfoBox>
 
 								<SmartTVContainer>
-									{/* Smart TV Device */}
-									<SmartTV $isWaiting={deviceFlow.pollingStatus.isPolling || !deviceFlow.tokens}>
-										<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
-											<TVStatusIndicator $active={deviceFlow.pollingStatus.status === 'success'} />
-											<h3 style={{ margin: 0, fontSize: '1.25rem', color: '#94a3b8' }}>
-												📺 Smart TV - Living Room
-											</h3>
-										</div>
-										<TVScreen>
-											<TVDisplay>
-												{deviceFlow.pollingStatus.status === 'success' ? (
-													<>
-														<div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✅</div>
-														<div style={{ fontSize: '1.5rem' }}>AUTHORIZED</div>
-														<div style={{ fontSize: '0.875rem', marginTop: '0.5rem', color: '#94a3b8' }}>
-															Welcome! Loading your content...
-														</div>
-													</>
-												) : deviceFlow.pollingStatus.isPolling ? (
-													<>
-														<div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
-														<div>WAITING FOR</div>
-														<div>AUTHORIZATION...</div>
-														<div style={{ fontSize: '0.875rem', marginTop: '0.5rem', color: '#94a3b8' }}>
-															Use your phone to authorize
-														</div>
-													</>
-												) : (
-													<>
-														<div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📱</div>
-														<div style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Activate Your Device</div>
-														<div style={{ fontSize: '0.875rem', color: '#94a3b8', marginBottom: '1rem' }}>
-															Scan QR code or visit URL
-														</div>
-														<div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>
-															Enter this code:
-														</div>
-														<div style={{ fontSize: '2rem', fontWeight: 'bold', letterSpacing: '0.5rem', color: '#3b82f6' }}>
-															{deviceFlow.deviceCodeData.user_code}
-														</div>
-													</>
-												)}
-											</TVDisplay>
-										</TVScreen>
-										{deviceFlow.timeRemaining > 0 && (
-											<div style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.875rem', color: '#94a3b8' }}>
-												Code expires in: {deviceFlow.formatTimeRemaining(deviceFlow.timeRemaining)}
-											</div>
-										)}
-									</SmartTV>
-
-									{/* QR Code Section */}
+									{/* QR Code Section - User scans this first */}
 									<QRSection>
 										<h3 style={{ margin: '0 0 1rem 0', fontSize: '1.25rem', color: '#1e293b' }}>
-											📱 Scan with Your Phone
+											📱 Step 1: Scan with Your Phone
 										</h3>
 										<p style={{ margin: '0 0 1.5rem 0', fontSize: '0.875rem', color: '#64748b' }}>
-											Scan this QR code to activate your Smart TV app
+											Scan this QR code to activate your StreamFlix account on this TV
 										</p>
 										
 										{deviceFlow.deviceCodeData.verification_uri_complete ? (
@@ -1136,6 +1310,161 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 											</Button>
 										</ActionRow>
 									</QRSection>
+
+									{/* Smart TV Device - Shows result after authorization */}
+									<SmartTV $isWaiting={deviceFlow.pollingStatus.isPolling || !deviceFlow.tokens}>
+										<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
+											<TVStatusIndicator $active={!!deviceFlow.tokens} />
+											<h3 style={{ margin: 0, fontSize: '1.25rem', color: '#94a3b8' }}>
+												📺 Smart TV - Living Room
+											</h3>
+										</div>
+										<TVScreen $showContent={!!deviceFlow.tokens}>
+											{deviceFlow.tokens ? (
+												<>
+													<div style={{ 
+														background: 'linear-gradient(135deg, #e50914 0%, #b20710 100%)',
+														padding: '0.75rem 1.5rem',
+														borderRadius: '0.5rem',
+														marginBottom: '1.5rem',
+														fontSize: '1.5rem',
+														fontWeight: 'bold',
+														color: 'white',
+														textAlign: 'center',
+														fontFamily: 'Arial, sans-serif',
+														letterSpacing: '0.1rem'
+													}}>
+														STREAMFLIX
+													</div>
+													<div style={{ 
+														fontSize: '2rem', 
+														marginBottom: '1rem',
+														animation: 'fadeIn 0.5s ease'
+													}}>
+														✅
+													</div>
+													<WelcomeMessage style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: '#22c55e' }}>
+														You are now logged in to StreamFlix!
+													</WelcomeMessage>
+													<div style={{ fontSize: '1rem', color: '#94a3b8', marginBottom: '1.5rem' }}>
+														Welcome Back, Demo User 👋
+													</div>
+													<AppGrid>
+														<AppIcon $color="linear-gradient(135deg, #e50914 0%, #b20710 100%)">
+															<div style={{ fontSize: '1.5rem' }}>🎬</div>
+															<div style={{ fontSize: '0.65rem', marginTop: '0.25rem' }}>Movies</div>
+														</AppIcon>
+														<AppIcon $color="linear-gradient(135deg, #00a8e1 0%, #0088cc 100%)">
+															<div style={{ fontSize: '1.5rem' }}>📺</div>
+															<div style={{ fontSize: '0.65rem', marginTop: '0.25rem' }}>Series</div>
+														</AppIcon>
+														<AppIcon $color="linear-gradient(135deg, #1ce783 0%, #17b86b 100%)">
+															<div style={{ fontSize: '1.5rem' }}>🎵</div>
+															<div style={{ fontSize: '0.65rem', marginTop: '0.25rem' }}>Music</div>
+														</AppIcon>
+														<AppIcon $color="linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%)">
+															<div style={{ fontSize: '1.5rem' }}>🎮</div>
+															<div style={{ fontSize: '0.65rem', marginTop: '0.25rem' }}>Games</div>
+														</AppIcon>
+														<AppIcon $color="linear-gradient(135deg, #0063e5 0%, #004db3 100%)">
+															<div style={{ fontSize: '1.5rem' }}>👶</div>
+															<div style={{ fontSize: '0.65rem', marginTop: '0.25rem' }}>Kids</div>
+														</AppIcon>
+														<AppIcon $color="linear-gradient(135deg, #9146ff 0%, #772ce8 100%)">
+															<div style={{ fontSize: '1.5rem' }}>🎤</div>
+															<div style={{ fontSize: '0.65rem', marginTop: '0.25rem' }}>Live</div>
+														</AppIcon>
+														<AppIcon $color="linear-gradient(135deg, #f59e0b 0%, #d97706 100%)">
+															<div style={{ fontSize: '1.5rem' }}>⭐</div>
+															<div style={{ fontSize: '0.65rem', marginTop: '0.25rem' }}>Featured</div>
+														</AppIcon>
+														<AppIcon $color="linear-gradient(135deg, #64748b 0%, #475569 100%)">
+															<div style={{ fontSize: '1.5rem' }}>⚙️</div>
+															<div style={{ fontSize: '0.65rem', marginTop: '0.25rem' }}>Settings</div>
+														</AppIcon>
+													</AppGrid>
+													<div style={{ 
+														fontSize: '0.75rem', 
+														color: '#22c55e', 
+														marginTop: '1rem',
+														padding: '0.5rem',
+														backgroundColor: 'rgba(34, 197, 94, 0.1)',
+														borderRadius: '0.5rem',
+														border: '1px solid rgba(34, 197, 94, 0.3)'
+													}}>
+														✅ Login Successful • Ready to stream
+													</div>
+												</>
+											) : (
+												<TVDisplay>
+													{deviceFlow.pollingStatus.isPolling ? (
+													<>
+														<div style={{ 
+															background: 'linear-gradient(135deg, #e50914 0%, #b20710 100%)',
+															padding: '0.5rem 1rem',
+															borderRadius: '0.5rem',
+															marginBottom: '1.5rem',
+															fontSize: '1.25rem',
+															fontWeight: 'bold',
+															color: 'white',
+															fontFamily: 'Arial, sans-serif',
+															letterSpacing: '0.1rem'
+														}}>
+															STREAMFLIX
+														</div>
+														<div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
+														<div style={{ fontSize: '1.25rem', fontWeight: '600' }}>WAITING FOR</div>
+														<div style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>AUTHORIZATION...</div>
+														<div style={{ fontSize: '0.875rem', marginTop: '1rem', color: '#94a3b8' }}>
+															Complete sign-in on your phone
+														</div>
+													</>
+												) : (
+													<>
+														<div style={{ 
+															background: 'linear-gradient(135deg, #e50914 0%, #b20710 100%)',
+															padding: '0.5rem 1rem',
+															borderRadius: '0.5rem',
+															marginBottom: '1rem',
+															fontSize: '1.25rem',
+															fontWeight: 'bold',
+															color: 'white',
+															fontFamily: 'Arial, sans-serif',
+															letterSpacing: '0.1rem'
+														}}>
+															STREAMFLIX
+														</div>
+														<div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>📱</div>
+														<div style={{ fontSize: '1.25rem', marginBottom: '0.5rem', fontWeight: '600' }}>Activate Your Device</div>
+														<div style={{ fontSize: '0.875rem', color: '#94a3b8', marginBottom: '1.5rem' }}>
+															Sign in to start streaming
+														</div>
+														<div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.5rem' }}>
+															Enter this code on your phone:
+														</div>
+														<div style={{ 
+															fontSize: '2.5rem', 
+															fontWeight: 'bold', 
+															letterSpacing: '0.5rem', 
+															color: '#e50914',
+															padding: '0.5rem 1rem',
+															backgroundColor: 'rgba(229, 9, 20, 0.1)',
+															borderRadius: '0.5rem',
+															border: '2px solid rgba(229, 9, 20, 0.3)'
+														}}>
+															{deviceFlow.deviceCodeData.user_code}
+														</div>
+													</>
+												)}
+												</TVDisplay>
+											)}
+										</TVScreen>
+										{deviceFlow.timeRemaining > 0 && (
+											<div style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.875rem', color: '#94a3b8' }}>
+												Code expires in: {deviceFlow.formatTimeRemaining(deviceFlow.timeRemaining)}
+											</div>
+										)}
+									</SmartTV>
 								</SmartTVContainer>
 
 								{deviceFlow.timeRemaining > 0 && (
@@ -1325,7 +1654,27 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 												</div>
 											)}
 										</ParameterGrid>
-										<ActionRow>
+										{/* Token Management Buttons */}
+										<ActionRow style={{ justifyContent: 'center', gap: '0.75rem' }}>
+											<Button onClick={navigateToTokenManagement} $variant="primary">
+												<FiExternalLink /> View in Token Management
+											</Button>
+											{deviceFlow.tokens.access_token && (
+												<Button
+													onClick={navigateToTokenManagement}
+													$variant="primary"
+													style={{
+														fontSize: '0.9rem',
+														fontWeight: '600',
+														padding: '0.75rem 1rem',
+														backgroundColor: '#3b82f6',
+														borderColor: '#3b82f6',
+														color: '#ffffff',
+													}}
+												>
+													<FiKey /> Decode Access Token
+												</Button>
+											)}
 											<Button
 												onClick={() => handleCopy(deviceFlow.tokens!.access_token, 'Access Token')}
 												$variant="outline"
@@ -1357,7 +1706,23 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 													</ParameterValue>
 												</div>
 											</ParameterGrid>
-											<ActionRow>
+											<ActionRow style={{ justifyContent: 'center', gap: '0.75rem' }}>
+												{deviceFlow.tokens.refresh_token && (
+													<Button
+														onClick={navigateToTokenManagementWithRefreshToken}
+														$variant="primary"
+														style={{
+															fontSize: '0.9rem',
+															fontWeight: '600',
+															padding: '0.75rem 1rem',
+															backgroundColor: '#f59e0b',
+															borderColor: '#f59e0b',
+															color: '#ffffff',
+														}}
+													>
+														<FiRefreshCw /> Decode Refresh Token
+													</Button>
+												)}
 												<Button
 													onClick={() => handleCopy(deviceFlow.tokens!.refresh_token!, 'Refresh Token')}
 													$variant="outline"
@@ -1380,111 +1745,29 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 	// UserInfo is only available in OIDC flows
 
 	const renderIntrospection = () => (
-		<>
-			<CollapsibleSection>
-				<CollapsibleHeaderButton
-					onClick={() => toggleSection('introspectionOverview')}
-					aria-expanded={!collapsedSections.introspectionOverview}
-				>
-					<CollapsibleTitle>
-						<FiShield /> Token Introspection
-					</CollapsibleTitle>
-					<CollapsibleToggleIcon $collapsed={collapsedSections.introspectionOverview}>
-						<FiChevronDown />
-					</CollapsibleToggleIcon>
-				</CollapsibleHeaderButton>
-				{!collapsedSections.introspectionOverview && (
-					<CollapsibleContent>
-						<ExplanationSection>
-							<ExplanationHeading>
-								<FiShield /> What is Token Introspection?
-							</ExplanationHeading>
-							<InfoText>
-								Token introspection (RFC 7662) allows you to validate an access token and retrieve metadata about it.
-								This is useful for:
-							</InfoText>
-							<ul style={{ marginLeft: '1.5rem', marginTop: '0.5rem' }}>
-								<li><strong>Validation</strong>: Check if the token is still active and valid</li>
-								<li><strong>Authorization</strong>: View the scopes and permissions granted</li>
-								<li><strong>Debugging</strong>: Inspect token claims and expiration times</li>
-								<li><strong>Security</strong>: Verify token authenticity before granting access</li>
-							</ul>
-						</ExplanationSection>
-
-						<InfoBox $variant="info">
-							<FiInfo size={20} />
-							<div>
-								<InfoTitle>How Introspection Works</InfoTitle>
-								<InfoText>
-									The authorization server validates the token and returns metadata including:
-									<ul style={{ marginLeft: '1.5rem', marginTop: '0.5rem', marginBottom: 0 }}>
-										<li><code>active</code>: Whether the token is currently active</li>
-										<li><code>scope</code>: The scopes associated with the token</li>
-										<li><code>client_id</code>: The client that requested the token</li>
-										<li><code>exp</code>: Token expiration timestamp</li>
-										<li><code>sub</code>: Subject identifier (user ID)</li>
-									</ul>
-								</InfoText>
-							</div>
-						</InfoBox>
-
-						{deviceFlow.tokens?.access_token ? (
-							<>
-								<ResultsSection>
-									<ResultsHeading>
-										<FiKey size={18} /> Introspect Access Token
-									</ResultsHeading>
-									<GeneratedContentBox>
-										<InfoText style={{ marginBottom: '1rem' }}>
-											Click the button below to introspect your access token and view its metadata.
-											This will validate the token with PingOne's introspection endpoint.
-										</InfoText>
-										<ActionRow>
-											<Button
-												onClick={() => {
-													// Navigate to Token Management page with introspection
-													window.location.href = '/token-management';
-												}}
-												$variant="primary"
-											>
-												<FiShield /> Go to Token Management
-											</Button>
-											<Button
-												onClick={() => handleCopy(deviceFlow.tokens!.access_token, 'Access Token')}
-												$variant="outline"
-											>
-												<FiCopy /> Copy Access Token
-											</Button>
-										</ActionRow>
-									</GeneratedContentBox>
-								</ResultsSection>
-
-								<InfoBox $variant="warning">
-									<FiAlertCircle size={20} />
-									<div>
-										<InfoTitle>💡 Pro Tip</InfoTitle>
-										<InfoText>
-											Use the Token Management page to introspect tokens, view decoded JWTs, and test token validation.
-											You can also use tools like jwt.io to decode the token structure.
-										</InfoText>
-									</div>
-								</InfoBox>
-							</>
-						) : (
-							<InfoBox $variant="warning">
-								<FiAlertCircle size={20} />
-								<div>
-									<InfoTitle>No Token Available</InfoTitle>
-									<InfoText>
-										Complete the device authorization flow to receive an access token, then you can introspect it.
-									</InfoText>
-								</div>
-							</InfoBox>
-						)}
-					</CollapsibleContent>
-				)}
-			</CollapsibleSection>
-		</>
+		<TokenIntrospect
+			flowName="OAuth Device Authorization Code Flow"
+			flowVersion="V5"
+			tokens={deviceFlow.tokens as any}
+			credentials={deviceFlow.credentials as any}
+			onResetFlow={handleReset}
+			onNavigateToTokenManagement={navigateToTokenManagement}
+			collapsedSections={{
+				introspectionDetails: collapsedSections.introspectionDetails || false,
+				rawJson: false,
+			}}
+			onToggleSection={(section) => {
+				if (section === 'introspectionDetails') {
+					toggleSection('introspectionDetails');
+				}
+			}}
+			completionMessage="Token introspection allows you to validate and inspect your access tokens."
+			nextSteps={[
+				'Use the introspection results to verify token validity and permissions',
+				'Check token expiration and active status',
+				'View granted scopes and client information',
+			]}
+		/>
 	);
 
 	const renderCompletion = () => (
@@ -1593,6 +1876,45 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 					disabledMessage="Complete the action above to continue"
 				/>
 			</FlowContent>
+
+			{/* Polling Prompt Modal */}
+			<ModalOverlay $isOpen={showPollingModal}>
+				<ModalContent>
+					<ModalHeader>
+						<FiClock size={32} color="#3b82f6" />
+						<ModalTitle>Ready to Start Polling?</ModalTitle>
+					</ModalHeader>
+					<ModalBody>
+						<p>
+							The device code has been generated and displayed on the Smart TV. 
+							The user can now scan the QR code or enter the code on their phone.
+						</p>
+						<p style={{ marginTop: '1rem' }}>
+							<strong>Next step:</strong> Start polling the authorization server to check if the user has completed authorization.
+							The app will automatically check every {deviceFlow.deviceCodeData?.interval || 5} seconds.
+						</p>
+						<p style={{ marginTop: '1rem', padding: '0.75rem', backgroundColor: '#eff6ff', borderRadius: '0.5rem', border: '1px solid #bfdbfe' }}>
+							📺 <strong>Watch the Smart TV display update in real-time</strong> as the user authorizes on their phone!
+						</p>
+						<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
+							<FiInfo size={18} />
+							<div>
+								<InfoText style={{ fontSize: '0.875rem', margin: 0 }}>
+									💡 <strong>Tip:</strong> You can disable this prompt in UI Settings if you prefer to start polling manually.
+								</InfoText>
+							</div>
+						</InfoBox>
+					</ModalBody>
+					<ModalActions>
+						<Button onClick={handleDismissModal} $variant="outline">
+							I'll Start Later
+						</Button>
+						<Button onClick={handleStartPolling} $variant="primary">
+							<FiRefreshCw /> Start Polling Now
+						</Button>
+					</ModalActions>
+				</ModalContent>
+			</ModalOverlay>
 		</FlowContainer>
 	);
 };
