@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
-import { credentialManager } from '../services/credentialManager';
-import { v4ToastManager } from '../services/v4ToastManager';
+import { credentialManager } from '../utils/credentialManager';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 // Unified logging format: [🔀 OIDC-HYBRID]
 const LOG_PREFIX = '[🔀 OIDC-HYBRID]';
@@ -85,7 +85,8 @@ const generatePKCE = async () => {
 	const encoder = new TextEncoder();
 	const data = encoder.encode(codeVerifier);
 	const hash = await crypto.subtle.digest('SHA-256', data);
-	const codeChallenge = btoa(String.fromCharCode(...new Uint8Array(hash)))
+	const hashArray = Array.from(new Uint8Array(hash));
+	const codeChallenge = btoa(String.fromCharCode(...hashArray))
 		.replace(/\+/g, '-')
 		.replace(/\//g, '_')
 		.replace(/=/g, '');
