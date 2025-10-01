@@ -1,18 +1,15 @@
 // src/pages/flows/OIDCAuthorizationCodeFlowV3.tsx - OIDC Authorization Code Flow V3
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { FiRefreshCw } from "react-icons/fi";
-import styled from "styled-components";
-import AuthorizationRequestModal from "../../components/AuthorizationRequestModal";
-import ConfirmationModal from "../../components/ConfirmationModal";
-import DefaultRedirectUriModal from "../../components/DefaultRedirectUriModal";
-import { EnhancedStepFlowV2 } from "../../components/EnhancedStepFlowV2";
-import {
-	FlowConfiguration,
-	FlowType,
-} from "../../components/FlowConfiguration";
-import FlowIntro from "../../components/flow/FlowIntro";
-import ImplicitSafetySummary from "../../components/flow/ImplicitSafetySummary";
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { FiRefreshCw } from 'react-icons/fi';
+import styled from 'styled-components';
+import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
+import ConfirmationModal from '../../components/ConfirmationModal';
+import DefaultRedirectUriModal from '../../components/DefaultRedirectUriModal';
+import { EnhancedStepFlowV2 } from '../../components/EnhancedStepFlowV2';
+import { FlowConfiguration, FlowType } from '../../components/FlowConfiguration';
+import FlowIntro from '../../components/flow/FlowIntro';
+import ImplicitSafetySummary from '../../components/flow/ImplicitSafetySummary';
 import {
 	createAuthUrlStep,
 	createCallbackHandlingStep,
@@ -21,21 +18,15 @@ import {
 	createRefreshTokenStep,
 	createTokenExchangeStep,
 	createUserAuthorizationStep,
-} from "../../components/steps/CommonSteps";
-import {
-	showGlobalError,
-	showGlobalSuccess,
-} from "../../hooks/useNotifications";
-import { getCallbackUrlForFlow } from "../../utils/callbackUrls";
-import { credentialManager } from "../../utils/credentialManager";
-import { enhancedDebugger } from "../../utils/enhancedDebug";
-import { trackFlowCompletion } from "../../utils/flowCredentialChecker";
-import { useFlowStepManager } from "../../utils/flowStepSystem";
-import {
-	generateCodeChallenge,
-	generateCodeVerifier,
-} from "../../utils/oauth";
-import { usePerformanceMonitor } from "../../utils/performance";
+} from '../../components/steps/CommonSteps';
+import { showGlobalError, showGlobalSuccess } from '../../hooks/useNotifications';
+import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
+import { credentialManager } from '../../utils/credentialManager';
+import { enhancedDebugger } from '../../utils/enhancedDebug';
+import { trackFlowCompletion } from '../../utils/flowCredentialChecker';
+import { useFlowStepManager } from '../../utils/flowStepSystem';
+import { generateCodeChallenge, generateCodeVerifier } from '../../utils/oauth';
+import { usePerformanceMonitor } from '../../utils/performance';
 
 // Styled Components
 const Container = styled.div`
@@ -126,21 +117,17 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 	const _authContext = useAuth();
 
 	// Performance monitoring
-	const _performanceMonitor = usePerformanceMonitor(
-		"OIDCAuthorizationCodeFlowV3",
-	);
+	const _performanceMonitor = usePerformanceMonitor('OIDCAuthorizationCodeFlowV3');
 
 	// Start debug session
 	React.useEffect(() => {
-		const sessionId = enhancedDebugger.startSession(
-			"oidc-authorization-code-v3",
-		);
-		console.log("[OIDC-AUTHZ-V3] Debug session started:", sessionId);
+		const sessionId = enhancedDebugger.startSession('oidc-authorization-code-v3');
+		console.log('[OIDC-AUTHZ-V3] Debug session started:', sessionId);
 
 		return () => {
 			const session = enhancedDebugger.endSession();
 			if (session) {
-				console.log("[OIDC-AUTHZ-V3] Debug session completed:", {
+				console.log('[OIDC-AUTHZ-V3] Debug session completed:', {
 					duration: session.performance.totalDuration,
 					steps: session.steps.length,
 					errors: session.errors.length,
@@ -151,24 +138,20 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 
 	// Use the new step management system
 	const stepManager = useFlowStepManager({
-		flowType: "oidc-authorization-code",
-		persistKey: "oidc-authz-v3",
+		flowType: 'oidc-authorization-code',
+		persistKey: 'oidc-authz-v3',
 		defaultStep: 0,
 		enableAutoAdvance: true,
 	});
 
 	// State management
-	const [tokens, setTokens] = useState<Record<string, unknown> | null>(
-		null,
-	);
+	const [tokens, setTokens] = useState<Record<string, unknown> | null>(null);
 	const [userInfo, setUserInfo] = useState<Record<string, unknown> | null>(null);
 	const [isRedirecting, setIsRedirecting] = useState(false);
-	const [showClearCredentialsModal, setShowClearCredentialsModal] =
-		useState(false);
+	const [showClearCredentialsModal, setShowClearCredentialsModal] = useState(false);
 	const [isClearingCredentials, setIsClearingCredentials] = useState(false);
-	const [showDefaultRedirectUriModal, setShowDefaultRedirectUriModal] =
-		useState(false);
-	const [defaultRedirectUri, setDefaultRedirectUri] = useState("");
+	const [showDefaultRedirectUriModal, setShowDefaultRedirectUriModal] = useState(false);
+	const [defaultRedirectUri, setDefaultRedirectUri] = useState('');
 	const [isResettingFlow, setIsResettingFlow] = useState(false);
 	const [_validationErrors, setValidationErrors] = useState({
 		clientId: false,
@@ -179,35 +162,27 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 
 	// Client ID validation function
 	const validateClientId = useCallback((clientId: string): boolean => {
-		if (!clientId || clientId.trim() === "") return false;
+		if (!clientId || clientId.trim() === '') return false;
 		const isValid = /^[a-zA-Z0-9_-]+$/.test(clientId) && clientId.length >= 8;
 		return isValid;
 	}, []);
 
 	// Environment ID validation function
 	const validateEnvironmentId = useCallback((envId: string): boolean => {
-		if (!envId || envId.trim() === "") return false;
-		const uuidRegex =
-			/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+		if (!envId || envId.trim() === '') return false;
+		const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 		return uuidRegex.test(envId);
 	}, []);
 
 	// Update validation errors when credentials change
 	useEffect(() => {
 		setValidationErrors({
-			clientId: credentials.clientId
-				? !validateClientId(credentials.clientId)
-				: false,
+			clientId: credentials.clientId ? !validateClientId(credentials.clientId) : false,
 			environmentId: credentials.environmentId
 				? !validateEnvironmentId(credentials.environmentId)
 				: false,
 		});
-	}, [
-		credentials.clientId,
-		credentials.environmentId,
-		validateClientId,
-		validateEnvironmentId,
-	]);
+	}, [credentials.clientId, credentials.environmentId, validateClientId, validateEnvironmentId]);
 
 	// Load credentials on mount
 	useEffect(() => {
@@ -216,23 +191,22 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 				const saved = credentialManager.loadAuthzFlowCredentials();
 				if (saved) {
 					setCredentials({
-						clientId: saved.clientId || "",
-						clientSecret: saved.clientSecret || "",
-						environmentId: saved.environmentId || "",
-						redirectUri:
-							saved.redirectUri || getCallbackUrlForFlow("authorization-code"),
+						clientId: saved.clientId || '',
+						clientSecret: saved.clientSecret || '',
+						environmentId: saved.environmentId || '',
+						redirectUri: saved.redirectUri || getCallbackUrlForFlow('authorization-code'),
 						scope: Array.isArray(saved.scopes)
-							? saved.scopes.join(" ")
-							: saved.scopes || "openid profile email",
-						authorizationEndpoint: saved.authEndpoint || "",
-						tokenEndpoint: saved.tokenEndpoint || "",
-						userInfoEndpoint: saved.userInfoEndpoint || "",
-						clientAuthMethod: saved.tokenAuthMethod || "client_secret_post",
+							? saved.scopes.join(' ')
+							: saved.scopes || 'openid profile email',
+						authorizationEndpoint: saved.authEndpoint || '',
+						tokenEndpoint: saved.tokenEndpoint || '',
+						userInfoEndpoint: saved.userInfoEndpoint || '',
+						clientAuthMethod: saved.tokenAuthMethod || 'client_secret_post',
 					});
 				}
 			} catch (error) {
-				console.error("[OIDC-AUTHZ-V3] Failed to load credentials:", error);
-				const defaultUri = getCallbackUrlForFlow("authorization-code");
+				console.error('[OIDC-AUTHZ-V3] Failed to load credentials:', error);
+				const defaultUri = getCallbackUrlForFlow('authorization-code');
 				setDefaultRedirectUri(defaultUri);
 				setShowDefaultRedirectUriModal(true);
 				setCredentials((prev) => ({
@@ -248,27 +222,27 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 	useEffect(() => {
 		const handleCallbackReturn = () => {
 			try {
-				const storedTokens = sessionStorage.getItem("oauth_v3_tokens");
+				const storedTokens = sessionStorage.getItem('oauth_v3_tokens');
 				if (storedTokens) {
-					console.log("[OIDC-AUTHZ-V3] Found tokens from callback");
+					console.log('[OIDC-AUTHZ-V3] Found tokens from callback');
 
 					const tokenData = JSON.parse(storedTokens);
 					setTokens(tokenData);
 
-					trackFlowCompletion("oidc-authorization-code-v3");
+					trackFlowCompletion('oidc-authorization-code-v3');
 
-					stepManager.setStep(5, "callback return with tokens");
-					console.log("[OIDC-AUTHZ-V3] Auto-advancing to step 5 after callback return");
+					stepManager.setStep(5, 'callback return with tokens');
+					console.log('[OIDC-AUTHZ-V3] Auto-advancing to step 5 after callback return');
 
 					showGlobalSuccess(
-						"Authorization successful",
-						"Tokens received from PingOne. You can now view and validate the tokens.",
+						'Authorization successful',
+						'Tokens received from PingOne. You can now view and validate the tokens.'
 					);
 
-					sessionStorage.removeItem("oauth_v3_tokens");
+					sessionStorage.removeItem('oauth_v3_tokens');
 				}
 			} catch (error) {
-				console.error("[OIDC-AUTHZ-V3] Failed to handle callback return:", error);
+				console.error('[OIDC-AUTHZ-V3] Failed to handle callback return:', error);
 			}
 		};
 
@@ -283,7 +257,7 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 				clientId: credentials.clientId,
 				clientSecret: credentials.clientSecret,
 				redirectUri: credentials.redirectUri,
-				scopes: credentials.scope.split(" "),
+				scopes: credentials.scope.split(' '),
 				authEndpoint: credentials.authorizationEndpoint,
 				tokenEndpoint: credentials.tokenEndpoint,
 				userInfoEndpoint: credentials.userInfoEndpoint,
@@ -291,14 +265,14 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 			});
 
 			if (success) {
-				showGlobalSuccess("Credentials saved successfully");
-				console.log("[OIDC-AUTHZ-V3] Credentials saved to credential manager");
+				showGlobalSuccess('Credentials saved successfully');
+				console.log('[OIDC-AUTHZ-V3] Credentials saved to credential manager');
 			} else {
-				throw new Error("Failed to save credentials to credential manager");
+				throw new Error('Failed to save credentials to credential manager');
 			}
 		} catch (error) {
-			showGlobalError("Failed to save credentials");
-			console.error("[OIDC-AUTHZ-V3] Failed to save credentials:", error);
+			showGlobalError('Failed to save credentials');
+			console.error('[OIDC-AUTHZ-V3] Failed to save credentials:', error);
 		}
 	}, [credentials]);
 
@@ -311,16 +285,16 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 			setPkceCodes({
 				codeVerifier,
 				codeChallenge,
-				codeChallengeMethod: "S256",
+				codeChallengeMethod: 'S256',
 			});
 
-			sessionStorage.setItem("code_verifier", codeVerifier);
+			sessionStorage.setItem('code_verifier', codeVerifier);
 
-			showGlobalSuccess("PKCE codes generated");
-			console.log("[OIDC-AUTHZ-V3] PKCE codes generated and stored");
+			showGlobalSuccess('PKCE codes generated');
+			console.log('[OIDC-AUTHZ-V3] PKCE codes generated and stored');
 		} catch (error) {
-			showGlobalError("Failed to generate PKCE codes");
-			console.error("[OIDC-AUTHZ-V3] Failed to generate PKCE codes:", error);
+			showGlobalError('Failed to generate PKCE codes');
+			console.error('[OIDC-AUTHZ-V3] Failed to generate PKCE codes:', error);
 		}
 	}, []);
 
@@ -333,9 +307,7 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 				!credentials.redirectUri ||
 				!credentials.scope
 			) {
-				throw new Error(
-					"Missing required credentials. Please ensure all fields are filled.",
-				);
+				throw new Error('Missing required credentials. Please ensure all fields are filled.');
 			}
 
 			const authEndpoint =
@@ -345,17 +317,17 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 			const params = new URLSearchParams({
 				client_id: credentials.clientId,
 				redirect_uri: credentials.redirectUri,
-				response_type: "code",
+				response_type: 'code',
 				scope: credentials.scope,
 				code_challenge: pkceCodes.codeChallenge,
-				code_challenge_method: "S256",
+				code_challenge_method: 'S256',
 			});
 
 			const fullUrl = `${authEndpoint}?${params.toString()}`;
 			setAuthUrl(fullUrl);
 
-			showGlobalSuccess("Authorization URL built successfully");
-			console.log("[OIDC-AUTHZ-V3] Authorization URL built:", {
+			showGlobalSuccess('Authorization URL built successfully');
+			console.log('[OIDC-AUTHZ-V3] Authorization URL built:', {
 				endpoint: authEndpoint,
 				environmentId: credentials.environmentId,
 				clientId: credentials.clientId,
@@ -363,7 +335,7 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 				scopes: credentials.scope,
 			});
 		} catch (error) {
-			console.error("[OIDC-AUTHZ-V3] Failed to build authorization URL:", error);
+			console.error('[OIDC-AUTHZ-V3] Failed to build authorization URL:', error);
 			showGlobalError(`Failed to build authorization URL: ${error.message}`);
 		}
 	}, [credentials, pkceCodes]);
@@ -371,22 +343,22 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 	// Direct authorization redirect
 	const handleAuthorizationDirect = useCallback(() => {
 		if (!authUrl) {
-			showGlobalError("Please build authorization URL first");
+			showGlobalError('Please build authorization URL first');
 			return;
 		}
 
 		setIsRedirecting(true);
-		console.log("[OIDC-AUTHZ-V3] Redirecting to authorization server...");
+		console.log('[OIDC-AUTHZ-V3] Redirecting to authorization server...');
 
 		sessionStorage.setItem(
-			"oidc_authz_v3_flow_context",
+			'oidc_authz_v3_flow_context',
 			JSON.stringify({
 				environmentId: credentials.environmentId,
 				clientId: credentials.clientId,
 				redirectUri: credentials.redirectUri,
 				scopes: credentials.scope,
 				timestamp: Date.now(),
-			}),
+			})
 		);
 
 		window.location.href = authUrl;
@@ -395,77 +367,76 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 	// Handle authorization redirect with modal option
 	const handleAuthorizationWithModal = useCallback(() => {
 		if (!authUrl) {
-			showGlobalError("Please generate authorization URL first");
+			showGlobalError('Please generate authorization URL first');
 			return;
 		}
 
-		const flowConfigKey = "enhanced-flow-authorization-code";
-		const flowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || "{}");
+		const flowConfigKey = 'enhanced-flow-authorization-code';
+		const flowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
 		const shouldShowModal = flowConfig.showAuthRequestModal === true;
 
 		if (shouldShowModal) {
-			console.log("[OIDC-AUTHZ-V3] Showing authorization request modal");
+			console.log('[OIDC-AUTHZ-V3] Showing authorization request modal');
 			setShowAuthRequestModal(true);
 		} else {
-			console.log("[OIDC-AUTHZ-V3] Skipping authorization modal");
+			console.log('[OIDC-AUTHZ-V3] Skipping authorization modal');
 			handleAuthorizationDirect();
 		}
 	}, [authUrl, handleAuthorizationDirect]);
 
 	// Navigate to Token Management with token
 	const navigateToTokenManagement = useCallback(
-		(tokenType: "access" | "id") => {
-			console.log("[OIDC-AUTHZ-V3] Navigate to token management:", {
+		(tokenType: 'access' | 'id') => {
+			console.log('[OIDC-AUTHZ-V3] Navigate to token management:', {
 				tokenType,
 				hasTokens: !!tokens,
 				hasAccessToken: !!tokens?.access_token,
 				hasIdToken: !!tokens?.id_token,
 			});
 
-			const token =
-				tokenType === "access" ? tokens?.access_token : tokens?.id_token;
+			const token = tokenType === 'access' ? tokens?.access_token : tokens?.id_token;
 
 			if (token) {
-				console.log("[OIDC-AUTHZ-V3] Token found, storing for analysis");
+				console.log('[OIDC-AUTHZ-V3] Token found, storing for analysis');
 
-				sessionStorage.setItem("token_to_analyze", token);
-				sessionStorage.setItem("token_type", tokenType);
-				sessionStorage.setItem("flow_source", "oidc-authorization-code-v3");
+				sessionStorage.setItem('token_to_analyze', token);
+				sessionStorage.setItem('token_type', tokenType);
+				sessionStorage.setItem('flow_source', 'oidc-authorization-code-v3');
 
-				window.location.href = "/token-management";
+				window.location.href = '/token-management';
 			} else {
 				console.error(`[OIDC-AUTHZ-V3] No ${tokenType} token available for analysis`);
 				showGlobalError(`No ${tokenType} token available for analysis`);
 			}
 		},
-		[tokens],
+		[tokens]
 	);
 
 	// Reset flow
 	const resetFlow = useCallback(async () => {
-		console.log("[OIDC-AUTHZ-V3] Reset flow initiated");
+		console.log('[OIDC-AUTHZ-V3] Reset flow initiated');
 
 		setIsResettingFlow(true);
 
 		try {
 			await new Promise((resolve) => setTimeout(resolve, 500));
 
-			setAuthUrl("");
+			setAuthUrl('');
 			setTokens(null);
 			setUserInfo(null);
-			setAuthCode("");
-			setPkceCodes({ codeVerifier: "", codeChallenge: "" });
+			setAuthCode('');
+			setPkceCodes({ codeVerifier: '', codeChallenge: '' });
 
 			stepManager.resetFlow();
 
 			showGlobalSuccess(
-				"OIDC Authorization Code Flow reset successfully. You can now begin a new flow.",
+				'OIDC Authorization Code Flow reset successfully. You can now begin a new flow.'
 			);
 
-			console.log("[OIDC-AUTHZ-V3] Flow reset complete");
+			console.log('[OIDC-AUTHZ-V3] Flow reset complete');
 		} catch (error) {
-			console.error("[OIDC-AUTHZ-V3] Reset flow failed:", error);
-			showGlobalError("Failed to reset flow");
+			console.error('[OIDC-AUTHZ-V3] Reset flow failed:', error);
+			showGlobalError('Failed to reset flow');
 		} finally {
 			setIsResettingFlow(false);
 		}
@@ -476,34 +447,34 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 		setIsClearingCredentials(true);
 		try {
 			credentialManager.saveAuthzFlowCredentials({
-				environmentId: "",
-				clientId: "",
-				clientSecret: "",
-				redirectUri: "",
+				environmentId: '',
+				clientId: '',
+				clientSecret: '',
+				redirectUri: '',
 				scopes: [],
-				authEndpoint: "",
-				tokenEndpoint: "",
-				userInfoEndpoint: "",
-				tokenAuthMethod: "client_secret_post",
+				authEndpoint: '',
+				tokenEndpoint: '',
+				userInfoEndpoint: '',
+				tokenAuthMethod: 'client_secret_post',
 			});
 
 			setCredentials({
-				clientId: "",
-				clientSecret: "",
-				environmentId: "",
-				redirectUri: "",
-				scope: "openid profile email",
-				authorizationEndpoint: "",
-				tokenEndpoint: "",
-				userInfoEndpoint: "",
-				clientAuthMethod: "client_secret_post",
+				clientId: '',
+				clientSecret: '',
+				environmentId: '',
+				redirectUri: '',
+				scope: 'openid profile email',
+				authorizationEndpoint: '',
+				tokenEndpoint: '',
+				userInfoEndpoint: '',
+				clientAuthMethod: 'client_secret_post',
 			});
 
-			showGlobalSuccess("Credentials cleared successfully");
-			console.log("[OIDC-AUTHZ-V3] Credentials cleared");
+			showGlobalSuccess('Credentials cleared successfully');
+			console.log('[OIDC-AUTHZ-V3] Credentials cleared');
 		} catch (error) {
-			showGlobalError("Failed to clear credentials");
-			console.error("[OIDC-AUTHZ-V3] Failed to clear credentials:", error);
+			showGlobalError('Failed to clear credentials');
+			console.error('[OIDC-AUTHZ-V3] Failed to clear credentials:', error);
 		} finally {
 			setIsClearingCredentials(false);
 			setShowClearCredentialsModal(false);
@@ -517,9 +488,7 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 				credentials,
 				setCredentials,
 				saveCredentials,
-				flowType === "oidc"
-					? "OIDC Authorization Code Flow"
-					: "OAuth Authorization Code Flow",
+				flowType === 'oidc' ? 'OIDC Authorization Code Flow' : 'OAuth Authorization Code Flow'
 			),
 			{
 				...createPKCEStep(pkceCodes, setPkceCodes, generatePKCE),
@@ -530,10 +499,10 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 				...createAuthUrlStep(authUrl, buildAuthorizationUrl, credentials, pkceCodes),
 				canExecute: Boolean(
 					credentials.environmentId &&
-					credentials.clientId &&
-					credentials.redirectUri &&
-					pkceCodes.codeVerifier &&
-					pkceCodes.codeChallenge
+						credentials.clientId &&
+						credentials.redirectUri &&
+						pkceCodes.codeVerifier &&
+						pkceCodes.codeChallenge
 				),
 				completed: Boolean(authUrl),
 			},
@@ -543,33 +512,26 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 					handleAuthorizationWithModal,
 					handleAuthorizationDirect,
 					isRedirecting,
-					tokens,
+					tokens
 				),
 				canExecute: Boolean(authUrl && !isRedirecting),
 				completed: Boolean(tokens),
 			},
 			createCallbackHandlingStep(authCode, resetFlow),
 			{
-				...createTokenExchangeStep(
-					authCode,
-					tokens,
-					exchangeTokens,
-					credentials,
-					false,
-					"oidc"
-				),
+				...createTokenExchangeStep(authCode, tokens, exchangeTokens, credentials, false, 'oidc'),
 				canExecute: Boolean(authCode && credentials.environmentId && credentials.clientId),
 				completed: Boolean(tokens?.access_token),
 			},
 			createRefreshTokenStep(
-				tokens?.refresh_token ?? "",
+				tokens?.refresh_token ?? '',
 				tokens,
 				exchangeTokens,
 				credentials,
 				navigateToTokenManagement,
 				tokens,
 				undefined,
-				"oidc",
+				'oidc'
 			),
 		];
 	}, [
@@ -596,16 +558,15 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 					description="A comprehensive OpenID Connect authorization code journey tailored for apps that require user authentication, profile data, and secure API access."
 					introCopy={
 						<p>
-							The OIDC authorization code flow extends OAuth by returning ID tokens
-							and standard user claims. It is the recommended option for web apps that
-							need to authenticate users, build profiles, and call backend APIs with
-							access tokens.
+							The OIDC authorization code flow extends OAuth by returning ID tokens and standard
+							user claims. It is the recommended option for web apps that need to authenticate
+							users, build profiles, and call backend APIs with access tokens.
 						</p>
 					}
 					bullets={[
-						"Handles login, token issuance, and user profile retrieval",
-						"PKCE optional for confidential clients, required for public clients",
-						"Supports state, nonce, and advanced OIDC parameters",
+						'Handles login, token issuance, and user profile retrieval',
+						'PKCE optional for confidential clients, required for public clients',
+						'Supports state, nonce, and advanced OIDC parameters',
 					]}
 					warningTitle="Security Reminder"
 					warningBody="Validate the state parameter, generate unique nonce values, and safeguard client secrets to maintain OIDC security."
@@ -623,7 +584,11 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 					initialExpanded={false}
 					title="Flow Configuration"
 					subtitle="Configure OAuth 2.0 and OpenID Connect specific settings"
-					flowType={flowType === "oidc" ? FlowType.OIDC_AUTHORIZATION_CODE : FlowType.OAUTH_AUTHORIZATION_CODE}
+					flowType={
+						flowType === 'oidc'
+							? FlowType.OIDC_AUTHORIZATION_CODE
+							: FlowType.OAUTH_AUTHORIZATION_CODE
+					}
 				/>
 
 				<EnhancedStepFlowV2
@@ -644,10 +609,7 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 				<FlowControlSection>
 					<FlowControlTitle>Flow Control Actions</FlowControlTitle>
 					<FlowControlButtons>
-						<FlowControlButton
-							className="clear"
-							onClick={() => setShowClearCredentialsModal(true)}
-						>
+						<FlowControlButton className="clear" onClick={() => setShowClearCredentialsModal(true)}>
 							Clear Credentials
 						</FlowControlButton>
 						<FlowControlButton
@@ -655,19 +617,17 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 							onClick={resetFlow}
 							disabled={isResettingFlow}
 							style={{
-								background: isResettingFlow ? "#9ca3af" : undefined,
-								cursor: isResettingFlow ? "not-allowed" : "pointer",
+								background: isResettingFlow ? '#9ca3af' : undefined,
+								cursor: isResettingFlow ? 'not-allowed' : 'pointer',
 							}}
 						>
 							<FiRefreshCw
 								style={{
-									animation: isResettingFlow
-										? "spin 1s linear infinite"
-										: "none",
-									marginRight: "0.5rem",
+									animation: isResettingFlow ? 'spin 1s linear infinite' : 'none',
+									marginRight: '0.5rem',
 								}}
 							/>
-							{isResettingFlow ? "Resetting..." : "Reset Flow"}
+							{isResettingFlow ? 'Resetting...' : 'Reset Flow'}
 						</FlowControlButton>
 					</FlowControlButtons>
 				</FlowControlSection>
@@ -694,14 +654,14 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 					setShowAuthRequestModal(false);
 					handleAuthorizationDirect();
 				}}
-				authorizationUrl={authUrl || ""}
+				authorizationUrl={authUrl || ''}
 				requestParams={{
-					environmentId: credentials.environmentId || "",
-					clientId: credentials.clientId || "",
-					redirectUri: credentials.redirectUri || "",
-					scopes: credentials.scope || "",
-					responseType: "code",
-					flowType: "oidc-authorization-code-v3",
+					environmentId: credentials.environmentId || '',
+					clientId: credentials.clientId || '',
+					redirectUri: credentials.redirectUri || '',
+					scopes: credentials.scope || '',
+					responseType: 'code',
+					flowType: 'oidc-authorization-code-v3',
 				}}
 			/>
 
@@ -712,7 +672,7 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 				onContinue={() => {
 					setShowDefaultRedirectUriModal(false);
 					showGlobalSuccess(
-						"Using default redirect URI. Please configure it in your PingOne application.",
+						'Using default redirect URI. Please configure it in your PingOne application.'
 					);
 				}}
 				flowType="oidc-authorization-code-v3"

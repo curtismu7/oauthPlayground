@@ -75,42 +75,48 @@ const SecondaryLink = styled(Link)`
 `;
 
 const Flows = () => {
-  return (
-    <Page>
-      <Header>
-        <div>
-          <Title>Flows</Title>
-          <Sub>Explore OAuth 2.0 and OpenID Connect flows. Defaults are secure-by-default (Auth Code with PKCE).</Sub>
-        </div>
-      </Header>
+	return (
+		<Page>
+			<Header>
+				<div>
+					<Title>Flows</Title>
+					<Sub>
+						Explore OAuth 2.0 and OpenID Connect flows. Defaults are secure-by-default (Auth Code
+						with PKCE).
+					</Sub>
+				</div>
+			</Header>
 
-      <Grid>
-        <Card>
-          <CardTitle>OAuth 2.0</CardTitle>
-          <Sub>Standards-based authorization flows. Recommended: Authorization Code (with PKCE for public clients).</Sub>
-          <Actions>
-            <ButtonLink to="/flows/authorization-code">Authorization Code</ButtonLink>
+			<Grid>
+				<Card>
+					<CardTitle>OAuth 2.0</CardTitle>
+					<Sub>
+						Standards-based authorization flows. Recommended: Authorization Code (with PKCE for
+						public clients).
+					</Sub>
+					<Actions>
+						<ButtonLink to="/flows/authorization-code">Authorization Code</ButtonLink>
 
-            <SecondaryLink to="/flows/client-credentials">Client Credentials</SecondaryLink>
-            <SecondaryLink to="/flows/device-code">Device Code</SecondaryLink>
-            <SecondaryLink to="/flows/implicit">Implicit (legacy)</SecondaryLink>
-          </Actions>
-        </Card>
+						<SecondaryLink to="/flows/client-credentials">Client Credentials</SecondaryLink>
+						<SecondaryLink to="/flows/device-code">Device Code</SecondaryLink>
+						<SecondaryLink to="/flows/implicit">Implicit (legacy)</SecondaryLink>
+					</Actions>
+				</Card>
 
-        <Card>
-          <CardTitle>OpenID Connect</CardTitle>
-          <Sub>Identity layer on top of OAuth 2.0.</Sub>
-          <Actions>
-            <ButtonLink to="/oidc/id-tokens">ID Tokens</ButtonLink>
-            <SecondaryLink to="/oidc/userinfo">UserInfo</SecondaryLink>
-          </Actions>
-        </Card>
-      </Grid>
+				<Card>
+					<CardTitle>OpenID Connect</CardTitle>
+					<Sub>Identity layer on top of OAuth 2.0.</Sub>
+					<Actions>
+						<ButtonLink to="/oidc/id-tokens">ID Tokens</ButtonLink>
+						<SecondaryLink to="/oidc/userinfo">UserInfo</SecondaryLink>
+					</Actions>
+				</Card>
+			</Grid>
 
-      {/* Nested routes render here */}
-      <Outlet />
-    </Page>
-  );
+			{/* Nested routes render here */}
+			<Outlet />
+		</Page>
+	);
 };
 
 export default Flows;
