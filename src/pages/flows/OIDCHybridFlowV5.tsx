@@ -2,26 +2,26 @@
 // V5.0.0 OIDC Hybrid Flow - Full parity with Authorization Code Flow V5
 // Supports: code id_token, code token, code id_token token
 
-import React, { useState, useCallback, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import styled from 'styled-components';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-	FiInfo,
-	FiShield,
-	FiKey,
-	FiCheckCircle,
 	FiAlertCircle,
+	FiCheckCircle,
+	FiChevronDown,
 	FiCopy,
 	FiExternalLink,
-	FiChevronDown,
-	FiZap,
+	FiInfo,
+	FiKey,
 	FiRefreshCw,
 	FiSettings,
+	FiShield,
+	FiZap,
 } from 'react-icons/fi';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import styled from 'styled-components';
+import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useHybridFlow } from '../../hooks/useHybridFlow';
 import { credentialManager } from '../../utils/credentialManager';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 
 const LOG_PREFIX = '[🔀 OIDC-HYBRID]';
 
@@ -164,18 +164,26 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' | 'error'
 	margin: 1rem 0;
 	background: ${({ $variant }) => {
 		switch ($variant) {
-			case 'warning': return '#fef3c7';
-			case 'success': return '#d1fae5';
-			case 'error': return '#fee2e2';
-			default: return '#dbeafe';
+			case 'warning':
+				return '#fef3c7';
+			case 'success':
+				return '#d1fae5';
+			case 'error':
+				return '#fee2e2';
+			default:
+				return '#dbeafe';
 		}
 	}};
 	border: 1px solid ${({ $variant }) => {
 		switch ($variant) {
-			case 'warning': return '#fbbf24';
-			case 'success': return '#10b981';
-			case 'error': return '#ef4444';
-			default: return '#3b82f6';
+			case 'warning':
+				return '#fbbf24';
+			case 'success':
+				return '#10b981';
+			case 'error':
+				return '#ef4444';
+			default:
+				return '#3b82f6';
 		}
 	}};
 `;
@@ -288,7 +296,9 @@ const OIDCHybridFlowV5: React.FC = () => {
 	const [clientId, setClientId] = useState('');
 	const [clientSecret, setClientSecret] = useState('');
 	const [scopes, setScopes] = useState('openid profile email');
-	const [responseType, setResponseType] = useState<'code id_token' | 'code token' | 'code id_token token'>('code id_token');
+	const [responseType, setResponseType] = useState<
+		'code id_token' | 'code token' | 'code id_token token'
+	>('code id_token');
 
 	// Load credentials on mount
 	useEffect(() => {
@@ -320,7 +330,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 			hybridFlow.setError(decodeURIComponent(error));
 			v4ToastManager.showError(error);
 		}
-	}, [searchParams]);
+	}, [searchParams, hybridFlow.setError, hybridFlow.setTokens]);
 
 	const handleSaveCredentials = useCallback(() => {
 		if (!environmentId || !clientId) {
@@ -366,13 +376,13 @@ const OIDCHybridFlowV5: React.FC = () => {
 		try {
 			await hybridFlow.exchangeCodeForTokens(hybridFlow.tokens.code);
 			setCurrentStep(5); // Move to tokens received
-		} catch (err: any) {
+		} catch (_err: any) {
 			// Error already handled in hook
 		}
 	}, [hybridFlow]);
 
 	const toggleSection = (key: string) => {
-		setCollapsedSections(prev => ({ ...prev, [key]: !prev[key] }));
+		setCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }));
 	};
 
 	const handleCopy = (text: string, label: string) => {
@@ -427,7 +437,12 @@ const OIDCHybridFlowV5: React.FC = () => {
 				<CollapsibleTitle>
 					<FiInfo /> OIDC Hybrid Flow Overview
 				</CollapsibleTitle>
-				<FiChevronDown style={{ transform: collapsedSections.intro ? 'rotate(-90deg)' : 'none', transition: 'transform 0.2s' }} />
+				<FiChevronDown
+					style={{
+						transform: collapsedSections.intro ? 'rotate(-90deg)' : 'none',
+						transition: 'transform 0.2s',
+					}}
+				/>
 			</CollapsibleHeader>
 			{!collapsedSections.intro && (
 				<CollapsibleContent>
@@ -436,9 +451,10 @@ const OIDCHybridFlowV5: React.FC = () => {
 						<div>
 							<strong>What is OIDC Hybrid Flow?</strong>
 							<p style={{ marginTop: '0.5rem', marginBottom: 0 }}>
-								The Hybrid Flow combines Authorization Code and Implicit flows, allowing tokens to be returned 
-								from both the authorization endpoint (in the fragment) and the token endpoint. This provides 
-								flexibility for different client types and security requirements.
+								The Hybrid Flow combines Authorization Code and Implicit flows, allowing tokens to
+								be returned from both the authorization endpoint (in the fragment) and the token
+								endpoint. This provides flexibility for different client types and security
+								requirements.
 							</p>
 						</div>
 					</InfoBox>
@@ -448,9 +464,16 @@ const OIDCHybridFlowV5: React.FC = () => {
 						<div>
 							<strong>Response Types Supported:</strong>
 							<ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
-								<li><code>code id_token</code> - Returns code + ID token in fragment</li>
-								<li><code>code token</code> - Returns code + access token in fragment</li>
-								<li><code>code id_token token</code> - Returns code + ID token + access token in fragment</li>
+								<li>
+									<code>code id_token</code> - Returns code + ID token in fragment
+								</li>
+								<li>
+									<code>code token</code> - Returns code + access token in fragment
+								</li>
+								<li>
+									<code>code id_token token</code> - Returns code + ID token + access token in
+									fragment
+								</li>
 							</ul>
 						</div>
 					</InfoBox>
@@ -478,7 +501,12 @@ const OIDCHybridFlowV5: React.FC = () => {
 				<CollapsibleTitle>
 					<FiSettings /> Configuration
 				</CollapsibleTitle>
-				<FiChevronDown style={{ transform: collapsedSections.config ? 'rotate(-90deg)' : 'none', transition: 'transform 0.2s' }} />
+				<FiChevronDown
+					style={{
+						transform: collapsedSections.config ? 'rotate(-90deg)' : 'none',
+						transition: 'transform 0.2s',
+					}}
+				/>
 			</CollapsibleHeader>
 			{!collapsedSections.config && (
 				<CollapsibleContent>
@@ -545,7 +573,12 @@ const OIDCHybridFlowV5: React.FC = () => {
 				<CollapsibleTitle>
 					<FiExternalLink /> Authorization Request
 				</CollapsibleTitle>
-				<FiChevronDown style={{ transform: collapsedSections.authReq ? 'rotate(-90deg)' : 'none', transition: 'transform 0.2s' }} />
+				<FiChevronDown
+					style={{
+						transform: collapsedSections.authReq ? 'rotate(-90deg)' : 'none',
+						transition: 'transform 0.2s',
+					}}
+				/>
 			</CollapsibleHeader>
 			{!collapsedSections.authReq && (
 				<CollapsibleContent>
@@ -553,8 +586,8 @@ const OIDCHybridFlowV5: React.FC = () => {
 						<FiInfo size={24} />
 						<div>
 							<p style={{ margin: 0 }}>
-								Click the button below to start the authorization flow. You'll be redirected to PingOne 
-								where you can authenticate and authorize the application.
+								Click the button below to start the authorization flow. You'll be redirected to
+								PingOne where you can authenticate and authorize the application.
 							</p>
 						</div>
 					</InfoBox>
@@ -573,7 +606,12 @@ const OIDCHybridFlowV5: React.FC = () => {
 				<CollapsibleTitle>
 					<FiCheckCircle /> Process Response
 				</CollapsibleTitle>
-				<FiChevronDown style={{ transform: collapsedSections.response ? 'rotate(-90deg)' : 'none', transition: 'transform 0.2s' }} />
+				<FiChevronDown
+					style={{
+						transform: collapsedSections.response ? 'rotate(-90deg)' : 'none',
+						transition: 'transform 0.2s',
+					}}
+				/>
 			</CollapsibleHeader>
 			{!collapsedSections.response && (
 				<CollapsibleContent>
@@ -584,7 +622,8 @@ const OIDCHybridFlowV5: React.FC = () => {
 								<div>
 									<strong>Authorization Response Received!</strong>
 									<p style={{ marginTop: '0.5rem', marginBottom: 0 }}>
-										Tokens received from authorization endpoint. Click "Exchange Code" to get additional tokens from the token endpoint.
+										Tokens received from authorization endpoint. Click "Exchange Code" to get
+										additional tokens from the token endpoint.
 									</p>
 								</div>
 							</InfoBox>
@@ -609,7 +648,9 @@ const OIDCHybridFlowV5: React.FC = () => {
 									<Label>Access Token (from fragment)</Label>
 									<TokenDisplay>{hybridFlow.tokens.access_token}</TokenDisplay>
 									<div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-										<Button onClick={() => handleCopy(hybridFlow.tokens!.access_token!, 'Access Token')}>
+										<Button
+											onClick={() => handleCopy(hybridFlow.tokens!.access_token!, 'Access Token')}
+										>
 											<FiCopy /> Copy
 										</Button>
 										<Button onClick={navigateToTokenManagement} $variant="outline">
@@ -647,7 +688,12 @@ const OIDCHybridFlowV5: React.FC = () => {
 				<CollapsibleTitle>
 					<FiRefreshCw /> Token Exchange
 				</CollapsibleTitle>
-				<FiChevronDown style={{ transform: collapsedSections.exchange ? 'rotate(-90deg)' : 'none', transition: 'transform 0.2s' }} />
+				<FiChevronDown
+					style={{
+						transform: collapsedSections.exchange ? 'rotate(-90deg)' : 'none',
+						transition: 'transform 0.2s',
+					}}
+				/>
 			</CollapsibleHeader>
 			{!collapsedSections.exchange && (
 				<CollapsibleContent>
@@ -655,17 +701,18 @@ const OIDCHybridFlowV5: React.FC = () => {
 						<FiInfo size={24} />
 						<div>
 							<p style={{ margin: 0 }}>
-								Exchange the authorization code for additional tokens (access token, refresh token, ID token) 
-								from the token endpoint.
+								Exchange the authorization code for additional tokens (access token, refresh token,
+								ID token) from the token endpoint.
 							</p>
 						</div>
 					</InfoBox>
 
-					<Button 
-						onClick={handleExchangeCode} 
+					<Button
+						onClick={handleExchangeCode}
 						disabled={!hybridFlow.tokens?.code || hybridFlow.isExchangingCode}
 					>
-						<FiRefreshCw /> {hybridFlow.isExchangingCode ? 'Exchanging...' : 'Exchange Code for Tokens'}
+						<FiRefreshCw />{' '}
+						{hybridFlow.isExchangingCode ? 'Exchanging...' : 'Exchange Code for Tokens'}
 					</Button>
 				</CollapsibleContent>
 			)}
@@ -678,7 +725,12 @@ const OIDCHybridFlowV5: React.FC = () => {
 				<CollapsibleTitle>
 					<FiKey /> Tokens Received
 				</CollapsibleTitle>
-				<FiChevronDown style={{ transform: collapsedSections.tokens ? 'rotate(-90deg)' : 'none', transition: 'transform 0.2s' }} />
+				<FiChevronDown
+					style={{
+						transform: collapsedSections.tokens ? 'rotate(-90deg)' : 'none',
+						transition: 'transform 0.2s',
+					}}
+				/>
 			</CollapsibleHeader>
 			{!collapsedSections.tokens && (
 				<CollapsibleContent>
@@ -697,7 +749,9 @@ const OIDCHybridFlowV5: React.FC = () => {
 							<Label>Access Token</Label>
 							<TokenDisplay>{hybridFlow.tokens.access_token}</TokenDisplay>
 							<div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-								<Button onClick={() => handleCopy(hybridFlow.tokens!.access_token!, 'Access Token')}>
+								<Button
+									onClick={() => handleCopy(hybridFlow.tokens!.access_token!, 'Access Token')}
+								>
 									<FiCopy /> Copy
 								</Button>
 								<Button onClick={navigateToTokenManagement} $variant="outline">
@@ -726,7 +780,10 @@ const OIDCHybridFlowV5: React.FC = () => {
 						<div style={{ marginTop: '1rem' }}>
 							<Label>Refresh Token</Label>
 							<TokenDisplay>{hybridFlow.tokens.refresh_token}</TokenDisplay>
-							<Button onClick={() => handleCopy(hybridFlow.tokens!.refresh_token!, 'Refresh Token')} style={{ marginTop: '0.5rem' }}>
+							<Button
+								onClick={() => handleCopy(hybridFlow.tokens!.refresh_token!, 'Refresh Token')}
+								style={{ marginTop: '0.5rem' }}
+							>
 								<FiCopy /> Copy Refresh Token
 							</Button>
 						</div>
@@ -742,7 +799,12 @@ const OIDCHybridFlowV5: React.FC = () => {
 				<CollapsibleTitle>
 					<FiCheckCircle /> Flow Complete
 				</CollapsibleTitle>
-				<FiChevronDown style={{ transform: collapsedSections.complete ? 'rotate(-90deg)' : 'none', transition: 'transform 0.2s' }} />
+				<FiChevronDown
+					style={{
+						transform: collapsedSections.complete ? 'rotate(-90deg)' : 'none',
+						transition: 'transform 0.2s',
+					}}
+				/>
 			</CollapsibleHeader>
 			{!collapsedSections.complete && (
 				<CollapsibleContent>
@@ -770,7 +832,13 @@ const OIDCHybridFlowV5: React.FC = () => {
 						<Button onClick={navigateToTokenManagement}>
 							<FiExternalLink /> Go to Token Management
 						</Button>
-						<Button onClick={() => { hybridFlow.reset(); setCurrentStep(0); }} $variant="outline">
+						<Button
+							onClick={() => {
+								hybridFlow.reset();
+								setCurrentStep(0);
+							}}
+							$variant="outline"
+						>
 							<FiRefreshCw /> Start Over
 						</Button>
 					</div>
@@ -793,8 +861,8 @@ const OIDCHybridFlowV5: React.FC = () => {
 				<StepIndicator>
 					{STEP_METADATA.map((_, index) => (
 						<React.Fragment key={index}>
-							<StepDot 
-								$active={currentStep === index} 
+							<StepDot
+								$active={currentStep === index}
 								$completed={currentStep > index}
 								onClick={() => setCurrentStep(index)}
 								style={{ cursor: 'pointer' }}
@@ -802,14 +870,27 @@ const OIDCHybridFlowV5: React.FC = () => {
 								{currentStep > index ? <FiCheckCircle /> : index}
 							</StepDot>
 							{index < STEP_METADATA.length - 1 && (
-								<div style={{ width: '2rem', height: '2px', background: currentStep > index ? '#10b981' : '#e2e8f0' }} />
+								<div
+									style={{
+										width: '2rem',
+										height: '2px',
+										background: currentStep > index ? '#10b981' : '#e2e8f0',
+									}}
+								/>
 							)}
 						</React.Fragment>
 					))}
 				</StepIndicator>
 
 				<div style={{ marginBottom: '2rem' }}>
-					<h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#1e293b', marginBottom: '0.5rem' }}>
+					<h2
+						style={{
+							fontSize: '1.5rem',
+							fontWeight: '600',
+							color: '#1e293b',
+							marginBottom: '0.5rem',
+						}}
+					>
 						{STEP_METADATA[currentStep].title}
 					</h2>
 					<p style={{ color: '#64748b' }}>{STEP_METADATA[currentStep].subtitle}</p>
@@ -822,7 +903,10 @@ const OIDCHybridFlowV5: React.FC = () => {
 					totalSteps={STEP_METADATA.length}
 					onPrevious={() => setCurrentStep(Math.max(0, currentStep - 1))}
 					onNext={() => setCurrentStep(Math.min(STEP_METADATA.length - 1, currentStep + 1))}
-					onReset={() => { hybridFlow.reset(); setCurrentStep(0); }}
+					onReset={() => {
+						hybridFlow.reset();
+						setCurrentStep(0);
+					}}
 					canNavigateNext={true}
 					isFirstStep={currentStep === 0}
 				/>
