@@ -1,18 +1,18 @@
-import type React from "react";
-import { useCallback, useState } from "react";
-import styled from "styled-components";
-import FlowCredentials from "../../components/FlowCredentials";
-import JSONHighlighter from "../../components/JSONHighlighter";
-import { StepByStepFlow } from "../../components/StepByStepFlow";
+import type React from 'react';
+import { useCallback, useState } from 'react';
+import styled from 'styled-components';
+import FlowCredentials from '../../components/FlowCredentials';
+import JSONHighlighter from '../../components/JSONHighlighter';
+import { StepByStepFlow } from '../../components/StepByStepFlow';
 import {
 	type TokenAuthMethod,
 	type TokenIntrospectionResponse,
 	TokenManagementService,
 	type TokenRequest,
 	type TokenResponse,
-} from "../../services/tokenManagementService";
-import { logger } from "../../utils/logger";
-import { storeOAuthTokens } from "../../utils/tokenStorage";
+} from '../../services/tokenManagementService';
+import { logger } from '../../utils/logger';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -100,7 +100,7 @@ const Select = styled.select`
 `;
 
 const Button = styled.button<{
-	$variant: "primary" | "secondary" | "success" | "danger";
+	$variant: 'primary' | 'secondary' | 'success' | 'danger';
 }>`
   padding: 0.75rem 1.5rem;
   border: none;
@@ -114,25 +114,25 @@ const Button = styled.button<{
   
   ${({ $variant }) => {
 		switch ($variant) {
-			case "primary":
+			case 'primary':
 				return `
           background-color: #3b82f6;
           color: white;
           &:hover { background-color: #2563eb; }
         `;
-			case "secondary":
+			case 'secondary':
 				return `
           background-color: #6b7280;
           color: white;
           &:hover { background-color: #4b5563; }
         `;
-			case "success":
+			case 'success':
 				return `
           background-color: #10b981;
           color: white;
           &:hover { background-color: #059669; }
         `;
-			case "danger":
+			case 'danger':
 				return `
           background-color: #ef4444;
           color: white;
@@ -235,8 +235,8 @@ const Tab = styled.button<{ $active: boolean }>`
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  border-bottom: 2px solid ${({ $active }) => ($active ? "#3b82f6" : "transparent")};
-  color: ${({ $active }) => ($active ? "#3b82f6" : "#6b7280")};
+  border-bottom: 2px solid ${({ $active }) => ($active ? '#3b82f6' : 'transparent')};
+  color: ${({ $active }) => ($active ? '#3b82f6' : '#6b7280')};
   
   &:hover {
     color: #3b82f6;
@@ -256,8 +256,8 @@ const SubTab = styled.button<{ $active: boolean }>`
   font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
-  border-bottom: 2px solid ${({ $active }) => ($active ? "#10b981" : "transparent")};
-  color: ${({ $active }) => ($active ? "#10b981" : "#6b7280")};
+  border-bottom: 2px solid ${({ $active }) => ($active ? '#10b981' : 'transparent')};
+  color: ${({ $active }) => ($active ? '#10b981' : '#6b7280')};
   
   &:hover {
     color: #10b981;
@@ -272,67 +272,52 @@ interface TokenManagementFlowProps {
 	};
 }
 
-const TokenManagementFlow: React.FC<TokenManagementFlowProps> = ({
-	credentials,
-}) => {
+const TokenManagementFlow: React.FC<TokenManagementFlowProps> = ({ credentials }) => {
 	const [currentStep, setCurrentStep] = useState(0);
-	const [demoStatus, setDemoStatus] = useState<
-		"idle" | "loading" | "success" | "error"
-	>("idle");
-	const [activeTab, setActiveTab] = useState<
-		"exchange" | "refresh" | "introspect" | "revoke"
-	>("exchange");
-	const [activeSubTab, setActiveSubTab] = useState<
-		"auth_code" | "token_exchange"
-	>("auth_code");
+	const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+	const [activeTab, setActiveTab] = useState<'exchange' | 'refresh' | 'introspect' | 'revoke'>(
+		'exchange'
+	);
+	const [activeSubTab, setActiveSubTab] = useState<'auth_code' | 'token_exchange'>('auth_code');
 	const [activeAuthMethod, setActiveAuthMethod] =
-		useState<TokenAuthMethod["type"]>("CLIENT_SECRET_POST");
+		useState<TokenAuthMethod['type']>('CLIENT_SECRET_POST');
 	const [formData, setFormData] = useState({
-		clientId: credentials?.clientId || "",
-		clientSecret: credentials?.clientSecret || "",
-		environmentId: credentials?.environmentId || "",
-		grantType: "authorization_code" as TokenRequest["grantType"],
-		code: "",
-		refreshToken: "",
-		redirectUri: "http://localhost:3000/callback",
-		scope: "openid profile email",
-		audience: "",
-		subjectToken: "",
-		subjectTokenType: "urn:ietf:params:oauth:token-type:access_token",
-		actorToken: "",
-		actorTokenType: "urn:ietf:params:oauth:token-type:access_token",
-		requestedTokenType: "urn:ietf:params:oauth:token-type:access_token",
-		privateKey: "",
-		keyId: "",
-		jwksUri: "",
-		tokenToIntrospect: "",
-		tokenTypeHint: "access_token" as
-			| "access_token"
-			| "id_token"
-			| "refresh_token",
-		resourceId: "",
-		resourceSecret: "",
-		tokenToRevoke: "",
-		revocationTokenTypeHint: "access_token" as "access_token" | "refresh_token",
+		clientId: credentials?.clientId || '',
+		clientSecret: credentials?.clientSecret || '',
+		environmentId: credentials?.environmentId || '',
+		grantType: 'authorization_code' as TokenRequest['grantType'],
+		code: '',
+		refreshToken: '',
+		redirectUri: 'http://localhost:3000/callback',
+		scope: 'openid profile email',
+		audience: '',
+		subjectToken: '',
+		subjectTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+		actorToken: '',
+		actorTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+		requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+		privateKey: '',
+		keyId: '',
+		jwksUri: '',
+		tokenToIntrospect: '',
+		tokenTypeHint: 'access_token' as 'access_token' | 'id_token' | 'refresh_token',
+		resourceId: '',
+		resourceSecret: '',
+		tokenToRevoke: '',
+		revocationTokenTypeHint: 'access_token' as 'access_token' | 'refresh_token',
 	});
-	const [response, setResponse] = useState<Record<string, unknown> | null>(
-		null,
-	);
+	const [response, setResponse] = useState<Record<string, unknown> | null>(null);
 	const [error, setError] = useState<string | null>(null);
-	const [tokenResponse, setTokenResponse] = useState<TokenResponse | null>(
-		null,
-	);
+	const [tokenResponse, setTokenResponse] = useState<TokenResponse | null>(null);
 	const [introspectionResponse, setIntrospectionResponse] =
 		useState<TokenIntrospectionResponse | null>(null);
-	const [_tokenService] = useState(
-		() => new TokenManagementService(formData.environmentId),
-	);
+	const [_tokenService] = useState(() => new TokenManagementService(formData.environmentId));
 
 	const steps = [
 		{
-			id: "step-1",
-			title: "Configure Token Management Settings",
-			description: "Set up your OAuth client for token management operations.",
+			id: 'step-1',
+			title: 'Configure Token Management Settings',
+			description: 'Set up your OAuth client for token management operations.',
 			code: `// Token Management Configuration
 const tokenConfig = {
   clientId: '${formData.clientId}',
@@ -346,37 +331,34 @@ const tokenConfig = {
 
 console.log('Token management configured:', tokenConfig);`,
 			execute: async () => {
-				logger.info(
-					"TokenManagementFlow",
-					"Configuring token management settings",
-				);
+				logger.info('TokenManagementFlow', 'Configuring token management settings');
 			},
 		},
 		{
-			id: "step-2",
+			id: 'step-2',
 			title:
-				activeTab === "exchange"
-					? activeSubTab === "auth_code"
-						? "Exchange Authorization Code"
-						: "Exchange Tokens"
-					: activeTab === "refresh"
-						? "Refresh Access Token"
-						: activeTab === "introspect"
-							? "Introspect Token"
-							: "Revoke Token",
+				activeTab === 'exchange'
+					? activeSubTab === 'auth_code'
+						? 'Exchange Authorization Code'
+						: 'Exchange Tokens'
+					: activeTab === 'refresh'
+						? 'Refresh Access Token'
+						: activeTab === 'introspect'
+							? 'Introspect Token'
+							: 'Revoke Token',
 			description:
-				activeTab === "exchange"
-					? activeSubTab === "auth_code"
-						? "Exchange authorization code for access and ID tokens."
-						: "Exchange tokens using token exchange grant."
-					: activeTab === "refresh"
-						? "Refresh an expired access token using refresh token."
-						: activeTab === "introspect"
-							? "Get information about a token."
-							: "Revoke a token to invalidate it.",
+				activeTab === 'exchange'
+					? activeSubTab === 'auth_code'
+						? 'Exchange authorization code for access and ID tokens.'
+						: 'Exchange tokens using token exchange grant.'
+					: activeTab === 'refresh'
+						? 'Refresh an expired access token using refresh token.'
+						: activeTab === 'introspect'
+							? 'Get information about a token.'
+							: 'Revoke a token to invalidate it.',
 			code:
-				activeTab === "exchange"
-					? activeSubTab === "auth_code"
+				activeTab === 'exchange'
+					? activeSubTab === 'auth_code'
 						? `// Exchange Authorization Code
 const tokenRequest: TokenRequest = {
   grantType: 'authorization_code',
@@ -426,7 +408,7 @@ const authMethod: TokenAuthMethod = {
 const tokenService = new TokenManagementService('${formData.environmentId}');
 const tokenResponse = await tokenService.exchangeToken(tokenRequest, authMethod);
 console.log('Token Exchange Response:', tokenResponse);`
-					: activeTab === "refresh"
+					: activeTab === 'refresh'
 						? `// Refresh Access Token
 const tokenRequest: TokenRequest = {
   grantType: 'refresh_token',
@@ -449,7 +431,7 @@ const authMethod: TokenAuthMethod = {
 const tokenService = new TokenManagementService('${formData.environmentId}');
 const tokenResponse = await tokenService.refreshToken(tokenRequest, authMethod);
 console.log('Token Refresh Response:', tokenResponse);`
-						: activeTab === "introspect"
+						: activeTab === 'introspect'
 							? `// Introspect Token
 const tokenService = new TokenManagementService('${formData.environmentId}');
 const introspectionResponse = await tokenService.introspectToken(
@@ -480,21 +462,21 @@ const tokenService = new TokenManagementService('${formData.environmentId}');
 const revoked = await tokenService.revokeToken(revocationRequest);
 console.log('Token Revoked:', revoked);`,
 			execute: async () => {
-				logger.info("TokenManagementFlow", `Executing ${activeTab} operation`, {
+				logger.info('TokenManagementFlow', `Executing ${activeTab} operation`, {
 					subTab: activeSubTab,
 					authMethod: activeAuthMethod,
 				});
-				setDemoStatus("loading");
+				setDemoStatus('loading');
 
 				try {
 					let result: unknown;
 
-					if (activeTab === "exchange") {
-						if (activeSubTab === "auth_code") {
+					if (activeTab === 'exchange') {
+						if (activeSubTab === 'auth_code') {
 							// Simulate authorization code exchange
 							const mockTokenResponse: TokenResponse = {
 								access_token: `mock_access_token_${Date.now()}`,
-								token_type: "Bearer",
+								token_type: 'Bearer',
 								expires_in: 3600,
 								scope: formData.scope,
 								refresh_token: `mock_refresh_token_${Date.now()}`,
@@ -506,36 +488,35 @@ console.log('Token Revoked:', revoked);`,
 							// Simulate token exchange
 							const mockTokenResponse: TokenResponse = {
 								access_token: `mock_exchanged_token_${Date.now()}`,
-								token_type: "Bearer",
+								token_type: 'Bearer',
 								expires_in: 3600,
 								scope: formData.scope,
-								issued_token_type:
-									"urn:ietf:params:oauth:token-type:access_token",
+								issued_token_type: 'urn:ietf:params:oauth:token-type:access_token',
 							};
 							result = mockTokenResponse;
 							setTokenResponse(mockTokenResponse);
 						}
-					} else if (activeTab === "refresh") {
+					} else if (activeTab === 'refresh') {
 						// Simulate token refresh
 						const mockTokenResponse: TokenResponse = {
 							access_token: `mock_refreshed_token_${Date.now()}`,
-							token_type: "Bearer",
+							token_type: 'Bearer',
 							expires_in: 3600,
 							scope: formData.scope,
 							refresh_token: `mock_new_refresh_token_${Date.now()}`,
 						};
 						result = mockTokenResponse;
 						setTokenResponse(mockTokenResponse);
-					} else if (activeTab === "introspect") {
+					} else if (activeTab === 'introspect') {
 						// Simulate token introspection
 						const mockIntrospectionResponse: TokenIntrospectionResponse = {
 							active: true,
 							scope: formData.scope,
 							client_id: formData.clientId,
-							token_type: "Bearer",
+							token_type: 'Bearer',
 							exp: Math.floor(Date.now() / 1000) + 3600,
 							iat: Math.floor(Date.now() / 1000),
-							sub: "user_123456789",
+							sub: 'user_123456789',
 							aud: formData.clientId,
 							iss: `https://auth.pingone.com/${formData.environmentId}`,
 							jti: `jti_${Date.now()}`,
@@ -544,7 +525,7 @@ console.log('Token Revoked:', revoked);`,
 						setIntrospectionResponse(mockIntrospectionResponse);
 					} else {
 						// Simulate token revocation
-						result = { success: true, message: "Token revoked successfully" };
+						result = { success: true, message: 'Token revoked successfully' };
 					}
 
 					setResponse({
@@ -553,21 +534,19 @@ console.log('Token Revoked:', revoked);`,
 						result: result,
 						authMethod: activeAuthMethod,
 					});
-					setDemoStatus("success");
+					setDemoStatus('success');
 				} catch (error) {
-					const errorMessage =
-						error instanceof Error ? error.message : "Unknown error";
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 					setError(errorMessage);
-					setDemoStatus("error");
+					setDemoStatus('error');
 					throw error;
 				}
 			},
 		},
 		{
-			id: "step-3",
-			title: "Process Response",
-			description:
-				"Process and validate the response from the token management operation.",
+			id: 'step-3',
+			title: 'Process Response',
+			description: 'Process and validate the response from the token management operation.',
 			code: `// Process Response
 if (tokenResponse) {
   console.log('Token received:', tokenResponse);
@@ -586,20 +565,20 @@ if (introspectionResponse) {
   console.log('Token expires at:', new Date(introspectionResponse.exp! * 1000));
 }`,
 			execute: async () => {
-				logger.info("TokenManagementFlow", "Processing response");
+				logger.info('TokenManagementFlow', 'Processing response');
 
 				if (tokenResponse) {
 					// Store tokens using the standardized method
 					const success = storeOAuthTokens(
 						tokenResponse,
-						"token-management",
-						`Token Management (${activeTab})`,
+						'token-management',
+						`Token Management (${activeTab})`
 					);
 
 					if (success) {
 						setResponse((prev) => ({
 							...prev,
-							message: "Tokens stored successfully",
+							message: 'Tokens stored successfully',
 							stored: true,
 						}));
 					}
@@ -610,27 +589,27 @@ if (introspectionResponse) {
 
 	const handleStepChange = useCallback((step: number) => {
 		setCurrentStep(step);
-		setDemoStatus("idle");
+		setDemoStatus('idle');
 		setResponse(null);
 		setError(null);
 	}, []);
 
 	const handleStepResult = useCallback((step: number, result: unknown) => {
-		logger.info("TokenManagementFlow", `Step ${step + 1} completed`, result);
+		logger.info('TokenManagementFlow', `Step ${step + 1} completed`, result);
 	}, []);
 
 	const handleOperationStart = async () => {
 		try {
-			setDemoStatus("loading");
+			setDemoStatus('loading');
 			setError(null);
 
 			let result: unknown;
 
-			if (activeTab === "exchange") {
-				if (activeSubTab === "auth_code") {
+			if (activeTab === 'exchange') {
+				if (activeSubTab === 'auth_code') {
 					const mockTokenResponse: TokenResponse = {
 						access_token: `mock_access_token_${Date.now()}`,
-						token_type: "Bearer",
+						token_type: 'Bearer',
 						expires_in: 3600,
 						scope: formData.scope,
 						refresh_token: `mock_refresh_token_${Date.now()}`,
@@ -641,33 +620,33 @@ if (introspectionResponse) {
 				} else {
 					const mockTokenResponse: TokenResponse = {
 						access_token: `mock_exchanged_token_${Date.now()}`,
-						token_type: "Bearer",
+						token_type: 'Bearer',
 						expires_in: 3600,
 						scope: formData.scope,
-						issued_token_type: "urn:ietf:params:oauth:token-type:access_token",
+						issued_token_type: 'urn:ietf:params:oauth:token-type:access_token',
 					};
 					result = mockTokenResponse;
 					setTokenResponse(mockTokenResponse);
 				}
-			} else if (activeTab === "refresh") {
+			} else if (activeTab === 'refresh') {
 				const mockTokenResponse: TokenResponse = {
 					access_token: `mock_refreshed_token_${Date.now()}`,
-					token_type: "Bearer",
+					token_type: 'Bearer',
 					expires_in: 3600,
 					scope: formData.scope,
 					refresh_token: `mock_new_refresh_token_${Date.now()}`,
 				};
 				result = mockTokenResponse;
 				setTokenResponse(mockTokenResponse);
-			} else if (activeTab === "introspect") {
+			} else if (activeTab === 'introspect') {
 				const mockIntrospectionResponse: TokenIntrospectionResponse = {
 					active: true,
 					scope: formData.scope,
 					client_id: formData.clientId,
-					token_type: "Bearer",
+					token_type: 'Bearer',
 					exp: Math.floor(Date.now() / 1000) + 3600,
 					iat: Math.floor(Date.now() / 1000),
-					sub: "user_123456789",
+					sub: 'user_123456789',
 					aud: formData.clientId,
 					iss: `https://auth.pingone.com/${formData.environmentId}`,
 					jti: `jti_${Date.now()}`,
@@ -675,7 +654,7 @@ if (introspectionResponse) {
 				result = mockIntrospectionResponse;
 				setIntrospectionResponse(mockIntrospectionResponse);
 			} else {
-				result = { success: true, message: "Token revoked successfully" };
+				result = { success: true, message: 'Token revoked successfully' };
 			}
 
 			setResponse({
@@ -684,12 +663,11 @@ if (introspectionResponse) {
 				result: result,
 				authMethod: activeAuthMethod,
 			});
-			setDemoStatus("success");
+			setDemoStatus('success');
 		} catch (error) {
-			const errorMessage =
-				error instanceof Error ? error.message : "Unknown error";
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			setError(errorMessage);
-			setDemoStatus("error");
+			setDemoStatus('error');
 		}
 	};
 
@@ -697,18 +675,16 @@ if (introspectionResponse) {
 		<FlowContainer>
 			<FlowTitle>Token Management Flow</FlowTitle>
 			<FlowDescription>
-				This flow demonstrates comprehensive token management operations
-				including token exchange, refresh, introspection, and revocation with
-				multiple authentication methods.
+				This flow demonstrates comprehensive token management operations including token exchange,
+				refresh, introspection, and revocation with multiple authentication methods.
 			</FlowDescription>
 
 			<InfoContainer>
 				<h4> Token Management Features</h4>
 				<p>
-					The Token Management flow provides comprehensive token operations
-					including authorization code exchange, token refresh, token
-					introspection, and token revocation. It supports all major OAuth
-					client authentication methods.
+					The Token Management flow provides comprehensive token operations including authorization
+					code exchange, token refresh, token introspection, and token revocation. It supports all
+					major OAuth client authentication methods.
 				</p>
 			</InfoContainer>
 
@@ -725,57 +701,43 @@ if (introspectionResponse) {
 			/>
 
 			<TabContainer>
-				<Tab
-					$active={activeTab === "exchange"}
-					onClick={() => setActiveTab("exchange")}
-				>
+				<Tab $active={activeTab === 'exchange'} onClick={() => setActiveTab('exchange')}>
 					Token Exchange
 				</Tab>
-				<Tab
-					$active={activeTab === "refresh"}
-					onClick={() => setActiveTab("refresh")}
-				>
+				<Tab $active={activeTab === 'refresh'} onClick={() => setActiveTab('refresh')}>
 					Token Refresh
 				</Tab>
-				<Tab
-					$active={activeTab === "introspect"}
-					onClick={() => setActiveTab("introspect")}
-				>
+				<Tab $active={activeTab === 'introspect'} onClick={() => setActiveTab('introspect')}>
 					Token Introspection
 				</Tab>
-				<Tab
-					$active={activeTab === "revoke"}
-					onClick={() => setActiveTab("revoke")}
-				>
+				<Tab $active={activeTab === 'revoke'} onClick={() => setActiveTab('revoke')}>
 					Token Revocation
 				</Tab>
 			</TabContainer>
 
-			{activeTab === "exchange" && (
+			{activeTab === 'exchange' && (
 				<SubTabContainer>
 					<SubTab
-						$active={activeSubTab === "auth_code"}
-						onClick={() => setActiveSubTab("auth_code")}
+						$active={activeSubTab === 'auth_code'}
+						onClick={() => setActiveSubTab('auth_code')}
 					>
 						Authorization Code
 					</SubTab>
 					<SubTab
-						$active={activeSubTab === "token_exchange"}
-						onClick={() => setActiveSubTab("token_exchange")}
+						$active={activeSubTab === 'token_exchange'}
+						onClick={() => setActiveSubTab('token_exchange')}
 					>
 						Token Exchange
 					</SubTab>
 				</SubTabContainer>
 			)}
 
-			<div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
+			<div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
 				<div style={{ flex: 1 }}>
 					<Label>Authentication Method</Label>
 					<Select
 						value={activeAuthMethod}
-						onChange={(e) =>
-							setActiveAuthMethod(e.target.value as TokenAuthMethod["type"])
-						}
+						onChange={(e) => setActiveAuthMethod(e.target.value as TokenAuthMethod['type'])}
 					>
 						<option value="NONE">NONE</option>
 						<option value="CLIENT_SECRET_POST">CLIENT_SECRET_POST</option>
@@ -791,18 +753,18 @@ if (introspectionResponse) {
 				currentStep={currentStep}
 				onStepChange={handleStepChange}
 				onStepResult={handleStepResult}
-				onStart={() => setDemoStatus("loading")}
+				onStart={() => setDemoStatus('loading')}
 				onReset={() => {
 					setCurrentStep(0);
-					setDemoStatus("idle");
+					setDemoStatus('idle');
 					setResponse(null);
 					setError(null);
 					setTokenResponse(null);
 					setIntrospectionResponse(null);
 				}}
 				status={demoStatus}
-				disabled={demoStatus === "loading"}
-				title={`Token Management Steps (${activeTab}${activeTab === "exchange" ? ` - ${activeSubTab}` : ""})`}
+				disabled={demoStatus === 'loading'}
+				title={`Token Management Steps (${activeTab}${activeTab === 'exchange' ? ` - ${activeSubTab}` : ''})`}
 			/>
 
 			{tokenResponse && (
@@ -824,7 +786,7 @@ if (introspectionResponse) {
 						</TokenDetail>
 						<TokenDetail>
 							<TokenLabel>Scope</TokenLabel>
-							<TokenValue>{tokenResponse.scope || "Not specified"}</TokenValue>
+							<TokenValue>{tokenResponse.scope || 'Not specified'}</TokenValue>
 						</TokenDetail>
 						{tokenResponse.refresh_token && (
 							<TokenDetail>
@@ -849,40 +811,30 @@ if (introspectionResponse) {
 					<TokenDetails>
 						<TokenDetail>
 							<TokenLabel>Active</TokenLabel>
-							<TokenValue>
-								{introspectionResponse.active ? "Yes" : "No"}
-							</TokenValue>
+							<TokenValue>{introspectionResponse.active ? 'Yes' : 'No'}</TokenValue>
 						</TokenDetail>
 						<TokenDetail>
 							<TokenLabel>Token Type</TokenLabel>
-							<TokenValue>
-								{introspectionResponse.token_type || "Not specified"}
-							</TokenValue>
+							<TokenValue>{introspectionResponse.token_type || 'Not specified'}</TokenValue>
 						</TokenDetail>
 						<TokenDetail>
 							<TokenLabel>Scope</TokenLabel>
-							<TokenValue>
-								{introspectionResponse.scope || "Not specified"}
-							</TokenValue>
+							<TokenValue>{introspectionResponse.scope || 'Not specified'}</TokenValue>
 						</TokenDetail>
 						<TokenDetail>
 							<TokenLabel>Client ID</TokenLabel>
-							<TokenValue>
-								{introspectionResponse.client_id || "Not specified"}
-							</TokenValue>
+							<TokenValue>{introspectionResponse.client_id || 'Not specified'}</TokenValue>
 						</TokenDetail>
 						<TokenDetail>
 							<TokenLabel>Subject</TokenLabel>
-							<TokenValue>
-								{introspectionResponse.sub || "Not specified"}
-							</TokenValue>
+							<TokenValue>{introspectionResponse.sub || 'Not specified'}</TokenValue>
 						</TokenDetail>
 						<TokenDetail>
 							<TokenLabel>Expires At</TokenLabel>
 							<TokenValue>
 								{introspectionResponse.exp
 									? new Date(introspectionResponse.exp * 1000).toLocaleString()
-									: "Not specified"}
+									: 'Not specified'}
 							</TokenValue>
 						</TokenDetail>
 					</TokenDetails>
@@ -911,10 +863,10 @@ if (introspectionResponse) {
 
 				<div
 					style={{
-						display: "grid",
-						gridTemplateColumns: "1fr 1fr",
-						gap: "1rem",
-						marginBottom: "1rem",
+						display: 'grid',
+						gridTemplateColumns: '1fr 1fr',
+						gap: '1rem',
+						marginBottom: '1rem',
 					}}
 				>
 					<FormGroup>
@@ -922,9 +874,7 @@ if (introspectionResponse) {
 						<Input
 							type="text"
 							value={formData.clientId}
-							onChange={(e) =>
-								setFormData((prev) => ({ ...prev, clientId: e.target.value }))
-							}
+							onChange={(e) => setFormData((prev) => ({ ...prev, clientId: e.target.value }))}
 						/>
 					</FormGroup>
 
@@ -942,21 +892,19 @@ if (introspectionResponse) {
 						/>
 					</FormGroup>
 
-					{activeTab === "exchange" && activeSubTab === "auth_code" && (
+					{activeTab === 'exchange' && activeSubTab === 'auth_code' && (
 						<FormGroup>
 							<Label>Authorization Code</Label>
 							<Input
 								type="text"
 								value={formData.code}
-								onChange={(e) =>
-									setFormData((prev) => ({ ...prev, code: e.target.value }))
-								}
+								onChange={(e) => setFormData((prev) => ({ ...prev, code: e.target.value }))}
 								placeholder="Enter authorization code"
 							/>
 						</FormGroup>
 					)}
 
-					{activeTab === "refresh" && (
+					{activeTab === 'refresh' && (
 						<FormGroup>
 							<Label>Refresh Token</Label>
 							<Input
@@ -973,7 +921,7 @@ if (introspectionResponse) {
 						</FormGroup>
 					)}
 
-					{activeTab === "introspect" && (
+					{activeTab === 'introspect' && (
 						<FormGroup>
 							<Label>Token to Introspect</Label>
 							<Input
@@ -990,7 +938,7 @@ if (introspectionResponse) {
 						</FormGroup>
 					)}
 
-					{activeTab === "revoke" && (
+					{activeTab === 'revoke' && (
 						<FormGroup>
 							<Label>Token to Revoke</Label>
 							<Input
@@ -1009,16 +957,16 @@ if (introspectionResponse) {
 				</div>
 
 				<Button $variant="primary" onClick={handleOperationStart}>
-					Execute{" "}
-					{activeTab === "exchange"
-						? activeSubTab === "auth_code"
-							? "Authorization Code Exchange"
-							: "Token Exchange"
-						: activeTab === "refresh"
-							? "Token Refresh"
-							: activeTab === "introspect"
-								? "Token Introspection"
-								: "Token Revocation"}
+					Execute{' '}
+					{activeTab === 'exchange'
+						? activeSubTab === 'auth_code'
+							? 'Authorization Code Exchange'
+							: 'Token Exchange'
+						: activeTab === 'refresh'
+							? 'Token Refresh'
+							: activeTab === 'introspect'
+								? 'Token Introspection'
+								: 'Token Revocation'}
 				</Button>
 			</FormContainer>
 		</FlowContainer>

@@ -5,7 +5,7 @@
  * These are the safest files to remove with minimal risk
  */
 
-import fs from 'fs';
+import fs from 'node:fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -16,39 +16,39 @@ console.log('🧹 Phase 1 Cleanup: Removing unused type definitions and simple u
 
 // Phase 1: Safest files to remove
 const phase1Files = [
-  // Type definitions (completely unused)
-  'src/types/flowTypes.ts',
-  'src/types/oauth.ts', 
-  'src/types/oauthErrors.ts',
-  'src/types/oauthFlows.ts',
-  'src/types/storage.ts',
-  'src/types/token-inspector.ts',
-  'src/types/url.ts',
-  
-  // Simple utility modules (no complex dependencies)
-  'src/utils/activityTracker.ts',
-  'src/utils/callbackUrls.ts',
-  'src/utils/clientAuthentication.ts',
-  'src/utils/clientLogger.ts',
-  'src/utils/clipboard.ts',
-  'src/utils/crypto.ts',
-  'src/utils/flowConfiguration.ts',
-  'src/utils/jwt.ts',
-  'src/utils/jwtGenerator.ts',
-  'src/utils/logger.ts',
-  'src/utils/scrollManager.ts',
-  'src/utils/secureJson.ts',
-  'src/utils/tokenHistory.ts',
-  'src/utils/tokenSourceTracker.ts',
-  
-  // Config file
-  'src/services/config.ts',
-  
-  // Style files
-  'src/styles/global.ts',
-  'src/styles/styled.d.ts',
-  'src/theme.d.ts',
-  'src/vite-env.d.ts'
+	// Type definitions (completely unused)
+	'src/types/flowTypes.ts',
+	'src/types/oauth.ts',
+	'src/types/oauthErrors.ts',
+	'src/types/oauthFlows.ts',
+	'src/types/storage.ts',
+	'src/types/token-inspector.ts',
+	'src/types/url.ts',
+
+	// Simple utility modules (no complex dependencies)
+	'src/utils/activityTracker.ts',
+	'src/utils/callbackUrls.ts',
+	'src/utils/clientAuthentication.ts',
+	'src/utils/clientLogger.ts',
+	'src/utils/clipboard.ts',
+	'src/utils/crypto.ts',
+	'src/utils/flowConfiguration.ts',
+	'src/utils/jwt.ts',
+	'src/utils/jwtGenerator.ts',
+	'src/utils/logger.ts',
+	'src/utils/scrollManager.ts',
+	'src/utils/secureJson.ts',
+	'src/utils/tokenHistory.ts',
+	'src/utils/tokenSourceTracker.ts',
+
+	// Config file
+	'src/services/config.ts',
+
+	// Style files
+	'src/styles/global.ts',
+	'src/styles/styled.d.ts',
+	'src/theme.d.ts',
+	'src/vite-env.d.ts',
 ];
 
 let removedCount = 0;
@@ -57,53 +57,50 @@ let errors = [];
 
 console.log('📋 Files to remove in Phase 1:');
 phase1Files.forEach((file, index) => {
-  console.log(`   ${index + 1}. ${file}`);
+	console.log(`   ${index + 1}. ${file}`);
 });
 
 console.log('\n🚀 Starting removal process...\n');
 
 for (const file of phase1Files) {
-  const fullPath = path.join(__dirname, file);
-  
-  try {
-    if (fs.existsSync(fullPath)) {
-      const stats = fs.statSync(fullPath);
-      const sizeKB = (stats.size / 1024).toFixed(1);
-      
-      fs.unlinkSync(fullPath);
-      
-      console.log(`✅ Removed: ${file} (${sizeKB} KB)`);
-      removedCount++;
-      totalSizeRemoved += stats.size;
-    } else {
-      console.log(`⚠️  File not found: ${file}`);
-    }
-  } catch (error) {
-    console.log(`❌ Error removing ${file}: ${error.message}`);
-    errors.push({ file, error: error.message });
-  }
+	const fullPath = path.join(__dirname, file);
+
+	try {
+		if (fs.existsSync(fullPath)) {
+			const stats = fs.statSync(fullPath);
+			const sizeKB = (stats.size / 1024).toFixed(1);
+
+			fs.unlinkSync(fullPath);
+
+			console.log(`✅ Removed: ${file} (${sizeKB} KB)`);
+			removedCount++;
+			totalSizeRemoved += stats.size;
+		} else {
+			console.log(`⚠️  File not found: ${file}`);
+		}
+	} catch (error) {
+		console.log(`❌ Error removing ${file}: ${error.message}`);
+		errors.push({ file, error: error.message });
+	}
 }
 
 // Clean up empty directories
-const dirsToCheck = [
-  'src/types',
-  'src/styles'
-];
+const dirsToCheck = ['src/types', 'src/styles'];
 
 for (const dir of dirsToCheck) {
-  const fullDirPath = path.join(__dirname, dir);
-  
-  try {
-    if (fs.existsSync(fullDirPath)) {
-      const items = fs.readdirSync(fullDirPath);
-      if (items.length === 0) {
-        fs.rmdirSync(fullDirPath);
-        console.log(`🗂️  Removed empty directory: ${dir}`);
-      }
-    }
-  } catch (error) {
-    console.log(`⚠️  Could not remove directory ${dir}: ${error.message}`);
-  }
+	const fullDirPath = path.join(__dirname, dir);
+
+	try {
+		if (fs.existsSync(fullDirPath)) {
+			const items = fs.readdirSync(fullDirPath);
+			if (items.length === 0) {
+				fs.rmdirSync(fullDirPath);
+				console.log(`🗂️  Removed empty directory: ${dir}`);
+			}
+		}
+	} catch (error) {
+		console.log(`⚠️  Could not remove directory ${dir}: ${error.message}`);
+	}
 }
 
 // Generate summary
@@ -115,10 +112,10 @@ console.log(`💾 Total size freed: ${(totalSizeRemoved / 1024).toFixed(2)} KB`)
 console.log(`❌ Errors encountered: ${errors.length}`);
 
 if (errors.length > 0) {
-  console.log('\n❌ Errors:');
-  errors.forEach(({ file, error }) => {
-    console.log(`   • ${file}: ${error}`);
-  });
+	console.log('\n❌ Errors:');
+	errors.forEach(({ file, error }) => {
+		console.log(`   • ${file}: ${error}`);
+	});
 }
 
 console.log('\n🔍 Next steps:');

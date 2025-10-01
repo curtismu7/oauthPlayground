@@ -35,8 +35,8 @@ const Header = styled.div`
 `;
 
 const InfoCard = styled.div`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
   border-radius: 0.75rem;
   padding: 1.5rem;
   margin-bottom: 2rem;
@@ -101,96 +101,96 @@ const SuccessMessage = styled.div`
 `;
 
 const AutoDiscover: React.FC = () => {
-  // Centralized scroll management - ALL pages start at top
-  usePageScroll({ pageName: 'OIDC Discovery', force: true });
-  
-  const [showDiscoveryPanel, setShowDiscoveryPanel] = useState(false);
-  const [lastDiscovered, setLastDiscovered] = useState<{
-    environmentId: string;
-    timestamp: Date;
-  } | null>(null);
+	// Centralized scroll management - ALL pages start at top
+	usePageScroll({ pageName: 'OIDC Discovery', force: true });
 
-  const handleConfigurationDiscovered = (config: OpenIDConfiguration, environmentId: string) => {
-    try {
-      // Save the discovered configuration to config credentials
-      const success = credentialManager.saveConfigCredentials({
-        environmentId: environmentId,
-        clientId: '', // Will be filled in by user
-        redirectUri: window.location.origin + '/dashboard-callback',
-        scopes: ['openid', 'profile', 'email'],
-        authEndpoint: config.authorization_endpoint,
-        tokenEndpoint: config.token_endpoint,
-        userInfoEndpoint: config.userinfo_endpoint,
-        endSessionEndpoint: config.end_session_endpoint
-      });
+	const [showDiscoveryPanel, setShowDiscoveryPanel] = useState(false);
+	const [lastDiscovered, setLastDiscovered] = useState<{
+		environmentId: string;
+		timestamp: Date;
+	} | null>(null);
 
-      if (success) {
-        setLastDiscovered({
-          environmentId,
-          timestamp: new Date()
-        });
-        
-        logger.success('AutoDiscover', 'Configuration saved successfully', {
-          environmentId,
-          authEndpoint: config.authorization_endpoint,
-          tokenEndpoint: config.token_endpoint
-        });
-      } else {
-        logger.error('AutoDiscover', 'Failed to save discovered configuration');
-      }
-    } catch (error) {
-      logger.error('AutoDiscover', 'Error saving configuration', error);
-    }
-  };
+	const handleConfigurationDiscovered = (config: OpenIDConfiguration, environmentId: string) => {
+		try {
+			// Save the discovered configuration to config credentials
+			const success = credentialManager.saveConfigCredentials({
+				environmentId: environmentId,
+				clientId: '', // Will be filled in by user
+				redirectUri: window.location.origin + '/dashboard-callback',
+				scopes: ['openid', 'profile', 'email'],
+				authEndpoint: config.authorization_endpoint,
+				tokenEndpoint: config.token_endpoint,
+				userInfoEndpoint: config.userinfo_endpoint,
+				endSessionEndpoint: config.end_session_endpoint,
+			});
 
-  return (
-    <PageContainer>
-      <Header>
-        <h1>
-          <FiSearch />
-          OIDC wellknown Endpoint
-        </h1>
-        <p>
-          Automatically discover OpenID Connect configuration for your PingOne environment. 
-          This will fetch the authorization, token, and userinfo endpoints from your PingOne environment.
-        </p>
-      </Header>
+			if (success) {
+				setLastDiscovered({
+					environmentId,
+					timestamp: new Date(),
+				});
 
-      <InfoCard>
-        <h3>
-          <FiInfo />
-          How it works
-        </h3>
-        <ul>
-          <li>Enter your PingOne Environment ID</li>
-          <li>Select your region (US, EU, CA, or AP)</li>
-          <li>Click "Discover" to fetch the OpenID configuration</li>
-          <li>The discovered endpoints will be automatically saved to your configuration</li>
-          <li>You can then use these endpoints for OAuth flows</li>
-        </ul>
-      </InfoCard>
+				logger.success('AutoDiscover', 'Configuration saved successfully', {
+					environmentId,
+					authEndpoint: config.authorization_endpoint,
+					tokenEndpoint: config.token_endpoint,
+				});
+			} else {
+				logger.error('AutoDiscover', 'Failed to save discovered configuration');
+			}
+		} catch (error) {
+			logger.error('AutoDiscover', 'Error saving configuration', error as Error);
+		}
+	};
 
-      <ActionButton onClick={() => setShowDiscoveryPanel(true)}>
-        <FiGlobe />
-        Start OIDC Discovery
-      </ActionButton>
+	return (
+		<PageContainer>
+			<Header>
+				<h1>
+					<FiSearch />
+					OIDC wellknown Endpoint
+				</h1>
+				<p>
+					Automatically discover OpenID Connect configuration for your PingOne environment. This
+					will fetch the authorization, token, and userinfo endpoints from your PingOne environment.
+				</p>
+			</Header>
 
-      {lastDiscovered && (
-        <SuccessMessage>
-          <FiCheckCircle />
-          Configuration discovered and saved for environment {lastDiscovered.environmentId} 
-          at {lastDiscovered.timestamp.toLocaleString()}
-        </SuccessMessage>
-      )}
+			<InfoCard>
+				<h3>
+					<FiInfo />
+					How it works
+				</h3>
+				<ul>
+					<li>Enter your PingOne Environment ID</li>
+					<li>Select your region (US, EU, CA, or AP)</li>
+					<li>Click "Discover" to fetch the OpenID configuration</li>
+					<li>The discovered endpoints will be automatically saved to your configuration</li>
+					<li>You can then use these endpoints for OAuth flows</li>
+				</ul>
+			</InfoCard>
 
-      {showDiscoveryPanel && (
-        <DiscoveryPanel
-          onConfigurationDiscovered={handleConfigurationDiscovered}
-          onClose={() => setShowDiscoveryPanel(false)}
-        />
-      )}
-    </PageContainer>
-  );
+			<ActionButton onClick={() => setShowDiscoveryPanel(true)}>
+				<FiGlobe />
+				Start OIDC Discovery
+			</ActionButton>
+
+			{lastDiscovered && (
+				<SuccessMessage>
+					<FiCheckCircle />
+					Configuration discovered and saved for environment {lastDiscovered.environmentId}
+					at {lastDiscovered.timestamp.toLocaleString()}
+				</SuccessMessage>
+			)}
+
+			{showDiscoveryPanel && (
+				<DiscoveryPanel
+					onConfigurationDiscovered={handleConfigurationDiscovered}
+					onClose={() => setShowDiscoveryPanel(false)}
+				/>
+			)}
+		</PageContainer>
+	);
 };
 
 export default AutoDiscover;

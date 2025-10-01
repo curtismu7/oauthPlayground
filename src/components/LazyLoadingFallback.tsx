@@ -81,11 +81,11 @@ const LoadingStep = styled.div<{ completed?: boolean; active?: boolean }>`
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem;
-  background: ${props => props.active ? '#dbeafe' : props.completed ? '#dcfce7' : '#f8fafc'};
-  border: 1px solid ${props => props.active ? '#93c5fd' : props.completed ? '#86efac' : '#e2e8f0'};
+  background: ${(props) => (props.active ? '#dbeafe' : props.completed ? '#dcfce7' : '#f8fafc')};
+  border: 1px solid ${(props) => (props.active ? '#93c5fd' : props.completed ? '#86efac' : '#e2e8f0')};
   border-radius: 8px;
   transition: all 0.3s ease;
-  animation: ${props => props.active ? pulse : 'none'} 1.5s ease-in-out infinite;
+  animation: ${(props) => (props.active ? pulse : 'none')} 1.5s ease-in-out infinite;
 `;
 
 const StepIcon = styled.div<{ completed?: boolean; active?: boolean }>`
@@ -95,8 +95,8 @@ const StepIcon = styled.div<{ completed?: boolean; active?: boolean }>`
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: ${props => props.completed ? '#10b981' : props.active ? '#3b82f6' : '#e2e8f0'};
-  color: ${props => props.completed || props.active ? 'white' : '#94a3b8'};
+  background: ${(props) => (props.completed ? '#10b981' : props.active ? '#3b82f6' : '#e2e8f0')};
+  color: ${(props) => (props.completed || props.active ? 'white' : '#94a3b8')};
   font-size: 12px;
   font-weight: 600;
   transition: all 0.3s ease;
@@ -104,8 +104,8 @@ const StepIcon = styled.div<{ completed?: boolean; active?: boolean }>`
 
 const StepText = styled.span<{ completed?: boolean; active?: boolean }>`
   font-size: 0.875rem;
-  font-weight: ${props => props.active ? '600' : '500'};
-  color: ${props => props.completed ? '#059669' : props.active ? '#1d4ed8' : '#64748b'};
+  font-weight: ${(props) => (props.active ? '600' : '500')};
+  color: ${(props) => (props.completed ? '#059669' : props.active ? '#1d4ed8' : '#64748b')};
   transition: all 0.3s ease;
 `;
 
@@ -122,206 +122,198 @@ const ProgressBar = styled.div<{ progress: number }>`
   height: 100%;
   background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
   border-radius: 2px;
-  width: ${props => props.progress}%;
+  width: ${(props) => props.progress}%;
   transition: width 0.3s ease;
   animation: ${pulse} 2s ease-in-out infinite;
 `;
 
 // Loading step interface
 interface LoadingStep {
-  id: string;
-  text: string;
-  icon: React.ReactNode;
-  completed: boolean;
-  active: boolean;
+	id: string;
+	text: string;
+	icon: React.ReactNode;
+	completed: boolean;
+	active: boolean;
 }
 
 // LazyLoadingFallback component props
 interface LazyLoadingFallbackProps {
-  flowType?: string;
-  message?: string;
-  showSteps?: boolean;
-  progress?: number;
+	flowType?: string;
+	message?: string;
+	showSteps?: boolean;
+	progress?: number;
 }
 
 // LazyLoadingFallback component
 export const LazyLoadingFallback: React.FC<LazyLoadingFallbackProps> = ({
-  flowType = 'OAuth Flow',
-  message = 'Loading OAuth flow components...',
-  showSteps = true,
-  progress = 0
+	flowType = 'OAuth Flow',
+	message = 'Loading OAuth flow components...',
+	showSteps = true,
+	progress = 0,
 }) => {
-  // Define loading steps based on flow type
-  const getLoadingSteps = (): LoadingStep[] => {
-    const baseSteps: LoadingStep[] = [
-      {
-        id: 'init',
-        text: 'Initializing OAuth flow',
-        icon: <FiZap />,
-        completed: progress > 20,
-        active: progress <= 20 && progress > 0
-      },
-      {
-        id: 'load',
-        text: 'Loading flow components',
-        icon: <FiShield />,
-        completed: progress > 60,
-        active: progress > 20 && progress <= 60
-      },
-      {
-        id: 'ready',
-        text: 'Preparing user interface',
-        icon: <FiUsers />,
-        completed: progress > 90,
-        active: progress > 60 && progress <= 90
-      }
-    ];
+	// Define loading steps based on flow type
+	const getLoadingSteps = (): LoadingStep[] => {
+		const baseSteps: LoadingStep[] = [
+			{
+				id: 'init',
+				text: 'Initializing OAuth flow',
+				icon: <FiZap />,
+				completed: progress > 20,
+				active: progress <= 20 && progress > 0,
+			},
+			{
+				id: 'load',
+				text: 'Loading flow components',
+				icon: <FiShield />,
+				completed: progress > 60,
+				active: progress > 20 && progress <= 60,
+			},
+			{
+				id: 'ready',
+				text: 'Preparing user interface',
+				icon: <FiUsers />,
+				completed: progress > 90,
+				active: progress > 60 && progress <= 90,
+			},
+		];
 
-    return baseSteps;
-  };
+		return baseSteps;
+	};
 
-  const steps = getLoadingSteps();
-  const completedSteps = steps.filter(step => step.completed).length;
-  const totalSteps = steps.length;
+	const steps = getLoadingSteps();
+	const completedSteps = steps.filter((step) => step.completed).length;
+	const totalSteps = steps.length;
 
-  return (
-    <LoadingContainer>
-      <LoadingSpinner>
-        <SpinnerIcon />
-      </LoadingSpinner>
-      
-      <LoadingTitle>
-        Loading {flowType}
-      </LoadingTitle>
-      
-      <LoadingSubtitle>
-        {message}
-      </LoadingSubtitle>
-      
-      {showSteps && (
-        <LoadingSteps>
-          {steps.map((step) => (
-            <LoadingStep
-              key={step.id}
-              completed={step.completed}
-              active={step.active}
-            >
-              <StepIcon
-                completed={step.completed}
-                active={step.active}
-              >
-                {step.completed ? '' : step.icon}
-              </StepIcon>
-              <StepText
-                completed={step.completed}
-                active={step.active}
-              >
-                {step.text}
-              </StepText>
-            </LoadingStep>
-          ))}
-        </LoadingSteps>
-      )}
-      
-      <LoadingProgress>
-        <ProgressBar progress={progress} />
-      </LoadingProgress>
-    </LoadingContainer>
-  );
+	return (
+		<LoadingContainer>
+			<LoadingSpinner>
+				<SpinnerIcon />
+			</LoadingSpinner>
+
+			<LoadingTitle>Loading {flowType}</LoadingTitle>
+
+			<LoadingSubtitle>{message}</LoadingSubtitle>
+
+			{showSteps && (
+				<LoadingSteps>
+					{steps.map((step) => (
+						<LoadingStep key={step.id} completed={step.completed} active={step.active}>
+							<StepIcon completed={step.completed} active={step.active}>
+								{step.completed ? '' : step.icon}
+							</StepIcon>
+							<StepText completed={step.completed} active={step.active}>
+								{step.text}
+							</StepText>
+						</LoadingStep>
+					))}
+				</LoadingSteps>
+			)}
+
+			<LoadingProgress>
+				<ProgressBar progress={progress} />
+			</LoadingProgress>
+		</LoadingContainer>
+	);
 };
 
 // Compact loading fallback for smaller spaces
 export const CompactLoadingFallback: React.FC<{ message?: string }> = ({
-  message = 'Loading...'
+	message = 'Loading...',
 }) => {
-  return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '2rem',
-      minHeight: '200px'
-    }}>
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '1rem'
-      }}>
-        <LoadingSpinner>
-          <SpinnerIcon />
-        </LoadingSpinner>
-        <p style={{
-          margin: 0,
-          fontSize: '0.875rem',
-          color: '#64748b',
-          textAlign: 'center'
-        }}>
-          {message}
-        </p>
-      </div>
-    </div>
-  );
+	return (
+		<div
+			style={{
+				display: 'flex',
+				alignItems: 'center',
+				justifyContent: 'center',
+				padding: '2rem',
+				minHeight: '200px',
+			}}
+		>
+			<div
+				style={{
+					display: 'flex',
+					flexDirection: 'column',
+					alignItems: 'center',
+					gap: '1rem',
+				}}
+			>
+				<LoadingSpinner>
+					<SpinnerIcon />
+				</LoadingSpinner>
+				<p
+					style={{
+						margin: 0,
+						fontSize: '0.875rem',
+						color: '#64748b',
+						textAlign: 'center',
+					}}
+				>
+					{message}
+				</p>
+			</div>
+		</div>
+	);
 };
 
 // Error fallback for failed lazy loading
 export const LazyLoadingErrorFallback: React.FC<{
-  error: Error;
-  onRetry: () => void;
-  flowType?: string;
+	error: Error;
+	onRetry: () => void;
+	flowType?: string;
 }> = ({ error, onRetry, flowType = 'OAuth Flow' }) => {
-  return (
-    <LoadingContainer>
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '1rem',
-        textAlign: 'center'
-      }}>
-        <div style={{
-          width: '60px',
-          height: '60px',
-          borderRadius: '50%',
-          background: '#fee2e2',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: '#dc2626',
-          fontSize: '24px'
-        }}>
-          
-        </div>
-        
-        <LoadingTitle style={{ color: '#dc2626' }}>
-          Failed to Load {flowType}
-        </LoadingTitle>
-        
-        <LoadingSubtitle>
-          {error.message || 'An error occurred while loading the OAuth flow component.'}
-        </LoadingSubtitle>
-        
-        <button
-          onClick={onRetry}
-          style={{
-            padding: '0.75rem 1.5rem',
-            background: '#3b82f6',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '0.875rem',
-            fontWeight: '600',
-            cursor: 'pointer',
-            transition: 'background 0.2s ease'
-          }}
-          onMouseOver={(e) => e.currentTarget.style.background = '#1d4ed8'}
-          onMouseOut={(e) => e.currentTarget.style.background = '#3b82f6'}
-        >
-          Try Again
-        </button>
-      </div>
-    </LoadingContainer>
-  );
+	return (
+		<LoadingContainer>
+			<div
+				style={{
+					display: 'flex',
+					flexDirection: 'column',
+					alignItems: 'center',
+					gap: '1rem',
+					textAlign: 'center',
+				}}
+			>
+				<div
+					style={{
+						width: '60px',
+						height: '60px',
+						borderRadius: '50%',
+						background: '#fee2e2',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						color: '#dc2626',
+						fontSize: '24px',
+					}}
+				></div>
+
+				<LoadingTitle style={{ color: '#dc2626' }}>Failed to Load {flowType}</LoadingTitle>
+
+				<LoadingSubtitle>
+					{error.message || 'An error occurred while loading the OAuth flow component.'}
+				</LoadingSubtitle>
+
+				<button
+					onClick={onRetry}
+					style={{
+						padding: '0.75rem 1.5rem',
+						background: '#3b82f6',
+						color: 'white',
+						border: 'none',
+						borderRadius: '8px',
+						fontSize: '0.875rem',
+						fontWeight: '600',
+						cursor: 'pointer',
+						transition: 'background 0.2s ease',
+					}}
+					onMouseOver={(e) => (e.currentTarget.style.background = '#1d4ed8')}
+					onMouseOut={(e) => (e.currentTarget.style.background = '#3b82f6')}
+				>
+					Try Again
+				</button>
+			</div>
+		</LoadingContainer>
+	);
 };
 
 export default LazyLoadingFallback;

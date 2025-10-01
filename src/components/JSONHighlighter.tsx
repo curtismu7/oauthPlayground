@@ -2,23 +2,17 @@ import React from 'react';
 import styled from 'styled-components';
 
 // Define JSON value types
-type JSONValue = 
-  | string 
-  | number 
-  | boolean 
-  | null 
-  | JSONObject 
-  | JSONArray;
+type JSONValue = string | number | boolean | null | JSONObject | JSONArray;
 
 interface JSONObject {
-  [key: string]: JSONValue;
+	[key: string]: JSONValue;
 }
 
 interface JSONArray extends Array<JSONValue> {}
 
 interface JSONHighlighterProps {
-  data: JSONValue;
-  className?: string;
+	data: JSONValue;
+	className?: string;
 }
 
 const JSONContainer = styled.pre`
@@ -66,79 +60,76 @@ const JSONPunctuation = styled.span`
 `;
 
 const JSONHighlighter: React.FC<JSONHighlighterProps> = ({ data, className }) => {
-  const formatValue = (value: JSONValue, indent: number = 0): React.ReactNode => {
-    const spaces = '  '.repeat(indent);
-    
-    if (value === null) {
-      return <JSONNull>null</JSONNull>;
-    }
-    
-    if (typeof value === 'boolean') {
-      return <JSONBoolean>{value.toString()}</JSONBoolean>;
-    }
-    
-    if (typeof value === 'number') {
-      return <JSONNumber>{value}</JSONNumber>;
-    }
-    
-    if (typeof value === 'string') {
-      return <JSONString>"{value}"</JSONString>;
-    }
-    
-    if (Array.isArray(value)) {
-      if (value.length === 0) {
-        return <JSONPunctuation>[]</JSONPunctuation>;
-      }
-      
-      return (
-        <>
-          <JSONPunctuation>[</JSONPunctuation>
-          <br />
-          {value.map((item, index) => (
-            <React.Fragment key={index}>
-              {spaces}  {formatValue(item, indent + 1)}
-              {index < value.length - 1 && <JSONPunctuation>,</JSONPunctuation>}
-              <br />
-            </React.Fragment>
-          ))}
-          {spaces}<JSONPunctuation>]</JSONPunctuation>
-        </>
-      );
-    }
-    
-    if (typeof value === 'object') {
-      const entries = Object.entries(value);
-      if (entries.length === 0) {
-        return <JSONPunctuation>{}</JSONPunctuation>;
-      }
-      
-      return (
-        <>
-          <JSONPunctuation>{'{'}</JSONPunctuation>
-          <br />
-          {entries.map(([key, val], index) => (
-            <React.Fragment key={key}>
-              {spaces}  <JSONKey>"{key}"</JSONKey><JSONPunctuation>: </JSONPunctuation>
-              {formatValue(val, indent + 1)}
-              {index < entries.length - 1 && <JSONPunctuation>,</JSONPunctuation>}
-              <br />
-            </React.Fragment>
-          ))}
-          {spaces}<JSONPunctuation>{'}'}</JSONPunctuation>
-        </>
-      );
-    }
-    
-    return <span>{String(value)}</span>;
-  };
+	const formatValue = (value: JSONValue, indent: number = 0): React.ReactNode => {
+		const spaces = '  '.repeat(indent);
 
-  return (
-    <JSONContainer className={className}>
-      {formatValue(data)}
-    </JSONContainer>
-  );
+		if (value === null) {
+			return <JSONNull>null</JSONNull>;
+		}
+
+		if (typeof value === 'boolean') {
+			return <JSONBoolean>{value.toString()}</JSONBoolean>;
+		}
+
+		if (typeof value === 'number') {
+			return <JSONNumber>{value}</JSONNumber>;
+		}
+
+		if (typeof value === 'string') {
+			return <JSONString>"{value}"</JSONString>;
+		}
+
+		if (Array.isArray(value)) {
+			if (value.length === 0) {
+				return <JSONPunctuation>[]</JSONPunctuation>;
+			}
+
+			return (
+				<>
+					<JSONPunctuation>[</JSONPunctuation>
+					<br />
+					{value.map((item, index) => (
+						<React.Fragment key={index}>
+							{spaces} {formatValue(item, indent + 1)}
+							{index < value.length - 1 && <JSONPunctuation>,</JSONPunctuation>}
+							<br />
+						</React.Fragment>
+					))}
+					{spaces}
+					<JSONPunctuation>]</JSONPunctuation>
+				</>
+			);
+		}
+
+		if (typeof value === 'object') {
+			const entries = Object.entries(value);
+			if (entries.length === 0) {
+				return <JSONPunctuation>{}</JSONPunctuation>;
+			}
+
+			return (
+				<>
+					<JSONPunctuation>{'{'}</JSONPunctuation>
+					<br />
+					{entries.map(([key, val], index) => (
+						<React.Fragment key={key}>
+							{spaces} <JSONKey>"{key}"</JSONKey>
+							<JSONPunctuation>: </JSONPunctuation>
+							{formatValue(val, indent + 1)}
+							{index < entries.length - 1 && <JSONPunctuation>,</JSONPunctuation>}
+							<br />
+						</React.Fragment>
+					))}
+					{spaces}
+					<JSONPunctuation>{'}'}</JSONPunctuation>
+				</>
+			);
+		}
+
+		return <span>{String(value)}</span>;
+	};
+
+	return <JSONContainer className={className}>{formatValue(data)}</JSONContainer>;
 };
 
 export default JSONHighlighter;
-
-

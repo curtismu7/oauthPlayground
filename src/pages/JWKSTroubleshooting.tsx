@@ -1,4 +1,4 @@
-import { useCallback, useId, useState } from "react";
+import { useCallback, useId, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiCheckCircle,
@@ -7,9 +7,9 @@ import {
 	FiCopy,
 	FiExternalLink,
 	FiPlay,
-} from "react-icons/fi";
-import styled from "styled-components";
-import { showGlobalError, showGlobalSuccess } from "../hooks/useNotifications";
+} from 'react-icons/fi';
+import styled from 'styled-components';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -152,21 +152,21 @@ const ButtonGroup = styled.div`
 `;
 
 const Button = styled.button<{
-	variant?: "primary" | "secondary" | "success" | "danger";
+	variant?: 'primary' | 'secondary' | 'success' | 'danger';
 }>`
   background: ${(props) => {
 		switch (props.variant) {
-			case "primary":
-				return "#4299e1";
-			case "success":
-				return "#48bb78";
-			case "danger":
-				return "#f56565";
+			case 'primary':
+				return '#4299e1';
+			case 'success':
+				return '#48bb78';
+			case 'danger':
+				return '#f56565';
 			default:
-				return "#e2e8f0";
+				return '#e2e8f0';
 		}
 	}};
-  color: ${(props) => (props.variant === "secondary" ? "#4a5568" : "white")};
+  color: ${(props) => (props.variant === 'secondary' ? '#4a5568' : 'white')};
   border: none;
   border-radius: 0.375rem;
   padding: 0.5rem 1rem;
@@ -239,15 +239,15 @@ const OutputContent = styled.pre<{ isExpanded: boolean }>`
   font-size: 0.875rem;
   line-height: 1.5;
   overflow-x: auto;
-  max-height: ${(props) => (props.isExpanded ? "500px" : "0")};
-  overflow-y: ${(props) => (props.isExpanded ? "auto" : "hidden")};
+  max-height: ${(props) => (props.isExpanded ? '500px' : '0')};
+  overflow-y: ${(props) => (props.isExpanded ? 'auto' : 'hidden')};
   transition: max-height 0.3s ease;
   white-space: pre-wrap;
   word-break: break-word;
 `;
 
 const StatusIndicator = styled.div<{
-	status: "idle" | "running" | "success" | "error";
+	status: 'idle' | 'running' | 'success' | 'error';
 }>`
   display: flex;
   align-items: center;
@@ -256,14 +256,14 @@ const StatusIndicator = styled.div<{
   font-weight: 500;
   color: ${(props) => {
 		switch (props.status) {
-			case "running":
-				return "#4299e1";
-			case "success":
-				return "#48bb78";
-			case "error":
-				return "#f56565";
+			case 'running':
+				return '#4299e1';
+			case 'success':
+				return '#48bb78';
+			case 'error':
+				return '#f56565';
 			default:
-				return "#4a5568";
+				return '#4a5568';
 		}
 	}};
 `;
@@ -313,20 +313,16 @@ const Link = styled.a`
 interface CommandResult {
 	command: string;
 	output: string;
-	status: "success" | "error";
+	status: 'success' | 'error';
 	timestamp: Date;
 }
 
 const JWKSTroubleshooting: React.FC = () => {
 	const environmentInputId = useId();
-	const [environmentId, setEnvironmentId] = useState("");
+	const [environmentId, setEnvironmentId] = useState('');
 	const [commandResults, setCommandResults] = useState<CommandResult[]>([]);
-	const [expandedOutputs, setExpandedOutputs] = useState<Set<string>>(
-		new Set(),
-	);
-	const [runningCommands, setRunningCommands] = useState<Set<string>>(
-		new Set(),
-	);
+	const [expandedOutputs, setExpandedOutputs] = useState<Set<string>>(new Set());
+	const [runningCommands, setRunningCommands] = useState<Set<string>>(new Set());
 
 	const toggleOutput = useCallback((key: string) => {
 		setExpandedOutputs((prev) => {
@@ -347,12 +343,9 @@ const JWKSTroubleshooting: React.FC = () => {
 	const copyToClipboard = useCallback(async (text: string, label: string) => {
 		try {
 			await navigator.clipboard.writeText(text);
-			showGlobalSuccess(" Copied", `${label} copied to clipboard`);
+			v4ToastManager.showCopySuccess(label);
 		} catch {
-			showGlobalError(
-				" Copy Failed",
-				`Failed to copy ${label.toLowerCase()}`,
-			);
+			v4ToastManager.showCopyError(label);
 		}
 	}, []);
 
@@ -366,14 +359,14 @@ const JWKSTroubleshooting: React.FC = () => {
 				console.log(`[JWKS Troubleshooting] Making request to: ${url}`);
 
 				const response = await fetch(url, {
-					method: "GET",
+					method: 'GET',
 					headers: {
-						Accept: "application/json",
+						Accept: 'application/json',
 					},
 				});
 
 				let output: string;
-				let status: "success" | "error";
+				let status: 'success' | 'error';
 
 				if (response.ok) {
 					const data = await response.text();
@@ -381,15 +374,15 @@ const JWKSTroubleshooting: React.FC = () => {
 						// Try to parse and pretty-print JSON
 						const jsonData = JSON.parse(data);
 						output = JSON.stringify(jsonData, null, 2);
-						status = "success";
+						status = 'success';
 					} catch {
 						// If not JSON, just show the raw response
 						output = data;
-						status = "success";
+						status = 'success';
 					}
 				} else {
 					output = `HTTP ${response.status}: ${response.statusText}\n\n${await response.text()}`;
-					status = "error";
+					status = 'error';
 				}
 
 				const newResult: CommandResult = {
@@ -398,33 +391,24 @@ const JWKSTroubleshooting: React.FC = () => {
 					status,
 					timestamp: new Date(),
 				};
-
+;
 				setCommandResults((prev) => [newResult, ...prev]);
 
-				if (status === "success") {
-					showGlobalSuccess(
-						" Request Successful",
-						`${description} completed successfully`,
-					);
+				if (status === 'success') {
+					v4ToastManager.showSuccess('JWKS command executed successfully - check results below');
 				} else {
-					showGlobalError(
-						" Request Failed",
-						`${description} failed with HTTP ${response.status}`,
-					);
+					v4ToastManager.showError('networkError');
 				}
 			} catch (error) {
 				const newResult: CommandResult = {
 					command: `GET ${url}`,
-					output: `Network Error: ${error instanceof Error ? error.message : "Failed to make request"}`,
-					status: "error",
+					output: `Network Error: ${error instanceof Error ? error.message : 'Failed to make request'}`,
+					status: 'error',
 					timestamp: new Date(),
 				};
 
 				setCommandResults((prev) => [newResult, ...prev]);
-				showGlobalError(
-					" Request Failed",
-					`Failed to execute ${description.toLowerCase()}`,
-				);
+				v4ToastManager.showError('networkError');
 			} finally {
 				setRunningCommands((prev) => {
 					const newSet = new Set(prev);
@@ -433,34 +417,34 @@ const JWKSTroubleshooting: React.FC = () => {
 				});
 			}
 		},
-		[runningCommands],
+		[runningCommands]
 	);
 
 	const requests = [
 		{
-			title: "Get JWKS from PingOne",
+			title: 'Get JWKS from PingOne',
 			url: `https://auth.pingone.com/{environmentId}/as/jwks`,
-			description: "Fetch JWKS from PingOne",
+			description: 'Fetch JWKS from PingOne',
 		},
 		{
-			title: "Get OIDC Configuration",
+			title: 'Get OIDC Configuration',
 			url: `https://auth.pingone.com/{environmentId}/as/.well-known/openid_configuration`,
-			description: "Get OIDC configuration to find jwks_uri",
+			description: 'Get OIDC configuration to find jwks_uri',
 		},
 		{
-			title: "Get JWKS (Alternative Format)",
+			title: 'Get JWKS (Alternative Format)',
 			url: `https://auth.pingone.com/{environmentId}/as/jwks`,
-			description: "Fetch JWKS with JSON formatting",
+			description: 'Fetch JWKS with JSON formatting',
 		},
 	];
 
 	const checklistItems = [
 		'Root object has "keys" array',
-		"Each key has kty, kid, n, e fields",
-		"n and e are valid Base64URL (no =, +, /)",
-		"kid values are unique",
-		"JSON is properly formatted",
-		"No extra commas or syntax errors",
+		'Each key has kty, kid, n, e fields',
+		'n and e are valid Base64URL (no =, +, /)',
+		'kid values are unique',
+		'JSON is properly formatted',
+		'No extra commas or syntax errors',
 	];
 
 	return (
@@ -471,9 +455,8 @@ const JWKSTroubleshooting: React.FC = () => {
 					JWKS Troubleshooting Guide
 				</Title>
 				<Subtitle>
-					Diagnose and fix common JWKS format issues with PingOne SSO. Execute
-					curl commands directly to test your JWKS endpoints and validate the
-					format.
+					Diagnose and fix common JWKS format issues with PingOne SSO. Execute curl commands
+					directly to test your JWKS endpoints and validate the format.
 				</Subtitle>
 			</Header>
 
@@ -489,10 +472,9 @@ const JWKSTroubleshooting: React.FC = () => {
 						<IssueContent>
 							<IssueTitle>Missing Required Fields</IssueTitle>
 							<IssueDescription>
-								Ensure each key has these mandatory fields: <strong>kty</strong>{" "}
-								(Key Type - usually "RSA"),
-								<strong>kid</strong> (Key ID - unique identifier),{" "}
-								<strong>n</strong> (Modulus), and
+								Ensure each key has these mandatory fields: <strong>kty</strong> (Key Type - usually
+								"RSA"),
+								<strong>kid</strong> (Key ID - unique identifier), <strong>n</strong> (Modulus), and
 								<strong>e</strong> (Exponent - usually "AQAB").
 							</IssueDescription>
 						</IssueContent>
@@ -518,9 +500,8 @@ const JWKSTroubleshooting: React.FC = () => {
 						<IssueContent>
 							<IssueTitle>Invalid Base64URL Encoding</IssueTitle>
 							<IssueDescription>
-								The n and e values must be Base64URL encoded (not standard
-								Base64):
-								<ul style={{ marginTop: "0.5rem", paddingLeft: "1.5rem" }}>
+								The n and e values must be Base64URL encoded (not standard Base64):
+								<ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
 									<li>No padding (=)</li>
 									<li>Use - instead of +</li>
 									<li>Use _ instead of /</li>
@@ -537,14 +518,14 @@ const JWKSTroubleshooting: React.FC = () => {
 					PingOne JWKS Commands
 				</SectionTitle>
 
-				<div style={{ marginBottom: "1.5rem" }}>
+				<div style={{ marginBottom: '1.5rem' }}>
 					<label
 						htmlFor={environmentInputId}
 						style={{
-							display: "block",
-							marginBottom: "0.5rem",
-							fontWeight: "500",
-							color: "#2d3748",
+							display: 'block',
+							marginBottom: '0.5rem',
+							fontWeight: '500',
+							color: '#2d3748',
 						}}
 					>
 						Environment ID:
@@ -559,7 +540,7 @@ const JWKSTroubleshooting: React.FC = () => {
 				</div>
 
 				{requests.map((req) => {
-					const fullUrl = req.url.replace("{environmentId}", environmentId);
+					const fullUrl = req.url.replace('{environmentId}', environmentId);
 					return (
 						<CommandContainer key={req.title}>
 							<CommandHeader>
@@ -571,12 +552,9 @@ const JWKSTroubleshooting: React.FC = () => {
 										disabled={!environmentId || runningCommands.has(fullUrl)}
 									>
 										<FiPlay />
-										{runningCommands.has(fullUrl) ? "Loading..." : "Execute"}
+										{runningCommands.has(fullUrl) ? 'Loading...' : 'Execute'}
 									</Button>
-									<Button
-										variant="secondary"
-										onClick={() => copyToClipboard(fullUrl, "URL")}
-									>
+									<Button variant="secondary" onClick={() => copyToClipboard(fullUrl, 'URL')}>
 										<FiCopy />
 										Copy URL
 									</Button>
@@ -589,23 +567,21 @@ const JWKSTroubleshooting: React.FC = () => {
 
 				<div
 					style={{
-						marginTop: "2rem",
-						padding: "1rem",
-						background: "#edf2f7",
-						borderRadius: "0.5rem",
+						marginTop: '2rem',
+						padding: '1rem',
+						background: '#edf2f7',
+						borderRadius: '0.5rem',
 					}}
 				>
-					<h4 style={{ margin: "0 0 0.5rem 0", color: "#2d3748" }}>
-						Regional Endpoints:
-					</h4>
-					<p style={{ margin: "0", color: "#4a5568", fontSize: "0.9rem" }}>
-						<strong>EU:</strong> https://auth.pingone.eu/{"{environmentId}"}
+					<h4 style={{ margin: '0 0 0.5rem 0', color: '#2d3748' }}>Regional Endpoints:</h4>
+					<p style={{ margin: '0', color: '#4a5568', fontSize: '0.9rem' }}>
+						<strong>EU:</strong> https://auth.pingone.eu/{'{environmentId}'}
 						/as/jwks
 						<br />
-						<strong>CA:</strong> https://auth.pingone.ca/{"{environmentId}"}
+						<strong>CA:</strong> https://auth.pingone.ca/{'{environmentId}'}
 						/as/jwks
 						<br />
-						<strong>AP:</strong> https://auth.pingone.asia/{"{environmentId}"}
+						<strong>AP:</strong> https://auth.pingone.asia/{'{environmentId}'}
 						/as/jwks
 					</p>
 				</div>
@@ -621,28 +597,20 @@ const JWKSTroubleshooting: React.FC = () => {
 					{commandResults.map((result) => {
 						const key = `${result.timestamp.getTime()}-${result.command}`;
 						return (
-							<div key={key} style={{ marginBottom: "1rem" }}>
+							<div key={key} style={{ marginBottom: '1rem' }}>
 								<OutputContainer>
 									<OutputHeader onClick={() => toggleOutput(key)}>
 										<OutputTitle>
-											{expandedOutputs.has(key) ? (
-												<FiChevronDown />
-											) : (
-												<FiChevronRight />
-											)}
+											{expandedOutputs.has(key) ? <FiChevronDown /> : <FiChevronRight />}
 											<StatusIndicator status={result.status}>
-												{result.status === "success" ? (
-													<FiCheckCircle />
-												) : (
-													<FiAlertCircle />
-												)}
-												{result.status === "success" ? "Success" : "Error"}
+												{result.status === 'success' ? <FiCheckCircle /> : <FiAlertCircle />}
+												{result.status === 'success' ? 'Success' : 'Error'}
 											</StatusIndicator>
 											<span
 												style={{
-													marginLeft: "1rem",
-													fontSize: "0.875rem",
-													color: "#a0aec0",
+													marginLeft: '1rem',
+													fontSize: '0.875rem',
+													color: '#a0aec0',
 												}}
 											>
 												{result.timestamp.toLocaleTimeString()}
@@ -652,9 +620,9 @@ const JWKSTroubleshooting: React.FC = () => {
 											variant="secondary"
 											onClick={(e) => {
 												e.stopPropagation();
-												copyToClipboard(result.output, "Output");
+												copyToClipboard(result.output, 'Output');
 											}}
-											style={{ fontSize: "0.75rem", padding: "0.25rem 0.5rem" }}
+											style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
 										>
 											<FiCopy />
 											Copy
@@ -678,13 +646,11 @@ const JWKSTroubleshooting: React.FC = () => {
 
 				<Checklist>
 					{checklistItems.map((item) => {
-						const slug = item.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+						const slug = item.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 						return (
 							<ChecklistItem key={slug}>
 								<Checkbox type="checkbox" id={`checklist-${slug}`} />
-								<ChecklistLabel htmlFor={`checklist-${slug}`}>
-									{item}
-								</ChecklistLabel>
+								<ChecklistLabel htmlFor={`checklist-${slug}`}>{item}</ChecklistLabel>
 							</ChecklistItem>
 						);
 					})}
@@ -697,116 +663,102 @@ const JWKSTroubleshooting: React.FC = () => {
 					Additional Resources
 				</SectionTitle>
 
-				<div style={{ display: "grid", gap: "1rem" }}>
+				<div style={{ display: 'grid', gap: '1rem' }}>
 					<div
 						style={{
-							padding: "1rem",
-							background: "#f7fafc",
-							borderRadius: "0.5rem",
+							padding: '1rem',
+							background: '#f7fafc',
+							borderRadius: '0.5rem',
 						}}
 					>
-						<h4 style={{ margin: "0 0 0.5rem 0", color: "#2d3748" }}>
-							 Ping JWT Decoder:
-						</h4>
-						<p style={{ margin: "0 0 0.5rem 0", color: "#4a5568" }}>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: '#2d3748' }}>Ping JWT Decoder:</h4>
+						<p style={{ margin: '0 0 0.5rem 0', color: '#4a5568' }}>
 							<Link
 								href="https://jwt-decoder.pingidentity.com/"
 								target="_blank"
 								rel="noopener noreferrer"
 							>
 								Ping JWT Decoder
-							</Link>{" "}
+							</Link>{' '}
 							- Decode and validate JWT tokens with PingOne keys
 						</p>
-						<p style={{ margin: "0", fontSize: "0.875rem", color: "#6b7280" }}>
-							Official Ping Identity tool for decoding JWT tokens and validating
-							signatures using PingOne JWKS endpoints.
+						<p style={{ margin: '0', fontSize: '0.875rem', color: '#6b7280' }}>
+							Official Ping Identity tool for decoding JWT tokens and validating signatures using
+							PingOne JWKS endpoints.
 						</p>
 					</div>
 
 					<div
 						style={{
-							padding: "1rem",
-							background: "#f7fafc",
-							borderRadius: "0.5rem",
+							padding: '1rem',
+							background: '#f7fafc',
+							borderRadius: '0.5rem',
 						}}
 					>
-						<h4 style={{ margin: "0 0 0.5rem 0", color: "#2d3748" }}>
-							 PingOne SSO Documentation:
-						</h4>
-						<div style={{ display: "grid", gap: "0.5rem" }}>
-							<p style={{ margin: "0", color: "#4a5568" }}>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: '#2d3748' }}>PingOne SSO Documentation:</h4>
+						<div style={{ display: 'grid', gap: '0.5rem' }}>
+							<p style={{ margin: '0', color: '#4a5568' }}>
 								<Link
 									href="https://docs.pingidentity.com/bundle/pingone/page/zhc1564020488549.html"
 									target="_blank"
 									rel="noopener noreferrer"
 								>
 									PingOne JWKS Configuration
-								</Link>{" "}
+								</Link>{' '}
 								- Configure JWKS endpoints in PingOne
 							</p>
-							<p style={{ margin: "0", color: "#4a5568" }}>
+							<p style={{ margin: '0', color: '#4a5568' }}>
 								<Link
 									href="https://docs.pingidentity.com/bundle/pingone/page/zhc1564020488549.html#zhc1564020488549__section_zhc1564020488549__section_zhc1564020488549"
 									target="_blank"
 									rel="noopener noreferrer"
 								>
 									Private Key JWT Authentication
-								</Link>{" "}
+								</Link>{' '}
 								- Set up private key JWT authentication
 							</p>
-							<p style={{ margin: "0", color: "#4a5568" }}>
+							<p style={{ margin: '0', color: '#4a5568' }}>
 								<Link
 									href="https://docs.pingidentity.com/bundle/pingone/page/zhc1564020488549.html#zhc1564020488549__section_zhc1564020488549__section_zhc1564020488549"
 									target="_blank"
 									rel="noopener noreferrer"
 								>
 									OIDC Discovery Endpoint
-								</Link>{" "}
+								</Link>{' '}
 								- Use OIDC discovery to find JWKS URI
 							</p>
 						</div>
 						<p
 							style={{
-								margin: "0.5rem 0 0 0",
-								fontSize: "0.875rem",
-								color: "#6b7280",
+								margin: '0.5rem 0 0 0',
+								fontSize: '0.875rem',
+								color: '#6b7280',
 							}}
 						>
-							Official Ping Identity documentation for configuring and
-							troubleshooting JWKS in PingOne SSO.
+							Official Ping Identity documentation for configuring and troubleshooting JWKS in
+							PingOne SSO.
 						</p>
 					</div>
 
 					<div
 						style={{
-							padding: "1rem",
-							background: "#f7fafc",
-							borderRadius: "0.5rem",
+							padding: '1rem',
+							background: '#f7fafc',
+							borderRadius: '0.5rem',
 						}}
 					>
-						<h4 style={{ margin: "0 0 0.5rem 0", color: "#2d3748" }}>
-							 Online Validators:
-						</h4>
-						<div style={{ display: "grid", gap: "0.5rem" }}>
-							<p style={{ margin: "0", color: "#4a5568" }}>
-								<Link
-									href="https://jwt.io"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: '#2d3748' }}>Online Validators:</h4>
+						<div style={{ display: 'grid', gap: '0.5rem' }}>
+							<p style={{ margin: '0', color: '#4a5568' }}>
+								<Link href="https://jwt.io" target="_blank" rel="noopener noreferrer">
 									JWT.io Debugger
-								</Link>{" "}
+								</Link>{' '}
 								- Test your JWKS format and decode JWT tokens
 							</p>
-							<p style={{ margin: "0", color: "#4a5568" }}>
-								<Link
-									href="https://mkjwk.org/"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
+							<p style={{ margin: '0', color: '#4a5568' }}>
+								<Link href="https://mkjwk.org/" target="_blank" rel="noopener noreferrer">
 									MKJWK Generator
-								</Link>{" "}
+								</Link>{' '}
 								- Generate test JWKS for development
 							</p>
 						</div>
@@ -814,43 +766,41 @@ const JWKSTroubleshooting: React.FC = () => {
 
 					<div
 						style={{
-							padding: "1rem",
-							background: "#f7fafc",
-							borderRadius: "0.5rem",
+							padding: '1rem',
+							background: '#f7fafc',
+							borderRadius: '0.5rem',
 						}}
 					>
-						<h4 style={{ margin: "0 0 0.5rem 0", color: "#2d3748" }}>
-							 RFC Standards:
-						</h4>
-						<div style={{ display: "grid", gap: "0.5rem" }}>
-							<p style={{ margin: "0", color: "#4a5568" }}>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: '#2d3748' }}>RFC Standards:</h4>
+						<div style={{ display: 'grid', gap: '0.5rem' }}>
+							<p style={{ margin: '0', color: '#4a5568' }}>
 								<Link
 									href="https://tools.ietf.org/html/rfc7517"
 									target="_blank"
 									rel="noopener noreferrer"
 								>
 									RFC 7517 - JSON Web Key (JWK)
-								</Link>{" "}
+								</Link>{' '}
 								- JWKS specification
 							</p>
-							<p style={{ margin: "0", color: "#4a5568" }}>
+							<p style={{ margin: '0', color: '#4a5568' }}>
 								<Link
 									href="https://tools.ietf.org/html/rfc7518"
 									target="_blank"
 									rel="noopener noreferrer"
 								>
 									RFC 7518 - JSON Web Algorithms (JWA)
-								</Link>{" "}
+								</Link>{' '}
 								- JWT algorithms specification
 							</p>
-							<p style={{ margin: "0", color: "#4a5568" }}>
+							<p style={{ margin: '0', color: '#4a5568' }}>
 								<Link
 									href="https://openid.net/specs/openid-connect-discovery-1_0.html"
 									target="_blank"
 									rel="noopener noreferrer"
 								>
 									OIDC Discovery
-								</Link>{" "}
+								</Link>{' '}
 								- OpenID Connect Discovery specification
 							</p>
 						</div>

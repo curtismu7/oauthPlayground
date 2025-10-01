@@ -5,10 +5,10 @@ import { FlowConfiguration, type FlowConfig } from './FlowConfiguration';
 import { getDefaultConfig } from '../utils/flowConfigDefaults';
 
 interface ConfigurationButtonProps {
-  flowType: string;
-  currentConfig?: Partial<FlowConfig>;
-  onConfigChange?: (config: FlowConfig) => void;
-  className?: string;
+	flowType: string;
+	currentConfig?: Partial<FlowConfig>;
+	onConfigChange?: (config: FlowConfig) => void;
+	className?: string;
 }
 
 const Button = styled.button`
@@ -69,7 +69,7 @@ const ModalTitle = styled.h2`
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text-primary, #111827);
 `;
 
 const CloseButton = styled.button`
@@ -92,91 +92,89 @@ const ModalBody = styled.div`
 `;
 
 const ConfigurationButton: React.FC<ConfigurationButtonProps> = ({
-  flowType,
-  currentConfig,
-  onConfigChange,
-  className
+	flowType,
+	currentConfig,
+	onConfigChange,
+	className,
 }) => {
-  const [showModal, setShowModal] = useState(false);
-  const [config, setConfig] = useState<FlowConfig>(() => {
-    const defaultConfig = getDefaultConfig(flowType);
-    return { ...defaultConfig, ...currentConfig };
-  });
+	const [showModal, setShowModal] = useState(false);
+	const [config, setConfig] = useState<FlowConfig>(() => {
+		const defaultConfig = getDefaultConfig(flowType);
+		return { ...defaultConfig, ...currentConfig };
+	});
 
-  // Handle escape key to close modal
-  useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && showModal) {
-        setShowModal(false);
-      }
-    };
+	// Handle escape key to close modal
+	useEffect(() => {
+		const handleEscape = (event: KeyboardEvent) => {
+			if (event.key === 'Escape' && showModal) {
+				setShowModal(false);
+			}
+		};
 
-    if (showModal) {
-      document.addEventListener('keydown', handleEscape);
-      return () => document.removeEventListener('keydown', handleEscape);
-    }
-  }, [showModal]);
+		if (showModal) {
+			document.addEventListener('keydown', handleEscape);
+			return () => document.removeEventListener('keydown', handleEscape);
+		}
+	}, [showModal]);
 
-  const handleConfigChange = (newConfig: FlowConfig) => {
-    setConfig(newConfig);
-    onConfigChange?.(newConfig);
-  };
+	const handleConfigChange = (newConfig: FlowConfig) => {
+		setConfig(newConfig);
+		onConfigChange?.(newConfig);
+	};
 
-  const getFlowSpecificTitle = (flowType: string) => {
-    switch (flowType) {
-      case 'authorization_code':
-        return 'Authorization Code Flow Configuration';
-      case 'implicit':
-        return 'Implicit Flow Configuration';
-      case 'pkce':
-        return 'PKCE Flow Configuration';
-      case 'device_code':
-        return 'Device Code Flow Configuration';
-      case 'client_credentials':
-        return 'Client Credentials Flow Configuration';
-      case 'hybrid':
-        return 'Hybrid Flow Configuration';
-      case 'id_tokens':
-        return 'ID Tokens Flow Configuration';
-      case 'userinfo':
-        return 'UserInfo Flow Configuration';
-      default:
-        return 'OAuth Flow Configuration';
-    }
-  };
+	const getFlowSpecificTitle = (flowType: string) => {
+		switch (flowType) {
+			case 'authorization_code':
+				return 'Authorization Code Flow Configuration';
+			case 'implicit':
+				return 'Implicit Flow Configuration';
+			case 'pkce':
+				return 'PKCE Flow Configuration';
+			case 'device_code':
+				return 'Device Code Flow Configuration';
+			case 'client_credentials':
+				return 'Client Credentials Flow Configuration';
+			case 'hybrid':
+				return 'Hybrid Flow Configuration';
+			case 'id_tokens':
+				return 'ID Tokens Flow Configuration';
+			case 'userinfo':
+				return 'UserInfo Flow Configuration';
+			default:
+				return 'OAuth Flow Configuration';
+		}
+	};
 
-  return (
-    <>
-      <Button 
-        className={className}
-        onClick={() => setShowModal(true)}
-        title={`Configure ${flowType} flow parameters`}
-      >
-        <FiSettings />
-        Show Configuration
-      </Button>
+	return (
+		<>
+			<Button
+				className={className}
+				onClick={() => setShowModal(true)}
+				title={`Configure ${flowType} flow parameters`}
+			>
+				<FiSettings />
+				Show Configuration
+			</Button>
 
-      {showModal && (
-        <ModalOverlay onClick={() => setShowModal(false)}>
-          <ModalContent onClick={(e) => e.stopPropagation()}>
-            <ModalHeader>
-              <ModalTitle>{getFlowSpecificTitle(flowType)}</ModalTitle>
-              <CloseButton onClick={() => setShowModal(false)}>
-                
-              </CloseButton>
-            </ModalHeader>
-            <ModalBody>
-              <FlowConfiguration
-                config={config}
-                onConfigChange={handleConfigChange}
-                flowType={flowType}
-              />
-            </ModalBody>
-          </ModalContent>
-        </ModalOverlay>
-      )}
-    </>
-  );
+			{showModal && (
+				<ModalOverlay onClick={() => setShowModal(false)}>
+					<ModalContent onClick={(e) => e.stopPropagation()}>
+						<ModalHeader>
+							<ModalTitle>{getFlowSpecificTitle(flowType)}</ModalTitle>
+							<CloseButton onClick={() => setShowModal(false)}></CloseButton>
+						</ModalHeader>
+						<ModalBody>
+							<FlowConfiguration
+								config={config}
+								onConfigChange={handleConfigChange}
+								flowType={flowType}
+							/>
+						</ModalBody>
+					</ModalContent>
+				</ModalOverlay>
+			)}
+		</>
+	);
 };
 
 export default ConfigurationButton;

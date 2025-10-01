@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
-import { FiAlertCircle, FiCheckCircle, FiLoader } from "react-icons/fi";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import styled from "styled-components";
-import { useAuth } from "../contexts/NewAuthContext";
-import { getValidatedCurrentUrl } from "../utils/urlValidation";
+import { useEffect, useState } from 'react';
+import { FiAlertCircle, FiCheckCircle, FiLoader } from 'react-icons/fi';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import styled from 'styled-components';
+import { useAuth } from '../contexts/NewAuthContext';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 const CallbackContainer = styled.div`
   display: flex;
@@ -86,24 +86,24 @@ const Callback = () => {
 	const [searchParams] = useSearchParams();
 	const navigate = useNavigate();
 	const { handleCallback } = useAuth();
-	const [status, setStatus] = useState("processing");
-	const [error, setError] = useState("");
+	const [status, setStatus] = useState('processing');
+	const [error, setError] = useState('');
 	const [hasProcessed, setHasProcessed] = useState(false);
 
 	useEffect(() => {
 		const processCallback = async () => {
 			// Prevent multiple processing attempts
 			if (hasProcessed) {
-				console.log(" [Callback] Callback already processed, skipping...");
+				console.log(' [Callback] Callback already processed, skipping...');
 				return;
 			}
 
 			setHasProcessed(true);
 
 			try {
-				console.log(" [Callback] Starting OAuth callback processing...");
-				console.log(" [Callback] Current URL:", window.location.href);
-				console.log(" [Callback] Location details:", {
+				console.log(' [Callback] Starting OAuth callback processing...');
+				console.log(' [Callback] Current URL:', window.location.href);
+				console.log(' [Callback] Location details:', {
 					href: window.location.href,
 					pathname: window.location.pathname,
 					search: window.location.search,
@@ -117,78 +117,75 @@ const Callback = () => {
 					urlParams[key] = value;
 				}
 
-				console.log(" [Callback] URL parameters:", urlParams);
+				console.log(' [Callback] URL parameters:', urlParams);
 
 				// Check sessionStorage for stored values
-				const storedState = sessionStorage.getItem("oauth_state");
-				const storedCodeVerifier = sessionStorage.getItem("code_verifier");
-				const storedRedirectAfterLogin = sessionStorage.getItem(
-					"oauth_redirect_after_login",
-				);
+				const storedState = sessionStorage.getItem('oauth_state');
+				const storedCodeVerifier = sessionStorage.getItem('code_verifier');
+				const storedRedirectAfterLogin = sessionStorage.getItem('oauth_redirect_after_login');
 
-				console.log(" [Callback] SessionStorage values:", {
+				console.log(' [Callback] SessionStorage values:', {
 					hasStoredState: !!storedState,
 					hasStoredCodeVerifier: !!storedCodeVerifier,
 					hasStoredRedirectAfterLogin: !!storedRedirectAfterLogin,
-					storedState: storedState?.substring(0, 8) + "...",
-					storedCodeVerifier: storedCodeVerifier?.substring(0, 20) + "...",
+					storedState: storedState?.substring(0, 8) + '...',
+					storedCodeVerifier: storedCodeVerifier?.substring(0, 20) + '...',
 					storedRedirectAfterLogin,
 				});
 
 				// Check for error in the URL (e.g., user denied permission)
 				if (urlParams.error) {
 					console.error(
-						" [Callback] OAuth error in URL:",
+						' [Callback] OAuth error in URL:',
 						urlParams.error,
-						urlParams.error_description,
+						urlParams.error_description
 					);
-					let errorMessage =
-						urlParams.error_description || "Authorization failed";
+					let errorMessage = urlParams.error_description || 'Authorization failed';
 
 					// Handle PingOne-specific errors with user-friendly messages
-					if (urlParams.error === "NOT_FOUND") {
+					if (urlParams.error === 'NOT_FOUND') {
 						errorMessage =
-							"Configuration Issue: The PingOne environment or application could not be found. Please check your Environment ID and ensure your PingOne application is properly configured.";
-					} else if (urlParams.error === "invalid_request") {
+							'Configuration Issue: The PingOne environment or application could not be found. Please check your Environment ID and ensure your PingOne application is properly configured.';
+					} else if (urlParams.error === 'invalid_request') {
 						errorMessage =
-							"Invalid Request: The authorization request was malformed. Please try again or contact support if the issue persists.";
-					} else if (urlParams.error === "unauthorized_client") {
+							'Invalid Request: The authorization request was malformed. Please try again or contact support if the issue persists.';
+					} else if (urlParams.error === 'unauthorized_client') {
 						errorMessage =
-							"Unauthorized Client: Your application is not authorized to make this request. Please check your Client ID configuration.";
-					} else if (urlParams.error === "access_denied") {
+							'Unauthorized Client: Your application is not authorized to make this request. Please check your Client ID configuration.';
+					} else if (urlParams.error === 'access_denied') {
 						errorMessage =
-							"Access Denied: The user denied the authorization request or the request was cancelled.";
-					} else if (urlParams.error === "unsupported_response_type") {
+							'Access Denied: The user denied the authorization request or the request was cancelled.';
+					} else if (urlParams.error === 'unsupported_response_type') {
 						errorMessage =
-							"Configuration Error: The requested response type is not supported. Please contact support.";
-					} else if (urlParams.error === "invalid_scope") {
+							'Configuration Error: The requested response type is not supported. Please contact support.';
+					} else if (urlParams.error === 'invalid_scope') {
 						errorMessage =
-							"Invalid Scope: The requested permissions are not valid. Please check your scope configuration.";
-					} else if (urlParams.error === "server_error") {
+							'Invalid Scope: The requested permissions are not valid. Please check your scope configuration.';
+					} else if (urlParams.error === 'server_error') {
 						errorMessage =
-							"Server Error: PingOne encountered an internal error. Please try again later.";
-					} else if (urlParams.error === "temporarily_unavailable") {
+							'Server Error: PingOne encountered an internal error. Please try again later.';
+					} else if (urlParams.error === 'temporarily_unavailable') {
 						errorMessage =
-							"Service Unavailable: PingOne is temporarily unavailable. Please try again later.";
+							'Service Unavailable: PingOne is temporarily unavailable. Please try again later.';
 					}
 
 					// If this is a popup, send error to parent and close
 					if (window.opener && !window.opener.closed) {
-						console.log(" [Callback] Sending error message to parent window");
+						console.log(' [Callback] Sending error message to parent window');
 						window.opener.postMessage(
 							{
-								type: "oauth-callback",
+								type: 'oauth-callback',
 								error: urlParams.error,
 								error_description: errorMessage,
 							},
-							window.location.origin,
+							window.location.origin
 						);
 						setTimeout(() => {
 							window.close();
 						}, 1000);
-						setStatus("error");
+						setStatus('error');
 						setError(errorMessage);
-						showGlobalError("Authentication failed", errorMessage);
+						v4ToastManager.showError('networkError');
 						return;
 					}
 
@@ -197,40 +194,35 @@ const Callback = () => {
 
 				// Check if we have the required parameters
 				if (!urlParams.code) {
-					console.error(" [Callback] No authorization code in URL parameters");
-					console.error(
-						" [Callback] Available parameters:",
-						Object.keys(urlParams),
-					);
+					console.error(' [Callback] No authorization code in URL parameters');
+					console.error(' [Callback] Available parameters:', Object.keys(urlParams));
 
 					// If we're on the callback page but have no OAuth parameters, this might be a direct navigation
 					if (Object.keys(urlParams).length === 0) {
 						throw new Error(
-							"This appears to be a direct navigation to the callback page. Please start the OAuth flow from the Authorization Code Flow page.",
+							'This appears to be a direct navigation to the callback page. Please start the OAuth flow from the Authorization Code Flow page.'
 						);
 					}
 
 					throw new Error(
-						"No authorization code received. The OAuth flow may have been interrupted.",
+						'No authorization code received. The OAuth flow may have been interrupted.'
 					);
 				}
 
-				console.log(
-					" [Callback] Authorization code found, processing callback...",
-				);
+				console.log(' [Callback] Authorization code found, processing callback...');
 
 				// Check if this is a popup window and send message to parent
 				if (window.opener && !window.opener.closed) {
-					console.log(" [Callback] Sending message to parent window");
+					console.log(' [Callback] Sending message to parent window');
 					window.opener.postMessage(
 						{
-							type: "oauth-callback",
+							type: 'oauth-callback',
 							code: urlParams.code,
 							state: urlParams.state,
 							error: urlParams.error,
 							error_description: urlParams.error_description,
 						},
-						window.location.origin,
+						window.location.origin
 					);
 
 					// Close the popup after a brief delay
@@ -238,7 +230,7 @@ const Callback = () => {
 						window.close();
 					}, 1000);
 
-					setStatus("success");
+					setStatus('success');
 					return;
 				}
 
@@ -246,8 +238,8 @@ const Callback = () => {
 				const start = Date.now();
 
 				// Validate the current URL before passing to handleCallback
-				const currentUrl = getValidatedCurrentUrl("Callback");
-				console.log(" [Callback] Current URL for handleCallback:", currentUrl);
+				const currentUrl = getValidatedCurrentUrl('Callback');
+				console.log(' [Callback] Current URL for handleCallback:', currentUrl);
 
 				const result = await handleCallback(currentUrl);
 				const elapsed = Date.now() - start;
@@ -257,27 +249,25 @@ const Callback = () => {
 				}
 
 				// If we reach here, authentication was successful
-				console.log(" [Callback] Authentication successful");
-				setStatus("success");
+				console.log(' [Callback] Authentication successful');
+				setStatus('success');
 
 				// Get the redirect URL from the callback result
-				const redirectUrl = result.redirectUrl || "/dashboard";
+				const redirectUrl = result.redirectUrl || '/dashboard';
 
-				console.log(" [Callback] Redirecting to:", redirectUrl);
+				console.log(' [Callback] Redirecting to:', redirectUrl);
 
 				// Brief success state before navigating
 				setTimeout(() => {
 					navigate(redirectUrl, { replace: true });
 				}, 1500);
 			} catch (err) {
-				console.error(" [Callback] OAuth callback error:", err);
-				setStatus("error");
+				console.error(' [Callback] OAuth callback error:', err);
+				setStatus('error');
 				const errorMessage =
-					err instanceof Error
-						? err.message
-						: "An error occurred during authentication";
+					err instanceof Error ? err.message : 'An error occurred during authentication';
 				setError(errorMessage);
-				showGlobalError("Authentication error", errorMessage);
+				v4ToastManager.showError('networkError');
 			}
 		};
 
@@ -286,14 +276,14 @@ const Callback = () => {
 
 	const handleRetry = () => {
 		// Redirect to the login page to start the flow again
-		navigate("/login");
+		navigate('/login');
 	};
 
 	const handleGoToDashboard = () => {
-		navigate("/dashboard", { replace: true });
+		navigate('/dashboard', { replace: true });
 	};
 
-	if (status === "processing") {
+	if (status === 'processing') {
 		return (
 			<CallbackContainer>
 				<Card>
@@ -305,15 +295,14 @@ const Callback = () => {
 		);
 	}
 
-	if (status === "success") {
+	if (status === 'success') {
 		return (
 			<CallbackContainer>
 				<Card>
 					<SuccessIcon />
 					<Title>Authentication Successful</Title>
 					<Message>
-						You have been successfully authenticated. Redirecting to the
-						dashboard...
+						You have been successfully authenticated. Redirecting to the dashboard...
 					</Message>
 					<Button onClick={handleGoToDashboard}>Go to Dashboard</Button>
 				</Card>
@@ -328,8 +317,7 @@ const Callback = () => {
 				<ErrorIcon />
 				<Title>Authentication Failed</Title>
 				<Message>
-					{error ||
-						"An error occurred during the authentication process. Please try again."}
+					{error || 'An error occurred during the authentication process. Please try again.'}
 				</Message>
 				<Button onClick={handleRetry}>Try Again</Button>
 			</Card>
