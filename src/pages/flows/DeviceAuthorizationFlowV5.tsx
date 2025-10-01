@@ -1622,22 +1622,6 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 											<Button onClick={navigateToTokenManagement} $variant="primary">
 												<FiExternalLink /> View in Token Management
 											</Button>
-											{deviceFlow.tokens.access_token && (
-												<Button
-													onClick={navigateToTokenManagement}
-													$variant="primary"
-													style={{
-														fontSize: '0.9rem',
-														fontWeight: '600',
-														padding: '0.75rem 1rem',
-														backgroundColor: '#3b82f6',
-														borderColor: '#3b82f6',
-														color: '#ffffff',
-													}}
-												>
-													<FiKey /> Decode Access Token
-												</Button>
-											)}
 											<Button
 												onClick={() => handleCopy(deviceFlow.tokens!.access_token, 'Access Token')}
 												$variant="outline"
