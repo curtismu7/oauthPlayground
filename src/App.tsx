@@ -83,6 +83,7 @@ import WorkerTokenFlowV3 from './pages/flows/WorkerTokenFlowV3';
 import OAuthImplicitFlowV5 from './pages/flows/OAuthImplicitFlowV5';
 import OIDCImplicitFlowV5 from './pages/flows/OIDCImplicitFlowV5';
 import DeviceAuthorizationFlowV5 from './pages/flows/DeviceAuthorizationFlowV5';
+import OIDCDeviceAuthorizationFlowV5 from './pages/flows/OIDCDeviceAuthorizationFlowV5';
 import RedirectlessFlowV5 from './pages/flows/RedirectlessFlowV5';
 import RedirectlessFlowV5Real from './pages/flows/RedirectlessFlowV5_Real';
 import InteractiveTutorials from './pages/InteractiveTutorials';
@@ -286,6 +287,7 @@ const AppRoutes = () => {
 					<Route path="/flows/oauth-implicit-v5" element={<OAuthImplicitFlowV5 />} />
 					<Route path="/flows/oidc-implicit-v5" element={<OIDCImplicitFlowV5 />} />
 					<Route path="/flows/device-authorization-v5" element={<DeviceAuthorizationFlowV5 />} />
+					<Route path="/flows/oidc-device-authorization-v5" element={<OIDCDeviceAuthorizationFlowV5 />} />
 					<Route path="/flows/worker-token-v5" element={<WorkerTokenFlowV5 />} />
 						<Route path="/flows/redirectless-flow-mock" element={<RedirectlessFlowV5 />} />
 						<Route path="/flows/redirectless-flow-v5" element={<RedirectlessFlowV5Real />} />
