@@ -1,25 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import {
+	FiAlertTriangle,
+	FiBook,
 	FiBookOpen,
 	FiChevronDown,
 	FiChevronRight,
+	FiCode,
 	FiCpu,
 	FiExternalLink,
+	FiGithub,
 	FiGlobe,
 	FiHome,
+	FiInfo,
 	FiKey,
+	FiLock,
 	FiSearch,
 	FiServer,
 	FiSettings,
 	FiShield,
 	FiTool,
 	FiUser,
-	FiAlertTriangle,
 	FiZap,
 } from 'react-icons/fi';
 import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-
 interface SidebarContainerProps {
 	$isOpen?: boolean;
 }
@@ -358,6 +362,36 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 		});
 	}, [location.pathname]);
 
+	// Scroll active menu item into view when sidebar opens or route changes
+	useEffect(() => {
+		// Wait for menu to render (whether sidebar is open or not)
+		setTimeout(() => {
+			const activeItem = document.querySelector('a[data-active="true"]') as HTMLElement;
+			const sidebarContainer = document.querySelector('aside') as HTMLElement;
+			
+			if (activeItem && sidebarContainer) {
+				// Get positions
+				const itemTop = activeItem.offsetTop;
+				const sidebarHeight = sidebarContainer.clientHeight;
+				const itemHeight = activeItem.clientHeight;
+				
+				// Calculate scroll position to center the item
+				const scrollPosition = itemTop - (sidebarHeight / 2) + (itemHeight / 2);
+				
+				// Scroll the sidebar container
+				sidebarContainer.scrollTo({
+					top: scrollPosition,
+					behavior: 'smooth',
+				});
+				
+				console.log('📍 [Sidebar] Scrolled to active menu item:', location.pathname, {
+					itemTop,
+					scrollPosition,
+				});
+			}
+		}, isOpen ? 200 : 100); // Longer delay if sidebar is opening
+	}, [location.pathname, isOpen]);
+
 	const toggleMenu = (menu: 'oauth' | 'oidc' | 'unsupported' | 'pingone-tokens' | 'resources' | 'docs') => {
 		setOpenMenus((prev) => {
 			const newState = {
@@ -429,19 +463,43 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							onClick={onClose}
 							$isActive={isActiveRoute('/flows/oauth-authorization-code-v5')}
 							$isV5={true}
+							data-active={isActiveRoute('/flows/oauth-authorization-code-v5')}
 						>
 							<FiZap style={{ marginRight: '0.5rem' }} />
 							<span>OAuth 2.0 Authorization Code V5</span>
 						</SubmenuItem>
 
-						{/* Standard OAuth 2.0 Flows */}
 						<SubmenuItem
+							to="/flows/oauth-implicit-v5"
+							onClick={onClose}
+							$isActive={isActiveRoute('/flows/oauth-implicit-v5')}
+							$isV5={true}
+							data-active={isActiveRoute('/flows/oauth-implicit-v5')}
+						>
+							<FiZap style={{ marginRight: '0.5rem' }} />
+							<span>OAuth 2.0 Implicit Flow V5</span>
+						</SubmenuItem>
+
+						<SubmenuItem
+							to="/flows/device-authorization-v5"
+							onClick={onClose}
+							$isActive={isActiveRoute('/flows/device-authorization-v5')}
+							$isV5={true}
+							data-active={isActiveRoute('/flows/device-authorization-v5')}
+						>
+							<FiZap style={{ marginRight: '0.5rem' }} />
+							<span>Device Authorization Flow V5</span>
+						</SubmenuItem>
+
+						{/* Standard OAuth 2.0 Flows */}
+						{/* V3 Implicit hidden - use V5 instead */}
+						{/* <SubmenuItem
 							to="/flows/oauth2-implicit-v3"
 							onClick={onClose}
 							$isActive={isActiveRoute('/flows/oauth2-implicit-v3')}
 						>
 							OAuth 2.0 Implicit V3
-						</SubmenuItem>
+						</SubmenuItem> */}
 						<SubmenuItem
 							to="/flows/oauth2-client-credentials-v3"
 							onClick={onClose}
@@ -488,9 +546,21 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							onClick={onClose}
 							$isActive={isActiveRoute('/flows/oidc-authorization-code-v5')}
 							$isV5={true}
+							data-active={isActiveRoute('/flows/oidc-authorization-code-v5')}
 						>
 							<FiZap style={{ marginRight: '0.5rem' }} />
 							<span>OIDC Authorization Code V5</span>
+						</SubmenuItem>
+
+						<SubmenuItem
+							to="/flows/oidc-implicit-v5"
+							onClick={onClose}
+							$isActive={isActiveRoute('/flows/oidc-implicit-v5')}
+							$isV5={true}
+							data-active={isActiveRoute('/flows/oidc-implicit-v5')}
+						>
+							<FiZap style={{ marginRight: '0.5rem' }} />
+							<span>OIDC Implicit Flow V5</span>
 						</SubmenuItem>
 
 						{/* V3 Flows - Hidden */}
@@ -501,13 +571,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						{/* <SubmenuItem to="/flows/enhanced-authorization-code-v3" onClick={onClose} $isActive={isActiveRoute('/flows/enhanced-authorization-code-v3')}>
               OIDC Authorization Code (V3)
             </SubmenuItem> */}
-						<SubmenuItem
+						{/* V3 Implicit hidden - use V5 instead */}
+						{/* <SubmenuItem
 							to="/flows/oidc-implicit-v3"
 							onClick={onClose}
 							$isActive={isActiveRoute('/flows/oidc-implicit-v3')}
 						>
 							OIDC Implicit V3
-						</SubmenuItem>
+						</SubmenuItem> */}
 						<SubmenuItem
 							to="/flows/oidc-hybrid-v3"
 							onClick={onClose}
@@ -609,6 +680,23 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						>
 							<FiZap style={{ marginRight: '0.5rem' }} />
 							<span>PingOne PAR Flow V5</span>
+						</SubmenuItem>
+						<SubmenuItem
+							to="/flows/redirectless-flow-mock"
+							onClick={onClose}
+							$isActive={isActiveRoute('/flows/redirectless-flow-mock')}
+						>
+							<FiInfo style={{ marginRight: '0.5rem' }} />
+							<span>Redirectless Flow (Educational)</span>
+						</SubmenuItem>
+						<SubmenuItem
+							to="/flows/redirectless-flow-v5"
+							onClick={onClose}
+							$isActive={isActiveRoute('/flows/redirectless-flow-v5')}
+							$isV5={true}
+						>
+							<FiZap style={{ marginRight: '0.5rem' }} />
+							<span>Redirectless Flow V5 (Real)</span>
 						</SubmenuItem>
 
 						{/* V3 Flows - Hidden */}
