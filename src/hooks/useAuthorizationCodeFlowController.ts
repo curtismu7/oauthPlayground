@@ -750,8 +750,24 @@ export const useAuthorizationCodeFlowController = (
 				`${flowVariant === 'oidc' ? 'OIDC' : 'OAuth'} Authorization Code - ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
 
-			// Don't show error message here - let the calling component handle it
-			// showGlobalError('Token exchange failed', error instanceof Error ? error.message : 'Unknown error');
+			// Show user-friendly error message
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			
+			// Parse specific error types for better user feedback
+			if (errorMessage.includes('401') && errorMessage.includes('invalid_client')) {
+				showGlobalError(
+					'Authentication Failed',
+					'The client credentials are invalid or the authentication method is not supported. Please check your Client ID and Client Secret configuration in PingOne.'
+				);
+			} else if (errorMessage.includes('401')) {
+				showGlobalError(
+					'Unauthorized',
+					'Authentication failed. Please verify your PingOne credentials and application configuration.'
+				);
+			} else {
+				showGlobalError('Token Exchange Failed', errorMessage);
+			}
+			
 			// Re-throw the error so the calling component can handle it
 			throw error;
 		} finally {
