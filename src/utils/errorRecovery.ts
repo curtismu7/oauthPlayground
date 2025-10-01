@@ -367,7 +367,7 @@ export class EnhancedErrorRecovery {
 		const errorsByCategory: Record<string, number> = {};
 		let recentErrors = 0;
 
-		errorHistory.forEach((error: any) => {
+		errorHistory.forEach((error: ErrorHistoryEntry) => {
 			errorsByType[error.errorType] = (errorsByType[error.errorType] || 0) + 1;
 			errorsByCategory[error.errorCategory] = (errorsByCategory[error.errorCategory] || 0) + 1;
 

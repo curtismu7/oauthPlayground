@@ -1,5 +1,5 @@
 // src/components/SecurityFeaturesDemo.tsx
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiShield,
 	FiKey,
@@ -22,6 +22,7 @@ import {
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { showGlobalSuccess } from '../hooks/useNotifications';
 
 // Styled Components
 const Container = styled.div<{ $primaryColor: string; $secondaryColor: string }>`
@@ -125,7 +126,7 @@ const StatusBadge = styled.span<{ $status: 'enabled' | 'required' | 'disabled' }
 `;
 
 const FeatureDescription = styled.div`
-	color: #6b7280;
+	color: #374151;
 	font-size: 0.9rem;
 	margin-bottom: 1rem;
 `;
@@ -222,8 +223,9 @@ const InfoTitle = styled.div`
 `;
 
 const InfoText = styled.div`
-	color: #1e40af;
+	color: #1e3a8a;
 	font-size: 0.9rem;
+	line-height: 1.5;
 `;
 
 const ActionRow = styled.div`
@@ -236,8 +238,9 @@ const ActionRow = styled.div`
 const List = styled.ul`
 	margin: 0;
 	padding-left: 1.5rem;
-	color: #6b7280;
+	color: #374151;
 	font-size: 0.9rem;
+	line-height: 1.6;
 `;
 
 interface SecurityFeaturesDemoProps {
@@ -256,6 +259,17 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 	const { primaryColor, secondaryColor, fontSize } = useUISettings();
 	const [showLogoutUrl, setShowLogoutUrl] = useState(false);
 	const [isValidating, setIsValidating] = useState(false);
+
+	// Scroll to top when component mounts
+	useEffect(() => {
+		console.log('🚀 [SecurityFeaturesDemo] Component mounted - scrolling to top');
+		console.log('🔔 [SecurityFeaturesDemo] v4ToastManager available:', !!v4ToastManager);
+		console.log('🔔 [SecurityFeaturesDemo] showGlobalSuccess available:', typeof showGlobalSuccess);
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+		
+		// Test toast on mount
+		v4ToastManager.showInfo('Security Features Demo loaded successfully!');
+	}, []);
 	
 	// CORS Testing State
 	const [corsSettings, setCorsSettings] = useState({
@@ -280,10 +294,12 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 
 	// Demo functions
 	const showSignatureDemo = useCallback(() => {
+		console.log('🔔 [SecurityFeaturesDemo] showSignatureDemo clicked');
 		v4ToastManager.showInfo('Request Parameter Signature Demo:\n\n1. Generate HMAC-SHA256 signature of request parameters\n2. Include signature in Authorization header\n3. Server validates signature before processing request\n\nThis prevents parameter tampering and ensures request authenticity.');
 	}, []);
 
 	const validateSignature = useCallback(() => {
+		console.log('🔔 [SecurityFeaturesDemo] validateSignature clicked');
 		setIsValidating(true);
 		setTimeout(() => {
 			setIsValidating(false);

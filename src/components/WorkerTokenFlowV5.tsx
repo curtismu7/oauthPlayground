@@ -354,6 +354,33 @@ const GeneratedContentBox = styled.div`
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin: 1rem 0;
+	position: relative;
+`;
+
+const GeneratedLabel = styled.div`
+	position: absolute;
+	top: -10px;
+	left: 16px;
+	background-color: #059669;
+	color: white;
+	padding: 0.25rem 0.75rem;
+	border-radius: 9999px;
+	font-size: 0.75rem;
+	font-weight: 600;
+`;
+
+const CodeBlock = styled.pre`
+	background-color: #1e293b;
+	border: 1px solid #334155;
+	border-radius: 0.5rem;
+	padding: 1.25rem;
+	font-size: 0.875rem;
+	color: #e2e8f0;
+	overflow-x: auto;
+	margin: 1rem 0;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	line-height: 1.5;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 `;
 
 const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
@@ -651,19 +678,19 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 								scopes={controller.credentials.scopes || ''}
 								loginHint={controller.credentials.loginHint || ''}
 								onEnvironmentIdChange={(value) =>
-									controller.setCredentials((prev) => ({ ...prev, environmentId: value }))
+									controller.setCredentials({ ...controller.credentials, environmentId: value })
 								}
 								onClientIdChange={(value) =>
-									controller.setCredentials((prev) => ({ ...prev, clientId: value }))
+									controller.setCredentials({ ...controller.credentials, clientId: value })
 								}
 								onClientSecretChange={(value) =>
-									controller.setCredentials((prev) => ({ ...prev, clientSecret: value }))
+									controller.setCredentials({ ...controller.credentials, clientSecret: value })
 								}
 								onScopesChange={(value) =>
-									controller.setCredentials((prev) => ({ ...prev, scopes: value }))
+									controller.setCredentials({ ...controller.credentials, scopes: value })
 								}
 								onLoginHintChange={(value) =>
-									controller.setCredentials((prev) => ({ ...prev, loginHint: value }))
+									controller.setCredentials({ ...controller.credentials, loginHint: value })
 								}
 								onCopy={controller.handleCopy}
 								copiedField={controller.copiedField}
@@ -719,6 +746,121 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 									Please configure your client credentials in Step 0 before requesting a token.
 								</InfoText>
 							</InfoBox>
+						)}
+
+						<SectionDivider />
+
+						{controller.tokens && (
+							<ResultsSection>
+								<ResultsHeading>
+									<FiCheckCircle size={18} /> Token Response
+								</ResultsHeading>
+								<HelperText>
+									Review the raw token response. Copy the JSON or individual tokens below.
+								</HelperText>
+								<GeneratedContentBox>
+									<GeneratedLabel>Raw Token Response</GeneratedLabel>
+									<CodeBlock>{JSON.stringify(controller.tokens, null, 2)}</CodeBlock>
+									<ActionRow style={{ marginBottom: '1rem' }}>
+										<Button
+											onClick={() => {
+												navigator.clipboard.writeText(JSON.stringify(controller.tokens, null, 2));
+												v4ToastManager.showSuccess('Token Response copied to clipboard!');
+											}}
+											$variant="primary"
+											style={{
+												backgroundColor: '#059669',
+												borderColor: '#059669',
+												color: '#ffffff',
+												fontWeight: '600',
+											}}
+										>
+											<FiCopy /> Copy JSON Response
+										</Button>
+									</ActionRow>
+								</GeneratedContentBox>
+
+								<GeneratedContentBox style={{ marginTop: '1rem' }}>
+									<GeneratedLabel>Tokens Received</GeneratedLabel>
+									<ParameterGrid>
+										{controller.tokens.access_token && (
+											<div style={{ gridColumn: '1 / -1' }}>
+												<ParameterLabel>Access Token</ParameterLabel>
+												<ParameterValue style={{ wordBreak: 'break-all' }}>
+													{String(controller.tokens.access_token)}
+												</ParameterValue>
+												<Button
+													onClick={() => {
+														navigator.clipboard.writeText(String(controller.tokens?.access_token));
+														v4ToastManager.showSuccess('Access Token copied to clipboard!');
+													}}
+													$variant="primary"
+													style={{
+														marginTop: '0.5rem',
+														fontSize: '0.8rem',
+														fontWeight: '600',
+														padding: '0.5rem 0.75rem',
+														backgroundColor: '#059669',
+														borderColor: '#059669',
+														color: '#ffffff',
+													}}
+												>
+													<FiCopy /> Copy Access Token
+												</Button>
+											</div>
+										)}
+										{controller.tokens.token_type && (
+											<div>
+												<ParameterLabel>Token Type</ParameterLabel>
+												<ParameterValue>{String(controller.tokens.token_type)}</ParameterValue>
+											</div>
+										)}
+										{controller.tokens.scope && (
+											<div>
+												<ParameterLabel>Scope</ParameterLabel>
+												<ParameterValue>{String(controller.tokens.scope)}</ParameterValue>
+											</div>
+										)}
+										{controller.tokens.expires_in && (
+											<div>
+												<ParameterLabel>Expires In</ParameterLabel>
+												<ParameterValue>{String(controller.tokens.expires_in)} seconds</ParameterValue>
+											</div>
+										)}
+									</ParameterGrid>
+									
+									{/* Token Management Buttons */}
+									<ActionRow style={{ justifyContent: 'center', gap: '0.75rem', marginTop: '1.5rem' }}>
+										<Button 
+											onClick={navigateToTokenManagement} 
+											$variant="primary"
+											style={{
+												backgroundColor: '#3b82f6',
+												borderColor: '#3b82f6',
+												color: '#ffffff',
+											}}
+										>
+											<FiExternalLink /> View in Token Management
+										</Button>
+										{controller.tokens.access_token && (
+											<Button
+												onClick={navigateToTokenManagement}
+												$variant="primary"
+												style={{
+													fontSize: '0.9rem',
+													fontWeight: '600',
+													padding: '0.75rem 1rem',
+													backgroundColor: '#059669',
+													borderColor: '#059669',
+													color: '#ffffff',
+												}}
+											>
+												<FiKey /> Decode Access Token
+											</Button>
+										)}
+									</ActionRow>
+								</GeneratedContentBox>
+							</ResultsSection>
 						)}
 					</>
 				);
@@ -911,10 +1053,10 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 						<TokenIntrospect
 							flowType="worker-token"
 							tokens={controller.tokens}
-							credentials={controller.credentials}
-							onIntrospect={controller.introspectToken}
-							isIntrospecting={controller.isIntrospecting}
-							introspectionResult={controller.introspectionResult}
+						credentials={controller.credentials}
+						onIntrospect={controller.introspectToken}
+						isIntrospecting={controller.isIntrospecting}
+						introspectionResult={controller.introspectionResults}
 						/>
 					</>
 				);
@@ -969,6 +1111,41 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 		}
 	}, []);
 
+	const handleResetFlow = useCallback(() => {
+		console.log('🔄 [WorkerTokenFlowV5] handleResetFlow called');
+		
+		// Reset controller state
+		controller.resetFlow();
+		
+		// Reset local component state
+		setCurrentStep(0);
+		setStepCompletion({
+			0: true, // Step 0 is always complete
+		});
+		
+		console.log('✅ [WorkerTokenFlowV5] Flow reset completed - returned to step 0');
+	}, [controller]);
+
+	const navigateToTokenManagement = useCallback(() => {
+		// Store flow context for Token Management page
+		if (controller.tokens) {
+			const flowContext = {
+				flow: 'worker-token-v5',
+				tokens: controller.tokens,
+				credentials: controller.credentials,
+				timestamp: Date.now(),
+			};
+			sessionStorage.setItem('tokenManagementFlowContext', JSON.stringify(flowContext));
+			
+			// Pass access token to Token Management
+			localStorage.setItem('token_to_analyze', controller.tokens.access_token);
+			localStorage.setItem('token_type', 'access');
+			localStorage.setItem('flow_source', 'worker-token-v5');
+		}
+		
+		window.open('/token-management', '_blank');
+	}, [controller.tokens, controller.credentials]);
+
 	return (
 		<Container>
 			<ContentWrapper>
@@ -998,7 +1175,7 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 					totalSteps={STEP_METADATA.length}
 					onPrevious={goToPreviousStep}
 					onNext={goToNextStep}
-					onReset={controller.resetFlow}
+					onReset={handleResetFlow}
 					canNavigateNext={canGoToNextStep()}
 					isFirstStep={currentStep === 0}
 					nextButtonText={canGoToNextStep() ? 'Next' : 'Complete above action'}

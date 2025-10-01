@@ -45,6 +45,9 @@ export interface WorkerTokenFlowController {
 	hasCredentialsSaved: boolean;
 	hasUnsavedCredentialChanges: boolean;
 	saveCredentials: () => Promise<void>;
+	loadCredentials: (config: StepCredentials) => void;
+	handleCopy: (text: string, label: string) => void;
+	copiedField: string | null;
 	stepManager: ReturnType<typeof useFlowStepManager>;
 	saveStepResult: (stepId: string, result: unknown) => void;
 	hasStepResult: (stepId: string) => boolean;
@@ -127,6 +130,7 @@ export const useWorkerTokenFlowController = (
 	const [isSavingCredentials, setIsSavingCredentials] = useState(false);
 	const [hasCredentialsSaved, setHasCredentialsSaved] = useState(false);
 	const [hasUnsavedCredentialChanges, setHasUnsavedCredentialChanges] = useState(false);
+	const [copiedField, setCopiedField] = useState<string | null>(null);
 
 	const originalCredentialsRef = useRef<StepCredentials | null>(null);
 	useAuthorizationFlowScroll('Worker Token Flow V5');
@@ -231,13 +235,18 @@ export const useWorkerTokenFlowController = (
 			const scopes = credentials.scopes || credentials.scope || 'openid';
 			const scopeArray = scopes.split(' ').filter(Boolean);
 
-			// Request the token
-			const tokenResponse = await requestClientCredentialsToken(
-				tokenEndpoint,
-				credentials.clientId,
-				credentials.clientSecret,
-				scopeArray
-			);
+		// Get authentication method (default to client_secret_post)
+		const authMethod = credentials.clientAuthMethod || credentials.tokenAuthMethod || 'client_secret_post';
+		console.log('🔐 [useWorkerTokenFlowController] Using authentication method:', authMethod);
+
+		// Request the token
+		const tokenResponse = await requestClientCredentialsToken(
+			tokenEndpoint,
+			credentials.clientId,
+			credentials.clientSecret,
+			scopeArray,
+			authMethod
+		);
 
 			setTokens(tokenResponse);
 			saveStepResult('token-request', tokenResponse);
@@ -261,7 +270,16 @@ export const useWorkerTokenFlowController = (
 			enhancedDebugger.logError('worker-token-request', error);
 			
 			const errorMessage = error instanceof Error ? error.message : 'Failed to request worker token';
-			showGlobalError(`Token request failed: ${errorMessage}`);
+			
+			// Check if it's an authentication method error and provide helpful guidance
+			if (errorMessage.includes('Unsupported authentication method')) {
+				showGlobalError(
+					`Token request failed: ${errorMessage}\n\nTip: Check your PingOne application's Token Endpoint Authentication Method setting. Try changing it to match your configuration (client_secret_post or client_secret_basic).`,
+					'Authentication Method Error'
+				);
+			} else {
+				showGlobalError(`Token request failed: ${errorMessage}`);
+			}
 			
 			// Track the failed operation
 			trackTokenOperation('worker-token-request', false, errorMessage);
@@ -324,14 +342,24 @@ export const useWorkerTokenFlowController = (
 
 	const saveCredentials = useCallback(async () => {
 		try {
-			console.log('💾 [useWorkerTokenFlowController] Starting to save credentials...');
+			console.log('💾 [useWorkerTokenFlowController] Save credentials button clicked!');
 			console.log('📋 [useWorkerTokenFlowController] Credentials object:', JSON.stringify(credentials, null, 2));
 			console.log('🔍 [useWorkerTokenFlowController] Login Hint value:', credentials.loginHint);
+			console.log('🔍 [useWorkerTokenFlowController] Environment ID:', credentials.environmentId);
+			console.log('🔍 [useWorkerTokenFlowController] Client ID:', credentials.clientId);
+			console.log('🔍 [useWorkerTokenFlowController] Has Client Secret:', !!credentials.clientSecret);
+			
 			setIsSavingCredentials(true);
 			
 			// Validate required fields
 			if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {
-				showGlobalError('Missing required fields: Environment ID, Client ID, and Client Secret are required.');
+				const missingFields = [];
+				if (!credentials.environmentId) missingFields.push('Environment ID');
+				if (!credentials.clientId) missingFields.push('Client ID');
+				if (!credentials.clientSecret) missingFields.push('Client Secret');
+				
+				console.error('❌ [useWorkerTokenFlowController] Missing fields:', missingFields.join(', '));
+				showGlobalError(`Missing required fields: ${missingFields.join(', ')} are required.`);
 				return;
 			}
 			
@@ -347,6 +375,14 @@ export const useWorkerTokenFlowController = (
 				setHasCredentialsSaved(true);
 				setHasUnsavedCredentialChanges(false);
 				originalCredentialsRef.current = { ...credentials };
+
+				// Clear cache to ensure fresh data is loaded
+				credentialManager.clearCache();
+
+				// Dispatch events to notify dashboard and other components
+				window.dispatchEvent(new CustomEvent('pingone-config-changed'));
+				window.dispatchEvent(new CustomEvent('permanent-credentials-changed'));
+				console.log('📢 [useWorkerTokenFlowController] Configuration change events dispatched');
 				
 				showGlobalSuccess('Credentials saved successfully!');
 			} else {
@@ -361,6 +397,8 @@ export const useWorkerTokenFlowController = (
 	}, [credentials]);
 
 	const resetFlow = useCallback(() => {
+		console.log('🔄 [useWorkerTokenFlowController] Reset flow called');
+		
 		setCredentials(createEmptyCredentials());
 		setTokens(null);
 		setIntrospectionResults(null);
@@ -374,8 +412,23 @@ export const useWorkerTokenFlowController = (
 		
 		originalCredentialsRef.current = null;
 		
-		console.log('🔄 [useWorkerTokenFlowController] Flow reset');
+		console.log('✅ [useWorkerTokenFlowController] Flow reset completed');
+		showGlobalSuccess('Worker Token Flow reset successfully!');
 	}, [clearStepResults, stepManager]);
+
+	const loadCredentials = useCallback((config: StepCredentials) => {
+		console.log('📥 [useWorkerTokenFlowController] Loading credentials from config');
+		setCredentials(config);
+		originalCredentialsRef.current = { ...config };
+		setHasUnsavedCredentialChanges(false);
+	}, []);
+
+	const handleCopy = useCallback((text: string, label: string) => {
+		navigator.clipboard.writeText(text);
+		setCopiedField(label);
+		setTimeout(() => setCopiedField(null), 2000);
+		showGlobalSuccess(`${label} copied to clipboard!`);
+	}, []);
 
 	// Track credential changes for save button state
 	useEffect(() => {
@@ -419,6 +472,9 @@ export const useWorkerTokenFlowController = (
 		hasCredentialsSaved,
 		hasUnsavedCredentialChanges,
 		saveCredentials,
+		loadCredentials,
+		handleCopy,
+		copiedField,
 		stepManager,
 		saveStepResult,
 		hasStepResult,
