@@ -11,6 +11,7 @@ import {
 	FiEyeOff,
 	FiLogIn,
 } from 'react-icons/fi';
+import { themeService } from '../services/themeService';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import packageJson from '../../package.json';
@@ -314,6 +315,24 @@ const CopyButton = styled.button`
 
   svg {
     transition: all 0.2s;
+  }
+`;
+
+const ChevronIcon = styled.div<{ $collapsed: boolean }>`
+  ${() => themeService.getCollapseIconStyles()}
+  width: 28px;
+  height: 28px;
+  margin-right: 0.5rem;
+  
+  svg {
+    width: 14px;
+    height: 14px;
+    transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
+    transition: transform 0.2s ease;
+  }
+  
+  &:hover svg {
+    transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)')};
   }
 `;
 
@@ -726,7 +745,9 @@ const Login = () => {
 								userSelect: 'none',
 							}}
 						>
-							{isConfigSectionCollapsed ? <FiChevronRight /> : <FiChevronDown />}
+							<ChevronIcon $collapsed={isConfigSectionCollapsed}>
+								<FiChevronDown />
+							</ChevronIcon>
 							PingOne Configuration Required
 						</h3>
 						{!isConfigSectionCollapsed && (
@@ -947,7 +968,9 @@ const Login = () => {
 								userSelect: 'none',
 							}}
 						>
-							{isCredentialsSectionCollapsed ? <FiChevronRight /> : <FiChevronDown />}
+							<ChevronIcon $collapsed={isCredentialsSectionCollapsed}>
+								<FiChevronDown />
+							</ChevronIcon>
 							Enter Your Credentials
 							{hasExistingCredentials && (
 								<span

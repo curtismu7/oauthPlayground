@@ -42,7 +42,9 @@ const buildErrorHtml = (summary: string, details?: string) => {
 };
 
 const notifyListeners = () => {
-	messageListeners.forEach((listener) => listener([...globalMessages]));
+	messageListeners.forEach((listener) => {
+		listener([...globalMessages]);
+	});
 };
 
 const addMessage = (message: Omit<MessageEntry, 'id'>) => {

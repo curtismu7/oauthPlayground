@@ -230,7 +230,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 	isOpen,
 	onClose,
 	onSave,
-	flowType,
+	flowType: _flowType,
 }) => {
 	const [formData, setFormData] = useState({
 		environmentId: '',
