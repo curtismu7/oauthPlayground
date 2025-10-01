@@ -307,7 +307,7 @@ const AppRoutes = () => {
 							element={<OIDCClientCredentialsFlowV5 />}
 						/>
 						<Route path="/flows/hybrid-v5" element={<OIDCHybridFlowV5 />} />
-						<Route path="/hybrid-callback" element={<HybridCallbackV5 />} />
+						<Route path="/hybrid-callback" element={<HybridCallback />} />
 						<Route path="/flows/redirectless-flow-mock" element={<RedirectlessFlowV5 />} />
 						<Route path="/flows/redirectless-flow-v5" element={<RedirectlessFlowV5Real />} />
 						<Route path="/flows/authz-v4-new-windsurf" element={<AuthzV4NewWindsurfFlow />} />
