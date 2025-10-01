@@ -1,0 +1,1016 @@
+src/hooks/useDeviceAuthorizationFlow.ts:108:2 lint/correctness/useExhaustiveDependencies  FIXABLE  ━━━━━━━━━━
+
+  ! This hook does not specify its dependency on stopPolling.
+  
+    107 │ 	// Countdown timer for device code expiration
+  > 108 │ 	useEffect(() => {
+        │ 	^^^^^^^^^
+    109 │ 		if (!expiresAt) {
+    110 │ 			setTimeRemaining(0);
+  
+  i This dependency is being used here, but is not specified in the hook dependency list.
+  
+    124 │ 					status: 'expired',
+    125 │ 				}));
+  > 126 │ 				stopPolling();
+        │ 				^^^^^^^^^^^
+    127 │ 			}
+    128 │ 		}, 1000);
+  
+  i Unsafe fix: Add the missing dependency to the list.
+  
+    131 │ → },·[expiresAt,·stopPolling]);
+        │                +++++++++++++   
+
+src/hooks/useDeviceAuthorizationFlow.ts:348:23 lint/correctness/useExhaustiveDependencies  FIXABLE  ━━━━━━━━━━
+
+  ! This hook does not specify its dependency on stopPolling.
+  
+    347 │ 	// Start polling for tokens
+  > 348 │ 	const startPolling = useCallback(() => {
+        │ 	                     ^^^^^^^^^^^
+    349 │ 		if (!deviceCodeData) {
+    350 │ 			console.error(`${LOG_PREFIX} [ERROR] Cannot start polling: no device code`);
+  
+  i This dependency is being used here, but is not specified in the hook dependency list.
+  
+    383 │ 				const shouldStop = await pollForToken();
+    384 │ 				if (shouldStop) {
+  > 385 │ 					stopPolling();
+        │ 					^^^^^^^^^^^
+    386 │ 				}
+    387 │ 			}, pollInterval);
+  
+  i This dependency is being used here, but is not specified in the hook dependency list.
+  
+    375 │ 		pollForToken().then(shouldStop => {
+    376 │ 			if (shouldStop) {
+  > 377 │ 				stopPolling();
+        │ 				^^^^^^^^^^^
+    378 │ 				return;
+    379 │ 			}
+  
+  i Unsafe fix: Add the missing dependency to the list.
+  
+    389 │ → },·[deviceCodeData,·pollingStatus.isPolling,·pollingStatus.maxAttempts,·pollForToken,·stopPolling]);
+        │                                                                                       +++++++++++++   
+
+src/hooks/useDeviceAuthorizationFlow.ts:174:20 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    172 │ 			if (!response.ok) {
+    173 │ 				const errorText = await response.text();
+  > 174 │ 				let errorData: any = {};
+        │ 				               ^^^
+    175 │ 				try {
+    176 │ 					errorData = JSON.parse(errorText);
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/DeviceAuthorizationFlowV5.tsx:730:43 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    728 │ 	});
+    729 │ 	const [_copiedField, setCopiedField] = useState<string | null>(null);
+  > 730 │ 	const [userInfo, setUserInfo] = useState<any>(null);
+        │ 	                                         ^^^
+    731 │ 	const [introspectionResult, setIntrospectionResult] = useState<any>(null);
+    732 │ 	const [showPollingModal, setShowPollingModal] = useState(false);
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/DeviceAuthorizationFlowV5.tsx:731:65 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    729 │ 	const [_copiedField, setCopiedField] = useState<string | null>(null);
+    730 │ 	const [userInfo, setUserInfo] = useState<any>(null);
+  > 731 │ 	const [introspectionResult, setIntrospectionResult] = useState<any>(null);
+        │ 	                                                               ^^^
+    732 │ 	const [showPollingModal, setShowPollingModal] = useState(false);
+    733 │ 	const { settings } = useUISettings();
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/DeviceAuthorizationFlowV5.tsx:1931:33 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    1929 │ 			flowName="OAuth Device Authorization Code Flow"
+    1930 │ 			flowVersion="V5"
+  > 1931 │ 			tokens={deviceFlow.tokens as any}
+         │ 			                             ^^^
+    1932 │ 			credentials={deviceFlow.credentials as any}
+    1933 │ 			onResetFlow={handleReset}
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/DeviceAuthorizationFlowV5.tsx:1932:43 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    1930 │ 			flowVersion="V5"
+    1931 │ 			tokens={deviceFlow.tokens as any}
+  > 1932 │ 			credentials={deviceFlow.credentials as any}
+         │ 			                                       ^^^
+    1933 │ 			onResetFlow={handleReset}
+    1934 │ 			onNavigateToTokenManagement={navigateToTokenManagement}
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/OAuthAuthorizationCodeFlowV5.tsx:2589:36 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    2587 │ 						flowName="OAuth 2.0 Authorization Code Flow"
+    2588 │ 						flowVersion="V5"
+  > 2589 │ 						tokens={controller.tokens as any}
+         │ 						                             ^^^
+    2590 │ 						credentials={controller.credentials as any}
+    2591 │ 						userInfo={userInfo}
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/OAuthAuthorizationCodeFlowV5.tsx:1194:23 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    1192 │ 			const tokenAuthMethod = credentials.clientAuthMethod || 'client_secret_post';
+    1193 │ 
+  > 1194 │ 			const requestBody: any = {
+         │ 			                   ^^^
+    1195 │ 				token: token,
+    1196 │ 				client_id: credentials.clientId,
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/OAuthAuthorizationCodeFlowV5.tsx:1209:35 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    1207 │ 					const authResult = await applyClientAuthentication(
+    1208 │ 						{
+  > 1209 │ 							method: tokenAuthMethod as any,
+         │ 							                           ^^^
+    1210 │ 							clientId: credentials.clientId,
+    1211 │ 							clientSecret:
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/OAuthAuthorizationCodeFlowV5.tsx:2590:46 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    2588 │ 						flowVersion="V5"
+    2589 │ 						tokens={controller.tokens as any}
+  > 2590 │ 						credentials={controller.credentials as any}
+         │ 						                                       ^^^
+    2591 │ 						userInfo={userInfo}
+    2592 │ 						onFetchUserInfo={handleFetchUserInfo}
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/OAuthAuthorizationCodeFlowV5.tsx:2622:36 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    2620 │ 						flowName="OAuth 2.0 Authorization Code Flow"
+    2621 │ 						flowVersion="V5"
+  > 2622 │ 						tokens={controller.tokens as any}
+         │ 						                             ^^^
+    2623 │ 						credentials={controller.credentials as any}
+    2624 │ 						onResetFlow={handleResetFlow}
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/OAuthAuthorizationCodeFlowV5.tsx:2623:46 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    2621 │ 						flowVersion="V5"
+    2622 │ 						tokens={controller.tokens as any}
+  > 2623 │ 						credentials={controller.credentials as any}
+         │ 						                                       ^^^
+    2624 │ 						onResetFlow={handleResetFlow}
+    2625 │ 						onNavigateToTokenManagement={navigateToTokenManagement}
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/OAuthImplicitFlowV5.tsx:1251:46 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    1249 │ 						flowVersion="V5"
+    1250 │ 						tokens={controller.tokens as any}
+  > 1251 │ 						credentials={controller.credentials as any}
+         │ 						                                       ^^^
+    1252 │ 						onResetFlow={handleResetFlow}
+    1253 │ 						onNavigateToTokenManagement={navigateToTokenManagement}
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/OAuthImplicitFlowV5.tsx:1250:36 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    1248 │ 						flowName="OAuth 2.0 Implicit Flow"
+    1249 │ 						flowVersion="V5"
+  > 1250 │ 						tokens={controller.tokens as any}
+         │ 						                             ^^^
+    1251 │ 						credentials={controller.credentials as any}
+    1252 │ 						onResetFlow={handleResetFlow}
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/OIDCAuthorizationCodeFlowV5_New.tsx:1206:23 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    1204 │ 			const tokenAuthMethod = credentials.clientAuthMethod || 'client_secret_post';
+    1205 │ 
+  > 1206 │ 			const requestBody: any = {
+         │ 			                   ^^^
+    1207 │ 				token: token,
+    1208 │ 				client_id: credentials.clientId,
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/OIDCAuthorizationCodeFlowV5_New.tsx:1221:35 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    1219 │ 					const authResult = await applyClientAuthentication(
+    1220 │ 						{
+  > 1221 │ 							method: tokenAuthMethod as any,
+         │ 							                           ^^^
+    1222 │ 							clientId: credentials.clientId,
+    1223 │ 							clientSecret:
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/OIDCAuthorizationCodeFlowV5_New.tsx:2635:36 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    2633 │ 						flowName="OpenID Connect Authorization Code Flow"
+    2634 │ 						flowVersion="V5.1"
+  > 2635 │ 						tokens={controller.tokens as any}
+         │ 						                             ^^^
+    2636 │ 						credentials={controller.credentials as any}
+    2637 │ 						userInfo={userInfo}
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/OIDCAuthorizationCodeFlowV5_New.tsx:2636:46 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    2634 │ 						flowVersion="V5.1"
+    2635 │ 						tokens={controller.tokens as any}
+  > 2636 │ 						credentials={controller.credentials as any}
+         │ 						                                       ^^^
+    2637 │ 						userInfo={userInfo}
+    2638 │ 						onFetchUserInfo={handleFetchUserInfo}
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/OIDCAuthorizationCodeFlowV5_New.tsx:2668:36 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    2666 │ 						flowName="OpenID Connect Authorization Code Flow"
+    2667 │ 						flowVersion="V5.1"
+  > 2668 │ 						tokens={controller.tokens as any}
+         │ 						                             ^^^
+    2669 │ 						credentials={controller.credentials as any}
+    2670 │ 						userInfo={userInfo}
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/OIDCAuthorizationCodeFlowV5_New.tsx:2669:46 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    2667 │ 						flowVersion="V5.1"
+    2668 │ 						tokens={controller.tokens as any}
+  > 2669 │ 						credentials={controller.credentials as any}
+         │ 						                                       ^^^
+    2670 │ 						userInfo={userInfo}
+    2671 │ 						onFetchUserInfo={handleFetchUserInfo}
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/OIDCDeviceAuthorizationFlowV5.tsx:576:43 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    574 │ 	});
+    575 │ 	const [_copiedField, setCopiedField] = useState<string | null>(null);
+  > 576 │ 	const [userInfo, setUserInfo] = useState<any>(null);
+        │ 	                                         ^^^
+    577 │ 	const [introspectionResult, setIntrospectionResult] = useState<any>(null);
+    578 │ 
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/OIDCDeviceAuthorizationFlowV5.tsx:577:65 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    575 │ 	const [_copiedField, setCopiedField] = useState<string | null>(null);
+    576 │ 	const [userInfo, setUserInfo] = useState<any>(null);
+  > 577 │ 	const [introspectionResult, setIntrospectionResult] = useState<any>(null);
+        │ 	                                                               ^^^
+    578 │ 
+    579 │ 	const toggleSection = useCallback((section: SectionKey) => {
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/OIDCHybridFlowV5.tsx:29:35 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    28 │ const log = {
+  > 29 │ 	info: (message: string, ...args: any[]) => {
+       │ 	                                 ^^^
+    30 │ 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
+    31 │ 		console.log(`${timestamp} ${LOG_PREFIX} [INFO]`, message, ...args);
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/OIDCHybridFlowV5.tsx:33:38 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    31 │ 		console.log(`${timestamp} ${LOG_PREFIX} [INFO]`, message, ...args);
+    32 │ 	},
+  > 33 │ 	success: (message: string, ...args: any[]) => {
+       │ 	                                    ^^^
+    34 │ 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
+    35 │ 		console.log(`${timestamp} ${LOG_PREFIX} [SUCCESS]`, message, ...args);
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/OIDCHybridFlowV5.tsx:37:36 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    35 │ 		console.log(`${timestamp} ${LOG_PREFIX} [SUCCESS]`, message, ...args);
+    36 │ 	},
+  > 37 │ 	error: (message: string, ...args: any[]) => {
+       │ 	                                  ^^^
+    38 │ 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
+    39 │ 		console.error(`${timestamp} ${LOG_PREFIX} [ERROR]`, message, ...args);
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/OIDCHybridFlowV5.tsx:365:17 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    363 │ 			log.info('Redirecting to authorization URL');
+    364 │ 			window.location.href = authUrl;
+  > 365 │ 		} catch (err: any) {
+        │ 		              ^^^
+    366 │ 			v4ToastManager.showError(err.message || 'Failed to generate authorization URL');
+    367 │ 		}
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/OIDCHybridFlowV5.tsx:379:18 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    377 │ 			await hybridFlow.exchangeCodeForTokens(hybridFlow.tokens.code);
+    378 │ 			setCurrentStep(5); // Move to tokens received
+  > 379 │ 		} catch (_err: any) {
+        │ 		               ^^^
+    380 │ 			// Error already handled in hook
+    381 │ 		}
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/OIDCHybridFlowV5.tsx:555:87 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    553 │ 					<FormGroup>
+    554 │ 						<Label>Response Type</Label>
+  > 555 │ 						<Select value={responseType} onChange={(e) => setResponseType(e.target.value as any)}>
+        │ 						                                                                                ^^^
+    556 │ 							<option value="code id_token">code id_token</option>
+    557 │ 							<option value="code token">code token</option>
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/OIDCImplicitFlowV5_Full.tsx:1284:36 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    1282 │ 						flowName="OpenID Connect Implicit Flow"
+    1283 │ 						flowVersion="V5"
+  > 1284 │ 						tokens={controller.tokens as any}
+         │ 						                             ^^^
+    1285 │ 						credentials={controller.credentials as any}
+    1286 │ 						userInfo={userInfo}
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/OIDCImplicitFlowV5_Full.tsx:1285:46 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    1283 │ 						flowVersion="V5"
+    1284 │ 						tokens={controller.tokens as any}
+  > 1285 │ 						credentials={controller.credentials as any}
+         │ 						                                       ^^^
+    1286 │ 						userInfo={userInfo}
+    1287 │ 						onFetchUserInfo={handleFetchUserInfo}
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/PingOnePARFlowV5.tsx:489:18 lint/correctness/useExhaustiveDependencies ━━━━━━━━━━
+
+  ! generateRandomString changes on every re-render and should not be used as a hook dependency.
+  
+    487 │ 			setIsParLoading(false);
+    488 │ 		}
+  > 489 │ 	}, [controller, generateRandomString]);
+        │ 	                ^^^^^^^^^^^^^^^^^^^^
+    490 │ 
+    491 │ 	const handleGenerateAuthUrl = useCallback(async () => {
+  
+  i To fix this, wrap the definition of generateRandomString in its own useCallback() hook.
+  
+
+src/pages/flows/RedirectlessFlowV5.tsx:497:59 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    495 │ 	});
+    496 │ 
+  > 497 │ 	const [mockFlowResponse, setMockFlowResponse] = useState<any>(null);
+        │ 	                                                         ^^^
+    498 │ 	const [mockTokenResponse, setMockTokenResponse] = useState<any>(null);
+    499 │ 	const [copiedField, setCopiedField] = useState<string | null>(null);
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/RedirectlessFlowV5.tsx:498:61 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    497 │ 	const [mockFlowResponse, setMockFlowResponse] = useState<any>(null);
+  > 498 │ 	const [mockTokenResponse, setMockTokenResponse] = useState<any>(null);
+        │ 	                                                           ^^^
+    499 │ 	const [copiedField, setCopiedField] = useState<string | null>(null);
+    500 │ 
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/RedirectlessFlowV5_Mock.tsx:495:59 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    493 │ 	});
+    494 │ 
+  > 495 │ 	const [mockFlowResponse, setMockFlowResponse] = useState<any>(null);
+        │ 	                                                         ^^^
+    496 │ 	const [mockTokenResponse, setMockTokenResponse] = useState<any>(null);
+    497 │ 	const [copiedField, setCopiedField] = useState<string | null>(null);
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/RedirectlessFlowV5_Mock.tsx:496:61 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    495 │ 	const [mockFlowResponse, setMockFlowResponse] = useState<any>(null);
+  > 496 │ 	const [mockTokenResponse, setMockTokenResponse] = useState<any>(null);
+        │ 	                                                           ^^^
+    497 │ 	const [copiedField, setCopiedField] = useState<string | null>(null);
+    498 │ 
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/RedirectlessFlowV5_Real.tsx:737:47 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    735 │ 	const [copiedField, setCopiedField] = useState<string | null>(null);
+    736 │ 	const [_isFetchingUserInfo, setIsFetchingUserInfo] = useState(false);
+  > 737 │ 	const [flowObject, setFlowObject] = useState<any>(null);
+        │ 	                                             ^^^
+    738 │ 	const [flowStep, setFlowStep] = useState<string>('');
+    739 │ 	const [flowTokens, setFlowTokens] = useState<any>(null);
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/RedirectlessFlowV5_Real.tsx:739:47 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    737 │ 	const [flowObject, setFlowObject] = useState<any>(null);
+    738 │ 	const [flowStep, setFlowStep] = useState<string>('');
+  > 739 │ 	const [flowTokens, setFlowTokens] = useState<any>(null);
+        │ 	                                             ^^^
+    740 │ 	const [authUsername, setAuthUsername] = useState<string>('');
+    741 │ 	const [authPassword, setAuthPassword] = useState<string>('');
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/RedirectlessFlowV5_Real.tsx:1120:20 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    1118 │ 			if (!response.ok) {
+    1119 │ 				const errorText = await response.text();
+  > 1120 │ 				let errorData: any = {};
+         │ 				               ^^^
+    1121 │ 				try {
+    1122 │ 					errorData = JSON.parse(errorText);
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/RedirectlessFlowV5_Real.tsx:3511:36 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    3509 │ 						flowName="OpenID Connect Authorization Code Flow"
+    3510 │ 						flowVersion="V5.1"
+  > 3511 │ 						tokens={controller.tokens as any}
+         │ 						                             ^^^
+    3512 │ 						credentials={controller.credentials as any}
+    3513 │ 						userInfo={userInfo}
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/RedirectlessFlowV5_Real.tsx:3512:46 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    3510 │ 						flowVersion="V5.1"
+    3511 │ 						tokens={controller.tokens as any}
+  > 3512 │ 						credentials={controller.credentials as any}
+         │ 						                                       ^^^
+    3513 │ 						userInfo={userInfo}
+    3514 │ 						onFetchUserInfo={handleFetchUserInfo}
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/RedirectlessFlowV5_Real.tsx:3544:36 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    3542 │ 						flowName="OpenID Connect Authorization Code Flow"
+    3543 │ 						flowVersion="V5.1"
+  > 3544 │ 						tokens={controller.tokens as any}
+         │ 						                             ^^^
+    3545 │ 						credentials={controller.credentials as any}
+    3546 │ 						userInfo={userInfo}
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/pages/flows/RedirectlessFlowV5_Real.tsx:3545:46 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    3543 │ 						flowVersion="V5.1"
+    3544 │ 						tokens={controller.tokens as any}
+  > 3545 │ 						credentials={controller.credentials as any}
+         │ 						                                       ^^^
+    3546 │ 						userInfo={userInfo}
+    3547 │ 						onFetchUserInfo={handleFetchUserInfo}
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src/hooks/useDeviceAuthorizationFlow.ts format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+     47  47 │   	timeRemaining: number;
+     48  48 │   	credentials: DeviceAuthCredentials | null;
+     49     │ - → 
+         49 │ + 
+     50  50 │   	// Actions
+     51  51 │   	setCredentials: (creds: DeviceAuthCredentials) => void;
+    ······· │ 
+     54  54 │   	stopPolling: () => void;
+     55  55 │   	reset: () => void;
+     56     │ - → 
+         56 │ + 
+     57  57 │   	// Utilities
+     58  58 │   	formatTimeRemaining: (ms: number) => string;
+    ······· │ 
+     76  76 │   	const [timeRemaining, setTimeRemaining] = useState<number>(0);
+     77  77 │   	const [credentials, setCredentialsState] = useState<DeviceAuthCredentials | null>(null);
+     78     │ - → 
+         78 │ + 
+     79  79 │   	// Wrapper to persist credentials to localStorage
+     80  80 │   	const setCredentials = useCallback((creds: DeviceAuthCredentials) => {
+    ······· │ 
+     87  87 │   		}
+     88  88 │   	}, []);
+     89     │ - → 
+         89 │ + 
+     90  90 │   	const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+     91  91 │   	const pollingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    ······· │ 
+    118 118 │   			if (remaining === 0) {
+    119 119 │   				console.log(`${LOG_PREFIX} [WARN] Device code expired`);
+    120     │ - → → → → setPollingStatus(prev·=>·({
+        120 │ + → → → → setPollingStatus((prev)·=>·({
+    121 121 │   					...prev,
+    122 122 │   					isPolling: false,
+    ······· │ 
+    153 153 │   		try {
+    154 154 │   			const deviceAuthEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/device_authorization`;
+    155     │ - → → → 
+        155 │ + 
+    156 156 │   			const params = new URLSearchParams({
+    157 157 │   				client_id: credentials.clientId,
+    ······· │ 
+    178 178 │   					errorData = { message: errorText };
+    179 179 │   				}
+    180     │ - → → → → 
+        180 │ + 
+    181 181 │   				console.error(`${LOG_PREFIX} [ERROR] Device code request failed:`, {
+    182 182 │   					status: response.status,
+    ······· │ 
+    184 184 │   					error: errorData,
+    185 185 │   				});
+    186     │ - → → → → 
+    187     │ - → → → → throw·new·Error(errorData.error_description·||·errorData.message·||·`Request·failed:·${response.status}`);
+        186 │ + 
+        187 │ + → → → → throw·new·Error(
+        188 │ + → → → → → errorData.error_description·||·errorData.message·||·`Request·failed:·${response.status}`
+        189 │ + → → → → );
+    188 190 │   			}
+    189 191 │   
+    190 192 │   			const data: DeviceCodeResponse = await response.json();
+    191     │ - → → → 
+        193 │ + 
+    192 194 │   			// Mask sensitive data in logs
+    193 195 │   			console.log(`${LOG_PREFIX} [INFO] Device code received:`, {
+    ······· │ 
+    197 199 │   				expires_in: data.expires_in,
+    198 200 │   				interval: data.interval,
+    199     │ - → → → → device_code:·`${data.device_code.substring(0,·10)}...`·//·Masked
+        201 │ + → → → → device_code:·`${data.device_code.substring(0,·10)}...`,·//·Masked
+    200 202 │   			});
+    201 203 │   
+    202 204 │   			setDeviceCodeData(data);
+    203     │ - → → → setExpiresAt(Date.now()·+·(data.expires_in·*·1000));
+    204     │ - → → → 
+        205 │ + → → → setExpiresAt(Date.now()·+·data.expires_in·*·1000);
+        206 │ + 
+    205 207 │   			const maxAttempts = Math.floor(data.expires_in / data.interval);
+    206     │ - → → → setPollingStatus(prev·=>·({
+        208 │ + → → → setPollingStatus((prev)·=>·({
+    207 209 │   				...prev,
+    208 210 │   				maxAttempts,
+    ······· │ 
+    210 212 │   				error: null,
+    211 213 │   			}));
+    212     │ - → → → 
+        214 │ + 
+    213 215 │   			v4ToastManager.showSuccess('Device code received! Display the user code to the user.');
+    214 216 │   		} catch (error) {
+    ······· │ 
+    229 231 │   
+    230 232 │   		const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+    231     │ - → → 
+    232     │ - → → setPollingStatus(prev·=>·({
+        233 │ + 
+        234 │ + → → setPollingStatus((prev)·=>·({
+    233 235 │   			...prev,
+    234 236 │   			attempts: prev.attempts + 1,
+    ······· │ 
+    237 239 │   
+    238 240 │   		const currentAttempt = pollingStatus.attempts + 1;
+    239     │ - → → console.log(`${LOG_PREFIX}·[INFO]·Polling·attempt·${currentAttempt}/${pollingStatus.maxAttempts}`);
+        241 │ + → → console.log(
+        242 │ + → → → `${LOG_PREFIX}·[INFO]·Polling·attempt·${currentAttempt}/${pollingStatus.maxAttempts}`
+        243 │ + → → );
+    240 244 │   
+    241 245 │   		try {
+    ······· │ 
+    269 273 │   				console.log(`${LOG_PREFIX} [INFO] Has refresh token: ${!!data.refresh_token}`);
+    270 274 │   				console.log(`${LOG_PREFIX} [INFO] Has ID token: ${!!data.id_token}`);
+    271     │ - → → → → 
+        275 │ + 
+    272 276 │   				setTokens(data);
+    273     │ - → → → → setPollingStatus(prev·=>·({
+        277 │ + → → → → setPollingStatus((prev)·=>·({
+    274 278 │   					...prev,
+    275 279 │   					isPolling: false,
+    ······· │ 
+    277 281 │   					error: null,
+    278 282 │   				}));
+    279     │ - → → → → 
+        283 │ + 
+    280 284 │   				// Store tokens in localStorage for cross-tab access
+    281 285 │   				try {
+    282     │ - → → → → → localStorage.setItem('device_flow_tokens',·JSON.stringify({
+    283     │ - → → → → → → ...data,
+    284     │ - → → → → → → timestamp:·Date.now(),
+    285     │ - → → → → → }));
+        286 │ + → → → → → localStorage.setItem(
+        287 │ + → → → → → → 'device_flow_tokens',
+        288 │ + → → → → → → JSON.stringify({
+        289 │ + → → → → → → → ...data,
+        290 │ + → → → → → → → timestamp:·Date.now(),
+        291 │ + → → → → → → })
+        292 │ + → → → → → );
+    286 293 │   					console.log(`${LOG_PREFIX} [INFO] Tokens stored in localStorage`);
+    287 294 │   				} catch (e) {
+    288 295 │   					console.warn(`${LOG_PREFIX} [WARN] Failed to store tokens in localStorage:`, e);
+    289 296 │   				}
+    290     │ - → → → → 
+        297 │ + 
+    291 298 │   				v4ToastManager.showSuccess('Authorization complete! Tokens received.');
+    292 299 │   				return true;
+    ······· │ 
+    303 310 │   			} else if (data.error === 'access_denied') {
+    304 311 │   				console.log(`${LOG_PREFIX} [ERROR] Access denied by user`);
+    305     │ - → → → → setPollingStatus(prev·=>·({
+        312 │ + → → → → setPollingStatus((prev)·=>·({
+    306 313 │   					...prev,
+    307 314 │   					isPolling: false,
+    ······· │ 
+    313 320 │   			} else if (data.error === 'expired_token') {
+    314 321 │   				console.log(`${LOG_PREFIX} [ERROR] Device code expired`);
+    315     │ - → → → → setPollingStatus(prev·=>·({
+        322 │ + → → → → setPollingStatus((prev)·=>·({
+    316 323 │   					...prev,
+    317 324 │   					isPolling: false,
+    ······· │ 
+    323 330 │   			} else {
+    324 331 │   				console.error(`${LOG_PREFIX} [ERROR] Unknown error during polling:`, data.error);
+    325     │ - → → → → setPollingStatus(prev·=>·({
+        332 │ + → → → → setPollingStatus((prev)·=>·({
+    326 333 │   					...prev,
+    327 334 │   					isPolling: false,
+    ······· │ 
+    334 341 │   		} catch (error) {
+    335 342 │   			console.error(`${LOG_PREFIX} [ERROR] Polling request failed:`, error);
+    336     │ - → → → setPollingStatus(prev·=>·({
+  61 more lines truncated
+  
+
+src/hooks/useDeviceAuthorizationFlow.ts:3:1 assist/source/organizeImports  FIXABLE  ━━━━━━━━━━
+
+  × The imports and exports are not sorted.
+  
+    1 │ // src/hooks/useDeviceAuthorizationFlow.ts
+    2 │ // Device Authorization Flow state management and logic
+  > 3 │ import { useState, useCallback, useRef, useEffect } from 'react';
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    4 │ import { v4ToastManager } from '../utils/v4ToastMessages';
+    5 │ 
+  
+  i Safe fix: Organize Imports (Biome)
+  
+      1   1 │   // src/hooks/useDeviceAuthorizationFlow.ts
+      2   2 │   // Device Authorization Flow state management and logic
+      3     │ - import·{·useState,·useCallback,·useRef,·useEffect·}·from·'react';
+          3 │ + import·{·useCallback,·useEffect,·useRef,·useState·}·from·'react';
+      4   4 │   import { v4ToastManager } from '../utils/v4ToastMessages';
+      5   5 │   
+  
+
+src/pages/flows/DeviceAuthorizationFlowV5.tsx:1237:10 lint/a11y/noLabelWithoutControl ━━━━━━━━━━
+
+  × A form label must be associated with an input.
+  
+    1235 │ 								</div>
+    1236 │ 								<div style={{ marginBottom: '1rem' }}>
+  > 1237 │ 									<label
+         │ 									^^^^^^
+  > 1238 │ 										style={{
+          ...
+  > 1245 │ 										Scopes
+  > 1246 │ 									</label>
+         │ 									^^^^^^^^
+    1247 │ 									<input
+    1248 │ 										type="text"
+  
+  i Consider adding a `for` or `htmlFor` attribute to the label element or moving the input element to inside the label element.
+  
+
+src/pages/flows/DeviceAuthorizationFlowV5.tsx:1187:10 lint/a11y/noLabelWithoutControl ━━━━━━━━━━
+
+  × A form label must be associated with an input.
+  
+    1185 │ 							<div style={{ marginTop: '1.5rem' }}>
+    1186 │ 								<div style={{ marginBottom: '1rem' }}>
+  > 1187 │ 									<label
+         │ 									^^^^^^
+  > 1188 │ 										style={{
+          ...
+  > 1195 │ 										Environment ID
+  > 1196 │ 									</label>
+         │ 									^^^^^^^^
+    1197 │ 									<input
+    1198 │ 										type="text"
+  
+  i Consider adding a `for` or `htmlFor` attribute to the label element or moving the input element to inside the label element.
+  
+
+src/pages/flows/DeviceAuthorizationFlowV5.tsx:1212:10 lint/a11y/noLabelWithoutControl ━━━━━━━━━━
+
+  × A form label must be associated with an input.
+  
+    1210 │ 								</div>
+    1211 │ 								<div style={{ marginBottom: '1rem' }}>
+  > 1212 │ 									<label
+         │ 									^^^^^^
+  > 1213 │ 										style={{
+          ...
+  > 1220 │ 										Client ID
+  > 1221 │ 									</label>
+         │ 									^^^^^^^^
+    1222 │ 									<input
+    1223 │ 										type="text"
+  
+  i Consider adding a `for` or `htmlFor` attribute to the label element or moving the input element to inside the label element.
+  
+
+src/pages/flows/OIDCDeviceAuthorizationFlowV5.tsx:843:10 lint/a11y/noLabelWithoutControl ━━━━━━━━━━
+
+  × A form label must be associated with an input.
+  
+    841 │ 							<div style={{ marginTop: '1.5rem' }}>
+    842 │ 								<div style={{ marginBottom: '1rem' }}>
+  > 843 │ 									<label
+        │ 									^^^^^^
+  > 844 │ 										style={{
+         ...
+  > 851 │ 										Environment ID
+  > 852 │ 									</label>
+        │ 									^^^^^^^^
+    853 │ 									<input
+    854 │ 										type="text"
+  
+  i Consider adding a `for` or `htmlFor` attribute to the label element or moving the input element to inside the label element.
+  
+
+src/pages/flows/OIDCDeviceAuthorizationFlowV5.tsx:868:10 lint/a11y/noLabelWithoutControl ━━━━━━━━━━
+
+  × A form label must be associated with an input.
+  
+    866 │ 								</div>
+    867 │ 								<div style={{ marginBottom: '1rem' }}>
+  > 868 │ 									<label
+        │ 									^^^^^^
+  > 869 │ 										style={{
+         ...
+  > 876 │ 										Client ID
+  > 877 │ 									</label>
+        │ 									^^^^^^^^
+    878 │ 									<input
+    879 │ 										type="text"
+  
+  i Consider adding a `for` or `htmlFor` attribute to the label element or moving the input element to inside the label element.
+  
+
+src/pages/flows/OIDCDeviceAuthorizationFlowV5.tsx:893:10 lint/a11y/noLabelWithoutControl ━━━━━━━━━━
+
+  × A form label must be associated with an input.
+  
+    891 │ 								</div>
+    892 │ 								<div style={{ marginBottom: '1rem' }}>
+  > 893 │ 									<label
+        │ 									^^^^^^
+  > 894 │ 										style={{
+         ...
+  > 901 │ 										Scopes
+  > 902 │ 									</label>
+        │ 									^^^^^^^^
+    903 │ 									<input
+    904 │ 										type="text"
+  
+  i Consider adding a `for` or `htmlFor` attribute to the label element or moving the input element to inside the label element.
+  
+
+src/pages/flows/RedirectlessFlowV5_Real.tsx:1152:15 lint/suspicious/noDuplicateElseIf ━━━━━━━━━━
+
+  × This branch can never execute. Its condition is a duplicate or covered by previous conditions in the if-else-if chain.
+  
+    1150 │ 				v4ToastManager.showSuccess('Authentication successful! Tokens received.');
+    1151 │ 				console.log('🎉 [RedirectlessFlowV5Real] Tokens received:', tokens);
+  > 1152 │ 			} else if (result.status === 'COMPLETED' && result._embedded?.tokens) {
+         │ 			           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    1153 │ 				setFlowTokens(result._embedded.tokens);
+    1154 │ 				v4ToastManager.showSuccess('Flow completed! Tokens received.');
+  
+
+src/pages/flows/RedirectlessFlowV5_Real.tsx:3493:9 lint/suspicious/noDuplicateCase ━━━━━━━━━━
+
+  × Duplicate case label.
+  
+    3491 │ 				);
+    3492 │ 
+  > 3493 │ 			case 5:
+         │ 			     ^
+    3494 │ 				return (
+    3495 │ 					<UserInformationStep
+  
+  i The first similar label is here:
+  
+    3243 │ 				);
+    3244 │ 
+  > 3245 │ 			case 5:
+         │ 			     ^
+    3246 │ 				// Step 5: Token Exchange (Standard OAuth)
+    3247 │ 				return (
+  
+
+src/pages/flows/RedirectlessFlowV5_Real.tsx:2839:16 lint/correctness/useUniqueElementIds ━━━━━━━━━━
+
+  × id attribute should not be a static string literal. Generate unique IDs using useId().
+  
+    2837 │ 																Username
+    2838 │ 															</label>
+  > 2839 │ 															<input
+         │ 															^^^^^^
+  > 2840 │ 																id="auth-username"
+          ...
+  > 2853 │ 																}}
+  > 2854 │ 															/>
+         │ 															^^
+    2855 │ 														</div>
+    2856 │ 														<div style={{ marginBottom: '1rem' }}>
+  
+  i In React, if you hardcode IDs and use the component multiple times, it can lead to duplicate IDs in the DOM. Instead, generate unique IDs using useId().
+  
+
+src/pages/flows/RedirectlessFlowV5_Real.tsx:2869:16 lint/correctness/useUniqueElementIds ━━━━━━━━━━
+
+  × id attribute should not be a static string literal. Generate unique IDs using useId().
+  
+    2867 │ 																Password
+    2868 │ 															</label>
+  > 2869 │ 															<input
+         │ 															^^^^^^
+  > 2870 │ 																id="auth-password"
+          ...
+  > 2883 │ 																}}
+  > 2884 │ 															/>
+         │ 															^^
+    2885 │ 														</div>
+    2886 │ 														<button
+  
+  i In React, if you hardcode IDs and use the component multiple times, it can lead to duplicate IDs in the DOM. Instead, generate unique IDs using useId().
+  
+
+Checked 19 files in 62ms. No fixes applied.
+Found 12 errors.
+Found 43 warnings.
+check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while running checks.
+  
+
