@@ -609,13 +609,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						>
 							OIDC Hybrid V3
 						</SubmenuItem>
-						<SubmenuItem
+						{/* OIDC Client Credentials V3 hidden - Client Credentials is OAuth 2.0 only, not OIDC */}
+						{/* <SubmenuItem
 							to="/flows/oidc-client-credentials-v3"
 							onClick={onClose}
 							$isActive={isActiveRoute('/flows/oidc-client-credentials-v3')}
 						>
 							OIDC Client Credentials V3
-						</SubmenuItem>
+						</SubmenuItem> */}
 						{/* Old Hybrid Flow - Hidden */}
 						{/* <SubmenuItem to="/oidc/hybrid" onClick={onClose} $isActive={isActiveRoute('/oidc/hybrid')}>
               <FiCode />
