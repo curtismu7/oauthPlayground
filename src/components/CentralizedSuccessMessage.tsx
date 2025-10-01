@@ -9,11 +9,11 @@ import { FiCheckCircle, FiAlertCircle, FiX } from 'react-icons/fi';
  */
 
 interface MessageEntry {
-  id: string;
-  text: string;
-  isError?: boolean;
-  autoCloseMs?: number;
-  html?: string;
+	id: string;
+	text: string;
+	isError?: boolean;
+	autoCloseMs?: number;
+	html?: string;
 }
 
 // Global message state
@@ -22,58 +22,58 @@ let messageListeners: Array<(messages: MessageEntry[]) => void> = [];
 let hasPrimaryToastInstance = false;
 
 const escapeHtml = (value: string) =>
-  value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+	value
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#39;');
 
 const convertTextToHtml = (text: string) =>
-  text
-    .trim()
-    .split(/\n{2,}/)
-    .map(block => `<p>${escapeHtml(block).replace(/\n/g, '<br />')}</p>`)
-    .join('');
+	text
+		.trim()
+		.split(/\n{2,}/)
+		.map((block) => `<p>${escapeHtml(block).replace(/\n/g, '<br />')}</p>`)
+		.join('');
 
 const buildErrorHtml = (summary: string, details?: string) => {
-  const bodySource = details && details.trim().length > 0 ? details : summary;
-  return convertTextToHtml(bodySource);
+	const bodySource = details && details.trim().length > 0 ? details : summary;
+	return convertTextToHtml(bodySource);
 };
 
 const notifyListeners = () => {
-  messageListeners.forEach(listener => listener([...globalMessages]));
+	messageListeners.forEach((listener) => listener([...globalMessages]));
 };
 
 const addMessage = (message: Omit<MessageEntry, 'id'>) => {
-  const id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
-  const autoCloseMs = message.autoCloseMs ?? (message.isError ? 0 : 4000);
-  const fullMessage: MessageEntry = {
-    id,
-    ...message,
-    autoCloseMs
-  };
-  
-  globalMessages.push(fullMessage);
-  notifyListeners();
-  
-  // Auto-remove message
-  if (fullMessage.autoCloseMs > 0) {
-    setTimeout(() => {
-      removeMessage(id);
-    }, fullMessage.autoCloseMs);
-  }
+	const id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+	const autoCloseMs = message.autoCloseMs ?? (message.isError ? 0 : 4000);
+	const fullMessage: MessageEntry = {
+		id,
+		...message,
+		autoCloseMs,
+	};
+
+	globalMessages.push(fullMessage);
+	notifyListeners();
+
+	// Auto-remove message
+	if (fullMessage.autoCloseMs > 0) {
+		setTimeout(() => {
+			removeMessage(id);
+		}, fullMessage.autoCloseMs);
+	}
 };
 
 const removeMessage = (id: string) => {
-  globalMessages = globalMessages.filter(msg => msg.id !== id);
-  notifyListeners();
+	globalMessages = globalMessages.filter((msg) => msg.id !== id);
+	notifyListeners();
 };
 
 // Styled Components
 const ToastContainer = styled.div<{ $position: 'top' | 'bottom' }>`
   position: fixed;
-  ${props => props.$position === 'top' ? 'top: 20px;' : 'bottom: 20px;'}
+  ${(props) => (props.$position === 'top' ? 'top: 20px;' : 'bottom: 20px;')}
   left: 50%;
   transform: translateX(-50%);
   z-index: 10000;
@@ -84,27 +84,27 @@ const ToastContainer = styled.div<{ $position: 'top' | 'bottom' }>`
 `;
 
 const ToastMessage = styled.div<{ $isError?: boolean }>`
-  background: ${props => props.$isError 
-    ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
-    : 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-  };
+  background: ${(props) =>
+		props.$isError
+			? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
+			: 'linear-gradient(135deg, #10b981 0%, #059669 100%)'};
   color: white;
-  padding: ${props => props.$isError ? '16px 28px' : '12px 24px'};
+  padding: ${(props) => (props.$isError ? '16px 28px' : '12px 24px')};
   border-radius: 8px;
-  box-shadow: ${props => props.$isError
-    ? '0 6px 25px rgba(239, 68, 68, 0.6), 0 0 0 2px rgba(239, 68, 68, 0.2)'
-    : '0 4px 20px rgba(16, 185, 129, 0.4)'
-  };
+  box-shadow: ${(props) =>
+		props.$isError
+			? '0 6px 25px rgba(239, 68, 68, 0.6), 0 0 0 2px rgba(239, 68, 68, 0.2)'
+			: '0 4px 20px rgba(16, 185, 129, 0.4)'};
   display: flex;
   align-items: center;
   gap: 8px;
-  font-weight: ${props => props.$isError ? '600' : '500'};
-  font-size: ${props => props.$isError ? '15px' : '14px'};
-  max-width: ${props => props.$isError ? '600px' : '500px'};
-  animation: ${props => props.$isError ? 'errorSlideIn 0.4s ease-out' : 'slideIn 0.3s ease-out'};
+  font-weight: ${(props) => (props.$isError ? '600' : '500')};
+  font-size: ${(props) => (props.$isError ? '15px' : '14px')};
+  max-width: ${(props) => (props.$isError ? '600px' : '500px')};
+  animation: ${(props) => (props.$isError ? 'errorSlideIn 0.4s ease-out' : 'slideIn 0.3s ease-out')};
   pointer-events: auto;
   cursor: pointer;
-  border: ${props => props.$isError ? '2px solid rgba(255, 255, 255, 0.3)' : 'none'};
+  border: ${(props) => (props.$isError ? '2px solid rgba(255, 255, 255, 0.3)' : 'none')};
   
   @keyframes slideIn {
     from {
@@ -136,7 +136,9 @@ const ToastMessage = styled.div<{ $isError?: boolean }>`
     opacity: 0.9;
   }
   
-  ${props => props.$isError && `
+  ${(props) =>
+		props.$isError &&
+		`
     animation: errorSlideIn 0.4s ease-out, errorPulse 2s ease-in-out infinite;
     
     @keyframes errorPulse {
@@ -260,187 +262,212 @@ const CloseButton = styled.button`
 
 // Component Props
 export const CentralizedSuccessMessage: React.FC = () => {
-  const [messages, setMessages] = useState<MessageEntry[]>([]);
-  const [showModal, setShowModal] = useState(false);
-  const [modalContent, setModalContent] = useState<MessageEntry | null>(null);
+	const [messages, setMessages] = useState<MessageEntry[]>([]);
+	const [showModal, setShowModal] = useState(false);
+	const [modalContent, setModalContent] = useState<MessageEntry | null>(null);
 
-  // TODO: Current lint configuration produces global warnings unrelated to this component when running scoped lint.
-  // Once repository-wide lint debt is resolved, re-run lint specifically for this file to ensure compliance.
+	// TODO: Current lint configuration produces global warnings unrelated to this component when running scoped lint.
+	// Once repository-wide lint debt is resolved, re-run lint specifically for this file to ensure compliance.
 
-  useEffect(() => {
-    if (hasPrimaryToastInstance) {
-      console.warn('Multiple CentralizedSuccessMessage instances detected. Additional instances will be inactive.');
-      return;
-    }
+	useEffect(() => {
+		if (hasPrimaryToastInstance) {
+			console.warn(
+				'Multiple CentralizedSuccessMessage instances detected. Additional instances will be inactive.'
+			);
+			return;
+		}
 
-    hasPrimaryToastInstance = true;
+		hasPrimaryToastInstance = true;
 
-    const listener = (newMessages: MessageEntry[]) => {
-      setMessages(newMessages.filter(msg => !msg.isError));
+		const listener = (newMessages: MessageEntry[]) => {
+			setMessages(newMessages.filter((msg) => !msg.isError));
 
-      const latestError = newMessages.find(msg => msg.isError);
-      if (latestError) {
-        setModalContent(latestError);
-        setShowModal(true);
-      }
-    };
+			const latestError = newMessages.find((msg) => msg.isError);
+			if (latestError) {
+				setModalContent(latestError);
+				setShowModal(true);
+			}
+		};
 
-    messageListeners.push(listener);
+		messageListeners.push(listener);
 
-    return () => {
-      messageListeners = messageListeners.filter(l => l !== listener);
-      hasPrimaryToastInstance = false;
-    };
-  }, []);
+		return () => {
+			messageListeners = messageListeners.filter((l) => l !== listener);
+			hasPrimaryToastInstance = false;
+		};
+	}, []);
 
-  const handleCloseModal = () => {
-    if (modalContent) {
-      removeMessage(modalContent.id);
-    }
-    setModalContent(null);
-    setShowModal(false);
-  };
+	const handleCloseModal = () => {
+		if (modalContent) {
+			removeMessage(modalContent.id);
+		}
+		setModalContent(null);
+		setShowModal(false);
+	};
 
-  return (
-    <>
-      {messages.length > 0 && (
-        <ToastContainer $position="top">
-          {messages.map(message => (
-            <ToastMessage
-              key={message.id}
-              $isError={message.isError}
-              onClick={() => removeMessage(message.id)}
-            >
-              {message.isError ? <FiAlertCircle /> : <FiCheckCircle />}
-              <span>{message.text}</span>
-            </ToastMessage>
-          ))}
-        </ToastContainer>
-      )}
+	return (
+		<>
+			{messages.length > 0 && (
+				<ToastContainer $position="top">
+					{messages.map((message) => (
+						<ToastMessage
+							key={message.id}
+							$isError={message.isError}
+							onClick={() => removeMessage(message.id)}
+						>
+							{message.isError ? <FiAlertCircle /> : <FiCheckCircle />}
+							<span>{message.text}</span>
+						</ToastMessage>
+					))}
+				</ToastContainer>
+			)}
 
-      {showModal && modalContent && (
-        <ErrorOverlay>
-          <ErrorModal role="alertdialog" aria-modal="true" aria-labelledby={`error-modal-${modalContent.id}`}>
-            <ErrorHeader>
-              <ErrorIcon>
-                <FiAlertCircle size={24} />
-              </ErrorIcon>
-              <div>
-                <ErrorTitle id={`error-modal-${modalContent.id}`}>We hit an issue</ErrorTitle>
-                <p style={{ margin: '0.35rem 0 0', color: '#4b5563', fontSize: '0.95rem' }}>
-                  Something didnt go as planned. Review the details below to get back on track.
-                </p>
-              </div>
-            </ErrorHeader>
+			{showModal && modalContent && (
+				<ErrorOverlay>
+					<ErrorModal
+						role="alertdialog"
+						aria-modal="true"
+						aria-labelledby={`error-modal-${modalContent.id}`}
+					>
+						<ErrorHeader>
+							<ErrorIcon>
+								<FiAlertCircle size={24} />
+							</ErrorIcon>
+							<div>
+								<ErrorTitle id={`error-modal-${modalContent.id}`}>We hit an issue</ErrorTitle>
+								<p style={{ margin: '0.35rem 0 0', color: '#4b5563', fontSize: '0.95rem' }}>
+									Something didnt go as planned. Review the details below to get back on track.
+								</p>
+							</div>
+						</ErrorHeader>
 
-            <ErrorBody dangerouslySetInnerHTML={{ __html: modalContent.html || convertTextToHtml(modalContent.text) }} />
+						<ErrorBody
+							dangerouslySetInnerHTML={{
+								__html: modalContent.html || convertTextToHtml(modalContent.text),
+							}}
+						/>
 
-            <ModalActions>
-              <CloseButton type="button" onClick={handleCloseModal}>
-                <FiX size={18} />
-                Dismiss
-              </CloseButton>
-            </ModalActions>
-          </ErrorModal>
-        </ErrorOverlay>
-      )}
-    </>
-  );
+						<ModalActions>
+							<CloseButton type="button" onClick={handleCloseModal}>
+								<FiX size={18} />
+								Dismiss
+							</CloseButton>
+						</ModalActions>
+					</ErrorModal>
+				</ErrorOverlay>
+			)}
+		</>
+	);
 };
 
 // Generic helper functions
 export const showFlowSuccess = (text: string, subtitle?: string, autoCloseMs?: number) => {
-  const message = subtitle ? `${text}\n${subtitle}` : text;
-  addMessage({ text: message, isError: false, autoCloseMs });
+	const message = subtitle ? `${text}\n${subtitle}` : text;
+	addMessage({ text: message, isError: false, autoCloseMs });
 };
 
 export const showFlowError = (summary: string, details?: string) => {
-  const message = details ? `${summary}\n${details}` : summary;
-  addMessage({ text: summary, isError: true, html: buildErrorHtml(summary, details) });
+	const message = details ? `${summary}\n${details}` : summary;
+	addMessage({ text: summary, isError: true, html: buildErrorHtml(summary, details) });
 };
 
 export const showDetailedError = (summary: string, details?: string, durationMs?: number) => {
-  addMessage({
-    text: summary,
-    isError: true,
-    html: buildErrorHtml(summary, details),
-    autoCloseMs: durationMs || 0
-  });
+	addMessage({
+		text: summary,
+		isError: true,
+		html: buildErrorHtml(summary, details),
+		autoCloseMs: durationMs || 0,
+	});
 };
 
 // Authorization Flow specific functions
 export const showAuthorizationSuccess = () => {
-  addMessage({ text: ' Authorization successful! You have been redirected back from PingOne.', isError: false });
+	addMessage({
+		text: ' Authorization successful! You have been redirected back from PingOne.',
+		isError: false,
+	});
 };
 
 export const showCredentialsSaved = () => {
-  addMessage({ text: ' OAuth credentials saved successfully!', isError: false });
+	addMessage({ text: ' OAuth credentials saved successfully!', isError: false });
 };
 
 export const showPKCESuccess = () => {
-  addMessage({ text: ' PKCE codes generated successfully!', isError: false });
+	addMessage({ text: ' PKCE codes generated successfully!', isError: false });
 };
 
 export const showAuthUrlBuilt = () => {
-  addMessage({ text: ' Authorization URL built successfully!', isError: false });
+	addMessage({ text: ' Authorization URL built successfully!', isError: false });
 };
 
 export const showTokenExchangeSuccess = () => {
-  addMessage({ text: ' Tokens exchanged successfully!', isError: false });
+	addMessage({ text: ' Tokens exchanged successfully!', isError: false });
 };
 
 export const showUserInfoSuccess = () => {
-  addMessage({ text: ' User information retrieved successfully!', isError: false });
+	addMessage({ text: ' User information retrieved successfully!', isError: false });
 };
 
 // Error functions
 export const showCredentialsError = () => {
-  addMessage({ text: ' Failed to save OAuth credentials. Please check your inputs.', isError: true });
+	addMessage({
+		text: ' Failed to save OAuth credentials. Please check your inputs.',
+		isError: true,
+	});
 };
 
 export const showPKCEError = () => {
-  addMessage({ text: ' Failed to generate PKCE codes. Please try again.', isError: true });
+	addMessage({ text: ' Failed to generate PKCE codes. Please try again.', isError: true });
 };
 
 export const showAuthUrlError = () => {
-  addMessage({ text: ' Failed to build authorization URL. Please check your configuration.', isError: true });
+	addMessage({
+		text: ' Failed to build authorization URL. Please check your configuration.',
+		isError: true,
+	});
 };
 
 export const showTokenExchangeError = () => {
-  addMessage({ text: ' Token exchange failed. Please check your authorization code and try again.', isError: true });
+	addMessage({
+		text: ' Token exchange failed. Please check your authorization code and try again.',
+		isError: true,
+	});
 };
 
 export const showUserInfoError = () => {
-  addMessage({ text: ' Failed to retrieve user information. Please check your access token.', isError: true });
+	addMessage({
+		text: ' Failed to retrieve user information. Please check your access token.',
+		isError: true,
+	});
 };
 
 // Flow-specific success functions
 export const showClientCredentialsSuccess = () => {
-  addMessage({ text: ' Client Credentials flow completed successfully!', isError: false });
+	addMessage({ text: ' Client Credentials flow completed successfully!', isError: false });
 };
 
 export const showDeviceCodeSuccess = () => {
-  addMessage({ text: ' Device Code flow completed successfully!', isError: false });
+	addMessage({ text: ' Device Code flow completed successfully!', isError: false });
 };
 
 export const showImplicitFlowSuccess = () => {
-  addMessage({ text: ' Implicit flow completed successfully!', isError: false });
+	addMessage({ text: ' Implicit flow completed successfully!', isError: false });
 };
 
 export const showHybridFlowSuccess = () => {
-  addMessage({ text: ' Hybrid flow completed successfully!', isError: false });
+	addMessage({ text: ' Hybrid flow completed successfully!', isError: false });
 };
 
 export const showJWTBearerSuccess = () => {
-  addMessage({ text: ' JWT Bearer flow completed successfully!', isError: false });
+	addMessage({ text: ' JWT Bearer flow completed successfully!', isError: false });
 };
 
 export const showTokenRevocationSuccess = () => {
-  addMessage({ text: ' Token revocation completed successfully!', isError: false });
+	addMessage({ text: ' Token revocation completed successfully!', isError: false });
 };
 
 export const showTokenIntrospectionSuccess = () => {
-  addMessage({ text: ' Token introspection completed successfully!', isError: false });
+	addMessage({ text: ' Token introspection completed successfully!', isError: false });
 };
 
 export default CentralizedSuccessMessage;

@@ -54,8 +54,8 @@ const Tab = styled.button<{ $active: boolean }>`
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  border-bottom: 2px solid ${({ $active }) => $active ? '#3b82f6' : 'transparent'};
-  color: ${({ $active }) => $active ? '#3b82f6' : '#6b7280'};
+  border-bottom: 2px solid ${({ $active }) => ($active ? '#3b82f6' : 'transparent')};
+  color: ${({ $active }) => ($active ? '#3b82f6' : '#6b7280')};
   
   &:hover {
     color: #3b82f6;
@@ -78,15 +78,13 @@ const TutorialTitle = styled.h3`
 `;
 
 const TutorialStep = styled.div<{ $active: boolean; $completed: boolean }>`
-  border: 2px solid ${({ $active, $completed }) => 
-    $active ? '#3b82f6' : $completed ? '#22c55e' : '#e5e7eb'
-  };
+  border: 2px solid ${({ $active, $completed }) =>
+		$active ? '#3b82f6' : $completed ? '#22c55e' : '#e5e7eb'};
   border-radius: 0.5rem;
   padding: 1rem;
   margin-bottom: 1rem;
-  background: ${({ $active, $completed }) => 
-    $active ? '#eff6ff' : $completed ? '#f0fdf4' : 'white'
-  };
+  background: ${({ $active, $completed }) =>
+		$active ? '#eff6ff' : $completed ? '#f0fdf4' : 'white'};
   cursor: pointer;
   transition: all 0.2s;
   
@@ -121,23 +119,23 @@ const StepNumber = styled.div<{ $active: boolean; $completed: boolean }>`
   font-weight: 600;
   
   ${({ $active, $completed }) => {
-    if ($completed) {
-      return `
+		if ($completed) {
+			return `
         background-color: #22c55e;
         color: white;
       `;
-    } else if ($active) {
-      return `
+		} else if ($active) {
+			return `
         background-color: #3b82f6;
         color: white;
       `;
-    } else {
-      return `
+		} else {
+			return `
         background-color: #e5e7eb;
         color: #6b7280;
       `;
-    }
-  }}
+		}
+	}}
 `;
 
 const StepDescription = styled.p`
@@ -169,27 +167,27 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' }>`
   margin-bottom: 0.5rem;
   
   ${({ $variant }) => {
-    switch ($variant) {
-      case 'primary':
-        return `
+		switch ($variant) {
+			case 'primary':
+				return `
           background-color: #3b82f6;
           color: white;
           &:hover { background-color: #2563eb; }
         `;
-      case 'secondary':
-        return `
+			case 'secondary':
+				return `
           background-color: #6b7280;
           color: white;
           &:hover { background-color: #4b5563; }
         `;
-      case 'success':
-        return `
+			case 'success':
+				return `
           background-color: #10b981;
           color: white;
           &:hover { background-color: #059669; }
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const FAQItem = styled.div`
@@ -218,8 +216,8 @@ const FAQQuestion = styled.button`
 `;
 
 const FAQAnswer = styled.div<{ $expanded: boolean }>`
-  padding: ${({ $expanded }) => $expanded ? '1rem' : '0 1rem'};
-  max-height: ${({ $expanded }) => $expanded ? '200px' : '0'};
+  padding: ${({ $expanded }) => ($expanded ? '1rem' : '0 1rem')};
+  max-height: ${({ $expanded }) => ($expanded ? '200px' : '0')};
   overflow: hidden;
   transition: all 0.3s ease;
   background: white;
@@ -261,63 +259,63 @@ const TroubleshootingSolution = styled.div`
 `;
 
 interface TutorialStep {
-  id: string;
-  title: string;
-  description: string;
-  code?: string;
-  completed: boolean;
+	id: string;
+	title: string;
+	description: string;
+	code?: string;
+	completed: boolean;
 }
 
 interface FAQItem {
-  id: string;
-  question: string;
-  answer: string;
+	id: string;
+	question: string;
+	answer: string;
 }
 
 interface TroubleshootingItem {
-  id: string;
-  title: string;
-  description: string;
-  solution: string;
+	id: string;
+	title: string;
+	description: string;
+	solution: string;
 }
 
 const TUTORIALS = {
-  'authorization-code': {
-    title: 'Authorization Code Flow',
-    steps: [
-      {
-        id: 'step-1',
-        title: 'Configure Client Settings',
-        description: 'Set up your OAuth client with the correct redirect URI and scopes.',
-        code: `{
+	'authorization-code': {
+		title: 'Authorization Code Flow',
+		steps: [
+			{
+				id: 'step-1',
+				title: 'Configure Client Settings',
+				description: 'Set up your OAuth client with the correct redirect URI and scopes.',
+				code: `{
   "client_id": "your-client-id",
   "redirect_uri": "http://localhost:3000/callback",
   "scope": "openid profile email",
   "response_type": "code"
 }`,
-        completed: false
-      },
-      {
-        id: 'step-2',
-        title: 'Generate Authorization URL',
-        description: 'Create the authorization URL with PKCE parameters.',
-        code: `const authUrl = \`https://auth.pingone.com/your-environment-id/as/authorize?client_id=\${clientId}&redirect_uri=\${redirectUri}&response_type=code&scope=\${scope}&code_challenge=\${codeChallenge}&code_challenge_method=S256&state=\${state}\`;`,
-        completed: false
-      },
-      {
-        id: 'step-3',
-        title: 'Handle Authorization Response',
-        description: 'Process the authorization code from the callback.',
-        code: `const urlParams = new URLSearchParams(window.location.search);
+				completed: false,
+			},
+			{
+				id: 'step-2',
+				title: 'Generate Authorization URL',
+				description: 'Create the authorization URL with PKCE parameters.',
+				code: `const authUrl = \`https://auth.pingone.com/your-environment-id/as/authorize?client_id=\${clientId}&redirect_uri=\${redirectUri}&response_type=code&scope=\${scope}&code_challenge=\${codeChallenge}&code_challenge_method=S256&state=\${state}\`;`,
+				completed: false,
+			},
+			{
+				id: 'step-3',
+				title: 'Handle Authorization Response',
+				description: 'Process the authorization code from the callback.',
+				code: `const urlParams = new URLSearchParams(window.location.search);
 const code = urlParams.get('code');
 const state = urlParams.get('state');`,
-        completed: false
-      },
-      {
-        id: 'step-4',
-        title: 'Exchange Code for Tokens',
-        description: 'Exchange the authorization code for access and ID tokens.',
-        code: `const tokenResponse = await fetch('https://auth.pingone.com/your-environment-id/as/token', {
+				completed: false,
+			},
+			{
+				id: 'step-4',
+				title: 'Exchange Code for Tokens',
+				description: 'Exchange the authorization code for access and ID tokens.',
+				code: `const tokenResponse = await fetch('https://auth.pingone.com/your-environment-id/as/token', {
   method: 'POST',
   headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
   body: new URLSearchParams({
@@ -328,268 +326,282 @@ const state = urlParams.get('state');`,
     code_verifier: codeVerifier
   })
 });`,
-        completed: false
-      }
-    ]
-  },
-  'implicit-flow': {
-    title: 'Implicit Flow',
-    steps: [
-      {
-        id: 'step-1',
-        title: 'Configure Client Settings',
-        description: 'Set up your OAuth client for implicit flow.',
-        code: `{
+				completed: false,
+			},
+		],
+	},
+	'implicit-flow': {
+		title: 'Implicit Flow',
+		steps: [
+			{
+				id: 'step-1',
+				title: 'Configure Client Settings',
+				description: 'Set up your OAuth client for implicit flow.',
+				code: `{
   "client_id": "your-client-id",
   "redirect_uri": "http://localhost:3000/callback",
   "scope": "openid profile email",
   "response_type": "token id_token"
 }`,
-        completed: false
-      },
-      {
-        id: 'step-2',
-        title: 'Generate Authorization URL',
-        description: 'Create the authorization URL for implicit flow.',
-        code: `const authUrl = \`https://auth.pingone.com/your-environment-id/as/authorize?client_id=\${clientId}&redirect_uri=\${redirectUri}&response_type=token%20id_token&scope=\${scope}&state=\${state}&nonce=\${nonce}\`;`,
-        completed: false
-      },
-      {
-        id: 'step-3',
-        title: 'Handle Token Response',
-        description: 'Extract tokens from the URL fragment.',
-        code: `const hashParams = new URLSearchParams(window.location.hash.substring(1));
+				completed: false,
+			},
+			{
+				id: 'step-2',
+				title: 'Generate Authorization URL',
+				description: 'Create the authorization URL for implicit flow.',
+				code: `const authUrl = \`https://auth.pingone.com/your-environment-id/as/authorize?client_id=\${clientId}&redirect_uri=\${redirectUri}&response_type=token%20id_token&scope=\${scope}&state=\${state}&nonce=\${nonce}\`;`,
+				completed: false,
+			},
+			{
+				id: 'step-3',
+				title: 'Handle Token Response',
+				description: 'Extract tokens from the URL fragment.',
+				code: `const hashParams = new URLSearchParams(window.location.hash.substring(1));
 const accessToken = hashParams.get('access_token');
 const idToken = hashParams.get('id_token');
 const state = hashParams.get('state');`,
-        completed: false
-      }
-    ]
-  }
+				completed: false,
+			},
+		],
+	},
 };
 
 const FAQ_ITEMS: FAQItem[] = [
-  {
-    id: 'faq-1',
-    question: 'What is the difference between Authorization Code and Implicit flows?',
-    answer: 'Authorization Code flow is more secure as it exchanges an authorization code for tokens server-side, while Implicit flow returns tokens directly to the client. Authorization Code flow is recommended for most applications.'
-  },
-  {
-    id: 'faq-2',
-    question: 'How do I implement PKCE?',
-    answer: 'PKCE (Proof Key for Code Exchange) adds security to the Authorization Code flow by using a code verifier and code challenge. Generate a random code verifier, create a SHA256 hash (code challenge), and include both in your token exchange request.'
-  },
-  {
-    id: 'faq-3',
-    question: 'What scopes should I request?',
-    answer: 'Common scopes include "openid" for OpenID Connect, "profile" for user profile information, "email" for email address, and custom scopes for your application\'s specific needs. Only request the minimum scopes required.'
-  },
-  {
-    id: 'faq-4',
-    question: 'How do I handle token refresh?',
-    answer: 'Use the refresh_token to obtain new access tokens when they expire. Make a POST request to the token endpoint with grant_type=refresh_token and the refresh token.'
-  },
-  {
-    id: 'faq-5',
-    question: 'What is the state parameter for?',
-    answer: 'The state parameter helps prevent CSRF attacks by maintaining state between the request and callback. Generate a random value, store it, and verify it matches in the callback.'
-  }
+	{
+		id: 'faq-1',
+		question: 'What is the difference between Authorization Code and Implicit flows?',
+		answer:
+			'Authorization Code flow is more secure as it exchanges an authorization code for tokens server-side, while Implicit flow returns tokens directly to the client. Authorization Code flow is recommended for most applications.',
+	},
+	{
+		id: 'faq-2',
+		question: 'How do I implement PKCE?',
+		answer:
+			'PKCE (Proof Key for Code Exchange) adds security to the Authorization Code flow by using a code verifier and code challenge. Generate a random code verifier, create a SHA256 hash (code challenge), and include both in your token exchange request.',
+	},
+	{
+		id: 'faq-3',
+		question: 'What scopes should I request?',
+		answer:
+			'Common scopes include "openid" for OpenID Connect, "profile" for user profile information, "email" for email address, and custom scopes for your application\'s specific needs. Only request the minimum scopes required.',
+	},
+	{
+		id: 'faq-4',
+		question: 'How do I handle token refresh?',
+		answer:
+			'Use the refresh_token to obtain new access tokens when they expire. Make a POST request to the token endpoint with grant_type=refresh_token and the refresh token.',
+	},
+	{
+		id: 'faq-5',
+		question: 'What is the state parameter for?',
+		answer:
+			'The state parameter helps prevent CSRF attacks by maintaining state between the request and callback. Generate a random value, store it, and verify it matches in the callback.',
+	},
 ];
 
 const TROUBLESHOOTING_ITEMS: TroubleshootingItem[] = [
-  {
-    id: 'trouble-1',
-    title: 'Invalid redirect URI error',
-    description: 'The redirect URI in your request doesn\'t match the one configured in your OAuth client.',
-    solution: 'Ensure the redirect_uri parameter exactly matches the URI configured in your PingOne client settings, including the protocol (http vs https) and port.'
-  },
-  {
-    id: 'trouble-2',
-    title: 'Invalid client error',
-    description: 'The client_id or client_secret is incorrect or the client doesn\'t exist.',
-    solution: 'Verify your client_id and client_secret are correct in your PingOne environment. Check that the client is properly configured and active.'
-  },
-  {
-    id: 'trouble-3',
-    title: 'Token expired error',
-    description: 'The access token has expired and needs to be refreshed.',
-    solution: 'Use the refresh_token to obtain a new access token, or redirect the user through the authorization flow again if no refresh token is available.'
-  },
-  {
-    id: 'trouble-4',
-    title: 'Invalid scope error',
-    description: 'The requested scope is not allowed for this client or doesn\'t exist.',
-    solution: 'Check that the scope parameter contains only scopes that are configured for your client in PingOne. Remove any invalid or unauthorized scopes.'
-  },
-  {
-    id: 'trouble-5',
-    title: 'PKCE verification failed',
-    description: 'The code verifier doesn\'t match the code challenge used in the authorization request.',
-    solution: 'Ensure you\'re using the same code verifier that was used to generate the code challenge. The code verifier should be stored securely between the authorization and token requests.'
-  }
+	{
+		id: 'trouble-1',
+		title: 'Invalid redirect URI error',
+		description:
+			"The redirect URI in your request doesn't match the one configured in your OAuth client.",
+		solution:
+			'Ensure the redirect_uri parameter exactly matches the URI configured in your PingOne client settings, including the protocol (http vs https) and port.',
+	},
+	{
+		id: 'trouble-2',
+		title: 'Invalid client error',
+		description: "The client_id or client_secret is incorrect or the client doesn't exist.",
+		solution:
+			'Verify your client_id and client_secret are correct in your PingOne environment. Check that the client is properly configured and active.',
+	},
+	{
+		id: 'trouble-3',
+		title: 'Token expired error',
+		description: 'The access token has expired and needs to be refreshed.',
+		solution:
+			'Use the refresh_token to obtain a new access token, or redirect the user through the authorization flow again if no refresh token is available.',
+	},
+	{
+		id: 'trouble-4',
+		title: 'Invalid scope error',
+		description: "The requested scope is not allowed for this client or doesn't exist.",
+		solution:
+			'Check that the scope parameter contains only scopes that are configured for your client in PingOne. Remove any invalid or unauthorized scopes.',
+	},
+	{
+		id: 'trouble-5',
+		title: 'PKCE verification failed',
+		description:
+			"The code verifier doesn't match the code challenge used in the authorization request.",
+		solution:
+			"Ensure you're using the same code verifier that was used to generate the code challenge. The code verifier should be stored securely between the authorization and token requests.",
+	},
 ];
 
 const InteractiveHelpSystem: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'tutorials' | 'faq' | 'troubleshooting'>('tutorials');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTutorial, setSelectedTutorial] = useState<string>('authorization-code');
-  const [tutorialSteps, setTutorialSteps] = useState<TutorialStep[]>([]);
-  const [expandedFAQ, setExpandedFAQ] = useState<string | null>(null);
+	const [activeTab, setActiveTab] = useState<'tutorials' | 'faq' | 'troubleshooting'>('tutorials');
+	const [searchQuery, setSearchQuery] = useState('');
+	const [selectedTutorial, setSelectedTutorial] = useState<string>('authorization-code');
+	const [tutorialSteps, setTutorialSteps] = useState<TutorialStep[]>([]);
+	const [expandedFAQ, setExpandedFAQ] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (selectedTutorial && TUTORIALS[selectedTutorial as keyof typeof TUTORIALS]) {
-      setTutorialSteps(TUTORIALS[selectedTutorial as keyof typeof TUTORIALS].steps);
-    }
-  }, [selectedTutorial]);
+	useEffect(() => {
+		if (selectedTutorial && TUTORIALS[selectedTutorial as keyof typeof TUTORIALS]) {
+			setTutorialSteps(TUTORIALS[selectedTutorial as keyof typeof TUTORIALS].steps);
+		}
+	}, [selectedTutorial]);
 
-  const handleStepComplete = (stepId: string) => {
-    setTutorialSteps(prev => 
-      prev.map(step => 
-        step.id === stepId ? { ...step, completed: true } : step
-      )
-    );
-  };
+	const handleStepComplete = (stepId: string) => {
+		setTutorialSteps((prev) =>
+			prev.map((step) => (step.id === stepId ? { ...step, completed: true } : step))
+		);
+	};
 
-  const handleFAQToggle = (faqId: string) => {
-    setExpandedFAQ(expandedFAQ === faqId ? null : faqId);
-  };
+	const handleFAQToggle = (faqId: string) => {
+		setExpandedFAQ(expandedFAQ === faqId ? null : faqId);
+	};
 
-  const filteredFAQ = FAQ_ITEMS.filter(item => 
-    item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.answer.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+	const filteredFAQ = FAQ_ITEMS.filter(
+		(item) =>
+			item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			item.answer.toLowerCase().includes(searchQuery.toLowerCase())
+	);
 
-  const filteredTroubleshooting = TROUBLESHOOTING_ITEMS.filter(item =>
-    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.solution.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+	const filteredTroubleshooting = TROUBLESHOOTING_ITEMS.filter(
+		(item) =>
+			item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			item.solution.toLowerCase().includes(searchQuery.toLowerCase())
+	);
 
-  const renderTutorials = () => (
-    <div>
-      <div style={{ marginBottom: '1rem' }}>
-        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-          Select Tutorial:
-        </label>
-        <select
-          value={selectedTutorial}
-          onChange={(e) => setSelectedTutorial(e.target.value)}
-          style={{
-            width: '100%',
-            padding: '0.5rem',
-            border: '1px solid #d1d5db',
-            borderRadius: '0.375rem',
-            fontSize: '0.875rem'
-          }}
-        >
-          {Object.entries(TUTORIALS).map(([key, tutorial]) => (
-            <option key={key} value={key}>
-              {tutorial.title}
-            </option>
-          ))}
-        </select>
-      </div>
+	const renderTutorials = () => (
+		<div>
+			<div style={{ marginBottom: '1rem' }}>
+				<label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+					Select Tutorial:
+				</label>
+				<select
+					value={selectedTutorial}
+					onChange={(e) => setSelectedTutorial(e.target.value)}
+					style={{
+						width: '100%',
+						padding: '0.5rem',
+						border: '1px solid #d1d5db',
+						borderRadius: '0.375rem',
+						fontSize: '0.875rem',
+					}}
+				>
+					{Object.entries(TUTORIALS).map(([key, tutorial]) => (
+						<option key={key} value={key}>
+							{tutorial.title}
+						</option>
+					))}
+				</select>
+			</div>
 
-      <TutorialSection>
-        <TutorialTitle>
-          {TUTORIALS[selectedTutorial as keyof typeof TUTORIALS]?.title} Tutorial
-        </TutorialTitle>
-        
-        {tutorialSteps.map((step, index) => (
-          <TutorialStep
-            key={step.id}
-            $active={false}
-            $completed={step.completed}
-            onClick={() => handleStepComplete(step.id)}
-          >
-            <StepHeader>
-              <StepTitle>{step.title}</StepTitle>
-              <StepNumber $active={false} $completed={step.completed}>
-                {step.completed ? '' : index + 1}
-              </StepNumber>
-            </StepHeader>
-            <StepDescription>{step.description}</StepDescription>
-            {step.code && (
-              <CodeBlock>{step.code}</CodeBlock>
-            )}
-            {!step.completed && (
-              <Button $variant="success" onClick={(e) => {
-                e.stopPropagation();
-                handleStepComplete(step.id);
-              }}>
-                Mark as Complete
-              </Button>
-            )}
-          </TutorialStep>
-        ))}
-      </TutorialSection>
-    </div>
-  );
+			<TutorialSection>
+				<TutorialTitle>
+					{TUTORIALS[selectedTutorial as keyof typeof TUTORIALS]?.title} Tutorial
+				</TutorialTitle>
 
-  const renderFAQ = () => (
-    <div>
-      {filteredFAQ.map((item) => (
-        <FAQItem key={item.id}>
-          <FAQQuestion onClick={() => handleFAQToggle(item.id)}>
-            {item.question}
-            <span>{expandedFAQ === item.id ? '' : '+'}</span>
-          </FAQQuestion>
-          <FAQAnswer $expanded={expandedFAQ === item.id}>
-            {item.answer}
-          </FAQAnswer>
-        </FAQItem>
-      ))}
-    </div>
-  );
+				{tutorialSteps.map((step, index) => (
+					<TutorialStep
+						key={step.id}
+						$active={false}
+						$completed={step.completed}
+						onClick={() => handleStepComplete(step.id)}
+					>
+						<StepHeader>
+							<StepTitle>{step.title}</StepTitle>
+							<StepNumber $active={false} $completed={step.completed}>
+								{step.completed ? '' : index + 1}
+							</StepNumber>
+						</StepHeader>
+						<StepDescription>{step.description}</StepDescription>
+						{step.code && <CodeBlock>{step.code}</CodeBlock>}
+						{!step.completed && (
+							<Button
+								$variant="success"
+								onClick={(e) => {
+									e.stopPropagation();
+									handleStepComplete(step.id);
+								}}
+							>
+								Mark as Complete
+							</Button>
+						)}
+					</TutorialStep>
+				))}
+			</TutorialSection>
+		</div>
+	);
 
-  const renderTroubleshooting = () => (
-    <div>
-      {filteredTroubleshooting.map((item) => (
-        <TroubleshootingItem key={item.id}>
-          <TroubleshootingTitle>{item.title}</TroubleshootingTitle>
-          <TroubleshootingDescription>{item.description}</TroubleshootingDescription>
-          <TroubleshootingSolution>
-            <strong>Solution:</strong> {item.solution}
-          </TroubleshootingSolution>
-        </TroubleshootingItem>
-      ))}
-    </div>
-  );
+	const renderFAQ = () => (
+		<div>
+			{filteredFAQ.map((item) => (
+				<FAQItem key={item.id}>
+					<FAQQuestion onClick={() => handleFAQToggle(item.id)}>
+						{item.question}
+						<span>{expandedFAQ === item.id ? '' : '+'}</span>
+					</FAQQuestion>
+					<FAQAnswer $expanded={expandedFAQ === item.id}>{item.answer}</FAQAnswer>
+				</FAQItem>
+			))}
+		</div>
+	);
 
-  return (
-    <HelpContainer>
-      <HelpHeader>
-        <HelpTitle>Interactive Help System</HelpTitle>
-      </HelpHeader>
+	const renderTroubleshooting = () => (
+		<div>
+			{filteredTroubleshooting.map((item) => (
+				<TroubleshootingItem key={item.id}>
+					<TroubleshootingTitle>{item.title}</TroubleshootingTitle>
+					<TroubleshootingDescription>{item.description}</TroubleshootingDescription>
+					<TroubleshootingSolution>
+						<strong>Solution:</strong> {item.solution}
+					</TroubleshootingSolution>
+				</TroubleshootingItem>
+			))}
+		</div>
+	);
 
-      <SearchContainer>
-        <SearchInput
-          type="text"
-          placeholder="Search help topics..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </SearchContainer>
+	return (
+		<HelpContainer>
+			<HelpHeader>
+				<HelpTitle>Interactive Help System</HelpTitle>
+			</HelpHeader>
 
-      <TabContainer>
-        <Tab $active={activeTab === 'tutorials'} onClick={() => setActiveTab('tutorials')}>
-          Tutorials
-        </Tab>
-        <Tab $active={activeTab === 'faq'} onClick={() => setActiveTab('faq')}>
-          FAQ
-        </Tab>
-        <Tab $active={activeTab === 'troubleshooting'} onClick={() => setActiveTab('troubleshooting')}>
-          Troubleshooting
-        </Tab>
-      </TabContainer>
+			<SearchContainer>
+				<SearchInput
+					type="text"
+					placeholder="Search help topics..."
+					value={searchQuery}
+					onChange={(e) => setSearchQuery(e.target.value)}
+				/>
+			</SearchContainer>
 
-      <ContentArea>
-        {activeTab === 'tutorials' && renderTutorials()}
-        {activeTab === 'faq' && renderFAQ()}
-        {activeTab === 'troubleshooting' && renderTroubleshooting()}
-      </ContentArea>
-    </HelpContainer>
-  );
+			<TabContainer>
+				<Tab $active={activeTab === 'tutorials'} onClick={() => setActiveTab('tutorials')}>
+					Tutorials
+				</Tab>
+				<Tab $active={activeTab === 'faq'} onClick={() => setActiveTab('faq')}>
+					FAQ
+				</Tab>
+				<Tab
+					$active={activeTab === 'troubleshooting'}
+					onClick={() => setActiveTab('troubleshooting')}
+				>
+					Troubleshooting
+				</Tab>
+			</TabContainer>
+
+			<ContentArea>
+				{activeTab === 'tutorials' && renderTutorials()}
+				{activeTab === 'faq' && renderFAQ()}
+				{activeTab === 'troubleshooting' && renderTroubleshooting()}
+			</ContentArea>
+		</HelpContainer>
+	);
 };
 
 export default InteractiveHelpSystem;

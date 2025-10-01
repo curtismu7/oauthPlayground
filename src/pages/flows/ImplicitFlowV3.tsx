@@ -1,8 +1,8 @@
 // Implicit Flow V3 - OAuth 2.0 Implicit Grant (deprecated, for educational purposes)
 // Following Worker Token V3 patterns for consistency and code reuse
 
-import type React from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import type React from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -13,34 +13,30 @@ import {
 	FiRefreshCw,
 	FiSettings,
 	FiShield,
-} from "react-icons/fi";
-import styled from "styled-components";
-import CollapsibleSection from "../../components/CollapsibleSection";
-import ConfirmationModal from "../../components/ConfirmationModal";
-import { EnhancedStepFlowV2 } from "../../components/EnhancedStepFlowV2";
-import FlowIntro from "../../components/flow/FlowIntro";
-import type { FlowConfig } from "../../components/FlowConfiguration";
-import ImplicitSafetySummary from "../../components/flow/ImplicitSafetySummary";
-import {
-	FormField,
-	FormInput,
-	FormLabel,
-} from "../../components/steps/CommonSteps";
-import { TokenSurface } from "../../components/TokenSurface";
-import { useAuth } from "../../contexts/NewAuthContext";
-import { PageStyleProvider } from "../../contexts/PageStyleContext";
+} from 'react-icons/fi';
+import styled from 'styled-components';
+import CollapsibleSection from '../../components/CollapsibleSection';
+import ConfirmationModal from '../../components/ConfirmationModal';
+import { EnhancedStepFlowV2 } from '../../components/EnhancedStepFlowV2';
+import FlowIntro from '../../components/flow/FlowIntro';
+import type { FlowConfig } from '../../components/FlowConfiguration';
+import ImplicitSafetySummary from '../../components/flow/ImplicitSafetySummary';
+import { FormField, FormInput, FormLabel } from '../../components/steps/CommonSteps';
+import { TokenSurface } from '../../components/TokenSurface';
+import { useAuth } from '../../contexts/NewAuthContext';
+import { PageStyleProvider } from '../../contexts/PageStyleContext';
 import {
 	showGlobalError,
 	showGlobalSuccess,
 	showGlobalWarning,
-} from "../../hooks/useNotifications";
-import { getCallbackUrlForFlow } from "../../utils/callbackUrls";
-import { credentialManager } from "../../utils/credentialManager";
-import { trackFlowCompletion } from "../../utils/flowCredentialChecker";
-import { useFlowStepManager } from "../../utils/flowStepSystem";
-import { logger } from "../../utils/logger";
-import ConfigurationStatus from "../../components/ConfigurationStatus";
-import ContextualHelp from "../../components/ContextualHelp";
+} from '../../hooks/useNotifications';
+import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
+import { credentialManager } from '../../utils/credentialManager';
+import { trackFlowCompletion } from '../../utils/flowCredentialChecker';
+import { useFlowStepManager } from '../../utils/flowStepSystem';
+import { logger } from '../../utils/logger';
+import ConfigurationStatus from '../../components/ConfigurationStatus';
+import ContextualHelp from '../../components/ContextualHelp';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -100,7 +96,7 @@ const OverviewBlock = styled.div`
   h3 {
     margin: 0 0 0.75rem;
     font-size: 1.1rem;
-    color: #111827;
+    color: var(--color-text-primary, #111827);
   }
 
   p {
@@ -137,30 +133,28 @@ const HighlightCallout = styled.div`
 `;
 
 const ImplicitFlowV3: React.FC = () => {
-	console.log(" [ImplicitFlowV3] COMPONENT RENDER:", {
+	console.log(' [ImplicitFlowV3] COMPONENT RENDER:', {
 		timestamp: Date.now(),
 	});
 
 	const _authContext = useAuth();
-	const stepManager = useFlowStepManager("implicit-flow-v3");
+	const stepManager = useFlowStepManager('implicit-flow-v3');
 
 	// Core flow state (following Worker Token patterns)
 	const [credentials, setCredentials] = useState({
-		environmentId: "",
-		clientId: "",
-		clientSecret: "", // Not used in implicit flow but kept for consistency
-		scopes: "openid",
-		redirectUri: getCallbackUrlForFlow("implicit"),
-		responseType: "id_token token" as "id_token" | "id_token token" | "token",
-		state: "",
-		nonce: "",
+		environmentId: '',
+		clientId: '',
+		clientSecret: '', // Not used in implicit flow but kept for consistency
+		scopes: 'openid',
+		redirectUri: getCallbackUrlForFlow('implicit'),
+		responseType: 'id_token token' as 'id_token' | 'id_token token' | 'token',
+		state: '',
+		nonce: '',
 	});
 
 	const [tokens, setTokens] = useState<Record<string, unknown> | null>(null);
-	const [_userInfo, setUserInfo] = useState<Record<string, unknown> | null>(
-		null,
-	);
-	const [authUrl, setAuthUrl] = useState("");
+	const [_userInfo, setUserInfo] = useState<Record<string, unknown> | null>(null);
+	const [authUrl, setAuthUrl] = useState('');
 	const [_error, setError] = useState<string | null>(null);
 	const [showSecret, setShowSecret] = useState(false);
 	const [showResetModal, setShowResetModal] = useState(false);
@@ -169,7 +163,7 @@ const ImplicitFlowV3: React.FC = () => {
 	// Load initial credentials
 	const loadInitialCredentials = useCallback(async () => {
 		try {
-			console.log(" [ImplicitFlowV3] Loading initial credentials...");
+			console.log(' [ImplicitFlowV3] Loading initial credentials...');
 			const allCredentials = credentialManager.getAllCredentials();
 
 			if (allCredentials.environmentId && allCredentials.clientId) {
@@ -177,14 +171,14 @@ const ImplicitFlowV3: React.FC = () => {
 					...prev,
 					environmentId: allCredentials.environmentId,
 					clientId: allCredentials.clientId,
-					clientSecret: allCredentials.clientSecret || "",
+					clientSecret: allCredentials.clientSecret || '',
 					scopes: allCredentials.scopes || prev.scopes,
 					redirectUri: allCredentials.redirectUri || prev.redirectUri,
 				}));
-				console.log(" [ImplicitFlowV3] Credentials loaded successfully");
+				console.log(' [ImplicitFlowV3] Credentials loaded successfully');
 			}
 		} catch (error) {
-			console.error(" [ImplicitFlowV3] Failed to load credentials:", error);
+			console.error(' [ImplicitFlowV3] Failed to load credentials:', error);
 		}
 	}, []);
 
@@ -198,47 +192,41 @@ const ImplicitFlowV3: React.FC = () => {
 		const handleCallbackReturn = () => {
 			try {
 				// Check for tokens in sessionStorage (set by callback handler)
-				const storedTokens = sessionStorage.getItem("implicit_tokens");
+				const storedTokens = sessionStorage.getItem('implicit_tokens');
 				if (storedTokens) {
-					console.log(
-						" [ImplicitFlowV3] Found tokens from callback:",
-						storedTokens,
-					);
+					console.log(' [ImplicitFlowV3] Found tokens from callback:', storedTokens);
 
 					const tokenData = JSON.parse(storedTokens);
 					setTokens(tokenData);
 
 					// Track flow completion for dashboard status
-					trackFlowCompletion("oauth2-implicit-v3");
+					trackFlowCompletion('oauth2-implicit-v3');
 
 					// Auto-advance to step 2 (token parsing & display)
-					stepManager.setStep(1, "callback return with tokens");
+					stepManager.setStep(1, 'callback return with tokens');
 					console.log(
-						" [ImplicitFlowV3] Auto-advancing to step 2 (token parsing) after callback return",
+						' [ImplicitFlowV3] Auto-advancing to step 2 (token parsing) after callback return'
 					);
 
 					// Show success message
 					showGlobalSuccess(
-						"Access granted",
-						"Tokens received from PingOne. You can now view and validate them.",
+						'Access granted',
+						'Tokens received from PingOne. You can now view and validate them.'
 					);
 
 					// Clean up sessionStorage
-					sessionStorage.removeItem("implicit_tokens");
+					sessionStorage.removeItem('implicit_tokens');
 
 					// Clean up flow context
-					sessionStorage.removeItem("implicit_flow_v3_context");
+					sessionStorage.removeItem('implicit_flow_v3_context');
 
 					// Clean up URL hash if present
 					if (window.location.hash) {
-						window.history.replaceState({}, "", window.location.pathname);
+						window.history.replaceState({}, '', window.location.pathname);
 					}
 				}
 			} catch (error) {
-				console.error(
-					" [ImplicitFlowV3] Failed to handle callback return:",
-					error,
-				);
+				console.error(' [ImplicitFlowV3] Failed to handle callback return:', error);
 			}
 		};
 
@@ -249,7 +237,7 @@ const ImplicitFlowV3: React.FC = () => {
 	const saveCredentials = useCallback(async () => {
 		try {
 			setIsLoading(true);
-			console.log(" [ImplicitFlowV3] Saving credentials...");
+			console.log(' [ImplicitFlowV3] Saving credentials...');
 
 			await credentialManager.saveAllCredentials({
 				environmentId: credentials.environmentId,
@@ -259,17 +247,11 @@ const ImplicitFlowV3: React.FC = () => {
 				redirectUri: credentials.redirectUri,
 			});
 
-			showGlobalSuccess(
-				"Access granted",
-				"Implicit flow credentials saved successfully.",
-			);
-			console.log(" [ImplicitFlowV3] Credentials saved successfully");
+			showGlobalSuccess('Access granted', 'Implicit flow credentials saved successfully.');
+			console.log(' [ImplicitFlowV3] Credentials saved successfully');
 		} catch (error) {
-			console.error(" [ImplicitFlowV3] Failed to save credentials:", error);
-			showGlobalError(
-				"Save failed",
-				"We couldn't save your credentials. Please try again.",
-			);
+			console.error(' [ImplicitFlowV3] Failed to save credentials:', error);
+			showGlobalError('Save failed', "We couldn't save your credentials. Please try again.");
 		} finally {
 			setIsLoading(false);
 		}
@@ -278,19 +260,17 @@ const ImplicitFlowV3: React.FC = () => {
 	// Generate authorization URL
 	const generateAuthUrl = useCallback(() => {
 		try {
-			console.log(" [ImplicitFlowV3] Generating authorization URL...");
+			console.log(' [ImplicitFlowV3] Generating authorization URL...');
 
 			if (!credentials.environmentId || !credentials.clientId) {
-				throw new Error("Environment ID and Client ID are required");
+				throw new Error('Environment ID and Client ID are required');
 			}
 
 			// Generate state and nonce
 			const state =
-				Math.random().toString(36).substring(2, 15) +
-				Math.random().toString(36).substring(2, 15);
+				Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 			const nonce =
-				Math.random().toString(36).substring(2, 15) +
-				Math.random().toString(36).substring(2, 15);
+				Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
 			setCredentials((prev) => ({ ...prev, state, nonce }));
 
@@ -308,20 +288,17 @@ const ImplicitFlowV3: React.FC = () => {
 
 			setAuthUrl(url);
 			showGlobalSuccess(
-				"Authorization URL ready",
-				"PingOne authorize endpoint prepared for the implicit flow.",
+				'Authorization URL ready',
+				'PingOne authorize endpoint prepared for the implicit flow.'
 			);
-			console.log(" [ImplicitFlowV3] Authorization URL generated:", url);
+			console.log(' [ImplicitFlowV3] Authorization URL generated:', url);
 
 			return url;
 		} catch (error) {
-			console.error(
-				" [ImplicitFlowV3] Failed to generate authorization URL:",
-				error,
-			);
+			console.error(' [ImplicitFlowV3] Failed to generate authorization URL:', error);
 			showGlobalError(
-				"URL generation failed",
-				`We couldn't build the authorization request: ${error instanceof Error ? error.message : "Unknown error"}.`,
+				'URL generation failed',
+				`We couldn't build the authorization request: ${error instanceof Error ? error.message : 'Unknown error'}.`
 			);
 			return null;
 		}
@@ -331,41 +308,36 @@ const ImplicitFlowV3: React.FC = () => {
 	const handleAuthorization = useCallback(() => {
 		if (!authUrl) {
 			showGlobalError(
-				"Authorization failed",
-				"Generate the authorization URL before starting the flow.",
+				'Authorization failed',
+				'Generate the authorization URL before starting the flow.'
 			);
 			return;
 		}
 
-		console.log(" [ImplicitFlowV3] Starting authorization redirect...");
+		console.log(' [ImplicitFlowV3] Starting authorization redirect...');
 
 		// Store flow context for callback handling
 		const flowContext = {
-			flowType: "implicit",
+			flowType: 'implicit',
 			environmentId: credentials.environmentId,
 			clientId: credentials.clientId,
 			redirectUri: credentials.redirectUri,
 			timestamp: Date.now(),
 		};
-		sessionStorage.setItem(
-			"implicit_flow_v3_context",
-			JSON.stringify(flowContext),
-		);
-		console.log(
-			" [ImplicitFlowV3] Stored flow context for callback handling",
-		);
+		sessionStorage.setItem('implicit_flow_v3_context', JSON.stringify(flowContext));
+		console.log(' [ImplicitFlowV3] Stored flow context for callback handling');
 
 		// Open in new window for better UX
 		const authWindow = window.open(
 			authUrl,
-			"pingone-auth",
-			"width=600,height=700,scrollbars=yes,resizable=yes",
+			'pingone-auth',
+			'width=600,height=700,scrollbars=yes,resizable=yes'
 		);
 
 		if (!authWindow) {
 			showGlobalError(
-				"Popup blocked",
-				"Allow popups for this site and try the authorization step again.",
+				'Popup blocked',
+				'Allow popups for this site and try the authorization step again.'
 			);
 			return;
 		}
@@ -374,13 +346,13 @@ const ImplicitFlowV3: React.FC = () => {
 		const checkClosed = setInterval(() => {
 			if (authWindow.closed) {
 				clearInterval(checkClosed);
-				console.log(" [ImplicitFlowV3] Authorization window closed");
+				console.log(' [ImplicitFlowV3] Authorization window closed');
 			}
 		}, 1000);
 
 		showGlobalWarning(
-			"Browser popup opened",
-			"Finish sign-in in the PingOne window to receive tokens.",
+			'Browser popup opened',
+			'Finish sign-in in the PingOne window to receive tokens.'
 		);
 	}, [authUrl, credentials]);
 
@@ -388,19 +360,19 @@ const ImplicitFlowV3: React.FC = () => {
 	const copyToClipboard = useCallback(async (text: string, label: string) => {
 		try {
 			await navigator.clipboard.writeText(text);
-			showGlobalSuccess("Copied", `${label} copied to the clipboard.`);
+			showGlobalSuccess('Copied', `${label} copied to the clipboard.`);
 		} catch {
 			showGlobalError(
-				"Copy failed",
-				`We couldn't copy ${label} to the clipboard: ${error instanceof Error ? error.message : "Unknown error"}.`,
+				'Copy failed',
+				`We couldn't copy ${label} to the clipboard: ${error instanceof Error ? error.message : 'Unknown error'}.`
 			);
 		}
 	}, []);
 
 	// Navigate to Token Management with token
 	const navigateToTokenManagement = useCallback(
-		(tokenType: "access" | "id") => {
-			console.log(" [ImplicitFlowV3] Navigate to token management:", {
+		(tokenType: 'access' | 'id') => {
+			console.log(' [ImplicitFlowV3] Navigate to token management:', {
 				tokenType,
 				hasTokens: !!tokens,
 				hasAccessToken: !!tokens?.access_token,
@@ -408,79 +380,67 @@ const ImplicitFlowV3: React.FC = () => {
 				tokens,
 			});
 
-			const token =
-				tokenType === "access" ? tokens?.access_token : tokens?.id_token;
+			const token = tokenType === 'access' ? tokens?.access_token : tokens?.id_token;
 
 			if (token) {
-				console.log(" [ImplicitFlowV3] Token found, storing for analysis:", {
+				console.log(' [ImplicitFlowV3] Token found, storing for analysis:', {
 					tokenType,
 					tokenLength: token.length,
 					tokenPreview: `${token.substring(0, 20)}...`,
 				});
 
 				// Store the token for the Token Management page
-				sessionStorage.setItem("token_to_analyze", token);
-				sessionStorage.setItem("token_type", tokenType);
-				sessionStorage.setItem("flow_source", "implicit-flow-v3");
+				sessionStorage.setItem('token_to_analyze', token);
+				sessionStorage.setItem('token_type', tokenType);
+				sessionStorage.setItem('flow_source', 'implicit-flow-v3');
 
-				console.log(
-					" [ImplicitFlowV3] Navigating to token management page...",
-				);
-				window.location.href = "/token-management";
+				console.log(' [ImplicitFlowV3] Navigating to token management page...');
+				window.location.href = '/token-management';
 			} else {
-				console.error(
-					` [ImplicitFlowV3] No ${tokenType} token available for analysis`,
-				);
-				showGlobalError(
-					"Authorization failed",
-					`No ${tokenType} token available for analysis.`,
-				);
+				console.error(` [ImplicitFlowV3] No ${tokenType} token available for analysis`);
+				showGlobalError('Authorization failed', `No ${tokenType} token available for analysis.`);
 			}
 		},
-		[tokens],
+		[tokens]
 	);
 
 	// Reset flow
 	const resetFlow = useCallback(() => {
-		console.log(" [ImplicitFlowV3] Resetting flow...");
+		console.log(' [ImplicitFlowV3] Resetting flow...');
 		setTokens(null);
 		setUserInfo(null);
-		setAuthUrl("");
+		setAuthUrl('');
 		setError(null);
 		setCredentials((prev) => ({
 			...prev,
-			state: "",
-			nonce: "",
+			state: '',
+			nonce: '',
 		}));
 		stepManager.reset();
 		showGlobalSuccess(
-			"Flow reset",
-			"Implicit flow state cleared. Start again whenever you are ready.",
+			'Flow reset',
+			'Implicit flow state cleared. Start again whenever you are ready.'
 		);
 	}, [stepManager]);
 
 	// Handle step change
 	const handleStepChange = useCallback(
-		(
-			stepIndex: number,
-			reason: "user navigation" | "auto-advance" | "reset",
-		) => {
-			console.log(" [ImplicitFlowV3] Step changed:", { stepIndex, reason });
+		(stepIndex: number, reason: 'user navigation' | 'auto-advance' | 'reset') => {
+			console.log(' [ImplicitFlowV3] Step changed:', { stepIndex, reason });
 			stepManager.setStep(stepIndex, reason);
 		},
-		[stepManager],
+		[stepManager]
 	);
 
 	// Define steps following Worker Token patterns
 	const steps = useMemo(
 		() => [
 			{
-				id: "setup-credentials",
-				title: "Setup Implicit Flow Credentials",
-				description:
-					"Configure your PingOne environment and client settings for the Implicit Flow",
+				id: 'setup-credentials',
+				title: 'Setup Implicit Flow Credentials',
+				description: 'Configure your PingOne environment and client settings for the Implicit Flow',
 				content: (
-					<div style={{ display: "grid", gap: "1.5rem" }}>
+					<div style={{ display: 'grid', gap: '1.5rem' }}>
 						<WarningBox>
 							<WarningIcon>
 								<FiAlertTriangle size={20} />
@@ -488,9 +448,9 @@ const ImplicitFlowV3: React.FC = () => {
 							<WarningContent>
 								<h3> Security Warning</h3>
 								<p>
-									The Implicit Flow is <strong>deprecated</strong> and should
-									not be used in production. It's included here for educational
-									purposes only. Use Authorization Code Flow with PKCE instead.
+									The Implicit Flow is <strong>deprecated</strong> and should not be used in
+									production. It's included here for educational purposes only. Use Authorization
+									Code Flow with PKCE instead.
 								</p>
 							</WarningContent>
 						</WarningBox>
@@ -501,56 +461,53 @@ const ImplicitFlowV3: React.FC = () => {
 							onToggle={() => {}}
 							icon={<FiSettings />}
 						>
-							<div style={{ marginBottom: "1rem" }}>
+							<div style={{ marginBottom: '1rem' }}>
 								<h3
 									style={{
-										margin: "0 0 0.5rem 0",
-										color: "#fff",
-										fontSize: "1.2rem",
+										margin: '0 0 0.5rem 0',
+										color: '#fff',
+										fontSize: '1.2rem',
 									}}
 								>
-									 What is the Implicit Flow?
+									What is the Implicit Flow?
 								</h3>
-								<p style={{ margin: "0 0 1rem 0", lineHeight: "1.5" }}>
-									The Implicit Flow is a simplified OAuth 2.0 flow where tokens
-									are returned directly in the URL fragment after user
-									authorization. It was designed for client-side applications
-									but is now deprecated due to security concerns.
+								<p style={{ margin: '0 0 1rem 0', lineHeight: '1.5' }}>
+									The Implicit Flow is a simplified OAuth 2.0 flow where tokens are returned
+									directly in the URL fragment after user authorization. It was designed for
+									client-side applications but is now deprecated due to security concerns.
 								</p>
 							</div>
 
-							<div style={{ marginBottom: "1rem" }}>
+							<div style={{ marginBottom: '1rem' }}>
 								<h3
 									style={{
-										margin: "0 0 0.5rem 0",
-										color: "#fff",
-										fontSize: "1.2rem",
+										margin: '0 0 0.5rem 0',
+										color: '#fff',
+										fontSize: '1.2rem',
 									}}
 								>
-									 Why is it Deprecated?
+									Why is it Deprecated?
 								</h3>
 								<ul
 									style={{
-										margin: "0",
-										paddingLeft: "1.5rem",
-										lineHeight: "1.6",
+										margin: '0',
+										paddingLeft: '1.5rem',
+										lineHeight: '1.6',
 									}}
 								>
 									<li>
-										<strong>Token Exposure:</strong> Tokens are visible in the
-										URL and browser history
+										<strong>Token Exposure:</strong> Tokens are visible in the URL and browser
+										history
 									</li>
 									<li>
-										<strong>No Refresh Tokens:</strong> Cannot securely refresh
-										expired tokens
+										<strong>No Refresh Tokens:</strong> Cannot securely refresh expired tokens
 									</li>
 									<li>
-										<strong>CSRF Vulnerabilities:</strong> Susceptible to
-										cross-site request forgery attacks
+										<strong>CSRF Vulnerabilities:</strong> Susceptible to cross-site request forgery
+										attacks
 									</li>
 									<li>
-										<strong>No Client Authentication:</strong> Cannot verify
-										client identity
+										<strong>No Client Authentication:</strong> Cannot verify client identity
 									</li>
 								</ul>
 							</div>
@@ -558,17 +515,16 @@ const ImplicitFlowV3: React.FC = () => {
 							<div>
 								<h3
 									style={{
-										margin: "0 0 0.5rem 0",
-										color: "#fff",
-										fontSize: "1.2rem",
+										margin: '0 0 0.5rem 0',
+										color: '#fff',
+										fontSize: '1.2rem',
 									}}
 								>
-									 Modern Alternative
+									Modern Alternative
 								</h3>
-								<p style={{ margin: "0", lineHeight: "1.5" }}>
-									Use <strong>Authorization Code Flow with PKCE</strong> for
-									secure client-side applications. It provides the same
-									functionality with much better security.
+								<p style={{ margin: '0', lineHeight: '1.5' }}>
+									Use <strong>Authorization Code Flow with PKCE</strong> for secure client-side
+									applications. It provides the same functionality with much better security.
 								</p>
 							</div>
 						</CollapsibleSection>
@@ -589,9 +545,9 @@ const ImplicitFlowV3: React.FC = () => {
 							/>
 							<div
 								style={{
-									fontSize: "0.75rem",
-									color: "#6b7280",
-									marginTop: "0.25rem",
+									fontSize: '0.75rem',
+									color: '#6b7280',
+									marginTop: '0.25rem',
 								}}
 							>
 								Found in PingOne Admin Console URL or Environment settings
@@ -603,17 +559,15 @@ const ImplicitFlowV3: React.FC = () => {
 							<FormInput
 								type="text"
 								value={credentials.clientId}
-								onChange={(e) =>
-									setCredentials({ ...credentials, clientId: e.target.value })
-								}
+								onChange={(e) => setCredentials({ ...credentials, clientId: e.target.value })}
 								placeholder="e.g., 87654321-4321-4321-4321-210987654321"
 								required
 							/>
 							<div
 								style={{
-									fontSize: "0.75rem",
-									color: "#6b7280",
-									marginTop: "0.25rem",
+									fontSize: '0.75rem',
+									color: '#6b7280',
+									marginTop: '0.25rem',
 								}}
 							>
 								Unique identifier for your application in PingOne
@@ -622,9 +576,9 @@ const ImplicitFlowV3: React.FC = () => {
 
 						<FormField>
 							<FormLabel>Client Secret</FormLabel>
-							<div style={{ position: "relative" }}>
+							<div style={{ position: 'relative' }}>
 								<FormInput
-									type={showSecret ? "text" : "password"}
+									type={showSecret ? 'text' : 'password'}
 									value={credentials.clientSecret}
 									onChange={(e) =>
 										setCredentials({
@@ -633,42 +587,39 @@ const ImplicitFlowV3: React.FC = () => {
 										})
 									}
 									placeholder="Your client secret (optional for implicit flow)"
-									style={{ paddingRight: showSecret ? "2.5rem" : undefined }}
+									style={{ paddingRight: showSecret ? '2.5rem' : undefined }}
 								/>
 								<button
 									type="button"
 									onClick={() => setShowSecret(!showSecret)}
 									style={{
-										position: "absolute",
-										right: "0.75rem",
-										top: "50%",
-										transform: "translateY(-50%)",
-										background: "none",
-										border: "none",
-										cursor: "pointer",
-										color: "#6b7280",
-										padding: "0.25rem",
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "center",
+										position: 'absolute',
+										right: '0.75rem',
+										top: '50%',
+										transform: 'translateY(-50%)',
+										background: 'none',
+										border: 'none',
+										cursor: 'pointer',
+										color: '#6b7280',
+										padding: '0.25rem',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
 										zIndex: 10,
 									}}
-									aria-label={
-										showSecret ? "Hide client secret" : "Show client secret"
-									}
+									aria-label={showSecret ? 'Hide client secret' : 'Show client secret'}
 								>
 									{showSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
 								</button>
 							</div>
 							<div
 								style={{
-									fontSize: "0.75rem",
-									color: "#6b7280",
-									marginTop: "0.25rem",
+									fontSize: '0.75rem',
+									color: '#6b7280',
+									marginTop: '0.25rem',
 								}}
 							>
-								Client secret (not used in implicit flow but kept for
-								consistency)
+								Client secret (not used in implicit flow but kept for consistency)
 							</div>
 						</FormField>
 
@@ -677,16 +628,14 @@ const ImplicitFlowV3: React.FC = () => {
 							<FormInput
 								type="text"
 								value={credentials.scopes}
-								onChange={(e) =>
-									setCredentials({ ...credentials, scopes: e.target.value })
-								}
+								onChange={(e) => setCredentials({ ...credentials, scopes: e.target.value })}
 								placeholder="e.g., openid profile email"
 							/>
 							<div
 								style={{
-									fontSize: "0.75rem",
-									color: "#6b7280",
-									marginTop: "0.25rem",
+									fontSize: '0.75rem',
+									color: '#6b7280',
+									marginTop: '0.25rem',
 								}}
 							>
 								Space-separated list of scopes for the tokens
@@ -700,20 +649,17 @@ const ImplicitFlowV3: React.FC = () => {
 								onChange={(e) =>
 									setCredentials({
 										...credentials,
-										responseType: e.target.value as
-											| "id_token"
-											| "id_token token"
-											| "token",
+										responseType: e.target.value as 'id_token' | 'id_token token' | 'token',
 									})
 								}
 								style={{
-									width: "100%",
-									padding: "0.75rem",
-									border: "1px solid #d1d5db",
-									borderRadius: "0.375rem",
-									backgroundColor: "#fff",
-									fontSize: "1rem",
-									color: "#374151",
+									width: '100%',
+									padding: '0.75rem',
+									border: '1px solid #d1d5db',
+									borderRadius: '0.375rem',
+									backgroundColor: '#fff',
+									fontSize: '1rem',
+									color: '#374151',
 								}}
 							>
 								<option value="id_token">ID Token Only</option>
@@ -722,9 +668,9 @@ const ImplicitFlowV3: React.FC = () => {
 							</select>
 							<div
 								style={{
-									fontSize: "0.75rem",
-									color: "#6b7280",
-									marginTop: "0.25rem",
+									fontSize: '0.75rem',
+									color: '#6b7280',
+									marginTop: '0.25rem',
 								}}
 							>
 								Type of tokens to request from the authorization server
@@ -747,42 +693,37 @@ const ImplicitFlowV3: React.FC = () => {
 							/>
 							<div
 								style={{
-									fontSize: "0.75rem",
-									color: "#6b7280",
-									marginTop: "0.25rem",
+									fontSize: '0.75rem',
+									color: '#6b7280',
+									marginTop: '0.25rem',
 								}}
 							>
-								Where to redirect after authorization (must match PingOne
-								configuration)
+								Where to redirect after authorization (must match PingOne configuration)
 							</div>
 						</FormField>
 
 						<div
 							style={{
-								display: "flex",
-								gap: "1rem",
-								justifyContent: "flex-end",
+								display: 'flex',
+								gap: '1rem',
+								justifyContent: 'flex-end',
 							}}
 						>
 							<button
 								type="button"
 								onClick={saveCredentials}
-								disabled={
-									isLoading ||
-									!credentials.environmentId ||
-									!credentials.clientId
-								}
+								disabled={isLoading || !credentials.environmentId || !credentials.clientId}
 								style={{
-									padding: "0.75rem 1.5rem",
-									backgroundColor: "#3b82f6",
-									color: "white",
-									border: "none",
-									borderRadius: "0.5rem",
-									cursor: isLoading ? "not-allowed" : "pointer",
+									padding: '0.75rem 1.5rem',
+									backgroundColor: '#3b82f6',
+									color: 'white',
+									border: 'none',
+									borderRadius: '0.5rem',
+									cursor: isLoading ? 'not-allowed' : 'pointer',
 									opacity: isLoading ? 0.6 : 1,
-									display: "flex",
-									alignItems: "center",
-									gap: "0.5rem",
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
 								}}
 							>
 								{isLoading ? (
@@ -790,54 +731,53 @@ const ImplicitFlowV3: React.FC = () => {
 								) : (
 									<FiCheckCircle size={16} />
 								)}
-								{isLoading ? "Saving..." : "Save Credentials"}
+								{isLoading ? 'Saving...' : 'Save Credentials'}
 							</button>
 						</div>
 					</div>
 				),
 			},
 			{
-				id: "generate-auth-url",
-				title: "Generate Authorization URL",
-				description:
-					"Create the authorization URL with all required parameters",
+				id: 'generate-auth-url',
+				title: 'Generate Authorization URL',
+				description: 'Create the authorization URL with all required parameters',
 				content: (
-					<div style={{ display: "grid", gap: "1.5rem" }}>
+					<div style={{ display: 'grid', gap: '1.5rem' }}>
 						<div
 							style={{
-								background: "rgba(59, 130, 246, 0.1)",
-								border: "1px solid rgba(59, 130, 246, 0.3)",
-								borderRadius: "8px",
-								padding: "1rem",
+								background: 'rgba(59, 130, 246, 0.1)',
+								border: '1px solid rgba(59, 130, 246, 0.3)',
+								borderRadius: '8px',
+								padding: '1rem',
 							}}
 						>
 							<h3
 								style={{
-									margin: "0 0 0.5rem 0",
-									color: "#1e40af",
-									fontSize: "1rem",
+									margin: '0 0 0.5rem 0',
+									color: '#1e40af',
+									fontSize: '1rem',
 								}}
 							>
-								 Authorization URL Generation
+								Authorization URL Generation
 							</h3>
 							<p
 								style={{
-									margin: "0",
-									fontSize: "0.875rem",
-									color: "#1e40af",
-									lineHeight: "1.5",
+									margin: '0',
+									fontSize: '0.875rem',
+									color: '#1e40af',
+									lineHeight: '1.5',
 								}}
 							>
-								Generate the authorization URL that will redirect users to
-								PingOne for authentication.
+								Generate the authorization URL that will redirect users to PingOne for
+								authentication.
 							</p>
 						</div>
 
 						<div
 							style={{
-								display: "flex",
-								gap: "1rem",
-								justifyContent: "flex-end",
+								display: 'flex',
+								gap: '1rem',
+								justifyContent: 'flex-end',
 							}}
 						>
 							<button
@@ -845,15 +785,15 @@ const ImplicitFlowV3: React.FC = () => {
 								onClick={generateAuthUrl}
 								disabled={!credentials.environmentId || !credentials.clientId}
 								style={{
-									padding: "0.75rem 1.5rem",
-									backgroundColor: "#10b981",
-									color: "white",
-									border: "none",
-									borderRadius: "0.5rem",
-									cursor: "pointer",
-									display: "flex",
-									alignItems: "center",
-									gap: "0.5rem",
+									padding: '0.75rem 1.5rem',
+									backgroundColor: '#10b981',
+									color: 'white',
+									border: 'none',
+									borderRadius: '0.5rem',
+									cursor: 'pointer',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
 								}}
 							>
 								<FiKey size={16} />
@@ -864,44 +804,42 @@ const ImplicitFlowV3: React.FC = () => {
 						{authUrl && (
 							<div
 								style={{
-									background: "#f9fafb",
-									border: "1px solid #e5e7eb",
-									borderRadius: "8px",
-									padding: "1rem",
+									background: '#f9fafb',
+									border: '1px solid #e5e7eb',
+									borderRadius: '8px',
+									padding: '1rem',
 								}}
 							>
 								<div
 									style={{
-										display: "flex",
-										justifyContent: "space-between",
-										alignItems: "center",
-										marginBottom: "0.5rem",
+										display: 'flex',
+										justifyContent: 'space-between',
+										alignItems: 'center',
+										marginBottom: '0.5rem',
 									}}
 								>
 									<h4
 										style={{
-											margin: "0",
-											fontSize: "0.875rem",
-											fontWeight: "600",
-											color: "#374151",
+											margin: '0',
+											fontSize: '0.875rem',
+											fontWeight: '600',
+											color: '#374151',
 										}}
 									>
 										Generated Authorization URL:
 									</h4>
 									<button
 										type="button"
-										onClick={() =>
-											copyToClipboard(authUrl, "Authorization URL")
-										}
+										onClick={() => copyToClipboard(authUrl, 'Authorization URL')}
 										style={{
-											background: "none",
-											border: "none",
-											cursor: "pointer",
-											color: "#6b7280",
-											display: "flex",
-											alignItems: "center",
-											gap: "0.25rem",
-											fontSize: "0.75rem",
+											background: 'none',
+											border: 'none',
+											cursor: 'pointer',
+											color: '#6b7280',
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.25rem',
+											fontSize: '0.75rem',
 										}}
 									>
 										<FiCopy size={14} />
@@ -910,15 +848,15 @@ const ImplicitFlowV3: React.FC = () => {
 								</div>
 								<pre
 									style={{
-										background: "#1f2937",
-										color: "#f9fafb",
-										padding: "1rem",
-										borderRadius: "0.375rem",
-										fontSize: "0.75rem",
-										overflow: "auto",
-										margin: "0",
-										whiteSpace: "pre-wrap",
-										wordBreak: "break-all",
+										background: '#1f2937',
+										color: '#f9fafb',
+										padding: '1rem',
+										borderRadius: '0.375rem',
+										fontSize: '0.75rem',
+										overflow: 'auto',
+										margin: '0',
+										whiteSpace: 'pre-wrap',
+										wordBreak: 'break-all',
 									}}
 								>
 									{authUrl}
@@ -929,86 +867,84 @@ const ImplicitFlowV3: React.FC = () => {
 				),
 			},
 			{
-				id: "user-authorization",
-				title: "User Authorization",
-				description: "Redirect user to PingOne for authentication",
+				id: 'user-authorization',
+				title: 'User Authorization',
+				description: 'Redirect user to PingOne for authentication',
 				content: (
-					<div style={{ display: "grid", gap: "1.5rem" }}>
+					<div style={{ display: 'grid', gap: '1.5rem' }}>
 						<div
 							style={{
-								background: "rgba(16, 185, 129, 0.1)",
-								border: "1px solid rgba(16, 185, 129, 0.3)",
-								borderRadius: "8px",
-								padding: "1rem",
+								background: 'rgba(16, 185, 129, 0.1)',
+								border: '1px solid rgba(16, 185, 129, 0.3)',
+								borderRadius: '8px',
+								padding: '1rem',
 							}}
 						>
 							<h3
 								style={{
-									margin: "0 0 0.5rem 0",
-									color: "#065f46",
-									fontSize: "1rem",
+									margin: '0 0 0.5rem 0',
+									color: '#065f46',
+									fontSize: '1rem',
 								}}
 							>
-								 User Authorization Step
+								User Authorization Step
 							</h3>
 							<p
 								style={{
-									margin: "0",
-									fontSize: "0.875rem",
-									color: "#065f46",
-									lineHeight: "1.5",
+									margin: '0',
+									fontSize: '0.875rem',
+									color: '#065f46',
+									lineHeight: '1.5',
 								}}
 							>
-								Click the button below to redirect the user to PingOne for
-								authentication. The user will be redirected back to your
-								application with tokens in the URL fragment.
+								Click the button below to redirect the user to PingOne for authentication. The user
+								will be redirected back to your application with tokens in the URL fragment.
 							</p>
 						</div>
 
 						{!authUrl ? (
 							<div
 								style={{
-									background: "rgba(239, 68, 68, 0.1)",
-									border: "1px solid rgba(239, 68, 68, 0.3)",
-									borderRadius: "8px",
-									padding: "1rem",
-									textAlign: "center",
+									background: 'rgba(239, 68, 68, 0.1)',
+									border: '1px solid rgba(239, 68, 68, 0.3)',
+									borderRadius: '8px',
+									padding: '1rem',
+									textAlign: 'center',
 								}}
 							>
 								<p
 									style={{
-										margin: "0",
-										color: "#dc2626",
-										fontSize: "0.875rem",
+										margin: '0',
+										color: '#dc2626',
+										fontSize: '0.875rem',
 									}}
 								>
-									Please generate the authorization URL first in the previous
-									step.
+									Please generate the authorization URL first in the previous step.
 								</p>
 							</div>
 						) : (
 							<div
 								style={{
-									display: "flex",
-									gap: "1rem",
-									justifyContent: "center",
+									display: 'flex',
+									gap: '1rem',
+									justifyContent: 'center',
 								}}
 							>
 								<button
 									type="button"
 									onClick={handleAuthorization}
 									style={{
-										padding: "1rem 2rem",
-										backgroundColor: "#3b82f6",
-										color: "white",
-										border: "none",
-										borderRadius: "0.5rem",
-										cursor: "pointer",
-										fontSize: "1rem",
-										fontWeight: "600",
-										display: "flex",
-										alignItems: "center",
-										gap: "0.5rem",
+										padding: '1rem 2rem',
+										backgroundColor: '#3b82f6',
+										color: 'white',
+										border: 'none',
+										borderRadius: '0.5rem',
+										cursor: 'pointer',
+										fontSize: '1rem',
+										fontWeight: '600',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
 									}}
 								>
 									<FiShield size={20} />
@@ -1020,39 +956,38 @@ const ImplicitFlowV3: React.FC = () => {
 				),
 			},
 			{
-				id: "parse-tokens",
-				title: "Parse Tokens from URL",
-				description: "Extract and validate tokens from the URL fragment",
+				id: 'parse-tokens',
+				title: 'Parse Tokens from URL',
+				description: 'Extract and validate tokens from the URL fragment',
 				content: (
-					<div style={{ display: "grid", gap: "1.5rem" }}>
+					<div style={{ display: 'grid', gap: '1.5rem' }}>
 						<div
 							style={{
-								background: "rgba(139, 92, 246, 0.1)",
-								border: "1px solid rgba(139, 92, 246, 0.3)",
-								borderRadius: "8px",
-								padding: "1rem",
+								background: 'rgba(139, 92, 246, 0.1)',
+								border: '1px solid rgba(139, 92, 246, 0.3)',
+								borderRadius: '8px',
+								padding: '1rem',
 							}}
 						>
 							<h3
 								style={{
-									margin: "0 0 0.5rem 0",
-									color: "#6b21a8",
-									fontSize: "1rem",
+									margin: '0 0 0.5rem 0',
+									color: '#6b21a8',
+									fontSize: '1rem',
 								}}
 							>
-								 Token Parsing
+								Token Parsing
 							</h3>
 							<p
 								style={{
-									margin: "0",
-									fontSize: "0.875rem",
-									color: "#6b21a8",
-									lineHeight: "1.5",
+									margin: '0',
+									fontSize: '0.875rem',
+									color: '#6b21a8',
+									lineHeight: '1.5',
 								}}
 							>
-								After user authorization, tokens will be returned in the URL
-								fragment. This step demonstrates how to parse and validate those
-								tokens.
+								After user authorization, tokens will be returned in the URL fragment. This step
+								demonstrates how to parse and validate those tokens.
 							</p>
 						</div>
 
@@ -1067,18 +1002,18 @@ const ImplicitFlowV3: React.FC = () => {
 						) : (
 							<div
 								style={{
-									background: "rgba(107, 114, 128, 0.1)",
-									border: "1px solid rgba(107, 114, 128, 0.3)",
-									borderRadius: "8px",
-									padding: "2rem",
-									textAlign: "center",
+									background: 'rgba(107, 114, 128, 0.1)',
+									border: '1px solid rgba(107, 114, 128, 0.3)',
+									borderRadius: '8px',
+									padding: '2rem',
+									textAlign: 'center',
 								}}
 							>
 								<p
 									style={{
-										margin: "0",
-										color: "#6b7280",
-										fontSize: "0.875rem",
+										margin: '0',
+										color: '#6b7280',
+										fontSize: '0.875rem',
 									}}
 								>
 									Complete the authorization step to see tokens here.
@@ -1100,7 +1035,7 @@ const ImplicitFlowV3: React.FC = () => {
 			handleAuthorization,
 			copyToClipboard,
 			navigateToTokenManagement,
-		],
+		]
 	);
 
 	return (
@@ -1111,15 +1046,15 @@ const ImplicitFlowV3: React.FC = () => {
 					description="Demonstrates the legacy OAuth 2.0 implicit grant for SPAs. Modern apps should prefer the authorization code flow with PKCE."
 					introCopy={
 						<p>
-							The implicit grant returns tokens directly in the redirect URI
-							fragment. Use it only for educational purposestokens are exposed
-							to the front end and lack refresh token support.
+							The implicit grant returns tokens directly in the redirect URI fragment. Use it only
+							for educational purposestokens are exposed to the front end and lack refresh token
+							support.
 						</p>
 					}
 					bullets={[
-						"Tokens delivered via redirect fragment",
-						"No refresh tokensexpires quickly",
-						"Highly discouraged for production apps",
+						'Tokens delivered via redirect fragment',
+						'No refresh tokensexpires quickly',
+						'Highly discouraged for production apps',
 					]}
 					warningTitle="Security Warning"
 					warningBody="Because tokens appear in the browser URL, they are vulnerable to logging, referrer leaks, and malicious extensions. Use authorization code with PKCE instead."
@@ -1131,9 +1066,7 @@ const ImplicitFlowV3: React.FC = () => {
 				<ContextualHelp flowId="oidc-implicit" />
 				<ImplicitSafetySummary />
 				<FlowOverviewCard>
-					<h2 style={{ margin: "0 0 1rem", color: "#0f172a" }}>
-						How the Implicit Flow Works
-					</h2>
+					<h2 style={{ margin: '0 0 1rem', color: '#0f172a' }}>How the Implicit Flow Works</h2>
 					<FlowOverviewGrid>
 						<OverviewBlock>
 							<h3>PingOne Endpoints</h3>
@@ -1141,25 +1074,30 @@ const ImplicitFlowV3: React.FC = () => {
 								Authorize: <strong>https://auth.pingone.com/&lt;env-id&gt;/as/authorize</strong>
 							</p>
 							<p>
-								Tokens return in the browser fragment (<code>#access_token=...</code>) instead of calling the token endpoint.
+								Tokens return in the browser fragment (<code>#access_token=...</code>) instead of
+								calling the token endpoint.
 							</p>
 						</OverviewBlock>
 						<OverviewBlock>
 							<h3>AI & Debug Insights</h3>
 							<p>
-								Use the Token Analyzer AI on the token management page to verify scopes, expirations, and potential risks before trusting the token response.
+								Use the Token Analyzer AI on the token management page to verify scopes,
+								expirations, and potential risks before trusting the token response.
 							</p>
 							<p>
-								Enhanced debug logging records each authorization redirect, making it easy to replay the flow and inspect returned fragments.
+								Enhanced debug logging records each authorization redirect, making it easy to replay
+								the flow and inspect returned fragments.
 							</p>
 						</OverviewBlock>
 						<OverviewBlock>
 							<h3>Recommended Replacement</h3>
 							<p>
-								Use Authorization Code + PKCE or Hybrid flows to keep tokens off the front channel and leverage refresh tokens securely.
+								Use Authorization Code + PKCE or Hybrid flows to keep tokens off the front channel
+								and leverage refresh tokens securely.
 							</p>
 							<p>
-								Device and Worker Token flows provide modern alternatives when you need browserless or detached authorization paths.
+								Device and Worker Token flows provide modern alternatives when you need browserless
+								or detached authorization paths.
 							</p>
 						</OverviewBlock>
 					</FlowOverviewGrid>
@@ -1168,7 +1106,8 @@ const ImplicitFlowV3: React.FC = () => {
 						<div>
 							<h4>Security Snapshot</h4>
 							<p>
-								Tokens can leak via browser history, referrers, or malicious extensions. Always validate nonce, enforce HTTPS, and clear fragments after use.
+								Tokens can leak via browser history, referrers, or malicious extensions. Always
+								validate nonce, enforce HTTPS, and clear fragments after use.
 							</p>
 						</div>
 					</HighlightCallout>
@@ -1190,23 +1129,20 @@ const ImplicitFlowV3: React.FC = () => {
 					initialStepIndex={stepManager.currentStepIndex}
 					onStepChange={handleStepChange}
 					onStepComplete={(stepId, result) => {
-						logger.info("ImplicitFlowV3", "Step completed", { stepId, result });
+						logger.info('ImplicitFlowV3', 'Step completed', { stepId, result });
 						if (
-							stepId === "parse-tokens" &&
+							stepId === 'parse-tokens' &&
 							result &&
-							typeof result === "object" &&
-							"tokens" in result
+							typeof result === 'object' &&
+							'tokens' in result
 						) {
 							setTokens(result.tokens as Record<string, unknown>);
 						}
 					}}
 					onStepError={(stepId, error) => {
-						logger.error("ImplicitFlowV3", "Step failed", { stepId, error });
+						logger.error('ImplicitFlowV3', 'Step failed', { stepId, error });
 						setError(error instanceof Error ? error.message : String(error));
-						showGlobalError(
-							"Flow Error",
-							error instanceof Error ? error.message : String(error),
-						);
+						showGlobalError('Flow Error', error instanceof Error ? error.message : String(error));
 					}}
 				/>
 

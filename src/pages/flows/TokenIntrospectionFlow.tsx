@@ -1,15 +1,15 @@
-import type React from "react";
-import { useCallback, useState } from "react";
-import styled from "styled-components";
-import FlowCredentials from "../../components/FlowCredentials";
-import JSONHighlighter from "../../components/JSONHighlighter";
-import { StepByStepFlow } from "../../components/StepByStepFlow";
+import type React from 'react';
+import { useCallback, useState } from 'react';
+import styled from 'styled-components';
+import FlowCredentials from '../../components/FlowCredentials';
+import JSONHighlighter from '../../components/JSONHighlighter';
+import { StepByStepFlow } from '../../components/StepByStepFlow';
 import {
 	type TokenAuthMethod,
 	type TokenIntrospectionResponse,
 	TokenManagementService,
-} from "../../services/tokenManagementService";
-import { logger } from "../../utils/logger";
+} from '../../services/tokenManagementService';
+import { logger } from '../../utils/logger';
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -97,7 +97,7 @@ const Select = styled.select`
 `;
 
 const Button = styled.button<{
-	$variant: "primary" | "secondary" | "success" | "danger";
+	$variant: 'primary' | 'secondary' | 'success' | 'danger';
 }>`
   padding: 0.75rem 1.5rem;
   border: none;
@@ -111,25 +111,25 @@ const Button = styled.button<{
   
   ${({ $variant }) => {
 		switch ($variant) {
-			case "primary":
+			case 'primary':
 				return `
           background-color: #3b82f6;
           color: white;
           &:hover { background-color: #2563eb; }
         `;
-			case "secondary":
+			case 'secondary':
 				return `
           background-color: #6b7280;
           color: white;
           &:hover { background-color: #4b5563; }
         `;
-			case "success":
+			case 'success':
 				return `
           background-color: #10b981;
           color: white;
           &:hover { background-color: #059669; }
         `;
-			case "danger":
+			case 'danger':
 				return `
           background-color: #ef4444;
           color: white;
@@ -212,8 +212,8 @@ const IntrospectionLabel = styled.span`
 
 const IntrospectionValue = styled.span<{ $active?: boolean }>`
   font-size: 0.875rem;
-  color: ${({ $active }) => ($active ? "#10b981" : "#1f2937")};
-  font-weight: ${({ $active }) => ($active ? "600" : "500")};
+  color: ${({ $active }) => ($active ? '#10b981' : '#1f2937')};
+  font-weight: ${({ $active }) => ($active ? '600' : '500')};
   word-break: break-all;
 `;
 
@@ -224,8 +224,8 @@ const StatusBadge = styled.span<{ $active: boolean }>`
   font-size: 0.75rem;
   font-weight: 500;
   text-transform: uppercase;
-  background-color: ${({ $active }) => ($active ? "#dcfce7" : "#fef2f2")};
-  color: ${({ $active }) => ($active ? "#166534" : "#991b1b")};
+  background-color: ${({ $active }) => ($active ? '#dcfce7' : '#fef2f2')};
+  color: ${({ $active }) => ($active ? '#166534' : '#991b1b')};
 `;
 
 const TabContainer = styled.div`
@@ -241,8 +241,8 @@ const Tab = styled.button<{ $active: boolean }>`
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  border-bottom: 2px solid ${({ $active }) => ($active ? "#3b82f6" : "transparent")};
-  color: ${({ $active }) => ($active ? "#3b82f6" : "#6b7280")};
+  border-bottom: 2px solid ${({ $active }) => ($active ? '#3b82f6' : 'transparent')};
+  color: ${({ $active }) => ($active ? '#3b82f6' : '#6b7280')};
   
   &:hover {
     color: #3b82f6;
@@ -257,50 +257,37 @@ interface TokenIntrospectionFlowProps {
 	};
 }
 
-const TokenIntrospectionFlow: React.FC<TokenIntrospectionFlowProps> = ({
-	credentials,
-}) => {
+const TokenIntrospectionFlow: React.FC<TokenIntrospectionFlowProps> = ({ credentials }) => {
 	const [currentStep, setCurrentStep] = useState(0);
-	const [demoStatus, setDemoStatus] = useState<
-		"idle" | "loading" | "success" | "error"
-	>("idle");
+	const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 	const [activeTab, setActiveTab] = useState<
-		"access_token" | "id_token" | "refresh_token" | "resource_based"
-	>("access_token");
-	const [activeAuthMethod, setActiveAuthMethod] = useState<
-		TokenAuthMethod["type"]
-	>("CLIENT_SECRET_BASIC");
+		'access_token' | 'id_token' | 'refresh_token' | 'resource_based'
+	>('access_token');
+	const [activeAuthMethod, setActiveAuthMethod] =
+		useState<TokenAuthMethod['type']>('CLIENT_SECRET_BASIC');
 	const [formData, setFormData] = useState({
-		clientId: credentials?.clientId || "",
-		clientSecret: credentials?.clientSecret || "",
-		environmentId: credentials?.environmentId || "",
-		tokenToIntrospect: "",
-		tokenTypeHint: "access_token" as
-			| "access_token"
-			| "id_token"
-			| "refresh_token",
-		resourceId: "",
-		resourceSecret: "",
-		privateKey: "",
-		keyId: "",
-		jwksUri: "",
+		clientId: credentials?.clientId || '',
+		clientSecret: credentials?.clientSecret || '',
+		environmentId: credentials?.environmentId || '',
+		tokenToIntrospect: '',
+		tokenTypeHint: 'access_token' as 'access_token' | 'id_token' | 'refresh_token',
+		resourceId: '',
+		resourceSecret: '',
+		privateKey: '',
+		keyId: '',
+		jwksUri: '',
 	});
-	const [response, setResponse] = useState<Record<string, unknown> | null>(
-		null,
-	);
+	const [response, setResponse] = useState<Record<string, unknown> | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [introspectionResponse, setIntrospectionResponse] =
 		useState<TokenIntrospectionResponse | null>(null);
-	const [_tokenService] = useState(
-		() => new TokenManagementService(formData.environmentId),
-	);
+	const [_tokenService] = useState(() => new TokenManagementService(formData.environmentId));
 
 	const steps = [
 		{
-			id: "step-1",
-			title: "Configure Token Introspection Settings",
-			description:
-				"Set up your OAuth client for token introspection operations.",
+			id: 'step-1',
+			title: 'Configure Token Introspection Settings',
+			description: 'Set up your OAuth client for token introspection operations.',
 			code: `// Token Introspection Configuration
 const introspectionConfig = {
   clientId: '${formData.clientId}',
@@ -314,16 +301,13 @@ const introspectionConfig = {
 
 console.log('Token introspection configured:', introspectionConfig);`,
 			execute: async () => {
-				logger.info(
-					"TokenIntrospectionFlow",
-					"Configuring token introspection settings",
-				);
+				logger.info('TokenIntrospectionFlow', 'Configuring token introspection settings');
 			},
 		},
 		{
-			id: "step-2",
-			title: `Introspect ${activeTab === "resource_based" ? "Token (Resource-based)" : activeTab.toUpperCase()}`,
-			description: `Get detailed information about the ${activeTab === "resource_based" ? "token using resource-based authentication" : activeTab}.`,
+			id: 'step-2',
+			title: `Introspect ${activeTab === 'resource_based' ? 'Token (Resource-based)' : activeTab.toUpperCase()}`,
+			description: `Get detailed information about the ${activeTab === 'resource_based' ? 'token using resource-based authentication' : activeTab}.`,
 			code: `// Token Introspection
 const tokenService = new TokenManagementService('${formData.environmentId}');
 
@@ -349,77 +333,77 @@ console.log('Token active:', introspectionResponse.active);
 console.log('Token scope:', introspectionResponse.scope);
 console.log('Token expires at:', new Date(introspectionResponse.exp! * 1000));`,
 			execute: async () => {
-				logger.info("TokenIntrospectionFlow", "Introspecting token", {
+				logger.info('TokenIntrospectionFlow', 'Introspecting token', {
 					tokenType: activeTab,
 					authMethod: activeAuthMethod,
 				});
-				setDemoStatus("loading");
+				setDemoStatus('loading');
 
 				try {
 					// Simulate token introspection based on token type
 					let mockIntrospectionResponse: TokenIntrospectionResponse;
 
-					if (activeTab === "access_token") {
+					if (activeTab === 'access_token') {
 						mockIntrospectionResponse = {
 							active: true,
-							scope: "openid profile email",
+							scope: 'openid profile email',
 							client_id: formData.clientId,
-							token_type: "Bearer",
+							token_type: 'Bearer',
 							exp: Math.floor(Date.now() / 1000) + 3600,
 							iat: Math.floor(Date.now() / 1000) - 300,
-							sub: "user_123456789",
+							sub: 'user_123456789',
 							aud: formData.clientId,
 							iss: `https://auth.pingone.com/${formData.environmentId}`,
 							jti: `jti_${Date.now()}`,
-							username: "john.doe@example.com",
+							username: 'john.doe@example.com',
 							auth_time: Math.floor(Date.now() / 1000) - 600,
 						};
-					} else if (activeTab === "id_token") {
+					} else if (activeTab === 'id_token') {
 						mockIntrospectionResponse = {
 							active: true,
-							scope: "openid profile email",
+							scope: 'openid profile email',
 							client_id: formData.clientId,
-							token_type: "Bearer",
+							token_type: 'Bearer',
 							exp: Math.floor(Date.now() / 1000) + 3600,
 							iat: Math.floor(Date.now() / 1000) - 300,
-							sub: "user_123456789",
+							sub: 'user_123456789',
 							aud: formData.clientId,
 							iss: `https://auth.pingone.com/${formData.environmentId}`,
 							jti: `jti_${Date.now()}`,
-							username: "john.doe@example.com",
+							username: 'john.doe@example.com',
 							auth_time: Math.floor(Date.now() / 1000) - 600,
 							nonce: `nonce_${Date.now()}`,
 							at_hash: `at_hash_${Date.now()}`,
 						};
-					} else if (activeTab === "refresh_token") {
+					} else if (activeTab === 'refresh_token') {
 						mockIntrospectionResponse = {
 							active: true,
-							scope: "openid profile email",
+							scope: 'openid profile email',
 							client_id: formData.clientId,
-							token_type: "Bearer",
+							token_type: 'Bearer',
 							exp: Math.floor(Date.now() / 1000) + 86400, // 24 hours
 							iat: Math.floor(Date.now() / 1000) - 3600,
-							sub: "user_123456789",
+							sub: 'user_123456789',
 							aud: formData.clientId,
 							iss: `https://auth.pingone.com/${formData.environmentId}`,
 							jti: `jti_${Date.now()}`,
-							username: "john.doe@example.com",
+							username: 'john.doe@example.com',
 							auth_time: Math.floor(Date.now() / 1000) - 3600,
 						};
 					} else {
 						// Resource-based introspection
 						mockIntrospectionResponse = {
 							active: true,
-							scope: "openid profile email",
+							scope: 'openid profile email',
 							client_id: formData.clientId,
-							token_type: "Bearer",
+							token_type: 'Bearer',
 							exp: Math.floor(Date.now() / 1000) + 3600,
 							iat: Math.floor(Date.now() / 1000) - 300,
-							sub: "user_123456789",
+							sub: 'user_123456789',
 							aud: formData.clientId,
 							iss: `https://auth.pingone.com/${formData.environmentId}`,
 							jti: `jti_${Date.now()}`,
-							username: "john.doe@example.com",
+							username: 'john.doe@example.com',
 							auth_time: Math.floor(Date.now() / 1000) - 600,
 							resource: formData.resourceId,
 						};
@@ -428,25 +412,24 @@ console.log('Token expires at:', new Date(introspectionResponse.exp! * 1000));`,
 					setIntrospectionResponse(mockIntrospectionResponse);
 					setResponse({
 						success: true,
-						message: "Token introspection completed successfully",
+						message: 'Token introspection completed successfully',
 						introspection: mockIntrospectionResponse,
 						authMethod: activeAuthMethod,
 						tokenType: activeTab,
 					});
-					setDemoStatus("success");
+					setDemoStatus('success');
 				} catch (error) {
-					const errorMessage =
-						error instanceof Error ? error.message : "Unknown error";
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 					setError(errorMessage);
-					setDemoStatus("error");
+					setDemoStatus('error');
 					throw error;
 				}
 			},
 		},
 		{
-			id: "step-3",
-			title: "Analyze Token Information",
-			description: "Analyze the token information and validate its properties.",
+			id: 'step-3',
+			title: 'Analyze Token Information',
+			description: 'Analyze the token information and validate its properties.',
 			code: `// Analyze Token Information
 if (introspectionResponse.active) {
   console.log(' Token is active and valid');
@@ -479,7 +462,7 @@ if (introspectionResponse.active) {
   console.log(' Token is inactive or invalid');
 }`,
 			execute: async () => {
-				logger.info("TokenIntrospectionFlow", "Analyzing token information");
+				logger.info('TokenIntrospectionFlow', 'Analyzing token information');
 
 				if (introspectionResponse) {
 					const analysis = {
@@ -488,13 +471,10 @@ if (introspectionResponse.active) {
 							? introspectionResponse.exp < Math.floor(Date.now() / 1000)
 							: false,
 						timeLeft: introspectionResponse.exp
-							? Math.max(
-									0,
-									introspectionResponse.exp - Math.floor(Date.now() / 1000),
-								)
+							? Math.max(0, introspectionResponse.exp - Math.floor(Date.now() / 1000))
 							: 0,
 						scopeCount: introspectionResponse.scope
-							? introspectionResponse.scope.split(" ").length
+							? introspectionResponse.scope.split(' ').length
 							: 0,
 						hasAudience: !!introspectionResponse.aud,
 						hasIssuer: !!introspectionResponse.iss,
@@ -503,16 +483,15 @@ if (introspectionResponse.active) {
 					setResponse((prev) => ({
 						...prev,
 						analysis: analysis,
-						message: "Token analysis completed",
+						message: 'Token analysis completed',
 					}));
 				}
 			},
 		},
 		{
-			id: "step-4",
-			title: "Handle Token Validation",
-			description:
-				"Validate the token and handle different validation scenarios.",
+			id: 'step-4',
+			title: 'Handle Token Validation',
+			description: 'Validate the token and handle different validation scenarios.',
 			code: `// Handle Token Validation
 const validateToken = (introspectionResponse) => {
   const validations = [];
@@ -558,21 +537,21 @@ const validateToken = (introspectionResponse) => {
 const validation = validateToken(introspectionResponse);
 console.log('Token validation result:', validation);`,
 			execute: async () => {
-				logger.info("TokenIntrospectionFlow", "Validating token");
+				logger.info('TokenIntrospectionFlow', 'Validating token');
 
 				if (introspectionResponse) {
 					const validations = [];
 
 					if (!introspectionResponse.active) {
-						validations.push({ type: "error", message: "Token is inactive" });
+						validations.push({ type: 'error', message: 'Token is inactive' });
 					} else {
 						const now = Math.floor(Date.now() / 1000);
 						if (introspectionResponse.exp && introspectionResponse.exp <= now) {
-							validations.push({ type: "error", message: "Token has expired" });
+							validations.push({ type: 'error', message: 'Token has expired' });
 						} else {
 							validations.push({
-								type: "success",
-								message: "Token validation passed",
+								type: 'success',
+								message: 'Token validation passed',
 							});
 						}
 					}
@@ -580,10 +559,10 @@ console.log('Token validation result:', validation);`,
 					setResponse((prev) => ({
 						...prev,
 						validation: {
-							valid: validations.every((v) => v.type !== "error"),
+							valid: validations.every((v) => v.type !== 'error'),
 							validations,
 						},
-						message: "Token validation completed",
+						message: 'Token validation completed',
 					}));
 				}
 			},
@@ -592,83 +571,83 @@ console.log('Token validation result:', validation);`,
 
 	const handleStepChange = useCallback((step: number) => {
 		setCurrentStep(step);
-		setDemoStatus("idle");
+		setDemoStatus('idle');
 		setResponse(null);
 		setError(null);
 	}, []);
 
 	const handleStepResult = useCallback((step: number, result: unknown) => {
-		logger.info("TokenIntrospectionFlow", `Step ${step + 1} completed`, result);
+		logger.info('TokenIntrospectionFlow', `Step ${step + 1} completed`, result);
 	}, []);
 
 	const handleIntrospectionStart = async () => {
 		try {
-			setDemoStatus("loading");
+			setDemoStatus('loading');
 			setError(null);
 
 			// Simulate token introspection
 			let mockIntrospectionResponse: TokenIntrospectionResponse;
 
-			if (activeTab === "access_token") {
+			if (activeTab === 'access_token') {
 				mockIntrospectionResponse = {
 					active: true,
-					scope: "openid profile email",
+					scope: 'openid profile email',
 					client_id: formData.clientId,
-					token_type: "Bearer",
+					token_type: 'Bearer',
 					exp: Math.floor(Date.now() / 1000) + 3600,
 					iat: Math.floor(Date.now() / 1000) - 300,
-					sub: "user_123456789",
+					sub: 'user_123456789',
 					aud: formData.clientId,
 					iss: `https://auth.pingone.com/${formData.environmentId}`,
 					jti: `jti_${Date.now()}`,
-					username: "john.doe@example.com",
+					username: 'john.doe@example.com',
 					auth_time: Math.floor(Date.now() / 1000) - 600,
 				};
-			} else if (activeTab === "id_token") {
+			} else if (activeTab === 'id_token') {
 				mockIntrospectionResponse = {
 					active: true,
-					scope: "openid profile email",
+					scope: 'openid profile email',
 					client_id: formData.clientId,
-					token_type: "Bearer",
+					token_type: 'Bearer',
 					exp: Math.floor(Date.now() / 1000) + 3600,
 					iat: Math.floor(Date.now() / 1000) - 300,
-					sub: "user_123456789",
+					sub: 'user_123456789',
 					aud: formData.clientId,
 					iss: `https://auth.pingone.com/${formData.environmentId}`,
 					jti: `jti_${Date.now()}`,
-					username: "john.doe@example.com",
+					username: 'john.doe@example.com',
 					auth_time: Math.floor(Date.now() / 1000) - 600,
 					nonce: `nonce_${Date.now()}`,
 					at_hash: `at_hash_${Date.now()}`,
 				};
-			} else if (activeTab === "refresh_token") {
+			} else if (activeTab === 'refresh_token') {
 				mockIntrospectionResponse = {
 					active: true,
-					scope: "openid profile email",
+					scope: 'openid profile email',
 					client_id: formData.clientId,
-					token_type: "Bearer",
+					token_type: 'Bearer',
 					exp: Math.floor(Date.now() / 1000) + 86400,
 					iat: Math.floor(Date.now() / 1000) - 3600,
-					sub: "user_123456789",
+					sub: 'user_123456789',
 					aud: formData.clientId,
 					iss: `https://auth.pingone.com/${formData.environmentId}`,
 					jti: `jti_${Date.now()}`,
-					username: "john.doe@example.com",
+					username: 'john.doe@example.com',
 					auth_time: Math.floor(Date.now() / 1000) - 3600,
 				};
 			} else {
 				mockIntrospectionResponse = {
 					active: true,
-					scope: "openid profile email",
+					scope: 'openid profile email',
 					client_id: formData.clientId,
-					token_type: "Bearer",
+					token_type: 'Bearer',
 					exp: Math.floor(Date.now() / 1000) + 3600,
 					iat: Math.floor(Date.now() / 1000) - 300,
-					sub: "user_123456789",
+					sub: 'user_123456789',
 					aud: formData.clientId,
 					iss: `https://auth.pingone.com/${formData.environmentId}`,
 					jti: `jti_${Date.now()}`,
-					username: "john.doe@example.com",
+					username: 'john.doe@example.com',
 					auth_time: Math.floor(Date.now() / 1000) - 600,
 					resource: formData.resourceId,
 				};
@@ -677,17 +656,16 @@ console.log('Token validation result:', validation);`,
 			setIntrospectionResponse(mockIntrospectionResponse);
 			setResponse({
 				success: true,
-				message: "Token introspection completed successfully",
+				message: 'Token introspection completed successfully',
 				introspection: mockIntrospectionResponse,
 				authMethod: activeAuthMethod,
 				tokenType: activeTab,
 			});
-			setDemoStatus("success");
+			setDemoStatus('success');
 		} catch (error) {
-			const errorMessage =
-				error instanceof Error ? error.message : "Unknown error";
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			setError(errorMessage);
-			setDemoStatus("error");
+			setDemoStatus('error');
 		}
 	};
 
@@ -695,17 +673,17 @@ console.log('Token validation result:', validation);`,
 		<FlowContainer>
 			<FlowTitle>Token Introspection Flow</FlowTitle>
 			<FlowDescription>
-				This flow demonstrates token introspection operations to get detailed
-				information about access tokens, ID tokens, and refresh tokens. It
-				supports both client-based and resource-based introspection.
+				This flow demonstrates token introspection operations to get detailed information about
+				access tokens, ID tokens, and refresh tokens. It supports both client-based and
+				resource-based introspection.
 			</FlowDescription>
 
 			<InfoContainer>
 				<h4> Token Introspection Features</h4>
 				<p>
-					Token introspection allows you to get detailed information about
-					tokens including their validity, expiration, scope, and other claims.
-					This is essential for token validation and security analysis.
+					Token introspection allows you to get detailed information about tokens including their
+					validity, expiration, scope, and other claims. This is essential for token validation and
+					security analysis.
 				</p>
 			</InfoContainer>
 
@@ -722,40 +700,29 @@ console.log('Token validation result:', validation);`,
 			/>
 
 			<TabContainer>
-				<Tab
-					$active={activeTab === "access_token"}
-					onClick={() => setActiveTab("access_token")}
-				>
+				<Tab $active={activeTab === 'access_token'} onClick={() => setActiveTab('access_token')}>
 					Access Token
 				</Tab>
-				<Tab
-					$active={activeTab === "id_token"}
-					onClick={() => setActiveTab("id_token")}
-				>
+				<Tab $active={activeTab === 'id_token'} onClick={() => setActiveTab('id_token')}>
 					ID Token
 				</Tab>
-				<Tab
-					$active={activeTab === "refresh_token"}
-					onClick={() => setActiveTab("refresh_token")}
-				>
+				<Tab $active={activeTab === 'refresh_token'} onClick={() => setActiveTab('refresh_token')}>
 					Refresh Token
 				</Tab>
 				<Tab
-					$active={activeTab === "resource_based"}
-					onClick={() => setActiveTab("resource_based")}
+					$active={activeTab === 'resource_based'}
+					onClick={() => setActiveTab('resource_based')}
 				>
 					Resource-based
 				</Tab>
 			</TabContainer>
 
-			<div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
+			<div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
 				<div style={{ flex: 1 }}>
 					<Label>Authentication Method</Label>
 					<Select
 						value={activeAuthMethod}
-						onChange={(e) =>
-							setActiveAuthMethod(e.target.value as TokenAuthMethod["type"])
-						}
+						onChange={(e) => setActiveAuthMethod(e.target.value as TokenAuthMethod['type'])}
 					>
 						<option value="CLIENT_SECRET_BASIC">CLIENT_SECRET_BASIC</option>
 						<option value="CLIENT_SECRET_POST">CLIENT_SECRET_POST</option>
@@ -770,16 +737,16 @@ console.log('Token validation result:', validation);`,
 				currentStep={currentStep}
 				onStepChange={handleStepChange}
 				onStepResult={handleStepResult}
-				onStart={() => setDemoStatus("loading")}
+				onStart={() => setDemoStatus('loading')}
 				onReset={() => {
 					setCurrentStep(0);
-					setDemoStatus("idle");
+					setDemoStatus('idle');
 					setResponse(null);
 					setError(null);
 					setIntrospectionResponse(null);
 				}}
 				status={demoStatus}
-				disabled={demoStatus === "loading"}
+				disabled={demoStatus === 'loading'}
 				title={`Token Introspection Steps (${activeTab})`}
 			/>
 
@@ -788,7 +755,7 @@ console.log('Token validation result:', validation);`,
 					<IntrospectionTitle>
 						Token Introspection Results
 						<StatusBadge $active={introspectionResponse.active}>
-							{introspectionResponse.active ? "Active" : "Inactive"}
+							{introspectionResponse.active ? 'Active' : 'Inactive'}
 						</StatusBadge>
 					</IntrospectionTitle>
 
@@ -796,51 +763,51 @@ console.log('Token validation result:', validation);`,
 						<IntrospectionDetail>
 							<IntrospectionLabel>Token Type</IntrospectionLabel>
 							<IntrospectionValue>
-								{introspectionResponse.token_type || "Not specified"}
+								{introspectionResponse.token_type || 'Not specified'}
 							</IntrospectionValue>
 						</IntrospectionDetail>
 						<IntrospectionDetail>
 							<IntrospectionLabel>Scope</IntrospectionLabel>
 							<IntrospectionValue>
-								{introspectionResponse.scope || "Not specified"}
+								{introspectionResponse.scope || 'Not specified'}
 							</IntrospectionValue>
 						</IntrospectionDetail>
 						<IntrospectionDetail>
 							<IntrospectionLabel>Client ID</IntrospectionLabel>
 							<IntrospectionValue>
-								{introspectionResponse.client_id || "Not specified"}
+								{introspectionResponse.client_id || 'Not specified'}
 							</IntrospectionValue>
 						</IntrospectionDetail>
 						<IntrospectionDetail>
 							<IntrospectionLabel>Subject</IntrospectionLabel>
 							<IntrospectionValue>
-								{introspectionResponse.sub || "Not specified"}
+								{introspectionResponse.sub || 'Not specified'}
 							</IntrospectionValue>
 						</IntrospectionDetail>
 						<IntrospectionDetail>
 							<IntrospectionLabel>Username</IntrospectionLabel>
 							<IntrospectionValue>
-								{introspectionResponse.username || "Not specified"}
+								{introspectionResponse.username || 'Not specified'}
 							</IntrospectionValue>
 						</IntrospectionDetail>
 						<IntrospectionDetail>
 							<IntrospectionLabel>Audience</IntrospectionLabel>
 							<IntrospectionValue>
 								{Array.isArray(introspectionResponse.aud)
-									? introspectionResponse.aud.join(", ")
-									: introspectionResponse.aud || "Not specified"}
+									? introspectionResponse.aud.join(', ')
+									: introspectionResponse.aud || 'Not specified'}
 							</IntrospectionValue>
 						</IntrospectionDetail>
 						<IntrospectionDetail>
 							<IntrospectionLabel>Issuer</IntrospectionLabel>
 							<IntrospectionValue>
-								{introspectionResponse.iss || "Not specified"}
+								{introspectionResponse.iss || 'Not specified'}
 							</IntrospectionValue>
 						</IntrospectionDetail>
 						<IntrospectionDetail>
 							<IntrospectionLabel>JTI</IntrospectionLabel>
 							<IntrospectionValue>
-								{introspectionResponse.jti || "Not specified"}
+								{introspectionResponse.jti || 'Not specified'}
 							</IntrospectionValue>
 						</IntrospectionDetail>
 						<IntrospectionDetail>
@@ -848,7 +815,7 @@ console.log('Token validation result:', validation);`,
 							<IntrospectionValue>
 								{introspectionResponse.iat
 									? new Date(introspectionResponse.iat * 1000).toLocaleString()
-									: "Not specified"}
+									: 'Not specified'}
 							</IntrospectionValue>
 						</IntrospectionDetail>
 						<IntrospectionDetail>
@@ -856,41 +823,33 @@ console.log('Token validation result:', validation);`,
 							<IntrospectionValue>
 								{introspectionResponse.exp
 									? new Date(introspectionResponse.exp * 1000).toLocaleString()
-									: "Not specified"}
+									: 'Not specified'}
 							</IntrospectionValue>
 						</IntrospectionDetail>
 						<IntrospectionDetail>
 							<IntrospectionLabel>Auth Time</IntrospectionLabel>
 							<IntrospectionValue>
 								{introspectionResponse.auth_time
-									? new Date(
-											introspectionResponse.auth_time * 1000,
-										).toLocaleString()
-									: "Not specified"}
+									? new Date(introspectionResponse.auth_time * 1000).toLocaleString()
+									: 'Not specified'}
 							</IntrospectionValue>
 						</IntrospectionDetail>
 						{introspectionResponse.nonce && (
 							<IntrospectionDetail>
 								<IntrospectionLabel>Nonce</IntrospectionLabel>
-								<IntrospectionValue>
-									{introspectionResponse.nonce}
-								</IntrospectionValue>
+								<IntrospectionValue>{introspectionResponse.nonce}</IntrospectionValue>
 							</IntrospectionDetail>
 						)}
 						{introspectionResponse.at_hash && (
 							<IntrospectionDetail>
 								<IntrospectionLabel>AT Hash</IntrospectionLabel>
-								<IntrospectionValue>
-									{introspectionResponse.at_hash}
-								</IntrospectionValue>
+								<IntrospectionValue>{introspectionResponse.at_hash}</IntrospectionValue>
 							</IntrospectionDetail>
 						)}
 						{introspectionResponse.resource && (
 							<IntrospectionDetail>
 								<IntrospectionLabel>Resource</IntrospectionLabel>
-								<IntrospectionValue>
-									{introspectionResponse.resource}
-								</IntrospectionValue>
+								<IntrospectionValue>{introspectionResponse.resource}</IntrospectionValue>
 							</IntrospectionDetail>
 						)}
 					</IntrospectionDetails>
@@ -919,10 +878,10 @@ console.log('Token validation result:', validation);`,
 
 				<div
 					style={{
-						display: "grid",
-						gridTemplateColumns: "1fr 1fr",
-						gap: "1rem",
-						marginBottom: "1rem",
+						display: 'grid',
+						gridTemplateColumns: '1fr 1fr',
+						gap: '1rem',
+						marginBottom: '1rem',
 					}}
 				>
 					<FormGroup>
@@ -930,9 +889,7 @@ console.log('Token validation result:', validation);`,
 						<Input
 							type="text"
 							value={formData.clientId}
-							onChange={(e) =>
-								setFormData((prev) => ({ ...prev, clientId: e.target.value }))
-							}
+							onChange={(e) => setFormData((prev) => ({ ...prev, clientId: e.target.value }))}
 						/>
 					</FormGroup>
 
@@ -972,10 +929,7 @@ console.log('Token validation result:', validation);`,
 							onChange={(e) =>
 								setFormData((prev) => ({
 									...prev,
-									tokenTypeHint: e.target.value as
-										| "access_token"
-										| "id_token"
-										| "refresh_token",
+									tokenTypeHint: e.target.value as 'access_token' | 'id_token' | 'refresh_token',
 								}))
 							}
 						>
@@ -985,7 +939,7 @@ console.log('Token validation result:', validation);`,
 						</Select>
 					</FormGroup>
 
-					{activeTab === "resource_based" && (
+					{activeTab === 'resource_based' && (
 						<>
 							<FormGroup>
 								<Label>Resource ID</Label>

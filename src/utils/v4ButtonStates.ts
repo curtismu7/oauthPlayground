@@ -10,30 +10,30 @@ export class V4ButtonStatesManager {
 			saveConfiguration: {
 				loading: false,
 				disabled: false,
-				variant: 'primary' as const
+				variant: 'primary' as const,
 			},
 			generateAuthUrl: {
 				loading: false,
 				disabled: false,
-				hasUrl: false
+				hasUrl: false,
 			},
 			exchangeTokens: {
 				loading: false,
 				disabled: false,
-				hasTokens: false
+				hasTokens: false,
 			},
 			generatePKCE: {
 				loading: false,
-				disabled: false
+				disabled: false,
 			},
 			copyToClipboard: {
 				loading: false,
-				disabled: false
+				disabled: false,
 			},
 			navigation: {
 				canGoNext: true,
-				canGoPrevious: false
-			}
+				canGoPrevious: false,
+			},
 		};
 	}
 
@@ -140,30 +140,30 @@ export class V4ButtonStatesManager {
 			saveConfiguration: {
 				loading: false,
 				disabled: false,
-				variant: 'primary'
+				variant: 'primary',
 			},
 			generateAuthUrl: {
 				loading: false,
 				disabled: false,
-				hasUrl: false
+				hasUrl: false,
 			},
 			exchangeTokens: {
 				loading: false,
 				disabled: false,
-				hasTokens: false
+				hasTokens: false,
 			},
 			generatePKCE: {
 				loading: false,
-				disabled: false
+				disabled: false,
 			},
 			copyToClipboard: {
 				loading: false,
-				disabled: false
+				disabled: false,
 			},
 			navigation: {
 				canGoNext: true,
-				canGoPrevious: false
-			}
+				canGoPrevious: false,
+			},
 		};
 	}
 
@@ -173,7 +173,7 @@ export class V4ButtonStatesManager {
 	updateNavigationForStep(currentStep: number, totalSteps: number): void {
 		this.updateNavigation({
 			canGoNext: currentStep < totalSteps - 1,
-			canGoPrevious: currentStep > 0
+			canGoPrevious: currentStep > 0,
 		});
 	}
 
@@ -181,9 +181,7 @@ export class V4ButtonStatesManager {
 	 * Check if any button is currently loading
 	 */
 	isAnyButtonLoading(): boolean {
-		return Object.values(this.states).some(state => 
-			'loading' in state && state.loading === true
-		);
+		return Object.values(this.states).some((state) => 'loading' in state && state.loading === true);
 	}
 
 	/**
@@ -191,19 +189,19 @@ export class V4ButtonStatesManager {
 	 */
 	getButtonVariant(buttonType: keyof ButtonStates): string {
 		const state = this.states[buttonType];
-		
+
 		if ('variant' in state) {
 			return state.variant;
 		}
-		
+
 		if ('loading' in state && state.loading) {
 			return 'loading';
 		}
-		
+
 		if ('disabled' in state && state.disabled) {
 			return 'disabled';
 		}
-		
+
 		return 'default';
 	}
 }
