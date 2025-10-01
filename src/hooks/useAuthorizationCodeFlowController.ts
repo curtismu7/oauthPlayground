@@ -259,22 +259,6 @@ export const useAuthorizationCodeFlowController = (
 		}
 	}, [pkceCodes]);
 
-	// Auto-save credentials whenever they change (after initial load)
-	useEffect(() => {
-		if (credentials.environmentId || credentials.clientId) {
-			// Debounce the save to avoid excessive writes
-			const timeoutId = setTimeout(() => {
-				try {
-					credentialManager.saveAuthzFlowCredentials(credentials);
-					console.log('💾 [useAuthorizationCodeFlowController] Credentials auto-saved');
-				} catch (error) {
-					console.warn('[useAuthorizationCodeFlowController] Auto-save credentials failed:', error);
-				}
-			}, 500);
-			return () => clearTimeout(timeoutId);
-		}
-	}, [credentials]);
-
 	const [authUrl, setAuthUrl] = useState('');
 	const [showUrlExplainer, setShowUrlExplainer] = useState(false);
 	const [isAuthorizing, setIsAuthorizing] = useState(false);
