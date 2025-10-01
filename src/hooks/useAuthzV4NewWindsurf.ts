@@ -136,7 +136,8 @@ const useAuthzV4NewWindsurf = (): OAuthFlowReturn => {
 
 		const codeVerifier = generateRandomString(64); // PKCE code verifier length
 		const hashed = await sha256(codeVerifier);
-		const codeChallenge = btoa(String.fromCharCode(...new Uint8Array(hashed)))
+		const hashedArray = Array.from(new Uint8Array(hashed));
+		const codeChallenge = btoa(String.fromCharCode(...hashedArray))
 			.replace(/\+/g, '-')
 			.replace(/\//g, '_')
 			.replace(/=+$/, '');

@@ -227,7 +227,8 @@ class KeyStorageService {
 			const publicKeyArrayBuffer = await window.crypto.subtle.exportKey('spki', cryptoKey);
 
 			// Convert to base64 and format as PEM
-			const base64 = btoa(String.fromCharCode(...new Uint8Array(publicKeyArrayBuffer)));
+			const keyArray = Array.from(new Uint8Array(publicKeyArrayBuffer));
+			const base64 = btoa(String.fromCharCode(...keyArray));
 			const pem = `-----BEGIN PUBLIC KEY-----\n${base64.match(/.{1,64}/g)?.join('\n')}\n-----END PUBLIC KEY-----`;
 
 			return pem;
