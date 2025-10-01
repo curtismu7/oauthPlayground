@@ -573,6 +573,51 @@ const WelcomeMessage = styled.div`
 	text-align: center;
 `;
 
+const ScrollIndicator = styled.div`
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin: 1.5rem 0;
+	padding: 1rem;
+	background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+	border: 2px solid #3b82f6;
+	border-radius: 0.75rem;
+	animation: pulse 2s ease-in-out infinite;
+
+	@keyframes pulse {
+		0%, 100% {
+			transform: translateY(0);
+			opacity: 1;
+		}
+		50% {
+			transform: translateY(5px);
+			opacity: 0.8;
+		}
+	}
+`;
+
+const ScrollText = styled.div`
+	font-size: 1rem;
+	font-weight: 600;
+	color: #1e40af;
+	margin-bottom: 0.5rem;
+`;
+
+const ScrollArrow = styled.div`
+	font-size: 2rem;
+	color: #3b82f6;
+	animation: bounce 1.5s ease-in-out infinite;
+
+	@keyframes bounce {
+		0%, 100% {
+			transform: translateY(0);
+		}
+		50% {
+			transform: translateY(8px);
+		}
+	}
+`;
+
 const ModalOverlay = styled.div<{ $isOpen: boolean }>`
 	display: ${({ $isOpen }) => ($isOpen ? 'flex' : 'none')};
 	position: fixed;
@@ -688,6 +733,20 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 	const [introspectionResult, setIntrospectionResult] = useState<any>(null);
 	const [showPollingModal, setShowPollingModal] = useState(false);
 	const { settings } = useUISettings();
+
+	// Load saved credentials on mount
+	React.useEffect(() => {
+		const savedCreds = credentialManager.getAllCredentials();
+		if (savedCreds.environmentId && savedCreds.clientId) {
+			deviceFlow.setCredentials({
+				environmentId: savedCreds.environmentId,
+				clientId: savedCreds.clientId,
+				clientSecret: savedCreds.clientSecret || '',
+				scopes: savedCreds.scopes?.join(' ') || 'openid',
+			});
+			console.log('[📺 OAUTH-DEVICE] [INFO] Loaded saved credentials from credential manager');
+		}
+	}, []); // Only run on mount
 
 	// Show polling prompt modal when device code is received
 	React.useEffect(() => {
@@ -827,10 +886,9 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 			case 0: return true; // Introduction
 			case 1: return !!deviceFlow.credentials;
 			case 2: return !!deviceFlow.deviceCodeData;
-			case 3: return !!deviceFlow.deviceCodeData;
-			case 4: return !!deviceFlow.tokens;
-			case 5: return !!deviceFlow.tokens; // Introspection
-			case 6: return true; // Completion
+			case 3: return !!deviceFlow.tokens; // Tokens (old step 4)
+			case 4: return !!deviceFlow.tokens; // Introspection (old step 5)
+			case 5: return true; // Completion (old step 6)
 			default: return false;
 		}
 	}, [deviceFlow.credentials, deviceFlow.deviceCodeData, deviceFlow.tokens]);
@@ -852,15 +910,13 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 			case 1:
 				return renderRequestDeviceCode();
 			case 2:
-				return renderUserAuthorization();
+				return renderUserAuthorization(); // Includes polling
 			case 3:
-				return renderPolling();
+				return renderTokens(); // Old step 4
 			case 4:
-				return renderTokens();
+				return renderIntrospection(); // Old step 5
 			case 5:
-				return renderIntrospection();
-			case 6:
-				return renderCompletion();
+				return renderCompletion(); // Old step 6
 			default:
 				return null;
 		}
@@ -1311,6 +1367,12 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 										</ActionRow>
 									</QRSection>
 
+									{/* Scroll Indicator */}
+									<ScrollIndicator>
+										<ScrollText>👇 Scroll down to see your TV display 👇</ScrollText>
+										<ScrollArrow>⬇️</ScrollArrow>
+									</ScrollIndicator>
+
 									{/* Smart TV Device - Shows result after authorization */}
 									<SmartTV $isWaiting={deviceFlow.pollingStatus.isPolling || !deviceFlow.tokens}>
 										<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
@@ -1489,107 +1551,8 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 		</>
 	);
 
-	const renderPolling = () => (
-		<>
-			<CollapsibleSection>
-				<CollapsibleHeaderButton
-					onClick={() => toggleSection('pollingOverview')}
-					aria-expanded={!collapsedSections.pollingOverview}
-				>
-					<CollapsibleTitle>
-						<FiClock /> Polling for Authorization
-					</CollapsibleTitle>
-					<CollapsibleToggleIcon $collapsed={collapsedSections.pollingOverview}>
-						<FiChevronDown />
-					</CollapsibleToggleIcon>
-				</CollapsibleHeaderButton>
-				{!collapsedSections.pollingOverview && (
-					<CollapsibleContent>
-						<ExplanationSection>
-							<ExplanationHeading>
-								<FiClock /> Waiting for User Authorization
-							</ExplanationHeading>
-							<InfoText>
-								The device is polling PingOne's token endpoint, waiting for the user to complete
-								authorization on their secondary device.
-							</InfoText>
-
-							<PollingIndicator $isActive={deviceFlow.pollingStatus.isPolling}>
-								{deviceFlow.pollingStatus.isPolling ? (
-									<>
-										<FiRefreshCw size={24} />
-										<div style={{ flex: 1 }}>
-											<strong style={{ fontSize: '1.125rem' }}>Polling for tokens...</strong>
-											<div style={{ fontSize: '0.875rem', color: '#64748b', marginTop: '0.25rem' }}>
-												Attempt {deviceFlow.pollingStatus.attempts} of {deviceFlow.pollingStatus.maxAttempts}
-												{deviceFlow.pollingStatus.lastAttempt && (
-													<> • Last attempt: {new Date(deviceFlow.pollingStatus.lastAttempt).toLocaleTimeString()}</>
-												)}
-											</div>
-										</div>
-									</>
-								) : (
-									<>
-										<FiClock size={24} />
-										<div style={{ flex: 1 }}>
-											<strong style={{ fontSize: '1.125rem' }}>
-												{deviceFlow.pollingStatus.status === 'success' ? 'Authorization Complete!' : 'Ready to poll'}
-											</strong>
-											<div style={{ fontSize: '0.875rem', color: '#64748b', marginTop: '0.25rem' }}>
-												{deviceFlow.pollingStatus.status === 'success' 
-													? 'Tokens have been received successfully'
-													: 'Click "Start Polling" to begin waiting for user authorization'}
-											</div>
-										</div>
-									</>
-								)}
-							</PollingIndicator>
-
-							{deviceFlow.pollingStatus.error && (
-								<InfoBox $variant="error" style={{ marginTop: '1rem' }}>
-									<FiAlertCircle size={20} />
-									<div>
-										<InfoTitle>Polling Error</InfoTitle>
-										<InfoText>{deviceFlow.pollingStatus.error}</InfoText>
-									</div>
-								</InfoBox>
-							)}
-
-							{deviceFlow.timeRemaining > 0 && (
-								<CountdownTimer>
-									⏱️ Time remaining: {deviceFlow.formatTimeRemaining(deviceFlow.timeRemaining)}
-								</CountdownTimer>
-							)}
-
-							<ActionRow style={{ marginTop: '1.5rem' }}>
-								{!deviceFlow.pollingStatus.isPolling ? (
-									<Button
-										onClick={deviceFlow.startPolling}
-										disabled={!deviceFlow.deviceCodeData || deviceFlow.timeRemaining === 0 || deviceFlow.pollingStatus.status === 'success'}
-									>
-										<FiRefreshCw /> Start Polling
-									</Button>
-								) : (
-									<Button
-										onClick={deviceFlow.stopPolling}
-										$variant="outline"
-									>
-										<FiAlertCircle /> Stop Polling
-									</Button>
-								)}
-								<Button
-									onClick={handleReset}
-									$variant="outline"
-								>
-									<FiRefreshCw /> Start Over
-								</Button>
-							</ActionRow>
-						</ExplanationSection>
-					</CollapsibleContent>
-				)}
-			</CollapsibleSection>
-		</>
-	);
+	// Step 3 (Polling) removed - polling now happens automatically on Step 2
+	// Users see the TV update in real-time on the User Authorization page
 
 	const renderTokens = () => (
 		<>
