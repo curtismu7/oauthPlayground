@@ -511,13 +511,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						>
 							OAuth 2.0 Implicit V3
 						</SubmenuItem> */}
-						<SubmenuItem
+						{/* V3 Client Credentials hidden - use V5 instead */}
+						{/* <SubmenuItem
 							to="/flows/oauth2-client-credentials-v3"
 							onClick={onClose}
 							$isActive={isActiveRoute('/flows/oauth2-client-credentials-v3')}
 						>
 							OAuth2 Client Credentials V3
-						</SubmenuItem>
+						</SubmenuItem> */}
 						{/* <SubmenuItem
 							to="/flows-old/device-code"
 							onClick={onClose}
