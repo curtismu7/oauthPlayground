@@ -507,13 +507,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						>
 							OAuth2 Client Credentials V3
 						</SubmenuItem>
-						<SubmenuItem
+						{/* <SubmenuItem
 							to="/flows-old/device-code"
 							onClick={onClose}
 							$isActive={isActiveRoute('/flows-old/device-code')}
 						>
-							OAuth 2.0 Device Code
-						</SubmenuItem>
+							OAuth 2.0 Device Code (Legacy - Hidden)
+						</SubmenuItem> */}
 						<SubmenuItem
 							to="/flows-old/jwt-bearer"
 							onClick={onClose}
