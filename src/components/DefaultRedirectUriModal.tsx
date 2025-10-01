@@ -39,7 +39,7 @@ const ModalHeader = styled.div`
 const ModalTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text-primary, #111827);
   margin: 0;
 `;
 
@@ -121,7 +121,7 @@ const CopyButton = styled.button<{ copied: boolean }>`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: ${props => props.copied ? '#10b981' : '#3b82f6'};
+  background: ${(props) => (props.copied ? '#10b981' : '#3b82f6')};
   color: white;
   border: none;
   border-radius: 6px;
@@ -133,7 +133,7 @@ const CopyButton = styled.button<{ copied: boolean }>`
   min-width: 100px;
 
   &:hover {
-    background: ${props => props.copied ? '#059669' : '#2563eb'};
+    background: ${(props) => (props.copied ? '#059669' : '#2563eb')};
   }
 `;
 
@@ -201,14 +201,17 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
   transition: all 0.2s ease;
   border: none;
 
-  ${props => props.variant === 'primary' ? `
+  ${(props) =>
+		props.variant === 'primary'
+			? `
     background: #3b82f6;
     color: white;
     
     &:hover {
       background: #2563eb;
     }
-  ` : `
+  `
+			: `
     background: #f3f4f6;
     color: #374151;
     
@@ -219,122 +222,125 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
 `;
 
 interface DefaultRedirectUriModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  flowType: string;
-  defaultRedirectUri: string;
-  onContinue: () => void;
+	isOpen: boolean;
+	onClose: () => void;
+	flowType: string;
+	defaultRedirectUri: string;
+	onContinue: () => void;
 }
 
 const DefaultRedirectUriModal: React.FC<DefaultRedirectUriModalProps> = ({
-  isOpen,
-  onClose,
-  flowType,
-  defaultRedirectUri,
-  onContinue
+	isOpen,
+	onClose,
+	flowType,
+	defaultRedirectUri,
+	onContinue,
 }) => {
-  const [copied, setCopied] = useState(false);
+	const [copied, setCopied] = useState(false);
 
-  if (!isOpen) return null;
+	if (!isOpen) return null;
 
-  const handleCopyUri = async () => {
-    try {
-      await copyToClipboard(defaultRedirectUri);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      console.error('Failed to copy redirect URI:', error);
-    }
-  };
+	const handleCopyUri = async () => {
+		try {
+			await copyToClipboard(defaultRedirectUri);
+			setCopied(true);
+			setTimeout(() => setCopied(false), 2000);
+		} catch (error) {
+			console.error('Failed to copy redirect URI:', error);
+		}
+	};
 
-  const getFlowDisplayName = (flowType: string) => {
-    switch (flowType) {
-      case 'oidc-implicit-v3': return 'OIDC Implicit Flow V3';
-      case 'oauth2-implicit-v3': return 'OAuth2 Implicit Flow V3';
-      case 'oidc-hybrid-v3': return 'OIDC Hybrid Flow V3';
-      case 'enhanced-authorization-code-v3': return 'Enhanced Authorization Code Flow V3';
-      case 'oauth-authorization-code-v3': return 'OAuth Authorization Code Flow V3';
-      default: return flowType;
-    }
-  };
+	const getFlowDisplayName = (flowType: string) => {
+		switch (flowType) {
+			case 'oidc-implicit-v3':
+				return 'OIDC Implicit Flow V3';
+			case 'oauth2-implicit-v3':
+				return 'OAuth2 Implicit Flow V3';
+			case 'oidc-hybrid-v3':
+				return 'OIDC Hybrid Flow V3';
+			case 'enhanced-authorization-code-v3':
+				return 'Enhanced Authorization Code Flow V3';
+			case 'oauth-authorization-code-v3':
+				return 'OAuth Authorization Code Flow V3';
+			default:
+				return flowType;
+		}
+	};
 
-  return (
-    <ModalOverlay onClick={onClose}>
-      <ModalContainer onClick={(e) => e.stopPropagation()}>
-        <ModalHeader>
-          <ModalTitle>Configure Redirect URI</ModalTitle>
-          <CloseButton onClick={onClose}>
-            <FiX size={20} />
-          </CloseButton>
-        </ModalHeader>
+	return (
+		<ModalOverlay onClick={onClose}>
+			<ModalContainer onClick={(e) => e.stopPropagation()}>
+				<ModalHeader>
+					<ModalTitle>Configure Redirect URI</ModalTitle>
+					<CloseButton onClick={onClose}>
+						<FiX size={20} />
+					</CloseButton>
+				</ModalHeader>
 
-        <ModalContent>
-          <WarningBox>
-            <WarningTitle>
-              <FiExternalLink size={16} />
-              Redirect URI Required
-            </WarningTitle>
-            <WarningText>
-              No redirect URI is configured for {getFlowDisplayName(flowType)}. 
-              You need to configure this URI in your PingOne application to proceed.
-            </WarningText>
-          </WarningBox>
+				<ModalContent>
+					<WarningBox>
+						<WarningTitle>
+							<FiExternalLink size={16} />
+							Redirect URI Required
+						</WarningTitle>
+						<WarningText>
+							No redirect URI is configured for {getFlowDisplayName(flowType)}. You need to
+							configure this URI in your PingOne application to proceed.
+						</WarningText>
+					</WarningBox>
 
-          <UriContainer>
-            <UriLabel>Default Redirect URI for this flow:</UriLabel>
-            <UriDisplay>
-              {defaultRedirectUri}
-              <CopyButton copied={copied} onClick={handleCopyUri}>
-                {copied ? <FiCheck size={16} /> : <FiCopy size={16} />}
-                {copied ? 'Copied!' : 'Copy'}
-              </CopyButton>
-            </UriDisplay>
-          </UriContainer>
+					<UriContainer>
+						<UriLabel>Default Redirect URI for this flow:</UriLabel>
+						<UriDisplay>
+							{defaultRedirectUri}
+							<CopyButton copied={copied} onClick={handleCopyUri}>
+								{copied ? <FiCheck size={16} /> : <FiCopy size={16} />}
+								{copied ? 'Copied!' : 'Copy'}
+							</CopyButton>
+						</UriDisplay>
+					</UriContainer>
 
-          <InstructionsBox>
-            <InstructionsTitle>How to configure this redirect URI:</InstructionsTitle>
-            
-            <InstructionStep>
-              <StepNumber>1</StepNumber>
-              <StepText>
-                Copy the redirect URI above using the copy button
-              </StepText>
-            </InstructionStep>
-            
-            <InstructionStep>
-              <StepNumber>2</StepNumber>
-              <StepText>
-                Go to your PingOne Admin Console  Applications  Your Application  Configuration
-              </StepText>
-            </InstructionStep>
-            
-            <InstructionStep>
-              <StepNumber>3</StepNumber>
-              <StepText>
-                Add the copied redirect URI to the "Redirect URIs" field in your application configuration
-              </StepText>
-            </InstructionStep>
-            
-            <InstructionStep>
-              <StepNumber>4</StepNumber>
-              <StepText>
-                Save the configuration and return to this flow to continue
-              </StepText>
-            </InstructionStep>
-          </InstructionsBox>
-        </ModalContent>
+					<InstructionsBox>
+						<InstructionsTitle>How to configure this redirect URI:</InstructionsTitle>
 
-        <ModalFooter>
-          <Button variant="secondary" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={onContinue}>
-            Continue Anyway
-          </Button>
-        </ModalFooter>
-      </ModalContainer>
-    </ModalOverlay>
-  );
+						<InstructionStep>
+							<StepNumber>1</StepNumber>
+							<StepText>Copy the redirect URI above using the copy button</StepText>
+						</InstructionStep>
+
+						<InstructionStep>
+							<StepNumber>2</StepNumber>
+							<StepText>
+								Go to your PingOne Admin Console Applications Your Application Configuration
+							</StepText>
+						</InstructionStep>
+
+						<InstructionStep>
+							<StepNumber>3</StepNumber>
+							<StepText>
+								Add the copied redirect URI to the "Redirect URIs" field in your application
+								configuration
+							</StepText>
+						</InstructionStep>
+
+						<InstructionStep>
+							<StepNumber>4</StepNumber>
+							<StepText>Save the configuration and return to this flow to continue</StepText>
+						</InstructionStep>
+					</InstructionsBox>
+				</ModalContent>
+
+				<ModalFooter>
+					<Button variant="secondary" onClick={onClose}>
+						Cancel
+					</Button>
+					<Button variant="primary" onClick={onContinue}>
+						Continue Anyway
+					</Button>
+				</ModalFooter>
+			</ModalContainer>
+		</ModalOverlay>
+	);
 };
 
 export default DefaultRedirectUriModal;
