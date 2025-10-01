@@ -488,7 +488,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							data-active={isActiveRoute('/flows/device-authorization-v5')}
 						>
 							<FiZap style={{ marginRight: '0.5rem' }} />
-							<span>Device Authorization Flow V5</span>
+							<span>OAuth Device Authorization Code V5</span>
 						</SubmenuItem>
 
 						{/* Standard OAuth 2.0 Flows */}
@@ -561,6 +561,17 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						>
 							<FiZap style={{ marginRight: '0.5rem' }} />
 							<span>OIDC Implicit Flow V5</span>
+						</SubmenuItem>
+
+						<SubmenuItem
+							to="/flows/oidc-device-authorization-v5"
+							onClick={onClose}
+							$isActive={isActiveRoute('/flows/oidc-device-authorization-v5')}
+							$isV5={true}
+							data-active={isActiveRoute('/flows/oidc-device-authorization-v5')}
+						>
+							<FiZap style={{ marginRight: '0.5rem' }} />
+							<span>OIDC Device Authorization Code V5</span>
 						</SubmenuItem>
 
 						{/* V3 Flows - Hidden */}

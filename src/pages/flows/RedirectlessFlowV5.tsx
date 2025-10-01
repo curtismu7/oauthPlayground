@@ -22,6 +22,8 @@ import {
 import styled from 'styled-components';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
+import FlowInfoCard from '../../components/FlowInfoCard';
+import { getFlowInfo } from '../../utils/flowInfoConfig';
 import {
 	ExplanationHeading,
 	ExplanationSection,
@@ -1403,9 +1405,11 @@ const RedirectlessFlowV5: React.FC = () => {
 					<Subtitle>
 						Interactive demonstration of <code>response_mode=pi.flow</code> for embedded authentication without browser redirects
 					</Subtitle>
-				</HeaderSection>
+			</HeaderSection>
 
-				<MainCard>
+			<FlowInfoCard flowInfo={getFlowInfo('redirectless')!} />
+
+			<MainCard>
 					<StepHeader>
 						<StepHeaderLeft>
 							<VersionBadge>Redirectless Flow · V5</VersionBadge>

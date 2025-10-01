@@ -19,6 +19,8 @@ import {
 import styled from 'styled-components';
 import ConfigurationSummaryCard from './ConfigurationSummaryCard';
 import { CredentialsInput } from './CredentialsInput';
+import FlowInfoCard from './FlowInfoCard';
+import { getFlowInfo } from '../utils/flowInfoConfig';
 import { FlowWalkthrough } from './FlowWalkthrough';
 import {
 	ExplanationHeading,
@@ -1145,9 +1147,11 @@ export const AuthorizationCodeFlowV5: React.FC<AuthorizationCodeFlowV5Props> = (
 					Interactive demonstration of the {flowType === 'oidc' ? 'OpenID Connect ' : 'OAuth 2.0 '}
 					Authorization Code Flow with PKCE using PingOne
 				</p>
-			</Header>
+		</Header>
 
-			<StepHeader>
+		<FlowInfoCard flowInfo={getFlowInfo(flowType === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code')!} />
+
+		<StepHeader>
 				<StepHeaderLeft>
 					<VersionBadge>{flowVersion}</VersionBadge>
 					<StepHeaderTitle>{STEP_METADATA[currentStep].title}</StepHeaderTitle>
