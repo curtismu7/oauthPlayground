@@ -6,54 +6,66 @@ import { showGlobalError, showGlobalSuccess, showGlobalWarning } from '../hooks/
 // Default toast messages for V4 flows
 export const V4_TOAST_MESSAGES: ButtonToastScenarios = {
 	// Save Configuration Button
-	saveConfigurationStart: "Saving configuration...",
-	saveConfigurationSuccess: "Configuration saved successfully",
-	saveConfigurationError: "Failed to save configuration: {error}",
-	saveConfigurationValidationError: "Please fill in required fields: {fields}",
-	
+	saveConfigurationStart: 'Saving configuration...',
+	saveConfigurationSuccess: 'Configuration saved successfully',
+	saveConfigurationError: 'Failed to save configuration: {error}',
+	saveConfigurationValidationError: 'Please fill in required fields: {fields}',
+
 	// PKCE Buttons
-	pkceGenerated: "PKCE parameters generated successfully",
-	pkceGenerationError: "Failed to generate PKCE parameters",
-	pkceVerifierCopied: "Code verifier copied to clipboard",
-	pkceChallengeCopied: "Code challenge copied to clipboard",
-	
+	pkceGenerated: 'PKCE parameters generated successfully',
+	pkceGenerationError: 'Failed to generate PKCE parameters',
+	pkceVerifierCopied: 'Code verifier copied to clipboard',
+	pkceChallengeCopied: 'Code challenge copied to clipboard',
+
 	// Authorization URL Buttons
-	authUrlGenerated: "Authorization URL generated successfully",
-	authUrlGenerationError: "Failed to generate authorization URL: {error}",
-	authUrlCopied: "Authorization URL copied to clipboard",
-	authUrlOpened: "Authorization flow started in new window",
-	
+	authUrlGenerated: 'Authorization URL generated successfully',
+	authUrlGenerationError: 'Failed to generate authorization URL: {error}',
+	authUrlCopied: 'Authorization URL copied to clipboard',
+	authUrlOpened: 'Authorization flow started in new window',
+
 	// Token Exchange Button
-	tokenExchangeStart: "Exchanging authorization code for tokens...",
-	tokenExchangeSuccess: "Tokens exchanged successfully",
-	tokenExchangeError: "Token exchange failed: {error}",
-	authCodeCopied: "Authorization code copied to clipboard",
-	
+	tokenExchangeStart: 'Exchanging authorization code for tokens...',
+	tokenExchangeSuccess: 'Tokens exchanged successfully',
+	tokenExchangeError: 'Token exchange failed: {error}',
+	authCodeCopied: 'Authorization code copied to clipboard',
+
+	// Token Loading
+	tokenLoadedFromStorage: 'Token loaded from storage successfully',
+	tokenLoadedFromDashboard: 'Token loaded from dashboard login successfully',
+	sampleTokenLoaded: 'Sample token loaded successfully',
+	badTokenLoaded: 'Bad security token loaded for demonstration',
+	noTokensInStorage: 'No tokens found in storage',
+	noTokensInSession: 'No active session tokens found',
+
+	// Token Introspection
+	introspectionNotSupported: 'ID tokens cannot be introspected - they are validated locally using JWKS',
+	introspectionCredentialsRequired: 'Introspection requires PingOne credentials. Please configure them in Settings.',
+	introspectionSuccess: 'Token introspection completed successfully',
+
 	// User Info
-	userInfoFetched: "User information retrieved successfully",
-	userInfoError: "Failed to fetch user information: {error}",
-	
+	userInfoFetched: 'User information retrieved successfully',
+	userInfoError: 'Failed to fetch user information: {error}',
 	// Navigation Buttons
-	stepCompleted: "Step {step} completed",
-	stepError: "Please complete required fields before proceeding",
-	flowCompleted: "🎉 OAuth Flow Complete!",
-	
+	stepCompleted: 'Step {step} completed',
+	stepError: 'Please complete required fields before proceeding',
+	flowCompleted: '🎉 OAuth Flow Complete!',
+
 	// Quiz Buttons
-	quizCorrect: "✅ Correct answer!",
-	quizIncorrect: "❌ Incorrect. Try again!",
-	
+	quizCorrect: '✅ Correct answer!',
+	quizIncorrect: '❌ Incorrect. Try again!',
+
 	// Scope Selection
-	scopeUpdated: "Scopes updated",
-	scopeRequired: "OpenID scope is required",
-	
+	scopeUpdated: 'Scopes updated',
+	scopeRequired: 'OpenID scope is required',
+
 	// Copy Functionality
-	copySuccess: "{item} copied to clipboard",
-	copyError: "Failed to copy {item}",
-	
+	copySuccess: '{item} copied to clipboard',
+	copyError: 'Failed to copy {item}',
+
 	// Network/Server Errors
-	networkError: "Network error. Please check your connection.",
-	serverError: "Server error. Please try again later.",
-	timeoutError: "Request timed out. Please try again."
+	networkError: 'Network error. Please check your connection.',
+	serverError: 'Server error. Please try again later.',
+	timeoutError: 'Request timed out. Please try again.',
 };
 
 export class V4ToastManager {
@@ -64,27 +76,40 @@ export class V4ToastManager {
 	}
 
 	/**
-	 * Show success toast with message interpolation
+	 * Show success toast with message interpolation or custom message
 	 */
-	showSuccess(key: keyof ButtonToastScenarios, variables: Record<string, string> = {}): void {
-		const message = this.interpolateMessage(this.messages[key], variables);
+	showSuccess(keyOrMessage: keyof ButtonToastScenarios | string, variables: Record<string, string> = {}): void {
+		const message = this.isPresetKey(keyOrMessage) 
+			? this.interpolateMessage(this.messages[keyOrMessage], variables)
+			: keyOrMessage;
 		showGlobalSuccess(message);
 	}
 
 	/**
-	 * Show error toast with message interpolation
+	 * Show error toast with message interpolation or custom message
 	 */
-	showError(key: keyof ButtonToastScenarios, variables: Record<string, string> = {}): void {
-		const message = this.interpolateMessage(this.messages[key], variables);
+	showError(keyOrMessage: keyof ButtonToastScenarios | string, variables: Record<string, string> = {}): void {
+		const message = this.isPresetKey(keyOrMessage)
+			? this.interpolateMessage(this.messages[keyOrMessage], variables)
+			: keyOrMessage;
 		showGlobalError(message);
 	}
 
 	/**
-	 * Show warning toast with message interpolation
+	 * Show warning toast with message interpolation or custom message
 	 */
-	showWarning(key: keyof ButtonToastScenarios, variables: Record<string, string> = {}): void {
-		const message = this.interpolateMessage(this.messages[key], variables);
+	showWarning(keyOrMessage: keyof ButtonToastScenarios | string, variables: Record<string, string> = {}): void {
+		const message = this.isPresetKey(keyOrMessage)
+			? this.interpolateMessage(this.messages[keyOrMessage], variables)
+			: keyOrMessage;
 		showGlobalWarning(message);
+	}
+
+	/**
+	 * Check if the input is a preset key or custom message
+	 */
+	private isPresetKey(keyOrMessage: string): keyOrMessage is keyof ButtonToastScenarios {
+		return keyOrMessage in this.messages;
 	}
 
 	/**
@@ -311,6 +336,15 @@ export class V4ToastManager {
 	 */
 	updateMessages(newMessages: Partial<ButtonToastScenarios>): void {
 		this.messages = { ...this.messages, ...newMessages };
+	}
+
+	/**
+	 * Convenience method for copy operations
+	 */
+	handleCopyOperation(text: string, label: string): Promise<void> {
+		return navigator.clipboard.writeText(text)
+			.then(() => this.showSuccess(`${label} copied to clipboard!`))
+			.catch(() => this.showError(`Failed to copy ${label}: Unable to copy to clipboard.`));
 	}
 }
 

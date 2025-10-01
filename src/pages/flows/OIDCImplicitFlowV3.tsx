@@ -1,5 +1,5 @@
 // src/pages/flows/OIDCImplicitFlowV3.tsx - OIDC 1.0 Implicit Flow V3
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -13,38 +13,30 @@ import {
 	FiSettings,
 	FiShield,
 	FiUser,
-} from "react-icons/fi";
-import styled from "styled-components";
-import AuthorizationRequestModal from "../../components/AuthorizationRequestModal";
-import { ColorCodedURL } from "../../components/ColorCodedURL";
-import ConfirmationModal from "../../components/ConfirmationModal";
-import DefaultRedirectUriModal from "../../components/DefaultRedirectUriModal";
-import { EnhancedStepFlowV2 } from "../../components/EnhancedStepFlowV2";
-import IDTokenEducationSection from "../../components/IDTokenEducationSection";
-import {
-	FormField,
-	FormInput,
-	FormLabel,
-	InfoBox,
-} from "../../components/steps/CommonSteps";
-import TokenDisplay from "../../components/TokenDisplay";
-import { useAuth } from "../../contexts/NewAuthContext";
-import { usePerformanceTracking } from "../../hooks/useAnalytics";
-import {
-	showGlobalError,
-	showGlobalSuccess,
-} from "../../hooks/useNotifications";
-import { useAuthorizationFlowScroll } from "../../hooks/usePageScroll";
-import { getCallbackUrlForFlow } from "../../utils/callbackUrls";
-import { copyToClipboard } from "../../utils/clipboard";
-import { credentialManager } from "../../utils/credentialManager";
-import { enhancedDebugger } from "../../utils/enhancedDebug";
-import { trackFlowCompletion } from "../../utils/flowCredentialChecker";
-import { useFlowStepManager } from "../../utils/flowStepSystem";
+} from 'react-icons/fi';
+import styled from 'styled-components';
+import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
+import { ColorCodedURL } from '../../components/ColorCodedURL';
+import ConfirmationModal from '../../components/ConfirmationModal';
+import DefaultRedirectUriModal from '../../components/DefaultRedirectUriModal';
+import { EnhancedStepFlowV2 } from '../../components/EnhancedStepFlowV2';
+import IDTokenEducationSection from '../../components/IDTokenEducationSection';
+import { FormField, FormInput, FormLabel, InfoBox } from '../../components/steps/CommonSteps';
+import TokenDisplay from '../../components/TokenDisplay';
+import { useAuth } from '../../contexts/NewAuthContext';
+import { usePerformanceTracking } from '../../hooks/useAnalytics';
+import { showGlobalError, showGlobalSuccess } from '../../hooks/useNotifications';
+import { useAuthorizationFlowScroll } from '../../hooks/usePageScroll';
+import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
+import { copyToClipboard } from '../../utils/clipboard';
+import { credentialManager } from '../../utils/credentialManager';
+import { enhancedDebugger } from '../../utils/enhancedDebug';
+import { trackFlowCompletion } from '../../utils/flowCredentialChecker';
+import { useFlowStepManager } from '../../utils/flowStepSystem';
 import {
 	generateSecurityParameters,
 	storeSecurityParameters,
-} from "../../utils/implicitFlowSecurity";
+} from '../../utils/implicitFlowSecurity';
 
 // Styled components
 const Container = styled.div`
@@ -203,7 +195,7 @@ const JsonDisplay = styled.div`
 `;
 
 const ActionButton = styled.button<{
-	variant?: "primary" | "secondary" | "success" | "danger";
+	variant?: 'primary' | 'secondary' | 'success' | 'danger';
 }>`
   display: flex;
   align-items: center;
@@ -218,19 +210,19 @@ const ActionButton = styled.button<{
   
   ${({ variant }) => {
 		switch (variant) {
-			case "primary":
+			case 'primary':
 				return `
           background-color: #3b82f6;
           color: white;
           &:hover { background-color: #2563eb; }
         `;
-			case "success":
+			case 'success':
 				return `
           background-color: #10b981;
           color: white;
           &:hover { background-color: #059669; }
         `;
-			case "danger":
+			case 'danger':
 				return `
           background-color: #ef4444;
           color: white;
@@ -347,8 +339,8 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 
 	// Start debug session
 	React.useEffect(() => {
-		const sessionId = enhancedDebugger.startSession("oidc-implicit-v3");
-		console.log("🔍 [OIDC-IMPLICIT-V3] Debug session started:", sessionId);
+		const sessionId = enhancedDebugger.startSession('oidc-implicit-v3');
+		console.log('🔍 [OIDC-IMPLICIT-V3] Debug session started:', sessionId);
 
 		return () => {
 			enhancedDebugger.endSession(sessionId);
@@ -356,24 +348,22 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 	}, []);
 
 	// Use centralized scroll management
-	const { scrollToTopAfterAction } = useAuthorizationFlowScroll(
-		"OIDC Implicit Flow V3",
-	);
+	const { scrollToTopAfterAction } = useAuthorizationFlowScroll('OIDC Implicit Flow V3');
 
 	// Use the new step management system
 	const stepManager = useFlowStepManager({
-		flowType: "oidc-implicit",
-		persistKey: "oidc_implicit_v3_step_manager",
+		flowType: 'oidc-implicit',
+		persistKey: 'oidc_implicit_v3_step_manager',
 		defaultStep: 0,
 		enableAutoAdvance: true,
 	});
 
 	// Flow state
 	const [credentials, setCredentials] = useState({
-		environmentId: "",
-		clientId: "",
-		redirectUri: "",
-		scopes: "openid",
+		environmentId: '',
+		clientId: '',
+		redirectUri: '',
+		scopes: 'openid',
 	});
 
 	// Validation state
@@ -387,8 +377,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 		const loadCredentials = () => {
 			try {
 				// Load implicit flow-specific credentials first
-				const implicitCredentials =
-					credentialManager.loadImplicitFlowCredentials();
+				const implicitCredentials = credentialManager.loadImplicitFlowCredentials();
 
 				// If implicit flow credentials exist and have values, use them
 				if (
@@ -397,16 +386,16 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 					implicitCredentials.redirectUri
 				) {
 					setCredentials({
-						environmentId: implicitCredentials.environmentId || "",
-						clientId: implicitCredentials.clientId || "",
-						redirectUri: implicitCredentials.redirectUri || "",
+						environmentId: implicitCredentials.environmentId || '',
+						clientId: implicitCredentials.clientId || '',
+						redirectUri: implicitCredentials.redirectUri || '',
 						scopes: Array.isArray(implicitCredentials.scopes)
-							? implicitCredentials.scopes.join(" ")
-							: implicitCredentials.scopes || "openid",
+							? implicitCredentials.scopes.join(' ')
+							: implicitCredentials.scopes || 'openid',
 					});
 					console.log(
-						"✅ [OIDC-IMPLICIT-V3] Loaded implicit flow credentials:",
-						implicitCredentials,
+						'✅ [OIDC-IMPLICIT-V3] Loaded implicit flow credentials:',
+						implicitCredentials
 					);
 				} else {
 					// Fall back to global configuration
@@ -417,40 +406,37 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 						configCredentials.redirectUri
 					) {
 						setCredentials({
-							environmentId: configCredentials.environmentId || "",
-							clientId: configCredentials.clientId || "",
-							redirectUri: configCredentials.redirectUri || "",
+							environmentId: configCredentials.environmentId || '',
+							clientId: configCredentials.clientId || '',
+							redirectUri: configCredentials.redirectUri || '',
 							scopes: Array.isArray(configCredentials.scopes)
-								? configCredentials.scopes.join(" ")
-								: configCredentials.scopes || "openid",
+								? configCredentials.scopes.join(' ')
+								: configCredentials.scopes || 'openid',
 						});
 						console.log(
-							"✅ [OIDC-IMPLICIT-V3] Loaded global config credentials:",
-							configCredentials,
+							'✅ [OIDC-IMPLICIT-V3] Loaded global config credentials:',
+							configCredentials
 						);
 					} else {
 						// Both are blank - show modal with default URI
-						const defaultUri = getCallbackUrlForFlow("oidc-implicit-v3");
+						const defaultUri = getCallbackUrlForFlow('oidc-implicit-v3');
 						setDefaultRedirectUri(defaultUri);
 						setShowDefaultRedirectUriModal(true);
 						setCredentials({
-							environmentId: "",
-							clientId: "",
+							environmentId: '',
+							clientId: '',
 							redirectUri: defaultUri,
-							scopes: "openid",
+							scopes: 'openid',
 						});
 						console.log(
-							"⚠️ [OIDC-IMPLICIT-V3] No credentials found, showing default redirect URI modal",
+							'⚠️ [OIDC-IMPLICIT-V3] No credentials found, showing default redirect URI modal'
 						);
 					}
 				}
 			} catch (error) {
-				console.error(
-					"❌ [OIDC-IMPLICIT-V3] Failed to load credentials:",
-					error,
-				);
+				console.error('❌ [OIDC-IMPLICIT-V3] Failed to load credentials:', error);
 				// Fall back to defaults
-				const defaultUri = getCallbackUrlForFlow("oidc-implicit-v3");
+				const defaultUri = getCallbackUrlForFlow('oidc-implicit-v3');
 				setDefaultRedirectUri(defaultUri);
 				setShowDefaultRedirectUriModal(true);
 				setCredentials((prev) => ({
@@ -468,47 +454,41 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 		const handleCallbackReturn = () => {
 			try {
 				// Check for tokens in sessionStorage (set by callback handler)
-				const storedTokens = sessionStorage.getItem("implicit_tokens");
+				const storedTokens = sessionStorage.getItem('implicit_tokens');
 				if (storedTokens) {
-					console.log(
-						"🔑 [OIDC-IMPLICIT-V3] Found tokens from callback:",
-						storedTokens,
-					);
+					console.log('🔑 [OIDC-IMPLICIT-V3] Found tokens from callback:', storedTokens);
 
 					const tokenData = JSON.parse(storedTokens);
 					setTokens(tokenData);
 
 					// Track flow completion for dashboard status
-					trackFlowCompletion("oidc-implicit-v3");
+					trackFlowCompletion('oidc-implicit-v3');
 
 					// Auto-advance to step 4 (token validation & display)
-					stepManager.setStep(3, "callback return with tokens");
+					stepManager.setStep(3, 'callback return with tokens');
 					console.log(
-						"🔄 [OIDC-IMPLICIT-V3] Auto-advancing to step 4 (token validation) after callback return",
+						'🔄 [OIDC-IMPLICIT-V3] Auto-advancing to step 4 (token validation) after callback return'
 					);
 
 					// Show success message
 					showGlobalSuccess(
-						"🎉 Authorization Successful!",
-						"Tokens received from PingOne. You can now view and validate the tokens.",
+						'🎉 Authorization Successful!',
+						'Tokens received from PingOne. You can now view and validate the tokens.'
 					);
 
 					// Clean up sessionStorage
-					sessionStorage.removeItem("implicit_tokens");
+					sessionStorage.removeItem('implicit_tokens');
 
 					// Clean up flow context
-					sessionStorage.removeItem("oidc_implicit_v3_flow_context");
+					sessionStorage.removeItem('oidc_implicit_v3_flow_context');
 
 					// Clean up URL hash if present
 					if (window.location.hash) {
-						window.history.replaceState({}, "", window.location.pathname);
+						window.history.replaceState({}, '', window.location.pathname);
 					}
 				}
 			} catch (error) {
-				console.error(
-					"❌ [OIDC-IMPLICIT-V3] Failed to handle callback return:",
-					error,
-				);
+				console.error('❌ [OIDC-IMPLICIT-V3] Failed to handle callback return:', error);
 			}
 		};
 
@@ -517,7 +497,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 
 	// Client ID validation function
 	const validateClientId = useCallback((clientId: string): boolean => {
-		if (!clientId || clientId.trim() === "") return false;
+		if (!clientId || clientId.trim() === '') return false;
 		// Basic validation - should be alphanumeric with hyphens/underscores
 		const isValid = /^[a-zA-Z0-9_-]+$/.test(clientId) && clientId.length >= 8;
 		return isValid;
@@ -525,73 +505,52 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 
 	// Environment ID validation function
 	const validateEnvironmentId = useCallback((envId: string): boolean => {
-		if (!envId || envId.trim() === "") return false;
+		if (!envId || envId.trim() === '') return false;
 		// Should be UUID format
-		const uuidRegex =
-			/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+		const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 		return uuidRegex.test(envId);
 	}, []);
 
 	// Update validation errors when credentials change
 	useEffect(() => {
 		setValidationErrors({
-			clientId: credentials.clientId
-				? !validateClientId(credentials.clientId)
-				: false,
+			clientId: credentials.clientId ? !validateClientId(credentials.clientId) : false,
 			environmentId: credentials.environmentId
 				? !validateEnvironmentId(credentials.environmentId)
 				: false,
 		});
-	}, [
-		credentials.clientId,
-		credentials.environmentId,
-		validateClientId,
-		validateEnvironmentId,
-	]);
+	}, [credentials.clientId, credentials.environmentId, validateClientId, validateEnvironmentId]);
 
-	const [responseType, setResponseType] = useState<
-		"id_token" | "id_token token"
-	>("id_token token");
-	const [authUrl, setAuthUrl] = useState("");
-	const [userInfo, setUserInfo] = useState<Record<string, unknown> | null>(
-		null,
-	);
+	const [responseType, setResponseType] = useState<'id_token' | 'id_token token'>('id_token token');
+	const [authUrl, setAuthUrl] = useState('');
+	const [userInfo, setUserInfo] = useState<Record<string, unknown> | null>(null);
 	const [tokens, setTokens] = useState<Record<string, unknown> | null>(null);
 	const [isRedirecting, setIsRedirecting] = useState(false);
 	const [isGettingUserInfo, setIsGettingUserInfo] = useState(false);
-	const [showClearCredentialsModal, setShowClearCredentialsModal] =
-		useState(false);
+	const [showClearCredentialsModal, setShowClearCredentialsModal] = useState(false);
 	const [showAuthRequestModal, setShowAuthRequestModal] = useState(false);
 	const [isClearingCredentials, setIsClearingCredentials] = useState(false);
 	const [_copiedText, _setCopiedText] = useState<string | null>(null);
-	const [showDefaultRedirectUriModal, setShowDefaultRedirectUriModal] =
-		useState(false);
-	const [defaultRedirectUri, setDefaultRedirectUri] = useState("");
+	const [showDefaultRedirectUriModal, setShowDefaultRedirectUriModal] = useState(false);
+	const [defaultRedirectUri, setDefaultRedirectUri] = useState('');
 	const [showEducationalContent, setShowEducationalContent] = useState(true);
-	const [showClientIdTroubleshooting, setShowClientIdTroubleshooting] =
-		useState(false);
+	const [showClientIdTroubleshooting, setShowClientIdTroubleshooting] = useState(false);
 	const [isResettingFlow, setIsResettingFlow] = useState(false);
-	const [showGeneralTroubleshooting, setShowGeneralTroubleshooting] =
-		useState(false);
+	const [showGeneralTroubleshooting, setShowGeneralTroubleshooting] = useState(false);
 	const [showParameterBreakdown, setShowParameterBreakdown] = useState(false);
 	const [showTokenDetails, setShowTokenDetails] = useState(false);
 	const [showUserInfoDetails, setShowUserInfoDetails] = useState(false);
 
 	// Load credentials from storage
 	useEffect(() => {
-		const savedCredentials = localStorage.getItem(
-			"oidc_implicit_v3_credentials",
-		);
+		const savedCredentials = localStorage.getItem('oidc_implicit_v3_credentials');
 		if (savedCredentials) {
 			try {
 				const parsed = JSON.parse(savedCredentials);
 				setCredentials((prev) => ({ ...prev, ...parsed }));
-				console.log("✅ [OIDC-IMPLICIT-V3] Loaded saved credentials");
+				console.log('✅ [OIDC-IMPLICIT-V3] Loaded saved credentials');
 			} catch (error) {
-				console.warn(
-					"⚠️ [OIDC-IMPLICIT-V3] Failed to parse saved credentials:",
-					error,
-				);
+				console.warn('⚠️ [OIDC-IMPLICIT-V3] Failed to parse saved credentials:', error);
 			}
 		}
 	}, []);
@@ -604,26 +563,21 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 				environmentId: credentials.environmentId,
 				clientId: credentials.clientId,
 				redirectUri: credentials.redirectUri,
-				scopes: credentials.scopes.split(" "),
+				scopes: credentials.scopes.split(' '),
 			});
 
 			if (!success) {
-				throw new Error("Failed to save credentials to credential manager");
+				throw new Error('Failed to save credentials to credential manager');
 			}
 
 			// Also store in localStorage for backward compatibility
-			localStorage.setItem(
-				"oidc_implicit_v3_credentials",
-				JSON.stringify(credentials),
-			);
+			localStorage.setItem('oidc_implicit_v3_credentials', JSON.stringify(credentials));
 
-			showGlobalSuccess("Credentials saved successfully");
-			console.log(
-				"✅ [OIDC-IMPLICIT-V3] Credentials saved to credential manager and localStorage",
-			);
+			showGlobalSuccess('Credentials saved successfully');
+			console.log('✅ [OIDC-IMPLICIT-V3] Credentials saved to credential manager and localStorage');
 		} catch (error) {
-			showGlobalError("Failed to save credentials");
-			console.error("❌ [OIDC-IMPLICIT-V3] Failed to save credentials:", error);
+			showGlobalError('Failed to save credentials');
+			console.error('❌ [OIDC-IMPLICIT-V3] Failed to save credentials:', error);
 		}
 	}, [credentials]);
 
@@ -633,32 +587,29 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 		try {
 			// Clear from credential manager
 			credentialManager.saveImplicitFlowCredentials({
-				environmentId: "",
-				clientId: "",
-				redirectUri: "",
+				environmentId: '',
+				clientId: '',
+				redirectUri: '',
 				scopes: [],
 			});
 
 			// Clear from localStorage
-			localStorage.removeItem("oidc_implicit_v3_credentials");
+			localStorage.removeItem('oidc_implicit_v3_credentials');
 
 			setCredentials({
-				environmentId: "",
-				clientId: "",
-				redirectUri: "",
-				scopes: "openid",
+				environmentId: '',
+				clientId: '',
+				redirectUri: '',
+				scopes: 'openid',
 			});
 
-			showGlobalSuccess("Credentials cleared successfully");
+			showGlobalSuccess('Credentials cleared successfully');
 			console.log(
-				"✅ [OIDC-IMPLICIT-V3] Credentials cleared from credential manager and localStorage",
+				'✅ [OIDC-IMPLICIT-V3] Credentials cleared from credential manager and localStorage'
 			);
 		} catch (error) {
-			showGlobalError("Failed to clear credentials");
-			console.error(
-				"❌ [OIDC-IMPLICIT-V3] Failed to clear credentials:",
-				error,
-			);
+			showGlobalError('Failed to clear credentials');
+			console.error('❌ [OIDC-IMPLICIT-V3] Failed to clear credentials:', error);
 		} finally {
 			setIsClearingCredentials(false);
 			setShowClearCredentialsModal(false);
@@ -668,7 +619,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 	const handleContinueWithDefaultUri = () => {
 		setShowDefaultRedirectUriModal(false);
 		showGlobalSuccess(
-			"Using default redirect URI. Please configure it in your PingOne application.",
+			'Using default redirect URI. Please configure it in your PingOne application.'
 		);
 	};
 
@@ -682,9 +633,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 				!credentials.redirectUri ||
 				!credentials.scopes
 			) {
-				throw new Error(
-					"Missing required credentials. Please ensure all fields are filled.",
-				);
+				throw new Error('Missing required credentials. Please ensure all fields are filled.');
 			}
 
 			const baseUrl = `https://auth.pingone.com/${credentials.environmentId}`;
@@ -692,7 +641,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 
 			// Generate security parameters (state and nonce)
 			const { state, nonce } = generateSecurityParameters(32);
-			storeSecurityParameters("oidc", state, nonce);
+			storeSecurityParameters('oidc', state, nonce);
 
 			const params = new URLSearchParams({
 				client_id: credentials.clientId,
@@ -706,7 +655,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 			const fullUrl = `${authEndpoint}?${params.toString()}`;
 			setAuthUrl(fullUrl);
 
-			console.log("✅ [OIDC-IMPLICIT-V3] Authorization URL built:", {
+			console.log('✅ [OIDC-IMPLICIT-V3] Authorization URL built:', {
 				endpoint: authEndpoint,
 				environmentId: credentials.environmentId,
 				clientId: credentials.clientId,
@@ -719,21 +668,16 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 			});
 
 			console.log(
-				"🚨 [OIDC-IMPLICIT-V3] IMPORTANT: Add this redirect URI to your PingOne application:",
+				'🚨 [OIDC-IMPLICIT-V3] IMPORTANT: Add this redirect URI to your PingOne application:'
 			);
 			console.log(`   Redirect URI: ${credentials.redirectUri}`);
 			console.log(`   Environment: ${credentials.environmentId}`);
-			console.log(
-				"   Path: Applications → Your App → Configuration → Redirect URIs",
-			);
+			console.log('   Path: Applications → Your App → Configuration → Redirect URIs');
 
-			showGlobalSuccess("Authorization URL built successfully!");
+			showGlobalSuccess('Authorization URL built successfully!');
 			return fullUrl;
 		} catch (error) {
-			console.error(
-				"❌ [OIDC-IMPLICIT-V3] Failed to build authorization URL:",
-				error,
-			);
+			console.error('❌ [OIDC-IMPLICIT-V3] Failed to build authorization URL:', error);
 			showGlobalError(`Failed to build authorization URL: ${error.message}`);
 			throw error;
 		}
@@ -742,16 +686,16 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 	// Direct authorization redirect (without modal)
 	const handleAuthorizationDirect = useCallback(() => {
 		if (!authUrl) {
-			showGlobalError("Please build authorization URL first");
+			showGlobalError('Please build authorization URL first');
 			return;
 		}
 
 		setIsRedirecting(true);
-		console.log("🚀 [OIDC-IMPLICIT-V3] Redirecting to authorization server...");
+		console.log('🚀 [OIDC-IMPLICIT-V3] Redirecting to authorization server...');
 
 		// Store flow context for callback
 		sessionStorage.setItem(
-			"oidc_implicit_v3_flow_context",
+			'oidc_implicit_v3_flow_context',
 			JSON.stringify({
 				environmentId: credentials.environmentId,
 				clientId: credentials.clientId,
@@ -759,7 +703,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 				scopes: credentials.scopes,
 				responseType: responseType,
 				timestamp: Date.now(),
-			}),
+			})
 		);
 
 		// Redirect to authorization server
@@ -769,24 +713,20 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 	// Handle authorization redirect with modal option
 	const handleAuthorizationWithModal = useCallback(() => {
 		if (!authUrl) {
-			showGlobalError("❌ Please generate authorization URL first");
+			showGlobalError('❌ Please generate authorization URL first');
 			return;
 		}
 
 		// Check configuration setting for showing auth request modal
-		const flowConfigKey = "enhanced-flow-authorization-code";
-		const flowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || "{}");
+		const flowConfigKey = 'enhanced-flow-authorization-code';
+		const flowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
 		const shouldShowModal = flowConfig.showAuthRequestModal === true;
 
 		if (shouldShowModal) {
-			console.log(
-				"🔧 [OIDC-IMPLICIT-V3] Showing authorization request modal (user preference)",
-			);
+			console.log('🔧 [OIDC-IMPLICIT-V3] Showing authorization request modal (user preference)');
 			setShowAuthRequestModal(true);
 		} else {
-			console.log(
-				"🔧 [OIDC-IMPLICIT-V3] Skipping authorization modal (user preference)",
-			);
+			console.log('🔧 [OIDC-IMPLICIT-V3] Skipping authorization modal (user preference)');
 			handleAuthorizationDirect();
 		}
 	}, [authUrl, handleAuthorizationDirect]);
@@ -799,7 +739,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 	// Get user info
 	const getUserInfo = useCallback(async () => {
 		if (!tokens?.access_token) {
-			showGlobalError("No access token available for UserInfo request");
+			showGlobalError('No access token available for UserInfo request');
 			return;
 		}
 
@@ -810,23 +750,21 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 			const response = await fetch(userInfoEndpoint, {
 				headers: {
 					Authorization: `Bearer ${tokens.access_token}`,
-					Accept: "application/json",
+					Accept: 'application/json',
 				},
 			});
 
 			if (!response.ok) {
-				throw new Error(
-					`UserInfo request failed: ${response.status} ${response.statusText}`,
-				);
+				throw new Error(`UserInfo request failed: ${response.status} ${response.statusText}`);
 			}
 
 			const userInfoData = await response.json();
 			setUserInfo(userInfoData);
-			showGlobalSuccess("User info retrieved successfully");
+			showGlobalSuccess('User info retrieved successfully');
 
-			console.log("✅ [OIDC-IMPLICIT-V3] User info retrieved:", userInfoData);
+			console.log('✅ [OIDC-IMPLICIT-V3] User info retrieved:', userInfoData);
 		} catch (error) {
-			console.error("❌ [OIDC-IMPLICIT-V3] Failed to get user info:", error);
+			console.error('❌ [OIDC-IMPLICIT-V3] Failed to get user info:', error);
 			showGlobalError(`Failed to get user info: ${error.message}`);
 		} finally {
 			setIsGettingUserInfo(false);
@@ -838,17 +776,17 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 		if (userInfo) {
 			try {
 				await copyToClipboard(JSON.stringify(userInfo, null, 2));
-				showGlobalSuccess("UserInfo copied to clipboard");
+				showGlobalSuccess('UserInfo copied to clipboard');
 			} catch (_error) {
-				showGlobalError("Failed to copy UserInfo");
+				showGlobalError('Failed to copy UserInfo');
 			}
 		}
 	}, [userInfo]);
 
 	// Navigate to Token Management with token
 	const navigateToTokenManagement = useCallback(
-		(tokenType: "access" | "id") => {
-			console.log("🔍 [OIDCImplicitFlowV3] Navigate to token management:", {
+		(tokenType: 'access' | 'id') => {
+			console.log('🔍 [OIDCImplicitFlowV3] Navigate to token management:', {
 				tokenType,
 				hasTokens: !!tokens,
 				hasAccessToken: !!tokens?.access_token,
@@ -856,41 +794,33 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 				tokens,
 			});
 
-			const token =
-				tokenType === "access" ? tokens?.access_token : tokens?.id_token;
+			const token = tokenType === 'access' ? tokens?.access_token : tokens?.id_token;
 
 			if (token) {
-				console.log(
-					"✅ [OIDCImplicitFlowV3] Token found, storing for analysis:",
-					{
-						tokenType,
-						tokenLength: token.length,
-						tokenPreview: `${token.substring(0, 20)}...`,
-					},
-				);
+				console.log('✅ [OIDCImplicitFlowV3] Token found, storing for analysis:', {
+					tokenType,
+					tokenLength: token.length,
+					tokenPreview: `${token.substring(0, 20)}...`,
+				});
 
 				// Store the token for the Token Management page
-				sessionStorage.setItem("token_to_analyze", token);
-				sessionStorage.setItem("token_type", tokenType);
-				sessionStorage.setItem("flow_source", "oidc-implicit-v3");
+				sessionStorage.setItem('token_to_analyze', token);
+				sessionStorage.setItem('token_type', tokenType);
+				sessionStorage.setItem('flow_source', 'oidc-implicit-v3');
 
-				console.log(
-					"🔍 [OIDCImplicitFlowV3] Navigating to token management page...",
-				);
-				window.location.href = "/token-management";
+				console.log('🔍 [OIDCImplicitFlowV3] Navigating to token management page...');
+				window.location.href = '/token-management';
 			} else {
-				console.error(
-					`❌ [OIDCImplicitFlowV3] No ${tokenType} token available for analysis`,
-				);
+				console.error(`❌ [OIDCImplicitFlowV3] No ${tokenType} token available for analysis`);
 				showGlobalError(`No ${tokenType} token available for analysis`);
 			}
 		},
-		[tokens],
+		[tokens]
 	);
 
 	// Reset flow
 	const resetFlow = useCallback(async () => {
-		console.log("🔄 [OIDC-IMPLICIT-V3] Reset flow initiated");
+		console.log('🔄 [OIDC-IMPLICIT-V3] Reset flow initiated');
 
 		setIsResettingFlow(true);
 
@@ -898,36 +828,26 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 			// Simulate a brief delay for better UX
 			await new Promise((resolve) => setTimeout(resolve, 500));
 
-			console.log(
-				"🔍 [OIDC-IMPLICIT-V3] Current step before reset:",
-				stepManager.currentStepIndex,
-			);
+			console.log('🔍 [OIDC-IMPLICIT-V3] Current step before reset:', stepManager.currentStepIndex);
 
 			// Clear all state
-			setAuthUrl("");
+			setAuthUrl('');
 			setTokens(null);
 			setUserInfo(null);
-			sessionStorage.removeItem("oidc_implicit_v3_state");
-			sessionStorage.removeItem("oidc_implicit_v3_nonce");
-			sessionStorage.removeItem("oidc_implicit_v3_flow_context");
+			sessionStorage.removeItem('oidc_implicit_v3_state');
+			sessionStorage.removeItem('oidc_implicit_v3_nonce');
+			sessionStorage.removeItem('oidc_implicit_v3_flow_context');
 
 			// Reset step manager
 			stepManager.resetFlow();
 
 			// Show success message to user
-			console.log(
-				"🎉 [OIDC-IMPLICIT-V3] About to show success message for reset",
-			);
-			showGlobalSuccess(
-				"🔄 OIDC Implicit Flow reset successfully! You can now begin a new flow.",
-			);
-			console.log("✅ [OIDC-IMPLICIT-V3] Success message shown for reset");
+			console.log('🎉 [OIDC-IMPLICIT-V3] About to show success message for reset');
+			showGlobalSuccess('🔄 OIDC Implicit Flow reset successfully! You can now begin a new flow.');
+			console.log('✅ [OIDC-IMPLICIT-V3] Success message shown for reset');
 
 			// AGGRESSIVE SCROLL TO TOP - try all methods
-			console.log(
-				"📜 [OIDC-IMPLICIT-V3] AGGRESSIVE SCROLL - position before:",
-				window.pageYOffset,
-			);
+			console.log('📜 [OIDC-IMPLICIT-V3] AGGRESSIVE SCROLL - position before:', window.pageYOffset);
 
 			// Method 1: Immediate scroll
 			window.scrollTo(0, 0);
@@ -940,16 +860,16 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 			// Method 3: Force scroll all containers
 			const scrollAllContainers = () => {
 				// Scroll main window
-				window.scrollTo({ top: 0, behavior: "instant" });
+				window.scrollTo({ top: 0, behavior: 'instant' });
 
 				// Scroll all possible containers
 				const containers = [
 					document.documentElement,
 					document.body,
-					document.querySelector("main"),
-					document.querySelector("[data-scrollable]"),
-					document.querySelector(".app-container"),
-					document.querySelector(".page-container"),
+					document.querySelector('main'),
+					document.querySelector('[data-scrollable]'),
+					document.querySelector('.app-container'),
+					document.querySelector('.page-container'),
 				];
 
 				containers.forEach((container) => {
@@ -961,7 +881,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 					}
 				});
 
-				console.log("📜 [OIDC-IMPLICIT-V3] Force scrolled all containers");
+				console.log('📜 [OIDC-IMPLICIT-V3] Force scrolled all containers');
 			};
 
 			// Execute force scroll immediately and with delays
@@ -970,10 +890,10 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 			setTimeout(scrollAllContainers, 300);
 			setTimeout(scrollAllContainers, 500);
 
-			console.log("✅ [OIDC-IMPLICIT-V3] Flow reset complete");
+			console.log('✅ [OIDC-IMPLICIT-V3] Flow reset complete');
 		} catch (error) {
-			console.error("❌ [OIDC-IMPLICIT-V3] Reset flow failed:", error);
-			showGlobalError("Failed to reset flow");
+			console.error('❌ [OIDC-IMPLICIT-V3] Reset flow failed:', error);
+			showGlobalError('Failed to reset flow');
 		} finally {
 			setIsResettingFlow(false);
 		}
@@ -983,12 +903,11 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 	const steps = useMemo(
 		() => [
 			{
-				id: "setup-credentials",
-				title: "Setup Credentials",
-				description:
-					"Configure your PingOne application credentials for OIDC Implicit flow",
+				id: 'setup-credentials',
+				title: 'Setup Credentials',
+				description: 'Configure your PingOne application credentials for OIDC Implicit flow',
 				icon: <FiSettings />,
-				category: "preparation",
+				category: 'preparation',
 				content: (
 					<div>
 						<CredentialsSection>
@@ -1040,9 +959,9 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 								/>
 								<div
 									style={{
-										fontSize: "0.875rem",
-										color: "#6b7280",
-										marginTop: "0.25rem",
+										fontSize: '0.875rem',
+										color: '#6b7280',
+										marginTop: '0.25rem',
 									}}
 								>
 									Must match exactly with your PingOne application configuration
@@ -1065,9 +984,9 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 								/>
 								<div
 									style={{
-										fontSize: "0.875rem",
-										color: "#6b7280",
-										marginTop: "0.25rem",
+										fontSize: '0.875rem',
+										color: '#6b7280',
+										marginTop: '0.25rem',
 									}}
 								>
 									Space-separated list of OIDC scopes (must include 'openid')
@@ -1078,27 +997,20 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 								<FormLabel>Response Type *</FormLabel>
 								<FormSelect
 									value={responseType}
-									onChange={(e) =>
-										setResponseType(
-											e.target.value as "id_token" | "id_token token",
-										)
-									}
+									onChange={(e) => setResponseType(e.target.value as 'id_token' | 'id_token token')}
 									required
 								>
 									<option value="id_token">id_token (ID Token only)</option>
-									<option value="id_token token">
-										id_token token (ID Token + Access Token)
-									</option>
+									<option value="id_token token">id_token token (ID Token + Access Token)</option>
 								</FormSelect>
 								<div
 									style={{
-										fontSize: "0.875rem",
-										color: "#6b7280",
-										marginTop: "0.25rem",
+										fontSize: '0.875rem',
+										color: '#6b7280',
+										marginTop: '0.25rem',
 									}}
 								>
-									Choose whether to request only ID token or both ID token and
-									access token
+									Choose whether to request only ID token or both ID token and access token
 								</div>
 							</FormField>
 						</CredentialsSection>
@@ -1109,22 +1021,21 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 					credentials.environmentId &&
 						credentials.clientId &&
 						credentials.redirectUri &&
-						credentials.scopes,
+						credentials.scopes
 				),
 				completed: Boolean(
 					credentials.environmentId &&
 						credentials.clientId &&
 						credentials.redirectUri &&
-						credentials.scopes,
+						credentials.scopes
 				),
 			},
 			{
-				id: "build-auth-url",
-				title: "Build Authorization URL",
-				description:
-					"Generate the authorization URL with proper parameters for OIDC Implicit flow",
+				id: 'build-auth-url',
+				title: 'Build Authorization URL',
+				description: 'Generate the authorization URL with proper parameters for OIDC Implicit flow',
 				icon: <FiGlobe />,
-				category: "authorization",
+				category: 'authorization',
 				content: (
 					<div>
 						<InfoBox type="info">
@@ -1132,81 +1043,80 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 							<div>
 								<strong>OIDC Implicit Flow Authorization URL</strong>
 								<br />
-								This step generates the authorization URL that will redirect the
-								user to PingOne for authentication. The response_type determines
-								whether you receive only an ID token or both ID token and access
-								token.
+								This step generates the authorization URL that will redirect the user to PingOne for
+								authentication. The response_type determines whether you receive only an ID token or
+								both ID token and access token.
 							</div>
 						</InfoBox>
 
 						{/* Authorization URL Details - Collapsible */}
 						<div
 							style={{
-								marginBottom: "1.5rem",
-								background: "#f8fafc",
-								border: "1px solid #e2e8f0",
-								borderRadius: "8px",
-								overflow: "hidden",
+								marginBottom: '1.5rem',
+								background: '#f8fafc',
+								border: '1px solid #e2e8f0',
+								borderRadius: '8px',
+								overflow: 'hidden',
 							}}
 						>
 							<div
 								style={{
-									padding: "1rem",
-									cursor: "pointer",
-									display: "flex",
-									alignItems: "center",
-									justifyContent: "space-between",
-									backgroundColor: "#f8fafc",
+									padding: '1rem',
+									cursor: 'pointer',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'space-between',
+									backgroundColor: '#f8fafc',
 								}}
 								onClick={() => {
 									const newState = !showParameterBreakdown;
 									setShowParameterBreakdown(newState);
 									showGlobalSuccess(
 										newState
-											? "📂 Parameter Breakdown Expanded"
-											: "📁 Parameter Breakdown Collapsed",
+											? '📂 Parameter Breakdown Expanded'
+											: '📁 Parameter Breakdown Collapsed',
 										newState
-											? "Authorization URL parameters are now visible"
-											: "Parameter breakdown has been collapsed",
+											? 'Authorization URL parameters are now visible'
+											: 'Parameter breakdown has been collapsed'
 									);
 								}}
 							>
 								<h4
 									style={{
 										margin: 0,
-										color: "#374151",
-										display: "flex",
-										alignItems: "center",
+										color: '#374151',
+										display: 'flex',
+										alignItems: 'center',
 									}}
 								>
-									<FiGlobe style={{ marginRight: "0.5rem" }} />
+									<FiGlobe style={{ marginRight: '0.5rem' }} />
 									Authorization URL Details
 								</h4>
 								<div
 									style={{
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "center",
-										width: "2rem",
-										height: "2rem",
-										borderRadius: "6px",
-										background: "#fef2f2",
-										border: "2px solid #ef4444",
-										boxShadow: "0 2px 4px rgba(239, 68, 68, 0.2)",
-										transition: "all 0.2s ease",
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+										width: '2rem',
+										height: '2rem',
+										borderRadius: '6px',
+										background: '#fef2f2',
+										border: '2px solid #ef4444',
+										boxShadow: '0 2px 4px rgba(239, 68, 68, 0.2)',
+										transition: 'all 0.2s ease',
 									}}
 								>
 									{showParameterBreakdown ? (
-										<FiChevronDown size={14} style={{ color: "#3b82f6" }} />
+										<FiChevronDown size={14} style={{ color: '#3b82f6' }} />
 									) : (
-										<FiChevronRight size={14} style={{ color: "#3b82f6" }} />
+										<FiChevronRight size={14} style={{ color: '#3b82f6' }} />
 									)}
 								</div>
 							</div>
 
 							{showParameterBreakdown && (
-								<div style={{ padding: "0 1rem 1rem 1rem" }}>
-									<h5 style={{ margin: "0 0 0.75rem 0", color: "#374151" }}>
+								<div style={{ padding: '0 1rem 1rem 1rem' }}>
+									<h5 style={{ margin: '0 0 0.75rem 0', color: '#374151' }}>
 										Authorization Endpoint:
 									</h5>
 									<ParameterBreakdown>
@@ -1223,20 +1133,18 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 										</ParameterItem>
 									</ParameterBreakdown>
 
-									<h5 style={{ margin: "1rem 0 0.75rem 0", color: "#374151" }}>
+									<h5 style={{ margin: '1rem 0 0.75rem 0', color: '#374151' }}>
 										Required Parameters:
 									</h5>
 									<ParameterBreakdown>
 										<ParameterItem>
 											<ParameterName>client_id</ParameterName>
-											<ParameterValue>
-												{credentials.clientId || "[Your Client ID]"}
-											</ParameterValue>
+											<ParameterValue>{credentials.clientId || '[Your Client ID]'}</ParameterValue>
 										</ParameterItem>
 										<ParameterItem>
 											<ParameterName>redirect_uri</ParameterName>
 											<ParameterValue>
-												{credentials.redirectUri || "[Your Redirect URI]"}
+												{credentials.redirectUri || '[Your Redirect URI]'}
 											</ParameterValue>
 										</ParameterItem>
 										<ParameterItem>
@@ -1245,15 +1153,11 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 										</ParameterItem>
 										<ParameterItem>
 											<ParameterName>scope</ParameterName>
-											<ParameterValue>
-												{credentials.scopes || "[Your Scopes]"}
-											</ParameterValue>
+											<ParameterValue>{credentials.scopes || '[Your Scopes]'}</ParameterValue>
 										</ParameterItem>
 										<ParameterItem>
 											<ParameterName>state</ParameterName>
-											<ParameterValue>
-												Generated random string for CSRF protection
-											</ParameterValue>
+											<ParameterValue>Generated random string for CSRF protection</ParameterValue>
 										</ParameterItem>
 										<ParameterItem>
 											<ParameterName>nonce</ParameterName>
@@ -1270,64 +1174,64 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 						{credentials.clientId && validationErrors.clientId && (
 							<div
 								style={{
-									marginTop: "1.5rem",
-									background: "#fef2f2",
-									border: "1px solid #fecaca",
-									borderRadius: "8px",
-									overflow: "hidden",
+									marginTop: '1.5rem',
+									background: '#fef2f2',
+									border: '1px solid #fecaca',
+									borderRadius: '8px',
+									overflow: 'hidden',
 								}}
 							>
 								<div
 									style={{
-										padding: "1rem",
-										cursor: "pointer",
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "space-between",
-										backgroundColor: "#fef2f2",
+										padding: '1rem',
+										cursor: 'pointer',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'space-between',
+										backgroundColor: '#fef2f2',
 									}}
 									onClick={() => {
 										const newState = !showClientIdTroubleshooting;
 										setShowClientIdTroubleshooting(newState);
 										showGlobalSuccess(
 											newState
-												? "🔧 Client ID Troubleshooting Expanded"
-												: "📁 Client ID Troubleshooting Collapsed",
+												? '🔧 Client ID Troubleshooting Expanded'
+												: '📁 Client ID Troubleshooting Collapsed',
 											newState
-												? "Client ID troubleshooting steps are now visible"
-												: "Troubleshooting section has been collapsed",
+												? 'Client ID troubleshooting steps are now visible'
+												: 'Troubleshooting section has been collapsed'
 										);
 									}}
 								>
 									<h4
 										style={{
 											margin: 0,
-											color: "#dc2626",
-											display: "flex",
-											alignItems: "center",
+											color: '#dc2626',
+											display: 'flex',
+											alignItems: 'center',
 										}}
 									>
-										<FiAlertTriangle style={{ marginRight: "0.5rem" }} />
+										<FiAlertTriangle style={{ marginRight: '0.5rem' }} />
 										Client ID Validation for Implicit Flow
 									</h4>
 									<div
 										style={{
-											display: "flex",
-											alignItems: "center",
-											justifyContent: "center",
-											width: "2rem",
-											height: "2rem",
-											borderRadius: "6px",
-											background: "#fef2f2",
-											border: "2px solid #ef4444",
-											boxShadow: "0 2px 4px rgba(239, 68, 68, 0.2)",
-											transition: "all 0.2s ease",
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											width: '2rem',
+											height: '2rem',
+											borderRadius: '6px',
+											background: '#fef2f2',
+											border: '2px solid #ef4444',
+											boxShadow: '0 2px 4px rgba(239, 68, 68, 0.2)',
+											transition: 'all 0.2s ease',
 										}}
 									>
 										{showClientIdTroubleshooting ? (
-											<FiChevronDown size={14} style={{ color: "#3b82f6" }} />
+											<FiChevronDown size={14} style={{ color: '#3b82f6' }} />
 										) : (
-											<FiChevronRight size={14} style={{ color: "#3b82f6" }} />
+											<FiChevronRight size={14} style={{ color: '#3b82f6' }} />
 										)}
 									</div>
 								</div>
@@ -1335,92 +1239,89 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 								{showClientIdTroubleshooting && (
 									<div
 										style={{
-											padding: "0 1rem 1rem 1rem",
-											fontSize: "0.875rem",
-											color: "#dc2626",
-											lineHeight: "1.5",
+											padding: '0 1rem 1rem 1rem',
+											fontSize: '0.875rem',
+											color: '#dc2626',
+											lineHeight: '1.5',
 										}}
 									>
-										<p style={{ margin: "0 0 0.5rem 0" }}>
+										<p style={{ margin: '0 0 0.5rem 0' }}>
 											<strong>⚠️ NOT_FOUND Error = Client ID Issue</strong>
 										</p>
-										<p style={{ margin: "0 0 0.5rem 0" }}>
-											If you get a "NOT_FOUND" error, PingOne cannot find your
-											Client ID. This usually means:
+										<p style={{ margin: '0 0 0.5rem 0' }}>
+											If you get a "NOT_FOUND" error, PingOne cannot find your Client ID. This
+											usually means:
 										</p>
-										<ul style={{ margin: "0.5rem 0", paddingLeft: "1.5rem" }}>
+										<ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
 											<li>
-												<strong>Wrong Client ID:</strong> The Client ID doesn't
-												exist in your PingOne environment
+												<strong>Wrong Client ID:</strong> The Client ID doesn't exist in your
+												PingOne environment
 											</li>
 											<li>
-												<strong>Wrong Environment:</strong> The Client ID exists
-												but in a different environment
+												<strong>Wrong Environment:</strong> The Client ID exists but in a different
+												environment
 											</li>
 											<li>
-												<strong>Application Deleted:</strong> The application
-												was deleted from PingOne
+												<strong>Application Deleted:</strong> The application was deleted from
+												PingOne
 											</li>
 											<li>
-												<strong>Copy/Paste Error:</strong> Extra spaces or
-												characters in the Client ID
+												<strong>Copy/Paste Error:</strong> Extra spaces or characters in the Client
+												ID
 											</li>
 										</ul>
 										<div
 											style={{
-												background: "#fef3c7",
-												border: "1px solid #f59e0b",
-												borderRadius: "4px",
-												padding: "0.75rem",
-												marginTop: "0.5rem",
+												background: '#fef3c7',
+												border: '1px solid #f59e0b',
+												borderRadius: '4px',
+												padding: '0.75rem',
+												marginTop: '0.5rem',
 											}}
 										>
-											<p style={{ margin: "0 0 0.5rem 0", fontWeight: "bold" }}>
+											<p style={{ margin: '0 0 0.5rem 0', fontWeight: 'bold' }}>
 												🔍 How to Find the Correct Client ID:
 											</p>
-											<ol style={{ margin: "0.5rem 0", paddingLeft: "1.5rem" }}>
+											<ol style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
 												<li>
 													Go to <strong>PingOne Admin Console</strong>
 												</li>
 												<li>
-													Navigate to <strong>Applications</strong> →{" "}
-													<strong>Applications</strong>
+													Navigate to <strong>Applications</strong> → <strong>Applications</strong>
 												</li>
 												<li>Find your application and click on it</li>
 												<li>
 													Go to <strong>Configuration</strong> tab
 												</li>
 												<li>
-													Copy the <strong>Client ID</strong> exactly (no extra
-													spaces)
+													Copy the <strong>Client ID</strong> exactly (no extra spaces)
 												</li>
 												<li>
-													Make sure the application has{" "}
-													<strong>Implicit Flow</strong> enabled
+													Make sure the application has <strong>Implicit Flow</strong> enabled
 												</li>
 											</ol>
 										</div>
-										<p style={{ margin: "0.5rem 0 0 0", fontSize: "0.8rem" }}>
-											<strong>Current Client ID:</strong>{" "}
+										<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.8rem' }}>
+											<strong>Current Client ID:</strong>{' '}
 											<code
 												style={{
-													background: "#f3f4f6",
-													padding: "2px 4px",
-													borderRadius: "3px",
+													background: '#f3f4f6',
+													padding: '2px 4px',
+													borderRadius: '3px',
 												}}
 											>
-												{credentials.clientId || "[Not set]"}
+												{credentials.clientId || '[Not set]'}
 											</code>
 											<br />
-											<strong>Environment ID:</strong>{" "}
+											<strong>Environment ID:</strong>{' '}
 											<code
 												style={{
-													background: "#f3f4f6",
-													padding: "2px 4px",
-													borderRadius: "3px",
+													background: '#f3f4f6',
+													padding: '2px 4px',
+													borderRadius: '3px',
 												}}
 											>
-												{credentials.environmentId || "[Not set]"}
+												{credentials.environmentId || '[Not set]'}
 											</code>
 										</p>
 									</div>
@@ -1431,64 +1332,64 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 						{/* General Troubleshooting Section - Collapsible */}
 						<div
 							style={{
-								marginTop: "1.5rem",
-								background: "#fef3c7",
-								border: "1px solid #f59e0b",
-								borderRadius: "8px",
-								overflow: "hidden",
+								marginTop: '1.5rem',
+								background: '#fef3c7',
+								border: '1px solid #f59e0b',
+								borderRadius: '8px',
+								overflow: 'hidden',
 							}}
 						>
 							<div
 								style={{
-									padding: "1rem",
-									cursor: "pointer",
-									display: "flex",
-									alignItems: "center",
-									justifyContent: "space-between",
-									backgroundColor: "#fef3c7",
+									padding: '1rem',
+									cursor: 'pointer',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'space-between',
+									backgroundColor: '#fef3c7',
 								}}
 								onClick={() => {
 									const newState = !showGeneralTroubleshooting;
 									setShowGeneralTroubleshooting(newState);
 									showGlobalSuccess(
 										newState
-											? "🔧 General Troubleshooting Expanded"
-											: "📁 General Troubleshooting Collapsed",
+											? '🔧 General Troubleshooting Expanded'
+											: '📁 General Troubleshooting Collapsed',
 										newState
-											? "General troubleshooting steps are now visible"
-											: "Troubleshooting section has been collapsed",
+											? 'General troubleshooting steps are now visible'
+											: 'Troubleshooting section has been collapsed'
 									);
 								}}
 							>
 								<h4
 									style={{
 										margin: 0,
-										color: "#92400e",
-										display: "flex",
-										alignItems: "center",
+										color: '#92400e',
+										display: 'flex',
+										alignItems: 'center',
 									}}
 								>
-									<FiAlertTriangle style={{ marginRight: "0.5rem" }} />
+									<FiAlertTriangle style={{ marginRight: '0.5rem' }} />
 									Additional Troubleshooting
 								</h4>
 								<div
 									style={{
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "center",
-										width: "2rem",
-										height: "2rem",
-										borderRadius: "6px",
-										background: "#fef2f2",
-										border: "2px solid #ef4444",
-										boxShadow: "0 2px 4px rgba(239, 68, 68, 0.2)",
-										transition: "all 0.2s ease",
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+										width: '2rem',
+										height: '2rem',
+										borderRadius: '6px',
+										background: '#fef2f2',
+										border: '2px solid #ef4444',
+										boxShadow: '0 2px 4px rgba(239, 68, 68, 0.2)',
+										transition: 'all 0.2s ease',
 									}}
 								>
 									{showGeneralTroubleshooting ? (
-										<FiChevronDown size={14} style={{ color: "#3b82f6" }} />
+										<FiChevronDown size={14} style={{ color: '#3b82f6' }} />
 									) : (
-										<FiChevronRight size={14} style={{ color: "#3b82f6" }} />
+										<FiChevronRight size={14} style={{ color: '#3b82f6' }} />
 									)}
 								</div>
 							</div>
@@ -1496,29 +1397,29 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 							{showGeneralTroubleshooting && (
 								<div
 									style={{
-										padding: "0 1rem 1rem 1rem",
-										fontSize: "0.875rem",
-										color: "#92400e",
-										lineHeight: "1.5",
+										padding: '0 1rem 1rem 1rem',
+										fontSize: '0.875rem',
+										color: '#92400e',
+										lineHeight: '1.5',
 									}}
 								>
-									<ul style={{ margin: "0.5rem 0", paddingLeft: "1.5rem" }}>
+									<ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
 										<li>
-											Ensure the <strong>Redirect URI</strong>{" "}
-											<code>https://localhost:3000/implicit-callback-v3</code>{" "}
-											is configured in your PingOne application
+											Ensure the <strong>Redirect URI</strong>{' '}
+											<code>https://localhost:3000/implicit-callback-v3</code> is configured in your
+											PingOne application
 										</li>
 										<li>
-											Check that your PingOne application is configured for{" "}
+											Check that your PingOne application is configured for{' '}
 											<strong>Implicit Flow</strong>
 										</li>
 										<li>
-											Verify the application has the required{" "}
-											<strong>scopes</strong> (openid, profile, email)
+											Verify the application has the required <strong>scopes</strong> (openid,
+											profile, email)
 										</li>
 										<li>
-											Make sure you're using the correct{" "}
-											<strong>Environment ID</strong> from PingOne Admin Console
+											Make sure you're using the correct <strong>Environment ID</strong> from
+											PingOne Admin Console
 										</li>
 									</ul>
 								</div>
@@ -1529,27 +1430,27 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 						{authUrl && (
 							<div
 								style={{
-									marginTop: "2rem",
-									padding: "1.5rem",
-									background: "#f0fdf4",
-									border: "1px solid #22c55e",
-									borderRadius: "0.5rem",
+									marginTop: '2rem',
+									padding: '1.5rem',
+									background: '#f0fdf4',
+									border: '1px solid #22c55e',
+									borderRadius: '0.5rem',
 								}}
 							>
-								<h4 style={{ margin: "0 0 1rem 0", color: "#15803d" }}>
+								<h4 style={{ margin: '0 0 1rem 0', color: '#15803d' }}>
 									Generated Authorization URL
 								</h4>
 
 								<div
 									style={{
-										display: "flex",
-										alignItems: "center",
-										gap: "0.5rem",
-										padding: "0.75rem",
-										backgroundColor: "#f0fdf4",
-										border: "1px solid #22c55e",
-										borderRadius: "0.5rem",
-										marginBottom: "1rem",
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+										padding: '0.75rem',
+										backgroundColor: '#f0fdf4',
+										border: '1px solid #22c55e',
+										borderRadius: '0.5rem',
+										marginBottom: '1rem',
 									}}
 								>
 									<div style={{ flex: 1 }}>
@@ -1557,22 +1458,22 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 									</div>
 									<button
 										onClick={() => {
-											copyToClipboard(authUrl, "Authorization URL");
+											copyToClipboard(authUrl, 'Authorization URL');
 											showGlobalSuccess(
-												"📋 Authorization URL Copied",
-												"The authorization URL has been copied to your clipboard",
+												'📋 Authorization URL Copied',
+												'The authorization URL has been copied to your clipboard'
 											);
 										}}
 										style={{
-											background: "none",
-											border: "1px solid #007bff",
-											color: "#007bff",
-											cursor: "pointer",
-											padding: "0.25rem 0.5rem",
-											borderRadius: "4px",
-											display: "flex",
-											alignItems: "center",
-											gap: "0.25rem",
+											background: 'none',
+											border: '1px solid #007bff',
+											color: '#007bff',
+											cursor: 'pointer',
+											padding: '0.25rem 0.5rem',
+											borderRadius: '4px',
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.25rem',
 										}}
 									>
 										<FiCopy size={16} />
@@ -1587,17 +1488,16 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 					credentials.environmentId &&
 						credentials.clientId &&
 						credentials.redirectUri &&
-						credentials.scopes,
+						credentials.scopes
 				),
 				completed: Boolean(authUrl),
 			},
 			{
-				id: "user-authorization",
-				title: "User Authorization",
-				description:
-					"Redirect user to authorization server for authentication and consent",
+				id: 'user-authorization',
+				title: 'User Authorization',
+				description: 'Redirect user to authorization server for authentication and consent',
 				icon: <FiUser />,
-				category: "authorization",
+				category: 'authorization',
 				content: (
 					<div>
 						<InfoBox type="info">
@@ -1605,30 +1505,27 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 							<div>
 								<strong>User Authorization Required</strong>
 								<br />
-								Click the button below to redirect the user to PingOne for
-								authentication. The user will be prompted to log in and grant
-								permissions to your application.
+								Click the button below to redirect the user to PingOne for authentication. The user
+								will be prompted to log in and grant permissions to your application.
 							</div>
 						</InfoBox>
 
 						{authUrl && (
 							<div
 								style={{
-									marginTop: "1.5rem",
-									padding: "1rem",
-									background: "#f0fdf4",
-									border: "1px solid #bbf7d0",
-									borderRadius: "8px",
+									marginTop: '1.5rem',
+									padding: '1rem',
+									background: '#f0fdf4',
+									border: '1px solid #bbf7d0',
+									borderRadius: '8px',
 								}}
 							>
-								<h4 style={{ margin: "0 0 0.75rem 0", color: "#166534" }}>
-									Authorization URL:
-								</h4>
+								<h4 style={{ margin: '0 0 0.75rem 0', color: '#166534' }}>Authorization URL:</h4>
 								<div
 									style={{
-										display: "flex",
-										alignItems: "center",
-										gap: "0.5rem",
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
 									}}
 								>
 									<div style={{ flex: 1 }}>
@@ -1636,22 +1533,22 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 									</div>
 									<button
 										onClick={() => {
-											copyToClipboard(authUrl, "Authorization URL");
+											copyToClipboard(authUrl, 'Authorization URL');
 											showGlobalSuccess(
-												"📋 Authorization URL Copied",
-												"The authorization URL has been copied to your clipboard",
+												'📋 Authorization URL Copied',
+												'The authorization URL has been copied to your clipboard'
 											);
 										}}
 										style={{
-											background: "none",
-											border: "1px solid #007bff",
-											color: "#007bff",
-											cursor: "pointer",
-											padding: "0.25rem 0.5rem",
-											borderRadius: "4px",
-											display: "flex",
-											alignItems: "center",
-											gap: "0.25rem",
+											background: 'none',
+											border: '1px solid #007bff',
+											color: '#007bff',
+											cursor: 'pointer',
+											padding: '0.25rem 0.5rem',
+											borderRadius: '4px',
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.25rem',
 										}}
 									>
 										<FiCopy size={16} />
@@ -1662,18 +1559,18 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 
 						<div
 							style={{
-								marginTop: "1.5rem",
-								padding: "1rem",
-								background: "#fef3c7",
-								border: "1px solid #f59e0b",
-								borderRadius: "6px",
-								fontSize: "0.875rem",
-								color: "#92400e",
+								marginTop: '1.5rem',
+								padding: '1rem',
+								background: '#fef3c7',
+								border: '1px solid #f59e0b',
+								borderRadius: '6px',
+								fontSize: '0.875rem',
+								color: '#92400e',
 							}}
 						>
-							<strong>⚠️ Important:</strong> After authorization, the user will
-							be redirected back with tokens in the URL fragment. The callback
-							handler will extract and validate these tokens automatically.
+							<strong>⚠️ Important:</strong> After authorization, the user will be redirected back
+							with tokens in the URL fragment. The callback handler will extract and validate these
+							tokens automatically.
 						</div>
 					</div>
 				),
@@ -1682,12 +1579,11 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 				completed: Boolean(tokens),
 			},
 			{
-				id: "token-validation",
-				title: "Token Validation & Display",
-				description:
-					"Validate and display the received ID token and access token",
+				id: 'token-validation',
+				title: 'Token Validation & Display',
+				description: 'Validate and display the received ID token and access token',
 				icon: <FiShield />,
-				category: "validation",
+				category: 'validation',
 				content: (
 					<div>
 						{tokens ? (
@@ -1702,7 +1598,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 								</InfoBox>
 
 								{/* Token Display Section */}
-								<div style={{ marginTop: "1.5rem" }}>
+								<div style={{ marginTop: '1.5rem' }}>
 									<h4>Received Tokens:</h4>
 
 									{/* ID Token Display */}
@@ -1710,38 +1606,32 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 										<div>
 											<div
 												style={{
-													background: "#f8fafc",
-													border: "1px solid #e2e8f0",
-													borderRadius: "8px",
-													padding: "1rem",
-													marginBottom: "1rem",
+													background: '#f8fafc',
+													border: '1px solid #e2e8f0',
+													borderRadius: '8px',
+													padding: '1rem',
+													marginBottom: '1rem',
 												}}
 											>
 												<div
 													style={{
-														display: "flex",
-														alignItems: "center",
-														gap: "0.5rem",
-														marginBottom: "0.75rem",
+														display: 'flex',
+														alignItems: 'center',
+														gap: '0.5rem',
+														marginBottom: '0.75rem',
 													}}
 												>
-													<strong
-														style={{ color: "#1f2937", fontSize: "0.9rem" }}
-													>
+													<strong style={{ color: '#1f2937', fontSize: '0.9rem' }}>
 														ID Token:
 													</strong>
-													<CopyButton
-														onClick={() =>
-															copyToClipboard(tokens.id_token, "ID Token")
-														}
-													>
+													<CopyButton onClick={() => copyToClipboard(tokens.id_token, 'ID Token')}>
 														<FiCopy /> Copy
 													</CopyButton>
 													<CopyButton
-														onClick={() => navigateToTokenManagement("id")}
+														onClick={() => navigateToTokenManagement('id')}
 														style={{
-															backgroundColor: "#3b82f6",
-															color: "white",
+															backgroundColor: '#3b82f6',
+															color: 'white',
 														}}
 													>
 														<FiSearch /> Analyze
@@ -1759,36 +1649,32 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 									{tokens.access_token && (
 										<div
 											style={{
-												background: "#f8fafc",
-												border: "1px solid #e2e8f0",
-												borderRadius: "8px",
-												padding: "1rem",
-												marginBottom: "1rem",
+												background: '#f8fafc',
+												border: '1px solid #e2e8f0',
+												borderRadius: '8px',
+												padding: '1rem',
+												marginBottom: '1rem',
 											}}
 										>
 											<div
 												style={{
-													display: "flex",
-													alignItems: "center",
-													gap: "0.5rem",
-													marginBottom: "0.75rem",
+													display: 'flex',
+													alignItems: 'center',
+													gap: '0.5rem',
+													marginBottom: '0.75rem',
 												}}
 											>
-												<strong
-													style={{ color: "#1f2937", fontSize: "0.9rem" }}
-												>
+												<strong style={{ color: '#1f2937', fontSize: '0.9rem' }}>
 													Access Token:
 												</strong>
 												<CopyButton
-													onClick={() =>
-														copyToClipboard(tokens.access_token, "Access Token")
-													}
+													onClick={() => copyToClipboard(tokens.access_token, 'Access Token')}
 												>
 													<FiCopy /> Copy
 												</CopyButton>
 												<CopyButton
-													onClick={() => navigateToTokenManagement("access")}
-													style={{ backgroundColor: "#3b82f6", color: "white" }}
+													onClick={() => navigateToTokenManagement('access')}
+													style={{ backgroundColor: '#3b82f6', color: 'white' }}
 												>
 													<FiSearch /> Analyze
 												</CopyButton>
@@ -1800,70 +1686,64 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 									{/* Token Details - Collapsible */}
 									<div
 										style={{
-											background: "#f8fafc",
-											border: "1px solid #e2e8f0",
-											borderRadius: "8px",
-											marginBottom: "1rem",
-											overflow: "hidden",
+											background: '#f8fafc',
+											border: '1px solid #e2e8f0',
+											borderRadius: '8px',
+											marginBottom: '1rem',
+											overflow: 'hidden',
 										}}
 									>
 										<div
 											style={{
-												padding: "1rem",
-												cursor: "pointer",
-												display: "flex",
-												alignItems: "center",
-												justifyContent: "space-between",
-												backgroundColor: "#f8fafc",
+												padding: '1rem',
+												cursor: 'pointer',
+												display: 'flex',
+												alignItems: 'center',
+												justifyContent: 'space-between',
+												backgroundColor: '#f8fafc',
 											}}
 											onClick={() => setShowTokenDetails(!showTokenDetails)}
 										>
 											<h5
 												style={{
 													margin: 0,
-													color: "#1f2937",
-													display: "flex",
-													alignItems: "center",
+													color: '#1f2937',
+													display: 'flex',
+													alignItems: 'center',
 												}}
 											>
-												<FiShield style={{ marginRight: "0.5rem" }} />
+												<FiShield style={{ marginRight: '0.5rem' }} />
 												Token Details
 											</h5>
 											<div
 												style={{
-													display: "flex",
-													alignItems: "center",
-													justifyContent: "center",
-													width: "2rem",
-													height: "2rem",
-													borderRadius: "6px",
-													background: "#fef2f2",
-													border: "2px solid #ef4444",
-													boxShadow: "0 2px 4px rgba(239, 68, 68, 0.2)",
-													transition: "all 0.2s ease",
+													display: 'flex',
+													alignItems: 'center',
+													justifyContent: 'center',
+													width: '2rem',
+													height: '2rem',
+													borderRadius: '6px',
+													background: '#fef2f2',
+													border: '2px solid #ef4444',
+													boxShadow: '0 2px 4px rgba(239, 68, 68, 0.2)',
+													transition: 'all 0.2s ease',
 												}}
 											>
 												{showTokenDetails ? (
-													<FiChevronDown
-														size={14}
-														style={{ color: "#3b82f6" }}
-													/>
+													<FiChevronDown size={14} style={{ color: '#3b82f6' }} />
 												) : (
-													<FiChevronRight
-														size={14}
-														style={{ color: "#3b82f6" }}
-													/>
+													<FiChevronRight size={14} style={{ color: '#3b82f6' }} />
 												)}
 											</div>
 										</div>
 
 										{showTokenDetails && (
-											<div style={{ padding: "0 1rem 1rem 1rem" }}>
+											<div style={{ padding: '0 1rem 1rem 1rem' }}>
 												<div
 													style={{
-														display: "grid",
-														gap: "0.5rem",
-														fontSize: "0.875rem",
+														display: 'grid',
+														gap: '0.5rem',
+														fontSize: '0.875rem',
 													}}
 												>
 													{tokens.token_type && (
@@ -1873,8 +1753,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 													)}
 													{tokens.expires_in && (
 														<div>
-															<strong>Expires In:</strong> {tokens.expires_in}{" "}
-															seconds
+															<strong>Expires In:</strong> {tokens.expires_in} seconds
 														</div>
 													)}
 													{tokens.scope && (
@@ -1889,20 +1768,20 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 
 									<div
 										style={{
-											marginTop: "1.5rem",
-											padding: "1rem",
-											background: "#f0fdf4",
-											border: "1px solid #bbf7d0",
-											borderRadius: "6px",
-											fontSize: "0.875rem",
-											color: "#15803d",
+											marginTop: '1.5rem',
+											padding: '1rem',
+											background: '#f0fdf4',
+											border: '1px solid #bbf7d0',
+											borderRadius: '6px',
+											fontSize: '0.875rem',
+											color: '#15803d',
 										}}
 									>
 										<strong>✅ Token Validation Complete!</strong>
 										<br />
-										Your tokens are ready to use. Remember that implicit flow
-										tokens are typically short-lived and cannot be refreshed -
-										you'll need to re-authenticate when they expire.
+										Your tokens are ready to use. Remember that implicit flow tokens are typically
+										short-lived and cannot be refreshed - you'll need to re-authenticate when they
+										expire.
 									</div>
 								</div>
 							</div>
@@ -1922,12 +1801,11 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 				completed: Boolean(tokens),
 			},
 			{
-				id: "user-info",
-				title: "Get User Information",
-				description:
-					"Use the access token to retrieve user profile information",
+				id: 'user-info',
+				title: 'Get User Information',
+				description: 'Use the access token to retrieve user profile information',
 				icon: <FiUser />,
-				category: "validation",
+				category: 'validation',
 				content: (
 					<div>
 						{tokens?.access_token ? (
@@ -1937,76 +1815,68 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 									<div>
 										<strong>User Information Retrieval</strong>
 										<br />
-										Use the access token to call the UserInfo endpoint and
-										retrieve the authenticated user's profile.
+										Use the access token to call the UserInfo endpoint and retrieve the
+										authenticated user's profile.
 									</div>
 								</InfoBox>
 
-								<div style={{ marginTop: "1.5rem" }}>
+								<div style={{ marginTop: '1.5rem' }}>
 									{/* UserInfo Endpoint Details - Collapsible */}
 									<div
 										style={{
-											marginBottom: "1.5rem",
-											background: "#f8fafc",
-											border: "1px solid #e2e8f0",
-											borderRadius: "8px",
-											overflow: "hidden",
+											marginBottom: '1.5rem',
+											background: '#f8fafc',
+											border: '1px solid #e2e8f0',
+											borderRadius: '8px',
+											overflow: 'hidden',
 										}}
 									>
 										<div
 											style={{
-												padding: "1rem",
-												cursor: "pointer",
-												display: "flex",
-												alignItems: "center",
-												justifyContent: "space-between",
-												backgroundColor: "#f8fafc",
+												padding: '1rem',
+												cursor: 'pointer',
+												display: 'flex',
+												alignItems: 'center',
+												justifyContent: 'space-between',
+												backgroundColor: '#f8fafc',
 											}}
-											onClick={() =>
-												setShowUserInfoDetails(!showUserInfoDetails)
-											}
+											onClick={() => setShowUserInfoDetails(!showUserInfoDetails)}
 										>
 											<h4
 												style={{
 													margin: 0,
-													color: "#374151",
-													display: "flex",
-													alignItems: "center",
+													color: '#374151',
+													display: 'flex',
+													alignItems: 'center',
 												}}
 											>
-												<FiUser style={{ marginRight: "0.5rem" }} />
+												<FiUser style={{ marginRight: '0.5rem' }} />
 												UserInfo Endpoint Details
 											</h4>
 											<div
 												style={{
-													display: "flex",
-													alignItems: "center",
-													justifyContent: "center",
-													width: "2rem",
-													height: "2rem",
-													borderRadius: "6px",
-													background: "#fef2f2",
-													border: "2px solid #ef4444",
-													boxShadow: "0 2px 4px rgba(239, 68, 68, 0.2)",
-													transition: "all 0.2s ease",
+													display: 'flex',
+													alignItems: 'center',
+													justifyContent: 'center',
+													width: '2rem',
+													height: '2rem',
+													borderRadius: '6px',
+													background: '#fef2f2',
+													border: '2px solid #ef4444',
+													boxShadow: '0 2px 4px rgba(239, 68, 68, 0.2)',
+													transition: 'all 0.2s ease',
 												}}
 											>
 												{showUserInfoDetails ? (
-													<FiChevronDown
-														size={14}
-														style={{ color: "#3b82f6" }}
-													/>
+													<FiChevronDown size={14} style={{ color: '#3b82f6' }} />
 												) : (
-													<FiChevronRight
-														size={14}
-														style={{ color: "#3b82f6" }}
-													/>
+													<FiChevronRight size={14} style={{ color: '#3b82f6' }} />
 												)}
 											</div>
 										</div>
 
 										{showUserInfoDetails && (
-											<div style={{ padding: "0 1rem 1rem 1rem" }}>
+											<div style={{ padding: '0 1rem 1rem 1rem' }}>
 												<ParameterBreakdown>
 													<ParameterItem>
 														<ParameterName>Endpoint</ParameterName>
@@ -2030,17 +1900,11 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 										)}
 									</div>
 
-									<div style={{ marginTop: "1.5rem" }}>
-										<ActionButton
-											onClick={getUserInfo}
-											disabled={isGettingUserInfo}
-										>
+									<div style={{ marginTop: '1.5rem' }}>
+										<ActionButton onClick={getUserInfo} disabled={isGettingUserInfo}>
 											{isGettingUserInfo ? (
 												<>
-													<div
-														className="spinner"
-														style={{ width: "16px", height: "16px" }}
-													/>
+													<div className="spinner" style={{ width: '16px', height: '16px' }} />
 													Getting User Info...
 												</>
 											) : (
@@ -2053,26 +1917,26 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 									</div>
 
 									{userInfo && (
-										<div style={{ marginTop: "1.5rem" }}>
+										<div style={{ marginTop: '1.5rem' }}>
 											<h4>User Information:</h4>
 											<JsonDisplay>
 												<pre>{JSON.stringify(userInfo, null, 2)}</pre>
 											</JsonDisplay>
-											<div style={{ marginTop: "0.5rem" }}>
+											<div style={{ marginTop: '0.5rem' }}>
 												<CopyButton onClick={copyUserInfo}>
 													<FiCopy /> Copy UserInfo
 												</CopyButton>
 											</div>
 
 											{/* Go Back to Start Button */}
-											<div style={{ marginTop: "1.5rem", textAlign: "center" }}>
+											<div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
 												<CopyButton
 													onClick={resetFlow}
 													style={{
-														backgroundColor: "#6b7280",
-														color: "white",
-														padding: "0.75rem 2rem",
-														fontSize: "1rem",
+														backgroundColor: '#6b7280',
+														color: 'white',
+														padding: '0.75rem 2rem',
+														fontSize: '1rem',
 													}}
 												>
 													<FiChevronLeft /> Go Back to Start of Flow
@@ -2088,9 +1952,8 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 								<div>
 									<strong>Access Token Required</strong>
 									<br />
-									You need an access token to retrieve user information. Make
-									sure you selected "id_token token" as the response type in the
-									credentials setup.
+									You need an access token to retrieve user information. Make sure you selected
+									"id_token token" as the response type in the credentials setup.
 								</div>
 							</InfoBox>
 						)}
@@ -2121,7 +1984,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 			validationErrors.clientId,
 			navigateToTokenManagement,
 			resetFlow,
-		],
+		]
 	);
 
 	return (
@@ -2129,8 +1992,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 			<Header>
 				<Title>OIDC Implicit Flow V3</Title>
 				<Subtitle>
-					OpenID Connect 1.0 Implicit Flow implementation with comprehensive
-					educational content
+					OpenID Connect 1.0 Implicit Flow implementation with comprehensive educational content
 				</Subtitle>
 			</Header>
 
@@ -2139,46 +2001,44 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 				{stepManager.currentStepIndex === 0 && (
 					<div
 						style={{
-							padding: "2rem",
-							borderBottom: "1px solid #e5e7eb",
-							background: "#f8fafc",
+							padding: '2rem',
+							borderBottom: '1px solid #e5e7eb',
+							background: '#f8fafc',
 						}}
 					>
 						<div
 							style={{
-								display: "flex",
-								alignItems: "center",
-								justifyContent: "space-between",
-								cursor: "pointer",
-								marginBottom: showEducationalContent ? "1.5rem" : "0",
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'space-between',
+								cursor: 'pointer',
+								marginBottom: showEducationalContent ? '1.5rem' : '0',
 							}}
 							onClick={() => setShowEducationalContent(!showEducationalContent)}
 						>
-							<h2 style={{ margin: 0, color: "#1f2937", fontSize: "1.5rem" }}>
+							<h2 style={{ margin: 0, color: '#1f2937', fontSize: '1.5rem' }}>
 								🔍 What is OIDC Implicit Flow?
 							</h2>
 							<div
 								style={{
-									display: "flex",
-									alignItems: "center",
-									justifyContent: "center",
-									width: "2.5rem",
-									height: "2.5rem",
-									borderRadius: "8px",
-									background: "#fef2f2",
-									border: "2px solid #ef4444",
-									boxShadow: "0 2px 4px rgba(239, 68, 68, 0.2)",
-									transition: "all 0.2s ease",
-									transform: showEducationalContent
-										? "rotate(0deg)"
-										: "rotate(90deg)",
-									cursor: "pointer",
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									width: '2.5rem',
+									height: '2.5rem',
+									borderRadius: '8px',
+									background: '#fef2f2',
+									border: '2px solid #ef4444',
+									boxShadow: '0 2px 4px rgba(239, 68, 68, 0.2)',
+									transition: 'all 0.2s ease',
+									transform: showEducationalContent ? 'rotate(0deg)' : 'rotate(90deg)',
+									cursor: 'pointer',
 								}}
 							>
 								{showEducationalContent ? (
-									<FiChevronDown size={16} style={{ color: "#3b82f6" }} />
+									<FiChevronDown size={16} style={{ color: '#3b82f6' }} />
 								) : (
-									<FiChevronRight size={16} style={{ color: "#3b82f6" }} />
+									<FiChevronRight size={16} style={{ color: '#3b82f6' }} />
 								)}
 							</div>
 						</div>
@@ -2187,64 +2047,52 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 							<>
 								<div
 									style={{
-										display: "grid",
-										gridTemplateColumns: "1fr 1fr",
-										gap: "2rem",
-										marginBottom: "2rem",
+										display: 'grid',
+										gridTemplateColumns: '1fr 1fr',
+										gap: '2rem',
+										marginBottom: '2rem',
 									}}
 								>
 									<div>
-										<h3 style={{ color: "#374151", marginBottom: "1rem" }}>
-											How It Works
-										</h3>
+										<h3 style={{ color: '#374151', marginBottom: '1rem' }}>How It Works</h3>
 										<ul
 											style={{
-												color: "#6b7280",
-												lineHeight: "1.6",
-												paddingLeft: "1.5rem",
+												color: '#6b7280',
+												lineHeight: '1.6',
+												paddingLeft: '1.5rem',
 											}}
 										>
 											<li>Client redirects user to authorization server</li>
 											<li>User authenticates and authorizes the application</li>
-											<li>
-												Authorization server redirects back with tokens in URL
-												fragment
-											</li>
+											<li>Authorization server redirects back with tokens in URL fragment</li>
 											<li>Client extracts tokens directly from the URL</li>
 											<li>No secure server-side token exchange required</li>
 										</ul>
 									</div>
 
 									<div>
-										<h3 style={{ color: "#374151", marginBottom: "1rem" }}>
-											When to Use
-										</h3>
+										<h3 style={{ color: '#374151', marginBottom: '1rem' }}>When to Use</h3>
 										<ul
 											style={{
-												color: "#6b7280",
-												lineHeight: "1.6",
-												paddingLeft: "1.5rem",
+												color: '#6b7280',
+												lineHeight: '1.6',
+												paddingLeft: '1.5rem',
 											}}
 										>
 											<li>
-												<strong>Single Page Applications (SPAs)</strong> -
-												React, Vue, Angular
+												<strong>Single Page Applications (SPAs)</strong> - React, Vue, Angular
 											</li>
 											<li>
-												<strong>Mobile Apps</strong> - Native iOS/Android
-												applications
+												<strong>Mobile Apps</strong> - Native iOS/Android applications
 											</li>
 											<li>
-												<strong>Desktop Apps</strong> - Electron, native desktop
-												apps
+												<strong>Desktop Apps</strong> - Electron, native desktop apps
 											</li>
 											<li>
-												<strong>Public Clients</strong> - Apps that can't
-												securely store secrets
+												<strong>Public Clients</strong> - Apps that can't securely store secrets
 											</li>
 											<li>
-												<strong>Legacy Systems</strong> - Older applications
-												that can't support PKCE
+												<strong>Legacy Systems</strong> - Older applications that can't support PKCE
 											</li>
 										</ul>
 									</div>
@@ -2252,43 +2100,41 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 
 								<div
 									style={{
-										background: "#fef3c7",
-										border: "1px solid #f59e0b",
-										borderRadius: "8px",
-										padding: "1rem",
+										background: '#fef3c7',
+										border: '1px solid #f59e0b',
+										borderRadius: '8px',
+										padding: '1rem',
 									}}
 								>
 									<h4
 										style={{
-											color: "#92400e",
-											margin: "0 0 0.5rem 0",
-											display: "flex",
-											alignItems: "center",
+											color: '#92400e',
+											margin: '0 0 0.5rem 0',
+											display: 'flex',
+											alignItems: 'center',
 										}}
 									>
-										<FiAlertTriangle style={{ marginRight: "0.5rem" }} />
+										<FiAlertTriangle style={{ marginRight: '0.5rem' }} />
 										Security Considerations
 									</h4>
 									<div
 										style={{
-											color: "#92400e",
-											fontSize: "0.875rem",
-											lineHeight: "1.5",
+											color: '#92400e',
+											fontSize: '0.875rem',
+											lineHeight: '1.5',
 										}}
 									>
-										<p style={{ margin: "0 0 0.5rem 0" }}>
-											<strong>⚠️ Deprecated:</strong> OAuth 2.0 Security Best
-											Practices recommends against Implicit Flow for new
-											applications.
+										<p style={{ margin: '0 0 0.5rem 0' }}>
+											<strong>⚠️ Deprecated:</strong> OAuth 2.0 Security Best Practices recommends
+											against Implicit Flow for new applications.
 										</p>
-										<p style={{ margin: "0 0 0.5rem 0" }}>
-											<strong>🔓 Token Exposure:</strong> Tokens are exposed in
-											the URL fragment, making them visible in browser history,
-											server logs, and referrer headers.
+										<p style={{ margin: '0 0 0.5rem 0' }}>
+											<strong>🔓 Token Exposure:</strong> Tokens are exposed in the URL fragment,
+											making them visible in browser history, server logs, and referrer headers.
 										</p>
-										<p style={{ margin: "0" }}>
-											<strong>✅ Modern Alternative:</strong> Use Authorization
-											Code Flow with PKCE for better security.
+										<p style={{ margin: '0' }}>
+											<strong>✅ Modern Alternative:</strong> Use Authorization Code Flow with PKCE
+											for better security.
 										</p>
 									</div>
 								</div>
@@ -2301,21 +2147,20 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 				<SecurityWarning>
 					<div
 						style={{
-							display: "flex",
-							alignItems: "center",
-							gap: "0.5rem",
-							marginBottom: "0.5rem",
+							display: 'flex',
+							alignItems: 'center',
+							gap: '0.5rem',
+							marginBottom: '0.5rem',
 						}}
 					>
 						<FiAlertTriangle />
 						<strong>OIDC Implicit Flow (Deprecated)</strong>
 					</div>
-					<div style={{ fontSize: "0.875rem", lineHeight: "1.5" }}>
-						This flow is <strong>deprecated</strong> due to security concerns.
-						ID tokens and access tokens are exposed in the URL fragment, making
-						them vulnerable to theft. This implementation is provided for legacy
-						compatibility and educational purposes only. For new applications,
-						use the Authorization Code flow with PKCE instead.
+					<div style={{ fontSize: '0.875rem', lineHeight: '1.5' }}>
+						This flow is <strong>deprecated</strong> due to security concerns. ID tokens and access
+						tokens are exposed in the URL fragment, making them vulnerable to theft. This
+						implementation is provided for legacy compatibility and educational purposes only. For
+						new applications, use the Authorization Code flow with PKCE instead.
 					</div>
 				</SecurityWarning>
 
@@ -2330,11 +2175,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 					showDebugInfo={false}
 					allowStepJumping={true}
 					onStepComplete={(stepId, result) => {
-						console.log(
-							"✅ [OIDC-IMPLICIT-V3] Step completed:",
-							stepId,
-							result,
-						);
+						console.log('✅ [OIDC-IMPLICIT-V3] Step completed:', stepId, result);
 					}}
 				/>
 
@@ -2342,10 +2183,7 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 				<FlowControlSection>
 					<FlowControlTitle>⚙️ Flow Control Actions</FlowControlTitle>
 					<FlowControlButtons>
-						<FlowControlButton
-							className="clear"
-							onClick={() => setShowClearCredentialsModal(true)}
-						>
+						<FlowControlButton className="clear" onClick={() => setShowClearCredentialsModal(true)}>
 							🧹 Clear Credentials
 						</FlowControlButton>
 						<FlowControlButton
@@ -2353,19 +2191,17 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 							onClick={resetFlow}
 							disabled={isResettingFlow}
 							style={{
-								background: isResettingFlow ? "#9ca3af" : undefined,
-								cursor: isResettingFlow ? "not-allowed" : "pointer",
+								background: isResettingFlow ? '#9ca3af' : undefined,
+								cursor: isResettingFlow ? 'not-allowed' : 'pointer',
 							}}
 						>
 							<FiRefreshCw
 								style={{
-									animation: isResettingFlow
-										? "spin 1s linear infinite"
-										: "none",
-									marginRight: "0.5rem",
+									animation: isResettingFlow ? 'spin 1s linear infinite' : 'none',
+									marginRight: '0.5rem',
 								}}
 							/>
-							{isResettingFlow ? "Resetting..." : "Reset Flow"}
+							{isResettingFlow ? 'Resetting...' : 'Reset Flow'}
 						</FlowControlButton>
 					</FlowControlButtons>
 				</FlowControlSection>
@@ -2392,14 +2228,14 @@ const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 					setShowAuthRequestModal(false);
 					handleAuthorizationDirect();
 				}}
-				authorizationUrl={authUrl || ""}
+				authorizationUrl={authUrl || ''}
 				requestParams={{
-					environmentId: credentials.environmentId || "",
-					clientId: credentials.clientId || "",
-					redirectUri: credentials.redirectUri || "",
-					scopes: credentials.scopes || "",
-					responseType: responseType || "",
-					flowType: "oidc-implicit-v3",
+					environmentId: credentials.environmentId || '',
+					clientId: credentials.clientId || '',
+					redirectUri: credentials.redirectUri || '',
+					scopes: credentials.scopes || '',
+					responseType: responseType || '',
+					flowType: 'oidc-implicit-v3',
 				}}
 			/>
 

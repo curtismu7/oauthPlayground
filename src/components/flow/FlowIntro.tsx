@@ -1,6 +1,6 @@
 // src/components/flow/FlowIntro.tsx
-import type { ReactNode } from "react";
-import styled from "styled-components";
+import type { ReactNode } from 'react';
+import styled from 'styled-components';
 
 interface IntroContainerProps {
 	$background?: string;
@@ -12,7 +12,7 @@ const Container = styled.div<IntroContainerProps>`
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 2rem;
   align-items: center;
-  color: ${({ $textColor }) => $textColor ?? "white"};
+  color: ${({ $textColor }) => $textColor ?? 'white'};
 
   @media (max-width: 768px) {
     gap: 1.5rem;
@@ -112,7 +112,7 @@ const FlowIntro: React.FC<FlowIntroProps> = ({
 	warningBody,
 	bullets,
 	illustration,
-	illustrationAlt = "",
+	illustrationAlt = '',
 	warningIcon,
 	background,
 	textColor,
@@ -135,11 +135,7 @@ const FlowIntro: React.FC<FlowIntroProps> = ({
 						{warningIcon ? <WarningIcon>{warningIcon}</WarningIcon> : null}
 						<WarningContent>
 							{warningTitle ? <h3>{warningTitle}</h3> : null}
-							{typeof warningBody === "string" ? (
-								<p>{warningBody}</p>
-							) : (
-								warningBody
-							)}
+							{typeof warningBody === 'string' ? <p>{warningBody}</p> : warningBody}
 						</WarningContent>
 					</WarningCard>
 				) : null}

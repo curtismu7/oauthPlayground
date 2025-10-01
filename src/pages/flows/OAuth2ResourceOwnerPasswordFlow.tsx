@@ -1,14 +1,8 @@
-import type React from "react";
-import { useEffect } from "react";
-import {
-	FiAlertTriangle,
-	FiInfo,
-	FiLock,
-	FiShield,
-	FiUser,
-	FiX,
-} from "react-icons/fi";
-import styled from "styled-components";
+import type React from 'react';
+import { useEffect } from 'react';
+import { FiAlertTriangle, FiInfo, FiLock, FiShield, FiUser, FiX } from 'react-icons/fi';
+import styled from 'styled-components';
+import CollapsibleSection from '../../components/CollapsibleSection';
 
 const PageContainer = styled.div`
   max-width: 1200px;
@@ -146,93 +140,68 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 				</PageSubtitle>
 			</PageHeader>
 
-			<WarningCard>
-				<FiAlertTriangle size={24} color="#dc2626" />
-				<CardContent>
-					<CardTitle style={{ color: "#dc2626" }}>
-						<FiAlertTriangle />
-						Security Warning
-					</CardTitle>
-					<CardText style={{ color: "#991b1b" }}>
-						The Resource Owner Password Credentials flow is{" "}
-						<strong>deprecated</strong> and should be avoided in most cases due
-						to significant security risks. This flow requires the application to
-						collect and handle user credentials directly.
-					</CardText>
-					<CardList style={{ color: "#991b1b" }}>
-						<CardListItem>
-							Applications must handle passwords securely
-						</CardListItem>
-						<CardListItem>
-							No delegation of authentication to authorization server
-						</CardListItem>
-						<CardListItem>Phishing attacks become easier</CardListItem>
-						<CardListItem>Violates principle of least privilege</CardListItem>
-					</CardList>
-				</CardContent>
-			</WarningCard>
+			<CollapsibleSection title="⚠️ Security Warning" defaultCollapsed={false}>
+				<WarningCard>
+					<FiAlertTriangle size={24} color="#dc2626" />
+					<CardContent>
+						<CardText style={{ color: '#991b1b' }}>
+							The Resource Owner Password Credentials flow is <strong>deprecated</strong> and should
+							be avoided in most cases due to significant security risks. This flow requires the
+							application to collect and handle user credentials directly.
+						</CardText>
+						<CardList style={{ color: '#991b1b' }}>
+							<CardListItem>Applications must handle passwords securely</CardListItem>
+							<CardListItem>No delegation of authentication to authorization server</CardListItem>
+							<CardListItem>Phishing attacks become easier</CardListItem>
+							<CardListItem>Violates principle of least privilege</CardListItem>
+						</CardList>
+					</CardContent>
+				</WarningCard>
+			</CollapsibleSection>
 
-			<InfoCard>
-				<FiInfo size={24} color="#0ea5e9" />
-				<CardContent>
-					<CardTitle style={{ color: "#0c4a6e" }}>
-						<FiInfo />
-						When to Use (Rare Cases)
-					</CardTitle>
-					<CardText style={{ color: "#0c4a6e" }}>
-						This flow should only be used in very specific, high-trust
-						scenarios:
-					</CardText>
-					<CardList style={{ color: "#0c4a6e" }}>
-						<CardListItem>
-							Legacy system migration where other flows are impossible
-						</CardListItem>
-						<CardListItem>Highly trusted first-party applications</CardListItem>
-						<CardListItem>
-							Server-to-server communication with shared credentials
-						</CardListItem>
-						<CardListItem>
-							Internal enterprise applications with strong security controls
-						</CardListItem>
-					</CardList>
-				</CardContent>
-			</InfoCard>
+			<CollapsibleSection title="📋 When to Use (Rare Cases)">
+				<InfoCard>
+					<FiInfo size={24} color="#0ea5e9" />
+					<CardContent>
+						<CardText style={{ color: '#0c4a6e' }}>
+							This flow should only be used in very specific, high-trust scenarios:
+						</CardText>
+						<CardList style={{ color: '#0c4a6e' }}>
+							<CardListItem>Legacy system migration where other flows are impossible</CardListItem>
+							<CardListItem>Highly trusted first-party applications</CardListItem>
+							<CardListItem>Server-to-server communication with shared credentials</CardListItem>
+							<CardListItem>
+								Internal enterprise applications with strong security controls
+							</CardListItem>
+						</CardList>
+					</CardContent>
+				</InfoCard>
+			</CollapsibleSection>
 
-			<InfoCard>
-				<FiShield size={24} color="#0ea5e9" />
-				<CardContent>
-					<CardTitle style={{ color: "#0c4a6e" }}>
-						<FiShield />
-						OAuth 2.0 Resource Owner Password Flow
-					</CardTitle>
-					<CardText style={{ color: "#0c4a6e" }}>
-						The application collects the user's credentials and exchanges them
-						directly for an access token.
-					</CardText>
+			<CollapsibleSection title="🔐 OAuth 2.0 Resource Owner Password Flow">
+				<InfoCard>
+					<FiShield size={24} color="#0ea5e9" />
+					<CardContent>
+						<CardText style={{ color: '#0c4a6e' }}>
+							The application collects the user's credentials and exchanges them directly for an
+							access token.
+						</CardText>
 
-					<CardTitle style={{ color: "#0c4a6e", marginTop: "1.5rem" }}>
-						Flow Steps:
-					</CardTitle>
-					<CardList style={{ color: "#0c4a6e" }}>
-						<CardListItem>
-							Application collects username and password
-						</CardListItem>
-						<CardListItem>
-							Application sends credentials to token endpoint
-						</CardListItem>
-						<CardListItem>
-							Authorization server validates credentials
-						</CardListItem>
-						<CardListItem>
-							Server returns access token (and optionally refresh token)
-						</CardListItem>
-					</CardList>
+						<CardTitle style={{ color: '#0c4a6e', marginTop: '1.5rem' }}>Flow Steps:</CardTitle>
+						<CardList style={{ color: '#0c4a6e' }}>
+							<CardListItem>Application collects username and password</CardListItem>
+							<CardListItem>Application sends credentials to token endpoint</CardListItem>
+							<CardListItem>Authorization server validates credentials</CardListItem>
+							<CardListItem>
+								Server returns access token (and optionally refresh token)
+							</CardListItem>
+						</CardList>
 
-					<CardTitle style={{ color: "#0c4a6e", marginTop: "1.5rem" }}>
-						Token Request Example:
-					</CardTitle>
-					<CodeBlock>
-						{`POST /as/token HTTP/1.1
+						<CardTitle style={{ color: '#0c4a6e', marginTop: '1.5rem' }}>
+							Token Request Example:
+						</CardTitle>
+						<CodeBlock>
+							{`POST /as/token HTTP/1.1
 Host: auth.pingone.com
 Content-Type: application/x-www-form-urlencoded
 
@@ -242,90 +211,84 @@ grant_type=password
 &client_id=your-client-id
 &client_secret=your-client-secret
 &scope=read write`}
-					</CodeBlock>
-				</CardContent>
-			</InfoCard>
+						</CodeBlock>
+					</CardContent>
+				</InfoCard>
+			</CollapsibleSection>
 
-			<SecurityNotice>
-				<SecurityTitle>
-					<FiAlertTriangle />
-					Security Best Practices (If You Must Use This Flow)
-				</SecurityTitle>
-				<SecurityList>
-					<SecurityListItem>
-						<strong>Use HTTPS only:</strong> Never send credentials over
-						unencrypted connections
-					</SecurityListItem>
-					<SecurityListItem>
-						<strong>Minimal scope:</strong> Request only the minimum required
-						permissions
-					</SecurityListItem>
-					<SecurityListItem>
-						<strong>Secure storage:</strong> Never store passwords in plain text
-						or client-side
-					</SecurityListItem>
-					<SecurityListItem>
-						<strong>Token security:</strong> Implement proper token storage and
-						rotation
-					</SecurityListItem>
-					<SecurityListItem>
-						<strong>Audit logging:</strong> Log all authentication attempts and
-						failures
-					</SecurityListItem>
-					<SecurityListItem>
-						<strong>Rate limiting:</strong> Implement brute force protection
-					</SecurityListItem>
-					<SecurityListItem>
-						<strong>Multi-factor authentication:</strong> Consider additional
-						authentication factors
-					</SecurityListItem>
-				</SecurityList>
-			</SecurityNotice>
+			<CollapsibleSection title="🛡️ Security Best Practices">
+				<SecurityNotice>
+					<SecurityTitle>
+						<FiAlertTriangle />
+						Security Best Practices (If You Must Use This Flow)
+					</SecurityTitle>
+					<SecurityList>
+						<SecurityListItem>
+							<strong>Use HTTPS only:</strong> Never send credentials over unencrypted connections
+						</SecurityListItem>
+						<SecurityListItem>
+							<strong>Minimal scope:</strong> Request only the minimum required permissions
+						</SecurityListItem>
+						<SecurityListItem>
+							<strong>Secure storage:</strong> Never store passwords in plain text or client-side
+						</SecurityListItem>
+						<SecurityListItem>
+							<strong>Token security:</strong> Implement proper token storage and rotation
+						</SecurityListItem>
+						<SecurityListItem>
+							<strong>Audit logging:</strong> Log all authentication attempts and failures
+						</SecurityListItem>
+						<SecurityListItem>
+							<strong>Rate limiting:</strong> Implement brute force protection
+						</SecurityListItem>
+						<SecurityListItem>
+							<strong>Multi-factor authentication:</strong> Consider additional authentication
+							factors
+						</SecurityListItem>
+					</SecurityList>
+				</SecurityNotice>
+			</CollapsibleSection>
 
-			<InfoCard>
-				<FiUser size={24} color="#0ea5e9" />
-				<CardContent>
-					<CardTitle style={{ color: "#0c4a6e" }}>
-						<FiUser />
-						Recommended Alternatives
-					</CardTitle>
-					<CardText style={{ color: "#0c4a6e" }}>
-						Instead of the Resource Owner Password flow, consider these more
-						secure alternatives:
+			<CollapsibleSection title="✅ Recommended Alternatives">
+				<InfoCard>
+					<FiUser size={24} color="#0ea5e9" />
+					<CardContent>
+						<CardText style={{ color: '#0c4a6e' }}>
+							Instead of the Resource Owner Password flow, consider these more secure alternatives:
+						</CardText>
+						<CardList style={{ color: '#0c4a6e' }}>
+							<CardListItem>
+								<strong>Authorization Code Flow:</strong> Most secure for web applications
+							</CardListItem>
+							<CardListItem>
+								<strong>Authorization Code with PKCE:</strong> Best for mobile and SPA applications
+							</CardListItem>
+							<CardListItem>
+								<strong>Device Code Flow:</strong> For devices with limited input capabilities
+							</CardListItem>
+							<CardListItem>
+								<strong>Client Credentials Flow:</strong> For server-to-server communication
+							</CardListItem>
+						</CardList>
+					</CardContent>
+				</InfoCard>
+			</CollapsibleSection>
+
+			<CollapsibleSection title="❌ Implementation Status" defaultCollapsed={false}>
+				<SecurityNotice>
+					<SecurityTitle>
+						<FiX />
+						Implementation Status
+					</SecurityTitle>
+					<CardText style={{ color: '#92400e' }}>
+						This OAuth 2.0 Resource Owner Password flow is currently{' '}
+						<strong>not implemented</strong> in PingOne SSO due to security concerns. However, we
+						provide a <strong>Mock OIDC Resource Owner Password Flow</strong> for educational
+						purposes that demonstrates how this flow would work while highlighting the security
+						risks.
 					</CardText>
-					<CardList style={{ color: "#0c4a6e" }}>
-						<CardListItem>
-							<strong>Authorization Code Flow:</strong> Most secure for web
-							applications
-						</CardListItem>
-						<CardListItem>
-							<strong>Authorization Code with PKCE:</strong> Best for mobile and
-							SPA applications
-						</CardListItem>
-						<CardListItem>
-							<strong>Device Code Flow:</strong> For devices with limited input
-							capabilities
-						</CardListItem>
-						<CardListItem>
-							<strong>Client Credentials Flow:</strong> For server-to-server
-							communication
-						</CardListItem>
-					</CardList>
-				</CardContent>
-			</InfoCard>
-
-			<SecurityNotice>
-				<SecurityTitle>
-					<FiX />
-					Implementation Status
-				</SecurityTitle>
-				<CardText style={{ color: "#92400e" }}>
-					This OAuth 2.0 Resource Owner Password flow is currently{" "}
-					<strong>not implemented</strong> in this playground due to security
-					concerns. If you need to test this flow, please use a dedicated,
-					isolated environment with proper security controls in place.
-				</CardText>
-			</SecurityNotice>
+				</SecurityNotice>
+			</CollapsibleSection>
 		</PageContainer>
 	);
 };

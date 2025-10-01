@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Sidebar Design Mockup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: #f8fafc;
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+            border-right: 1px solid #e2e8f0;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 1px;
+            height: 100%;
+            background: linear-gradient(180deg, transparent 0%, #e2e8f0 20%, #e2e8f0 80%, transparent 100%);
+        }
+
+        .sidebar-header {
+            padding: 24px 20px 16px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #ffffff;
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .nav-section {
+            margin: 8px 0;
+        }
+
+        .nav-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 12px 20px 8px;
+            margin-top: 16px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .nav-section-title:first-child {
+            border-top: none;
+            margin-top: 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #475569;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            position: relative;
+            border-radius: 8px;
+            margin: 2px 12px;
+        }
+
+        .nav-item:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+            transform: translateX(2px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            transform: translateX(4px);
+        }
+
+        .nav-item.v5 {
+            color: #059669;
+            font-weight: 600;
+            border-left: 3px solid #059669;
+            margin-left: 8px;
+            padding-left: 16px;
+        }
+
+        .nav-item.v5:hover {
+            background: #d1fae5;
+            color: #047857;
+        }
+
+        .nav-item.v5.active {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: white;
+            border-left: 3px solid #10b981;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .nav-item.v5 .nav-icon {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .nav-item.active .nav-icon {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .nav-arrow {
+            margin-left: auto;
+            font-size: 16px;
+            opacity: 0.7;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:hover .nav-arrow {
+            opacity: 1;
+            transform: translateX(2px);
+        }
+
+        .nav-item.v5 .nav-arrow {
+            color: #059669;
+        }
+
+        .nav-item.active .nav-arrow {
+            color: white;
+        }
+
+        .collapsible-section {
+            margin: 8px 0;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            cursor: pointer;
+            color: #475569;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            border-radius: 8px;
+            margin: 2px 12px;
+        }
+
+        .section-header:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .section-header.expanded {
+            color: #3b82f6;
+        }
+
+        .section-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .section-header.expanded .section-icon {
+            background: #dbeafe;
+            color: #3b82f6;
+        }
+
+        .section-chevron {
+            font-size: 16px;
+            transition: transform 0.2s ease;
+        }
+
+        .section-header.expanded .section-chevron {
+            transform: rotate(180deg);
+        }
+
+        .section-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .section-content.expanded {
+            max-height: 500px;
+        }
+
+        .submenu-item {
+            padding: 10px 20px 10px 52px;
+            color: #64748b;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+            border-radius: 6px;
+            margin: 1px 12px;
+        }
+
+        .submenu-item:hover {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .submenu-item.v5 {
+            color: #059669;
+            font-weight: 600;
+            border-left: 3px solid #059669;
+            margin-left: 20px;
+            padding-left: 32px;
+        }
+
+        .submenu-item.v5:hover {
+            background: #d1fae5;
+            color: #047857;
+        }
+
+        .submenu-item .arrow {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        .submenu-item.v5 .arrow {
+            color: #059669;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+
+        .mockup-content {
+            text-align: center;
+            color: #64748b;
+        }
+
+        .mockup-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+
+        .mockup-subtitle {
+            font-size: 16px;
+            margin-bottom: 24px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 600px;
+            margin-top: 32px;
+        }
+
+        .feature {
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-title {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .feature-desc {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .status-v5 {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .status-v3 {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .status-new {
+            background: #dbeafe;
+            color: #3b82f6;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <!-- Header -->
+        <div class="sidebar-header">
+            <div class="sidebar-title">OAuth Playground</div>
+            <div class="sidebar-subtitle">Authentication Flow Testing</div>
+        </div>
+
+        <!-- Quick Access -->
+        <div class="nav-section">
+            <div class="nav-section-title">Quick Access</div>
+            <a href="#" class="nav-item active">
+                <div class="nav-icon">🏠</div>
+                Dashboard
+            </a>
+            <a href="#" class="nav-item">
+                <div class="nav-icon">⚙️</div>
+                Settings
+            </a>
+            <a href="#" class="nav-item">
+                <div class="nav-icon">🔐</div>
+                OAuth 2.1
+            </a>
+            <a href="#" class="nav-item">
+                <div class="nav-icon">🤖</div>
+                AI Overview
+            </a>
+            <a href="#" class="nav-item">
+                <div class="nav-icon">📚</div>
+                Interactive Tutorials
+            </a>
+            <a href="#" class="nav-item">
+                <div class="nav-icon">⚙️</div>
+                Advanced Configuration
+            </a>
+        </div>
+
+        <!-- Authentication Flows -->
+        <div class="nav-section">
+            <div class="nav-section-title">Authentication Flows</div>
+            
+            <!-- OAuth 2.0 Section -->
+            <div class="collapsible-section">
+                <div class="section-header expanded">
+                    <div style="display: flex; align-items: center;">
+                        <div class="section-icon">🔐</div>
+                        OAuth 2.0 Flows
+                    </div>
+                    <div class="section-chevron">▼</div>
+                </div>
+                <div class="section-content expanded">
+                    <a href="#" class="submenu-item v5">
+                        OAuth 2.0 Authorization Code V5
+                        <span class="arrow">→</span>
+                    </a>
+                    <a href="#" class="submenu-item">
+                        OAuth 2.0 Implicit V3
+                    </a>
+                    <a href="#" class="submenu-item">
+                        OAuth2 Client Credentials V3
+                    </a>
+                    <a href="#" class="submenu-item">
+                        OAuth 2.0 Device Code
+                    </a>
+                    <a href="#" class="submenu-item">
+                        OAuth 2.0 JWT Bearer
+                    </a>
+                    <!-- Hidden: Authorization Code Flow V5 (old) -->
+                    <!-- <a href="#" class="submenu-item v5">
+                        Authorization Code Flow V5
+                        <span class="arrow">→</span>
+                    </a> -->
+                </div>
+            </div>
+
+            <!-- OpenID Connect Section -->
+            <div class="collapsible-section">
+                <div class="section-header expanded">
+                    <div style="display: flex; align-items: center;">
+                        <div class="section-icon">👤</div>
+                        OpenID Connect
+                    </div>
+                    <div class="section-chevron">▼</div>
+                </div>
+                <div class="section-content expanded">
+                    <a href="#" class="submenu-item v5">
+                        OIDC Authorization Code V5
+                        <span class="arrow">→</span>
+                    </a>
+                    <a href="#" class="submenu-item">
+                        OIDC Implicit V3
+                    </a>
+                    <a href="#" class="submenu-item">
+                        OIDC Hybrid V3
+                    </a>
+                    <a href="#" class="submenu-item">
+                        OIDC Client Credentials V3
+                    </a>
+                    <a href="#" class="submenu-item">
+                        OIDC Device Code V3
+                    </a>
+                </div>
+            </div>
+
+            <!-- Unsupported by PingOne Section -->
+            <div class="collapsible-section">
+                <div class="section-header">
+                    <div style="display: flex; align-items: center;">
+                        <div class="section-icon">⚠️</div>
+                        Unsupported by PingOne
+                    </div>
+                    <div class="section-chevron">▶</div>
+                </div>
+                <div class="section-content">
+                    <a href="/oauth/resource-owner-password" class="submenu-item" style="color: #dc2626; border-left: 3px solid #dc2626; margin-left: 20px; padding-left: 32px;">
+                        OAuth 2.0 Resource Owner Password
+                        <span class="arrow" style="color: #dc2626;">⚠️</span>
+                    </a>
+                    <a href="/oidc/resource-owner-password" class="submenu-item" style="color: #dc2626; border-left: 3px solid #dc2626; margin-left: 20px; padding-left: 32px;">
+                        OIDC Resource Owner Password
+                        <span class="arrow" style="color: #dc2626;">⚠️</span>
+                    </a>
+                    <a href="/flows/unsupported/token-exchange" class="submenu-item" style="color: #dc2626; border-left: 3px solid #dc2626; margin-left: 20px; padding-left: 32px;">
+                        Token Exchange (Mock)
+                        <span class="arrow" style="color: #dc2626;">⚠️</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- PingOne Tokens Section -->
+            <div class="collapsible-section">
+                <div class="section-header">
+                    <div style="display: flex; align-items: center;">
+                        <div class="section-icon">🎫</div>
+                        PingOne Tokens
+                    </div>
+                    <div class="section-chevron">▶</div>
+                </div>
+                <div class="section-content">
+                    <a href="#" class="submenu-item v5">
+                        PingOne Worker Token V5
+                        <span class="arrow">→</span>
+                    </a>
+                    <a href="/flows/pingone-par" class="submenu-item">
+                        PingOne PAR Flow
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tools & Resources -->
+        <div class="nav-section">
+            <div class="nav-section-title">Tools & Resources</div>
+            
+            <div class="collapsible-section">
+                <div class="section-header">
+                    <div style="display: flex; align-items: center;">
+                        <div class="section-icon">🔧</div>
+                        Resources
+                    </div>
+                    <div class="section-chevron">▶</div>
+                </div>
+                <div class="section-content">
+                    <a href="#" class="submenu-item">
+                        Token Management
+                    </a>
+                    <a href="#" class="submenu-item">
+                        OIDC Discovery
+                    </a>
+                    <a href="#" class="submenu-item">
+                        JWKS Troubleshooting
+                    </a>
+                    <a href="#" class="submenu-item">
+                        URL Decoder
+                    </a>
+                    <a href="#" class="submenu-item">
+                        Pushed Authorization Request (PAR)
+                    </a>
+                    <a href="#" class="submenu-item">
+                        Flow Comparison
+                    </a>
+                    <a href="#" class="submenu-item">
+                        Interactive Diagrams
+                    </a>
+                    <a href="#" class="submenu-item">
+                        Test Reusable Step System
+                        <span class="arrow">↗</span>
+                    </a>
+                    <a href="#" class="submenu-item">
+                        JWT Decoder
+                        <span class="arrow">↗</span>
+                    </a>
+                    <a href="#" class="submenu-item">
+                        Session Management
+                    </a>
+                    <a href="#" class="submenu-item">
+                        SDK Sample App
+                    </a>
+                    <a href="#" class="submenu-item">
+                        Facile Decoder
+                        <span class="arrow">↗</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="collapsible-section">
+                <div class="section-header">
+                    <div style="display: flex; align-items: center;">
+                        <div class="section-icon">📚</div>
+                        Documentation
+                    </div>
+                    <div class="section-chevron">▶</div>
+                </div>
+                <div class="section-content">
+                    <a href="#" class="submenu-item">
+                        Local Documentation
+                    </a>
+                    <a href="#" class="submenu-item">
+                        OIDC Specs
+                    </a>
+                    <a href="#" class="submenu-item">
+                        OIDC for AI
+                    </a>
+                    <a href="#" class="submenu-item">
+                        OAuth 2.0 Security Best Practices
+                    </a>
+                    <a href="#" class="submenu-item">
+                        PingOne API Reference
+                        <span class="arrow">↗</span>
+                    </a>
+                    <a href="#" class="submenu-item">
+                        PingOne SDKs
+                        <span class="arrow">↗</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="mockup-content">
+            <div class="mockup-title">Modern Sidebar Design</div>
+            <div class="mockup-subtitle">Clean, organized, and user-friendly navigation</div>
+            
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-title">🎨 Modern Design</div>
+                    <div class="feature-desc">Light grey gradient background with subtle shadows and clean typography</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-title">🟢 V5 Highlighting</div>
+                    <div class="feature-desc">Green text and arrows for V5 flows with left border indicators</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-title">📱 Better Structure</div>
+                    <div class="feature-desc">Organized sections with collapsible menus and clear hierarchy</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-title">✨ Smooth Animations</div>
+                    <div class="feature-desc">Hover effects, slide transitions, and modern interactions</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-title">🎯 Active States</div>
+                    <div class="feature-desc">Clear visual feedback for selected items with gradient backgrounds</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-title">🔍 Quick Access</div>
+                    <div class="feature-desc">Dashboard and Settings prominently placed at the top</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple interaction for demo
+        document.querySelectorAll('.section-header').forEach(header => {
+            header.addEventListener('click', function() {
+                const content = this.nextElementSibling;
+                const chevron = this.querySelector('.section-chevron');
+                
+                if (content.classList.contains('expanded')) {
+                    content.classList.remove('expanded');
+                    this.classList.remove('expanded');
+                    chevron.textContent = '▶';
+                } else {
+                    content.classList.add('expanded');
+                    this.classList.add('expanded');
+                    chevron.textContent = '▼';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

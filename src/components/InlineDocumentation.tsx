@@ -2,7 +2,14 @@
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { FiInfo, FiExternalLink, FiBook, FiCode, FiChevronDown, FiChevronRight } from 'react-icons/fi';
+import {
+	FiInfo,
+	FiExternalLink,
+	FiBook,
+	FiCode,
+	FiChevronDown,
+	FiChevronRight,
+} from 'react-icons/fi';
 
 const DocContainer = styled.div`
   margin: 1rem 0;
@@ -68,8 +75,8 @@ const DocChevron = styled.div`
 `;
 
 const DocContent = styled.div<{ $isExpanded: boolean }>`
-  padding: ${({ $isExpanded }) => $isExpanded ? '1rem' : '0'};
-  max-height: ${({ $isExpanded }) => $isExpanded ? '500px' : '0'};
+  padding: ${({ $isExpanded }) => ($isExpanded ? '1rem' : '0')};
+  max-height: ${({ $isExpanded }) => ($isExpanded ? '500px' : '0')};
   overflow: hidden;
   transition: all 0.3s ease;
   background: white;
@@ -123,194 +130,204 @@ const DocLink = styled.a`
 `;
 
 interface InlineDocumentationProps {
-  title: string;
-  type: 'oauth' | 'oidc' | 'security' | 'troubleshooting';
-  children: React.ReactNode;
-  defaultExpanded?: boolean;
-  specLink?: string;
+	title: string;
+	type: 'oauth' | 'oidc' | 'security' | 'troubleshooting';
+	children: React.ReactNode;
+	defaultExpanded?: boolean;
+	specLink?: string;
 }
 
 export const InlineDocumentation: React.FC<InlineDocumentationProps> = ({
-  title,
-  type,
-  children,
-  defaultExpanded = false,
-  specLink
+	title,
+	type,
+	children,
+	defaultExpanded = false,
+	specLink,
 }) => {
-  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+	const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
-  const getTypeIcon = () => {
-    switch (type) {
-      case 'oauth': return '';
-      case 'oidc': return '';
-      case 'security': return '';
-      case 'troubleshooting': return '';
-      default: return '';
-    }
-  };
+	const getTypeIcon = () => {
+		switch (type) {
+			case 'oauth':
+				return '';
+			case 'oidc':
+				return '';
+			case 'security':
+				return '';
+			case 'troubleshooting':
+				return '';
+			default:
+				return '';
+		}
+	};
 
-  return (
-    <DocContainer>
-      <DocHeader onClick={() => setIsExpanded(!isExpanded)}>
-        <span style={{ fontSize: '1.1em' }}>{getTypeIcon()}</span>
-        <FiInfo />
-        <DocTitle>{title}</DocTitle>
-        <DocChevron>
-          {isExpanded ? <FiChevronDown /> : <FiChevronRight />}
-        </DocChevron>
-      </DocHeader>
-      
-      <DocContent $isExpanded={isExpanded}>
-        {children}
-        
-        {specLink && (
-          <DocSection>
-            <DocLink href={specLink} target="_blank" rel="noopener noreferrer">
-              <FiExternalLink />
-              View Specification
-            </DocLink>
-          </DocSection>
-        )}
-      </DocContent>
-    </DocContainer>
-  );
+	return (
+		<DocContainer>
+			<DocHeader onClick={() => setIsExpanded(!isExpanded)}>
+				<span style={{ fontSize: '1.1em' }}>{getTypeIcon()}</span>
+				<FiInfo />
+				<DocTitle>{title}</DocTitle>
+				<DocChevron>{isExpanded ? <FiChevronDown /> : <FiChevronRight />}</DocChevron>
+			</DocHeader>
+
+			<DocContent $isExpanded={isExpanded}>
+				{children}
+
+				{specLink && (
+					<DocSection>
+						<DocLink href={specLink} target="_blank" rel="noopener noreferrer">
+							<FiExternalLink />
+							View Specification
+						</DocLink>
+					</DocSection>
+				)}
+			</DocContent>
+		</DocContainer>
+	);
 };
 
 interface QuickReferenceProps {
-  title: string;
-  items: Array<{
-    term: string;
-    definition: string;
-    example?: string;
-  }>;
+	title: string;
+	items: Array<{
+		term: string;
+		definition: string;
+		example?: string;
+	}>;
 }
 
 export const QuickReference: React.FC<QuickReferenceProps> = ({ title, items }) => {
-  return (
-    <DocSection>
-      <DocSectionTitle>{title}</DocSectionTitle>
-      {items.map((item, index) => (
-        <div key={index} style={{ marginBottom: '0.75rem' }}>
-          <div style={{ fontWeight: 'bold', fontSize: '0.8rem', color: '#1f2937' }}>
-            {item.term}
-          </div>
-          <DocText>{item.definition}</DocText>
-          {item.example && (
-            <DocCode>{item.example}</DocCode>
-          )}
-        </div>
-      ))}
-    </DocSection>
-  );
+	return (
+		<DocSection>
+			<DocSectionTitle>{title}</DocSectionTitle>
+			{items.map((item, index) => (
+				<div key={index} style={{ marginBottom: '0.75rem' }}>
+					<div style={{ fontWeight: 'bold', fontSize: '0.8rem', color: '#1f2937' }}>
+						{item.term}
+					</div>
+					<DocText>{item.definition}</DocText>
+					{item.example && <DocCode>{item.example}</DocCode>}
+				</div>
+			))}
+		</DocSection>
+	);
 };
 
 interface TroubleshootingGuideProps {
-  issue: string;
-  symptoms: string[];
-  solutions: Array<{
-    title: string;
-    steps: string[];
-    code?: string;
-  }>;
+	issue: string;
+	symptoms: string[];
+	solutions: Array<{
+		title: string;
+		steps: string[];
+		code?: string;
+	}>;
 }
 
 export const TroubleshootingGuide: React.FC<TroubleshootingGuideProps> = ({
-  issue,
-  symptoms,
-  solutions
+	issue,
+	symptoms,
+	solutions,
 }) => {
-  return (
-    <DocSection>
-      <DocSectionTitle> Troubleshooting: {issue}</DocSectionTitle>
-      
-      <div style={{ marginBottom: '1rem' }}>
-        <strong style={{ fontSize: '0.8rem', color: '#dc2626' }}>Symptoms:</strong>
-        <ul style={{ margin: '0.25rem 0', paddingLeft: '1.5rem', fontSize: '0.8rem', color: '#6b7280' }}>
-          {symptoms && symptoms.length > 0 ? symptoms.map((symptom, index) => (
-            <li key={index}>{symptom}</li>
-          )) : <li>No specific symptoms identified</li>}
-        </ul>
-      </div>
+	return (
+		<DocSection>
+			<DocSectionTitle> Troubleshooting: {issue}</DocSectionTitle>
 
-      <div>
-        <strong style={{ fontSize: '0.8rem', color: '#059669' }}>Solutions:</strong>
-        {solutions && solutions.length > 0 ? solutions.map((solution, index) => (
-          <div key={index} style={{ margin: '0.5rem 0' }}>
-            <div style={{ fontWeight: 'bold', fontSize: '0.8rem', color: '#1f2937' }}>
-              {solution.title}
-            </div>
-            <ol style={{ margin: '0.25rem 0', paddingLeft: '1.5rem', fontSize: '0.75rem', color: '#6b7280' }}>
-              {solution.steps && solution.steps.length > 0 ? solution.steps.map((step, stepIndex) => (
-                <li key={stepIndex}>{step}</li>
-              )) : <li>No specific steps available</li>}
-            </ol>
-            {solution.code && (
-              <DocCode>{solution.code}</DocCode>
-            )}
-          </div>
-        )) : <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>No solutions available</div>}
-      </div>
-    </DocSection>
-  );
+			<div style={{ marginBottom: '1rem' }}>
+				<strong style={{ fontSize: '0.8rem', color: '#dc2626' }}>Symptoms:</strong>
+				<ul
+					style={{
+						margin: '0.25rem 0',
+						paddingLeft: '1.5rem',
+						fontSize: '0.8rem',
+						color: '#6b7280',
+					}}
+				>
+					{symptoms && symptoms.length > 0 ? (
+						symptoms.map((symptom, index) => <li key={index}>{symptom}</li>)
+					) : (
+						<li>No specific symptoms identified</li>
+					)}
+				</ul>
+			</div>
+
+			<div>
+				<strong style={{ fontSize: '0.8rem', color: '#059669' }}>Solutions:</strong>
+				{solutions && solutions.length > 0 ? (
+					solutions.map((solution, index) => (
+						<div key={index} style={{ margin: '0.5rem 0' }}>
+							<div style={{ fontWeight: 'bold', fontSize: '0.8rem', color: '#1f2937' }}>
+								{solution.title}
+							</div>
+							<ol
+								style={{
+									margin: '0.25rem 0',
+									paddingLeft: '1.5rem',
+									fontSize: '0.75rem',
+									color: '#6b7280',
+								}}
+							>
+								{solution.steps && solution.steps.length > 0 ? (
+									solution.steps.map((step, stepIndex) => <li key={stepIndex}>{step}</li>)
+								) : (
+									<li>No specific steps available</li>
+								)}
+							</ol>
+							{solution.code && <DocCode>{solution.code}</DocCode>}
+						</div>
+					))
+				) : (
+					<div style={{ fontSize: '0.8rem', color: '#6b7280' }}>No solutions available</div>
+				)}
+			</div>
+		</DocSection>
+	);
 };
 
 interface CodeExampleProps {
-  title: string;
-  language: string;
-  code: string;
-  explanation?: string;
+	title: string;
+	language: string;
+	code: string;
+	explanation?: string;
 }
 
-export const CodeExample: React.FC<CodeExampleProps> = ({
-  title,
-  language,
-  code,
-  explanation
-}) => {
-  return (
-    <DocSection>
-      <DocSectionTitle>
-        <FiCode style={{ marginRight: '0.25rem' }} />
-        {title}
-      </DocSectionTitle>
-      {explanation && <DocText>{explanation}</DocText>}
-      <DocCode>{code}</DocCode>
-    </DocSection>
-  );
+export const CodeExample: React.FC<CodeExampleProps> = ({ title, language, code, explanation }) => {
+	return (
+		<DocSection>
+			<DocSectionTitle>
+				<FiCode style={{ marginRight: '0.25rem' }} />
+				{title}
+			</DocSectionTitle>
+			{explanation && <DocText>{explanation}</DocText>}
+			<DocCode>{code}</DocCode>
+		</DocSection>
+	);
 };
 
 interface SpecificationReferenceProps {
-  section: string;
-  title: string;
-  description: string;
-  link: string;
+	section: string;
+	title: string;
+	description: string;
+	link: string;
 }
 
 export const SpecificationReference: React.FC<SpecificationReferenceProps> = ({
-  section,
-  title,
-  description,
-  link
+	section,
+	title,
+	description,
+	link,
 }) => {
-  return (
-    <DocSection>
-      <DocSectionTitle>
-        <FiBook style={{ marginRight: '0.25rem' }} />
-        {section}: {title}
-      </DocSectionTitle>
-      <DocText>{description}</DocText>
-      <DocLink href={link} target="_blank" rel="noopener noreferrer">
-        <FiExternalLink />
-        Read Specification
-      </DocLink>
-    </DocSection>
-  );
+	return (
+		<DocSection>
+			<DocSectionTitle>
+				<FiBook style={{ marginRight: '0.25rem' }} />
+				{section}: {title}
+			</DocSectionTitle>
+			<DocText>{description}</DocText>
+			<DocLink href={link} target="_blank" rel="noopener noreferrer">
+				<FiExternalLink />
+				Read Specification
+			</DocLink>
+		</DocSection>
+	);
 };
 
-export default {
-  InlineDocumentation,
-  QuickReference,
-  TroubleshootingGuide,
-  CodeExample,
-  SpecificationReference
-};
+export default InlineDocumentation;
