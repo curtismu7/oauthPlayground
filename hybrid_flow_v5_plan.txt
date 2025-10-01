@@ -1,0 +1,106 @@
+
+# AI Prompt — OIDC Hybrid Flow → V5 Parity
+**Version:** 5.0.0 • **Date:** 2025-10-01
+
+## Goal
+Convert the Hybrid Flow to the V5 format, making it as close as possible to the Authorize V5 experience in functionality, look & feel, style, UX patterns, logging, and routing. Only differences should be those strictly required by OIDC Hybrid semantics.
+
+> ⚠️ Note: Hybrid is an OIDC-only flow, combining Authorization Code + Implicit. It must support `code id_token`, `code token`, and `code id_token token` response types.
+
+---
+
+## Scope & Deliverables
+1. New V5 Hybrid Flow Module aligned to Authorize V5 structure (routes, services, components, hooks, styles).
+2. UI/UX parity with Authorize V5: identical shell, buttons, logs, token bar, decoded view, error states.
+3. Support all hybrid response_type combos: code id_token, code token, code id_token token.
+4. Unified logging: same V5 style (emoji, timestamp, module tag, color-coded, non-blocking).
+5. Tests & docs: full coverage, README updates, parity checklist.
+
+---
+
+## Functional Requirements (Hybrid specifics)
+- Authorize request: response_type must support all hybrid combos.
+- Callback handling: parse code, id_token, access_token together. Validate id_token immediately, exchange code for tokens at token endpoint.
+- Token endpoint: exchange code for tokens (access, refresh, id token).
+- Validation: verify ID token, state, nonce. Store tokens in memory or sessionStorage.
+
+---
+
+## UI/UX Parity Checklist
+- Layout identical to Authorize V5.
+- Forms same as V5.
+- Status/Token Bar: same decode toggle, copy buttons, expiry chip.
+- Modals/Toasts and Error Panels same UX language as V5.
+- Accessibility parity.
+
+---
+
+## Routing & Callbacks
+- /flows/hybrid (start)
+- /hybrid-callback (callback)
+- /flows/hybrid/summary (summary)
+
+---
+
+## Configuration
+- OIDC_ISSUER
+- OIDC_CLIENT_ID
+- OIDC_REDIRECT_URI_HYBRID
+- OIDC_SCOPES
+- HYBRID_RESPONSE_TYPE
+
+---
+
+## Security & Hardening
+- Require nonce for ID token.
+- Strong state validation.
+- Clear URL fragments after parse.
+- Mask tokens in logs.
+- Enforce HTTPS, CSP, memory/sessionStorage rules.
+- Refresh token rotation if supported.
+
+---
+
+## Unified Logging
+- Tag: [🔀 OIDC-HYBRID]
+- Format: [YYYY-MM-DD HH:mm:ss] [🔀 OIDC-HYBRID] [LEVEL] message
+
+---
+
+## Implementation Notes (pseudocode)
+Authorize request and callback handler examples with validation, token exchange, navigation to summary.
+
+---
+
+## Testing
+- Happy paths: all hybrid response_types.
+- Error cases: invalid nonce, state mismatch, expired code, failed exchange.
+- UX: spinners, disabled buttons, decoded token bar.
+- Security: no leaks to logs, fragment cleared.
+- Integration and E2E coverage.
+
+---
+
+## Acceptance Criteria
+1. Pixel parity with Authorize V5.
+2. All hybrid response_types supported end-to-end.
+3. ID Token validated on receipt; code exchanged successfully.
+4. Tokens displayed/decoded with masking.
+5. Unified logging with [🔀 OIDC-HYBRID].
+6. Tests green, docs updated.
+
+---
+
+## Cursor Tasks
+1. Scaffold routes & nav.
+2. Add config keys.
+3. Implement services for authorize request and token exchange.
+4. Build useHybridFlow() hook.
+5. Create UI screens reusing V5 components.
+6. Add nonce/state validation and hardening.
+7. Add unit, integration, E2E tests.
+8. Update docs with Hybrid flow details.
+
+---
+
+**Now implement Hybrid Flow in V5, ensuring strict OIDC compliance and full UX/logging parity with Authorize V5.**
