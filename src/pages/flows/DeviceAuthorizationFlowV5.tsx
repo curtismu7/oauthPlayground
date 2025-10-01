@@ -1,39 +1,34 @@
 // src/pages/flows/DeviceAuthorizationFlowV5.tsx
 // OAuth Device Authorization Grant (RFC 8628) - V5 Implementation
-import React, { useState, useCallback } from 'react';
+
 import { QRCodeSVG } from 'qrcode.react';
-import { 
-	FiCheckCircle, 
-	FiClock, 
-	FiCopy, 
-	FiInfo, 
-	FiKey, 
-	FiMonitor, 
-	FiRefreshCw, 
-	FiShield, 
-	FiSmartphone, 
-	FiAlertCircle, 
+import React, { useCallback, useState } from 'react';
+import {
+	FiAlertCircle,
+	FiCheckCircle,
 	FiChevronDown,
+	FiClock,
+	FiCopy,
 	FiExternalLink,
+	FiInfo,
+	FiKey,
+	FiMonitor,
+	FiRefreshCw,
+	FiShield,
+	FiSmartphone,
 	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import FlowInfoCard from '../../components/FlowInfoCard';
-import { getFlowInfo } from '../../utils/flowInfoConfig';
-import {
-	ExplanationHeading,
-	ExplanationSection,
-} from '../../components/InfoBlocks';
-import {
-	ResultsHeading,
-	ResultsSection,
-} from '../../components/ResultsPanel';
+import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
+import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import TokenIntrospect from '../../components/TokenIntrospect';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { useUISettings } from '../../contexts/UISettingsContext';
 import { useDeviceAuthorizationFlow } from '../../hooks/useDeviceAuthorizationFlow';
 import { credentialManager } from '../../utils/credentialManager';
-import { useUISettings } from '../../contexts/UISettingsContext';
+import { getFlowInfo } from '../../utils/flowInfoConfig';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Styled Components (V5 Parity)
 const FlowContainer = styled.div`
@@ -202,7 +197,7 @@ const GeneratedLabel = styled.div`
 	font-weight: 600;
 `;
 
-const GeneratedUrlDisplay = styled.div`
+const _GeneratedUrlDisplay = styled.div`
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 0.875rem;
 	color: #1e40af;
@@ -329,7 +324,10 @@ const Button = styled.button<{
 `;
 
 const STEP_METADATA = [
-	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the Device Authorization Code Flow' },
+	{
+		title: 'Step 0: Introduction & Setup',
+		subtitle: 'Understand the Device Authorization Code Flow',
+	},
 	{ title: 'Step 1: Request Device Code', subtitle: 'Initiate device authorization' },
 	{ title: 'Step 2: User Authorization & Polling', subtitle: 'Scan QR code and watch TV update' },
 	{ title: 'Step 3: Tokens Received', subtitle: 'View and analyze tokens' },
@@ -357,7 +355,7 @@ type SectionKey =
 	| 'completionDetails';
 
 // Styled Components
-const UserCodeDisplay = styled.div`
+const _UserCodeDisplay = styled.div`
 	font-size: 2.5rem;
 	font-weight: 700;
 	font-family: 'Courier New', monospace;
@@ -382,13 +380,13 @@ const UserCodeDisplay = styled.div`
 	}
 `;
 
-const PollingIndicator = styled.div<{ $isActive: boolean }>`
+const _PollingIndicator = styled.div<{ $isActive: boolean }>`
 	display: flex;
 	align-items: center;
 	gap: 1rem;
 	padding: 1.5rem;
-	background-color: ${props => props.$isActive ? '#dbeafe' : '#f1f5f9'};
-	border: 2px solid ${props => props.$isActive ? '#3b82f6' : '#cbd5e1'};
+	background-color: ${(props) => (props.$isActive ? '#dbeafe' : '#f1f5f9')};
+	border: 2px solid ${(props) => (props.$isActive ? '#3b82f6' : '#cbd5e1')};
 	border-radius: 0.5rem;
 	margin: 1rem 0;
 
@@ -402,7 +400,9 @@ const PollingIndicator = styled.div<{ $isActive: boolean }>`
 		to { transform: rotate(360deg); }
 	}
 
-	${props => props.$isActive && `
+	${(props) =>
+		props.$isActive &&
+		`
 		animation: pulse 2s ease-in-out infinite;
 		
 		svg {
@@ -424,7 +424,7 @@ const CountdownTimer = styled.div`
 	margin: 1rem 0;
 `;
 
-const QRCodeContainer = styled.div`
+const _QRCodeContainer = styled.div`
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -464,11 +464,9 @@ const SmartTV = styled.div<{ $isWaiting: boolean }>`
 		left: 0;
 		right: 0;
 		height: 4px;
-		background: ${({ $isWaiting }) => 
-			$isWaiting 
-				? 'linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #3b82f6 100%)'
-				: '#22c55e'};
-		animation: ${({ $isWaiting }) => $isWaiting ? 'shimmer 2s infinite' : 'none'};
+		background: ${({ $isWaiting }) =>
+			$isWaiting ? 'linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #3b82f6 100%)' : '#22c55e'};
+		animation: ${({ $isWaiting }) => ($isWaiting ? 'shimmer 2s infinite' : 'none')};
 		background-size: 200% 100%;
 	}
 
@@ -492,13 +490,11 @@ const SmartTV = styled.div<{ $isWaiting: boolean }>`
 `;
 
 const TVScreen = styled.div<{ $showContent?: boolean }>`
-	background: ${({ $showContent }) => 
-		$showContent 
-			? 'linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%)'
-			: '#000000'};
+	background: ${({ $showContent }) =>
+		$showContent ? 'linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%)' : '#000000'};
 	border: 2px solid #1e293b;
 	border-radius: 0.5rem;
-	padding: ${({ $showContent }) => $showContent ? '2rem' : '3rem'};
+	padding: ${({ $showContent }) => ($showContent ? '2rem' : '3rem')};
 	margin-bottom: 1rem;
 	min-height: 350px;
 	display: flex;
@@ -519,16 +515,18 @@ const TVDisplay = styled.div`
 `;
 
 const TVStatusIndicator = styled.div<{ $active?: boolean }>`
-	background-color: ${({ $active }) => $active ? '#22c55e' : '#ef4444'};
+	background-color: ${({ $active }) => ($active ? '#22c55e' : '#ef4444')};
 	border-radius: 50%;
 	width: 12px;
 	height: 12px;
 	display: inline-block;
 	margin-right: 0.5rem;
-	box-shadow: 0 0 10px ${({ $active }) => $active ? '#22c55e' : '#ef4444'};
+	box-shadow: 0 0 10px ${({ $active }) => ($active ? '#22c55e' : '#ef4444')};
 	transition: all 0.3s ease;
 
-	${({ $active }) => $active && `
+	${({ $active }) =>
+		$active &&
+		`
 		animation: pulse 2s infinite;
 	`}
 
@@ -697,7 +695,7 @@ const QRSection = styled.div`
 	text-align: center;
 `;
 
-const VerificationBox = styled.div`
+const _VerificationBox = styled.div`
 	background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
 	border: 2px solid #3b82f6;
 	border-radius: 0.75rem;
@@ -728,7 +726,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 		completionOverview: false,
 		completionDetails: false,
 	});
-	const [copiedField, setCopiedField] = useState<string | null>(null);
+	const [_copiedField, setCopiedField] = useState<string | null>(null);
 	const [userInfo, setUserInfo] = useState<any>(null);
 	const [introspectionResult, setIntrospectionResult] = useState<any>(null);
 	const [showPollingModal, setShowPollingModal] = useState(false);
@@ -746,17 +744,27 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 			});
 			console.log('[📺 OAUTH-DEVICE] [INFO] Loaded saved credentials from credential manager');
 		}
-	}, []); // Only run on mount
+	}, [deviceFlow.setCredentials]); // Only run on mount
 
 	// Show polling prompt modal when device code is received
 	React.useEffect(() => {
-		if (deviceFlow.deviceCodeData && !deviceFlow.pollingStatus.isPolling && !deviceFlow.tokens && settings.showPollingPrompt) {
+		if (
+			deviceFlow.deviceCodeData &&
+			!deviceFlow.pollingStatus.isPolling &&
+			!deviceFlow.tokens &&
+			settings.showPollingPrompt
+		) {
 			setShowPollingModal(true);
 		}
-	}, [deviceFlow.deviceCodeData, deviceFlow.pollingStatus.isPolling, deviceFlow.tokens, settings.showPollingPrompt]);
+	}, [
+		deviceFlow.deviceCodeData,
+		deviceFlow.pollingStatus.isPolling,
+		deviceFlow.tokens,
+		settings.showPollingPrompt,
+	]);
 
 	const toggleSection = useCallback((section: SectionKey) => {
-		setCollapsedSections(prev => ({
+		setCollapsedSections((prev) => ({
 			...prev,
 			[section]: !prev[section],
 		}));
@@ -769,21 +777,29 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 		setTimeout(() => setCopiedField(null), 2000);
 	}, []);
 
-	const handleCredentialsChange = useCallback((field: string, value: string) => {
-		// Update credentials as user types
-		if (field === 'environmentId' || field === 'clientId' || field === 'clientSecret' || field === 'scopes') {
-			const currentCreds = deviceFlow.credentials || {
-				environmentId: '',
-				clientId: '',
-				clientSecret: '',
-				scopes: 'openid',
-			};
-			deviceFlow.setCredentials({
-				...currentCreds,
-				[field]: value,
-			});
-		}
-	}, [deviceFlow]);
+	const handleCredentialsChange = useCallback(
+		(field: string, value: string) => {
+			// Update credentials as user types
+			if (
+				field === 'environmentId' ||
+				field === 'clientId' ||
+				field === 'clientSecret' ||
+				field === 'scopes'
+			) {
+				const currentCreds = deviceFlow.credentials || {
+					environmentId: '',
+					clientId: '',
+					clientSecret: '',
+					scopes: 'openid',
+				};
+				deviceFlow.setCredentials({
+					...currentCreds,
+					[field]: value,
+				});
+			}
+		},
+		[deviceFlow]
+	);
 
 	const handleSaveCredentials = useCallback(() => {
 		if (!deviceFlow.credentials?.environmentId || !deviceFlow.credentials?.clientId) {
@@ -822,7 +838,9 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 			localStorage.setItem('token_to_analyze', deviceFlow.tokens.access_token);
 			localStorage.setItem('token_type', 'access');
 			localStorage.setItem('flow_source', 'device-authorization-v5');
-			console.log('🔍 [DeviceAuthorizationFlowV5] Passing access token to Token Management via localStorage');
+			console.log(
+				'🔍 [DeviceAuthorizationFlowV5] Passing access token to Token Management via localStorage'
+			);
 		}
 
 		window.location.href = '/token-management';
@@ -846,7 +864,9 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 			localStorage.setItem('token_to_analyze', deviceFlow.tokens.refresh_token);
 			localStorage.setItem('token_type', 'refresh');
 			localStorage.setItem('flow_source', 'device-authorization-v5');
-			console.log('🔍 [DeviceAuthorizationFlowV5] Passing refresh token to Token Management via localStorage');
+			console.log(
+				'🔍 [DeviceAuthorizationFlowV5] Passing refresh token to Token Management via localStorage'
+			);
 		}
 
 		window.location.href = '/token-management';
@@ -856,7 +876,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 		try {
 			await deviceFlow.requestDeviceCode();
 			setCurrentStep(2); // Auto-advance to User Authorization step
-		} catch (error) {
+		} catch (_error) {
 			// Error already handled in hook
 		}
 	}, [deviceFlow]);
@@ -881,25 +901,37 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 	}, [deviceFlow]);
 
 	// Step validation
-	const isStepValid = useCallback((stepIndex: number): boolean => {
-		switch (stepIndex) {
-			case 0: return true; // Introduction
-			case 1: return !!deviceFlow.credentials;
-			case 2: return !!deviceFlow.deviceCodeData;
-			case 3: return !!deviceFlow.tokens; // Tokens (old step 4)
-			case 4: return !!deviceFlow.tokens; // Introspection (old step 5)
-			case 5: return true; // Completion (old step 6)
-			default: return false;
-		}
-	}, [deviceFlow.credentials, deviceFlow.deviceCodeData, deviceFlow.tokens]);
+	const isStepValid = useCallback(
+		(stepIndex: number): boolean => {
+			switch (stepIndex) {
+				case 0:
+					return true; // Introduction
+				case 1:
+					return !!deviceFlow.credentials;
+				case 2:
+					return !!deviceFlow.deviceCodeData;
+				case 3:
+					return !!deviceFlow.tokens; // Tokens (old step 4)
+				case 4:
+					return !!deviceFlow.tokens; // Introspection (old step 5)
+				case 5:
+					return true; // Completion (old step 6)
+				default:
+					return false;
+			}
+		},
+		[deviceFlow.credentials, deviceFlow.deviceCodeData, deviceFlow.tokens]
+	);
 
 	// Don't auto-advance - let user see the TV update and click Next manually
 	// This provides better educational experience to see the full authorization flow
-	
+
 	// Show toast when tokens received to draw attention to TV update
 	React.useEffect(() => {
 		if (deviceFlow.tokens && currentStep === 2) {
-			v4ToastManager.showSuccess('🎉 Authorization successful! Check out your StreamFlix TV screen above!');
+			v4ToastManager.showSuccess(
+				'🎉 Authorization successful! Check out your StreamFlix TV screen above!'
+			);
 		}
 	}, [deviceFlow.tokens, currentStep]);
 
@@ -944,8 +976,8 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 							</ExplanationHeading>
 							<InfoText>
 								The Device Authorization Grant (RFC 8628) enables OAuth clients on input-constrained
-								devices to obtain user authorization without a browser. Perfect for smart TVs, IoT devices,
-								CLI tools, and gaming consoles.
+								devices to obtain user authorization without a browser. Perfect for smart TVs, IoT
+								devices, CLI tools, and gaming consoles.
 							</InfoText>
 
 							<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
@@ -967,11 +999,21 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 								<div>
 									<InfoTitle>RFC 8628 Specification:</InfoTitle>
 									<ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
-										<li><strong>Device Code</strong>: Short-lived code displayed to user</li>
-										<li><strong>User Code</strong>: Human-readable code for user verification</li>
-										<li><strong>Verification URI</strong>: URL where user completes authorization</li>
-										<li><strong>Polling</strong>: Client polls token endpoint until authorized</li>
-										<li><strong>Timeout</strong>: Codes expire after 10-15 minutes</li>
+										<li>
+											<strong>Device Code</strong>: Short-lived code displayed to user
+										</li>
+										<li>
+											<strong>User Code</strong>: Human-readable code for user verification
+										</li>
+										<li>
+											<strong>Verification URI</strong>: URL where user completes authorization
+										</li>
+										<li>
+											<strong>Polling</strong>: Client polls token endpoint until authorized
+										</li>
+										<li>
+											<strong>Timeout</strong>: Codes expire after 10-15 minutes
+										</li>
 									</ul>
 								</div>
 							</InfoBox>
@@ -981,10 +1023,19 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 								<div>
 									<InfoTitle>Security Considerations:</InfoTitle>
 									<ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
-										<li><strong>Short-lived codes</strong>: Device/user codes expire quickly</li>
-										<li><strong>Polling frequency</strong>: Follow server rate limits (typically 5-10 seconds)</li>
-										<li><strong>User verification</strong>: Ensure codes are displayed securely</li>
-										<li><strong>Transport security</strong>: Always use HTTPS for all requests</li>
+										<li>
+											<strong>Short-lived codes</strong>: Device/user codes expire quickly
+										</li>
+										<li>
+											<strong>Polling frequency</strong>: Follow server rate limits (typically 5-10
+											seconds)
+										</li>
+										<li>
+											<strong>User verification</strong>: Ensure codes are displayed securely
+										</li>
+										<li>
+											<strong>Transport security</strong>: Always use HTTPS for all requests
+										</li>
 									</ul>
 								</div>
 							</InfoBox>
@@ -994,12 +1045,19 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 								<div>
 									<InfoTitle>OAuth vs OIDC Device Flow:</InfoTitle>
 									<InfoText style={{ marginTop: '0.5rem' }}>
-										<strong>Important:</strong> OIDC doesn't define a separate "Device Flow" specification. 
-										It reuses the OAuth 2.0 Device Authorization Grant (RFC 8628) and adds the usual OIDC semantics:
+										<strong>Important:</strong> OIDC doesn't define a separate "Device Flow"
+										specification. It reuses the OAuth 2.0 Device Authorization Grant (RFC 8628) and
+										adds the usual OIDC semantics:
 									</InfoText>
 									<ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
-										<li><strong>OAuth Device Flow</strong>: Returns access_token and refresh_token only</li>
-										<li><strong>OIDC Device Flow</strong>: Adds ID Token, UserInfo endpoint, and requires <code>openid</code> scope</li>
+										<li>
+											<strong>OAuth Device Flow</strong>: Returns access_token and refresh_token
+											only
+										</li>
+										<li>
+											<strong>OIDC Device Flow</strong>: Adds ID Token, UserInfo endpoint, and
+											requires <code>openid</code> scope
+										</li>
 										<li>Both flows use the same RFC 8628 device authorization mechanism</li>
 										<li>OIDC adds identity layer on top of OAuth's authorization framework</li>
 									</ul>
@@ -1025,52 +1083,64 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 				{!collapsedSections.flowDiagram && (
 					<CollapsibleContent>
 						<ExplanationSection>
-							<div style={{
-								backgroundColor: '#f8fafc',
-								padding: '2rem',
-								borderRadius: '0.75rem',
-								border: '2px solid #e2e8f0'
-							}}>
+							<div
+								style={{
+									backgroundColor: '#f8fafc',
+									padding: '2rem',
+									borderRadius: '0.75rem',
+									border: '2px solid #e2e8f0',
+								}}
+							>
 								<ExplanationHeading style={{ fontSize: '1.25rem', marginBottom: '1.5rem' }}>
 									<FiZap /> Complete Flow Sequence
 								</ExplanationHeading>
 
 								<ol style={{ margin: 0, paddingLeft: '1.5rem', lineHeight: '2' }}>
 									<li style={{ marginBottom: '1.5rem' }}>
-										<strong>1. Device requests device code</strong> - Device calls the device authorization endpoint
-										with client_id and scopes
+										<strong>1. Device requests device code</strong> - Device calls the device
+										authorization endpoint with client_id and scopes
 										<br />
-										<code style={{ background: '#e2e8f0', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.85em' }}>
+										<code
+											style={{
+												background: '#e2e8f0',
+												padding: '0.25rem 0.5rem',
+												borderRadius: '0.25rem',
+												fontSize: '0.85em',
+											}}
+										>
 											POST /device_authorization
 										</code>
 										<br />
 										<small style={{ color: '#64748b' }}>
-											Server responds with: device_code, user_code, verification_uri, expires_in, interval
+											Server responds with: device_code, user_code, verification_uri, expires_in,
+											interval
 										</small>
 									</li>
 									<li style={{ marginBottom: '1.5rem' }}>
-										<strong>2. Display user code</strong> - Device shows user_code and verification_uri to user
-										on screen (e.g., "Visit example.com and enter code: ABCD-1234")
+										<strong>2. Display user code</strong> - Device shows user_code and
+										verification_uri to user on screen (e.g., "Visit example.com and enter code:
+										ABCD-1234")
 										<br />
 										<small style={{ color: '#64748b' }}>
-											Example display: "Go to https://auth.pingone.com/activate and enter: WDJB-MJHT"
+											Example display: "Go to https://auth.pingone.com/activate and enter:
+											WDJB-MJHT"
 										</small>
 									</li>
 									<li style={{ marginBottom: '1.5rem' }}>
-										<strong>3. User authorizes on secondary device</strong> - User visits URL on phone/computer,
-										enters code, and authorizes the application
+										<strong>3. User authorizes on secondary device</strong> - User visits URL on
+										phone/computer, enters code, and authorizes the application
 										<br />
 										<small style={{ color: '#64748b' }}>
 											User sees: "Authorize 'Smart TV App' to access your account?"
 										</small>
 									</li>
 									<li style={{ marginBottom: '1rem' }}>
-										<strong>Device polls for tokens</strong> - Device continuously polls token endpoint
-										until user completes authorization
+										<strong>Device polls for tokens</strong> - Device continuously polls token
+										endpoint until user completes authorization
 									</li>
 									<li>
-										<strong>Tokens received</strong> - Device receives access token, ID token, and optionally
-										refresh token
+										<strong>Tokens received</strong> - Device receives access token, ID token, and
+										optionally refresh token
 									</li>
 								</ol>
 							</div>
@@ -1114,7 +1184,14 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 							</InfoText>
 							<div style={{ marginTop: '1.5rem' }}>
 								<div style={{ marginBottom: '1rem' }}>
-									<label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151' }}>
+									<label
+										style={{
+											display: 'block',
+											marginBottom: '0.5rem',
+											fontWeight: '600',
+											color: '#374151',
+										}}
+									>
 										Environment ID
 									</label>
 									<input
@@ -1127,12 +1204,19 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 											padding: '0.75rem',
 											border: '1px solid #d1d5db',
 											borderRadius: '0.5rem',
-											fontSize: '0.875rem'
+											fontSize: '0.875rem',
 										}}
 									/>
 								</div>
 								<div style={{ marginBottom: '1rem' }}>
-									<label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151' }}>
+									<label
+										style={{
+											display: 'block',
+											marginBottom: '0.5rem',
+											fontWeight: '600',
+											color: '#374151',
+										}}
+									>
 										Client ID
 									</label>
 									<input
@@ -1145,12 +1229,19 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 											padding: '0.75rem',
 											border: '1px solid #d1d5db',
 											borderRadius: '0.5rem',
-											fontSize: '0.875rem'
+											fontSize: '0.875rem',
 										}}
 									/>
 								</div>
 								<div style={{ marginBottom: '1rem' }}>
-									<label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151' }}>
+									<label
+										style={{
+											display: 'block',
+											marginBottom: '0.5rem',
+											fontWeight: '600',
+											color: '#374151',
+										}}
+									>
 										Scopes
 									</label>
 									<input
@@ -1163,7 +1254,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 											padding: '0.75rem',
 											border: '1px solid #d1d5db',
 											borderRadius: '0.5rem',
-											fontSize: '0.875rem'
+											fontSize: '0.875rem',
 										}}
 									/>
 								</div>
@@ -1172,7 +1263,9 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 								<Button
 									onClick={handleSaveCredentials}
 									$variant="primary"
-									disabled={!deviceFlow.credentials?.environmentId || !deviceFlow.credentials?.clientId}
+									disabled={
+										!deviceFlow.credentials?.environmentId || !deviceFlow.credentials?.clientId
+									}
 								>
 									<FiKey /> Save Credentials
 								</Button>
@@ -1213,9 +1306,9 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 								<div>
 									<InfoTitle>What happens:</InfoTitle>
 									<InfoText>
-										The device sends a POST request to the device authorization endpoint with the client_id
-										and requested scopes. PingOne responds with a device_code, user_code, verification_uri,
-										and polling interval.
+										The device sends a POST request to the device authorization endpoint with the
+										client_id and requested scopes. PingOne responds with a device_code, user_code,
+										verification_uri, and polling interval.
 									</InfoText>
 								</div>
 							</InfoBox>
@@ -1227,10 +1320,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 									<FiKey /> Request Device Code
 								</Button>
 								{deviceFlow.deviceCodeData && (
-									<Button
-										onClick={handleReset}
-										$variant="outline"
-									>
+									<Button onClick={handleReset} $variant="outline">
 										<FiRefreshCw /> Start Over
 									</Button>
 								)}
@@ -1260,7 +1350,8 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 								<div>
 									<InfoTitle>Success!</InfoTitle>
 									<InfoText>
-										Device code received from PingOne. You can now display the user code to the user.
+										Device code received from PingOne. You can now display the user code to the
+										user.
 									</InfoText>
 								</div>
 							</InfoBox>
@@ -1270,18 +1361,22 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 									<ParameterGrid>
 										<div style={{ gridColumn: '1 / -1' }}>
 											<ParameterLabel>Device Code (Internal - Do Not Display)</ParameterLabel>
-											<ParameterValue style={{ 
-												wordBreak: 'break-all', 
-												fontFamily: 'monospace',
-												fontSize: '0.75rem',
-												color: '#64748b'
-											}}>
+											<ParameterValue
+												style={{
+													wordBreak: 'break-all',
+													fontFamily: 'monospace',
+													fontSize: '0.75rem',
+													color: '#64748b',
+												}}
+											>
 												{deviceFlow.deviceCodeData.device_code.substring(0, 20)}...
 											</ParameterValue>
 										</div>
 										<div>
 											<ParameterLabel>Expires In</ParameterLabel>
-											<ParameterValue>{deviceFlow.deviceCodeData.expires_in} seconds</ParameterValue>
+											<ParameterValue>
+												{deviceFlow.deviceCodeData.expires_in} seconds
+											</ParameterValue>
 										</div>
 										<div>
 											<ParameterLabel>Poll Interval</ParameterLabel>
@@ -1300,108 +1395,151 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 	const renderUserAuthorization = () => (
 		<>
 			{deviceFlow.deviceCodeData && (
-				<>
-					<CollapsibleSection>
-						<CollapsibleHeaderButton
-							onClick={() => toggleSection('userAuthOverview')}
-							aria-expanded={!collapsedSections.userAuthOverview}
-						>
-							<CollapsibleTitle>
-								<FiSmartphone /> User Authorization Required
-							</CollapsibleTitle>
-							<CollapsibleToggleIcon $collapsed={collapsedSections.userAuthOverview}>
-								<FiChevronDown />
-							</CollapsibleToggleIcon>
-						</CollapsibleHeaderButton>
-						{!collapsedSections.userAuthOverview && (
-							<CollapsibleContent>
-								<InfoBox $variant="info">
-									<FiInfo size={20} />
-									<div>
-										<InfoTitle>Real-World Scenario: Smart TV App</InfoTitle>
-										<InfoText>
-											Imagine you're setting up a streaming app on your Smart TV. The TV displays a QR code and user code. 
-											Scan the QR code with your phone to authorize the app, just like Netflix, YouTube, or Disney+!
-										</InfoText>
-									</div>
-								</InfoBox>
+				<CollapsibleSection>
+					<CollapsibleHeaderButton
+						onClick={() => toggleSection('userAuthOverview')}
+						aria-expanded={!collapsedSections.userAuthOverview}
+					>
+						<CollapsibleTitle>
+							<FiSmartphone /> User Authorization Required
+						</CollapsibleTitle>
+						<CollapsibleToggleIcon $collapsed={collapsedSections.userAuthOverview}>
+							<FiChevronDown />
+						</CollapsibleToggleIcon>
+					</CollapsibleHeaderButton>
+					{!collapsedSections.userAuthOverview && (
+						<CollapsibleContent>
+							<InfoBox $variant="info">
+								<FiInfo size={20} />
+								<div>
+									<InfoTitle>Real-World Scenario: Smart TV App</InfoTitle>
+									<InfoText>
+										Imagine you're setting up a streaming app on your Smart TV. The TV displays a QR
+										code and user code. Scan the QR code with your phone to authorize the app, just
+										like Netflix, YouTube, or Disney+!
+									</InfoText>
+								</div>
+							</InfoBox>
 
-								<SmartTVContainer>
-									{/* QR Code Section - User scans this first */}
-									<QRSection>
-										<h3 style={{ margin: '0 0 1rem 0', fontSize: '1.25rem', color: '#1e293b' }}>
-											📱 Step 1: Scan with Your Phone
-										</h3>
-										<p style={{ margin: '0 0 1.5rem 0', fontSize: '0.875rem', color: '#64748b' }}>
-											Scan this QR code to activate your StreamFlix account on this TV
-										</p>
-										
-										{deviceFlow.deviceCodeData.verification_uri_complete ? (
-											<div style={{ padding: '1rem', backgroundColor: '#f8fafc', borderRadius: '0.5rem', marginBottom: '1rem' }}>
-												<QRCodeSVG
-													value={deviceFlow.deviceCodeData.verification_uri_complete}
-													size={200}
-													level="H"
-													includeMargin={true}
-													style={{ display: 'block', margin: '0 auto' }}
-												/>
-											</div>
-										) : (
-											<div style={{ padding: '2rem', backgroundColor: '#f8fafc', borderRadius: '0.5rem', marginBottom: '1rem' }}>
-												<p style={{ color: '#64748b', fontSize: '0.875rem' }}>
-													QR code will appear here when available
-												</p>
-											</div>
-										)}
+							<SmartTVContainer>
+								{/* QR Code Section - User scans this first */}
+								<QRSection>
+									<h3 style={{ margin: '0 0 1rem 0', fontSize: '1.25rem', color: '#1e293b' }}>
+										📱 Step 1: Scan with Your Phone
+									</h3>
+									<p style={{ margin: '0 0 1.5rem 0', fontSize: '0.875rem', color: '#64748b' }}>
+										Scan this QR code to activate your StreamFlix account on this TV
+									</p>
 
-										<div style={{ 
-											padding: '1rem', 
-											backgroundColor: '#eff6ff', 
+									{deviceFlow.deviceCodeData.verification_uri_complete ? (
+										<div
+											style={{
+												padding: '1rem',
+												backgroundColor: '#f8fafc',
+												borderRadius: '0.5rem',
+												marginBottom: '1rem',
+											}}
+										>
+											<QRCodeSVG
+												value={deviceFlow.deviceCodeData.verification_uri_complete}
+												size={200}
+												level="H"
+												includeMargin={true}
+												style={{ display: 'block', margin: '0 auto' }}
+											/>
+										</div>
+									) : (
+										<div
+											style={{
+												padding: '2rem',
+												backgroundColor: '#f8fafc',
+												borderRadius: '0.5rem',
+												marginBottom: '1rem',
+											}}
+										>
+											<p style={{ color: '#64748b', fontSize: '0.875rem' }}>
+												QR code will appear here when available
+											</p>
+										</div>
+									)}
+
+									<div
+										style={{
+											padding: '1rem',
+											backgroundColor: '#eff6ff',
 											borderRadius: '0.5rem',
 											border: '1px solid #bfdbfe',
-											marginBottom: '1rem'
-										}}>
-											<p style={{ margin: '0 0 0.5rem 0', fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: '600' }}>
-												Or visit manually:
-											</p>
-											<code style={{ fontSize: '0.875rem', color: '#1e40af', wordBreak: 'break-all' }}>
-												{deviceFlow.deviceCodeData.verification_uri}
-											</code>
-											<p style={{ margin: '0.75rem 0 0 0', fontSize: '0.75rem', color: '#64748b' }}>
-												Enter code: <strong style={{ color: '#1e40af', fontSize: '1rem', letterSpacing: '0.1rem' }}>
-													{deviceFlow.deviceCodeData.user_code}
-												</strong>
-											</p>
-										</div>
-
-										<ActionRow style={{ justifyContent: 'center' }}>
-											<Button
-												onClick={() => window.open(deviceFlow.deviceCodeData!.verification_uri_complete || deviceFlow.deviceCodeData!.verification_uri, '_blank')}
-												$variant="primary"
+											marginBottom: '1rem',
+										}}
+									>
+										<p
+											style={{
+												margin: '0 0 0.5rem 0',
+												fontSize: '0.75rem',
+												color: '#64748b',
+												textTransform: 'uppercase',
+												fontWeight: '600',
+											}}
+										>
+											Or visit manually:
+										</p>
+										<code
+											style={{ fontSize: '0.875rem', color: '#1e40af', wordBreak: 'break-all' }}
+										>
+											{deviceFlow.deviceCodeData.verification_uri}
+										</code>
+										<p style={{ margin: '0.75rem 0 0 0', fontSize: '0.75rem', color: '#64748b' }}>
+											Enter code:{' '}
+											<strong
+												style={{ color: '#1e40af', fontSize: '1rem', letterSpacing: '0.1rem' }}
 											>
-												<FiExternalLink /> Open on This Device
-											</Button>
-										</ActionRow>
-									</QRSection>
+												{deviceFlow.deviceCodeData.user_code}
+											</strong>
+										</p>
+									</div>
 
-									{/* Scroll Indicator */}
-									<ScrollIndicator>
-										<ScrollText>👇 Scroll down to see your TV display 👇</ScrollText>
-										<ScrollArrow>⬇️</ScrollArrow>
-									</ScrollIndicator>
+									<ActionRow style={{ justifyContent: 'center' }}>
+										<Button
+											onClick={() =>
+												window.open(
+													deviceFlow.deviceCodeData!.verification_uri_complete ||
+														deviceFlow.deviceCodeData!.verification_uri,
+													'_blank'
+												)
+											}
+											$variant="primary"
+										>
+											<FiExternalLink /> Open on This Device
+										</Button>
+									</ActionRow>
+								</QRSection>
 
-									{/* Smart TV Device - Shows result after authorization */}
-									<SmartTV $isWaiting={deviceFlow.pollingStatus.isPolling || !deviceFlow.tokens}>
-										<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
-											<TVStatusIndicator $active={!!deviceFlow.tokens} />
-											<h3 style={{ margin: 0, fontSize: '1.25rem', color: '#94a3b8' }}>
-												📺 Smart TV - Living Room
-											</h3>
-										</div>
-										<TVScreen $showContent={!!deviceFlow.tokens}>
-											{deviceFlow.tokens ? (
-												<>
-													<div style={{ 
+								{/* Scroll Indicator */}
+								<ScrollIndicator>
+									<ScrollText>👇 Scroll down to see your TV display 👇</ScrollText>
+									<ScrollArrow>⬇️</ScrollArrow>
+								</ScrollIndicator>
+
+								{/* Smart TV Device - Shows result after authorization */}
+								<SmartTV $isWaiting={deviceFlow.pollingStatus.isPolling || !deviceFlow.tokens}>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											marginBottom: '1rem',
+										}}
+									>
+										<TVStatusIndicator $active={!!deviceFlow.tokens} />
+										<h3 style={{ margin: 0, fontSize: '1.25rem', color: '#94a3b8' }}>
+											📺 Smart TV - Living Room
+										</h3>
+									</div>
+									<TVScreen $showContent={!!deviceFlow.tokens}>
+										{deviceFlow.tokens ? (
+											<>
+												<div
+													style={{
 														background: 'linear-gradient(135deg, #e50914 0%, #b20710 100%)',
 														padding: '0.75rem 1.5rem',
 														borderRadius: '0.5rem',
@@ -1411,159 +1549,215 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 														color: 'white',
 														textAlign: 'center',
 														fontFamily: 'Arial, sans-serif',
-														letterSpacing: '0.1rem'
-													}}>
-														STREAMFLIX
-													</div>
-													<div style={{ 
-														fontSize: '2rem', 
+														letterSpacing: '0.1rem',
+													}}
+												>
+													STREAMFLIX
+												</div>
+												<div
+													style={{
+														fontSize: '2rem',
 														marginBottom: '1rem',
-														animation: 'fadeIn 0.5s ease'
-													}}>
-														✅
-													</div>
-													<WelcomeMessage style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: '#22c55e' }}>
-														You are now logged in to StreamFlix!
-													</WelcomeMessage>
-													<div style={{ fontSize: '1rem', color: '#94a3b8', marginBottom: '1.5rem' }}>
-														Welcome Back, Demo User 👋
-													</div>
-													<AppGrid>
-														<AppIcon $color="linear-gradient(135deg, #e50914 0%, #b20710 100%)">
-															<div style={{ fontSize: '1.5rem' }}>🎬</div>
-															<div style={{ fontSize: '0.65rem', marginTop: '0.25rem' }}>Movies</div>
-														</AppIcon>
-														<AppIcon $color="linear-gradient(135deg, #00a8e1 0%, #0088cc 100%)">
-															<div style={{ fontSize: '1.5rem' }}>📺</div>
-															<div style={{ fontSize: '0.65rem', marginTop: '0.25rem' }}>Series</div>
-														</AppIcon>
-														<AppIcon $color="linear-gradient(135deg, #1ce783 0%, #17b86b 100%)">
-															<div style={{ fontSize: '1.5rem' }}>🎵</div>
-															<div style={{ fontSize: '0.65rem', marginTop: '0.25rem' }}>Music</div>
-														</AppIcon>
-														<AppIcon $color="linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%)">
-															<div style={{ fontSize: '1.5rem' }}>🎮</div>
-															<div style={{ fontSize: '0.65rem', marginTop: '0.25rem' }}>Games</div>
-														</AppIcon>
-														<AppIcon $color="linear-gradient(135deg, #0063e5 0%, #004db3 100%)">
-															<div style={{ fontSize: '1.5rem' }}>👶</div>
-															<div style={{ fontSize: '0.65rem', marginTop: '0.25rem' }}>Kids</div>
-														</AppIcon>
-														<AppIcon $color="linear-gradient(135deg, #9146ff 0%, #772ce8 100%)">
-															<div style={{ fontSize: '1.5rem' }}>🎤</div>
-															<div style={{ fontSize: '0.65rem', marginTop: '0.25rem' }}>Live</div>
-														</AppIcon>
-														<AppIcon $color="linear-gradient(135deg, #f59e0b 0%, #d97706 100%)">
-															<div style={{ fontSize: '1.5rem' }}>⭐</div>
-															<div style={{ fontSize: '0.65rem', marginTop: '0.25rem' }}>Featured</div>
-														</AppIcon>
-														<AppIcon $color="linear-gradient(135deg, #64748b 0%, #475569 100%)">
-															<div style={{ fontSize: '1.5rem' }}>⚙️</div>
-															<div style={{ fontSize: '0.65rem', marginTop: '0.25rem' }}>Settings</div>
-														</AppIcon>
-													</AppGrid>
-													<div style={{ 
-														fontSize: '0.75rem', 
-														color: '#22c55e', 
+														animation: 'fadeIn 0.5s ease',
+													}}
+												>
+													✅
+												</div>
+												<WelcomeMessage
+													style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: '#22c55e' }}
+												>
+													You are now logged in to StreamFlix!
+												</WelcomeMessage>
+												<div style={{ fontSize: '1rem', color: '#94a3b8', marginBottom: '1.5rem' }}>
+													Welcome Back, Demo User 👋
+												</div>
+												<AppGrid>
+													<AppIcon $color="linear-gradient(135deg, #e50914 0%, #b20710 100%)">
+														<div style={{ fontSize: '1.5rem' }}>🎬</div>
+														<div style={{ fontSize: '0.65rem', marginTop: '0.25rem' }}>Movies</div>
+													</AppIcon>
+													<AppIcon $color="linear-gradient(135deg, #00a8e1 0%, #0088cc 100%)">
+														<div style={{ fontSize: '1.5rem' }}>📺</div>
+														<div style={{ fontSize: '0.65rem', marginTop: '0.25rem' }}>Series</div>
+													</AppIcon>
+													<AppIcon $color="linear-gradient(135deg, #1ce783 0%, #17b86b 100%)">
+														<div style={{ fontSize: '1.5rem' }}>🎵</div>
+														<div style={{ fontSize: '0.65rem', marginTop: '0.25rem' }}>Music</div>
+													</AppIcon>
+													<AppIcon $color="linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%)">
+														<div style={{ fontSize: '1.5rem' }}>🎮</div>
+														<div style={{ fontSize: '0.65rem', marginTop: '0.25rem' }}>Games</div>
+													</AppIcon>
+													<AppIcon $color="linear-gradient(135deg, #0063e5 0%, #004db3 100%)">
+														<div style={{ fontSize: '1.5rem' }}>👶</div>
+														<div style={{ fontSize: '0.65rem', marginTop: '0.25rem' }}>Kids</div>
+													</AppIcon>
+													<AppIcon $color="linear-gradient(135deg, #9146ff 0%, #772ce8 100%)">
+														<div style={{ fontSize: '1.5rem' }}>🎤</div>
+														<div style={{ fontSize: '0.65rem', marginTop: '0.25rem' }}>Live</div>
+													</AppIcon>
+													<AppIcon $color="linear-gradient(135deg, #f59e0b 0%, #d97706 100%)">
+														<div style={{ fontSize: '1.5rem' }}>⭐</div>
+														<div style={{ fontSize: '0.65rem', marginTop: '0.25rem' }}>
+															Featured
+														</div>
+													</AppIcon>
+													<AppIcon $color="linear-gradient(135deg, #64748b 0%, #475569 100%)">
+														<div style={{ fontSize: '1.5rem' }}>⚙️</div>
+														<div style={{ fontSize: '0.65rem', marginTop: '0.25rem' }}>
+															Settings
+														</div>
+													</AppIcon>
+												</AppGrid>
+												<div
+													style={{
+														fontSize: '0.75rem',
+														color: '#22c55e',
 														marginTop: '1rem',
 														padding: '0.5rem',
 														backgroundColor: 'rgba(34, 197, 94, 0.1)',
 														borderRadius: '0.5rem',
-														border: '1px solid rgba(34, 197, 94, 0.3)'
-													}}>
-														✅ Login Successful • Ready to stream
-													</div>
-												</>
-											) : (
-												<TVDisplay>
-													{deviceFlow.pollingStatus.isPolling ? (
+														border: '1px solid rgba(34, 197, 94, 0.3)',
+													}}
+												>
+													✅ Login Successful • Ready to stream
+												</div>
+											</>
+										) : (
+											<TVDisplay>
+												{deviceFlow.pollingStatus.isPolling ? (
 													<>
-														<div style={{ 
-															background: 'linear-gradient(135deg, #e50914 0%, #b20710 100%)',
-															padding: '0.5rem 1rem',
-															borderRadius: '0.5rem',
-															marginBottom: '1.5rem',
-															fontSize: '1.25rem',
-															fontWeight: 'bold',
-															color: 'white',
-															fontFamily: 'Arial, sans-serif',
-															letterSpacing: '0.1rem'
-														}}>
+														<div
+															style={{
+																background: 'linear-gradient(135deg, #e50914 0%, #b20710 100%)',
+																padding: '0.5rem 1rem',
+																borderRadius: '0.5rem',
+																marginBottom: '1.5rem',
+																fontSize: '1.25rem',
+																fontWeight: 'bold',
+																color: 'white',
+																fontFamily: 'Arial, sans-serif',
+																letterSpacing: '0.1rem',
+															}}
+														>
 															STREAMFLIX
 														</div>
 														<div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
-														<div style={{ fontSize: '1.25rem', fontWeight: '600' }}>WAITING FOR</div>
-														<div style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>AUTHORIZATION...</div>
-														<div style={{ fontSize: '0.875rem', marginTop: '1rem', color: '#94a3b8' }}>
+														<div style={{ fontSize: '1.25rem', fontWeight: '600' }}>
+															WAITING FOR
+														</div>
+														<div
+															style={{
+																fontSize: '1.25rem',
+																fontWeight: '600',
+																marginBottom: '0.5rem',
+															}}
+														>
+															AUTHORIZATION...
+														</div>
+														<div
+															style={{
+																fontSize: '0.875rem',
+																marginTop: '1rem',
+																color: '#94a3b8',
+															}}
+														>
 															Complete sign-in on your phone
 														</div>
 													</>
 												) : (
 													<>
-														<div style={{ 
-															background: 'linear-gradient(135deg, #e50914 0%, #b20710 100%)',
-															padding: '0.5rem 1rem',
-															borderRadius: '0.5rem',
-															marginBottom: '1rem',
-															fontSize: '1.25rem',
-															fontWeight: 'bold',
-															color: 'white',
-															fontFamily: 'Arial, sans-serif',
-															letterSpacing: '0.1rem'
-														}}>
+														<div
+															style={{
+																background: 'linear-gradient(135deg, #e50914 0%, #b20710 100%)',
+																padding: '0.5rem 1rem',
+																borderRadius: '0.5rem',
+																marginBottom: '1rem',
+																fontSize: '1.25rem',
+																fontWeight: 'bold',
+																color: 'white',
+																fontFamily: 'Arial, sans-serif',
+																letterSpacing: '0.1rem',
+															}}
+														>
 															STREAMFLIX
 														</div>
 														<div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>📱</div>
-														<div style={{ fontSize: '1.25rem', marginBottom: '0.5rem', fontWeight: '600' }}>Activate Your Device</div>
-														<div style={{ fontSize: '0.875rem', color: '#94a3b8', marginBottom: '1.5rem' }}>
+														<div
+															style={{
+																fontSize: '1.25rem',
+																marginBottom: '0.5rem',
+																fontWeight: '600',
+															}}
+														>
+															Activate Your Device
+														</div>
+														<div
+															style={{
+																fontSize: '0.875rem',
+																color: '#94a3b8',
+																marginBottom: '1.5rem',
+															}}
+														>
 															Sign in to start streaming
 														</div>
-														<div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.5rem' }}>
+														<div
+															style={{
+																fontSize: '0.75rem',
+																color: '#64748b',
+																marginBottom: '0.5rem',
+															}}
+														>
 															Enter this code on your phone:
 														</div>
-														<div style={{ 
-															fontSize: '2.5rem', 
-															fontWeight: 'bold', 
-															letterSpacing: '0.5rem', 
-															color: '#e50914',
-															padding: '0.5rem 1rem',
-															backgroundColor: 'rgba(229, 9, 20, 0.1)',
-															borderRadius: '0.5rem',
-															border: '2px solid rgba(229, 9, 20, 0.3)'
-														}}>
+														<div
+															style={{
+																fontSize: '2.5rem',
+																fontWeight: 'bold',
+																letterSpacing: '0.5rem',
+																color: '#e50914',
+																padding: '0.5rem 1rem',
+																backgroundColor: 'rgba(229, 9, 20, 0.1)',
+																borderRadius: '0.5rem',
+																border: '2px solid rgba(229, 9, 20, 0.3)',
+															}}
+														>
 															{deviceFlow.deviceCodeData.user_code}
 														</div>
 													</>
 												)}
-												</TVDisplay>
-											)}
-										</TVScreen>
-										{deviceFlow.timeRemaining > 0 && (
-											<div style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.875rem', color: '#94a3b8' }}>
-												Code expires in: {deviceFlow.formatTimeRemaining(deviceFlow.timeRemaining)}
-											</div>
+											</TVDisplay>
 										)}
-									</SmartTV>
-								</SmartTVContainer>
+									</TVScreen>
+									{deviceFlow.timeRemaining > 0 && (
+										<div
+											style={{
+												textAlign: 'center',
+												marginTop: '1rem',
+												fontSize: '0.875rem',
+												color: '#94a3b8',
+											}}
+										>
+											Code expires in: {deviceFlow.formatTimeRemaining(deviceFlow.timeRemaining)}
+										</div>
+									)}
+								</SmartTV>
+							</SmartTVContainer>
 
-								{deviceFlow.timeRemaining > 0 && (
-									<CountdownTimer>
-										⏱️ Code expires in: {deviceFlow.formatTimeRemaining(deviceFlow.timeRemaining)}
-									</CountdownTimer>
-								)}
+							{deviceFlow.timeRemaining > 0 && (
+								<CountdownTimer>
+									⏱️ Code expires in: {deviceFlow.formatTimeRemaining(deviceFlow.timeRemaining)}
+								</CountdownTimer>
+							)}
 
-								<ActionRow style={{ marginTop: '1.5rem' }}>
-									<Button
-										onClick={handleStartPolling}
-										disabled={deviceFlow.pollingStatus.isPolling}
-									>
-										<FiRefreshCw /> Start Polling for Authorization
-									</Button>
-								</ActionRow>
-							</CollapsibleContent>
-						)}
-					</CollapsibleSection>
-				</>
+							<ActionRow style={{ marginTop: '1.5rem' }}>
+								<Button onClick={handleStartPolling} disabled={deviceFlow.pollingStatus.isPolling}>
+									<FiRefreshCw /> Start Polling for Authorization
+								</Button>
+							</ActionRow>
+						</CollapsibleContent>
+					)}
+				</CollapsibleSection>
 			)}
 		</>
 	);
@@ -1592,7 +1786,8 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 							<div>
 								<InfoTitle>Authorization Complete!</InfoTitle>
 								<InfoText>
-									The user has successfully authorized the device. Tokens have been received and stored.
+									The user has successfully authorized the device. Tokens have been received and
+									stored.
 								</InfoText>
 							</div>
 						</InfoBox>
@@ -1607,11 +1802,13 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 										<ParameterGrid>
 											<div style={{ gridColumn: '1 / -1' }}>
 												<ParameterLabel>Access Token</ParameterLabel>
-												<ParameterValue style={{ 
-													wordBreak: 'break-all',
-													fontFamily: 'monospace',
-													fontSize: '0.75rem'
-												}}>
+												<ParameterValue
+													style={{
+														wordBreak: 'break-all',
+														fontFamily: 'monospace',
+														fontSize: '0.75rem',
+													}}
+												>
 													{deviceFlow.tokens.access_token}
 												</ParameterValue>
 											</div>
@@ -1656,10 +1853,13 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 									<div>
 										<InfoTitle>OAuth vs OIDC Tokens</InfoTitle>
 										<InfoText>
-											<strong>OAuth 2.0 Device Flow</strong> returns only <code>access_token</code> and <code>refresh_token</code>.
-											<br /><br />
-											For <strong>ID Token</strong> and <strong>UserInfo</strong> endpoint access, use the <strong>OIDC Device Authorization Flow</strong> instead, 
-											which adds the <code>openid</code> scope and OIDC semantics on top of RFC 8628.
+											<strong>OAuth 2.0 Device Flow</strong> returns only <code>access_token</code>{' '}
+											and <code>refresh_token</code>.
+											<br />
+											<br />
+											For <strong>ID Token</strong> and <strong>UserInfo</strong> endpoint access,
+											use the <strong>OIDC Device Authorization Flow</strong> instead, which adds
+											the <code>openid</code> scope and OIDC semantics on top of RFC 8628.
 										</InfoText>
 									</div>
 								</InfoBox>
@@ -1673,11 +1873,13 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 											<ParameterGrid>
 												<div style={{ gridColumn: '1 / -1' }}>
 													<ParameterLabel>Refresh Token</ParameterLabel>
-													<ParameterValue style={{ 
-														wordBreak: 'break-all',
-														fontFamily: 'monospace',
-														fontSize: '0.75rem'
-													}}>
+													<ParameterValue
+														style={{
+															wordBreak: 'break-all',
+															fontFamily: 'monospace',
+															fontSize: '0.75rem',
+														}}
+													>
 														{deviceFlow.tokens.refresh_token}
 													</ParameterValue>
 												</div>
@@ -1700,7 +1902,9 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 													</Button>
 												)}
 												<Button
-													onClick={() => handleCopy(deviceFlow.tokens!.refresh_token!, 'Refresh Token')}
+													onClick={() =>
+														handleCopy(deviceFlow.tokens!.refresh_token!, 'Refresh Token')
+													}
 													$variant="outline"
 												>
 													<FiCopy /> Copy Refresh Token
@@ -1767,8 +1971,8 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 							<div>
 								<InfoTitle>Device Authorization Flow Complete!</InfoTitle>
 								<InfoText>
-									You've successfully completed the OAuth Device Authorization Grant flow. The device
-									has been authorized and tokens have been received.
+									You've successfully completed the OAuth Device Authorization Grant flow. The
+									device has been authorized and tokens have been received.
 								</InfoText>
 							</div>
 						</InfoBox>
@@ -1777,12 +1981,14 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 							<ExplanationHeading>
 								<FiInfo /> Summary
 							</ExplanationHeading>
-							<div style={{ 
-								backgroundColor: '#f8fafc', 
-								padding: '1.5rem', 
-								borderRadius: '0.5rem',
-								border: '1px solid #e2e8f0'
-							}}>
+							<div
+								style={{
+									backgroundColor: '#f8fafc',
+									padding: '1.5rem',
+									borderRadius: '0.5rem',
+									border: '1px solid #e2e8f0',
+								}}
+							>
 								<ul style={{ margin: 0, paddingLeft: '1.5rem', lineHeight: '2' }}>
 									<li>✅ Device code requested and received</li>
 									<li>✅ User code displayed to user</li>
@@ -1798,9 +2004,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 							<ExplanationHeading>
 								<FiZap /> Next Steps
 							</ExplanationHeading>
-							<InfoText>
-								In a production application, you would:
-							</InfoText>
+							<InfoText>In a production application, you would:</InfoText>
 							<ul style={{ marginTop: '0.75rem', paddingLeft: '1.5rem', lineHeight: '1.8' }}>
 								<li>Store the access token securely</li>
 								<li>Use the access token to call protected APIs</li>
@@ -1824,7 +2028,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 	return (
 		<FlowContainer>
 			<FlowInfoCard flowInfo={getFlowInfo('device-code')!} />
-			
+
 			<FlowHeader>
 				<div>
 					<StepBadge>DEVICE AUTHORIZATION CODE • V5 API</StepBadge>
@@ -1833,7 +2037,10 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 				</div>
 				<div style={{ fontSize: '2rem', fontWeight: '700', color: '#ffffff' }}>
 					{String(currentStep + 1).padStart(2, '0')}
-					<span style={{ fontSize: '1.25rem', color: 'rgba(255, 255, 255, 0.75)' }}> of {STEP_METADATA.length}</span>
+					<span style={{ fontSize: '1.25rem', color: 'rgba(255, 255, 255, 0.75)' }}>
+						{' '}
+						of {STEP_METADATA.length}
+					</span>
 				</div>
 			</FlowHeader>
 
@@ -1843,9 +2050,9 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 				<StepNavigationButtons
 					currentStep={currentStep}
 					totalSteps={STEP_METADATA.length}
-					onPrevious={() => setCurrentStep(prev => Math.max(prev - 1, 0))}
+					onPrevious={() => setCurrentStep((prev) => Math.max(prev - 1, 0))}
 					onReset={handleReset}
-					onNext={() => setCurrentStep(prev => Math.min(prev + 1, STEP_METADATA.length - 1))}
+					onNext={() => setCurrentStep((prev) => Math.min(prev + 1, STEP_METADATA.length - 1))}
 					canNavigateNext={isStepValid(currentStep + 1)}
 					isFirstStep={currentStep === 0}
 					nextButtonText={isStepValid(currentStep + 1) ? 'Next' : 'Complete above action'}
@@ -1862,21 +2069,32 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 					</ModalHeader>
 					<ModalBody>
 						<p>
-							The device code has been generated and displayed on the Smart TV. 
-							The user can now scan the QR code or enter the code on their phone.
+							The device code has been generated and displayed on the Smart TV. The user can now
+							scan the QR code or enter the code on their phone.
 						</p>
 						<p style={{ marginTop: '1rem' }}>
-							<strong>Next step:</strong> Start polling the authorization server to check if the user has completed authorization.
-							The app will automatically check every {deviceFlow.deviceCodeData?.interval || 5} seconds.
+							<strong>Next step:</strong> Start polling the authorization server to check if the
+							user has completed authorization. The app will automatically check every{' '}
+							{deviceFlow.deviceCodeData?.interval || 5} seconds.
 						</p>
-						<p style={{ marginTop: '1rem', padding: '0.75rem', backgroundColor: '#eff6ff', borderRadius: '0.5rem', border: '1px solid #bfdbfe' }}>
-							📺 <strong>Watch the Smart TV display update in real-time</strong> as the user authorizes on their phone!
+						<p
+							style={{
+								marginTop: '1rem',
+								padding: '0.75rem',
+								backgroundColor: '#eff6ff',
+								borderRadius: '0.5rem',
+								border: '1px solid #bfdbfe',
+							}}
+						>
+							📺 <strong>Watch the Smart TV display update in real-time</strong> as the user
+							authorizes on their phone!
 						</p>
 						<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
 							<FiInfo size={18} />
 							<div>
 								<InfoText style={{ fontSize: '0.875rem', margin: 0 }}>
-									💡 <strong>Tip:</strong> You can disable this prompt in UI Settings if you prefer to start polling manually.
+									💡 <strong>Tip:</strong> You can disable this prompt in UI Settings if you prefer
+									to start polling manually.
 								</InfoText>
 							</div>
 						</InfoBox>

@@ -1,5 +1,5 @@
 // src/pages/flows/PingOnePARFlowV5.tsx
-import { useCallback, useEffect, useId, useMemo, useState } from 'react';
+import { useCallback, useId, useMemo, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiArrowRight,
@@ -14,14 +14,10 @@ import {
 	FiShield,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { Card, CardBody, CardHeader } from '../../components/Card';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
 import FlowInfoCard from '../../components/FlowInfoCard';
-import { getFlowInfo } from '../../utils/flowInfoConfig';
 import {
-	ExplanationHeading,
-	ExplanationSection,
 	FlowDiagram,
 	FlowStep,
 	FlowStepContent,
@@ -34,13 +30,16 @@ import {
 	SectionDivider,
 } from '../../components/ResultsPanel';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
-import type { StepCredentials } from '../../components/steps/CommonSteps';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import { pingOneConfigService } from '../../services/pingoneConfigService';
+import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [
-	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the PAR Flow and configure PingOne' },
+	{
+		title: 'Step 0: Introduction & Setup',
+		subtitle: 'Understand the PAR Flow and configure PingOne',
+	},
 	{ title: 'Step 1: PKCE Parameters', subtitle: 'Generate secure verifier and challenge' },
 	{ title: 'Step 2: PAR Request', subtitle: 'Push authorization request to PingOne PAR endpoint' },
 	{ title: 'Step 3: Authorization URL', subtitle: 'Generate authorization URL with request_uri' },
@@ -227,7 +226,7 @@ const InfoList = styled.ul`
 	}
 `;
 
-const ParameterGrid = styled.div`
+const _ParameterGrid = styled.div`
 	display: grid;
 	grid-template-columns: 1fr;
 	gap: 1rem;
@@ -309,7 +308,7 @@ const GeneratedLabel = styled.div`
 `;
 
 const PingOnePARFlowV5: React.FC = () => {
-	const manualAuthCodeId = useId();
+	const _manualAuthCodeId = useId();
 	const controller = useAuthorizationCodeFlowController({
 		flowKey: 'pingone-par-v5',
 		defaultFlowVariant: 'oidc',
@@ -333,7 +332,7 @@ const PingOnePARFlowV5: React.FC = () => {
 		authRequestOverview: false,
 		authRequestDetails: false,
 	});
-	
+
 	// PAR (Pushed Authorization Request) state
 	const [parRequestUri, setParRequestUri] = useState<string | null>(null);
 	const [parExpiresIn, setParExpiresIn] = useState<number | null>(null);
@@ -479,7 +478,6 @@ const PingOnePARFlowV5: React.FC = () => {
 
 			v4ToastManager.showSuccess('PAR request pushed successfully!');
 			console.log('✅ [PingOnePARFlowV5] PAR request successful:', parData);
-
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			setParError(errorMessage);
@@ -488,7 +486,7 @@ const PingOnePARFlowV5: React.FC = () => {
 		} finally {
 			setIsParLoading(false);
 		}
-	}, [controller]);
+	}, [controller, generateRandomString]);
 
 	const handleGenerateAuthUrl = useCallback(async () => {
 		if (!controller.credentials.clientId || !controller.credentials.environmentId) {
@@ -507,7 +505,7 @@ const PingOnePARFlowV5: React.FC = () => {
 			const authUrl = new URL(controller.credentials.authorizationEndpoint);
 			authUrl.searchParams.set('request_uri', parRequestUri);
 			authUrl.searchParams.set('response_type', 'code');
-			
+
 			controller.setAuthUrl(authUrl.toString());
 			v4ToastManager.showSuccess('Authorization URL generated successfully!');
 		} catch (error) {
@@ -579,15 +577,27 @@ const PingOnePARFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle>What is PAR?</InfoTitle>
 											<InfoText>
-												Pushed Authorization Request (PAR) is a security extension to OAuth 2.0 that 
-												pushes authorization request parameters to the authorization server before 
-												redirecting the user. This enhances security and prevents parameter tampering attacks.
+												Pushed Authorization Request (PAR) is a security extension to OAuth 2.0 that
+												pushes authorization request parameters to the authorization server before
+												redirecting the user. This enhances security and prevents parameter
+												tampering attacks.
 											</InfoText>
 											<InfoList>
-												<li><strong>Enhanced Security:</strong> Request parameters are protected from tampering</li>
-												<li><strong>Better Error Handling:</strong> Server-side validation before redirect</li>
-												<li><strong>Shorter URLs:</strong> Authorization URLs use request_uri instead of parameters</li>
-												<li><strong>RFC 9126:</strong> Standard OAuth 2.0 security extension</li>
+												<li>
+													<strong>Enhanced Security:</strong> Request parameters are protected from
+													tampering
+												</li>
+												<li>
+													<strong>Better Error Handling:</strong> Server-side validation before
+													redirect
+												</li>
+												<li>
+													<strong>Shorter URLs:</strong> Authorization URLs use request_uri instead
+													of parameters
+												</li>
+												<li>
+													<strong>RFC 9126:</strong> Standard OAuth 2.0 security extension
+												</li>
 											</InfoList>
 										</div>
 									</InfoBox>
@@ -619,7 +629,8 @@ const PingOnePARFlowV5: React.FC = () => {
 										<FlowStep>
 											<FlowStepNumber>2</FlowStepNumber>
 											<FlowStepContent>
-												<strong>Get Request URI:</strong> Receive short-lived request_uri from server
+												<strong>Get Request URI:</strong> Receive short-lived request_uri from
+												server
 											</FlowStepContent>
 										</FlowStep>
 										<FlowStep>
@@ -631,7 +642,8 @@ const PingOnePARFlowV5: React.FC = () => {
 										<FlowStep>
 											<FlowStepNumber>4</FlowStepNumber>
 											<FlowStepContent>
-												<strong>Complete:</strong> Receive authorization code and exchange for tokens
+												<strong>Complete:</strong> Receive authorization code and exchange for
+												tokens
 											</FlowStepContent>
 										</FlowStep>
 									</FlowDiagram>
@@ -691,8 +703,9 @@ const PingOnePARFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle>PKCE for PAR</InfoTitle>
 											<InfoText>
-												PKCE (Proof Key for Code Exchange) is essential for PAR security. The code challenge 
-												is included in the PAR request, and the code verifier is used during token exchange.
+												PKCE (Proof Key for Code Exchange) is essential for PAR security. The code
+												challenge is included in the PAR request, and the code verifier is used
+												during token exchange.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -705,9 +718,7 @@ const PingOnePARFlowV5: React.FC = () => {
 							<ResultsHeading>
 								<FiKey size={18} /> Generate PKCE Parameters
 							</ResultsHeading>
-							<HelperText>
-								Generate secure PKCE parameters for the PAR request.
-							</HelperText>
+							<HelperText>Generate secure PKCE parameters for the PAR request.</HelperText>
 
 							<ActionRow>
 								<HighlightedActionButton
@@ -721,7 +732,9 @@ const PingOnePARFlowV5: React.FC = () => {
 									}
 								>
 									{controller.pkceCodes.codeVerifier ? <FiCheckCircle /> : <FiKey />}{' '}
-									{controller.pkceCodes.codeVerifier ? 'PKCE Generated' : 'Generate PKCE Parameters'}
+									{controller.pkceCodes.codeVerifier
+										? 'PKCE Generated'
+										: 'Generate PKCE Parameters'}
 									<HighlightBadge>1</HighlightBadge>
 								</HighlightedActionButton>
 							</ActionRow>
@@ -764,9 +777,9 @@ const PingOnePARFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle>PAR Request Process</InfoTitle>
 											<InfoText>
-												The PAR request sends all authorization parameters to PingOne's PAR endpoint, 
-												which validates and stores them securely. You receive a short-lived request_uri 
-												that references these parameters.
+												The PAR request sends all authorization parameters to PingOne's PAR
+												endpoint, which validates and stores them securely. You receive a
+												short-lived request_uri that references these parameters.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -787,11 +800,7 @@ const PingOnePARFlowV5: React.FC = () => {
 								<HighlightedActionButton
 									onClick={handlePushAuthorizationRequest}
 									$priority="primary"
-									disabled={
-										!!parRequestUri ||
-										!controller.pkceCodes.codeVerifier ||
-										isParLoading
-									}
+									disabled={!!parRequestUri || !controller.pkceCodes.codeVerifier || isParLoading}
 									title={
 										!controller.pkceCodes.codeVerifier
 											? 'Generate PKCE parameters first'
@@ -872,7 +881,7 @@ const PingOnePARFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle>PAR Authorization URL</InfoTitle>
 											<InfoText>
-												The authorization URL uses the request_uri from the PAR response instead of 
+												The authorization URL uses the request_uri from the PAR response instead of
 												individual parameters. This creates a much shorter and more secure URL.
 											</InfoText>
 										</div>
@@ -886,9 +895,7 @@ const PingOnePARFlowV5: React.FC = () => {
 							<ResultsHeading>
 								<FiExternalLink size={18} /> Generate Authorization URL
 							</ResultsHeading>
-							<HelperText>
-								Generate the authorization URL using the PAR request_uri.
-							</HelperText>
+							<HelperText>Generate the authorization URL using the PAR request_uri.</HelperText>
 
 							<ActionRow>
 								<HighlightedActionButton
@@ -957,14 +964,22 @@ const PingOnePARFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle>PAR Flow Complete!</InfoTitle>
 											<InfoText>
-												You have successfully completed the PAR flow. The authorization URL is ready 
+												You have successfully completed the PAR flow. The authorization URL is ready
 												and contains the secure request_uri from your PAR request.
 											</InfoText>
 											<InfoList>
-												<li><strong>Enhanced Security:</strong> Parameters are protected via PAR</li>
-												<li><strong>Shorter URLs:</strong> Authorization URL uses request_uri</li>
-												<li><strong>Better Error Handling:</strong> Server-side validation completed</li>
-												<li><strong>RFC 9126 Compliant:</strong> Follows OAuth 2.0 security extension</li>
+												<li>
+													<strong>Enhanced Security:</strong> Parameters are protected via PAR
+												</li>
+												<li>
+													<strong>Shorter URLs:</strong> Authorization URL uses request_uri
+												</li>
+												<li>
+													<strong>Better Error Handling:</strong> Server-side validation completed
+												</li>
+												<li>
+													<strong>RFC 9126 Compliant:</strong> Follows OAuth 2.0 security extension
+												</li>
 											</InfoList>
 										</div>
 									</InfoBox>
@@ -978,7 +993,8 @@ const PingOnePARFlowV5: React.FC = () => {
 								<FiCheckCircle size={18} /> Next Steps
 							</ResultsHeading>
 							<HelperText>
-								Your PAR flow is complete! You can now test the authorization URL or explore other OAuth flows.
+								Your PAR flow is complete! You can now test the authorization URL or explore other
+								OAuth flows.
 							</HelperText>
 
 							<ActionRow>
@@ -1017,6 +1033,7 @@ const PingOnePARFlowV5: React.FC = () => {
 		controller.authUrl,
 		handleGenerateAuthUrl,
 		handleOpenAuthUrl,
+		controller.loadCredentials,
 	]);
 
 	return (
@@ -1024,14 +1041,12 @@ const PingOnePARFlowV5: React.FC = () => {
 			<ContentWrapper>
 				<HeaderSection>
 					<MainTitle>PingOne PAR Flow V5</MainTitle>
-					<Subtitle>
-						Pushed Authorization Request (RFC 9126) with PingOne Integration
-					</Subtitle>
-			</HeaderSection>
+					<Subtitle>Pushed Authorization Request (RFC 9126) with PingOne Integration</Subtitle>
+				</HeaderSection>
 
-			<FlowInfoCard flowInfo={getFlowInfo('par')!} />
+				<FlowInfoCard flowInfo={getFlowInfo('par')!} />
 
-			<MainCard>
+				<MainCard>
 					<StepHeader>
 						<StepHeaderLeft>
 							<VersionBadge>V5</VersionBadge>
