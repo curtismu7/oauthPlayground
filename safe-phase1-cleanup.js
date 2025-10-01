@@ -22,10 +22,10 @@ function isFileImported(filePath) {
 	const relativePath = path.relative(path.join(__dirname, 'src'), filePath);
 	const importPatterns = [
 		relativePath.replace(/\.(ts|tsx)$/, ''),
-		'./' + relativePath.replace(/\.(ts|tsx)$/, ''),
-		'../' + relativePath.replace(/\.(ts|tsx)$/, ''),
-		'../../' + relativePath.replace(/\.(ts|tsx)$/, ''),
-		'../../../' + relativePath.replace(/\.(ts|tsx)$/, ''),
+		`./${relativePath.replace(/\.(ts|tsx)$/, '')}`,
+		`../${relativePath.replace(/\.(ts|tsx)$/, '')}`,
+		`../../${relativePath.replace(/\.(ts|tsx)$/, '')}`,
+		`../../../${relativePath.replace(/\.(ts|tsx)$/, '')}`,
 	];
 
 	for (const file of files) {
@@ -145,7 +145,7 @@ for (const dir of dirsToCheck) {
 	}
 }
 
-console.log('\n' + '='.repeat(50));
+console.log(`\n${'='.repeat(50)}`);
 console.log('📊 SAFE PHASE 1 CLEANUP SUMMARY');
 console.log('='.repeat(50));
 console.log(`✅ Files successfully removed: ${removedCount}`);

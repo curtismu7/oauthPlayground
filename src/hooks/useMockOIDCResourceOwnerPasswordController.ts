@@ -1,9 +1,8 @@
 // src/hooks/useMockOIDCResourceOwnerPasswordController.ts
 
-import React, { useCallback, useMemo, useState } from 'react';
-import { credentialManager } from '../utils/credentialManager';
+import React, { useCallback, useState } from 'react';
 import { useFlowStepManager } from '../utils/flowStepSystem';
-import { generateMockIdToken, generateMockTokens, generateMockUserInfo } from '../utils/mockOAuth';
+import { generateMockTokens, generateMockUserInfo } from '../utils/mockOAuth';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 export interface MockCredentials {
@@ -144,7 +143,7 @@ export const useMockOIDCResourceOwnerPasswordController = ({
 			if (enableDebugger) {
 				console.log('🔐 Mock credentials saved:', credentials);
 			}
-		} catch (error) {
+		} catch (_error) {
 			v4ToastManager.showError('saveConfigurationError', {
 				error: 'Failed to save mock credentials',
 			});

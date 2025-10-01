@@ -39,7 +39,7 @@ export async function requestClientCredentialsToken(
 ): Promise<WorkerTokenResponse> {
 	logger.info('WORKER', 'Requesting client credentials token', {
 		endpoint,
-		clientId: clientId.substring(0, 8) + '...',
+		clientId: `${clientId.substring(0, 8)}...`,
 		scopes: scopes.join(' '),
 		authMethod,
 	});
@@ -114,7 +114,7 @@ export async function introspectToken(
 ): Promise<TokenIntrospectionResponse> {
 	logger.info('WORKER', 'Introspecting token', {
 		endpoint: introspectionEndpoint,
-		tokenType: token.substring(0, 8) + '...',
+		tokenType: `${token.substring(0, 8)}...`,
 	});
 
 	const credentials = btoa(`${clientCredentials.clientId}:${clientCredentials.clientSecret}`);
@@ -234,7 +234,7 @@ export function shouldRefreshToken(
 ): boolean {
 	const now = Date.now();
 	const issuedTime = issuedAt;
-	const expiryTime = issuedTime + token.expires_in * 1000;
+	const _expiryTime = issuedTime + token.expires_in * 1000;
 	const refreshThreshold = issuedTime + token.expires_in * 1000 * ttlPercent;
 
 	return now >= refreshThreshold;

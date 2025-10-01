@@ -1,4 +1,4 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { Component, ErrorInfo, ReactNode } from 'react';
 import { logger } from '../utils/logger';
 
 interface Props {
@@ -44,6 +44,7 @@ class AuthErrorBoundary extends Component<Props, State> {
 						There was an error with the authentication system. Please refresh the page.
 					</p>
 					<button
+						type="button"
 						onClick={() => window.location.reload()}
 						style={{
 							backgroundColor: '#dc2626',

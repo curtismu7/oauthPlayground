@@ -57,7 +57,6 @@ export interface NetworkRequest {
 export class EnhancedDebugger {
 	private sessions: Map<string, DebugSession> = new Map();
 	private currentSession: DebugSession | null = null;
-	private networkInterceptor: ((request: NetworkRequest) => void) | null = null;
 
 	/**
 	 * Start a new debug session

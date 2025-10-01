@@ -423,7 +423,7 @@ const Login = () => {
 				hasEnvironmentId: !!allCredentials.environmentId,
 				hasClientId: !!allCredentials.clientId,
 				hasClientSecret: !!allCredentials.clientSecret,
-				clientIdPrefix: allCredentials.clientId?.substring(0, 8) + '...',
+				clientIdPrefix: `${allCredentials.clientId?.substring(0, 8)}...`,
 			});
 
 			setCredentials({
@@ -470,7 +470,7 @@ const Login = () => {
 					hasEnvironmentId: !!parsedCredentials.environmentId,
 					hasClientId: !!parsedCredentials.clientId,
 					hasClientSecret: !!parsedCredentials.clientSecret,
-					clientIdPrefix: parsedCredentials.clientId?.substring(0, 8) + '...',
+					clientIdPrefix: `${parsedCredentials.clientId?.substring(0, 8)}...`,
 				});
 				setCredentials(parsedCredentials);
 			} catch (error) {
@@ -566,7 +566,7 @@ const Login = () => {
 				hasEnvironmentId: !!credentials.environmentId,
 				hasClientId: !!credentials.clientId,
 				hasClientSecret: !!credentials.clientSecret,
-				clientIdPrefix: credentials.clientId?.substring(0, 8) + '...',
+				clientIdPrefix: `${credentials.clientId?.substring(0, 8)}...`,
 			});
 
 			// Dispatch events to notify other components of config change
@@ -620,7 +620,7 @@ const Login = () => {
 				hasClientId: !!credentials.clientId,
 				hasClientSecret: !!credentials.clientSecret,
 				environmentId: credentials.environmentId,
-				clientId: credentials.clientId?.substring(0, 8) + '...',
+				clientId: `${credentials.clientId?.substring(0, 8)}...`,
 			});
 
 			// Save current form credentials to localStorage before login
@@ -970,57 +970,122 @@ const Login = () => {
 							)}
 						</h3>
 						{!isCredentialsSectionCollapsed && (
-							<>
-								<CredentialsBox>
-									<h4>Configure Your PingOne Application Credentials</h4>
+							<CredentialsBox>
+								<h4>Configure Your PingOne Application Credentials</h4>
 
-									{redirectMessage && (
+								{redirectMessage && (
+									<div
+										style={{
+											padding: '1rem',
+											marginBottom: '1.5rem',
+											borderRadius: '0.375rem',
+											backgroundColor:
+												redirectType === 'success'
+													? '#f0fdf4'
+													: redirectType === 'error'
+														? '#fef2f2'
+														: redirectType === 'warning'
+															? '#fffbeb'
+															: '#eff6ff',
+											border: `1px solid ${redirectType === 'success' ? '#bbf7d0' : redirectType === 'error' ? '#fecaca' : redirectType === 'warning' ? '#fde68a' : '#bfdbfe'}`,
+											color:
+												redirectType === 'success'
+													? '#166534'
+													: redirectType === 'error'
+														? '#991b1b'
+														: redirectType === 'warning'
+															? '#92400e'
+															: '#1e40af',
+											display: 'flex',
+											alignItems: 'flex-start',
+										}}
+									>
+										{redirectType === 'success' ? (
+											<FiCheckCircle
+												size={20}
+												style={{
+													marginRight: '0.75rem',
+													marginTop: '0.2rem',
+													flexShrink: 0,
+												}}
+											/>
+										) : redirectType === 'error' ? (
+											<FiAlertCircle
+												size={20}
+												style={{
+													marginRight: '0.75rem',
+													marginTop: '0.2rem',
+													flexShrink: 0,
+												}}
+											/>
+										) : redirectType === 'warning' ? (
+											<FiAlertCircle
+												size={20}
+												style={{
+													marginRight: '0.75rem',
+													marginTop: '0.2rem',
+													flexShrink: 0,
+												}}
+											/>
+										) : (
+											<FiAlertCircle
+												size={20}
+												style={{
+													marginRight: '0.75rem',
+													marginTop: '0.2rem',
+													flexShrink: 0,
+												}}
+											/>
+										)}
+										<div>
+											<h4
+												style={{
+													marginTop: 0,
+													marginBottom: '0.5rem',
+													fontWeight: 600,
+												}}
+											>
+												{redirectType === 'success'
+													? 'Success'
+													: redirectType === 'error'
+														? 'Error'
+														: redirectType === 'warning'
+															? 'Warning'
+															: 'Information'}
+											</h4>
+											<p style={{ margin: 0, fontSize: '0.9375rem' }}>{redirectMessage}</p>
+										</div>
+									</div>
+								)}
+
+								{error && (
+									<Alert>
+										<FiAlertCircle size={20} />
+										<div>{error}</div>
+									</Alert>
+								)}
+
+								<form
+									onSubmit={(e) => {
+										e.preventDefault();
+										handleCredentialSave();
+									}}
+								>
+									{saveStatus && (
 										<div
 											style={{
 												padding: '1rem',
 												marginBottom: '1.5rem',
 												borderRadius: '0.375rem',
-												backgroundColor:
-													redirectType === 'success'
-														? '#f0fdf4'
-														: redirectType === 'error'
-															? '#fef2f2'
-															: redirectType === 'warning'
-																? '#fffbeb'
-																: '#eff6ff',
-												border: `1px solid ${redirectType === 'success' ? '#bbf7d0' : redirectType === 'error' ? '#fecaca' : redirectType === 'warning' ? '#fde68a' : '#bfdbfe'}`,
-												color:
-													redirectType === 'success'
-														? '#166534'
-														: redirectType === 'error'
-															? '#991b1b'
-															: redirectType === 'warning'
-																? '#92400e'
-																: '#1e40af',
+												backgroundColor: saveStatus.type === 'success' ? '#f0fdf4' : '#fef2f2',
+												border: `1px solid ${saveStatus.type === 'success' ? '#bbf7d0' : '#fecaca'}`,
+												color: saveStatus.type === 'success' ? '#166534' : '#991b1b',
 												display: 'flex',
 												alignItems: 'flex-start',
 											}}
 										>
-											{redirectType === 'success' ? (
+											{saveStatus.type === 'success' ? (
 												<FiCheckCircle
-													size={20}
-													style={{
-														marginRight: '0.75rem',
-														marginTop: '0.2rem',
-														flexShrink: 0,
-													}}
-												/>
-											) : redirectType === 'error' ? (
-												<FiAlertCircle
-													size={20}
-													style={{
-														marginRight: '0.75rem',
-														marginTop: '0.2rem',
-														flexShrink: 0,
-													}}
-												/>
-											) : redirectType === 'warning' ? (
-												<FiAlertCircle
 													size={20}
 													style={{
 														marginRight: '0.75rem',
@@ -1046,520 +1111,199 @@ const Login = () => {
 														fontWeight: 600,
 													}}
 												>
-													{redirectType === 'success'
-														? 'Success'
-														: redirectType === 'error'
-															? 'Error'
-															: redirectType === 'warning'
-																? 'Warning'
-																: 'Information'}
+													{saveStatus.title}
 												</h4>
-												<p style={{ margin: 0, fontSize: '0.9375rem' }}>{redirectMessage}</p>
+												<p style={{ margin: 0, fontSize: '0.9375rem' }}>{saveStatus.message}</p>
 											</div>
 										</div>
 									)}
 
-									{error && (
-										<Alert>
-											<FiAlertCircle size={20} />
-											<div>{error}</div>
-										</Alert>
-									)}
-
-									<form
-										onSubmit={(e) => {
-											e.preventDefault();
-											handleCredentialSave();
-										}}
-									>
-										{saveStatus && (
-											<div
+									<CredentialRow>
+										<p>
+											<strong>Environment ID:</strong>
+										</p>
+										<CredentialWrapper>
+											<input
+												type="text"
+												value={credentials.environmentId}
+												onChange={(e) => handleCredentialChange('environmentId', e.target.value)}
 												style={{
-													padding: '1rem',
-													marginBottom: '1.5rem',
-													borderRadius: '0.375rem',
-													backgroundColor: saveStatus.type === 'success' ? '#f0fdf4' : '#fef2f2',
-													border: `1px solid ${saveStatus.type === 'success' ? '#bbf7d0' : '#fecaca'}`,
-													color: saveStatus.type === 'success' ? '#166534' : '#991b1b',
-													display: 'flex',
-													alignItems: 'flex-start',
+													width: '100%',
+													padding: '0.5rem',
+													border: '1px solid #dee2e6',
+													borderRadius: '4px',
+													fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
+													fontSize: '0.85rem',
+													backgroundColor: '#f8f9fa',
 												}}
+												placeholder="e.g., abc12345-6789-4abc-def0-1234567890ab"
+											/>
+											<CopyButton
+												onClick={() => copyToClipboard(credentials.environmentId, 'env-id')}
+												title="Copy Environment ID"
 											>
-												{saveStatus.type === 'success' ? (
-													<FiCheckCircle
-														size={20}
-														style={{
-															marginRight: '0.75rem',
-															marginTop: '0.2rem',
-															flexShrink: 0,
-														}}
-													/>
-												) : (
-													<FiAlertCircle
-														size={20}
-														style={{
-															marginRight: '0.75rem',
-															marginTop: '0.2rem',
-															flexShrink: 0,
-														}}
-													/>
-												)}
-												<div>
-													<h4
-														style={{
-															marginTop: 0,
-															marginBottom: '0.5rem',
-															fontWeight: 600,
-														}}
-													>
-														{saveStatus.title}
-													</h4>
-													<p style={{ margin: 0, fontSize: '0.9375rem' }}>{saveStatus.message}</p>
-												</div>
-											</div>
-										)}
+												{copiedId === 'env-id' ? <FiCheck size={16} /> : <FiCopy size={16} />}
+											</CopyButton>
+										</CredentialWrapper>
+									</CredentialRow>
 
-										<CredentialRow>
-											<p>
-												<strong>Environment ID:</strong>
-											</p>
-											<CredentialWrapper>
+									<CredentialRow>
+										<p>
+											<strong>Client ID:</strong>
+										</p>
+										<CredentialWrapper>
+											<input
+												type="text"
+												value={credentials.clientId}
+												onChange={(e) => handleCredentialChange('clientId', e.target.value)}
+												style={{
+													width: '100%',
+													padding: '0.5rem',
+													border: '1px solid #dee2e6',
+													borderRadius: '4px',
+													fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
+													fontSize: '0.85rem',
+													backgroundColor: '#f8f9fa',
+												}}
+												placeholder="Enter your application's Client ID"
+											/>
+											<CopyButton
+												onClick={() => copyToClipboard(credentials.clientId, 'client-id')}
+												title="Copy Client ID"
+											>
+												{copiedId === 'client-id' ? <FiCheck size={16} /> : <FiCopy size={16} />}
+											</CopyButton>
+										</CredentialWrapper>
+									</CredentialRow>
+
+									<CredentialRow>
+										<p>
+											<strong>Client Secret:</strong>
+										</p>
+										<CredentialWrapper>
+											<div style={{ position: 'relative', width: '100%' }}>
 												<input
-													type="text"
-													value={credentials.environmentId}
-													onChange={(e) => handleCredentialChange('environmentId', e.target.value)}
+													type={showClientSecret ? 'text' : 'password'}
+													value={credentials.clientSecret}
+													onChange={(e) => handleCredentialChange('clientSecret', e.target.value)}
+													autoComplete="current-password"
 													style={{
 														width: '100%',
-														padding: '0.5rem',
+														maxWidth: '610px',
+														padding: '0.5rem 3.25rem 0.5rem 0.75rem',
 														border: '1px solid #dee2e6',
+														fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+														fontSize: '0.875rem',
 														borderRadius: '4px',
-														fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
-														fontSize: '0.85rem',
 														backgroundColor: '#f8f9fa',
 													}}
-													placeholder="e.g., abc12345-6789-4abc-def0-1234567890ab"
+													placeholder="Enter your application's Client Secret"
 												/>
-												<CopyButton
-													onClick={() => copyToClipboard(credentials.environmentId, 'env-id')}
-													title="Copy Environment ID"
-												>
-													{copiedId === 'env-id' ? <FiCheck size={16} /> : <FiCopy size={16} />}
-												</CopyButton>
-											</CredentialWrapper>
-										</CredentialRow>
-
-										<CredentialRow>
-											<p>
-												<strong>Client ID:</strong>
-											</p>
-											<CredentialWrapper>
-												<input
-													type="text"
-													value={credentials.clientId}
-													onChange={(e) => handleCredentialChange('clientId', e.target.value)}
+												<button
+													onClick={toggleClientSecretVisibility}
+													type="button"
 													style={{
-														width: '100%',
-														padding: '0.5rem',
-														border: '1px solid #dee2e6',
-														borderRadius: '4px',
-														fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
-														fontSize: '0.85rem',
-														backgroundColor: '#f8f9fa',
+														position: 'absolute',
+														right: '0.5rem',
+														top: '50%',
+														transform: 'translateY(-50%)',
+														background: 'none',
+														border: 'none',
+														cursor: 'pointer',
+														color: '#6c757d',
+														padding: '0.25rem',
+														display: 'flex',
+														alignItems: 'center',
+														justifyContent: 'center',
 													}}
-													placeholder="Enter your application's Client ID"
-												/>
-												<CopyButton
-													onClick={() => copyToClipboard(credentials.clientId, 'client-id')}
-													title="Copy Client ID"
-												>
-													{copiedId === 'client-id' ? <FiCheck size={16} /> : <FiCopy size={16} />}
-												</CopyButton>
-											</CredentialWrapper>
-										</CredentialRow>
-
-										<CredentialRow>
-											<p>
-												<strong>Client Secret:</strong>
-											</p>
-											<CredentialWrapper>
-												<div style={{ position: 'relative', width: '100%' }}>
-													<input
-														type={showClientSecret ? 'text' : 'password'}
-														value={credentials.clientSecret}
-														onChange={(e) => handleCredentialChange('clientSecret', e.target.value)}
-														autoComplete="current-password"
-														style={{
-															width: '100%',
-															maxWidth: '610px',
-															padding: '0.5rem 3.25rem 0.5rem 0.75rem',
-															border: '1px solid #dee2e6',
-															fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
-															fontSize: '0.875rem',
-															borderRadius: '4px',
-															backgroundColor: '#f8f9fa',
-														}}
-														placeholder="Enter your application's Client Secret"
-													/>
-													<button
-														onClick={toggleClientSecretVisibility}
-														type="button"
-														style={{
-															position: 'absolute',
-															right: '0.5rem',
-															top: '50%',
-															transform: 'translateY(-50%)',
-															background: 'none',
-															border: 'none',
-															cursor: 'pointer',
-															color: '#6c757d',
-															padding: '0.25rem',
-															display: 'flex',
-															alignItems: 'center',
-															justifyContent: 'center',
-														}}
-														aria-label={
-															showClientSecret ? 'Hide client secret' : 'Show client secret'
-														}
-													>
-														{showClientSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
-													</button>
-												</div>
-												<CopyButton
-													onClick={() => copyToClipboard(credentials.clientSecret, 'client-secret')}
-													title="Copy Client Secret"
-													style={{ marginLeft: '0.5rem' }}
-												>
-													{copiedId === 'client-secret' ? (
-														<FiCheck size={16} />
-													) : (
-														<FiCopy size={16} />
-													)}
-												</CopyButton>
-											</CredentialWrapper>
-										</CredentialRow>
-
-										{/* Token Endpoint Authentication Method */}
-										<CredentialRow>
-											<p>
-												<strong>Token Auth Method:</strong>
-											</p>
-											<CredentialWrapper>
-												<select
-													value={credentials.tokenAuthMethod}
-													onChange={(e) => {
-														const method = e.target.value as
-															| 'client_secret_basic'
-															| 'client_secret_post'
-															| 'client_secret_jwt'
-															| 'private_key_jwt';
-
-														setCredentials((prev) => {
-															const updated = {
-																...prev,
-																tokenAuthMethod: method,
-															};
-
-															if (method === 'client_secret_jwt' || method === 'private_key_jwt') {
-																const defAud = tokenEndpointForEnv(prev.environmentId);
-																const curAud = prev.clientAssertion?.audience || '';
-
-																if (!curAud) {
-																	updated.clientAssertion = {
-																		...(prev.clientAssertion || {}),
-																		audience: defAud,
-																	};
-																}
-															}
-
-															return updated;
-														});
-													}}
-													style={{
-														width: '100%',
-														padding: '0.5rem',
-														border: '1px solid #dee2e6',
-														borderRadius: '4px',
-														backgroundColor: '#f8f9fa',
-													}}
-												>
-													<option value="client_secret_post">client_secret_post</option>
-													<option value="client_secret_jwt">client_secret_jwt (HS256)</option>
-													<option value="private_key_jwt">private_key_jwt (RS256/ES256)</option>
-												</select>
-											</CredentialWrapper>
-										</CredentialRow>
-
-										{/* Client Assertion Options - HMAC */}
-										{credentials.tokenAuthMethod === 'client_secret_jwt' && (
-											<>
-												<CredentialRow>
-													<p>
-														<strong>HMAC Alg:</strong>
-													</p>
-													<CredentialWrapper>
-														<select
-															value={credentials.clientAssertion?.hmacAlg || 'HS256'}
-															onChange={(e) =>
-																setCredentials((prev) => ({
-																	...prev,
-																	clientAssertion: {
-																		...(prev.clientAssertion || {}),
-																		hmacAlg: e.target.value as HMACAlgorithm,
-																	},
-																}))
-															}
-															style={{
-																width: '100%',
-																padding: '0.5rem',
-																border: '1px solid #dee2e6',
-																borderRadius: 4,
-																backgroundColor: '#f8f9fa',
-															}}
-														>
-															<option value="HS256">HS256</option>
-															<option value="HS384">HS384</option>
-															<option value="HS512">HS512</option>
-														</select>
-													</CredentialWrapper>
-												</CredentialRow>
-												<CredentialRow>
-													<p>
-														<strong>Audience (aud):</strong>
-													</p>
-													<CredentialWrapper>
-														<input
-															type="text"
-															placeholder="Defaults to token endpoint"
-															value={credentials.clientAssertion?.audience || ''}
-															onChange={(e) =>
-																setCredentials((prev) => ({
-																	...prev,
-																	clientAssertion: {
-																		...(prev.clientAssertion || {}),
-																		audience: e.target.value,
-																	},
-																}))
-															}
-															style={{
-																width: '100%',
-																padding: '0.5rem',
-																border: '1px solid #dee2e6',
-																borderRadius: 4,
-																backgroundColor: '#f8f9fa',
-															}}
-														/>
-													</CredentialWrapper>
-												</CredentialRow>
-											</>
-										)}
-
-										{/* Client Assertion Options - Private Key */}
-										{credentials.tokenAuthMethod === 'private_key_jwt' && (
-											<>
-												<CredentialRow>
-													<p>
-														<strong>Signing Alg:</strong>
-													</p>
-													<CredentialWrapper>
-														<select
-															value={credentials.clientAssertion?.signAlg || 'RS256'}
-															onChange={(e) =>
-																setCredentials((prev) => ({
-																	...prev,
-																	clientAssertion: {
-																		...(prev.clientAssertion || {}),
-																		signAlg: e.target.value as SigningAlgorithm,
-																	},
-																}))
-															}
-															style={{
-																width: '100%',
-																padding: '0.5rem',
-																border: '1px solid #dee2e6',
-																borderRadius: 4,
-																backgroundColor: '#f8f9fa',
-															}}
-														>
-															<option value="RS256">RS256</option>
-															<option value="ES256">ES256</option>
-														</select>
-													</CredentialWrapper>
-												</CredentialRow>
-												<CredentialRow>
-													<p>
-														<strong>kid:</strong>
-													</p>
-													<CredentialWrapper>
-														<input
-															type="text"
-															placeholder="Key ID registered in PingOne"
-															value={credentials.clientAssertion?.kid || ''}
-															onChange={(e) =>
-																setCredentials((prev) => ({
-																	...prev,
-																	clientAssertion: {
-																		...(prev.clientAssertion || {}),
-																		kid: e.target.value,
-																	},
-																}))
-															}
-															style={{
-																width: '100%',
-																padding: '0.5rem',
-																border: '1px solid #dee2e6',
-																borderRadius: 4,
-																backgroundColor: '#f8f9fa',
-															}}
-														/>
-													</CredentialWrapper>
-												</CredentialRow>
-												<CredentialRow>
-													<p>
-														<strong>Private Key (PEM):</strong>
-													</p>
-													<CredentialWrapper>
-														<textarea
-															placeholder={`-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----`}
-															value={credentials.clientAssertion?.privateKeyPEM || ''}
-															onChange={(e) =>
-																setCredentials((prev) => ({
-																	...prev,
-																	clientAssertion: {
-																		...(prev.clientAssertion || {}),
-																		privateKeyPEM: e.target.value,
-																	},
-																}))
-															}
-															style={{
-																width: '100%',
-																minHeight: '120px',
-																padding: '0.5rem',
-																border: '1px solid #dee2e6',
-																borderRadius: 4,
-																backgroundColor: '#f8f9fa',
-																fontFamily: 'monospace',
-															}}
-														/>
-													</CredentialWrapper>
-												</CredentialRow>
-												<CredentialRow>
-													<p>
-														<strong>Audience (aud):</strong>
-													</p>
-													<CredentialWrapper>
-														<input
-															type="text"
-															placeholder="Defaults to token endpoint"
-															value={credentials.clientAssertion?.audience || ''}
-															onChange={(e) =>
-																setCredentials((prev) => ({
-																	...prev,
-																	clientAssertion: {
-																		...(prev.clientAssertion || {}),
-																		audience: e.target.value,
-																	},
-																}))
-															}
-															style={{
-																width: '100%',
-																padding: '0.5rem',
-																border: '1px solid #dee2e6',
-																borderRadius: 4,
-																backgroundColor: '#f8f9fa',
-															}}
-														/>
-													</CredentialWrapper>
-												</CredentialRow>
-											</>
-										)}
-
-										<CredentialRow>
-											<p>
-												<strong>Redirect URI:</strong>
-											</p>
-											<CredentialWrapper>
-												<code>{getCallbackUrlForFlow('dashboard')}</code>
-												<CopyButton
-													onClick={() =>
-														copyToClipboard(getCallbackUrlForFlow('dashboard'), 'redirect-uri')
+													aria-label={
+														showClientSecret ? 'Hide client secret' : 'Show client secret'
 													}
-													title="Copy Redirect URI"
 												>
-													{copiedId === 'redirect-uri' ? (
-														<FiCheck size={16} />
-													) : (
-														<FiCopy size={16} />
-													)}
-												</CopyButton>
-											</CredentialWrapper>
-										</CredentialRow>
+													{showClientSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+												</button>
+											</div>
+											<CopyButton
+												onClick={() => copyToClipboard(credentials.clientSecret, 'client-secret')}
+												title="Copy Client Secret"
+												style={{ marginLeft: '0.5rem' }}
+											>
+												{copiedId === 'client-secret' ? (
+													<FiCheck size={16} />
+												) : (
+													<FiCopy size={16} />
+												)}
+											</CopyButton>
+										</CredentialWrapper>
+									</CredentialRow>
 
-										{/* Advanced Configuration */}
-										<div
-											style={{
-												backgroundColor: '#f8f9fa',
-												border: '1px solid #e9ecef',
-												borderRadius: 8,
-												padding: '1rem',
-												marginTop: '1rem',
-											}}
-										>
-											<h4
+									{/* Token Endpoint Authentication Method */}
+									<CredentialRow>
+										<p>
+											<strong>Token Auth Method:</strong>
+										</p>
+										<CredentialWrapper>
+											<select
+												value={credentials.tokenAuthMethod}
+												onChange={(e) => {
+													const method = e.target.value as
+														| 'client_secret_basic'
+														| 'client_secret_post'
+														| 'client_secret_jwt'
+														| 'private_key_jwt';
+
+													setCredentials((prev) => {
+														const updated = {
+															...prev,
+															tokenAuthMethod: method,
+														};
+
+														if (method === 'client_secret_jwt' || method === 'private_key_jwt') {
+															const defAud = tokenEndpointForEnv(prev.environmentId);
+															const curAud = prev.clientAssertion?.audience || '';
+
+															if (!curAud) {
+																updated.clientAssertion = {
+																	...(prev.clientAssertion || {}),
+																	audience: defAud,
+																};
+															}
+														}
+
+														return updated;
+													});
+												}}
 												style={{
-													marginTop: 0,
-													marginBottom: '0.75rem',
-													color: '#343a40',
+													width: '100%',
+													padding: '0.5rem',
+													border: '1px solid #dee2e6',
+													borderRadius: '4px',
+													backgroundColor: '#f8f9fa',
 												}}
 											>
-												Advanced Configuration
-											</h4>
+												<option value="client_secret_post">client_secret_post</option>
+												<option value="client_secret_jwt">client_secret_jwt (HS256)</option>
+												<option value="private_key_jwt">private_key_jwt (RS256/ES256)</option>
+											</select>
+										</CredentialWrapper>
+									</CredentialRow>
 
+									{/* Client Assertion Options - HMAC */}
+									{credentials.tokenAuthMethod === 'client_secret_jwt' && (
+										<>
 											<CredentialRow>
 												<p>
-													<strong>Req Object Policy:</strong>
+													<strong>HMAC Alg:</strong>
 												</p>
 												<CredentialWrapper>
 													<select
-														value={credentials.advanced?.requestObjectPolicy || 'default'}
-														onChange={(e) =>
-															setCredentials((prev) => ({
-																...prev,
-																advanced: {
-																	...(prev.advanced || {}),
-																	requestObjectPolicy: e.target.value as RequestObjectPolicy,
-																},
-															}))
-														}
-														style={{
-															width: '100%',
-															padding: '0.5rem',
-															border: '1px solid #dee2e6',
-															borderRadius: 4,
-															backgroundColor: '#ffffff',
-														}}
-													>
-														<option value="default">default</option>
-														<option value="require">require</option>
-														<option value="allow_unsigned">allow_unsigned</option>
-													</select>
-												</CredentialWrapper>
-											</CredentialRow>
-
-											<CredentialRow>
-												<p>
-													<strong>x5t (JWT hdr):</strong>
-												</p>
-												<CredentialWrapper>
-													<input
-														type="text"
-														placeholder="Base64URL thumbprint"
-														value={credentials.clientAssertion?.x5t || ''}
+														value={credentials.clientAssertion?.hmacAlg || 'HS256'}
 														onChange={(e) =>
 															setCredentials((prev) => ({
 																...prev,
 																clientAssertion: {
 																	...(prev.clientAssertion || {}),
-																	x5t: e.target.value,
+																	hmacAlg: e.target.value as HMACAlgorithm,
 																},
 															}))
 														}
@@ -1568,151 +1312,401 @@ const Login = () => {
 															padding: '0.5rem',
 															border: '1px solid #dee2e6',
 															borderRadius: 4,
-															backgroundColor: '#ffffff',
-														}}
-													/>
-												</CredentialWrapper>
-											</CredentialRow>
-
-											<CredentialRow>
-												<p>
-													<strong>OIDC Session Mgmt:</strong>
-												</p>
-												<CredentialWrapper>
-													<label
-														style={{
-															display: 'inline-flex',
-															alignItems: 'center',
-															gap: '0.5rem',
+															backgroundColor: '#f8f9fa',
 														}}
 													>
-														<input
-															type="checkbox"
-															checked={!!credentials.advanced?.oidcSessionManagement}
-															onChange={(e) =>
-																setCredentials((prev) => ({
-																	...prev,
-																	advanced: {
-																		...(prev.advanced || {}),
-																		oidcSessionManagement: e.target.checked,
-																	},
-																}))
-															}
-														/>
-														Enable OP iframe monitoring
-													</label>
+														<option value="HS256">HS256</option>
+														<option value="HS384">HS384</option>
+														<option value="HS512">HS512</option>
+													</select>
 												</CredentialWrapper>
 											</CredentialRow>
-
 											<CredentialRow>
 												<p>
-													<strong>Resource Scopes:</strong>
+													<strong>Audience (aud):</strong>
 												</p>
 												<CredentialWrapper>
 													<input
 														type="text"
-														placeholder="openid profile email api://resource1 scope1 scope2"
-														value={credentials.advanced?.resourceScopes || ''}
+														placeholder="Defaults to token endpoint"
+														value={credentials.clientAssertion?.audience || ''}
+														onChange={(e) =>
+															setCredentials((prev) => ({
+																...prev,
+																clientAssertion: {
+																	...(prev.clientAssertion || {}),
+																	audience: e.target.value,
+																},
+															}))
+														}
+														style={{
+															width: '100%',
+															padding: '0.5rem',
+															border: '1px solid #dee2e6',
+															borderRadius: 4,
+															backgroundColor: '#f8f9fa',
+														}}
+													/>
+												</CredentialWrapper>
+											</CredentialRow>
+										</>
+									)}
+
+									{/* Client Assertion Options - Private Key */}
+									{credentials.tokenAuthMethod === 'private_key_jwt' && (
+										<>
+											<CredentialRow>
+												<p>
+													<strong>Signing Alg:</strong>
+												</p>
+												<CredentialWrapper>
+													<select
+														value={credentials.clientAssertion?.signAlg || 'RS256'}
+														onChange={(e) =>
+															setCredentials((prev) => ({
+																...prev,
+																clientAssertion: {
+																	...(prev.clientAssertion || {}),
+																	signAlg: e.target.value as SigningAlgorithm,
+																},
+															}))
+														}
+														style={{
+															width: '100%',
+															padding: '0.5rem',
+															border: '1px solid #dee2e6',
+															borderRadius: 4,
+															backgroundColor: '#f8f9fa',
+														}}
+													>
+														<option value="RS256">RS256</option>
+														<option value="ES256">ES256</option>
+													</select>
+												</CredentialWrapper>
+											</CredentialRow>
+											<CredentialRow>
+												<p>
+													<strong>kid:</strong>
+												</p>
+												<CredentialWrapper>
+													<input
+														type="text"
+														placeholder="Key ID registered in PingOne"
+														value={credentials.clientAssertion?.kid || ''}
+														onChange={(e) =>
+															setCredentials((prev) => ({
+																...prev,
+																clientAssertion: {
+																	...(prev.clientAssertion || {}),
+																	kid: e.target.value,
+																},
+															}))
+														}
+														style={{
+															width: '100%',
+															padding: '0.5rem',
+															border: '1px solid #dee2e6',
+															borderRadius: 4,
+															backgroundColor: '#f8f9fa',
+														}}
+													/>
+												</CredentialWrapper>
+											</CredentialRow>
+											<CredentialRow>
+												<p>
+													<strong>Private Key (PEM):</strong>
+												</p>
+												<CredentialWrapper>
+													<textarea
+														placeholder={`-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----`}
+														value={credentials.clientAssertion?.privateKeyPEM || ''}
+														onChange={(e) =>
+															setCredentials((prev) => ({
+																...prev,
+																clientAssertion: {
+																	...(prev.clientAssertion || {}),
+																	privateKeyPEM: e.target.value,
+																},
+															}))
+														}
+														style={{
+															width: '100%',
+															minHeight: '120px',
+															padding: '0.5rem',
+															border: '1px solid #dee2e6',
+															borderRadius: 4,
+															backgroundColor: '#f8f9fa',
+															fontFamily: 'monospace',
+														}}
+													/>
+												</CredentialWrapper>
+											</CredentialRow>
+											<CredentialRow>
+												<p>
+													<strong>Audience (aud):</strong>
+												</p>
+												<CredentialWrapper>
+													<input
+														type="text"
+														placeholder="Defaults to token endpoint"
+														value={credentials.clientAssertion?.audience || ''}
+														onChange={(e) =>
+															setCredentials((prev) => ({
+																...prev,
+																clientAssertion: {
+																	...(prev.clientAssertion || {}),
+																	audience: e.target.value,
+																},
+															}))
+														}
+														style={{
+															width: '100%',
+															padding: '0.5rem',
+															border: '1px solid #dee2e6',
+															borderRadius: 4,
+															backgroundColor: '#f8f9fa',
+														}}
+													/>
+												</CredentialWrapper>
+											</CredentialRow>
+										</>
+									)}
+
+									<CredentialRow>
+										<p>
+											<strong>Redirect URI:</strong>
+										</p>
+										<CredentialWrapper>
+											<code>{getCallbackUrlForFlow('dashboard')}</code>
+											<CopyButton
+												onClick={() =>
+													copyToClipboard(getCallbackUrlForFlow('dashboard'), 'redirect-uri')
+												}
+												title="Copy Redirect URI"
+											>
+												{copiedId === 'redirect-uri' ? <FiCheck size={16} /> : <FiCopy size={16} />}
+											</CopyButton>
+										</CredentialWrapper>
+									</CredentialRow>
+
+									{/* Advanced Configuration */}
+									<div
+										style={{
+											backgroundColor: '#f8f9fa',
+											border: '1px solid #e9ecef',
+											borderRadius: 8,
+											padding: '1rem',
+											marginTop: '1rem',
+										}}
+									>
+										<h4
+											style={{
+												marginTop: 0,
+												marginBottom: '0.75rem',
+												color: '#343a40',
+											}}
+										>
+											Advanced Configuration
+										</h4>
+
+										<CredentialRow>
+											<p>
+												<strong>Req Object Policy:</strong>
+											</p>
+											<CredentialWrapper>
+												<select
+													value={credentials.advanced?.requestObjectPolicy || 'default'}
+													onChange={(e) =>
+														setCredentials((prev) => ({
+															...prev,
+															advanced: {
+																...(prev.advanced || {}),
+																requestObjectPolicy: e.target.value as RequestObjectPolicy,
+															},
+														}))
+													}
+													style={{
+														width: '100%',
+														padding: '0.5rem',
+														border: '1px solid #dee2e6',
+														borderRadius: 4,
+														backgroundColor: '#ffffff',
+													}}
+												>
+													<option value="default">default</option>
+													<option value="require">require</option>
+													<option value="allow_unsigned">allow_unsigned</option>
+												</select>
+											</CredentialWrapper>
+										</CredentialRow>
+
+										<CredentialRow>
+											<p>
+												<strong>x5t (JWT hdr):</strong>
+											</p>
+											<CredentialWrapper>
+												<input
+													type="text"
+													placeholder="Base64URL thumbprint"
+													value={credentials.clientAssertion?.x5t || ''}
+													onChange={(e) =>
+														setCredentials((prev) => ({
+															...prev,
+															clientAssertion: {
+																...(prev.clientAssertion || {}),
+																x5t: e.target.value,
+															},
+														}))
+													}
+													style={{
+														width: '100%',
+														padding: '0.5rem',
+														border: '1px solid #dee2e6',
+														borderRadius: 4,
+														backgroundColor: '#ffffff',
+													}}
+												/>
+											</CredentialWrapper>
+										</CredentialRow>
+
+										<CredentialRow>
+											<p>
+												<strong>OIDC Session Mgmt:</strong>
+											</p>
+											<CredentialWrapper>
+												<label
+													style={{
+														display: 'inline-flex',
+														alignItems: 'center',
+														gap: '0.5rem',
+													}}
+												>
+													<input
+														type="checkbox"
+														checked={!!credentials.advanced?.oidcSessionManagement}
 														onChange={(e) =>
 															setCredentials((prev) => ({
 																...prev,
 																advanced: {
 																	...(prev.advanced || {}),
-																	resourceScopes: e.target.value,
+																	oidcSessionManagement: e.target.checked,
 																},
 															}))
 														}
-														style={{
-															width: '100%',
-															padding: '0.5rem',
-															border: '1px solid #dee2e6',
-															borderRadius: 4,
-															backgroundColor: '#ffffff',
-														}}
 													/>
-												</CredentialWrapper>
-											</CredentialRow>
+													Enable OP iframe monitoring
+												</label>
+											</CredentialWrapper>
+										</CredentialRow>
 
-											<CredentialRow>
-												<p>
-													<strong>Logout via ID Token:</strong>
-												</p>
-												<CredentialWrapper>
-													<label
-														style={{
-															display: 'inline-flex',
-															alignItems: 'center',
-															gap: '0.5rem',
-														}}
-													>
-														<input
-															type="checkbox"
-															checked={!!credentials.advanced?.terminateByIdToken}
-															onChange={(e) =>
-																setCredentials((prev) => ({
-																	...prev,
-																	advanced: {
-																		...(prev.advanced || {}),
-																		terminateByIdToken: e.target.checked,
-																	},
-																}))
-															}
-														/>
-														Use RP-initiated logout with id_token_hint
-													</label>
-												</CredentialWrapper>
-											</CredentialRow>
-										</div>
+										<CredentialRow>
+											<p>
+												<strong>Resource Scopes:</strong>
+											</p>
+											<CredentialWrapper>
+												<input
+													type="text"
+													placeholder="openid profile email api://resource1 scope1 scope2"
+													value={credentials.advanced?.resourceScopes || ''}
+													onChange={(e) =>
+														setCredentials((prev) => ({
+															...prev,
+															advanced: {
+																...(prev.advanced || {}),
+																resourceScopes: e.target.value,
+															},
+														}))
+													}
+													style={{
+														width: '100%',
+														padding: '0.5rem',
+														border: '1px solid #dee2e6',
+														borderRadius: 4,
+														backgroundColor: '#ffffff',
+													}}
+												/>
+											</CredentialWrapper>
+										</CredentialRow>
 
-										<div
-											style={{
-												marginTop: '1.5rem',
-												textAlign: 'center',
-												display: 'flex',
-												gap: '1rem',
-												justifyContent: 'center',
-												flexWrap: 'wrap',
-											}}
+										<CredentialRow>
+											<p>
+												<strong>Logout via ID Token:</strong>
+											</p>
+											<CredentialWrapper>
+												<label
+													style={{
+														display: 'inline-flex',
+														alignItems: 'center',
+														gap: '0.5rem',
+													}}
+												>
+													<input
+														type="checkbox"
+														checked={!!credentials.advanced?.terminateByIdToken}
+														onChange={(e) =>
+															setCredentials((prev) => ({
+																...prev,
+																advanced: {
+																	...(prev.advanced || {}),
+																	terminateByIdToken: e.target.checked,
+																},
+															}))
+														}
+													/>
+													Use RP-initiated logout with id_token_hint
+												</label>
+											</CredentialWrapper>
+										</CredentialRow>
+									</div>
+
+									<div
+										style={{
+											marginTop: '1.5rem',
+											textAlign: 'center',
+											display: 'flex',
+											gap: '1rem',
+											justifyContent: 'center',
+											flexWrap: 'wrap',
+										}}
+									>
+										<SubmitButton
+											type="submit"
+											disabled={isSavingCredentials}
+											style={{ width: 'auto', padding: '0.75rem 2rem' }}
 										>
-											<SubmitButton
-												type="submit"
-												disabled={isSavingCredentials}
-												style={{ width: 'auto', padding: '0.75rem 2rem' }}
-											>
-												{isSavingCredentials ? (
-													<>
-														<Spinner size={16} />
-														Saving...
-													</>
-												) : (
-													<>
-														<FiCheck />
-														Save Credentials
-													</>
-												)}
-											</SubmitButton>
+											{isSavingCredentials ? (
+												<>
+													<Spinner size={16} />
+													Saving...
+												</>
+											) : (
+												<>
+													<FiCheck />
+													Save Credentials
+												</>
+											)}
+										</SubmitButton>
 
-											<SubmitButton
-												onClick={handleLogin}
-												disabled={isLoading}
-												style={{ width: 'auto', padding: '0.6rem 1.5rem' }}
-											>
-												{isLoading ? (
-													<>
-														<Spinner size={16} />
-														Redirecting...
-													</>
-												) : (
-													<>
-														<FiLogIn />
-														Login with PingOne
-													</>
-												)}
-											</SubmitButton>
-										</div>
-									</form>
-								</CredentialsBox>
-							</>
+										<SubmitButton
+											onClick={handleLogin}
+											disabled={isLoading}
+											style={{ width: 'auto', padding: '0.6rem 1.5rem' }}
+										>
+											{isLoading ? (
+												<>
+													<Spinner size={16} />
+													Redirecting...
+												</>
+											) : (
+												<>
+													<FiLogIn />
+													Login with PingOne
+												</>
+											)}
+										</SubmitButton>
+									</div>
+								</form>
+							</CredentialsBox>
 						)}
 					</PingOneSetupSection>
 				</SetupSection>

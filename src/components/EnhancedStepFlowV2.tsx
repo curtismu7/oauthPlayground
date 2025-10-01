@@ -1,37 +1,24 @@
 // src/components/EnhancedStepFlowV2.tsx - Enhanced with new design system
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import styled from 'styled-components';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-	FiPlay,
-	FiPause,
-	FiSkipForward,
-	FiSkipBack,
-	FiRefreshCw,
-	FiSave,
-	FiEye,
-	FiEyeOff,
-	FiCopy,
-	FiCheck,
-	FiX,
 	FiAlertCircle,
+	FiCheck,
+	FiCheckCircle,
+	FiChevronDown,
 	FiChevronLeft,
 	FiChevronRight,
+	FiCopy,
+	FiGlobe,
+	FiKey,
+	FiPlay,
+	FiSave,
 	FiSettings,
-	FiBookmark,
-	FiClock,
-	FiZap,
-	FiChevronDown,
-	FiChevronUp,
-	FiInfo,
 	FiShield,
 	FiUser,
-	FiKey,
-	FiGlobe,
-	FiCode,
-	FiCheckCircle,
 	FiXCircle,
-	FiAlertTriangle,
+	FiZap,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 import { logger } from '../utils/logger';
 import '../styles/enhanced-flow.css';
 
@@ -232,7 +219,7 @@ const StepCount = styled.div`
   font-weight: 500;
 `;
 
-const SuccessMessage = styled.div`
+const _SuccessMessage = styled.div`
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
   padding: 0.75rem 1rem;
@@ -571,7 +558,7 @@ const JsonDisplay = styled.div`
 `;
 
 // Loading States
-const LoadingOverlay = styled.div`
+const _LoadingOverlay = styled.div`
   position: absolute;
   top: 0;
   left: 0;
@@ -678,7 +665,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 	const [currentStepIndex, setCurrentStepIndex] = useState(initialStepIndex || 0);
 	const [stepHistory, setStepHistory] = useState<StepHistory[]>([]);
 	const [isExecuting, setIsExecuting] = useState(false);
-	const [showCredentials, setShowCredentials] = useState(false);
+	const [_showCredentials, _setShowCredentials] = useState(false);
 
 	// Notify parent component when step changes
 	useEffect(() => {
@@ -1132,7 +1119,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 								{isExecuting ? (
 									<>
 										<LoadingSpinner />
-										{currentStep.buttonText && currentStep.buttonText.includes('...')
+										{currentStep.buttonText?.includes('...')
 											? currentStep.buttonText
 											: currentStep.id === 'setup-credentials'
 												? 'Saving...'
@@ -1179,32 +1166,31 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 						)}
 
 						{/* Render custom buttons */}
-						{currentStep.customButtons &&
-							currentStep.customButtons.map((button) => (
-								<Button
-									key={button.id}
-									$variant={button.variant || 'secondary'}
-									onClick={button.onClick}
-									disabled={button.disabled || isExecuting}
-									$loading={button.loading}
-									style={{
-										opacity: button.disabled || isExecuting ? 0.5 : 1,
-										cursor: button.disabled || isExecuting ? 'not-allowed' : 'pointer',
-									}}
-								>
-									{button.loading ? (
-										<>
-											<LoadingSpinner />
-											Loading...
-										</>
-									) : (
-										<>
-											{button.icon}
-											{button.label}
-										</>
-									)}
-								</Button>
-							))}
+						{currentStep.customButtons?.map((button) => (
+							<Button
+								key={button.id}
+								$variant={button.variant || 'secondary'}
+								onClick={button.onClick}
+								disabled={button.disabled || isExecuting}
+								$loading={button.loading}
+								style={{
+									opacity: button.disabled || isExecuting ? 0.5 : 1,
+									cursor: button.disabled || isExecuting ? 'not-allowed' : 'pointer',
+								}}
+							>
+								{button.loading ? (
+									<>
+										<LoadingSpinner />
+										Loading...
+									</>
+								) : (
+									<>
+										{button.icon}
+										{button.label}
+									</>
+								)}
+							</Button>
+						))}
 
 						<Button
 							$variant="success"

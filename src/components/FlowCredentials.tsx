@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
-	FiEye,
-	FiEyeOff,
+	FiCheck,
 	FiCheckCircle,
 	FiChevronDown,
 	FiChevronUp,
-	FiCheck,
+	FiEye,
+	FiEyeOff,
 } from 'react-icons/fi';
-import CopyIcon from './CopyIcon';
+import styled from 'styled-components';
+import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
-import { credentialManager, type AllCredentials } from '../utils/credentialManager';
+import CopyIcon from './CopyIcon';
 
 interface FlowCredentialsProps {
 	flowType: string;
@@ -188,7 +188,7 @@ const Input = styled.input`
   }
 `;
 
-const Textarea = styled.textarea`
+const _Textarea = styled.textarea`
   width: 100%;
   padding: 0.5rem;
   border: 1px solid #d1d5db;
@@ -313,7 +313,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 		additionalScopes: '',
 	});
 	const [errors, setErrors] = useState<Partial<FlowCredentialsData>>({});
-	const [hasChanges, setHasChanges] = useState(false);
+	const [_hasChanges, setHasChanges] = useState(false);
 	const [originalCredentials, setOriginalCredentials] = useState<FlowCredentialsData>({
 		environmentId: '',
 		clientId: '',

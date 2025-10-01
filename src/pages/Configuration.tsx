@@ -6,13 +6,13 @@ import CollapsibleSection from '../components/CollapsibleSection';
 import DiscoveryPanel from '../components/DiscoveryPanel';
 import StandardMessage from '../components/StandardMessage';
 import UISettingsModal from '../components/UISettingsModal';
+import { useUISettings } from '../contexts/UISettingsContext';
 import { showGlobalSuccess } from '../hooks/useNotifications';
-import { v4ToastManager } from '../utils/v4ToastMessages';
 import { usePageScroll } from '../hooks/usePageScroll';
 import type { OpenIDConfiguration } from '../services/discoveryService';
 import { credentialManager } from '../utils/credentialManager';
 import { getAllFlowCredentialStatuses } from '../utils/flowCredentialChecker';
-import { useUISettings } from '../contexts/UISettingsContext';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 const ConfigurationContainer = styled.div`
 	max-width: 800px;
@@ -201,7 +201,7 @@ const LoadingSpinner = styled.div`
 const Configuration = () => {
 	// Centralized scroll management - ALL pages start at top
 	usePageScroll({ pageName: 'Configuration', force: true });
-	
+
 	// UI Settings context
 	const { settings: uiSettings, updateSetting } = useUISettings();
 
@@ -275,7 +275,7 @@ const Configuration = () => {
 	const [flowCredentialStatuses, setFlowCredentialStatuses] = useState(
 		getAllFlowCredentialStatuses()
 	);
-	
+
 	// UI Settings modal state
 	const [isUISettingsModalOpen, setIsUISettingsModalOpen] = useState(false);
 
@@ -779,8 +779,8 @@ const Configuration = () => {
 					<div>
 						<h1>Flow-Specific Credential Configuration</h1>
 						<p>
-							Configure credentials for each OIDC and OAuth 2.0 flow type. Each flow can have its own
-							settings or use global configuration.
+							Configure credentials for each OIDC and OAuth 2.0 flow type. Each flow can have its
+							own settings or use global configuration.
 						</p>
 					</div>
 					<button
@@ -817,7 +817,6 @@ const Configuration = () => {
 					</button>
 				</div>
 			</PageHeader>
-
 
 			{/* Flow Credential Status Table */}
 			<CollapsibleSection
@@ -1973,7 +1972,9 @@ const Configuration = () => {
 							type="button"
 							onClick={() => {
 								setShowDiscoveryPanel(true);
-								v4ToastManager.showSuccess('Discovery panel opened - use this tool to automatically discover your PingOne endpoints');
+								v4ToastManager.showSuccess(
+									'Discovery panel opened - use this tool to automatically discover your PingOne endpoints'
+								);
 							}}
 							style={{
 								display: 'inline-flex',
@@ -2183,7 +2184,16 @@ const Configuration = () => {
 				</FormGroup>
 
 				{/* Theme & Appearance Settings */}
-				<h4 style={{ margin: '2rem 0 1rem 0', fontSize: '1.1rem', fontWeight: '600', color: '#374151', borderBottom: '1px solid #e5e7eb', paddingBottom: '0.5rem' }}>
+				<h4
+					style={{
+						margin: '2rem 0 1rem 0',
+						fontSize: '1.1rem',
+						fontWeight: '600',
+						color: '#374151',
+						borderBottom: '1px solid #e5e7eb',
+						paddingBottom: '0.5rem',
+					}}
+				>
 					Theme & Appearance
 				</h4>
 
@@ -2222,7 +2232,9 @@ const Configuration = () => {
 						<option value="medium">Medium</option>
 						<option value="large">Large</option>
 					</select>
-					<div className="form-text">Choose your preferred text size throughout the application</div>
+					<div className="form-text">
+						Choose your preferred text size throughout the application
+					</div>
 				</FormGroup>
 
 				<FormGroup>
@@ -2246,7 +2258,16 @@ const Configuration = () => {
 				</FormGroup>
 
 				{/* Flow Behavior Settings */}
-				<h4 style={{ margin: '2rem 0 1rem 0', fontSize: '1.1rem', fontWeight: '600', color: '#374151', borderBottom: '1px solid #e5e7eb', paddingBottom: '0.5rem' }}>
+				<h4
+					style={{
+						margin: '2rem 0 1rem 0',
+						fontSize: '1.1rem',
+						fontWeight: '600',
+						color: '#374151',
+						borderBottom: '1px solid #e5e7eb',
+						paddingBottom: '0.5rem',
+					}}
+				>
 					Flow Behavior
 				</h4>
 
@@ -2260,7 +2281,9 @@ const Configuration = () => {
 							onChange={(e) => {
 								const isEnabled = e.target.checked;
 								setFormData((prev) => ({ ...prev, autoAdvanceSteps: isEnabled }));
-								v4ToastManager.showSuccess(isEnabled ? 'Auto-advance enabled' : 'Auto-advance disabled');
+								v4ToastManager.showSuccess(
+									isEnabled ? 'Auto-advance enabled' : 'Auto-advance disabled'
+								);
 							}}
 						/>
 						<label htmlFor={formIds.autoAdvanceSteps}>
@@ -2271,7 +2294,9 @@ const Configuration = () => {
 				</FormGroup>
 
 				<FormGroup>
-					<label htmlFor={formIds.collapsibleDefaultState}>Collapsible Sections Default State</label>
+					<label htmlFor={formIds.collapsibleDefaultState}>
+						Collapsible Sections Default State
+					</label>
 					<select
 						id={formIds.collapsibleDefaultState}
 						name="collapsibleDefaultState"
@@ -2284,11 +2309,22 @@ const Configuration = () => {
 						<option value="collapsed">Collapsed</option>
 						<option value="expanded">Expanded</option>
 					</select>
-					<div className="form-text">Choose whether collapsible sections start expanded or collapsed</div>
+					<div className="form-text">
+						Choose whether collapsible sections start expanded or collapsed
+					</div>
 				</FormGroup>
 
 				{/* Developer Settings */}
-				<h4 style={{ margin: '2rem 0 1rem 0', fontSize: '1.1rem', fontWeight: '600', color: '#374151', borderBottom: '1px solid #e5e7eb', paddingBottom: '0.5rem' }}>
+				<h4
+					style={{
+						margin: '2rem 0 1rem 0',
+						fontSize: '1.1rem',
+						fontWeight: '600',
+						color: '#374151',
+						borderBottom: '1px solid #e5e7eb',
+						paddingBottom: '0.5rem',
+					}}
+				>
 					Developer Options
 				</h4>
 
@@ -2302,12 +2338,18 @@ const Configuration = () => {
 							onChange={(e) => {
 								const isEnabled = e.target.checked;
 								setFormData((prev) => ({ ...prev, showRequestResponseDetails: isEnabled }));
-								v4ToastManager.showSuccess(isEnabled ? 'Request/Response details enabled' : 'Request/Response details disabled');
+								v4ToastManager.showSuccess(
+									isEnabled
+										? 'Request/Response details enabled'
+										: 'Request/Response details disabled'
+								);
 							}}
 						/>
 						<label htmlFor={formIds.showRequestResponseDetails}>
 							Show Request/Response Details
-							<div className="form-text">Display detailed HTTP request and response information</div>
+							<div className="form-text">
+								Display detailed HTTP request and response information
+							</div>
 						</label>
 					</div>
 				</FormGroup>
@@ -2365,7 +2407,16 @@ const Configuration = () => {
 				</FormGroup>
 
 				{/* Dashboard Settings */}
-				<h4 style={{ margin: '2rem 0 1rem 0', fontSize: '1.1rem', fontWeight: '600', color: '#374151', borderBottom: '1px solid #e5e7eb', paddingBottom: '0.5rem' }}>
+				<h4
+					style={{
+						margin: '2rem 0 1rem 0',
+						fontSize: '1.1rem',
+						fontWeight: '600',
+						color: '#374151',
+						borderBottom: '1px solid #e5e7eb',
+						paddingBottom: '0.5rem',
+					}}
+				>
 					Dashboard & Navigation
 				</h4>
 
@@ -2398,7 +2449,9 @@ const Configuration = () => {
 							onChange={(e) => {
 								const isEnabled = e.target.checked;
 								setFormData((prev) => ({ ...prev, hideCompletedFlows: isEnabled }));
-								v4ToastManager.showSuccess(isEnabled ? 'Completed flows will be hidden' : 'Completed flows will be shown');
+								v4ToastManager.showSuccess(
+									isEnabled ? 'Completed flows will be hidden' : 'Completed flows will be shown'
+								);
 							}}
 						/>
 						<label htmlFor={formIds.hideCompletedFlows}>
@@ -2418,7 +2471,9 @@ const Configuration = () => {
 							onChange={(e) => {
 								const isEnabled = e.target.checked;
 								setFormData((prev) => ({ ...prev, quickActionsVisibility: isEnabled }));
-								v4ToastManager.showSuccess(isEnabled ? 'Quick actions enabled' : 'Quick actions disabled');
+								v4ToastManager.showSuccess(
+									isEnabled ? 'Quick actions enabled' : 'Quick actions disabled'
+								);
 							}}
 						/>
 						<label htmlFor={formIds.quickActionsVisibility}>
@@ -2439,8 +2494,9 @@ const Configuration = () => {
 				>
 					<h4 style={{ margin: '0 0 0.5rem 0', color: '#495057' }}>UI Settings Info</h4>
 					<p style={{ margin: '0', fontSize: '0.9rem', color: '#6c757d' }}>
-						These settings control the display of modals, debug tools, themes, and behavior throughout the application.
-						Changes are saved automatically and will affect all OAuth flows, especially the V5 flow template.
+						These settings control the display of modals, debug tools, themes, and behavior
+						throughout the application. Changes are saved automatically and will affect all OAuth
+						flows, especially the V5 flow template.
 					</p>
 				</div>
 			</CollapsibleSection>
@@ -2607,11 +2663,11 @@ const Configuration = () => {
 			)}
 
 			{/* Centralized Success/Error Messages */}
-			
+
 			{/* UI Settings Modal */}
-			<UISettingsModal 
-				isOpen={isUISettingsModalOpen} 
-				onClose={() => setIsUISettingsModalOpen(false)} 
+			<UISettingsModal
+				isOpen={isUISettingsModalOpen}
+				onClose={() => setIsUISettingsModalOpen(false)}
 			/>
 		</ConfigurationContainer>
 	);

@@ -8,9 +8,9 @@ import FlowCredentials from '../../components/FlowCredentials';
 import PageTitle from '../../components/PageTitle';
 import { type FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
 import { useAuth } from '../../contexts/NewAuthContext';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
 import type { UserInfo as OIDCUserInfo } from '../../types/oauth';
 import { isTokenExpired } from '../../utils/oauth';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -1116,7 +1116,9 @@ console.log('Welcome, ' + user.name + '!');`,
 													'Token expired check:',
 													tokens?.access_token ? isTokenExpired(tokens.access_token) : 'No token'
 												);
-												v4ToastManager.showSuccess('Debug information logged to browser console - check developer tools');
+												v4ToastManager.showSuccess(
+													'Debug information logged to browser console - check developer tools'
+												);
 											}}
 											style={{
 												padding: '8px 16px',

@@ -1,21 +1,20 @@
-import { useEffect, useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { logger } from '../utils/logger';
 import {
-	userBehaviorTracker,
-	trackPageView,
-	trackUserAction,
+	completeFlow,
+	completeFlowStep,
+	EngagementMetrics,
+	getCurrentSession,
+	getEngagementMetrics,
+	getUserJourney,
 	trackFlowStart,
 	trackFlowStep,
-	completeFlowStep,
-	completeFlow,
-	getCurrentSession,
-	getUserJourney,
-	getEngagementMetrics,
-	UserSession,
+	trackPageView,
+	trackUserAction,
 	UserJourney,
-	EngagementMetrics,
-	FlowInteraction,
+	UserSession,
+	userBehaviorTracker,
 } from '../utils/userBehaviorTracking';
-import { logger } from '../utils/logger';
 
 // User behavior tracking hook configuration
 export interface UseUserBehaviorTrackingConfig {
@@ -78,7 +77,7 @@ export const useUserBehaviorTracking = (config: UseUserBehaviorTrackingConfig = 
 		if (debug) {
 			logger.info('[useUserBehaviorTracking] Configuration updated');
 		}
-	}, [trackPageViews, trackUserActions, trackFlows, trackEngagement, debug]);
+	}, [trackPageViews, trackUserActions, trackFlows, trackEngagement, debug, config]);
 
 	// Initialize tracking
 	useEffect(() => {

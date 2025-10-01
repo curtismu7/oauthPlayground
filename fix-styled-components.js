@@ -4,9 +4,9 @@
  * Fix styled-components syntax errors across the codebase
  */
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -49,9 +49,9 @@ function fixStyledComponentSyntax(filePath) {
 		// Look for: `;\n\n  css-property: value;
 		const pattern1 = /(`;\s*\n\s*\n\s*)([a-z-]+\s*:\s*[^;]+;)/g;
 		if (pattern1.test(content)) {
-			content = content.replace(pattern1, (match, closing, cssRule) => {
+			content = content.replace(pattern1, (_match, closing, cssRule) => {
 				// Create a generic styled component for orphaned CSS
-				return closing + `\nconst StyledElement = styled.div\`\n  ${cssRule}`;
+				return `${closing}\nconst StyledElement = styled.div\`\n  ${cssRule}`;
 			});
 			fixed = true;
 		}
@@ -61,7 +61,7 @@ function fixStyledComponentSyntax(filePath) {
 		content = content.replace(pattern2, (match, closing, cssRules, nextConst) => {
 			if (cssRules.includes(':') && !cssRules.includes('const') && !cssRules.includes('function')) {
 				fixed = true;
-				return closing + `\nconst StyledElement = styled.div\`\n${cssRules}\n\`;\n${nextConst}`;
+				return `${closing}\nconst StyledElement = styled.div\`\n${cssRules}\n\`;\n${nextConst}`;
 			}
 			return match;
 		});
@@ -71,7 +71,7 @@ function fixStyledComponentSyntax(filePath) {
 		content = content.replace(pattern3, (match, closing, cssRules, end) => {
 			if (cssRules.includes(':') && !cssRules.includes('const') && !cssRules.includes('function')) {
 				fixed = true;
-				return closing + `\nconst StyledElement = styled.div\`\n${cssRules}\n\`;\n${end}`;
+				return `${closing}\nconst StyledElement = styled.div\`\n${cssRules}\n\`;\n${end}`;
 			}
 			return match;
 		});
@@ -142,7 +142,7 @@ console.log(`\n🎉 Total fixes applied: ${fixedCount}`);
 console.log('🔍 Testing build...');
 
 // Test build
-import { spawn } from 'child_process';
+import { spawn } from 'node:child_process';
 
 const buildProcess = spawn('npm', ['run', 'build'], { stdio: 'inherit' });
 

@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { FiUser, FiLogOut, FiSettings, FiRefreshCw, FiInfo, FiExternalLink } from 'react-icons/fi';
 import { OidcClient } from '@pingidentity-developers-experience/ping-oidc-client-sdk';
+import React, { useEffect, useState } from 'react';
+import { FiExternalLink, FiInfo, FiLogOut, FiRefreshCw, FiSettings, FiUser } from 'react-icons/fi';
+import styled from 'styled-components';
 
 // Styled Components
 const Container = styled.div`
@@ -214,7 +214,7 @@ const SDKSampleApp: React.FC = () => {
 	const [config, setConfig] = useState({
 		clientId: '',
 		environmentId: '',
-		redirectUri: window.location.origin + '/sdk-sample-app',
+		redirectUri: `${window.location.origin}/sdk-sample-app`,
 		scopes: 'openid profile email',
 		usePopup: false,
 	});
@@ -243,7 +243,7 @@ const SDKSampleApp: React.FC = () => {
 					const newConfig = {
 						clientId: parsed.clientId || '',
 						environmentId: parsed.environmentId || '',
-						redirectUri: parsed.redirectUri || window.location.origin + '/sdk-sample-app',
+						redirectUri: parsed.redirectUri || `${window.location.origin}/sdk-sample-app`,
 						scopes: Array.isArray(parsed.scopes)
 							? parsed.scopes.join(' ')
 							: parsed.scopes || 'openid profile email',
@@ -252,7 +252,7 @@ const SDKSampleApp: React.FC = () => {
 					setConfig(newConfig);
 					console.log(' [SDK] Loaded configuration from global settings');
 				}
-			} catch (error) {
+			} catch (_error) {
 				console.log('Could not load global configuration for SDK sample');
 			}
 		}
@@ -487,7 +487,7 @@ const SDKSampleApp: React.FC = () => {
 						setToken(existingToken);
 						setSuccess('Found tokens from redirect');
 					}
-				} catch (err) {
+				} catch (_err) {
 					// No tokens found, that's okay
 				}
 			}

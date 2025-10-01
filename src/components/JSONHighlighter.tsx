@@ -35,7 +35,7 @@ const JSONKey = styled.span`
   font-weight: 500;
 `;
 
-const JSONValue = styled.span`
+const _JSONValue = styled.span`
   color: #dc2626; /* Red for values */
 `;
 

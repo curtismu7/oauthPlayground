@@ -1,10 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import {
-	flowAnalyzer,
-	FlowRecommendation,
-	FlowComparisonResult,
-	FlowMetrics,
-} from '../utils/flowAnalysis';
+import { useCallback, useEffect, useState } from 'react';
+import { FlowComparisonResult, FlowRecommendation, flowAnalyzer } from '../utils/flowAnalysis';
 import { logger } from '../utils/logger';
 
 // Hook configuration interface

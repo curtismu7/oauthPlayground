@@ -49,7 +49,7 @@ async function testV4Fixes() {
 				ignoreHTTPSErrors: true,
 			});
 			console.log('✅ Successfully navigated to V4 flow');
-		} catch (error) {
+		} catch (_error) {
 			console.log('⚠️  HTTPS failed, trying HTTP...');
 			await page.goto('http://localhost:3000/flows/authorization-code-v4', {
 				waitUntil: 'networkidle0',
@@ -80,7 +80,7 @@ async function testV4Fixes() {
 		console.log('\n📋 Test 3: Test Next button styling');
 
 		// Check initial state (Step 1 should have green Next button)
-		const nextButton = await page.$('button');
+		const _nextButton = await page.$('button');
 		const nextButtonText = await page.$$eval(
 			'button',
 			(buttons) => buttons.find((btn) => btn.textContent.includes('Next'))?.className || null

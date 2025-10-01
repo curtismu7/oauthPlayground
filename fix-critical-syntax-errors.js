@@ -86,15 +86,15 @@ function fixFile(filePath) {
 		}
 
 		let content = fs.readFileSync(filePath, 'utf8');
-	let _modified = false;
+		let _modified = false;
 		const originalContent = content;
 
 		// Apply all syntax fixes
 		syntaxFixes.forEach((fix, index) => {
 			const beforeFix = content;
 			content = content.replace(fix.pattern, fix.replacement);
-		if (content !== beforeFix) {
-			_modified = true;
+			if (content !== beforeFix) {
+				_modified = true;
 				console.log(`  ✓ Applied fix ${index + 1} to ${path.basename(filePath)}`);
 			}
 		});
@@ -116,7 +116,7 @@ function fixFile(filePath) {
 		// Fix incomplete method signatures
 		content = content.replace(/(\s+async\s+\w+\([^)]*)\s*(\n\s*{)/gm, '$1)$2');
 
-	if (content !== originalContent) {
+		if (content !== originalContent) {
 			fs.writeFileSync(filePath, content);
 			console.log(`✅ Fixed syntax errors in: ${filePath}`);
 			return true;
@@ -133,10 +133,10 @@ function fixFile(filePath) {
 // Function to validate TypeScript syntax
 async function validateTypeScript(filePath) {
 	try {
-		const { execSync } = await import('child_process');
+		const { execSync } = await import('node:child_process');
 		execSync(`npx tsc --noEmit --skipLibCheck ${filePath}`, { stdio: 'pipe' });
 		return true;
-	} catch (error) {
+	} catch (_error) {
 		return false;
 	}
 }

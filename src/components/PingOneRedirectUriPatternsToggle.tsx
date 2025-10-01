@@ -72,9 +72,11 @@ interface PingOneRedirectUriPatternsToggleProps {
 	className?: string;
 }
 
-const PingOneRedirectUriPatternsToggle: React.FC<PingOneRedirectUriPatternsToggleProps> = ({ className }) => {
+const PingOneRedirectUriPatternsToggle: React.FC<PingOneRedirectUriPatternsToggleProps> = ({
+	className,
+}) => {
 	const config = pingOneConfigService.loadConfig();
-	
+
 	const handleToggle = () => {
 		const newConfig = {
 			...config,
@@ -89,7 +91,7 @@ const PingOneRedirectUriPatternsToggle: React.FC<PingOneRedirectUriPatternsToggl
 				<FiGlobe size={16} />
 				<Title>Allow Redirect URI Patterns</Title>
 			</Header>
-			
+
 			<ToggleContainer>
 				<Toggle
 					$active={config.allowRedirectUriPatterns || false}
@@ -101,7 +103,7 @@ const PingOneRedirectUriPatternsToggle: React.FC<PingOneRedirectUriPatternsToggl
 					<span />
 				</Toggle>
 			</ToggleContainer>
-			
+
 			<Description>
 				Enable wildcard redirect URIs (recommended for developer sandbox only).
 			</Description>
@@ -110,7 +112,3 @@ const PingOneRedirectUriPatternsToggle: React.FC<PingOneRedirectUriPatternsToggl
 };
 
 export default PingOneRedirectUriPatternsToggle;
-
-
-
-

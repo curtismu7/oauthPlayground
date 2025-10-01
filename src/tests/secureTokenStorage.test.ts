@@ -2,12 +2,8 @@
  * Comprehensive tests for secureTokenStorage implementation
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import {
-	secureTokenStorage,
-	SecureTokenStorageImpl,
-	SimpleEncryption,
-} from '../utils/secureTokenStorage';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { SimpleEncryption, secureTokenStorage } from '../utils/secureTokenStorage';
 import { OAuthTokens } from '../utils/tokenStorage';
 
 // Mock sessionStorage for testing
@@ -32,7 +28,7 @@ Object.defineProperty(window, 'sessionStorage', {
 });
 
 // Mock console methods to avoid noise in tests
-const originalConsole = console;
+const _originalConsole = console;
 beforeEach(() => {
 	console.log = vi.fn();
 	console.error = vi.fn();

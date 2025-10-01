@@ -1,6 +1,6 @@
-import { styled } from "styled-components";
+import { styled } from 'styled-components';
 
-	const ModalOverlay = styled.div<{ $isOpen: boolean }>`
+const _ModalOverlay = styled.div<{ $isOpen: boolean }>`
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -13,7 +13,7 @@ import { styled } from "styled-components";
 	z-index: 1000;
 `;
 
-const ModalContent = styled.div`
+const _ModalContent = styled.div`
 	background: var(--color-background);
 	border-radius: var(--border-radius-lg);
 	width: 90%;
@@ -24,7 +24,7 @@ const ModalContent = styled.div`
 	border: 1px solid var(--color-border);
 `;
 
-const ModalHeader = styled.div`
+const _ModalHeader = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -34,7 +34,7 @@ const ModalHeader = styled.div`
 	color: var(--color-text-primary);
 `;
 
-const ModalTitle = styled.h2`
+const _ModalTitle = styled.h2`
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
@@ -43,7 +43,7 @@ const ModalTitle = styled.h2`
 	margin: 0;
 `;
 
-const CloseButton = styled.button`
+const _CloseButton = styled.button`
 	background: none;
 	border: none;
 	color: var(--color-text-primary);
@@ -60,7 +60,7 @@ const CloseButton = styled.button`
 	}
 `;
 
-const ModalBody = styled.div`
+const _ModalBody = styled.div`
 	padding: 1.5rem 2rem;
 	max-height: 60vh;
 	overflow-y: auto;

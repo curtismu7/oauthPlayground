@@ -6,8 +6,8 @@
  */
 
 import fs from 'node:fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -53,7 +53,7 @@ const phase1Files = [
 
 let removedCount = 0;
 let totalSizeRemoved = 0;
-let errors = [];
+const errors = [];
 
 console.log('📋 Files to remove in Phase 1:');
 phase1Files.forEach((file, index) => {
@@ -104,7 +104,7 @@ for (const dir of dirsToCheck) {
 }
 
 // Generate summary
-console.log('\n' + '='.repeat(50));
+console.log(`\n${'='.repeat(50)}`);
 console.log('📊 PHASE 1 CLEANUP SUMMARY');
 console.log('='.repeat(50));
 console.log(`✅ Files successfully removed: ${removedCount}`);

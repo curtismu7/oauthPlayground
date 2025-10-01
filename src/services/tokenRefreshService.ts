@@ -1,6 +1,6 @@
+import type { OAuthTokens } from '../types/storage';
 import { logger } from '../utils/logger';
 import { oauthStorage } from '../utils/storage';
-import type { OAuthTokens } from '../types/storage';
 
 export interface TokenRefreshConfig {
 	tokenEndpoint: string;
@@ -194,7 +194,7 @@ export class TokenRefreshService {
 							status: response.status,
 							refreshTokenLength: this.config?.refreshToken?.length || 0,
 							refreshTokenPreview: this.config?.refreshToken
-								? this.config.refreshToken.substring(0, 10) + '...'
+								? `${this.config.refreshToken.substring(0, 10)}...`
 								: 'none',
 							clientId: this.config?.clientId,
 						}

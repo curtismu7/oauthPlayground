@@ -69,7 +69,7 @@ export const appConfig = {
 	version: typedWindow.__PINGONE_APP_VERSION__ || '5.8.2',
 	defaultTheme: typedWindow.__PINGONE_APP_DEFAULT_THEME__ || 'light',
 	devServer: {
-		port: parseInt(typedWindow.__PINGONE_DEV_SERVER_PORT__ || '3000'),
+		port: parseInt(typedWindow.__PINGONE_DEV_SERVER_PORT__ || '3000', 10),
 		https: typedWindow.__PINGONE_DEV_SERVER_HTTPS__ === 'true',
 	},
 	features: {

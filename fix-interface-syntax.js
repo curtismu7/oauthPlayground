@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import fs from 'fs';
+import fs from 'node:fs';
 
 console.log('🔧 Fixing interface and type definition syntax errors...');
 

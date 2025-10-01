@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { FiAlertTriangle, FiCheckCircle, FiLoader, FiXCircle } from 'react-icons/fi';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiCheckCircle, FiXCircle, FiLoader, FiAlertTriangle } from 'react-icons/fi';
 import { logger } from '../../utils/logger';
 
 const CallbackContainer = styled.div`
@@ -156,7 +156,9 @@ const ImplicitCallback: React.FC = () => {
 
 						setTimeout(() => {
 							// Reconstruct the hash with tokens and redirect back to flow
-							const targetFlow = v5OIDCContext ? '/flows/oidc-implicit-v5' : '/flows/oauth-implicit-v5';
+							const targetFlow = v5OIDCContext
+								? '/flows/oidc-implicit-v5'
+								: '/flows/oauth-implicit-v5';
 							const fragment = window.location.hash.substring(1); // Get full hash without #
 							navigate(`${targetFlow}#${fragment}`);
 						}, 1500);

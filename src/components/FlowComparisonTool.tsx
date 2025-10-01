@@ -1,23 +1,21 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Card, CardHeader, CardBody } from './Card';
 import {
-	FiShield,
-	FiClock,
-	FiUser,
-	FiCode,
 	FiCheckCircle,
-	FiXCircle,
-	FiAlertTriangle,
-	FiStar,
-	FiPlus,
-	FiMinus,
-	FiArrowRight,
+	FiClock,
+	FiCode,
 	FiExternalLink,
+	FiMinus,
+	FiPlus,
+	FiShield,
+	FiStar,
 	FiTarget,
+	FiUser,
+	FiXCircle,
 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
+import styled from 'styled-components';
 import { credentialManager } from '../utils/credentialManager';
+import { Card, CardBody, CardHeader } from './Card';
 
 interface FlowComparison {
 	id: string;

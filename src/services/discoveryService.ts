@@ -207,20 +207,6 @@ class DiscoveryService {
 	}
 
 	/**
-	 * Get base URL for PingOne based on region
-	 */
-	private getBaseUrl(region: string): string {
-		const regionMap: Record<string, string> = {
-			us: 'https://auth.pingone.com',
-			eu: 'https://auth.pingone.eu',
-			ca: 'https://auth.pingone.ca',
-			ap: 'https://auth.pingone.asia',
-		};
-
-		return regionMap[region.toLowerCase()] || regionMap['us'];
-	}
-
-	/**
 	 * Clear discovery cache
 	 */
 	clearCache(): void {

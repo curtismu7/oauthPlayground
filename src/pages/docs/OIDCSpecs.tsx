@@ -1,6 +1,5 @@
-import React from 'react';
+import { FiBookOpen, FiCode, FiExternalLink, FiShield, FiUsers } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiExternalLink, FiBookOpen, FiShield, FiCode, FiUsers } from 'react-icons/fi';
 import PageTitle from '../../components/PageTitle';
 import { SpecCard } from '../../components/SpecCard';
 

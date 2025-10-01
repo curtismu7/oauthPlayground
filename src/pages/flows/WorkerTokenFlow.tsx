@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { FiKey, FiRefreshCw, FiServer } from 'react-icons/fi';
-import { usePageScroll } from '../../hooks/usePageScroll';
-import { useUISettings } from '../../contexts/UISettingsContext';
 import styled from 'styled-components';
 import Card from '../../components/Card';
 import { useAuth } from '../../contexts/NewAuthContext';
+import { useUISettings } from '../../contexts/UISettingsContext';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import { logger } from '../../utils/logger';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 
@@ -213,7 +213,7 @@ type ApiCall = {
 const WorkerTokenFlow = () => {
 	// Centralized scroll management
 	usePageScroll({ pageName: 'Worker Token Flow', force: true });
-	
+
 	// UI Settings integration
 	const { settings: uiSettings } = useUISettings();
 

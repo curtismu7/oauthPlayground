@@ -1,18 +1,18 @@
 import { useState } from 'react';
-import styled from 'styled-components';
-import { Card, CardHeader, CardBody } from '../../components/Card';
-import InteractiveFlowDiagram from '../../components/InteractiveFlowDiagram';
 import {
-	FiBookOpen,
-	FiCode,
-	FiShield,
-	FiUsers,
-	FiCheckCircle,
 	FiAlertTriangle,
-	FiInfo,
 	FiArrowRight,
+	FiBookOpen,
+	FiCheckCircle,
+	FiCode,
+	FiInfo,
+	FiShield,
 	FiTrendingUp,
+	FiUsers,
 } from 'react-icons/fi';
+import styled from 'styled-components';
+import { Card, CardBody, CardHeader } from '../../components/Card';
+import InteractiveFlowDiagram from '../../components/InteractiveFlowDiagram';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -93,7 +93,7 @@ const SecuritySection = styled(Card)`
   border: 2px solid #cbd5e1;
 `;
 
-const FlowDiagram = styled.div`
+const _FlowDiagram = styled.div`
   background-color: #f8fafc;
   border: 2px solid #e2e8f0;
   border-radius: 0.75rem;
@@ -549,10 +549,25 @@ const OIDCOverview = () => {
 
 			{/* Interactive Flow Diagrams */}
 			<section style={{ marginBottom: '3rem' }}>
-				<h2 style={{ fontSize: '2rem', fontWeight: '600', marginBottom: '2rem', color: '#1f2937', textAlign: 'center' }}>
+				<h2
+					style={{
+						fontSize: '2rem',
+						fontWeight: '600',
+						marginBottom: '2rem',
+						color: '#1f2937',
+						textAlign: 'center',
+					}}
+				>
 					Interactive Flow Diagrams
 				</h2>
-				<p style={{ textAlign: 'center', color: '#6b7280', marginBottom: '2rem', fontSize: '1.125rem' }}>
+				<p
+					style={{
+						textAlign: 'center',
+						color: '#6b7280',
+						marginBottom: '2rem',
+						fontSize: '1.125rem',
+					}}
+				>
 					Explore OAuth and OpenID Connect flows with interactive, step-by-step diagrams
 				</p>
 				<InteractiveFlowDiagram />

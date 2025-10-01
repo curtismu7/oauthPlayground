@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
+import { FiCheckCircle, FiGlobe, FiInfo, FiSearch } from 'react-icons/fi';
 import styled from 'styled-components';
-import { usePageScroll } from '../hooks/usePageScroll';
-import { FiSearch, FiGlobe, FiInfo, FiCheckCircle } from 'react-icons/fi';
 import DiscoveryPanel from '../components/DiscoveryPanel';
+import { usePageScroll } from '../hooks/usePageScroll';
 import { OpenIDConfiguration } from '../services/discoveryService';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
@@ -116,7 +116,7 @@ const AutoDiscover: React.FC = () => {
 			const success = credentialManager.saveConfigCredentials({
 				environmentId: environmentId,
 				clientId: '', // Will be filled in by user
-				redirectUri: window.location.origin + '/dashboard-callback',
+				redirectUri: `${window.location.origin}/dashboard-callback`,
 				scopes: ['openid', 'profile', 'email'],
 				authEndpoint: config.authorization_endpoint,
 				tokenEndpoint: config.token_endpoint,

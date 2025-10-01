@@ -1,6 +1,6 @@
 import React from 'react';
+import { FiLoader, FiShield, FiUsers, FiZap } from 'react-icons/fi';
 import styled, { keyframes } from 'styled-components';
-import { FiLoader, FiZap, FiShield, FiUsers } from 'react-icons/fi';
 
 // Loading animation
 const spin = keyframes`
@@ -181,8 +181,8 @@ export const LazyLoadingFallback: React.FC<LazyLoadingFallbackProps> = ({
 	};
 
 	const steps = getLoadingSteps();
-	const completedSteps = steps.filter((step) => step.completed).length;
-	const totalSteps = steps.length;
+	const _completedSteps = steps.filter((step) => step.completed).length;
+	const _totalSteps = steps.length;
 
 	return (
 		<LoadingContainer>

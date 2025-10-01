@@ -257,7 +257,7 @@ export async function autoRefreshTokenIfNeeded(
 				const newToken = await refreshFunction();
 				setCachedToken(cacheKey, newToken, ttlPercent);
 				return getCachedToken(cacheKey);
-			} catch (error) {
+			} catch (_error) {
 				logger.warn('CACHE', 'Failed to refresh token, using cached token', { cacheKey });
 				return cached;
 			}

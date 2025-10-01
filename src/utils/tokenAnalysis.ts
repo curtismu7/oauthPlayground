@@ -160,7 +160,7 @@ export class TokenAnalyzer {
 				if (header.typ === 'JWT' || header.alg) {
 					return 'jwt';
 				}
-			} catch (error) {
+			} catch (_error) {
 				// Not a valid JWT
 			}
 		}
@@ -203,7 +203,7 @@ export class TokenAnalyzer {
 
 			result.isValid = result.validationErrors.length === 0;
 			result.format = 'jwt';
-		} catch (error) {
+		} catch (_error) {
 			result.validationErrors.push({
 				field: 'jwt',
 				error: 'JWT parsing failed',
@@ -354,7 +354,7 @@ export class TokenAnalyzer {
 		}
 
 		// Check for overly broad scopes
-		if (payload.scope && payload.scope.includes('*')) {
+		if (payload.scope?.includes('*')) {
 			result.securityIssues.push({
 				type: 'suspicious_claims',
 				severity: 'high',
@@ -542,63 +542,11 @@ export class TokenAnalyzer {
 					recommendation: 'Use a valid token',
 				},
 			];
-			result.recommendations = ['The provided token is invalid. Please check the token and try again.'];
+			result.recommendations = [
+				'The provided token is invalid. Please check the token and try again.',
+			];
 			return result;
 		}
-		return 100;
-	}
-
-	// Analyze key security
-	private analyzeKeySecurity(analysis: TokenAnalysisResult): number {
-		const keyIssues = analysis.securityIssues.filter(
-			(issue) => issue.type === 'weak_key' || issue.type === 'invalid_signature'
-		);
-		if (keyIssues.length > 0) {
-			const maxSeverity = keyIssues.reduce((max, issue) => {
-				const severity = ['low', 'medium', 'high', 'critical'].indexOf(issue.severity);
-				return Math.max(max, severity);
-			}, 0);
-			return [75, 50, 25, 0][maxSeverity];
-		}
-		return 100;
-	}
-
-	// Analyze claim security
-	private analyzeClaimSecurity(analysis: TokenAnalysisResult): number {
-		const claimIssues = analysis.securityIssues.filter(
-			(issue) => issue.type === 'missing_claims' || issue.type === 'suspicious_claims'
-		);
-		if (claimIssues.length > 0) {
-			const maxSeverity = claimIssues.reduce((max, issue) => {
-				const severity = ['low', 'medium', 'high', 'critical'].indexOf(issue.severity);
-				return Math.max(max, severity);
-			}, 0);
-			return [75, 50, 25, 0][maxSeverity];
-		}
-		return 100;
-	}
-
-	// Analyze transport security
-	private analyzeTransportSecurity(analysis: TokenAnalysisResult): number {
-		// This would check if the token was transmitted securely
-		// For now, assume secure transport
-		return 100;
-	}
-
-	// Analyze lifecycle security
-	private analyzeLifecycleSecurity(analysis: TokenAnalysisResult): number {
-		if (analysis.expiration && analysis.expiration < new Date()) {
-			return 0; // Expired token
-		}
-
-		const lifecycleIssues = analysis.securityIssues.filter(
-			(issue) => issue.type === 'expired_token' || issue.type === 'token_reuse'
-		);
-
-		if (lifecycleIssues.length > 0) {
-			return 25;
-		}
-
 		return 100;
 	}
 }

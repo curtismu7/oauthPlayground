@@ -1,13 +1,13 @@
 // src/utils/v4SaveHandler.ts - Enhanced Save Configuration Handler for V4 Flows
 
+import { showGlobalError, showGlobalSuccess, showGlobalWarning } from '../hooks/useNotifications';
 import {
+	V4SaveConfigurationHandler as IV4SaveConfigurationHandler,
+	SaveResult,
 	StepCredentials,
 	ValidationResult,
-	SaveResult,
-	V4SaveConfigurationHandler as IV4SaveConfigurationHandler,
 } from '../types/v4FlowTemplate';
 import { credentialManager } from './credentialManager';
-import { showGlobalError, showGlobalSuccess, showGlobalWarning } from '../hooks/useNotifications';
 
 export class V4SaveConfigurationHandler implements IV4SaveConfigurationHandler {
 	public flowType: string;

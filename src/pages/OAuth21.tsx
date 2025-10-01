@@ -1,8 +1,7 @@
-import React from 'react';
+import { FiCheck, FiInfo, FiShield, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { Card, CardHeader, CardBody } from '../components/Card';
+import { Card, CardBody, CardHeader } from '../components/Card';
 import { SpecCard } from '../components/SpecCard';
-import { FiShield, FiAlertTriangle, FiCheck, FiX, FiInfo } from 'react-icons/fi';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -42,7 +41,7 @@ const ChangesGrid = styled.div`
   margin-top: 2rem;
 `;
 
-const ChangeCard = styled(Card)<{ $type: 'improvement' | 'deprecation' | 'requirement' }>`
+const _ChangeCard = styled(Card)<{ $type: 'improvement' | 'deprecation' | 'requirement' }>`
   border-left: 4px solid ${({ $type, theme }) => {
 		switch ($type) {
 			case 'improvement':
@@ -57,7 +56,7 @@ const ChangeCard = styled(Card)<{ $type: 'improvement' | 'deprecation' | 'requir
 	}};
 `;
 
-const ChangeIcon = styled.div<{ $type: 'improvement' | 'deprecation' | 'requirement' }>`
+const _ChangeIcon = styled.div<{ $type: 'improvement' | 'deprecation' | 'requirement' }>`
   font-size: 1.5rem;
   color: ${({ $type, theme }) => {
 		switch ($type) {
@@ -74,20 +73,20 @@ const ChangeIcon = styled.div<{ $type: 'improvement' | 'deprecation' | 'requirem
   margin-bottom: 1rem;
 `;
 
-const ChangeTitle = styled.h3`
+const _ChangeTitle = styled.h3`
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 0.75rem;
   color: ${({ theme }) => theme.colors.gray900};
 `;
 
-const ChangeDescription = styled.p`
+const _ChangeDescription = styled.p`
   color: ${({ theme }) => theme.colors.gray600};
   line-height: 1.6;
   margin-bottom: 1rem;
 `;
 
-const CodeBlock = styled.pre`
+const _CodeBlock = styled.pre`
   background-color: ${({ theme }) => theme.colors.gray100};
   border: 1px solid ${({ theme }) => theme.colors.gray300};
   border-radius: 0.375rem;
@@ -492,7 +491,8 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 										PingOne Support - Partial
 									</h4>
 									<p style={{ margin: '0', color: '#dc2626', fontSize: '0.9rem' }}>
-										PingOne supports one-time use refresh tokens. Sender-constrained refresh tokens (mTLS, DPoP) are not currently supported.
+										PingOne supports one-time use refresh tokens. Sender-constrained refresh tokens
+										(mTLS, DPoP) are not currently supported.
 									</p>
 								</div>
 							</div>
@@ -562,7 +562,8 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 							<strong>✓ Bearer Token Security:</strong> Proper token handling practices
 						</li>
 						<li>
-							<strong>⚠️ Enhanced Refresh Tokens:</strong> One-time use refresh tokens supported. Sender-constrained tokens (mTLS, DPoP) not yet available.
+							<strong>⚠️ Enhanced Refresh Tokens:</strong> One-time use refresh tokens supported.
+							Sender-constrained tokens (mTLS, DPoP) not yet available.
 						</li>
 						<li>
 							<strong>✓ Backward Compatibility:</strong> Gradual migration support
@@ -575,7 +576,8 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 							<h4>Recommendation</h4>
 							<p>
 								Start implementing OAuth 2.1 practices now to ensure a smooth transition when the
-								specification is finalized. Use one-time use refresh tokens for public clients as an alternative to sender-constrained tokens.
+								specification is finalized. Use one-time use refresh tokens for public clients as an
+								alternative to sender-constrained tokens.
 							</p>
 						</div>
 					</PingOneNote>

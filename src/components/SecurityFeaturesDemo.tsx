@@ -1,28 +1,26 @@
 // src/components/SecurityFeaturesDemo.tsx
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-	FiShield,
-	FiKey,
-	FiCheckCircle,
 	FiAlertTriangle,
-	FiExternalLink,
-	FiDownload,
-	FiPlay,
-	FiX,
-	FiRefreshCw,
-	FiEye,
+	FiCheckCircle,
 	FiClock,
-	FiLock,
-	FiUnlock,
+	FiDownload,
+	FiExternalLink,
+	FiEye,
 	FiGlobe,
-	FiSettings,
+	FiKey,
+	FiLock,
+	FiPlay,
 	FiPlus,
+	FiRefreshCw,
+	FiShield,
 	FiTrash2,
+	FiX,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
-import { v4ToastManager } from '../utils/v4ToastMessages';
 import { showGlobalSuccess } from '../hooks/useNotifications';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 // Styled Components
 const Container = styled.div<{ $primaryColor: string; $secondaryColor: string }>`
@@ -34,7 +32,7 @@ const Container = styled.div<{ $primaryColor: string; $secondaryColor: string }>
 `;
 
 const Header = styled.div<{ $primaryColor: string }>`
-	background: linear-gradient(135deg, ${props => props.$primaryColor} 0%, ${props => props.$secondaryColor || props.$primaryColor} 100%);
+	background: linear-gradient(135deg, ${(props) => props.$primaryColor} 0%, ${(props) => props.$secondaryColor || props.$primaryColor} 100%);
 	color: white;
 	padding: 2rem;
 	text-align: center;
@@ -42,7 +40,7 @@ const Header = styled.div<{ $primaryColor: string }>`
 
 const HeaderTitle = styled.h1<{ $fontSize: string }>`
 	margin: 0 0 0.5rem 0;
-	font-size: ${props => props.$fontSize};
+	font-size: ${(props) => props.$fontSize};
 	font-weight: 700;
 `;
 
@@ -107,20 +105,28 @@ const StatusBadge = styled.span<{ $status: 'enabled' | 'required' | 'disabled' }
 	font-size: 0.75rem;
 	font-weight: 600;
 	text-transform: uppercase;
-	background: ${props => {
+	background: ${(props) => {
 		switch (props.$status) {
-			case 'enabled': return '#dcfce7';
-			case 'required': return '#fef3c7';
-			case 'disabled': return '#fee2e2';
-			default: return '#f3f4f6';
+			case 'enabled':
+				return '#dcfce7';
+			case 'required':
+				return '#fef3c7';
+			case 'disabled':
+				return '#fee2e2';
+			default:
+				return '#f3f4f6';
 		}
 	}};
-	color: ${props => {
+	color: ${(props) => {
 		switch (props.$status) {
-			case 'enabled': return '#166534';
-			case 'required': return '#92400e';
-			case 'disabled': return '#991b1b';
-			default: return '#6b7280';
+			case 'enabled':
+				return '#166534';
+			case 'required':
+				return '#92400e';
+			case 'disabled':
+				return '#991b1b';
+			default:
+				return '#6b7280';
 		}
 	}};
 `;
@@ -131,12 +137,18 @@ const FeatureDescription = styled.div`
 	margin-bottom: 1rem;
 `;
 
-const Button = styled.button<{ $variant?: 'primary' | 'danger' | 'secondary'; $primaryColor: string }>`
-	background: ${props => {
+const Button = styled.button<{
+	$variant?: 'primary' | 'danger' | 'secondary';
+	$primaryColor: string;
+}>`
+	background: ${(props) => {
 		switch (props.$variant) {
-			case 'danger': return '#ef4444';
-			case 'secondary': return '#6b7280';
-			default: return props.$primaryColor;
+			case 'danger':
+				return '#ef4444';
+			case 'secondary':
+				return '#6b7280';
+			default:
+				return props.$primaryColor;
 		}
 	}};
 	color: white;
@@ -153,11 +165,14 @@ const Button = styled.button<{ $variant?: 'primary' | 'danger' | 'secondary'; $p
 	transition: all 0.2s;
 
 	&:hover {
-		background: ${props => {
+		background: ${(props) => {
 			switch (props.$variant) {
-				case 'danger': return '#dc2626';
-				case 'secondary': return '#4b5563';
-				default: return props.$primaryColor;
+				case 'danger':
+					return '#dc2626';
+				case 'secondary':
+					return '#4b5563';
+				default:
+					return props.$primaryColor;
 			}
 		}};
 		transform: translateY(-1px);
@@ -179,7 +194,7 @@ const CodeBlock = styled.pre<{ $isVisible?: boolean }>`
 	font-size: 0.85rem;
 	overflow-x: auto;
 	margin: 1rem 0;
-	display: ${props => props.$isVisible ? 'block' : 'none'};
+	display: ${(props) => (props.$isVisible ? 'block' : 'none')};
 `;
 
 const ParameterGrid = styled.div`
@@ -266,11 +281,11 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 		console.log('🔔 [SecurityFeaturesDemo] v4ToastManager available:', !!v4ToastManager);
 		console.log('🔔 [SecurityFeaturesDemo] showGlobalSuccess available:', typeof showGlobalSuccess);
 		window.scrollTo({ top: 0, behavior: 'smooth' });
-		
+
 		// Test toast on mount
 		v4ToastManager.showInfo('Security Features Demo loaded successfully!');
 	}, []);
-	
+
 	// CORS Testing State
 	const [corsSettings, setCorsSettings] = useState({
 		allowAnyOrigin: false,
@@ -287,7 +302,7 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 			if (parts.length !== 3) return null;
 			const header = JSON.parse(atob(parts[0]));
 			return header.x5t || header['x5t#S256'] || null;
-		} catch (error) {
+		} catch (_error) {
 			return null;
 		}
 	}, []);
@@ -295,7 +310,9 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 	// Demo functions
 	const showSignatureDemo = useCallback(() => {
 		console.log('🔔 [SecurityFeaturesDemo] showSignatureDemo clicked');
-		v4ToastManager.showInfo('Request Parameter Signature Demo:\n\n1. Generate HMAC-SHA256 signature of request parameters\n2. Include signature in Authorization header\n3. Server validates signature before processing request\n\nThis prevents parameter tampering and ensures request authenticity.');
+		v4ToastManager.showInfo(
+			'Request Parameter Signature Demo:\n\n1. Generate HMAC-SHA256 signature of request parameters\n2. Include signature in Authorization header\n3. Server validates signature before processing request\n\nThis prevents parameter tampering and ensures request authenticity.'
+		);
 	}, []);
 
 	const validateSignature = useCallback(() => {
@@ -303,7 +320,9 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 		setIsValidating(true);
 		setTimeout(() => {
 			setIsValidating(false);
-			v4ToastManager.showSuccess('✅ Current request signature is valid!\n\nSignature: a1b2c3d4e5f6...\nAlgorithm: HMAC-SHA256\nStatus: Verified');
+			v4ToastManager.showSuccess(
+				'✅ Current request signature is valid!\n\nSignature: a1b2c3d4e5f6...\nAlgorithm: HMAC-SHA256\nStatus: Verified'
+			);
 		}, 1000);
 	}, []);
 
@@ -311,30 +330,44 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 		if (tokens?.access_token) {
 			const x5t = getX5tParameter(tokens.access_token);
 			if (x5t) {
-				v4ToastManager.showInfo(`x5t Parameter Demo:\n\nJWT Header contains:\n- x5t: ${x5t}\n- kid: Key identifier for key rotation\n\nThis enables certificate validation and key management.`);
+				v4ToastManager.showInfo(
+					`x5t Parameter Demo:\n\nJWT Header contains:\n- x5t: ${x5t}\n- kid: Key identifier for key rotation\n\nThis enables certificate validation and key management.`
+				);
 			} else {
-				v4ToastManager.showWarning('No x5t parameter found in access token. This feature requires JWT tokens with certificate thumbprints.');
+				v4ToastManager.showWarning(
+					'No x5t parameter found in access token. This feature requires JWT tokens with certificate thumbprints.'
+				);
 			}
 		} else {
-			v4ToastManager.showWarning('No access token available. Please complete the OAuth flow first.');
+			v4ToastManager.showWarning(
+				'No access token available. Please complete the OAuth flow first.'
+			);
 		}
 	}, [tokens, getX5tParameter]);
 
 	const verifyCertificate = useCallback(() => {
-		v4ToastManager.showSuccess('🔐 Certificate Verification:\n\n✅ Certificate is valid\n✅ Not expired\n✅ Issued by trusted CA\n✅ Key usage matches requirements\n\nCertificate thumbprint matches x5t in JWT header.');
+		v4ToastManager.showSuccess(
+			'🔐 Certificate Verification:\n\n✅ Certificate is valid\n✅ Not expired\n✅ Issued by trusted CA\n✅ Key usage matches requirements\n\nCertificate thumbprint matches x5t in JWT header.'
+		);
 	}, []);
 
 	const validateAllTokens = useCallback(() => {
 		if (tokens) {
-			v4ToastManager.showSuccess('🔍 Token Validation Results:\n\n✅ Access Token: Valid (expires in 1h 23m)\n✅ Refresh Token: Valid (expires in 30d)\n✅ ID Token: Valid (expires in 1h 23m)\n\nAll tokens have valid signatures and are not expired.');
+			v4ToastManager.showSuccess(
+				'🔍 Token Validation Results:\n\n✅ Access Token: Valid (expires in 1h 23m)\n✅ Refresh Token: Valid (expires in 30d)\n✅ ID Token: Valid (expires in 1h 23m)\n\nAll tokens have valid signatures and are not expired.'
+			);
 		} else {
-			v4ToastManager.showWarning('No tokens available for validation. Please complete the OAuth flow first.');
+			v4ToastManager.showWarning(
+				'No tokens available for validation. Please complete the OAuth flow first.'
+			);
 		}
 	}, [tokens]);
 
 	const checkTokenExpiry = useCallback(() => {
 		if (tokens) {
-			v4ToastManager.showInfo('⏰ Token Expiration Status:\n\nAccess Token: 1h 23m remaining\nRefresh Token: 29d 12h remaining\nID Token: 1h 23m remaining\n\nAll tokens are within acceptable expiration windows.');
+			v4ToastManager.showInfo(
+				'⏰ Token Expiration Status:\n\nAccess Token: 1h 23m remaining\nRefresh Token: 29d 12h remaining\nID Token: 1h 23m remaining\n\nAll tokens are within acceptable expiration windows.'
+			);
 		} else {
 			v4ToastManager.showWarning('No tokens available. Please complete the OAuth flow first.');
 		}
@@ -345,7 +378,9 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 			'Are you sure you want to terminate the current session? This will log out the user and invalidate all tokens.',
 			() => {
 				onTerminateSession?.();
-				v4ToastManager.showSuccess('🚪 Session terminated successfully!\n\n- User logged out\n- All tokens invalidated\n- Session cleared\n- Redirected to logout URL');
+				v4ToastManager.showSuccess(
+					'🚪 Session terminated successfully!\n\n- User logged out\n- All tokens invalidated\n- Session cleared\n- Redirected to logout URL'
+				);
 			}
 		);
 	}, [onTerminateSession]);
@@ -355,7 +390,9 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 			'Are you sure you want to revoke all tokens? This will immediately invalidate access and refresh tokens.',
 			() => {
 				onRevokeTokens?.();
-				v4ToastManager.showSuccess('❌ All tokens revoked successfully!\n\n- Access token invalidated\n- Refresh token invalidated\n- User must re-authenticate\n- Session terminated');
+				v4ToastManager.showSuccess(
+					'❌ All tokens revoked successfully!\n\n- Access token invalidated\n- Refresh token invalidated\n- User must re-authenticate\n- Session terminated'
+				);
 			}
 		);
 	}, [onRevokeTokens]);
@@ -364,27 +401,35 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 		v4ToastManager.showConfirm(
 			'Are you sure you want to revoke the refresh token? This will prevent token renewal.',
 			() => {
-				v4ToastManager.showSuccess('🔄 Refresh token revoked successfully!\n\n- Refresh token invalidated\n- Access token will expire normally\n- User must re-authenticate for new tokens');
+				v4ToastManager.showSuccess(
+					'🔄 Refresh token revoked successfully!\n\n- Refresh token invalidated\n- Access token will expire normally\n- User must re-authenticate for new tokens'
+				);
 			}
 		);
 	}, []);
 
 	const exportSecurityReport = useCallback(() => {
-		v4ToastManager.showSuccess('📄 Security Report exported!\n\nReport includes:\n- Security configuration\n- Token analysis\n- Certificate details\n- Recommendations\n- Compliance status');
+		v4ToastManager.showSuccess(
+			'📄 Security Report exported!\n\nReport includes:\n- Security configuration\n- Token analysis\n- Certificate details\n- Recommendations\n- Compliance status'
+		);
 	}, []);
 
 	const runSecurityTest = useCallback(() => {
-		v4ToastManager.showSuccess('🧪 Security Test Suite Results:\n\n✅ Request signature validation: PASS\n✅ Token signature verification: PASS\n✅ Certificate validation: PASS\n✅ Session management: PASS\n✅ Token expiration: PASS\n\nOverall: 5/5 tests passed');
+		v4ToastManager.showSuccess(
+			'🧪 Security Test Suite Results:\n\n✅ Request signature validation: PASS\n✅ Token signature verification: PASS\n✅ Certificate validation: PASS\n✅ Session management: PASS\n✅ Token expiration: PASS\n\nOverall: 5/5 tests passed'
+		);
 	}, []);
 
 	const viewDocumentation = useCallback(() => {
-		v4ToastManager.showInfo('📚 Opening security documentation...\n\nThis would open the comprehensive security features documentation covering:\n- Request parameter signatures\n- JWT security enhancements\n- Session management\n- Best practices');
+		v4ToastManager.showInfo(
+			'📚 Opening security documentation...\n\nThis would open the comprehensive security features documentation covering:\n- Request parameter signatures\n- JWT security enhancements\n- Session management\n- Best practices'
+		);
 	}, []);
 
 	// CORS Testing Functions
 	const addCorsOrigin = useCallback(() => {
 		if (corsSettings.newOrigin.trim()) {
-			setCorsSettings(prev => ({
+			setCorsSettings((prev) => ({
 				...prev,
 				allowedOrigins: [...prev.allowedOrigins, prev.newOrigin.trim()],
 				newOrigin: '',
@@ -394,9 +439,9 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 	}, [corsSettings.newOrigin]);
 
 	const removeCorsOrigin = useCallback((origin: string) => {
-		setCorsSettings(prev => ({
+		setCorsSettings((prev) => ({
 			...prev,
-			allowedOrigins: prev.allowedOrigins.filter(o => o !== origin),
+			allowedOrigins: prev.allowedOrigins.filter((o) => o !== origin),
 		}));
 		v4ToastManager.showSuccess(`Removed CORS origin: ${origin}`);
 	}, []);
@@ -412,8 +457,9 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 				'https://localhost:3001',
 			];
 
-			const results = testOrigins.map(origin => {
-				const isAllowed = corsSettings.allowAnyOrigin || corsSettings.allowedOrigins.includes(origin);
+			const results = testOrigins.map((origin) => {
+				const isAllowed =
+					corsSettings.allowAnyOrigin || corsSettings.allowedOrigins.includes(origin);
 				return {
 					origin,
 					allowed: isAllowed,
@@ -422,15 +468,17 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 			});
 
 			setCorsTestResults(results);
-			
-			const blockedCount = results.filter(r => !r.allowed).length;
+
+			const blockedCount = results.filter((r) => !r.allowed).length;
 			if (blockedCount > 0) {
-				v4ToastManager.showWarning(`🌐 CORS Test Complete: ${blockedCount} origins blocked by CORS policy\n\n✅ https://localhost:3000 - Allowed\n❌ https://malicious-site.com - Blocked\n✅ https://app.example.com - Allowed\n❌ https://localhost:3001 - Blocked\n\nCORS policy is working correctly to protect your OAuth endpoints!`);
+				v4ToastManager.showWarning(
+					`🌐 CORS Test Complete: ${blockedCount} origins blocked by CORS policy\n\n✅ https://localhost:3000 - Allowed\n❌ https://malicious-site.com - Blocked\n✅ https://app.example.com - Allowed\n❌ https://localhost:3001 - Blocked\n\nCORS policy is working correctly to protect your OAuth endpoints!`
+				);
 			} else {
 				v4ToastManager.showSuccess('🌐 CORS Test Complete: All test origins are allowed');
 			}
 		} catch (error) {
-			v4ToastManager.showError('CORS test failed: ' + (error as Error).message);
+			v4ToastManager.showError(`CORS test failed: ${(error as Error).message}`);
 		} finally {
 			setIsTestingCors(false);
 		}
@@ -438,20 +486,22 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 
 	const demonstrateCorsError = useCallback(() => {
 		// Show error toast
-		v4ToastManager.showError('🚫 CORS Error Demonstration\n\nAccess to fetch at \'https://api.pingone.com/oauth/token\' from origin \'https://malicious-site.com\' has been blocked by CORS policy: The request client is not a secure context and the resource is in a cross-origin context.\n\nThis is exactly what CORS protection prevents!');
-		
+		v4ToastManager.showError(
+			"🚫 CORS Error Demonstration\n\nAccess to fetch at 'https://api.pingone.com/oauth/token' from origin 'https://malicious-site.com' has been blocked by CORS policy: The request client is not a secure context and the resource is in a cross-origin context.\n\nThis is exactly what CORS protection prevents!"
+		);
+
 		// Also update CORS test results to show the blocked attempt
 		const demoResults = [
 			{
 				origin: 'https://malicious-site.com',
 				allowed: false,
-				error: 'CORS policy blocks this origin - Demonstration'
+				error: 'CORS policy blocks this origin - Demonstration',
 			},
 			{
 				origin: 'https://localhost:3000',
 				allowed: true,
-				error: null
-			}
+				error: null,
+			},
 		];
 		setCorsTestResults(demoResults);
 	}, []);
@@ -463,7 +513,9 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 		<Container $primaryColor={primaryColor} $secondaryColor={secondaryColor}>
 			<Header $primaryColor={primaryColor}>
 				<HeaderTitle $fontSize={fontSize}>🔒 Security Features Demonstration</HeaderTitle>
-				<HeaderSubtitle>Advanced OAuth 2.0 and OpenID Connect Security Implementations</HeaderSubtitle>
+				<HeaderSubtitle>
+					Advanced OAuth 2.0 and OpenID Connect Security Implementations
+				</HeaderSubtitle>
 			</Header>
 
 			<Content>
@@ -481,14 +533,15 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 									<StatusBadge $status="required">Required</StatusBadge>
 								</FeatureTitle>
 								<FeatureDescription>
-									Ensures request integrity by requiring cryptographic signatures on all OAuth requests.
+									Ensures request integrity by requiring cryptographic signatures on all OAuth
+									requests.
 								</FeatureDescription>
 								<Button $variant="primary" $primaryColor={primaryColor} onClick={showSignatureDemo}>
 									<FiEye /> View Signature Demo
 								</Button>
-								<Button 
-									$variant="primary" 
-									$primaryColor={primaryColor} 
+								<Button
+									$variant="primary"
+									$primaryColor={primaryColor}
 									onClick={validateSignature}
 									disabled={isValidating}
 								>
@@ -519,8 +572,9 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 						<InfoBox>
 							<InfoTitle>How Request Signatures Work</InfoTitle>
 							<InfoText>
-								Request parameter signatures use HMAC-SHA256 to create a cryptographic signature of the request parameters. 
-								This prevents tampering and ensures request authenticity. The signature is included in the Authorization header.
+								Request parameter signatures use HMAC-SHA256 to create a cryptographic signature of
+								the request parameters. This prevents tampering and ensures request authenticity.
+								The signature is included in the Authorization header.
 							</InfoText>
 						</InfoBox>
 					</SectionContent>
@@ -602,7 +656,11 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 								<Button $variant="danger" $primaryColor={primaryColor} onClick={terminateSession}>
 									<FiX /> Terminate Session
 								</Button>
-								<Button $variant="primary" $primaryColor={primaryColor} onClick={() => setShowLogoutUrl(!showLogoutUrl)}>
+								<Button
+									$variant="primary"
+									$primaryColor={primaryColor}
+									onClick={() => setShowLogoutUrl(!showLogoutUrl)}
+								>
 									<FiExternalLink /> View Logout URL
 								</Button>
 							</FeatureCard>
@@ -627,7 +685,7 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 						</FeatureGrid>
 
 						<CodeBlock $isVisible={showLogoutUrl}>
-{`https://auth.pingone.com/${credentials?.environmentId || '{{environmentId}}'}/as/revoke
+							{`https://auth.pingone.com/${credentials?.environmentId || '{{environmentId}}'}/as/revoke
 ?client_id=${credentials?.clientId || '{{clientId}}'}
 &token=${tokens?.access_token || '{{accessToken}}'}
 &token_type_hint=access_token
@@ -652,19 +710,22 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 									</StatusBadge>
 								</FeatureTitle>
 								<FeatureDescription>
-									Configure Cross-Origin Resource Sharing (CORS) settings to control which domains can access your OAuth endpoints.
+									Configure Cross-Origin Resource Sharing (CORS) settings to control which domains
+									can access your OAuth endpoints.
 								</FeatureDescription>
-								
+
 								<div style={{ marginBottom: '1rem' }}>
 									<ParameterGrid>
 										<ParamLabel>CORS Policy:</ParamLabel>
 										<ParamValue>
 											<select
 												value={corsSettings.allowAnyOrigin ? 'any' : 'specific'}
-												onChange={(e) => setCorsSettings(prev => ({
-													...prev,
-													allowAnyOrigin: e.target.value === 'any'
-												}))}
+												onChange={(e) =>
+													setCorsSettings((prev) => ({
+														...prev,
+														allowAnyOrigin: e.target.value === 'any',
+													}))
+												}
 												style={{
 													width: '100%',
 													minWidth: '250px',
@@ -672,7 +733,7 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 													border: '1px solid #d1d5db',
 													borderRadius: '0.375rem',
 													background: 'white',
-													fontSize: '0.875rem'
+													fontSize: '0.875rem',
 												}}
 											>
 												<option value="specific">Allow specific origins</option>
@@ -687,17 +748,22 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 										<ParameterLabel>Allowed Origins:</ParameterLabel>
 										<div style={{ marginTop: '0.5rem' }}>
 											{corsSettings.allowedOrigins.map((origin, index) => (
-												<div key={index} style={{
-													display: 'flex',
-													alignItems: 'center',
-													justifyContent: 'space-between',
-													padding: '0.5rem',
-													background: '#f8fafc',
-													border: '1px solid #e2e8f0',
-													borderRadius: '0.375rem',
-													marginBottom: '0.5rem'
-												}}>
-													<span style={{ fontFamily: 'monospace', fontSize: '0.9rem' }}>{origin}</span>
+												<div
+													key={index}
+													style={{
+														display: 'flex',
+														alignItems: 'center',
+														justifyContent: 'space-between',
+														padding: '0.5rem',
+														background: '#f8fafc',
+														border: '1px solid #e2e8f0',
+														borderRadius: '0.375rem',
+														marginBottom: '0.5rem',
+													}}
+												>
+													<span style={{ fontFamily: 'monospace', fontSize: '0.9rem' }}>
+														{origin}
+													</span>
 													<button
 														onClick={() => removeCorsOrigin(origin)}
 														style={{
@@ -705,7 +771,7 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 															border: 'none',
 															color: '#ef4444',
 															cursor: 'pointer',
-															padding: '0.25rem'
+															padding: '0.25rem',
 														}}
 														title="Remove origin"
 													>
@@ -714,23 +780,25 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 												</div>
 											))}
 										</div>
-										
+
 										<div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
 											<input
 												type="text"
 												value={corsSettings.newOrigin}
-												onChange={(e) => setCorsSettings(prev => ({ ...prev, newOrigin: e.target.value }))}
+												onChange={(e) =>
+													setCorsSettings((prev) => ({ ...prev, newOrigin: e.target.value }))
+												}
 												placeholder="https://example.com"
 												style={{
 													flex: 1,
 													padding: '0.5rem',
 													border: '1px solid #d1d5db',
-													borderRadius: '0.375rem'
+													borderRadius: '0.375rem',
 												}}
 											/>
-											<Button 
-												$variant="primary" 
-												$primaryColor={primaryColor} 
+											<Button
+												$variant="primary"
+												$primaryColor={primaryColor}
 												onClick={addCorsOrigin}
 												disabled={!corsSettings.newOrigin.trim()}
 											>
@@ -740,11 +808,20 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 									</div>
 								)}
 
-								<Button $variant="primary" $primaryColor={primaryColor} onClick={testCorsConfiguration} disabled={isTestingCors}>
+								<Button
+									$variant="primary"
+									$primaryColor={primaryColor}
+									onClick={testCorsConfiguration}
+									disabled={isTestingCors}
+								>
 									{isTestingCors ? <FiRefreshCw className="animate-spin" /> : <FiPlay />}
 									{isTestingCors ? 'Testing...' : 'Test CORS Configuration'}
 								</Button>
-								<Button $variant="danger" $primaryColor={primaryColor} onClick={demonstrateCorsError}>
+								<Button
+									$variant="danger"
+									$primaryColor={primaryColor}
+									onClick={demonstrateCorsError}
+								>
 									<FiAlertTriangle /> Demonstrate CORS Error
 								</Button>
 							</FeatureCard>
@@ -759,34 +836,47 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 								<FeatureDescription>
 									View the results of CORS policy testing across different origins.
 								</FeatureDescription>
-								
+
 								{corsTestResults && (
 									<div style={{ marginTop: '1rem' }}>
 										{corsTestResults.map((result: any, index: number) => (
-											<div key={index} style={{
-												display: 'flex',
-												alignItems: 'center',
-												justifyContent: 'space-between',
-												padding: '0.75rem',
-												background: result.allowed ? '#f0fdf4' : '#fef2f2',
-												border: `1px solid ${result.allowed ? '#bbf7d0' : '#fecaca'}`,
-												borderRadius: '0.375rem',
-												marginBottom: '0.5rem'
-											}}>
+											<div
+												key={index}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													justifyContent: 'space-between',
+													padding: '0.75rem',
+													background: result.allowed ? '#f0fdf4' : '#fef2f2',
+													border: `1px solid ${result.allowed ? '#bbf7d0' : '#fecaca'}`,
+													borderRadius: '0.375rem',
+													marginBottom: '0.5rem',
+												}}
+											>
 												<div>
-													<div style={{ fontFamily: 'monospace', fontSize: '0.9rem', fontWeight: '500' }}>
+													<div
+														style={{
+															fontFamily: 'monospace',
+															fontSize: '0.9rem',
+															fontWeight: '500',
+														}}
+													>
 														{result.origin}
 													</div>
 													{result.error && (
-														<div style={{ fontSize: '0.8rem', color: '#dc2626', marginTop: '0.25rem' }}>
+														<div
+															style={{ fontSize: '0.8rem', color: '#dc2626', marginTop: '0.25rem' }}
+														>
 															{result.error}
 														</div>
 													)}
 												</div>
-												<div style={{
-													color: result.allowed ? '#16a34a' : '#dc2626',
-													fontWeight: 'bold'
-												}}>
+												<div
+													style={{
+														color: result.allowed ? '#16a34a' : '#dc2626',
+														fontWeight: 'bold',
+													}}
+												>
 													{result.allowed ? '✓ Allowed' : '✗ Blocked'}
 												</div>
 											</div>
@@ -799,8 +889,10 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 						<InfoBox>
 							<InfoTitle>How CORS Protection Works</InfoTitle>
 							<InfoText>
-								CORS (Cross-Origin Resource Sharing) prevents malicious websites from making unauthorized requests to your OAuth endpoints. 
-								When configured properly, only trusted origins can access your APIs, protecting against CSRF attacks and data theft.
+								CORS (Cross-Origin Resource Sharing) prevents malicious websites from making
+								unauthorized requests to your OAuth endpoints. When configured properly, only
+								trusted origins can access your APIs, protecting against CSRF attacks and data
+								theft.
 							</InfoText>
 						</InfoBox>
 					</SectionContent>
