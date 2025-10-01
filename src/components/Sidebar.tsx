@@ -766,8 +766,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							rel="noopener noreferrer"
 							onClick={onClose}
 						>
-							<FiExternalLink />
-							PingOne API Reference
+							<FiExternalLink style={{ marginRight: '0.5rem' }} />
+							<span>PingOne API Reference</span>
 						</SubmenuItem>
 						<SubmenuItem
 							as="a"
@@ -776,8 +776,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							rel="noopener noreferrer"
 							onClick={onClose}
 						>
-							<FiExternalLink />
-							PingOne SDKs
+							<FiExternalLink style={{ marginRight: '0.5rem' }} />
+							<span>PingOne SDKs</span>
 						</SubmenuItem>
 					</Submenu>
 				</NavItemWithSubmenu>
