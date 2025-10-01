@@ -1,6 +1,7 @@
 // src/pages/flows/DeviceAuthorizationFlowV5.tsx
 // OAuth Device Authorization Grant (RFC 8628) - V5 Implementation
 import React, { useState, useCallback } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
 import { 
 	FiCheckCircle, 
 	FiClock, 
@@ -432,6 +433,100 @@ const QRCodeContainer = styled.div`
 	border-radius: 0.75rem;
 	margin: 1.5rem 0;
 	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+`;
+
+const GasPumpContainer = styled.div`
+	display: flex;
+	gap: 2rem;
+	align-items: flex-start;
+	margin: 2rem 0;
+
+	@media (max-width: 768px) {
+		flex-direction: column;
+	}
+`;
+
+const GasPump = styled.div<{ $isWaiting: boolean }>`
+	flex: 1;
+	background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+	border-radius: 1rem;
+	padding: 2rem;
+	color: #ffffff;
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+	position: relative;
+	overflow: hidden;
+
+	&::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 4px;
+		background: ${({ $isWaiting }) => 
+			$isWaiting 
+				? 'linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #3b82f6 100%)'
+				: '#22c55e'};
+		animation: ${({ $isWaiting }) => $isWaiting ? 'shimmer 2s infinite' : 'none'};
+		background-size: 200% 100%;
+	}
+
+	@keyframes shimmer {
+		0% { background-position: -200% 0; }
+		100% { background-position: 200% 0; }
+	}
+`;
+
+const GasPumpScreen = styled.div`
+	background-color: #0f172a;
+	border: 3px solid #475569;
+	border-radius: 0.5rem;
+	padding: 1.5rem;
+	margin-bottom: 1.5rem;
+	min-height: 200px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+`;
+
+const GasPumpDisplay = styled.div`
+	font-family: 'Courier New', monospace;
+	font-size: 1.25rem;
+	color: #22c55e;
+	line-height: 1.8;
+`;
+
+const GasPumpButton = styled.div<{ $active?: boolean }>`
+	background-color: ${({ $active }) => $active ? '#22c55e' : '#ef4444'};
+	border-radius: 50%;
+	width: 60px;
+	height: 60px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0 auto;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+	transition: all 0.3s ease;
+
+	${({ $active }) => $active && `
+		animation: pulse 2s infinite;
+	`}
+
+	@keyframes pulse {
+		0%, 100% { transform: scale(1); opacity: 1; }
+		50% { transform: scale(1.1); opacity: 0.8; }
+	}
+`;
+
+const QRSection = styled.div`
+	flex: 1;
+	background-color: #ffffff;
+	border: 2px solid #e2e8f0;
+	border-radius: 1rem;
+	padding: 2rem;
+	text-align: center;
 `;
 
 const VerificationBox = styled.div`
