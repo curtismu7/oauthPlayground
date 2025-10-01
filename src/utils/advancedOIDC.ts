@@ -124,7 +124,7 @@ export const createRequestObject = async (
 			const { SignJWT } = await import('jose');
 			const secretKey = new TextEncoder().encode(clientSecret);
 
-			return await new SignJWT(requestObject as any)
+			return await new SignJWT(requestObject as Record<string, unknown>)
 				.setProtectedHeader({ alg: 'HS256' })
 				.sign(secretKey);
 		} else {

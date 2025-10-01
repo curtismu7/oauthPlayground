@@ -137,12 +137,30 @@ const ImplicitCallback: React.FC = () => {
 				}
 
 				if (accessToken || idToken) {
-					// Check if this is a V3 flow by looking for flow context
-					const flowContext =
+					// Check which flow this is from by looking for flow context
+					const v5OAuthContext = sessionStorage.getItem('oauth-implicit-v5-flow-active');
+					const v5OIDCContext = sessionStorage.getItem('oidc-implicit-v5-flow-active');
+					const v3FlowContext =
 						sessionStorage.getItem('oidc_implicit_v3_flow_context') ||
 						sessionStorage.getItem('oauth2_implicit_v3_flow_context');
 
-					if (flowContext) {
+					if (v5OAuthContext || v5OIDCContext) {
+						// This is a V5 flow - store tokens in hash and redirect back
+						setStatus('success');
+						setMessage('Tokens received - returning to flow');
+						logger.auth('ImplicitCallback', 'V5 implicit grant received, returning to flow', {
+							hasAccessToken: !!accessToken,
+							hasIdToken: !!idToken,
+							flow: v5OIDCContext ? 'oidc-v5' : 'oauth-v5',
+						});
+
+						setTimeout(() => {
+							// Reconstruct the hash with tokens and redirect back to flow
+							const targetFlow = v5OIDCContext ? '/flows/oidc-implicit-v5' : '/flows/oauth-implicit-v5';
+							const fragment = window.location.hash.substring(1); // Get full hash without #
+							navigate(`${targetFlow}#${fragment}`);
+						}, 1500);
+					} else if (v3FlowContext) {
 						// This is a V3 flow - return to the flow page
 						setStatus('success');
 						setMessage('Implicit grant received - returning to flow');
