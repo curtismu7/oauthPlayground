@@ -988,6 +988,23 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 									</ul>
 								</div>
 							</InfoBox>
+
+							<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
+								<FiShield size={20} />
+								<div>
+									<InfoTitle>OAuth vs OIDC Device Flow:</InfoTitle>
+									<InfoText style={{ marginTop: '0.5rem' }}>
+										<strong>Important:</strong> OIDC doesn't define a separate "Device Flow" specification. 
+										It reuses the OAuth 2.0 Device Authorization Grant (RFC 8628) and adds the usual OIDC semantics:
+									</InfoText>
+									<ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
+										<li><strong>OAuth Device Flow</strong>: Returns access_token and refresh_token only</li>
+										<li><strong>OIDC Device Flow</strong>: Adds ID Token, UserInfo endpoint, and requires <code>openid</code> scope</li>
+										<li>Both flows use the same RFC 8628 device authorization mechanism</li>
+										<li>OIDC adds identity layer on top of OAuth's authorization framework</li>
+									</ul>
+								</div>
+							</InfoBox>
 						</ExplanationSection>
 					</CollapsibleContent>
 				)}
@@ -1634,6 +1651,18 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 
 								{/* OAuth 2.0 Device Authorization Flow does not include ID tokens */}
 								{/* ID tokens are only available in the OIDC Device Authorization Flow */}
+								<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
+									<FiInfo size={20} />
+									<div>
+										<InfoTitle>OAuth vs OIDC Tokens</InfoTitle>
+										<InfoText>
+											<strong>OAuth 2.0 Device Flow</strong> returns only <code>access_token</code> and <code>refresh_token</code>.
+											<br /><br />
+											For <strong>ID Token</strong> and <strong>UserInfo</strong> endpoint access, use the <strong>OIDC Device Authorization Flow</strong> instead, 
+											which adds the <code>openid</code> scope and OIDC semantics on top of RFC 8628.
+										</InfoText>
+									</div>
+								</InfoBox>
 
 								{deviceFlow.tokens.refresh_token && (
 									<ResultsSection>
