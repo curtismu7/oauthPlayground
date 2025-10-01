@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
+import { FiAlertCircle, FiAlertTriangle, FiCheckCircle, FiInfo } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiCheckCircle, FiAlertCircle, FiAlertTriangle, FiInfo } from 'react-icons/fi';
 
 export type MessageType = 'success' | 'error' | 'warning' | 'info';
 
@@ -101,7 +101,6 @@ const MessageContainer = styled.div<{ $type: MessageType }>`
             color: #f59e0b;
           }
         `;
-			case 'info':
 			default:
 				return `
           background-color: #eff6ff;
@@ -124,7 +123,6 @@ const getIcon = (type: MessageType) => {
 			return <FiAlertCircle />;
 		case 'warning':
 			return <FiAlertTriangle />;
-		case 'info':
 		default:
 			return <FiInfo />;
 	}

@@ -1,8 +1,8 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useAuth } from '../contexts/NewAuthContext';
-import { generateRandomString, sha256 } from '../utils/crypto';
-import { credentialManager } from '../utils/credentialManager';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
+import { credentialManager } from '../utils/credentialManager';
+import { generateRandomString, sha256 } from '../utils/crypto';
 
 // Educational Note: This is an OAuth 2.0 Authorization Code Flow implementation
 // The Authorization Code Flow is the most secure OAuth flow for web applications
@@ -167,8 +167,8 @@ const useAuthzV4NewWindsurf = (): OAuthFlowReturn => {
 			const responseType = 'code'; // Authorization code flow
 
 			console.log('[Authz-V4] Generated security parameters:', {
-				state: state.substring(0, 8) + '...',
-				nonce: nonce.substring(0, 8) + '...',
+				state: `${state.substring(0, 8)}...`,
+				nonce: `${nonce.substring(0, 8)}...`,
 			});
 
 			// Build authorization URL
@@ -202,7 +202,7 @@ const useAuthzV4NewWindsurf = (): OAuthFlowReturn => {
 			authUrl.search = params.toString();
 			const finalUrl = authUrl.toString();
 
-			console.log('[Authz-V4] Authorization URL constructed:', finalUrl.substring(0, 100) + '...');
+			console.log('[Authz-V4] Authorization URL constructed:', `${finalUrl.substring(0, 100)}...`);
 			return finalUrl;
 		} catch (error) {
 			const errorMessage =
@@ -239,7 +239,7 @@ const useAuthzV4NewWindsurf = (): OAuthFlowReturn => {
 
 				console.log('[Authz-V4] Callback parameters:', {
 					hasCode: !!code,
-					stateParam: stateParam?.substring(0, 8) + '...',
+					stateParam: `${stateParam?.substring(0, 8)}...`,
 					error,
 				});
 

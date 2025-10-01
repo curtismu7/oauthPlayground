@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-import { usePageScroll } from '../hooks/usePageScroll';
-import { useUISettings } from '../contexts/UISettingsContext';
 import { FlowComparisonTools } from '../components/FlowComparisonTools';
 import PageTitle from '../components/PageTitle';
+import { useUISettings } from '../contexts/UISettingsContext';
+import { usePageScroll } from '../hooks/usePageScroll';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -20,7 +20,7 @@ const ContentContainer = styled.div`
 const FlowComparison: React.FC = () => {
 	// Centralized scroll management
 	usePageScroll({ pageName: 'Flow Comparison', force: true });
-	
+
 	// UI Settings integration
 	const { settings: uiSettings } = useUISettings();
 

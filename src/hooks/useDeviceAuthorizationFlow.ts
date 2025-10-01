@@ -1,6 +1,6 @@
 // src/hooks/useDeviceAuthorizationFlow.ts
 // Device Authorization Flow state management and logic
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 export interface DeviceCodeResponse {
@@ -46,14 +46,14 @@ interface UseDeviceAuthorizationFlowReturn {
 	expiresAt: number | null;
 	timeRemaining: number;
 	credentials: DeviceAuthCredentials | null;
-	
+
 	// Actions
 	setCredentials: (creds: DeviceAuthCredentials) => void;
 	requestDeviceCode: () => Promise<void>;
 	startPolling: () => void;
 	stopPolling: () => void;
 	reset: () => void;
-	
+
 	// Utilities
 	formatTimeRemaining: (ms: number) => string;
 }
@@ -75,7 +75,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 	const [expiresAt, setExpiresAt] = useState<number | null>(null);
 	const [timeRemaining, setTimeRemaining] = useState<number>(0);
 	const [credentials, setCredentialsState] = useState<DeviceAuthCredentials | null>(null);
-	
+
 	// Wrapper to persist credentials to localStorage
 	const setCredentials = useCallback((creds: DeviceAuthCredentials) => {
 		setCredentialsState(creds);
@@ -86,7 +86,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 			console.warn(`${LOG_PREFIX} [WARN] Failed to save credentials to localStorage:`, e);
 		}
 	}, []);
-	
+
 	const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 	const pollingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -117,7 +117,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 
 			if (remaining === 0) {
 				console.log(`${LOG_PREFIX} [WARN] Device code expired`);
-				setPollingStatus(prev => ({
+				setPollingStatus((prev) => ({
 					...prev,
 					isPolling: false,
 					error: 'Device code expired',
@@ -128,7 +128,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 		}, 1000);
 
 		return () => clearInterval(interval);
-	}, [expiresAt]);
+	}, [expiresAt, stopPolling]);
 
 	// Format time remaining as MM:SS
 	const formatTimeRemaining = useCallback((ms: number): string => {
@@ -152,7 +152,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 
 		try {
 			const deviceAuthEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/device_authorization`;
-			
+
 			const params = new URLSearchParams({
 				client_id: credentials.clientId,
 				scope: credentials.scopes || 'openid',
@@ -177,18 +177,20 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				} catch {
 					errorData = { message: errorText };
 				}
-				
+
 				console.error(`${LOG_PREFIX} [ERROR] Device code request failed:`, {
 					status: response.status,
 					statusText: response.statusText,
 					error: errorData,
 				});
-				
-				throw new Error(errorData.error_description || errorData.message || `Request failed: ${response.status}`);
+
+				throw new Error(
+					errorData.error_description || errorData.message || `Request failed: ${response.status}`
+				);
 			}
 
 			const data: DeviceCodeResponse = await response.json();
-			
+
 			// Mask sensitive data in logs
 			console.log(`${LOG_PREFIX} [INFO] Device code received:`, {
 				user_code: data.user_code,
@@ -196,20 +198,20 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				has_complete_uri: !!data.verification_uri_complete,
 				expires_in: data.expires_in,
 				interval: data.interval,
-				device_code: `${data.device_code.substring(0, 10)}...` // Masked
+				device_code: `${data.device_code.substring(0, 10)}...`, // Masked
 			});
 
 			setDeviceCodeData(data);
-			setExpiresAt(Date.now() + (data.expires_in * 1000));
-			
+			setExpiresAt(Date.now() + data.expires_in * 1000);
+
 			const maxAttempts = Math.floor(data.expires_in / data.interval);
-			setPollingStatus(prev => ({
+			setPollingStatus((prev) => ({
 				...prev,
 				maxAttempts,
 				status: 'idle',
 				error: null,
 			}));
-			
+
 			v4ToastManager.showSuccess('Device code received! Display the user code to the user.');
 		} catch (error) {
 			console.error(`${LOG_PREFIX} [ERROR] Failed to request device code:`, error);
@@ -228,15 +230,17 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 		}
 
 		const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
-		
-		setPollingStatus(prev => ({
+
+		setPollingStatus((prev) => ({
 			...prev,
 			attempts: prev.attempts + 1,
 			lastAttempt: Date.now(),
 		}));
 
 		const currentAttempt = pollingStatus.attempts + 1;
-		console.log(`${LOG_PREFIX} [INFO] Polling attempt ${currentAttempt}/${pollingStatus.maxAttempts}`);
+		console.log(
+			`${LOG_PREFIX} [INFO] Polling attempt ${currentAttempt}/${pollingStatus.maxAttempts}`
+		);
 
 		try {
 			const params = new URLSearchParams({
@@ -268,26 +272,29 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				console.log(`${LOG_PREFIX} [INFO] Scope: ${data.scope || 'N/A'}`);
 				console.log(`${LOG_PREFIX} [INFO] Has refresh token: ${!!data.refresh_token}`);
 				console.log(`${LOG_PREFIX} [INFO] Has ID token: ${!!data.id_token}`);
-				
+
 				setTokens(data);
-				setPollingStatus(prev => ({
+				setPollingStatus((prev) => ({
 					...prev,
 					isPolling: false,
 					status: 'success',
 					error: null,
 				}));
-				
+
 				// Store tokens in localStorage for cross-tab access
 				try {
-					localStorage.setItem('device_flow_tokens', JSON.stringify({
-						...data,
-						timestamp: Date.now(),
-					}));
+					localStorage.setItem(
+						'device_flow_tokens',
+						JSON.stringify({
+							...data,
+							timestamp: Date.now(),
+						})
+					);
 					console.log(`${LOG_PREFIX} [INFO] Tokens stored in localStorage`);
 				} catch (e) {
 					console.warn(`${LOG_PREFIX} [WARN] Failed to store tokens in localStorage:`, e);
 				}
-				
+
 				v4ToastManager.showSuccess('Authorization complete! Tokens received.');
 				return true;
 			}
@@ -302,7 +309,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				return false;
 			} else if (data.error === 'access_denied') {
 				console.log(`${LOG_PREFIX} [ERROR] Access denied by user`);
-				setPollingStatus(prev => ({
+				setPollingStatus((prev) => ({
 					...prev,
 					isPolling: false,
 					error: 'Access denied by user',
@@ -312,7 +319,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				return true; // Stop polling
 			} else if (data.error === 'expired_token') {
 				console.log(`${LOG_PREFIX} [ERROR] Device code expired`);
-				setPollingStatus(prev => ({
+				setPollingStatus((prev) => ({
 					...prev,
 					isPolling: false,
 					error: 'Device code expired',
@@ -322,7 +329,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				return true; // Stop polling
 			} else {
 				console.error(`${LOG_PREFIX} [ERROR] Unknown error during polling:`, data.error);
-				setPollingStatus(prev => ({
+				setPollingStatus((prev) => ({
 					...prev,
 					isPolling: false,
 					error: data.error_description || data.error || 'Unknown error',
@@ -333,7 +340,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 			}
 		} catch (error) {
 			console.error(`${LOG_PREFIX} [ERROR] Polling request failed:`, error);
-			setPollingStatus(prev => ({
+			setPollingStatus((prev) => ({
 				...prev,
 				isPolling: false,
 				error: error instanceof Error ? error.message : 'Polling failed',
@@ -360,8 +367,8 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 		console.log(`${LOG_PREFIX} [INFO] Starting token polling...`);
 		console.log(`${LOG_PREFIX} [INFO] Poll interval: ${deviceCodeData.interval} seconds`);
 		console.log(`${LOG_PREFIX} [INFO] Max attempts: ${pollingStatus.maxAttempts}`);
-		
-		setPollingStatus(prev => ({
+
+		setPollingStatus((prev) => ({
 			...prev,
 			isPolling: true,
 			status: 'polling',
@@ -372,7 +379,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 		const pollInterval = deviceCodeData.interval * 1000;
 
 		// Immediate first poll
-		pollForToken().then(shouldStop => {
+		pollForToken().then((shouldStop) => {
 			if (shouldStop) {
 				stopPolling();
 				return;
@@ -386,23 +393,29 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				}
 			}, pollInterval);
 		});
-	}, [deviceCodeData, pollingStatus.isPolling, pollingStatus.maxAttempts, pollForToken]);
+	}, [
+		deviceCodeData,
+		pollingStatus.isPolling,
+		pollingStatus.maxAttempts,
+		pollForToken,
+		stopPolling,
+	]);
 
 	// Stop polling
 	const stopPolling = useCallback(() => {
 		console.log(`${LOG_PREFIX} [INFO] Stopping polling`);
-		
+
 		if (pollingIntervalRef.current) {
 			clearInterval(pollingIntervalRef.current);
 			pollingIntervalRef.current = null;
 		}
-		
+
 		if (pollingTimeoutRef.current) {
 			clearTimeout(pollingTimeoutRef.current);
 			pollingTimeoutRef.current = null;
 		}
-		
-		setPollingStatus(prev => ({
+
+		setPollingStatus((prev) => ({
 			...prev,
 			isPolling: false,
 		}));
@@ -411,7 +424,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 	// Reset flow
 	const reset = useCallback(() => {
 		console.log(`${LOG_PREFIX} [INFO] Resetting device authorization flow`);
-		
+
 		stopPolling();
 		setDeviceCodeData(null);
 		setTokens(null);
@@ -426,7 +439,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 		});
 		setExpiresAt(null);
 		setTimeRemaining(0);
-		
+
 		// Clear stored tokens
 		try {
 			localStorage.removeItem('device_flow_tokens');
@@ -455,14 +468,14 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 		expiresAt,
 		timeRemaining,
 		credentials,
-		
+
 		// Actions
 		setCredentials,
 		requestDeviceCode,
 		startPolling,
 		stopPolling,
 		reset,
-		
+
 		// Utilities
 		formatTimeRemaining,
 	};

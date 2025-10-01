@@ -36,7 +36,7 @@ async function testV4Flow() {
 				waitUntil: 'networkidle0',
 				ignoreHTTPSErrors: true,
 			});
-		} catch (error) {
+		} catch (_error) {
 			console.log('⚠️  HTTPS failed, trying HTTP...');
 			await page.goto('http://localhost:3000/flows/authorization-code-v4', {
 				waitUntil: 'networkidle0',

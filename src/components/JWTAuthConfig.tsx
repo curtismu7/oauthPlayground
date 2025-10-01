@@ -1,17 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useState } from 'react';
 import {
-	FiKey,
-	FiShield,
+	FiAlertCircle,
+	FiCheckCircle,
+	FiCopy,
 	FiEye,
 	FiEyeOff,
-	FiCopy,
-	FiCheckCircle,
-	FiAlertCircle,
+	FiKey,
+	FiShield,
 } from 'react-icons/fi';
-import { jwtAuthService, JWTAuthConfig } from '../services/jwtAuthService';
-import { logger } from '../utils/logger';
-import CopyIcon from './CopyIcon';
+import styled from 'styled-components';
+import { JWTAuthConfig, jwtAuthService } from '../services/jwtAuthService';
 
 interface JWTAuthConfigProps {
 	onConfigChange: (config: JWTAuthConfig) => void;

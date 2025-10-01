@@ -1,6 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { FiAlertTriangle, FiHome, FiRefreshCw } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiAlertTriangle, FiRefreshCw, FiHome } from 'react-icons/fi';
 import { logger } from '../utils/logger';
 
 // Error boundary state interface
@@ -248,10 +248,6 @@ export class OAuthFlowErrorBoundary extends Component<ErrorBoundaryProps, ErrorB
 
 	private handleGoHome = () => {
 		window.location.href = '/';
-	};
-
-	private handleReload = () => {
-		window.location.reload();
 	};
 
 	render() {

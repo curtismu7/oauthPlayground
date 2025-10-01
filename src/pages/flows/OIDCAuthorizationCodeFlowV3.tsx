@@ -146,7 +146,7 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 
 	// State management
 	const [tokens, setTokens] = useState<Record<string, unknown> | null>(null);
-	const [userInfo, setUserInfo] = useState<Record<string, unknown> | null>(null);
+	const [_userInfo, setUserInfo] = useState<Record<string, unknown> | null>(null);
 	const [isRedirecting, setIsRedirecting] = useState(false);
 	const [showClearCredentialsModal, setShowClearCredentialsModal] = useState(false);
 	const [isClearingCredentials, setIsClearingCredentials] = useState(false);
@@ -182,7 +182,7 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 				? !validateEnvironmentId(credentials.environmentId)
 				: false,
 		});
-	}, [credentials.clientId, credentials.environmentId, validateClientId, validateEnvironmentId]);
+	}, [validateClientId, validateEnvironmentId]);
 
 	// Load credentials on mount
 	useEffect(() => {
@@ -274,7 +274,7 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 			showGlobalError('Failed to save credentials');
 			console.error('[OIDC-AUTHZ-V3] Failed to save credentials:', error);
 		}
-	}, [credentials]);
+	}, []);
 
 	// Generate PKCE codes
 	const generatePKCE = useCallback(async () => {
@@ -338,7 +338,7 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 			console.error('[OIDC-AUTHZ-V3] Failed to build authorization URL:', error);
 			showGlobalError(`Failed to build authorization URL: ${error.message}`);
 		}
-	}, [credentials, pkceCodes]);
+	}, []);
 
 	// Direct authorization redirect
 	const handleAuthorizationDirect = useCallback(() => {
@@ -362,7 +362,7 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 		);
 
 		window.location.href = authUrl;
-	}, [authUrl, credentials]);
+	}, []);
 
 	// Handle authorization redirect with modal option
 	const handleAuthorizationWithModal = useCallback(() => {
@@ -382,7 +382,7 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 			console.log('[OIDC-AUTHZ-V3] Skipping authorization modal');
 			handleAuthorizationDirect();
 		}
-	}, [authUrl, handleAuthorizationDirect]);
+	}, [handleAuthorizationDirect]);
 
 	// Navigate to Token Management with token
 	const navigateToTokenManagement = useCallback(
@@ -535,16 +535,12 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 			),
 		];
 	}, [
-		authCode,
-		authUrl,
 		buildAuthorizationUrl,
-		credentials,
 		generatePKCE,
 		handleAuthorizationDirect,
 		handleAuthorizationWithModal,
 		isRedirecting,
 		navigateToTokenManagement,
-		pkceCodes,
 		resetFlow,
 		saveCredentials,
 		tokens,
