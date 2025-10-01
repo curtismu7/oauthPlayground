@@ -9,6 +9,7 @@ import {
 	FiEye,
 	FiInfo,
 	FiKey,
+	FiMonitor,
 	FiRefreshCw,
 	FiShield,
 	FiTrash2,
@@ -1782,6 +1783,20 @@ const TokenManagement = () => {
 				description: 'Tokens from Worker Token Flow V5',
 				color: '#16a34a',
 				icon: <FiKey />,
+			};
+		} else if (flowSourceState.includes('device-authorization-v5')) {
+			return {
+				type: 'OAuth Device Authorization Code Flow V5',
+				description: 'Tokens from OAuth Device Authorization Code Flow V5',
+				color: '#8b5cf6',
+				icon: <FiMonitor />,
+			};
+		} else if (flowSourceState.includes('oidc-device-authorization-v5')) {
+			return {
+				type: 'OIDC Device Authorization Code Flow V5',
+				description: 'Tokens from OIDC Device Authorization Code Flow V5',
+				color: '#a855f7',
+				icon: <FiMonitor />,
 			};
 		} else if (flowSourceState.includes('oauth-v3')) {
 			return {
