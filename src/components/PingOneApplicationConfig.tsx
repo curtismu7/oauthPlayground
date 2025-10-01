@@ -8,6 +8,10 @@ export interface PingOneApplicationState {
 	allowRedirectUriPatterns: boolean;
 	pkceEnforcement: 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED';
 	
+	// JWT Authentication Settings
+	privateKey?: string; // For private_key_jwt authentication
+	keyId?: string; // Key ID for JWKS (optional)
+	
 	// Response Types (from OIDC Settings)
 	responseTypeCode: boolean;
 	responseTypeToken: boolean;
@@ -237,6 +241,35 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 						<Helper>PingOne can enforce PKCE for public clients</Helper>
 					</Field>
 				</Grid>
+
+				{value.clientAuthMethod === 'private_key_jwt' && (
+					<Grid>
+						<Field style={{ gridColumn: '1 / -1' }}>
+							<Label htmlFor="private-key">Private Key (PKCS8 Format)</Label>
+							<TextArea
+								id="private-key"
+								value={value.privateKey || ''}
+								onChange={(e) => update({ privateKey: e.target.value })}
+								placeholder="-----BEGIN PRIVATE KEY-----&#10;MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC...&#10;-----END PRIVATE KEY-----"
+								rows={8}
+								style={{ fontFamily: 'monospace', fontSize: '0.875rem' }}
+							/>
+							<Helper>RSA private key in PKCS8 PEM format for signing JWT assertions</Helper>
+						</Field>
+
+						<Field>
+							<Label htmlFor="key-id">Key ID (kid) - Optional</Label>
+							<Input
+								id="key-id"
+								type="text"
+								value={value.keyId || ''}
+								onChange={(e) => update({ keyId: e.target.value })}
+								placeholder="my-key-id"
+							/>
+							<Helper>Key identifier to match with JWKS (if using JWKS)</Helper>
+						</Field>
+					</Grid>
+				)}
 			</Section>
 
 			<Section>
