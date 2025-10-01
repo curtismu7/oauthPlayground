@@ -57,7 +57,7 @@ app.get('/api/health', (req, res) => {
 	res.json({
 		status: 'ok',
 		timestamp: new Date().toISOString(),
-		version: '1.0.0',
+		version: '5.8.1',
 	});
 });
 
@@ -1160,6 +1160,15 @@ app.use('/api', (req, res) => {
 		path: req.path,
 		method: req.method,
 	});
+});
+
+// Catch-all for non-API routes (source files, etc.) - return 404 instead of 500
+app.use((req, res, next) => {
+	// If it's not an API route and not a static file, return 404
+	if (!req.path.startsWith('/api')) {
+		return res.status(404).send('Not Found');
+	}
+	next();
 });
 
 // Error handling middleware
