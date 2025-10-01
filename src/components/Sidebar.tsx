@@ -491,6 +491,17 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							<span>OAuth Device Authorization Code V5</span>
 						</SubmenuItem>
 
+						{/* V5 Client Credentials - OAuth 2.0 only (not OIDC) */}
+						<SubmenuItem
+							to="/flows/client-credentials-v5"
+							onClick={onClose}
+							$isActive={isActiveRoute('/flows/client-credentials-v5')}
+							$isV5={true}
+						>
+							<FiLock style={{ marginRight: '0.5rem' }} />
+							<span>OAuth Client Credentials V5</span>
+						</SubmenuItem>
+
 						{/* Standard OAuth 2.0 Flows */}
 						{/* V3 Implicit hidden - use V5 instead */}
 						{/* <SubmenuItem
@@ -682,24 +693,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						>
 							<FiZap style={{ marginRight: '0.5rem' }} />
 							<span>PingOne Worker Token V5</span>
-						</SubmenuItem>
-						<SubmenuItem
-							to="/flows/client-credentials-v5"
-							onClick={onClose}
-							$isActive={isActiveRoute('/flows/client-credentials-v5')}
-							$isV5={true}
-						>
-							<FiLock style={{ marginRight: '0.5rem' }} />
-							<span>OAuth Client Credentials V5</span>
-						</SubmenuItem>
-						<SubmenuItem
-							to="/flows/oidc-client-credentials-v5"
-							onClick={onClose}
-							$isActive={isActiveRoute('/flows/oidc-client-credentials-v5')}
-							$isV5={true}
-						>
-							<FiShield style={{ marginRight: '0.5rem' }} />
-							<span>OIDC Client Credentials V5</span>
 						</SubmenuItem>
 						<SubmenuItem
 							to="/flows/pingone-par-v5"
