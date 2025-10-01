@@ -94,7 +94,8 @@ const useOAuthFlow = (flowType = 'authorization_code'): OAuthFlowReturn => {
 	}> => {
 		const codeVerifier = generateRandomString(config.pkce.codeVerifierLength);
 		const hashed = await sha256(codeVerifier);
-		const codeChallenge = btoa(String.fromCharCode(...new Uint8Array(hashed)))
+		const hashedArray = Array.from(new Uint8Array(hashed));
+		const codeChallenge = btoa(String.fromCharCode(...hashedArray))
 			.replace(/\+/g, '-')
 			.replace(/\//g, '_')
 			.replace(/=+$/, '');
