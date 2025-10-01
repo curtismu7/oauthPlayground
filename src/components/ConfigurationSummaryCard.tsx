@@ -152,7 +152,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 			};
 
 			// Encrypt the client secret if it exists
-			if (configToExport.clientSecret && configToExport.clientSecret.trim()) {
+			if (configToExport.clientSecret?.trim()) {
 				console.log('🔐 [ConfigurationSummaryCard] Encrypting client secret...');
 				configToExport.clientSecret = await encryptSecret(configToExport.clientSecret);
 				configToExport.isEncrypted = true;
