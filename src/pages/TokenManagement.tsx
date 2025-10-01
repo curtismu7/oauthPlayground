@@ -15,6 +15,7 @@ import {
 	FiTrash2,
 	FiX,
 	FiXCircle,
+	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
@@ -1797,6 +1798,13 @@ const TokenManagement = () => {
 				description: 'Tokens from OIDC Device Authorization Code Flow V5',
 				color: '#a855f7',
 				icon: <FiMonitor />,
+			};
+		} else if (flowSourceState.includes('hybrid-v5')) {
+			return {
+				type: 'OIDC Hybrid Flow V5',
+				description: 'Tokens from OIDC Hybrid Flow V5',
+				color: '#ef4444',
+				icon: <FiZap />,
 			};
 		} else if (flowSourceState.includes('oauth-v3')) {
 			return {
