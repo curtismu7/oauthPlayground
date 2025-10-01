@@ -19,6 +19,8 @@ import {
 import styled from 'styled-components';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
+import FlowInfoCard from '../../components/FlowInfoCard';
+import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { FlowWalkthrough } from '../../components/FlowWalkthrough';
 import {
 	ExplanationHeading,
@@ -2737,9 +2739,11 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 						Experience the full OIDC Authorization Code Flow with PKCE and ID Token support, powered by the reusable
 						V5.1 controller architecture.
 					</Subtitle>
-				</HeaderSection>
+			</HeaderSection>
 
-				<MainCard>
+			<FlowInfoCard flowInfo={getFlowInfo('oidc-authorization-code')!} />
+
+			<MainCard>
 					<StepHeader>
 						<StepHeaderLeft>
 							<VersionBadge>OIDC Authorization Code Flow · V5.1</VersionBadge>
