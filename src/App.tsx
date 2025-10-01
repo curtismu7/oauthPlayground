@@ -80,6 +80,11 @@ import WorkerTokenFlow from './pages/flows/WorkerTokenFlow';
 import PingOnePARFlow from './pages/flows/PingOnePARFlow';
 import PingOnePARFlowV5 from './pages/flows/PingOnePARFlowV5';
 import WorkerTokenFlowV3 from './pages/flows/WorkerTokenFlowV3';
+import OAuthImplicitFlowV5 from './pages/flows/OAuthImplicitFlowV5';
+import OIDCImplicitFlowV5 from './pages/flows/OIDCImplicitFlowV5';
+import DeviceAuthorizationFlowV5 from './pages/flows/DeviceAuthorizationFlowV5';
+import RedirectlessFlowV5 from './pages/flows/RedirectlessFlowV5';
+import RedirectlessFlowV5Real from './pages/flows/RedirectlessFlowV5_Real';
 import InteractiveTutorials from './pages/InteractiveTutorials';
 import JWKSTroubleshooting from './pages/JWKSTroubleshooting';
 import OAuth21 from './pages/OAuth21';
@@ -276,9 +281,14 @@ const AppRoutes = () => {
 							path="/flows/enhanced-authorization-code-v2"
 							element={<EnhancedAuthorizationCodeFlowV2 />}
 						/>
-						<Route path="/flows/oauth-authorization-code-v5" element={<OAuthAuthorizationCodeFlowV5 />} />
-						<Route path="/flows/oidc-authorization-code-v5" element={<OIDCAuthorizationCodeFlowV5 />} />
-						<Route path="/flows/worker-token-v5" element={<WorkerTokenFlowV5 />} />
+					<Route path="/flows/oauth-authorization-code-v5" element={<OAuthAuthorizationCodeFlowV5 />} />
+					<Route path="/flows/oidc-authorization-code-v5" element={<OIDCAuthorizationCodeFlowV5 />} />
+					<Route path="/flows/oauth-implicit-v5" element={<OAuthImplicitFlowV5 />} />
+					<Route path="/flows/oidc-implicit-v5" element={<OIDCImplicitFlowV5 />} />
+					<Route path="/flows/device-authorization-v5" element={<DeviceAuthorizationFlowV5 />} />
+					<Route path="/flows/worker-token-v5" element={<WorkerTokenFlowV5 />} />
+						<Route path="/flows/redirectless-flow-mock" element={<RedirectlessFlowV5 />} />
+						<Route path="/flows/redirectless-flow-v5" element={<RedirectlessFlowV5Real />} />
 						<Route path="/flows/authz-v4-new-windsurf" element={<AuthzV4NewWindsurfFlow />} />
 						<Route path="/flows/oauth2-implicit-v3" element={<OAuth2ImplicitFlowV3 />} />
 						<Route path="/flows/oidc-implicit-v3" element={<OIDCImplicitFlowV3 />} />

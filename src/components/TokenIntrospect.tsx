@@ -641,7 +641,8 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 																fontSize: '0.875rem',
 																lineHeight: '1.5',
 																overflow: 'auto',
-																maxHeight: '400px'
+																maxHeight: '400px',
+																color: '#1f2937'
 															}}>
 																{JSON.stringify(introspectionResults, null, 2)}
 															</pre>
