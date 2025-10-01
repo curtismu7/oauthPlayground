@@ -11,26 +11,26 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
 
 // Button props interface
 export interface AccessibleButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  fullWidth?: boolean;
-  loading?: boolean;
-  icon?: React.ReactNode;
-  iconPosition?: 'left' | 'right';
-  ariaLabel?: string;
-  ariaDescription?: string;
-  announceOnClick?: boolean;
-  announceLoading?: boolean;
+	variant?: ButtonVariant;
+	size?: ButtonSize;
+	fullWidth?: boolean;
+	loading?: boolean;
+	icon?: React.ReactNode;
+	iconPosition?: 'left' | 'right';
+	ariaLabel?: string;
+	ariaDescription?: string;
+	announceOnClick?: boolean;
+	announceLoading?: boolean;
 }
 
 // Styled button component
 const StyledButton = styled.button<{
-  variant: ButtonVariant;
-  size: ButtonSize;
-  fullWidth: boolean;
-  loading: boolean;
-  isFocused: boolean;
-  isKeyboardUser: boolean;
+	variant: ButtonVariant;
+	size: ButtonSize;
+	fullWidth: boolean;
+	loading: boolean;
+	isFocused: boolean;
+	isKeyboardUser: boolean;
 }>`
   display: inline-flex;
   align-items: center;
@@ -47,7 +47,10 @@ const StyledButton = styled.button<{
   
   /* Focus styles */
   outline: none;
-  ${({ isFocused, isKeyboardUser }) => isFocused && isKeyboardUser && css`
+  ${({ isFocused, isKeyboardUser }) =>
+		isFocused &&
+		isKeyboardUser &&
+		css`
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
   `}
   
@@ -59,45 +62,49 @@ const StyledButton = styled.button<{
   }
   
   /* Loading styles */
-  ${({ loading }) => loading && css`
+  ${({ loading }) =>
+		loading &&
+		css`
     pointer-events: none;
     opacity: 0.8;
   `}
   
   /* Full width */
-  ${({ fullWidth }) => fullWidth && css`
+  ${({ fullWidth }) =>
+		fullWidth &&
+		css`
     width: 100%;
   `}
   
   /* Size variants */
   ${({ size }) => {
-    switch (size) {
-      case 'sm':
-        return css`
+		switch (size) {
+			case 'sm':
+				return css`
           padding: 0.5rem 0.75rem;
           font-size: 0.875rem;
           min-height: 2rem;
         `;
-      case 'lg':
-        return css`
+			case 'lg':
+				return css`
           padding: 1rem 1.5rem;
           font-size: 1.125rem;
           min-height: 3rem;
         `;
-      default: // md
-        return css`
+			default: // md
+				return css`
           padding: 0.75rem 1rem;
           font-size: 1rem;
           min-height: 2.5rem;
         `;
-    }
-  }}
+		}
+	}}
   
   /* Color variants */
   ${({ variant, theme }) => {
-    switch (variant) {
-      case 'primary':
-        return css`
+		switch (variant) {
+			case 'primary':
+				return css`
           background: ${theme.colors.primary};
           color: white;
           border-color: ${theme.colors.primary};
@@ -112,8 +119,8 @@ const StyledButton = styled.button<{
             transform: translateY(0);
           }
         `;
-      case 'secondary':
-        return css`
+			case 'secondary':
+				return css`
           background: ${theme.colors.gray200};
           color: ${theme.colors.gray900};
           border-color: ${theme.colors.gray300};
@@ -128,8 +135,8 @@ const StyledButton = styled.button<{
             transform: translateY(0);
           }
         `;
-      case 'danger':
-        return css`
+			case 'danger':
+				return css`
           background: ${theme.colors.danger};
           color: white;
           border-color: ${theme.colors.danger};
@@ -144,8 +151,8 @@ const StyledButton = styled.button<{
             transform: translateY(0);
           }
         `;
-      case 'success':
-        return css`
+			case 'success':
+				return css`
           background: ${theme.colors.success};
           color: white;
           border-color: ${theme.colors.success};
@@ -160,8 +167,8 @@ const StyledButton = styled.button<{
             transform: translateY(0);
           }
         `;
-      case 'warning':
-        return css`
+			case 'warning':
+				return css`
           background: ${theme.colors.warning};
           color: white;
           border-color: ${theme.colors.warning};
@@ -176,8 +183,8 @@ const StyledButton = styled.button<{
             transform: translateY(0);
           }
         `;
-      case 'ghost':
-        return css`
+			case 'ghost':
+				return css`
           background: transparent;
           color: ${theme.colors.primary};
           border-color: transparent;
@@ -191,8 +198,8 @@ const StyledButton = styled.button<{
             background: ${theme.colors.gray200};
           }
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 // Loading spinner
@@ -217,7 +224,9 @@ const IconContainer = styled.span<{ position: 'left' | 'right' }>`
   justify-content: center;
   flex-shrink: 0;
   
-  ${({ position }) => position === 'right' && css`
+  ${({ position }) =>
+		position === 'right' &&
+		css`
     order: 1;
   `}
 `;
@@ -237,120 +246,107 @@ const ScreenReaderText = styled.span`
 
 // AccessibleButton component
 export const AccessibleButton: React.FC<AccessibleButtonProps> = ({
-  variant = 'primary',
-  size = 'md',
-  fullWidth = false,
-  loading = false,
-  icon,
-  iconPosition = 'left',
-  ariaLabel,
-  ariaDescription,
-  announceOnClick = true,
-  announceLoading = true,
-  children,
-  onClick,
-  disabled,
-  ...props
+	variant = 'primary',
+	size = 'md',
+	fullWidth = false,
+	loading = false,
+	icon,
+	iconPosition = 'left',
+	ariaLabel,
+	ariaDescription,
+	announceOnClick = true,
+	announceLoading = true,
+	children,
+	onClick,
+	disabled,
+	...props
 }) => {
-  const {
-    ariaProps,
-    onKeyDown,
-    onFocus,
-    onBlur,
-    announce,
-    isFocused,
-    isKeyboardUser
-  } = useAccessibility({
-    role: ARIA_ROLES.BUTTON,
-    label: ariaLabel,
-    description: ariaDescription,
-    announceChanges: true,
-    keyboardNavigation: true,
-    screenReader: true
-  });
+	const { ariaProps, onKeyDown, onFocus, onBlur, announce, isFocused, isKeyboardUser } =
+		useAccessibility({
+			role: ARIA_ROLES.BUTTON,
+			label: ariaLabel,
+			description: ariaDescription,
+			announceChanges: true,
+			keyboardNavigation: true,
+			screenReader: true,
+		});
 
-  // Handle click with announcements
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    if (loading || disabled) {
-      event.preventDefault();
-      return;
-    }
+	// Handle click with announcements
+	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+		if (loading || disabled) {
+			event.preventDefault();
+			return;
+		}
 
-    if (announceOnClick) {
-      if (loading) {
-        announce('Button clicked, loading...');
-      } else {
-        announce('Button clicked');
-      }
-    }
+		if (announceOnClick) {
+			if (loading) {
+				announce('Button clicked, loading...');
+			} else {
+				announce('Button clicked');
+			}
+		}
 
-    onClick?.(event);
-  };
+		onClick?.(event);
+	};
 
-  // Handle loading state announcements
-  React.useEffect(() => {
-    if (loading && announceLoading) {
-      announce('Loading...', 'polite');
-    }
-  }, [loading, announceLoading, announce]);
+	// Handle loading state announcements
+	React.useEffect(() => {
+		if (loading && announceLoading) {
+			announce('Loading...', 'polite');
+		}
+	}, [loading, announceLoading, announce]);
 
-  // Generate accessible label
-  const accessibleLabel = ariaLabel || (typeof children === 'string' ? children : 'Button');
-  const accessibleDescription = ariaDescription;
+	// Generate accessible label
+	const accessibleLabel = ariaLabel || (typeof children === 'string' ? children : 'Button');
+	const accessibleDescription = ariaDescription;
 
-  return (
-    <StyledButton
-      {...props}
-      {...ariaProps}
-      variant={variant}
-      size={size}
-      fullWidth={fullWidth}
-      loading={loading}
-      isFocused={isFocused}
-      isKeyboardUser={isKeyboardUser}
-      disabled={disabled || loading}
-      onClick={handleClick}
-      onKeyDown={onKeyDown}
-      onFocus={onFocus}
-      onBlur={onBlur}
-      aria-label={accessibleLabel}
-      aria-describedby={accessibleDescription ? `${accessibleLabel}-desc` : undefined}
-      aria-disabled={disabled || loading}
-      aria-busy={loading}
-    >
-      {/* Screen reader description */}
-      {accessibleDescription && (
-        <ScreenReaderText id={`${accessibleLabel}-desc`}>
-          {accessibleDescription}
-        </ScreenReaderText>
-      )}
-      
-      {/* Loading state */}
-      {loading && (
-        <>
-          <LoadingSpinner aria-hidden="true" />
-          <ScreenReaderText>Loading...</ScreenReaderText>
-        </>
-      )}
-      
-      {/* Icon */}
-      {icon && !loading && (
-        <IconContainer position={iconPosition} aria-hidden="true">
-          {icon}
-        </IconContainer>
-      )}
-      
-      {/* Button text */}
-      {children && !loading && (
-        <span>{children}</span>
-      )}
-      
-      {/* Loading text */}
-      {loading && children && (
-        <ScreenReaderText>{children} - Loading...</ScreenReaderText>
-      )}
-    </StyledButton>
-  );
+	return (
+		<StyledButton
+			{...props}
+			{...ariaProps}
+			variant={variant}
+			size={size}
+			fullWidth={fullWidth}
+			loading={loading}
+			isFocused={isFocused}
+			isKeyboardUser={isKeyboardUser}
+			disabled={disabled || loading}
+			onClick={handleClick}
+			onKeyDown={onKeyDown}
+			onFocus={onFocus}
+			onBlur={onBlur}
+			aria-label={accessibleLabel}
+			aria-describedby={accessibleDescription ? `${accessibleLabel}-desc` : undefined}
+			aria-disabled={disabled || loading}
+			aria-busy={loading}
+		>
+			{/* Screen reader description */}
+			{accessibleDescription && (
+				<ScreenReaderText id={`${accessibleLabel}-desc`}>{accessibleDescription}</ScreenReaderText>
+			)}
+
+			{/* Loading state */}
+			{loading && (
+				<>
+					<LoadingSpinner aria-hidden="true" />
+					<ScreenReaderText>Loading...</ScreenReaderText>
+				</>
+			)}
+
+			{/* Icon */}
+			{icon && !loading && (
+				<IconContainer position={iconPosition} aria-hidden="true">
+					{icon}
+				</IconContainer>
+			)}
+
+			{/* Button text */}
+			{children && !loading && <span>{children}</span>}
+
+			{/* Loading text */}
+			{loading && children && <ScreenReaderText>{children} - Loading...</ScreenReaderText>}
+		</StyledButton>
+	);
 };
 
 export default AccessibleButton;

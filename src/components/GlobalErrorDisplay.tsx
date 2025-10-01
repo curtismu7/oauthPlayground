@@ -96,67 +96,67 @@ const SuggestionText = styled.div`
 `;
 
 const GlobalErrorDisplay: React.FC = () => {
-  const { error, dismissError } = useAuth();
+	const { error, dismissError } = useAuth();
 
-  // Handle ESC key to close error
-  useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && error) {
-        dismissError();
-      }
-    };
+	// Handle ESC key to close error
+	useEffect(() => {
+		const handleEscape = (event: KeyboardEvent) => {
+			if (event.key === 'Escape' && error) {
+				dismissError();
+			}
+		};
 
-    if (error) {
-      document.addEventListener('keydown', handleEscape);
-      return () => document.removeEventListener('keydown', handleEscape);
-    }
-  }, [error, dismissError]);
+		if (error) {
+			document.addEventListener('keydown', handleEscape);
+			return () => document.removeEventListener('keydown', handleEscape);
+		}
+	}, [error, dismissError]);
 
-  if (!error) {
-    return null;
-  }
+	if (!error) {
+		return null;
+	}
 
-  // Try to interpret the error using PingOne error interpreter
-  let interpretedError;
-  try {
-    interpretedError = PingOneErrorInterpreter.interpret({
-      error: 'token_exchange_failed',
-      error_description: error,
-      details: { originalError: error }
-    });
-  } catch {
-    // Fallback if interpretation fails
-    interpretedError = {
-      title: 'Authentication Error',
-      message: error,
-      suggestion: 'Please check your configuration and try again.',
-      severity: 'error',
-      category: 'authentication'
-    };
-  }
+	// Try to interpret the error using PingOne error interpreter
+	let interpretedError;
+	try {
+		interpretedError = PingOneErrorInterpreter.interpret({
+			error: 'token_exchange_failed',
+			error_description: error,
+			details: { originalError: error },
+		});
+	} catch {
+		// Fallback if interpretation fails
+		interpretedError = {
+			title: 'Authentication Error',
+			message: error,
+			suggestion: 'Please check your configuration and try again.',
+			severity: 'error',
+			category: 'authentication',
+		};
+	}
 
-  return (
-    <ErrorContainer>
-      <ErrorHeader>
-        <ErrorIcon>
-          <FiAlertCircle />
-        </ErrorIcon>
-        <ErrorTitle>{interpretedError.title}</ErrorTitle>
-        <DismissButton onClick={dismissError} title="Dismiss error">
-          <FiX />
-        </DismissButton>
-      </ErrorHeader>
-      
-      <ErrorMessage>{interpretedError.message}</ErrorMessage>
-      
-      {interpretedError.suggestion && (
-        <ErrorSuggestion>
-          <SuggestionLabel> Suggestion:</SuggestionLabel>
-          <SuggestionText>{interpretedError.suggestion}</SuggestionText>
-        </ErrorSuggestion>
-      )}
-    </ErrorContainer>
-  );
+	return (
+		<ErrorContainer>
+			<ErrorHeader>
+				<ErrorIcon>
+					<FiAlertCircle />
+				</ErrorIcon>
+				<ErrorTitle>{interpretedError.title}</ErrorTitle>
+				<DismissButton onClick={dismissError} title="Dismiss error">
+					<FiX />
+				</DismissButton>
+			</ErrorHeader>
+
+			<ErrorMessage>{interpretedError.message}</ErrorMessage>
+
+			{interpretedError.suggestion && (
+				<ErrorSuggestion>
+					<SuggestionLabel> Suggestion:</SuggestionLabel>
+					<SuggestionText>{interpretedError.suggestion}</SuggestionText>
+				</ErrorSuggestion>
+			)}
+		</ErrorContainer>
+	);
 };
 
 export default GlobalErrorDisplay;

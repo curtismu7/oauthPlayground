@@ -1,6 +1,6 @@
 // src/components/CredentialStatusPanel.tsx
-import type React from "react";
-import { useCallback, useEffect, useState } from "react";
+import type React from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -9,16 +9,14 @@ import {
 	FiServer,
 	FiShield,
 	FiXCircle,
-} from "react-icons/fi";
-import styled from "styled-components";
-import { useAuth } from "../contexts/NewAuthContext";
-import { showGlobalError, showGlobalSuccess } from "../hooks/useNotifications";
-import {
-	credentialManager,
-	type PermanentCredentials,
-} from "../utils/credentialManager";
-import { logger } from "../utils/logger";
-import ServerStatusModal from "./ServerStatusModal";
+} from 'react-icons/fi';
+import styled from 'styled-components';
+import { useAuth } from '../contexts/NewAuthContext';
+import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
+import { credentialManager, type PermanentCredentials } from '../utils/credentialManager';
+import { logger } from '../utils/logger';
+import { v4ToastManager } from '../utils/v4ToastMessages';
+import ServerStatusModal from './ServerStatusModal';
 
 const StatusPanel = styled.div`
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
@@ -121,7 +119,7 @@ const StatusIndicators = styled.div`
   flex-wrap: wrap;
 `;
 
-const StatusIndicator = styled.div<{ $type: "tokens" | "environment" }>`
+const StatusIndicator = styled.div<{ $type: 'tokens' | 'environment' }>`
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -132,26 +130,26 @@ const StatusIndicator = styled.div<{ $type: "tokens" | "environment" }>`
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   background: ${(props) => {
 		switch (props.$type) {
-			case "tokens":
-				return "linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)";
-			case "environment":
-				return "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)";
+			case 'tokens':
+				return 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)';
+			case 'environment':
+				return 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)';
 		}
 	}};
   color: ${(props) => {
 		switch (props.$type) {
-			case "tokens":
-				return "#991b1b";
-			case "environment":
-				return "#166534";
+			case 'tokens':
+				return '#991b1b';
+			case 'environment':
+				return '#166534';
 		}
 	}};
   border: 2px solid ${(props) => {
 		switch (props.$type) {
-			case "tokens":
-				return "#fecaca";
-			case "environment":
-				return "#bbf7d0";
+			case 'tokens':
+				return '#fecaca';
+			case 'environment':
+				return '#bbf7d0';
 		}
 	}};
   transition: all 0.2s ease;
@@ -169,26 +167,26 @@ const FlowStatusGrid = styled.div`
 `;
 
 const FlowStatusCard = styled.div<{
-	$status: "configured" | "partial" | "missing";
+	$status: 'configured' | 'partial' | 'missing';
 }>`
   background: ${(props) => {
 		switch (props.$status) {
-			case "configured":
-				return "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)";
-			case "partial":
-				return "linear-gradient(135deg, #fffbeb 0%, #fed7aa 100%)";
-			case "missing":
-				return "linear-gradient(135deg, #fef2f2 0%, #fecaca 100%)";
+			case 'configured':
+				return 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)';
+			case 'partial':
+				return 'linear-gradient(135deg, #fffbeb 0%, #fed7aa 100%)';
+			case 'missing':
+				return 'linear-gradient(135deg, #fef2f2 0%, #fecaca 100%)';
 		}
 	}};
   border: 2px solid ${(props) => {
 		switch (props.$status) {
-			case "configured":
-				return "#bbf7d0";
-			case "partial":
-				return "#fed7aa";
-			case "missing":
-				return "#fecaca";
+			case 'configured':
+				return '#bbf7d0';
+			case 'partial':
+				return '#fed7aa';
+			case 'missing':
+				return '#fecaca';
 		}
 	}};
   border-radius: 0.75rem;
@@ -207,12 +205,12 @@ const FlowStatusCard = styled.div<{
     height: 4px;
     background: ${(props) => {
 			switch (props.$status) {
-				case "configured":
-					return "linear-gradient(90deg, #10b981, #34d399)";
-				case "partial":
-					return "linear-gradient(90deg, #f59e0b, #fbbf24)";
-				case "missing":
-					return "linear-gradient(90deg, #ef4444, #f87171)";
+				case 'configured':
+					return 'linear-gradient(90deg, #10b981, #34d399)';
+				case 'partial':
+					return 'linear-gradient(90deg, #f59e0b, #fbbf24)';
+				case 'missing':
+					return 'linear-gradient(90deg, #ef4444, #f87171)';
 			}
 		}};
   }
@@ -222,12 +220,12 @@ const FlowStatusCard = styled.div<{
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     border-color: ${(props) => {
 			switch (props.$status) {
-				case "configured":
-					return "#86efac";
-				case "partial":
-					return "#fcd34d";
-				case "missing":
-					return "#fca5a5";
+				case 'configured':
+					return '#86efac';
+				case 'partial':
+					return '#fcd34d';
+				case 'missing':
+					return '#fca5a5';
 			}
 		}};
   }
@@ -244,7 +242,7 @@ const FlowName = styled.h4`
 `;
 
 const StatusBadge = styled.div<{
-	$status: "configured" | "partial" | "missing";
+	$status: 'configured' | 'partial' | 'missing';
 }>`
   display: inline-flex;
   align-items: center;
@@ -256,32 +254,32 @@ const StatusBadge = styled.div<{
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   background: ${(props) => {
 		switch (props.$status) {
-			case "configured":
-				return "linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)";
-			case "partial":
-				return "linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%)";
-			case "missing":
-				return "linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)";
+			case 'configured':
+				return 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)';
+			case 'partial':
+				return 'linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%)';
+			case 'missing':
+				return 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)';
 		}
 	}};
   color: ${(props) => {
 		switch (props.$status) {
-			case "configured":
-				return "#166534";
-			case "partial":
-				return "#92400e";
-			case "missing":
-				return "#991b1b";
+			case 'configured':
+				return '#166534';
+			case 'partial':
+				return '#92400e';
+			case 'missing':
+				return '#991b1b';
 		}
 	}};
   border: 1px solid ${(props) => {
 		switch (props.$status) {
-			case "configured":
-				return "#86efac";
-			case "partial":
-				return "#fcd34d";
-			case "missing":
-				return "#fca5a5";
+			case 'configured':
+				return '#86efac';
+			case 'partial':
+				return '#fcd34d';
+			case 'missing':
+				return '#fca5a5';
 		}
 	}};
   transition: all 0.2s ease;
@@ -333,9 +331,9 @@ const EmptyState = styled.div`
 
 interface FlowCredentialStatus {
 	flowName: string;
-	flowType: "config" | "authz" | "implicit";
+	flowType: 'config' | 'authz' | 'implicit';
 	credentials: PermanentCredentials;
-	status: "configured" | "partial" | "missing";
+	status: 'configured' | 'partial' | 'missing';
 	lastUpdated?: number;
 }
 
@@ -347,44 +345,35 @@ const CredentialStatusPanel: React.FC = () => {
 	const [showServerStatusModal, setShowServerStatusModal] = useState(false);
 
 	const checkCredentials = useCallback(
-		(
-			credentials: PermanentCredentials,
-		): "configured" | "partial" | "missing" => {
+		(credentials: PermanentCredentials): 'configured' | 'partial' | 'missing' => {
 			const hasRequired =
-				credentials.environmentId &&
-				credentials.clientId &&
-				credentials.redirectUri;
+				credentials.environmentId && credentials.clientId && credentials.redirectUri;
 			const hasOptional =
-				credentials.clientSecret ||
-				credentials.authEndpoint ||
-				credentials.tokenEndpoint;
+				credentials.clientSecret || credentials.authEndpoint || credentials.tokenEndpoint;
 
-			if (hasRequired && hasOptional) return "configured";
-			if (hasRequired) return "partial";
-			return "missing";
+			if (hasRequired && hasOptional) return 'configured';
+			if (hasRequired) return 'partial';
+			return 'missing';
 		},
-		[],
+		[]
 	);
 
 	const refreshStatuses = useCallback(async () => {
-		console.log(
-			" [CredentialStatusPanel] Refreshing statuses - button clicked",
-		);
+		console.log(' [CredentialStatusPanel] Refreshing statuses - button clicked');
 		setIsLoading(true);
 		try {
-			console.log(" [CredentialStatusPanel] Loading credentials...");
+			console.log(' [CredentialStatusPanel] Loading credentials...');
 			const configCredentials = credentialManager.loadConfigCredentials();
 			const authzFlowCredentials = credentialManager.loadAuthzFlowCredentials();
-			const implicitFlowCredentials =
-				credentialManager.loadImplicitFlowCredentials();
+			const implicitFlowCredentials = credentialManager.loadImplicitFlowCredentials();
 
-			console.log(" [CredentialStatusPanel] Loaded credentials:", {
+			console.log(' [CredentialStatusPanel] Loaded credentials:', {
 				config: configCredentials,
 				authz: authzFlowCredentials,
 				implicit: implicitFlowCredentials,
 			});
 
-			logger.debug("CredentialStatusPanel", "Loaded credentials", {
+			logger.debug('CredentialStatusPanel', 'Loaded credentials', {
 				config: configCredentials,
 				authz: authzFlowCredentials,
 				implicit: implicitFlowCredentials,
@@ -392,44 +381,41 @@ const CredentialStatusPanel: React.FC = () => {
 
 			const statuses: FlowCredentialStatus[] = [
 				{
-					flowName: "Dashboard Configuration",
-					flowType: "config",
+					flowName: 'Dashboard Configuration',
+					flowType: 'config',
 					credentials: configCredentials || {},
 					status: checkCredentials(configCredentials || {}),
 					lastUpdated: configCredentials?.lastUpdated,
 				},
 				{
-					flowName: "Authorization Code Flow",
-					flowType: "authz",
+					flowName: 'Authorization Code Flow',
+					flowType: 'authz',
 					credentials: authzFlowCredentials || {},
 					status: checkCredentials(authzFlowCredentials || {}),
 					lastUpdated: authzFlowCredentials?.lastUpdated,
 				},
 				{
-					flowName: "Implicit Flow",
-					flowType: "implicit",
+					flowName: 'Implicit Flow',
+					flowType: 'implicit',
 					credentials: implicitFlowCredentials || {},
 					status: checkCredentials(implicitFlowCredentials || {}),
 					lastUpdated: implicitFlowCredentials?.lastUpdated,
 				},
 			];
 
-			console.log(" [CredentialStatusPanel] Setting new statuses:", statuses);
+			console.log(' [CredentialStatusPanel] Setting new statuses:', statuses);
 			setFlowStatuses(statuses);
 			setLastRefresh(new Date());
 
-			console.log(" [CredentialStatusPanel] Statuses updated successfully");
-			logger.debug("CredentialStatusPanel", "Statuses updated", statuses);
+			console.log(' [CredentialStatusPanel] Statuses updated successfully');
+			logger.debug('CredentialStatusPanel', 'Statuses updated', statuses);
 			showGlobalSuccess(
-				" System Status Refreshed",
-				"All credential statuses have been updated successfully",
+				' System Status Refreshed',
+				'All credential statuses have been updated successfully'
 			);
 		} catch (error) {
-			logger.error("CredentialStatusPanel", "Error refreshing statuses", error);
-			showGlobalError(
-				" Refresh Failed",
-				"Failed to refresh system status. Please try again.",
-			);
+			logger.error('CredentialStatusPanel', 'Error refreshing statuses', error);
+			showGlobalError(' Refresh Failed', 'Failed to refresh system status. Please try again.');
 		} finally {
 			setIsLoading(false);
 		}
@@ -440,36 +426,36 @@ const CredentialStatusPanel: React.FC = () => {
 		refreshStatuses();
 	}, [refreshStatuses]);
 
-	const getStatusIcon = (status: "configured" | "partial" | "missing") => {
+	const getStatusIcon = (status: 'configured' | 'partial' | 'missing') => {
 		switch (status) {
-			case "configured":
+			case 'configured':
 				return <FiCheckCircle size={16} color="#10b981" />;
-			case "partial":
+			case 'partial':
 				return <FiAlertTriangle size={16} color="#f59e0b" />;
-			case "missing":
+			case 'missing':
 				return <FiXCircle size={16} color="#ef4444" />;
 		}
 	};
 
-	const getStatusText = (status: "configured" | "partial" | "missing") => {
+	const getStatusText = (status: 'configured' | 'partial' | 'missing') => {
 		switch (status) {
-			case "configured":
-				return "Fully Configured";
-			case "partial":
-				return "Partially Configured";
-			case "missing":
-				return "Not Configured";
+			case 'configured':
+				return 'Fully Configured';
+			case 'partial':
+				return 'Partially Configured';
+			case 'missing':
+				return 'Not Configured';
 		}
 	};
 
 	const formatLastUpdated = (timestamp?: number) => {
-		if (!timestamp) return "Never";
+		if (!timestamp) return 'Never';
 		const date = new Date(timestamp);
 		const now = new Date();
 		const diffMs = now.getTime() - date.getTime();
 		const diffMins = Math.floor(diffMs / 60000);
 
-		if (diffMins < 1) return "Just now";
+		if (diffMins < 1) return 'Just now';
 		if (diffMins < 60) return `${diffMins}m ago`;
 		if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
 		return date.toLocaleDateString();
@@ -482,31 +468,18 @@ const CredentialStatusPanel: React.FC = () => {
 				<ButtonGroup>
 					<RefreshButton
 						onClick={(e) => {
-							console.log(
-								" [CredentialStatusPanel] Refresh button clicked!",
-								e,
-							);
-							showFlowSuccess(
-								" Refreshing System Status",
-								"Loading all credential statuses...",
-							);
+							console.log(' [CredentialStatusPanel] Refresh button clicked!', e);
+							v4ToastManager.showSuccess('Refreshing system status - loading all credential statuses...');
 							refreshStatuses();
 						}}
 						disabled={isLoading}
 					>
-						<FiRefreshCw
-							size={16}
-							className={isLoading ? "animate-spin" : ""}
-						/>
-						{isLoading ? "Refreshing..." : "Refresh"}
+						<FiRefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
 					</RefreshButton>
 					<StatusButton
 						onClick={() => {
 							setShowServerStatusModal(true);
-							showFlowSuccess(
-								" Server Status Modal Opened",
-								"Checking status of frontend and backend servers",
-							);
+							v4ToastManager.showSuccess('Server status modal opened - checking frontend and backend servers');
 						}}
 					>
 						<FiServer size={16} />
@@ -518,7 +491,7 @@ const CredentialStatusPanel: React.FC = () => {
 			<StatusIndicators>
 				<StatusIndicator $type="tokens">
 					<FiClock size={16} />
-					{tokens && isAuthenticated ? "Active Tokens" : "No Active Tokens"}
+					{tokens && isAuthenticated ? 'Active Tokens' : 'No Active Tokens'}
 				</StatusIndicator>
 				<StatusIndicator $type="environment">
 					<FiShield size={16} />
@@ -599,9 +572,7 @@ const CredentialStatusPanel: React.FC = () => {
 
 								<div className="detail-row">
 									<span className="field-name">Last Updated:</span>
-									<span className="field-status">
-										{formatLastUpdated(flow.lastUpdated)}
-									</span>
+									<span className="field-status">{formatLastUpdated(flow.lastUpdated)}</span>
 								</div>
 							</FlowDetails>
 						</FlowStatusCard>

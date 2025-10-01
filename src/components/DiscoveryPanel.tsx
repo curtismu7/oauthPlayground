@@ -1,5 +1,5 @@
-import type React from "react";
-import { useEffect, useId, useState } from "react";
+import type React from 'react';
+import { useEffect, useId, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiCheck,
@@ -9,26 +9,16 @@ import {
 	FiSearch,
 	FiSettings,
 	FiX,
-} from "react-icons/fi";
-import styled from "styled-components";
-import {
-	showGlobalError,
-	showGlobalSuccess,
-	showGlobalWarning,
-} from "../hooks/useNotifications";
-import {
-	discoveryService,
-	type OpenIDConfiguration,
-} from "../services/discoveryService";
-import { credentialManager } from "../utils/credentialManager";
-import { logger } from "../utils/logger";
-import CopyIcon from "./CopyIcon";
+} from 'react-icons/fi';
+import styled from 'styled-components';
+import { discoveryService, type OpenIDConfiguration } from '../services/discoveryService';
+import { credentialManager } from '../utils/credentialManager';
+import { logger } from '../utils/logger';
+import { v4ToastManager } from '../utils/v4ToastMessages';
+import CopyIcon from './CopyIcon';
 
 interface DiscoveryPanelProps {
-	onConfigurationDiscovered: (
-		config: OpenIDConfiguration,
-		environmentId: string,
-	) => void;
+	onConfigurationDiscovered: (config: OpenIDConfiguration, environmentId: string) => void;
 	onClose: () => void;
 }
 
@@ -68,7 +58,7 @@ const Title = styled.h2`
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text-primary, #111827);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -141,7 +131,7 @@ const Select = styled.select`
   }
 `;
 
-const Button = styled.button<{ variant?: "primary" | "secondary" }>`
+const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -153,8 +143,8 @@ const Button = styled.button<{ variant?: "primary" | "secondary" }>`
   transition: all 0.2s;
   border: none;
 
-  ${({ variant = "primary" }) =>
-		variant === "primary"
+  ${({ variant = 'primary' }) =>
+		variant === 'primary'
 			? `
     background: #3b82f6;
     color: white;
@@ -180,7 +170,7 @@ const Button = styled.button<{ variant?: "primary" | "secondary" }>`
   }
 `;
 
-const StatusMessage = styled.div<{ type: "success" | "error" | "info" }>`
+const StatusMessage = styled.div<{ type: 'success' | 'error' | 'info' }>`
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -191,19 +181,19 @@ const StatusMessage = styled.div<{ type: "success" | "error" | "info" }>`
 
   ${({ type }) => {
 		switch (type) {
-			case "success":
+			case 'success':
 				return `
           background: #f0fdf4;
           border: 1px solid #bbf7d0;
           color: #166534;
         `;
-			case "error":
+			case 'error':
 				return `
           background: #fef2f2;
           border: 1px solid #fecaca;
           color: #dc2626;
         `;
-			case "info":
+			case 'info':
 				return `
           background: #eff6ff;
           border: 1px solid #bfdbfe;
@@ -214,8 +204,8 @@ const StatusMessage = styled.div<{ type: "success" | "error" | "info" }>`
 `;
 
 const ConfigurationDisplay = styled.div`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
   border-radius: 0.5rem;
   padding: 1rem;
   margin-top: 1rem;
@@ -265,22 +255,18 @@ const CopyButton = styled.button`
   }
 `;
 
-const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({
-	onConfigurationDiscovered,
-	onClose,
-}) => {
+const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscovered, onClose }) => {
 	const regionSelectId = useId();
 	const environmentInputId = useId();
 
-	const [environmentId, setEnvironmentId] = useState("");
-	const [region, setRegion] = useState("us");
+	const [environmentId, setEnvironmentId] = useState('');
+	const [region, setRegion] = useState('us');
 	const [isLoading, setIsLoading] = useState(false);
 	const [status, setStatus] = useState<{
-		type: "success" | "error" | "info";
+		type: 'success' | 'error' | 'info';
 		message: string;
 	} | null>(null);
-	const [discoveredConfig, setDiscoveredConfig] =
-		useState<OpenIDConfiguration | null>(null);
+	const [discoveredConfig, setDiscoveredConfig] = useState<OpenIDConfiguration | null>(null);
 	const [copiedField, setCopiedField] = useState<string | null>(null);
 
 	// Load stored discovery preferences when component mounts
@@ -291,13 +277,9 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({
 
 			if (preferences.environmentId) {
 				setEnvironmentId(preferences.environmentId);
-				logger.info(
-					"DiscoveryPanel",
-					"Pre-populated Environment ID from discovery preferences",
-					{
-						environmentId: preferences.environmentId,
-					},
-				);
+				logger.info('DiscoveryPanel', 'Pre-populated Environment ID from discovery preferences', {
+					environmentId: preferences.environmentId,
+				});
 			} else {
 				// Fallback: Try to load from existing credentials
 				const configCreds = credentialManager.loadConfigCredentials();
@@ -315,40 +297,25 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({
 							allCredentials = oldCredentials;
 						}
 					} catch (error) {
-						console.log(
-							" [DiscoveryPanel] Fallback getAllCredentials() failed:",
-							error,
-						);
+						console.log(' [DiscoveryPanel] Fallback getAllCredentials() failed:', error);
 					}
 				}
 
 				if (allCredentials.environmentId) {
 					setEnvironmentId(allCredentials.environmentId);
-					logger.info(
-						"DiscoveryPanel",
-						"Pre-populated Environment ID from stored credentials",
-						{
-							environmentId: allCredentials.environmentId,
-						},
-					);
+					logger.info('DiscoveryPanel', 'Pre-populated Environment ID from stored credentials', {
+						environmentId: allCredentials.environmentId,
+					});
 				}
 			}
 
 			// Set the region from preferences
 			setRegion(preferences.region);
-			logger.info(
-				"DiscoveryPanel",
-				"Pre-populated Region from discovery preferences",
-				{
-					region: preferences.region,
-				},
-			);
+			logger.info('DiscoveryPanel', 'Pre-populated Region from discovery preferences', {
+				region: preferences.region,
+			});
 		} catch (error) {
-			logger.error(
-				"DiscoveryPanel",
-				"Failed to load stored discovery preferences",
-				error,
-			);
+			logger.error('DiscoveryPanel', 'Failed to load stored discovery preferences', error);
 		}
 	}, []);
 
@@ -369,88 +336,57 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({
 
 	const handleDiscover = async () => {
 		if (!environmentId.trim()) {
-			setStatus({ type: "error", message: "Please enter an Environment ID" });
-			showGlobalError(
-				"Authorization failed",
-				"Enter your PingOne environment ID to discover configuration.",
-			);
+			setStatus({ type: 'error', message: 'Please enter an Environment ID' });
+			v4ToastManager.showError('Please enter a valid PingOne Environment ID to discover endpoints');
 			return;
 		}
 
 		if (!discoveryService.validateEnvironmentId(environmentId)) {
 			setStatus({
-				type: "error",
-				message: "Invalid Environment ID format. Please enter a valid UUID.",
+				type: 'error',
+				message: 'Invalid Environment ID format. Please enter a valid UUID.',
 			});
-			showGlobalError(
-				"Authorization failed",
-				"Provide a valid PingOne environment ID (UUID format).",
-			);
+			v4ToastManager.showError('Environment ID must be a valid UUID format (e.g., 12345678-1234-1234-1234-123456789abc)');
 			return;
 		}
 
-		// Save current preferences before discovering
+		// Save discovery preferences
 		credentialManager.saveDiscoveryPreferences({
-			environmentId: environmentId.trim(),
+			environmentId,
 			region,
 		});
 
 		setIsLoading(true);
 		setStatus(null);
-		setDiscoveredConfig(null);
-		showGlobalWarning(
-			"Discovery in progress",
-			"Requesting OIDC metadata from PingOne.",
-		);
-
 		try {
-			const result = await discoveryService.discoverConfiguration(
-				environmentId,
-				region,
-			);
+			const result = await discoveryService.discoverConfiguration(environmentId, region);
 
 			if (result.success && result.configuration) {
 				setDiscoveredConfig(result.configuration);
 				setStatus({
-					type: "success",
-					message: "Configuration discovered successfully",
+					type: 'success',
+					message: 'Configuration discovered successfully',
 				});
-				showGlobalSuccess(
-					"Discovery complete",
-					"PingOne discovery finished. Review the metadata below.",
-				);
-				logger.success(
-					"DiscoveryPanel",
-					"Configuration discovered successfully",
-					{
-						environmentId,
-						issuer: result.configuration.issuer,
-					},
-				);
+				v4ToastManager.showSuccess('saveConfigurationSuccess');
+				logger.success('DiscoveryPanel', 'Configuration discovered successfully', {
+					environmentId,
+					issuer: result.configuration.issuer,
+				});
 			} else {
 				setStatus({
-					type: "error",
-					message: result.error || "Failed to discover configuration",
+					type: 'error',
+					message: result.error || 'Failed to discover configuration',
 				});
-				showGlobalError(
-					"Authorization failed",
-					result.error ||
-						"We couldn't discover configuration. Verify your environment ID and try again.",
-				);
+				v4ToastManager.showError('networkError');
 			}
 		} catch (error) {
-			console.error(" [DiscoveryPanel] Discovery failed:", error);
-			showGlobalError(
-				"Discovery failed",
-				"PingOne discovery was not successful. Check the environment ID and try again.",
-			);
+			console.error(' [DiscoveryPanel] Discovery failed:', error);
+			v4ToastManager.showError('networkError');
 			setStatus({
-				type: "error",
+				type: 'error',
 				message:
-					"Failed to discover configuration. Please verify your Environment ID and try again.",
+					'Failed to discover configuration. Please verify your Environment ID and try again.',
 			});
-		} finally {
-			setIsLoading(false);
 		}
 	};
 
@@ -458,23 +394,14 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({
 		if (discoveredConfig) {
 			try {
 				onConfigurationDiscovered(discoveredConfig, environmentId);
-				showGlobalSuccess(
-					"Access granted",
-					"PingOne discovery endpoints have been applied to your configuration.",
-				);
+				v4ToastManager.showSuccess('saveConfigurationSuccess');
 				onClose();
 			} catch (error) {
-				showGlobalError(
-					" Failed to Apply Configuration",
-					"There was an error applying the discovered configuration. Please try again.",
-				);
-				logger.error("DiscoveryPanel", "Failed to apply configuration", error);
+				v4ToastManager.showError('stepError');
+				logger.error('DiscoveryPanel', 'Failed to apply configuration', error);
 			}
 		} else {
-			showGlobalError(
-				"Authorization failed",
-				"Discover configuration before applying it.",
-			);
+			v4ToastManager.showError('stepError');
 		}
 	};
 
@@ -482,14 +409,11 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({
 		try {
 			await navigator.clipboard.writeText(text);
 			setCopiedField(field);
-			showGlobalSuccess("Copied", `${field} endpoint copied to the clipboard.`);
+			v4ToastManager.showCopySuccess(field);
 			setTimeout(() => setCopiedField(null), 2000);
 		} catch (error) {
-			console.error("Failed to copy:", error);
-			showGlobalError(
-				"Copy failed",
-				`We couldn't copy the ${field} endpoint. Try again.`,
-			);
+			console.error('Failed to copy:', error);
+			v4ToastManager.showCopyError(field);
 		}
 	};
 
@@ -507,10 +431,9 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({
 				</Header>
 
 				<Content>
-					<p style={{ margin: "0 0 1.5rem 0", color: "#6b7280" }}>
-						Discover PingOne OpenID Connect configuration automatically. This
-						will populate your configuration with the correct endpoints and
-						settings.
+					<p style={{ margin: '0 0 1.5rem 0', color: '#6b7280' }}>
+						Discover PingOne OpenID Connect configuration automatically. This will populate your
+						configuration with the correct endpoints and settings.
 					</p>
 
 					<FormGroup>
@@ -523,7 +446,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({
 							placeholder="Enter your PingOne Environment ID (UUID format)"
 							disabled={isLoading}
 						/>
-						<small style={{ color: "#6b7280", fontSize: "0.75rem" }}>
+						<small style={{ color: '#6b7280', fontSize: '0.75rem' }}>
 							Or paste a PingOne URL to auto-extract the Environment ID
 						</small>
 					</FormGroup>
@@ -543,26 +466,22 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({
 						</Select>
 					</FormGroup>
 
-					<div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
+					<div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
 						<Button
 							variant="primary"
 							onClick={handleDiscover}
 							disabled={isLoading || !environmentId.trim()}
 						>
-							{isLoading ? (
-								<FiRefreshCw className="animate-spin" />
-							) : (
-								<FiSearch />
-							)}
-							{isLoading ? "Discovering..." : "Discover Configuration"}
+							{isLoading ? <FiRefreshCw className="animate-spin" /> : <FiSearch />}
+							{isLoading ? 'Discovering...' : 'Discover Configuration'}
 						</Button>
 					</div>
 
 					{status && (
 						<StatusMessage type={status.type}>
-							{status.type === "success" && <FiCheckCircle />}
-							{status.type === "error" && <FiAlertCircle />}
-							{status.type === "info" && <FiSettings />}
+							{status.type === 'success' && <FiCheckCircle />}
+							{status.type === 'error' && <FiAlertCircle />}
+							{status.type === 'info' && <FiSettings />}
 							{status.message}
 						</StatusMessage>
 					)}
@@ -571,9 +490,9 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({
 						<ConfigurationDisplay>
 							<h3
 								style={{
-									margin: "0 0 1rem 0",
-									fontSize: "1rem",
-									fontWeight: "600",
+									margin: '0 0 1rem 0',
+									fontSize: '1rem',
+									fontWeight: '600',
 								}}
 							>
 								Discovered Configuration
@@ -584,16 +503,10 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({
 								<ConfigValue>
 									{discoveredConfig.issuer}
 									<CopyButton
-										onClick={() =>
-											handleCopyToClipboard(discoveredConfig.issuer, "issuer")
-										}
+										onClick={() => handleCopyToClipboard(discoveredConfig.issuer, 'issuer')}
 										title="Copy Issuer"
 									>
-										{copiedField === "issuer" ? (
-											<FiCheck size={14} />
-										) : (
-											<CopyIcon size={14} />
-										)}
+										{copiedField === 'issuer' ? <FiCheck size={14} /> : <CopyIcon size={14} />}
 									</CopyButton>
 								</ConfigValue>
 							</ConfigItem>
@@ -604,18 +517,11 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({
 									{discoveredConfig.authorization_endpoint}
 									<CopyButton
 										onClick={() =>
-											handleCopyToClipboard(
-												discoveredConfig.authorization_endpoint,
-												"auth",
-											)
+											handleCopyToClipboard(discoveredConfig.authorization_endpoint, 'auth')
 										}
 										title="Copy Authorization Endpoint"
 									>
-										{copiedField === "auth" ? (
-											<FiCheck size={14} />
-										) : (
-											<CopyIcon size={14} />
-										)}
+										{copiedField === 'auth' ? <FiCheck size={14} /> : <CopyIcon size={14} />}
 									</CopyButton>
 								</ConfigValue>
 							</ConfigItem>
@@ -625,19 +531,10 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({
 								<ConfigValue>
 									{discoveredConfig.token_endpoint}
 									<CopyButton
-										onClick={() =>
-											handleCopyToClipboard(
-												discoveredConfig.token_endpoint,
-												"token",
-											)
-										}
+										onClick={() => handleCopyToClipboard(discoveredConfig.token_endpoint, 'token')}
 										title="Copy Token Endpoint"
 									>
-										{copiedField === "token" ? (
-											<FiCheck size={14} />
-										) : (
-											<CopyIcon size={14} />
-										)}
+										{copiedField === 'token' ? <FiCheck size={14} /> : <CopyIcon size={14} />}
 									</CopyButton>
 								</ConfigValue>
 							</ConfigItem>
@@ -648,18 +545,11 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({
 									{discoveredConfig.userinfo_endpoint}
 									<CopyButton
 										onClick={() =>
-											handleCopyToClipboard(
-												discoveredConfig.userinfo_endpoint,
-												"userinfo",
-											)
+											handleCopyToClipboard(discoveredConfig.userinfo_endpoint, 'userinfo')
 										}
 										title="Copy UserInfo Endpoint"
 									>
-										{copiedField === "userinfo" ? (
-											<FiCheck size={14} />
-										) : (
-											<CopyIcon size={14} />
-										)}
+										{copiedField === 'userinfo' ? <FiCheck size={14} /> : <CopyIcon size={14} />}
 									</CopyButton>
 								</ConfigValue>
 							</ConfigItem>
@@ -669,21 +559,15 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({
 								<ConfigValue>
 									{discoveredConfig.jwks_uri}
 									<CopyButton
-										onClick={() =>
-											handleCopyToClipboard(discoveredConfig.jwks_uri, "jwks")
-										}
+										onClick={() => handleCopyToClipboard(discoveredConfig.jwks_uri, 'jwks')}
 										title="Copy JWKS URI"
 									>
-										{copiedField === "jwks" ? (
-											<FiCheck size={14} />
-										) : (
-											<CopyIcon size={14} />
-										)}
+										{copiedField === 'jwks' ? <FiCheck size={14} /> : <CopyIcon size={14} />}
 									</CopyButton>
 								</ConfigValue>
 							</ConfigItem>
 
-							<div style={{ marginTop: "1rem", display: "flex", gap: "1rem" }}>
+							<div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
 								<Button variant="primary" onClick={handleApplyConfiguration}>
 									<FiCheckCircle />
 									Apply Configuration
@@ -693,10 +577,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({
 										variant="secondary"
 										onClick={() => {
 											setDiscoveredConfig(null);
-											showGlobalSuccess(
-												" Configuration Cleared",
-												"The discovered configuration has been cleared",
-											);
+											v4ToastManager.showSuccess('saveConfigurationSuccess');
 										}}
 									>
 										<FiRefreshCw />
@@ -706,10 +587,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({
 								<Button
 									variant="secondary"
 									onClick={() => {
-										showGlobalSuccess(
-											" Discovery Panel Closed",
-											"You can reopen it anytime from the Configuration page",
-										);
+										v4ToastManager.showSuccess('saveConfigurationSuccess');
 										onClose();
 									}}
 								>
