@@ -8,6 +8,7 @@ import {
 	FiCode,
 	FiCpu,
 	FiExternalLink,
+	FiFileText,
 	FiGithub,
 	FiGlobe,
 	FiHome,
@@ -748,16 +749,20 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
 					<Submenu $isOpen={openMenus.docs}>
 						<SubmenuItem to="/documentation" onClick={onClose}>
-							Local Documentation
+							<FiBook style={{ marginRight: '0.5rem' }} />
+							<span>Local Documentation</span>
 						</SubmenuItem>
 						<SubmenuItem to="/docs/oidc-specs" onClick={onClose}>
-							OIDC Specs
+							<FiFileText style={{ marginRight: '0.5rem' }} />
+							<span>OIDC Specs</span>
 						</SubmenuItem>
 						<SubmenuItem to="/docs/oidc-for-ai" onClick={onClose}>
-							OIDC for AI
+							<FiCpu style={{ marginRight: '0.5rem' }} />
+							<span>OIDC for AI</span>
 						</SubmenuItem>
 						<SubmenuItem to="/docs/oauth2-security-best-practices" onClick={onClose}>
-							OAuth 2.0 Security Best Practices
+							<FiShield style={{ marginRight: '0.5rem' }} />
+							<span>OAuth 2.0 Security Best Practices</span>
 						</SubmenuItem>
 						<SubmenuItem
 							as="a"
