@@ -17,6 +17,8 @@ import {
 import styled from 'styled-components';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
+import FlowInfoCard from '../../components/FlowInfoCard';
+import { getFlowInfo } from '../../utils/flowInfoConfig';
 import {
 	ExplanationHeading,
 	ExplanationSection,
@@ -1335,9 +1337,11 @@ const OIDCImplicitFlowV5: React.FC = () => {
 						Experience the OIDC Implicit Flow with ID Token support. Note: This is a legacy flow - 
 						consider using Authorization Code + PKCE instead.
 					</Subtitle>
-				</HeaderSection>
+			</HeaderSection>
 
-				<MainCard>
+			<FlowInfoCard flowInfo={getFlowInfo('oidc-implicit')!} />
+
+			<MainCard>
 					<StepHeader>
 						<StepHeaderLeft>
 							<VersionBadge>OIDC Implicit Flow · V5 · Legacy</VersionBadge>
