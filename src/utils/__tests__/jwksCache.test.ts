@@ -1,14 +1,7 @@
 // src/utils/__tests__/jwksCache.test.ts - Tests for JWKS caching utilities
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import {
-	JWKSCache,
-	LocalStorageJWKSCache,
-	CacheEntry,
-	JWKSCacheEntry,
-	CacheConfig,
-	CacheStats,
-} from '../jwksCache';
-import { JWKS, JWK } from '../jwks';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { JWKS } from '../jwks';
+import { JWKSCache, LocalStorageJWKSCache } from '../jwksCache';
 
 // Mock logger
 vi.mock('../logger', () => ({

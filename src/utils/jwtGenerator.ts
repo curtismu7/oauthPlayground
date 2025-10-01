@@ -236,7 +236,7 @@ class JWTGenerator {
 	 */
 	validateJWT(
 		token: string,
-		secret?: string
+		_secret?: string
 	): {
 		valid: boolean;
 		payload?: JWTPayload;
@@ -278,7 +278,7 @@ class JWTGenerator {
 
 			const now = Math.floor(Date.now() / 1000);
 			return payload.exp < now;
-		} catch (error) {
+		} catch (_error) {
 			return true;
 		}
 	}
@@ -292,7 +292,7 @@ class JWTGenerator {
 			if (!payload.exp) return null;
 
 			return new Date(payload.exp * 1000);
-		} catch (error) {
+		} catch (_error) {
 			return null;
 		}
 	}

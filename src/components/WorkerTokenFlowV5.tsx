@@ -1,14 +1,10 @@
 // src/components/WorkerTokenFlowV5.tsx
 import { useCallback, useEffect, useId, useMemo, useState } from 'react';
 import {
-	FiAlertCircle,
-	FiArrowRight,
 	FiCheckCircle,
 	FiChevronDown,
 	FiCopy,
 	FiExternalLink,
-	FiEye,
-	FiEyeOff,
 	FiGlobe,
 	FiInfo,
 	FiKey,
@@ -16,38 +12,22 @@ import {
 	FiSettings,
 	FiShield,
 } from 'react-icons/fi';
+import { themeService } from '../services/themeService';
 import styled from 'styled-components';
+import { useWorkerTokenFlowController } from '../hooks/useWorkerTokenFlowController';
+import { pingOneConfigService } from '../services/pingoneConfigService';
+import { trackOAuthFlow } from '../utils/activityTracker';
+import { getFlowInfo } from '../utils/flowInfoConfig';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 import ConfigurationSummaryCard from './ConfigurationSummaryCard';
 import { CredentialsInput } from './CredentialsInput';
 import FlowInfoCard from './FlowInfoCard';
-import { getFlowInfo } from '../utils/flowInfoConfig';
-import { FlowWalkthrough } from './FlowWalkthrough';
-import {
-	ExplanationHeading,
-	ExplanationSection,
-	FlowDiagram,
-	FlowStep,
-	FlowStepContent,
-	FlowStepNumber,
-} from './InfoBlocks';
-import PingOneApplicationConfig, {
-	type PingOneApplicationState,
-} from './PingOneApplicationConfig';
-import {
-	HelperText,
-	ResultsHeading,
-	ResultsSection,
-	SectionDivider,
-} from './ResultsPanel';
+import { FlowDiagram, FlowStep, FlowStepContent, FlowStepNumber } from './InfoBlocks';
+import PingOneApplicationConfig, { type PingOneApplicationState } from './PingOneApplicationConfig';
+import { HelperText, ResultsHeading, ResultsSection, SectionDivider } from './ResultsPanel';
 import SecurityFeaturesDemo from './SecurityFeaturesDemo';
 import { StepNavigationButtons } from './StepNavigationButtons';
-import type { StepCredentials } from './steps/CommonSteps';
 import TokenIntrospect from './TokenIntrospect';
-import { useWorkerTokenFlowController } from '../hooks/useWorkerTokenFlowController';
-import { decodeJWTHeader } from '../utils/jwks';
-import { v4ToastManager } from '../utils/v4ToastMessages';
-import { pingOneConfigService } from '../services/pingoneConfigService';
-import { trackOAuthFlow } from '../utils/activityTracker';
 
 export interface WorkerTokenFlowV5Props {
 	flowName?: string;
@@ -57,8 +37,14 @@ export interface WorkerTokenFlowV5Props {
 }
 
 const STEP_METADATA = [
-	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the Worker Token Flow and configure PingOne' },
-	{ title: 'Step 1: Worker Token Request', subtitle: 'Request access token using client credentials' },
+	{
+		title: 'Step 0: Introduction & Setup',
+		subtitle: 'Understand the Worker Token Flow and configure PingOne',
+	},
+	{
+		title: 'Step 1: Worker Token Request',
+		subtitle: 'Request access token using client credentials',
+	},
 	{ title: 'Step 2: Token Response', subtitle: 'Review the received access token' },
 	{ title: 'Step 3: Flow Complete', subtitle: 'Review results and next steps' },
 	{ title: 'Step 4: Security Features', subtitle: 'Demonstrate advanced security implementations' },
@@ -192,8 +178,23 @@ const CollapsibleTitle = styled.h3`
 `;
 
 const CollapsibleToggleIcon = styled.span<{ $collapsed: boolean }>`
-	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
-	transition: transform 0.2s;
+	${() => themeService.getCollapseIconStyles()}
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	svg {
+		width: 16px;
+		height: 16px;
+	}
+
+	&:hover {
+		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)')};
+	}
 `;
 
 const CollapsibleContent = styled.div`
@@ -212,13 +213,21 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'success' | 'warning' | 'error'
 	border-radius: 0.5rem;
 	margin: 1rem 0;
 	background-color: ${({ $variant }) =>
-		$variant === 'success' ? '#f0fdf4' : 
-		$variant === 'warning' ? '#fef3c7' : 
-		$variant === 'error' ? '#fef2f2' : '#eff6ff'};
+		$variant === 'success'
+			? '#f0fdf4'
+			: $variant === 'warning'
+				? '#fef3c7'
+				: $variant === 'error'
+					? '#fef2f2'
+					: '#eff6ff'};
 	border: 1px solid ${({ $variant }) =>
-		$variant === 'success' ? '#22c55e' : 
-		$variant === 'warning' ? '#f59e0b' : 
-		$variant === 'error' ? '#ef4444' : '#3b82f6'};
+		$variant === 'success'
+			? '#22c55e'
+			: $variant === 'warning'
+				? '#f59e0b'
+				: $variant === 'error'
+					? '#ef4444'
+					: '#3b82f6'};
 `;
 
 const InfoTitle = styled.h4`
@@ -395,7 +404,7 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 		'Explore token introspection and revocation flows.',
 	],
 }) => {
-	const manualAuthCodeId = useId();
+	const _manualAuthCodeId = useId();
 	const controller = useWorkerTokenFlowController({
 		flowKey: 'worker-token-v5',
 		enableDebugger: true,
@@ -502,9 +511,9 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 					...currentConfig.advanced,
 					oidcSessionManagement: newConfig.oidcSessionManagement,
 					terminateByIdToken: newConfig.terminateUserSessionByIdToken,
-				}
+				},
 			};
-			
+
 			pingOneConfigService.saveConfig(mappedConfig);
 			setPingOneConfig(newConfig);
 			v4ToastManager.showSuccess('PingOne configuration saved successfully!');
@@ -516,7 +525,7 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 
 	// Toggle collapsible sections
 	const toggleSection = useCallback((section: IntroSectionKey) => {
-		setCollapsedSections(prev => ({
+		setCollapsedSections((prev) => ({
 			...prev,
 			[section]: !prev[section],
 		}));
@@ -547,9 +556,9 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 
 	// Check if user can request token (has required credentials)
 	const canRequestToken = Boolean(
-		controller.credentials.environmentId && 
-		controller.credentials.clientId && 
-		controller.credentials.clientSecret
+		controller.credentials.environmentId &&
+			controller.credentials.clientId &&
+			controller.credentials.clientSecret
 	);
 
 	// Update step completion when step becomes valid
@@ -565,7 +574,7 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 			newCompletion[0] = true;
 			setStepCompletion(newCompletion);
 		}
-	}, [currentStep, isStepValid]);
+	}, [currentStep, isStepValid, stepCompletion]);
 
 	// Track flow activity
 	useEffect(() => {
@@ -602,9 +611,9 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 										<div>
 											<InfoTitle>What is the Worker Token Flow?</InfoTitle>
 											<InfoText>
-												The Worker Token Flow (also known as Client Credentials Flow) allows server-to-server 
-												authentication using client credentials. This flow is ideal for machine-to-machine 
-												communication where no user interaction is required.
+												The Worker Token Flow (also known as Client Credentials Flow) allows
+												server-to-server authentication using client credentials. This flow is ideal
+												for machine-to-machine communication where no user interaction is required.
 											</InfoText>
 											<InfoList>
 												<li>Direct token request using client credentials</li>
@@ -665,13 +674,11 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 								<FiSettings size={18} /> PingOne Configuration
 							</ResultsHeading>
 							<HelperText>
-								Configure your PingOne environment and application credentials for the Worker Token Flow.
+								Configure your PingOne environment and application credentials for the Worker Token
+								Flow.
 							</HelperText>
 
-							<PingOneApplicationConfig
-								value={pingOneConfig}
-								onChange={savePingOneConfig}
-							/>
+							<PingOneApplicationConfig value={pingOneConfig} onChange={savePingOneConfig} />
 
 							<CredentialsInput
 								environmentId={controller.credentials.environmentId || ''}
@@ -716,8 +723,8 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 						<InfoBox>
 							<InfoTitle>Worker Token Request</InfoTitle>
 							<InfoText>
-								Click the button below to request an access token using your configured client credentials.
-								This will make an authenticated request to the PingOne token endpoint.
+								Click the button below to request an access token using your configured client
+								credentials. This will make an authenticated request to the PingOne token endpoint.
 							</InfoText>
 						</InfoBox>
 
@@ -826,15 +833,19 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 										{controller.tokens.expires_in && (
 											<div>
 												<ParameterLabel>Expires In</ParameterLabel>
-												<ParameterValue>{String(controller.tokens.expires_in)} seconds</ParameterValue>
+												<ParameterValue>
+													{String(controller.tokens.expires_in)} seconds
+												</ParameterValue>
 											</div>
 										)}
 									</ParameterGrid>
-									
+
 									{/* Token Management Buttons */}
-									<ActionRow style={{ justifyContent: 'center', gap: '0.75rem', marginTop: '1.5rem' }}>
-										<Button 
-											onClick={navigateToTokenManagement} 
+									<ActionRow
+										style={{ justifyContent: 'center', gap: '0.75rem', marginTop: '1.5rem' }}
+									>
+										<Button
+											onClick={navigateToTokenManagement}
 											$variant="primary"
 											style={{
 												backgroundColor: '#3b82f6',
@@ -875,7 +886,8 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 								<InfoBox $variant="success">
 									<InfoTitle>Token Response Received</InfoTitle>
 									<InfoText>
-										Successfully received an access token from PingOne. Review the token details below.
+										Successfully received an access token from PingOne. Review the token details
+										below.
 									</InfoText>
 								</InfoBox>
 
@@ -919,14 +931,10 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 								</ActionRow>
 							</>
 						) : (
-							<>
-								<InfoBox $variant="warning">
-									<InfoTitle>No Token Received</InfoTitle>
-									<InfoText>
-										Please complete Step 1 to request an access token first.
-									</InfoText>
-								</InfoBox>
-							</>
+							<InfoBox $variant="warning">
+								<InfoTitle>No Token Received</InfoTitle>
+								<InfoText>Please complete Step 1 to request an access token first.</InfoText>
+							</InfoBox>
 						)}
 					</>
 				);
@@ -1004,7 +1012,7 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 										<div>
 											<InfoTitle>Worker Token Security</InfoTitle>
 											<InfoText>
-												The Worker Token Flow implements several security features to protect your 
+												The Worker Token Flow implements several security features to protect your
 												server-to-server communications.
 											</InfoText>
 										</div>
@@ -1043,7 +1051,7 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 										<div>
 											<InfoTitle>Token Introspection</InfoTitle>
 											<InfoText>
-												Token introspection allows you to validate and inspect access tokens to 
+												Token introspection allows you to validate and inspect access tokens to
 												determine their current state and associated metadata.
 											</InfoText>
 										</div>
@@ -1055,10 +1063,10 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 						<TokenIntrospect
 							flowType="worker-token"
 							tokens={controller.tokens}
-						credentials={controller.credentials}
-						onIntrospect={controller.introspectToken}
-						isIntrospecting={controller.isIntrospecting}
-						introspectionResult={controller.introspectionResults}
+							credentials={controller.credentials}
+							onIntrospect={controller.introspectToken}
+							isIntrospecting={controller.isIntrospecting}
+							introspectionResult={controller.introspectionResults}
 						/>
 					</>
 				);
@@ -1081,6 +1089,7 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 		toggleSection,
 		completionMessage,
 		nextSteps,
+		navigateToTokenManagement,
 	]);
 
 	const canGoToNextStep = useCallback(() => {
@@ -1097,17 +1106,17 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 
 	const goToNextStep = useCallback(() => {
 		if (canGoToNextStep()) {
-			setCurrentStep(prev => prev + 1);
+			setCurrentStep((prev) => prev + 1);
 		}
 	}, [canGoToNextStep]);
 
 	const goToPreviousStep = useCallback(() => {
 		if (canGoToPreviousStep()) {
-			setCurrentStep(prev => prev - 1);
+			setCurrentStep((prev) => prev - 1);
 		}
 	}, [canGoToPreviousStep]);
 
-	const goToStep = useCallback((step: number) => {
+	const _goToStep = useCallback((step: number) => {
 		if (step >= 0 && step < STEP_METADATA.length) {
 			setCurrentStep(step);
 		}
@@ -1115,16 +1124,16 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 
 	const handleResetFlow = useCallback(() => {
 		console.log('🔄 [WorkerTokenFlowV5] handleResetFlow called');
-		
+
 		// Reset controller state
 		controller.resetFlow();
-		
+
 		// Reset local component state
 		setCurrentStep(0);
 		setStepCompletion({
 			0: true, // Step 0 is always complete
 		});
-		
+
 		console.log('✅ [WorkerTokenFlowV5] Flow reset completed - returned to step 0');
 	}, [controller]);
 
@@ -1138,13 +1147,13 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 				timestamp: Date.now(),
 			};
 			sessionStorage.setItem('tokenManagementFlowContext', JSON.stringify(flowContext));
-			
+
 			// Pass access token to Token Management
 			localStorage.setItem('token_to_analyze', controller.tokens.access_token);
 			localStorage.setItem('token_type', 'access');
 			localStorage.setItem('flow_source', 'worker-token-v5');
 		}
-		
+
 		window.open('/token-management', '_blank');
 	}, [controller.tokens, controller.credentials]);
 
@@ -1154,13 +1163,14 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 				<HeaderSection>
 					<MainTitle>{flowName}</MainTitle>
 					<Subtitle>
-						Experience the complete Worker Token Flow with step-by-step guidance and real-time feedback.
+						Experience the complete Worker Token Flow with step-by-step guidance and real-time
+						feedback.
 					</Subtitle>
-			</HeaderSection>
+				</HeaderSection>
 
-			<FlowInfoCard flowInfo={getFlowInfo('worker-token')!} />
+				<FlowInfoCard flowInfo={getFlowInfo('worker-token')!} />
 
-			<MainCard>
+				<MainCard>
 					<StepHeader>
 						<StepHeaderLeft>
 							<VersionBadge>{flowVersion}</VersionBadge>
@@ -1169,9 +1179,7 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 						</StepHeaderLeft>
 					</StepHeader>
 
-					<StepContent>
-						{renderStepContent}
-					</StepContent>
+					<StepContent>{renderStepContent}</StepContent>
 				</MainCard>
 
 				<StepNavigationButtons

@@ -115,7 +115,7 @@ export async function discoverWorkerApp(
 	clientId: string
 ): Promise<WorkerApp | null> {
 	logger.info('API-CLIENT', 'Discovering worker app', {
-		clientId: clientId.substring(0, 8) + '...',
+		clientId: `${clientId.substring(0, 8)}...`,
 		environmentId: client.environmentId,
 	});
 

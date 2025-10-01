@@ -223,7 +223,7 @@ function removeUnusedVariables() {
 
 function addESLintDisables() {
 	const srcDir = path.join(__dirname, 'src');
-	const files = getAllFiles(srcDir);
+	const _files = getAllFiles(srcDir);
 	let totalFixes = 0;
 
 	console.log('\n🔧 Adding ESLint disable comments for remaining issues...\n');

@@ -128,8 +128,8 @@ const Callback = () => {
 					hasStoredState: !!storedState,
 					hasStoredCodeVerifier: !!storedCodeVerifier,
 					hasStoredRedirectAfterLogin: !!storedRedirectAfterLogin,
-					storedState: storedState?.substring(0, 8) + '...',
-					storedCodeVerifier: storedCodeVerifier?.substring(0, 20) + '...',
+					storedState: `${storedState?.substring(0, 8)}...`,
+					storedCodeVerifier: `${storedCodeVerifier?.substring(0, 20)}...`,
 					storedRedirectAfterLogin,
 				});
 

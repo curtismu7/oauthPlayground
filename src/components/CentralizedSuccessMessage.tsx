@@ -1,7 +1,7 @@
 // src/components/CentralizedSuccessMessage.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { FiAlertCircle, FiCheckCircle, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiCheckCircle, FiAlertCircle, FiX } from 'react-icons/fi';
 
 /**
  * Centralized success and error message system
@@ -367,7 +367,7 @@ export const showFlowSuccess = (text: string, subtitle?: string, autoCloseMs?: n
 };
 
 export const showFlowError = (summary: string, details?: string) => {
-	const message = details ? `${summary}\n${details}` : summary;
+	const _message = details ? `${summary}\n${details}` : summary;
 	addMessage({ text: summary, isError: true, html: buildErrorHtml(summary, details) });
 };
 

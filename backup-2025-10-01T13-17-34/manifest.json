@@ -1,0 +1,15 @@
+{
+  "timestamp": "2025-10-01T13:17:34.429Z",
+  "backupDir": "/Users/cmuir/P1Import-apps/oauth-playground/backup-2025-10-01T13-17-34",
+  "filesBackedUp": 393,
+  "totalSize": 6624882,
+  "sizeFormatted": "6.32 MB",
+  "items": [
+    "src",
+    "package.json",
+    "package-lock.json",
+    "tsconfig.json",
+    "vite.config.ts",
+    "eslint.config.js"
+  ]
+}

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts/NewAuthContext';
+import { FiCheckCircle, FiLoader, FiXCircle } from 'react-icons/fi';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiCheckCircle, FiXCircle, FiLoader } from 'react-icons/fi';
+import { useAuth } from '../../contexts/NewAuthContext';
 import { logger } from '../../utils/logger';
 import { getValidatedCurrentUrl } from '../../utils/urlValidation';
 
@@ -84,7 +84,7 @@ const ErrorDetails = styled.pre`
 
 const WorkerTokenCallback: React.FC = () => {
 	const navigate = useNavigate();
-	const location = useLocation();
+	const _location = useLocation();
 	const { handleCallback } = useAuth();
 	const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
 	const [message, setMessage] = useState('Processing worker token callback...');
@@ -124,7 +124,7 @@ const WorkerTokenCallback: React.FC = () => {
 		};
 
 		processCallback();
-	}, [location.href, handleCallback, navigate]);
+	}, [handleCallback, navigate]);
 
 	const getStatusIcon = () => {
 		switch (status) {

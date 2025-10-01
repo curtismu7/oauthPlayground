@@ -1,11 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../contexts/NewAuthContext';
 import {
-	tokenRefreshService,
+	getTokenRefreshStatus,
 	initializeTokenRefresh,
 	refreshTokens,
 	stopTokenRefresh,
-	getTokenRefreshStatus,
 	type TokenRefreshConfig,
 	type TokenRefreshResult,
 } from '../services/tokenRefreshService';
@@ -80,7 +79,7 @@ export const useTokenRefresh = (options: UseTokenRefreshOptions = {}): UseTokenR
 							'Found invalid refresh token, clearing and skipping initialization',
 							{
 								tokenLength: tokens.refresh_token.length,
-								tokenPreview: tokens.refresh_token.substring(0, 10) + '...',
+								tokenPreview: `${tokens.refresh_token.substring(0, 10)}...`,
 							}
 						);
 						// Clear invalid token from storage
@@ -118,7 +117,7 @@ export const useTokenRefresh = (options: UseTokenRefreshOptions = {}): UseTokenR
 		return () => {
 			stopTokenRefresh();
 		};
-	}, [config, autoRefresh, refreshThreshold]);
+	}, [config]);
 
 	// Monitor refresh status
 	useEffect(() => {
@@ -205,7 +204,7 @@ export const useTokenRefresh = (options: UseTokenRefreshOptions = {}): UseTokenR
 						'Found invalid refresh token, clearing and aborting auto refresh start',
 						{
 							tokenLength: tokens.refresh_token.length,
-							tokenPreview: tokens.refresh_token.substring(0, 10) + '...',
+							tokenPreview: `${tokens.refresh_token.substring(0, 10)}...`,
 						}
 					);
 					// Clear invalid token from storage

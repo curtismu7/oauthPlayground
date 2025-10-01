@@ -1,24 +1,24 @@
 // Worker Token Display component for token visualization and management
 
-import React, { useState, useEffect, useCallback } from 'react';
-import styled from 'styled-components';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
+	FiAlertCircle,
+	FiCheck,
+	FiClock,
 	FiCopy,
-	FiRefreshCw,
 	FiEye,
 	FiEyeOff,
-	FiClock,
+	FiRefreshCw,
 	FiShield,
-	FiCheck,
-	FiAlertCircle,
 } from 'react-icons/fi';
-import { logger } from '../../utils/logger';
-import { parseJWTPayload, formatScopes } from '../../utils/workerToken';
+import styled from 'styled-components';
 import {
-	WorkerTokenResponse,
-	TokenIntrospectionResponse,
 	JWTPayload,
+	TokenIntrospectionResponse,
+	WorkerTokenResponse,
 } from '../../types/workerToken';
+import { logger } from '../../utils/logger';
+import { formatScopes, parseJWTPayload } from '../../utils/workerToken';
 
 const Container = styled.div`
   background: white;

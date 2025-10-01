@@ -1,37 +1,19 @@
 // src/components/EnhancedStepFlow.tsx
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import styled from 'styled-components';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-	FiPlay,
-	FiPause,
-	FiSkipForward,
-	FiSkipBack,
-	FiRefreshCw,
-	FiSave,
-	FiEye,
-	FiEyeOff,
-	FiCopy,
 	FiCheck,
-	FiX,
-	FiAlertCircle,
 	FiChevronLeft,
 	FiChevronRight,
-	FiSettings,
-	FiBookmark,
 	FiClock,
-	FiZap,
-	FiChevronDown,
-	FiChevronUp,
-	FiInfo,
-	FiShield,
-	FiUser,
-	FiKey,
-	FiGlobe,
-	FiCode,
-	FiCheckCircle,
-	FiXCircle,
-	FiAlertTriangle,
+	FiCopy,
+	FiPlay,
+	FiRefreshCw,
+	FiSave,
+	FiSettings,
+	FiSkipForward,
+	FiX,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 import { logger } from '../utils/logger';
 import '../styles/enhanced-flow.css';
 

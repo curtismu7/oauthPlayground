@@ -1,8 +1,8 @@
+import { createRemoteJWKSet, type JWTHeaderParameters, JWTVerifyOptions, jwtVerify } from 'jose';
 import { IdTokenPayload, UserInfo } from '../types/oauth';
-import { jwtVerify, createRemoteJWKSet, JWTVerifyOptions, type JWTHeaderParameters } from 'jose';
 
 // Client logging function for server.log
-const clientLog = async (message: string) => {
+const clientLog = async (_message: string) => {
 	// Disabled to prevent 404 errors - endpoint not implemented
 	// console.log('[ClientLog]', message);
 };
@@ -677,7 +677,7 @@ export const validateIdToken = async (
 		// 10. SECURITY: Check for explicitly set suspicious claims (not inherited)
 		const suspiciousClaims = ['__proto__', 'constructor', 'prototype'];
 		for (const claim of suspiciousClaims) {
-			if (payload.hasOwnProperty(claim)) {
+			if (Object.hasOwn(payload, claim)) {
 				console.error(' [Security] Suspicious claim explicitly set in ID token:', claim);
 				throw new Error(`Potentially malicious claim detected in ID token: ${claim}`);
 			}
