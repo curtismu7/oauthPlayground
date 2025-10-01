@@ -75,6 +75,21 @@ export const useAccessibility = (config: UseAccessibilityConfig = {}): UseAccess
 		...(isFocused && { [ARIA_PROPERTIES.CURRENT]: 'true' }),
 	};
 
+	// Focus navigation functions (must be defined before onKeyDown)
+	const focusNext = useCallback(() => {
+		const nextElement = focusManager.getNextFocusable(elementRef.current || undefined);
+		if (nextElement) {
+			focusManager.focus(nextElement);
+		}
+	}, [focusManager]);
+
+	const focusPrevious = useCallback(() => {
+		const previousElement = focusManager.getPreviousFocusable(elementRef.current || undefined);
+		if (previousElement) {
+			focusManager.focus(previousElement);
+		}
+	}, [focusManager]);
+
 	// Handle keyboard events
 	const onKeyDown = useCallback(
 		(event: React.KeyboardEvent) => {
@@ -232,20 +247,6 @@ export const useAccessibility = (config: UseAccessibilityConfig = {}): UseAccess
 	const focus = useCallback(() => {
 		if (elementRef.current) {
 			focusManager.focus(elementRef.current);
-		}
-	}, [focusManager]);
-
-	const focusNext = useCallback(() => {
-		const nextElement = focusManager.getNextFocusable(elementRef.current || undefined);
-		if (nextElement) {
-			focusManager.focus(nextElement);
-		}
-	}, [focusManager]);
-
-	const focusPrevious = useCallback(() => {
-		const previousElement = focusManager.getPreviousFocusable(elementRef.current || undefined);
-		if (previousElement) {
-			focusManager.focus(previousElement);
 		}
 	}, [focusManager]);
 
