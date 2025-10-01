@@ -243,21 +243,22 @@ const JWTIcon = () => <ColoredIcon color="#84cc16"></ColoredIcon>;
 const SessionIcon = () => <ColoredIcon color="#f97316"></ColoredIcon>;
 const SDKIcon = () => <ColoredIcon color="#6366f1"></ColoredIcon>;
 
-const NavItemHeader = styled.div<NavItemHeaderProps>`
+const NavItemHeader = styled.div<NavItemHeaderProps & { $color?: string }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1.5rem;
-  color: ${({ theme }) => theme.colors?.gray700 || '#374151'};
-  font-weight: 500;
+  color: ${({ $color }) => $color || '#374151'};
+  font-weight: 600;
   
   &:hover {
     background-color: ${({ theme }) => theme.colors?.gray100 || '#f3f4f6'};
-    color: ${({ theme }) => theme.colors?.primary || '#0070cc'};
+    color: ${({ $color }) => $color || '#0070cc'};
   }
   
   svg:first-child {
     margin-right: 0.75rem;
+    color: ${({ $color }) => $color || '#374151'};
   }
   
   svg:last-child {
@@ -268,17 +269,17 @@ const NavItemHeader = styled.div<NavItemHeaderProps>`
     color: white;
     padding: 0.4rem;
     border-radius: 6px;
-    background: #3b82f6;
-    border: 2px solid #3b82f6;
-    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+    background: ${({ $color }) => $color || '#3b82f6'};
+    border: 2px solid ${({ $color }) => $color || '#3b82f6'};
+    box-shadow: 0 2px 4px ${({ $color }) => $color ? `${$color}33` : 'rgba(59, 130, 246, 0.2)'};
     cursor: pointer;
     
     &:hover {
-      color: #1d4ed8;
-      background: #dbeafe;
-      border-color: #1d4ed8;
+      color: ${({ $color }) => $color || '#1d4ed8'};
+      background: ${({ $color }) => $color ? `${$color}22` : '#dbeafe'};
+      border-color: ${({ $color }) => $color || '#1d4ed8'};
       transform: rotate(${({ $isOpen }) => ($isOpen ? '0deg' : '-90deg')}) scale(1.1);
-      box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+      box-shadow: 0 4px 8px ${({ $color }) => $color ? `${$color}4D` : 'rgba(59, 130, 246, 0.3)'};
     }
     
     &:active {
@@ -449,7 +450,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			<NavSection>
 				<NavSectionTitle>OAuth & OpenID Connect</NavSectionTitle>
 				<NavItemWithSubmenu>
-					<NavItemHeader onClick={() => toggleMenu('oauth')} $isOpen={openMenus.oauth}>
+					<NavItemHeader onClick={() => toggleMenu('oauth')} $isOpen={openMenus.oauth} $color="#3b82f6">
 						<div>
 							<FiShield />
 							<span>OAuth 2.0 Flows</span>
@@ -544,7 +545,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 				</NavItemWithSubmenu>
 
 				<NavItemWithSubmenu>
-					<NavItemHeader onClick={() => toggleMenu('oidc')} $isOpen={openMenus.oidc}>
+					<NavItemHeader onClick={() => toggleMenu('oidc')} $isOpen={openMenus.oidc} $color="#10b981">
 						<div>
 							<FiUser />
 							<span>OpenID Connect</span>
@@ -636,7 +637,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
 				{/* Unsupported by PingOne Section */}
 				<NavItemWithSubmenu>
-					<NavItemHeader onClick={() => toggleMenu('unsupported')} $isOpen={openMenus.unsupported}>
+					<NavItemHeader onClick={() => toggleMenu('unsupported')} $isOpen={openMenus.unsupported} $color="#ef4444">
 						<div>
 							<FiAlertTriangle />
 							<span>Unsupported by PingOne</span>
@@ -679,6 +680,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					<NavItemHeader
 						onClick={() => toggleMenu('pingone-tokens')}
 						$isOpen={openMenus['pingone-tokens']}
+						$color="#8b5cf6"
 					>
 						<div>
 							<FiServer />
@@ -739,7 +741,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 				</NavItemWithSubmenu>
 
 				<NavItemWithSubmenu>
-					<NavItemHeader onClick={() => toggleMenu('docs')} $isOpen={openMenus.docs}>
+					<NavItemHeader onClick={() => toggleMenu('docs')} $isOpen={openMenus.docs} $color="#f59e0b">
 						<div>
 							<FiBookOpen />
 							<span>Documentation</span>
@@ -788,7 +790,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 				</NavItemWithSubmenu>
 
 				<NavItemWithSubmenu>
-					<NavItemHeader onClick={() => toggleMenu('resources')} $isOpen={openMenus.resources}>
+					<NavItemHeader onClick={() => toggleMenu('resources')} $isOpen={openMenus.resources} $color="#06b6d4">
 						<div>
 							<FiTool />
 							<span>Resources</span>
