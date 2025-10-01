@@ -435,7 +435,7 @@ const QRCodeContainer = styled.div`
 	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 `;
 
-const GasPumpContainer = styled.div`
+const SmartTVContainer = styled.div`
 	display: flex;
 	gap: 2rem;
 	align-items: flex-start;
@@ -446,15 +446,16 @@ const GasPumpContainer = styled.div`
 	}
 `;
 
-const GasPump = styled.div<{ $isWaiting: boolean }>`
+const SmartTV = styled.div<{ $isWaiting: boolean }>`
 	flex: 1;
 	background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
 	border-radius: 1rem;
-	padding: 2rem;
+	padding: 1.5rem;
 	color: #ffffff;
-	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 	position: relative;
 	overflow: hidden;
+	border: 8px solid #0f172a;
 
 	&::before {
 		content: '';
@@ -471,43 +472,54 @@ const GasPump = styled.div<{ $isWaiting: boolean }>`
 		background-size: 200% 100%;
 	}
 
+	&::after {
+		content: '';
+		position: absolute;
+		bottom: -20px;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 80px;
+		height: 20px;
+		background: #0f172a;
+		border-radius: 0 0 8px 8px;
+	}
+
 	@keyframes shimmer {
 		0% { background-position: -200% 0; }
 		100% { background-position: 200% 0; }
 	}
 `;
 
-const GasPumpScreen = styled.div`
-	background-color: #0f172a;
-	border: 3px solid #475569;
+const TVScreen = styled.div`
+	background-color: #000000;
+	border: 2px solid #1e293b;
 	border-radius: 0.5rem;
-	padding: 1.5rem;
-	margin-bottom: 1.5rem;
-	min-height: 200px;
+	padding: 2rem;
+	margin-bottom: 1rem;
+	min-height: 250px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
 	text-align: center;
+	box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
 `;
 
-const GasPumpDisplay = styled.div`
+const TVDisplay = styled.div`
 	font-family: 'Courier New', monospace;
 	font-size: 1.25rem;
 	color: #22c55e;
 	line-height: 1.8;
 `;
 
-const GasPumpButton = styled.div<{ $active?: boolean }>`
+const TVStatusIndicator = styled.div<{ $active?: boolean }>`
 	background-color: ${({ $active }) => $active ? '#22c55e' : '#ef4444'};
 	border-radius: 50%;
-	width: 60px;
-	height: 60px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	margin: 0 auto;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+	width: 12px;
+	height: 12px;
+	display: inline-block;
+	margin-right: 0.5rem;
+	box-shadow: 0 0 10px ${({ $active }) => $active ? '#22c55e' : '#ef4444'};
 	transition: all 0.3s ease;
 
 	${({ $active }) => $active && `
@@ -515,8 +527,8 @@ const GasPumpButton = styled.div<{ $active?: boolean }>`
 	`}
 
 	@keyframes pulse {
-		0%, 100% { transform: scale(1); opacity: 1; }
-		50% { transform: scale(1.1); opacity: 0.8; }
+		0%, 100% { opacity: 1; }
+		50% { opacity: 0.5; }
 	}
 `;
 
@@ -1010,66 +1022,65 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 								<InfoBox $variant="info">
 									<FiInfo size={20} />
 									<div>
-										<InfoTitle>Real-World Scenario: Gas Pump Payment</InfoTitle>
+										<InfoTitle>Real-World Scenario: Smart TV App</InfoTitle>
 										<InfoText>
-											Imagine you're at a gas station. The pump displays a QR code and user code. 
-											Scan the QR code with your phone to authorize payment, just like real-world device authorization!
+											Imagine you're setting up a streaming app on your Smart TV. The TV displays a QR code and user code. 
+											Scan the QR code with your phone to authorize the app, just like Netflix, YouTube, or Disney+!
 										</InfoText>
 									</div>
 								</InfoBox>
 
-								<GasPumpContainer>
-									{/* Gas Pump Device */}
-									<GasPump $isWaiting={deviceFlow.pollingStatus.isPolling || !deviceFlow.tokens}>
-										<h3 style={{ margin: '0 0 1rem 0', fontSize: '1.5rem', textAlign: 'center' }}>
-											⛽ Gas Pump #3
-										</h3>
-										<GasPumpScreen>
-											<GasPumpDisplay>
+								<SmartTVContainer>
+									{/* Smart TV Device */}
+									<SmartTV $isWaiting={deviceFlow.pollingStatus.isPolling || !deviceFlow.tokens}>
+										<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
+											<TVStatusIndicator $active={deviceFlow.pollingStatus.status === 'success'} />
+											<h3 style={{ margin: 0, fontSize: '1.25rem', color: '#94a3b8' }}>
+												📺 Smart TV - Living Room
+											</h3>
+										</div>
+										<TVScreen>
+											<TVDisplay>
 												{deviceFlow.pollingStatus.status === 'success' ? (
 													<>
-														<div style={{ fontSize: '2rem', marginBottom: '1rem' }}>✅</div>
-														<div>AUTHORIZED</div>
+														<div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✅</div>
+														<div style={{ fontSize: '1.5rem' }}>AUTHORIZED</div>
 														<div style={{ fontSize: '0.875rem', marginTop: '0.5rem', color: '#94a3b8' }}>
-															You may begin fueling
+															Welcome! Loading your content...
 														</div>
 													</>
 												) : deviceFlow.pollingStatus.isPolling ? (
 													<>
-														<div style={{ fontSize: '2rem', marginBottom: '1rem' }}>⏳</div>
+														<div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
 														<div>WAITING FOR</div>
 														<div>AUTHORIZATION...</div>
 														<div style={{ fontSize: '0.875rem', marginTop: '0.5rem', color: '#94a3b8' }}>
-															Scan QR code or enter code
+															Use your phone to authorize
 														</div>
 													</>
 												) : (
 													<>
-														<div style={{ fontSize: '2rem', marginBottom: '1rem' }}>📱</div>
-														<div>SCAN QR CODE</div>
-														<div style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>
-															OR ENTER CODE:
+														<div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📱</div>
+														<div style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Activate Your Device</div>
+														<div style={{ fontSize: '0.875rem', color: '#94a3b8', marginBottom: '1rem' }}>
+															Scan QR code or visit URL
 														</div>
-														<div style={{ fontSize: '1.5rem', marginTop: '0.5rem', letterSpacing: '0.3rem' }}>
+														<div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>
+															Enter this code:
+														</div>
+														<div style={{ fontSize: '2rem', fontWeight: 'bold', letterSpacing: '0.5rem', color: '#3b82f6' }}>
 															{deviceFlow.deviceCodeData.user_code}
 														</div>
 													</>
 												)}
-											</GasPumpDisplay>
-										</GasPumpScreen>
-										<GasPumpButton $active={deviceFlow.pollingStatus.status === 'success'}>
-											{deviceFlow.pollingStatus.status === 'success' ? (
-												<FiCheckCircle size={30} color="#ffffff" />
-											) : (
-												<FiClock size={30} color="#ffffff" />
-											)}
-										</GasPumpButton>
+											</TVDisplay>
+										</TVScreen>
 										{deviceFlow.timeRemaining > 0 && (
 											<div style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.875rem', color: '#94a3b8' }}>
 												Code expires in: {deviceFlow.formatTimeRemaining(deviceFlow.timeRemaining)}
 											</div>
 										)}
-									</GasPump>
+									</SmartTV>
 
 									{/* QR Code Section */}
 									<QRSection>
@@ -1077,7 +1088,7 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 											📱 Scan with Your Phone
 										</h3>
 										<p style={{ margin: '0 0 1.5rem 0', fontSize: '0.875rem', color: '#64748b' }}>
-											Scan this QR code to authorize the gas pump
+											Scan this QR code to activate your Smart TV app
 										</p>
 										
 										{deviceFlow.deviceCodeData.verification_uri_complete ? (
@@ -1127,7 +1138,7 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 											</Button>
 										</ActionRow>
 									</QRSection>
-								</GasPumpContainer>
+								</SmartTVContainer>
 
 								{deviceFlow.timeRemaining > 0 && (
 									<CountdownTimer>
