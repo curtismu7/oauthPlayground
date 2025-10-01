@@ -1,6 +1,6 @@
 // src/components/PingOneAppConfig.tsx - Reusable PingOne Application Configuration Component
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { FiChevronDown, FiChevronUp, FiSettings } from 'react-icons/fi';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
@@ -386,8 +386,7 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 							</Select>
 						</ConfigField>
 
-						<ConfigField>
-						</ConfigField>
+						<ConfigField></ConfigField>
 					</ConfigGrid>
 				</SubSection>
 
@@ -507,7 +506,10 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 											type="number"
 											value={config.refreshTokenDuration}
 											onChange={(e) =>
-												handleConfigChange('refreshTokenDuration', parseInt(e.target.value) || 0)
+												handleConfigChange(
+													'refreshTokenDuration',
+													parseInt(e.target.value, 10) || 0
+												)
 											}
 											style={{ flex: 1 }}
 										/>
@@ -535,7 +537,7 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 											onChange={(e) =>
 												handleConfigChange(
 													'refreshTokenRollingDuration',
-													parseInt(e.target.value) || 0
+													parseInt(e.target.value, 10) || 0
 												)
 											}
 											style={{ flex: 1 }}
@@ -565,7 +567,7 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 										onChange={(e) =>
 											handleConfigChange(
 												'refreshTokenRollingGracePeriod',
-												parseInt(e.target.value) || 0
+												parseInt(e.target.value, 10) || 0
 											)
 										}
 										style={{ width: '100px' }}

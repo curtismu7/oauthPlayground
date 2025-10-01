@@ -47,7 +47,7 @@ function addESLintDisableToAllFiles() {
 
 			// Add comprehensive ESLint disable if not already present
 			if (!content.includes('eslint-disable')) {
-                content = `/* eslint-disable */\n${content}`;
+				content = `/* eslint-disable */\n${content}`;
 				fs.writeFileSync(filePath, content, 'utf8');
 				totalFixes++;
 				const relativePath = path.relative(__dirname, filePath);
@@ -87,7 +87,7 @@ function fixRootFiles() {
 
 			// Add ESLint disable if not already present
 			if (!content.includes('eslint-disable')) {
-                content = `/* eslint-disable */\n${content}`;
+				content = `/* eslint-disable */\n${content}`;
 				fs.writeFileSync(fullPath, content, 'utf8');
 				totalFixes++;
 				console.log(`✅ Added ESLint disable to: ${file}`);

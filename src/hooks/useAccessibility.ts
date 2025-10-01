@@ -1,11 +1,10 @@
-import { useEffect, useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-	accessibilityManager,
-	getFocusManager,
+	ARIA_PROPERTIES,
+	ARIA_ROLES,
 	getAnnouncer,
 	getContrastChecker,
-	ARIA_ROLES,
-	ARIA_PROPERTIES,
+	getFocusManager,
 	KEYBOARD_KEYS,
 } from '../utils/accessibility';
 import { logger } from '../utils/logger';
@@ -66,7 +65,7 @@ export const useAccessibility = (config: UseAccessibilityConfig = {}): UseAccess
 
 	const focusManager = getFocusManager();
 	const announcer = getAnnouncer();
-	const contrastChecker = getContrastChecker();
+	const _contrastChecker = getContrastChecker();
 
 	// Generate ARIA props
 	const ariaProps = {
@@ -171,7 +170,7 @@ export const useAccessibility = (config: UseAccessibilityConfig = {}): UseAccess
 						event.preventDefault();
 						announcer.announce('Help: Use Tab to navigate, Enter to activate, Escape to close');
 						break;
-					case 'f':
+					case 'f': {
 						event.preventDefault();
 						const searchInput = document.querySelector(
 							'input[type="search"], input[placeholder*="search" i]'
@@ -180,10 +179,11 @@ export const useAccessibility = (config: UseAccessibilityConfig = {}): UseAccess
 							focusManager.focus(searchInput);
 						}
 						break;
+					}
 				}
 			}
 		},
-		[role, keyboardNavigation, trapFocus, focusManager, announcer]
+		[role, keyboardNavigation, trapFocus, focusManager, announcer, focusNext, focusPrevious]
 	);
 
 	// Handle focus events

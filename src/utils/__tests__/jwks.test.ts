@@ -1,26 +1,25 @@
 // src/utils/__tests__/jwks.test.ts - Tests for JWKS utilities
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-	discoverJWKS,
+	buildDiscoveryUri,
+	buildJWKSUri,
 	createJWKSSet,
-	getSigningKey,
 	decodeJWTHeader,
 	decodeJWTPayload,
-	validateJWT,
-	validateJWKSStructure,
+	discoverJWKS,
 	findKeyByID,
 	findKeysByAlgorithm,
 	findKeysByUse,
-	getKeyStatistics,
 	formatJWKS,
+	getKeyStatistics,
+	getSigningKey,
 	isJWKS,
-	buildJWKSUri,
-	buildDiscoveryUri,
-	normalizeIssuer,
 	JWKS,
-	JWK,
 	JWKSConfig,
+	normalizeIssuer,
 	TokenValidationOptions,
+	validateJWKSStructure,
+	validateJWT,
 } from '../jwks';
 
 // Mock jose library

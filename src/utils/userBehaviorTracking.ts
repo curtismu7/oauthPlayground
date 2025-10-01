@@ -1,5 +1,5 @@
-import { logger } from './logger';
 import { analyticsManager } from './analytics';
+import { logger } from './logger';
 
 // User behavior tracking types
 export interface UserSession {
@@ -122,7 +122,6 @@ export interface EngagementMetrics {
 export class UserBehaviorTracker {
 	private currentSession: UserSession | null = null;
 	private userJourneys: Map<string, UserJourney> = new Map();
-	private isTracking: boolean = false;
 	private trackingConfig: {
 		trackClicks: boolean;
 		trackScrolls: boolean;
@@ -516,14 +515,14 @@ export class UserBehaviorTracker {
 		if (typeof window === 'undefined' || !this.trackingConfig.trackEngagement) return;
 
 		let engagementTimer: NodeJS.Timeout;
-		let isEngaged = false;
+		let _isEngaged = false;
 
 		const resetEngagementTimer = () => {
 			clearTimeout(engagementTimer);
-			isEngaged = true;
+			_isEngaged = true;
 
 			engagementTimer = setTimeout(() => {
-				isEngaged = false;
+				_isEngaged = false;
 				this.trackUserAction('engagement_lost', 'session');
 			}, 30000); // 30 seconds of inactivity
 		};

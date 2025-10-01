@@ -95,7 +95,10 @@ ${end}`;
 		content = content.replace(/^\s*\}\s*\)\s*;\s*$/gm, '');
 
 		// Fix 7: Fix template literal issues
-		content = content.replace(/\$\{(\d+)([a-zA-Z])/g, (_, num, letter) => `\${${Number(num)} + "${letter}"}`);
+		content = content.replace(
+			/\$\{(\d+)([a-zA-Z])/g,
+			(_, num, letter) => `\${${Number(num)} + "${letter}"}`
+		);
 
 		if (content !== originalContent) {
 			fs.writeFileSync(filePath, content, 'utf8');

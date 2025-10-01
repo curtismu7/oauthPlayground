@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useState } from 'react';
 import { FiSettings } from 'react-icons/fi';
-import { FlowConfiguration, type FlowConfig } from './FlowConfiguration';
+import styled from 'styled-components';
 import { getDefaultConfig } from '../utils/flowConfigDefaults';
+import { type FlowConfig, FlowConfiguration } from './FlowConfiguration';
 
 interface ConfigurationButtonProps {
 	flowType: string;

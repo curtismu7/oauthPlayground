@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { tokenLifecycleManager } from '../utils/tokenLifecycle';
 import { getOAuthTokens } from '../utils/tokenStorage';
@@ -203,7 +203,7 @@ const TokenSharing: React.FC = () => {
 
 	useEffect(() => {
 		loadAvailableTokens();
-	}, []);
+	}, [loadAvailableTokens]);
 
 	const loadAvailableTokens = () => {
 		const tokens = tokenLifecycleManager.getAllTokenLifecycleInfo();
@@ -263,7 +263,7 @@ const TokenSharing: React.FC = () => {
 		try {
 			await navigator.clipboard.writeText(exportData);
 			setMessage({ type: 'success', text: 'Data copied to clipboard' });
-		} catch (error) {
+		} catch (_error) {
 			setMessage({ type: 'error', text: 'Failed to copy to clipboard' });
 		}
 	};

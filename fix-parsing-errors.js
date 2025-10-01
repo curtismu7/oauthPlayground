@@ -5,8 +5,8 @@
  */
 
 import fs from 'node:fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -52,7 +52,7 @@ function fixParsingErrors() {
 		try {
 			let content = fs.readFileSync(fullPath, 'utf8');
 			const originalContent = content;
-			let fileFixCount = 0;
+			let _fileFixCount = 0;
 
 			// Fix common parsing errors
 
@@ -84,7 +84,7 @@ function fixParsingErrors() {
 
 			if (content !== originalContent) {
 				fs.writeFileSync(fullPath, content, 'utf8');
-				fileFixCount++;
+				_fileFixCount++;
 				totalFixes++;
 				console.log(`✅ Fixed parsing errors in: ${filePath}`);
 			}
@@ -123,7 +123,7 @@ function addESLintDisables() {
 
 			// Add file-level disable for no-unused-vars if not already present
 			if (!content.includes('eslint-disable @typescript-eslint/no-unused-vars')) {
-				content = '/* eslint-disable @typescript-eslint/no-unused-vars */\n' + content;
+				content = `/* eslint-disable @typescript-eslint/no-unused-vars */\n${content}`;
 				fs.writeFileSync(fullPath, content, 'utf8');
 				totalFixes++;
 				console.log(`✅ Added ESLint disable to: ${filePath}`);

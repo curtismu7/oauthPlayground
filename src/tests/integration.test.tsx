@@ -2,16 +2,13 @@
  * Integration tests for secureTokenStorage with UI components
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-	storeOAuthTokens,
-	getOAuthTokens,
 	clearOAuthTokens,
+	getOAuthTokens,
 	hasValidOAuthTokens,
+	storeOAuthTokens,
 } from '../utils/tokenStorage';
-import { secureTokenStorage } from '../utils/secureTokenStorage';
 
 // Mock sessionStorage for testing
 const mockSessionStorage = {
@@ -35,7 +32,7 @@ Object.defineProperty(window, 'sessionStorage', {
 });
 
 // Mock console methods
-const originalConsole = console;
+const _originalConsole = console;
 beforeEach(() => {
 	console.log = vi.fn();
 	console.error = vi.fn();
@@ -147,7 +144,7 @@ describe('Secure Token Storage Integration', () => {
 			storeOAuthTokens(mockTokens, 'authorization-code', 'Test Flow');
 
 			// Manually modify storage time to be very old (25+ hours)
-			const storedData = mockSessionStorage.store['pingone_secure_tokens'];
+			const _storedData = mockSessionStorage.store['pingone_secure_tokens'];
 
 			// Create a mock old token data structure
 			const oldTokenData = {

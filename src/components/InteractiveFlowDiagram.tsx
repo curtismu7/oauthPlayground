@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useState } from 'react';
 import {
-	FiUser,
+	FiAlertCircle,
+	FiArrowDown,
+	FiArrowRight,
+	FiCheckCircle,
+	FiCode,
+	FiInfo,
+	FiKey,
+	FiPause,
+	FiPlay,
+	FiRotateCcw,
 	FiServer,
 	FiShield,
-	FiCode,
-	FiKey,
-	FiArrowRight,
-	FiArrowDown,
-	FiPlay,
-	FiPause,
-	FiRotateCcw,
-	FiInfo,
-	FiCheckCircle,
-	FiAlertCircle,
+	FiUser,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 
 interface FlowStep {
 	id: string;
@@ -854,7 +854,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 			setSteps(currentFlow.steps.map((step) => ({ ...step, status: 'pending' as const })));
 			setCurrentStep(0);
 		}
-	}, [selectedFlow]);
+	}, [currentFlow]);
 
 	useEffect(() => {
 		if (!isPlaying || isManualMode) return;

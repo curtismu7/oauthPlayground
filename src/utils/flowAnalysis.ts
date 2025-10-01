@@ -232,7 +232,7 @@ export class FlowAnalyzer {
 		const recommendations: FlowRecommendation[] = [];
 
 		for (const flowType of allFlows) {
-			const flowData = flowAnalysisData[flowType as keyof typeof flowAnalysisData];
+			const _flowData = flowAnalysisData[flowType as keyof typeof flowAnalysisData];
 			const recommendation = this.analyzeFlow(flowType);
 
 			if (this.matchesRequirements(flowType, requirements)) {
@@ -265,7 +265,7 @@ export class FlowAnalyzer {
 	}
 
 	// Generate reasons for recommendation
-	private generateReasons(flowType: string, metrics: FlowMetrics, flowData: any): string[] {
+	private generateReasons(_flowType: string, metrics: FlowMetrics, flowData: any): string[] {
 		const reasons: string[] = [];
 
 		if (metrics.security >= 8) {

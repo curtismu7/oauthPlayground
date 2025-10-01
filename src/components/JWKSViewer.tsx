@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { jwksService, JWKSResponse, JWK } from '../services/jwksService';
-import { logger } from '../utils/logger';
+import { JWKSResponse, jwksService } from '../services/jwksService';
 
 const ViewerContainer = styled.div`
   background: white;
@@ -394,7 +393,7 @@ const JWKSViewer: React.FC = () => {
 			const jsonString = jwksService.exportJWKS(jwksResponse.jwks);
 			await navigator.clipboard.writeText(jsonString);
 			setMessage({ type: 'success', text: 'JWKS copied to clipboard' });
-		} catch (error) {
+		} catch (_error) {
 			setMessage({ type: 'error', text: 'Failed to copy to clipboard' });
 		}
 	};

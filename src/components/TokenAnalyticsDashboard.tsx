@@ -1,10 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import {
-	tokenLifecycleManager,
-	TokenUsageAnalytics,
-	TokenLifecycleInfo,
-} from '../utils/tokenLifecycle';
+import { TokenUsageAnalytics, tokenLifecycleManager } from '../utils/tokenLifecycle';
 
 const DashboardContainer = styled.div`
   background: white;
@@ -211,7 +207,7 @@ const TokenAnalyticsDashboard: React.FC = () => {
 
 	useEffect(() => {
 		loadAnalytics();
-	}, []);
+	}, [loadAnalytics]);
 
 	const handleCleanup = () => {
 		const cleanedCount = tokenLifecycleManager.cleanupExpiredTokens();
