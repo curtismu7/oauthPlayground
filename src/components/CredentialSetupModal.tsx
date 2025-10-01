@@ -222,6 +222,7 @@ const SecretInputContainer = styled.div`
 interface CredentialSetupModalProps {
 	isOpen: boolean;
 	onClose: () => void;
+	// biome-ignore lint/suspicious/noExplicitAny: Credentials can be various types depending on flow
 	onSave?: (credentials: any) => void;
 	flowType?: string;
 }
