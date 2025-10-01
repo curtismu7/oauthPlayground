@@ -58,7 +58,10 @@ const STEP_METADATA = [
 	},
 	{ title: 'Step 3: Flow Object Response', subtitle: 'Process the flow object and authentication' },
 	{ title: 'Step 4: Tokens Received', subtitle: 'View tokens received from the flow' },
-	{ title: 'Step 5: Token Exchange (Standard)', subtitle: 'Swap auth code for tokens (if using standard flow)' },
+	{
+		title: 'Step 5: Token Exchange (Standard)',
+		subtitle: 'Swap auth code for tokens (if using standard flow)',
+	},
 	{ title: 'Step 6: User Information', subtitle: 'Inspect ID token claims and user info' },
 	{ title: 'Step 7: Token Introspection', subtitle: 'Introspect access token and review results' },
 	{ title: 'Step 8: Flow Complete', subtitle: 'Review your results and next steps' },
@@ -730,14 +733,14 @@ const RedirectlessFlowV5Real: React.FC = () => {
 	const [localAuthCode, setLocalAuthCode] = useState<string | null>(null);
 	const [showSavedSecret, setShowSavedSecret] = useState(false);
 	const [copiedField, setCopiedField] = useState<string | null>(null);
-	const [isFetchingUserInfo, setIsFetchingUserInfo] = useState(false);
+	const [_isFetchingUserInfo, setIsFetchingUserInfo] = useState(false);
 	const [flowObject, setFlowObject] = useState<any>(null);
 	const [flowStep, setFlowStep] = useState<string>('');
 	const [flowTokens, setFlowTokens] = useState<any>(null);
 	const [authUsername, setAuthUsername] = useState<string>('');
 	const [authPassword, setAuthPassword] = useState<string>('');
 	const [isAuthenticating, setIsAuthenticating] = useState<boolean>(false);
-	
+
 	// Compute URL with response_mode=pi.flow
 	const authUrlWithPiFlow = useMemo(() => {
 		if (!controller.authUrl) return '';
@@ -1075,13 +1078,16 @@ const RedirectlessFlowV5Real: React.FC = () => {
 
 		// Get the authentication URL from the flow object
 		// Try multiple possible link names
-		const authUrl = flowObject._links?.['password.check']?.href || 
-		                flowObject._links?.['usernamePassword.check']?.href ||
-		                flowObject._links?.['password.forgot']?.href ||
-		                flowObject._links?.self?.href;
+		const authUrl =
+			flowObject._links?.['password.check']?.href ||
+			flowObject._links?.['usernamePassword.check']?.href ||
+			flowObject._links?.['password.forgot']?.href ||
+			flowObject._links?.self?.href;
 
 		if (!authUrl) {
-			v4ToastManager.showError('No authentication URL found in flow object. Check console for available links.');
+			v4ToastManager.showError(
+				'No authentication URL found in flow object. Check console for available links.'
+			);
 			console.error('❌ [RedirectlessFlowV5Real] No auth URL found');
 			console.error('Available links:', flowObject._links);
 			console.error('Full flow object:', flowObject);
@@ -1117,19 +1123,20 @@ const RedirectlessFlowV5Real: React.FC = () => {
 				} catch {
 					errorData = { message: errorText };
 				}
-				
+
 				console.error('❌ [RedirectlessFlowV5Real] Authentication failed:', {
 					status: response.status,
 					statusText: response.statusText,
 					errorData,
 					errorText,
 				});
-				
-				const errorMessage = errorData.message || 
-				                    errorData.error_description || 
-				                    errorData.details?.[0]?.message ||
-				                    `Authentication failed: ${response.status} ${response.statusText}`;
-				
+
+				const errorMessage =
+					errorData.message ||
+					errorData.error_description ||
+					errorData.details?.[0]?.message ||
+					`Authentication failed: ${response.status} ${response.statusText}`;
+
 				throw new Error(errorMessage);
 			}
 
@@ -1148,13 +1155,17 @@ const RedirectlessFlowV5Real: React.FC = () => {
 			} else {
 				// Flow continues - might need MFA or other steps
 				setFlowObject(result);
-				v4ToastManager.showWarning('Authentication step completed. Additional steps may be required.');
+				v4ToastManager.showWarning(
+					'Authentication step completed. Additional steps may be required.'
+				);
 				console.log('📋 [RedirectlessFlowV5Real] Flow continues:', result);
 			}
 		} catch (error) {
 			console.error('[RedirectlessFlowV5Real] Authentication failed:', error);
 			v4ToastManager.showError(
-				error instanceof Error ? error.message : 'Authentication failed. Please check your credentials.'
+				error instanceof Error
+					? error.message
+					: 'Authentication failed. Please check your credentials.'
 			);
 		} finally {
 			setIsAuthenticating(false);
@@ -1166,31 +1177,31 @@ const RedirectlessFlowV5Real: React.FC = () => {
 			v4ToastManager.showError('Complete above action: Generate the authorization URL first.');
 			return;
 		}
-		
+
 		console.log('🔧 [RedirectlessFlowV5Real] Making API call with response_mode=pi.flow...');
-		
+
 		try {
 			v4ToastManager.showSuccess('Making API call to PingOne (response_mode=pi.flow)...');
-			
+
 			// Make API call instead of redirect
 			// Note: Removed 'credentials: include' to avoid CORS wildcard error
 			const response = await fetch(authUrlWithPiFlow, {
 				method: 'GET',
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
 				},
 			});
-			
+
 			if (!response.ok) {
 				throw new Error(`API call failed: ${response.status} ${response.statusText}`);
 			}
-			
+
 			const flowData = await response.json();
 			console.log('📦 [RedirectlessFlowV5Real] Received flow object:', flowData);
-			
+
 			// Store the flow object
 			setFlowObject(flowData);
-			
+
 			// Check if we got a flow object or tokens directly
 			if (flowData.code) {
 				// Got authorization code directly
@@ -1213,11 +1224,11 @@ const RedirectlessFlowV5Real: React.FC = () => {
 					status: flowData.status,
 					hasEmbedded: !!flowData._embedded,
 				});
-				
+
 				// Determine the current step
 				const currentStep = flowData.status || 'AUTHENTICATION_REQUIRED';
 				setFlowStep(currentStep);
-				
+
 				// Log the full flow object structure
 				console.log('📋 [RedirectlessFlowV5Real] Full flow object structure:', {
 					keys: Object.keys(flowData),
@@ -1226,12 +1237,12 @@ const RedirectlessFlowV5Real: React.FC = () => {
 					hasLinks: !!flowData._links,
 					linksKeys: flowData._links ? Object.keys(flowData._links) : [],
 				});
-				
+
 				// Check for available authentication methods
 				if (flowData._embedded?.flowRunner) {
 					const flowRunner = flowData._embedded.flowRunner;
 					console.log('🔐 [RedirectlessFlowV5Real] Flow runner available:', flowRunner);
-					
+
 					v4ToastManager.showSuccess(
 						`Flow object received! Status: ${currentStep}. Check console for full details.`
 					);
@@ -1249,17 +1260,16 @@ const RedirectlessFlowV5Real: React.FC = () => {
 			} else {
 				throw new Error('Unexpected response format from PingOne');
 			}
-			
 		} catch (error) {
 			console.error('[RedirectlessFlowV5Real] API call failed:', error);
-			
+
 			// Show error but DON'T automatically redirect
 			v4ToastManager.showError(
 				'API call failed (likely CORS or authentication required). ' +
-				'True pi.flow requires special PingOne configuration. ' +
-				'Use the educational mock version to see how pi.flow works conceptually.'
+					'True pi.flow requires special PingOne configuration. ' +
+					'Use the educational mock version to see how pi.flow works conceptually.'
 			);
-			
+
 			// Log detailed error for debugging
 			console.log('💡 [RedirectlessFlowV5Real] To use true pi.flow:', {
 				requirement1: 'PingOne app must have CORS configured for your origin',
@@ -1327,7 +1337,9 @@ const RedirectlessFlowV5Real: React.FC = () => {
 			await controller.fetchUserInfo();
 			v4ToastManager.showSuccess('User info fetched successfully!');
 		} catch (error) {
-			v4ToastManager.showError('Failed to fetch user info: ' + (error instanceof Error ? error.message : 'Unknown error'));
+			v4ToastManager.showError(
+				`Failed to fetch user info: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
 		} finally {
 			setIsFetchingUserInfo(false);
 		}
@@ -2360,7 +2372,7 @@ const RedirectlessFlowV5Real: React.FC = () => {
 												<HighlightBadge>2</HighlightBadge>
 											</HighlightedActionButton>
 											<span style={{ color: '#6b7280', fontSize: '0.875rem' }}>or</span>
-											<HighlightedActionButton 
+											<HighlightedActionButton
 												onClick={() => {
 													controller.handleRedirectAuthorization();
 													setShowRedirectModal(true);
@@ -2375,34 +2387,57 @@ const RedirectlessFlowV5Real: React.FC = () => {
 											<FiInfo size={16} />
 											<div style={{ fontSize: '0.875rem' }}>
 												<strong>Redirectless Flow:</strong> The "Call PingOne API" button attempts{' '}
-												<code>response_mode=pi.flow</code> without browser redirect. This will likely fail due to 
-												CORS. Use "Standard Redirect" to complete the flow normally, or use the{' '}
-												<strong>Educational Mock version</strong> to learn how pi.flow works.
+												<code>response_mode=pi.flow</code> without browser redirect. This will
+												likely fail due to CORS. Use "Standard Redirect" to complete the flow
+												normally, or use the <strong>Educational Mock version</strong> to learn how
+												pi.flow works.
 											</div>
 										</InfoBox>
-										
+
 										<InfoBox $variant="warning" style={{ marginTop: '1rem' }}>
 											<FiAlertCircle size={16} />
 											<div style={{ fontSize: '0.875rem' }}>
 												<strong>To Enable API Calls (Fix CORS):</strong>
 												<ol style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
 													<li>Go to your PingOne Admin Console</li>
-													<li>Navigate to <strong>Applications → Your Application</strong></li>
-													<li>Go to the <strong>Configuration</strong> tab</li>
-													<li>Scroll to <strong>CORS Settings</strong></li>
-													<li>Add <code style={{ 
-														backgroundColor: '#fef3c7', 
-														color: '#92400e',
-														padding: '2px 6px',
-														borderRadius: '4px',
-														fontWeight: 'bold'
-													}}>https://localhost:3000</code> to <strong>Allowed Origins</strong></li>
+													<li>
+														Navigate to <strong>Applications → Your Application</strong>
+													</li>
+													<li>
+														Go to the <strong>Configuration</strong> tab
+													</li>
+													<li>
+														Scroll to <strong>CORS Settings</strong>
+													</li>
+													<li>
+														Add{' '}
+														<code
+															style={{
+																backgroundColor: '#fef3c7',
+																color: '#92400e',
+																padding: '2px 6px',
+																borderRadius: '4px',
+																fontWeight: 'bold',
+															}}
+														>
+															https://localhost:3000
+														</code>{' '}
+														to <strong>Allowed Origins</strong>
+													</li>
 													<li>Save the configuration</li>
 													<li>Try the API call again</li>
 												</ol>
-												<div style={{ marginTop: '0.75rem', padding: '0.5rem', backgroundColor: '#fef3c7', borderRadius: '4px' }}>
-													<strong>Note:</strong> Even with CORS configured, <code>response_mode=pi.flow</code> requires 
-													your application to be configured for DaVinci flows in PingOne.
+												<div
+													style={{
+														marginTop: '0.75rem',
+														padding: '0.5rem',
+														backgroundColor: '#fef3c7',
+														borderRadius: '4px',
+													}}
+												>
+													<strong>Note:</strong> Even with CORS configured,{' '}
+													<code>response_mode=pi.flow</code> requires your application to be
+													configured for DaVinci flows in PingOne.
 												</div>
 											</div>
 										</InfoBox>
@@ -2412,35 +2447,45 @@ const RedirectlessFlowV5Real: React.FC = () => {
 
 							{controller.authUrl ? (
 								<GeneratedUrlDisplay>
-									<GeneratedLabel>Generated Authorization URL with response_mode=pi.flow</GeneratedLabel>
-									<div style={{ 
-										marginBottom: '1rem', 
-										wordBreak: 'break-all',
-										lineHeight: '1.6',
-										fontFamily: 'monospace',
-										fontSize: '0.875rem'
-									}}>
+									<GeneratedLabel>
+										Generated Authorization URL with response_mode=pi.flow
+									</GeneratedLabel>
+									<div
+										style={{
+											marginBottom: '1rem',
+											wordBreak: 'break-all',
+											lineHeight: '1.6',
+											fontFamily: 'monospace',
+											fontSize: '0.875rem',
+										}}
+									>
 										{controller.authUrl}
-										<span style={{ 
-											backgroundColor: '#fef3c7', 
-											color: '#92400e',
-											padding: '2px 6px',
-											borderRadius: '4px',
-											fontWeight: 'bold',
-											border: '2px solid #f59e0b'
-										}}>
+										<span
+											style={{
+												backgroundColor: '#fef3c7',
+												color: '#92400e',
+												padding: '2px 6px',
+												borderRadius: '4px',
+												fontWeight: 'bold',
+												border: '2px solid #f59e0b',
+											}}
+										>
 											&response_mode=pi.flow
 										</span>
 									</div>
 									<div style={{ display: 'flex', gap: '0.75rem' }}>
 										<HighlightedActionButton
-											onClick={() => handleCopy(authUrlWithPiFlow, 'Authorization URL with pi.flow')}
+											onClick={() =>
+												handleCopy(authUrlWithPiFlow, 'Authorization URL with pi.flow')
+											}
 											$priority="primary"
 										>
 											<FiCopy /> Copy URL (with pi.flow)
 										</HighlightedActionButton>
 										<HighlightedActionButton
-											onClick={() => handleCopy(controller.authUrl ?? '', 'Standard Authorization URL')}
+											onClick={() =>
+												handleCopy(controller.authUrl ?? '', 'Standard Authorization URL')
+											}
 											$priority="primary"
 										>
 											<FiCopy /> Copy URL (standard)
@@ -2541,54 +2586,71 @@ const RedirectlessFlowV5Real: React.FC = () => {
 												</ActionRow>
 											</GeneratedContentBox>
 										) : flowObject ? (
-											<GeneratedContentBox style={{ backgroundColor: '#fef3c7', borderColor: '#f59e0b' }}>
-												<GeneratedLabel style={{ color: '#92400e' }}>Flow Object Received (pi.flow)</GeneratedLabel>
+											<GeneratedContentBox
+												style={{ backgroundColor: '#fef3c7', borderColor: '#f59e0b' }}
+											>
+												<GeneratedLabel style={{ color: '#92400e' }}>
+													Flow Object Received (pi.flow)
+												</GeneratedLabel>
 												<InfoBox $variant="info">
 													<FiInfo size={16} />
 													<div>
-														<strong>Redirectless Flow Object:</strong> PingOne returned a flow object instead of redirecting. 
-														This contains authentication steps that need to be processed.
+														<strong>Redirectless Flow Object:</strong> PingOne returned a flow
+														object instead of redirecting. This contains authentication steps that
+														need to be processed.
 													</div>
 												</InfoBox>
 												<ParameterGrid>
 													<div>
 														<ParameterLabel>Flow ID</ParameterLabel>
-														<ParameterValue>{flowObject.id || flowObject.flowId || 'N/A'}</ParameterValue>
+														<ParameterValue>
+															{flowObject.id || flowObject.flowId || 'N/A'}
+														</ParameterValue>
 													</div>
 													<div>
 														<ParameterLabel>Status</ParameterLabel>
-														<ParameterValue>{flowStep || flowObject.status || 'N/A'}</ParameterValue>
+														<ParameterValue>
+															{flowStep || flowObject.status || 'N/A'}
+														</ParameterValue>
 													</div>
 												</ParameterGrid>
-												<div style={{ 
-													backgroundColor: '#ffffff', 
-													border: '2px solid #e2e8f0',
-													borderRadius: '0.5rem',
-													padding: '1rem',
-													marginTop: '1rem'
-												}}>
-													<strong style={{ display: 'block', marginBottom: '0.5rem', color: '#1e293b' }}>
+												<div
+													style={{
+														backgroundColor: '#ffffff',
+														border: '2px solid #e2e8f0',
+														borderRadius: '0.5rem',
+														padding: '1rem',
+														marginTop: '1rem',
+													}}
+												>
+													<strong
+														style={{ display: 'block', marginBottom: '0.5rem', color: '#1e293b' }}
+													>
 														Flow Object (JSON):
 													</strong>
-													<pre style={{ 
-														margin: 0,
-														fontSize: '0.875rem',
-														color: '#000000',
-														backgroundColor: '#ffffff',
-														maxHeight: '400px',
-														overflow: 'auto',
-														fontFamily: 'monospace',
-														lineHeight: '1.6',
-														padding: '1rem',
-														border: '1px solid #cbd5e1',
-														borderRadius: '0.375rem'
-													}}>
+													<pre
+														style={{
+															margin: 0,
+															fontSize: '0.875rem',
+															color: '#000000',
+															backgroundColor: '#ffffff',
+															maxHeight: '400px',
+															overflow: 'auto',
+															fontFamily: 'monospace',
+															lineHeight: '1.6',
+															padding: '1rem',
+															border: '1px solid #cbd5e1',
+															borderRadius: '0.375rem',
+														}}
+													>
 														{JSON.stringify(flowObject, null, 2)}
 													</pre>
 												</div>
 												<ActionRow style={{ marginTop: '1rem' }}>
 													<Button
-														onClick={() => handleCopy(JSON.stringify(flowObject, null, 2), 'Flow Object')}
+														onClick={() =>
+															handleCopy(JSON.stringify(flowObject, null, 2), 'Flow Object')
+														}
 														$variant="outline"
 													>
 														<FiCopy /> Copy Flow Object
@@ -2597,28 +2659,32 @@ const RedirectlessFlowV5Real: React.FC = () => {
 
 												{/* JavaScript Code Example */}
 												<div style={{ marginTop: '1.5rem' }}>
-													<strong style={{ 
-														display: 'block', 
-														marginBottom: '0.75rem', 
-														color: '#1e293b',
-														fontSize: '0.875rem'
-													}}>
+													<strong
+														style={{
+															display: 'block',
+															marginBottom: '0.75rem',
+															color: '#1e293b',
+															fontSize: '0.875rem',
+														}}
+													>
 														JavaScript Code to Parse Flow Object:
 													</strong>
-													<pre style={{ 
-														margin: 0,
-														fontSize: '0.8rem',
-														color: '#000000',
-														backgroundColor: '#f8fafc',
-														maxHeight: '300px',
-														overflow: 'auto',
-														fontFamily: 'monospace',
-														lineHeight: '1.6',
-														padding: '1rem',
-														border: '1px solid #cbd5e1',
-														borderRadius: '0.375rem'
-													}}>
-{`// Parse the flow object response
+													<pre
+														style={{
+															margin: 0,
+															fontSize: '0.8rem',
+															color: '#000000',
+															backgroundColor: '#f8fafc',
+															maxHeight: '300px',
+															overflow: 'auto',
+															fontFamily: 'monospace',
+															lineHeight: '1.6',
+															padding: '1rem',
+															border: '1px solid #cbd5e1',
+															borderRadius: '0.375rem',
+														}}
+													>
+														{`// Parse the flow object response
 const flowData = await response.json();
 
 // Extract flow information
@@ -2662,7 +2728,9 @@ async function submitCredentials(authUrl, username, password) {
 													</pre>
 													<ActionRow style={{ marginTop: '0.75rem' }}>
 														<Button
-															onClick={() => handleCopy(`// Parse the flow object response
+															onClick={() =>
+																handleCopy(
+																	`// Parse the flow object response
 const flowData = await response.json();
 
 // Extract flow information
@@ -2702,7 +2770,10 @@ async function submitCredentials(authUrl, username, password) {
     // Continue flow or handle errors
     return result;
   }
-}`, 'JavaScript Code')}
+}`,
+																	'JavaScript Code'
+																)
+															}
 															$variant="outline"
 														>
 															<FiCopy /> Copy Code
@@ -2711,22 +2782,26 @@ async function submitCredentials(authUrl, username, password) {
 												</div>
 
 												{/* Interactive Authentication Form */}
-												<div style={{ 
-													marginTop: '1.5rem',
-													backgroundColor: '#f0f9ff',
-													border: '2px solid #3b82f6',
-													borderRadius: '0.5rem',
-													padding: '1.5rem'
-												}}>
-													<strong style={{ 
-														display: 'block', 
-														marginBottom: '1rem', 
-														color: '#1e40af',
-														fontSize: '0.875rem'
-													}}>
+												<div
+													style={{
+														marginTop: '1.5rem',
+														backgroundColor: '#f0f9ff',
+														border: '2px solid #3b82f6',
+														borderRadius: '0.5rem',
+														padding: '1.5rem',
+													}}
+												>
+													<strong
+														style={{
+															display: 'block',
+															marginBottom: '1rem',
+															color: '#1e40af',
+															fontSize: '0.875rem',
+														}}
+													>
 														🔐 Interactive Authentication Form:
 													</strong>
-													<form 
+													<form
 														onSubmit={(e) => {
 															e.preventDefault();
 															handleAuthenticate();
@@ -2736,24 +2811,29 @@ async function submitCredentials(authUrl, username, password) {
 															border: '1px solid #e5e7eb',
 															borderRadius: '0.375rem',
 															padding: '1.5rem',
-															maxWidth: '400px'
+															maxWidth: '400px',
 														}}
 													>
-														<h3 style={{ 
-															margin: '0 0 1rem 0',
-															fontSize: '1.125rem',
-															color: '#1e293b'
-														}}>
+														<h3
+															style={{
+																margin: '0 0 1rem 0',
+																fontSize: '1.125rem',
+																color: '#1e293b',
+															}}
+														>
 															Sign In to PingOne
 														</h3>
 														<div style={{ marginBottom: '1rem' }}>
-															<label htmlFor="auth-username" style={{ 
-																display: 'block',
-																marginBottom: '0.5rem',
-																fontSize: '0.875rem',
-																fontWeight: '500',
-																color: '#374151'
-															}}>
+															<label
+																htmlFor="auth-username"
+																style={{
+																	display: 'block',
+																	marginBottom: '0.5rem',
+																	fontSize: '0.875rem',
+																	fontWeight: '500',
+																	color: '#374151',
+																}}
+															>
 																Username
 															</label>
 															<input
@@ -2769,18 +2849,21 @@ async function submitCredentials(authUrl, username, password) {
 																	border: '1px solid #d1d5db',
 																	borderRadius: '0.375rem',
 																	fontSize: '0.875rem',
-																	backgroundColor: isAuthenticating ? '#f9fafb' : '#ffffff'
+																	backgroundColor: isAuthenticating ? '#f9fafb' : '#ffffff',
 																}}
 															/>
 														</div>
 														<div style={{ marginBottom: '1rem' }}>
-															<label htmlFor="auth-password" style={{ 
-																display: 'block',
-																marginBottom: '0.5rem',
-																fontSize: '0.875rem',
-																fontWeight: '500',
-																color: '#374151'
-															}}>
+															<label
+																htmlFor="auth-password"
+																style={{
+																	display: 'block',
+																	marginBottom: '0.5rem',
+																	fontSize: '0.875rem',
+																	fontWeight: '500',
+																	color: '#374151',
+																}}
+															>
 																Password
 															</label>
 															<input
@@ -2796,7 +2879,7 @@ async function submitCredentials(authUrl, username, password) {
 																	border: '1px solid #d1d5db',
 																	borderRadius: '0.375rem',
 																	fontSize: '0.875rem',
-																	backgroundColor: isAuthenticating ? '#f9fafb' : '#ffffff'
+																	backgroundColor: isAuthenticating ? '#f9fafb' : '#ffffff',
 																}}
 															/>
 														</div>
@@ -2812,23 +2895,30 @@ async function submitCredentials(authUrl, username, password) {
 																borderRadius: '0.375rem',
 																fontSize: '0.875rem',
 																fontWeight: '500',
-																cursor: (isAuthenticating || !authUsername || !authPassword) ? 'not-allowed' : 'pointer',
-																opacity: (isAuthenticating || !authUsername || !authPassword) ? 0.6 : 1
+																cursor:
+																	isAuthenticating || !authUsername || !authPassword
+																		? 'not-allowed'
+																		: 'pointer',
+																opacity:
+																	isAuthenticating || !authUsername || !authPassword ? 0.6 : 1,
 															}}
 														>
 															{isAuthenticating ? 'Authenticating...' : 'Sign In'}
 														</button>
-														<p style={{
-															marginTop: '1rem',
-															fontSize: '0.75rem',
-															color: '#6b7280',
-															textAlign: 'center'
-														}}>
+														<p
+															style={{
+																marginTop: '1rem',
+																fontSize: '0.75rem',
+																color: '#6b7280',
+																textAlign: 'center',
+															}}
+														>
 															{(() => {
 																if (!flowObject) return 'Waiting for flow object...';
-																const authUrl = flowObject._links?.['password.check']?.href || 
-																               flowObject._links?.['usernamePassword.check']?.href ||
-																               flowObject._links?.self?.href;
+																const authUrl =
+																	flowObject._links?.['password.check']?.href ||
+																	flowObject._links?.['usernamePassword.check']?.href ||
+																	flowObject._links?.self?.href;
 																if (authUrl) {
 																	try {
 																		return `Will submit to: ${new URL(authUrl).pathname}`;
@@ -2843,7 +2933,11 @@ async function submitCredentials(authUrl, username, password) {
 													<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
 														<FiInfo size={16} />
 														<div style={{ fontSize: '0.875rem' }}>
-															<strong>How it works:</strong> When the user submits this form, your JavaScript would POST the credentials to the URL from <code>flowData._links['password.check'].href</code>. PingOne would validate the credentials and return either tokens (if complete) or the next authentication step (like MFA).
+															<strong>How it works:</strong> When the user submits this form, your
+															JavaScript would POST the credentials to the URL from{' '}
+															<code>flowData._links['password.check'].href</code>. PingOne would
+															validate the credentials and return either tokens (if complete) or the
+															next authentication step (like MFA).
 														</div>
 													</InfoBox>
 												</div>
@@ -2926,8 +3020,9 @@ async function submitCredentials(authUrl, username, password) {
 												<div>
 													<InfoTitle>Tokens Received!</InfoTitle>
 													<InfoText>
-														The redirectless flow (response_mode=pi.flow) returned tokens directly without a browser redirect. 
-														This is the key benefit of the pi.flow response mode.
+														The redirectless flow (response_mode=pi.flow) returned tokens directly
+														without a browser redirect. This is the key benefit of the pi.flow
+														response mode.
 													</InfoText>
 												</div>
 											</InfoBox>
@@ -2959,7 +3054,13 @@ async function submitCredentials(authUrl, username, password) {
 														<ParameterGrid>
 															<div style={{ gridColumn: '1 / -1' }}>
 																<ParameterLabel>Access Token</ParameterLabel>
-																<ParameterValue style={{ wordBreak: 'break-all', fontFamily: 'monospace', fontSize: '0.75rem' }}>
+																<ParameterValue
+																	style={{
+																		wordBreak: 'break-all',
+																		fontFamily: 'monospace',
+																		fontSize: '0.75rem',
+																	}}
+																>
 																	{flowTokens.access_token}
 																</ParameterValue>
 															</div>
@@ -3004,7 +3105,13 @@ async function submitCredentials(authUrl, username, password) {
 														<ParameterGrid>
 															<div style={{ gridColumn: '1 / -1' }}>
 																<ParameterLabel>ID Token (JWT)</ParameterLabel>
-																<ParameterValue style={{ wordBreak: 'break-all', fontFamily: 'monospace', fontSize: '0.75rem' }}>
+																<ParameterValue
+																	style={{
+																		wordBreak: 'break-all',
+																		fontFamily: 'monospace',
+																		fontSize: '0.75rem',
+																	}}
+																>
 																	{flowTokens.id_token}
 																</ParameterValue>
 															</div>
@@ -3031,14 +3138,22 @@ async function submitCredentials(authUrl, username, password) {
 														<ParameterGrid>
 															<div style={{ gridColumn: '1 / -1' }}>
 																<ParameterLabel>Refresh Token</ParameterLabel>
-																<ParameterValue style={{ wordBreak: 'break-all', fontFamily: 'monospace', fontSize: '0.75rem' }}>
+																<ParameterValue
+																	style={{
+																		wordBreak: 'break-all',
+																		fontFamily: 'monospace',
+																		fontSize: '0.75rem',
+																	}}
+																>
 																	{flowTokens.refresh_token}
 																</ParameterValue>
 															</div>
 														</ParameterGrid>
 														<ActionRow>
 															<Button
-																onClick={() => handleCopy(flowTokens.refresh_token, 'Refresh Token')}
+																onClick={() =>
+																	handleCopy(flowTokens.refresh_token, 'Refresh Token')
+																}
 																$variant="outline"
 															>
 																<FiCopy /> Copy Refresh Token
@@ -3058,7 +3173,7 @@ async function submitCredentials(authUrl, username, password) {
 									<div>
 										<InfoTitle>Flow Object Received - Authentication Required</InfoTitle>
 										<InfoText>
-											The flow object was received successfully, but it doesn't contain tokens yet. 
+											The flow object was received successfully, but it doesn't contain tokens yet.
 											With <code>response_mode=pi.flow</code>, you typically need to:
 										</InfoText>
 										<ol style={{ marginTop: '0.75rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
@@ -3069,29 +3184,42 @@ async function submitCredentials(authUrl, username, password) {
 										</ol>
 									</div>
 								</InfoBox>
-								
+
 								<InfoBox $variant="warning" style={{ marginTop: '1rem' }}>
 									<FiAlertCircle size={16} />
 									<div style={{ fontSize: '0.875rem' }}>
-										<strong>Why no tokens yet?</strong> The flow object indicates authentication is required. 
-										In a real implementation, you would show the authentication form from Step 3, collect credentials, 
-										and POST them to continue the flow. Tokens are returned after successful authentication.
+										<strong>Why no tokens yet?</strong> The flow object indicates authentication is
+										required. In a real implementation, you would show the authentication form from
+										Step 3, collect credentials, and POST them to continue the flow. Tokens are
+										returned after successful authentication.
 									</div>
 								</InfoBox>
 
-								<div style={{ 
-									marginTop: '1.5rem',
-									padding: '1rem',
-									backgroundColor: '#f8fafc',
-									border: '1px solid #cbd5e1',
-									borderRadius: '0.5rem'
-								}}>
+								<div
+									style={{
+										marginTop: '1.5rem',
+										padding: '1rem',
+										backgroundColor: '#f8fafc',
+										border: '1px solid #cbd5e1',
+										borderRadius: '0.5rem',
+									}}
+								>
 									<strong style={{ display: 'block', marginBottom: '0.5rem', color: '#1e293b' }}>
 										💡 What happens next in a real implementation:
 									</strong>
-									<ol style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem', fontSize: '0.875rem' }}>
+									<ol
+										style={{
+											marginTop: '0.5rem',
+											marginBottom: 0,
+											paddingLeft: '1.5rem',
+											fontSize: '0.875rem',
+										}}
+									>
 										<li>User enters username/password in the form (from Step 3)</li>
-										<li>Your app POSTs credentials to <code>flowData._links['password.check'].href</code></li>
+										<li>
+											Your app POSTs credentials to{' '}
+											<code>flowData._links['password.check'].href</code>
+										</li>
 										<li>PingOne validates credentials</li>
 										<li>If valid: PingOne returns tokens in the response</li>
 										<li>If MFA required: PingOne returns another flow object with MFA step</li>
@@ -3106,7 +3234,8 @@ async function submitCredentials(authUrl, username, password) {
 								</EmptyIcon>
 								<EmptyTitle>No Flow Object or Tokens Received</EmptyTitle>
 								<EmptyText>
-									Neither a flow object nor tokens were received. Go back to Step 2 and try calling the PingOne API with response_mode=pi.flow.
+									Neither a flow object nor tokens were received. Go back to Step 2 and try calling
+									the PingOne API with response_mode=pi.flow.
 								</EmptyText>
 							</EmptyState>
 						)}
@@ -3375,37 +3504,37 @@ async function submitCredentials(authUrl, username, password) {
 				);
 
 			case 6:
-			return (
-				<TokenIntrospect
-					flowName="OpenID Connect Authorization Code Flow"
-					flowVersion="V5.1"
-					tokens={controller.tokens as any}
-					credentials={controller.credentials as any}
-					userInfo={userInfo}
-					onFetchUserInfo={handleFetchUserInfo}
-					isFetchingUserInfo={isFetchingUserInfo}
-					onResetFlow={handleResetFlow}
-					onNavigateToTokenManagement={navigateToTokenManagement}
-					onIntrospectToken={handleIntrospectToken}
-					collapsedSections={{
-						completionOverview: collapsedSections.completionOverview,
-						completionDetails: collapsedSections.completionDetails,
-						introspectionDetails: collapsedSections.introspectionDetails,
-						rawJson: false, // Show raw JSON expanded by default
-					}}
-					onToggleSection={(section) => {
-						if (section === 'completionOverview' || section === 'completionDetails') {
-							toggleSection(section as IntroSectionKey);
-						}
-					}}
-					completionMessage="Nice work! You successfully completed the OpenID Connect Authorization Code Flow with PKCE and ID Token using reusable V5.1 components."
-					nextSteps={[
-						'Inspect or decode tokens using the Token Management tools.',
-						'Repeat the flow with different scopes or redirect URIs.',
-						'Explore refresh tokens and introspection flows.',
-					]}
-				/>
-			);
+				return (
+					<TokenIntrospect
+						flowName="OpenID Connect Authorization Code Flow"
+						flowVersion="V5.1"
+						tokens={controller.tokens as any}
+						credentials={controller.credentials as any}
+						userInfo={userInfo}
+						onFetchUserInfo={handleFetchUserInfo}
+						isFetchingUserInfo={isFetchingUserInfo}
+						onResetFlow={handleResetFlow}
+						onNavigateToTokenManagement={navigateToTokenManagement}
+						onIntrospectToken={handleIntrospectToken}
+						collapsedSections={{
+							completionOverview: collapsedSections.completionOverview,
+							completionDetails: collapsedSections.completionDetails,
+							introspectionDetails: collapsedSections.introspectionDetails,
+							rawJson: false, // Show raw JSON expanded by default
+						}}
+						onToggleSection={(section) => {
+							if (section === 'completionOverview' || section === 'completionDetails') {
+								toggleSection(section as IntroSectionKey);
+							}
+						}}
+						completionMessage="Nice work! You successfully completed the OpenID Connect Authorization Code Flow with PKCE and ID Token using reusable V5.1 components."
+						nextSteps={[
+							'Inspect or decode tokens using the Token Management tools.',
+							'Repeat the flow with different scopes or redirect URIs.',
+							'Explore refresh tokens and introspection flows.',
+						]}
+					/>
+				);
 
 			case 7:
 				return (
@@ -3494,6 +3623,17 @@ async function submitCredentials(authUrl, username, password) {
 		emptyRequiredFields,
 		copiedField,
 		showSavedSecret,
+		authPassword,
+		authUrlWithPiFlow,
+		authUsername,
+		controller.handleRedirectAuthorization,
+		controller.isFetchingUserInfo,
+		controller.setCredentials,
+		flowObject,
+		flowStep,
+		flowTokens,
+		handleAuthenticate,
+		isAuthenticating,
 	]);
 
 	return (
@@ -3502,8 +3642,9 @@ async function submitCredentials(authUrl, username, password) {
 				<HeaderSection>
 					<MainTitle>PingOne Redirectless Flow V5 (API Implementation)</MainTitle>
 					<Subtitle>
-						Attempts API-based authentication with <code>response_mode=pi.flow</code> (no browser redirect). 
-						Falls back to standard OAuth if CORS/authentication prevents direct API calls.
+						Attempts API-based authentication with <code>response_mode=pi.flow</code> (no browser
+						redirect). Falls back to standard OAuth if CORS/authentication prevents direct API
+						calls.
 					</Subtitle>
 				</HeaderSection>
 
