@@ -21,6 +21,7 @@ import { trackOAuthFlow, trackTokenOperation } from '../utils/activityTracker';
 import { storeOAuthTokens } from '../utils/tokenStorage';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
+import { applyClientAuthentication } from '../utils/clientAuthentication';
 
 type FlowVariant = 'oauth' | 'oidc';
 
@@ -189,6 +190,7 @@ const loadInitialCredentials = (variant: FlowVariant): StepCredentials => {
 			loaded.userInfoEndpoint ||
 			(loaded.environmentId ? `https://auth.pingone.com/${loaded.environmentId}/as/userinfo` : ''),
 		clientAuthMethod: loaded.tokenAuthMethod || 'client_secret_post',
+		loginHint: loaded.loginHint || '',
 	};
 };
 
@@ -601,39 +603,76 @@ export const useAuthorizationCodeFlowController = (
 				throw new Error('PKCE code verifier is missing. Please generate PKCE parameters first.');
 			}
 
-			// Use backend proxy to avoid CORS issues
-			const backendUrl = process.env.NODE_ENV === 'production'
-				? 'https://oauth-playground.vercel.app'
-				: ''; // Use relative URL to go through Vite proxy
+		// Use backend proxy to avoid CORS issues
+		const backendUrl = process.env.NODE_ENV === 'production'
+			? 'https://oauth-playground.vercel.app'
+			: ''; // Use relative URL to go through Vite proxy
 
-			const requestBody = {
-				grant_type: 'authorization_code',
-				code: authCode.trim(),
-				redirect_uri: credentials.redirectUri.trim(),
-				client_id: credentials.clientId.trim(),
-				client_secret: credentials.clientSecret.trim(),
-				environment_id: credentials.environmentId.trim(),
-				code_verifier: pkceCodes.codeVerifier.trim(),
-			};
+		const requestBody: any = {
+			grant_type: 'authorization_code',
+			code: authCode.trim(),
+			redirect_uri: credentials.redirectUri.trim(),
+			client_id: credentials.clientId.trim(),
+			environment_id: credentials.environmentId.trim(),
+			code_verifier: pkceCodes.codeVerifier.trim(),
+			client_auth_method: credentials.clientAuthMethod || 'client_secret_post',
+		};
 
-			console.log('🔍 [useAuthorizationCodeFlowController] Token exchange request:', {
-				url: `${backendUrl}/api/token-exchange`,
-				grant_type: 'authorization_code',
-				code: authCode ? authCode.substring(0, 10) + '...' : 'MISSING',
-				redirect_uri: credentials.redirectUri,
-				client_id: credentials.clientId,
-				environment_id: credentials.environmentId,
-				code_verifier: pkceCodes.codeVerifier ? pkceCodes.codeVerifier.substring(0, 10) + '...' : 'MISSING',
-			});
+		// Handle JWT-based authentication methods
+		const authMethod = credentials.clientAuthMethod || 'client_secret_post';
+		if (authMethod === 'client_secret_jwt' || authMethod === 'private_key_jwt') {
+			console.log(`🔐 [useAuthorizationCodeFlowController] Using ${authMethod} authentication`);
+			
+			try {
+				const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+				const baseParams = new URLSearchParams();
+				
+				const authResult = await applyClientAuthentication({
+					method: authMethod as any,
+					clientId: credentials.clientId,
+					clientSecret: authMethod === 'client_secret_jwt' ? credentials.clientSecret : undefined,
+					privateKey: authMethod === 'private_key_jwt' ? credentials.privateKey : undefined,
+					keyId: credentials.keyId,
+					tokenEndpoint,
+				}, baseParams);
+				
+				// Add JWT assertion to request body
+				requestBody.client_assertion_type = authResult.body.get('client_assertion_type');
+				requestBody.client_assertion = authResult.body.get('client_assertion');
+				
+				console.log('✅ [useAuthorizationCodeFlowController] JWT assertion generated:', {
+					assertionType: requestBody.client_assertion_type,
+					assertionLength: requestBody.client_assertion?.length || 0,
+				});
+			} catch (error) {
+				console.error('❌ [useAuthorizationCodeFlowController] JWT generation failed:', error);
+				throw new Error(`JWT generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+			}
+		} else {
+			// For client_secret_basic and client_secret_post, include client_secret
+			requestBody.client_secret = credentials.clientSecret.trim();
+		}
 
-			const response = await fetch(`${backendUrl}/api/token-exchange`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					Accept: 'application/json',
-				},
-				body: JSON.stringify(requestBody),
-			});
+		console.log('🔍 [useAuthorizationCodeFlowController] Token exchange request:', {
+			url: `${backendUrl}/api/token-exchange`,
+			grant_type: 'authorization_code',
+			code: authCode ? authCode.substring(0, 10) + '...' : 'MISSING',
+			redirect_uri: credentials.redirectUri,
+			client_id: credentials.clientId,
+			environment_id: credentials.environmentId,
+			client_auth_method: authMethod,
+			code_verifier: pkceCodes.codeVerifier ? pkceCodes.codeVerifier.substring(0, 10) + '...' : 'MISSING',
+			has_jwt_assertion: !!(requestBody.client_assertion),
+		});
+
+		const response = await fetch(`${backendUrl}/api/token-exchange`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Accept: 'application/json',
+			},
+			body: JSON.stringify(requestBody),
+		});
 
 			if (!response.ok) {
 				const errorText = await response.text();
@@ -750,13 +789,41 @@ export const useAuthorizationCodeFlowController = (
 				? 'https://oauth-playground.vercel.app'
 				: ''; // Use relative URL to go through Vite proxy
 
-			const requestBody = {
+			const requestBody: any = {
 				grant_type: 'refresh_token',
 				refresh_token: refreshToken.trim(),
 				client_id: credentials.clientId.trim(),
-				client_secret: credentials.clientSecret.trim(),
 				environment_id: credentials.environmentId.trim(),
+				client_auth_method: credentials.clientAuthMethod || 'client_secret_post',
 			};
+
+			// Handle JWT-based authentication methods
+			const authMethod = credentials.clientAuthMethod || 'client_secret_post';
+			if (authMethod === 'client_secret_jwt' || authMethod === 'private_key_jwt') {
+				console.log(`🔐 [useAuthorizationCodeFlowController] Using ${authMethod} for refresh`);
+				
+				try {
+					const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+					const baseParams = new URLSearchParams();
+					
+					const authResult = await applyClientAuthentication({
+						method: authMethod as any,
+						clientId: credentials.clientId,
+						clientSecret: authMethod === 'client_secret_jwt' ? credentials.clientSecret : undefined,
+						privateKey: authMethod === 'private_key_jwt' ? credentials.privateKey : undefined,
+						keyId: credentials.keyId,
+						tokenEndpoint,
+					}, baseParams);
+					
+					requestBody.client_assertion_type = authResult.body.get('client_assertion_type');
+					requestBody.client_assertion = authResult.body.get('client_assertion');
+				} catch (error) {
+					throw new Error(`JWT generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+				}
+			} else {
+				// For client_secret_basic and client_secret_post
+				requestBody.client_secret = credentials.clientSecret.trim();
+			}
 
 			console.log('🔍 [useAuthorizationCodeFlowController] Refresh token request:', {
 				url: `${backendUrl}/api/token-exchange`,
@@ -764,6 +831,8 @@ export const useAuthorizationCodeFlowController = (
 				refresh_token: refreshToken ? refreshToken.substring(0, 10) + '...' : 'MISSING',
 				client_id: credentials.clientId,
 				environment_id: credentials.environmentId,
+				client_auth_method: authMethod,
+				has_jwt_assertion: !!(requestBody.client_assertion),
 			});
 
 			const response = await fetch(`${backendUrl}/api/token-exchange`, {
@@ -813,20 +882,30 @@ export const useAuthorizationCodeFlowController = (
 		setIsSavingCredentials(true);
 
 		try {
+			console.log('💾 [useAuthorizationCodeFlowController] Saving credentials...');
 			await credentialManager.saveAuthzFlowCredentials(credentials);
 			setHasCredentialsSaved(true);
 			setHasUnsavedCredentialChanges(false);
 			originalCredentialsRef.current = { ...credentials };
 
+			// Clear cache to ensure fresh data is loaded
+			credentialManager.clearCache();
+
+			// Dispatch events to notify dashboard and other components
+			window.dispatchEvent(new CustomEvent('pingone-config-changed'));
+			window.dispatchEvent(new CustomEvent('permanent-credentials-changed'));
+			console.log('📢 [useAuthorizationCodeFlowController] Configuration change events dispatched');
+
 			saveStepResult('save-credentials', {
 				...credentials,
 				timestamp: Date.now(),
 			});
+			console.log('✅ [useAuthorizationCodeFlowController] Credentials saved successfully');
 
 			// Don't show success message here - let the calling component handle it
 			// showGlobalSuccess('Credentials saved', 'PingOne configuration saved successfully.');
 		} catch (error) {
-			console.error('[useAuthorizationCodeFlowController] Save credentials failed:', error);
+			console.error('❌ [useAuthorizationCodeFlowController] Save credentials failed:', error);
 			// Don't show error message here - let the calling component handle it
 			// showGlobalError('Save failed', error instanceof Error ? error.message : 'Unknown error');
 			// Re-throw the error so the calling component can handle it

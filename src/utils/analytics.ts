@@ -19,7 +19,7 @@ export interface AnalyticsEvent {
 	timestamp: number;
 	userId?: string;
 	sessionId: string;
-	properties: Record<string, any>;
+	properties: Record<string, unknown>;
 	metadata?: {
 		userAgent?: string;
 		url?: string;
@@ -39,7 +39,7 @@ export interface AnalyticsConfig {
 	apiKey?: string;
 	userId?: string;
 	sessionId: string;
-	customProperties?: Record<string, any>;
+	customProperties?: Record<string, unknown>;
 }
 
 // Performance metrics interface
@@ -83,7 +83,7 @@ export interface FlowStep {
 	success: boolean;
 	errorMessage?: string;
 	duration?: number;
-	properties?: Record<string, any>;
+	properties?: Record<string, unknown>;
 }
 
 // Page view interface
@@ -92,7 +92,7 @@ export interface PageView {
 	timestamp: number;
 	duration?: number;
 	referrer?: string;
-	properties?: Record<string, any>;
+	properties?: Record<string, unknown>;
 }
 
 // User action interface
@@ -100,7 +100,7 @@ export interface UserAction {
 	action: string;
 	element?: string;
 	timestamp: number;
-	properties?: Record<string, any>;
+	properties?: Record<string, unknown>;
 }
 
 // Analytics manager class
@@ -144,7 +144,7 @@ export class AnalyticsManager {
 	}
 
 	// Track an event
-	public track(eventType: AnalyticsEventType, properties: Record<string, any> = {}): void {
+	public track(eventType: AnalyticsEventType, properties: Record<string, unknown> = {}): void {
 		if (!this.config.enabled || !this.isInitialized) return;
 
 		try {
@@ -177,7 +177,7 @@ export class AnalyticsManager {
 	}
 
 	// Track page view
-	public trackPageView(page: string, properties: Record<string, any> = {}): void {
+	public trackPageView(page: string, properties: Record<string, unknown> = {}): void {
 		this.track('page_view', {
 			page,
 			...properties,
@@ -185,7 +185,7 @@ export class AnalyticsManager {
 	}
 
 	// Track flow start
-	public trackFlowStart(flowType: string, properties: Record<string, any> = {}): void {
+	public trackFlowStart(flowType: string, properties: Record<string, unknown> = {}): void {
 		this.track('flow_start', {
 			flowType,
 			...properties,
@@ -196,7 +196,7 @@ export class AnalyticsManager {
 	public trackFlowComplete(
 		flowType: string,
 		success: boolean,
-		properties: Record<string, any> = {}
+		properties: Record<string, unknown> = {}
 	): void {
 		this.track('flow_complete', {
 			flowType,
@@ -209,7 +209,7 @@ export class AnalyticsManager {
 	public trackFlowError(
 		flowType: string,
 		error: string,
-		properties: Record<string, any> = {}
+		properties: Record<string, unknown> = {}
 	): void {
 		this.track('flow_error', {
 			flowType,
@@ -222,7 +222,7 @@ export class AnalyticsManager {
 	public trackUserAction(
 		action: string,
 		element?: string,
-		properties: Record<string, any> = {}
+		properties: Record<string, unknown> = {}
 	): void {
 		this.track('user_action', {
 			action,
@@ -235,7 +235,7 @@ export class AnalyticsManager {
 	public trackPerformanceMetric(
 		metric: string,
 		value: number,
-		properties: Record<string, any> = {}
+		properties: Record<string, unknown> = {}
 	): void {
 		this.track('performance_metric', {
 			metric,
@@ -248,7 +248,7 @@ export class AnalyticsManager {
 	public trackSecurityEvent(
 		event: string,
 		severity: 'low' | 'medium' | 'high' | 'critical',
-		properties: Record<string, any> = {}
+		properties: Record<string, unknown> = {}
 	): void {
 		this.track('security_event', {
 			event,
@@ -258,7 +258,7 @@ export class AnalyticsManager {
 	}
 
 	// Track error event
-	public trackError(error: Error, context?: string, properties: Record<string, any> = {}): void {
+	public trackError(error: Error, context?: string, properties: Record<string, unknown> = {}): void {
 		this.track('error_event', {
 			error: error.message,
 			stack: error.stack,
@@ -268,7 +268,7 @@ export class AnalyticsManager {
 	}
 
 	// Track custom event
-	public trackCustom(eventName: string, properties: Record<string, any> = {}): void {
+	public trackCustom(eventName: string, properties: Record<string, unknown> = {}): void {
 		this.track('custom_event', {
 			eventName,
 			...properties,
@@ -281,7 +281,7 @@ export class AnalyticsManager {
 	}
 
 	// Set custom properties
-	public setCustomProperties(properties: Record<string, any>): void {
+	public setCustomProperties(properties: Record<string, unknown>): void {
 		this.config.customProperties = {
 			...this.config.customProperties,
 			...properties,
@@ -349,7 +349,7 @@ export class AnalyticsManager {
 		// Monitor memory usage
 		if ('memory' in performance) {
 			setInterval(() => {
-				const memory = (performance as any).memory;
+				const memory = (performance as { memory: { usedJSHeapSize: number; totalJSHeapSize: number } }).memory;
 				this.trackPerformanceMetric('memory_used', memory.usedJSHeapSize);
 				this.trackPerformanceMetric('memory_total', memory.totalJSHeapSize);
 			}, 30000);
@@ -357,7 +357,7 @@ export class AnalyticsManager {
 
 		// Monitor network performance
 		if ('connection' in navigator) {
-			const connection = (navigator as any).connection;
+			const connection = (navigator as { connection: { downlink: number; rtt: number } }).connection;
 			this.trackPerformanceMetric('network_downlink', connection.downlink);
 			this.trackPerformanceMetric('network_rtt', connection.rtt);
 		}
@@ -498,22 +498,22 @@ export class AnalyticsManager {
 export const analyticsManager = new AnalyticsManager();
 
 // Utility functions
-export const trackEvent = (eventType: AnalyticsEventType, properties?: Record<string, any>) => {
+export const trackEvent = (eventType: AnalyticsEventType, properties?: Record<string, unknown>) => {
 	analyticsManager.track(eventType, properties);
 };
 
-export const trackPageView = (page: string, properties?: Record<string, any>) => {
+export const trackPageView = (page: string, properties?: Record<string, unknown>) => {
 	analyticsManager.trackPageView(page, properties);
 };
 
-export const trackFlowStart = (flowType: string, properties?: Record<string, any>) => {
+export const trackFlowStart = (flowType: string, properties?: Record<string, unknown>) => {
 	analyticsManager.trackFlowStart(flowType, properties);
 };
 
 export const trackFlowComplete = (
 	flowType: string,
 	success: boolean,
-	properties?: Record<string, any>
+	properties?: Record<string, unknown>
 ) => {
 	analyticsManager.trackFlowComplete(flowType, success, properties);
 };
@@ -521,7 +521,7 @@ export const trackFlowComplete = (
 export const trackFlowError = (
 	flowType: string,
 	error: string,
-	properties?: Record<string, any>
+	properties?: Record<string, unknown>
 ) => {
 	analyticsManager.trackFlowError(flowType, error, properties);
 };
@@ -529,7 +529,7 @@ export const trackFlowError = (
 export const trackUserAction = (
 	action: string,
 	element?: string,
-	properties?: Record<string, any>
+	properties?: Record<string, unknown>
 ) => {
 	analyticsManager.trackUserAction(action, element, properties);
 };
@@ -537,7 +537,7 @@ export const trackUserAction = (
 export const trackPerformanceMetric = (
 	metric: string,
 	value: number,
-	properties?: Record<string, any>
+	properties?: Record<string, unknown>
 ) => {
 	analyticsManager.trackPerformanceMetric(metric, value, properties);
 };
@@ -545,16 +545,16 @@ export const trackPerformanceMetric = (
 export const trackSecurityEvent = (
 	event: string,
 	severity: 'low' | 'medium' | 'high' | 'critical',
-	properties?: Record<string, any>
+	properties?: Record<string, unknown>
 ) => {
 	analyticsManager.trackSecurityEvent(event, severity, properties);
 };
 
-export const trackError = (error: Error, context?: string, properties?: Record<string, any>) => {
+export const trackError = (error: Error, context?: string, properties?: Record<string, unknown>) => {
 	analyticsManager.trackError(error, context, properties);
 };
 
-export const trackCustom = (eventName: string, properties?: Record<string, any>) => {
+export const trackCustom = (eventName: string, properties?: Record<string, unknown>) => {
 	analyticsManager.trackCustom(eventName, properties);
 };
 
@@ -562,7 +562,7 @@ export const setUserId = (userId: string) => {
 	analyticsManager.setUserId(userId);
 };
 
-export const setCustomProperties = (properties: Record<string, any>) => {
+export const setCustomProperties = (properties: Record<string, unknown>) => {
 	analyticsManager.setCustomProperties(properties);
 };
 

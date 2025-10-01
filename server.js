@@ -221,33 +221,54 @@ app.post('/api/token-exchange', async (req, res) => {
 			Accept: 'application/json',
 		};
 
-		// Handle client authentication based on the specified method
-		const client_auth_method = req.body.client_auth_method || 'client_secret_post';
+	// Handle client authentication based on the specified method
+	const client_auth_method = req.body.client_auth_method || 'client_secret_post';
 
-		if (client_secret && client_secret.trim() !== '') {
-			if (client_auth_method === 'client_secret_basic') {
-				// Use Basic Auth
-				const credentials = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
-				headers['Authorization'] = `Basic ${credentials}`;
-				console.log('🔐 [Server] Using Basic Auth for confidential client:', {
-					clientId: client_id?.substring(0, 8) + '...',
-					clientSecretLength: client_secret?.length || 0,
-					hasClientSecret: !!client_secret,
-					basicAuthHeader: `Basic ${credentials.substring(0, 20)}...`,
-					authMethod: client_auth_method,
-				});
-				// Don't add client_secret to body when using Basic Auth
-			} else {
-				// Use client_secret_post (default) - add client_secret to body
-				tokenRequestBody.append('client_secret', client_secret);
-				console.log('🔐 [Server] Using client_secret_post for confidential client:', {
-					clientId: client_id?.substring(0, 8) + '...',
-					clientSecretLength: client_secret?.length || 0,
-					hasClientSecret: !!client_secret,
-					authMethod: client_auth_method,
-				});
-			}
+	if (client_auth_method === 'client_secret_jwt' || client_auth_method === 'private_key_jwt') {
+		// JWT-based authentication methods
+		const { client_assertion_type, client_assertion } = req.body;
+		
+		if (client_assertion_type && client_assertion) {
+			console.log(`🔐 [Server] Using JWT assertion for ${client_auth_method}:`, {
+				clientId: client_id?.substring(0, 8) + '...',
+				assertionType: client_assertion_type,
+				assertionLength: client_assertion?.length || 0,
+			});
+			
+			tokenRequestBody.append('client_assertion_type', client_assertion_type);
+			tokenRequestBody.append('client_assertion', client_assertion);
+			// Don't add client_secret for JWT methods
 		} else {
+			console.error(`❌ [Server] Missing JWT assertion for ${client_auth_method}`);
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: `client_assertion and client_assertion_type are required for ${client_auth_method} authentication`,
+			});
+		}
+	} else if (client_secret && client_secret.trim() !== '') {
+		if (client_auth_method === 'client_secret_basic') {
+			// Use Basic Auth
+			const credentials = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
+			headers['Authorization'] = `Basic ${credentials}`;
+			console.log('🔐 [Server] Using Basic Auth for confidential client:', {
+				clientId: client_id?.substring(0, 8) + '...',
+				clientSecretLength: client_secret?.length || 0,
+				hasClientSecret: !!client_secret,
+				basicAuthHeader: `Basic ${credentials.substring(0, 20)}...`,
+				authMethod: client_auth_method,
+			});
+			// Don't add client_secret to body when using Basic Auth
+		} else {
+			// Use client_secret_post (default) - add client_secret to body
+			tokenRequestBody.append('client_secret', client_secret);
+			console.log('🔐 [Server] Using client_secret_post for confidential client:', {
+				clientId: client_id?.substring(0, 8) + '...',
+				clientSecretLength: client_secret?.length || 0,
+				hasClientSecret: !!client_secret,
+				authMethod: client_auth_method,
+			});
+		}
+	} else {
 			// For public clients, client_id is already in the body
 			console.log('🔓 [Server] Using public client authentication:', {
 				clientId: client_id?.substring(0, 8) + '...',
@@ -439,7 +460,11 @@ app.post('/api/introspect-token', async (req, res) => {
 		});
 
 		// Add authentication based on method
-		if (authMethod === 'client_secret_basic' || authMethod === 'client_secret_post') {
+		if (authMethod === 'none') {
+			// Public client - no authentication required
+			console.log(`[Introspect Token] Using public client (no authentication)`);
+			// Only client_id and token are sent
+		} else if (authMethod === 'client_secret_basic' || authMethod === 'client_secret_post') {
 			if (!client_secret) {
 				return res.status(400).json({
 					error: 'invalid_request',
@@ -448,22 +473,25 @@ app.post('/api/introspect-token', async (req, res) => {
 				});
 			}
 			introspectionBody.append('client_secret', client_secret);
-		} else if (authMethod === 'client_secret_jwt' || authMethod === 'private_key_jwt') {
-			const { client_assertion_type: assertionType, client_assertion } = req.body;
+	} else if (authMethod === 'client_secret_jwt' || authMethod === 'private_key_jwt') {
+		const { client_assertion_type: assertionType, client_assertion } = req.body;
 
-			if (assertionType && client_assertion) {
-				console.log(`[Introspect Token] Using JWT assertion for ${authMethod}`);
-				introspectionBody.append('client_assertion_type', assertionType);
-				introspectionBody.append('client_assertion', client_assertion);
-			} else {
-				console.log(
-					`[Introspect Token] Missing JWT assertion, falling back to client_secret for ${authMethod}`
-				);
-				if (client_secret) {
-					introspectionBody.append('client_secret', client_secret);
-				}
-			}
+		if (assertionType && client_assertion) {
+			console.log(`[Introspect Token] Using JWT assertion for ${authMethod}:`, {
+				assertionType,
+				assertionLength: client_assertion.length,
+			});
+			introspectionBody.append('client_assertion_type', assertionType);
+			introspectionBody.append('client_assertion', client_assertion);
+			// Don't add client_secret for JWT methods
+		} else {
+			console.error(`[Introspect Token] Missing JWT assertion for ${authMethod}`);
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: `client_assertion and client_assertion_type are required for ${authMethod} authentication`,
+			});
 		}
+	}
 
 		// Prepare headers
 		const headers = {
@@ -779,6 +807,97 @@ app.get('/api/jwks', async (req, res) => {
 		res.status(500).json({
 			error: 'server_error',
 			error_description: 'Internal server error during JWKS fetch',
+		});
+	}
+});
+
+// User-Configured JWKS Endpoint (serves user's public key for private_key_jwt)
+app.post('/api/user-jwks', async (req, res) => {
+	try {
+		const { privateKey, keyId = 'oauth-playground-user-key' } = req.body;
+		
+		if (!privateKey) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing private key - cannot generate JWKS',
+			});
+		}
+		
+		console.log(`[UserJWKS] Generating JWKS from user's private key`);
+		
+		// Import jose library to extract public key from private key
+		const jose = await import('jose');
+		
+		try {
+			// Import the private key
+			const privateKeyObj = await jose.importPKCS8(privateKey, 'RS256');
+			
+			// Export as JWK to get the public key components
+			const jwk = await jose.exportJWK(privateKeyObj);
+			
+			// Build JWKS response with public key components
+			const jwks = {
+				keys: [
+					{
+						kty: 'RSA',
+						kid: keyId,
+						use: 'sig',
+						alg: 'RS256',
+						n: jwk.n,  // Modulus (public key component)
+						e: jwk.e,  // Exponent (public key component)
+					},
+				],
+			};
+			
+			console.log(`[UserJWKS] JWKS generated successfully with kid: ${keyId}`);
+			res.json(jwks);
+		} catch (error) {
+			console.error('[UserJWKS] Failed to parse private key:', error);
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Invalid private key format - must be PKCS8 PEM format',
+			});
+		}
+	} catch (error) {
+		console.error('[UserJWKS] Server error:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error generating JWKS',
+		});
+	}
+});
+
+// User's Public JWKS Endpoint - Static public key for private_key_jwt
+// This endpoint serves the public key that corresponds to the private key configured in the UI
+app.get('/.well-known/jwks.json', async (req, res) => {
+	try {
+		console.log(`[UserJWKS] Serving user's configured public JWKS`);
+		
+		// Set proper headers for JWKS
+		res.set({
+			'Content-Type': 'application/json',
+			'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
+			'Access-Control-Allow-Origin': '*', // Allow PingOne to fetch
+		});
+		
+		// For now, return an empty JWKS - users need to configure via UI
+		// This will be updated when we implement JWKS management
+		const jwks = {
+			keys: [
+				// Keys will be added here when user configures private_key_jwt
+				// For now, include a placeholder message
+			],
+		};
+		
+		console.log(`[UserJWKS] Serving JWKS with ${jwks.keys.length} keys`);
+		console.log(`[UserJWKS] Note: To use private_key_jwt, configure your private key in the UI first`);
+		
+		res.json(jwks);
+	} catch (error) {
+		console.error('[UserJWKS] Server error:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error serving JWKS',
 		});
 	}
 });
