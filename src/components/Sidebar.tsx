@@ -4,17 +4,20 @@ import {
 	FiBook,
 	FiBookOpen,
 	FiChevronDown,
-	FiChevronRight,
+	FiClock,
 	FiCode,
 	FiCpu,
+	FiDatabase,
 	FiExternalLink,
 	FiFileText,
-	FiGithub,
+	FiGitBranch,
 	FiGlobe,
 	FiHome,
-	FiInfo,
 	FiKey,
+	FiLayers,
 	FiLock,
+	FiPackage,
+	FiPlay,
 	FiSearch,
 	FiServer,
 	FiSettings,
@@ -72,7 +75,7 @@ const NavSectionTitle = styled.h3`
   font-size: 0.75rem;
   text-transform: uppercase;
   color: ${({ theme }) => theme.colors?.gray600 || '#6b7280'};
-  font-weight: 600;
+  font-weight: 700; /* Make section titles bold */
   letter-spacing: 0.05em;
   padding: 0 1.5rem;
   margin: 1.5rem 0 0.5rem;
@@ -86,7 +89,7 @@ const NavItem = styled(Link)<{ $isActive?: boolean }>`
 		$isActive ? '#ffffff' : (theme.colors?.gray700 || '#374151')};
   text-decoration: none;
   transition: all 0.2s;
-  font-weight: ${({ $isActive }) => ($isActive ? '600' : '500')};
+  font-weight: 700; /* Make all menu items bold */
   background-color: ${({ $isActive, theme }) =>
 		$isActive ? (theme.colors?.primary || '#0070cc') : 'transparent'};
   border-right: ${({ $isActive, theme }) =>
@@ -100,9 +103,9 @@ const NavItem = styled(Link)<{ $isActive?: boolean }>`
   }
   
   svg {
-    margin-right: 0.75rem;
+    margin-right: 1rem; /* Increased spacing between icon and text */
     font-size: 1.25rem;
-    color: ${({ $isActive, theme }) => ($isActive ? '#ffffff' : 'inherit')};
+    color: ${({ $isActive, theme }) => ($isActive ? '#ffffff' : '#374151')}; /* Darker icons */
   }
 `;
 
@@ -129,7 +132,7 @@ const SubmenuItem = styled(Link)<{ $isActive?: boolean; $isV4?: boolean; $isV5?:
 						: theme.colors?.gray700 || '#374151'};
   text-decoration: none;
   font-size: 0.9rem;
-  font-weight: ${({ $isActive, $isV4, $isV5, $isWarning }) => ($isActive || $isV4 || $isV5 || $isWarning ? '700' : '400')}; // Bold for V4, V5, and Warning
+  font-weight: 700; /* Make all submenu items bold */
   transition: all 0.2s;
   background-color: ${({ $isActive, theme }) =>
 		$isActive ? (theme.colors?.primary || '#0070cc') : 'transparent'};
@@ -192,6 +195,7 @@ const SubmenuItem = styled(Link)<{ $isActive?: boolean; $isV4?: boolean; $isV5?:
   }
 
   svg {
+    margin-right: 0.75rem; /* Add spacing between icon and text */
     color: ${({ $isActive, $isV4, $isV5, $isWarning, theme }) =>
 			$isActive
 				? '#ffffff'
@@ -201,7 +205,7 @@ const SubmenuItem = styled(Link)<{ $isActive?: boolean; $isV4?: boolean; $isV5?:
 						? '#059669' // Green color for V5 arrow
 						: $isV4
 							? '#dc2626' // Red color for V4 arrow
-							: theme.colors?.gray400 || '#9ca3af'};
+							: '#374151'}; /* Darker icons for better visibility */
     font-size: 1rem;
     transition: color 0.2s;
     
@@ -218,38 +222,13 @@ const NavItemWithSubmenu = styled.div`
   user-select: none;
 `;
 
-// Colored icon components for Resources menu
-const ColoredIcon = styled.span<{ color: string }>`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1rem;
-  height: 1rem;
-  border-radius: 0.25rem;
-  background: ${(props) => props.color};
-  color: white;
-  font-size: 0.75rem;
-  font-weight: bold;
-  flex-shrink: 0;
-`;
-
-const TokenIcon = () => <ColoredIcon color="#3b82f6"></ColoredIcon>;
-const DiscoveryIcon = () => <ColoredIcon color="#10b981"></ColoredIcon>;
-const PARIcon = () => <ColoredIcon color="#f59e0b"></ColoredIcon>;
-const CompareIcon = () => <ColoredIcon color="#8b5cf6"></ColoredIcon>;
-const DiagramsIcon = () => <ColoredIcon color="#ef4444"></ColoredIcon>;
-const TestIcon = () => <ColoredIcon color="#06b6d4"></ColoredIcon>;
-const JWTIcon = () => <ColoredIcon color="#84cc16"></ColoredIcon>;
-const SessionIcon = () => <ColoredIcon color="#f97316"></ColoredIcon>;
-const SDKIcon = () => <ColoredIcon color="#6366f1"></ColoredIcon>;
-
 const NavItemHeader = styled.div<NavItemHeaderProps & { $color?: string }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1.5rem;
   color: ${({ $color }) => $color || '#374151'};
-  font-weight: 600;
+  font-weight: 700; /* Make section headers bold */
   
   &:hover {
     background-color: ${({ theme }) => theme.colors?.gray100 || '#f3f4f6'};
@@ -257,8 +236,8 @@ const NavItemHeader = styled.div<NavItemHeaderProps & { $color?: string }>`
   }
   
   svg:first-child {
-    margin-right: 0.75rem;
-    color: ${({ $color }) => $color || '#374151'};
+    margin-right: 1rem; /* Increased spacing between icon and text */
+    color: ${({ $color }) => $color || '#374151'}; /* Darker icons */
   }
   
   svg:last-child {
@@ -604,6 +583,18 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						>
 							OIDC Implicit V3
 						</SubmenuItem> */}
+						{/* V5 Hybrid Flow */}
+						<SubmenuItem
+							to="/flows/hybrid-v5"
+							onClick={onClose}
+							$isActive={isActiveRoute('/flows/hybrid-v5')}
+							$isV5={true}
+						>
+							<FiZap style={{ marginRight: '0.5rem' }} />
+							<span>OIDC Hybrid V5</span>
+						</SubmenuItem>
+						
+						{/* V3 Hybrid Flow */}
 						<SubmenuItem
 							to="/flows/oidc-hybrid-v3"
 							onClick={onClose}
@@ -751,19 +742,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
 					<Submenu $isOpen={openMenus.docs}>
 						<SubmenuItem to="/documentation" onClick={onClose}>
-							<FiBook style={{ marginRight: '0.5rem' }} />
+							<FiBook />
 							<span>Local Documentation</span>
 						</SubmenuItem>
 						<SubmenuItem to="/docs/oidc-specs" onClick={onClose}>
-							<FiFileText style={{ marginRight: '0.5rem' }} />
+							<FiFileText />
 							<span>OIDC Specs</span>
 						</SubmenuItem>
 						<SubmenuItem to="/docs/oidc-for-ai" onClick={onClose}>
-							<FiCpu style={{ marginRight: '0.5rem' }} />
+							<FiCpu />
 							<span>OIDC for AI</span>
 						</SubmenuItem>
 						<SubmenuItem to="/docs/oauth2-security-best-practices" onClick={onClose}>
-							<FiShield style={{ marginRight: '0.5rem' }} />
+							<FiShield />
 							<span>OAuth 2.0 Security Best Practices</span>
 						</SubmenuItem>
 						<SubmenuItem
@@ -773,7 +764,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							rel="noopener noreferrer"
 							onClick={onClose}
 						>
-							<FiExternalLink style={{ marginRight: '0.5rem' }} />
+							<FiExternalLink />
 							<span>PingOne API Reference</span>
 						</SubmenuItem>
 						<SubmenuItem
@@ -783,7 +774,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							rel="noopener noreferrer"
 							onClick={onClose}
 						>
-							<FiExternalLink style={{ marginRight: '0.5rem' }} />
+							<FiCode />
 							<span>PingOne SDKs</span>
 						</SubmenuItem>
 					</Submenu>
@@ -800,32 +791,32 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
 					<Submenu $isOpen={openMenus.resources}>
 						<SubmenuItem to="/token-management" onClick={onClose}>
-							<TokenIcon />
-							Token Management
+							<FiDatabase />
+							<span>Token Management</span>
 						</SubmenuItem>
 						<SubmenuItem to="/auto-discover" onClick={onClose}>
-							<DiscoveryIcon />
-							OIDC Discovery
+							<FiSearch />
+							<span>OIDC Discovery</span>
 						</SubmenuItem>
 						<SubmenuItem to="/jwks-troubleshooting" onClick={onClose}>
 							<FiKey />
-							JWKS Troubleshooting
+							<span>JWKS Troubleshooting</span>
 						</SubmenuItem>
 						<SubmenuItem to="/url-decoder" onClick={onClose}>
 							<FiGlobe />
-							URL Decoder
+							<span>URL Decoder</span>
 						</SubmenuItem>
 						<SubmenuItem to="/flows/par" onClick={onClose}>
-							<PARIcon />
-							Pushed Authorization Request (PAR)
+							<FiLock />
+							<span>Pushed Authorization Request (PAR)</span>
 						</SubmenuItem>
 						<SubmenuItem to="/flows/compare" onClick={onClose}>
-							<CompareIcon />
-							Flow Comparison
+							<FiGitBranch />
+							<span>Flow Comparison</span>
 						</SubmenuItem>
 						<SubmenuItem to="/flows/diagrams" onClick={onClose}>
-							<DiagramsIcon />
-							Interactive Diagrams
+							<FiLayers />
+							<span>Interactive Diagrams</span>
 						</SubmenuItem>
 						<SubmenuItem
 							as="a"
@@ -834,8 +825,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							rel="noopener noreferrer"
 							onClick={onClose}
 						>
-							<TestIcon />
-							Test Reusable Step System
+							<FiPlay />
+							<span>Test Reusable Step System</span>
 						</SubmenuItem>
 						<SubmenuItem
 							as="a"
@@ -844,16 +835,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							rel="noopener noreferrer"
 							onClick={onClose}
 						>
-							<JWTIcon />
-							JWT Decoder
+							<FiCode />
+							<span>JWT Decoder</span>
 						</SubmenuItem>
 						<SubmenuItem to="/oidc-session-management" onClick={onClose}>
-							<SessionIcon />
-							Session Management
+							<FiClock />
+							<span>Session Management</span>
 						</SubmenuItem>
 						<SubmenuItem to="/sdk-sample-app" onClick={onClose}>
-							<SDKIcon />
-							SDK Sample App
+							<FiPackage />
+							<span>SDK Sample App</span>
 						</SubmenuItem>
 						<SubmenuItem
 							as="a"
@@ -863,7 +854,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							onClick={onClose}
 						>
 							<FiExternalLink />
-							Facile Decoder
+							<span>Facile Decoder</span>
 						</SubmenuItem>
 					</Submenu>
 				</NavItemWithSubmenu>
