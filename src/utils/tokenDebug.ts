@@ -45,11 +45,11 @@ export class TokenDebugger {
 				refreshTokenValid,
 				refreshTokenLength: tokens.refresh_token?.length || 0,
 				refreshTokenPreview: tokens.refresh_token
-					? tokens.refresh_token.substring(0, 10) + '...'
+					? `${tokens.refresh_token.substring(0, 10)}...`
 					: 'none',
 				accessTokenLength: tokens.access_token?.length || 0,
 				accessTokenPreview: tokens.access_token
-					? tokens.access_token.substring(0, 10) + '...'
+					? `${tokens.access_token.substring(0, 10)}...`
 					: 'none',
 			};
 		} catch (error) {

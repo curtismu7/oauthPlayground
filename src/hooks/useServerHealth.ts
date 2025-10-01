@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 export interface ServerHealth {
 	isOnline: boolean;
@@ -83,7 +83,7 @@ export const useServerHealth = (checkInterval: number = 30000) => {
 
 			return () => clearInterval(interval);
 		}
-		
+
 		return undefined;
 	}, [checkHealth, checkInterval, health.isOnline]);
 

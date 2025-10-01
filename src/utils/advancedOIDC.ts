@@ -226,7 +226,7 @@ export const performOIDCLogout = async (
  */
 export const validateAdvancedScopes = (
 	requestedScopes: string[],
-	supportedScopes: string[],
+	_supportedScopes: string[],
 	discovery: OIDCDiscoveryDocument
 ): {
 	valid: string[];

@@ -1,21 +1,19 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Card, CardHeader, CardBody } from './Card';
 import {
-	FiCode,
-	FiShield,
-	FiUser,
-	FiClock,
 	FiAlertTriangle,
-	FiTool,
+	FiCheckCircle,
 	FiChevronDown,
 	FiChevronRight,
+	FiClock,
+	FiCode,
+	FiShield,
 	FiStar,
-	FiCheckCircle,
-	FiXCircle,
-	FiZap,
+	FiTool,
+	FiUser,
 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
+import styled from 'styled-components';
+import { Card, CardBody, CardHeader } from './Card';
 
 interface FlowCategory {
 	id: string;

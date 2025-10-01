@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { FiCopy, FiExternalLink, FiQrCode, FiRefreshCw, FiXCircle } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiCopy, FiExternalLink, FiRefreshCw, FiXCircle, FiQrCode } from 'react-icons/fi';
-import { deviceFlowService, DeviceFlowState } from '../services/deviceFlowService';
+import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
 import JSONHighlighter from './JSONHighlighter';
 
@@ -336,8 +336,8 @@ const DeviceFlowDisplay: React.FC<DeviceFlowDisplayProps> = ({
 			setIsPolling(false);
 			// Simulate successful authorization
 			const mockTokens = {
-				access_token: 'mock_access_token_' + Date.now(),
-				id_token: 'mock_id_token_' + Date.now(),
+				access_token: `mock_access_token_${Date.now()}`,
+				id_token: `mock_id_token_${Date.now()}`,
 				token_type: 'Bearer',
 				expires_in: 3600,
 			};

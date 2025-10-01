@@ -1,6 +1,6 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback, useState } from 'react';
+import { logger } from '../utils/logger';
 import {
-	tokenAnalyzer,
 	analyzeToken,
 	getTokenRefreshInfo,
 	performSecurityAnalysis,
@@ -8,7 +8,6 @@ import {
 	TokenRefreshInfo,
 	TokenSecurityAnalysis,
 } from '../utils/tokenAnalysis';
-import { logger } from '../utils/logger';
 
 // Token analysis hook configuration
 export interface UseTokenAnalysisConfig {
@@ -54,18 +53,20 @@ export const useTokenAnalysis = (config: UseTokenAnalysisConfig = {}) => {
 				try {
 					analysis = analyzeToken(token);
 					securityAnalysis = performSecurityAnalysis(token);
-				} catch (error) {
+				} catch (_error) {
 					// For bad tokens, create a minimal analysis
 					analysis = {
 						isValid: false,
 						tokenType: 'unknown',
 						format: 'unknown',
-						securityIssues: [{
-							type: 'invalid_signature',
-							severity: 'critical',
-							description: 'Invalid or malformed token',
-							recommendation: 'Please check the token and try again',
-						}],
+						securityIssues: [
+							{
+								type: 'invalid_signature',
+								severity: 'critical',
+								description: 'Invalid or malformed token',
+								recommendation: 'Please check the token and try again',
+							},
+						],
 						validationErrors: [],
 						recommendations: ['The token is invalid or malformed'],
 						riskScore: 100,
@@ -78,12 +79,14 @@ export const useTokenAnalysis = (config: UseTokenAnalysisConfig = {}) => {
 						claimSecurity: 0,
 						transportSecurity: 0,
 						lifecycleSecurity: 0,
-						issues: [{
-							type: 'invalid_signature',
-							severity: 'critical',
-							description: 'Invalid or malformed token',
-							recommendation: 'Please check the token and try again',
-						}],
+						issues: [
+							{
+								type: 'invalid_signature',
+								severity: 'critical',
+								description: 'Invalid or malformed token',
+								recommendation: 'Please check the token and try again',
+							},
+						],
 						recommendations: ['The token is invalid or malformed'],
 					};
 				}
@@ -113,14 +116,16 @@ export const useTokenAnalysis = (config: UseTokenAnalysisConfig = {}) => {
 					isValid: false,
 					tokenType: 'unknown',
 					format: 'unknown',
-					securityIssues: [{
-						type: 'invalid_signature',
-						severity: 'critical',
-						description: 'Token analysis failed',
-						recommendation: 'Please check the token and try again',
-					}],
+					securityIssues: [
+						{
+							type: 'invalid_signature',
+							severity: 'critical',
+							description: 'Token analysis failed',
+							recommendation: 'Please check the token and try again',
+						},
+					],
 					validationErrors: [],
-					recommendations: ['Failed to analyze token: ' + err.message],
+					recommendations: [`Failed to analyze token: ${err.message}`],
 					riskScore: 100,
 				};
 
@@ -135,13 +140,15 @@ export const useTokenAnalysis = (config: UseTokenAnalysisConfig = {}) => {
 						claimSecurity: 0,
 						transportSecurity: 0,
 						lifecycleSecurity: 0,
-						issues: [{
-							type: 'invalid_signature',
-							severity: 'critical',
-							description: 'Token analysis failed',
-							recommendation: 'Please check the token and try again',
-						}],
-						recommendations: ['Failed to analyze token: ' + err.message],
+						issues: [
+							{
+								type: 'invalid_signature',
+								severity: 'critical',
+								description: 'Token analysis failed',
+								recommendation: 'Please check the token and try again',
+							},
+						],
+						recommendations: [`Failed to analyze token: ${err.message}`],
 					},
 					isAnalyzing: false,
 				}));
@@ -351,7 +358,7 @@ export const useTokenRefreshMonitoring = (enabled: boolean = true) => {
 	});
 
 	const refreshToken = useCallback(
-		async (token: string, refreshTokenValue: string) => {
+		async (_token: string, refreshTokenValue: string) => {
 			if (!enabled || !refreshInfo?.canRefresh) {
 				throw new Error('Token refresh not available');
 			}

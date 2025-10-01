@@ -1,6 +1,7 @@
 // src/utils/credentialManager.ts
-import { logger } from './logger';
+
 import { getCallbackUrlForFlow } from './callbackUrls';
+import { logger } from './logger';
 
 export interface PermanentCredentials {
 	environmentId: string;
@@ -121,7 +122,7 @@ class CredentialManager {
 				const result = {
 					environmentId: credentials.environmentId || '',
 					clientId: credentials.clientId || '',
-					redirectUri: credentials.redirectUri || window.location.origin + '/authz-callback',
+					redirectUri: credentials.redirectUri || `${window.location.origin}/authz-callback`,
 					scopes: credentials.scopes || ['openid', 'profile', 'email'],
 					authEndpoint: credentials.authEndpoint,
 					tokenEndpoint: credentials.tokenEndpoint,
@@ -135,7 +136,7 @@ class CredentialManager {
 				return {
 					environmentId: '',
 					clientId: '',
-					redirectUri: window.location.origin + '/authz-callback',
+					redirectUri: `${window.location.origin}/authz-callback`,
 					scopes: ['openid', 'profile', 'email'],
 				};
 			}
@@ -145,7 +146,7 @@ class CredentialManager {
 			return {
 				environmentId: '',
 				clientId: '',
-				redirectUri: window.location.origin + '/authz-callback',
+				redirectUri: `${window.location.origin}/authz-callback`,
 				scopes: ['openid', 'profile', 'email'],
 			};
 		}
@@ -738,7 +739,7 @@ class CredentialManager {
 				const result = {
 					environmentId: credentials.environmentId || '',
 					clientId: credentials.clientId || '',
-					redirectUri: credentials.redirectUri || window.location.origin + '/authz-callback',
+					redirectUri: credentials.redirectUri || `${window.location.origin}/authz-callback`,
 					scopes: credentials.scopes || ['openid', 'profile', 'email'],
 					authEndpoint: credentials.authEndpoint,
 					tokenEndpoint: credentials.tokenEndpoint,
@@ -756,7 +757,7 @@ class CredentialManager {
 				return {
 					environmentId: '',
 					clientId: '',
-					redirectUri: window.location.origin + '/authz-callback',
+					redirectUri: `${window.location.origin}/authz-callback`,
 					scopes: ['openid', 'profile', 'email'],
 				};
 			}
@@ -766,7 +767,7 @@ class CredentialManager {
 			return {
 				environmentId: '',
 				clientId: '',
-				redirectUri: window.location.origin + '/authz-callback',
+				redirectUri: `${window.location.origin}/authz-callback`,
 				scopes: ['openid', 'profile', 'email'],
 			};
 		}
@@ -793,7 +794,7 @@ class CredentialManager {
 				const result = {
 					environmentId: credentials.environmentId || '',
 					clientId: credentials.clientId || '',
-					redirectUri: credentials.redirectUri || window.location.origin + '/authz-callback',
+					redirectUri: credentials.redirectUri || `${window.location.origin}/authz-callback`,
 					scopes: credentials.scopes || ['openid', 'profile', 'email'],
 					authEndpoint: credentials.authEndpoint,
 					tokenEndpoint: credentials.tokenEndpoint,
@@ -848,7 +849,7 @@ class CredentialManager {
 			return {
 				environmentId: envConfig.environmentId || '',
 				clientId: envConfig.clientId || '',
-				redirectUri: envConfig.redirectUri || window.location.origin + '/authz-callback',
+				redirectUri: envConfig.redirectUri || `${window.location.origin}/authz-callback`,
 				scopes: envConfig.scopes || ['openid', 'profile', 'email'],
 				authEndpoint: envConfig.authEndpoint,
 				tokenEndpoint: envConfig.tokenEndpoint,
@@ -860,7 +861,7 @@ class CredentialManager {
 			return {
 				environmentId: '',
 				clientId: '',
-				redirectUri: window.location.origin + '/authz-callback',
+				redirectUri: `${window.location.origin}/authz-callback`,
 				scopes: ['openid', 'profile', 'email'],
 			};
 		}

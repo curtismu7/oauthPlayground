@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
+import http from 'node:http';
 // Health check script for OAuth Playground
-import https from 'https';
-import http from 'http';
+import https from 'node:https';
 
 const config = {
 	frontend: {

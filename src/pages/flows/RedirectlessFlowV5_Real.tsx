@@ -18,6 +18,7 @@ import {
 	FiShield,
 	FiZap,
 } from 'react-icons/fi';
+import { themeService } from '../../services/themeService';
 import styled from 'styled-components';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
@@ -307,12 +308,22 @@ const CollapsibleTitle = styled.span`
 `;
 
 const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
+	${() => themeService.getCollapseIconStyles()}
 	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	transition: transform 0.2s ease;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
 	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
-	color: #15803d;
+
+	svg {
+		width: 16px;
+		height: 16px;
+	}
+
+	&:hover {
+		transform: ${({ $collapsed }) =>
+			$collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)'};
+	}
 `;
 
 const CollapsibleContent = styled.div`
@@ -3490,7 +3501,7 @@ async function submitCredentials(authUrl, username, password) {
 					</>
 				);
 
-			case 5:
+			case 6:
 				return (
 					<UserInformationStep
 						userInfo={userInfo}
@@ -3503,7 +3514,7 @@ async function submitCredentials(authUrl, username, password) {
 					/>
 				);
 
-			case 6:
+			case 7:
 				return (
 					<TokenIntrospect
 						flowName="OpenID Connect Authorization Code Flow"

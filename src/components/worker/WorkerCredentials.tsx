@@ -1,12 +1,12 @@
 // Worker Credentials component for secure credential input
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FiAlertCircle, FiCheck, FiEye, FiEyeOff, FiSettings } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiEye, FiEyeOff, FiCheck, FiAlertCircle, FiSettings } from 'react-icons/fi';
-import { logger } from '../../utils/logger';
+import { DEFAULT_WORKER_SCOPES, WorkerTokenCredentials } from '../../types/workerToken';
 import { validateCredentialFormat } from '../../utils/clientCredentials';
+import { logger } from '../../utils/logger';
 import { validateEnvironmentId } from '../../utils/workerToken';
-import { WorkerTokenCredentials, DEFAULT_WORKER_SCOPES } from '../../types/workerToken';
 
 const Container = styled.div`
   background: white;
@@ -90,7 +90,7 @@ const ToggleButton = styled.button`
   }
 `;
 
-const Textarea = styled.textarea<{ hasError?: boolean }>`
+const _Textarea = styled.textarea<{ hasError?: boolean }>`
   padding: 0.75rem;
   border: 1px solid ${(props) => (props.hasError ? '#ef4444' : '#d1d5db')};
   border-radius: 8px;
@@ -293,7 +293,7 @@ export const WorkerCredentials: React.FC<WorkerCredentialsProps> = ({
 
 		try {
 			logger.info('WORKER-CREDENTIALS', 'Testing connection', {
-				clientId: credentials.client_id.substring(0, 8) + '...',
+				clientId: `${credentials.client_id.substring(0, 8)}...`,
 				environmentId: credentials.environment_id,
 			});
 

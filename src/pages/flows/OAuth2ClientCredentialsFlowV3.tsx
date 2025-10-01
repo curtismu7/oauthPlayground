@@ -15,11 +15,9 @@ import {
 	FiServer,
 	FiSettings,
 	FiShield,
-	FiUser,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { showFlowError, showFlowSuccess } from '../../components/CentralizedSuccessMessage';
-import { showGlobalWarning } from '../../hooks/useNotifications';
 import ColorCodedURL from '../../components/ColorCodedURL';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import { EnhancedStepFlowV2 } from '../../components/EnhancedStepFlowV2';
@@ -27,15 +25,14 @@ import { FormField, FormInput, FormLabel, InfoBox } from '../../components/steps
 import TokenDisplay from '../../components/TokenDisplay';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { usePerformanceTracking } from '../../hooks/useAnalytics';
+import { showGlobalWarning } from '../../hooks/useNotifications';
 import { useAuthorizationFlowScroll } from '../../hooks/usePageScroll';
-import { discoveryService } from '../../services/discoveryService';
 import {
 	applyClientAuthentication,
 	type ClientAuthMethod,
 	getAuthMethodSecurityLevel,
 } from '../../utils/clientAuthentication';
 import { copyToClipboard } from '../../utils/clipboard';
-import { enhancedDebugger } from '../../utils/enhancedDebug';
 import { useFlowStepManager } from '../../utils/flowStepSystem';
 import { logger } from '../../utils/logger';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
@@ -187,7 +184,7 @@ const FlowControlButton = styled.button<{ className?: string }>`
   }
 `;
 
-const JsonDisplay = styled.div`
+const _JsonDisplay = styled.div`
   background: #f9fafb;
   color: #1f2937;
   border: 1px solid #e5e7eb;
@@ -201,7 +198,7 @@ const JsonDisplay = styled.div`
   position: relative;
 `;
 
-const CopyButton = styled.button`
+const _CopyButton = styled.button`
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
@@ -235,7 +232,7 @@ const OAuth2ClientCredentialsFlowV3: React.FC = () => {
 		enableAutoAdvance: false,
 	});
 	const { scrollToTopAfterAction } = useAuthorizationFlowScroll();
-	const performanceTracking = usePerformanceTracking();
+	const _performanceTracking = usePerformanceTracking();
 
 	// Credentials state
 	const [credentials, setCredentials] = useState<ClientCredentialsCredentials>({
@@ -255,14 +252,14 @@ const OAuth2ClientCredentialsFlowV3: React.FC = () => {
 	const [showClearCredentialsModal, setShowClearCredentialsModal] = useState(false);
 	const [isClearingCredentials, setIsClearingCredentials] = useState(false);
 	const [showPrivateKey, setShowPrivateKey] = useState(false);
-	const [copiedText, setCopiedText] = useState<string | null>(null);
+	const [_copiedText, _setCopiedText] = useState<string | null>(null);
 	const [showEducationalContent, setShowEducationalContent] = useState(false);
 	const [isSavingCredentials, setIsSavingCredentials] = useState(false);
 	const [credentialsSavedSuccessfully, setCredentialsSavedSuccessfully] = useState(false);
 	const [isResettingFlow, setIsResettingFlow] = useState(false);
 	const [flowResetSuccessfully, setFlowResetSuccessfully] = useState(false);
-	const [lastError, setLastError] = useState<any>(null);
-	const [showErrorSection, setShowErrorSection] = useState(false);
+	const [_lastError, _setLastError] = useState<any>(null);
+	const [_showErrorSection, _setShowErrorSection] = useState(false);
 	const [showUrlCallBox, setShowUrlCallBox] = useState(true);
 	const [showClientSecret, setShowClientSecret] = useState(false);
 
@@ -398,7 +395,7 @@ const OAuth2ClientCredentialsFlowV3: React.FC = () => {
 						"The 'openid' scope has been automatically added as required by PingOne for OIDC Client Credentials flow."
 					);
 				}
-			} else if (credentials.scopes && credentials.scopes.trim()) {
+			} else if (credentials.scopes?.trim()) {
 				showGlobalWarning(
 					'Scopes removed',
 					'Invalid separators were removed; proceeding without scopes.'
@@ -1061,9 +1058,7 @@ const OAuth2ClientCredentialsFlowV3: React.FC = () => {
 									</div>
 									<div style={{ color: '#6b7280', marginLeft: '1rem' }}>
 										grant_type=client_credentials
-										{credentials.scopes && credentials.scopes.trim()
-											? `&scope=${credentials.scopes}`
-											: ''}
+										{credentials.scopes?.trim() ? `&scope=${credentials.scopes}` : ''}
 										{credentials.audience ? `&audience=${credentials.audience}` : ''}
 									</div>
 								</div>
@@ -1160,7 +1155,18 @@ const OAuth2ClientCredentialsFlowV3: React.FC = () => {
 				completed: Boolean(tokens?.access_token),
 			},
 		],
-		[credentials, tokens, isRequestingToken, requestToken, saveCredentials]
+		[
+			credentials,
+			tokens,
+			isRequestingToken,
+			requestToken,
+			saveCredentials,
+			credentialsSavedSuccessfully,
+			isSavingCredentials,
+			showClientSecret,
+			showPrivateKey,
+			showUrlCallBox,
+		]
 	);
 
 	return (

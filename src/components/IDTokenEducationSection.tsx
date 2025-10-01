@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import {
+	FiCheckCircle,
 	FiChevronDown,
 	FiChevronRight,
-	FiInfo,
-	FiCheckCircle,
-	FiXCircle,
-	FiShield,
-	FiUser,
 	FiClock,
-	FiKey,
 	FiDatabase,
 	FiGlobe,
+	FiInfo,
+	FiKey,
+	FiShield,
+	FiUser,
+	FiXCircle,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 
 interface IDTokenEducationSectionProps {
 	className?: string;
@@ -133,7 +133,7 @@ const UseIcon = styled.div`
   flex-shrink: 0;
 `;
 
-const ClaimExample = styled.div`
+const _ClaimExample = styled.div`
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 0.5rem;

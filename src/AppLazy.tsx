@@ -1,10 +1,10 @@
-import React, { useState, useEffect, Suspense } from 'react';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import styled, { ThemeProvider, DefaultTheme } from 'styled-components';
+import React, { Suspense, useEffect, useState } from 'react';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import styled, { DefaultTheme, ThemeProvider } from 'styled-components';
+import { LazyLoadingFallback } from './components/LazyLoadingFallback';
 import { AuthProvider } from './contexts/NewAuthContext';
 import { PageStyleProvider } from './contexts/PageStyleContext';
 import { GlobalStyle, theme } from './styles/global';
-import { LazyLoadingFallback } from './components/LazyLoadingFallback';
 import { logger } from './utils/logger';
 
 // Lazy load all components
@@ -69,7 +69,7 @@ import type { ReactNode } from 'react';
 
 // Scroll to top component
 const ScrollToTop: React.FC = () => {
-	const location = useLocation();
+	const _location = useLocation();
 
 	useEffect(() => {
 		// Scroll to top immediately
@@ -90,7 +90,7 @@ const ScrollToTop: React.FC = () => {
 		}, 100);
 
 		return () => clearTimeout(timer);
-	}, [location.pathname]);
+	}, []);
 
 	return null;
 };
@@ -120,7 +120,7 @@ const AppRoutes = () => {
 	const [sidebarOpen, setSidebarOpen] = useState(false);
 	const [showCredentialModal, setShowCredentialModal] = useState(false);
 	const [showPageSpinner, setShowPageSpinner] = useState(false);
-	const location = useLocation();
+	const _location = useLocation();
 	const { showAuthModal, authRequestData, proceedWithOAuth, closeAuthModal } = useAuth();
 
 	// Preload common components for better performance
@@ -146,7 +146,7 @@ const AppRoutes = () => {
 	// Close sidebar when route changes
 	useEffect(() => {
 		setSidebarOpen(false);
-	}, [location]);
+	}, []);
 
 	// Show page change spinner when route changes
 	useEffect(() => {
@@ -170,7 +170,7 @@ const AppRoutes = () => {
 		}, 800);
 
 		return () => clearTimeout(timer);
-	}, [location.pathname]);
+	}, []);
 
 	// Check for existing PingOne configuration on app load
 	useEffect(() => {

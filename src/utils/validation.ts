@@ -37,10 +37,10 @@ export interface ValidationRuleConfig {
 // Common validation patterns
 export const VALIDATION_PATTERNS = {
 	EMAIL: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-	URL: /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/,
+	URL: /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)$/,
 	CLIENT_ID: /^[a-zA-Z0-9\-_]+$/,
 	ENVIRONMENT_ID: /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/,
-	SCOPE: /^[a-zA-Z0-9\s\-_\.]+$/,
+	SCOPE: /^[a-zA-Z0-9\s\-_.]+$/,
 	STATE: /^[a-zA-Z0-9\-_]+$/,
 	NONCE: /^[a-zA-Z0-9\-_]+$/,
 	CODE_VERIFIER: /^[A-Za-z0-9\-._~]{43,128}$/,
