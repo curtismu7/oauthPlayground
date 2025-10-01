@@ -87,6 +87,7 @@ import OIDCDeviceAuthorizationFlowV5 from './pages/flows/OIDCDeviceAuthorization
 import RedirectlessFlowV5 from './pages/flows/RedirectlessFlowV5';
 import RedirectlessFlowV5Real from './pages/flows/RedirectlessFlowV5_Real';
 import ClientCredentialsFlowV5 from './pages/flows/ClientCredentialsFlowV5';
+import OIDCClientCredentialsFlowV5 from './pages/flows/OIDCClientCredentialsFlowV5';
 import InteractiveTutorials from './pages/InteractiveTutorials';
 import JWKSTroubleshooting from './pages/JWKSTroubleshooting';
 import OAuth21 from './pages/OAuth21';
@@ -291,6 +292,7 @@ const AppRoutes = () => {
 					<Route path="/flows/oidc-device-authorization-v5" element={<OIDCDeviceAuthorizationFlowV5 />} />
 					<Route path="/flows/worker-token-v5" element={<WorkerTokenFlowV5 />} />
 					<Route path="/flows/client-credentials-v5" element={<ClientCredentialsFlowV5 />} />
+					<Route path="/flows/oidc-client-credentials-v5" element={<OIDCClientCredentialsFlowV5 />} />
 						<Route path="/flows/redirectless-flow-mock" element={<RedirectlessFlowV5 />} />
 						<Route path="/flows/redirectless-flow-v5" element={<RedirectlessFlowV5Real />} />
 						<Route path="/flows/authz-v4-new-windsurf" element={<AuthzV4NewWindsurfFlow />} />
