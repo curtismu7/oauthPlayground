@@ -368,6 +368,26 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 				console.warn(`${LOG_PREFIX} [WARN] Failed to save tokens to localStorage:`, e);
 			}
 
+			// Store flow source for Token Management page
+			try {
+				localStorage.setItem('oauth_tokens', JSON.stringify(tokenData));
+				localStorage.setItem('flow_source', 'client-credentials-v5');
+				sessionStorage.setItem('flow_source', 'client-credentials-v5');
+				
+				// Store comprehensive flow context
+				const flowContext = {
+					flow: 'client-credentials-v5',
+					tokens: tokenData,
+					credentials: config,
+					timestamp: Date.now(),
+				};
+				sessionStorage.setItem('tokenManagementFlowContext', JSON.stringify(flowContext));
+				
+				console.log(`${LOG_PREFIX} [INFO] Flow source and context saved for Token Management`);
+			} catch (e) {
+				console.warn(`${LOG_PREFIX} [WARN] Failed to save flow context:`, e);
+			}
+
 			console.log(`${LOG_PREFIX} [INFO] ✅ Token request successful!`);
 			console.log(`${LOG_PREFIX} [INFO] Token type: ${tokenData.token_type}`);
 			console.log(`${LOG_PREFIX} [INFO] Expires in: ${tokenData.expires_in || 'N/A'} seconds`);
