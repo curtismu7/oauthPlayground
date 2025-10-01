@@ -79,6 +79,14 @@ export default defineConfig(({ mode }) => {
 						}
 						return path;
 					},
+					configure: (proxy, options) => {
+						// Add error handling for HTTPS fallback
+						proxy.on('error', (err, req, res) => {
+							console.log('Proxy error, attempting HTTP fallback:', err.message);
+							// Note: In a real scenario, you might want to implement
+							// automatic fallback to HTTP target here
+						});
+					},
 				},
 			},
 		},

@@ -66,7 +66,7 @@ export const appConfig = {
 	description:
 		typedWindow.__PINGONE_APP_DESCRIPTION__ ||
 		'Interactive playground for OAuth 2.0 and OpenID Connect with PingOne',
-	version: typedWindow.__PINGONE_APP_VERSION__ || '5.8.1',
+	version: typedWindow.__PINGONE_APP_VERSION__ || '5.8.2',
 	defaultTheme: typedWindow.__PINGONE_APP_DEFAULT_THEME__ || 'light',
 	devServer: {
 		port: parseInt(typedWindow.__PINGONE_DEV_SERVER_PORT__ || '3000'),
