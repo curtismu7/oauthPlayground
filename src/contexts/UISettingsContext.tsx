@@ -113,10 +113,8 @@ export const UISettingsProvider: React.FC<UISettingsProviderProps> = ({ children
 		};
 
 		loadSettings();
-	}, [
-		// Apply theme settings immediately
-		applyThemeSettings,
-	]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []); // Only run once on mount
 
 	// Update a specific setting
 	const updateSetting = <K extends keyof UISettings>(key: K, value: UISettings[K]) => {
