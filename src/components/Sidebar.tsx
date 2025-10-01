@@ -684,6 +684,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							<span>PingOne Worker Token V5</span>
 						</SubmenuItem>
 						<SubmenuItem
+							to="/flows/client-credentials-v5"
+							onClick={onClose}
+							$isActive={isActiveRoute('/flows/client-credentials-v5')}
+							$isV5={true}
+						>
+							<FiLock style={{ marginRight: '0.5rem' }} />
+							<span>Client Credentials V5</span>
+						</SubmenuItem>
+						<SubmenuItem
 							to="/flows/pingone-par-v5"
 							onClick={onClose}
 							$isActive={isActiveRoute('/flows/pingone-par-v5')}
