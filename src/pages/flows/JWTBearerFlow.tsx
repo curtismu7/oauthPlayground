@@ -240,7 +240,8 @@ const JWTBearerFlow: React.FC = () => {
 		);
 
 		const signature = await crypto.subtle.sign('HMAC', key, encoder.encode(signatureInput));
-		const encodedSignature = btoa(String.fromCharCode(...new Uint8Array(signature)))
+		const signatureArray = Array.from(new Uint8Array(signature));
+		const encodedSignature = btoa(String.fromCharCode(...signatureArray))
 			.replace(/\+/g, '-')
 			.replace(/\//g, '_')
 			.replace(/=/g, '');
