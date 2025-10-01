@@ -1,15 +1,41 @@
 // src/components/FlowInfoCard.tsx - Reusable flow information comparison card
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { FiChevronDown } from 'react-icons/fi';
+import { useUISettings } from '../contexts/UISettingsContext';
 
-const CardContainer = styled.div`
-	background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+const CardContainer = styled.div<{ $colorScheme?: string; $fontSize?: string }>`
+	background: ${({ $colorScheme }) => {
+		switch ($colorScheme) {
+			case 'blue':
+				return 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)';
+			case 'green':
+				return 'linear-gradient(135deg, #10b981 0%, #34d399 100%)';
+			case 'purple':
+				return 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)';
+			case 'orange':
+				return 'linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%)';
+			case 'red':
+				return 'linear-gradient(135deg, #ef4444 0%, #f87171 100%)';
+			default:
+				return 'linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%)';
+		}
+	}};
 	border-radius: 12px;
 	margin-bottom: 2rem;
 	box-shadow: 0 4px 6px rgba(255, 107, 53, 0.1);
 	overflow: hidden;
+	font-size: ${({ $fontSize }) => {
+		switch ($fontSize) {
+			case 'small':
+				return '0.875rem';
+			case 'large':
+				return '1.125rem';
+			default:
+				return '1rem';
+		}
+	}};
 `;
 
 const CardHeaderButton = styled.button`
@@ -110,10 +136,27 @@ interface FlowInfoCardProps {
 }
 
 const FlowInfoCard: React.FC<FlowInfoCardProps> = ({ flowInfo }) => {
-	const [isOpen, setIsOpen] = useState(true);
+	const { settings } = useUISettings();
+
+	// Default to collapsed (as requested), but honor UI settings
+	const [isOpen, setIsOpen] = useState(settings.collapsibleDefaultState === 'expanded');
+
+	// Listen for UI settings changes
+	useEffect(() => {
+		const handleSettingsChange = (event: CustomEvent) => {
+			if (event.detail?.collapsibleDefaultState) {
+				setIsOpen(event.detail.collapsibleDefaultState === 'expanded');
+			}
+		};
+
+		window.addEventListener('uiSettingsChanged', handleSettingsChange as EventListener);
+		return () => {
+			window.removeEventListener('uiSettingsChanged', handleSettingsChange as EventListener);
+		};
+	}, []);
 
 	return (
-		<CardContainer>
+		<CardContainer $colorScheme={settings.colorScheme} $fontSize={settings.fontSize}>
 			<CardHeaderButton onClick={() => setIsOpen(!isOpen)}>
 				<CardHeaderContent>
 					<CardHeader>
