@@ -16,6 +16,8 @@ import {
 import styled from 'styled-components';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
+import FlowInfoCard from '../../components/FlowInfoCard';
+import { getFlowInfo } from '../../utils/flowInfoConfig';
 import {
 	ExplanationHeading,
 	ExplanationSection,
@@ -1308,9 +1310,11 @@ const OAuthImplicitFlowV5: React.FC = () => {
 						Experience the OAuth 2.0 Implicit Flow with modern UX. Note: This is a legacy flow - 
 						consider using Authorization Code + PKCE instead.
 					</Subtitle>
-				</HeaderSection>
+			</HeaderSection>
 
-				<MainCard>
+			<FlowInfoCard flowInfo={getFlowInfo('oauth-implicit')!} />
+
+			<MainCard>
 					<StepHeader>
 						<StepHeaderLeft>
 							<VersionBadge>Implicit Flow · V5 · Legacy</VersionBadge>

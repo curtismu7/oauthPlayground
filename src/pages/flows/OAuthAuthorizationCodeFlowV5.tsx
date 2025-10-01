@@ -19,6 +19,8 @@ import {
 import styled from 'styled-components';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
+import FlowInfoCard from '../../components/FlowInfoCard';
+import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { FlowWalkthrough } from '../../components/FlowWalkthrough';
 import {
 	ExplanationHeading,
@@ -2698,9 +2700,11 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 						Experience the full PingOne Authorization Code Flow with PKCE, powered by the reusable
 						V5 controller architecture.
 					</Subtitle>
-				</HeaderSection>
+			</HeaderSection>
 
-				<MainCard>
+			<FlowInfoCard flowInfo={getFlowInfo('oauth-authorization-code')!} />
+
+			<MainCard>
 					<StepHeader>
 						<StepHeaderLeft>
 							<VersionBadge>Authorization Code Flow · V5</VersionBadge>

@@ -19,6 +19,8 @@ import {
 import styled from 'styled-components';
 import ConfigurationSummaryCard from './ConfigurationSummaryCard';
 import { CredentialsInput } from './CredentialsInput';
+import FlowInfoCard from './FlowInfoCard';
+import { getFlowInfo } from '../utils/flowInfoConfig';
 import { FlowWalkthrough } from './FlowWalkthrough';
 import {
 	ExplanationHeading,
@@ -1154,9 +1156,11 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 					<Subtitle>
 						Experience the complete Worker Token Flow with step-by-step guidance and real-time feedback.
 					</Subtitle>
-				</HeaderSection>
+			</HeaderSection>
 
-				<MainCard>
+			<FlowInfoCard flowInfo={getFlowInfo('worker-token')!} />
+
+			<MainCard>
 					<StepHeader>
 						<StepHeaderLeft>
 							<VersionBadge>{flowVersion}</VersionBadge>
