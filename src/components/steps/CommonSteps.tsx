@@ -216,6 +216,10 @@ export interface StepCredentials {
 	grantType?: string; // OAuth grant type
 	authorizationEndpoint?: string;
 	
+	// JWT Authentication Settings
+	privateKey?: string; // For private_key_jwt authentication
+	keyId?: string; // Key ID for JWKS (optional)
+	
 	// Response Types (from OIDC Settings)
 	responseTypeCode?: boolean;
 	responseTypeToken?: boolean;
