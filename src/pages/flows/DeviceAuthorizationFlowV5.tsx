@@ -1387,7 +1387,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 					aria-expanded={!collapsedSections.introspectionOverview}
 				>
 					<CollapsibleTitle>
-						<FiShield /> Token Introspection (Coming Soon)
+						<FiShield /> Token Introspection
 					</CollapsibleTitle>
 					<CollapsibleToggleIcon $collapsed={collapsedSections.introspectionOverview}>
 						<FiChevronDown />
@@ -1395,16 +1395,92 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 				</CollapsibleHeaderButton>
 				{!collapsedSections.introspectionOverview && (
 					<CollapsibleContent>
+						<ExplanationSection>
+							<ExplanationHeading>
+								<FiShield /> What is Token Introspection?
+							</ExplanationHeading>
+							<InfoText>
+								Token introspection (RFC 7662) allows you to validate an access token and retrieve metadata about it.
+								This is useful for:
+							</InfoText>
+							<ul style={{ marginLeft: '1.5rem', marginTop: '0.5rem' }}>
+								<li><strong>Validation</strong>: Check if the token is still active and valid</li>
+								<li><strong>Authorization</strong>: View the scopes and permissions granted</li>
+								<li><strong>Debugging</strong>: Inspect token claims and expiration times</li>
+								<li><strong>Security</strong>: Verify token authenticity before granting access</li>
+							</ul>
+						</ExplanationSection>
+
 						<InfoBox $variant="info">
-							<FiShield size={20} />
+							<FiInfo size={20} />
 							<div>
-								<InfoTitle>Token Introspection</InfoTitle>
+								<InfoTitle>How Introspection Works</InfoTitle>
 								<InfoText>
-									Introspect the access token to validate it and view its claims.
-									This feature will be added in a future update.
+									The authorization server validates the token and returns metadata including:
+									<ul style={{ marginLeft: '1.5rem', marginTop: '0.5rem', marginBottom: 0 }}>
+										<li><code>active</code>: Whether the token is currently active</li>
+										<li><code>scope</code>: The scopes associated with the token</li>
+										<li><code>client_id</code>: The client that requested the token</li>
+										<li><code>exp</code>: Token expiration timestamp</li>
+										<li><code>sub</code>: Subject identifier (user ID)</li>
+									</ul>
 								</InfoText>
 							</div>
 						</InfoBox>
+
+						{deviceFlow.tokens?.access_token ? (
+							<>
+								<ResultsSection>
+									<ResultsHeading>
+										<FiKey size={18} /> Introspect Access Token
+									</ResultsHeading>
+									<GeneratedContentBox>
+										<InfoText style={{ marginBottom: '1rem' }}>
+											Click the button below to introspect your access token and view its metadata.
+											This will validate the token with PingOne's introspection endpoint.
+										</InfoText>
+										<ActionRow>
+											<Button
+												onClick={() => {
+													// Navigate to Token Management page with introspection
+													window.location.href = '/token-management';
+												}}
+												$variant="primary"
+											>
+												<FiShield /> Go to Token Management
+											</Button>
+											<Button
+												onClick={() => handleCopy(deviceFlow.tokens!.access_token, 'Access Token')}
+												$variant="outline"
+											>
+												<FiCopy /> Copy Access Token
+											</Button>
+										</ActionRow>
+									</GeneratedContentBox>
+								</ResultsSection>
+
+								<InfoBox $variant="warning">
+									<FiAlertCircle size={20} />
+									<div>
+										<InfoTitle>💡 Pro Tip</InfoTitle>
+										<InfoText>
+											Use the Token Management page to introspect tokens, view decoded JWTs, and test token validation.
+											You can also use tools like jwt.io to decode the token structure.
+										</InfoText>
+									</div>
+								</InfoBox>
+							</>
+						) : (
+							<InfoBox $variant="warning">
+								<FiAlertCircle size={20} />
+								<div>
+									<InfoTitle>No Token Available</InfoTitle>
+									<InfoText>
+										Complete the device authorization flow to receive an access token, then you can introspect it.
+									</InfoText>
+								</div>
+							</InfoBox>
+						)}
 					</CollapsibleContent>
 				)}
 			</CollapsibleSection>
