@@ -4,11 +4,11 @@ import { FiCopy } from 'react-icons/fi';
 import { logger } from '../../utils/logger';
 
 interface TokenResponseBoxesProps {
-  tokens: {
-    access_token?: string;
-    id_token?: string;
-    refresh_token?: string;
-  };
+	tokens: {
+		access_token?: string;
+		id_token?: string;
+		refresh_token?: string;
+	};
 }
 
 const TokenGrid = styled.div`
@@ -73,35 +73,36 @@ const TokenValue = styled.pre`
 `;
 
 const TokenResponseBoxes: React.FC<TokenResponseBoxesProps> = ({ tokens }) => {
-  const handleCopy = (token: string, tokenName: string) => {
-    navigator.clipboard.writeText(token);
-    logger.info('Token copied to clipboard', tokenName);
-    // You could add a toast notification here
-  };
+	const handleCopy = (token: string, tokenName: string) => {
+		navigator.clipboard.writeText(token);
+		logger.info('Token copied to clipboard', tokenName);
+		// You could add a toast notification here
+	};
 
-  const tokenData = [
-    { name: 'Access Token', value: tokens.access_token, color: '#e0f2fe' },
-    { name: 'ID Token', value: tokens.id_token, color: '#dcfce7' },
-    { name: 'Refresh Token', value: tokens.refresh_token, color: '#ffedd5' },
-  ];
+	const tokenData = [
+		{ name: 'Access Token', value: tokens.access_token, color: '#e0f2fe' },
+		{ name: 'ID Token', value: tokens.id_token, color: '#dcfce7' },
+		{ name: 'Refresh Token', value: tokens.refresh_token, color: '#ffedd5' },
+	];
 
-  return (
-    <TokenGrid>
-      {tokenData.map(({ name, value, color }) => (
-        value && (
-          <TokenBoxWrapper key={name} $color={color}>
-            <TokenHeader>
-              <TokenTitle>{name}</TokenTitle>
-              <CopyButton onClick={() => handleCopy(value, name)} title={`Copy ${name}`}>
-                <FiCopy />
-              </CopyButton>
-            </TokenHeader>
-            <TokenValue>{value}</TokenValue>
-          </TokenBoxWrapper>
-        )
-      ))}
-    </TokenGrid>
-  );
+	return (
+		<TokenGrid>
+			{tokenData.map(
+				({ name, value, color }) =>
+					value && (
+						<TokenBoxWrapper key={name} $color={color}>
+							<TokenHeader>
+								<TokenTitle>{name}</TokenTitle>
+								<CopyButton onClick={() => handleCopy(value, name)} title={`Copy ${name}`}>
+									<FiCopy />
+								</CopyButton>
+							</TokenHeader>
+							<TokenValue>{value}</TokenValue>
+						</TokenBoxWrapper>
+					)
+			)}
+		</TokenGrid>
+	);
 };
 
 export default TokenResponseBoxes;
