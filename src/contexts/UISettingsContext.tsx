@@ -34,7 +34,7 @@ const DEFAULT_UI_SETTINGS: UISettings = {
 	fontSize: 'medium',
 	colorScheme: 'blue',
 	autoAdvanceSteps: false,
-	collapsibleDefaultState: 'collapsed',
+	collapsibleDefaultState: 'collapsed', // Flow info cards default to collapsed
 	showRequestResponseDetails: false,
 	copyButtonBehavior: 'confirmation',
 	errorDetailLevel: 'basic',
