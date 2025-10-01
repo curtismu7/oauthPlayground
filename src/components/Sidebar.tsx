@@ -622,13 +622,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               <FiCode />
               OIDC Hybrid Flow
             </SubmenuItem> */}
-						<SubmenuItem
+						{/* OIDC Device Code V3 hidden - use V5 instead */}
+						{/* <SubmenuItem
 							to="/flows/device-code-oidc"
 							onClick={onClose}
 							$isActive={isActiveRoute('/flows/device-code-oidc')}
 						>
 							OIDC Device Code V3
-						</SubmenuItem>
+						</SubmenuItem> */}
 					</Submenu>
 				</NavItemWithSubmenu>
 
