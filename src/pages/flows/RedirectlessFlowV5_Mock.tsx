@@ -20,6 +20,7 @@ import {
 	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import { themeService } from '../../services/themeService';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
 import {
@@ -207,9 +208,23 @@ const CollapsibleTitle = styled.h3`
 `;
 
 const CollapsibleToggleIcon = styled.span<{ $collapsed: boolean }>`
-	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
-	transition: transform 0.2s;
-	color: #8b5cf6;
+	${() => themeService.getCollapseIconStyles()}
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	svg {
+		width: 16px;
+		height: 16px;
+	}
+
+	&:hover {
+		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)')};
+	}
 `;
 
 const CollapsibleContent = styled.div`
