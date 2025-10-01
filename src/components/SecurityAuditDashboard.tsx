@@ -1,10 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import {
-	securityAuditor,
-	SecurityAuditReport,
-	SecurityVulnerability,
-} from '../utils/securityAudit';
+import { SecurityAuditReport, securityAuditor } from '../utils/securityAudit';
 
 const DashboardContainer = styled.div`
   background: white;
@@ -340,13 +336,13 @@ const ErrorMessage = styled.div`
 
 const SecurityAuditDashboard: React.FC = () => {
 	const [currentReport, setCurrentReport] = useState<SecurityAuditReport | null>(null);
-	const [auditHistory, setAuditHistory] = useState<SecurityAuditReport[]>([]);
+	const [_auditHistory, setAuditHistory] = useState<SecurityAuditReport[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
 		loadAuditHistory();
-	}, []);
+	}, [loadAuditHistory]);
 
 	const loadAuditHistory = () => {
 		try {
@@ -355,7 +351,7 @@ const SecurityAuditDashboard: React.FC = () => {
 			if (history.length > 0) {
 				setCurrentReport(history[history.length - 1]);
 			}
-		} catch (err) {
+		} catch (_err) {
 			setError('Failed to load audit history');
 		}
 	};

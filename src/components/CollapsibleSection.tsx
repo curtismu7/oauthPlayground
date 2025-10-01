@@ -1,8 +1,8 @@
-import type React from "react";
-import { useState } from "react";
-import { FiChevronDown, FiChevronRight } from "react-icons/fi";
-import styled from "styled-components";
-import { showGlobalInfo } from "../hooks/useNotifications";
+import type React from 'react';
+import { useState } from 'react';
+import { FiChevronDown, FiChevronRight } from 'react-icons/fi';
+import styled from 'styled-components';
+import { showGlobalInfo } from '../hooks/useNotifications';
 
 interface CollapsibleSectionProps {
 	title: string;
@@ -15,7 +15,7 @@ interface CollapsibleSectionProps {
 }
 
 const SectionContainer = styled.div.withConfig({
-	shouldForwardProp: (prop) => prop !== "collapsed" && prop !== "$collapsed",
+	shouldForwardProp: (prop) => prop !== 'collapsed' && prop !== '$collapsed',
 })<{ $collapsed: boolean }>`
   margin-bottom: 2rem;
   background: white;
@@ -86,7 +86,7 @@ const Subtitle = styled.p`
 `;
 
 const ChevronIcon = styled.div.withConfig({
-	shouldForwardProp: (prop) => prop !== "collapsed" && prop !== "$collapsed",
+	shouldForwardProp: (prop) => prop !== 'collapsed' && prop !== '$collapsed',
 })<{ $collapsed: boolean }>`
   display: flex;
   align-items: center;
@@ -98,7 +98,7 @@ const ChevronIcon = styled.div.withConfig({
   border: 2px solid #3b82f6;
   box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
   transition: all 0.2s ease;
-  transform: ${({ $collapsed }) => ($collapsed ? "rotate(0deg)" : "rotate(90deg)")};
+  transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(90deg)')};
   cursor: pointer;
 
   svg {
@@ -109,7 +109,7 @@ const ChevronIcon = styled.div.withConfig({
   &:hover {
     background: #dbeafe;
     border-color: #1d4ed8;
-    transform: ${({ $collapsed }) => ($collapsed ? "rotate(0deg) scale(1.1)" : "rotate(90deg) scale(1.1)")};
+    transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg) scale(1.1)' : 'rotate(90deg) scale(1.1)')};
     box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
     
     svg {
@@ -118,18 +118,18 @@ const ChevronIcon = styled.div.withConfig({
   }
   
   &:active {
-    transform: ${({ $collapsed }) => ($collapsed ? "rotate(0deg) scale(1.05)" : "rotate(90deg) scale(1.05)")};
+    transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg) scale(1.05)' : 'rotate(90deg) scale(1.05)')};
   }
 `;
 
 const SectionContent = styled.div.withConfig({
-	shouldForwardProp: (prop) => prop !== "collapsed" && prop !== "$collapsed",
+	shouldForwardProp: (prop) => prop !== 'collapsed' && prop !== '$collapsed',
 })<{ $collapsed: boolean }>`
-  padding: ${({ $collapsed }) => ($collapsed ? "0" : "1.5rem")};
-  max-height: ${({ $collapsed }) => ($collapsed ? "0" : "none")};
+  padding: ${({ $collapsed }) => ($collapsed ? '0' : '1.5rem')};
+  max-height: ${({ $collapsed }) => ($collapsed ? '0' : 'none')};
   overflow: hidden;
-  opacity: ${({ $collapsed }) => ($collapsed ? "0" : "1")};
-  visibility: ${({ $collapsed }) => ($collapsed ? "hidden" : "visible")};
+  opacity: ${({ $collapsed }) => ($collapsed ? '0' : '1')};
+  visibility: ${({ $collapsed }) => ($collapsed ? 'hidden' : 'visible')};
   transition: all 0.3s ease;
 `;
 
@@ -150,15 +150,9 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
 
 		// Provide user feedback
 		if (newCollapsed) {
-			showGlobalInfo(
-				" Section Collapsed",
-				`"${title}" section has been collapsed`,
-			);
+			showGlobalInfo(' Section Collapsed', `"${title}" section has been collapsed`);
 		} else {
-			showGlobalInfo(
-				" Section Expanded",
-				`"${title}" section has been expanded`,
-			);
+			showGlobalInfo(' Section Expanded', `"${title}" section has been expanded`);
 		}
 	};
 
@@ -167,11 +161,7 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
 			<SectionHeader onClick={handleToggle}>
 				<HeaderContent>
 					<ChevronIcon $collapsed={collapsed}>
-						{collapsed ? (
-							<FiChevronRight size={16} />
-						) : (
-							<FiChevronDown size={16} />
-						)}
+						{collapsed ? <FiChevronRight size={16} /> : <FiChevronDown size={16} />}
 					</ChevronIcon>
 					<SectionTitle>
 						<TitleText>
@@ -182,9 +172,7 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
 					</SectionTitle>
 				</HeaderContent>
 				{headerActions && (
-					<HeaderActions onClick={(e) => e.stopPropagation()}>
-						{headerActions}
-					</HeaderActions>
+					<HeaderActions onClick={(e) => e.stopPropagation()}>{headerActions}</HeaderActions>
 				)}
 			</SectionHeader>
 			<SectionContent $collapsed={collapsed}>{children}</SectionContent>

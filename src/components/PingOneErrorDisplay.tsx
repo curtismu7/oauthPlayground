@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
+import { FiChevronDown, FiChevronUp, FiCopy, FiExternalLink } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiAlertCircle, FiChevronDown, FiChevronUp, FiCopy, FiExternalLink } from 'react-icons/fi';
-import { PingOneErrorInterpreter, type InterpretedError } from '../utils/pingoneErrorInterpreter';
 import { logger } from '../utils/logger';
+import { PingOneErrorInterpreter } from '../utils/pingoneErrorInterpreter';
 
 const ErrorContainer = styled.div<{ $severity: string }>`
   border: 2px solid ${({ $severity }) => {

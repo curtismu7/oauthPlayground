@@ -3,12 +3,11 @@
  */
 
 import {
-	StorageInterface,
+	OAuthConfig,
 	OAuthStorage,
 	OAuthTokenResponse,
+	StorageInterface,
 	UserInfo,
-	OAuthConfig,
-	JsonValue,
 } from '../types/storage';
 
 const STORAGE_PREFIX = 'pingone_playground_';
@@ -60,7 +59,7 @@ export const localStorageService: StorageService = {
 
 			try {
 				return JSON.parse(item);
-			} catch (e) {
+			} catch (_e) {
 				return item;
 			}
 		} catch (error) {
@@ -134,7 +133,7 @@ export const sessionStorageService: StorageService = {
 
 			try {
 				return JSON.parse(item);
-			} catch (e) {
+			} catch (_e) {
 				return item;
 			}
 		} catch (error) {

@@ -1,38 +1,38 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { ThemeProvider } from 'styled-components';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
+	FiAlertTriangle,
 	FiCheckCircle,
-	FiXCircle,
 	FiCopy,
 	FiDownload,
 	FiEye,
-	FiAlertTriangle,
+	FiXCircle,
 } from 'react-icons/fi';
-import { formatJwt, validateToken, type FormattedJwt, type ValidationResult } from '../utils/jwt';
-import { oauthStorage } from '../utils/storage';
-import { defaultTheme } from '../types/token-inspector';
+import { ThemeProvider } from 'styled-components';
 import {
-	createTokenError,
-	isTokenError,
-	TokenValidationError,
-	TokenErrorMessages,
-} from '../types/oauthErrors';
-import {
+	ActionButton,
+	AnalysisGrid,
+	CardBody,
+	CardHeader,
+	ClaimRow,
+	ClaimsTable,
 	Container,
 	PageHeader,
 	TokenDisplay,
 	TokenHeader,
-	TokenPayload,
-	CardHeader,
-	CardBody,
-	ActionButton,
-	AnalysisGrid,
 	TokenPartCard,
+	TokenPayload,
 	TokenValidationCard,
 	ValidationStatus,
-	ClaimsTable,
-	ClaimRow,
 } from '../components/token/TokenStyles';
+import {
+	createTokenError,
+	isTokenError,
+	TokenErrorMessages,
+	TokenValidationError,
+} from '../types/oauthErrors';
+import { defaultTheme } from '../types/token-inspector';
+import { type FormattedJwt, formatJwt, type ValidationResult, validateToken } from '../utils/jwt';
+import { oauthStorage } from '../utils/storage';
 
 interface ClaimEntry {
 	key: string;
@@ -70,7 +70,7 @@ const TokenInspector: React.FC = () => {
 					// Try to parse if it's a JSON string
 					const parsed = JSON.parse(obj);
 					return JSON.stringify(parsed, null, 2);
-				} catch (e) {
+				} catch (_e) {
 					// If not JSON, return as string
 					return `"${obj}"`;
 				}
@@ -187,7 +187,7 @@ const TokenInspector: React.FC = () => {
 
 		const debounceTimer = setTimeout(analyzeToken, 300);
 		return () => clearTimeout(debounceTimer);
-	}, [token, formatJson]);
+	}, [token]);
 
 	// Handle copy to clipboard
 	const handleCopy = useCallback((text: string) => {

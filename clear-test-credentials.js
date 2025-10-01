@@ -20,7 +20,7 @@ keysToCheck.forEach((key) => {
 				console.log(`🗑️ Removing test credentials from ${key}`);
 				localStorage.removeItem(key);
 			}
-	} catch (_e) {
+		} catch (_e) {
 			// Not JSON, check if it contains test values
 			if (value.includes('test-client-123') || value.includes('test-env-123')) {
 				console.log(`🗑️ Removing test credentials from ${key}`);

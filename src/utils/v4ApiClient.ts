@@ -1,7 +1,7 @@
 // src/utils/v4ApiClient.ts - Enhanced API Client for V4 Flows
 
-import { ApiCallHandler, NodeServerErrorHandling } from '../types/v4FlowTemplate';
 import { showGlobalError, showGlobalSuccess, showGlobalWarning } from '../hooks/useNotifications';
+import { ApiCallHandler, NodeServerErrorHandling } from '../types/v4FlowTemplate';
 
 // Node server error messages
 const NODE_SERVER_ERRORS: NodeServerErrorHandling = {
@@ -103,9 +103,8 @@ export class V4ApiClient {
 
 				// Wait before retry (exponential backoff)
 				if (attempt < retries) {
-					const delay = Math.pow(2, attempt) * 1000;
+					const delay = 2 ** attempt * 1000;
 					await new Promise((resolve) => setTimeout(resolve, delay));
-					continue;
 				}
 			}
 		}
@@ -202,7 +201,7 @@ export class V4ApiClient {
 				return {};
 			}
 			return JSON.parse(text);
-		} catch (error) {
+		} catch (_error) {
 			throw new Error(NODE_SERVER_ERRORS.PARSE_ERROR);
 		}
 	}
