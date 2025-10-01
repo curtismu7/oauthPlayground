@@ -699,6 +699,37 @@ const ClientCredentialsFlowV5: React.FC = () => {
 							</InfoText>
 						</div>
 					</InfoBox>
+
+					<InfoBox $variant="info">
+						<FiInfo size={20} />
+						<div>
+							<InfoTitle>Refresh Token Caveats & Considerations</InfoTitle>
+							<InfoText>
+								<ul style={{ marginLeft: '1.5rem', marginTop: '0.5rem', marginBottom: 0 }}>
+									<li>
+										<strong>Configuration-Dependent:</strong> Whether a refresh token is issued depends on 
+										client settings and policy configuration in your Authorization Server (e.g., PingOne)
+									</li>
+									<li>
+										<strong>Not Always Enabled:</strong> Some security-conscious setups may disable refresh tokens 
+										for Client Credentials to reduce risk from long-lived tokens
+									</li>
+									<li>
+										<strong>Opt-In Required:</strong> Default behavior may not include refresh tokens — 
+										you may need to explicitly enable them in client or realm settings
+									</li>
+									<li>
+										<strong>Best Practice:</strong> Even if refresh tokens are issued, combine them with 
+										rotation, short lifetimes, and protective measures (PingOne supports refresh token rotation)
+									</li>
+									<li>
+										<strong>M2M Context:</strong> Many implementations skip refresh tokens for Client Credentials 
+										since the client can always request a new access token directly
+									</li>
+								</ul>
+							</InfoText>
+						</div>
+					</InfoBox>
 				</CollapsibleContent>
 			)}
 		</CollapsibleSection>
