@@ -713,7 +713,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							$isV5={true}
 						>
 							<FiZap style={{ marginRight: '0.5rem' }} />
-							<span>Redirectless Flow (Educational) V5</span>
+							<span>Redirectless Flow V5 (Educational)</span>
 						</SubmenuItem>
 						<SubmenuItem
 							to="/flows/redirectless-flow-v5"
