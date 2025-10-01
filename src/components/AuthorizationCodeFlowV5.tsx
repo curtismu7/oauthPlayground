@@ -213,7 +213,7 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' }>`
 	gap: 1rem;
 	padding: 1.5rem;
 	border-radius: 0.75rem;
-	background: ${({ $variant, theme }) => {
+	background: ${({ $variant }) => {
 		switch ($variant) {
 			case 'warning':
 				return '#fef3c7';
@@ -223,7 +223,7 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' }>`
 				return '#eff6ff';
 		}
 	}};
-	border: 1px solid ${({ $variant, theme }) => {
+	border: 1px solid ${({ $variant }) => {
 		switch ($variant) {
 			case 'warning':
 				return '#f59e0b';
