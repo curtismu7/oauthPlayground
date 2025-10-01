@@ -710,9 +710,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							to="/flows/redirectless-flow-mock"
 							onClick={onClose}
 							$isActive={isActiveRoute('/flows/redirectless-flow-mock')}
+							$isV5={true}
 						>
-							<FiInfo style={{ marginRight: '0.5rem' }} />
-							<span>Redirectless Flow (Educational)</span>
+							<FiZap style={{ marginRight: '0.5rem' }} />
+							<span>Redirectless Flow (Educational) V5</span>
 						</SubmenuItem>
 						<SubmenuItem
 							to="/flows/redirectless-flow-v5"
