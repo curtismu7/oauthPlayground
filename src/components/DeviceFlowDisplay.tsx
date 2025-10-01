@@ -37,34 +37,34 @@ const StatusBadge = styled.div<{ $status: string }>`
   text-transform: uppercase;
   
   ${({ $status }) => {
-    switch ($status) {
-      case 'pending':
-        return `
+		switch ($status) {
+			case 'pending':
+				return `
           background-color: #fef3c7;
           color: #92400e;
         `;
-      case 'authorized':
-        return `
+			case 'authorized':
+				return `
           background-color: #dcfce7;
           color: #166534;
         `;
-      case 'denied':
-        return `
+			case 'denied':
+				return `
           background-color: #fecaca;
           color: #991b1b;
         `;
-      case 'expired':
-        return `
+			case 'expired':
+				return `
           background-color: #f3f4f6;
           color: #6b7280;
         `;
-      default:
-        return `
+			default:
+				return `
           background-color: #f3f4f6;
           color: #6b7280;
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const UserCodeSection = styled.div`
@@ -136,33 +136,33 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' | '
   gap: 0.5rem;
   
   ${({ $variant }) => {
-    switch ($variant) {
-      case 'primary':
-        return `
+		switch ($variant) {
+			case 'primary':
+				return `
           background-color: #3b82f6;
           color: white;
           &:hover { background-color: #2563eb; }
         `;
-      case 'secondary':
-        return `
+			case 'secondary':
+				return `
           background-color: #6b7280;
           color: white;
           &:hover { background-color: #4b5563; }
         `;
-      case 'success':
-        return `
+			case 'success':
+				return `
           background-color: #10b981;
           color: white;
           &:hover { background-color: #059669; }
         `;
-      case 'danger':
-        return `
+			case 'danger':
+				return `
           background-color: #ef4444;
           color: white;
           &:hover { background-color: #dc2626; }
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const StatusSection = styled.div`
@@ -230,33 +230,33 @@ const Alert = styled.div<{ $type: 'info' | 'success' | 'warning' | 'error' }>`
   font-size: 0.875rem;
   
   ${({ $type }) => {
-    switch ($type) {
-      case 'info':
-        return `
+		switch ($type) {
+			case 'info':
+				return `
           background-color: #dbeafe;
           color: #1e40af;
           border: 1px solid #93c5fd;
         `;
-      case 'success':
-        return `
+			case 'success':
+				return `
           background-color: #dcfce7;
           color: #166534;
           border: 1px solid #86efac;
         `;
-      case 'warning':
-        return `
+			case 'warning':
+				return `
           background-color: #fef3c7;
           color: #92400e;
           border: 1px solid #fde68a;
         `;
-      case 'error':
-        return `
+			case 'error':
+				return `
           background-color: #fecaca;
           color: #991b1b;
           border: 1px solid #fca5a5;
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const LoadingSpinner = styled.div`
@@ -274,233 +274,234 @@ const LoadingSpinner = styled.div`
 `;
 
 interface DeviceFlowDisplayProps {
-  state: DeviceFlowState;
-  onStateUpdate?: (state: DeviceFlowState) => void;
-  onComplete?: (tokens: Record<string, unknown>) => void;
+	state: DeviceFlowState;
+	onStateUpdate?: (state: DeviceFlowState) => void;
+	onComplete?: (tokens: Record<string, unknown>) => void;
 }
 
 const DeviceFlowDisplay: React.FC<DeviceFlowDisplayProps> = ({
-  state,
-  onStateUpdate,
-  onComplete
+	state,
+	onStateUpdate,
+	onComplete,
 }) => {
-  const [isPolling, setIsPolling] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState(0);
+	const [isPolling, setIsPolling] = useState(false);
+	const [timeRemaining, setTimeRemaining] = useState(0);
 
-  useEffect(() => {
-    // Update time remaining every second
-    const interval = setInterval(() => {
-      const remaining = deviceFlowService.getTimeRemaining(state);
-      setTimeRemaining(remaining);
-      
-      if (remaining <= 0 && state.status === 'pending') {
-        state.status = 'expired';
-        onStateUpdate?.(state);
-      }
-    }, 1000);
+	useEffect(() => {
+		// Update time remaining every second
+		const interval = setInterval(() => {
+			const remaining = deviceFlowService.getTimeRemaining(state);
+			setTimeRemaining(remaining);
 
-    return () => clearInterval(interval);
-  }, [state, onStateUpdate]);
+			if (remaining <= 0 && state.status === 'pending') {
+				state.status = 'expired';
+				onStateUpdate?.(state);
+			}
+		}, 1000);
 
-  const handleCopyUserCode = async () => {
-    try {
-      await navigator.clipboard.writeText(state.userCode);
-      logger.info('DeviceFlowDisplay', 'User code copied to clipboard');
-    } catch (error) {
-      logger.error('DeviceFlowDisplay', 'Failed to copy user code', error);
-    }
-  };
+		return () => clearInterval(interval);
+	}, [state, onStateUpdate]);
 
-  const handleCopyVerificationUri = async () => {
-    try {
-      await navigator.clipboard.writeText(state.verificationUri);
-      logger.info('DeviceFlowDisplay', 'Verification URI copied to clipboard');
-    } catch (error) {
-      logger.error('DeviceFlowDisplay', 'Failed to copy verification URI', error);
-    }
-  };
+	const handleCopyUserCode = async () => {
+		try {
+			await navigator.clipboard.writeText(state.userCode);
+			logger.info('DeviceFlowDisplay', 'User code copied to clipboard');
+		} catch (error) {
+			logger.error('DeviceFlowDisplay', 'Failed to copy user code', error);
+		}
+	};
 
-  const handleOpenVerificationUri = () => {
-    window.open(state.verificationUri, '_blank');
-  };
+	const handleCopyVerificationUri = async () => {
+		try {
+			await navigator.clipboard.writeText(state.verificationUri);
+			logger.info('DeviceFlowDisplay', 'Verification URI copied to clipboard');
+		} catch (error) {
+			logger.error('DeviceFlowDisplay', 'Failed to copy verification URI', error);
+		}
+	};
 
-  const handleStartPolling = () => {
-    if (isPolling) return;
-    
-    setIsPolling(true);
-    logger.info('DeviceFlowDisplay', 'Starting device flow polling');
-    
-    // Note: In a real implementation, you would need the environment ID and client credentials
-    // For demo purposes, we'll simulate the polling
-    setTimeout(() => {
-      setIsPolling(false);
-      // Simulate successful authorization
-      const mockTokens = {
-        access_token: 'mock_access_token_' + Date.now(),
-        id_token: 'mock_id_token_' + Date.now(),
-        token_type: 'Bearer',
-        expires_in: 3600
-      };
-      
-      state.status = 'authorized';
-      state.tokens = mockTokens;
-      onStateUpdate?.(state);
-      onComplete?.(mockTokens);
-    }, 5000); // Simulate 5 second delay
-  };
+	const handleOpenVerificationUri = () => {
+		window.open(state.verificationUri, '_blank');
+	};
 
-  const handleClearState = () => {
-    deviceFlowService.clearDeviceFlowState();
-    onStateUpdate?.(state);
-  };
+	const handleStartPolling = () => {
+		if (isPolling) return;
 
-  const formatTime = (seconds: number): string => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
+		setIsPolling(true);
+		logger.info('DeviceFlowDisplay', 'Starting device flow polling');
 
-  const getAlertType = (): 'info' | 'success' | 'warning' | 'error' => {
-    switch (state.status) {
-      case 'pending':
-        return 'info';
-      case 'authorized':
-        return 'success';
-      case 'denied':
-        return 'error';
-      case 'expired':
-        return 'warning';
-      default:
-        return 'info';
-    }
-  };
+		// Note: In a real implementation, you would need the environment ID and client credentials
+		// For demo purposes, we'll simulate the polling
+		setTimeout(() => {
+			setIsPolling(false);
+			// Simulate successful authorization
+			const mockTokens = {
+				access_token: 'mock_access_token_' + Date.now(),
+				id_token: 'mock_id_token_' + Date.now(),
+				token_type: 'Bearer',
+				expires_in: 3600,
+			};
 
-  return (
-    <DeviceFlowContainer>
-      <DeviceFlowHeader>
-        <DeviceFlowTitle>
-          <FiQrCode />
-          Device Authorization
-        </DeviceFlowTitle>
-        <StatusBadge $status={state.status}>
-          {state.status}
-        </StatusBadge>
-      </DeviceFlowHeader>
+			state.status = 'authorized';
+			state.tokens = mockTokens;
+			onStateUpdate?.(state);
+			onComplete?.(mockTokens);
+		}, 5000); // Simulate 5 second delay
+	};
 
-      <Alert $type={getAlertType()}>
-        {deviceFlowService.getStatusMessage(state)}
-      </Alert>
+	const handleClearState = () => {
+		deviceFlowService.clearDeviceFlowState();
+		onStateUpdate?.(state);
+	};
 
-      {state.status === 'pending' && (
-        <>
-          <UserCodeSection>
-            <UserCodeLabel>Enter this code on your device:</UserCodeLabel>
-            <UserCodeValue>
-              {deviceFlowService.formatUserCode(state.userCode)}
-            </UserCodeValue>
-            <Button $variant="secondary" onClick={handleCopyUserCode}>
-              <FiCopy />
-              Copy Code
-            </Button>
-          </UserCodeSection>
+	const formatTime = (seconds: number): string => {
+		const minutes = Math.floor(seconds / 60);
+		const remainingSeconds = seconds % 60;
+		return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+	};
 
-          <VerificationSection>
-            <VerificationItem>
-              <VerificationLabel>Verification URI</VerificationLabel>
-              <VerificationValue>{state.verificationUri}</VerificationValue>
-              <Button $variant="secondary" onClick={handleCopyVerificationUri}>
-                <FiCopy />
-                Copy URI
-              </Button>
-            </VerificationItem>
-            <VerificationItem>
-              <VerificationLabel>Complete URI</VerificationLabel>
-              <VerificationValue>{state.verificationUriComplete}</VerificationValue>
-              <Button $variant="primary" onClick={handleOpenVerificationUri}>
-                <FiExternalLink />
-                Open
-              </Button>
-            </VerificationItem>
-          </VerificationSection>
+	const getAlertType = (): 'info' | 'success' | 'warning' | 'error' => {
+		switch (state.status) {
+			case 'pending':
+				return 'info';
+			case 'authorized':
+				return 'success';
+			case 'denied':
+				return 'error';
+			case 'expired':
+				return 'warning';
+			default:
+				return 'info';
+		}
+	};
 
-          <QRCodeSection>
-            <div>QR Code (for mobile apps)</div>
-            <QRCodePlaceholder>
-              QR Code would be displayed here
-              <br />
-              <small>URI: {state.verificationUriComplete}</small>
-            </QRCodePlaceholder>
-          </QRCodeSection>
-        </>
-      )}
+	return (
+		<DeviceFlowContainer>
+			<DeviceFlowHeader>
+				<DeviceFlowTitle>
+					<FiQrCode />
+					Device Authorization
+				</DeviceFlowTitle>
+				<StatusBadge $status={state.status}>{state.status}</StatusBadge>
+			</DeviceFlowHeader>
 
-      {state.status === 'authorized' && state.tokens && (
-        <div>
-          <h4>Authorization Successful!</h4>
-          <div style={{ background: '#f0fdf4', padding: '1rem', borderRadius: '0.375rem', marginBottom: '1rem' }}>
-            <JSONHighlighter data={state.tokens} />
-          </div>
-        </div>
-      )}
+			<Alert $type={getAlertType()}>{deviceFlowService.getStatusMessage(state)}</Alert>
 
-      <StatusSection>
-        <StatusMessage>
-          {state.status === 'pending' && isPolling && (
-            <>
-              <LoadingSpinner style={{ marginRight: '0.5rem' }} />
-              Polling for authorization...
-            </>
-          )}
-          {state.status === 'pending' && !isPolling && 'Ready to poll for authorization'}
-          {state.status === 'authorized' && 'Authorization completed successfully'}
-          {state.status === 'denied' && 'Authorization was denied'}
-          {state.status === 'expired' && 'Device code has expired'}
-        </StatusMessage>
-        
-        <StatusDetails>
-          <StatusDetail>
-            <StatusLabel>Status</StatusLabel>
-            <StatusValue>{state.status}</StatusValue>
-          </StatusDetail>
-          <StatusDetail>
-            <StatusLabel>Time Remaining</StatusLabel>
-            <StatusValue>{formatTime(timeRemaining)}</StatusValue>
-          </StatusDetail>
-          <StatusDetail>
-            <StatusLabel>Poll Count</StatusLabel>
-            <StatusValue>{state.pollCount}</StatusValue>
-          </StatusDetail>
-          <StatusDetail>
-            <StatusLabel>Last Polled</StatusLabel>
-            <StatusValue>
-              {state.lastPolled ? state.lastPolled.toLocaleTimeString() : 'Never'}
-            </StatusValue>
-          </StatusDetail>
-        </StatusDetails>
-      </StatusSection>
+			{state.status === 'pending' && (
+				<>
+					<UserCodeSection>
+						<UserCodeLabel>Enter this code on your device:</UserCodeLabel>
+						<UserCodeValue>{deviceFlowService.formatUserCode(state.userCode)}</UserCodeValue>
+						<Button $variant="secondary" onClick={handleCopyUserCode}>
+							<FiCopy />
+							Copy Code
+						</Button>
+					</UserCodeSection>
 
-      <div>
-        {state.status === 'pending' && !isPolling && (
-          <Button $variant="primary" onClick={handleStartPolling}>
-            <FiRefreshCw />
-            Start Polling
-          </Button>
-        )}
-        
-        {state.status === 'pending' && isPolling && (
-          <Button $variant="secondary" disabled>
-            <LoadingSpinner />
-            Polling...
-          </Button>
-        )}
-        
-        <Button $variant="danger" onClick={handleClearState}>
-          <FiXCircle />
-          Clear State
-        </Button>
-      </div>
-    </DeviceFlowContainer>
-  );
+					<VerificationSection>
+						<VerificationItem>
+							<VerificationLabel>Verification URI</VerificationLabel>
+							<VerificationValue>{state.verificationUri}</VerificationValue>
+							<Button $variant="secondary" onClick={handleCopyVerificationUri}>
+								<FiCopy />
+								Copy URI
+							</Button>
+						</VerificationItem>
+						<VerificationItem>
+							<VerificationLabel>Complete URI</VerificationLabel>
+							<VerificationValue>{state.verificationUriComplete}</VerificationValue>
+							<Button $variant="primary" onClick={handleOpenVerificationUri}>
+								<FiExternalLink />
+								Open
+							</Button>
+						</VerificationItem>
+					</VerificationSection>
+
+					<QRCodeSection>
+						<div>QR Code (for mobile apps)</div>
+						<QRCodePlaceholder>
+							QR Code would be displayed here
+							<br />
+							<small>URI: {state.verificationUriComplete}</small>
+						</QRCodePlaceholder>
+					</QRCodeSection>
+				</>
+			)}
+
+			{state.status === 'authorized' && state.tokens && (
+				<div>
+					<h4>Authorization Successful!</h4>
+					<div
+						style={{
+							background: '#f0fdf4',
+							padding: '1rem',
+							borderRadius: '0.375rem',
+							marginBottom: '1rem',
+						}}
+					>
+						<JSONHighlighter data={state.tokens} />
+					</div>
+				</div>
+			)}
+
+			<StatusSection>
+				<StatusMessage>
+					{state.status === 'pending' && isPolling && (
+						<>
+							<LoadingSpinner style={{ marginRight: '0.5rem' }} />
+							Polling for authorization...
+						</>
+					)}
+					{state.status === 'pending' && !isPolling && 'Ready to poll for authorization'}
+					{state.status === 'authorized' && 'Authorization completed successfully'}
+					{state.status === 'denied' && 'Authorization was denied'}
+					{state.status === 'expired' && 'Device code has expired'}
+				</StatusMessage>
+
+				<StatusDetails>
+					<StatusDetail>
+						<StatusLabel>Status</StatusLabel>
+						<StatusValue>{state.status}</StatusValue>
+					</StatusDetail>
+					<StatusDetail>
+						<StatusLabel>Time Remaining</StatusLabel>
+						<StatusValue>{formatTime(timeRemaining)}</StatusValue>
+					</StatusDetail>
+					<StatusDetail>
+						<StatusLabel>Poll Count</StatusLabel>
+						<StatusValue>{state.pollCount}</StatusValue>
+					</StatusDetail>
+					<StatusDetail>
+						<StatusLabel>Last Polled</StatusLabel>
+						<StatusValue>
+							{state.lastPolled ? state.lastPolled.toLocaleTimeString() : 'Never'}
+						</StatusValue>
+					</StatusDetail>
+				</StatusDetails>
+			</StatusSection>
+
+			<div>
+				{state.status === 'pending' && !isPolling && (
+					<Button $variant="primary" onClick={handleStartPolling}>
+						<FiRefreshCw />
+						Start Polling
+					</Button>
+				)}
+
+				{state.status === 'pending' && isPolling && (
+					<Button $variant="secondary" disabled>
+						<LoadingSpinner />
+						Polling...
+					</Button>
+				)}
+
+				<Button $variant="danger" onClick={handleClearState}>
+					<FiXCircle />
+					Clear State
+				</Button>
+			</div>
+		</DeviceFlowContainer>
+	);
 };
 
 export default DeviceFlowDisplay;

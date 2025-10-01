@@ -37,8 +37,8 @@ const Tab = styled.button<{ $active: boolean }>`
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  border-bottom: 2px solid ${({ $active }) => $active ? '#3b82f6' : 'transparent'};
-  color: ${({ $active }) => $active ? '#3b82f6' : '#6b7280'};
+  border-bottom: 2px solid ${({ $active }) => ($active ? '#3b82f6' : 'transparent')};
+  color: ${({ $active }) => ($active ? '#3b82f6' : '#6b7280')};
   
   &:hover {
     color: #3b82f6;
@@ -106,33 +106,33 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' | '
   margin-bottom: 0.5rem;
   
   ${({ $variant }) => {
-    switch ($variant) {
-      case 'primary':
-        return `
+		switch ($variant) {
+			case 'primary':
+				return `
           background-color: #3b82f6;
           color: white;
           &:hover { background-color: #2563eb; }
         `;
-      case 'secondary':
-        return `
+			case 'secondary':
+				return `
           background-color: #6b7280;
           color: white;
           &:hover { background-color: #4b5563; }
         `;
-      case 'success':
-        return `
+			case 'success':
+				return `
           background-color: #10b981;
           color: white;
           &:hover { background-color: #059669; }
         `;
-      case 'danger':
-        return `
+			case 'danger':
+				return `
           background-color: #ef4444;
           color: white;
           &:hover { background-color: #dc2626; }
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const ButtonGroup = styled.div`
@@ -149,33 +149,33 @@ const Alert = styled.div<{ $type: 'info' | 'success' | 'warning' | 'error' }>`
   font-size: 0.875rem;
   
   ${({ $type }) => {
-    switch ($type) {
-      case 'info':
-        return `
+		switch ($type) {
+			case 'info':
+				return `
           background-color: #dbeafe;
           color: #1e40af;
           border: 1px solid #93c5fd;
         `;
-      case 'success':
-        return `
+			case 'success':
+				return `
           background-color: #dcfce7;
           color: #166534;
           border: 1px solid #86efac;
         `;
-      case 'warning':
-        return `
+			case 'warning':
+				return `
           background-color: #fef3c7;
           color: #92400e;
           border: 1px solid #fde68a;
         `;
-      case 'error':
-        return `
+			case 'error':
+				return `
           background-color: #fecaca;
           color: #991b1b;
           border: 1px solid #fca5a5;
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const CodeBlock = styled.pre`
@@ -189,234 +189,247 @@ const CodeBlock = styled.pre`
 `;
 
 const TokenSharing: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'export' | 'import' | 'backup'>('export');
-  const [selectedTokenId, setSelectedTokenId] = useState<string>('');
-  const [exportData, setExportData] = useState<string>('');
-  const [importData, setImportData] = useState<string>('');
-  const [message, setMessage] = useState<{ type: 'info' | 'success' | 'warning' | 'error'; text: string } | null>(null);
-  const [availableTokens, setAvailableTokens] = useState<Array<{ id: string; flowType: string; flowName: string; isExpired: boolean }>>([]);
+	const [activeTab, setActiveTab] = useState<'export' | 'import' | 'backup'>('export');
+	const [selectedTokenId, setSelectedTokenId] = useState<string>('');
+	const [exportData, setExportData] = useState<string>('');
+	const [importData, setImportData] = useState<string>('');
+	const [message, setMessage] = useState<{
+		type: 'info' | 'success' | 'warning' | 'error';
+		text: string;
+	} | null>(null);
+	const [availableTokens, setAvailableTokens] = useState<
+		Array<{ id: string; flowType: string; flowName: string; isExpired: boolean }>
+	>([]);
 
-  useEffect(() => {
-    loadAvailableTokens();
-  }, []);
+	useEffect(() => {
+		loadAvailableTokens();
+	}, []);
 
-  const loadAvailableTokens = () => {
-    const tokens = tokenLifecycleManager.getAllTokenLifecycleInfo();
-    setAvailableTokens(tokens.map(token => ({
-      id: token.tokenId,
-      flowType: token.flowType,
-      flowName: token.flowName,
-      isExpired: token.isExpired
-    })));
-  };
+	const loadAvailableTokens = () => {
+		const tokens = tokenLifecycleManager.getAllTokenLifecycleInfo();
+		setAvailableTokens(
+			tokens.map((token) => ({
+				id: token.tokenId,
+				flowType: token.flowType,
+				flowName: token.flowName,
+				isExpired: token.isExpired,
+			}))
+		);
+	};
 
-  const handleExport = () => {
-    if (!selectedTokenId) {
-      setMessage({ type: 'warning', text: 'Please select a token to export' });
-      return;
-    }
+	const handleExport = () => {
+		if (!selectedTokenId) {
+			setMessage({ type: 'warning', text: 'Please select a token to export' });
+			return;
+		}
 
-    try {
-      const data = tokenLifecycleManager.exportTokenData(selectedTokenId);
-      setExportData(data);
-      setMessage({ type: 'success', text: 'Token data exported successfully' });
-    } catch (error) {
-      setMessage({ type: 'error', text: `Export failed: ${error instanceof Error ? error.message : 'Unknown error'}` });
-    }
-  };
+		try {
+			const data = tokenLifecycleManager.exportTokenData(selectedTokenId);
+			setExportData(data);
+			setMessage({ type: 'success', text: 'Token data exported successfully' });
+		} catch (error) {
+			setMessage({
+				type: 'error',
+				text: `Export failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+			});
+		}
+	};
 
-  const handleDownload = () => {
-    if (!exportData) {
-      setMessage({ type: 'warning', text: 'No data to download' });
-      return;
-    }
+	const handleDownload = () => {
+		if (!exportData) {
+			setMessage({ type: 'warning', text: 'No data to download' });
+			return;
+		}
 
-    const blob = new Blob([exportData], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `token-${selectedTokenId}-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    setMessage({ type: 'success', text: 'File downloaded successfully' });
-  };
+		const blob = new Blob([exportData], { type: 'application/json' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `token-${selectedTokenId}-${new Date().toISOString().split('T')[0]}.json`;
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+		URL.revokeObjectURL(url);
 
-  const handleCopyToClipboard = async () => {
-    if (!exportData) {
-      setMessage({ type: 'warning', text: 'No data to copy' });
-      return;
-    }
+		setMessage({ type: 'success', text: 'File downloaded successfully' });
+	};
 
-    try {
-      await navigator.clipboard.writeText(exportData);
-      setMessage({ type: 'success', text: 'Data copied to clipboard' });
-    } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to copy to clipboard' });
-    }
-  };
+	const handleCopyToClipboard = async () => {
+		if (!exportData) {
+			setMessage({ type: 'warning', text: 'No data to copy' });
+			return;
+		}
 
-  const handleImport = () => {
-    if (!importData.trim()) {
-      setMessage({ type: 'warning', text: 'Please paste the token data to import' });
-      return;
-    }
+		try {
+			await navigator.clipboard.writeText(exportData);
+			setMessage({ type: 'success', text: 'Data copied to clipboard' });
+		} catch (error) {
+			setMessage({ type: 'error', text: 'Failed to copy to clipboard' });
+		}
+	};
 
-    try {
-      const data = JSON.parse(importData);
-      
-      // Validate the data structure
-      if (!data.tokenId || !data.flowType || !data.flowName) {
-        throw new Error('Invalid token data format');
-      }
+	const handleImport = () => {
+		if (!importData.trim()) {
+			setMessage({ type: 'warning', text: 'Please paste the token data to import' });
+			return;
+		}
 
-      // Here you would implement the actual import logic
-      // For now, we'll just show a success message
-      setMessage({ type: 'success', text: 'Token data imported successfully (import functionality to be implemented)' });
-      setImportData('');
-    } catch (error) {
-      setMessage({ type: 'error', text: `Import failed: ${error instanceof Error ? error.message : 'Invalid JSON format'}` });
-    }
-  };
+		try {
+			const data = JSON.parse(importData);
 
-  const handleBackup = () => {
-    try {
-      const currentTokens = getOAuthTokens();
-      const lifecycleData = tokenLifecycleManager.getAllTokenLifecycleInfo();
-      
-      const backupData = {
-        tokens: currentTokens,
-        lifecycle: lifecycleData,
-        backupDate: new Date().toISOString(),
-        version: '1.0'
-      };
+			// Validate the data structure
+			if (!data.tokenId || !data.flowType || !data.flowName) {
+				throw new Error('Invalid token data format');
+			}
 
-      const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `oauth-playground-backup-${new Date().toISOString().split('T')[0]}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      
-      setMessage({ type: 'success', text: 'Backup created successfully' });
-    } catch (error) {
-      setMessage({ type: 'error', text: `Backup failed: ${error instanceof Error ? error.message : 'Unknown error'}` });
-    }
-  };
+			// Here you would implement the actual import logic
+			// For now, we'll just show a success message
+			setMessage({
+				type: 'success',
+				text: 'Token data imported successfully (import functionality to be implemented)',
+			});
+			setImportData('');
+		} catch (error) {
+			setMessage({
+				type: 'error',
+				text: `Import failed: ${error instanceof Error ? error.message : 'Invalid JSON format'}`,
+			});
+		}
+	};
 
-  const renderExportTab = () => (
-    <div>
-      <FormGroup>
-        <Label>Select Token to Export</Label>
-        <Select 
-          value={selectedTokenId} 
-          onChange={(e) => setSelectedTokenId(e.target.value)}
-        >
-          <option value="">Choose a token...</option>
-          {availableTokens.map(token => (
-            <option key={token.id} value={token.id}>
-              {token.flowName} ({token.flowType}) - {token.isExpired ? 'Expired' : 'Active'}
-            </option>
-          ))}
-        </Select>
-      </FormGroup>
+	const handleBackup = () => {
+		try {
+			const currentTokens = getOAuthTokens();
+			const lifecycleData = tokenLifecycleManager.getAllTokenLifecycleInfo();
 
-      {exportData && (
-        <div>
-          <Label>Exported Data</Label>
-          <CodeBlock>{exportData}</CodeBlock>
-          <ButtonGroup>
-            <Button $variant="success" onClick={handleDownload}>
-              Download JSON
-            </Button>
-            <Button $variant="primary" onClick={handleCopyToClipboard}>
-              Copy to Clipboard
-            </Button>
-          </ButtonGroup>
-        </div>
-      )}
+			const backupData = {
+				tokens: currentTokens,
+				lifecycle: lifecycleData,
+				backupDate: new Date().toISOString(),
+				version: '1.0',
+			};
 
-      <ButtonGroup>
-        <Button $variant="primary" onClick={handleExport}>
-          Export Token Data
-        </Button>
-      </ButtonGroup>
-    </div>
-  );
+			const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = `oauth-playground-backup-${new Date().toISOString().split('T')[0]}.json`;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			URL.revokeObjectURL(url);
 
-  const renderImportTab = () => (
-    <div>
-      <FormGroup>
-        <Label>Paste Token Data (JSON)</Label>
-        <TextArea
-          value={importData}
-          onChange={(e) => setImportData(e.target.value)}
-          placeholder="Paste the exported token data here..."
-        />
-      </FormGroup>
+			setMessage({ type: 'success', text: 'Backup created successfully' });
+		} catch (error) {
+			setMessage({
+				type: 'error',
+				text: `Backup failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+			});
+		}
+	};
 
-      <ButtonGroup>
-        <Button $variant="primary" onClick={handleImport}>
-          Import Token Data
-        </Button>
-        <Button $variant="secondary" onClick={() => setImportData('')}>
-          Clear
-        </Button>
-      </ButtonGroup>
-    </div>
-  );
+	const renderExportTab = () => (
+		<div>
+			<FormGroup>
+				<Label>Select Token to Export</Label>
+				<Select value={selectedTokenId} onChange={(e) => setSelectedTokenId(e.target.value)}>
+					<option value="">Choose a token...</option>
+					{availableTokens.map((token) => (
+						<option key={token.id} value={token.id}>
+							{token.flowName} ({token.flowType}) - {token.isExpired ? 'Expired' : 'Active'}
+						</option>
+					))}
+				</Select>
+			</FormGroup>
 
-  const renderBackupTab = () => (
-    <div>
-      <Alert $type="info">
-        <strong>Backup Information:</strong> This will create a complete backup of all your tokens and their lifecycle data. 
-        The backup includes token metadata, usage statistics, and security analysis data.
-      </Alert>
+			{exportData && (
+				<div>
+					<Label>Exported Data</Label>
+					<CodeBlock>{exportData}</CodeBlock>
+					<ButtonGroup>
+						<Button $variant="success" onClick={handleDownload}>
+							Download JSON
+						</Button>
+						<Button $variant="primary" onClick={handleCopyToClipboard}>
+							Copy to Clipboard
+						</Button>
+					</ButtonGroup>
+				</div>
+			)}
 
-      <ButtonGroup>
-        <Button $variant="success" onClick={handleBackup}>
-          Create Full Backup
-        </Button>
-      </ButtonGroup>
-    </div>
-  );
+			<ButtonGroup>
+				<Button $variant="primary" onClick={handleExport}>
+					Export Token Data
+				</Button>
+			</ButtonGroup>
+		</div>
+	);
 
-  return (
-    <SharingContainer>
-      <SharingHeader>
-        <SharingTitle>Token Sharing & Management</SharingTitle>
-      </SharingHeader>
+	const renderImportTab = () => (
+		<div>
+			<FormGroup>
+				<Label>Paste Token Data (JSON)</Label>
+				<TextArea
+					value={importData}
+					onChange={(e) => setImportData(e.target.value)}
+					placeholder="Paste the exported token data here..."
+				/>
+			</FormGroup>
 
-      {message && (
-        <Alert $type={message.type}>
-          {message.text}
-        </Alert>
-      )}
+			<ButtonGroup>
+				<Button $variant="primary" onClick={handleImport}>
+					Import Token Data
+				</Button>
+				<Button $variant="secondary" onClick={() => setImportData('')}>
+					Clear
+				</Button>
+			</ButtonGroup>
+		</div>
+	);
 
-      <TabContainer>
-        <Tab $active={activeTab === 'export'} onClick={() => setActiveTab('export')}>
-          Export Token
-        </Tab>
-        <Tab $active={activeTab === 'import'} onClick={() => setActiveTab('import')}>
-          Import Token
-        </Tab>
-        <Tab $active={activeTab === 'backup'} onClick={() => setActiveTab('backup')}>
-          Backup & Restore
-        </Tab>
-      </TabContainer>
+	const renderBackupTab = () => (
+		<div>
+			<Alert $type="info">
+				<strong>Backup Information:</strong> This will create a complete backup of all your tokens
+				and their lifecycle data. The backup includes token metadata, usage statistics, and security
+				analysis data.
+			</Alert>
 
-      <ContentArea>
-        {activeTab === 'export' && renderExportTab()}
-        {activeTab === 'import' && renderImportTab()}
-        {activeTab === 'backup' && renderBackupTab()}
-      </ContentArea>
-    </SharingContainer>
-  );
+			<ButtonGroup>
+				<Button $variant="success" onClick={handleBackup}>
+					Create Full Backup
+				</Button>
+			</ButtonGroup>
+		</div>
+	);
+
+	return (
+		<SharingContainer>
+			<SharingHeader>
+				<SharingTitle>Token Sharing & Management</SharingTitle>
+			</SharingHeader>
+
+			{message && <Alert $type={message.type}>{message.text}</Alert>}
+
+			<TabContainer>
+				<Tab $active={activeTab === 'export'} onClick={() => setActiveTab('export')}>
+					Export Token
+				</Tab>
+				<Tab $active={activeTab === 'import'} onClick={() => setActiveTab('import')}>
+					Import Token
+				</Tab>
+				<Tab $active={activeTab === 'backup'} onClick={() => setActiveTab('backup')}>
+					Backup & Restore
+				</Tab>
+			</TabContainer>
+
+			<ContentArea>
+				{activeTab === 'export' && renderExportTab()}
+				{activeTab === 'import' && renderImportTab()}
+				{activeTab === 'backup' && renderBackupTab()}
+			</ContentArea>
+		</SharingContainer>
+	);
 };
 
 export default TokenSharing;

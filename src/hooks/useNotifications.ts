@@ -1,6 +1,6 @@
 // src/hooks/useNotifications.ts
-import { useMemo } from "react";
-import type { NotificationOptions } from "../contexts/NotificationSystem";
+import { useMemo } from 'react';
+import type { NotificationOptions } from '../contexts/NotificationSystem';
 import {
 	NotificationContainer,
 	NotificationProvider,
@@ -14,7 +14,7 @@ import {
 	showGlobalSuccess,
 	showGlobalWarning,
 	useNotifications as useNotificationContext,
-} from "../contexts/NotificationSystem";
+} from '../contexts/NotificationSystem';
 
 export {
 	NotificationContainer,
@@ -46,7 +46,7 @@ export const useNotifications = () => {
 			showRetryableError: context.showRetryableError,
 			notify: context.notify,
 		}),
-		[context],
+		[context]
 	);
 };
 

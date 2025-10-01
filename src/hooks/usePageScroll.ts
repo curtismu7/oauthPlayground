@@ -7,9 +7,9 @@ import { scrollToTop, scrollToBottom } from '../utils/scrollManager';
  */
 
 export interface PageScrollOptions {
-  pageName?: string;
-  force?: boolean;
-  delay?: number;
+	pageName?: string;
+	force?: boolean;
+	delay?: number;
 }
 
 /**
@@ -17,39 +17,37 @@ export interface PageScrollOptions {
  * UNIVERSAL: Use this on ALL pages for consistent behavior
  */
 export const usePageScroll = (options: PageScrollOptions = {}) => {
-  const { pageName, force = true, delay = 0 } = options; // Default force = true
-  
-  useEffect(() => {
-    
-    // Immediate scroll
-    scrollToTop({ force, delay: 0, smooth: false });
-    
-    // Additional scroll after delay to catch late-loading content
-    if (delay > 0) {
-      setTimeout(() => {
-        scrollToTop({ force, delay: 0, smooth: false });
-      }, delay);
-    }
-    
-    // One more scroll after 100ms to ensure it works
-    setTimeout(() => {
-      scrollToTop({ force, delay: 0, smooth: false });
-    }, 100);
-    
-  }, [pageName, force, delay]);
+	const { pageName, force = true, delay = 0 } = options; // Default force = true
 
-  const scrollToTopAfterAction = useCallback(() => {
-    scrollToTop({ force: true, smooth: false });
-  }, [pageName]);
+	useEffect(() => {
+		// Immediate scroll
+		scrollToTop({ force, delay: 0, smooth: false });
 
-  const scrollToBottomAfterAction = useCallback(() => {
-    scrollToBottom({ smooth: true });
-  }, [pageName]);
+		// Additional scroll after delay to catch late-loading content
+		if (delay > 0) {
+			setTimeout(() => {
+				scrollToTop({ force, delay: 0, smooth: false });
+			}, delay);
+		}
 
-  return {
-    scrollToTopAfterAction,
-    scrollToBottomAfterAction
-  };
+		// One more scroll after 100ms to ensure it works
+		setTimeout(() => {
+			scrollToTop({ force, delay: 0, smooth: false });
+		}, 100);
+	}, [pageName, force, delay]);
+
+	const scrollToTopAfterAction = useCallback(() => {
+		scrollToTop({ force: true, smooth: false });
+	}, [pageName]);
+
+	const scrollToBottomAfterAction = useCallback(() => {
+		scrollToBottom({ smooth: true });
+	}, [pageName]);
+
+	return {
+		scrollToTopAfterAction,
+		scrollToBottomAfterAction,
+	};
 };
 
 /**
@@ -57,22 +55,22 @@ export const usePageScroll = (options: PageScrollOptions = {}) => {
  * Always returns to top after any action
  */
 export const useAuthorizationFlowScroll = (flowName: string) => {
-  useEffect(() => {
-    scrollToTop({ force: true, delay: 100 });
-  }, [flowName]);
+	useEffect(() => {
+		scrollToTop({ force: true, delay: 100 });
+	}, [flowName]);
 
-  const scrollToTopAfterAction = useCallback(() => {
-    scrollToTop({ force: true, delay: 50 });
-  }, [flowName]);
+	const scrollToTopAfterAction = useCallback(() => {
+		scrollToTop({ force: true, delay: 50 });
+	}, [flowName]);
 
-  const scrollToBottomAfterAction = useCallback(() => {
-    scrollToBottom({ delay: 50 });
-  }, [flowName]);
+	const scrollToBottomAfterAction = useCallback(() => {
+		scrollToBottom({ delay: 50 });
+	}, [flowName]);
 
-  return {
-    scrollToTopAfterAction,
-    scrollToBottomAfterAction
-  };
+	return {
+		scrollToTopAfterAction,
+		scrollToBottomAfterAction,
+	};
 };
 
 /**
@@ -80,25 +78,25 @@ export const useAuthorizationFlowScroll = (flowName: string) => {
  * Always starts at top, provides action callbacks
  */
 export const useTokenPageScroll = (pageName: string) => {
-  useEffect(() => {
-    // More aggressive scroll for token pages
-    setTimeout(() => {
-      scrollToTop({ force: true });
-    }, 0);
-    setTimeout(() => {
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-    }, 50);
-    setTimeout(() => {
-      window.scrollTo(0, 0);
-    }, 100);
-  }, [pageName]);
+	useEffect(() => {
+		// More aggressive scroll for token pages
+		setTimeout(() => {
+			scrollToTop({ force: true });
+		}, 0);
+		setTimeout(() => {
+			document.documentElement.scrollTop = 0;
+			document.body.scrollTop = 0;
+		}, 50);
+		setTimeout(() => {
+			window.scrollTo(0, 0);
+		}, 100);
+	}, [pageName]);
 
-  const scrollToTopAfterAction = useCallback(() => {
-    scrollToTop({ force: true });
-  }, [pageName]);
+	const scrollToTopAfterAction = useCallback(() => {
+		scrollToTop({ force: true });
+	}, [pageName]);
 
-  return {
-    scrollToTopAfterAction
-  };
+	return {
+		scrollToTopAfterAction,
+	};
 };
