@@ -16,14 +16,12 @@ import {
 import styled from 'styled-components';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
-import FlowInfoCard from '../../components/FlowInfoCard';
+import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
+import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import {
 	ExplanationHeading,
 	ExplanationSection,
-	FlowDiagram,
-	FlowStep,
-	FlowStepContent,
-	FlowStepNumber,
 } from '../../components/InfoBlocks';
 import PingOneApplicationConfig, {
 	type PingOneApplicationState,
@@ -40,7 +38,7 @@ import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import UserInformationStep from '../../components/UserInformationStep';
 import { useImplicitFlowController } from '../../hooks/useImplicitFlowController';
-import { getFlowInfo } from '../../utils/flowInfoConfig';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [
@@ -236,7 +234,7 @@ const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
 	align-items: center;
 	justify-content: center;
 	transition: transform 0.2s ease;
-	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
 	color: #ea580c;
 `;
 
@@ -819,13 +817,14 @@ const OIDCImplicitFlowV5: React.FC = () => {
 		const userInfo = controller.userInfo;
 
 		switch (currentStep) {
-			case 0:
-				return (
-					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('overview')}
-								aria-expanded={!collapsedSections.overview}
+		case 0:
+			return (
+				<>
+					<FlowConfigurationRequirements flowType="implicit" variant="oidc" />
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => toggleSection('overview')}
+							aria-expanded={!collapsedSections.overview}
 							>
 								<CollapsibleTitle>
 									<FiInfo /> Implicit Flow Overview
@@ -906,22 +905,6 @@ const OIDCImplicitFlowV5: React.FC = () => {
 										</InfoText>
 									</ExplanationSection>
 
-									<FlowDiagram>
-										{[
-											'User clicks login to start the flow',
-											'App redirects to PingOne with authorization request',
-											'User authenticates and approves scopes',
-											'PingOne returns tokens directly in URL fragment',
-											'App extracts and validates tokens from URL',
-										].map((description, index) => (
-											<FlowStep key={description}>
-												<FlowStepNumber>{index + 1}</FlowStepNumber>
-												<FlowStepContent>
-													<strong>{description}</strong>
-												</FlowStepContent>
-											</FlowStep>
-										))}
-									</FlowDiagram>
 								</CollapsibleContent>
 							)}
 						</CollapsibleSection>
@@ -962,7 +945,7 @@ const OIDCImplicitFlowV5: React.FC = () => {
 									/>
 
 									<ActionRow>
-										<Button onClick={handleSaveConfiguration} $variant="primary">
+										<Button onClick={handleSaveConfiguration} $variant="success">
 											<FiSettings /> Save Configuration
 										</Button>
 										<Button onClick={handleClearConfiguration} $variant="danger">
@@ -983,6 +966,8 @@ const OIDCImplicitFlowV5: React.FC = () => {
 								</CollapsibleContent>
 							)}
 						</CollapsibleSection>
+
+						<FlowSequenceDisplay flowType="implicit" />
 
 						<ConfigurationSummaryCard
 							configuration={credentials}
@@ -1233,7 +1218,7 @@ const OIDCImplicitFlowV5: React.FC = () => {
 
 									<ActionRow style={{ justifyContent: 'center', gap: '0.75rem' }}>
 										<Button onClick={navigateToTokenManagement} $variant="primary">
-											<FiExternalLink /> View in Token Management
+											<FiExternalLink /> Open Token Management
 										</Button>
 										<Button
 											onClick={navigateToTokenManagement}
@@ -1281,8 +1266,8 @@ const OIDCImplicitFlowV5: React.FC = () => {
 					<TokenIntrospect
 						flowName="OpenID Connect Implicit Flow"
 						flowVersion="V5"
-						tokens={controller.tokens as any}
-						credentials={controller.credentials as any}
+						tokens={controller.tokens as Record<string, unknown>}
+						credentials={controller.credentials as unknown as Record<string, unknown>}
 						userInfo={userInfo}
 						onFetchUserInfo={handleFetchUserInfo}
 						isFetchingUserInfo={controller.isFetchingUserInfo}
@@ -1350,15 +1335,15 @@ const OIDCImplicitFlowV5: React.FC = () => {
 	return (
 		<Container>
 			<ContentWrapper>
-				<HeaderSection>
-					<MainTitle>OpenID Connect Implicit Flow (V5)</MainTitle>
-					<Subtitle>
-						Experience the OIDC Implicit Flow with ID Token support. Note: This is a legacy flow -
-						consider using Authorization Code + PKCE instead.
-					</Subtitle>
-				</HeaderSection>
+				<FlowHeader flowId="oidc-implicit-v5" />
 
-				<FlowInfoCard flowInfo={getFlowInfo('oidc-implicit')!} />
+				<EnhancedFlowInfoCard 
+					flowType="oidc-implicit"
+					showAdditionalInfo={true}
+					showDocumentation={true}
+					showCommonIssues={false}
+					showImplementationNotes={false}
+				/>
 
 				<MainCard>
 					<StepHeader>

@@ -12,6 +12,7 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import CollapsibleIcon from '../components/CollapsibleIcon';
+import { FlowHeader } from '../services/flowHeaderService';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -313,13 +314,7 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 
 	return (
 		<Container>
-			<Header>
-				<h1>
-					<FiLock />
-					OAuth 2.0 & OpenID Connect for AI
-				</h1>
-				<p>A Comprehensive Guide to Authentication & Authorization in the Age of AI</p>
-			</Header>
+			<FlowHeader flowType="comprehensive-oauth-education" />
 
 			<Nav>
 				<ul>

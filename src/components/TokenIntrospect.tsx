@@ -101,6 +101,24 @@ const ParameterGrid = styled.div`
 	margin: 1rem 0;
 `;
 
+const UserInfoGrid = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	margin: 1rem 0;
+`;
+
+const UserInfoRow = styled.div`
+	display: grid;
+	grid-template-columns: 180px 1fr;
+	gap: 1rem;
+	align-items: start;
+	padding: 0.75rem;
+	background: #f0fdf4;
+	border-radius: 0.5rem;
+	border: 1px solid #bbf7d0;
+`;
+
 const ParameterLabel = styled.div`
 	font-size: 0.75rem;
 	font-weight: 600;
@@ -679,8 +697,8 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 				</CollapsibleSection>
 			)}
 
-			{/* User Information Section */}
-			{tokens?.access_token && (
+			{/* User Information Section - Only for OIDC flows */}
+			{tokens?.access_token && onFetchUserInfo && (
 				<CollapsibleSection>
 					<CollapsibleHeaderButton
 						onClick={() => toggleSection('userInfo')}
@@ -731,18 +749,20 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 								{userInfo && (
 									<GeneratedContentBox>
 										<GeneratedLabel>User Information</GeneratedLabel>
-										<ParameterGrid>
+										<UserInfoGrid>
 											{Object.entries(userInfo).map(([key, value]) => (
-												<React.Fragment key={key}>
-													<ParameterLabel>{key}</ParameterLabel>
+												<UserInfoRow key={key}>
+													<ParameterLabel style={{ textTransform: 'uppercase', fontSize: '0.75rem' }}>
+														{key}
+													</ParameterLabel>
 													<ParameterValue>
 														{typeof value === 'object'
 															? JSON.stringify(value, null, 2)
 															: String(value)}
 													</ParameterValue>
-												</React.Fragment>
+												</UserInfoRow>
 											))}
-										</ParameterGrid>
+										</UserInfoGrid>
 										<ActionRow>
 											<Button
 												onClick={() =>

@@ -22,9 +22,13 @@ import styled from 'styled-components';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
+import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { useDeviceAuthorizationFlow } from '../../hooks/useDeviceAuthorizationFlow';
 import { credentialManager } from '../../utils/credentialManager';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { FlowHeader as StandardFlowHeader } from '../../services/flowHeaderService';
 
 // Styled Components (V5 Parity)
 const FlowContainer = styled.div`
@@ -116,7 +120,7 @@ const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
 	align-items: center;
 	justify-content: center;
 	transition: transform 0.2s ease;
-	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
 	color: #0369a1;
 `;
 
@@ -573,8 +577,8 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 		completionDetails: false,
 	});
 	const [_copiedField, setCopiedField] = useState<string | null>(null);
-	const [userInfo, setUserInfo] = useState<any>(null);
-	const [introspectionResult, setIntrospectionResult] = useState<any>(null);
+	const [userInfo, setUserInfo] = useState<unknown>(null);
+	const [introspectionResult, setIntrospectionResult] = useState<unknown>(null);
 
 	const toggleSection = useCallback((section: SectionKey) => {
 		setCollapsedSections((prev) => ({
@@ -654,6 +658,33 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 		setIntrospectionResult(null);
 	}, [deviceFlow]);
 
+	const navigateToTokenManagement = useCallback(() => {
+		// Set flow source for Token Management page (legacy support)
+		sessionStorage.setItem('flow_source', 'oidc-device-authorization-v5');
+
+		// Store comprehensive flow context for Token Management page
+		const flowContext = {
+			flow: 'oidc-device-authorization-v5',
+			tokens: deviceFlow.tokens,
+			credentials: deviceFlow.credentials,
+			timestamp: Date.now(),
+		};
+		sessionStorage.setItem('tokenManagementFlowContext', JSON.stringify(flowContext));
+
+		// If we have tokens, pass them to Token Management
+		if (deviceFlow.tokens?.access_token) {
+			// Use localStorage for cross-tab communication
+			localStorage.setItem('token_to_analyze', deviceFlow.tokens.access_token);
+			localStorage.setItem('token_type', 'access');
+			localStorage.setItem('flow_source', 'oidc-device-authorization-v5');
+			console.log(
+				'🔍 [OIDCDeviceAuthorizationFlowV5] Passing access token to Token Management via localStorage'
+			);
+		}
+
+		window.open('/token-management', '_blank');
+	}, [deviceFlow.tokens, deviceFlow.credentials]);
+
 	// Step validation
 	const isStepValid = useCallback(
 		(stepIndex: number): boolean => {
@@ -713,12 +744,15 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 
 	const renderIntroduction = () => (
 		<>
-			<CollapsibleSection>
-				<CollapsibleHeaderButton
-					onClick={() => toggleSection('overview')}
-					aria-expanded={!collapsedSections.overview}
-				>
-					<CollapsibleTitle>
+		<FlowConfigurationRequirements flowType="device-authorization" variant="oidc" />
+		<FlowSequenceDisplay flowType="device-authorization" />
+		
+		<CollapsibleSection>
+			<CollapsibleHeaderButton
+				onClick={() => toggleSection('overview')}
+				aria-expanded={!collapsedSections.overview}
+			>
+				<CollapsibleTitle>
 						<FiMonitor /> Device Authorization Flow Overview
 					</CollapsibleTitle>
 					<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
@@ -930,6 +964,12 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 					</CollapsibleContent>
 				)}
 			</CollapsibleSection>
+
+			{/* Configuration Summary */}
+			<ConfigurationSummaryCard
+				configuration={deviceFlow.credentials}
+				hasConfiguration={Boolean(deviceFlow.credentials?.environmentId && deviceFlow.credentials?.clientId)}
+			/>
 		</>
 	);
 
@@ -976,7 +1016,7 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 									<FiKey /> Request Device Code
 								</Button>
 								{deviceFlow.deviceCodeData && (
-									<Button onClick={handleReset} $variant="outline">
+									<Button onClick={handleReset} $variant="danger">
 										<FiRefreshCw /> Start Over
 									</Button>
 								)}
@@ -1383,7 +1423,7 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 										<FiAlertCircle /> Stop Polling
 									</Button>
 								)}
-								<Button onClick={handleReset} $variant="outline">
+								<Button onClick={handleReset} $variant="danger">
 									<FiRefreshCw /> Start Over
 								</Button>
 							</ActionRow>
@@ -1466,6 +1506,9 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 												$variant="outline"
 											>
 												<FiCopy /> Copy Access Token
+											</Button>
+											<Button onClick={navigateToTokenManagement} $variant="primary">
+												<FiExternalLink /> Open Token Management
 											</Button>
 										</ActionRow>
 									</GeneratedContentBox>
@@ -1652,8 +1695,8 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 									<li>✅ User code displayed to user</li>
 									<li>✅ User authorized on secondary device</li>
 									<li>✅ Tokens received via polling</li>
-									{userInfo && <li>✅ User information retrieved</li>}
-									{introspectionResult && <li>✅ Token introspected and validated</li>}
+									{Boolean(userInfo) && <li>✅ User information retrieved</li>}
+									{Boolean(introspectionResult) && <li>✅ Token introspected and validated</li>}
 								</ul>
 							</div>
 						</ExplanationSection>
@@ -1673,7 +1716,7 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 						</ExplanationSection>
 
 						<ActionRow style={{ marginTop: '1.5rem' }}>
-							<Button onClick={handleReset}>
+							<Button onClick={handleReset} $variant="danger">
 								<FiRefreshCw /> Start New Flow
 							</Button>
 						</ActionRow>
@@ -1685,20 +1728,7 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 
 	return (
 		<FlowContainer>
-			<FlowHeader>
-				<div>
-					<StepBadge>OIDC DEVICE AUTHORIZATION CODE • V5 API</StepBadge>
-					<FlowTitle>{STEP_METADATA[currentStep].title}</FlowTitle>
-					<FlowSubtitle>{STEP_METADATA[currentStep].subtitle}</FlowSubtitle>
-				</div>
-				<div style={{ fontSize: '2rem', fontWeight: '700', color: '#ffffff' }}>
-					{String(currentStep + 1).padStart(2, '0')}
-					<span style={{ fontSize: '1.25rem', color: 'rgba(255, 255, 255, 0.75)' }}>
-						{' '}
-						of {STEP_METADATA.length}
-					</span>
-				</div>
-			</FlowHeader>
+			<StandardFlowHeader flowId="oidc-device-authorization-v5" />
 
 			<FlowContent>
 				{renderStepContent()}

@@ -141,9 +141,18 @@ const HybridCallback: React.FC = () => {
 						hasIdToken: !!idToken,
 					});
 
-					// Redirect to the hybrid flow page
+					// Check which version of hybrid flow is active
+					const isV5Flow = sessionStorage.getItem('oidc-hybrid-v5-flow-active');
+					const targetRoute = isV5Flow ? '/flows/hybrid-v5' : '/flows/oidc-hybrid-v3';
+					
+					// Clean up flow-active flag
+					if (isV5Flow) {
+						sessionStorage.removeItem('oidc-hybrid-v5-flow-active');
+					}
+					
+					// Redirect to the appropriate hybrid flow page
 					setTimeout(() => {
-						navigate('/flows/oidc-hybrid-v3');
+						navigate(targetRoute);
 					}, 1500);
 				} else if (code) {
 					// Store authorization code only
@@ -166,9 +175,18 @@ const HybridCallback: React.FC = () => {
 					setMessage('Authorization code received! Redirecting to flow...');
 					logger.success('HybridCallback', 'Authorization code received', { hasCode: !!code });
 
-					// Redirect to the hybrid flow page
+					// Check which version of hybrid flow is active
+					const isV5Flow = sessionStorage.getItem('oidc-hybrid-v5-flow-active');
+					const targetRoute = isV5Flow ? '/flows/hybrid-v5' : '/flows/oidc-hybrid-v3';
+					
+					// Clean up flow-active flag
+					if (isV5Flow) {
+						sessionStorage.removeItem('oidc-hybrid-v5-flow-active');
+					}
+					
+					// Redirect to the appropriate hybrid flow page
 					setTimeout(() => {
-						navigate('/flows/oidc-hybrid-v3');
+						navigate(targetRoute);
 					}, 1500);
 				} else {
 					setStatus('error');

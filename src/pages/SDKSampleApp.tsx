@@ -680,7 +680,7 @@ const SDKSampleApp: React.FC = () => {
 					)}
 
 					<div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-						<Button onClick={saveConfiguration} variant="primary">
+						<Button onClick={saveConfiguration} variant="success">
 							Save Configuration
 						</Button>
 
