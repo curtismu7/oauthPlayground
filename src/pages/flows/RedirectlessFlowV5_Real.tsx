@@ -21,15 +21,13 @@ import {
 import { themeService } from '../../services/themeService';
 import styled from 'styled-components';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import { CredentialsInput } from '../../components/CredentialsInput';
-import { FlowWalkthrough } from '../../components/FlowWalkthrough';
+import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
+import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import {
 	ExplanationHeading,
 	ExplanationSection,
-	FlowDiagram,
-	FlowStep,
-	FlowStepContent,
-	FlowStepNumber,
 } from '../../components/InfoBlocks';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
 import PingOneApplicationConfig, {
@@ -48,6 +46,7 @@ import TokenIntrospect from '../../components/TokenIntrospect';
 import UserInformationStep from '../../components/UserInformationStep';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import { decodeJWTHeader } from '../../utils/jwks';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [
@@ -96,6 +95,7 @@ const DEFAULT_APP_CONFIG: PingOneApplicationState = {
 	clientAuthMethod: 'client_secret_post',
 	allowRedirectUriPatterns: false,
 	pkceEnforcement: 'REQUIRED',
+	enableJWKS: false,
 
 	// Response Types (from OIDC Settings)
 	responseTypeCode: true,
@@ -144,18 +144,6 @@ const ContentWrapper = styled.div`
 	max-width: 64rem;
 	margin: 0 auto;
 	padding: 0 1rem;
-`;
-
-const HeaderSection = styled.div`
-	text-align: center;
-	margin-bottom: 2rem;
-`;
-
-const MainTitle = styled.h1`
-	font-size: 1.875rem;
-	font-weight: 700;
-	color: var(--color-text-primary, #111827);
-	margin-bottom: 1rem;
 `;
 
 const Subtitle = styled.p`
@@ -313,7 +301,8 @@ const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
 	width: 32px;
 	height: 32px;
 	border-radius: 50%;
-	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
+	transition: transform 0.2s ease;
 
 	svg {
 		width: 16px;
@@ -322,7 +311,7 @@ const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
 
 	&:hover {
 		transform: ${({ $collapsed }) =>
-			$collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)'};
+			$collapsed ? 'rotate(0deg) scale(1.1)' : 'rotate(180deg) scale(1.1)'};
 	}
 `;
 
@@ -745,9 +734,9 @@ const RedirectlessFlowV5Real: React.FC = () => {
 	const [showSavedSecret, setShowSavedSecret] = useState(false);
 	const [copiedField, setCopiedField] = useState<string | null>(null);
 	const [_isFetchingUserInfo, setIsFetchingUserInfo] = useState(false);
-	const [flowObject, setFlowObject] = useState<any>(null);
+	const [flowObject, setFlowObject] = useState<unknown>(null);
 	const [flowStep, setFlowStep] = useState<string>('');
-	const [flowTokens, setFlowTokens] = useState<any>(null);
+	const [flowTokens, setFlowTokens] = useState<unknown>(null);
 	const [authUsername, setAuthUsername] = useState<string>('');
 	const [authPassword, setAuthPassword] = useState<string>('');
 	const [isAuthenticating, setIsAuthenticating] = useState<boolean>(false);
@@ -1079,28 +1068,30 @@ const RedirectlessFlowV5Real: React.FC = () => {
 		}
 
 		// Log the flow object to see what's available
+		const flowObj = flowObject as Record<string, unknown>;
 		console.log('🔍 [RedirectlessFlowV5Real] Checking flow object for auth URL:', {
-			hasLinks: !!flowObject._links,
-			links: flowObject._links ? Object.keys(flowObject._links) : [],
-			hasEmbedded: !!flowObject._embedded,
-			embedded: flowObject._embedded ? Object.keys(flowObject._embedded) : [],
+			hasLinks: !!(flowObj as any)._links,
+			links: (flowObj as any)._links ? Object.keys((flowObj as any)._links) : [],
+			hasEmbedded: !!(flowObj as any)._embedded,
+			embedded: (flowObj as any)._embedded ? Object.keys((flowObj as any)._embedded) : [],
 			fullObject: flowObject,
 		});
 
 		// Get the authentication URL from the flow object
 		// Try multiple possible link names
+		const flowObjAny = flowObj as any;
 		const authUrl =
-			flowObject._links?.['password.check']?.href ||
-			flowObject._links?.['usernamePassword.check']?.href ||
-			flowObject._links?.['password.forgot']?.href ||
-			flowObject._links?.self?.href;
+			flowObjAny._links?.['password.check']?.href ||
+			flowObjAny._links?.['usernamePassword.check']?.href ||
+			flowObjAny._links?.['password.forgot']?.href ||
+			flowObjAny._links?.self?.href;
 
 		if (!authUrl) {
 			v4ToastManager.showError(
 				'No authentication URL found in flow object. Check console for available links.'
 			);
 			console.error('❌ [RedirectlessFlowV5Real] No auth URL found');
-			console.error('Available links:', flowObject._links);
+			console.error('Available links:', flowObj._links);
 			console.error('Full flow object:', flowObject);
 			return;
 		}
@@ -1128,7 +1119,7 @@ const RedirectlessFlowV5Real: React.FC = () => {
 
 			if (!response.ok) {
 				const errorText = await response.text();
-				let errorData: any = {};
+				let errorData: Record<string, unknown> = {};
 				try {
 					errorData = JSON.parse(errorText);
 				} catch {
@@ -1142,10 +1133,11 @@ const RedirectlessFlowV5Real: React.FC = () => {
 					errorText,
 				});
 
+				const errorDataAny = errorData as any;
 				const errorMessage =
-					errorData.message ||
-					errorData.error_description ||
-					errorData.details?.[0]?.message ||
+					errorDataAny.message ||
+					errorDataAny.error_description ||
+					errorDataAny.details?.[0]?.message ||
 					`Authentication failed: ${response.status} ${response.statusText}`;
 
 				throw new Error(errorMessage);
@@ -1306,8 +1298,9 @@ const RedirectlessFlowV5Real: React.FC = () => {
 		}
 
 		try {
+			v4ToastManager.showTokenExchangeStart();
 			await controller.exchangeTokens();
-			v4ToastManager.showSuccess('Tokens exchanged successfully!');
+			v4ToastManager.showTokenExchangeSuccess();
 		} catch (error) {
 			console.error('[AuthorizationCodeFlowV5] Token exchange failed:', error);
 
@@ -1334,7 +1327,7 @@ const RedirectlessFlowV5Real: React.FC = () => {
 				}
 			}
 
-			v4ToastManager.showError(errorMessage);
+			v4ToastManager.showTokenExchangeError(errorMessage);
 		}
 	}, [controller, localAuthCode]);
 
@@ -1346,11 +1339,10 @@ const RedirectlessFlowV5Real: React.FC = () => {
 		setIsFetchingUserInfo(true);
 		try {
 			await controller.fetchUserInfo();
-			v4ToastManager.showSuccess('User info fetched successfully!');
+			v4ToastManager.showUserInfoFetched();
 		} catch (error) {
-			v4ToastManager.showError(
-				`Failed to fetch user info: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			v4ToastManager.showUserInfoError(errorMessage);
 		} finally {
 			setIsFetchingUserInfo(false);
 		}
@@ -1494,7 +1486,7 @@ const RedirectlessFlowV5Real: React.FC = () => {
 				case 6: // Step 6: User Information
 					return !!controller.userInfo;
 				case 7: // Step 7: Token Introspection
-					return !!controller.tokens?.access_token || !!flowTokens?.access_token;
+					return !!controller.tokens?.access_token || !!(flowTokens as any)?.access_token;
 				case 8: // Step 8: Flow Complete
 					return true; // Always valid - completion step
 				case 9: // Step 9: Security Features
@@ -1607,15 +1599,16 @@ const RedirectlessFlowV5Real: React.FC = () => {
 		const isFetchingUserInfo = controller.isFetchingUserInfo;
 
 		switch (currentStep) {
-			case 0:
-				return (
-					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('overview')}
-								aria-expanded={!collapsedSections.overview}
-							>
-								<CollapsibleTitle>
+		case 0:
+			return (
+				<>
+					<FlowConfigurationRequirements flowType="redirectless" variant="pingone" />
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => toggleSection('overview')}
+							aria-expanded={!collapsedSections.overview}
+						>
+							<CollapsibleTitle>
 									<FiInfo /> Authorization Code Overview
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
@@ -1662,17 +1655,8 @@ const RedirectlessFlowV5Real: React.FC = () => {
 							)}
 						</CollapsibleSection>
 
-						<FlowWalkthrough
-							title="Authorization Flow Walkthrough"
-							icon={<FiGlobe size={24} />}
-							steps={[
-								{ title: 'User clicks login to start the flow' },
-								{ title: 'App redirects to PingOne with an authorization request' },
-								{ title: 'User authenticates and approves scopes' },
-								{ title: 'PingOne returns an authorization code to the redirect URI' },
-								{ title: 'Backend exchanges the code for tokens securely' },
-							]}
-						/>
+						<EnhancedFlowWalkthrough flowId="pingone-redirectless" />
+						<FlowSequenceDisplay flowType="redirectless" />
 
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
@@ -1709,7 +1693,7 @@ const RedirectlessFlowV5Real: React.FC = () => {
 									/>
 
 									<ActionRow>
-										<Button onClick={handleSaveConfiguration} $variant="primary">
+										<Button onClick={handleSaveConfiguration} $variant="success">
 											<FiSettings /> Save Configuration
 										</Button>
 										<Button onClick={handleClearConfiguration} $variant="danger">
@@ -1744,39 +1728,6 @@ const RedirectlessFlowV5Real: React.FC = () => {
 							primaryColor="#8b5cf6"
 						/>
 
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('flowDiagram')}
-								aria-expanded={!collapsedSections.flowDiagram}
-							>
-								<CollapsibleTitle>
-									<FiGlobe /> Authorization Flow Walkthrough
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.flowDiagram}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.flowDiagram && (
-								<CollapsibleContent>
-									<FlowDiagram>
-										{[
-											'User clicks login to start the flow',
-											'App redirects to PingOne with an authorization request',
-											'User authenticates and approves scopes',
-											'PingOne returns an authorization code to the redirect URI',
-											'Backend exchanges the code for tokens securely',
-										].map((description, index) => (
-											<FlowStep key={description}>
-												<FlowStepNumber>{index + 1}</FlowStepNumber>
-												<FlowStepContent>
-													<strong>{description}</strong>
-												</FlowStepContent>
-											</FlowStep>
-										))}
-									</FlowDiagram>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
 
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
@@ -1951,36 +1902,6 @@ const RedirectlessFlowV5Real: React.FC = () => {
 										</div>
 									</InfoBox>
 
-									<FlowDiagram>
-										<FlowStep>
-											<FlowStepNumber>1</FlowStepNumber>
-											<FlowStepContent>
-												<strong>Generate Code Verifier:</strong> A cryptographically random string
-												(43-128 characters)
-											</FlowStepContent>
-										</FlowStep>
-										<FlowStep>
-											<FlowStepNumber>2</FlowStepNumber>
-											<FlowStepContent>
-												<strong>Create Code Challenge:</strong> SHA256 hash of the verifier, then
-												base64url encode it
-											</FlowStepContent>
-										</FlowStep>
-										<FlowStep>
-											<FlowStepNumber>3</FlowStepNumber>
-											<FlowStepContent>
-												<strong>Send Challenge:</strong> Include code_challenge in authorization
-												request
-											</FlowStepContent>
-										</FlowStep>
-										<FlowStep>
-											<FlowStepNumber>4</FlowStepNumber>
-											<FlowStepContent>
-												<strong>Verify Identity:</strong> Send code_verifier with token exchange to
-												prove authenticity
-											</FlowStepContent>
-										</FlowStep>
-									</FlowDiagram>
 								</CollapsibleContent>
 							)}
 						</CollapsibleSection>
@@ -2157,36 +2078,6 @@ const RedirectlessFlowV5Real: React.FC = () => {
 										</div>
 									</InfoBox>
 
-									<FlowDiagram>
-										<FlowStep>
-											<FlowStepNumber>1</FlowStepNumber>
-											<FlowStepContent>
-												<strong>User Clicks Login:</strong> User initiates the OAuth flow in your
-												application
-											</FlowStepContent>
-										</FlowStep>
-										<FlowStep>
-											<FlowStepNumber>2</FlowStepNumber>
-											<FlowStepContent>
-												<strong>Build Authorization URL:</strong> Create URL with all required
-												parameters
-											</FlowStepContent>
-										</FlowStep>
-										<FlowStep>
-											<FlowStepNumber>3</FlowStepNumber>
-											<FlowStepContent>
-												<strong>Redirect to PingOne:</strong> Send user to PingOne's authorization
-												endpoint
-											</FlowStepContent>
-										</FlowStep>
-										<FlowStep>
-											<FlowStepNumber>4</FlowStepNumber>
-											<FlowStepContent>
-												<strong>User Authenticates:</strong> User logs in and consents to
-												permissions
-											</FlowStepContent>
-										</FlowStep>
-									</FlowDiagram>
 
 									<InfoBox $variant="warning">
 										<FiAlertCircle size={20} />
@@ -2615,13 +2506,13 @@ const RedirectlessFlowV5Real: React.FC = () => {
 													<div>
 														<ParameterLabel>Flow ID</ParameterLabel>
 														<ParameterValue>
-															{flowObject.id || flowObject.flowId || 'N/A'}
+															{(flowObject as any)?.id || (flowObject as any)?.flowId || 'N/A'}
 														</ParameterValue>
 													</div>
 													<div>
 														<ParameterLabel>Status</ParameterLabel>
 														<ParameterValue>
-															{flowStep || flowObject.status || 'N/A'}
+															{flowStep || (flowObject as any)?.status || 'N/A'}
 														</ParameterValue>
 													</div>
 												</ParameterGrid>
@@ -2926,10 +2817,11 @@ async function submitCredentials(authUrl, username, password) {
 														>
 															{(() => {
 																if (!flowObject) return 'Waiting for flow object...';
+																const flowObj = flowObject as any;
 																const authUrl =
-																	flowObject._links?.['password.check']?.href ||
-																	flowObject._links?.['usernamePassword.check']?.href ||
-																	flowObject._links?.self?.href;
+																	flowObj._links?.['password.check']?.href ||
+																	flowObj._links?.['usernamePassword.check']?.href ||
+																	flowObj._links?.self?.href;
 																if (authUrl) {
 																	try {
 																		return `Will submit to: ${new URL(authUrl).pathname}`;
@@ -3059,7 +2951,7 @@ async function submitCredentials(authUrl, username, password) {
 												<ResultsHeading>
 													<FiKey size={18} /> Access Token
 												</ResultsHeading>
-												{flowTokens.access_token && (
+												{(flowTokens as any)?.access_token && (
 													<GeneratedContentBox>
 														<GeneratedLabel>Received</GeneratedLabel>
 														<ParameterGrid>
@@ -3072,31 +2964,31 @@ async function submitCredentials(authUrl, username, password) {
 																		fontSize: '0.75rem',
 																	}}
 																>
-																	{flowTokens.access_token}
+																	{(flowTokens as any)?.access_token}
 																</ParameterValue>
 															</div>
-															{flowTokens.token_type && (
+															{(flowTokens as any)?.token_type && (
 																<div>
 																	<ParameterLabel>Token Type</ParameterLabel>
-																	<ParameterValue>{flowTokens.token_type}</ParameterValue>
+																	<ParameterValue>{(flowTokens as any)?.token_type}</ParameterValue>
 																</div>
 															)}
-															{flowTokens.expires_in && (
+															{(flowTokens as any)?.expires_in && (
 																<div>
 																	<ParameterLabel>Expires In</ParameterLabel>
-																	<ParameterValue>{flowTokens.expires_in} seconds</ParameterValue>
+																	<ParameterValue>{(flowTokens as any)?.expires_in} seconds</ParameterValue>
 																</div>
 															)}
-															{flowTokens.scope && (
+															{(flowTokens as any)?.scope && (
 																<div style={{ gridColumn: '1 / -1' }}>
 																	<ParameterLabel>Scope</ParameterLabel>
-																	<ParameterValue>{flowTokens.scope}</ParameterValue>
+																	<ParameterValue>{(flowTokens as any)?.scope}</ParameterValue>
 																</div>
 															)}
 														</ParameterGrid>
 														<ActionRow>
 															<Button
-																onClick={() => handleCopy(flowTokens.access_token, 'Access Token')}
+																onClick={() => handleCopy((flowTokens as any)?.access_token, 'Access Token')}
 																$variant="outline"
 															>
 																<FiCopy /> Copy Access Token
@@ -3106,7 +2998,7 @@ async function submitCredentials(authUrl, username, password) {
 												)}
 											</ResultsSection>
 
-											{flowTokens.id_token && (
+															{(flowTokens as any)?.id_token && (
 												<ResultsSection>
 													<ResultsHeading>
 														<FiShield size={18} /> ID Token
@@ -3123,13 +3015,13 @@ async function submitCredentials(authUrl, username, password) {
 																		fontSize: '0.75rem',
 																	}}
 																>
-																	{flowTokens.id_token}
+																	{(flowTokens as any)?.id_token}
 																</ParameterValue>
 															</div>
 														</ParameterGrid>
 														<ActionRow>
 															<Button
-																onClick={() => handleCopy(flowTokens.id_token, 'ID Token')}
+																onClick={() => handleCopy((flowTokens as any)?.id_token, 'ID Token')}
 																$variant="outline"
 															>
 																<FiCopy /> Copy ID Token
@@ -3139,7 +3031,7 @@ async function submitCredentials(authUrl, username, password) {
 												</ResultsSection>
 											)}
 
-											{flowTokens.refresh_token && (
+											{(flowTokens as any)?.refresh_token && (
 												<ResultsSection>
 													<ResultsHeading>
 														<FiRefreshCw size={18} /> Refresh Token
@@ -3156,14 +3048,14 @@ async function submitCredentials(authUrl, username, password) {
 																		fontSize: '0.75rem',
 																	}}
 																>
-																	{flowTokens.refresh_token}
+																	{(flowTokens as any)?.refresh_token}
 																</ParameterValue>
 															</div>
 														</ParameterGrid>
 														<ActionRow>
 															<Button
 																onClick={() =>
-																	handleCopy(flowTokens.refresh_token, 'Refresh Token')
+																	handleCopy((flowTokens as any)?.refresh_token, 'Refresh Token')
 																}
 																$variant="outline"
 															>
@@ -3457,7 +3349,7 @@ async function submitCredentials(authUrl, username, password) {
 												{/* Token Management Buttons */}
 												<ActionRow style={{ justifyContent: 'center', gap: '0.75rem' }}>
 													<Button onClick={navigateToTokenManagement} $variant="primary">
-														<FiExternalLink /> View in Token Management
+														<FiExternalLink /> Open Token Management
 													</Button>
 													{tokens.access_token && (
 														<Button
@@ -3519,41 +3411,8 @@ async function submitCredentials(authUrl, username, password) {
 					<TokenIntrospect
 						flowName="OpenID Connect Authorization Code Flow"
 						flowVersion="V5.1"
-						tokens={controller.tokens as any}
-						credentials={controller.credentials as any}
-						userInfo={userInfo}
-						onFetchUserInfo={handleFetchUserInfo}
-						isFetchingUserInfo={isFetchingUserInfo}
-						onResetFlow={handleResetFlow}
-						onNavigateToTokenManagement={navigateToTokenManagement}
-						onIntrospectToken={handleIntrospectToken}
-						collapsedSections={{
-							completionOverview: collapsedSections.completionOverview,
-							completionDetails: collapsedSections.completionDetails,
-							introspectionDetails: collapsedSections.introspectionDetails,
-							rawJson: false, // Show raw JSON expanded by default
-						}}
-						onToggleSection={(section) => {
-							if (section === 'completionOverview' || section === 'completionDetails') {
-								toggleSection(section as IntroSectionKey);
-							}
-						}}
-						completionMessage="Nice work! You successfully completed the OpenID Connect Authorization Code Flow with PKCE and ID Token using reusable V5.1 components."
-						nextSteps={[
-							'Inspect or decode tokens using the Token Management tools.',
-							'Repeat the flow with different scopes or redirect URIs.',
-							'Explore refresh tokens and introspection flows.',
-						]}
-					/>
-				);
-
-			case 7:
-				return (
-					<TokenIntrospect
-						flowName="OpenID Connect Authorization Code Flow"
-						flowVersion="V5.1"
-						tokens={controller.tokens as any}
-						credentials={controller.credentials as any}
+						tokens={controller.tokens as Record<string, unknown>}
+						credentials={controller.credentials as unknown as Record<string, unknown>}
 						userInfo={userInfo}
 						onFetchUserInfo={handleFetchUserInfo}
 						isFetchingUserInfo={isFetchingUserInfo}
@@ -3581,6 +3440,39 @@ async function submitCredentials(authUrl, username, password) {
 				);
 
 			case 8:
+				return (
+					<TokenIntrospect
+						flowName="OpenID Connect Authorization Code Flow"
+						flowVersion="V5.1"
+						tokens={controller.tokens as Record<string, unknown>}
+						credentials={controller.credentials as unknown as Record<string, unknown>}
+						userInfo={userInfo}
+						onFetchUserInfo={handleFetchUserInfo}
+						isFetchingUserInfo={isFetchingUserInfo}
+						onResetFlow={handleResetFlow}
+						onNavigateToTokenManagement={navigateToTokenManagement}
+						onIntrospectToken={handleIntrospectToken}
+						collapsedSections={{
+							completionOverview: collapsedSections.completionOverview,
+							completionDetails: collapsedSections.completionDetails,
+							introspectionDetails: collapsedSections.introspectionDetails,
+							rawJson: false, // Show raw JSON expanded by default
+						}}
+						onToggleSection={(section) => {
+							if (section === 'completionOverview' || section === 'completionDetails') {
+								toggleSection(section as IntroSectionKey);
+							}
+						}}
+						completionMessage="Nice work! You successfully completed the OpenID Connect Authorization Code Flow with PKCE and ID Token using reusable V5.1 components."
+						nextSteps={[
+							'Inspect or decode tokens using the Token Management tools.',
+							'Repeat the flow with different scopes or redirect URIs.',
+							'Explore refresh tokens and introspection flows.',
+						]}
+					/>
+				);
+
+			case 9:
 				return (
 					<SecurityFeaturesDemo
 						tokens={controller.tokens}
@@ -3650,14 +3542,7 @@ async function submitCredentials(authUrl, username, password) {
 	return (
 		<Container>
 			<ContentWrapper>
-				<HeaderSection>
-					<MainTitle>PingOne Redirectless Flow V5 (API Implementation)</MainTitle>
-					<Subtitle>
-						Attempts API-based authentication with <code>response_mode=pi.flow</code> (no browser
-						redirect). Falls back to standard OAuth if CORS/authentication prevents direct API
-						calls.
-					</Subtitle>
-				</HeaderSection>
+				<FlowHeader flowType="redirectless" />
 
 				<MainCard>
 					<StepHeader>

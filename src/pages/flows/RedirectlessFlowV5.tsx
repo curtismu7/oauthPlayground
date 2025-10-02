@@ -1,9 +1,8 @@
 // src/pages/flows/RedirectlessFlowV5.tsx
 // PingOne Redirectless Flow (response_mode=pi.flow) - Full V5 Implementation
-import { useCallback, useId, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
 	FiAlertCircle,
-	FiArrowRight,
 	FiCheckCircle,
 	FiChevronDown,
 	FiCode,
@@ -22,13 +21,7 @@ import {
 import styled from 'styled-components';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
-import FlowInfoCard from '../../components/FlowInfoCard';
-import {
-	FlowDiagram,
-	FlowStep,
-	FlowStepContent,
-	FlowStepNumber,
-} from '../../components/InfoBlocks';
+import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import {
 	HelperText,
 	ResultsHeading,
@@ -37,7 +30,10 @@ import {
 } from '../../components/ResultsPanel';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
-import { getFlowInfo } from '../../utils/flowInfoConfig';
+import { FlowHeader } from '../../services/flowHeaderService';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
+import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
+import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [
@@ -55,10 +51,8 @@ const STEP_METADATA = [
 	{ title: 'Step 5: Complete', subtitle: 'Review the redirectless flow implementation' },
 ] as const;
 
-type StepCompletionState = Record<number, boolean>;
 type IntroSectionKey =
 	| 'overview'
-	| 'flowDiagram'
 	| 'credentials'
 	| 'useCases' // Step 0
 	| 'pkceOverview'
@@ -84,24 +78,6 @@ const ContentWrapper = styled.div`
 	padding: 0 1rem;
 `;
 
-const HeaderSection = styled.div`
-	text-align: center;
-	margin-bottom: 2rem;
-`;
-
-const MainTitle = styled.h1`
-	font-size: 1.875rem;
-	font-weight: 700;
-	color: var(--color-text-primary, #111827);
-	margin-bottom: 1rem;
-`;
-
-const Subtitle = styled.p`
-	font-size: 1.125rem;
-	color: var(--color-text-secondary, #4b5563);
-	margin: 0 auto;
-	max-width: 42rem;
-`;
 
 const MainCard = styled.div`
 	background-color: #ffffff;
@@ -463,7 +439,6 @@ const RequirementsText = styled.div`
 `;
 
 const RedirectlessFlowV5: React.FC = () => {
-	const _manualAuthCodeId = useId();
 	const controller = useAuthorizationCodeFlowController({
 		flowKey: 'redirectless-flow-v5',
 		defaultFlowVariant: 'oidc',
@@ -474,7 +449,6 @@ const RedirectlessFlowV5: React.FC = () => {
 	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>({
 		// Step 0
 		overview: false,
-		flowDiagram: true,
 		credentials: false,
 		useCases: true,
 		// Step 1
@@ -494,8 +468,8 @@ const RedirectlessFlowV5: React.FC = () => {
 		completionDetails: false,
 	});
 
-	const [mockFlowResponse, setMockFlowResponse] = useState<any>(null);
-	const [mockTokenResponse, setMockTokenResponse] = useState<any>(null);
+	const [mockFlowResponse, setMockFlowResponse] = useState<unknown>(null);
+	const [mockTokenResponse, setMockTokenResponse] = useState<unknown>(null);
 	const [copiedField, setCopiedField] = useState<string | null>(null);
 
 	// Step validation functions
@@ -546,23 +520,6 @@ const RedirectlessFlowV5: React.FC = () => {
 		}
 	}, []);
 
-	const _stepCompletions = useMemo<StepCompletionState>(
-		() => ({
-			0: controller.hasCredentialsSaved,
-			1: Boolean(controller.pkceCodes.codeVerifier),
-			2: Boolean(controller.authUrl),
-			3: Boolean(mockFlowResponse),
-			4: Boolean(mockTokenResponse),
-			5: true,
-		}),
-		[
-			controller.hasCredentialsSaved,
-			controller.pkceCodes.codeVerifier,
-			controller.authUrl,
-			mockFlowResponse,
-			mockTokenResponse,
-		]
-	);
 
 	const toggleSection = useCallback((key: IntroSectionKey) => {
 		setCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -642,7 +599,7 @@ const RedirectlessFlowV5: React.FC = () => {
 			access_token: `eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.${btoa(
 				JSON.stringify({
 					sub: `user-${Math.random().toString(36).substring(7)}`,
-					iss: controller.credentials.authorizationEndpoint.replace('/as/authorize', ''),
+					iss: controller.credentials.authorizationEndpoint!.replace('/as/authorize', ''),
 					aud: controller.credentials.clientId,
 					exp: Math.floor(Date.now() / 1000) + 3600,
 					iat: Math.floor(Date.now() / 1000),
@@ -652,7 +609,7 @@ const RedirectlessFlowV5: React.FC = () => {
 			id_token: `eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.${btoa(
 				JSON.stringify({
 					sub: `user-${Math.random().toString(36).substring(7)}`,
-					iss: controller.credentials.authorizationEndpoint.replace('/as/authorize', ''),
+					iss: controller.credentials.authorizationEndpoint!.replace('/as/authorize', ''),
 					aud: controller.credentials.clientId,
 					exp: Math.floor(Date.now() / 1000) + 3600,
 					iat: Math.floor(Date.now() / 1000),
@@ -763,55 +720,6 @@ const RedirectlessFlowV5: React.FC = () => {
 							)}
 						</CollapsibleSection>
 
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('flowDiagram')}
-								aria-expanded={!collapsedSections.flowDiagram}
-							>
-								<CollapsibleTitle>
-									<FiArrowRight /> Flow Diagram
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.flowDiagram}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.flowDiagram && (
-								<CollapsibleContent>
-									<FlowDiagram>
-										<FlowStep>
-											<FlowStepNumber>1</FlowStepNumber>
-											<FlowStepContent>
-												<strong>Authorization Request with pi.flow</strong>
-												Application sends authorization request with{' '}
-												<code>response_mode=pi.flow</code>
-											</FlowStepContent>
-										</FlowStep>
-										<FlowStep>
-											<FlowStepNumber>2</FlowStepNumber>
-											<FlowStepContent>
-												<strong>Flow Object Response</strong>
-												PingOne returns a flow object with authentication UI components (no
-												redirect)
-											</FlowStepContent>
-										</FlowStep>
-										<FlowStep>
-											<FlowStepNumber>3</FlowStepNumber>
-											<FlowStepContent>
-												<strong>Embedded Authentication</strong>
-												User authenticates within your app using PingOne's embedded UI
-											</FlowStepContent>
-										</FlowStep>
-										<FlowStep>
-											<FlowStepNumber>4</FlowStepNumber>
-											<FlowStepContent>
-												<strong>JSON Token Response</strong>
-												Receive auth code, access token, or ID token in JSON format
-											</FlowStepContent>
-										</FlowStep>
-									</FlowDiagram>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
 
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
@@ -885,11 +793,11 @@ const RedirectlessFlowV5: React.FC = () => {
 							</HelperText>
 
 							<CredentialsInput
-								environmentId={controller.credentials.environmentId}
+								environmentId={controller.credentials.environmentId || ''}
 								clientId={controller.credentials.clientId}
 								clientSecret={controller.credentials.clientSecret}
 								redirectUri={controller.credentials.redirectUri}
-								scopes={controller.credentials.scope}
+								scopes={controller.credentials.scope || ''}
 								onEnvironmentIdChange={(value) =>
 									controller.setCredentials({ ...controller.credentials, environmentId: value })
 								}
@@ -906,7 +814,7 @@ const RedirectlessFlowV5: React.FC = () => {
 									controller.setCredentials({ ...controller.credentials, scope: value })
 								}
 								onCopy={handleCopy}
-								emptyRequiredFields={controller.emptyRequiredFields}
+								emptyRequiredFields={controller.credentials.environmentId && controller.credentials.clientId ? new Set() : new Set(['environmentId', 'clientId'])}
 								copiedField={copiedField}
 								showRedirectUri={true}
 							/>
@@ -923,7 +831,13 @@ const RedirectlessFlowV5: React.FC = () => {
 								</HighlightedActionButton>
 
 								{controller.hasCredentialsSaved && (
-									<HighlightedActionButton onClick={controller.clearCredentials}>
+									<HighlightedActionButton onClick={() => controller.setCredentials({
+										environmentId: '',
+										clientId: '',
+										clientSecret: '',
+										redirectUri: '',
+										scope: ''
+									})}>
 										<FiRefreshCw /> Clear Credentials
 									</HighlightedActionButton>
 								)}
@@ -933,8 +847,8 @@ const RedirectlessFlowV5: React.FC = () => {
 						<SectionDivider />
 						<ConfigurationSummaryCard
 							configuration={controller.credentials}
-							onSaveConfiguration={controller.saveCredentials}
-							onLoadConfiguration={controller.loadCredentials}
+							onSaveConfiguration={() => controller.saveCredentials()}
+							onLoadConfiguration={() => {}}
 							primaryColor="#8b5cf6"
 						/>
 					</>
@@ -1291,7 +1205,7 @@ const RedirectlessFlowV5: React.FC = () => {
 								</HighlightedActionButton>
 							</ActionRow>
 
-							{mockFlowResponse && (
+							{Boolean(mockFlowResponse) && (
 								<GeneratedUrlDisplay>
 									<GeneratedLabel>Flow Object Response (JSON)</GeneratedLabel>
 									<CodeBlock>{JSON.stringify(mockFlowResponse, null, 2)}</CodeBlock>
@@ -1363,7 +1277,7 @@ const RedirectlessFlowV5: React.FC = () => {
 								</HighlightedActionButton>
 							</ActionRow>
 
-							{mockTokenResponse && (
+							{Boolean(mockTokenResponse) && (
 								<GeneratedUrlDisplay>
 									<GeneratedLabel>Token Response (JSON)</GeneratedLabel>
 									<CodeBlock>{JSON.stringify(mockTokenResponse, null, 2)}</CodeBlock>
@@ -1523,15 +1437,20 @@ const RedirectlessFlowV5: React.FC = () => {
 	return (
 		<Container>
 			<ContentWrapper>
-				<HeaderSection>
-					<MainTitle>PingOne Redirectless Flow V5</MainTitle>
-					<Subtitle>
-						Interactive demonstration of <code>response_mode=pi.flow</code> for embedded
-						authentication without browser redirects
-					</Subtitle>
-				</HeaderSection>
+				<FlowHeader flowType="redirectless" />
 
-				<FlowInfoCard flowInfo={getFlowInfo('redirectless')!} />
+				<FlowConfigurationRequirements flowType="authorization-code" variant="oauth" />
+				
+				<EnhancedFlowWalkthrough flowId="pingone-redirectless" />
+				<FlowSequenceDisplay flowType="redirectless" />
+				
+				<EnhancedFlowInfoCard 
+					flowType="redirectless"
+					showAdditionalInfo={true}
+					showDocumentation={true}
+					showCommonIssues={false}
+					showImplementationNotes={false}
+				/>
 
 				<MainCard>
 					<StepHeader>

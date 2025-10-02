@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiArrowRight,
+	FiCheckCircle,
 	FiChevronDown,
 	FiCopy,
 	FiExternalLink,
@@ -16,6 +17,7 @@ import { useFlowBehaviorSettings } from '../contexts/UISettingsContext';
 import { useAuthorizationCodeFlowController } from '../hooks/useAuthorizationCodeFlowController';
 import { trackOAuthFlow } from '../utils/activityTracker';
 import { getFlowInfo } from '../utils/flowInfoConfig';
+import { FlowHeader } from '../services/flowHeaderService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import ConfigurationSummaryCard from './ConfigurationSummaryCard';
 import { CredentialsInput } from './CredentialsInput';
@@ -40,9 +42,9 @@ const STEP_METADATA = [
 		subtitle: 'Build and launch the PingOne authorization URL',
 	},
 	{ title: 'Step 4: Authorization Response', subtitle: 'Process the returned authorization code' },
-	{ title: 'Step 5: Token Exchange', subtitle: 'Swap the code for tokens using PingOne APIs' },
-	{ title: 'Step 6: Flow Complete', subtitle: 'Review results, introspection, and next steps' },
-	{ title: 'Step 7: Security Features', subtitle: 'Demonstrate advanced security implementations' },
+	{ title: 'Step 5: Token Exchange', subtitle: 'Exchange authorization code for access tokens' },
+	{ title: 'Step 6: Token Analysis & User Info', subtitle: 'Introspect tokens and fetch user information' },
+	{ title: 'Step 7: Security Features', subtitle: 'Explore advanced security implementations' },
 ] as const;
 
 type StepCompletionState = Record<number, boolean>;
@@ -127,27 +129,7 @@ const StepContent = styled.div`
 	border-top: none;
 `;
 
-const Header = styled.div`
-	margin-bottom: 2rem;
-	text-align: center;
 
-	h1 {
-		font-size: 2.5rem;
-		font-weight: 700;
-		color: ${({ theme }) => theme.colors.gray900};
-		margin-bottom: 0.5rem;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 1rem;
-	}
-
-	p {
-		color: ${({ theme }) => theme.colors.gray600};
-		font-size: 1.125rem;
-		line-height: 1.6;
-	}
-`;
 
 const CollapsibleSection = styled.section`
 	margin-bottom: 1.5rem;
@@ -474,8 +456,31 @@ export const AuthorizationCodeFlowV5: React.FC<AuthorizationCodeFlowV5Props> = (
 	}, [resetControllerFlow, flowName, defaultCollapsed]);
 
 	const navigateToTokenManagement = useCallback(() => {
+		// Set flow source for Token Management page (legacy support)
+		sessionStorage.setItem('flow_source', 'authorization-code-v5');
+
+		// Store comprehensive flow context for Token Management page
+		const flowContext = {
+			flow: 'authorization-code-v5',
+			tokens: controller.tokens,
+			credentials: controller.credentials,
+			timestamp: Date.now(),
+		};
+		sessionStorage.setItem('tokenManagementFlowContext', JSON.stringify(flowContext));
+
+		// If we have tokens, pass them to Token Management
+		if (controller.tokens?.access_token) {
+			// Use localStorage for cross-tab communication
+			localStorage.setItem('token_to_analyze', controller.tokens.access_token);
+			localStorage.setItem('token_type', 'access');
+			localStorage.setItem('flow_source', 'authorization-code-v5');
+			console.log(
+				'🔍 [AuthorizationCodeFlowV5] Passing access token to Token Management via localStorage'
+			);
+		}
+
 		window.open('/token-management', '_blank');
-	}, []);
+	}, [controller.tokens, controller.credentials]);
 
 	const handleCopy = useCallback((text: string, label: string) => {
 		navigator.clipboard.writeText(text);
@@ -997,26 +1002,32 @@ export const AuthorizationCodeFlowV5: React.FC<AuthorizationCodeFlowV5Props> = (
 				case 5:
 					return (
 						<>
-							<ResultsSection>
-								<ResultsHeading>{flowName} Complete!</ResultsHeading>
-								<p>
-									You have successfully completed the {flowName}. Your application now has access
-									tokens and can make authenticated requests to protected APIs.
-								</p>
-							</ResultsSection>
+							<InfoBox $variant="success">
+								<FiCheckCircle size={20} />
+								<div>
+									<InfoTitle>Token Exchange Successful!</InfoTitle>
+									<InfoText>
+										Your authorization code has been successfully exchanged for access tokens. You can now use these tokens to make authenticated API requests.
+									</InfoText>
+								</div>
+							</InfoBox>
 
 							{tokens && (
 								<GeneratedContentBox>
-									<ParameterLabel>Flow Summary</ParameterLabel>
+									<GeneratedLabel>Tokens Received</GeneratedLabel>
 									<ParameterGrid>
-										<ParameterLabel>Flow Type</ParameterLabel>
-										<ParameterValue>Authorization Code Grant with PKCE</ParameterValue>
-										<ParameterLabel>Tokens Received</ParameterLabel>
-										<ParameterValue style={{ color: '#10b981' }}>✓ Access Token</ParameterValue>
+										<ParameterLabel>Access Token</ParameterLabel>
+										<ParameterValue style={{ color: '#10b981', fontWeight: 'bold' }}>✓ Received</ParameterValue>
 										{tokens.refresh_token && (
 											<>
 												<ParameterLabel>Refresh Token</ParameterLabel>
-												<ParameterValue style={{ color: '#10b981' }}>✓ Available</ParameterValue>
+												<ParameterValue style={{ color: '#10b981', fontWeight: 'bold' }}>✓ Received</ParameterValue>
+											</>
+										)}
+										{tokens.id_token && (
+											<>
+												<ParameterLabel>ID Token</ParameterLabel>
+												<ParameterValue style={{ color: '#10b981', fontWeight: 'bold' }}>✓ Received</ParameterValue>
 											</>
 										)}
 										<ParameterLabel>Token Type</ParameterLabel>
@@ -1025,18 +1036,21 @@ export const AuthorizationCodeFlowV5: React.FC<AuthorizationCodeFlowV5Props> = (
 										<ParameterValue>
 											{tokens.expires_in ? `${tokens.expires_in} seconds` : 'N/A'}
 										</ParameterValue>
+										<ParameterLabel>Scope</ParameterLabel>
+										<ParameterValue>{tokens.scope || 'N/A'}</ParameterValue>
 									</ParameterGrid>
 								</GeneratedContentBox>
 							)}
 
-							<ActionRow>
-								<Button
-									onClick={() => window.open('/token-management', '_blank')}
-									$variant="primary"
-								>
-									<FiExternalLink /> View in Token Management
-								</Button>
-							</ActionRow>
+							<InfoBox $variant="info">
+								<FiArrowRight size={20} />
+								<div>
+									<InfoTitle>What's Next?</InfoTitle>
+									<InfoText>
+										Proceed to the next step to introspect your tokens, fetch user information, and explore additional token management features.
+									</InfoText>
+								</div>
+							</InfoBox>
 						</>
 					);
 
@@ -1131,16 +1145,7 @@ export const AuthorizationCodeFlowV5: React.FC<AuthorizationCodeFlowV5Props> = (
 
 	return (
 		<Container>
-			<Header>
-				<h1>
-					<FiShield />
-					{flowName}
-				</h1>
-				<p>
-					Interactive demonstration of the {flowType === 'oidc' ? 'OpenID Connect ' : 'OAuth 2.0 '}
-					Authorization Code Flow with PKCE using PingOne
-				</p>
-			</Header>
+			<FlowHeader flowType={flowType} />
 
 			<FlowInfoCard
 				flowInfo={
@@ -1162,7 +1167,7 @@ export const AuthorizationCodeFlowV5: React.FC<AuthorizationCodeFlowV5Props> = (
 				currentStep={currentStep}
 				totalSteps={STEP_METADATA.length}
 				onPrevious={handlePrevious}
-				onReset={controller.resetFlow}
+				onReset={handleResetFlow}
 				onNext={handleNext}
 				canNavigateNext={canNavigateNext}
 				isFirstStep={currentStep === 0}

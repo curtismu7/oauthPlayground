@@ -777,17 +777,26 @@ export const useAuthorizationCodeFlowController = (
 	}, [authCode, credentials, pkceCodes, saveStepResult, flowVariant]);
 
 	const fetchUserInfo = async () => {
+		console.log('🔍 [fetchUserInfo] Starting user info fetch:', {
+			hasAccessToken: !!tokens?.access_token,
+			userInfoEndpoint: credentials.userInfoEndpoint,
+			environmentId: credentials.environmentId,
+		});
+
 		if (!tokens?.access_token) {
+			console.error('❌ [fetchUserInfo] No access token available');
 			showGlobalError('Missing access token', 'Exchange tokens first.');
 			return;
 		}
 
 		const userInfoEndpoint = credentials.userInfoEndpoint;
 		if (!userInfoEndpoint) {
-			showGlobalError('Missing user info endpoint', 'Configure PingOne user info endpoint.');
+			console.error('❌ [fetchUserInfo] No userinfo endpoint configured');
+			showGlobalError('Missing user info endpoint', 'Configure PingOne user info endpoint in credentials.');
 			return;
 		}
 
+		console.log('✅ [fetchUserInfo] Fetching from:', userInfoEndpoint);
 		setIsFetchingUserInfo(true);
 
 		try {
