@@ -15,10 +15,12 @@ import {
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../../components/Card';
 import PageTitle from '../../components/PageTitle';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { SpecCard } from '../../components/SpecCard';
 import { TokenSurface } from '../../components/TokenSurface';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { logger } from '../../utils/logger';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -66,15 +68,16 @@ const ButtonGroup = styled.div`
 `;
 
 const ActionButton = styled.button<{
-	$variant?: 'primary' | 'secondary' | 'success' | 'danger';
+	$variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'outline';
 }>`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 0.5rem;
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
   
@@ -85,30 +88,43 @@ const ActionButton = styled.button<{
           background: #3b82f6;
           color: white;
           &:hover { background: #2563eb; }
+          &:focus { outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
         `;
 			case 'secondary':
 				return `
           background: #6b7280;
           color: white;
           &:hover { background: #4b5563; }
+          &:focus { outline: none; box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.1); }
         `;
 			case 'success':
 				return `
           background: #10b981;
           color: white;
           &:hover { background: #059669; }
+          &:focus { outline: none; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
         `;
 			case 'danger':
 				return `
           background: #ef4444;
           color: white;
           &:hover { background: #dc2626; }
+          &:focus { outline: none; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1); }
+        `;
+			case 'outline':
+				return `
+          background: white;
+          color: #3b82f6;
+          border: 2px solid #3b82f6;
+          &:hover { background: #eff6ff; }
+          &:focus { outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
         `;
 			default:
 				return `
           background: #f3f4f6;
           color: #374151;
           &:hover { background: #e5e7eb; }
+          &:focus { outline: none; box-shadow: 0 0 0 3px rgba(156, 163, 175, 0.1); }
         `;
 		}
 	}}
@@ -116,6 +132,24 @@ const ActionButton = styled.button<{
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    &:hover {
+      background: ${(props) => {
+				switch (props.$variant) {
+					case 'primary':
+						return '#3b82f6';
+					case 'secondary':
+						return '#6b7280';
+					case 'success':
+						return '#10b981';
+					case 'danger':
+						return '#ef4444';
+					case 'outline':
+						return 'white';
+					default:
+						return '#f3f4f6';
+				}
+			}};
+    }
   }
 `;
 
@@ -203,11 +237,18 @@ const JWTBearerFlow: React.FC = () => {
 			throw new Error('Client ID and Client Secret are required');
 		}
 
+		if (!config?.environmentId) {
+			throw new Error('Environment ID is required');
+		}
+
+		// Construct token endpoint URL from environment ID
+		const tokenEndpoint = config?.tokenEndpoint || `https://auth.pingone.com/${config.environmentId}/as/token`;
+
 		const now = Math.floor(Date.now() / 1000);
 		const payload = {
 			iss: config.clientId, // issuer
 			sub: config.clientId, // subject
-			aud: config.tokenEndpoint, // audience
+			aud: tokenEndpoint, // audience
 			iat: now, // issued at
 			exp: now + 300, // expires in 5 minutes
 			jti: `jwt-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // JWT ID
@@ -270,11 +311,13 @@ const JWTBearerFlow: React.FC = () => {
 			setStepStatus((prev) => ({ ...prev, 1: 'completed', 2: 'active' }));
 			setCurrentStep(2);
 
+			v4ToastManager.showSuccess('JWT assertion generated successfully!');
 			logger.info('JWTBearerFlow', 'JWT assertion generated successfully');
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Failed to generate JWT assertion';
 			setError(errorMessage);
 			setStepStatus((prev) => ({ ...prev, 1: 'error' }));
+			v4ToastManager.showError(errorMessage);
 			logger.error('JWTBearerFlow', 'JWT generation failed', err);
 		} finally {
 			setIsLoading(false);
@@ -291,39 +334,34 @@ const JWTBearerFlow: React.FC = () => {
 				throw new Error('JWT assertion is required');
 			}
 
-			if (!config?.tokenEndpoint) {
-				throw new Error('Token endpoint is not configured');
+			if (!config?.environmentId || !config?.clientId || !config?.clientSecret) {
+				throw new Error('Environment ID, Client ID, and Client Secret are required');
 			}
 
-			logger.info('JWTBearerFlow', 'Requesting access token with JWT assertion');
+			logger.info('JWTBearerFlow', 'Simulating JWT Bearer token request (PingOne does not support this grant type)');
 
-			const body = new URLSearchParams({
-				grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-				assertion: jwtToken,
+			// Note: PingOne does not support JWT Bearer grant type
+			// This is a mock/educational implementation to demonstrate the flow
+			
+			// Simulate API delay
+			await new Promise(resolve => setTimeout(resolve, 1500));
+
+			// Generate mock token response for educational purposes
+			const tokenData = {
+				access_token: `mock_jwt_bearer_access_token_${Date.now()}`,
+				token_type: 'Bearer',
+				expires_in: 3600,
 				scope: config.scopes || 'openid profile email',
-			});
-
-			const response = await fetch(config.tokenEndpoint, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
-					Accept: 'application/json',
-				},
-				body: body.toString(),
-			});
-
-			if (!response.ok) {
-				const errorText = await response.text();
-				throw new Error(`Token request failed: ${response.status} ${errorText}`);
-			}
-
-			const tokenData = await response.json();
+				// Note: This is a mock response - PingOne doesn't support JWT Bearer grant
+				mock_note: 'This is a simulated response. PingOne does not support JWT Bearer grant type.',
+			};
 			setTokenResponse(tokenData);
 			setAccessToken(tokenData.access_token || '');
 
 			setStepStatus((prev) => ({ ...prev, 2: 'completed', 3: 'active' }));
 			setCurrentStep(3);
 
+			v4ToastManager.showSuccess('Access token received successfully!');
 			logger.info('JWTBearerFlow', 'Access token received successfully', {
 				token_type: tokenData.token_type,
 				expires_in: tokenData.expires_in,
@@ -333,6 +371,7 @@ const JWTBearerFlow: React.FC = () => {
 			const errorMessage = err instanceof Error ? err.message : 'Failed to request access token';
 			setError(errorMessage);
 			setStepStatus((prev) => ({ ...prev, 2: 'error' }));
+			v4ToastManager.showError(errorMessage);
 			logger.error('JWTBearerFlow', 'Token request failed', err);
 		} finally {
 			setIsLoading(false);
@@ -370,6 +409,7 @@ const JWTBearerFlow: React.FC = () => {
 			setStepStatus((prev) => ({ ...prev, 3: 'completed', 4: 'active' }));
 			setCurrentStep(4);
 
+			v4ToastManager.showSuccess('Token validation successful!');
 			logger.info('JWTBearerFlow', 'Token validation successful', {
 				header,
 				payload: {
@@ -381,6 +421,7 @@ const JWTBearerFlow: React.FC = () => {
 			const errorMessage = err instanceof Error ? err.message : 'Token validation failed';
 			setError(errorMessage);
 			setStepStatus((prev) => ({ ...prev, 3: 'error' }));
+			v4ToastManager.showError(errorMessage);
 			logger.error('JWTBearerFlow', 'Token validation failed', err);
 		} finally {
 			setIsLoading(false);
@@ -416,14 +457,15 @@ const JWTBearerFlow: React.FC = () => {
 
 			setStepStatus((prev) => ({ ...prev, 4: 'completed' }));
 
+			v4ToastManager.showSuccess('Access token used successfully to retrieve user information!');
 			logger.info('JWTBearerFlow', 'Successfully used access token', {
 				userInfo,
 			});
-			alert('Success! Access token used successfully to retrieve user information.');
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Failed to use access token';
 			setError(errorMessage);
 			setStepStatus((prev) => ({ ...prev, 4: 'error' }));
+			v4ToastManager.showError(errorMessage);
 			logger.error('JWTBearerFlow', 'Token usage failed', err);
 		} finally {
 			setIsLoading(false);
@@ -432,6 +474,7 @@ const JWTBearerFlow: React.FC = () => {
 
 	const copyToClipboard = (text: string, label: string) => {
 		navigator.clipboard.writeText(text);
+		v4ToastManager.showSuccess(`${label} copied to clipboard!`);
 		logger.info('JWTBearerFlow', `Copied ${label} to clipboard`);
 	};
 
@@ -447,15 +490,40 @@ const JWTBearerFlow: React.FC = () => {
 			3: 'pending',
 			4: 'pending',
 		});
+		v4ToastManager.showSuccess('Flow reset successfully!');
 	};
 
 	return (
 		<Container>
-			<PageTitle
-				title="JWT Bearer Flow"
-				subtitle="OAuth 2.0 JWT Bearer Token Grant Type"
-				icon={<FiKey />}
-			/>
+			<FlowHeader flowId="jwt-bearer" />
+
+			{/* Important Notice */}
+			<FlowSection>
+				<CardBody>
+					<div style={{
+						background: '#fef3c7',
+						border: '1px solid #f59e0b',
+						borderRadius: '0.5rem',
+						padding: '1rem',
+						marginBottom: '1rem',
+						display: 'flex',
+						alignItems: 'flex-start',
+						gap: '0.75rem'
+					}}>
+						<FiAlertTriangle style={{ color: '#d97706', fontSize: '1.25rem', marginTop: '0.125rem' }} />
+						<div>
+							<h4 style={{ margin: '0 0 0.5rem 0', color: '#92400e', fontSize: '1rem' }}>
+								Educational Flow - PingOne Not Supported
+							</h4>
+							<p style={{ margin: 0, color: '#92400e', fontSize: '0.9rem' }}>
+								<strong>Important:</strong> PingOne does not support the JWT Bearer grant type. 
+								This flow is for educational purposes only and generates mock tokens to demonstrate 
+								how JWT Bearer authentication would work with OAuth 2.0 providers that support it.
+							</p>
+						</div>
+					</div>
+				</CardBody>
+			</FlowSection>
 
 			{/* Flow Overview */}
 			<FlowSection>
@@ -563,7 +631,7 @@ const JWTBearerFlow: React.FC = () => {
 													>
 														<strong>JWT Token:</strong>
 														<ActionButton
-															$variant="secondary"
+															$variant="outline"
 															onClick={() => copyToClipboard(jwtToken, 'JWT assertion')}
 														>
 															<FiCopy />
@@ -620,7 +688,7 @@ const JWTBearerFlow: React.FC = () => {
 													>
 														<strong>Access Token:</strong>
 														<ActionButton
-															$variant="secondary"
+															$variant="outline"
 															onClick={() => copyToClipboard(accessToken, 'access token')}
 														>
 															<FiCopy />
@@ -653,7 +721,7 @@ const JWTBearerFlow: React.FC = () => {
 					</StepContainer>
 
 					<ButtonGroup>
-						<ActionButton $variant="secondary" onClick={resetFlow}>
+						<ActionButton $variant="danger" onClick={resetFlow}>
 							<FiRefreshCw />
 							Reset Flow
 						</ActionButton>

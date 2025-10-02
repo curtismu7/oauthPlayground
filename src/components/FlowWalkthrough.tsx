@@ -1,7 +1,9 @@
 // src/components/FlowWalkthrough.tsx
 
-import { FiGlobe } from 'react-icons/fi';
+import { useState } from 'react';
+import { FiChevronDown, FiGlobe } from 'react-icons/fi';
 import styled from 'styled-components';
+import { themeService } from '../services/themeService';
 
 export interface FlowStep {
 	title: string;
@@ -12,6 +14,7 @@ export interface FlowWalkthroughProps {
 	title: string;
 	steps: FlowStep[];
 	icon?: React.ReactNode;
+	defaultCollapsed?: boolean;
 }
 
 const Container = styled.div`
@@ -22,13 +25,27 @@ const Container = styled.div`
 	margin-bottom: 1.5rem;
 `;
 
-const Header = styled.div`
+const Header = styled.div<{ $isCollapsible?: boolean }>`
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+	margin-bottom: ${({ $isCollapsible }) => ($isCollapsible ? '0' : '1.5rem')};
+	padding-bottom: ${({ $isCollapsible }) => ($isCollapsible ? '0' : '1rem')};
+	border-bottom: ${({ $isCollapsible }) => ($isCollapsible ? 'none' : '1px solid #e5e7eb')};
+	cursor: ${({ $isCollapsible }) => ($isCollapsible ? 'pointer' : 'default')};
+	padding: ${({ $isCollapsible }) => ($isCollapsible ? '1.5rem' : '0')};
+	border-radius: ${({ $isCollapsible }) => ($isCollapsible ? '0.75rem 0.75rem 0 0' : '0')};
+	
+	&:hover {
+		background: ${({ $isCollapsible }) => ($isCollapsible ? '#f8fafc' : 'transparent')};
+	}
+`;
+
+const HeaderContent = styled.div`
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
-	margin-bottom: 1.5rem;
-	padding-bottom: 1rem;
-	border-bottom: 1px solid #e5e7eb;
 `;
 
 const HeaderIcon = styled.div`
@@ -45,10 +62,39 @@ const Title = styled.h3`
 	margin: 0;
 `;
 
-const StepsContainer = styled.div`
-	display: flex;
+const ChevronIcon = styled.div<{ $collapsed: boolean }>`
+	${() => themeService.getCollapseIconStyles()}
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
+	
+	svg {
+		width: 16px;
+		height: 16px;
+	}
+	
+	&:hover {
+		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)')};
+	}
+`;
+
+const StepsContainer = styled.div<{ $collapsed: boolean }>`
+	display: ${({ $collapsed }) => ($collapsed ? 'none' : 'flex')};
 	flex-direction: column;
 	gap: 1rem;
+	padding: 1.5rem;
+	border-top: 1px solid #e5e7eb;
+	animation: ${({ $collapsed }) => ($collapsed ? 'none' : 'fadeIn 0.2s ease')};
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
 `;
 
 const StepItem = styled.div`
@@ -102,14 +148,25 @@ const StepDescription = styled.div`
 	line-height: 1.5;
 `;
 
-export const FlowWalkthrough = ({ title, steps, icon }: FlowWalkthroughProps) => {
+export const FlowWalkthrough = ({ title, steps, icon, defaultCollapsed = false }: FlowWalkthroughProps) => {
+	const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
+
+	const toggleCollapsed = () => {
+		setIsCollapsed(!isCollapsed);
+	};
+
 	return (
 		<Container>
-			<Header>
-				<HeaderIcon>{icon || <FiGlobe size={24} />}</HeaderIcon>
-				<Title>{title}</Title>
+			<Header $isCollapsible={true} onClick={toggleCollapsed}>
+				<HeaderContent>
+					<HeaderIcon>{icon || <FiGlobe size={24} />}</HeaderIcon>
+					<Title>{title}</Title>
+				</HeaderContent>
+				<ChevronIcon $collapsed={isCollapsed}>
+					<FiChevronDown />
+				</ChevronIcon>
 			</Header>
-			<StepsContainer>
+			<StepsContainer $collapsed={isCollapsed}>
 				{steps.map((step, index) => (
 					<StepItem key={index}>
 						<StepNumber>{index + 1}</StepNumber>

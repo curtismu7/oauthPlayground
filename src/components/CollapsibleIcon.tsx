@@ -1,7 +1,6 @@
 import React from 'react';
 import { FiChevronDown, FiChevronRight } from 'react-icons/fi';
 import styled from 'styled-components';
-import { themeService } from '../services/themeService';
 
 interface CollapsibleIconProps {
 	isExpanded: boolean;
@@ -9,7 +8,19 @@ interface CollapsibleIconProps {
 }
 
 const IconWrapper = styled.div<{ $isExpanded: boolean }>`
-	${() => themeService.getCollapseIconStyles()}
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.75rem;
+	height: 1.75rem;
+	color: #ffffff;
+	transition: transform 0.2s ease, color 0.2s ease;
+
+	svg {
+		width: 1.25rem;
+		height: 1.25rem;
+		color: inherit;
+	}
 `;
 
 export const CollapsibleIcon: React.FC<CollapsibleIconProps> = ({ isExpanded, className }) => {

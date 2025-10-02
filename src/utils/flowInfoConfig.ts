@@ -223,6 +223,29 @@ export const FLOW_INFO_CONFIG: Record<string, FlowInfo> = {
 			'Custom authentication flows',
 		],
 	},
+	'oidc-ciba-v5': {
+		flowType: 'oidc',
+		flowName: 'OIDC CIBA Flow',
+		tokensReturned: 'Access Token + ID Token + Refresh Token',
+		purpose: 'Decoupled Authentication + Authorization',
+		specLayer: 'Defined in OIDC CIBA (RFC 8628 extension)',
+		nonceRequirement: 'Not applicable (backchannel flow)',
+		validation: 'Validate ID Token signature, issuer, audience, and expiry. Poll with auth_req_id.',
+		securityNotes: [
+			'✅ Secure decoupled authentication flow',
+			'Requires CIBA-enabled PingOne environment',
+			'User approval happens on secondary device',
+			'Respect polling intervals to avoid rate limiting',
+			'Use strong client authentication (private_key_jwt recommended)',
+		],
+		useCases: [
+			'IoT devices without user interface',
+			'Call center authentication scenarios',
+			'Smart TV and streaming device authentication',
+			'Point-of-sale systems',
+			'Any scenario requiring decoupled user approval',
+		],
+	},
 };
 
 // Helper function to get flow info by flow type
@@ -243,6 +266,7 @@ export const PRESET_FLOW_CONFIGS = {
 	par: FLOW_INFO_CONFIG['par'],
 	'resource-owner-password': FLOW_INFO_CONFIG['resource-owner-password'],
 	redirectless: FLOW_INFO_CONFIG['redirectless'],
+	'oidc-ciba-v5': FLOW_INFO_CONFIG['oidc-ciba-v5'],
 };
 
 export default {
