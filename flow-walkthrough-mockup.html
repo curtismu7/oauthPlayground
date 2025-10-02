@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Flow Walkthrough Mockup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: #f8fafc;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Enhanced Flow Walkthrough Styles */
+        .flow-walkthrough {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin-bottom: 2rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .flow-walkthrough:hover {
+            box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .walkthrough-header {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+        }
+
+        .walkthrough-header:hover {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .header-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .chevron-button {
+            width: 2rem;
+            height: 2rem;
+            background: #3b82f6;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .chevron-button:hover {
+            background: #2563eb;
+            transform: scale(1.05);
+        }
+
+        .chevron-button.collapsed {
+            transform: rotate(180deg);
+        }
+
+        .walkthrough-content {
+            padding: 1.5rem;
+            background: #ffffff;
+        }
+
+        .steps-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .step-item:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .step-number {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+        }
+
+        .step-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .step-title {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: #1e293b;
+            line-height: 1.4;
+        }
+
+        .step-description {
+            font-size: 0.875rem;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        /* Connecting Line */
+        .step-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 1.25rem;
+            top: 3.5rem;
+            width: 2px;
+            height: 1rem;
+            background: linear-gradient(to bottom, #3b82f6, #cbd5e1);
+        }
+
+        /* Flow Type Variations */
+        .flow-walkthrough.oauth .header-icon {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+
+        .flow-walkthrough.oidc .header-icon {
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+        }
+
+        .flow-walkthrough.pingone .header-icon {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .flow-walkthrough.oauth .step-number {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+
+        .flow-walkthrough.oidc .step-number {
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+        }
+
+        .flow-walkthrough.pingone .step-number {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .walkthrough-header {
+                padding: 1rem;
+            }
+            
+            .walkthrough-content {
+                padding: 1rem;
+            }
+            
+            .step-item {
+                padding: 0.75rem;
+            }
+            
+            .step-number {
+                width: 2rem;
+                height: 2rem;
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Animation for collapse/expand */
+        .walkthrough-content.collapsed {
+            display: none;
+        }
+
+        .walkthrough-content.expanded {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="margin-bottom: 2rem; color: #1e293b;">Enhanced Flow Walkthrough Mockup</h1>
+        
+        <!-- OAuth Flow Walkthrough -->
+        <div class="flow-walkthrough oauth">
+            <div class="walkthrough-header" onclick="toggleWalkthrough('oauth')">
+                <div class="header-content">
+                    <div class="header-icon">🌐</div>
+                    <h3 class="header-title">Authorization Flow Walkthrough</h3>
+                </div>
+                <button class="chevron-button" id="oauth-chevron">▼</button>
+            </div>
+            <div class="walkthrough-content expanded" id="oauth-content">
+                <div class="steps-container">
+                    <div class="step-item">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <div class="step-title">User clicks login to start the flow</div>
+                            <div class="step-description">User initiates authentication by clicking the login button in your application</div>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <div class="step-title">App redirects to PingOne with an authorization request</div>
+                            <div class="step-description">Your application redirects the user to PingOne's authorization server with the required parameters</div>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <div class="step-title">User authenticates and approves scopes</div>
+                            <div class="step-description">User logs in and grants permission for the requested scopes</div>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <div class="step-title">PingOne returns an authorization code to the redirect URI</div>
+                            <div class="step-description">PingOne redirects back to your application with an authorization code</div>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">5</div>
+                        <div class="step-content">
+                            <div class="step-title">Backend exchanges the code for tokens securely</div>
+                            <div class="step-description">Your backend exchanges the authorization code for access and refresh tokens</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- OIDC Flow Walkthrough -->
+        <div class="flow-walkthrough oidc">
+            <div class="walkthrough-header" onclick="toggleWalkthrough('oidc')">
+                <div class="header-content">
+                    <div class="header-icon">🆔</div>
+                    <h3 class="header-title">OpenID Connect Flow Walkthrough</h3>
+                </div>
+                <button class="chevron-button" id="oidc-chevron">▼</button>
+            </div>
+            <div class="walkthrough-content expanded" id="oidc-content">
+                <div class="steps-container">
+                    <div class="step-item">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <div class="step-title">User initiates authentication</div>
+                            <div class="step-description">User clicks login and is redirected to the OpenID Connect provider</div>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <div class="step-title">User authenticates and consents</div>
+                            <div class="step-description">User logs in and grants permission for identity and access information</div>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <div class="step-title">Provider returns authorization code</div>
+                            <div class="step-description">OpenID Connect provider redirects back with an authorization code</div>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <div class="step-title">Exchange code for tokens and ID token</div>
+                            <div class="step-description">Backend exchanges code for access token, refresh token, and ID token</div>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">5</div>
+                        <div class="step-content">
+                            <div class="step-title">Validate ID token and get user info</div>
+                            <div class="step-description">Validate the ID token and optionally fetch additional user information</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PingOne Flow Walkthrough -->
+        <div class="flow-walkthrough pingone">
+            <div class="walkthrough-header" onclick="toggleWalkthrough('pingone')">
+                <div class="header-content">
+                    <div class="header-icon">🔧</div>
+                    <h3 class="header-title">PingOne Worker Token Flow Walkthrough</h3>
+                </div>
+                <button class="chevron-button" id="pingone-chevron">▼</button>
+            </div>
+            <div class="walkthrough-content expanded" id="pingone-content">
+                <div class="steps-container">
+                    <div class="step-item">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <div class="step-title">Configure PingOne credentials</div>
+                            <div class="step-description">Set up environment ID, client ID, and client secret for PingOne</div>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <div class="step-title">Request worker token</div>
+                            <div class="step-description">Send a request to PingOne's token endpoint with client credentials</div>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <div class="step-title">Receive access token</div>
+                            <div class="step-description">PingOne returns an access token for administrative operations</div>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <div class="step-title">Use token for API calls</div>
+                            <div class="step-description">Use the access token to make authenticated calls to PingOne APIs</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleWalkthrough(type) {
+            const content = document.getElementById(type + '-content');
+            const chevron = document.getElementById(type + '-chevron');
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                content.classList.add('collapsed');
+                chevron.classList.add('collapsed');
+            } else {
+                content.classList.remove('collapsed');
+                content.classList.add('expanded');
+                chevron.classList.remove('collapsed');
+            }
+        }
+    </script>
+</body>
+</html>

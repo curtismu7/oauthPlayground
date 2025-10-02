@@ -1,236 +1,443 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { FiBookOpen, FiSearch } from 'react-icons/fi';
 import styled from 'styled-components';
-import CollapsibleIcon from '../components/CollapsibleIcon';
+import CollapsibleSection from '../components/CollapsibleSection';
+import { FlowHeader } from '../services/flowHeaderService';
 
-const Container = styled.div`
-  min-height: 100vh;
-  background: #f8f9fa;
-  padding: 2rem;
+const PageContainer = styled.main`
+	min-height: 100vh;
+	background: var(--app-background, #f8f9fa);
+	padding: clamp(1.5rem, 4vw, 3rem);
 `;
 
-const MaxWidth = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
+const PageContent = styled.div`
+	max-width: 1100px;
+	margin: 0 auto;
+	display: grid;
+	gap: clamp(1.5rem, 3.5vw, 2.5rem);
 `;
 
-const Header = styled.div`
-  text-align: center;
-  margin-bottom: 2.5rem;
+const Header = styled.header`
+	display: grid;
+	gap: 1rem;
+	text-align: center;
+	justify-items: center;
 `;
 
-const HeaderTitle = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-
-  svg {
-    width: 2.5rem;
-    height: 2.5rem;
-    color: #4f46e5;
-  }
-
-  h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #1f2937;
-    margin: 0;
-  }
+const HeaderIcon = styled.div`
+	width: clamp(3rem, 7vw, 3.75rem);
+	height: clamp(3rem, 7vw, 3.75rem);
+	border-radius: 1rem;
+	display: grid;
+	place-items: center;
+	font-size: clamp(1.75rem, 4vw, 2.25rem);
+	background: linear-gradient(135deg, var(--primary-color, #4f46e5), var(--primary-dark, #312e81));
+	color: #fff;
+	box-shadow: 0 16px 35px rgba(79, 70, 229, 0.25);
 `;
 
-const Subtitle = styled.p`
-  color: #6b7280;
-  font-size: 1.125rem;
-  margin: 0;
+const Title = styled.h1`
+	margin: 0;
+	font-size: clamp(2rem, 4vw, 2.75rem);
+	font-weight: 700;
+	color: var(--color-text-primary, #111827);
+	letter-spacing: -0.02em;
 `;
 
-const SearchContainer = styled.div`
-  margin-bottom: 2.5rem;
-  position: relative;
+const Description = styled.p`
+	margin: 0;
+	max-width: 700px;
+	color: var(--color-text-secondary, #4b5563);
+	line-height: 1.65;
+	font-size: clamp(1rem, 2.3vw, 1.125rem);
 `;
 
-const SearchIcon = styled(FiSearch)`
-  position: absolute;
-  left: 1.25rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #9ca3af;
-  width: 1.25rem;
-  height: 1.25rem;
+const SearchBar = styled.div`
+	position: relative;
+	display: flex;
+	align-items: center;
 `;
 
 const SearchInput = styled.input`
-  width: 100%;
-  padding: 1.25rem 1.25rem 1.25rem 3.5rem;
-  border-radius: 0.75rem;
-  border: 2px solid #e5e7eb;
-  font-size: 1.125rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s;
+	width: 100%;
+	padding: 1.1rem 1.25rem 1.1rem 3.5rem;
+	border-radius: 18px;
+	border: 2px solid var(--border-subtle, #e5e7eb);
+	font-size: 1rem;
+	background: var(--surface-color, #ffffff);
+	box-shadow: 0 10px 20px rgba(15, 23, 42, 0.06);
+	transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
-  &:focus {
-    outline: none;
-    border-color: #4f46e5;
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-  }
-
-  &::placeholder {
-    color: #9ca3af;
-  }
+	&:focus {
+		outline: none;
+		border-color: var(--primary-color, #4f46e5);
+		box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.18);
+	}
 `;
 
-const CategoriesContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
+const SearchIcon = styled(FiSearch)`
+	position: absolute;
+	left: 1.25rem;
+	width: 1.25rem;
+	height: 1.25rem;
+	color: #9ca3af;
 `;
 
-const CategoryCard = styled.div`
-  background: white;
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+const CategoryList = styled.section`
+	display: grid;
+	gap: clamp(1.25rem, 3vw, 1.75rem);
+`;
+
+const CategoryCard = styled.article`
+	background: var(--surface-color, #ffffff);
+	border-radius: 1rem;
+	border: 1px solid var(--border-subtle, #e5e7eb);
+	box-shadow: 0 18px 35px rgba(15, 23, 42, 0.08);
+	overflow: hidden;
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+	&:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 25px 50px rgba(15, 23, 42, 0.13);
+	}
 `;
 
 const CategoryHeader = styled.button`
-  width: 100%;
-  padding: 1.25rem 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: white;
-  border: none;
-  cursor: pointer;
-  transition: background 0.2s;
+	width: 100%;
+	padding: clamp(1rem, 2.5vw, 1.3rem) clamp(1.25rem, 3vw, 1.75rem);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1.25rem;
+	cursor: pointer;
+	background: transparent;
+	border: none;
+	text-align: left;
 
-  &:hover {
-    background: #f9fafb;
-  }
+	&:focus-visible {
+		outline: 3px solid rgba(99, 102, 241, 0.35);
+		outline-offset: 4px;
+		border-radius: 14px;
+	}
 `;
 
 const CategoryHeaderLeft = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	flex: 1;
 `;
 
-const CategoryIcon = styled.span`
-  font-size: 1.75rem;
+const CategoryRight = styled.div`
+	display: flex;
+	align-items: center;
 `;
 
-const CategoryTitle = styled.h2`
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0;
-`;
-
-const CategoryBadge = styled.span`
-  background: #e0e7ff;
-  color: #4f46e5;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  margin-left: 0.75rem;
+const CollapsibleIcon = styled.div<{ isExpanded: boolean }>`
+	width: 1.5rem;
+	height: 1.5rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: transform 0.2s ease;
+	transform: ${({ isExpanded }) => (isExpanded ? 'rotate(180deg)' : 'rotate(0deg)')};
+	
+	&::before {
+		content: '▼';
+		font-size: 0.8rem;
+		color: #6b7280;
+	}
 `;
 
 const TermsList = styled.div`
-  padding: 0 1.5rem 1.5rem;
+	padding: 0 clamp(1.25rem, 3vw, 1.75rem) clamp(1.3rem, 2.8vw, 1.75rem);
+	background: rgba(248, 250, 252, 0.65);
 `;
 
 const TermsGrid = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
+	display: grid;
+	gap: clamp(1rem, 2.5vw, 1.4rem);
 `;
 
 const TermItem = styled.div`
-  border-left: 4px solid #818cf8;
-  padding-left: 1.25rem;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-`;
-
-const TermTitle = styled.h3`
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 0.5rem 0;
-`;
-
-const TermDefinition = styled.p`
-  color: #4b5563;
-  line-height: 1.7;
-  margin: 0 0 0.75rem 0;
+	border-left: 4px solid rgba(79, 70, 229, 0.4);
+	padding-left: clamp(1rem, 2.5vw, 1.25rem);
+	display: grid;
+	gap: 0.6rem;
 `;
 
 const TermExample = styled.div`
-  background: #f8fafc;
-  border-left: 3px solid #94a3b8;
-  padding: 0.75rem 1rem;
-  margin-top: 0.75rem;
-  border-radius: 0.375rem;
-  font-size: 0.9375rem;
-  color: #475569;
-  
-  strong {
-    color: #334155;
-    display: block;
-    margin-bottom: 0.375rem;
-  }
+	margin-top: 0.35rem;
+	background: rgba(248, 250, 252, 0.9);
+	border-radius: 0.6rem;
+	padding: 0.85rem 1rem;
+	display: grid;
+	gap: 0.4rem;
+	font-size: 0.95rem;
+	color: var(--color-text-secondary, #475569);
+
+	strong {
+		font-size: 0.8rem;
+		font-weight: 600;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: #334155;
+	}
+`;
+
+const CategoryIcon = styled.div`
+	width: clamp(2.5rem, 6vw, 3rem);
+	height: clamp(2.5rem, 6vw, 3rem);
+	border-radius: 0.85rem;
+	display: grid;
+	place-items: center;
+	font-size: clamp(1.35rem, 3.2vw, 1.6rem);
+	background: rgba(79, 70, 229, 0.08);
+	color: var(--primary-color, #4f46e5);
+`;
+
+const CategoryTitle = styled.div`
+	display: grid;
+	gap: 0.4rem;
+`;
+
+const CategoryName = styled.h2`
+	margin: 0;
+	font-size: clamp(1.2rem, 3vw, 1.45rem);
+	font-weight: 600;
+	color: var(--color-text-primary, #111827);
+`;
+
+const CategoryBadge = styled.span`
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	width: fit-content;
+	padding: 0.25rem 0.75rem;
+	border-radius: 999px;
+	background: rgba(79, 70, 229, 0.12);
+	color: var(--primary-color, #4f46e5);
+	font-size: 0.85rem;
+	font-weight: 500;
+`;
+
+const CategoryBody = styled.div`
+	padding: 0 clamp(1.25rem, 3vw, 1.75rem) clamp(1.3rem, 2.8vw, 1.75rem);
+	display: grid;
+	gap: clamp(1rem, 2.5vw, 1.4rem);
+	background: rgba(248, 250, 252, 0.65);
+	transition: opacity 0.25s ease;
+`;
+
+const TermCard = styled.div`
+	border-left: 4px solid rgba(79, 70, 229, 0.4);
+	padding-left: clamp(1rem, 2.5vw, 1.25rem);
+	display: grid;
+	gap: 0.6rem;
+`;
+
+const TermTitle = styled.h3`
+	margin: 0;
+	font-size: clamp(1.05rem, 2.4vw, 1.2rem);
+	font-weight: 600;
+	color: var(--color-text-primary, #111827);
+`;
+
+const TermDefinition = styled.p`
+	margin: 0;
+	color: var(--color-text-secondary, #475569);
+	line-height: 1.7;
+	font-size: clamp(0.95rem, 2.2vw, 1.05rem);
+`;
+
+const TermSupplement = styled.div`
+	margin-top: 0.35rem;
+	background: rgba(248, 250, 252, 0.9);
+	border-radius: 0.6rem;
+	padding: 0.85rem 1rem;
+	display: grid;
+	gap: 0.4rem;
+	font-size: 0.95rem;
+	color: var(--color-text-secondary, #475569);
+
+	strong {
+		font-size: 0.8rem;
+		font-weight: 600;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: #334155;
+	}
 `;
 
 const RelatedTerms = styled.div`
-  margin-top: 0.75rem;
-  font-size: 0.875rem;
-  color: #64748b;
-  
-  strong {
-    color: #475569;
-  }
-  
-  span {
-    display: inline-block;
-    background: #e0e7ff;
-    color: #4f46e5;
-    padding: 0.125rem 0.5rem;
-    border-radius: 0.25rem;
-    margin-right: 0.375rem;
-    margin-top: 0.25rem;
-  }
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: 0.4rem;
+
+	span {
+		background: rgba(79, 70, 229, 0.15);
+		color: var(--primary-color, #4f46e5);
+		padding: 0.2rem 0.55rem;
+		border-radius: 999px;
+		font-size: 0.85rem;
+	}
 `;
 
 const NoResults = styled.div`
-  background: white;
-  border-radius: 0.75rem;
-  padding: 3rem;
-  text-align: center;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	padding: clamp(1.8rem, 4vw, 2.25rem);
+	border-radius: 1rem;
+	background: rgba(248, 250, 252, 0.85);
+	border: 1px dashed rgba(148, 163, 184, 0.6);
+	text-align: center;
+	display: grid;
+	gap: 0.8rem;
 
-  p {
-    color: #6b7280;
-    font-size: 1.125rem;
-    margin: 0;
-  }
+	h3 {
+		margin: 0;
+		size: 1.2rem;
+		color: var(--color-text-primary, #111827);
+	}
+
+	p {
+		margin: 0;
+		color: var(--color-text-secondary, #475569);
+		font-size: 0.98rem;
+	}
 `;
 
-const Footer = styled.div`
-  margin-top: 2.5rem;
-  text-center;
-  color: #6b7280;
-  font-size: 0.875rem;
-
-  p {
-    margin: 0;
-  }
+const Footer = styled.footer`
+	text-align: center;
+	color: var(--color-text-muted, #6b7280);
+	font-size: 0.95rem;
+	padding: 0.5rem 0 1rem;
 `;
+
+interface GlossaryTerm {
+	term: string;
+	definition: string;
+	example?: string;
+	relatedTerms?: string[];
+}
+
+interface GlossaryCategory {
+	id: string;
+	category: string;
+	icon: string;
+	terms: GlossaryTerm[];
+}
+
+const glossaryCategories: GlossaryCategory[] = [
+	{
+		id: 'core-ai',
+		category: 'Core AI Concepts',
+		icon: '🧠',
+		terms: [
+			{
+				term: 'Artificial Intelligence (AI)',
+				definition:
+					'The simulation of human intelligence processes by computer systems, including learning, reasoning, problem-solving, perception, and language understanding. AI systems can analyze data, recognize patterns, make decisions, and adapt to new situations.',
+				example:
+					'Virtual assistants like Siri and Alexa, recommendation systems on Netflix and Spotify, autonomous vehicles, medical diagnosis systems, and chatbots like ChatGPT.',
+				relatedTerms: ['Machine Learning', 'Deep Learning', 'Neural Network'],
+			},
+			{
+				term: 'Machine Learning (ML)',
+				definition:
+					'A subset of AI that enables systems to automatically learn and improve from experience without being explicitly programmed. ML algorithms build mathematical models based on sample data (training data) to make predictions or decisions.',
+				example:
+					'Email spam filters that learn to identify spam, fraud detection systems in banking, product recommendations on e-commerce sites, and image recognition in photos apps.',
+				relatedTerms: ['Supervised Learning', 'Unsupervised Learning', 'Deep Learning'],
+			},
+			{
+				term: 'Deep Learning',
+				definition:
+					'A subset of machine learning that uses artificial neural networks with multiple layers (deep neural networks) to progressively extract higher-level features from raw input. Each layer learns to transform its input data into a slightly more abstract representation.',
+				example:
+					'Image recognition (identifying objects in photos), natural language processing (understanding and generating text), speech recognition (converting speech to text), and autonomous driving systems.',
+				relatedTerms: ['Neural Network', 'Transformer', 'CNN'],
+			},
+			{
+				term: 'Neural Network',
+				definition:
+					'A computing system inspired by biological neural networks, consisting of interconnected nodes (neurons) that process information.',
+			},
+			{
+				term: 'Algorithm',
+				definition: 'A step-by-step procedure or formula for solving a problem or completing a task.',
+			},
+		],
+	},
+	{
+		id: 'model-architectures',
+		category: 'Model Types & Architectures',
+		icon: '🏗️',
+		terms: [
+			{
+				term: 'Large Language Model (LLM)',
+				definition:
+					'AI models with billions of parameters trained on massive text datasets to understand context, generate coherent text, answer questions, translate languages, write code, and perform various language tasks. LLMs use transformer architecture and can be fine-tuned for specific applications.',
+				example:
+					'GPT-4 (OpenAI), Claude (Anthropic), Gemini (Google), LLaMA (Meta). Used for chatbots, content generation, code completion, translation, summarization, and question answering.',
+				relatedTerms: ['Transformer', 'Fine-tuning', 'Prompt Engineering'],
+			},
+			{
+				term: 'Transformer',
+				definition:
+					"A revolutionary neural network architecture introduced in 2017 ('Attention is All You Need' paper) that uses self-attention mechanisms to process sequential data in parallel rather than sequentially. Transformers can capture long-range dependencies and are the foundation of modern LLMs, enabling breakthrough performance in NLP.",
+				example:
+					'BERT, GPT series, T5, and virtually all modern LLMs use transformer architecture. Key innovation: attention mechanism allows the model to focus on relevant parts of input regardless of distance, unlike RNNs that process sequentially.',
+				relatedTerms: ['Attention Mechanism', 'LLM', 'BERT'],
+			},
+			{
+				term: 'Generative AI',
+				definition: 'AI systems that create new content (text, images, audio, video) based on training data.',
+			},
+			{
+				term: 'Diffusion Model',
+				definition: 'A type of generative model that creates images by gradually removing noise from random data (e.g., DALL-E, Stable Diffusion).',
+			},
+			{
+				term: 'Multimodal Model',
+				definition: 'AI systems that can process and generate multiple types of data (text, images, audio, video) simultaneously.',
+			},
+			{
+				term: 'Foundation Model',
+				definition: 'Large-scale pre-trained models that can be adapted for various downstream tasks.',
+			},
+			{
+				term: 'Embedding',
+				definition:
+					'A numerical representation of data (text, images) in a high-dimensional space where similar items are closer together.',
+			},
+		],
+	},
+	{
+		id: 'training',
+		category: 'Training & Fine-Tuning',
+		icon: '🎯',
+		terms: [
+			{
+				term: 'Training',
+				definition: 'The process of teaching an AI model by feeding it data and adjusting its parameters to minimize errors.',
+			},
+			{
+				term: 'Pre-training',
+				definition: 'Initial training phase where a model learns general patterns from large datasets.',
+			},
+			{
+				term: 'Fine-tuning',
+				definition:
+					"The process of taking a pre-trained model and continuing its training on a smaller, task-specific dataset to adapt it for particular applications. Fine-tuning adjusts the model's weights to specialize in specific domains, styles, or tasks while retaining general knowledge.",
+				example:
+					'Fine-tuning a language model on customer service conversations to create a specialized chatbot.',
+			},
+		],
+	},
+];
 
 const AIGlossary: React.FC = () => {
 	const [searchTerm, setSearchTerm] = useState('');
-	const [expandedCategory, setExpandedCategory] = useState<number | null>(null);
+	const [expandedCategory, setExpandedCategory] = useState<number | null>(0);
 
 	interface GlossaryTerm {
 		term: string;
@@ -906,47 +1113,45 @@ const AIGlossary: React.FC = () => {
 		.filter((category) => category.terms.length > 0);
 
 	const toggleCategory = (index: number) => {
-		setExpandedCategory(expandedCategory === index ? null : index);
+		setExpandedCategory((prev) => (prev === index ? null : index));
 	};
 
 	return (
-		<Container>
-			<MaxWidth>
-				<Header>
-					<HeaderTitle>
-						<FiBookOpen />
-						<h1>AI Terms Glossary</h1>
-					</HeaderTitle>
-					<Subtitle>Your comprehensive guide to modern AI terminology</Subtitle>
-				</Header>
+		<PageContainer>
+			<PageContent>
+				<FlowHeader flowType="ai-glossary" />
 
-				<SearchContainer>
-					<SearchIcon />
+				<SearchBar>
 					<SearchInput
 						type="text"
-						placeholder="Search terms or definitions..."
+						placeholder="Search terms..."
 						value={searchTerm}
 						onChange={(e) => setSearchTerm(e.target.value)}
 					/>
-				</SearchContainer>
+					<SearchIcon />
+				</SearchBar>
 
-				<CategoriesContainer>
-					{filteredData.length === 0 ? (
-						<NoResults>
-							<p>No results found. Try a different search term.</p>
-						</NoResults>
-					) : (
-						filteredData.map((category, categoryIndex) => (
+				{filteredData.length === 0 ? (
+					<NoResults>
+						<h3>No results found</h3>
+						<p>Try adjusting your search terms</p>
+					</NoResults>
+				) : (
+					<CategoryList>
+						{filteredData.map((category, categoryIndex) => (
 							<CategoryCard key={categoryIndex}>
 								<CategoryHeader onClick={() => toggleCategory(categoryIndex)}>
 									<CategoryHeaderLeft>
 										<CategoryIcon>{category.icon}</CategoryIcon>
-										<CategoryTitle>{category.category}</CategoryTitle>
-										<CategoryBadge>{category.terms.length} terms</CategoryBadge>
+										<CategoryTitle>
+											{category.category}
+											<CategoryBadge>{category.terms.length} terms</CategoryBadge>
+										</CategoryTitle>
 									</CategoryHeaderLeft>
-									<CollapsibleIcon isExpanded={expandedCategory === categoryIndex} />
+									<CategoryRight>
+										<CollapsibleIcon isExpanded={expandedCategory === categoryIndex} />
+									</CategoryRight>
 								</CategoryHeader>
-
 								{expandedCategory === categoryIndex && (
 									<TermsList>
 										<TermsGrid>
@@ -974,15 +1179,15 @@ const AIGlossary: React.FC = () => {
 									</TermsList>
 								)}
 							</CategoryCard>
-						))
-					)}
-				</CategoriesContainer>
+						))}
+					</CategoryList>
+				)}
 
 				<Footer>
 					<p>This glossary covers AI terminology as of 2025. The field evolves rapidly.</p>
 				</Footer>
-			</MaxWidth>
-		</Container>
+			</PageContent>
+		</PageContainer>
 	);
 };
 

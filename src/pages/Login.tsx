@@ -4,7 +4,6 @@ import {
 	FiCheck,
 	FiCheckCircle,
 	FiChevronDown,
-	FiChevronRight,
 	FiCopy,
 	FiEdit,
 	FiEye,
@@ -19,9 +18,10 @@ import AuthorizationRequestModal from '../components/AuthorizationRequestModal';
 import DebugCredentials from '../components/DebugCredentials';
 import Spinner from '../components/Spinner';
 import { useAuth } from '../contexts/NewAuthContext';
-import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
+import { useNotifications } from '../hooks/useNotifications';
 import { getCallbackUrlForFlow } from '../utils/callbackUrls';
-import { credentialManager } from '../utils/credentialManager';
+import { pingOneConfigService, type PingOneConfig } from '../services/pingoneConfigService';
+import { FlowHeader } from '../services/flowHeaderService';
 
 // Define specific types for HMAC and signing algorithms
 type HMACAlgorithm = 'HS256' | 'HS384' | 'HS512';
@@ -56,55 +56,20 @@ interface Credentials {
 
 const LoginContainer = styled.div`
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-primary, linear-gradient(135deg, #0070CC 0%, #0056A3 100%));
-  padding: 0.5rem;
+  background-color: #f9fafb;
+  padding: 2rem 0.5rem;
 `;
 
 const LoginLayout = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  width: 100%;
-  max-width: 1400px;
-  align-items: stretch;
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 0 1rem;
 `;
 
 const SetupSection = styled.div`
   width: 100%;
   min-width: 0;
 `;
-
-const DescriptionSection = styled.div`
-  background-color: var(--color-surface, #f8f9fa);
-  border: 1px solid var(--color-border, #e9ecef);
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 1rem;
-  text-align: center;
-
-  p {
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--color-primary, #0070CC);
-    letter-spacing: -0.3px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-
-    span {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-  }
-`;
-
-// Removed unused FormGroup and ErrorIcon
 
 const SubmitButton = styled.button`
   width: 100%;
@@ -157,9 +122,11 @@ const Alert = styled.div`
 `;
 
 const PingOneSetupSection = styled.div`
-  background-color: var(--color-surface, #f8f9fa);
-  border: 1px solid var(--color-border, #e9ecef);
-  border-radius: 8px;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
   padding: 1.5rem;
   text-align: left;
   height: fit-content;
@@ -318,22 +285,17 @@ const CopyButton = styled.button`
   }
 `;
 
-const ChevronIcon = styled.div<{ $collapsed: boolean }>`
-  ${() => themeService.getCollapseIconStyles()}
-  width: 28px;
-  height: 28px;
-  margin-right: 0.5rem;
-  
-  svg {
-    width: 14px;
-    height: 14px;
-    transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
-    transition: transform 0.2s ease;
-  }
-  
-  &:hover svg {
-    transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)')};
-  }
+// Themed collapse icon (blue with white arrow)
+const ChevronIcon = styled.div.withConfig({
+	shouldForwardProp: (prop) => prop !== 'collapsed' && prop !== '$collapsed',
+})<{ $collapsed: boolean }>`
+	${() => themeService.getCollapseIconStyles()}
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
+	transition: transform 0.2s ease;
+
+	svg {
+		color: inherit;
+	}
 `;
 
 const Login = () => {
@@ -380,24 +342,25 @@ const Login = () => {
 
 	const { login } = useAuth();
 	const location = useLocation();
+	const { showSuccess, showError } = useNotifications();
 
 	// Load existing credentials on component mount
 	useEffect(() => {
 		const loadExistingCredentials = () => {
 			console.log(' [Login] Loading existing credentials...');
 
-			// Try to load from credential manager
-			const allCredentials = credentialManager.getAllCredentials();
-			console.log(' [Login] All credentials from manager:', allCredentials);
+			// Try to load from V5 config service
+			const config = pingOneConfigService.getConfig();
+			console.log(' [Login] Config from service:', config);
 
-			if (allCredentials.environmentId && allCredentials.clientId) {
+			if (config?.environmentId && config?.clientId) {
 				console.log(' [Login] Found existing credentials, pre-filling form');
 				setCredentials((prev) => ({
 					...prev,
-					environmentId: allCredentials.environmentId || '',
-					clientId: allCredentials.clientId || '',
-					clientSecret: allCredentials.clientSecret || '',
-					tokenAuthMethod: allCredentials.tokenAuthMethod || 'client_secret_basic',
+					environmentId: config.environmentId || '',
+					clientId: config.clientId || '',
+					clientSecret: config.clientSecret || '',
+					tokenAuthMethod: 'client_secret_basic',
 				}));
 				setHasExistingCredentials(true);
 
@@ -431,25 +394,25 @@ const Login = () => {
 
 	// Load saved credentials on component mount
 	useEffect(() => {
-		console.log(' [Login] Loading credentials from localStorage and credential manager...');
+		console.log(' [Login] Loading credentials from V5 config service...');
 
-		// First try to load from credential manager (newer approach)
-		const allCredentials = credentialManager.getAllCredentials();
-		console.log(' [Login] Credential manager result:', allCredentials);
+		// Load from V5 config service
+		const config = pingOneConfigService.getConfig();
+		console.log(' [Login] Config service result:', config);
 
-		if (allCredentials.environmentId && allCredentials.clientId) {
-			console.log(' [Login] Found credentials from credential manager:', {
-				hasEnvironmentId: !!allCredentials.environmentId,
-				hasClientId: !!allCredentials.clientId,
-				hasClientSecret: !!allCredentials.clientSecret,
-				clientIdPrefix: `${allCredentials.clientId?.substring(0, 8)}...`,
+		if (config?.environmentId && config?.clientId) {
+			console.log(' [Login] Found credentials from config service:', {
+				hasEnvironmentId: !!config.environmentId,
+				hasClientId: !!config.clientId,
+				hasClientSecret: !!config.clientSecret,
+				clientIdPrefix: `${config.clientId?.substring(0, 8)}...`,
 			});
 
 			setCredentials({
-				environmentId: allCredentials.environmentId,
-				clientId: allCredentials.clientId,
-				clientSecret: allCredentials.clientSecret || '',
-				tokenAuthMethod: allCredentials.tokenAuthMethod || 'client_secret_basic',
+				environmentId: config.environmentId,
+				clientId: config.clientId,
+				clientSecret: config.clientSecret || '',
+				tokenAuthMethod: 'client_secret_basic',
 				clientAssertion: {
 					hmacAlg: 'HS256',
 					signAlg: 'RS256',
@@ -537,65 +500,24 @@ const Login = () => {
 		setIsSavingCredentials(true);
 
 		try {
-			// Save configuration credentials using credential manager
-			const permanentSuccess = credentialManager.saveConfigCredentials({
-				environmentId: credentials.environmentId,
-				clientId: credentials.clientId,
-				redirectUri: getCallbackUrlForFlow('dashboard'),
-				scopes: credentials.advanced?.resourceScopes?.split(' ') || ['openid', 'profile', 'email'],
-				authEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/authorize`,
-				tokenEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/token`,
-				userInfoEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/userinfo`,
-				tokenAuthMethod: credentials.tokenAuthMethod,
-			});
-
-			// Save session credentials (Client Secret)
-			const sessionSuccess = credentialManager.saveSessionCredentials({
-				clientSecret: credentials.clientSecret,
-			});
-
-			if (!permanentSuccess || !sessionSuccess) {
-				throw new Error('Failed to save credentials to credential manager');
-			}
-
-			// Debug localStorage after saving
-			console.log(' [Login] After saving credentials:');
-			credentialManager.debugLocalStorage();
-
-			// Also save to legacy localStorage for backward compatibility
-			localStorage.setItem('login_credentials', JSON.stringify(credentials));
-
-			// Also save as pingone_config for consistency with other parts of the app
-			const configToSave = {
+			// Save configuration using V5 config service
+			const configToSave: PingOneConfig = {
 				environmentId: credentials.environmentId,
 				clientId: credentials.clientId,
 				clientSecret: credentials.clientSecret,
 				redirectUri: getCallbackUrlForFlow('dashboard'),
-				scopes: credentials.advanced?.resourceScopes || 'openid profile email',
-				authEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/authorize`,
+				baseUrl: `https://auth.pingone.com/${credentials.environmentId}`,
+				authUrl: `https://auth.pingone.com/${credentials.environmentId}/as`,
+				authorizationEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/authorize`,
 				tokenEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/token`,
 				userInfoEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/userinfo`,
-				tokenAuthMethod: credentials.tokenAuthMethod,
-				clientAssertion: credentials.clientAssertion,
-				advanced: credentials.advanced,
+				logoutEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/signoff`,
+				parEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/par`,
+				tokenAuthMethod: (credentials.tokenAuthMethod || 'client_secret_basic') as 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt',
 			};
-			localStorage.setItem('pingone_config', JSON.stringify(configToSave));
 
-			console.log(' [Login] Credentials saved successfully:', {
-				hasEnvironmentId: !!credentials.environmentId,
-				hasClientId: !!credentials.clientId,
-				hasClientSecret: !!credentials.clientSecret,
-				clientIdPrefix: `${credentials.clientId?.substring(0, 8)}...`,
-			});
-
-			// Dispatch events to notify other components of config change
-			window.dispatchEvent(
-				new CustomEvent('pingone_config_changed', {
-					detail: { config: configToSave },
-				})
-			);
-			window.dispatchEvent(new CustomEvent('pingone-config-changed'));
-			window.dispatchEvent(new CustomEvent('permanent-credentials-changed'));
+			pingOneConfigService.saveConfig(configToSave);
+			console.log(' [Login] Saved config to V5 service:', configToSave);
 
 			setSaveStatus({
 				type: 'success',
@@ -603,7 +525,7 @@ const Login = () => {
 				message:
 					'Your login credentials have been saved successfully. The Configuration page has been updated with these same values.',
 			});
-			showGlobalSuccess('Credentials saved', 'Login credentials have been saved successfully.');
+			showSuccess('Login credentials have been saved successfully.');
 
 			// Force a re-render to update the display with new values
 			setCredentials((prev) => ({ ...prev }));
@@ -614,7 +536,7 @@ const Login = () => {
 				title: 'Error',
 				message: 'Failed to save credentials. Please try again.',
 			});
-			showGlobalError('Save failed', 'Failed to save login credentials. Please try again.');
+			showError('Failed to save login credentials. Please try again.');
 		} finally {
 			// Add a small delay to show the spinner effect
 			setTimeout(() => {
@@ -686,16 +608,13 @@ const Login = () => {
 			if (!result.success) {
 				console.error(' [Login] Login failed:', result.error);
 				setError(result.error || 'Login failed');
-				showGlobalError(
-					'Authentication failed',
-					result.error || 'Login failed. Please check your credentials and try again.'
-				);
+				showError(result.error || 'Login failed. Please check your credentials and try again.');
 				setIsLoading(false);
 				return;
 			}
 
 			// Show success message for successful login initiation
-			showGlobalSuccess('Authentication initiated', 'Redirecting to PingOne for authentication...');
+			showSuccess('Redirecting to PingOne for authentication...');
 
 			console.log(' [Login] Login initiated successfully, showing URL preview modal');
 
@@ -728,11 +647,19 @@ const Login = () => {
 		<LoginContainer>
 			<LoginLayout>
 				<SetupSection>
-					<DescriptionSection>
-						<p>
-							<span> Interactive playground for OAuth 2.0 and OpenID Connect with PingOne</span>
-						</p>
-					</DescriptionSection>
+					{/* V5 Flow Header */}
+					<FlowHeader flowId="login" />
+
+					{/* Version Badge */}
+					<div style={{ 
+						marginTop: '1.5rem',
+						marginBottom: '1.5rem',
+						textAlign: 'center',
+						color: '#6c757d',
+						fontSize: '0.875rem'
+					}}>
+						Version {packageJson.version}
+					</div>
 
 					<PingOneSetupSection>
 						<h3

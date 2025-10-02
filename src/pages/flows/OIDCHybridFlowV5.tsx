@@ -18,6 +18,7 @@ import {
 } from 'react-icons/fi';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useHybridFlow } from '../../hooks/useHybridFlow';
 import { credentialManager } from '../../utils/credentialManager';
@@ -432,14 +433,17 @@ const OIDCHybridFlowV5: React.FC = () => {
 	};
 
 	const renderIntroduction = () => (
-		<CollapsibleSection>
-			<CollapsibleHeader onClick={() => toggleSection('intro')}>
-				<CollapsibleTitle>
-					<FiInfo /> OIDC Hybrid Flow Overview
-				</CollapsibleTitle>
+		<>
+			<FlowConfigurationRequirements flowType="hybrid" variant="oidc" />
+			
+			<CollapsibleSection>
+				<CollapsibleHeader onClick={() => toggleSection('intro')}>
+					<CollapsibleTitle>
+						<FiInfo /> OIDC Hybrid Flow Overview
+					</CollapsibleTitle>
 				<FiChevronDown
 					style={{
-						transform: collapsedSections.intro ? 'rotate(-90deg)' : 'none',
+						transform: collapsedSections.intro ? 'rotate(0deg)' : 'rotate(180deg)',
 						transition: 'transform 0.2s',
 					}}
 				/>
@@ -493,6 +497,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 				</CollapsibleContent>
 			)}
 		</CollapsibleSection>
+		</>
 	);
 
 	const renderConfiguration = () => (
@@ -503,7 +508,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 				</CollapsibleTitle>
 				<FiChevronDown
 					style={{
-						transform: collapsedSections.config ? 'rotate(-90deg)' : 'none',
+						transform: collapsedSections.config ? 'rotate(0deg)' : 'rotate(180deg)',
 						transition: 'transform 0.2s',
 					}}
 				/>
@@ -575,7 +580,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 				</CollapsibleTitle>
 				<FiChevronDown
 					style={{
-						transform: collapsedSections.authReq ? 'rotate(-90deg)' : 'none',
+						transform: collapsedSections.authReq ? 'rotate(0deg)' : 'rotate(180deg)',
 						transition: 'transform 0.2s',
 					}}
 				/>
@@ -608,7 +613,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 				</CollapsibleTitle>
 				<FiChevronDown
 					style={{
-						transform: collapsedSections.response ? 'rotate(-90deg)' : 'none',
+						transform: collapsedSections.response ? 'rotate(0deg)' : 'rotate(180deg)',
 						transition: 'transform 0.2s',
 					}}
 				/>
@@ -690,7 +695,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 				</CollapsibleTitle>
 				<FiChevronDown
 					style={{
-						transform: collapsedSections.exchange ? 'rotate(-90deg)' : 'none',
+						transform: collapsedSections.exchange ? 'rotate(0deg)' : 'rotate(180deg)',
 						transition: 'transform 0.2s',
 					}}
 				/>
@@ -727,7 +732,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 				</CollapsibleTitle>
 				<FiChevronDown
 					style={{
-						transform: collapsedSections.tokens ? 'rotate(-90deg)' : 'none',
+						transform: collapsedSections.tokens ? 'rotate(0deg)' : 'rotate(180deg)',
 						transition: 'transform 0.2s',
 					}}
 				/>
@@ -801,7 +806,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 				</CollapsibleTitle>
 				<FiChevronDown
 					style={{
-						transform: collapsedSections.complete ? 'rotate(-90deg)' : 'none',
+						transform: collapsedSections.complete ? 'rotate(0deg)' : 'rotate(180deg)',
 						transition: 'transform 0.2s',
 					}}
 				/>

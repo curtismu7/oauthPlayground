@@ -38,6 +38,7 @@ import {
 } from '../utils/tokenHistory';
 import { getOAuthTokens } from '../utils/tokenStorage';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { FlowHeader } from '../services/flowHeaderService';
 
 type TokenIntrospectionResult = {
 	active?: boolean;
@@ -634,7 +635,8 @@ const TokenManagement = () => {
 				console.warn('Failed to parse tokenManagementFlowContext:', error);
 			}
 		}
-		return sessionStorage.getItem('flow_source') || '';
+		// Check localStorage first (for cross-tab), then sessionStorage
+		return localStorage.getItem('flow_source') || sessionStorage.getItem('flow_source') || '';
 	});
 
 	const isOAuthFlow = flowSourceState.includes('oauth') && !flowSourceState.includes('oidc');
@@ -934,7 +936,10 @@ const TokenManagement = () => {
 					) {
 						console.log(' [TokenManagement] Found tokens in secure storage:', storageTokens);
 						currentTokens = storageTokens;
-						setFlowSourceState('storage/manual');
+						// Only set storage/manual if no flow context exists
+						if (!sessionStorage.getItem('tokenManagementFlowContext') && !sessionStorage.getItem('flow_source') && !localStorage.getItem('flow_source')) {
+							setFlowSourceState('storage/manual');
+						}
 					} else {
 						// Check localStorage for tokens from Authorization Code flow
 						console.log(' [TokenManagement] Checking localStorage for oauth_tokens...');
@@ -948,7 +953,10 @@ const TokenManagement = () => {
 									(parsedTokens.access_token || parsedTokens.id_token || parsedTokens.refresh_token)
 								) {
 									currentTokens = parsedTokens;
-									setFlowSourceState('storage/manual');
+									// Only set storage/manual if no flow context exists
+									if (!sessionStorage.getItem('tokenManagementFlowContext') && !sessionStorage.getItem('flow_source') && !localStorage.getItem('flow_source')) {
+										setFlowSourceState('storage/manual');
+									}
 								}
 							} catch (parseError) {
 								console.error(' [TokenManagement] Error parsing localStorage tokens:', parseError);
@@ -1929,15 +1937,7 @@ const TokenManagement = () => {
 
 	return (
 		<Container>
-			<PageTitle
-				title={
-					<>
-						<FiKey />
-						Token Management
-					</>
-				}
-				subtitle="Monitor and manage PingOne authentication tokens"
-			/>
+			<FlowHeader flowType="token-management" />
 
 			{/* Token Source Indicator */}
 			<div

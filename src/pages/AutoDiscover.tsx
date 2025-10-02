@@ -6,6 +6,7 @@ import { usePageScroll } from '../hooks/usePageScroll';
 import { OpenIDConfiguration } from '../services/discoveryService';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
+import { FlowHeader } from '../services/flowHeaderService';
 
 const PageContainer = styled.div`
   max-width: 1200px;
@@ -145,16 +146,7 @@ const AutoDiscover: React.FC = () => {
 
 	return (
 		<PageContainer>
-			<Header>
-				<h1>
-					<FiSearch />
-					OIDC wellknown Endpoint
-				</h1>
-				<p>
-					Automatically discover OpenID Connect configuration for your PingOne environment. This
-					will fetch the authorization, token, and userinfo endpoints from your PingOne environment.
-				</p>
-			</Header>
+			<FlowHeader flowType="auto-discover" />
 
 			<InfoCard>
 				<h3>
