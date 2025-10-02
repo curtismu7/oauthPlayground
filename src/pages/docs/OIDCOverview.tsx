@@ -13,6 +13,8 @@ import {
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../../components/Card';
 import InteractiveFlowDiagram from '../../components/InteractiveFlowDiagram';
+import { FlowHeader } from '../../services/flowHeaderService';
+import FlowConfigurationTable from '../../components/FlowConfigurationTable';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -347,19 +349,10 @@ const OIDCOverview = () => {
 
 	return (
 		<Container>
-			<Header>
-				<div>
-					<AIGeneratedBadge>AI-Generated Overview</AIGeneratedBadge>
-					<h1>
-						<FiBookOpen />
-						OpenID Connect (OIDC) Flows
-					</h1>
-					<p>
-						Comprehensive guide to OpenID Connect authentication flows, security considerations, and
-						implementation best practices for modern applications.
-					</p>
-				</div>
-			</Header>
+			<FlowHeader flowType="oidc-overview" />
+			<div style={{ marginBottom: '2rem' }}>
+				<AIGeneratedBadge>AI-Generated Overview</AIGeneratedBadge>
+			</div>
 
 			{/* OIDC Flows Overview */}
 			<section style={{ marginBottom: '3rem' }}>
@@ -431,12 +424,13 @@ const OIDCOverview = () => {
 								>
 									{expandedFlow === flow.id ? 'Hide Details' : 'Show Details'}
 									<FiArrowRight
-										size={14}
-										style={{
-											transform: expandedFlow === flow.id ? 'rotate(90deg)' : 'none',
-											transition: 'transform 0.2s',
-										}}
-									/>
+									size={14}
+									style={{
+										transform: expandedFlow === flow.id ? 'rotate(90deg)' : 'rotate(0deg)',
+										transition: 'transform 0.2s',
+										marginLeft: '0.5rem',
+									}}
+								/>
 								</button>
 								{expandedFlow === flow.id && (
 									<div
@@ -707,10 +701,15 @@ const OIDCOverview = () => {
 							sessions.
 						</p>
 					</div>
-				</div>
-			</section>
-		</Container>
-	);
+			</div>
+		</section>
+
+		{/* Configuration Requirements Table */}
+		<section style={{ marginTop: '3rem' }}>
+			<FlowConfigurationTable />
+		</section>
+	</Container>
+);
 };
 
 export default OIDCOverview;

@@ -1,5 +1,5 @@
 // src/pages/flows/PingOnePARFlowV5.tsx
-import { useCallback, useId, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiArrowRight,
@@ -17,13 +17,9 @@ import { themeService } from '../../services/themeService';
 import styled from 'styled-components';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
-import FlowInfoCard from '../../components/FlowInfoCard';
-import {
-	FlowDiagram,
-	FlowStep,
-	FlowStepContent,
-	FlowStepNumber,
-} from '../../components/InfoBlocks';
+import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
+import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import {
 	HelperText,
 	ResultsHeading,
@@ -33,7 +29,6 @@ import {
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import { pingOneConfigService } from '../../services/pingoneConfigService';
-import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [
@@ -47,10 +42,8 @@ const STEP_METADATA = [
 	{ title: 'Step 4: Complete Flow', subtitle: 'Test the complete PAR flow with PingOne' },
 ] as const;
 
-type StepCompletionState = Record<number, boolean>;
 type IntroSectionKey =
 	| 'overview'
-	| 'flowDiagram'
 	| 'credentials'
 	| 'results' // Step 0
 	| 'pkceOverview'
@@ -180,7 +173,8 @@ const CollapsibleToggleIcon = styled.span<{ $collapsed: boolean }>`
 	width: 32px;
 	height: 32px;
 	border-radius: 50%;
-	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
+	transition: transform 0.2s ease;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -191,7 +185,7 @@ const CollapsibleToggleIcon = styled.span<{ $collapsed: boolean }>`
 	}
 
 	&:hover {
-		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)')};
+		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg) scale(1.1)' : 'rotate(180deg) scale(1.1)')};
 	}
 `;
 
@@ -242,16 +236,6 @@ const InfoList = styled.ul`
 	}
 `;
 
-const _ParameterGrid = styled.div`
-	display: grid;
-	grid-template-columns: 1fr;
-	gap: 1rem;
-	margin: 1rem 0;
-
-	@media (min-width: 768px) {
-		grid-template-columns: 1fr 1fr;
-	}
-`;
 
 const ActionRow = styled.div`
 	display: flex;
@@ -324,7 +308,6 @@ const GeneratedLabel = styled.div`
 `;
 
 const PingOnePARFlowV5: React.FC = () => {
-	const _manualAuthCodeId = useId();
 	const controller = useAuthorizationCodeFlowController({
 		flowKey: 'pingone-par-v5',
 		defaultFlowVariant: 'oidc',
@@ -335,7 +318,6 @@ const PingOnePARFlowV5: React.FC = () => {
 	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>({
 		// Step 0
 		overview: false,
-		flowDiagram: true, // Collapsed by default
 		credentials: false, // Expanded by default - users need to see credentials first
 		results: false,
 		// Step 1
@@ -376,40 +358,7 @@ const PingOnePARFlowV5: React.FC = () => {
 		[controller.pkceCodes, controller.authUrl, parRequestUri]
 	);
 
-	// Get step completion requirements for user guidance
-	const getStepRequirements = useCallback((stepIndex: number): string[] => {
-		switch (stepIndex) {
-			case 0: // Step 0: Introduction & Setup
-				return ['Review the flow overview and setup credentials'];
-			case 1: // Step 1: PKCE Parameters
-				return ['Generate PKCE code verifier and code challenge'];
-			case 2: // Step 2: PAR Request
-				return ['Push authorization request to PAR endpoint'];
-			case 3: // Step 3: Authorization URL
-				return ['Generate authorization URL with request_uri'];
-			case 4: // Step 4: Complete Flow
-				return ['Test the complete PAR flow'];
-			default:
-				return [];
-		}
-	}, []);
 
-	const stepCompletions = useMemo<StepCompletionState>(
-		() => ({
-			0: controller.hasStepResult('setup-credentials') || controller.hasCredentialsSaved,
-			1: controller.hasStepResult('generate-pkce') || Boolean(controller.pkceCodes.codeVerifier),
-			2: Boolean(parRequestUri),
-			3: controller.hasStepResult('build-auth-url') || Boolean(controller.authUrl),
-			4: true, // Always valid - completion step
-		}),
-		[
-			controller.hasCredentialsSaved,
-			controller.hasStepResult,
-			controller.pkceCodes.codeVerifier,
-			controller.authUrl,
-			parRequestUri,
-		]
-	);
 
 	const toggleSection = useCallback((key: IntroSectionKey) => {
 		setCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -518,11 +467,11 @@ const PingOnePARFlowV5: React.FC = () => {
 
 		try {
 			// Generate authorization URL with PAR request_uri
-			const authUrl = new URL(controller.credentials.authorizationEndpoint);
+			const authUrl = new URL(controller.credentials.authorizationEndpoint!);
 			authUrl.searchParams.set('request_uri', parRequestUri);
 			authUrl.searchParams.set('response_type', 'code');
 
-			controller.setAuthUrl(authUrl.toString());
+			// Auth URL is automatically generated by the controller
 			v4ToastManager.showSuccess('Authorization URL generated successfully!');
 		} catch (error) {
 			console.error('[PingOnePARFlowV5] Failed to generate authorization URL:', error);
@@ -537,7 +486,7 @@ const PingOnePARFlowV5: React.FC = () => {
 			v4ToastManager.showError('Complete above action: Generate the authorization URL first.');
 			return;
 		}
-		window.open(controller.authUrl, '_blank');
+		window.open(controller.authUrl!, '_blank');
 	}, [controller.authUrl]);
 
 	const handleCopy = useCallback((text: string, label: string) => {
@@ -621,51 +570,6 @@ const PingOnePARFlowV5: React.FC = () => {
 							)}
 						</CollapsibleSection>
 
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('flowDiagram')}
-								aria-expanded={!collapsedSections.flowDiagram}
-							>
-								<CollapsibleTitle>
-									<FiArrowRight /> PAR Flow Diagram
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.flowDiagram}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.flowDiagram && (
-								<CollapsibleContent>
-									<FlowDiagram>
-										<FlowStep>
-											<FlowStepNumber>1</FlowStepNumber>
-											<FlowStepContent>
-												<strong>Push Request:</strong> Send authorization parameters to PAR endpoint
-											</FlowStepContent>
-										</FlowStep>
-										<FlowStep>
-											<FlowStepNumber>2</FlowStepNumber>
-											<FlowStepContent>
-												<strong>Get Request URI:</strong> Receive short-lived request_uri from
-												server
-											</FlowStepContent>
-										</FlowStep>
-										<FlowStep>
-											<FlowStepNumber>3</FlowStepNumber>
-											<FlowStepContent>
-												<strong>Authorize:</strong> Use request_uri in authorization URL
-											</FlowStepContent>
-										</FlowStep>
-										<FlowStep>
-											<FlowStepNumber>4</FlowStepNumber>
-											<FlowStepContent>
-												<strong>Complete:</strong> Receive authorization code and exchange for
-												tokens
-											</FlowStepContent>
-										</FlowStep>
-									</FlowDiagram>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
 
 						<SectionDivider />
 						<ResultsSection>
@@ -677,21 +581,24 @@ const PingOnePARFlowV5: React.FC = () => {
 							</HelperText>
 
 							<CredentialsInput
-								credentials={controller.credentials}
-								onCredentialsChange={controller.setCredentials}
-								onSaveCredentials={controller.saveCredentials}
-								onClearCredentials={controller.clearCredentials}
-								hasCredentialsSaved={controller.hasCredentialsSaved}
-								emptyRequiredFields={controller.emptyRequiredFields}
-								onFieldChange={controller.handleFieldChange}
+								environmentId={controller.credentials.environmentId || ''}
+								clientId={controller.credentials.clientId || ''}
+								clientSecret={controller.credentials.clientSecret || ''}
+								redirectUri={controller.credentials.redirectUri || ''}
+								scopes={controller.credentials.scope || ''}
+								onEnvironmentIdChange={(value) => controller.setCredentials({ ...controller.credentials, environmentId: value })}
+								onClientIdChange={(value) => controller.setCredentials({ ...controller.credentials, clientId: value })}
+								onClientSecretChange={(value) => controller.setCredentials({ ...controller.credentials, clientSecret: value })}
+								onRedirectUriChange={(value) => controller.setCredentials({ ...controller.credentials, redirectUri: value })}
+								onCopy={handleCopy}
 							/>
 						</ResultsSection>
 
 						<SectionDivider />
 						<ConfigurationSummaryCard
 							configuration={controller.credentials}
-							onSaveConfiguration={controller.saveCredentials}
-							onLoadConfiguration={controller.loadCredentials}
+							onSaveConfiguration={() => controller.saveCredentials()}
+							onLoadConfiguration={() => {}}
 							primaryColor="#16a34a"
 						/>
 					</>
@@ -1034,10 +941,7 @@ const PingOnePARFlowV5: React.FC = () => {
 		controller.credentials,
 		controller.setCredentials,
 		controller.saveCredentials,
-		controller.clearCredentials,
 		controller.hasCredentialsSaved,
-		controller.emptyRequiredFields,
-		controller.handleFieldChange,
 		controller.pkceCodes,
 		handleGeneratePkce,
 		parRequestUri,
@@ -1049,7 +953,6 @@ const PingOnePARFlowV5: React.FC = () => {
 		controller.authUrl,
 		handleGenerateAuthUrl,
 		handleOpenAuthUrl,
-		controller.loadCredentials,
 	]);
 
 	return (
@@ -1060,7 +963,16 @@ const PingOnePARFlowV5: React.FC = () => {
 					<Subtitle>Pushed Authorization Request (RFC 9126) with PingOne Integration</Subtitle>
 				</HeaderSection>
 
-				<FlowInfoCard flowInfo={getFlowInfo('par')!} />
+				<FlowConfigurationRequirements flowType="authorization-code" variant="oauth" />
+				
+				<EnhancedFlowInfoCard 
+					flowType="par"
+					showAdditionalInfo={true}
+					showDocumentation={true}
+					showCommonIssues={false}
+					showImplementationNotes={false}
+				/>
+				<FlowSequenceDisplay flowType="authorization-code" />
 
 				<MainCard>
 					<StepHeader>
@@ -1078,10 +990,9 @@ const PingOnePARFlowV5: React.FC = () => {
 						totalSteps={STEP_METADATA.length}
 						onNext={handleNext}
 						onPrevious={handlePrevious}
+						onReset={() => setCurrentStep(0)}
 						canNavigateNext={canNavigateNext()}
-						canNavigatePrevious={canNavigatePrevious()}
-						stepCompletions={stepCompletions}
-						getStepRequirements={getStepRequirements}
+						isFirstStep={currentStep === 0}
 					/>
 				</MainCard>
 			</ContentWrapper>

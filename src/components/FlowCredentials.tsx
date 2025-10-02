@@ -4,19 +4,75 @@ import {
 	FiCheckCircle,
 	FiChevronDown,
 	FiChevronUp,
+	FiCopy,
 	FiEye,
 	FiEyeOff,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
-import CopyIcon from './CopyIcon';
+
+// Flow configuration mapping based on OAuth/OIDC standards
+const FLOW_FIELD_CONFIG: Record<string, {
+	clientSecret: 'required' | 'optional' | 'hidden';
+	redirectUri: 'required' | 'optional' | 'hidden';
+	tokenAuthMethod: string;
+}> = {
+	'device-authorization-v5': {
+		clientSecret: 'hidden',
+		redirectUri: 'hidden',
+		tokenAuthMethod: 'none',
+	},
+	'oidc-device-authorization-v5': {
+		clientSecret: 'hidden',
+		redirectUri: 'hidden',
+		tokenAuthMethod: 'none',
+	},
+	'implicit': {
+		clientSecret: 'hidden',
+		redirectUri: 'required',
+		tokenAuthMethod: 'none',
+	},
+	'authorization-code': {
+		clientSecret: 'optional',
+		redirectUri: 'required',
+		tokenAuthMethod: 'client_secret_post',
+	},
+	'client-credentials': {
+		clientSecret: 'required',
+		redirectUri: 'hidden',
+		tokenAuthMethod: 'client_secret_post',
+	},
+	'resource-owner-password': {
+		clientSecret: 'required',
+		redirectUri: 'hidden',
+		tokenAuthMethod: 'client_secret_post',
+	},
+	'hybrid': {
+		clientSecret: 'required',
+		redirectUri: 'required',
+		tokenAuthMethod: 'client_secret_post',
+	},
+	'ciba': {
+		clientSecret: 'required',
+		redirectUri: 'hidden',
+		tokenAuthMethod: 'client_secret_post',
+	},
+};
 
 interface FlowCredentialsProps {
 	flowType: string;
 	onCredentialsChange?: (credentials: FlowCredentialsData) => void;
 	useGlobalDefaults?: boolean;
 	onToggleGlobalDefaults?: (useGlobal: boolean) => void;
+	hideRedirectUri?: boolean;
+	hideGlobalToggle?: boolean;
+	hideClientSecret?: boolean;
+	showTokenAuthMethod?: boolean;
+	tokenAuthMethod?: string;
+	showClientAuthMethodDropdown?: boolean;
+	clientAuthMethod?: string;
+	onClientAuthMethodChange?: (method: string) => void;
 }
 
 interface FlowCredentialsData {
@@ -64,11 +120,11 @@ const CollapseIcon = styled.div<{ $isCollapsed: boolean }>`
   height: 1.5rem;
   border-radius: 0.25rem;
   transition: all 0.2s;
-  color: ${({ $isCollapsed }) => ($isCollapsed ? '#6b7280' : '#dc2626')}; /* Red color for expanded state */
+  color: rgba(255, 255, 255, 0.9); /* White color for visibility on blue background */
   
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: ${({ $isCollapsed }) => ($isCollapsed ? '#6b7280' : '#ffffff')}; /* White on hover for expanded state */
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
   }
 `;
 
@@ -299,7 +355,24 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 	onCredentialsChange,
 	useGlobalDefaults = false,
 	onToggleGlobalDefaults,
+	hideRedirectUri: hideRedirectUriProp,
+	hideGlobalToggle = false,
+	hideClientSecret: hideClientSecretProp,
+	showTokenAuthMethod: showTokenAuthMethodProp,
+	tokenAuthMethod: tokenAuthMethodProp,
+	showClientAuthMethodDropdown = false,
+	clientAuthMethod = 'client_secret_post',
+	onClientAuthMethodChange,
 }) => {
+	// Get flow configuration
+	const flowConfig = FLOW_FIELD_CONFIG[flowType];
+	
+	// Auto-determine field visibility based on flow type
+	const hideClientSecret = hideClientSecretProp ?? (flowConfig?.clientSecret === 'hidden');
+	const hideRedirectUri = hideRedirectUriProp ?? (flowConfig?.redirectUri === 'hidden');
+	const showTokenAuthMethod = showTokenAuthMethodProp ?? (flowConfig?.tokenAuthMethod === 'none');
+	const tokenAuthMethod = tokenAuthMethodProp ?? flowConfig?.tokenAuthMethod ?? 'none';
+	
 	const [isCollapsed, setIsCollapsed] = useState(false);
 	const [showSecret, setShowSecret] = useState(false);
 	const [copiedField, setCopiedField] = useState<string | null>(null);
@@ -368,7 +441,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 		};
 
 		loadCredentials();
-	}, [flowType, onCredentialsChange]);
+	}, [flowType]); // Removed onCredentialsChange from dependencies to prevent infinite loop
 
 	// Check for changes to enable/disable save button
 	const hasConfigChanges = useMemo(() => {
@@ -562,7 +635,8 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 				</CredentialsHeader>
 
 				<CredentialsContent $isCollapsed={isCollapsed}>
-					<GlobalToggle>
+					{!hideGlobalToggle && (
+				<GlobalToggle>
 						<ToggleLabel>
 							<ToggleInput
 								type="checkbox"
@@ -572,6 +646,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 							Use global PingOne configuration
 						</ToggleLabel>
 					</GlobalToggle>
+				)}
 
 					<FormGrid>
 						<div>
@@ -599,7 +674,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 										{copiedField === 'Environment ID' ? (
 											<FiCheck size={16} />
 										) : (
-											<CopyIcon size={16} />
+											<FiCopy size={16} />
 										)}
 									</Button>
 								</div>
@@ -626,13 +701,53 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 										aria-label="Copy Client ID"
 										title="Copy Client ID"
 									>
-										{copiedField === 'Client ID' ? <FiCheck size={16} /> : <CopyIcon size={16} />}
+										{copiedField === 'Client ID' ? <FiCheck size={16} /> : <FiCopy size={16} />}
 									</Button>
 								</div>
 							</InputContainer>
 						</div>
 
-						<div className="client-secret-field">
+						{showTokenAuthMethod && (
+							<div>
+								<Label htmlFor="tokenAuthMethod">Token Endpoint Authentication Method</Label>
+								<InputContainer>
+									<Input
+										id="tokenAuthMethod"
+										type="text"
+										value={tokenAuthMethod}
+										disabled={true}
+										style={{
+											backgroundColor: '#f0fdf4',
+											border: '1px solid #86efac',
+											color: '#166534',
+											fontWeight: '600',
+											cursor: 'not-allowed',
+										}}
+									/>
+									<div className="button-group">
+										<Button
+											type="button"
+											disabled={true}
+											aria-label="Required for Device Flow"
+											title="Public clients must use 'none' authentication"
+											style={{
+												backgroundColor: '#86efac',
+												color: '#166534',
+												cursor: 'not-allowed',
+											}}
+										>
+											<FiCheck size={16} />
+										</Button>
+									</div>
+								</InputContainer>
+								<div style={{ fontSize: '0.75rem', color: '#166534', marginTop: '0.25rem' }}>
+									✓ Public client - no authentication required (RFC 8628)
+								</div>
+							</div>
+						)}
+
+						{!hideClientSecret && (
+					<div className="client-secret-field">
 							<Label htmlFor="clientSecret">Client Secret</Label>
 							<SecretInputContainer>
 								<Input
@@ -670,19 +785,20 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 										{copiedField === 'Client Secret' ? (
 											<FiCheck size={16} />
 										) : (
-											<CopyIcon size={16} />
+											<FiCopy size={16} />
 										)}
 									</Button>
 								</div>
 							</SecretInputContainer>
 						</div>
+					)}
 
-						<div>
+					{!hideRedirectUri && (
+						<div className="redirect-uri-field">
 							<Label htmlFor="redirectUri">Redirect URI</Label>
 							<InputContainer>
 								<Input
 									id="redirectUri"
-									type="text"
 									value={getFieldValue('redirectUri')}
 									onChange={(e) => handleFieldChange('redirectUri', e.target.value)}
 									placeholder="e.g., https://localhost:3000/callback"
@@ -702,15 +818,16 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 										{copiedField === 'Redirect URI' ? (
 											<FiCheck size={16} />
 										) : (
-											<CopyIcon size={16} />
+											<FiCopy size={16} />
 										)}
 									</Button>
 								</div>
 							</InputContainer>
 						</div>
+					)}
 
-						<div>
-							<Label htmlFor="additionalScopes">Additional Scopes</Label>
+					<div>
+						<Label htmlFor="additionalScopes">Additional Scopes</Label>
 							<InputContainer>
 								<Input
 									id="additionalScopes"
@@ -734,12 +851,44 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 										{copiedField === 'Additional Scopes' ? (
 											<FiCheck size={16} />
 										) : (
-											<CopyIcon size={16} />
+											<FiCopy size={16} />
 										)}
 									</Button>
 								</div>
 							</InputContainer>
 						</div>
+
+						{showClientAuthMethodDropdown && (
+							<div>
+								<Label htmlFor="clientAuthMethod">Client Authentication Method</Label>
+								<select
+									id="clientAuthMethod"
+									value={clientAuthMethod || 'client_secret_post'}
+									onChange={(e) => onClientAuthMethodChange?.(e.target.value)}
+									disabled={useGlobalDefaults}
+									style={{
+										width: '100%',
+										padding: '0.75rem',
+										border: '1px solid #d1d5db',
+										borderRadius: '0.5rem',
+										fontSize: '0.875rem',
+										backgroundColor: 'white',
+										cursor: useGlobalDefaults ? 'not-allowed' : 'pointer',
+									}}
+								>
+									<option value="client_secret_post">Client Secret (POST)</option>
+									<option value="client_secret_basic">Client Secret (Basic Auth)</option>
+									<option value="none">None (Public Client)</option>
+								</select>
+								<div style={{ 
+									marginTop: '0.5rem',
+									fontSize: '0.75rem',
+									color: '#6b7280',
+								}}>
+									💡 Must match your PingOne application's Token Endpoint Authentication Method
+								</div>
+							</div>
+						)}
 					</FormGrid>
 
 					{/* Save Button */}

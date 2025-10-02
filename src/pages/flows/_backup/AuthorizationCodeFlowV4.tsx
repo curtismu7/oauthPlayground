@@ -1244,7 +1244,7 @@ const AuthorizationCodeFlowV4 = () => {
 									</FormGrid>
 
 									<ActionRow>
-										<Button onClick={handleSaveConfiguration} $variant="primary">
+										<Button onClick={handleSaveConfiguration} $variant="success">
 											<FiSettings /> Save Configuration
 										</Button>
 										<Button onClick={handleClearConfiguration} $variant="danger">
@@ -1798,7 +1798,7 @@ const AuthorizationCodeFlowV4 = () => {
 											<FiCopy /> Copy Tokens
 										</Button>
 										<Button onClick={navigateToTokenManagement} $variant="primary">
-											<FiExternalLink /> View in Token Management
+											<FiExternalLink /> Open Token Management
 										</Button>
 									</ActionRow>
 								</GeneratedContentBox>

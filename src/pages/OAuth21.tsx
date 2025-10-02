@@ -2,6 +2,7 @@ import { FiCheck, FiInfo, FiShield, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
 import { SpecCard } from '../components/SpecCard';
+import { FlowHeader } from '../services/flowHeaderService';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -130,18 +131,7 @@ const PingOneNote = styled.div`
 const OAuth21 = () => {
 	return (
 		<Container>
-			<Header>
-				<h1>
-					<FiShield />
-					OAuth 2.1
-				</h1>
-				<p>
-					OAuth 2.1 is an in-progress effort to consolidate and simplify the most commonly used
-					features of OAuth 2.0. Since the original publication of OAuth 2.0 (RFC 6749) in 2012,
-					several new RFCs have been published that either add or remove functionality from the core
-					spec.
-				</p>
-			</Header>
+			<FlowHeader flowType="oauth21" />
 
 			<OverviewCard>
 				<CardHeader>
