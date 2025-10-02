@@ -111,6 +111,16 @@ const Flows = () => {
 						<SecondaryLink to="/oidc/userinfo">UserInfo</SecondaryLink>
 					</Actions>
 				</Card>
+
+				<Card>
+					<CardTitle>PingOne Flows</CardTitle>
+					<Sub>PingOne-specific authentication and authorization flows.</Sub>
+					<Actions>
+						<ButtonLink to="/flows/mfa">MFA Flow</ButtonLink>
+						<SecondaryLink to="/flows/worker-token-v5">Worker Token V5</SecondaryLink>
+						<SecondaryLink to="/flows/pingone-par-v5">PingOne PAR V5</SecondaryLink>
+					</Actions>
+				</Card>
 			</Grid>
 
 			{/* Nested routes render here */}

@@ -80,7 +80,7 @@ const SaveButton = styled.button`
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: var(--color-primary, #3b82f6);
+  background: var(--color-success, #10b981);
   color: white;
   border: none;
   border-radius: 8px;
@@ -90,7 +90,7 @@ const SaveButton = styled.button`
   transition: all 0.2s ease;
   
   &:hover {
-    background: var(--color-primary-dark, #2563eb);
+    background: var(--color-success-dark, #059669);
     transform: translateY(-1px);
   }
   
@@ -99,10 +99,10 @@ const SaveButton = styled.button`
   }
   
   &.saved {
-    background: var(--color-success, #10b981);
+    background: var(--color-success-dark, #047857);
     
     &:hover {
-      background: var(--color-success-dark, #059669);
+      background: var(--color-success-darker, #065f46);
     }
   }
   

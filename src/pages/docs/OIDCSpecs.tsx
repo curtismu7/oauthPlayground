@@ -2,6 +2,7 @@ import { FiBookOpen, FiCode, FiExternalLink, FiShield, FiUsers } from 'react-ico
 import styled from 'styled-components';
 import PageTitle from '../../components/PageTitle';
 import { SpecCard } from '../../components/SpecCard';
+import { FlowHeader } from '../../services/flowHeaderService';
 
 const DocsContainer = styled.div`
   max-width: 1200px;
@@ -70,15 +71,7 @@ const ExternalLink = styled.a`
 const OIDCSpecs = () => {
 	return (
 		<DocsContainer>
-			<PageTitle
-				title={
-					<>
-						<FiBookOpen />
-						OpenID Connect Specifications
-					</>
-				}
-				subtitle="Official OpenID Connect specifications and related standards from the OpenID Foundation"
-			/>
+			<FlowHeader flowType="oidc-specs" />
 
 			<Section>
 				<h2>
