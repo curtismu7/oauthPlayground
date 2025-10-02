@@ -8,135 +8,47 @@ import {
 	FiClock,
 	FiCopy,
 	FiExternalLink,
+	FiEye,
+	FiEyeOff,
 	FiInfo,
 	FiKey,
-	FiLock,
 	FiRefreshCw,
 	FiServer,
 	FiShield,
 	FiZap,
 } from 'react-icons/fi';
-import { themeService } from '../../services/themeService';
 import styled from 'styled-components';
 import FlowInfoCard from '../../components/FlowInfoCard';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
+import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { ClientAuthMethod, useClientCredentialsFlow } from '../../hooks/useClientCredentialsFlow';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
-// Styled Components (V5 Parity)
-const FlowContainer = styled.div`
-	min-height: 100vh;
-	background-color: var(--color-background, #f9fafb);
-	padding: 2rem 0 6rem;
-`;
+// Service imports
+import { FlowLayoutService } from '../../services/flowLayoutService';
+import { FlowStateService } from '../../services/flowStateService';
+import { FlowValidationService } from '../../services/flowValidationService';
 
-const FlowContent = styled.div`
-	max-width: 64rem;
-	margin: 0 auto;
-	padding: 0 1rem;
-`;
+// Flow configuration
+const FLOW_TYPE = 'client-credentials';
+const FLOW_THEME = 'blue';
 
-const FlowHeader = styled.div`
-	background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
-	color: #ffffff;
-	padding: 2rem;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	border-radius: 1rem 1rem 0 0;
-	box-shadow: 0 10px 25px rgba(124, 58, 237, 0.2);
-`;
+// Service-generated styled components
+const FlowContainer = FlowLayoutService.getContainerStyles();
+const FlowContent = FlowLayoutService.getContentWrapperStyles();
+const FlowHeader = FlowLayoutService.getStepHeaderStyles(FLOW_THEME);
+const FlowTitle = FlowLayoutService.getStepHeaderTitleStyles();
+const FlowSubtitle = FlowLayoutService.getStepHeaderSubtitleStyles();
+const StepBadge = FlowLayoutService.getVersionBadgeStyles(FLOW_THEME);
 
-const FlowTitle = styled.h2`
-	font-size: 2rem;
-	font-weight: 700;
-	margin: 0;
-	color: #ffffff;
-`;
-
-const FlowSubtitle = styled.p`
-	font-size: 1rem;
-	color: rgba(255, 255, 255, 0.9);
-	margin: 0.5rem 0 0 0;
-`;
-
-const StepBadge = styled.span`
-	background: rgba(124, 58, 237, 0.2);
-	border: 1px solid #a78bfa;
-	color: #ddd6fe;
-	font-size: 0.75rem;
-	font-weight: 600;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
-	padding: 0.25rem 0.75rem;
-	border-radius: 9999px;
-	display: inline-block;
-	margin-bottom: 0.5rem;
-`;
-
-const CollapsibleSection = styled.section`
-	border: 1px solid var(--color-border, #e2e8f0);
-	border-radius: 0.75rem;
-	margin-bottom: 1.5rem;
-	background-color: var(--color-surface, #ffffff);
-	box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
-`;
-
-const CollapsibleHeaderButton = styled.button`
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	width: 100%;
-	padding: 1.5rem;
-	background: transparent;
-	border: none;
-	cursor: pointer;
-	transition: background-color 0.2s;
-
-	&:hover {
-		background-color: rgba(0, 0, 0, 0.02);
-	}
-`;
-
-const CollapsibleTitle = styled.h3`
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-	font-size: 1.25rem;
-	font-weight: 600;
-	color: var(--color-text-primary, #1e293b);
-	margin: 0;
-
-	svg {
-		color: var(--color-primary, #7c3aed);
-	}
-`;
-
-const CollapsibleToggleIcon = styled.span<{ $collapsed: boolean }>`
-	${() => themeService.getCollapseIconStyles()}
-	width: 32px;
-	height: 32px;
-	border-radius: 50%;
-	transform: ${(props) => (props.$collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
-	display: flex;
-	align-items: center;
-	justify-content: center;
-
-	svg {
-		width: 16px;
-		height: 16px;
-	}
-
-	&:hover {
-		transform: ${(props) => (props.$collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)')};
-	}
-`;
-
-const CollapsibleContent = styled.div`
-	padding: 0 1.5rem 1.5rem;
-`;
+const CollapsibleSection = FlowLayoutService.getCollapsibleSectionStyles();
+const CollapsibleHeaderButton = FlowLayoutService.getCollapsibleHeaderButtonStyles();
+const CollapsibleTitle = FlowLayoutService.getCollapsibleTitleStyles();
+const CollapsibleToggleIcon = FlowLayoutService.getCollapsibleToggleIconStyles();
+const CollapsibleContent = FlowLayoutService.getCollapsibleContentStyles();
 
 const FormGroup = styled.div`
 	margin-bottom: 1.5rem;
@@ -169,6 +81,36 @@ const Input = styled.input`
 	&:disabled {
 		background-color: #f1f5f9;
 		cursor: not-allowed;
+	}
+`;
+
+const PasswordInputWrapper = styled.div`
+	position: relative;
+	width: 100%;
+`;
+
+const PasswordToggleButton = styled.button`
+	position: absolute;
+	right: 0.75rem;
+	top: 50%;
+	transform: translateY(-50%);
+	background: none;
+	border: none;
+	color: var(--color-text-secondary, #64748b);
+	cursor: pointer;
+	padding: 0.25rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: color 0.2s;
+
+	&:hover {
+		color: var(--color-primary, #7c3aed);
+	}
+
+	&:focus {
+		outline: none;
+		color: var(--color-primary, #7c3aed);
 	}
 `;
 
@@ -385,10 +327,24 @@ const ParameterValue = styled.div`
 	word-break: break-word;
 `;
 
+// Step configuration
+const STEP_CONFIGS = [
+	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the Flow' },
+	{ title: 'Step 1: Configuration', subtitle: 'Set up credentials and parameters' },
+	{ title: 'Step 2: Token Exchange', subtitle: 'Exchange client credentials for access token' },
+	{ title: 'Step 3: Security Features', subtitle: 'Advanced security demonstrations' },
+];
+
+// Service-generated metadata
+const STEP_METADATA = FlowStateService.createStepMetadata(STEP_CONFIGS);
+const INTRO_SECTION_KEYS = FlowStateService.createIntroSectionKeys(FLOW_TYPE);
+const DEFAULT_COLLAPSED_SECTIONS = FlowStateService.createDefaultCollapsedSections(INTRO_SECTION_KEYS);
+
 const ClientCredentialsFlowV5: React.FC = () => {
 	const clientCredsFlow = useClientCredentialsFlow();
 
-	// Local form state
+	// State management using services
+	const [currentStep] = useState(0);
 	const [formData, setFormData] = useState({
 		issuer: clientCredsFlow.config?.issuer || '',
 		clientId: clientCredsFlow.config?.clientId || '',
@@ -405,36 +361,51 @@ const ClientCredentialsFlowV5: React.FC = () => {
 	});
 
 	const [showTokens, setShowTokens] = useState(false);
-	const [collapsedSections, setCollapsedSections] = useState({
-		configuration: false,
-		howItWorks: true,
-		tokens: false,
-		security: true,
-	});
+	const [showSecret, setShowSecret] = useState(false);
+	const [collapsedSections, setCollapsedSections] = useState(DEFAULT_COLLAPSED_SECTIONS);
+
+	// Service-generated handlers
+	const toggleSectionHandler = FlowStateService.createToggleSectionHandler(setCollapsedSections);
+
+	// Validation - simplified for now
+	const isStepValid = useCallback((stepIndex: number) => {
+		switch (stepIndex) {
+			case 0: return true; // Introduction step
+			case 1: return !!(formData.clientId && formData.clientSecret);
+			case 2: return !!(clientCredsFlow.tokens?.access_token);
+			case 3: return true; // Security features step
+			default: return true;
+		}
+	}, [formData, clientCredsFlow.tokens]);
+
+	const getStepRequirements = useCallback((stepIndex: number) => 
+		FlowValidationService.getStepRequirements(stepIndex, FLOW_TYPE), 
+		[]
+	);
 
 	// Load saved config on mount
 	useEffect(() => {
 		if (clientCredsFlow.config) {
-			setFormData({
-				issuer: clientCredsFlow.config.issuer || '',
-				clientId: clientCredsFlow.config.clientId || '',
-				clientSecret: clientCredsFlow.config.clientSecret || '',
-				authMethod: clientCredsFlow.config.authMethod || 'client_secret_post',
-				scopes: clientCredsFlow.config.scopes || 'api:read api:write',
-				audience: clientCredsFlow.config.audience || '',
-				resource: clientCredsFlow.config.resource || '',
-				tokenEndpoint: clientCredsFlow.config.tokenEndpoint || '',
-				jwtSigningAlg: clientCredsFlow.config.jwtSigningAlg || 'HS256',
-				jwtSigningKid: clientCredsFlow.config.jwtSigningKid || '',
-				jwtPrivateKey: clientCredsFlow.config.jwtPrivateKey || '',
-				enableMtls: clientCredsFlow.config.enableMtls || false,
-			});
+			const config = clientCredsFlow.config;
+			setFormData(prev => ({
+				...prev,
+				issuer: config.issuer || '',
+				clientId: config.clientId || '',
+				clientSecret: config.clientSecret || '',
+				authMethod: config.authMethod || 'client_secret_post',
+				scopes: config.scopes || 'api:read api:write',
+				audience: config.audience || '',
+				resource: config.resource || '',
+				tokenEndpoint: config.tokenEndpoint || '',
+				jwtSigningAlg: config.jwtSigningAlg || 'HS256',
+				jwtSigningKid: config.jwtSigningKid || '',
+				jwtPrivateKey: config.jwtPrivateKey || '',
+				enableMtls: config.enableMtls || false,
+			}));
 		}
 	}, [clientCredsFlow.config]);
 
-	const toggleSection = useCallback((section: keyof typeof collapsedSections) => {
-		setCollapsedSections((prev) => ({ ...prev, [section]: !prev[section] }));
-	}, []);
+	// Remove duplicate toggleSection function - using toggleSectionHandler from service
 
 	const handleInputChange = useCallback((field: string, value: string | boolean) => {
 		setFormData((prev) => ({ ...prev, [field]: value }));
@@ -476,7 +447,7 @@ const ClientCredentialsFlowV5: React.FC = () => {
 	const renderConfiguration = () => (
 		<CollapsibleSection>
 			<CollapsibleHeaderButton
-				onClick={() => toggleSection('configuration')}
+				onClick={() => toggleSectionHandler('configuration')}
 				aria-expanded={!collapsedSections.configuration}
 			>
 				<CollapsibleTitle>
@@ -488,6 +459,8 @@ const ClientCredentialsFlowV5: React.FC = () => {
 			</CollapsibleHeaderButton>
 			{!collapsedSections.configuration && (
 				<CollapsibleContent>
+					{/* Environment ID removed - not part of ClientCredentialsConfig */}
+
 					<FormGroup>
 						<Label>Issuer URL *</Label>
 						<Input
@@ -528,12 +501,22 @@ const ClientCredentialsFlowV5: React.FC = () => {
 						formData.authMethod !== 'tls_client_auth' && (
 							<FormGroup>
 								<Label>Client Secret *</Label>
-								<Input
-									type="password"
-									placeholder="your-client-secret"
-									value={formData.clientSecret}
-									onChange={(e) => handleInputChange('clientSecret', e.target.value)}
-								/>
+								<PasswordInputWrapper>
+									<Input
+										type={showSecret ? 'text' : 'password'}
+										placeholder="your-client-secret"
+										value={formData.clientSecret}
+										onChange={(e) => handleInputChange('clientSecret', e.target.value)}
+										style={{ paddingRight: '3rem' }}
+									/>
+									<PasswordToggleButton
+										type="button"
+										onClick={() => setShowSecret(!showSecret)}
+										aria-label={showSecret ? 'Hide client secret' : 'Show client secret'}
+									>
+										{showSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+									</PasswordToggleButton>
+								</PasswordInputWrapper>
 							</FormGroup>
 						)}
 
@@ -642,7 +625,7 @@ const ClientCredentialsFlowV5: React.FC = () => {
 	const renderHowItWorks = () => (
 		<CollapsibleSection>
 			<CollapsibleHeaderButton
-				onClick={() => toggleSection('howItWorks')}
+				onClick={() => toggleSectionHandler('howItWorks')}
 				aria-expanded={!collapsedSections.howItWorks}
 			>
 				<CollapsibleTitle>
@@ -826,7 +809,7 @@ const ClientCredentialsFlowV5: React.FC = () => {
 		return (
 			<CollapsibleSection>
 				<CollapsibleHeaderButton
-					onClick={() => toggleSection('tokens')}
+					onClick={() => toggleSectionHandler('tokens')}
 					aria-expanded={!collapsedSections.tokens}
 				>
 					<CollapsibleTitle>
@@ -975,28 +958,102 @@ const ClientCredentialsFlowV5: React.FC = () => {
 		);
 	};
 
+	// Render step content
+	const renderStepContent = useCallback(() => {
+		switch (currentStep) {
+			case 0:
+				return (
+					<>
+						<FlowConfigurationRequirements flowType="client-credentials" variant="oauth" />
+						
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => toggleSectionHandler('overview')}
+								aria-expanded={!collapsedSections.overview}
+							>
+								<CollapsibleTitle>
+									<FiInfo /> Flow Overview
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!collapsedSections.overview && (
+								<CollapsibleContent>
+									<FlowInfoCard flowInfo={getFlowInfo('client-credentials')!} />
+									<FlowSequenceDisplay flowType="client-credentials" />
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+					</>
+				);
+
+			case 1:
+				return renderConfiguration();
+
+			case 2:
+				return (
+					<>
+						{renderTokenRequest()}
+						{renderTokens()}
+					</>
+				);
+
+			case 3:
+				return renderHowItWorks();
+
+			default:
+				return null;
+		}
+	}, [currentStep, collapsedSections, toggleSectionHandler, renderConfiguration, renderTokenRequest, renderTokens, renderHowItWorks]);
+
 	return (
 		<FlowContainer>
 			<FlowContent>
 				<FlowHeader>
 					<div>
-						<StepBadge>RFC 6749 • Section 4.4</StepBadge>
-						<FlowTitle>
-							<FiLock style={{ marginRight: '0.5rem' }} />
-							Client Credentials Flow
-						</FlowTitle>
-						<FlowSubtitle>
-							Server-to-Server Authentication • Machine-to-Machine • V5 Implementation
-						</FlowSubtitle>
+						<StepBadge>Client Credentials Flow · V5</StepBadge>
+						<FlowTitle>{STEP_METADATA[currentStep].title}</FlowTitle>
+						<FlowSubtitle>{STEP_METADATA[currentStep].subtitle}</FlowSubtitle>
+					</div>
+					<div style={{ textAlign: 'right' }}>
+						<div style={{ fontSize: '2.5rem', fontWeight: '700', lineHeight: 1 }}>
+							{String(currentStep + 1).padStart(2, '0')}
+						</div>
+						<div style={{ fontSize: '0.875rem', color: 'rgba(255, 255, 255, 0.75)', letterSpacing: '0.05em' }}>
+							of {String(STEP_METADATA.length).padStart(2, '0')}
+						</div>
 					</div>
 				</FlowHeader>
 
-				<FlowInfoCard flowInfo={getFlowInfo('client-credentials')!} />
+				{!isStepValid(currentStep) && currentStep !== 0 && (
+					<div style={{
+						background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+						border: '1px solid #f59e0b',
+						borderRadius: '8px',
+						padding: '1rem',
+						margin: '1rem 0',
+						display: 'flex',
+						alignItems: 'flex-start',
+						gap: '0.75rem'
+					}}>
+						<div style={{ color: '#d97706', fontSize: '1.25rem', marginTop: '0.125rem', flexShrink: 0 }}>
+							<FiAlertCircle />
+						</div>
+						<div style={{ color: '#92400e', fontSize: '0.875rem', lineHeight: 1.5 }}>
+							<strong style={{ display: 'block', marginBottom: '0.5rem' }}>Complete this step to continue:</strong>
+							<ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
+								{getStepRequirements(currentStep).map((requirement, index) => (
+									<li key={index}>{requirement}</li>
+								))}
+							</ul>
+						</div>
+					</div>
+				)}
 
-				{renderConfiguration()}
-				{renderHowItWorks()}
-				{renderTokenRequest()}
-				{renderTokens()}
+				<div style={{ padding: '2rem', background: '#ffffff' }}>
+					{renderStepContent()}
+				</div>
 			</FlowContent>
 		</FlowContainer>
 	);

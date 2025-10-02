@@ -10,7 +10,7 @@ import {
 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import PageTitle from '../components/PageTitle';
+import { FlowHeader } from '../services/flowHeaderService';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { usePageScroll } from '../hooks/usePageScroll';
 
@@ -101,7 +101,7 @@ const CodeBlock = styled.pre`
   padding: 1rem;
   border-radius: 0.375rem;
   overflow-x: auto;
-  font-family: ${({ theme }) => theme.fonts.mono};
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.875rem;
   line-height: 1.5;
   margin: 1.5rem 0;
@@ -226,19 +226,11 @@ const Documentation = () => {
 	usePageScroll({ pageName: 'Documentation', force: true });
 
 	// UI Settings integration
-	const { settings: uiSettings } = useUISettings();
+	const { settings } = useUISettings();
 
 	return (
 		<DocumentationContainer>
-			<PageTitle
-				title={
-					<>
-						<FiBookOpen />
-						OAuth 2.0 & OpenID Connect Documentation
-					</>
-				}
-				subtitle="Welcome to the OAuth Playground documentation. Here you'll find guides, examples, and references to help you understand and implement OAuth 2.0 and OpenID Connect with PingOne."
-			/>
+			<FlowHeader flowType="documentation" />
 
 			<QuickStartBanner>
 				<h2> Ready to Get Started?</h2>
